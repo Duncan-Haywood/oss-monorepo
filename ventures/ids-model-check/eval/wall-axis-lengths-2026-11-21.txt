@@ -1,0 +1,90 @@
+
+construction.ifc: 48 walls, 48 with a straight axis, 36 measured, 0.715 s
+  Length: stored 36, measured within 2% 35 (the axis curve's own length: 35); rest: {"stored side area / height agrees with the measured length":1}
+  Height: stored 36, extrusion depth within 2% 36 (tallest clipped line: 31); rest: {}
+  Height offered (not clipped): 31 of 36; where stored 31, within 2% 31
+    Length | 16416 | Basic Wall:STB 30.0:573662 | 2.700 | 2.900 | stored side area / height agrees with the measured length
+
+architect.ifc: 112 walls, 112 with a straight axis, 112 measured, 6.999 s
+  Length: stored 112, measured within 2% 86 (the axis curve's own length: 86); rest: {"stored side area / height agrees with the measured length":18,"the difference is half or all of a joined wall's thickness":4,"unexplained":4}
+  Height: stored 112, extrusion depth within 2% 112 (tallest clipped line: 112); rest: {}
+  Height offered (not clipped): 112 of 112; where stored 112, within 2% 112
+    Length | 34738 | Basic Wall:MW 11.5:573605 | 6.218 | 6.363 | stored side area / height agrees with the measured length
+    Length | 34874 | Basic Wall:MW 11.5:573608 | 6.218 | 6.363 | stored side area / height agrees with the measured length
+    Length | 60811 | Basic Wall:MW 17.5:573700 | 2.080 | 2.255 | stored side area / height agrees with the measured length
+    Length | 61682 | Basic Wall:MW 11.5:573718 | 3.307 | 3.482 | stored side area / height agrees with the measured length
+    Length | 61775 | Basic Wall:MW 11.5:573720 | 3.307 | 3.482 | the difference is half or all of a joined wall's thickness
+    Length | 61725 | Basic Wall:MW 11.5:573719 | 2.182 | 2.327 | unexplained
+
+Schultz_Residence.ifc: 105 walls, 105 with a straight axis, 101 measured, 22.815 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 91 of 101; where stored 0, within 2% 0
+
+AC20-FZK-Haus.ifc: 13 walls, 13 with a straight axis, 13 measured, 0.17 s
+  Length: stored 13, measured within 2% 13 (the axis curve's own length: 0); rest: {}
+  Height: stored 13, extrusion depth within 2% 11 (tallest clipped line: 13); rest: {"stored is the clipped wall's tallest point":2}
+  Height offered (not clipped): 11 of 13; where stored 11, within 2% 11
+    Height | 60012 | Wand-Ext-OG-1 | 3.500 | 3.387 | 3.387 | stored is the clipped wall's tallest point
+    Height | 67828 | Wand-Ext-OG-3 | 3.500 | 3.387 | 3.387 | stored is the clipped wall's tallest point
+
+C20-Institute-Var-2.ifc: 121 walls, 121 with a straight axis, 121 measured, 0.64 s
+  Length: stored 121, measured within 2% 121 (the axis curve's own length: 39); rest: {}
+  Height: stored 121, extrusion depth within 2% 114 (tallest clipped line: 119); rest: {"stored is the clipped wall's tallest point":5,"unexplained":2}
+  Height offered (not clipped): 112 of 121; where stored 112, within 2% 112
+    Height | 227944 | Wand-007 | 2.700 | 1.640 | 1.640 | stored is the clipped wall's tallest point
+    Height | 228278 | Wand-010 | 2.700 | 1.334 | 1.334 | stored is the clipped wall's tallest point
+    Height | 228563 | Wand-002 | 2.700 | 2.026 | 2.026 | stored is the clipped wall's tallest point
+    Height | 229235 | Wand-003 | 2.700 | 1.985 | 2.026 | unexplained
+    Height | 229520 | Wand-005 | 2.700 | 1.985 | 2.026 | unexplained
+    Height | 229966 | Wand-001 | 2.700 | 1.640 | 1.640 | stored is the clipped wall's tallest point
+
+ISSUE_159_kleine_Wohnung_R22.ifc: 211 walls, 211 with a straight axis, 210 measured, 4.785 s
+  Length: stored 210, measured within 2% 210 (the axis curve's own length: 210); rest: {}
+  Height: stored 210, extrusion depth within 2% 210 (tallest clipped line: 210); rest: {}
+  Height offered (not clipped): 210 of 210; where stored 210, within 2% 210
+
+FM_ARC_DigitalHub.ifc: 178 walls, 178 with a straight axis, 178 measured, 13.091 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 178 of 178; where stored 0, within 2% 0
+
+Office_A_20110811.ifc: 487 walls, 487 with a straight axis, 487 measured, 0.715 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 487 of 487; where stored 0, within 2% 0
+
+dental_clinic.ifc: 1080 walls, 1078 with a straight axis, 1063 measured, 1.909 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 1063 of 1063; where stored 0, within 2% 0
+
+duplex.ifc: 57 walls, 57 with a straight axis, 56 measured, 0.433 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 56 of 56; where stored 0, within 2% 0
+
+ISSUE_126_model.ifc: 65 walls, 65 with a straight axis, 57 measured, 0.248 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 57 of 57; where stored 0, within 2% 0
+
+ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc: 336 walls, 238 with a straight axis, 207 measured, 6.54 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 207 of 207; where stored 0, within 2% 0
+
+S_Office_Integrated Design Archi.ifc: 226 walls, 226 with a straight axis, 186 measured, 13.346 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 186 of 186; where stored 0, within 2% 0
+
+advanced_model.ifc: 133 walls, 133 with a straight axis, 128 measured, 14.65 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 128 of 128; where stored 0, within 2% 0
+
+ISSUE_034_HouseZ.ifc: 140 walls, 0 with a straight axis, 0 measured, 0.605 s
+  Length: stored 0, measured within 2% 0 (the axis curve's own length: 0); rest: {}
+  Height: stored 0, extrusion depth within 2% 0 (tallest clipped line: 0); rest: {}
+  Height offered (not clipped): 0 of 0; where stored 0, within 2% 0

@@ -503,9 +503,9 @@ flagships:
     buildable: >-
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. Model fill next: Qto_ lengths from the
-      wall axis. IFC4X3 ifcXML: none public (searched 2026-11-18); B-spline control
-      points cut into rows from knot counts 2026-11-18
+      rerun it after excel2ids.mjs changes. Model fill next: brep and no-Axis walls'
+      Length (eval/wall-axis-lengths-*). IFC4X3 ifcXML: none public (searched
+      2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs; STEP exports as
       nested ifcXML (eval/ifc4-layout.mjs). IFC5: eval/ifcx-twins.mjs on new
@@ -524,22 +524,18 @@ flagships:
       filled Excel2IDS workbook via --from-sheet; Excel itself typing into the
       download (dropdown lists in it 2026-11-19, eval/sheet-dropdowns-2026-11-19.md:
       0 strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS
-      author on \s; IDS revision diff 2026-11-20 (revision.mjs, revision.html, cli
-      --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185
-      of 233 changes graded asks more/less, model impact by GlobalId), pattern
-      inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md:
-      3,540 of 3,540 public pairs, examples verified); next: a client's real
-      stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to confirm. Model fill
-      2026-11-21 (model-fill.mjs, cli --fill, page panel: IDS-fixed and table-typed
-      property values into a copy of the .ifc; eval/model-fill-2026-11-21.md);
-      attributes and Qto_ quantities 2026-11-21 (copied from BaseQuantities, or
-      measured from geometry with --from-geometry:
-      eval/qto-from-geometry-2026-11-21.md); next: an ifcXML writer, a BIM manager's
-      filled table. HTML report (eval/html-report-2026-11-21.md): next, a
-      consultant's read. ifcJSON read 2026-11-21 (ifcjson.mjs,
-      eval/ifcjson-twins-2026-11-21.md: 97 twins, starter verdicts 291 of 291; with
-      65 public IDS 6,552 of 6,596, the rest converter omissions). More open items:
-      NEXT.md.
+      author on \s; next: a client's real stage-to-stage IDS pair; a Revit/ARCHICAD
+      IFC4X3 export to confirm. Model fill 2026-11-21 (model-fill.mjs, cli --fill,
+      page panel: IDS-fixed and table-typed property values into a copy of the .ifc;
+      eval/model-fill-2026-11-21.md); attributes and Qto_ quantities 2026-11-21
+      (copied from BaseQuantities, or measured from geometry with --from-geometry:
+      eval/qto-from-geometry-2026-11-21.md; wall Length/Height from axis + body
+      2026-11-21, 465/492 stored lengths, eval/wall-axis-lengths-2026-11-21.md);
+      next: an ifcXML writer, a BIM manager's filled table. HTML report
+      (eval/html-report-2026-11-21.md): next, a consultant's read. ifcJSON read
+      2026-11-21 (ifcjson.mjs, eval/ifcjson-twins-2026-11-21.md: 97 twins, starter
+      verdicts 291 of 291; with 65 public IDS 6,552 of 6,596, the rest converter
+      omissions). More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

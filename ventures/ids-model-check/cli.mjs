@@ -32,7 +32,7 @@
 //                                              # and values typed into the Value column of the to-fill table
 //                                              # (--to-fill writes it; --values reads it back). STEP only.
 //                                              # Exit 0 when the filled model passes, 1 when it still fails
-//                                              # --from-geometry: Qto_ volumes and areas no set holds, measured
+//                                              # --from-geometry: Qto_ volumes, areas, wall lengths and heights no set holds, measured
 //                                              # from each element's body (needs ../ifc-quantity-takeoff)
 //   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
 //                                              # one specification per bSDD class from its property list
