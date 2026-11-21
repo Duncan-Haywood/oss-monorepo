@@ -152,6 +152,7 @@
 <script type="module">
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { csvReport } from "./report.mjs";
+  import { htmlReport } from "./html-report.mjs";
   import { bcfZip } from "./bcf.mjs";
   import { fixStructure } from "./fix.mjs";
   import { suggestBsddLinks, addBsddLinks } from "./bsdd-suggest.mjs";
@@ -454,7 +455,7 @@
       for (const d of dups.slice(0, 300)) h += `<tr><td><code>${esc(d.globalId)}</code></td><td>${d.elements.map((e) => `#${e.id} ${esc(e.type)}${e.name ? ` ${esc(e.name)}` : ""}`).join("<br>")}</td></tr>`;
       h += `</tbody></table></div>${dups.length > 300 ? `<p class="muted">Showing 300 of ${dups.length}; the JSON and CSV downloads hold them all.</p>` : ""}</div></details>`;
     }
-    h += `<div class="row"><button class="ghost" id="dl-bcf">Download BCF issues</button><button class="ghost" id="dl-csv">Download CSV</button><button class="ghost" id="dl-json">Download JSON</button></div>`;
+    h += `<div class="row"><button class="ghost" id="dl-html">Download report (HTML)</button><button class="ghost" id="dl-bcf">Download BCF issues</button><button class="ghost" id="dl-csv">Download CSV</button><button class="ghost" id="dl-json">Download JSON</button></div>`;
     for (const s of r.specs) {
       h += `<details class="spec"${s.status !== "pass" && r.specs.length < 12 ? " open" : ""}><summary><span class="tag ${s.status}">${s.status.toUpperCase()}</span><span><strong>${esc(s.name)}</strong> <span class="muted">${s.applicable} applicable${s.failed.length ? `, ${s.failed.length} failing` : ""} (${s.optionality})</span></span></summary><div class="body">`;
       if (s.description) h += `<p>${esc(s.description)}</p>`;
@@ -474,6 +475,7 @@
     $("out").innerHTML = h;
     const base = (state.ifcName || "model").replace(/\.(ifc|ifcxml|ifczip|xml|zip)$/i, "");
     $("dl-bcf").onclick = () => { record("bcf_downloaded"); download(base + "-ids.bcfzip", bcfZip(r, { modelName: state.ifcName }), "application/octet-stream"); };
+    $("dl-html").onclick = () => { record("html_report_downloaded"); download(base + "-ids-report.html", htmlReport(r, { modelName: state.ifcName, idsName: state.idsName }), "text/html"); };
     $("dl-csv").onclick = () => { record("csv_downloaded"); download(base + "-ids.csv", csvReport(r), "text/csv"); };
     $("dl-json").onclick = () => { record("json_downloaded"); download(base + "-ids.json", JSON.stringify(r, null, 2), "application/json"); };
   }
