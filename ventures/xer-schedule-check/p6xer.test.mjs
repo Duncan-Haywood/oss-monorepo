@@ -176,3 +176,62 @@ test("p6Problems names what P6's import would refuse", () => {
   assert.match(p, /activity ID repeated/);
   assert.match(p, /x1: id is not a whole number/);
 });
+
+test("resources with the same Initials get unique P6 resource IDs; p6Problems names a repeat", () => {
+  // Project fills Initials with the name's first letter: Carpenter and Crane are both "C"
+  const text = XML().replace("<Initials>CARP</Initials>", "<Initials>C</Initials>")
+    .replace("<Name>Permit fee</Name><Type>2</Type>", "<Name>Crane</Name><Type>1</Type><Initials>C</Initials>")
+    .replace("<Name>Gypsum board</Name><Type>0</Type>", "<Name>Gypsum board</Name><Type>0</Type><Initials>C</Initials>");
+  const r = p6XerText(text);
+  const T = r.xer.tables;
+  assert.deepEqual(T.RSRC.map((x) => [x.rsrc_name, x.rsrc_short_name]), [["Carpenter", "C"], ["Gypsum board", "C-2"], ["Crane", "C-3"]]);
+  assert.deepEqual(p6Problems(T), []);
+  assert.match(r.warnings.join("\n"), /2 repeated resource ID\(s\)/);
+  const bad = { ...T, RSRC: T.RSRC.map((x) => ({ ...x, rsrc_short_name: "C" })) };
+  assert.match(p6Problems(bad).join("\n"), /RSRC C: resource ID repeated/);
+  // a suffix on a 40-character ID still fits P6's length
+  const long = "R".repeat(40);
+  const L = p6XerText(text.replaceAll("<Initials>C</Initials>", `<Initials>${long}</Initials>`)).xer.tables;
+  assert.deepEqual(L.RSRC.map((x) => x.rsrc_short_name), [long, `${"R".repeat(38)}-2`, `${"R".repeat(38)}-3`]);
+  assert.deepEqual(p6Problems(L), []);
+});
+
+test("an assignment on a summary task is reported, not dropped silently", () => {
+  const text = XML().replace("<Assignment><UID>2</UID>", "<Assignment><UID>9</UID><TaskUID>1</TaskUID><ResourceUID>1</ResourceUID><Work>PT8H0M0S</Work></Assignment><Assignment><UID>2</UID>");
+  const r = p6XerText(text);
+  assert.equal(r.counts.assignments, 2);
+  assert.match(r.warnings.join("\n"), /1 assignment\(s\) on summary tasks not carried/);
+  assert.ok(!p6XerText(XML()).warnings.some((w) => /summary tasks not carried/.test(w)));
+});
+
+test("percent complete, units per hour, and remaining work and cost worked out when Project leaves them out", () => {
+  const T = p6XerText(XML()).xer.tables;
+  assert.deepEqual(T.TASK.map((t) => t.phys_complete_pct), ["100", "30", "0", "0", "0"]);
+  // MaxUnits 2 (200%) is two per hour; a resource with none is one
+  assert.deepEqual(T.RSRC.map((x) => x.def_qty_per_hr), ["2", "1"]);
+  // out-of-range percentages are held to 0..100
+  const over = p6XerText(XML().replace("<PercentComplete>30</PercentComplete>", "<PercentComplete>150</PercentComplete>")).xer.tables;
+  assert.equal(over.TASK[1].phys_complete_pct, "100");
+  const under = p6XerText(XML().replace("<PercentComplete>30</PercentComplete>", "<PercentComplete>-5</PercentComplete>")).xer.tables;
+  assert.equal(under.TASK[1].phys_complete_pct, "0");
+  // no RemainingWork / RemainingCost: budget less actual, never below zero
+  const bare = XML().replace("<RemainingWork>PT112H0M0S</RemainingWork>", "").replace("<RemainingCost>672000</RemainingCost>", "");
+  const a = p6XerText(bare).xer.tables.TASKRSRC[0];
+  assert.deepEqual([a.remain_qty, a.remain_cost], ["112", "6720"]);
+  const overrun = bare.replace("<ActualWork>PT48H0M0S</ActualWork>", "<ActualWork>PT200H0M0S</ActualWork>").replace("<ActualCost>288000</ActualCost>", "<ActualCost>1200000</ActualCost>");
+  const o = p6XerText(overrun).xer.tables.TASKRSRC[0];
+  assert.deepEqual([o.remain_qty, o.remain_cost], ["0", "0"]);
+});
+
+test("a code tree's leaf keeps its description; the parents made for it carry their own segment", () => {
+  // a tree needs one leaf under two parents (N.01, S.01)
+  const T = p6XerText(XML({ code2: "N.01", code3: "S.01", code4: "N.02" })).xer.tables;
+  const name = (path) => {
+    const [p, leaf] = path.split(".");
+    const parent = T.ACTVCODE.find((c) => c.short_name === p && !c.parent_actv_code_id);
+    return [parent.actv_code_name, T.ACTVCODE.find((c) => c.short_name === leaf && c.parent_actv_code_id === parent.actv_code_id).actv_code_name];
+  };
+  assert.deepEqual(name("N.01"), ["N", "N.01"]);
+  assert.deepEqual(name("S.01"), ["S", "S.01"]);
+  assert.deepEqual(name("N.02"), ["N", "N.02"]);
+});
