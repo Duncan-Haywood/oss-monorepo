@@ -65,9 +65,82 @@ in-plane jump across edges to converge at all, and that numerical weight moves t
 coefficient by about 0.05 between 0.01 and 1, as much as locking did; it shrinks only about as
 fast as the mesh spacing.
 
+**Milestone 4e (does the hanger choice survive on the calibrated top tier?):** yes. Put on a
+3 cm deep wood-shaped arm with the nine wovens' measured mechanics, the triangle-FEM tier, the 3D
+spring sheet and the 2D chain pick the same arm width (+1 cm over the half shoulder): all 27 fabric-tier
+choices agree uncalibrated and 26 of 27 calibrated, and calibrating bending (4a's factor 0.485) never
+changes the top tier's choice. The chain is 1.7 cm off in absolute shape and still right; the one
+miss is the spring sheet's, by 0.05 cm of regret.
+
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 4e: the hanger choice on the calibrated top tier
+
+**Question.** Milestones 4a to 4d built and calibrated a triangle finite-element tier against nine
+measured Cusick drapes. Does the arm width the cheap tiers pick survive on it (H1), and does the
+bending calibration change that pick (H3)?
+
+**Method** ([`experiments/m4e_hanger_tier/hangerfem.py`](experiments/m4e_hanger_tier/hangerfem.py),
+[`run.py`](experiments/m4e_hanger_tier/run.py)). 3a's triangle element and 3d's Newton solver are
+draped on the hanger sheet of milestone 1: the shoulder-and-sleeve panel of a size M tee, 20 cm
+deep, on a 5 mm lattice (3,321 nodes). Mass along the sheet, the swept-capsule contact, the neck
+pins, the start and the score (cm RMS from the worn shape over the whole sheet) are cloth3d's, so
+only the cloth model differs between the two 3D tiers. The contact penalty is smoothed over 10 µm,
+because its kink stalled Newton in a pilot. The fabrics are Petrak et al.'s nine wovens (2021,
+doi:10.3390/ma14216259): mass scaled by areal weight, stretch from the 100 gf/cm secant, shear and
+bending from FAST, bending times c = 1 (uncalibrated) or 0.485 (4a's fit). The hanger is the
+wood-shaped profile with a 3 cm half-depth arm and half-width offsets −1 to +3 cm. All three tiers
+are solved to convergence (milestone 1's 3,000-iteration cap left the spring sheet about 0.1 cm
+short), the top tier from the spring sheet's converged state. Predictions E1 to E7 were committed
+before any registered solve.
+
+**Results** ([`results.txt`](experiments/m4e_hanger_tier/results.txt): 90 cases, about 9.8
+core-hours.)
+
+![Shape error relative to the +1 cm arm for three wovens, spring sheet against triangle tier](experiments/m4e_hanger_tier/width_curves_t2_t3.svg)
+
+| | best offset, 2D chain | best offset, spring sheet | best offset, triangle tier | top-tier margin (cm) |
+|---|---|---|---|---|
+| uncalibrated (c = 1) | +1 on 9 of 9 | +1 on 9 of 9 | +1 on 9 of 9 | 0.003 to 0.223 |
+| calibrated (c = 0.485) | +1 on 9 of 9 | +1 on 8 of 9 (F2: 0) | +1 on 9 of 9 | 0.050 to 0.260 |
+
+- **E1 refuted:** every spring-sheet solve converged; 81 of 90 top-tier solves did, and nine
+  stopped at the 600-step cap (six on F1 or F2; only one, F4 at +1 cm uncalibrated, at a best
+  offset).
+- **E2 held (acceptance):** the top tier's choice is the spring sheet's on 9 of 9 fabrics
+  uncalibrated and 8 of 9 calibrated. **E3 held:** it is the 2D chain's on 9 of 9 at both.
+- **E4 refuted:** calibration changes the top tier's choice on 0 of 9 (it changes the spring
+  sheet's on F2).
+- **E5 refuted:** the top-tier-minus-spring-sheet gap at the best width exceeds the top tier's
+  margin on 1 of 9. **E6 refuted:** the top tier's regret of the spring sheet's choice is under
+  0.02 cm on 8 of 9 (F2: 0.050 cm). **E7 refuted:** across widths the two 3D tiers' paired
+  differences part by more than their absolute gap at +1 cm on all nine fabrics; they part most at
+  the narrow −1 cm arm.
+
+Post hoc: calibration brings the two 3D tiers together, from a mean top-tier excess of 0.148 cm at
++1 cm (c = 1) to 0.045 cm (c = 0.485). The 2D chain's absolute error is 0.21 to 0.25 cm against
+1.7 to 2.0 cm on the 3D tiers, because its panels cannot fall off a narrow arm, yet its margins
+(0.46 to 0.53 cm) are the widest and its choice is the top tier's every time.
+
+Post hoc extension of the nine capped cases (2,000-step cap): running; results follow in this PR.
+
+**Reading.** On these nine wovens and this hanger family, H1 holds and H3 fails at the decision
+level. The cheapest model, wrong by 1.7 cm in absolute shape, picks the calibrated top tier's arm
+width every time. The calibration that fixes the top tier's drape (4a) moves its scores by up to
+0.1 cm but never its choice. The tiers do not agree on differences everywhere (E7): the decision
+is robust because the best width sits in a basin all three tiers see. The one split is on the
+middle tier, whose margins are thinnest (0.008 to 0.14 cm).
+
+**Limits.** One hanger profile, one arm depth, integer offsets (milestone 1b found +1.5 cm on a
+finer grid, which this one cannot resolve). One start per case, no seeds. The 5 mm lattice only,
+where 4a's factor was fitted at 2.5 mm. Nine top-tier cases are unconverged in the registered
+scoring. Frictionless contact; simulated garments only.
+
+**Next.** (a) A 0.25 cm width grid around +1 cm and a second arm depth, to find where the tiers'
+choices first part; (b) a 3.75 mm check of the top tier's decisions; (c) milestone 5's margin
+bound on these tier pairs; (d) milestone 6, the multi-fidelity design loop.
 
 ## Milestone 4d: an edge-midpoint membrane removes the locking, and a fifth of the over-drape goes with it
 
@@ -1209,7 +1282,7 @@ no validated solver yet (the continued triangle element passes the Cusick accept
 
 ```bash
 cd research/hanger-codesign
-python3 -m unittest discover -s tests              # 79 tests, about a minute; needs numpy (and scipy for test_m3)
+python3 -m unittest discover -s tests              # 93 tests, about a minute; needs numpy (and scipy for test_m3)
 python3 experiments/m1_kes_fidelity/run.py         # about 4 min on 4 cores
 python3 experiments/m1_kes_fidelity/figure.py      # the SVG above, stdlib only
 python3 experiments/m1c_ea_mesh/run.py           # milestone 1c, 70 cases, about 15 min on 4 cores
@@ -1248,4 +1321,8 @@ python3 experiments/m4c_locking/run.py --phase solve    # milestone 4c, 18 chain
 python3 experiments/m4c_locking/run.py --phase report   # seconds
 python3 experiments/m4c_locking/figure.py               # stdlib only
 python3 experiments/m3_fem_tier/figure.py                  # stdlib only
+python3 experiments/m4e_hanger_tier/run.py            # milestone 4e, 90 cases, about 9.8 core-hours (resumable)
+python3 experiments/m4e_hanger_tier/run.py --extend   # post hoc: unconverged cases with a 2,000-step cap
+python3 experiments/m4e_hanger_tier/run.py --report   # seconds
+python3 experiments/m4e_hanger_tier/figure.py         # stdlib only
 ```

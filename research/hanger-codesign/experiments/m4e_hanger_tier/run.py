@@ -124,9 +124,10 @@ def spring(h, g):
     return X, sh, dict(err=score3(X, sh)["err_all"], iters=tot, gmax=float(np.abs(gr).max()), E=float(E))
 
 
-def job(spec):
+def job(spec, cache=None, maxit=600):
     code, o, cal = spec
-    out = CACHE / f"{code}_{o:+.0f}_{cal}.json"
+    cache = cache or CACHE
+    out = cache / f"{code}_{o:+.0f}_{cal}.json"
     if out.exists():
         return json.loads(out.read_text())
     t = time.time()
@@ -137,11 +138,11 @@ def job(spec):
     Xg, sg, rec["t2"] = spring(h, g)
     sh = hf.HangerSheet(h, ZH, g, A, fabrics.g_fast(code))
     X = hf.from_grid(sh, Xg, sg.s, sg.z)
-    X, info = hf.solve(sh, X, maxit=600)
+    X, info = hf.solve(sh, X, maxit=maxit)
     rec["t3"] = dict(err=sh.score(X), iters=info["iters"], rel=info["rel"], E=info["E"],
                      stalled=info["stalled"], n=sh.n)
     rec["sec"] = time.time() - t
-    CACHE.mkdir(exist_ok=True)
+    cache.mkdir(exist_ok=True)
     out.write_text(json.dumps(rec))
     print(f"{code} o{o:+.0f} {cal}: T1 {rec['t1']['err']:.4f} T2 {rec['t2']['err']:.4f} "
           f"T3 {rec['t3']['err']:.4f} (rel {info['rel']:.2g}, {info['iters']} steps) {rec['sec']:.0f}s", flush=True)
@@ -226,6 +227,33 @@ def report():
     L.append(f"E6 T3 regret of T2's choice <= 0.02 cm on {k6} of 9 (max {max(regrets.values(), default=float('nan')):.4f}): "
              + ("held" if k6 == 9 else "refuted"))
     L.append(f"E7 paired differences closer than absolute on {k7} of 9: " + ("held" if k7 >= 7 else "refuted"))
+    ext = {(r["code"], r["o"], r["cal"]): r for r in (json.loads(p.read_text()) for p in EXTEND.glob("*.json"))}
+    if ext:
+        L += ["", "4. post hoc: unconverged T3 cases rerun with a 2,000-step cap (not part of the registered scoring)",
+              "fabric cal o err_T3_600 rel_600 err_T3_2000 rel_2000 steps_2000"]
+        for k in sorted(ext, key=lambda k: (k[2], k[0], k[1])):
+            a, b = recs[k]["t3"], ext[k]["t3"]
+            L.append(f"{k[0]} {k[2]} {k[1]:+.0f} {a['err']:.4f} {a['rel']:.1e} {b['err']:.4f} {b['rel']:.1e} {b['iters']}")
+        merged = dict(recs)
+        merged.update(ext)
+        L += ["", "fabric cal best_T3_600 best_T3_merged margin_T3_merged best_T2"]
+        mb = {}
+        for cal in CALS:
+            for c in CODES:
+                if any((c, o, cal) not in merged for o in OFFSETS):
+                    continue
+                e = [merged[(c, o, cal)]["t3"]["err"] for o in OFFSETS]
+                srt = sorted(e)
+                mb[(c, cal)] = OFFSETS[int(np.argmin(e))]
+                L.append(f"{c} {cal} {best[(c, cal)]['t3']['best']:+.0f} {mb[(c, cal)]:+.0f} {srt[1] - srt[0]:.4f} "
+                         f"{best[(c, cal)]['t2']['best']:+.0f}")
+        for cal in CALS:
+            k = sum(mb[(c, cal)] == best[(c, cal)]["t2"]["best"] for c in CODES if (c, cal) in mb)
+            L.append(f"merged, c={CALS[cal]:g}: T3 best = T2 best on {k} of 9")
+        k4 = [c for c in CODES if (c, "u") in mb and (c, "c") in mb and mb[(c, "u")] != mb[(c, "c")]]
+        L.append(f"merged: calibration changes T3's best offset on {len(k4)} of 9 {k4}")
+        unconv = [k for k, r in merged.items() if r["t3"]["rel"] >= 1e-5]
+        L.append(f"merged: T3 cases still short of tolerance: {len(unconv)} {sorted(unconv)}")
     (HERE / "results.txt").write_text("\n".join(L) + "\n")
     js = {f"{c}|{cal}": {t: best[(c, cal)][t] for t in ("t1", "t2", "t3")} | {"tau": best[(c, cal)]["tau"]}
           for (c, cal) in best}
@@ -234,7 +262,29 @@ def report():
     print("\n".join(L))
 
 
+EXTEND = HERE / "cache_extend"
+
+
+def extend_job(spec):
+    return job(spec, EXTEND, 2000)
+
+
+def extend():
+    """Post hoc (added 2026-11-21 after the first registered cases hit the 600-step cap): rerun every
+    case whose T3 solve stopped short of its tolerance, identically but with a 2,000-step cap, into
+    cache_extend/. The registered scoring (section 3) uses the 600-step cache only."""
+    todo = [s for s in specs() if (p := CACHE / f"{s[0]}_{s[1]:+.0f}_{s[2]}.json").exists()
+            and json.loads(p.read_text())["t3"]["rel"] >= 1e-5]
+    print(f"extending {len(todo)} cases: {todo}", flush=True)
+    with mp.Pool(4) as P:
+        for _ in P.imap_unordered(extend_job, todo):
+            pass
+
+
 def main():
+    if "--extend" in sys.argv:
+        extend()
+        return
     if "--report" not in sys.argv:
         with mp.Pool(4) as P:
             for _ in P.imap_unordered(job, specs()):
