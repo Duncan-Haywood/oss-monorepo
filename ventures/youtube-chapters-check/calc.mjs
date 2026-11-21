@@ -18,7 +18,10 @@ export function decodeBuffer(buf) {
 const TS = String.raw`\d{1,2}(?::\d{2}){1,3}(?:[.,]\d{1,3})?`;
 const START_RE = new RegExp(String.raw`^[\s\-*•▶►>\[(]*(${TS})[\])]?[\s\-–—:|.)]*(.*)$`);
 const END_RE = new RegExp(String.raw`^(.*?)[\s\-–—:|(\[]+(${TS})[\])]?\s*$`);
-const AUDACITY_RE = /^(\d+(?:\.\d+)?)\t(\d+(?:\.\d+)?)\t(.*)$/;
+// Audacity label track: start <tab> end <tab> label. Locales with a decimal comma write "12,500000".
+const AUDACITY_RE = /^(\d+(?:[.,]\d+)?)\t(\d+(?:[.,]\d+)?)\t(.*)$/;
+// "0:00 - 1:30 Intro": a start-end range; the chapter starts at the first time and the second is dropped.
+const RANGE_RE = new RegExp(String.raw`^[\s\-*•▶►>\[(]*(${TS})[\])]?\s*[-–—~]\s*(${TS})[\])]?\s+(\S.*)$`);
 const FRAME_TC = /^\d{1,2}:\d{2}:\d{2}[:;]\d{2}$/;
 // CMX 3600 event line, as DaVinci Resolve writes it for Timeline > Export > Timeline Markers to EDL:
 // event, reel, track, transition, then source in/out and record in/out. The marker's name is on the next
@@ -92,7 +95,7 @@ export function parseChapters(text, { fps = 30 } = {}) {
     if (!raw.trim()) return;
     const au = raw.match(AUDACITY_RE);
     if (au) {
-      chapters.push({ line, seconds: Number(au[1]), title: clean(au[3]), format: "seconds", raw });
+      chapters.push({ line, seconds: Number(au[1].replace(",", ".")), title: clean(au[3]), format: "seconds", raw });
       return;
     }
     if (raw.includes("\t")) {
@@ -110,8 +113,10 @@ export function parseChapters(text, { fps = 30 } = {}) {
     if (!m) { prose++; return; }
     const atStart = START_RE.test(raw);
     const stamp = atStart ? m[1] : m[2];
-    const title = clean(atStart ? m[2] : m[1]);
+    let title = clean(atStart ? m[2] : m[1]);
     const s = parseTimestamp(stamp, fps);
+    const range = atStart && raw.match(RANGE_RE);
+    if (range && s !== null && parseTimestamp(range[2], fps) > s) title = clean(range[3]);
     if (s === null) { bad.push({ line, text: raw.trim() }); return; }
     chapters.push({ line, seconds: s, title, format: formatKind(stamp), raw });
   });
@@ -186,6 +191,7 @@ export function validate(text, opts = {}) {
       add("error", "Chapter shorter than 10 seconds", `"${byTime[i].title || "(untitled)"}" runs ${Math.floor(len)}s; YouTube's minimum is ${MIN_SECONDS}. Merge it into a neighbour or move the next timestamp.`, byTime[i].line);
     }
   }
+  if (duration === null && byTime.length) add("info", "Last chapter's length not checked", `Without the video length the last chapter ("${byTime[byTime.length - 1].title || "(untitled)"}") cannot be checked against the 10-second minimum. Enter the length to check it.`);
   const kinds = new Set(chapters.filter((c) => c.format !== "seconds").map((c) => c.format));
   if (kinds.size > 1 && !frames) add("warning", "Mixed time formats", "Some times are M:SS and some H:MM:SS. YouTube reads both, but one format is easier to check; the cleaned list uses one.", 0, true);
   if (chapters.some((c) => c.format === "M:SS" && c.seconds >= 3600)) add("warning", "Hour-plus time written as minutes", "A time of an hour or more is written as M:SS (like 75:10); write it as H:MM:SS.", 0, true);
