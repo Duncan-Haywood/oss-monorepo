@@ -36,6 +36,8 @@
     .spec { border: 1px solid var(--line); border-radius: 10px; background: var(--card); margin: 10px 0; }
     .spec > summary { list-style: none; cursor: pointer; padding: 12px 14px; display: flex; gap: 10px; align-items: baseline; }
     .spec > summary::-webkit-details-marker { display: none; }
+    .fill { padding: 4px 14px 12px; }
+    .fill pre { white-space: pre-wrap; font-size: 13px; }
     .tag { font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
     .tag.pass { color: var(--pass); } .tag.fail { color: var(--fail); } .tag.invalid, .tag.warning { color: var(--warn); } .tag.error { color: var(--fail); }
     ul.issues { padding-left: 1.2em; } ul.issues li { margin: 6px 0; }
@@ -473,7 +475,44 @@
       }
       h += `</div></details>`;
     }
+    // Write what the IDS asks into the model (model-fill.mjs): STEP models
+    // whose check failed only.
+    if (r.format === "STEP" && !r.pass) h += `<div class="spec fill" id="fill"><h3>Write the missing values into the model</h3><p>For failing property requirements, the page writes into a copy of your <code>.ifc</code> the values the IDS fixes (a single allowed value). For the rest, download the to-fill table, type each value in its <em>Value</em> column (in Excel, LibreOffice or a text editor; <code>*</code> as the GlobalId gives every listed element that value), and choose the filled table here. Each value is checked against the IDS before it is written, and the filled model is checked again before you download it. Every line of the file it does not change stays as it was. Quantities, attributes, classifications and materials are listed, not written.</p><div class="row"><button id="fill-go">Download the filled model</button><button class="ghost" id="fill-todo">Download the to-fill table (CSV)</button><label class="ghost">Filled table: <input type="file" id="fill-values" accept=".csv,.tsv,.txt,text/csv"></label></div><pre class="muted" id="fill-status"></pre></div>`;
     $("out").innerHTML = h;
+    if ($("fill")) {
+      let values = null;
+      const fillBase = (state.ifcName || "model").replace(/\.(ifc|ifczip|zip)$/i, "");
+      const ask = (then) => {
+        $("fill-status").textContent = "Writing...";
+        worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+        const req = ++reqNo;
+        worker.onmessage = (ev) => {
+          if (ev.data.req !== req) return;
+          if (ev.data.error) { $("fill-status").textContent = "Could not write: " + ev.data.error; record("fill_error"); return; }
+          const f = ev.data.fill;
+          $("fill-status").textContent = f.summary;
+          then(f);
+        };
+        worker.postMessage({ ids: state.ids, ifc: state.ifc, fill: true, values, req });
+      };
+      $("fill-go").onclick = () => ask((f) => {
+        if (!f.text) { $("fill-status").textContent += "\nNothing to write yet: fill in the to-fill table and choose it above."; return; }
+        record("fill_model_downloaded");
+        if (values) record("fill_table_used");
+        download(fillBase + "-filled.ifc", f.text, "application/octet-stream");
+      });
+      $("fill-todo").onclick = () => ask((f) => {
+        if (!f.toFill) { $("fill-status").textContent += "\nNothing is left to fill in."; return; }
+        record("fill_table_downloaded");
+        download(fillBase + "-to-fill.csv", f.toFill, "text/csv");
+      });
+      $("fill-values").onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        values = await file.text();
+        $("fill-status").textContent = `${file.name} chosen: press Download the filled model.`;
+      };
+    }
     const base = (state.ifcName || "model").replace(/\.(ifc|ifcxml|ifczip|ifcjson|json|xml|zip)$/i, "");
     $("dl-bcf").onclick = () => { record("bcf_downloaded"); download(base + "-ids.bcfzip", bcfZip(r, { modelName: state.ifcName }), "application/octet-stream"); };
     $("dl-html").onclick = () => { record("html_report_downloaded"); download(base + "-ids-report.html", htmlReport(r, { modelName: state.ifcName, idsName: state.idsName }), "text/html"); };

@@ -26,6 +26,12 @@
 //                                              # asks nothing more, 1 when it does, 2 on a read error
 //   node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]  # the IDS in plain English, every specification as
 //                                              # sentences (spec-doc.mjs); Markdown on stdout without -o
+//   node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv]
+//                                              # write the property values the failing checks lack into a
+//                                              # copy of the model (model-fill.mjs): values the IDS fixes,
+//                                              # and values typed into the Value column of the to-fill table
+//                                              # (--to-fill writes it; --values reads it back). STEP only.
+//                                              # Exit 0 when the filled model passes, 1 when it still fails
 //   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
 //                                              # one specification per bSDD class from its property list
 //                                              # (bsdd-spec.mjs; goes on the network like --bsdd); stdout
@@ -53,11 +59,12 @@ import { inflateRawSync } from "node:zlib";
 import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
 import { diffIds, revisionImpact, revisionReport } from "./revision.mjs";
 import { parseModel } from "./node.mjs";
+import { fillModel, toFillCsv, readValues, fillReport } from "./model-fill.mjs";
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
-const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--html", "--max-failures", "--word-class", "--sets", "--schema", "--layer", "-o"].includes(args[i - 1]));
+const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--html", "--max-failures", "--word-class", "--sets", "--schema", "--layer", "--values", "--to-fill", "-o"].includes(args[i - 1]));
 // --layer FILE (repeatable): an IFC5 layer composed over the .ifcx model,
 // in the order given (ifcx.mjs).
 const layers = args.flatMap((a, i) => (args[i - 1] === "--layer" ? [a] : []));
@@ -90,6 +97,20 @@ if (flag("--from-bsdd") && files.length) {
   else console.log(revisionReport(d, impact));
   const s = d.summary;
   process.exitCode = s.added || s.tighter || s.mixed ? 1 : 0;
+} else if (flag("--fill") && files.length === 2) {
+  let [ifcPath, idsPath] = files;
+  if (ifcPath.toLowerCase().endsWith(".ids") || ifcPath.toLowerCase().endsWith(".xml")) [ifcPath, idsPath] = [idsPath, ifcPath];
+  if (!opt("-o") && !opt("--to-fill")) { console.error("--fill needs -o OUT.ifc (the filled model) or --to-fill TODO.csv (the table to fill in)"); process.exit(2); }
+  let r;
+  try {
+    const model = await readModel(ifcPath);
+    const values = opt("--values") ? readValues(readFileSync(opt("--values"), "utf8")) : [];
+    r = fillModel(readFileSync(idsPath, "utf8"), model.text, { ...resources(), values });
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  console.error(fillReport(r));
+  if (opt("-o")) writeFileSync(opt("-o"), r.text);
+  if (opt("--to-fill")) writeFileSync(opt("--to-fill"), toFillCsv(r.unfilled));
+  process.exitCode = r.after && r.after.pass ? 0 : 1;
 } else if (flag("--fix") && files.length === 1) {
   // Exit 0 when the repaired file breaks ids.xsd nowhere, 1 when faults that
   // need a person remain (listed on stderr), 2 when the file is not XML.
@@ -186,7 +207,7 @@ if (flag("--from-bsdd") && files.length) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
