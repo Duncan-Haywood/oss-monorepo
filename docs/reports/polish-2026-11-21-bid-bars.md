@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, phone, software-for-routine]
+topics: [design, accessibility, software-for-routine]
 date: 2026-11-21
 ---
 # Polish 2026-11-21: bid calculators reach the form sooner on a phone
