@@ -1,0 +1,205 @@
+{
+ "date": "2026-11-21",
+ "subject": "ventures/sudoers-check",
+ "stratum": "venture",
+ "seed": "2026-11-21-2e87",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior Linux sysadmin / security engineer who reviews sudoers policy for fleets; first they check that the who-can-become-root list matches what sudo actually permits (runas last-match, Defaults scoping and precedence) and that a config-management checkout is read the way /etc would be",
+ "reaudit_of": "portfolio/quality/audits/2026-11-15-sudoers-check.json",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Re-checked every 2026-11-15 defect against sudo 1.9.15p5 installed here, bind-mounting each test file over /etc/sudoers in a private mount namespace and running runuser -u daemon|nobody -- sudo -n. The high defect is closed on main: 'nobody ALL = (!root, ALL) NOPASSWD: ALL' gives id -u 0 under sudo and the tool now reports high nopasswd-all with a passwordless root path (scan.mjs runasInfo last-match loop). Still wrong on main (score before this PR's fix): 'Defaults>root !authenticate' + 'daemon ALL=(ALL) ALL' runs as root with no password under sudo but the root path said 'with a password'; and a new miss: 'Defaults !authenticate' then 'Defaults:daemon authenticate' makes sudo ask daemon for a password, but main reported 'no password' (authGlobalOff short-circuited the per-user entry). Also established sudo's precedence by experiment: global/host/user/runas Defaults in file order, then command Defaults; PASSWD: tag beats Defaults!cmnd !authenticate. Score stays 3: the headline list is right on the common cases and both remaining misses are on scoped Defaults.",
+  "completeness": "node check.mjs fixtures/risky on main: notes 'no pasted file is in /etc/sudoers.d' and 'ivan.conf is not included ... checked on its own', i.e. the 2026-11-15 medium (repo checkout not named etc loses includedir-file-ignored) was still open; the fix PR #16361 had only written it into README Known gaps. Same for the scoped-authenticate medium. Other README features (CLI flags, exit codes, JSON, page sharing scan.mjs) unchanged since the census and re-run: --fail-on-risk rc 2.",
+  "verification": "On main: node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs -> 99 tests, 98 pass, 1 skip. quality_mutate: deleting the runas-root guard in the nopasswd-overridden loop (scan.mjs:689 on main) SURVIVED, although the 2026-11-15 low defect saying exactly this was marked fixed_by PR #16361: the fix PR never added that test. The runas last-match mutant (root = root || !u.neg) and the includedir '.' skip mutant were caught. After this PR's tests all five mutants listed are caught (103 pass, 1 skip).",
+  "craft": "Read scan.mjs orderFiles, runasInfo, analyse, checkRule, rootPathsFrom and parity-gen.mjs principal (usergid now handled, so the 2026-11-15 low is closed). analyse() is still one long function; the old authOffFor kept a separate global flag that ignored ordering against per-user entries, the source of the new precedence defect. The authenticate-off message said 'anyone who gets a shell as root' for a Defaults>root binding, which describes the wrong principal.",
+  "claims": "README, llms.txt and page: disclaimer and 'not a security audit' present; '42 grammar corner cases' parity test passes (44 pass, 1 skip with live cvtsudoers). README table claimed authenticate-off for 'global or per user' only, which was accurate; Known gaps listed both mediums honestly. No unbacked claim found; the gap was the fix PR recording rather than fixing.",
+  "fitness": "Job walked: a team keeps sudoers + sudoers.d in a repo and runs node check.mjs repo/ --fail-on-risk in CI. On main the dotted drop-in check silently did not fire for any directory not named etc, which is the normal CI layout; fixed here (absolute /etc/ includes also resolve under the main file's directory) with a test that the copied risky tree gives the same findings as /etc.",
+  "domain": "Compared with sudoers(5) 1.9.15 and observed sudo behaviour (11 Defaults orderings and bindings tested live, listed in checks). Departures on main: runas- and command-scoped authenticate ignored in the password decision; global entry beat a later per-user one. After the fix the tool matches all 11 observed cases. Remaining stated limits: nopasswd-overridden considers only a later ALL rule; Defaults!cmnd bindings with globs or directories are not expanded."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "runas list with !root before ALL (the 2026-11-15 high)",
+   "method": "real sudo 1.9.15p5, private mount namespace",
+   "command": "printf 'root ALL=(ALL:ALL) ALL\\nnobody ALL = (!root, ALL) NOPASSWD: ALL\\n' > /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/sudoers; unshare -m sh -c 'mount --bind /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/sudoers /etc/sudoers && runuser -u nobody -- sudo -n -u root id -u'; node ventures/sudoers-check/check.mjs /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/sudoers --format json",
+   "expected": "sudo prints 0; tool high nopasswd-all, nobody listed with password:false",
+   "observed": "sudo 0; tool high nopasswd-all, rootPaths nobody password:false",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Defaults>root !authenticate + daemon ALL=(ALL) ALL (2026-11-15 medium)",
+   "method": "real sudo",
+   "command": "unshare -m sh -c 'mount --bind /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/f /etc/sudoers && runuser -u daemon -- sudo -n -u root id -u'",
+   "expected": "sudo prints 0; root path no password",
+   "observed": "sudo 0; main reported 'with a password'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Defaults !authenticate then Defaults:daemon authenticate",
+   "method": "real sudo",
+   "command": "unshare -m sh -c 'mount --bind /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/f /etc/sudoers && runuser -u daemon -- sudo -n -u root id -u'",
+   "expected": "sudo asks for a password; root path with a password",
+   "observed": "sudo 'a password is required'; main reported 'no password'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Defaults!/usr/bin/id authenticate before Defaults>root !authenticate",
+   "method": "real sudo: command Defaults apply after runas ones",
+   "command": "unshare -m sh -c 'mount --bind /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/f /etc/sudoers && runuser -u daemon -- sudo -n -u root /usr/bin/id -u'",
+   "expected": "password required (fixes precedence model)",
+   "observed": "sudo 'a password is required'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Defaults>ALL,!root vs Defaults>!root,ALL binding order",
+   "method": "real sudo",
+   "command": "unshare -m sh -c 'mount --bind /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/f /etc/sudoers && runuser -u daemon -- sudo -n -u root id -u'",
+   "expected": "ALL,!root: password; !root,ALL: none",
+   "observed": "password required; 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "PASSWD: tag against Defaults!/usr/bin/id !authenticate and Defaults>root !authenticate",
+   "method": "real sudo",
+   "command": "unshare -m sh -c 'mount --bind /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/f /etc/sudoers && runuser -u daemon -- sudo -n -u root /usr/bin/id -u'",
+   "expected": "tag wins: password required",
+   "observed": "password required in both",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "later (nobody) ALL rule does not override NOPASSWD as root",
+   "method": "real sudo: daemon ALL=(root) NOPASSWD: /usr/bin/id then daemon ALL=(nobody) ALL",
+   "command": "unshare -m sh -c 'mount --bind /tmp/claude-0/-home-user-oss-monorepo/ff763bb2-01a1-553a-903d-c20ec34f4ceb/scratchpad/sc/f /etc/sudoers && runuser -u daemon -- sudo -n -u root /usr/bin/id -u'",
+   "expected": "sudo 0 without password; tool no nopasswd-overridden",
+   "observed": "sudo 0; tool reports none",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "repo checkout not named etc: dotted drop-in reported (2026-11-15 medium)",
+   "method": "run the CLI on fixtures/risky",
+   "command": "cd ventures/sudoers-check && node check.mjs fixtures/risky | grep ivan",
+   "expected": "includedir-file-ignored for ivan.conf",
+   "observed": "main: 'not included ... checked on its own'",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite on main",
+   "method": "run it",
+   "command": "cd ventures/sudoers-check && node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs",
+   "expected": "all pass",
+   "observed": "99 tests, 98 pass, 1 skip",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "2026-11-15 low 'runas-root guard untested', marked fixed by PR #16361",
+   "method": "quality_mutate on main",
+   "command": "python3 platform/ci/quality_mutate.py ventures/sudoers-check/scan.mjs --old 'if (a.runas.root && !b.runas.root) continue;' --new '' -- node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs",
+   "expected": "caught",
+   "observed": "survived on main (caught after this PR)",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "parity-gen principal handles cvtsudoers usergid (2026-11-15 low)",
+   "method": "read parity-gen.mjs:25 and run parity.test.mjs",
+   "command": "node --test parity.test.mjs",
+   "expected": "usergid branch present, parity green",
+   "observed": "present; 44 pass, 1 skip",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Known gaps in README name the open defects",
+   "method": "read README.md 'Known gaps'",
+   "command": "grep -n -A4 'Known gaps' ventures/sudoers-check/README.md",
+   "expected": "both open mediums listed",
+   "observed": "both listed (fix PR documented them instead of fixing)",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "scan.mjs:689",
+   "change": "if (a.runas.root && !b.runas.root) continue; -> (deleted)",
+   "caught": false,
+   "test_cmd": "node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "scan.mjs:459",
+   "change": "root = !u.neg -> root = root || !u.neg (runas last-match)",
+   "caught": true,
+   "test_cmd": "node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "scan.mjs:259",
+   "change": "return b.endsWith(\"~\") || b.includes(\".\"); -> return b.endsWith(\"~\");",
+   "caught": true,
+   "test_cmd": "node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Carried from 2026-11-15, not fixed by PR #16361 (only listed in Known gaps): the CLI on a checkout whose directory is not named etc does not map '@includedir /etc/sudoers.d' to DIR/sudoers.d, so fixtures/risky/sudoers.d/ivan.conf, which sudo never reads, is checked as live and includedir-file-ignored is not reported",
+   "where": "ventures/sudoers-check/scan.mjs:238",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Carried from 2026-11-15: Defaults>runas and Defaults!cmnd scoped !authenticate are ignored in the password decision; 'Defaults>root !authenticate' + 'daemon ALL=(ALL) ALL' is passwordless root under sudo but the root path says 'with a password'",
+   "where": "ventures/sudoers-check/scan.mjs:548",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "New: a global 'Defaults !authenticate' short-circuits a later 'Defaults:daemon authenticate', so the tool reports daemon's ALL rule as passwordless while sudo asks for a password (over-report)",
+   "where": "ventures/sudoers-check/scan.mjs:555",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Carried from 2026-11-15 although marked fixed_by PR #16361: no test covers the runas-root guard in the nopasswd-overridden loop; deleting it still leaves every test green on main",
+   "where": "ventures/sudoers-check/scan.mjs:689",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "New: the authenticate-off message for a Defaults>root or Defaults!cmnd binding says 'anyone who gets a shell as root', naming the wrong principal",
+   "where": "ventures/sudoers-check/scan.mjs:587",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Open: a Defaults!cmnd binding is matched by exact command path; a directory, glob or regex binding is not expanded, so a passwordless command reached that way is not reported",
+   "where": "ventures/sudoers-check/scan.mjs:579",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Re-audit of the 2026-11-15 census after fix PR #16361. Of its five defects, that PR closed two: the high (a runas list with !root before ALL is now read last-match, verified against real sudo: id -u 0, tool high nopasswd-all) and the parity-gen usergid mapping. It did not close the other three, although one of them (the untested runas-root guard) was marked fixed_by it: that mutant still survives on main. The two mediums had only been written into README Known gaps. This round also found sudo applies global, user and runas authenticate Defaults in file order and command Defaults last (11 cases tested live), which main got wrong in one more direction (a global !authenticate hid a later per-user authenticate). Scores are as found on main: still at the bar, with the root-path list right for every unscoped case. The fix PR for this re-audit closes five of the six listed defects with tests built from the live sudo results; the glob/directory Defaults!cmnd binding stays open."
+}
