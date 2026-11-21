@@ -395,14 +395,20 @@ class WigleyStrip:
             b.append(self.rho * omega_e * self.t ** 2 * bc)
         return a, b
 
-    def response(self, omega, u, coupling=None):
+    def response(self, omega, u, coupling=None, gb=None):
         """Heave and pitch (bow up) per unit wave amplitude and the added resistance per unit amplitude^2, N/m2.
 
         Head waves zeta = e^{i (omega_e t + k x)}, x forward; returns (z, theta, R_aw / zeta_A^2, omega_e).
         `coupling` (milestone 7ze), if given, is a function omega_e -> (A35, B35, A53, B53), dimensional, in the
         bow-down pitch convention of Salvesen-Tuck-Faltinsen and Kashiwagi; it replaces the strip sums' heave-pitch
         cross-coupling added mass and damping in the motion equations (restoring and everything else unchanged).
+        `gb` (milestone 7zr), if given, is a dict of Gerritsma-Beukelman speed-term variants, all defaulting to the
+        form above: `motion_sign` and `raw_sign` (-1, 0 or +1) set b' = b33 + sign U da33/dx in the motion equations
+        and in the added-resistance integrand separately; `u_theta` False drops the -U theta term from V_z; `prefactor`
+        "omega" uses k / (2 omega) in place of k / (2 omega_e).
         """
+        gb = gb or {}
+        s_m, s_r = gb.get("motion_sign", -1), gb.get("raw_sign", -1)
         k = omega * omega / G
         we = omega + k * u
         a, b = self.sections(we)
@@ -412,7 +418,9 @@ class WigleyStrip:
         for i in range(n):
             lo, hi = max(i - 1, 0), min(i + 1, n - 1)
             ap.append((a[hi] - a[lo]) / (self.x[hi] - self.x[lo]))
-        bp = [bb - u * aa for bb, aa in zip(b, ap)]          # b' = b33 - U da33/dx
+        bp = [bb + s_m * u * aa for bb, aa in zip(b, ap)]    # b' = b33 - U da33/dx (s_m = -1, the default)
+        bpr = bp if s_r == s_m else [bb + s_r * u * aa for bb, aa in zip(b, ap)]
+        ut = u if gb.get("u_theta", True) else 0.0
         c = [self.rho * G * 2.0 * h for h in self.hb]
         smith = math.exp(-k * self.dm)
         h11 = h12 = h21 = h22 = f1 = f2 = 0j
@@ -449,9 +457,9 @@ class WigleyStrip:
         raw = 0.0
         for i, x in enumerate(self.x):
             zs = smith * cmath.exp(1j * k * x)
-            vz = 1j * omega * zs - (1j * we * z + 1j * we * x * th - u * th)    # Ds/Dt
-            raw += bp[i] * abs(vz) ** 2 * dx
-        raw *= k / (2.0 * we)          # radiated energy only: viscous damping changes R_aw through the motions
+            vz = 1j * omega * zs - (1j * we * z + 1j * we * x * th - ut * th)    # Ds/Dt
+            raw += bpr[i] * abs(vz) ** 2 * dx
+        raw *= k / (2.0 * (omega if gb.get("prefactor") == "omega" else we))          # radiated energy only: viscous damping changes R_aw through the motions
         return z, th, raw, we
 
     def cross_coupling(self, omega_e, u):
