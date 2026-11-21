@@ -191,3 +191,15 @@ test("a dormer wall standing on the attic floor and rising through the roof stay
   assert.equal(dormer.envelope.aboveRoof, true);
   assert.deepEqual(h.knee.map((r) => r.envelope.exterior), [false, false]);
 });
+
+test("a low wall in a roof valley meets the roofs rising ahead of it and stays exterior", () => {
+  // walls 0..3 m round the plan, two roofs falling from y = 0 and y = 8 to a
+  // valley at y = 4 (3.2 m there), and a 0.4 m upstand standing in the valley
+  // on top of them: every ray meets a roof face rising, so it is above them
+  const ground = [wall(0, 0, 10, 0.3), wall(0, 7.7, 10, 8), wall(0, 0, 0.3, 8), wall(9.7, 0, 10, 8)];
+  const roofs = [roofRow(roofSlab(4, 3.2, 0, 7.2)), roofRow(roofSlab(4, 3.2, 8, 7.2))];
+  const upstand = wall(1, 3.95, 9, 4.05, { z0: 3.4, z1: 3.8 });
+  assignEnvelope([...ground, ...roofs, upstand]);
+  assert.equal(upstand.envelope.exterior, true);
+  assert.equal(upstand.envelope.underRoof, false);
+});

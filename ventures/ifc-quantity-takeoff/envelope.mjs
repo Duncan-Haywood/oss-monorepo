@@ -23,7 +23,8 @@
 //
 // Sloped roofs block too, where they cross a wall's ray height: an attic knee
 // wall's rays meet the roof's underside on their way out. A roof hit counts
-// only when the same ray, in plan, also crosses a lower wall beyond it (the
+// only on a face that comes down across the ray (a ray that meets a roof
+// rising ahead of it is above that roof, outside), and only when the same ray, in plan, also crosses a lower wall beyond it (the
 // eaves wall the roof comes down onto), so an exterior wall whose eaves
 // overhang reaches below its ray height, with nothing outside it, stays
 // exterior. A wall the roof closes is read again near its top, so a dormer
@@ -94,27 +95,38 @@ export function roofCut(rf, z) {
       if ((a[2] < z) !== (b[2] < z)) { const t = (z - a[2]) / (b[2] - a[2]); pts.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
     }
     if (pts.length < 2) continue;
+    // the face's slope in plan (Newell normal): g is the direction its height
+    // rises in, per metre; a face standing upright (an edge or end) has none
+    let nx = 0, ny = 0, nz = 0;
+    for (let i = 0; i < f.length; i++) {
+      const a = f[i], b = f[(i + 1) % f.length];
+      nx += (a[1] - b[1]) * (a[2] + b[2]); ny += (a[2] - b[2]) * (a[0] + b[0]); nz += (a[0] - b[0]) * (a[1] + b[1]);
+    }
+    if (Math.abs(nz) < 0.1 * Math.hypot(nx, ny, nz)) continue;
+    const g = [-nx / nz, -ny / nz];
     // a face that is not convex can cross the level more than twice: pair the
     // crossings in order along the cut
     const dx = pts[1][0] - pts[0][0], dy = pts[1][1] - pts[0][1];
     pts.sort((p, q) => (p[0] - q[0]) * dx + (p[1] - q[1]) * dy);
-    for (let i = 0; i + 1 < pts.length; i += 2) segs.push([pts[i], pts[i + 1]]);
+    for (let i = 0; i + 1 < pts.length; i += 2) segs.push([pts[i], pts[i + 1], g]);
   }
   return segs;
 }
 
-// distance along a ray to the nearest segment, or Infinity
-function segHit(o, d, segs) {
-  let best = Infinity;
-  for (const [a, b] of segs) {
+// distance along a ray to the nearest segment, or Infinity; with `under`,
+// Infinity unless that nearest face comes down across the ray (its height
+// falls along it), so the ray was under the roof, not above it
+function segHit(o, d, segs, under = false) {
+  let best = Infinity, down = false;
+  for (const [a, b, g] of segs) {
     const ex = b[0] - a[0], ey = b[1] - a[1];
     const den = d[0] * ey - d[1] * ex;
     if (Math.abs(den) < 1e-12) continue;
     const ax = a[0] - o[0], ay = a[1] - o[1];
     const t = (ax * ey - ay * ex) / den, s = (ax * d[1] - ay * d[0]) / den;
-    if (t > 0 && s >= -1e-9 && s <= 1 + 1e-9 && t < best) best = t;
+    if (t > 0 && s >= -1e-9 && s <= 1 + 1e-9 && t < best) { best = t; down = g[0] * d[0] + g[1] * d[1] < 0; }
   }
-  return best;
+  return under && !down ? Infinity : best;
 }
 
 const ROOF_WORDS = /\b(roof|roofs|roofing|dak|dakvlak|dach|dachfl[aä]che|tak|toit|techo|cubierta|tetto)\b/;
@@ -303,7 +315,7 @@ function openCount(p, near, roof = null) {
         const d = [dx * Math.cos(a) - dy * Math.sin(a), dx * Math.sin(a) + dy * Math.cos(a)];
         if (!near.every((b) => rayHit(o, d, b.plan, PAD) === Infinity)) continue;
         if (roof) {
-          const tr = segHit(o, d, roof.segs);
+          const tr = segHit(o, d, roof.segs, true);
           // a lower wall out in front (not the one this wall stands on, which
           // the ray starts inside) and no nearer than the roof's cut, less slack
           if (tr < Infinity && roof.low.some((b) => { const t = rayHit(o, d, b.plan, PAD); return t < Infinity && t > LOW_WALL_GAP && t > tr - ROOF_EAVES_SLACK; })) continue;
