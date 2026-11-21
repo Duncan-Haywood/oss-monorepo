@@ -1399,8 +1399,9 @@ class FeederAssemblyGuideTest(unittest.TestCase):
     def test_design_passes_every_guide_check(self):
         rows, bad = self.G.joint_checks(self.p, self.parts)
         self.assertEqual(bad, [])
-        self.assertEqual(len(rows), 37)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
-        # flight caps' M3, 34 until the driver carrier's M3s, 35 until the idler axles and the spool axle, 2026-11-21
+        self.assertEqual(len(rows), 39)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
+        # flight caps' M3, 34 until the driver carrier's M3s, 35 until the idler axles and the spool axle, 37 until
+        # the turntable bearing's two rings, 2026-11-21
         self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.access_problems(self.p, self.parts), [])
@@ -1531,7 +1532,8 @@ class SpannerTest(unittest.TestCase):
         self.assertEqual(self.cbad, [])
         self.assertEqual(self.fbad, [])
         self.assertEqual({r["joint"] for r in self.crows}, {"rod clamp ring", "yoke pivot", "drum axle"})
-        self.assertEqual(len(self.frows), 9)   # 7 until the idler axles and the take-up spool axle, 2026-11-21
+        self.assertEqual(len(self.frows), 11)   # 7 until the idler axles and the take-up spool axle, 9 until the
+        # turntable bearing's rings, 2026-11-21
         self.assertEqual(sum(r["holes"] for r in self.crows), 16)
 
     def test_drum_axle_nut_is_held_between_the_rods(self):
@@ -1619,6 +1621,79 @@ class SpannerTest(unittest.TestCase):
         self.assertEqual(self.G.longest_run([True, False, False, True, True]), 15)
         self.assertEqual(self.G.longest_run([True] * 4), 360)
         self.assertEqual(self.G.longest_run([False] * 4), 0)
+
+
+class BearingParamsTest(unittest.TestCase):
+    """2026-11-21: the turntable bearing's rings. Both rings' M5 heads sit in the gap between the flanges and pass
+    each other as the turntable turns; the nylocs go outside, where an M5 x 16 reaches them."""
+
+    def test_design_passes(self):
+        p = Feeder()
+        self.assertEqual(p.check_bearing(), [])
+        b = p.bearing_design()
+        self.assertEqual(b["gap_mm"], 6.0)
+        self.assertAlmostEqual(b["head_pass_mm"], 0.5)
+        self.assertEqual((b["grip_mm"], b["past_mm"]), (7.0, 9.0))
+
+    def test_the_old_screws_and_nuts_did_not_fit(self):
+        """The BOM's M5 x 12 with a plain nut on each ring left 5 mm past a 7 mm stack, 6.3 needed."""
+        b = Feeder().bearing_design()
+        self.assertLess(b["old_past_mm"], b["old_nut_need_mm"])
+        self.assertTrue(any("M5 x 12" in m for m in Feeder(bearing_screw_len=12.0).check_bearing()))
+
+    def test_a_thin_bearing_fails(self):
+        self.assertTrue(any("heads pass" in m for m in Feeder(bearing_h=8.0).check_bearing()))
+        self.assertTrue(any("access hole" in m for m in Feeder(bearing_access_d=9.0).check_bearing()))
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class BearingCadTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import feeder as F, feeder_guide as FG, guide as G
+        cls.F, cls.FG, cls.G = F, FG, G
+        cls.p = Feeder()
+        cls.parts = F.all_parts(cls.p)
+
+    def test_rings_clash_with_nothing(self):
+        rings = [pt for pt in self.parts if pt.name.startswith("turntable_bearing")]
+        self.assertEqual(len(rings), 2)
+        for r in rings:
+            for s in r.placed():
+                for pt in self.parts:
+                    if pt is r:
+                        continue
+                    for o in pt.placed():
+                        x = s & o
+                        self.assertFalse(x and x.volume > 0.01, (r.name, pt.name))
+
+    def test_each_screw_is_reached_through_an_access_hole(self):
+        self.assertEqual(self.FG.bearing_access_problems(self.p, self.parts), [])
+        small = Feeder(bearing_access_d=8.0)
+        bad = self.FG.bearing_access_problems(small, self.F.all_parts(small))
+        self.assertEqual(len(bad), 8)      # every screw: the head does not pass an 8 mm hole
+
+    def test_stacks_measured(self):
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.p, self.parts)[0]}
+        a = rows["bearing fixed ring to the mast plate"]
+        b = rows["turntable plate to the bearing's turning ring"]
+        self.assertEqual((a["grip_mm"], b["grip_mm"]), (7.0, 7.0))
+        self.assertIn("mast_plate", a["stack"])
+        self.assertIn("turntable_plate", b["stack"])
+
+    def test_nyloc_tails_stay_under_the_head(self):
+        """The turning ring's nylocs and 9 mm tails stand on the turntable plate beside the cheeks: no head pose
+        reaches them, the actuator's two limits included."""
+        import math
+        from build123d import Cylinder, Location
+        z = self.p.turntable_top
+        cyl = [Cylinder(4.6, self.p.bearing_design()["past_mm"]).moved(
+            Location((x, y, z + self.p.bearing_design()["past_mm"] / 2 + 0.01))) for x, y in self.F.bearing_holes(self.p, True)]
+        for e in (-30.3, 0.0, 45.8):
+            for name, s in self.F.swept_solids(self.p, e):
+                for c in cyl:
+                    x = c & s
+                    self.assertFalse(x and x.volume > 0.1, (e, name))
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
