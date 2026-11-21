@@ -40,6 +40,7 @@ row below. Every flag's measurements are in the README section named after it.
 | Did the change fall inside a Google update, a release or a price change? | `--events updates.csv` (start[,end],label per line) |
 | ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
 | ...for a level that wanders all the time | `watch.mjs --detector drift` |
+| ...counts whose level wanders (traffic, orders) | the count Middle plus `--wander gated` (see "A wandering level under Middle") |
 
 `node cli.mjs --help` and `node watch.mjs --help` list every flag.
 
@@ -3932,8 +3933,67 @@ say Middle allows for steady growth but not a wandering level. A check costs abo
 and `gated` are refused for other models; the watch takes `--trend gated` for counts only. The tests that pinned the
 old Middle's picks were updated: `gsc-middle.test.mjs`, `count-default-middle.test.mjs` (the flat Middle's growth check now names the flat setting) and `real-shop.test.mjs` (the picks above).
 
-**Next:** a wandering level (T4, T5) under Middle (the drift model's random-walk level is one candidate, measured
-against the same falls); then a live Search Console property.
+**Next:** a wandering level (T4, T5) under Middle: tried 2026-11-21 (below, "A wandering level under Middle"; ships as
+`--wander gated`); then a live Search Console property.
+
+## A wandering level under Middle (2026-11-21, pre-registered; K3 fails at cv 0.15, ships as `--wander gated`)
+
+The section above left one weakness of the count Middle named: a level that wanders at random is not a line, and on
+log-mean walks with sd 1% and 2% a day Middle still sent 5.21 and 11.25 alerts per 1,000 days. PELT reads the wander
+as a staircase and its newest step alerts.
+
+**The candidate** (`watch-core.mjs` `wanderGate`, option `wander: 'gated'`). At each check where Middle has found a
+change, the window's counts go to log(x + 0.5), less a day-of-week effect (median per weekday of the residual from a
+centred 7-day mean) and less a robust slope (median of lag-n/4 differences, from pairs that do not straddle a jump of
+a first flat fit; steady growth is the growth term's job). The drift model (`drift-level.mjs`: a random-walk level
+with jumps) is fitted twice with the same noise scale: wander profiled, and no wander (a flat level with jumps). When
+the wander beats the flat fit by more than log n, a Middle change is kept only where the drift fit also places a jump
+within 5 points. Otherwise nothing changes. It costs about 5 ms a check on 240 days, and only when Middle has a change.
+
+**How it was tuned** (probes, seeds 9901-9912, deciding nothing; `eval/middle-wander-probe.mjs`,
+`eval/middle-wander-probe-replay.mjs`). A first version with no slope taken out opened on 29 of 30 growing series
+and missed T6's fall on 2 more of 12 (the drift fit read the fall as wander on a growing site). A one-step median slope
+opened the gate on everything (it is as noisy as the counts); a lag-n/2 slope read a big fall as growth. The version
+above opened on 7 of 40 flat and step series, 3 of 60 simulated Search Console sites, T4 2 of 10 and T5 6 of 10.
+
+**The round** (`eval/middle-wander.prereg.md`, committed before the runs; `eval/middle-wander.mjs`, output
+`eval/middle-wander.out.txt`, 64 min on 4 cores). W is `COUNT_MIDDLE` with `wander: 'gated'`; M the count Middle; D the
+count default. The sets of the last round on fresh seeds (set 1 3501-3520, set 2 6001-6060, set 3 3701-3740).
+
+| set | measure | D | M | W | bar |
+|---|---|---|---|---|---|
+| 3 T4 log-mean walk, sd 1% a day | alerts per 1,000 days (sites alerted of 40) | 0.83 (4) | 5.42 (21) | 3.75 (16) | |
+| T5 log-mean walk, sd 2% a day | | 2.29 (10) | 13.75 (37) | **3.54 (15)** | |
+| T4 + T5 | alerts | 15 | 92 | **35** | K1 pass (<= half of M) |
+| T1 grows 30% | alerts per 1,000 days | 0.42 | 2.92 | 2.71 | K5 pass (<= M + 1.0) |
+| T2 grows 100% | | 1.46 | 3.33 | 0.83 | K5 pass |
+| T3 falls 30% | | 0.42 | 2.29 | 1.67 | K5 pass |
+| T6 grows 30%, falls 20% on day 180 | falls heard of 40; mean days unaware; false before per 1,000 days | 6; 51.6; 0.42 | 40; 9.4; 1.67 | 39; 13.2; 1.25 | K2 pass (>= M - 4) |
+| 1 Search Console sites, cv 15% | mean days unaware, nine fall cells | 35.23 | 19.20 | 19.88 (W - M +0.68, 0.12 to 1.42) | **K3 FAIL** (upper <= +1.0) |
+| 1 same, cv 30% | | 41.86 | 31.71 | 31.87 (+0.16, 0.02 to 0.33) | K3 pass |
+| 2 eleven flat and step cells | false alerts per 1,000 checks; steps found of 360 | 1.03; 319 | 1.86; 346 | 1.72; 345 (false -0.14, -0.28 to -0.03; steps -1, -3 to 0) | K4 pass |
+
+**What it means.** On a level that wanders 2% a day the gate removes three quarters of Middle's alerts (37 of 40
+sites alerted to 15), and on sites growing or shrinking it is as quiet as Middle or quieter (doubling sites 13 to 4).
+On flat sites it sends slightly fewer false alerts and finds the same steps. The cost is on calm sites with small
+falls: at cv 15% the gate sometimes opened and the drift fit read a slow 10% fall as wander (base 50: 4 of 20 10%
+falls heard against 5; base 400: 9 against 11), 0.68 days more unaware per fall on average, whose upper end (1.42)
+passed the pre-registered +1.0. A 1% daily wander is close to the noise and the gate opens on few of those sites (T4
+21 to 16). These are simulated sites, and the day-of-week removal covers a weekly cycle only.
+
+**What ships.** `COUNT_MIDDLE` stays (pelt + NB + gated growth). `--wander gated` is new on the watch for counts (with
+`--model poisson`; with `--columns` it applies to the count columns only), the engine option `wander: 'gated'` on
+`detectChanges` and `replayWatch`, and a stored `--detector auto` choice carries it. Use it on a count series whose
+level visibly wanders between real changes (traffic that drifts with seasons and news) when Middle's alerts on the
+wander cost more than a slightly later hearing of small falls.
+
+**Checked** (`wander-gate.test.mjs`, 4): the gate opens on a log-mean walk of 3% a day and stays shut on a flat level
+with one 40% fall; with the gate shut, `--wander gated` finds exactly Middle's changes; on wandering series it keeps
+fewer changes than Middle; the option is refused for other models and bad values, and the watch CLI takes it for counts
+only.
+
+**Next:** a gate that opens less on calm sites with slow falls (a higher margin than log n, or the drift fit's jump
+penalty matched to PELT's), then a live Search Console property.
 
 ## Shopify as a source (2026-11-19)
 
