@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmhguQU178zG9icQRi",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T02:18:47Z",
+  "ended": "2026-11-21T02:39:20Z",
+  "wall_minutes": 20.85,
+  "tokens_in": 5132383,
+  "tokens_out": 28745,
+  "cost_usd": 2.3959,
+  "tool_calls": 49,
+  "task": "quality reaudit: ventures/mortgage-escrow-analysis-checker",
+  "projects": [
+    "ventures/mortgage-escrow-analysis-checker"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18012",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "A heredoc-wrapped python edit script was refused by the rm-safety check although it deletes nothing; rewrote it as a file under the scratchpad."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "reaudit mode says to 'say which defects the fix closed' but defines no field for it; the verdict prose and mark-fixed on the old audit carried it. No reaudit file existed yet to copy."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "steps 1 and 5 assume a sample round (round-N post); a reaudit session has to find its post name in quality_audit.py MODE_COMMANDS."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "mode picked reaudit, not sample, so no round was drawn",
+      "did": "re-audited the top queue subject, fixed its remaining defects in the same PR, wrote docs/posts/<date>-quality-reaudit-<slug>.md",
+      "result": "one subject re-audited; 4 of 7 earlier defects confirmed closed and marked; 4 open ones fixed with tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-quality-reaudit-mortgage-escrow-analysis-checker.md"
+  ],
+  "goal": null,
+  "notes": "Mode reaudit, seed 2026-11-21-7678. Subject ventures/mortgage-escrow-analysis-checker (2026-11-13 audit, fix PR #15569). Re-audit scores all 3: meets the bar (was correctness/verification/claims/domain 2). PR #15569 closed 4 of 7 defects (incl. the high deficiency-definition one); 3 were only in README Known gaps; 1 new medium gap (deficiency+shortage skips 12-month check). Fix PR: #18012 (this PR): questioned = largest single amount (sample 3179.96 -> 1479.96), mixed deficiency+shortage check at deficiency/2 + shortage/12, (f)(4)(i)(B), bill note. Spot-check: own Appendix E script reproduced all Step 2/3 balances. Tests 53 -> 57 pass; mutants 5/6 caught before fixes, new-formula mutant caught after. Local CI: run_workflow_locally --for-changes 13/13 workflows passed (some uses:/pytest steps not run, as it reports). marisstella.app proxy 403; served-copy.mjs used instead.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8fbf3461-3402-5097-8808-68d2abc12993",
+    "transcripts": 1,
+    "first": "2026-11-21T02:18:47Z",
+    "last": "2026-11-21T02:39:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 103,
+        "output": 28745,
+        "thinking": 4803,
+        "cache_read": 5030472,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101808,
+        "api_equivalent_usd": 2.3959,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 103,
+      "output": 28745,
+      "thinking": 4803,
+      "cache_read": 5030472,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101808,
+      "api_equivalent_usd": 2.3959,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.85,
+      "active_minutes": 8.14,
+      "model_minutes": 5.38,
+      "tool_minutes": 2.76,
+      "waiting_on_human_minutes": 12.71,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a compliance analyst re-checking a Reg X tool and a developer fixing four defects with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 208.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -183,28 +183,32 @@
    "what": "Deficiency is computed as the shortfall below a zero projected low point (neededZero - startBalance) instead of a negative account balance (12 CFR 1024.17(b)). Any shortage whose low point dips below zero is partly relabelled a deficiency and the 12-month spread check is then skipped (calc.mjs:183 requires deficiencyCents === 0): start $500, $540 shortage collected over 6 months, which (f)(3)(ii) disallows, gives no finding.",
    "where": "ventures/mortgage-escrow-analysis-checker/calc.mjs:138",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569"
   },
   {
    "severity": "medium",
    "what": "Page defines a deficiency as 'a negative projected balance' / 'the balance would go negative' (FAQ and rules list), contrary to 1024.17(b), and tells users a deficiency 'may be repaid faster'; the headline promise to flag a shortage collected faster than allowed fails in exactly that case.",
    "where": "ventures/mortgage-escrow-analysis-checker/index.html:146",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569"
   },
   {
    "severity": "medium",
    "what": "Tests pin the deficiency misreading as correct (start $0, Jan bill: deficiency 1100; $1,300 collected in one month 'not held to the 12-month rule'), and no test runs Appendix E.",
    "where": "ventures/mortgage-escrow-analysis-checker/calc.test.mjs:109",
    "category": "domain-rule",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569"
   },
   {
    "severity": "medium",
    "what": "Regulatory thresholds are unpinned: changing the $50 surplus threshold to $100, the 12-month spread limit to 8 months, or the one-month-payment boundary from >= to > leaves all 46 tests green.",
    "where": "ventures/mortgage-escrow-analysis-checker/calc.test.mjs:96",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569"
   },
   {
    "severity": "medium",

@@ -187,7 +187,19 @@ export function analyze(input) {
       add({ id: "spread", severity: "high", title: `Shortage is being recovered over about ${months.toFixed(1)} months, not 12 or more`, amountCents: 0,
         detail: `The statement shows a $${money(st.shortage)} shortage collected at $${money(st.shortageMonthly)} a month, about ${months.toFixed(1)} months. For a shortage of one month's payment or more, Regulation X lets a servicer require repayment over at least 12 months. This does not apply to a deficiency (a negative account balance at the time of the analysis), which may be repaid faster, and only applies while the account is current. Ask which one the statement describes.`,
         cite: CITATIONS.shortage });
-    } else if (deficiencyCents > 0 && months < 1.5) {
+    } else if (deficiencyCents > 0 && shortageOnlyCents >= oneMonthLimit && cents(st.shortage) > deficiencyCents + 100
+      && cents(st.shortageMonthly) > Math.round(deficiencyCents / 2 + shortageOnlyCents / 12) + 100) {
+      // A deficiency and a shortage together: the deficiency may be required in
+      // as few as two payments ((f)(4)), but the shortage part still over at
+      // least 12 months ((f)(3)(ii)), so the fastest allowed monthly recovery
+      // is half the deficiency plus a twelfth of the shortage.
+      const fastest = Math.round(deficiencyCents / 2 + shortageOnlyCents / 12);
+      add({ id: "spread", severity: "medium", title: `Recovery of $${money(st.shortageMonthly)} a month is faster than a deficiency plus a 12-month shortage allows`, amountCents: 0,
+        detail: `Your numbers show a $${money(fromCents(deficiencyCents))} deficiency (the account is below zero now) and a further $${money(fromCents(shortageOnlyCents))} shortage. The deficiency may be collected in two or more payments, but the shortage part, being at least one month's payment, over at least 12 months. The fastest that allows is about $${money(fromCents(fastest))} a month at first; the statement collects $${money(st.shortageMonthly)} a month. Ask how the statement splits the deficiency and the shortage. This only applies while the account is current.`,
+        cite: CITATIONS.shortage });
+    } else if (deficiencyCents >= monthlyCents && months < 1.5) {
+      // 1024.17(f)(4)(i)(B): a deficiency under one month's payment may be
+      // required within 30 days, so only a larger one is worth a note.
       add({ id: "spread-def", severity: "info", title: "Deficiency recovered in fewer than two payments", amountCents: 0,
         detail: `A negative account balance (a deficiency) may be repaid in two or more equal monthly payments; your numbers show a deficiency of $${money(fromCents(deficiencyCents))}. The statement collects $${money(st.shortage)} at $${money(st.shortageMonthly)} a month.`,
         cite: CITATIONS.deficiency });
@@ -213,7 +225,12 @@ export function analyze(input) {
   const order = { high: 0, medium: 1, info: 2 };
   findings.sort((a, b) => order[a.severity] - order[b.severity]);
 
-  const questionedCents = findings.filter((f) => f.severity !== "info").reduce((s, f) => s + f.amountCents, 0);
+  // The flagged amounts overlap: a higher payment over a year already carries
+  // the higher projected bills and the recovery of a larger shortage (which
+  // includes any oversized cushion), and a larger shortage includes the
+  // cushion excess. Adding them counts one dollar more than once, so the
+  // figure is the largest single amount in question, not their sum.
+  const questionedCents = findings.filter((f) => f.severity !== "info").reduce((m, f) => Math.max(m, f.amountCents), 0);
 
   return {
     summary: {
