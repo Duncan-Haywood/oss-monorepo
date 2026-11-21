@@ -372,6 +372,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *The seat that came back* *(Drafting, 2026-11-21.)* (proposed 2026-11-21): a deanery office agent shares 48 coach seats to an ordination among five parishes in proportion to the names each sent (37, 32, 23, 17 and 6), by the largest-remainder rule its handoff note calls fair (Hamilton's method): 15, 13, 10, 7 and 3. A deacon decides to drive himself, the seat goes back into the pool, and at 49 seats the same rule gives 16, 14, 10, 7 and 2: the smallest parish loses a seat because there is one more. The Alabama paradox (C. W. Seaton, US Census Office, 1880; M. L. Balinski and H. P. Young, *Fair Representation*, Yale, 1982). The failed first try is D'Hondt, which never does this but gives the small parish two at both sizes; the reasonable no is the secretary's 'you are choosing a method after seeing who it helps'. Webster/Sainte-Laguë (house monotone, here within quota) gives 15, 13, 10, 7, 3 and then 16, 13, 10, 7, 3, so the cost is a seat Prudhoe was told it had for a day. 'Alabama paradox' and 'apportion' are unused in `overlap.mjs`.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
