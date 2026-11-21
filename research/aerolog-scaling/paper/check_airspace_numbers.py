@@ -227,6 +227,31 @@ CHECKS = [
     ("exact_rules_results.txt", "closed form (c): bands 2: 1, 3: 30, 4: 46, 5: 19 (median 4)", "0 of 384 draws"),
     ("exact_rules_results.txt", "# W4 -> refuted", "Of five predictions, four held"),
 
+    # 11ax leak budget
+    ("leak_budget_results.txt", "aware F equal in 384, k_c in 384, sort at (c) in 384 of 384 draws", "reproduce exactly in 384 of 384 draws"),
+    ("leak_budget_results.txt", "p* (calibrated on M = 12, both s, 192 draws) = 0.07", "**p* = 0.07**"),
+    ("leak_budget_results.txt", "B(p0)       bands 3: 77, 4: 19 (median 3)", "**3 at twice it**"),
+    ("leak_budget_results.txt", "B(p0)       bands 3: 89, 4: 7 (median 3)", "**3 at twice it**"),
+    ("leak_budget_results.txt", "B(p*)       bands 4: 22, 5: 41, 6: 33 (median 5); agree 40", "**40 of 96**"),
+    ("leak_budget_results.txt", "B(p*)       bands 3: 46, 4: 29, 5: 14, 6: 7 (median 4); agree 47", "**47 of 96**"),
+    ("leak_budget_results.txt", "(median 4); agree  8;", "against 8 and 2 for the closed form"),
+    ("leak_budget_results.txt", "(median 2); agree  2;", "against 8 and 2 for the closed form"),
+    ("leak_budget_results.txt", "0.05:54", "more than 54 of 96"),
+    ("leak_budget_results.txt", "random-50 at h_B 1.0124", "**1.0124 and 1.0076**"),
+    ("leak_budget_results.txt", "random-50 at h_B 1.0076", "**1.0124 and 1.0076**"),
+    ("leak_budget_results.txt", "random-50 at h_B 1.0138", "**1.0138 and 1.0095**"),
+    ("leak_budget_results.txt", "random-50 at h_B 1.0095", "**1.0138 and 1.0095**"),
+    ("leak_budget_results.txt", "random-50 at h_B 1.0674", "1.0674, 1.2082, 1.1117 and 1.3262"),
+    ("leak_budget_results.txt", "random-50 at h_B 1.3262", "1.0674, 1.2082, 1.1117 and 1.3262"),
+    ("leak_budget_results.txt", "sort+descent 1.0830", "1.0830 to 1.0953"),
+    ("leak_budget_results.txt", "sort+descent 1.0953", "1.0830 to 1.0953"),
+    ("leak_budget_results.txt", "random-50 at h_B 1.0187", "1.0187 and 1.0000"),
+    ("leak_budget_results.txt", "random-50 at h_B 1.0551", "1.0310 and 1.0551"),
+    ("leak_budget_results.txt", "aware plan's own adjacent leak: median 0.0096", "0.0096 (12 operators)"),
+    ("leak_budget_results.txt", "aware plan's own adjacent leak: median 0.0197", "**0.0197** (16)"),
+    ("leak_budget_results.txt", "# L3 -> refuted", "Of five predictions, three held"),
+    ("leak_budget_results.txt", "# L5 -> refuted", "Of five predictions, three held"),
+
 ]
 
 
