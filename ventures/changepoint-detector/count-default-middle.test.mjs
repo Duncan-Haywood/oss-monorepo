@@ -15,23 +15,27 @@ function growing(seed) {
   return labels.map((d, i) => { const w = new Date(`${d}T00:00:00Z`).getUTCDay(); return poisson(u, 400 * (w === 0 || w === 6 ? 0.7 : 1) * (1 + 0.3 * i / 240) * gammaS(u, k, 1 / k)); });
 }
 
-test('the count default is still the windowed pass, Middle still pelt + NB', () => {
+test('the count default is still the windowed pass; Middle is pelt + NB with the gated growth term (README "The joint growth fit, gated")', () => {
   assert.deepEqual(COUNT_DEFAULTS, { detector: 'bocpd-window', overdispersion: 'nb', threshold: 0.3 });
-  assert.deepEqual(COUNT_MIDDLE, { detector: 'pelt', overdispersion: 'nb' });
+  assert.deepEqual(COUNT_MIDDLE, { detector: 'pelt', overdispersion: 'nb', trend: 'gated' });
 });
 
-test('on a site growing 30% with no step, Middle alerts on more of 6 seeds than the default', () => {
+// The flat Middle this round tested (pelt + NB, no growth term), kept as the round's own check.
+const FLAT_MIDDLE = { detector: 'pelt', overdispersion: 'nb' };
+test('on a site growing 30% with no step, the flat Middle alerts on more of 6 seeds than the default', () => {
   let d = 0, m = 0;
   for (let seed = 701; seed <= 706; seed++) {
     const v = growing(seed);
     if (replayWatch(v, labels, { model: 'poisson', ...COUNT_DEFAULTS, from: 120, step: 1, budget: Infinity }).alerts.length) d++;
-    if (replayWatch(v, labels, { model: 'poisson', ...COUNT_MIDDLE, from: 120, step: 1, budget: Infinity }).alerts.length) m++;
+    if (replayWatch(v, labels, { model: 'poisson', ...FLAT_MIDDLE, from: 120, step: 1, budget: Infinity }).alerts.length) m++;
   }
   assert.ok(m > d, `Middle ${m} vs default ${d} of 6`);
 });
 
-test('the count hint note warns that Middle alerts on growth', () => {
+test('the count hint note says Middle allows for steady growth but not a wandering level', () => {
   const v = growing(701).slice(0, 120);
   const text = eagernessText(eagernessReplay(v, labels.slice(0, 120), { model: 'poisson' }), { column: 'clicks' });
-  assert.match(text, /growing or wandering one it alerts on the trend/);
+  assert.match(text, /Middle allows for steady growth/);
+  assert.match(text, /wanders at random it still alerts on the wander/);
+  assert.match(text, /Middle \(pelt, negative-binomial cost, growth term when it earns its place\)/);
 });
