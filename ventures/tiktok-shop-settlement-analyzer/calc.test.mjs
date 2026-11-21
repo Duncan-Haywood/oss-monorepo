@@ -177,3 +177,28 @@ test("quality audit 2026-11-20: year-first slash dates parse; a positive Adjustm
   assert.equal(n.rows[2].kind, "refund");
   near(analyze(n.rows).summary.takeHome, 21.20 + 5.00 - 2.00);
 });
+
+// Quality re-audit 2026-11-21: a positive Adjustment was counted as an order, so it
+// took a cost per order, halved the average order and, in an amount-only file,
+// had the assumed 6% fee taken off it.
+test("quality re-audit 2026-11-21: a positive adjustment is not an order and pays no fee", () => {
+  const n = load("2026-06-01,1,Order,Settled,Mug,amy,25.00,3.80,21.20\n2026-06-02,2,Adjustment,Settled,,,5.00,0,5.00\n");
+  const s = analyze(n.rows, { costPerOrder: 2 }).summary;
+  assert.equal(s.orders, 1);
+  assert.equal(s.adjustments, 1);
+  assert.equal(s.tips, 0);
+  near(s.takeHome, 21.20 + 5.00 - 2.00);
+  near(s.avgOrderGross, 25);
+  near(s.gross, 25);
+  near(s.feeRate, 3.80 / 25);
+  near(s.adjustmentNet, 5);
+  const a = normalizeRows(parseCsv("Date,Type,Amount\n2026-06-01,Order,25\n2026-06-02,Reimbursement,5\n"));
+  const sa = analyze(a.rows).summary;
+  near(sa.fee, 1.5);
+  near(sa.takeHome, 23.5 + 5);
+});
+
+test("quality re-audit 2026-11-21: Inactive is not pending; Unsettled and Awaiting settlement are", () => {
+  const n = load("2026-06-01,1,Order,Inactive,Mug,amy,25.00,3.80,21.20\n2026-06-02,2,Order,Unsettled,Mug,bo,25.00,3.80,21.20\n2026-06-03,3,Order,Awaiting settlement,Mug,cy,25.00,3.80,21.20\n");
+  assert.deepEqual(n.rows.map((r) => r.pending), [false, true, true]);
+});

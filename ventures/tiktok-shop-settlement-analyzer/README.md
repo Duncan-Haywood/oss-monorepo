@@ -37,6 +37,8 @@ Open `index.html` through any static server. Tests: `node --test`.
 
 From the census audit, [`2026-11-20-tiktok-shop-settlement-analyzer.json`](../../portfolio/quality/audits/2026-11-20-tiktok-shop-settlement-analyzer.json). Fixed in PR #17836: positive Adjustment rows read as refunds, year-first slash dates rejected, a Fiverr page label. Still open:
 
+Re-audit 2026-11-21 ([`2026-11-21-tiktok-shop-settlement-analyzer.json`](../../portfolio/quality/audits/2026-11-21-tiktok-shop-settlement-analyzer.json)): fixed in PR #18064, a positive adjustment (or reimbursement) counted as an order, taking a cost per order and an assumed fee; "Inactive" read as still clearing and "Unsettled" not. Also still open from it: three seeded mutants survive (date-range end day, refund-share severity threshold, net above gross in difference mode).
+
 - The engine is the Fiverr earnings analyzer with a TikTok skin. It has never been run on a real TikTok Shop settlement export, whose fee columns are negative and split by type (referral fee, affiliate commission, shipping).
 - The headline "TikTok Shop kept X%" counts affiliate commission paid to creators as TikTok's fee.
 - The refund administration fee (20% of the referral fee, capped at $5) is not modelled.

@@ -7,13 +7,21 @@ import { monthlyAmount, dict, put } from "./metrics.mjs";
 // netted. Fixed-amount coupons and metered usage are NOT included (README says so).
 export function normalizeSubscription(s) {
   const items = s.items?.data?.length ? s.items.data : s.plan ? [{ price: s.plan, quantity: s.quantity ?? 1 }] : [];
-  let gross = 0, currency = s.currency || "usd";
+  let gross = 0, currency = s.currency || "usd", uncounted = 0;
   const lines = dict();
   for (const it of items) {
     const p = it.price || it.plan || {};
     if (p.recurring?.usage_type === "metered" || p.usage_type === "metered") continue;
     currency = p.currency || currency;
-    const m = monthlyAmount(p.unit_amount ?? p.amount ?? 0, p.recurring?.interval || p.interval, p.recurring?.interval_count || p.interval_count || 1, it.quantity ?? 1);
+    // A sub-cent price has unit_amount null and only unit_amount_decimal. A
+    // tiered (graduated or volume) price has neither: its amount lives in
+    // `tiers`, which a subscription list cannot expand (five levels deep;
+    // Stripe allows four). Those items are counted as uncounted, not as 0
+    // silently, so the dashboard can say MRR is understated (re-audit 2026-11-21).
+    const decimal = p.unit_amount_decimal != null && p.unit_amount_decimal !== "" ? Number(p.unit_amount_decimal) : null;
+    const unit = p.unit_amount ?? (Number.isFinite(decimal) ? decimal : null) ?? p.amount ?? null;
+    if (unit === null || p.billing_scheme === "tiered") { uncounted += 1; continue; }
+    const m = monthlyAmount(unit, p.recurring?.interval || p.interval, p.recurring?.interval_count || p.interval_count || 1, it.quantity ?? 1);
     gross += m;
     const name = String(p.nickname || (typeof p.product === "string" ? p.product : p.product?.name || p.product?.id) || p.id || "unknown").slice(0, 80);
     lines[name] = (lines[name] || 0) + m;
@@ -40,6 +48,7 @@ export function normalizeSubscription(s) {
     customer: typeof s.customer === "string" ? s.customer : s.customer?.id,
     status: paused && s.status === "active" ? "paused" : s.status,
     mrr: net,
+    uncounted,
     currency,
     created: (s.created || 0) * 1000,
     endedAt: s.ended_at ? s.ended_at * 1000 : null,

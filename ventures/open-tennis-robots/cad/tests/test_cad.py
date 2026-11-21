@@ -245,6 +245,52 @@ class AssemblyGuideTest(unittest.TestCase):
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.hatch_check(self.p, self.parts), [])
 
+    def test_every_head_can_be_reached(self):
+        """2026-11-21: every collector joint is an `access` joint, at every hole and on both sides, against the parts
+        it clamps and against what is on the work when its step comes."""
+        js = self.G.joints(self.p)
+        self.assertTrue(all(j.access for j in js))
+        self.assertEqual(self.G.access_problems(self.p, self.parts), [])
+        self.assertEqual(self.G.step_access_problems(self.p, self.parts), [])
+        self.assertEqual(self.G.hatch_screw_problems(self.p, self.parts), [])
+
+    def test_every_screw_the_steps_use_is_a_checked_hole(self):
+        made = {}
+        for j in self.G.joints(self.p):
+            made[j.fastener] = made.get(j.fastener, 0) + len(self.G._instances(j))
+        used = {}
+        for st in self.G.steps(self.p):
+            for item, qty in st.fasteners:
+                if item in made:
+                    used[item] = used.get(item, 0) + qty
+        self.assertEqual(made, used)
+
+    def test_bench_steps_are_needed(self):
+        """The guide's "on the bench" for the switch screws and the Pi's standoffs is not a nicety: on the machine the
+        wheel covers the switch screws' heads and the base plate the standoff screws'."""
+        import dataclasses
+        js = self.G.joints(self.p)
+        for name, blocker in (("switch to tower", "wheel"), ("Pi standoff to tray", "base_plate")):
+            j = dataclasses.replace(next(x for x in js if x.name == name), bench=False)
+            with unittest.mock.patch.object(self.G, "joints", lambda p, j=j: [j]):
+                bad = self.G.step_access_problems(self.p, self.parts)
+            self.assertTrue(bad and blocker in bad[0], bad)
+
+    def test_service_access_names_what_hides_each_screw(self):
+        rows = {r["joint"]: r for r in self.G.service_access(self.p, self.parts)}
+        self.assertEqual(set(rows), {"switch to tower", "Pi standoff to tray", "fixed cover", "hatch"})
+        self.assertEqual(rows["switch to tower"]["behind"], ["wheel"])
+        self.assertEqual((rows["hatch"]["hidden"], rows["hatch"]["of"]), (1, 6))
+        self.assertEqual(rows["hatch"]["behind"], ["yoke_arm"])
+
+    def test_a_drum_stopped_off_slot_down_hides_a_hatch_screw(self):
+        """The arm hides one thumb screw over 24 of every 60 degrees of drum turn; slot down is 11 degrees clear."""
+        window = self.G.hatch_screw_window(self.p, self.parts)
+        self.assertEqual(60 - len(window), 24)
+        self.assertEqual(self.G.hatch_margin(self.p, self.parts), (11, 24))
+        with unittest.mock.patch.object(self.G, "HATCH_TURN", 60):
+            self.assertTrue(self.G.hatch_screw_problems(self.p, self.parts))
+
     def test_joint_stacks_are_measured_from_the_cad(self):
         rows = {r["joint"]: r for r in self.G.joint_checks(self.p, self.parts)[0]}
         self.assertEqual(rows["drum axle"]["grip_mm"], 19.0)        # arm 5 + spacer 7 + bearing 7

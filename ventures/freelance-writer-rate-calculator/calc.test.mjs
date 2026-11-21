@@ -1,8 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   writerRateOutcome,
   money,
+  perWordMoney,
   LOW_RATE_FLOOR,
   GHOSTWRITING_PREMIUM_LOW,
   GHOSTWRITING_PREMIUM_HIGH,
@@ -187,4 +189,57 @@ test("the non-writing-time finding does not recommend a flat fee when the per-wo
   });
   assert.equal(r.betterOption, "per-word");
   assert.ok(!r.findings.some((f) => /research and revisions/.test(f.title)));
+});
+
+// Quality re-audit 2026-11-21 (portfolio/quality/audits/2026-11-21-freelance-writer-rate-calculator.json):
+// tests for the defects that were still open.
+
+test("words with a blank writing speed give no hourly figures or verdict", () => {
+  const r = writerRateOutcome({ wordCount: 1500, perWordRate: 0.2, flatFee: 500, writingWordsPerHour: "", researchHours: 4, revisionRounds: 2, hoursPerRevision: 1 });
+  assert.equal(r.speedMissing, true);
+  assert.equal(r.totalHours, 0);
+  assert.equal(r.perWordHourly, 0);
+  assert.equal(r.betterOption, "tie");
+  assert.equal(r.findings.length, 1);
+  assert.match(r.findings[0].title, /writing speed/);
+});
+
+test("a non-writing share of exactly 25% triggers the research-time note", () => {
+  // 1,000 words at 1,000 wph = 1 h writing; 1/3 h research => 25% of 4/3 h.
+  const r = writerRateOutcome({ wordCount: 1000, perWordRate: 0.1, flatFee: 150, writingWordsPerHour: 1000, researchHours: 1 / 3 });
+  assert.ok(Math.abs(r.nonWritingShare - 0.25) < 1e-12);
+  assert.match(r.findings.map((f) => f.title).join(" | "), /research and revisions/);
+});
+
+test("a 49-cent-per-hour gap is a real difference, not a tie", () => {
+  const r = writerRateOutcome({ wordCount: 1000, perWordRate: 0.1, flatFee: 100.49, writingWordsPerHour: 1000 });
+  assert.equal(r.betterOption, "flat-fee");
+  const tie = writerRateOutcome({ wordCount: 1000, perWordRate: 0.1, flatFee: 100.004, writingWordsPerHour: 1000 });
+  assert.equal(tie.betterOption, "tie");
+});
+
+test("solved per-word rates keep sub-cent precision", () => {
+  assert.equal(perWordMoney(0.0125), "$0.0125");
+  assert.equal(perWordMoney(0.1), "$0.10");
+  assert.equal(perWordMoney(0.45), "$0.45");
+  const r = writerRateOutcome({ wordCount: 2000, perWordRate: 0.01, flatFee: 20, writingWordsPerHour: 1000, targetHourlyRate: 12.5 });
+  assert.match(r.findings.map((f) => f.detail).join(" "), /\$0\.0125\/word/);
+});
+
+test("hourly after US self-employment tax matches IRS Schedule SE (15.3% on 92.35%)", () => {
+  const r = writerRateOutcome({ wordCount: 1500, perWordRate: 0.2, flatFee: 500, writingWordsPerHour: 500, researchHours: 4, revisionRounds: 2, hoursPerRevision: 1 });
+  // By hand: 500 / 9 = 55.556; x (1 - 0.153 x 0.9235) = 47.71.
+  assert.equal(r.flatFeeHourlyAfterSeTax.toFixed(2), "47.71");
+  assert.equal(r.perWordHourlyAfterSeTax.toFixed(2), "28.62");
+});
+
+test("for one job the verdict always matches the larger total, and the page says so", () => {
+  for (const words of [500, 1500, 3000]) for (const rate of [0.05, 0.2, 0.5]) for (const fee of [100, 400, 900]) for (const research of [0, 4, 20]) {
+    const r = writerRateOutcome({ wordCount: words, perWordRate: rate, flatFee: fee, writingWordsPerHour: 500, researchHours: research });
+    const bigger = words * rate > fee ? "per-word" : words * rate < fee ? "flat-fee" : "tie";
+    assert.equal(r.betterOption, bigger);
+  }
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /not just which headline number looks bigger/);
+  assert.doesNotMatch(html, /flat fee usually pays a higher effective hourly rate/);
 });

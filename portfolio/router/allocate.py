@@ -355,7 +355,7 @@ def load_flagship_hosts(path: Path = FLAGSHIPS_PATH) -> dict[str, list[str]]:
 # Only real TLDs, so file names (README.md, calc.mjs, flagships.yaml) never match.
 _HOST_RE = re.compile(
     r"(?<![\w./@-])((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+"
-    r"(?:org|com|net|gov|edu|io|int|eu|uk|de|fr|it|es|nl|us|ca|au|ch|mx|br|pl|pt|ro|hr|app|dev|info))(?![\w-])",
+    r"(?:org|com|net|gov|edu|io|int|eu|uk|de|fr|it|es|nl|us|ca|au|ch|mx|br|pl|pt|ro|hr|app|dev|info|co|ai|ru))(?![\w-])",
     re.I,
 )
 
@@ -443,9 +443,16 @@ def need_hosts(v: "Venture") -> list[str]:
     # refused, and had 0 merged commits in two days while the 4 rows left in
     # the Start here pool took 22-37 each (process critique, run record notes).
     own_word = bool(_NO_INPUT_RE.search(buildable))
+    # A host the prose names only in a clause that says its files are spent
+    # ("its CIFF CRWs all read") is not needed by the open item, whether it
+    # comes from the prose or from `hosts:`. On 2026-11-21 photo-editing was
+    # moved behind every reachable row for raw.pixls.us (named only as "all
+    # read") while its open work runs on github.com (backlog P070).
+    spent = spent_hosts(buildable)
+    named -= spent
     for url in v.flagship_hosts:
         name = re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
-        if own_word and name not in named:
+        if (own_word and name not in named) or name in spent:
             continue
         seen.setdefault(name, url if "://" in url else "https://" + url)
     for name in sorted(named, key=buildable.lower().find):
@@ -454,6 +461,33 @@ def need_hosts(v: "Venture") -> list[str]:
 
 
 _NO_INPUT_RE = re.compile(r"\bno outside input\b", re.I)
+_SPENT_RE = re.compile(r"\b(?:all read|spent|optional)\b", re.I)
+
+
+def clauses(text: str) -> list[str]:
+    """`text` split at top-level `;` and sentence ends (". " or a final "."),
+    keeping a parenthesis with the clause it belongs to, so "raw.pixls.us
+    (CC0, `curl -L`; its CIFF CRWs all read)" stays one clause."""
+    out, cur, depth = [], [], 0
+    for i, ch in enumerate(text):
+        depth += (ch == "(") - (ch == ")" and depth > 0)
+        end = depth == 0 and (ch == ";" or (ch == "." and (i + 1 == len(text) or text[i + 1].isspace())))
+        if end:
+            out.append("".join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+    out.append("".join(cur))
+    return [c for c in out if c.strip()]
+
+
+def spent_hosts(buildable: str) -> set[str]:
+    """Hosts `buildable` names only in clauses marked spent (_SPENT_RE)."""
+    spent, used = set(), set()
+    for c in clauses(buildable):
+        names = {m.group(1).lower() for m in _HOST_RE.finditer(c)}
+        (spent if _SPENT_RE.search(c) else used).update(names)
+    return spent - used
 
 
 def table_probe(url: str) -> bool:

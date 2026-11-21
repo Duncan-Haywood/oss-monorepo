@@ -116,7 +116,7 @@ COMPANY_NAME=Acme node server.mjs
       const { months } = backfill(subs, Date.now(), 12);
       const s = summarize(months), r = s.rates, M = (v) => formatMoney(v, cur);
       $("msg").textContent = `${subs.length} subscriptions read` + (skipped.length ? `; ${skipped.length} skipped (first: line ${skipped[0].line}, ${skipped[0].why})` : "") + ".";
-      $("tiles").innerHTML = [["MRR", M(s.mrr)], ["ARR", M(s.arr)], ["Customers", s.customers], ["Logo churn " + r.basis, pc(r.logoChurn)], ["Net revenue retention", pc(r.nrr)], ["Quick ratio", r.quickRatio === null ? "n/a" : r.quickRatio.toFixed(1)]].map(([l, v]) => `<div>${esc(l)}<b>${esc(v)}</b></div>`).join("");
+      $("tiles").innerHTML = [["MRR", M(s.mrr)], ["ARR", M(s.arr)], ["Customers", s.customers], ["Logo churn " + r.basis, pc(r.logoChurn)], ["Net revenue retention (monthly) " + r.basis, pc(r.nrr)], ["Quick ratio", r.quickRatio === null ? "n/a" : r.quickRatio.toFixed(1)]].map(([l, v]) => `<div>${esc(l)}<b>${esc(v)}</b></div>`).join("");
       $("chart").innerHTML = mrrChart(months, cur);
       $("rows").innerHTML = [...months].reverse().map((m) => `<tr><td>${esc(m.month)}</td><td>${esc(M(m.mrr))}</td><td>${m.customers}</td><td>+${esc(M(m.new))}</td><td>-${esc(M(m.churn))}</td><td>${esc(M(m.new + m.reactivation - m.churn))}</td></tr>`).join("");
       $("out").hidden = false;
