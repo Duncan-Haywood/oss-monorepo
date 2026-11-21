@@ -46,3 +46,43 @@ the page says "not proved" even when the grid is optimal, as in the guide's work
 - Large overloaded leagues (eval-style 200 teams on 13 parks): 10.5 s with three restarts at the
   old iteration cap, 1.8 s with one restart above 80 practices and an 800,000 cap. The page runs
   the search in a worker (practice-worker.mjs) so the tab stays responsive.
+
+== Every other week (2026-11-21): teams that take a slot on A weeks or B weeks
+
+  node eval/practice-exact.mjs 60 1 tight alt > alt-tight.json
+  node eval/practice-exact.mjs 40 2 loose alt > alt-loose.json
+  python3 eval/practice-exact.py alt-tight.json 20
+
+Same generator, plus: a third of the teams alternate (the search picks A or B), 3% fixed to A weeks
+and 2% to B weeks; an alternating practice counts as half in the demand, and up to 60 teams. CP-SAT
+model: capacity per block in A weeks and in B weeks, a team's practices all in one set of weeks (a
+boolean per alternating team), coach clashes only between options whose weeks meet. Search as shipped
+(the whole-team flip move 1 in 10 for alternating teams with 2+ practices).
+
+-- tight, alternating (seed 1)
+60 cases, 44 proved optimal by CP-SAT in 20 s
+search equals the proved optimum: 43 of 44
+search worse than CP-SAT's best: 1; better than CP-SAT's best (CP-SAT unproved): 15
+  case 0: search 10069 vs 10064 (gap 5)
+search met the solo bound (proved on the page): 20 of 60
+search time: median 956 ms, max 3413 ms
+
+-- loose, alternating (seed 2)
+40 cases, 40 proved optimal by CP-SAT in 20 s
+search equals the proved optimum: 40 of 40
+search met the solo bound (proved on the page): 30 of 40
+search time: median 21 ms, max 872 ms
+
+-- weekly tight set rerun on the changed module (seed 1, no alternating teams)
+60 cases, 55 proved optimal; search equals 55 of 55; better than CP-SAT's unproved best on 2.
+search time: median 583 ms, max 2425 ms
+
+83 of 84 proved optima matched with alternating teams. The miss (case 0: 19 teams, 6 alternating,
+35 practices, one practice unplaced either way) is a 9 vs 4 miss on one weekly team whose coach also
+coaches an alternating team: the better grid moves that alternating team from B weeks to A weeks and
+to different blocks at the same time. Seeds 2, 6 and 7 find it (10064), seeds 1, 3, 4, 5, 8 do not;
+six restarts or 2,000,000 iterations find it from seed 1. Tried and not kept (no change across 10
+seeds): a flip that rehouses each practice at its best open block in the other weeks, and flip rates
+of 0.05, 0.25 and 0.4. Next for this: a parity swap between two alternating teams that share blocks,
+judged on fresh cases.
+
