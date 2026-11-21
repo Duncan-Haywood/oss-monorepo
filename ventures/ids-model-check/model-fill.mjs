@@ -70,6 +70,13 @@ export function stepReal(x) {
   return s;
 }
 
+// A REAL written so it reads back as the same double (a copied value).
+function exactReal(x) {
+  let s = String(x).replace("e", "E");
+  if (!s.includes(".")) s = s.includes("E") ? s.replace("E", ".E") : s + ".";
+  return s;
+}
+
 // A value the IDS states (or a person typed) as the model holds it: {v, prim}
 // for IdsValue.match, or {error}.
 function readValue(S, dataType, text) {
@@ -274,10 +281,12 @@ export function planFill(idsText, model, opts = {}) {
   const ctx = { typeMap: opts.typeMap || null };
   const appliesCache = new Map();
   const reader = new PropertyFacet({ attrs: {}, children: [] });
-  // The value (in SI units, as text) of quantity pn of class qclass in the
-  // element's other quantity sets, when they agree on one.
+  // Quantity pn of class qclass in the element's other quantity sets, when
+  // they agree on one value: {text: in SI units, for the facet test; raw:
+  // the number as the file holds it, when it is in the project's units (no
+  // Unit of its own), so the copy is exact}.
   const modelQuantity = (e, ps, pn, qclass) => {
-    const seen = new Set();
+    const seen = new Map();
     psetSources(model, e, (d) => {
       if (d.type !== "IFCELEMENTQUANTITY") return;
       const info = psetInfo(model, d);
@@ -285,9 +294,14 @@ export function planFill(idsText, model, opts = {}) {
       const q = info.props.get(pn);
       if (!q || q.type !== qclass) return;
       const got = reader.values(model, q);
-      for (const x of got.values || []) if (typeof x.v === "number" && Number.isFinite(x.v)) seen.add(Number(x.v.toPrecision(12)));
+      const ui = S.attrs(q.type).index.get("Unit"), vi = S.attrs(q.type).index.get(QUANTITY_MEASURE[qclass][0]);
+      const raw = q.args[ui] === null || q.args[ui] === undefined ? q.args[vi] : undefined;
+      for (const x of got.values || []) if (typeof x.v === "number" && Number.isFinite(x.v)) {
+        const k = Number(x.v.toPrecision(12));
+        if (!seen.has(k)) seen.set(k, { text: String(x.v), raw: typeof raw === "number" ? raw : undefined });
+      }
     });
-    return seen.size === 1 ? String([...seen][0]) : undefined;
+    return seen.size === 1 ? [...seen.values()][0] : undefined;
   };
   // An attribute the element leaves unset, written into its own record.
   // What no table value could fix is counted, not listed: a pattern-named
@@ -382,7 +396,8 @@ export function planFill(idsText, model, opts = {}) {
         if (text === undefined) { text = userValue(f.globalId, ps, pn); source = "table"; }
         // A quantity the element already holds under the same name in
         // another quantity set, of the same kind: its value in SI units.
-        if (text === undefined && quantity) { const got = modelQuantity(e, ps, pn, qclass); if (got !== undefined) { text = got; source = "model"; } }
+        let copied;
+        if (text === undefined && quantity) { copied = modelQuantity(e, ps, pn, qclass); if (copied !== undefined) { text = copied.text; source = "model"; } }
         // opts.suggest(facet, dataType): a stand-in for a person typing a
         // value (eval/model-fill-sweep.mjs uses it to exercise the table path).
         if (text === undefined && opts.suggest) { text = opts.suggest(r, dataType, prim); source = "table"; }
@@ -401,7 +416,7 @@ export function planFill(idsText, model, opts = {}) {
         }
         if (clash) { unfilled.push({ ...row, value: text, why: `"${text}" would break another check: ${clash}` }); continue; }
         const key = `${e.id}\0${ps}\0${pn}`;
-        const valueText = quantity ? stepReal(toProjectUnits(model, dataType, val.v)) : stepValue(model, dataType, val);
+        const valueText = quantity ? (copied && copied.raw !== undefined ? exactReal(copied.raw) : stepReal(toProjectUnits(model, dataType, val.v))) : stepValue(model, dataType, val);
         const prev = writes.get(key);
         if (prev && prev.valueText !== valueText) { conflicts.add(key); unfilled.push({ ...row, value: text, why: `another specification asks for ${prev.text}` }); continue; }
         if (!prev) writes.set(key, { kind: quantity ? "quantity" : "property", setType, qclass, e, globalId: f.globalId, pset: ps, prop: pn, dataType, text: String(text), valueText, source, spec: spec.name });

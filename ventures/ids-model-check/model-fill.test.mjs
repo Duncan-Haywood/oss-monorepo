@@ -253,7 +253,7 @@ END-ISO`);
 
 const QMODEL = MODEL.replace("ENDSEC;\nEND-ISO", `#40=IFCELEMENTQUANTITY('0Qa1Wb2Ec3Rd4Tf5Yg6Uh7',#2,'BaseQuantities',$,$,(#41,#43));
 #41=IFCQUANTITYLENGTH('Height',$,$,3000.,$);
-#43=IFCQUANTITYAREA('NetSideArea',$,$,12.5,$);
+#43=IFCQUANTITYAREA('NetSideArea',$,$,12.500000000000002,$);
 #42=IFCRELDEFINESBYPROPERTIES('1Zx2Cv3Bn4Mq5Wr6Ty7Ui8',#2,$,$,(#10),#40);
 #44=IFCELEMENTQUANTITY('2Qa1Wb2Ec3Rd4Tf5Yg6Uh7',#2,'Qto_SlabBaseQuantities',$,$,(#45));
 #45=IFCQUANTITYLENGTH('Depth',$,$,200.,$);
@@ -277,8 +277,9 @@ test("a quantity the element holds under the same name in another quantity set i
   const r = fill(I, QMODEL);
   assert.equal(r.written, 1);
   assert.equal(r.fromModel, 1);
-  assert.deepEqual(r.writtenList.map((w) => [w.id, w.kind, w.value, w.source]), [[10, "quantity", "12.5", "model"]]);
-  assert.match(r.text, /IFCQUANTITYAREA\('NetSideArea',\$,\$,12\.5,\$\)/);
+  // Copied exactly, every digit, not rounded through SI.
+  assert.deepEqual(r.writtenList.map((w) => [w.id, w.kind, w.value, w.source]), [[10, "quantity", "12.500000000000002", "model"]]);
+  assert.match(r.text, /#47=IFCQUANTITYAREA\('NetSideArea',\$,\$,12\.500000000000002,\$\)/);
   // The walls with no BaseQuantities are left for the table.
   assert.deepEqual(r.unfilled.map((u) => u.name), ["W-02", "W-03"]);
   // A quantity of another kind under the name is not taken: Height is a length.
