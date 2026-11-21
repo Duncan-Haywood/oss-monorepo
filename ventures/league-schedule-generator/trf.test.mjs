@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { parseTrf, trfToResults, swissToTrf, pairingsList, trfNames } from "./trf.mjs";
-import { parseSwissResults, swissPairings, swissStandings, validateSwiss } from "./calc.mjs";
+import { parseResults, parseSwissResults, swissPairings, swissStandings, validateSwiss } from "./calc.mjs";
 
 // The two FIDE 2025 Dutch-rules examples (criteria C5 and C9) as bbpPairings's test suite encodes
 // them (github.com/BieremaBoyzProgramming/bbpPairings, test/tests/dutch_2025_C5 and _C9,
@@ -138,4 +138,25 @@ test("a TRF name ending in a full stop (chess-results writes 'Volodin Alexandr E
   const p = parseSwissResults(box.results, box.players);
   assert.deepEqual(p.errors, []);
   assert.equal(p.games.length, 1);
+});
+
+test("a duplicate TRF name told apart as 'Name (id)' keeps its own results as black (ChessHouse '0' names)", () => {
+  // chess-results' ChessHouse export puts a national id in the name field, and players without one
+  // all read "0"; trfNames makes the second one "0 (3)". The results reader used to strip "(3)" as a
+  // note ("(OT)") when it ended a line, crediting player 3's games to player 1.
+  const T = ["012 Zero names", pl(1, 1800, 1, "     2 w 1"), pl(2, 1700, 0, "     1 b 0"), pl(3, 1600, 1, "     4 b 1"), pl(4, 1500, 0, "     3 w 0")].join("\n")
+    .replaceAll(/Test000[13] Player000[13]/g, "0".padEnd(19));
+  const box = trfToResults(parseTrf(T));
+  assert.deepEqual(box.players.filter((n) => n.startsWith("0")), ["0", "0 (3)"]);
+  const p = parseSwissResults(box.results, box.players);
+  assert.deepEqual(p.errors, []);
+  const scores = swissStandings(box.players, p.games, p.byes, { extra: p.extra }).map((r) => [r.name, r.score]);
+  assert.deepEqual(Object.fromEntries(scores), { "0": 1, "0 (3)": 1, [box.players[1]]: 0, [box.players[3]]: 0 });
+});
+
+test("a bracket at the end of a result line is still a note when no name has it", () => {
+  const T = ["Hawks", "Owls", "Hawks (U12)"];
+  assert.deepEqual(parseResults("Hawks 3 - 2 Owls (OT)", T).results, [{ a: 0, b: 1, ga: 3, gb: 2 }]);
+  assert.deepEqual(parseResults("Owls 0 - 3 Hawks (forfeit)", T).results, [{ a: 1, b: 0, ga: 0, gb: 3, walkover: true }]);
+  assert.deepEqual(parseResults("Owls 1 - 2 Hawks (U12)", T).results, [{ a: 1, b: 2, ga: 1, gb: 2 }]);
 });
