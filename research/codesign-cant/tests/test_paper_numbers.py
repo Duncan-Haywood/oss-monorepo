@@ -81,3 +81,25 @@ def test_section5_arm_ranks_follow_from_the_arm_means():
     want = {"torque": 0.943, "aero": 1.000, "aero_cop": 0.943, "aero_cop2": 1.000}
     for cond, r in want.items():
         assert abs(rho(rows["stylised"], rows[cond]) - r) < 0.001, cond
+
+
+def test_figure_iv_v_points_match_the_results_text():
+    """Figure IV-V's per-seed points recompute the paired means and sign counts milestone 5 printed, and its chosen
+    cants are the ones milestone 4 and milestone 2 printed."""
+    import re, sys
+    ROOT = os.path.join(HERE, "..")
+    sys.path.insert(0, os.path.join(ROOT, "paper"))
+    import figures_iv_v as F
+    s = F.summary()
+    txt = open(os.path.join(ROOT, "experiments", "m5_rotorpy", "results.txt")).read()
+    for law in ("pid", "indi", "geo"):
+        line = re.search(rf"\n  {law:<4}: stylised [^\n]*", txt)[0]
+        for mode in ("stylised", "torque", "aero", "aero_cop", "aero_cop2"):
+            m = re.search(rf"[:;] {mode} ([-+]\d+\.\d+) \((\d+)/10\)", line)
+            assert f"{s['paired_mean'][law][mode]:.2f}" == m[1].replace("+", "")
+            assert s["paired_better"][law][mode] == int(m[2])
+    m4 = open(os.path.join(ROOT, "experiments", "m4_controllers", "results.txt")).read()
+    for law, name in (("pid", "PID"), ("indi", "INDI"), ("geo", "geometric")):
+        printed = re.search(rf"\n{law:<4}   80 [^\n]*\d \(([\d, ]+)\)  ", m4)[1]
+        assert [round(a) for a in s["chosen"][name + "\n(m4, λ 0.3)"]] == [int(v) for v in printed.split(", ")]
+    assert [round(a) for a in s["chosen"]["PID\n(m2, λ 1)"]] == [32, 32, 31, 28, 4]

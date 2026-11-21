@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-21 · Paper step: sections I, II, VIII and IX in full, and one figure for sections IV-V
+
+- Why: the last paper step's first next step. With sections III-VII written in full, the draft still opened and closed on outlines, and the proposal's related-work claims (what the tilted-rotor and co-design literatures leave open) had never been written as the paper's argument. Sections IV and V also still pointed at two milestone figures.
+- Built: `paper/DRAFT.md` sections I (the problem, the gap, five contributions including 7ag-7ai's no-flight rise-time rule), II (tilted and fully actuated multirotors, co-design, attitude and learned control, randomisation and its range, plant-family stability and anti-windup, simulators and data; only references already in `paper/references.bib`, whose DOIs and arXiv ids `cite_check.json` confirms, bartlett1988 and astrom2006 excepted as before), VIII (limitations, grouped: one simulator for the position loop, inherited inputs, seeds and tests, what was changed after the fact, the certificate, no hardware) and IX (conclusion) in full. The abstract gains one sentence on the rise-time rule (7ai's AI4). `paper/figures_iv_v.py` draws `paper/fig_IV_V.png`: (a) each seed's paired cant-minus-no-cant RMS per law in the stylised simulator and RotorPy's four conditions, (b) each seed's chosen cant per law against the 5-20° band of H1. `paper/check_numbers.py` gains 4 checks (119 in all, every one passing); `tests/test_paper_numbers.py` gains a test that the figure's per-seed points recompute milestone 5's printed paired means and sign counts and milestone 4's printed chosen cants. No new flights.
+- Found while drawing the figure: milestone 4's PID seeds 0-4 are milestone 2's three-start `prio` runs at λ = 0.3 (same designs, same held-out scores), so the figure shows milestone 2 only at λ = 1. Across the 150 seed-conditions of panel (a) cant wins 148; the two losses are INDI under RotorPy's injected-torque condition (`m5_rotorpy/results.txt`, 8/10), now said in section V.
+- Reading: none new; the sections restate milestones 1-7ai.
+- Limits: the related work is the proposal's checked list, not a fresh survey; a reviewer may know a canted-quadrotor paper it misses. The draft is far over RA-L's 6 + 2 pages.
+- Next: ten seeds with Wilcoxon tests; LaTeX in the RA-L template and the cut to length; the step-weight sweep 7af proposed; hardware (milestone 8).
+
 ## 2026-11-21 · Paper step: sections III-V of the draft in full (model, the cant optimum under three attitude laws, the RotorPy check; milestones 1-5)
 
 - Why: `pick_track.py` flagged six milestone-7 sub-steps (7ad-7ai) since the last paper step, and those had already been folded into section VII as they landed. What the draft still lacked was its first half. Sections III-V, the model and the paper's central result (cant pays under every law and survives a second simulator), were three-line outlines, and an RA-L reviewer reads those sections first.

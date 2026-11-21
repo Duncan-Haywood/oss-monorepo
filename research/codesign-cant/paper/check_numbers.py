@@ -1,4 +1,4 @@
-"""Check that every figure sections III-VII and the abstract of DRAFT.md quote is still in the results file it is taken from.
+"""Check that every figure sections I and III-IX and the abstract of DRAFT.md quote is still in the results file it is taken from.
 
 Each check is (text quoted in DRAFT.md, results file under ../experiments/, a regular expression that must match that file).
 The script fails if the draft no longer contains the quoted text (the claim was edited without updating this list) or the results
@@ -111,6 +111,11 @@ CHECKS = [
     ("more than 15 ms for 28 of 36", "m7ai_lag_model/verdicts.txt", r"AI8 [^\n]*; 28/36;"),
     ("1.015 at 1 m/s² and 1.017 at 3.5, against 1.062", "m7ai_lag_model/verdicts.txt", r"AI6 [^\n]*exact 1\.015 \(A=1\), 1\.017 \(A=3\.5\); base 1\.019, 1\.062"),
     ("within 0.01 for 36 of 36 designs", "m7ai_lag_model/verdicts.txt", r"AI7 [^\n]*; 36/36;"),
+    # sections I, V (figure IV-V paragraph) and the abstract's rise-time sentence (2026-11-21)
+    ("cant beats no cant by 4.18–5.27°", "m4_controllers/results.txt", r"pid : RMS -5\.27 deg [^\n]*\n  indi: RMS -4\.18 deg [^\n]*\n  geo : RMS -4\.88 deg"),
+    ("chosen angle of 33.9–35.3°", "m4_controllers/results.txt", r"indi   80 [^\n]*33\.9 \([\s\S]*geo    80 [^\n]*35\.3 \("),
+    ("2 of 10 INDI seeds lose their advantage", "m5_rotorpy/results.txt", r"indi: stylised -4\.15 \(10/10\); torque -1\.92 \(8/10\)"),
+    ("puts 36 of 36 designs within 0.10 s of their flown rise in all seven conditions", "m7ai_lag_model/verdicts.txt", r"AI4 [^\n]*held; fewest 36/36"),
 ]
 ARMS = [("M=1.00", -0.001, 9, 32), ("M=1.11", -0.012, 3, 22), ("M=1.25", -0.011, 0, 12), ("M=1.43", -0.010, 0, 13), ("M=1.67", -0.012, 0, 12)]
 
