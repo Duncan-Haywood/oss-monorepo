@@ -240,3 +240,70 @@ test('reference needs at least 3 cues each', () => {
   const r = resyncText(SRT, { referenceText: SRT });
   assert.match(r.inputError, /at least 3 cues/);
 });
+
+// --- red-team guards (2026-11-21) --------------------------------------------
+
+const at = (startMs) => ({ id: null, startMs, endMs: startMs + 1000, settings: '', lines: ['x'] });
+
+test('timestamps: a fraction of more than 3 digits is refused, not read as extra milliseconds', () => {
+  assert.equal(parseTimestamp('00:00:01,1234'), null);
+  assert.equal(parseTimestamp('00:00:01,123'), 1123);
+});
+
+test('user times: a typographic minus or en dash reads as a minus sign', () => {
+  // The page's own label shows "−00:00:02,500" with U+2212, and phones and
+  // word processors turn "-" into "–"; both used to be "cannot read".
+  assert.equal(parseUserTime('−2.5'), -2500);
+  assert.equal(parseUserTime('−00:00:02,500'), -2500);
+  assert.equal(parseUserTime('–1'), -1000);
+  assert.equal(parseUserTime('—1'), null); // an em dash is not a minus
+});
+
+test('two sync points that map both lines to the same time are refused (zero stretch)', () => {
+  assert.throws(() => twoPointTransform({ fromMs: 1000, toMs: 5000 }, { fromMs: 9000, toMs: 5000 }), /reverse/);
+});
+
+test('reference, offset only: an even number of matches takes the midpoint shift', () => {
+  // Four cues, two 5.0 s late and two 5.1 s late: the median shift is 5.05 s.
+  const ref = [10000, 20000, 30000, 40000].map(at);
+  const target = [5000, 15000, 24900, 34900].map(at);
+  const a = autoAlign(target, ref, { offsetOnly: true });
+  assert.equal(a.offsetMs, 5050);
+  assert.equal(a.matched, 4);
+});
+
+test('reference: the vote window is 5 bins of 100 ms', () => {
+  // Cues 2,000 s apart, so only each cue's own partner is within 15 min.
+  // Shifts of 0 and 455 ms fall in bins 9,000 and 9,005: six bins apart, so
+  // no 500 ms window holds both and the best window has one vote.
+  const target = [1e6, 3e6, 5e6].map(at);
+  const ref = [1e6, 3e6 + 455, 5e6 + 5000].map(at);
+  assert.equal(autoAlign(target, ref, { offsetOnly: true }).candidates[0].votes, 1);
+});
+
+test('reference: a cue exactly maxOffsetMs away still votes', () => {
+  const target = [2000, 5000, 9000].map(at);
+  const ref = [1000, 4000, 8000].map(at);
+  const a = autoAlign(target, ref, { offsetOnly: true, maxOffsetMs: 1000 });
+  assert.equal(a.candidates[0].votes, 3);
+  assert.equal(a.offsetMs, -1000);
+});
+
+test('reference: ten matched cues over a minute are enough to fit a stretch', () => {
+  // A 0.1% stretch is no frame-rate ratio, so only the least-squares fit finds it.
+  const starts = Array.from({ length: 10 }, (_, i) => 10000 + i * 10000 + (i % 3) * 1700);
+  const a = autoAlign(starts.map(at), starts.map((s) => at(Math.round(s * 1.001 + 2000))));
+  assert.ok(Math.abs(a.scale - 1.001) < 1e-5, `scale ${a.scale}`);
+  assert.ok(Math.abs(a.offsetMs - 2000) < 5, `offset ${a.offsetMs}`);
+  assert.equal(a.medianErrorMs, 0);
+});
+
+test('reference: the last refinement uses the same 0.4 s window the result reports', () => {
+  // A noisy 13-cue case found by search (2026-11-21 red-team run) where a
+  // 401 ms final window admits a seventh cue and moves the shift by 14 ms.
+  const ts = [27490, 48246, 59941, 75214, 78463, 93897, 108695, 124500, 142050, 161068, 169892, 184896, 201056];
+  const ds = [-846, -353, 328, 485, -751, 150, -449, 878, 759, -34, 586, 472, 61];
+  const a = autoAlign(ts.map(at), ts.map((s, i) => at(s + 5000 + ds[i])));
+  assert.equal(a.matched, 6);
+  assert.ok(Math.abs(a.offsetMs - 5216.084) < 0.01, `offset ${a.offsetMs}`);
+});
