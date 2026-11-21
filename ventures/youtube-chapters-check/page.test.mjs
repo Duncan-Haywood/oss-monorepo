@@ -58,3 +58,11 @@ test("page offers sample-data buttons and a downloadable fixed file", () => {
   const html = page("index.html");
   for (const id of ["load-example", "load-broken", "download-fixed", "optout"]) assert.match(html, new RegExp(`id="${id}"`));
 });
+
+test("the fix note matches what repair does, and the FAQ names the channel-level causes", () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /Anything that cannot be proven is left as it was/);
+  assert.match(html, /impossible time are left out and listed below/);
+  assert.equal((html.match(/active strikes/g) || []).length, 2); // visible FAQ and FAQPage JSON-LD
+  assert.match(html, /Video length not read/);
+});

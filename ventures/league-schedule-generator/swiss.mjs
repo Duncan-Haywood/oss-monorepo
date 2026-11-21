@@ -30,8 +30,12 @@
 
 import { maxWeightMatching } from "./blossom.mjs";
 
-/** Score table: win 1, draw 0.5, bye counts as a win. Buchholz = sum of opponents' scores, then Sonneborn-Berger breaks ties. */
-export function swissStandings(players, games, byes = [], { win = 1, draw = 0.5 } = {}) {
+/**
+ * Score table: win 1, draw 0.5, bye counts as a win. Buchholz = sum of opponents' scores, then
+ * Sonneborn-Berger breaks ties. `extra` (per player) adds points from unplayed rounds: requested
+ * byes and forfeit wins (parseSwissResults).
+ */
+export function swissStandings(players, games, byes = [], { win = 1, draw = 0.5, extra = null } = {}) {
   const rows = players.map((name, i) => ({ index: i, name, score: 0, played: 0, opponents: [], whites: 0, blacks: 0, last: [], beaten: [], drawn: [] }));
   for (const g of games) {
     const A = rows[g.a];
@@ -45,6 +49,7 @@ export function swissStandings(players, games, byes = [], { win = 1, draw = 0.5 
     else { A.score += draw; B.score += draw; A.drawn.push(g.b); B.drawn.push(g.a); }
   }
   for (const i of byes) rows[i].score += win;
+  if (extra) rows.forEach((r, i) => { r.score += extra[i] ?? 0; });
   for (const r of rows) {
     r.buchholz = r.opponents.reduce((s, o) => s + rows[o].score, 0);
     // Sonneborn-Berger: full opponent score for each win, half for each draw. Rewards beating the strong.
@@ -81,6 +86,11 @@ const SCORE = 1e8;
 const STRONG = 5e5;
 const MILD = 4e3;
 const ORDER_CAP = 30;
+// FIDE C.04.3 (2025) C.9: the pairing bye goes to the player with the fewest unplayed games, after
+// score differences and before colours. Three unplayed games at most count (3 x 2.5e7 < SCORE),
+// and one step outweighs a strong-colour clash on every board of a 98-player round.
+const UNPLAYED = 2.5e7;
+const UNPLAYED_CAP = 3;
 // Repeat floats (FIDE C.04.3 C.14-C.17), below the colour tiers as in the Dutch rules: a player who
 // floated down last round floating down again, one who floated up last round floating up again,
 // then the same two rounds back. Each step is worth more than the Dutch-order tier can add on one
@@ -99,7 +109,7 @@ const RU2 = 61;
  * or null: down when the player's score before the round was above the opponent's, or they took
  * the pairing bye (FIDE counts a bye as a downfloat); up when below.
  */
-export function floatHistory(players, games, byes = [], byeRounds = null) {
+export function floatHistory(players, games, byes = [], byeRounds = null, { gameRounds = null, extraRounds = [] } = {}) {
   const appear = new Map();
   const at = (i) => appear.get(i) ?? 0;
   const rounds = [];
@@ -116,21 +126,23 @@ export function floatHistory(players, games, byes = [], byeRounds = null) {
     slot(r).byes.push(p);
     appear.set(p, r + 1);
   };
-  for (const g of games) {
+  for (const [k, g] of games.entries()) {
     // A bye listed for this round or earlier comes before the game in that player's sequence.
-    let r = Math.max(at(g.a), at(g.b));
+    let r = gameRounds?.[k] ?? Math.max(at(g.a), at(g.b));
     for (let moved = true; moved;) {
       moved = false;
       for (const p of [g.a, g.b]) {
         const list = pendingBye.get(p);
         if (list?.length && list[0] <= r) { placeBye(p); moved = true; }
       }
-      r = Math.max(at(g.a), at(g.b));
+      if (gameRounds?.[k] == null) r = Math.max(at(g.a), at(g.b));
     }
     slot(r).games.push(g);
     appear.set(g.a, r + 1); appear.set(g.b, r + 1);
   }
   for (const [p, list] of pendingBye) while (list.length) placeBye(p);
+  // Points from unplayed rounds (requested byes, forfeit wins) count from the end of their round.
+  for (const e of extraRounds) slot(e.round).extra = [...(slot(e.round).extra ?? []), e];
   const score = new Map(players.map((_, i) => [i, 0]));
   const hist = new Map(players.map((_, i) => [i, []]));
   for (let r = 0; r < rounds.length; r++) {
@@ -149,6 +161,7 @@ export function floatHistory(players, games, byes = [], byeRounds = null) {
       else { score.set(g.a, score.get(g.a) + 0.5); score.set(g.b, score.get(g.b) + 0.5); }
     }
     for (const p of R.byes) score.set(p, score.get(p) + 1);
+    for (const e of R.extra ?? []) score.set(e.player, score.get(e.player) + e.points);
   }
   return { history: hist, rounds: rounds.length };
 }
@@ -159,19 +172,26 @@ export function floatHistory(players, games, byes = [], byeRounds = null) {
  * { pairs: [{white, black}], bye, floaters, clashes: {absolute, strong, mild}, method: "matching" }.
  * Boards run from the top score down. Throws when no round without a rematch exists.
  */
-export function swissPairings(players, games, byes = [], withdrawn = [], { lookahead = true, repeatFloats = true, byeRounds = null } = {}) {
-  const gone = new Set(withdrawn);
+export function swissPairings(players, games, byes = [], withdrawn = [], {
+  lookahead = true, repeatFloats = true, byeRounds = null,
+  extra = null, extraRounds = [], gameRounds = null, byeBlocked = [], unplayed = null, absent = [], groupOrder = "buchholz",
+} = {}) {
+  const gone = new Set([...withdrawn, ...absent]);
   const n = players.length - gone.size;
   if (n < 2) throw new Error("Swiss pairing needs at least 2 players still in the event.");
-  const table = swissStandings(players, games, byes);
+  const table = swissStandings(players, games, byes, { extra });
+  // FIDE's Dutch rules order a score group by pairing number (seed); the page's default orders it
+  // by Buchholz, then Sonneborn-Berger, as its standings do.
+  if (groupOrder === "seed") table.sort((x, y) => y.score - x.score || x.index - y.index);
   const order = table.map((r) => r.index).filter((i) => !gone.has(i));
+  const noBye = new Set(byeBlocked);
   const info = new Map(table.map((r) => [r.index, r]));
   const met = new Set();
   for (const g of games) { met.add(`${g.a}|${g.b}`); met.add(`${g.b}|${g.a}`); }
   const half = (i) => Math.round(info.get(i).score * 2);
   const claim = new Map(order.map((i) => [i, colourClaim(info.get(i))]));
   // Last round's and the round before's float for each player (null when level or absent).
-  const { history: fh, rounds: played } = floatHistory(players, games, byes, byeRounds);
+  const { history: fh, rounds: played } = floatHistory(players, games, byes, byeRounds, { gameRounds, extraRounds });
   const floatAgo = (i, k) => fh.get(i)?.[played - k] ?? null;
   const repeatCost = (down, up) => {
     if (!repeatFloats) return 0;
@@ -236,14 +256,18 @@ export function swissPairings(players, games, byes = [], withdrawn = [], { looka
       }
     }
     if (odd) {
-      const fresh = order.filter((i) => info.get(i).byes === 0);
+      const fresh = order.filter((i) => info.get(i).byes === 0 && !noBye.has(i));
       const pool = fresh.length ? fresh : order;
       const fewest = Math.min(...pool.map((i) => info.get(i).byes));
       for (const i of pool) {
         if (info.get(i).byes !== fewest) continue;
         const fromBottom = v - 1 - vertexOf.get(i);
         const d = Math.min(30, half(i));
-        raw.push([vertexOf.get(i), byeVertex, SCORE * d * d + Math.min(ORDER_CAP, fromBottom) + repeatCost(i, undefined) + (fresh.length ? 0 : ABS)]);
+        // The bye's distance from the bottom counts twice, so it outweighs the Dutch order of the
+        // boards it frees (FIDE's 2025 C9 example: bye to seed 4, not seed 3, both on 0 points);
+        // 2 x ORDER_CAP = 60 stays under the smallest repeat-float step (61).
+        const missed = Math.min(UNPLAYED_CAP, unplayed?.[i] ?? 0);
+        raw.push([vertexOf.get(i), byeVertex, SCORE * d * d + UNPLAYED * missed + 2 * Math.min(ORDER_CAP, fromBottom) + repeatCost(i, undefined) + (fresh.length ? 0 : ABS)]);
       }
     }
     let top = 0;
@@ -275,7 +299,7 @@ export function swissPairings(players, games, byes = [], withdrawn = [], { looka
   }
   function nextRoundPossible(m) {
     const after = [];
-    const hadBye = new Set(order.filter((i) => info.get(i).byes > 0));
+    const hadBye = new Set(order.filter((i) => info.get(i).byes > 0 || noBye.has(i)));
     for (let a = 0; a < v; a++) if (m[a] === byeVertex) hadBye.add(order[a]);
     const byeOk = order.some((i) => !hadBye.has(i));
     for (let a = 0; a < v; a++) {

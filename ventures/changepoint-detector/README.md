@@ -3868,9 +3868,72 @@ growing series biases the robust slope, the gate leaves it out (`trendNote`), an
 takes `--trend robust` for counts with no alert on a growing series and refuses it for the level model or any other
 value.
 
-**Next:** the full joint fit (`--trend`) on set 3 and set 1 with fewer seeds, or a gate that keeps the growth term on
-the evidence of the history before the watch started (so the 120-day early window does not decide it); and the
-hint's own history check on set 3.
+**Next:** the full joint fit (`--trend`) on set 3 and set 1 with fewer seeds (done next, gated: every H bar passes and
+it becomes the count Middle, next section).
+
+## The joint growth fit, gated (2026-11-21, pre-registered; every H bar passes, it becomes the count Middle)
+
+The section above left `--trend robust` failing its growth bar and its "why" unmeasured. **Why first**
+(`eval/middle-trend-why.mjs`, probe seeds that decide nothing): on three sites growing 30% over 240 days, MR's gate
+kept the growth term on 57, 87 and 103 of 121 daily checks and **flipped 25, 21 and 11 times**. A slope read once from
+the median of lag-n/4 log differences is noisy, its fit sits near the log n margin, and on each check where the gate
+leaves it out PELT fits the climb as a staircase, whose newest step alerts. The joint fit (`--trend`, which alternates
+PELT + NB with Newton steps on the growth rate, up to 12 passes) re-fits the growth under the steps, so its fit with
+growth is better and the margin wider. Probes: on 18 growing sites plain Middle alerted on 13, the ungated joint fit
+on 3; on 24 flat probe sites the ungated fit sent 10 alerts against Middle's 7, so the gate stays. The joint fit took
+about 0.1 s a check, half the last round's guess.
+
+**The round** (`eval/middle-trend-joint.prereg.md`, committed before the runs; `eval/middle-trend-joint.mjs`, output
+`eval/middle-trend-joint.out.txt`, 58 min on 4 cores). **JG** is `COUNT_MIDDLE` with `trend: 'gated'`: the joint fit,
+kept only when its penalised cost plus log n beats the flat PELT + NB cost (MR's gate). The sets and bars are the last
+round's, on fresh seeds and fewer of them in sets 1 and 2 (20 and 60 a cell; set 3 40). D is the count default, M
+plain Middle, MR `--trend robust` (reported).
+
+| set | measure | D | M | MR | JG | bar |
+|---|---|---|---|---|---|---|
+| 3 T1 grows 30% over 240 days | alerts per 1,000 days (sites alerted of 40) | 0.42 (2) | 7.71 (27) | 3.75 (14) | **1.46 (6)** | H1 pass (<= D + 3.0) |
+| T2 grows 100% | | 0.21 (1) | 15.83 (40) | 5.63 (21) | **2.29 (10)** | reported |
+| T3 falls 30% | | 1.04 (5) | 11.25 (38) | 4.58 (19) | **2.29 (10)** | reported |
+| T4 log-mean walk, sd 1% a day | | 0.83 (4) | 6.67 (23) | 6.04 (22) | 5.21 (20) | reported |
+| T5 log-mean walk, sd 2% a day | | 1.04 (5) | 12.50 (37) | 12.08 (36) | 11.25 (34) | reported |
+| T6 grows 30%, falls 20% on day 180 | falls heard of 40; mean days unaware; false before the fall per 1,000 days | 3; 55.9; 0.83 | 36; 20.0; 6.25 | 36; 16.5; 4.17 | **37; 14.4; 1.25** | reported |
+| 1 Search Console sites, cv 15% | mean days unaware, nine fall cells | 37.10 | 20.07 | 20.18 | 20.23 (JG - M +0.17, 0.01 to 0.39) | H2 pass (<= +2.0) |
+| | false alerts per 1,000 days | 0.11 | 0.78 | 0.78 | 0.78 | H3 pass |
+| 1 same, cv 30% | mean days unaware | 42.69 | 31.01 | 31.33 | 31.74 (+0.74, 0.17 to 1.44) | H2 pass |
+| | false alerts per 1,000 days | 0.44 | 1.22 | 1.11 | 1.06 | H3 pass |
+| 2 eleven flat cells | false alerts per 1,000 checks | 1.17 | 1.92 | 1.89 | 1.81 (JG - M -0.11, -0.25 to 0.00) | H4 pass |
+| | steps found of 360 | 313 | 340 | 340 | 340 (0, 0 to 0) | H4 pass |
+
+Against the default (G), JG passes G1-G3, G5 and G6 but **fails G4** (false alerts on the flat cells JG - D +0.64,
+0.28 to 1.03, against an upper limit of 1.0), so the default stays.
+
+**What it means.** The growth term no longer flips: on steadily growing or shrinking sites JG removes four fifths of
+plain Middle's alerts (T1 27 of 40 sites alerted to 6; doubling sites 40 to 10) and on a growing site that falls it
+hears the fall sooner with a fifth of the false alerts before it. On flat sites it is Middle: the same steps found, no
+more false alerts, and a fraction of a day more unaware per fall (the gate sometimes takes a slow part of a fall for
+growth; at cv 30% and 50 clicks a day JG heard 11 of 20 20% falls against Middle's 14). A level that wanders at random
+(T4, T5) is still not a line, and JG barely helps there; that is the next weakness. These are simulated sites.
+
+**On the one real shop** (reported, deciding nothing; `eval/real-shop-joint-middle.mjs`, UCI Online Retail's daily
+orders). Without a period the new Middle sends 5 alerts where the flat one sent 7: the two inside the autumn climb
+(2011-08-27, 2011-09-19) are now read as growth, and at 1.67 per 100 checks it is under the hint's budget, so the hint
+picks Middle where it stayed on Quiet. That cuts both ways: this README dates a real build-up from 2011-09-01, and the
+flat Middle's 2011-09-19 alert sat inside it. With `--period 7` nothing changes (Easter twice and 2011-09-19).
+
+**What ships** (`watch-core.mjs`): `COUNT_MIDDLE = { detector: 'pelt', overdispersion: 'nb', trend: 'gated' }`, so the
+page's "Middle" for counts, the count hint's middle rung and `--detector auto` use it; a stored `--detector auto`
+choice carries its `trend`, and one stored before keeps the flat Middle it picked. `--trend gated` is new on the
+analysis CLI (`--model poisson --trend gated`) and the watch (`--trend gated`), the same as `--trend` with
+`trendGate: true` in the engine. The hint's note, the page's "How eager" option, the watch page and `llms.txt` now
+say Middle allows for steady growth but not a wandering level. A check costs about 2.5 times plain PELT + NB.
+
+**Checked** (`trend-gated.test.mjs`, 4): a growing count series with no step gets no step and its growth within 0.1;
+`gated` matches `trend: true, trendGate: true` and leaves a flat series with a fall exactly as Middle sees it; `robust`
+and `gated` are refused for other models; the watch takes `--trend gated` for counts only. The tests that pinned the
+old Middle's picks were updated: `gsc-middle.test.mjs`, `count-default-middle.test.mjs` (the flat Middle's growth check now names the flat setting) and `real-shop.test.mjs` (the picks above).
+
+**Next:** a wandering level (T4, T5) under Middle (the drift model's random-walk level is one candidate, measured
+against the same falls); then a live Search Console property.
 
 ## Shopify as a source (2026-11-19)
 

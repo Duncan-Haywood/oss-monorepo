@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVMPsnDAiRZBy9PxgJQ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled ventures brief)",
+  "input_sha256": "1380f9eea91bde311ad7325e3c2c41452af57fa9bead7b098a672fd19b3898b6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T16:55:54Z",
+  "ended": "2026-11-21T17:08:32Z",
+  "wall_minutes": 18.54,
+  "tokens_in": 11467456,
+  "tokens_out": 64239,
+  "cost_usd": 4.9651,
+  "tool_calls": 87,
+  "task": "league-schedule-generator flagship: Swiss bbpPairings side-by-side item -> FIDE TRF-16 import/export, missed rounds, 2025 Dutch C.9 bye rule",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18114",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "The auto-mode classifier refused `make` on a fresh clone of bbpPairings (running downloaded code), as an earlier session's policy had; read its source and test files as data instead.",
+    "lichess.org (Swiss events paired by bbpPairings, TRF export) answered 403 through the proxy.",
+    "A Playwright run that read a TRF copied from the bbpPairings clone was refused; the page check used a TRF made by swissToTrf instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator's 'next: bbpPairings side-by-side' did not say an earlier run had already found the build refused (only the README's 'Not done' did); it cost a clone and a refused build. Rewritten to 'bbpPairings on swissToTrf' now that TRF export exists."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace refused a 4-character overrun with no way to park (all items 'landed clauses'); had to shorten the new text by hand. Fine, but the message could suggest the shortest cut."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named ids-model-check; its buildable list is reruns of finished sweeps and its open items need outside inputs (as three earlier sessions found).",
+      "did": "Took flagship 9 league-schedule-generator's Swiss item (bbpPairings side-by-side), widened to TRF import/export since bbpPairings could not be built.",
+      "result": "Landed: TRF in/out on the page, missed-round syntax, forfeits now unplayed, C.9 bye rule; FIDE's two 2025 examples pair exactly as bbpPairings expects."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-a-swiss-pairer-that-reads-fide-trf-files.md",
+    "ventures/league-schedule-generator/README.md (FIDE TRF files, missed rounds and the 2025 bye rule)"
+  ],
+  "goal": null,
+  "notes": "Checks run here: node --test trf.test.mjs (9/9), swiss/calc/page tests 258/258 before docs; eval/swiss-repeat-floats.mjs 40 and eval/swiss-matching.mjs 40 rerun (near neutral, files updated); Playwright page check opening a TRF, pairing round 3, downloading TRF, no console errors; check_posts ok; validate.py ok. Full venture suite (run_venture_tests.py league-schedule-generator, 248 s): 2 failures, both from the new UI (checkbox label not tied by for=, page test's import list lacked ./trf.mjs), fixed; page.test.mjs + trf.test.mjs then 70/70. venture-preflight: clean, exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bb2011ec-7e6b-5f50-91c5-675bd72bddc4",
+    "transcripts": 1,
+    "first": "2026-11-21T16:55:54Z",
+    "last": "2026-11-21T17:14:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 150,
+        "output": 64239,
+        "thinking": 23154,
+        "cache_read": 11289576,
+        "cache_write_5m": 0,
+        "cache_write_1h": 177730,
+        "api_equivalent_usd": 4.9651,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 150,
+      "output": 64239,
+      "thinking": 23154,
+      "cache_read": 11289576,
+      "cache_write_5m": 0,
+      "cache_write_1h": 177730,
+      "api_equivalent_usd": 4.9651,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 77,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.54,
+      "active_minutes": 18.54,
+      "model_minutes": 11.75,
+      "tool_minutes": 6.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "TRF-16 reader/writer, results syntax for byes/forfeits, pairer rule and tests, page wiring, two evals rerun, write-ups: a senior JS developer with Swiss-rules knowledge",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 201.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

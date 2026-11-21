@@ -40,11 +40,13 @@ Options:
   --spells                  look for short spells (a month or so) where the series repeated its last value much more often, then went back to its old schedule: a feed published on fewer days for a while (rows must be dated YYYY-MM-DD; up to 4000 points; mean, meanvar, trend, poisson and --consensus)
   --multiplicative           with --period (mean/meanvar): the season is a factor, not an amount, so it scales with the level (positive values only; not with --drift)
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
-  --trend [bend|bends|quad|robust] fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
+  --trend [bend|bends|quad|robust|gated] fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC (counts, --model poisson: a change of growth rate, 'bends' up to two);
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period);
                             'robust' (counts): one growth rate read from a robust slope of the log counts, kept only when it
                             beats a flat level by log n (cheaper; the watch's --trend robust, README "A Middle that allows for growth")
+                            'gated' (counts): the common growth rate refitted under the steps, kept only when it beats a
+                            flat level by log n (the watch's --trend gated, README "The joint growth fit, gated")
   --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
   --hinge-test              test for one change of slope on the levels, with AR(1) noise and a bootstrap p-value: far more power than --slope-breaks on a series that wanders about a trend (temperature), and refuses one whose residuals look like a unit root (GDP); 30 to 600 points
   --events <file.csv>       dated series: say which changes fall inside an event you list (start[,end],label per line: a Google update's rollout, a release, a price change) and how often a change that wide would land in one by chance
@@ -123,7 +125,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--two-hinge-test') opt.twoHingeTest = true;
     else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--joint-knots') opt.jointKnots = true;
-    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' || argv[i + 1] === 'robust' ? argv[++i] : true;
+    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' || argv[i + 1] === 'robust' || argv[i + 1] === 'gated' ? argv[++i] : true;
     else if (a === '--consensus') opt.consensus = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (a === '--noise-floor-diff2') opt.noiseFloorOrder = 2;
