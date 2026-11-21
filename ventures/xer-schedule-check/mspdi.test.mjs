@@ -280,3 +280,34 @@ test("a blank text-field value is no activity code", () => {
   assert.deepEqual(r.tables.ACTVCODE.map((c) => c.short_name).sort(), ["North", "South"]);
   assert.equal(r.tables.TASKACTV.length, 3);
 });
+
+test("a split task's gap is added to its span and moves with it (eval/split-tasks-2026-11-21.md)", () => {
+  const tp = (s, f, h, type = 1) => `<TimephasedData><Type>${type}</Type><Start>${s}</Start><Finish>${f}</Finish><Unit>2</Unit>${h === null ? "" : `<Value>PT${h}H0M0S</Value>`}</TimephasedData>`;
+  // Formwork, 16 h, saved as Monday's work, a split on Tuesday, Wednesday's work
+  const rows = tp("2024-03-04T08:00:00", "2024-03-04T17:00:00", 8) + tp("2024-03-04T17:00:00", "2024-03-05T17:00:00", 0) + tp("2024-03-05T17:00:00", "2024-03-06T17:00:00", 8);
+  const asg = (t, r, body) => `<Assignment><TaskUID>${t}</TaskUID><ResourceUID>${r}</ResourceUID><Units>1</Units>${body}</Assignment>`;
+  const build = (tasks, asgs) => project({ tasks }).replace("</Project>", `<Assignments>${asgs}</Assignments></Project>`);
+  const ef = (xml) => { const out = schedule(parseMspdi(xml)).tasks; return ["2", "3"].map((id) => formatDate(out.get(id).ef)); };
+  const tasks = [{ uid: 2, name: "Formwork", h: 16, finish: "2024-03-06T17:00:00" }, { uid: 3, name: "Pour", h: 8, links: [link(2)] }];
+  // no timephased rows: 16 h end Tuesday
+  assert.deepEqual(ef(build(tasks, "")), ["2024-03-05 17:00", "2024-03-06 17:00"]);
+  const split = build(tasks, asg(2, -65535, rows));
+  const x = parseMspdi(split);
+  assert.equal(x.tables.TASK.find((t) => t.task_id === "2").split_gaps, "2024-03-04 17:00|2024-03-05 17:00");
+  assert.ok(x.warnings.some((w) => /1 split task/.test(w)), x.warnings.join("\n"));
+  // the split's 8 working hours (Tuesday) push the finish to Wednesday and Pour to Thursday
+  assert.deepEqual(ef(split), ["2024-03-06 17:00", "2024-03-07 17:00"]);
+  // a zero row while another assignment works is no gap
+  const busy = tp("2024-03-04T08:00:00", "2024-03-06T17:00:00", 24);
+  assert.deepEqual(ef(build(tasks, asg(2, -65535, rows) + asg(2, 1, busy))), ["2024-03-05 17:00", "2024-03-06 17:00"]);
+  // rows with no value (non-working time) are no gap
+  const nonwork = tp("2024-03-04T08:00:00", "2024-03-04T17:00:00", 8) + tp("2024-03-04T17:00:00", "2024-03-05T08:00:00", null) + tp("2024-03-05T08:00:00", "2024-03-05T17:00:00", 8);
+  assert.equal(parseMspdi(build(tasks, asg(2, -65535, nonwork))).tables.TASK.find((t) => t.task_id === "2").split_gaps, undefined);
+  // pushed a day by a new predecessor, the split keeps its 8 working hours
+  const moved = [{ uid: 1, name: "Strip", h: 8 }, { ...tasks[0], links: [link(1)] }, tasks[1]];
+  assert.deepEqual(ef(build(moved, asg(2, -65535, rows))), ["2024-03-07 17:00", "2024-03-08 17:00"]);
+  // in progress with Resume after the split: the split is behind it and adds nothing
+  const active = [{ ...tasks[0], rem: 8, pct: 50, actStart: "2024-03-04T08:00:00" }, tasks[1]];
+  const resumed = build(active, asg(2, -65535, rows)).replace("<ActualStart>2024-03-04T08:00:00</ActualStart>", "<ActualStart>2024-03-04T08:00:00</ActualStart><Resume>2024-03-06T08:00:00</Resume>");
+  assert.deepEqual(ef(resumed), ["2024-03-06 17:00", "2024-03-07 17:00"]);
+});

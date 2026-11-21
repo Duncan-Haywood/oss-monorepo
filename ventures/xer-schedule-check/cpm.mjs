@@ -178,6 +178,8 @@ export function buildModel(xer) {
       // Microsoft Project's Resume (mspdi.mjs): where an in-progress task's
       // remaining work restarts; P6 files have no such column
       resume: parseDate(r.resume_date),
+      // Microsoft Project's split gaps (mspdi.mjs): [[start, finish], ...]
+      gaps: r.split_gaps ? r.split_gaps.split(";").map((g) => g.split("|").map(parseDate)).filter((g) => g[0] !== null && g[1] !== null && g[1] > g[0]) : null,
       expEnd: parseDate(r.expect_end_date),
       cstr,
       extES: parseDate(r.external_early_start_date),
@@ -319,7 +321,22 @@ export function schedule(xer, options = {}) {
   // (risk.mjs's sampled durations); options.forwardOnly: stop after the
   // forward pass and the project finish (early dates only, ~half the time)
   const durs = options.durations || null;
-  const remainOf = (t) => (durs && durs.has(t.id) ? durs.get(t.id) : t.remain);
+  // A split task's span is its remaining duration plus the working time in
+  // its splits still ahead (all of them before it starts; for one in
+  // progress, those after its Resume or the data date). A split keeps its
+  // length in working time when the task moves, as in Project.
+  const gapCache = new Map();
+  const gapOf = (t) => {
+    if (!t.gaps || !t.gaps.length || done(t)) return 0;
+    if (gapCache.has(t.id)) return gapCache.get(t.id);
+    let from = -Infinity;
+    if (active(t)) from = t.resume ?? proj(t).dataDate ?? -Infinity;
+    let m = 0;
+    for (const [s, f] of t.gaps) { const a = Math.max(s, from); if (f > a) m += t.cal.workBetween(a, f); }
+    gapCache.set(t.id, m);
+    return m;
+  };
+  const remainOf = (t) => (durs && durs.has(t.id) ? durs.get(t.id) : t.remain) + gapOf(t);
   // options.levelStart: Map(task id -> minute) a not-started activity may not
   // start before (level.mjs's resource-levelled starts; like a start-on-or-
   // after constraint, so logic, calendars and other constraints still apply)
