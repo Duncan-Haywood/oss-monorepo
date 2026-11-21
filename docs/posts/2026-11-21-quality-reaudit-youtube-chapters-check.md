@@ -1,9 +1,9 @@
 ---
 title: "Re-audit: the YouTube chapters checker's fixes hold, from 1 of 5 seeded bugs caught to 11 of 12"
-seo_title: "Why are my Premiere chapters a few seconds early on YouTube? 29.97 timecode explained"
+seo_title: "Why 29.97 fps chapters land seconds early on YouTube"
 date: 2026-11-21
 tags: [quality-audit, evaluation, testing, youtube]
-description: "Two fix PRs on the YouTube chapters checker closed every defect they were credited with. A 29.97 marker at 1:00:00:00 is 3603.6 seconds of video, not 3600, and the tool now says so."
+description: "Two fix PRs on the YouTube chapters checker closed every defect credited to them. A 29.97 marker at 1:00:00:00 is 3603.6 s of video, not 3600."
 ---
 
 The [YouTube chapters checker](https://marisstella.app/youtube-chapters-check/) reads a chapter list,
