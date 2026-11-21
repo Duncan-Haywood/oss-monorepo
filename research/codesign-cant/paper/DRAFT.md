@@ -1,13 +1,11 @@
 # Draft: when does rotor cant pay on a small quadrotor co-designed with its motors and controller?
 
-Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph, 7ae's retraining check and 7af's step objective the same day; 7ag-7ai's rise-time rule 2026-11-19 to 20; sections III-V written in full 2026-11-21): sections I, II, VIII
-and IX outlined; sections III-V (model, the cant optimum under three laws, the RotorPy check; milestones 1-5), section VI (stability of the side-force feed-forward, milestones 7c–7g) and section VII
-(motor-lag randomisation, milestones 7s–7ac) written in full. Not submittable.** Target: *IEEE Robotics and
+Status: **milestone 7, first full draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph, 7ae's retraining check and 7af's step objective the same day; 7ag-7ai's rise-time rule 2026-11-19 to 20; sections III-V written in full 2026-11-21, and sections I, II, VIII and IX with the combined figure IV-V later the same day): every section is written in full. Not submittable.** Target: *IEEE Robotics and
 Automation Letters* (6 pages + 2), fallback ICUAS; an aim, not a claim of acceptance.
 
 Every number in this file is copied from a results file under `../experiments/` or from
 [`../LOG.md`](../LOG.md), and nothing here is new. `python3 paper/check_numbers.py` (from the project
-directory) checks each quoted figure in sections III–VII and the abstract against the file named beside it,
+directory) checks each quoted figure in sections I and III–IX and the abstract against the file named beside it,
 and fails if a results file changes under the draft. Everything is simulated; the propeller torque
 ratio comes from measured UIUC data, while the mass, cost and motor fits, the plant ranges and the
 gust model are inherited assumptions (`../README.md`, "Limitations").
@@ -35,35 +33,108 @@ published identifications give. Retuning shows that
 how the lag is randomised in training matters more than its nominal value: drawing plants exactly
 across the identified range is the worst choice tested, and anchoring the draw at the slowest
 identified lag with a ceiling 3–4× higher cuts the identified-range crashes by four fifths or more
-against that draw (486 to 101 or 65 of 2,304), paid in rise time rather than crashes.
+against that draw (486 to 101 or 65 of 2,304), paid in rise time rather than crashes. That rise time can
+be computed before flying: a point mass of the outer loop with one lag taken from the linearised
+attitude loop puts 36 of 36 designs within 0.10 s of their flown rise in all seven conditions tested.
 
-## I. Introduction (outline)
+## I. Introduction (full draft)
 
-1. Yaw is the weakest axis of a quadrotor (reaction torque κ/L ≈ 0.03–0.1 with measured
-   propellers); cant converts thrust into yaw torque at a hover-power price cos α^−1.5.
-2. Tilted-rotor work studies fully actuated hexa/octorotors or the allocation alone
-   [crowther2011, rajappa2015, michieletto2018, hamandi2021]; co-design work fixes or omits the
-   controller [du2016, carlone2019]. The joint optimum for the common X quadrotor with the
-   controller tuned per design under plant randomisation is open.
-3. Contributions: (a) corrected closed-form attainable torques and side force for the canted X
-   (milestone 1); (b) the co-designed cant and its price under three attitude laws and two
-   simulators (milestones 2, 4, 5); (c) the side force's effect on position hold on a rigid frame
-   and a feed-forward that cancels it (milestones 6, 6b, 7, 7b); (d) a linear stability certificate
-   for that feed-forward, cheap enough to run inside a tuning loop, with its margin traced
-   (milestones 7c–7f); (e) a measured rule for the motor-lag randomisation range when only a
-   published identification is known: floor at its slow end, ceiling at 3–4× (milestones 7s–7ac).
-   Code and data: MIT, one command per figure.
+Yaw is the weakest axis of a quadrotor. Roll and pitch torque come from thrust acting on an arm; yaw
+torque comes only from the propellers' reaction torque, which per newton of thrust is κ = cD, with
+c = 0.081 over measured propellers [brandt2011], so κ/L is about 0.03–0.1 on small frames. A vehicle
+that must hold heading in gusts, or a heavy-lift frame with large, slow propellers, runs out of yaw
+first. Builders know this, and some cant their motors a few degrees about the arm so that part of each
+rotor's thrust turns into yaw torque. The angle is set by rule of thumb. Cant has a price: each rotor
+hovers at mg/(4 cos α), so hover power grows as cos α^−1.5, and a canted rotor pushes the frame
+sideways whenever it makes roll or pitch torque.
 
-## II. Related work (outline)
+Two literatures touch this question and neither answers it. Work on tilted and fully actuated
+multirotors chooses rotor tilt for force-moment decoupling on six or more rotors, or analyses the
+allocation alone [crowther2011, rajappa2015, michieletto2018, hamandi2021]. Computational co-design
+optimises frames and parts with the controller fixed, derived from the design model, or absent
+[du2016, carlone2019]. Neither asks what fixed cant a four-rotor X should have when its controller is
+tuned for each design under plant uncertainty, its power is priced, and its torque limits come from
+the thrust-bounded allocation rather than a linearised authority. That is the question here, and its
+answer is not small. Co-designing the arm, propeller, cant and controller gains with CMA-ES
+[hansen2001] in a randomised simulator, cant pays under every attitude law we tried, and the optimum is
+28–37°, not the few degrees of the rule of thumb.
 
-Tilted and fully actuated multirotors [crowther2011, rajappa2015, michieletto2018, hamandi2021,
-ryll2015, brescianini2016]; computational co-design [du2016, zhao2020, carlone2019] with CMA-ES
-[hansen2001]; attitude laws [lee2010, smeur2016] and learned control [hwangbo2017, kaufmann2023];
-allocation [johansen2013]; simulators [folk2023, panerati2021]; propeller data [brandt2011]. For
-section VI: robust stability of a plant box checked at its vertices is a sampled test, not a
-guarantee, for a multi-parameter family [bartlett1988]; we report it as such. For section VII:
-domain and dynamics randomisation [tobin2017, peng2018] and choosing the randomisation range
-[mehta2019]; motor identifications [bauersfeld2021, foehn2022].
+The side force is where cant stops being free, and following it leads from a design question into a
+tuning question that applies to any randomised tuner. An integrator feed-forward cancels the steady side
+force, but CMA-ES tunes the resulting loop onto its linear stability boundary. In the simulator only a
+20° tilt-command limit hides this, and at PX4's default 45° the same tunes diverge. A linear certificate
+used as a training constraint fixes that. Retuning at published motor identifications then shows that
+the motor-lag range the tuner is trained on matters more than its nominal value.
+
+Contributions:
+
+1. Closed-form attainable torques and side force for the canted X from the full 6×4 allocation, checked
+   against a linear programme to 1e-15, which correct the hand-written limits of the earlier projects
+   this programme consolidates by up to 2√2× in yaw (section III).
+2. The co-designed cant and its price: paired by seed, cant beats no cant by 4.18–5.27° of held-out
+   attitude error under PID, INDI [smeur2016] and geometric control [lee2010], 10 of 10 seeds each, at a
+   chosen angle of 33.9–35.3° (median per law); pricing hover power changes the vehicle's size, not the
+   angle; the ranking survives an independent simulator, RotorPy [folk2023] (section IV, V).
+3. A linear stability test for the side-force feed-forward, built by stepping the simulator's own update,
+   which is necessary but not sufficient, and which, used as a training constraint at 0.8× the
+   integral-gain ceiling, removes the divergences at PX4's 45° tilt limit for about 0.7% of held-out cost
+   (section VI).
+4. A measured rule for the motor-lag randomisation range when only a published identification is known:
+   floor at the slowest identified lag, ceiling at 3–4× it; drawing plants exactly across the identified
+   range is the worst choice tested (section VII).
+5. A rise-time rule for the resulting tunes that needs no flight: a point mass of the outer loop plus one
+   first-order lag computed from the linearised attitude loop over the randomisation range (section VII).
+
+Everything is simulated, and section VIII lists what that leaves open. Code, results files and one
+command per figure are MIT licensed; every number in this draft is checked against its results file by
+`paper/check_numbers.py`.
+
+## II. Related work (full draft)
+
+**Tilted and fully actuated multirotors.** Crowther et al. [crowther2011] showed that tilting a
+quadrotor's rotors out of plane adds yaw authority, through the allocation and the control design, with
+no sizing, power or controller co-design. Rajappa et al. [rajappa2015] optimised the tilt angles of a
+hexarotor for full actuation, and Michieletto et al. [michieletto2018] gave the structural theory of
+which tilt patterns decouple force from moment. Hamandi et al. [hamandi2021] map multirotor designs by
+their allocation properties. At the other ends of the spectrum, Ryll et al. [ryll2015] tilt a
+quadrotor's rotors actively with servos, and Brescianini and D'Andrea [brescianini2016] fix eight rotors
+in an omnidirectional layout at a large efficiency cost. Fixed cant on a four-rotor X is the cheap,
+passive case: it cannot decouple force from moment, and the question is not whether the vehicle becomes
+fully actuated but whether a better-conditioned yaw axis is worth its power and its side force once the
+controller is retuned. Our allocation follows the constrained-optimisation view of the survey by Johansen
+and Fossen [johansen2013]; the attitude-priority mixer we fly is the one common autopilots use.
+
+**Computational co-design.** Du et al. [du2016] optimise multicopter geometry and parts with an LQR
+controller derived for each design; rotors are coplanar or tilted by the user, and the plant is not
+randomised. RoboGrammar [zhao2020] searches morphology and control jointly for legged robots, and
+Carlone and Pinciroli [carlone2019] pose drone component selection as a formal co-design problem without
+dynamics. We co-design the geometry and the gains with CMA-ES [hansen2001] against a held-out,
+randomised plant, and treat the controller's tuning as part of the design, which is what makes the
+stability and randomisation findings of sections VI and VII possible.
+
+**Attitude control and learned control.** We compare three laws: cascaded PID, incremental nonlinear
+dynamic inversion [smeur2016], which is robust to the actuator uncertainty of small vehicles, and
+geometric control on SO(3) [lee2010]. Learned low-level control [hwangbo2017] and sim-to-real
+reinforcement learning with identified models [kaufmann2023] reach hardware with the airframe fixed;
+our results suggest the airframe is worth putting in the loop, and that how the training plant is drawn
+matters as much for a gain tuner as for a policy.
+
+**Randomisation and its range.** Domain randomisation [tobin2017] and dynamics randomisation [peng2018]
+train across a range of simulators so that the real system looks like one more draw; active domain
+randomisation [mehta2019] argues that uniform sampling wastes training on environments that teach little
+and that the range should be chosen. Section VII measures that choice for one parameter, the motor lag,
+on a certificate-constrained gain tuner, with the range anchored to two published identifications of
+the motors our designs use [bauersfeld2021, foehn2022].
+
+**Stability of a plant family and integrator windup.** Checking a linear model at the vertices of a
+parameter box is a sampled test: for a multi-parameter family stable vertices do not guarantee a stable
+interior [bartlett1988], and we report the certificate as such. Conditional integration, the anti-windup
+remedy of section VII, is textbook [astrom2006].
+
+**Simulators and data.** RotorPy [folk2023], with first-order motor speed dynamics and rotor drag, is
+the second simulator; we extend its wrench for canted rotors. gym-pybullet-drones [panerati2021] is the
+PyBullet alternative we did not use. Propeller reaction torque comes from the UIUC measurements
+[brandt2011].
 
 ## III. Model (milestones 1, 2; full draft)
 
@@ -167,7 +238,9 @@ held-out steps, and no law can make yaw torque the rotors cannot produce. Most o
 in the uncanted vehicle: PID without cant ranges 17.2–21.1° across seeds and INDI 16.9–17.6°. At twice the gust
 intensity, cant still wins 10 of 10 seeds under every law (−9.82° PID, −4.51° INDI, −5.78° geometric). About half
 of PID's larger advantage there is a controller effect that INDI also removes. The optimum does not depend on
-the law: the median chosen cant is 33.9–35.3°. Figure: `../experiments/m4_controllers/m4_controllers.png`.
+the law: the median chosen cant is 33.9–35.3°. Figure IV-V (`paper/fig_IV_V.png`, drawn by `paper/figures_iv_v.py`
+from the results files) shows each seed's chosen cant against the 5–20° band of the rule of thumb (panel b) and
+each seed's paired advantage in both simulators (panel a).
 
 **For a builder.** On a small X quadrotor that must hold heading, a fixed cant of about 30–35° is worth about
 4–5° of held-out attitude error, whatever the attitude law. Pricing hover power changes how big the vehicle
@@ -211,7 +284,9 @@ not tested separately, is that in RotorPy the vehicle drifts with the wind, so a
 injected torque does not. INDI loses most in the move (canted designs lose 1.8–2.1° in the aero conditions). Its
 increment rests on a torque-lag actuator model, and RotorPy's actuator is a speed lag. The law that relies most
 on a model is hurt most when the model changes. Doubling the rotor drag moves mean RMS by under 0.25°, so the
-conclusions do not hang on the assumed drag scaling. Figure: `../experiments/m5_rotorpy/m5_rotorpy.png`.
+conclusions do not hang on the assumed drag scaling. Figure IV-V, panel a, shows the paired advantage per seed in all
+five conditions: in the injected-torque condition the spread widens and 2 of 10 INDI seeds lose their advantage
+(`m5_rotorpy/results.txt`), the only seeds of 150 in the five conditions where cant does not win.
 
 **Limits of this check.** The designs are not retuned in RotorPy, so part of INDI's loss may be recoverable. The
 aerodynamic coefficients are scaled, not measured. Only attitude is re-scored: the position-loop results of
@@ -477,22 +552,48 @@ below the slow identification. VII-b (`paper/fig_VIIb.png`): rise time against i
 the nine rows with a step test, the coverage frontier a builder picks a point on; 39.1–125 ms sits
 on its knee.
 
-## VIII. Limitations (outline)
+## VIII. Limitations (full draft)
 
-One stylised simulator for the position-loop work (RotorPy only re-scores attitude); plant ranges,
-gust model, mass and cost fits inherited and unsourced; six seeds per arm in milestones 6–7ac
-(below the proposal's ten for paper figures; section VII pools the two geometries to reach twelve);
-the lag ceilings of section VII are brackets, not sourced values, and the motor lag is the only
-uncertain input whose randomisation range was swept (torque scale and mass keep U(0.7, 1) and
-U(0.9, 1.3)); vertex-sampled stability; no hardware (milestone 8,
-an owner step: printed mounts at 0° and the co-designed angle, a load cell and a yaw-rate log).
+**One simulator for the position loop.** RotorPy re-scores attitude only (section V). The side force,
+the feed-forward, the certificate and the randomisation results of sections VI and VII rest on the
+stylised simulator alone, and the rise-time rule's lag is that simulator's own linearisation, so section
+VII shows the simulator's lag can be computed, not that a real vehicle's can.
 
-## IX. Conclusion (outline)
+**Inherited inputs.** The mass, cost and motor fits of the sizing closure, the torque-scale and mass
+ranges of the randomised plant (U(0.7, 1), U(0.9, 1.3)) and the gust model are assumptions carried over
+from the earlier projects, not sourced values. Milestones 7p and 7q replace the closure with laws fitted
+to listed frames and components for section VII only. RotorPy's aerodynamic coefficients are scaled to
+each propeller by momentum-theory exponents. The motor lag is the only uncertain input whose
+randomisation range was swept, and its ceilings are brackets, not sourced values.
 
-Cant of about 30–35° pays on a small X quadrotor under every attitude law and both simulators, and
-its side force is the price; cancel the steady part with an integrator feed-forward, certify the
-loop with an 11-state linear check at 0.8× the integral-gain ceiling, and test at the autopilot's
-real tilt limit. Randomise the motor lag from the slowest identified value up to 3–4× it, and integrate the position error only near the set point.
+**Seeds and tests.** Milestones 1 and 2 use five seeds, milestone 4 ten, and milestones 6–7ac six per
+arm, below the proposal's ten for paper figures; section VII pools the two centre-of-pressure geometries
+to reach twelve. Sign counts stand in for Wilcoxon tests in sections IV and V. Every result in sections
+VI and VII is scored on one held-out seed of 64 episodes per design.
+
+**What was changed after the fact.** H5's top-ten rank test (section V) was replaced, after the run, by
+arm-level agreement and all-design ρ against the self-agreement ceiling, because the top ten were tied
+within episode noise. The 135 ms lag of milestone 7ag was fitted post hoc; milestones 7ah and 7ai
+replaced it with an identified and then a computed lag, scored against rise times already published.
+
+**The certificate.** The stability test checks the eight corners of the plant box, a sampled test
+[bartlett1988]. It is necessary, not sufficient (section VI), and the 12–13 divergences in 384 at twice
+the trained lever are a torque-authority limit no gain margin removes.
+
+**No hardware.** Milestone 8, an owner step (printed motor mounts at 0° and at the co-designed angle, a load
+cell and a yaw-rate log), is the test that would turn these findings into a builder's rule.
+
+## IX. Conclusion (full draft)
+
+On a small four-rotor X that must hold heading, a fixed motor cant of about 30–35° pays under every
+attitude law we tried and survives a second simulator; pricing hover power changes the vehicle's size,
+not the angle. Its cost is a side force. Cancel the steady part with an integrator feed-forward, keep the
+tuner off the loop's stability boundary with an 11-state linear check at 0.8× the integral-gain ceiling,
+and score the tune at the tilt limit the autopilot will fly. When the motor lag is known only from a
+published identification, randomise it from the slowest identified value up to 3–4× it, integrate the
+position error only near the set point, and put a set-point step in the tuning objective; the rise time
+of the resulting tune then follows from its gains and a lag computed from the linearised loop, before
+it flies. The hardware check is next.
 
 ## Still to do before submission
 
@@ -500,6 +601,6 @@ real tilt limit. Randomise the motor lag from the slowest identified value up to
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
   set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; twelve seeds per geometry at 125 and 150 ms.
-- Sections I, II, VIII and IX written out from the outlines (III–VII are full drafts); LaTeX in the RA-L template.
-- Sections IV–V: a combined figure for the paper in place of the two milestone figures; retune the top designs inside RotorPy to separate model mismatch from overfitting (milestone 5's limit).
+- LaTeX in the RA-L template, cut to 6 + 2 pages (the full draft is well over).
+- Sections IV–V: retune the top designs inside RotorPy to separate model mismatch from overfitting (milestone 5's limit).
 - Hardware check (milestone 8).

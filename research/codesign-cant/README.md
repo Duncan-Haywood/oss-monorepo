@@ -6,6 +6,18 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Paper step (2026-11-21, second): the whole draft, introduction to conclusion, and one figure for the cant results
+
+**Question.** With the model, results and stability sections written, what does the paper argue end to end, and where exactly does the co-designed cant fail to win?
+
+**Headline ([`paper/DRAFT.md`](paper/DRAFT.md), sections I, II, VIII, IX and figure IV-V; reads existing results files and runs no new flights; simulated).**
+
+- **Every section is now written in full.** The introduction states the gap (tilted-rotor work chooses tilt for full actuation on six or more rotors; co-design work fixes or derives the controller) and five contributions; the related work covers both literatures, attitude and learned control, randomisation ranges and plant-family stability with the checked bibliography; the limitations section groups what is still open.
+- **Figure IV-V** ([`paper/fig_IV_V.png`](paper/fig_IV_V.png), [`paper/figures_iv_v.py`](paper/figures_iv_v.py)): cant wins 148 of 150 seed-conditions (3 laws × 10 seeds × the stylised simulator and four RotorPy conditions). Both losses are INDI under RotorPy's injected-torque condition, the law that leans hardest on an actuator model. The chosen cant is 31-37° in all 30 milestone-4 seeds, above the rule of thumb's 5-20°.
+- `paper/check_numbers.py` checks 119 quoted figures; a new test recomputes the figure's points from the printed results.
+
+![Left: each seed's cant-minus-no-cant held-out attitude RMS for PID, INDI and geometric control, in the stylised simulator and four RotorPy conditions, all below zero except two INDI seeds under injected torque. Right: each seed's chosen cant, 31 to 37 degrees for the three laws, above a grey 5 to 20 degree band.](paper/fig_IV_V.png)
+
 ## Paper step (2026-11-21): does canting a quadrotor's motors pay under every attitude controller? Sections III-V of the draft
 
 **Question.** The paper's central result (a fixed rotor cant of about 30-35° pays on a small X quadrotor, whichever attitude law flies it, and survives a second simulator) sat in three-line outlines. Written out in full, with every number checked against its results file, what does it say?
@@ -449,7 +461,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 [`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: sections III–V (model, the cant optimum, the RotorPy check; written in full 2026-11-21), the stability section (milestones 7c–7g) and the motor-lag randomisation section (milestones 7s–7ac, with Table VII-1 and pooled tests from [`paper/table7_stats.py`](paper/table7_stats.py)) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (115 checks since 2026-11-21, including every row of Tables IV-1 and VII-1; run by `tests/test_paper_numbers.py`).
 
 - **Writing it changed how the stability results read.** The simulator's default tilt-command limit is 20°. PX4's `MPC_TILTMAX_AIR` defaults to 45° with 20° as its floor, and ArduPilot's `ANGLE_MAX` defaults to 30° (both read from the autopilots' source on 2026-11-14). So the 45° condition in milestones 7d–7f is the stock PX4 setting, not a stress test: at it, designs CMA-ES tuned onto the linear ceiling diverge on 13 of 384 held-out flights and their position error rises from 0.105 to 0.257 m (`experiments/m7e_margin/tilt.txt`), and the 0.8× margin removes all 13 for 0.7% of cost.
-- No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, sections I, II, VIII and IX written out, LaTeX, hardware) are listed at its end.
+- No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, LaTeX and the cut to length, hardware; sections I, II, VIII and IX were written out 2026-11-21) are listed at its end.
 
 ## Milestone 7f: how much stability margin should the tuner keep?
 
