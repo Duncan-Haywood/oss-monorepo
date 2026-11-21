@@ -193,6 +193,11 @@ CLAIMS = [
     ("results_panel_doublebody.txt", "H5 Journee ratios I 0.615, III 0.662"),
     ("results_panel_doublebody.txt", "30 W loss 3.43% in the 3.4-4.2% bracket"),
     ("results_coupling_symmetry.txt", "S summed over KL / measured 1.744"),
+    # milestone 7zp: Kashiwagi's modified-EUT and measured coupling on the L/B 10 hulls
+    ("results_eut_coupling_lb10.txt", "I T1 -7.1% (ratio 0.650), I T2 +2.0% (ratio 0.714)"),
+    ("results_eut_coupling_lb10.txt", "III T1 -8.0% (ratio 0.721), III T2 +1.0% (ratio 0.791)"),
+    ("results_eut_coupling_lb10.txt", "K3 T3 ratio I 0.624 vs 0.700, III 0.745 vs 0.783 lower: True"),
+    ("results_eut_coupling_lb10.txt", "row T2_x_Fn/0.2 2.968 0.028 -3.54 -12.79 True"),
     ("results_faltinsen_reflection.txt", "row Faltinsen_kT_speed 2.844 0.028 -3.39 -12.32 True"),
     ("results_faltinsen_reflection.txt", "row STAWAVE-2 2.844 0.725 -4.18 -14.79 True"),
     ("results_faltinsen_reflection.txt", "I/B 0.0195"),
