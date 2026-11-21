@@ -58,6 +58,8 @@
 import { schedule, lagCalendar } from "./cpm.mjs";
 import { formatDate } from "./xer.mjs";
 import { longestPath } from "./floatpaths.mjs";
+import { codeTypes, findCodeType, codeLevel } from "./actvcodes.mjs";
+export { codeTypes };
 
 const DAY = 1440;
 const LINK = { PR_FS: "FS", PR_SS: "SS", PR_FF: "FF", PR_SF: "SF" };
@@ -290,9 +292,14 @@ export function gantt(xer, opts = {}) {
     }
     return agg;
   };
-  // activities filed straight under the project node come first
-  for (const t of tasksBy.get("") || []) rows.push(t);
-  walk("", 0);
+  let groupBy = null;
+  if (opts.groupBy && [].concat(opts.groupBy).some((l) => String(l).toLowerCase() !== "wbs")) {
+    groupBy = groupRows(xer, p.id, [].concat(opts.groupBy), tasksBy, { kids, wbsById, root, isTop }, rows, warnings);
+  } else {
+    // activities filed straight under the project node come first
+    for (const t of tasksBy.get("") || []) rows.push(t);
+    walk("", 0);
+  }
 
   let from = null, to = null;
   for (const r of rows) {
@@ -304,7 +311,7 @@ export function gantt(xer, opts = {}) {
   const n = (f) => tasks.filter(f).length;
   return {
     project: { id: p.id, code: p.code, name: projRow.proj_name || "", dataDate: p.dataDate, finish: p.finish ?? null, mustFinish: p.mustFinish ?? null },
-    rows, from, to, baseline: baseKind,
+    rows, from, to, baseline: baseKind, groupBy,
     summary: {
       activities: tasks.length, wbs: rows.length - tasks.length, critical: n((r) => r.critical), longestPath: n((r) => r.longest), criticalBy: byLongest ? "longest path" : `total float <= ${p.criticalHours || 0} h`, milestones: n((r) => r.milestone),
       loe: n((r) => r.span === "LOE"), wbsSummary: n((r) => r.span === "WBS summary"),
@@ -313,6 +320,77 @@ export function gantt(xer, opts = {}) {
     },
     warnings,
   };
+}
+
+// Rows grouped by activity codes and/or the WBS, P6's "Group and Sort":
+// `levels` is a list of "wbs" or code types (id or name), outermost first.
+// Each activity's place is the concatenation of its path at every level: the
+// code value it holds and the values above it (a hierarchical code), or its
+// WBS branch. An activity with no value of a type goes under "no <type>",
+// listed last; one filed straight under the project node adds nothing at a
+// WBS level. Siblings follow seq_num, then short name; an activity sits
+// under the deepest group it reaches, ahead of that group's sub-groups, as
+// in the WBS view. Group rows are kind "wbs" (they draw, fold and filter the
+// same way) with `level` naming what they group by.
+function groupRows(xer, projId, levels, tasksBy, wbs, rows, warnings) {
+  const resolved = [];
+  for (const l of levels) {
+    if (String(l).toLowerCase() === "wbs") { resolved.push({ kind: "wbs", name: "WBS" }); continue; }
+    const type = findCodeType(xer, projId, l);
+    if (!type) { warnings.push(`no activity code type "${l}" in this project; left out of the grouping`); continue; }
+    const lv = codeLevel(xer, type.id, projId);
+    warnings.push(...lv.warnings);
+    resolved.push({ kind: "code", name: type.name, id: type.id, path: lv.path });
+  }
+  const wbsPath = (w) => {
+    const out = [], seen = new Set();
+    for (let k = w; k && !wbs.isTop(k) && !seen.has(k); k = wbs.wbsById.get(k)?.parent_wbs_id) {
+      seen.add(k);
+      const r = wbs.wbsById.get(k);
+      out.unshift({ id: k, code: r.wbs_short_name || "", name: r.wbs_name || r.wbs_short_name || "", seq: Number.isFinite(Number(r.seq_num)) ? Number(r.seq_num) : 0 });
+    }
+    return out;
+  };
+  const top = { key: "", kids: new Map(), tasks: [] };
+  for (const [wbsKey, list] of tasksBy) {
+    for (const t of list) {
+      let node = top;
+      resolved.forEach((lv, li) => {
+        let path;
+        if (lv.kind === "wbs") path = wbsPath(wbsKey);
+        else path = lv.path(t.id) || [{ id: "none", code: "", name: `no ${lv.name}`, seq: Infinity, none: true }];
+        for (const v of path) {
+          const k = `${li}:${v.id}`;
+          if (!node.kids.has(k)) node.kids.set(k, { key: `${node.key}|${k}`, v, level: lv.name, kids: new Map(), tasks: [] });
+          node = node.kids.get(k);
+        }
+      });
+      node.tasks.push(t);
+    }
+  }
+  const order = (a, b) => (a.v.none ? 1 : 0) - (b.v.none ? 1 : 0) || a.v.seq - b.v.seq || String(a.v.code).localeCompare(String(b.v.code)) || (a.v.id < b.v.id ? -1 : 1);
+  const byTime = (a, b) => a.start - b.start || a.finish - b.finish || String(a.code).localeCompare(String(b.code));
+  const emit = (node, depth, parentKey) => {
+    const agg = { start: null, finish: null, count: 0, critical: false, longest: false };
+    const take = (r) => {
+      if (fin(r.start) && (agg.start === null || r.start < agg.start)) agg.start = r.start;
+      if (fin(r.finish) && (agg.finish === null || r.finish > agg.finish)) agg.finish = r.finish;
+      agg.critical ||= r.critical;
+      agg.longest ||= r.longest;
+    };
+    for (const t of node.tasks.sort(byTime)) { t.depth = depth; t.parent = parentKey; rows.push(t); take(t); agg.count++; }
+    for (const k of [...node.kids.values()].sort(order)) {
+      const row = { kind: "wbs", key: k.key, parent: parentKey, depth, level: k.level, code: k.v.code, name: k.v.name, start: null, finish: null, count: 0, critical: false, longest: false };
+      rows.push(row);
+      const sub = emit(k, depth + 1, k.key);
+      Object.assign(row, { start: sub.start, finish: sub.finish, count: sub.count, critical: sub.critical, longest: sub.longest });
+      take(row);
+      agg.count += sub.count;
+    }
+    return agg;
+  };
+  emit(top, 0, "");
+  return resolved.map((l) => l.name);
 }
 
 // The rows a view shows: WBS levels open to `level`, nodes the user folded
@@ -348,6 +426,9 @@ export function visibleRows(g, view = {}) {
   return out;
 }
 
+// "in 12 WBS nodes" or "in 9 groups (Responsibility, then WBS)"
+const groupsPhrase = (g) => (g.groupBy ? `${g.summary.wbs} groups (${g.groupBy.join(", then ")})` : `${g.summary.wbs} WBS nodes`);
+export { groupsPhrase };
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const dOnly = (m) => (fin(m) ? formatDate(m).slice(0, 10) : "");
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -478,7 +559,7 @@ export function ganttHtml(g, view = {}, meta = {}) {
 <style>:root{color-scheme:light}body{font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1b1f24;background:#fff;margin:16px}h1{font-size:18px;margin:0 0 4px}p{margin:4px 0}.note{color:#555}svg{max-width:100%;height:auto}.warn{color:#a3530b}@media print{@page{size:landscape;margin:8mm}body{margin:0}}</style></head><body>
 <h1>${esc(title)}</h1>
 <p>${[g.project.name, `data date ${dOnly(g.project.dataDate)}`, g.project.finish ? `forecast finish ${dOnly(g.project.finish)}` : "", meta.by ? `prepared by ${meta.by}` : ""].filter(Boolean).map(esc).join(" &middot; ")}</p>
-<p>${s.activities} activities in ${s.wbs} WBS nodes: ${s.complete} complete, ${s.active} in progress, ${s.notStarted} not started; ${s.critical} critical, ${s.milestones} milestones${s.loe ? `, ${s.loe} level of effort` : ""}${s.wbsSummary ? `, ${s.wbsSummary} WBS summary` : ""}${g.baseline === "file" ? `; ${s.late} open activities finish later than the baseline` : ""}.</p>
+<p>${s.activities} activities in ${esc(groupsPhrase(g))}: ${s.complete} complete, ${s.active} in progress, ${s.notStarted} not started; ${s.critical} critical, ${s.milestones} milestones${s.loe ? `, ${s.loe} level of effort` : ""}${s.wbsSummary ? `, ${s.wbsSummary} WBS summary` : ""}${g.baseline === "file" ? `; ${s.late} open activities finish later than the baseline` : ""}.</p>
 <p class="note">${LEGEND}</p>
 ${ganttSvg(g, view)}
 ${g.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("")}
@@ -490,7 +571,7 @@ export function ganttText(g, view = {}) {
   if (!g.project) return "No project in the file.\n";
   const s = g.summary;
   const out = [`Gantt chart: ${g.project.code}${g.project.name ? ` (${g.project.name})` : ""}, data date ${dOnly(g.project.dataDate)}, forecast finish ${dOnly(g.project.finish)}`,
-    `${s.activities} activities in ${s.wbs} WBS nodes: ${s.complete} complete, ${s.active} in progress, ${s.notStarted} not started; ${s.critical} critical, ${s.milestones} milestones, ${s.loe} level of effort, ${s.wbsSummary} WBS summary.`, ""];
+    `${s.activities} activities in ${groupsPhrase(g)}: ${s.complete} complete, ${s.active} in progress, ${s.notStarted} not started; ${s.critical} critical, ${s.milestones} milestones, ${s.loe} level of effort, ${s.wbsSummary} WBS summary.`, ""];
   const rows = visibleRows(g, { level: view.level ?? 2, critical: view.critical, search: view.search });
   for (const r of rows) {
     const pad = "  ".repeat(r.depth);
@@ -517,7 +598,7 @@ export function ganttCsv(g) {
   const head = ["level", "kind", "code", "name", "status", "start", "finish", "remaining start", "total float (h)", "critical", "longest path", "type", "baseline start", "baseline finish", "finish variance (working days)", "activities"];
   const lines = [head.map(q).join(",")];
   for (const r of g.rows) {
-    if (r.kind === "wbs") lines.push([r.depth, "WBS", r.code, r.name, "", F(r.start), F(r.finish), "", "", r.critical ? "Y" : "N", r.longest ? "Y" : "N", "", "", "", "", r.count].map(q).join(","));
+    if (r.kind === "wbs") lines.push([r.depth, r.level && r.level !== "WBS" ? `code: ${r.level}` : "WBS", r.code, r.name, "", F(r.start), F(r.finish), "", "", r.critical ? "Y" : "N", r.longest ? "Y" : "N", "", "", "", "", r.count].map(q).join(","));
     else lines.push([r.depth, "activity", r.code, r.name, r.status, F(r.start), F(r.finish), F(r.remStart), r.tf, r.critical ? "Y" : "N", r.longest ? "Y" : "N", r.span || (r.milestone ? "milestone" : "task"), F(r.baseStart), F(r.baseFinish), r.variance, ""].map(q).join(","));
   }
   return lines.join("\n") + "\n";

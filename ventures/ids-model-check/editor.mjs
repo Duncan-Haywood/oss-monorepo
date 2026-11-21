@@ -10,7 +10,6 @@
 // give: the faults auditIds() finds in 21 of 64 public IDS files.
 
 import { temporalKind, temporalKey, lexRange, dateRangePattern, dateTimeRangePattern } from "./temporal.mjs";
-const DT_FORM = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/;
 import { nearName } from "./audit.mjs";
 import { fixStructure } from "./fix.mjs";
 
@@ -160,40 +159,30 @@ export const TEMPORAL_EXAMPLE = { date: ["2024-01-01", "2030-12-31"], dateTime: 
 // digits only (XSD's \d is any Unicode digit), and a day written with a time
 // zone is placed by its instant as the range check places it
 // (eval/date-pattern-exact-2026-11-20.md).
-// zones: offsets in minutes (the model's own, zonesOf) a dateTime pattern
-// places exactly near a bound too; each adds about 300 characters.
-export function datePattern(min, max, minEx = false, maxEx = false, zones = []) {
+export function datePattern(min, max, minEx = false, maxEx = false) {
   const blank = (x) => x === "" || x == null;
   if (blank(min) && blank(max)) return null;
   const r = {};
   if (!blank(min)) r[minEx ? "minExclusive" : "minInclusive"] = min;
   if (!blank(max)) r[maxEx ? "maxExclusive" : "maxInclusive"] = max;
-  // dateTime bounds (since 2026-11-21): exact for values with no zone, Z or
-  // +/-00:00, and for any zone more than a day inside the bounds; a value
-  // written in another zone within a day of a bound does not match
-  // (temporal.mjs dateTimeRangePattern; eval/datetime-pattern-2026-11-21.md).
-  if (Object.values(r).every((v) => DT_FORM.test(v))) {
-    const q = dateTimeRangePattern(r, { zones });
-    return q ? q : null;
-  }
   if (Object.values(r).some((v) => !/^\d{4}-\d{2}-\d{2}$/.test(v))) return null;
   const p = dateRangePattern(r);
   return p ? p : null;
 }
 
-// The time zones (offsets in minutes, not 0) the model writes its dateTime
-// values in, from a modelValueOffer's values ([text, count] pairs), so the
-// editor's pattern places a model's own +01:00 values exactly near a bound.
-export function zonesOf(values) {
-  const out = new Set();
-  for (const [v] of values || []) {
-    const m = String(v).trim().match(/T\d{2}:\d{2}:\d{2}(?:\.\d+)?([+-])(\d{2}):(\d{2})$/);
-    if (!m) continue;
-    const h = Number(m[2]), mi = Number(m[3]);
-    if (h > 23 || mi > 59 || (h === 0 && mi === 0)) continue;
-    out.add((m[1] === "-" ? -1 : 1) * (h * 60 + mi));
-  }
-  return [...out].sort((a, b) => a - b);
+// The same for a dateTime range (temporal.mjs dateTimeRangePattern): exact
+// to the millisecond for values with no zone, Z or an offset a time zone uses;
+// a value with an offset no zone uses (+10:17) passes only more than a day
+// inside the range (eval/datetime-pattern-2026-11-21.md). null when a bound
+// is not a dateTime or no value can pass.
+export function dateTimePattern(min, max, minEx = false, maxEx = false) {
+  const blank = (x) => x === "" || x == null;
+  if (blank(min) && blank(max)) return null;
+  const r = {};
+  if (!blank(min)) r[minEx ? "minExclusive" : "minInclusive"] = String(min);
+  if (!blank(max)) r[maxEx ? "maxExclusive" : "maxInclusive"] = String(max);
+  const p = dateTimeRangePattern(r);
+  return p ? p : null;
 }
 
 // The XSD base IDS uses for a value restriction on this dataType.

@@ -1,41 +1,31 @@
-== dt.ifc: IfcTester 0.1 s, ids-model-check 0.2 s (wall clock, including start-up)
-  DIFF  >= 2024-05-01T08:00:00 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 19 failing)
-      failing only in IfcTester: [2000, 2012, 2016, 2020, 2024, 2028, 2032, 2040, 2048, 2056]
-  same  >= 2024-05-01T08:00:00 (pattern): IfcTester fail (41 applicable, 22 failing) | ours fail (41 applicable, 22 failing)
-  same  >= 2024-05-01T08:00:00 (pattern, model open): IfcTester fail (41 applicable, 19 failing) | ours fail (41 applicable, 19 failing)
-  DIFF  > 2024-05-01T08:00:00 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 27 failing)
-      failing only in IfcTester: [2012, 2056, 2068, 2076, 2080, 2084, 2088, 2092, 2096, 2100]
-  same  > 2024-05-01T08:00:00 (pattern): IfcTester fail (41 applicable, 27 failing) | ours fail (41 applicable, 27 failing)
-  same  > 2024-05-01T08:00:00 (pattern, model open): IfcTester fail (41 applicable, 27 failing) | ours fail (41 applicable, 27 failing)
-  DIFF  <= 2024-12-31T23:59:59 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 17 failing)
-      failing only in IfcTester: [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028, 2032, 2036]
-  same  <= 2024-12-31T23:59:59 (pattern): IfcTester fail (41 applicable, 19 failing) | ours fail (41 applicable, 19 failing)
-  same  <= 2024-12-31T23:59:59 (pattern, model open): IfcTester fail (41 applicable, 17 failing) | ours fail (41 applicable, 17 failing)
-  DIFF  < 2025-01-01T00:00:00 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 16 failing)
-      failing only in IfcTester: [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028, 2032, 2036]
-  same  < 2025-01-01T00:00:00 (pattern): IfcTester fail (41 applicable, 18 failing) | ours fail (41 applicable, 18 failing)
-  same  < 2025-01-01T00:00:00 (pattern, model open): IfcTester fail (41 applicable, 16 failing) | ours fail (41 applicable, 16 failing)
-  DIFF  >= 2024-05-01T08:00:00 and <= 2024-12-31T23:59:59 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 26 failing)
-      failing only in IfcTester: [2000, 2012, 2016, 2020, 2024, 2028, 2032, 2040, 2048, 2056]
-  same  >= 2024-05-01T08:00:00 and <= 2024-12-31T23:59:59 (pattern): IfcTester fail (41 applicable, 31 failing) | ours fail (41 applicable, 31 failing)
-  same  >= 2024-05-01T08:00:00 and <= 2024-12-31T23:59:59 (pattern, model open): IfcTester fail (41 applicable, 26 failing) | ours fail (41 applicable, 26 failing)
-  DIFF  >= 2024-05-01T00:00:00 and < 2024-05-02T00:00:00 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 25 failing)
-      failing only in IfcTester: [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028, 2032, 2036]
-  same  >= 2024-05-01T00:00:00 and < 2024-05-02T00:00:00 (pattern): IfcTester fail (41 applicable, 31 failing) | ours fail (41 applicable, 31 failing)
-  same  >= 2024-05-01T00:00:00 and < 2024-05-02T00:00:00 (pattern, model open): IfcTester fail (41 applicable, 25 failing) | ours fail (41 applicable, 25 failing)
-  DIFF  >= 2024-05-01T08:00:00+05:30 and <= 2025-01-01T00:00:00Z (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 17 failing)
-      failing only in IfcTester: [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028, 2032, 2036]
-  same  >= 2024-05-01T08:00:00+05:30 and <= 2025-01-01T00:00:00Z (pattern): IfcTester fail (41 applicable, 26 failing) | ours fail (41 applicable, 26 failing)
-  same  >= 2024-05-01T08:00:00+05:30 and <= 2025-01-01T00:00:00Z (pattern, model open): IfcTester fail (41 applicable, 17 failing) | ours fail (41 applicable, 17 failing)
-  DIFF  > 2024-05-01T07:59:59.9999 and < 2024-05-01T08:00:00.0001 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 33 failing)
-      failing only in IfcTester: [2000, 2016, 2020, 2024, 2028, 2032, 2040, 2048]
-  same  > 2024-05-01T07:59:59.9999 and < 2024-05-01T08:00:00.0001 (pattern): IfcTester fail (41 applicable, 36 failing) | ours fail (41 applicable, 36 failing)
-  same  > 2024-05-01T07:59:59.9999 and < 2024-05-01T08:00:00.0001 (pattern, model open): IfcTester fail (41 applicable, 33 failing) | ours fail (41 applicable, 33 failing)
-  DIFF  >= 2020-01-01T00:00:00 and <= 2029-12-31T23:59:59.999 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 12 failing)
-      failing only in IfcTester: [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028, 2032, 2036]
-  same  >= 2020-01-01T00:00:00 and <= 2029-12-31T23:59:59.999 (pattern): IfcTester fail (41 applicable, 12 failing) | ours fail (41 applicable, 12 failing)
-  same  >= 2020-01-01T00:00:00 and <= 2029-12-31T23:59:59.999 (pattern, model open): IfcTester fail (41 applicable, 12 failing) | ours fail (41 applicable, 12 failing)
-  DIFF  >= 2024-02-29T00:00:00 and < 2024-03-01T00:00:00 (range): IfcTester fail (41 applicable, 41 failing) | ours fail (41 applicable, 40 failing)
-      failing only in IfcTester: [2120]
-  same  >= 2024-02-29T00:00:00 and < 2024-03-01T00:00:00 (pattern): IfcTester fail (41 applicable, 40 failing) | ours fail (41 applicable, 40 failing)
-  same  >= 2024-02-29T00:00:00 and < 2024-03-01T00:00:00 (pattern, model open): IfcTester fail (41 applicable, 40 failing) | ours fail (41 applicable, 40 failing)
+== m.ifc: IfcTester 0.3 s, ids-model-check 0.2 s (wall clock, including start-up)
+  DIFF  >= 2025-03-01T07:00:00 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 11 failing)
+      failing only in IfcTester: [3000, 3012, 3016, 3020, 3028, 3036, 3040, 3052, 3056, 3072]
+  same  >= 2025-03-01T07:00:00 (pattern): IfcTester fail (31 applicable, 12 failing) | ours fail (31 applicable, 12 failing)
+  DIFF  > 2025-03-01T07:00:00 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 18 failing)
+      failing only in IfcTester: [3012, 3056, 3072, 3076, 3080, 3084, 3088, 3092, 3096, 3100]
+  same  > 2025-03-01T07:00:00 (pattern): IfcTester fail (31 applicable, 18 failing) | ours fail (31 applicable, 18 failing)
+  DIFF  <= 2025-06-30T17:00:00 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 9 failing)
+      failing only in IfcTester: [3000, 3004, 3008, 3012, 3016, 3020, 3024, 3028, 3032, 3036]
+  same  <= 2025-06-30T17:00:00 (pattern): IfcTester fail (31 applicable, 9 failing) | ours fail (31 applicable, 9 failing)
+  DIFF  < 2025-06-30T17:00:00 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 13 failing)
+      failing only in IfcTester: [3000, 3004, 3008, 3012, 3016, 3020, 3024, 3028, 3032, 3036]
+  same  < 2025-06-30T17:00:00 (pattern): IfcTester fail (31 applicable, 13 failing) | ours fail (31 applicable, 13 failing)
+  DIFF  >= 2025-03-01T07:00:00 and <= 2025-06-30T17:00:00 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 16 failing)
+      failing only in IfcTester: [3000, 3012, 3016, 3020, 3028, 3036, 3040, 3052, 3056, 3072]
+  same  >= 2025-03-01T07:00:00 and <= 2025-06-30T17:00:00 (pattern): IfcTester fail (31 applicable, 17 failing) | ours fail (31 applicable, 17 failing)
+  DIFF  > 2025-03-01T07:00:00Z and < 2025-06-30T17:00:00.5Z (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 20 failing)
+      failing only in IfcTester: [3012, 3056, 3072, 3076, 3080, 3084, 3088, 3092, 3096, 3104]
+  same  > 2025-03-01T07:00:00Z and < 2025-06-30T17:00:00.5Z (pattern): IfcTester fail (31 applicable, 20 failing) | ours fail (31 applicable, 20 failing)
+  DIFF  >= 2025-03-01T12:45:00+05:45 and <= 2025-06-30T12:00:00-05:00 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 16 failing)
+      failing only in IfcTester: [3000, 3012, 3016, 3020, 3028, 3036, 3040, 3052, 3056, 3072]
+  same  >= 2025-03-01T12:45:00+05:45 and <= 2025-06-30T12:00:00-05:00 (pattern): IfcTester fail (31 applicable, 17 failing) | ours fail (31 applicable, 17 failing)
+  DIFF  >= 2025-01-01T00:00:00 and <= 2025-12-31T23:59:59.999 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 5 failing)
+      failing only in IfcTester: [3000, 3004, 3008, 3012, 3016, 3020, 3024, 3028, 3032, 3036]
+  same  >= 2025-01-01T00:00:00 and <= 2025-12-31T23:59:59.999 (pattern): IfcTester fail (31 applicable, 5 failing) | ours fail (31 applicable, 5 failing)
+  DIFF  >= 2025-02-28T00:00:00 and <= 2025-03-01T00:00:00 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 29 failing)
+      failing only in IfcTester: [3044, 3048]
+  same  >= 2025-02-28T00:00:00 and <= 2025-03-01T00:00:00 (pattern): IfcTester fail (31 applicable, 29 failing) | ours fail (31 applicable, 29 failing)
+  DIFF  >= 2025-06-30T16:59:59.999 and <= 2025-06-30T17:00:00.001 (range): IfcTester fail (31 applicable, 31 failing) | ours fail (31 applicable, 23 failing)
+      failing only in IfcTester: [3072, 3076, 3080, 3084, 3088, 3092, 3096, 3120]
+  same  >= 2025-06-30T16:59:59.999 and <= 2025-06-30T17:00:00.001 (pattern): IfcTester fail (31 applicable, 23 failing) | ours fail (31 applicable, 23 failing)

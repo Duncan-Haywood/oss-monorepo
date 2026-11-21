@@ -1,14 +1,15 @@
-// dateTime ranges written as one XSD pattern (temporal.mjs
-// dateTimeRangePattern), checked against ids.mjs on the range itself, with
-// the pattern read by the XSD regex reader (xsdregex.mjs, elementpath's
-// reading). Exact for values with no zone, Z or +/-00:00, and for any zone
-// more than a day inside the bounds; near a bound, exact for the listed
-// zones. The only difference allowed: a value with an unlisted zone within
-// a day of a bound that the range passes and the pattern does not.
+// Fractions past the millisecond (2026-11-21): ids.mjs orders dateTimes by
+// the whole fraction (temporalCompare), as XSD does, and the dateTime
+// pattern (temporal.mjs dateTimeRangePattern) follows it. Checked against
+// ids.mjs on the range itself, the pattern read by the XSD regex reader
+// (xsdregex.mjs, elementpath's reading), on bounds and values with 4 to 10
+// fraction digits. The only difference allowed is the pattern's documented
+// one: a value in an offset no time zone uses (ZONE_OFFSETS), written within
+// a day of a bound, that the range passes and the pattern does not.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseIds } from "./ids.mjs";
-import { dateTimeRangePattern, temporalCompare, WHOLE_HOUR_ZONES } from "./temporal.mjs";
+import { dateTimeRangePattern, temporalCompare, ZONE_OFFSETS } from "./temporal.mjs";
 import { compileXsdRegex } from "./xsdregex.mjs";
 
 const NS = "http://standards.buildingsmart.org/IDS";
@@ -34,10 +35,11 @@ const msOf = (s) => {
   return Date.parse(m[1] + (m[2] ? m[2].slice(0, 4) : "") + (m[3] || "Z"));
 };
 
-function sweep(r, opts) {
-  const p = dateTimeRangePattern(r, opts);
+const offMin = (s) => (s[0] === "-" ? -1 : 1) * (Number(s.slice(1, 3)) * 60 + Number(s.slice(4, 6)));
+function sweep(r) {
+  const p = dateTimeRangePattern(r);
   const v = rangeValue(r);
-  const listed = new Set([0, ...(opts && opts.zones ? opts.zones : WHOLE_HOUR_ZONES)]);
+  const listed = new Set([0, ...ZONE_OFFSETS.map(offMin)]);
   const bounds = Object.values(r).map(msOf);
   const strs = new Set(["2024-01-01T24:00:00.5", "2024-01-01T23:60:00", "2024-02-30T10:00:00", "12024-01-01T00:00:00", "-2024-01-01T00:00:00", "2024-01-01T00:00:00.", "2024-01-01T00:00:00+24:00", "2024-01-01T00:00:00+10:60", "2024-01-01", "٢٠٢٤-01-01T00:00:00"]);
   const steps = [0, 1, 1000, 60000, 3600000, 1439 * 60000, 1440 * 60000, 1441 * 60000, 2 * 864e5];
@@ -67,9 +69,10 @@ function sweep(r, opts) {
     if (want === got) continue;
     const zm = s.trim().match(/([+-])(\d{2}):(\d{2})$/);
     const zmin = zm ? (zm[1] === "-" ? -1 : 1) * (Number(zm[2]) * 60 + Number(zm[3])) : 0;
-    // near: the written (local) time within a day of a bound's instant
+    // near: the written (local) time within two days of a bound (the pattern
+    // counts "more than a day inside" in whole local days)
     const local = msOf(s.trim().replace(/(Z|[+-]\d{2}:\d{2})$/, ""));
-    const near = bounds.some((b) => Math.abs(local - b) < 1440 * 60000 + 1000);
+    const near = bounds.some((b) => Math.abs(local - b) < 2 * 864e5);
     assert.ok(want && !got && !listed.has(zmin) && near, `${JSON.stringify(r)} ${JSON.stringify(s)} range ${want} pattern ${got}`);
     allowed++;
   }
@@ -110,17 +113,11 @@ const CASES = [
   { minInclusive: "2024-05-05T05:05:05.050505", maxExclusive: "2024-05-06T05:05:05.0505051" },
 ];
 
-test("dateTimeRangePattern, no zones listed: exact for zone-less, Z and +/-00:00 values, and any zone a day inside", () => {
+test("dateTimeRangePattern follows the whole fraction: written and boundary cases", () => {
   let total = 0, allowed = 0;
-  for (const r of CASES) { const s = sweep(r, { zones: [] }); total += s.compared; allowed += s.allowed; assert.ok(!s.p || !/\\d/.test(s.p), "ASCII digits only"); }
+  for (const r of CASES) { const s = sweep(r); total += s.compared; allowed += s.allowed; assert.ok(!s.p || !/\\d/.test(s.p), "ASCII digits only"); }
   assert.ok(total > 20000, String(total));
-  assert.ok(allowed > 0, "zoned values near a bound are the gap");
-});
-
-test("dateTimeRangePattern, whole-hour zones listed: those placed exactly near a bound too", () => {
-  let total = 0;
-  for (const r of CASES.slice(0, 6)) total += sweep(r, { zones: WHOLE_HOUR_ZONES }).compared;
-  assert.ok(total > 10000, String(total));
+  assert.ok(allowed > 0, "unused offsets near a bound are the documented gap");
 });
 
 test("dateTimeRangePattern: empty ranges, bad bounds, a seeded random sweep", () => {
@@ -137,20 +134,6 @@ test("dateTimeRangePattern: empty ranges, bad bounds, a seeded random sweep", ()
     const r = {};
     if (rnd() < 0.85) r[rnd() < 0.5 ? "minInclusive" : "minExclusive"] = a;
     if (rnd() < 0.85 || !Object.keys(r).length) r[rnd() < 0.5 ? "maxInclusive" : "maxExclusive"] = b;
-    sweep(r, { zones: [] });
+    sweep(r);
   }
-});
-
-test("zonesOf: the zones a model writes its dateTimes in; the editor's pattern places them exactly", async () => {
-  const { zonesOf, datePattern } = await import("./editor.mjs");
-  assert.deepEqual(zonesOf([["2024-05-01T09:00:00+01:00", 3], ["2024-05-01T09:00:00Z", 1], ["2024-05-01T09:00:00.5-05:30", 1], ["2024-05-01T09:00:00+00:00", 2], ["2024-05-01", 1], ["2024-05-01T09:00:00+24:00", 1]]), [-330, 60]);
-  const r = { minInclusive: "2024-05-01T08:00:00" };
-  const plain = new RegExp(`^(?:${compileXsdRegex(datePattern("2024-05-01T08:00:00", "")).source})$`, "v");
-  const withZ = new RegExp(`^(?:${compileXsdRegex(datePattern("2024-05-01T08:00:00", "", false, false, [60])).source})$`, "v");
-  const v = rangeValue(r);
-  for (const s of ["2024-05-01T09:00:00+01:00", "2024-05-01T08:59:59+01:00"]) {
-    assert.equal(withZ.test(s), v.match(s, "string"), s);
-    assert.equal(plain.test(s), false, s);
-  }
-  assert.ok(sweep(r, { zones: [60, -330] }).compared > 1000);
 });

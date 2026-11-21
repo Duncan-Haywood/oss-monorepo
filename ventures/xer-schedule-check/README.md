@@ -33,6 +33,16 @@ the chart once (21,739 of 21,739), every WBS bar exactly the span of the work
 under it (2,038 of 2,038), the file against itself shows no variance, and a
 baseline with k days planted on one activity shows that activity -k working
 days (120 of 120; `eval/gantt-check-2026-11-20.md`).
+Group the chart by **activity codes** instead (2026-11-21, `actvcodes.mjs`,
+the page's "Group by" and "then", CLI `--group-by "Responsibility,WBS"`, `--codes`
+to list them): responsibility, area, phase, trade, whatever code types the
+scheduler set up, global or the project's own, in P6's order; nested values
+as a tree; a code then the WBS (or the WBS then a code); activities with no
+value under "no <type>". Checked on the four public files that carry codes
+(46 code types, 92 charts): every activity under the value TASKACTV gives it
+and that value's parents (1,239,716 of 1,239,716 placements), counts, spans
+and seq_num order all as read straight from the tables, and three planted
+bugs each caught (`eval/activity-codes-2026-11-21.md`).
 
 **Time impact analysis** (2026-11-20, `tia.mjs`): write a delay event as a
 fragnet (the new activities it added, their working days, what each follows
@@ -504,7 +514,7 @@ node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ra
 node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register events, ranked
 node cli.mjs schedule.xer --risk 1000 --ranges-udf auto   # ranges from the file's own UDFs (or "Opt Dur,-,Pess Dur")
 node cli.mjs schedule.xer --float-paths [CODE] [--paths 10] [--csv paths.csv] [--json]   # float paths to CODE (default: the finish)
-node cli.mjs schedule.xer --gantt [--baseline baseline.xer] [--html gantt.html] [--csv gantt.csv] [--level 2] [--critical] [--links]   # Gantt chart
+node cli.mjs schedule.xer --gantt [--baseline baseline.xer] [--html gantt.html] [--csv gantt.csv] [--level 2] [--critical] [--links] [--group-by "Responsibility,WBS" | --codes]   # Gantt chart
 node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--json]   # time impact analysis
@@ -520,6 +530,13 @@ run as a formula in Excel or Sheets.
 
 ## How it was checked
 
+- **Gantt by activity code** (`eval/activity-codes-2026-11-21.md`): 92
+  charts (each code type alone, and then the WBS) on the four public files
+  with codes: every activity once, under its TASKACTV value and that value's
+  ACTVCODE parents (1,239,716 of 1,239,716), group counts against an
+  independent tally (943 of 943), every group bar the span of its work, and
+  siblings in seq_num order; mutants with the order reversed, nested parents
+  dropped or counts off by one each fail.
 - **Gantt chart** (`eval/gantt-check-2026-11-20.md`): on the six public
   files, the dates given to level of effort and WBS summary activities equal
   P6's stored early start and finish on 305 of 305 (three rules were found

@@ -35,12 +35,15 @@
 // Multiple float paths to one activity instead (floatpaths.mjs): path 1 is the
 // driving chain into it, each later path the next least float relative to it.
 // With no CODE, the activity the longest path ends on.
-// node cli.mjs schedule.xer --gantt [--baseline baseline.xer] [--html gantt.html] [--csv gantt.csv] [--level N] [--critical] [--links] [--json]
+// node cli.mjs schedule.xer --gantt [--baseline baseline.xer] [--html gantt.html] [--csv gantt.csv] [--level N] [--critical] [--links] [--group-by CODE,...|--codes] [--json]
 // A Gantt chart instead (gantt.mjs): the WBS tree with a summary bar per
 // node, a bar per activity (level of effort and WBS summary activities given
 // P6's dates), and each activity's finish variance against the baseline
 // file, or the planned dates the file keeps. --html writes a printable page
 // with the chart; the text output lists the WBS rows and the late activities.
+// --group-by "Responsibility,WBS" groups the rows by activity codes (name or
+// id) and/or the WBS instead, outermost first (actvcodes.mjs); --codes lists
+// the code types the project can be grouped by.
 // node cli.mjs schedule.xer --lookahead [WEEKS] [--from YYYY-MM-DD] [--csv lookahead.csv] [--html lookahead.html] [--by NAME] [--json] [--project CODE]
 // A look-ahead instead (lookahead.mjs): the next WEEKS weeks (3) of work by
 // WBS with a bar per day and a make-ready check of what each activity still
@@ -95,10 +98,10 @@ import { calendarSlack, calendarSlackText, calendarSlackCsv } from "./calslack.m
 import { milestoneCalendars, milestoneCalendarsText, milestoneCalendarsCsv } from "./milestones.mjs";
 import { earnedValue, earnedValueText, earnedValueCsv, sCurveCsv } from "./evm.mjs";
 import { earnedValueSeries, earnedValueSeriesText, earnedValueSeriesCsv } from "./evmseries.mjs";
-import { gantt, ganttText, ganttCsv, ganttHtml } from "./gantt.mjs";
+import { gantt, ganttText, ganttCsv, ganttHtml, codeTypes } from "./gantt.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -226,7 +229,14 @@ if (args.includes("--gantt")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
   const baseline = opt("--baseline") ? parseSchedule(decodeXer(readFileSync(opt("--baseline")))) : null;
-  const g = gantt(xer, { projId: pid, result, baseline });
+  if (args.includes("--codes")) {
+    const list = codeTypes(xer, pid);
+    if (!list.length) { await emit("No activity code types in this file.\n"); process.exit(0); }
+    await emit(args.includes("--json") ? JSON.stringify(list, null, 2) + "\n" : list.map((t) => `${t.id}\t${t.name}\t${t.scope}\t${t.values} values${t.hierarchical ? " (nested)" : ""}\t${t.assigned} activities`).join("\n") + "\n");
+    process.exit(0);
+  }
+  const groupBy = opt("--group-by") ? opt("--group-by").split(",").map((x) => x.trim()).filter(Boolean) : null;
+  const g = gantt(xer, { projId: pid, result, baseline, groupBy });
   const view = { level: opt("--level") ? Number(opt("--level")) : 99, critical: args.includes("--critical"), links: args.includes("--links") };
   if (opt("--csv")) writeFileSync(opt("--csv"), ganttCsv(g));
   if (opt("--html")) { writeFileSync(opt("--html"), ganttHtml(g, view, { by: opt("--by") })); console.error(`Gantt chart written to ${opt("--html")}`); }

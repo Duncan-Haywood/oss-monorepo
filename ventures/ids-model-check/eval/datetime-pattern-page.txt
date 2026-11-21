@@ -1,0 +1,5 @@
+warning: IDS 1.0 allows a date-time range and this checker reads it as one, but IfcOpenShell's IfcTester (0.9.0) compares range bounds only as numbers, so it fails every object on it. If the file will be checked with IfcTester, write the same instants as a pattern, which both read the same way. Write as a pattern
+downloaded pattern: 9320 characters; range on xs:dateTime left: false
+inside beam: range pass, pattern pass; beam 1 ms late: range fail, pattern fail
+horizontal scroll at 390 px: false; page errors: none
+OK

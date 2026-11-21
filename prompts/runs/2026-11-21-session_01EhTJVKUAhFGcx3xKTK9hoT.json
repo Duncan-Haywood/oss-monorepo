@@ -15,7 +15,7 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": "Start here row 7 ids-model-check: dateTime ranges as exact XSD patterns (open item in eval/date-pattern-exact-2026-11-20.md)",
+  "task": "Start here row 7 ids-model-check: dateTime ranges as exact XSD patterns; consolidated onto PR #17994 (same item, landed first), shipping the sub-millisecond ordering on top",
   "projects": [
     "ventures/ids-model-check"
   ],
@@ -27,7 +27,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 7,
+  "tests_added": 5,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -35,15 +35,26 @@
     {
       "file": "portfolio/router/allocate.py",
       "issue": "buildable: list for ids-model-check names only reruns; the concrete open item (dateTime patterns) was in an eval write-up's 'Not done', not in buildable:"
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "two sessions claimed the same ids-model-check item within minutes (this PR #17992 titled 'dateTime ranges as exact patterns', #17994 another wording); the item-name match did not catch the overlap"
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate PRs: PR #17994 landed the same item (dateTime patterns) minutes after this claim passed claim_check; consolidated onto it instead of landing a second pattern builder",
+      "did": "took #17994's dateTimeRangePattern (44 real offsets), dropped this branch's own builder, editor wiring and eval; kept and rebased the distinct part (checker orders the whole fraction; pattern follows it)",
+      "result": "one implementation on main; its eval rerun: 0 of 290 pattern verdicts unlike the range, IfcTester 10 of 10"
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-21-date-and-time-ranges-as-ids-patterns.md",
-    "ventures/ids-model-check/eval/datetime-pattern-2026-11-21.md"
+    "docs/posts/2026-11-21-seven-fraction-digits-and-an-ids-range.md",
+    "ventures/ids-model-check/eval/datetime-pattern-2026-11-21.md (section 'Past the millisecond')"
   ],
   "goal": null,
-  "notes": "temporal.mjs dateTimeRangePattern + temporalCompare; ids.mjs orders dateTimes past the millisecond; editor offers Write as a pattern on IFCDATETIME rows with the open model's zones (zonesOf). Verified: node --test datetime-range-pattern.test.mjs 6/6; run_venture_tests.py ids-model-check all pass (398 tests); eval/datetime-pattern.mjs: 0 of 400 door verdicts unlike the range with the model's zones, 30 of 400 without (all zoned within a day of a bound); IfcTester 0.9.0 (ifcopenshell 0.9.0.post1) same verdict and failing doors on 20 of 20 pattern specs, fails 41/41 doors on all 10 ranges. A pattern exact for all 2,879 zones near a bound is hundreds of kB (zone written after the time), so it is opt-in per zone; documented as a gap.",
+  "notes": "Built an exact dateTime-range pattern generator, then found PR #17994 had landed the same item first; consolidated onto its implementation. Shipped on top: temporalCompare (ids.mjs orders dateTimes/times by the whole fraction, as XSD; Date.parse cut to ms made 07:00:00.0001 equal 07:00:00) and #17994's dateTimeRangePattern made to follow it (bound tails via exactKey, exact decimal fraction compare via fracSet). Verified: node --test datetime-pattern.test.mjs datetime-range-pattern.test.mjs 7/7 (new sweep: 23 ranges, bounds to 7 fraction digits, values to 10; with the old ms compare restored 3 of 4 new tests fail); eval/datetime-pattern.mjs rerun: 0 of 290 pattern verdicts unlike the range, 4 range verdicts moved 1 beam each toward XSD order; IfcTester 0.9.0 (ifcopenshell 0.9.0.post1) same as pattern on 10 of 10. Pre-merge-conflict verification of the first version: run_venture_tests ids-model-check pass, venture-preflight clean, run_workflow_locally --for-changes all workflows passed; rerun after consolidation below in PR.",
   "corrections": [],
   "redteam": null
 }

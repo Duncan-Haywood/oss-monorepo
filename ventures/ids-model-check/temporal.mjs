@@ -216,6 +216,157 @@ export function dateRangePattern(r) {
   return alts.length ? `${XWS}(${alts.join("|")})${XWS}` : false;
 }
 
+// ---- dateTime ranges as XSD patterns ----
+// The UTC offsets time zones used from 2000 to 2026 (ICU's tz data, every IANA
+// zone sampled weekly; eval/datetime-pattern-2026-11-21.md), plus -12:00
+// (Etc/GMT+12), in minutes east of UTC.
+export const ZONE_OFFSETS = ["-12:00", "-11:00", "-10:00", "-09:30", "-09:00", "-08:00", "-07:00", "-06:00", "-05:00", "-04:30", "-04:00", "-03:30", "-03:00", "-02:30", "-02:00", "-01:00", "+00:00", "+01:00", "+02:00", "+03:00", "+03:30", "+04:00", "+04:30", "+05:00", "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00", "+08:30", "+08:45", "+09:00", "+09:30", "+09:45", "+10:00", "+10:30", "+11:00", "+11:30", "+12:00", "+12:45", "+13:00", "+13:45", "+14:00"];
+const offMin = (s) => (s[0] === "-" ? -1 : 1) * (Number(s.slice(1, 3)) * 60 + Number(s.slice(4, 6)));
+const DAY = 864e5, MAX_OFF = 23 * 60 + 59;
+// Tuples of fixed-width numbers (fields [{ w, max, sep }], sep written before
+// the field) from lo to hi inclusive, in order, as a pattern; every number in
+// a field runs 0..max. Single-digit fields with max 9 are character classes.
+function tupleRange(lo, hi, f) {
+  const [h, ...rest] = f;
+  const one = (a, b) => (h.w === 1 && h.max === 9 ? (a === b ? String(a) : `[${a}-${b}]`) : numPat(a, b, h.w));
+  if (!rest.length) return one(lo[0], hi[0]);
+  const s = rest[0].sep, rMin = rest.map(() => 0), rMax = rest.map((x) => x.max);
+  const R = (a, b) => s + tupleRange(a, b, rest);
+  if (lo[0] === hi[0]) return P0(lo[0], h.w) + R(lo.slice(1), hi.slice(1));
+  const fromMin = lo.slice(1).every((x) => x === 0), toMax = hi.slice(1).every((x, i) => x === rMax[i]);
+  const alts = [];
+  let a = lo[0], b = hi[0];
+  if (!fromMin) { alts.push(P0(a, h.w) + R(lo.slice(1), rMax)); a++; }
+  if (!toMax) b--;
+  if (a <= b) alts.push(one(a, b) + R(rMin, rMax));
+  if (!toMax) alts.push(P0(hi[0], h.w) + R(rMin, hi.slice(1)));
+  return alt(alts);
+}
+// w-digit numbers from a to b (ASCII digits).
+function numPat(a, b, w) {
+  const d = (n) => P0(n, w).split("").map(Number);
+  return tupleRange(d(a), d(b), Array.from({ length: w }, () => ({ w: 1, max: 9, sep: "" })));
+}
+const HMS = [{ w: 2, max: 23, sep: "" }, { w: 2, max: 59, sep: ":" }, { w: 2, max: 59, sep: ":" }];
+const hms = (sec) => [Math.floor(sec / 3600), Math.floor(sec / 60) % 60, sec % 60];
+// An optional fractional second whose milliseconds fall in p..q; at p the
+// digits past the third must clear loT ([digits, inclusive], or null: any),
+// at q they must stay under hiT (null: any). The checker orders the whole
+// fraction since 2026-11-21 (temporalCompare), not only its milliseconds.
+// null when no fraction qualifies.
+const P3 = (n) => P0(n, 3);
+const cutZeros = (d) => d.replace(/0+$/, "");
+function fracPat(p, q, loT = null, hiT = null) {
+  if (p === 0 && q === 999 && !loT && !hiT) return "(\\.[0-9]+)?";
+  let lo = loT ? [cutZeros(P3(p) + loT[0]), loT[1]] : [cutZeros(P3(p)), true];
+  if (lo[0] === "" && lo[1]) lo = null;
+  const hi = hiT ? [cutZeros(P3(q) + hiT[0]), hiT[1]] : q === 999 ? null : [cutZeros(P3(q + 1)), false];
+  return fracPart(lo, hi);
+}
+const T24 = "24:00:00(\\.0+)?";
+// Times of day "hh:mm:ss(.f)" whose milliseconds since midnight lie in
+// ta..tb (0 <= ta <= tb <= DAY; DAY is "24:00:00", the next midnight), with
+// the sub-millisecond tails loT at ta and hiT at tb (fracPat).
+const zeroOkLo = (t) => !t || (t[0] === "" && t[1]);
+const zeroOkHi = (t) => !t || t[1] || t[0] !== "";
+function timePat(ta, tb, loT = null, hiT = null) {
+  const alts = [];
+  if (tb === DAY) {
+    if ((ta < DAY || zeroOkLo(loT)) && zeroOkHi(hiT)) alts.push(T24);
+    if (ta === DAY) return alts.length ? alt(alts) : null;
+    tb = DAY - 1; hiT = null;
+  }
+  if (ta <= tb) {
+    const sa = Math.floor(ta / 1000), sb = Math.floor(tb / 1000), ma = ta % 1000, mb = tb % 1000;
+    const at = (sec, f) => (f === null ? null : tupleRange(hms(sec), hms(sec), HMS) + f);
+    if (sa === sb) alts.push(at(sa, fracPat(ma, mb, loT, hiT)));
+    else {
+      let a = sa, b = sb;
+      if (ma > 0 || loT) { alts.push(at(sa, fracPat(ma, 999, loT, null))); a++; }
+      if (mb < 999 || hiT) b--;
+      if (a <= b) alts.push(tupleRange(hms(a), hms(b), HMS) + "(\\.[0-9]+)?");
+      if (mb < 999 || hiT) alts.push(at(sb, fracPat(0, mb, null, hiT)));
+    }
+  }
+  const ys = alts.filter((x) => x !== null);
+  return ys.length ? alt(ys.reverse()) : null;
+}
+const zonePat = (o) => (o === 0 ? ZONE.zero : `${o > 0 ? "\\+" : "\\-"}${P0(Math.floor(Math.abs(o) / 60), 2)}:${P0(Math.abs(o) % 60, 2)}`);
+const ANY_ZONE = "(Z|[+\\-]([01][0-9]|2[0-3]):[0-5][0-9])?";
+// A dateTime range as one XSD pattern for the strings ids.mjs passes on it
+// (an instant test: a value without a zone is UTC, milliseconds kept, the
+// day must exist, 24:00:00 is the next midnight). Exact for values with no
+// zone, Z, +-00:00 or an offset a time zone uses (ZONE_OFFSETS); a value
+// written with any other offset (+10:17) passes only when every offset would
+// (more than a day inside the range), so near a bound the pattern refuses
+// what the range takes. Bounds: dateTime strings, any form temporalKey reads.
+// Returns the pattern, false when no string can pass, or null when a bound is
+// not a dateTime.
+export function dateTimeRangePattern(r) {
+  // Each bound as its millisecond and the fraction digits past the third
+  // (exactKey); the tighter one per side. aT / bT: the tail a value on the
+  // bound's own millisecond must clear (null: any tail).
+  let lo = null, hi = null;
+  const tc = (x, y) => (x.k !== y.k ? (x.k < y.k ? -1 : 1) : (() => { const w = Math.max(x.f.length, y.f.length), p = x.f.padEnd(w, "0"), q = y.f.padEnd(w, "0"); return p === q ? 0 : p < q ? -1 : 1; })());
+  for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) {
+    if (r[k] === undefined || r[k] === null) continue;
+    if (temporalKind(String(r[k])) !== "dateTime") return null;
+    const x = exactKey(String(r[k]));
+    if (Number.isNaN(x.k)) return false;
+    const inc = k.endsWith("Inclusive");
+    if (k.startsWith("min")) { if (!lo || tc(x, lo) > 0 || (tc(x, lo) === 0 && !inc)) lo = { ...x, inc }; }
+    else if (!hi || tc(x, hi) < 0 || (tc(x, hi) === 0 && !inc)) hi = { ...x, inc };
+  }
+  let A = -Infinity, B = Infinity, aT = null, bT = null;
+  if (lo) { A = lo.k; aT = lo.f === "" && lo.inc ? null : [lo.f, lo.inc]; }
+  if (hi) {
+    B = hi.k; bT = [hi.f, hi.inc];
+    if (hi.f === "" && !hi.inc) { B--; bT = null; }
+  }
+  if (A > B || (A === B && fracPat(0, 0, aT, bT) === null)) return false;
+  const L0 = dayNo("0000-01-01") * DAY, L1 = (dayNo("9999-12-31") + 1) * DAY;
+  // Local days (0 = 1970-01-01) whole for every offset up to +-23:59.
+  // A bound with a tail is cleared by a whole millisecond more.
+  const mA = Math.max(L0, A + (aT ? 1 : 0) + MAX_OFF * 6e4), mB = Math.min(L1, B - (bT ? 1 : 0) - MAX_OFF * 6e4);
+  const midLo = Math.ceil(mA / DAY), midHi = Math.floor(mB / DAY) - 1;
+  const parts = [];
+  if (midLo <= midHi) parts.push(`${dayPattern(dayStr(midLo), dayStr(midHi))}T${alt([T24, "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?"])}${ANY_ZONE}`);
+  // The other days, per offset in use: whole, part (a time range) or none.
+  const offs = ZONE_OFFSETS.map(offMin);
+  const edge = new Map();
+  for (const o of offs) {
+    const x1 = Math.max(L0, A + o * 6e4), x2 = Math.min(L1, B + o * 6e4);
+    if (x1 > x2) continue;
+    const days = [];
+    const d1 = Math.max(Math.floor(x1 / DAY) - 1, dayNo("0000-01-01")), d2 = Math.min(Math.floor(x2 / DAY), dayNo("9999-12-31"));
+    if (midLo <= midHi) {
+      for (let d = d1; d <= Math.min(d2, midLo - 1); d++) days.push(d);
+      for (let d = Math.max(d1, midHi + 1); d <= d2; d++) days.push(d);
+    } else for (let d = d1; d <= d2; d++) days.push(d);
+    for (const d of days) {
+      const ta = Math.max(x1, d * DAY) - d * DAY, tb = Math.min(x2, (d + 1) * DAY) - d * DAY;
+      if (ta > tb) continue;
+      // The bound's own tail applies where the bound itself cuts this day.
+      const loT = x1 === A + o * 6e4 && x1 >= d * DAY ? aT : null, hiT = x2 === B + o * 6e4 && x2 <= (d + 1) * DAY ? bT : null;
+      if (!edge.has(d)) edge.set(d, { whole: [], part: [] });
+      const e = edge.get(d);
+      if (ta === 0 && tb === DAY && !loT && !hiT) e.whole.push(o);
+      else e.part.push([o, ta, tb, loT, hiT]);
+    }
+  }
+  for (const d of [...edge.keys()].sort((a, b) => a - b)) {
+    const { whole, part } = edge.get(d);
+    const alts = [];
+    if (whole.length) alts.push(`${alt([T24, "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?"])}${alt(whole.map(zonePat))}`);
+    // Offsets sharing a time range share one alternative.
+    const byTime = new Map();
+    for (const [o, ta, tb, loT, hiT] of part) { const k = JSON.stringify([ta, tb, loT, hiT]); if (!byTime.has(k)) byTime.set(k, []); byTime.get(k).push(o); }
+    for (const [k, os] of byTime) { const [ta, tb, loT, hiT] = JSON.parse(k); const t = timePat(ta, tb, loT, hiT); if (t !== null) alts.push(t + alt(os.map(zonePat))); }
+    if (alts.length) parts.push(`${dayStr(d)}T${alt(alts)}`);
+  }
+  return parts.length ? `${XWS}${alt(parts)}${XWS}` : false;
+}
+
 // ---- exact order of dateTimes and times, past the millisecond ----
 // Date.parse keeps three fraction digits, so 00:00:00.0004 and 00:00:00 key
 // alike and "after midnight, exclusive" refused a value XSD's order puts
@@ -245,34 +396,6 @@ export function temporalCompare(a, b) {
   return p === q ? 0 : p < q ? -1 : 1;
 }
 
-// ---- dateTime ranges as one XSD pattern ----
-// dateTimeRangePattern(r): an XSD pattern passing exactly the strings ids.mjs
-// passes on a range with xs:dateTime bounds (temporalCompare's order), for
-// every value with no time zone, Z, +00:00 or -00:00, and for every value
-// with any other zone that lies more than a day inside each bound (no zone
-// can then move it out). Near a bound the instant depends on the zone
-// minute by minute, and one pattern exact for all 2,879 zones would run to
-// hundreds of kilobytes (the zone is written after the time, so the pattern
-// must carry the local minute to it), so a zoned value there is matched
-// exactly only for the zones in opts.zones (whole hours by default, the
-// form IFC exporters write); other zones within a day of a bound do not
-// match. r: { minInclusive, maxInclusive, minExclusive, maxExclusive }.
-// Returns the pattern, false when no string can pass, or null when a bound
-// is not an xs:dateTime.
-// Instants are { s: whole seconds from 0000-01-01T00:00:00 local, f: the
-// fraction's digits with trailing zeros cut }.
-const DT_BOUND = /^[ \t\r\n]*(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})?[ \t\r\n]*$/;
-const DAY0 = () => dayNo("0000-01-01");
-function parseDtBound(str) {
-  const m = String(str).match(DT_BOUND);
-  if (!m) return null;
-  if (temporalCompare(str, str) !== 0) return NaN;
-  const d = dayNo(`${m[1]}-${m[2]}-${m[3]}`);
-  let off = 0;
-  if (m[8] && m[8] !== "Z") off = (m[8][0] === "-" ? -1 : 1) * (Number(m[8].slice(1, 3)) * 60 + Number(m[8].slice(4, 6)));
-  return { s: (d - DAY0()) * 86400 + Number(m[4]) * 3600 + Number(m[5]) * 60 + Number(m[6]) - off * 60, f: (m[7] || "").replace(/0+$/, "") };
-}
-const cmpI = (a, b) => (a.s !== b.s ? (a.s < b.s ? -1 : 1) : (() => { const w = Math.max(a.f.length, b.f.length), p = a.f.padEnd(w, "0"), q = b.f.padEnd(w, "0"); return p === q ? 0 : p < q ? -1 : 1; })());
 // Digit strings (the fraction after the point; empty is 0) whose value lies
 // between lo and hi: { re } for the non-empty ones (null if none) and ok0
 // when the empty string (value 0) qualifies. lo / hi: [digits, inclusive]
@@ -326,99 +449,4 @@ function fracPart(lo, hi) {
   if (!re && !ok0) return null;
   if (!re) return "";
   return ok0 ? `(\\.${re})?` : `\\.${re}`;
-}
-// Local lexical dateTimes "YYYY-MM-DDThh:mm:ss(.f)" (years 0000-9999) whose
-// local instant lies in [a, b]: a, b are { s, f, inc } or null (open).
-const ANY_T = ["", "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?", "[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?", "[0-5][0-9](\\.[0-9]+)?", "(\\.[0-9]+)?"];
-const SEP = ["T", ":", ":", ""];
-function fieldsOf(x) {
-  const day = Math.floor(x.s / 86400), sod = x.s - day * 86400;
-  return [day, Math.floor(sod / 3600), Math.floor((sod % 3600) / 60), sod % 60];
-}
-function localRange(a, b) {
-  const MAXDAY = dayNo("9999-12-31") - DAY0();
-  const F = (i, x, y) => (i === 0 ? dayPattern(dayStr(x + DAY0()), dayStr(y + DAY0())) : numRange(x, y, 2));
-  const MAX = [MAXDAY, 23, 59, 59];
-  const fa = a && fieldsOf(a), fb = b && fieldsOf(b);
-  if (fa && fa[0] > MAXDAY) return null;
-  if (fb && fb[0] < 0) return null;
-  // Clip bounds that fall outside the years a value can be written in.
-  let A = fa, B = fb;
-  if (A && A[0] < 0) A = null;
-  if (B && B[0] > MAXDAY) B = null;
-  const cat = (...xs) => (xs.some((x) => x === null) ? null : xs.join(""));
-  const alt2 = (xs) => { const ys = xs.filter((x) => x !== null); return ys.length ? (ys.length === 1 ? ys[0] : `(${ys.join("|")})`) : null; };
-  // lower tail of A from level i on is the very start (00:00:00 inclusive)?
-  const minTail = (i) => i <= 4 && A.slice(i).every((v) => v === 0) && a.f === "" && a.inc;
-  const lv = (i, lo, hi) => {
-    if (i === 4) return fracPart(lo ? [a.f, a.inc] : null, hi ? [b.f, b.inc] : null);
-    if (lo && minTail(i)) lo = false;
-    if (!lo && !hi) return ANY_T[i] || null;
-    const L = lo ? A[i] : 0, H = hi ? B[i] : MAX[i];
-    if (lo && hi && L === H) return cat(F(i, L, L), SEP[i], lv(i + 1, true, true));
-    const alts = [];
-    let s = L, e = H;
-    // A lower bound at the very start of its field (00:00:00 inclusive) joins the middle run.
-    if (lo && !minTail(i + 1)) { alts.push(cat(F(i, L, L), SEP[i], lv(i + 1, true, false))); s++; }
-    if (hi) e--;
-    if (s <= e) alts.push(F(i, s, e) + SEP[i] + ANY_T[i + 1]);
-    if (hi) alts.push(cat(F(i, H, H), SEP[i], lv(i + 1, false, true)));
-    return alt2(alts);
-  };
-  if (A && B && cmpI(a, b) > 0) return null;
-  const main = A === null && B === null ? dayPattern("0000-01-01", "9999-12-31") + "T" + ANY_T[1] : lv(0, !!A, !!B);
-  // 24:00:00 is the next day's midnight: the days D whose next midnight is in range.
-  const inR = (t) => (!a || cmpI(t, a) > 0 || (cmpI(t, a) === 0 && a.inc)) && (!b || cmpI(t, b) < 0 || (cmpI(t, b) === 0 && b.inc));
-  let n0 = a ? Math.ceil(a.s / 86400) : 1, n1 = b ? Math.floor(b.s / 86400) : MAXDAY + 1;
-  if (a && !inR({ s: n0 * 86400, f: "" })) n0++;
-  if (b && !inR({ s: n1 * 86400, f: "" })) n1--;
-  n0 = Math.max(n0, 1); n1 = Math.min(n1, MAXDAY + 1);
-  const midnight = n0 <= n1 ? `${dayPattern(dayStr(n0 - 1 + DAY0()), dayStr(n1 - 1 + DAY0()))}T24:00:00(\\.0+)?` : null;
-  return alt2([main, midnight]);
-}
-const ZONE_ANY = `[+\\-]${OFFSET}`;
-const zoneRe = (min) => (min === 0 ? ZONE.zero : `\\${min < 0 ? "-" : "+"}${P0(Math.floor(Math.abs(min) / 60), 2)}:${P0(Math.abs(min) % 60, 2)}`);
-export const WHOLE_HOUR_ZONES = Array.from({ length: 47 }, (_, i) => (i - 23) * 60).filter((m) => m !== 0);
-export function dateTimeRangePattern(r, opts = {}) {
-  const zones = opts.zones || WHOLE_HOUR_ZONES;
-  const b = {};
-  for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) {
-    if (r[k] === undefined || r[k] === null) continue;
-    const x = parseDtBound(r[k]);
-    if (x === null) return null;
-    if (Number.isNaN(x)) return false;
-    b[k] = x;
-  }
-  // The tighter bound on each side.
-  let lo = null, hi = null;
-  const tighterLo = (x, inc) => { if (!lo || cmpI(x, lo) > 0 || (cmpI(x, lo) === 0 && !inc)) lo = { ...x, inc }; };
-  const tighterHi = (x, inc) => { if (!hi || cmpI(x, hi) < 0 || (cmpI(x, hi) === 0 && !inc)) hi = { ...x, inc }; };
-  if (b.minInclusive) tighterLo(b.minInclusive, true);
-  if (b.minExclusive) tighterLo(b.minExclusive, false);
-  if (b.maxInclusive) tighterHi(b.maxInclusive, true);
-  if (b.maxExclusive) tighterHi(b.maxExclusive, false);
-  if (lo && hi && (cmpI(lo, hi) > 0 || (cmpI(lo, hi) === 0 && !(lo.inc && hi.inc)))) return false;
-  const shift = (x, min) => x && { ...x, s: x.s + min * 60 };
-  const alts = [];
-  const zero = localRange(lo, hi);
-  if (zero) alts.push(zero + ZONE.zero);
-  // More than a day inside both bounds: any zone (offsets reach 23:59).
-  const D = 1439;
-  const inLo = lo && { s: lo.s + D * 60, f: lo.f, inc: lo.inc }, inHi = hi && { s: hi.s - D * 60, f: hi.f, inc: hi.inc };
-  const inner = localRange(inLo, inHi);
-  if (inner) alts.push(inner + ZONE_ANY);
-  // Within a day of a bound: the listed zones, each placed exactly.
-  for (const z of zones) {
-    if (z === 0) continue;
-    const sLo = shift(lo, z), sHi = shift(hi, z);
-    const pieces = [];
-    if (!inner) pieces.push(localRange(sLo, sHi));
-    else {
-      if (lo) pieces.push(localRange(sLo, { ...inLo, inc: !inLo.inc }));
-      if (hi) pieces.push(localRange({ ...inHi, inc: !inHi.inc }, sHi));
-    }
-    const ps = pieces.filter(Boolean);
-    if (ps.length) alts.push(`(${ps.join("|")})${zoneRe(z)}`);
-  }
-  return alts.length ? `${XWS}(${alts.join("|")})${XWS}` : false;
 }

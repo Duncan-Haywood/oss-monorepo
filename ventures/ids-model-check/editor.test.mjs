@@ -531,9 +531,7 @@ test("datePattern: the pattern passes exactly the strings the checker passes on 
     assert.ok(!/\\d/.test(p), "ASCII digits only");
   }
   assert.ok(compared > 50000, String(compared));
-  // dateTime bounds since 2026-11-21 (datetime-range-pattern.test.mjs); mixed forms none.
-  assert.match(datePattern("2024-01-01T00:00:00", ""), /T\(\[01\]\[0-9\]\|2\[0-3\]\):/);
-  assert.equal(datePattern("2024-01-01T00:00:00", "2024-12-31"), null);
+  assert.equal(datePattern("2024-01-01T00:00:00", ""), null);
   assert.equal(datePattern("", ""), null);
   assert.equal(datePattern("2024-04-31", ""), null);
   assert.equal(datePattern("2024-05-02", "2024-05-01"), null);
