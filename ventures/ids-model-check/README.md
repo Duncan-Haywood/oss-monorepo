@@ -38,7 +38,15 @@ open. MIT licensed, no dependencies, nothing uploaded.
   lands in the same set with the same value; all 47 public `.ifcx` files read
   (TeklaHouse, 42 MB, in 0.5 s). IFC5 alpha has no Name attribute: Name is
   the key the parent gives the object (`SLB_150` for STEP's `SLB-150`)
-  (`eval/ifcx-twins-2026-11-21.md`).
+  (`eval/ifcx-twins-2026-11-21.md`). **Systems** (2026-11-21, later the same
+  day): `bsi::ifc::system::partofsystem` becomes IfcRelAssignsToGroup, so an
+  IDS `partOf relation="IFCRELASSIGNSTOGROUP"` (pipes in a distribution
+  system) checks on `.ifcx` too; `connectsto` becomes one IfcRelConnectsPorts
+  per port pair, `flowdirection` a port's FlowDirection, `servicesfacility`
+  IfcRelServicesBuildings; a system is no longer put in the spatial tree. On
+  the Domestic Hot Water twin: 9 of 9 system members, 35 of 35 port
+  directions and 15 of 15 connected port pairs match STEP, partOf across the
+  8 twins 1,655 of 1,657 (`eval/ifcx-systems-2026-11-21.md`).
 - STEP `.ifc`, ifcXML (`.ifcxml`, both the IFC2X3 and IFC4 layouts) and `.ifczip`
   (any of them zipped), read into the same entities: xBIM's ifcXML export of a
   Revit model agrees with its STEP file on 2,205 of 2,205 attribute values, and

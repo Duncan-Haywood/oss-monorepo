@@ -28,6 +28,17 @@
 //                             (nlsfb::class), its system named <ns>
 //     bsi::ifc::material      {code, uri}: a material (its code is the name),
 //                             the object's own or on its unclassed parts
+//     bsi::ifc::system::partofsystem  [{ref}]: the systems an element is
+//                             assigned to (IfcRelAssignsToGroup, which an
+//                             IDS partOf relation="IFCRELASSIGNSTOGROUP" reads)
+//     bsi::ifc::system::servicesfacility  [{ref}] on a system: the spatial
+//                             structure it serves (IfcRelServicesBuildings)
+//     bsi::ifc::system::connectsto  [{ref}] on a port: the port it connects
+//                             to (IfcRelConnectsPorts, one per pair)
+//     bsi::ifc::system::flowdirection  a port's FlowDirection (SOURCE, SINK,
+//                             SOURCEANDSINK, NOTDEFINED)
+//   A system or other group is not placed in the spatial tree (in STEP an
+//   IfcSystem is assigned, not aggregated or contained).
 //   Geometry (usd::*), presentation and the rest are not read: no IDS
 //   facet asks about them.
 //
@@ -266,10 +277,12 @@ export function parseIfcx(texts, schema, psets = null) {
     }
     return null;
   };
+  const isGroup = (t) => schema.isA(t, "IFCGROUP");
   for (const p of idOf.keys()) {
     const a = nearestClassed(p);
     if (a === null) continue;
     const t = classOf.get(p).type, at = classOf.get(a).type;
+    if (isGroup(t) || isGroup(at)) continue;
     const id = idOf.get(p), aid = idOf.get(a);
     if (nested(t, at)) push(nests, aid, id);
     else if (schema.isA(t, "IFCFEATUREELEMENTSUBTRACTION")) make("IFCRELVOIDSELEMENT", { GlobalId: newGuid(), RelatingBuildingElement: { ref: aid }, RelatedOpeningElement: { ref: id } });
@@ -391,6 +404,49 @@ export function parseIfcx(texts, schema, psets = null) {
       make("IFCRELDEFINESBYPROPERTIES", { GlobalId: newGuid(), RelatedObjects: [{ ref: eid }], RelatingPropertyDefinition: { ref: set } });
     }
   }
+  // Systems: membership, the facilities a system serves, port connections
+  // and a port's flow direction.
+  const refPaths = (v) => (Array.isArray(v) ? v : [v]).map((r) => (isObj(r) && typeof r.ref === "string" ? resolve(r.ref) : null));
+  const members = new Map(), serves = new Map(), portPairs = new Set();
+  for (const [p, eid] of idOf) {
+    const a = attributes(p);
+    const type = classOf.get(p).type;
+    for (const [k, list] of [["bsi::ifc::system::partofsystem", members], ["bsi::ifc::system::servicesfacility", serves]]) {
+      if (a[k] === undefined || a[k] === null) continue;
+      for (const [i, r] of refPaths(a[k]).entries()) {
+        const target = r === null ? undefined : idOf.get(r);
+        if (target === undefined) { noteOnce(k + ":" + p + ":" + i, `${k} on "${p}" names no classed object; left out`); continue; }
+        const tt = classOf.get(r).type;
+        if (k.endsWith("partofsystem")) {
+          if (!isGroup(tt)) { noteOnce(k + ":" + r, `${k} names "${r}", a ${tt}, not a system or group; left out`); continue; }
+          push(list, target, eid);
+        } else {
+          if (!isGroup(type)) continue;
+          if (!isSpatial(tt)) { noteOnce(k + ":" + r, `${k} names "${r}", a ${tt}, not a spatial structure; left out`); continue; }
+          push(list, eid, target);
+        }
+      }
+    }
+    const c = a["bsi::ifc::system::connectsto"];
+    if (c !== undefined && c !== null && schema.isA(type, "IFCPORT")) {
+      for (const r of refPaths(c)) {
+        const other = r === null ? undefined : idOf.get(r);
+        if (other === undefined || other === eid || !schema.isA(classOf.get(r).type, "IFCPORT")) { noteOnce("conn:" + p, `bsi::ifc::system::connectsto on "${p}" names no port; left out`); continue; }
+        portPairs.add(eid < other ? `${eid} ${other}` : `${other} ${eid}`);
+      }
+    }
+    const fd = a["bsi::ifc::system::flowdirection"];
+    if (typeof fd === "string") {
+      const attrs = schema.attrs(type);
+      const i = attrs.index.get("FlowDirection");
+      const vals = i !== undefined && schema.types[attrs[i].type] && schema.types[attrs[i].type].values;
+      if (i !== undefined && (!vals || vals.includes(fd.toUpperCase()))) entities.get(eid).args[i] = { enum: fd.toUpperCase() };
+      else noteOnce("fd:" + type + fd, `bsi::ifc::system::flowdirection "${fd}" on a ${type} is not read`);
+    }
+  }
+  for (const [gid, objs] of members) make("IFCRELASSIGNSTOGROUP", { GlobalId: newGuid(), RelatedObjects: objs.map((o) => ({ ref: o })), RelatingGroup: { ref: gid } });
+  for (const [sid, objs] of serves) make("IFCRELSERVICESBUILDINGS", { GlobalId: newGuid(), RelatingSystem: { ref: sid }, RelatedBuildings: objs.map((o) => ({ ref: o })) });
+  for (const k of portPairs) { const [x, y] = k.split(" ").map(Number); make("IFCRELCONNECTSPORTS", { GlobalId: newGuid(), RelatingPort: { ref: x }, RelatedPort: { ref: y } }); }
   for (const [rid, objs] of classAssoc) make("IFCRELASSOCIATESCLASSIFICATION", { GlobalId: newGuid(), RelatedObjects: objs.map((o) => ({ ref: o })), RelatingClassification: { ref: rid } });
   for (const [mid, objs] of matAssoc) make("IFCRELASSOCIATESMATERIAL", { GlobalId: newGuid(), RelatedObjects: objs.map((o) => ({ ref: o })), RelatingMaterial: { ref: mid } });
 
