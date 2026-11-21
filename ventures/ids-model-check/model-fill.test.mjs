@@ -151,7 +151,22 @@ test("two specifications asking different values for one property write neither"
   const I = ids(spec("IFCWALL", prop("Pset_WallCommon", "FireRating", "IFCLABEL", simple("EI30")), "a") + spec("IFCWALL", prop("Pset_WallCommon", "FireRating", "IFCLABEL", simple("EI60")), "b"));
   const r = fill(I, MODEL);
   assert.equal(r.written, 0);
-  assert.ok(r.unfilled.some((u) => /another specification asks for EI30/.test(u.why)));
+  assert.ok(r.unfilled.some((u) => /would break another check: specification "b" asks for Pset_WallCommon\.FireRating "EI60"/.test(u.why)));
+  assert.ok(r.unfilled.some((u) => /specification "a" asks for Pset_WallCommon\.FireRating "EI30"/.test(u.why)));
+});
+
+test("a value that would break a specification the element passes today is not written", () => {
+  // b applies to W-01 only and allows Status EXISTING if present; W-01 passes it now.
+  const b = `<specification name="b" ifcVersion="IFC4"><applicability minOccurs="0" maxOccurs="unbounded"><entity><name><simpleValue>IFCWALL</simpleValue></name></entity><attribute><name><simpleValue>Name</simpleValue></name><value><simpleValue>W-01</simpleValue></value></attribute></applicability><requirements><property dataType="IFCLABEL" cardinality="optional"><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>Status</simpleValue></baseName>${simple("EXISTING")}</property></requirements></specification>`;
+  const I = ids(spec("IFCWALL", prop("Pset_WallCommon", "Status", "IFCLABEL", simple("NEW")), "a") + b);
+  const before = check(I, new Model(MODEL, resources().schemas));
+  assert.equal(before.specs[1].status, "pass");
+  const r = fill(I, MODEL);
+  assert.equal(r.written, 2);
+  assert.equal(r.verified.pass, 2);
+  assert.deepEqual(r.unfilled.map((u) => u.name), ["W-01"]);
+  assert.match(r.unfilled[0].why, /would break another check: specification "b" asks for Pset_WallCommon\.Status "EXISTING"/);
+  assert.equal(check(I, new Model(r.text, resources().schemas)).specs[1].status, "pass");
 });
 
 test("what is not a property, or names its set by a pattern, is counted, not written", () => {
@@ -220,4 +235,16 @@ test("records are found past comments and strings that look like records", () =>
   assert.ok(r.text.includes("/* #20=IFCPROPERTYSET('x',$,'Pset_WallCommon',$,(#21)); */"));
   assert.ok(r.text.includes("'W-01 #20=IFCPROPERTYSET(;'"));
   assert.match(r.text, /\n#20=IFCPROPERTYSET\('2XtwYdQJvA_eZmLqT9e9cw',#2,'Pset_WallCommon',\$,\(#21,#34\)\);/);
+});
+
+test("a name the element holds as a quantity set is not written as a property set beside it", () => {
+  const m = MODEL.replace("ENDSEC;\nEND-ISO", `#40=IFCELEMENTQUANTITY('0Qa1Wb2Ec3Rd4Tf5Yg6Uh7',#2,'BaseQuantities',$,$,(#41));
+#41=IFCQUANTITYLENGTH('Height',$,$,3000.,$);
+#42=IFCRELDEFINESBYPROPERTIES('1Zx2Cv3Bn4Mq5Wr6Ty7Ui8',#2,$,$,(#10),#40);
+ENDSEC;
+END-ISO`);
+  const r = fill(ids(spec("IFCWALL", prop("BaseQuantities", "NetVolume", null, ""))), m, { values: [{ globalId: "*", pset: "BaseQuantities", prop: "NetVolume", value: "X" }] });
+  assert.equal(r.written, 2);
+  assert.ok(!r.writtenList.some((w) => w.id === 10));
+  assert.deepEqual(r.unfilled.map((u) => [u.name, u.why]), [["W-01", "the model holds BaseQuantities as an IFCELEMENTQUANTITY, which this fill does not write"]]);
 });

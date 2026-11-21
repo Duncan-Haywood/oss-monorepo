@@ -13,7 +13,7 @@
 //
 // Only STEP (.ifc) is written. Quantities (Qto_ sets), attributes,
 // classifications, materials and relationships are reported, not written.
-import { Model, checkIds, parseIds, psetRecord, psetInfo } from "./ids.mjs";
+import { Model, checkIds, parseIds, psetRecord, psetInfo, psetSources, applies } from "./ids.mjs";
 import { rowsToCsv, csvToRows } from "./sheet.mjs";
 
 const B64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$";
@@ -171,6 +171,29 @@ const listText = (refs) => "(" + refs.join(",") + ")";
 
 // ------------------------------------------------------------- planning ----
 
+// Every property facet that names set ps and property pn in a specification
+// applying to element e: [{spec, facet}]. A value written for one
+// specification must not break another that constrains the same property on
+// the same element.
+function facetsOn(ids, model, ctx, e, ps, pn, cache) {
+  const out = [];
+  for (const [si, spec] of ids.specs.entries()) {
+    if (spec.optionality === "prohibited") continue;
+    const rs = spec.requirements.filter((r) => r.kind === "property" && r.propertySet.matchString(ps) && r.baseName.matchString(pn));
+    if (!rs.length) continue;
+    let set = cache.get(si);
+    if (!set) cache.set(si, (set = new Set(applies(spec, model, ctx).map((x) => x.id))));
+    if (set.has(e.id)) for (const r of rs) out.push({ spec, facet: r });
+  }
+  return out;
+}
+
+// Whether a property facet holds on e, by its cardinality.
+function facetHolds(r, e, model) {
+  const t = r.test(e, model);
+  return r.cardinality === "prohibited" ? !t.ok : r.cardinality === "optional" ? t.ok || !!t.absent : t.ok;
+}
+
 const KIND_WORDS = { entity: "class", attribute: "attribute", classification: "classification", material: "material", partOf: "part of", property: "property" };
 
 // What the fill would write: {writes: [{e, globalId, pset, prop, dataType,
@@ -192,6 +215,7 @@ export function planFill(idsText, model, opts = {}) {
   const unfilled = [];
   const notWritten = {};
   const ctx = { typeMap: opts.typeMap || null };
+  const appliesCache = new Map();
   for (const [si, spec] of ids.specs.entries()) {
     const s = report.specs[si];
     if (s.status !== "fail" || spec.optionality === "prohibited") continue;
@@ -212,6 +236,14 @@ export function planFill(idsText, model, opts = {}) {
         if (ps === undefined || pn === undefined) { unfilled.push({ ...row, why: "the IDS names the set or property by a pattern or list, so no one name can be written" }); continue; }
         if (/^Qto_/.test(ps)) { unfilled.push({ ...row, why: "quantity sets (Qto_) are not written yet" }); continue; }
         if (!f.globalId) { unfilled.push({ ...row, why: "the element has no GlobalId" }); continue; }
+        // A set of this name the element holds as something other than a
+        // property set (IFC2X3 exports name their IfcElementQuantity
+        // BaseQuantities): a property set of the same name beside it would be
+        // merged by this checker but read by IfcTester as the one set, hiding
+        // the quantities (eval/model-fill-2026-11-21.md).
+        let other = null;
+        psetSources(model, e, (d) => { if (!other && d.type !== "IFCPROPERTYSET" && psetInfo(model, d).name === ps) other = d.type; });
+        if (other) { unfilled.push({ ...row, why: `the model holds ${ps} as an ${other}, which this fill does not write` }); continue; }
         let dataType = r.dataType;
         if (!dataType) {
           const tpl = templates && Object.hasOwn(templates, ps) && Object.hasOwn(templates[ps].props, pn) ? templates[ps].props[pn] : null;
@@ -229,6 +261,16 @@ export function planFill(idsText, model, opts = {}) {
         const val = readValue(S, dataType, text);
         if (val.error) { unfilled.push({ ...row, value: text, why: val.error }); continue; }
         if (r.value.present && !r.value.match(val.v, val.prim)) { unfilled.push({ ...row, value: text, why: `"${text}" is not ${r.value}` }); continue; }
+        // The other specifications on this element that name the property.
+        let clash = null;
+        for (const { spec: s2, facet: r2 } of facetsOn(ids, model, ctx, e, ps, pn, appliesCache)) {
+          if (r2 === r) continue;
+          if (r2.cardinality === "prohibited") clash = `specification "${s2.name}" prohibits ${ps}.${pn} here`;
+          else if (r2.dataType && r2.dataType !== dataType) clash = `specification "${s2.name}" asks for ${ps}.${pn} as ${r2.dataType}`;
+          else if (r2.value.present && !r2.value.match(val.v, val.prim)) clash = `specification "${s2.name}" asks for ${ps}.${pn} ${r2.value}`;
+          if (clash) break;
+        }
+        if (clash) { unfilled.push({ ...row, value: text, why: `"${text}" would break another check: ${clash}` }); continue; }
         const key = `${e.id}\0${ps}\0${pn}`;
         const valueText = stepValue(model, dataType, val);
         const prev = writes.get(key);
@@ -420,11 +462,15 @@ export function fillModel(idsText, ifc, opts = {}) {
     const failedAfter = new Set(after.specs.flatMap((s) => s.failed.map((f) => f.id)));
     let ok = 0;
     const bad = [];
-    const facets = ids.specs.flatMap((s) => s.requirements.filter((r) => r.kind === "property"));
+    // Every property facet on the element naming the written property, in
+    // every specification applying to it: the one that failed, and any other
+    // the write could have broken.
+    const cache2 = new Map();
+    const ctx2 = { typeMap: opts.typeMap || null };
     for (const w of writtenRows) {
       const e = m2.entities.get(w.id);
-      const fs = facets.filter((r) => r.propertySet.simple === w.pset && r.baseName.simple === w.prop);
-      if (e && fs.every((r) => r.test(e, m2).ok)) ok++;
+      const fs = e ? facetsOn(ids, m2, ctx2, e, w.pset, w.prop, cache2) : [];
+      if (e && fs.length && fs.every(({ facet }) => facetHolds(facet, e, m2))) ok++;
       else bad.push(w);
     }
     verified = { values: writtenRows.length, pass: ok, fail: bad, parseErrors: m2.parseErrors.length, elementsStillFailing: failedAfter.size };
