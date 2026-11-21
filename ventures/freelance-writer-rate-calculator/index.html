@@ -221,7 +221,7 @@
         <tr><th scope="row">Total hours</th><td>${result.totalHours.toFixed(1)}</td></tr>
         <tr><th scope="row">Per-word rate pays</th><td>${money(result.perWordTotal)} total (${money(result.perWordHourly)}/hr)</td></tr>
         <tr><th scope="row">Flat fee pays</th><td>${money(result.flatFee)} total (${money(result.flatFeeHourly)}/hr)</td></tr>
-        <tr><th scope="row">After US self-employment tax (14.1%)</th><td>per-word ${money(result.perWordHourlyAfterSeTax)}/hr · flat fee ${money(result.flatFeeHourlyAfterSeTax)}/hr</td></tr>`;
+        <tr><th scope="row">After US self-employment tax (14.1%; assumes your year&#39;s net earnings clear the $400 Schedule SE floor)</th><td>per-word ${money(result.perWordHourlyAfterSeTax)}/hr · flat fee ${money(result.flatFeeHourlyAfterSeTax)}/hr</td></tr>`;
 
       renderFindings(els.findings, result.findings);
       els.report.hidden = false;

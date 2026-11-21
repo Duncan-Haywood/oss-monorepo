@@ -73,6 +73,8 @@ export const GHOSTWRITING_PREMIUM_HIGH = 0.20;
 // income tax; ignores the Social Security wage base and the deduction for
 // half of SE tax, both of which only matter for the income-tax bill or for
 // higher earners.
+// The $400 floor applies to a year's net earnings, not one job, so this
+// per-job hourly assumes the writer's year clears it (stated on the page).
 export const SE_TAX_RATE = 0.153;
 export const SE_TAX_BASE = 0.9235;
 export const SE_TAX_EFFECTIVE = SE_TAX_RATE * SE_TAX_BASE;

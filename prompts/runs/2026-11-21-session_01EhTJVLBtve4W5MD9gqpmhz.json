@@ -26,7 +26,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 9,
   "outcome": "success",
@@ -34,6 +34,10 @@
     {
       "what": "A Bash heredoc containing JS template literals (${...}) was refused by the rm-safety parser although it deleted nothing",
       "fix": "wrote the edit script to the scratchpad and ran it"
+    },
+    {
+      "what": "check_se_tax_floor.py failed on the new after-SE-tax hourly (uses 0.9235, no $400 floor)",
+      "fix": "the floor is annual and this is a per-job hourly, like the existing per-game/per-week exemptions: added to EXEMPT with the reason and stated the assumption on the page"
     }
   ],
   "integrity_issues": [],
@@ -48,7 +52,7 @@
     "docs/posts/2026-11-21-quality-reaudit-writer-rate-and-mrr-pulse.md"
   ],
   "goal": null,
-  "notes": "Mode: reaudit (quality_audit.py mode draw; 25 high defects open). Seed 2026-11-21-cdd9. Subjects: ventures/freelance-writer-rate-calculator (me) and ventures/mrr-pulse (one subagent; I reproduced 5 of its checks with its scratch script: add-on churn 0.333, swap logo 1 / NRR 0, tiered 0, intra-month 2000/2000, stale README:141). Results: writer calculator, PR #15342 closed 1 of 7 real defects (+1 partial); scores unchanged; not at bar. mrr-pulse, PR #15653 was labels/README only; later red-team PRs closed 5, 5 partial, 2 open; scores unchanged; not at bar. Share of re-audited subjects meeting the bar: 0 of 2. Fix PR: #18065 (this PR) fixes writer defects 0,1,2,4,5 (overclaim copy, blank speed, surviving mutants, source wording, sub-cent per-word display) + after-SE-tax hourly; mrr-pulse defects 1 (tiered disclosed on dashboard + unit_amount_decimal), 6, 7, plus monthly NRR label and quick-ratio reactivation test (partial on 3 and 5). Verification: writer node --test 48/48 pass, all 4 seeded mutants caught after the fix (2 survived before); mrr-pulse node --test 123/123 pass, quick-ratio mutant now caught; quality_audit.py validate 592 files 0 problems.",
+  "notes": "Mode: reaudit (quality_audit.py mode draw; 25 high defects open). Seed 2026-11-21-cdd9. Subjects: ventures/freelance-writer-rate-calculator (me) and ventures/mrr-pulse (one subagent; I reproduced 5 of its checks with its scratch script: add-on churn 0.333, swap logo 1 / NRR 0, tiered 0, intra-month 2000/2000, stale README:141). Results: writer calculator, PR #15342 closed 1 of 7 real defects (+1 partial); scores unchanged; not at bar. mrr-pulse, PR #15653 was labels/README only; later red-team PRs closed 5, 5 partial, 2 open; scores unchanged; not at bar. Share of re-audited subjects meeting the bar: 0 of 2. Fix PR: #18065 (this PR) fixes writer defects 0,1,2,4,5 (overclaim copy, blank speed, surviving mutants, source wording, sub-cent per-word display) + after-SE-tax hourly; mrr-pulse defects 1 (tiered disclosed on dashboard + unit_amount_decimal), 6, 7, plus monthly NRR label and quick-ratio reactivation test (partial on 3 and 5). Verification: writer node --test 48/48 pass, all 4 seeded mutants caught after the fix (2 survived before); mrr-pulse node --test 123/123 pass, quick-ratio mutant now caught; quality_audit.py validate 592 files 0 problems. Local CI: run_workflow_locally --for-changes 13/14 workflows passed first time; ventures-tests failed on check_se_tax_floor (fixed, see errors); re-run: check_se_tax_floor ok, its unittest OK, run_venture_tests for both slugs 0 failed.",
   "corrections": [],
   "redteam": null
 }
