@@ -570,15 +570,16 @@ flagships:
       page panel; eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed
       activities = P6's); milestone calendars shipped 2026-11-20 (milestones.mjs;
       eval/milestone-calendars-2026-11-20.md). (10) earned value shipped 2026-11-20
-      (evm.mjs; % complete = P6's actuals 2,020/2,020); next a real series and
-      baseline export. (11) time impact analysis shipped 2026-11-20 (tia.mjs, --tia,
-      page; eval/tia-check-2026-11-20.md); next a real TIA exhibit. (8) MSPDI:
-      resource calendars, Resume, splits read 2026-11-21 (2,446 of 2,491 =
-      Project's, eval/split-tasks-2026-11-21.md); next contoured work, timephased
-      late dates. (12) Gantt chart shipped 2026-11-20 (LOE and WBS summary dates =
-      P6's on 305 of 305, eval/gantt-check-2026-11-20.md). (13) XER to Project XML
-      shipped 2026-11-21 (eval/msproject-check-2026-11-21.md); outline codes
-      2026-11-21 (eval/msproject-outline-2026-11-21.md); next a Project check. MSPDI
+      (evm.mjs; % complete = P6's actuals 2,020/2,020); P6 resource curves
+      2026-11-21 (curves.mjs, --hours; eval/resource-curves-2026-11-21.md); next a
+      P6 export of a curved activity's planned units, a real series and baseline
+      export. (11) time impact analysis shipped 2026-11-20 (tia.mjs, --tia, page;
+      eval/tia-check-2026-11-20.md); next a real TIA exhibit. (8) MSPDI: resource
+      calendars, Resume, splits read 2026-11-21 (2,446 of 2,491 = Project's,
+      eval/split-tasks-2026-11-21.md); next contoured work, timephased late dates.
+      (12) Gantt chart shipped 2026-11-20 (LOE and WBS summary dates = P6's on 305
+      of 305, eval/gantt-check-2026-11-20.md). (13) XER to Project XML shipped
+      2026-11-21 (eval/msproject-check-2026-11-21.md); next a Project check. MSPDI
       to XER shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md); deadlines in float
       and XER (eval/deadlines-2026-11-21.md). Expenses <-> cost resources and fixed
       costs 2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;

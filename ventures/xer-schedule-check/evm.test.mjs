@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseXer } from "./xer.mjs";
+import { parseXer, parseDate } from "./xer.mjs";
 import { EXAMPLE_XER } from "./example.mjs";
 import { earnedValue, earnedValueText, earnedValueCsv, sCurveCsv, sCurveSvg, percentComplete } from "./evm.mjs";
 
@@ -197,4 +197,69 @@ test("a name a spreadsheet would run as a formula is written as text", () => {
   const x = base([task("1", "A", 8, { task_name: "=HYPERLINK(1)" })], [asg("1", "1", { target_cost: 10, remain_cost: 10 })]);
   const csv = earnedValueCsv(earnedValue(x, { projId: "1" }));
   assert.match(csv, /'=HYPERLINK\(1\)/);
+});
+
+// P6 resource curves (curves.mjs): 20 working days planned 2025-11-24 to
+// 2025-12-19, data date 2025-12-08 08:00, ten working days in
+const curveRow = (id, name, pts) => ({ curv_id: id, curv_name: name, default_flag: "Y", ...Object.fromEntries(pts.map((v, k) => [`pct_usage_${k}`, String(v)])) });
+const CURVES = { RSRCCURVDATA: [
+  curveRow("10", "Back Loaded", [0, ...Array(10).fill(3.5), ...Array(10).fill(6.5)]),
+  curveRow("12", "Front Loaded", [0, ...Array(10).fill(6.5), ...Array(10).fill(3.5)]),
+  curveRow("13", "Linear", [0, ...Array(20).fill(5)]),
+] };
+const curved = (curv, extraTask = {}, cost = { target_cost: 1000, remain_cost: 1000 }, tables = CURVES) => base(
+  [task("1", "A", 160, { target_start_date: "2025-11-24 08:00", target_end_date: "2025-12-19 17:00", ...extraTask })],
+  [asg("1", "1", cost, curv ? { curv_id: curv } : {})],
+  tables,
+);
+
+test("planned value follows the assignment's P6 resource curve", () => {
+  assert.equal(earnedValue(curved(null), { projId: "1" }).totals.pv, 500);
+  assert.equal(earnedValue(curved("13"), { projId: "1" }).totals.pv, 500);
+  const back = earnedValue(curved("10"), { projId: "1" });
+  assert.equal(back.totals.pv, 350);
+  assert.equal(back.curve.at(-1).pv, 1000);
+  assert.equal(back.curve.at(-1).forecast, 1000);
+  assert.ok(back.notes.some((n) => /1 assignment follows a P6 resource curve \(Back Loaded 1\)/.test(n)));
+  assert.equal(earnedValue(curved("12"), { projId: "1" }).totals.pv, 650);
+  // off: even
+  assert.equal(earnedValue(curved("10"), { projId: "1", curves: false }).totals.pv, 500);
+  // the planned value at a date a series holds as baseline follows the curve too
+  const cut = parseDate("2025-12-01 08:00");
+  const at = earnedValue(curved("10"), { projId: "1", pvCuts: [cut] });
+  assert.equal(at.pvAt[0], 175);
+});
+
+test("a curve the file does not carry is spread evenly and named", () => {
+  const r = earnedValue(curved("9", {}, undefined, {}), { projId: "1" });
+  assert.equal(r.totals.pv, 500);
+  assert.ok(r.notes.some((n) => /1 assignment names a resource curve the file does not carry \(curv_id 9/.test(n)));
+});
+
+test("a started activity's remaining work follows the rest of its curve and the forecast closes", () => {
+  const r = earnedValue(curved("12", { status_code: "TK_Active", act_start_date: "2025-11-24 08:00", remain_drtn_hr_cnt: 80 }, { target_cost: 1000, act_reg_cost: 650, remain_cost: 350 }), { projId: "1" });
+  assert.equal(r.totals.pv, 650);
+  assert.equal(r.totals.ev, 500);
+  assert.equal(r.curve.at(-1).forecast, 1000);
+});
+
+test("measure: hours on a cost-loaded file", () => {
+  const x = curved("10", {}, { target_cost: 1000, remain_cost: 1000, target_qty: 160, remain_qty: 160 });
+  const r = earnedValue(x, { projId: "1", measure: "hours" });
+  assert.equal(r.measure, "hours");
+  assert.equal(r.totals.bac, 160);
+  assert.equal(r.totals.pv, 56);
+  assert.ok(r.notes.some((n) => /as asked/.test(n)));
+  assert.equal(earnedValue(x, { projId: "1" }).measure, "cost");
+});
+
+test("actuals on an actual start after the data date stay on the curve, drawn at the data date", () => {
+  const x = base(
+    [task("1", "A", 16, { status_code: "TK_Active", act_start_date: "2025-12-10 08:00", target_start_date: "2025-12-01 08:00", target_end_date: "2025-12-02 17:00", remain_drtn_hr_cnt: 8 })],
+    [asg("1", "1", { target_cost: 100, act_reg_cost: 40, remain_cost: 60 })],
+  );
+  const r = earnedValue(x, { projId: "1" });
+  assert.equal(r.totals.eac, 100);
+  assert.equal(r.curve.at(-1).forecast, 100);
+  assert.ok(r.notes.some((n) => /actual start after the data date/.test(n)));
 });

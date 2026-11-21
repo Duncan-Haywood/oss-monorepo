@@ -414,6 +414,23 @@ reads (so the reading agrees with P6's on all 2,020, and that file's CPI of
 activities budgeted at 111,528 carry 669 to complete
 (eval/earned-value-2026-11-20.md).
 
+**Resource curves** (2026-11-21, `curves.mjs`): an assignment with a P6
+resource curve (`TASKRSRC.curv_id`, the curve's 21 points in `RSRCCURVDATA`)
+has its planned and remaining work spread by the curve over the working time
+of its dates, not evenly: point k is the share of the k-th twentieth of the
+duration, as every curve in the public hospital file reads (points 1-20 add
+to 100, Linear is 5 twenty times). A started activity's remaining work follows
+the rest of its curve; actuals stay even; a curve the file does not carry is
+spread evenly and named. `--hours` (page: *in labour hours*) gives the
+manpower curve on a cost-loaded file; `--even-spread` turns curves off.
+Planted on four public files, Back and Front Loaded move planned value at the
+data date by equal and opposite amounts (SPI 0.202 becomes 0.244 or 0.172 on
+the 24.12 file) and every curve closes on budget and estimate at completion
+(24 of 24). The same check found actuals on actual starts after the data date
+falling off the forecast curve (97.32 h on the hospital file); they are now
+drawn at the data date (eval/resource-curves-2026-11-21.md). Not compared
+with P6's own spread: no file carries it.
+
 **Earned value by window across updates** (2026-11-20, `evmseries.mjs`, the
 page's windows panel on cost- or hours-loaded updates, CLI `--windows u1.xer
 u2.xer ... --earned-value [--csv ev-windows.csv]`): for each window between

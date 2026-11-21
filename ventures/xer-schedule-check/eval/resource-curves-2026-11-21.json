@@ -1,0 +1,531 @@
+[
+ {
+  "file": "sample.xer",
+  "curves": [],
+  "scaled": [],
+  "empty": [],
+  "use": {},
+  "cost": null,
+  "hours": null
+ },
+ {
+  "file": "hotel-project.xer",
+  "curves": [],
+  "scaled": [],
+  "empty": [],
+  "use": {},
+  "cost": {
+   "bac": 601874.78,
+   "pvCurves": 0,
+   "pvEven": 0,
+   "spiCurves": null,
+   "spiEven": null,
+   "pvCloses": true,
+   "fcCloses": true,
+   "widestMonthGap": {
+    "date": null,
+    "on": 0,
+    "off": 0
+   },
+   "notes": []
+  },
+  "hours": {
+   "bac": 27183,
+   "pvCurves": 0,
+   "pvEven": 0,
+   "spiCurves": null,
+   "spiEven": null,
+   "pvCloses": true,
+   "fcCloses": true,
+   "widestMonthGap": {
+    "date": null,
+    "on": 0,
+    "off": 0
+   },
+   "notes": []
+  },
+  "planted": {
+   "Back Loaded": {
+    "cost": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2013-04-30",
+      "on": 150248.27,
+      "off": 153622.92
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2013-04-30",
+      "on": 6510.81,
+      "off": 6655.31
+     }
+    }
+   },
+   "Front Loaded": {
+    "cost": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2013-04-30",
+      "on": 156997.57,
+      "off": 153622.92
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2013-04-30",
+      "on": 6799.82,
+      "off": 6655.31
+     }
+    }
+   },
+   "Bell Shaped": {
+    "cost": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2013-10-31",
+      "on": 385267.04,
+      "off": 383046.26
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2013-10-31",
+      "on": 16966.38,
+      "off": 16868.42
+     }
+    }
+   }
+  }
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "curves": [],
+  "scaled": [],
+  "empty": [],
+  "use": {},
+  "cost": null,
+  "hours": null,
+  "planted": {
+   "Back Loaded": {},
+   "Front Loaded": {},
+   "Bell Shaped": {}
+  }
+ },
+ {
+  "file": "example_xer_file.xer",
+  "curves": [],
+  "scaled": [],
+  "empty": [],
+  "use": {
+   "(curv_id 9, not in file)": {
+    "assignments": 234,
+    "cost": 455364.39999999973,
+    "hours": 3764.6500000000015
+   }
+  },
+  "cost": {
+   "bac": 2144776.35,
+   "pvCurves": 250430.66,
+   "pvEven": 250430.66,
+   "spiCurves": 0.202,
+   "spiEven": 0.202,
+   "pvCloses": true,
+   "fcCloses": true,
+   "widestMonthGap": {
+    "date": null,
+    "on": 0,
+    "off": 0
+   },
+   "notes": [
+    "234 assignments name a resource curve the file does not carry (curv_id 9; P6 exports RSRCCURVDATA only with some settings), so they are spread evenly."
+   ]
+  },
+  "hours": {
+   "bac": 18273.7,
+   "pvCurves": 2197.2,
+   "pvEven": 2197.2,
+   "spiCurves": 0.19,
+   "spiEven": 0.19,
+   "pvCloses": true,
+   "fcCloses": true,
+   "widestMonthGap": {
+    "date": null,
+    "on": 0,
+    "off": 0
+   },
+   "notes": [
+    "234 assignments name a resource curve the file does not carry (curv_id 9; P6 exports RSRCCURVDATA only with some settings), so they are spread evenly."
+   ]
+  },
+  "planted": {
+   "Back Loaded": {
+    "cost": {
+     "pvAtDataDate": 207420.92,
+     "pvEven": 250430.66,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2026-10-31",
+      "on": 1003797.11,
+      "off": 1170073.61
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 1824.9,
+     "pvEven": 2197.2,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2026-10-31",
+      "on": 8664.82,
+      "off": 10071.77
+     }
+    }
+   },
+   "Front Loaded": {
+    "cost": {
+     "pvAtDataDate": 293440.41,
+     "pvEven": 250430.66,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2026-10-31",
+      "on": 1336350.11,
+      "off": 1170073.61
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 2569.5,
+     "pvEven": 2197.2,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2026-10-31",
+      "on": 11478.73,
+      "off": 10071.77
+     }
+    }
+   },
+   "Bell Shaped": {
+    "cost": {
+     "pvAtDataDate": 164762.32,
+     "pvEven": 250430.66,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2026-08-31",
+      "on": 535986.25,
+      "off": 730472.74
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 1475.02,
+     "pvEven": 2197.2,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2026-08-31",
+      "on": 4674.99,
+      "off": 6308.66
+     }
+    }
+   }
+  }
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "curves": [
+   "Back Loaded",
+   "Bell Shaped",
+   "Front Loaded",
+   "Linear",
+   "Triangular Increase",
+   "PCO119"
+  ],
+  "scaled": [],
+  "empty": [],
+  "use": {
+   "Linear": {
+    "assignments": 1,
+    "cost": 0,
+    "hours": -35
+   },
+   "PCO119": {
+    "assignments": 25,
+    "cost": 0,
+    "hours": 417899
+   },
+   "Triangular Increase": {
+    "assignments": 1,
+    "cost": 0,
+    "hours": 97305
+   },
+   "Back Loaded": {
+    "assignments": 7,
+    "cost": 0,
+    "hours": 302333
+   },
+   "Front Loaded": {
+    "assignments": 1,
+    "cost": 0,
+    "hours": 9595
+   },
+   "Bell Shaped": {
+    "assignments": 1,
+    "cost": 0,
+    "hours": 7333
+   },
+   "(curv_id 9, not in file)": {
+    "assignments": 1,
+    "cost": 0,
+    "hours": 240
+   }
+  },
+  "cost": {
+   "bac": 632621950.03,
+   "pvCurves": 330091169.72,
+   "pvEven": 330091169.72,
+   "spiCurves": 1.335,
+   "spiEven": 1.335,
+   "pvCloses": true,
+   "fcCloses": true,
+   "widestMonthGap": {
+    "date": null,
+    "on": 0,
+    "off": 0
+   },
+   "notes": []
+  },
+  "hours": {
+   "bac": 35664595.46,
+   "pvCurves": 12936825.4,
+   "pvEven": 12936825.4,
+   "spiCurves": 1.108,
+   "spiEven": 1.108,
+   "pvCloses": true,
+   "fcCloses": true,
+   "widestMonthGap": {
+    "date": "2012-03-31",
+    "on": 24190833.55,
+    "off": 24299881.13
+   },
+   "notes": [
+    "34 assignments follow a P6 resource curve (PCO119 24, Triangular Increase 1, Back Loaded 7, Front Loaded 1, Bell Shaped 1): planned and remaining hours are spread by the curve's twenty steps over the working time, not evenly; actuals stay even from actual start to finish.",
+    "1 assignment names a resource curve the file does not carry (curv_id 9; P6 exports RSRCCURVDATA only with some settings), so it is spread evenly."
+   ]
+  },
+  "planted": {
+   "Back Loaded": {
+    "cost": {
+     "pvAtDataDate": 303510918.39,
+     "pvEven": 330091169.72,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2011-10-31",
+      "on": 384323721.82,
+      "off": 412126881.18
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 12481089.61,
+     "pvEven": 12936825.4,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2011-10-31",
+      "on": 14607631.65,
+      "off": 15100793.54
+     }
+    }
+   },
+   "Front Loaded": {
+    "cost": {
+     "pvAtDataDate": 356671421.04,
+     "pvEven": 330091169.72,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2011-10-31",
+      "on": 439930040.54,
+      "off": 412126881.18
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 13392561.19,
+     "pvEven": 12936825.4,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2011-10-31",
+      "on": 15593955.43,
+      "off": 15100793.54
+     }
+    }
+   },
+   "Bell Shaped": {
+    "cost": {
+     "pvAtDataDate": 326437098.45,
+     "pvEven": 330091169.72,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2011-11-30",
+      "on": 493960439.61,
+      "off": 474512324.4
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 13005477.81,
+     "pvEven": 12936825.4,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2011-11-30",
+      "on": 17181527.21,
+      "off": 16910927.23
+     }
+    }
+   }
+  }
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "curves": [],
+  "scaled": [],
+  "empty": [],
+  "use": {
+   "(curv_id 9, not in file)": {
+    "assignments": 2,
+    "cost": 0,
+    "hours": 442.25399999999996
+   }
+  },
+  "cost": {
+   "bac": 111527.98,
+   "pvCurves": 0,
+   "pvEven": 0,
+   "spiCurves": null,
+   "spiEven": null,
+   "pvCloses": true,
+   "fcCloses": true,
+   "widestMonthGap": {
+    "date": null,
+    "on": 0,
+    "off": 0
+   },
+   "notes": []
+  },
+  "hours": {
+   "bac": 77893.22,
+   "pvCurves": 0,
+   "pvEven": 0,
+   "spiCurves": null,
+   "spiEven": null,
+   "pvCloses": true,
+   "fcCloses": true,
+   "widestMonthGap": {
+    "date": null,
+    "on": 0,
+    "off": 0
+   },
+   "notes": []
+  },
+  "planted": {
+   "Back Loaded": {
+    "cost": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2014-12-31",
+      "on": 97271.12,
+      "off": 98482.66
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2014-12-31",
+      "on": 65450.65,
+      "off": 67174.17
+     }
+    }
+   },
+   "Front Loaded": {
+    "cost": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2014-12-31",
+      "on": 99694.2,
+      "off": 98482.66
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2014-12-31",
+      "on": 68897.68,
+      "off": 67174.17
+     }
+    }
+   },
+   "Bell Shaped": {
+    "cost": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2013-09-30",
+      "on": 9845.87,
+      "off": 8051.34
+     }
+    },
+    "hours": {
+     "pvAtDataDate": 0,
+     "pvEven": 0,
+     "pvCloses": true,
+     "fcCloses": true,
+     "widestMonthGap": {
+      "date": "2015-04-30",
+      "on": 73341.24,
+      "off": 71722.86
+     }
+    }
+   }
+  }
+ }
+]
