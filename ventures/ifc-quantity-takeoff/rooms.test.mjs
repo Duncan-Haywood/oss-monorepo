@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { takeoff, boq, rowsCsv } from "./qto.mjs";
-import { outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings } from "./rooms.mjs";
+import { outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings, heightShare } from "./rooms.mjs";
 import { IDENTITY, Geometry } from "./geom.mjs";
 
 const close = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol * Math.max(1, Math.abs(b)), `${a} vs ${b}`);
@@ -183,7 +183,7 @@ test("the room schedule as CSV, and its totals per storey", () => {
   const lines = roomsCsv(res.rooms).trim().split("\n");
   assert.equal(lines.length, 3);
   assert.ok(lines[0].startsWith("Entity,GlobalId,Number,Name,Storey,Floor area m2,Perimeter m"));
-  assert.ok(lines[1].includes(",101,Office,Level 1,12,14,2.7,37.8,0,0,0,37.8,32.4,1,12,,14,2.7,32400,"), lines[1]);
+  assert.ok(lines[1].includes(",101,Office,Level 1,12,14,2.7,37.8,0,0,0,0,37.8,32.4,1,12,,14,2.7,32400,"), lines[1]);
   assert.ok(/volume -99\.9% vs stored NetVolume \(unit-slip\)/.test(lines[1]), lines[1]);
   // a room name that starts like a formula is not run by a spreadsheet
   assert.ok(roomsCsv([{ id: 1, number: "=1+1", stored: {}, check: {} }]).includes(`"'=1+1"`));
@@ -263,7 +263,7 @@ test("doors, windows and curtain walls come off a room's wall area", () => {
   assert.equal(win.facesFrom, "boundary");
   // the room schedule carries them
   const line = roomsCsv(r.rooms).split("\n").find((l) => l.includes(",101,Office,"));
-  assert.ok(line.includes(",37.8,2,3.09,5.4,29.31,"), line);
+  assert.ok(line.includes(",37.8,2,3.09,0,5.4,29.31,"), line);
 });
 
 test("a space boundary's surface area: a curve-bounded plane less its holes, and a swept line", () => {
@@ -301,4 +301,40 @@ test("one window drawn as several pieces comes off once; a door between two room
   close(a.computed.openingArea, 1.26 * 1.06 + 0.9 * 2.1);
   close(b.computed.netWallArea, 20 - 0.9 * 2.1);
   assert.deepEqual(rows[3].facesRooms, ["A", "B"]);
+});
+
+test("heightShare: the part of an opening below the room's top, with 5 cm slack; the floor is not cut", () => {
+  const room = [0, 0, 0, 5, 4, 2.4];
+  assert.equal(heightShare([0, 0, 0.9, 1, 0.1, 2.1], room), 1);
+  assert.equal(heightShare([0, 0, -0.15, 1, 0.1, 2.25], room), 1); // a door run 15 cm into the floor build-up
+  assert.equal(heightShare([0, 0, 1.2, 1, 0.1, 2.44], room), 1); // a frame 4 cm past the ceiling line
+  close(heightShare([0, 0, 1.4, 1, 0.1, 3.4], room), 0.5); // half of a 2 m window above a lowered ceiling
+  close(heightShare([0, 0, -0.6, 1, 0.1, 2.8], room), 2.4 / 2.8); // measured from the room's floor
+  assert.equal(heightShare([0, 0, 2.6, 1, 0.1, 3.6], room), 0); // a roof light over the room below
+  assert.equal(heightShare([0, 0, 1, 1, 0.1, 2], undefined), 1);
+  assert.equal(heightShare(null, room), 1);
+});
+
+test("a window over a lowered ceiling comes off only below it; one wholly above comes off not at all", () => {
+  const rows = [
+    { id: 1, ifcType: "IFCWINDOW", box: [0, 0, 1.4, 1.5, 0.1, 3.4] }, // 1.5 x 2.0, half above the 2.4 m ceiling
+    { id: 2, ifcType: "IFCWINDOW", box: [2, 0, 2.6, 3, 0.1, 3.6] }, // 1.0 x 1.0, above it
+    { id: 3, ifcType: "IFCDOOR", box: [3, 0, -0.02, 3.9, 0.1, 2.1] },
+  ];
+  const mk = () => [{ id: 10, label: "WC", box: [0, -3, 0, 5, 0, 2.4], computed: { wallArea: 30 } }];
+  const bounds = [{ space: 10, element: 1 }, { space: 10, element: 2 }, { space: 10, element: 3 }];
+  const overall = new Map([[1, { width: 1.5, height: 2 }], [2, { width: 1, height: 1 }], [3, { width: 0.9, height: 2.1 }]]);
+  const rooms = mk();
+  deductOpenings(rows, rooms, bounds, overall);
+  const c = rooms[0].computed;
+  close(c.openingArea, 1.5 * 2 * 0.5 + 0.9 * 2.1);
+  assert.equal(c.openings, 2);
+  assert.equal(c.clipped, 1);
+  assert.equal(c.outside, 1);
+  close(c.clippedArea, 1.5 + 1);
+  close(c.netWallArea, 30 - 1.5 - 0.9 * 2.1);
+  const old = mk();
+  deductOpenings(rows, old, bounds, overall, { clip: false });
+  close(old[0].computed.openingArea, 3 + 1 + 0.9 * 2.1);
+  assert.equal(old[0].computed.clipped, 0);
 });

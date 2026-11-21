@@ -1,0 +1,1234 @@
+{
+ "total": {
+  "rooms": 989,
+  "gross": 65368.41859002646,
+  "before": 6913.674125178788,
+  "after": 6876.6177753297725,
+  "clipped": 56,
+  "outside": 0,
+  "roomsTouched": 37
+ },
+ "models": [
+  {
+   "model": "AC20-FZK-Haus.ifc",
+   "rooms": 7,
+   "gross": 398.18885599151986,
+   "before": 41.07695,
+   "after": 41.07695,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 357.11190599151985,
+   "netAfter": 357.11190599151985,
+   "list": []
+  },
+  {
+   "model": "ISSUE_005_haus.ifc",
+   "rooms": 7,
+   "gross": 398.18885599151986,
+   "before": 41.07695,
+   "after": 41.07695,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 357.11190599151985,
+   "netAfter": 357.11190599151985,
+   "list": []
+  },
+  {
+   "model": "duplex.ifc",
+   "rooms": 21,
+   "gross": 968.9136896000282,
+   "before": 113.20465784229422,
+   "after": 113.20465784229422,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 855.709031757734,
+   "netAfter": 855.709031757734,
+   "list": []
+  },
+  {
+   "model": "Office_A_20110811.ifc",
+   "rooms": 99,
+   "gross": 5962.591375300115,
+   "before": 486.57060499999926,
+   "after": 486.15560499999924,
+   "clipped": 1,
+   "outside": 0,
+   "roomsTouched": 1,
+   "netBefore": 5476.020770300113,
+   "netAfter": 5476.435770300113,
+   "list": [
+    {
+     "id": 921,
+     "cls": "IFCWINDOW",
+     "name": "M_Fixed:1000 x 2000:1000 x 2000:194401",
+     "room": "146 EXTERIOR VESTIBULE TO TSVA",
+     "share": 0.792,
+     "opening": [
+      0.915,
+      2.915
+     ],
+     "roomZ": [
+      0,
+      2.5
+     ],
+     "storedHeight": null,
+     "check": []
+    }
+   ]
+  },
+  {
+   "model": "dental_clinic.ifc",
+   "rooms": 269,
+   "gross": 15499.353653832297,
+   "before": 1059.5932408499673,
+   "after": 1059.5932408499673,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 14087.54315499754,
+   "netAfter": 14087.54315499754,
+   "list": []
+  },
+  {
+   "model": "C20-Institute-Var-2.ifc",
+   "rooms": 82,
+   "gross": 4553.501905272507,
+   "before": 663.1400000000007,
+   "after": 663.1400000000007,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 3890.361905272507,
+   "netAfter": 3890.361905272507,
+   "list": []
+  },
+  {
+   "model": "FM_ARC_DigitalHub.ifc",
+   "rooms": 64,
+   "gross": 6131.849160000011,
+   "before": 863.4677500000013,
+   "after": 863.4677500000013,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 5268.102034514059,
+   "netAfter": 5268.102034514059,
+   "list": []
+  },
+  {
+   "model": "schependomlaan.ifc",
+   "rooms": 100,
+   "gross": 3125.309522951994,
+   "before": 664.0311324941367,
+   "after": 664.0311324941367,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 2461.278390457858,
+   "netAfter": 2461.278390457858,
+   "list": []
+  },
+  {
+   "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+   "rooms": 28,
+   "gross": 978.314666582168,
+   "before": 135.66265000000053,
+   "after": 135.66265000000053,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 842.6520165821677,
+   "netAfter": 842.6520165821677,
+   "list": []
+  },
+  {
+   "model": "ISSUE_034_HouseZ.ifc",
+   "rooms": 5,
+   "gross": 331.1374834095102,
+   "before": 40.35927157733006,
+   "after": 40.35927157733006,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 290.77821183218015,
+   "netAfter": 290.77821183218015,
+   "list": []
+  },
+  {
+   "model": "example.ifc",
+   "rooms": 1,
+   "gross": 1.192826241441751,
+   "before": 0,
+   "after": 0,
+   "clipped": 0,
+   "outside": 0,
+   "roomsTouched": 0,
+   "netBefore": 1.192826241441751,
+   "netAfter": 1.192826241441751,
+   "list": []
+  },
+  {
+   "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "rooms": 306,
+   "gross": 27019.876594853344,
+   "before": 2805.490917415058,
+   "after": 2768.8495675660424,
+   "clipped": 55,
+   "outside": 0,
+   "roomsTouched": 36,
+   "netBefore": 24214.385677438317,
+   "netAfter": 24251.027027287324,
+   "list": [
+    {
+     "id": 182188,
+     "cls": "IFCDOOR",
+     "name": "Side_Stack_Operable_Wall_8000:IDF 2.1 Foldevegg 8000x2800:1780830",
+     "room": "02110 klasse",
+     "share": 0.871,
+     "opening": [
+      135.2,
+      138
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 182188,
+     "cls": "IFCDOOR",
+     "name": "Side_Stack_Operable_Wall_8000:IDF 2.1 Foldevegg 8000x2800:1780830",
+     "room": "02111 klasse",
+     "share": 0.871,
+     "opening": [
+      135.2,
+      138
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 324724,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:V3 18x22:1895999",
+     "room": "02030 fellesområde",
+     "share": 0.838,
+     "opening": [
+      136.015,
+      138.205
+     ],
+     "roomZ": [
+      135.2,
+      137.85
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 357091,
+     "cls": "IFCDOOR",
+     "name": "Side_Stack_Operable_Wall_8000:IDF 2.1 Foldevegg 8000x2800:1916249",
+     "room": "03110 klasse",
+     "share": 0.871,
+     "opening": [
+      139.26,
+      142.06
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 357091,
+     "cls": "IFCDOOR",
+     "name": "Side_Stack_Operable_Wall_8000:IDF 2.1 Foldevegg 8000x2800:1916249",
+     "room": "03111 klasse",
+     "share": 0.871,
+     "opening": [
+      139.26,
+      142.06
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 426068,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GFA 3 8x27 38dB:2067745",
+     "room": "02003 aula-øvre del",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 518839,
+     "cls": "IFCDOOR",
+     "name": "Side_Stack_Operable_Wall_6500:IDF 1.1 Foldevegg 6500x2800:2154531",
+     "room": "01004 bakscene",
+     "share": 0.871,
+     "opening": [
+      131.2,
+      134
+     ],
+     "roomZ": [
+      131.2,
+      133.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 518839,
+     "cls": "IFCDOOR",
+     "name": "Side_Stack_Operable_Wall_6500:IDF 1.1 Foldevegg 6500x2800:2154531",
+     "room": "01003 aula - nedre del",
+     "share": 0.871,
+     "opening": [
+      131.2,
+      134
+     ],
+     "roomZ": [
+      131.2,
+      133.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 545051,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:V24 20x20:2217007",
+     "room": "03143 korridor",
+     "share": 0.947,
+     "opening": [
+      140.275,
+      142.265
+     ],
+     "roomZ": [
+      139.26,
+      142.16
+     ],
+     "storedHeight": 2.9,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 545313,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:V24 20x20:2217110",
+     "room": "03103 korridor",
+     "share": 0.947,
+     "opening": [
+      140.275,
+      142.265
+     ],
+     "roomZ": [
+      139.26,
+      142.16
+     ],
+     "storedHeight": 2.9,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 557568,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:V3 18x22:2258481",
+     "room": "02052 lærerarbeid",
+     "share": 0.741,
+     "opening": [
+      136.015,
+      138.205
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 557666,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:V4 23x22:2258672",
+     "room": "02052 lærerarbeid",
+     "share": 0.741,
+     "opening": [
+      136.015,
+      138.205
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 596246,
+     "cls": "IFCDOOR",
+     "name": "_Dør Dobbel_Ulike_Dørblader:YDS 1.1 15x21M:2389269",
+     "room": "03148 ventilasjon",
+     "share": 0.731,
+     "opening": [
+      140.17,
+      142.26
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 596811,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:V5 8x22:2399390",
+     "room": "02030 fellesområde",
+     "share": 0.838,
+     "opening": [
+      136.015,
+      138.205
+     ],
+     "roomZ": [
+      135.2,
+      137.85
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 601134,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:V4 23x22:2425419",
+     "room": "03123 fellesområde",
+     "share": 0.838,
+     "opening": [
+      140.075,
+      142.265
+     ],
+     "roomZ": [
+      139.26,
+      141.91
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 631862,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 10.2 8x27 38dB:2500909",
+     "room": "02149 bibliotek",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unexplained"
+     ]
+    },
+    {
+     "id": 631862,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 10.2 8x27 38dB:2500909",
+     "room": "02150 elevtjenester/møte",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 634202,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 10.2 8x27 38dB:2504695",
+     "room": "02067 gruppe",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 634202,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 10.2 8x27 38dB:2504695",
+     "room": "02060 garderobe",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 635513,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 11.1 12x27 33dB:2505892",
+     "room": "02061 fellesområde",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 910775,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 11.1 12x27 33dB:2994244",
+     "room": "02036 klasse",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 911953,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 9.1 11x26.5 33dB:2996296",
+     "room": "02125 klasse",
+     "share": 0.92,
+     "opening": [
+      135.21,
+      137.85
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 919681,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 16.1 5x31 38dB:2997461",
+     "room": "02105 fellesområde",
+     "share": 0.786,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 919681,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 16.1 5x31 38dB:2997461",
+     "room": "02108 gruppe",
+     "share": 0.786,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 922442,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:2998710",
+     "room": "02105 fellesområde",
+     "share": 0.786,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 922442,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:2998710",
+     "room": "02107 klasse",
+     "share": 0.786,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 932977,
+     "cls": "IFCDOOR",
+     "name": "M_Overhead-Rolling:1700 x 2100mm:3038740",
+     "room": "02002 kantine -øvre del",
+     "share": 0.973,
+     "opening": [
+      135.2,
+      138.18
+     ],
+     "roomZ": [
+      135.2,
+      138.1
+     ],
+     "storedHeight": 2.9,
+     "check": [
+      "GrossPerimeter unexplained",
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 954837,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3212641",
+     "room": "02124 fellesområde",
+     "share": 0.854,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.85
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 954837,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3212641",
+     "room": "02128 klasse",
+     "share": 0.786,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 955161,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3217776",
+     "room": "02129 klasse",
+     "share": 0.786,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 955161,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3217776",
+     "room": "02124 fellesområde",
+     "share": 0.854,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.85
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 980526,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3380385",
+     "room": "03123 fellesområde",
+     "share": 0.854,
+     "opening": [
+      139.27,
+      142.36
+     ],
+     "roomZ": [
+      139.26,
+      141.91
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 980526,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3380385",
+     "room": "03127 klasse",
+     "share": 0.786,
+     "opening": [
+      139.27,
+      142.36
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 980622,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3380386",
+     "room": "03128 klasse",
+     "share": 0.786,
+     "opening": [
+      139.27,
+      142.36
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 980622,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3380386",
+     "room": "03123 fellesområde",
+     "share": 0.854,
+     "opening": [
+      139.27,
+      142.36
+     ],
+     "roomZ": [
+      139.26,
+      141.91
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 980929,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 16.1 5x31 38dB:3381397",
+     "room": "03105 fellesområde",
+     "share": 0.786,
+     "opening": [
+      139.27,
+      142.36
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 980929,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 16.1 5x31 38dB:3381397",
+     "room": "03108 gruppe",
+     "share": 0.786,
+     "opening": [
+      139.27,
+      142.36
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 981026,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3381504",
+     "room": "03105 fellesområde",
+     "share": 0.786,
+     "opening": [
+      139.27,
+      142.36
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 981026,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3381504",
+     "room": "03107 klasse",
+     "share": 0.786,
+     "opening": [
+      139.27,
+      142.36
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 981537,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 10.1 8x27 33dB:3382692",
+     "room": "02105 fellesområde",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 981537,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 10.1 8x27 33dB:3382692",
+     "room": "02111 klasse",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 981895,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 10.1 8x27 33dB:3382939",
+     "room": "03111 klasse",
+     "share": 0.903,
+     "opening": [
+      139.27,
+      141.96
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 981895,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 10.1 8x27 33dB:3382939",
+     "room": "03105 fellesområde",
+     "share": 0.903,
+     "opening": [
+      139.27,
+      141.96
+     ],
+     "roomZ": [
+      139.26,
+      141.698
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 981992,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3384739",
+     "room": "02061 fellesområde",
+     "share": 0.786,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 981992,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3384739",
+     "room": "02065 klasse",
+     "share": 0.786,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 982806,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3385492",
+     "room": "02030 fellesområde",
+     "share": 0.854,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.85
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 982902,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3385633",
+     "room": "02030 fellesområde",
+     "share": 0.854,
+     "opening": [
+      135.21,
+      138.3
+     ],
+     "roomZ": [
+      135.2,
+      137.85
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 1294688,
+     "cls": "IFCDOOR",
+     "name": "M_Overhead-Rolling:1700 x 2100mm:4451019",
+     "room": "01092 korridor/sluse",
+     "share": 0.973,
+     "opening": [
+      131.2,
+      134.18
+     ],
+     "roomZ": [
+      131.2,
+      134.1
+     ],
+     "storedHeight": 2.9,
+     "check": [
+      "GrossVolume floor-x-height-unit"
+     ]
+    },
+    {
+     "id": 1294688,
+     "cls": "IFCDOOR",
+     "name": "M_Overhead-Rolling:1700 x 2100mm:4451019",
+     "room": "01002 kantine",
+     "share": 0.818,
+     "opening": [
+      131.2,
+      134.18
+     ],
+     "roomZ": [
+      131.2,
+      133.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unexplained"
+     ]
+    },
+    {
+     "id": 1340108,
+     "cls": "IFCWINDOW",
+     "name": "Vindu-Fast:GFA 3 8x27 38dB:4804571",
+     "room": "02003 aula-øvre del",
+     "share": 0.903,
+     "opening": [
+      135.21,
+      137.9
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 1384652,
+     "cls": "IFCWINDOW",
+     "name": "Vindu 3 felt:V10 30x22:5444956",
+     "room": "02030 fellesområde",
+     "share": 0.845,
+     "opening": [
+      136,
+      138.19
+     ],
+     "roomZ": [
+      135.2,
+      137.85
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 1387184,
+     "cls": "IFCWINDOW",
+     "name": "Vindu 3 felt:V7 24x22:5447657",
+     "room": "02052 lærerarbeid",
+     "share": 0.748,
+     "opening": [
+      136,
+      138.19
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 1387871,
+     "cls": "IFCWINDOW",
+     "name": "Vindu 3 felt:V10 30x22:5449018",
+     "room": "03123 fellesområde",
+     "share": 0.845,
+     "opening": [
+      140.06,
+      142.25
+     ],
+     "roomZ": [
+      139.26,
+      141.91
+     ],
+     "storedHeight": 2.65,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    },
+    {
+     "id": 1399235,
+     "cls": "IFCDOOR",
+     "name": "Doors-Sliding_Manusa_Biparting_sliding_fixed_INT:YDA 6.1 Skyvedører:5720315",
+     "room": "01002 kantine",
+     "share": 0.965,
+     "opening": [
+      131.2,
+      133.727
+     ],
+     "roomZ": [
+      131.2,
+      133.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unexplained"
+     ]
+    },
+    {
+     "id": 1477522,
+     "cls": "IFCDOOR",
+     "name": "Luke600:Luke 600:6622567",
+     "room": "02047 lærergard",
+     "share": 0.739,
+     "opening": [
+      137.21,
+      137.79
+     ],
+     "roomZ": [
+      135.2,
+      137.638
+     ],
+     "storedHeight": 2.4384,
+     "check": [
+      "GrossVolume unit-slip"
+     ]
+    }
+   ]
+  }
+ ]
+}

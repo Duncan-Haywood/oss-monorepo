@@ -686,6 +686,7 @@
       const parts = [];
       if (c.openings) parts.push(`${c.openings} door${c.openings === 1 ? "" : "s"} and windows, ${fmt(c.openingArea, 2)} m² (${[c.openingsFrom.boundary ? `${c.openingsFrom.boundary} named by the file's space boundaries` : "", c.openingsFrom.geometry ? `${c.openingsFrom.geometry} found by where they stand` : ""].filter(Boolean).join(", ")})`);
       if (c.glazedArea) parts.push(`curtain wall ${fmt(c.glazedArea, 2)} m²`);
+      if (c.clipped || c.outside) parts.push(`${[c.clipped ? `${c.clipped} cut at the room's height` : "", c.outside ? `${c.outside} wholly above the room's top, not taken` : ""].filter(Boolean).join(", ")}: ${fmt(c.clippedArea, 2)} m² left on the wall`);
       return parts.join("; ");
     };
     const shown = rooms.slice(0, 500);

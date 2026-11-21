@@ -282,6 +282,10 @@ room by room, so the takeoff lists every IfcSpace with:
   boundary surface for a door is the frame's width swept to the room's
   height, 1.37 x the door on Office_A), a curtain wall at its boundary
   surface. Pieces of one window drawn as several IfcWindows are taken once.
+  A door or window that rises more than 5 cm above the room's top (a lowered
+  ceiling) comes off only for the part below it, measured from the room's
+  floor (eval/ceiling-cut-2026-11-21.md: 56 openings on 12 models, 37.1 m2
+  left on the wall; the room CSV's "above the room's top" column).
   Held out against the files' boundaries, the geometric test found the same
   rooms for 791 of 857 openings and a room the file does not name for 19.
 - A room with no body but a `FootPrint` outline and a `Box` (Revit and

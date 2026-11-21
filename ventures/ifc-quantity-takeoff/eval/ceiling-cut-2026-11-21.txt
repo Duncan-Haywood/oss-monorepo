@@ -1,0 +1,82 @@
+
+AC20-FZK-Haus.ifc: 7 rooms, gross wall 398.2 m2; doors and windows off 41.1 -> 41.1 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 357.1 -> 357.1 m2
+
+ISSUE_005_haus.ifc: 7 rooms, gross wall 398.2 m2; doors and windows off 41.1 -> 41.1 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 357.1 -> 357.1 m2
+
+duplex.ifc: 21 rooms, gross wall 968.9 m2; doors and windows off 113.2 -> 113.2 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 855.7 -> 855.7 m2
+
+Office_A_20110811.ifc: 99 rooms, gross wall 5962.6 m2; doors and windows off 486.6 -> 486.2 m2; cut at the room's height 1, wholly outside it 0 (1 rooms); net wall 5476.0 -> 5476.4 m2
+  #921 IFCWINDOW M_Fixed:1000 x 2000:1000 x 2000:194401 in 146 EXTERIOR VESTIBULE TO TSVA: 79% inside; opening z 0.915..2.915, room z 0..2.5
+
+dental_clinic.ifc: 269 rooms, gross wall 15499.4 m2; doors and windows off 1059.6 -> 1059.6 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 14087.5 -> 14087.5 m2
+
+C20-Institute-Var-2.ifc: 82 rooms, gross wall 4553.5 m2; doors and windows off 663.1 -> 663.1 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 3890.4 -> 3890.4 m2
+
+FM_ARC_DigitalHub.ifc: 64 rooms, gross wall 6131.8 m2; doors and windows off 863.5 -> 863.5 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 5268.1 -> 5268.1 m2
+
+schependomlaan.ifc: 100 rooms, gross wall 3125.3 m2; doors and windows off 664.0 -> 664.0 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 2461.3 -> 2461.3 m2
+
+ISSUE_159_kleine_Wohnung_R22.ifc: 28 rooms, gross wall 978.3 m2; doors and windows off 135.7 -> 135.7 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 842.7 -> 842.7 m2
+
+ISSUE_034_HouseZ.ifc: 5 rooms, gross wall 331.1 m2; doors and windows off 40.4 -> 40.4 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 290.8 -> 290.8 m2
+
+example.ifc: 1 rooms, gross wall 1.2 m2; doors and windows off 0.0 -> 0.0 m2; cut at the room's height 0, wholly outside it 0 (0 rooms); net wall 1.2 -> 1.2 m2
+
+ISSUE_068_ARK_NUS_skolebygg.ifc: 306 rooms, gross wall 27019.9 m2; doors and windows off 2805.5 -> 2768.8 m2; cut at the room's height 55, wholly outside it 0 (36 rooms); net wall 24214.4 -> 24251.0 m2
+  #182188 IFCDOOR Side_Stack_Operable_Wall_8000:IDF 2.1 Foldevegg 8000x2800:1780830 in 02110 klasse: 87% inside; opening z 135.2..138, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #182188 IFCDOOR Side_Stack_Operable_Wall_8000:IDF 2.1 Foldevegg 8000x2800:1780830 in 02111 klasse: 87% inside; opening z 135.2..138, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #324724 IFCWINDOW Vindu-Fast:V3 18x22:1895999 in 02030 fellesområde: 84% inside; opening z 136.015..138.205, room z 135.2..137.85; room check: GrossVolume unit-slip
+  #357091 IFCDOOR Side_Stack_Operable_Wall_8000:IDF 2.1 Foldevegg 8000x2800:1916249 in 03110 klasse: 87% inside; opening z 139.26..142.06, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #357091 IFCDOOR Side_Stack_Operable_Wall_8000:IDF 2.1 Foldevegg 8000x2800:1916249 in 03111 klasse: 87% inside; opening z 139.26..142.06, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #426068 IFCWINDOW Vindu-Fast:GFA 3 8x27 38dB:2067745 in 02003 aula-øvre del: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #518839 IFCDOOR Side_Stack_Operable_Wall_6500:IDF 1.1 Foldevegg 6500x2800:2154531 in 01004 bakscene: 87% inside; opening z 131.2..134, room z 131.2..133.638; room check: GrossVolume unit-slip
+  #518839 IFCDOOR Side_Stack_Operable_Wall_6500:IDF 1.1 Foldevegg 6500x2800:2154531 in 01003 aula - nedre del: 87% inside; opening z 131.2..134, room z 131.2..133.638; room check: GrossVolume unit-slip
+  #545051 IFCWINDOW Vindu-Fast:V24 20x20:2217007 in 03143 korridor: 95% inside; opening z 140.275..142.265, room z 139.26..142.16; room check: GrossVolume unit-slip
+  #545313 IFCWINDOW Vindu-Fast:V24 20x20:2217110 in 03103 korridor: 95% inside; opening z 140.275..142.265, room z 139.26..142.16; room check: GrossVolume unit-slip
+  #557568 IFCWINDOW Vindu-Fast:V3 18x22:2258481 in 02052 lærerarbeid: 74% inside; opening z 136.015..138.205, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #557666 IFCWINDOW Vindu-Fast:V4 23x22:2258672 in 02052 lærerarbeid: 74% inside; opening z 136.015..138.205, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #596246 IFCDOOR _Dør Dobbel_Ulike_Dørblader:YDS 1.1 15x21M:2389269 in 03148 ventilasjon: 73% inside; opening z 140.17..142.26, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #596811 IFCWINDOW Vindu-Fast:V5 8x22:2399390 in 02030 fellesområde: 84% inside; opening z 136.015..138.205, room z 135.2..137.85; room check: GrossVolume unit-slip
+  #601134 IFCWINDOW Vindu-Fast:V4 23x22:2425419 in 03123 fellesområde: 84% inside; opening z 140.075..142.265, room z 139.26..141.91; room check: GrossVolume unit-slip
+  #631862 IFCWINDOW Vindu-Fast:GF 10.2 8x27 38dB:2500909 in 02149 bibliotek: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unexplained
+  #631862 IFCWINDOW Vindu-Fast:GF 10.2 8x27 38dB:2500909 in 02150 elevtjenester/møte: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #634202 IFCWINDOW Vindu-Fast:GF 10.2 8x27 38dB:2504695 in 02067 gruppe: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #634202 IFCWINDOW Vindu-Fast:GF 10.2 8x27 38dB:2504695 in 02060 garderobe: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #635513 IFCWINDOW Vindu-Fast:GF 11.1 12x27 33dB:2505892 in 02061 fellesområde: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #910775 IFCWINDOW Vindu-Fast:GF 11.1 12x27 33dB:2994244 in 02036 klasse: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #911953 IFCWINDOW Vindu-Fast:GF 9.1 11x26.5 33dB:2996296 in 02125 klasse: 92% inside; opening z 135.21..137.85, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #919681 IFCWINDOW Vindu-Fast:GF 16.1 5x31 38dB:2997461 in 02105 fellesområde: 79% inside; opening z 135.21..138.3, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #919681 IFCWINDOW Vindu-Fast:GF 16.1 5x31 38dB:2997461 in 02108 gruppe: 79% inside; opening z 135.21..138.3, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #922442 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:2998710 in 02105 fellesområde: 79% inside; opening z 135.21..138.3, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #922442 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:2998710 in 02107 klasse: 79% inside; opening z 135.21..138.3, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #932977 IFCDOOR M_Overhead-Rolling:1700 x 2100mm:3038740 in 02002 kantine -øvre del: 97% inside; opening z 135.2..138.18, room z 135.2..138.1; room check: GrossPerimeter unexplained, GrossVolume unit-slip
+  #954837 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3212641 in 02124 fellesområde: 85% inside; opening z 135.21..138.3, room z 135.2..137.85; room check: GrossVolume unit-slip
+  #954837 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3212641 in 02128 klasse: 79% inside; opening z 135.21..138.3, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #955161 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3217776 in 02129 klasse: 79% inside; opening z 135.21..138.3, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #955161 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3217776 in 02124 fellesområde: 85% inside; opening z 135.21..138.3, room z 135.2..137.85; room check: GrossVolume unit-slip
+  #980526 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3380385 in 03123 fellesområde: 85% inside; opening z 139.27..142.36, room z 139.26..141.91; room check: GrossVolume unit-slip
+  #980526 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3380385 in 03127 klasse: 79% inside; opening z 139.27..142.36, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #980622 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3380386 in 03128 klasse: 79% inside; opening z 139.27..142.36, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #980622 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3380386 in 03123 fellesområde: 85% inside; opening z 139.27..142.36, room z 139.26..141.91; room check: GrossVolume unit-slip
+  #980929 IFCWINDOW Vindu-Fast:GF 16.1 5x31 38dB:3381397 in 03105 fellesområde: 79% inside; opening z 139.27..142.36, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #980929 IFCWINDOW Vindu-Fast:GF 16.1 5x31 38dB:3381397 in 03108 gruppe: 79% inside; opening z 139.27..142.36, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #981026 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3381504 in 03105 fellesområde: 79% inside; opening z 139.27..142.36, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #981026 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3381504 in 03107 klasse: 79% inside; opening z 139.27..142.36, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #981537 IFCWINDOW Vindu-Fast:GF 10.1 8x27 33dB:3382692 in 02105 fellesområde: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #981537 IFCWINDOW Vindu-Fast:GF 10.1 8x27 33dB:3382692 in 02111 klasse: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #981895 IFCWINDOW Vindu-Fast:GF 10.1 8x27 33dB:3382939 in 03111 klasse: 90% inside; opening z 139.27..141.96, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #981895 IFCWINDOW Vindu-Fast:GF 10.1 8x27 33dB:3382939 in 03105 fellesområde: 90% inside; opening z 139.27..141.96, room z 139.26..141.698; room check: GrossVolume unit-slip
+  #981992 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3384739 in 02061 fellesområde: 79% inside; opening z 135.21..138.3, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #981992 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3384739 in 02065 klasse: 79% inside; opening z 135.21..138.3, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #982806 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3385492 in 02030 fellesområde: 85% inside; opening z 135.21..138.3, room z 135.2..137.85; room check: GrossVolume unit-slip
+  #982902 IFCWINDOW Vindu-Fast:GF 12.1 6x31 38dB:3385633 in 02030 fellesområde: 85% inside; opening z 135.21..138.3, room z 135.2..137.85; room check: GrossVolume unit-slip
+  #1294688 IFCDOOR M_Overhead-Rolling:1700 x 2100mm:4451019 in 01092 korridor/sluse: 97% inside; opening z 131.2..134.18, room z 131.2..134.1; room check: GrossVolume floor-x-height-unit
+  #1294688 IFCDOOR M_Overhead-Rolling:1700 x 2100mm:4451019 in 01002 kantine: 82% inside; opening z 131.2..134.18, room z 131.2..133.638; room check: GrossVolume unexplained
+  #1340108 IFCWINDOW Vindu-Fast:GFA 3 8x27 38dB:4804571 in 02003 aula-øvre del: 90% inside; opening z 135.21..137.9, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #1384652 IFCWINDOW Vindu 3 felt:V10 30x22:5444956 in 02030 fellesområde: 85% inside; opening z 136..138.19, room z 135.2..137.85; room check: GrossVolume unit-slip
+  #1387184 IFCWINDOW Vindu 3 felt:V7 24x22:5447657 in 02052 lærerarbeid: 75% inside; opening z 136..138.19, room z 135.2..137.638; room check: GrossVolume unit-slip
+  #1387871 IFCWINDOW Vindu 3 felt:V10 30x22:5449018 in 03123 fellesområde: 85% inside; opening z 140.06..142.25, room z 139.26..141.91; room check: GrossVolume unit-slip
+  #1399235 IFCDOOR Doors-Sliding_Manusa_Biparting_sliding_fixed_INT:YDA 6.1 Skyvedører:5720315 in 01002 kantine: 97% inside; opening z 131.2..133.727, room z 131.2..133.638; room check: GrossVolume unexplained
+  #1477522 IFCDOOR Luke600:Luke 600:6622567 in 02047 lærergard: 74% inside; opening z 137.21..137.79, room z 135.2..137.638; room check: GrossVolume unit-slip
+
+All: 989 rooms, gross wall 65368 m2; doors and windows off 6913.7 -> 6876.6 m2 (37.1 m2 left on the wall); 56 openings cut, 0 wholly outside their room; 37 rooms touched
