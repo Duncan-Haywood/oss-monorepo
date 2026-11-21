@@ -21,19 +21,19 @@
 //     (general content vs. established copywriters), not because either is
 //     wrong, which is why this tool treats $0.10/word as a low-end flag
 //     rather than a single "the" rate.
-//   - Most writers who ghostwrite (no byline) do not charge extra for it;
-//     of those who do, the majority add a premium of 16-20% over their
-//     bylined rate (multiple 2026 rate-guide sources agree on this range).
-//   - The single most consistent finding across every source: a pure
-//     per-word rate compensates WRITING time only. Research, interviews,
-//     outlining, and revision rounds are time the piece actually costs the
-//     writer that a per-word rate does not separately pay for -- which is
-//     why switching from per-word to flat per-project pricing is described
-//     repeatedly as the most reliable way an intermediate writer raises
-//     their real hourly income, without raising their quoted per-word rate
-//     at all. This module makes that trade-off visible by computing the
-//     EFFECTIVE hourly rate each pricing method actually pays once research
-//     and revision hours are included, not just the writing hours.
+//   - Most writers who ghostwrite (no byline) do not charge extra for it.
+//     Peak Freelance's survey (213 writers) found about a third of
+//     ghostwriters add a premium, most often around 16-20% over their
+//     bylined rate. That is one survey, not a consensus.
+//   - Rate guides recommend counting research, interviews, outlining and
+//     revision rounds as hours the piece costs. For ONE job, both offers are
+//     fixed sums divided by the same hours, so the higher total always has
+//     the higher effective hourly rate (audit 2026-11-21: 144 of 144 grid
+//     cases). What the hours add is the size of the gap per hour, whether
+//     either offer clears the writer's target hourly rate, and the price
+//     that would. This module computes those, plus the same hourly rates
+//     after US self-employment tax (IRS Schedule SE: 15.3% on 92.35% of
+//     net earnings).
 //
 // This module does not verify a writer's actual typing speed, a client's
 // revision demands, or market rates in any specific niche -- the writer
@@ -57,8 +57,9 @@ export function money(n) {
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
 
-// Below this, a rate sits at or under the entry-level floor every 2026 rate
-// guide above agrees on ($0.05-$0.10/word).
+// Below this, a rate sits under the top of the entry-level band several 2026
+// guides quote ($0.05-$0.10/word); bestwriting.com's own tiers put beginners
+// near $0.15, so this is a conservative low-end flag, not a consensus figure.
 export const LOW_RATE_FLOOR = 0.10;
 
 // A ghostwriting premium some (not most) writers add, per the rate guides
@@ -66,6 +67,30 @@ export const LOW_RATE_FLOOR = 0.10;
 // writers who ghostwrite do not charge it at all.
 export const GHOSTWRITING_PREMIUM_LOW = 0.16;
 export const GHOSTWRITING_PREMIUM_HIGH = 0.20;
+
+// US self-employment tax (Social Security 12.4% + Medicare 2.9%) applies to
+// 92.35% of net self-employment earnings (IRS Schedule SE, line 4a). Before
+// income tax; ignores the Social Security wage base and the deduction for
+// half of SE tax, both of which only matter for the income-tax bill or for
+// higher earners.
+export const SE_TAX_RATE = 0.153;
+export const SE_TAX_BASE = 0.9235;
+export const SE_TAX_EFFECTIVE = SE_TAX_RATE * SE_TAX_BASE;
+
+// Hourly differences at or below this (half a cent per hour) are a tie: the
+// two offers differ only by rounding.
+export const TIE_TOLERANCE = 0.005;
+
+// Share of total hours spent on research and revisions at or above which the
+// tool points out that this time needs pricing in.
+export const NON_WRITING_SHARE_NOTE = 0.25;
+
+// Per-word rates live below a dollar, so cents are not enough precision: a
+// solved $0.0125/word must not print as $0.01. Shows 2 to 4 decimals.
+export function perWordMoney(n) {
+  const value = Math.abs(Number(n) || 0);
+  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`;
+}
 
 /**
  * Computes the effective hourly rate a per-word price and a flat project fee
@@ -94,10 +119,13 @@ export function writerRateOutcome({
   const perRound = numOrZero(hoursPerRevision);
   const target = numOrZero(targetHourlyRate);
 
+  // Words with no writing speed means the writing time is unknown, not zero:
+  // computing hourly rates without it overstates both (audit 2026-11-13).
+  const speedMissing = words > 0 && speed <= 0;
   const writingHours = speed > 0 ? words / speed : 0;
   const revisionHours = rounds * perRound;
   const nonWritingHours = research + revisionHours;
-  const totalHours = writingHours + nonWritingHours;
+  const totalHours = speedMissing ? 0 : writingHours + nonWritingHours;
 
   const perWordTotal = words * rate;
   const perWordHourly = totalHours > 0 ? perWordTotal / totalHours : 0;
@@ -105,7 +133,7 @@ export function writerRateOutcome({
 
   const hourlyDifference = Math.abs(perWordHourly - flatFeeHourly);
   let betterOption = "tie";
-  if (totalHours > 0 && hourlyDifference > 0.005) {
+  if (totalHours > 0 && hourlyDifference > TIE_TOLERANCE) {
     betterOption = flatFeeHourly > perWordHourly ? "flat-fee" : "per-word";
   }
 
@@ -113,10 +141,18 @@ export function writerRateOutcome({
 
   const requiredPerWordRate = words > 0 && totalHours > 0 ? (target * totalHours) / words : 0;
   const requiredFlatFee = totalHours > 0 ? target * totalHours : 0;
+  const perWordHourlyAfterSeTax = perWordHourly * (1 - SE_TAX_EFFECTIVE);
+  const flatFeeHourlyAfterSeTax = flatFeeHourly * (1 - SE_TAX_EFFECTIVE);
 
   const findings = [];
 
-  if (totalHours <= 0) {
+  if (speedMissing) {
+    findings.push({
+      severity: "info",
+      title: "Enter your writing speed (words per hour) to see effective hourly rates",
+      detail: "Without a writing speed the writing time is unknown, so any hourly figure would leave it out and overstate what both prices pay.",
+    });
+  } else if (totalHours <= 0) {
     findings.push({
       severity: "info",
       title: "Enter a word count and writing speed to see effective hourly rates",
@@ -137,12 +173,12 @@ export function writerRateOutcome({
     if (rate > 0 && rate < LOW_RATE_FLOOR) {
       findings.push({
         severity: "medium",
-        title: `${money(rate)}/word is at or below the 2026 entry-level range`,
-        detail: `2026 freelance rate surveys put entry-level content rates at roughly $0.05-$0.10/word, with intermediate-to-senior generalist work at $0.10-$0.50/word. This rate sits at or under that entry floor.`,
+        title: `${perWordMoney(rate)}/word is below the 2026 entry-level range`,
+        detail: `2026 freelance rate surveys put entry-level content rates at roughly $0.05-$0.10/word, with intermediate-to-senior generalist work at $0.10-$0.50/word. This rate sits below the top of that band.`,
       });
     }
 
-    if (nonWritingShare >= 0.25 && betterOption !== "per-word") {
+    if (nonWritingShare >= NON_WRITING_SHARE_NOTE && betterOption !== "per-word") {
       findings.push({
         severity: "medium",
         title: `${Math.round(nonWritingShare * 100)}% of the total time is research and revisions, not writing`,
@@ -154,7 +190,7 @@ export function writerRateOutcome({
       findings.push({
         severity: "info",
         title: "Ghostwritten (no byline) work sometimes commands a premium",
-        detail: `Most writers do not charge extra for ghostwriting. Of the writers who do, most add a ${Math.round(GHOSTWRITING_PREMIUM_LOW * 100)}-${Math.round(GHOSTWRITING_PREMIUM_HIGH * 100)}% premium over their bylined rate for the same word count, per 2026 rate-guide surveys. Not applied to the numbers above -- decide separately whether to add it.`,
+        detail: `Most writers do not charge extra for ghostwriting. In one 2026 survey of 213 writers (Peak Freelance), about a third of ghostwriters added a premium, most often around ${Math.round(GHOSTWRITING_PREMIUM_LOW * 100)}-${Math.round(GHOSTWRITING_PREMIUM_HIGH * 100)}% over their bylined rate. Not applied to the numbers above -- decide separately whether to add it.`,
       });
     }
 
@@ -162,7 +198,7 @@ export function writerRateOutcome({
       findings.push({
         severity: "info",
         title: `To hit ${money(target)}/hr on this job`,
-        detail: `You would need a per-word rate of about ${money(requiredPerWordRate)}/word, or a flat project fee of about ${money(requiredFlatFee)}, across the same ${totalHours.toFixed(1)} total hours.`,
+        detail: `You would need a per-word rate of about ${perWordMoney(requiredPerWordRate)}/word, or a flat project fee of about ${money(requiredFlatFee)}, across the same ${totalHours.toFixed(1)} total hours.`,
       });
     }
   }
@@ -189,6 +225,9 @@ export function writerRateOutcome({
     nonWritingShare,
     requiredPerWordRate,
     requiredFlatFee,
+    perWordHourlyAfterSeTax,
+    flatFeeHourlyAfterSeTax,
+    speedMissing,
     findings,
   };
 }

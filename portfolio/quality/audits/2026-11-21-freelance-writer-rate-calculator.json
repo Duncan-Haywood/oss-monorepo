@@ -1,0 +1,59 @@
+{
+ "date": "2026-11-21",
+ "subject": "ventures/freelance-writer-rate-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-21-cdd9",
+ "drawn_by": "reaudit",
+ "reaudit_of": "2026-11-13-freelance-writer-rate-calculator.json",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior freelance content writer / copywriter who prices their own work and coaches others on rates; first checks: does the verdict say anything the two totals don't, is the hourly net of self-employment tax, do the quoted rate bands match the cited surveys",
+ "scores": {"correctness": 2, "completeness": 3, "verification": 2, "craft": 2, "claims": 1, "fitness": 2, "domain": 2},
+ "evidence": {
+  "correctness": "node scratchpad/writer/check.mjs ventures/freelance-writer-rate-calculator/calc.mjs (script in the run's scratchpad; inputs listed in checks). Worked example recomputed by hand: 1500/500 + 4 + 2x1 = 9 h, 300/9 = 33.33, 500/9 = 55.56, 75 x 9 = 675, 675/1500 = 0.45: all match. The contradictory finding from 2026-11-13 is gone ($0.50/word vs $400 now shows only 'per-word pays $38.89/hr more'). Still wrong: blank writing speed with 1,500 words gives 6 h, $50/h and '100% of the total time is research and revisions' with no warning; the solver's $0.0125/word prints as '$0.01/word' (money() still rounds to cents, 20% low). money(0.1) now prints '$0.10' and is locale-fixed (en-US).",
+  "completeness": "Same feature list as 2026-11-13 runs end to end in node (comparison, solver, floor flag, ghostwriting note, tie, clamping); 42 tests. README 'Known gaps' honestly lists four open items. Served page not loaded (marisstella.app returns proxy 403 from this session).",
+  "verification": "cd ventures/freelance-writer-rate-calculator && node --test '*.test.mjs': 42 pass, 0 fail. Four mutations via platform/ci/quality_mutate.py: the two that survived on 2026-11-13 still survive (0.25 threshold >= -> >; tie tolerance 0.005 -> 0.5); the new per-word guard (betterOption !== 'per-word' -> true) and blank-speed fallback are caught. One test was added by PR #15342 (41 -> 42).",
+  "craft": "Read calc.mjs (194 lines) and index.html script (lines 175-273). money() now pins en-US and pads one-decimal output; still one formatter for dollars and per-word rates. Silent fallbacks unchanged: num() turns blank/zero speed into 0 writing hours; page does Number(v)||0. Low-rate title says 'at or below' while the test is strict <.",
+  "claims": "Unchanged from 2026-11-13: index.html:56 promises 'which one actually pays more, not just which headline number looks bigger', but the verdict equals the bigger total in 144 of 144 grid cases (check.mjs). The FAQ (index.html:14 JSON-LD and :150) still says heavy research makes a flat fee 'usually pay a higher effective hourly rate than an equivalent per-word rate', which hours cannot cause. calc.mjs:26 'multiple 2026 rate-guide sources agree' and :59 'every 2026 rate guide above agrees' unchanged. Disclaimer, privacy and DNT/GPC opt-out present and tested.",
+  "fitness": "Same job as 2026-11-13 ($0.20/word or $500 for 1,500 researched words): the solver ($675 for $75/h) is the useful output; the verdict repeats the totals. Self-employment tax, overrun and extra-round risk not modelled.",
+  "domain": "Compared against IRS Schedule SE (15.3% on 92.35% of net earnings) and Peak Freelance / bestwriting.com 2026 rate guides as in the prior audit. Effective-hourly-over-all-hours method is standard; the 'per-word does not pay research' framing is wrong economics for a given offer; gross hourly with no SE adjustment ($55.56 gross is $47.71 after SE tax)."
+ },
+ "prior_defects": [
+  {"index": 0, "what": "headline 'which actually pays more' overclaim and FAQ flat-fee claim", "status": "open", "evidence": "index.html:56 and :150 text unchanged; grid 144/144 agree with bigger total", "closed_by": null},
+  {"index": 1, "what": ">=25% non-writing finding contradicts a per-word verdict", "status": "closed", "evidence": "calc.mjs:145 now guards betterOption !== 'per-word'; $0.50/word vs $400 shows no contrary finding; mutation removing the guard is caught", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15342"},
+  {"index": 2, "what": "blank writing speed silently drops writing time", "status": "open", "evidence": "check.mjs 'blank speed': 6 h, $50/h, no warning", "closed_by": null},
+  {"index": 3, "what": "threshold and tie-tolerance mutations survive", "status": "open", "evidence": "both mutants survive 42 tests today", "closed_by": null},
+  {"index": 4, "what": "no SE tax, overrun, extra-round or kill-fee modelling", "status": "open", "evidence": "grep finds no SE/overage terms in calc.mjs; README lists SE tax as known gap", "closed_by": null},
+  {"index": 5, "what": "rate-band and ghostwriting source wording overstated", "status": "open", "evidence": "calc.mjs:26, :59 unchanged", "closed_by": null},
+  {"index": 6, "what": "money() rounds per-word rates to cents, '$0.1', locale-dependent", "status": "partial", "evidence": "money(0.1) = '$0.10' and en-US pinned; money(0.0125) still '$0.01'", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15342"},
+  {"index": 7, "what": "canonical host (source-only)", "status": "closed", "evidence": "source-only: rewritten at deploy by build_pages_site.py; not a defect in what ships", "closed_by": null}
+ ],
+ "checks": [
+  {"dimension": "correctness", "what": "worked example hours and hourly rates", "method": "by hand: 1500/500 + 4 + 2 = 9 h; 300/9; 500/9", "command": "node check.mjs calc.mjs", "expected": "9, 33.33, 55.56", "observed": "9, 33.33, 55.56", "result": "pass"},
+  {"dimension": "correctness", "what": "solver for $75/h on the example", "method": "by hand: 75 x 9 = 675; /1500 = 0.45", "command": "node check.mjs calc.mjs", "expected": "675 / 0.45", "observed": "675 / 0.45", "result": "pass"},
+  {"dimension": "correctness", "what": "no contrary finding when per-word wins ($0.50 vs $400, 4 h research)", "method": "by hand: per-word $750 > $400", "command": "node check.mjs calc.mjs", "expected": "per-word verdict only", "observed": "per-word pays $38.89/hr more; no flat-fee advice", "result": "pass"},
+  {"dimension": "correctness", "what": "blank writing speed with 1,500 words", "method": "by hand: writing hours unknown, no hourly should be shown", "command": "node check.mjs calc.mjs", "expected": "warning, no verdict", "observed": "6 h, $50/h, flat-fee verdict, no warning", "result": "fail"},
+  {"dimension": "correctness", "what": "solver per-word display, $12.50/h on 2,000 words in 2 h", "method": "by hand: 12.5 x 2 / 2000 = 0.0125", "command": "node check.mjs calc.mjs", "expected": "$0.0125/word", "observed": "'$0.01/word'", "result": "fail"},
+  {"dimension": "correctness", "what": "after-SE-tax hourly for the example flat fee", "method": "IRS Schedule SE: 15.3% x 92.35% = 14.13%; 55.56 x 0.8587", "command": "node check.mjs calc.mjs", "expected": "$47.71/h shown or labelled gross", "observed": "gross only", "result": "partial"},
+  {"dimension": "claims", "what": "'which actually pays more, not just which headline number looks bigger'", "method": "144-job grid vs larger total", "command": "node check.mjs calc.mjs", "expected": "hours change the winner somewhere", "observed": "144 of 144 equal the bigger total", "result": "fail"},
+  {"dimension": "claims", "what": "source wording for entry band and ghostwriting premium", "method": "compare with prior audit's source reading (bestwriting 2026 $0.15 beginner tier; Peak Freelance 213-writer survey)", "command": "grep -n 'every 2026\\|multiple 2026' ventures/freelance-writer-rate-calculator/calc.mjs", "expected": "softened", "observed": "unchanged at :26, :59", "result": "fail"},
+  {"dimension": "claims", "what": "disclaimer, privacy, opt-out", "method": "read footer; usage.test.mjs", "command": "cd ventures/freelance-writer-rate-calculator && node --test usage.test.mjs", "expected": "present and tested", "observed": "present and tested", "result": "pass"},
+  {"dimension": "verification", "what": "test suite", "method": "run it", "command": "cd ventures/freelance-writer-rate-calculator && node --test '*.test.mjs'", "expected": "all pass", "observed": "42 pass, 0 fail", "result": "pass"}
+ ],
+ "mutations": [
+  {"where": "calc.mjs:145", "change": "nonWritingShare >= 0.25 -> nonWritingShare > 0.25", "caught": false, "test_cmd": "node --test *.test.mjs"},
+  {"where": "calc.mjs:108", "change": "hourlyDifference > 0.005 -> hourlyDifference > 0.5", "caught": false, "test_cmd": "node --test *.test.mjs"},
+  {"where": "calc.mjs:145", "change": "betterOption !== \"per-word\" -> true", "caught": true, "test_cmd": "node --test *.test.mjs"},
+  {"where": "calc.mjs:97", "change": "speed > 0 ? words / speed : 0 -> speed > 0 ? words / speed : 1", "caught": true, "test_cmd": "node --test *.test.mjs"}
+ ],
+ "defects": [
+  {"severity": "high", "what": "Headline and FAQ promise the tool shows which price 'actually pays more' beyond the headline number and that heavy research makes a flat fee pay more; for one job the verdict always equals the bigger total (144/144).", "where": "ventures/freelance-writer-rate-calculator/index.html:56", "category": "overclaim", "origin": "claims"},
+  {"severity": "medium", "what": "Blank or zero writing speed with a nonzero word count silently drops writing time and still shows hourly rates and a verdict.", "where": "ventures/freelance-writer-rate-calculator/calc.mjs:97", "category": "input-handling", "origin": "implementation"},
+  {"severity": "medium", "what": "Threshold (>= 0.25) and tie-tolerance (0.005) mutations survive the 42 tests.", "where": "ventures/freelance-writer-rate-calculator/calc.test.mjs:1", "category": "untested-core", "origin": "tests"},
+  {"severity": "medium", "what": "Hourly is gross of US self-employment tax (about 14.1% of net); overrun, extra-round and kill-fee risk not modelled.", "where": "ventures/freelance-writer-rate-calculator/calc.mjs:77", "category": "scope-gap", "origin": "spec"},
+  {"severity": "low", "what": "Source wording overstates agreement: 'every 2026 rate guide agrees' on $0.05-$0.10 entry; 16-20% ghostwriting premium from 'multiple' sources is one 213-writer survey.", "where": "ventures/freelance-writer-rate-calculator/calc.mjs:26", "category": "source-data", "origin": "spec"},
+  {"severity": "low", "what": "Solved per-word rates are rounded to cents: $0.0125/word prints as '$0.01/word'.", "where": "ventures/freelance-writer-rate-calculator/calc.mjs:53", "category": "logic-error", "origin": "implementation"}
+ ],
+ "fix_prs": [],
+ "verdict": "PR #15342 closed one of the seven real defects from 2026-11-13 (the finding that advised a flat fee next to a per-word verdict) and half of another (money() is now locale-fixed and prints $0.10, but still rounds $0.0125 to $0.01). Everything else is as it was: the headline overclaim, the silent blank-speed result, the two surviving mutations, the overstated source wording and the missing self-employment-tax view. The fix PR mostly wrote the gaps into the README. Scores are unchanged and it does not meet the bar: claims 1; correctness, verification, craft, fitness and domain 2; completeness 3."
+}

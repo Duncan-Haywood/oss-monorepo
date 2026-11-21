@@ -61,19 +61,17 @@ All in [`calc.mjs`](calc.mjs), as a pure function with no dependencies:
   budget.
 - Does not estimate your own writing speed or research time — you supply
   both directly.
-- No taxes, platform fees, or overhead (see the
+- No income tax, platform fees, or overhead; US self-employment tax (IRS Schedule SE, about 14.1% of net) is shown (see the
   [Upwork vs. Fiverr fee calculator](../freelance-platform-fee-calculator/)
   for platform-cut math).
 - No client negotiation modeling.
 
-## Known gaps (quality audit 2026-11-13)
+## Known gaps (quality audits 2026-11-13 and 2026-11-21)
 
-From [`portfolio/quality/audits/2026-11-13-freelance-writer-rate-calculator.json`](../../portfolio/quality/audits/2026-11-13-freelance-writer-rate-calculator.json). Fixed in the same PR: the non-writing-time finding no longer recommends a flat fee when the per-word rate already pays more. Still open:
+The [2026-11-13 audit](../../portfolio/quality/audits/2026-11-13-freelance-writer-rate-calculator.json) found seven defects; the [2026-11-21 re-audit](../../portfolio/quality/audits/2026-11-21-freelance-writer-rate-calculator.json) found one closed (the contradictory non-writing finding). Fixed after the re-audit, each with a test in `calc.test.mjs`: the headline and FAQ no longer claim the hours can change which offer wins (for one job the bigger total always pays more per hour), a blank writing speed now asks for it instead of dropping writing time, solved per-word rates keep sub-cent precision (`$0.0125`), the hourly is also shown after US self-employment tax, the source wording names the one ghostwriting survey, and the tie and 25% thresholds are tested. Still open:
 
-- For one job both prices divide by the same hours, so "which pays more" is always the bigger total; the page and FAQ say more than that.
-- A blank writing speed silently drops all writing time; solved per-word rates are rounded to cents (`$0.0125` shows as `$0.01`).
-- Source wording overstates agreement: the 16-20% ghostwriting premium comes from one 213-writer survey, and not every 2026 guide puts entry level at $0.05-$0.10.
-- Self-employment tax (15.3% on 92.35% of net, about 14.1%) is not shown.
+- Length overrun, out-of-scope revision rounds and kill fees (the real risk difference between per-word and flat pricing) are not modelled.
+- Income tax, state tax and the Social Security wage base are not modelled.
 
 ## Disclaimers
 
