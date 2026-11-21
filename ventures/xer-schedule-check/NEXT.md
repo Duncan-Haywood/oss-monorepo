@@ -26,3 +26,11 @@
 - (2026-11-20) next a real site's log
 - (2026-11-21) next a real series of updates to check the split and drivers against (windows in the review shipped 2026-11-19)
 - (2026-11-21) next a real baseline and update pair, a P6 layout export to check value order ties
+- (2026-11-21) XER reader: P6 writes a `"` inside an unquoted field as `""`
+  (CCA file, 10 names); `parseXer` keeps the doubled quote, MPXJ reads one.
+  `msproject.mjs` undoes it for the names it writes; a reader-wide fix needs
+  `xerText` to write `""` back and the comparison/report outputs checked.
+- (2026-11-21) Project XML out: 4 in-progress CCA activities differ in late
+  dates only after the round trip (eval/msproject-check-2026-11-21.md); Resume
+  and at-completion duration ruled out. Next: activity codes as Text2..Text30
+  or outline codes; MSPDI to XER for P6 import (needs P6's required fields).

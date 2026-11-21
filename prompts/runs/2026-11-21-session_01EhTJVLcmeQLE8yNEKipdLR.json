@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLcmeQLE8yNEKipdLR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T03:55:55Z",
+  "ended": "2026-11-21T04:16:26Z",
+  "wall_minutes": 20.85,
+  "tokens_in": 17193786,
+  "tokens_out": 94760,
+  "cost_usd": 7.3534,
+  "tool_calls": 95,
+  "task": "Deepen flagship xer-schedule-check: XER to Microsoft Project XML converter",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18022",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First LOE handling (manual tasks keeping their links) moved the CCA finish 18 months in the read-back; fixed by moving those links into task notes.",
+    "First MPXJ run: assignment work fell back to budget when actual+remaining was 0, and per-assignment minute rounding; fixed (73 of 425 example-file activities differed before).",
+    "A notes regex over the 46 MB CCA output was quadratic and had to be killed; replaced with a split on </Task>.",
+    "Auto-mode classifier refused a local python http.server for the browser check; used Playwright request interception to serve files instead (no listening process)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named open-tennis-robots (12 records in 2 days); the brief asked for revenue products, so I took flagship row 8 instead. The allocator has no notion of which flagship rows face a paying market."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook refusing pkill -f '[n]ame' when the name also appears elsewhere in the command line cost a retry; the CLAUDE.md note says only that the first letter must be bracketed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here picked open-tennis-robots (hardware CAD, heavily worked, no market path); the starting message asks for revenue-generating products and xer-schedule-check competes with paid converters and schedule-analysis seats",
+      "did": "took flagship row 8 xer-schedule-check, item: XER to Microsoft Project XML",
+      "result": "shipped and verified; converter checked on six public files two ways"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-open-a-p6-xer-in-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/msproject-check-2026-11-21.md"
+  ],
+  "goal": "A free in-browser P6 XER to Microsoft Project converter: a high-intent search ('open XER in MS Project') that brings the people who receive XER files without a P6 seat to the schedule-check tool.",
+  "notes": "Local verification: run_venture_tests.py xer-schedule-check: 1 suite, 0 failed (after fixing 2 unguarded object-map lookups that inherited_keys.py flagged); msproject.test.mjs 7 tests + page.test.mjs pass; check_posts ok; validate.py ok; Playwright on the page at 390 px: panel hidden until an XER loads, download is valid MSPDI, warnings render, converted_to_project counted, no console errors, hidden for MSPDI input. eval/msproject-check.mjs: 21,422/21,422 activities intact, 54,843/54,843 links, 1,810/1,810 LOE links in notes, schedule 19,818/19,822 equal under Project's rules (12,169 early finishes equal under P6's options). MPXJ 16.10 (eval/msproject-mpxj.py): every field equal on all 21,422 activities but one external-date constraint written on purpose. Not opened in Microsoft Project itself.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "82367a87-ffc8-5993-992c-a219b5ffba46",
+    "transcripts": 1,
+    "first": "2026-11-21T03:55:55Z",
+    "last": "2026-11-21T04:16:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 167,
+        "output": 94760,
+        "thinking": 22777,
+        "cache_read": 16934796,
+        "cache_write_5m": 0,
+        "cache_write_1h": 258823,
+        "api_equivalent_usd": 7.3534,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 167,
+      "output": 94760,
+      "thinking": 22777,
+      "cache_read": 16934796,
+      "cache_write_5m": 0,
+      "cache_write_1h": 258823,
+      "api_equivalent_usd": 7.3534,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 86,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.85,
+      "active_minutes": 20.85,
+      "model_minutes": 14.98,
+      "tool_minutes": 5.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a senior developer writing an MSPDI writer with calendars, progress and resources, plus two verification harnesses (own reader + MPXJ) over six P6 files, page and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 326.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

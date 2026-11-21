@@ -18,7 +18,7 @@
 
 import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
-import { planRect, assignEnvelope, assignRailingSides } from "./envelope.mjs";
+import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
 import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
@@ -385,6 +385,10 @@ export function takeoff(model, opts = {}) {
         if (/^IFC(WALL|CURTAINWALL$|PLATE|MEMBER|RAILING)/.test(e.type) || (/^IFC(DOOR|WINDOW)/.test(e.type) && row.host == null)) {
           try { row.plan = planRect(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.plan = null; }
         }
+        // a sloped roof piece blocks the envelope test's rays where it crosses them
+        if (/^IFC(ROOF|SLAB|PLATE|COVERING)/.test(e.type) && opts.roofBlockers !== false) {
+          try { row.roofFaces = roofFaces(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.roofFaces = null; }
+        }
       }
     }
     row.check = checkVolume(row, tol);
@@ -393,7 +397,8 @@ export function takeoff(model, opts = {}) {
   }
   explainChecks(rows, tol);
   explainAreas(rows, tol);
-  assignEnvelope(rows);
+  assignEnvelope(rows, { roofs: opts.roofBlockers !== false });
+  if (!opts.keepRoofFaces) for (const r of rows) delete r.roofFaces; // faces are only for the envelope test; rows stay small
   assignRailingSides(rows);
   assignUniformat(rows);
   return { schema: model.schema, units, rows };

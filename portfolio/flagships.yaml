@@ -555,7 +555,7 @@ flagships:
       (eval/windows-check.mjs, series made by status.mjs); converter/hand-made XERs:
       node eval/converter-corpus.mjs (245 files 2026-11-19: 0 crashes, 0 NaN;
       eval/converter-files-2026-11-19.md); MSPDI: eval/cpm-vs-project.mjs on MPXJ
-      files.
+      files; XML out: eval/msproject-check.mjs, msproject-mpxj.py (pip mpxj jpype1).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -569,9 +569,7 @@ flagships:
       gap searched 2026-11-20, no rule (one link;
       eval/relationship-dates-2026-11-20.md); constraints log's "past late start"
       now says whether a row moves anything (eval/constraints-slack-2026-11-20.md:
-      65/65); (2) update comparison shipped 2026-11-19 (compare.mjs, half-step
-      split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real
-      files); (7) longest path and multiple float paths shipped 2026-11-19
+      65/65); (7) longest path and multiple float paths shipped 2026-11-19
       (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
       P6's flag 261/261 on five files). (9) look-ahead shipped 2026-11-19
       (lookahead.mjs, --lookahead, page panel; eval/lookahead-check-2026-11-19.md:
@@ -584,7 +582,10 @@ flagships:
       calendars and Resume read 2026-11-21 (2,442 of 2,491 = Project's,
       eval/resource-calendars-2026-11-21.md); next contoured work, splits. (12)
       Gantt chart shipped 2026-11-20 (LOE and WBS summary dates = P6's on 305 of
-      305, eval/gantt-check-2026-11-20.md). More open items: NEXT.md.
+      305, eval/gantt-check-2026-11-20.md). (13) XER to Microsoft Project XML
+      shipped 2026-11-21 (msproject.mjs, --to-project, page;
+      eval/msproject-check-2026-11-21.md); next activity codes as Text fields, MSPDI
+      to XER. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -630,9 +631,12 @@ flagships:
       B3010, IsExternal railings B2010 2026-11-20
       (eval/slab-on-grade-2026-11-20.md), railings by what they stand on 2026-11-20
       (stair C2010, outside B2010, inside C1010 by the envelope rays: coded 77 to
-      461 of 486; eval/railings-2026-11-20.md), next roofs as blockers for knee
-      walls; (3) the unexplained disagreements (NetVolumes 233 to 83 2026-11-21:
-      Tekla simplified sections, stair totals, eval/netvolume-causes-2026-11-21.md;
-      cross-sections 77 to 2 2026-11-20: half-surface mullions, prism axis for
-      faceted members; eval/cross-sections-2026-11-20.md); overlapping shell pieces
-      as a union. More open items: NEXT.md.
+      461 of 486; eval/railings-2026-11-20.md), roofs as ray blockers 2026-11-21
+      (knee walls interior, dormers re-read at the top; schependomlaan flag
+      agreement 815 to 853 of 922; eval/roof-blockers-2026-11-21.md), next an
+      estimator's call on insulated walls against a cold roof space; (3) the
+      unexplained disagreements (NetVolumes 233 to 83 2026-11-21: Tekla simplified
+      sections, stair totals, eval/netvolume-causes-2026-11-21.md; cross-sections 77
+      to 2 2026-11-20: half-surface mullions, prism axis for faceted members;
+      eval/cross-sections-2026-11-20.md); overlapping shell pieces as a union. More
+      open items: NEXT.md.

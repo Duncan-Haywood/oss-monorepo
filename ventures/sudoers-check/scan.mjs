@@ -266,6 +266,12 @@ function orderFiles(files, notes, findings) {
   const ordered = [];
   const reached = new Set();
   const ignored = new Set();
+  // A checked-out copy (a config-management repo, a CI workspace) keeps
+  // /etc/sudoers as <dir>/sudoers, so an absolute /etc/... include is also
+  // looked for under the main file's own directory.
+  const mainDir = main ? dirname(normPath(main.name)) : "";
+  const rebased = (p) => (mainDir && mainDir !== "/etc" && p.startsWith("/etc/") ? mainDir + p.slice(4) : null);
+  const reaches = (test, p, from) => test(p, from) || (rebased(p) !== null && test(rebased(p), from));
 
   function visit(file, depth) {
     if (depth > 128) { notes.push(`${file.name}: includes nested more than 128 deep; stopped there, as sudo does.`); return; }
@@ -276,7 +282,7 @@ function orderFiles(files, notes, findings) {
       const { dir, path } = ln.include;
       if (dir) {
         const members = byName
-          .filter((f) => f !== file && inDir(f.name, path, file.name))
+          .filter((f) => f !== file && reaches((d, from) => inDir(f.name, d, from), path, file.name))
           .sort((a, b) => (basename(a.name) < basename(b.name) ? -1 : basename(a.name) > basename(b.name) ? 1 : 0));
         if (!members.length) notes.push(`${file.name}:${ln.line}: no pasted file is in ${path}; add the files there to check them in order.`);
         for (const m of members) {
@@ -291,7 +297,7 @@ function orderFiles(files, notes, findings) {
           visit(m, depth + 1);
         }
       } else {
-        const target = byName.find((f) => f !== file && matchesPath(f.name, path, file.name));
+        const target = byName.find((f) => f !== file && reaches((t, from) => matchesPath(f.name, t, from), path, file.name));
         if (!target) { notes.push(`${file.name}:${ln.line}: ${path} was not pasted, so its rules are not checked.`); continue; }
         visit(target, depth + 1);
       }
@@ -544,30 +550,61 @@ function analyse({ aliases, defaults, rules }, mainName, findings, notes) {
   // Defaults that change how every rule reads. Global, host-bound and
   // user-bound settings apply in file order; the last one wins.
   const global = {};
-  const perUser = [];
   for (const d of defaults) {
     for (const p of d.params) {
       if (d.scope === "" || d.scope === "@") global[p.name] = p;
-      if (d.scope === ":") perUser.push({ binding: d.binding, p, d });
     }
   }
   const runasDefault = global.runas_default?.value || "root";
-  const authGlobalOff = global.authenticate?.negated === true;
   const passwordPolicy = ["targetpw", "rootpw", "runaspw"].find((n) => global[n] && !global[n].negated);
 
-  function authOffFor(users) {
-    if (authGlobalOff) return true;
+  // Does a Defaults binding (a list, possibly naming aliases) match? Within a list the last
+  // matching item decides, as in a runas list: "Defaults>!root,ALL" binds root, "ALL,!root" does not.
+  function lastMatch(binding, table, matches) {
+    let hit = false;
+    for (const x of expandList(splitTop(binding, ","), table)) if (matches(unquote(x.value))) hit = !x.neg;
+    return hit;
+  }
+  function userBound(binding, users) {
+    // A binding can name a User_Alias (Defaults:ADMINS !authenticate), so expand it the way
+    // the rule's own user list is expanded; a negated member excludes that user.
+    const items = expandList(splitTop(binding, ","), aliases.User_Alias).map((x) => ({ ...x, value: unquote(x.value) }));
+    const bound = items.filter((x) => !x.neg).map((x) => x.value);
+    const excluded = items.filter((x) => x.neg).map((x) => x.value);
+    return users.some((u) => !excluded.includes(u) && (bound.includes(u) || bound.includes("ALL")));
+  }
+  const runasBound = (binding, targets) => lastMatch(binding, aliases.Runas_Alias, (v) => v === "ALL" || targets.includes(v));
+  // A command binding names paths or Cmnd_Aliases; it binds a rule's command when the path is
+  // the same (sudoers(5) rejects arguments in a Defaults! binding) or the binding is ALL.
+  const cmndBound = (binding, path) => lastMatch(binding, aliases.Cmnd_Alias, (v) => v === "ALL" || (path !== "ALL" && parseCommand(v).path === path));
+  const authDefaults = [];
+  for (const d of defaults) for (const p of d.params) if (p.name === "authenticate") authDefaults.push({ d, p });
+
+  // Is the password check off for this rule? sudo 1.9.15 applies global, host, user and runas
+  // Defaults in file order, then command Defaults (checked against real sudo: a
+  // "Defaults>root authenticate" after "Defaults:daemon !authenticate" asks for a password, before
+  // it does not; "Defaults!/usr/bin/id authenticate" wins over a later "Defaults>root !authenticate").
+  function authOffFor(users, targets, path) {
     let off = false;
-    for (const { binding, p } of perUser) {
-      if (p.name !== "authenticate") continue;
-      // A binding can name a User_Alias (Defaults:ADMINS !authenticate), so expand it the way
-      // the rule's own user list is expanded; a negated member excludes that user.
-      const items = expandList(splitTop(binding, ","), aliases.User_Alias).map((x) => ({ ...x, value: unquote(x.value) }));
-      const bound = items.filter((x) => !x.neg).map((x) => x.value);
-      const excluded = items.filter((x) => x.neg).map((x) => x.value);
-      if (users.some((u) => !excluded.includes(u) && (bound.includes(u) || bound.includes("ALL")))) off = p.negated;
+    for (const { d, p } of authDefaults) {
+      if (d.scope === "" || d.scope === "@") off = p.negated;
+      else if (d.scope === ":" && userBound(d.binding, users)) off = p.negated;
+      else if (d.scope === ">" && runasBound(d.binding, targets)) off = p.negated;
     }
+    for (const { d, p } of authDefaults) if (d.scope === "!" && cmndBound(d.binding, path)) off = p.negated;
     return off;
+  }
+  // Commands a Defaults!cmnd !authenticate makes passwordless inside a rule that grants ALL.
+  function cmndAuthOff(users, targets) {
+    const paths = new Set();
+    for (const { d, p } of authDefaults) {
+      if (d.scope !== "!" || !p.negated) continue;
+      for (const x of expandList(splitTop(d.binding, ","), aliases.Cmnd_Alias)) {
+        const c = parseCommand(unquote(x.value));
+        if (!x.neg && c.path.startsWith("/") && authOffFor(users, targets, c.path)) paths.add(c.path);
+      }
+    }
+    return [...paths];
   }
 
   // --- Defaults findings
@@ -583,8 +620,15 @@ function analyse({ aliases, defaults, rules }, mainName, findings, notes) {
           "Remove !env_reset; keep env_reset on (the default) and add the few variables you need to env_keep."));
       }
       if (p.name === "authenticate" && p.negated) {
-        findings.push(finding("authenticate-off", "high", ...where,
-          `!authenticate${scope} turns off the password check, as if every matching rule were NOPASSWD: anyone who gets a shell as ${d.binding || "any user with a rule"} gets every command those rules allow without a password.`,
+        const reach = d.scope === ">"
+          ? `anyone with a rule that runs commands as ${d.binding} gets those commands as ${d.binding} without a password`
+          : d.scope === "!"
+            ? `every user with a rule that allows ${d.binding} (an ALL rule included) runs it without a password`
+            : `anyone who gets a shell as ${d.binding || "any user with a rule"} gets every command those rules allow without a password`;
+        // A command binding switches the check off for those commands only: what they allow is
+        // judged rule by rule (a shell escape in one of them is reported as passwordless root).
+        findings.push(finding("authenticate-off", d.scope === "!" ? "medium" : "high", ...where,
+          `!authenticate${scope} turns off the password check, as if every matching rule were NOPASSWD: ${reach}.`,
           "Remove !authenticate and put NOPASSWD: only on the specific commands automation needs."));
       }
       if (p.name === "setenv" && !p.negated) {
@@ -645,6 +689,7 @@ function analyse({ aliases, defaults, rules }, mainName, findings, notes) {
 
   // --- User specification findings
   const entries = [];
+  const scoped = [];
   for (const rule of rules) {
     const userList = expandList(rule.users, aliases.User_Alias);
     const users = userList.filter((u) => !u.neg).map((u) => u.value);
@@ -671,12 +716,23 @@ function analyse({ aliases, defaults, rules }, mainName, findings, notes) {
           : [{ ...top, digest: top.digest || spec.digest }];
         for (const c of expanded) {
           const e = { rule, users, userSpec, allUsers, hosts: group.hosts, hostSpec, allHosts, runas, tags: { ...tags }, ...c };
-          e.nopasswd = tags.NOPASSWD === true || (tags.PASSWD !== true && authOffFor(users));
+          const targets = runas.root ? ["root", "#0"] : (runas.users || []).filter((u) => !u.startsWith("!"));
+          // root is never asked for a password by sudo, so a Defaults that switches the check off
+          // changes nothing for a rule that names only root (the stock "root ALL=(ALL:ALL) ALL").
+          const onlyRoot = users.length > 0 && users.every((u) => u === "root" || u === "#0");
+          e.nopasswd = tags.NOPASSWD === true || (tags.PASSWD !== true && !onlyRoot && authOffFor(users, targets, c.path));
           ruleEntries.push(e);
           entries.push(e);
+          // ALL with a password, but Defaults!/usr/bin/vim !authenticate: vim itself runs with none.
+          if (c.path === "ALL" && !c.neg && !e.nopasswd && tags.PASSWD !== true && !onlyRoot) {
+            for (const path of cmndAuthOff(users, targets)) {
+              scoped.push({ ...e, path, args: null, digest: false, nopasswd: true, viaDefaults: true });
+            }
+          }
         }
       }
       checkRule(ruleEntries, rule, passwordPolicy, findings);
+      if (scoped.length) checkRule(scoped.splice(0), rule, passwordPolicy, findings);
     }
   }
 

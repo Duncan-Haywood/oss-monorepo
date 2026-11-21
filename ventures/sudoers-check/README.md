@@ -31,7 +31,7 @@ check before they ship.
 | `setenv-tag` | high | `SETENV:` on a command |
 | `env-reset-off` | high | `Defaults !env_reset` |
 | `env-keep-dangerous` | high (`PATH` medium, `EDITOR`/`PAGER`/`HOME` low) | `env_keep` or `env_check` of `LD_PRELOAD`, `LD_LIBRARY_PATH`, `PYTHONPATH`, `PERL5OPT`, `NODE_OPTIONS`, `BASH_ENV` and others (`PATH` only without `secure_path`) |
-| `authenticate-off` | high | `Defaults !authenticate`, global or per user |
+| `authenticate-off` | high | `Defaults !authenticate`, global, per user or per runas user (medium when bound to commands, `Defaults!cmnd`, whose own risk is then reported rule by rule) |
 | `defaults-setenv` | high | `Defaults setenv` |
 | `reads-any-file` | medium | `cat`, `head`, `grep` and similar with open arguments |
 | `wildcard-arguments` | medium | any other command with `*`, `?` or `[` in its arguments, or a regex argument with `.*` |
@@ -61,7 +61,20 @@ cleared by its opposite. `: Host =` groups, escaped `\,` `\:` `\=` in
 arguments, `sha256:` digests, `CWD=`/`TIMEOUT=`-style option specs and
 `^...$` regular-expression arguments are read. With no `sudoers` file, a file
 in a `sudoers.d` directory is read as if the standard `@includedir` had pulled
-it in.
+it in. In a checked-out copy (a config-management repository, a CI workspace)
+an absolute `/etc/...` include is also looked for under the main file's own
+directory, so `repo/sudoers` with `@includedir /etc/sudoers.d` reads
+`repo/sudoers.d` and still reports a dotted drop-in sudo would skip.
+
+**Whether a rule needs a password.** A `NOPASSWD:`/`PASSWD:` tag decides first.
+Otherwise `authenticate` Defaults are applied the way sudo 1.9.15p5 applied
+them when tested with the same file bind-mounted over `/etc/sudoers`: global,
+host, user (`Defaults:`) and runas (`Defaults>`) entries in file order, the
+last matching one winning, then command entries (`Defaults!`). A binding list
+is read last-match, like a runas list (`Defaults>!root,ALL` binds root). A
+`Defaults!/usr/bin/vim !authenticate` under an `ALL` rule is reported as that
+command running as root without a password. Rules for root alone are not
+reported, since sudo never asks root for a password.
 
 **How the parser was checked.** `sudo` ships `cvtsudoers`, which prints a
 sudoers file as JSON using `sudo`'s own parser. [`parity-cases.mjs`](parity-cases.mjs)
@@ -137,10 +150,16 @@ some of these rules rather than run them.
 
 ## Known gaps
 
-From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-sudoers-check.json)):
+The quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-sudoers-check.json))
+found five defects; the re-audit of 2026-11-21
+([audit](../../portfolio/quality/audits/2026-11-21-sudoers-check.json)) checked
+each against real sudo and closed all five. Still open:
 
-- Run on a copied tree whose top directory is not named `etc`, `@includedir /etc/sudoers.d` is not mapped to the copy's `sudoers.d`, so a file sudo would skip (a name with a dot) can be checked as if it were live.
-- Scoped `Defaults>runas !authenticate` and `Defaults!cmnd !authenticate` are not yet applied when deciding whether a rule needs a password, so the root-path list can say "with a password" for a rule that has none.
+- `nopasswd-overridden` only considers a later `ALL` rule; a later rule for
+  the same specific command, or a later `Defaults` that turns `authenticate`
+  back on, is not reported as overriding `NOPASSWD`.
+- A `Defaults!cmnd` binding is matched by command path; a binding with a
+  directory, glob or regular expression is not expanded.
 
 ## Licence
 
