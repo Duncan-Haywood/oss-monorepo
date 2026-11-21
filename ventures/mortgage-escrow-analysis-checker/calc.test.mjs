@@ -116,9 +116,14 @@ test("a shortage under one month's payment may be collected in 30 days, so no sp
 });
 
 test("a deficiency is not held to the 12-month rule", () => {
-  const a = analyze(base({ startBalance: "-300", statedShortage: "500", statedShortageMonthly: "500" }));
+  // The statement's figure is the $300 negative balance alone.
+  const a = analyze(base({ startBalance: "-300", statedShortage: "300", statedShortageMonthly: "300" }));
   assert.equal(a.findings.some((x) => x.id === "spread"), false);
   assert.ok(a.findings.some((x) => x.id === "spread-def"));
+  // A $500 figure is the deficiency plus a $200 shortage (two months'
+  // payment), and that part is held to 12 months (12 CFR 1024.17(f)(3)(ii)).
+  const b = analyze(base({ startBalance: "-300", statedShortage: "500", statedShortageMonthly: "500" }));
+  assert.ok(b.findings.some((x) => x.id === "spread" && x.severity === "medium"));
 });
 
 test("a projected low point below zero is a shortage held to the 12-month rule", () => {
@@ -173,11 +178,46 @@ test("surplus is not raised as a refund due when the borrower is not current", (
   assert.equal(a.findings.some((x) => x.id === "surplus"), false);
 });
 
-test("amount in question adds flagged items only and skips information", () => {
+test("amount in question is the largest flagged amount and skips information", () => {
   const a = analyze(base({ statedPayment: "160", statedCushion: "300", oldPayment: "100" }));
   assert.ok(a.findings.some((x) => x.id === "change" && x.severity === "info"));
-  const sum = a.findings.filter((f) => f.severity !== "info").reduce((s, f) => s + f.amountCents, 0);
-  assert.equal(a.summary.questioned, sum / 100);
+  const max = Math.max(...a.findings.filter((f) => f.severity !== "info").map((f) => f.amountCents));
+  assert.equal(a.summary.questioned, max / 100);
+});
+
+// 2026-11-21 re-audit: the payment excess over a year (890 - 766.67) x 12 =
+// 1,479.96 already carries the $600 of higher projected bills and the larger
+// shortage, so the old sum (500 + 600 + 1,479.96 + 600 = 3,179.96) counted
+// the same dollars more than once.
+test("amount in question does not add overlapping findings (sample statement)", () => {
+  const a = analyze(sampleInput());
+  assert.equal(a.summary.questioned, 1479.96);
+});
+
+test("a deficiency under one month's payment collected at once raises nothing ((f)(4)(i)(B))", () => {
+  const a = analyze(appE({ startBalance: "-100", statedShortage: "100", statedShortageMonthly: "100" }));
+  assert.equal(a.summary.deficiency, 100);
+  assert.equal(a.findings.some((x) => x.id === "spread-def" || x.id === "spread"), false);
+});
+
+test("a deficiency of a month's payment or more collected at once is noted", () => {
+  const a = analyze(appE({ startBalance: "-130", statedShortage: "130", statedShortageMonthly: "130" }));
+  assert.ok(a.findings.some((x) => x.id === "spread-def"));
+  const b = analyze(appE({ startBalance: "-130", statedShortage: "130", statedShortageMonthly: "65" }));
+  assert.equal(b.findings.some((x) => x.id === "spread-def"), false);
+});
+
+test("deficiency plus shortage: the shortage part is still held to 12 months", () => {
+  // start -100: deficiency 100, shortage part 1,040; fastest allowed 50 + 86.67.
+  const fast = analyze(appE({ startBalance: "-100", statedShortage: "1140", statedShortageMonthly: "1140" }));
+  const f = fast.findings.find((x) => x.id === "spread");
+  assert.ok(f, "collecting a $1,040 shortage in one payment must be flagged even beside a deficiency");
+  assert.equal(f.severity, "medium");
+  const ok = analyze(appE({ startBalance: "-100", statedShortage: "1140", statedShortageMonthly: "136" }));
+  assert.equal(ok.findings.some((x) => x.id === "spread"), false);
+  // Just over the fastest allowed ($136.67 = 100 / 2 + 1,040 / 12) is flagged.
+  const over = analyze(appE({ startBalance: "-100", statedShortage: "1140", statedShortageMonthly: "140" }));
+  assert.ok(over.findings.some((x) => x.id === "spread"));
 });
 
 test("bad and missing inputs give a message, not a result", () => {

@@ -67,7 +67,7 @@
 
   <section class="card">
     <h2>1. Your bills for the coming escrow year</h2>
-    <p class="note">The <strong>yearly amount</strong> is the full year's bill, not one installment: enter a tax paid in two installments as one row per installment, each with its own month. Use your actual tax bill and insurance declarations page where you have them.</p>
+    <p class="note">Enter each payment out of escrow as its own row, with the month it is paid and the amount paid that month: a tax paid in two installments is two rows, and an annual insurance premium is one row for the full year. Use your actual tax bill and insurance declarations page where you have them.</p>
     <div class="grid">
       <div><label for="start-month">Escrow year starts in</label><select id="start-month"><option value="">Choose month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12" selected>December</option></select></div>
       <div><label for="start-balance">Projected balance at the start of the year</label><input type="text" id="start-balance" inputmode="decimal" placeholder="from the statement" autocomplete="off"></div>
@@ -154,7 +154,7 @@
       <li><strong>Shortage:</strong> your starting balance is below that figure. Repaid over at least twelve months, or within 30 days if it is under one month's payment (12 CFR 1024.17(f)(3)).</li>
       <li><strong>Deficiency:</strong> the account balance is already negative at the analysis (12 CFR 1024.17(b)). May be repaid in two or more payments (12 CFR 1024.17(f)(4)).</li>
       <li><strong>Surplus:</strong> $50 or more is refunded within 30 days when the account is current (12 CFR 1024.17(f)(2)).</li>
-      <li><strong>Amount in question</strong> adds the yearly effect of each flagged item that has one. It is the most that could be affected, not a refund you are owed.</li>
+      <li><strong>Amount in question</strong> is the largest single amount among the flagged items, over a year. The items overlap (a higher payment already carries higher projected bills and a larger shortage), so they are not added together. It is the most that could be affected, not a refund you are owed.</li>
       <li><strong>Not checked:</strong> the servicer's own worksheet, disbursement dates other than the month you enter, state law, your loan documents (which may set stricter terms), escrow waivers, whether a tax or insurance bill is itself correct, and anything not typed above.</li>
       <li><strong>Unverified:</strong> the rules were read from the published regulation, but the arithmetic has been run only against invented statements and worked by hand, not against a real servicer's worksheet. If a real statement disagrees, that is the priority report.</li>
     </ul>

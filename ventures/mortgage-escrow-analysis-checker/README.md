@@ -33,12 +33,16 @@ Unverified against a real servicer's worksheet.
 
 ## Known gaps
 
-From the 2026-11-13 quality audit ([`portfolio/quality/audits/2026-11-13-mortgage-escrow-analysis-checker.json`](../../portfolio/quality/audits/2026-11-13-mortgage-escrow-analysis-checker.json)):
+From the quality audits of 2026-11-13 ([`2026-11-13-mortgage-escrow-analysis-checker.json`](../../portfolio/quality/audits/2026-11-13-mortgage-escrow-analysis-checker.json)) and 2026-11-21:
 
-- The "most in question over a year" total adds findings that overlap: the payment excess already
-  contains higher projected bills and an oversized cushion, so the total can count one dollar twice.
-- A deficiency smaller than one month's payment may be collected within 30 days
-  (12 CFR 1024.17(f)(4)(i)(B)); the tool only raises an information note for it.
+- Fixed on 2026-11-21 (re-audit [`2026-11-21-mortgage-escrow-analysis-checker.json`](../../portfolio/quality/audits/2026-11-21-mortgage-escrow-analysis-checker.json)):
+  the "most in question" figure is now the largest single flagged amount, not a sum of overlapping
+  ones; a deficiency under one month's payment collected at once is no longer noted
+  ((f)(4)(i)(B)); an account with both a deficiency and a shortage has the shortage part checked
+  against 12 months.
+- With a deficiency and a shortage together, the check assumes the statement's shortage figure
+  covers both and that the servicer targets the full one-sixth cushion; a statement that reports
+  them separately may need the servicer's worksheet to read.
 
 ## Run
 
