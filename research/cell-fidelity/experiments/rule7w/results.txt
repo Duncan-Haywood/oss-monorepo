@@ -1,0 +1,62 @@
+cell-fidelity milestone 7w: 7c's corrected ten-cycle forecast in place of the straight line inside 7h's
+rules on the four committed sets (7h's 200 rows, 50 per set, cell 000; lopo5 over pools 5zk, 5zy, 5zz, 7g, 7h).
+Correction fitted per fold on the four training pools; only E[10] changes. No new simulation.
+Cycles are DFN cycles per design; negative differences mean the first rule is cheaper.
+
+control: max |E10(m_hat = 1) - rows E10| = 1.24e-15; replay of theta/theta50/R50/U vs 7h's lopo5 (cycles + met mismatches) = 0.00e+00
+
+held-out median E10 straight -> corrected, per fold (5zk 5zy 5zz 7g 7h), and the correction's pick:
+  Ai2020      0.024->0.439  0.045->0.512  0.014->0.456  0.061->0.384  0.040->0.273   O2/O2/O2/O2/O1
+  Chen2020    0.058->0.056  0.086->0.078  0.046->0.052  0.091->0.055  0.058->0.070   O2/O2/O2/O2/O2
+  OKane2022   0.069->0.042  0.074->0.042  0.059->0.068  0.078->0.047  0.075->0.076   O2/O2/O2/O2/O2
+  NCA_Kim2011 0.042->0.044  0.038->0.037  0.060->0.039  0.030->0.012  0.042->0.013   O1/O1/O1/O1/O1
+
+set                   theta        theta50            R50              U         thetaC       theta50C           R50C             UC
+Ai2020            5/5  43.0      5/5  43.0      4/5  39.5      5/5  50.0      5/5  48.5      5/5  48.5      4/5  49.0      5/5  50.0
+Chen2020          4/5  44.7      4/5  44.7      4/5  44.7      4/5  42.0      4/5  44.7      4/5  44.7      5/5  48.3      4/5  42.0
+OKane2022         5/5  46.3      5/5  46.3      5/5  46.3      5/5  50.0      4/5  46.3      4/5  46.3      4/5  46.3      5/5  50.0
+NCA_Kim2011       5/5  40.0      5/5  40.0      5/5  38.0      5/5  50.0      3/5  40.0      3/5  40.0      3/5  39.0      4/5  42.0
+all 20          19/20  43.5    19/20  43.5    18/20  42.1    19/20  48.0    16/20  44.9    16/20  44.9    16/20  45.7    18/20  46.0
+
+pair                  mean        set boot 95%  cheaper  dearer  sign p   per set
+thetaC - U           -3.12    -7.88 to +1.08        9       4   0.267   Ai2020 -1.50, Chen2020 +2.67, OKane2022 -3.67, NCA_Kim2011 -10.00
+thetaC - theta       +1.38    +0.00 to +4.12        1       7   0.070   Ai2020 +5.50, Chen2020 +0.00, OKane2022 +0.00, NCA_Kim2011 +0.00
+thetaC - UC          -1.12    -3.13 to +1.50        8       4   0.388   Ai2020 -1.50, Chen2020 +2.67, OKane2022 -3.67, NCA_Kim2011 -2.00
+R50C - U             -2.33    -8.50 to +3.83        8       4   0.388   Ai2020 -1.00, Chen2020 +6.33, OKane2022 -3.67, NCA_Kim2011 -11.00
+R50C - R50           +3.54    +0.50 to +7.38        1       9   0.021   Ai2020 +9.50, Chen2020 +3.67, OKane2022 +0.00, NCA_Kim2011 +1.00
+UC - U               -2.00    -6.00 to +0.00        1       0   1.000   Ai2020 +0.00, Chen2020 +0.00, OKane2022 +0.00, NCA_Kim2011 -8.00
+theta - U            -4.50    -8.50 to +0.25       14       4   0.031   Ai2020 -7.00, Chen2020 +2.67, OKane2022 -3.67, NCA_Kim2011 -10.00
+six sets thetaC-U   -12.08   -22.28 to -1.89       19       4   0.003   (the 20 folds here + 7v's 10 f = 30 folds)
+sensitivity (E10c from 7h's own mC): thetaC - U mean -2.88; thetaC 19/20 45.1  theta50C 19/20 45.1  R50C 20/20 46.3  UC 19/20 46.0
+
+thetaC and UC policies per fold (set, held-out pool, policy, q75 / target, met):
+  Ai2020       5zk  thetaC      50>=0.035 0.014/0.017 y   UC      U50 0.014 y
+  Ai2020       5zy  thetaC      50>=0.031 0.038/0.047 y   UC      U50 0.038 y
+  Ai2020       5zz  thetaC      50>=0.031 0.046/0.058 y   UC      U50 0.046 y
+  Ai2020        7g  thetaC      50>=0.031 0.038/0.048 y   UC      U50 0.038 y
+  Ai2020        7h  thetaC      50>=0.031 0.039/0.049 y   UC      U50 0.039 y
+  Chen2020     5zk  thetaC      50>=0.020 0.074/0.077 y   UC      U40 0.078 n
+  Chen2020     5zy  thetaC      50>=0.014 0.077/0.097 y   UC      U40 0.089 y
+  Chen2020     5zz  thetaC      50>=0.014 0.051/0.064 y   UC      U40 0.057 y
+  Chen2020      7g  thetaC      50>=0.014 0.053/0.066 y   UC      U40 0.056 y
+  Chen2020      7h  thetaC      50>=0.026 0.084/0.056 n   UC      U50 0.045 y
+  OKane2022    5zk  thetaC      50>=0.031 0.051/0.064 y   UC      U50 0.051 y
+  OKane2022    5zy  thetaC      50>=0.031 0.053/0.067 y   UC      U50 0.053 y
+  OKane2022    5zz  thetaC      50>=0.013 0.040/0.050 y   UC      U50 0.040 y
+  OKane2022     7g  thetaC      50>=0.013 0.050/0.063 y   UC      U50 0.050 y
+  OKane2022     7h  thetaC      50>=0.031 0.070/0.068 n   UC      U50 0.055 y
+  NCA_Kim2011  5zk  thetaC      50>=0.177 0.043/0.032 n   UC      U50 0.025 y
+  NCA_Kim2011  5zy  thetaC      50>=0.049 0.020/0.025 y   UC      U50 0.020 y
+  NCA_Kim2011  5zz  thetaC      50>=0.049 0.025/0.031 y   UC      U50 0.025 y
+  NCA_Kim2011   7g  thetaC      50>=0.049 0.029/0.036 y   UC      U50 0.029 y
+  NCA_Kim2011   7h  thetaC        15>=inf 0.037/0.025 n   UC      U10 0.037 n
+
+POST HOC (not in the plan): gate the correction per set and fold on the training pools' medians
+  correction used (5zk 5zy 5zz 7g 7h): Ai2020 nnnnn; Chen2020 nyyyy; OKane2022 yyyyy; NCA_Kim2011 yyyyy
+  thetaG 16/20 43.5  UG 18/20 46.0
+  thetaG-theta +0.00 (1 cheaper, 4 dearer, sign p 0.375)  thetaG-U -4.50 (11 cheaper, 4 dearer, sign p 0.118)
+
+H340 (four sets, 20-fold mean of thetaC - U < 0): supported
+H341 (thetaC meets the target on >= 15 of 20 folds): supported
+H342 (six-set bootstrap 95% interval of thetaC - U below zero): supported
+H343 (four sets, 20-fold mean of thetaC - UC < 0): supported
