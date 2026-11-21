@@ -31,8 +31,8 @@
 
 ## Swiss pairer, after bracket-by-bracket (2026-11-21)
 
-- Exact exchange order shipped 2026-11-21 (eval/swiss-exchange-order.md: 89.1% to 89.3%, 25 of 975 brackets needed one). Most of the remaining 10.7% is not exchanges: next is which downfloaters to choose (C.8 look-ahead), then which MDPs are paired. Colour criteria order C.12/C.13 tested: 0 boards changed.
+- Exact exchange order shipped 2026-11-21 (eval/swiss-exchange-order.md: 89.1% to 89.3%, 25 of 975 brackets needed one). Most of the remaining gap (5.2% after the 2026-11-21 name fix) is not exchanges: next is which downfloaters to choose (C.8 look-ahead), then which MDPs are paired. Colour criteria order C.12/C.13 tested: 0 boards changed.
 - C.8 look-ahead (choose downfloaters so the bracket after next can still comply) and the heterogeneous remainder tie are not modelled.
-- spring_2026_chesshouse reads 0.527 later-round recall against 0.81-0.97 for the others: find why (its TRF's pre-entered byes clash with the replay's absences in rounds 7 and 9).
+- (done 2026-11-21) spring_2026_chesshouse's 0.527 was a name bug, not attendance: five players named `0`, and `0 (154)` lost its bracket as a note. Fixed in parseResults; 0.975 now, six events 94.8% (eval/swiss-bracketed-names.txt). Its remaining misses are rounds 2, 6, 7, 9.
 - Very large brackets (over about 180 players) drop the lowest float criteria in stage B to keep weights exact under 2^50; only an open-condition Graz round showed a difference (1 board).
 - (2026-11-21) match play recap

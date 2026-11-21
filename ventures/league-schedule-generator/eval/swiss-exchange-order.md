@@ -68,3 +68,5 @@ With 25 of 975 brackets touched, the exchange order was not the main gap. The op
 NEXT.md: C.8 look-ahead to the bracket after next (which downfloaters to choose), the
 heterogeneous-remainder tie (which MDPs are paired), and ChessHouse's attendance (0.527).
 Not FIDE-endorsed: an arbiter must still use an endorsed program for a rated event.
+
+**Later the same day:** ChessHouse's 0.527 turned out to be a name bug (five players named `0`; `0 (154)` lost its bracket as a note), not attendance. After the fix the six events read 94.8% later-round recall, ChessHouse 0.975: `eval/swiss-bracketed-names.txt`, README "Players told apart by \"(id)\" kept their own results".
