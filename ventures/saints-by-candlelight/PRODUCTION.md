@@ -190,7 +190,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Saint Theognius or Saint Abraamius, Cyril of Scythopolis's other short desert lives.
 - Saint Cyriacus the Anchorite, whose Life Cyril also wrote.
 - Saint Joseph of Thessalonica, Theodore the Studite's hymn-writing brother.
-- Moses and Aaron before Pharaoh and the bricks without straw, 'who is the Lord, that I should listen to him', the foremen's complaint and 'I am the Lord' to broken spirits (Exodus 5:1 to 6:13; left by episode 158).
+- *(Drafting, 2026-11-21.)* Moses and Aaron before Pharaoh and the bricks without straw, 'who is the Lord, that I should listen to him', the foremen's complaint and 'I am the Lord' to broken spirits (Exodus 5:1 to 6:13; left by episode 158).
 - Aaron and Hur holding up Moses' hands at Rephidim until the going down of the sun, Joshua's first battle and the altar called the Lord is my banner (Exodus 17:8-16; left by episode 158).
 - Moses and Zipporah on the road back to Egypt and the lodging place, a hard passage told carefully in daylight, with the main readings named and none settled (Exodus 4:24-26; left by episodes 37, 157 and 158).
 - Miriam and Aaron and the cloud over the tent at Hazeroth, the meekest man on the face of the earth (Numbers 12; left by episode 141).
