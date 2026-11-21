@@ -3,7 +3,8 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, localOnlyFiles, localOnlySummary, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
+import { spawnSync } from 'node:child_process';
+import { buildProblem, startBuild, localOnlyFiles, localOnlySummary, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -202,4 +203,24 @@ test('localOnlySummary groups local-only files by their first two directory leve
   ];
   assert.equal(localOnlySummary(files, 'v'), 'Where: eval/IDS/ (835), covid-data/ (2), notes.ppt (1).');
   assert.equal(localOnlySummary(files, 'v', 1), 'Where: eval/IDS/ (835), +2 more.');
+});
+
+test('startBuild runs beside synchronous steps and returns spawnSync-shaped output', async () => {
+  // A child that writes ~1 MB (far past a 64 KB pipe) while the parent sits
+  // in spawnSync: with piped output it would stall until the parent drained it.
+  const script = "process.stdout.write('x'.repeat(1 << 20)); process.stderr.write('warn'); process.exit(3)";
+  const started = Date.now();
+  const { done } = startBuild(null, ['-e', script]);
+  spawnSync('node', ['-e', 'setTimeout(() => {}, 1500)']);
+  const r = await done;
+  assert.equal(r.status, 3);
+  assert.equal(r.stdout.length, 1 << 20);
+  assert.equal(r.stderr, 'warn');
+  assert.ok(Date.now() - started < 10000);
+  assert.match(buildProblem(r), /build\.mjs failed:\nwarn/);
+});
+
+test('startBuild reports a clean exit as status 0', async () => {
+  const r = await startBuild(null, ['-e', "console.log('built')"]).done;
+  assert.deepEqual([r.status, r.stdout.trim(), r.stderr], [0, 'built', '']);
 });
