@@ -45,6 +45,8 @@ Options:
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
   --hinge-test              test for one change of slope on the levels, with AR(1) noise and a bootstrap p-value: far more power than --slope-breaks on a series that wanders about a trend (temperature), and refuses one whose residuals look like a unit root (GDP); 30 to 600 points
+  --events <file.csv>       dated series: say which changes fall inside an event you list (start[,end],label per line: a Google update's rollout, a release, a price change) and how often a change that wide would land in one by chance
+  --event-slack <days>      with --events: widen each event's window by this many days on each side (default 0)
   --known-date <label>      test for a step and a change of slope at a date you name (a law, launch or price change; the label is the first row after it), against the line before it, AR(1) noise and a bootstrap p-value; takes --period and --log; refuses a series that wanders like a random walk
   --donors <a,b,...|all>   with --known-date and --column: a synthetic control instead (Abadie et al. 2010): the treated column against a weighted mix of these donor columns in the same CSV, fitted on every point before the date, with a placebo test that gives each donor the same date (floored ratio); 4 or more donors, no blanks
   --covariates <file.csv>   with --donors: one row per unit (the column name, then numbers, e.g. income, price), printed as a balance table of the fit with a warning where the treated unit is matched worse than 80% of the donors are by their own fits; changes no p
@@ -90,7 +92,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let json = false;
   let example = false;
   let agreed = true;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation', '--shape-word': 'shapeWord' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation', '--shape-word': 'shapeWord', '--events': 'events', '--event-slack': 'eventSlack' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
@@ -138,6 +140,17 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   // whether the file exists, so the command means the same in every folder).
   if (!file && opt.columns && opt.columns.length === 1 && /\.(csv|tsv|txt)$/i.test(opt.columns[0])) { file = opt.columns[0]; opt.columns = []; }
   for (const k of ['minSegment', 'hazardLambda', 'threshold', 'period', 'knotMargin']) if (opt[k] != null) opt[k] = Number(opt[k]);
+  // --events is read here and taken out of opt, so the analysis and the settings panel see the options they know.
+  let events = null;
+  const slack = opt.eventSlack != null ? Number(opt.eventSlack) : 0;
+  if (opt.eventSlack != null && opt.events == null) throw new Error('--event-slack goes with --events.');
+  if (opt.events != null) {
+    if (!Number.isInteger(slack) || slack < 0) throw new Error('--event-slack takes a whole number of days, 0 or more.');
+    if (opt.columns || opt.knownDate != null || opt.consensus || opt.model === 'drift') throw new Error('--events goes with one column and a single model (not --columns, --known-date, --consensus or --model drift).');
+    const { parseEvents } = await import('./events.mjs');
+    events = parseEvents(await readFile(opt.events, 'utf8'));
+  }
+  delete opt.events; delete opt.eventSlack;
   if (opt.hazardLambda != null && !(opt.hazardLambda >= 1)) throw new Error('--hazard (expected points between changes) must be a number of at least 1.');
   if (opt.threshold != null && !(opt.threshold > 0 && opt.threshold <= 1)) throw new Error('--threshold must be a probability above 0 and at most 1.');
   if (!example) {
@@ -215,6 +228,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     panel.catch(() => {}); // awaited below; a failure there only drops the panel
   }
   const r = analyze(opt);
+  if (events) {
+    const { matchEvents } = await import('./events.mjs');
+    r.events = matchEvents({ labels: r.labels, changes: r.pelt.changepoints, events, slack });
+  }
   if (json) { out(JSON.stringify(r, null, 2) + '\n'); return 0; }
   const lines = [];
   if (levelText && n != null && n > agreedMax) {
@@ -291,6 +308,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
     for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);
   }
+  if (r.events) { const { eventsText } = await import('./events.mjs'); lines.push('', eventsText(r.events)); }
   out(lines.join('\n') + '\n');
   return 0;
 }

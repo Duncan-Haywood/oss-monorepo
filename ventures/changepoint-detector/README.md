@@ -36,6 +36,8 @@ row below. Every flag's measurements are in the README section named after it.
 | A feed that repeats stale values for a while | `--spells` |
 | Tell me when a daily metric shifts, from now on | `watch.mjs daily.csv --state s.json` (see "Watching a growing series"); pick a setting with `--suggest --alerts-per 1/month` |
 | ...from Stripe or Shopify | `stripe-metrics.mjs` or `shopify-metrics.mjs`, then the watch with `--columns` |
+| ...from Google Search Console (clicks, impressions) | `search-console-metrics.mjs` (API, or the UI's Dates.csv export), then `--columns clicks:poisson,impressions:poisson` |
+| Did the change fall inside a Google update, a release or a price change? | `--events updates.csv` (start[,end],label per line) |
 | ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
 | ...for a level that wanders all the time | `watch.mjs --detector drift` |
 
@@ -99,6 +101,12 @@ where it departs from the paper.
   writes orders, revenue and cancelled orders per complete day from your own store's Admin GraphQL API; the self-deploy
   workflow fetches and watches it when the secret `SHOPIFY_ACCESS_TOKEN` and variable `SHOPIFY_SHOP` are set. README
   "Shopify as a source".
+- **Watch your Google search traffic** (2026-11-21): `GSC_SERVICE_ACCOUNT_JSON="$(cat key.json)" node search-console-metrics.mjs --site sc-domain:example.com --out data/gsc.csv`
+  writes clicks, impressions, CTR and position per finished day from your own Search Console property (or, with no API
+  set-up, `--from-export Dates.csv` converts the Performance report's export); the self-deploy workflow fetches and
+  watches it when the secret `GSC_SERVICE_ACCOUNT_JSON` and variable `GSC_SITE` are set. `node cli.mjs data/gsc.csv
+  --column clicks --model poisson --period 7 --events updates.csv` says which changes fall inside the dates you list.
+  README "Google Search Console as a source".
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
@@ -543,6 +551,13 @@ Free and open source (MIT, see `LICENSE`). Optional support:
   a person still has to read them to notice a lasting drop. `shopify-metrics.mjs` plus the watch sends one message
   when orders, revenue or cancellations move to a new level and stay there, from the merchant's own GitHub account,
   free (see "Shopify as a source").
+- **Search Console itself, and update-overlay tools (rank-tracking "sensors", charts that draw Google's update dates
+  over your traffic):** Search Console shows the series, but
+  says nothing about whether a dip is a lasting change or when it began; overlay tools draw the dates and leave the
+  matching to the eye. `search-console-metrics.mjs` plus the watch sends one message when clicks or impressions move
+  to a new level, from the site owner's own GitHub account, and `--events` dates the change with a range and says
+  how often a change that wide would land in one of the listed windows by chance (see "Google Search Console as a
+  source").
 
 
 **Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
@@ -3610,6 +3625,84 @@ The 12 payments/revenue alerts in the first row are true: a quarter of attempts 
 succeeded payments. The quiet is optimistic: these shops have no weekly cycle, promotions or growth, all of which a
 real shop has and which the watch's own history replay (`--suggest`) is there to measure. Next: a real shop's
 daily Stripe series (a deployer's, or a public one) through `--suggest`, and a weekly cycle (`--period 7`) per column.
+
+## Google Search Console as a source (2026-11-21)
+
+Stripe and Shopify cover what a business sells; for a site that lives on search traffic, the number that falls
+first is Google clicks, and the question its owner asks is "did that drop start with an algorithm update, or with
+something we did?". `search-console-metrics.mjs` turns the deployer's own Search Console property into the daily CSV
+the watch and the CLI read, and the CLI's new `--events` answers the second half with dates, not a chart overlay.
+
+The source:
+
+- **API:** `searchanalytics.query` with dimension `date` on `https://searchconsole.googleapis.com/webmasters/v3`,
+  authorised by a **service account** the site owner creates in their own Google Cloud project and adds as a
+  Restricted (read-only) user of the property. The script signs the RS256 JWT itself with `node:crypto` and trades
+  it at `https://oauth2.googleapis.com/token` for a `webmasters.readonly` token (Google's server-to-server flow), so
+  there is still no dependency. `GSC_ACCESS_TOKEN` takes a ready token instead (from `gcloud` or the OAuth
+  playground; it lasts an hour). `GSC_API_BASE` and `GSC_TOKEN_URL` take loopback addresses only (tests), so the key's
+  signed assertion can never go anywhere but Google;
+- **finished days only:** the query asks for `dataState: "all"` so the answer names `first_incomplete_date`, and rows
+  from that day on are dropped; a half-collected day never reads as a fall. When Google names no incomplete day the
+  latest day returned is the last one written. Days are Search Console's own (Pacific time);
+- `clicks`, `impressions`, `ctr` (percent) and `position` (average); a day Search Console has no row for is written
+  as 0 clicks and 0 impressions with CTR and position blank (there was nothing to average);
+- an existing CSV is extended, its last `--refetch` days (default 4) fetched again, since Google revises recent days;
+  `--type` picks web, image, video, news, discover or googleNews;
+- **no API at all:** `--from-export Dates.csv` converts the Performance report's export (newest first, CTR as "4.5%")
+  into the same file, oldest first, missing days filled. That covers 16 months of history for a one-off analysis;
+- 401, 403 (with what to fix: add the service account's email as a user, write the property exactly) and a refused
+  key are answered in words; a property that is neither `sc-domain:...` nor a URL prefix with its trailing slash is
+  refused before any call.
+
+`deploy/watch-metric.yml` runs it when the secret `GSC_SERVICE_ACCOUNT_JSON` is set (property in the variable
+`GSC_SITE`, options in `GSC_OPTIONS`), caches `data/gsc.csv`, and with `METRIC_CSV` unset and no Stripe or Shopify
+file watches `--columns clicks:poisson,impressions:poisson`. `make-watch-repo.sh` and the watch page's no-terminal
+zip copy the script and ignore the CSV.
+
+**Events.** `node cli.mjs gsc.csv --column clicks --model poisson --period 7 --events updates.csv` reads one event per
+line, `start[,end],label` (a rollout's first and last day, or one date), and under the changes prints which ones
+have a 95% range that overlaps an event window (`--event-slack N` widens each window by N days a side). For each
+change it also prints the share of places in the series where a change of the same width would have overlapped a
+window: the chance of the coincidence. Several two-week rollouts a year cover a good share of a site's days, so a
+change "inside an update" can be what chance gives; the figure says how much. Events with no change in them are
+listed too, with the caveat that a small effect may sit under the noise. The list is the user's: the repository
+does not ship Google's update dates (the status dashboard could not be reached from the session that built this, and
+a list typed from memory would be a fabricated record). Google's Search Status Dashboard lists each ranking update with
+its rollout dates.
+
+**Checked** (`search-console-metrics.test.mjs`, 9 tests; `events.test.mjs`, 3): against a stand-in for both Google
+endpoints with their documented shapes. The stand-in verifies the JWT's RS256 signature with the key pair's public
+half and refuses a key it does not know (`invalid_grant`); the query body is exactly `{startDate, endDate,
+dimensions: ['date'], type, dataState: 'all', rowLimit: 25000, startRow}`; the two incomplete days are dropped and a
+missing day is written blank; a second run two days later asks only for the last 4 days and keeps the rest
+byte-identical; the 403 message names the fix; the UI export converts, rejects a Queries export and a doubled
+date; a simulated site that loses 40% of its clicks is heard by the watch and the CLI puts the fall inside the
+listed window; and the made repository's workflow, run under `deploy/run-workflow.mjs`, fetches 478 days, watches
+both columns, commits the state, never the CSV, and never prints the key. The events overlap and chance figures
+are checked against hand counts. **Not checked against a live property**: no session holds a key; a deployer's
+first run is that check.
+
+**How fast the watch hears a fall** (`eval/gsc-watch-sim.mjs`, simulated sites, not real Search Console data): 240
+days with a weekly cycle (weekends 70%) and day-to-day swings beyond Poisson (a gamma multiplier, cv 15%), 50, 400 or
+3,000 clicks a day, a lasting fall on day 180, 20 sites a cell, the watch run each day from day 120 as a deployer's
+workflow runs it on a count column that names nothing (the count default, "Quiet").
+
+| clicks a day | fall | heard | median days to the alert | false alerts per 1,000 days |
+|---|---|---|---|---|
+| 50 | none | - | - | 0.42 |
+| 50 | 10% / 20% / 40% | 1 / 5 / 19 of 20 | 4 / 9 / 4 | 0 |
+| 400 | none | - | - | 0 |
+| 400 | 10% / 20% / 40% | 0 / 3 / 20 of 20 | - / 8 / 4 | 0 / 0.83 / 0 |
+| 3,000 | none | - | - | 0 |
+| 3,000 | 10% / 20% / 40% | 0 / 5 / 20 of 20 | - / 4 / 4 | 0 |
+
+So the default hears a 40% fall in about four days with almost no false alerts, and misses most 20% falls and nearly
+every 10% one, whatever the traffic. The page's Eager setting for counts (`--detector pelt`,
+`eval/gsc-watch-sim-eager.out.txt`) hears nearly all of them but sends 39-148 false alerts per 1,000 days (one a week on
+the busier sites), because the Poisson cost takes the extra-Poisson day-to-day swings for changes. Neither is the
+setting a site owner wants for 10-20% falls; for those, read a month of rows with the CLI (`--period 7`) rather than
+wait for an alert. A middle setting for over-dispersed traffic is the open item.
 
 ## Shopify as a source (2026-11-19)
 

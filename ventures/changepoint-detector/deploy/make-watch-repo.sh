@@ -15,11 +15,11 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
-printf '# Stripe and Shopify metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\n' > "$DEST/.gitignore"
+printf '# Stripe, Shopify and Search Console metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\n' > "$DEST/.gitignore"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch
 
@@ -62,6 +62,14 @@ Admin API access token as the secret `SHOPIFY_ACCESS_TOKEN` and your store name 
 `my-store.myshopify.com`) as the variable `SHOPIFY_SHOP`. With `METRIC_CSV` unset and no Stripe key, each run fetches
 your complete days into `data/shopify.csv` (orders, revenue, cancelled orders; `node shopify-metrics.mjs --help`) and
 watches all three. Keep this repository private; `data/shopify.csv` is cached, never committed.
+
+Google Search Console: in a Google Cloud project, enable the Search Console API and create a service account with a
+JSON key; in Search Console add the service account's email as a Restricted user of your property. Add the whole key
+file as the secret `GSC_SERVICE_ACCOUNT_JSON` and the property as the variable `GSC_SITE` (`sc-domain:example.com`, or
+the URL prefix with its trailing slash). With `METRIC_CSV` unset and no Stripe or Shopify credentials, each run fetches
+your finished days into `data/gsc.csv` (clicks, impressions, CTR, position; `node search-console-metrics.mjs --help`)
+and watches clicks and impressions, so a lasting fall in search traffic reaches you within about a week, not at the
+end of the month. `data/gsc.csv` is cached, never committed.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood
