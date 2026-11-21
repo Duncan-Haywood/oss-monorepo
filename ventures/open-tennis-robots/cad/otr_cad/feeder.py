@@ -1529,13 +1529,24 @@ STEPSTICK = (15.24, 20.32)       # header rows apart, board length
 CARRIER = (50.0, 40.0, 4.0)      # x, y, thickness; M3 holes at (+-20, +-15) from its centre
 CARRIER_HOLES = [(sx * 20.0, sy * 15.0) for sx in (-1, 1) for sy in (-1, 1)]
 CARRIER_XY = (-605.0, 155.0)     # holes on the deck's M3 grid (x = -645 + 10k, y = 10k), clear of the run's start at x -560
+CARRIER_STANDOFF = 6.0           # the standoffs under the block, mm
+CARRIER_SCREW_LEN = 20           # M3 screw from the block's top through standoff and deck to a nut below
+
+
+def carrier_screw_len() -> int:
+    return CARRIER_SCREW_LEN
+
+
+def carrier_screw() -> str:
+    return f"M3 x {CARRIER_SCREW_LEN} screw + nut (stepper driver carrier)"
 
 
 def stepper_driver_carrier(p: Feeder) -> Part:
     lx, ly, t = CARRIER
-    blk = Box(lx, ly, t).moved(Location((0, 0, t / 2 + 6.0)))
-    for hx_, hy_ in CARRIER_HOLES:                          # 6 mm standoffs over the screw heads' nuts
-        blk = blk + Cylinder(4.0, 6.0).moved(Location((hx_, hy_, 3.0)))
+    h = CARRIER_STANDOFF
+    blk = Box(lx, ly, t).moved(Location((0, 0, t / 2 + h)))
+    for hx_, hy_ in CARRIER_HOLES:                          # standoffs lift the block off the deck
+        blk = blk + Cylinder(4.0, h).moved(Location((hx_, hy_, h / 2)))
         blk = blk - Cylinder(1.7, 20).moved(Location((hx_, hy_, 5.0)))
     hx, hy = STEPSTICK
     # two header windows (2.54 mm pitch rows, 8 pins) and the driver's footprint pocket for the solder side
@@ -1549,7 +1560,7 @@ def stepper_driver_carrier(p: Feeder) -> Part:
                 notes="Carries the azimuth stepper's StepStick driver (TMC2209 or A4988 class) in two 1x8 female headers "
                       "on a scrap of 2.54 mm perfboard pushed into the windows, with a 4-way and a 2-way screw terminal "
                       "(motor out, 24 V in) at the +y end and a 100 uF 35 V capacitor across 24 V at the terminal. Four "
-                      "M3 x 16 into the deck's M3 grid (40 x 30 mm). Set the driver's current to the manifest's "
+                      f"M3 x {CARRIER_SCREW_LEN} into the deck's M3 grid (40 x 30 mm), nuts under the deck. Set the driver's current to the manifest's "
                       "stepper_amps and its microstep pins to firmware AZ_MICROSTEPS; stick its heatsink on; STEP/DIR to "
                       "GPIO 14/21, EN to GND.")
 
@@ -2699,7 +2710,7 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M5 x 12 button head + T-nut (cable clamp)", 1, "axis cable clamp to the crossbar's front slot"),
         ("M5 x 10 button head + T-nut (deck cables)", 2 * len(p.deck_cable_ties()["post"]) + len(p.deck_cable_ties()["crossbar"]),
          "cable saddles on the +y rear mast post, hangers under the cable crossbar"),
-        ("M3 x 16 screw + nut (stepper driver carrier)", 4, "carrier to the deck's M3 grid"),
+        (carrier_screw(), 4, "carrier to the deck's M3 grid"),
     ]
 
 

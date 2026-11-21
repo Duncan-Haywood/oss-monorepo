@@ -408,8 +408,10 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
     else:
         guide_bad += (G.hatch_check(p, parts) + G.access_problems(p, parts) + G.step_access_problems(p, parts)
                       + G.hatch_screw_problems(p, parts))
+    spanner_rows, spanner_bad = G.spanner_checks(p, parts)
+    guide_bad += spanner_bad
     rules = rules + guide_bad
-    G.write(out, p, parts, bom_rows, joint_rows, guide_bad, drawings)
+    G.write(out, p, parts, bom_rows, joint_rows, guide_bad, drawings, spanner_rows=spanner_rows)
 
     write_csv("laser_parts.csv", laser_rows)
     write_csv("print_parts.csv", print_rows)
@@ -424,7 +426,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
     if feeder:
         checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g, turning, gravity)
         checks.append(f"assembly guide (guide/ASSEMBLY.md): {len(joint_rows)} fastener stacks, part and BOM tally, "
-                      f"step order, head access, extrusion end bores: {'pass' if not guide_bad else 'FAIL'}")
+                      f"step order, head access, extrusion end bores, spanners on {len(spanner_rows)} nut joints: {'pass' if not guide_bad else 'FAIL'}")
     else:
         length, width = p.overall
         bh = p.bump_switch_design()
@@ -437,7 +439,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
             f"overall: {length:.0f} mm long x {width:.0f} mm wide, track {p.track:.0f} mm",
             f"made-part mass (estimate, excludes bought-in parts): {mass_g / 1000:.1f} kg",
             f"assembly guide (guide/ASSEMBLY.md): {len(joint_rows)} fastener stacks, part and BOM tally, step "
-            f"order, hatch removal: {'pass' if not guide_bad else 'FAIL'}",
+            f"order, hatch removal, spanners on {len(spanner_rows)} nut joints: {'pass' if not guide_bad else 'FAIL'}",
             f"yoke-lift switches: the arm's lobe first touches the roller at {bh['contact_rise_mm']:.1f} mm of drum "
             f"rise and clicks it at {bump['click_rise_mm']:.1f} mm (measured on the CAD; designed {p.bump_lift_mm:g}, "
             f"switch tolerance {bh['tol_rise_mm'][0]:+.1f}/{bh['tol_rise_mm'][1]:+.1f} mm, set it with the tower's "

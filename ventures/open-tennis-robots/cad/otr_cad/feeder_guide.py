@@ -177,11 +177,12 @@ def steps(p: Feeder) -> list[Step]:
              reach=F.ELEV_EYE_MM - 2.5),
         Step("Deck, battery and stepper driver carrier", ["base_deck", "battery", "stepper_driver_carrier"],
              [("M5 x 12 button head", 10), ("M5 T-nut (slot 6)", 10),
-              ("25 mm hook-and-loop strap, 600 mm (battery)", 1), ("M3 x 16 screw + nut (stepper driver carrier)", 4)],
-             "3 mm and 2.5 mm hex keys",
+              ("25 mm hook-and-loop strap, 600 mm (battery)", 1), (F.carrier_screw(), 4)],
+             "3 mm and 2.5 mm hex keys, 5.5 mm spanner",
              "Bolt the deck onto the side rails' top slots (ten M5 x 12 into T-nuts). Strap the battery down through "
              "the two slots, terminals toward the electronics. Screw the stepper driver carrier to the deck's M3 grid "
-             "(four M3 x 16, nuts below), terminals to +y."),
+             f"(four M3 x {F.carrier_screw_len()} down through the block and its standoffs, nuts under the deck, held "
+             "with a spanner from below), terminals to +y."),
         Step("Hopper posts and braces", ["hopper_post_rear", "hopper_post_front", "hopper_brace_x", "hopper_brace_y"],
              [("M5 x 16 button head (hopper)", 8), ("2020 corner bracket with M5 screws and T-nuts", 6)],
              "3 mm hex key, a second person",
@@ -398,7 +399,7 @@ def joints(p: Feeder) -> list[Joint]:
               (hx, hy, 0.0), "z", p.mast_top_z + p.plate_t + p.home_bracket_t, -1, 1.7, 2.75,
               nut_h=M3_NUT_H, extra=WASHER[3]),
         Joint("head pivot", "M8 x 120 bolt + nyloc nut + 4 washers", 120, 8, "nut", (p.head_x, 0.0, p.pivot_z), "y",
-              cheek_out, -1, 4.3, 6.5, extra=2 * WASHER[8], far="trunnion_cheek_elev"),
+              cheek_out, -1, 4.3, 6.5, extra=2 * WASHER[8], far="trunnion_cheek_elev", hex_head=True),
         Joint("deck to side rail", "M5 x 12 button head", 12, 5, "tnut", (deck_x, hw, 0.0), "z",
               p.rail_top + p.plate_t, -1, 2.75, 4.75, "side_rail"),
         Joint("drive bracket to side rail", "M5 x 12 button head", 12, 5, "tnut",
@@ -433,11 +434,12 @@ def joints(p: Feeder) -> list[Joint]:
               (0.0, 0.0, p.cable_clamp_z), "x", clamp, -1, 2.75, 4.75, "cable_crossbar"),   # head drops in from above
         Joint("elevation pin (rod eye) through the guard plate", F.elev_pin_spec_short(), F.ELEV_PIN_SHOULDER, 5,
               "clamp", _hw(p, p.elev_pin_x, p.elev_pin_z), "y", lay["pin"]["seat"], 1, 3.2, 5.0, "head_guard_plate",
-              far="head_guard_plate", thread=F.SHOULDER[5][1], nut_h=F.THIN_NUT[5][0], free=F.ELEV_EYE_W, bolt="elev_pin"),
+              far="head_guard_plate", thread=F.SHOULDER[5][1], nut_h=F.THIN_NUT[5][0], free=F.ELEV_EYE_W, bolt="elev_pin",
+              step="Hang the head"),
         Joint("elevation anchor (anchor eye) through the cheek's tab", F.elev_pin_spec_short(anchor=True),
               F.ELEV_ANCHOR_SHOULDER, 5, "clamp", (ax_w, 0.0, az_w), "y", lay["anchor"]["seat"], 1, 3.2, 5.0,
               "trunnion_cheek_elev", far="trunnion_cheek_elev", thread=F.SHOULDER[5][1], nut_h=F.THIN_NUT[5][0],
-              free=F.ELEV_EYE_W, bolt="elev_anchor_bolt"),
+              free=F.ELEV_EYE_W, bolt="elev_anchor_bolt", step="Hang the head"),
         Joint("shuttle pin through the rod and the plate's slot", f"M4 shoulder bolt, 5 x {F.SHUTTLE_PIN_SHOULDER:g}",
               F.SHUTTLE_PIN_SHOULDER, 4, "clamp", (p.head_x + xs0, 0.0, p.launch_z + p.shuttle_zc), "y", rod_out, -1,
               2.7, 4.5, "feed_shuttle", room=F.SHUTTLE_INSERT_DEPTH, far="feed_shuttle", thread=F.SHOULDER[4][1],
@@ -459,9 +461,15 @@ def joints(p: Feeder) -> list[Joint]:
         Joint("lift flight cap through its cleat",
               f"M3 x {p.lift_cap_screw:g} countersunk screw + washer + nyloc nut (flight caps)", p.lift_cap_screw, 3,
               "nut", (0, 0, 0), F.lift_flight_cap_location(p) * Location((p.lift_cap_pin_x, p.lift_cap_pin_y, 0)),
-              p.lift_finger_t / 2, -1, 1.7, 2.75, extra=WASHER[3], gap=1.0),   # gap: the countersink's mouth
+              p.lift_finger_t / 2, -1, 1.7, 2.75, extra=WASHER[3], gap=1.0, step="Lift column"),   # gap: the countersink's mouth
         Joint("deck cable saddle", "M5 x 16 button head + nyloc nut (deck cables)", 16, 5, "nut",
               (saddle_x, saddle_y, 0.0), "z", p.rail_top + p.plate_t + p.deck_saddle_base / 2, -1, 2.75, 4.75),
+        # the driver carrier's four screws, down through its block and standoffs and the deck, nuts under the deck
+        # (a checked joint since 2026-11-21: an M3 x 16 left 1 mm of thread under the deck for a 2.4 mm nut)
+        Joint("driver carrier to deck", F.carrier_screw(), F.carrier_screw_len(), 3, "nut",
+              (F.CARRIER_XY[0] + F.CARRIER_HOLES[0][0], F.CARRIER_XY[1] + F.CARRIER_HOLES[0][1], 0.0), "z",
+              p.rail_top + p.plate_t + F.CARRIER_STANDOFF + F.CARRIER[2], -1, 1.7, 2.75, nut_h=M3_NUT_H, access=True,
+              holes=tuple((F.CARRIER_XY[0] + hx, F.CARRIER_XY[1] + hy, 0.0) for hx, hy in F.CARRIER_HOLES[1:])),
     ]
 
 

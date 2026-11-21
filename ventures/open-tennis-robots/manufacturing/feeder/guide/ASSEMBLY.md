@@ -279,11 +279,11 @@ Lift the head between the cheeks and push the M8 pivot bolt through cheek, washe
 | M5 x 12 button head | 10 |
 | M5 T-nut (slot 6) | 10 |
 | 25 mm hook-and-loop strap, 600 mm (battery) | 1 |
-| M3 x 16 screw + nut (stepper driver carrier) | 4 |
+| M3 x 20 screw + nut (stepper driver carrier) | 4 |
 
-Tools: 3 mm and 2.5 mm hex keys.
+Tools: 3 mm and 2.5 mm hex keys, 5.5 mm spanner.
 
-Bolt the deck onto the side rails' top slots (ten M5 x 12 into T-nuts). Strap the battery down through the two slots, terminals toward the electronics. Screw the stepper driver carrier to the deck's M3 grid (four M3 x 16, nuts below), terminals to +y.
+Bolt the deck onto the side rails' top slots (ten M5 x 12 into T-nuts). Strap the battery down through the two slots, terminals toward the electronics. Screw the stepper driver carrier to the deck's M3 grid (four M3 x 20 down through the block and its standoffs, nuts under the deck, held with a spanner from below), terminals to +y.
 
 ### 14. Hopper posts and braces
 
@@ -615,6 +615,7 @@ Each length is measured from the head's face through the parts the model puts un
 | lift spacer ear to the boot | M3 x 8 socket cap screw + M3 heat-set insert, 4 mm long (lift) | lift_motor_spacer 3 | 3 | 8 | 5 | 4 to 6 mm past the face, the insert's length to the pocket's depth | pass |
 | lift flight cap through its cleat | M3 x 14 countersunk screw + washer + nyloc nut (flight caps) | lift_flight_cap 4.301 + lift_belt 3 + 0.5 washers | 8.5 | 14 | 5.5 | needs 5 mm past the stack for the nyloc and two threads | pass |
 | deck cable saddle | M5 x 16 button head + nyloc nut (deck cables) | deck_cable_saddle 1.5 + base_deck 5 | 6.5 | 16 | 9.5 | needs 6.6 mm past the stack for the nyloc and two threads | pass |
+| driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | stepper_driver_carrier 10 + base_deck 5 | 15 | 20 | 5 | needs 3.4 mm past the stack for the nut and two threads | pass |
 
 ## Other checks
 
@@ -627,5 +628,22 @@ Each length is measured from the head's face through the parts the model puts un
   behind their heads (a counterbore closed at its far end fails).
 - Every screw into an extrusion's end lands on one of its core bores, 10 mm either side of the
   end's centre along the 40 mm side.
+
+## Spanners on the nuts
+
+Each nut, at every one of its holes, when its step comes: a ring spanner of the nut's size (its length assumed: 5.5 mm, 85 long, 7 mm, 100 long, 8 mm, 110 long, 10 mm, 130 long, 13 mm, 165 long, unless the step asks for another) and
+the hand on its end (35 mm of fingers, then 150 mm of hand and wrist along the shank, 25 mm deep) are laid on the nut and
+turned about the bolt 5 degrees at a time. "Nut" is the widest arc that is clear at the worst hole; a nut needs one clear angle to be held,
+and 30 degrees (a 12-point ring's step) to be turned. A hex head turned with a spanner is swung the same way ("Head").
+
+| Joint | Fastener | Step | Spanner on the nut | Holes | Nut (deg) | Head (deg) | Turn | |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| home switch bracket | M3 x 12 socket cap screw + washer + nut (home switch) | 6 | 5.5 mm, 85 long | 1 | 145 | - | head (key) or nut | pass |
+| head pivot | M8 x 120 bolt + nyloc nut + 4 washers | 12 | 13 mm, 165 long | 1 | 165 | 115 | head or nut | pass |
+| elevation pin (rod eye) through the guard plate | Shoulder bolt 6 x 40, M5, + thin nut | 12 | 8 mm, 110 long | 1 | 55 | - | head (key) or nut | pass |
+| elevation anchor (anchor eye) through the cheek's tab | Shoulder bolt 6 x 30, M5, + thin nut | 12 | 8 mm, 110 long | 1 | 85 | - | head (key) or nut | pass |
+| lift flight cap through its cleat | M3 x 14 countersunk screw + washer + nyloc nut (flight caps) | 22 | 5.5 mm, 85 long | 1 | 15 | - | head (key) | pass |
+| deck cable saddle | M5 x 16 button head + nyloc nut (deck cables) | 23 | 8 mm, 110 long | 1 | 225 | - | head (key) or nut | pass |
+| driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | 13 | 5.5 mm, 85 long | 4 | 205 | - | head (key) or nut | pass |
 
 Result when this package was built: all pass.
