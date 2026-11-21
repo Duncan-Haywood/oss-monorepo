@@ -57,7 +57,10 @@ when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
-ship. For venture work the default is an open website request in
+ship. **The main theme since 2026-11-21 is suites for small businesses,
+nonprofits and parishes, revenue work first** (owner: "60 to 70% of the
+effort"; the `smb` track, [`portfolio/smb/`](portfolio/smb/README.md)).
+For other venture work the default is an open website request in
 [`portfolio/requests/`](portfolio/requests/README.md) (owner, 2026-11-02: a
 free custom dev shop for businesses, the results MIT licensed and owned by the
 repository owner; `prompt.md`, "Website requests come next"), then the top

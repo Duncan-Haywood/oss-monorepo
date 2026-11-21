@@ -31,6 +31,11 @@ owner's merchant of record is on; it never gates other work (Guardrails,
 
 ## Mission
 
+**The main theme since 2026-11-21: suites for small businesses, nonprofits
+and parishes, about 60% of runs** ("Direction: suites for small businesses,
+nonprofits and parishes", below). The shares named in this section were cut
+that day to make room; `prompts/routing.json` holds the current weights.
+
 One public repository for the owner's open-source work, with two portfolios
 and one platform that runs them:
 
@@ -63,10 +68,10 @@ and one platform that runs them:
 - **The platform** (`platform/`, `portfolio/`, `prompts/`): the agents,
   checks and prompts that do the work above. It exists to serve the two
   portfolios, not to grow on its own.
-- **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
+- **Free choice** (about 5% of effort; about 3% since 2026-11-21): in the spirit of Google's "20% time",
   about one run in twenty works on whatever the agent finds most interesting,
   with its own approach (`prompts/explore/`). Same guardrails, same bar.
-- **Creative work** (about 10% of runs; owner, 2026-10-21: "the scheduled
+- **Creative work** (about 10% of runs, about 4% since 2026-11-21; owner, 2026-10-21: "the scheduled
   agents are the throughput power I have I want some portion of them going
   towards carrying out actually operating that goal"): the owner's
   long-running creative projects, written, voiced and published by the
@@ -241,6 +246,47 @@ accounts, email sign-ups, server logs and cookieless analytics vendors are
 fine with a lawful basis and an accurate notice. Table of what is allowed and
 what the law asks: `docs/legal/privacy-baseline.md`. Spec:
 `portfolio/usage/README.md`.
+
+## Direction: suites for small businesses, nonprofits and parishes
+
+Set by the owner on 2026-11-21, as the main theme: "I want to move a lot of the
+dev work towards for-profit tools for small and medium businesses ... full
+working businesses, solving the most common problems for small and medium
+businesses, all sorts of domains. ... The SaaS products, basically at cost
+plus, like full suites of tools for all of the most common problems that
+small and medium businesses have. Also for nonprofits like parishes,
+especially Catholic charities ... very thorough, very high-quality tools ...
+I want to move like probably 60 to 70% of the effort there as a broad theme.
+... Hyper niche tools, very specialized for very specific businesses ...
+solving all of them basically in order of most value delivered. Ideally,
+connecting to revenue generating activities, either for charities, for grants
+and donations and whatnot, or for businesses ... and then secondarily for cost
+reducing things, because those are the things that tend to pay best." On
+learning what firms need: "outreach to businesses either through email
+marketing or cold calls where legally allowed ... but I think, generally
+speaking, you can just look at how an average SMB works and determine what
+type of problems they will most likely have."
+
+So the `smb` track takes about 60% of runs (weight 0.58 in `routing.json`,
+rising as the polish period ends; quality, polish and free-choice runs that
+land on these suites add to it), and research, ventures outside it and the
+side tracks were cut to make room. The work is whole suites a firm can run
+part of its operation on, revenue work (leads, quotes, getting paid, repeat
+customers, donors, grants) before cost work (books, payroll, scheduling,
+bills), in hyper-niche editions for one trade or kind of organisation, the
+parish office and Catholic charities agencies among the first. The
+programme, the problem map and the queue: [`portfolio/smb/README.md`](../portfolio/smb/README.md)
+and [`portfolio/smb/suites.yaml`](../portfolio/smb/suites.yaml). The other
+directions in this file stay; where they compete for a run, this one wins.
+
+The hard limits hold unchanged. **Cost plus** is sold through the merchant of
+record and ships dark ("Payments", below); the code stays MIT and
+self-deployable. Running a hosted plan makes the owner the operator of other
+firms' data, so standing one up is the owner's decision, and suites are built
+so it is possible without anyone hosting them. **Outreach** is prepared by
+agents and sent by a person, one to one, within CAN-SPAM, the TCPA and the
+stricter rules abroad; never unattended, never under the portfolio's public
+name without the owner.
 
 ## Direction: sales, marketing and business tools
 

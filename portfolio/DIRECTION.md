@@ -64,6 +64,14 @@ calculators beyond fixes; already-built ones can still merge (owner, 2026-10-21;
 
 ## Current priority
 
+**Since 2026-11-21 the main theme is suites for small businesses, nonprofits,
+parishes and Catholic charities, about 60% of runs** (the `smb` track): whole
+products a firm can run part of its operation on, revenue work before cost
+work, hyper-niche editions per trade. The programme and queue:
+[`smb/README.md`](smb/README.md), [`smb/suites.yaml`](smb/suites.yaml)
+(`prompts/goals.md`, "Direction: suites for small businesses, nonprofits and
+parishes"). The list below orders the rest of venture work.
+
 1. If `pages_state.py` says the snapshot is stale, refresh it.
 2. Get a first usage reading for a product, or act on one that exists.
 3. Deepen the top flagship in [`portfolio/flagships.yaml`](flagships.yaml).
