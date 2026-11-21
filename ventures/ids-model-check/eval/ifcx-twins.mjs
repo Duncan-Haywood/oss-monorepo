@@ -68,6 +68,7 @@ function claimsIds(X, objects) {
     if (e.type === "IFCRELCONTAINEDINSPATIALSTRUCTURE") rel("RelatedElements", "RelatingStructure");
     if (e.type === "IFCRELVOIDSELEMENT") rel("RelatedOpeningElement", "RelatingBuildingElement");
     if (e.type === "IFCRELFILLSELEMENT") rel("RelatedBuildingElement", "RelatingOpeningElement");
+    if (e.type === "IFCRELASSIGNSTOGROUP") rel("RelatedObjects", "RelatingGroup");
     if (e.type === "IFCRELASSOCIATESMATERIAL") for (const o of refsIn(e.args[as.index.get("RelatedObjects")])) add("material", "", `<material><value>${sv(X.entities.get(refsIn(e.args[as.index.get("RelatingMaterial")])[0]).args[0])}</value></material>`, o);
     if (e.type === "IFCRELASSOCIATESCLASSIFICATION") {
       const r = X.entities.get(refsIn(e.args[as.index.get("RelatingClassification")])[0]);
@@ -83,6 +84,8 @@ function claimsIds(X, objects) {
     const pdt = pi !== undefined && x.args[pi] && x.args[pi].enum;
     add("class", x.type, `<entity><name>${sv(x.type)}</name></entity>`, x.args[0]);
     if (pdt) add("predefined type", x.type, `<entity><name>${sv(x.type)}</name><predefinedType>${sv(pdt === "USERDEFINED" ? x.args[S.attrs(x.type).index.get("ObjectType")] : pdt)}</predefinedType></entity>`, x.args[0]);
+    const fi = S.attrs(x.type).index.get("FlowDirection");
+    if (fi !== undefined && x.args[fi] && x.args[fi].enum) add("flow direction", "", `<attribute><name>${sv("FlowDirection")}</name><value>${sv(x.args[fi].enum)}</value></attribute>`, x.args[0]);
     for (const [type, parent] of relsOf.get(x.id) || []) add("partOf", "", `<partOf relation="${type}"><entity><name>${sv(parent.type)}</name></entity></partOf>`, x.args[0]);
     for (const [sn, slot] of psetsOf(X, x)) for (const [pn, p] of slot.props) {
       const vs = values(X, p);
@@ -103,7 +106,7 @@ const CLAIMS_MAX = Number(process.env.CLAIMS_MAX || 1500);
 const claimSampled = [];
 const C = new Map(); // kind -> [objects held on IFC5, held on STEP, total]
 const claimFails = [];
-const T = { nameIdent: 0, objects: 0, paired: 0, cls: 0, pdt: 0, name: 0, props: 0, propSame: 0, propOtherSet: 0, propValueDiff: 0, propMissing: 0, ids: 0, idsSame: 0, idsUser: 0, ifcxObjects: 0, ifcxOnly: 0 };
+const T = { nameIdent: 0, objects: 0, paired: 0, cls: 0, pdt: 0, name: 0, props: 0, propSame: 0, propOtherSet: 0, propValueDiff: 0, propMissing: 0, ids: 0, idsSame: 0, idsUser: 0, ifcxObjects: 0, ifcxOnly: 0, connS: 0, connX: 0, connSame: 0 };
 const pdtDiffs = new Map();
 const whyDiff = new Map();
 const missingBySet = new Map(), otherSet = new Map(), diffs = [];
@@ -147,6 +150,22 @@ for (const [stepPath, ifcxPath] of pairs) {
       }
     }
   }
+  // Port connections (IfcRelConnectsPorts), compared as unordered GlobalId
+  // pairs: IDS has no facet for them, so they are counted here.
+  const conns = (M) => {
+    const out = new Set();
+    for (const e of M.entities.values()) {
+      if (e.type !== "IFCRELCONNECTSPORTS") continue;
+      const as = M.schema.attrs(e.type);
+      const g = ["RelatingPort", "RelatedPort"].map((k) => { const r = e.args[as.index.get(k)]; const t = r && M.entities.get(r.ref); return t && t.args[0]; });
+      if (g[0] && g[1]) out.add(g.sort().join(" "));
+    }
+    return out;
+  };
+  const cS = conns(S), cX = conns(X);
+  T.connS += cS.size; T.connX += cX.size;
+  for (const k of cX) if (cS.has(k)) T.connSame++;
+  if (verbose) for (const k of cS) if (!cX.has(k)) diffs.push(`connection only in STEP: ${k}`);
   // At most CLAIMS_MAX objects a pair (every k-th): a GlobalId list of
   // thousands in each specification's applicability is tested against every
   // entity, which on TeklaHouse's 11,945 objects takes minutes.
@@ -204,6 +223,7 @@ for (const [stepPath, ifcxPath] of pairs) {
 }
 console.log(`\n${pairs.length} pairs. Objects: ${T.paired} of ${T.objects} STEP objects paired (${T.ifcxOnly} IFC5 objects not in STEP); class same ${T.cls}, predefined type same ${T.pdt}, Name same ${T.name}, the same once the converter's key suffix or _ spelling is undone ${T.nameIdent}.`);
 console.log(`STEP properties on paired objects: ${T.props}; same set and value in IFC5 ${T.propSame}; only under another set ${T.propOtherSet}; same set, value differs ${T.propValueDiff}; missing ${T.propMissing}.`);
+console.log(`Port connections: ${T.connX} in IFC5, ${T.connSame} of them in STEP, of ${T.connS} in STEP.`);
 console.log(`IDS verdicts: identical ${T.idsSame} of ${T.ids}; same status and failing GlobalIds ${T.idsUser} of ${T.ids}.`);
 console.log("\nWhat the IFC5 file says about paired objects, as IDS requirements (objects): holds on the IFC5 read / holds on the STEP twin / stated");
 if (claimSampled.some(Boolean)) console.log("(objects sampled, every k-th: " + claimSampled.filter(Boolean).join("; ") + ")");
