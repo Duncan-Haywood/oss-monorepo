@@ -5,7 +5,7 @@
 // (5 ms hops, `t` in ms against the note's end): level, low band and band above 1 kHz against the reference, tilt
 // (above 1 kHz against under 500 Hz), and the near rule's view of each frame (its tilt and level against the vowel
 // 25-45 ms before). Frames inside the sung murmur (codaPlan's n) are marked `n`.
-//   node eval/e4-quarter-diag.mjs [midi=64] [pulses=4] [bpm=86] [sing=1] syllables...
+//   node eval/e4-quarter-diag.mjs [midi=64] [pulses=4] [bpm=86] [sing=1] syllables...   (PART=g for part g, bpm 82)
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
 import { readCoda, frameFeatures, NEAR, MURMUR_TILT } from '../onsets.mjs';
@@ -14,12 +14,14 @@ const argv = process.argv.slice(2), nums = argv.filter((a) => /^\d+$/.test(a)).m
 const [midi = 64, pulses = 4, bpm = 86, singN = 1] = nums;
 // part f's syllables in its order (eval/coda-check.mjs), so each note lands where it did there: the five voices' beat
 // phase at the coda depends on the note's place in the render
-const SY = ['fon', 'blon', 'cron', 'con', 'glun', 'snom', 'clon', 'smum', 'crun', 'plon', 'frun', 'slun', 'snug', 'frub', 'plud', 'glob', 'crod', 'pren', 'len', 'gran', 'clen', 'banc', 'flont', 'spant', 'snons', 'glop', 'gluc', 'brop', 'dor', 'snor', 'pu', 'stur'];
+// PART=g: part g's syllables in its order instead (82 BPM there; pass it as bpm)
+const G = ['trum', 'grum', 'scrum', 'flun', 'drom', 'stom', 'slum', 'gron', 'fron', 'spon', 'sprun', 'strun', 'grub', 'drob', 'stod', 'plug', 'frog', 'tren', 'slen', 'dran', 'fren', 'tranc', 'plent', 'stunt', 'grunc', 'stuc', 'grot', 'trup', 'flor', 'tru', 'grur', 'sto'];
+const SY = process.env.PART === 'g' ? G : ['fon', 'blon', 'cron', 'con', 'glun', 'snom', 'clon', 'smum', 'crun', 'plon', 'frun', 'slun', 'snug', 'frub', 'plud', 'glob', 'crod', 'pren', 'len', 'gran', 'clen', 'banc', 'flont', 'spant', 'snons', 'glop', 'gluc', 'brop', 'dor', 'snor', 'pu', 'stur'];
 const SHOW = syl.length ? syl : ['crun', 'frun'];
 const rate = 44100, db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20)), hop = Math.round(0.005 * rate);
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? (s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2) : 0; };
 const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
-const mid = eventsToMidi(ev, { bpm, title: 'held-out near-rule release' });
+const mid = eventsToMidi(ev, { bpm, title: process.env.PART === 'g' ? 'held-out lip closure hold' : 'held-out near-rule release' });
 const r = renderMidi(mid, { rate, stems: true, sing: singN ? true : 'vowels' });
 const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
 const notes = m.notes.filter((n) => n.ch !== 9 && m.programs.get(n.ch)?.[0]?.[1] === 52).map((n) => ({ t0: sec(n.tick), t1: sec(n.end) })).sort((a, b) => a.t0 - b.t0);

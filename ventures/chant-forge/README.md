@@ -1263,7 +1263,53 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### Held out where the release lands (2026-11-19, latest; both rounds opt-in)
+#### The murmur inside an E4 quarter (2026-11-21, latest; registration failed, the reader unchanged)
+
+The last round left part f's sung *crun* and *frun* on E4 quarters read as nasals only from a near-rule run 198 ms
+after the note's end, so `nearRelease` turned them to nothing: the n sung inside the note was never caught. Read frame
+by frame with the new `eval/e4-quarter-diag.mjs` (every frame from 350 ms before the note's end: level, band under
+500 Hz and band above 1 kHz against the reference, the frame's own tilt, the near rule's view of it, and which frames
+`codaPlan` gave the n):
+
+- **The n is there and plain.** In the note's last 70 ms the band above 1 kHz drops 25-30 dB in 15 ms and stays 18 dB
+  or more under the vowel to the window's end. The vowel-only take of the same cell never takes that band 20 dB under.
+- **Every nasal rule turns it away, each by a little.** It is as loud as the reference, so the level rule's "5 dB under"
+  fails. It is 1 dB louder than the vowel 25-45 ms before it, which sits in the dip of the transition into the n, so the
+  near rule's ceiling (`hi: 0`) cuts its run to 35 ms of the 45 needed. And `lipShut`'s upper band, far under the vowel,
+  still wobbles 8 dB over its first 30 ms with the five voices' beating, against `hiHold: 6`.
+- **The rule tried** (`--shut hiHold=8` in `eval/coda-check.mjs`; no code change, `LIP_SHUT` takes it as an option):
+  8 dB, the smallest hold that admits that cell, read off it before any part ran. Development (A-f, every part,
+  `eval/hihold-sweep.md`): +7 cells and none lost: O's and Y's nasals +1 each, b's dark-vowel nasals 133 to 135 of 144,
+  d's 136 to 137, f's 300 to 302 of 312; every vowel-only control identical. 10 dB, run beside it: +9, none lost.
+- **Pre-registered on a new part g** (`eval/coda-check.mjs` header, thirty-first round, committed as b65b403b3 before g
+  ran): 12 dark-vowel nasals, 5 voiced stops, 4 bright-vowel nasals, 4 n-clusters, 3 voiceless stops and 4 others, none
+  sung before, on f's thirteen pitches, quarters and eighths, at 82 BPM.
+
+| g | default | `hiHold: 8` | wanted |
+|---|---|---|---|
+| dark-vowel nasals missed by the default (test condition: 4 or more) | 11 | | holds |
+| nasals after /u/ or /o/ read exactly (of 312) | 301 | 301 | 1 or more better: **fails** |
+| nasals after a bright vowel, n-clusters as their nasal (of 104 each) | 104, 102 | 104, 103 | no fewer: holds |
+| stops and others read exactly (of 312); read as a nasal | 295; 0 | 295; 0 | no fewer; no more: holds |
+| vowel-only control read as none (of 832) | 832 | 832 | no fewer: holds |
+
+So `hiHold` stays 6. The rule did no harm anywhere, but g had none of the cells it was written for. Read with the same
+diagnostic (`PART=g`), g's E4-quarter misses are two other shapes:
+
+- ***flun***: a clean lip step (upper band -14 to -17 dB, flat), which `lipShut` turns away because its level sits 2-5
+  dB *over* the vowel 25-45 ms before it, its ceiling being `hi: 0`. That window again lands in the transition dip. So
+  *crun*'s near rule and *flun*'s lip rule fail on the same thing: a reference taken where the vowel is already
+  closing. That is the next rule to try: a level reference taken before the transition (`codaPlan`'s TRANSITION, scaled
+  as it scales).
+- ***sprun*, *strun***: the n is not dark in itself (tilt -18 to -21 dB against `murmurTilt`'s 28) and sits 21-25 dB
+  under the vowel. That is the synthesised murmur's beat phase after a cluster onset (`eval/cluster-um-report.md`), not
+  a reader fault.
+
+The third column of g's table re-ran f's failed `nearRelease` prediction with `hiHold: 8`: nasal rows together 507 to
+508 of 520 and the control 832 of 832, so on g it held. With `hiHold` not adopted, that is noted, not acted on. Reader
+only; nothing in the synthesis changed. Not listened to.
+
+#### Held out where the release lands (2026-11-19; both rounds opt-in)
 
 The rounds below left `levelFade` and `longTilt` untested: on part d no vowel-only release reached the end of the
 reader's window. This round built a held-out part where it should.

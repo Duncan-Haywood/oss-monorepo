@@ -663,6 +663,15 @@
 //    column re-tests f's failed prediction: with hiHold 8 and `nearRelease`, nasal rows together (of 520) at most 1 fewer
 //    than the default, and the vowel-only control read as none no fewer; if both hold, nearRelease is a candidate for a
 //    later registration of its own (one held-out part is not enough to make it the default).
+//    Outcome (run 2026-11-21, after the registration above was committed as b65b403b3): failed on (1). (0) held: the
+//    default missed 11 of 312; (1) failed: 301 and 301 of 312, no cell gained; (2) held: bright 104 and 104 of 104,
+//    n-clusters 102 to 103 of 104; (3) held: stops and others 295 and 295 of 312, 0 and 0 read as a nasal; (4) held: 832
+//    and 832 of 832. LIP_SHUT's hiHold stays 6. g's E4-quarter misses (eval/e4-quarter-diag.mjs, PART=g) are other
+//    shapes: *flun*'s step is clean and flat (upper band -14 to -17, held), but its level sits 2-5 dB over the vowel 25-45
+//    ms before, which lands in the transition into the n, so lipShut's `hi: 0` turns it away as NEAR's did *crun*;
+//    *sprun* and *strun* are not dark in themselves (tilt -18 to -21 against murmurTilt's 28). Third column: nasal rows
+//    together 507 to 508 of 520, control 832 and 832: both hold, so nearRelease with hiHold 8 met on g what it missed on
+//    f; with hiHold itself not adopted, that is noted, not acted on.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
