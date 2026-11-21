@@ -56,7 +56,7 @@ const headOf = (text, chars) => (text instanceof Uint8Array ? new TextDecoder().
 
 export function looksLikeIfcx(text) {
   const h = headOf(text, 4000);
-  if (!/^\s*(﻿)?\s*\{/.test(h)) return false;
+  if (!/^\s*(\uFEFF)?\s*\{/.test(h)) return false;
   return /"ifcxVersion"\s*:/.test(h) || /"data"\s*:\s*\[\s*\{\s*"path"\s*:/.test(h);
 }
 
@@ -97,7 +97,7 @@ export function parseIfcx(texts, schema, psets = null) {
     const src = t instanceof Uint8Array ? new TextDecoder().decode(t) : String(t);
     let doc;
     try {
-      doc = JSON.parse(src.replace(/^﻿/, ""));
+      doc = JSON.parse(src.replace(/^\uFEFF/, ""));
     } catch (e) {
       errors.push(`${layers.length > 1 ? `layer ${li + 1}: ` : ""}not valid JSON: ${e.message}`);
       continue;
