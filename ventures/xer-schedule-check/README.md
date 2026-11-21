@@ -11,9 +11,10 @@ uploaded.
 It also **converts an XER to Microsoft Project XML** for someone with Project
 and no P6 seat (WBS, activity IDs, calendars, logic, constraints, progress,
 baseline, resources, activity codes as named text columns, user-defined fields
-as named Number, Cost, Date and Text columns), checked on six public P6 files against this tool's own
+as named Number, Cost, Date and Text columns, resource user-defined fields as
+named resource columns), checked on six public P6 files against this tool's own
 MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`,
-`eval/msproject-udfs-2026-11-21.md`).
+`eval/msproject-udfs-2026-11-21.md`, `eval/rsrc-udfs-2026-11-21.md`).
 And the other way: **Microsoft Project XML to a P6 XER** for P6's import, for
 a planner in Project who must submit a P6 file (WBS under a project node,
 activity IDs, calendars, logic, progress with Project's Resume as P6's
@@ -627,6 +628,15 @@ run as a formula in Excel or Sheets.
   UDFs compete with 37 code types for 29 Text fields; 746 values of the 10
   least-filled text UDFs are named, not written. Before, all 41,729 activity
   UDF values on CCA were dropped. Not opened in Microsoft Project itself.
+- **Resource user-defined fields** (`eval/rsrc-udfs-2026-11-21.md`, 2026-11-21):
+  resource UDFs go into Project's resource Text, Number, Cost and Date fields,
+  renamed to each UDF's title, and come back from a Project file as P6
+  resource UDFs. Through XML and back to an XER, 330 of 330 values return the
+  same on the same resource: the 87 real text values on the public 24.12 file
+  and 243 with planted cost, date and number UDFs. MPXJ 16.10 reads 330 of 330
+  cells from the XML and from the XER, and 12 of 12 field names. A finish-date
+  UDF comes back as a start-date one (Project has one date kind). Before, all
+  87 real values were dropped.
 - **Gantt by activity code** (`eval/activity-codes-2026-11-21.md`): 92
   charts (each code type alone, and then the WBS) on the four public files
   with codes: every activity once, under its TASKACTV value and that value's

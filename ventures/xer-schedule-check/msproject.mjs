@@ -40,7 +40,9 @@
 // calendar, progress override, expected finish dates, resource-dependent
 // activities, the must-finish-by date); notes, steps and expenses are not
 // carried and are counted. Activity user-defined fields are carried as
-// Project's Number, Cost, Date and spare Text fields (udfFields, below).
+// Project's Number, Cost, Date and spare Text fields (udfFields, below), and
+// resource user-defined fields as Project's resource Text, Number, Cost and
+// Date fields on the resources written.
 //
 // Activity codes become Project's spare text fields, Text2 to Text30, one per
 // code type, each renamed (Alias) to the code type's name, so a Project user
@@ -425,8 +427,12 @@ export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
     rsrcUid.set(r.rsrc_id, uid);
     const material = r.rsrc_type === "RT_Mat";
     const cal = !material && calRows.has(r.clndr_id) ? useCal(r.clndr_id).uid : null;
-    res.push(`<Resource><UID>${uid}</UID><ID>${uid}</ID><Name>${esc(nm(r.rsrc_name || r.rsrc_short_name || r.rsrc_id))}</Name><Type>${material ? 0 : 1}</Type><IsNull>0</IsNull><Initials>${esc(r.rsrc_short_name || "")}</Initials>${material ? `<MaterialLabel>${esc(r.unit_of_measure || "")}</MaterialLabel>` : ""}${cal ? `<CalendarUID>${cal}</CalendarUID>` : ""}</Resource>`);
+    res.push({ id: r.rsrc_id, head: `<Resource><UID>${uid}</UID><ID>${uid}</ID><Name>${esc(nm(r.rsrc_name || r.rsrc_short_name || r.rsrc_id))}</Name><Type>${material ? 0 : 1}</Type><IsNull>0</IsNull><Initials>${esc(r.rsrc_short_name || "")}</Initials>${material ? `<MaterialLabel>${esc(r.unit_of_measure || "")}</MaterialLabel>` : ""}${cal ? `<CalendarUID>${cal}</CalendarUID>` : ""}` });
   }
+  // resource user-defined fields -> Project's resource custom fields, on the
+  // resources written (each resource's ExtendedAttribute after its calendar)
+  const rsrcUdf = udfFields(T, rsrcUid, { table: "RSRC" });
+  const resXml = res.map((r) => `${r.head}${rsrcUdf.fields.map((f) => (f.values.has(r.id) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.values.get(r.id))}</Value></ExtendedAttribute>` : "")).join("")}</Resource>`);
   const asg = [];
   let unknownRsrc = 0;
   for (const a of assigns) {
@@ -474,10 +480,10 @@ export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
     "<NewTasksEffortDriven>0</NewTasksEffortDriven>",
     dataDate !== null ? `<StatusDate>${isoDate(dataDate)}</StatusDate>` : "",
     "<NewTasksAreManual>0</NewTasksAreManual>",
-    `<ExtendedAttributes><ExtendedAttribute><FieldID>${TEXT1}</FieldID><FieldName>Text1</FieldName><Alias>Activity ID</Alias></ExtendedAttribute>${extFields.map((f) => `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><FieldName>${f.fieldName}</FieldName><Alias>${esc(f.alias)}</Alias></ExtendedAttribute>`).join("")}</ExtendedAttributes>`,
+    `<ExtendedAttributes><ExtendedAttribute><FieldID>${TEXT1}</FieldID><FieldName>Text1</FieldName><Alias>Activity ID</Alias></ExtendedAttribute>${[...extFields, ...rsrcUdf.fields].map((f) => `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><FieldName>${f.fieldName}</FieldName><Alias>${esc(f.alias)}</Alias></ExtendedAttribute>`).join("")}</ExtendedAttributes>`,
     "<Calendars>", ...calXml, "</Calendars>",
     "<Tasks>", ...body, "</Tasks>",
-    "<Resources>", ...res, "</Resources>",
+    "<Resources>", ...resXml, "</Resources>",
     "<Assignments>", ...asg, "</Assignments>",
     "</Project>",
   ].filter((x) => x !== "").join("\n") + "\n";
@@ -507,22 +513,26 @@ export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
   counts.udfFields = udf.fields.length;
   counts.udfValues = udf.written;
   warnings.push(...udf.warnings);
-  const nUdf = udf.dropped;
+  counts.rsrcUdfFields = rsrcUdf.fields.length;
+  counts.rsrcUdfValues = rsrcUdf.written;
+  warnings.push(...rsrcUdf.warnings);
+  const nUdf = udf.dropped, nRsrcUdf = rsrcUdf.dropped;
   const nMemo = (T.TASKMEMO || []).filter((r) => taskUid.has(r.task_id)).length;
   const nProc = (T.TASKPROC || []).filter((r) => taskUid.has(r.task_id)).length;
   const nCost = (T.PROJCOST || []).filter((r) => taskUid.has(r.task_id)).length;
   if (nCodes) notCarried.push(`${nCodes} activity code assignment(s) of the ${codeFields.droppedTypes} code type(s) past Project's 29 spare text fields`);
   if (nUdf) notCarried.push(`${nUdf} user-defined field value(s) of ${udf.droppedTypes} field(s) with no room or no Project equivalent`);
+  if (nRsrcUdf) notCarried.push(`${nRsrcUdf} resource user-defined field value(s) of ${rsrcUdf.droppedTypes} field(s) with no room or no Project equivalent`);
   if (nMemo) notCarried.push(`${nMemo} notebook entr${nMemo === 1 ? "y" : "ies"}`);
   if (nProc) notCarried.push(`${nProc} step(s)`);
   if (nCost) notCarried.push(`${nCost} expense(s)`);
   if (notCarried.length) warnings.push(`not carried: ${notCarried.join(", ")}`);
 
-  return { xml, project: { id: pid, name: proj.proj_short_name || pid, dataDate: proj.last_recalc_date || "" }, counts, warnings, taskUid, codeFields, udfFields: udf };
+  return { xml, project: { id: pid, name: proj.proj_short_name || pid, dataDate: proj.last_recalc_date || "" }, counts, warnings, taskUid, codeFields, udfFields: udf, rsrcUdfFields: rsrcUdf };
 }
 
 export const msprojectSummary = (r) =>
-  `${r.counts.activities} activities, ${r.counts.wbs} WBS summary tasks, ${r.counts.links} relationships, ${r.counts.calendars} calendar${r.counts.calendars === 1 ? "" : "s"}, ${r.counts.resources} resources, ${r.counts.assignments} assignments${r.counts.codeTypes ? ` and ${r.counts.codeAssignments} activity code values in ${r.counts.codeTypes} text field${r.counts.codeTypes === 1 ? "" : "s"}` : ""}${r.counts.udfFields ? `, ${r.counts.udfValues} user-defined field values in ${r.counts.udfFields} custom field${r.counts.udfFields === 1 ? "" : "s"}` : ""} written`;
+  `${r.counts.activities} activities, ${r.counts.wbs} WBS summary tasks, ${r.counts.links} relationships, ${r.counts.calendars} calendar${r.counts.calendars === 1 ? "" : "s"}, ${r.counts.resources} resources, ${r.counts.assignments} assignments${r.counts.codeTypes ? ` and ${r.counts.codeAssignments} activity code values in ${r.counts.codeTypes} text field${r.counts.codeTypes === 1 ? "" : "s"}` : ""}${r.counts.udfFields ? `, ${r.counts.udfValues} user-defined field values in ${r.counts.udfFields} custom field${r.counts.udfFields === 1 ? "" : "s"}` : ""}${r.counts.rsrcUdfFields ? `, ${r.counts.rsrcUdfValues} resource user-defined field values in ${r.counts.rsrcUdfFields} resource field${r.counts.rsrcUdfFields === 1 ? "" : "s"}` : ""} written`;
 
 // The code types this project's activities use, as text fields. Returns
 // { fields: [{ fieldId, fieldName, alias, typeId, values: Map(task_id -> text) }],
@@ -606,6 +616,15 @@ export const TASK_COST_IDS = ["188743786", "188743787", "188743788", ...Array.fr
 const UDF_KIND = { FT_INT: "number", FT_FLOAT: "number", FT_FLOAT_2_DECIMALS: "number", FT_MONEY: "cost", FT_START_DATE: "date", FT_END_DATE: "date", FT_TEXT: "text" };
 const udfKind = (t) => (Object.hasOwn(UDF_KIND, t) ? UDF_KIND[t] : undefined);
 const KIND_FIELDS = { number: ["Number", TASK_NUMBER_IDS], date: ["Date", TASK_DATE_IDS], cost: ["Cost", TASK_COST_IDS] };
+// Project's resource Text1..30, Number1..20, Cost1..10 and Date1..10 fields
+// (PjField ids from MPXJ 16.10's FieldTypeHelper for ResourceField.TEXT1 and
+// the rest; p6xer.mjs reads them back as resource UDFs)
+const rng = (a, n) => Array.from({ length: n }, (_, k) => String(a + k));
+export const RSRC_TEXT_IDS = ["205520904", "205520905", ...rng(205520926, 3), ...rng(205520993, 5), ...rng(205521121, 20)];
+export const RSRC_NUMBER_IDS = [...rng(205521008, 5), ...rng(205521101, 15)];
+export const RSRC_COST_IDS = [...rng(205521019, 3), ...rng(205521062, 7)];
+export const RSRC_DATE_IDS = rng(205521069, 10);
+const RSRC_KIND_FIELDS = { number: ["Number", RSRC_NUMBER_IDS], date: ["Date", RSRC_DATE_IDS], cost: ["Cost", RSRC_COST_IDS] };
 
 // The activity user-defined fields (UDFTYPE table TASK, values in UDFVALUE)
 // of this project's activities, as Project's spare custom fields: integer and
@@ -619,9 +638,18 @@ const KIND_FIELDS = { number: ["Number", TASK_NUMBER_IDS], date: ["Date", TASK_D
 // date-times, costs in cents (Project stores a cost field in hundredths).
 // Returns { fields: [{ fieldId, fieldName, alias, kind, typeId, values: Map(task_id -> xml value) }],
 //   written, dropped, droppedTypes, warnings }.
-export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAliases = [] } = {}) {
+//
+// With { table: "RSRC" } the same for resource UDFs (UDFTYPE table RSRC, fk_id
+// a rsrc_id; taskRow is then the resources written), as Project's resource
+// fields: all 30 resource Text fields are free.
+export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAliases = [], table = "TASK" } = {}) {
   const warnings = [];
-  const types = new Map((T.UDFTYPE || []).filter((u) => u.table_name === "TASK").map((u) => [u.udf_type_id, u]));
+  const rsrc = table === "RSRC";
+  const textIds = rsrc ? RSRC_TEXT_IDS : TASK_TEXT_IDS;
+  const kindFields = rsrc ? RSRC_KIND_FIELDS : KIND_FIELDS;
+  if (rsrc) textFrom = 0;
+  const who = rsrc ? "resource " : ""; // activity warnings keep their wording
+  const types = new Map((T.UDFTYPE || []).filter((u) => u.table_name === table).map((u) => [u.udf_type_id, u]));
   const byType = new Map(); // type id -> Map(task_id -> value text)
   let unreadable = 0;
   for (const v of T.UDFVALUE || []) {
@@ -646,12 +674,12 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
   }
   const label = (u) => (nm(u.udf_type_label || u.udf_type_name || `UDF ${u.udf_type_id}`).replace(/\[/g, "(").replace(/\]/g, ")").trim() || `UDF ${u.udf_type_id}`);
   const seq = (u) => num(u.udf_type_id) ?? 0;
-  const seen = new Map([["activity id", 1]]);
+  const seen = new Map(rsrc ? [] : [["activity id", 1]]);
   for (const a of takenAliases) seen.set(a.toLowerCase(), 1);
   const fields = [];
   let written = 0, dropped = 0, droppedTypes = 0, noField = 0;
   const noFieldTypes = [];
-  const slots = (kind) => (kind === "text" ? TASK_TEXT_IDS.slice(textFrom).map((id, k) => [id, `Text${textFrom + k + 1}`]) : KIND_FIELDS[kind][1].map((id, k) => [id, `${KIND_FIELDS[kind][0]}${k + 1}`]));
+  const slots = (kind) => (kind === "text" ? textIds.slice(textFrom).map((id, k) => [id, `Text${textFrom + k + 1}`]) : kindFields[kind][1].map((id, k) => [id, `${kindFields[kind][0]}${k + 1}`]));
   for (const kind of ["number", "cost", "date", "text"]) {
     const list = [...byType.keys()].map((id) => types.get(id)).filter((u) => udfKind(u.logical_data_type) === kind)
       .sort((a, b) => seq(a) - seq(b) || (a.udf_type_id < b.udf_type_id ? -1 : 1));
@@ -664,8 +692,8 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
       kept = list.filter((u) => keep.has(u.udf_type_id));
       const left = list.filter((u) => !keep.has(u.udf_type_id));
       for (const u of left) { dropped += byType.get(u.udf_type_id).size; droppedTypes++; }
-      const where = kind === "text" ? `${room.length} Text field${room.length === 1 ? "" : "s"} activity codes leave free` : `${room.length} ${KIND_FIELDS[kind][0]} fields`;
-      warnings.push(`${list.length} ${kind} user-defined fields are used and Project has ${where}: ${room.length ? "the most filled are written; " : ""}left out: ${left.map((u) => `${label(u)} (${byType.get(u.udf_type_id).size})`).join(", ")}`);
+      const where = kind === "text" ? `${room.length} ${rsrc ? "resource " : ""}Text field${room.length === 1 ? "" : "s"}${rsrc ? "" : " activity codes leave free"}` : `${room.length} ${rsrc ? "resource " : ""}${kindFields[kind][0]} fields`;
+      warnings.push(`${list.length} ${kind} ${who}user-defined fields are used and Project has ${where}: ${room.length ? "the most filled are written; " : ""}left out: ${left.map((u) => `${label(u)} (${byType.get(u.udf_type_id).size})`).join(", ")}`);
     }
     kept.forEach((u, k) => {
       let alias = label(u);
@@ -673,7 +701,7 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
       seen.set(alias.toLowerCase(), 1);
       const values = byType.get(u.udf_type_id);
       written += values.size;
-      fields.push({ fieldId: room[k][0], fieldName: room[k][1], alias: alias.slice(0, 50), kind, typeId: u.udf_type_id, values });
+      fields.push({ fieldId: room[k][0], fieldName: room[k][1], alias: alias.slice(0, 50), kind, typeId: u.udf_type_id, values, table });
     });
   }
   for (const id of byType.keys()) {
@@ -682,7 +710,7 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
     noField += byType.get(id).size;
     noFieldTypes.push(`${label(u)} (${u.logical_data_type || "no type"})`);
   }
-  if (noField) warnings.push(`${noField} value(s) of ${noFieldTypes.length} indicator or code user-defined field(s) have no Project field and are not carried: ${noFieldTypes.join(", ")}`);
-  if (unreadable) warnings.push(`${unreadable} user-defined field value(s) could not be read as a number or date and were left out`);
+  if (noField) warnings.push(`${noField} value(s) of ${noFieldTypes.length} indicator or code ${who}user-defined field(s) have no Project field and are not carried: ${noFieldTypes.join(", ")}`);
+  if (unreadable) warnings.push(`${unreadable} ${who}user-defined field value(s) could not be read as a number or date and were left out`);
   return { fields, written, dropped: dropped + noField, droppedTypes: droppedTypes + noFieldTypes.length, warnings };
 }
