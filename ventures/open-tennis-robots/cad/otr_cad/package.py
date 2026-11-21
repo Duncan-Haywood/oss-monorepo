@@ -406,7 +406,8 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         from . import feeder_guide as FG
         guide_bad += G.access_problems(p, parts) + FG.end_bore_problems(p, parts)
     else:
-        guide_bad += G.hatch_check(p, parts)
+        guide_bad += (G.hatch_check(p, parts) + G.access_problems(p, parts) + G.step_access_problems(p, parts)
+                      + G.hatch_screw_problems(p, parts))
     rules = rules + guide_bad
     G.write(out, p, parts, bom_rows, joint_rows, guide_bad, drawings)
 
