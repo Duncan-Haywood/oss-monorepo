@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLn6Ub5TAApTRStVnj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating products; merge when done)",
+  "input_sha256": "b7500b9239b18fba3bb072b60c0896a225258bf24a341fa06febf9b04a0f933c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T09:18:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/marine-hull milestone 7zt: near-field added resistance on the monohull's 30 W loss",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": 18058,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "The scheduled prompt asks for revenue-generating product work, while the router drew the research track; followed the router, as prompt.md says."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "why": "Two post-hoc analyses (lambda/L band split and a lambda/L<=cut splice) added after the pre-registered table showed a long-wave residual; labelled post hoc in LOG, README and paper.",
+      "did": "band split and splice sensitivity",
+      "result": "traced the doubling to the rotation term's long-wave residual; spliced loss 4.12% (NF0) to 5.77% (NF)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-marine-hull-nearfield-monohull-long-waves.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered M0-M4 committed before the code (M0, M2, M4 held; M1, M3 refuted). Main run 327 s, splice 352 s, bands under 2 min; stdlib, deterministic. Checks: research/_homepage/build.py ok; paper/check_numbers.py ok; check_posts ok; check_md_links ok; research_live_links no change; marine-hull unittest discover run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}

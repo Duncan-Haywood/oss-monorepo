@@ -1,0 +1,23 @@
+Milestone 7zt: the 4 m monohull's 30 W wave loss with near-field added resistance (7zs) in place of GB
+hull L 4.0 B 0.4 T 0.2744; 7zg damping zeta3 0.0375 zeta5 0.0; 14758 wave records (7zh pooled bow sector); speeds rr.DISP 0.3 to 6.0 m/s
+loss = range change at 30 W (negative is a loss), share 0.25 (bow-sector share of head seas) and 1.0 (all head-on)
+# table: formula reflection pooled_1ms_motion_N pooled_1ms_refl_N loss30W_share025 loss30W_share1 scope200W
+row GB none 2.844 0.000 -3.36 -12.22 True
+row GB faltinsen 2.844 0.028 -3.39 -12.32 True
+row NF none 7.750 0.000 -8.66 -26.41 True
+row NF faltinsen 7.750 0.028 -8.69 -26.48 True
+row NF0 none 5.826 0.000 -6.65 -22.19 True
+row NF0 faltinsen 5.826 0.028 -6.68 -22.27 True
+row NF-B none 7.177 0.000 -8.07 -25.30 True
+row NF-B faltinsen 7.177 0.028 -8.10 -25.37 True
+## motion term at 1 m/s relative to GB
+ratio NF/GB 2.725
+ratio NF0/GB 2.048
+ratio NF-B/GB 2.523
+## expectations
+M0 GB + reflection loss 3.39% (7zr V0 3.39%) to 0.01: True
+M1 NF0 + reflection loss 6.68% inside 2.5-4.3%: False
+M2 NF + reflection loss 8.69% above 4.2%: True
+M3 motion NF/GB 2.725 in 1.2-2.0, NF0/GB 2.048 in 0.8-1.3: False
+M4 200 W scope holds in every row: True
+(elapsed 327 s, 85790 near-field evaluations)

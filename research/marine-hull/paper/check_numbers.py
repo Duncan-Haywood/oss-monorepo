@@ -229,6 +229,12 @@ CLAIMS = [
     ("results_nearfield_pdstrip.txt", "7zg  GB+F: rms 0.219"),
     ("results_nearfield_pdstrip.txt", "N1 NF / Maruo free on 0.5-2.0: T 1.566, M 1.413"),
     ("results_nearfield_pdstrip.txt", "NF0  25.12 @1.00 (0.790)"),
+    # milestone 7zt: near field on the monohull's 30 W loss
+    ("results_nearfield_monohull.txt", "row NF0 faltinsen 5.826 0.028 -6.68"),
+    ("results_nearfield_monohull.txt", "row NF faltinsen 7.750 0.028 -8.69"),
+    ("results_nearfield_monohull_bands.txt", "8-1e+09 0.907"),
+    ("results_nearfield_monohull_splice.txt", "row NF0 2.0 3.482 -4.12"),
+    ("results_nearfield_monohull_splice.txt", "row NF 2.0 4.977 -5.77"),
 
 ]
 
