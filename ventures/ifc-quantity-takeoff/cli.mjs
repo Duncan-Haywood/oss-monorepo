@@ -2,8 +2,9 @@
 // Quantity takeoff from an IFC file on the command line.
 //
 //   node cli.mjs model.ifc                     bill of quantities by class and type (CSV to stdout)
-//   node cli.mjs model.ifc --by storey,class   group by other keys (class, type, storey, material, classification,
-//                                              uniformat, uniformat2, uniformat1: Uniformat II element at level 3, 2, 1)
+//   node cli.mjs model.ifc --by storey,class   group by other keys (class, type, storey, space (room), material,
+//                                              classification, uniformat, uniformat2, uniformat1: Uniformat II level 3, 2, 1)
+//   node cli.mjs model.ifc --rooms rooms.csv   room schedule: floor area, perimeter, height, wall area, volume per room
 //   node cli.mjs model.ifc --rows rows.csv     every element with stored and computed volumes
 //   node cli.mjs model.ifc --check             summary of computed vs stored volumes
 //   node cli.mjs model.ifc --json out.json     everything as JSON
@@ -21,17 +22,18 @@ import { parseStep } from "./step.mjs";
 import { takeoff, boq, boqCsv, rowsCsv, checkSummary, unitRepairNote } from "./qto.mjs";
 import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
 import { parseRule } from "./measure.mjs";
+import { roomsCsv } from "./rooms.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--rows", "--json", "--by", "--compare", "--changes", "--tolerance", "--voids-up-to"];
+const VALUED = ["--rooms", "--rows", "--json", "--by", "--compare", "--changes", "--tolerance", "--voids-up-to"];
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 if (!file || args.includes("--help")) {
-  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 18).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 19).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
   process.exit(file ? 0 : 2);
 }
 const by = (opt("--by") || "class,type").split(",").map((s) => s.trim()).filter(Boolean);
-for (const k of by) if (!["class", "type", "storey", "material", "classification", "uniformat", "uniformat2", "uniformat1"].includes(k)) { console.error(`unknown --by key: ${k}`); process.exit(2); }
+for (const k of by) if (!["class", "type", "storey", "space", "material", "classification", "uniformat", "uniformat2", "uniformat1"].includes(k)) { console.error(`unknown --by key: ${k}`); process.exit(2); }
 let rule = null;
 if (opt("--voids-up-to")) {
   const parsed = parseRule(opt("--voids-up-to"));
@@ -55,7 +57,8 @@ if (opt("--compare")) {
   process.exit(0);
 }
 if (opt("--rows")) writeFileSync(opt("--rows"), rowsCsv(res.rows));
-if (opt("--json")) writeFileSync(opt("--json"), JSON.stringify({ schema: res.schema, units: res.units, summary: checkSummary(res.rows), boq: boq(res.rows, by, rule), rows: res.rows }, null, 1));
+if (opt("--rooms")) writeFileSync(opt("--rooms"), roomsCsv(res.rooms));
+if (opt("--json")) writeFileSync(opt("--json"), JSON.stringify({ schema: res.schema, units: res.units, summary: checkSummary(res.rows), boq: boq(res.rows, by, rule), rooms: res.rooms, rows: res.rows }, null, 1));
 if (args.includes("--check")) {
   const s = checkSummary(res.rows);
   console.log(`${file}: ${res.schema}, ${s.elements} elements, ${secs.toFixed(1)} s`);
@@ -67,6 +70,11 @@ if (args.includes("--check")) {
   for (const [r, n] of Object.entries(why).sort((a, b) => b[1] - a[1])) console.log(`    area ${r}: ${n}`);
   const top = Object.entries(s.reasons).sort((a, b) => b[1] - a[1]).slice(0, 8);
   for (const [r, n] of top) console.log(`  ${n} x ${r}`);
-} else if (!opt("--rows") && !opt("--json")) {
+  if (res.rooms.length) {
+    const pairs = res.rooms.flatMap((r) => Object.values(r.check));
+    const placed = res.rows.filter((r) => r.spaceFrom === "geometry").length, inFile = res.rows.filter((r) => r.spaceFrom === "contained").length;
+    console.log(`  rooms: ${res.rooms.length}, ${res.rooms.filter((r) => r.computed).length} measured; stored room quantities: ${pairs.filter((c) => c.agree).length} of ${pairs.length} agree; elements in a room: ${inFile} by the file, ${placed} by where they stand`);
+  }
+} else if (!opt("--rows") && !opt("--json") && !opt("--rooms")) {
   process.stdout.write(boqCsv(boq(res.rows, by, rule), by, {}, rule));
 }

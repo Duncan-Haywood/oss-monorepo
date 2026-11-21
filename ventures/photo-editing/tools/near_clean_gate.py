@@ -67,7 +67,7 @@ def sweep(argv) -> int:
     ap.add_argument("--cards", help="tools/card_scenes.py output: skip repeat scenes")
     ap.add_argument("--ks", help="comma-separated k (default KS)")
     ap.add_argument("--no-raw-grain", action="store_true", help="skip truth_grain18 (two extra LibRaw passes a file)")
-    ap.add_argument("--eigs", default="", help="comma-separated further eigenvalue reads to score as arms (mp, mpc)")
+    ap.add_argument("--eigs", default="", help="comma-separated further eigenvalue reads to score as arms (mp, mpc, mpcw, mpcws)")
     args = ap.parse_args(argv)
     eigs = tuple(e for e in args.eigs.split(",") if e)
     ks = tuple(float(x) for x in args.ks.split(",")) if args.ks else KS
@@ -329,9 +329,82 @@ def compare(argv) -> int:
     return 0
 
 
+def whitened(argv) -> int:
+    """eval/noise-pca-whitened-level-2026-11-21.md's pick (``--split tune``) and test (``--split held``) of the
+    colour-whitened reads on one sweep: the pick takes, of ``--eigs``, the +k arm with the highest mean (luma +
+    colour) gain over D that beats ship+k's and has no more losers; the test scores ``--eig`` against ship+k
+    (h1 means, h2 no new loser, h3 the white-balanced SNR 25 and 12 rows' luma)."""
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("rows", nargs="+")
+    ap.add_argument("--split", choices=("tune", "held"), required=True)
+    ap.add_argument("--eigs", default="mpcw,mpcws", help="the pick's candidates (tune)")
+    ap.add_argument("--eig", help="the picked read (held)")
+    ap.add_argument("--k", type=float, default=12.0)
+    args = ap.parse_args(argv)
+    rows = load(args.rows, args.split, clean_truths=True)
+    k = f"{args.k:g}"
+    ship = "ship+" + k
+    print(f"{len(rows)} rows ({args.split}, clean truths)")
+
+    def both(arm):
+        return float((g(rows, "l", arm) + g(rows, "c", arm)).mean())
+
+    def ratio_table(names):
+        print("   read / true sigma at 18% grey (median), by SNR and scenario:")
+        for sc in ("equal", "wb"):
+            for snr in (200.0, 60.0, 25.0, 12.0):
+                rr = [r for r in rows if r["snr"] == snr and r["scenario"] == sc and r.get("true_sigma18")]
+                if rr:
+                    print(f"   SNR {snr:>5g} {sc:5s} " + "  ".join(
+                        f"{n} {np.median([r['sigma18'][n] / r['true_sigma18'] for r in rr]):.2f}" for n in names))
+
+    if args.split == "tune":
+        cands = args.eigs.split(",")
+        table_arms(rows, [ship] + [f"{e}+{k}" for e in cands])
+        ratio_table(["ship"] + cands)
+        base_l, base_s = len(losers(rows, ship)), both(ship)
+        ok = [(both(f"{e}+{k}"), e) for e in cands if len(losers(rows, f"{e}+{k}")) <= base_l and both(f"{e}+{k}") > base_s]
+        print(f"ship+{k} mean luma + colour over D {base_s:+.4f}; " + ", ".join(f"{e} {both(f'{e}+{k}'):+.4f}" for e in cands))
+        print("pick:", max(ok)[1] if ok else "none: stop")
+        return 0
+    cand = f"{args.eig}+{k}"
+    table_arms(rows, [ship, cand])
+    ratio_table(["ship", args.eig])
+    dl, dc = g(rows, "l", cand, ship), g(rows, "c", cand, ship)
+    cells = defaultdict(list)
+    for i, r in enumerate(rows):
+        cells[(r["snr"], r["scenario"])].append(i)
+    worst_cell = min(float(min(dl[ix].mean(), dc[ix].mean())) for ix in cells.values())
+    for key in sorted(cells):
+        ix = cells[key]
+        print(f"   SNR {key[0]:>5g} {key[1]:5s} n={len(ix):4d}  {cand} - {ship}: luma {dl[ix].mean():+.4f}  colour {dc[ix].mean():+.4f}")
+    ls, lc = losers(rows, ship), losers(rows, cand)
+    new = lc - ls
+    for i in sorted(ls | lc):
+        r = rows[i]
+        print(f"   loser {r['file']} {r['tile']} SNR {r['snr']:g} {r['scenario']}: {ship} {worse([r], ship)[0]:+.2f}, "
+              f"{cand} {worse([r], cand)[0]:+.2f}; sigma18 {r.get('sigma18')}, true {r.get('true_sigma18')}")
+    wb = [i for i, r in enumerate(rows) if r["scenario"] == "wb" and r["snr"] in (25.0, 12.0)]
+    h3v = float(dl[wb].mean()) if wb else float("nan")
+    h = {
+        "h1 means within 0.005 dB of ship, every cell within 0.02 dB":
+            dl.mean() >= -0.005 and dc.mean() >= -0.005 and worst_cell >= -0.02,
+        "h2 no row newly loses > 0.1 dB to D, and no more losers": not new and len(lc) <= len(ls),
+        f"h3 white-balanced SNR 25 and 12 rows' luma gains at least +0.02 dB over ship ({h3v:+.4f}, n={len(wb)})":
+            bool(wb) and h3v >= 0.02,
+    }
+    print(f"means: luma {dl.mean():+.4f}, colour {dc.mean():+.4f}; worst cell {worst_cell:+.4f}; "
+          f"losers {len(ls)} -> {len(lc)}, new {len(new)}")
+    for label, passed in h.items():
+        print(("PASS " if passed else "FAIL ") + label)
+    print("verdict:", f"ship {args.eig} on Bayer" if all(h.values()) else "what ships stays")
+    return 0
+
+
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
-    cmd = {"sweep": sweep, "tune": tune, "rule": rule, "pick": pick, "compare": compare}.get(argv[0] if argv else "")
+    cmd = {"sweep": sweep, "tune": tune, "rule": rule, "pick": pick, "compare": compare, "whitened": whitened}.get(argv[0] if argv else "")
     if cmd is None:
         print(__doc__)
         return 2

@@ -129,3 +129,13 @@ test("parseTrf names a bad round block and a missing opponent line", () => {
   assert.ok(t.errors.some((e) => /round 1 reads/.test(e)));
   assert.ok(t.errors.some((e) => /start rank 9/.test(e)));
 });
+
+test("a TRF name ending in a full stop (chess-results writes 'Volodin Alexandr E.') still reads back", () => {
+  const T = ["012 Initials", pl(1, 2400, 1, "     2 w 1"), pl(2, 2300, 0, "     1 b 0"), pl(3, 2200, 0, "")].join("\n")
+    .replace("Test0002 Player0002", "Volodin Alexandr E.");
+  const box = trfToResults(parseTrf(T));
+  assert.ok(box.players.includes("Volodin Alexandr E."));
+  const p = parseSwissResults(box.results, box.players);
+  assert.deepEqual(p.errors, []);
+  assert.equal(p.games.length, 1);
+});

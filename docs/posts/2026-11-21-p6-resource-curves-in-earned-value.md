@@ -1,77 +1,64 @@
 ---
-title: "P6 resource curves in earned value: what a Back Loaded curve does to SPI"
-seo_title: "Primavera P6 resource curves and earned value from an XER"
+title: "P6 resource curves in an S-curve: 109,048 hours of difference on a public hospital schedule"
+seo_title: "Primavera P6 resource curves in earned value, read from an XER"
 date: 2026-11-21
 tags: [construction, scheduling, primavera-p6, xer, earned-value]
-description: "XER Schedule Check now spreads planned value by each assignment's P6 resource curve. On a public 24.12 file, one curve choice moves SPI from 0.17 to 0.24."
+description: "XER Schedule Check now spreads planned value along P6 resource curves. On a public hospital file the curved work runs up to 40% behind an even spread."
 ---
 
-[XER Schedule Check](../../ventures/xer-schedule-check/) computes earned
-value from a Primavera P6 `.xer` export in the browser: budget, planned,
-earned and actual cost, SPI, CPI and the S-curve. Until today it spread every
-assignment's budget evenly over its planned dates. P6 doesn't always do that.
-A planner can put a **resource curve** on an assignment, such as Back Loaded,
-Bell Shaped, Front Loaded or a curve of their own, and P6 then spends the
-units and cost unevenly. An even spread gets planned value, SPI and the
-S-curve wrong for those assignments.
+[XER Schedule Check](../../ventures/xer-schedule-check/) computes earned value
+and an S-curve from a cost- or hours-loaded Primavera P6 `.xer` export, in
+the browser. Until today it spread every assignment's budget evenly over its
+planned dates. P6 doesn't always do that: an assignment can follow a
+**resource curve** (Back Loaded, Bell Shaped, or one the planner drew), and
+the planned curve an owner pays against should follow it too.
 
-## What the XER holds
+## What the file carries
 
-The curves travel in the `RSRCCURVDATA` table as a name and 21 numbers, and
-each assignment points at one with `TASKRSRC.curv_id`. A public P6 6.0
-hospital schedule carries six curves: P6's five shipped ones and one of the
-planner's own ("PCO119", a late bell). In every one of them the first number
-is 0 and the other twenty add up to exactly 100. "Linear" is 0 followed by 5
-twenty times. So point *k* is the share spent in the *k*-th twentieth of the
-duration. The tool now reads them that way, over the assignment's working
-time on the activity's calendar.
+A curve sits in the `RSRCCURVDATA` table as 21 numbers, `pct_usage_0` to
+`pct_usage_20`, one for each 5% point of the duration. An assignment names its
+curve in `TASKRSRC.curv_id`. Every curve P6 ships starts at 0 and has twenty
+values after that summing to 100, so the tool reads them as the share of the
+work in each twentieth of the assignment's working time. That is also how
+MPXJ, the open-source schedule reader, reads them. Back Loaded is ten slices
+of 3.5% and then ten of 6.5%, so 35% of the hours fall in the first half.
 
-## Does it matter?
+The slices are cut by working time on the activity's own calendar, not
+calendar time, so a weekend inside a span gets nothing.
 
-On the real files, barely, and the reason is worth knowing. The hospital
-file's data date falls before every curved assignment starts, so planned
-value at the data date doesn't change. On the S-curve its 34 curved
-assignments shift the planned line by at most 0.45%. The 24.12 example file
-and a 7.0 expressway file have 236 assignments on a curve with id 9, but
-neither file includes curve 9 in its export. The tool names those assignments
-and spreads them evenly.
+## On a real file
 
-To see what a curve can do, we put every assignment of a file on one curve
-in turn and recomputed. On the 24.12 file, planned value at the data date is
-250,431 USD spread evenly, 207,421 Back Loaded and 293,440 Front Loaded, so
-**SPI is 0.244 or 0.172 for the same work**. A reviewer comparing the tool's
-SPI with the contractor's P6 report would see a gap that size and wonder
-which one is wrong.
+Of the six public XER files the tool is tested on, one, a 16,000-activity
+hospital schedule exported from P6 6.0, carries curves: six of them, used by
+36 assignments. Twenty-five use a custom bell called "PCO119" that peaks
+late; seven are Back Loaded.
 
-Two checks back the arithmetic. Back and Front Loaded are mirror images, so
-their gaps from the even spread should be equal and opposite: they are
-(−43,009.74 and +43,009.75). On all four files with assignments, in cost and
-in hours, the planned curve ends on the budget and the forecast on the
-estimate at completion in 24 of 24 runs.
+Spread along their curves, those assignments' planned hours run behind the
+even spread from the first month to the last. The widest gap is at the end
+of March 2012: **161,678 hours planned on the curves against 270,726 evenly**,
+109,048 hours (40%) apart. The two meet at the 834,430 budgeted hours on
+1 May 2013.
 
-## A bug the check found
+On that file, an SPI computed from an even spread would make the curved
+crews look about 40% further behind than their own plan says at that point.
+The file's cost earned value doesn't move, because those 36 assignments carry
+hours but no cost. The page's notes say which curves were used.
 
-The closing check failed once at first. On the hospital file the forecast
-curve in labour hours ended 97.32 h short. Four assignments book actual hours
-on activities whose actual start is *after* the data date. That's an invalid
-date in the file, and those actuals were drawn after the point where the
-forecast stops adding actuals. They are now drawn at the data date, with a
-note naming how many.
+## What is not known
 
-## Also new
+- **No public file has P6's own spread of a curved assignment** to compare
+  with, so the slice reading is checked for consistency (every spread sums
+  to its budget, Linear gives the even spread exactly), not against P6's
+  numbers. An export with a curved, cost-loaded assignment and P6's Resource
+  Usage view would settle it.
+- **Curve id 9** is named by 237 assignments across three files from P6 6.0,
+  7.0 and 24.12 and exported in none of them. It looks like a built-in curve
+  P6 leaves out of the export. Those assignments are spread evenly, and the
+  notes say so.
+- Once actual hours are booked, the rest of an assignment is spread evenly,
+  because how P6 re-fits a curve to the remaining units isn't known here.
 
-- **Earned value in hours on a cost-loaded file.** The hospital file's
-  curves sit on labour hours with no cost, so a cost-first reading never
-  reached them. A box on the page (*in labour hours*) and `--hours` on the
-  command line give the manpower curve.
-- `--even-spread` turns curves off, for comparison.
-
-## What this does not show
-
-We haven't compared the tool's spread with P6's own. P6 computes the
-timephased spread on screen and the XER doesn't carry it. A spreadsheet
-export of a curved activity's planned units from P6 would settle the detail
-inside each twentieth. How P6 treats a curve on an activity already under way
-may also differ from the rule used here, which follows the rest of the curve
-from the share of the duration already done. The method and every figure are
-in `eval/resource-curves-2026-11-21.md`.
+The measurement is in
+[`eval/resource-curves-2026-11-21.md`](../../ventures/xer-schedule-check/eval/resource-curves-2026-11-21.md).
+Nothing is uploaded. The figures are estimates for review, not a substitute
+for the scheduler's own P6 reports.

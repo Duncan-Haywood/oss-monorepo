@@ -78,6 +78,46 @@ class NoisePcaTests(unittest.TestCase):
 
             estimate_noise_pca(p[:100, :1].reshape(10, 10), BAYER, eig="nope")
 
+    def test_mpcw_reads_the_colours_mean_where_chen_reads_low(self):
+        # eval/noise-pca-whitened-level-2026-11-21.md: white-balanced noise (gains 2, 1, 1.6 on R, G, B of a
+        # 6 x 6 Bayer patch) is read as the colours' mean variance, as ``carries`` builds the true model; Chen's
+        # prefix sits nearer the quiet green.
+        from shootflow.noise_pca import _eig_sigma2_idx
+
+        np = self.np
+        col = np.array([BAYER[(y % 2) * 2 + (x % 2)] for y in range(6) for x in range(6)])
+        cols = [np.flatnonzero(col == k) for k in (0, 1, 2)]
+        sd = np.array([0.02, 0.01, 0.016])[col]
+        p = self.rng.normal(size=(8000, 36)) * sd
+        want = float(np.mean(np.array([0.02, 0.01, 0.016]) ** 2))
+        idx = np.arange(8000)
+        self.assertAlmostEqual(_eig_sigma2_idx(p, idx, "mpcw", cols) / want, 1.0, delta=0.05)
+        self.assertLess(_eig_sigma2_idx(p, idx, "chen") / want, 0.8)
+        # one silent colour: no ratio to take, so Chen's read
+        q = p.copy()
+        q[:, cols[0]] = 0.0
+        self.assertEqual(_eig_sigma2_idx(q, idx, "mpcw", cols), _eig_sigma2_idx(q, idx, "chen"))
+
+    def test_mpcws_selects_with_the_whitened_read(self):
+        # Liu's threshold uses the read itself: with Chen's low read on white-balanced noise it trims noise
+        # patches, so only ``mpcws`` (which also selects with the whitened read) reaches the true level.
+        from shootflow.noise_pca import estimate_noise_pca, sigma18
+
+        np = self.np
+        h = w = 480
+        y, x = np.mgrid[:h, :w]
+        col = np.array(BAYER)[(y % 2) * 2 + (x % 2)]
+        gains = np.array([2.0, 1.0, 1.6])
+        g = gains[col]
+        lvl = np.tile(np.linspace(0.05, 0.6, w), (h, 1)) / g
+        shot, read = 0.8 * (0.18 / 25) ** 2 / 0.18, 0.2 * (0.18 / 25) ** 2
+        c = (lvl + self.rng.normal(size=lvl.shape) * np.sqrt(shot * lvl + read)) * g
+        true = (shot * gains.mean() * 0.18 + read * (gains**2).mean()) ** 0.5
+        chen = sigma18(estimate_noise_pca(c, BAYER)) / true
+        ws = sigma18(estimate_noise_pca(c, BAYER, eig="mpcws")) / true
+        self.assertLess(chen, 0.85)
+        self.assertAlmostEqual(ws, 1.0, delta=0.06)
+
     def test_smooth_field_reads_the_true_sigma(self):
         from shootflow.noise_pca import estimate_noise_pca
 

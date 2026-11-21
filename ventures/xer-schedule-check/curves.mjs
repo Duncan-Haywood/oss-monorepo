@@ -1,66 +1,103 @@
-// P6 resource curves (RSRCCURVDATA) as cumulative distributions.
+// P6 resource curves: how an assignment's units and cost are spread over its
+// dates when it is not spread evenly.
 //
-// A P6 resource curve says how an assignment's units and cost are spread
-// over its duration, when the spread is not even. The XER holds each curve
-// as 21 numbers, pct_usage_0 .. pct_usage_20. In every curve P6 ships
-// (Back Loaded, Bell Shaped, Front Loaded, Linear, Triangular Increase, as
-// exported in the public 6.0 hospital file) and in that file's own curve,
-// pct_usage_0 is 0 and pct_usage_1..20 add up to 100: point k is the share of
-// the k-th twentieth of the duration ("Linear" is 0 then 5 twenty times). So
-// point 0 is read as the share at the start instant (put into the first
-// twentieth, so nothing is lost when a hand-made curve has one), and the
-// twenty shares as constant within their twentieth. A curve whose points do
-// not add up to 100 is scaled so that they do; one that adds up to nothing is
-// left out (the assignment is spread evenly), and both are reported.
+// A P6 export carries its curves in RSRCCURVDATA: a curve id, a name and 21
+// values pct_usage_0 .. pct_usage_20, one for each 5% point of the
+// assignment's duration. An assignment (TASKRSRC) names its curve in
+// curv_id; no curv_id is P6's default, an even spread. The 20 values after
+// the first are read as the share of the units that falls in each
+// twentieth of the assignment's working time (pct_usage_k: the slice ending
+// at k x 5%). That is how MPXJ reads them (its WorkContour holds P6's
+// "Linear" as 0 then twenty 5s), and P6's own curves fit it: every shipped
+// curve starts at 0 and the twenty slices sum to 100 ("Linear" 20 x 5,
+// "Back Loaded" 10 x 3.5 then 10 x 6.5). A curve whose values do not sum to
+// 100 is scaled to it, as P6 normalises a curve; a non-zero pct_usage_0 is
+// added to the first slice, so nothing is lost.
 //
-// The duration is the assignment's working time on the activity's calendar,
-// so "the k-th twentieth" is a twentieth of the working minutes, not of the
-// calendar days (the same working-time basis evm.mjs spreads evenly on).
+// No public XER carries P6's own timephased spread of a curved assignment
+// to check the slices against (target_crv, P6's stored spread, is filled on
+// 1 of 36,808 assignments in the CCA file, and that one names no curve the
+// file has). What is checked: the slices sum to the amount, a linear curve
+// gives the even spread to the cent, and the shape lands where the curve
+// says (eval/resource-curves-2026-11-21.md).
 //
-// curveTable(tables) -> { curves: Map(curv_id -> curve), scaled: [names], empty: [names] }
-// curve = { id, name, shares: [20 numbers adding to 1], F(f) -> cumulative share at fraction f of the duration }
-// tailF(F, f0) -> the cumulative of what is left after fraction f0, rescaled to 0..1
-// LINEAR_F: the even spread
+// readCurves(xer) -> Map(curv_id -> { id, name, slices: [20 shares summing to 1], raw: [21] })
+// spreadCurve(cal, s, e, amount, slices, add, cut) -> the part before `cut`;
+//   `add(dayIndex, part)` receives the daily parts, as evm.mjs's spread does.
+// curvePartBefore(cal, s, e, amount, slices, cut) -> the part before `cut`.
 
 import { num } from "./xer.mjs";
 
-export const LINEAR_F = (f) => Math.max(0, Math.min(1, f));
+const DAY = 1440;
+export const SLICES = 20;
 
-export function cumulative(shares) {
-  const n = shares.length;
-  const cum = [0];
-  for (let k = 0; k < n; k++) cum.push(cum[k] + shares[k]);
-  return (f) => {
-    if (!(f > 0)) return 0;
-    if (f >= 1) return 1;
-    const x = f * n, k = Math.floor(x);
-    return cum[k] + (x - k) * shares[k];
-  };
-}
-
-export function curveTable(T) {
-  const curves = new Map(), scaled = [], empty = [];
-  for (const r of T.RSRCCURVDATA || []) {
-    const pts = Array.from({ length: 21 }, (_, k) => Math.max(0, num(r[`pct_usage_${k}`]) ?? 0));
-    const raw = pts.slice(1);
-    raw[0] += pts[0];
-    const sum = raw.reduce((a, b) => a + b, 0);
-    const name = r.curv_name || `curve ${r.curv_id}`;
-    if (!(sum > 0)) { empty.push(name); continue; }
-    if (Math.abs(sum - 100) > 0.01) scaled.push(`${name} (${Math.round(sum * 100) / 100})`);
-    const shares = raw.map((v) => v / sum);
-    curves.set(r.curv_id, { id: r.curv_id, name, shares, F: cumulative(shares), linear: shares.every((s) => Math.abs(s - 1 / 20) < 1e-9) });
+export function readCurves(xer) {
+  const out = new Map();
+  for (const r of xer.tables.RSRCCURVDATA || []) {
+    const raw = [];
+    for (let k = 0; k <= SLICES; k++) raw.push(Math.max(0, num(r[`pct_usage_${k}`]) ?? 0));
+    const slices = raw.slice(1);
+    slices[0] += raw[0];
+    const sum = slices.reduce((a, b) => a + b, 0);
+    if (!(sum > 0)) continue;
+    out.set(r.curv_id, { id: r.curv_id, name: r.curv_name || `curve ${r.curv_id}`, slices: slices.map((v) => v / sum), raw, sum, isDefault: r.default_flag === "Y" });
   }
-  return { curves, scaled, empty };
+  return out;
 }
 
-// The part of a curve after fraction f0 of the duration, as a curve of its
-// own over what is left (for remaining work on a started activity). Nothing
-// left on the curve -> the even spread.
-export function tailF(F, f0) {
-  f0 = Math.max(0, Math.min(1, f0 || 0));
-  if (!f0) return F;
-  const base = F(f0), left = 1 - base;
-  if (!(left > 1e-12) || f0 >= 1) return LINEAR_F;
-  return (f) => (f <= 0 ? 0 : f >= 1 ? 1 : (F(f0 + f * (1 - f0)) - base) / left);
+// true when the curve spreads exactly evenly (P6's "Linear"): spreading by
+// it changes nothing
+export function isEven(slices) {
+  return slices.every((v) => Math.abs(v - 1 / SLICES) < 1e-9);
+}
+
+// Walk the working time of [s, e) on `cal` and give each working piece its
+// share: the slice it falls in, by working-time position, times the piece's
+// fraction of that slice. `add` gets (day, part); returns the part before cut.
+export function spreadCurve(cal, s, e, amount, slices, add, cut = Infinity) {
+  if (!amount) return 0;
+  if (!Number.isFinite(s) || !Number.isFinite(e)) return 0;
+  if (e < s) [s, e] = [e, s];
+  const total = e > s && cal ? cal.workBetween(s, e) : 0;
+  if (!(total > 0)) {
+    add(Math.floor(e / DAY), amount);
+    return e <= cut ? amount : 0;
+  }
+  const seg = total / SLICES;
+  let worked = 0, before = 0;
+  // the share of [w0, w1) of working time (minutes from the start)
+  const share = (w0, w1) => {
+    let v = 0;
+    let k = Math.min(SLICES - 1, Math.floor(w0 / seg));
+    while (w0 < w1 - 1e-9 && k < SLICES) {
+      const end = Math.min(w1, (k + 1) * seg);
+      v += slices[k] * ((end - w0) / seg);
+      w0 = end;
+      k++;
+    }
+    return v;
+  };
+  for (let d = Math.floor(s / DAY), last = Math.floor((e - 1) / DAY); d <= last; d++) {
+    const base = d * DAY;
+    let dayPart = 0;
+    for (const [a, b] of cal.day(d)) {
+      const x = Math.max(base + a, s), y = Math.min(base + b, e);
+      if (y <= x) continue;
+      const part = amount * share(worked, worked + (y - x));
+      dayPart += part;
+      if (y <= cut) before += part;
+      else if (x < cut) before += amount * share(worked, worked + (cut - x));
+      worked += y - x;
+    }
+    if (dayPart) add(d, dayPart);
+  }
+  return before;
+}
+
+export function curvePartBefore(cal, s, e, amount, slices, cut) {
+  if (!amount || !Number.isFinite(s) || !Number.isFinite(e)) return 0;
+  if (e < s) [s, e] = [e, s];
+  if (cut <= s) return 0;
+  if (cut >= e) return amount;
+  return spreadCurve(cal, s, e, amount, slices, () => {}, cut);
 }

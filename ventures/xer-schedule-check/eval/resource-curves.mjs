@@ -1,20 +1,20 @@
-// P6 resource curves in earned value (curves.mjs, evm.mjs) on public P6 files:
-// which curves each file carries and its assignments use, and planned value
-// at the data date and on the S-curve with each assignment on its curve
-// against the even spread, in cost and in labour hours. Also whether the
-// curves still close on the budget and the estimate at completion.
+// P6 resource curves (curves.mjs) on public P6 files: which curves a file
+// carries, which assignments use them, and how far the planned units and
+// cost by the data date move when each is spread by its curve instead of
+// evenly. Also checks, on every curved assignment, that the slices sum to
+// the budget and that the Linear curve gives the even spread.
 //
 //   node eval/resource-curves.mjs <dir-or-files...> [--json out.json]
 //
 // eval/resource-curves-2026-11-21.md
 import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { decodeXer } from "../xer.mjs";
+import { decodeXer, parseDate, num } from "../xer.mjs";
 import { parseSchedule } from "../mspdi.mjs";
 import { schedule } from "../cpm.mjs";
 import { assess } from "../dcma.mjs";
+import { readCurves, spreadCurve, SLICES } from "../curves.mjs";
 import { earnedValue } from "../evm.mjs";
-import { curveTable } from "../curves.mjs";
 
 const args = process.argv.slice(2);
 const jsonOut = args.includes("--json") ? args[args.indexOf("--json") + 1] : null;
@@ -22,68 +22,63 @@ const files = [];
 for (const a of args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--json")) {
   if (statSync(a).isDirectory()) { for (const f of readdirSync(a)) if (/\.xer$/i.test(f)) files.push(join(a, f)); } else files.push(a);
 }
+const EVEN = Array(SLICES).fill(1 / SLICES);
 const out = [];
 for (const f of files.sort()) {
   const xer = parseSchedule(decodeXer(readFileSync(f)));
-  const T = xer.tables;
-  const result = schedule(xer);
-  const pid = assess(xer, { result }).project.id;
-  const ct = curveTable(T);
-  const tasks = new Set((T.TASK || []).filter((t) => t.proj_id === pid).map((t) => t.task_id));
-  const use = {};
-  for (const a of T.TASKRSRC || []) {
-    if (!tasks.has(a.task_id) || !a.curv_id) continue;
-    const name = ct.curves.get(a.curv_id)?.name ?? `(curv_id ${a.curv_id}, not in file)`;
-    const u = (use[name] ||= { assignments: 0, cost: 0, hours: 0 });
-    u.assignments++; u.cost += +a.target_cost || 0; u.hours += +a.target_qty || 0;
-  }
-  const row = { file: f.split("/").pop(), curves: [...ct.curves.values()].map((c) => c.name), scaled: ct.scaled, empty: ct.empty, use };
-  for (const measure of ["cost", "hours"]) {
-    const on = earnedValue(xer, { projId: pid, result, measure });
-    if (!on.measure) { row[measure] = null; continue; }
-    const off = earnedValue(xer, { projId: pid, result, measure, curves: false });
-    const last = on.curve.at(-1) || {};
-    // the largest gap between the two planned curves at a month end
-    let gap = { date: null, on: 0, off: 0 };
-    for (let k = 0; k < on.curve.length; k++) {
-      const a = on.curve[k], b = off.curve[k];
-      if (!b || a.date !== b.date) continue;
-      if (Math.abs(a.pv - b.pv) > Math.abs(gap.on - gap.off)) gap = { date: a.date, on: a.pv, off: b.pv };
+  const curves = readCurves(xer);
+  const assigns = xer.tables.TASKRSRC || [];
+  const named = assigns.filter((a) => a.curv_id);
+  const row = { file: f.split("/").pop(), curves: [...curves.values()].map((c) => ({ id: c.id, name: c.name, sum: c.sum, used: named.filter((a) => a.curv_id === c.id).length })), assignments: assigns.length, curved: named.length, missing: named.filter((a) => !curves.has(a.curv_id)).map((a) => ({ taskrsrc_id: a.taskrsrc_id, curv_id: a.curv_id })) };
+  if (named.length) {
+    const result = schedule(xer);
+    const model = result.model;
+    const pid = assess(xer, { result }).project.id;
+    const dd = model.projects.get(pid)?.dataDate ?? null;
+    const tasks = new Map((xer.tables.TASK || []).map((t) => [t.task_id, t]));
+    let evenH = 0, curveH = 0, evenC = 0, curveC = 0, budgetH = 0, budgetC = 0, sumOk = 0, linOk = 0, linN = 0, checked = 0;
+    const per = [];
+    // daily hours both ways, for the month-end S-curves of the curved work
+    const dE = new Map(), dC = new Map();
+    const into = (m) => (d, v) => m.set(d, (m.get(d) || 0) + v);
+    for (const a of named) {
+      const c = curves.get(a.curv_id);
+      if (!c) continue;
+      const t = tasks.get(a.task_id), cal = model.tasks.get(a.task_id)?.cal || model.projects.get(pid)?.cal;
+      const ps = parseDate(a.target_start_date) ?? parseDate(t?.target_start_date), pf = parseDate(a.target_end_date) ?? parseDate(t?.target_end_date);
+      if (ps === null || pf === null || !cal) continue;
+      const h = num(a.target_qty) ?? 0, cost = num(a.target_cost) ?? 0;
+      let sum = 0;
+      const cut = dd ?? Infinity;
+      const ce = spreadCurve(cal, ps, pf, h, c.slices, (d, v) => { sum += v; }, cut);
+      const ee = spreadCurve(cal, ps, pf, h, EVEN, into(dE), cut);
+      spreadCurve(cal, ps, pf, h, c.slices, into(dC), cut);
+      checked++;
+      if (Math.abs(sum - h) <= 1e-6 * Math.max(1, Math.abs(h))) sumOk++;
+      if (c.slices.every((v) => Math.abs(v - 1 / SLICES) < 1e-12)) { linN++; if (Math.abs(ce - ee) < 1e-6) linOk++; }
+      budgetH += h; budgetC += cost; evenH += ee; curveH += ce;
+      evenC += spreadCurve(cal, ps, pf, cost, EVEN, () => {}, cut);
+      curveC += spreadCurve(cal, ps, pf, cost, c.slices, () => {}, cut);
+      per.push({ task: t?.task_code, curve: c.name, budgetH: h, evenH: Math.round(ee), curveH: Math.round(ce) });
     }
-    row[measure] = {
-      bac: on.totals.bac, pvCurves: on.totals.pv, pvEven: off.totals.pv, spiCurves: on.totals.spi, spiEven: off.totals.spi,
-      pvCloses: Math.abs((last.pv ?? 0) - on.totals.bac) <= Math.max(0.05, 1e-9 * on.totals.bac),
-      fcCloses: last.forecast === null || last.forecast === undefined ? null : Math.abs(last.forecast - on.totals.eac) <= Math.max(0.05, 1e-9 * on.totals.eac),
-      widestMonthGap: gap,
-      notes: on.notes.filter((n) => /curve/.test(n) && !/^Planned value follows/.test(n)),
-    };
-  }
-  // planted: every assignment on one of P6's shipped curves in turn (as the
-  // hospital file exports them), to see the curves move the S-curve and still
-  // close on the budget and the estimate at completion
-  if ((T.TASKRSRC || []).length) {
-    row.planted = {};
-    const SHIPPED = { "Back Loaded": [0, ...Array(10).fill(3.5), ...Array(10).fill(6.5)], "Front Loaded": [0, ...Array(10).fill(6.5), ...Array(10).fill(3.5)], "Bell Shaped": [0, 0.5, 0.5, 1.5, 1.5, 4, 4, 7.5, 7.5, 11.5, 11.5, 11.5, 11.5, 7.5, 7.5, 4, 4, 1.5, 1.5, 0.5, 0.5] };
-    const saved = { curves: T.RSRCCURVDATA, ids: (T.TASKRSRC || []).map((a) => a.curv_id) };
-    for (const [name, pts] of Object.entries(SHIPPED)) {
-      T.RSRCCURVDATA = [{ curv_id: "planted", curv_name: name, ...Object.fromEntries(pts.map((v, k) => [`pct_usage_${k}`, String(v)])) }];
-      for (const a of T.TASKRSRC) a.curv_id = "planted";
-      const p = {};
-      for (const measure of ["cost", "hours"]) {
-        const on = earnedValue(xer, { projId: pid, result, measure });
-        if (!on.measure) continue;
-        const off = earnedValue(xer, { projId: pid, result, measure, curves: false });
-        let gap = { date: null, on: 0, off: 0 };
-        for (let k = 0; k < on.curve.length; k++) { const a = on.curve[k], b = off.curve[k]; if (b && a.date === b.date && Math.abs(a.pv - b.pv) > Math.abs(gap.on - gap.off)) gap = { date: a.date, on: a.pv, off: b.pv }; }
-        const last = on.curve.at(-1) || {};
-        p[measure] = { pvAtDataDate: on.totals.pv, pvEven: off.totals.pv, pvCloses: Math.abs((last.pv ?? 0) - on.totals.bac) <= Math.max(0.05, 1e-9 * on.totals.bac), fcCloses: last.forecast == null ? null : Math.abs(last.forecast - on.totals.eac) <= Math.max(0.05, 1e-9 * Math.abs(on.totals.eac)), widestMonthGap: gap };
-      }
-      row.planted[name] = p;
+    // cumulative at month ends: the largest gap between the two S-curves
+    const days = [...new Set([...dE.keys(), ...dC.keys()])].sort((a, b) => a - b);
+    let cE = 0, cC = 0, gap = { h: 0, date: null, even: 0, curve: 0 };
+    const months = [];
+    for (let d = days[0]; days.length && d <= days.at(-1); d++) {
+      cE += dE.get(d) || 0; cC += dC.get(d) || 0;
+      const next = new Date((d + 1) * 86400000);
+      if (next.getUTCDate() !== 1 && d !== days.at(-1)) continue;
+      const date = new Date(d * 86400000).toISOString().slice(0, 10);
+      months.push({ date, even: Math.round(cE), curve: Math.round(cC) });
+      if (Math.abs(cC - cE) > Math.abs(gap.h)) gap = { h: Math.round(cC - cE), date, even: Math.round(cE), curve: Math.round(cC) };
     }
-    T.RSRCCURVDATA = saved.curves;
-    T.TASKRSRC.forEach((a, k) => { a.curv_id = saved.ids[k]; });
+    row.gap = gap; row.months = months;
+    per.sort((x, y) => Math.abs(y.curveH - y.evenH) - Math.abs(x.curveH - x.evenH));
+    const r = earnedValue(xer, { projId: pid, result });
+    Object.assign(row, { dataDate: r.dataDate, measure: r.measure, checked, sumOk, linN, linOk, budgetH: Math.round(budgetH), evenH: Math.round(evenH), curveH: Math.round(curveH), budgetCost: Math.round(budgetC), evenCost: Math.round(evenC), curveCost: Math.round(curveC), pvTotal: r.totals?.pv ?? null, notes: r.notes.filter((n) => /resource curve/.test(n)), largest: per.slice(0, 8) });
   }
   out.push(row);
-  console.log(JSON.stringify(row));
+  console.log(`${row.file}: ${row.curves.length} curves, ${row.curved} of ${row.assignments} assignments name one${row.missing.length ? ` (${row.missing.length} missing)` : ""}${row.checked ? `; ${row.checked} spread: sum = budget ${row.sumOk}/${row.checked}, Linear = even ${row.linOk}/${row.linN}; planned by ${row.dataDate}: ${row.curveH.toLocaleString("en-US")} h on curves vs ${row.evenH.toLocaleString("en-US")} h evenly of ${row.budgetH.toLocaleString("en-US")} h; cost ${row.curveCost} vs ${row.evenCost} of ${row.budgetCost}; largest month-end gap ${row.gap.h.toLocaleString("en-US")} h at ${row.gap.date} (${row.gap.curve.toLocaleString("en-US")} h on curves vs ${row.gap.even.toLocaleString("en-US")} h evenly)` : ""}`);
 }
 if (jsonOut) writeFileSync(jsonOut, JSON.stringify(out, null, 1) + "\n");

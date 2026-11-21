@@ -58,3 +58,41 @@ class RowFilters(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipUnless(HAVE_NUMPY, "numpy not installed")
+class Whitened(unittest.TestCase):
+    """eval/noise-pca-whitened-level-2026-11-21.md's pick and test on hand-made rows."""
+
+    def _rows(self, gain):
+        rows = []
+        for i, (snr, sc) in enumerate([(s, c) for s in (200.0, 60.0, 25.0, 12.0) for c in ("equal", "wb")] * 2):
+            up = gain if sc == "wb" and snr <= 25 else 0.0
+            arm = {"D": 30.0, "ship+12": 30.5, "mpcw+12": 30.5 + up / 2, "mpcws+12": 30.5 + up}
+            rows.append({"file": f"f{i}", "split": "held" if (i // 2) % 2 else "tune", "snr": snr, "scenario": sc,
+                         "truth_sigma18": 0.0001, "tile": [0, 0], "cpsnr": dict(arm), "lpsnr": dict(arm),
+                         "sigma18": {"ship": 0.01, "mpcw": 0.011, "mpcws": 0.012}, "true_sigma18": 0.012})
+        return _write(rows)
+
+    def _run(self, *argv):
+        import contextlib
+        import io
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            import near_clean_gate
+
+            near_clean_gate.main(list(argv))
+        return out.getvalue()
+
+    def test_pick_takes_the_larger_gain_and_the_test_passes_it(self):
+        p = self._rows(0.2)
+        self.assertIn("pick: mpcws", self._run("whitened", p, "--split", "tune"))
+        self.assertIn("verdict: ship mpcws on Bayer", self._run("whitened", p, "--split", "held", "--eig", "mpcws"))
+
+    def test_no_gain_stops_and_fails_h3(self):
+        p = self._rows(0.0)
+        self.assertIn("pick: none: stop", self._run("whitened", p, "--split", "tune"))
+        out = self._run("whitened", p, "--split", "held", "--eig", "mpcws")
+        self.assertIn("FAIL h3", out)
+        self.assertIn("verdict: what ships stays", out)

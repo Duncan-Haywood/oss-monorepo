@@ -1,0 +1,21 @@
+---
+title: "We checked our Swiss pairer against six real chess events. It matched 45% of the boards."
+seo_title: "Free Swiss pairing tool checked against real chess events"
+date: 2026-11-21
+tags: [league-schedule, swiss, chess, tools, evaluation]
+description: "Replaying six real chess-results events round by round found a file-import bug and a pairing-order flaw. The fix took matched boards from 45% to 60%."
+---
+
+The free [league schedule generator](../../ventures/league-schedule-generator/) pairs Swiss rounds for chess clubs, darts and board-game nights. It already passed its own tests, and it paired FIDE's two published 2025 examples exactly. The page also says it is not FIDE-endorsed. That is true, but it doesn't tell a club how close it actually gets. So we measured that.
+
+**The test.** gbtami's open-source [swisspairing](https://github.com/gbtami/swisspairing) project (MIT) keeps six real over-the-board events rebuilt from chess-results.com: the state before each round as a FIDE TRF file, and the pairing the arbiter actually published. Aeroflot Open 2026, two Budapest Spring Festival groups, Graz, Prague D and a 176-player ChessHouse event, 83 to 357 players and 9 rounds each. It also keeps three lichess events, which lichess pairs with bbpPairings. We replayed every round: we opened the file, removed the players who had no board that round, paired the rest, and counted how many of the real boards we reproduced.
+
+**First finding: the files didn't open.** chess-results writes names like "Volodin Alexandr E.". The results reader drops a trailing full stop (people type one), and then the name matched nobody. So 38 of 54 rounds couldn't be read. Anyone carrying on an event from Swiss-Manager would have hit that error. It's fixed now, with a test that fails without the fix.
+
+**Second finding: 45%.** From round 2 on, the pairer reproduced 44.7% of the real boards. Round 1 was exact in four of the six events (the other two follow a seed order the file doesn't carry). One round shows the gap clearly. Three Dutch engines reproduce Aeroflot round 2 exactly, and we got 36% of its boards. The diagnosis took two lines of output. Our order cost made two top-half players in a score group almost as cheap a pairing as top half against bottom half. The Dutch rules try every reordering of the bottom half before they swap anyone between the halves. And when colours forced a reordering, our ties were broken arbitrarily rather than in the rules' lexicographic order.
+
+**The fix, and a test that failed.** We gave the order term 64 times finer resolution, priced swaps between the halves above any reordering, and weighted the reordering so that a change near the top of the group costs more. We wrote the decision rule down before scoring anything: tune on three events, test on the other three, and keep round 1 intact. The first version failed that test. Neighbouring rows shared a weight, so adjacent boards in round 1 swapped partners. The corrected version gives each row its own weight and needed 2,048 times the resolution. It keeps round 1 exactly as before and lifts later-round boards on the held-out events from 42.8% to 57.8%. Across all six events the figure goes from 44.7% to 59.5%, and Aeroflot round 2 goes from 36% to 81%. We say plainly in the [write-up](../../ventures/league-schedule-generator/eval/swiss-vs-published.md) that this second test was post hoc. The original rule, applied strictly, would have shipped nothing.
+
+**The same check on 440 simulated events.** On the simulated events the repeat-float check uses, floats rose 1.1%, repeat floats were flat and strong colour clashes fell 0.6%. One count got worse: players floated up two rounds apart, up 8.5%. Pairing a 151-player round takes about twice as long, still well under a tenth of a second. The guide's worked example changed too. The new round 2 is the one the Dutch rules give, and the old prose was wrong that it would cost two players their colours.
+
+**Limits.** 60% is closer, not the same. The pairer weighs FIDE's criteria in one matching instead of going bracket by bracket. For a rated event, use an endorsed program. We couldn't build bbpPairings in this session, so the real published pairings stood in for it. The next step is a bracket-by-bracket pass, measured on the same harness.

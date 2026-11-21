@@ -25,3 +25,4 @@ stored NetVolume) and a compound unit slip, litres over the square-foot factor
 more share the factor). skolebygg's slab volume in the BoQ: 134,776 m3 to
 11,086 m3. eval/stored-vs-computed-2026-11-21.md.
 - (moved 2026-11-21) 3D model view 2026-11-21 (viewer.mjs, view-mesh.mjs; eval/model-view-2026-11-21.md)
+- (moved 2026-11-21) Uniformat II grouping shipped 2026-11-20 (uniformat.mjs, --by uniformat; rules vs authors' codes 482 of 588 at level 3, held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope from geometry shipped 2026-11-20 (envelope.mjs: unflagged walls placed by rays, 268 coded; uniform flags set aside; flag vs geometry 3,534 of 4,564; eval/envelope-2026-11-20.md),

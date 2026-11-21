@@ -1,120 +1,69 @@
-# P6 resource curves in earned value, 2026-11-21
+# P6 resource curves in the planned spread, 2026-11-21
 
-**Question.** P6 lets a planner put a resource curve on an assignment (Back
-Loaded, Bell Shaped, Front Loaded, a curve of their own) so its units and cost
-are spent unevenly over the activity. `evm.mjs` spread every assignment
-evenly, so on a curved schedule its planned value, SPI and S-curve were not
-the ones P6 shows. Does the XER carry the curves, and what changes when they
-are used?
+**Question.** Until today earned value (`evm.mjs`) spread every assignment's
+budget evenly over the working time of its planned dates. P6 lets an
+assignment follow a resource curve instead (`TASKRSRC.curv_id`, the curve in
+`RSRCCURVDATA`). How many assignments in the public files do, and how far does
+spreading them by their curve move the planned S-curve?
 
-## What the files carry
+**Reading.** A curve has 21 values, `pct_usage_0` to `pct_usage_20`, one per
+5% point of the duration. `curves.mjs` reads the twenty after the first as
+the share of units in each twentieth of the assignment's working time (the
+slice ending at that point), scaled to sum to 100, with any `pct_usage_0`
+added to the first slice. That is MPXJ's reading (its `WorkContour.FLAT` is 0
+then twenty 5s), and every curve P6 ships fits it: all start at 0 and the
+twenty slices sum to 100 (Linear 20 x 5; Back Loaded 10 x 3.5 then 10 x 6.5;
+Bell Shaped 0.5 ... 11.5 ... 0.5). Slices are cut by working time on the
+activity's calendar, so a weekend inside the span takes none.
 
-The six public P6 files of `eval/cpm-vs-p6-2026-11-19.md`. The curve table is
-`RSRCCURVDATA`: a name and 21 numbers, `pct_usage_0` to `pct_usage_20`. An
-assignment points at one by `TASKRSRC.curv_id`.
+What uses the curve: planned value (to the data date, and the S-curve), the
+planned value at other dates that a series of updates holds as its baseline
+(`pvCuts`, `evmseries.mjs`), and the forecast of an assignment's remaining
+while nothing is spent on it. Once actuals are booked the remaining is spread
+evenly, because how P6 re-fits a curve to remaining units is not known here.
 
-| File | Curves in the file | Assignments on a curve |
-|---|---|---|
-| CCA (6.0, hospital) | Back Loaded, Bell Shaped, Front Loaded, Linear, Triangular Increase, PCO119 (its own) | 37: PCO119 25, Back Loaded 7, one each on Bell, Front, Linear, Triangular Increase, and 1 on curv_id 9, which the file does not carry |
-| example (24.12, Web) | none (the table is there, empty) | 234 on curv_id 9 (455,364 USD, 3,765 h) |
-| Expressway (7.0) | none | 2 on curv_id 9 |
-| hotel, terminal, sample | none | none |
+**Data.** The six public XER files of `eval/cpm-vs-p6-2026-11-19.md` (fetched,
+not committed).
 
-**How the 21 numbers read.** In all six curves of the hospital file,
-`pct_usage_0` is 0 and points 1 to 20 add up to exactly 100; "Linear" is 0 then
-5 twenty times. So point k is the share of the k-th twentieth of the duration,
-and point 0 the share at the start instant. `curves.mjs` reads them that way
-(point 0 added to the first twentieth, so a hand-made curve with one loses
-nothing; a curve not adding to 100 is scaled to 100 and named; one adding to
-nothing is ignored and named). The twentieths are of the assignment's working
-time on the activity's calendar, the basis the even spread already used.
+**Method.** `node eval/resource-curves.mjs <dir> --json eval/resource-curves-2026-11-21.json`:
+each curved assignment's budgeted hours spread both ways on its own calendar
+and planned dates, summed by day, compared at month ends.
 
-## What was built
+**Result.**
 
-- `curves.mjs`: `curveTable` reads RSRCCURVDATA into cumulative shares;
-  `tailF` gives the part of a curve after a share of the duration.
-- `evm.mjs`: planned value spreads each assignment's budget by its curve over
-  its planned dates; the remaining (forecast) spread follows the curve over
-  the recomputed remaining dates, and for a started activity only the rest of
-  the curve, from the share of the duration already done (1 - remaining /
-  original duration). Actuals stay even from actual start to finish: they are
-  history and the file does not say how they were spent. A curve the file does
-  not carry is spread evenly and named. The planned value a series of updates
-  holds as baseline (`pvCuts`, `evmseries.mjs`) follows the curve too.
-- `measure: "hours"` (CLI `--hours`, page box *in labour hours*): earned value
-  in labour hours even when cost is loaded, a manpower curve. The hospital
-  file's curves sit on labour hours with no cost, so without this they were
-  never read. `curves: false` (CLI `--even-spread`) keeps the old spread.
-- **A fault found along the way.** On the hospital file the forecast curve in
-  hours ended 97.32 h short of the estimate at completion. Four assignments
-  carry actual hours on activities whose actual start is after the data date
-  (an invalid date): their actuals were drawn after the data date, where the
-  forecast curve no longer adds actuals. They are now drawn at the data date
-  and counted in a note. Every curve now closes.
+| File | Curves carried | Assignments naming one | Curve found |
+|---|---|---|---|
+| CCA (6.0, hospital) | 6 | 37 of 36,808 | 36 |
+| Expressway (7.0) | 0 | 2 of 3,519 | 0 |
+| example (24.12 Web) | 0 (empty table) | 234 of 1,677 | 0 |
+| hotel, terminal, sample | 0 | 0 | - |
 
-## Method
+- CCA's curves: Back Loaded (7 assignments), Bell Shaped (1), Front Loaded
+  (1), Linear (1), Triangular Increase (1) and a custom "PCO119" (25), a
+  late bell peaking at slices 14-15.
+- On all 36 spreads the daily parts sum to the budget (36 of 36), and Linear
+  gives the even spread to 10^-6 h (1 of 1; the unit tests check it to the
+  cent on cost).
+- The curved work (834,430 budgeted hours) runs behind the even spread from
+  the first month to the last; the largest gap is **109,048 h at 2012-03-31**:
+  161,678 h on the curves against 270,726 h evenly (40% less). Month ends,
+  hours (curves / evenly): 2011-10 3,557 / 45,918; 2011-12 91,565 / 149,079;
+  2012-03 161,678 / 270,726; 2012-06 321,006 / 395,919; 2012-09 523,174 /
+  582,594; 2012-12 729,931 / 746,807; both 834,430 at 2013-05-01.
+- CCA's earned value is in cost (EGP), and these 36 assignments carry hours
+  but no cost, so its cost PV, SPI and earned schedule are unchanged; the
+  notes name the 35 non-linear curved assignments and their curves. Its data
+  date (2011-09-30) is before every curved assignment starts, so planned
+  hours to the data date are 0 either way.
+- Curve id 9 is named in three files from P6 6.0, 7.0 and 24.12 and carried
+  in none (one CCA assignment, both Expressway ones, all 234 on the Web
+  file). It looks like a built-in curve P6 does not export; which one cannot
+  be told from these files, so those assignments are spread evenly and the
+  notes say so.
 
-```
-node eval/resource-curves.mjs <the six files> --json eval/resource-curves-2026-11-21.json
-```
-
-For each file and both measures: planned value at the data date with curves
-and with the even spread; whether the planned curve ends on the budget and the
-forecast curve on the estimate at completion; the widest month-end gap between
-the two planned curves. Then, planted, every assignment of the file put on one
-of P6's shipped curves in turn (Back Loaded, Front Loaded, Bell Shaped, the
-hospital file's own rows), the same figures.
-
-## Results
-
-**The file's own curves.** Only the hospital file has curves to apply, and its
-data date (2011-09-30) is before every curved assignment's planned start, so
-planned value at the data date is unchanged (12,936,825 h). On the S-curve the
-34 non-linear assignments (834,000 h of 35.7 million) move the planned curve by
-up to 109,048 h (0.45%), at 2012-03-31. The other two files' 236 curved
-assignments name curv_id 9, which neither exports; the tool says so and
-spreads them evenly. That is the honest limit of the public data: the curve
-most assignments use is one we cannot see.
-
-**Planted, every assignment on one curve.** Planned value at the data date,
-against the even spread:
-
-| File | Measure | Even | Back Loaded | Front Loaded | Bell Shaped |
-|---|---|---:|---:|---:|---:|
-| example (24.12) | cost (USD) | 250,431 | 207,421 | 293,440 | 164,762 |
-| example (24.12) | hours | 2,197 | 1,825 | 2,570 | 1,475 |
-| CCA (hospital) | cost (EGP) | 330,091,170 | 303,510,918 | 356,671,421 | 326,437,098 |
-| CCA (hospital) | hours | 12,936,825 | 12,481,090 | 13,392,561 | 13,005,478 |
-
-On the 24.12 file SPI moves from 0.202 to 0.244 (Back Loaded) or 0.172 (Front
-Loaded) for the same work: a curve is not a detail. Back and Front Loaded are
-mirror images, and their gaps from the even spread are equal and opposite
-(−43,009.74 and +43,009.75 USD; −26,580,251 and +26,580,251 EGP to within
-80 on 330 million), which is what a correct spread of those two curves must
-give. On all four files with assignments (hotel and Expressway have nothing
-planned by their data dates; their S-curves move by up to 3,375 USD and
-1,724 h), in both measures and all three curves, the planned curve ends on the
-budget and the forecast on the estimate at completion: 24 of 24.
-
-## Tests
-
-`curves.test.mjs` (3): the hospital file's rows read as shares (Back Loaded
-35% at half time, Linear equal to the even spread, Bell symmetric), scaling
-and empty curves, the tail of a curve. `evm.test.mjs` (5 new): 1,000 on a
-20-day assignment, ten days in, is 500 even, 350 Back Loaded, 650 Front
-Loaded, 500 on Linear and with curves off; the baseline cut follows the curve
-(175 after five days); a missing curve is even and named; a started activity's
-forecast closes on its curve's tail; hours on a cost-loaded file; actuals
-after the data date stay on the curve.
-
-## Limits
-
-- Not checked against P6's own spread: no public file carries P6's
-  timephased planned units (P6 computes them on screen; an XER holds no
-  spread). The reading of the 21 points rests on the six curves' own sums and
-  on Linear equalling the even spread. A P6 user's spreadsheet export of a
-  curved activity's planned units would settle the within-twentieth detail.
-- P6's own handling of a curve on a started activity may differ from the
-  rest-of-the-curve rule here; P6 also has a "recalculate actual units and
-  cost" option this does not model.
-- curv_id 9 is the curve most public assignments use and no file carries.
+**Not checked.** No public file carries P6's own timephased spread of a
+curved assignment (`target_crv`, P6's stored spread, is filled on 1 of 36,808
+CCA assignments, and that one names the missing curve 9), so the slice
+reading is not compared with P6's numbers. A P6 export with a curved,
+cost-loaded assignment and its spreadsheet view (Resource Usage) would
+settle it.
