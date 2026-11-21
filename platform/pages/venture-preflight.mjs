@@ -56,16 +56,25 @@
 //   in the root .gitignore that name a ventures/ path are build outputs CI
 //   makes too (einvoice-preflight/browser/), so they are not counted.
 //
-//   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
+//   node platform/pages/venture-preflight.mjs <slug> [--skip-build] [--fail-fast]
 //
-// Takes about six and a half minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
+// One pass reports every stage. The build starts in the background at once
+// (its output goes to files, so the synchronous steps never block it) and
+// steps 1, 1b and 1c run beside it; their problems print as soon as they are
+// known, so you can fix them while the build finishes. Before 2026-11-21 any
+// step-1 problem stopped the run before the site tests and the build, and a
+// branch with problems in three stages took three ~6-minute runs to see them
+// all (run records 2026-11-13, 11-17, 11-18, 11-21). `--fail-fast` keeps
+// that old order: the build starts only when the quick checks pass.
+//
+// Takes about six and a half minutes (the build is most of it). Exit 0: clean for this
 // slug. Exit 1: a problem names the slug, the launch date / counts are
 // wrong, or a site test fails (CI runs the same tests on the PR, so a red
 // one fails it whoever caused it; the message says whether it names the slug).
 // Problems check.mjs finds on other slugs are printed as notes and do not fail you.
 // `--skip-build` runs steps 1, 3 and 4 only (98 s on an idle 4-core container, 2026-11-18).
 
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -386,6 +395,32 @@ export function siteTestProblem(r, slug) {
   return `site tests failed (${who}); rerun with \`${rerun}\`:\n${list}`;
 }
 
+/**
+ * Start build.mjs into `out` without waiting. stdout and stderr go to files,
+ * not pipes: the steps that run meanwhile use spawnSync, which blocks the
+ * event loop, and a build writing into a full pipe nobody drains would stall.
+ * `done` resolves to the same { status, stdout, stderr } shape spawnSync gives.
+ */
+export function startBuild(out, args = ['platform/pages/build.mjs', `--out=${out}`]) {
+  const logs = fs.mkdtempSync(path.join(os.tmpdir(), 'preflight-log-'));
+  const files = { stdout: path.join(logs, 'stdout'), stderr: path.join(logs, 'stderr') };
+  const fds = { stdout: fs.openSync(files.stdout, 'w'), stderr: fs.openSync(files.stderr, 'w') };
+  const child = spawn('node', args, { cwd: ROOT, stdio: ['ignore', fds.stdout, fds.stderr] });
+  fs.closeSync(fds.stdout);
+  fs.closeSync(fds.stderr);
+  const read = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return ''; } };
+  const done = new Promise((resolve) => {
+    const finish = (status, error) => {
+      const r = { status, stdout: read(files.stdout), stderr: read(files.stderr) + (error ? `\n${error.message}` : '') };
+      fs.rmSync(logs, { recursive: true, force: true });
+      resolve(r);
+    };
+    child.on('error', (e) => finish(1, e));
+    child.on('exit', (code, signal) => finish(code ?? (signal ? 1 : 0)));
+  });
+  return { child, done };
+}
+
 async function main(argv) {
   const slug = argv.find((a) => !a.startsWith('--'));
   if (!slug) {
@@ -396,8 +431,17 @@ async function main(argv) {
     console.error(`no ventures/${slug}`);
     return 2;
   }
+  const skipBuild = argv.includes('--skip-build');
+  const failFast = argv.includes('--fail-fast');
   const failures = [];
   let localFiles = [];
+  const out = skipBuild ? null : fs.mkdtempSync(path.join(os.tmpdir(), 'preflight-'));
+  let build = null;
+  if (!skipBuild && !failFast) {
+    build = startBuild(out);
+    console.log('2/3 build started in the background (about 5 minutes); steps 1 to 1c run beside it');
+  }
+  try {
 
   console.log('1/3 launched.json');
   failures.push(...(await launchedProblems(slug)));
@@ -448,7 +492,7 @@ async function main(argv) {
     const problem = routerProblem(r.status, (r.stdout || '') + (r.stderr || ''));
     if (problem) failures.push(problem);
   }
-  if (!failures.length) {
+  if (!failures.length || !failFast) {
     console.log(`1c/3 site tests (${siteTestFiles().length} files, CI's glob minus ${SITE_BUILD_TESTS.join(', ')}; about 35 s)`);
     const r = spawnSync('node', ['--test', '--test-reporter=tap', ...siteTestFiles()], {
       cwd: path.join(ROOT, 'platform', 'pages'), encoding: 'utf8', maxBuffer: 1 << 28,
@@ -462,17 +506,23 @@ async function main(argv) {
     const privacyProblem = siteTestProblem(pr, slug);
     if (privacyProblem) failures.push(privacyProblem.replace('site tests failed', 'privacy tests failed').replace('cd platform/pages && ', 'cd platform/privacy && '));
   }
-  if (failures.length) {
-    console.log(`\nPREFLIGHT FAILED for ${slug} (stopped before the build; fix, then rerun):`);
+  if (failures.length && !build) {
+    console.log(`\nPREFLIGHT FAILED for ${slug} (stopped before the build${skipBuild ? ', which --skip-build leaves out' : ' (--fail-fast)'}; fix, then rerun):`);
     for (const f of failures) console.log(`  - ${f}`);
     return 1;
   }
+  if (failures.length) {
+    console.log(`\n${failures.length} problem(s) from steps 1 to 1c, listed again at the end; fix them while the build finishes:`);
+    for (const f of failures) console.log(`  - ${f}`);
+    console.log('');
+  }
 
-  if (!argv.includes('--skip-build')) {
-    console.log('2/3 build + check.mjs (about 5 minutes)');
-    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'preflight-'));
-    try {
-      const built = run(['platform/pages/build.mjs', `--out=${out}`]);
+  if (!skipBuild) {
+    if (!build) build = startBuild(out);
+    console.log('2/3 build + check.mjs (waiting for the build)');
+    {
+      const built = await build.done;
+      build = null;
       const buildFailure = buildProblem(built);
       if (buildFailure) {
         failures.push(buildFailure);
@@ -486,8 +536,6 @@ async function main(argv) {
           if (other.length) console.log(`   note: ${other.length} problem(s) on other slugs (not yours):\n${other.join('\n')}`);
         }
       }
-    } finally {
-      fs.rmSync(out, { recursive: true, force: true });
     }
   } else {
     console.log('2/3 build + check.mjs skipped');
@@ -500,6 +548,10 @@ async function main(argv) {
   }
   console.log(`\npreflight clean for ${slug}`);
   return 0;
+  } finally {
+    if (build) build.child.kill();
+    if (out) fs.rmSync(out, { recursive: true, force: true });
+  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

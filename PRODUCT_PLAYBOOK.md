@@ -595,6 +595,9 @@ Ship when every line is true:
       among them), `inherited_keys.py`, the build.mjs section and trades
       sub-group, post front matter, the site's source-scan tests
       (visible FAQ, schema, siblings) and the full build with `check.mjs`.
+      One pass reports every stage: the build runs beside the quick checks,
+      whose problems print first so you can fix them while it finishes
+      (`--fail-fast` stops before the build instead).
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go
