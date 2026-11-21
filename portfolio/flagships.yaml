@@ -572,24 +572,22 @@ flagships:
       page panel; eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed
       activities = P6's); milestone calendars shipped 2026-11-20 (milestones.mjs;
       eval/milestone-calendars-2026-11-20.md). (10) earned value shipped 2026-11-20
-      (evm.mjs; % complete = P6's actuals 2,020/2,020); P6 resource curves
-      2026-11-21 (curves.mjs, eval/resource-curves-2026-11-21.md); next a real
-      series, baseline export, P6's curved spread. (11) time impact analysis shipped
-      2026-11-20 (tia.mjs, --tia, page; eval/tia-check-2026-11-20.md); next a real
-      TIA exhibit. (8) MSPDI: resource calendars, Resume, splits read 2026-11-21
-      (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md); next contoured
-      work, timephased late dates. (12) Gantt chart shipped 2026-11-20 (LOE and WBS
-      summary dates = P6's on 305 of 305, eval/gantt-check-2026-11-20.md). (13) XER
-      to Project XML shipped 2026-11-21 (eval/msproject-check-2026-11-21.md); next a
-      Project check. MSPDI to XER shipped 2026-11-21
-      (eval/p6xer-check-2026-11-21.md); deadlines in float and XER
-      (eval/deadlines-2026-11-21.md). Expenses <-> cost resources and fixed costs
-      2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;
+      (evm.mjs; % complete = P6's actuals 2,020/2,020); next a real series, baseline
+      export, P6's curved spread. (11) time impact analysis shipped 2026-11-20
+      (tia.mjs, --tia, page; eval/tia-check-2026-11-20.md); next a real TIA exhibit.
+      (8) MSPDI: resource calendars, Resume, splits read 2026-11-21 (2,446 of 2,491
+      = Project's, eval/split-tasks-2026-11-21.md); next contoured work, timephased
+      late dates. (12) Gantt chart shipped 2026-11-20 (LOE and WBS summary dates =
+      P6's on 305 of 305, eval/gantt-check-2026-11-20.md). (13) XER to Project XML
+      shipped 2026-11-21 (eval/msproject-check-2026-11-21.md); next a Project check.
+      MSPDI to XER shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md); deadlines in
+      float and XER (eval/deadlines-2026-11-21.md). Expenses <-> cost resources and
+      fixed costs 2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;
       eval/expenses-2026-11-21.md); next a P6-written XER with expenses, a P6 import
       (category by name?). Notebooks <-> task notes 2026-11-21 (88/88 real,
       2,006/2,006 planted; eval/notebooks-2026-11-21.md); resource notes 2026-11-21
-      (241/241 planted; eval/resource-notes-2026-11-21.md). More open items:
-      NEXT.md.
+      (241/241 planted; eval/resource-notes-2026-11-21.md); unassigned resources
+      2026-11-21 (--all-resources, 17/17 notes back). More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVPKH1qWiQLLVFamLBh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: revenue-generating software products brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "fbb437c13b0e2c271f323b8ef1597e527ca41280b8edeb3d9d2e9c1430c0c202",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T20:02:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: unassigned resources in Project XML out",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18133",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "I ran a bare `route` first out of habit and drew the process track for the scheduled revenue brief; prompt.md does say to pass --task, and re-routing with it picked ventures. Many records report the same slip, so a route with no --task could print a line asking whether the session started from a stored brief."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-unassigned-resources-p6-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/all-resources-2026-11-21.md"
+  ],
+  "goal": "Flagship 13 (xer-schedule-check): stop the Project -> XER -> Project trip losing every resource with no assignment, and their notes.",
+  "notes": "allocate.py picked row 8, xer-schedule-check. I took the NEXT.md item on unassigned resources: msproject.mjs wrote only assigned resources, so 11 of 17 Project resource notes were lost on the way back. Added { allResources } / --all-resources / a page checkbox, plus a warning in default mode that counts what was left out. Eval (eval/all-resources-check.mjs) on the six public XERs (raw.githubusercontent.com at the commits in eval/cpm-vs-p6-2026-11-19.md) and MPXJ junit/data @ 8c7f83c: the six XERs hold 502 resources, the default wrote 469 and allResources writes 502; 502/502 come back in the XER with the same id, name and type; 0 assignment changes. MPXJ corpus: 890 of 890 resources back (408 by default), 17/17 notes (6 by default), 0 p6Problems. Verification: run_venture_tests.py xer-schedule-check ok (310 tests), check_posts ok, router validate ok, venture-preflight clean.",
+  "corrections": [],
+  "redteam": null
+}
