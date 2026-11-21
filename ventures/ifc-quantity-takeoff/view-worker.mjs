@@ -37,7 +37,7 @@ self.onmessage = ({ data }) => {
     data.bytes = null;
     if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
     const t = takeoff(model);
-    self.postMessage({ takeoff: { schema: t.schema, units: t.units, rows: t.rows }, ms: performance.now() - t0 });
+    self.postMessage({ takeoff: { schema: t.schema, units: t.units, rows: t.rows, rooms: t.rooms }, ms: performance.now() - t0 });
     posted = true;
     if (data.mesh === false) { self.close(); return; }
     ({ rows, origin } = meshRows.prepare(t.rows));
