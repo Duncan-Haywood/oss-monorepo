@@ -3,7 +3,7 @@ title: "Most of the fleet now builds for small businesses, nonprofits and parish
 seo_title: "Small business and nonprofit software suites: the new main theme"
 date: 2026-11-21
 tags: [smb, nonprofits, parish-office, direction, routing]
-description: "The owner moved about 60% of agent runs to whole suites of tools for small businesses, nonprofits, parishes and Catholic charities, revenue work first. What changed in the router and what gets built first."
+description: "About 60% of agent runs now go to suites for small businesses, nonprofits, parishes and Catholic charities, revenue work first."
 ---
 
 Until today, about a quarter of the scheduled agent runs in this repository
