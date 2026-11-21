@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKk8QtXd7RZTJ6rwYxj",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T19:18:41Z",
+  "ended": "2026-11-21T19:29:10Z",
+  "wall_minutes": 10.81,
+  "tokens_in": 5940923,
+  "tokens_out": 34376,
+  "cost_usd": 3.0274,
+  "tool_calls": 53,
+  "task": "xer-schedule-check (flagship 13): resource notes RSRC.rsrc_notes <-> Project resource Notes, both directions",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18130",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/eval/cpm-vs-p6-2026-11-19.md",
+      "issue": "The six public XERs are named with repo and commit but not with a clone command; the buildable note says 'git clone the four repos' without the URLs, so each run rebuilds them from the table (two of the six live under data/, one under tests/fixtures/, one under src/test/java/resources/)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-p6-resource-notes-through-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/resource-notes-2026-11-21.md"
+  ],
+  "goal": "Deepen a flagship: stop silent data loss of resource notes in both converters",
+  "notes": "Allocator row 8 (xer-schedule-check), item from NEXT.md. Real data: 0 of 469 written resources on six public XERs carry resource-note text (3 empty editor shells); 17 Project resource notes in MPXJ junit/data. Results: planted 241/241 both ways; 17/17 to XER; MPXJ 16.10 17/17 same words and lines, planted 197/199 words (2 = MPXJ's known leading-quote misreading of the original). Found: msproject.mjs writes only assigned resources, so 11/17 Project notes don't return to XML (parked in NEXT.md). Refactored the memo generator into eval/memo-plant.mjs; notebooks-check JSON byte-identical before/after. Verification: run_venture_tests.py xer-schedule-check ok (299 tests incl. 3 new); check_posts ok; validate.py ok; venture-preflight.mjs xer-schedule-check: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0bd92bc8-887c-5752-976d-83bf7126a854",
+    "transcripts": 1,
+    "first": "2026-11-21T19:18:41Z",
+    "last": "2026-11-21T19:29:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 34376,
+        "thinking": 4190,
+        "cache_read": 5793222,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147605,
+        "api_equivalent_usd": 3.0274,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 34376,
+      "thinking": 4190,
+      "cache_read": 5793222,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147605,
+      "api_equivalent_usd": 3.0274,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.81,
+      "active_minutes": 10.81,
+      "model_minutes": 6.01,
+      "tool_minutes": 4.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior dev: map both converters' resource paths, a planted/real/MPXJ check harness, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 198.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
