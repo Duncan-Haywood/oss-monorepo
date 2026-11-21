@@ -1,0 +1,23 @@
+# Milestone 67 diagnostic (post hoc, not registered)
+
+## 1. Zero-bias residual and linearity: robot | presses | max |R(0)| over rows mm | flip-free aimed cases | max | |r_k*| - B ||J_k*|| | mm | median, min, max of |r_k*| / (B ||J_k*||), ||J_k*|| > 1e-6
+  g1 | 117 | 1.63e-15 | 701 | 7.95e-15 | 1.0000, 1.0000, 1.0000
+  h1 | 152 | 3.80e-15 | 907 | 8.06e-15 | 1.0000, 1.0000, 1.0000
+
+## 2. Same plan path at the four gradient points or not: robot | path | presses | median, max ||J_k*|| mm/N | median ratio ||J_k*|| / max_k D_k/B
+  g1 | same | 71 | 0.0616, 0.1412 | 0.510
+  g1 | changed | 46 | 0.0595, 0.1412 | 0.388
+  h1 | same | 84 | 0.0476, 0.1074 | 0.457
+  h1 | changed | 68 | 0.0476, 0.1074 | 0.453
+
+## 3. Certified bias from the measured sensitivity, B* = 0.03 / max_k ||J_k|| (no-flip part only): robot | presses | min | 10th pct | median N | presses under 0.2 N | under 0.3 N | milestone 66's B* from D at the same press, median N
+  g1 | 117 | 0.213 | 0.215 | 0.492 | 0 | 40 | 0.202
+  h1 | 152 | 0.279 | 0.298 | 0.630 | 0 | 16 | 0.269
+
+## 4. A gate on the measured sensitivity at 0.2 N, Y_k + 0.2 ||J_k|| <= 0.03 mm in every row (Y_k the flip budget of the zero-bias plan sized to 0.2 N): robot | presses | pass | pass % | milestone 66's gate Y_k + D_k <= 0.03 at the same presses | worst row of Y_k + 0.2 ||J_k|| mm
+  g1 | 117 | 117 | 100.0 | 64 | 0.0282
+  h1 | 152 | 152 | 100.0 | 136 | 0.0215
+
+## 5. Does J depend on the load? robot | poses | most distinct max_k ||J_k|| (6 decimals) at one pose over the loads | presses with ||J|| = 0 (poses)
+  g1 | 15 | 1 | [(1.0, 0.0)]
+  h1 | 19 | 1 | [(1.0, 0.0)]

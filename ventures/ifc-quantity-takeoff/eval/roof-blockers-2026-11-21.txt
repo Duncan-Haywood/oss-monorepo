@@ -1,0 +1,86 @@
+dental_clinic.ifc: 1075 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (3.2 s)
+architect.ifc: 112 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (17.1 s)
+construction.ifc: 48 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (1.5 s)
+MEP.ifc: 0 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (8.0 s)
+Schultz_Residence.ifc: 100 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (4.1 s)
+duplex.ifc: 57 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (0.9 s)
+AC20-FZK-Haus.ifc: 13 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (0.3 s)
+C20-Institute-Var-2.ifc: 121 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (1.0 s)
+ISSUE_159_kleine_Wohnung_R22.ifc: 211 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (11.1 s)
+schependomlaan.ifc: 922 walls read; the roofs move 66; closed by a roof 66, open only above the roof 0 (6.7 s)
+    #547137 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm_hydro 100 | 01 eerste verdieping | 2.95 m long, 2.71 m high
+    #551100 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm_hydro 100 | 01 eerste verdieping | 2.21 m long, 2.71 m high
+    #552048 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 01 eerste verdieping | 1.64 m long, 2.71 m high
+    #552499 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 01 eerste verdieping | 1.28 m long, 2.71 m high
+    #584479 exterior -> interior, flag interior, Uniformat C1010 -> C1010: binnenwand | IFC_kalkzandsteen_300mm 300 | 01 eerste verdieping | 2.52 m long, 2.71 m high
+    #707521 exterior -> interior, flag interior, Uniformat C1010 -> C1010: liftwand | IFC_kalkzandsteen_214mm 214 | 02 tweede verdieping | 1.3 m long, 0.31 m high
+    #778203 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: liftwand | IFC_kalkzandsteen_100mm 100 | 03 derde verdieping | 2.93 m long, 0.28 m high
+    #784646 exterior -> interior, flag interior, Uniformat C1010 -> C1010: binnenwand | IFC_kalkzandsteen_300mm 300 | 03 derde verdieping | 10.84 m long, 2.71 m high
+    #784865 exterior -> interior, flag interior, Uniformat C1010 -> C1010: binnenwand | IFC_kalkzandsteen_300mm 300 | 03 derde verdieping | 3.2 m long, 2.71 m high
+    #785047 exterior -> interior, flag interior, Uniformat C1010 -> C1010: binnenwand | IFC_kalkzandsteen_300mm 300 | 03 derde verdieping | 0.72 m long, 2.71 m high
+    #785230 exterior -> interior, flag interior, Uniformat C1010 -> C1010: binnenwand | IFC_kalkzandsteen_300mm 300 | 03 derde verdieping | 0.55 m long, 2.71 m high
+    #825380 exterior -> interior, flag interior, Uniformat C1010 -> C1010: liftwand | IFC_kalkzandsteen_214mm 214 | 03 derde verdieping | 1.3 m long, 0.31 m high
+    #831817 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 7.74 m long, 0.92 m high
+    #832391 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 3.33 m long, 0.45 m high
+    #832669 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 0.71 m long, 0.92 m high
+    #832970 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.73 m long, 0.92 m high
+    #833239 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 0.91 m long, 0.76 m high
+    #833578 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: HSB-element | IFC_HSB_155_wandelement_Rc=3,67 155 | 03 derde verdieping | 1.08 m long, 2.69 m high
+    #835340 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: HSB-element | IFC_HSB_155_wandelement_Rc=3,67 155 | 03 derde verdieping | 2.95 m long, 2.69 m high
+    #835684 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: HSB-element | IFC_HSB_155_wandelement_Rc=3,67 155 | 03 derde verdieping | 1.2 m long, 2.69 m high
+    #838929 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: HSB-element | IFC_HSB_155_wandelement_Rc=3,67 155 | 03 derde verdieping | 1.08 m long, 2.69 m high
+    #839455 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: HSB-element | IFC_HSB_155_wandelement_Rc=3,67 155 | 03 derde verdieping | 2.95 m long, 2.69 m high
+    #839799 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: HSB-element | IFC_HSB_155_wandelement_Rc=3,67 155 | 03 derde verdieping | 1.2 m long, 2.69 m high
+    #844214 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.04 m long, 0.92 m high
+    #844488 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.77 m long, 0.92 m high
+    #845174 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 3.38 m long, 0.92 m high
+    #845472 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.04 m long, 0.92 m high
+    #852861 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.05 m long, 0.92 m high
+    #867766 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 2.52 m long, 0.45 m high
+    #868096 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 5.72 m long, 0.76 m high
+    #873805 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.16 m long, 0.92 m high
+    #874412 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 0.23 m long, 0.92 m high
+    #874709 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.76 m long, 0.92 m high
+    #875014 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 3.37 m long, 0.92 m high
+    #875287 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 0.91 m long, 0.76 m high
+    #875561 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 3.38 m long, 0.92 m high
+    #875825 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.04 m long, 0.92 m high
+    #876108 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 1.51 m long, 0.92 m high
+    #876391 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 3.5 m long, 0.92 m high
+    #882133 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 0.34 m long, 2.71 m high
+    #882347 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 3.1 m long, 2.71 m high
+    #882569 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 3.73 m long, 2.71 m high
+    #883182 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 0.93 m long, 2.71 m high
+    #886262 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 0.51 m long, 2.71 m high
+    #886735 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 3.15 m long, 2.71 m high
+    #887975 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 3.34 m long, 2.71 m high
+    #892073 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 5.53 m long, 2.71 m high
+    #897848 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 2.87 m long, 2.71 m high
+    #898270 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 2.01 m long, 2.71 m high
+    #898483 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 4.29 m long, 2.71 m high
+    #898696 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 1.42 m long, 2.71 m high
+    #902001 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 1.35 m long, 2.71 m high
+    #902490 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 1.05 m long, 2.71 m high
+    #902921 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 2.37 m long, 2.71 m high
+    #967617 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: kozijn | IFC_kozijn_90x114 114 | 03 derde verdieping | 2.54 m long, 2.28 m high
+    #969938 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: kozijn | IFC_kozijn_90x114 114 | 03 derde verdieping | 2.54 m long, 2.28 m high
+    #972446 exterior -> interior, flag interior, Uniformat C1010 -> C1010: knieschot | IFC_knieschot_ongeisoleerd 49 | 03 derde verdieping | 0.91 m long, 0.76 m high
+    #977467 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 0.7 m long, 2.71 m high
+    #978076 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 0.39 m long, 2.71 m high
+    #979572 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_100mm 100 | 03 derde verdieping | 0.55 m long, 2.71 m high
+    #979925 exterior -> interior, flag interior, Uniformat C1010 -> C1010: separatiewand | IFC_separatiewand_gasbeton_70mm 70 | 03 derde verdieping | 2.17 m long, 2.71 m high
+    #991757 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: liftwand | IFC_kalkzandsteen_100mm 100 | 04 dak | 2.93 m long, 0.69 m high
+    #1004073 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: buitenblad | IFC_cellenbeton_100mm 100 | 04 dak | 2.16 m long, 0.2 m high
+    #1004915 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: buitenblad | IFC_cellenbeton_100mm 100 | 04 dak | 3.33 m long, 0.2 m high
+    #1005550 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: buitenblad | IFC_cellenbeton_100mm 100 | 04 dak | 2.16 m long, 0.2 m high
+    #1005974 exterior -> interior, flag exterior, Uniformat B2010 -> B2010: buitenblad | IFC_cellenbeton_100mm 100 | 04 dak | 3.33 m long, 0.2 m high
+FM_ARC_DigitalHub.ifc: 178 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (35.3 s)
+ISSUE_021_Mini Project.ifc: 0 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (15.8 s)
+ISSUE_034_HouseZ.ifc: 134 walls read; the roofs move 1; closed by a roof 1, open only above the roof 3 (2.2 s)
+    #46666 exterior -> interior, flag unset, Uniformat B2010 -> C1010:  |  | Roof | 5.1 m long, 0.96 m high
+advanced_model.ifc: 133 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (36.7 s)
+S_Office_Integrated Design Archi.ifc: 186 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (39.2 s)
+ISSUE_068_ARK_NUS_skolebygg.ifc: 1055 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (34.9 s)
+Office_A_20110811.ifc: 487 walls read; the roofs move 0; closed by a roof 0, open only above the roof 0 (1.2 s)
+
+17 models, 4832 walls read: the roofs move 67 (flag interior 52, flag exterior 14, no flag 1); Uniformat before {"C1010":52,"B2010":15}, after {"C1010":53,"B2010":14}

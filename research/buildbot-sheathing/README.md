@@ -858,6 +858,21 @@ enters the reference calibration, is the next test. One seed; statics.
 
 ![Coverage with and without the direct-term gate, and the largest bias the gate certifies per press](experiments/m66_directterm/figure.png)
 
+**Milestone 67: does the 0.2 N guarantee survive a sensor bias aimed at the direct term, with the reference
+calibration taken under the same bias?** Yes, and it is now certified rather than only tested. Per press the
+adversary measures J, how the no-flip residual of each of the four rows moves per newton of bias when the whole chain
+re-plans and the reference calibration is re-made under that bias, and aims the bias where J is largest (almost always
+the nail's depth point, across the wall). On 8 new held-out loads (seed 67), **no planned press leaves 0.03 mm at
+0.15 or 0.2 N** (worst 0.0282 mm on the G1, 0.0215 mm on the H1; H257 and H259 held), while **at 0.3 N 34% of G1 and
+10% of H1 presses do, every one with no backlash flip** (H260 held), where milestone 65's margin-aimed bias left none.
+The calibration cancels about half of milestone 66's fixed-calibration term (median 0.46; H258 held). Checked after
+the run: the no-flip residual is **exactly linear in the bias** (to 1e-14 mm, whatever plan the chain picks), so
+B||J|| is its exact worst case over every bias direction, and it certifies every press to at least **0.213 N (G1) and
+0.279 N (H1)**. J depends only on the pose, not the hose load, so that certificate is a table computed once per
+pose. One seed; statics.
+
+![Measured through-calibration sensitivity against milestone 66's direct term, and the worst row against the aimed bias](experiments/m67_aimeddirect/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

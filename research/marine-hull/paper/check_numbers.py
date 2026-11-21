@@ -205,6 +205,18 @@ CLAIMS = [
     ("results_motion_damping_holdout.txt", "row zeta0 plain 0.0000 0.0000 2.954 -4.31 -15.06 True"),
     ("results_wigley_seakeeping_tank.txt", "row 0.000 2.95 2.13 0.72 -4.31 -15.06 True"),
     ("results_wigley_seakeeping_tank.txt", "row 0.091 1.72 1.24 0.72 -2.90 -10.67 True"),
+    # milestone 7zq: Table III (the L/B 10 checks) and the abstract
+    ("results_eut_coupling_lb10.txt", "row T0 23.93@1.00 23.95@1.00 0.753"),
+    ("results_eut_coupling_lb10.txt", "row T0 17.90@0.89 17.93@0.89 0.807"),
+    ("results_eut_coupling_lb10.txt", "row T4 21.65@1.02 21.66@1.02 0.681"),
+    ("results_eut_coupling_lb10.txt", "row T4 17.53@0.90 17.56@0.90 0.791"),
+    ("results_eut_coupling_lb10.txt", "T1 +4.93%, T2 +4.93%"),
+    ("results_eut_coupling_lb10.txt", "row T4_A35=A53=0 2.837 0.028 -3.39"),
+    ("results_eut_coupling_lb10.txt", "row T3 19.82@1.03 19.84@1.03 0.624"),
+    ("results_eut_coupling_lb10.txt", "row T2 17.53@0.90 17.56@0.90 0.791"),
+    ("results_panel_speed.txt", "mean error on 1.0-1.3 strip +3.1%, panel +36.0%"),
+    ("results_coupling_symmetry.txt", "S summed over KL / measured 1.308"),
+
 ]
 
 def check(claims=CLAIMS, root=EXP):

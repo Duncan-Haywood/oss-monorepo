@@ -303,6 +303,19 @@ and geometry agree on 3,534 of 4,564; where they disagree, the wall type's own
 name sides with the geometry 228 times and with the flag 213 times. Details:
 [eval/envelope-2026-11-20.md](eval/envelope-2026-11-20.md).
 
+Sloped roofs block the rays too (2026-11-21), so an attic knee wall reads as a
+partition: a ray is closed where the first roof face it meets comes down
+across it and a lower wall (the eaves wall) lies beyond the roof's cut. A ray
+that meets a roof rising ahead of it is above the roof, and an eaves overhang
+with no wall beyond it closes nothing. A wall the roof closes is read again
+near its top, so a dormer wall that rises through the roof stays exterior. On
+the 17 models 67 walls move, 66 of them in schependomlaan: its 22 `knieschot`
+knee walls and 30 more interior-flagged walls under the roof now agree with
+their flags (flag agreement there 815 to 853 of 922; 3,572 of 4,564 across
+the 17), and 14 exterior-flagged walls standing wholly under the roof
+(insulated panels against the cold roof space) now carry a "check it". Details:
+[eval/roof-blockers-2026-11-21.md](eval/roof-blockers-2026-11-21.md).
+
 ## Geometry it reads
 
 Extruded area solids (rectangle, rounded and hollow rectangle, circle and hollow
@@ -381,6 +394,7 @@ node eval/measure-rules.mjs a.ifc b.ifc         # what a small-void rule changes
 node eval/revision-diff.mjs r1.ifc r2.ifc r3.ifc   # the change report on consecutive revisions
 node eval/uniformat-check.mjs a.ifc b.ifc      # Uniformat coverage, and the rules against authors' codes
 node eval/envelope-check.mjs a.ifc b.ifc --svg plans/   # the envelope test against authors' IsExternal flags, with plans
+node eval/roof-blockers.mjs a.ifc b.ifc        # the walls sloped roofs move in the envelope test
 ```
 
 Node 20+, no dependencies. To host your own copy, serve this directory as

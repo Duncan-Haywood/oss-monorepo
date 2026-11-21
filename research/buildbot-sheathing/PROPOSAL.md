@@ -554,6 +554,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    refuted): D is linear in B at 0.16 to 0.18 mm/N per press (median), against 0.02 to 0.03 mm/N realised by the
    margin-aimed adversary, so the gate certifies a median 0.17 N. The 0.2 N guarantee is tested, not certified over the
    bias ball. Next: a bias aimed at the direct term, calibration re-made under it; a direct term through the calibration.
+67. **A bias aimed at the direct term** (done 2026-11-21, `experiments/m67_aimeddirect/`): per press, the full
+   no-flip sensitivity J through the chain with the reference calibration re-made under the bias, and the true bias
+   B along its worst direction, 8 new loads (seed 67). The calibration cancels about half of milestone 66's D (median
+   ratio 0.46; H258 held); no planned press leaves 0.03 mm at 0.15 or 0.2 N (worst 0.0282 mm; H257, H259 held); at
+   0.3 N 34% of G1 and 10% of H1 presses do, all with no flip (H260 held). Post hoc: the no-flip residual is exactly
+   linear in the bias, so B||J_k|| is its exact worst case, certifying every press to at least 0.213 N (G1) and
+   0.279 N (H1). Next: a registered gate Y_k + B||J_k|| at 0.3 to 1.0 N; dynamics.
 
 ## Target venue
 
