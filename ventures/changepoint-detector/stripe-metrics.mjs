@@ -43,24 +43,50 @@ Options:
   --refetch <n>         days at the end of an existing CSV to fetch again (default: 3)
   --currency <code>     the currency summed into revenue (default: the one most payments use); payments in others
                         are still counted in payments and failed, and their number is printed
-  --utc-offset <hours>  where your day starts, e.g. -5 for New York in winter, 1 for Paris (default: 0, UTC)
+  --time-zone <name>    where your day starts, as a time zone name, e.g. America/New_York (follows daylight saving)
+  --utc-offset <hours>  or as a fixed offset, e.g. 5.5 for India (default: UTC)
   --customers           also count new customers per day (needs read access to Customers)
   --key-env <NAME>      the environment variable holding the key (default: STRIPE_API_KEY)
   -h, --help            this help
 
-Only complete days are written: today (in your --utc-offset) is left out, so a half-day never reads as a fall.
+Only complete days are written: today (in your time zone) is left out, so a half-day never reads as a fall.
 Days with no payments are written as 0, so a quiet day counts. Revenue is the gross amount of succeeded payments by
 the day they were made, in major units (dollars, not cents); refunds are not subtracted.
 
 Keep the CSV and watch-state.json in a private repository: they show your revenue.`;
 
-/** One day as YYYY-MM-DD, for a unix time and a UTC offset in hours. */
-export function dayOf(unix, offsetHours = 0) {
-  return new Date((unix + offsetHours * 3600) * 1000).toISOString().slice(0, 10);
+// A "zone" is either a fixed UTC offset in hours (-5, 5.5) or an IANA time zone name ("America/New_York"). A name
+// follows daylight saving, so a store in New York gets its days from its own midnight all year, not an hour off for
+// half of it (a fixed -5 is right in winter only).
+const zoneFormat = new Map();
+function localDay(unix, name) {
+  let f = zoneFormat.get(name);
+  if (!f) { f = new Intl.DateTimeFormat('en-CA', { timeZone: name, year: 'numeric', month: '2-digit', day: '2-digit' }); zoneFormat.set(name, f); }
+  const p = Object.fromEntries(f.formatToParts(new Date(unix * 1000)).map((x) => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
 }
-/** The unix time a day starts at, for a YYYY-MM-DD and a UTC offset in hours. */
-export function dayStart(day, offsetHours = 0) {
-  return Date.parse(`${day}T00:00:00Z`) / 1000 - offsetHours * 3600;
+
+/** An IANA time zone name as given, or an error naming the option; Intl is the arbiter of what exists. */
+export function checkZone(name, option = '--time-zone') {
+  const z = String(name ?? '').trim();
+  try { if (!z) throw 0; new Intl.DateTimeFormat('en', { timeZone: z }); } catch { throw new Error(`${option} takes a time zone name such as America/New_York or Europe/Paris, not "${z}".`); }
+  return z;
+}
+
+/** One day as YYYY-MM-DD, for a unix time and a zone (UTC offset in hours, or an IANA name). */
+export function dayOf(unix, zone = 0) {
+  if (typeof zone === 'string') return localDay(unix, zone);
+  return new Date((unix + zone * 3600) * 1000).toISOString().slice(0, 10);
+}
+/** The unix time a day starts at, for a YYYY-MM-DD and a zone: the first second whose local date is that day (so a
+ * zone whose clocks skip midnight starts the day at 01:00). */
+export function dayStart(day, zone = 0) {
+  const utc = Date.parse(`${day}T00:00:00Z`) / 1000;
+  if (typeof zone !== 'string') return utc - zone * 3600;
+  // Local dates only move forward with time, and every zone sits within UTC-12..UTC+14: search that window.
+  let lo = utc - 15 * 3600, hi = utc + 13 * 3600;
+  while (hi - lo > 1) { const mid = Math.floor((lo + hi) / 2); if (localDay(mid, zone) >= day) hi = mid; else lo = mid; }
+  return hi;
 }
 const addDays = (day, k) => new Date(Date.parse(`${day}T00:00:00Z`) + k * 86400000).toISOString().slice(0, 10);
 
@@ -158,6 +184,7 @@ export async function main(argv, { env = process.env, out = (s) => process.stdou
     else if (a === '--refetch') refetch = whole(argv[++i], '--refetch', 0);
     else if (a === '--currency') { currency = String(argv[++i] ?? '').toLowerCase(); if (!/^[a-z]{3}$/.test(currency)) throw new Error('--currency takes a three-letter code, e.g. usd.'); }
     else if (a === '--utc-offset') { offset = Number(argv[++i]); if (!Number.isFinite(offset) || offset < -12 || offset > 14 || (offset * 4) % 1) throw new Error('--utc-offset takes hours from -12 to 14 (quarter hours allowed, e.g. 5.5).'); }
+    else if (a === '--time-zone') offset = checkZone(argv[++i]);
     else if (a === '--customers') customers = true;
     else if (a === '--key-env') keyEnv = argv[++i];
     else throw new Error(`Unknown option ${a} (see --help).`);

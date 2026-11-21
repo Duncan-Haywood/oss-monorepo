@@ -35,10 +35,17 @@ function store({ today, days = 120, shiftAt = null, rate2 = 15, seed = 5, curren
 }
 
 // Shopify's GraphQL connection semantics over an array; records every request.
-function standIn(objects, { pageSize = 250, fail = null } = {}) {
-  const calls = [];
+// `zone` is the store's Shop.ianaTimezone (UTC unless a test names one; null answers without it); the zone query is
+// recorded in zoneCalls, not calls, so calls stays the list of order and customer pages.
+function standIn(objects, { pageSize = 250, fail = null, zone = 'UTC' } = {}) {
+  const calls = [], zoneCalls = [];
   const answer = (headers, raw) => {
     const body = JSON.parse(raw);
+    if (/^\s*query Zone/.test(body.query)) {
+      zoneCalls.push({ token: headers['x-shopify-access-token'] });
+      if (headers['x-shopify-access-token'] !== 'shpat_ok') return { status: 401, body: { errors: '[API] Invalid API key or access token' } };
+      return { status: 200, body: { data: { shop: zone === null ? null : { ianaTimezone: zone } } } };
+    }
     calls.push({ token: headers['x-shopify-access-token'], body });
     if (fail) { const f = fail(calls.length); if (f) return f; }
     if (headers['x-shopify-access-token'] !== 'shpat_ok') return { status: 401, body: { errors: '[API] Invalid API key or access token (unrecognized login or wrong password)' } };
@@ -53,7 +60,7 @@ function standIn(objects, { pageSize = 250, fail = null } = {}) {
     return { status: 200, body: { data: { [kind]: { pageInfo: { hasNextPage: start + first < list.length, endCursor: `cur:${start + first}` }, nodes } } } };
   };
   const fetchImpl = async (url, init = {}) => { calls.url = url; const r = answer(init.headers, init.body); return { ok: r.status < 300, status: r.status, json: async () => r.body }; };
-  return { fetchImpl, answer, calls };
+  return { fetchImpl, answer, calls, zoneCalls };
 }
 
 const tmp = () => mkdtempSync(join(tmpdir(), 'shopify-metrics-'));
@@ -144,6 +151,41 @@ test('an existing CSV is extended: only its last --refetch days are fetched agai
   assert.equal(readExisting('date,orders,revenue,cancelled,new_customers\n', false), null);
 });
 
+// The audit's fault (2026-11-19): a New York store under --utc-offset -5 put every summer order placed 23:00-24:00
+// local on the next day. The default now asks the store for its zone, as Shopify's own reports do.
+test("days follow the store's own time zone, daylight saving included", async () => {
+  const dir = tmp();
+  const o = (id, at) => ({ id: `gid://shopify/Order/${id}`, createdAt: at, cancelledAt: null, test: false, totalPriceSet: { shopMoney: { amount: '10.00', currencyCode: 'USD' } } });
+  const orders = [
+    o('1', '2026-07-01T03:30:00Z'), // 23:30 on 30 June in New York (EDT)
+    o('2', '2026-07-01T04:30:00Z'), // 00:30 on 1 July
+    o('3', '2026-07-02T12:00:00Z'),
+  ];
+  const run = async (argv, zone) => {
+    const s = standIn(orders, { zone });
+    const out = join(dir, `${argv.join('_').replace(/\W/g, '') || 'default'}-${zone}.csv`);
+    let said = '', warned = '';
+    await main(['--out', out, '--days', '4', ...argv], { env, fetchImpl: s.fetchImpl, now: nowAt('2026-07-03'), ...quiet, out: (t) => { said += t; }, err: (t) => { warned += t; } });
+    return { rows: parse(readFileSync(out, 'utf8')).map((r) => [r[0], r[1]]), said, warned, s };
+  };
+  const ny = await run([], 'America/New_York');
+  assert.deepEqual(ny.rows, [['2026-06-29', '0'], ['2026-06-30', '1'], ['2026-07-01', '1'], ['2026-07-02', '1']]);
+  assert.match(ny.said, /days in America\/New_York/);
+  assert.equal(ny.s.zoneCalls.length, 1);
+  assert.match(ny.s.calls[0].body.variables.q, /created_at:>='2026-06-29T04:00:00Z' AND created_at:<'2026-07-03T04:00:00Z'/);
+  // the old advice, a fixed -5, puts the 00:30 order on the 30th
+  const fixed = await run(['--utc-offset', '-5'], 'America/New_York');
+  assert.deepEqual(fixed.rows.slice(1, 3), [['2026-06-30', '2'], ['2026-07-01', '0']]);
+  assert.equal(fixed.s.zoneCalls.length, 0, 'a given offset or zone is not second-guessed');
+  // --time-zone wins over the store's
+  const utc = await run(['--time-zone', 'UTC'], 'America/New_York');
+  assert.deepEqual(utc.rows.slice(1), [['2026-06-30', '0'], ['2026-07-01', '2'], ['2026-07-02', '1']]);
+  // an answer with no zone: UTC, and the run says so
+  const none = await run([], null);
+  assert.deepEqual(none.rows, utc.rows);
+  assert.match(none.warned, /Could not read the store's time zone .*days run in UTC/);
+});
+
 test('a long first fetch with nothing past 60 days names the read_all_orders scope', async () => {
   const dir = tmp();
   const orders = store({ today: '2026-05-01', days: 60 });
@@ -164,7 +206,9 @@ test('main refuses unsafe or wrong input before calling Shopify', async () => {
   await assert.rejects(run(['--out', out], { SHOPIFY_SHOP: 'x', SHOPIFY_ACCESS_TOKEN: 'shpss_abc' }), /shared secret/);
   await assert.rejects(run(['--out', out], { SHOPIFY_SHOP: 'evil.example', SHOPIFY_ACCESS_TOKEN: 'shpat_ok' }), /myshopify\.com name/);
   await assert.rejects(run(['--out', out, '--utc-offset', '5.3'], env), /quarter hours/);
+  await assert.rejects(run(['--out', out, '--time-zone', 'Mars/Olympus'], env), /time zone name/);
   assert.equal(s.calls.length, 0);
+  assert.equal(s.zoneCalls.length, 0);
   writeFileSync(out, 'not,our,file\n');
 });
 

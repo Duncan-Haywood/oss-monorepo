@@ -49,5 +49,4 @@
 - (2026-11-19) NYT rerun: line 3/4 ends, 4/8 unexplained (all 105-372 days; README "The weekday spell score on NYT's state series")
 - (2026-11-19) quoted-tick gate unscorable on 12 Binance pairs (all one-tick)
 - (2026-11-19) AAPL/AMZN/GOOG 28/33, prints 0/34
-- (2026-11-19) same audit, low: `shopify-metrics.mjs:185` buckets days at a fixed UTC offset, so DST-zone stores get days an hour off for half the year.
-- (2026-11-20) quality round 89 defect 0, what is left after the split (README "Code layout"): the copied helpers are now one `stats-core.mjs`, BOCPD and CSV input left the engine (3,004 to 2,546 lines). Still in `engine.mjs`: the ~300-line `analyze()`, the pre-steps and GARCH; `solveSym` and a local Gauss-Jordan (engine.mjs ~line 525) could use `stats-core.mjs`'s `invert`/`ols`. Mark the audit defect fixed once the engine is split further.
+- (2026-11-21) quality round 89 defect 0, what is left (README "Code layout"): GARCH moved to `garch.mjs`, the solvers to `stats-core.mjs` (engine 2,354 lines, from 3,004). Still in `engine.mjs`: the ~300-line `analyze()` and the pre-steps (season, trend, AR(1), holidays) that could be a `presteps.mjs`. Mark the audit defect fixed once `analyze()` is split.
