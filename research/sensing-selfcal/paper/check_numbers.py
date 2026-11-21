@@ -396,6 +396,44 @@ CHECKS = [
     ("json", "m3t_poolprior/summary.json", "hypotheses/H227/hk", 1.51, 2, None, "(rms z 1.51)"),
     ("log", "rms z 20.2", "blows up at three (20.2)"),
     ("log", "rms z to 0.93", "brings the five-window rms z to 0.93"),
+    # Section 4: milestones 3u-3x (paper step 2026-11-21)
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H231/re", 2.67, 2, None, "(rms z 2.67 &rarr; 1.09, worst block 11.0 &rarr; 3.2 sd)"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H231/tf", 1.09, 2, None, "(rms z 2.67 &rarr; 1.09, worst block 11.0 &rarr; 3.2 sd)"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H232/re", 11.0, 1, None, "(rms z 2.67 &rarr; 1.09, worst block 11.0 &rarr; 3.2 sd)"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H232/tf", 3.2, 1, None, "(rms z 2.67 &rarr; 1.09, worst block 11.0 &rarr; 3.2 sd)"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H234/tf", 1.17, 2, None, "the five-window median error is 1.17% either way"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H234/ratio", 1.0, 2, None, "the five-window median error is 1.17% either way"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H236/q1", 1.33, 2, None, "beats the fixed 1%-of-f floor (rms z 1.33)"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H233/K5", 0.87, 2, None, "slightly conservative at five windows (0.87)"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H238/re", 10.1, 1, None, "(rms z 10.1 &rarr; 1.84)"),
+    ("json", "m3u_taufloor/summary.json", "hypotheses/H238/tf", 1.84, 2, None, "(rms z 10.1 &rarr; 1.84)"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H239/tf", 0.03, 2, None, "alarms are rare (0.03)"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H242/mds_by_K/5", 8.5, 1, None, "needs a staleness of 8.5% (10% at three windows, 7% at eight)"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H242/mds_by_K/3", 10.0, 1, None, "needs a staleness of 8.5% (10% at three windows, 7% at eight)"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H242/mds_by_K/8", 7.0, 1, None, "needs a staleness of 8.5% (10% at three windows, 7% at eight)"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H243/worst_med_e", 4.5, 1, None, "worst median error of 4.5% where always adopting the pool leaves 1.17%"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H243/always_adopt_med", 1.17, 2, None, "worst median error of 4.5% where always adopting the pool leaves 1.17%"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H244/gate_p95", 1.69, 2, None, "error 1.69% against 2.93% at &delta; = 1%"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H244/always_adopt_p95", 2.93, 2, None, "error 1.69% against 2.93% at &delta; = 1%"),
+    ("json", "m3v_stale/summary.json", "hypotheses/H240/tf", 46, 0, pct, "only 46% of the time"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H257/oos_worst_regret", 0.42, 2, None, "worst regret 0.42 points"),
+    ("json", "m3w_update/summary.json", "hypotheses/H247/always_worst_regret", 1.17, 2, None, "against always-adopt's 1.17 and the 2-sd gate's 3.33"),
+    ("log", "the 2-sd gate's 3.33", "against always-adopt's 1.17 and the 2-sd gate's 3.33"),
+    ("json", "m3w_update/summary.json", "hypotheses/H253/minimax_by_ref/tum", "gate0.5", None, None, "is minimax against all three references"),
+    ("json", "m3w_update/summary.json", "hypotheses/H253/minimax_by_ref/tf", "gate0.5", None, None, "is minimax against all three references"),
+    ("json", "m3w_update/summary.json", "hypotheses/H252/minimax_K3", "shrink", None, None, "(three windows: 0.82 against always-adopt's 2.10)"),
+    ("log", "worst regret 0.82; gate(1) 0.92", "(three windows: 0.82 against always-adopt's 2.10)"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H258/always", 2.10, 2, None, "(three windows: 0.82 against always-adopt's 2.10)"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H259/fr3_worst_regret", 0.55, 2, None, "(worst regret 0.55 against\nalways-adopt's 1.38)"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H255/chosen_vs_always/fr3_stf/1", 1.38, 2, None, "(worst regret 0.55 against\nalways-adopt's 1.38)"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H255/chosen_vs_always/fr1_desk/0", 1.32, 2, None, "the gate ties always-adopt on fr1/desk (1.32)"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H255/chosen_vs_always/fr1_desk/1", 1.32, 2, None, "the gate ties always-adopt on fr1/desk (1.32)"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H255/chosen_vs_always/fr1_xyz/0", 0.80, 2, None, "loses slightly on fr1/xyz (0.80\nagainst 0.73)"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H255/chosen_vs_always/fr1_xyz/1", 0.73, 2, None, "loses slightly on fr1/xyz (0.80\nagainst 0.73)"),
+    ("json", "m3x_loso/summary.json", "hypotheses/H256/chosen_vs_gate2/fr1_desk/1", 1.09, 2, None, "the 2-sd gate does better (1.09)"),
+    ("log", "beats always-adopt's worst regret in **32** and the 2-sd gate's in **36**", "beaten in 36 of 36 model &times; window"),
+    ("log", "beaten out of sample in 36 of 36 cells", "beaten in 36 of 36 cells out of sample"),
+    ("log", "(TUM: gate(0.5), shrink, always; target-free: gate(0.5), gate(0.5), shrink)", "five-window folds do not agree on a rule"),
 ]
 
 
@@ -412,7 +450,7 @@ def main():
         _, rel, path, value, places, scale, _ = c
         got = J(rel, path)
         got = scale(got) if scale else got
-        if round(got, places) != round(value, places):
+        if (got != value) if isinstance(value, str) else (round(got, places) != round(value, places)):
             print(f"MISMATCH {rel}:{path} = {got!r}, draft says {value} ({claim!r})"); bad += 1
     print(f"{len(CHECKS) - bad} of {len(CHECKS)} checks pass")
     return 1 if bad else 0

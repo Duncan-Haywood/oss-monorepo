@@ -10,9 +10,11 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (340 of 340,
-revised with milestones 4e–4s and 3b–3t; on 2026-11-19 Section 4 gained the rolling-shutter, causal-prior and pooling
-results on TUM video, and Recommendation 7) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (377 of 377,
+revised with milestones 4e–4s and 3b–3x; on 2026-11-19 Section 4 gained the rolling-shutter, causal-prior and pooling
+results on TUM video, and Recommendation 7; on 2026-11-21 it gained milestones 3u–3x, the history-floored error bar, the
+stale-calibration test and the update rule with its leave-one-sequence-out check, and Recommendation 8) and a list of
+what a submission still needs. The letter version carries the update rule in Section VIII and Recommendation 8.
 
 **Letter version (paper step, 2026-11-19):** [`paper/ral.md`](paper/ral.md) cuts the 8,200-word draft to an
 RA-L-length letter (3,927 words of prose, three figures, one table; about 6.2 pages by a stated rule of thumb,
@@ -1292,6 +1294,11 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After the 2026-11-21 paper step: Section 4, the abstract, Recommendation 8, the limits and Section 10 of the draft now
+carry milestones 3u&ndash;3x (37 new number checks), and the letter gained three sentences and a recommendation
+(about 6.4 pages by its rule of thumb). Next: the same update decision on k<sub>1</sub> and the principal point; a real
+lens change when one is reachable; typesetting the letter in the IEEE class.
 
 After milestone 3x: "adopt unless within 0.5 sd" at five windows survives leave-one-sequence-out against the board reference, and
 the symmetric 2-sd gate loses everywhere; the margin per recording is thin and the choice depends on the reference. Next: Section 4
