@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { termBoundary, prismFamily, solidMesh, boxMesh, meshVolume, rowMesh, modelOrigin, storeyList } from "./view-mesh.mjs";
+import { termBoundary, prismFamily, solidMesh, boxMesh, meshVolume, rowMesh, modelOrigin, storeyList, thinLoops } from "./view-mesh.mjs";
 import { convexPieces, prism, clipPoly, polyVolume, solidVolume, IDENTITY } from "./geom.mjs";
 import { idColor, colorId, visibleRuns, sectionPlane } from "./viewer.mjs";
 import { parseStep } from "./step.mjs";
@@ -189,4 +189,47 @@ test("meshRows draws what rowMesh draws, assemblies as their parts", async () =>
 test("visible runs skip items not uploaded yet", () => {
   const items = [{ id: 1, start: 0, count: 6 }, { id: 2, start: 6, count: 3 }, { id: 3 }];
   assert.deepEqual(visibleRuns(items, null), [[0, 9]]);
+});
+
+test("a round tube sampled at 360 to the turn is drawn with far fewer sides, still closed, its volume within 0.2%", () => {
+  const circle = (r, n, cw) => { const p = Array.from({ length: n }, (_, i) => { const a = (i / n) * 2 * Math.PI; return [r * Math.cos(a), r * Math.sin(a)]; }); return cw ? p.reverse() : p; };
+  // a CHS 219.1 x 8 as geom.mjs samples it
+  const outer = { s: 1, faces: prism(circle(0.10955, 360), [0, 0, 6]) };
+  const inner = { s: -1, faces: prism(circle(0.10155, 360), [0, 0, 6]) };
+  const want = solidVolume({ terms: [outer, inner], mesh: 0 });
+  const fam = prismFamily([outer, inner]);
+  const v0 = polyVolume(fam.faces);
+  assert.ok(Math.abs(v0 - want) <= 2e-3 * want, `volume ${v0} vs ${want}`);
+  for (const d of [[10, 0, 0], [0, 10, 0], [0, 0, 10]]) {
+    const v = polyVolume(fam.faces.map((f) => f.map((p) => [p[0] + d[0], p[1] + d[1], p[2] + d[2]])));
+    assert.ok(Math.abs(v - v0) <= 1e-7, `not closed: shifted ${d} gives ${v}`);
+  }
+  const m = solidMesh({ terms: [outer, inner], mesh: 0, shells: [] }, IDENTITY, 1);
+  const tris = m.positions.length / 9;
+  // 360-point loops gave 2 x 360 quads + bridged caps, about 2,900 triangles
+  assert.ok(tris < 600, `${tris} triangles`);
+  assert.ok(Math.abs(meshVolume(m.positions) - want) <= 2e-3 * want);
+});
+
+test("outline thinning: straight runs lose their extra points exactly; loops that would cross are refused", () => {
+  const sq = [];
+  for (let i = 0; i < 40; i++) sq.push([i / 40, 0]);
+  for (let i = 0; i < 40; i++) sq.push([1, i / 40]);
+  for (let i = 0; i < 40; i++) sq.push([1 - i / 40, 1]);
+  for (let i = 0; i < 40; i++) sq.push([0, 1 - i / 40]);
+  const t = thinLoops([sq]);
+  assert.equal(t[0].length, 4);
+  // short loops are left alone
+  assert.equal(thinLoops([[[0, 0], [1, 0], [1, 1], [0, 1]]]), null);
+  // a circle keeps its area (scaled back, as geom.mjs's area-preserving radius)
+  const ring = (r, n, ph = 0) => Array.from({ length: n }, (_, i) => [r * Math.cos(ph + i * 2 * Math.PI / n), r * Math.sin(ph + i * 2 * Math.PI / n)]);
+  const area = (P) => P.reduce((a, p, i) => { const q = P[(i + 1) % P.length]; return a + (p[0] * q[1] - q[0] * p[1]) / 2; }, 0);
+  const c = ring(1, 360);
+  const tc = thinLoops([c])[0];
+  assert.ok(tc.length < 80, `${tc.length} points`);
+  assert.ok(Math.abs(area(tc) - area(c)) < 1e-9);
+  // a wall too thin for the tolerance: the simplified loops would cross, so nothing is thinned
+  const inner = ring(0.98, 361, 0.3).reverse();
+  assert.equal(thinLoops([c, inner], 0.05), null);
+  assert.ok(thinLoops([c, inner]));
 });
