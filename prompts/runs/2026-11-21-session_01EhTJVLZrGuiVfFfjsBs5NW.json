@@ -42,14 +42,14 @@
       "file": "prompts/creative/prompt-0.md",
       "why": "Routed to creative, but the audio cap is exceeded (577 MB > 400 MB, text only), the creative shelves landed four pieces on 2026-11-20, and the scheduled task's own prompt asks for revenue-product work; took allocate.py's Start-here flagship row (changepoint-detector) instead.",
       "did": "Split engine.mjs (2,354 -> 609 lines) into presteps.mjs and segmentation.mjs; analyze() ~350 -> 181 lines via preSteps() and stepWarnings().",
-      "result": "216 seeded analyze() calls hash identically before and after; full suite run (see notes)."
+      "result": "216 seeded analyze() calls hash identically before and after; 1046 of 1046 tests pass."
     }
   ],
   "writeups": [
     "docs/posts/2026-11-21-a-hash-instead-of-a-reviewer-splitting-analyze.md"
   ],
   "goal": null,
-  "notes": "Quality defect closed: analyze() split (README 'Code layout'). Export list compared before/after: same 68 names plus preSteps. Watch-repo module list updated and regenerated. Identity check: eval/split-identity-check.out.txt (sha256 947a01c3...ee21 on main and on the branch). It caught an import-pruning slip (defaultPrior used after a spread) that failed the 11 AR(1) calls before it was fixed.",
+  "notes": "Quality defect closed: analyze() split (README 'Code layout'). Export list compared before/after: same 68 names plus preSteps. Watch-repo module list updated and regenerated. Identity check: eval/split-identity-check.out.txt (sha256 947a01c3...ee21 on main and on the branch). It caught an import-pruning slip (defaultPrior used after a spread) that failed the 11 AR(1) calls before it was fixed. Full suite on the final tree: node --test '*.test.mjs' 1046 tests, 1046 pass, 0 fail (191 s). Browser smoke (Playwright): index.html renders the Nile 1899 change and the watch page loads, no console errors.",
   "corrections": [],
   "redteam": null
 }
