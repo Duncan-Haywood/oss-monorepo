@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmaGvFVAt1QYQdEHnz",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T04:18:33Z",
+  "ended": "2026-11-21T04:22:24Z",
+  "wall_minutes": 4.04,
+  "tokens_in": 3080465,
+  "tokens_out": 16745,
+  "cost_usd": 1.6734,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18027",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/marine-hull/LOG.md (7zp Next)",
+      "why": "The 7zp Next line names a second added-resistance formula at speed (Salvesen 1978); its source is behind hosts pick_track lists as refused, and implementing it from memory risked a wrong formula. pick_track's CHAIN note flagged 7 sub-steps since the last paper step.",
+      "did": "A paper step instead: the L/B 10 checks of 7zk to 7zp as Table III, the wave result added to abstract, conclusion and threats; nothing new run.",
+      "result": "Paper compiles to 7 pages, no warnings; check_numbers.py ok with 10 new claims."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-marine-hull-lb10-shortfall-table.md",
+    "research/marine-hull/LOG.md (7zq)"
+  ],
+  "goal": null,
+  "notes": "Programme marine-hull, milestone 7zq (paper step). Local checks: check_numbers ok; pdflatex 7 pages no warnings/overfull; research homepage build ok; check_posts ok; check_md_links ok; claim_check HOLD.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8dcd647b-52d1-524c-aa90-e4606389a98a",
+    "transcripts": 1,
+    "first": "2026-11-21T04:18:33Z",
+    "last": "2026-11-21T04:22:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 66,
+        "output": 16745,
+        "thinking": 3817,
+        "cache_read": 2987819,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92580,
+        "api_equivalent_usd": 1.6734,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 66,
+      "output": 16745,
+      "thinking": 3817,
+      "cache_read": 2987819,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92580,
+      "api_equivalent_usd": 1.6734,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.04,
+      "active_minutes": 4.04,
+      "model_minutes": 3.03,
+      "tool_minutes": 1.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "restructuring a paper section with a new table from existing results, compiling and checking numbers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 179.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
