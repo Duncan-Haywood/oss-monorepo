@@ -100,7 +100,6 @@ ventures/duplicate-payment-audit/detect.mjs 1
 ventures/eaa-accessibility-act-checker/calc.mjs 1
 ventures/early-pay-discount-picker/calc.mjs 1
 ventures/ebay-promoted-listings-roi-analyzer/calc.mjs 1
-ventures/embroidery-shop-quote-calculator/engine.mjs 2
 ventures/employment-contract-checker/calc.mjs 1
 ventures/equipment-lease-vs-buy-calculator/calc.mjs 1
 ventures/espp-tax-calculator/calc.mjs 1
