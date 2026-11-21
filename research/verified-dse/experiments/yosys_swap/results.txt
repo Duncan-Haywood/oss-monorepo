@@ -1,0 +1,23 @@
+Milestone 160: one OpenROAD binary, two Yosys builds, on 90 points sampled from milestone 159's S and N (seed 160).
+OpenROAD p9p4 (bin/.openroad-wrapped byte-identical to build A's k3d2); Yosys 0.70 dzsihg5w (build A) or 0.71 mlbh (build B).
+points: 90 (60 S, 30 N); ok under both Yosys builds: 60 S, 30 N
+
+(1) PRIMARY  Yosys 0.70 reproduces build A's row on 90 of 90; Yosys 0.71 reproduces build B's row on 90 of 90 (needed >= 81 each): held
+(2) control  OpenROAD k3d2 equals p9p4 on 6 of 6: held
+(3) S netlists not byte-identical on 60 of 60: held
+(4) S cell-type multiset the same on 58 of 60: held
+(5) S WL-equal on 21 of 60: refuted
+(6) N WL-equal on 0 of 30: held
+(7) of the 21 WL-equal S points, results differ on 21: held
+
+Reported, not predicted:
+  S netlist difference: names/order (WL-equal) 21; structure (different cells) 2; structure (same cells) 37
+  S first stage that differs between the Yosys builds: detail_place 2; global_place 58
+  S names/order (WL-equal): median routed drift lr 0.0175, mean 0.0225 (n 21)
+  S structure (different cells): median routed drift lr 0.0162, mean 0.0162 (n 2)
+  S structure (same cells): median routed drift lr 0.0210, mean 0.0238 (n 37)
+  N netlist difference: structure (different cells) 30
+  N first stage that differs between the Yosys builds: mapped 30
+  N structure (different cells): median routed drift lr 0.0379, mean 0.0614 (n 30)
+  points not reproduced: 0
+  points failing under either Yosys build: 0

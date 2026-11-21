@@ -6,6 +6,10 @@ tags: [research, chip-design, verified-dse, open-source, eda, reproducibility]
 description: "On 374 SKY130 points with identical mapped netlists, a rebuilt OpenROAD 26Q3 changed every routed result, about half of a Yosys upgrade's drift."
 ---
 
+> **Correction (later the same day):** the OpenROAD binary in both builds turned out to be byte-identical, and the
+> "same netlist" points did not have the same netlist. The drift described below is Yosys's, from netlists that differ only
+> in names, order or pin assignment. See [the follow-up](2026-11-21-verified-dse-openroad-drift-was-yosys.md).
+
 The [verified-dse](../../research/verified-dse/) programme asks how much of an
 open-source chip design search (Yosys, ABC and OpenROAD on SKY130) can be
 skipped by trusting cheap estimates.

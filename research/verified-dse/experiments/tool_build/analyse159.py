@@ -1,6 +1,10 @@
 """Milestone 159: how much of the build drift is OpenROAD's? Splitting milestone 158's two-build drift at the mapped netlist
 (replay, no flow run).
 
+Correction (milestone 160, experiments/yosys_swap/): the two OpenROAD builds run a byte-identical executable, and S is not
+"same netlist": the Yosys builds wrote different netlists on all 60 sampled S points, so the S drift below is Yosys's, not the
+rebuild's. The numbers here are unchanged; their reading as an OpenROAD share is withdrawn.
+
 Usage: python3 analyse159.py [out.txt]
 
 Why: milestone 158's "Next". Builds A (milestone 143: Yosys 0.70, OpenROAD 26Q3) and B (milestones 156 and 157: Yosys 0.71,

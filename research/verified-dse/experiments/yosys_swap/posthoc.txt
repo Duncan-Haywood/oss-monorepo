@@ -1,0 +1,7 @@
+Milestone 160, post hoc (not pre-registered): netlist distance between the Yosys builds, inputs unordered (wl_in).
+  S: wl_in-equal on 52 of 60
+     of which routed numbers differ on 52; first divergence: detail_place 2; global_place 50
+     median routed drift lr 0.0207
+  S: not wl_in-equal on 8; median routed drift lr 0.0155
+  N: wl_in-equal on 0 of 30
+  N: not wl_in-equal on 30; median routed drift lr 0.0379

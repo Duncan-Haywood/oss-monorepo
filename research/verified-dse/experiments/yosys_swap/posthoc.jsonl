@@ -1,0 +1,90 @@
+{"k": 0, "cls": "S", "design": "clamp6r", "seq": ["balance", "refactor"], "wl_in_equal": false, "n_inst": 3053}
+{"k": 1, "cls": "S", "design": "clamp4l", "seq": ["rewrite", "refactor"], "wl_in_equal": true, "n_inst": 5135}
+{"k": 2, "cls": "S", "design": "csum6", "seq": ["rewrite", "rewrite -z", "refactor"], "wl_in_equal": true, "n_inst": 2117}
+{"k": 3, "cls": "S", "design": "clamp2r", "seq": ["rewrite", "rewrite"], "wl_in_equal": true, "n_inst": 2264}
+{"k": 4, "cls": "S", "design": "csum3", "seq": ["balance", "refactor -z", "refactor -z"], "wl_in_equal": true, "n_inst": 1918}
+{"k": 5, "cls": "S", "design": "rng6l", "seq": ["rewrite -z", "rewrite", "refactor"], "wl_in_equal": true, "n_inst": 5158}
+{"k": 6, "cls": "S", "design": "csum6", "seq": ["rewrite -z", "rewrite"], "wl_in_equal": true, "n_inst": 2146}
+{"k": 7, "cls": "S", "design": "clamp4r", "seq": ["rewrite", "balance", "refactor -z"], "wl_in_equal": true, "n_inst": 2628}
+{"k": 8, "cls": "S", "design": "clamp4l", "seq": ["rewrite -z", "rewrite"], "wl_in_equal": true, "n_inst": 5017}
+{"k": 9, "cls": "S", "design": "clamp4l", "seq": ["refactor -z", "rewrite", "rewrite"], "wl_in_equal": true, "n_inst": 5165}
+{"k": 10, "cls": "S", "design": "dot4l", "seq": ["refactor -z", "rewrite -z", "rewrite -z"], "wl_in_equal": false, "n_inst": 4503}
+{"k": 11, "cls": "S", "design": "csum3", "seq": ["rewrite -z", "refactor -z", "refactor -z"], "wl_in_equal": true, "n_inst": 2147}
+{"k": 12, "cls": "S", "design": "clamp2l", "seq": ["refactor", "balance", "balance"], "wl_in_equal": true, "n_inst": 4613}
+{"k": 13, "cls": "S", "design": "clamp4l", "seq": ["balance", "rewrite", "rewrite"], "wl_in_equal": true, "n_inst": 5114}
+{"k": 14, "cls": "S", "design": "rng8l", "seq": ["refactor", "refactor -z"], "wl_in_equal": true, "n_inst": 6347}
+{"k": 15, "cls": "S", "design": "csum6", "seq": ["balance", "refactor", "balance"], "wl_in_equal": true, "n_inst": 2195}
+{"k": 16, "cls": "S", "design": "csum8", "seq": ["rewrite -z", "rewrite", "rewrite"], "wl_in_equal": true, "n_inst": 2315}
+{"k": 17, "cls": "S", "design": "csum6", "seq": ["rewrite", "refactor", "refactor -z"], "wl_in_equal": true, "n_inst": 2177}
+{"k": 18, "cls": "S", "design": "csum8", "seq": ["balance", "refactor"], "wl_in_equal": true, "n_inst": 2401}
+{"k": 19, "cls": "S", "design": "clamp3l", "seq": ["balance", "rewrite", "refactor"], "wl_in_equal": true, "n_inst": 4849}
+{"k": 20, "cls": "S", "design": "clamp2l", "seq": ["refactor", "rewrite"], "wl_in_equal": true, "n_inst": 4630}
+{"k": 21, "cls": "S", "design": "clamp2l", "seq": ["balance", "refactor", "refactor"], "wl_in_equal": true, "n_inst": 4578}
+{"k": 22, "cls": "S", "design": "clamp4l", "seq": ["rewrite", "refactor -z", "refactor -z"], "wl_in_equal": true, "n_inst": 5109}
+{"k": 23, "cls": "S", "design": "gtc12r", "seq": ["rewrite", "balance", "refactor"], "wl_in_equal": false, "n_inst": 1658}
+{"k": 24, "cls": "S", "design": "clamp2l", "seq": ["rewrite", "refactor -z", "rewrite"], "wl_in_equal": true, "n_inst": 4718}
+{"k": 25, "cls": "S", "design": "csum6", "seq": ["balance", "rewrite -z"], "wl_in_equal": true, "n_inst": 2163}
+{"k": 26, "cls": "S", "design": "csum6", "seq": ["balance", "refactor", "refactor"], "wl_in_equal": true, "n_inst": 2192}
+{"k": 27, "cls": "S", "design": "csum6", "seq": ["refactor -z", "refactor -z", "rewrite"], "wl_in_equal": true, "n_inst": 2181}
+{"k": 28, "cls": "S", "design": "clamp6l", "seq": ["rewrite", "rewrite", "refactor -z"], "wl_in_equal": false, "n_inst": 5632}
+{"k": 29, "cls": "S", "design": "csum3", "seq": ["rewrite", "refactor", "refactor -z"], "wl_in_equal": true, "n_inst": 1942}
+{"k": 30, "cls": "S", "design": "rng8l", "seq": ["refactor", "refactor -z", "rewrite -z"], "wl_in_equal": true, "n_inst": 5181}
+{"k": 31, "cls": "S", "design": "rng8r", "seq": ["refactor -z", "rewrite", "refactor -z"], "wl_in_equal": true, "n_inst": 2887}
+{"k": 32, "cls": "S", "design": "clamp4r", "seq": ["rewrite", "balance", "balance"], "wl_in_equal": true, "n_inst": 2713}
+{"k": 33, "cls": "S", "design": "csum3", "seq": ["refactor", "balance", "balance"], "wl_in_equal": true, "n_inst": 1909}
+{"k": 34, "cls": "S", "design": "clamp2l", "seq": ["rewrite", "rewrite", "refactor -z"], "wl_in_equal": true, "n_inst": 4718}
+{"k": 35, "cls": "S", "design": "clamp6l", "seq": ["rewrite", "refactor -z", "refactor -z"], "wl_in_equal": true, "n_inst": 5549}
+{"k": 36, "cls": "S", "design": "csum8", "seq": ["refactor -z", "refactor -z", "rewrite"], "wl_in_equal": true, "n_inst": 2349}
+{"k": 37, "cls": "S", "design": "csum3", "seq": ["refactor", "rewrite -z"], "wl_in_equal": true, "n_inst": 1748}
+{"k": 38, "cls": "S", "design": "clamp6r", "seq": ["rewrite -z", "rewrite"], "wl_in_equal": true, "n_inst": 3053}
+{"k": 39, "cls": "S", "design": "dot6r", "seq": ["dch", "balance", "dc2"], "wl_in_equal": false, "n_inst": 2466}
+{"k": 40, "cls": "S", "design": "clamp2r", "seq": ["rewrite -z", "rewrite"], "wl_in_equal": true, "n_inst": 2112}
+{"k": 41, "cls": "S", "design": "clamp2l", "seq": ["rewrite -z", "balance"], "wl_in_equal": true, "n_inst": 4568}
+{"k": 42, "cls": "S", "design": "csum6", "seq": ["refactor -z", "rewrite", "rewrite"], "wl_in_equal": true, "n_inst": 2176}
+{"k": 43, "cls": "S", "design": "clamp4r", "seq": ["refactor -z", "rewrite", "refactor -z"], "wl_in_equal": true, "n_inst": 2635}
+{"k": 44, "cls": "S", "design": "clamp6l", "seq": ["rewrite -z", "refactor -z", "refactor -z"], "wl_in_equal": true, "n_inst": 5361}
+{"k": 45, "cls": "S", "design": "rng8l", "seq": ["balance", "refactor", "balance"], "wl_in_equal": true, "n_inst": 5521}
+{"k": 46, "cls": "S", "design": "clamp2r", "seq": ["rewrite", "balance", "rewrite -z"], "wl_in_equal": true, "n_inst": 2140}
+{"k": 47, "cls": "S", "design": "rng6l", "seq": ["rewrite -z", "rewrite"], "wl_in_equal": true, "n_inst": 5170}
+{"k": 48, "cls": "S", "design": "csum6", "seq": ["balance", "rewrite", "refactor"], "wl_in_equal": true, "n_inst": 2154}
+{"k": 49, "cls": "S", "design": "gtc12r", "seq": ["rewrite", "balance", "rewrite -z"], "wl_in_equal": false, "n_inst": 1598}
+{"k": 50, "cls": "S", "design": "rng8l", "seq": ["refactor", "rewrite", "refactor"], "wl_in_equal": true, "n_inst": 5522}
+{"k": 51, "cls": "S", "design": "clamp4r", "seq": ["refactor", "rewrite -z"], "wl_in_equal": true, "n_inst": 2480}
+{"k": 52, "cls": "S", "design": "rng6l", "seq": ["balance", "refactor -z", "refactor -z"], "wl_in_equal": true, "n_inst": 5234}
+{"k": 53, "cls": "S", "design": "rng8l", "seq": ["refactor", "rewrite", "refactor -z"], "wl_in_equal": true, "n_inst": 5525}
+{"k": 54, "cls": "S", "design": "clamp4r", "seq": ["balance", "refactor", "balance"], "wl_in_equal": false, "n_inst": 2628}
+{"k": 55, "cls": "S", "design": "csum8", "seq": ["balance", "refactor", "balance"], "wl_in_equal": false, "n_inst": 2378}
+{"k": 56, "cls": "S", "design": "clamp2l", "seq": ["rewrite", "refactor"], "wl_in_equal": true, "n_inst": 4652}
+{"k": 57, "cls": "S", "design": "rng6l", "seq": ["refactor", "refactor", "balance"], "wl_in_equal": true, "n_inst": 5082}
+{"k": 58, "cls": "S", "design": "clamp2r", "seq": ["refactor", "rewrite", "refactor -z"], "wl_in_equal": true, "n_inst": 2180}
+{"k": 59, "cls": "S", "design": "csum3", "seq": ["refactor", "rewrite", "refactor -z"], "wl_in_equal": true, "n_inst": 1943}
+{"k": 60, "cls": "N", "design": "div14r", "seq": ["refactor", "refactor", "dc2"], "wl_in_equal": false, "n_inst": 2694}
+{"k": 61, "cls": "N", "design": "div14r", "seq": ["refactor -z", "refactor", "rewrite -z"], "wl_in_equal": false, "n_inst": 2592}
+{"k": 62, "cls": "N", "design": "clamp2l", "seq": ["rewrite", "rewrite"], "wl_in_equal": false, "n_inst": 4634}
+{"k": 63, "cls": "N", "design": "clamp3l", "seq": ["balance", "dch", "dc2"], "wl_in_equal": false, "n_inst": 5094}
+{"k": 64, "cls": "N", "design": "csum3", "seq": ["refactor -z", "rewrite", "refactor -z"], "wl_in_equal": false, "n_inst": 1920}
+{"k": 65, "cls": "N", "design": "div8l", "seq": ["dc2", "rewrite -z"], "wl_in_equal": false, "n_inst": 4962}
+{"k": 66, "cls": "N", "design": "csum8", "seq": ["refactor", "dch"], "wl_in_equal": false, "n_inst": 3302}
+{"k": 67, "cls": "N", "design": "div14r", "seq": ["rewrite", "balance", "rewrite"], "wl_in_equal": false, "n_inst": 2429}
+{"k": 68, "cls": "N", "design": "clamp2l", "seq": ["rewrite -z", "refactor -z", "dch"], "wl_in_equal": false, "n_inst": 4899}
+{"k": 69, "cls": "N", "design": "clamp2l", "seq": ["refactor", "refactor -z", "balance"], "wl_in_equal": false, "n_inst": 4722}
+{"k": 70, "cls": "N", "design": "clamp3l", "seq": ["refactor -z", "dch"], "wl_in_equal": false, "n_inst": 6647}
+{"k": 71, "cls": "N", "design": "csum3", "seq": ["refactor -z", "dch", "dch"], "wl_in_equal": false, "n_inst": 2595}
+{"k": 72, "cls": "N", "design": "clamp6r", "seq": ["balance", "dch", "dc2"], "wl_in_equal": false, "n_inst": 3153}
+{"k": 73, "cls": "N", "design": "isq14", "seq": ["refactor -z", "dc2", "refactor -z"], "wl_in_equal": false, "n_inst": 2377}
+{"k": 74, "cls": "N", "design": "csum6", "seq": ["dch", "dc2", "rewrite -z"], "wl_in_equal": false, "n_inst": 2144}
+{"k": 75, "cls": "N", "design": "gtc8l", "seq": ["balance", "dch"], "wl_in_equal": false, "n_inst": 2269}
+{"k": 76, "cls": "N", "design": "gtc12r", "seq": ["refactor -z", "refactor", "dch"], "wl_in_equal": false, "n_inst": 1617}
+{"k": 77, "cls": "N", "design": "gtc8r", "seq": ["dc2", "rewrite -z"], "wl_in_equal": false, "n_inst": 1249}
+{"k": 78, "cls": "N", "design": "csum3", "seq": ["dch", "dc2", "rewrite -z"], "wl_in_equal": false, "n_inst": 1901}
+{"k": 79, "cls": "N", "design": "csum8", "seq": ["refactor", "refactor", "dc2"], "wl_in_equal": false, "n_inst": 2743}
+{"k": 80, "cls": "N", "design": "csum8", "seq": ["balance", "dc2", "rewrite"], "wl_in_equal": false, "n_inst": 2697}
+{"k": 81, "cls": "N", "design": "div10l", "seq": ["rewrite -z", "dc2"], "wl_in_equal": false, "n_inst": 4489}
+{"k": 82, "cls": "N", "design": "clamp6l", "seq": ["refactor -z", "rewrite -z", "refactor"], "wl_in_equal": false, "n_inst": 5356}
+{"k": 83, "cls": "N", "design": "csum8", "seq": ["dc2", "refactor -z", "dch"], "wl_in_equal": false, "n_inst": 3116}
+{"k": 84, "cls": "N", "design": "clamp4r", "seq": ["refactor -z", "refactor", "dch"], "wl_in_equal": false, "n_inst": 3447}
+{"k": 85, "cls": "N", "design": "gtc8l", "seq": ["dch", "dc2", "dc2"], "wl_in_equal": false, "n_inst": 3311}
+{"k": 86, "cls": "N", "design": "isq14", "seq": ["rewrite", "refactor", "dc2"], "wl_in_equal": false, "n_inst": 2271}
+{"k": 87, "cls": "N", "design": "dot6r", "seq": ["refactor", "rewrite -z"], "wl_in_equal": false, "n_inst": 2379}
+{"k": 88, "cls": "N", "design": "gtc8l", "seq": ["balance", "refactor -z", "refactor -z"], "wl_in_equal": false, "n_inst": 3064}
+{"k": 89, "cls": "N", "design": "clamp6l", "seq": ["refactor", "refactor -z"], "wl_in_equal": false, "n_inst": 5653}
