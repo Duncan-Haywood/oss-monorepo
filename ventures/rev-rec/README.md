@@ -52,6 +52,11 @@ audit-ready revenue accounting.
   cancelled subscription stops earning (ASC 606 treats this as a contract
   modification, prospectively). An unlinked credit note is recognised on its
   issue date.
+- **Refunds need a credit note.** A refund made on the payment alone (the
+  Dashboard's *Refund payment* without *Create credit note*, or a dispute
+  lost) leaves the invoice `paid` and is not read, so billings, revenue and
+  deferred revenue stay at the full amount. Issue refunds as credit notes, or
+  book those by hand.
 - **Deferred revenue at month end** = billed to date minus recognised to date.
   A negative balance means revenue recognised before it was billed.
 - **Journal CSV:** per month, `Dr Stripe balance / Cr Deferred revenue`
@@ -89,6 +94,10 @@ From the first quality audit
   non-distinct setup fee is recognised in full on its date; ASC
   606-10-55-51 spreads it over the service period, so book that adjustment
   by hand.
+- **Refunds and disputes without a credit note are not read**
+  ([re-audit 2026-11-21](../../portfolio/quality/audits/2026-11-21-rev-rec.json)):
+  reading `/v1/refunds` and `/v1/disputes` and tying them to invoice lines
+  needs a *Charges: read* key and a mapping; until then they are booked by hand.
 - No `Stripe-Version` header is pinned. Both tax shapes are read: the older
   `tax_amounts[].inclusive` and the `taxes[].tax_behavior` that API version
   2025-03-31 and later send.

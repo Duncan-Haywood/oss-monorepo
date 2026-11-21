@@ -20,4 +20,5 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 - The self-hosted server syncs every few hours and re-reads everything at least once a day, so invoices paid weeks after they were issued and credit notes voided later are counted correctly.
 - Journal entries per month: billings debit the Stripe balance (cash) and credit deferred revenue; recognition debits deferred revenue and credits revenue.
 - Period lock: `CLOSED_THROUGH=YYYY-MM` (or `?closed_through=`) keeps exported months fixed; a payment that arrives after the close is booked as a catch-up in the first open month.
+- Refunds and lost disputes that were not issued as a Stripe credit note are not read; billings and revenue stay at the full amount for them.
 - Not modelled: usage-based or milestone recognition, standalone-selling-price allocation (setup fees are recognised on their date), more than one currency per instance.
