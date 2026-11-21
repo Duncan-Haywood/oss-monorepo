@@ -339,8 +339,8 @@ const snippet = (src, node) => (node.s !== undefined ? src.slice(node.s, node.e)
 // has two different paths back to itself on the same word (exponential degree
 // of ambiguity, EDA). A backtracking engine that fails to match tries every one
 // of those paths, so prefix + pump^n + a failing character costs at least 2^n
-// steps. Criterion: Weideman, van der Merwe, Berglund and Watson (CIAA 2016);
-// EDA test: Allauzen, Mohri and Rastogi (IJFCS 2011): a strongly connected
+// steps. Criterion: Weideman, van der Merwe, Berglund and Watson (CIAA 2016, doi:10.1007/978-3-319-40946-7_27);
+// EDA test: Allauzen, Mohri and Rastogi (IJFCS 22, 2011): a strongly connected
 // component of the squared automaton holding a diagonal pair (p,p) and another
 // pair. ECMAScript rejects an empty iteration past a repeat's minimum, so a
 // repeat takes only its body's non-empty parses. The check gives up (returns
@@ -353,17 +353,24 @@ const EXACT_MAX_POSITIONS = 800;
 const EXACT_MAX_EXTRA = 3;
 const EXACT_MAX_WORK = 2000000;
 
-function charMask(node) {
+// The check's alphabet: the shared sample ALPHABET plus every character written in the pattern, so a literal
+// such as "©" or "ü" is a character the automaton can read.
+function exactAlphabet(src) {
+  const out = [...ALPHABET];
+  for (const c of src) if (!out.includes(c)) out.push(c);
+  return out;
+}
+function charMask(node, alphabet) {
   let m = 0n;
-  ALPHABET.forEach((c, k) => { if (node.match(c)) m |= 1n << BigInt(k); });
+  alphabet.forEach((c, k) => { if (node.match(c)) m |= 1n << BigInt(k); });
   return m;
 }
-function lowestChar(mask) {
-  for (let k = 0; k < ALPHABET.length; k += 1) if (mask & (1n << BigInt(k))) return ALPHABET[k];
+function lowestChar(mask, alphabet) {
+  for (let k = 0; k < alphabet.length; k += 1) if (mask & (1n << BigInt(k))) return alphabet[k];
   return null;
 }
 
-function countedAutomaton(ast) {
+function countedAutomaton(ast, alphabet) {
   const labels = [0n];
   const edges = new Map();
   let cut = false;
@@ -378,7 +385,7 @@ function countedAutomaton(ast) {
   function go(n, edge) {
     switch (n.t) {
       case "set": {
-        labels.push(charMask(n));
+        labels.push(charMask(n, alphabet));
         if (labels.length > EXACT_MAX_POSITIONS + 1) bail();
         const x = labels.length - 1;
         return { first: new Map([[x, 1]]), last: new Map([[x, 1]]), nul: 0 };
@@ -404,11 +411,15 @@ function countedAutomaton(ast) {
       case "quant": {
         if (n.possessive) bail();
         let acc = EMPTY();
-        for (let k = 0; k < n.min; k += 1) acc = seq2(acc, go(n.body, false));
+        const copies = n.max === INF ? Math.max(n.min - 1, 0) : n.min;
+        for (let k = 0; k < copies; k += 1) acc = seq2(acc, go(n.body, false));
         if (n.max === INF) {
+          // One copy serves the last required iteration and the loop, so nested + does not double the size:
+          // B{1,} reads B once (possibly empty), then non-empty B's; first and last count both ways in.
           const B = go(n.body, false);
           cross(B.last, B.first);
-          acc = seq2(acc, optNonEmpty(B));
+          const loop = n.min === 0 ? optNonEmpty(B) : { first: add(add(new Map(), B.first), B.first, B.nul), last: add(add(new Map(), B.last), B.last, B.nul), nul: B.nul };
+          acc = seq2(acc, loop);
         } else {
           // body{0,e}: (B (B (B)?)?)? built from the inside out, each later iteration non-empty.
           const extra = Math.min(n.max - n.min, EXACT_MAX_EXTRA);
@@ -452,7 +463,8 @@ export function exactAmbiguity(src, flags = "", lang = "js") {
     walk(ast, (n) => { if (n.t === "anchor") interior = true; });
     if (interior) return null;
   }
-  const A = countedAutomaton(ast);
+  const alphabet = exactAlphabet(src);
+  const A = countedAutomaton(ast, alphabet);
   if (!A) return null;
   const { labels, out, cut, finals } = A;
   const n = labels.length;
@@ -460,7 +472,7 @@ export function exactAmbiguity(src, flags = "", lang = "js") {
   prefix[0] = "";
   for (const queue = [0]; queue.length;) {
     const p = queue.shift();
-    for (const { q } of out[p]) if (prefix[q] === null) { prefix[q] = prefix[p] + lowestChar(labels[q]); queue.push(q); }
+    for (const { q } of out[p]) if (prefix[q] === null && labels[q]) { prefix[q] = prefix[p] + lowestChar(labels[q], alphabet); queue.push(q); }
   }
   let work = 0;
   const wordBack = (q, r, p) => {
@@ -474,7 +486,7 @@ export function exactAmbiguity(src, flags = "", lang = "js") {
         const both = labels[ex.q] & labels[ey.q];
         if (!both) continue;
         const key = ex.q * 4096 + ey.q;
-        if (!seen.has(key)) { seen.set(key, w + lowestChar(both)); qu.push([ex.q, ey.q]); }
+        if (!seen.has(key)) { seen.set(key, w + lowestChar(both, alphabet)); qu.push([ex.q, ey.q]); }
       }
     }
     return null;
@@ -483,7 +495,7 @@ export function exactAmbiguity(src, flags = "", lang = "js") {
     let cur = new Set([0]);
     if (finals.has(0)) return true;
     for (const ch of word) {
-      const bit = 1n << BigInt(ALPHABET.indexOf(ch));
+      const bit = 1n << BigInt(alphabet.indexOf(ch));
       const next = new Set();
       for (const x of cur) for (const { q } of out[x]) if (labels[q] & bit) next.add(q);
       for (const x of next) if (finals.has(x)) return true;
@@ -493,7 +505,7 @@ export function exactAmbiguity(src, flags = "", lang = "js") {
   };
   const failMask = labels.reduce((m, l) => m | l, 0n);
   let fail = null;
-  for (const c of ["!", "@", "~", "#", "%", "/", ...ALPHABET]) if (!(failMask & (1n << BigInt(ALPHABET.indexOf(c))))) { fail = c; break; }
+  for (const c of ["!", "@", "~", "#", "%", "/", ...alphabet]) if (!(failMask & (1n << BigInt(alphabet.indexOf(c))))) { fail = c; break; }
   try {
     for (let p = 1; p < n; p += 1) {
       if (prefix[p] === null) continue;
@@ -505,7 +517,7 @@ export function exactAmbiguity(src, flags = "", lang = "js") {
           if (!both) continue;
           const back = wordBack(es[i].q, es[j].q, p);
           if (back === null) continue;
-          const pump = lowestChar(both) + back;
+          const pump = lowestChar(both, alphabet) + back;
           // Without a closing $, a backtracking engine stops at the first point a match can end. If the attack
           // reaches a final state on the way, the search succeeds before it can blow up: not reported.
           if (!endAnchored(ast) && reachesFinal(prefix[p] + pump.repeat(n + 1))) return { eda: false, proof: false, matchesFirst: true };

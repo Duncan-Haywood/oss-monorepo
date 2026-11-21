@@ -90,7 +90,7 @@ node cli.mjs check '(a+)+$'                   # analyse one pattern</pre>
       <thead><tr><th>Language</th><th>Where regexes are read from</th></tr></thead>
       <tbody id="patterns-rows"></tbody>
     </table>
-    <p class="note">Rules: <code>nested-quantifier</code>, <code>overlapping-alternation</code> (exponential, errors); <code>adjacent-overlap</code>, <code>quadratic-end-anchor</code> (polynomial, warnings); <code>dynamic-regexp</code> (note). Patterns built by string concatenation are not guessed at. Linear-time engines (RE2, Go, Rust) are not affected by any of this.</p>
+    <p class="note">Rules: <code>nested-quantifier</code>, <code>overlapping-alternation</code>, <code>ambiguous-repeat</code> (exponential, errors; the last comes from an exact automaton check that also writes the attack string, and the same check turns a shape rule's false alarm into a warning when it proves the time is not exponential); <code>adjacent-overlap</code>, <code>quadratic-end-anchor</code> (polynomial, warnings); <code>dynamic-regexp</code> (note). Patterns built by string concatenation are not guessed at. Linear-time engines (RE2, Go, Rust) are not affected by any of this.</p>
   </section>
 
   <section class="card">

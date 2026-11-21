@@ -9,9 +9,9 @@
 // has at least 2^n parses that all fail at "!". This is the criterion of
 // Weideman, van der Merwe, Berglund and Watson, "Analyzing Matching Time Behavior
 // of Backtracking Regular Expression Matchers by Using Ambiguity of NFA" (CIAA
-// 2016, LNCS 9705), with the EDA test of Allauzen, Mohri and Rastogi, "General
+// 2016, LNCS 9705, doi:10.1007/978-3-319-40946-7_27), with the EDA test of Allauzen, Mohri and Rastogi, "General
 // algorithms for testing the ambiguity of finite automata and the double-tape
-// ambiguity of finite-state transducers" (IJFCS 22(4), 2011): EDA iff the
+// ambiguity of finite-state transducers" (IJFCS 22, 2011, pp. 883-904): EDA iff the
 // squared automaton has a strongly connected component holding a diagonal pair
 // (p,p) and an off-diagonal pair. The code here is our own.
 //
