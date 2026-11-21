@@ -155,7 +155,7 @@
     <p id="total" class="row"></p>
 
     <h2 id="rooms">Rooms</h2>
-    <p class="muted">Every room (IfcSpace) measured from its own solid: floor area and perimeter cut 1 cm above its floor, height to its highest point, wall area as perimeter times height, the doors, windows and curtain walls in the room's walls, the net wall area with those off, and volume. A door or window counts in every room it opens into: the rooms the file's space boundaries name for it, else the rooms found on either side of it; it comes off at its stored width times height. A room drawn only as a plan outline and a box is measured from those. Each figure is checked against the one the model stores, within 2%. "Elements" counts what stands in the room: what the file places there, and furniture, fittings and finishes placed by where they stand (walls, doors and the rest that bound rooms are not). Click a room to show its elements.</p>
+    <p class="muted">Every room (IfcSpace) measured from its own solid: floor area and perimeter cut 1 cm above its floor, height to its highest point, wall area as perimeter times height, the doors, windows and curtain walls in the room's walls, the net wall area with those off, and volume. A door or window counts in every room it opens into: the rooms the file's space boundaries name for it, else the rooms found on either side of it; it comes off at its stored width times height, cut to the room's floor and ceiling (a window rising past a lowered ceiling comes off only below it). A room drawn only as a plan outline and a box is measured from those. Each figure is checked against the one the model stores, within 2%. "Elements" counts what stands in the room: what the file places there, and furniture, fittings and finishes placed by where they stand (walls, doors and the rest that bound rooms are not). Click a room to show its elements.</p>
     <div class="row">
       <button type="button" id="dl-rooms">Download the room schedule (CSV)</button>
       <span class="muted" id="rooms-summary"></span>
@@ -685,6 +685,7 @@
       if (!c || (!c.openings && !c.glazedArea)) return "";
       const parts = [];
       if (c.openings) parts.push(`${c.openings} door${c.openings === 1 ? "" : "s"} and windows, ${fmt(c.openingArea, 2)} m² (${[c.openingsFrom.boundary ? `${c.openingsFrom.boundary} named by the file's space boundaries` : "", c.openingsFrom.geometry ? `${c.openingsFrom.geometry} found by where they stand` : ""].filter(Boolean).join(", ")})`);
+      if (c.openingsCut) parts.push(`${c.openingsCut} cut at the room's floor or ceiling: ${fmt(c.openingCut, 2)} m² past them not taken off`);
       if (c.glazedArea) parts.push(`curtain wall ${fmt(c.glazedArea, 2)} m²`);
       return parts.join("; ");
     };

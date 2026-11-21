@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKnLaBNPMcwmGsuboJZ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T22:18:41Z",
+  "ended": "2026-11-21T22:26:10Z",
+  "wall_minutes": 7.73,
+  "tokens_in": 4248152,
+  "tokens_out": 23245,
+  "cost_usd": 2.14,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18152",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "The first height cut scaled the opening's whole body box, which cut doors whose frames run into the floor build-up (duplex 25, FM_ARC 6 of 13); replaced by reading the stored height down from the head before landing.",
+    "First draft of the post claimed a per-room figure (about 6 m2) that was never measured; replaced with the measured 0.64 m2 average per cut deduction before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Another session opened PR #18153 on the same item one minute after this one's claim (#18152); the claim mechanism worked as designed but both sessions had already chosen the same NEXT.md item, so the row's item list steers parallel sessions to identical work."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-a-window-taller-than-the-room.md",
+    "ventures/ifc-quantity-takeoff/eval/opening-height-cut-2026-11-21.md"
+  ],
+  "goal": null,
+  "notes": "Net wall finish per room now cuts each door/window deduction to the room's height band (rooms.mjs heightShare; stored height read down from the head). 12 public models: 151 deductions cut, 47.2 m2, net wall +0.08%; ARK_NUS 3.09 m glazing over 2.44 m lowered ceilings is 38.1 m2 of it. Room CSV gains a cut-area column; page tooltip, README, llms.txt updated. Verification: run_venture_tests.py ifc-quantity-takeoff ok (172 tests) plus 2 new rooms tests; venture-preflight run in background (result in PR body).",
+  "corrections": [],
+  "redteam": null,
+  "venture": "ifc-quantity-takeoff",
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "18dbaebf-8035-5dac-868a-5e11980c3e90",
+    "transcripts": 1,
+    "first": "2026-11-21T22:18:41Z",
+    "last": "2026-11-21T22:26:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 23245,
+        "thinking": 4595,
+        "cache_read": 4142283,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105786,
+        "api_equivalent_usd": 2.14,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 23245,
+      "thinking": 4595,
+      "cache_read": 4142283,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105786,
+      "api_equivalent_usd": 2.14,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.73,
+      "active_minutes": 7.73,
+      "model_minutes": 5.38,
+      "tool_minutes": 2.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer adding height clipping to an IFC room finish takeoff, measuring 12 models and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 233.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

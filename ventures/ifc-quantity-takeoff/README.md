@@ -284,6 +284,12 @@ room by room, so the takeoff lists every IfcSpace with:
   surface. Pieces of one window drawn as several IfcWindows are taken once.
   Held out against the files' boundaries, the geometric test found the same
   rooms for 791 of 857 openings and a room the file does not name for 19.
+  Only the part of an opening inside the room's height band comes off
+  (eval/opening-height-cut-2026-11-21.md): the stored height is read down
+  from the opening's head, so a door frame set into the floor build-up is
+  not cut, but ARK_NUS's 3.09 m classroom glazing over a 2.44 m lowered
+  ceiling comes off at 2.44 m (151 deductions on 5 of 12 models cut,
+  47.2 m2; the room schedule's CSV gives each room's cut area).
 - A room with no body but a `FootPrint` outline and a `Box` (Revit and
   ArchiCAD both export these) is the outline extruded through the box.
 - Each figure against the stored one (GrossFloorArea then NetFloorArea,
