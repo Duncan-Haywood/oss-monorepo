@@ -1094,7 +1094,7 @@
       swissOut = swissText(players, round, played + 1) + "\n\nStandings\n" +
         table.map((r) => `  ${r.rank}. ${r.name}  ${r.score} pts  Buchholz ${r.buchholz}  SB ${r.sonnebornBerger}`).join("\n");
       $("#swiss-out").textContent = swissOut;
-      const floatNote = round.floaters ? ` ${round.floaters} board${round.floaters === 1 ? "" : "s"} pair players on different scores (no closer round exists).` : " Every board pairs players on the same score.";
+      const floatNote = round.floaters ? ` ${round.floaters === 1 ? "1 board pairs" : round.floaters + " boards pair"} players on different scores (no closer round exists).` : " Every board pairs players on the same score.";
       const colourNote = round.clashes && round.clashes.absolute ? ` ${round.clashes.absolute} board${round.clashes.absolute === 1 ? "" : "s"} could not give both players their due colour: every possible round needs it.` : "";
       out.textContent = `Round ${played + 1} of about ${swissRounds(players.length)} for ${players.length - parsed.withdrawn.length} players${parsed.withdrawn.length ? ` (${parsed.withdrawn.length} left the event)` : ""}.${floatNote}${colourNote} The pairing passed the check.`;
       record("swiss_paired");
