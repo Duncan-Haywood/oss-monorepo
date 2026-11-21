@@ -1,0 +1,413 @@
+---
+number: 159
+slug: moses-and-aaron-and-the-bricks-without-straw
+title: Moses and Aaron and the Bricks Without Straw
+published: 2026-11-21
+summary: Two old brothers walk into Pharaoh's court with a message from the Lord, and walk out with nothing but harder work for everyone; the straw is taken away, the bricks are counted just the same, and the Lord answers an angry prayer with his own name and four promises. Told from the Book of Exodus, chapters five and six.
+figures: Moses, Aaron, Pharaoh, the Egyptian taskmasters, the Israelite foremen and the people of Israel in Egypt, with an invented foreman and his daughter
+tradition: Catholic and Orthodox; both read the Book of Exodus as Scripture; Moses is honoured as a saint and prophet in both traditions, and Aaron the priest is honoured among the holy forefathers
+feast: Moses the prophet is remembered on the fourth of September in the Orthodox Church and in the Roman Martyrology; the Orthodox Church remembers Aaron among the holy forefathers in the weeks before Christmas, and we give no calendar date for him that we cannot vouch for
+history: the story is Scripture, the Book of Exodus, chapter five, verse one, to chapter six, verse thirteen, told straight in a plain rendering, with the hard service in mortar and brick from chapter one and the brothers' ages from chapter seven; the book does not name this Pharaoh or give a date in our years, and historians disagree about when Moses lived, so none is given
+legend: none; the Egyptian tomb painting of brickmakers is named as a picture of how bricks were made in Egypt, not as a picture of the Israelites
+fiction: the foreman Hanan and his daughter, their brickfield, the waiting at the palace, the look of Pharaoh's court, the gathering of stubble, everything Hanan and his daughter say and think, and the brothers' words to each other beyond what the book reports are our own invention, told in the spirit of the original; nothing is added to what Moses, Aaron, Pharaoh or the Lord say or do in the book
+sources:
+  - The Book of Exodus, chapter one, verses eleven to fourteen, chapter five, verses one to twenty-three, chapter six, verses one to thirteen and twenty to thirty, chapter seven, verse seven, and chapter twelve, verses forty to forty-two
+  - The Book of Exodus, chapter three, verses seven to fifteen, and chapter four, verses ten to thirty-one
+  - The Book of Psalms, Psalm thirteen, Psalm forty-four, verse twenty-three, and Psalm eighty-one
+  - The Book of Genesis, chapter fifteen, verse five
+  - The Book of Deuteronomy, chapter five, verses twelve to fifteen
+  - The Acts of the Apostles, chapter seven, verses thirty-four to thirty-six
+  - The wall paintings of brickmaking in the tomb of the vizier Rekhmire at Thebes, Theban Tomb one hundred
+---
+
+It is the middle of the afternoon, outside the gate of a king's palace in Egypt, and two old men are sitting on a step in a thin strip of shade.
+
+They have been sitting there for a long time. One of them has a shepherd's staff across his knees. The other has a good cloak, a little dusty at the hem, and he keeps looking up at the gate every time it opens, and then looking down again.
+
+The gate opens one more time. And out come a small group of men, walking slowly, the way people walk when everything hurts. They are the foremen from the brickfields. They have just been in to see the king.
+
+The two old men stand up. The one with the good cloak takes a step towards them, and opens his mouth to speak.
+
+But the foremen speak first. And what they say is not "thank you".
+
+What they say is, "May the Lord look at you, and judge you."
+
+But we're getting ahead of ourselves.
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is Moses and Aaron before Pharaoh, and the bricks without straw, from the Book of Exodus, which Catholic and Orthodox Christians read as Scripture, and a foreman called Hanan and his daughter, who help us see it from the brickfield, are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Last time on this show, we left two brothers asleep by a fire on the mountain of God.
+
+Moses was eighty years old. Aaron was eighty-three. They had not seen each other for forty years, and they had met in the wilderness, and kissed, and talked half the night. And then they had walked back to Egypt together, and gathered the elders of Israel, and Aaron had told them everything the Lord had said to Moses at the burning bush. The Lord has seen. The Lord has heard. The Lord has come down to bring you out.
+
+And the book says that the people believed. And when they heard that the Lord had seen their misery, they bowed their heads, and worshipped.
+
+That was a very good evening.
+
+Tonight is the next morning. Or, to be honest, tonight is the next few weeks. And I should warn you now, before we start, that tonight is not one of the evenings where everything goes well. Tonight is the evening where everything gets worse first.
+
+It does get better. I promise you that. It gets better in the end in the biggest way it has ever got better for anybody in the whole of the Old Testament. But not tonight. Tonight, we are going to stay in the hard part for a while, and see what happens to people in the hard part, and what the Lord says to them there.
+
+So let's set the scene.
+
+* * *
+
+Tonight's story is about bricks. So let me tell you how to make a brick in ancient Egypt, in case you ever need to.
+
+First, you need mud. Egypt has a great deal of mud. Every year, for thousands of years, the river Nile flooded in the late summer, spread out over the fields, and then went down again, and it left behind a layer of thick, dark, very good mud. The Egyptians called their own country the black land, because of it. That mud grew their wheat and their barley and their onions. And it also built their houses.
+
+So you dig your mud. You carry water to it in jars, and you mix it, usually by treading it with your feet, which I imagine was the one part of the job that children were very happy to help with.
+
+And then, and this is the important part for tonight, you add straw.
+
+Chopped straw. The stalks left over from the harvest, cut up short. You tread it into the mud until it is all through it, like the raisins in a fruit loaf, only less pleasant to eat.
+
+Why straw? Because mud on its own, when it dries in the sun, shrinks. And as it shrinks, it can crack. And a cracked brick is a brick that crumbles at the corners when you lift it, and splits when you put a wall on top of it. The straw holds the mud together while it dries, a little like the fibres in a sheet of paper, or the horsehair that old plasterers used to mix into their plaster so it would not fall off the ceiling. A brick with straw in it is a brick that holds.
+
+Then you take a wooden mould. It is a frame, an open box with no top and no bottom, and a handle. You set it down on flat ground, you push the wet mud into it, you smooth the top, and you lift the mould straight up. And there, sitting on the ground, is a brick. A soft, wet, shining brick. You move along a little, and do it again. And again. And again. All day. Row after row of wet bricks, laid out in the sun like loaves on a baker's tray.
+
+The sun does the rest. After a few days, you turn them, so the other side dries. And after a few more days, you have bricks.
+
+There is a painting of all this, by the way, on the wall of a tomb in Egypt, at Thebes, made for a very important official called Rekhmire, who was a vizier, a sort of chief minister, to one of the Pharaohs. It shows men fetching water from a pool, men digging and mixing mud, men with moulds, rows of bricks drying, and men carrying them away. Some of the workers in it are foreigners. And standing over them, there are overseers with sticks.
+
+I should say clearly that the painting is not of the Israelites. It is just a picture of how bricks were made in Egypt, painted by an Egyptian. But if you want to see what Aaron's childhood looked like, roughly, it is probably not far off.
+
+The Book of Exodus tells us, right at the start, that the Egyptians set taskmasters over the Israelites, and made them build store cities for Pharaoh, called Pithom and Rameses. And it says they made their lives bitter, with hard service, in mortar and in brick, and in every kind of work in the fields.
+
+And it tells us one more thing that matters for tonight. There were two kinds of people in charge of the brickmaking. At the top were the Egyptian taskmasters. And under them, there were foremen. And the foremen were Israelites.
+
+So if you have ever worked somewhere with two layers of managers, you will understand the foremen's position immediately. They were Israelites, working with their own neighbours, counting their own neighbours' bricks. And when the count was short, the taskmasters did not blame the brickmakers. They blamed the foremen.
+
+That is a very uncomfortable place to stand. And we are going to stand there tonight, with one of them.
+
+* * *
+
+The book does not tell us the name of any of the foremen. So I am going to invent one, and I want to be clear that he is invented. Let's call him Hanan.
+
+Hanan is a foreman on a brickfield near a canal, somewhere in the land of Goshen, where the Israelites lived. He is about forty-five. He has a tally of bricks his gang must make every day, and he has been making that tally, more or less, for years. He knows every man on his field. He knows which ones are quick with a mould and which ones are slow. He knows which ones have bad backs, and which ones have new babies at home and are not sleeping. And when the count is a little short, he quietly makes up the difference himself, at the end of the day, after everyone else has gone home.
+
+He also has a daughter. She is about ten. She is invented too. She carries water to the mud pits in the mornings, and she treads the straw in with her feet, and she is very proud of the fact that she can tread faster than two of the grown men on her father's gang, which is true, and which she tells them often.
+
+Hanan was there, at the back, on the evening the elders were gathered and Aaron spoke. He heard the message. He saw the staff turned into a snake and back into a staff. He saw everyone bow their heads. And he bowed his head too, and he walked home that night with his heart going faster than it had in years.
+
+The Lord has seen.
+
+He told his daughter, when he got home. She was half asleep already. She said, "Does that mean we won't have to make bricks any more?"
+
+And Hanan said, "I don't know. I think it might."
+
+And she said, "Good," and went back to sleep.
+
+* * *
+
+Now let's go to the palace.
+
+The book says simply, "Afterwards, Moses and Aaron went in and said to Pharaoh." It does not tell us how they got in. I imagine it took some doing. Kings' palaces are not usually places where two old shepherds can wander in off the street and ask for a word. But perhaps Moses still knew his way around. He had grown up in a palace, after all, a long time ago. And perhaps there was still somebody at the gate who remembered his face.
+
+Picture a great hall, with painted columns like the stems of enormous papyrus plants. Officials in white linen. Scribes with their palettes and their reed pens, writing everything down, because that is what Egyptian scribes did, all day, every day. And at the far end, the king of Egypt, on his throne, looking at two old men in dusty cloaks with the polite boredom of a very important man who has a great deal to do this morning.
+
+And Aaron, who was the one who could speak well, steps forward, and says it.
+
+"This is what the Lord, the God of Israel, says. Let my people go, so that they can hold a feast for me in the wilderness."
+
+There is a short silence. I imagine the scribes stopped writing.
+
+And then Pharaoh says the line that sets the course for the whole of the next ten chapters. He says, "Who is the Lord, that I should listen to his voice, and let Israel go? I do not know the Lord. And besides, I will not let Israel go."
+
+I do not know the Lord.
+
+Now, from Pharaoh's point of view, this is a perfectly reasonable thing to say. Egypt had a great many gods. Pharaoh himself was spoken of, in Egypt, as a sort of god. And here are two elderly Hebrew brickmakers, from the slave quarter, talking about a god he has never heard of, who apparently wants a holiday for his entire workforce.
+
+I do not know him, says Pharaoh.
+
+And if you have read ahead in the book, you will know that this is the question the rest of the story answers. Over and over again, in the chapters that follow, the Lord says, "so that Egypt will know that I am the Lord." Pharaoh says, "I do not know him." And the Lord says, in effect, "You will."
+
+But not yet.
+
+Moses and Aaron try again. And they are careful. They do not ask for everything at once. They say, "The God of the Hebrews has met with us. Please let us go three days' journey into the wilderness, and offer sacrifice to the Lord our God, or he may fall upon us with plague, or with the sword."
+
+Three days. A feast. Just let us go and worship.
+
+And Pharaoh says, "Moses and Aaron, why are you taking the people away from their work? Get back to your burdens!"
+
+And then, a little more to himself, or perhaps to his officials, he says, "Look how many of these people there are now. And you want to give them a rest from their work."
+
+Here is a small thing I find lovely. The word the book uses there, for giving them a rest, comes from the same Hebrew root as the word sabbath. Pharaoh is complaining, without knowing it, that these men want to give his slaves a sabbath.
+
+And the Lord, a little later on in this same story, is going to give them one. Every week. Forever. When the commandments are given in the Book of Deuteronomy, the reason for the sabbath is spelled out: remember that you were a slave in the land of Egypt, and the Lord your God brought you out. So rest. And let your servants rest, as well as you.
+
+Pharaoh does not know any of this. Pharaoh is just annoyed.
+
+And the two old men are shown out.
+
+* * *
+
+It is that same day, the book says. The very same day. Pharaoh gives an order to the taskmasters and to the foremen.
+
+You will not give the people straw for making bricks any more, as you did before. Let them go and gather straw for themselves. But the number of bricks they were making before, you will require of them. Do not reduce it. Because they are idle. That is why they are crying out, "Let us go and sacrifice to our God." Make the work heavier for the men. Keep them busy at it, so they pay no attention to lies.
+
+I want you to notice something about that order. It is very clever, in a horrible way.
+
+Pharaoh does not have to beat anyone. He does not have to make any speeches. He does not even have to answer Moses and Aaron. He just takes away the straw. And by doing that, he makes the people so tired, and so busy, and so frightened about their count, that they will have no breath left to listen to anybody talking about freedom.
+
+Keep them busy, so they pay no attention.
+
+It is an old trick. It has been used on a great many people, in a great many places, since. And it nearly works.
+
+Hanan heard the order at the evening muster, when the taskmasters came down to the brickfield to count the day's bricks. He heard it read out, word for word, in the voice of a man who was reading out something he had been told to read.
+
+No more straw. Gather your own. Same number.
+
+And Hanan stood there and did the sum in his head. Because he was a foreman, and doing that sum was his job.
+
+Every morning, a cartload of chopped straw came down to his field from the threshing floors. It was not much to look at, a cartload of straw. But somebody had grown that grain, and somebody had cut it, and somebody had threshed it, and somebody had chopped the stalks and loaded the cart and driven it down. All of that work went into every brick his gang made, and none of it had been his gang's work. Until now.
+
+Now the straw was theirs to find. And the bricks were the same number.
+
+He did the sum, and it would not come out. There were not enough hours in the day.
+
+He walked home slowly that evening. His daughter was waiting for him at the door. She looked at his face, and she did not ask whether they would still have to make bricks.
+
+* * *
+
+The next morning, the people scattered.
+
+That is the word the book uses. They were scattered throughout all the land of Egypt, to gather stubble for straw.
+
+Stubble, if you have never seen a field after the harvest, is what is left in the ground when the grain has been cut. Short, stiff stalks, sticking up out of the dry earth, in rows, like the bristles of a very large, very old brush. It is not good straw. It is the last of the straw. It is what is left when everything useful has already been taken. And it has to be pulled up, or cut, stalk by stalk, and gathered, and carried back, and chopped.
+
+So imagine the land of Goshen, at dawn, the morning after the order. Men and women and boys and girls, spread out across the harvested fields as far as you can see, bent over, pulling up stubble. Filling their arms and their baskets. Walking further and further from the brickfields each morning, because the near fields have already been stripped bare.
+
+Hanan's daughter went with the stubble gatherers. Every child on the field did. She was good at it, too, as she was good at everything, and she came back every morning with her arms full, and her hands scratched, and her face set very hard, and she did not boast to the grown men about it any more.
+
+And at the brickfield, Hanan's gang worked faster than they had ever worked in their lives. And it was not enough.
+
+The taskmasters came down every evening with their tally sticks, and counted, and said, the book tells us, "Finish your work. Your daily quota. The same as when there was straw."
+
+And every evening, the count was short.
+
+And on about the second evening, the book says something that I am going to tell you in one quiet sentence, because this is a bedtime story and we do not dwell on it. The foremen of the Israelites, the ones the taskmasters had set over the people, were beaten, and they were asked, "Why haven't you finished your quota of bricks, yesterday and today, the same as before?"
+
+Hanan was one of them. He did not tell his daughter, when he got home. But she saw how he sat down, very carefully. And she brought him water without being asked, and sat next to him, and leant against his arm, and said nothing at all. Which, for her, was a very great deal.
+
+* * *
+
+So the foremen did the only thing left to do. They went to the king.
+
+Now, I want to say something in the foremen's favour here, because they are about to say something unkind to Moses and Aaron, and it would be easy to think badly of them. Going in to see Pharaoh was frightening. These were not great men. They were brickfield foremen. And they went in, together, and stood in that hall with the painted columns, and they cried out to the king of Egypt himself, on behalf of their people. That takes some courage.
+
+And what they said was very reasonable. They said, "Why are you treating your servants like this? No straw is given to your servants, and yet they tell us, make bricks! And look, your servants are being beaten. But the fault is with your own people."
+
+Notice that they call themselves your servants, three times. They are being as polite as they possibly can. They are not asking to go into the wilderness. They are not mentioning the Lord. They are just asking for their straw back.
+
+And Pharaoh says, "You are idle. Idle, that's what you are. That is why you keep saying, let us go and sacrifice to the Lord. Now go and get back to work. No straw will be given to you. And you will still deliver the full number of bricks."
+
+The book says that the foremen saw that they were in trouble. Which is the book's way of saying, as gently as it can, that there was no way out of this that they could see.
+
+So they came out of the palace. Slowly, the way people walk when everything hurts.
+
+And there, waiting for them on the step outside the gate, were Moses and Aaron.
+
+The book says that, too. Moses and Aaron were standing there, waiting to meet them, as they came out from Pharaoh. I have always found that detail very touching. The brothers did not go home. They did not hide. They knew what the foremen had gone in to say, and they waited, outside, in the heat, to hear how it had gone.
+
+And the foremen said to them, "May the Lord look at you, and judge you. Because you have made us stink in the eyes of Pharaoh and his servants. You have put a sword in their hand, to kill us."
+
+That is the moment from the start of the episode. And I think it is one of the hardest moments in the whole story of Moses.
+
+Because the foremen were not wrong, exactly. Moses and Aaron had come with a message from the Lord, and everyone had believed it, and bowed their heads, and the very first result was that everything got much, much worse.
+
+I imagine Aaron, the one who could speak well, standing there with his mouth open, and nothing to say.
+
+I imagine Moses, who could not speak well, standing behind him, holding the staff of God, and looking at the foremen's backs as they walked away.
+
+And Hanan, at the back of the group, did not say anything at all. He just looked at the two old men for a moment, as he passed them. And it was not an angry look. It was worse than angry. It was the look of a man who had let himself hope, and was sorry that he had.
+
+* * *
+
+So what does Moses do?
+
+He goes back to the Lord. That is what the book says. Moses turned back to the Lord.
+
+And he prays. And it is not a polite prayer. It is not, "Thy will be done," or, "I am sure you know best." It is this.
+
+"Lord, why have you brought trouble on this people? Why did you ever send me? Ever since I came to Pharaoh to speak in your name, he has done nothing but harm to this people. And you have not rescued your people at all."
+
+I want to stop for a moment, because that prayer matters.
+
+Moses is angry. Moses is angry with God. And he says so, to God's face, in plain words. Why did you do this? Why did you send me? You have not done what you said.
+
+And here is the thing. That prayer is in the Bible. It was not cut out. Nobody tidied it up. And the Lord does not answer it by telling Moses off.
+
+If you have ever prayed a prayer like that, and a great many good and holy people have, you are in very good company. A great many of the psalms are prayers like that. How long, O Lord. Why do you hide your face. Wake up, Lord, why are you sleeping. The Bible is full of people telling God the truth about how they feel, and the truth is not always pretty, and God, it seems, would much rather have the truth.
+
+Moses brought it to the right place. That is the important part. He did not go off and sulk. He did not give up and go back to Midian and his sheep, though I am sure he thought about it. He went to the Lord, and he said, this is not working, and it is your fault, and I do not understand.
+
+And the Lord answered him.
+
+* * *
+
+The answer comes in two parts.
+
+The first part is short. The Lord says, "Now you will see what I will do to Pharaoh. Because with a strong hand he will let them go. With a strong hand he will drive them out of his land."
+
+Now you will see. Not, it was always going to be fine. Not, you should not have asked. Just, now. Watch.
+
+And then the second part. And this is the part I would like you to hear slowly, because it is one of the great passages of the Old Testament.
+
+God said to Moses, "I am the Lord."
+
+That is how it begins. Just that. I am the Lord.
+
+And in the Hebrew, the word that is printed in most of our Bibles as the Lord, in small capital letters, is the name. The holy name that God told Moses at the burning bush, which Jewish people, out of reverence, do not say aloud, and which Christians, following them, usually do not say aloud either, but read as the Lord. It means something like, I am who I am, or I will be who I will be. It is the name of the one who is there.
+
+And God says, "I appeared to Abraham, to Isaac, and to Jacob, as God Almighty. But by my name, the Lord, I did not make myself known to them in this way."
+
+The scholars have argued for a very long time about exactly what that means, and I am not going to settle it tonight. But the feeling of it is clear enough. Your great-great-grandfathers knew me, says God. They trusted me. But they never saw what you are about to see. You are going to know me in a way they never did.
+
+"I also made my covenant with them," God says, "to give them the land of Canaan, the land where they lived as strangers. And I have heard the groaning of the people of Israel, whom the Egyptians are keeping as slaves. And I have remembered my covenant."
+
+I have heard the groaning.
+
+Not the prayers. The groaning. The sound people make in the stubble fields at dawn, when they are too tired to pray properly. The sound Hanan made when he sat down very carefully on the evening he did not tell his daughter about. God says, I heard that.
+
+And then God gives Moses a message to take to the people. And it is a message made of promises, one after another, like steps.
+
+"Say to the people of Israel: I am the Lord.
+
+"And I will bring you out from under the burdens of the Egyptians.
+
+"And I will rescue you from being their slaves.
+
+"And I will redeem you, with an outstretched arm, and with great acts of judgment.
+
+"And I will take you to be my people, and I will be your God. And you will know that I am the Lord your God, who brought you out from under the burdens of Egypt.
+
+"And I will bring you into the land that I swore, with my hand raised, to give to Abraham, and to Isaac, and to Jacob. I will give it to you to have as your own. I am the Lord."
+
+It begins with I am the Lord. And it ends with I am the Lord. And in the middle, it is I will, I will, I will, I will, I will.
+
+Jewish families, at their Passover meal, have for a very long time linked the four cups of wine they drink that night with promises in this passage, I will bring you out, I will rescue you, I will redeem you, I will take you. So every year, at the meal that remembers the night they left Egypt, they drink to the promises God made on the day things were at their very worst.
+
+I think that is a beautiful thing to do. You do not remember the promise only on the day it came true. You remember the day it was given, when nobody could believe it.
+
+* * *
+
+Because nobody could believe it.
+
+The book is very honest about this. Moses went and told the people of Israel exactly what God had said. All of it. I am the Lord, I will bring you out, I will rescue you, I will redeem you, I will take you as my people.
+
+And they did not listen to Moses.
+
+And then the book tells us why. And I want you to hear the reason, because it is one of the kindest sentences in the whole chapter.
+
+They did not listen, it says, because of their broken spirit, and their cruel slavery.
+
+Broken spirit. In the Hebrew it is something like shortness of breath. They were too out of breath to listen. Too tired. Too frightened. Too worn down by the stubble fields and the tally sticks and the evening count.
+
+And notice what the book does not say. It does not say they were wicked. It does not say they were faithless, or stubborn, or ungrateful. It does not blame them at all. It just says, they had no breath left to hear it with.
+
+Pharaoh's trick had worked, for the moment. Keep them busy, so they pay no attention.
+
+I imagine Hanan, at that second gathering. Standing at the back again, where he had stood the first time. Hearing Aaron's voice, saying the same kind of things it had said before, the Lord has heard, the Lord will bring you out. And not being able to let it in. Not because he thought it was a lie, exactly. But because he had let it in once already, and he had been beaten for it, and his daughter's hands were scratched to pieces, and he could not do it again. Not yet.
+
+He went home early. He did not bow his head this time.
+
+But here is a small thing. When he got home, his daughter was awake, for once. And she said, "What did they say?"
+
+And he told her. He did not mean to, but he did. He found that he had the words in his head, every one of them, the way a foreman always has the count in his head at the end of the day. I am the Lord. I will bring you out. I will rescue you. I will redeem you. I will take you.
+
+And his daughter listened, very quietly, the way children do when they can tell something matters. And then she said, "That's four."
+
+And he said, "What?"
+
+And she said, "Four I wills. I counted."
+
+And Hanan, for the first time in a week, nearly laughed.
+
+He did not believe it. Not that night. But he went to sleep with the count in his head. Four I wills. And a foreman does not forget a count.
+
+* * *
+
+There is one more short exchange before the chapter turns. And I want to tell it to you, because it brings us back to the two brothers.
+
+The Lord said to Moses, "Go in. Tell Pharaoh, king of Egypt, to let the people of Israel go out of his land."
+
+Again. Go in again. After all that.
+
+And Moses said, and you can hear how tired he is, "Look, the people of Israel have not listened to me. How then will Pharaoh listen to me? And I am a man of clumsy lips."
+
+That is a plain rendering. The Hebrew is stranger than that, and older; it says something like lips that are not ready, lips that will not open properly. It is the same worry Moses had at the burning bush. I cannot speak well. I never could. Send someone else.
+
+And the Lord's answer, this time, is not an argument. The book just says this. The Lord spoke to Moses and to Aaron, and gave them a charge, to the people of Israel and to Pharaoh, king of Egypt, to bring the people of Israel out of the land of Egypt.
+
+The Lord spoke to Moses and to Aaron.
+
+Both of them. Together. Moses, who could not speak well, and Aaron, who could. The one who had been sent, and the brother who had been given to him. The Lord does not take away Moses' clumsy lips. He does not make him eloquent overnight. He just sends the two of them back in, again, side by side.
+
+So they went.
+
+[pause]
+
+You know how this story ends. Most people do, even people who have never read the book. There are plagues, ten of them, and a Passover night, and a great walk out of Egypt, and a sea that opens. And with a strong hand, just as the Lord had said, Pharaoh did not only let them go. He drove them out.
+
+The book says that the people of Israel had lived in Egypt for four hundred and thirty years. And that on the very day those years were up, all the hosts of the Lord went out from the land of Egypt. And it says that this was a night of watching, kept by the Lord, to bring them out. And so it is to be a night of watching for the Lord, kept by all the people of Israel, in every generation.
+
+They are still keeping it.
+
+Somewhere in that great crowd, walking out of Egypt on that night of watching, I like to think there was a brickfield foreman called Hanan, who never really existed, and a daughter who was a year or so older by then, and who could still count.
+
+And many years later, long after the brickfields and long after the stubble, a psalm was written for one of Israel's feasts, and in it, God speaks, and he remembers this very time. He says, I took the burden off your shoulder. Your hands were set free from the basket. You called out in your trouble, and I rescued you.
+
+Your hands were set free from the basket. The basket for carrying bricks.
+
+[pause]
+
+Moses went on to lead the people for forty years in the wilderness. Saint Stephen, the first martyr, told the whole story again, many centuries later, in the Acts of the Apostles, standing in front of the council in Jerusalem. He reminded them of the very words God said at the burning bush. I have seen the ill-treatment of my people in Egypt, and I have heard their groaning, and I have come down to rescue them.
+
+And Saint Stephen said of Moses, this is the man who led them out, working wonders and signs in Egypt, and at the Red Sea, and in the wilderness for forty years.
+
+The brickfields of Egypt are long gone. But the mud brick is not. If you go to Egypt today, there are still old mud-brick walls standing, in the dry places, thousands of years old, and if you look closely at a broken one, you can sometimes still see the little bits of straw in it, where somebody trod them in with their feet, on a hot morning, a very long time ago.
+
+And after every harvest, in every country in the world where grain is grown, there are still stubble fields. Short, stiff stalks, in rows, in the dry earth. The last of the straw. If you ever walk across one, in the autumn, you could say a small prayer for everybody, anywhere, who is working too hard tonight, and too tired to listen to good news.
+
+And for the people who keep on bringing it to them anyway, a second time, side by side.
+
+[pause]
+
+So let's go back, one last time, to that night. Not the night of watching. The other night, the bad one. The night of the four I wills.
+
+The brickfield is dark. The wet bricks are lying in their rows in the moonlight, drying, with not enough straw in them, and some of them will crack by morning, and the count will be short again tomorrow.
+
+In a small mud-brick house near the canal, a foreman is lying awake, with his hands behind his head, staring at the ceiling.
+
+Next to him, on her mat, his daughter is asleep, with her scratched hands curled up under her chin. She has a few stalks of stubble still caught in her hair. Nobody has noticed.
+
+And in his head, the foreman is going over the count, the way he always does at the end of the day. But it is not the brick count, tonight.
+
+I will bring you out. I will rescue you. I will redeem you. I will take you.
+
+That's four.
+
+And outside, over the land of Egypt, very high up and very far away, the stars come out, one by one, the same stars that Abraham was told to count. And they are still there, every one of them, all night long, while everyone sleeps.
+
+[pause]
+
+Here are the notes for the curious.
+
+Tonight's story comes from the Book of Exodus, chapter five, verse one, to chapter six, verse thirteen, told straight in our own plain rendering, not in any one translation. The meeting with Pharaoh and "who is the Lord" are chapter five, verses one to five. The order about the straw is verses six to nine, the people scattered to gather stubble and the beating of the foremen are verses ten to fourteen, the foremen's appeal to Pharaoh is verses fifteen to nineteen, and their words to Moses and Aaron, waiting outside, are verses twenty and twenty-one. Moses' prayer is verses twenty-two and twenty-three. The Lord's answer, "I am the Lord," and the promises are chapter six, verses one to eight. The people not listening "because of their broken spirit and their cruel slavery" is verse nine, and Moses' "clumsy lips" and the charge to Moses and Aaron together are verses ten to thirteen.
+
+The store cities and the hard service in mortar and brick are from Exodus, chapter one; the brothers' ages are from chapter seven; and the four hundred and thirty years and the night of watching are from chapter twelve. The sabbath reason is from Deuteronomy, chapter five. The burden and the basket are from Psalm eighty-one, and Saint Stephen's words are from the Acts of the Apostles, chapter seven.
+
+The tomb painting of brickmakers belongs to the vizier Rekhmire, at Thebes. It shows how bricks were made in Egypt; it is not a picture of the Israelites. The Jewish custom of linking the Passover cups with the promises of chapter six is very old, and we have described it, not explained it. The book does not name this Pharaoh or say when Moses lived, and historians disagree, so we have not guessed.
+
+Hanan, his daughter, their brickfield, the look of the court, and everything Hanan and his daughter said and thought are our own invention.
+
+[pause]
+
+That's the story of Moses and Aaron and the bricks without straw for tonight. Moses, the prophet and lawgiver, is remembered on the fourth of September, by the Orthodox Church and in the Roman Martyrology, and the Orthodox Church remembers Aaron the priest among the holy forefathers of Christ in the weeks before Christmas. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+And here is a prayer from Psalm eighty-one, in a plain rendering. I took the burden off your shoulder; your hands were set free from the basket. You called in your trouble, and I rescued you. I am the Lord your God, who brought you up out of the land of Egypt. Open your mouth wide, and I will fill it. Amen.
+
+Goodnight, and God bless.
