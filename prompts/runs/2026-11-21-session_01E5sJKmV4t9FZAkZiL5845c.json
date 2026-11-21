@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmV4t9FZAkZiL5845c",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T23:18:25Z",
+  "ended": "2026-11-21T23:21:58Z",
+  "wall_minutes": 3.7,
+  "tokens_in": 2981694,
+  "tokens_out": 17257,
+  "cost_usd": 1.6501,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18158",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "plain python3 lacks pytest; pyenv.py returned /usr/bin/python3.13 at once, as documented, no friction beyond the extra call"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "took a paper step instead of another single-knob milestone, as the CHAIN note and the README's next step after 3x suggested; TUM hosts still refused, so no re-solve was possible",
+      "did": "wrote milestones 3u-3x into draft.md and ral.md with 37 number checks",
+      "result": "377 of 377 checks pass; one loose claim (power at 5% staleness attributed to five windows instead of three) caught and corrected"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-self-calibration-paper-gains-the-update-rule.md",
+    "research/sensing-selfcal/LOG.md (paper step entry)"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: paper/check_numbers.py 377/377 (planted wrong number caught), paper/check_short.py ok, pytest test_paper_short/test_m3w/test_m3x 8 passed, research/_homepage/build.py ok, research_live_links ok, check_md_links ok, check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8b73a13c-d2d9-5adf-935d-edadafbcd0b3",
+    "transcripts": 1,
+    "first": "2026-11-21T23:18:25Z",
+    "last": "2026-11-21T23:22:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 68,
+        "output": 17257,
+        "thinking": 2481,
+        "cache_read": 2890813,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90813,
+        "api_equivalent_usd": 1.6501,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 68,
+      "output": 17257,
+      "thinking": 2481,
+      "cache_read": 2890813,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90813,
+      "api_equivalent_usd": 1.6501,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.7,
+      "active_minutes": 3.7,
+      "model_minutes": 2.98,
+      "tool_minutes": 0.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "writing a 600-word results paragraph, a recommendation and 37 cross-checked number checks for a paper",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 181.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
