@@ -35,6 +35,10 @@
     {
       "what": "First version of heightShare cut openings at the room's floor as well as its top; on 12 models it cut 203 openings, nearly all doors whose bodies run into the floor build-up (stored height already excludes that).",
       "fix": "Cut only at the room's top, measured from the room's floor; 56 openings cut, all on ARK_NUS (55) and Office_A (1). Recorded in eval/ceiling-cut-2026-11-21.md and the post."
+    },
+    {
+      "what": "run_workflow_locally's venture_sweeps button_clicks hit on ifc-quantity-takeoff/index.html (pre-existing): 'Download the change in quantities (CSV)' threw null.rows when clicked while 'compare sample revisions' had set earlier=null but left the old diff.",
+      "fix": "sampleRevisions clears diff with earlier; the download handler also checks earlier and current. check_button_clicks.js: 0 hits after."
     }
   ],
   "integrity_issues": [],
@@ -42,6 +46,10 @@
     {
       "file": "ventures/ifc-quantity-takeoff/NEXT.md",
       "issue": "The item bundled 'openings over a lowered ceiling' with dental_clinic's 17 ROOF windows as if related; the eval shows none of the ROOF windows is above the office's top, so they are a separate question."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes ran portfolio-pages' build while another local build held platform/pages/dist.building, so 'Build the site' failed exit 75 with a lock message rather than waiting or using --out."
     }
   ],
   "deviations": [],
@@ -50,7 +58,7 @@
     "ventures/ifc-quantity-takeoff/eval/ceiling-cut-2026-11-21.md"
   ],
   "goal": "Net wall finish per room consistent with the gross wall area (perimeter x room solid height).",
-  "notes": "Local checks: node --test *.test.mjs in ventures/ifc-quantity-takeoff 172/172 pass; check_posts ok; portfolio/router/validate.py ok; venture-preflight ifc-quantity-takeoff: clean (exit 0). Eval 'before' figures equal eval/net-wall-finish-2026-11-21.txt on all 12 models. Caution recorded: 40 of the 55 ARK_NUS rooms sit at 2.4384 m (Revit's 8 ft default), so the cut keeps net consistent with the file, not necessarily the building.",
+  "notes": "Local checks: node --test *.test.mjs in ventures/ifc-quantity-takeoff 172/172 pass; check_posts ok; portfolio/router/validate.py ok; venture-preflight ifc-quantity-takeoff: clean (exit 0). Eval 'before' figures equal eval/net-wall-finish-2026-11-21.txt on all 12 models. Caution recorded: 40 of the 55 ARK_NUS rooms sit at 2.4384 m (Revit's 8 ft default), so the cut keeps net consistent with the file, not necessarily the building. run_workflow_locally --for-changes (after the fix): every workflow passed except portfolio-pages 'Build the site' exit 75, a lock held by a concurrent build into the same dist dir in that local run (not a defect; the preflight's build + check.mjs passed, and GitHub CI builds it).",
   "corrections": [],
   "redteam": null,
   "usage": {
