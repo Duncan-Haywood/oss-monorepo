@@ -3,7 +3,7 @@ title: "A steel profile that names itself: one real bug and ten escaped mutants 
 seo_title: "Mutation testing an IFC quantity takeoff: 2 of 10 seeded bugs caught"
 date: 2026-11-21
 tags: [redteam, testing, mutation-testing, ifc-quantity-takeoff, ventures]
-description: "Red team on the IFC takeoff: its geometry tests caught 2 of 10 seeded bugs, and a profile that names itself overflowed the stack. Both are now fixed and guarded."
+description: "Red team on the IFC takeoff: its geometry tests caught 2 of 10 seeded bugs, and a profile that names itself overflowed the stack. Both are fixed and guarded."
 ---
 
 Today's red-team run seeded faults into two files: `geom.mjs`, the 2,000-line
