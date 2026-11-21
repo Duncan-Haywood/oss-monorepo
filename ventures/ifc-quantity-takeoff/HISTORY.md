@@ -15,3 +15,12 @@ storey's walls on it). 17 models: 474 codes changed, authors' codes unchanged
 (482 of 588 at level 3); 18 more roof slabs and 142 more frame members in
 B1020. eval/slab-roles-2026-11-20.md.
 - (moved 2026-11-20) (5) change report on a second house shipped 2026-11-20 (Lake Kegonsa, 5 Revit exports: 138 GlobalId-only adds/removes the same element; a faulty 'INCH' of 3.6576 m repaired by name, qto.mjs NAMED_UNITS; eval/units-repair-2026-11-20.md)
+
+## 2026-11-21: the unexplained GrossVolumes, 159 to 34
+
+Two causes named in `explainChecks`: `body-is-net` (105 schependomlaan walls
+and slabs whose faceted geometry already has the openings cut; it equals the
+stored NetVolume) and a compound unit slip, litres over the square-foot factor
+(20 skolebygg slabs, 92.903 times their geometry, counted only when three or
+more share the factor). skolebygg's slab volume in the BoQ: 134,776 m3 to
+11,086 m3. eval/stored-vs-computed-2026-11-21.md.

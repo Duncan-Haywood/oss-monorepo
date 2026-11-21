@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVP4DeYEXqscL87wDaS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T01:04:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff: unexplained GrossVolumes (flagship row 9, the allocator's Start here)",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": 17999,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/shop-tails.mjs",
+      "why": "main was red on check_cli_entry.py (fragile file:// entry guard landed in #17997); fixed forward in this PR so CI and the preflight could go green",
+      "did": "pathToFileURL guard",
+      "result": "check_cli_entry: 0 fragile guards; script output unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-a-roof-slab-that-stored-ninety-three-times-its-concrete.md",
+    "ventures/ifc-quantity-takeoff/eval/stored-vs-computed-2026-11-21.md"
+  ],
+  "goal": "Name the causes of the 159 unexplained stored GrossVolumes on the 13-model corpus, and fix any that make the BoQ wrong",
+  "notes": "Unexplained GrossVolumes 159 to 34 on 13 public models: body-is-net (105 schependomlaan walls/slabs, faceted geometry already net, = stored NetVolume; (GrossSideArea-NetSideArea)xWidth reproduces the gap on 104 of 105 to 1e-4 m3, last 0.9%) and a compound unit slip 1000/10.7639 shared by >=3 elements (20 skolebygg slabs). BoQ: skolebygg slab volume 134,776 m3 to 11,086 m3. No other row moved; areas untouched. Verified: python3 platform/ci/run_venture_tests.py ifc-quantity-takeoff (114 tests pass), check_posts ok, venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}
