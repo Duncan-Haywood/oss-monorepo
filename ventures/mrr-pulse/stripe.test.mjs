@@ -119,3 +119,13 @@ test("a key refused the discounts expansion (403) still lists, without it", asyn
   assert.equal(calls.length, 2);
   await assert.rejects(createStripe({ key: "k", fetchImpl: async () => ({ ok: false, status: 401, json: async () => ({}) }) }).listSubscriptions(), (e) => e.status === 401);
 });
+
+// Quality re-audit 2026-11-21: tiered prices silently added 0 to MRR.
+test("tiered items are reported as uncounted, sub-cent prices use unit_amount_decimal", () => {
+  const tiered = { unit_amount: null, billing_scheme: "tiered", currency: "usd", recurring: { interval: "month", interval_count: 1 } };
+  const subCent = { unit_amount: null, unit_amount_decimal: "0.5", currency: "usd", recurring: { interval: "month", interval_count: 1 } };
+  const s = normalizeSubscription({ id: "sub_t", customer: "cus_t", status: "active", created: 1, items: { data: [{ price: tiered, quantity: 4 }, { price: price(1000), quantity: 1 }, { price: subCent, quantity: 1000 }] } });
+  assert.equal(s.uncounted, 1);
+  assert.equal(s.mrr, 1500); // 1000 + 0.5 x 1000; the tiered line is left out, not priced at 0 silently
+  assert.equal(normalizeSubscription({ id: "sub_p", status: "active", items: { data: [{ price: price(1000) }] } }).uncounted, 0);
+});

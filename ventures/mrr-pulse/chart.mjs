@@ -3,7 +3,7 @@ import { formatMoney } from "./metrics.mjs";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-// MRR line with stacked new/(churn) bars underneath. months: backfill()/state rows.
+// MRR line chart with month labels and a money axis (no movement bars). months: backfill()/state rows.
 export function mrrChart(months, currency = "usd", { width = 760, height = 280 } = {}) {
   if (!months.length) return "";
   const pad = { l: 64, r: 12, t: 12, b: 28 }, w = width - pad.l - pad.r, h = height - pad.t - pad.b;

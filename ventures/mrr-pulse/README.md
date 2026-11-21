@@ -37,7 +37,7 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   each discount counted once.
 - **Not counted**: trials, paused subscriptions, incomplete and
   incomplete-expired subscriptions (the first payment never succeeded), metered usage, tiered
-  (graduated or volume) prices, fixed-amount
+  (graduated or volume) prices (the dashboard counts them), fixed-amount
   coupons. (`COUNT_PAST_DUE=false` also drops past-due.)
 - **Movements**: new, expansion, contraction, churned and reactivated MRR,
   from the difference between consecutive syncs. A customer who was seen
@@ -136,10 +136,11 @@ Found by the [quality audit of 2026-11-13](../../portfolio/quality/audits/2026-1
   movements count subscriptions. A customer who drops an add-on shows as
   churn; one who swaps a 5,000 plan for an 8,000 plan shows as churn plus new
   rather than 3,000 of expansion.
-- **Tiered prices count as 0.** Graduated and volume prices have no
-  `unit_amount`, so they add nothing to MRR.
-- **Cancel at period end** in a CSV with both "Canceled At" and "Ended At"
-  columns is dated at the request, not the end.
+- **Tiered prices are not in MRR.** Graduated and volume prices keep their
+  amounts in `tiers`, which a subscription list cannot expand (Stripe allows
+  four expansion levels; tiers are five deep). Since the 2026-11-21 re-audit
+  the dashboard says how many live items were left out instead of counting
+  them as 0 silently. Sub-cent prices are read from `unit_amount_decimal`.
 - NRR is a one-month figure; a 12-month NRR is the usual benchmark.
 
 ## Disclaimer

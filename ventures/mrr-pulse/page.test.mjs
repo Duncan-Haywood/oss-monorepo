@@ -108,3 +108,14 @@ test("dashboard labels NRR as monthly and the quick ratio includes reactivation;
   assert.match(page("index.html"), /git clone https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo /);
   assert.doesNotMatch(page("index.html"), /fp-monorepo/);
 });
+
+test("the browser demo labels NRR as a monthly figure, like the dashboard (re-audit 2026-11-21)", () => {
+  assert.match(page("index.html"), /"Net revenue retention \(monthly\) " \+ r\.basis/);
+});
+
+test("the dashboard says when tiered items are left out of MRR (re-audit 2026-11-21)", async () => {
+  const { renderDashboard } = await import("./page.mjs");
+  const summary = { month: "2026-11", mrr: 1000, arr: 12000, customers: 1, arpa: 1000, netNew: 0, growthPct: null, rates: { nrr: 1, logoChurn: 0, quickRatio: null, basis: "2026-10" } };
+  assert.match(renderDashboard({ company: "X", summary, months: [], currency: "usd", lastSyncAt: null, skipped: 0, uncounted: 2 }), /2 live subscription item\(s\) use tiered prices and are not in MRR/);
+  assert.doesNotMatch(renderDashboard({ company: "X", summary, months: [], currency: "usd", lastSyncAt: null, skipped: 0 }), /tiered prices/);
+});

@@ -41,6 +41,8 @@ EXEMPT = {
         "per-week reserve rate; the $400 floor is annual",
     "ventures/sports-official-game-fee-calculator/calc.mjs":
         "per-game rate; the $400 floor is annual",
+    "ventures/freelance-writer-rate-calculator/calc.mjs":
+        "per-job hourly rate after SE tax; the $400 floor is annual, assumption stated on the page",
 }
 
 
