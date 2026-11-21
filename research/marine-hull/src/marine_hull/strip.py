@@ -186,7 +186,7 @@ def _solve(a, rhs):
     return x
 
 
-def section_heave(nodes, nu):
+def section_heave(nodes, nu, _keep=None):
     """Frank close-fit heave radiation of a symmetric section for unit heave velocity.
 
     nodes: right-half contour (y, z), keel (y = 0) to waterline (z = 0), z up.
@@ -229,6 +229,8 @@ def section_heave(nodes, nu):
             pmat[i][j] = ph
     sig = _solve(amat, [complex(p[4]) for p in pan])
     phi = [sum(pmat[i][j] * sig[j] for j in range(n)) for i in range(n)]
+    if _keep is not None:                    # milestone 7zs: the per-panel potential and geometry, for the near field
+        _keep.extend([pan, phi])
     big_phi = 2.0 * sum(phi[i] * pan[i][4] * pan[i][2] for i in range(n))
     amp = 0j
     for j in range(n):
