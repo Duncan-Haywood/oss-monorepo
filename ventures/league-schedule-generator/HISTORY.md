@@ -13,3 +13,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) a real tournament; league officials pick and give back games from their own links 2026-11-20 (officiating.mjs, README), next a real league's referees
 - (moved 2026-11-21) Cards and suspensions 2026-11-21 (discipline.mjs: yellow accumulation, reds, bans served on played fixtures only; next: a real league's cards)
 - (moved 2026-11-21) referee crews 2026-11-20 (tournament-referees.mjs: clubs, hours, caps, ejection chain; CP-SAT check, eval/referee-exact.txt)
+- (moved 2026-11-21) alternating A/B weeks 2026-11-21 (eval/practice-exact.txt)

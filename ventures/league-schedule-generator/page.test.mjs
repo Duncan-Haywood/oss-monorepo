@@ -61,7 +61,10 @@ test("the module scripts import only local files, and the inline script parses",
   assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./carryover.mjs", "./checkout.mjs", "./divisions.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   // calc.mjs imports sibling modules only (whist designs, the carry-over search and the doubleheader nights), never a package or URL
-  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./whist.mjs", "./carryover.mjs", "./nights.mjs"]);
+  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./whist.mjs", "./carryover.mjs", "./swiss.mjs", "./nights.mjs"]);
+  // swiss.mjs: the whole-round pairer and its matching (blossom.mjs), nothing else
+  assert.doesNotMatch(page("swiss.mjs"), /from "(?!\.\/blossom\.mjs")/);
+  assert.doesNotMatch(page("blossom.mjs"), /\bimport\b|\bfrom "/);
   assert.doesNotMatch(page("whist.mjs"), /from "(?!\.\/(near-)?whist-bases\.mjs")/);
   // whist-bases.mjs, near-whist-bases.mjs: generated data only (eval/*-bases-build.mjs), no imports
   assert.doesNotMatch(page("whist-bases.mjs"), /\bimport\b|\bfrom "/);
@@ -227,10 +230,11 @@ test("the Swiss guide's worked example matches swissPairings and is linked and i
   assert.equal(swissRounds(6), 3);
   const rows = (round) => round.pairs.map((p, i) => `<tr><td>Board ${i + 1}</td><td>${P[p.white]}</td><td>${P[p.black]}</td></tr>`);
   for (const row of rows(swissPairings(P, [], []))) assert.ok(html.includes(row), row);
-  const done = parseSwissResults("Ana 1 - 0 Dee\nBen 1 - 0 Eli\nCy 0 - 1 Fay", P);
+  const done = parseSwissResults("Ana 1 - 0 Dee\nEli 0 - 1 Ben\nCy 0 - 1 Fay", P);
   const r2 = swissPairings(P, done.games, done.byes);
   for (const row of rows(r2)) assert.ok(html.includes(row), row);
   assert.equal(r2.floaters, 1);
+  assert.deepEqual(r2.clashes, { absolute: 0, strong: 0, mild: 0 });
   assert.match(page("sitemap.xml"), /how-to-run-a-swiss-tournament\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-run-a-swiss-tournament\.html"/);
 });
