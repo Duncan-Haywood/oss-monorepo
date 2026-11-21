@@ -433,6 +433,16 @@ file); they are spread evenly and the notes say so. No public XER carries
 P6's own timephased spread of a curved assignment, so the slice reading
 (MPXJ's, and the one P6's shipped curves fit) is not checked against P6's
 numbers (eval/resource-curves-2026-11-21.md).
+`--hours` (page: *in labour hours*) reads labour hours even when cost is
+loaded, which gives the manpower curve where a file's curves sit on hours.
+`--even-spread` turns the curves off. A second, independent implementation
+(PR 18131) gave the same planned value to the cent in 24 of 24 planted runs
+(every assignment on Back Loaded, Front Loaded or Bell Shaped, in cost and in
+hours, on four public files). Back and Front Loaded moved planned value by
+equal and opposite amounts, and every curve closed on budget and EAC. Those
+runs also found actuals on actual starts after the data date dropping off the
+forecast line (97.32 h on the hospital file). They are now drawn at the data
+date.
 
 **Earned value by window across updates** (2026-11-20, `evmseries.mjs`, the
 page's windows panel on cost- or hours-loaded updates, CLI `--windows u1.xer

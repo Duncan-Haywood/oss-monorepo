@@ -202,6 +202,7 @@
     <h2 style="margin-top:22px">Earned value and the S-curve</h2>
     <p class="note">From the cost (or, with no cost, the labour hours) loaded on the resource assignments and expenses: budget at completion, planned value to the data date from each assignment's planned dates, earned value from each activity's percent complete (physical, duration or units, as P6 earns it), actual cost, SPI and CPI, three estimates at completion, earned schedule (SPI(t), which does not drift back to 1.0 at the end of a late job), the curve by month and the checks a reviewer runs before paying on a cost-loaded schedule: unloaded work, cost booked on unstarted work, remaining left on finished work, progress with nothing spent, value earned far ahead of spending (front-loading), overruns, and <b>actuals that equal earned value</b> on almost every activity, which means they were computed from progress and the CPI proves nothing.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end">
+      <span><input type="checkbox" id="ev-hours"> <label for="ev-hours">in labour hours</label></span>
       <button type="button" id="ev-run" class="secondary">Show earned value</button>
       <button type="button" id="ev-csv" class="secondary" hidden>Activities (CSV)</button>
       <button type="button" id="ev-curve" class="secondary" hidden>S-curve (CSV)</button>
@@ -670,7 +671,7 @@
       if (!xer || !last) return;
       const st = $("#ev-status");
       try {
-        const r = earnedValue(xer, { projId: last.project.id });
+        const r = earnedValue(xer, { projId: last.project.id, measure: $("#ev-hours").checked ? "hours" : null });
         lastEv = r;
         if (!r.measure) { $("#ev-out").innerHTML = ""; st.textContent = r.notes.join(" "); record("earned_value_run"); return; }
         const t = r.totals, u = r.currency;

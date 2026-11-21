@@ -60,12 +60,14 @@
 // Time milestones hold back across calendars instead (milestones.mjs): the
 // milestones whose own calendar's non-work time delays a successor on another
 // calendar, and what comes back with every milestone on a 24-hour calendar.
-// node cli.mjs schedule.xer --earned-value [--csv activities.csv] [--curve s-curve.csv] [--json] [--project CODE]
+// node cli.mjs schedule.xer --earned-value [--hours] [--even-spread] [--csv activities.csv] [--curve s-curve.csv] [--json] [--project CODE]
 // Earned value from the resource assignments instead (evm.mjs): budget,
 // planned, earned and actual cost (or labour hours), SPI, CPI, the estimates
 // at completion, earned schedule, the S-curve by month and the cost-loading
 // faults (unloaded work, actuals on unstarted work, actuals computed from
-// percent complete, front-loaded progress, overruns).
+// percent complete, front-loaded progress, overruns). Planned and remaining
+// work follow each assignment's P6 resource curve (curves.mjs; --even-spread
+// spreads evenly); --hours reads labour hours even when cost is loaded.
 // node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--no-expected-finish] [--json] [--project CODE]
 // Time impact analysis instead (tia.mjs): the fragnet (new activities with
 // durations, predecessors and successors; "+N" days on an existing one)
@@ -293,7 +295,7 @@ if (args.includes("--lookahead")) {
 if (args.includes("--earned-value")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
-  const r = earnedValue(xer, { projId: pid, result });
+  const r = earnedValue(xer, { projId: pid, result, measure: args.includes("--hours") ? "hours" : null, curves: !args.includes("--even-spread") });
   if (opt("--csv")) writeFileSync(opt("--csv"), earnedValueCsv(r));
   if (opt("--curve")) writeFileSync(opt("--curve"), sCurveCsv(r));
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : earnedValueText(r));
