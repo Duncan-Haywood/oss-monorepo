@@ -121,7 +121,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--two-hinge-test') opt.twoHingeTest = true;
     else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--joint-knots') opt.jointKnots = true;
-    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' ? argv[++i] : true;
+    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' || argv[i + 1] === 'robust' ? argv[++i] : true;
     else if (a === '--consensus') opt.consensus = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (a === '--noise-floor-diff2') opt.noiseFloorOrder = 2;
