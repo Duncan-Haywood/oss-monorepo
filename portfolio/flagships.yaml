@@ -524,17 +524,17 @@ flagships:
       --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185
       of 233 changes graded asks more/less, model impact by GlobalId), pattern
       inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md:
-      3,540 of 3,540 public pairs, examples verified); date ranges graded 2026-11-20
-      (eval/date-range-revisions-2026-11-20.md: 132 of 236 public pairs, 94 of 94
-      examples; days the month lacks fail); editor's Write as a pattern exact
-      2026-11-20 (eval/date-pattern-exact-2026-11-20.md: 0 of 310 verdicts unlike
-      the range, old 50); dateTime ranges as patterns 2026-11-21 (dateTimePattern,
-      eval/datetime-pattern-2026-11-21.md: 0 of 290 beam verdicts unlike the range,
-      IfcTester 10 of 10; full fraction 2026-11-21); next: a client's real
-      stage-to-stage IDS pair, time ranges as patterns; a Revit/ARCHICAD IFC4X3
-      export to confirm. Readable document 2026-11-20 (--to-doc, spec-doc.mjs,
-      eval/spec-doc-2026-11-20.md: 4,458 of 4,458 facets agree with IfcTester's
-      reading). More open items: NEXT.md.
+      3,540 of 3,540 public pairs, examples verified); editor's Write as a pattern
+      exact 2026-11-20 (eval/date-pattern-exact-2026-11-20.md: 0 of 310 verdicts
+      unlike the range, old 50); dateTime ranges as patterns 2026-11-21
+      (dateTimePattern, eval/datetime-pattern-2026-11-21.md: 0 of 290 beam verdicts
+      unlike the range, IfcTester 10 of 10; full fraction 2026-11-21); time ranges
+      as patterns 2026-11-21 (timePattern, 24:00:00 = 00:00:00,
+      eval/time-pattern-2026-11-21.md: 0 of 300 verdicts unlike the range, IfcTester
+      10 of 10); next: a client's real stage-to-stage IDS pair; a Revit/ARCHICAD
+      IFC4X3 export to confirm. Readable document 2026-11-20 (--to-doc,
+      spec-doc.mjs, eval/spec-doc-2026-11-20.md: 4,458 of 4,458 facets agree with
+      IfcTester's reading). More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

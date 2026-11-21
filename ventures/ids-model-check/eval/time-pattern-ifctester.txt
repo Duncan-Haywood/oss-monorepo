@@ -1,0 +1,31 @@
+== tp.ifc: IfcTester 0.1 s, ids-model-check 0.2 s (wall clock, including start-up)
+  DIFF  >= 07:00:00 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 13 failing)
+      failing only in IfcTester: [3000, 3012, 3016, 3020, 3028, 3036, 3040, 3056, 3076, 3080]
+  same  >= 07:00:00 (pattern): IfcTester fail (32 applicable, 14 failing) | ours fail (32 applicable, 14 failing)
+  DIFF  > 07:00:00 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 19 failing)
+      failing only in IfcTester: [3012, 3040, 3076, 3080, 3084, 3088, 3092, 3096, 3100, 3104]
+  same  > 07:00:00 (pattern): IfcTester fail (32 applicable, 19 failing) | ours fail (32 applicable, 19 failing)
+  DIFF  <= 17:00:00 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 10 failing)
+      failing only in IfcTester: [3000, 3004, 3008, 3012, 3016, 3020, 3024, 3028, 3032, 3036]
+  same  <= 17:00:00 (pattern): IfcTester fail (32 applicable, 12 failing) | ours fail (32 applicable, 12 failing)
+  DIFF  < 17:00:00 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 14 failing)
+      failing only in IfcTester: [3000, 3004, 3008, 3012, 3016, 3020, 3024, 3028, 3032, 3036]
+  same  < 17:00:00 (pattern): IfcTester fail (32 applicable, 16 failing) | ours fail (32 applicable, 16 failing)
+  DIFF  >= 07:00:00 and <= 17:00:00 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 19 failing)
+      failing only in IfcTester: [3000, 3012, 3016, 3020, 3028, 3036, 3056, 3076, 3084, 3088]
+  same  >= 07:00:00 and <= 17:00:00 (pattern): IfcTester fail (32 applicable, 20 failing) | ours fail (32 applicable, 20 failing)
+  DIFF  > 07:00:00Z and < 17:00:00.5Z (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 22 failing)
+      failing only in IfcTester: [3012, 3076, 3080, 3084, 3088, 3092, 3096, 3100, 3108, 3120]
+  same  > 07:00:00Z and < 17:00:00.5Z (pattern): IfcTester fail (32 applicable, 22 failing) | ours fail (32 applicable, 22 failing)
+  DIFF  >= 12:45:00+05:45 and <= 12:00:00-05:00 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 19 failing)
+      failing only in IfcTester: [3000, 3012, 3016, 3020, 3028, 3036, 3056, 3076, 3084, 3088]
+  same  >= 12:45:00+05:45 and <= 12:00:00-05:00 (pattern): IfcTester fail (32 applicable, 20 failing) | ours fail (32 applicable, 20 failing)
+  DIFF  >= 00:00:00 and <= 23:59:59.999 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 8 failing)
+      failing only in IfcTester: [3000, 3004, 3008, 3012, 3016, 3020, 3024, 3028, 3032, 3036]
+  same  >= 00:00:00 and <= 23:59:59.999 (pattern): IfcTester fail (32 applicable, 10 failing) | ours fail (32 applicable, 10 failing)
+  DIFF  >= 00:00:00 and <= 01:00:00 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 30 failing)
+      failing only in IfcTester: [3044, 3048]
+  same  >= 00:00:00 and <= 01:00:00 (pattern): IfcTester fail (32 applicable, 30 failing) | ours fail (32 applicable, 30 failing)
+  DIFF  >= 16:59:59.999 and <= 17:00:00.001 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 24 failing)
+      failing only in IfcTester: [3076, 3080, 3084, 3088, 3092, 3096, 3100, 3120]
+  same  >= 16:59:59.999 and <= 17:00:00.001 (pattern): IfcTester fail (32 applicable, 24 failing) | ours fail (32 applicable, 24 failing)

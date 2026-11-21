@@ -36,7 +36,10 @@ export function temporalKey(s) {
   const z = (x) => (/(Z|[+-]\d{2}:\d{2})$/.test(x) ? x : x + "Z");
   if (kind === "date") return Date.parse(z(t.slice(0, 10) + "T00:00:00" + t.slice(10)));
   if (kind === "dateTime") return Date.parse(z(t));
-  if (kind === "time") return Date.parse(z("1970-01-01T" + t));
+  // XSD: a time of 24:00:00 is the value 00:00:00 (it has no next day to
+  // roll into, unlike a dateTime's 24:00:00); Date.parse alone would read it
+  // as 1970-01-02 and pass it in no range of times of day.
+  if (kind === "time") return Date.parse(z("1970-01-01T" + t.replace(/^24:00:00(\.0+)?(?![0-9])/, "00:00:00")));
   const m = t.match(DURATION_RE);
   const n = (i) => Number(m[i] || 0);
   const day = 86400e3;
@@ -364,6 +367,59 @@ export function dateTimeRangePattern(r) {
     for (const [k, os] of byTime) { const [ta, tb, loT, hiT] = JSON.parse(k); const t = timePat(ta, tb, loT, hiT); if (t !== null) alts.push(t + alt(os.map(zonePat))); }
     if (alts.length) parts.push(`${dayStr(d)}T${alt(alts)}`);
   }
+  return parts.length ? `${XWS}${alt(parts)}${XWS}` : false;
+}
+
+// A time-of-day range as one XSD pattern for the strings ids.mjs passes on it.
+// The checker places a time on 1970-01-01 (no zone is UTC) and compares
+// instants, as XSD 1.1's timeOnTimeline does on its reference day, so
+// 03:00:00+05:00 is 22:00 UTC the day before and lies under a range from
+// 00:00:00; 24:00:00 is 00:00:00. Exact for no zone, Z, +-00:00 and the
+// offsets time zones use (ZONE_OFFSETS); a value with another offset (+10:17)
+// passes only where every offset up to +-23:59 would, so near a bound the
+// pattern refuses what the range takes. Returns the pattern, false when no
+// string can pass, or null when a bound is not a time.
+export function timeRangePattern(r) {
+  let lo = null, hi = null;
+  for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) {
+    if (r[k] === undefined || r[k] === null) continue;
+    if (temporalKind(String(r[k])) !== "time") return null;
+    const x = exactKey(String(r[k]));
+    if (Number.isNaN(x.k)) return false;
+    const inc = k.endsWith("Inclusive");
+    if (k.startsWith("min")) { if (!lo || temporalCompare(String(r[k]), lo.s) > 0 || (temporalCompare(String(r[k]), lo.s) === 0 && !inc)) lo = { ...x, inc, s: String(r[k]) }; }
+    else if (!hi || temporalCompare(String(r[k]), hi.s) < 0 || (temporalCompare(String(r[k]), hi.s) === 0 && !inc)) hi = { ...x, inc, s: String(r[k]) };
+  }
+  let A = -Infinity, B = Infinity, aT = null, bT = null;
+  if (lo) { A = lo.k; aT = lo.f === "" && lo.inc ? null : [lo.f, lo.inc]; }
+  if (hi) {
+    B = hi.k; bT = [hi.f, hi.inc];
+    if (hi.f === "" && !hi.inc) { B--; bT = null; }
+  }
+  if (A > B || (A === B && fracPat(0, 0, aT, bT) === null)) return false;
+  // Local times t (ms after midnight, 0..DAY-1) in [x1, x2], bound tails
+  // where a bound cuts; 24:00:00 goes with 00:00:00.
+  const window = (x1, x2, loT, hiT) => {
+    if (x1 < 0) { x1 = 0; loT = null; }
+    if (x2 > DAY - 1) { x2 = DAY - 1; hiT = null; }
+    if (x1 > x2) return null;
+    const t = timePat(x1, x2, loT, hiT);
+    if (t === null) return null;
+    const midnight = x1 === 0 && zeroOkLo(loT) && (x2 > 0 || zeroOkHi(hiT));
+    return midnight ? alt([T24, t]) : t;
+  };
+  const parts = [];
+  // Every offset up to +-23:59: a tail is cleared by a whole millisecond more.
+  const mid = window(A + (aT ? 1 : 0) + MAX_OFF * 6e4, B - (bT ? 1 : 0) - MAX_OFF * 6e4, null, null);
+  if (mid !== null) parts.push(mid + ANY_ZONE);
+  const byTime = new Map();
+  for (const o of ZONE_OFFSETS.map(offMin)) {
+    const t = window(A + o * 6e4, B + o * 6e4, aT, bT);
+    if (t === null) continue;
+    if (!byTime.has(t)) byTime.set(t, []);
+    byTime.get(t).push(o);
+  }
+  for (const [t, os] of byTime) parts.push(t + alt(os.map(zonePat)));
   return parts.length ? `${XWS}${alt(parts)}${XWS}` : false;
 }
 

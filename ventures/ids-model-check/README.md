@@ -228,7 +228,14 @@ open. MIT licensed, no dependencies, nothing uploaded.
   day the checker began ordering dateTimes and times past the millisecond
   (`temporalCompare`, as XSD does: `07:00:00.0001` now passes `> 07:00:00`;
   .NET exporters write seven fraction digits), and the pattern follows the
-  whole fraction: still 0 of 290 verdicts unlike the range, IfcTester 10 of 10. Presence-only standard properties with no dataType now open
+  whole fraction: still 0 of 290 verdicts unlike the range, IfcTester 10 of 10.
+  Time ranges (`xs:time`, IFCTIME: `Pset_WorkControlCommon.WorkStartTime`)
+  get the button too since 2026-11-21 (`timePattern`); the checker now reads a
+  time of `24:00:00` as `00:00:00`, as XSD does (it used to pass no range of
+  times of day). On 32 work schedules the pattern differs from the range on 0
+  of 300 verdicts (9 of 20 at `+10:17`), IfcTester 0.9.0 fails all 32 on every
+  time range and agrees with the pattern on 10 of 10
+  (`eval/time-pattern-2026-11-21.md`). Presence-only standard properties with no dataType now open
   as rows: 86.4% of public facets editable (was 85.2%), 17 of 64 files fully
   editable (was 14). `eval/date-ranges-2026-11-17.md`.
   **One of on dates and durations** (2026-11-17): a one-of row on those types

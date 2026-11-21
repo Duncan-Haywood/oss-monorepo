@@ -124,7 +124,8 @@ so such values do turn up. Changed:
   its own time range. Both checkers read it in under a second here; a
   person reading the file sees a long pattern. A shorter form exists only by
   giving up exactness (whole minutes, or UTC-only values).
-- Time ranges (`xs:time`) and durations still have no pattern; a duration
+- Time ranges got a pattern later the same day (eval/time-pattern-2026-11-21.md).
+  Durations still have no pattern; a duration
   range orders months as 30.44 days, which no pattern can follow.
 - The revision diff (pattern-lang.mjs) still reads dateTime ranges as
   intervals, not as this pattern's language, because of the `+10:17` gap.

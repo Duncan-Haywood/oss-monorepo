@@ -9,7 +9,7 @@
 // misspelt set, a property the set lacks or a dataType the standard does not
 // give: the faults auditIds() finds in 21 of 64 public IDS files.
 
-import { temporalKind, temporalKey, lexRange, dateRangePattern, dateTimeRangePattern } from "./temporal.mjs";
+import { temporalKind, temporalKey, lexRange, dateRangePattern, dateTimeRangePattern, timeRangePattern } from "./temporal.mjs";
 import { nearName } from "./audit.mjs";
 import { fixStructure } from "./fix.mjs";
 
@@ -182,6 +182,20 @@ export function dateTimePattern(min, max, minEx = false, maxEx = false) {
   if (!blank(min)) r[minEx ? "minExclusive" : "minInclusive"] = String(min);
   if (!blank(max)) r[maxEx ? "maxExclusive" : "maxInclusive"] = String(max);
   const p = dateTimeRangePattern(r);
+  return p ? p : null;
+}
+
+// The same for a time-of-day range (temporal.mjs timeRangePattern): exact to
+// the millisecond and past it for no zone, Z and the offsets time zones use;
+// 24:00:00 is 00:00:00, as XSD has it. null when a bound is not a time or no
+// value can pass (eval/time-pattern-2026-11-21.md).
+export function timePattern(min, max, minEx = false, maxEx = false) {
+  const blank = (x) => x === "" || x == null;
+  if (blank(min) && blank(max)) return null;
+  const r = {};
+  if (!blank(min)) r[minEx ? "minExclusive" : "minInclusive"] = String(min);
+  if (!blank(max)) r[maxEx ? "maxExclusive" : "maxInclusive"] = String(max);
+  const p = timeRangePattern(r);
   return p ? p : null;
 }
 
