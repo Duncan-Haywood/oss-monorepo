@@ -181,6 +181,11 @@ function transformPoly(faces, m) {
 // swept disk, a revolved area, a CSG primitive) or when an operation the
 // faces did not take part in (a clip, an opening) was applied: such a solid
 // has no section.
+//
+// `loose` (optional) keeps the loops of faceted shells that are not closed
+// (an exporter's 0.1 mm vertex gap is enough): no section or area is taken
+// from them, but their points still say where the body is, so its box and
+// plan rectangle are known (solidPoints).
 
 const solid = (terms = [], mesh = 0, notes = [], shells = mesh ? null : []) => ({ terms, mesh, notes, shells });
 
@@ -193,6 +198,7 @@ export function solidVolume(s) {
 function transformSolid(s, m) {
   const shells = s.shells ? s.shells.map((sh) => ({ s: sh.s, loops: transformPoly(sh.loops, m) })) : null;
   const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes, shells);
+  if (s.loose) out.loose = transformPoly(s.loose, m);
   if (s.axis) { out.axis = unit(applyDir(m, s.axis)); out.axisWeight = (s.axisWeight ?? 0) * Math.abs(det(m)); }
   return out;
 }
@@ -280,6 +286,7 @@ export function shellVolume(loops) {
 export function* solidPoints(s) {
   for (const t of s.terms) for (const f of t.faces) yield* f;
   if (s.shells) for (const sh of s.shells) for (const f of sh.loops) yield* f;
+  if (s.loose) for (const f of s.loose) yield* f;
 }
 
 /** Smallest and largest n.x over a solid's polyhedral terms and faceted shells. */
@@ -1397,15 +1404,22 @@ export class Geometry {
     let shells = [];
     const notes = [];
     let axis = null, axisWeight = -1;
+    const known = [], loose = [];
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
       terms.push(...s.terms);
       mesh += s.mesh;
       shells = shells && s.shells ? shells.concat(s.shells) : null;
+      if (s.shells) known.push(...s.shells);
+      if (s.loose) loose.push(...s.loose);
       notes.push(...s.notes);
       if (s.axis && (s.axisWeight ?? 0) > axisWeight) { axis = s.axis; axisWeight = s.axisWeight ?? 0; }
     }
     const out = solid(guard(terms), mesh, notes, shells);
+    // one open item leaves the whole body without shells; every item's
+    // faces still count towards where it is
+    if (!shells) for (const sh of known) loose.push(...sh.loops);
+    if (loose.length) out.loose = loose;
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
     return out;
   }
@@ -1571,7 +1585,9 @@ function faceted(parts, notes = []) {
   const n = notes.slice();
   if (flipped) n.push(`${flipped} face${flipped === 1 ? "" : "s"} of a faceted body turned to match their neighbours`);
   if (overlaps) n.push(`a shell in pieces that may overlap: any overlap is counted once for each piece`);
-  return solid([], v, n, open ? null : shells);
+  const out = solid([], v, n, open ? null : shells);
+  if (open) out.loose = shells.flatMap((sh) => sh.loops);
+  return out;
 }
 
 /**

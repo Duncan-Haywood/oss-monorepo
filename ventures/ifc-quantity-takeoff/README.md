@@ -60,6 +60,9 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   export that renews GlobalIds), then by place and volume; Revit parts in one
   issue and their host in the other are paired, not counted as removed and
   added ([eval/revision-diff-2026-11-20.md](eval/revision-diff-2026-11-20.md)).
+  Pieces of one class only: a wall's own windows or a beam beside it are
+  never counted as its parts, however the volumes add up
+  ([eval/open-shell-boxes-2026-11-21.md](eval/open-shell-boxes-2026-11-21.md)).
 - **Faulty units repaired, and said so.** A unit named INCH, FOOT, SQUARE
   FOOT and so on whose declared factor is not that unit (a 2014 Revit export
   declares its inch as 3.6576 m, 144 inches, which makes every volume 3
@@ -189,7 +192,7 @@ this tool says which they are
   slab's GlobalId, a duplicate; a full re-serialisation of 3,964 elements)
   give exactly that edit and no other. On five Revit exports of one house
   (OpeningDesign's Aalseth Residence, 2019, CC BY-SA, not committed), a
-  GlobalId-only comparison lists 190 element records as added or removed that
+  GlobalId-only comparison lists 202 element records (190 until 2026-11-21) as added or removed that
   are the same element: six doors, a window and a wall get new GlobalIds in
   every export, and floors, roofs and walls switch between a host and its
   parts in three of four steps; this report pairs them, and the stair the last
@@ -203,6 +206,14 @@ this tool says which they are
   changed; with the inch repaired, 205 and 123 are unchanged and the median
   volume ratio of same-GlobalId elements is 1.0000 (254 of 402 and 331 of 549
   within 0.5%; eval/units-repair-2026-11-20.md).
+  2026-11-21: the Aalseth wall parts that stayed unpaired are paired (a
+  gypsum layer whose shell is open by a 0.12 mm vertex gap had lost its box;
+  1,048 of 27,668 elements in 22 files had none, now every one has one), and
+  the report stops pairing mixed classes (four false groups on Kegonsa, e.g.
+  a wall "split" into a wall and its door). No volume or area moved; the
+  envelope test agrees with authors' IsExternal flags on 4,459 of 5,522
+  walls, was 4,420 of 5,497
+  ([eval/open-shell-boxes-2026-11-21.md](eval/open-shell-boxes-2026-11-21.md)).
 - **Seeded faults.** Flipping the half-space side, switching off the unit-slip
   rule, swapping the exit and entry points of a mesh cut, or adding a brep's
   void instead of subtracting it each fails a test.

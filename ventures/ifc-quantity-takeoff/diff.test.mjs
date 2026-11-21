@@ -95,6 +95,49 @@ test("Revit parts in one revision and their host in the next: merged, then split
   assert.equal(other.groups.length, 0);
 });
 
+test("a wall and its own windows are not a group, however the volumes add up", () => {
+  // Lake Kegonsa, export 1 -> 2: a wall given a new GlobalId, its two
+  // windows inside its box; wall + windows summed to the old wall within 1.5%
+  const old = row({ g: "W", cls: "IfcWallStandardCase", v: 1.5125, box: [0, 0, 0, 5, 0.25, 3] });
+  const wall = row({ g: "W2", cls: "IfcWallStandardCase", v: 1.4, box: [0, 0, 0, 5, 0.25, 3] });
+  const w1 = row({ g: "N1", cls: "IfcWindow", v: 0.0674, box: [1, 0, 1, 1.8, 0.2, 2.5] });
+  const w2 = row({ g: "N2", cls: "IfcWindow", v: 0.0674, box: [3, 0, 1, 3.8, 0.2, 2.5] });
+  const d = diffTakeoffs([old], [wall, w1, w2]);
+  assert.equal(d.groups.length, 0);
+  assert.equal(d.added.length, 3);
+  // the same box with a wall's own two layers beside a window: the layers
+  // are the group, the window stays added
+  const l1 = row({ g: "L1", cls: "IfcWall", v: 0.75, box: [0, 0, 0, 5, 0.12, 3] });
+  const l2 = row({ g: "L2", cls: "IfcWall", v: 0.755, box: [0, 0.12, 0, 5, 0.25, 3] });
+  const e = diffTakeoffs([old], [l1, l2, w1]);
+  assert.equal(e.groups.length, 1);
+  assert.deepEqual(e.groups[0].after.map((r) => r.globalId).sort(), ["L1", "L2"]);
+  assert.deepEqual(e.added.map((r) => r.globalId), ["N1"]);
+});
+
+test("a short wall's layers 2.3% under its volume pair only when they tile its box", () => {
+  // Aalseth Residence, basement wall 2146991: 0.1861 m3; its three parts
+  // 0.0245 + 0.1352 + 0.0222 = 0.1819 m3, their boxes together its box
+  const host = row({ g: "H", cls: "IfcWallStandardCase", v: 0.1861, box: [219.43, 51.46, -2.32, 219.6, 52.59, -0.94] });
+  const parts = [
+    row({ g: "P1", cls: "IfcWall", v: 0.0245, box: [219.43, 51.47, -2.32, 219.49, 52.59, -0.94] }),
+    row({ g: "P2", cls: "IfcWall", v: 0.1352, box: [219.45, 51.46, -2.32, 219.58, 52.58, -0.94] }),
+    row({ g: "P3", cls: "IfcWall", v: 0.0222, box: [219.53, 51.46, -2.32, 219.6, 52.58, -0.94] }),
+  ];
+  const d = diffTakeoffs([host], parts);
+  assert.equal(d.groups.length, 1);
+  assert.equal(d.groups[0].kind, "split");
+  assert.equal(d.added.length + d.removed.length, 0);
+  // one part 6 cm short of the host's end: the boxes no longer make its
+  // box, so 2.3% is too far apart
+  const short = parts.map((p, i) => (i === 2 ? row({ g: "P3", cls: "IfcWall", v: 0.0222, box: [219.53, 51.46, -2.32, 219.54, 52.58, -0.94] }) : p));
+  const s = diffTakeoffs([host], short);
+  assert.equal(s.groups.length, 0);
+  // and past 5% even tiled boxes do not pair
+  const far = diffTakeoffs([row({ g: "H", cls: "IfcWallStandardCase", v: 0.1930, box: host.box })], parts);
+  assert.equal(far.groups.length, 0);
+});
+
 test("Tag matches only when unique in both revisions; geometry matches only one candidate", () => {
   const a = [row({ g: "A1", cls: "IfcDoor", tag: "7", v: 0.1 }), row({ g: "A2", cls: "IfcDoor", tag: "7", v: 0.1 })];
   const b = [row({ g: "B1", cls: "IfcDoor", tag: "7", v: 0.1 }), row({ g: "B2", cls: "IfcDoor", tag: "7", v: 0.1 })];

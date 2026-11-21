@@ -98,7 +98,7 @@ What the rows show:
 
 **What this does not show.** No estimator read these reports; whether
 "reshaped" and "moved" are the categories a change order needs is a guess.
-Elements whose faceted body keeps no faces have no box (32 to 155 per file
+(Fixed 2026-11-21, open-shell-boxes-2026-11-21.md: every element now has a box.) Elements whose faceted body keeps no faces have no box (32 to 155 per file
 here) and can match only by GlobalId or Tag. The 2% group tolerance and 10 mm
 box tolerance were chosen on this house; a model with many thin, coincident
 layers could pair the wrong ones (every pairing is listed in the CSV for that
