@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230f4c5c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Subtitle Resync — Fix Out-of-Sync SRT &amp; WebVTT Subtitles (Offset, Frame Rate, Auto-Align)</title>
+  <meta name="description" content="Free, in-browser: fix subtitles that are early, late or drift out of sync. Shift an SRT or WebVTT file, convert 25 to 23.976 fps timing, sync on two lines, or auto-align to a correctly timed subtitle in any language. Nothing is uploaded.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Subtitle Resync">
+  <meta property="og:description" content="Shift, stretch or auto-align an SRT or WebVTT subtitle file so it matches your video: a constant offset, a frame-rate fix (PAL 25 fps to 23.976), two sync points, or alignment to a correctly timed reference subtitle.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Subtitle Resync","applicationCategory":"MultimediaApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Fixes out-of-sync SRT and WebVTT subtitle files in the browser or on the command line: a constant offset, a frame-rate conversion between 23.976, 24, 25, 29.97 and 30 fps, a two-point shift-and-stretch, or automatic alignment to a correctly timed reference subtitle file in any language.","featureList":["Shift every cue by a typed offset","Convert subtitle timing between 23.976, 24, 25, 29.97 and 30 fps releases","Shift and stretch from two lines whose correct times you know","Automatically align to a correctly timed reference subtitle in any language by timing pattern alone, with a confidence rating","Converts SRT to WebVTT and back","Runs in the browser with no upload; a zero-dependency Node CLI does the same"]}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do my subtitles start in sync and then drift further and further off?","acceptedAnswer":{"@type":"Answer","text":"That is almost always a frame-rate mismatch, not an offset. The subtitle file was timed against a release running at a different speed, most often a 25 fps PAL release, which plays a 23.976 fps film about 4.3% faster. The error grows steadily, to about four minutes by the end of a 100-minute film. Pick the frame-rate fix (25 to 23.976 is the usual one), or use two sync points, which measure the stretch for you."}},{"@type":"Question","name":"How does the reference alignment work if the two files are in different languages?","acceptedAnswer":{"@type":"Answer","text":"It never reads the words. Dialogue has a rhythm: lines start and stop at the same moments in every language's subtitles for the same cut. Every pair of cues votes for the shift that would put one on the other; real matches all vote for the same shift while unrelated pairs scatter. It tries every common frame-rate ratio, keeps the one whose best shift gathers most votes, then fits a line through the cues that land close to a reference cue."}},{"@type":"Question","name":"What does the confidence rating mean?","acceptedAnswer":{"@type":"Answer","text":"High means at least 60% of your cues landed within 0.4 seconds of a reference cue and the median error is 0.25 seconds or less. Medium means at least 35% landed. Low means the timing patterns do not agree, which usually means the reference is for a different cut (an extended edition, a TV edit with scenes removed) or a different film. Check a low-confidence result by eye, or use two sync points instead."}},{"@type":"Question","name":"Is my subtitle file uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read and rewritten by JavaScript in this page, on your device. Nothing is sent to a server, and the download is generated in the browser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18232b; background: #eef3f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #0f3440; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0f3440; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4f5d66; }
+    .card { background: #fff; border: 1px solid #d2dde0; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0f344010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea, input[type=text], input[type=number], select { box-sizing: border-box; padding: 8px 10px; border: 1px solid #a3b3b9; border-radius: 7px; font: 14px system-ui, sans-serif; }
+    textarea { width: 100%; font: 13px ui-monospace, monospace; min-height: 170px; margin-bottom: 8px; }
+    input[type=text] { font-family: ui-monospace, monospace; width: 13em; }
+    input[type=number] { width: 6em; }
+    fieldset { border: 1px solid #d2dde0; border-radius: 10px; margin: 12px 0; padding: 10px 14px; }
+    legend { font-weight: 700; padding: 0 6px; }
+    .modes label { display: inline-flex; gap: 6px; align-items: center; font-weight: 500; margin: 4px 16px 4px 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: end; }
+    .row label { margin: 6px 0 2px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #0f4c5c; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: .92rem; }
+    button.secondary { background: #dfe9eb; color: #0f3440; }
+    table { width: 100%; border-collapse: collapse; font-size: .89rem; }
+    .table-wrap { overflow-x: auto; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3eaec; vertical-align: top; }
+    #preview-rows td:nth-child(2), #preview-rows td:nth-child(3) { white-space: nowrap; font-variant-numeric: tabular-nums; }
+    th { color: #4f5d66; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.high { background: #dcfce7; color: #14532d; }
+    .pill.medium { background: #fef3c7; color: #78350f; }
+    .pill.low { background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f5f8f9; padding: 12px; border-radius: 8px; font-size: .87rem; line-height: 1.6; overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+    .stat { display: inline-block; margin: 0 16px 8px 0; font-size: .9rem; }
+    .stat b { font-size: 1.15rem; display: block; color: #0f3440; }
+    footer { margin-top: 28px; border-top: 1px solid #d2dde0; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SUBTITLE RESYNC · RUNS IN YOUR BROWSER</p>
+    <h1>Subtitles early, late, or drifting? Put them back on the picture.</h1>
+    <p>
+      Load an <strong>SRT</strong> or <strong>WebVTT</strong> file and fix its timing four ways:
+      a <strong>constant shift</strong>, a <strong>frame-rate fix</strong> (the 25&nbsp;fps PAL to 23.976&nbsp;fps drift),
+      <strong>two sync points</strong> you read off the video, or <strong>automatic alignment</strong> to a correctly
+      timed subtitle for the same video in any language.
+    </p>
+    <p class="note">Nothing is uploaded. Files are read and rewritten in this browser and never leave your device.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. The subtitle file to fix</h2>
+    <label for="file-input">Open a file</label>
+    <input type="file" id="file-input" accept=".srt,.vtt,text/vtt,application/x-subrip,text/plain">
+    <label for="subs-text">…or paste its contents</label>
+    <textarea id="subs-text" spellcheck="false" placeholder="1&#10;00:00:01,000 --> 00:00:04,000&#10;Hello, and welcome.&#10;&#10;2&#10;00:00:05,000 --> 00:00:06,000&#10;Let's begin."></textarea>
+    <p class="note" id="file-summary"></p>
+  </section>
+
+  <section class="card">
+    <h2>2. How to find the right timing</h2>
+    <div class="modes" role="radiogroup" aria-label="Method">
+      <label><input type="radio" name="mode" value="offset" checked> Shift by an amount</label>
+      <label><input type="radio" name="mode" value="fps"> Frame-rate fix</label>
+      <label><input type="radio" name="mode" value="two"> Two sync points</label>
+      <label><input type="radio" name="mode" value="reference"> Align to a reference subtitle</label>
+    </div>
+
+    <fieldset data-mode="fps" hidden>
+      <legend>Frame rates</legend>
+      <div class="row">
+        <div><label for="fps-from">Subtitles were timed for</label>
+          <select id="fps-from"><option>23.976</option><option>24</option><option selected>25</option><option>29.97</option><option>30</option></select></div>
+        <div><label for="fps-to">Your video runs at</label>
+          <select id="fps-to"><option selected>23.976</option><option>24</option><option>25</option><option>29.97</option><option>30</option></select></div>
+      </div>
+      <p class="note">Drift that grows through the film is a frame-rate mismatch. 25&nbsp;→&nbsp;23.976 is the common one: subtitles from a European (PAL) disc or broadcast on a film-rate download.</p>
+    </fieldset>
+
+    <fieldset data-mode="two" hidden>
+      <legend>Two lines whose correct start you know</legend>
+      <p class="note">Pick a line near the start and one near the end, play the video, and type when each is actually spoken.</p>
+      <div class="row">
+        <div><label for="p1-cue">Line #</label><input type="number" id="p1-cue" min="1" value="1"></div>
+        <div><label for="p1-to">should start at</label><input type="text" id="p1-to" placeholder="00:00:00,000"></div>
+        <div class="note" id="p1-now"></div>
+      </div>
+      <div class="row">
+        <div><label for="p2-cue">Line #</label><input type="number" id="p2-cue" min="1" value="1"></div>
+        <div><label for="p2-to">should start at</label><input type="text" id="p2-to" placeholder="01:40:00,000"></div>
+        <div class="note" id="p2-now"></div>
+      </div>
+      <p class="note">Leave the second blank to shift only.</p>
+    </fieldset>
+
+    <fieldset data-mode="reference" hidden>
+      <legend>A correctly timed subtitle for the same video</legend>
+      <p class="note">Any language works: only the timing is compared. It must be for the same cut (an extended edition with added scenes will not align as one piece).</p>
+      <input type="file" id="ref-file" accept=".srt,.vtt,text/vtt,application/x-subrip,text/plain" aria-label="Open the reference subtitle file">
+      <label for="ref-text">…or paste it</label>
+      <textarea id="ref-text" spellcheck="false"></textarea>
+      <label style="font-weight:500"><input type="checkbox" id="offset-only"> Shift only (no frame-rate stretch)</label>
+    </fieldset>
+
+    <div class="row">
+      <div><label for="extra-offset" id="extra-offset-label">Shift (seconds, or −00:00:02,500)</label><input type="text" id="extra-offset" value="0"></div>
+      <div><label for="out-format">Save as</label>
+        <select id="out-format"><option value="same">same format</option><option value="srt">SRT</option><option value="webvtt">WebVTT</option></select></div>
+    </div>
+    <p style="margin-top:14px">
+      <button type="button" id="run">Resync</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+    </p>
+    <p class="note" id="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>3. Result</h2>
+    <p>
+      <span class="stat"><b id="stat-scale">1</b>stretch</span>
+      <span class="stat"><b id="stat-offset">0 s</b>shift</span>
+      <span class="stat"><b id="stat-cues">0</b>cues written</span>
+      <span class="pill" id="conf-pill" hidden></span>
+    </p>
+    <p id="result-detail"></p>
+    <div class="table-wrap" tabindex="0">
+      <table>
+        <thead><tr><th>#</th><th>Was</th><th>Now</th><th>Text</th></tr></thead>
+        <tbody id="preview-rows"></tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px">
+      <button type="button" id="download">Download fixed file</button>
+      <button type="button" class="secondary" id="copy">Copy text</button>
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer the command line?</h2>
+    <p>The same engine as a zero-dependency Node script, for batches or a media server's folder:</p>
+    <pre class="cmd" tabindex="0">node resync.mjs movie.srt --offset -2.5 -o fixed.srt
+node resync.mjs movie.srt --fps 25:23.976 -o fixed.srt
+node resync.mjs movie.srt --sync 00:02:00,000=00:02:07,125 --sync 01:30:00,000=01:33:52,625
+node resync.mjs movie.es.srt --reference movie.en.srt -o movie.es.fixed.srt</pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/subtitle-resync" rel="noopener">resync.mjs and engine.mjs from the repo</a>, plain Node 18+. Exit code 1 when a reference alignment comes back low confidence (the file is still written), 2 on a usage or input error.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why do my subtitles start in sync and then drift further and further off?</h3>
+    <p>That is almost always a frame-rate mismatch, not an offset. The subtitle file was timed against a release running at a different speed, most often a 25 fps PAL release, which plays a 23.976 fps film about 4.3% faster. The error grows steadily, to about four minutes by the end of a 100-minute film. Pick the frame-rate fix (25 to 23.976 is the usual one), or use two sync points, which measure the stretch for you.</p>
+    <h3>How does the reference alignment work if the two files are in different languages?</h3>
+    <p>It never reads the words. Dialogue has a rhythm: lines start and stop at the same moments in every language's subtitles for the same cut. Every pair of cues votes for the shift that would put one on the other; real matches all vote for the same shift while unrelated pairs scatter. It tries every common frame-rate ratio, keeps the one whose best shift gathers most votes, then fits a line through the cues that land close to a reference cue.</p>
+    <h3>What does the confidence rating mean?</h3>
+    <p>High means at least 60% of your cues landed within 0.4 seconds of a reference cue and the median error is 0.25 seconds or less. Medium means at least 35% landed. Low means the timing patterns do not agree, which usually means the reference is for a different cut (an extended edition, a TV edit with scenes removed) or a different film. Check a low-confidence result by eye, or use two sync points instead.</p>
+    <h3>Is my subtitle file uploaded anywhere?</h3>
+    <p>No. The file is read and rewritten by JavaScript in this page, on your device. Nothing is sent to a server, and the download is generated in the browser.</p>
+    <p class="note">More: <a href="fix-subtitles-out-of-sync.html">a step-by-step guide to telling an offset from a frame-rate drift, with a worked example</a>.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice, and it does not replace a qualified professional. It rewrites the timing of the subtitle file you provide by arithmetic you choose or it estimates; it does not check that the file is accurate, licensed for your use, or right for your video. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="resync.mjs" rel="noopener">resync.mjs</a> and run it yourself.</p>
+    <p>Everything you load runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>resync_run</code>, <code>example_loaded</code>, <code>file_downloaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+    <p>Also worth a look once the timing is right: <a href="../caption-quality-check/">Caption Quality Checker</a> flags cues that read too fast, overlap, or crowd the frame.</p>
+    <p class="support">Free and open source. If this saved a movie night, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p class="more-pages">Also: <a href="fix-subtitles-out-of-sync.html">How to fix out-of-sync subtitles</a></p>
+  </footer>
+
+  <script type="module">
+    import { resyncText, parseSubtitles, parseUserTime, formatTimestamp, serializeSubtitles } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
+
+    const $ = (sel) => document.querySelector(sel);
+    const optedOut = () => document.getElementById('usageOptOut')?.checked ?? false;
+    let last = null;
+    let lastName = 'subtitles';
+    let lastCount = 0;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+    const mode = () => document.querySelector('input[name=mode]:checked').value;
+
+    function showMode() {
+      const m = mode();
+      for (const fs of document.querySelectorAll('fieldset[data-mode]')) fs.hidden = fs.dataset.mode !== m;
+      $('#extra-offset-label').textContent = m === 'offset' ? 'Shift (seconds, or −00:00:02,500)' : 'Extra shift on top (seconds, usually 0)';
+    }
+    for (const r of document.querySelectorAll('input[name=mode]')) r.addEventListener('change', showMode);
+
+    function cues() { return parseSubtitles($('#subs-text').value).cues; }
+
+    function describeFile() {
+      const c = cues();
+      $('#file-summary').textContent = c.length
+        ? `${c.length} cues, from ${formatTimestamp(c[0].startMs)} to ${formatTimestamp(c[c.length - 1].startMs)}.`
+        : '';
+      if (c.length) {
+        // A new file resets the picks to its first and last line, so a
+        // number left over from the previous file never points past the end.
+        const p1 = $('#p1-cue');
+        const p2 = $('#p2-cue');
+        p1.max = p2.max = String(c.length);
+        if (c.length !== lastCount) { p1.value = '1'; p2.value = String(c.length); lastCount = c.length; }
+      }
+      showNow();
+    }
+    function showNow() {
+      const c = cues();
+      for (const k of ['p1', 'p2']) {
+        const i = Number($(`#${k}-cue`).value) - 1;
+        const cue = c[i];
+        $(`#${k}-now`).textContent = cue ? `now at ${formatTimestamp(cue.startMs)}: “${cue.lines.join(' ').replace(/<[^>]*>/g, '').slice(0, 50)}”` : '';
+      }
+    }
+    $('#subs-text').addEventListener('input', describeFile);
+    $('#p1-cue').addEventListener('input', showNow);
+    $('#p2-cue').addEventListener('input', showNow);
+
+    function readInto(input, textarea, after) {
+      input.addEventListener('change', async () => {
+        const f = input.files?.[0];
+        if (!f) return;
+        textarea.value = await f.text();
+        if (after) after(f);
+      });
+    }
+    readInto($('#file-input'), $('#subs-text'), (f) => { lastName = f.name.replace(/\.(srt|vtt)$/i, ''); describeFile(); });
+    readInto($('#ref-file'), $('#ref-text'));
+
+    function buildSpec() {
+      const extra = parseUserTime($('#extra-offset').value || '0');
+      if (extra === null) throw new Error('The shift must be seconds (−2.5) or a timestamp (00:00:02,500).');
+      const spec = { offsetMs: extra };
+      const fmt = $('#out-format').value;
+      if (fmt !== 'same') spec.outputFormat = fmt;
+      const m = mode();
+      if (m === 'fps') spec.fps = [$('#fps-from').value, $('#fps-to').value];
+      if (m === 'reference') {
+        if (!$('#ref-text').value.trim()) throw new Error('Open or paste the reference subtitle file first.');
+        spec.referenceText = $('#ref-text').value;
+        spec.offsetOnly = $('#offset-only').checked;
+      }
+      if (m === 'two') {
+        const c = cues();
+        const points = [];
+        for (const k of ['p1', 'p2']) {
+          const raw = $(`#${k}-to`).value.trim();
+          if (!raw) continue;
+          const cue = c[Number($(`#${k}-cue`).value) - 1];
+          if (!cue) throw new Error(`There is no line #${$(`#${k}-cue`).value} in the file.`);
+          const toMs = parseUserTime(raw);
+          if (toMs === null) throw new Error(`Cannot read “${raw}” as a time; use 00:01:02,500.`);
+          points.push({ fromMs: cue.startMs, toMs });
+        }
+        if (!points.length) throw new Error('Type when at least one line should start.');
+        spec.syncPoints = points;
+      }
+      return spec;
+    }
+
+    function render(result, before) {
+      $('#stat-scale').textContent = result.scale === 1 ? '1' : result.scale.toFixed(6);
+      $('#stat-offset').textContent = `${(result.offsetMs / 1000).toFixed(3)} s`;
+      $('#stat-cues').textContent = String(result.outputCueCount);
+      const pill = $('#conf-pill');
+      const a = result.alignment;
+      pill.hidden = !a;
+      const notes = [];
+      if (a) {
+        pill.textContent = `${a.confidence} confidence`;
+        pill.className = `pill ${a.confidence}`;
+        notes.push(`${a.matched} of ${a.total} lines landed within 0.4 s of a reference line (median error ${a.medianErrorMs} ms). Best frame-rate family: ${a.scaleLabel}.`);
+        if (a.confidence === 'low') notes.push('Low confidence: the reference may be for a different cut. Check the result by eye, or use two sync points.');
+      }
+      if (result.dropped) notes.push(`${result.dropped} line(s) dropped because they would end before 0:00.`);
+      if (result.clamped) notes.push(`${result.clamped} line(s) now start at 0:00.`);
+      if (result.droppedNotes) notes.push(`${result.droppedNotes} WebVTT NOTE block(s) after the first cue were left out.`);
+      for (const e of result.errors) notes.push(e);
+      $('#result-detail').textContent = notes.join(' ');
+      const after = parseSubtitles(result.output).cues;
+      const n = Math.min(before.length, after.length);
+      const idx = n <= 8 ? [...Array(n).keys()] : [0, 1, 2, Math.floor(n / 2), n - 3, n - 2, n - 1];
+      $('#preview-rows').innerHTML = idx.map((i) => `
+        <tr><td>${i + 1}</td><td>${formatTimestamp(before[i].startMs)}</td><td>${formatTimestamp(after[i].startMs)}</td>
+        <td><code>${escapeHtml(after[i].lines.join(' / ').slice(0, 90))}</code></td></tr>`).join('');
+      $('#result-card').hidden = false;
+    }
+
+    function run() {
+      if (!$('#subs-text').value.trim()) {
+        $('#status').innerHTML = '<span class="error">Open or paste a subtitle file first (or load the worked example).</span>';
+        $('#result-card').hidden = true;
+        last = null;
+        return false;
+      }
+      let spec;
+      try { spec = buildSpec(); } catch (err) {
+        $('#status').innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        $('#result-card').hidden = true;
+        last = null;
+        return false;
+      }
+      const result = resyncText($('#subs-text').value, spec);
+      if (result.inputError) {
+        $('#status').innerHTML = `<span class="error">${escapeHtml(result.inputError)}</span>`;
+        $('#result-card').hidden = true;
+        last = null;
+        return false;
+      }
+      // Preview compares the same cues before and after (dropped cues shift the index).
+      const before = parseSubtitles($('#subs-text').value).cues.slice(result.dropped);
+      last = result;
+      $('#status').textContent = '';
+      render(result, before);
+      return true;
+    }
+
+    $('#run').addEventListener('click', () => {
+      if (run()) recordUsage(usageStorage(), optedOut(), 'resync_run');
+    });
+
+    $('#download').addEventListener('click', () => {
+      if (!last) return;
+      const ext = last.format === 'webvtt' ? 'vtt' : 'srt';
+      const blob = new Blob([last.output], { type: ext === 'vtt' ? 'text/vtt' : 'application/x-subrip' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${lastName}.resynced.${ext}`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      recordUsage(usageStorage(), optedOut(), 'file_downloaded');
+    });
+    $('#copy').addEventListener('click', async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(last.output); $('#status').textContent = 'Copied.'; }
+      catch { $('#status').textContent = 'Copy was blocked by the browser; use Download instead.'; }
+    });
+
+    // Worked example: a reference track and a "translation" of it timed on a
+    // 25 fps release 1.5 s late. Reference alignment should report 25 → 23.976.
+    function exampleTracks() {
+      const ref = [];
+      let t = 31000;
+      const gaps = [2100, 900, 3400, 1500, 6200, 1100, 2700, 800, 4100, 1900, 12000, 1300, 2200, 3900, 1000, 2500, 7600, 1200, 3100, 1700];
+      const lines = ['Where were you last night?', 'Out.', 'Out where?', 'Does it matter?', 'It does to me.', 'The harbour.', 'Alone?', 'No.', 'Then who?', 'You know who.',
+        'Get in the car.', 'Now?', 'Now.', 'I left the lights on.', 'Leave them.', 'How far is it?', 'Two hours, if the bridge is open.', 'And if it isn’t?', 'Then we swim.', 'Funny.'];
+      for (let round = 0; round < 6; round++) {
+        for (let i = 0; i < gaps.length; i++) {
+          const dur = 1200 + ((i * 7 + round * 3) % 9) * 300;
+          ref.push({ id: null, startMs: t, endMs: t + dur, settings: '', lines: [lines[i]] });
+          t += dur + gaps[(i + round) % gaps.length];
+        }
+        t += 45000;
+      }
+      const s = 25025 / 24000;
+      const target = ref.map((c, i) => ({ ...c, startMs: Math.round((c.startMs - 1500) / s), endMs: Math.round((c.endMs - 1500) / s), lines: [`[line ${i + 1}]`] }));
+      return { ref: serializeSubtitles(ref, 'srt'), target: serializeSubtitles(target, 'srt') };
+    }
+
+    $('#load-example').addEventListener('click', () => {
+      const ex = exampleTracks();
+      $('#subs-text').value = ex.target;
+      $('#ref-text').value = ex.ref;
+      document.querySelector('input[name=mode][value=reference]').checked = true;
+      $('#extra-offset').value = '0';
+      showMode();
+      describeFile();
+      run();
+      $('#status').textContent = 'Worked example: 120 lines timed on a 25 fps release and 1.5 s early in the file, aligned to a correctly timed reference. Expect a 25 → 23.976 stretch.';
+      recordUsage(usageStorage(), optedOut(), 'example_loaded');
+    });
+
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
+      }
+    }
+    showMode();
+  </script>
+</body>
+</html>

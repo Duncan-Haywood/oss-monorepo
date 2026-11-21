@@ -1,0 +1,14 @@
+# Subtitle Resync
+
+> Free tool: fix SRT or WebVTT subtitles that are early, late or drifting. Shift them, convert frame rates (25 to 23.976 fps and others), sync on two lines, or auto-align to a correctly timed subtitle in any language. Runs in the browser with no upload, or as a zero-dependency Node CLI.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/subtitle-resync/)
+- [How to fix out-of-sync subtitles: offset or frame-rate drift](https://marisstella.app/subtitle-resync/fix-subtitles-out-of-sync.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subtitle-resync): MIT licensed.
