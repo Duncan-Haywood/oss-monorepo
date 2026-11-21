@@ -1,0 +1,140 @@
+Step 4d: paderwasn's online tracker against windowed GCC on drifting twin sessions
+(MS-SNSD speech, statistical rooms, independent noise per device; share of scored seconds > 1 frame off)
+
+== room 200 ms, |SRO| 17 ppm ==
+condition                     pw    pw_set       fnc  fnc_wacd     track
+none                        0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                   0.0%      0.0%      0.0%      0.0%      0.4%
+AirConditioner -10         55.0%     55.0%     10.0%     10.0%     26.8%
+AirportAnnouncements -10     15.0%     15.0%      5.0%      5.0%     11.1%
+Babble -10                 30.0%     30.0%     10.0%     10.0%     24.1%
+CopyMachine -10             0.0%      0.0%      0.0%      0.0%      4.1%
+Munching -10                0.0%      0.0%      0.0%      0.0%      0.0%
+Neighbor -10               55.0%     55.0%      0.0%      0.0%      4.3%
+ShuttingDoor -10           40.0%     40.0%      0.0%      0.0%      0.0%
+Typing -10                 50.0%     50.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          95.0%     95.0%      5.0%      5.0%      9.0%
+mean of ten types at -10 dB     34.0%     34.0%      3.0%      3.0%      8.0%
+sessions >= 99% in sync, -10 dB    66.0%    66.0%    97.0%    97.0%    63.5%
+  |SRO error| pw     median 0.02 ppm (no noise), 11.55 ppm (-10 dB)
+  |SRO error| track  median 0.08 ppm (no noise), 0.23 ppm (-10 dB)
+  coarse step off by > 1 frame, pw  : 34.0% of -10 dB sessions
+  coarse step off by > 1 frame, fnc : 3.0% of -10 dB sessions
+  pw minus track: +26.0 points (95% session bootstrap +17.9 to +33.9)
+  pw minus fnc_wacd: +31.0 points (95% session bootstrap +22.0 to +39.5)
+  fnc_wacd minus track: -5.0 points (95% session bootstrap -7.6 to -2.5)
+
+== room 200 ms, |SRO| 100 ppm ==
+condition                     pw    pw_set       fnc  fnc_wacd     track
+none                        0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                   5.0%      5.0%      0.0%      0.0%      0.1%
+AirConditioner -10         65.0%     65.0%     40.0%     40.0%     31.8%
+AirportAnnouncements -10     75.0%     75.0%     21.2%     20.0%     19.8%
+Babble -10                 55.0%     55.0%     35.0%     35.0%     52.3%
+CopyMachine -10            35.0%     35.0%     25.2%     20.0%     27.6%
+Munching -10               25.0%     25.0%      0.0%      0.0%      0.0%
+Neighbor -10               75.0%     75.0%      0.0%      0.0%      2.7%
+ShuttingDoor -10           65.0%     65.0%      1.2%      0.0%      0.0%
+Typing -10                 75.0%     75.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          95.0%     95.0%     35.0%     35.0%     33.3%
+mean of ten types at -10 dB     57.0%     57.0%     15.8%     15.0%     16.8%
+sessions >= 99% in sync, -10 dB    43.0%    43.0%    83.0%    85.0%    63.0%
+  |SRO error| pw     median 0.03 ppm (no noise), 177.40 ppm (-10 dB)
+  |SRO error| track  median 0.21 ppm (no noise), 0.38 ppm (-10 dB)
+  coarse step off by > 1 frame, pw  : 57.0% of -10 dB sessions
+  coarse step off by > 1 frame, fnc : 15.0% of -10 dB sessions
+  pw minus track: +40.2 points (95% session bootstrap +31.7 to +48.3)
+  pw minus fnc_wacd: +42.0 points (95% session bootstrap +34.5 to +49.5)
+  fnc_wacd minus track: -1.8 points (95% session bootstrap -4.7 to +2.2)
+
+== room 200 ms, |SRO| 300 ppm ==
+condition                     pw    pw_set       fnc  fnc_wacd     track
+none                        0.0%      0.0%     41.3%      0.0%      0.0%
+white -10                  40.0%     40.0%     76.1%     60.0%     34.5%
+AirConditioner -10         90.0%     90.0%     82.2%     75.0%     58.6%
+AirportAnnouncements -10     90.0%     90.0%     94.7%     90.0%     55.3%
+Babble -10                 95.0%     95.0%     92.7%     90.0%     67.0%
+CopyMachine -10            75.0%     75.0%     86.3%     70.0%     59.4%
+Munching -10               60.0%     60.0%     47.3%      0.0%      0.0%
+Neighbor -10               95.0%     95.0%     76.4%     65.0%     45.2%
+ShuttingDoor -10           90.0%     90.0%     40.9%      0.0%      0.0%
+Typing -10                100.0%    100.0%     41.3%      5.0%      0.0%
+VacuumCleaner -10         100.0%    100.0%     93.2%     85.0%     59.2%
+mean of ten types at -10 dB     83.5%     83.5%     73.1%     54.0%     37.9%
+sessions >= 99% in sync, -10 dB    16.5%    16.5%     0.5%    46.0%    41.5%
+  |SRO error| pw     median 0.20 ppm (no noise), 46.49 ppm (-10 dB)
+  |SRO error| track  median 0.80 ppm (no noise), 1.71 ppm (-10 dB)
+  coarse step off by > 1 frame, pw  : 84.0% of -10 dB sessions
+  coarse step off by > 1 frame, fnc : 54.0% of -10 dB sessions
+  pw minus track: +45.6 points (95% session bootstrap +38.6 to +54.1)
+  pw minus fnc_wacd: +29.5 points (95% session bootstrap +25.5 to +33.5)
+  fnc_wacd minus track: +16.1 points (95% session bootstrap +10.5 to +22.3)
+
+== room 800 ms, |SRO| 17 ppm ==
+condition                     pw    pw_set       fnc  fnc_wacd     track
+none                        0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                   0.0%      0.0%      0.0%      0.0%      0.3%
+AirConditioner -10         20.0%     20.0%      0.0%      0.0%     16.1%
+AirportAnnouncements -10     20.0%     20.0%      5.0%      5.0%     13.3%
+Babble -10                 25.0%     25.0%     10.0%     10.0%     20.9%
+CopyMachine -10             5.0%      5.0%      0.0%      0.0%      8.7%
+Munching -10                0.0%      0.0%      0.0%      0.0%      0.0%
+Neighbor -10               15.0%     15.0%      0.0%      0.0%      0.9%
+ShuttingDoor -10           15.0%     15.0%      0.0%      0.0%      0.0%
+Typing -10                 35.0%     35.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10         100.0%    100.0%      0.0%      0.0%      3.1%
+mean of ten types at -10 dB     23.5%     23.5%      1.5%      1.5%      6.3%
+sessions >= 99% in sync, -10 dB    76.5%    76.5%    98.5%    98.5%    68.5%
+  |SRO error| pw     median 0.07 ppm (no noise), 7.80 ppm (-10 dB)
+  |SRO error| track  median 0.10 ppm (no noise), 0.16 ppm (-10 dB)
+  coarse step off by > 1 frame, pw  : 23.5% of -10 dB sessions
+  coarse step off by > 1 frame, fnc : 1.5% of -10 dB sessions
+  pw minus track: +17.2 points (95% session bootstrap +10.8 to +23.1)
+  pw minus fnc_wacd: +22.0 points (95% session bootstrap +15.5 to +28.5)
+  fnc_wacd minus track: -4.8 points (95% session bootstrap -7.1 to -2.8)
+
+== room 800 ms, |SRO| 100 ppm ==
+condition                     pw    pw_set       fnc  fnc_wacd     track
+none                        5.0%      5.0%      0.0%      0.0%      0.0%
+white -10                  15.0%     15.0%     10.9%     10.0%      9.1%
+AirConditioner -10         80.0%     80.0%     50.0%     50.0%     33.4%
+AirportAnnouncements -10     65.0%     65.0%     50.0%     50.0%     48.5%
+Babble -10                 55.9%     55.2%     55.0%     53.8%     50.5%
+CopyMachine -10            28.4%     28.6%     40.0%     40.0%     38.6%
+Munching -10               20.0%     20.0%      5.0%      5.0%      5.0%
+Neighbor -10               70.0%     70.0%     13.5%     10.0%      5.7%
+ShuttingDoor -10           65.0%     65.0%      0.0%      0.0%      0.0%
+Typing -10                 85.0%     85.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10         100.0%    100.0%     35.5%     35.0%     36.5%
+mean of ten types at -10 dB     58.4%     58.4%     26.0%     25.4%     22.7%
+sessions >= 99% in sync, -10 dB    41.0%    41.0%    73.0%    74.5%    60.0%
+  |SRO error| pw     median 0.23 ppm (no noise), 138.93 ppm (-10 dB)
+  |SRO error| track  median 0.20 ppm (no noise), 0.41 ppm (-10 dB)
+  coarse step off by > 1 frame, pw  : 58.5% of -10 dB sessions
+  coarse step off by > 1 frame, fnc : 25.5% of -10 dB sessions
+  pw minus track: +35.7 points (95% session bootstrap +26.6 to +43.1)
+  pw minus fnc_wacd: +33.1 points (95% session bootstrap +25.4 to +39.6)
+  fnc_wacd minus track: +2.7 points (95% session bootstrap -0.2 to +5.9)
+
+== room 800 ms, |SRO| 300 ppm ==
+condition                     pw    pw_set       fnc  fnc_wacd     track
+none                        5.0%      5.0%     44.3%      5.0%      0.0%
+white -10                  55.0%     55.0%     80.7%     60.0%     38.4%
+AirConditioner -10         95.0%     95.0%     90.6%     85.0%     73.2%
+AirportAnnouncements -10     90.0%     90.0%     94.3%     90.0%     70.7%
+Babble -10                 80.0%     80.0%     97.0%     95.0%     83.8%
+CopyMachine -10            90.0%     90.0%     88.3%     75.0%     53.3%
+Munching -10               60.0%     60.0%     42.5%     10.0%      5.0%
+Neighbor -10               95.0%     95.0%     74.7%     60.0%     41.4%
+ShuttingDoor -10           85.0%     85.0%     49.2%     10.0%      0.0%
+Typing -10                 95.0%     95.0%     37.6%      0.0%      0.0%
+VacuumCleaner -10         100.0%    100.0%     97.4%     95.0%     75.9%
+mean of ten types at -10 dB     84.5%     84.5%     75.3%     58.0%     44.2%
+sessions >= 99% in sync, -10 dB    15.5%    15.5%     0.0%    42.0%    39.5%
+  |SRO error| pw     median 0.66 ppm (no noise), 47.15 ppm (-10 dB)
+  |SRO error| track  median 0.92 ppm (no noise), 2.07 ppm (-10 dB)
+  coarse step off by > 1 frame, pw  : 84.5% of -10 dB sessions
+  coarse step off by > 1 frame, fnc : 58.0% of -10 dB sessions
+  pw minus track: +40.3 points (95% session bootstrap +32.5 to +47.6)
+  pw minus fnc_wacd: +26.5 points (95% session bootstrap +19.5 to +33.5)
+  fnc_wacd minus track: +13.8 points (95% session bootstrap +8.0 to +19.8)

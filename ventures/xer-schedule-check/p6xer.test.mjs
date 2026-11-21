@@ -38,7 +38,7 @@ test("every table carries P6's fields, whole-number ids that resolve, and passes
   assert.deepEqual(Object.keys(r.xer.tables), ["CURRTYPE", "FINTMPL", "OBS", "PROJECT", "CALENDAR", "SCHEDOPTIONS", "PROJWBS", "RSRC", "ACTVTYPE", "ACTVCODE", "TASK", "TASKPRED", "TASKACTV", "TASKRSRC"]);
   assert.match(r.text, /^ERMHDR\t20\.12\t/);
   assert.match(r.text, /%E\r\n$/);
-  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0 });
+  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0 });
 });
 
 test("the WBS hangs under one project node; activity IDs are A + row x 10", () => {
@@ -309,4 +309,43 @@ test("a P6 schedule's activity UDFs come back as UDFs through Project XML", () =
   };
   const B = parseXer(r.text).tables;
   assert.deepEqual(read(B, new Map(B.TASK.map((t) => [t.task_id, t.task_code]))), read(T, new Map(T.TASK.map((t) => [t.task_id, t.task_code]))));
+});
+
+test("a P6 schedule's resource UDFs come back as resource UDFs through Project XML", () => {
+  const X = parseXer(EXAMPLE_XER);
+  const T = X.tables;
+  const [r1, r2] = T.RSRC;
+  T.UDFTYPE = [
+    { udf_type_id: "60", table_name: "RSRC", udf_type_name: "user_field_60", udf_type_label: "Employment", logical_data_type: "FT_TEXT" },
+    { udf_type_id: "61", table_name: "RSRC", udf_type_name: "user_field_61", udf_type_label: "Day rate", logical_data_type: "FT_MONEY" },
+    { udf_type_id: "62", table_name: "RSRC", udf_type_name: "user_field_62", udf_type_label: "Factor", logical_data_type: "FT_FLOAT_2_DECIMALS" },
+    { udf_type_id: "63", table_name: "RSRC", udf_type_name: "user_field_63", udf_type_label: "Induction", logical_data_type: "FT_START_DATE" },
+    { udf_type_id: "64", table_name: "TASK", udf_type_name: "user_field_64", udf_type_label: "Employment", logical_data_type: "FT_INT" },
+  ];
+  const v = (id, fk, o, proj = "") => ({ udf_type_id: id, fk_id: fk, proj_id: proj, udf_date: "", udf_number: "", udf_text: "", udf_code_id: "", ...o });
+  T.UDFVALUE = [
+    v("60", r1.rsrc_id, { udf_text: "Contractor" }), v("60", r2.rsrc_id, { udf_text: "40" }),
+    v("61", r1.rsrc_id, { udf_number: "-12.5" }), v("62", r2.rsrc_id, { udf_number: "0.85" }),
+    v("63", r2.rsrc_id, { udf_date: "2026-03-02 08:00" }),
+    v("64", T.TASK[0].task_id, { udf_number: "7" }, T.TASK[0].proj_id),
+  ];
+  const r = p6XerText(mspdiText(X).xml);
+  assert.deepEqual(p6Problems(r.xer.tables), []);
+  assert.equal(r.counts.rsrcUdfFields, 4);
+  assert.equal(r.counts.rsrcUdfValues, 5);
+  assert.equal(r.counts.udfFields, 1);
+  assert.ok(r.warnings.some((w) => /^5 resource custom field value\(s\) in 4 field\(s\) written as resource user-defined fields \(dates as start-date UDFs\)/.test(w)));
+  const read = (T) => {
+    const short = new Map(T.RSRC.map((x) => [x.rsrc_id, x.rsrc_short_name]));
+    const label = new Map(T.UDFTYPE.filter((u) => u.table_name === "RSRC").map((u) => [u.udf_type_id, `${u.udf_type_label}:${u.logical_data_type}`]));
+    return T.UDFVALUE.filter((x) => label.has(x.udf_type_id)).map((x) => `${short.get(x.fk_id)} ${label.get(x.udf_type_id)} ${x.udf_text || x.udf_date || Number(x.udf_number)} [${x.proj_id}]`).sort();
+  };
+  const B = parseXer(r.text).tables;
+  assert.deepEqual(read(B), read(T));
+  // the same title on an activity UDF and a resource UDF is allowed (P6 keeps titles unique per subject area)
+  assert.deepEqual(B.UDFTYPE.filter((u) => u.udf_type_label === "Employment").map((u) => u.table_name).sort(), ["RSRC", "TASK"]);
+  // p6Problems names a resource UDF value on a resource the file lacks
+  const bad = structuredClone(r.xer.tables);
+  bad.UDFVALUE.find((x) => x.proj_id === "").fk_id = "999";
+  assert.ok(p6Problems(bad).some((p) => /fk_id 999 is not in RSRC/.test(p)));
 });

@@ -280,3 +280,37 @@ test("UDF ranges round-trip: Project Number fields feed the risk run as P6 UDFs 
   const code = new Map(x.tables.TASK.map((t) => [t.task_code, String(r.taskUid.get(t.task_id))]));
   for (const [c, v] of before.ranges) assert.deepEqual(after.ranges.get(code.get(c)), v);
 });
+
+test("resource UDFs become named resource Text, Number, Cost and Date fields", () => {
+  const x = parseXer(EXAMPLE_XER);
+  const T = x.tables;
+  const [r1, r2] = T.RSRC;
+  T.UDFTYPE = [
+    { udf_type_id: "70", table_name: "RSRC", udf_type_name: "user_field_70", udf_type_label: "Capacity", logical_data_type: "FT_TEXT" },
+    { udf_type_id: "71", table_name: "RSRC", udf_type_name: "user_field_71", udf_type_label: "Day rate", logical_data_type: "FT_MONEY" },
+    { udf_type_id: "72", table_name: "RSRC", udf_type_name: "user_field_72", udf_type_label: "Crew size", logical_data_type: "FT_INT" },
+    { udf_type_id: "73", table_name: "RSRC", udf_type_name: "user_field_73", udf_type_label: "Induction", logical_data_type: "FT_START_DATE" },
+    { udf_type_id: "74", table_name: "RSRC", udf_type_name: "user_field_74", udf_type_label: "Light", logical_data_type: "FT_STATICTYPE" },
+  ];
+  const v = (id, fk, o) => ({ udf_type_id: id, fk_id: fk, proj_id: "", udf_date: "", udf_number: "", udf_text: "", udf_code_id: "", ...o });
+  T.UDFVALUE = [
+    v("70", r1.rsrc_id, { udf_text: "40" }), v("70", r2.rsrc_id, { udf_text: "Full time" }),
+    v("71", r1.rsrc_id, { udf_number: "412.5" }), v("72", r2.rsrc_id, { udf_number: "3" }),
+    v("73", r1.rsrc_id, { udf_date: "2026-03-02 08:00" }), v("74", r1.rsrc_id, {}),
+    v("70", "no-such-resource", { udf_text: "x" }),
+  ];
+  const r = mspdiText(x);
+  assert.equal(r.counts.rsrcUdfFields, 4);
+  assert.equal(r.counts.rsrcUdfValues, 5);
+  assert.equal(r.counts.udfFields, 0);
+  // PjField ids of ResourceField TEXT1, NUMBER1, COST1, DATE1 (MPXJ 16.10)
+  assert.match(r.xml, /<FieldID>205520904<\/FieldID><FieldName>Text1<\/FieldName><Alias>Capacity<\/Alias>/);
+  assert.match(r.xml, /<FieldID>205521008<\/FieldID><FieldName>Number1<\/FieldName><Alias>Crew size<\/Alias>/);
+  assert.match(r.xml, /<FieldID>205521019<\/FieldID><FieldName>Cost1<\/FieldName><Alias>Day rate<\/Alias>/);
+  assert.match(r.xml, /<FieldID>205521069<\/FieldID><FieldName>Date1<\/FieldName><Alias>Induction<\/Alias>/);
+  const res = parseXml(r.xml).children.find((c) => c.name === "Project").children.find((c) => c.name === "Resources").children;
+  const ext = (k) => Object.fromEntries(res[k].children.filter((c) => c.name === "ExtendedAttribute").map((e) => [e.children[0].text, e.children[1].text]));
+  assert.deepEqual(ext(0), { 205520904: "40", 205521019: "41250", 205521069: "2026-03-02T08:00:00" });
+  assert.deepEqual(ext(1), { 205520904: "Full time", 205521008: "3" });
+  assert.ok(r.warnings.some((w) => /indicator or code resource user-defined field\(s\).*Light/.test(w)));
+});

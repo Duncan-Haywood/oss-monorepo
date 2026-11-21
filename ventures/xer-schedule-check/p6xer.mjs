@@ -40,7 +40,9 @@
 //   numbers as decimal ones, costs as cost UDFs, dates as start-date UDFs. So
 //   the UDFs msproject.mjs writes from an XER come back as UDFs, and a
 //   Project planner's own custom fields reach the P6 file. (Text fields
-//   become activity codes, above.)
+//   become activity codes, above.) The resource Text, Number, Cost and Date
+//   fields become resource UDFs (table RSRC) the same way, text as text UDFs,
+//   so the resource UDFs msproject.mjs writes from an XER come back.
 //
 // Not carried (counted in the warnings): notes, task splits and contoured
 // work, deadlines (no P6 field), elapsed lags on links (P6 has one lag
@@ -50,6 +52,16 @@
 
 import { parseMspdi, parseXml, durationHours } from "./mspdi.mjs";
 import { xerText } from "./xer.mjs";
+import { RSRC_TEXT_IDS, RSRC_NUMBER_IDS, RSRC_COST_IDS, RSRC_DATE_IDS } from "./msproject.mjs";
+
+// Project's resource custom fields, by PjField id -> [kind, field name]
+const RSRC_FIELDS = new Map([
+  ...RSRC_TEXT_IDS.map((id, k) => [id, ["text", `Text${k + 1}`]]),
+  ...RSRC_NUMBER_IDS.map((id, k) => [id, ["number", `Number${k + 1}`]]),
+  ...RSRC_COST_IDS.map((id, k) => [id, ["cost", `Cost${k + 1}`]]),
+  ...RSRC_DATE_IDS.map((id, k) => [id, ["date", `Date${k + 1}`]]),
+]);
+const isoToXer = (s) => { const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(s || ""); return m ? `${m[1]} ${m[2]}` : ""; };
 
 const kid = (node, name) => node && node.children.find((c) => c.name === name);
 const kids = (node, name) => (node ? node.children.filter((c) => c.name === name) : []);
@@ -232,6 +244,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   const rsrcType = new Map();
   let costRes = 0, costAssign = 0, dupRsrc = 0, summaryAssign = 0;
   const rsrcShort = new Set();
+  const rsrcFieldVals = new Map(); // resource field id -> Map(rsrc uid -> value)
   for (const r of kids(kid(proj, "Resources"), "Resource")) {
     const uid = val(r, "UID");
     if (!uid || uid === "0" || val(r, "IsNull") === "1" || !val(r, "Name")) continue;
@@ -246,6 +259,12 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
     let short = clip("rsrc_short_name", val(r, "Initials") || name.replace(/\s+/g, "").toUpperCase());
     if (rsrcShort.has(short)) { dupRsrc++; let k = 2; while (rsrcShort.has(`${short.slice(0, MAX.rsrc_short_name - String(k).length - 1)}-${k}`)) k++; short = `${short.slice(0, MAX.rsrc_short_name - String(k).length - 1)}-${k}`; }
     rsrcShort.add(short);
+    for (const e of kids(r, "ExtendedAttribute")) {
+      const fid = val(e, "FieldID"), v = val(e, "Value");
+      if (!RSRC_FIELDS.has(fid) || !v) continue;
+      if (!rsrcFieldVals.has(fid)) rsrcFieldVals.set(fid, new Map());
+      rsrcFieldVals.get(fid).set(uid, v);
+    }
     RSRC.push(full("RSRC", {
       rsrc_id: idOf("RSRC", uid), clndr_id: projCal, rsrc_seq_num: String(RSRC.length + 1),
       rsrc_name: clip("rsrc_name", name), rsrc_short_name: short,
@@ -417,6 +436,35 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
     for (const v of rows) UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf("TASK", v.fk_id), proj_id: P, udf_date: v.udf_date, udf_number: v.udf_number, udf_text: clip("udf_text", v.udf_text), udf_code_id: "" }));
   }
 
+  // resource custom fields (Text, Number, Cost, Date) -> resource UDFs, the
+  // inverse of msproject.mjs's resource fields. P6 writes a resource UDF's
+  // value with an empty proj_id (resources are global).
+  const fieldDefs = new Map(kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute").map((d) => [val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") }]));
+  const rsrcLabels = new Set();
+  let rsrcUdfValues = 0, rsrcUdfFields = 0, rsrcUnread = 0;
+  for (const [fid, [kind, fname]] of RSRC_FIELDS) {
+    const vals = rsrcFieldVals.get(fid);
+    if (!vals) continue;
+    const rows = [];
+    for (const [uid, v] of vals) {
+      if (kind === "text") { const x = v.trim() ? v : ""; if (x) rows.push({ uid, udf_text: clip("udf_text", x), udf_number: "", udf_date: "" }); continue; }
+      if (kind === "date") { const d = isoToXer(v); if (d) rows.push({ uid, udf_text: "", udf_number: "", udf_date: d }); else rsrcUnread++; continue; }
+      const n = Number(v);
+      if (!Number.isFinite(n) || v.trim() === "") { rsrcUnread++; continue; }
+      rows.push({ uid, udf_text: "", udf_date: "", udf_number: String(kind === "cost" ? n / 100 : n) });
+    }
+    if (!rows.length) continue;
+    const def = fieldDefs.get(fid) || {};
+    const id = idOf("UDF", `rsrc-${fid}`);
+    let label = clip("udf_type_label", def.alias || def.name || fname);
+    if (rsrcLabels.has(label.toLowerCase())) { udfDupLabels++; let k = 2; const cut = (x) => `${label.slice(0, MAX.udf_type_label - String(x).length - 3)} (${x})`; while (rsrcLabels.has(cut(k).toLowerCase())) k++; label = cut(k); }
+    rsrcLabels.add(label.toLowerCase());
+    const type = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
+    UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: "RSRC", udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: type, super_flag: "N" }));
+    rsrcUdfFields++;
+    for (const r of rows) { UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf("RSRC", r.uid), proj_id: "", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: r.udf_text, udf_code_id: "" })); rsrcUdfValues++; }
+  }
+
   const tables = {
     CURRTYPE: [full("CURRTYPE", { curr_id: "1", decimal_digit_cnt: "2", curr_symbol: "$", decimal_symbol: ".", digit_group_symbol: ",", pos_curr_fmt_type: "#1.1", neg_curr_fmt_type: "(#1.1)", curr_type: "US Dollar", curr_short_name: "USD", group_digit_cnt: "3", base_exch_rate: "1" })],
     // the financial period template the project names, as P6 20.12 writes it
@@ -440,7 +488,10 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (trees) warnings.push(`${trees} activity code type(s) written as parent.child paths rebuilt as P6 code hierarchies`);
   if (dupRsrc) warnings.push(`${dupRsrc} repeated resource ID(s) given a -2, -3 suffix (P6 needs them unique; Project fills Initials with the name's first letter)`);
   if (summaryAssign) warnings.push(`${summaryAssign} assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no resources`);
-  if (UDFTYPE.length) warnings.push(`${UDFVALUE.length} custom field value(s) in ${UDFTYPE.length} field(s) written as activity user-defined fields${UDFTYPE.some((u) => u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
+  const taskUdfTypes = UDFTYPE.length - rsrcUdfFields, taskUdfValues = UDFVALUE.length - rsrcUdfValues;
+  if (taskUdfTypes) warnings.push(`${taskUdfValues} custom field value(s) in ${taskUdfTypes} field(s) written as activity user-defined fields${UDFTYPE.some((u) => u.table_name === "TASK" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
+  if (rsrcUdfFields) warnings.push(`${rsrcUdfValues} resource custom field value(s) in ${rsrcUdfFields} field(s) written as resource user-defined fields${UDFTYPE.some((u) => u.table_name === "RSRC" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
+  if (rsrcUnread) warnings.push(`${rsrcUnread} resource custom field value(s) could not be read as a number or date and were left out`);
   if (udfDupLabels) warnings.push(`${udfDupLabels} repeated custom field title(s) given a (2), (3) suffix (P6 needs UDF titles unique)`);
   if (cut) warnings.push(`${cut} name(s) or code(s) cut to P6's field length`);
   if (elapsedLags) warnings.push(`${elapsedLags} elapsed lag(s) written in hours: P6 counts every lag on one calendar per project (successor's), so set the lag calendar to 24 hour in P6 if those links matter`);
@@ -449,7 +500,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (costRes) warnings.push(`${costRes} cost resource(s) and ${costAssign} assignment(s) of them not carried: P6 keeps such costs as expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: UDFTYPE.length, udfValues: UDFVALUE.length };
+  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: UDFTYPE.length - rsrcUdfFields, udfValues: UDFVALUE.length - rsrcUdfValues, rsrcUdfFields, rsrcUdfValues };
   return { xer, text: xerText(xer), counts, warnings, project: { name: title, id: shortName } };
 }
 
@@ -457,7 +508,8 @@ export const p6xerSummary = (r) =>
   `${r.counts.activities} activities, ${r.counts.relationships} relationships, ${r.counts.wbs} WBS nodes, ${r.counts.calendars} calendar(s)` +
   (r.counts.resources ? `, ${r.counts.resources} resources (${r.counts.assignments} assignments)` : "") +
   (r.counts.codeTypes ? `, ${r.counts.codeTypes} activity code type(s)` : "") +
-  (r.counts.udfFields ? `, ${r.counts.udfValues} custom field value(s) as ${r.counts.udfFields} UDF(s)` : "");
+  (r.counts.udfFields ? `, ${r.counts.udfValues} custom field value(s) as ${r.counts.udfFields} UDF(s)` : "") +
+  (r.counts.rsrcUdfFields ? `, ${r.counts.rsrcUdfValues} resource custom field value(s) as ${r.counts.rsrcUdfFields} resource UDF(s)` : "");
 
 // What P6's import would refuse or misread, checked on the tables written:
 // every table carries P6's fields; ids are whole numbers, unique per table;
@@ -503,7 +555,17 @@ export function p6Problems(tables) {
   ref("TASKPRED", "task_id", "TASK"); ref("TASKPRED", "pred_task_id", "TASK");
   ref("TASKACTV", "task_id", "TASK"); ref("TASKACTV", "actv_code_id", "ACTVCODE"); ref("TASKACTV", "actv_code_type_id", "ACTVTYPE");
   ref("TASKRSRC", "task_id", "TASK"); ref("TASKRSRC", "rsrc_id", "RSRC");
-  ref("UDFVALUE", "udf_type_id", "UDFTYPE"); ref("UDFVALUE", "fk_id", "TASK"); ref("UDFVALUE", "proj_id", "PROJECT");
+  ref("UDFVALUE", "udf_type_id", "UDFTYPE");
+  // a value's fk_id is a row of its UDF's subject area (TASK or RSRC); an
+  // activity UDF's value names the project, a resource UDF's names none
+  {
+    const area = new Map((tables.UDFTYPE || []).map((u) => [u.udf_type_id, u.table_name]));
+    for (const v of tables.UDFVALUE || []) {
+      const t = area.get(v.udf_type_id);
+      if (t && !keys[t]?.has(v.fk_id)) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: fk_id ${v.fk_id} is not in ${t}`);
+      if (t === "TASK" && !keys.PROJECT?.has(v.proj_id)) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: proj_id ${v.proj_id || "(empty)"} is not in PROJECT`);
+    }
+  }
   // a UDF's title is unique within its subject area; a value fits its type
   const udfType = new Map();
   const titles = new Set();
@@ -516,7 +578,7 @@ export function p6Problems(tables) {
   const udfSeen = new Set();
   for (const v of tables.UDFVALUE || []) {
     const t = udfType.get(v.udf_type_id) || "";
-    if (udfSeen.has(`${v.udf_type_id}|${v.fk_id}`)) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: two values for one activity`);
+    if (udfSeen.has(`${v.udf_type_id}|${v.fk_id}`)) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: two values for one ${(tables.UDFTYPE || []).find((u) => u.udf_type_id === v.udf_type_id)?.table_name === "RSRC" ? "resource" : "activity"}`);
     udfSeen.add(`${v.udf_type_id}|${v.fk_id}`);
     if (/DATE/.test(t) && !v.udf_date) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: date UDF with no date`);
     if (/INT|FLOAT|MONEY/.test(t) && !Number.isFinite(Number(v.udf_number === "" ? NaN : v.udf_number))) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: ${t} value ${v.udf_number} is not a number`);
