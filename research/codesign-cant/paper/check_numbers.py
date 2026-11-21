@@ -1,4 +1,4 @@
-"""Check that every figure sections VI and VII and the abstract of DRAFT.md quote is still in the results file it is taken from.
+"""Check that every figure sections III-VII and the abstract of DRAFT.md quote is still in the results file it is taken from.
 
 Each check is (text quoted in DRAFT.md, results file under ../experiments/, a regular expression that must match that file).
 The script fails if the draft no longer contains the quoted text (the claim was edited without updating this list) or the results
@@ -16,6 +16,35 @@ CHECKS = [
     ("4.18° (INDI)", "m4_controllers/results.txt", r"indi: RMS -4\.18 deg .*better in 10 of 10"),
     ("4.88° (geometric)", "m4_controllers/results.txt", r"geo : RMS -4\.88 deg .*better in 10 of 10"),
     ("5.27° (PID)", "m4_controllers/results.txt", r"pid : RMS -5\.27 deg .*better in 10 of 10"),
+    # sections III-V (milestones 1, 2, 4, 5)
+    ("by 4.81° of held-out RMS", "m1_allocation/results.txt", r"hover  TWR 2     cant<= 35: mean -4\.81 deg, sd 0\.12, better in 5 of 5"),
+    ("against 4.62° with the earlier formulas", "m1_allocation/results.txt", r"prior  TWR 2     cant<= 35: mean -4\.62 deg, sd 0\.43, better in 5 of 5"),
+    ("(17.06° to\n15.44°)", "m1_allocation/results.txt", r"prior     2        0    17\.06 [\s\S]*hover     2        0    15\.44 "),
+    ("picks TWR 2.0–2.3", "m1_allocation/results.txt", r"hover     free6    0 [^\n]* 2\.30 [\s\S]*hover     free6   35 [^\n]* 2\.00 [\s\S]*hover     free6   80 [^\n]* 2\.03 "),
+    ("roll\nand pitch on 97% of held-out steps", "m2_polytope/results.txt", r"prio        0\.0    0 [^\n]*0\.972   1\.000"),
+    ("0.7% of steps and yaw is scaled on 39%", "m2_polytope/results.txt", r"prio        0\.0   80 [^\n]*0\.007   0\.392"),
+    ("to 6.08° (`prio`, 5 of 5", "m2_polytope/results.txt", r"prio      lam 0\.0: RMS -6\.08 deg \(sd 0\.28, better in 5 of 5\)"),
+    ("recovers 1.56° for the uncanted vehicle and 0.26°", "m2_polytope/results.txt", r"lam 0\.0 cant<=  0: -1\.56 deg[^\n]*\n  lam 0\.0 cant<= 80: -0\.26 deg"),
+    ("1380 W to 219 W", "m2_polytope/results.txt", r"box         0\.0   80 [^\n]* 1380 [\s\S]*box         0\.3   80 [^\n]*  219 "),
+    ("18.51° and 21.43° held out", "m2_polytope/results.txt", r"prio        0\.3   80    15\.78 \(13\.03, 18\.51, 21\.43, 12\.91, 13\.02\)[^\n]*35, 0, 13, 31, 34"),
+    ("28–37° in 9 of 10", "m2_polytope/restarts.txt", r"0\.3   80 [^\n]*34, 37, 36, 32, 34 [\s\S]*1\.0   80 [^\n]*32, 32, 31, 28, 4 "),
+    ("| PID | 18.35 | 13.08 | −5.27 (SD 1.32) | 10 of 10 | 34.2° |", "m4_controllers/results.txt", r"pid     0    18\.35 [\s\S]*pid    80    13\.08 [^\n]*34\.2 \([\s\S]*pid : RMS -5\.27 deg \(sd 1\.32, better in 10 of 10\)"),
+    ("| INDI | 17.10 | 12.92 | −4.18 (SD 0.25) | 10 of 10 | 33.9° |", "m4_controllers/results.txt", r"indi    0    17\.10 [\s\S]*indi   80    12\.92 [^\n]*33\.9 \([\s\S]*indi: RMS -4\.18 deg \(sd 0\.25, better in 10 of 10\)"),
+    ("| geometric | 17.61 | 12.73 | −4.88 (SD 0.20) | 10 of 10 | 35.3° |", "m4_controllers/results.txt", r"geo     0    17\.61 [\s\S]*geo    80    12\.73 [^\n]*35\.3 \([\s\S]*geo : RMS -4\.88 deg \(sd 0\.20, better in 10 of 10\)"),
+    ("by 1.09° (9 of 10 seeds) and geometric control by 0.38° (5 of 10)", "m4_controllers/results.txt", r"indi: \+1\.09 deg \(sd 1\.23, narrower in 9 of 10\)\n  geo : \+0\.38 deg \(sd 1\.28, narrower in 5 of 10\)"),
+    ("4.02° worse than PID with cant", "m4_controllers/results.txt", r"indi no cant - pid cant: RMS \+4\.02 deg \(sd 0\.31, law-without-cant better in 0 of 10\)"),
+    ("4.53° worse", "m4_controllers/results.txt", r"geo  no cant - pid cant: RMS \+4\.53 deg"),
+    ("(−9.82° PID, −4.51° INDI, −5.78° geometric)", "m4_controllers/results.txt", r"gust8 RMS -9\.82 \(better in 10 of 10\)[\s\S]*gust8 RMS -4\.51 \(better in 10 of 10\)[\s\S]*gust8 RMS -5\.78 \(better in 10 of 10\)"),
+    ("1.000 under `aero` and `aero_cop2` and 0.943", "m5_rotorpy/noise_ceiling.txt", r"torque [^\n]*rho 0\.943\naero [^\n]*rho 1\.000\naero_cop [^\n]*rho 0\.943\naero_cop2 [^\n]*rho 1\.000"),
+    ("ρ is 0.799 (`torque`) and 0.880–0.908", "m5_rotorpy/results.txt", r"torque        0\.799 [\s\S]*aero          0\.906 [\s\S]*aero_cop      0\.880 [\s\S]*aero_cop2     0\.908 "),
+    ("ρ 0.950–0.965", "m5_rotorpy/noise_ceiling.txt", r"9001         0\.965 [\s\S]*9004         0\.950 "),
+    ("ρ 0.258 on average (range −0.224 to 0.467)", "m5_rotorpy/noise_ceiling.txt", r"mean top-ten rho of the stylised simulator against itself: 0\.258 \(range -0\.224 to 0\.467\)"),
+    ("J spans 0.064", "m5_rotorpy/noise_ceiling.txt", r"\(spread 0\.064\)"),
+    ("PID −4.76 to −5.77°, geometric −4.70 to −5.08° and INDI −3.12 to −3.53°, against stylised −5.56, −4.86 and −4.15°", "m5_rotorpy/results.txt",
+     r"pid : stylised -5\.56 \(10/10\); torque [^;]*; aero -4\.76 \(10/10\); aero_cop -5\.77 \(10/10\); aero_cop2 -4\.91 \(10/10\)\n  indi: stylised -4\.15 \(10/10\); torque [^;]*; aero -3\.12 \(10/10\); aero_cop -3\.34 \(10/10\); aero_cop2 -3\.53 \(10/10\)\n  geo : stylised -4\.86 \(10/10\); torque [^;]*; aero -4\.89 \(10/10\); aero_cop -5\.08 \(10/10\); aero_cop2 -4\.70 \(10/10\)"),
+    ("(+3.10 to +3.97°)", "m5_rotorpy/results.txt", r"stylised \+3\.97 \(0/10\); torque \+3\.10 \(0/10\); aero \+3\.21 \(0/10\); aero_cop \+3\.89 \(0/10\); aero_cop2 \+3\.59 \(0/10\)"),
+    ("1.25–1.47° of RMS on average", "m5_rotorpy/results.txt", r"aero          [^\n]*1\.29 [\s\S]*aero_cop      [^\n]*1\.47 [\s\S]*aero_cop2     [^\n]*1\.25 "),
+    ("the added error is 3.41° and 54 episodes diverge", "m5_rotorpy/results.txt", r"torque        [^\n]*3\.41                  54"),
     # section VI: the certificate and its accuracy
     ("0 of 2,688", "m7c_stab/results.txt", r"7b design-conditions \(48 x 64\), lever 0: unstable&dead 84, unstable&alive 300, stable&dead 0, stable&alive 2688; accuracy 0\.902, sensitivity 1\.000"),
     ("1.04, 1.00, 1.01, 1.05, 1.11 and 0.88", "m7c_stab/results.txt", r"\[above, integ retrained\] ff 1 \(integ\)\n  ki/kp [^\n]*; ceil 1\.04, 1\.00, 1\.01, 1\.05, 1\.11, 0\.88"),

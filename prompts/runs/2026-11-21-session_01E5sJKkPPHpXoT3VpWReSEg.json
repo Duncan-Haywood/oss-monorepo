@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKkPPHpXoT3VpWReSEg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T03:18:45Z",
+  "ended": "2026-11-21T03:24:20Z",
+  "wall_minutes": 5.82,
+  "tokens_in": 4455885,
+  "tokens_out": 26532,
+  "cost_usd": 2.4604,
+  "tool_calls": 41,
+  "task": "research programme codesign-cant: paper step, sections III-V of the draft in full",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18018",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "tests/test_paper_numbers.py first run failed on a missing matplotlib (figures_vii.py); resolved by asking pyenv.py for matplotlib too"
+  ],
+  "integrity_issues": [
+    "The outline of section IV said 'chosen cant 34-35\u00b0 median per law'; the file says 33.9-35.3\u00b0. Milestone 2's LOG outcome says hover power falls '4-7\u00d7 in every arm', but uncanted prio_free falls 10.8\u00d7. Both corrected in the draft and noted in LOG.md; no reading changes."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Its CHAIN hint counts sub-steps since the last 'Paper step' LOG entry, but 7ag-7ai had already updated section VII in their own PRs, so the hint overstated the paper's lag. The real gap was the outlined sections III-V, which the hint does not see."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-does-canting-quadrotor-motors-pay-under-every-controller.md",
+    "research/codesign-cant/LOG.md (2026-11-21 paper step)",
+    "research/codesign-cant/README.md (paper step section)"
+  ],
+  "goal": null,
+  "notes": "No new flights. DRAFT.md sections III, IV (with Table IV-1) and V written from experiments m1/m2/m4/m5 and LOG.md. check_numbers.py: 115 of 115 checks ok (27 new). tests/test_paper_numbers.py 6 passed (2 new: Table IV-1 paired means and sign counts recomputed from per-seed values; section V arm-level Spearman rho from arm means). research/_homepage/build.py ok; research_live_links 0 missing; check_md_links ok; check_posts ok; cite_check ok (12 ok* from earlier live lookups).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "95848281-aca5-5160-b8f5-410b1b2fcd94",
+    "transcripts": 1,
+    "first": "2026-11-21T03:18:45Z",
+    "last": "2026-11-21T03:24:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 26532,
+        "thinking": 5744,
+        "cache_read": 4322698,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133111,
+        "api_equivalent_usd": 2.4604,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 26532,
+      "thinking": 5744,
+      "cache_read": 4322698,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133111,
+      "api_equivalent_usd": 2.4604,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.82,
+      "active_minutes": 5.82,
+      "model_minutes": 4.56,
+      "tool_minutes": 1.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "writing three paper sections (~2,000 words) and 27 number checks from existing results, a PhD student's working day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 243.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
