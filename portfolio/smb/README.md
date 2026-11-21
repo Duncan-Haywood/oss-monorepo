@@ -108,6 +108,21 @@ hours, built one working module per run. What changes is the **destination**:
   back), the claim waits for a measurement, and the page says so until then.
 - **Disclaimer and usage tracking** on every user-facing page, as always.
 
+## The company
+
+The business is **Maris Stella Labs LLC, based in Colorado** (owner,
+2026-11-21), the name behind marisstella.app. It is the seller of any paid
+plan, the party named in terms, privacy policies and data-processing terms
+for a hosted plan, and the sender identified in outreach (CAN-SPAM requires a
+truthful sender and a postal address; the address is the owner's to supply,
+never committed). Colorado's own rules apply on top of federal ones: before
+writing a privacy policy, a sales-tax note for a hosted plan, or an outreach
+script, fetch and cite the current Colorado text (the Colorado Privacy Act and
+its applicability thresholds; state and home-rule city sales tax on software
+and hosted services; state consumer-protection and telemarketing rules)
+rather than relying on memory. Registering anything in the company's name,
+signing terms and opening accounts stay the owner's.
+
 ## Pricing: cost plus
 
 The owner asks for SaaS at cost plus. The default that fits the existing

@@ -279,6 +279,11 @@ programme, the problem map and the queue: [`portfolio/smb/README.md`](../portfol
 and [`portfolio/smb/suites.yaml`](../portfolio/smb/suites.yaml). The other
 directions in this file stay; where they compete for a run, this one wins.
 
+The company is **Maris Stella Labs LLC, based in Colorado** (owner,
+2026-11-21): the seller of paid plans and the sender named in outreach, so
+Colorado rules apply beside federal ones (`portfolio/smb/README.md`, "The
+company"). Acting in its name stays owner-only.
+
 The hard limits hold unchanged. **Cost plus** is sold through the merchant of
 record and ships dark ("Payments", below); the code stays MIT and
 self-deployable. Running a hosted plan makes the owner the operator of other
