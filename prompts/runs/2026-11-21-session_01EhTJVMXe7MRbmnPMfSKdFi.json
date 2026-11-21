@@ -40,6 +40,10 @@
     {
       "file": "portfolio/ledger/decision_queue.py",
       "issue": "A new owner decision with no ask number or PR cannot be queued (covers neither an ask nor a pull request), so the hosted-plan decision went in prose."
+    },
+    {
+      "file": "docs/taxonomy.json",
+      "issue": "Report kinds/topics are a closed list (no 'plan', no 'pricing'/'smb'/'construction'); a new direction needs taxonomy edits before its report validates."
     }
   ],
   "deviations": [
@@ -58,10 +62,12 @@
   ],
   "writeups": [
     "docs/posts/2026-11-21-most-of-the-fleet-now-builds-for-small-businesses.md",
-    "portfolio/smb/README.md"
+    "portfolio/smb/README.md",
+    "docs/posts/2026-11-21-from-free-tools-to-a-paid-saas-portfolio.md",
+    "docs/reports/2026-11-21-paid-saas-pivot.md"
   ],
   "goal": null,
-  "notes": "Local: promptctl validate ok; prompts test_promptctl 75 OK; portfolio/smb/test_suites.py 3 OK; checklist_coverage ok after fix; run_workflow_locally --for-changes failures were only checklist coverage (fixed); site-builder test step still running at record time.",
+  "notes": "Local: promptctl validate ok; prompts test_promptctl 75 OK; portfolio/smb/test_suites.py 3 OK; checklist_coverage ok after fix; run_workflow_locally --for-changes failures were only checklist coverage (fixed); site-builder test step still running at record time. Second request same session: owner's overall pivot to paid, hosted SaaS at ~cost plus 100%, normal privacy/terms, subdomains, AI revenue departments and construction first. Written into goals.md ('The 2026-11-21 pivot'), AGENTS.md, PRODUCT_PLAYBOOK \u00a72/\u00a75c/\u00a76, ventures/CLAUDE.md, ventures prompts 1-2, DIRECTION.md, research/CLAUDE.md, privacy-baseline, smb programme and queue; routing smb .52 ventures .20 research .08. Open owner decisions: keep repo public/MIT; approve company terms and privacy policy.",
   "corrections": [],
   "redteam": null
 }

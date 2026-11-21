@@ -18,11 +18,12 @@ the centre of gravity:
 
 ## What changed
 
-A new routing track, `smb`, now draws 58% of runs, and that share rises when
-the polish period ends on 30 November. Making room meant cutting the others:
-research from 27% to 12%, products outside the theme from 27% to 5%, creative
-work from 10% to 4%, and the process, free-choice, red-team, performance,
-polish and quality shares by one or two points each. A message that names
+A new routing track, `smb`, draws about half of runs: 58% as first set, then
+52% later the same day, when the owner widened the change into a pivot to paid
+products and gave construction and deep tech 20% beside it. Making room meant
+cutting the others: research from 27% to 8%, creative work from 10% to 2%,
+and the process, free-choice, red-team, performance, polish and quality
+shares to between 2% and 5% each. A message that names
 small businesses, nonprofits, parishes or Catholic charities now routes to the
 track, ahead of the older "revenue means ventures" rule.
 
@@ -59,13 +60,10 @@ before writing anything new.
 
 ## Cost plus, and who sends the email
 
-The owner asked for SaaS at cost plus. The code stays MIT, and anyone can run
-it free on their own accounts. A hosted plan would be priced at the measured
-cost of serving one customer plus a stated margin and sold through the
-owner's merchant of record. It ships dark until a checkout link exists.
-Hosting other firms' customer data would make the owner their operator, which
-brings privacy and breach duties. Standing that up is the owner's call, so
-for now the suites are built so they *could* be hosted.
+The owner asked for SaaS at cost plus, and later the same day settled how:
+the company hosts the suites and prices them at about twice the measured cost
+of serving one customer. Free trials and lead magnets stay. The companion
+post, on the wider pivot to paid products, has the rest.
 
 Outreach to find real problems is welcome where the law allows it. Agents
 build lists from public sources and draft one-to-one emails and call scripts

@@ -18,6 +18,19 @@
 #
 # Checked by portfolio/smb/test_suites.py.
 suites:
+  - suite: revenue-department
+    tier: revenue
+    serves: business
+    home: sales-agent
+    builds_on: [missed-call-textback, quote-follow-up-timing]
+    next: >-
+      Turn ventures/sales-agent into the revenue-department suite's core:
+      one account and pipeline model (account, contact, deal, activity) as a
+      hosted app with sign-in, an inbound lead inbox with speed-to-lead, and
+      outbound sequences drafted for a person to approve. Write COSTS.md
+      (hosting, model tokens per drafted message) and price it at about
+      cost plus 100%. Voice agent next.
+
   - suite: research-baseline
     tier: revenue
     serves: business
@@ -93,8 +106,8 @@ suites:
     home: null
     builds_on: [grant-reporting-tracker, volunteer-shift-scheduler]
     next: >-
-      Create the suite venture, local-first (client data never leaves the
-      device): client intake and household records, service and visit logs,
+      Create the suite venture as a hosted app with role-based access and an
+      audit log: client intake and household records, service and visit logs,
       unduplicated client counts by programme and period, and a funder report
       builder. Food-pantry inventory and distribution counts next.
 

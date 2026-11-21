@@ -46,14 +46,14 @@ no venture has a single measured visitor. That is not the brief. So:
 - **Build something with depth:** a real workflow, data, an algorithm, an
   integration, AI/ML that clearly helps, or a mobile or desktop app. Land a
   first working version in one run and deepen it over later runs.
-- **Finish ventures as one-click, self-deployed businesses.** The owner,
-  2026-10-15: "the model I'm thinking is fully developing one click deploy actual businesses with a web page with some inputs for credentials so people can spin up their own copies of the venture. then I'm not hosting and not liable. it's someone else. but still with a donate to the creator button."
-  A venture is done when a stranger can open its page, enter their own
-  credentials, click Deploy, and end up running their own copy in their
-  own accounts, with the "donate to the creator" link still in it. Credentials
-  go straight to the deployer's cloud or fork and never pass through anything
-  the owner runs (`prompts/goals.md`, Mission). Taking an existing venture
-  all the way there counts as much as anything new.
+- **Finish ventures as paid, hosted products** (owner, 2026-11-21; this
+  replaces the 2026-10-15 self-deploy finish line; `prompts/goals.md`, "The
+  2026-11-21 pivot"). A venture is done when a customer can sign up, use it,
+  and pay a price of about cost plus 100% (`COSTS.md`), with free trials or
+  lead magnets in front and a normal privacy policy and terms behind it.
+  Construction leads this track ("one tool for literally everything" a
+  construction or development company needs), then deep tech, hardware and
+  research turned into products.
 - **Run the near-copy check before you pick a niche.** Count the name
   suffixes of the 15 newest ventures; if any suffix appears 3 or more times,
   or yours would be the fourth "<country/trade>-<same-shape>", build a

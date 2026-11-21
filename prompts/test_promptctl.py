@@ -418,14 +418,14 @@ class RepositoryTest(unittest.TestCase):
         # The owner's request: about 5% of effort is the agent's own choice.
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.03, places=3)
+        self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.02, places=3)
 
     def test_creative_work_gets_about_ten_percent(self):
         # The owner, 2026-10-21: a portion of the scheduled fleet operates the
         # creative projects (prompts/creative/prompt-0.md).
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.04, places=3)
+        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.02, places=3)
 
     def test_polish_gets_about_five_percent_for_a_period(self):
         # The owner, 2026-10-28: "like 5% of work going to making the sites
@@ -440,15 +440,17 @@ class RepositoryTest(unittest.TestCase):
         # performance engineering across the repo" (prompts/perf/prompt-0.md).
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["perf"] / sum(weights.values()), 0.03, places=3)
+        self.assertAlmostEqual(weights["perf"] / sum(weights.values()), 0.02, places=3)
 
-    def test_smb_suites_get_about_sixty_percent(self):
+    def test_smb_suites_get_about_half(self):
         # The owner, 2026-11-21: "probably 60 to 70% of the effort" to tools for
-        # small businesses, nonprofits and parishes (prompts/smb/prompt-0.md). The
-        # side tracks above were cut the same day to make room.
+        # small businesses, nonprofits and parishes (prompts/smb/prompt-0.md),
+        # then, the same day, the paid-SaaS pivot that also puts construction and
+        # deep tech in the ventures track (goals.md, "The 2026-11-21 pivot"):
+        # smb 52% + ventures 20%. The side tracks were cut to make room.
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["smb"] / sum(weights.values()), 0.58, places=3)
+        self.assertAlmostEqual(weights["smb"] / sum(weights.values()), 0.52, places=3)
         self.assertTrue((promptctl.ROOT / "smb" / "prompt-0.md").exists())
 
     def test_an_smb_message_routes_to_smb_before_ventures(self):

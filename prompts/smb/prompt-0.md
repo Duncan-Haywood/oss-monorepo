@@ -1,9 +1,11 @@
 # SMB track, prompt 0
 
-Suites of tools for small and medium businesses, nonprofits, parishes and
-Catholic charities: the repository's main theme since 2026-11-21. The master
-prompt (`prompt.md`) routes about 60% of runs here (`routing.json` weight
-0.58). The owner, that day: "I want to move like probably 60 to 70% of the
+Paid, hosted suites of tools for small and medium businesses, nonprofits,
+parishes and Catholic charities: the repository's main theme since
+2026-11-21, AI revenue departments (sales, marketing, revenue operations)
+first. The master
+prompt (`prompt.md`) routes about half of runs here (`routing.json` weight
+0.52). The owner, that day: "I want to move like probably 60 to 70% of the
 effort there as a broad theme", "full working businesses, solving the most
 common problems", "in order of most value delivered", revenue first "and then
 secondarily for cost reducing things". The goals and guardrails in
@@ -52,15 +54,16 @@ aimed at the people who would use it, honest claims only.
 - **Revenue claims wait for a measurement.** "Reminders get invoices paid
   sooner" is a hypothesis on the page until a reading backs it.
 - **Real customer, donor, client and patient data never enters the tree or a
-  session.** Fixtures are made up and say so. Agency and clinical modules are
-  local-first.
+  session.** Fixtures are made up and say so. Products themselves are normal
+  hosted apps that store their customers' data under the privacy policy.
 - **Rules from official text.** Tax, employment, canon law and funder rules
   are quoted from the source fetched in the run that cites them.
-- **Pricing is cost plus, shipped dark.** A suite that could be hosted keeps
-  `COSTS.md` (per-customer cost from published prices, fetched in the run)
-  and a paid path that renders the free one until the owner sets a checkout
-  link. Hosting customer data is the owner's decision; build so it is
-  possible, never stand it up.
+- **Paid first, at cost plus.** A suite is a hosted, paid product
+  (`goals.md`, "The 2026-11-21 pivot"): `COSTS.md` holds the per-customer
+  cost from published prices, fetched in the run, and the price is about
+  twice that. Free trials, freemium and lead magnets are fine. Until the
+  owner's checkout link exists it runs as a labelled free early-access period
+  with the planned price shown.
 - **Outreach is drafted, never sent.** Target lists from public sources,
   one-to-one emails and call scripts that follow CAN-SPAM, TCPA and the
   stricter rules abroad (programme, "Learning what they need"), recorded in

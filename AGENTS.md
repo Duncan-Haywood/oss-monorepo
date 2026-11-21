@@ -116,12 +116,16 @@ paid automation, secrets. Payment code on the deployer's own keys is fine
    names a specific competitor (`vs-<competitor>.html`) needs a second,
    separate disclaimer — §5f, nominative fair use plus a "not affiliated
    with" line — checked by `node platform/pages/clauses.mjs <slug>`.
-2. **Usage stats** — anonymous aggregate events (feature used, page viewed,
+2. **Analytics** (normal product analytics under the privacy policy since
+   2026-11-21, (`prompts/goals.md`, "The 2026-11-21 pivot"); the anonymous counts below still apply) — anonymous aggregate events (feature used, page viewed,
    kind of referring site) on by default; anything that identifies a returning
    browser only with the consent the law requires; nothing personal committed.
    Follow the law, no stricter (owner, 2026-10-20): cookies a feature needs are
    fine. Rules and the file readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
-3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
+3. **A paid plan, priced at about cost plus 100%** (owner, 2026-11-21: "moving
+   towards paid tools first"; (`prompts/goals.md`, "The 2026-11-21 pivot")). Free trials, a freemium tier and free
+   lead magnets are fine; until the checkout link exists, a labelled free
+   early-access period with the planned price shown.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's
    search words, meta description, JSON-LD, sitemap, crawlable robots.txt.
    Search and AI-assistant discovery are the growth channel, so they ship with

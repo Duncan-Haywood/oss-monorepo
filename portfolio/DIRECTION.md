@@ -23,9 +23,11 @@ Companions that carry the detail:
 
 ## North star
 
-Find *viable software businesses*: products that reach real users, earn
-optional donation revenue, keep those users happy, and create no legal
-exposure the owner must clean up personally.
+Build *a paid SaaS portfolio* (owner, 2026-11-21: "pivoting into a real SaaS
+portfolio business with a ton of SaaSes"; (`prompts/goals.md`, "The 2026-11-21 pivot")): hosted products,
+each on its own marisstella.app subdomain with its own marketing, priced at
+about cost plus 100%, that customers pay for, keep using and recommend, with
+no legal exposure the owner must clean up personally.
 
 1. **Ship and deploy, not just build.** An `index.html` on `main` with no public
    URL is not a product yet. `python3 platform/ci/pages_state.py` says whether
@@ -58,14 +60,17 @@ without paid acquisition, and double down on that. No effort on
 calculators beyond fixes; already-built ones can still merge (owner, 2026-10-21; `goals.md`,
 "Direction: depth over calculators").
 
-- Do not collect payment on, or wire payout rails to, the owner's accounts.
-- Keep liability-limiting disclaimers in every user-facing product.
-- Add a GitHub Sponsors or donation link where it fits (optional, never a paywall).
+- Since 2026-11-21: paid first, at about cost plus 100%, through the owner's
+  merchant-of-record checkout link (never a key in the repo); free trials,
+  freemium and lead magnets in front (`prompts/goals.md`, "The 2026-11-21 pivot").
+- Keep liability-limiting disclaimers in every user-facing product, and a
+  standard privacy policy and terms of service under the company's name.
+- Donation links are optional extras, no longer the revenue model.
 
 ## Current priority
 
 **Since 2026-11-21 the main theme is suites for small businesses, nonprofits,
-parishes and Catholic charities, about 60% of runs** (the `smb` track): whole
+parishes and Catholic charities, about half of runs** (the `smb` track): whole
 products a firm can run part of its operation on, revenue work before cost
 work, hyper-niche editions per trade. The programme and queue:
 [`smb/README.md`](smb/README.md), [`smb/suites.yaml`](smb/suites.yaml)

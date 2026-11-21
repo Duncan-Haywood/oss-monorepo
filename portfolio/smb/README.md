@@ -1,6 +1,7 @@
 # Suites for small businesses, nonprofits and parishes
 
-**The main theme since 2026-11-21.** The owner, that day:
+**The main theme since 2026-11-21**, inside that day's wider pivot to a paid
+SaaS portfolio (`prompts/goals.md`, "The 2026-11-21 pivot"). The owner, that day:
 
 > "I want to move a lot of the dev work towards for-profit tools for small and
 > medium businesses ... full working businesses, solving the most common
@@ -20,7 +21,7 @@
 This file is the programme: what to build, in what order, how it is priced and
 how we learn what businesses actually need. The queue of suites, with each
 one's next milestone, is [`suites.yaml`](suites.yaml). The `smb` routing track
-carries about 60% of runs (`prompts/routing.json`); its sub-prompt is
+carries about half of runs (`prompts/routing.json`); its sub-prompt is
 `prompts/smb/prompt-0.md`.
 
 ## The ordering rule
@@ -49,6 +50,19 @@ package them with the words, rules and workflows of one trade. Hyper-niche
 editions are the point (the owner: "very specialized for very specific
 businesses"): a plumbing shop and a dental practice both send invoices, but
 win work and lose money in different places.
+
+### First: AI revenue departments
+
+The owner, 2026-11-21: "AI sales departments, AI marketing departments, AI
+revenue departments ... not just initial sales calls, but full process", and
+"marketing sales is as much, if not more, distribution ... as much, if not
+more, of a blocker for us than actually being able to develop a product." So
+this suite leads, and we use it ourselves for the portfolio's own
+distribution (drafts a person sends, within the outreach rules below).
+
+| Suite | Modules | Why it pays |
+|---|---|---|
+| **Revenue department** | prospect research and list building from public sources; outbound sequences drafted for approval; inbound lead routing and speed-to-lead; AI voice agent for inbound calls, booking and qualification (disclosed as AI, with consent and recording rules per state); meeting notes to CRM; pipeline and forecast; proposals and quotes; renewals, upsell and churn-risk; marketing calendar, content and ads reporting; attribution | Every module sits directly on revenue. Builds on `ventures/sales-agent/` (the SDR agent) and the sales and marketing ventures (`portfolio/sales-tools/`). Hyper-niche editions per trade: a revenue department for an HVAC shop is not one for a law firm. |
 
 ### Businesses: revenue
 
@@ -82,7 +96,7 @@ win work and lose money in different places.
 | Suite | Modules | Why it pays |
 |---|---|---|
 | **Parish office** (`ventures/parish-office/`) | Mass intentions (landed), two-counter Sunday collection sheet, offertory and stewardship reports, sacramental registers, faith-formation registration and fees, volunteer and minister schedules, safe-environment training expiry tracking, diocesan assessment worksheet, bulletin and calendar | Offertory and stewardship are the parish's revenue; the rest is the secretary's week. Roadmap: [`ventures/parish-office/ROADMAP.md`](../../ventures/parish-office/ROADMAP.md). |
-| **Charities agency** (new) | client intake and eligibility, case notes, service and visit logs, food-pantry inventory and distribution counts, funder report builder (outputs by programme, unduplicated clients), volunteer hours as in-kind | Agencies live on grants and contracts that pay on reported outputs; reporting is their revenue step. Client data is sensitive: local-first, nothing uploaded, by design. |
+| **Charities agency** (new) | client intake and eligibility, case notes, service and visit logs, food-pantry inventory and distribution counts, funder report builder (outputs by programme, unduplicated clients), volunteer hours as in-kind | Agencies live on grants and contracts that pay on reported outputs; reporting is their revenue step. Client data is sensitive: role-based access, audit log, and the agency's own retention rules. |
 | **Community websites** (`ventures/monastery-site/`) | sites for religious communities with giving, vocations and events | Already in progress. |
 
 ## Build bar
@@ -100,13 +114,15 @@ hours, built one working module per run. What changes is the **destination**:
 - **Compose before writing.** There are about 1,400 ventures; many are a
   module of one of these suites already (on 2026-11-21, by folder name: 28
   invoice or collections tools, 27 booking or scheduling, 24 sales, leads or
-  email, 16 books, payroll or tax, 12 for nonprofits and religious
-  communities). `python3 portfolio/pipeline/duplicate_check.py "<niche>"`
+  email, 16 books, payroll or tax, 12 with nonprofit, giving or
+  religious names). `python3 portfolio/pipeline/duplicate_check.py "<niche>"`
   before starting anything new.
 - **Revenue-touching features are measured.** Where a module claims it brings
   money in (reminders shorten payment time, reactivation brings customers
   back), the claim waits for a measurement, and the page says so until then.
-- **Disclaimer and usage tracking** on every user-facing page, as always.
+- **Disclaimer, analytics and a price** on every user-facing page: the
+  disclaimer as always, product analytics under the privacy policy, and the
+  plan and its price.
 
 ## The company
 
@@ -123,30 +139,30 @@ and hosted services; state consumer-protection and telemarketing rules)
 rather than relying on memory. Registering anything in the company's name,
 signing terms and opening accounts stay the owner's.
 
-## Pricing: cost plus
+## Pricing: cost plus, hosted, paid first
 
-The owner asks for SaaS at cost plus. The default that fits the existing
-guardrails (`prompts/goals.md`, "Payments" and "For profit, without blocking
-work"):
+Settled by the owner on 2026-11-21 (`prompts/goals.md`, "The 2026-11-21
+pivot"): the suites are **hosted SaaS the company runs**, sold at about **cost
+plus 100%**.
 
-- **The code stays MIT and self-deployable.** Anyone can run a suite free on
-  their own accounts. That remains the zero-liability path.
-- **A hosted plan is the paid product**, sold through the owner's merchant of
-  record at the measured cost of serving one customer plus a stated margin.
-  Each suite keeps a `COSTS.md` with the per-customer bill (compute, storage,
-  email or SMS sends, support time) from the provider's published prices,
-  fetched in the run that writes it, and the price that results.
-- **It ships dark.** Until the owner sets a checkout link, the paid path
-  renders the free path and nothing waits on it.
-- **Hosting other people's customer data is an owner decision.** Running the
-  hosted plan makes the owner the operator and data processor for those firms,
-  with the obligations that brings (privacy policy, data-processing terms,
-  breach duties; HIPAA for anything clinical). That decision is the
-  owner's (asked in the 2026-11-21 session that set this theme); until it is
-  made, suites are built so they
-  *can* be hosted (multi-tenant data model, per-tenant cost meter) without
-  anyone hosting them. Never store real client, donor or patient data in this
-  repository or a session.
+- **Price = about twice the measured cost of serving one customer**, with a
+  small nominal floor. Each suite keeps a `COSTS.md`: the per-customer bill
+  (compute, storage, AI tokens, email or SMS sends, card fees, support time)
+  from the providers' published prices, fetched in the run that writes it,
+  and the price that results. A heavier plan (more seats, more AI, voice
+  minutes) is priced the same way from its own cost.
+- **Paid first, free for marketing.** Free trials, a freemium tier and lead
+  magnets (a free audit, a free small tool that leads to the suite) are
+  welcome; the suite's core is paid.
+- **Until the checkout link exists** the product runs as a labelled free
+  early-access period with the planned price on the page. Nothing waits on it.
+- **Normal SaaS data handling.** Accounts, a database and server-side AI are
+  expected. The company is the operator and data processor for its customers:
+  a standard privacy policy, terms of service and, for business customers,
+  data-processing terms, with access controls and breach handling. Anything
+  clinical (HIPAA) or about children needs its own review before it is built.
+  Real customer, donor or client data never goes in this repository or a
+  session; fixtures are made up and say so.
 
 ## Learning what they need
 
