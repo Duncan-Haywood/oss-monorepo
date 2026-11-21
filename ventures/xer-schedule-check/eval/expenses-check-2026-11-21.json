@@ -1,0 +1,275 @@
+[
+ {
+  "file": "januaria.xer",
+  "project": "9001",
+  "expenses": 41,
+  "planted": 0,
+  "onActivities": 0,
+  "groups": 41,
+  "merged": 0,
+  "costResources": 41,
+  "back": 41,
+  "extra": 0,
+  "matched": 41,
+  "target": 41,
+  "actual": 41,
+  "remaining": 41,
+  "category": 41,
+  "accrual": 41,
+  "vendor": 41,
+  "po": 41,
+  "quantity": 41,
+  "description": 41,
+  "textCompared": 41,
+  "totals": {
+   "target": [
+    4338295.98,
+    4338295.98
+   ],
+   "actual": [
+    0,
+    0
+   ],
+   "remaining": [
+    4338295.98,
+    4338295.98
+   ]
+  },
+  "problems": 0,
+  "misses": []
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "project": "8788",
+  "expenses": 377,
+  "planted": 377,
+  "onActivities": 300,
+  "groups": 369,
+  "merged": 8,
+  "costResources": 160,
+  "back": 377,
+  "extra": 0,
+  "matched": 369,
+  "target": 369,
+  "actual": 369,
+  "remaining": 369,
+  "category": 369,
+  "accrual": 369,
+  "vendor": 361,
+  "po": 361,
+  "quantity": 361,
+  "description": 361,
+  "textCompared": 361,
+  "totals": {
+   "target": [
+    9080312.1,
+    9080312.1
+   ],
+   "actual": [
+    1583791.16,
+    1583791.16
+   ],
+   "remaining": [
+    7651666.53,
+    7651666.53
+   ]
+  },
+  "problems": 0,
+  "misses": []
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "project": "1296",
+  "expenses": 401,
+  "planted": 401,
+  "onActivities": 300,
+  "groups": 393,
+  "merged": 8,
+  "costResources": 156,
+  "back": 401,
+  "extra": 0,
+  "matched": 393,
+  "target": 393,
+  "actual": 393,
+  "remaining": 393,
+  "category": 393,
+  "accrual": 393,
+  "vendor": 385,
+  "po": 385,
+  "quantity": 385,
+  "description": 385,
+  "textCompared": 385,
+  "totals": {
+   "target": [
+    10237306.53,
+    10237306.53
+   ],
+   "actual": [
+    0,
+    0
+   ],
+   "remaining": [
+    10409117.62,
+    10409117.62
+   ]
+  },
+  "problems": 0,
+  "misses": []
+ },
+ {
+  "file": "example_xer_file.xer",
+  "project": "3319",
+  "expenses": 275,
+  "planted": 275,
+  "onActivities": 213,
+  "groups": 272,
+  "merged": 3,
+  "costResources": 135,
+  "back": 275,
+  "extra": 0,
+  "matched": 272,
+  "target": 272,
+  "actual": 272,
+  "remaining": 272,
+  "category": 272,
+  "accrual": 272,
+  "vendor": 269,
+  "po": 269,
+  "quantity": 269,
+  "description": 269,
+  "textCompared": 269,
+  "totals": {
+   "target": [
+    6221901.3,
+    6221901.3
+   ],
+   "actual": [
+    367231.63,
+    367231.63
+   ],
+   "remaining": [
+    5991702.94,
+    5991702.94
+   ]
+  },
+  "problems": 0,
+  "misses": []
+ },
+ {
+  "file": "hotel-project.xer",
+  "project": "2666",
+  "expenses": 393,
+  "planted": 393,
+  "onActivities": 300,
+  "groups": 382,
+  "merged": 11,
+  "costResources": 160,
+  "back": 393,
+  "extra": 0,
+  "matched": 382,
+  "target": 382,
+  "actual": 382,
+  "remaining": 382,
+  "category": 382,
+  "accrual": 382,
+  "vendor": 371,
+  "po": 371,
+  "quantity": 371,
+  "description": 371,
+  "textCompared": 371,
+  "totals": {
+   "target": [
+    10034222.64,
+    10034222.64
+   ],
+   "actual": [
+    0,
+    0
+   ],
+   "remaining": [
+    10264391.03,
+    10264391.03
+   ]
+  },
+  "problems": 0,
+  "misses": []
+ },
+ {
+  "file": "sample.xer",
+  "project": "4508",
+  "expenses": 30,
+  "planted": 30,
+  "onActivities": 26,
+  "groups": 30,
+  "merged": 0,
+  "costResources": 26,
+  "back": 30,
+  "extra": 0,
+  "matched": 30,
+  "target": 30,
+  "actual": 30,
+  "remaining": 30,
+  "category": 30,
+  "accrual": 30,
+  "vendor": 30,
+  "po": 30,
+  "quantity": 30,
+  "description": 30,
+  "textCompared": 30,
+  "totals": {
+   "target": [
+    949246.26,
+    949246.26
+   ],
+   "actual": [
+    0,
+    0
+   ],
+   "remaining": [
+    959840.75,
+    959840.75
+   ]
+  },
+  "problems": 0,
+  "misses": []
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "project": "3211",
+  "expenses": 40,
+  "planted": 40,
+  "onActivities": 33,
+  "groups": 39,
+  "merged": 1,
+  "costResources": 36,
+  "back": 40,
+  "extra": 0,
+  "matched": 39,
+  "target": 39,
+  "actual": 39,
+  "remaining": 39,
+  "category": 39,
+  "accrual": 39,
+  "vendor": 38,
+  "po": 38,
+  "quantity": 38,
+  "description": 38,
+  "textCompared": 38,
+  "totals": {
+   "target": [
+    1237422.99,
+    1237422.99
+   ],
+   "actual": [
+    0,
+    0
+   ],
+   "remaining": [
+    1265512.04,
+    1265512.04
+   ]
+  },
+  "problems": 0,
+  "misses": []
+ }
+]

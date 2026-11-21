@@ -376,3 +376,40 @@ test("WBS UDFs go onto the summary tasks, sharing a same-titled activity UDF's f
   assert.equal(back.counts.wbsUdfFields, 4);
   assert.equal(back.counts.udfFields, 1);
 });
+
+test("expenses become cost resource assignments and come back as the same expenses", async () => {
+  const { p6XerText, p6Problems } = await import("./p6xer.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const T = x.tables;
+  const [a, b] = T.TASK.filter((t) => t.task_type !== "TT_WBS" && t.task_type !== "TT_LOE");
+  const pid = a.proj_id;
+  T.COSTTYPE = [{ cost_type_id: "5", seq_num: "0", cost_type: "Materials" }, { cost_type_id: "6", seq_num: "1", cost_type: "Subcontract" }];
+  const row = (id, task, name, type, load, target, act, remain, extra = {}) => ({ cost_item_id: id, acct_id: "", pobs_id: "", cost_type_id: type, proj_id: pid, task_id: task.task_id, cost_name: name, po_number: "", vendor_name: "", act_cost: act, cost_per_qty: target, remain_cost: remain, target_cost: target, cost_load_type: load, auto_compute_act_flag: "N", target_qty: "1", qty_name: "", cost_descr: "", contract_manager_import: "", ...extra });
+  T.PROJCOST = [
+    row("1", a, "Concrete supply", "5", "CL_Uniform", "12000", "3000", "9500", { vendor_name: "Acme Ready-Mix", po_number: "PO-17", target_qty: "40", qty_name: "m3", cost_per_qty: "300", cost_descr: 'Mix "C32/40", pumped' }),
+    row("2", b, "Concrete supply", "6", "CL_End", "800", "0", "800"), // same name, another category and accrual
+    row("3", b, "Permit", "", "CL_Start", "250", "0", "250"),
+    row("4", b, "Permit", "", "CL_Start", "100", "0", "100"), // same name, category and accrual on one activity: summed
+  ];
+  const conv = mspdiText(x);
+  assert.equal(conv.counts.expenses, 4);
+  assert.equal(conv.counts.costResources, 3);
+  assert.match(conv.xml, /<Name>Concrete supply<\/Name><Type>2<\/Type><IsNull>0<\/IsNull><Group>Materials<\/Group><AccrueAt>3<\/AccrueAt>/);
+  assert.match(conv.xml, /<Name>Concrete supply \(Subcontract, at end\)<\/Name><Type>2<\/Type><IsNull>0<\/IsNull><Group>Subcontract<\/Group><AccrueAt>2<\/AccrueAt>/);
+  assert.match(conv.xml, /<ActualCost>300000<\/ActualCost><Cost>1250000<\/Cost>/); // at completion = actual + remaining
+  assert.ok(conv.warnings.some((w) => /4 expense\(s\) written as assignments of 3 cost resource/.test(w)));
+  assert.ok(conv.warnings.some((w) => /1 expense\(s\) added to another of the same name/.test(w)));
+  assert.ok(!conv.warnings.some((w) => /not carried:.*expense/.test(w)));
+  const back = p6XerText(conv.xml);
+  assert.deepEqual(p6Problems(back.xer.tables), []);
+  const code = new Map(back.xer.tables.TASK.map((t) => [t.task_id, t.task_code]));
+  const cat = new Map(back.xer.tables.COSTTYPE.map((c) => [c.cost_type_id, c.cost_type]));
+  const got = back.xer.tables.PROJCOST.map((c) => [code.get(c.task_id), c.cost_name, cat.get(c.cost_type_id) || "", c.cost_load_type, c.target_cost, c.act_cost, c.remain_cost]);
+  assert.deepEqual(got, [
+    [a.task_code, "Concrete supply", "Materials", "CL_Uniform", "12000", "3000", "9500"],
+    [b.task_code, "Concrete supply", "Subcontract", "CL_End", "800", "0", "800"],
+    [b.task_code, "Permit", "", "CL_Start", "350", "0", "350"],
+  ]);
+  const c1 = back.xer.tables.PROJCOST[0];
+  assert.deepEqual([c1.vendor_name, c1.po_number, c1.target_qty, c1.qty_name, c1.cost_per_qty, c1.cost_descr], ["Acme Ready-Mix", "PO-17", "40", "m3", "300", 'Mix "C32/40", pumped']);
+});

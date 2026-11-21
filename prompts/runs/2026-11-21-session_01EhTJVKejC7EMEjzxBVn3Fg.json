@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVKejC7EMEjzxBVn3Fg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T16:08:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check (flagship row 8): P6 expenses <-> Project cost resources and fixed costs, both converters",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": 18105,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "the first --mspdi planting appended a second <FixedCost> after Project's own <FixedCost>0</FixedCost>, so 243 of 246 planted fixed costs were invisible",
+      "fix": "the eval replaces the existing element; 246 of 246 then written"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-p6-expenses-to-project-cost-resources.md",
+    "ventures/xer-schedule-check/eval/expenses-2026-11-21.md"
+  ],
+  "goal": null,
+  "notes": "Both directions previously dropped non-labour cost. Round trip on 1,557 expenses (41 real generator rows + 1,516 planted on six public P6 files): 1,526/1,526 groups equal in budget/actual/remaining/category/accrual, 1,495/1,495 in vendor/PO/quantity/description; MPXJ agrees on both XERs and 1,213/1,213 activities' cost assignments. A first version (one cost resource per name) lost category on 63-79 and accrual on ~150 of ~390 per file; fixed by a resource per (name, category, accrual) with an Expense: note line. 102 Project files with planted cost resources/fixed costs: 615/615 and 246/246 written, 0 p6Problems. Local checks: run_venture_tests.py xer-schedule-check (0 failed), check_posts ok, validate.py ok, venture-preflight (see PR).",
+  "corrections": [],
+  "redteam": null
+}
