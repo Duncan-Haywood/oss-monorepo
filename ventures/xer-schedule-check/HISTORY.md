@@ -22,3 +22,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) grouped by activity code 2026-11-21 (actvcodes.mjs, --group-by; 1,239,716 of 1,239,716 placements, eval/activity-codes-2026-11-21.md)
 - (moved 2026-11-21) (2) update comparison shipped 2026-11-19 (compare.mjs, half-step split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real files)
 - (2026-11-21, red team) Project XML to XER: repeated resource IDs (Project's first-letter Initials; 55 of 143 MPXJ corpus files, 798 repeats) made unique with -2, -3 and named by p6Problems; summary-task assignments now reported. eval/p6xer-check-2026-11-21.md "Correction"; eval/p6xer-resource-ids.mjs.
+- (moved 2026-11-21) Number/Cost/Date fields as P6 UDFs 2026-11-21 (243/243, round trip 13,997/13,997, MPXJ agrees; eval/p6xer-udfs-2026-11-21.md)

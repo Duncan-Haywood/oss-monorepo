@@ -583,11 +583,11 @@ flagships:
       2026-11-21 (42,971/42,971 back, MPXJ agrees;
       eval/msproject-udfs-2026-11-21.md); resource UDFs as resource fields
       2026-11-21 (330/330 through XML and back, MPXJ agrees;
-      eval/rsrc-udfs-2026-11-21.md); next WBS UDFs; outline codes 2026-11-21
-      (eval/msproject-outline-2026-11-21.md); next a Project check. MSPDI to XER
-      shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md); Number/Cost/Date fields
-      as P6 UDFs 2026-11-21 (243/243, round trip 13,997/13,997, MPXJ agrees;
-      eval/p6xer-udfs-2026-11-21.md). More open items: NEXT.md.
+      eval/rsrc-udfs-2026-11-21.md); WBS UDFs on summary tasks 2026-11-21
+      (6,383/6,383 planted back, MPXJ agrees; eval/wbs-udfs-2026-11-21.md); outline
+      codes 2026-11-21 (eval/msproject-outline-2026-11-21.md); next a Project check.
+      MSPDI to XER shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md). More open
+      items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

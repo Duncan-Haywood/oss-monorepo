@@ -42,7 +42,10 @@
 //   Project planner's own custom fields reach the P6 file. (Text fields
 //   become activity codes, above.) The resource Text, Number, Cost and Date
 //   fields become resource UDFs (table RSRC) the same way, text as text UDFs,
-//   so the resource UDFs msproject.mjs writes from an XER come back.
+//   so the resource UDFs msproject.mjs writes from an XER come back. The
+//   same task fields on summary tasks (Text fields too, but not the Activity
+//   ID one) become WBS UDFs (table PROJWBS) on the WBS nodes they turn into,
+//   so the WBS UDFs msproject.mjs writes onto summary tasks come back.
 //
 // Not carried (counted in the warnings): notes, task splits and contoured
 // work, deadlines (no P6 field), elapsed lags on links (P6 has one lag
@@ -425,15 +428,22 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   const UDFTYPE = [], UDFVALUE = [];
   const udfLabels = new Set();
   let udfDupLabels = 0;
-  for (const u of (T.UDFTYPE || []).filter((x) => x.table_name === "TASK")) {
-    const rows = (T.UDFVALUE || []).filter((v) => v.udf_type_id === u.udf_type_id && taskIds.has(v.fk_id));
+  // WBS user-defined fields (mspdi.mjs reads them from the summary tasks'
+  // fields) the same way, on the WBS nodes; titles are unique per subject area
+  const wbsLabels = new Set();
+  let wbsUdfFields = 0, wbsUdfValues = 0;
+  for (const u of (T.UDFTYPE || []).filter((x) => x.table_name === "TASK" || x.table_name === "PROJWBS")) {
+    const wbs = u.table_name === "PROJWBS";
+    const rows = (T.UDFVALUE || []).filter((v) => v.udf_type_id === u.udf_type_id && (wbs ? srcWbs.has(v.fk_id) : taskIds.has(v.fk_id)));
     if (!rows.length) continue;
-    const id = idOf("UDF", u.udf_type_id);
+    const id = idOf("UDF", wbs ? `wbs-${u.udf_type_id}` : u.udf_type_id);
+    const seen = wbs ? wbsLabels : udfLabels;
     let label = clip("udf_type_label", u.udf_type_label || u.udf_type_name);
-    if (udfLabels.has(label.toLowerCase())) { udfDupLabels++; let k = 2; const cut = (x) => `${label.slice(0, MAX.udf_type_label - String(x).length - 3)} (${x})`; while (udfLabels.has(cut(k).toLowerCase())) k++; label = cut(k); }
-    udfLabels.add(label.toLowerCase());
-    UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: "TASK", udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: u.logical_data_type, super_flag: "N" }));
-    for (const v of rows) UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf("TASK", v.fk_id), proj_id: P, udf_date: v.udf_date, udf_number: v.udf_number, udf_text: clip("udf_text", v.udf_text), udf_code_id: "" }));
+    if (seen.has(label.toLowerCase())) { udfDupLabels++; let k = 2; const cut = (x) => `${label.slice(0, MAX.udf_type_label - String(x).length - 3)} (${x})`; while (seen.has(cut(k).toLowerCase())) k++; label = cut(k); }
+    seen.add(label.toLowerCase());
+    UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: u.table_name, udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: u.logical_data_type, super_flag: "N" }));
+    for (const v of rows) UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf(wbs ? "WBS" : "TASK", v.fk_id), proj_id: P, udf_date: v.udf_date, udf_number: v.udf_number, udf_text: clip("udf_text", v.udf_text), udf_code_id: "" }));
+    if (wbs) { wbsUdfFields++; wbsUdfValues += rows.length; }
   }
 
   // resource custom fields (Text, Number, Cost, Date) -> resource UDFs, the
@@ -488,8 +498,9 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (trees) warnings.push(`${trees} activity code type(s) written as parent.child paths rebuilt as P6 code hierarchies`);
   if (dupRsrc) warnings.push(`${dupRsrc} repeated resource ID(s) given a -2, -3 suffix (P6 needs them unique; Project fills Initials with the name's first letter)`);
   if (summaryAssign) warnings.push(`${summaryAssign} assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no resources`);
-  const taskUdfTypes = UDFTYPE.length - rsrcUdfFields, taskUdfValues = UDFVALUE.length - rsrcUdfValues;
+  const taskUdfTypes = UDFTYPE.length - rsrcUdfFields - wbsUdfFields, taskUdfValues = UDFVALUE.length - rsrcUdfValues - wbsUdfValues;
   if (taskUdfTypes) warnings.push(`${taskUdfValues} custom field value(s) in ${taskUdfTypes} field(s) written as activity user-defined fields${UDFTYPE.some((u) => u.table_name === "TASK" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
+  if (wbsUdfFields) warnings.push(`${wbsUdfValues} summary task custom field value(s) in ${wbsUdfFields} field(s) written as WBS user-defined fields${UDFTYPE.some((u) => u.table_name === "PROJWBS" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
   if (rsrcUdfFields) warnings.push(`${rsrcUdfValues} resource custom field value(s) in ${rsrcUdfFields} field(s) written as resource user-defined fields${UDFTYPE.some((u) => u.table_name === "RSRC" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
   if (rsrcUnread) warnings.push(`${rsrcUnread} resource custom field value(s) could not be read as a number or date and were left out`);
   if (udfDupLabels) warnings.push(`${udfDupLabels} repeated custom field title(s) given a (2), (3) suffix (P6 needs UDF titles unique)`);
@@ -500,7 +511,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (costRes) warnings.push(`${costRes} cost resource(s) and ${costAssign} assignment(s) of them not carried: P6 keeps such costs as expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: UDFTYPE.length - rsrcUdfFields, udfValues: UDFVALUE.length - rsrcUdfValues, rsrcUdfFields, rsrcUdfValues };
+  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues };
   return { xer, text: xerText(xer), counts, warnings, project: { name: title, id: shortName } };
 }
 
@@ -509,6 +520,7 @@ export const p6xerSummary = (r) =>
   (r.counts.resources ? `, ${r.counts.resources} resources (${r.counts.assignments} assignments)` : "") +
   (r.counts.codeTypes ? `, ${r.counts.codeTypes} activity code type(s)` : "") +
   (r.counts.udfFields ? `, ${r.counts.udfValues} custom field value(s) as ${r.counts.udfFields} UDF(s)` : "") +
+  (r.counts.wbsUdfFields ? `, ${r.counts.wbsUdfValues} summary task custom field value(s) as ${r.counts.wbsUdfFields} WBS UDF(s)` : "") +
   (r.counts.rsrcUdfFields ? `, ${r.counts.rsrcUdfValues} resource custom field value(s) as ${r.counts.rsrcUdfFields} resource UDF(s)` : "");
 
 // What P6's import would refuse or misread, checked on the tables written:
@@ -556,14 +568,14 @@ export function p6Problems(tables) {
   ref("TASKACTV", "task_id", "TASK"); ref("TASKACTV", "actv_code_id", "ACTVCODE"); ref("TASKACTV", "actv_code_type_id", "ACTVTYPE");
   ref("TASKRSRC", "task_id", "TASK"); ref("TASKRSRC", "rsrc_id", "RSRC");
   ref("UDFVALUE", "udf_type_id", "UDFTYPE");
-  // a value's fk_id is a row of its UDF's subject area (TASK or RSRC); an
-  // activity UDF's value names the project, a resource UDF's names none
+  // a value's fk_id is a row of its UDF's subject area (TASK, PROJWBS or
+  // RSRC); an activity or WBS UDF's value names the project, a resource UDF's none
   {
     const area = new Map((tables.UDFTYPE || []).map((u) => [u.udf_type_id, u.table_name]));
     for (const v of tables.UDFVALUE || []) {
       const t = area.get(v.udf_type_id);
       if (t && !keys[t]?.has(v.fk_id)) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: fk_id ${v.fk_id} is not in ${t}`);
-      if (t === "TASK" && !keys.PROJECT?.has(v.proj_id)) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: proj_id ${v.proj_id || "(empty)"} is not in PROJECT`);
+      if ((t === "TASK" || t === "PROJWBS") && !keys.PROJECT?.has(v.proj_id)) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: proj_id ${v.proj_id || "(empty)"} is not in PROJECT`);
     }
   }
   // a UDF's title is unique within its subject area; a value fits its type

@@ -12,9 +12,11 @@ It also **converts an XER to Microsoft Project XML** for someone with Project
 and no P6 seat (WBS, activity IDs, calendars, logic, constraints, progress,
 baseline, resources, activity codes as named text columns, user-defined fields
 as named Number, Cost, Date and Text columns, resource user-defined fields as
-named resource columns), checked on six public P6 files against this tool's own
+named resource columns, WBS user-defined fields as named columns on the summary
+tasks), checked on six public P6 files against this tool's own
 MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`,
-`eval/msproject-udfs-2026-11-21.md`, `eval/rsrc-udfs-2026-11-21.md`).
+`eval/msproject-udfs-2026-11-21.md`, `eval/rsrc-udfs-2026-11-21.md`,
+`eval/wbs-udfs-2026-11-21.md`).
 And the other way: **Microsoft Project XML to a P6 XER** for P6's import, for
 a planner in Project who must submit a P6 file (WBS under a project node,
 activity IDs, calendars, logic, progress with Project's Resume as P6's
@@ -652,6 +654,18 @@ run as a formula in Excel or Sheets.
   cells from the XML and from the XER, and 12 of 12 field names. A finish-date
   UDF comes back as a start-date one (Project has one date kind). Before, all
   87 real values were dropped.
+- **WBS user-defined fields** (`eval/wbs-udfs-2026-11-21.md`, 2026-11-21):
+  WBS UDFs go into the task Number, Cost, Date and free Text fields of the
+  summary tasks, renamed to each UDF's title; a WBS UDF titled like an
+  activity UDF of its kind shares that column. They come back from a Project
+  file as P6 WBS UDFs (summary-task values) beside the activity UDFs (task
+  values). No public XER has a WBS UDF, so they were planted on three public
+  files: 6,383 of 6,383 values in the fields written return the same on the
+  same WBS node, MPXJ 16.10 reads 6,383 of 6,383 cells from the XML and from
+  the XER and 20 of 20 field names, 13,997 of 13,997 activity UDF values still
+  come back, and the six unplanted files convert byte for byte as before. On
+  CCA the text WBS UDFs find no free Text field (codes fill them) and are
+  named in the warnings, as is a value on the project node.
 - **Gantt by activity code** (`eval/activity-codes-2026-11-21.md`): 92
   charts (each code type alone, and then the WBS) on the four public files
   with codes: every activity once, under its TASKACTV value and that value's
