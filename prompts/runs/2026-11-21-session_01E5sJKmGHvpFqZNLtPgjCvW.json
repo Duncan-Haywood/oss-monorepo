@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmGHvpFqZNLtPgjCvW",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T16:09:34Z",
+  "ended": "2026-11-21T16:23:24Z",
+  "wall_minutes": 14.01,
+  "tokens_in": 6644731,
+  "tokens_out": 35195,
+  "cost_usd": 2.8978,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18108",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) touch CODEOWNERS paths again, as the prompt warns; took 'what visitors wait on' (step 4) on a venture instead of the CI pool, which many earlier runs had already read."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "/usr/bin/time is absent in the container; timed with date +%s%N."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-three-in-four-pairs-were-empty.md",
+    "docs/history/ci-perf-2026-11-21-ifc-takeoff-clip-and-orient.md"
+  ],
+  "goal": null,
+  "notes": "Metric: ifc-quantity-takeoff CLI wall time per public model (ThatOpen/engine_web-ifc tests/ifcfiles/public, 28 .ifc), one run each, old code (git archive HEAD) then new back to back, date +%s%N. Before 138,905 ms total, after 114,546 ms (-17.5%); ARK_NUS 17,737 -> 14,111; FM_ARC_DigitalHub 16,444 -> 12,512; kleine_Wohnung 7,331 -> 4,597. --json and CSV byte-identical (cmp) on all 27 models that read; Viadotto Acerno fails identically on IfcLinearPlacement (pre-existing, noted in the history doc). Profiles: node --cpu-prof, self time summed per function. unionTerms instrumented: 86,849 of 116,504 box-overlapping pairs clip empty. Venture suite 147 pass incl. new fastpaths.test.mjs (fast paths vs verbatim old code). Concern checked: open PR #18042 adds s.loose to solidPoints; the rewritten solidExtent scans s.loose too so the two stay in step whichever lands first.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e44e9a1f-84d1-5019-ad31-9d83515ccd04",
+    "transcripts": 1,
+    "first": "2026-11-21T16:09:34Z",
+    "last": "2026-11-21T16:23:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 131,
+        "output": 35195,
+        "thinking": 6642,
+        "cache_read": 6533767,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110833,
+        "api_equivalent_usd": 2.8978,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 131,
+      "output": 35195,
+      "thinking": 6642,
+      "cache_read": 6533767,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110833,
+      "api_equivalent_usd": 2.8978,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.01,
+      "active_minutes": 11.6,
+      "model_minutes": 6.81,
+      "tool_minutes": 4.79,
+      "waiting_on_human_minutes": 2.41,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "profiling, four exact-equivalence speed-ups with reference tests, a corpus byte-diff and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 207.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
