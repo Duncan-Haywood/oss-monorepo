@@ -15,7 +15,7 @@ for g in ("above", "below"):
             rho, p = spearmanr([r[k] for r in rs], [r[f"dead_20_{lev}"] for r in rs])
             L.append(f"[{g}] {k:8s} vs dead at lever {lev}: rho {rho:+.2f} (p {p:.3f}, n {len(rs)})")
     heavy = [r for r in rs if r["mass"] >= 1.9]
-    L.append(f"[{g}] designs at mass >= 1.9 kg: {len(heavy)} ({', '.join(f'{r['label']} s{r['seed']}' for r in heavy)}); "
+    L.append(f"""[{g}] designs at mass >= 1.9 kg: {len(heavy)} ({', '.join(f'{r["label"]} s{r["seed"]}' for r in heavy)}); """
              f"dead at lever 2 {[r['dead_20_2'] for r in heavy]}, lever 3 {[r['dead_20_3'] for r in heavy]}; hover W {[round(r['power']) for r in heavy]}")
     L.append("")
 open(os.path.join(HERE, "posthoc.txt"), "w").write("\n".join(L) + "\n")

@@ -44,7 +44,7 @@ def main():
             t = (sc[i] - slo) / (shi - slo) if shi > slo else 1
             g = int(220 - 190 * t)
             o.append(f'<circle cx="{X(xs[i]):.1f}" cy="{Y(us[i]):.1f}" r="4" fill="rgb({g},{g},{min(255, g + 30)})"'
-                     f'{" stroke=\"#2f7d4f\" stroke-width=\"2\"" if i in fr else ""}/>')
+                     + (' stroke="#2f7d4f" stroke-width="2"' if i in fr else '') + '/>')
         bx, by = X(xs[b]), Y(us[b])
         o.append(f'<text x="{bx - 6:.1f}" y="{by - 7:.1f}" style="fill:#d08a00;font-size:16px">&#9733;</text>')
         o.append(f'<text x="{x0}" y="{top - 6}" style="font-weight:600">{c}</text>')

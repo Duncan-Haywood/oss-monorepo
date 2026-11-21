@@ -70,7 +70,7 @@ def summary():
             note = (f"best (round {f['it']}): {f['n_over']} over (max {100 * f['max_load']:.2f} %), "
                     f"{f['vviol']} V out ({f['v_exc_pu']:.4f} pu), {f['qviol']} Q out ({f['q_exc_mvar']:.3f} MVAr)")
         P(f"{k[0]:18s} {k[1]:4s} {r['nbus']:5d} {str(r.get('start_rule')):>24s} {r.get('mu_star', 0.0):6.3f} "
-          f"{str(r.get('clean_at') or '-'):>6s} {('-' if c is None else f'{pct(c, r['ac']):+.3f}'):>8s} "
+          f"""{str(r.get('clean_at') or '-'):>6s} {('-' if c is None else f'{pct(c, r["ac"]):+.3f}'):>8s} """
           f"{r['secs']:6.0f}  {note}")
     done = [R[k] for k in cases if k in R and "error" not in R[k]]
     clar = [r for r in done if str(r.get("start_rule", "")).startswith("Clarabel")]

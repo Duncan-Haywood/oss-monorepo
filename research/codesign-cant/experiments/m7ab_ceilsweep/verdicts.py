@@ -89,7 +89,7 @@ for s in SETS:
     for g in GEOMS:
         rs = sel(s, g, MID)
         L.append(f"context: {s} {g}: mass {np.mean([r['mass'] for r in rs]):.3f} kg, D {np.mean([r['D'] for r in rs]):.3f} m, "
-                 f"pos kp {np.mean([r['pos_kp'] for r in rs]):.1f} ({', '.join(f'{r['pos_kp']:.1f}' for r in rs)}), "
+                 f"""pos kp {np.mean([r['pos_kp'] for r in rs]):.1f} ({', '.join(f'{r["pos_kp"]:.1f}' for r in rs)}), """
                  f"J45_1 median {np.median([r['J_45_1_cap'] for r in rs]):+.3f}" + (f", rejected {rej(s, g):.2f}" if s in NEW else ""))
 for s in SETS:
     for g in GEOMS:

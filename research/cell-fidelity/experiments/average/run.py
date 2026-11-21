@@ -154,7 +154,7 @@ def main():
     h17 = ("supported" if rB <= 0.5 and ok_others else
            "refuted" if 1 / 1.5 <= rB <= 1.5 else "neither")
     L.append(f"H17 model B / observed mean R: SPMe@100 {rB:.2f}; SPM@100 and DFN cells all within 2x: {ok_others} "
-             f"({', '.join(f'{k} {C[k]['R_B'] / C[k]['R_obs_mean']:.2f}' for k in others)}) -> {h17}")
+             f"""({', '.join(f'{k} {C[k]["R_B"] / C[k]["R_obs_mean"]:.2f}' for k in others)}) -> {h17}""")
     summ["h17"] = dict(ratio_spme=rB, others_within2=ok_others, verdict=h17)
 
     # H16: planning on simulated pools of N from the 128, against GP-EI's observed median T1 at each N

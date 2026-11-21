@@ -119,8 +119,8 @@ def summarise(out, tr, labels):
             Ls.append(f"[{geom}, {lab}] L {np.mean([r['L'] for r in rs]):.3f} m; D {np.mean([r['D'] for r in rs]):.3f} m; cant {np.mean([r['alpha_deg'] for r in rs]):.1f} deg; "
                       f"mass {np.mean([r['mass'] for r in rs]):.3f} kg; hover W {np.mean([r['power'] for r in rs]):.1f}; tau/W {np.mean([r['tau_per_weight'] for r in rs]):.4f} m; "
                       f"cost ${np.mean([r['cost'] for r in rs]):.0f}{rej}")
-            Ls.append(f"  mass {', '.join(f'{r['mass']:.3f}' for r in rs)}; pos kp {', '.join(f'{r['pos_kp']:.2f}' for r in rs)}; "
-                      f"pos ki {', '.join(f'{r['pos_ki']:.3f}' for r in rs)}; att kp {', '.join(f'{r['att_kp']:.2f}' for r in rs)}")
+            Ls.append(f"""  mass {', '.join(f'{r["mass"]:.3f}' for r in rs)}; pos kp {', '.join(f'{r["pos_kp"]:.2f}' for r in rs)}; """
+                      f"""pos ki {', '.join(f'{r["pos_ki"]:.3f}' for r in rs)}; att kp {', '.join(f'{r["att_kp"]:.2f}' for r in rs)}""")
             for k in KEY:
                 Ls.append(f"  {k:>10}: dead {sum(r[f'dead_{k}'] for r in rs):4d} {[r[f'dead_{k}'] for r in rs]}; "
                           f"J median {np.median([r[f'J_{k}'] for r in rs]):+.3f}; pos {np.mean([r[f'pos_{k}'] for r in rs]):.3f} m")
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     for lab in labels:
         rs = [r for r in out if r["label"] == lab]
         lines.append(f"  {lab}: feasible {sum(r['feasible'] for r in rs)}/{len(rs)}, closes {sum(r['closes'] for r in rs)}/{len(rs)}, "
-                     f"margin {sum(r['margin_rho'] < 1 for r in rs)}/{len(rs)}; emax {', '.join(f'{r['emax']:.1f}' for r in sorted(rs, key=lambda r: (r['geom'], r['seed'])))}")
+                     f"""margin {sum(r['margin_rho'] < 1 for r in rs)}/{len(rs)}; emax {', '.join(f'{r["emax"]:.1f}' for r in sorted(rs, key=lambda r: (r['geom'], r['seed'])))}""")
     lines.append("")
     lines += summarise(out, trl, labels)
     lines.append(f"wall time {time.time() - t0:.0f} s (training {t_train:.0f} s)")

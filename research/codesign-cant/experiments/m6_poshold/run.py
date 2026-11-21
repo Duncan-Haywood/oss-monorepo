@@ -78,9 +78,9 @@ def summarise(out):
     for arm in ARMS:
         rs = sel(arm)
         for tag in ("on", "off", "calm"):
-            lines.append(f"{arm:8s} {tag:5s}  {m(rs, 'pos_' + tag):5.3f} ({', '.join(f'{r['pos_' + tag]:.3f}' for r in rs)})  {m(rs, 'late_' + tag):5.3f}  "
+            lines.append(f"""{arm:8s} {tag:5s}  {m(rs, 'pos_' + tag):5.3f} ({', '.join(f'{r["pos_" + tag]:.3f}' for r in rs)})  {m(rs, 'late_' + tag):5.3f}  """
                          f"{m(rs, 'yaw_' + tag):6.2f}   {m(rs, 'att_' + tag):6.2f}   {m(rs, 'J_' + tag):6.2f}  {m(rs, 'dead_' + tag):5.3f}  {m(rs, 'satrp_' + tag):5.3f}   {m(rs, 'saty_' + tag):5.3f}")
-        lines.append(f"{'':8s} design: cant deg ({', '.join(f'{r['alpha_deg']:.0f}' for r in rs)}), median {np.median([r['alpha_deg'] for r in rs]):.0f}; "
+        lines.append(f"""{'':8s} design: cant deg ({', '.join(f'{r["alpha_deg"]:.0f}' for r in rs)}), median {np.median([r['alpha_deg'] for r in rs]):.0f}; """
                      f"P_hover {m(rs, 'power'):.0f} W; mass {m(rs, 'mass'):.2f} kg; lat {m(rs, 'lat'):.2f} N per N m")
     lines += ["", "H3 (aware designs): position RMS with the side force on vs off, same design and episodes"]
     rs = sel("aware")

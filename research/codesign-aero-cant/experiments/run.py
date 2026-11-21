@@ -98,8 +98,8 @@ if __name__ == "__main__":
     lines.append("")
     lines.append(f"JOINT co-design of (L, D, cant, gains), {JOINT_BUDGET} evaluations, held-out {TEST_EP} episodes, 5 seeds")
     for name, rs in (("cant fixed at 0", joint[:5]), ("cant free (0..35 deg)", joint[5:])):
-        lines.append(f"  {name:22s} rms {np.mean([r['rms'] for r in rs]):6.2f} (per seed {', '.join(f'{r['rms']:.2f}' for r in rs)}); yaw RMS {np.mean([r['yaw'] for r in rs]):.2f}; "
-                     f"chosen cant {', '.join(f'{r['alpha_deg']:.0f}' for r in rs)} deg; mass {np.mean([r['mass'] for r in rs]):.2f} kg, cost {np.mean([r['cost'] for r in rs]):.0f}")
+        lines.append(f"""  {name:22s} rms {np.mean([r['rms'] for r in rs]):6.2f} (per seed {', '.join(f'{r["rms"]:.2f}' for r in rs)}); yaw RMS {np.mean([r['yaw'] for r in rs]):.2f}; """
+                     f"""chosen cant {', '.join(f'{r["alpha_deg"]:.0f}' for r in rs)} deg; mass {np.mean([r['mass'] for r in rs]):.2f} kg, cost {np.mean([r['cost'] for r in rs]):.0f}""")
     d = np.array([a["rms"] - b["rms"] for a, b in zip(joint[:5], joint[5:])])
     lines.append(f"  fixed-0 minus free-cant, per seed: {', '.join(f'{x:+.2f}' for x in d)} (positive = free cant better); mean {d.mean():+.3f}")
     open(os.path.join(HERE, "results.txt"), "w").write("\n".join(lines) + "\n")
