@@ -524,7 +524,10 @@ export function fillModel(idsText, ifc, opts = {}) {
 export const FILL_COLUMNS = ["GlobalId", "Class", "Name", "PropertySet", "Property", "DataType", "Allowed", "Value", "Specification", "Why"];
 
 // The rows the fill could not write, as a CSV a person fills in (Value) and
-// hands back with --values. One row per element and property.
+// hands back with --values. One row per element and property. rowsToCsv
+// (sheet.mjs) carries the CSV formula-injection guard: a cell a spreadsheet
+// would run as a formula (=, +, @, tab, CR, or - before a non-number) gets a
+// leading backslash, which readValues takes off again.
 export function toFillCsv(unfilled) {
   const seen = new Set();
   const rows = [FILL_COLUMNS];

@@ -566,6 +566,10 @@ How it writes, so nothing else changes:
   IfcTester, which reads one set per name.
 - The filled file is read again and every written value is tested by every
   facet on that element that names it, before the download is offered.
+- An IDS with a specification that applies to every entity ("everything is
+  classified", no class named) also checks the new property sets and
+  relationships, and they fail it as the model's own sets do; the summary
+  counts them apart so the before and after numbers can be compared.
 
 Not written: quantities (`Qto_` sets), attributes, classifications, materials
 and relationships (counted in the summary), a set or property the IDS names by a

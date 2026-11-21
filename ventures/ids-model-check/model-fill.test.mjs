@@ -215,7 +215,7 @@ test("STEP strings, reals, GlobalIds and argument lists", () => {
 
 test("the to-fill table reads back through Excel's separators and the formula guard", () => {
   const csv = toFillCsv([{ globalId: "g1", type: "IFCWALL", name: "W", pset: "P", prop: "N", dataType: "IFCREAL", allowed: "(any value)", value: "", spec: "s", why: "no value given" }]);
-  assert.ok(csv.startsWith("﻿GlobalId,Class,Name,PropertySet,Property,DataType,Allowed,Value"));
+  assert.ok(csv.startsWith("\ufeffGlobalId,Class,Name,PropertySet,Property,DataType,Allowed,Value"));
   const filled = csv.replace(/IFCREAL,\(any value\),,/, "IFCREAL,(any value),\\-5,");
   assert.deepEqual(readValues(filled), [{ globalId: "g1", pset: "P", prop: "N", value: "-5" }]);
   assert.deepEqual(readValues("GlobalId;PropertySet;Property;Value\r\ng2;P;N;1,5\r\n"), [{ globalId: "g2", pset: "P", prop: "N", value: "1,5" }]);

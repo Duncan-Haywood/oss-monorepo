@@ -502,8 +502,8 @@ flagships:
     buildable: >-
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. bSDD answers here (2026-11-19): rerun
-      eval/bsdd-template-sweep.mjs. IFC4X3 ifcXML: none public (searched
+      rerun it after excel2ids.mjs changes. Model fill: write attributes and Qto_
+      quantities (eval/model-fill-sweep.mjs). IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs; STEP exports as
