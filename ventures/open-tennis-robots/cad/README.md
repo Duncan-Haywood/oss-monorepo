@@ -167,7 +167,7 @@ collector's, shared in `guide.py`, with three more:
 
 | Found | Was | Now |
 | --- | --- | --- |
-| Holes over the 2040 posts' ends | the mast plate, deck and shelf had one hole at each post's end centre, which is the web between the profile's two core bores: nothing to screw into | two holes per end, over the core bores (`_cores`); 8 M5 x 12 into the mast posts, 16 M5 x 16 into the hopper posts |
+| Holes over the 2040 posts' ends | the mast plate, deck and shelf had one hole at each post's end centre, which is the web between the profile's two core bores: nothing to screw into | two holes per end, over the core bores (`_cores`); 8 M5 x 12 into the mast posts, 16 M5 x 16 into the hopper posts (the shelf's eight are M5 x 25 through a wedge since 2026-11-21, below) |
 | Mast posts to the mast rails | "M5 x 16, posts to rails": a head inside the rail's slot cannot be reached by a key | M5 x 50 up through the rail (drilled 5.5 mm) into the post's core bores, 10 mm of thread |
 | Head pivot | M8 x 110 over a 105 mm cheek-to-cheek stack plus 3.2 mm of washers: 1.8 mm left for a nyloc that needs 10.5 | M8 x 120 |
 | Servo bracket legs | M4 x 30 into a 10 mm insert pocket: bottoms out 15 mm before it clamps | M4 x 12 (legs), M4 x 10 (tabs) |
@@ -239,6 +239,42 @@ spool's size against the coil's bore, the band's lean, the axle's length past
 the nyloc. Assumed and not measured: every spring figure (5 N, 12.7 x 0.1 mm band,
 17 mm bore, 30 mm coil). Check them against the spring you buy and rebuild with
 `--set cf_coil_od=...` and the others. Nobody has hung a spring on one.
+
+### Hopper post wedges (2026-11-21, `Feeder.check_post_wedge`, `feeder.post_wedge_parts`)
+
+The four hopper posts were cut square and the shelf falls 12 deg toward the
+net, so each post met the shelf along its net-side edge only: a 4.25 mm gap at
+its rear edge (20 mm x tan 12 deg), and the guide said "shim it". Worse, the
+shelf's laser holes are normal to the plate, so the two M5s per post ran 12 deg
+off the post's vertical tapped bores: a screw that cannot start in its thread,
+or one that bends as it pulls the shelf down onto the edge.
+
+- **Wedge.** A printed PETG `hopper_post_wedge` (4) on each post's square top:
+  20 x 40 mm, 3.0 mm at the net-side edge rising to 7.25 mm at the rear, two
+  5.5 mm holes over the core bores. The posts are cut 3 mm shorter. Tests move
+  each wedge 0.2 mm into the shelf and into its post: the overlap is the whole
+  20 x 40 mm face less the holes, both ways, so the shelf bears on the full end.
+- **Screws vertical.** The shelf's eight post holes are now 6.6 mm: a vertical
+  M5 through a 5 mm plate at 12 deg needs 5 / cos 12 + 5 tan 12 = 6.17 mm, plus
+  0.4 mm of play. A printed taper washer (`hopper_post_washer`, 8; 12 mm OD,
+  1.5 to 4.05 mm, thin side uphill) under each head squares it to the screw.
+- **Length.** Along the screw: washer 2.78 + shelf 5.11 + wedge 5.13 = 13.0 mm,
+  so **M5 x 25** (was M5 x 16), 12 mm into the post's 15 mm tapped bore. It is a
+  checked joint now ("shelf to hopper post", `access`: nothing above the head
+  within 60 mm); an M5 x 16 here leaves 3 mm of thread and fails. The deck
+  end's M5 x 16 are unchanged. 26 joints are measured.
+- **Rules** (`check_post_wedge`, each tested firing): wedge thin end at least
+  three walls (3.0 mm), washer thin side at least one (1.2 mm), the shelf hole
+  passes the vertical screw, the washer keeps 2 mm of seat round the hole, and
+  tan 12 deg = 0.21 stays under PETG-on-aluminium friction (0.3, assumed), so
+  the tub's weight does not slide the shelf down the wedges and load the
+  screws in bending.
+
+Why a wedge and not a mitred post: a 12 deg mitre on each post still leaves
+the tapped bore 12 deg off a screw normal to the shelf, and a mitre cut to
+length is harder to get right than a square cut and a print. Assumed, not
+measured: the friction figure and PETG's creep under the full tub (print the
+wedges solid). Nobody has built one.
 
 ## Changing the design
 

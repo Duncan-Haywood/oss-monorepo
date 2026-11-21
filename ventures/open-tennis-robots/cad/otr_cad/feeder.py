@@ -539,13 +539,62 @@ def wheel_bracket(p: Feeder, drive: bool) -> Part:
                 flat=face, thickness=p.bracket_t, notes=note + " M5 into the side rail's T-slot.")
 
 
+def post_wedge_solid(p: Feeder):
+    """A post wedge in its own frame: origin at the post's top centre, bottom level, top at the shelf's slope (falling
+    toward +x), with a vertical M5 clearance hole over each core bore."""
+    t0, rise = p.post_wedge_min_t, p.post_wedge_rise()
+    prof = Plane.XZ * Polygon((-10.0, 0.0), (10.0, 0.0), (10.0, t0), (-10.0, t0 + rise), align=None)
+    blk = extrude(prof, 20.0, both=True)
+    for sy in (-1, 1):
+        blk -= Cylinder(5.5 / 2, 4 * (t0 + rise)).moved(Location((0.0, sy * 10.0, 0.0)))
+    return blk
+
+
+def post_washer_solid(p: Feeder):
+    """A taper washer in its own frame: origin on the screw's axis at its level top face, under side at the shelf's
+    slope (thinnest uphill, at -x)."""
+    r, t0 = p.post_washer_d / 2, p.post_washer_min_t
+    tt = math.tan(math.radians(p.shelf_slope_deg))
+    h = t0 + 2 * r * tt + 2.0
+    disc = Cylinder(r, h).moved(Location((0, 0, -h / 2))) - Cylinder(5.5 / 2, 2 * h)
+    prof = Plane.XZ * Polygon((-r - 1, 0.0), (r + 1, 0.0), (r + 1, -(t0 + (2 * r + 1) * tt)), (-r - 1, -(t0 - tt)),
+                              align=None)
+    return disc & extrude(prof, r + 1, both=True)
+
+
+def _post_screw_tops(p: Feeder) -> list[tuple[float, float, float]]:
+    """World (x, y, z) of each shelf screw's head face: the taper washer's level top, on a post's core bore."""
+    washer, shelf, _ = p.post_screw_stack()
+    return [(x, y, p.shelf_underside_z(x) + shelf + washer) for x, y in _cores(_shelf_posts(p))]
+
+
+def post_wedge_parts(p: Feeder) -> list[Part]:
+    wedge_locs = [Location((x, y, p.post_top_z(x))) for x, y in _shelf_posts(p)]
+    rise = p.post_wedge_rise()
+    return [
+        Part("hopper_post_wedge", "print", "PETG", 4, post_wedge_solid(p), wedge_locs,
+             spec=f"20 x 40 mm, {p.post_wedge_min_t:g} mm at the net-side edge to {p.post_wedge_min_t + rise:.2f} mm "
+                  f"at the rear, {p.shelf_slope_deg:g} deg; two 5.5 mm holes 20 mm apart; 100% infill",
+             notes="Sits on a hopper post's square-cut top, thick edge away from the net, and fills the gap to the "
+                   "sloped shelf over the whole end, so the shelf bears on the post's full 20 x 40 mm and not on one "
+                   "edge. The shelf's two M5s pass through it vertically into the post's core bores."),
+        Part("hopper_post_washer", "print", "PETG", 8, post_washer_solid(p),
+             [Location(pt) for pt in _post_screw_tops(p)],
+             spec=f"{p.post_washer_d:g} mm OD, 5.5 mm bore, {p.post_washer_min_t:g} to "
+                  f"{p.post_washer_min_t + p.post_washer_d * math.tan(math.radians(p.shelf_slope_deg)):.2f} mm, "
+                  f"{p.shelf_slope_deg:g} deg taper; 100% infill",
+             notes="Under each shelf screw's head, thin side uphill (away from the net): squares the head to the "
+                   "vertical screw on the sloped shelf."),
+    ]
+
+
 def hopper_shelf(p: Feeder) -> Part:
     s = math.radians(p.shelf_slope_deg)
     cx, _ = p.shelf_origin
     a_o = p.shelf_l / 2 - 55.0
     with BuildSketch() as sk:
         RectangleRounded(p.shelf_l, p.shelf_w, 10)
-        _holes([((x + 0.0 - cx) / math.cos(s), y) for x, y in _cores(_shelf_posts(p))], 5.5)
+        _holes([((x + 0.0 - cx) / math.cos(s), y) for x, y in _cores(_shelf_posts(p))], p.shelf_post_hole)
         with Locations((a_o, 0)):
             Circle(80.0 / 2, mode=Mode.SUBTRACT)
         _holes([(a_o + x, y) for x, y in _ring(SPIGOT_BOLT_R, 4, 45)], 4.4)
@@ -561,7 +610,7 @@ def hopper_shelf(p: Feeder) -> Part:
     return Part("hopper_shelf", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
                 [Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))], flat=face, thickness=p.plate_t,
                 notes=f"Tub shelf, falls {p.shelf_slope_deg:g} deg toward the net so balls roll to the outlet. "
-                      "Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole, the agitator's "
+                      "Posts bolt up through it (vertical M5 into their tapped ends, through oversized holes, a taper washer above and a wedge below), the sleeve socket under the outlet hole, the agitator's "
                       "motor mount under the small hole beside it, the take-up spring's bracket behind the socket.")
 
 
@@ -932,14 +981,14 @@ def extrusions(p: Feeder) -> list[Part]:
                     spec=f"2040 T-slot, cut {post_len:g} mm, M5 tapped both ends",
                     notes="Four posts carry the mast plate."))
     for name, x in (("hopper_post_rear", p.post_rear_x), ("hopper_post_front", p.post_front_x)):
-        top = p.shelf_underside_z(x + 10.0)
+        top = p.post_top_z(x)
         ln = top - (p.rail_top + p.plate_t)
         out.append(Part(name, "stock", "aluminium extrusion", 2, Box(w, h, ln),
                         [Location((x, sy * p.shelf_post_y, p.rail_top + p.plate_t + ln / 2)) for sy in (-1, 1)],
                         spec=f"2040 T-slot, cut {ln:.0f} mm, M5 tapped both ends",
-                        notes="Stands on the deck (20 mm along the net's x); carries the hopper shelf. "
-                              "Its top is level, touching the shelf at the net-side edge: shim the other edge. "
-                              "Braced by the hopper_brace parts."))
+                        notes="Stands on the deck (20 mm along the net's x); carries the hopper shelf on a printed "
+                              "post wedge, so the end is cut square. Braced by the hopper_brace parts."))
+    out += post_wedge_parts(p)
     # Diagonal braces, 2020 on the outer faces so they clear the posts: x braces (one per side) stop
     # sway toward and away from the net, the y brace (behind the rear pair) stops sway along it.
     (xa, xz), (xb, xzb) = p.brace_ends("x")
@@ -2472,7 +2521,9 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M4 heat-set insert, 5.7 mm long (spring bracket)", 2, "take-up spring's bracket"),
         (f"M4 x {p.spring_axle_len:g} socket cap screw + nyloc nut (spring axle)", 1, "take-up spring's spool axle, through both cheeks"),
         ("M3 x 8 pan head screw (spring band)", 1, "take-up spring's band end to the collar's tab"),
-        ("M5 x 16 button head (hopper)", 8 + 8, "posts to the deck (from below) and to the shelf, two per end"),
+        ("M5 x 16 button head (hopper)", 8, "posts to the deck, from below, two per end"),
+        (f"M5 x {p.post_shelf_screw_len()} button head (hopper shelf)", 8,
+         "shelf to the posts, vertical through a taper washer, the shelf and a post wedge, two per post"),
         ("2020 corner bracket with M5 screws and T-nuts", 6, "hopper braces, two per brace"),
         ("2020 corner bracket with M5 screws and T-nuts (cable crossbar)", 2, "cable crossbar to the rear mast posts"),
         ("M4 x 30 shoulder bolt (5 mm shoulder) + nyloc", 2, "shuttle drive: shuttle pin (into its insert) and crank pin"),

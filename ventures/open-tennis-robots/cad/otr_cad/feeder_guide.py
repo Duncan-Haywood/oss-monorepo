@@ -176,10 +176,12 @@ def steps(p: Feeder) -> list[Step]:
              "under the deck (two M5 x 16 into its bores); the rear pair are the taller ones. Bolt the two x braces "
              "outside each side pair and the y brace behind the rear pair with a corner bracket at each end; leave "
              "them finger-tight until the shelf is on."),
-        Step("Hopper shelf, sleeve socket and take-up sleeve", ["hopper_shelf", "hopper_spigot", "take_up_sleeve",
-                                                                "take_up_spring_bracket", "take_up_spool",
-                                                                "take_up_spring"],
-             [("M5 x 16 button head (hopper)", 8), ("M4 x 12 socket cap screw (spigot)", 4),
+        Step("Hopper shelf, sleeve socket and take-up sleeve", ["hopper_post_wedge", "hopper_shelf",
+                                                                "hopper_post_washer", "hopper_spigot",
+                                                                "take_up_sleeve", "take_up_spring_bracket",
+                                                                "take_up_spool", "take_up_spring"],
+             [(f"M5 x {p.post_shelf_screw_len()} button head (hopper shelf)", 8),
+              ("M4 x 12 socket cap screw (spigot)", 4),
               ("M4 x 12 button head (spring bracket)", 2),
               (f"M4 x {p.spring_axle_len:g} socket cap screw + nyloc nut (spring axle)", 1)],
              "3 mm and 2.5 mm hex keys, 7 mm spanner",
@@ -188,8 +190,10 @@ def steps(p: Feeder) -> list[Step]:
              "and hold the spool between the spring bracket's cheeks while the M4 axle goes through both cheeks and "
              "the spool; snug the nyloc so the spool still spins. Screw the bracket up under the shelf behind the "
              "socket (two M4 x 12 button heads from above into its inserts): the band should hang straight down past "
-             "the socket's rear, clear of it. Lift the shelf onto the posts and screw it down into their top bores "
-             "(two M5 x 16 each); the posts' tops are level, so shim each post's rear edge to the shelf's slope. Now "
+             "the socket's rear, clear of it. Set a post wedge on each post's top, thick edge away from the net, "
+             "holes over the core bores. Lift the shelf onto the wedges, set a taper washer over each of its eight "
+             "post holes with its thin side uphill, and screw straight down through washer, shelf and wedge into "
+             f"the posts' bores (two M5 x {p.post_shelf_screw_len()} each, vertical, not square to the shelf). Now "
              "tighten the braces. Push the take-up sleeve up into the socket, slot to the rear, and tape the band to "
              "the sleeve for now.", loose=["take_up_spring"]),
         Step("Agitator and tub", ["hopper_agitator_mount", "agitator_motor", "hopper_agitator", "hopper_tub"],
@@ -337,6 +341,7 @@ def joints(p: Feeder) -> list[Joint]:
     post_x, post_y = F._post_xy(p)[0]
     hp_y = p.shelf_post_y
     shelf = _shelf(p)
+    shelf_top = next(t for t in F._post_screw_tops(p) if t[0] == p.post_front_x and t[1] > 0)
     ax, ay = p.agit_xy
     bx, by = F._ring(p.agit_mount_bolt_r, 3, 90)[0]
     spig = Location((p.hopper_out_x, 0, p.hopper_out_z), (0, p.shelf_slope_deg, 0))
@@ -385,6 +390,9 @@ def joints(p: Feeder) -> list[Joint]:
         Joint("hopper post to deck", "M5 x 16 button head (hopper)", 16, 5, "tapped",
               (p.post_rear_x, hp_y + CORE_OFFSET, 0.0), "z", p.rail_top, 1, 2.75, 4.75, "hopper_post_rear",
               END_TAP_DEPTH),
+        Joint("shelf to hopper post", f"M5 x {p.post_shelf_screw_len()} button head (hopper shelf)",
+              p.post_shelf_screw_len(), 5, "tapped", (0, 0, 0), Location(shelf_top), 0.0, -1, 2.75, 4.75,
+              "hopper_post_front", END_TAP_DEPTH, access=True),
         Joint("sleeve socket under the shelf", "M4 x 12 socket cap screw (spigot)", 12, 4, "insert", (0, 0, 0),
               spig * Location((kx, ky, 0)), p.plate_t, -1, 2.2, 3.5, "hopper_spigot", F.SPIGOT_POCKET),
         Joint("spring bracket under the shelf", "M4 x 12 button head (spring bracket)", 12, 4, "insert", (0, 0, 0),
@@ -438,6 +446,6 @@ def end_bore_problems(p: Feeder, parts) -> list[str]:
     check("base_deck", 5.5, [(n, xy) for n, xy in zip(["hopper_post"] * 4, F._shelf_posts(p))], ident)
     s = math.radians(p.shelf_slope_deg)
     cx, _ = p.shelf_origin
-    check("hopper_shelf", 5.5, [("hopper_post", xy) for xy in F._shelf_posts(p)],
+    check("hopper_shelf", p.shelf_post_hole, [("hopper_post", xy) for xy in F._shelf_posts(p)],
           lambda x, y: ((x - cx) / math.cos(s), y))
     return bad

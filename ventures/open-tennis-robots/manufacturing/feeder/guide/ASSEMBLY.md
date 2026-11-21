@@ -284,8 +284,8 @@ Bolt the deck onto the side rails' top slots (ten M5 x 12 into T-nuts). Strap th
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
-| hopper_post_rear | 2 | 2040 T-slot, cut 1874 mm, M5 tapped both ends |
-| hopper_post_front | 2 | 2040 T-slot, cut 1819 mm, M5 tapped both ends |
+| hopper_post_rear | 2 | 2040 T-slot, cut 1871 mm, M5 tapped both ends |
+| hopper_post_front | 2 | 2040 T-slot, cut 1816 mm, M5 tapped both ends |
 | hopper_brace_x | 2 | 2020 T-slot, cut 1600 mm, ends mitred to 9 deg |
 | hopper_brace_y | 1 | 2020 T-slot, cut 1734 mm, ends mitred to 20 deg |
 
@@ -304,7 +304,9 @@ Tap both core bores of each end of the four posts M5. Stand each on the deck and
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
+| hopper_post_wedge | 4 | print/hopper_post_wedge.stl |
 | hopper_shelf | 1 | laser/hopper_shelf__aluminium_5mm.dxf |
+| hopper_post_washer | 8 | print/hopper_post_washer.stl |
 | hopper_spigot | 1 | print/hopper_spigot.stl |
 | take_up_sleeve | 1 | Rigid round tube, 96 mm bore, about 102 mm OD, cut 300 mm; slot 10 mm wide in the rear wall from the top end down 262 mm |
 | take_up_spring_bracket | 1 | print/take_up_spring_bracket.stl |
@@ -313,14 +315,14 @@ Tap both core bores of each end of the four posts M5. Stand each on the deck and
 
 | Fastener or part | Qty |
 | --- | --- |
-| M5 x 16 button head (hopper) | 8 |
+| M5 x 25 button head (hopper shelf) | 8 |
 | M4 x 12 socket cap screw (spigot) | 4 |
 | M4 x 12 button head (spring bracket) | 2 |
 | M4 x 40 socket cap screw + nyloc nut (spring axle) | 1 |
 
 Tools: 3 mm and 2.5 mm hex keys, 7 mm spanner.
 
-Screw the sleeve socket under the shelf's outlet hole (four M4 x 12 from above into its flange). Seat the constant-force spring's coil on the printed spool, band leaving the coil's front at the bottom, and hold the spool between the spring bracket's cheeks while the M4 axle goes through both cheeks and the spool; snug the nyloc so the spool still spins. Screw the bracket up under the shelf behind the socket (two M4 x 12 button heads from above into its inserts): the band should hang straight down past the socket's rear, clear of it. Lift the shelf onto the posts and screw it down into their top bores (two M5 x 16 each); the posts' tops are level, so shim each post's rear edge to the shelf's slope. Now tighten the braces. Push the take-up sleeve up into the socket, slot to the rear, and tape the band to the sleeve for now.
+Screw the sleeve socket under the shelf's outlet hole (four M4 x 12 from above into its flange). Seat the constant-force spring's coil on the printed spool, band leaving the coil's front at the bottom, and hold the spool between the spring bracket's cheeks while the M4 axle goes through both cheeks and the spool; snug the nyloc so the spool still spins. Screw the bracket up under the shelf behind the socket (two M4 x 12 button heads from above into its inserts): the band should hang straight down past the socket's rear, clear of it. Set a post wedge on each post's top, thick edge away from the net, holes over the core bores. Lift the shelf onto the wedges, set a taper washer over each of its eight post holes with its thin side uphill, and screw straight down through washer, shelf and wedge into the posts' bores (two M5 x 25 each, vertical, not square to the shelf). Now tighten the braces. Push the take-up sleeve up into the socket, slot to the rear, and tape the band to the sleeve for now.
 
 ### 16. Agitator and tub
 
@@ -589,6 +591,7 @@ Each length is measured from the head's face through the parts the model puts un
 | mast post to mast rail | M5 x 50 button head (mast posts) | mast_rail 40 | 40 | 50 | 10 | 5 to 15 mm into the part's tapped hole (its thread depth) | pass |
 | mast plate to mast post | M5 x 12 button head | mast_plate 5 | 5 | 12 | 7 | 5 to 15 mm into the part's tapped hole (its thread depth) | pass |
 | hopper post to deck | M5 x 16 button head (hopper) | base_deck 5 | 5 | 16 | 11 | 5 to 15 mm into the part's tapped hole (its thread depth) | pass |
+| shelf to hopper post | M5 x 25 button head (hopper shelf) | hopper_post_washer 3.785 + hopper_shelf 7.131 + hopper_post_wedge 6.136 | 13.01 | 25 | 11.99 | 5 to 15 mm into the part's tapped hole (its thread depth) | pass |
 | sleeve socket under the shelf | M4 x 12 socket cap screw (spigot) | hopper_shelf 5 | 5 | 12 | 7 | 5.7 to 8 mm past the face, the insert's length to the pocket's depth | pass |
 | spring bracket under the shelf | M4 x 12 button head (spring bracket) | hopper_shelf 5 | 5 | 12 | 7 | 5.7 to 8 mm past the face, the insert's length to the pocket's depth | pass |
 | agitator motor mount under the shelf | M4 x 12 button head (agitator) | hopper_shelf 5 | 5 | 12 | 7 | 5.7 to 7 mm past the face, the insert's length to the pocket's depth | pass |

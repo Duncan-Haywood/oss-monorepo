@@ -2265,7 +2265,7 @@ AcDbCircle
  30
 0.0
  40
-2.75
+3.3
   0
 CIRCLE
   5
@@ -2285,7 +2285,7 @@ AcDbCircle
  30
 0.0
  40
-2.75
+3.3
   0
 LINE
   5
@@ -2425,7 +2425,7 @@ AcDbCircle
  30
 0.0
  40
-2.75
+3.3
   0
 CIRCLE
   5
@@ -2445,7 +2445,7 @@ AcDbCircle
  30
 0.0
  40
-2.75
+3.3
   0
 CIRCLE
   5
@@ -2665,7 +2665,7 @@ AcDbCircle
  30
 0.0
  40
-2.75
+3.3
   0
 CIRCLE
   5
@@ -2685,7 +2685,7 @@ AcDbCircle
  30
 0.0
  40
-2.75
+3.3
   0
 CIRCLE
   5
@@ -2805,7 +2805,7 @@ AcDbCircle
  30
 0.0
  40
-2.75
+3.3
   0
 CIRCLE
   5
@@ -2825,7 +2825,7 @@ AcDbCircle
  30
 0.0
  40
-2.75
+3.3
   0
 ENDSEC
   0

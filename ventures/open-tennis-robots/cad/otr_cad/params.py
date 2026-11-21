@@ -960,6 +960,16 @@ class Feeder:
     post_front_x: float = -380.0
     post_rear_x: float = -640.0
     shelf_post_y: float = 290.0    # 225 until 2026-11-10 (turned 30 deg at 15-35 deg nose up, the head's plates cut into the front posts); 245 until 2026-11-12 (clear to 31.6 deg only, short of the hard stops' reach)
+    # Post-top wedges (2026-11-21): the posts' tops are cut square and the shelf falls 12 deg, so until now a
+    # post touched the shelf only along its net-side edge (a 4.3 mm gap at the rear edge) and the shelf's M5s,
+    # drilled normal to the plate, met the post's vertical tapped bores 12 deg off. A printed PETG wedge now fills
+    # the gap and the M5s run vertical through a printed taper washer, an oversized shelf hole and the wedge.
+    post_wedge_min_t: float = 3.0     # wedge's thin (net-side) end; the posts are cut this much shorter
+    post_washer_min_t: float = 1.5    # taper washer's thin (uphill) side, under the screw head
+    post_washer_d: float = 12.0       # taper washer's outside diameter (an M5 button head is 9.5 mm)
+    shelf_post_hole: float = 6.6      # shelf hole for the vertical M5: 5 / cos 12 + 5 tan 12 = 6.17 mm, plus 0.4 play
+    print_min_wall: float = 1.2       # thinnest printed section the checks accept, mm (three 0.4 mm perimeters)
+    petg_mu: float = 0.3              # PETG on aluminium (assumed; a dry, clean plate)
     # Hopper frame loads and bracing (all assumptions to replace with a measurement).
     tub_mass_kg: float = 1.6          # empty storage tub
     side_load_g: float = 0.25         # sway load at the shelf as a fraction of the full hopper's weight
@@ -1803,7 +1813,50 @@ class Feeder:
     def post_len(self) -> float:
         """Mean post length, deck to shelf underside."""
         xs = (self.post_front_x, self.post_rear_x)
-        return sum(self.shelf_underside_z(x + 10.0) for x in xs) / 2 - (self.rail_top + self.plate_t)
+        return sum(self.post_top_z(x) for x in xs) / 2 - (self.rail_top + self.plate_t)
+
+    def post_top_z(self, x: float) -> float:
+        """A hopper post's square-cut top: the shelf's underside over its net-side edge, less the wedge's thin end."""
+        return self.shelf_underside_z(x + 10.0) - self.post_wedge_min_t
+
+    def post_wedge_rise(self) -> float:
+        """How much thicker a wedge is at its rear (uphill) edge than at its net-side edge: 20 mm of post at the slope."""
+        return 20.0 * math.tan(math.radians(self.shelf_slope_deg))
+
+    def post_screw_stack(self) -> tuple[float, float, float]:
+        """(washer, shelf, wedge) lengths a vertical M5 on the post's centre line passes through, mm."""
+        t = math.tan(math.radians(self.shelf_slope_deg))
+        washer = self.post_washer_min_t + self.post_washer_d / 2 * t
+        shelf = self.plate_t / math.cos(math.radians(self.shelf_slope_deg))
+        wedge = self.post_wedge_min_t + 10.0 * t
+        return washer, shelf, wedge
+
+    def post_shelf_screw_len(self) -> int:
+        """Shortest stock M5 length (5 mm steps) with at least 2 d of thread in the post's tapped bore."""
+        grip = sum(self.post_screw_stack())
+        return int(math.ceil((grip + 10.0) / 5.0) * 5)
+
+    def check_post_wedge(self) -> list[str]:
+        """The shelf meets each post over its whole top, and the vertical M5 through the slope fits."""
+        bad = []
+        s = math.radians(self.shelf_slope_deg)
+        if self.post_wedge_min_t < 2.5 * self.print_min_wall:
+            bad.append(f"post wedge thin end {self.post_wedge_min_t:g} mm is under {2.5 * self.print_min_wall:g} mm "
+                       "(a wall either side of the screw hole's top edge)")
+        if self.post_washer_min_t < self.print_min_wall:
+            bad.append(f"taper washer thin side {self.post_washer_min_t:g} mm is under {self.print_min_wall:g} mm")
+        need = 5.0 / math.cos(s) + self.plate_t * math.tan(s)
+        if self.shelf_post_hole < need + 0.3:
+            bad.append(f"shelf hole {self.shelf_post_hole:g} mm does not pass a vertical M5 through a {self.plate_t:g} mm "
+                       f"plate at {self.shelf_slope_deg:g} deg (needs {need:.2f} + 0.3)")
+        if self.post_washer_d < self.shelf_post_hole + 2 * 2.0:
+            bad.append(f"taper washer {self.post_washer_d:g} mm leaves under 2 mm of seat round the {self.shelf_post_hole:g} mm hole")
+        # the full tub presses on the sloped wedge faces; its downhill share must not slide the shelf on friction alone
+        if math.tan(s) >= self.petg_mu:
+            bad.append(f"at {self.shelf_slope_deg:g} deg the shelf would slide on the wedges (tan {math.tan(s):.2f} >= "
+                       f"mu {self.petg_mu:g}); the screws would carry it in bending")
+        return bad
+
 
     def brace_ends(self, axis: str) -> tuple[tuple[float, float], tuple[float, float]]:
         """Centre-line ends (a, z) of a diagonal in the x-z plane (axis 'x', a = x) or the y-z plane ('y', a = y).
@@ -2047,6 +2100,7 @@ class Feeder:
             bad.append("cheeks reach past the muzzle")
         bad += self.check_feed()
         bad += self.check_hopper_frame()
+        bad += self.check_post_wedge()
         bad += self.check_launch()
         bad += self.check_azimuth()
         bad += self.check_home_switch()
