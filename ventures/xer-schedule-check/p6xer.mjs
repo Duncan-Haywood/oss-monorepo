@@ -31,8 +31,9 @@
 //   So P6's first schedule run (F9) gives the dates Project showed
 //   (eval/p6xer-check-2026-11-21.md).
 // - resources: work resources become labour resources (hours), material
-//   resources material ones (their units); cost resources have no P6 type
-//   and are counted. Assignments keep budgeted, actual and remaining units
+//   resources material ones (their units). Cost resources have no P6 type:
+//   their assignments become expenses (PROJCOST), as do task fixed costs
+//   (see "expenses" below). Assignments keep budgeted, actual and remaining units
 //   and cost; P6 recomputes units per hour and the rate from them.
 //
 // - custom fields: the task Number, Cost and Date fields a file uses become
@@ -56,7 +57,7 @@
 //
 // Not carried (counted in the warnings): task splits and contoured
 // work, deadlines (no P6 field), elapsed lags on links (P6 has one lag
-// calendar per project), cost resources, P6's finish-date subtype of a date
+// calendar per project), cost resource assignments on summary tasks, P6's finish-date subtype of a date
 // UDF (Project has one kind of date field, so a date comes back as a start
 // date UDF).
 
@@ -101,6 +102,9 @@ export const FIELDS = {
   TASKMEMO: "memo_id task_id memo_type_id proj_id task_memo",
   // P6 6.0 to 24.12 write these (24.12 adds export_flag, left out so older
   // versions import it)
+  // expenses and their categories, as P6 20.12 and 23.12 write them
+  COSTTYPE: "cost_type_id seq_num cost_type",
+  PROJCOST: "cost_item_id acct_id pobs_id cost_type_id proj_id task_id cost_name po_number vendor_name act_cost cost_per_qty remain_cost target_cost cost_load_type auto_compute_act_flag target_qty qty_name cost_descr contract_manager_import",
   UDFTYPE: "udf_type_id table_name udf_type_name udf_type_label logical_data_type super_flag indicator_expression summary_indicator_expression",
   UDFVALUE: "udf_type_id fk_id proj_id udf_date udf_number udf_text udf_code_id",
   TASKRSRC: "taskrsrc_id task_id proj_id cost_qty_link_flag role_id acct_id rsrc_id pobs_id skill_level remain_qty target_qty remain_qty_per_hr target_lag_drtn_hr_cnt target_qty_per_hr act_ot_qty act_reg_qty relag_drtn_hr_cnt ot_factor cost_per_qty target_cost act_reg_cost act_ot_cost remain_cost act_start_date act_end_date restart_date reend_date target_start_date target_end_date rem_late_start_date rem_late_end_date rollup_dates_flag target_crv remain_crv actual_crv ts_pend_act_end_flag guid rate_type act_this_per_cost act_this_per_qty curv_id rsrc_type cost_per_qty_source_type create_user create_date has_rsrchours taskrsrc_sum_id",
@@ -256,14 +260,15 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   // resources and assignments, read here (mspdi.mjs reads only their calendars)
   const RSRC = [], TASKRSRC = [];
   const rsrcType = new Map();
-  let costRes = 0, costAssign = 0, dupRsrc = 0, summaryAssign = 0;
+  let costRes = 0, costAssign = 0, dupRsrc = 0, summaryAssign = 0, summaryCost = 0;
+  const costRsrc = new Map(); // cost resource uid -> { name, group, accrue }
   const rsrcShort = new Set();
   const rsrcFieldVals = new Map(); // resource field id -> Map(rsrc uid -> value)
   for (const r of kids(kid(proj, "Resources"), "Resource")) {
     const uid = val(r, "UID");
     if (!uid || uid === "0" || val(r, "IsNull") === "1" || !val(r, "Name")) continue;
     const type = val(r, "Type") === "" ? "1" : val(r, "Type");
-    if (type === "2") { costRes++; continue; }
+    if (type === "2") { costRes++; costRsrc.set(uid, { name: val(r, "Name"), group: val(r, "Group"), accrue: val(r, "AccrueAt") }); continue; }
     const rt = type === "0" ? "RT_Mat" : "RT_Labor";
     rsrcType.set(uid, rt);
     const name = val(r, "Name");
@@ -340,12 +345,83 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
     PROJECT[0].last_recalc_date = lastActual;
   }
 
+  // expenses (PROJCOST): P6 has no cost resource; a cost it keeps on an
+  // activity without hours or units is an expense item. So each assignment
+  // of a Project cost resource becomes an expense named after the resource,
+  // in the cost category (COSTTYPE) named by the resource's Group, accrued as
+  // the resource accrues (Project's AccrueAt 1 start, 2 end, 3 prorated ->
+  // P6's CL_Start, CL_End, CL_Uniform). Budgeted cost is the assignment's
+  // baseline cost when it has one (P6's budget is the plan), else its cost;
+  // actual and remaining as Project stores them. A task's fixed cost becomes
+  // an expense named "Fixed cost". The assignment notes msproject.mjs writes
+  // for a P6 expense ("Expense: ", "Vendor: ", "PO: ", "Quantity: " lines,
+  // then the description) come back as those fields: the expense name, when
+  // msproject.mjs had to give the resource another, and the rest.
+  const COSTTYPE = [], PROJCOST = [];
+  const costType = new Map();
+  const typeOf = (name) => {
+    name = (name || "").trim();
+    if (!name) return "";
+    if (!costType.has(name.toLowerCase())) {
+      const id = String(COSTTYPE.length + 1);
+      costType.set(name.toLowerCase(), id);
+      COSTTYPE.push(full("COSTTYPE", { cost_type_id: id, seq_num: String(COSTTYPE.length * 10), cost_type: name }));
+    }
+    return costType.get(name.toLowerCase());
+  };
+  const LOAD = { 1: "CL_Start", 2: "CL_End", 3: "CL_Uniform" };
+  const money = (node, k) => (Number(val(node, k)) || 0) / 100;
+  function expense(taskId, res, a) {
+    const tc = money(a, "Cost"), ac = money(a, "ActualCost");
+    const rc = val(a, "RemainingCost") ? money(a, "RemainingCost") : Math.max(0, tc - ac);
+    const base = kids(a, "Baseline").find((b) => (val(b, "Number") || "0") === "0" && val(b, "Cost") !== "");
+    const budget = base ? money(base, "Cost") : tc;
+    const meta = { name: "", vendor: "", po: "", qty: "", unit: "", descr: [] };
+    for (const line of (val(a, "Notes") || "").split(/\r?\n/)) {
+      const m = /^(Expense|Vendor|PO|Quantity):\s*(.*)$/.exec(line);
+      if (m && !meta.descr.length) {
+        if (m[1] === "Expense") meta.name = m[2];
+        else if (m[1] === "Vendor") meta.vendor = m[2];
+        else if (m[1] === "PO") meta.po = m[2];
+        else { const q = /^(-?[\d.]+)\s*(.*)$/.exec(m[2]); if (q) { meta.qty = q[1]; meta.unit = q[2]; } }
+      } else if (line.trim() || meta.descr.length) meta.descr.push(line);
+    }
+    const qty = Number(meta.qty) || 0;
+    PROJCOST.push(full("PROJCOST", {
+      cost_item_id: String(PROJCOST.length + 1), cost_type_id: typeOf(res.group), proj_id: P, task_id: taskId,
+      cost_name: clip("cost_name", meta.name || res.name), po_number: clip("po_number", meta.po), vendor_name: clip("vendor_name", meta.vendor),
+      act_cost: n2(ac), remain_cost: n2(rc), target_cost: n2(budget),
+      // P6's budgeted cost is units x price: one unit at the whole cost, or
+      // the quantity the notes carry
+      target_qty: qty ? meta.qty : "1", cost_per_qty: qty ? String(Math.round((budget / qty) * 10000) / 10000) : n2(budget),
+      qty_name: clip("qty_name", meta.unit), cost_load_type: LOAD[res.accrue] || "CL_Uniform",
+      cost_descr: meta.descr.join("\n").trim().replace(/\r?\n/g, " "),
+    }, { auto_compute_act_flag: "N" }));
+  }
+  // task fixed costs: actual by Project's accrual (start: all once started;
+  // end: all once finished; prorated: the % complete share)
+  let fixedCosts = 0;
+  for (const r of T.TASK) {
+    const node = taskNode.get(r.task_id);
+    const fc = money(node, "FixedCost");
+    if (!fc) continue;
+    fixedCosts++;
+    const acc = val(node, "FixedCostAccrual") || "3";
+    const pct = Math.max(0, Math.min(100, Number(val(node, "PercentComplete")) || 0));
+    const act = r.status_code === "TK_Complete" ? fc : acc === "1" ? (r.status_code === "TK_Active" ? fc : 0) : acc === "2" ? 0 : Math.round(fc * pct) / 100;
+    PROJCOST.push(full("PROJCOST", {
+      cost_item_id: String(PROJCOST.length + 1), cost_type_id: "", proj_id: P, task_id: idOf("TASK", r.task_id), cost_name: "Fixed cost",
+      act_cost: n2(act), remain_cost: n2(fc - act), target_cost: n2(fc), target_qty: "1", cost_per_qty: n2(fc), cost_load_type: LOAD[acc] || "CL_Uniform",
+    }, { auto_compute_act_flag: "N" }));
+  }
+
   // assignments: P6 keeps hours (labour) or units (material) and cost
   const hrs = (s) => durationHours(s) ?? 0;
   for (const a of kids(kid(proj, "Assignments"), "Assignment")) {
     const tu = val(a, "TaskUID"), ru = val(a, "ResourceUID");
-    if (!taskIds.has(tu)) { if (taskNode.has(tu) && rsrcType.has(ru)) summaryAssign++; continue; }
-    if (!rsrcType.has(ru)) { if (ru && ru !== "-65535") costAssign++; continue; }
+    if (!taskIds.has(tu)) { if (taskNode.has(tu) && rsrcType.has(ru)) summaryAssign++; if (taskNode.has(tu) && costRsrc.has(ru)) summaryCost++; continue; }
+    if (costRsrc.has(ru)) { costAssign++; expense(idOf("TASK", tu), costRsrc.get(ru), a); continue; }
+    if (!rsrcType.has(ru)) continue;
     const t = taskRow.get(idOf("TASK", tu));
     const target = hrs(val(a, "Work")), act = hrs(val(a, "ActualWork"));
     const remain = val(a, "RemainingWork") ? hrs(val(a, "RemainingWork")) : Math.max(0, target - act);
@@ -500,11 +576,13 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
     OBS: [full("OBS", { obs_id: "1", seq_num: "0", obs_name: "Enterprise" })],
     // P6 writes the UDF titles with the global tables, before PROJECT, and the values last
     ...(UDFTYPE.length ? { UDFTYPE } : {}),
+    ...(COSTTYPE.length ? { COSTTYPE } : {}),
     PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS,
     ...(RSRC.length ? { RSRC } : {}),
     ...(ACTVTYPE.length ? { ACTVTYPE, ACTVCODE } : {}),
     TASK,
     ...(WBSMEMO.length ? { WBSMEMO } : {}),
+    ...(PROJCOST.length ? { PROJCOST } : {}),
     ...(TASKMEMO.length ? { TASKMEMO } : {}),
     TASKPRED,
     ...(TASKACTV.length ? { TASKACTV } : {}),
@@ -533,10 +611,12 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
     const where = [TASKMEMO.length ? `${TASKMEMO.length} on activities` : "", onWbs ? `${onWbs} on WBS nodes from summary tasks` : "", onRoot ? `${onRoot} on the project node from the project's notes` : ""].filter(Boolean).join(", ");
     warnings.push(`${TASKMEMO.length + WBSMEMO.length} note section(s) written as notebook entries (${where}) under ${MEMOTYPE.length} notebook topic(s): ${MEMOTYPE.map((m) => m.memo_type).join(", ")}`);
   }
-  if (costRes) warnings.push(`${costRes} cost resource(s) and ${costAssign} assignment(s) of them not carried: P6 keeps such costs as expenses`);
+  if (costAssign || fixedCosts) warnings.push(`${costAssign + fixedCosts} expense(s) written (PROJCOST)${costAssign ? `: ${costAssign} assignment(s) of ${costRes} cost resource(s), named after the resource${COSTTYPE.length ? `, in ${COSTTYPE.length} cost categor${COSTTYPE.length === 1 ? "y" : "ies"} from the resources' Group` : ""}` : ""}${fixedCosts ? `${costAssign ? ";" : ":"} ${fixedCosts} task fixed cost(s) as "Fixed cost"` : ""}; budgeted cost is the baseline cost where the assignment has one`);
+  else if (costRes) warnings.push(`${costRes} cost resource(s) with no assignment on an activity`);
+  if (summaryCost) warnings.push(`${summaryCost} cost resource assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
+  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
   const out = xerText(xer);
   // saved in Windows-1252, as P6 writes and reads an XER, when every
   // character fits it (xer.mjs, xerBytes)
@@ -552,6 +632,7 @@ export const p6xerSummary = (r) =>
   (r.counts.udfFields ? `, ${r.counts.udfValues} custom field value(s) as ${r.counts.udfFields} UDF(s)` : "") +
   (r.counts.wbsUdfFields ? `, ${r.counts.wbsUdfValues} summary task custom field value(s) as ${r.counts.wbsUdfFields} WBS UDF(s)` : "") +
   (r.counts.rsrcUdfFields ? `, ${r.counts.rsrcUdfValues} resource custom field value(s) as ${r.counts.rsrcUdfFields} resource UDF(s)` : "") +
+  (r.counts.expenses ? `, ${r.counts.expenses} expense(s)` : "") +
   (r.counts.taskNotebooks || r.counts.wbsNotebooks ? `, ${r.counts.taskNotebooks + r.counts.wbsNotebooks} note(s) as notebook entries` : "");
 
 // What P6's import would refuse or misread, checked on the tables written:
@@ -565,7 +646,7 @@ export const p6xerSummary = (r) =>
 export function p6Problems(tables) {
   const out = [];
   const say = (s) => { if (out.length < 50) out.push(s); };
-  const KEY = { CURRTYPE: "curr_id", FINTMPL: "fintmpl_id", OBS: "obs_id", PROJECT: "proj_id", CALENDAR: "clndr_id", SCHEDOPTIONS: "schedoptions_id", PROJWBS: "wbs_id", RSRC: "rsrc_id", ACTVTYPE: "actv_code_type_id", ACTVCODE: "actv_code_id", TASK: "task_id", TASKPRED: "task_pred_id", TASKRSRC: "taskrsrc_id", UDFTYPE: "udf_type_id", MEMOTYPE: "memo_type_id", TASKMEMO: "memo_id", WBSMEMO: "wbs_memo_id" };
+  const KEY = { CURRTYPE: "curr_id", FINTMPL: "fintmpl_id", OBS: "obs_id", PROJECT: "proj_id", CALENDAR: "clndr_id", SCHEDOPTIONS: "schedoptions_id", PROJWBS: "wbs_id", RSRC: "rsrc_id", ACTVTYPE: "actv_code_type_id", ACTVCODE: "actv_code_id", TASK: "task_id", TASKPRED: "task_pred_id", TASKRSRC: "taskrsrc_id", UDFTYPE: "udf_type_id", MEMOTYPE: "memo_type_id", TASKMEMO: "memo_id", WBSMEMO: "wbs_memo_id", COSTTYPE: "cost_type_id", PROJCOST: "cost_item_id" };
   const keys = {};
   for (const [t, rows] of Object.entries(tables)) {
     if (!FIELDS[t]) { say(`${t}: not a table this writer knows`); continue; }
@@ -599,6 +680,7 @@ export function p6Problems(tables) {
   ref("TASKACTV", "task_id", "TASK"); ref("TASKACTV", "actv_code_id", "ACTVCODE"); ref("TASKACTV", "actv_code_type_id", "ACTVTYPE");
   ref("TASKRSRC", "task_id", "TASK"); ref("TASKRSRC", "rsrc_id", "RSRC");
   ref("UDFVALUE", "udf_type_id", "UDFTYPE");
+  ref("PROJCOST", "task_id", "TASK"); ref("PROJCOST", "proj_id", "PROJECT"); ref("PROJCOST", "cost_type_id", "COSTTYPE", true);
   ref("TASKMEMO", "task_id", "TASK"); ref("TASKMEMO", "memo_type_id", "MEMOTYPE"); ref("TASKMEMO", "proj_id", "PROJECT");
   ref("WBSMEMO", "wbs_id", "PROJWBS"); ref("WBSMEMO", "memo_type_id", "MEMOTYPE"); ref("WBSMEMO", "proj_id", "PROJECT");
   // a value's fk_id is a row of its UDF's subject area (TASK, PROJWBS or

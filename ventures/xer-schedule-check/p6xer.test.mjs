@@ -35,10 +35,10 @@ test("every table carries P6's fields, whole-number ids that resolve, and passes
   const r = p6XerText(XML());
   assert.deepEqual(p6Problems(r.xer.tables), []);
   for (const [t, rows] of Object.entries(r.xer.tables)) for (const row of rows) assert.deepEqual(Object.keys(row), FIELDS[t], t);
-  assert.deepEqual(Object.keys(r.xer.tables), ["CURRTYPE", "FINTMPL", "OBS", "PROJECT", "CALENDAR", "SCHEDOPTIONS", "PROJWBS", "RSRC", "ACTVTYPE", "ACTVCODE", "TASK", "TASKPRED", "TASKACTV", "TASKRSRC"]);
+  assert.deepEqual(Object.keys(r.xer.tables), ["CURRTYPE", "FINTMPL", "OBS", "PROJECT", "CALENDAR", "SCHEDOPTIONS", "PROJWBS", "RSRC", "ACTVTYPE", "ACTVCODE", "TASK", "PROJCOST", "TASKPRED", "TASKACTV", "TASKRSRC"]);
   assert.match(r.text, /^ERMHDR\t20\.12\t/);
   assert.match(r.text, /%E\r\n$/);
-  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0, wbsUdfFields: 0, wbsUdfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0, notebookTopics: 0, taskNotebooks: 0, wbsNotebooks: 0 });
+  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0, wbsUdfFields: 0, wbsUdfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0, expenses: 1, costTypes: 0, notebookTopics: 0, taskNotebooks: 0, wbsNotebooks: 0 });
   assert.equal(r.encoding, "windows-1252");
   assert.equal(r.bytes.length, r.text.length);
 });
@@ -86,14 +86,14 @@ test("progress: actual dates, remaining duration, and Project's Resume as P6's s
   assert.equal(T.PROJECT[0].last_recalc_date, "2026-03-11 17:00");
 });
 
-test("the manual task is held at its typed start; the elapsed lag and cost resource are reported", () => {
+test("the manual task is held at its typed start; the elapsed lag is reported, the cost resource becomes an expense", () => {
   const r = p6XerText(XML());
   const insp = r.xer.tables.TASK.find((t) => t.task_name === "Inspection");
   assert.equal(insp.cstr_type, "CS_MSOA");
   assert.equal(insp.cstr_date, "2026-04-13 08:00");
   const w = r.warnings.join("\n");
   assert.match(w, /1 elapsed lag/);
-  assert.match(w, /1 cost resource\(s\) and 1 assignment/);
+  assert.match(w, /1 expense\(s\) written \(PROJCOST\): 1 assignment\(s\) of 1 cost resource/);
   assert.match(w, /1 manually scheduled task/);
 });
 
@@ -378,4 +378,51 @@ test("an Activity ID alias only counts on Text1-Text30", () => {
   // 188744017 is the field id after Text30 (188744016), so not a text field
   const xml = XML({ idAlias: "Activity ID", code2: "DEM-100", code3: "FRM-200", code4: "DRY-300" }).replace(/188743731/g, "188744017");
   assert.deepEqual(p6XerText(xml).xer.tables.TASK.map((t) => t.task_code), ["A20", "A30", "A40", "A50", "A60"]);
+});
+
+test("cost resources and fixed costs become P6 expenses (PROJCOST), with categories, accrual, budget and notes", () => {
+  const xml = XML()
+    .replace("<Name>Permit fee</Name><Type>2</Type>", "<Name>Permit fee</Name><Type>2</Type><Group>Permits</Group><AccrueAt>1</AccrueAt>")
+    .replace("<Cost>50000</Cost></Assignment>", "<Cost>50000</Cost><Notes>Vendor: City of Springfield\nPO: 4471\nQuantity: 2 ea\nBuilding permit, two stages</Notes><Baseline><Number>0</Number><Cost>45000</Cost></Baseline></Assignment><Assignment><UID>4</UID><TaskUID>3</TaskUID><ResourceUID>3</ResourceUID><Cost>20000</Cost><ActualCost>20000</ActualCost><RemainingCost>0</RemainingCost></Assignment><Assignment><UID>5</UID><TaskUID>1</TaskUID><ResourceUID>3</ResourceUID><Cost>100</Cost></Assignment>")
+    .replace("<PercentComplete>30</PercentComplete>", "<PercentComplete>30</PercentComplete><FixedCost>100000</FixedCost><FixedCostAccrual>3</FixedCostAccrual>")
+    .replace("<WBS>1.5</WBS>", "<WBS>1.5</WBS><FixedCost>25000</FixedCost><FixedCostAccrual>2</FixedCostAccrual>");
+  const r = p6XerText(xml);
+  assert.deepEqual(p6Problems(r.xer.tables), []);
+  const { COSTTYPE, PROJCOST, TASK } = r.xer.tables;
+  assert.deepEqual(COSTTYPE.map((c) => c.cost_type), ["Permits"]);
+  const code = new Map(TASK.map((t) => [t.task_id, t.task_code]));
+  const rows = PROJCOST.map((c) => [code.get(c.task_id), c.cost_name, c.target_cost, c.act_cost, c.remain_cost, c.cost_load_type, c.cost_type_id]);
+  assert.deepEqual(rows, [
+    ["A30", "Fixed cost", "1000", "300", "700", "CL_Uniform", ""], // prorated: 30% accrued
+    ["A60", "Fixed cost", "250", "0", "250", "CL_End", ""],
+    ["A50", "Permit fee", "450", "0", "500", "CL_Start", "1"], // budget from the baseline cost
+    ["A30", "Permit fee", "200", "200", "0", "CL_Start", "1"],
+  ]);
+  const permit = PROJCOST[2];
+  assert.equal(permit.vendor_name, "City of Springfield");
+  assert.equal(permit.po_number, "4471");
+  assert.equal(permit.target_qty, "2");
+  assert.equal(permit.qty_name, "ea");
+  assert.equal(permit.cost_per_qty, "225");
+  assert.equal(permit.cost_descr, "Building permit, two stages");
+  assert.equal(PROJCOST[3].target_qty, "1");
+  assert.equal(PROJCOST[3].cost_per_qty, "200");
+  assert.equal(r.counts.expenses, 4);
+  assert.ok(r.warnings.some((w) => /4 expense\(s\) written/.test(w) && /1 cost categor/.test(w) && /2 task fixed cost/.test(w)));
+  assert.ok(r.warnings.some((w) => /1 cost resource assignment\(s\) on summary tasks not carried/.test(w)));
+  // P6's order: COSTTYPE with the global tables, PROJCOST after TASK
+  const order = Object.keys(r.xer.tables);
+  assert.ok(order.indexOf("COSTTYPE") < order.indexOf("PROJECT"));
+  assert.ok(order.indexOf("PROJCOST") > order.indexOf("TASK") && order.indexOf("PROJCOST") < order.indexOf("TASKPRED"));
+  assert.match(r.text, /%T\tPROJCOST\r\n%F\tcost_item_id\tacct_id\tpobs_id\tcost_type_id\tproj_id\ttask_id\tcost_name/);
+});
+
+test("p6Problems: an expense on an activity the file does not have, or in a category it does not list", () => {
+  const r = p6XerText(XML());
+  const t = structuredClone(r.xer.tables);
+  t.PROJCOST[0].task_id = "999";
+  t.PROJCOST[0].cost_type_id = "7";
+  const p = p6Problems(t);
+  assert.ok(p.some((x) => /PROJCOST 1: task_id 999 is not in TASK/.test(x)));
+  assert.ok(p.some((x) => /PROJCOST 1: cost_type_id 7 is not in COSTTYPE/.test(x)));
 });
