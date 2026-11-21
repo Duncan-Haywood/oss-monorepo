@@ -604,8 +604,8 @@ quantities no set holds are measured from the element's own body by
 | `Width` | walls | the thickness |
 | `GrossArea`, `NetArea` | slabs, plates, coverings, roofs | the extruded profile |
 | `CrossSectionArea` | columns, beams, members, piles | the section at mid-length |
-| `Length` | walls with a straight `Axis` | along the axis direction, on the plane halfway through the thickness, at the longest level |
-| `Height` | walls with a straight `Axis` | the extrusion depth; none when a roof or slab clips the wall |
+| `Length` | walls (direction from a straight `Axis`, or from the body's side faces when there is none; extruded or brep bodies) | along that direction, on the plane halfway through the thickness, at the longest level |
+| `Height` | the same walls | the extrusion depth; none when a roof or slab clips the wall, and on a brep only when its top is level |
 
 **Wall Length and Height (2026-11-21).** The `Axis` curve's own length is not
 the wall's length: ARCHICAD draws it on the reference line, often a face, so
@@ -618,6 +618,16 @@ only where the extrusion depth and the clipped wall's tallest point agree
 (Revit stores one, ARCHICAD the other): 476 of 476 offered heights match.
 Filling walls' `Length` and `Height` on five models wrote 758 values, every
 one passing here and in IfcTester (`eval/wall-axis-lengths-2026-11-21.md`).
+
+**Brep walls and walls with no Axis (2026-11-21).** A faceted body is read
+through its closed shells (the takeoff's `asTerms`), and a wall with no
+`Axis` takes its direction from its side faces. Held out on the same 492
+walls, both give the axis reading's length on 492 of 492; read as fanned
+breps, the level-top rule offers 419 heights, all 419 within 2%. On the 15
+public models, 3,247 of 3,312 walls are now measured (2,955 before), and
+filling `Length` and `Height` on the seven models this reaches leaves 100
+walls failing instead of 305, all 3,478 written values passing here and in
+IfcTester (`eval/wall-brep-lengths-2026-11-21.md`).
 Other lengths and heights (beams, members, curved walls) are not measured. A value from the model's
 own quantity sets always wins over a measured one, and a measured value still
 has to pass every facet that names it. Values are written to six significant

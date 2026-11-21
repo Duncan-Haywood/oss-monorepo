@@ -24,7 +24,7 @@ for (const f of args) {
   const { rows } = takeoff(model);
   const units = readUnits(model);
   const geo = new Geometry(model, { angle: units.PLANEANGLEUNIT });
-  addWallLines(model, rows, { Geometry, polyPlanes, readUnits });
+  addWallLines(model, rows, { Geometry, polyPlanes, readUnits, bodyDirection: false });
   const s = { walls: 0, straightAxis: 0, measured: 0, length: { stored: 0, within2: 0, axisWithin2: 0, causes: {} }, height: { stored: 0, within2: 0, tallestWithin2: 0, offered: 0, offeredWithin2: 0, causes: {} }, heightsOffered: 0 };
   const misses = [];
   const byId = new Map(rows.map((r) => [r.id, r]));

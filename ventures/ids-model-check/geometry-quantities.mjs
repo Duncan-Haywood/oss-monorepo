@@ -16,8 +16,11 @@
 //   GrossArea, NetArea       slabs, plates, coverings, roofs (the extruded
 //                            profile)
 //   CrossSectionArea         columns, beams, members, piles
-//   Length, Height           walls with a straight 'Axis' representation
-//                            (wallLines below; eval/wall-axis-lengths-2026-11-21.md)
+//   Length, Height           walls: the direction from a straight 'Axis'
+//                            representation, or with none from the body's own
+//                            side faces; the body extruded or faceted
+//                            (wallLines below; eval/wall-axis-lengths-2026-11-21.md,
+//                            eval/wall-brep-lengths-2026-11-21.md)
 // Other lengths and heights are not offered: a beam's or member's Qto_ Length
 // is a nominal figure its cut-backs make ambiguous, and no public model here
 // stores one to check against.
@@ -131,24 +134,48 @@ const MAX_SAMPLES = 400;
 /**
  * A wall's length along its axis direction and its height, both on the plane
  * halfway through its thickness, in the body's own units.
+ *
+ * A faceted body (a brep, a tessellation: `mesh` with its closed `shells`)
+ * is first taken as convex pieces by `asTerms` (geom.mjs: a convex shell is
+ * one piece, any other a signed fan of tetrahedra whose signs add up to the
+ * shell's inside), so the same line test reads it. Its extrusion is lost:
+ * a roof's or slab's cut is already in the faces, so its depth up the wall
+ * is the clipped wall's, and `flatTop` says whether the top is level along
+ * the whole wall (addWallLines offers a faceted wall's Height only then).
  * @param {{terms: Array<{s: number, faces: number[][][]}>, mesh?: number, shells?: Array|null}} body
  * @param {number[]} dir the axis direction in the body's plane (x, y)
  * @param {(faces) => Array<[number[], number]>} polyPlanes ifc-quantity-takeoff's geom.mjs
- * @returns {{length: number, height: number, tallest: number} | null} null for a faceted body or nothing found
+ * @param {{asTerms?: Function}} [opts] geom.mjs asTerms, to read a faceted body
+ * @returns {{length: number, height: number, tallest: number, faceted: boolean, flatTop: boolean} | null}
+ *   null for a faceted body whose faces are not all known (or with no asTerms), or nothing found
  */
-export function wallLines(body, dir, polyPlanes) {
-  if (!body || body.mesh || (body.shells && body.shells.length) || !body.terms?.length) return null;
+export function wallLines(body, dir, polyPlanes, opts = {}) {
+  if (!body) return null;
+  const faceted = !!body.mesh;
+  let src = body;
+  if (faceted) {
+    if (!body.shells || !body.shells.length || typeof opts.asTerms !== "function") return null;
+    src = opts.asTerms(body);
+    if (!src || src.mesh) return null;
+  } else if (body.shells && body.shells.length) return null;
+  if (!src.terms?.length) return null;
   const L = Math.hypot(dir[0], dir[1]);
   if (!(L > 0)) return null;
   const d = [dir[0] / L, dir[1] / L, 0], n = [-d[1], d[0], 0];
-  const pieces = body.terms.map((t) => ({ s: t.s, planes: polyPlanes(t.faces), faces: t.faces }));
-  // the middle of the positive pieces' extent across the wall, and their
-  // vertices' positions along it and up it: where the inside's ends can turn
+  const pieces = src.terms.map((t) => ({ s: t.s, planes: polyPlanes(t.faces), faces: t.faces }));
+  // the material's own vertices: an extruded body's positive pieces, or a
+  // faceted body's material shells (a fan's tetrahedra share the shell's
+  // centre, which is no vertex of the wall)
+  const material = faceted
+    ? [...body.terms.filter((t) => t.s > 0).map((t) => t.faces), ...body.shells.filter((sh) => sh.s > 0).map((sh) => sh.loops)]
+    : pieces.filter((p) => p.s > 0).map((p) => p.faces);
+  // the middle of the material's extent across the wall, and the vertices'
+  // positions along it and up it: where the inside's ends can turn
   let nlo = Infinity, nhi = -Infinity;
   const along = new Set(), up = new Set();
+  for (const faces of material) for (const f of faces) for (const q of f) { const x = n[0] * q[0] + n[1] * q[1]; if (x < nlo) nlo = x; if (x > nhi) nhi = x; }
   for (const p of pieces) {
     for (const f of p.faces) for (const q of f) {
-      if (p.s > 0) { const x = n[0] * q[0] + n[1] * q[1]; if (x < nlo) nlo = x; if (x > nhi) nhi = x; }
       along.add(d[0] * q[0] + d[1] * q[1]);
       up.add(q[2]);
     }
@@ -174,20 +201,30 @@ export function wallLines(body, dir, polyPlanes) {
     const r = insideSpan(pieces, o, d);
     if (r && r[1] - r[0] > length) length = r[1] - r[0];
   }
-  // the extrusion depth: the positive pieces' extent up the wall
-  for (const p of pieces) if (p.s > 0) for (const f of p.faces) for (const q of f) { if (q[2] < zlo) zlo = q[2]; if (q[2] > zhi) zhi = q[2]; }
+  // the extrusion depth: the material's extent up the wall
+  for (const faces of material) for (const f of faces) for (const q of f) { if (q[2] < zlo) zlo = q[2]; if (q[2] > zhi) zhi = q[2]; }
   const height = zhi - zlo;
   // the tallest vertical line through the body as clipped (a roof's or slab's
-  // cut taken off), on either face or the middle: for the evaluation's record
+  // cut taken off), on either face or the middle: for the evaluation's record.
+  // On the middle plane, also the top's lowest point along the wall (a hair
+  // in from its ends): a level top has it at the material's top.
   const eps = (nhi - nlo) * 1e-4;
+  let topLow = Infinity, alo = Infinity, ahi = -Infinity;
+  for (const a of along) { if (a < alo) alo = a; if (a > ahi) ahi = a; }
   for (const c of [nlo + eps, mid, nhi - eps]) {
     for (const a of samples(along)) {
       const o = [n[0] * c + d[0] * a, n[1] * c + d[1] * a, 0];
       const r = insideSpan(pieces, o, [0, 0, 1]);
       if (r && r[1] - r[0] > tallest) tallest = r[1] - r[0];
+      if (r && c === mid && a > alo + (ahi - alo) * 0.01 && a < ahi - (ahi - alo) * 0.01 && r[1] < topLow) topLow = r[1];
     }
   }
-  return length > 0 && height > 0 ? { length, height, tallest } : null;
+  const flatTop = Number.isFinite(topLow) && zhi - topLow <= 0.005 * (zhi - zlo);
+  // A body the middle line crosses on a short leg (an L-shaped plan: the
+  // middle of its extent across runs through one arm only) is no single
+  // straight wall: a length shorter than the body is thick is not offered.
+  if (!(length >= nhi - nlo)) return null;
+  return length > 0 && height > 0 ? { length, height, tallest, faceted, flatTop } : null;
 }
 
 /**
@@ -214,10 +251,26 @@ export function straightAxis(model, geo, e) {
 }
 
 /**
- * Adds computed.lines = {length, height} (SI) to each wall row that has a
- * straight axis and a body of convex pieces.
+ * The plan direction along a wall with no usable 'Axis': perpendicular to the
+ * horizontal face normal its body is thinnest across (the takeoff's side
+ * plane, computed.areas.side.n), or null.
  */
-export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits }) {
+export function bodyDirection(row) {
+  const n = row.computed?.areas?.side?.n;
+  if (!Array.isArray(n) || !(Math.abs(n[2] ?? 0) < 1e-3)) return null;
+  const L = Math.hypot(n[0], n[1]);
+  return L > 0 ? [-n[1] / L, n[0] / L] : null;
+}
+
+/**
+ * Adds computed.lines = {length, height} (SI) to each wall row whose
+ * direction is known (a straight axis, or with no axis its body's side
+ * faces: lines.from says which) and whose body reads as convex pieces
+ * (extruded, or faceted with all its faces known; lines.faceted).
+ * opts.asTerms (geom.mjs) reads faceted bodies; without it they are skipped.
+ * opts.bodyDirection = false keeps to walls with an axis.
+ */
+export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms, bodyDirection: useBody = true }) {
   const units = readUnits(model);
   const geo = new Geometry(model, { angle: units.PLANEANGLEUNIT });
   let n = 0;
@@ -229,17 +282,20 @@ export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits }) {
     // the body's own z must be the world's up: the height is read along it
     const W = r.world;
     if (W && !(Math.abs(W[10]) > 0.999 * Math.hypot(W[2], W[6], W[10]))) continue;
-    const dir = straightAxis(model, geo, e);
+    let dir = straightAxis(model, geo, e), from = "axis";
+    if (!dir && useBody) { dir = bodyDirection(r); from = "body"; }
     if (!dir) continue;
     let w;
-    try { w = wallLines(body, dir, polyPlanes); } catch { w = null; }
+    try { w = wallLines(body, dir, polyPlanes, { asTerms }); } catch { w = null; }
     if (!w) continue;
     const f = r.lengthUnit ?? units.LENGTHUNIT;
     // A wall a roof or slab clips has two heights exporters disagree on (the
     // extrusion depth, Revit; the clipped tallest point, ARCHICAD): offer
-    // neither, and leave it to the table.
-    const clipped = Math.abs(w.height - w.tallest) > 0.005 * w.height;
-    r.computed.lines = { length: w.length * f, height: clipped ? null : w.height * f, extrusion: w.height * f, tallest: w.tallest * f, clipped };
+    // neither, and leave it to the table. A faceted body has no extrusion
+    // left, only its faces: its height is offered only when its top is
+    // level along the whole wall, where the two readings are one figure.
+    const clipped = Math.abs(w.height - w.tallest) > 0.005 * w.height || (w.faceted && !w.flatTop);
+    r.computed.lines = { length: w.length * f, height: clipped ? null : w.height * f, extrusion: w.height * f, tallest: w.tallest * f, clipped, from, faceted: w.faceted };
     n++;
   }
   return n;
@@ -267,9 +323,9 @@ export async function measureModel(ifcText, opts = {}) {
   const base = opts.dir ? new URL(String(opts.dir).replace(/\/?$/, "/"), import.meta.url) : new URL("../ifc-quantity-takeoff/", import.meta.url);
   const { parseStep } = await import(new URL("step.mjs", base).href);
   const { takeoff, readUnits } = await import(new URL("qto.mjs", base).href);
-  const { Geometry, polyPlanes } = await import(new URL("geom.mjs", base).href);
+  const { Geometry, polyPlanes, asTerms } = await import(new URL("geom.mjs", base).href);
   const model = parseStep(ifcText);
   const { rows } = takeoff(model);
-  addWallLines(model, rows, { Geometry, polyPlanes, readUnits });
+  addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
   return quantitiesFromRows(rows);
 }

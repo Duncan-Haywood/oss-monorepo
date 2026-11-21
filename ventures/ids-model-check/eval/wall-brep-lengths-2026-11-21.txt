@@ -1,0 +1,103 @@
+
+AC20-FZK-Haus.ifc: 13 walls, 13 measured {"axis, extruded":13,"axis, faceted":0,"body, extruded":0,"body, faceted":0}, 0.327 s
+  Heights offered: {"axis, extruded":11,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+  Held out (axis ignored), 13 stored Lengths: axis within 2% 13, body direction within 2% 13 (no reading 0; identical to the axis reading 13); heights identical 13 of 13
+  Faceted, held out: 13 stored Lengths, within 2% 13 (no reading 0; equal to the extruded reading 13); Height stored 13, offered (level top) 9, within 2% 9
+
+C20-Institute-Var-2.ifc: 121 walls, 121 measured {"axis, extruded":121,"axis, faceted":0,"body, extruded":0,"body, faceted":0}, 0.902 s
+  Heights offered: {"axis, extruded":112,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+  Held out (axis ignored), 121 stored Lengths: axis within 2% 121, body direction within 2% 121 (no reading 0; identical to the axis reading 121); heights identical 121 of 121
+  Faceted, held out: 121 stored Lengths, within 2% 121 (no reading 0; equal to the extruded reading 121); Height stored 121, offered (level top) 111, within 2% 111
+
+FM_ARC_DigitalHub.ifc: 178 walls, 178 measured {"axis, extruded":178,"axis, faceted":0,"body, extruded":0,"body, faceted":0}, 12.582 s
+  Heights offered: {"axis, extruded":178,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+
+ISSUE_034_HouseZ.ifc: 140 walls, 134 measured {"axis, extruded":0,"axis, faceted":0,"body, extruded":4,"body, faceted":130}, 0.71 s
+  Heights offered: {"axis, extruded":0,"axis, faceted":0,"body, extruded":4,"body, faceted":91}
+
+ISSUE_126_model.ifc: 65 walls, 57 measured {"axis, extruded":57,"axis, faceted":0,"body, extruded":0,"body, faceted":0}, 0.316 s
+  Heights offered: {"axis, extruded":57,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+
+ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc: 336 walls, 333 measured {"axis, extruded":204,"axis, faceted":31,"body, extruded":89,"body, faceted":9}, 5.539 s
+  Heights offered: {"axis, extruded":204,"axis, faceted":17,"body, extruded":89,"body, faceted":0}
+  Revit's own length: {"axis, faceted":{"with":31,"within2":4,"joinGap":4},"axis, extruded":{"with":204,"within2":117,"joinGap":48},"body, extruded":{"with":89,"within2":60,"joinGap":2},"body, faceted":{"with":9,"within2":1}}
+    Revit length | axis, faceted | 5221 | Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1559486 | 6.728 | 7.631
+    Revit length | axis, faceted | 6253 | Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1559791 | 6.728 | 8.031
+    Revit length | axis, faceted | 6633 | Mur de base:IGC_MUR_EGC-TUN-VOILE-800:1560718 | 6.276 | 7.757
+    Revit length | axis, extruded | 6891 | Mur de base:IGC_MUR_EGC-TUN-VOILE-800:1560867 | 7.281 | 7.757
+    Revit length | axis, extruded | 8434 | Mur de base:IGC_MUR_EGC-TUN-VOILE-250:1562868 | 8.078 | 8.303
+    Revit length | axis, extruded | 8653 | Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1562870 | 6.728 | 7.631
+    Revit length | axis, extruded | 8756 | Mur de base:IGC_MUR_EGC-TUN-VOILE-250:1562872 | 8.078 | 8.303
+    Revit length | axis, extruded | 8947 | Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1562874 | 6.729 | 7.632
+
+ISSUE_159_kleine_Wohnung_R22.ifc: 211 walls, 211 measured {"axis, extruded":210,"axis, faceted":1,"body, extruded":0,"body, faceted":0}, 5.039 s
+  Heights offered: {"axis, extruded":210,"axis, faceted":1,"body, extruded":0,"body, faceted":0}
+  Held out (axis ignored), 210 stored Lengths: axis within 2% 210, body direction within 2% 210 (no reading 0; identical to the axis reading 210); heights identical 210 of 210
+  Faceted, held out: 210 stored Lengths, within 2% 210 (no reading 0; equal to the extruded reading 210); Height stored 210, offered (level top) 165, within 2% 165
+
+Office_A_20110811.ifc: 487 walls, 487 measured {"axis, extruded":487,"axis, faceted":0,"body, extruded":0,"body, faceted":0}, 0.773 s
+  Heights offered: {"axis, extruded":487,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+  Revit's own length: {"axis, extruded":{"with":487,"within2":208,"joinGap":108}}
+    Revit length | axis, extruded | 206 | Basic Wall:Interior - Plumbing (152mm Stud):225695 | 1.100 | 1.038
+    Revit length | axis, extruded | 219 | Basic Wall:Interior - Plumbing (152mm Stud):225782 | 2.105 | 2.167
+    Revit length | axis, extruded | 226 | Basic Wall:Interior - Furring (38 mm Stud):169413 | 4.442 | 4.636
+    Revit length | axis, extruded | 248 | Basic Wall:Interior - Partition (92mm Stud):142560 | 3.527 | 3.740
+    Revit length | axis, extruded | 250 | Basic Wall:Interior - Furring (38 mm Stud):149947 | 0.268 | 0.365
+    Revit length | axis, extruded | 281 | Basic Wall:Interior - Partition (92mm Stud):145477 | 6.045 | 6.258
+    Revit length | axis, extruded | 287 | Basic Wall:Interior - Partition (92mm Stud):150250 | 0.570 | 0.662
+    Revit length | axis, extruded | 312 | Basic Wall:Interior - Partition (92mm Stud):157794 | 3.933 | 4.146
+
+S_Office_Integrated Design Archi.ifc: 226 walls, 186 measured {"axis, extruded":186,"axis, faceted":0,"body, extruded":0,"body, faceted":0}, 11.342 s
+  Heights offered: {"axis, extruded":186,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+
+Schultz_Residence.ifc: 105 walls, 100 measured {"axis, extruded":100,"axis, faceted":0,"body, extruded":0,"body, faceted":0}, 21.931 s
+  Heights offered: {"axis, extruded":90,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+
+advanced_model.ifc: 133 walls, 133 measured {"axis, extruded":128,"axis, faceted":5,"body, extruded":0,"body, faceted":0}, 12.681 s
+  Heights offered: {"axis, extruded":128,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+
+architect.ifc: 112 walls, 112 measured {"axis, extruded":112,"axis, faceted":0,"body, extruded":0,"body, faceted":0}, 7.064 s
+  Heights offered: {"axis, extruded":112,"axis, faceted":0,"body, extruded":0,"body, faceted":0}
+  Held out (axis ignored), 112 stored Lengths: axis within 2% 86, body direction within 2% 86 (no reading 0; identical to the axis reading 112); heights identical 112 of 112
+  Faceted, held out: 112 stored Lengths, within 2% 86 (no reading 0; equal to the extruded reading 112); Height stored 112, offered (level top) 110, within 2% 110
+  Revit's own length: {"axis, extruded":{"with":112,"within2":86,"joinGap":17}}
+    Revit length | axis, extruded | 34738 | Basic Wall:MW 11.5:573605 | 6.218 | 6.363
+    held-out length | 34738 | Basic Wall:MW 11.5:573605 | 6.218 | 6.218 | 6.363
+    Revit length | axis, extruded | 34874 | Basic Wall:MW 11.5:573608 | 6.218 | 6.363
+    held-out length | 34874 | Basic Wall:MW 11.5:573608 | 6.218 | 6.218 | 6.363
+    held-out length | 60811 | Basic Wall:MW 17.5:573700 | 2.080 | 2.080 | 2.255
+    held-out length | 61682 | Basic Wall:MW 11.5:573718 | 3.307 | 3.307 | 3.482
+    held-out length | 61775 | Basic Wall:MW 11.5:573720 | 3.307 | 3.307 | 3.482
+    Revit length | axis, extruded | 61725 | Basic Wall:MW 11.5:573719 | 2.182 | 2.327
+
+construction.ifc: 48 walls, 48 measured {"axis, extruded":36,"axis, faceted":12,"body, extruded":0,"body, faceted":0}, 0.777 s
+  Heights offered: {"axis, extruded":31,"axis, faceted":1,"body, extruded":0,"body, faceted":0}
+  Held out (axis ignored), 36 stored Lengths: axis within 2% 35, body direction within 2% 35 (no reading 0; identical to the axis reading 36); heights identical 36 of 36
+  Faceted, held out: 36 stored Lengths, within 2% 35 (no reading 0; equal to the extruded reading 36); Height stored 36, offered (level top) 24, within 2% 24
+  Revit's own length: {"axis, extruded":{"with":36,"within2":35},"axis, faceted":{"with":12,"within2":12}}
+    Revit length | axis, extruded | 16416 | Basic Wall:STB 30.0:573662 | 2.700 | 2.900
+    held-out length | 16416 | Basic Wall:STB 30.0:573662 | 2.700 | 2.700 | 2.900
+
+dental_clinic.ifc: 1080 walls, 1077 measured {"axis, extruded":1063,"axis, faceted":12,"body, extruded":2,"body, faceted":0}, 1.589 s
+  Heights offered: {"axis, extruded":1063,"axis, faceted":2,"body, extruded":2,"body, faceted":0}
+  Revit's own length: {"axis, extruded":{"with":1063,"within2":405,"joinGap":319},"axis, faceted":{"with":12,"within2":6,"joinGap":4},"body, extruded":{"with":2,"within2":0}}
+    Revit length | axis, extruded | 202 | Basic Wall:Interior - Partition (92mm Stud):174960 | 7.163 | 7.323
+    Revit length | axis, extruded | 217 | Basic Wall:Interior - Partition (92mm Stud):381311 | 0.406 | 11.691
+    Revit length | axis, extruded | 218 | Basic Wall:Interior - Partition (92mm Stud):381589 | 0.611 | 11.691
+    Revit length | axis, extruded | 284 | Basic Wall:Interior - Partition (92mm Stud):175951 | 6.916 | 7.074
+    Revit length | axis, extruded | 286 | Basic Wall:Interior - Partition (92mm Stud):179860 | 7.569 | 7.764
+    Revit length | axis, extruded | 349 | Basic Wall:Interior - Partition (92mm Stud):151575 | 6.269 | 6.464
+    Revit length | axis, extruded | 360 | Basic Wall:Interior - Partition (92mm Stud):404985 | 4.243 | 4.438
+    Revit length | axis, extruded | 373 | Basic Wall:Interior - Furring (152 mm Stud):171798 | 4.684 | 4.844
+
+duplex.ifc: 57 walls, 57 measured {"axis, extruded":56,"axis, faceted":1,"body, extruded":0,"body, faceted":0}, 0.329 s
+  Heights offered: {"axis, extruded":56,"axis, faceted":1,"body, extruded":0,"body, faceted":0}
+  Revit's own length: {"axis, extruded":{"with":56,"within2":25,"joinGap":11},"axis, faceted":{"with":1,"within2":0}}
+    Revit length | axis, extruded | 4131 | Basic Wall:Interior - Partition (92mm Stud):138584 | 3.583 | 3.791
+    Revit length | axis, extruded | 4553 | Basic Wall:Interior - Partition (92mm Stud):139783 | 1.456 | 1.594
+    Revit length | axis, extruded | 4598 | Basic Wall:Interior - Partition (92mm Stud):139939 | 3.583 | 3.791
+    Revit length | axis, faceted | 5399 | Basic Wall:Party Wall - CMU Residential Unit Dimising Wall:143239 | 16.966 | 17.383
+    Revit length | axis, extruded | 5859 | Basic Wall:Interior - Partition (92mm Stud):144301 | 1.619 | 1.956
+    Revit length | axis, extruded | 6036 | Basic Wall:Interior - Partition (92mm Stud):144684 | 1.619 | 1.956
+    Revit length | axis, extruded | 4508 | Basic Wall:Interior - Partition (92mm Stud):139682 | 2.920 | 3.195
+    Revit length | axis, extruded | 4219 | Basic Wall:Interior - Partition (92mm Stud):139143 | 2.920 | 3.195
