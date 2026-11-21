@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmsbD6fiyqqNgoogYj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T09:18:42Z",
+  "ended": "2026-11-21T09:27:30Z",
+  "wall_minutes": 19.46,
+  "tokens_in": 6010411,
+  "tokens_out": 35227,
+  "cost_usd": 2.8567,
+  "tool_calls": 56,
+  "task": "Deepen (flagship 10) open-tennis-robots: head access (access_problems) on collector joints",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18062",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "buildable: cap of 600 left 14 characters; first replacement text refused (15 over), rewrote shorter. Clear message, small cost."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/otr_cad/guide.py",
+      "issue": "Joint measured one hole per joint (no holes list), so access checks on the 'first point' silently skipped the other 60 holes; documented now via Joint.holes / mirror_y and a test tying hole count to steps' fastener counts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "why": "Used a scratchpad venv with build123d and python -m unittest instead of platform/ci/pyenv.py pytest: the cad tests are unittest-based and only build123d was needed.",
+      "did": "venv in scratchpad, unittest",
+      "result": "14 guide tests ran in 64 s"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-tennis-collector-hatch-screw-behind-the-arm.md",
+    "ventures/open-tennis-robots/cad/README.md (Head access on every collector joint)"
+  ],
+  "goal": "Deepen a flagship: assembly-guide checks for the collector",
+  "notes": "All 16 collector joints access-checked at 76 holes (= steps' screw counts). New step_access_problems (bench joints: switch-to-tower behind the wheel, Pi standoff screws behind the base plate), service_access table in ASSEMBLY.md, hatch_screw_problems: yoke arm hides a hatch thumb screw over 24 of every 60 deg of drum turn; slot-down is clear by 11/24 deg. Local: python -m unittest tests.test_cad.AssemblyGuideTest -> Ran 14 tests in 64s OK (includes package build 'all pass.'). PR CI: all checks green except the cad job, which was still running when this was written; merge waits on it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8c1291ec-31ff-50d0-8310-34266dd77067",
+    "transcripts": 1,
+    "first": "2026-11-21T09:18:42Z",
+    "last": "2026-11-21T09:38:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 103,
+        "output": 35227,
+        "thinking": 8869,
+        "cache_read": 5888558,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121750,
+        "api_equivalent_usd": 2.8567,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 103,
+      "output": 35227,
+      "thinking": 8869,
+      "cache_read": 5888558,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121750,
+      "api_equivalent_usd": 2.8567,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.46,
+      "active_minutes": 19.46,
+      "model_minutes": 6.57,
+      "tool_minutes": 12.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a mechanical engineer adding per-hole, per-step tool-access checks and a drum-angle sweep to a CAD assembly checker, with tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 210.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
