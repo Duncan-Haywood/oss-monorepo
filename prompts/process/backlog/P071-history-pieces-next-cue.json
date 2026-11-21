@@ -21,7 +21,7 @@
   "baseline": "3 pieces on 2026-11-21; 3 run records that day",
   "opened": "2026-11-21",
   "source": "process critique, 2026-11-21 (doc friction on flagship_field.py)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18076",
   "result": null,
   "change_shipped": "OPENISH now includes next and miss(es|ing); test_history_pieces_keep_dated_pieces_with_their_own_next_step. Offered pieces with those cues on main: 3 -> 0."
 }
