@@ -39,6 +39,16 @@ export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEF
  * for counts").
  */
 export const COUNT_DEFAULTS = { detector: 'bocpd-window', overdispersion: 'nb', threshold: 0.3 };
+/**
+ * The middle setting for counts (2026-11-21, eval/gsc-middle.prereg.md; README "A middle setting for over-dispersed
+ * counts"): PELT with the negative-binomial cost. Picked on tuning seeds from five candidates, then checked on fresh
+ * simulated sites whose daily counts swing beyond Poisson (weekends at 70%, a day multiplier with cv 15%): 115 of 120
+ * 20% falls heard against the count default's 38, 0.83 false alerts per 1,000 days against 0.17, the same 4-day
+ * delay on 40% falls; at cv 30%, 88 against 17 and 1.33 false per 1,000. It is slower than Quiet on the falls both
+ * hear (a median of 8 days on a 20% fall) because PELT waits until the new level is clear. Plain `pelt` (Eager) takes
+ * the extra swings for changes, 39-148 false alerts per 1,000 days on the same sites.
+ */
+export const COUNT_MIDDLE = { detector: 'pelt', overdispersion: 'nb' };
 export function withCountDefaults(opts = {}) {
   if ((opts.model ?? 'mean') !== 'poisson' || opts.detector != null || opts.overdispersion != null || opts.threshold != null) return opts;
   return { ...opts, ...COUNT_DEFAULTS };
@@ -460,7 +470,9 @@ export function eagerSettings(model = 'mean', opts = {}) {
   // Counts with no clumping cost or threshold named: the count default is Quiet, then pelt (README "The How eager hint
   // for counts", eval/watch-eagerness-counts.prereg.md). bocpd is not between them: on unclumped counts it is quieter
   // than the count default, on clumped ones noisier, so it is not a step up in eagerness.
-  if (model === 'poisson' && opts.overdispersion == null && opts.threshold == null) return [{ key: 'quiet', ...COUNT_DEFAULTS }, { key: 'eager', detector: 'pelt' }];
+  // Since 2026-11-21 (eval/gsc-middle.prereg.md, stage C) PELT with the negative-binomial cost is Middle between them:
+  // on 2,200 fresh simulated shops 49 more of 1,200 steps heard (36 to 62) for 0.37 more false alerts per 1,000 checks.
+  if (model === 'poisson' && opts.overdispersion == null && opts.threshold == null) return [{ key: 'quiet', ...COUNT_DEFAULTS }, { key: 'middle', ...COUNT_MIDDLE }, { key: 'eager', detector: 'pelt' }];
   const q = defaultDetector(model);
   return [{ key: 'quiet', detector: q }, ...(q === 'bocpd' ? [] : [{ key: 'middle', detector: 'bocpd' }]), { key: 'eager', detector: 'pelt' }];
 }
@@ -525,7 +537,7 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
       : `Suggested: Quiet. The more eager settings would have sent more than ${fb} alerts per 100 checks on this history.`)
     : `Suggested: ${eagerName(res.suggest)}, the most eager setting that stayed at or under ${fb} alerts per 100 checks on this history.`);
   lines.push(`Budget: ${fb} alert${fb === 1 ? '' : 's'} per 100 checks, ${plainBudgetText(res.budget, every)}.`);
-  if (res.model === 'poisson' && res.settings[0]?.overdispersion === 'nb') lines.push('For counts (README "The How eager hint for counts", pre-registered): on 2,200 simulated shops it sent 2.04 false alerts per 1,000 checks against 4.83 for the ladder it replaced and heard 1,085 of 1,200 steps against 1,047; staying on Quiet (no hint) sent 0.54 and heard 1,057, so the hint buys a few more steps for about four times the false alerts on counts that do not bunch.');
+  if (res.model === 'poisson' && res.settings[0]?.overdispersion === 'nb') lines.push('For counts (README "A middle setting for over-dispersed counts", pre-registered): on 2,200 fresh simulated shops this hint sent 2.37 false alerts per 1,000 checks and heard 1,131 of 1,200 steps; staying on Quiet (no hint) sent 0.72 and heard 1,056, and Middle alone sent 1.53 and heard 1,140, so on counts that bunch or swing beyond Poisson, Middle is a good place to start.');
   lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 15.7 (replayed with the shipped persist 2), and on 6 held-out series it changed nothing. On a second labelled set it was not confirmed: on 47 server, traffic, ad and Twitter series from the Numenta Anomaly Benchmark, watched hourly, it reached 49 of 61 later anomaly windows against the default\'s 50 (README "Round 10"). Nor on a third: on 33 fault runs of a water-pump testbed (SKAB, all 8 sensors watched), picked from a normal run, it reached 118 of 123 marked changes against the default\'s 97, but only 28.4% of its alerts sat at a marked change against the default\'s 36.8%, at 163 alerts per 1,000 checks against 69 (README "Round 12").'
     + (Math.abs(res.budget - HINT_BUDGET) > 1e-9 ? ` Those numbers are for the tested budget of ${HINT_BUDGET} per 100 (${plainBudgetText(HINT_BUDGET)}); at about 1 a month the same series reached 19 of 31 at 19.3 per 1,000, at about 1 a week 29 of 31 at 74.0 per 1,000.` : ''));
   const wk = res.settings.find((s) => s.key === res.suggest)?.weekly ?? res.settings.find((s) => s.weekly)?.weekly;

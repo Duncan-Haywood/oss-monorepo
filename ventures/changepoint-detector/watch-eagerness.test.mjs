@@ -71,13 +71,14 @@ test('a wandering level: even quiet is over the budget, and the text says to wat
   assert.ok(r.settings[2].alerts >= r.settings[0].alerts, 'eager sends at least as many alerts as quiet on a random walk');
 });
 
-test('volatility and counts models have two settings (their quiet default is not the AR(1) pass)', () => {
+test('the volatility model has two settings, counts three (their quiet default is not the AR(1) pass)', () => {
   assert.deepEqual(eagerSettings('meanvar').map((s) => s.detector), ['bocpd', 'pelt']);
   assert.deepEqual(eagerSettings('mean').map((s) => s.detector), ['bocpd-ar1-window', 'bocpd', 'pelt']);
   const counts = series(120, (i) => (i >= 70 ? 20 : 8), 5).map((y) => Math.max(0, Math.round(y)));
   const r = eagernessReplay(counts, null, { model: 'poisson' });
-  assert.deepEqual(r.settings.map((s) => s.key), ['quiet', 'eager']);
-  assert.deepEqual(r.settings.map((s) => s.detector), ['bocpd-window', 'pelt']);
+  assert.deepEqual(r.settings.map((s) => s.key), ['quiet', 'middle', 'eager']);
+  assert.deepEqual(r.settings.map((s) => s.detector), ['bocpd-window', 'pelt', 'pelt']);
+  assert.equal(r.settings[1].overdispersion, 'nb');
 });
 
 test('the page runs it in the worker job and offers to set the watch card', () => {

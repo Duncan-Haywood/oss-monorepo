@@ -40,12 +40,19 @@ test('orders with --period 7: Quiet sends 4 alerts and no weekly line', () => {
 });
 
 test('today\'s count ladder on the same orders: Quiet (the count default) sends 2 alerts, and misses the 2011-09-01 build-up', () => {
-  for (const [period, want] of [[undefined, ['2011-05-03', '2011-05-31']], [7, ['2011-04-26', '2011-05-03']]]) {
+  // Since 2026-11-21 the ladder has a Middle (pelt + NB cost; README "A middle setting for over-dispersed counts").
+  // Without a period it sends 7 (2.33 per 100 checks, over budget), so the hint stays on Quiet; with --period 7 it sends
+  // 3, Easter's two and one dated 2011-09-19 inside the autumn climb Quiet misses, and the hint picks it.
+  for (const [period, want, middle, suggest] of [
+    [undefined, ['2011-05-03', '2011-05-31'], ['2011-03-12', '2011-04-22', '2011-04-29', '2011-05-28', '2011-08-27', '2011-09-19', '2011-11-06'], 'quiet'],
+    [7, ['2011-04-26', '2011-05-03'], ['2011-04-22', '2011-04-29', '2011-09-19'], 'middle'],
+  ]) {
     const r = eagernessReplay(orders.values, orders.labels, { model: 'poisson', period, keepAlerts: true });
     const quiet = r.settings.find((s) => s.key === 'quiet');
     assert.equal(quiet.detector, 'bocpd-window');
     assert.deepEqual(quiet.alertLabels, want);
-    assert.equal(r.suggest, 'quiet');
+    assert.deepEqual(r.settings.find((s) => s.key === 'middle').alertLabels, middle);
+    assert.equal(r.suggest, suggest);
     assert.ok(!quiet.weekly);
   }
 });
