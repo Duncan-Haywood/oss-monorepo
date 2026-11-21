@@ -33,9 +33,13 @@
 - (2026-11-21) Project XML out: 4 in-progress CCA activities differ in late
   dates only after the round trip (eval/msproject-check-2026-11-21.md); Resume
   and at-completion duration ruled out. Activity codes as Text2..Text30
-  shipped 2026-11-21 (eval/msproject-codes-2026-11-21.md). Next: UDFs as
-  Number/Date/Flag fields; activity codes as outline codes (hierarchy and
+  shipped 2026-11-21 (eval/msproject-codes-2026-11-21.md). Activity UDFs
+  as Number/Cost/Date/Text fields shipped 2026-11-21
+  (eval/msproject-udfs-2026-11-21.md; P6 has no yes/no UDF, so no Flag
+  fields). Next: resource and WBS UDFs (Project's resource custom fields);
+  keep the Date UDF start/finish subtype on the way back; activity codes as outline codes (hierarchy and
   descriptions as Project's own lookup table, once a reader agrees on the
   form); the 8 CCA code types past 29 fields; MSPDI to XER for P6 import
   (needs P6's required fields).
 - (2026-11-21) constraints log's "past late start" now says whether a row moves anything (eval/constraints-slack-2026-11-20.md: 65/65)
+- (2026-11-21) its forward gap searched 2026-11-20, no rule (one link; eval/relationship-dates-2026-11-20.md)

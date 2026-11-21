@@ -1,5 +1,10 @@
 # Activity codes in the Microsoft Project XML, 2026-11-21
 
+_Later the same day, text UDFs began sharing the 29 Text fields with code
+types (`eval/msproject-udfs-2026-11-21.md`): on CCA, 24 code types are now
+written, 255,410 of 255,410 back, and 3,541 assignments are named. The numbers
+below are from before that change._
+
 **What changed.** `msproject.mjs` used to drop every P6 activity code
 assignment when it wrote an XER as Microsoft Project XML, and only counted
 them in the warnings. Activity codes are how P6 users group and filter a

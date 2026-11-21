@@ -10,8 +10,10 @@ uploaded.
 
 It also **converts an XER to Microsoft Project XML** for someone with Project
 and no P6 seat (WBS, activity IDs, calendars, logic, constraints, progress,
-baseline, resources, activity codes as named text columns), checked on six public P6 files against this tool's own
-MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`).
+baseline, resources, activity codes as named text columns, user-defined fields
+as named Number, Cost, Date and Text columns), checked on six public P6 files against this tool's own
+MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`,
+`eval/msproject-udfs-2026-11-21.md`).
 
 **Live tool:** https://marisstella.app/xer-schedule-check/
 
@@ -449,7 +451,12 @@ project's updates for delay claims; and the review itself as a service.
   leaf code repeated under two parents is written as its path); level of
   effort as manual tasks with their links in the notes; warnings for what
   Project schedules differently. `mspdi.mjs` reads task text fields back as
-  activity codes.
+  activity codes. Activity UDFs (`udfFields`): integer and decimal UDFs in
+  Number1..20, cost UDFs in Cost1..10 (hundredths), date UDFs in Date1..10,
+  text UDFs in the Text fields codes leave free, each named after the UDF;
+  codes and text UDFs share the 29 Text fields by how many activities each
+  fills. `mspdi.mjs` reads Number, Cost and Date fields back as UDFs, so a
+  Project file's own Number fields feed the risk run's ranges too.
 - `cpm.mjs`: forward and backward passes on each activity's own calendar: FS,
   SS, FF and SF links with lags on the project's lag calendar; total float as
   finish, start or smallest float; retained logic or progress override; planned
@@ -567,8 +574,18 @@ run as a formula in Excel or Sheets.
   written read back to the same code (and description, with `--code-names`),
   no two values merged; MPXJ 16.10 reads all 38 field names and 276,042 of
   276,042 values where they were meant to go. The CCA file uses 37 code types:
-  the 29 most assigned are written and 1,416 assignments in the other 8 are
-  named. Not opened in Microsoft Project itself.
+  the 29 most assigned were written and 1,416 assignments in the other 8
+  named; since text UDFs share the fields (below), 24 code types are
+  written there (255,410 of 255,410 back) and 3,541 assignments named.
+  Not opened in Microsoft Project itself.
+- **User-defined fields in the Project XML** (`eval/msproject-udfs-2026-11-21.md`):
+  on CCA, Expressway and a planted file (cost, start and finish date
+  UDFs), every UDF value written reads back the same: 13,859 numbers, 226
+  dates, 36 costs and 28,850 text values. MPXJ 16.10 reads 42,971 of 42,971
+  cells and 32 of 32 field names where they were meant to go. On CCA, 15 text
+  UDFs compete with 37 code types for 29 Text fields; 746 values of the 10
+  least-filled text UDFs are named, not written. Before, all 41,729 activity
+  UDF values on CCA were dropped. Not opened in Microsoft Project itself.
 - **Gantt by activity code** (`eval/activity-codes-2026-11-21.md`): 92
   charts (each code type alone, and then the WBS) on the four public files
   with codes: every activity once, under its TASKACTV value and that value's
