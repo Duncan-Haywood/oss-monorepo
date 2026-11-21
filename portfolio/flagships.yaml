@@ -211,7 +211,7 @@ flagships:
       word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open
       items: NEXT.md.
   - venture: einvoice-preflight
-    hosts: [https://omawww.sat.gob.mx/]
+    hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
     # due after 2026-11-23; four runs left the row on 2026-11-17/18 for that.
     not_before: 2026-11-24

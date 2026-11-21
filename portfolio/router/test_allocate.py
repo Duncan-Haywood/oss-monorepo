@@ -1085,6 +1085,25 @@ class DateGateTests(unittest.TestCase):
         self.assertFalse(any("legacy.org" in u for u in asked))  # `next:` prose is not probed
         self.assertEqual(refused_rows([row("gh", [], "nothing hosted")], probe=probe), {})
 
+    def test_no_outside_input_buildable_skips_stale_hosts(self):
+        # chant-forge, 2026-11-21: "Coda reader, no outside input" with a
+        # hosts: archive.org left from an older item was demoted all day.
+        from types import SimpleNamespace
+        from allocate import need_hosts, refused_rows
+        def row(name, hosts, buildable):
+            return SimpleNamespace(name=name, flagship=True, flagship_hosts=hosts,
+                                   flagship_buildable=buildable, flagship_next="")
+        cf = row("cf", ["https://archive.org/"], "Coda reader, no outside input: fresh cells")
+        self.assertEqual(need_hosts(cf), [])
+        self.assertEqual(refused_rows([cf], probe=lambda u: False), {})
+        # A host the buildable prose itself names is still probed.
+        mixed = row("mx", ["https://archive.org/", "https://huggingface.co/"],
+                    "CAD with no outside input; scans from zenodo.org")
+        self.assertEqual(need_hosts(mixed), ["https://zenodo.org/"])
+        # Without the phrase, hosts: still counts.
+        self.assertEqual(need_hosts(row("x", ["https://archive.org/"], "scans")),
+                         ["https://archive.org/"])
+
     def test_declined_rows_needs_more_leaves_than_works(self):
         from allocate import declined_rows
         hits = lambda n: [("2026-11-18", "x", "why")] * n
