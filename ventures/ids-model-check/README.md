@@ -616,7 +616,7 @@ traces all but 2 of the other 192 to the stored figure (a split wall carrying
 the whole wall's value, a net volume stored as gross, half a member's surface
 stored as its cross-section). On Schultz Residence, a Revit export with no
 quantity sets, a cost-estimating IDS written for this check
-(`eval/qto-from-geometry/base-quantities.ids`) went from 225 failing elements
+(`eval/qto-from-geometry/base-quantities.ids.xml`) went from 225 failing elements
 to 4 (`eval/qto-from-geometry-2026-11-21.md`).
 
 **Attributes (2026-11-21).** A failing attribute requirement (`Description`,

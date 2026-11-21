@@ -37,7 +37,7 @@ The four real exports used since 2026-11-17 (`opensourceBIM/IFC-files` at
 OpeningDesign's Schultz Residence, IFC2X3 from Revit; fetch steps in
 `model-attr-codes-2026-11-17.md`). The 65 public IDS from
 `eval/fetch-audit-corpus.sh`, the 3 starter files and
-`eval/qto-from-geometry/base-quantities.ids`, a cost-estimating IDS written
+`eval/qto-from-geometry/base-quantities.ids.xml`, a cost-estimating IDS written
 for this check (wall net side area, net volume and width; slab net area and
 volume; column and beam gross volume): 69 IDS, 276 pairs.
 
@@ -110,7 +110,7 @@ The one error per model is `A3_IDS.ids`, which is not well-formed XML (as in the
   and passes after; **0 elements** IfcTester passed before fail after. Two IDS files (`IDS_IBRO_FI_IMAGEM`,
   `section_0_2_1_shapes`) are refused by IfcTester's own XML validation, as
   before.
-- `base-quantities.ids`: Schultz 225 failing elements to 4 (437 values;
+- `base-quantities.ids.xml`: Schultz 225 failing elements to 4 (437 values;
   the 4 are walls whose geometry gave no section area or net volume (a
   faceted body, or an opening that could not be cut), 10 values left for a
   person with that reason); architect 187 to 0;
