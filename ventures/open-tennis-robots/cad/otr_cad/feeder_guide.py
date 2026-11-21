@@ -116,14 +116,22 @@ def steps(p: Feeder) -> list[Step]:
              "plate through its slots (M3 x 12, washer and nut under the plate), set mid-slot for now; the last "
              "step sets it. (The pinion rides 5.5 mm over the stepper's face on its shaft, which is not modelled.)",
              reach=6.0),
-        Step("Turntable bearing, plate and gear sector",
-             ["turntable_bearing", "az_gear_sector", "turntable_plate", "cable_gland"],
-             [("M5 x 12 button head", 8), ("M5 nut (turntable bearing)", 8),
-              ("M4 x 12 socket cap screw (azimuth)", 3)], "3 mm hex key, 8 mm spanner",
-             "Bolt the bearing's fixed ring to the mast plate (four M5 x 12 up from under the plate, nuts on the "
-             "ring, through the access hole in the other ring) and the turntable plate to its turning ring (four "
-             "from above, nuts under the ring). If your bearing's rings are tapped, leave the nuts out. Screw the "
-             "gear sector up under the plate's +y edge, three M4 x 12 from above. Turn the plate by hand through "
+        Step("Turntable bearing", ["turntable_bearing", "turntable_bearing_ring"],
+             [(F.BEARING_SCREW, 4)], "3 mm hex key, 8 mm spanner",
+             "Set the bearing on the mast plate with the fixed (lower) ring's access hole over the plate's "
+             f"{p.bearing_access_d:g} mm access hole and its four holes over the plate's. Turn the upper ring until "
+             "its access hole is over one of them, drop an M5 x 16 through both, head down on the fixed ring, and "
+             "run a nyloc on under the plate, the head held with the key through the access hole. Turn the upper "
+             "ring 90 deg to the next hole and repeat. The heads sit in the gap between the rings, where the upper "
+             "ring's heads will pass over them.", reach=1.0),   # the balls (not drawn) fill the race's 0.5 mm
+        Step("Turntable plate and gear sector", ["az_gear_sector", "turntable_plate", "cable_gland"],
+             [(F.BEARING_SCREW, 4), ("M4 x 12 socket cap screw (azimuth)", 3)], "3 mm hex key, 8 mm spanner",
+             "Lay the turntable plate on the upper ring, its four 5.5 mm holes over the ring's (the gear sector "
+             "is not on yet, so plate and ring turn all the way round). Turn them until one hole is over the mast "
+             "plate's access hole, push an M5 x 16 up from under the mast plate through the access holes and the "
+             "upper ring and plate, head in the gap, and run a nyloc on above, the head held with the key from "
+             "below. Turn 90 deg and repeat for the other three. Then screw the gear sector up under the plate's "
+             "+y edge, three M4 x 12 from above. Turn the plate by hand through "
              f"+-{p.az_stop_deg:g} deg: the sector meshes with the pinion all the way and stops on the pads. Push "
              "the cable gland into the plate's centre hole from above."),
         Step("Trunnion cheeks", ["cheek_foot", "trunnion_cheek", "trunnion_cheek_elev"],
@@ -483,7 +491,51 @@ def joints(p: Feeder) -> list[Joint]:
               (F.CARRIER_XY[0] + F.CARRIER_HOLES[0][0], F.CARRIER_XY[1] + F.CARRIER_HOLES[0][1], 0.0), "z",
               p.rail_top + p.plate_t + F.CARRIER_STANDOFF + F.CARRIER[2], -1, 1.7, 2.75, nut_h=M3_NUT_H, access=True,
               holes=tuple((F.CARRIER_XY[0] + hx, F.CARRIER_XY[1] + hy, 0.0) for hx, hy in F.CARRIER_HOLES[1:])),
+        # the turntable bearing's rings (2026-11-21): heads in the gap between the rings, nylocs outside
+        Joint("bearing fixed ring to the mast plate", F.BEARING_SCREW, p.bearing_screw_len, 5, "nut",
+              (*F.bearing_holes(p, False)[0], 0.0), "z", p.mast_top_z + p.plate_t + p.bearing_ring_t, -1, 2.75, 4.75,
+              holes=tuple((x, y, 0.0) for x, y in F.bearing_holes(p, False)[1:]), step="Turntable bearing"),
+        Joint("turntable plate to the bearing's turning ring", F.BEARING_SCREW, p.bearing_screw_len, 5, "nut",
+              (*F.bearing_holes(p, True)[0], 0.0), "z", p.turntable_top - p.plate_t - p.bearing_ring_t, 1, 2.75, 4.75,
+              holes=tuple((x, y, 0.0) for x, y in F.bearing_holes(p, True)[1:]), step="Turntable plate"),
     ]
+
+
+def bearing_access_problems(p: Feeder, parts, reach: float = 60.0, tol_mm3: float = 1.0) -> list[str]:
+    """The bearing's eight screw heads sit between its rings, reached only through an access hole, one hole at a
+    time with the turntable turned to it (2026-11-21). For each screw, turn the upper ring (and, for the turning
+    ring's screws, the turntable plate on it) so the right access hole is over or under it, and check that the head
+    and key go in along the axis clear of everything on the work at that step."""
+    from build123d import Axis, Cylinder
+    bad = []
+    axis = Axis((p.head_x, 0.0, 0.0), (0, 0, 1))
+    st = steps(p)
+    z_fixed = p.mast_top_z + p.plate_t + p.bearing_ring_t
+    z_turn = p.turntable_top - p.plate_t - p.bearing_ring_t
+    for turning, title, seat, away in ((False, "Turntable bearing", z_fixed, 1), (True, "Turntable plate", z_turn, -1)):
+        k = next(i for i, s in enumerate(st) if s.title.startswith(title))
+        names = [n for s in st[:k + 1] for n in s.parts if not (turning and n == "az_gear_sector")]
+        shapes = []
+        for pt in parts:
+            if pt.name in names:
+                shapes += [(pt.name, sh) for sh in pt.placed()]
+        ax0, ay0 = F.bearing_access_xy(p, not turning)          # the hole the head goes through
+        a_hole = math.degrees(math.atan2(ay0, ax0 - p.head_x))
+        for x, y in F.bearing_holes(p, turning):
+            a_screw = math.degrees(math.atan2(y, x - p.head_x))
+            # fixed-ring screws: turn the upper ring's access hole over the screw; turning-ring screws: turn the
+            # screw (with the plate and ring) over the fixed access hole
+            turn = a_screw - a_hole if not turning else a_hole - a_screw
+            at = (x, y) if not turning else (ax0, ay0)
+            path = Cylinder(4.75, reach).moved(Location((at[0], at[1], seat + away * (reach / 2 + 0.1))))
+            placed = [(n, sh.rotate(axis, turn) if n in F.TURNTABLE_PARTS else sh) for n, sh in shapes]
+            for n, sh in placed:
+                x_ = path & sh
+                if x_ and x_.volume > tol_mm3:
+                    bad.append(f"turntable bearing: the screw at {a_screw:.0f} deg cannot be reached through the "
+                               f"access hole: {n} in the way ({x_.volume:.0f} mm^3)")
+                    break
+    return bad
 
 
 def end_bore_problems(p: Feeder, parts) -> list[str]:

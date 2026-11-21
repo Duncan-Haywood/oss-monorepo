@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVM7Jsv6b51EX5fVA2F",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (ventures brief)",
+  "input_sha256": "f295deebe25520aebfdb3a2dd2007380a626adf38c909b5e9c83900b10aad0d9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T22:13:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator: FIDE Dutch exchange order (C.04.3 art. 4.3) in the bracket-by-bracket Swiss pairer",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 18148,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here picked open-tennis-robots (hardware CAD, no revenue path; recent records say the same). Took row 4 league-schedule-generator, whose next: named a buildable algorithmic item (exact exchange order) with real published pairings to score against.",
+      "did": "Implemented FIDE 4.3 exchange order",
+      "result": "chess-results boards 4290 -> 4297 of 4915, rounds 2+ recall 0.891 -> 0.893, lichess 636 -> 640, no round worse"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-swiss-exchange-order-fixed-25-brackets.md",
+    "ventures/league-schedule-generator/eval/swiss-exchange-order.md"
+  ],
+  "goal": null,
+  "notes": "Verification run here: node eval/swiss-vs-published.mjs (gbtami/swisspairing 193ad99) --exchange dutch vs boundary, outputs in eval/swiss-exchange-order.txt; eval/swiss-repeat-floats.mjs 40 - bracket: 0 of 440 events failed (eval/swiss-exchange-sim.txt); run_venture_tests.py league-schedule-generator: 944 tests ok. Only 25 of 975 remainder brackets needed an exchange, so the gain is small. Null result: FIDE colour criteria order (C.12 before C.13) changed 0 boards, not shipped. venture-preflight run in background, result in PR notes.",
+  "corrections": [],
+  "redteam": null
+}

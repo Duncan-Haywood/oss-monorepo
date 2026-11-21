@@ -1,12 +1,15 @@
 // Fills real models from public IDS files (model-fill.mjs) and measures it.
 //
-//   node --max-old-space-size=8192 eval/model-fill-sweep.mjs MODEL.ifc IDS_DIR OUT_DIR [--write N]
+//   node --max-old-space-size=8192 eval/model-fill-sweep.mjs MODEL.ifc IDS_DIR OUT_DIR [--write N] [--modes ids,table,geometry]
 //
 // For each IDS file (*.ids, *.ids.xml) the model is filled twice:
 //   ids    values the IDS fixes (a simpleValue or a one-item enumeration);
 //   table  those, plus a stand-in for a person filling the to-fill table:
 //          the first value of an enumeration, a bound or 1 for a number,
 //          true for a boolean, "X" for unrestricted text (patterns skipped).
+//   geometry  (only with --modes naming it) ids, plus Qto_ quantities no set
+//          holds measured from each element's body (geometry-quantities.mjs,
+//          ifc-quantity-takeoff), measured once per model.
 // Each pair's line in OUT_DIR/fill.jsonl: values written, sets edited/copied/
 // added, failing elements before and after, the values read back and passing
 // the facet that failed, the file's lines that changed (must equal the records
@@ -18,10 +21,13 @@ import { basename, join } from "node:path";
 import { resources } from "../node.mjs";
 import { Model } from "../ids.mjs";
 import { fillModel } from "../model-fill.mjs";
+import { measureModel, geometryLookup } from "../geometry-quantities.mjs";
 
 const [modelPath, idsDir, outDir] = process.argv.slice(2);
 const wi = process.argv.indexOf("--write");
 const writeN = wi > 0 ? Number(process.argv[wi + 1]) : 0;
+const mi = process.argv.indexOf("--modes");
+const MODES = mi > 0 ? process.argv[mi + 1].split(",") : ["ids", "table"];
 mkdirSync(outDir, { recursive: true });
 const R = resources();
 const text = readFileSync(modelPath, "utf8");
@@ -30,6 +36,13 @@ const origLines = text.split(/\r?\n/);
 const origSet = new Set(origLines);
 const parse = () => { const m = new Model(text, R.schemas, { psets: R.psets }); m.measureUnits = R.measureUnits; return m; };
 console.error(`${basename(modelPath)}: ${(text.length / 1e6).toFixed(1)} MB`);
+let geometry;
+if (MODES.includes("geometry")) {
+  const tg = performance.now();
+  const byId = await measureModel(text);
+  geometry = geometryLookup(byId);
+  console.error(`  geometry: ${byId.size} elements measured in ${((performance.now() - tg) / 1000).toFixed(1)} s`);
+}
 
 const suggest = (r, dataType, prim) => {
   const x = r.value.r;
@@ -50,20 +63,20 @@ const suggest = (r, dataType, prim) => {
 };
 
 const files = readdirSync(idsDir).filter((f) => /\.ids(\.xml)?$/i.test(f)).sort();
-const saved = { ids: 0, table: 0 };
+const saved = Object.fromEntries(MODES.map((m) => [m, 0]));
 for (const f of files) {
   const idsText = readFileSync(join(idsDir, f), "utf8");
-  for (const mode of ["ids", "table"]) {
+  for (const mode of MODES) {
     const row = { model: basename(modelPath), ids: f, mode };
     const t1 = performance.now();
     try {
       // A fresh parse per fill: the fill must not depend on caches another
       // IDS left on the model.
-      const r = fillModel(idsText, text, { ...R, model: parse(), suggest: mode === "table" ? suggest : undefined });
+      const r = fillModel(idsText, text, { ...R, model: parse(), suggest: mode === "table" ? suggest : undefined, geometry: mode === "geometry" ? geometry : undefined });
       const newLines = r.text.split(/\r?\n/);
       const changed = newLines.filter((l) => !origSet.has(l)).length;
       Object.assign(row, {
-        written: r.written, elements: r.elements, fromIds: r.fromIds, fromTable: r.fromTable, fromModel: r.fromModel, kinds: r.kinds, sets: r.sets,
+        written: r.written, elements: r.elements, fromIds: r.fromIds, fromTable: r.fromTable, fromModel: r.fromModel, fromGeometry: r.fromGeometry, kinds: r.kinds, sets: r.sets,
         addedRecords: r.added, editedRecords: r.editedRecords, changedLines: changed, lineCountDelta: newLines.length - origLines.length,
         unfilled: r.unfilled.length, notWritten: r.notWritten,
         verified: r.verified && { values: r.verified.values, pass: r.verified.pass, fail: r.verified.fail.length, parseErrors: r.verified.parseErrors },

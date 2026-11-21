@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Base quantities for costing (geometry fill check)</title>
+    <description>Volumes and areas a cost estimator reads from Qto_ sets. Written for eval/qto-from-geometry-2026-11-21.md; MIT.</description>
+  </info>
+  <specifications>
+    <specification name="Walls carry side area and volume" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_WallBaseQuantities</simpleValue></propertySet><baseName><simpleValue>NetSideArea</simpleValue></baseName></property>
+        <property dataType="IFCVOLUMEMEASURE"><propertySet><simpleValue>Qto_WallBaseQuantities</simpleValue></propertySet><baseName><simpleValue>NetVolume</simpleValue></baseName></property>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_WallBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Width</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Slabs carry area and volume" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSLAB</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_SlabBaseQuantities</simpleValue></propertySet><baseName><simpleValue>NetArea</simpleValue></baseName></property>
+        <property dataType="IFCVOLUMEMEASURE"><propertySet><simpleValue>Qto_SlabBaseQuantities</simpleValue></propertySet><baseName><simpleValue>NetVolume</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Columns and beams carry volume" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCCOLUMN"/><xs:enumeration value="IFCBEAM"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCVOLUMEMEASURE"><propertySet><simpleValue>Qto_ColumnBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossVolume</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>

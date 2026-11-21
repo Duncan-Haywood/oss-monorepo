@@ -380,14 +380,14 @@ const csvCell = (v) => {
 
 /** The room schedule as CSV: one line a room, computed and stored side by side. */
 export function roomsCsv(rooms) {
-  const head = ["Entity", "GlobalId", "Number", "Name", "Storey", "Floor area m2", "Perimeter m", "Height m", "Wall area m2 (perimeter x height)", "Doors and windows", "Door and window area m2", "Door and window area above the room's top m2", "Curtain wall area m2", "Net wall area m2", "Volume m3", "Elements in room", "Stored gross floor area m2", "Stored net floor area m2", "Stored perimeter m", "Stored height m", "Stored volume m3", "Check", "Geometry status"];
+  const head = ["Entity", "GlobalId", "Number", "Name", "Storey", "Floor area m2", "Perimeter m", "Height m", "Wall area m2 (perimeter x height)", "Doors and windows", "Door and window area m2", "Curtain wall area m2", "Net wall area m2", "Door and window area past floor or ceiling, not taken off m2", "Volume m3", "Elements in room", "Stored gross floor area m2", "Stored net floor area m2", "Stored perimeter m", "Stored height m", "Stored volume m3", "Check", "Geometry status"];
   const out = [head.join(",")];
   for (const r of rooms) {
     const c = r.computed || {};
     const st = (key) => { const names = ROOM_PAIRS.find((p) => p[0] === key)[2]; const nm = names.find((n) => r.stored[n]); return nm ? r.stored[nm].value : null; };
     const bad = Object.entries(r.check || {}).filter(([, v]) => !v.agree).map(([k, v]) => `${k} ${v.diff > 0 ? "+" : ""}${(v.diff * 100).toFixed(1)}% vs stored ${v.name} (${v.reason})`);
     const pairs = Object.keys(r.check || {}).length;
-    out.push([`#${r.id}`, r.globalId, r.number, r.name, r.storey, c.floorArea, c.perimeter, c.height, c.wallArea, c.openings, c.openingArea, c.clippedArea, c.glazedArea, c.netWallArea, c.volume, r.elements ?? 0, r.stored.GrossFloorArea?.value ?? null, r.stored.NetFloorArea?.value ?? null, st("perimeter"), st("height"), st("volume"), pairs ? (bad.length ? bad.join("; ") : "agrees") : "", r.status].map(csvCell).join(","));
+    out.push([`#${r.id}`, r.globalId, r.number, r.name, r.storey, c.floorArea, c.perimeter, c.height, c.wallArea, c.openings, c.openingArea, c.glazedArea, c.netWallArea, c.openingCut ?? null, c.volume, r.elements ?? 0, r.stored.GrossFloorArea?.value ?? null, r.stored.NetFloorArea?.value ?? null, st("perimeter"), st("height"), st("volume"), pairs ? (bad.length ? bad.join("; ") : "agrees") : "", r.status].map(csvCell).join(","));
   }
   return out.join("\n") + "\n";
 }
@@ -511,28 +511,29 @@ export function openingSides(row, testable) {
   return found;
 }
 
-// How far an opening may stand past a room's ceiling before its area is cut
-// (m): a frame runs a little past a suspended ceiling's line.
-const CLIP_SLACK = 0.05;
+// Slack (m) before an opening's height is cut at the room's floor or ceiling:
+// a frame a centimetre past either is drawing tolerance, not a cut.
+const CUT_SLACK = 0.01;
 
 /**
- * The share (0..1) of an opening's height that lies below a room's top, from
- * their world boxes [x0, y0, z0, x1, y1, z1] in m: 1 when either box is
- * missing or the opening's top is within CLIP_SLACK of the room's. The gross
- * wall area is the perimeter times the room solid's height, so the part of a
- * window above that solid's top (a lowered ceiling) is no wall the room's
- * finish covers. Only the top is cut: a door's body that runs into the floor
- * build-up (FM_ARC_DigitalHub's 15 cm, HouseZ's 51 cm) is no part of the
- * opening, and its stored height already leaves it out; the share is of the
- * part above the room's floor.
+ * The share of an opening's height inside the room's height band (world
+ * boxes, m). The opening is the top h metres of its body's box (h its stored
+ * OverallHeight, else the whole box): a door's stored height is the clear one
+ * from the finished floor, while its frame runs on down through the floor
+ * build-up (FM_ARC_DigitalHub: 2.25 m doors in 2.40 m frames, 15 cm below the
+ * room's floor), so the head is where the body and the stored size agree.
+ * 1 when a box is missing or the opening passes the band by CUT_SLACK or
+ * less; 0 when it lies wholly outside.
  */
-export function heightShare(box, roomBox, slack = CLIP_SLACK) {
-  if (!box || !roomBox) return 1;
-  const top = roomBox[5];
-  if (!(box[5] > top + slack)) return 1;
-  const lo = Math.max(box[2], roomBox[2]), h = box[5] - lo;
-  if (!(h > 0)) return 1;
-  return Math.max(0, Math.min(1, (top - lo) / h));
+export function heightShare(ob, rb, h = null) {
+  if (!ob || !rb) return 1;
+  const top = ob[5], bot = h > 0 && h < top - ob[2] ? top - h : ob[2];
+  const len = top - bot;
+  if (!(len > 0)) return 1;
+  const lo = bot < rb[2] - CUT_SLACK ? rb[2] : bot;
+  const hi = top > rb[5] + CUT_SLACK ? rb[5] : top;
+  if (lo === bot && hi === top) return 1;
+  return Math.max(0, Math.min(1, (hi - lo) / len));
 }
 
 /**
@@ -548,22 +549,14 @@ export function heightShare(box, roomBox, slack = CLIP_SLACK) {
  *   overall  Map element id -> {width, height} in m (IfcDoor/IfcWindow)
  *
  * Sets on each measured room: computed.openings (count), computed.openingArea,
- * A door or window that reaches past the room's height (a window over a
- * lowered ceiling, a roof light over the room below) comes off only for the
- * share of its height below the room's top (heightShare); opts.clip false takes
- * every one off in full, as before 2026-11-21.
- *
- * Sets on each measured room: computed.openings (count), computed.openingArea,
  * computed.glazedArea (curtain walls), computed.netWallArea, and
  * computed.openingsFrom ({boundary, geometry}), computed.nestedPieces (door
- * or window pieces inside a larger one, not taken twice), computed.clipped
- * (openings cut at the room's height), computed.clippedArea (m2 left on the
- * wall by that cut), computed.outside (openings wholly above the room's top,
- * not taken); on each door and window row, row.facesRooms (labels) and
- * row.facesFrom ("boundary" | "geometry").
+ * or window pieces inside a larger one, not taken twice), computed.openingCut
+ * (m2 of door or window past the room's floor or ceiling, not taken off) and
+ * computed.openingsCut (how many were cut); on each door and window row,
+ * row.facesRooms (labels) and row.facesFrom ("boundary" | "geometry").
  */
-export function deductOpenings(rows, rooms, bounds = [], overall = new Map(), opts = {}) {
-  const clip = opts.clip !== false;
+export function deductOpenings(rows, rooms, bounds = [], overall = new Map()) {
   const byId = new Map(rooms.map((r) => [r.id, r]));
   const rowById = new Map(rows.map((r) => [r.id, r]));
   const testable = roomTests(rooms);
@@ -599,7 +592,7 @@ export function deductOpenings(rows, rooms, bounds = [], overall = new Map(), op
     const o = OPENING_CLASS.test(row.ifcType ?? "") ? overall.get(row.id) : null;
     if (o) Object.defineProperty(row, "overallArea", { value: o.width * o.height, enumerable: false, writable: true });
   }
-  for (const r of rooms) if (r.computed) Object.assign(r.computed, { openings: 0, openingArea: 0, glazedArea: 0, openingsFrom: { boundary: 0, geometry: 0 }, nestedPieces: 0, clipped: 0, clippedArea: 0, outside: 0 });
+  for (const r of rooms) if (r.computed) Object.assign(r.computed, { openings: 0, openingArea: 0, glazedArea: 0, openingsFrom: { boundary: 0, geometry: 0 }, nestedPieces: 0, openingCut: 0, openingsCut: 0 });
   // one opening drawn as several door or window pieces (schependomlaan: a
   // window, its sub-frame and the sub-frame's sill, each an IfcWindow) comes
   // off once: in each room, a piece whose box lies mostly inside a larger
@@ -640,16 +633,16 @@ export function deductOpenings(rows, rooms, bounds = [], overall = new Map(), op
     // for one is the wall strip it sits in, swept to the room's height (Office_A:
     // 1.37 x width x height), so the boundary surface is used only for a
     // curtain wall, or an opening that stores no size
-    const a = GLAZED_CLASS.test(row.ifcType) ? area : (own(row) ?? (area > 0 ? area : openingFace(row)));
+    let a = GLAZED_CLASS.test(row.ifcType) ? area : (own(row) ?? (area > 0 ? area : openingFace(row)));
     if (!(a > 0)) continue;
-    if (GLAZED_CLASS.test(row.ifcType)) { room.computed.glazedArea += a; continue; }
-    const k = clip ? heightShare(row.box, room.box) : 1;
-    if (k < 1) {
-      room.computed.clippedArea += a * (1 - k);
-      if (k > 0) room.computed.clipped++;
-      else { room.computed.outside++; continue; }
-    }
-    room.computed.openingArea += a * k; room.computed.openings++; room.computed.openingsFrom[from]++;
+    // only the part of a door or window within the room's wall height comes
+    // off: the gross figure is perimeter x the room's height, so a window
+    // rising past a lowered ceiling (or a door frame set below the floor
+    // finish) is cut to the band the room's walls are measured over
+    const k = GLAZED_CLASS.test(row.ifcType) ? 1 : heightShare(row.box, room.box, own(row) != null ? overall.get(row.id).height : null);
+    if (k < 1) { room.computed.openingCut += a * (1 - k); if (k < 1 - 1e-9) room.computed.openingsCut++; a *= k; if (!(a > 0)) continue; }
+    if (GLAZED_CLASS.test(row.ifcType)) room.computed.glazedArea += a;
+    else { room.computed.openingArea += a; room.computed.openings++; room.computed.openingsFrom[from]++; }
   }
   for (const r of rooms) {
     const c = r.computed;

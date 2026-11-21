@@ -438,9 +438,9 @@ the flight caps' M3 nyloc on the cleat's back 15: held only, which is what the
 step does (the countersunk head turns with a key).
 
 Not checked: the feeder's nuts that are not joints yet, because the parts they
-clamp are not drawn as they are: the turntable bearing's eight M5 nuts (the
-bearing is a solid puck, its rings and access hole are not drawn) and the
-levelling feet's jam nuts. The idler axles and the spool axle joined on
+clamp are not drawn as they are: the levelling feet's jam nuts. The turntable
+bearing's eight M5 screws joined on 2026-11-21 ("Turntable bearing's two rings",
+below). The idler axles and the spool axle joined on
 2026-11-21 (next section). A deep socket
 on an extension, which goes in along the axis, is not tried; the bolt's tail past
 the nut is not drawn, so a ring end is assumed to slide over it. The hand is a
@@ -487,6 +487,42 @@ inner races together through the balls: snug it until the wheel just turns free,
 or fit a tube. A hub that stands proud of the tread needs a longer bolt (the joint
 check says by how much: `--set wheel_w=...` moves the wheel too, so check the
 hub on the part you buy). Nobody has built one.
+
+### Turntable bearing's two rings (2026-11-21, `Feeder.bearing_design`, `check_bearing`, `feeder.bearing_rings`, `feeder_guide.bearing_access_problems`)
+
+The lazy-susan under the turntable was a solid 150 x 10 mm puck, so its eight M5
+screws could not be checked: the guide said "four M5 x 12 up from under the
+plate, nuts on the ring, through the access hole in the other ring" for the
+fixed ring and "four from above, nuts under the ring" for the turning one. It
+is now drawn as a stacked lazy-susan: two 2 mm steel flanges from the 60 mm bore
+to the 150 mm rim, each with its half of a 5 mm race band at r 70.5 standing
+into the gap (the balls are not drawn: the bands stop 0.5 mm apart), four 5.5 mm
+holes on the 120 mm circle (fixed ring at 0, 90, 180 and 270 deg, turning ring at
+45 deg plus multiples of 90, the plates' holes as they were) and one 12 mm
+access hole on that circle. The fixed ring's is at 225 deg, over a new 12 mm hole
+in the mast plate; the turning ring's at 180 deg at azimuth 0. The turning ring
+turns with the turntable in every sweep (`TURNTABLE_PARTS`).
+
+| Found | Was | Now |
+| --- | --- | --- |
+| Screws too short for their nuts | M5 x 12 through a 2 mm flange and a 5 mm plate leaves 5 mm, and a plain M5 nut (4.7 mm) and two threads need 6.3 | M5 x 16 button heads with nylocs: 9 mm past the 7 mm stack, 6.6 needed. Two joints, 39 measured now |
+| Nuts in the gap | "nuts on the ring" (fixed) and "nuts under the ring" (turning) put both sets of nuts between the flanges. The gap at the bolt circle is the bearing's 10 mm less two flanges, 6 mm: a nut and its tail do not fit, and the turning ring's would hit the fixed ring's as the turntable turns | the heads go in the gap and the nylocs outside: fixed ring's screws down through it and the mast plate, nylocs under the plate; turning ring's up through it and the turntable plate, nylocs on top. The two sets of 2.75 mm button heads pass 0.5 mm apart as the turntable turns (`check_bearing` wants 0.3) |
+| How the heads are reached | not said for the turning ring | one access hole at a time, as a stacked lazy-susan is fitted: the fixed ring's heads with the key through the upper ring's access hole, turned over each in turn; the turning ring's pushed up from under the mast plate through its access hole and the fixed ring's, with plate and ring turned 90 deg between screws. That is only possible before the gear sector goes on (the stops would hold it to +-36 deg), so the old step is split in two: "Turntable bearing", then "Turntable plate and gear sector" (26 steps) |
+| The nylocs on the turntable plate | not drawn | 9 mm tails at r 60, 0.5 mm inside the cheeks' inner faces: a test sweeps the head at the actuator's two limits and level against a 9.2 mm nut-and-tail cylinder at each, no contact |
+
+`bearing_access_problems` turns the upper ring (and the plate, for its screws)
+to each screw and checks a head-sized path 60 mm along the axis past
+everything on the work at that step: clear for all eight; an 8 mm access hole
+fails all eight (test). The spanner table has both joints: the fixed ring's
+nylocs take an 8 mm spanner over 95 degrees under the mast plate (the stepper
+is already hung there), the turning ring's 305 degrees on top. Eleven feeder
+joints are in the spanner table now.
+
+Assumed, not measured: every dimension of the bearing. Round lazy-susans are
+also sold as two concentric rings in one plane with countersunk holes, which
+mount differently; the spec line names the stacked kind and the 6 mm gap it
+needs. If your bearing's gap is under 5.8 mm the two sets of heads touch:
+`check_bearing` says so with `--set bearing_h=...`. Nobody has built one.
 
 ## Changing the design
 
