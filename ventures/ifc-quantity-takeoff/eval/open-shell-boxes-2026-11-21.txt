@@ -1,0 +1,32 @@
+dental_clinic.ifc: 2586 elements; box 2491 -> 2586; plan 1794 -> 1805; envelope verdict changed 3; walls whose verdict agrees with their flag 1002/1075 -> 1005/1078; Uniformat code changed 9; volume changed 0; area changed 0 (4 s)
+    {"IfcRailing null -> C2010":6,"IfcRailing null -> C1010":2,"IfcRailing C1010 -> C2010":1}
+duplex.ifc: 215 elements; box 195 -> 215; plan 61 -> 65; envelope verdict changed 0; walls whose verdict agrees with their flag 50/57 -> 50/57; Uniformat code changed 4; volume changed 0; area changed 0 (1 s)
+    {"IfcRailing null -> C2010":4}
+AC20-FZK-Haus.ifc: 82 elements; box 81 -> 82; plan 57 -> 57; envelope verdict changed 0; walls whose verdict agrees with their flag 0/0 -> 0/0; Uniformat code changed 2; volume changed 0; area changed 0 (0 s)
+    {"IfcRailing C1010 -> C2010":2}
+C20-Institute-Var-2.ifc: 701 elements; box 697 -> 697; plan 133 -> 133; envelope verdict changed 0; walls whose verdict agrees with their flag 0/0 -> 0/0; Uniformat code changed 0; volume changed 0; area changed 0 (1 s)
+ISSUE_159_kleine_Wohnung_R22.ifc: 425 elements; box 400 -> 419; plan 221 -> 221; envelope verdict changed 0; walls whose verdict agrees with their flag 55/211 -> 55/211; Uniformat code changed 0; volume changed 0; area changed 0 (14 s)
+schependomlaan.ifc: 3569 elements; box 3545 -> 3551; plan 1410 -> 1411; envelope verdict changed 1; walls whose verdict agrees with their flag 853/922 -> 854/923; Uniformat code changed 0; volume changed 0; area changed 0 (8 s)
+ISSUE_034_HouseZ.ifc: 228 elements; box 222 -> 228; plan 171 -> 177; envelope verdict changed 12; walls whose verdict agrees with their flag 0/0 -> 0/0; Uniformat code changed 12; volume changed 0; area changed 0 (1 s)
+    {"IfcWall null -> B2010":6,"IfcWall B2010 -> C1010":6}
+ISSUE_021_Mini Project.ifc: 2636 elements; box 2631 -> 2631; plan 228 -> 228; envelope verdict changed 0; walls whose verdict agrees with their flag 0/0 -> 0/0; Uniformat code changed 0; volume changed 0; area changed 0 (11 s)
+ISSUE_068_ARK_NUS_skolebygg.ifc: 4459 elements; box 4381 -> 4459; plan 2224 -> 2224; envelope verdict changed 0; walls whose verdict agrees with their flag 813/1055 -> 813/1055; Uniformat code changed 0; volume changed 0; area changed 0 (39 s)
+Office_A_20110811.ifc: 803 elements; box 777 -> 803; plan 502 -> 505; envelope verdict changed 0; walls whose verdict agrees with their flag 452/487 -> 452/487; Uniformat code changed 3; volume changed 0; area changed 0 (2 s)
+    {"IfcRailing null -> C2010":3}
+architect.ifc: 2527 elements; box 2394 -> 2527; plan 2191 -> 2225; envelope verdict changed 2; walls whose verdict agrees with their flag 42/112 -> 40/112; Uniformat code changed 2; volume changed 0; area changed 0 (21 s)
+    {"IfcWallStandardCase B2010 -> C1010":2}
+construction.ifc: 339 elements; box 327 -> 339; plan 54 -> 62; envelope verdict changed 0; walls whose verdict agrees with their flag 47/48 -> 47/48; Uniformat code changed 8; volume changed 0; area changed 0 (2 s)
+    {"IfcRailing null -> C2010":8}
+7766411.ifc: 1547 elements; box 1397 -> 1547; plan 532 -> 554; envelope verdict changed 0; walls whose verdict agrees with their flag 113/160 -> 113/160; Uniformat code changed 0; volume changed 0; area changed 0 (6 s)
+b39c362.ifc: 1023 elements; box 991 -> 1023; plan 446 -> 469; envelope verdict changed 1; walls whose verdict agrees with their flag 97/143 -> 98/144; Uniformat code changed 0; volume changed 0; area changed 0 (3 s)
+f1be1d3.ifc: 1065 elements; box 1036 -> 1065; plan 435 -> 457; envelope verdict changed 0; walls whose verdict agrees with their flag 88/132 -> 88/132; Uniformat code changed 0; volume changed 0; area changed 0 (4 s)
+70e393f.ifc: 1092 elements; box 1059 -> 1092; plan 444 -> 467; envelope verdict changed 1; walls whose verdict agrees with their flag 97/141 -> 98/142; Uniformat code changed 0; volume changed 0; area changed 0 (4 s)
+7257e4c.ifc: 1236 elements; box 1081 -> 1236; plan 452 -> 472; envelope verdict changed 1; walls whose verdict agrees with their flag 99/144 -> 100/145; Uniformat code changed 0; volume changed 0; area changed 0 (5 s)
+home-6d82e39.ifc: 402 elements; box 318 -> 402; plan 189 -> 220; envelope verdict changed 18; walls whose verdict agrees with their flag 79/113 -> 90/118; Uniformat code changed 4; volume changed 0; area changed 0 (6 s)
+    {"IfcSlab B1010 -> B1020":1,"IfcBeam B10 -> B1020":3}
+home-7e77485.ifc: 491 elements; box 404 -> 491; plan 241 -> 270; envelope verdict changed 19; walls whose verdict agrees with their flag 125/165 -> 138/173; Uniformat code changed 4; volume changed 0; area changed 0 (6 s)
+    {"IfcSlab B1010 -> B1020":1,"IfcBeam B10 -> B1020":3}
+home-86b76d3.ifc: 641 elements; box 563 -> 641; plan 258 -> 283; envelope verdict changed 12; walls whose verdict agrees with their flag 136/173 -> 146/178; Uniformat code changed 4; volume changed 0; area changed 0 (4 s)
+    {"IfcBeam B10 -> B1020":3,"IfcBeam B1010 -> B1020":1}
+home-dd375a5.ifc: 714 elements; box 712 -> 714; plan 271 -> 271; envelope verdict changed 0; walls whose verdict agrees with their flag 148/175 -> 148/175; Uniformat code changed 0; volume changed 0; area changed 0 (4 s)
+lk-ea059de.ifc: 920 elements; box 918 -> 920; plan 208 -> 208; envelope verdict changed 0; walls whose verdict agrees with their flag 124/184 -> 124/184; Uniformat code changed 0; volume changed 0; area changed 0 (9 s)

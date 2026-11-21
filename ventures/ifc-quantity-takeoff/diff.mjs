@@ -9,10 +9,12 @@
 //               its size (reshaped) differs;
 //   added       only in the later revision;
 //   removed     only in the earlier revision;
-//   merged      several earlier elements replaced by one later element on the
-//               same storey whose box holds their centres and whose volume is
+//   merged      several earlier elements of one class replaced by one later
+//               element on the same storey whose box holds their centres and
+//               whose volume is
 //               theirs summed within `groupTol` (Revit "parts" exported in one
-//               revision and the host in the next);
+//               revision and the host in the next), or within
+//               `tiledGroupTol` when their boxes together make its box;
 //   split       the reverse: one earlier element replaced by several.
 //
 // Elements are matched, in this order:
@@ -45,6 +47,9 @@ const relDiff = (a, b) => {
 
 const boxCentre = (b) => [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2];
 const boxSize = (b) => [b[3] - b[0], b[4] - b[1], b[5] - b[2]];
+/** IfcWallStandardCase and IfcWall (and the other *StandardCase / *ElementedCase subtypes) are one class here. */
+const family = (cls) => String(cls || "").replace(/(StandardCase|ElementedCase)$/i, "");
+const unionBox = (bs) => [0, 1, 2].map((i) => Math.min(...bs.map((b) => b[i]))).concat([3, 4, 5].map((i) => Math.max(...bs.map((b) => b[i]))));
 const boxGap = (a, b) => Math.max(...a.map((v, i) => Math.abs(v - b[i])));
 /** true when point p lies inside box b, give or take `tol` metres. */
 const pointInside = (p, b, tol) => p[0] >= b[0] - tol && p[1] >= b[1] - tol && p[2] >= b[2] - tol && p[0] <= b[3] + tol && p[1] <= b[4] + tol && p[2] <= b[5] + tol;
@@ -90,7 +95,9 @@ function compareRows(a, b, tol, moveTol) {
  * The change report. Options: tol (relative quantity change still counted as
  * equal, default 0.005), moveTol (metres a box may shift and still be the
  * same place, default 0.01), groupTol (relative volume difference between a
- * merged or split group and the element it replaces, default 0.02).
+ * merged or split group and the element it replaces, default 0.02),
+ * tiledGroupTol (the same, when the group's boxes together make the
+ * element's box within moveTol on every face, default 0.05).
  */
 export function diffTakeoffs(rowsA, rowsB, opts = {}) {
   const tol = opts.tol ?? 0.005;
@@ -98,6 +105,10 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
   // parts and their host differ a little where joins are cleaned up (0.4 to
   // 0.6% on the Aalseth Residence's walls), so a group gets more room
   const groupTol = opts.groupTol ?? 0.02;
+  // a short wall's layers lose proportionally more at their trimmed ends
+  // (2.3% on the Aalseth basement's 1.1 m wall): a group whose boxes tile
+  // the element's box face for face gets this much room instead
+  const tiledGroupTol = opts.tiledGroupTol ?? 0.05;
   // assemblies whose parts are elements are left out of the BoQ; leave them
   // out here too so a stair and its flights are not reported twice
   const A = rowsA.filter((r) => !r.isAssembly), B = rowsB.filter((r) => !r.isAssembly);
@@ -150,10 +161,23 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
     for (const one of [...ones]) {
       const v = volOf(one);
       if (!one.box || v == null || !(v > 0)) continue;
-      const inside = [...many].filter((m) => m.box && volOf(m) != null && (m.storey ?? null) === (one.storey ?? null) && pointInside(boxCentre(m.box), one.box, moveTol));
-      if (inside.length < 2) continue;
-      const sum = inside.reduce((s, m) => s + volOf(m), 0);
-      if (relDiff(sum, v) > groupTol) continue;
+      const near = [...many].filter((m) => m.box && volOf(m) != null && (m.storey ?? null) === (one.storey ?? null) && pointInside(boxCentre(m.box), one.box, moveTol));
+      // the pieces of one element are all of one class (wall parts IfcWall,
+      // roof parts IfcRoof, a roof's slabs IfcSlab); a wall's own windows and
+      // doors, or a beam beside it, are not its pieces however the volumes
+      // add up, so each class is tried by itself
+      const byFamily = new Map();
+      for (const m of near) { const k = family(m.ifcClass); if (!byFamily.has(k)) byFamily.set(k, []); byFamily.get(k).push(m); }
+      let best = null;
+      for (const inside of byFamily.values()) {
+        if (inside.length < 2) continue;
+        const sum = inside.reduce((s, m) => s + volOf(m), 0);
+        const rd = relDiff(sum, v);
+        if (rd > groupTol && !(rd <= tiledGroupTol && boxGap(unionBox(inside.map((m) => m.box)), one.box) <= moveTol)) continue;
+        if (!best || rd < best.rd) best = { inside, sum, rd };
+      }
+      if (!best) continue;
+      const { inside, sum } = best;
       ones.delete(one);
       for (const m of inside) many.delete(m);
       groups.push(kind === "merged" ? { kind, before: inside, after: [one], volumeBefore: sum, volumeAfter: v } : { kind, before: [one], after: inside, volumeBefore: v, volumeAfter: sum });
