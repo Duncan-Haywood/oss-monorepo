@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, information-architecture]
+topics: [seo, design]
 date: 2026-11-21
 ---
 # Polish 2026-11-21: a bookkeeping section; the evidence rule stops shadowing six named placements
