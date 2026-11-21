@@ -35,3 +35,4 @@
 - (2026-11-19) landed, kept for reference: xs:pattern as XML Schema regex 2026-11-18 (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read differently per tool)
 - (2026-11-21) next: a BIM manager's read of its wording
 - (2026-11-21) next: an authoring tool's own ifcJSON. IFC5 .ifcx read 2026-11-21 (ifcx.mjs, cli --layer; eval/ifcx-twins-2026-11-21.md: 8 twins, class 12,115 of 12,116, partOf 1,646 of 1,648, 47 of 47 files)
+- (2026-11-21) next: a real tool's .ifcx

@@ -1,0 +1,22 @@
+
+construction.ifc: 339 elements, 339 with geometry quantities, 1191 values, 1.003 s
+class quantity | offered | stored | within 2% | within 5% | median computed/stored | causes of the rest (ifc-quantity-takeoff)
+IFCCOLUMN CrossSectionArea | 257 | 257 | 257 | 257 | 1.0001 | 
+IFCCOLUMN GrossVolume | 257 | 257 | 257 | 257 | 1.0001 | 
+IFCWALL GrossSideArea | 48 | 36 | 11 | 11 | 0.3527 | matches-stored-volume 6, split 17, repeated 2
+IFCWALL GrossVolume | 48 | 36 | 11 | 11 | 0.3527 | own-dimensions 4, split 17, unexplained 2, repeated 2
+IFCWALL Width | 48 | 36 | 36 | 36 | 1 | 
+
+architect.ifc: 2527 elements, 2527 with geometry quantities, 8558 values, 7.92 s
+class quantity | offered | stored | within 2% | within 5% | median computed/stored | causes of the rest (ifc-quantity-takeoff)
+IFCMEMBER CrossSectionArea | 1450 | 1450 | 1392 | 1392 | 1 | half-surface 58
+IFCMEMBER GrossVolume | 1450 | 1450 | 1450 | 1450 | 1 | 
+IFCWALL GrossSideArea | 112 | 112 | 70 | 70 | 1 | split 5, matches-stored-volume 4, net-as-gross 33
+IFCWALL GrossVolume | 112 | 112 | 70 | 70 | 1 | split 8, net-as-gross 33, own-dimensions 1
+IFCWALL Width | 112 | 112 | 112 | 112 | 1 | 
+
+MEP.ifc: 3964 elements, 3964 with geometry quantities, 7928 values, 3.506 s
+class quantity | offered | stored | within 2% | within 5% | median computed/stored | causes of the rest (ifc-quantity-takeoff)
+
+Schultz_Residence.ifc: 846 elements, 846 with geometry quantities, 2345 values, 24.19 s
+class quantity | offered | stored | within 2% | within 5% | median computed/stored | causes of the rest (ifc-quantity-takeoff)
