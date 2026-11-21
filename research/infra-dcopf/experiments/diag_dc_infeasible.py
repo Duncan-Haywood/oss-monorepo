@@ -170,10 +170,12 @@ def elastic(ppc):
             "rows": rows[:10]}
 
 
-def dc_ref(ppc, angles=True, want_pg=False):
+def dc_ref(ppc, angles=True, want_pg=False, solver="clarabel"):
     """Referee DC OPF on Clarabel (declared after the first run, not in the plan): the same B-theta model as
     rundcopf (makeBdc, shifts, rated rows, PMIN/PMAX, makeAang's angle rows, polynomial costs), solved by a
-    second interior-point solver. Returns (objective $/h or None, Clarabel status)."""
+    second interior-point solver. Returns (objective $/h or None, Clarabel status).
+    solver="highs-feas" (added 2026-11-21, diag_dc_highs.py): the same constraint rows with a zero objective on HiGHS
+    (simplex with presolve, scipy linprog): returns (None, "Feasible" | "Infeasible" | HiGHS message[, pg])."""
     import clarabel
     q0 = copy.deepcopy(ppc)
     q0["gen"][:, 20] = np.arange(q0["gen"].shape[0])  # carry each unit's external row through ext2int (APF column)
@@ -221,6 +223,18 @@ def dc_ref(ppc, angles=True, want_pg=False):
     b = np.r_[beq, np.concatenate(rhs)]
     P = sp.block_diag([Z(n, n), sp.diags(2 * coef[:, 0] * base * base)]).tocsc()
     q = np.r_[np.zeros(n), coef[:, 1] * base]
+    if solver == "highs-feas":
+        neq = Aeq.shape[0]
+        res = linprog(np.zeros(A.shape[1]), A_ub=Ain, b_ub=b[neq:], A_eq=Aeq, b_eq=b[:neq],
+                      bounds=[(None, None)] * A.shape[1], method="highs")
+        status = {0: "Feasible", 2: "Infeasible"}.get(res.status, f"HiGHS {res.status}: {res.message}")
+        if not want_pg:
+            return None, status
+        full = None
+        if res.status == 0:
+            full = np.zeros(ppc["gen"].shape[0])
+            full[gen[:, 20].astype(int)] = res.x[n:] * base
+        return None, status, full
     st = clarabel.DefaultSettings()
     st.verbose = False
     sol = clarabel.DefaultSolver(sp.triu(P).tocsc(), q, A, b,
