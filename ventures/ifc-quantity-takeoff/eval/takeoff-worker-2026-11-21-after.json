@@ -1,0 +1,97 @@
+[
+ {
+  "model": "duplex.ifc",
+  "page": "after",
+  "readBy": "worker",
+  "readS": 0.5,
+  "totalS": 1.6,
+  "read": {
+   "maxMs": 117,
+   "p99Ms": 117,
+   "over100": 1,
+   "frozenS": 0.1
+  },
+  "draw": {
+   "maxMs": 14,
+   "p99Ms": 12,
+   "over100": 0,
+   "frozenS": 0
+  }
+ },
+ {
+  "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "page": "after",
+  "readBy": "worker",
+  "readS": 3.9,
+  "totalS": 6.7,
+  "read": {
+   "maxMs": 248,
+   "p99Ms": 8,
+   "over100": 1,
+   "frozenS": 0.2
+  },
+  "draw": {
+   "maxMs": 234,
+   "p99Ms": 70,
+   "over100": 2,
+   "frozenS": 0.4
+  }
+ },
+ {
+  "model": "ISSUE_021_Mini Project.ifc",
+  "page": "after",
+  "readBy": "worker",
+  "readS": 3.1,
+  "totalS": 9.9,
+  "read": {
+   "maxMs": 310,
+   "p99Ms": 8,
+   "over100": 1,
+   "frozenS": 0.3
+  },
+  "draw": {
+   "maxMs": 290,
+   "p99Ms": 21,
+   "over100": 3,
+   "frozenS": 0.5
+  }
+ },
+ {
+  "model": "C20-Institute-Var-2.ifc",
+  "page": "after",
+  "readBy": "worker",
+  "readS": 0.9,
+  "totalS": 1.6,
+  "read": {
+   "maxMs": 210,
+   "p99Ms": 13,
+   "over100": 1,
+   "frozenS": 0.2
+  },
+  "draw": {
+   "maxMs": 39,
+   "p99Ms": 39,
+   "over100": 0,
+   "frozenS": 0
+  }
+ },
+ {
+  "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "page": "after",
+  "readBy": "worker",
+  "readS": 11.5,
+  "totalS": 35,
+  "read": {
+   "maxMs": 681,
+   "p99Ms": 8,
+   "over100": 1,
+   "frozenS": 0.7
+  },
+  "draw": {
+   "maxMs": 257,
+   "p99Ms": 25,
+   "over100": 3,
+   "frozenS": 0.5
+  }
+ }
+]

@@ -10,11 +10,14 @@
 
 ## From the min-eigenvalue noise read (2026-11-19, eval/noise-pca-min-eigen-2026-11-19.md)
 
-- The shipped patch-PCA read under-reads white-balanced noise: a median 0.53 of the true sigma at SNR 12 with
-  white balance, 0.75 without, held out. The oracle model gains +1.02 dB luma over directional against +0.70
-  for what ships. Next: per-colour noise *ratios* from `eig="mpc"` and the *level* from Chen's read of the
-  colour-whitened patches, pre-registered on the `fourth` set (the rows are committed, so the pick costs only
-  the sweep).
+- (landed 2026-11-21, eval/noise-pca-whitened-level-2026-11-21.md) Per-colour ratios with Chen's level (`mpcw`)
+  is the Bayer default: held out +0.09 dB luma, +0.21 dB on white-balanced SNR 25 and 12 rows, no new loser. Next:
+  `mpcws` (the same read also picks the weak-texture patches): held out +0.31 dB luma and 0 losers, but on the tune
+  split it adds 4 losing rows, all on `Pentax K-1 Mark II.pef` (ISO 1600, 30 s), whose raw-read grain passes
+  `clean_enough` while the frame read of the clean mosaic is 2-4x higher. Pre-register a noisy-truth test that
+  settles that file first (e.g. the stricter of the two truth readings), then the pick; and rerun both on
+  raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) when it is reachable. X-Trans has not been
+  tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows: try a
   lower-envelope line fit over the bins, or cap each bin at the darker bins' line.

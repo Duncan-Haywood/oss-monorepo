@@ -242,7 +242,7 @@ def summary(rows):
     same = [(r, o) for r, o in pairs if not r["moved"] and not r.get("stop")]
     ident = [f"{r['case']}/{r['kind']}" for r, o in same if r["status"] == o["J"]["status"]]
     P(f"  control C0 (reference not moved): round-by-round statuses identical to the earlier run on {len(ident)} of "
-      f"{len(same)}" + (f" ({', '.join(f'{r[0]['case']}/{r[0]['kind']}' for r in same if f'{r[0]['case']}/{r[0]['kind']}' not in ident)} differ)"
+      f"{len(same)}" + (f""" ({', '.join(f'{r[0]["case"]}/{r[0]["kind"]}' for r in same if f'{r[0]["case"]}/{r[0]["kind"]}' not in ident)} differ)"""
                         if len(ident) < len(same) else ""))
     bsp = HERE / "results_bigslack.json"
     if bsp.exists():

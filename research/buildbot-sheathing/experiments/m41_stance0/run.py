@@ -145,7 +145,7 @@ if __name__ == "__main__":
     for x in rowsA:
         s = f"  {x['robot']} {x['z']:.1f} {x['dy']:+.2f} | {1e3 * x['dx0']:6.1f} [{x['w0'][0]:5.1f}, {x['w0'][1]:6.1f}]"
         if x["relean"]:
-            s += (f" | {('none' if x['dx1'] is None else f'{1e3 * x['dx1']:6.1f}')} "
+            s += (f""" | {('none' if x['dx1'] is None else f'{1e3 * x["dx1"]:6.1f}')} """
                   + ("-" if x["w1"] is None else f"[{x['w1'][0]:4.1f}, {x['w1'][1]:6.1f}]")
                   + f" | {'yes' if x['covers'] else 'NO'}")
         else:

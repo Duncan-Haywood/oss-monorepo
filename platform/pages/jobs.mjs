@@ -2924,6 +2924,15 @@ section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-hei
 .pf-jobs-note a{color:currentColor;text-decoration:underline}
 .pf-jobs :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 @media (max-width:780px){.pf-jobs{padding:8px 14px 0}}
+/* On 118 bid calculators the shop-rates bar sits directly above this one, and
+   each kept its own 12px margin and 8px top padding: 20px of air between two
+   one-line rows that belong together, stacked above the form on a phone. The
+   pair now reads as one block with a 4px step between its rows, which moves
+   the first field up 16px on every one of them (docs/reports/
+   polish-2026-11-21-bid-bars.md). This file is linked wherever .pf-jobs is,
+   so it carries the rule for the bar above it too. */
+.pf-rates:has(+.pf-jobs){margin-bottom:0}
+.pf-rates+.pf-jobs{padding-top:4px}
 
 /* Never print this band, and this one is not cosmetic.
  *

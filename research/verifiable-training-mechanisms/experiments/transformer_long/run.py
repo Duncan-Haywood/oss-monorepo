@@ -51,7 +51,7 @@ def main():
     q, b = res["norm_quantiles"], res["bf16_drift"]
     lines = [f"honest held-out loss {res['loss_mean']:.4f} (seed std {res['loss_std']:.4f}); update norm quantiles 10/50/90%: "
              f"{q[0.1]:.4f} {q[0.5]:.4f} {q[0.9]:.4f}; reorder referee drift p50 {b['p50']:.2e}, p99 {b['p99']:.2e}, max {b['max']:.2e}; "
-             f"honest steps with drift above 1e-3: {res["false_dispute_at"]["0.001"]:.3f}",
+             f"honest steps with drift above 1e-3: {res['false_dispute_at']['0.001']:.3f}",
              "tau       skipped   degradation [95% CI]            seeds where skipping is better"]
     for x in res["rows"]:
         lines.append(f"{x['tau']:<9.0e} {x['cheated']:<9.3f} {x['deg_mean']:+.5f} [{x['deg_lo']:+.5f}, {x['deg_hi']:+.5f}]  {x['share_better']:.2f}")

@@ -716,6 +716,8 @@ export class Geometry {
    */
   profile(ref, depth = 0, opts = null) {
     const e = this.get(ref);
+    // a derived or composite profile that names itself (or a longer loop)
+    if (depth > 50) throw new Unresolved("profile nesting");
     const a = e.args;
     const n = (i) => this.num(a[i]);
     const rad = (i) => (opts?.plain ? 0 : (n(i) ?? 0));

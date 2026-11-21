@@ -139,7 +139,7 @@ def report(res, out, m87):
     inr = all(0.01 <= r["frontier"]["saved"] <= 0.05 for r in sg.values())
     gt = sum(sg[s]["frontier"]["saved"] > out["momentum"][s]["frontier"]["saved"] for s in sg)
     L.append(f"  F7 {'held' if inr and gt >= 3 else 'REFUTED'} (SGD frontiers "
-             f"{', '.join(f'{100 * r['frontier']['saved']:.2f}%' for r in sg.values())}; larger than momentum on {gt} of 4)")
+             f"""{', '.join(f'{100 * r["frontier"]["saved"]:.2f}%' for r in sg.values())}; larger than momentum on {gt} of 4)""")
     f8a = all(abs(r["cells"]["honest"]["flag_global"] - m87[o][s]["cells"]["honest"][f"flag_{r['referee']}"]) < 1e-9 for o, s, r in allc)
     f8b = max(r["cells"]["honest"]["flag_zoned"] for _, _, r in allc)
     f8c = max(max(r["cells"]["honest"]["d_global"], r["cells"]["honest"]["d_main"]) for _, _, r in allc)

@@ -1,0 +1,416 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKkF7i3GpqhwJWjrNc3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T17:18:34Z",
+  "ended": "2026-11-21T17:19:10Z",
+  "wall_minutes": 7.95,
+  "tokens_in": 4148360,
+  "tokens_out": 25410,
+  "cost_usd": 1.9863,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18117",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Wrote an earClip test expecting area 6 for an L of area 5; the test failed on clean code and I fixed the expectation before triage.",
+    "Ran `python3 -m unittest platform/ci/test_...py`, which errors because stdlib `platform` shadows the path; `python3 platform/ci/test_check_dst_day_step.py` is the working form. Confirmed the suite green before trusting rerun's caught_after_fix."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0 lists 12 open defects, 11 of them control-plane follow-ups (workflows, prompts/redteam.py, control_plane_guard.py) that a session cannot land without owner approval; each red-team run re-reads and re-checks them. A separate 'awaiting owner' state would keep the purple list actionable."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix the open list first; all but one entry is control plane needing its own owner-approved PR, and the help-keeper stemmer entry needs a new help-center eval set. Grep-checked each still reproduces on main (none fixed), left them open, and spent the run on new campaigns.",
+      "did": "checked the 12 entries with grep against main, fixed none",
+      "result": "open list unchanged at 12"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-redteam-a-profile-that-names-itself.md"
+  ],
+  "goal": null,
+  "notes": "Targets: ventures/ifc-quantity-takeoff/geom.mjs (changed often on main in the last 4 days; 2.0 s suite) and a random platform draw, platform/ci/check_dst_day_step.py. Guard added (4b): geom.test.mjs self-loop test over every recursive Geometry reader (placement, curve, profile, mapped item, boolean); fails on main without the profile guard. Local checks: run_venture_tests.py ifc-quantity-takeoff ok (155 tests + new file), check_dst test 4 OK, run_workflow_locally --for-changes: all reached workflows green (pages 6/6, ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12, control-plane-guard 2/2, doc-refs, duplicate-symbols, conflict-markers) except prompts-ci validate, which ran before this record was filled in and passes now. First push failed CI build on a 161-char post description, fixed in the second commit.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ifc-quantity-takeoff/geom.mjs",
+        "test": "node --test ventures/ifc-quantity-takeoff/**/*.test.mjs  (in .)",
+        "seed": 402774510,
+        "commit": "ee4aec0d3",
+        "sites": 3142,
+        "baseline_seconds": 1.6,
+        "mutants": [
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 106,
+            "col": 103,
+            "operator": "const-plus-one",
+            "before": "for (const f of faces) for (const p of f) s = Math.max(s, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));",
+            "after": "for (const f of faces) for (const p of f) s = Math.max(s, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[3]));",
+            "line_text": "  for (const f of faces) for (const p of f) s = Math.max(s, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 552,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "const z = is3 ? this.dir(a[4], [0, 0, 1]) : [0, 0, 1];",
+            "after": "const z = is3 ? this.dir(a[4], [0, 0, 1]) : [0, 0, 2];",
+            "line_text": "    const z = is3 ? this.dir(a[4], [0, 0, 1]) : [0, 0, 1];",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "geom.test.mjs: a 2D operator applied to a 3D point (a mapped item placed by a 2D operator) must keep z a unit axis times the scale"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 763,
+            "col": 135,
+            "operator": "const-plus-one",
+            "before": "const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf], [-tw / 2, -d / 2 + tf], [-w / 2, -d / 2 + tf]];",
+            "after": "const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2 - tf], [w / 2, d / 3 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf], [-tw / 2, -d / 2 + tf], [-w / 2, -d / 2 + tf]];",
+            "line_text": "        const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf], [-tw / 2, -d / 2 + tf], [-w / 2, -d / 2 + tf]];",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 791,
+            "col": 162,
+            "operator": "const-plus-one",
+            "before": "const pts = [[-tw / 2, -d / 2], [w - tw / 2, -d / 2], [w - tw / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2], [-w + tw / 2, d / 2], [-w + tw / 2, d / 2 - tf], [-tw / 2, d / 2 - tf]];",
+            "after": "const pts = [[-tw / 2, -d / 2], [w - tw / 2, -d / 2], [w - tw / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2], [-w + tw / 2, d / 2], [-w + tw / 3, d / 2 - tf], [-tw / 2, d / 2 - tf]];",
+            "line_text": "        const pts = [[-tw / 2, -d / 2], [w - tw / 2, -d / 2], [w - tw / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2], [-w + tw / 2, d / 2], [-w + tw / 2, d / 2 - tf], [-tw / 2, d / 2 - tf]];",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "geom.test.mjs: Z section area and half-turn symmetry; no test built a Z profile"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 830,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "try { v = area(this.profile(ref, 0, opts)); } catch { return; }",
+            "after": "try { v = area(this.profile(ref, 1, opts)); } catch { return; }",
+            "line_text": "      try { v = area(this.profile(ref, 0, opts)); } catch { return; }",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "profile() never read depth before this run (no nesting guard), so starting at 1 changed nothing; the guard added for the real defect makes it a one-level change in a 50-level limit no file reaches"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 1315,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (Math.abs(total) > S.periods[k] / 2) throw new Unresolved(`face round a closed ${surf.type}`);",
+            "after": "if (Math.abs(total) > S.periods[k] / 3) throw new Unresolved(`face round a closed ${surf.type}`);",
+            "line_text": "      if (Math.abs(total) > S.periods[k] / 2) throw new Unresolved(`face round a closed ${surf.type}`);",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "total is uv[n-1]-uv[0] plus wrapTo of the reverse, a whole multiple of the period up to rounding, so any threshold strictly between 0 and one period gives the same answer"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 1445,
+            "col": 40,
+            "operator": "and-to-or",
+            "before": "const u = !s.mesh && terms.length && s.terms.length ? unionTerms(terms, s.terms) : null;",
+            "after": "const u = !s.mesh && terms.length || s.terms.length ? unionTerms(terms, s.terms) : null;",
+            "line_text": "      const u = !s.mesh && terms.length && s.terms.length ? unionTerms(terms, s.terms) : null;",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "with one side empty unionTerms returns []: A empty gives no loop, B empty gives an all-box of +/-Infinity that apart() rejects; u = [] takes neither branch, so only the call is extra"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 1789,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "const cr = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);",
+            "after": "const cr = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[1]);",
+            "line_text": "  const cr = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "geom.test.mjs: earClip on a concave L off the diagonal (x != y everywhere); every triangle positive, areas sum to the polygon's"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 1805,
+            "col": 58,
+            "operator": "gt-to-ge",
+            "before": "if (q[0] < x0 || q[0] > x1 || q[1] < y0 || q[1] > y1) continue;",
+            "after": "if (q[0] < x0 || q[0] > x1 || q[1] < y0 || q[1] >= y1) continue;",
+            "line_text": "          if (q[0] < x0 || q[0] > x1 || q[1] < y0 || q[1] > y1) continue;",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "y1 already carries a 1e-9*(sc+1) margin past the triangle's box; a point exactly on that margin is outside the triangle, so continue or not, the containment test below rejects it the same way"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+            "line": 1908,
+            "col": 62,
+            "operator": "plus-to-minus",
+            "before": "if (!q || Math.abs(q[0] - p[0]) > 1e-12 * (Math.abs(p[0]) + 1) || Math.abs(q[1] - p[1]) > 1e-12 * (Math.abs(p[1]) + 1)) out.push(p);",
+            "after": "if (!q || Math.abs(q[0] - p[0]) > 1e-12 * (Math.abs(p[0]) - 1) || Math.abs(q[1] - p[1]) > 1e-12 * (Math.abs(p[1]) + 1)) out.push(p);",
+            "line_text": "    if (!q || Math.abs(q[0] - p[0]) > 1e-12 * (Math.abs(p[0]) + 1) || Math.abs(q[1] - p[1]) > 1e-12 * (Math.abs(p[1]) + 1)) out.push(p);",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "geom.test.mjs: a repeated point under one unit from the origin (metre files) is dropped; with |p|-1 the tolerance goes negative and every repeat is kept"
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_dst_day_step.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_dst_day_step  (in platform/ci)",
+        "seed": 628206657,
+        "commit": "ee4aec0d3",
+        "sites": 29,
+        "baseline_seconds": 1.4,
+        "mutants": [
+          {
+            "file": "platform/ci/check_dst_day_step.py",
+            "line": 43,
+            "col": 45,
+            "operator": "plus-to-minus",
+            "before": "DAY_CONST = re.compile(\"|\".join(_DAY_NUMBERS + (_DAY_NAMES,)))",
+            "after": "DAY_CONST = re.compile(\"|\".join(_DAY_NUMBERS - (_DAY_NAMES,)))",
+            "line_text": "DAY_CONST = re.compile(\"|\".join(_DAY_NUMBERS + (_DAY_NAMES,)))",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_dst_day_step.py",
+            "line": 70,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "code = line.split(\"//\")[0] if \"://\" not in line else line",
+            "after": "code = line.split(\"//\")[1] if \"://\" not in line else line",
+            "line_text": "    code = line.split(\"//\")[0] if \"://\" not in line else line",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_dst_day_step.py",
+            "line": 71,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "if not MAKES_DATE.search(code) or not MS_SOURCE.search(code) or not DAY_CONST.search(code):",
+            "after": "if not MAKES_DATE.search(code) and not MS_SOURCE.search(code) or not DAY_CONST.search(code):",
+            "line_text": "    if not MAKES_DATE.search(code) or not MS_SOURCE.search(code) or not DAY_CONST.search(code):",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test_check_dst_day_step: ms arithmetic that makes no Date (r.getTime() + 7 * 86400000) is not flagged; with 'and' a line with getTime and a day constant but no new Date was flagged"
+          },
+          {
+            "file": "platform/ci/check_dst_day_step.py",
+            "line": 107,
+            "col": 51,
+            "operator": "or-to-and",
+            "before": "if SKIP_PARTS.intersection(path.parts) or \".test.\" in path.name or path.name.startswith(\"test_\"):",
+            "after": "if SKIP_PARTS.intersection(path.parts) and \".test.\" in path.name or path.name.startswith(\"test_\"):",
+            "line_text": "            if SKIP_PARTS.intersection(path.parts) or \".test.\" in path.name or path.name.startswith(\"test_\"):",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_dst_day_step.py",
+            "line": 107,
+            "col": 76,
+            "operator": "or-to-and",
+            "before": "if SKIP_PARTS.intersection(path.parts) or \".test.\" in path.name or path.name.startswith(\"test_\"):",
+            "after": "if SKIP_PARTS.intersection(path.parts) or \".test.\" in path.name and path.name.startswith(\"test_\"):",
+            "line_text": "            if SKIP_PARTS.intersection(path.parts) or \".test.\" in path.name or path.name.startswith(\"test_\"):",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_dst_day_step.py",
+            "line": 114,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "total = 0",
+            "after": "total = 1",
+            "line_text": "    total = 0",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_dst_day_step.py",
+            "line": 126,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 1",
+            "after": "return 2",
+            "line_text": "        return 1",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new CLI test: a hit exits 1 as the docstring says (was only ever exercised on a clean tree, exit 0)"
+          },
+          {
+            "file": "platform/ci/check_dst_day_step.py",
+            "line": 132,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "sys.exit(main(sys.argv[1:]))",
+            "after": "sys.exit(main(sys.argv[2:]))",
+            "line_text": "    sys.exit(main(sys.argv[1:]))",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new CLI test passes a temp root; argv[2:] dropped it and scanned the clean ventures tree, exit 0"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ifc-quantity-takeoff/geom.mjs",
+        "issue": "Geometry.profile had no nesting guard: an IFCDERIVEDPROFILEDEF or IFCCOMPOSITEPROFILEDEF that names itself recursed until RangeError (Maximum call stack size exceeded), shown on the row as 'error: Maximum call stack size exceeded' instead of an unresolved-geometry reason. Fixed with a depth > 50 Unresolved('profile nesting') guard, like placement and curve already had; test in geom.test.mjs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5cd25d38-7e2d-5396-b1aa-82fbc18f1947",
+    "transcripts": 1,
+    "first": "2026-11-21T17:18:34Z",
+    "last": "2026-11-21T17:26:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 25410,
+        "thinking": 6812,
+        "cache_read": 4065176,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83088,
+        "api_equivalent_usd": 1.9863,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 25410,
+      "thinking": 6812,
+      "cache_read": 4065176,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83088,
+      "api_equivalent_usd": 1.9863,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 50,
+      "Edit": 2,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.95,
+      "active_minutes": 7.95,
+      "model_minutes": 5.01,
+      "tool_minutes": 2.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "two mutation campaigns triaged, 7 tests written, one fix and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 201.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

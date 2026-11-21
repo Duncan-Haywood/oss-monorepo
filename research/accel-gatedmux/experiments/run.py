@@ -74,7 +74,7 @@ if __name__ == "__main__":
                 r = by[(P, B, m)]
                 oa = r["old_area_um2"]
                 w(f"{P:3d} {B:2d} {r['design']:12s} {r['cycles']:7d} {r['flops']:6d} {r['icgs']:5d} {r['cells']:7d} {r['area_um2']:9.0f} "
-                  f"{(f'{oa:9.0f}' if oa else '        -')} {(f'{r['area_um2'] / oa:8.2f}' if oa else '       -')} "
+                  f"""{(f'{oa:9.0f}' if oa else '        -')} {(f'{r["area_um2"] / oa:8.2f}' if oa else '       -')} """
                   f"{r['area_um2'] / os_['area_um2']:8.2f} {r['area_um2'] / un['area_um2']:12.2f} "
                   f"{r['clk_fj_per_cycle'] / os_['clk_fj_per_cycle']:7.2f} {r['synth_s']:7.1f}")
     open(os.path.join(HERE, "results.txt"), "w").write("\n".join(out) + "\n")

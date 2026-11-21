@@ -124,6 +124,13 @@ Options:
                             of the log counts and look for steps about it, so a steadily growing or shrinking site is
                             not read as a staircase of steps. Measured with --detector pelt --overdispersion nb
                             (README "A Middle that allows for growth").
+  --trend gated             for counts: the growth rate refitted under the steps (alternating with them), kept only
+                            when it beats a flat level by log n; steadier from one check to the next than robust,
+                            about 2.5x its time a check; the count Middle since 2026-11-21 (README "The joint growth fit, gated").
+  --wander gated            for counts: when the window's level wanders at random (the drift model's random-walk level
+                            beats a flat level with jumps by log n on the log counts), keep only the changes the drift
+                            model also places a jump at, so the wander is not read as a staircase of steps
+                            (README "A wandering level under Middle").
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)
@@ -157,7 +164,8 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--check-every') { every = argv[++i]; if (!['hour', 'day', 'week'].includes(every)) throw new Error('--check-every takes hour, day or week.'); }
     else if (a === '--detector') { o.detector = argv[++i]; if (!DETECTORS.includes(o.detector)) throw new Error(`--detector takes ${DETECTORS.join(', ')}.`); }
     else if (a === '--overdispersion') o.overdispersion = parseClumping(argv[++i], '--overdispersion');
-    else if (a === '--trend') { o.trend = argv[++i]; if (o.trend !== 'robust') throw new Error('--trend takes robust (counts: one growth rate read from a robust slope).'); }
+    else if (a === '--trend') { o.trend = argv[++i]; if (o.trend !== 'robust' && o.trend !== 'gated') throw new Error('--trend takes robust (counts: one growth rate read from a robust slope) or gated (counts: the growth rate refitted under the steps, kept when it earns its place).'); }
+    else if (a === '--wander') { o.wander = argv[++i]; if (o.wander !== 'gated') throw new Error('--wander takes gated (counts: keep only the changes a wandering level cannot explain).'); }
     else if (a === '--rho-cap') { o.rhoCap = Number(argv[++i]); if (!(o.rhoCap >= 0 && o.rhoCap <= 0.95)) throw new Error('--rho-cap takes a number from 0 to 0.95.'); }
     else if (a === '--confirm') o.confirm = num(argv[++i], '--confirm');
     else if (a === '--tolerance') o.tolerance = Number(argv[++i]);
@@ -179,7 +187,8 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   if (plain) budget = budgetFromPlain({ ...plain, per: plain.per, every });
   if (auto && o.detector) throw new Error('Give --detector auto or a named detector, not both.');
   if (o.overdispersion != null && !columnsSpec && (o.model ?? 'mean') !== 'poisson') throw new Error('--overdispersion is for counts: add --model poisson.');
-  if (o.trend != null && !columnsSpec && (o.model ?? 'mean') !== 'poisson') throw new Error('--trend robust is for counts: add --model poisson.');
+  if (o.trend != null && !columnsSpec && (o.model ?? 'mean') !== 'poisson') throw new Error(`--trend ${o.trend} is for counts: add --model poisson.`);
+  if (o.wander != null && !columnsSpec && (o.model ?? 'mean') !== 'poisson') throw new Error('--wander gated is for counts: add --model poisson.');
   if (!statePath && !dry && !suggest) throw new Error('Give --state <file> so the next run knows what was already reported (or --dry-run).');
   if (o.column != null && /^\d+$/.test(o.column)) o.column = Number(o.column);
   if (o.labelColumn != null && /^\d+$/.test(o.labelColumn)) o.labelColumn = Number(o.labelColumn);
@@ -369,6 +378,7 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
       if ((opts.model ?? 'mean') !== 'poisson') throw new Error(`--columns: ${column}: a clumping cost (nb, nb1, phi) is for counts; name the model too (${column}:poisson:...).`);
       opts.overdispersion = s.overdispersion;
     } else if ((opts.model ?? 'mean') !== 'poisson') delete opts.overdispersion;
+    if ((opts.model ?? 'mean') !== 'poisson') delete opts.wander;
     if ((opts.model ?? 'mean') !== 'poisson') delete opts.trend;  // a global --trend robust applies to the count columns only
     const fill = closedFill(raw, labels, closed, opts);
     return { ...s, column: String(column), labels, values: fill.values, fill, opts };

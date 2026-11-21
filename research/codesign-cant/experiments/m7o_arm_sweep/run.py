@@ -121,7 +121,7 @@ def summarise(out):
             rs = [r for r in out if r["label"] == lab and r["geom"] == g]
             if not rs: continue
             L0 = np.mean([r["L0"] for r in rs])
-            lines.append(f"[{g}, {lab}] own L mean {L0:.4f} m (seeds {', '.join(f'{r['L0']:.4f}' for r in rs)})")
+            lines.append(f"""[{g}, {lab}] own L mean {L0:.4f} m (seeds {', '.join(f'{r["L0"]:.4f}' for r in rs)})""")
             own = {k: sum(r[f"dead_{k}"][-1] for r in rs) for k in
                    [f"{m}_{t:g}_{l:g}" for m in MODES for t, l in CONDS]}
             lines.append("  own L: " + "; ".join(f"{k} {v}" for k, v in own.items() if k.startswith("resize")))

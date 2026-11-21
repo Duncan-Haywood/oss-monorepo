@@ -51,8 +51,8 @@ if __name__ == "__main__":
                              alpha_deg=float(np.rad2deg(cond["alpha_max"] * np.clip(bx[2], 0, 1))), power=float(sz["power"][0]),
                              train=[round(c[3], 2) for c in sorted(cand, key=lambda r: r[2])]))
         out += rows
-        lines.append(f"{arm[2]:3.1f}  {arm[1]:3d}   {np.mean([r['rms'] for r in rows]):6.2f} ({', '.join(f'{r['rms']:.2f}' for r in rows)})  "
-                     f"{np.mean([r['J'] for r in rows]):7.2f}  {np.mean([r['power'] for r in rows]):8.0f}   {', '.join(f'{r['alpha_deg']:.0f}' for r in rows):18s}  "
+        lines.append(f"""{arm[2]:3.1f}  {arm[1]:3d}   {np.mean([r['rms'] for r in rows]):6.2f} ({', '.join(f'{r["rms"]:.2f}' for r in rows)})  """
+                     f"""{np.mean([r['J'] for r in rows]):7.2f}  {np.mean([r['power'] for r in rows]):8.0f}   {', '.join(f'{r["alpha_deg"]:.0f}' for r in rows):18s}  """
                      f"{', '.join(str(STARTS[r['start']]) for r in rows):13s}  {'; '.join('/'.join(str(v) for v in r['train']) for r in rows)}")
     lines += ["", "Paired by seed: cant <= 80 minus no cant (negative = cant better)"]
     for lam in (0.3, 1.0):

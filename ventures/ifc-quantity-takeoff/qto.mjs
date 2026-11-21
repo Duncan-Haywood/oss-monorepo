@@ -18,6 +18,7 @@
 
 import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
+import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
 import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
 
@@ -388,7 +389,7 @@ export function takeoff(model, opts = {}) {
     // listed as 193 "storeys"), and keep the room's name as the row's space
     if (sid && E.get(sid)?.type === "IFCSPACE") {
       const sp = E.get(sid);
-      row.space = str(sp.args[7]) ?? str(sp.args[2]) ?? `#${sid}`;
+      row.space = roomLabel(str(sp.args[2]), str(sp.args[7]), sid);
       let up = idx.parentOf.get(sid), h = 0;
       while (up && h++ < 10 && E.get(up)?.type === "IFCSPACE") up = idx.parentOf.get(up);
       if (up && E.get(up)?.type === "IFCBUILDINGSTOREY") sid = up;
@@ -417,27 +418,7 @@ export function takeoff(model, opts = {}) {
     const op = idx.fills.get(id);
     row.host = op != null ? idx.openingHost.get(op) ?? null : null;
 
-    for (const qs of idx.qsets.get(id) || []) {
-      const set = E.get(qs);
-      const setName = str(set.args[2]);
-      for (const q of set.args[5] || []) {
-        const qe = E.get(refId(q));
-        if (!qe || !Object.hasOwn(QTY, qe.type)) continue;
-        const [kind, unitType] = Object.hasOwn(QTY, qe.type) ? QTY[qe.type] : [null, null];
-        let v = numOf(qe.args[3]);
-        if (v == null) continue;
-        let factor = unitType ? units[unitType] : 1;
-        const own = E.get(refId(qe.args[2]));
-        if (own && own.type === "IFCSIUNIT") {
-          const pf = own.args[2] && own.args[2].enum ? (Object.hasOwn(SI_PREFIX, own.args[2].enum) ? SI_PREFIX[own.args[2].enum] : 1) : 1;
-          factor = kind === "area" ? pf * pf : kind === "volume" ? pf ** 3 : kind === "weight" && own.args[3]?.enum === "GRAM" ? pf / 1000 : pf;
-        }
-        const name = str(qe.args[0]);
-        if (!name || name in row.stored) continue;
-        row.stored[name] = { kind, value: v * factor, set: setName };
-        if (!row.storedSet) row.storedSet = setName;
-      }
-    }
+    readStored(E, idx, id, units, row);
 
     if (opts.geometry !== false) {
       row.computed = computeVolume(e, idx, E, geo, bodyOf, worldOf, f);
@@ -472,7 +453,117 @@ export function takeoff(model, opts = {}) {
   if (!opts.keepRoofFaces) for (const r of rows) delete r.roofFaces; // faces are only for the envelope test; rows stay small
   assignRailingSides(rows);
   assignUniformat(rows);
-  return { schema: model.schema, units, rows };
+  const rooms = opts.rooms === false ? [] : takeoffRooms(E, idx, geo, bodyOf, worldOf, units, opts, tol);
+  assignRooms(rows, rooms);
+  return { schema: model.schema, units, rows, rooms };
+}
+
+/**
+ * The model's rooms (IfcSpace): number, name, storey, the quantities their
+ * quantity sets store, and floor area, perimeter, height, wall area and
+ * volume measured from each space's own body (rooms.mjs), checked against
+ * the stored ones. The solid, placement and length unit stay on each room as
+ * non-enumerable fields for assignRooms.
+ */
+function takeoffRooms(E, idx, geo, bodyOf, worldOf, units, opts, tol) {
+  const f = units.LENGTHUNIT;
+  const rooms = [];
+  for (const e of E.values()) {
+    if (e.type !== "IFCSPACE") continue;
+    const id = e.id;
+    const number = str(e.args[2]), name = str(e.args[7]);
+    const room = { id, globalId: e.args[0], number, name, label: roomLabel(number, name, id), from: "body", storey: null, storeyElevation: null, stored: {}, storedSet: null, computed: null, status: null, check: {} };
+    let up = idx.storeyOf.get(id) ?? idx.parentOf.get(id), h = 0;
+    while (up && h++ < 10 && E.get(up)?.type !== "IFCBUILDINGSTOREY") up = idx.parentOf.get(up) ?? idx.storeyOf.get(up);
+    const st = up ? E.get(up) : null;
+    if (st && st.type === "IFCBUILDINGSTOREY") { room.storey = str(st.args[2]) ?? `#${up}`; if (numOf(st.args[9]) != null) room.storeyElevation = numOf(st.args[9]) * f; }
+    readStored(E, idx, id, units, room);
+    if (opts.geometry !== false) {
+      const repId = bodyRepresentation(E, refId(e.args[6]));
+      let body = repId ? bodyOf(repId) : null;
+      if (!body) { body = footprintBody(E, refId(e.args[6])); if (body) room.from = "footprint"; }
+      if (!body) room.status = "no body";
+      else if (body.error) room.status = `not read: ${body.error}`;
+      else {
+        try {
+          const W = worldOf(refId(e.args[5]));
+          room.computed = roomGeometry(body, W, f);
+          room.status = room.computed ? (room.computed.floorArea == null ? "faceted: volume and height only" : "ok") : "no extent";
+          if (room.computed) {
+            Object.defineProperty(room, "solid", { value: body, enumerable: false, writable: true });
+            Object.defineProperty(room, "world", { value: W, enumerable: false, writable: true });
+            Object.defineProperty(room, "lengthUnit", { value: f, enumerable: false, writable: true });
+            room.box = worldBox(body, W, f);
+          }
+        } catch (err) { room.status = `not read: ${err.message}`; room.computed = null; }
+      }
+    }
+    room.check = checkRoom(room, tol);
+    rooms.push(room);
+  }
+  // in storey order, then by number
+  rooms.sort((a, b) => (a.storeyElevation ?? 0) - (b.storeyElevation ?? 0) || String(a.storey ?? "").localeCompare(String(b.storey ?? "")) || String(a.label).localeCompare(String(b.label), undefined, { numeric: true }));
+  return rooms;
+}
+
+/**
+ * A space with no body but a 'FootPrint' outline (an IfcPolyline, or an
+ * IfcIndexedPolyCurve of straight segments, alone or in a curve set) and a
+ * 'Box' bounding box: the outline extruded through the box's height.
+ */
+function footprintBody(E, shapeId) {
+  const shape = E.get(shapeId);
+  if (!shape || !Array.isArray(shape.args[2])) return null;
+  let outline = null, box = null;
+  const curvePts = (c) => {
+    if (!c) return null;
+    if (c.type === "IFCPOLYLINE") return (c.args[0] || []).map((r) => E.get(refId(r))?.args[0]).filter((p) => Array.isArray(p) && p.length >= 2).map((p) => [numOf(p[0]), numOf(p[1])]);
+    if (c.type === "IFCINDEXEDPOLYCURVE") {
+      if (Array.isArray(c.args[1]) && c.args[1].some((sg) => sg && sg.type && /ARC/i.test(sg.type))) return null;
+      const list = E.get(refId(c.args[0]));
+      return list && Array.isArray(list.args[0]) ? list.args[0].map((p) => [numOf(p[0]), numOf(p[1])]) : null;
+    }
+    if (c.type === "IFCGEOMETRICCURVESET" || c.type === "IFCGEOMETRICSET") { for (const r of c.args[0] || []) { const pts = curvePts(E.get(refId(r))); if (pts && pts.length >= 3) return pts; } }
+    return null;
+  };
+  for (const r of shape.args[2]) {
+    const rep = E.get(refId(r));
+    if (!rep || rep.type !== "IFCSHAPEREPRESENTATION") continue;
+    const id = str(rep.args[1]);
+    for (const it of rep.args[3] || []) {
+      const item = E.get(refId(it));
+      if (!item) continue;
+      if (id === "FootPrint" && !outline) outline = curvePts(item);
+      if (id === "Box" && item.type === "IFCBOUNDINGBOX" && !box) box = { z0: numOf(E.get(refId(item.args[0]))?.args[0]?.[2]) ?? 0, h: numOf(item.args[3]) };
+    }
+  }
+  if (!outline || !box || outline.some((p) => p[0] == null || p[1] == null)) return null;
+  return footprintSolid(outline, box.z0, box.h);
+}
+
+/** The quantities an object's quantity sets store, in SI units, onto row.stored (first value of a name wins). */
+function readStored(E, idx, id, units, row) {
+  for (const qs of idx.qsets.get(id) || []) {
+    const set = E.get(qs);
+    const setName = str(set.args[2]);
+    for (const q of set.args[5] || []) {
+      const qe = E.get(refId(q));
+      if (!qe || !Object.hasOwn(QTY, qe.type)) continue;
+      const [kind, unitType] = Object.hasOwn(QTY, qe.type) ? QTY[qe.type] : [null, null];
+      let v = numOf(qe.args[3]);
+      if (v == null) continue;
+      let factor = unitType ? units[unitType] : 1;
+      const own = E.get(refId(qe.args[2]));
+      if (own && own.type === "IFCSIUNIT") {
+        const pf = own.args[2] && own.args[2].enum ? (Object.hasOwn(SI_PREFIX, own.args[2].enum) ? SI_PREFIX[own.args[2].enum] : 1) : 1;
+        factor = kind === "area" ? pf * pf : kind === "volume" ? pf ** 3 : kind === "weight" && own.args[3]?.enum === "GRAM" ? pf / 1000 : pf;
+      }
+      const name = str(qe.args[0]);
+      if (!name || name in row.stored) continue;
+      row.stored[name] = { kind, value: v * factor, set: setName };
+      if (!row.storedSet) row.storedSet = setName;
+    }
+  }
 }
 
 /**
@@ -1112,7 +1203,7 @@ function checkVolume(row, tol) {
   return Object.keys(res).length ? res : null;
 }
 
-const GROUP_KEYS = { class: (r) => r.ifcClass, type: (r) => r.type ?? "(no type)", storey: (r) => r.storey ?? "(no storey)", material: (r) => r.material ?? "(no material)", classification: (r) => r.classification ?? "(none)", uniformat: (r) => uniformatLabel(r, 3), uniformat2: (r) => uniformatLabel(r, 2), uniformat1: (r) => uniformatLabel(r, 1) };
+const GROUP_KEYS = { class: (r) => r.ifcClass, type: (r) => r.type ?? "(no type)", storey: (r) => r.storey ?? "(no storey)", space: (r) => r.space ?? "(no room)", material: (r) => r.material ?? "(no material)", classification: (r) => r.classification ?? "(none)", uniformat: (r) => uniformatLabel(r, 3), uniformat2: (r) => uniformatLabel(r, 2), uniformat1: (r) => uniformatLabel(r, 1) };
 
 /** The quantity of a row a BoQ line sums: the stored value when present, else the computed one. */
 export function rowQuantities(r) {
@@ -1188,7 +1279,7 @@ const csvCell = (v) => {
 };
 
 /** Column heading for a group key. */
-export const keyLabel = (k) => ({ uniformat: "Uniformat II element", uniformat2: "Uniformat II group", uniformat1: "Uniformat II major group" })[k] ?? k[0].toUpperCase() + k.slice(1);
+export const keyLabel = (k) => ({ uniformat: "Uniformat II element", uniformat2: "Uniformat II group", uniformat1: "Uniformat II major group", space: "Room" })[k] ?? k[0].toUpperCase() + k.slice(1);
 
 export function boqCsv(lines, by, rates = {}, rule = null) {
   const measured = ruleActive(rule);
@@ -1208,7 +1299,7 @@ export function boqCsv(lines, by, rates = {}, rule = null) {
 }
 
 export function rowsCsv(rows) {
-  const head = ["Entity", "GlobalId", "Class", "Name", "Type", "Storey", "Material", "Classification", "Uniformat II", "Uniformat source", "Uniformat basis", "Assembly", "Part of", "Computed gross m3", "Computed net m3", "Openings", "Geometry status", "Stored GrossVolume m3", "Stored NetVolume m3", "Volume check", "Computed gross area m2", "Computed net area m2", "Area measured", "Area check", "Stored quantities"];
+  const head = ["Entity", "GlobalId", "Class", "Name", "Type", "Storey", "Room", "Room from", "Material", "Classification", "Uniformat II", "Uniformat source", "Uniformat basis", "Assembly", "Part of", "Computed gross m3", "Computed net m3", "Openings", "Geometry status", "Stored GrossVolume m3", "Stored NetVolume m3", "Volume check", "Computed gross area m2", "Computed net area m2", "Area measured", "Area check", "Stored quantities"];
   const out = [head.map(csvCell).join(",")];
   for (const r of rows) {
     const c = r.computed || {};
@@ -1217,7 +1308,7 @@ export function rowsCsv(rows) {
     const stored = Object.entries(r.stored).map(([k, q]) => `${k}=${Math.round(q.value * 1e6) / 1e6}`).join("; ");
     const A = c.areas && !c.areas.error && !c.areas.faceted ? (c.areas.side ? ["side", c.areas.side] : c.areas.plan ? ["plan", c.areas.plan] : c.areas.cross ? ["cross-section", c.areas.cross] : null) : null;
     const areaVerdict = Object.entries(r.areaCheck || {}).map(([k, a]) => a.agree ? `${k} agrees` : `${k} differs ${a.rel === Infinity ? "" : (a.rel * 100).toFixed(1) + "%"}${a.reason ? " (" + a.reason + ")" : ""}`).join("; ");
-    out.push([`#${r.id}`, r.globalId, r.ifcClass, r.name, r.type, r.storey, r.material, r.classification, r.uniformat?.code ?? "", r.uniformat?.source ?? "", r.uniformat?.why ?? "", r.isAssembly ? "yes" : "", r.parent ? `#${r.parent}` : "", c.gross, c.net, c.openings, c.status === "ok" ? (c.net == null ? `net not computed: ${c.netReason}` : "ok") : c.status ? `${c.status}${c.reason ? ": " + c.reason : ""}` : "", g ? g.stored : null, n ? n.stored : null, verdict, A ? A[1].gross : null, A ? A[1].net : null, A ? A[0] : "", areaVerdict, stored].map(csvCell).join(","));
+    out.push([`#${r.id}`, r.globalId, r.ifcClass, r.name, r.type, r.storey, r.space, r.spaceFrom ?? "", r.material, r.classification, r.uniformat?.code ?? "", r.uniformat?.source ?? "", r.uniformat?.why ?? "", r.isAssembly ? "yes" : "", r.parent ? `#${r.parent}` : "", c.gross, c.net, c.openings, c.status === "ok" ? (c.net == null ? `net not computed: ${c.netReason}` : "ok") : c.status ? `${c.status}${c.reason ? ": " + c.reason : ""}` : "", g ? g.stored : null, n ? n.stored : null, verdict, A ? A[1].gross : null, A ? A[1].net : null, A ? A[0] : "", areaVerdict, stored].map(csvCell).join(","));
   }
   return out.join("\r\n") + "\r\n";
 }

@@ -4,7 +4,9 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Latest step (milestone 23): the cost of echoed false ties is a slope, not a step, under the fitted contagion models, and the seed swaps cost by crowding seeds together, not by picking weaker ones.** Scoring milestone 22's seed draws (43 villages &times; 100) under the three point fits with common random numbers, census degree discount with one-sided ties at half weight loses 0.80 adopters (z 5.5) from no echoed false ties to a tenth echoed and 1.65 more (z 10.4) by a quarter: 8 then 11 adopters per unit share, a mild steepening, so milestone 22's step lives in the refitted processes that set the worst case. From a tenth to a quarter the seeds gain 26 true ties among themselves (se 2.6) and reach 0.21 point fewer households (se 0.02), while the swapped-in seeds' true degree is only 0.33 below the ones they replace; 42 of 43 villages lose. The advice is unchanged: with the echo share unknown, keep every report ([`experiments/m23_swaps/results.txt`](experiments/m23_swaps/results.txt), [`LOG.md`](LOG.md), 2026-11-21).
+through village leaders. **Latest step (milestone 24): an end-line awareness question ("have you heard of the product?") is the cheap survey addition that tells a simple contagion from reinforcement, but nothing tested tells a threshold from reinforcement, and fewer than about 20 villages identify nothing.** Reusing milestone 3's identification harness unchanged (it reproduces milestone 3's 58.5 / 82.0 / 55.5% recovery exactly), adding awareness lifts leave-one-village-out recovery of the information and reinforcement models to 91% and 91.5%, robust to 15% misreporting, and removes the in-sample criterion's bias towards the bigger model (98.5 / 95.5 / 100% in sample), while the threshold model drops to 73.5%; trimester adoption timing adds about 1.5 points, and with 20 villages the best design recovers every model in only 64% of datasets. The largest effect was not a measurement: scaling each moment by its spread lifts the plain cross-section to 83.5% or more for every model, so milestone 3's weak identification was partly its identity weighting ([`experiments/m24_measure/results.txt`](experiments/m24_measure/results.txt), figure [`recovery.svg`](experiments/m24_measure/recovery.svg)).
+
+**Milestone 23:** the cost of echoed false ties is a slope, not a step, under the fitted contagion models, and the seed swaps cost by crowding seeds together, not by picking weaker ones. Scoring milestone 22's seed draws (43 villages &times; 100) under the three point fits with common random numbers, census degree discount with one-sided ties at half weight loses 0.80 adopters (z 5.5) from no echoed false ties to a tenth echoed and 1.65 more (z 10.4) by a quarter: 8 then 11 adopters per unit share, a mild steepening, so milestone 22's step lives in the refitted processes that set the worst case. From a tenth to a quarter the seeds gain 26 true ties among themselves (se 2.6) and reach 0.21 point fewer households (se 0.02), while the swapped-in seeds' true degree is only 0.33 below the ones they replace; 42 of 43 villages lose. The advice is unchanged: with the echo share unknown, keep every report ([`experiments/m23_swaps/results.txt`](experiments/m23_swaps/results.txt), [`LOG.md`](LOG.md), 2026-11-21).
 
 **Earlier steps.** Milestone 22: the half weight's step in worst-case regret sits between a tenth and a quarter of false ties mutual (+0.47 point, z 4.1), and an oracle that halves only one-sided false ties only ties keeping every report ([`experiments/m22_step/verdicts.txt`](experiments/m22_step/verdicts.txt)). Milestone 21: with ten copies, milestone 20's dip is noise (&minus;0.06 point, se 0.16) and the half weight's cost against keeping every report is a step (+0.30 to +0.42 point from a quarter of false ties mutual upward) ([`experiments/m21_kappa_dip/verdicts.txt`](experiments/m21_kappa_dip/verdicts.txt)). Milestone 20: taken unchanged to three more cells, the half weight beats the hard filter's worst case in both false-tie cells but is worse than keeping every report by 0.50 point at one false tie per four with half of them mutual (z 4.3) ([`experiments/m20_soft_cells/verdicts.txt`](experiments/m20_soft_cells/verdicts.txt)). Milestone 19: at one triangle-closing false tie per two true ones, keeping one-sided ties at half weight saves census degree discount 0.73 point when false ties are one-sided (z 4.4) and costs nothing measurable when all are mutual (+0.05, se 0.27) ([`experiments/m19_soft/verdicts.txt`](experiments/m19_soft/verdicts.txt)). Milestone 18: the hard reciprocity filter stops paying once about half of false ties are named by both ends; at &kappa; = 1 it costs census degree discount +0.63 point (z 3.0) ([`experiments/m18_joint/verdicts.txt`](experiments/m18_joint/verdicts.txt)). Milestone 17: keeping only the ties both ends name fixes a census's false-tie problem, but not a partial survey's. With triangle-closing false ties at one per two true ones, the reciprocity filter brings census degree discount from 2.8% back to 2.2% of adopters lost (z 2.6) and census top degree from 5.1% to 4.6% (z 2.4), and leaves both flat in the false-tie rate; with no false ties it costs top degree 0.2 point of lost recall. On the half survey, where only ties between two surveyed households can be checked, it saves nothing (&minus;0.01 point) and costs 0.2&ndash;0.5 point under random false ties (z 3.7&ndash;3.9). So filter a census, not a partial survey; and the half-point the filter saves is small next to the 2-point gap between degree discount and top degree ([`experiments/m17_reciprocity/verdicts.txt`](experiments/m17_reciprocity/verdicts.txt), figure [`reciprocity.svg`](experiments/m17_reciprocity/reciprocity.svg), [`LOG.md`](LOG.md), 2026-11-19).
 
@@ -1177,9 +1179,51 @@ beats keeping every report at every &kappa; (+2.40 adopters at &kappa; = 0.25, z
 over refits is where it loses, so a team that cannot measure &kappa; should still keep every report.
 Limits: one copy of the seed draws, point fits only, coverage at one step.
 
+## Milestone 24: which extra measurement would identify the model? (`experiments/m24_measure/`)
+
+The proposal's third gap, never run until now: if the cross-section cannot tell the models apart
+(milestone 3), which cheap addition to the survey would, and in how many villages? Two additions a
+rollout's evaluator can budget for: an end-line **awareness** question (the model's informed set) and
+adoption **timing** by trimester (from loan records). `src/civ_seeding/measure.py` keeps both in the
+simulator (same draws as `complex.simulate`, `tests/test_measure.py`) and adds five moments each:
+awareness share and take-up among the aware by adopting neighbours (0, 1, 2, 3+); the per-period
+hazard by adopting neighbours and the mean adoption period. Milestone 3's harness runs unchanged (850
+grid points, its three fitted processes, the same 200 synthetic datasets each), with random subsets of
+20 and 10 villages for the power curve. Plan and six hypotheses logged before the run.
+
+![lowest recovery across models against villages surveyed, by design](experiments/m24_measure/recovery.svg)
+
+| design, leave one village out, identity weights | I | T | R&delta; | lowest, 43 villages | lowest, 20 | lowest, 10 |
+|---|---|---|---|---|---|---|
+| cross-section (milestone 3) | 58.5% | 82.0% | 55.5% | 55.5% | 44.0% | 36.5% |
+| + awareness | 91.0% | 73.5% | 91.5% | 73.5% | 62.0% | 51.5% |
+| + awareness, misreported 15% / 5% | 86.5% | 73.0% | 90.0% | 73.0% | 62.5% | 52.5% |
+| + timing | 71.0% | 80.0% | 72.5% | 71.0% | 53.5% | 40.5% |
+| + both | 93.5% | 75.0% | 92.0% | 75.0% | 64.0% | 48.0% |
+| cross-section, each moment scaled by its SD (secondary) | 83.5% | 87.0% | 87.5% | 83.5% | 60.0% | 51.0% |
+| + both, SD-scaled (secondary) | 96.0% | 87.0% | 98.0% | 87.0% | 69.0% | 55.5% |
+
+- **Awareness separates simple from reinforcement; nothing here separates threshold from
+  reinforcement.** Under the information model take-up among the aware is flat in adopting
+  neighbours (25.2% with none, 26.1% with 3+); under reinforcement it rises (20.4% to 29.0%), and
+  under the threshold model too (25.3% to 28.1%), so 22% of threshold datasets are called
+  reinforcement once awareness is added (H79 refuted by that one family; H81 refuted).
+- **Misreporting barely matters** (H84 held: 73.0% against 73.5%), and in sample awareness ends the
+  criterion's pull towards the bigger model (recovery 98.5 / 95.5 / 100%, against 27.0 / 48.5 /
+  99.5% for the cross-section).
+- **Timing at trimester resolution helps less than awareness** (H80 held, narrowly at the bottom).
+- **Village count matters as much as design** (H82 refuted): with 20 villages no identity-weighted
+  design recovers every model in more than 64% of datasets.
+- **The weighting was half the problem** (reported, not tested): scaling each moment by its spread
+  across synthetic villages, instead of milestone 3's identity weights where moment 5 dominates,
+  lifts the plain cross-section to 83.5% or more for every model. The scale came from the synthetic
+  data; a study would take it from a bootstrap of its own, which was not tested.
+- For seeding this changes nothing (milestones 4 to 23: the advice barely depends on the model); it
+  says what an evaluator can learn and what to put in the end-line survey.
+
 ## Next steps
 
-Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
+Milestone 24 finds an awareness question separates the simple model from reinforcement and that SD scaling of the moments matters more than either new measurement. Next: refit the real villages under SD or two-step weights and redo milestone 2's out-of-sample comparison; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
 11 adopters per unit &kappa;) and that the costly swaps crowd seeds together rather than pick weaker
 ones. Next: which refitted processes set the worst case between &kappa; = 0.1 and 0.25 (the harness's
 per-draw arg-max family and its parameters) and whether coverage loss predicts regret there; the

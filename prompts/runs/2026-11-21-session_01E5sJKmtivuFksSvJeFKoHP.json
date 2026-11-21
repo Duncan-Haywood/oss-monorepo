@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmtivuFksSvJeFKoHP",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T18:09:33Z",
+  "ended": "2026-11-21T18:19:55Z",
+  "wall_minutes": 10.54,
+  "tokens_in": 3394381,
+  "tokens_out": 24360,
+  "cost_usd": 1.8406,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18122",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique mode points at measure --section 'doc friction' (~70 s fetch, 18 KB mostly-stale rows); friction_rank.py --live --ungated --days 2 was the faster pointer, as earlier records also say."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says bare python3 often lacks pytest/numpy but not that it is 3.11 while CI is 3.12, so PEP 701 f-strings pass CI and fail in sessions; check_py311_syntax.py now catches it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-twenty-nine-scripts-python-311-could-not-read.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode: the backlog had no workable agent-owned item. main_health 305/305 green. The top friction clusters (flagship_field, allocate, run_workflow_locally) already had several fixes landed today, so I followed a CLAUDE.md friction row about 3.12-only syntax instead. python3.11 compile of all tracked .py: 29 fail -> 0. AST identical for 28 files; figure.py output equivalence checked by hand. P071 left unverified: no fresh evidence since its fix. Backlog untouched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "57b57c4d-9e9d-5413-87cf-f497f979b3d3",
+    "transcripts": 1,
+    "first": "2026-11-21T18:09:33Z",
+    "last": "2026-11-21T18:20:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 79,
+        "output": 24360,
+        "thinking": 7746,
+        "cache_read": 3307860,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86442,
+        "api_equivalent_usd": 1.8406,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 79,
+      "output": 24360,
+      "thinking": 7746,
+      "cache_read": 3307860,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86442,
+      "api_equivalent_usd": 1.8406,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.54,
+      "active_minutes": 10.54,
+      "model_minutes": 4.7,
+      "tool_minutes": 5.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "find, fix and verify 29 files plus a tokenizer check with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 163.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

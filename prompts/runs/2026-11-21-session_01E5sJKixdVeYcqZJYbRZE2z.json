@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKixdVeYcqZJYbRZE2z",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T19:09:54Z",
+  "ended": "2026-11-21T19:17:22Z",
+  "wall_minutes": 13.3,
+  "tokens_in": 8281854,
+  "tokens_out": 40296,
+  "cost_usd": 3.543,
+  "tool_calls": 67,
+  "task": "photo-editing flagship 7: per-colour noise ratios with a texture-safe level, pre-registered",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18129",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first mkdir/clone raced (cd before mkdir in a backgrounded subshell); clone landed nowhere, redone in the scratchpad",
+      "impact": "none"
+    },
+    {
+      "what": "own test fixture split tune/held by row parity, putting every wb row in held; fixed",
+      "impact": "one failed test run"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing's buildable list still leads with raw.pixls.us, which refused this session again (403 from the proxy); the metadata-extractor-images set is the reachable substitute"
+    },
+    {
+      "file": "ventures/photo-editing/eval/noise-pca-min-eigen-2026-11-19.md",
+      "issue": "'the rows are committed, so the pick costs only the sweep' \u2014 the sweep still needs the raws, so the note's next item could not run on its named sets without raw.pixls.us"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/photo-editing/eval/noise-pca-min-eigen-2026-11-19.md",
+      "why": "its next item named the raw.pixls.us `fourth` set for the pick, and that host refused this session",
+      "did": "pre-registered the pick and test on the metadata-extractor-images set split by body (as eval/near-clean-gate-xtrans-tune-2026-11-19.md did), committed before scoring; added a second candidate (mpcws) found on synthetic data before any real row was read",
+      "result": "mpcw picked and passed h1-h3 held out; shipped as Bayer default. raw.pixls.us replication left open in NEXT.md"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-white-balance-made-the-noise-read-low.md",
+    "ventures/photo-editing/eval/noise-pca-whitened-level-2026-11-21.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registration commit 5f961c79c before the sweep. Sweep: 536 rows, 35 min on 4 cores. Tune pick mpcw (mpcws disqualified: 10 vs 6 losers, all on Pentax K-1 II noisy-truth file). Held: mpcw +0.095 luma, +0.038 colour, +0.214 on wb SNR 25/12, 0 new losers. ship arm differs from 2026-11-19 committed rows on 4 of 536 rows; main's noise_pca gives the same bytes as this branch on that file, so the drift is older. Verification: run_venture_tests.py photo-editing with the new default: ok, 1474 tests (10 skipped), 146.7 s; site page checks ok; check_posts.py ok; portfolio/router/validate.py ok; promptctl validate ok. Unwired tree checks not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "89ca2411-29d0-5175-825b-07fc13a1668f",
+    "transcripts": 1,
+    "first": "2026-11-21T19:09:54Z",
+    "last": "2026-11-21T19:23:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 136,
+        "output": 40296,
+        "thinking": 8324,
+        "cache_read": 8143231,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138487,
+        "api_equivalent_usd": 3.543,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 136,
+      "output": 40296,
+      "thinking": 8324,
+      "cache_read": 8143231,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138487,
+      "api_equivalent_usd": 3.543,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Monitor": 2,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.3,
+      "active_minutes": 11.43,
+      "model_minutes": 8.33,
+      "tool_minutes": 3.1,
+      "waiting_on_human_minutes": 1.88,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an imaging engineer designing, pre-registering, running and writing up a noise-estimator change on a 51-body sweep",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 282.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1023,8 +1023,10 @@ export function preSteps(o, values, labels) {
   let trendRobustKept = null;
   let growth = null, countKnot, growthAfter, countKnots, countRates, countRanges;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); else if (o.overdispersion === 'nb1') nb1Delta = nb1Dispersion(original, exposure) - 1; };
+  // 'gated' (counts): the joint fit (--trend) kept only when it beats a flat level by log n, the same as trend true with trendGate (README "The joint growth fit, gated").
+  if (o.trend === 'gated' && model === 'poisson') o = { ...o, trend: true, trendGate: true };
   if (o.trend && model === 'poisson') {
-    if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends' && o.trend !== 'robust') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate, "bends" for up to two, or "robust" for one growth rate read once from a robust slope of the log counts.');
+    if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends' && o.trend !== 'robust') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate, "bends" for up to two, "robust" for one growth rate read once from a robust slope of the log counts, or "gated" for the common growth rate kept only when it beats a flat level by log n.');
     // robust: the growth rate is the starting estimate only (the median of log-count slopes over a quarter of the
     // series), not refitted under the steps; about 40 times cheaper per check, for the count watch (README "A Middle
     // that allows for growth").
@@ -1034,7 +1036,8 @@ export function preSteps(o, values, labels) {
     // robust: keep the growth term only when it earns its place, its fit beating the flat one (same cost, same
     // exposure otherwise) by log n, one parameter by BIC; a flat series is then left as Middle sees it.
     let keep = true;
-    if (o.trend === 'robust') {
+    // trendGate (with the joint fit, --trend): the same gate on the refitted growth rate (README "The joint growth fit, gated").
+    if (o.trend === 'robust' || (o.trend === true && o.trendGate)) {
       const n0 = original.length, size = o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0;
       const d1 = o.overdispersion === 'nb1' ? nb1Dispersion(original, exposure) - 1 : 0;
       const ms = Math.max(1, Math.floor(Number(o.minSegment) || 2));
@@ -1045,6 +1048,7 @@ export function preSteps(o, values, labels) {
     if (keep) { exposure = fit.exposure; growth = fit.g; }
     if (keep && fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
+    if (o.trend === 'robust' || o.trend === 'gated') throw new Error(`--trend ${o.trend} is for counts: add --model poisson.`);
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved } = trendAdjust(values, { quad: o.trend === 'quad', penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();

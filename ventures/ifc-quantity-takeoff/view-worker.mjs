@@ -1,16 +1,21 @@
-// Meshes the model view's elements off the page's thread (a module worker).
+// Takes off the model and meshes the model view's elements off the page's
+// thread (a module worker).
 //
 //   const w = new Worker(new URL("./view-worker.mjs", import.meta.url), { type: "module" });
-//   w.postMessage({ bytes });          // the IFC file, transferred
-//   w.onmessage = ({ data }) => ...    // { ready, origin, total }, then batches
-//                                      // { items, done }, or { failed }
+//   w.postMessage({ bytes, mesh });    // the IFC file, transferred; mesh: false
+//                                      // stops after the takeoff (a revision)
+//   w.onmessage = ({ data }) => ...    // { takeoff, ms }, then { ready, origin,
+//                                      // total }, then batches { items, done };
+//                                      // or { failed, read } at any point
 //
-// The worker reads and takes off the file itself rather than being sent the
-// page's takeoff: structured-cloning the solids of a 56 MB model took 18 s
-// of the page's own thread (eval/view-worker-2026-11-21.md), longer than the
-// meshing it was meant to move off it, while reading the bytes again here
-// runs alongside the page's own reading. The takeoff is deterministic, so
-// the ids and the origin match the page's.
+// The page used to run its own takeoff alongside this one, which froze it
+// for the whole read (14 s on ARK_NUS). Now the takeoff is posted back
+// instead: structured cloning copies only a row's enumerable fields, and
+// the solids, world matrices and length units the mesher needs are
+// non-enumerable (qto.mjs), so the page gets the plain rows (6 MB, 27 ms
+// to read on ARK_NUS; eval/takeoff-worker-2026-11-21.md) while the solids
+// stay here. Cloning the solids themselves took 18 s of the page's thread
+// (eval/view-worker-2026-11-21.md).
 //
 // Each batch is [{ id, positions, normals, boxOnly, reason }] with the arrays
 // transferred, not copied. A new model gets a new worker (the page
@@ -25,12 +30,20 @@ import { meshRows } from "./view-mesh.mjs";
 const BATCH_MS = 150;
 
 self.onmessage = ({ data }) => {
-  let rows, origin;
+  let rows, origin, posted = false;
   try {
-    const t = takeoff(parseStep(data.bytes));
+    const t0 = performance.now();
+    const model = parseStep(data.bytes);
+    data.bytes = null;
+    if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
+    const t = takeoff(model);
+    self.postMessage({ takeoff: { schema: t.schema, units: t.units, rows: t.rows, rooms: t.rooms }, ms: performance.now() - t0 });
+    posted = true;
+    if (data.mesh === false) { self.close(); return; }
     ({ rows, origin } = meshRows.prepare(t.rows));
   } catch (err) {
-    self.postMessage({ failed: `could not read the model: ${err.message}` });
+    // read: true says the file itself could not be read, so the page need not try it again
+    self.postMessage({ failed: posted ? `could not draw the model: ${err.message}` : err.message, read: !posted });
     return;
   }
   self.postMessage({ ready: true, origin, total: rows.length });

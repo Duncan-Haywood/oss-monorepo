@@ -25,6 +25,7 @@ node resync.mjs movie.srt --fps 25:23.976 -o fixed.srt
 node resync.mjs movie.srt --sync 00:02:00,000=00:02:07,125 --sync 01:30:00,000=01:33:52,625
 node resync.mjs movie.es.srt --reference movie.en.srt -o movie.es.fixed.srt
 node resync.mjs movie.srt --offset 1 --to vtt --json
+cat movie.srt | node resync.mjs - --offset 1.2 > fixed.srt   # "-" reads standard input
 ```
 
 Exit codes: 0 written; 1 a reference alignment came back low confidence (the

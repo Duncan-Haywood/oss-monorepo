@@ -28,7 +28,11 @@
 // - constraints: must start on -> start on, must finish on -> finish on,
 //   start/finish no later than -> on or before, start/finish no earlier than
 //   -> on or after, as late as possible -> as late as possible. A deadline is
-//   not a constraint in either tool; deadlines are counted in the warnings.
+//   not a constraint: it moves no date, but Project works total slack out
+//   from it when it falls before the late finish (Microsoft's "Show slack in
+//   your project" page), so an open task's deadline is kept as
+//   deadline_date (not a P6 column) and cpm.mjs takes it as a late finish
+//   cap, as Project does. p6xer.mjs can write it as a P6 constraint.
 // - a manually scheduled task (Manual = 1) that has not started keeps its
 //   typed start: it is read as start on or after that date (Project still
 //   gives it late dates from the logic), and every one is named in the
@@ -570,6 +574,8 @@ export function parseMspdi(text) {
       free_float_hr_cnt: slack("FreeSlack"),
       cstr_type: cstr,
       cstr_date: cstrDate,
+      // Project's deadline (not a P6 column): a late finish cap in cpm.mjs
+      ...(val(t, "Deadline") && status !== "TK_Complete" ? { deadline_date: date(val(t, "Deadline")) } : {}),
       priority_type: "",
       ms_id: val(t, "ID"),
     });
@@ -642,7 +648,7 @@ export function parseMspdi(text) {
     }
   }
   if (manual.length) warnings.push(`${manual.length} manually scheduled task(s) do not move with their logic (switch them to auto scheduled before relying on the dates); each is read as start on or after its typed start: ${manual.slice(0, 12).join("; ")}${manual.length > 12 ? "; ..." : ""}`);
-  if (deadlines) warnings.push(`${deadlines} task(s) carry a deadline; deadlines are not modelled, so their recomputed float can be larger than Project's`);
+  if (deadlines) warnings.push(`${deadlines} task(s) carry a deadline: as in Project, a deadline before a task's late finish sets its late finish, so its total float counts down to the deadline (negative once the task is forecast past it)`);
   if (inactive) warnings.push(`${inactive} inactive task(s) left out, as Project leaves them out of the schedule`);
   if (external) warnings.push(`${external} external (inserted-project) task(s) left out`);
   if (crossProject) warnings.push(`${crossProject} cross-project link(s) left out`);

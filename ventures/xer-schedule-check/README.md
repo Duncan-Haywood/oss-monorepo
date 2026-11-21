@@ -93,7 +93,9 @@ successor's calendar as Project does (elapsed lags on a 24-hour clock,
 percent lags as a share of the predecessor), and activities are matched
 between updates by Unique ID, so inserted rows do not break the comparison.
 Manually scheduled tasks, links to summary tasks and deadlines are named in
-the warnings. On 102 files saved by Microsoft Project 2002 to 2019 (MPXJ's
+the warnings; since 2026-11-21 a deadline also caps the task's late finish, as
+Project works total slack out from a deadline that falls before the late
+finish (negative once the task is forecast past it; eval/deadlines-2026-11-21.md). On 102 files saved by Microsoft Project 2002 to 2019 (MPXJ's
 test corpus, 2,491 open tasks), early finish, late finish and total float
 equal what Project stored on 2,406 (96.6%) at first (eval/cpm-vs-project-2026-11-19.md),
 and on **2,442 (98.0%)** since 2026-11-21: a task now runs on its resources'
@@ -412,6 +414,26 @@ reads (so the reading agrees with P6's on all 2,020, and that file's CPI of
 activities budgeted at 111,528 carry 669 to complete
 (eval/earned-value-2026-11-20.md).
 
+**P6 resource curves** (2026-11-21, `curves.mjs`): an assignment that names a
+P6 resource curve (`TASKRSRC.curv_id`, the curve's 21 points in
+`RSRCCURVDATA`) has its planned value, the planned value a series of updates
+holds as its baseline, and, while nothing is spent on it, its forecast spread
+by the curve's twenty slices of working time instead of evenly (Back Loaded:
+35% in the first half, 65% in the second; Bell Shaped; or the file's own,
+such as a contract's PCO curve). Each slice is a twentieth of the
+assignment's working time on its calendar, so a weekend takes nothing. On
+the public hospital file, 36 assignments use 6 curves (25 of them a custom
+"PCO119" bell): every spread sums to its budget, Linear gives the even
+spread exactly, and the curved work's planned S-curve runs up to 109,048 h
+(40%) behind the even one, at 2012-03-31 (161,678 h against 270,726 h).
+Those 36 carry hours but no cost, so that file's cost figures do not move.
+Three files name curve id 9 with no row for it in RSRCCURVDATA (234
+assignments on the P6 24.12 Web file, 2 on Expressway, 1 on the hospital
+file); they are spread evenly and the notes say so. No public XER carries
+P6's own timephased spread of a curved assignment, so the slice reading
+(MPXJ's, and the one P6's shipped curves fit) is not checked against P6's
+numbers (eval/resource-curves-2026-11-21.md).
+
 **Earned value by window across updates** (2026-11-20, `evmseries.mjs`, the
 page's windows panel on cost- or hours-loaded updates, CLI `--windows u1.xer
 u2.xer ... --earned-value [--csv ev-windows.csv]`): for each window between
@@ -454,7 +476,7 @@ button drifts. Search impressions not measured yet.
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
 | A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
-| Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, cost resources and fixed costs as P6 expenses, and a list of what is not carried (deadlines, elapsed lags) |
+| Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, cost resources and fixed costs as P6 expenses, deadlines as finish-on-or-before constraints on request (so P6's float counts down to them as Project's slack does), and a list of what is not carried (elapsed lags, splits) |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
@@ -621,6 +643,18 @@ run as a formula in Excel or Sheets.
 
 ## How it was checked
 
+- **Deadlines** (`eval/deadlines-2026-11-21.md`, `deadlines.test.mjs`): a
+  Project deadline before the late finish caps it in the MSPDI reading (as
+  Microsoft documents for total slack), and `--deadlines` writes it to the XER
+  as a finish-on-or-before (primary when the task has no constraint, secondary
+  beside a start-on-or-after, start-on-or-before, finish-on-or-after or
+  as-late-as-possible, the earlier date beside a finish-no-later-than, refused
+  and named beside a start-on, finish-on or mandatory one, where P6 takes no
+  secondary). On planted files P6's recomputed float then equals the MSPDI
+  reading's on every task, and is larger without the switch. Only one public
+  Project file has deadlines (MPXJ's `legacy/sample1.xml`, all tasks finished),
+  so no real file measured it: the 102-file corpus is unchanged at 2,446 of
+  2,491. Not imported into P6 itself.
 - **Microsoft Project XML to P6 XER** (`eval/p6xer-check-2026-11-21.md`): 143
   Project files (MPXJ's MSPDI test corpus, Project 2002 to 2019) written as
   XER: none breaks P6's import rules (`p6Problems`); read back by this tool's
@@ -930,7 +964,7 @@ and `parseSchedule`, which picks the reader from the text);
 `node cli.mjs file.xer --to-project out.xml`); `eval/msproject-check.mjs` reads
 the result back and recomputes it, `eval/msproject-mpxj.py` compares MPXJ's
 reading of both files. `p6xer.mjs` writes Microsoft Project XML as a P6 XER
-(`p6XerText`; `node cli.mjs file.xml --to-p6 out.xer [--project-id CODE]`);
+(`p6XerText`; `node cli.mjs file.xml --to-p6 out.xer [--project-id CODE] [--deadlines]`);
 `eval/p6xer-check.mjs` checks it on MSPDI files and on XERs sent through
 Project XML, `eval/p6xer-mpxj.py` compares MPXJ's reading of the XML and the XER.
 `samples/constraints-log.csv` is a constraints log for the example schedule

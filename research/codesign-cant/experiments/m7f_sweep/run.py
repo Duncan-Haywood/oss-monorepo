@@ -91,7 +91,7 @@ def summarise(out, train, labels):
         tr = [t for t in train if f"M={t[0]:.2f}" == lab]
         rej = f"; rejected {np.mean([t[5] for t in tr]) / BUDGET:.2f} of training candidates" if tr else ""
         L.append(f"[{lab}] cant {np.mean([r['alpha_deg'] for r in rs]):.1f} deg; hover W {np.mean([r['power'] for r in rs]):.1f}; "
-                 f"ki/kp {', '.join(f'{r['ki_over_kp']:.2f}' for r in rs)}; ceil {', '.join(f'{r['ceil']:.2f}' for r in rs)}{rej}")
+                 f"""ki/kp {', '.join(f'{r["ki_over_kp"]:.2f}' for r in rs)}; ceil {', '.join(f'{r["ceil"]:.2f}' for r in rs)}{rej}""")
         for cap in CAPS:
             for lev in LEVERS:
                 t = f"{cap:g}_{lev:g}"

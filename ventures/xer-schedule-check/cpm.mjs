@@ -184,6 +184,8 @@ export function buildModel(xer) {
       cstr,
       extES: parseDate(r.external_early_start_date),
       extLF: parseDate(r.external_late_end_date),
+      // a Project deadline read by mspdi.mjs (not a P6 column)
+      deadline: r.deadline_date ? parseDate(r.deadline_date) : null,
       preds: [],
       succs: [],
       row: r,
@@ -587,6 +589,7 @@ export function schedule(xer, options = {}) {
       continue;
     }
     if (t.extLF !== null) fins.push(t.extLF);
+    if (t.deadline !== null && t.deadline !== undefined) fins.push(t.deadline);
     let mandStart = null, mandFin = null;
     if (!active(t)) for (const c of t.cstr) {
       if (c.date === null) continue;

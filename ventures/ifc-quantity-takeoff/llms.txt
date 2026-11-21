@@ -1,6 +1,6 @@
 # IFC Quantity Takeoff
 
-> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material, classification code or Uniformat II element (elemental estimate) with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Shows the model in 3D (WebGL, no plug-in) drawn from the solids it measured, coloured by stored-vs-computed agreement, class or storey; a BoQ line or a check selects its elements. Compares two revisions of a model: the change on every BoQ line and every element added, removed, changed, moved or resized, matching elements that got a new GlobalId. Nothing is uploaded.
+> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, room, material, classification code or Uniformat II element (elemental estimate) with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Shows the model in 3D (WebGL, no plug-in) drawn from the solids it measured, coloured by stored-vs-computed agreement, class or storey; a BoQ line or a check selects its elements. Compares two revisions of a model: the change on every BoQ line and every element added, removed, changed, moved or resized, matching elements that got a new GlobalId. Lists every room (IfcSpace) with floor area, perimeter, height, wall area and volume measured from its solid, checked against the stored room quantities, and places furniture, fittings and finishes in the room they stand in. Nothing is uploaded.
 
 Page: https://marisstella.app/ifc-quantity-takeoff/
 Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-quantity-takeoff
@@ -9,6 +9,7 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 
 - Someone has an IFC model (from Revit, ArchiCAD, Tekla, Vectorworks, Allplan...) and needs quantities without the authoring tool: "how many m3 of concrete", "count the doors by type", "wall area per storey", "bill of quantities from IFC".
 - Someone wants to know whether the quantities stored in an IFC can be trusted before pricing them.
+- Someone needs a room schedule or finishes takeoff from an IFC: "floor area per room from IFC", "room perimeter for skirting", "wall finish area per room", "which furniture is in which room".
 - Someone received a new issue of a model and needs what changed since the last one, in quantities ("change order from two IFC revisions", "compare IFC versions", "IFC model diff quantities").
 - Not for: 2D takeoff from PDF drawings, cost databases or rate libraries (rates are typed by the user), clash detection, curved faces that wrap all the way round their surface or have holes (advanced brep faces on planes, cylinders, surfaces of revolution and extrusion and B-spline surfaces are read; those are reported as not read).
 
@@ -20,6 +21,12 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 - Areas (eval/areas-vs-stored-2026-11-19.md): 6,509 of 7,883 stored areas agree with the section cut from the geometry; all 1,667 wall GrossFootprintAreas agree. Named causes for 1,100 of the 1,374 others: 558 mullion CrossSectionAreas that are length x a constant (a face area), 325 gross side areas with openings out, 82 net footprints with doors left in, 55 side areas measured on a wall face, 31 matching an equally wrong stored volume, 25 unit slips, 24 split-by-level pieces.
 - With faceted and advanced-brep bodies cut too (eval/joins-and-host-figures-2026-11-20.md): 9,451 of 12,167 stored areas agree; 192 disagreements are unexplained. Two causes named 2026-11-20: ArchiCAD's wall side area is the mean of both faces with the strips covered by T-joined walls taken off (55 pairs, a finishes figure), and Revit mullions that store their curtain wall's area and length on every piece (111, the section is used instead). Since then (eval/cross-sections-2026-11-20.md): 117 unexplained; Revit mullions storing half their body's surface as CrossSectionArea (58), and faceted members cut normal to their prism axis, so mitred footings agree (13 more).
 - Where they agree the two figures match to about 1e-15 relative.
+
+## Rooms (eval/rooms-2026-11-21.md)
+
+- 13 public models, 991 rooms (989 measured; 94 from a plan outline and box): stored floor area agrees with the room's solid for 528 of 535, perimeter 472 of 475, height 501 of 535, volume 213 of 535. Of the 322 stored volumes that disagree, 314 have a named cause: 246 written in litres or mm3 under m3, 57 floor area x a nominal height over a lowered ceiling (in litres), 11 outline-and-box rooms under sloped ceilings.
+- Elements placed in rooms by where they stand: 1,024 (coverings, furniture, proxies), beyond 1,652 the files place themselves. Walls, doors, windows, slabs and frames bound rooms and are never placed by geometry.
+- CLI `--rooms rooms.csv`, `--by space,class`; page section "Rooms".
 
 ## Uniformat II elements (eval/uniformat-2026-11-20.md)
 
@@ -66,4 +73,4 @@ Faceted bodies clipped by a half-space, and faceted shells that are not closed, 
 
 - Storeys shown or hidden one at a time (listed lowest first by elevation, with element counts); a section plane: plan cut, starting 1.2 m above the floor of what is shown, or vertical across x or y. The cut runs in the shader (no re-meshing) and inside faces of cut solids draw grey; picking ignores what was cut away.
 - Each element is drawn as the boundary of the signed convex pieces its volume came from (fans cancelled, openings cut); faceted bodies as the file gives them. On 11 public models (14,994 elements) the drawn triangles enclose the computed volume within 0.5% for 9,184 of 9,314 checked elements; 437 very intricate elements are drawn as their boxes. Meshing takes 0.1-8 s on most models, 35 s on a 56 MB school model.
-- Meshing runs in a Web Worker that re-reads the file alongside the page's takeoff (falling back to 30 ms slices on the page), and GPU buffers grow by appending: on the 56 MB model, page stalls over 100 ms while drawing went from 59 to 4 (eval/view-worker-2026-11-21.md).
+- The takeoff and the meshing run in one Web Worker; the page gets the rows without their solids (falling back to taking off and meshing on the page without workers), and GPU buffers grow by appending: on the 56 MB model the longest freeze while reading went from 11.7 s to 0.7 s (eval/takeoff-worker-2026-11-21.md), and stalls over 100 ms while drawing from 59 to 4 (eval/view-worker-2026-11-21.md).

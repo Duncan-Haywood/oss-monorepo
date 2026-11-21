@@ -13,7 +13,15 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   A1010 Standard Foundations, B2010 Exterior Walls, C1010 Partitions ...): count, volume (m3), area (m2), length (m) and weight
   (kg) per line. Type a rate on a line (per each, m3, m2, m or kg) and the page
   prices it and totals the priced lines. Download as CSV.
-- **Every element** as CSV: GlobalId, class, name, type, storey, material,
+- **A room schedule.** Every room (IfcSpace) measured from its own solid:
+  floor area and perimeter cut 1 cm above its floor, height, wall area
+  (perimeter x height, before doors and windows), volume, each checked
+  against the room's stored quantities with the cause of a disagreement named.
+  Rooms exported only as a plan outline and a box (schependomlaan: 94 of 100)
+  are measured from those. Furniture, fittings and finishes the model does not
+  place in a room are placed by where they stand; group the bill of
+  quantities by room (`--by space,class`). See "Rooms" below.
+- **Every element** as CSV: GlobalId, class, name, type, storey, room, material,
   classification, the computed gross and net volumes, the stored quantities,
   and the verdict of the check.
 - **Areas from the geometry.** Each area a quantity set stores is cut from the
@@ -88,11 +96,18 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   storey: ARK_NUS's 5 floors showed as 198. They now count on the storey
   above their room (1,268 ARK_NUS elements, 37 in kleine_Wohnung)
   ([eval/storeys-and-sections-2026-11-21.md](eval/storeys-and-sections-2026-11-21.md)).
-  Meshing runs in a Web Worker (`view-worker.mjs`) that reads the same
-  file alongside the page's own takeoff, and the GPU buffers grow by
-  appending, so the page keeps answering while a big model draws: stalls
-  over 100 ms on the 56 MB school model went from 59 to 4
+  The takeoff and the meshing both run in a Web Worker
+  (`view-worker.mjs`), and the GPU buffers grow by appending, so the page
+  keeps answering while a big model reads and draws. The worker posts the
+  takeoff's rows back without their solids (they are non-enumerable, so
+  structured cloning leaves them out: 6 MB and 27 ms on the 56 MB school
+  model) and keeps the solids to mesh. On that model the longest freeze
+  while reading went from 11.7 s to 0.7 s, and the view is drawn 35 s after
+  the drop instead of 47 s, since the model is no longer taken off twice
+  ([eval/takeoff-worker-2026-11-21.md](eval/takeoff-worker-2026-11-21.md));
+  stalls over 100 ms while drawing went from 59 to 4
   ([eval/view-worker-2026-11-21.md](eval/view-worker-2026-11-21.md)).
+  Without workers the page does both itself, as before.
 
 Nothing is uploaded: the model is read in the browser tab.
 
@@ -240,6 +255,45 @@ for the entities, attribute order, `AgreementFlag` and profile definitions;
 the EU/ArcelorMittal IPE section table for the IPE 200 area. The person who
 would sign this off is a quantity surveyor or cost estimator; it has not been
 reviewed by one.
+
+## Rooms
+
+`rooms.mjs`; eval/rooms-2026-11-21.md. An estimator prices finishes and fit-out
+room by room, so the takeoff lists every IfcSpace with:
+
+- **Floor area and perimeter**, cut from the room's solid 1 cm above its lowest
+  point (below any sloped ceiling). The perimeter is the outline of the room,
+  not of the convex pieces it is cut into: edges two pieces share cancel, and
+  a cut takes away the part of an edge it removes.
+- **Height** (lowest to highest point), **wall area** as perimeter x height
+  (gross wall finish, before doors and windows come off), **volume**.
+- A room with no body but a `FootPrint` outline and a `Box` (Revit and
+  ArchiCAD both export these) is the outline extruded through the box.
+- Each figure against the stored one (GrossFloorArea then NetFloorArea,
+  GrossPerimeter, Height, NetVolume then GrossVolume), within 2%, with the
+  cause of a disagreement: `unit-slip` (a power of ten: HouseZ's areas in mm2),
+  `floor-x-height` (stored volume = floor x nominal height over a lowered
+  ceiling, also in another unit: ARK_NUS writes litres), `outline-prism`
+  (an outline-and-box room under a sloped ceiling holds less than the prism),
+  `nominal` (a stated height over a ceiling the roof cuts lower).
+- **Which room each element stands in.** The file's own containment first;
+  then, for elements it puts in no room, the middle of the element's plan box
+  10 cm above its bottom, at half height and 10 cm under its top, tested
+  against each room's solid (convex pieces by their planes, faceted shells by
+  winding number); a ceiling covering also just under itself (Revit rooms end
+  at the ceiling's underside), a floor finish just over. Walls, doors, windows,
+  slabs, frames, stairs and railings bound rooms and are not placed by
+  geometry (on ARK_NUS, whose rooms run to wall centrelines, 901 walls and 306
+  doors otherwise landed in one). The element CSV says which way (`Room from`).
+
+13 public models, 991 rooms (989 measured): stored floor area agrees on 528 of
+535, perimeter 472 of 475, height 501 of 535 (34 nominal), volume 213 of 535
+(246 unit slips, 57 floor x nominal height in litres, 11 outline prisms, 8
+unexplained). Elements placed by where they stand: 1,024 (coverings,
+furniture, proxies) on top of 1,652 the files place themselves.
+
+`node cli.mjs model.ifc --rooms rooms.csv`; page section "Rooms" (click a room
+to show its elements; CSV download).
 
 ## Uniformat II elements
 
@@ -422,6 +476,8 @@ node cli.mjs model.ifc                         # BoQ by class and type, CSV to s
 node cli.mjs model.ifc --by storey,class       # other groupings
 node cli.mjs model.ifc --by uniformat2,uniformat   # elemental estimate (Uniformat II group, element)
 node cli.mjs model.ifc --rows elements.csv     # every element
+node cli.mjs model.ifc --rooms rooms.csv       # room schedule: floor area, perimeter, height, wall area, volume
+node cli.mjs model.ifc --by space,class        # BoQ room by room
 node cli.mjs model.ifc --check                 # stored vs computed summary
 node cli.mjs model.ifc --voids-up-to 0.5,0.05  # leave in openings up to 0.5 m2 (areas) / 0.05 m3 (volumes)
 node cli.mjs model.ifc --voids-up-to "0,0;walls=0.5,0.05;slabs=0,0.05"  # per work section (walls, slabs, coverings, frames, other)
@@ -435,6 +491,7 @@ node eval/revision-diff.mjs r1.ifc r2.ifc r3.ifc   # the change report on consec
 node eval/uniformat-check.mjs a.ifc b.ifc      # Uniformat coverage, and the rules against authors' codes
 node eval/envelope-check.mjs a.ifc b.ifc --svg plans/   # the envelope test against authors' IsExternal flags, with plans
 node eval/roof-blockers.mjs a.ifc b.ifc        # the walls sloped roofs move in the envelope test
+node eval/rooms.mjs a.ifc b.ifc                # rooms measured vs stored, and elements placed in rooms
 ```
 
 Node 20+, no dependencies. To host your own copy, serve this directory as

@@ -1,0 +1,142 @@
+Ten-seed paired comparisons (seeds 0-9); columns: mean difference, bootstrap 95% interval, SD, exact two-sided Wilcoxon p, seed count
+Reproduction checks before the run: m1 hover TWR2 cant<=80 seed 0: equal; m2 prio lam0.3 cant<=80 seed 0: equal; m2 restarts prio lam0.3 cant<=80 seed 7 = m4 pid cant<=80 seed 7: equal
+
+Milestone 1 (m1_allocation): cant arm minus no-cant arm, held-out RMS deg (negative = cant helps)
+  prior TWR 2 cant<=35                        -4.50  [ -4.71,  -4.32]  sd 0.33  p 0.0020  better in 10 of 10
+  prior TWR 2 cant<=80                        -4.51  [ -4.72,  -4.34]  sd 0.32  p 0.0020  better in 10 of 10
+  prior TWR free6 cant<=35                    -2.44  [ -2.55,  -2.36]  sd 0.16  p 0.0020  better in 10 of 10
+  prior TWR free6 cant<=80                    -2.37  [ -2.45,  -2.30]  sd 0.13  p 0.0020  better in 10 of 10
+  hover TWR 2 cant<=35                        -4.85  [ -4.92,  -4.79]  sd 0.11  p 0.0020  better in 10 of 10
+  hover TWR 2 cant<=80                        -4.86  [ -4.94,  -4.79]  sd 0.13  p 0.0020  better in 10 of 10
+  hover TWR free6 cant<=35                    -4.84  [ -4.93,  -4.76]  sd 0.15  p 0.0020  better in 10 of 10
+  hover TWR free6 cant<=80                    -4.79  [ -4.95,  -4.61]  sd 0.29  p 0.0020  better in 10 of 10
+  free TWR free6 cant<=35                     -2.78  [ -2.81,  -2.74]  sd 0.06  p 0.0020  better in 10 of 10
+  free TWR free6 cant<=80                     -2.65  [ -2.80,  -2.40]  sd 0.38  p 0.0020  better in 10 of 10
+
+Milestone 2 (m2_polytope, single start): cant <= 80 minus no cant, same mixer and lam (negative = cant better)
+  box lam 0.0 RMS                             -4.86  [ -4.94,  -4.78]  sd 0.13  p 0.0020  better in 10 of 10
+  box lam 0.0 composite                       -4.86  [ -4.94,  -4.79]  sd 0.13  p 0.0020  better in 10 of 10
+  box lam 0.1 RMS                             -4.63  [ -4.73,  -4.55]  sd 0.15  p 0.0020  better in 10 of 10
+  box lam 0.1 composite                       -4.46  [ -4.56,  -4.37]  sd 0.16  p 0.0020  better in 10 of 10
+  box lam 0.3 RMS                             -4.48  [ -4.58,  -4.38]  sd 0.17  p 0.0020  better in 10 of 10
+  box lam 0.3 composite                       -4.21  [ -4.31,  -4.12]  sd 0.16  p 0.0020  better in 10 of 10
+  box lam 1.0 RMS                             -4.17  [ -4.27,  -4.08]  sd 0.16  p 0.0020  better in 10 of 10
+  box lam 1.0 composite                       -3.77  [ -3.86,  -3.69]  sd 0.14  p 0.0020  better in 10 of 10
+  prio lam 0.0 RMS                            -4.98  [ -5.91,  -3.64]  sd 2.04  p 0.0039  better in  9 of 10
+  prio lam 0.0 composite                      -4.98  [ -5.90,  -3.61]  sd 2.04  p 0.0039  better in  9 of 10
+  prio lam 0.1 RMS                            -4.52  [ -5.87,  -2.70]  sd 2.74  p 0.0059  better in  9 of 10
+  prio lam 0.1 composite                      -4.33  [ -5.65,  -2.57]  sd 2.66  p 0.0098  better in  8 of 10
+  prio lam 0.3 RMS                            -4.08  [ -5.51,  -2.24]  sd 2.84  p 0.0098  better in  8 of 10
+  prio lam 0.3 composite                      -3.77  [ -5.10,  -2.09]  sd 2.63  p 0.0059  better in  9 of 10
+  prio lam 1.0 RMS                            -2.19  [ -3.55,  -0.86]  sd 2.31  p 0.0059  better in  9 of 10
+  prio lam 1.0 composite                      -1.93  [ -3.15,  -0.75]  sd 2.06  p 0.0195  better in  9 of 10
+  prio_free lam 0.0 RMS                       -4.72  [ -4.85,  -4.57]  sd 0.23  p 0.0020  better in 10 of 10
+  prio_free lam 0.0 composite                 -4.72  [ -4.85,  -4.57]  sd 0.23  p 0.0020  better in 10 of 10
+  prio_free lam 0.3 RMS                       -4.44  [ -4.54,  -4.34]  sd 0.17  p 0.0020  better in 10 of 10
+  prio_free lam 0.3 composite                 -4.15  [ -4.25,  -4.05]  sd 0.18  p 0.0020  better in 10 of 10
+
+Milestone 2: prio minus box, same cant bound and lam (positive = the shared polytope costs accuracy)
+  prio-box lam 0.0 cant<=0                    +2.42  [ +1.95,  +2.84]  sd 0.76  p 0.0020  worse in 10 of 10
+  prio-box lam 0.0 cant<=80                   +2.31  [ +1.63,  +3.59]  sd 2.01  p 0.0020  worse in 10 of 10
+  prio-box lam 0.1 cant<=0                    +3.05  [ +2.83,  +3.32]  sd 0.41  p 0.0020  worse in 10 of 10
+  prio-box lam 0.1 cant<=80                   +3.16  [ +1.79,  +5.08]  sd 2.91  p 0.0020  worse in 10 of 10
+  prio-box lam 0.3 cant<=0                    +2.94  [ +2.64,  +3.19]  sd 0.47  p 0.0020  worse in 10 of 10
+  prio-box lam 0.3 cant<=80                   +3.34  [ +1.92,  +5.29]  sd 3.02  p 0.0020  worse in 10 of 10
+  prio-box lam 1.0 cant<=0                    +2.93  [ +2.52,  +3.35]  sd 0.72  p 0.0020  worse in 10 of 10
+  prio-box lam 1.0 cant<=80                   +4.92  [ +3.33,  +6.51]  sd 2.71  p 0.0020  worse in 10 of 10
+
+Milestone 2: prio_free minus prio (negative = airmode helps)
+  free-prio lam 0.0 cant<=0                   -1.14  [ -1.51,  -0.72]  sd 0.68  p 0.0020  better in 10 of 10
+  free-prio lam 0.0 cant<=80                  -0.88  [ -2.11,  -0.19]  sd 1.89  p 0.0098  better in  8 of 10
+  free-prio lam 0.3 cant<=0                   -1.38  [ -1.63,  -1.09]  sd 0.46  p 0.0020  better in 10 of 10
+  free-prio lam 0.3 cant<=80                  -1.73  [ -3.71,  -0.28]  sd 3.05  p 0.0039  better in  9 of 10
+
+Milestone 2: single-start prio, cant <= 80, chosen cant deg per seed (seeds 0-9) and cells under 15 deg
+  lam 0.1: 33, 35, 35, 2, 36, 35, 37, 33, 37, 22  (under 15 deg: 1 of 10; seeds 5-9: 0)
+  lam 0.3: 35, 0, 13, 31, 34, 37, 36, 35, 38, 33  (under 15 deg: 2 of 10; seeds 5-9: 0)
+  lam 1.0: 32, 0, 1, 9, 2, 29, 33, 30, 33, 6  (under 15 deg: 5 of 10; seeds 5-9: 1)
+  lam 0.1-1 together: 8 of 30 seed-lam cells under 15 deg
+
+Post hoc: ten-seed arm means (milestone 1: RMS, TWR, chosen cant range; milestone 2: RMS, hover W, sat rp, sat yaw, chosen cant range)
+  m1 prior  TWR 2     cant<= 0: RMS  16.96  TWR 2.00 (range 2.00-2.00)  cant 0-0  n 10
+  m1 prior  TWR 2     cant<=35: RMS  12.46  TWR 2.00 (range 2.00-2.00)  cant 34-35  n 10
+  m1 prior  TWR 2     cant<=80: RMS  12.44  TWR 2.00 (range 2.00-2.00)  cant 37-41  n 10
+  m1 prior  TWR free6 cant<= 0: RMS  13.66  TWR 4.95 (range 4.79-5.19)  cant 0-0  n 10
+  m1 prior  TWR free6 cant<=35: RMS  11.22  TWR 3.89 (range 3.47-4.10)  cant 24-29  n 10
+  m1 prior  TWR free6 cant<=80: RMS  11.28  TWR 4.00 (range 3.73-4.27)  cant 24-28  n 10
+  m1 hover  TWR 2     cant<= 0: RMS  15.47  TWR 2.00 (range 2.00-2.00)  cant 0-0  n 10
+  m1 hover  TWR 2     cant<=35: RMS  10.63  TWR 2.00 (range 2.00-2.00)  cant 31-35  n 10
+  m1 hover  TWR 2     cant<=80: RMS  10.61  TWR 2.00 (range 2.00-2.00)  cant 30-37  n 10
+  m1 hover  TWR free6 cant<= 0: RMS  15.48  TWR 2.50 (range 2.05-3.66)  cant 0-0  n 10
+  m1 hover  TWR free6 cant<=35: RMS  10.64  TWR 2.00 (range 1.99-2.01)  cant 33-35  n 10
+  m1 hover  TWR free6 cant<=80: RMS  10.69  TWR 2.02 (range 2.00-2.14)  cant 34-39  n 10
+  m1 free   TWR free6 cant<= 0: RMS  13.09  TWR 4.73 (range 4.42-5.01)  cant 0-0  n 10
+  m1 free   TWR free6 cant<=35: RMS  10.31  TWR 3.32 (range 3.08-3.61)  cant 23-30  n 10
+  m1 free   TWR free6 cant<=80: RMS  10.44  TWR 3.39 (range 2.85-3.79)  cant 23-32  n 10
+  m2 box       lam 0.0 cant<= 0: RMS  15.47  P   412 W  sat rp 0.000 (seeds over 0.5: 0)  sat yaw 0.000  cant 0-0  n 10
+  m2 box       lam 0.0 cant<=80: RMS  10.61  P  1350 W  sat rp 0.000 (seeds over 0.5: 0)  sat yaw 0.000  cant 30-37  n 10
+  m2 box       lam 0.1 cant<= 0: RMS  15.46  P   152 W  sat rp 0.000 (seeds over 0.5: 0)  sat yaw 0.000  cant 0-0  n 10
+  m2 box       lam 0.1 cant<=80: RMS  10.83  P   326 W  sat rp 0.000 (seeds over 0.5: 0)  sat yaw 0.000  cant 33-39  n 10
+  m2 box       lam 0.3 cant<= 0: RMS  15.53  P   137 W  sat rp 0.000 (seeds over 0.5: 0)  sat yaw 0.000  cant 0-0  n 10
+  m2 box       lam 0.3 cant<=80: RMS  11.05  P   225 W  sat rp 0.000 (seeds over 0.5: 0)  sat yaw 0.000  cant 30-37  n 10
+  m2 box       lam 1.0 cant<= 0: RMS  15.71  P   102 W  sat rp 0.000 (seeds over 0.5: 0)  sat yaw 0.000  cant 0-0  n 10
+  m2 box       lam 1.0 cant<=80: RMS  11.53  P   142 W  sat rp 0.000 (seeds over 0.5: 0)  sat yaw 0.000  cant 29-31  n 10
+  m2 prio      lam 0.0 cant<= 0: RMS  17.89  P   943 W  sat rp 0.685 (seeds over 0.5: 7)  sat yaw 0.814  cant 0-0  n 10
+  m2 prio      lam 0.0 cant<=80: RMS  12.92  P  1351 W  sat rp 0.105 (seeds over 0.5: 1)  sat yaw 0.527  cant 9-36  n 10
+  m2 prio      lam 0.1 cant<= 0: RMS  18.51  P   186 W  sat rp 0.961 (seeds over 0.5: 10)  sat yaw 0.999  cant 0-0  n 10
+  m2 prio      lam 0.1 cant<=80: RMS  13.99  P   380 W  sat rp 0.124 (seeds over 0.5: 1)  sat yaw 0.685  cant 2-37  n 10
+  m2 prio      lam 0.3 cant<= 0: RMS  18.47  P   135 W  sat rp 0.886 (seeds over 0.5: 9)  sat yaw 0.924  cant 0-0  n 10
+  m2 prio      lam 0.3 cant<=80: RMS  14.39  P   238 W  sat rp 0.107 (seeds over 0.5: 1)  sat yaw 0.628  cant 0-38  n 10
+  m2 prio      lam 1.0 cant<= 0: RMS  18.64  P    90 W  sat rp 0.780 (seeds over 0.5: 8)  sat yaw 0.865  cant 0-0  n 10
+  m2 prio      lam 1.0 cant<=80: RMS  16.45  P   116 W  sat rp 0.498 (seeds over 0.5: 5)  sat yaw 0.811  cant 0-33  n 10
+  m2 prio_free lam 0.0 cant<= 0: RMS  16.75  P  1480 W  sat rp 0.205 (seeds over 0.5: 2)  sat yaw 0.458  cant 0-0  n 10
+  m2 prio_free lam 0.0 cant<=80: RMS  12.04  P  1324 W  sat rp 0.307 (seeds over 0.5: 3)  sat yaw 0.544  cant 34-41  n 10
+  m2 prio_free lam 0.3 cant<= 0: RMS  17.09  P   144 W  sat rp 0.027 (seeds over 0.5: 0)  sat yaw 0.459  cant 0-0  n 10
+  m2 prio_free lam 0.3 cant<=80: RMS  12.66  P   241 W  sat rp 0.315 (seeds over 0.5: 3)  sat yaw 0.627  cant 31-39  n 10
+
+Milestone 2b (three starts; lam 0.3 seeds 5-9 = milestone 4's PID arms): cant <= 80 minus no cant, prio
+  lam 0.3 RMS                                 -5.27  [ -6.10,  -4.56]  sd 1.32  p 0.0020  better in 10 of 10
+  lam 0.3 composite                           -4.89  [ -5.69,  -4.21]  sd 1.27  p 0.0020  better in 10 of 10
+  lam 0.3 chosen cant deg: 34, 37, 36, 32, 34, 34, 33, 35, 36, 31
+  lam 1.0 RMS                                 -3.84  [ -4.86,  -2.47]  sd 2.08  p 0.0039  better in  9 of 10
+  lam 1.0 composite                           -3.32  [ -4.20,  -2.14]  sd 1.78  p 0.0039  better in  9 of 10
+  lam 1.0 chosen cant deg: 32, 32, 31, 28, 4, 28, 30, 31, 34, 33
+
+Milestone 4 (m4_controllers, stored ten seeds): Table IV-1
+  pid cant minus no cant, rms                 -5.27  [ -6.10,  -4.57]  sd 1.32  p 0.0020  better in 10 of 10
+  pid cant minus no cant, J                   -4.89  [ -5.69,  -4.20]  sd 1.27  p 0.0020  better in 10 of 10
+  pid cant minus no cant, gust8               -9.82  [-13.06,  -6.77]  sd 5.38  p 0.0020  better in 10 of 10
+  indi cant minus no cant, rms                -4.18  [ -4.33,  -4.03]  sd 0.25  p 0.0020  better in 10 of 10
+  indi cant minus no cant, J                  -3.88  [ -4.04,  -3.75]  sd 0.25  p 0.0020  better in 10 of 10
+  indi cant minus no cant, gust8              -4.51  [ -5.71,  -3.50]  sd 1.87  p 0.0020  better in 10 of 10
+  geo cant minus no cant, rms                 -4.88  [ -5.01,  -4.77]  sd 0.20  p 0.0020  better in 10 of 10
+  geo cant minus no cant, J                   -4.56  [ -4.66,  -4.46]  sd 0.17  p 0.0020  better in 10 of 10
+  geo cant minus no cant, gust8               -5.78  [ -6.48,  -5.27]  sd 1.04  p 0.0020  better in 10 of 10
+  indi minus pid, cant<=0, RMS                -1.25  [ -2.01,  -0.61]  sd 1.20  p 0.0020  better in 10 of 10
+  indi minus pid, cant<=80, RMS               -0.16  [ -0.28,  -0.06]  sd 0.19  p 0.0137  better in  8 of 10
+  H4: indi no cant minus pid cant, RMS        +4.02  [ +3.83,  +4.19]  sd 0.31  p 0.0020  better in  0 of 10
+  geo minus pid, cant<=0, RMS                 -0.74  [ -1.52,  -0.11]  sd 1.22  p 0.2324  better in  5 of 10
+  geo minus pid, cant<=80, RMS                -0.35  [ -0.46,  -0.26]  sd 0.17  p 0.0020  better in 10 of 10
+  H4: geo no cant minus pid cant, RMS         +4.53  [ +4.35,  +4.70]  sd 0.30  p 0.0020  better in  0 of 10
+
+Milestone 5 (m5_rotorpy, stored ten seeds): cant minus no cant per law and condition, RMS deg
+  pid stylised                                -5.56  [ -6.53,  -4.68]  sd 1.57  p 0.0020  better in 10 of 10
+  pid torque                                  -7.27  [-10.25,  -4.63]  sd 4.82  p 0.0020  better in 10 of 10
+  pid aero                                    -4.76  [ -5.93,  -3.68]  sd 1.91  p 0.0020  better in 10 of 10
+  pid aero_cop                                -5.77  [ -7.26,  -4.49]  sd 2.38  p 0.0020  better in 10 of 10
+  pid aero_cop2                               -4.91  [ -5.94,  -3.99]  sd 1.66  p 0.0020  better in 10 of 10
+  indi stylised                               -4.15  [ -4.28,  -4.03]  sd 0.22  p 0.0020  better in 10 of 10
+  indi torque                                 -1.92  [ -3.01,  -0.81]  sd 1.89  p 0.0195  better in  8 of 10
+  indi aero                                   -3.12  [ -3.55,  -2.60]  sd 0.81  p 0.0020  better in 10 of 10
+  indi aero_cop                               -3.34  [ -3.80,  -2.77]  sd 0.89  p 0.0020  better in 10 of 10
+  indi aero_cop2                              -3.53  [ -3.81,  -3.24]  sd 0.49  p 0.0020  better in 10 of 10
+  geo stylised                                -4.86  [ -5.00,  -4.74]  sd 0.22  p 0.0020  better in 10 of 10
+  geo torque                                  -6.03  [ -7.49,  -4.55]  sd 2.52  p 0.0020  better in 10 of 10
+  geo aero                                    -4.89  [ -5.14,  -4.63]  sd 0.44  p 0.0020  better in 10 of 10
+  geo aero_cop                                -5.08  [ -5.42,  -4.75]  sd 0.57  p 0.0020  better in 10 of 10
+  geo aero_cop2                               -4.70  [ -4.95,  -4.44]  sd 0.43  p 0.0020  better in 10 of 10
+  H4: indi no cant minus pid cant, stylised   +3.97  [ +3.85,  +4.09]  sd 0.21  p 0.0020  better in  0 of 10
+  H4: indi no cant minus pid cant, torque     +3.10  [ +2.39,  +3.84]  sd 1.24  p 0.0020  better in  0 of 10
+  H4: indi no cant minus pid cant, aero       +3.21  [ +2.87,  +3.59]  sd 0.62  p 0.0020  better in  0 of 10
+  H4: indi no cant minus pid cant, aero_cop   +3.89  [ +3.51,  +4.25]  sd 0.63  p 0.0020  better in  0 of 10
+  H4: indi no cant minus pid cant, aero_cop2  +3.59  [ +3.27,  +3.92]  sd 0.56  p 0.0020  better in  0 of 10

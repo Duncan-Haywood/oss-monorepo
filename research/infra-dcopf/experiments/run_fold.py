@@ -192,8 +192,8 @@ def summary(rows):
         cs = f"{c['ratio']:.3f} (mu* {c['mu_star']:.4f})" if c and c.get("ratio") is not None else "-"
         mf = F.get("mu_f")
         P(f"{r['case']:14s} {r['kind']:4s} {F['mu_star']:7.4f} {F['s0']:9.3e} {F['s_star']:9.3e} {F['ratio']:8.4f} "
-          f"{(f'{mf:7.4f}' if mf is not None else '      -')} {(f'{mf - F['mu_star']:9.4f}' if mf is not None else '        -')} "
-          f"{(f'{F['r2']:6.3f}' if mf is not None else '     -')} {F.get('n_fit', 0):3d}  {cs}")
+          f"""{(f'{mf:7.4f}' if mf is not None else '      -')} {(f'{mf - F["mu_star"]:9.4f}' if mf is not None else '        -')} """
+          f"""{(f'{F["r2"]:6.3f}' if mf is not None else '     -')} {F.get('n_fit', 0):3d}  {cs}""")
     P("")
     P("M stages (mu at the stage -> mu reached by the continuation after it; clean round or 'no'):")
     for r in rows:

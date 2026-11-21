@@ -27,3 +27,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) WBS UDFs on summary tasks 2026-11-21 (6,383/6,383 planted back, MPXJ agrees; eval/wbs-udfs-2026-11-21.md)
 - (moved 2026-11-21) resource UDFs as resource fields 2026-11-21 (330/330 through XML and back, MPXJ agrees; eval/rsrc-udfs-2026-11-21.md)
 - (moved 2026-11-21) UDFs as Number/Cost/Date/Text fields 2026-11-21 (42,971/42,971 back, MPXJ agrees; eval/msproject-udfs-2026-11-21.md)
+- (moved 2026-11-21) activity codes as Text2-30 2026-11-21 (276,042/276,042 back, MPXJ agrees; eval/msproject-codes-2026-11-21.md)
+- (moved 2026-11-21) outline codes 2026-11-21 (eval/msproject-outline-2026-11-21.md)

@@ -91,11 +91,11 @@ def summarise(out, train):
         for lab in ("unconstrained", "constrained"):
             rs = sel(g, lab)
             L.append(f"[{g}, {lab}] cant deg {f([r['alpha_deg'] for r in rs])}; hover W {np.mean([r['power'] for r in rs]):.1f}; ki/kp {f([r['ki_over_kp'] for r in rs])}")
-            L.append(f"  ceil {f([r['ceil'] for r in rs])}; worst rho at own ki {', '.join(f'{r['rho_own']:.4f}' for r in rs)}")
+            L.append(f"""  ceil {f([r['ceil'] for r in rs])}; worst rho at own ki {', '.join(f'{r["rho_own"]:.4f}' for r in rs)}""")
             for lev in LEVERS:
                 t = f"{lev:g}"
                 nd = [int(round(r[f"dead_{t}"] * TEST_EP)) for r in rs]
-                L.append(f"  lever {t}: J {np.mean([r[f'J_{t}'] for r in rs]):+.3f} ({', '.join(f'{r[f'J_{t}']:+.2f}' for r in rs)}); pos {np.mean([r[f'pos_{t}'] for r in rs]):.3f} "
+                L.append(f"""  lever {t}: J {np.mean([r[f'J_{t}'] for r in rs]):+.3f} ({', '.join(f'{r[f"J_{t}"]:+.2f}' for r in rs)}); pos {np.mean([r[f'pos_{t}'] for r in rs]):.3f} """
                          f"(median {np.median([r[f'pos_{t}'] for r in rs]):.3f}); yaw {np.mean([r[f'yaw_{t}'] for r in rs]):.2f}; dead {np.mean([r[f'dead_{t}'] for r in rs]):.3f} (seeds dead {nd})")
         a, b = sel(g, "constrained"), sel(g, "unconstrained")
         for lev in LEVERS:

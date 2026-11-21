@@ -10,7 +10,7 @@
   <meta property="og:description" content="Counts, lengths, areas and volumes from an IFC model, each volume recomputed from the model's own geometry and compared with what the authoring tool stored. MIT licensed, nothing uploaded.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IFC Quantity Takeoff", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads IFC2X3, IFC4 and IFC4X3 building models and produces a bill of quantities grouped by class, type, storey, material or classification. Every element's volume is recomputed from its body geometry, openings taken out, and compared with the quantities the authoring tool stored.", "license": "https://opensource.org/licenses/MIT"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does it take off?", "acceptedAnswer": {"@type": "Answer", "text": "Every physical element in the model (walls, slabs, beams, columns, doors, windows, coverings, stairs, pipes, furniture and the rest): its count, and the lengths, areas, volumes and weights the authoring tool stored in the model's quantity sets, converted to metres, square metres, cubic metres and kilograms. It also computes each element's volume from the model's own geometry, with openings taken out, and the side and footprint areas of walls, the areas of slabs and coverings and the cross-sections of members. Lines can be grouped by class, type, storey, material and classification code."}}, {"@type": "Question", "name": "Why recompute volumes the model already stores?", "acceptedAnswer": {"@type": "Answer", "text": "Because the stored figures are sometimes wrong, and an estimate built on them is wrong too. On 8 public models the stored GrossVolume agreed with the geometry for 4,863 of 5,495 elements. Most of the rest have a known cause the page names: a wall split by level that writes the whole wall's volume on every piece, a GrossVolume that already has the openings taken out, geometry exported with its openings already cut, a volume written in litres under a cubic-metre unit, or a stored volume that disagrees with the element's own stored length, height and width. Where the stored figure is known to be wrong, the bill of quantities uses the computed one."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model is read by JavaScript in this browser tab and nothing is sent anywhere. The page fetches only its own sample file, and only when you ask for it. The same code runs offline on the command line."}}, {"@type": "Question", "name": "Which geometry can it measure?", "acceptedAnswer": {"@type": "Answer", "text": "Extruded profiles (rectangles, circles, hollow sections, I, L, T, U, C and Z steel shapes with root radii, and arbitrary outlines with arcs), half-space clips including Revit's boxed and polygonal ones, boolean differences, unions and intersections of those, mapped items, faceted breps, triangulated and polygonal face sets, swept disks, revolved areas and CSG primitives. Advanced breps are read too: faces on planes and cylinders exactly, and faces on surfaces of revolution, surfaces of linear extrusion and B-spline (NURBS) surfaces cut into triangles that keep within 0.02% of the face's size of the true surface. Openings are subtracted exactly, from faceted bodies as well when their shells are closed. A face that wraps all the way round a closed surface, a curved face with a hole in it, and open shells are reported as not read rather than guessed."}}, {"@type": "Question", "name": "Can I see the model?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Under the summary cards the model is drawn in 3D from the same solids its volumes were computed from, openings cut. Colour it by whether each element's stored quantities agree with its geometry, by class or by storey; click a bill-of-quantities line or a row of the checks to show just those elements, and click an element to see what was stored and what was computed. It needs no plug-in and nothing is uploaded. On 11 public models, 9,184 of 9,314 elements drawn from their solids enclose the computed volume within 0.5%; a few very intricate elements are drawn as their boxes."}}, {"@type": "Question", "name": "How is this different from Revit schedules, Solibri or CostX?", "acceptedAnswer": {"@type": "Answer", "text": "Revit schedules work inside Revit on the native model; this works on the IFC file anyone on the project can open. Solibri, CostX and similar estimating tools do far more (markups, 2D takeoff, rate libraries) and cost a seat licence. This page is free, needs nothing installed, and does one thing they do not advertise: it checks the model's stored quantities against its geometry and tells you which ones not to trust. It also compares two revisions of a model, as CostX and Cubit do, and says which elements only look new because the export gave them a new GlobalId."}}, {"@type": "Question", "name": "Can I price the quantities?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Type a rate and choose its unit (each, m3, m2, m or kg) on any bill-of-quantities line; the page multiplies it out and totals the amounts, and the CSV download carries the rates and amounts. The rates are yours: the page ships none."}}, {"@type": "Question", "name": "Can it compare two revisions of a model?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Take off the later revision, then drop the earlier one under Compare with an earlier revision. You get the change on every bill-of-quantities line (priced with your rates, for a change order) and a list of every element added, removed, changed, moved or resized, both as CSV. Elements are matched by GlobalId, then by Revit's element id in the Tag when an export renewed the GlobalId, then by the same place and volume; Revit parts exported in one issue and their host in the other are paired up. On five real exports of one house, a GlobalId-only comparison reported 190 elements as added or removed that were the same element under a new id, or its parts."}}, {"@type": "Question", "name": "Can it leave small openings in, as a method of measurement does?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Under the bill of quantities, choose how openings are treated: every opening deducted, as the model has it; voids up to 0.50 m² of area and 0.05 m³ of volume left in; walls and finishes judged by area and slabs and frames by volume (the by-work-section preset); or your own thresholds, one pair for everything or a pair for each work section (walls, slabs and roofs, coverings, beams and columns). Each opening is measured on its own, by its area in the wall's middle plane or the slab's plan and the volume it takes out of the element, and the bill of quantities and its CSV say how many voids were left in and what they added. The thresholds are yours to check against the method of measurement your contract names; the page does not claim any standard's rules. On 12 public models, 1,099 of 1,136 wall openings whose own quantity set stores a width and height measured within 2% of width times height (most of the rest are round windows, whose true area is smaller)."}}, {"@type": "Question", "name": "Can it arrange the bill of quantities as an elemental estimate?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Group by Uniformat II element and every line is a building element (A1010 Standard Foundations, B2010 Exterior Walls, C1010 Partitions, D2010 Plumbing Fixtures and so on), the codes and titles of NIST's public-domain UNIFORMAT II. Where the model carries a Uniformat code (Revit writes its Assembly Code as one) that code is used; otherwise the element's class is read with its PredefinedType, IsExternal flag, the wall a door fills, the assembly it belongs to and its storey's elevation, and each element's CSV row says which. A wall with no IsExternal flag is placed by its geometry: rays cast from each face either cross another wall or leave the building, so it lands in exterior walls or partitions. Sloped roofs stop the rays too, so a knee wall in an attic reads as a partition, while a dormer wall that rises through the roof stays exterior. Where a model's flag and the geometry disagree, the flag is kept and the row says to check it, unless the model flags every wall the same way. Beams, columns and joists are placed by what they carry, read from the geometry: the slab or roof directly over them puts them in floor construction, roof construction or, under a slab on grade, foundations. Where nothing can say more, the line stops at the level it can tell (B10 Superstructure for a beam with no slab or roof over it) or says no element was assigned, rather than guessing. On 17 public models, 588 elements carry their author's own Uniformat code; the rules put 525 of them in the same major group and 482 in the same element. On the model held out while the rules were written, 66 of 69 matched."}}, {"@type": "Question", "name": "What does it not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not read a curved face that wraps all the way round its surface or has a hole in it, and a faceted body clipped by a plane keeps the model's stored areas. It applies only one kind of measurement rule, leaving in openings up to a size you set (per work section if you like); other rules of a method of measurement (girthed or extra-over items, deductions for built-in members, rounding) are yours to apply. It is not a cost estimate: quantities are only as good as the model."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does it take off?", "acceptedAnswer": {"@type": "Answer", "text": "Every physical element in the model (walls, slabs, beams, columns, doors, windows, coverings, stairs, pipes, furniture and the rest): its count, and the lengths, areas, volumes and weights the authoring tool stored in the model's quantity sets, converted to metres, square metres, cubic metres and kilograms. It also computes each element's volume from the model's own geometry, with openings taken out, and the side and footprint areas of walls, the areas of slabs and coverings and the cross-sections of members. Lines can be grouped by class, type, storey, material and classification code."}}, {"@type": "Question", "name": "Why recompute volumes the model already stores?", "acceptedAnswer": {"@type": "Answer", "text": "Because the stored figures are sometimes wrong, and an estimate built on them is wrong too. On 8 public models the stored GrossVolume agreed with the geometry for 4,863 of 5,495 elements. Most of the rest have a known cause the page names: a wall split by level that writes the whole wall's volume on every piece, a GrossVolume that already has the openings taken out, geometry exported with its openings already cut, a volume written in litres under a cubic-metre unit, or a stored volume that disagrees with the element's own stored length, height and width. Where the stored figure is known to be wrong, the bill of quantities uses the computed one."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model is read by JavaScript in this browser tab and nothing is sent anywhere. The page fetches only its own sample file, and only when you ask for it. The same code runs offline on the command line."}}, {"@type": "Question", "name": "Which geometry can it measure?", "acceptedAnswer": {"@type": "Answer", "text": "Extruded profiles (rectangles, circles, hollow sections, I, L, T, U, C and Z steel shapes with root radii, and arbitrary outlines with arcs), half-space clips including Revit's boxed and polygonal ones, boolean differences, unions and intersections of those, mapped items, faceted breps, triangulated and polygonal face sets, swept disks, revolved areas and CSG primitives. Advanced breps are read too: faces on planes and cylinders exactly, and faces on surfaces of revolution, surfaces of linear extrusion and B-spline (NURBS) surfaces cut into triangles that keep within 0.02% of the face's size of the true surface. Openings are subtracted exactly, from faceted bodies as well when their shells are closed. A face that wraps all the way round a closed surface, a curved face with a hole in it, and open shells are reported as not read rather than guessed."}}, {"@type": "Question", "name": "Can I see the model?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Under the summary cards the model is drawn in 3D from the same solids its volumes were computed from, openings cut. Colour it by whether each element's stored quantities agree with its geometry, by class or by storey; click a bill-of-quantities line or a row of the checks to show just those elements, and click an element to see what was stored and what was computed. It needs no plug-in and nothing is uploaded. On 11 public models, 9,184 of 9,314 elements drawn from their solids enclose the computed volume within 0.5%; a few very intricate elements are drawn as their boxes."}}, {"@type": "Question", "name": "How is this different from Revit schedules, Solibri or CostX?", "acceptedAnswer": {"@type": "Answer", "text": "Revit schedules work inside Revit on the native model; this works on the IFC file anyone on the project can open. Solibri, CostX and similar estimating tools do far more (markups, 2D takeoff, rate libraries) and cost a seat licence. This page is free, needs nothing installed, and does one thing they do not advertise: it checks the model's stored quantities against its geometry and tells you which ones not to trust. It also compares two revisions of a model, as CostX and Cubit do, and says which elements only look new because the export gave them a new GlobalId."}}, {"@type": "Question", "name": "Can I price the quantities?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Type a rate and choose its unit (each, m3, m2, m or kg) on any bill-of-quantities line; the page multiplies it out and totals the amounts, and the CSV download carries the rates and amounts. The rates are yours: the page ships none."}}, {"@type": "Question", "name": "Can it compare two revisions of a model?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Take off the later revision, then drop the earlier one under Compare with an earlier revision. You get the change on every bill-of-quantities line (priced with your rates, for a change order) and a list of every element added, removed, changed, moved or resized, both as CSV. Elements are matched by GlobalId, then by Revit's element id in the Tag when an export renewed the GlobalId, then by the same place and volume; Revit parts exported in one issue and their host in the other are paired up. On five real exports of one house, a GlobalId-only comparison reported 190 elements as added or removed that were the same element under a new id, or its parts."}}, {"@type": "Question", "name": "Can it leave small openings in, as a method of measurement does?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Under the bill of quantities, choose how openings are treated: every opening deducted, as the model has it; voids up to 0.50 m² of area and 0.05 m³ of volume left in; walls and finishes judged by area and slabs and frames by volume (the by-work-section preset); or your own thresholds, one pair for everything or a pair for each work section (walls, slabs and roofs, coverings, beams and columns). Each opening is measured on its own, by its area in the wall's middle plane or the slab's plan and the volume it takes out of the element, and the bill of quantities and its CSV say how many voids were left in and what they added. The thresholds are yours to check against the method of measurement your contract names; the page does not claim any standard's rules. On 12 public models, 1,099 of 1,136 wall openings whose own quantity set stores a width and height measured within 2% of width times height (most of the rest are round windows, whose true area is smaller)."}}, {"@type": "Question", "name": "Can it arrange the bill of quantities as an elemental estimate?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Group by Uniformat II element and every line is a building element (A1010 Standard Foundations, B2010 Exterior Walls, C1010 Partitions, D2010 Plumbing Fixtures and so on), the codes and titles of NIST's public-domain UNIFORMAT II. Where the model carries a Uniformat code (Revit writes its Assembly Code as one) that code is used; otherwise the element's class is read with its PredefinedType, IsExternal flag, the wall a door fills, the assembly it belongs to and its storey's elevation, and each element's CSV row says which. A wall with no IsExternal flag is placed by its geometry: rays cast from each face either cross another wall or leave the building, so it lands in exterior walls or partitions. Sloped roofs stop the rays too, so a knee wall in an attic reads as a partition, while a dormer wall that rises through the roof stays exterior. Where a model's flag and the geometry disagree, the flag is kept and the row says to check it, unless the model flags every wall the same way. Beams, columns and joists are placed by what they carry, read from the geometry: the slab or roof directly over them puts them in floor construction, roof construction or, under a slab on grade, foundations. Where nothing can say more, the line stops at the level it can tell (B10 Superstructure for a beam with no slab or roof over it) or says no element was assigned, rather than guessing. On 17 public models, 588 elements carry their author's own Uniformat code; the rules put 525 of them in the same major group and 482 in the same element. On the model held out while the rules were written, 66 of 69 matched."}}, {"@type": "Question", "name": "Can it give quantities room by room?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Every room in the model (IfcSpace) gets a line in a room schedule: floor area and perimeter cut from the room's own solid just above its floor, its height, its wall area as perimeter times height, and its volume, each checked against the figure the model stores. A room exported only as a plan outline and a bounding box is measured from those. Furniture, fittings and finishes the model does not place in a room are placed by where they stand, and a suspended ceiling goes to the room under it; walls, doors and other elements that bound rooms are not. Group the bill of quantities by room to price finishes and fit-out room by room, and download the room schedule as CSV. On 13 public models with 991 rooms, the stored floor areas agreed with the geometry for 528 of 535 rooms and the stored perimeters for 472 of 475. Of the 322 stored volumes that disagree, 314 have a named cause: a volume written in litres or cubic millimetres under a cubic-metre unit, a volume worked out as floor area times a nominal height over a lowered ceiling, or a room exported only as an outline under a sloped ceiling."}}, {"@type": "Question", "name": "What does it not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not read a curved face that wraps all the way round its surface or has a hole in it, and a faceted body clipped by a plane keeps the model's stored areas. It applies only one kind of measurement rule, leaving in openings up to a size you set (per work section if you like); other rules of a method of measurement (girthed or extra-over items, deductions for built-in members, rounding) are yours to apply. It is not a cost estimate: quantities are only as good as the model."}}]}</script>
   <style>
     :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #245a3c; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
     @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7cc49b; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
@@ -115,6 +115,8 @@
         <option value="class">Class</option>
         <option value="type">Type</option>
         <option value="storey,class">Storey, then class</option>
+        <option value="space,class">Room, then class</option>
+        <option value="storey,space,class">Storey, then room, then class</option>
         <option value="material,class">Material, then class</option>
         <option value="classification">Classification code</option>
         <option value="classification,type">Classification code, then type</option>
@@ -151,6 +153,15 @@
     <p class="muted">Volume uses the model's stored NetVolume (or GrossVolume) unless that figure is known to be wrong, then the volume computed from the geometry. Area does the same with the stored net area, and where a wall or slab stores none, uses the area cut from its geometry. Assemblies whose parts are elements themselves (a stair and its flights) are counted through their parts only. Type a rate on any line to price it.</p>
     <div class="tablewrap"><table id="boq"></table></div>
     <p id="total" class="row"></p>
+
+    <h2 id="rooms">Rooms</h2>
+    <p class="muted">Every room (IfcSpace) measured from its own solid: floor area and perimeter cut 1 cm above its floor, height to its highest point, wall area as perimeter times height (before doors and windows come off), and volume. A room drawn only as a plan outline and a box is measured from those. Each figure is checked against the one the model stores, within 2%. "Elements" counts what stands in the room: what the file places there, and furniture, fittings and finishes placed by where they stand (walls, doors and the rest that bound rooms are not). Click a room to show its elements.</p>
+    <div class="row">
+      <button type="button" id="dl-rooms">Download the room schedule (CSV)</button>
+      <span class="muted" id="rooms-summary"></span>
+    </div>
+    <div class="tablewrap"><table id="rooms-table"></table></div>
+    <p class="muted" id="rooms-more"></p>
 
     <h2>Stored quantities against the geometry</h2>
     <p class="muted">For each element that stores a GrossVolume or NetVolume, the volume computed from its body; for each wall, slab, covering or member that stores a side, footprint, plan or cross-section area, the area cut from its body by a plane. Agreement is within 2%.</p>
@@ -217,6 +228,8 @@
     <p>Yes. Under the bill of quantities, choose how openings are treated: every opening deducted, as the model has it; voids up to 0.50 m² of area and 0.05 m³ of volume left in; walls and finishes judged by area and slabs and frames by volume (the by-work-section preset); or your own thresholds, one pair for everything or a pair for each work section (walls, slabs and roofs, coverings, beams and columns). Each opening is measured on its own, by its area in the wall's middle plane or the slab's plan and the volume it takes out of the element, and the bill of quantities and its CSV say how many voids were left in and what they added. The thresholds are yours to check against the method of measurement your contract names; the page does not claim any standard's rules. On 12 public models, 1,099 of 1,136 wall openings whose own quantity set stores a width and height measured within 2% of width times height (most of the rest are round windows, whose true area is smaller).</p>
     <h3>Can it arrange the bill of quantities as an elemental estimate?</h3>
     <p>Yes. Group by Uniformat II element and every line is a building element (A1010 Standard Foundations, B2010 Exterior Walls, C1010 Partitions, D2010 Plumbing Fixtures and so on), the codes and titles of NIST's public-domain UNIFORMAT II. Where the model carries a Uniformat code (Revit writes its Assembly Code as one) that code is used; otherwise the element's class is read with its PredefinedType, IsExternal flag, the wall a door fills, the assembly it belongs to and its storey's elevation, and each element's CSV row says which. A wall with no IsExternal flag is placed by its geometry: rays cast from each face either cross another wall or leave the building, so it lands in exterior walls or partitions. Sloped roofs stop the rays too, so a knee wall in an attic reads as a partition, while a dormer wall that rises through the roof stays exterior. Where a model's flag and the geometry disagree, the flag is kept and the row says to check it, unless the model flags every wall the same way. Beams, columns and joists are placed by what they carry, read from the geometry: the slab or roof directly over them puts them in floor construction, roof construction or, under a slab on grade, foundations. Where nothing can say more, the line stops at the level it can tell (B10 Superstructure for a beam with no slab or roof over it) or says no element was assigned, rather than guessing. On 17 public models, 588 elements carry their author's own Uniformat code; the rules put 525 of them in the same major group and 482 in the same element. On the model held out while the rules were written, 66 of 69 matched.</p>
+    <h3>Can it give quantities room by room?</h3>
+    <p>Yes. Every room in the model (IfcSpace) gets a line in a room schedule: floor area and perimeter cut from the room's own solid just above its floor, its height, its wall area as perimeter times height, and its volume, each checked against the figure the model stores. A room exported only as a plan outline and a bounding box is measured from those. Furniture, fittings and finishes the model does not place in a room are placed by where they stand, and a suspended ceiling goes to the room under it; walls, doors and other elements that bound rooms are not. Group the bill of quantities by room to price finishes and fit-out room by room, and download the room schedule as CSV. On 13 public models with 991 rooms, the stored floor areas agreed with the geometry for 528 of 535 rooms and the stored perimeters for 472 of 475. Of the 322 stored volumes that disagree, 314 have a named cause: a volume written in litres or cubic millimetres under a cubic-metre unit, a volume worked out as floor area times a nominal height over a lowered ceiling, or a room exported only as an outline under a sloped ceiling.</p>
     <h3>What does it not do?</h3>
     <p>It does not read a curved face that wraps all the way round its surface or has a hole in it, and a faceted body clipped by a plane keeps the model's stored areas. It applies only one kind of measurement rule, leaving in openings up to a size you set (per work section if you like); other rules of a method of measurement (girthed or extra-over items, deductions for built-in members, rounding) are yours to apply. It is not a cost estimate: quantities are only as good as the model.</p>
   </section>
@@ -238,6 +251,7 @@
   import { parseStep } from "./step.mjs";
   import { takeoff, boq, boqKey, boqCsv, rowsCsv, checkSummary, keyLabel, REASON_TEXT, AREA_REASON_TEXT, unitRepairNote } from "./qto.mjs";
   import { PRESETS, SECTIONS, ruleLabel } from "./measure.mjs";
+  import { roomsCsv, roomTotals, ROOM_REASON_TEXT } from "./rooms.mjs";
   import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
   import { ModelView } from "./viewer.mjs";
   import { modelOrigin, storeyList, meshRows } from "./view-mesh.mjs";
@@ -260,22 +274,71 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
+  // The takeoff runs in view-worker.mjs, which posts the rows back and goes
+  // on to mesh the model view, so the page answers clicks while a big model
+  // reads (14 s on ARK_NUS used to freeze it). With no worker, or one that
+  // stops before it answers (memory, an old browser), the page takes off
+  // the model itself, as it always did.
+  let readGen = 0;
+  const tick = (el, text, t0) => { const iv = setInterval(() => { el.textContent = `${text} ${Math.round((performance.now() - t0) / 1000)} s`; }, 1000); return () => clearInterval(iv); };
+  function takeoffOnPage(bytes) {
+    const model = parseStep(bytes);
+    if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
+    return takeoff(model);
+  }
+  // resolves { t } from the worker, { error } when the file cannot be read,
+  // or null when the worker is missing or stopped (take off on the page)
+  function takeoffInWorker(bytes, mesh) {
+    if (typeof Worker === "undefined") return Promise.resolve(null);
+    let w;
+    try { w = new Worker(new URL("./view-worker.mjs", import.meta.url), { type: "module" }); } catch { return Promise.resolve(null); }
+    if (mesh) { meshWorker = w; meshBytes = bytes; }
+    return new Promise((resolve) => {
+      let answered = false;
+      const first = (d) => {
+        answered = true;
+        if (d.takeoff) { resolve({ t: d.takeoff, ms: d.ms }); return; }
+        if (mesh && w === meshWorker) stopMeshing(); else w.terminate();
+        resolve(d.read ? { error: d.failed } : null);
+      };
+      const deliver = (d) => { if (w !== meshWorker) return; if (meshSink) meshSink(d); else meshQueue.push(d); };
+      w.onmessage = ({ data }) => (answered ? deliver(data) : first(data));
+      w.onerror = (e) => { e.preventDefault(); if (!answered) first({ failed: e.message }); else deliver({ failed: e.message || "the drawing worker stopped" }); };
+      w.onmessageerror = () => (answered ? deliver({ failed: "the drawing worker's reply could not be read" }) : first({ failed: "unreadable reply" }));
+      w.cancel = () => { if (!answered) { answered = true; w.terminate(); resolve({ cancelled: true }); } };
+      const copy = bytes.slice();
+      w.postMessage({ bytes: copy, mesh }, [copy.buffer]);
+      if (!mesh) earlierWorker = w;
+    });
+  }
+
   async function run(bytes, name) {
+    const gen = ++readGen;
+    stopMeshing();
+    if (earlierWorker) earlierWorker.cancel?.();
     fileName = name.replace(/\.ifc$/i, "");
-    startMeshing(bytes);
-    $("status").textContent = `Reading ${name}...`;
-    await new Promise((r) => setTimeout(r, 30));
+    const label = `Reading ${name}...`;
+    $("status").textContent = label;
     const t0 = performance.now();
-    try {
-      const model = parseStep(bytes);
-      if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
-      current = takeoff(model);
-    } catch (err) {
-      $("status").textContent = `Could not read ${name}: ${err.message}`;
+    const stopTick = tick($("status"), label, t0);
+    let res = await takeoffInWorker(bytes, true);
+    stopTick();
+    if (gen !== readGen || res?.cancelled) return;
+    let by = "worker";
+    if (!res) {
+      by = "page";
+      await new Promise((r) => setTimeout(r, 30));
+      try { res = { t: takeoffOnPage(bytes) }; } catch (err) { res = { error: err.message }; }
+      if (gen !== readGen) return;
+    }
+    if (res.error) {
+      $("status").textContent = `Could not read ${name}: ${res.error}`;
       record("read_failed");
       stopMeshing();
       return;
     }
+    current = res.t;
+    $("status").dataset.readBy = by;
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
     const unitNote = unitRepairNote(current.units);
     $("status").textContent = `${name}: ${current.schema}, ${current.rows.length} elements, read in ${secs} s.${unitNote ? " " + unitNote : ""}`;
@@ -299,6 +362,7 @@
     ].map(([k, v, c]) => `<div class="card">${esc(k)}<b class="${c || ""}">${esc(v)}</b></div>`).join("");
     $("result").hidden = false;
     renderBoq();
+    renderRooms();
     renderChecks();
     renderDiff();
     buildView();
@@ -399,26 +463,13 @@
     else if (boxed.has(r.id)) parts.push(`drawn as its box: ${boxed.get(r.id) ? `its solid is ${boxed.get(r.id)}, more than the view draws for one element` : "its solid is too intricate to outline quickly"} (its quantities are measured all the same)`);
     return parts.filter(Boolean).join("; ") + ".";
   }
-  // Meshing runs in a worker (view-worker.mjs) that reads the same bytes
-  // alongside the page's own takeoff, so a big model's 30 s of meshing never
-  // holds up the page. Its replies are queued until buildView takes them.
-  // Where workers are missing or the worker fails (memory, an old browser),
-  // the page meshes what is left itself, in 30 ms slices.
-  let meshWorker = null, meshQueue = [], meshSink = null;
-  function stopMeshing() { if (meshWorker) meshWorker.terminate(); meshWorker = null; meshQueue = []; meshSink = null; }
-  function startMeshing(bytes) {
-    stopMeshing();
-    if (typeof Worker === "undefined") return;
-    let w;
-    try { w = new Worker(new URL("./view-worker.mjs", import.meta.url), { type: "module" }); } catch { return; }
-    meshWorker = w;
-    const deliver = (d) => { if (w !== meshWorker) return; if (meshSink) meshSink(d); else meshQueue.push(d); };
-    w.onmessage = ({ data }) => deliver(data);
-    w.onerror = (e) => { e.preventDefault(); deliver({ failed: e.message || "the drawing worker stopped" }); };
-    w.onmessageerror = () => deliver({ failed: "the drawing worker's reply could not be read" });
-    const copy = bytes.slice();
-    w.postMessage({ bytes: copy }, [copy.buffer]);
-  }
+  // Meshing goes on in the worker that took off the model (view-worker.mjs),
+  // so a big model's 30 s of meshing never holds up the page. Its replies are
+  // queued until buildView takes them. Where workers are missing or the
+  // worker fails (memory, an old browser), the page meshes what is left
+  // itself, in 30 ms slices.
+  let meshWorker = null, meshQueue = [], meshSink = null, meshBytes = null, earlierWorker = null;
+  function stopMeshing() { if (meshWorker) { meshWorker.cancel?.(); meshWorker.terminate(); } meshWorker = null; meshQueue = []; meshSink = null; }
 
   async function buildView() {
     const gen = ++viewGen;
@@ -486,8 +537,21 @@
     }) : false;
     if (gen !== viewGen) return;
     if (!fromWorker) {
-      // on the page: what the worker did not send, in 30 ms slices
-      const it = meshRows(prep.rows.filter((r) => !added.has(r.id)), prep.origin);
+      // on the page: what the worker did not send, in 30 ms slices. Rows the
+      // worker took off carry no solids (they stay in the worker), so the
+      // page reads the file again for them first.
+      let left = prep.rows.filter((r) => !added.has(r.id));
+      if (left.length && left.some((r) => r.box && !r.world && r.computed?.status === "ok") && meshBytes) {
+        $("view-status").textContent = "Reading the geometry on the page...";
+        await new Promise((r) => setTimeout(r, 30));
+        if (gen !== viewGen) return;
+        try {
+          const full = new Map(takeoffOnPage(meshBytes).rows.map((r) => [r.id, r]));
+          left = left.map((r) => full.get(r.id) || r);
+        } catch { /* drawn as their boxes */ }
+        if (gen !== viewGen) return;
+      }
+      const it = meshRows(left, prep.origin);
       for (let step = it.next(); !step.done;) {
         const slice = performance.now();
         while (!step.done && performance.now() - slice < 30) { take(step.value.id, step.value.mesh); step = it.next(); }
@@ -498,6 +562,7 @@
     }
     view.commit();
     $("view").dataset.meshedBy = fromWorker ? "worker" : "page";
+    meshBytes = null;
     view.fit();
     applyVisible();
     $("view-status").textContent = `${view.items.length} elements drawn in ${((performance.now() - t0) / 1000).toFixed(1)} s${how}${boxes ? `; ${boxes} drawn as their boxes (geometry not read, or too intricate to outline quickly; their quantities are measured all the same)` : ""}.`;
@@ -601,6 +666,37 @@
     $("total").textContent = priced ? `Total of ${priced} priced line${priced > 1 ? "s" : ""}: ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "";
   }
 
+  function renderRooms() {
+    const rooms = current.rooms || [];
+    $("dl-rooms").disabled = !rooms.length;
+    if (!rooms.length) { $("rooms-table").innerHTML = ""; $("rooms-summary").textContent = ""; $("rooms-more").textContent = "This model has no rooms (IfcSpace)."; return; }
+    const pairs = rooms.flatMap((r) => Object.values(r.check || {}));
+    const placed = current.rows.filter((r) => r.spaceFrom === "geometry").length;
+    const all = roomTotals(rooms).find((t) => t.storey === "All storeys");
+    $("rooms-summary").textContent = `${rooms.length} rooms, ${fmt(all.floorArea, 2)} m² of floor; stored room quantities: ${pairs.filter((c) => c.agree).length} of ${pairs.length} agree; ${placed} element${placed === 1 ? "" : "s"} placed in rooms by where they stand.`;
+    const cell = (r, k, d) => {
+      const v = r.computed?.[k], c = r.check?.[k];
+      if (v == null) return `<td class="n"></td>`;
+      const t = c ? (c.agree ? `stored ${c.name} ${fmt(c.stored, d)}: agrees` : `stored ${c.name} ${fmt(c.stored, d)}: ${ROOM_REASON_TEXT[c.reason] ?? ""}`) : "";
+      return `<td class="n${c && !c.agree ? " bad" : ""}" title="${esc(t)}">${fmt(v, d)}${c && !c.agree ? " *" : ""}</td>`;
+    };
+    const shown = rooms.slice(0, 500);
+    $("rooms-table").innerHTML = `<tr><th>Room</th><th>Storey</th><th>Floor m&sup2;</th><th>Perimeter m</th><th>Height m</th><th>Wall m&sup2;</th><th>Volume m&sup3;</th><th>Elements</th><th>Check</th></tr>` + shown.map((r) => {
+      const bad = Object.entries(r.check || {}).filter(([, c]) => !c.agree);
+      const note = r.computed ? (bad.length ? bad.map(([k, c]) => `${k === "floorArea" ? "floor area" : k} ${(c.diff * 100).toFixed(1)}%: ${ROOM_REASON_TEXT[c.reason] ?? c.reason}`).join("; ") : Object.keys(r.check || {}).length ? "agrees" : "nothing stored to check") : r.status;
+      return `<tr data-room="${esc(r.label)}"><td>${esc(r.label)}</td><td>${esc(r.storey)}</td>${cell(r, "floorArea", 2)}${cell(r, "perimeter", 2)}${cell(r, "height", 2)}<td class="n">${fmt(r.computed?.wallArea, 2)}</td>${cell(r, "volume", 2)}<td class="n">${r.elements || ""}</td><td class="${bad.length ? "bad" : ""}">${esc(note)}</td></tr>`;
+    }).join("");
+    for (const tr of $("rooms-table").querySelectorAll("tr[data-room]")) tr.addEventListener("click", () => {
+      const label = tr.dataset.room;
+      const ids = new Set(current.rows.filter((r) => r.space === label && !r.isAssembly).map((r) => r.id));
+      for (const t of $("rooms-table").querySelectorAll("tr.picked")) t.classList.remove("picked");
+      tr.classList.add("picked");
+      select(ids, `${label}: ${ids.size} element${ids.size === 1 ? "" : "s"} in this room shown.`);
+      record("room_shown");
+    });
+    $("rooms-more").textContent = rooms.length > shown.length ? `Showing 500 of ${rooms.length}; the room schedule CSV has them all.` : "";
+  }
+
   function renderChecks() {
     const only = $("only-bad").checked;
     const rows = [];
@@ -626,17 +722,25 @@
   async function runEarlier(bytes, name) {
     if (!current) return;
     earlierName = name.replace(/\.ifc$/i, "");
-    $("status").textContent = `Reading the earlier revision ${name}...`;
-    await new Promise((r) => setTimeout(r, 30));
-    try {
-      const model = parseStep(bytes);
-      if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
-      earlier = takeoff(model);
-    } catch (err) {
-      $("status").textContent = `Could not read ${name}: ${err.message}`;
+    const gen = readGen, label = `Reading the earlier revision ${name}...`;
+    $("status").textContent = label;
+    if (earlierWorker) earlierWorker.cancel?.();
+    const stopTick = tick($("status"), label, performance.now());
+    let res = await takeoffInWorker(bytes, false);
+    stopTick();
+    if (gen !== readGen || res?.cancelled) return;
+    earlierWorker = null;
+    if (!res) {
+      await new Promise((r) => setTimeout(r, 30));
+      try { res = { t: takeoffOnPage(bytes) }; } catch (err) { res = { error: err.message }; }
+      if (gen !== readGen) return;
+    }
+    if (res.error) {
+      $("status").textContent = `Could not read ${name}: ${res.error}`;
       record("read_failed");
       return;
     }
+    earlier = res.t;
     const earlierNote = unitRepairNote(earlier.units);
     $("status").textContent = `Compared ${name} (earlier) with ${fileName}.ifc.${earlierNote ? " Earlier revision: " + earlierNote : ""}`;
     record("revisions_compared");
@@ -714,6 +818,7 @@
   $("only-bad").addEventListener("change", () => current && renderChecks());
   $("dl-boq").addEventListener("click", () => { if (!current) return; const by = byKeys(); download(`${fileName}-bill-of-quantities.csv`, boqCsv(boq(current.rows, by, momRule()), by, rates, momRule())); record("boq_downloaded"); });
   for (const id of ["mom", "mom-area", "mom-volume"]) $(id).addEventListener(id === "mom" ? "change" : "input", () => { if (current) renderBoq(); else momRule(); if (id === "mom") record("rule_changed"); });
+  $("dl-rooms").addEventListener("click", () => { if (!current?.rooms?.length) return; download(`${fileName}-rooms.csv`, roomsCsv(current.rooms)); record("rooms_downloaded"); });
   $("dl-rows").addEventListener("click", () => { if (!current) return; download(`${fileName}-elements.csv`, rowsCsv(current.rows)); record("rows_downloaded"); });
   $("ifc").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) run(new Uint8Array(await f.arrayBuffer()), f.name); });
   $("sample").addEventListener("click", async () => { const res = await fetch("samples/sample-office.ifc"); run(new Uint8Array(await res.arrayBuffer()), "sample-office.ifc"); record("sample_opened"); });
