@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVNtCearnbCwPqyGsoq",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine)",
+  "input_sha256": "11e3b35e49613a6364c0c8156c62feb36e116801279806d7c7661dd70db1a697",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T01:34:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9): league-schedule-generator, new box-league format (allocate.py 'Start here' row 4)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18001",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 3,
+  "review_findings": null,
+  "tests_added": 20,
+  "outcome": "success",
+  "errors": [
+    "First CI run: faq-visible (box-league.html FAQ answer longer on page than in JSON-LD), check_control_labels (paste textarea had no label), csv formula guard (local csvCell lacked \\t \\r and the anchored number exemption). All fixed by reusing calc.mjs csvCell, adding an aria-label and matching the copy.",
+    "Chromium click-through caught a logic bug: a no-show sent down was pulled back up by the box re-split. Fixed (the box below now sends its next best up) and covered by a test."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The weighted draw routed to research while the scheduled prompt asks for revenue product work; re-routed with --task as prompt.md allows. Fine, but the scheduled routine could pass --track ventures itself."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Did not open a draft claim PR with an empty commit before the diff; the slice was small enough to open the PR with the work.",
+      "did": "opened PR #18001 with the full diff",
+      "result": "no overlap: no open PR named box leagues or league-schedule-generator"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-box-leagues-without-the-spreadsheet.md"
+  ],
+  "goal": "Ship a feature club organisers otherwise pay a club platform or keep a spreadsheet for: box leagues with promotion/relegation.",
+  "notes": "boxleague.test.mjs 20/20; league-schedule-generator suite 883 tests ok (run_venture_tests.py); platform/pages faq/schema/css 16/16 after fix; run_workflow_locally --for-changes: only the two failures above, both fixed and re-checked individually (check_control_labels exit 0, test_check_csv_formula_guard OK). Chromium at 390px: example league, typed + pasted results, leaver/joiner, close, reload resume, no console errors, scrollWidth 390. Made-up players only; no real club has run a round.",
+  "corrections": [],
+  "redteam": null
+}

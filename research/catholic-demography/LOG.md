@@ -2,6 +2,49 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-21 · Milestone 5b, sixteenth GSS-only step: m5o's switching difference survives single-year cohort standardisation (+3.1 of +3.7), but in the cohorts that carry most of the weight it moves with reported upbringing
+
+Run: `experiments/m5q_cohort_std_switching/run.py` (output `results.txt`, tables `t47`, `t48`; 500-draw stratified PSU
+bootstrap over the whole file, seed 1; all quantities re-estimated in every draw). Data from `data/download_gssr.sh`
+(checksums passed). **Order of events:** the script with P1-P4 was committed (1a69f2a0a) and pushed before any run; one
+2-draw smoke run, stdout discarded and its CSVs deleted unread (exit code only); then the full run, once, unchanged.
+Consistency check: the run recomputes m5o's 10-year-window numbers with m5o's code and gets m5o's +3.707 and +2.448.
+
+Question. m5p showed m5o's raised-Catholic gap between interviews at 25-44 and 45+ (+2.4) is mostly cohort mix inside
+10-year windows. Is the current-Catholic gap P_m(25-44) - P_m(45+) = +3.7, which m5o read as women leaving the Church
+after child-rearing, the same artefact? Here each single-year mothers' cohort (US-born women with children, born
+1937-71) is compared with itself, and D_S = D_P - D_R nets out any fall in reported upbringing.
+
+- **P1 supported.** m5o's child weights, single-year cohorts, 1977-2024: **D_P = +3.11 [+1.15, +5.05]** points.
+  Own-size weights: +2.90 [+1.59, +4.20]. In person only (1977-2018): +2.69 [+0.66, +4.82] and +2.15 [+0.64, +3.53].
+- **P2 supported.** +3.11 is 84% of m5o's +3.71; the cohort-mix part is **+0.60 [-0.38, +1.58]** (for R16 it is +0.62
+  [-0.34, +1.73], and own weights take R16 to +0.70, m5p's +0.74 on a slightly larger sample).
+- **P3 supported.** Net of reported upbringing, own weights, 1977-2018: **D_S = +1.92 [+0.85, +2.81]** points over a
+  17.7-year age gap, about 0.11 points a year; 1977-2024 +2.20 [+1.28, +3.17]. Under m5o's child weights it is smaller
+  and not distinguishable from zero: +1.28 [-0.09, +2.53] (1977-2024), +1.21 [-0.13, +2.43] (1977-2018).
+- **P4 supported (point only).** Child weights: M_mothers - P_m(45+) = 4.52 [2.04, 6.77]; the 25-44 share closes it to
+  1.42 [-1.55, +4.56], a gap left fraction of **0.31 [-0.71, 0.77]**. The interval spans the 0.5 line. (P_m* at 25-44 is
+  the same in both year sets, 26.30: every mother cohort 1937-71 was seen at 25-44 by 2015, and P_m(45+) + mean D_P under
+  common weights is the young-band mean itself. An identity, not a bug.)
+- **Where the switching is (by cohort group, read after the run; not predicted).** Mothers born 1937-49, 64% of the
+  child weight: D_P is large (+3.7 child, +4.0 own) but **D_S is near zero** (+0.3 [-1.5, +2.1], +0.5 [-1.1, +2.0]):
+  their current and raised-Catholic shares fall together between the bands, which is reporting or composition (who is
+  left to interview at 45+), not leaving; not the 2021-24 web waves, since in person only it is the same (+0.4 [-1.4,
+  +2.2] child, +0.5 [-1.1, +2.1] own). Born 1950-59 and 1960-71: **D_S +2.8 to +3.5**
+  with intervals above zero (own weights, 1977-2024), while D_P in 1960-71 is small and noisy (single-year cells at 45+
+  come from 2010+ surveys only; t48). Net switching after child-rearing is a property of the later cohorts.
+- **Implication.** m5o's current-Catholic fall with age is not a cohort-mix artefact, and the 45+ table does understate
+  the mothers' Catholic share during child-rearing, closing about two thirds of m5m's mothers' share gap (point
+  estimate). But for the cohorts that carry most of the child weight, the fall moves with reported upbringing, so calling
+  it switching rests on the later cohorts. A switching rate of about 0.1 points a year after 35 is the cleanest number
+  (own weights, in person, net of upbringing).
+- **Limits.** Age and survey year move together within a cohort. D_S nets out drift in R16 reports but assumes reporting
+  drift and composition move current and raised-Catholic shares by the same amount. Late cohorts' 45+ cells are small.
+  The cohort-group split was not predicted.
+- **Next.** For cohorts 1937-49, R16 falls with age about 0.17 points a year here (D_R = D_P - D_S, about +3.4 to +3.5
+  over a 21-year age gap, computed from t47 by hand), twice m5p's all-adult panel drift; check it against those cohorts' own panel re-reports (2006-10 panels, ages 57-73)
+  before calling it composition. Then H5, or milestone 2.
+
 ## 2026-11-19 · Milestone 5b, fifteenth GSS-only step: within cohorts, the raised-Catholic share drifts down about as fast as the same people's own reports do, and m5o's 2.4-point gap does not survive cohort standardisation
 
 Run: `experiments/m5p_recall_drift/run.py` (output `results.txt`, tables `t45`, `t46`; cross-sections: 500-draw stratified
