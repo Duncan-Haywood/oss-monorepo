@@ -13,6 +13,7 @@
 import { parseStep } from "./step.mjs";
 import { parseIfcXml, ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 import { parseIfcJson, looksLikeJson } from "./ifcjson.mjs";
+import { parseIfcx, looksLikeIfcx } from "./ifcx.mjs";
 import { parseXml, kids, kid } from "./xml.mjs";
 import { compileXsdRegex } from "./xsdregex.mjs";
 import { auditIds } from "./audit.mjs";
@@ -87,23 +88,30 @@ const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 const SI_PREFIX = { EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6, KILO: 1e3, HECTO: 1e2, DECA: 1e1, DECI: 1e-1, CENTI: 1e-2, MILLI: 1e-3, MICRO: 1e-6, NANO: 1e-9, PICO: 1e-12, FEMTO: 1e-15, ATTO: 1e-18 };
 
 export class Model {
-  constructor(text, schemas) {
+  constructor(text, schemas, opts = {}) {
     // The file's bytes (a Uint8Array) are read as they are, STEP and ifcXML
     // alike, so the file is never one string on the heap
     // (eval/step-bytes-2026-11-18.md, eval/ifcxml-bytes-2026-11-18.md).
     // An ifcXML model is read by its schema's attribute order (ifcxml.mjs).
     // An ifcJSON model (ifcjson.mjs) names its schema in a header, or is
     // read in the one that knows its class names.
-    const json = looksLikeJson(text);
+    // An IFC5 model (.ifcx, ifcx.mjs) is composed from its nodes into IFC4X3
+    // entities; text may be a list of layers, weakest first.
+    const ifcx = Array.isArray(text) || looksLikeIfcx(text);
+    const json = !ifcx && looksLikeJson(text);
     const xmlId = !json && looksLikeXml(text) ? ifcXmlSchemaId(text) || "(not found in the ifcXML header)" : null;
     const xs = xmlId && schemas[xmlId];
+    if (ifcx && !schemas.IFC4X3) throw new Error("an IFC5 model is read in IFC4X3, which was not loaded");
     const asSchema = (s) => (s instanceof Schema ? s : new Schema(s));
-    const p = json
+    const p = ifcx
+      ? parseIfcx(text, asSchema(schemas.IFC4X3), opts.psets ? opts.psets.IFC4X3 || null : null)
+      : json
       ? parseIfcJson(text, Object.fromEntries(Object.entries(schemas).map(([k, s]) => [k, asSchema(s)])))
       : xmlId ? (xs ? parseIfcXml(text, asSchema(xs)) : { entities: new Map(), errors: [] }) : parseStep(text);
     if (xmlId) p.schema = xmlId;
     if (json && !p.schema) throw new Error(`ifcJSON model not read: ${p.errors.join("; ")}`);
-    this.format = json ? "ifcJSON" : xmlId ? "ifcXML" : "STEP";
+    if (ifcx && !p.schema) throw new Error(`IFC5 model not read: ${p.errors.join("; ")}`);
+    this.format = ifcx ? "IFC5" : json ? "ifcJSON" : xmlId ? "ifcXML" : "STEP";
     this.parseErrors = p.errors;
     this.entities = p.entities;
     const raw = (p.schema || "").toUpperCase();
@@ -1399,7 +1407,7 @@ function checkRequirement(f, e, model, ctx) {
 
 export function checkIds(idsText, ifcText, opts = {}) {
   const ids = typeof idsText === "string" ? parseIds(idsText) : idsText;
-  const model = ifcText instanceof Model ? ifcText : new Model(ifcText, opts.schemas);
+  const model = ifcText instanceof Model ? ifcText : new Model(ifcText, opts.schemas, { psets: opts.psets });
   model.measureUnits = opts.measureUnits || null;
   // opts.facetCache === false turns off the applicability and facet-verdict
   // caches (applies-cache.test.mjs compares the two).
@@ -1503,6 +1511,7 @@ export function checkIds(idsText, ifcText, opts = {}) {
   return {
     title: ids.title,
     schema: model.schemaRaw,
+    format: model.format,
     entityCount: model.entities.size,
     parseErrors: model.parseErrors.slice(0, 20),
     // A model fault, not an IDS verdict: it does not change pass (IDS checks

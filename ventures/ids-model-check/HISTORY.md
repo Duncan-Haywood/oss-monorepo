@@ -25,3 +25,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) time ranges as patterns 2026-11-21 (timePattern, 24:00:00 = 00:00:00, eval/time-pattern-2026-11-21.md: 0 of 300 verdicts unlike the range, IfcTester 10 of 10)
 - (moved 2026-11-21) Readable document 2026-11-20 (eval/spec-doc-2026-11-20.md)
 - (moved 2026-11-21) dateTime ranges as patterns 2026-11-21 (dateTimePattern, eval/datetime-pattern-2026-11-21.md: 0 of 290 beam verdicts unlike the range, IfcTester 10 of 10; full fraction 2026-11-21)
+- (moved 2026-11-21) editor's Write as a pattern exact 2026-11-20 (eval/date-pattern-exact-2026-11-20.md: 0 of 310 verdicts unlike the range, old 50)
