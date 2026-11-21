@@ -82,15 +82,18 @@ def steps(p: Feeder) -> list[Step]:
              f"Slide an M6 T-nut into the net beam's bottom slot {p.foot_half_y:g} mm either side of the middle and "
              "screw a foot's stud up into each. Set them to take the beam's ends just off the ground once the "
              "wheels carry the rest, then lock each with its jam nut.", reach=1.0),
-        Step("Drive and idler wheels", ["drive_bracket", "idler_bracket", "gearmotor", "wheel"],
+        Step("Drive and idler wheels", ["drive_bracket", "idler_bracket", "gearmotor", "wheel", "idler_axle_spacer"],
              [("M5 x 12 button head", 8), ("M5 T-nut (slot 6)", 8), ("M3 x 8 screw", 12),
-              ("608 bearing, 8 x 22 x 7", 2), ("M8 x 60 bolt + nyloc nut", 2)],
+              (F.idler_axle_spec(), 2)],
              "3 mm and 2.5 mm hex keys, two 13 mm spanners",
              "Screw each gearmotor's face to the inside of a drive bracket (six M3 x 8), shaft out through the 14 mm "
              "hole. Bolt the drive brackets near the net beam and the idler brackets near the rear rail to the side "
-             "rails' outer slots (two M5 x 12 into T-nuts each). Press a 608 into each idler bracket's bore; the "
-             "idler wheels turn on an M8 x 60 through the bearing. Push the drive wheels' hubs onto the 6 mm D "
-             "shafts, flat to the grub screw, 2 mm off the bracket.", reach=2.5),
+             "rails' outer slots (two M5 x 12 into T-nuts each). The idler axles are fixed: push an "
+             f"M8 x {F.IDLER_AXLE_LEN} out through each idler bracket's 8.4 mm hole from the inside, then a "
+             "spacer, the wheel (its own two 608s turn) and a second spacer, and tighten the nyloc outside with the "
+             "head held: it clamps the hub's inner races, so the bolt does not turn. Spin the wheel: it should run "
+             "free with no end play. Push the drive wheels' hubs onto the 6 mm D shafts, flat to the grub screw, "
+             "2 mm off the bracket.", reach=2.5),
         Step("Mast posts and cable crossbar", ["mast_post", "cable_crossbar"],
              [("2020 corner bracket with M5 screws and T-nuts (cable crossbar)", 2)], "4 mm and 3 mm hex keys",
              "Tap both core bores of each end of the four posts M5. Stand each post on its mast rail over two of "
@@ -371,6 +374,7 @@ def joints(p: Feeder) -> list[Joint]:
     rod_out = F._rod_y(p) + p.shuttle_rod_t / 2
     crank_out = F._crank_y(p) + p.shuttle_rod_t / 2
     gd = p.lift_shaft_design()
+    spring_d = p.spring_bracket_design()
     gm_x = p.lift_x_pulley + F.GM_SCREW_R * math.cos(math.radians(30))
     gm_z = p.lift_z_bottom + F.GM_SCREW_R * math.sin(math.radians(30))
     return [
@@ -464,6 +468,15 @@ def joints(p: Feeder) -> list[Joint]:
               p.lift_finger_t / 2, -1, 1.7, 2.75, extra=WASHER[3], gap=1.0, step="Lift column"),   # gap: the countersink's mouth
         Joint("deck cable saddle", "M5 x 16 button head + nyloc nut (deck cables)", 16, 5, "nut",
               (saddle_x, saddle_y, 0.0), "z", p.rail_top + p.plate_t + p.deck_saddle_base / 2, -1, 2.75, 4.75),
+        # the idler wheels' fixed axles (2026-11-21): head on the bracket's inside face, nyloc on the outer spacer
+        Joint("idler axle", F.idler_axle_spec(), F.IDLER_AXLE_LEN, 8, "nut", (p.wheel_x[1], 0.0, p.wheel_d / 2), "y",
+              p.base_half_w, 1, 4.3, 6.0, far="idler_axle_spacer", far_last=True, access=True, mirror_y=True,
+              hex_head=True),
+        # the take-up spool's axle (2026-11-21): through both cheeks and the spool, nyloc on the +y cheek
+        Joint("take-up spool axle", f"M4 x {p.spring_axle_len:g} socket cap screw + nyloc nut (spring axle)",
+              p.spring_axle_len, 4, "nut", (spring_d["drum_x"], 0.0, spring_d["drum_z"]), "y",
+              -spring_d["outer_w"] / 2, 1, 2.2, 3.5, far="take_up_spring_bracket", far_last=True, access=True,
+              bench=True),
         # the driver carrier's four screws, down through its block and standoffs and the deck, nuts under the deck
         # (a checked joint since 2026-11-21: an M3 x 16 left 1 mm of thread under the deck for a 2.4 mm nut)
         Joint("driver carrier to deck", F.carrier_screw(), F.carrier_screw_len(), 3, "nut",

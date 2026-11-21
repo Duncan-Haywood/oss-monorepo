@@ -438,13 +438,55 @@ the flight caps' M3 nyloc on the cleat's back 15: held only, which is what the
 step does (the countersunk head turns with a key).
 
 Not checked: the feeder's nuts that are not joints yet, because the parts they
-clamp are not drawn as they are: the idler wheels' M8 x 60 (the 608s are not
-drawn), the turntable bearing's eight M5 nuts (the bearing is a solid puck, its
-rings and access hole are not drawn), the spring axle's M4 nyloc (its own design
-rule, `spring_bracket_design`) and the levelling feet's jam nuts. A deep socket
+clamp are not drawn as they are: the turntable bearing's eight M5 nuts (the
+bearing is a solid puck, its rings and access hole are not drawn) and the
+levelling feet's jam nuts. The idler axles and the spool axle joined on
+2026-11-21 (next section). A deep socket
 on an extension, which goes in along the axis, is not tried; the bolt's tail past
 the nut is not drawn, so a ring end is assumed to slide over it. The hand is a
 box. Nobody has built one.
+
+### Idler axles fixed, and the spool axle (2026-11-21, `feeder.IDLER_AXLE_*`, `idler_axle_spacer`, `guide.Joint.far_last`)
+
+Drawing the idler wheels' axles to check them as joints showed the axle was the
+wrong kind. Each idler wheel turned on an M8 x 60 through **one 608 pressed into a
+22 mm bore in the 5 mm bracket**: a 7 mm bearing seated over 5 mm of its width,
+with the wheel's centre 25.5 mm outboard of the bearing's. The bolt and wheel
+turned together, so that one deep-groove bearing carried the wheel's load as a
+moment as well as a radial force. The made parts alone weigh 45.6 kg (manifest),
+about 110 N a wheel if the four share it evenly, so roughly 2.8 N m on a bearing
+that resists a moment only by tilting through its internal clearance. The wheel
+would wobble, and the press fit in a laser-cut hole is all that held the bearing
+in the plate.
+
+| Found | Was | Now |
+| --- | --- | --- |
+| Idler axle | an M8 x 60 turning in one 608 in the bracket, the wheel's plain 8 mm bore on the bolt | a **fixed** axle: an M8 x 65 hex bolt out through an 8.4 mm hole from the bracket's inside face, a steel 8 x 12 x 2 spacer, the wheel (two 608s and a spacer tube in its hub, as a scooter wheel has), a second spacer and a nyloc. The nyloc clamps the inner races and tube to the bracket, so the bolt stays still and the wheel's two bearings, 40 mm apart, carry the load. The 12 mm spacers touch only the inner races |
+| Bolt length | not measured | a checked joint ("idler axle", both sides, `mirror_y`): bracket 5 + spacer 2 + hub 40 + spacer 2 = 49 mm, 10.5 needed for the nyloc and two threads. An M8 x 60 would leave 11 (0.5 to spare, so a hub 1 mm longer than drawn fails it). M8 x 65 leaves 16 |
+| Bracket bore | 22 mm | 8.4 mm; the BOM loses the two 608s (the wheels bring theirs) and gains four spacers (`idler_axle_spacer`, drawn, so the collision check sees them) |
+| Spool axle | the M4 x 40's nyloc had only its own rule (`check_spring_bracket`) | a checked joint ("take-up spool axle"): cheek 6 + spool 16.7 + cheek 6 with 1 mm of float, 29.7 mm, 10.3 past it, 6.4 needed, the same figures as the rule |
+
+Making the spool axle a joint needed one change to the stack reader. A
+through-bolt's stack runs to `far`, the last part it clamps, and it stopped at the
+first piece of that part. The bracket's two cheeks are one printed part, so the
+stack ended at the near cheek. `Joint.far_last` runs it to the last piece instead
+(a test shows the stack stopping at 6 mm without it). The idler joint uses it too,
+since its far part is the second spacer. Every one of the other 35 joints reads
+exactly as before (compared row by row). **37 joints are measured.**
+
+Spanners: the idler nyloc takes a 13 mm spanner all the way round (360 degrees)
+and its head 225 degrees inside the bracket, under the rail, so either can be
+turned. The spool axle's nyloc takes a 7 mm spanner over 110 degrees on the bench
+before the bracket goes under the shelf. Nine feeder joints are in the spanner
+table now.
+
+Assumed, not measured: the wheel's hub is 40 mm, its tread's width, and carries
+two 608s with a spacer tube between them. Many 150 mm wheels with an 8 mm bore are
+sold that way, but read yours. If the hub has no tube, the nyloc squeezes the two
+inner races together through the balls: snug it until the wheel just turns free,
+or fit a tube. A hub that stands proud of the tread needs a longer bolt (the joint
+check says by how much: `--set wheel_w=...` moves the wheel too, so check the
+hub on the part you buy). Nobody has built one.
 
 ## Changing the design
 

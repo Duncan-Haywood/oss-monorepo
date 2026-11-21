@@ -7,7 +7,7 @@ mast_plate,laser,1,aluminium 5052 5 mm,Bolts to the end-tapped posts (M5) and to
 turntable_plate,laser,1,aluminium 5052 5 mm,Bolts to the rotating ring of the bearing. Trimmed to a 108 mm radius so the azimuth pinion clears it at every angle; the printed gear sector bolts under its +y edge (3 x M4).
 base_deck,laser,1,aluminium 5052 5 mm,Sits on the rails (M5 and T-nuts); holds the battery and electronics.
 drive_bracket,laser,2,aluminium 5052 5 mm,"Gearmotor (37 mm class, M3 on a 31 mm circle) bolts to the inside face. M5 into the side rail's T-slot."
-idler_bracket,laser,2,aluminium 5052 5 mm,"608 bearing in the bore, 8 mm axle bolt. M5 into the side rail's T-slot."
+idler_bracket,laser,2,aluminium 5052 5 mm,"Fixed M8 axle: M8 x 65 hex bolt + nyloc nut (idler axle) from the inside face, clamped through the wheel's hub bearings. M5 into the side rail's T-slot."
 cheek_foot,print,4,PETG,"M4 heat-set inserts; bolts the cheek to the turntable plate, 4 walls, 40% infill."
 az_gear_sector,print,1,PETG,"Azimuth gear: module 1.5, 150 teeth on the full circle (pitch radius 112.5 mm), 80 deg cut. Bolts under the turntable plate (3 x M4 into heat-set inserts); meshes with the stepper's 15-tooth pinion. Print flat, 100% infill, 0.1 mm layers for the flanks; grease the teeth."
 pole_foot,print,2,PETG,Sockets a 25 mm vertical pole 40 mm deep at the beam's end; two M5 x 12 down its counterbores into T-nuts in the beam's top slot. 6 walls.
@@ -56,7 +56,8 @@ head_standoff,cots,4,"M5 female-female standoff, 80 mm",
 turntable_bearing,cots,1,"Lazy-susan bearing, 150 mm, 10 mm tall, 4 x M5 on a 120 mm circle each ring",
 az_stepper,cots,1,"NEMA 17 stepper, 0.4 N m holding (17HS4401 class), 5 mm shaft at least 20 mm long, flange up under the mast plate",
 az_pinion,cots,1,"Spur pinion, module 1.5, 15 teeth, 20 deg, 5 mm bore, steel, set screw (drawn at its root circle so the mesh is not a clash)",
-wheel,cots,4,"150 x 40 mm non-marking wheel, 6 mm D hub (drive) or 8 mm bore (idler)",
+wheel,cots,4,"150 x 40 mm non-marking wheel, 40 mm hub: 6 mm D hub (drive) or two 608 bearings and a spacer tube in the hub, 8 mm bore (idler, as a scooter wheel's)",
+idler_axle_spacer,cots,4,"Steel bearing spacer, 8.2 x 12 x 2 mm (a 608's inner-race spacer): one between the idler bracket and the hub's inner race, one under the nyloc",
 gearmotor,cots,2,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder",
 levelling_foot,cots,2,"M6 levelling foot with a 40 mm rubber pad, 155 mm of stud, into an M6 slot-6 T-nut in the beam's bottom slot, with a jam nut (an M10 stud, as listed until 2026-11-20, cannot pass a slot-6 opening)",
 battery,cots,1,"24 V (8S) LiFePO4 20 Ah with BMS, max 90 x 200 x 130 mm",
@@ -135,8 +136,7 @@ M4 x 12 socket cap screw (azimuth),cots,3,M4 x 12 socket cap screw (azimuth),tur
 M4 x 12 socket cap screw (stops),cots,4,M4 x 12 socket cap screw (stops),mast plate up into the two azimuth stop blocks
 "M4 heat-set insert, 5.7 mm long (stops)",cots,4,"M4 heat-set insert, 5.7 mm long (stops)",azimuth stop blocks
 Contact adhesive (polyurethane to PETG),cots,1,Contact adhesive (polyurethane to PETG),stop pads to their blocks
-"608 bearing, 8 x 22 x 7",cots,2,"608 bearing, 8 x 22 x 7",idler wheels
-M8 x 60 bolt + nyloc nut,cots,2,M8 x 60 bolt + nyloc nut,idler axles
+M8 x 65 hex bolt + nyloc nut (idler axle),cots,2,M8 x 65 hex bolt + nyloc nut (idler axle),"idler axles, fixed to the brackets (the wheels' hub bearings turn)"
 M6 T-nut (slot 6) + M6 jam nut (levelling foot),cots,2,M6 T-nut (slot 6) + M6 jam nut (levelling foot),beam ends
 M4 x 12 socket cap screw (feed),cots,8,M4 x 12 socket cap screw (feed),"feed floor and roof to the head plates (through the plates, into inserts)"
 "M4 heat-set insert, 5.7 mm long (feed)",cots,12,"M4 heat-set insert, 5.7 mm long (feed)","feed floor, roof and sleeve socket"

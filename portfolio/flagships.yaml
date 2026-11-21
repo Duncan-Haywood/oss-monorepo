@@ -404,13 +404,12 @@ flagships:
       league's fields and teams. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
-      CAD and firmware with no outside input (build123d: pypi venv, 2 min).
-      Yoke-lift switches (cam lobe, tower, slots) in the CAD 2026-11-21
-      (cad/README.md). Hopper post wedges and vertical shelf M5s in the CAD
-      2026-11-21 (cad/README.md). Every feeder fastener a checked joint, flight
-      caps' M3 last (2026-11-21, cad/README.md). Nut spanners checked 2026-11-21
-      (cad/README.md). Next: idler 608s, turntable rings, spring axle as joints.
-      Firmware survey tuning is settled on simulated data (firmware/esp32/README.md,
+      CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
+      CAD work and every check: cad/README.md (2026-11-21: switches, post wedges,
+      every fastener a joint, nut spanners, idler axles fixed and the spool axle as
+      joints). Next: draw the turntable bearing's two rings and access hole and
+      check its eight M5 nuts as joints; the levelling feet's jam nuts. Firmware
+      survey tuning is settled on simulated data (firmware/esp32/README.md,
       NEXT.md): next information there is a real wheel's tach log.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

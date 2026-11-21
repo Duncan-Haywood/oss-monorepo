@@ -1399,8 +1399,8 @@ class FeederAssemblyGuideTest(unittest.TestCase):
     def test_design_passes_every_guide_check(self):
         rows, bad = self.G.joint_checks(self.p, self.parts)
         self.assertEqual(bad, [])
-        self.assertEqual(len(rows), 35)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
-        # flight caps' M3, 34 until the driver carrier's M3s, 2026-11-21
+        self.assertEqual(len(rows), 37)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
+        # flight caps' M3, 34 until the driver carrier's M3s, 35 until the idler axles and the spool axle, 2026-11-21
         self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.access_problems(self.p, self.parts), [])
@@ -1531,7 +1531,7 @@ class SpannerTest(unittest.TestCase):
         self.assertEqual(self.cbad, [])
         self.assertEqual(self.fbad, [])
         self.assertEqual({r["joint"] for r in self.crows}, {"rod clamp ring", "yoke pivot", "drum axle"})
-        self.assertEqual(len(self.frows), 7)
+        self.assertEqual(len(self.frows), 9)   # 7 until the idler axles and the take-up spool axle, 2026-11-21
         self.assertEqual(sum(r["holes"] for r in self.crows), 16)
 
     def test_drum_axle_nut_is_held_between_the_rods(self):
@@ -1575,6 +1575,45 @@ class SpannerTest(unittest.TestCase):
         with unittest.mock.patch.object(self.F, "CARRIER_SCREW_LEN", 16):
             bad = self.G.joint_checks(self.fp, self.fparts)[1]
         self.assertTrue(any("driver carrier to deck" in b for b in bad), bad)
+
+    def test_idler_axle_is_clamped_through_the_hub(self):
+        """The idler axle is fixed (2026-11-21): bracket, spacer, the wheel's hub and a spacer under the nyloc, on
+        both sides of the robot; an M8 x 60 keeps 0.5 mm to spare (a 1 mm longer hub fails it) and an M8 x 55 fails."""
+        import dataclasses
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.fp, self.fparts)[0]}
+        r = rows["idler axle"]
+        self.assertEqual(r["stack"], "idler_bracket 5 + idler_axle_spacer 2 + wheel 40 + idler_axle_spacer 2")
+        self.assertTrue(r["ok"])
+        s = next(r for r in self.frows if r["joint"] == "idler axle")
+        self.assertEqual(s["holes"], 2)
+        self.assertGreaterEqual(min(s["nut_deg"], s["head_deg"]), self.G.SWING_DEG)
+        j = next(x for x in self.G.joints(self.fp) if x.name == "idler axle")
+        for length, ok in ((60, True), (55, False)):
+            with unittest.mock.patch.object(self.G, "joints", lambda p, j=dataclasses.replace(j, length=length): [j]):
+                self.assertEqual(self.G.joint_checks(self.fp, self.fparts)[1] == [], ok, length)
+
+    def test_idler_bracket_has_no_bearing_bore(self):
+        """The old 22 mm bore for a single 608 is gone: an 8.4 mm axle hole at the wheel's axis."""
+        b = next(pt for pt in self.fparts if pt.name == "idler_bracket")
+        sizes = sorted(round(w.bounding_box().size.X, 2) for w in b.flat.faces()[0].inner_wires())
+        self.assertIn(self.F.IDLER_AXLE_HOLE, sizes)
+        self.assertNotIn(22.0, sizes)
+        self.assertFalse(any("608 bearing, 8 x 22" in n for n, _, _ in self.F.fasteners(self.fp)))
+
+    def test_spool_axle_runs_through_both_cheeks(self):
+        """The stack ends at the far cheek (`far_last`), not the first: both cheeks and the spool, 29.7 mm; a 30 mm
+        screw fails it, as `check_spring_bracket` says."""
+        import dataclasses
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.fp, self.fparts)[0]}
+        r = rows["take-up spool axle"]
+        self.assertAlmostEqual(r["grip_mm"], self.fp.spring_bracket_design()["outer_w"], places=2)
+        self.assertEqual(r["stack"].count("take_up_spring_bracket"), 2)
+        j = next(x for x in self.G.joints(self.fp) if x.name == "take-up spool axle")
+        with unittest.mock.patch.object(self.G, "joints", lambda p, j=dataclasses.replace(j, length=30.0): [j]):
+            self.assertTrue(self.G.joint_checks(self.fp, self.fparts)[1])
+        with unittest.mock.patch.object(self.G, "joints", lambda p, j=dataclasses.replace(j, far_last=False): [j]):
+            first = self.G.joint_checks(self.fp, self.fparts)[0][0]
+        self.assertLess(first["grip_mm"], 10.0)    # stopped at the near cheek: the stack the flag is for
 
     def test_longest_run_wraps_round(self):
         self.assertEqual(self.G.longest_run([True, False, False, True, True]), 15)

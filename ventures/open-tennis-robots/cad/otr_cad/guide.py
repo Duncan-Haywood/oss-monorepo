@@ -359,6 +359,8 @@ class Joint:
     tool_r: float = 0.0      # access: radius of the tool's (or fingers') path behind the head, 0 for the head's
     hex_head: bool = False   # a hex head turned with a spanner (not a key): spanner_checks swings one at the head
     spanner_len: float = 0.0  # the spanner the step asks for on the nut, mm (0: SPANNER_LEN for its size)
+    far_last: bool = False   # `far` is met more than once (two cheeks of one printed part, two spacers): the stack
+    #                          runs to its last piece, not its first (2026-11-21)
 
 
 def joints(p) -> list[Joint]:
@@ -441,6 +443,11 @@ def collector_joints(p: Collector) -> list[Joint]:
     ]
 
 
+def _far_index(names: list[str], j: Joint) -> int:
+    """Where a through-bolt's stack ends: the first piece of `far`, or with `far_last` its last."""
+    return len(names) - 1 - names[::-1].index(j.far) if j.far_last else names.index(j.far)
+
+
 def joint_checks(p, parts) -> tuple[list[dict], list[str]]:
     rows, bad = [], []
     for j in joints(p):
@@ -450,7 +457,7 @@ def joint_checks(p, parts) -> tuple[list[dict], list[str]]:
             if j.far not in names:
                 bad.append(f"joint {j.name}: the bolt never reaches {j.far} (stack {names})")
                 continue
-            chain = chain[:names.index(j.far) + 1]
+            chain = chain[:_far_index(names, j) + 1]
             names = names[:len(chain)]
         if j.into:
             if j.into not in names:
@@ -647,7 +654,9 @@ def nut_seat(p, parts, j: Joint) -> float | None:
     names = [c[0] for c in chain]
     end = j.far or j.into
     if end:
-        return chain[names.index(end)][2] if end in names else None
+        if end not in names:
+            return None
+        return chain[_far_index(names, j) if j.far else names.index(end)][2]
     return (chain[-1][2] if chain else 0.0) + j.extra
 
 
