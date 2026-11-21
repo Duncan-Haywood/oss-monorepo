@@ -314,3 +314,65 @@ test("resource UDFs become named resource Text, Number, Cost and Date fields", (
   assert.deepEqual(ext(1), { 205520904: "Full time", 205521008: "3" });
   assert.ok(r.warnings.some((w) => /indicator or code resource user-defined field\(s\).*Light/.test(w)));
 });
+
+test("WBS UDFs go onto the summary tasks, sharing a same-titled activity UDF's field, and come back as WBS UDFs", async () => {
+  const { p6XerText, p6Problems } = await import("./p6xer.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const T = x.tables;
+  const pid = T.PROJECT[0].proj_id;
+  T.PROJWBS = [
+    { wbs_id: "700", proj_id: pid, proj_node_flag: "Y", wbs_short_name: "P", wbs_name: "Project", parent_wbs_id: "" },
+    { wbs_id: "701", proj_id: pid, proj_node_flag: "N", wbs_short_name: "A", wbs_name: "Area A", parent_wbs_id: "700" },
+    { wbs_id: "702", proj_id: pid, proj_node_flag: "N", wbs_short_name: "A1", wbs_name: "Level 1", parent_wbs_id: "701" },
+  ];
+  T.TASK[1].wbs_id = "702";
+  const [t1] = T.TASK;
+  T.UDFTYPE = [
+    { udf_type_id: "80", table_name: "TASK", udf_type_label: "Package", logical_data_type: "FT_INT" },
+    { udf_type_id: "81", table_name: "PROJWBS", udf_type_label: "Cost code", logical_data_type: "FT_TEXT" },
+    { udf_type_id: "82", table_name: "PROJWBS", udf_type_label: "Budget", logical_data_type: "FT_MONEY" },
+    { udf_type_id: "83", table_name: "PROJWBS", udf_type_label: "package", logical_data_type: "FT_INT" },
+    { udf_type_id: "84", table_name: "PROJWBS", udf_type_label: "Handover", logical_data_type: "FT_END_DATE" },
+    { udf_type_id: "85", table_name: "PROJWBS", udf_type_label: "Light", logical_data_type: "FT_STATICTYPE" },
+  ];
+  const v = (id, fk, o) => ({ udf_type_id: id, fk_id: fk, proj_id: pid, udf_date: "", udf_number: "", udf_text: "", udf_code_id: "", ...o });
+  T.UDFVALUE = [
+    v("80", t1.task_id, { udf_number: "7" }),
+    v("81", "701", { udf_text: "CC-01" }), v("81", "702", { udf_text: "CC-02" }), v("81", "700", { udf_text: "on the project node" }),
+    v("82", "701", { udf_number: "-1250.5" }), v("83", "702", { udf_number: "3" }), v("84", "701", { udf_date: "2027-02-01 17:00" }),
+    v("85", "702", {}),
+  ];
+  const r = mspdiText(x);
+  assert.equal(r.counts.udfFields, 1);
+  assert.equal(r.counts.wbsUdfFields, 4);
+  assert.equal(r.counts.wbsUdfValues, 5);
+  // the WBS "package" shares the activity "Package" field (Number1), so only
+  // three new fields are declared; text starts at Text2 (Text1 is the ID)
+  assert.deepEqual(r.wbsUdfFields.fields.map((f) => [f.alias, f.fieldName, !!f.shared]), [["Package", "Number1", true], ["Budget", "Cost1", false], ["Handover", "Date1", false], ["Cost code", "Text2", false]]);
+  assert.equal((r.xml.match(/<FieldName>Number1<\/FieldName>/g) || []).length, 1);
+  const tasks = parseXml(r.xml).children.find((c) => c.name === "Project").children.find((c) => c.name === "Tasks").children;
+  const byName = (n) => tasks.find((t) => t.children.find((c) => c.name === "Name")?.text === n);
+  const ext = (t) => Object.fromEntries(t.children.filter((c) => c.name === "ExtendedAttribute").map((e) => [e.children[0].text, e.children[1].text]));
+  assert.deepEqual(ext(byName("Area A")), { 188743731: "A", 188743734: "CC-01", 188743786: "-125050", 188743945: "2027-02-01T17:00:00" });
+  assert.deepEqual(ext(byName("Level 1")), { 188743731: "A1", 188743734: "CC-02", 188743767: "3" });
+  assert.ok(r.warnings.some((w) => /indicator or code WBS user-defined field\(s\).*Light/.test(w)));
+  assert.ok(r.warnings.some((w) => /2 WBS user-defined field value\(s\) \(1 on the project node/.test(w)));
+
+  // back to P6: WBS UDFs on the WBS nodes, the activity UDF on its activity
+  const back = p6XerText(r.xml);
+  const B = parseXer(back.text).tables;
+  assert.deepEqual(p6Problems(B), []);
+  const types = new Map(B.UDFTYPE.map((u) => [u.udf_type_id, u]));
+  const wbsName = new Map(B.PROJWBS.map((w) => [w.wbs_id, w.wbs_name]));
+  const got = B.UDFVALUE.map((u) => { const t = types.get(u.udf_type_id); return [t.table_name, t.udf_type_label, t.logical_data_type, t.table_name === "PROJWBS" ? wbsName.get(u.fk_id) : "activity", u.udf_text || u.udf_number || u.udf_date]; }).sort();
+  assert.deepEqual(got, [
+    ["PROJWBS", "Budget", "FT_MONEY", "Area A", "-1250.5"],
+    ["PROJWBS", "Cost code", "FT_TEXT", "Area A", "CC-01"],
+    ["PROJWBS", "Cost code", "FT_TEXT", "Level 1", "CC-02"],
+    ["PROJWBS", "Handover", "FT_START_DATE", "Area A", "2027-02-01 17:00"],
+    ["PROJWBS", "Package", "FT_INT", "Level 1", "3"],
+    ["TASK", "Package", "FT_INT", "activity", "7"],
+  ]);
+  assert.equal(back.counts.wbsUdfFields, 4);
+  assert.equal(back.counts.udfFields, 1);
+});

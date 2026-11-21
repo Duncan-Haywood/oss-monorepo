@@ -518,6 +518,9 @@ export function parseMspdi(text) {
     ? { ACTVTYPE: [...oc.ACTVTYPE, ...(textCodes.ACTVTYPE || [])].map((r, k) => ({ ...r, seq_num: String(k + 1) })), ACTVCODE: [...oc.ACTVCODE, ...(textCodes.ACTVCODE || [])], TASKACTV: [...oc.TASKACTV, ...(textCodes.TASKACTV || [])] }
     : {};
   const udfs = readUdfFields(proj, taskNodes, new Set(TASK.map((r) => r.task_id)));
+  // the same fields on summary tasks -> WBS user-defined fields (with text)
+  const wbsUdfs = readUdfFields(proj, taskNodes, new Set(PROJWBS.map((w) => w.wbs_id)), "PROJWBS");
+  if (wbsUdfs.UDFTYPE) { udfs.UDFTYPE = [...(udfs.UDFTYPE || []), ...wbsUdfs.UDFTYPE]; udfs.UDFVALUE = [...(udfs.UDFVALUE || []), ...wbsUdfs.UDFVALUE]; }
 
   // relationships, after every task is known
   let summaryLinks = 0, pctLags = 0, elapsedLags = 0, crossProject = 0;
@@ -701,11 +704,17 @@ function readOutlineCodes(proj, taskNodes, taskIds, warnings) {
   return { ACTVTYPE, ACTVCODE, TASKACTV };
 }
 
-// Task Number, Cost and Date fields -> activity user-defined fields.
-function readUdfFields(proj, taskNodes, taskIds) {
+// Task Number, Cost and Date fields -> activity user-defined fields. With
+// table "PROJWBS" (taskIds then the summary tasks' UIDs, which are the WBS
+// ids) the same fields and the Text fields (not the Activity ID one, which
+// holds the WBS code) -> WBS user-defined fields: msproject.mjs writes WBS
+// UDFs onto the summary tasks.
+function readUdfFields(proj, taskNodes, taskIds, table = "TASK") {
   const defs = new Map();
   for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) defs.set(val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") });
-  const known = new Set(UDF_FIELD_IDS.map(([id]) => id));
+  const wbs = table === "PROJWBS";
+  const fieldList = wbs ? [...UDF_FIELD_IDS, ...TASK_TEXT_IDS.filter((id) => !/^activity id$/i.test(defs.get(id)?.alias || "")).map((id) => [id, "text", `Text${TASK_TEXT_IDS.indexOf(id) + 1}`])] : UDF_FIELD_IDS;
+  const known = new Set(fieldList.map(([id]) => id));
   const fields = new Map(); // field id -> Map(task uid -> value)
   for (const t of taskNodes) {
     const uid = val(t, "UID");
@@ -718,11 +727,12 @@ function readUdfFields(proj, taskNodes, taskIds) {
     }
   }
   const UDFTYPE = [], UDFVALUE = [];
-  for (const [id, kind, name] of UDF_FIELD_IDS) {
+  for (const [id, kind, name] of fieldList) {
     const vals = fields.get(id);
     if (!vals) continue;
     const rows = [];
     for (const [uid, v] of vals) {
+      if (kind === "text") { rows.push({ uid, udf_date: "", udf_number: "", udf_text: v }); continue; }
       if (kind === "date") { const d = date(v); if (d) rows.push({ uid, udf_date: d, udf_number: "" }); continue; }
       const n = Number(v);
       if (!Number.isFinite(n)) continue;
@@ -730,10 +740,10 @@ function readUdfFields(proj, taskNodes, taskIds) {
     }
     if (!rows.length) continue;
     const def = defs.get(id) || {};
-    const typeId = `mspdi-${name.toLowerCase()}`;
-    const type = kind === "date" ? "FT_START_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
-    UDFTYPE.push({ udf_type_id: typeId, table_name: "TASK", udf_type_name: `user_${name.toLowerCase()}`, udf_type_label: def.alias || def.name || name, logical_data_type: type });
-    for (const r of rows) UDFVALUE.push({ udf_type_id: typeId, fk_id: r.uid, proj_id: "1", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: "", udf_code_id: "" });
+    const typeId = `mspdi-${wbs ? "wbs-" : ""}${name.toLowerCase()}`;
+    const type = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
+    UDFTYPE.push({ udf_type_id: typeId, table_name: table, udf_type_name: `user_${wbs ? "wbs_" : ""}${name.toLowerCase()}`, udf_type_label: def.alias || def.name || name, logical_data_type: type });
+    for (const r of rows) UDFVALUE.push({ udf_type_id: typeId, fk_id: r.uid, proj_id: "1", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: r.udf_text || "", udf_code_id: "" });
   }
   return UDFTYPE.length ? { UDFTYPE, UDFVALUE } : {};
 }

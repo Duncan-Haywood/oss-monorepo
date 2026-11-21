@@ -1,0 +1,268 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC-wbs-planted.xer",
+  "wbsUdfTypes": 8,
+  "valuesInFile": 6567,
+  "onProjectNode": 1,
+  "onWrittenNodes": 6566,
+  "inFieldsWritten": 5088,
+  "byKind": {
+   "cost": {
+    "meant": 985,
+    "back": 985
+   },
+   "number": {
+    "meant": 2462,
+    "back": 2462
+   },
+   "date": {
+    "meant": 1641,
+    "back": 1641
+   }
+  },
+  "back": 5088,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 5,
+  "typeChanged": [
+   "Warranty ends: FT_END_DATE -> FT_START_DATE"
+  ],
+  "sharedFields": [
+   "user_integer1 (Number2)"
+  ],
+  "problems": 0,
+  "warnings": [
+   "2 text WBS user-defined fields are used and Project has 0 Text fields activity codes and UDFs leave free: left out: Cost code (985), user_text2 (493)",
+   "not carried: 3541 activity code assignment(s) of the 13 code type(s) past Project's 29 spare text fields, 746 user-defined field value(s) of 10 field(s) with no room or no Project equivalent, 1479 WBS user-defined field value(s) (1 on the project node or a WBS the file does not write) with no room or no Project equivalent"
+  ],
+  "activityUdfValuesBack": 13174,
+  "activityUdfValuesWritten": 13174,
+  "mpxj": {
+   "aliases": "6/6",
+   "xmlCells": "5088/5088",
+   "xerCells": "5088/5088",
+   "emptyWbsReadAsTasks": 91,
+   "bad": []
+  }
+ },
+ {
+  "file": "Expressway_Project-wbs-planted.xer",
+  "wbsUdfTypes": 8,
+  "valuesInFile": 1194,
+  "onProjectNode": 1,
+  "onWrittenNodes": 1193,
+  "inFieldsWritten": 1193,
+  "byKind": {
+   "text": {
+    "meant": 269,
+    "back": 269
+   },
+   "cost": {
+    "meant": 179,
+    "back": 179
+   },
+   "number": {
+    "meant": 447,
+    "back": 447
+   },
+   "date": {
+    "meant": 298,
+    "back": 298
+   }
+  },
+  "back": 1193,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 7,
+  "typeChanged": [
+   "Warranty ends: FT_END_DATE -> FT_START_DATE"
+  ],
+  "sharedFields": [
+   "DIFF (Number1)",
+   "user_text1 (Text2)"
+  ],
+  "problems": 0,
+  "warnings": [
+   "not carried: 1 WBS user-defined field value(s) (1 on the project node or a WBS the file does not write) with no room or no Project equivalent, 86 notebook entries"
+  ],
+  "activityUdfValuesBack": 823,
+  "activityUdfValuesWritten": 823,
+  "mpxj": {
+   "aliases": "8/8",
+   "xmlCells": "1193/1193",
+   "xerCells": "1193/1193",
+   "emptyWbsReadAsTasks": 0,
+   "bad": []
+  }
+ },
+ {
+  "file": "example_xer_file-wbs-planted.xer",
+  "wbsUdfTypes": 6,
+  "valuesInFile": 103,
+  "onProjectNode": 1,
+  "onWrittenNodes": 102,
+  "inFieldsWritten": 102,
+  "byKind": {
+   "text": {
+    "meant": 18,
+    "back": 18
+   },
+   "cost": {
+    "meant": 18,
+    "back": 18
+   },
+   "number": {
+    "meant": 36,
+    "back": 36
+   },
+   "date": {
+    "meant": 30,
+    "back": 30
+   }
+  },
+  "back": 102,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 5,
+  "typeChanged": [
+   "Warranty ends: FT_END_DATE -> FT_START_DATE"
+  ],
+  "sharedFields": [],
+  "problems": 0,
+  "warnings": [
+   "not carried: 1 WBS user-defined field value(s) (1 on the project node or a WBS the file does not write) with no room or no Project equivalent, 1 notebook entry"
+  ],
+  "activityUdfValuesBack": 0,
+  "activityUdfValuesWritten": 0,
+  "mpxj": {
+   "aliases": "6/6",
+   "xmlCells": "102/102",
+   "xerCells": "102/102",
+   "emptyWbsReadAsTasks": 0,
+   "bad": []
+  }
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "wbsUdfTypes": 0,
+  "valuesInFile": 0,
+  "onProjectNode": 0,
+  "onWrittenNodes": 0,
+  "inFieldsWritten": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 0,
+  "typeChanged": [],
+  "sharedFields": [],
+  "problems": 0,
+  "warnings": [],
+  "activityUdfValuesBack": 13174,
+  "activityUdfValuesWritten": 13174
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "wbsUdfTypes": 0,
+  "valuesInFile": 0,
+  "onProjectNode": 0,
+  "onWrittenNodes": 0,
+  "inFieldsWritten": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 0,
+  "typeChanged": [],
+  "sharedFields": [],
+  "problems": 0,
+  "warnings": [],
+  "activityUdfValuesBack": 823,
+  "activityUdfValuesWritten": 823
+ },
+ {
+  "file": "example_xer_file.xer",
+  "wbsUdfTypes": 0,
+  "valuesInFile": 0,
+  "onProjectNode": 0,
+  "onWrittenNodes": 0,
+  "inFieldsWritten": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 0,
+  "typeChanged": [],
+  "sharedFields": [],
+  "problems": 0,
+  "warnings": [],
+  "activityUdfValuesBack": 0,
+  "activityUdfValuesWritten": 0
+ },
+ {
+  "file": "hotel-project.xer",
+  "wbsUdfTypes": 0,
+  "valuesInFile": 0,
+  "onProjectNode": 0,
+  "onWrittenNodes": 0,
+  "inFieldsWritten": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 0,
+  "typeChanged": [],
+  "sharedFields": [],
+  "problems": 0,
+  "warnings": [],
+  "activityUdfValuesBack": 0,
+  "activityUdfValuesWritten": 0
+ },
+ {
+  "file": "sample.xer",
+  "wbsUdfTypes": 0,
+  "valuesInFile": 0,
+  "onProjectNode": 0,
+  "onWrittenNodes": 0,
+  "inFieldsWritten": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 0,
+  "typeChanged": [],
+  "sharedFields": [],
+  "problems": 0,
+  "warnings": [],
+  "activityUdfValuesBack": 0,
+  "activityUdfValuesWritten": 0
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "wbsUdfTypes": 0,
+  "valuesInFile": 0,
+  "onProjectNode": 0,
+  "onWrittenNodes": 0,
+  "inFieldsWritten": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "extraBack": 0,
+  "typeKept": 0,
+  "typeChanged": [],
+  "sharedFields": [],
+  "problems": 0,
+  "warnings": [],
+  "activityUdfValuesBack": 0,
+  "activityUdfValuesWritten": 0
+ }
+]

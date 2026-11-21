@@ -37,8 +37,9 @@
   as Number/Cost/Date/Text fields shipped 2026-11-21
   (eval/msproject-udfs-2026-11-21.md; P6 has no yes/no UDF, so no Flag
   fields). Resource UDFs as resource fields shipped 2026-11-21
-  (eval/rsrc-udfs-2026-11-21.md, both directions). Next: WBS UDFs (on the
-  summary tasks);
+  (eval/rsrc-udfs-2026-11-21.md, both directions). WBS UDFs on the summary
+  tasks shipped 2026-11-21 (eval/wbs-udfs-2026-11-21.md, both directions,
+  planted: no public XER has one; next: a real file with WBS UDFs);
   keep the Date UDF start/finish subtype on the way back; activity codes as outline codes shipped 2026-11-21 (opt-in
   `--outline-codes`, eval/msproject-outline-2026-11-21.md; next: open one in
   Microsoft Project to settle the default and which task form it wants); the 8 CCA code types past 29 fields. MSPDI to XER for P6 import
