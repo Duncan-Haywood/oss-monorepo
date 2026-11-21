@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { planRect, assignEnvelope, assignRailingSides, isLeaf } from "./envelope.mjs";
+import { planRect, assignEnvelope, assignRailingSides, isLeaf, roofFaces, roofCut, isRoofPiece } from "./envelope.mjs";
 import { ruleCode } from "./uniformat.mjs";
 
 // a wall as a box body from (x0,y0) to (x1,y1) in plan, 0..3 m high
@@ -110,4 +110,83 @@ test("railings: a balcony guard outside the walls is open, a gallery guard insid
   assert.equal(high.railSide, undefined);
   assignRailingSides([...house(), alone]);
   assert.equal(alone.railSide, undefined);
+});
+
+// a roof plane as a closed slab body: rising from (y0, z0) to (y1, z1) across
+// x 0..10, 0.2 m thick vertically
+const roofSlab = (y0, z0, y1, z1) => {
+  const a = [[-0.5, y0, z0], [10.5, y0, z0], [10.5, y1, z1], [-0.5, y1, z1]];
+  const b = a.map(([x, y, z]) => [x, y, z + 0.2]);
+  return { terms: [{ faces: [a, b, [a[0], a[1], b[1], b[0]], [a[1], a[2], b[2], b[1]], [a[2], a[3], b[3], b[2]], [a[3], a[0], b[0], b[3]]] }] };
+};
+const roofRow = (body, o = {}) => ({ id: nid++, ifcClass: "IfcSlab", ifcType: "IFCSLAB", effectiveClass: "IFCSLAB", predefinedType: "ROOF", roofFaces: roofFaces(body, I), ...o });
+
+// a storey-and-a-half house: ground floor walls 0..3 m, an attic over it with
+// low eaves walls (3..3.4 m), gables and knee walls 2 m in from the eaves
+// under a 45-degree roof from both eaves to a ridge at y = 4
+const atticHouse = () => {
+  const ground = [wall(0, 0, 10, 0.3), wall(0, 7.7, 10, 8), wall(0, 0, 0.3, 8), wall(9.7, 0, 10, 8)];
+  const eaves = [wall(0, 0, 10, 0.3, { z0: 3, z1: 3.4 }), wall(0, 7.7, 10, 8, { z0: 3, z1: 3.4 })];
+  const gables = [wall(0, 0, 0.3, 8, { z0: 3, z1: 7 }), wall(9.7, 0, 10, 8, { z0: 3, z1: 7 })];
+  const knee = [wall(0.3, 2, 9.7, 2.1, { z0: 3, z1: 4.5 }), wall(0.3, 5.9, 9.7, 6, { z0: 3, z1: 4.5 })];
+  const roofs = [roofRow(roofSlab(-0.5, 2.9, 4, 7.4)), roofRow(roofSlab(8.5, 2.9, 4, 7.4))];
+  return { ground, eaves, gables, knee, roofs, rows: [...ground, ...eaves, ...gables, ...knee, ...roofs] };
+};
+
+test("a sloped roof is cut at a level into plan segments", () => {
+  const rf = roofFaces(roofSlab(-0.5, 2.9, 4, 7.4), I);
+  assert.ok(rf && rf.z1 - rf.z0 > 4);
+  const segs = roofCut(rf, 3.75);
+  assert.ok(segs.length >= 2);
+  // the underside crosses 3.75 m at y = -0.5 + 0.85 = 0.35
+  assert.ok(segs.some(([a, b]) => Math.abs(a[1] - 0.35) < 1e-6 && Math.abs(b[1] - 0.35) < 1e-6), JSON.stringify(segs));
+  assert.deepEqual(roofCut(rf, 8), []);
+  // a flat roof slab is not kept
+  assert.equal(roofFaces(box(0, 0, 10, 8, 3, 3.3), I), null);
+});
+
+test("attic knee walls under a sloped roof read interior; gables and eaves stay exterior", () => {
+  const h = atticHouse();
+  assignEnvelope(h.rows);
+  assert.deepEqual(h.knee.map((r) => r.envelope.exterior), [false, false]);
+  assert.deepEqual(h.knee.map((r) => r.envelope.underRoof), [true, true]);
+  assert.deepEqual(h.gables.map((r) => r.envelope.exterior), [true, true]);
+  assert.deepEqual(h.eaves.map((r) => r.envelope.exterior), [true, true]);
+  assert.deepEqual(h.ground.map((r) => r.envelope.exterior), [true, true, true, true]);
+  assert.equal(ruleCode(h.knee[0], () => null).code, "C1010");
+  // without the roofs the knee walls read exterior, as before
+  const g = atticHouse();
+  assignEnvelope(g.rows, { roofs: false });
+  assert.deepEqual(g.knee.map((r) => r.envelope.exterior), [true, true]);
+});
+
+test("a roof hit with no lower wall beyond it does not close a wall (eaves overhang)", () => {
+  // one storey, walls 0..2.4 m (ray at 1.2 m), a steep roof whose overhang
+  // comes down below 1.2 m outside the walls
+  const walls = [wall(0, 0, 10, 0.3, { z1: 2.4 }), wall(0, 7.7, 10, 8, { z1: 2.4 }), wall(0, 0, 0.3, 8, { z1: 2.4 }), wall(9.7, 0, 10, 8, { z1: 2.4 })];
+  const roofs = [roofRow(roofSlab(-1.5, 0.9, 4, 6.4)), roofRow(roofSlab(9.5, 0.9, 4, 6.4))];
+  assignEnvelope([...walls, ...roofs]);
+  assert.deepEqual(walls.map((r) => r.envelope.exterior), [true, true, true, true]);
+});
+
+test("roof pieces: ROOF slabs, ROOFING coverings, parts of an IfcRoof and slabs named as roofs", () => {
+  const byId = new Map([[50, { id: 50, ifcType: "IFCROOF", effectiveClass: "IFCROOF", isAssembly: true }]]);
+  assert.ok(isRoofPiece({ effectiveClass: "IFCSLAB", predefinedType: "ROOF" }, byId));
+  assert.ok(isRoofPiece({ effectiveClass: "IFCCOVERING", predefinedType: "ROOFING" }, byId));
+  assert.ok(isRoofPiece({ effectiveClass: "IFCSLAB", predefinedType: "FLOOR", parent: 50 }, byId));
+  assert.ok(isRoofPiece({ effectiveClass: "IFCPLATE", name: "Dakbeschot_hellend" }, byId) === false);
+  assert.ok(isRoofPiece({ effectiveClass: "IFCSLAB", type: "Dach-Ziegel" }, byId));
+  assert.ok(!isRoofPiece({ effectiveClass: "IFCSLAB", predefinedType: "FLOOR", name: "Floor 200" }, byId));
+  assert.ok(!isRoofPiece(byId.get(50), byId));
+});
+
+test("a dormer wall standing on the attic floor and rising through the roof stays exterior", () => {
+  const h = atticHouse();
+  // a dormer front 1 m in from the eaves, 0..3 m above the attic floor (3..6 m):
+  // the roof crosses 4.2 m outside it, but at 5.5 m the roof is inside its line
+  const dormer = wall(3, 1, 7, 1.15, { z0: 3, z1: 6 });
+  assignEnvelope([...h.rows, dormer]);
+  assert.equal(dormer.envelope.exterior, true);
+  assert.equal(dormer.envelope.underRoof, false);
+  assert.deepEqual(h.knee.map((r) => r.envelope.exterior), [false, false]);
 });

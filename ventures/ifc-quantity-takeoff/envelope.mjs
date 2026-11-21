@@ -20,6 +20,14 @@
 // facade can read as interior), a facade with gaps in its model (partitions
 // behind a gap read as exterior), and a building modelled without its outer
 // walls.
+//
+// Sloped roofs block too, where they cross a wall's ray height: an attic knee
+// wall's rays meet the roof's underside on their way out. A roof hit counts
+// only when the same ray, in plan, also crosses a lower wall beyond it (the
+// eaves wall the roof comes down onto), so an exterior wall whose eaves
+// overhang reaches below its ray height, with nothing outside it, stays
+// exterior. A wall the roof closes is read again near its top, so a dormer
+// wall that rises through the roof stays exterior.
 
 import { apply, solidPoints } from "./geom.mjs";
 
@@ -56,6 +64,72 @@ export function planRect(body, W, f = 1) {
   return { c: [cn * n[0] + cu * u[0], cn * n[1] + cu * u[1]], u, hl: (uhi - ulo) / 2, ht: (nhi - nlo) / 2, z0, z1 };
 }
 
+const ROOF_SLOPE_MIN = 0.5; // m of rise in one roof piece: a flat roof never crosses a wall's ray height
+
+/**
+ * The faces of a body under world matrix W (unit f) in metres, kept for a
+ * roof piece that rises ROOF_SLOPE_MIN or more (a sloped roof the envelope
+ * test cuts at each wall's ray height), else null.
+ */
+export function roofFaces(body, W, f = 1) {
+  const faces = [];
+  let z0 = Infinity, z1 = -Infinity;
+  const add = (loop) => {
+    const q = loop.map((p) => { const w = apply(W, p); const r = [w[0] * f, w[1] * f, w[2] * f]; if (r[2] < z0) z0 = r[2]; if (r[2] > z1) z1 = r[2]; return r; });
+    if (q.length >= 3) faces.push(q);
+  };
+  for (const t of body.terms || []) for (const fc of t.faces) add(fc);
+  for (const sh of body.shells || []) for (const fc of sh.loops) add(fc);
+  return faces.length && z1 - z0 >= ROOF_SLOPE_MIN ? { faces, z0, z1 } : null;
+}
+
+// the segments in plan where the faces cross the level z
+export function roofCut(rf, z) {
+  if (z <= rf.z0 || z >= rf.z1) return [];
+  const segs = [];
+  for (const f of rf.faces) {
+    const pts = [];
+    for (let i = 0; i < f.length; i++) {
+      const a = f[i], b = f[(i + 1) % f.length];
+      if ((a[2] < z) !== (b[2] < z)) { const t = (z - a[2]) / (b[2] - a[2]); pts.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+    }
+    if (pts.length < 2) continue;
+    // a face that is not convex can cross the level more than twice: pair the
+    // crossings in order along the cut
+    const dx = pts[1][0] - pts[0][0], dy = pts[1][1] - pts[0][1];
+    pts.sort((p, q) => (p[0] - q[0]) * dx + (p[1] - q[1]) * dy);
+    for (let i = 0; i + 1 < pts.length; i += 2) segs.push([pts[i], pts[i + 1]]);
+  }
+  return segs;
+}
+
+// distance along a ray to the nearest segment, or Infinity
+function segHit(o, d, segs) {
+  let best = Infinity;
+  for (const [a, b] of segs) {
+    const ex = b[0] - a[0], ey = b[1] - a[1];
+    const den = d[0] * ey - d[1] * ex;
+    if (Math.abs(den) < 1e-12) continue;
+    const ax = a[0] - o[0], ay = a[1] - o[1];
+    const t = (ax * ey - ay * ex) / den, s = (ax * d[1] - ay * d[0]) / den;
+    if (t > 0 && s >= -1e-9 && s <= 1 + 1e-9 && t < best) best = t;
+  }
+  return best;
+}
+
+const ROOF_WORDS = /\b(roof|roofs|roofing|dak|dakvlak|dach|dachfl[aä]che|tak|toit|techo|cubierta|tetto)\b/;
+/** A row that is a piece of a roof: an IfcRoof with its own body, a ROOF slab, ROOFING covering, a part of an IfcRoof, or a slab or plate named as a roof. */
+export function isRoofPiece(r, byId) {
+  const c = r.effectiveClass || r.ifcType || "";
+  if (r.isAssembly) return false;
+  if (c === "IFCROOF") return true;
+  if (/^IFCSLAB/.test(c) && r.predefinedType === "ROOF") return true;
+  if (/^IFCCOVERING/.test(c) && r.predefinedType === "ROOFING") return true;
+  const parent = r.parent != null ? byId.get(r.parent) : null;
+  if (parent && (parent.effectiveClass || parent.ifcType) === "IFCROOF") return true;
+  return /^IFC(SLAB|PLATE|COVERING)/.test(c) && ROOF_WORDS.test(`${r.name ?? ""} ${r.type ?? ""}`.toLowerCase().replace(/[_\-:]/g, " "));
+}
+
 // distance along a ray (origin o, unit direction d) to an oriented
 // rectangle grown by `pad`, or Infinity when it misses
 function rayHit(o, d, r, pad) {
@@ -90,6 +164,10 @@ const UNIFORM_MIN = 10, UNIFORM_SHARE = 0.2;
 const FAN = [0, 30, -30, 60, -60].map((a) => (a * Math.PI) / 180);
 const SAMPLES = 9;
 const PAD = 0.05; // m: walls drawn to meet at a corner rarely meet exactly
+const LOW_WALL_REACH = 3.5; // m below the ray height: how low an eaves wall's top may sit
+const TOP_RAY = 0.5; // m below a wall's top: the second height read on a wall the roof closes
+const LOW_WALL_GAP = 0.1; // m: a lower wall nearer than this is the one under the wall
+const ROOF_EAVES_SLACK = 0.5; // m: an eaves wall may start this far inside the roof's cut
 
 /**
  * What stops a ray: walls, curtain walls, and the pieces of a facade that
@@ -119,8 +197,10 @@ export function isBlocker(r) {
  * every wall of a model whose IsExternal is the same on all its walls while
  * the geometry reads a fifth or more of them the other way.
  */
-export function assignEnvelope(rows) {
+export function assignEnvelope(rows, opts = {}) {
   const blockers = rows.filter((r) => r.plan && isBlocker(r));
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const roofs = opts.roofs === false ? [] : rows.filter((r) => r.roofFaces && isRoofPiece(r, byId));
   for (const w of rows) {
     if (!w.plan || !/^IFCWALL/.test(w.effectiveClass || w.ifcType || "")) continue;
     const p = w.plan;
@@ -131,12 +211,36 @@ export function assignEnvelope(rows) {
     // lining on a wall, modelled as two walls) are seen through, so an inner
     // leaf is read with its skin
     const apart = near.filter((b) => !isLeaf(p, b.plan));
-    const own = openCount(p, apart);
-    const side = own[0] >= own[1] ? 0 : 1;
-    const exterior = own[side] * 2 >= SAMPLES;
+    // sloped roofs crossing the ray height, and the lower walls (top below
+    // the ray height, within a storey of it) a roof hit must have beyond it
+    const segs = roofs.flatMap((r) => roofCut(r.roofFaces, zr));
+    const roof = segs.length ? { segs, low: blockers.filter((b) => b !== w && /^IFCWALL/.test(b.effectiveClass || b.ifcType || "") && b.plan.z1 < zr && b.plan.z1 > zr - LOW_WALL_REACH) } : null;
+    let own = openCount(p, apart, roof);
+    let side = own[0] >= own[1] ? 0 : 1;
+    let exterior = own[side] * 2 >= SAMPLES;
+    // read without the roof, would it be outside? then the roof closed it
+    let underRoof = false;
+    if (roof && !exterior) {
+      const bare = openCount(p, apart);
+      underRoof = Math.max(...bare) * 2 >= SAMPLES;
+      // a wall the roof closes at its ray height may still rise through the
+      // roof (a dormer's front and cheeks): read it again near its top, and
+      // if it is open there it is on the outside
+      if (underRoof) {
+        const zu = p.z1 - Math.min(TOP_RAY, (p.z1 - p.z0) / 4);
+        if (zu > zr + 0.3) {
+          const nearU = blockers.filter((b) => b !== w && b.plan.z0 <= zu && b.plan.z1 >= zu && !isLeaf(p, b.plan));
+          const segsU = roofs.flatMap((r) => roofCut(r.roofFaces, zu));
+          const roofU = segsU.length ? { segs: segsU, low: blockers.filter((b) => b !== w && /^IFCWALL/.test(b.effectiveClass || b.ifcType || "") && b.plan.z1 < zu && b.plan.z1 > zu - LOW_WALL_REACH) } : null;
+          const up = openCount(p, nearU, roofU);
+          const sideU = up[0] >= up[1] ? 0 : 1;
+          if (up[sideU] * 2 >= SAMPLES) { own = up; side = sideU; exterior = true; underRoof = false; }
+        }
+      }
+    }
     // read on its own, would it be inside? then it is a lining or inner leaf
-    const alone = exterior && apart.length < near.length ? Math.max(...openCount(p, near)) : own[side];
-    w.envelope = { exterior, open: own[side], points: SAMPLES, side: side ? "-" : "+", leaf: exterior && alone * 2 < SAMPLES, flagSaysNothing: false };
+    const alone = exterior && apart.length < near.length ? Math.max(...openCount(p, near, roof)) : own[side];
+    w.envelope = { exterior, open: own[side], points: SAMPLES, side: side ? "-" : "+", leaf: exterior && alone * 2 < SAMPLES, underRoof, flagSaysNothing: false };
   }
   // A model that flags every wall the same way (HHS Office's architect
   // model and advanced_model flag all their walls IsExternal, partitions
@@ -185,7 +289,8 @@ export function assignRailingSides(rows) {
 }
 
 // how many sample points on each face of p have a ray that crosses nothing
-function openCount(p, near) {
+// (a roof cut counts only with a lower wall beyond it: roof.segs, roof.low)
+function openCount(p, near, roof = null) {
   const n = [-p.u[1], p.u[0]];
   const open = [0, 0];
   for (let k = 0; k < SAMPLES; k++) {
@@ -196,7 +301,14 @@ function openCount(p, near) {
       for (const a of FAN) {
         const dx = n[0] * sg, dy = n[1] * sg;
         const d = [dx * Math.cos(a) - dy * Math.sin(a), dx * Math.sin(a) + dy * Math.cos(a)];
-        if (near.every((b) => rayHit(o, d, b.plan, PAD) === Infinity)) { open[side]++; break; }
+        if (!near.every((b) => rayHit(o, d, b.plan, PAD) === Infinity)) continue;
+        if (roof) {
+          const tr = segHit(o, d, roof.segs);
+          // a lower wall out in front (not the one this wall stands on, which
+          // the ray starts inside) and no nearer than the roof's cut, less slack
+          if (tr < Infinity && roof.low.some((b) => { const t = rayHit(o, d, b.plan, PAD); return t < Infinity && t > LOW_WALL_GAP && t > tr - ROOF_EAVES_SLACK; })) continue;
+        }
+        open[side]++; break;
       }
     }
   }
