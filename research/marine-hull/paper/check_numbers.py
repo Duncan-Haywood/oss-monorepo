@@ -222,6 +222,13 @@ CLAIMS = [
     ("results_gb_speed_terms.txt", "row V1_no_UdA/dx_in_Raw 0.787"),
     ("results_gb_speed_terms.txt", "row V0_base 0.929"),
     ("results_gb_speed_terms.txt", "row V0_base 0.326 0.219"),
+    # milestone 7zs: near-field (Boese / PDSTRIP) against GB
+    ("results_nearfield_pdstrip.txt", "NF / measured: I 1.178, III 1.328"),
+    ("results_nearfield_pdstrip.txt", "7zg: area over measured 5.773: GB 0.905, GB+F 0.929, NF 1.522, NF+F 1.547, NF0 0.863"),
+    ("results_nearfield_pdstrip.txt", "7zg   NF0: rms 0.165"),
+    ("results_nearfield_pdstrip.txt", "7zg  GB+F: rms 0.219"),
+    ("results_nearfield_pdstrip.txt", "N1 NF / Maruo free on 0.5-2.0: T 1.566, M 1.413"),
+    ("results_nearfield_pdstrip.txt", "NF0  25.12 @1.00 (0.790)"),
 
 ]
 
