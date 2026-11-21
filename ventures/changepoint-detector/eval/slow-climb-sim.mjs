@@ -4,6 +4,7 @@
 //   node eval/slow-climb-sim.mjs --combine > eval/slow-climb-sim.out.txt
 // Every process draws all 600 shops from the one seed in the pre-registered order and replays every 4th (index mod 4).
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { replayWatch } from '../watch-core.mjs';
 import { slopeBreaks } from '../slope-breaks.mjs';
 const arg = process.argv[2];
@@ -75,7 +76,7 @@ function score(alerts, a, L) {
   const hit3 = alerts.some((y) => { const d = day(y.label) - A, sent = day(y.reportedAtLabel); return d >= -7 && d <= L && sent >= A && sent - day(y.label) <= 14; });
   return { hit, hit3, delay: hit ? day(hit.reportedAtLabel) - A : null };
 }
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain && arg === '--combine') {
   for (let p = 0; p < 4; p++) {
     const lines = readFileSync(new URL(`./slow-climb-sim.${p}.part`, import.meta.url), 'utf8').trimEnd().split('\n');
