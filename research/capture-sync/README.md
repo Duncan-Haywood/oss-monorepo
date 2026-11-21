@@ -168,6 +168,9 @@ python experiments/baselines/consistency.py check ~/ms-snsd   # ~10 min
 OMP_NUM_THREADS=1 python experiments/baselines/consistency.py collect ~/ms-snsd /tmp/windows_4c.npz --procs 4   # ~31 min
 python experiments/baselines/consistency.py score /tmp/windows_4c.npz && python experiments/baselines/consistency_figure.py
 python experiments/baselines/consistency_why.py /tmp/windows_4c.npz   # post hoc diagnostics, ~15 min
+# step 4d: paderwasn's online tracker (ported to src/capture_sync/wacd.py) against windowed GCC on drifting sessions
+OMP_NUM_THREADS=1 python experiments/baselines/tracker.py collect ~/ms-snsd /tmp/rows_4d.json --procs 4   # ~50 min
+python experiments/baselines/tracker.py score /tmp/rows_4d.json && python experiments/baselines/tracker_figure.py
 # step 4b: the same baselines at 2, 4 and 8 s windows
 OMP_NUM_THREADS=1 python experiments/baselines/winlength.py collect ~/ms-snsd /tmp/windows_4b.npz --procs 4   # ~70 min
 python experiments/baselines/winlength.py score /tmp/windows_4b.npz && python experiments/baselines/winlength_figure.py
