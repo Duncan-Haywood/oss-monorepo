@@ -299,7 +299,7 @@ class Joint:
     fastener: str
     length: float            # under-head length (shoulder length for a shoulder bolt)
     d: int                   # thread diameter
-    kind: str                # nut | insert | shoulder | rivet | standoff | tnut | tapped
+    kind: str                # nut | insert | shoulder | clamp (a shoulder bolt clamped on `into`) | rivet | standoff | tnut | tapped
     point: tuple
     axis: object             # "x" | "y" | "z" or a Location whose z is the axis (see frame_of)
     start: float
@@ -313,6 +313,11 @@ class Joint:
     far: str = ""            # nut joints that cross open frame: the last part clamped (the stack runs through gaps)
     access: bool = False     # check the head goes in along the axis, clear of the parts it clamps (access_problems)
     gap: float = 0.05        # largest gap the stack may cross (a printed part's clearance to the plate it bolts to)
+    insert_len: float = INSERT_LEN   # insert joints: the insert's length
+    thread: float = 0.0      # clamped shoulder bolts: the thread's length past the shoulder
+    free: float = 0.0        # clamped shoulder bolts: width on the shoulder the CAD does not draw (a clevis eye)
+    play: float = 1.0        # clamped shoulder bolts: most open length the shoulder may leave (designed gaps + float)
+    bolt: str = ""           # a fastener drawn as a part (the feeder's shoulder bolts): left out of its own stack
 
 
 def joints(p) -> list[Joint]:
@@ -371,7 +376,7 @@ def collector_joints(p: Collector) -> list[Joint]:
 def joint_checks(p, parts) -> tuple[list[dict], list[str]]:
     rows, bad = [], []
     for j in joints(p):
-        chain = _stack(parts, j.point, j.axis, j.start, j.sign, j.hole_r, j.head_r, gaps=bool(j.far), gap=j.gap)
+        chain = _stack([pt for pt in parts if pt.name != j.bolt] if j.bolt else parts, j.point, j.axis, j.start, j.sign, j.hole_r, j.head_r, gaps=bool(j.far), gap=j.gap)
         names = [c[0] for c in chain]
         if j.far:
             if j.far not in names:
@@ -396,8 +401,23 @@ def joint_checks(p, parts) -> tuple[list[dict], list[str]]:
             what = "nyloc" if not j.nut_h else "nut"
             ok, rule = spare >= need, f"needs {need:g} mm past the stack for the {what} and two threads"
         elif j.kind == "insert":
-            ok = INSERT_LEN <= spare <= j.room
-            rule = f"{INSERT_LEN:g} to {j.room:g} mm past the face, the insert's length to the pocket's depth"
+            ok = j.insert_len <= spare <= j.room
+            rule = f"{j.insert_len:g} to {j.room:g} mm past the face, the insert's length to the pocket's depth"
+        elif j.kind == "clamp":
+            # A shoulder bolt clamped on `into`: the shoulder ends on its face, the parts on the shoulder fill it but
+            # for the designed gaps, and the thread past the shoulder takes the nut (or stays in the insert/tap).
+            into_t = next(c[2] - c[1] for c in chain if c[0] == j.into)
+            filled = sum(c[2] - c[1] for c in chain[:names.index(j.into)]) + j.free
+            open_mm = grip - filled
+            if j.nut_h:
+                past = j.thread - into_t
+                need = j.nut_h + 2 * PITCH[j.d]
+                tok, trule = past >= need, f"its {j.thread:g} mm thread {past:g} mm past the {into_t:g} mm part, {need:g} for the nut and two threads"
+            else:
+                tok = j.d <= j.thread <= j.room
+                trule = f"its {j.thread:g} mm thread {j.d:g} to {j.room:g} mm into the part"
+            ok = abs(spare) <= 0.3 and 0 <= open_mm <= j.play and tok
+            rule = (f"shoulder ends on the face (+-0.3); {open_mm:g} mm open on it (0 to {j.play:g}); " + trule)
         elif j.kind == "shoulder":
             ok, rule = 0 <= spare <= 1.0, "shoulder 0-1 mm longer than the stack, so the arm swings"
         elif j.kind == "rivet":

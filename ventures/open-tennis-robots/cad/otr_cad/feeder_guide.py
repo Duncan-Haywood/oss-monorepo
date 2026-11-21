@@ -25,6 +25,9 @@ CORE_OFFSET = 10.0
 END_TAP_DEPTH = 15.0       # M5 tapped into an extrusion's core bore, mm (assumed: tap at least this deep)
 NEMA17_THREAD = 4.5        # M3 thread depth in a NEMA 17's front flange (17HS4401 drawings), mm
 M3_NUT_H = 2.4             # ISO 4032
+LAUNCHER_MOTOR_THREAD = 8.0  # M4 thread depth in the outrunners' mounting face, mm (assumed: read your motor's drawing)
+GM_FACE_THREAD = 5.0       # M3 thread depth in a 37 mm gearmotor's face, mm (assumed: read yours)
+M3_INSERT_LEN = 4.0        # the lift spacer's M3 heat-set inserts, mm (the boot's pockets are 4.0 x 6 mm)
 STANDOFF_THREAD = 8.0      # M5 thread depth at each end of an 80 mm female-female standoff, mm (assumed: check yours)
 
 VIEW = ((5200.0, -4300.0, 3200.0), (0, 0, 1), (-300.0, 0.0, 1100.0))  # origin, up, look-at
@@ -144,22 +147,32 @@ def steps(p: Feeder) -> list[Step]:
              "shuttle on the floor under the column (insert side toward the motor plate), and close the head with "
              "the guard plate (four M5 x 12 into the standoffs, four M4 x 12 into the floor and roof). The shuttle "
              "must slide its full stroke by hand.", on_sub=True, reach=p.feed_clear + 0.2),
-        Step("Head: shuttle drive", ["shuttle_servo_bracket", "shuttle_servo", "shuttle_crank", "shuttle_rod"],
+        Step("Head: shuttle drive", ["shuttle_servo_bracket", "shuttle_servo", "shuttle_crank", "shuttle_rod",
+                                     "shuttle_pin", "crank_pin"],
              [("M4 x 12 socket cap screw (servo legs)", 3), ("M4 x 10 socket cap screw (servo tabs)", 2),
-              ("M4 x 30 shoulder bolt (5 mm shoulder) + nyloc", 2)],
-             "3 mm and 2.5 mm hex keys, 7 mm spanner",
-             "Screw the servo bracket's three legs to the motor plate (M4 x 12 from inside the head into the leg "
-             "inserts) and the servo into the cradle by its tabs (two M4 x 10). Centre the servo, screw the crank "
-             "to its horn, and join crank and shuttle with the rod: one shoulder bolt through the rod and the "
-             "plate's slot into the shuttle's insert, one through the rod and the crank with a nyloc. Turn the "
-             "servo by hand through its range: the shuttle runs its stroke without binding.", on_sub=True, reach=1.5),
+              ("M4 heat-set insert, 4 mm long (crank pin)", 1)],
+             "3 mm and 2.5 mm hex keys, soldering iron with an insert tip",
+             "Press the short M4 insert into the rod's crank-end pocket from the side that will face the crank, flush "
+             "with that face. Screw the servo bracket's three legs to the motor plate (M4 x 12 from inside the head "
+             "into the leg inserts) and the servo into the cradle by its tabs (two M4 x 10). Centre the servo, screw "
+             "the crank to its horn, and join crank and shuttle with the rod (insert toward the crank): the 12 mm "
+             "shoulder bolt through the rod and the plate's slot into the shuttle's insert, tight, so its shoulder "
+             "seats on the shuttle; the 6 mm one through the crank into the rod's insert with a drop of threadlocker, "
+             "tight, so its shoulder seats on the insert and the crank turns on it. Neither takes a nut: there is "
+             "1 mm between the rod and the plate. Turn the servo by hand through its range: the shuttle runs its "
+             "stroke without binding.", on_sub=True, reach=1.5),
         Step("Hang the head and fit the elevation actuator",
-             ["elev_actuator", "elev_actuator_rod", "elev_pin", "elev_anchor_bolt"],
-             [("M8 x 120 bolt + nyloc nut + 4 washers", 1)], "13 mm spanners, 5 mm and 4 mm hex keys",
+             ["elev_actuator", "elev_actuator_rod", "elev_pin", "elev_pin_spacer_outer", "elev_pin_spacer_inner",
+              "elev_anchor_bolt", "elev_anchor_spacer_outer", "elev_anchor_spacer_inner"],
+             [("M8 x 120 bolt + nyloc nut + 4 washers", 1), ("Medium-strength threadlocker", 1)],
+             "13 mm and 8 mm spanners, 5 mm, 4 mm and 3 mm hex keys",
              "Lift the head between the cheeks and push the M8 pivot bolt through cheek, washer, head plate, head "
              "plate, washer and cheek, with a washer under the head and the nyloc. Tighten until the head swings "
              "freely with no end play. Fit the actuator's anchor eye to the guard cheek's tab and its rod eye to "
-             "the guard plate's pin, each on its M6 shoulder bolt, nut inside. Drive it to the head's level "
+             "the guard plate's pin, each on its 6 mm shoulder bolt (M5 thread) with the short printed spacer under the head and "
+             "the long one between the eye and the aluminium, and a thin M5 nut with threadlocker inside: the "
+             "shoulder seats on the plate, and the eye turns between the spacers. (The bolt's 9.5 mm thread leaves "
+             "4.5 mm past a 5 mm plate, too little for a nyloc and two threads.) Drive it to the head's level "
              "position before you let go: the head is nose-heavy or tail-heavy depending on the pose.",
              reach=F.ELEV_EYE_MM - 2.5),
         Step("Deck, battery and stepper driver carrier", ["base_deck", "battery", "stepper_driver_carrier"],
@@ -238,13 +251,14 @@ def steps(p: Feeder) -> list[Step]:
              ["lift_boot", "lift_shaft_bearing", "lift_shaft", "lift_slip_collar", "lift_slip_plate",
               "lift_slip_facing", "lift_slip_spring", "lift_pulley[0]", "lift_shaft_coupler", "lift_motor_spacer",
               "lift_motor"],
-             [("M3 x 6 screw (lift)", 6), ("M3 x 10 socket cap screw + M3 heat-set insert (lift)", 2)],
+             [(f"M3 x {F.LIFT_FACE_SCREW} screw (lift)", 6),
+              (f"M3 x {F.LIFT_EAR_SCREW} socket cap screw + M3 heat-set insert, 4 mm long (lift)", 2)],
              "arbor press or vice, 2.5 and 1.5 mm hex keys, luggage scale",
              "Press the two flanged bearings into the boot (cad/README.md, \"Lift drive shaft\"). Build the slip hub "
              "on the drive shaft through the boot: collar, plate, facing, the pulley, facing, plate, four disc "
              "springs cone to cone, collar; set it to slip at 0.9 N m as the slip plates' notes say. Screw the "
-             "gearmotor's face to the spacer's end wall (six M3 x 6 from inside), fit the coupling, and fix the "
-             "spacer's ears to the boot (two M3 x 10 into inserts).", new_subassembly=True,
+             f"gearmotor's face to the spacer's end wall (six M3 x {F.LIFT_FACE_SCREW} from inside), fit the coupling, "
+             f"and fix the spacer's ears to the boot (two M3 x {F.LIFT_EAR_SCREW} into inserts).", new_subassembly=True,
              reach=1.0),
         Step("Lift base plate and boot on the mast rails", ["lift_base_plate"],
              [("M5 x 12 button head + T-nut (lift)", 8), ("2040 corner bracket with M5 screws and T-nuts (lift)", 2)],
@@ -350,6 +364,14 @@ def joints(p: Feeder) -> list[Joint]:
     saddle_x, saddle_y = F.deck_cable_saddle_holes(p)[0]
     clamp = F.cable_clamp_screw(p)
     foot = F.pole_foot_screws(p)[0]
+    lay = F.elev_pin_layout(p)
+    ax_w, az_w = F.elev_anchor_world(p)
+    xs0, cx0, _ = p.shuttle_kinematics(0.0)
+    rod_out = F._rod_y(p) + p.shuttle_rod_t / 2
+    crank_out = F._crank_y(p) + p.shuttle_rod_t / 2
+    gd = p.lift_shaft_design()
+    gm_x = p.lift_x_pulley + F.GM_SCREW_R * math.cos(math.radians(30))
+    gm_z = p.lift_z_bottom + F.GM_SCREW_R * math.sin(math.radians(30))
     return [
         Joint("head standoff", "M5 x 12 button head", 12, 5, "standoff", _hw(p, so_x, so_z), "y", plate_out, -1,
               2.75, 4.75, "head_standoff", STANDOFF_THREAD),
@@ -409,6 +431,31 @@ def joints(p: Feeder) -> list[Joint]:
               "z", p.rail_top + F.POLE_FOOT_FLOOR, -1, 2.75, 4.75, "net_beam", access=True),
         Joint("cable clamp to crossbar", "M5 x 12 button head + T-nut (cable clamp)", 12, 5, "tnut",
               (0.0, 0.0, p.cable_clamp_z), "x", clamp, -1, 2.75, 4.75, "cable_crossbar"),   # head drops in from above
+        Joint("elevation pin (rod eye) through the guard plate", F.elev_pin_spec_short(), F.ELEV_PIN_SHOULDER, 5,
+              "clamp", _hw(p, p.elev_pin_x, p.elev_pin_z), "y", lay["pin"]["seat"], 1, 3.2, 5.0, "head_guard_plate",
+              far="head_guard_plate", thread=F.SHOULDER[5][1], nut_h=F.THIN_NUT[5][0], free=F.ELEV_EYE_W, bolt="elev_pin"),
+        Joint("elevation anchor (anchor eye) through the cheek's tab", F.elev_pin_spec_short(anchor=True),
+              F.ELEV_ANCHOR_SHOULDER, 5, "clamp", (ax_w, 0.0, az_w), "y", lay["anchor"]["seat"], 1, 3.2, 5.0,
+              "trunnion_cheek_elev", far="trunnion_cheek_elev", thread=F.SHOULDER[5][1], nut_h=F.THIN_NUT[5][0],
+              free=F.ELEV_EYE_W, bolt="elev_anchor_bolt"),
+        Joint("shuttle pin through the rod and the plate's slot", f"M4 shoulder bolt, 5 x {F.SHUTTLE_PIN_SHOULDER:g}",
+              F.SHUTTLE_PIN_SHOULDER, 4, "clamp", (p.head_x + xs0, 0.0, p.launch_z + p.shuttle_zc), "y", rod_out, -1,
+              2.7, 4.5, "feed_shuttle", room=F.SHUTTLE_INSERT_DEPTH, far="feed_shuttle", thread=F.SHOULDER[4][1],
+              play=2.2, bolt="shuttle_pin"),
+        Joint("crank pin through the crank", f"M4 shoulder bolt, 5 x {F.CRANK_PIN_SHOULDER:g} + short insert",
+              F.CRANK_PIN_SHOULDER, 4, "clamp", (p.head_x + cx0, 0.0, p.launch_z + p.shuttle_zc), "y", crank_out, -1,
+              2.8, 4.5, "shuttle_rod", room=p.shuttle_rod_t, far="shuttle_rod", thread=F.SHOULDER[4][1],
+              bolt="crank_pin"),
+        Joint("launcher motor to the motor plate", "M4 x 12 socket cap screw (motors)", 12, 4, "tapped",
+              _hw(p, p.motor_pitch / 2, p.head_gap_axis + p.motor_pitch / 2), "y", p.plate_half_y, 1, 2.2, 3.5,
+              "launcher_motor", LAUNCHER_MOTOR_THREAD),
+        Joint("lift gearmotor face to its spacer", f"M3 x {F.LIFT_FACE_SCREW} screw (lift)", F.LIFT_FACE_SCREW, 3,
+              "tapped", (gm_x, 0.0, gm_z), "y", p.lift_y + gd["motor_face_y"] - p.lift_spacer_end, 1, 1.7, 2.75,
+              "lift_motor", GM_FACE_THREAD),
+        Joint("lift spacer ear to the boot", f"M3 x {F.LIFT_EAR_SCREW} socket cap screw + M3 heat-set insert, 4 mm long (lift)",
+              F.LIFT_EAR_SCREW, 3, "insert", (p.lift_x_pulley, 0.0, p.lift_z_bottom + F.SPACER_EAR_Z), "y",
+              p.lift_y + p.lift_depth / 2 + p.lift_wall + 3.0, -1, 1.7, 2.75, "lift_boot", 6.0,
+              insert_len=M3_INSERT_LEN),
         Joint("deck cable saddle", "M5 x 16 button head + nyloc nut (deck cables)", 16, 5, "nut",
               (saddle_x, saddle_y, 0.0), "z", p.rail_top + p.plate_t + p.deck_saddle_base / 2, -1, 2.75, 4.75),
     ]
