@@ -1,0 +1,157 @@
+{
+  "assignments": [
+    {
+      "file": "mspdiresource.xer",
+      "task": "Contoured Task",
+      "curve": "MS Project Turtle",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 4.285714285817699e-07
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 2",
+      "curve": "MS Project Front Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.6666666666775853e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 3",
+      "curve": "MS Project Back Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.666666666705341e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 2 - Night Shift",
+      "curve": "MS Project Front Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.6666666666775853e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 3 - Night Shift",
+      "curve": "MS Project Back Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.666666666705341e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 2 - 24 Hour",
+      "curve": "MS Project Front Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.6666666666775853e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 3 - 24 Hour",
+      "curve": "MS Project Back Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.666666666705341e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 2 - 50%",
+      "curve": "MS Project Front Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.6666666666775853e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 3 - 50%",
+      "curve": "MS Project Back Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.666666666705341e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 2 - 150%",
+      "curve": "MS Project Front Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.6666666666775853e-06
+    },
+    {
+      "file": "mspditimephased.xer",
+      "task": "Task 3 - 150%",
+      "curve": "MS Project Back Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.666666666705341e-06
+    },
+    {
+      "file": "mspditimephasedsegments.xer",
+      "task": "Task Nine",
+      "curve": "MS Project Front Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.6666666666775853e-06
+    },
+    {
+      "file": "mspditimephasedsegments.xer",
+      "task": "Task Ten",
+      "curve": "MS Project Back Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.666666666705341e-06
+    },
+    {
+      "file": "mspditimephasedsegments.xer",
+      "task": "Task Eleven",
+      "curve": "MS Project Double Peak",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 0.0
+    },
+    {
+      "file": "mspditimephasedsegments.xer",
+      "task": "Task Twelve",
+      "curve": "MS Project Early Peak",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 0.0
+    },
+    {
+      "file": "mspditimephasedsegments.xer",
+      "task": "Task Thirteen",
+      "curve": "MS Project Late Peak",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 0.0
+    },
+    {
+      "file": "mspditimephasedsegments.xer",
+      "task": "Task Fourteen",
+      "curve": "MS Project Bell",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 0.0
+    },
+    {
+      "file": "mspditimephasedsegments.xer",
+      "task": "Task Fifteen",
+      "curve": "MS Project Turtle",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 4.285714285817699e-07
+    },
+    {
+      "file": "mspditimephasedsegments.xer",
+      "task": "Task Seventeen",
+      "curve": "MS Project Front Loaded",
+      "first": 0.0,
+      "sum": 100.0,
+      "gap": 1.6666666666775853e-06
+    }
+  ],
+  "match": 19
+}
