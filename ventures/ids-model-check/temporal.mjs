@@ -215,3 +215,130 @@ export function dateRangePattern(r) {
   }
   return alts.length ? `${XWS}(${alts.join("|")})${XWS}` : false;
 }
+
+// ---- dateTime ranges as XSD patterns ----
+// The UTC offsets time zones used from 2000 to 2026 (ICU's tz data, every IANA
+// zone sampled weekly; eval/datetime-pattern-2026-11-21.md), plus -12:00
+// (Etc/GMT+12), in minutes east of UTC.
+export const ZONE_OFFSETS = ["-12:00", "-11:00", "-10:00", "-09:30", "-09:00", "-08:00", "-07:00", "-06:00", "-05:00", "-04:30", "-04:00", "-03:30", "-03:00", "-02:30", "-02:00", "-01:00", "+00:00", "+01:00", "+02:00", "+03:00", "+03:30", "+04:00", "+04:30", "+05:00", "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00", "+08:30", "+08:45", "+09:00", "+09:30", "+09:45", "+10:00", "+10:30", "+11:00", "+11:30", "+12:00", "+12:45", "+13:00", "+13:45", "+14:00"];
+const offMin = (s) => (s[0] === "-" ? -1 : 1) * (Number(s.slice(1, 3)) * 60 + Number(s.slice(4, 6)));
+const DAY = 864e5, MAX_OFF = 23 * 60 + 59;
+// Tuples of fixed-width numbers (fields [{ w, max, sep }], sep written before
+// the field) from lo to hi inclusive, in order, as a pattern; every number in
+// a field runs 0..max. Single-digit fields with max 9 are character classes.
+function tupleRange(lo, hi, f) {
+  const [h, ...rest] = f;
+  const one = (a, b) => (h.w === 1 && h.max === 9 ? (a === b ? String(a) : `[${a}-${b}]`) : numPat(a, b, h.w));
+  if (!rest.length) return one(lo[0], hi[0]);
+  const s = rest[0].sep, rMin = rest.map(() => 0), rMax = rest.map((x) => x.max);
+  const R = (a, b) => s + tupleRange(a, b, rest);
+  if (lo[0] === hi[0]) return P0(lo[0], h.w) + R(lo.slice(1), hi.slice(1));
+  const fromMin = lo.slice(1).every((x) => x === 0), toMax = hi.slice(1).every((x, i) => x === rMax[i]);
+  const alts = [];
+  let a = lo[0], b = hi[0];
+  if (!fromMin) { alts.push(P0(a, h.w) + R(lo.slice(1), rMax)); a++; }
+  if (!toMax) b--;
+  if (a <= b) alts.push(one(a, b) + R(rMin, rMax));
+  if (!toMax) alts.push(P0(hi[0], h.w) + R(rMin, hi.slice(1)));
+  return alt(alts);
+}
+// w-digit numbers from a to b (ASCII digits).
+function numPat(a, b, w) {
+  const d = (n) => P0(n, w).split("").map(Number);
+  return tupleRange(d(a), d(b), Array.from({ length: w }, () => ({ w: 1, max: 9, sep: "" })));
+}
+const HMS = [{ w: 2, max: 23, sep: "" }, { w: 2, max: 59, sep: ":" }, { w: 2, max: 59, sep: ":" }];
+const hms = (sec) => [Math.floor(sec / 3600), Math.floor(sec / 60) % 60, sec % 60];
+// An optional fractional second whose first three digits (Date.parse keeps
+// milliseconds and drops the rest; a missing fraction is .000) fall in p..q.
+function fracPat(p, q) {
+  if (p === 0 && q === 999) return "(\\.[0-9]+)?";
+  const alts = [];
+  const l1 = Math.ceil(p / 100), h1 = Math.floor(q / 100);
+  if (l1 <= h1) alts.push(numPat(l1, h1, 1));
+  const l2 = Math.ceil(p / 10), h2 = Math.floor(q / 10);
+  if (l2 <= h2) alts.push(numPat(l2, h2, 2));
+  alts.push(numPat(p, q, 3) + "[0-9]*");
+  return `(\\.${alt(alts)})${p === 0 ? "?" : ""}`;
+}
+const T24 = "24:00:00(\\.0+)?";
+// Times of day "hh:mm:ss(.f)" whose milliseconds since midnight lie in
+// ta..tb (0 <= ta <= tb <= DAY; DAY is "24:00:00", the next midnight).
+function timePat(ta, tb) {
+  const alts = [];
+  if (tb === DAY) { alts.push(T24); tb = DAY - 1; }
+  if (ta <= tb) {
+    const sa = Math.floor(ta / 1000), sb = Math.floor(tb / 1000), ma = ta % 1000, mb = tb % 1000;
+    if (sa === sb) alts.push(tupleRange(hms(sa), hms(sa), HMS) + fracPat(ma, mb));
+    else {
+      let a = sa, b = sb;
+      if (ma > 0) { alts.push(tupleRange(hms(sa), hms(sa), HMS) + fracPat(ma, 999)); a++; }
+      if (mb < 999) b--;
+      if (a <= b) alts.push(tupleRange(hms(a), hms(b), HMS) + "(\\.[0-9]+)?");
+      if (mb < 999) alts.push(tupleRange(hms(sb), hms(sb), HMS) + fracPat(0, mb));
+    }
+  }
+  return alt(alts.reverse());
+}
+const zonePat = (o) => (o === 0 ? ZONE.zero : `${o > 0 ? "\\+" : "\\-"}${P0(Math.floor(Math.abs(o) / 60), 2)}:${P0(Math.abs(o) % 60, 2)}`);
+const ANY_ZONE = "(Z|[+\\-]([01][0-9]|2[0-3]):[0-5][0-9])?";
+// A dateTime range as one XSD pattern for the strings ids.mjs passes on it
+// (an instant test: a value without a zone is UTC, milliseconds kept, the
+// day must exist, 24:00:00 is the next midnight). Exact for values with no
+// zone, Z, +-00:00 or an offset a time zone uses (ZONE_OFFSETS); a value
+// written with any other offset (+10:17) passes only when every offset would
+// (more than a day inside the range), so near a bound the pattern refuses
+// what the range takes. Bounds: dateTime strings, any form temporalKey reads.
+// Returns the pattern, false when no string can pass, or null when a bound is
+// not a dateTime.
+export function dateTimeRangePattern(r) {
+  let A = -Infinity, B = Infinity;
+  for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) {
+    if (r[k] === undefined || r[k] === null) continue;
+    if (temporalKind(String(r[k])) !== "dateTime") return null;
+    const n = temporalKey(String(r[k]));
+    if (Number.isNaN(n)) return false;
+    if (k === "minInclusive") A = Math.max(A, n);
+    if (k === "minExclusive") A = Math.max(A, n + 1);
+    if (k === "maxInclusive") B = Math.min(B, n);
+    if (k === "maxExclusive") B = Math.min(B, n - 1);
+  }
+  const L0 = dayNo("0000-01-01") * DAY, L1 = (dayNo("9999-12-31") + 1) * DAY;
+  // Local days (0 = 1970-01-01) whole for every offset up to +-23:59.
+  const mA = Math.max(L0, A + MAX_OFF * 6e4), mB = Math.min(L1, B - MAX_OFF * 6e4);
+  const midLo = Math.ceil(mA / DAY), midHi = Math.floor(mB / DAY) - 1;
+  const parts = [];
+  if (midLo <= midHi) parts.push(`${dayPattern(dayStr(midLo), dayStr(midHi))}T${alt([T24, "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?"])}${ANY_ZONE}`);
+  // The other days, per offset in use: whole, part (a time range) or none.
+  const offs = ZONE_OFFSETS.map(offMin);
+  const edge = new Map();
+  for (const o of offs) {
+    const x1 = Math.max(L0, A + o * 6e4), x2 = Math.min(L1, B + o * 6e4);
+    if (x1 > x2) continue;
+    const days = [];
+    const d1 = Math.max(Math.floor(x1 / DAY) - 1, dayNo("0000-01-01")), d2 = Math.min(Math.floor(x2 / DAY), dayNo("9999-12-31"));
+    if (midLo <= midHi) {
+      for (let d = d1; d <= Math.min(d2, midLo - 1); d++) days.push(d);
+      for (let d = Math.max(d1, midHi + 1); d <= d2; d++) days.push(d);
+    } else for (let d = d1; d <= d2; d++) days.push(d);
+    for (const d of days) {
+      const ta = Math.max(x1, d * DAY) - d * DAY, tb = Math.min(x2, (d + 1) * DAY) - d * DAY;
+      if (ta > tb) continue;
+      if (!edge.has(d)) edge.set(d, { whole: [], part: [] });
+      const e = edge.get(d);
+      if (ta === 0 && tb === DAY) e.whole.push(o);
+      else e.part.push([o, ta, tb]);
+    }
+  }
+  for (const d of [...edge.keys()].sort((a, b) => a - b)) {
+    const { whole, part } = edge.get(d);
+    const alts = [];
+    if (whole.length) alts.push(`${alt([T24, "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?"])}${alt(whole.map(zonePat))}`);
+    // Offsets sharing a time range share one alternative.
+    const byTime = new Map();
+    for (const [o, ta, tb] of part) { const k = ta + "," + tb; if (!byTime.has(k)) byTime.set(k, []); byTime.get(k).push(o); }
+    for (const [k, os] of byTime) { const [ta, tb] = k.split(",").map(Number); alts.push(timePat(ta, tb) + alt(os.map(zonePat))); }
+    parts.push(`${dayStr(d)}T${alt(alts)}`);
+  }
+  return parts.length ? `${XWS}${alt(parts)}${XWS}` : false;
+}

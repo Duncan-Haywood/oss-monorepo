@@ -215,7 +215,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   as the range places it; on 31 doors built on those differences the old
   pattern differed from the range on 50 of 310 verdicts, the new one on 0,
   and IfcTester 0.9.0 agrees with it on 10 of 10
-  (`eval/date-pattern-exact-2026-11-20.md`). Presence-only standard properties with no dataType now open
+  (`eval/date-pattern-exact-2026-11-20.md`). Since 2026-11-21 dateTime
+  ranges get the button too (`dateTimePattern`): one pattern exact to the
+  millisecond (Date.parse keeps three fraction digits, so `.9999` is `.999`),
+  `24:00:00` read as the next midnight, and a value written in any of the 44
+  UTC offsets time zones used from 2000 to 2026 placed by its instant; an
+  offset no zone uses (`+10:17`) passes only more than a day inside the
+  range. On 31 beams built on those edges the pattern differs from the range
+  on 0 of 290 verdicts (3 of 20 at `+10:17`), IfcTester 0.9.0 fails all 31
+  on every dateTime range and agrees with the pattern on 10 of 10; patterns
+  run 2.9 to 16.3 kB (`eval/datetime-pattern-2026-11-21.md`). Presence-only standard properties with no dataType now open
   as rows: 86.4% of public facets editable (was 85.2%), 17 of 64 files fully
   editable (was 14). `eval/date-ranges-2026-11-17.md`.
   **One of on dates and durations** (2026-11-17): a one-of row on those types
