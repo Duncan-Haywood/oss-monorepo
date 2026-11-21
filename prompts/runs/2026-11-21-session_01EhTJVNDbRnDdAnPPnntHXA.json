@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVNDbRnDdAnPPnntHXA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating products; merge when done).",
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T09:04:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship league-schedule-generator: practice slots shared on alternating A/B weeks (the flagship's 'field shared across weeks (alternating)' item).",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 18057,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-two-teams-one-practice-slot-every-other-week.md"
+  ],
+  "goal": "Let leagues that alternate young teams on a shared slot build the whole practice grid in the tool.",
+  "notes": "practice.mjs: week masks (weekly 3, A 1, B 2), capacity per week, one set of weeks per team, coach clashes only when weeks meet, whole-team flip move; outputs/CSV Weeks column/INTERVAL=2 ics. Page help + example, guide FAQ (JSON-LD + visible), llms.txt, README. Verification: practice.test.mjs 20/20; run_venture_tests.py league-schedule-generator ok (914 tests, 421.8 s) plus site page checks; venture-preflight clean; Chromium at 390 and 1200 px: example builds, A/B weeks shown, no console errors, no sideways scroll. CP-SAT (OR-Tools 9.15.6755) extended for masks: alt tight 43/44 proved optima (1 miss, gap 5), alt loose 40/40, weekly tight rerun 55/55 (eval/practice-exact.txt). Two tuning attempts on the miss did not help and were reverted so the shipped code is what was measured.",
+  "corrections": [],
+  "redteam": null
+}
