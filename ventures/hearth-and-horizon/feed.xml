@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>A Thousand Sundays</title>
+      <link>https://example.invalid/hearth-and-horizon/a-thousand-sundays.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/a-thousand-sundays.html</guid>
+      <pubDate>Sat, 21 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish agent simulates a thousand Sundays and tells the pastoral council the 70-space car park will overflow on 4.6% of them once a new estate's families come to the 10:00 Mass. Ten thousand Sundays give 4.1%, plus or minus 0.2, and the error bar was never the problem: across guesses the parish could defend for walking and cars per family, the rate runs from almost never to 74%. A story about Monte Carlo error against input uncertainty, a steward's six years of tallies, and three Sundays of counting at the gate. Setting: St Aidan's (invented), a Catholic parish in Driffield, East Riding of Yorkshire, England, Monday 4 January to Sunday 7 February 2044. Read the full text at https://example.invalid/hearth-and-horizon/a-thousand-sundays.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish agent simulates a thousand Sundays and tells the pastoral council the 70-space car park will overflow on 4.6% of them once a new estate's families come to the 10:00 Mass. Ten thousand Sundays give 4.1%, plus or minus 0.2, and the error bar was never the problem: across guesses the parish could defend for walking and cars per family, the rate runs from almost never to 74%. A story about Monte Carlo error against input uncertainty, a steward's six years of tallies, and three Sundays of counting at the gate.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Lake That Remembers the Fertiliser</title>
       <link>https://example.invalid/hearth-and-horizon/the-lake-that-remembers-the-fertiliser.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-lake-that-remembers-the-fertiliser.html</guid>
