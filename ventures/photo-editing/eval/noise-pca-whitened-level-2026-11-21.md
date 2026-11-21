@@ -74,6 +74,77 @@ untested here), with README, NEXT.md and the flagship row updated. Any fails: de
 options (`eig=`), and this note says which hypothesis failed and on which rows. A rerun on raw.pixls.us's
 `first` set (the 6 named D780/D600 foliage rows) stays open either way.
 
-## Result
+## Result: `mpcw` ships on Bayer; `mpcws` gains more but failed the pick
 
-(to be filled from the sweep's output, `noise-pca-whitened-level-2026-11-21.txt`)
+Sweep: 60 files, 7 skipped as on 2026-11-19 (LibRaw cannot open `Issue 247-1..4.nef`, `bigtiff*.dng`,
+`Issue 419.rw2`), 536 rows; with `--clean-truths` 162 tune rows and 208 held. Output:
+`noise-pca-whitened-level-2026-11-21.txt`, rows `noise-pca-whitened-level-2026-11-21.jsonl`.
+
+**Pick (tune, 162 rows): `mpcw`.**
+
+| arm | luma over D | colour over D | rows losing > 0.1 dB | worst |
+|---|---|---|---|---|
+| `ship+12` (Chen) | +0.566 | +0.361 | 6 | -0.75 |
+| `mpcw+12` | +0.640 | +0.392 | 6 | -0.81 |
+| `mpcws+12` | +0.856 | +0.434 | 10 | -1.08 |
+
+A correction to the rule's h2 note: what ships *does* have losing rows on this set's tune split (6, below);
+the 2026-11-19 "none" was on the 352 rows kept by `truth_sigma18` alone, before `truth_grain18` was joined. The
+rule's wording (no new loser, no more in all) is unaffected.
+
+`mpcws` has the higher gain but 10 losers against 6, so it does not qualify; `mpcw` does (+1.032 against +0.927
+luma + colour, 6 losers). All 10 losing rows are on one file, `Pentax K-1 Mark II.pef` (tiles [0, 0], [0, 1362],
+[372, 678]; SNR 25 and 12), the ISO 1600, 30 s frame eval/near-clean-gate-xtrans-tune-2026-11-19.md found to have a
+noisy truth: its raw-read grain (`truth_grain18`, 0.0066 to 0.011) passes `clean_enough`, while the frame read of
+the clean mosaic is 0.011 to 0.027. Where `ship` already loses there, `mpcws` loses more (to -1.08 dB).
+
+**Test (held, 208 rows), `mpcw+12` against `ship+12`: h1, h2 and h3 all pass.**
+
+| (SNR, scenario) | n | luma over `ship+12` | colour |
+|---|---|---|---|
+| 200 equal / wb | 6 / 6 | +0.012 / +0.050 | +0.008 / +0.025 |
+| 60 equal / wb | 30 / 30 | +0.029 / +0.094 | +0.009 / +0.038 |
+| 25 equal / wb | 32 / 32 | +0.016 / +0.153 | +0.003 / +0.062 |
+| 12 equal / wb | 36 / 36 | +0.018 / +0.268 | +0.006 / +0.113 |
+
+- h1 PASS: means +0.095 luma, +0.038 colour; the lowest cell +0.003.
+- h2 PASS: 0 losers with either (worst row -0.01 dB), none new.
+- h3 PASS: the white-balanced SNR 25 and 12 rows gain +0.214 dB luma (n = 68; bar +0.02).
+
+Read over true sigma at 18% grey (median, held): with white balance 0.62 (Chen) to 0.73 (`mpcw`) at SNR 60, 0.56
+to 0.61 at 25, 0.52 to 0.62 at 12; equal noise moves by 0.01 to 0.03. So `frame_noise`'s default eigenvalue read
+on Bayer is now `mpcw` (`eig=None`: `"mpcw"` on period 2, `"chen"` on X-Trans). `eig="chen"` gives the old model.
+
+**`mpcws` held out, a reading only (it decides nothing):** +0.306 luma and +0.079 colour over `ship+12`, the
+white-balanced SNR 25 and 12 rows +0.668 dB, 0 losers, every cell at least -0.001. It would have passed every test
+hypothesis. It reads closer to the true level (0.78 to 0.89 of true at SNR 60 to 12 with white balance on the tune rows,
+against 0.53 to 0.63 for Chen), so most of the under-read was the selection, as the synthetic table said. Its only
+fault on this set is the one noisy-truth file. That makes it the next item, pre-registered as a new rule that names
+how noisy truths are judged before it is scored (and on raw.pixls.us's `first` set when reachable).
+
+**Reproducibility.** The rerun's `D` arm matches the committed `near-clean-gate-mei-bayer-2026-11-19.jsonl` on all
+536 rows; `ship` matches on 532. The 4 that differ (`FujiFilm EX-2.raf` [168, 372] three rows, up to -0.33 dB; one
+`Fujifilm X-E1.raf` row, 0.02 dB) come out the same with main's `noise_pca.py` and with this branch's (0 of 8 EX-2
+rows differ), so the drift came in with a change after the 2026-11-19 rows and not with this one.
+
+## What changed
+
+- `src/shootflow/noise_pca.py`: reads `"mpcw"` and `"mpcws"` (`_colour_whitening`, `_chen`, `SELECT_WITH`); the
+  per-colour columns are built for them as for `"mpc"`.
+- `src/shootflow/xtrans_demosaic.py`: `frame_noise(..., eig=None)`: `"mpcw"` on Bayer, `"chen"` on X-Trans.
+- `tools/near_clean_gate.py`: `whitened` (this note's pick and test); `--eigs` takes the new reads.
+- Tests: `tests/test_noise_pca.py` (`mpcw` reads the colours' mean where Chen reads low; `mpcws` reaches the true
+  level on a white-balanced ramp where Chen reads under 0.85), `tests/test_near_clean_gate_split.py` (pick and test
+  on hand-made rows).
+
+## Reproduce
+
+    git clone --filter=blob:none --no-checkout --depth 1 https://github.com/drewnoakes/metadata-extractor-images.git mei
+    cd mei && git sparse-checkout set arw cr2 dng nef orf pef raf rw2 srw && cd -
+    find mei -type f -not -path '*/.git/*' -print0 | PYTHONPATH=src xargs -0 -P 4 -n 1 python tools/near_clean_gate.py \
+        sweep --bayer --ks 12 --eigs mpcw,mpcws --cards eval/near-clean-gate-mei-cards-2026-11-19.json --cache /tmp/truths > rows.jsonl
+    python tools/near_clean_gate.py whitened rows.jsonl --split tune
+    python tools/near_clean_gate.py whitened rows.jsonl --split held --eig mpcw
+
+Run with the branch's code *before* the default changed (or pass `eig="chen"`): after it, the `ship` arm is
+`mpcw`. Python 3.13, numpy 2.5.3, rawpy 0.28; the sweep took about 35 minutes on 4 cores with 1.9 GB of raws.

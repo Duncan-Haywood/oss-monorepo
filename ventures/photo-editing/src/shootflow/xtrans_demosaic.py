@@ -755,15 +755,20 @@ FRAME_ESTIMATORS = ("pca", "spread")
 
 
 def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE,
-                estimator: str = "pca", eig: str = "chen") -> tuple[float, float]:
+                estimator: str = "pca", eig: str | None = None) -> tuple[float, float]:
     """A (shot, read) noise model for the noise-aware blend read from the mosaic ``c`` alone, on ``c``'s scale:
     patch PCA (``noise_pca.estimate_noise_pca``; ``estimator="spread"``: ``estimate_noise`` at the ``pct``th
     block-spread percentile, the 2026-11-17 morning model), sigma times ``scale``, through ``guard_profile``.
-    ``eig``: how patch PCA reads sigma^2 from its eigenvalues (``noise_pca.EIG_READS``)."""
+    ``eig``: how patch PCA reads sigma^2 from its eigenvalues (``noise_pca.EIG_READS``); by default ``"mpcw"`` on
+    Bayer (colour ratios, then Chen's level on the colour-whitened patches; since 2026-11-21, held out +0.09 dB
+    luma over Chen, +0.21 dB on white-balanced SNR 25 and 12 rows, no new loser:
+    eval/noise-pca-whitened-level-2026-11-21.md) and ``"chen"`` on X-Trans (untested there)."""
 
     if estimator == "pca":
         from shootflow.noise_pca import estimate_noise_pca
 
+        if eig is None:
+            eig = "chen" if len(pat) == 36 else "mpcw"
         shot, read = estimate_noise_pca(c, pat, eig=eig)
     elif estimator == "spread":
         shot, read = estimate_noise(c, pat, pct=pct)
