@@ -40,6 +40,10 @@
 //   field whose values are all different (a note per task) is not a code
 //   and is skipped; the Text1 msproject.mjs names "Activity ID" is read as
 //   the activity ID's own field, not a code.
+// - task Outline Code1..10 become activity codes too, with their lookup
+//   table's hierarchy (parent values) and descriptions, so a Project file's
+//   own outline codes, and the ones msproject.mjs writes with
+//   { outlineCodes: true }, read back as P6's tree of codes.
 // - task Number1..20, Cost1..10 and Date1..10 fields that hold values become
 //   activity user-defined fields (UDFTYPE, UDFVALUE), titled by the field's
 //   Alias (else Number3, ...): whole numbers as integer UDFs, others as
@@ -56,6 +60,8 @@ const UDF_FIELD_IDS = [
   ...["188743786", "188743787", "188743788", ...Array.from({ length: 7 }, (_, k) => String(188743938 + k))].map((id, k) => [id, "cost", `Cost${k + 1}`]),
   ...Array.from({ length: 10 }, (_, k) => [String(188743945 + k), "date", `Date${k + 1}`]),
 ];
+// Outline Code1..10 (the same table is in msproject.mjs)
+const TASK_OUTLINE_IDS = Array.from({ length: 10 }, (_, k) => String(188744096 + 2 * k));
 const TASK_TEXT_IDS = ["188743731", "188743734", "188743737", "188743740", "188743743", "188743746", "188743747", "188743748", "188743749", "188743750",
   ...Array.from({ length: 20 }, (_, k) => String(188743997 + k))];
 
@@ -505,7 +511,12 @@ export function parseMspdi(text) {
     PROJECT[0].last_recalc_date = PROJECT[0].plan_start_date = first;
     warnings.push(`no status date in the file (Project, Status Date): ${first || "no date"}, the ${first && first < start ? "earliest task start" : "project start"}, is used as the data date, so any progress recorded is not checked against it`);
   }
-  const codes = readTextCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings);
+  const textCodes = readTextCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings);
+  const oc = readOutlineCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings);
+  // outline codes first (they hold the most assigned types when msproject.mjs wrote them)
+  const codes = oc.ACTVTYPE.length || textCodes.ACTVTYPE
+    ? { ACTVTYPE: [...oc.ACTVTYPE, ...(textCodes.ACTVTYPE || [])].map((r, k) => ({ ...r, seq_num: String(k + 1) })), ACTVCODE: [...oc.ACTVCODE, ...(textCodes.ACTVCODE || [])], TASKACTV: [...oc.TASKACTV, ...(textCodes.TASKACTV || [])] }
+    : {};
   const udfs = readUdfFields(proj, taskNodes, new Set(TASK.map((r) => r.task_id)));
 
   // relationships, after every task is known
@@ -616,6 +627,78 @@ function readTextCodes(proj, taskNodes, taskIds, warnings) {
   }
   if (skipped.length) warnings.push(`text field(s) with a different value on every task are not read as activity codes: ${skipped.join(", ")}`);
   return ACTVTYPE.length ? { ACTVTYPE, ACTVCODE, TASKACTV } : {};
+}
+
+// Task Outline Code1..10 -> activity code tables, with the hierarchy and
+// descriptions of each field's lookup table (<OutlineCodes>): a value's
+// parent becomes its code's parent, its description the code's name. A task's
+// value is found by Project 2003's <OutlineCode><ValueID>, else Project 2007's
+// <ExtendedAttribute> by ValueGUID, else by its path (the codes joined by the
+// mask's separators). A field with no lookup table, or a path the table does
+// not hold, reads as flat codes named by the path.
+function readOutlineCodes(proj, taskNodes, taskIds, warnings) {
+  const defs = new Map();
+  for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) defs.set(val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") });
+  const tables = new Map(); // field id -> { byVid, byGuid, byPath, items }
+  for (const oc of kids(kid(proj, "OutlineCodes"), "OutlineCode")) {
+    const id = val(oc, "FieldID");
+    if (!TASK_OUTLINE_IDS.includes(id) || tables.has(id)) continue;
+    const seps = kids(kid(oc, "Masks"), "Mask").map((m) => [Number(val(m, "Level")), kid(m, "Separator") ? kid(m, "Separator").text : "."]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
+    const items = kids(kid(oc, "Values"), "Value").map((v) => ({ vid: val(v, "ValueID"), parent: val(v, "ParentValueID"), guid: val(v, "FieldGUID").toUpperCase(), code: val(v, "Value"), desc: val(v, "Description") }));
+    const byVid = new Map(items.map((it) => [it.vid, it]));
+    const pathAt = (it) => { const chain = []; for (let x = it, n = 0; x && n <= items.length; x = byVid.get(x.parent), n++) { chain.unshift(x); if (x.parent === x.vid) break; } return chain.map((x, k) => (k ? (seps[k - 1] ?? seps[seps.length - 1] ?? ".") : "") + x.code).join(""); };
+    const byGuid = new Map(), byPath = new Map();
+    for (const it of items) { it.path = pathAt(it); if (it.guid) byGuid.set(it.guid, it); if (!byPath.has(it.path)) byPath.set(it.path, it); }
+    tables.set(id, { byVid, byGuid, byPath, items, guid: val(oc, "Guid"), alias: val(oc, "Alias") });
+  }
+  const got = new Map(); // field id -> Map(task uid -> { item } | { path })
+  for (const t of taskNodes) {
+    const uid = val(t, "UID");
+    if (!taskIds.has(uid)) continue;
+    const set = (id, v) => { if (!got.has(id)) got.set(id, new Map()); if (!got.get(id).has(uid)) got.get(id).set(uid, v); };
+    for (const o of kids(t, "OutlineCode")) {
+      const id = val(o, "FieldID"), it = tables.get(id)?.byVid.get(val(o, "ValueID"));
+      if (TASK_OUTLINE_IDS.includes(id) && it) set(id, { item: it });
+    }
+    for (const e of kids(t, "ExtendedAttribute")) {
+      const id = val(e, "FieldID");
+      if (!TASK_OUTLINE_IDS.includes(id)) continue;
+      const tb = tables.get(id), g = val(e, "ValueGUID").toUpperCase(), v = val(e, "Value");
+      const it = tb && ((g && tb.byGuid.get(g)) || tb.byPath.get(v));
+      if (it) set(id, { item: it });
+      else if (v) set(id, { path: v });
+    }
+  }
+  const ACTVTYPE = [], ACTVCODE = [], TASKACTV = [];
+  let loose = 0;
+  for (const id of TASK_OUTLINE_IDS) {
+    const vals = got.get(id), tb = tables.get(id);
+    if (!vals && !tb) continue;
+    const n = TASK_OUTLINE_IDS.indexOf(id) + 1;
+    const def = defs.get(id) || {};
+    const typeId = `mspdi-oc-${n}`;
+    ACTVTYPE.push({ actv_code_type_id: typeId, actv_code_type: def.alias || tb?.alias || def.name || `Outline Code${n}`, actv_code_type_scope: "AS_Project", proj_id: "1", seq_num: String(n) });
+    const cid = (it) => `${typeId}-${it.vid}`;
+    for (const it of tb ? tb.items : []) {
+      const parent = tb.byVid.get(it.parent);
+      ACTVCODE.push({ actv_code_id: cid(it), actv_code_type_id: typeId, parent_actv_code_id: parent && parent !== it ? cid(parent) : "", short_name: it.code, actv_code_name: it.desc || it.code, seq_num: String(ACTVCODE.length + 1) });
+    }
+    const flat = new Map();
+    for (const [uid, v] of vals || []) {
+      let code = v.item ? cid(v.item) : null;
+      if (!code) {
+        loose++;
+        if (!flat.has(v.path)) {
+          flat.set(v.path, `${typeId}-p${flat.size + 1}`);
+          ACTVCODE.push({ actv_code_id: flat.get(v.path), actv_code_type_id: typeId, parent_actv_code_id: "", short_name: v.path, actv_code_name: v.path, seq_num: String(ACTVCODE.length + 1) });
+        }
+        code = flat.get(v.path);
+      }
+      TASKACTV.push({ task_id: uid, actv_code_type_id: typeId, actv_code_id: code, proj_id: "1" });
+    }
+  }
+  if (loose) warnings.push(`${loose} outline code value(s) are not in their field's lookup table and are read as flat codes named by the whole value`);
+  return { ACTVTYPE, ACTVCODE, TASKACTV };
 }
 
 // Task Number, Cost and Date fields -> activity user-defined fields.

@@ -467,7 +467,12 @@ project's updates for delay claims; and the review itself as a service.
   (duration = actual + remaining, Resume at P6's remaining start), baseline 0,
   resources and assignments; activity codes in Text2..Text30, one per code
   type, named after it (`{ codeNames: true }` writes "code - description"; a
-  leaf code repeated under two parents is written as its path); level of
+  leaf code repeated under two parents is written as its path);
+  `{ outlineCodes: true }` (`--outline-codes`, a box on the page) writes the
+  10 most assigned code types as Outline Code1..10 instead, each with a
+  lookup table holding the type's P6 tree and descriptions
+  (`outlineCodeFields`), and `mspdi.mjs` reads outline codes back as a code
+  tree; level of
   effort as manual tasks with their links in the notes; warnings for what
   Project schedules differently. `mspdi.mjs` reads task text fields back as
   activity codes. Activity UDFs (`udfFields`): integer and decimal UDFs in
@@ -619,6 +624,16 @@ run as a formula in Excel or Sheets.
   named; since text UDFs share the fields (below), 24 code types are
   written there (255,410 of 255,410 back) and 3,541 assignments named.
   Not opened in Microsoft Project itself.
+- **Activity codes as Project outline codes** (`eval/msproject-outline-2026-11-21.md`):
+  with `--outline-codes`, the four public files with codes write 19 code
+  types as outline codes, with 434 lookup values that read back with the
+  same code, parent and description. 179,400 of 179,400 assignments come
+  back on the same code and the same path up P6's tree, from either task
+  form alone. MPXJ 16.10 reads 19 of 19 field names, 434 of 434 lookup
+  values and 179,400 of 179,400 task values, from both forms together and
+  from each alone. Back to XER, P6's tree is kept (179,400 of 179,400). On
+  CCA, 33 of its 37 code types are carried, against 24 with text fields
+  only. Not opened in Microsoft Project itself.
 - **User-defined fields in the Project XML** (`eval/msproject-udfs-2026-11-21.md`):
   on CCA, Expressway and a planted file (cost, start and finish date
   UDFs), every UDF value written reads back the same: 13,859 numbers, 226
