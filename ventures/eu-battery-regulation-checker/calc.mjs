@@ -7,12 +7,12 @@
 // follows that text. Delegated and implementing acts (labelling, carbon-footprint method) may move dates.
 
 export const CATEGORIES = [
-  { id: "portable", label: "Portable battery (sealed, under 5 kg, for consumer use: cells, packs, power banks, battery inside a device)", mode: "in" },
-  { id: "lmt", label: "Light means of transport battery (e-bike, e-scooter, mobility device)", mode: "in" },
+  { id: "portable", label: "Portable battery (sealed, 5 kg or less, not designed specifically for industrial use: cells, packs, power banks, cordless-tool packs, battery inside a device)", mode: "in" },
+  { id: "lmt", label: "Light means of transport battery (sealed, 25 kg or less, traction for an e-bike, e-scooter or mobility device)", mode: "in" },
   { id: "sli", label: "Starting, lighting and ignition battery (vehicle starter battery)", mode: "in" },
   { id: "industrial-big", label: "Industrial battery over 2 kWh (storage, forklifts, back-up power)", mode: "in" },
   { id: "industrial-small", label: "Industrial battery of 2 kWh or less", mode: "in" },
-  { id: "ev", label: "Electric vehicle battery (car, van, truck, bus traction battery)", mode: "in" },
+  { id: "ev", label: "Electric vehicle battery (traction for a car, van, truck or bus, or for an e-motorbike or other L-category vehicle when over 25 kg)", mode: "in" },
   { id: "exempt", label: "Battery only for military or security equipment, or for equipment sent into space", mode: "out" },
   { id: "none", label: "No battery is placed on the EU market", mode: "out" },
 ];
@@ -142,6 +142,7 @@ export function compute(input) {
     if (rp.status === "gap" || rp.status === "unknown") findings.push({ severity: "high", title: "No EU operator is confirmed. Name an EU authorised representative or sell through an EU importer, and appoint an EPR representative in each country you sell into." });
     if (rp.status === "fallback") findings.push({ severity: "high", title: rp.reason });
     if (rp.status === "check") findings.push({ severity: "medium", title: rp.reason });
+    if (p.role.id === "importer" && p.location === "noneu") findings.push({ severity: "high", title: "An importer is, by definition, established in the EU (Art 3). If you are established outside the EU and put your name or brand on the battery, you are its manufacturer: an EU importer or authorised representative must stand behind it, and the duties above fall on you through them." });
     if (p.nuclear === "yes") findings.push({ severity: "info", title: "For equipment designed for the safety of nuclear installations, Chapter III (label, collection symbol, QR code) and Chapter VIII (producer registration and take-back) do not apply (Art 1(6)). Every other duty does." });
     for (const r of overdue) findings.push({ severity: "high", title: `Applies since ${r.from}: ${r.label} (${r.article}).` });
     for (const r of open.filter((x) => x.state === "soon")) findings.push({ severity: "medium", title: `Applies in ${r.days} days (${r.from}): ${r.label} (${r.article}).` });

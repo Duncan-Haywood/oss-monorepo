@@ -38,7 +38,7 @@ test("page says what it does not decide", () => {
 test("every select option is a category or role the calculator knows", async () => {
   const { CATEGORIES, ROLES } = await import("./calc.mjs");
   const html = page("index.html");
-  for (const c of CATEGORIES) assert.match(html, new RegExp(`<option value="${c.id}">`));
+  for (const c of CATEGORIES) assert.ok(html.includes(`<option value="${c.id}">${c.label}</option>`), `page option text for ${c.id} matches calc.mjs`);
   for (const r of ROLES) assert.match(html, new RegExp(`<option value="${r.id}">`));
 });
 
