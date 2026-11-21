@@ -23,6 +23,17 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3w headline** (once self-calibration says the held focal length may be stale, which rule should a robot camera use to
+update it? milestone 3v's blocks, eight rules scored by the error they leave over 0 to 10% staleness): **adopt the pool unless it lies
+within half a standard deviation of the held value.** With five pooled windows and the causal prior that rule's worst-case regret
+against the better of "always adopt" and "never adopt" is **0.42** points, against always-adopt's 1.17 and milestone 3v's 2-sd gate's
+**3.33**, and it is minimax against all three references; a right calibration is kept exactly (median error 0.0%). With one to three
+windows the positive-part empirical-Bayes blend is the safer rule (worst regret 0.82 at three windows, 1.49 at one). The cost is a
+heavier tail (95th percentile 4.0% against 2.9%), and both rules were picked on the data they are scored on. Four of seven
+predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![median and 95th-percentile focal-length error left by never adopt, always adopt, 2-sd and 1-sd gates and the empirical-Bayes blend against staleness of the held value, five pooled windows](experiments/m3w_update/update.png)
+
 **Milestone 3v headline** (can a robot camera tell, from pooled self-calibrations, that the focal length it holds has gone stale?
 milestone 3s's 43 TUM windows, the board calibration shifted by 0 to 10%, and milestone 3u's floored random-effects pool as a 2-sd
 change test): **an honest bar is too wide to see small staleness.** With the causal prior the gate raises few false alarms (3% of
@@ -1269,6 +1280,11 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3w: with the floored pool, "adopt unless within 0.5 sd" is the minimax update rule at five or more windows and the
+empirical-Bayes blend below that; both were chosen in-sample. Next: score the two rules out of sample (fit the rule on one camera,
+test on the other, or on the board recordings of milestone 4); the same decision on k<sub>1</sub> and the principal point; a real lens
+change when one is reachable; and Section 4 of the paper updated with 3u&ndash;3w, which turn the error bar into a decision.
 
 After milestone 3v: the honest floored pool cannot see a stale focal length below about 7% with a symmetric 2-sd test, and
 holding a stale value costs more than adopting the pool. Next: an asymmetric rule (adopt the pool by default, refuse it only when it
