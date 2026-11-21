@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKiwxa6jkAw2GYKuarh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T00:18:19Z",
+  "ended": "2026-11-21T00:26:11Z",
+  "wall_minutes": 8.02,
+  "tokens_in": 4703170,
+  "tokens_out": 26147,
+  "cost_usd": 2.3176,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17995",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "--until with a condition on the background task's output file still then waited for a DONE marker in the log and timed out after 100 s although the job had finished; the --until condition alone should end the wait."
+    },
+    {
+      "file": "research/cell-fidelity/experiments (7r/7s/7u)",
+      "issue": "the threshold rule's inputs are spread across five chained run.py modules (fresh7h -> fresh7g -> margin7f -> frontier7e, plus sets7p and drift7c); finding where E[10] enters the rule took about a quarter of the run's reading."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-ten-dfn-cycles-and-a-correction-beat-battery-design-triage.md",
+    "research/cell-fidelity/LOG.md (7v plan and outcome)",
+    "research/cell-fidelity/paper/discussion.md (5.3)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7v, pre-registered plan committed before report. Control: replay of theta/theta50/U matched 7s and 7r lopo5 on all 20 folds (0 mismatches); E10 at m_hat=1 matched rows.json to 2.4e-15. f=30: thetaC 10.0 cycles/design, 10/10 folds met, -30.00 vs U (sign p 0.002), -35.5 vs theta; UC ties thetaC. f=10: -19.2 vs U, Mohtat2020 2/5 met. Checks: tests/test_rule7v.py 7 OK, test_bend7u OK, build.py ok, research_live_links ok, check_md_links ok, programme_check ok, check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "49b5b170-a618-53f7-bc6a-122ff61cb081",
+    "transcripts": 1,
+    "first": "2026-11-21T00:18:19Z",
+    "last": "2026-11-21T00:26:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 92,
+        "output": 26147,
+        "thinking": 5301,
+        "cache_read": 4593631,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109447,
+        "api_equivalent_usd": 2.3176,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 92,
+      "output": 26147,
+      "thinking": 5301,
+      "cache_read": 4593631,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109447,
+      "api_equivalent_usd": 2.3176,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 42,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.02,
+      "active_minutes": 8.02,
+      "model_minutes": 4.98,
+      "tool_minutes": 3.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher reading the 7s/7u code, writing the plan, the swap and tests, and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 258.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
