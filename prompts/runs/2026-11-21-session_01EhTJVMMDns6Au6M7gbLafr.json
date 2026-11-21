@@ -1,0 +1,200 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVMMDns6Au6M7gbLafr",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products)",
+  "input_sha256": "180ecdfefaa12275ae73d59afa1209522e705da82874916854ba46dd0921db32",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T07:00:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam: embroidery-shop-quote-calculator",
+  "projects": [
+    "embroidery-shop-quote-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18044",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 4b suggests turning a defect into a new platform/ci check; I wrote one (a behaviour probe of every exported parse*() with '4,50') before finding check_money_comma.py, check_decimal_comma.py and test_check_comma_input.mjs already guard the class. A line telling runs to `ls platform/ci | grep <keyword>` (or grep docstrings) before writing a guard would have saved ~15 min."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: the 11 other open entries are all control-plane edits (workflows, prompts/), most with owner-gated PRs already open (#14612, #15945); I did not open more control-plane PRs duplicating them.",
+      "did": "left them open",
+      "result": "no change to the open list"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-embroidery-quote-four-fifty-is-not-450.md"
+  ],
+  "goal": null,
+  "notes": "Target drawn at random: ventures/embroidery-shop-quote-calculator/cli.mjs (changepoint-detector, the most recently changed venture, has every suite over the 20 s probe). 5/8 caught before, 8/8 after. Three real defects patched (comma-decimal x100, hex/exponent, CLI flags refusing $/%). Class guard: existing check_money_comma.py ratchet; baseline line removed for the fixed engine. A probe (not committed) found 177 of 212 exported venture parsers read '4,50' as 450 and 52 read '0x10' as 16: the money_comma baseline is the work list. Verification: node --test 43/43; check_money_comma, check_decimal_comma, check_posts ok; run_workflow_locally --for-changes: ventures-tests 5/5, portfolio-validate 100/100, pages 6/6, doc-refs, readme-live-links, conflict-markers, checklist-coverage, control-plane-guard green; prompts-ci red only on this record's unset outcome before this commit.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+        "test": "node --test ventures/embroidery-shop-quote-calculator/**/*.test.mjs  (in .)",
+        "seed": 297514851,
+        "commit": "657dfa3ae",
+        "sites": 42,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+            "line": 33,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "else if (a.startsWith(\"-\") && a !== \"-\") args.unknown = a;",
+            "after": "else if (a.startsWith(\"-\") || a !== \"-\") args.unknown = a;",
+            "line_text": "    else if (a.startsWith(\"-\") && a !== \"-\") args.unknown = a;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+            "line": 86,
+            "col": 28,
+            "operator": "and-to-or",
+            "before": "if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "after": "if (flag !== \"--breaks\" || !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "line_text": "    if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+            "line": 86,
+            "col": 42,
+            "operator": "neq-flip",
+            "before": "if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "after": "if (flag !== \"--breaks\" && !(v.trim() === \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "line_text": "    if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+            "line": 86,
+            "col": 92,
+            "operator": "ge-to-gt",
+            "before": "if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "after": "if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) > 0)) return bad(`${flag} needs a number, zero or more`);",
+            "line_text": "    if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test passed a zero flag (--rush 0, --digitizing-fee 0) through the CLI check; cli.test.mjs now does. [rerun: line changed; triage by hand] Line changed by the fix (now parseAmount(v) >= 0); rerun reported it unmatched, so the mutant was re-applied by hand to the new line (>= 0 -> > 0 and >= 0 -> >= 1): cli.test.mjs fails 2 tests each time."
+          },
+          {
+            "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+            "line": 86,
+            "col": 95,
+            "operator": "const-plus-one",
+            "before": "if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "after": "if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 1)) return bad(`${flag} needs a number, zero or more`);",
+            "line_text": "    if (flag !== \"--breaks\" && !(v.trim() !== \"\" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test passed a zero flag (--rush 0, --digitizing-fee 0) through the CLI check; cli.test.mjs now does. [rerun: line changed; triage by hand] Line changed by the fix (now parseAmount(v) >= 0); rerun reported it unmatched, so the mutant was re-applied by hand to the new line (>= 0 -> > 0 and >= 0 -> >= 1): cli.test.mjs fails 2 tests each time."
+          },
+          {
+            "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+            "line": 90,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const file = args.positional[0];",
+            "after": "const file = args.positional[1];",
+            "line_text": "  const file = args.positional[0];",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+            "line": 103,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "jobs = [{ name: \"job\", fields: {}, line: 0 }];",
+            "after": "jobs = [{ name: \"job\", fields: {}, line: 1 }];",
+            "line_text": "    jobs = [{ name: \"job\", fields: {}, line: 0 }];",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test read a flag-only error message; a nonzero line put a stray \"line 1 (job): \" prefix on it. cli.test.mjs now pins both prefixes."
+          },
+          {
+            "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+            "line": 130,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {",
+            "after": "if (process.argv[1] || import.meta.url === pathToFileURL(process.argv[1]).href) {",
+            "line_text": "if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/embroidery-shop-quote-calculator/engine.mjs",
+        "issue": "normalizeJob stripped every comma before Number(), so a CSV cell \"4,50\" (European $4.50) priced the garments at $450 with no error (repro: normalizeJob({garmentCost:'4,50'}).job.garmentCost === 450). Fixed: parseAmount accepts a comma only as a thousands separator and errors otherwise; money_comma_baseline.txt line removed.",
+        "patched": true,
+        "patched_in": "this PR"
+      },
+      {
+        "file": "ventures/embroidery-shop-quote-calculator/engine.mjs",
+        "issue": "Number() accepted hex/binary/exponent spellings, so quantity '0x18' quoted 24 pieces and '1e1' 10 (repro: normalizeJob({quantity:'0x18'}).job.quantity === 24). Fixed by the same strict decimal pattern.",
+        "patched": true,
+        "patched_in": "this PR"
+      },
+      {
+        "file": "ventures/embroidery-shop-quote-calculator/cli.mjs",
+        "issue": "The CLI flag check used bare Number(v), so '--garment-cost $4.50' and '--margin 40%' were refused with 'needs a number' though the same text in a CSV cell was accepted. Fixed: the CLI uses the engine's parseAmount.",
+        "patched": true,
+        "patched_in": "this PR"
+      }
+    ]
+  }
+}
