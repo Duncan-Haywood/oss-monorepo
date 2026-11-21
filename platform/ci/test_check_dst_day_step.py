@@ -34,6 +34,8 @@ class DstDayStep(unittest.TestCase):
             LOCAL + "const n = (new Date(b).getTime() - r.getTime()) / 86400000;",
             # marked as checked
             LOCAL + "// dst-day-step: ok (timestamps, not calendar days)\nconst e = new Date(r.getTime() + DAY);",
+            # millisecond arithmetic that makes no Date is a timestamp, not a calendar day
+            LOCAL + "const until = r.getTime() + 7 * 86400000;",
         ]:
             self.assertEqual(c.scan_text(text), [], text)
 
@@ -41,6 +43,15 @@ class DstDayStep(unittest.TestCase):
         script = pathlib.Path(c.__file__)
         out = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
         self.assertEqual(out.returncode, 0, out.stdout)
+
+    def test_cli_exits_1_on_a_hit_in_the_root_it_is_given(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            bad = pathlib.Path(d, "renewal.mjs")
+            bad.write_text(LOCAL + "const e = new Date(r.getTime() - 30 * MS_PER_DAY);\n", encoding="utf-8")
+            out = subprocess.run([sys.executable, str(pathlib.Path(c.__file__)), d], capture_output=True, text=True)
+        self.assertEqual(out.returncode, 1, out.stdout)
+        self.assertIn("renewal.mjs:2:", out.stdout)
 
 
 if __name__ == "__main__":
