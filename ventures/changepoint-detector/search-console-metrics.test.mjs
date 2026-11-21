@@ -150,7 +150,7 @@ test('clear errors: a refused key, a missing permission, a mistyped property, no
 });
 
 test('a UI export (newest first, CTR with %) converts to the same file, oldest first, gaps filled', () => {
-  const text = '﻿Date,Clicks,Impressions,CTR,Position\n2026-06-03,120,3000,4%,7.5\n2026-06-01,100,2500,4%,8.25\n2026-05-31,90,2000,4.5%,8\n';
+  const text = '\uFEFFDate,Clicks,Impressions,CTR,Position\n2026-06-03,120,3000,4%,7.5\n2026-06-01,100,2500,4%,8.25\n2026-05-31,90,2000,4.5%,8\n';
   const rows = fromExport(text);
   assert.deepEqual(rows.map((r) => r.date), ['2026-05-31', '2026-06-01', '2026-06-02', '2026-06-03']);
   assert.deepEqual(rows[1], { date: '2026-06-01', clicks: 100, impressions: 2500, ctr: '4.00', position: '8.25' });

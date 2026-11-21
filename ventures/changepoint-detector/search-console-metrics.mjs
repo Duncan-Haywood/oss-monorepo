@@ -157,6 +157,8 @@ export function fillDays(rows, from, to) {
   return out;
 }
 
+// Every cell goes through csvCell (stripe-metrics.mjs), the spreadsheet formula-injection guard: the file is opened in
+// spreadsheets, and a cell starting =, +, -, @, tab or CR that is not a plain number gets an apostrophe.
 export const HEADER = 'date,clicks,impressions,ctr,position';
 export const toCsv = (rows) => [HEADER, ...rows.map((r) => [r.date, r.clicks, r.impressions, r.ctr, r.position].map(csvCell).join(','))].join('\n') + '\n';
 
@@ -174,7 +176,7 @@ export function readExisting(text) {
  * when a name is not found. Returns rows oldest first, gaps filled.
  */
 export function fromExport(text) {
-  const lines = String(text).replace(/^﻿/, '').split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text).replace(/^\uFEFF/, '').split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) throw new Error('the export has no rows.');
   const head = lines[0].split(',').map((h) => h.trim().toLowerCase().replace(/^"|"$/g, ''));
   const col = (name, dflt) => { const i = head.findIndex((h) => h === name || h.startsWith(name)); return i >= 0 ? i : dflt; };
