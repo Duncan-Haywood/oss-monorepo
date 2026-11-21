@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-21 · Milestones 1-2 at ten seeds, with Wilcoxon tests and bootstrap intervals for sections IV-V (predictions written and committed before `experiments/m12_ten_seeds/run.py` was run in full; outcome below)
+
+- Why: the first gap the draft lists before submission (section VIII, "Seeds and tests", and its closing list): milestones 1 and 2 ran five seeds, so their paired results rest on sign counts whose floor is p = 0.0625, and sections IV-V quote sign counts where a reviewer expects a signed-rank test and an interval. Milestone 4 and milestone 5 already have ten seeds; they need only the tests.
+- Plan (`experiments/m12_ten_seeds/run.py`, no code change to any milestone): milestone 1's 15 arms and milestone 2's 20 arms rerun with their own `cell` functions at seeds 5-9 (175 CMA-ES runs of 1920 evaluations), milestone 2's three-start study at λ = 1 at seeds 5-9 (30 runs); its λ = 0.3 arms at seeds 5-9 are milestone 4's PID arms, read from `m4_controllers/results.json`. Three reproduction checks refly stored runs first. `experiments/m12_ten_seeds/stats.py` (stdlib) merges seeds 0-4 with 5-9 and, for every paired comparison milestones 1, 2, 4 and 5 print, gives the mean, a percentile bootstrap 95% interval over seeds (20,000 resamples, fixed seed), the exact two-sided Wilcoxon signed-rank p (all 2<sup>n</sup> sign patterns) and the sign count. Ten seeds put the Wilcoxon floor at p = 0.002.
+- Looked at before writing these: only the stored seeds 0-4 (and milestone 4's ten); no seed 5-9 run of milestones 1-2 has been flown.
+- Predictions (ten seeds; "holds" means the paired comparison as stated):
+  - TS0 (check): the three reproductions (milestone 1 `hover`/TWR 2/cant ≤ 80 seed 0, milestone 2 `prio`/λ 0.3/cant ≤ 80 seed 0, and the three-start `prio`/λ 0.3/cant ≤ 80 seed 7 against milestone 4's PID seed 7) equal the stored held-out RMS exactly.
+  - TS1 (prior 90%): milestone 1, cant beats no cant in 10 of 10 seeds in all ten actuator × TWR × bound comparisons (Wilcoxon p = 0.002 each), and each ten-seed mean is within 0.3° of the five-seed one.
+  - TS2 (prior 85%): milestone 2, cant beats no cant in 10 of 10 under `box` at all four λ, under `prio` at λ = 0 and under `prio_free` at both λ.
+  - TS3 (prior 70%): single-start CMA-ES keeps falling to low cant under `prio` at a power price: across λ 0.1, 0.3 and 1 the cant ≤ 80 arm chooses under 15° in at least 6 of the 30 seed-λ cells (7 of 15 at five seeds), with at least one in seeds 5-9 at each of λ 0.3 and 1.
+  - TS4 (prior 75%): with three starts at λ = 1, cant beats no cant in at least 8 of 10 seeds, Wilcoxon p < 0.05, mean advantage between 2° and 5°.
+  - TS5 (prior 85%): the shared polytope costs accuracy: `prio` minus `box` is positive in 10 of 10 seeds for every λ without cant, and in at least 8 of 10 with cant ≤ 80.
+  - TS6 (prior 60%): airmode helps with cant at λ = 0 (`prio_free` minus `prio`, cant ≤ 80; 4 of 5 at five seeds): negative with Wilcoxon p < 0.05.
+- Not predictions: the tests on milestones 4 and 5 (Table IV-1, section V) use per-seed values already published; they are reported as the reporting change they are.
+- Reading fixed in advance: TS1 and TS2 held say section IV's milestone 1-2 findings stand at ten seeds and the draft can drop "five seeds" from its limitations. TS3 held says single-start CMA-ES's unreliability on the polytope is a property of the landscape, not a few unlucky seeds. TS4 refuted would weaken the claim that cant pays once hover power is priced at 1° per 100 W; the draft would then confine it to λ ≤ 0.3. TS5 held with TS6 refuted says the polytope's cost is firm while airmode's benefit with cant is not shown.
+- Analysis: as planned; anything else is post hoc and labelled so.
+
 ## 2026-11-21 · Paper step: sections I, II, VIII and IX in full, and one figure for sections IV-V
 
 - Why: the last paper step's first next step. With sections III-VII written in full, the draft still opened and closed on outlines, and the proposal's related-work claims (what the tilted-rotor and co-design literatures leave open) had never been written as the paper's argument. Sections IV and V also still pointed at two milestone figures.
