@@ -330,3 +330,62 @@ test("runas lists: the last matching item decides whether root is reachable (sud
   assert.equal(one(scan("nobody ALL = (ALL, !root) NOPASSWD: ALL\n"), "nopasswd-all").severity, "medium");
   assert.equal(one(scan("nobody ALL = (ALL, !#0) NOPASSWD: ALL\n"), "nopasswd-all").severity, "medium");
 });
+
+// Quality re-audit 2026-11-21: each expectation below is what real sudo 1.9.15p5 did with the
+// same file bind-mounted over /etc/sudoers (runuser -u daemon -- sudo -n ...), recorded in
+// portfolio/quality/audits/2026-11-21-sudoers-check.json.
+const daemonRoot = (pre) => scanFiles([{ name: "/etc/sudoers", text: `root ALL=(ALL:ALL) ALL\n${pre}\ndaemon ALL=(ALL) ALL\n` }]);
+const daemonPath = (r) => r.rootPaths.find((p) => p.who === "daemon" && p.how === "any command (ALL)");
+
+test("Defaults>root !authenticate makes a runas-root rule passwordless; a non-root binding does not", () => {
+  assert.equal(daemonPath(daemonRoot("Defaults>root !authenticate")).password, false);
+  assert.equal(daemonPath(daemonRoot("Runas_Alias R = root\nDefaults>R !authenticate")).password, false);
+  assert.equal(daemonPath(daemonRoot("Defaults>!root,ALL !authenticate")).password, false);
+  assert.equal(daemonPath(daemonRoot("Defaults>ALL,!root !authenticate")).password, true);
+  assert.equal(daemonPath(daemonRoot("Defaults>daemon !authenticate")).password, true);
+  // root never needs a password, so its own stock rule is not reported.
+  assert.ok(!daemonRoot("Defaults>root !authenticate").findings.some((f) => f.type === "nopasswd-all" && f.line === 1));
+});
+
+test("scoped authenticate Defaults apply in sudo's order: file order, then command Defaults", () => {
+  assert.equal(daemonPath(daemonRoot("Defaults:daemon !authenticate\nDefaults>root authenticate")).password, true);
+  assert.equal(daemonPath(daemonRoot("Defaults>root authenticate\nDefaults:daemon !authenticate")).password, false);
+  assert.equal(daemonPath(daemonRoot("Defaults:daemon authenticate\nDefaults !authenticate")).password, false);
+  assert.equal(daemonPath(daemonRoot("Defaults>root authenticate\nDefaults !authenticate")).password, false);
+  // A per-user authenticate after a global !authenticate wins (sudo asks daemon for a password).
+  assert.equal(daemonPath(daemonRoot("Defaults !authenticate\nDefaults:daemon authenticate")).password, true);
+  const r = scanFiles([{ name: "/etc/sudoers", text: "Defaults!/usr/bin/vim authenticate\nDefaults>root !authenticate\ndaemon ALL=(ALL) /usr/bin/vim\n" }]);
+  assert.ok(r.rootPaths.some((p) => p.how.startsWith("/usr/bin/vim") && p.password === true));
+});
+
+test("Defaults!cmnd !authenticate inside an ALL rule makes that command passwordless root", () => {
+  const r = daemonRoot("Cmnd_Alias ED = /usr/bin/vim, /usr/bin/id\nDefaults!ED !authenticate");
+  assert.equal(daemonPath(r).password, true);
+  assert.ok(r.rootPaths.some((p) => p.who === "daemon" && p.how.startsWith("/usr/bin/vim") && p.password === false));
+  assert.ok(!r.rootPaths.some((p) => p.how.startsWith("/usr/bin/id")), "a harmless command is not a root path");
+  assert.equal(one(r, "authenticate-off").severity, "medium");
+  // An explicit PASSWD: tag wins over the Defaults (sudo asks for a password).
+  const pw = scanFiles([{ name: "/etc/sudoers", text: "Defaults!/usr/bin/vim !authenticate\ndaemon ALL=(ALL) PASSWD: ALL\n" }]);
+  assert.ok(!pw.rootPaths.some((p) => p.password === false));
+});
+
+test("a checked-out tree maps @includedir /etc/sudoers.d to its own sudoers.d", () => {
+  const files = fixture("risky").map((f) => ({ ...f, name: f.name.replace(/^\/etc\//, "repo/fixtures/risky/") }));
+  const r = scanFiles(files);
+  const ivan = r.findings.find((f) => f.file.endsWith("ivan.conf"));
+  assert.equal(ivan?.type, "includedir-file-ignored");
+  assert.equal(r.findings.filter((f) => f.file.endsWith("ivan.conf")).length, 1, "ivan.conf's rules are not read");
+  assert.ok(!r.notes.some((n) => /not included from/.test(n)), r.notes.join("\n"));
+  // The same tree under /etc gives the same findings, file names aside.
+  const strip = (x) => x.findings.map((f) => `${path.basename(f.file)}:${f.line}:${f.type}`).sort();
+  assert.deepEqual(strip(r), strip(scanFiles(fixture("risky"))));
+});
+
+test("a later ALL rule that runs as another user does not override NOPASSWD as root", () => {
+  // Real sudo 1.9.15p5: daemon runs sudo -n -u root /usr/bin/id with no password here.
+  const r = scanFiles([{ name: "/etc/sudoers", text: "daemon ALL=(root) NOPASSWD: /usr/bin/id\ndaemon ALL=(nobody) ALL\n" }]);
+  assert.ok(!types(r).includes("nopasswd-overridden"), JSON.stringify(r.findings));
+  // ...while a later ALL rule as root does (sudo asks for a password).
+  const o = scanFiles([{ name: "/etc/sudoers", text: "daemon ALL=(root) NOPASSWD: /usr/bin/id\ndaemon ALL=(ALL) ALL\n" }]);
+  assert.ok(types(o).includes("nopasswd-overridden"));
+});
