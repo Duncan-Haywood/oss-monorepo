@@ -1,0 +1,42 @@
+Confirmation split: the IPOPT reactive stage (J+R) on the cases that reach the repair and do not finish
+Plan, gate G0 and predictions G1 to G5: LOG.md 2026-11-21 (committed before this ran).
+Arms: F = protocol start (PIPS DC OPF), X = second-solver start (run_dc_rescue.rescue_start).
+J best = the frozen run's best point (rerun, compared with the stored one). J+R = vsched.reactive_stage on
+IPOPT at that point, P pinned, 45-minute wall limit. Columns: overloads, worst loading %, buses out of V band,
+units outside Q limits (total MVAr). Cost against PGLib-OPF v23.07's published AC objective.
+
+arm case             kind  G0  J best: nOv  maxLd%   V    Q (MVAr)  J+R: nOv  maxLd%   V    Q (MVAr)     cost %    R s
+F   case2736sp_k     sad    -    0   95.82    0   14 (0.022)       PENDING                                   -      0
+F   case2736sp_k     typ   ok    0   99.90    0   18 (0.023)         0  100.00    0    0 (0.000)  clean   +0.008    105
+F   case2737sop_k    sad   ok    0   99.90    0   10 (0.014)         0  100.00    0    0 (0.000)  clean   +0.021    110
+F   case2737sop_k    typ   ok    0   99.90    0   12 (0.018)         0   99.91    0    0 (0.000)  clean   +0.012     98
+F   case2746wop_k    sad    -    0   95.11    0   29 (0.048)       PENDING                                   -      0
+F   case2746wop_k    typ    -    0   95.13    0   22 (0.031)       PENDING                                   -      0
+F   case2746wp_k     api    -   22  182.81    0    0 (0.000)       PENDING                                   -      0
+F   case2746wp_k     sad    -    0   98.78    0   51 (0.068)       PENDING                                   -      0
+F   case2746wp_k     typ    -    0   98.80    0   64 (0.076)       PENDING                                   -      0
+F   case2848_rte     api    -    0   99.91    4    2 (4.361)       PENDING                                   -      0
+F   case2868_rte     sad    -    0   99.90    1    0 (0.000)       PENDING                                   -      0
+F   case2869_pegase  api    -    4  101.46    0    0 (0.000)       PENDING                                   -      0
+F   case2869_pegase  sad    -    2  109.12    0    3 (0.862)       PENDING                                   -      0
+F   case2869_pegase  typ    -    3  110.02    0    4 (0.434)       PENDING                                   -      0
+X   case2312_goc     api   ok    5  106.38    0    0 (0.000)       PENDING                                   -      0
+X   case2383wp_k     sad    -    0   99.90    0   55 (0.087)       PENDING                                   -      0
+X   case2383wp_k     typ    -    0   99.90    0   64 (0.093)       PENDING                                   -      0
+X   case2736sp_k     api    -    2  105.27    0    1 (0.114)       PENDING                                   -      0
+X   case2746wop_k    api    -    5  183.15    0    0 (0.000)       PENDING                                   -      0
+X   case2853_sdet    sad    -   26  153.18    0    0 (0.000)       PENDING                                   -      0
+X   case2853_sdet    typ    -   17  131.77    0    0 (0.000)       PENDING                                   -      0
+X   case2868_rte     api    -    1  100.01    5    3 (2.315)       PENDING                                   -      0
+
+22 cases; best point rerun on 4, reproduced on 4; J+R run on 3; J+R fully clean on 3 of the 3 scored.
+Protocol start: J 9 of 23 that reach the repair; J or J+R 12 of 23 (of 33 cases).
+Second-solver start, the 10 no-start cases: J 1 of 9; J or J+R 1 of 9.
+Both together: J 10 of 33, J or J+R 13 of 33 (32 reach the repair).
+
+G0 (best point reproduced on every case): held
+G1 (J+R clean on both case2383wp_k): untestable (0 of 0)
+G2 (J+R clean on at least 7 of the 10 Q-only cases): refuted (3 of 3)
+G3 (J+R clean on none of the heavy-overload cases): held (0 of 0)
+G4 (protocol start, J or J+R at least 14 of 23): refuted (12)
+G5 (every J+R clean point within +7 %): held (range +0.008 to +0.021 %)
