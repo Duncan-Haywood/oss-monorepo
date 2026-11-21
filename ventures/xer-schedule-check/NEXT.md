@@ -47,7 +47,10 @@
   version) to confirm what the field lists stand in for (notes as TASKMEMO
   under MEMOTYPE shipped 2026-11-21, eval/notebooks-2026-11-21.md: check
   whether P6's import matches a topic by name or adds one); deadlines as a secondary finish-on-or-before constraint
-  (opt-in, since it changes float); cost resources as PROJCOST expenses.
+  (opt-in, since it changes float). Cost resources and fixed costs as
+  PROJCOST expenses shipped 2026-11-21 (eval/expenses-2026-11-21.md, both
+  directions); still open there: a P6-written XER with expenses, whether
+  P6's import matches a cost category by name, expense accounts (acct_id).
   Number/Cost/Date fields as UDFs shipped 2026-11-21
   (eval/p6xer-udfs-2026-11-21.md). Still open there: the UDF type on a round
   trip (whole numbers come back as integer UDFs, so 6 of CCA's decimal UDFs
@@ -66,3 +69,4 @@
   notebooks (PROJMEMO, if a P6 export carries one); resource notes
   (RSRC.rsrc_notes <-> resource Notes); P6's formatting as Project's rich
   notes (needs the .mpp, not MSPDI).
+- (2026-11-21) next a real P6 import, P6 Web plain multi-line memos
