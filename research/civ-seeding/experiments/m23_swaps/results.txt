@@ -1,0 +1,58 @@
+# Milestone 23: the seed swaps of census degree discount at phi = 0.25 closure, recall 0.85
+43 villages x 100 draws (copy 0's streams), 40 common-random-number runs per set, point fits I, T, R
+
+## total adopters over villages, mean over draws (contrast: paired over draws, se, z)
+### I: half k0 1884.89, half k0.1 1884.28, half k0.25 1883.18, unfiltered 1881.59
+  half k0.1 - half k0: -0.61 adopters (-0.03% of total; se 0.15, z -4.1)
+  half k0.25 - half k0.1: -1.10 adopters (-0.06% of total; se 0.16, z -7.0)
+  half k0.25 - unfiltered: +1.59 adopters (+0.08% of total; se 0.20, z +8.1)
+  half k0 - unfiltered: +3.30 adopters (+0.18% of total; se 0.20, z +16.2)
+### T: half k0 1857.27, half k0.1 1856.24, half k0.25 1853.87, unfiltered 1850.49
+  half k0.1 - half k0: -1.03 adopters (-0.06% of total; se 0.23, z -4.5)
+  half k0.25 - half k0.1: -2.37 adopters (-0.13% of total; se 0.25, z -9.5)
+  half k0.25 - unfiltered: +3.39 adopters (+0.18% of total; se 0.33, z +10.3)
+  half k0 - unfiltered: +6.79 adopters (+0.37% of total; se 0.33, z +20.5)
+### R: half k0 1947.43, half k0.1 1946.67, half k0.25 1945.18, unfiltered 1942.95
+  half k0.1 - half k0: -0.77 adopters (-0.04% of total; se 0.14, z -5.3)
+  half k0.25 - half k0.1: -1.49 adopters (-0.08% of total; se 0.16, z -9.6)
+  half k0.25 - unfiltered: +2.23 adopters (+0.11% of total; se 0.20, z +11.2)
+  half k0 - unfiltered: +4.48 adopters (+0.23% of total; se 0.21, z +21.6)
+### mean: half k0 1896.53, half k0.1 1895.73, half k0.25 1894.08, unfiltered 1891.68
+  half k0.1 - half k0: -0.80 adopters (-0.04% of total; se 0.15, z -5.5)
+  half k0.25 - half k0.1: -1.65 adopters (-0.09% of total; se 0.16, z -10.4)
+  half k0.25 - unfiltered: +2.40 adopters (+0.13% of total; se 0.20, z +11.8)
+  half k0 - unfiltered: +4.86 adopters (+0.26% of total; se 0.22, z +22.4)
+
+## true coverage of the seed set (mean over villages of share of households a seed or its true neighbour)
+  half k0 87.22%, half k0.1 87.15%, half k0.25 86.94%, unfiltered 86.65%
+## true ties among seeds (summed over villages)
+  half k0 1719.6, half k0.1 1728.8, half k0.25 1755.3, unfiltered 1716.5
+  coverage k0.1 - k0: -0.063 pt (se 0.021); k0.25 - k0.1: -0.211 pt (se 0.022)
+  inner ties k0.1 - k0: +9.23 (se 2.64); k0.25 - k0.1: +26.46 (se 2.64)
+
+## false share of each seed's seen tie weight (mean over villages, draws, seeds)
+  half k0 20.6%, half k0.1 22.3%, half k0.25 24.7%, unfiltered 31.5%
+
+## true degree of seeds swapped in minus swapped out (mean over village-draws with a swap)
+  k0 -> k0.1: 3.91 seeds swapped per village-draw; in 15.96, out 16.41, difference -0.45 (se 0.06, n 3661)
+  k0.1 -> k0.25: 4.35 seeds swapped per village-draw; in 15.91, out 16.25, difference -0.33 (se 0.05, n 3873)
+
+## per village, k0.1 -> k0.25 (mean over families): adopters lost, coverage drop (pt), n, seeds
+  village  60: lost +0.104 adopters, coverage +0.21 pt, n 341, b 34
+  village  48: lost +0.096 adopters, coverage +0.01 pt, n 175, b 28
+  village  15: lost +0.095 adopters, coverage -0.01 pt, n 170, b 28
+  village  45: lost +0.091 adopters, coverage +0.22 pt, n 211, b 25
+  village  46: lost +0.066 adopters, coverage +0.18 pt, n 251, b 26
+  village  64: lost +0.064 adopters, coverage +0.38 pt, n 248, b 31
+  village   9: lost +0.063 adopters, coverage +0.42 pt, n 201, b 29
+  village  57: lost +0.059 adopters, coverage +0.28 pt, n 196, b 24
+  village   3: lost +0.055 adopters, coverage +0.28 pt, n 272, b 35
+  village   4: lost +0.052 adopters, coverage +0.33 pt, n 222, b 18
+  villages with a loss: 42 of 43; top 5 carry 27% of the summed positive loss
+  Spearman(loss, coverage drop) over villages: +0.30
+
+H74 (the point fits show the step: k0.25 below k0.1 by > 2 se, k0.1 within 2 se of k0; mean family): refuted; -1.65 (se 0.16), -0.80 (se 0.15)
+H75 (the k0.25 sets cover fewer households than the k0.1 sets by > 2 se): held; -0.211 pt (se 0.022)
+H76 (seeds swapped in at k0.1 -> k0.25 have lower true degree than those swapped out by > 2 se, and by more than at k0 -> k0.1): refuted; -0.33 (se 0.05) against -0.45 (se 0.06)
+H77 (the loss is concentrated: top 5 villages carry over half): refuted; 27%
+H78 (per-village loss tracks coverage drop: Spearman > 0.3): refuted; +0.30
