@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKjoaJhuh9bUoPSio4f",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T17:18:54Z",
+  "ended": "2026-11-21T17:33:32Z",
+  "wall_minutes": 15.19,
+  "tokens_in": 12805649,
+  "tokens_out": 41946,
+  "cost_usd": 4.5334,
+  "tool_calls": 120,
+  "task": "polish: bid-calculator family below the 390x844 fold (item 1 of polish-2026-11-21-venture-fold-baseline.md)",
+  "projects": [
+    "platform/pages",
+    "janitorial-bid-calculator",
+    "boiler-replacement-bid-calculator",
+    "forestry-mulching-bid-calculator",
+    "biohazard-cleanup-bid-calculator",
+    "locksmith-bid-calculator",
+    "water-heater-bid-calculator",
+    "home-staging-bid-calculator",
+    "ice-dam-removal-bid-calculator",
+    "vehicle-wrap-bid-calculator",
+    "security-camera-bid-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18118",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "lede_split helper in my scratch script dropped the words inside its open_tag match on two pages (forestry-mulching, water-heater)",
+      "fix": "caught in the diff before commit and restored by hand"
+    },
+    {
+      "what": "stashed to build a 'before' preview, but the work was already committed, so the stash held only the baseline",
+      "fix": "built the before preview from a git worktree at main instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/README.md / venture-fold.mjs",
+      "issue": "No documented way to get a true 'before' measurement once dist has been patched in place; I overwrote dist/pf-jobs.css to measure, so my first 'before' table already included the shared fix. A note to copy dist files aside (or to measure before editing) would save a re-run."
+    },
+    {
+      "file": "platform/pages/venture-fold.mjs",
+      "issue": "The first field counts inputs only; on cabinet-refinishing the first control is a row of preset buttons at ~810 px, so the page reads 1102 px though a visitor can act without scrolling."
+    },
+    {
+      "file": "prompts/promptctl.py validate",
+      "issue": "A report topic error is printed as 'docs/posts/docs/reports/<file>' (path joined twice), and the hint suggests 'design' for 'mobile' even though 'mobile' appears in docs/taxonomy.json (as an alias, it seems)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/pages/venture-fold.mjs",
+      "why": "--write-baseline needs a full rebuild of main with my changes (3-20 min). I measured the full build with my CSS and the ten edited pages copied in from an --only preview, then edited the baseline by hand, as the previous run did",
+      "did": "removed 11 keys, recorded 4 improved pages at their new depth",
+      "result": "venture-fold.test.mjs passes; --check over 1,404 pages exits 0"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-the-form-is-the-point-bid-calculators-on-a-phone.md",
+    "docs/reports/polish-2026-11-21-bid-bars.md"
+  ],
+  "goal": "impressive sites (polish): phone visitors reach the tool without scrolling",
+  "notes": "Verification run here: node --test 'platform/pages/*.test.mjs' 1912/1912 pass; jobs*/hero-fold/venture-fold tests 251 pass; each of the 10 edited ventures' own suites pass (117-247 tests each); venture-fold.mjs --check (full build, 390x844) exit 0, below-fold venture pages 358 -> 347; check_post_frontmatter/check_post_links/check_posts/post_similarity clean. Surfaces looked at first (390 and 1280): hub, wall-framing-takeoff, research index, stories, a post: no sideways scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c9fe3d2-35a9-5e69-872a-93983087c365",
+    "transcripts": 1,
+    "first": "2026-11-21T17:18:54Z",
+    "last": "2026-11-21T17:34:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 109,
+        "input": 210,
+        "output": 41946,
+        "thinking": 11345,
+        "cache_read": 12660239,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145200,
+        "api_equivalent_usd": 4.5334,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 109,
+      "input": 210,
+      "output": 41946,
+      "thinking": 11345,
+      "cache_read": 12660239,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145200,
+      "api_equivalent_usd": 4.5334,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 120,
+    "tools": {
+      "Bash": 101,
+      "Read": 14,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.19,
+      "active_minutes": 15.19,
+      "model_minutes": 7.21,
+      "tool_minutes": 7.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "front-end dev: survey 25 pages at phone size, shared CSS fix, 10 hero edits, tests, report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 110.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
