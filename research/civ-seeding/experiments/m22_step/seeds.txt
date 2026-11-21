@@ -1,0 +1,16 @@
+# Milestone 22, H73: seed sets of census degree discount, phi = 0.25 closure, recall 0.85, copy 0
+43 villages x 100 draws; share of seeds not in the half weight's kappa = 0 set (se over village-draws); share of seeds with at least one full-weight false tie seen
+  half k0        changed  0.00% (se 0.00) | seeds with a full-weight false tie  18.7%
+  half k0.02     changed  5.96% (se 0.14) | seeds with a full-weight false tie  32.3%
+  half k0.05     changed 10.45% (se 0.17) | seeds with a full-weight false tie  48.4%
+  half k0.1      changed 14.12% (se 0.18) | seeds with a full-weight false tie  67.0%
+  half k0.15     changed 16.02% (se 0.18) | seeds with a full-weight false tie  78.7%
+  half k0.25     changed 18.58% (se 0.18) | seeds with a full-weight false tie  90.8%
+  half k0.5      changed 22.04% (se 0.18) | seeds with a full-weight false tie  98.7%
+  half k0.75     changed 24.10% (se 0.18) | seeds with a full-weight false tie  99.8%
+  half k1        changed 24.99% (se 0.18) | seeds with a full-weight false tie  99.9%
+  unfiltered     changed 27.98% (se 0.18) | seeds with a full-weight false tie  99.9%
+  oracle k0      changed 23.34% (se 0.18) | seeds with a full-weight false tie  18.5%
+  oracle k0.25   changed 25.04% (se 0.18) | seeds with a full-weight false tie  90.3%
+
+H73 (seed change at kappa 0.05 at least half of that at kappa 1): refuted; 10.45% against 24.99% (ratio 0.42)
