@@ -1,0 +1,4449 @@
+{
+  "mspdi": [
+    {
+      "file": "baselines.xml",
+      "activities": 1,
+      "allFields": 1,
+      "fields": {
+        "name": 1,
+        "status": 1,
+        "remaining": 1,
+        "actualStart": 1,
+        "actualFinish": 1,
+        "constraint": 1,
+        "baseline": 1,
+        "calendar": 1
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 1,
+      "assignments": 0,
+      "schedule": {
+        "open": 1,
+        "same": 1,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "enterprise.xml",
+      "activities": 1,
+      "allFields": 1,
+      "fields": {
+        "name": 1,
+        "status": 1,
+        "remaining": 1,
+        "actualStart": 1,
+        "actualFinish": 1,
+        "constraint": 1,
+        "baseline": 1,
+        "calendar": 1
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 1,
+      "assignments": 0,
+      "schedule": {
+        "open": 1,
+        "same": 1,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-assignments/assignment-assignments-project2002-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 3,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-assignments/assignment-assignments-project2003-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 3,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-assignments/assignment-assignments-project2007-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 3,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-assignments/assignment-assignments-project2010-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 3,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-assignments/assignment-assignments-project2013-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 3,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-assignments/assignment-assignments-project2016-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 3,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-assignments/assignment-assignments-project2019-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 3,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-flags/assignment-flags-project2003-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 20,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-flags/assignment-flags-project2007-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 20,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-flags/assignment-flags-project2010-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 20,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-flags/assignment-flags-project2013-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 20,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-flags/assignment-flags-project2016-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 20,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-flags/assignment-flags-project2019-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 20,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-text/assignment-text-project2002-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 30,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-text/assignment-text-project2003-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 30,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-text/assignment-text-project2007-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 30,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-text/assignment-text-project2010-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 30,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-text/assignment-text-project2013-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 30,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-text/assignment-text-project2016-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 30,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/assignment-text/assignment-text-project2019-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 30,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-calendars/calendar-calendars-project2002-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-calendars/calendar-calendars-project2003-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-calendars/calendar-calendars-project2007-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-calendars/calendar-calendars-project2010-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-calendars/calendar-calendars-project2013-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-calendars/calendar-calendars-project2016-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-calendars/calendar-calendars-project2019-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-recurring-exceptions/calendar-recurring-exceptions-project2007-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-recurring-exceptions/calendar-recurring-exceptions-project2010-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-recurring-exceptions/calendar-recurring-exceptions-project2013-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/calendar-recurring-exceptions/calendar-recurring-exceptions-project2016-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-flags/resource-flags-project2002-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-flags/resource-flags-project2003-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-flags/resource-flags-project2007-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-flags/resource-flags-project2010-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-flags/resource-flags-project2019-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-misc/resource-misc-project2002-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-misc/resource-misc-project2003-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-misc/resource-misc-project2007-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-misc/resource-misc-project2010-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-misc/resource-misc-project2019-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 5,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-numbers/resource-numbers-project2002-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-numbers/resource-numbers-project2003-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-numbers/resource-numbers-project2007-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-numbers/resource-numbers-project2010-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-numbers/resource-numbers-project2019-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 20,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-text/resource-text-project2002-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-text/resource-text-project2003-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-text/resource-text-project2007-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-text/resource-text-project2010-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-text/resource-text-project2019-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 30,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-type/resource-type-project2002-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 15,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-type/resource-type-project2003-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 15,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-type/resource-type-project2007-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 15,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-type/resource-type-project2010-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 15,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-type/resource-type-project2013-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 15,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/resource-type/resource-type-project2016-mspdi.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 15,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-baselines/task-baselines-project2002-mspdi.xml",
+      "activities": 55,
+      "allFields": 55,
+      "fields": {
+        "name": 55,
+        "status": 55,
+        "remaining": 55,
+        "actualStart": 55,
+        "actualFinish": 55,
+        "constraint": 55,
+        "baseline": 55,
+        "calendar": 55
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 55,
+        "same": 55,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-baselines/task-baselines-project2003-mspdi.xml",
+      "activities": 55,
+      "allFields": 55,
+      "fields": {
+        "name": 55,
+        "status": 55,
+        "remaining": 55,
+        "actualStart": 55,
+        "actualFinish": 55,
+        "constraint": 55,
+        "baseline": 55,
+        "calendar": 55
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 55,
+        "same": 55,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-baselines/task-baselines-project2007-mspdi.xml",
+      "activities": 55,
+      "allFields": 55,
+      "fields": {
+        "name": 55,
+        "status": 55,
+        "remaining": 55,
+        "actualStart": 55,
+        "actualFinish": 55,
+        "constraint": 55,
+        "baseline": 55,
+        "calendar": 55
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 55,
+        "same": 55,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-baselines/task-baselines-project2010-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-baselines/task-baselines-project2013-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-baselines/task-baselines-project2016-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-baselines/task-baselines-project2019-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-costs/task-costs-project2003-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-costs/task-costs-project2007-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-costs/task-costs-project2010-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-costs/task-costs-project2013-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-costs/task-costs-project2016-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-costs/task-costs-project2019-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-dates/task-dates-project2003-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-dates/task-dates-project2007-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-dates/task-dates-project2010-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-dates/task-dates-project2013-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-dates/task-dates-project2016-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-dates/task-dates-project2019-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-durations/task-durations-project2003-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-durations/task-durations-project2007-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-durations/task-durations-project2010-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-durations/task-durations-project2013-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-durations/task-durations-project2016-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-durations/task-durations-project2019-mspdi.xml",
+      "activities": 110,
+      "allFields": 110,
+      "fields": {
+        "name": 110,
+        "status": 110,
+        "remaining": 110,
+        "actualStart": 110,
+        "actualFinish": 110,
+        "constraint": 110,
+        "baseline": 110,
+        "calendar": 110
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 110,
+        "same": 110,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-finishes/task-finishes-project2003-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-finishes/task-finishes-project2007-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-finishes/task-finishes-project2010-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-finishes/task-finishes-project2013-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-finishes/task-finishes-project2016-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-finishes/task-finishes-project2019-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-flags/task-flags-project2003-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-flags/task-flags-project2007-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-flags/task-flags-project2010-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-flags/task-flags-project2013-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-flags/task-flags-project2016-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-flags/task-flags-project2019-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-links/task-links-project2003-mspdi.xml",
+      "activities": 16,
+      "allFields": 16,
+      "fields": {
+        "name": 16,
+        "status": 16,
+        "remaining": 16,
+        "actualStart": 16,
+        "actualFinish": 16,
+        "constraint": 16,
+        "baseline": 16,
+        "calendar": 16
+      },
+      "problems": [],
+      "links": 8,
+      "linksKept": 8,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 16,
+        "same": 16,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-links/task-links-project2007-mspdi.xml",
+      "activities": 16,
+      "allFields": 16,
+      "fields": {
+        "name": 16,
+        "status": 16,
+        "remaining": 16,
+        "actualStart": 16,
+        "actualFinish": 16,
+        "constraint": 16,
+        "baseline": 16,
+        "calendar": 16
+      },
+      "problems": [],
+      "links": 8,
+      "linksKept": 8,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 16,
+        "same": 16,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-links/task-links-project2010-mspdi.xml",
+      "activities": 16,
+      "allFields": 16,
+      "fields": {
+        "name": 16,
+        "status": 16,
+        "remaining": 16,
+        "actualStart": 16,
+        "actualFinish": 16,
+        "constraint": 16,
+        "baseline": 16,
+        "calendar": 16
+      },
+      "problems": [],
+      "links": 8,
+      "linksKept": 8,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 16,
+        "same": 16,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-links/task-links-project2013-mspdi.xml",
+      "activities": 16,
+      "allFields": 16,
+      "fields": {
+        "name": 16,
+        "status": 16,
+        "remaining": 16,
+        "actualStart": 16,
+        "actualFinish": 16,
+        "constraint": 16,
+        "baseline": 16,
+        "calendar": 16
+      },
+      "problems": [],
+      "links": 8,
+      "linksKept": 8,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 16,
+        "same": 16,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-links/task-links-project2016-mspdi.xml",
+      "activities": 16,
+      "allFields": 16,
+      "fields": {
+        "name": 16,
+        "status": 16,
+        "remaining": 16,
+        "actualStart": 16,
+        "actualFinish": 16,
+        "constraint": 16,
+        "baseline": 16,
+        "calendar": 16
+      },
+      "problems": [],
+      "links": 8,
+      "linksKept": 8,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 16,
+        "same": 16,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-links/task-links-project2019-mspdi.xml",
+      "activities": 16,
+      "allFields": 16,
+      "fields": {
+        "name": 16,
+        "status": 16,
+        "remaining": 16,
+        "actualStart": 16,
+        "actualFinish": 16,
+        "constraint": 16,
+        "baseline": 16,
+        "calendar": 16
+      },
+      "problems": [],
+      "links": 8,
+      "linksKept": 8,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 16,
+        "same": 16,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-numbers/task-numbers-project2003-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-numbers/task-numbers-project2007-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-numbers/task-numbers-project2010-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-numbers/task-numbers-project2013-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-numbers/task-numbers-project2016-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-numbers/task-numbers-project2019-mspdi.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-starts/task-starts-project2003-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-starts/task-starts-project2007-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-starts/task-starts-project2010-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-starts/task-starts-project2013-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-starts/task-starts-project2016-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-starts/task-starts-project2019-mspdi.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-text/task-text-project2003-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 30,
+      "codesKept": 30,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-text/task-text-project2007-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 30,
+      "codesKept": 30,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-text/task-text-project2010-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 30,
+      "codesKept": 30,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-text/task-text-project2013-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 30,
+      "codesKept": 30,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-text/task-text-project2016-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 30,
+      "codesKept": 30,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-text/task-text-project2019-mspdi.xml",
+      "activities": 30,
+      "allFields": 30,
+      "fields": {
+        "name": 30,
+        "status": 30,
+        "remaining": 30,
+        "actualStart": 30,
+        "actualFinish": 30,
+        "constraint": 30,
+        "baseline": 30,
+        "calendar": 30
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 30,
+      "codesKept": 30,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-textvalues/task-textvalues-project2010-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-textvalues/task-textvalues-project2013-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-textvalues/task-textvalues-project2016-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "generated/task-textvalues/task-textvalues-project2019-mspdi.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "legacy/alias.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "legacy/caltest.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 0,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "legacy/headertest9.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "legacy/mspdipriority.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "legacy/mspextattr.xml",
+      "activities": 1,
+      "allFields": 1,
+      "fields": {
+        "name": 1,
+        "status": 1,
+        "remaining": 1,
+        "actualStart": 1,
+        "actualFinish": 1,
+        "constraint": 1,
+        "baseline": 1,
+        "calendar": 1
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 1,
+      "codesKept": 1,
+      "resources": 1,
+      "assignments": 0,
+      "schedule": {
+        "open": 1,
+        "same": 1,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "legacy/sample.xml",
+      "activities": 16,
+      "allFields": 16,
+      "fields": {
+        "name": 16,
+        "status": 16,
+        "remaining": 16,
+        "actualStart": 16,
+        "actualFinish": 16,
+        "constraint": 16,
+        "baseline": 16,
+        "calendar": 16
+      },
+      "problems": [],
+      "links": 6,
+      "linksKept": 6,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 2,
+      "schedule": {
+        "open": 16,
+        "same": 16,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "legacy/sample1.xml",
+      "activities": 18,
+      "allFields": 18,
+      "fields": {
+        "name": 18,
+        "status": 18,
+        "remaining": 18,
+        "actualStart": 18,
+        "actualFinish": 18,
+        "constraint": 18,
+        "baseline": 18,
+        "calendar": 18
+      },
+      "problems": [],
+      "links": 6,
+      "linksKept": 6,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 4,
+      "schedule": {
+        "open": 18,
+        "same": 18,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdiassignmentcustom.xml",
+      "activities": 1,
+      "allFields": 1,
+      "fields": {
+        "name": 1,
+        "status": 1,
+        "remaining": 1,
+        "actualStart": 1,
+        "actualFinish": 1,
+        "constraint": 1,
+        "baseline": 1,
+        "calendar": 1
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 2,
+      "schedule": {
+        "open": 1,
+        "same": 1,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdiassignmentfields.xml",
+      "activities": 1,
+      "allFields": 1,
+      "fields": {
+        "name": 1,
+        "status": 1,
+        "remaining": 1,
+        "actualStart": 1,
+        "actualFinish": 1,
+        "constraint": 1,
+        "baseline": 1,
+        "calendar": 1
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 4,
+      "assignments": 2,
+      "schedule": {
+        "open": 1,
+        "same": 1,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdiavailability.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 2,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdicostratetable.xml",
+      "activities": 0,
+      "allFields": 0,
+      "fields": {
+        "name": 0,
+        "status": 0,
+        "remaining": 0,
+        "actualStart": 0,
+        "actualFinish": 0,
+        "constraint": 0,
+        "baseline": 0,
+        "calendar": 0
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 3,
+      "assignments": 0,
+      "schedule": {
+        "open": 0,
+        "same": 0,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdiduration.xml",
+      "activities": 10,
+      "allFields": 10,
+      "fields": {
+        "name": 10,
+        "status": 10,
+        "remaining": 10,
+        "actualStart": 10,
+        "actualFinish": 10,
+        "constraint": 10,
+        "baseline": 10,
+        "calendar": 10
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 10,
+        "same": 10,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdinulltasks.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 3,
+        "same": 3,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdirelations.xml",
+      "activities": 5,
+      "allFields": 5,
+      "fields": {
+        "name": 5,
+        "status": 5,
+        "remaining": 5,
+        "actualStart": 5,
+        "actualFinish": 5,
+        "constraint": 5,
+        "baseline": 5,
+        "calendar": 5
+      },
+      "problems": [],
+      "links": 4,
+      "linksKept": 4,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 5,
+        "same": 5,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdiresource.xml",
+      "activities": 3,
+      "allFields": 3,
+      "fields": {
+        "name": 3,
+        "status": 3,
+        "remaining": 3,
+        "actualStart": 3,
+        "actualFinish": 3,
+        "constraint": 3,
+        "baseline": 3,
+        "calendar": 3
+      },
+      "problems": [],
+      "links": 1,
+      "linksKept": 1,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 4,
+      "assignments": 5,
+      "schedule": {
+        "open": 2,
+        "same": 2,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspdisplittask.xml",
+      "activities": 2,
+      "allFields": 2,
+      "fields": {
+        "name": 2,
+        "status": 2,
+        "remaining": 2,
+        "actualStart": 2,
+        "actualFinish": 2,
+        "constraint": 2,
+        "baseline": 2,
+        "calendar": 2
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 2,
+        "same": 2,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspditimephased.xml",
+      "activities": 40,
+      "allFields": 40,
+      "fields": {
+        "name": 40,
+        "status": 40,
+        "remaining": 40,
+        "actualStart": 40,
+        "actualFinish": 40,
+        "constraint": 40,
+        "baseline": 40,
+        "calendar": 40
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 41,
+      "assignments": 40,
+      "schedule": {
+        "open": 30,
+        "same": 30,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "mspditimephasedsegments.xml",
+      "activities": 20,
+      "allFields": 20,
+      "fields": {
+        "name": 20,
+        "status": 20,
+        "remaining": 20,
+        "actualStart": 20,
+        "actualFinish": 20,
+        "constraint": 20,
+        "baseline": 20,
+        "calendar": 20
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 6,
+      "assignments": 20,
+      "schedule": {
+        "open": 20,
+        "same": 20,
+        "miss": []
+      },
+      "bad": []
+    },
+    {
+      "file": "project/default-duration-format/DefaultDurationFormat.xml",
+      "activities": 1,
+      "allFields": 1,
+      "fields": {
+        "name": 1,
+        "status": 1,
+        "remaining": 1,
+        "actualStart": 1,
+        "actualFinish": 1,
+        "constraint": 1,
+        "baseline": 1,
+        "calendar": 1
+      },
+      "problems": [],
+      "links": 0,
+      "linksKept": 0,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 1,
+        "same": 1,
+        "miss": []
+      },
+      "bad": []
+    }
+  ],
+  "xer": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "version": "6.0",
+      "project": "CCA R03 dt 24Oct11SC",
+      "ms": 12632,
+      "bytes": 19337564,
+      "activities": 16146,
+      "idsBack": 16146,
+      "spans": 297,
+      "compared": 15849,
+      "allFields": 15849,
+      "fields": {
+        "name": 15849,
+        "status": 15849,
+        "remaining": 15849,
+        "actualStart": 15849,
+        "actualFinish": 15849,
+        "constraint": 15849,
+        "baseline": 15849,
+        "calendar": 15849
+      },
+      "links": 45483,
+      "linksKept": 45483,
+      "linksExtra": 0,
+      "codes": 257535,
+      "codesKept": 257535,
+      "wbsSame": 15849,
+      "problems": [],
+      "resources": 105,
+      "assignments": 36808,
+      "schedule": {
+        "open": 14270,
+        "same": 14266,
+        "miss": [
+          {
+            "code": "D03UR26001C0",
+            "ef": [
+              21957600,
+              21957600
+            ],
+            "lf": [
+              22150908,
+              22099128
+            ],
+            "tf": [
+              629.8,
+              629.8
+            ]
+          },
+          {
+            "code": "DP1CL26009C0",
+            "ef": [
+              21972000,
+              21972000
+            ],
+            "lf": [
+              22153500,
+              22153500
+            ],
+            "tf": [
+              360.2,
+              809
+            ]
+          },
+          {
+            "code": "DP1CL09201C0",
+            "ef": [
+              21971100,
+              21971100
+            ],
+            "lf": [
+              22055532,
+              22059900
+            ],
+            "tf": [
+              360.2,
+              377
+            ]
+          }
+        ]
+      },
+      "warnings": [
+        "206 manually scheduled task(s) do not move with their logic (switch them to auto scheduled before relying on the dates); each is read as start on or after its typed start: 426 T&C @ CUP; 427 T&C @ Car Park; 428 T&C @ Clinic Building; 429 T&C @ D&T Building; 430 T&C @ Gallery; 431 T&C @ Swing Wing; 432 T&C @ ICU; 433 T&C @ Patient Tower 10-16; 434 T&C @ Patient tower 17-20; 3491 CB-AF ; Ele(39,40)-CTU; 8914 IC-R8 ; Temporary Enclosure; 16775 CU-VO 002 ; Mold Resistant board for Partitions - CUP; ...",
+        "3 task(s) carry a deadline; deadlines are not modelled, so their recomputed float can be larger than Project's",
+        "4 activities have actual dates after the status date 2011-09-30 00:00 (to 2012-08-11 08:36); the status date is kept as P6's data date, so P6's schedule log will list them: correct the actuals or the status date",
+        "activity IDs from the \"Activity ID\" text field on 16146 of 16146 activities",
+        "3 activity code type(s) written as parent.child paths rebuilt as P6 code hierarchies",
+        "3 deadline(s) not carried: P6 has no deadline (add a finish-on-or-before secondary constraint in P6 if needed)",
+        "297 task note(s) not carried"
+      ],
+      "bad": []
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "version": "7.0",
+      "project": "BEW3",
+      "ms": 642,
+      "bytes": 1002669,
+      "activities": 823,
+      "idsBack": 823,
+      "spans": 0,
+      "compared": 823,
+      "allFields": 823,
+      "fields": {
+        "name": 823,
+        "status": 823,
+        "remaining": 823,
+        "actualStart": 823,
+        "actualFinish": 823,
+        "constraint": 823,
+        "baseline": 823,
+        "calendar": 823
+      },
+      "links": 1094,
+      "linksKept": 1094,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "wbsSame": 823,
+      "problems": [],
+      "resources": 323,
+      "assignments": 3519,
+      "schedule": {
+        "open": 823,
+        "same": 823,
+        "miss": []
+      },
+      "warnings": [
+        "activity IDs from the \"Activity ID\" text field on 823 of 823 activities"
+      ],
+      "bad": []
+    },
+    {
+      "file": "example_xer_file.xer",
+      "version": "24.12",
+      "project": "DEMO-001",
+      "ms": 293,
+      "bytes": 492873,
+      "activities": 435,
+      "idsBack": 435,
+      "spans": 10,
+      "compared": 425,
+      "allFields": 425,
+      "fields": {
+        "name": 425,
+        "status": 425,
+        "remaining": 425,
+        "actualStart": 425,
+        "actualFinish": 425,
+        "constraint": 425,
+        "baseline": 425,
+        "calendar": 425
+      },
+      "links": 555,
+      "linksKept": 555,
+      "linksExtra": 0,
+      "codes": 436,
+      "codesKept": 436,
+      "wbsSame": 425,
+      "problems": [],
+      "resources": 29,
+      "assignments": 1677,
+      "schedule": {
+        "open": 404,
+        "same": 404,
+        "miss": []
+      },
+      "warnings": [
+        "2 manually scheduled task(s) do not move with their logic (switch them to auto scheduled before relying on the dates); each is read as start on or after its typed start: 186 Activity DEL-W-1070; 453 Activity DEL-W-1110",
+        "activity IDs from the \"Activity ID\" text field on 435 of 435 activities",
+        "10 task note(s) not carried"
+      ],
+      "bad": []
+    },
+    {
+      "file": "hotel-project.xer",
+      "version": "6.0",
+      "project": "HBTF-2",
+      "ms": 1636,
+      "bytes": 2519448,
+      "activities": 4217,
+      "idsBack": 4217,
+      "spans": 0,
+      "compared": 4217,
+      "allFields": 4217,
+      "fields": {
+        "name": 4217,
+        "status": 4217,
+        "remaining": 4217,
+        "actualStart": 4217,
+        "actualFinish": 4217,
+        "constraint": 4217,
+        "baseline": 4217,
+        "calendar": 4217
+      },
+      "links": 7586,
+      "linksKept": 7586,
+      "linksExtra": 0,
+      "codes": 18020,
+      "codesKept": 18020,
+      "wbsSame": 4217,
+      "problems": [],
+      "resources": 6,
+      "assignments": 2278,
+      "schedule": {
+        "open": 4217,
+        "same": 4217,
+        "miss": []
+      },
+      "warnings": [
+        "activity IDs from the \"Activity ID\" text field on 4217 of 4217 activities"
+      ],
+      "bad": []
+    },
+    {
+      "file": "sample.xer",
+      "version": "20.12",
+      "project": "Task SE",
+      "ms": 24,
+      "bytes": 22977,
+      "activities": 52,
+      "idsBack": 52,
+      "spans": 10,
+      "compared": 42,
+      "allFields": 42,
+      "fields": {
+        "name": 42,
+        "status": 42,
+        "remaining": 42,
+        "actualStart": 42,
+        "actualFinish": 42,
+        "constraint": 42,
+        "baseline": 42,
+        "calendar": 42
+      },
+      "links": 41,
+      "linksKept": 41,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "wbsSame": 42,
+      "problems": [],
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 42,
+        "same": 42,
+        "miss": []
+      },
+      "warnings": [
+        "10 manually scheduled task(s) do not move with their logic (switch them to auto scheduled before relying on the dates); each is read as start on or after its typed start: 7 LOE1.1; 10 LOE1.2; 18 LOE2.1; 21 LOE2.2; 29 LOE3.1; 32 LOE3.2; 40 LOE4.1; 43 LOE4.2; 51 LOE5.1; 54 LOE5.2",
+        "activity IDs from the \"Activity ID\" text field on 52 of 52 activities",
+        "10 task note(s) not carried"
+      ],
+      "bad": []
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "version": "5.0",
+      "project": "TERMINAL-2",
+      "ms": 32,
+      "bytes": 45466,
+      "activities": 66,
+      "idsBack": 66,
+      "spans": 0,
+      "compared": 66,
+      "allFields": 66,
+      "fields": {
+        "name": 66,
+        "status": 66,
+        "remaining": 66,
+        "actualStart": 66,
+        "actualFinish": 66,
+        "constraint": 66,
+        "baseline": 66,
+        "calendar": 66
+      },
+      "links": 84,
+      "linksKept": 84,
+      "linksExtra": 0,
+      "codes": 51,
+      "codesKept": 51,
+      "wbsSame": 66,
+      "problems": [],
+      "resources": 6,
+      "assignments": 62,
+      "schedule": {
+        "open": 66,
+        "same": 66,
+        "miss": []
+      },
+      "warnings": [
+        "activity IDs from the \"Activity ID\" text field on 66 of 66 activities"
+      ],
+      "bad": []
+    }
+  ]
+}

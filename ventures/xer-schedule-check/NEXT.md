@@ -36,6 +36,12 @@
   shipped 2026-11-21 (eval/msproject-codes-2026-11-21.md). Next: UDFs as
   Number/Date/Flag fields; activity codes as outline codes (hierarchy and
   descriptions as Project's own lookup table, once a reader agrees on the
-  form); the 8 CCA code types past 29 fields; MSPDI to XER for P6 import
-  (needs P6's required fields).
+  form); the 8 CCA code types past 29 fields. MSPDI to XER for P6 import
+  shipped 2026-11-21 (p6xer.mjs, eval/p6xer-check-2026-11-21.md).
+- (2026-11-21) Project XML to XER: next, an import into a real P6 (any
+  version) to confirm what the field lists stand in for; notes as TASKMEMO
+  (needs MEMOTYPE); deadlines as a secondary finish-on-or-before constraint
+  (opt-in, since it changes float); cost resources as PROJCOST expenses;
+  number/date fields as UDFs (UDFTYPE, UDFVALUE).
 - (2026-11-21) constraints log's "past late start" now says whether a row moves anything (eval/constraints-slack-2026-11-20.md: 65/65)
+- (2026-11-21) its forward gap searched 2026-11-20, no rule (one link; eval/relationship-dates-2026-11-20.md)

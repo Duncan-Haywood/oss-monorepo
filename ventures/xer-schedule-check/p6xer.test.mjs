@@ -1,0 +1,178 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { parseXer } from "./xer.mjs";
+import { parseMspdi } from "./mspdi.mjs";
+import { schedule } from "./cpm.mjs";
+import { mspdiText } from "./msproject.mjs";
+import { p6XerText, p6Problems, FIELDS } from "./p6xer.mjs";
+import { EXAMPLE_XER } from "./example.mjs";
+
+// a small Project file: a summary, four tasks (one in progress with a Resume,
+// one manual), links, a work and a material resource, a text field used as
+// a code, and a status date
+const WEEK = [1, 7].map((d) => `<WeekDay><DayType>${d}</DayType><DayWorking>0</DayWorking></WeekDay>`).join("") +
+  [2, 3, 4, 5, 6].map((d) => `<WeekDay><DayType>${d}</DayType><DayWorking>1</DayWorking><WorkingTimes><WorkingTime><FromTime>08:00:00</FromTime><ToTime>12:00:00</ToTime></WorkingTime><WorkingTime><FromTime>13:00:00</FromTime><ToTime>17:00:00</ToTime></WorkingTime></WorkingTimes></WeekDay>`).join("");
+const task = (uid, id, name, extra = "") => `<Task><UID>${uid}</UID><ID>${id}</ID><Name>${name}</Name><OutlineLevel>${uid === 1 ? 1 : 2}</OutlineLevel>${extra}</Task>`;
+const XML = (opts = {}) => `<?xml version="1.0"?><Project xmlns="http://schemas.microsoft.com/project">
+<Title>Clinic Fit-Out</Title><StartDate>2026-03-02T08:00:00</StartDate><FinishDate>2026-04-30T17:00:00</FinishDate>${opts.status === false ? "" : "<StatusDate>2026-03-11T17:00:00</StatusDate>"}<CalendarUID>1</CalendarUID><MinutesPerDay>480</MinutesPerDay>
+<ExtendedAttributes><ExtendedAttribute><FieldID>188743731</FieldID><FieldName>Text1</FieldName><Alias>${opts.idAlias || "Area"}</Alias></ExtendedAttribute></ExtendedAttributes>
+<Calendars><Calendar><UID>1</UID><Name>Standard</Name><IsBaseCalendar>1</IsBaseCalendar><WeekDays>${WEEK}</WeekDays></Calendar></Calendars>
+<Tasks>
+${task(1, 1, "Level 1", "<Summary>1</Summary><WBS>1</WBS>")}
+${task(2, 2, "Demolition", `<WBS>1.1</WBS><Duration>PT40H0M0S</Duration><RemainingDuration>PT0H0M0S</RemainingDuration><PercentComplete>100</PercentComplete><ActualStart>2026-03-02T08:00:00</ActualStart><ActualFinish>2026-03-06T17:00:00</ActualFinish><Start>2026-03-02T08:00:00</Start><Finish>2026-03-06T17:00:00</Finish><ExtendedAttribute><FieldID>188743731</FieldID><Value>${opts.code2 || "L1"}</Value></ExtendedAttribute>`)}
+${task(3, 3, "Framing", `<WBS>1.2</WBS><Duration>PT80H0M0S</Duration><RemainingDuration>PT56H0M0S</RemainingDuration><PercentComplete>30</PercentComplete><ActualStart>2026-03-09T08:00:00</ActualStart><Stop>2026-03-10T17:00:00</Stop><Resume>2026-03-16T08:00:00</Resume><Start>2026-03-09T08:00:00</Start><Finish>2026-03-24T17:00:00</Finish><PredecessorLink><PredecessorUID>2</PredecessorUID><Type>1</Type></PredecessorLink><ExtendedAttribute><FieldID>188743731</FieldID><Value>${opts.code3 || "L1"}</Value></ExtendedAttribute>`)}
+${task(4, 4, "Drywall", `<WBS>1.3</WBS><Duration>PT64H0M0S</Duration><Start>2026-03-25T08:00:00</Start><Finish>2026-04-03T17:00:00</Finish><PredecessorLink><PredecessorUID>3</PredecessorUID><Type>1</Type><LinkLag>4800</LinkLag><LagFormat>8</LagFormat></PredecessorLink>${opts.code4 ? `<ExtendedAttribute><FieldID>188743731</FieldID><Value>${opts.code4}</Value></ExtendedAttribute>` : ""}`)}
+${task(5, 5, "Inspection", `<WBS>1.4</WBS><Duration>PT8H0M0S</Duration><Manual>1</Manual><Start>2026-04-13T08:00:00</Start><Finish>2026-04-13T17:00:00</Finish><PredecessorLink><PredecessorUID>4</PredecessorUID><Type>1</Type></PredecessorLink>`)}
+${task(6, 6, "Handover", `<WBS>1.5</WBS><Duration>PT0H0M0S</Duration><Milestone>1</Milestone><Start>2026-04-13T17:00:00</Start><Finish>2026-04-13T17:00:00</Finish><PredecessorLink><PredecessorUID>5</PredecessorUID><Type>1</Type></PredecessorLink>`)}
+</Tasks>
+<Resources><Resource><UID>0</UID><ID>0</ID></Resource><Resource><UID>1</UID><ID>1</ID><Name>Carpenter</Name><Type>1</Type><Initials>CARP</Initials><MaxUnits>2</MaxUnits></Resource><Resource><UID>2</UID><ID>2</ID><Name>Gypsum board</Name><Type>0</Type></Resource><Resource><UID>3</UID><ID>3</ID><Name>Permit fee</Name><Type>2</Type></Resource></Resources>
+<Assignments><Assignment><UID>1</UID><TaskUID>3</TaskUID><ResourceUID>1</ResourceUID><Work>PT160H0M0S</Work><ActualWork>PT48H0M0S</ActualWork><RemainingWork>PT112H0M0S</RemainingWork><Cost>960000</Cost><ActualCost>288000</ActualCost><RemainingCost>672000</RemainingCost></Assignment>
+<Assignment><UID>2</UID><TaskUID>4</TaskUID><ResourceUID>2</ResourceUID><Work>PT120H0M0S</Work><Cost>180000</Cost></Assignment>
+<Assignment><UID>3</UID><TaskUID>5</TaskUID><ResourceUID>3</ResourceUID><Cost>50000</Cost></Assignment></Assignments>
+</Project>`;
+
+test("every table carries P6's fields, whole-number ids that resolve, and passes the import rules", () => {
+  const r = p6XerText(XML());
+  assert.deepEqual(p6Problems(r.xer.tables), []);
+  for (const [t, rows] of Object.entries(r.xer.tables)) for (const row of rows) assert.deepEqual(Object.keys(row), FIELDS[t], t);
+  assert.deepEqual(Object.keys(r.xer.tables), ["CURRTYPE", "FINTMPL", "OBS", "PROJECT", "CALENDAR", "SCHEDOPTIONS", "PROJWBS", "RSRC", "ACTVTYPE", "ACTVCODE", "TASK", "TASKPRED", "TASKACTV", "TASKRSRC"]);
+  assert.match(r.text, /^ERMHDR\t20\.12\t/);
+  assert.match(r.text, /%E\r\n$/);
+  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1 });
+});
+
+test("the WBS hangs under one project node; activity IDs are A + row x 10", () => {
+  const T = p6XerText(XML(), { projectId: "CLINIC-01" }).xer.tables;
+  const node = T.PROJWBS.find((w) => w.proj_node_flag === "Y");
+  assert.equal(node.wbs_short_name, "CLINIC-01");
+  assert.equal(node.wbs_name, "Clinic Fit-Out");
+  assert.equal(T.PROJECT[0].proj_short_name, "CLINIC-01");
+  const l1 = T.PROJWBS.find((w) => w.wbs_name === "Level 1");
+  assert.equal(l1.parent_wbs_id, node.wbs_id);
+  assert.deepEqual(T.TASK.map((t) => t.task_code), ["A20", "A30", "A40", "A50", "A60"]);
+  assert.ok(T.TASK.every((t) => t.wbs_id === l1.wbs_id));
+  assert.equal(T.TASK.find((t) => t.task_code === "A60").task_type, "TT_FinMile");
+});
+
+test("a text field named Activity ID gives the activity IDs", () => {
+  const r = p6XerText(XML({ idAlias: "Activity ID", code2: "DEM-100", code3: "FRM-200", code4: "DRY-300" }));
+  assert.deepEqual(r.xer.tables.TASK.map((t) => t.task_code), ["DEM-100", "FRM-200", "DRY-300", "A50", "A60"]);
+  assert.ok(!r.xer.tables.ACTVTYPE, "the Activity ID field is not also a code");
+  assert.match(r.warnings.join("\n"), /"Activity ID" text field on 3 of 5/);
+  // --row-ids ignores the field
+  assert.equal(p6XerText(XML({ idAlias: "Activity ID", code2: "DEM-100", code3: "FRM-200" }), { activityIds: "row" }).xer.tables.TASK[0].task_code, "A20");
+});
+
+test("progress: actual dates, remaining duration, and Project's Resume as P6's suspend and resume", () => {
+  const T = p6XerText(XML()).xer.tables;
+  const [dem, frm, dry] = T.TASK;
+  assert.equal(dem.status_code, "TK_Complete");
+  assert.equal(dem.act_end_date, "2026-03-06 17:00");
+  assert.equal(dem.remain_drtn_hr_cnt, "0");
+  assert.equal(frm.status_code, "TK_Active");
+  assert.equal(frm.remain_drtn_hr_cnt, "56");
+  assert.equal(frm.suspend_date, "2026-03-10 17:00");
+  assert.equal(frm.resume_date, "2026-03-16 08:00");
+  assert.equal(dry.status_code, "TK_NotStart");
+  assert.equal(dry.suspend_date, "");
+  assert.equal(T.PROJECT[0].last_recalc_date, "2026-03-11 17:00");
+});
+
+test("the manual task is held at its typed start; the elapsed lag and cost resource are reported", () => {
+  const r = p6XerText(XML());
+  const insp = r.xer.tables.TASK.find((t) => t.task_name === "Inspection");
+  assert.equal(insp.cstr_type, "CS_MSOA");
+  assert.equal(insp.cstr_date, "2026-04-13 08:00");
+  const w = r.warnings.join("\n");
+  assert.match(w, /1 elapsed lag/);
+  assert.match(w, /1 cost resource\(s\) and 1 assignment/);
+  assert.match(w, /1 manually scheduled task/);
+});
+
+test("resources and assignments keep hours, units and cost", () => {
+  const T = p6XerText(XML()).xer.tables;
+  const carp = T.RSRC.find((r) => r.rsrc_name === "Carpenter");
+  assert.equal(carp.rsrc_type, "RT_Labor");
+  assert.equal(carp.rsrc_short_name, "CARP");
+  assert.equal(T.RSRC.find((r) => r.rsrc_name === "Gypsum board").rsrc_type, "RT_Mat");
+  const a = T.TASKRSRC.find((x) => x.rsrc_id === carp.rsrc_id);
+  assert.deepEqual([a.target_qty, a.act_reg_qty, a.remain_qty, a.target_cost, a.act_reg_cost, a.remain_cost, a.cost_per_qty], ["160", "48", "112", "9600", "2880", "6720", "60"]);
+  const frm = T.TASK.find((t) => t.task_id === a.task_id);
+  assert.equal(frm.task_name, "Framing");
+  assert.equal(frm.target_work_qty, "160");
+  // material units do not count as labour hours
+  assert.equal(T.TASK.find((t) => t.task_name === "Drywall").target_work_qty, "0");
+});
+
+test("P6's first schedule run gives the dates the MSPDI reader computes", () => {
+  // a working-time lag (an elapsed one is the reported difference above)
+  const text = XML().replace("<LagFormat>8</LagFormat>", "<LagFormat>7</LagFormat>");
+  const A = parseMspdi(text), B = parseXer(p6XerText(text).text);
+  const ra = schedule(A), rb = schedule(B);
+  A.tables.TASK.forEach((a, i) => {
+    const x = ra.tasks.get(a.task_id), y = rb.tasks.get(B.tables.TASK[i].task_id);
+    assert.deepEqual([y.ef, y.lf, y.tf], [x.ef, x.lf, x.tf], a.task_name);
+  });
+});
+
+test("actual dates after the status date: kept with a status date, moved without one", () => {
+  // Demolition finishes 2026-03-06; a status date of 03-04 sits before it
+  const early = XML().replace("2026-03-11T17:00:00</StatusDate>", "2026-03-04T17:00:00</StatusDate>");
+  const r = p6XerText(early);
+  assert.equal(r.xer.tables.PROJECT[0].last_recalc_date, "2026-03-04 17:00");
+  assert.match(r.warnings.join("\n"), /actual dates after the status date 2026-03-04 17:00/);
+  const none = p6XerText(XML({ status: false }));
+  assert.equal(none.xer.tables.PROJECT[0].last_recalc_date, "2026-03-09 08:00");
+  assert.ok(!none.warnings.some((w) => w.startsWith("no status date in the file")));
+});
+
+test("a code type written as parent.child paths comes back as a P6 code tree; dotted names stay flat", () => {
+  // the same leaf (01) under two parents: msproject.mjs writes the whole path
+  const T = p6XerText(XML({ code2: "N.01", code3: "S.01", code4: "PA" })).xer.tables;
+  const byId = new Map(T.ACTVCODE.map((c) => [c.actv_code_id, c]));
+  const leaves = T.TASKACTV.map((a) => byId.get(a.actv_code_id));
+  assert.deepEqual(leaves.map((c) => c.short_name), ["01", "01", "PA"]);
+  assert.deepEqual(leaves.map((c) => (c.parent_actv_code_id ? byId.get(c.parent_actv_code_id).short_name : "")), ["N", "S", ""]);
+  assert.equal(T.ACTVTYPE[0].actv_short_len, "2");
+  const flat = p6XerText(XML({ code2: "P.C Footings", code3: "R.C Footings" })).xer.tables;
+  assert.deepEqual(flat.ACTVCODE.map((c) => [c.short_name, c.parent_actv_code_id]), [["P.C Footings", ""], ["R.C Footings", ""]]);
+});
+
+test("a P6 schedule sent through Project XML comes back with its IDs, links, codes and dates", () => {
+  const X = parseXer(EXAMPLE_XER);
+  const r = p6XerText(mspdiText(X).xml);
+  assert.deepEqual(p6Problems(r.xer.tables), []);
+  const B = parseXer(r.text);
+  const codes = (T) => T.TASK.map((t) => t.task_code).sort();
+  assert.deepEqual(codes(B.tables), codes(X.tables));
+  const code = (T) => new Map(T.TASK.map((t) => [t.task_id, t.task_code]));
+  const links = (T) => { const c = code(T); return T.TASKPRED.map((l) => `${c.get(l.pred_task_id)}>${c.get(l.task_id)} ${l.pred_type} ${Number(l.lag_hr_cnt)}`).sort(); };
+  assert.deepEqual(links(B.tables), links(X.tables));
+  for (const t of X.tables.TASK) {
+    const b = B.tables.TASK.find((x) => x.task_code === t.task_code);
+    assert.equal(b.task_name, t.task_name);
+    assert.equal(b.status_code, t.status_code);
+    assert.equal(Number(b.remain_drtn_hr_cnt), Number(t.remain_drtn_hr_cnt));
+  }
+  // Project's scheduling options came back with it
+  assert.equal(B.tables.SCHEDOPTIONS[0].sched_calendar_on_relationship_lag, "rcal_Successor");
+  assert.equal(B.tables.RSRC.length, 2);
+});
+
+test("long names are cut to P6's lengths and repeated IDs made unique", () => {
+  const long = "x".repeat(130);
+  const r = p6XerText(XML({ idAlias: "Activity ID", code2: "SAME", code3: "SAME" }).replace("<Name>Drywall</Name>", `<Name>${long}</Name>`));
+  const T = r.xer.tables;
+  assert.equal(T.TASK[2].task_name.length, 120);
+  assert.deepEqual(T.TASK.slice(0, 2).map((t) => t.task_code), ["SAME", "SAME-2"]);
+  assert.deepEqual(p6Problems(T), []);
+});
+
+test("p6Problems names what P6's import would refuse", () => {
+  const T = p6XerText(XML()).xer.tables;
+  const bad = { ...T, TASK: T.TASK.map((t, i) => (i === 0 ? { ...t, wbs_id: "999" } : i === 1 ? { ...t, task_code: T.TASK[2].task_code } : t)), TASKPRED: [{ ...T.TASKPRED[0], task_pred_id: "x1" }] };
+  const p = p6Problems(bad).join("\n");
+  assert.match(p, /wbs_id 999 is not in PROJWBS/);
+  assert.match(p, /activity ID repeated/);
+  assert.match(p, /x1: id is not a whole number/);
+});
