@@ -86,10 +86,23 @@ test("the page has a model view drawn from the takeoff's own solids", () => {
   const html = page("index.html");
   assert.match(html, /<canvas id="view"/);
   assert.match(html, /import \{ ModelView \} from "\.\/viewer\.mjs"/);
-  assert.match(html, /rowMesh\(rows\[i\], origin\)/);
+  assert.match(html, /meshRows\(prep\.rows/);
+  assert.match(page("view-worker.mjs"), /meshRows\(rows, origin\)/);
   // a bill-of-quantities line and a check row both select elements in the view
   assert.match(html, /record\("boq_line_shown"\)/);
   assert.match(html, /tr data-el=/);
   const viewer = page("viewer.mjs");
   assert.doesNotMatch(viewer, /from "https?:/, "the viewer loads no library");
+});
+
+test("the model view's worker exists, is browser-safe and falls back to the page", () => {
+  const html = page("index.html");
+  const m = html.match(/new Worker\(new URL\("\.\/([a-z0-9-]+\.mjs)", import\.meta\.url\), \{ type: "module" \}\)/);
+  assert.ok(m, "the page starts a module worker");
+  const src = page(m[1]);
+  assert.doesNotMatch(src, /from "node:/);
+  for (const d of src.matchAll(/from "\.\/([a-z0-9-]+\.mjs)"/g)) assert.doesNotMatch(page(d[1]), /from "node:/, d[1]);
+  // no worker, or a failed one: the page meshes what is left itself
+  assert.match(html, /typeof Worker === "undefined"/);
+  assert.match(html, /drawn on the page instead/);
 });

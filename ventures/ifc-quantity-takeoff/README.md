@@ -88,6 +88,11 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   storey: ARK_NUS's 5 floors showed as 198. They now count on the storey
   above their room (1,268 ARK_NUS elements, 37 in kleine_Wohnung)
   ([eval/storeys-and-sections-2026-11-21.md](eval/storeys-and-sections-2026-11-21.md)).
+  Meshing runs in a Web Worker (`view-worker.mjs`) that reads the same
+  file alongside the page's own takeoff, and the GPU buffers grow by
+  appending, so the page keeps answering while a big model draws: stalls
+  over 100 ms on the 56 MB school model went from 59 to 4
+  ([eval/view-worker-2026-11-21.md](eval/view-worker-2026-11-21.md)).
 
 Nothing is uploaded: the model is read in the browser tab.
 

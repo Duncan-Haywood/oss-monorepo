@@ -1,0 +1,4 @@
+{"model":"ISSUE_021_Mini Project.ifc","meshedBy":"worker","drawS":6.9,"ticks":1073,"p99Ms":34,"maxMs":275,"gapsOver100ms":4}
+{"model":"ISSUE_021_Mini Project.ifc","meshedBy":"page","drawS":9.5,"ticks":141,"p99Ms":404,"maxMs":459,"gapsOver100ms":19}
+{"model":"ISSUE_068_ARK_NUS_skolebygg.ifc","meshedBy":"worker","drawS":29.3,"ticks":4549,"p99Ms":30,"maxMs":579,"gapsOver100ms":3}
+{"model":"ISSUE_068_ARK_NUS_skolebygg.ifc","meshedBy":"page","drawS":38,"ticks":470,"p99Ms":461,"maxMs":619,"gapsOver100ms":57}
