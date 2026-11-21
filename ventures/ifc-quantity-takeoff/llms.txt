@@ -1,6 +1,6 @@
 # IFC Quantity Takeoff
 
-> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material, classification code or Uniformat II element (elemental estimate) with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Compares two revisions of a model: the change on every BoQ line and every element added, removed, changed, moved or resized, matching elements that got a new GlobalId. Nothing is uploaded.
+> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material, classification code or Uniformat II element (elemental estimate) with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Shows the model in 3D (WebGL, no plug-in) drawn from the solids it measured, coloured by stored-vs-computed agreement, class or storey; a BoQ line or a check selects its elements. Compares two revisions of a model: the change on every BoQ line and every element added, removed, changed, moved or resized, matching elements that got a new GlobalId. Nothing is uploaded.
 
 Page: https://marisstella.app/ifc-quantity-takeoff/
 Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-quantity-takeoff
@@ -61,3 +61,7 @@ Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangl
 ## Limits and disclaimer
 
 Faceted bodies clipped by a half-space, and faceted shells that are not closed, are not cut (the stored area is kept); faces written the wrong way round are turned to match their neighbours first. Openings are taken out of closed faceted bodies; the overlapping pieces of one shell are counted once each (noted). Overlapping openings are taken out once (their separate deductions exceed the joint one on 10 ARK_NUS elements). Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.
+
+## Model view (eval/model-view-2026-11-21.md)
+
+- Each element is drawn as the boundary of the signed convex pieces its volume came from (fans cancelled, openings cut); faceted bodies as the file gives them. On 11 public models (14,994 elements) the drawn triangles enclose the computed volume within 0.5% for 9,184 of 9,314 checked elements; 437 very intricate elements are drawn as their boxes. Meshing takes 0.1-8 s on most models, 35 s on a 56 MB school model.

@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLdxLLjZi4SyEBM6bQ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (develop, deploy, market, sell revenue software; merge when done)",
+  "input_sha256": "fbf25cfe540e9b0b29a15ebdd2dbcc35f34d7d75279dd794e82865c5cd615d40",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T10:29:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 14) ifc-quantity-takeoff: 3D model view drawn from the measured solids",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": 18063,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "venture-preflight failed twice before clean: unguarded smooth scroll, lede over 100 words"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ids-model-check's buildable: still lists reruns of finished sweeps (a third session has now left the row for that reason); not edited here to keep this PR to one venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named ids-model-check; its buildable list is reruns of finished sweeps and its bSDD page route needs api.bsdd.buildingsmart.org, which this session's proxy refused. Took flagship 14 ifc-quantity-takeoff with a new item (a 3D view) that every commercial takeoff tool has and this one lacked.",
+      "did": "built viewer.mjs + view-mesh.mjs, wired to the BoQ and checks",
+      "result": "9,184 of 9,314 drawn solids enclose the computed volume within 0.5% on 11 public models"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-drawing-an-ifc-model-from-the-solids-you-measured.md",
+    "ventures/ifc-quantity-takeoff/eval/model-view-2026-11-21.md"
+  ],
+  "goal": "A free IFC takeoff that shows the estimator, in 3D, which elements a BoQ line holds and which stored quantities to distrust",
+  "notes": "view-mesh.mjs draws the boundary of the takeoff's signed convex-piece solids (extrusion shortcut: fan diagonals cancel, caps ear-clipped with holes bridged; general: face cut by overlapping pieces, kept where the signed count changes, coplanar parts owned by the earliest piece). Check: enclosed triangle volume vs computed volume; 11 public models, 14,994 elements, 9,184/9,314 within 0.5%, 437 drawn as boxes (work, piece and triangle budgets). 130 disagreements left as found (126 on ARK_NUS furnishing, NEXT.md). Speed: sample beam 33 s -> 40 ms; Mini Project 114 s -> 8 s. Verified: run_venture_tests.py ifc-quantity-takeoff ok (venture + site page checks), check_posts ok, validate.py ok, Playwright screenshots of the page on the sample, duplex, kleine_Wohnung and FZK-Haus (picks and BoQ selection work, no console errors); venture-preflight clean after two fixes it caught (an unguarded smooth scroll; the lede past 100 words).",
+  "corrections": [],
+  "redteam": null
+}
