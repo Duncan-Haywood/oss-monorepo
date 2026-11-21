@@ -39,9 +39,9 @@
   fields). Resource UDFs as resource fields shipped 2026-11-21
   (eval/rsrc-udfs-2026-11-21.md, both directions). Next: WBS UDFs (on the
   summary tasks);
-  keep the Date UDF start/finish subtype on the way back; activity codes as outline codes (hierarchy and
-  descriptions as Project's own lookup table, once a reader agrees on the
-  form); the 8 CCA code types past 29 fields. MSPDI to XER for P6 import
+  keep the Date UDF start/finish subtype on the way back; activity codes as outline codes shipped 2026-11-21 (opt-in
+  `--outline-codes`, eval/msproject-outline-2026-11-21.md; next: open one in
+  Microsoft Project to settle the default and which task form it wants); the 8 CCA code types past 29 fields. MSPDI to XER for P6 import
   shipped 2026-11-21 (p6xer.mjs, eval/p6xer-check-2026-11-21.md).
 - (2026-11-21) Project XML to XER: next, an import into a real P6 (any
   version) to confirm what the field lists stand in for; notes as TASKMEMO
@@ -57,3 +57,4 @@
 - (2026-11-21) constraints log's "past late start" now says whether a row moves anything (eval/constraints-slack-2026-11-20.md: 65/65)
 - (2026-11-21) its forward gap searched 2026-11-20, no rule (one link; eval/relationship-dates-2026-11-20.md)
 - (2026-11-21) relationship dates (TASKPRED aref/arls) decoded 2026-11-20 (reldates.mjs, eval/relationship-dates-2026-11-20.md: arls 40,476/40,476; lags changed after the run read back, 1,200/1,200 planted): the 5-node SS chain is P6 contradicting its own arls (closed), the 608 h lag was not edited
+- (2026-11-21) next a real P6 import

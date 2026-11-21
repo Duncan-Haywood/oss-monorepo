@@ -1,0 +1,310 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "ms": 1739,
+  "outlineFields": [
+   {
+    "field": "Outline Code1",
+    "alias": "CCAD WORK(SET)",
+    "values": 34,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 16103
+   },
+   {
+    "field": "Outline Code2",
+    "alias": "CCAD ZONE(SET)",
+    "values": 150,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 15924
+   },
+   {
+    "field": "Outline Code3",
+    "alias": "CCAD PHASE(SET)",
+    "values": 3,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 16092
+   },
+   {
+    "field": "Outline Code4",
+    "alias": "CCAD SECTION(SET)",
+    "values": 43,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 16115
+   },
+   {
+    "field": "Outline Code5",
+    "alias": "CCAD FLOOR(SET)",
+    "values": 35,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 16104
+   },
+   {
+    "field": "Outline Code6",
+    "alias": "CCAD BUILDING(SET)",
+    "values": 14,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 16128
+   },
+   {
+    "field": "Outline Code7",
+    "alias": "CCAD BILL(SET)",
+    "values": 13,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 16146
+   },
+   {
+    "field": "Outline Code8",
+    "alias": "CCADACF (SET)",
+    "values": 13,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 15989
+   },
+   {
+    "field": "Outline Code9",
+    "alias": "CCAD REV(SET)",
+    "values": 2,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 16146
+   },
+   {
+    "field": "Outline Code10",
+    "alias": "CCAD SSCF",
+    "values": 66,
+    "depth": 3,
+    "sep": ".",
+    "tasks": 16146
+   }
+  ],
+  "textFields": 23,
+  "both": {
+   "dict": 373,
+   "dictSame": 373,
+   "assign": 160893,
+   "assignSame": 160893,
+   "pathSame": 160893,
+   "p6PathSame": 160893,
+   "descSame": 160893,
+   "bad": [],
+   "textAssign": 97765,
+   "textSame": 97765,
+   "warnings": []
+  },
+  "only2003": {
+   "assignSame": 160893,
+   "pathSame": 160893
+  },
+  "only2007": {
+   "assignSame": 160893,
+   "pathSame": 160893
+  },
+  "byPath": {
+   "assignSame": 160893,
+   "pathSame": 160893
+  },
+  "notCarried": [
+   "not carried: 293 activity code assignment(s) of the 4 code type(s) past Project's 29 spare text fields, 469 user-defined field value(s) of 9 field(s) with no room or no Project equivalent"
+  ],
+  "mpxj": {
+   "aliases": "10/10",
+   "dict": "373/373",
+   "tasks": "160893/160893"
+  }
+ },
+ {
+  "file": "example_xer_file.xer",
+  "ms": 33,
+  "outlineFields": [
+   {
+    "field": "Outline Code1",
+    "alias": "Project Charge Code",
+    "values": 1,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 10
+   },
+   {
+    "field": "Outline Code2",
+    "alias": "Activity Hide",
+    "values": 1,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 1
+   },
+   {
+    "field": "Outline Code3",
+    "alias": "Dashboard Planned",
+    "values": 1,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 425
+   }
+  ],
+  "textFields": 0,
+  "both": {
+   "dict": 3,
+   "dictSame": 3,
+   "assign": 436,
+   "assignSame": 436,
+   "pathSame": 436,
+   "p6PathSame": 436,
+   "descSame": 436,
+   "bad": [],
+   "textAssign": 0,
+   "textSame": 0,
+   "warnings": []
+  },
+  "only2003": {
+   "assignSame": 436,
+   "pathSame": 436
+  },
+  "only2007": {
+   "assignSame": 436,
+   "pathSame": 436
+  },
+  "byPath": {
+   "assignSame": 436,
+   "pathSame": 436
+  },
+  "notCarried": [
+   "not carried: 1 notebook entry"
+  ],
+  "mpxj": {
+   "aliases": "3/3",
+   "dict": "3/3",
+   "tasks": "436/436"
+  }
+ },
+ {
+  "file": "hotel-project.xer",
+  "ms": 176,
+  "outlineFields": [
+   {
+    "field": "Outline Code1",
+    "alias": "Bill No.",
+    "values": 6,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 3761
+   },
+   {
+    "field": "Outline Code2",
+    "alias": "Division No.",
+    "values": 31,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 3580
+   },
+   {
+    "field": "Outline Code3",
+    "alias": "Responsibility",
+    "values": 4,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 3866
+   },
+   {
+    "field": "Outline Code4",
+    "alias": "Phase Code",
+    "values": 3,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 3865
+   },
+   {
+    "field": "Outline Code5",
+    "alias": "Trade",
+    "values": 2,
+    "depth": 1,
+    "sep": ".",
+    "tasks": 2948
+   }
+  ],
+  "textFields": 0,
+  "both": {
+   "dict": 46,
+   "dictSame": 46,
+   "assign": 18020,
+   "assignSame": 18020,
+   "pathSame": 18020,
+   "p6PathSame": 18020,
+   "descSame": 18020,
+   "bad": [],
+   "textAssign": 0,
+   "textSame": 0,
+   "warnings": []
+  },
+  "only2003": {
+   "assignSame": 18020,
+   "pathSame": 18020
+  },
+  "only2007": {
+   "assignSame": 18020,
+   "pathSame": 18020
+  },
+  "byPath": {
+   "assignSame": 18020,
+   "pathSame": 18020
+  },
+  "notCarried": [],
+  "mpxj": {
+   "aliases": "5/5",
+   "dict": "46/46",
+   "tasks": "18020/18020"
+  }
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "ms": 2,
+  "outlineFields": [
+   {
+    "field": "Outline Code1",
+    "alias": "Classification",
+    "values": 12,
+    "depth": 1,
+    "sep": "-",
+    "tasks": 51
+   }
+  ],
+  "textFields": 0,
+  "both": {
+   "dict": 12,
+   "dictSame": 12,
+   "assign": 51,
+   "assignSame": 51,
+   "pathSame": 51,
+   "p6PathSame": 51,
+   "descSame": 51,
+   "bad": [],
+   "textAssign": 0,
+   "textSame": 0,
+   "warnings": []
+  },
+  "only2003": {
+   "assignSame": 51,
+   "pathSame": 51
+  },
+  "only2007": {
+   "assignSame": 51,
+   "pathSame": 51
+  },
+  "byPath": {
+   "assignSame": 51,
+   "pathSame": 51
+  },
+  "notCarried": [],
+  "mpxj": {
+   "aliases": "1/1",
+   "dict": "12/12",
+   "tasks": "51/51"
+  }
+ }
+]

@@ -367,7 +367,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   // codes stay as typed.
   const ACTVTYPE = [], ACTVCODE = [];
   const leafOf = new Map(); // source code id -> written code id
-  let trees = 0;
+  let trees = 0, kept = 0;
   for (const a of T.ACTVTYPE || []) {
     const codes = (T.ACTVCODE || []).filter((c) => c.actv_code_type_id === a.actv_code_type_id);
     const leaves = new Map();
@@ -378,6 +378,21 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
     if (tree) trees++;
     const typeId = idOf("ATYPE", a.actv_code_type_id);
     let len = 1;
+    // an outline code's lookup table gives each value its parent (mspdi.mjs):
+    // keep that tree as it is, parents first
+    const inType = new Map(codes.map((c) => [c.actv_code_id, c]));
+    if (codes.some((c) => inType.has(c.parent_actv_code_id))) {
+      kept++;
+      const depth = (c) => { let n = 0; for (let x = c; x && inType.has(x.parent_actv_code_id) && n < codes.length; x = inType.get(x.parent_actv_code_id)) n++; return n; };
+      for (const c of [...codes].sort((x, y) => depth(x) - depth(y))) {
+        len = Math.max(len, c.short_name.length);
+        const id = idOf("ACODE", c.actv_code_id);
+        ACTVCODE.push(full("ACTVCODE", { actv_code_id: id, parent_actv_code_id: inType.has(c.parent_actv_code_id) ? idOf("ACODE", c.parent_actv_code_id) : "", actv_code_type_id: typeId, actv_code_name: clip("actv_code_name", c.actv_code_name), short_name: clip("short_name", c.short_name), seq_num: String(ACTVCODE.length + 1), color: "", total_assignments: "" }));
+        leafOf.set(c.actv_code_id, id);
+      }
+      ACTVTYPE.push(full("ACTVTYPE", { actv_code_type_id: typeId, actv_short_len: String(Math.min(60, len)), seq_num: a.seq_num, actv_code_type: clip("actv_code_type", a.actv_code_type), proj_id: P, actv_code_type_scope: "AS_Project" }));
+      continue;
+    }
     const node = new Map(); // path -> written id
     // parents before children, so an assigned parent code keeps its description
     const order = tree ? [...codes].sort((x, y) => x.short_name.split(".").length - y.short_name.split(".").length) : codes;
@@ -469,6 +484,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (idField) warnings.push(`activity IDs from the "Activity ID" text field on ${fromField} of ${TASK.length} activities${fromField < TASK.length ? `; the rest are A + row ID x 10` : ""}`);
   else warnings.push(`activity IDs are A + Project's row ID x 10 (A10, A20, ...), as no text field is named "Activity ID"`);
   if (dupIds) warnings.push(`${dupIds} repeated activity ID(s) given a -2, -3 suffix (P6 needs them unique)`);
+  if (kept) warnings.push(`${kept} activity code type(s) keep the hierarchy of their outline code's lookup table`);
   if (trees) warnings.push(`${trees} activity code type(s) written as parent.child paths rebuilt as P6 code hierarchies`);
   if (dupRsrc) warnings.push(`${dupRsrc} repeated resource ID(s) given a -2, -3 suffix (P6 needs them unique; Project fills Initials with the name's first letter)`);
   if (summaryAssign) warnings.push(`${summaryAssign} assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no resources`);
