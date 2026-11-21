@@ -290,7 +290,7 @@
     <textarea id="swiss-results" rows="4" placeholder="Ana 1 - 0 Ben&#10;Cy 1 - 1 Dee&#10;Eve out"></textarea>
     <p class="note">A line like <code>Eve out</code> removes a player who has left: their games stay in the table and nobody is paired with them again. Missed rounds: <code>Cy half bye</code> or <code>Cy full bye</code> (requested byes), <code>Cy absent</code> (no points), <code>Ben forfeits to Ana</code> (Ana scores without playing; the two may still meet later). Write a requested bye after the last round's results and that player sits out the round being paired. As in FIDE's 2025 rules, a forfeit win or full-point bye counts as having had the bye, and the bye goes first to a player with no missed rounds.</p>
     <p class="note"><label for="swiss-trf">Carry on an event from Swiss-Manager, Vega or another pairing program: open its FIDE TRF file (read in your browser, nothing is uploaded).</label> <input type="file" id="swiss-trf" accept=".trf,.txt,text/plain"> <span id="swiss-trf-msg" role="status"></span></p>
-    <p class="note"><label><input type="checkbox" id="swiss-seed"> Order each score group by seed, as FIDE's Dutch rules do (otherwise by Buchholz, then Sonneborn-Berger)</label></p>
+    <p class="note"><input type="checkbox" id="swiss-seed"> <label for="swiss-seed">Order each score group by seed, as FIDE's Dutch rules do (otherwise by Buchholz, then Sonneborn-Berger)</label></p>
     <button type="button" id="build-swiss">Pair next round</button>
     <button type="button" class="secondary" id="dl-swiss">Download pairings (text)</button>
     <button type="button" class="secondary" id="dl-swiss-trf">Download TRF (for a rating officer or an endorsed pairing program)</button>
