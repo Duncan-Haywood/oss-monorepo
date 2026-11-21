@@ -1,0 +1,3 @@
+# node eval/split-identity-check.mjs, 2026-11-21
+after the split (this tree):   216 calls, 0 errors, sha256 947a01c312c839b15b4d5d8f7da25db0d36a9544df9f96a2f4b434323d9cee21
+before (main at a49831fdc):    216 calls, 0 errors, sha256 947a01c312c839b15b4d5d8f7da25db0d36a9544df9f96a2f4b434323d9cee21
