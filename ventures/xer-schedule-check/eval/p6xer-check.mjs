@@ -139,7 +139,7 @@ for (const f of list(opt("--mspdi"), /\.xml$/i)) {
   };
   out.mspdi.push(s);
   if (problems.length || s.allFields < s.activities || s.linksKept < s.links || s.codesKept < s.codes || s.udfsKept < s.udfs || sc.same < sc.open) console.log(`${s.file}: ${s.allFields}/${s.activities} intact ${JSON.stringify(cmp.fields)}; links ${s.linksKept}/${s.links}; codes ${s.codesKept}/${s.codes}; UDFs ${s.udfsKept}/${s.udfs}; schedule ${sc.same}/${sc.open} ${JSON.stringify(sc.miss)}; problems ${problems.length} ${problems.slice(0, 2).join("; ")} ${JSON.stringify(cmp.bad)}`);
-  if (writeDir) writeFileSync(join(writeDir, basename(f).replace(/\.xml$/i, ".xer")), r.text);
+  if (writeDir) writeFileSync(join(writeDir, basename(f).replace(/\.xml$/i, ".xer")), r.bytes);
 }
 if (out.mspdi.length) {
   const ok = out.mspdi.filter((s) => !s.error);
@@ -225,6 +225,6 @@ for (const f of list(opt("--xer"), /\.xer$/i)) {
   out.xer.push(s);
   console.log(`${s.file} (${s.project}, P6 ${s.version}): IDs back ${found}/${orig.length}; ${cmp.all}/${cmp.n} intact ${JSON.stringify(cmp.fields)}; WBS path ${wbsSame}/${cmp.n}; links ${s.linksKept}/${s.links} (${s.linksExtra} extra); codes ${s.codesKept}/${s.codes}; UDFs ${s.udfsKept}/${s.udfs} of ${s.udfsAll} activity UDF values (${s.udfsTyped} with the type, ${s.udfsExtra} extra) ${s.udfMiss.length ? JSON.stringify(s.udfMiss) : ""}${s.udfTypeMiss.length ? ` type: ${JSON.stringify(s.udfTypeMiss)}` : ""}; schedule ${sc.same}/${sc.open} ${JSON.stringify(sc.miss)}; ${s.resources} resources, ${s.assignments} assignments; problems ${problems.length} ${problems.slice(0, 3).join("; ")}; ${ms} ms`);
   for (const b of cmp.bad) console.log("   ", JSON.stringify(b));
-  if (writeDir) writeFileSync(join(writeDir, basename(f).replace(/\.xer$/i, "-via-project.xer")), r.text);
+  if (writeDir) writeFileSync(join(writeDir, basename(f).replace(/\.xer$/i, "-via-project.xer")), r.bytes);
 }
 if (opt("--json")) writeFileSync(opt("--json"), JSON.stringify(out, null, 2));

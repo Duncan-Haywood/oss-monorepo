@@ -38,8 +38,10 @@
 //
 // Scheduling differences that remain are named in the warnings (the lag
 // calendar, progress override, expected finish dates, resource-dependent
-// activities, the must-finish-by date); notes, steps and expenses are not
-// carried and are counted. Activity user-defined fields are carried as
+// activities, the must-finish-by date); steps and expenses are not carried
+// and are counted. Activity and WBS notebook entries become the task's and
+// the summary task's notes, each under its topic's name in brackets, as
+// plain text (notebook.mjs; mspdi.mjs and p6xer.mjs read them back). Activity user-defined fields are carried as
 // Project's Number, Cost, Date and spare Text fields (udfFields, below), and
 // resource user-defined fields as Project's resource Text, Number, Cost and
 // Date fields on the resources written. WBS user-defined fields go into the
@@ -71,6 +73,7 @@
 
 import { Calendar } from "./calendar.mjs";
 import { parseDate, num } from "./xer.mjs";
+import { notebookSections, notesText, CONVERSION_TOPIC } from "./notebook.mjs";
 
 const DAY = 1440;
 const SERIAL_EPOCH_DAY = Date.UTC(1899, 11, 30) / 86400000;
@@ -336,6 +339,14 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   // column in Project), the rest take the fields still free
   const wbsRow = new Map(outline.filter((o) => o.kind === "wbs").map((o) => [o.row.wbs_id, o.uid]));
   const wbsUdf = udfFields(T, wbsRow, { table: "PROJWBS", textFrom: 1, usedIds: new Set(extFields.map((f) => f.fieldId)), shareWith: udf.fields, ownRows: new Set((T.PROJWBS || []).filter((w) => w.proj_id === pid).map((w) => w.wbs_id)), takenAliases: [...takenAliases, ...extFields.map((f) => f.alias)] });
+  // notebooks: activity and WBS notebook entries as task notes (notebook.mjs)
+  const notebooks = notebookSections(T);
+  const wbsNotes = (wbsId) => {
+    const sec = notebooks.wbs.get(wbsId);
+    if (!sec) return "";
+    counts.notebookWbs++; counts.notebookWbsEntries += sec.length;
+    return `<Notes>${esc(notesText(sec))}</Notes>`;
+  };
   const wbsXml = (wbsId) => wbsUdf.fields.map((f) => (f.values.has(wbsId) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.values.get(wbsId))}</Value></ExtendedAttribute>` : "")).join("");
   const codeXml = (taskId) => ocf.fields.map((f) => (f.task.has(taskId) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.task.get(taskId).path)}</Value><ValueGUID>${f.task.get(taskId).guid}</ValueGUID></ExtendedAttribute>` : "")).join("")
     + extFields.map((f) => (f.values.has(taskId) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.values.get(taskId))}</Value></ExtendedAttribute>` : "")).join("");
@@ -343,7 +354,7 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   const outlineXml = (taskId) => ocf.fields.map((f) => (f.task.has(taskId) ? `<OutlineCode><FieldID>${f.fieldId}</FieldID><ValueID>${f.task.get(taskId).vid}</ValueID></OutlineCode>` : "")).join("");
 
   // tasks
-  const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject };
+  const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject, notebookTasks: 0, notebookEntries: 0, notebookWbs: 0, notebookWbsEntries: 0 };
   let rsrcDependent = 0, expected = 0, secondaryDropped = 0, startMilestones = 0;
   const span = new Map(); // uid -> [start, finish] for summary roll-up
   const taskXml = new Map();
@@ -425,7 +436,14 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
     if (cDate !== null) L.push(`<ConstraintDate>${isoDate(cDate)}</ConstraintDate>`);
     if (deadline !== null) L.push(`<Deadline>${isoDate(deadline)}</Deadline>`);
     L.push("<IgnoreResourceCalendar>1</IgnoreResourceCalendar>");
-    if (isSpan) L.push(`<Notes>${esc(`P6 ${t.task_type === "TT_LOE" ? "level of effort" : "WBS summary"} activity ${t.task_code}${spanNotes.has(t.task_id) ? `; its P6 relationships: ${spanNotes.get(t.task_id).join(", ")}` : ""}`)}</Notes>`);
+    {
+      // the activity's notebook entries, topic by topic (notebook.mjs); a
+      // level of effort or WBS summary activity adds this tool's own note
+      const sec = [...(notebooks.task.get(t.task_id) || [])];
+      if (sec.length) { counts.notebookTasks++; counts.notebookEntries += sec.length; }
+      if (isSpan) sec.push({ topic: CONVERSION_TOPIC, text: `P6 ${t.task_type === "TT_LOE" ? "level of effort" : "WBS summary"} activity ${t.task_code}${spanNotes.has(t.task_id) ? `; its P6 relationships: ${spanNotes.get(t.task_id).join(", ")}` : ""}` });
+      if (sec.length) L.push(`<Notes>${esc(notesText(sec))}</Notes>`);
+    }
     if (t.phys_complete_pct !== undefined && t.phys_complete_pct !== "") L.push(`<PhysicalPercentComplete>${Math.round(num(t.phys_complete_pct) || 0)}</PhysicalPercentComplete>`);
     for (const r of preds.get(t.task_id) || []) {
       const lag = num(r.lag_hr_cnt) || 0;
@@ -458,12 +476,12 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   const projFinish = Number.isFinite(pb) ? pb : parseDate(proj.scd_end_date) ?? projStart;
 
   const body = [];
-  body.push(`<Task><UID>0</UID><ID>0</ID><Name>${esc(nm(proj.proj_short_name || pid))}</Name><Active>1</Active><Manual>0</Manual><Type>1</Type><IsNull>0</IsNull><WBS>0</WBS><OutlineNumber>0</OutlineNumber><OutlineLevel>0</OutlineLevel><Start>${isoDate(Math.min(projStart, Number.isFinite(pa) ? pa : projStart))}</Start><Finish>${isoDate(projFinish)}</Finish><Summary>1</Summary><CalendarUID>-1</CalendarUID></Task>`);
+  body.push(`<Task><UID>0</UID><ID>0</ID><Name>${esc(nm(proj.proj_short_name || pid))}</Name><Active>1</Active><Manual>0</Manual><Type>1</Type><IsNull>0</IsNull><WBS>0</WBS><OutlineNumber>0</OutlineNumber><OutlineLevel>0</OutlineLevel><Start>${isoDate(Math.min(projStart, Number.isFinite(pa) ? pa : projStart))}</Start><Finish>${isoDate(projFinish)}</Finish><Summary>1</Summary><CalendarUID>-1</CalendarUID>${root ? wbsNotes(root) : ""}</Task>`);
   for (const o of outline) {
     if (o.kind === "task") { body.push(taskXml.get(o.uid)); continue; }
     const w = o.row;
     const s = summarySpan.get(o.uid) || [projStart, projStart];
-    body.push(`<Task><UID>${o.uid}</UID><ID>${o.uid}</ID><Name>${esc(nm(w.wbs_name || w.wbs_short_name))}</Name><Active>1</Active><Manual>0</Manual><Type>1</Type><IsNull>0</IsNull><WBS>${esc(codeOf(w))}</WBS><OutlineNumber>${o.outlineNumber}</OutlineNumber><OutlineLevel>${o.level}</OutlineLevel><Start>${isoDate(s[0])}</Start><Finish>${isoDate(s[1])}</Finish><Summary>1</Summary><ExtendedAttribute><FieldID>${TEXT1}</FieldID><Value>${esc(w.wbs_short_name)}</Value></ExtendedAttribute>${wbsXml(w.wbs_id)}</Task>`);
+    body.push(`<Task><UID>${o.uid}</UID><ID>${o.uid}</ID><Name>${esc(nm(w.wbs_name || w.wbs_short_name))}</Name><Active>1</Active><Manual>0</Manual><Type>1</Type><IsNull>0</IsNull><WBS>${esc(codeOf(w))}</WBS><OutlineNumber>${o.outlineNumber}</OutlineNumber><OutlineLevel>${o.level}</OutlineLevel><Start>${isoDate(s[0])}</Start><Finish>${isoDate(s[1])}</Finish><Summary>1</Summary>${wbsNotes(w.wbs_id)}<ExtendedAttribute><FieldID>${TEXT1}</FieldID><Value>${esc(w.wbs_short_name)}</Value></ExtendedAttribute>${wbsXml(w.wbs_id)}</Task>`);
   }
 
   // resources and assignments
@@ -574,14 +592,13 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   counts.rsrcUdfValues = rsrcUdf.written;
   warnings.push(...rsrcUdf.warnings);
   const nUdf = udf.dropped, nRsrcUdf = rsrcUdf.dropped, nWbsUdf = wbsUdf.dropped + wbsUdf.offOutline;
-  const nMemo = (T.TASKMEMO || []).filter((r) => taskUid.has(r.task_id)).length;
   const nProc = (T.TASKPROC || []).filter((r) => taskUid.has(r.task_id)).length;
   const nCost = (T.PROJCOST || []).filter((r) => taskUid.has(r.task_id)).length;
   if (nCodes) notCarried.push(`${nCodes} activity code assignment(s) of the ${codeFields.droppedTypes} code type(s) past Project's 29 spare text fields`);
   if (nUdf) notCarried.push(`${nUdf} user-defined field value(s) of ${udf.droppedTypes} field(s) with no room or no Project equivalent`);
   if (nWbsUdf) notCarried.push(`${nWbsUdf} WBS user-defined field value(s)${wbsUdf.offOutline ? ` (${wbsUdf.offOutline} on the project node or a WBS the file does not write)` : ""} with no room or no Project equivalent`);
   if (nRsrcUdf) notCarried.push(`${nRsrcUdf} resource user-defined field value(s) of ${rsrcUdf.droppedTypes} field(s) with no room or no Project equivalent`);
-  if (nMemo) notCarried.push(`${nMemo} notebook entr${nMemo === 1 ? "y" : "ies"}`);
+  if (counts.notebookEntries || counts.notebookWbsEntries) warnings.push(`${counts.notebookEntries + counts.notebookWbsEntries} notebook entr${counts.notebookEntries + counts.notebookWbsEntries === 1 ? "y" : "ies"} written into the notes of ${counts.notebookTasks} task(s)${counts.notebookWbs ? ` and ${counts.notebookWbs} summary task(s)` : ""}, each under its topic in brackets (plain text: P6's formatting is not kept)`);
   if (nProc) notCarried.push(`${nProc} step(s)`);
   if (nCost) notCarried.push(`${nCost} expense(s)`);
   if (notCarried.length) warnings.push(`not carried: ${notCarried.join(", ")}`);

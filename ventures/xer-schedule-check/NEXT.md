@@ -44,8 +44,9 @@
   Microsoft Project to settle the default and which task form it wants); the 8 CCA code types past 29 fields. MSPDI to XER for P6 import
   shipped 2026-11-21 (p6xer.mjs, eval/p6xer-check-2026-11-21.md).
 - (2026-11-21) Project XML to XER: next, an import into a real P6 (any
-  version) to confirm what the field lists stand in for; notes as TASKMEMO
-  (needs MEMOTYPE); deadlines as a secondary finish-on-or-before constraint
+  version) to confirm what the field lists stand in for (notes as TASKMEMO
+  under MEMOTYPE shipped 2026-11-21, eval/notebooks-2026-11-21.md: check
+  whether P6's import matches a topic by name or adds one); deadlines as a secondary finish-on-or-before constraint
   (opt-in, since it changes float); cost resources as PROJCOST expenses.
   Number/Cost/Date fields as UDFs shipped 2026-11-21
   (eval/p6xer-udfs-2026-11-21.md). Still open there: the UDF type on a round
@@ -58,3 +59,10 @@
 - (2026-11-21) its forward gap searched 2026-11-20, no rule (one link; eval/relationship-dates-2026-11-20.md)
 - (2026-11-21) relationship dates (TASKPRED aref/arls) decoded 2026-11-20 (reldates.mjs, eval/relationship-dates-2026-11-20.md: arls 40,476/40,476; lags changed after the run read back, 1,200/1,200 planted): the 5-node SS chain is P6 contradicting its own arls (closed), the 608 h lag was not edited
 - (2026-11-21) next a real P6 import
+- (2026-11-21) Notebooks: P6 notebooks <-> Project task notes shipped
+  2026-11-21 (notebook.mjs, eval/notebooks-2026-11-21.md). Still open: a
+  real P6 Web export with a multi-line plain-text memo (do 0x7F breaks show
+  as lines in P6, as read here, or as spaces, as MPXJ reads them?); project
+  notebooks (PROJMEMO, if a P6 export carries one); resource notes
+  (RSRC.rsrc_notes <-> resource Notes); P6's formatting as Project's rich
+  notes (needs the .mpp, not MSPDI).

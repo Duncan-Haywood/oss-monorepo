@@ -4,7 +4,8 @@
 // one without a P6 seat or a paid converter. Nothing is uploaded: this runs
 // in the browser tab (or the CLI).
 //
-// p6XerText(text, { projectId, activityIds }) -> { xer, text, counts, warnings }
+// p6XerText(text, { projectId, activityIds }) -> { xer, text, bytes, encoding, counts, warnings }
+// (save `bytes`: Windows-1252, P6's code page, when the text fits it)
 //
 // mspdi.mjs already reads MSPDI into P6's tables for the checks (calendars,
 // WBS, tasks, links, activity codes from text fields). Those rows carry only
@@ -47,14 +48,20 @@
 //   ID one) become WBS UDFs (table PROJWBS) on the WBS nodes they turn into,
 //   so the WBS UDFs msproject.mjs writes onto summary tasks come back.
 //
-// Not carried (counted in the warnings): notes, task splits and contoured
+// - notes: a task's notes become its notebook entries (TASKMEMO), one per
+//   "[Topic]" section (the form msproject.mjs writes a P6 notebook in), else
+//   one under the topic "Notes"; a summary task's go on its WBS node
+//   (WBSMEMO), the project's own notes on the project node. Each entry is
+//   the HTML P6 Web writes (one <P> per line). MEMOTYPE lists the topics.
+//
+// Not carried (counted in the warnings): task splits and contoured
 // work, deadlines (no P6 field), elapsed lags on links (P6 has one lag
 // calendar per project), cost resources, P6's finish-date subtype of a date
 // UDF (Project has one kind of date field, so a date comes back as a start
 // date UDF).
 
 import { parseMspdi, parseXml, durationHours } from "./mspdi.mjs";
-import { xerText } from "./xer.mjs";
+import { xerText, xerBytes } from "./xer.mjs";
 import { RSRC_TEXT_IDS, RSRC_NUMBER_IDS, RSRC_COST_IDS, RSRC_DATE_IDS } from "./msproject.mjs";
 
 // Project's resource custom fields, by PjField id -> [kind, field name]
@@ -88,6 +95,10 @@ export const FIELDS = {
   TASK: "task_id proj_id wbs_id clndr_id phys_complete_pct rev_fdbk_flag est_wt lock_plan_flag auto_compute_act_flag complete_pct_type task_type duration_type status_code task_code task_name rsrc_id total_float_hr_cnt free_float_hr_cnt remain_drtn_hr_cnt act_work_qty remain_work_qty target_work_qty target_drtn_hr_cnt target_equip_qty act_equip_qty remain_equip_qty cstr_date act_start_date act_end_date late_start_date late_end_date expect_end_date early_start_date early_end_date restart_date reend_date target_start_date target_end_date rem_late_start_date rem_late_end_date cstr_type priority_type suspend_date resume_date float_path float_path_order guid tmpl_guid cstr_date2 cstr_type2 driving_path_flag act_this_per_work_qty act_this_per_equip_qty external_early_start_date external_late_end_date create_date update_date create_user update_user location_id",
   TASKPRED: "task_pred_id task_id pred_task_id proj_id pred_proj_id pred_type lag_hr_cnt comments float_path aref arls",
   TASKACTV: "task_id actv_code_type_id actv_code_id proj_id",
+  // notebook topics and entries, as P6 7.0 to 24.12 write them
+  MEMOTYPE: "memo_type_id seq_num eps_flag proj_flag wbs_flag task_flag memo_type",
+  WBSMEMO: "wbs_memo_id proj_id memo_type_id wbs_id wbs_memo",
+  TASKMEMO: "memo_id task_id memo_type_id proj_id task_memo",
   // P6 6.0 to 24.12 write these (24.12 adds export_flag, left out so older
   // versions import it)
   UDFTYPE: "udf_type_id table_name udf_type_name udf_type_label logical_data_type super_flag indicator_expression summary_indicator_expression",
@@ -98,7 +109,7 @@ for (const k of Object.keys(FIELDS)) FIELDS[k] = FIELDS[k].split(" ");
 
 // P6's field lengths: longer values are cut (and counted), as P6's import
 // would refuse them
-const MAX = { proj_short_name: 40, wbs_short_name: 40, wbs_name: 100, task_code: 40, task_name: 120, clndr_name: 60, rsrc_short_name: 40, rsrc_name: 100, actv_code_type: 60, short_name: 60, actv_code_name: 100, udf_type_label: 40, udf_text: 255 };
+const MAX = { proj_short_name: 40, wbs_short_name: 40, wbs_name: 100, task_code: 40, task_name: 120, clndr_name: 60, rsrc_short_name: 40, rsrc_name: 100, actv_code_type: 60, short_name: 60, actv_code_name: 100, udf_type_label: 40, udf_text: 255, memo_type: 40 };
 
 // a row with every field of its table, in P6's order; missing ones empty
 function full(table, row, defaults = {}) {
@@ -278,11 +289,10 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   // activities
   const TASK = [];
   const taskIds = new Set();
-  let deadlines = 0, notes = 0;
+  let deadlines = 0;
   for (const r of T.TASK) {
     const node = taskNode.get(r.task_id);
     if (val(node, "Deadline")) deadlines++;
-    if (val(node, "Notes")) notes++;
     taskIds.add(r.task_id);
     const pct = Math.max(0, Math.min(100, Number(val(node, "PercentComplete")) || 0));
     TASK.push(full("TASK", {
@@ -475,17 +485,28 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
     for (const r of rows) { UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf("RSRC", r.uid), proj_id: "", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: r.udf_text, udf_code_id: "" })); rsrcUdfValues++; }
   }
 
+  // notes -> notebook topics and entries (mspdi.mjs reads them from the task
+  // notes, notebook.mjs); an entry on a summary task goes on its WBS node,
+  // the project summary task's on the project node
+  const MEMOTYPE = (T.MEMOTYPE || []).map((m) => full("MEMOTYPE", { memo_type_id: idOf("MEMOTYPE", m.memo_type_id), seq_num: m.seq_num, memo_type: clip("memo_type", m.memo_type) }, { eps_flag: "Y", proj_flag: "Y", wbs_flag: "Y", task_flag: "Y" }));
+  const TASKMEMO = (T.TASKMEMO || []).filter((m) => taskIds.has(m.task_id)).map((m) => full("TASKMEMO", { memo_id: idOf("TASKMEMO", m.memo_id), task_id: idOf("TASK", m.task_id), memo_type_id: idOf("MEMOTYPE", m.memo_type_id), proj_id: P, task_memo: m.task_memo }));
+  const WBSMEMO = (T.WBSMEMO || []).filter((m) => m.wbs_id === "" || srcWbs.has(m.wbs_id)).map((m) => full("WBSMEMO", { wbs_memo_id: idOf("WBSMEMO", m.wbs_memo_id), proj_id: P, memo_type_id: idOf("MEMOTYPE", m.memo_type_id), wbs_id: idOf("WBS", m.wbs_id), wbs_memo: m.wbs_memo }));
+
   const tables = {
     CURRTYPE: [full("CURRTYPE", { curr_id: "1", decimal_digit_cnt: "2", curr_symbol: "$", decimal_symbol: ".", digit_group_symbol: ",", pos_curr_fmt_type: "#1.1", neg_curr_fmt_type: "(#1.1)", curr_type: "US Dollar", curr_short_name: "USD", group_digit_cnt: "3", base_exch_rate: "1" })],
     // the financial period template the project names, as P6 20.12 writes it
     FINTMPL: [full("FINTMPL", { fintmpl_id: "1", fintmpl_name: "Calendar", default_flag: "Y" })],
+    ...(MEMOTYPE.length ? { MEMOTYPE } : {}),
     OBS: [full("OBS", { obs_id: "1", seq_num: "0", obs_name: "Enterprise" })],
     // P6 writes the UDF titles with the global tables, before PROJECT, and the values last
     ...(UDFTYPE.length ? { UDFTYPE } : {}),
     PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS,
     ...(RSRC.length ? { RSRC } : {}),
     ...(ACTVTYPE.length ? { ACTVTYPE, ACTVCODE } : {}),
-    TASK, TASKPRED,
+    TASK,
+    ...(WBSMEMO.length ? { WBSMEMO } : {}),
+    ...(TASKMEMO.length ? { TASKMEMO } : {}),
+    TASKPRED,
     ...(TASKACTV.length ? { TASKACTV } : {}),
     ...(TASKRSRC.length ? { TASKRSRC } : {}),
     ...(UDFVALUE.length ? { UDFVALUE } : {}),
@@ -507,12 +528,21 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (cut) warnings.push(`${cut} name(s) or code(s) cut to P6's field length`);
   if (elapsedLags) warnings.push(`${elapsedLags} elapsed lag(s) written in hours: P6 counts every lag on one calendar per project (successor's), so set the lag calendar to 24 hour in P6 if those links matter`);
   if (deadlines) warnings.push(`${deadlines} deadline(s) not carried: P6 has no deadline (add a finish-on-or-before secondary constraint in P6 if needed)`);
-  if (notes) warnings.push(`${notes} task note(s) not carried`);
+  if (TASKMEMO.length || WBSMEMO.length) {
+    const onRoot = WBSMEMO.filter((m) => m.wbs_id === root).length, onWbs = WBSMEMO.length - onRoot;
+    const where = [TASKMEMO.length ? `${TASKMEMO.length} on activities` : "", onWbs ? `${onWbs} on WBS nodes from summary tasks` : "", onRoot ? `${onRoot} on the project node from the project's notes` : ""].filter(Boolean).join(", ");
+    warnings.push(`${TASKMEMO.length + WBSMEMO.length} note section(s) written as notebook entries (${where}) under ${MEMOTYPE.length} notebook topic(s): ${MEMOTYPE.map((m) => m.memo_type).join(", ")}`);
+  }
   if (costRes) warnings.push(`${costRes} cost resource(s) and ${costAssign} assignment(s) of them not carried: P6 keeps such costs as expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues };
-  return { xer, text: xerText(xer), counts, warnings, project: { name: title, id: shortName } };
+  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
+  const out = xerText(xer);
+  // saved in Windows-1252, as P6 writes and reads an XER, when every
+  // character fits it (xer.mjs, xerBytes)
+  const { bytes, encoding, unmapped } = xerBytes(out);
+  if (unmapped) warnings.push(`${unmapped} character(s) do not fit Windows-1252, P6's usual XER code page, so the file is saved as UTF-8: check names and notes after the import`);
+  return { xer, text: out, bytes, encoding, counts, warnings, project: { name: title, id: shortName } };
 }
 
 export const p6xerSummary = (r) =>
@@ -521,7 +551,8 @@ export const p6xerSummary = (r) =>
   (r.counts.codeTypes ? `, ${r.counts.codeTypes} activity code type(s)` : "") +
   (r.counts.udfFields ? `, ${r.counts.udfValues} custom field value(s) as ${r.counts.udfFields} UDF(s)` : "") +
   (r.counts.wbsUdfFields ? `, ${r.counts.wbsUdfValues} summary task custom field value(s) as ${r.counts.wbsUdfFields} WBS UDF(s)` : "") +
-  (r.counts.rsrcUdfFields ? `, ${r.counts.rsrcUdfValues} resource custom field value(s) as ${r.counts.rsrcUdfFields} resource UDF(s)` : "");
+  (r.counts.rsrcUdfFields ? `, ${r.counts.rsrcUdfValues} resource custom field value(s) as ${r.counts.rsrcUdfFields} resource UDF(s)` : "") +
+  (r.counts.taskNotebooks || r.counts.wbsNotebooks ? `, ${r.counts.taskNotebooks + r.counts.wbsNotebooks} note(s) as notebook entries` : "");
 
 // What P6's import would refuse or misread, checked on the tables written:
 // every table carries P6's fields; ids are whole numbers, unique per table;
@@ -534,7 +565,7 @@ export const p6xerSummary = (r) =>
 export function p6Problems(tables) {
   const out = [];
   const say = (s) => { if (out.length < 50) out.push(s); };
-  const KEY = { CURRTYPE: "curr_id", FINTMPL: "fintmpl_id", OBS: "obs_id", PROJECT: "proj_id", CALENDAR: "clndr_id", SCHEDOPTIONS: "schedoptions_id", PROJWBS: "wbs_id", RSRC: "rsrc_id", ACTVTYPE: "actv_code_type_id", ACTVCODE: "actv_code_id", TASK: "task_id", TASKPRED: "task_pred_id", TASKRSRC: "taskrsrc_id", UDFTYPE: "udf_type_id" };
+  const KEY = { CURRTYPE: "curr_id", FINTMPL: "fintmpl_id", OBS: "obs_id", PROJECT: "proj_id", CALENDAR: "clndr_id", SCHEDOPTIONS: "schedoptions_id", PROJWBS: "wbs_id", RSRC: "rsrc_id", ACTVTYPE: "actv_code_type_id", ACTVCODE: "actv_code_id", TASK: "task_id", TASKPRED: "task_pred_id", TASKRSRC: "taskrsrc_id", UDFTYPE: "udf_type_id", MEMOTYPE: "memo_type_id", TASKMEMO: "memo_id", WBSMEMO: "wbs_memo_id" };
   const keys = {};
   for (const [t, rows] of Object.entries(tables)) {
     if (!FIELDS[t]) { say(`${t}: not a table this writer knows`); continue; }
@@ -568,6 +599,8 @@ export function p6Problems(tables) {
   ref("TASKACTV", "task_id", "TASK"); ref("TASKACTV", "actv_code_id", "ACTVCODE"); ref("TASKACTV", "actv_code_type_id", "ACTVTYPE");
   ref("TASKRSRC", "task_id", "TASK"); ref("TASKRSRC", "rsrc_id", "RSRC");
   ref("UDFVALUE", "udf_type_id", "UDFTYPE");
+  ref("TASKMEMO", "task_id", "TASK"); ref("TASKMEMO", "memo_type_id", "MEMOTYPE"); ref("TASKMEMO", "proj_id", "PROJECT");
+  ref("WBSMEMO", "wbs_id", "PROJWBS"); ref("WBSMEMO", "memo_type_id", "MEMOTYPE"); ref("WBSMEMO", "proj_id", "PROJECT");
   // a value's fk_id is a row of its UDF's subject area (TASK, PROJWBS or
   // RSRC); an activity or WBS UDF's value names the project, a resource UDF's none
   {
