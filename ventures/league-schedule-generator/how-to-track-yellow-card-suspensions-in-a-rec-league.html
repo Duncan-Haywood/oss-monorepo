@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Track Yellow Card Suspensions In A Rec League, Free</title>
+  <meta name="description" content="Track yellow and red cards in a rec league: bans after N yellows, red-card bans served in the team's next played games, and who misses which game.">
+  <meta property="og:title" content="How To Track Yellow Card Suspensions In A Rec League, Free">
+  <meta property="og:description" content="Log cards in one line each; the league page works out every ban, serves it in the team's played games (rainouts do not count) and tells each captain who sits out.">
+  <link rel="canonical" href="./how-to-track-yellow-card-suspensions-in-a-rec-league.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many yellow cards before a suspension in a rec league?", "acceptedAnswer": {"@type": "Answer", "text": "It is your league's rule. Many amateur soccer leagues ban a player for one game after five yellow cards, and some county associations step it up (five yellows one game, ten yellows two, fifteen yellows three). Short rec seasons often use three. The organiser page takes any number, a ban length, and whether later bans get longer."}}, {"@type": "Question", "name": "Does a rained-out game count towards a suspension?", "acceptedAnswer": {"@type": "Answer", "text": "No. A ban is served in the team's own games after the game the card came in, and only games already played count. A rained-out game moves to its new date and serves the ban only once it is played on that date."}}, {"@type": "Question", "name": "Is a sending off for two yellows the same as two yellow cards?", "acceptedAnswer": {"@type": "Answer", "text": "No. Two yellows in one game is a sending off: it carries the sending-off ban you set, and those two cautions are not added to the player's running yellow total, which is how most leagues count it."}}, {"@type": "Question", "name": "What happens when a ban is longer than the games left?", "acceptedAnswer": {"@type": "Answer", "text": "The page says how many games carry past this season's fixtures. Whether they carry into next season, a cup, or are dropped is your league's rule."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to track yellow card suspensions in a rec league</h1>
+  <p>Every soccer, futsal and hockey league with referees ends up keeping a cards list. The rule is simple (five yellows is a one-game ban, a red is a ban too); the counting is not. Which game does a ban start from? Does last week's rainout count as served? Is the player who got two yellows on Monday at four cautions now, or sent off? Most organisers keep it in a spreadsheet and work it out by hand before each game night, and a captain finds out about a suspension when the referee does.</p>
+  <p>The free, self-hosted league page now does the counting. You keep one plain-text log in the organiser page, a line per card. It works out every ban from your rules, serves each one in the team's own games after the card, counting only games already played, and shows each captain which of their players sit out which upcoming game.</p>
+  <p><a class="cta" href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#run-your-own-league-page-self-hosted" rel="noopener">Run your own league page</a> (MIT licensed, one small Node server, your own disk)</p>
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Set your rules.</strong> Under Cards, suspensions and scorers: a ban after every so many yellows (0 turns accumulation off), how many games that ban is, whether each later yellow ban gets longer, and the standard ban for a straight red and for a sending off for two yellows.</li>
+    <li><strong>Log each card on one line.</strong> <code>2026-09-14 Hawks: Sam Reed yellow</code>. The other words are <code>second yellow</code>, <code>red</code> (or <code>red 3</code> when your panel sets a longer ban), <code>ban 2</code> for a ban with no card, and <code>goal</code> or <code>goal 2</code> for the scorers table.</li>
+    <li><strong>Read who sits out.</strong> The organiser page lists every live ban with the games still to miss by date and opponent, the players one yellow from a ban, and a CSV of every ban served or not.</li>
+    <li><strong>Captains see their own team.</strong> Each captain's page shows their suspended players and the games they miss, so the team sheet is right before kick-off. Tick Show and the league page lists suspensions and the top scorers for everyone.</li>
+  </ol>
+  <h2>A worked example: three yellows and a rainout</h2>
+  <p>A four-team Monday league bans a player for one game after three yellows and for one game after a red. On 28 September the Owls v Hawks game is rained out and replayed on 19 October. The log after week three:</p>
+  <pre>2026-09-07 Hawks: Sam Reed yellow
+2026-09-07 Owls: Jo Park red
+2026-09-14 Hawks: Sam Reed yellow
+2026-09-14 Wrens: Lee Cho second yellow
+2026-09-21 Hawks: Sam Reed yellow
+2026-09-21 Kites: Max Bell ban 2</pre>
+  <p>On 29 September the page shows:</p>
+  <table>
+    <thead><tr><th>Player</th><th>Team</th><th>Reason</th><th>Games</th><th>Served</th><th>Still to miss</th></tr></thead>
+    <tbody>
+      <tr><td>Jo Park</td><td>Owls</td><td>red card</td><td>1</td><td>1</td><td></td></tr>
+      <tr><td>Lee Cho</td><td>Wrens</td><td>sent off (two yellows)</td><td>1</td><td>1</td><td></td></tr>
+      <tr><td>Sam Reed</td><td>Hawks</td><td>3 yellow cards</td><td>1</td><td>0</td><td>Mon 5 Oct 2026 v Wrens</td></tr>
+      <tr><td>Max Bell</td><td>Kites</td><td>ban of 2 games</td><td>2</td><td>0</td><td>Mon 5 Oct 2026 v Owls; Mon 12 Oct 2026 v Hawks</td></tr>
+    </tbody>
+  </table>
+  <p>Sam Reed's third yellow came on 21 September. The Hawks' next game, on 28 September, was rained out, so it served nothing: the ban moves to 5 October. Lee Cho's sending off carries its one-game ban, and his two cautions in that game do not count towards his yellow total. A test recomputes this table from the same code the server runs.</p>
+  <h2>What it does not do</h2>
+  <p>It keeps the count; it is not a disciplinary process. Hearings, appeals, fines and whether a ban carries into a cup or next season are your league's or your association's decisions. A player who turns out for a second team is counted per team as you log them. The rules here are settings you choose, not any governing body's code.</p>
+  <h2>Questions</h2>
+  <h3>How many yellow cards before a suspension in a rec league?</h3>
+  <p>It is your league's rule. Many amateur soccer leagues ban a player for one game after five yellow cards, and some county associations step it up (five yellows one game, ten yellows two, fifteen yellows three). Short rec seasons often use three. The organiser page takes any number, a ban length, and whether later bans get longer.</p>
+  <h3>Does a rained-out game count towards a suspension?</h3>
+  <p>No. A ban is served in the team's own games after the game the card came in, and only games already played count. A rained-out game moves to its new date and serves the ban only once it is played on that date.</p>
+  <h3>Is a sending off for two yellows the same as two yellow cards?</h3>
+  <p>No. Two yellows in one game is a sending off: it carries the sending-off ban you set, and those two cautions are not added to the player's running yellow total, which is how most leagues count it.</p>
+  <h3>What happens when a ban is longer than the games left?</h3>
+  <p>The page says how many games carry past this season's fixtures. Whether they carry into next season, a cup, or are dropped is your league's rule.</p>
+  <p>Related: <a href="./how-to-run-sportsmanship-ratings-in-a-rec-league.html">how to run sportsmanship ratings</a> and <a href="./how-to-reschedule-a-rained-out-league-game.html">how to reschedule a rained-out game</a>.</p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. An organising aid: suspensions and any sanction are your league's decisions. Not affiliated with any football association or governing body. The example teams and cards are invented.</p>
+    <p>The schedule tool runs in your browser. The cards log lives on the league page you host yourself, in one state file on your own server; nothing is sent to us. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
