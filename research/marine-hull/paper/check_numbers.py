@@ -216,6 +216,12 @@ CLAIMS = [
     ("results_eut_coupling_lb10.txt", "row T2 17.53@0.90 17.56@0.90 0.791"),
     ("results_panel_speed.txt", "mean error on 1.0-1.3 strip +3.1%, panel +36.0%"),
     ("results_coupling_symmetry.txt", "S summed over KL / measured 1.308"),
+    # milestone 7zr: GB speed terms one at a time
+    ("results_gb_speed_terms.txt", "I V1 -18.3%, I V2 -36.5%, III V1 -16.3%"),
+    ("results_gb_speed_terms.txt", "V1 0.572 0.655"),
+    ("results_gb_speed_terms.txt", "row V1_no_UdA/dx_in_Raw 0.787"),
+    ("results_gb_speed_terms.txt", "row V0_base 0.929"),
+    ("results_gb_speed_terms.txt", "row V0_base 0.326 0.219"),
 
 ]
 

@@ -1,0 +1,71 @@
+check: at U 1e-9 every variant equals V0 (max abs/rel difference 4.0e-10)
+## A. Journee's Wigley I and III (L/B 10), 7zg damping, strip GB + Faltinsen reflection
+# table: hull variant Fn peak@lambda ratio_measured ratio_other_code strip_only_peak heave_RAO_max@lambda
+row I V0_base 0.2 22.25@1.01 0.700 0.635 22.24 1.006@1.05
+row I V0_base 0.3 27.48@1.21 0.996 0.534 27.47 1.726@1.26
+row I V0_base 0.4 27.97@1.40 1.877 0.305 27.97 2.266@1.45
+row I V1_no_UdA/dx_in_Raw 0.2 18.19@1.01 0.572 0.519 18.17 1.006@1.05
+row I V1_no_UdA/dx_in_Raw 0.3 20.96@1.20 0.759 0.408 20.95 1.726@1.26
+row I V1_no_UdA/dx_in_Raw 0.4 20.97@1.39 1.407 0.228 20.96 2.266@1.45
+row I V2_+UdA/dx_in_Raw 0.2 14.13@1.00 0.444 0.403 14.12 1.006@1.05
+row I V2_+UdA/dx_in_Raw 0.3 14.59@1.19 0.528 0.284 14.58 1.726@1.26
+row I V2_+UdA/dx_in_Raw 0.4 14.17@1.37 0.951 0.154 14.17 2.266@1.45
+row I V3_+UdA/dx_everywhere 0.2 43.63@1.02 1.372 1.246 43.61 2.819@1.02
+row I V3_+UdA/dx_everywhere 0.3 216.39@1.27 7.840 4.210 216.38 9.483@1.27
+row I V3_+UdA/dx_everywhere 0.4 1137.62@1.50 76.350 12.392 1137.62 27.416@1.50
+row I V4_no_-Utheta_in_Vz 0.2 25.34@1.01 0.797 0.724 25.33 1.006@1.05
+row I V4_no_-Utheta_in_Vz 0.3 35.59@1.21 1.290 0.692 35.58 1.726@1.26
+row I V4_no_-Utheta_in_Vz 0.4 40.87@1.41 2.743 0.445 40.86 2.266@1.45
+row I V5_k/(2_omega) 0.2 33.35@1.01 1.049 0.952 33.33 1.006@1.05
+row I V5_k/(2_omega) 0.3 46.26@1.21 1.676 0.900 46.25 1.726@1.26
+row I V5_k/(2_omega) 0.4 51.67@1.40 3.468 0.563 51.66 2.266@1.45
+row III V0_base 0.2 17.38@0.89 0.783 0.723 17.35 0.954@3.00
+row III V0_base 0.3 25.39@1.08 1.257 0.516 25.37 1.285@1.13
+row III V0_base 0.4 27.80@1.25 1.004 0.389 27.79 1.803@1.30
+row III V1_no_UdA/dx_in_Raw 0.2 14.55@0.90 0.655 0.605 14.52 0.954@3.00
+row III V1_no_UdA/dx_in_Raw 0.3 19.77@1.08 0.979 0.402 19.76 1.285@1.13
+row III V1_no_UdA/dx_in_Raw 0.4 20.51@1.25 0.740 0.287 20.50 1.803@1.30
+row III V2_+UdA/dx_in_Raw 0.2 11.73@0.90 0.528 0.487 11.70 0.954@3.00
+row III V2_+UdA/dx_in_Raw 0.3 14.16@1.08 0.701 0.287 14.14 1.285@1.13
+row III V2_+UdA/dx_in_Raw 0.4 13.29@1.23 0.480 0.186 13.28 1.803@1.30
+row III V3_+UdA/dx_everywhere 0.2 23.58@0.89 1.062 0.981 23.55 1.284@0.89
+row III V3_+UdA/dx_everywhere 0.3 55.47@1.10 2.746 1.127 55.45 3.157@1.09
+row III V3_+UdA/dx_everywhere 0.4 141.15@1.30 5.096 1.974 141.14 6.571@1.30
+row III V4_no_-Utheta_in_Vz 0.2 18.94@0.90 0.853 0.788 18.92 0.954@3.00
+row III V4_no_-Utheta_in_Vz 0.3 31.42@1.08 1.555 0.638 31.40 1.285@1.13
+row III V4_no_-Utheta_in_Vz 0.4 38.58@1.25 1.393 0.539 38.57 1.803@1.30
+row III V5_k/(2_omega) 0.2 26.60@0.89 1.198 1.107 26.57 0.954@3.00
+row III V5_k/(2_omega) 0.3 43.75@1.08 2.166 0.889 43.73 1.285@1.13
+row III V5_k/(2_omega) 0.4 52.73@1.25 1.903 0.737 52.72 1.803@1.30
+## B. Fn trend against the measured peaks: rms of ln(model/measured)
+# table: variant rms_all6 rms_5_without_noisy_I_0.4 mean_ln_ratio_5
+row V0_base 0.326 0.219 -0.075
+row V1_no_UdA/dx_in_Raw 0.359 0.363 -0.316
+row V2_+UdA/dx_in_Raw 0.597 0.654 -0.635
+row V3_+UdA/dx_everywhere 2.114 1.266 +1.015
+row V4_no_-Utheta_in_Vz 0.494 0.299 +0.128
+row V5_k/(2_omega) 0.690 0.512 +0.432
+## C. Kashiwagi tank hull (L/B 6.67) at Fn 0.2, 7zg damping, Faltinsen reflection: area on 0.3-2.0 / measured
+# table: variant area_ratio peak_sigma@lambda
+row V0_base 0.929 10.72@1.05
+row V1_no_UdA/dx_in_Raw 0.787 8.76@1.05
+row V2_+UdA/dx_in_Raw 0.645 6.80@1.05
+row V3_+UdA/dx_everywhere 1.318 23.82@1.10
+row V4_no_-Utheta_in_Vz 1.119 12.48@1.05
+row V5_k/(2_omega) 1.361 15.96@1.05
+## D. the 4 m monohull (L/B 10, Fn ~0.16 at 1 m/s), 7zg damping, Faltinsen reflection, 7zh climate
+# table: variant pooled_1ms_motion_N pooled_1ms_refl_N loss30W_share025 loss30W_share1 scope200W
+row V0_base 2.844 0.028 -3.39 -12.32 True
+row V1_no_UdA/dx_in_Raw 2.590 0.028 -3.10 -11.36 True
+row V2_+UdA/dx_in_Raw 2.335 0.028 -2.81 -10.36 True
+row V3_+UdA/dx_everywhere 3.030 0.028 -3.61 -12.88 True
+row V4_no_-Utheta_in_Vz 3.584 0.028 -4.23 -14.57 True
+row V5_k/(2_omega) 3.973 0.028 -4.67 -15.62 True
+## expectations
+E0 V0 Fn 0.2 peaks I 22.254, III 17.382 (7zk 22.25, 17.38); U->0 difference 4.0e-10: True
+E1 Fn 0.2 ratios (I, III): V1 0.572 0.655; V2 0.444 0.528; V4 0.797 0.853; V5 1.049 1.198; formula-only variants with both in 0.85-1.15: none: True
+E2 strip-only peak / other code's GB peak at Fn 0.3, 0.4 (I, I, III, III): V0 0.53 0.30 0.52 0.39; V1 0.41 0.23 0.40 0.29; V2 0.28 0.15 0.29 0.19; V3 4.21 12.39 1.13 1.97; V4 0.69 0.45 0.64 0.54; V5 0.90 0.56 0.89 0.74; variants within 25% on all four: none: True
+E3 Fn 0.2 peak change: I V1 -18.3%, I V2 -36.5%, III V1 -16.3%, III V2 -32.5% under 15%: False
+E4 tank area ratios V0 0.929, V1 0.787, V2 0.645, V4 1.119 in 0.80-1.10: False
+E5 monohull 30 W loss V0 3.39%, V1 3.10%, V2 2.81%, V4 4.23% in 3.0-4.2% and scope holds: False
+best Fn-trend variant (rms ln ratio, 5 points): V0 0.219 (V0 0.219)
