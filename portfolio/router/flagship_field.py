@@ -278,18 +278,36 @@ def landed_lines(found, shown: int | None = None) -> list[str]:
     return rows
 
 
-def landed_hint(value: str, over: int = 0) -> str:
-    """The landed clauses as cut candidates, or "" when there are none."""
+def landed_hint(value: str, over: int = 0, keep: tuple[str, ...] = ()) -> str:
+    """The landed clauses as cut candidates, or "" when there are none.
+
+    A clause inside the run's own NEW text (`keep`) is named as the run's own,
+    not listed with other runs' clauses. Why: a `--field buildable --replace`
+    whose NEW said "... landed 2026-11-21 (...)" was refused with only
+    "keep: (nothing; cut the clause)" under it, and the run could not tell
+    that the clause to cut was the one it had just written, or why (run
+    record 2026-11-21T21:56, PR #18147: "refused (exit 1) with no stated
+    reason")."""
     found = landed_clauses(value)
     if not found:
         return ""
-    head = (f"{len(found)} clause(s) report landed work (the README they name holds it); "
-            f"trimming them to their open part frees {_saved(found)} characters"
-            + (f", {over} needed" if over else "") + ". Cut these before anyone's open items")
-    rows = landed_lines(found, LANDED_SHOWN)
-    if len(found) > LANDED_SHOWN:
-        rows.append(f"  ... {len(found) - LANDED_SHOWN} more: flagship_field.py <venture> --landed")
-    return "\n".join([head + ":"] + rows)
+    mine = [ck for ck in found if keep and holds_new(ck[0], keep)]
+    found = [ck for ck in found if ck not in mine]
+    out = []
+    if mine:
+        out.append(f"Your NEW text reports landed work ({_saved(mine)} characters of it): "
+                   "this field lists work still to do, so put the result in the README or "
+                   "eval/ and keep only the open part of your NEW:")
+        out += landed_lines(mine)
+    if found:
+        head = (f"{len(found)} clause(s) report landed work (the README they name holds it); "
+                f"trimming them to their open part frees {_saved(found)} characters"
+                + (f", {over} needed" if over else "") + ". Cut these before anyone's open items")
+        rows = landed_lines(found, LANDED_SHOWN)
+        if len(found) > LANDED_SHOWN:
+            rows.append(f"  ... {len(found) - LANDED_SHOWN} more: flagship_field.py <venture> --landed")
+        out += [head + ":"] + rows
+    return "\n".join(out)
 
 
 def split_items(value: str) -> list[str]:
@@ -495,7 +513,7 @@ def set_value(text: str, venture: str, field: str, value: str,
         raise ValueError("refusing to write an empty value")
     if field == "next" and len(value) > FLAGSHIP_NEXT_MAX:
         over = len(value) - FLAGSHIP_NEXT_MAX
-        hint = landed_hint(value, over)
+        hint = landed_hint(value, over, keep)
         raise ValueError(f"`next:` would be {len(value)} of {FLAGSHIP_NEXT_MAX} characters "
                          f"({over} over): replace what you landed, don't append"
                          + new_budget(keep, over)
@@ -509,7 +527,7 @@ def set_value(text: str, venture: str, field: str, value: str,
         before = read_value(text, venture, field)
         room = (f"; the row was {len(before)}, so it had {FLAGSHIP_BUILDABLE_MAX - len(before)} to spare"
                 if before is not None and len(before) <= FLAGSHIP_BUILDABLE_MAX else "")
-        hint = landed_hint(value, over)
+        hint = landed_hint(value, over, keep)
         raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters "
                          f"({over} over{room}): name only items a session can start now; landed work "
                          "goes in the README or eval/" + new_budget(keep, over)

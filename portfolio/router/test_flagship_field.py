@@ -377,6 +377,31 @@ def test_buildable_refusal_lists_landed_clauses():
     assert "report landed work" in str(e.value)
 
 
+def test_refusal_names_a_landed_clause_in_the_runs_own_new(tmp_path, capsys):
+    # PR #18147's record: a buildable --replace whose NEW said "landed" got only
+    # "keep: (nothing; cut the clause)", with no sign the clause was its own.
+    f = tmp_path / "f.yaml"
+    f.write_text(DOC)
+    mine = "Wall area fill landed 2026-11-21 (eval/geometry-quantities.md)"
+    other = "Old drop fit landed 2026-11-16 (eval/drop.md)"
+    new = f"{other}; " + "y" * (ff.FLAGSHIP_BUILDABLE_MAX - 60) + f". {mine}."
+    assert ff.main(["a", "--field", "buildable", "--replace", "Something here.", new,
+                    "--file", str(f)]) == 1
+    err = capsys.readouterr().err
+    assert "Your NEW text reports landed work" in err
+    assert mine in err.partition("Your NEW text reports landed work")[2]
+    # another run's landed clause stays in the usual list, the run's own is named apart
+    hint = ff.landed_hint(f"{other}; {mine}.", 10, (mine,))
+    own, _, rest = hint.partition("1 clause(s) report landed work")
+    assert own.startswith("Your NEW text reports landed work") and mine in own
+    assert other in rest and mine not in rest
+    # with no --replace NEW to tell apart, every landed clause is listed as before
+    hint = ff.landed_hint(f"{other}; {mine}.", 10)
+    assert hint.startswith("2 clause(s) report landed work")
+    assert "Your NEW" not in hint
+    assert f.read_text() == DOC
+
+
 def test_new_budget_when_shortening_cannot_fit():
     assert ff.new_budget(("abc",), 10).startswith(". Your NEW text (3 chars) cannot fit")
     assert ff.new_budget(("a", "b"), 5).startswith(". Your 2 NEW texts (2 chars together) cannot fit")
