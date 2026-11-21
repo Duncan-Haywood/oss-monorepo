@@ -742,14 +742,15 @@ export function plainBudgetText(budget, every = 'day') {
  */
 export function choiceOptions(c) {
   if (!c || !DETECTORS.includes(c.detector)) return null;
-  return { detector: c.detector, ...(c.overdispersion != null ? { overdispersion: c.overdispersion } : {}), ...(c.threshold != null ? { threshold: c.threshold } : {}), ...(c.trend != null ? { trend: c.trend } : {}) };
+  return { detector: c.detector, ...(c.overdispersion != null ? { overdispersion: c.overdispersion } : {}), ...(c.threshold != null ? { threshold: c.threshold } : {}), ...(c.trend != null ? { trend: c.trend } : {}), ...(c.wander != null ? { wander: c.wander } : {}) };
 }
 
 /** Plain words for a setting: its detector, and the count default's cost and threshold when it has them. */
 export function settingWords(s) {
   const nb = s.overdispersion === 'nb' ? ', negative-binomial cost' : s.overdispersion ? ', clumping-corrected cost' : '';
   const tr = s.trend === 'gated' ? ', growth term when it earns its place' : s.trend === 'robust' ? ', robust growth term' : '';
-  return `${s.detector}${nb}${tr}${s.threshold != null ? `, alert threshold ${s.threshold}` : ''}`;
+  const wa = s.wander === 'gated' ? ', wandering level allowed for' : '';
+  return `${s.detector}${nb}${tr}${wa}${s.threshold != null ? `, alert threshold ${s.threshold}` : ''}`;
 }
 
 /** Below this many points the history is too short to choose from (round 6 skipped series with fewer than 30). */
