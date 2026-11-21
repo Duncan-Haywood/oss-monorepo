@@ -459,7 +459,8 @@ def false_reports(v, rng, fp: float, mode: str = "uniform"):
 
 def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None,
                   recall: "float | np.ndarray" = 0.85, fp: float = 0.0, fp_mode: str = "uniform",
-                  recip: bool = False, fp_joint: float = 0.0, recip_w: float = 0.0):
+                  recip: bool = False, fp_joint: float = 0.0, recip_w: float = 0.0,
+                  oracle_true: bool = False):
     """A survey whose respondents forget ties (milestone 11). Each surveyed household i reports
     each true tie (i, j) independently with probability `recall` (R[i, j], drawn once per survey
     after stage 1); a tie is seen if a surveyed end reported it. uniform: k random households.
@@ -487,7 +488,10 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
     end names is kept at weight recip_w instead of dropped (mutual and uncheckable ties keep weight
     1), so `seen` becomes a weighted adjacency and a surveyed household's degree is its weighted
     seen degree. recip_w = 0 is milestone 17's hard filter and recip_w = 1 keeps every report
-    (the unfiltered census); like the filter itself, it uses no random draws."""
+    (the unfiltered census); like the filter itself, it uses no random draws.
+    oracle_true (milestone 22, a diagnostic no field team can run): with the soft filter, a
+    one-sided tie that is true keeps weight 1, so only one-sided false ties are down-weighted. It
+    uses no random draws, so it isolates what halving one-sided true ties costs."""
     if not 0.0 <= recip_w <= 1.0:
         raise ValueError(recip_w)
     if design not in ("uniform", "adaptive"):
@@ -521,6 +525,8 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
         both = s[:, None] & s[None, :]
         if recip_w > 0:
             one = both & seen & ~(R & R.T)
+            if oracle_true:
+                one &= ~(v.A > 0)
             seen = seen.astype(float)
             seen[one] = recip_w
         else:
@@ -539,8 +545,10 @@ def rule_recall_degree(v, b, rng, f: float, design: str = "uniform", split: floa
 
 def rule_recall_dd(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
                    recall: float = 0.85, p: float = 0.05, fp: float = 0.0, fp_mode: str = "uniform",
-                   recip: bool = False, fp_joint: float = 0.0, recip_w: float = 0.0):
-    _, est, seen = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip, fp_joint, recip_w)
+                   recip: bool = False, fp_joint: float = 0.0, recip_w: float = 0.0,
+                   oracle_true: bool = False):
+    _, est, seen = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip, fp_joint, recip_w,
+                                 oracle_true)
     return _dd_pick(est, seen, b, p)
 
 

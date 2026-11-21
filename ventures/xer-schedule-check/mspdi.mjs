@@ -33,8 +33,31 @@
 //   typed start: it is read as start on or after that date (Project still
 //   gives it late dates from the logic), and every one is named in the
 //   warnings, since a reviewer wants them switched to auto scheduled.
+// - task text fields Text1 to Text30 that hold values become activity codes
+//   (ACTVTYPE, ACTVCODE, TASKACTV), named by the field's Alias (else Text5,
+//   ...), so a Project schedule groups by its custom fields in the Gantt and
+//   the review, and the codes msproject.mjs writes from an XER come back. A
+//   field whose values are all different (a note per task) is not a code
+//   and is skipped; the Text1 msproject.mjs names "Activity ID" is read as
+//   the activity ID's own field, not a code.
+// - task Number1..20, Cost1..10 and Date1..10 fields that hold values become
+//   activity user-defined fields (UDFTYPE, UDFVALUE), titled by the field's
+//   Alias (else Number3, ...): whole numbers as integer UDFs, others as
+//   decimals, costs (stored in hundredths) as cost UDFs, dates as date UDFs.
+//   So the UDFs msproject.mjs writes from an XER come back, and a Project
+//   file's own Number fields (optimistic and pessimistic durations, say) feed
+//   the risk run's ranges as a P6 file's numeric UDFs do.
 
 import { parseXer } from "./xer.mjs";
+
+// Number1..20, Date1..10, Cost1..10 (the same tables are in msproject.mjs)
+const UDF_FIELD_IDS = [
+  ...["188743767", "188743768", "188743769", "188743770", "188743771", ...Array.from({ length: 15 }, (_, k) => String(188743982 + k))].map((id, k) => [id, "number", `Number${k + 1}`]),
+  ...["188743786", "188743787", "188743788", ...Array.from({ length: 7 }, (_, k) => String(188743938 + k))].map((id, k) => [id, "cost", `Cost${k + 1}`]),
+  ...Array.from({ length: 10 }, (_, k) => [String(188743945 + k), "date", `Date${k + 1}`]),
+];
+const TASK_TEXT_IDS = ["188743731", "188743734", "188743737", "188743740", "188743743", "188743746", "188743747", "188743748", "188743749", "188743750",
+  ...Array.from({ length: 20 }, (_, k) => String(188743997 + k))];
 
 // ---------- a small XML reader (elements, text, CDATA, entities) ----------
 
@@ -482,6 +505,9 @@ export function parseMspdi(text) {
     PROJECT[0].last_recalc_date = PROJECT[0].plan_start_date = first;
     warnings.push(`no status date in the file (Project, Status Date): ${first || "no date"}, the ${first && first < start ? "earliest task start" : "project start"}, is used as the data date, so any progress recorded is not checked against it`);
   }
+  const codes = readTextCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings);
+  const udfs = readUdfFields(proj, taskNodes, new Set(TASK.map((r) => r.task_id)));
+
   // relationships, after every task is known
   let summaryLinks = 0, pctLags = 0, elapsedLags = 0, crossProject = 0;
   let relId = 0;
@@ -527,10 +553,106 @@ export function parseMspdi(text) {
   return {
     version: `MSPDI ${val(proj, "SaveVersion") || ""}`.trim(),
     exportDate: date(val(proj, "LastSaved")),
-    tables: { PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, TASK, TASKPRED },
+    tables: { PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, TASK, TASKPRED, ...codes, ...udfs },
     warnings,
     format: "mspdi",
   };
+}
+
+// Task text fields -> activity code tables. A value "C - Civil" splits into
+// code C and description Civil when no code in the field carries two
+// different descriptions (msproject.mjs writes that form with codeNames, and
+// a value with no description as the bare code).
+function readTextCodes(proj, taskNodes, taskIds, warnings) {
+  const defs = new Map();
+  for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) defs.set(val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") });
+  const fields = new Map(); // field id -> Map(task uid -> value)
+  for (const t of taskNodes) {
+    const uid = val(t, "UID");
+    if (!taskIds.has(uid)) continue;
+    for (const e of kids(t, "ExtendedAttribute")) {
+      const id = val(e, "FieldID"), v = val(e, "Value").trim();
+      if (!v || !TASK_TEXT_IDS.includes(id)) continue;
+      if (!fields.has(id)) fields.set(id, new Map());
+      fields.get(id).set(uid, v);
+    }
+  }
+  const ACTVTYPE = [], ACTVCODE = [], TASKACTV = [];
+  const skipped = [];
+  for (const id of TASK_TEXT_IDS) {
+    const vals = fields.get(id);
+    if (!vals) continue;
+    const def = defs.get(id) || {};
+    const label = def.alias || def.name || `Text${TASK_TEXT_IDS.indexOf(id) + 1}`;
+    if (def.alias === "Activity ID") continue;
+    const distinct = new Set(vals.values());
+    if (vals.size > 20 && distinct.size === vals.size) { skipped.push(label); continue; }
+    // "code - description" when the split is consistent for the whole field
+    // (a value with no description is written as the bare code)
+    const desc = new Map();
+    let split = false;
+    for (const v of distinct) {
+      const k = v.indexOf(" - ");
+      if (k <= 0) continue;
+      const code = v.slice(0, k), d = v.slice(k + 3);
+      if (desc.has(code) && desc.get(code) !== d) { split = false; break; }
+      desc.set(code, d);
+      split = true;
+    }
+    const typeId = `mspdi-${TASK_TEXT_IDS.indexOf(id) + 1}`;
+    ACTVTYPE.push({ actv_code_type_id: typeId, actv_code_type: label, actv_code_type_scope: "AS_Project", proj_id: "1", seq_num: String(ACTVTYPE.length + 1) });
+    const codeId = new Map();
+    const sorted = [...distinct].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    for (const v of sorted) {
+      const k = v.indexOf(" - ");
+      const code = split && k > 0 ? v.slice(0, k) : v;
+      if (codeId.has(code)) { codeId.set(v, codeId.get(code)); continue; }
+      const cid = `${typeId}-${codeId.size + 1}`;
+      codeId.set(code, cid);
+      codeId.set(v, cid);
+      ACTVCODE.push({ actv_code_id: cid, actv_code_type_id: typeId, parent_actv_code_id: "", short_name: code, actv_code_name: split && desc.has(code) ? desc.get(code) : v, seq_num: String(ACTVCODE.length + 1) });
+    }
+    for (const [uid, v] of vals) TASKACTV.push({ task_id: uid, actv_code_type_id: typeId, actv_code_id: codeId.get(v), proj_id: "1" });
+  }
+  if (skipped.length) warnings.push(`text field(s) with a different value on every task are not read as activity codes: ${skipped.join(", ")}`);
+  return ACTVTYPE.length ? { ACTVTYPE, ACTVCODE, TASKACTV } : {};
+}
+
+// Task Number, Cost and Date fields -> activity user-defined fields.
+function readUdfFields(proj, taskNodes, taskIds) {
+  const defs = new Map();
+  for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) defs.set(val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") });
+  const known = new Set(UDF_FIELD_IDS.map(([id]) => id));
+  const fields = new Map(); // field id -> Map(task uid -> value)
+  for (const t of taskNodes) {
+    const uid = val(t, "UID");
+    if (!taskIds.has(uid)) continue;
+    for (const e of kids(t, "ExtendedAttribute")) {
+      const id = val(e, "FieldID"), v = val(e, "Value").trim();
+      if (!v || !known.has(id)) continue;
+      if (!fields.has(id)) fields.set(id, new Map());
+      fields.get(id).set(uid, v);
+    }
+  }
+  const UDFTYPE = [], UDFVALUE = [];
+  for (const [id, kind, name] of UDF_FIELD_IDS) {
+    const vals = fields.get(id);
+    if (!vals) continue;
+    const rows = [];
+    for (const [uid, v] of vals) {
+      if (kind === "date") { const d = date(v); if (d) rows.push({ uid, udf_date: d, udf_number: "" }); continue; }
+      const n = Number(v);
+      if (!Number.isFinite(n)) continue;
+      rows.push({ uid, udf_date: "", udf_number: String(kind === "cost" ? n / 100 : n) });
+    }
+    if (!rows.length) continue;
+    const def = defs.get(id) || {};
+    const typeId = `mspdi-${name.toLowerCase()}`;
+    const type = kind === "date" ? "FT_START_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
+    UDFTYPE.push({ udf_type_id: typeId, table_name: "TASK", udf_type_name: `user_${name.toLowerCase()}`, udf_type_label: def.alias || def.name || name, logical_data_type: type });
+    for (const r of rows) UDFVALUE.push({ udf_type_id: typeId, fk_id: r.uid, proj_id: "1", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: "", udf_code_id: "" });
+  }
+  return UDFTYPE.length ? { UDFTYPE, UDFVALUE } : {};
 }
 
 // An XML file (after a BOM and white space) is MSPDI; anything else is read as XER.

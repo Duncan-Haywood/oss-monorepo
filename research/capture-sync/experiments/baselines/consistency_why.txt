@@ -1,0 +1,33 @@
+== RT60 0.2 s, -10 dB, ten types pooled ==
+  plain    pair fail 0.388  P(other anchor pair fails | one does) 0.607  all six pairs fail 0.069 (independent: 0.0034)  near misses (<100 ms) among failures 0.047
+  fn       pair fail 0.117  P(other anchor pair fails | one does) 0.280  all six pairs fail 0.002 (independent: 0.0000)  near misses (<100 ms) among failures 0.087
+  kflat    pair fail 0.676  P(other anchor pair fails | one does) 0.822  all six pairs fail 0.335 (independent: 0.0959)  near misses (<100 ms) among failures 0.071
+  kenergy  pair fail 0.680  P(other anchor pair fails | one does) 0.825  all six pairs fail 0.340 (independent: 0.0989)  near misses (<100 ms) among failures 0.088
+  kzcr     pair fail 0.778  P(other anchor pair fails | one does) 0.884  all six pairs fail 0.479 (independent: 0.2217)  near misses (<100 ms) among failures 0.056
+  wang     pair fail 0.891  P(other anchor pair fails | one does) 0.896  all six pairs fail 0.574 (independent: 0.4992)  near misses (<100 ms) among failures 0.031
+  hk       pair fail 0.446  P(other anchor pair fails | one does) 0.647  all six pairs fail 0.112 (independent: 0.0079)  near misses (<100 ms) among failures 0.120
+== RT60 0.8 s, -10 dB, ten types pooled ==
+  plain    pair fail 0.438  P(other anchor pair fails | one does) 0.649  all six pairs fail 0.102 (independent: 0.0071)  near misses (<100 ms) among failures 0.061
+  fn       pair fail 0.140  P(other anchor pair fails | one does) 0.337  all six pairs fail 0.002 (independent: 0.0000)  near misses (<100 ms) among failures 0.153
+  kflat    pair fail 0.750  P(other anchor pair fails | one does) 0.847  all six pairs fail 0.400 (independent: 0.1773)  near misses (<100 ms) among failures 0.106
+  kenergy  pair fail 0.726  P(other anchor pair fails | one does) 0.847  all six pairs fail 0.385 (independent: 0.1463)  near misses (<100 ms) among failures 0.106
+  kzcr     pair fail 0.810  P(other anchor pair fails | one does) 0.898  all six pairs fail 0.541 (independent: 0.2834)  near misses (<100 ms) among failures 0.074
+  wang     pair fail 0.909  P(other anchor pair fails | one does) 0.915  all six pairs fail 0.625 (independent: 0.5652)  near misses (<100 ms) among failures 0.042
+  hk       pair fail 0.501  P(other anchor pair fails | one does) 0.677  all six pairs fail 0.132 (independent: 0.0157)  near misses (<100 ms) among failures 0.190
+
+RT60 0.2 s bootstrap fn direct-trim: 0.077 [0.033, 0.129]
+RT60 0.2 s bootstrap fn direct-mst: 0.181 [0.117, 0.244]
+RT60 0.8 s bootstrap fn direct-trim: 0.056 [0.001, 0.108]
+RT60 0.8 s bootstrap fn direct-mst: 0.210 [0.133, 0.279]
+
+Flagged failures: among (trial, type) cells at -10 dB where trim flags devices 1-3 and at least one is off,
+the share where all three are off by the same error (within a frame of each other): the anchor's own window
+jumped, which shifts every anchor pair alike and closes every loop, so no closure check can see it.
+RT60 0.2 s: plain 321 cells, anchor shift 0.040; fn 60 cells, anchor shift 0.067; kflat 606 cells, anchor shift 0.096; kenergy 651 cells, anchor shift 0.129; kzcr 610 cells, anchor shift 0.036; wang 131 cells, anchor shift 0.031; hk 331 cells, anchor shift 0.097
+RT60 0.8 s: plain 363 cells, anchor shift 0.030; fn 102 cells, anchor shift 0.069; kflat 640 cells, anchor shift 0.059; kenergy 684 cells, anchor shift 0.108; kzcr 650 cells, anchor shift 0.037; wang 161 cells, anchor shift 0.006; hk 408 cells, anchor shift 0.054
+
+Node shifts, any device: among flagged-but-failed devices at -10 dB, the share where some device k (any of 0-3)
+has all three of its pairs off by the same lag (signed so it shifts k, within a frame of each other, more than
+a frame from 0). Such a shift is a consistent solution, so loop closure cannot see it.
+RT60 0.2 s: plain 1196 devices, node shift 0.002; fn 155 devices, node shift 0.000; kflat 2540 devices, node shift 0.017; kenergy 2779 devices, node shift 0.022; kzcr 2885 devices, node shift 0.013; wang 1138 devices, node shift 0.000; hk 1240 devices, node shift 0.007
+RT60 0.8 s: plain 1344 devices, node shift 0.001; fn 261 devices, node shift 0.000; kflat 2851 devices, node shift 0.017; kenergy 3014 devices, node shift 0.016; kzcr 3121 devices, node shift 0.020; wang 1312 devices, node shift 0.002; hk 1524 devices, node shift 0.007

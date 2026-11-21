@@ -563,3 +563,39 @@ def test_m19_soft_filter_weights_only_one_sided_checkable_ties():
         assert False
     except ValueError:
         pass
+
+
+# ---- milestone 22: where the half weight's step comes from ----
+
+def _census(v, kappa, w=0.5, recip=True, **kw):
+    return sd.survey_recall(v, 1.0, np.random.default_rng(11), "uniform", None, 0.85, fp=0.25,
+                            fp_mode="closure", recip=recip, fp_joint=kappa, recip_w=w, **kw)
+
+
+def test_m22_census_kappa_moves_only_false_tie_weights():
+    # in a census the recall draw is shared across kappa, and the echo draw is one uniform matrix
+    # thresholded at kappa: true-tie weights do not depend on kappa, and the false ties at full
+    # weight are nested in kappa; at kappa = 1 every false tie is mutual (full weight)
+    v = _m9_village()
+    A = v.A > 0
+    seen = {k: _census(v, k)[2] for k in (0.0, 0.05, 0.25, 1.0)}
+    for k in seen:
+        assert np.array_equal(seen[k][A], seen[0.0][A])
+    full = {k: (seen[k] == 1) & ~A for k in seen}
+    assert (full[0.05] <= full[0.25]).all() and (full[0.25] <= full[1.0]).all()
+    _, _, raw = _census(v, 1.0, recip=False)
+    assert np.array_equal(full[1.0], (raw > 0) & ~A)          # all false ties at full weight
+    assert ((seen[0.0] == 0.5) & ~A).any()
+
+
+def test_m22_oracle_true_halves_only_false_ties():
+    v = _m9_village()
+    A = v.A > 0
+    _, _, soft = _census(v, 0.25)
+    _, est, orc = _census(v, 0.25, oracle_true=True)
+    _, _, raw = _census(v, 0.25, recip=False)
+    assert np.array_equal(orc[A], raw[A].astype(float))        # true ties exactly as reported
+    assert np.array_equal(orc[~A], soft[~A])                   # false ties as the half weight has them
+    assert np.allclose(est, orc.sum(1))
+    _, _, orc_hard = _census(v, 0.25, w=0.0, oracle_true=True)
+    assert set(np.unique(orc_hard)) <= {0.0, 1.0}

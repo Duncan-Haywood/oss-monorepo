@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmTVP4kUAYKF7MeyCX",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T06:09:28Z",
+  "ended": "2026-11-21T06:20:22Z",
+  "wall_minutes": 11.03,
+  "tokens_in": 3661766,
+  "tokens_out": 14294,
+  "cost_usd": 1.6326,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18039",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/unwired_checks.py",
+      "issue": "No per-item timing mode; I wrote a scratch timer that rebuilds run_everything's work list. Pool timings two at a time were contention-dominated (check_posts 15.8 s in pool, 0.12 s alone), so a serial timing option would save the next perf run a step."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-a-test-that-scanned-the-tree-31-times.md",
+    "docs/history/ci-perf-2026-11-21-csv-split-ratchet-once.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall seconds of `python3 -m unittest test_csv_thousands_split` (platform/ci), 4-core container. Before 7.4 s (serial per-item timing of all 271 unwired pool items through the pool's runners; 12.3 s under cProfile, 31 flagged() scans). After 0.34 s (bash time). Pool serial work 264.2 s -> ~257 s. Verification: 3 tests OK; seeded new offender fails test_no_new_comma_split_parsers, seeded fixed KNOWN entry fails test_known_list_only_shrinks; files restored. Perf backlog P063/P064 both touch CODEOWNERS paths, so skipped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c46f3d2a-69d0-573f-a9dc-c2f7f8ab41ba",
+    "transcripts": 1,
+    "first": "2026-11-21T06:09:28Z",
+    "last": "2026-11-21T06:20:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 93,
+        "output": 14294,
+        "thinking": 2094,
+        "cache_read": 3582948,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78725,
+        "api_equivalent_usd": 1.6326,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 93,
+      "output": 14294,
+      "thinking": 2094,
+      "cache_read": 3582948,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78725,
+      "api_equivalent_usd": 1.6326,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 3,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.03,
+      "active_minutes": 4.36,
+      "model_minutes": 3.13,
+      "tool_minutes": 1.23,
+      "waiting_on_human_minutes": 6.67,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "profile the pool, find and fix one cached scan, seed faults, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 91.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

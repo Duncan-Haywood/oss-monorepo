@@ -72,12 +72,21 @@
 // inserted into the update and the schedule recomputed: the finish and every
 // milestone moved, float used, each event alone; --xer writes the impacted
 // schedule for import into P6.
-// node cli.mjs schedule.xer --to-project schedule.xml [--project CODE] [--json]
+// node cli.mjs schedule.xer --to-project schedule.xml [--project CODE] [--code-names] [--json]
 // Converts the XER to Microsoft Project XML instead (msproject.mjs): open the
 // .xml in Microsoft Project, ProjectLibre or GanttProject. WBS as summary
 // tasks, activity IDs in Text1, calendars with every exception, relationships
-// and lags, constraints, progress, baseline, resources and assignments; the
-// lines it prints name what Project will schedule differently.
+// and lags, constraints, progress, baseline, resources and assignments, and
+// activity codes in Text2..Text30 named after their code types (--code-names
+// writes "code - description"); the lines it prints name what Project will
+// schedule differently.
+// node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--json]
+// Converts Microsoft Project XML to a Primavera P6 XER instead (p6xer.mjs),
+// for P6's import: summary tasks as the WBS, activity IDs from a text field
+// named "Activity ID" (else A + row ID x 10; --row-ids always), calendars,
+// links, constraints, progress, baseline, resources and assignments, text
+// fields as activity codes, and Project's scheduling options; the lines it
+// prints name what is not carried.
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -106,9 +115,10 @@ import { earnedValue, earnedValueText, earnedValueCsv, sCurveCsv } from "./evm.m
 import { earnedValueSeries, earnedValueSeriesText, earnedValueSeriesCsv } from "./evmseries.mjs";
 import { gantt, ganttText, ganttCsv, ganttHtml, codeTypes } from "./gantt.mjs";
 import { mspdiText, msprojectSummary } from "./msproject.mjs";
+import { p6XerText, p6xerSummary } from "./p6xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -199,11 +209,19 @@ if (args.includes("--previous")) {
   process.exit(0);
 }
 const projId = args.includes("--project") ? projectFor(xer) : null;
+if (args.includes("--to-p6")) {
+  if (xer.format !== "mspdi") { console.error("--to-p6: this file is already an XER (it takes Microsoft Project XML)"); process.exit(2); }
+  const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto" });
+  writeFileSync(opt("--to-p6"), r.text);
+  if (args.includes("--json")) { const { xer: _x, text: _t, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
+  await emit(`${r.project.id}: ${p6xerSummary(r)} to ${opt("--to-p6")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);
+  process.exit(0);
+}
 if (args.includes("--to-project")) {
   if (xer.format === "mspdi") { console.error("--to-project: this file is already Microsoft Project XML"); process.exit(2); }
-  const r = mspdiText(xer, { projId });
+  const r = mspdiText(xer, { projId, codeNames: args.includes("--code-names") });
   writeFileSync(opt("--to-project"), r.xml);
-  if (args.includes("--json")) { const { xml, taskUid, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
+  if (args.includes("--json")) { const { xml, taskUid, codeFields, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
   await emit(`${r.project.name}: ${msprojectSummary(r)} to ${opt("--to-project")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);
   process.exit(0);
 }
