@@ -398,10 +398,19 @@ export function planFill(idsText, model, opts = {}) {
         // another quantity set, of the same kind: its value in SI units.
         let copied;
         if (text === undefined && quantity) { copied = modelQuantity(e, ps, pn, qclass); if (copied !== undefined) { text = copied.text; source = "model"; } }
+        // Else the element's own geometry, measured by ifc-quantity-takeoff
+        // (opts.geometry(e, name, qclass) -> SI value; geometry-quantities.mjs),
+        // to six significant figures: the measurement is not finer than that.
+        let geomTried = false;
+        if (text === undefined && quantity && opts.geometry) {
+          geomTried = true;
+          const g = opts.geometry(e, pn, qclass);
+          if (typeof g === "number" && Number.isFinite(g)) { text = String(Number(g.toPrecision(6))); source = "geometry"; }
+        }
         // opts.suggest(facet, dataType): a stand-in for a person typing a
         // value (eval/model-fill-sweep.mjs uses it to exercise the table path).
         if (text === undefined && opts.suggest) { text = opts.suggest(r, dataType, prim); source = "table"; }
-        if (text === undefined || text === null || text === "") { unfilled.push({ ...row, why: "no value given: type one in the Value column" }); continue; }
+        if (text === undefined || text === null || text === "") { unfilled.push({ ...row, why: geomTried ? "no value given, and the element's geometry gives none (no body read, a faceted or unread section, an opening that could not be cut, or a quantity the body does not define): type one in the Value column" : "no value given: type one in the Value column" }); continue; }
         const val = readValue(S, dataType, text);
         if (val.error) { unfilled.push({ ...row, value: text, why: val.error }); continue; }
         if (r.value.present && !r.value.match(val.v, val.prim)) { unfilled.push({ ...row, value: text, why: `"${text}" is not ${r.value}` }); continue; }
@@ -416,7 +425,8 @@ export function planFill(idsText, model, opts = {}) {
         }
         if (clash) { unfilled.push({ ...row, value: text, why: `"${text}" would break another check: ${clash}` }); continue; }
         const key = `${e.id}\0${ps}\0${pn}`;
-        const valueText = quantity ? (copied && copied.raw !== undefined ? exactReal(copied.raw) : stepReal(toProjectUnits(model, dataType, val.v))) : stepValue(model, dataType, val);
+        const inUnits = quantity ? toProjectUnits(model, dataType, val.v) : null;
+        const valueText = quantity ? (copied && copied.raw !== undefined ? exactReal(copied.raw) : stepReal(source === "geometry" ? Number(inUnits.toPrecision(6)) : inUnits)) : stepValue(model, dataType, val);
         const prev = writes.get(key);
         if (prev && prev.valueText !== valueText) { conflicts.add(key); unfilled.push({ ...row, value: text, why: `another specification asks for ${prev.text}` }); continue; }
         if (!prev) writes.set(key, { kind: quantity ? "quantity" : "property", setType, qclass, e, globalId: f.globalId, pset: ps, prop: pn, dataType, text: String(text), valueText, source, spec: spec.name });
@@ -430,7 +440,7 @@ export function planFill(idsText, model, opts = {}) {
 // ------------------------------------------------------------- writing ----
 
 // fillModel(idsText, ifcText, {schemas, psets, measureUnits, typeMap, values,
-// random}) -> {text, written, sets: {edited, copied, added}, unfilled,
+// random, geometry}) -> {text, written, sets: {edited, copied, added}, unfilled,
 // notWritten, verified, before, after}.
 export function fillModel(idsText, ifc, opts = {}) {
   const text = ifc instanceof Uint8Array ? new TextDecoder().decode(ifc) : ifc;
@@ -658,6 +668,7 @@ export function fillModel(idsText, ifc, opts = {}) {
     fromIds: plan.writes.filter((w) => w.source === "ids").length,
     fromTable: plan.writes.filter((w) => w.source === "table").length,
     fromModel: plan.writes.filter((w) => w.source === "model").length,
+    fromGeometry: plan.writes.filter((w) => w.source === "geometry").length,
     kinds: writtenRows.reduce((o, w) => ((o[w.kind] = (o[w.kind] || 0) + 1), o), {}),
     sets,
     added: added.length,
@@ -710,7 +721,7 @@ export function readValues(csvText) {
 export function fillReport(r) {
   const out = [];
   const n = (x) => x.toLocaleString("en-US");
-  out.push(`wrote ${n(r.written)} value(s) on ${n(r.elements)} element(s): ${n(r.fromIds)} the IDS fixes, ${n(r.fromTable)} from the table${r.fromModel ? `, ${n(r.fromModel)} copied from the element's own other quantity sets` : ""}`);
+  out.push(`wrote ${n(r.written)} value(s) on ${n(r.elements)} element(s): ${n(r.fromIds)} the IDS fixes, ${n(r.fromTable)} from the table${r.fromModel ? `, ${n(r.fromModel)} copied from the element's own other quantity sets` : ""}${r.fromGeometry ? `, ${n(r.fromGeometry)} measured from the element's geometry` : ""}`);
   const k = r.kinds || {};
   if (k.quantity || k.attribute) out.push(`of them: ${n(k.property || 0)} propert${k.property === 1 ? "y" : "ies"}, ${n(k.quantity || 0)} quantit${k.quantity === 1 ? "y" : "ies"}, ${n(k.attribute || 0)} attribute(s)`);
   out.push(`property and quantity sets: ${r.sets.edited} edited, ${r.sets.copied} copied for the elements that differ, ${r.sets.added} added; ${r.editedRecords} record(s) changed, ${r.added} added, every other line as it was`);

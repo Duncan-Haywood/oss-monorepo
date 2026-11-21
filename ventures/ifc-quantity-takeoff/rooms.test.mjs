@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { takeoff, boq, rowsCsv } from "./qto.mjs";
-import { outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings } from "./rooms.mjs";
+import { outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings, heightShare } from "./rooms.mjs";
 import { IDENTITY, Geometry } from "./geom.mjs";
 
 const close = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol * Math.max(1, Math.abs(b)), `${a} vs ${b}`);
@@ -183,7 +183,7 @@ test("the room schedule as CSV, and its totals per storey", () => {
   const lines = roomsCsv(res.rooms).trim().split("\n");
   assert.equal(lines.length, 3);
   assert.ok(lines[0].startsWith("Entity,GlobalId,Number,Name,Storey,Floor area m2,Perimeter m"));
-  assert.ok(lines[1].includes(",101,Office,Level 1,12,14,2.7,37.8,0,0,0,37.8,32.4,1,12,,14,2.7,32400,"), lines[1]);
+  assert.ok(lines[1].includes(",101,Office,Level 1,12,14,2.7,37.8,0,0,0,37.8,0,32.4,1,12,,14,2.7,32400,"), lines[1]);
   assert.ok(/volume -99\.9% vs stored NetVolume \(unit-slip\)/.test(lines[1]), lines[1]);
   // a room name that starts like a formula is not run by a spreadsheet
   assert.ok(roomsCsv([{ id: 1, number: "=1+1", stored: {}, check: {} }]).includes(`"'=1+1"`));
@@ -263,7 +263,7 @@ test("doors, windows and curtain walls come off a room's wall area", () => {
   assert.equal(win.facesFrom, "boundary");
   // the room schedule carries them
   const line = roomsCsv(r.rooms).split("\n").find((l) => l.includes(",101,Office,"));
-  assert.ok(line.includes(",37.8,2,3.09,5.4,29.31,"), line);
+  assert.ok(line.includes(",37.8,2,3.09,5.4,29.31,0,"), line);
 });
 
 test("a space boundary's surface area: a curve-bounded plane less its holes, and a swept line", () => {
@@ -301,4 +301,45 @@ test("one window drawn as several pieces comes off once; a door between two room
   close(a.computed.openingArea, 1.26 * 1.06 + 0.9 * 2.1);
   close(b.computed.netWallArea, 20 - 0.9 * 2.1);
   assert.deepEqual(rows[3].facesRooms, ["A", "B"]);
+});
+
+test("a window rising past a lowered ceiling comes off only below it; a frame a centimetre out is not cut", () => {
+  // room A: floor 0, lowered ceiling at 2.4 m; room B: 0 to 3 m
+  const rooms = [
+    { id: 10, label: "A", box: [0, 0, 0, 5, 4, 2.4], computed: { wallArea: 18 * 2.4 } },
+    { id: 11, label: "B", box: [0, 4.2, 0, 5, 8, 3], computed: { wallArea: 17.6 * 3 } },
+  ];
+  const rows = [
+    { id: 1, ifcType: "IFCWINDOW", box: [1, 3.9, 1.4, 2.2, 4.1, 2.9] }, // 1.2 x 1.5, its top 0.5 m above A's ceiling
+    { id: 2, ifcType: "IFCDOOR", box: [3, 3.9, -0.005, 3.9, 4.1, 2.1] }, // threshold 5 mm below both floors
+    { id: 3, ifcType: "IFCWINDOW", box: [4, 3.9, 2.6, 4.5, 4.1, 2.9] }, // a clerestory wholly above A's ceiling
+  ];
+  const bounds = [{ space: 10, element: 1 }, { space: 11, element: 1 }, { space: 10, element: 2 }, { space: 11, element: 2 }, { space: 10, element: 3 }, { space: 11, element: 3 }];
+  const overall = new Map([[1, { width: 1.2, height: 1.5 }], [2, { width: 0.9, height: 2.1 }], [3, { width: 0.5, height: 0.3 }]]);
+  deductOpenings(rows, rooms, bounds, overall);
+  const [a, b] = rooms;
+  close(a.computed.openingArea, 1.2 * 1.0 + 0.9 * 2.1); // the window's lower 1.0 m of 1.5; the clerestory not at all
+  close(a.computed.openingCut, 1.2 * 0.5 + 0.5 * 0.3);
+  assert.equal(a.computed.openingsCut, 2);
+  assert.equal(a.computed.openings, 2);
+  close(b.computed.openingArea, 1.2 * 1.5 + 0.9 * 2.1 + 0.5 * 0.3); // B's walls run to 3 m: nothing cut
+  assert.equal(b.computed.openingsCut, 0);
+  close(a.computed.netWallArea, 18 * 2.4 - 1.2 - 0.9 * 2.1);
+  // the share itself
+  assert.equal(heightShare(null, [0, 0, 0, 1, 1, 1]), 1);
+  close(heightShare([0, 0, -0.5, 1, 1, 0.5], [0, 0, 0, 1, 1, 3]), 0.5);
+  assert.equal(heightShare([0, 0, 4, 1, 1, 5], [0, 0, 0, 1, 1, 3]), 0);
+});
+
+test("a door's stored height is measured down from its head: a frame set into the floor build-up is not cut", () => {
+  const rooms = [{ id: 10, label: "A", box: [0, 0, 0, 5, 4, 3], computed: { wallArea: 18 * 3 } }];
+  // FM_ARC_DigitalHub's escape doors: 1.01 x 2.25 m stored, the frame 2.40 m from 15 cm below the floor
+  const rows = [{ id: 1, ifcType: "IFCDOOR", box: [1, 3.9, -0.15, 2.01, 4.1, 2.25] }, { id: 2, ifcType: "IFCDOOR", box: [3, 3.9, -0.15, 4, 4.1, 2.25] }];
+  deductOpenings(rows, rooms, [{ space: 10, element: 1 }, { space: 10, element: 2, area: 2.4 }], new Map([[1, { width: 1.01, height: 2.25 }]]));
+  const c = rooms[0].computed;
+  // the first keeps its full stored size; the second stores none, so its 2.40 m boundary surface is cut to the 2.25 m above the floor
+  assert.equal(c.openingsCut, 1);
+  close(c.openingCut, 1 * 2.4 * (0.15 / 2.4));
+  close(c.openingArea, 1.01 * 2.25 + 1 * 2.25);
+  close(heightShare([0, 0, -0.15, 1, 1, 2.25], [0, 0, 0, 1, 1, 3], 2.25), 1);
 });

@@ -129,8 +129,9 @@ Options:
                             about 2.5x its time a check; the count Middle since 2026-11-21 (README "The joint growth fit, gated").
   --wander gated            for counts: when the window's level wanders at random (the drift model's random-walk level
                             beats a flat level with jumps by log n on the log counts), keep only the changes the drift
-                            model also places a jump at, so the wander is not read as a staircase of steps
-                            (README "A wandering level under Middle").
+                            model also places a jump at, so the wander is not read as a staircase of steps; whether it
+                            wanders is read on the days before the newest change, so a real fall cannot open the gate
+                            (README "A wandering level under Middle", "A calmer wander gate").
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)

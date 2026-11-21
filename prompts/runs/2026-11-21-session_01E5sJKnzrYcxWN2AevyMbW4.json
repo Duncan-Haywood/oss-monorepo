@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKnzrYcxWN2AevyMbW4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T22:18:46Z",
+  "ended": "2026-11-21T22:26:15Z",
+  "wall_minutes": 7.81,
+  "tokens_in": 4848124,
+  "tokens_out": 25504,
+  "cost_usd": 2.3688,
+  "tool_calls": 48,
+  "task": "Deepen flagship ifc-quantity-takeoff: openings cut at the room's ceiling in net wall finish (NEXT.md Rooms item); landed instead a page crash fix and an eval caution, because PR #18152 merged the same item first",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18153",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "First version of heightShare cut openings at the room's floor as well as its top; on 12 models it cut 203 openings, nearly all doors whose bodies run into the floor build-up (stored height already excludes that).",
+      "fix": "Cut only at the room's top, measured from the room's floor; 56 openings cut, all on ARK_NUS (55) and Office_A (1). Recorded in eval/ceiling-cut-2026-11-21.md and the post."
+    },
+    {
+      "what": "run_workflow_locally's venture_sweeps button_clicks hit on ifc-quantity-takeoff/index.html (pre-existing): 'Download the change in quantities (CSV)' threw null.rows when clicked while 'compare sample revisions' had set earlier=null but left the old diff.",
+      "fix": "sampleRevisions clears diff with earlier; the download handler also checks earlier and current. check_button_clicks.js: 0 hits after."
+    },
+    {
+      "what": "Duplicate work: PR #18152 (another session, same item, opened about a minute before this run's claim PR #18153) merged while this run verified. claim_check.py at claim time showed only the older PR #18042, so neither session saw the other.",
+      "fix": "Took main's rooms.mjs/tests/README/NEXT/llms/flagships, dropped this run's heightShare, eval/ceiling-cut-* and post; kept the independent page fix and added the Revit 8 ft default-height caution to #18152's eval/opening-height-cut-2026-11-21.md."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/NEXT.md",
+      "issue": "The item bundled 'openings over a lowered ceiling' with dental_clinic's 17 ROOF windows as if related; the eval shows none of the ROOF windows is above the office's top, so they are a separate question."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes ran portfolio-pages' build while another local build held platform/pages/dist.building, so 'Build the site' failed exit 75 with a lock message rather than waiting or using --out."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'Start here' sent this run to ifc-quantity-takeoff while PR #18152 for the same NEXT.md item was being opened; with no item-level claim in the row's prose, two runs picked the same top 'Left:' item within a minute. claim_check only sees PRs already open."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: this run's post duplicated docs/posts/2026-11-21-a-window-taller-than-the-room.md from PR #18152, so it was dropped; what is new (page fix, eval caution) is too small for its own post.",
+      "did": "Added the caution to the existing eval write-up instead.",
+      "result": "No duplicate post landed."
+    }
+  ],
+  "writeups": [
+    "ventures/ifc-quantity-takeoff/eval/opening-height-cut-2026-11-21.md (section added)"
+  ],
+  "goal": "Fix what this run found that #18152 did not: the delta CSV download crash and the default-height caution.",
+  "notes": "Landed: ifc-quantity-takeoff/index.html 'Download the change in quantities (CSV)' no longer throws when clicked while the sample revisions reload (found by run_workflow_locally's button_clicks sweep; 0 hits after); caution section in eval/opening-height-cut-2026-11-21.md (40 of 55 ceiling-cut ARK_NUS openings sit in rooms at 2.4384 m = Revit's 8 ft default). Dropped as duplicate of PR #18152: heightShare ceiling-only cut, eval/ceiling-cut-2026-11-21.*, post. Checks run before the merge of main: venture tests 172/172, check_posts ok, validate.py ok, venture-preflight clean; run_workflow_locally --for-changes passed everything except portfolio-pages 'Build the site' exit 75 (a lock from a concurrent local build into the same dist dir, not a defect). After merging main: see the PR's CI.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1c4fefbc-58dc-5e55-a308-b62b8b6f91f1",
+    "transcripts": 1,
+    "first": "2026-11-21T22:18:46Z",
+    "last": "2026-11-21T22:26:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 25504,
+        "thinking": 4099,
+        "cache_read": 4734090,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113945,
+        "api_equivalent_usd": 2.3688,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 25504,
+      "thinking": 4099,
+      "cache_read": 4734090,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113945,
+      "api_equivalent_usd": 2.3688,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.81,
+      "active_minutes": 7.81,
+      "model_minutes": 5.57,
+      "tool_minutes": 2.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer adding a ceiling cut to a takeoff's opening deductions, finding and fixing the floor-end false positives, and writing the 12-model eval and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 253.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

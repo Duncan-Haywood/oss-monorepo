@@ -1,0 +1,33 @@
+# node eval/swiss-repeat-floats.mjs 40 - bracket, with the FIDE 4.3 exchange order (2026-11-21, later); eval/swiss-bracket-sim.txt is the same run before it
+Repeat floats per event, 40 seeds per size, the same events with the rule off and on.
+down1/up1 = players floating the same way as the round before (a bye counts as down); down2/up2 = as two rounds before;
+floats/rd and gap/rd as in eval/swiss-matching.txt; strong/mild = boards where both players claimed one colour; ms = per round.
+
+players rounds  rule  failed  down1/ev  up1/ev down2/ev  up2/ev floats/rd  gap/rd strong/ev mild/ev  ms/rd
+      8      5  off       0    2.73    2.92    1.18    1.40      1.83    1.71      2.45    3.40     0.5
+      8      5  on        0    2.65    2.85    1.23    1.43      1.83    1.70      2.45    3.45     0.3
+      9      5  off       0    3.20    1.23    1.77    0.57      1.65    1.16      1.38    2.70     0.4
+      9      5  on        0    2.38    1.07    1.82    0.82      1.67    1.14      1.07    2.60     0.4
+     12      7  off       0    7.58    7.63    5.25    5.33      3.09    2.90      4.85    7.40     0.4
+     12      7  on        0    6.90    7.00    5.10    5.40      3.06    2.90      4.95    7.10     0.6
+     16      7  off       0    5.70    6.08    4.03    4.13      3.06    2.27      6.40    8.05     0.9
+     16      7  on        0    5.53    5.08    4.10    3.85      3.15    2.35      6.50    8.00     0.8
+     17      7  off       0    6.53    3.67    4.25    2.25      2.61    1.69      3.80    8.28     0.6
+     17      7  on        0    4.20    2.13    3.55    1.98      2.62    1.67      3.90    8.20     0.6
+     24      9  off       0   10.90   11.35    7.42    7.92      4.06    3.05     12.50   14.45     1.1
+     24      9  on        0    8.70    8.22    6.55    6.72      3.97    2.92     12.40   15.20     1.1
+     33      9  off       0    8.18    5.90    6.33    3.95      3.45    2.12      9.18   17.57     2.5
+     33      9  on        0    5.33    3.05    4.35    1.85      3.36    2.01      9.25   17.38     2.7
+     50      9  off       0    7.17    7.45    4.85    4.95      3.93    2.34     20.10   20.70     6.1
+     50      9  on        0    4.30    4.13    3.05    2.90      3.90    2.28     19.50   20.80     6.4
+     64     11  off       0   11.32   11.45    7.80    8.78      4.69    2.87     29.75   33.20    13.0
+     64     11  on        0    7.33    7.38    5.28    5.42      4.70    2.91     30.30   31.70    11.7
+    101      9  off       0    5.92    4.15    3.73    2.50      3.45    1.81     25.68   34.55    39.1
+    101      9  on        0    2.08    0.45    1.30    0.42      3.47    1.83     25.05   35.08    39.9
+    151     11  off       0    8.47    5.92    5.97    3.73      4.22    2.29     44.27   55.92   131.4
+    151     11  on        0    3.63    1.13    2.90    0.80      4.22    2.25     45.98   56.05   136.6
+
+All sizes, totals:
+  rule off: rounds 3560, failed 0, repeat down 3108, repeat up 2710, down 2 back 2103, up 2 back 1820, floats 12434, score gap 8115.5, absolute 0, strong 6414, mild 8249
+  rule on : rounds 3560, failed 0, repeat down 2120, repeat up 1699, down 2 back 1569, up 2 back 1264, floats 12387, score gap 8032.5, absolute 0, strong 6454, mild 8222
+

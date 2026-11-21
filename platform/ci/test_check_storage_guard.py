@@ -57,14 +57,18 @@ class Tree(unittest.TestCase):
 
     def test_default_root_is_the_ventures_dir_and_not_empty(self):
         import check_storage_guard as g
-        seen = []
-        orig = g.check_tree
+        seen, ran = [], []
+        orig, orig_contract = g.check_tree, g.run_contract
         g.check_tree = lambda root: seen.append(Path(root)) or []
+        # test_repo_is_clean runs the real contract; here it only has to get
+        # the same root (stubbed 2026-11-21: it was a second 0.8 s node run).
+        g.run_contract = lambda root: ran.append(Path(root)) or (0, "")
         try:
             main(["x"])
         finally:
-            g.check_tree = orig
+            g.check_tree, g.run_contract = orig, orig_contract
         self.assertTrue(list(seen[0].glob("*/usage.mjs")), seen[0])
+        self.assertEqual(ran, seen)
 
     def test_repo_is_clean(self):
         self.assertEqual(main(["x"]), 0)

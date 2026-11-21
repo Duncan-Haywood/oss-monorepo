@@ -40,7 +40,7 @@ row below. Every flag's measurements are in the README section named after it.
 | Did the change fall inside a Google update, a release or a price change? | `--events updates.csv` (start[,end],label per line) |
 | ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
 | ...for a level that wanders all the time | `watch.mjs --detector drift` |
-| ...counts whose level wanders (traffic, orders) | the count Middle plus `--wander gated` (see "A wandering level under Middle") |
+| ...counts whose level wanders (traffic, orders) | the count Middle plus `--wander gated` (see "A wandering level under Middle" and "A calmer wander gate") |
 
 `node cli.mjs --help` and `node watch.mjs --help` list every flag.
 
@@ -3992,8 +3992,73 @@ with one 40% fall; with the gate shut, `--wander gated` finds exactly Middle's c
 fewer changes than Middle; the option is refused for other models and bad values, and the watch CLI takes it for counts
 only.
 
-**Next:** a gate that opens less on calm sites with slow falls (a higher margin than log n, or the drift fit's jump
-penalty matched to PELT's), then a live Search Console property.
+**Next:** a gate that opens less on calm sites with slow falls: done 2026-11-21 (next section, "A calmer wander gate";
+`--wander gated` now decides on the days before the newest change).
+
+## A calmer wander gate: decide on the days before the change (2026-11-21, pre-registered; K1 fails, K1' and K2-K5 pass, `--wander gated` takes it)
+
+The section above shipped `--wander gated` as an opt-in because it cost calm sites some small falls (K3): a slow 10%
+fall, heard late, sat at the end of the window, and the drift fit read it as wander, so the gate opened and dropped the
+very change Middle was about to report.
+
+**Probes first** (seeds 9901-9916, deciding nothing; `eval/middle-wander-calm-probe.mjs`, outputs
+`eval/middle-wander-calm-probe.out.txt`, `-probe2`, `-probe3`). The two fixes this README named, and three more:
+
+| variant (on top of the gate) | falls heard of 64 (calm cells) | T4 + T5 alerts | T6 falls heard of 16 |
+|---|---|---|---|
+| none (Middle) | 48 | 29 | 15 |
+| the gate as shipped (W) | 45 | 17 | 14 |
+| margin 2 log n / 3 log n | 48 / 48 | 25 / 26 | 15 / 15 |
+| drift jump penalty log n, not 2 log n | 48 | 29 | 15 |
+| keep a change if a drift jump forced there gains > log n / > 0.5 log n | 45 / 46 | 20 / 22 | 14 / 15 |
+| **decide on the window before the newest change (60+ points)** | **48** | **22** | **15** |
+| decide on the whole window, the newest change as a given jump | 48 | 23 | 15 |
+
+A higher margin keeps the falls by letting the gate open less everywhere, so most of the cut on wander goes with it;
+a lower jump penalty puts a drift jump near every change, which shuts the gate in effect. Reading the gate on the days
+*before* the change Middle is about to report asks the right question: did the level wander where nobody claims a
+change? A fall on a steady site is not wander there, so it cannot open the gate. The engine options
+`wanderMargin`, `wanderJump`, `wanderTest` and `wanderSplit` stay for later rounds.
+
+**The round** (`eval/middle-wander-calm.prereg.md`, committed before the runs; `eval/middle-wander-calm.mjs`, output
+`eval/middle-wander-calm.out.txt`, 63 min on 4 cores; a first launch was stopped by the session's 30-minute limit for
+background commands before it wrote anything, and was rerun unchanged). V is the gate decided before the newest change
+(`wanderBefore: 60`), W the gate as shipped, M the count Middle; fresh seeds (set 1 5501-5520, set 2 7001-7060, set 3
+5701-5740). The count default was left out to save an hour.
+
+| set | measure | M | W | V | bar |
+|---|---|---|---|---|---|
+| 3 T4 log-mean walk, sd 1% a day | alerts per 1,000 days (sites alerted of 40) | 3.13 (12) | 2.29 (9) | 2.92 (12) | |
+| T5 log-mean walk, sd 2% a day | | 12.50 (33) | 3.96 (14) | **5.42 (20)** | |
+| T4 + T5 | alerts | 75 | 30 | **40** | **K1 FAIL** (<= 37.5); K1' pass (<= 50) |
+| T1 grows 30% | alerts per 1,000 days | 1.46 | 0.63 | 1.25 | K5 pass |
+| T2 grows 100% | | 3.33 | 0.42 | 1.25 | K5 pass |
+| T3 falls 30% | | 2.50 | 1.88 | 2.08 | K5 pass |
+| T6 grows 30%, falls 20% on day 180 | falls heard of 40; mean days unaware | 39; 11.3 | 38; 15.8 | 39; 13.1 | K2 pass |
+| 1 Search Console sites, cv 15% | mean days unaware, nine fall cells | 17.84 | 18.36 | **17.84** (V - M 0.00, 0.00 to 0.00) | K3 pass |
+| 1 same, cv 30% | | 30.90 | 31.36 | **30.91** (+0.01, 0.00 to 0.03) | K3 pass |
+| 2 eleven flat and step cells | false alerts per 1,000 checks; steps found of 360 | 1.53; 338 | 1.42; 338 | 1.53; 338 (V - M 0.00; 0) | K4 pass |
+
+**What it means.** On calm sites V is Middle: every fall heard, on the same day (W lost one fall in each of the three
+10% cells at cv 15% and was half a day slower on average, V - W -0.51, -1.09 to -0.08). On a level wandering 2% a day
+it still removes more than half of Middle's alerts (12.50 to 5.42 per 1,000 days, 33 sites alerted to 20), but it gives
+back a third of what the first gate removed (W 3.96). Why was not measured; one guess is a wander whose stretch before
+the newest change happened to be calm, or too short to show it. On a 1% walk, close to the noise, it removes almost nothing. On flat
+cells V sends exactly Middle's alerts (W sent 0.11 fewer per 1,000 checks). These are simulated sites.
+
+**What ships** (the pre-registered rule for K1 failing with K1' and K2-K5 passing): `--wander gated` and the engine's
+`wander: 'gated'` now decide on the window before the newest change when 60 or more points precede it
+(`WANDER_BEFORE` in `watch-core.mjs`); `wanderBefore: false` gives the first gate, which the earlier round's scripts now
+name so they reproduce. A stored `--detector auto` choice with the gate gets the new rule. `COUNT_MIDDLE` does not
+change. Pick it when a count series visibly wanders and you do not want to pay for that with small falls; the first
+gate's harder cut on wander is no longer offered on the command line.
+
+**Checked** (`wander-gate.test.mjs`, 5): on a simulated calm site with a 20% fall (probe seed 9901, base 50, day 210)
+Middle and the new gate keep the fall and the first gate drops it; on wandering series the new gate keeps fewer
+changes than Middle; the four earlier checks unchanged.
+
+**Next:** the gate's power on a wander whose newest change comes early (fewer than 60 days before it, where V falls back
+to the first gate); then a live Search Console property.
 
 ## Shopify as a source (2026-11-19)
 
