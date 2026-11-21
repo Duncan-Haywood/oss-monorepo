@@ -204,3 +204,25 @@ test("WebVTT never writes '-->' inside a cue title", () => {
   assert.equal(vtt.split("\n").filter((l) => l.includes("-->")).length, 2);
   assert.ok(vtt.includes("Before -> after"));
 });
+
+// Re-audit 2026-11-21 (portfolio/quality/audits/2026-11-21-youtube-chapters-check.json): the defects the
+// 2026-11-17 audit left open.
+test("a start-end range line keeps the title, not the end time", () => {
+  const p = parseChapters("0:00 - 1:30 Intro\n1:30 – 4:00 Setup\n4:00 Wrap up\n3:15 - Setting up the project");
+  assert.deepEqual(p.chapters.map((c) => [c.seconds, c.title]), [[0, "Intro"], [90, "Setup"], [240, "Wrap up"], [195, "Setting up the project"]]);
+});
+
+test("Audacity labels written with a decimal comma are read", () => {
+  const p = parseChapters("0,000000\t0,000000\tIntro\n12,500000\t12,500000\tB\n30,000000\t30,000000\tC");
+  assert.deepEqual(p.chapters.map((c) => [c.seconds, c.title]), [[0, "Intro"], [12.5, "B"], [30, "C"]]);
+});
+
+test("without a video length the last chapter is reported as unchecked", () => {
+  assert.ok(titles(validate("0:00 a\n0:10 b\n0:20 c")).includes("Last chapter's length not checked"));
+  assert.ok(!titles(validate("0:00 a\n0:10 b\n0:20 c", { duration: 60 })).includes("Last chapter's length not checked"));
+});
+
+test("a chapter starting exactly at the video length is past the end", () => {
+  assert.ok(titles(validate("0:00 A\n1:00 B\n3:00 C", { duration: 180 })).includes("Starts after the video ends"));
+  assert.ok(!titles(validate("0:00 A\n1:00 B\n2:50 C", { duration: 180 })).includes("Starts after the video ends"));
+});

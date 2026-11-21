@@ -28,6 +28,11 @@ node --test ventures/youtube-chapters-check/
   followed by a ` |C:... |M:name |D:n` line), not a file exported from Resolve itself. Added after
   [the 2026-11-17 audit](../../portfolio/quality/audits/2026-11-17-youtube-chapters-check.json)
   found the EDL export unread.
+- Re-audited on [2026-11-21](../../portfolio/quality/audits/2026-11-21-youtube-chapters-check.json):
+  the EDL, SMPTE 23.976/29.97 and boundary-test fixes all hold (11 of 12 seeded mutants caught).
+  The same round fixed range lines (`0:00 - 1:30 Intro`), Audacity labels with a decimal comma, a
+  note when the last chapter cannot be checked without the video length, the strikes cause in the
+  FAQ and the fix-note wording. Not checked: that YouTube shows the chapters for a given channel.
 
 ## Files
 
