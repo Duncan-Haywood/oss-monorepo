@@ -184,3 +184,99 @@ test("duplicate code type names stay apart in Project", () => {
   assert.match(r.xml, /<Alias>Phase \(T1\)<\/Alias>/);
   assert.match(r.xml, /<Alias>phase \(T2\)<\/Alias>/);
 });
+
+// activity user-defined fields -> Number, Cost, Date and free Text fields
+function withUdfs(types) {
+  const x = parseXer(EXAMPLE_XER);
+  const T = x.tables;
+  T.UDFTYPE = []; T.UDFVALUE = [];
+  types.forEach((ty, k) => {
+    const id = String(100 + k);
+    T.UDFTYPE.push({ udf_type_id: id, table_name: ty.table || "TASK", udf_type_name: `user_${k}`, udf_type_label: ty.label, logical_data_type: ty.type });
+    T.TASK.forEach((t, i) => { const v = ty.pick(i); if (v !== null && v !== undefined) T.UDFVALUE.push({ udf_type_id: id, fk_id: ty.fk ? ty.fk(t, i) : t.task_id, proj_id: t.proj_id, udf_date: ty.type.includes("DATE") ? v : "", udf_number: /INT|FLOAT|MONEY/.test(ty.type) ? String(v) : "", udf_text: ty.type === "FT_TEXT" ? v : "", udf_code_id: "" }); });
+  });
+  return x;
+}
+
+test("activity UDFs become named Number, Cost, Date and Text fields and read back", () => {
+  const x = withUdfs([
+    { label: "Optimistic", type: "FT_FLOAT_2_DECIMALS", pick: (i) => 8.25 * (i + 1) },
+    { label: "Crew size", type: "FT_INT", pick: (i) => (i % 2 ? 4 : null) },
+    { label: "Claimed", type: "FT_MONEY", pick: (i) => 1234.56 + i },
+    { label: "Access [date]", type: "FT_END_DATE", pick: (i) => `2026-05-0${(i % 9) + 1} 17:00` },
+    { label: "Change Order #", type: "FT_TEXT", pick: (i) => `CO-${i % 3}` },
+    { label: "Traffic light", type: "FT_STATICTYPE", pick: () => "RED" },
+    { label: "Capacity", type: "FT_TEXT", table: "RSRC", pick: () => "40" },
+  ]);
+  const r = mspdiText(x);
+  const n = x.tables.TASK.length;
+  assert.equal(r.counts.udfFields, 5);
+  assert.equal(r.counts.udfValues, n + Math.floor(n / 2) + n + n + n);
+  assert.match(r.xml, /<FieldID>188743767<\/FieldID><FieldName>Number1<\/FieldName><Alias>Optimistic<\/Alias>/);
+  assert.match(r.xml, /<FieldID>188743768<\/FieldID><FieldName>Number2<\/FieldName><Alias>Crew size<\/Alias>/);
+  assert.match(r.xml, /<FieldID>188743786<\/FieldID><FieldName>Cost1<\/FieldName><Alias>Claimed<\/Alias>/);
+  assert.match(r.xml, /<FieldID>188743945<\/FieldID><FieldName>Date1<\/FieldName><Alias>Access \(date\)<\/Alias>/);
+  // no activity codes, so the text UDF takes Text2
+  assert.match(r.xml, /<FieldID>188743734<\/FieldID><FieldName>Text2<\/FieldName><Alias>Change Order #<\/Alias>/);
+  const uid0 = r.taskUid.get(x.tables.TASK[0].task_id);
+  assert.equal(extAttr(r.xml, uid0, "188743767"), "8.25");
+  assert.equal(extAttr(r.xml, uid0, "188743786"), "123456"); // hundredths, as MPXJ writes a cost field
+  assert.equal(extAttr(r.xml, uid0, "188743945"), "2026-05-01T17:00:00");
+  assert.equal(extAttr(r.xml, uid0, "188743768"), null);
+  // the indicator has no Project field; the resource UDF is not an activity's
+  assert.ok(r.warnings.some((w) => /indicator or code user-defined field\(s\) have no Project field.*Traffic light \(FT_STATICTYPE\)/.test(w)));
+  assert.ok(!r.warnings.some((w) => /Capacity/.test(w)));
+  const back = parseMspdi(r.xml);
+  const types = new Map(back.tables.UDFTYPE.map((u) => [u.udf_type_label, u]));
+  assert.deepEqual([...types.keys()], ["Optimistic", "Crew size", "Claimed", "Access (date)"]);
+  assert.equal(types.get("Optimistic").logical_data_type, "FT_FLOAT_2_DECIMALS");
+  assert.equal(types.get("Crew size").logical_data_type, "FT_INT");
+  assert.equal(types.get("Claimed").logical_data_type, "FT_MONEY");
+  const valOf = (label, taskId) => back.tables.UDFVALUE.find((v) => v.udf_type_id === types.get(label).udf_type_id && v.fk_id === String(r.taskUid.get(taskId)));
+  x.tables.TASK.forEach((t, i) => {
+    assert.equal(Number(valOf("Optimistic", t.task_id).udf_number), 8.25 * (i + 1));
+    assert.equal(Number(valOf("Claimed", t.task_id).udf_number), 1234.56 + i);
+    assert.equal(valOf("Access (date)", t.task_id).udf_date, `2026-05-0${(i % 9) + 1} 17:00`);
+  });
+  // the text UDF reads back as a text field (an activity code)
+  assert.deepEqual(back.tables.ACTVTYPE.map((t) => t.actv_code_type), ["Change Order #"]);
+});
+
+test("text UDFs and code types share the 29 text fields by how many activities each fills", () => {
+  // 29 code types on one activity each, and one text UDF on every activity
+  const x = withCodes(Array.from({ length: 29 }, (_, k) => ({ name: `Code ${k + 1}`, codes: [{ id: "v", code: "V" }], pick: (i) => (i === 0 ? "v" : null) })));
+  x.tables.UDFTYPE = [{ udf_type_id: "9", table_name: "TASK", udf_type_label: "change id", logical_data_type: "FT_TEXT" }];
+  x.tables.UDFVALUE = x.tables.TASK.map((t, i) => ({ udf_type_id: "9", fk_id: t.task_id, udf_text: `C${i % 2}`, udf_number: "", udf_date: "" }));
+  const r = mspdiText(x);
+  assert.equal(r.counts.codeTypes, 28);
+  assert.match(r.xml, /<FieldName>Text30<\/FieldName><Alias>change id<\/Alias>/);
+  assert.ok(r.warnings.some((w) => /1 of them taken by text user-defined fields/.test(w)));
+});
+
+test("past 20 number UDFs the most filled are kept and the rest counted", () => {
+  const x = withUdfs(Array.from({ length: 21 }, (_, k) => ({ label: `N${k + 1}`, type: "FT_INT", pick: (i) => (k === 0 && i > 0 ? null : i) })));
+  const r = mspdiText(x);
+  assert.equal(r.udfFields.fields.length, 20);
+  assert.ok(!/<Alias>N1<\/Alias>/.test(r.xml));
+  assert.match(r.xml, /<FieldID>188743996<\/FieldID><FieldName>Number20<\/FieldName><Alias>N21<\/Alias>/);
+  assert.ok(r.warnings.some((w) => /21 number user-defined fields are used and Project has 20 Number fields: the most filled are written; left out: N1 \(1\)/.test(w)));
+  assert.ok(r.warnings.some((w) => /not carried: .*1 user-defined field value/.test(w)));
+});
+
+test("UDF ranges round-trip: Project Number fields feed the risk run as P6 UDFs do", async () => {
+  const { rangesFromUdf } = await import("./udf-ranges.mjs");
+  const x = withUdfs([
+    { label: "Optimistic Duration (days)", type: "FT_FLOAT_2_DECIMALS", pick: (i) => 2 + i },
+    { label: "Pessimistic Duration (days)", type: "FT_FLOAT_2_DECIMALS", pick: (i) => 5 + 2 * i },
+  ]);
+  const before = rangesFromUdf(x);
+  assert.ok(before.read > 0);
+  const back = parseMspdi(mspdiText(x).xml);
+  const after = rangesFromUdf(back);
+  assert.equal(after.read, before.read);
+  assert.equal(after.fields.min.label, "Optimistic Duration (days)");
+  // the reader keys activities by Project's UID; the ranges per activity are the same
+  const r = mspdiText(x);
+  const code = new Map(x.tables.TASK.map((t) => [t.task_code, String(r.taskUid.get(t.task_id))]));
+  for (const [c, v] of before.ranges) assert.deepEqual(after.ranges.get(code.get(c)), v);
+});
