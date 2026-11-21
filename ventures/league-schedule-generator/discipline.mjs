@@ -197,7 +197,7 @@ export function adminDisciplineHtml(state, teams, errors = []) {
   return parts.join("");
 }
 
-const csvCell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 
 /** Every ban, served or not, for the league's records. */
 export function disciplineCsv(state, teams) {

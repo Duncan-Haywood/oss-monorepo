@@ -4,6 +4,7 @@
 // 13-trading-day running median, and returns those residuals centred on their median.
 //   node eval/shop-tails.mjs   prints their sd, robust (MAD) sd and quantiles
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const median = (x) => { const y = [...x].sort((p, q) => p - q), n = y.length; return n % 2 ? y[(n - 1) / 2] : (y[n / 2 - 1] + y[n / 2]) / 2; };
 
@@ -20,7 +21,7 @@ export function shopResiduals(file = new URL('../data/online-retail-daily.csv', 
   return res.map((r) => r - c);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const r = shopResiduals();
   const sd = Math.sqrt(r.reduce((s, x) => s + x * x, 0) / (r.length - 1));
   const mad = 1.4826 * median(r.map(Math.abs));
