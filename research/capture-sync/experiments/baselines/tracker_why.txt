@@ -1,0 +1,6 @@
+Step 4d post hoc: coarse-step failure share (> 1 frame) over -10 dB sessions, 200 ms room
+     SRO  drift  pw 20 s  fn 20 s   pw 5 s   fn 5 s
+      17    off   28.5%    1.5%   79.5%   69.5%  (n=200)
+      17     on   34.0%    3.0%   80.0%   69.5%  (n=200)
+     300    off   24.5%    0.0%   78.0%   58.5%  (n=200)
+     300     on   84.0%   54.0%   86.0%   67.5%  (n=200)
