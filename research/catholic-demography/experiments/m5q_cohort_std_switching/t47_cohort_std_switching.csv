@@ -1,0 +1,68 @@
+weights,years,quantity,est,lo,hi
+child,all,M_mothers,27.7145,25.1169,30.0056
+child,1977-2024 all modes,weight share on cohorts with both bands,1.0000,1.0000,1.0000
+child,1977-2024 all modes,D_P = P_m(25-44) - P_m(45+),3.1082,1.1488,5.0500
+child,1977-2024 all modes,D_R = R16(25-44) - R16(45+),1.8259,-0.4442,3.8644
+child,1977-2024 all modes,D_S = D_P - D_R,1.2823,-0.0883,2.5275
+child,1977-2024 all modes,age difference (years),-20.6829,-20.9523,-20.4235
+child,1977-2024 all modes,D_P cohorts 1937-49,3.7329,0.8524,6.8265
+child,1977-2024 all modes,D_S cohorts 1937-49,0.3330,-1.5238,2.0576
+child,1977-2024 all modes,weight share cohorts 1937-49,0.6425,0.6147,0.6705
+child,1977-2024 all modes,D_P cohorts 1950-59,2.1433,-0.0532,4.3417
+child,1977-2024 all modes,D_S cohorts 1950-59,2.8917,1.2137,4.5218
+child,1977-2024 all modes,weight share cohorts 1950-59,0.2259,0.2047,0.2468
+child,1977-2024 all modes,D_P cohorts 1960-71,1.7150,-1.0226,4.6611
+child,1977-2024 all modes,D_S cohorts 1960-71,3.1534,0.8444,5.4673
+child,1977-2024 all modes,weight share cohorts 1960-71,0.1316,0.1132,0.1499
+own,1977-2024 all modes,weight share on cohorts with both bands,1.0000,1.0000,1.0000
+own,1977-2024 all modes,D_P = P_m(25-44) - P_m(45+),2.8974,1.5851,4.1970
+own,1977-2024 all modes,D_R = R16(25-44) - R16(45+),0.6987,-0.6742,2.0119
+own,1977-2024 all modes,D_S = D_P - D_R,2.1988,1.2809,3.1726
+own,1977-2024 all modes,age difference (years),-20.6927,-20.8721,-20.5064
+own,1977-2024 all modes,D_P cohorts 1937-49,3.9726,1.4536,6.4973
+own,1977-2024 all modes,D_S cohorts 1937-49,0.4719,-1.1388,2.0297
+own,1977-2024 all modes,D_P cohorts 1950-59,3.0893,1.2123,4.8958
+own,1977-2024 all modes,D_S cohorts 1950-59,2.8274,1.3247,4.2971
+own,1977-2024 all modes,D_P cohorts 1960-71,1.3646,-1.0330,3.7649
+own,1977-2024 all modes,D_S cohorts 1960-71,3.5281,1.6329,5.2647
+child,1977-2024 all modes,P_m(45+) single-year,23.1902,22.2825,24.1282
+child,1977-2024 all modes,P_m*(25-44) = P_m(45+) + D_P,26.2984,24.3555,28.1733
+child,1977-2024 all modes,M_mothers - P_m(45+),4.5242,2.0432,6.7738
+child,1977-2024 all modes,M_mothers - P_m*(25-44),1.4160,-1.5521,4.5620
+child,1977-2024 all modes,gap left fraction,0.3130,-0.7053,0.7724
+m5o windows,1977-2024 all modes,D_P = P_m(25-44) - P_m(45+),3.7072,2.0505,5.4005
+m5o windows,1977-2024 all modes,D_R = R16(25-44) - R16(45+),2.4483,0.6865,4.1872
+m5o windows,1977-2024 all modes,D_S = D_P - D_R,1.2590,0.1604,2.3609
+m5o windows,1977-2024 all modes,gap left fraction,0.2226,-0.7066,0.6160
+cohort mix,1977-2024 all modes,D_P: m5o windows - single-year child,0.5990,-0.3824,1.5809
+cohort mix,1977-2024 all modes,D_R: m5o windows - single-year child,0.6224,-0.3442,1.7319
+child,1977-2018,weight share on cohorts with both bands,1.0000,1.0000,1.0000
+child,1977-2018,D_P = P_m(25-44) - P_m(45+),2.6909,0.6629,4.8211
+child,1977-2018,D_R = R16(25-44) - R16(45+),1.4849,-0.6722,3.5336
+child,1977-2018,D_S = D_P - D_R,1.2060,-0.1309,2.4331
+child,1977-2018,age difference (years),-18.1637,-18.4008,-17.9382
+child,1977-2018,D_P cohorts 1937-49,3.8220,1.0076,6.9302
+child,1977-2018,D_S cohorts 1937-49,0.4307,-1.3955,2.1668
+child,1977-2018,weight share cohorts 1937-49,0.6425,0.6147,0.6705
+child,1977-2018,D_P cohorts 1950-59,1.1592,-1.1734,3.3560
+child,1977-2018,D_S cohorts 1950-59,2.8382,1.1183,4.3839
+child,1977-2018,weight share cohorts 1950-59,0.2259,0.2047,0.2468
+child,1977-2018,D_P cohorts 1960-71,-0.2012,-3.3171,3.3091
+child,1977-2018,D_S cohorts 1960-71,2.1889,-0.1598,4.6853
+child,1977-2018,weight share cohorts 1960-71,0.1316,0.1132,0.1499
+own,1977-2018,weight share on cohorts with both bands,1.0000,1.0000,1.0000
+own,1977-2018,D_P = P_m(25-44) - P_m(45+),2.1505,0.6348,3.5249
+own,1977-2018,D_R = R16(25-44) - R16(45+),0.2334,-1.3017,1.6151
+own,1977-2018,D_S = D_P - D_R,1.9171,0.8526,2.8120
+own,1977-2018,age difference (years),-17.7039,-17.8648,-17.5475
+own,1977-2018,D_P cohorts 1937-49,4.1591,1.7479,6.6800
+own,1977-2018,D_S cohorts 1937-49,0.4927,-1.0905,2.0877
+own,1977-2018,D_P cohorts 1950-59,2.1507,0.1282,4.1432
+own,1977-2018,D_S cohorts 1950-59,2.7000,1.0885,4.1563
+own,1977-2018,D_P cohorts 1960-71,-0.6789,-3.4731,2.3714
+own,1977-2018,D_S cohorts 1960-71,2.8903,0.8694,4.9013
+child,1977-2018,P_m(45+) single-year,23.6075,22.6234,24.6519
+child,1977-2018,P_m*(25-44) = P_m(45+) + D_P,26.2984,24.3555,28.1733
+child,1977-2018,M_mothers - P_m(45+),4.1070,1.4277,6.3780
+child,1977-2018,M_mothers - P_m*(25-44),1.4160,-1.5521,4.5620
+child,1977-2018,gap left fraction,0.3448,-0.8482,0.8516
