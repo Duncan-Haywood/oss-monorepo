@@ -13,7 +13,9 @@
 //   2. score difference, squared in half points, so one big float costs more than two small ones;
 //   3. both players with a strong claim (colour difference of 1) on the same colour;
 //   4. both players with a mild claim (they alternated last round) on the same colour;
-//   5. Dutch order: inside a score group the top half meets the bottom half (1 v 5, 2 v 6 ...), the
+//   5. repeat floats (FIDE C.14-C.17): a player who floated down last round floating down again
+//      (a bye counts as a downfloat), one who floated up floating up again, then two rounds back;
+//   6. Dutch order: inside a score group the top half meets the bottom half (1 v 5, 2 v 6 ...), the
 //      player who floats down is the lowest of their group and meets the highest of the next group.
 //
 // Rematches are never edges. An odd field adds a bye vertex, joined to players who have not had a
@@ -79,6 +81,77 @@ const SCORE = 1e8;
 const STRONG = 5e5;
 const MILD = 4e3;
 const ORDER_CAP = 30;
+// Repeat floats (FIDE C.04.3 C.14-C.17), below the colour tiers as in the Dutch rules: a player who
+// floated down last round floating down again, one who floated up last round floating up again,
+// then the same two rounds back. Each step is worth more than the Dutch-order tier can add on one
+// board (at most 2 x ORDER_CAP), so on a board a repeat float always outweighs the order; across a
+// whole round the tiers here and the mild-colour tier above are weighed, not strictly ranked.
+const RD1 = 488;
+const RU1 = 244;
+const RD2 = 122;
+const RU2 = 61;
+
+/**
+ * Who floated in each earlier round. Games are in the order they were played (as the colour rules
+ * already assume); a player's k-th appearance (game or bye) is their round k. Byes carry no round of
+ * their own, so `byes[k]` is taken as round k's bye (one per round in an odd field), unless
+ * `byeRounds[k]` gives its round (0-based). Returns Map player -> array per round of "down", "up"
+ * or null: down when the player's score before the round was above the opponent's, or they took
+ * the pairing bye (FIDE counts a bye as a downfloat); up when below.
+ */
+export function floatHistory(players, games, byes = [], byeRounds = null) {
+  const appear = new Map();
+  const at = (i) => appear.get(i) ?? 0;
+  const rounds = [];
+  const slot = (r) => (rounds[r] ??= { games: [], byes: [] });
+  const pendingBye = new Map();
+  byes.forEach((p, k) => {
+    const r = byeRounds?.[k] ?? k;
+    if (!pendingBye.has(p)) pendingBye.set(p, []);
+    pendingBye.get(p).push(r);
+  });
+  for (const list of pendingBye.values()) list.sort((a, b) => a - b);
+  const placeBye = (p) => {
+    const r = Math.max(pendingBye.get(p).shift(), at(p));
+    slot(r).byes.push(p);
+    appear.set(p, r + 1);
+  };
+  for (const g of games) {
+    // A bye listed for this round or earlier comes before the game in that player's sequence.
+    let r = Math.max(at(g.a), at(g.b));
+    for (let moved = true; moved;) {
+      moved = false;
+      for (const p of [g.a, g.b]) {
+        const list = pendingBye.get(p);
+        if (list?.length && list[0] <= r) { placeBye(p); moved = true; }
+      }
+      r = Math.max(at(g.a), at(g.b));
+    }
+    slot(r).games.push(g);
+    appear.set(g.a, r + 1); appear.set(g.b, r + 1);
+  }
+  for (const [p, list] of pendingBye) while (list.length) placeBye(p);
+  const score = new Map(players.map((_, i) => [i, 0]));
+  const hist = new Map(players.map((_, i) => [i, []]));
+  for (let r = 0; r < rounds.length; r++) {
+    const R = rounds[r] ?? { games: [], byes: [] };
+    for (const h of hist.values()) h[r] = null;
+    for (const g of R.games) {
+      const sa = score.get(g.a);
+      const sb = score.get(g.b);
+      if (sa > sb) { hist.get(g.a)[r] = "down"; hist.get(g.b)[r] = "up"; }
+      else if (sa < sb) { hist.get(g.a)[r] = "up"; hist.get(g.b)[r] = "down"; }
+    }
+    for (const p of R.byes) hist.get(p)[r] = "down";
+    for (const g of R.games) {
+      if (g.ga > g.gb) score.set(g.a, score.get(g.a) + 1);
+      else if (g.ga < g.gb) score.set(g.b, score.get(g.b) + 1);
+      else { score.set(g.a, score.get(g.a) + 0.5); score.set(g.b, score.get(g.b) + 0.5); }
+    }
+    for (const p of R.byes) score.set(p, score.get(p) + 1);
+  }
+  return { history: hist, rounds: rounds.length };
+}
 
 /**
  * Pair the next Swiss round as one weighted matching. `players` are in seed order (strongest
@@ -86,7 +159,7 @@ const ORDER_CAP = 30;
  * { pairs: [{white, black}], bye, floaters, clashes: {absolute, strong, mild}, method: "matching" }.
  * Boards run from the top score down. Throws when no round without a rematch exists.
  */
-export function swissPairings(players, games, byes = [], withdrawn = [], { lookahead = true } = {}) {
+export function swissPairings(players, games, byes = [], withdrawn = [], { lookahead = true, repeatFloats = true, byeRounds = null } = {}) {
   const gone = new Set(withdrawn);
   const n = players.length - gone.size;
   if (n < 2) throw new Error("Swiss pairing needs at least 2 players still in the event.");
@@ -97,6 +170,16 @@ export function swissPairings(players, games, byes = [], withdrawn = [], { looka
   for (const g of games) { met.add(`${g.a}|${g.b}`); met.add(`${g.b}|${g.a}`); }
   const half = (i) => Math.round(info.get(i).score * 2);
   const claim = new Map(order.map((i) => [i, colourClaim(info.get(i))]));
+  // Last round's and the round before's float for each player (null when level or absent).
+  const { history: fh, rounds: played } = floatHistory(players, games, byes, byeRounds);
+  const floatAgo = (i, k) => fh.get(i)?.[played - k] ?? null;
+  const repeatCost = (down, up) => {
+    if (!repeatFloats) return 0;
+    let c = 0;
+    if (down !== undefined) { if (floatAgo(down, 1) === "down") c += RD1; if (floatAgo(down, 2) === "down") c += RD2; }
+    if (up !== undefined) { if (floatAgo(up, 1) === "up") c += RU1; if (floatAgo(up, 2) === "up") c += RU2; }
+    return c;
+  };
 
   // Score groups in table order, and each player's place inside their group.
   const groupOf = new Map();
@@ -136,6 +219,7 @@ export function swissPairings(players, games, byes = [], withdrawn = [], { looka
       const [hi, lo] = half(x) > half(y) ? [x, y] : [y, x];
       const gHi = groups[groupOf.get(hi)];
       p += Math.min(ORDER_CAP, gHi.length - 1 - posInGroup.get(hi)) + Math.min(ORDER_CAP, posInGroup.get(lo));
+      p += repeatCost(hi, lo);
     }
     return p;
   };
@@ -159,7 +243,7 @@ export function swissPairings(players, games, byes = [], withdrawn = [], { looka
         if (info.get(i).byes !== fewest) continue;
         const fromBottom = v - 1 - vertexOf.get(i);
         const d = Math.min(30, half(i));
-        raw.push([vertexOf.get(i), byeVertex, SCORE * d * d + Math.min(ORDER_CAP, fromBottom) + (fresh.length ? 0 : ABS)]);
+        raw.push([vertexOf.get(i), byeVertex, SCORE * d * d + Math.min(ORDER_CAP, fromBottom) + repeatCost(i, undefined) + (fresh.length ? 0 : ABS)]);
       }
     }
     let top = 0;
@@ -217,9 +301,17 @@ export function swissPairings(players, games, byes = [], withdrawn = [], { looka
 
   const clashes = { absolute: 0, strong: 0, mild: 0 };
   let floaters = 0;
+  // Players floating the same way as last round (a bye counts as a downfloat).
+  const repeats = { down: 0, up: 0 };
+  if (bye !== null && floatAgo(bye, 1) === "down") repeats.down++;
   const firstRound = games.length === 0;
   const pairs = matched.map(([x, y], board) => {
-    if (half(x) !== half(y)) floaters++;
+    if (half(x) !== half(y)) {
+      floaters++;
+      const [d, u] = half(x) > half(y) ? [x, y] : [y, x];
+      if (floatAgo(d, 1) === "down") repeats.down++;
+      if (floatAgo(u, 1) === "up") repeats.up++;
+    }
     const [hi, lo] = vertexOf.get(x) < vertexOf.get(y) ? [x, y] : [y, x];
     if (firstRound) {
       // Round 1: the top seed has white on board 1, then colours alternate down the boards.
@@ -234,7 +326,7 @@ export function swissPairings(players, games, byes = [], withdrawn = [], { looka
     const white = whiteGoesTo(info.get(hi), ch, info.get(lo), cl) === "hi" ? hi : lo;
     return { white, black: white === hi ? lo : hi };
   });
-  return { pairs, bye, floaters, clashes, method: "matching" };
+  return { pairs, bye, floaters, clashes, repeats, method: "matching" };
 }
 
 /**

@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVL3Lz6jT3bev4KjyV7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled routine)",
+  "input_sha256": "06803603fe2aa19203b94097a4e6666d9fdd6c696580e63c7dd3bd9b079c39f5",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T14:56:35Z",
+  "ended": "2026-11-21T15:04:29Z",
+  "wall_minutes": 9.11,
+  "tokens_in": 6529543,
+  "tokens_out": 34710,
+  "cost_usd": 2.9411,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18100",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Building bbpPairings (Apache-2.0 C++ Swiss engine) from a fresh clone with make was refused by the session's auto-mode tool classifier; the side-by-side item was dropped for repeat floats."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent this session to xer-schedule-check while PR #18099 for the same item had opened under a minute earlier; claim_check caught it only after the claim PR was open."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator's next: lists 'bbpPairings side-by-side' as buildable, but building third-party source can be refused by session tool policy; noted in the README so later runs know."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row (xer-schedule-check MSPDI splits) was claimed by #18099 a minute earlier",
+      "did": "took flagship league-schedule-generator, Swiss repeat floats",
+      "result": "landed with eval and tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-swiss-pairings-repeat-floats.md",
+    "ventures/league-schedule-generator/README.md (Repeat floats)"
+  ],
+  "goal": null,
+  "notes": "Repeat-float tier (FIDE C.14-C.17) in swiss.mjs; floatHistory; parseSwissResults byeRounds; page status line. eval/swiss-repeat-floats.txt: repeat downfloats 3082->2046, upfloats 2593->1711 on 440 events, floats 12372->12373, 0 absolute clashes. Full venture suite run locally (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "80e030da-a690-53f1-b172-14196451749e",
+    "transcripts": 1,
+    "first": "2026-11-21T14:56:35Z",
+    "last": "2026-11-21T15:05:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 106,
+        "output": 34710,
+        "thinking": 11074,
+        "cache_read": 6408844,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120593,
+        "api_equivalent_usd": 2.9411,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 106,
+      "output": 34710,
+      "thinking": 11074,
+      "cache_read": 6408844,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120593,
+      "api_equivalent_usd": 2.9411,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 47,
+      "ReadNotifications": 3,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.11,
+      "active_minutes": 9.11,
+      "model_minutes": 6.38,
+      "tool_minutes": 2.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: FIDE criteria study, float-history replay, tier design, exhaustive test, eval and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 340.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
