@@ -131,6 +131,15 @@ work. Two consequences for a reader:
   as the uncorrected rule but fewer folds met. So the recipe of section 5.1 stands as written. Correcting
   the ten-cycle forecast is a conditional step for cells where one early-visible mechanism (here plating)
   dominates the fade, and the decision to apply it has to be made out of fold.
+- Milestone 7x makes that decision out of fold. Every corrected error the rule is scored on (the gate, the
+  margin's inner folds and the final pick) comes from a correction fitted without that row's pool. The
+  gate turns the correction off on every `Ai2020` fold and keeps the plating cells' full saving
+  (&minus;30 cycles against U at f = 30), but on the committed sets the gated rule meets 17 of 20 folds,
+  not the uncorrected rule's 19, at +1.9 cycles per design. Without a gate, removing 7w's leak gives the
+  same 17 of 20. The remaining misses come from pool shift: on three sets the correction wins on every
+  training pool out of fold and still fails on one held-out pool. Four pools of 8 to 16 designs cannot
+  separate such a set from a plating cell, so the condition for correcting has to come from mechanism
+  (how far one reaction dominates the early lithium loss), not from the training errors alone.
 
 ## 5.4 Limitations and next steps
 
