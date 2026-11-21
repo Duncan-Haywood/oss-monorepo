@@ -19,6 +19,7 @@ node cli.mjs check '(a+)+$'            # analyse a single pattern
 | `nested-quantifier` | error | `(a+)+`, `(\w+\s?)+` -- iterations can split the same text many ways (exponential) |
 | `nested-quantifier` | error | `(<!--[\s\S]*?-->)*`, `(a.*b)+` -- an inner repeat can swallow the next iteration's delimiters (exponential; added 2026-11-15) |
 | `overlapping-alternation` | error | `(a|aa)+`, `(\d|\w)+` -- two branches match the same text (exponential) |
+| `ambiguous-repeat` | error | `((?:bb)+)*`, `(a\|a?)+`, `(a{2,5})+$` -- an exact automaton check found a word read two ways inside a loop; the finding carries the attack string (added 2026-11-21) |
 | `adjacent-overlap` | warn | `\d+\d+`, `^\s*(.*?)\s*$` -- adjacent repeats over the same characters (polynomial) |
 | `quadratic-end-anchor` | warn / info | `\s+$` with no `^` -- retried from every start position |
 | `dynamic-regexp` | info | `new RegExp(variable)` |
@@ -66,13 +67,32 @@ checker, on the 9,016 distinct regex literals in 5,040 non-test `.mjs` files:
   thousands of characters to cost a second. This tool's `warn` rules overlap but are not a
   substitute: use recheck or `--probe` when a quadratic pattern sees large untrusted input.
 
+## Measured against an exact oracle (2026-11-21)
+
+The shape rules are now backed by an exact check (`exactAmbiguity` in `engine.mjs`): it builds the pattern's
+position automaton, counting each step once per way the parse can take it, and looks for a state with two
+different paths back to itself on the same word (the criterion of Weideman et al., CIAA 2016, tested as in
+Allauzen, Mohri and Rastogi, IJFCS 2011). When it finds one, the finding carries the attack string
+(`prefix + pump×n + fail`), and `--probe` pumps that string first. When it proves no such state exists, a
+shape rule's "exponential" becomes a warning. It gives up (and leaves the shape rules alone) on lookaround,
+backreferences, atomic groups, possessive repeats and anchors in the middle.
+
+On 6,000 random patterns, each labelled by a separate oracle (`eval/ambiguity.mjs`) and confirmed by timing V8:
+the shape rules alone caught 1,938 of 2,929 exponential patterns (66%) and raised 29 false alarms; with the
+exact check, 2,929 of 2,929 and 0. The old probe confirmed 58 of 100 exponential patterns as exponential; with
+the witness, 100 of 100. On this repository it covers 13,313 of 14,714 distinct patterns and found one real
+exponential pattern (fixed). Method, tables and limits: [`eval/README.md`](eval/README.md).
+
 The sweep is repeatable: `node platform/ci/check_redos.mjs` (exit 1 on a new error-level suspect).
 Write-up: [`docs/posts/2026-11-15-five-regexes-that-could-hang-our-own-tools.md`](../../docs/posts/2026-11-15-five-regexes-that-could-hang-our-own-tools.md).
 
 ## What it is not
 
-A static heuristic. A finding is a suspect: it can miss a vulnerable pattern and
-flag a safe one, and it cannot know whether an attacker controls the input.
+A static analyser. The exact check is exact only for what it models (above), and
+an engine may optimise an ambiguous pattern into a fast one (V8 runs `(a|b|a)+`
+fast), so a finding is still a suspect; outside the model the shape rules can
+miss a vulnerable pattern and flag a safe one. It cannot know whether an
+attacker controls the input.
 `--probe` times the real JavaScript engine on a generated input (sandboxed vm,
 hard timeout) and only labels a pattern *confirmed* if it actually slows down;
 Python patterns are not probed. Engines built on automata (RE2, Go, Rust) are

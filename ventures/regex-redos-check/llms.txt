@@ -4,6 +4,10 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## How it checks
+
+Shape rules for known ReDoS patterns, plus an exact automaton check that finds a word a pattern can read two ways inside a loop and gives the attack string (prefix + pump repeated + a failing character). On 6,000 random patterns timed in V8 it caught every exponential one; method and limits in eval/README.md.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/regex-redos-check/)
