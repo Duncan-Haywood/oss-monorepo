@@ -78,6 +78,8 @@ M64 = E + "m64_overbias/results.txt"
 M65 = E + "m65_resized/results.txt"
 M66 = E + "m66_directterm/results.txt"
 M66D = E + "m66_directterm/diag.out"
+M67 = E + "m67_aimeddirect/results.txt"
+M67D = E + "m67_aimeddirect/diag.out"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -325,6 +327,14 @@ CHECKS = [
     (M66, "H254 (|r_k| <= Y_k + D_k on every planned press and row): 0 exceedances -> held", "no row exceeds it"),
     (M66D, "g1 | 0.4 | lin y 0.1305, z 0.1452, yd 0.1396, zd 0.1540 | 333 | 0.176 |", "median of 0.176 N on the G1"),
     (M66D, "h1 | 0.4 | lin y 0.1610, z 0.1180, yd 0.1696, zd 0.1223 | 444 | 0.167 |", "0.167 to\n0.169 N on the H1"),
+    (M67, "g1 | 117 | 3 | 71 | y 0, z 0, yd 17, zd 100 | 0.0610 | 0.1486 | 0.458", "0.0610 mm/N on the G1"),
+    (M67, "h1 | 152 | 0 | 84 | y 0, z 0, yd 32, zd 120 | 0.0476 | 0.1117 | 0.457", "0.0476 mm/N on the H1"),
+    (M67, "g1 | 0.20 | 234 | 234 | 100.00 | 0 | 0.0282 |", "(worst 0.0282 mm on the G1"),
+    (M67, "h1 | 0.20 | 304 | 304 | 100.00 | 0 | 0.0215 |", "0.0215 mm on the H1)"),
+    (M67, "g1 | 0.30 | 234 | 234 | 100.00 | 80 | 0.0424 | 80 |", "80 of 234 G1 presses"),
+    (M67, "h1 | 0.30 | 304 | 302 | 99.34 | 30 | 0.0322 | 30 |", "30 of 302 H1 presses"),
+    (M67D, "g1 | 117 | 0.213 |", "at least 0.213 N on the G1"),
+    (M67D, "h1 | 152 | 0.279 |", "0.279 N on the H1"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

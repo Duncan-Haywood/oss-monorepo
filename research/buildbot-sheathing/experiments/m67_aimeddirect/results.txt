@@ -1,0 +1,71 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 67: a bias aimed at the full direct sensitivity (press minus reference, calibration re-made under the bias), held-out section N (8 loads, seed 67; milestone 65's chain sized to B; true bias B along +/- u; spec 0.03 mm per row)
+modules whose bound was set: 8
+
+## A. The direction, per robot: robot | presses with a direct-aimed direction | m63 fallback | same plan path at all four points | aimed row (y, z, yd, zd) | median ||J_k*|| mm/N | median max_k D_k/B mm/N (milestone 66's term at the same press) | median ratio ||J_k*|| / max_k D_k/B
+  g1 | 117 | 3 | 71 | y 0, z 0, yd 17, zd 100 | 0.0610 | 0.1486 | 0.458 (90th pct 0.898; max ||J|| 0.1412)
+  h1 | 152 | 0 | 84 | y 0, z 0, yd 32, zd 120 | 0.0476 | 0.1117 | 0.457 (90th pct 0.663; max ||J|| 0.1074)
+
+## B. Under the aimed bias, by robot and B (planner sized to B): robot | B N | balance-envelope cases | planned | coverage % | over spec | worst row mm | over spec with no flip | median |r_k*| - |R_k*(0)| per N of bias mm/N (direct-aimed presses)
+  g1 | 0.15 | 234 | 234 | 100.00 | 0 | 0.0212 | 0 | 0.0610 (max 0.1412)
+  g1 | 0.20 | 234 | 234 | 100.00 | 0 | 0.0282 | 0 | 0.0610 (max 0.1412)
+  g1 | 0.30 | 234 | 234 | 100.00 | 80 | 0.0424 | 80 | 0.0610 (max 0.1412)
+  h1 | 0.15 | 304 | 304 | 100.00 | 0 | 0.0161 | 0 | 0.0476 (max 0.1074)
+  h1 | 0.20 | 304 | 304 | 100.00 | 0 | 0.0215 | 0 | 0.0476 (max 0.1074)
+  h1 | 0.30 | 304 | 302 | 99.34 | 30 | 0.0322 | 30 | 0.0476 (max 0.1074)
+
+## C. Over-spec presses (first 30, worst first): robot | B | case | pose | H N | phi deg | worst mm | flips | how | direction
+  g1 | 0.30 | B0.3- | [0.4, 0.0] | 2.0 | 277.7 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, 0.0] | 2.5 | 208.6 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, 0.0] | 19.8 | 57.9 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, 0.0] | 8.3 | 100.3 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, 0.0] | 2.0 | 277.7 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, 0.0] | 2.5 | 208.6 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, 0.0] | 6.1 | 242.0 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, 0.0] | 12.7 | 346.9 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, 0.0] | 10.6 | 148.7 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, 0.0] | 15.9 | 15.1 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, 0.0] | 8.3 | 100.3 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, 0.0] | 15.9 | 15.1 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, 0.0] | 10.6 | 148.7 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, 0.0] | 12.7 | 346.9 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, 0.0] | 6.1 | 242.0 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, 0.0] | 19.8 | 57.9 | 0.0424 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, -0.15] | 6.1 | 242.0 | 0.0419 | 0 | pose sides | direct
+  g1 | 0.30 | B0.3- | [0.4, -0.15] | 19.8 | 57.9 | 0.0419 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, -0.15] | 8.3 | 100.3 | 0.0419 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, -0.15] | 2.5 | 208.6 | 0.0419 | 0 | pose sides | direct
+  g1 | 0.30 | B0.3- | [0.4, -0.15] | 12.7 | 346.9 | 0.0419 | 0 | pose sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, -0.15] | 8.3 | 100.3 | 0.0419 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, -0.15] | 10.6 | 148.7 | 0.0419 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, -0.15] | 2.5 | 208.6 | 0.0419 | 0 | pose sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, -0.15] | 19.8 | 57.9 | 0.0419 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, -0.15] | 10.6 | 148.7 | 0.0419 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, -0.15] | 15.9 | 15.1 | 0.0419 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3- | [0.4, -0.15] | 15.9 | 15.1 | 0.0419 | 0 | per-load sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, -0.15] | 12.7 | 346.9 | 0.0419 | 0 | pose sides | direct
+  g1 | 0.30 | B0.3+ | [0.4, -0.15] | 2.0 | 277.7 | 0.0419 | 0 | pose sides | direct
+  (total: 110)
+
+## D. Hypotheses (registered in LOG.md before this run)
+H257 (the 0.2 N guarantee survives the aimed bias: no planned press over spec at 0.2 N, both robots): over spec G1 0, H1 0 -> held
+H258 (the calibration cancels most of the direct term: median ||J_k*|| / max_k D_k/B under 0.5, both robots): G1 0.458, H1 0.457 -> held
+H259 (0.15 N, under milestone 66's certified median, holds: no planned press over spec, both robots): over spec G1 0, H1 0 -> held
+H260 (the aimed bias finds what milestone 63's missed at 0.3 N: at least one planned press over spec on at least one robot): over spec G1 80, H1 30 -> held
+
+(run time 499 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

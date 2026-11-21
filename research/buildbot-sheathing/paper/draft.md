@@ -870,6 +870,21 @@ guarantee of milestones 55 to 65 is therefore an empirical result over the bias 
 the weakest joint's margin), not a certificate over the ball. D holds the reference calibration fixed; a constant bias
 also enters that calibration, which may cancel part of the direct effect, so whether an aimed bias breaks 0.2 N is
 open.
+It does not (milestone 67, an eleventh held-out set of 8 loads, seed 67). For each press the adversary measures the
+full no-flip sensitivity J<sub>k</sub> of each row through the whole chain, the plan re-made from f + e and the
+reference calibration re-made under the same e, by forward differences of 0.2 N along the three axes, and aims the
+bias along the largest row's J<sub>k</sub> (the depth point across the wall in 100 of 117 G1 and 120 of 152 H1
+presses). The median ||J<sub>k*</sub>|| is 0.0610 mm/N on the G1 and 0.0476 mm/N on the H1, a median 0.458 and 0.457
+of milestone 66's max<sub>k</sub> D<sub>k</sub>/B at the same presses: the calibration cancels about half of the
+direct effect. Along that direction no planned press leaves 0.03 mm at 0.15 N or 0.2 N (worst 0.0282 mm on the G1,
+0.0215 mm on the H1), with every case planned; at 0.3 N, 80 of 234 G1 presses and 30 of 302 H1 presses do (worst 0.0424
+and 0.0322 mm), none with a flip. The no-flip residual turns out to be exactly linear in the bias with zero intercept
+(on all 1,608 flip-free aimed cases |r<sub>k*</sub>| = B||J<sub>k*</sub>|| to 8 &times; 10<sup>&minus;15</sup> mm,
+whichever plan the chain chose), so B||J<sub>k</sub>|| is the exact worst case of that part over the whole bias ball.
+It certifies every press to at least 0.213 N on the G1 and 0.279 N on the H1 (medians 0.49 and 0.63 N), and the 0.2 N
+guarantee of milestones 55 to 65 is, for its no-flip part, a certificate rather than an empirical result; the flip
+part is still bounded by the four-row budget. J does not depend on the load (one value per pose over the 8 loads, on
+all 15 G1 and 19 H1 poses), so the certificate is a per-pose table computed once.
 
 ### 5.12 What the remedies cost (milestone 13)
 
