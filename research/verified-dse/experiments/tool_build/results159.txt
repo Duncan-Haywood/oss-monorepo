@@ -1,0 +1,52 @@
+# Milestone 159: splitting milestone 158's build drift at the mapped netlist (replay, no flow run)
+
+S = points ok in both builds with the same mapped netlist (only OpenROAD differs); N = the rest (both tools differ)
+lr = |ln(routed score B / routed score A)|; rho = mean lr on S / mean lr on N, per design
+
+design | n S | n N | mean lr S | mean lr N | rho | tauS | final same on S
+rng8l | 23 | 80 | 0.0316 | 0.0405 | 0.781 | 0.462 | 0/23
+csum8 | 38 | 65 | 0.0194 | 0.0321 | 0.604 | 0.621 | 0/38
+clamp6r | 17 | 86 | 0.0129 | 0.0358 | 0.360 | 0.881 | 0/17
+dot6r | 7 | 96 | 0.0167 | 0.0482 | 0.346 | - | 0/7
+div10l | 0 | 103 | - | 0.0963 | - | - | 0/0
+csum3 | 27 | 76 | 0.0329 | 0.0576 | 0.572 | 0.356 | 0/27
+clamp3l | 29 | 74 | 0.0311 | 0.0498 | 0.625 | 0.621 | 0/29
+dot4r | 0 | 103 | - | 0.0467 | - | - | 0/0
+csum6 | 41 | 62 | 0.0216 | 0.0390 | 0.552 | 0.544 | 0/41
+gtc8l | 0 | 103 | - | 0.0949 | - | - | 0/0
+gtc12r | 10 | 93 | 0.0311 | 0.0406 | 0.766 | 0.907 | 0/10
+clamp2r | 20 | 83 | 0.0209 | 0.0524 | 0.399 | 0.774 | 0/20
+div12l | 0 | 103 | - | 0.0859 | - | - | 0/0
+clamp2l | 26 | 77 | 0.0302 | 0.0739 | 0.408 | 0.676 | 0/26
+clamp4l | 31 | 72 | 0.0239 | 0.0666 | 0.359 | 0.678 | 0/31
+dot4l | 7 | 96 | 0.0595 | 0.0746 | 0.797 | - | 0/7
+rng6l | 26 | 77 | 0.0323 | 0.0508 | 0.636 | 0.615 | 0/26
+gtc24r | 9 | 94 | 0.0572 | 0.0614 | 0.932 | - | 0/9
+div8l | 0 | 103 | - | 0.1018 | - | - | 0/0
+rng8r | 13 | 90 | 0.0234 | 0.0369 | 0.634 | 0.714 | 0/13
+rng12r | 6 | 97 | 0.0136 | 0.0335 | 0.407 | - | 0/6
+clamp6l | 23 | 80 | 0.0174 | 0.0514 | 0.340 | 0.688 | 0/23
+gtc8r | 1 | 102 | 0.0123 | 0.0982 | - | - | 0/1
+isq14 | 0 | 103 | - | 0.0879 | - | - | 0/0
+div14r | 0 | 103 | - | 0.0602 | - | - | 0/0
+clamp4r | 20 | 83 | 0.0076 | 0.0416 | 0.184 | 0.925 | 0/20
+div14l | 0 | 103 | - | 0.0763 | - | - | 0/0
+
+## Predictions
+
+(1) PRIMARY: mean rho over 18 matched designs 0.539 (median 0.562), interval 0.447 to 0.632: held
+(2) final routed numbers differ on 374 of 374 points in S (100.0%): held
+(3) global_place_wns equal on 8 of 374 points in S: held
+(4) buffers_added equal on 67 of 374 points in S: held
+(5) median tauS over 14 designs with at least 10 points in S 0.677 (range 0.356 to 0.925): held
+(6) mean lr on S below mean lr on N on 18 of 18 matched designs: held
+(7) median lr over S 0.0186: held
+
+## Reported, not predicted
+
+points: S 374, N 2407; matched designs 18: rng8l, csum8, clamp6r, dot6r, csum3, clamp3l, csum6, gtc12r, clamp2r, clamp2l, clamp4l, dot4l, rng6l, gtc24r, rng8r, rng12r, clamp6l, clamp4r
+pooled lr: S mean 0.0253 median 0.0186; N mean 0.0623 median 0.0437; pooled ratio 0.406
+signed mean ln(B/A): S -0.0018, N +0.0045
+stage equality, S against N: global_place_wns 8/374 against 6/2407; detail_place_wns 3/374 against 8/2407; buffers_added 67/374 against 152/2407; final 0/374 against 0/2407
+lr = 0 exactly on S: 0 of 374
+within S (designs with at least 10 points in S): routed-best the same on 9 of 14; A's best within S under B, mean regret 0.79% (max 4.00%, rng6l)
