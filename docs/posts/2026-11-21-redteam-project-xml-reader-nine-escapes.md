@@ -1,9 +1,9 @@
 ---
 title: "Nine seeded bugs slipped past the Project XML to P6 converter's tests"
-seo_title: "Mutation testing a Microsoft Project to Primavera P6 converter: 9 of 24 bugs escaped"
+seo_title: "Mutation testing a Project XML to P6 converter: 9 of 24 bugs escaped"
 date: 2026-11-21
 tags: [redteam, testing, mutation-testing, xer-schedule-check, primavera-p6, microsoft-project]
-description: "A red-team run seeded 24 bugs into the Project XML reader and the P6 XER writer of xer-schedule-check. 15 were caught. Eight new tests catch the other eight real gaps; one escape could not change any output."
+description: "24 bugs seeded into the Project XML reader and P6 XER writer: 15 caught. Eight new tests catch the eight real gaps; one escape changes no output."
 ---
 
 The XER schedule checker changed more this week than any other product here.
