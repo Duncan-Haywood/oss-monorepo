@@ -31,6 +31,7 @@ import {
   buildSite,
   collectOfflineBundle,
   categoryFor,
+  SALES_SLUGS,
   DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
@@ -1628,7 +1629,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 19, 'the eighteen named sections (personal-tax and household joined 2026-11-17, bookkeeping 2026-11-21) plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 20, 'the nineteen named sections (personal-tax and household joined 2026-11-17, bookkeeping and sales 2026-11-21) plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1752,6 +1753,22 @@ test('journal, bank-file and accounting-import tools file under bookkeeping', as
   assert.deepEqual(strays, []);
 });
 
+// Sales has its own section (2026-11-21): the Sales Agent flagship's breadcrumb said "Creator & solo
+// earner income", and the pipeline from lead to invoice was split over five sections.
+test('the lead-to-invoice pipeline files under sales, and no later rule still names a member', async () => {
+  for (const slug of SALES_SLUGS) assert.equal(categoryFor(slug).id, 'sales', slug);
+  for (const slug of ['expense-tracker', 'freelancer-tax-pack', 'gumroad-sales-fee-analyzer', 'xero-invoice-csv-check',
+    'square-sales-to-journal', 'thumbtack-lead-roi-calculator', 'quote-follow-up-timing', 'einvoice-preflight']) {
+    assert.notEqual(categoryFor(slug).id, 'sales', slug);
+  }
+  // An exact slug left in a later rule's list is a dead line that reads as if it still applied.
+  const source = await fs.readFile(path.join(REPO_ROOT, 'platform', 'pages', 'build.mjs'), 'utf8');
+  const rules = source.slice(source.indexOf('const CATEGORY_RULES = ['), source.indexOf('export const CATCH_ALL_MAX'));
+  const afterSales = rules.slice(rules.indexOf("test: (slug) => SALES_SLUGS.has(slug)"));
+  const dead = [...SALES_SLUGS].filter((slug) => new RegExp(`['|(]${slug}['|)]`).test(afterSales));
+  assert.deepEqual(dead, []);
+});
+
 // The `evidence` rule matches by suffix (`tracker`, `desk`, `record`, ...) and sits above the business
 // sections, so a slug a later section lists by name silently stayed in evidence (six did until
 // 2026-11-21, among them `time-tracker` and `expense-tracker` from solo-earner's own list). A new
@@ -1763,7 +1780,8 @@ test('no tool in evidence is also claimed by a later section', async () => {
     .filter((slug) => categoryFor(slug).id === 'evidence')
     .flatMap((slug) => later.filter((c) => c.test(slug)).map((c) => `${slug} -> ${c.id}`));
   assert.deepEqual(overlaps, []);
-  assert.equal(categoryFor('time-tracker').id, 'solo-earner');
+  assert.equal(categoryFor('expense-tracker').id, 'solo-earner');
+  assert.equal(categoryFor('time-tracker').id, 'sales');
   assert.equal(categoryFor('s-corp-basis-tracker').id, 'backoffice');
 });
 

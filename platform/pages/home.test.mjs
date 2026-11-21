@@ -14,7 +14,7 @@ import {
 } from './home.mjs';
 
 test('every catalogue section the hub draws has its own icon', () => {
-  for (const id of ['self-hosted', 'marketplace', 'trades', 'food-service', 'services', 'logistics', 'bookkeeping', 'evidence',
+  for (const id of ['self-hosted', 'sales', 'marketplace', 'trades', 'food-service', 'services', 'logistics', 'bookkeeping', 'evidence',
     'personal-tax', 'household', 'uk-tax', 'backoffice', 'ci', 'solo-earner', 'research-algorithms', 'learning', 'more', 'apps', 'cli']) {
     assert.ok(ICON_NAMES.includes(id), `${id} has no icon`);
   }
