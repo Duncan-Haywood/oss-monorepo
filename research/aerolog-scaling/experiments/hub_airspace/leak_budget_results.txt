@@ -1,0 +1,46 @@
+# Milestone 11ax: a leak-probability budget at the adjacent pairs against the aware plan's band count (leak_budget.py's docstring). deliv ages, Z = 7.62 m, kernel tables, NEW grid 32 spacings, 5-flight offsets, 4 draws, s = 1, 2, sigma_pair = 1.061 m
+# check: base labels equal 11aw's in 48 of 48 layouts; aware F equal in 384, k_c in 384, sort at (c) in 384 of 384 draws
+# p0 = Phi(-3) = 0.00135; p* (calibrated on M = 12, both s, 192 draws) = 0.07, agreement 94 of 192
+
+## M = 12, s = 1 (96 draws, calibration); aware bands 4: 13, 5: 66, 6: 17
+  aware plan's own adjacent leak: median 0.0096, p10 0.0002, p90 0.0398
+  median sorted-plan adjacent leak by k: k=2 0.0000, k=3 0.0000, k=4 0.0000, k=5 0.0191, k=6 0.0733, k=7 0.1752
+  agreement with the aware band count by budget: 0.0001:12, 0.0003:20, 0.0013499:28, 0.003:31, 0.01:44, 0.02:42, 0.03:45, 0.05:46, 0.07:46, 0.1:36, 0.15:11, 0.2:3, 0.3:1
+  in-sample best budget for this cell: 0.05 (46 of 96)
+  (c) 3-sigma bands 2: 1, 3: 30, 4: 46, 5: 19 (median 4); agree 17; sort 1.1835 (p90 1.3791); sort+descent 1.1379 (p90 1.3452); random-50 at h_B 1.0674 (p90 1.2857)
+  B(p0)       bands 4: 80, 5: 16 (median 4); agree 28; sort 1.1298 (p90 1.2462); sort+descent 1.1057 (p90 1.1817); random-50 at h_B 1.0310 (p90 1.0949)
+  B(p*)       bands 4: 15, 5: 35, 6: 46 (median 5); agree 46; sort 1.1344 (p90 1.2525); sort+descent 1.0953 (p90 1.1626); random-50 at h_B 1.0124 (p90 1.0804)
+
+## M = 12, s = 2 (96 draws, calibration); aware bands 3: 49, 4: 7, 5: 26, 6: 14
+  aware plan's own adjacent leak: median 0.0000, p10 0.0000, p90 0.0405
+  median sorted-plan adjacent leak by k: k=2 0.0000, k=3 0.0000, k=4 0.0471, k=5 0.1091, k=6 0.1695, k=7 0.2058
+  agreement with the aware band count by budget: 0.0001:50, 0.0003:51, 0.0013499:45, 0.003:44, 0.01:45, 0.02:46, 0.03:47, 0.05:46, 0.07:48, 0.1:43, 0.15:17, 0.2:8, 0.3:2
+  in-sample best budget for this cell: 0.0003 (51 of 96)
+  (c) 3-sigma bands 2: 58, 3: 26, 4: 12 (median 2); agree  6; sort 1.4338 (p90 1.8058); sort+descent 1.2589 (p90 1.5216); random-50 at h_B 1.2082 (p90 1.4968)
+  B(p0)       bands 3: 77, 4: 19 (median 3); agree 45; sort 1.2192 (p90 1.4948); sort+descent 1.0898 (p90 1.2235); random-50 at h_B 1.0187 (p90 1.1707)
+  B(p*)       bands 3: 34, 4: 30, 5: 14, 6: 18 (median 4); agree 48; sort 1.1910 (p90 1.5766); sort+descent 1.0948 (p90 1.2640); random-50 at h_B 1.0076 (p90 1.1258)
+
+## M = 16, s = 1 (96 draws, held out); aware bands 4: 6, 5: 59, 6: 31
+  aware plan's own adjacent leak: median 0.0197, p10 0.0006, p90 0.0627
+  median sorted-plan adjacent leak by k: k=2 0.0000, k=3 0.0000, k=4 0.0000, k=5 0.0346, k=6 0.0978, k=7 0.2160
+  agreement with the aware band count by budget: 0.0001:6, 0.0003:7, 0.0013499:10, 0.003:14, 0.01:26, 0.02:33, 0.03:37, 0.05:44, 0.07:40, 0.1:40, 0.15:27, 0.2:16, 0.3:4
+  in-sample best budget for this cell: 0.05 (44 of 96)
+  (c) 3-sigma bands 3: 43, 4: 43, 5: 10 (median 4); agree  8; sort 1.2408 (p90 1.4556); sort+descent 1.2054 (p90 1.4342); random-50 at h_B 1.1117 (p90 1.3781)
+  B(p0)       bands 4: 90, 5: 6 (median 4); agree 10; sort 1.1979 (p90 1.3560); sort+descent 1.1319 (p90 1.2985); random-50 at h_B 1.0551 (p90 1.1213)
+  B(p*)       bands 4: 22, 5: 41, 6: 33 (median 5); agree 40; sort 1.1601 (p90 1.3350); sort+descent 1.0914 (p90 1.2201); random-50 at h_B 1.0138 (p90 1.0602)
+
+## M = 16, s = 2 (96 draws, held out); aware bands 3: 49, 4: 6, 5: 15, 6: 26
+  aware plan's own adjacent leak: median 0.0000, p10 0.0000, p90 0.0840
+  median sorted-plan adjacent leak by k: k=2 0.0000, k=3 0.0000, k=4 0.0749, k=5 0.1496, k=6 0.1890, k=7 0.2548
+  agreement with the aware band count by budget: 0.0001:49, 0.0003:49, 0.0013499:50, 0.003:50, 0.01:50, 0.02:52, 0.03:50, 0.05:54, 0.07:47, 0.1:48, 0.15:36, 0.2:19, 0.3:3
+  in-sample best budget for this cell: 0.05 (54 of 96)
+  (c) 3-sigma bands 2: 63, 3: 31, 4: 2 (median 2); agree  2; sort 1.4738 (p90 1.8868); sort+descent 1.3762 (p90 1.5434); random-50 at h_B 1.3262 (p90 1.5219)
+  B(p0)       bands 3: 89, 4: 7 (median 3); agree 50; sort 1.2553 (p90 1.5232); sort+descent 1.0793 (p90 1.3044); random-50 at h_B 1.0000 (p90 1.1884)
+  B(p*)       bands 3: 46, 4: 29, 5: 14, 6: 7 (median 4); agree 47; sort 1.2147 (p90 1.4682); sort+descent 1.0830 (p90 1.2979); random-50 at h_B 1.0095 (p90 1.1772)
+
+  CPU per layout: median 15.0 s
+# L1 -> held
+# L2 -> held
+# L3 -> refuted
+# L4 -> held
+# L5 -> refuted
