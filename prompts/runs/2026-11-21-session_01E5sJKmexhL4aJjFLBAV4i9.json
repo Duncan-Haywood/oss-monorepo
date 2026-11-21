@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmexhL4aJjFLBAV4i9",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T16:18:12Z",
+  "ended": "2026-11-21T16:38:19Z",
+  "wall_minutes": 20.35,
+  "tokens_in": 5245604,
+  "tokens_out": 27754,
+  "cost_usd": 2.3944,
+  "tool_calls": 55,
+  "task": "perf: profile and speed up platform/distribution/hub/content.test.mjs (ranked #2 unprofiled item in the previous perf run's not-changed list)",
+  "projects": [
+    "platform/distribution"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18111",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First attempt (widening SIMPLE alone) cut segmenter fallbacks 3,616 -> 79 but did not move wall time; an inclusive profile plus call instrumentation found the real cost (glen measuring 104 MB, mostly strings already under the limit)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "`node --cpu-prof` on `node --test` profiles only the runner parent; test bodies run in a child. A scratch script that does the test's work is needed; worth one line in 'How to work'."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-measuring-only-the-strings-that-might-not-fit.md",
+    "docs/history/ci-perf-2026-11-21-hub-content-fits.md"
+  ],
+  "goal": null,
+  "notes": "Metric: duration_ms of the 'every real post' test in platform/distribution/hub/content.test.mjs (node --test reporter, this 4-core container). Before 4.05 s, after 2.89 s. Whole file, 5 serial wall runs sorted: before 4.51/4.87/4.97/5.04/5.27 s, after 4.26/4.55/4.69/4.72/5.35 s (after includes a new 0.25 s exhaustive SIMPLE test). longPost inclusive 620 -> 65 ms, glen 702 -> 72 ms (node --cpu-prof on a scratch script doing the test's work). Output byte-identical: 288,872,693-byte dump of every kit/kitMarkdown/variant/glen/clipWords/graphemes for 6,718 posts, cmp before (git stash) vs after. Seeded faults caught by the new tests. platform/distribution: 277/277 tests pass. run_workflow_locally.py --for-changes: 7/7 selected workflows passed (agent-cross-review and portfolio-pages gate/deploy jobs not runnable locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "25056f3c-1d42-51bc-9ad4-97c97d1f2f0b",
+    "transcripts": 1,
+    "first": "2026-11-21T16:18:12Z",
+    "last": "2026-11-21T16:38:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 102,
+        "output": 27754,
+        "thinking": 7869,
+        "cache_read": 5144246,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101256,
+        "api_equivalent_usd": 2.3944,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 102,
+      "output": 27754,
+      "thinking": 7869,
+      "cache_read": 5144246,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101256,
+      "api_equivalent_usd": 2.3944,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "Read": 1,
+      "Edit": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.35,
+      "active_minutes": 12.33,
+      "model_minutes": 5.2,
+      "tool_minutes": 7.12,
+      "waiting_on_human_minutes": 8.02,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profiling, a byte-identical verification harness and an exhaustive Unicode-class test for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 125.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

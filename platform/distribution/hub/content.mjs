@@ -31,16 +31,28 @@
 const seg = new Intl.Segmenter('en', { granularity: 'grapheme' });
 // Characters where one UTF-16 unit is always one grapheme (no combining marks, joiners, surrogates or "\r\n").
 // Segmenting a whole article costs seconds; a string made only of these is measured and cut by index instead.
-const SIMPLE = /^[\n\t\x20-\x7e\u00a0-\u02ff\u2010-\u2027\u2030-\u205e\u20ac\u2190-\u21ff\u2212]*$/;
+// Greek, Cyrillic (not its combining marks 0483-0489), Arabic-Indic digits, Vietnamese precomposed letters,
+// super/subscripts, currency, letterlike and number forms, arrows, maths and technical symbols, box drawing,
+// shapes, CJK ideographs and full-width forms (not the sound marks FF9E-FF9F) joined on 2026-11-21: research
+// posts quote Greek letters, maths symbols, superscripts and Cyrillic names, and those 3,600 strings were most of the segmenter's time.
+// Unassigned code points are left out so a later Unicode cannot turn one into a mark. content.test.mjs checks
+// every code unit in this class against Intl.Segmenter.
+export const SIMPLE = /^[\n\t\x20-\x7e\u00a0-\u02ff\u0370-\u0377\u037a-\u037f\u0384-\u038a\u038c\u038e-\u03a1\u03a3-\u0482\u048a-\u04ff\u0660-\u0669\u1e00-\u1eff\u2010-\u2027\u2030-\u205e\u2070\u2071\u2074-\u208e\u20a0-\u20c0\u2100-\u218b\u2190-\u23ff\u2500-\u25ff\u4e00-\u9fff\uff01-\uff9d]*$/;
 /** Length in graphemes, which is what platforms count. */
 export const glen = (s) => { const t = String(s); return SIMPLE.test(t) ? t.length : [...seg.segment(t)].length; };
+/**
+ * Whether `s` is at most `max` graphemes. A grapheme is at least one UTF-16 unit, so a string no longer than
+ * `max` units fits without being measured (perf, 2026-11-21: clipWords and longPost measured 75 MB of strings
+ * per run of the real-post test, nearly all of them already short enough).
+ */
+export const fits = (s, max) => { const t = String(s); return t.length <= max || glen(t) <= max; };
 /** The first `n` graphemes. */
 export const graphemes = (s, n) => { const t = String(s); return SIMPLE.test(t) ? t.slice(0, n) : [...seg.segment(t)].slice(0, n).map((x) => x.segment).join(''); };
 
 /** Clip to `max` graphemes on a word boundary, ending in "…". */
 export function clipWords(s, max) {
   const str = String(s);
-  if (glen(str) <= max) return str;
+  if (fits(str, max)) return str;
   if (max <= 1) return '';
   const g = graphemes(str, max - 1);
   const cut = g.replace(/\s+\S*$/, '');
@@ -138,7 +150,7 @@ export function extract(body, { description = '', points = 4, limits = 2 } = {})
   for (const b of bs) {
     if (b.kind === 'h') continue;
     // A list item is one point unless it is a paragraph in disguise (a bold lead-in and several sentences).
-    const ss = b.kind === 'li' && glen(b.text) <= 280 ? [b.text] : sentences(b.text);
+    const ss = b.kind === 'li' && fits(b.text, 280) ? [b.text] : sentences(b.text);
     ss.forEach((s) => all.push({ s, i: all.length, lead: firstPara && b.kind === 'p', score: score(s, { lead: firstPara && b.kind === 'p' }) }));
     if (b.kind === 'p') firstPara = false;
   }
@@ -177,7 +189,7 @@ export function thread({ title, lead, points }, { max, link, footer = '', maxPos
   body.push(clipWords(`${title}\n\n${lead}`, max - NUM));
   for (const p of points.slice(0, maxPosts - 2)) body.push(clipWords(p, max - NUM));
   const last = `Full write-up, data and code: ${link}${footer ? `\n\n${footer}` : ''}`;
-  body.push(glen(last) + NUM <= max ? last : `${link}${footer && glen(`${link}\n\n${footer}`) + NUM <= max ? `\n\n${footer}` : ''}`);
+  body.push(fits(last, max - NUM) ? last : `${link}${footer && fits(`${link}\n\n${footer}`, max - NUM) ? `\n\n${footer}` : ''}`);
   const n = body.length;
   return body.map((t, i) => `${t} ${i + 1}/${n}`);
 }
@@ -195,8 +207,8 @@ export function longPost({ head, lead, points, limits }, { max, link, footer = '
   // Drop limits, then findings, from the end until it fits; clip only as a last resort. The link and footer always survive.
   let pts = points;
   let lims = limits;
-  while (glen(build(pts, lims)) > room && lims.length) lims = lims.slice(0, -1);
-  while (glen(build(pts, lims)) > room && pts.length > 1) pts = pts.slice(0, -1);
+  while (!fits(build(pts, lims), room) && lims.length) lims = lims.slice(0, -1);
+  while (!fits(build(pts, lims), room) && pts.length > 1) pts = pts.slice(0, -1);
   return clipWords(build(pts, lims), room) + tail;
 }
 

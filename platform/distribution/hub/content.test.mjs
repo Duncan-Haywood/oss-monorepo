@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { plain, blocks, sentences, extract, thread, longPost, redditBody, slides, videoScript, clipWords } from './content.mjs';
+import { plain, blocks, sentences, extract, thread, longPost, redditBody, slides, videoScript, clipWords, SIMPLE, fits } from './content.mjs';
 import { postItem, variant, kit, kitMarkdown, glen, TEMPLATES, DISCLOSURE } from './compose.mjs';
 import { PLATFORMS, byId } from './platforms.mjs';
 import { loadPosts } from '../../pages/writing.mjs';
@@ -205,4 +205,26 @@ test('longPost: when only one finding fits, it keeps one whole finding rather th
   const t = longPost({ head: 'H', lead: 'Lead.', points: pts, limits: [] }, { max: 200, link: 'L' });
   assert.ok(glen(t) <= 200);
   assert.ok(t.includes('A'.repeat(100)) && !t.includes('B') && !t.includes('…'), t);
+});
+
+// The 2026-11-21 perf run widened SIMPLE (the class glen and graphemes measure by index) and added fits().
+test('SIMPLE: every code unit in the class is one grapheme on its own, beside a letter and beside itself', () => {
+  const seg = new Intl.Segmenter('en', { granularity: 'grapheme' });
+  const n = (s) => [...seg.segment(s)].length;
+  let all = '';
+  for (let c = 0; c < 0x10000; c++) {
+    const ch = String.fromCharCode(c);
+    if (!SIMPLE.test(ch)) continue;
+    all += ch;
+    // Hangul syllables join a following jamo without joining themselves, which a pair test cannot see.
+    assert.ok(n(`a${ch}a`) === 3 && n(ch + ch) === 2 && !/\p{Script=Hangul}/u.test(ch), `U+${c.toString(16)}`);
+  }
+  assert.equal(n(all), all.length);
+  assert.ok(!SIMPLE.test('e\u0301') && !SIMPLE.test('\r\n') && !SIMPLE.test('\u{1F600}') && !SIMPLE.test('\uff9e'));
+});
+
+test('fits: the same answer as measuring, for short, long and multi-unit strings', () => {
+  for (const s of ['', 'abc', 'σ ≈ √2', 'e\u0301e\u0301', '\u{1F600}\u{1F600}', 'a'.repeat(300)]) {
+    for (const max of [0, 1, 2, 3, 6, 299, 300, 301]) assert.equal(fits(s, max), [...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(s)].length <= max, `${JSON.stringify(s)} ${max}`);
+  }
 });
