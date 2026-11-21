@@ -1,0 +1,72 @@
+
+AC20-FZK-Haus.ifc: 7 rooms, gross wall 398.2 m2; 19 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":0,"5-30cm":0,">30cm":0}, wholly outside 0
+  openings off 41.1 m2 after the cut (41.1 before); cut 0.0 m2 on 0 deductions; net wall 357.1 m2
+
+ISSUE_005_haus.ifc: 7 rooms, gross wall 398.2 m2; 19 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":0,"5-30cm":0,">30cm":0}, wholly outside 0
+  openings off 41.1 m2 after the cut (41.1 before); cut 0.0 m2 on 0 deductions; net wall 357.1 m2
+
+duplex.ifc: 21 rooms, gross wall 968.9 m2; 51 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":25,"5-30cm":0,">30cm":0}, wholly outside 0
+  openings off 113.2 m2 after the cut (113.2 before); cut 0.0 m2 on 0 deductions; net wall 855.7 m2
+
+Office_A_20110811.ifc: 99 rooms, gross wall 5962.6 m2; 248 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":1}, below the floor {"1-5cm":0,"5-30cm":0,">30cm":0}, wholly outside 0
+  openings off 486.2 m2 after the cut (486.6 before); cut 0.4 m2 on 1 deductions; net wall 5476.4 m2
+    #921 IfcWindow M_Fixed:1000 x 2000:1000 x 2000:194401 in 146 EXTERIOR VESTIBULE TO TSVA: room 2.5 m, opening 2 m, past ceiling 0.42 m, below floor -0.92 m
+
+dental_clinic.ifc: 269 rooms, gross wall 15499.4 m2; 541 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":0,"5-30cm":0,">30cm":0}, wholly outside 0
+  openings off 1059.6 m2 after the cut (1059.6 before); cut 0.0 m2 on 0 deductions; net wall 14087.5 m2
+
+C20-Institute-Var-2.ifc: 82 rooms, gross wall 4553.5 m2; 359 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":0,"5-30cm":0,">30cm":0}, wholly outside 0
+  openings off 663.1 m2 after the cut (663.1 before); cut 0.0 m2 on 0 deductions; net wall 3890.4 m2
+
+FM_ARC_DigitalHub.ifc: 64 rooms, gross wall 6131.8 m2; 170 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":0,"5-30cm":13,">30cm":0}, wholly outside 0
+  openings off 862.9 m2 after the cut (863.5 before); cut 0.6 m2 on 7 deductions; net wall 5268.7 m2
+    #57325 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421088 in 1-1 Eingangsbereich / Flur: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #57325 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421088 in 1-19 Treppenhaus West - EG: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #61366 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421089 in 1-19 Treppenhaus West - EG: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #61366 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421089 in 1-20 Fluchtflur West: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #66265 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421363 in 1-20 Fluchtflur West: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #90017 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423930 in 1-1 Eingangsbereich / Flur: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #90064 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423931 in 1-18 Fluchtflur Ost: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #94959 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423939 in 1-18 Fluchtflur Ost: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #96267 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2426178 in 2-1 Flur - OG: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+    #96267 IfcDoor TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2426178 in 2-25 Treppenhaus West - OG: room 3 m, opening 2.4 m, past ceiling -0.75 m, below floor 0.15 m
+
+schependomlaan.ifc: 100 rooms, gross wall 3125.3 m2; 499 room-opening pairs (2 skipped: their room label is not unique); past the ceiling {"1-5cm":67,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":39,"5-30cm":138,">30cm":0}, wholly outside 0
+  openings off 658.1 m2 after the cut (664.0 before); cut 5.9 m2 on 80 deductions; net wall 2467.2 m2
+    #348126 IfcDoor stelkozijn in 4.03 woonkamer: room 2.62 m, opening 2.78 m, past ceiling 0.01 m, below floor 0.15 m
+    #348321 IfcDoor stelkozijn in 4.03 woonkamer: room 2.62 m, opening 2.82 m, past ceiling 0.05 m, below floor 0.15 m
+    #396603 IfcDoor stelkozijn in 5.03 woonkamer: room 2.62 m, opening 2.78 m, past ceiling 0.01 m, below floor 0.15 m
+    #397116 IfcDoor stelkozijn in 5.03 woonkamer: room 2.62 m, opening 2.82 m, past ceiling 0.05 m, below floor 0.15 m
+    #642347 IfcDoor stelkozijn in 7.03 woonkamer: room 2.62 m, opening 2.8 m, past ceiling 0.05 m, below floor 0.13 m
+    #645932 IfcDoor stelkozijn in 7.03 woonkamer: room 2.62 m, opening 2.8 m, past ceiling 0.05 m, below floor 0.13 m
+    #725758 IfcDoor stelkozijn in 8.03 woonkamer: room 2.62 m, opening 2.8 m, past ceiling 0.05 m, below floor 0.13 m
+    #726432 IfcDoor stelkozijn in 8.03 woonkamer: room 2.62 m, opening 2.8 m, past ceiling 0.05 m, below floor 0.13 m
+    #79144 IfcDoor stelkozijn in 1.03 woonkamer: room 2.62 m, opening 2.76 m, past ceiling 0.02 m, below floor 0.11 m
+    #85464 IfcDoor stelkozijn in 2.03 woonkamer: room 2.62 m, opening 2.76 m, past ceiling 0.02 m, below floor 0.11 m
+
+ISSUE_159_kleine_Wohnung_R22.ifc: 28 rooms, gross wall 978.3 m2; 49 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":0,"5-30cm":0,">30cm":0}, wholly outside 0
+  openings off 135.7 m2 after the cut (135.7 before); cut 0.0 m2 on 0 deductions; net wall 842.7 m2
+
+ISSUE_034_HouseZ.ifc: 5 rooms, gross wall 331.1 m2; 19 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":0,"5-30cm":0,">30cm":3}, wholly outside 0
+  openings off 38.3 m2 after the cut (40.4 before); cut 2.1 m2 on 3 deductions; net wall 292.9 m2
+    #27910 IfcWindow  in Parametricos Office: room 3.15 m, opening 2.05 m, past ceiling -1.61 m, below floor 0.51 m
+    #56303 IfcDoor  in Washing Room: room 3.15 m, opening 2 m, past ceiling -1.66 m, below floor 0.51 m
+    #68982 IfcDoor  in GF Hallway: room 3.15 m, opening 2 m, past ceiling -1.66 m, below floor 0.51 m
+
+example.ifc: 1 rooms, gross wall 1.2 m2; 0 room-opening pairs (0 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":0,">30cm":0}, below the floor {"1-5cm":0,"5-30cm":0,">30cm":0}, wholly outside 0
+  openings off 0.0 m2 after the cut (0.0 before); cut 0.0 m2 on 0 deductions; net wall 1.2 m2
+
+ISSUE_068_ARK_NUS_skolebygg.ifc: 306 rooms, gross wall 27019.9 m2; 943 room-opening pairs (60 skipped: their room label is not unique); past the ceiling {"1-5cm":0,"5-30cm":20,">30cm":36}, below the floor {"1-5cm":0,"5-30cm":3,">30cm":0}, wholly outside 0
+  openings off 2767.3 m2 after the cut (2805.5 before); cut 38.1 m2 on 60 deductions; net wall 24252.5 m2
+    #919681 IfcWindow Vindu-Fast:GF 16.1 5x31 38dB:2997461 in 02105 fellesområde: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #919681 IfcWindow Vindu-Fast:GF 16.1 5x31 38dB:2997461 in 02108 gruppe: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #922442 IfcWindow Vindu-Fast:GF 12.1 6x31 38dB:2998710 in 02105 fellesområde: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #922442 IfcWindow Vindu-Fast:GF 12.1 6x31 38dB:2998710 in 02107 klasse: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #954837 IfcWindow Vindu-Fast:GF 12.1 6x31 38dB:3212641 in 02128 klasse: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #955161 IfcWindow Vindu-Fast:GF 12.1 6x31 38dB:3217776 in 02129 klasse: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #980526 IfcWindow Vindu-Fast:GF 12.1 6x31 38dB:3380385 in 03127 klasse: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #980622 IfcWindow Vindu-Fast:GF 12.1 6x31 38dB:3380386 in 03128 klasse: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #980929 IfcWindow Vindu-Fast:GF 16.1 5x31 38dB:3381397 in 03105 fellesområde: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+    #980929 IfcWindow Vindu-Fast:GF 16.1 5x31 38dB:3381397 in 03108 gruppe: room 2.44 m, opening 3.09 m, past ceiling 0.66 m, below floor -0.01 m
+
+All: 989 rooms, gross 65368 m2, openings off 6867 m2 after the cut (6914 before), 47.2 m2 cut on 151 deductions, net 58149 m2
