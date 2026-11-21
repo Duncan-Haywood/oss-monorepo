@@ -1426,6 +1426,27 @@ class ClaimCheckTest(unittest.TestCase):
                         merged=cull)
         self.assertEqual(r["verdict"], "YIELD")
 
+    def test_shared_vocabulary_alone_shares_when_theirs_names_its_own_slice(self):
+        # 2026-11-21: #18036 (UDFs as Project XML fields) made #18037's session on
+        # "Project XML to P6 XER" YIELD on "project xml"; both merged.
+        kw = "xer-schedule-check"
+        merged = [self.merged_pr(n, f"xer-schedule-check: {t}", "2026-11-12T08:00:00Z",
+                                 "2026-11-12T09:00:00Z")
+                  for n, t in ((18029, "activity codes in Project XML"),
+                               (18022, "P6 XER to Microsoft Project XML converter"),
+                               (18005, "Microsoft Project XML resource calendars"))]
+        prs = [self.pr(18036, "xer-schedule-check: UDFs as Project XML Number/Date fields",
+                       "2026-11-12T14:00:00Z"),
+               self.pr(18037, "xer-schedule-check: Project XML to P6 XER", "2026-11-12T14:00:02Z")]
+        # The merged titles are already on the clone's main (main_at): vocabulary, not landings.
+        at = {"merged": merged, "main_at": self.NOW}
+        r = self.decide(prs, kw, mine=18037, item="Project XML to P6 XER", **at)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["sharing"]], [18036])
+        # A shared word outside the vocabulary still blocks.
+        r = self.decide(prs, kw, mine=18037, item="UDFs in Project XML", **at)
+        self.assertEqual(r["verdict"], "YIELD")
+
     def test_item_words_drop_slug_and_claim_vocabulary(self):
         from claim_check import item_words, overlap
         self.assertEqual(item_words("ai-bookkeeper: claim (WIP) + post", "ai-bookkeeper"), set())

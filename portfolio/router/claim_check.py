@@ -166,12 +166,24 @@ def overlap(title: str, keyword: str, item: str, vocab: frozenset = frozenset())
     on 2026-11-18 #17403 (Hasselblad 3FR reader) made the session taking
     photo-editing's IIQ S reader YIELD; it overrode, and both merged (#17420,
     its run record's deviations). Two shared words still block, which keeps
-    #17257/#17258 ("cull ... pans", both flagship words that day) a clash."""
+    #17257/#17258 ("cull ... pans", both flagship words that day) a clash.
+
+    Unless every shared word is vocabulary and their title also names a word
+    of its own (not vocabulary, not in my item): then it is a specific other
+    slice of the same domain, "other". On 2026-11-21 #18036 ("UDFs as Project
+    XML Number/Date fields") made the session on "Project XML to P6 XER" YIELD
+    on "project xml" alone; it overrode and both merged (#18037). #17257's
+    "cull 10% pans" names nothing beyond the vocabulary, so it still blocks."""
     theirs = item_words(title, keyword)
     if not theirs:
         return "bare"
-    shared = theirs & item_words(item, keyword)
-    return "same" if len(shared) >= 2 or shared - vocab else "other"
+    mine = item_words(item, keyword)
+    shared = theirs & mine
+    if shared - vocab:
+        return "same"
+    if len(shared) >= 2 and not (theirs - mine - vocab):
+        return "same"
+    return "other"
 
 
 def shares_item(title: str, keyword: str, item: str) -> bool:
