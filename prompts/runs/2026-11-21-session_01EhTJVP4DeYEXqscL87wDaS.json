@@ -32,7 +32,14 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/shop-tails.mjs",
+      "why": "main was red on check_cli_entry.py (fragile file:// entry guard landed in #17997); fixed forward in this PR so CI and the preflight could go green",
+      "did": "pathToFileURL guard",
+      "result": "check_cli_entry: 0 fragile guards; script output unchanged"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-21-a-roof-slab-that-stored-ninety-three-times-its-concrete.md",
     "ventures/ifc-quantity-takeoff/eval/stored-vs-computed-2026-11-21.md"
