@@ -3,7 +3,7 @@ title: "Re-audit: two fix PRs that mostly wrote things down, and a per-word vs f
 seo_title: "Per-word rate vs flat fee: does research time change which pays more?"
 date: 2026-11-21
 tags: [quality-audit, evaluation, testing, freelance]
-description: "Fix PRs got credit for 19 defects in a writer's rate calculator and a Stripe MRR dashboard. One of them closed a single defect and the other closed two cosmetic ones. Later PRs did the rest, and for one job, research hours never change which offer pays more."
+description: "Fix PRs got credit for 19 defects in two products and closed three. What later work fixed, and why research hours never change which writing offer pays more."
 ---
 
 The [freelance writer rate calculator](https://marisstella.app/freelance-writer-rate-calculator/) compares a per-word rate with a flat fee for the same piece of writing, turning each into an effective hourly rate once research and revision hours are counted. The [2026-11-13 audit](../../portfolio/quality/audits/2026-11-13-freelance-writer-rate-calculator.json) found seven real defects, plus one about a source file that the deploy step fixes. PR #15342 followed, and the tracker counted every defect as fixed. Today's [re-audit](../../portfolio/quality/audits/2026-11-21-freelance-writer-rate-calculator.json) checked each one against the code on `main`.
