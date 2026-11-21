@@ -1,0 +1,86 @@
+
+ISSUE_068_ARK_NUS_skolebygg.ifc: 307 rooms (12.1 s); read from {"body":306}; {"ok":306,"no extent":1}
+  floorArea  304 of 306 agree; 2 unexplained
+  perimeter  243 of 246 agree; 3 unexplained
+  height     276 of 306 agree; 30 nominal
+  volume     0 of 306 agree; 241 unit-slip, 57 floor-x-height-unit, 8 unexplained
+  elements in a room: 1268 by the file, 195 by where they stand {"IfcCovering":174,"IfcBuildingElementProxy":19,"IfcFlowSegment":2}
+    unexplained: 01002 kantine (#16180) volume: stored GrossVolume 647109.929, computed 639.401
+    unexplained: 01009 lager (#26254) volume: stored GrossVolume 18853.906, computed 18.557
+    unexplained: 01056 M&H (#7306) perimeter: stored GrossPerimeter 35.419, computed 42.279
+    unexplained: 01058 M&H (#6367) perimeter: stored GrossPerimeter 35.394, computed 42.254
+    unexplained: 01109 lærerarbeid (#16527) floorArea: stored GrossFloorArea 50.032, computed 30.201
+    unexplained: 01109 lærerarbeid (#16527) volume: stored GrossVolume 121998.582, computed 73.643
+    unexplained: 01146 rengj (#8688) volume: stored GrossVolume 21976.539, computed 21.630
+    unexplained: 01149 lager (#9635) volume: stored GrossVolume 53934.082, computed 53.086
+    unexplained: 01170 Utebod-Nat-M&H (#43208) floorArea: stored GrossFloorArea 18.700, computed 4.400
+    unexplained: 01170 Utebod-Nat-M&H (#43208) volume: stored GrossVolume 48620.000, computed 48.195
+    unexplained: 02002 kantine -øvre del (#35607) perimeter: stored GrossPerimeter 128.358, computed 135.898
+    unexplained: 02123 garderobe (#26789) volume: stored GrossVolume 101006.061, computed 99.843
+    unexplained: 02149 bibliotek (#5159) volume: stored GrossVolume 283288.101, computed 281.429
+
+dental_clinic.ifc: 269 rooms (1.6 s); read from {"body":269}; {"ok":269}
+  elements in a room: 219 by the file, 241 by where they stand {"IfcFurnishingElement":1,"IfcCovering":240}
+
+schependomlaan.ifc: 100 rooms (3.0 s); read from {"footprint":94,"body":6}; {"ok":100}
+  floorArea  100 of 100 agree
+  perimeter  100 of 100 agree
+  height     100 of 100 agree
+  volume     89 of 100 agree; 11 outline-prism
+  elements in a room: 12 by the file, 198 by where they stand {"IfcCovering":198}
+
+Office_A_20110811.ifc: 99 rooms (0.4 s); read from {"body":99}; {"ok":99}
+  elements in a room: 38 by the file, 83 by where they stand {"IfcCovering":83}
+
+C20-Institute-Var-2.ifc: 82 rooms (0.5 s); read from {"body":82}; {"ok":82}
+  floorArea  82 of 82 agree
+  perimeter  82 of 82 agree
+  height     80 of 82 agree; 2 nominal
+  volume     82 of 82 agree
+  elements in a room: 0 by the file, 253 by where they stand {"IfcFurnishingElement":253}
+
+FM_ARC_DigitalHub.ifc: 64 rooms (9.5 s); read from {"body":64}; {"ok":64}
+  elements in a room: 0 by the file, 39 by where they stand {"IfcBuildingElementProxy":1,"IfcCovering":38}
+
+ISSUE_159_kleine_Wohnung_R22.ifc: 28 rooms (4.4 s); read from {"body":28}; {"ok":28}
+  floorArea  28 of 28 agree
+  perimeter  28 of 28 agree
+  height     28 of 28 agree
+  volume     28 of 28 agree
+  elements in a room: 37 by the file, 2 by where they stand {"IfcBuildingElementProxy":2}
+
+duplex.ifc: 21 rooms (0.3 s); read from {"body":21}; {"ok":21}
+  elements in a room: 61 by the file, 13 by where they stand {"IfcCovering":13}
+
+ISSUE_005_haus.ifc: 7 rooms (0.1 s); read from {"body":7}; {"ok":7}
+  floorArea  7 of 7 agree
+  perimeter  7 of 7 agree
+  height     6 of 7 agree; 1 nominal
+  volume     7 of 7 agree
+  elements in a room: 0 by the file, 0 by where they stand {}
+
+AC20-FZK-Haus.ifc: 7 rooms (0.1 s); read from {"body":7}; {"ok":7}
+  floorArea  7 of 7 agree
+  perimeter  7 of 7 agree
+  height     6 of 7 agree; 1 nominal
+  volume     7 of 7 agree
+  elements in a room: 0 by the file, 0 by where they stand {}
+
+ISSUE_034_HouseZ.ifc: 5 rooms (0.4 s); read from {"body":5}; {"ok":5}
+  floorArea  0 of 5 agree; 5 unit-slip
+  perimeter  5 of 5 agree
+  height     5 of 5 agree
+  volume     0 of 5 agree; 5 unit-slip
+  elements in a room: 0 by the file, 0 by where they stand {}
+
+example.ifc: 1 rooms (0.2 s); read from {"body":1}; {"ok":1}
+  elements in a room: 0 by the file, 0 by where they stand {}
+
+ISSUE_171_IfcSurfaceCurveSweptAreaSolid.ifc: 1 rooms (0.0 s); read from {}; {"not read: INTERSECTION with a faceted operand":1}
+  elements in a room: 17 by the file, 0 by where they stand {}
+
+All: 991 rooms in 13 models, 989 measured
+  floorArea  528 of 535 agree; 2 unexplained, 5 unit-slip
+  perimeter  472 of 475 agree; 3 unexplained
+  height     501 of 535 agree; 34 nominal
+  volume     213 of 535 agree; 246 unit-slip, 57 floor-x-height-unit, 8 unexplained, 11 outline-prism

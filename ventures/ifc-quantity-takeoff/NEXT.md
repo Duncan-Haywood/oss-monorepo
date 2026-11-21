@@ -10,9 +10,15 @@
 - (2026-11-21) thresholds per work section shipped 2026-11-20 (walls/slabs/coverings/frames, preset and --voids-up-to "a,v;slabs=0,0.05"; single pair moved slab areas on 4 of 11 models; eval/measure-sections-2026-11-20.md), next the 35 openings barely meeting their host
 - (2026-11-21) overlapping shell pieces as a union
 
+## Rooms (landed 2026-11-21, eval/rooms-2026-11-21.md)
+
+- Net wall finish per room: doors and windows in each room's walls off, via IfcRelSpaceBoundary where the file has it (dental_clinic 3,124, Office_A 1,334).
+- The five unexplained ARK_NUS rooms (01109, 01170, the two M&H perimeters, 02002) drawn against their stored figures.
+- Ceiling area under a sloped roof from the solid's top faces; the room grouping in the revision diff.
+
 ## Model view (landed 2026-11-21, eval/model-view-2026-11-21.md)
 
 - (2026-11-21) Traced (eval/item-union-2026-11-21.md): overlapping body items now joined, the mesher's 5 um cut fixed, polyVolume about the piece. Left: Mini Project beams #32178/#32308 at 0.51-0.53%; `shellVolume` still sums about the model origin (check far-off faceted models); the 2 ARK_NUS items too detailed to join.
-- Meshing in a Web Worker landed 2026-11-21 (eval/view-worker-2026-11-21.md: stalls over 100 ms 59 to 3-4 on ARK_NUS); the takeoff itself moved into the same worker 2026-11-21 (eval/takeoff-worker-2026-11-21.md: the page gets the rows without the solids and no longer reads the model a second time); next: split the one remaining long task when the result first shows (rows deserialised plus the tables built in one go, 0.7 s on ARK_NUS) into slices, and trace the 250-300 ms stalls left while drawing. (Storey visibility and a section plane landed 2026-11-21, eval/storeys-and-sections-2026-11-21.md; next there: capped cut faces, a straight-down camera for plan cuts, the `space` field in the element CSV and as a BoQ grouping.)
+- Meshing in a Web Worker landed 2026-11-21 (eval/view-worker-2026-11-21.md: stalls over 100 ms 59 to 3-4 on ARK_NUS); the takeoff itself moved into the same worker 2026-11-21 (eval/takeoff-worker-2026-11-21.md: the page gets the rows without the solids and no longer reads the model a second time); next: split the one remaining long task when the result first shows (rows deserialised plus the tables built in one go, 0.7 s on ARK_NUS) into slices, and trace the 250-300 ms stalls left while drawing. (Storey visibility and a section plane landed 2026-11-21, eval/storeys-and-sections-2026-11-21.md; next there: capped cut faces, a straight-down camera for plan cuts. The `space` field in the element CSV and as a BoQ grouping landed 2026-11-21 with the room schedule, eval/rooms-2026-11-21.md.)
 - Cap the round tubes' 360-segment arcs for display only (Mini Project: 1.8M triangles, most from CHS members).
 - (2026-11-21) (3) the unexplained disagreements (NetVolumes 233 to 6 2026-11-21: Tekla sections, stair totals, ArchiCAD frames stored without glass, eval/glazing-left-out-2026-11-21.md; cross-sections 77 to 2 2026-11-20: half-surface mullions, prism axis for faceted members; eval/cross-sections-2026-11-20.md)
