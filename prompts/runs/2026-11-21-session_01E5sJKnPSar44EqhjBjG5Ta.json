@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKnPSar44EqhjBjG5Ta",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T07:09:18Z",
+  "ended": "2026-11-21T07:18:59Z",
+  "wall_minutes": 19.91,
+  "tokens_in": 7861845,
+  "tokens_out": 36836,
+  "cost_usd": 3.455,
+  "tool_calls": 66,
+  "task": "open-tennis-robots: lift flight caps' M3 joint (allocate.py Start here, flagship 10 buildable item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18045",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud-session note says `node --test` and venture suites can outlast 120 s but gives no hint that pytest here has no xdist: my `pytest -n 0` failed with 'unrecognized arguments' and cost a background round trip."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/README.md",
+      "issue": "The committed-package-matches-a-fresh-build test means any CAD change must regenerate manufacturing/feeder before the suite passes; README says so only under 'What the build checks', not where a session starts a CAD change. I started the suite first, then had to kill it and regenerate."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-tennis-feeder-flight-cap-screws.md",
+    "ventures/open-tennis-robots/cad/README.md (Flight caps' M3 joint)"
+  ],
+  "goal": "Deepen flagship 10 (open-tennis-robots): the last unmeasured feeder fastener as a checked joint",
+  "notes": "Drew the drawn flight's PU cleat inside the belt envelope (cut back round the cap) so the guide can read the cap screws' stack; guide._stack now reads each separate solid of a part as its own interval (all 33 existing feeder joints and 13 collector joints compared before/after: identical rows). Found and fixed: the cap's countersink was 6.4 mm / 81 deg, narrower than an ISO 10642 M3 head (6.72 max), head 0.16 mm proud on the rim -> 6.9 mm 90 deg; plain nut on a creeping PU cleat -> M3 x 14 + washer + nyloc (M3 x 12 cannot take a nyloc). New check_lift rules for countersink width/depth; fasteners added to the round-the-pulley clearance test. Flagship buildable updated: next is the collector's unmeasured Pi M2.5 standoff screws and ball caster screws. Verification: cad/ pytest 179 passed (8m16s, includes committed-package freshness); venture-preflight.mjs open-tennis-robots clean; check_posts ok; PR CI green on every finished job at record time.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1c9f6886-8b28-5d62-a2d0-4c8774535e86",
+    "transcripts": 1,
+    "first": "2026-11-21T07:09:18Z",
+    "last": "2026-11-21T07:29:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 116,
+        "output": 36836,
+        "thinking": 12449,
+        "cache_read": 7714868,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146861,
+        "api_equivalent_usd": 3.455,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 116,
+      "output": 36836,
+      "thinking": 12449,
+      "cache_read": 7714868,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146861,
+      "api_equivalent_usd": 3.455,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.91,
+      "active_minutes": 19.91,
+      "model_minutes": 6.94,
+      "tool_minutes": 12.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "mechanical engineer: model the cleat, audit a countersunk joint against ISO 10642, pick fasteners, regenerate the package, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 173.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

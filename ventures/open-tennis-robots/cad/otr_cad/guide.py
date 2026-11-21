@@ -275,13 +275,19 @@ def _stack(parts, point, axis, start: float, sign: int, r_in: float, r_out: floa
             if not _near(ring, s, 0.0):
                 continue
             x = ring & s
-            if x and x.volume > 1e-3:
-                bb = (x.moved(back) if back is not None else x).bounding_box()
+            if not x or x.volume <= 1e-3:
+                continue
+            # each separate piece is its own interval: a part the axis crosses twice (the lift belt's envelope above
+            # and below the drawn flight) does not fill the space between (added 2026-11-21)
+            for piece in (x.solids() or [x]):
+                if piece.volume <= 1e-3:
+                    continue
+                bb = (piece.moved(back) if back is not None else piece).bounding_box()
                 lo, hi = (bb.min.X, bb.min.Y, bb.min.Z)[i], (bb.max.X, bb.max.Y, bb.max.Z)[i]
                 a, b = sorted(((lo - start) * sign, (hi - start) * sign))
                 if b > 0.01:
                     hits.append((pt.name, round(max(a, 0.0), 3), round(b, 3)))
-    hits.sort(key=lambda h: h[1])
+    hits = sorted(set(hits), key=lambda h: (h[1], h[2], h[0]))     # a piece read twice is one interval
     if gaps:
         return hits
     chain, reach = [], 0.0

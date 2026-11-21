@@ -50,3 +50,22 @@ test("bad input exits 2", async () => {
   assert.equal((await run(["quote", "s"], { readFile: async () => { throw new Error("nope"); } })).exitCode, 2);
   assert.equal((await run(["--help"])).exitCode, 0);
 });
+
+test("flags take zero where the engine allows it, and accept $ and % like a CSV cell", async () => {
+  const r = JSON.parse((await run(["quote", "--json", "--rush", "0", "--digitizing-fee", "0", "--garment-cost", "$4.50", "--margin", "40%"])).output);
+  assert.equal(r.job.rushPct, 0);
+  assert.equal(r.job.digitizingFee, 0);
+  assert.equal(r.job.garmentCost, 4.5);
+  assert.equal(r.job.margin, 40);
+  assert.equal((await run(["quote", "--garment-cost", "4,50"])).exitCode, 2);
+  assert.equal((await run(["quote", "--quantity", "0x18"])).exitCode, 2);
+  assert.equal((await run(["quote", "--rush", "-1"])).exitCode, 2);
+});
+
+test("a flag-only job's error has no CSV line prefix; a CSV row's error names its line", async () => {
+  const r = await run(["quote", "--quantity", "0"]);
+  assert.equal(r.exitCode, 2);
+  assert.match(r.output, /^quantity must be/);
+  const c = await run(["quote", "s"], { readFile: async () => "Bad,0,5,5000,2,10" });
+  assert.match(c.output, /^line 1 \(Bad\): quantity must be/);
+});

@@ -216,7 +216,8 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   // resources and assignments, read here (mspdi.mjs reads only their calendars)
   const RSRC = [], TASKRSRC = [];
   const rsrcType = new Map();
-  let costRes = 0, costAssign = 0;
+  let costRes = 0, costAssign = 0, dupRsrc = 0, summaryAssign = 0;
+  const rsrcShort = new Set();
   for (const r of kids(kid(proj, "Resources"), "Resource")) {
     const uid = val(r, "UID");
     if (!uid || uid === "0" || val(r, "IsNull") === "1" || !val(r, "Name")) continue;
@@ -225,9 +226,15 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
     const rt = type === "0" ? "RT_Mat" : "RT_Labor";
     rsrcType.set(uid, rt);
     const name = val(r, "Name");
+    // P6's resource ID must be unique, and Project fills Initials with the
+    // name's first letter (Carpenter and Crane are both "C"), so repeats get
+    // a -2, -3 suffix as activity IDs do
+    let short = clip("rsrc_short_name", val(r, "Initials") || name.replace(/\s+/g, "").toUpperCase());
+    if (rsrcShort.has(short)) { dupRsrc++; let k = 2; while (rsrcShort.has(`${short.slice(0, MAX.rsrc_short_name - String(k).length - 1)}-${k}`)) k++; short = `${short.slice(0, MAX.rsrc_short_name - String(k).length - 1)}-${k}`; }
+    rsrcShort.add(short);
     RSRC.push(full("RSRC", {
       rsrc_id: idOf("RSRC", uid), clndr_id: projCal, rsrc_seq_num: String(RSRC.length + 1),
-      rsrc_name: clip("rsrc_name", name), rsrc_short_name: clip("rsrc_short_name", val(r, "Initials") || name.replace(/\s+/g, "").toUpperCase()),
+      rsrc_name: clip("rsrc_name", name), rsrc_short_name: short,
       email_addr: "", def_qty_per_hr: n2((Number(val(r, "MaxUnits")) || 1)), rsrc_type: rt,
     }, { cost_qty_type: "QT_Hour", active_flag: "Y", auto_compute_act_flag: "N", def_cost_qty_link_flag: "Y", ot_flag: "N", curr_id: "1", load_tasks_flag: "", level_flag: "Y" }));
   }
@@ -291,7 +298,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   const hrs = (s) => durationHours(s) ?? 0;
   for (const a of kids(kid(proj, "Assignments"), "Assignment")) {
     const tu = val(a, "TaskUID"), ru = val(a, "ResourceUID");
-    if (!taskIds.has(tu)) continue;
+    if (!taskIds.has(tu)) { if (taskNode.has(tu) && rsrcType.has(ru)) summaryAssign++; continue; }
     if (!rsrcType.has(ru)) { if (ru && ru !== "-65535") costAssign++; continue; }
     const t = taskRow.get(idOf("TASK", tu));
     const target = hrs(val(a, "Work")), act = hrs(val(a, "ActualWork"));
@@ -382,6 +389,8 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   else warnings.push(`activity IDs are A + Project's row ID x 10 (A10, A20, ...), as no text field is named "Activity ID"`);
   if (dupIds) warnings.push(`${dupIds} repeated activity ID(s) given a -2, -3 suffix (P6 needs them unique)`);
   if (trees) warnings.push(`${trees} activity code type(s) written as parent.child paths rebuilt as P6 code hierarchies`);
+  if (dupRsrc) warnings.push(`${dupRsrc} repeated resource ID(s) given a -2, -3 suffix (P6 needs them unique; Project fills Initials with the name's first letter)`);
+  if (summaryAssign) warnings.push(`${summaryAssign} assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no resources`);
   if (cut) warnings.push(`${cut} name(s) or code(s) cut to P6's field length`);
   if (elapsedLags) warnings.push(`${elapsedLags} elapsed lag(s) written in hours: P6 counts every lag on one calendar per project (successor's), so set the lag calendar to 24 hour in P6 if those links matter`);
   if (deadlines) warnings.push(`${deadlines} deadline(s) not carried: P6 has no deadline (add a finish-on-or-before secondary constraint in P6 if needed)`);
@@ -450,6 +459,11 @@ export function p6Problems(tables) {
     let x = w, hops = 0;
     while (x && x.proj_node_flag !== "Y" && hops++ < 1000) x = wbs.get(x.parent_wbs_id);
     if (!x) say(`PROJWBS ${w.wbs_id}: does not reach the project node`);
+  }
+  const rsrcIds = new Set();
+  for (const r of tables.RSRC || []) {
+    if (rsrcIds.has(r.rsrc_short_name)) say(`RSRC ${r.rsrc_short_name}: resource ID repeated`);
+    rsrcIds.add(r.rsrc_short_name);
   }
   const codes = new Set();
   for (const t of tables.TASK || []) {

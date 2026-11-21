@@ -490,12 +490,12 @@ Bolt the base plate across the mast rails at the lift (four M5 x 12 into T-nuts)
 | 2020 corner bracket with M5 screws and T-nuts (lift) | 2 |
 | 8 mm axle, 60 mm, + two 608 bearings + e-clips | 1 |
 | PU cleat welding by the belt supplier (flights) | 32 |
-| M3 x 12 countersunk screw + nut (flight caps) | 64 |
+| M3 x 14 countersunk screw (ISO 10642) + washer + nyloc nut (flight caps) | 64 |
 | UHMW-PE tape, 25 mm wide, self-adhesive | 1 |
 
-Tools: 3 mm hex key, 8 mm spanner, a second person.
+Tools: 3 mm and 2 mm hex keys, 8 mm and 5.5 mm spanners, a second person.
 
-Stick the UHMW tape on both 20 mm faces of the spine. Stand the spine in the boot's slot through the base plate and square it with the two 2040 corner brackets. Screw a flight cap to each welded cleat (two M3 x 12 countersunk, 64 in all). Loop the belt over the bottom pulley and up the spine, fit the 6 rod clips up the spine with the three rods through them, then the head on the spine's top with the top pulley on its axle inside the belt loop. Tension with the jack screws to the figure in their notes, then tighten the head's four side M5s. Brace the spine to the front hopper post with the strut and push the chute into the head's socket over the tub.
+Stick the UHMW tape on both 20 mm faces of the spine. Stand the spine in the boot's slot through the base plate and square it with the two 2040 corner brackets. Screw a flight cap to each welded cleat (two M3 x 14 countersunk, a washer and a nyloc on the cleat's back, 64 in all). Loop the belt over the bottom pulley and up the spine, fit the 6 rod clips up the spine with the three rods through them, then the head on the spine's top with the top pulley on its axle inside the belt loop. Tension with the jack screws to the figure in their notes, then tighten the head's four side M5s. Brace the spine to the front hopper post with the strut and push the chute into the head's socket over the tub.
 
 ### 23. Wiring: deck-side cables and the elevation lead
 
@@ -613,6 +613,7 @@ Each length is measured from the head's face through the parts the model puts un
 | launcher motor to the motor plate | M4 x 12 socket cap screw (motors) | head_motor_plate 5 | 5 | 12 | 7 | 4 to 8 mm into the part's tapped hole (its thread depth) | pass |
 | lift gearmotor face to its spacer | M3 x 8 screw (lift) | lift_motor_spacer 4 | 4 | 8 | 4 | 3 to 5 mm into the part's tapped hole (its thread depth) | pass |
 | lift spacer ear to the boot | M3 x 8 socket cap screw + M3 heat-set insert, 4 mm long (lift) | lift_motor_spacer 3 | 3 | 8 | 5 | 4 to 6 mm past the face, the insert's length to the pocket's depth | pass |
+| lift flight cap through its cleat | M3 x 14 countersunk screw + washer + nyloc nut (flight caps) | lift_flight_cap 4.301 + lift_belt 3 + 0.5 washers | 8.5 | 14 | 5.5 | needs 5 mm past the stack for the nyloc and two threads | pass |
 | deck cable saddle | M5 x 16 button head + nyloc nut (deck cables) | deck_cable_saddle 1.5 + base_deck 5 | 6.5 | 16 | 9.5 | needs 6.6 mm past the stack for the nyloc and two threads | pass |
 
 ## Other checks

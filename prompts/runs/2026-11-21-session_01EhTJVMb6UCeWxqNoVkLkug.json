@@ -1,0 +1,213 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVMb6UCeWxqNoVkLkug",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell products)",
+  "input_sha256": "5e7d1f95854e3865635d87af116d6c56a9ae49f9c102b200db1055eae03a8071",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T06:56:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam campaign on ventures/xer-schedule-check/p6xer.mjs (Project XML -> P6 XER, landed today)",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18043",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "targets did not list ventures/xer-schedule-check/p6xer.mjs (suite takes 2 s) though it is guarded by p6xer.test.mjs; --target worked. Not investigated."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-every-resource-is-called-r.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 12 open entries, all control-plane workflow/prompts edits or the help-keeper stemmer (needs a help-centre eval set); none fixable outside a control-plane PR this run, so left open. Campaign: 10 mutants, 1 caught; 7 gaps covered by 4 new tests (rerun: all caught_after_fix true), 2 equivalent. Real defects: repeated rsrc_short_name from Project's first-letter Initials (55/143 MPXJ corpus files, 798 repeats, 0 after; p6Problems now checks it, the class guard) and silent drop of summary-task assignments (2 in 1 file, now warned). Local checks: node --test xer-schedule-check 246/246; run_venture_tests ok; check_posts ok. Guard added (4b): p6Problems resource-ID uniqueness, which the converter's own tests and eval run on every output.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/p6xer.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 195870443,
+        "commit": "657dfa3ae",
+        "sites": 256,
+        "baseline_seconds": 1.8,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 131,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "day_hr_cnt: n2(Number(c.day_hr_cnt) || 8),",
+            "after": "day_hr_cnt: n2(Number(c.day_hr_cnt) || 9),",
+            "line_text": "      day_hr_cnt: n2(Number(c.day_hr_cnt) || 8),",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "mspdi.mjs sets day_hr_cnt to MinutesPerDay/60 with MinutesPerDay falling back to 480 (or 24 for the elapsed calendar), so it is never 0 or NaN and the || 8 fallback is unreachable from p6XerText"
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 231,
+            "col": 69,
+            "operator": "or-to-and",
+            "before": "email_addr: \"\", def_qty_per_hr: n2((Number(val(r, \"MaxUnits\")) || 1)), rsrc_type: rt,",
+            "after": "email_addr: \"\", def_qty_per_hr: n2((Number(val(r, \"MaxUnits\")) && 1)), rsrc_type: rt,",
+            "line_text": "      email_addr: \"\", def_qty_per_hr: n2((Number(val(r, \"MaxUnits\")) || 1)), rsrc_type: rt,",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "def_qty_per_hr was never asserted: new test checks MaxUnits 2 -> 2 and none -> 1"
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 244,
+            "col": 16,
+            "operator": "max-to-min",
+            "before": "const pct = Math.max(0, Math.min(100, Number(val(node, \"PercentComplete\")) || 0));",
+            "after": "const pct = Math.min(0, Math.min(100, Number(val(node, \"PercentComplete\")) || 0));",
+            "line_text": "    const pct = Math.max(0, Math.min(100, Number(val(node, \"PercentComplete\")) || 0));",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "phys_complete_pct was never asserted: new test checks 100/30/0 and the -5 clamp"
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 244,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const pct = Math.max(0, Math.min(100, Number(val(node, \"PercentComplete\")) || 0));",
+            "after": "const pct = Math.max(0, Math.min(101, Number(val(node, \"PercentComplete\")) || 0));",
+            "line_text": "    const pct = Math.max(0, Math.min(100, Number(val(node, \"PercentComplete\")) || 0));",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "mspdi.mjs marks PercentComplete >= 100 TK_Complete, and a complete task writes phys_complete_pct 100 without reading pct, so the upper clamp (100 vs 101) is never reached; the new test feeds 150 and checks 100"
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 298,
+            "col": 76,
+            "operator": "max-to-min",
+            "before": "const remain = val(a, \"RemainingWork\") ? hrs(val(a, \"RemainingWork\")) : Math.max(0, target - act);",
+            "after": "const remain = val(a, \"RemainingWork\") ? hrs(val(a, \"RemainingWork\")) : Math.min(0, target - act);",
+            "line_text": "    const remain = val(a, \"RemainingWork\") ? hrs(val(a, \"RemainingWork\")) : Math.max(0, target - act);",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "RemainingWork fallback untested: new test drops it and checks budget-actual and the overrun floor"
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 298,
+            "col": 95,
+            "operator": "minus-to-plus",
+            "before": "const remain = val(a, \"RemainingWork\") ? hrs(val(a, \"RemainingWork\")) : Math.max(0, target - act);",
+            "after": "const remain = val(a, \"RemainingWork\") ? hrs(val(a, \"RemainingWork\")) : Math.max(0, target + act);",
+            "line_text": "    const remain = val(a, \"RemainingWork\") ? hrs(val(a, \"RemainingWork\")) : Math.max(0, target - act);",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "RemainingWork fallback untested: new test drops it and checks budget-actual and the overrun floor"
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 301,
+            "col": 109,
+            "operator": "max-to-min",
+            "before": "const tc = cost(\"Cost\"), ac = cost(\"ActualCost\"), rc = val(a, \"RemainingCost\") ? cost(\"RemainingCost\") : Math.max(0, tc - ac);",
+            "after": "const tc = cost(\"Cost\"), ac = cost(\"ActualCost\"), rc = val(a, \"RemainingCost\") ? cost(\"RemainingCost\") : Math.min(0, tc - ac);",
+            "line_text": "    const tc = cost(\"Cost\"), ac = cost(\"ActualCost\"), rc = val(a, \"RemainingCost\") ? cost(\"RemainingCost\") : Math.max(0, tc - ac);",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "RemainingCost fallback untested: same new test"
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 301,
+            "col": 118,
+            "operator": "const-plus-one",
+            "before": "const tc = cost(\"Cost\"), ac = cost(\"ActualCost\"), rc = val(a, \"RemainingCost\") ? cost(\"RemainingCost\") : Math.max(0, tc - ac);",
+            "after": "const tc = cost(\"Cost\"), ac = cost(\"ActualCost\"), rc = val(a, \"RemainingCost\") ? cost(\"RemainingCost\") : Math.max(1, tc - ac);",
+            "line_text": "    const tc = cost(\"Cost\"), ac = cost(\"ActualCost\"), rc = val(a, \"RemainingCost\") ? cost(\"RemainingCost\") : Math.max(0, tc - ac);",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "RemainingCost fallback untested: same new test"
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 312,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "if (rt === \"RT_Labor\") { t.target_work_qty = n2(Number(t.target_work_qty) + target); t.act_work_qty = n2(Number(t.act_work_qty) + act); t.remain_work_qty = n2(Number(t.remain_work_qty) + remain); }",
+            "after": "if (rt !== \"RT_Labor\") { t.target_work_qty = n2(Number(t.target_work_qty) + target); t.act_work_qty = n2(Number(t.act_work_qty) + act); t.remain_work_qty = n2(Number(t.remain_work_qty) + remain); }",
+            "line_text": "    if (rt === \"RT_Labor\") { t.target_work_qty = n2(Number(t.target_work_qty) + target); t.act_work_qty = n2(Number(t.act_work_qty) + act); t.remain_work_qty = n2(Number(t.remain_work_qty) + remain); }",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/p6xer.mjs",
+            "line": 355,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const last = i === segs.length - 1;",
+            "after": "const last = i === segs.length - 2;",
+            "line_text": "          const last = i === segs.length - 1;",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "leaf vs parent code descriptions untested: new test checks N/N.01, S/S.01, N/N.02"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/p6xer.mjs",
+        "issue": "Two Project resources with the same Initials (Project fills Initials with the name's first letter, so Carpenter and Crane are both 'C') were written as two P6 resources with the same rsrc_short_name; P6 needs resource IDs unique, and p6Problems passed it. Fixed: repeats get -2, -3 (kept within 40 characters), a warning counts them, p6Problems names a repeated resource ID.",
+        "patched": true
+      },
+      {
+        "file": "ventures/xer-schedule-check/p6xer.mjs",
+        "issue": "Assignments on summary tasks were dropped silently, though the module promises a warning for everything it does not carry. Fixed: counted in a warning (summary tasks become WBS nodes, which hold no resources).",
+        "patched": true
+      }
+    ]
+  }
+}
