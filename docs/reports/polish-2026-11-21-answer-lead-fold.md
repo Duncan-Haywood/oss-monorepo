@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, aeo, accessibility]
+topics: [design, seo, accessibility]
 date: 2026-11-21
 ---
 # Polish 2026-11-21: 37 answer-lead calculators fold their plain intro
