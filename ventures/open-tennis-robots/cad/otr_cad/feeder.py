@@ -62,7 +62,9 @@ from build123d import (
     Rectangle,
     RectangleRounded,
     RegularPolygon,
+    SlotArc,
     SlotOverall,
+    Edge,
     ThreePointArc,
     Transition,
     Wire,
@@ -142,7 +144,10 @@ def _head_plate_sketch(p: Feeder, *, motors: bool):
             _holes(SERVO_LEGS, 4.4)               # M4 into the servo bracket's legs
             _holes([(p.cable_clip_x, CABLE_HOLE_Z)], CABLE_HOLE_D)  # the head's wires, out to the motors and servo (grommet)
         if not motors:
-            _holes([(p.elev_pin_x, p.elev_pin_z)], 6.4)  # elevation actuator's pin (M6), guard side
+            _holes([(p.elev_pin_x, p.elev_pin_z)], 5.5)  # elevation actuator's pin (M5 thread; the shoulder seats on it)
+            ac, ar, a0, da, aw = anchor_relief(p)        # the anchor bolt's tail and nut pass here above ~25 deg
+            with Locations((0, 0)):
+                SlotArc(Edge.make_circle(ar, Plane.XY.move(Location((*ac, 0))), a0, a0 + da), aw, mode=Mode.SUBTRACT)
         _holes(_feed_screws(p), 4.4)             # M4 into the feed floor and roof
     return s.sketch
 
@@ -203,6 +208,21 @@ def elev_anchor_world(p: Feeder) -> tuple[float, float]:
     return p.head_x + p.elev_anchor_dx, p.pivot_z + p.elev_anchor_dz
 
 
+ANCHOR_RELIEF_MARGIN = (3.0, 2.0)   # deg past each end of the elevation range; mm round the nut's corners
+
+
+def anchor_relief(p: Feeder):
+    """(centre, radius, start deg, sweep deg, width) of the arc slot in the guard plate (head frame) that the anchor
+    bolt's tail and nut pass through as the head tilts (2026-11-21). They stand 4.5 mm inboard of the cheek's tab,
+    into the 2.5 mm gap to the guard plate, and the anchor sits inside the plate's outline above about 25 deg."""
+    phi = math.degrees(math.atan2(p.elev_anchor_dz, p.elev_anchor_dx))
+    r = math.hypot(p.elev_anchor_dx, p.elev_anchor_dz)
+    m_deg, m_mm = ANCHOR_RELIEF_MARGIN
+    corner = THIN_NUT[5][1] / math.sqrt(3)
+    return ((0.0, p.pivot_z_rel), r, phi - p.elev_max - m_deg, p.elev_max - p.elev_min + 2 * m_deg,
+            2 * (corner + m_mm))
+
+
 def _cheek_face(p: Feeder, tab: bool):
     z0 = p.turntable_top
     z1 = p.pivot_z + 25.0
@@ -215,7 +235,7 @@ def _cheek_face(p: Feeder, tab: bool):
             z_top = az + ELEV_TAB_PAD
             with Locations(((x0 + x1) / 2, (z0 + z_top) / 2)):
                 RectangleRounded(x1 - x0, z_top - z0, 8)
-            _holes([(ax, az)], 6.4)
+            _holes([(ax, az)], 5.5)   # M5 clearance: the anchor's 6 mm shoulder seats on the tab (2026-11-21)
             hx, _, hz = p.elev_lead_hole()
             _holes([(hx, hz)], p.elev_lead_hole_d)   # the actuator's lead, through a snap-in grommet (2026-11-14)
         _holes([(p.head_x, p.pivot_z)], 8.4)
@@ -239,7 +259,7 @@ def trunnion_cheek_elev(p: Feeder) -> Part:
                 [Location((0, -y_in, 0), ROT_XZ)],
                 flat=face, thickness=p.plate_t,
                 notes="Guard-side (-y) cheek: holds the pivot bolt, and its rear tab carries the elevation actuator's "
-                      "anchor (M6 shoulder bolt). Same feet as the other cheek. The grommet hole under the pivot, "
+                      "anchor (6 mm shoulder bolt, M5 thread). Same feet as the other cheek. The grommet hole under the pivot, "
                       "between the feet, passes the actuator's lead.")
 
 
@@ -754,7 +774,11 @@ def feed_shuttle(p: Feeder) -> Part:
                       f"{p.shuttle_pin_back:g} mm ahead of the rear end takes the drive pin. 6 walls.")
 
 
-SHUTTLE_DRIVE = ("feed_shuttle", "shuttle_rod", "shuttle_crank")
+SHUTTLE_DRIVE = ("feed_shuttle", "shuttle_rod", "shuttle_crank", "shuttle_pin", "crank_pin")
+SHUTTLE_PIN_SHOULDER = 12.0   # rod, the 1 mm gap, the motor plate's slot and the shuttle's 0.8 mm clearance (+0.2)
+CRANK_PIN_SHOULDER = 6.0      # the crank and the 1 mm gap between crank and rod
+SHUTTLE_INSERT_DEPTH = 10.0   # the shuttle's insert pocket, from its +y face
+CRANK_INSERT_LEN = 4.0        # short M4 heat-set insert in the rod's crank end (a 5.7 mm one is longer than the rod)
 SERVO_CRADLE_T = 8.0   # the servo bracket's cradle, which the tab screws' inserts go through
 
 
@@ -790,8 +814,9 @@ def shuttle_drive_locs(p: Feeder, theta_deg: float) -> dict[str, Location]:
     zc = p.shuttle_zc
     rod_a = math.degrees(math.atan2(cz - zc, cx - xs))
     crank_a = math.degrees(math.atan2(cz - zc, cx - p.crank_x))
+    rod = Location((p.head_x + xs, _rod_y(p), p.launch_z + zc), (0, -rod_a, 0))
     return {"feed_shuttle": _head_loc(p, xs - p.shuttle_kinematics(0)[0], 0, 0),
-            "shuttle_rod": Location((p.head_x + xs, _rod_y(p), p.launch_z + zc), (0, -rod_a, 0)),
+            "shuttle_rod": rod, "shuttle_pin": rod, "crank_pin": rod,
             "shuttle_crank": Location((p.head_x + p.crank_x, _crank_y(p), p.launch_z + zc), (0, -crank_a, 0))}
 
 
@@ -800,10 +825,11 @@ def shuttle_drive_parts(p: Feeder) -> list[Part]:
     plate turns a crank; a rod joins the crank pin to a pin in the shuttle's side through a slot in the plate."""
     locs = shuttle_drive_locs(p, 0.0)
     pin = p.shuttle_pin_d + 0.4
-    rod = Part("shuttle_rod", "print", "PETG", 1, _bar(p.shuttle_rod_mm, p.shuttle_rod_t, ROD_W, pin, pin),
+    rod = Part("shuttle_rod", "print", "PETG", 1, _bar(p.shuttle_rod_mm, p.shuttle_rod_t, ROD_W, 5.6, pin),
                [locs["shuttle_rod"]],
-               notes=f"Shuttle pin to crank pin, {p.shuttle_rod_mm:g} mm between {pin:g} mm holes; M4 shoulder bolts "
-                     "(5 mm shoulder) through both. Print flat, 100% infill.")
+               notes=f"Shuttle pin to crank pin, {p.shuttle_rod_mm:g} mm apart: a {pin:g} mm hole at the shuttle end, which "
+                     f"turns on the shuttle pin's shoulder, and a 5.6 mm pocket at the crank end for a short M4 heat-set "
+                     f"insert ({CRANK_INSERT_LEN:g} mm), pressed flush from the crank side. Print flat, 100% infill.")
     crank = Part("shuttle_crank", "print", "PETG", 1, _bar(p.crank_r, p.shuttle_rod_t, 16.0, pin, 3.2),
                  [locs["shuttle_crank"]],
                  notes=f"Crank, {p.crank_r:g} mm throw ({p.feed_stroke:g} mm stroke over {p.servo_range_deg:g} deg of "
@@ -841,7 +867,20 @@ def shuttle_drive_parts(p: Feeder) -> list[Part]:
                  spec=f"Standard-size digital servo, {p.servo_stall_nm * 100 / 9.81:.0f} kg cm class ({p.servo_stall_nm:g} N m stall), "
                       f"{p.servo_s_per_60:g} s per 60 deg, {p.servo_range_deg:g} deg between the gate pulses, metal gears, "
                       f"round aluminium horn (drawn {p.servo_l:g} x {p.servo_w:g} x {p.servo_h:g} mm, tabs {p.servo_flange_l:g} mm)")
-    return [rod, crank, bracket, servo]
+    ry = _rod_y(p)
+    half = p.shuttle_rod_t / 2
+    face = _feed_w(p) / 2 - 0.2 - ry                     # the shuttle's +y face, in the rod's frame
+    seat = _crank_y(p) + half - ry                       # the crank's outer face
+    spin = shoulder_bolt_y(4, SHUTTLE_PIN_SHOULDER, half, -1, 0.0, nut=False)
+    cpin = shoulder_bolt_y(4, CRANK_PIN_SHOULDER, seat, -1, 0.0, nut=False).moved(Location((p.shuttle_rod_mm, 0, 0)))
+    assert abs(half - SHUTTLE_PIN_SHOULDER - face) < 0.3, "shuttle pin's shoulder does not end on the shuttle's face"
+    pins = [Part("shuttle_pin", "cots", "", 1, spin, [locs["shuttle_pin"]],
+                 spec=f"M4 shoulder bolt, 5 x {SHUTTLE_PIN_SHOULDER:g} mm shoulder, 5 mm thread: through the rod and the "
+                      "motor plate's slot into the shuttle's insert; its shoulder ends on the shuttle's face"),
+            Part("crank_pin", "cots", "", 1, cpin, [locs["crank_pin"]],
+                 spec=f"M4 shoulder bolt, 5 x {CRANK_PIN_SHOULDER:g} mm shoulder, 5 mm thread: through the crank into the "
+                      "rod's insert (the crank turns on the shoulder); medium threadlocker")]
+    return [rod, crank, bracket, servo, *pins]
 
 
 def _sleeve_d(p: Feeder) -> tuple[float, float]:
@@ -1899,6 +1938,7 @@ def lift_slip_hub(p: Feeder) -> list[Part]:
 
 # The lift's drive shaft (2026-11-15, `Feeder.lift_shaft_design`; cad/README.md "Lift drive shaft"). Every y below
 # is from the ball line, +y the gearmotor's side.
+LIFT_FACE_SCREW, LIFT_EAR_SCREW = 8, 8   # M3 lengths: gearmotor face through the spacer's end wall; the ears
 SPACER_EAR_Z = 27.0          # the spacer's two ear screws, above and below the shaft
 SPACER_TUBE_OD, SPACER_TUBE_ID = 44.0, 38.0
 GM_SCREW_R, GM_BOSS_D = 15.5, 13.0   # 37 mm gearmotor: six M3 on a 31 mm circle round a 12 mm boss (read yours)
@@ -1957,7 +1997,8 @@ def lift_motor_spacer_solid(p: Feeder):
     for dz in (-SPACER_EAR_Z, SPACER_EAR_Z):
         body = body - Cylinder(1.7, 3.02).moved(Location((x, y0 + y1 + 1.5, z + dz), (90, 0, 0)))
     c0, c1 = d["coupler_y"]
-    body = body - Box(12.0, c1 - c0, 30.0).moved(Location((x, y0 + (c0 + c1) / 2, z + 15.0)))   # set-screw window, top
+    w0 = max(c0, y1 + 3.0)   # from the flange's outer face: cut from c0 it took the top ear's seat (2026-11-21)
+    body = body - Box(12.0, c1 - w0, 30.0).moved(Location((x, y0 + (w0 + c1) / 2, z + 15.0)))   # set-screw window, top
     return body
 
 
@@ -1965,10 +2006,10 @@ def lift_motor_spacer(p: Feeder) -> Part:
     d = p.lift_shaft_design()
     return Part("lift_motor_spacer", "print", "PETG", 1, lift_motor_spacer_solid(p), [Location((0, 0, 0))],
                 notes=f"Holds the lift gearmotor {d['spacer_mm']:.1f} mm out from the boot's motor recess so the jaw "
-                      f"coupling fits between them. Screw the gearmotor's face to the end wall first (six M3 x 6 from inside, "
+                      f"coupling fits between them. Screw the gearmotor's face to the end wall first (six M3 x {LIFT_FACE_SCREW} from inside, "
                       f"through the open end), push the coupling's motor hub on the motor's shaft through the top window "
                       f"(shaft fills the hub; tighten onto the flat), then slide the spacer's plug into the recess over the "
-                      f"drive shaft's end and the spider and fix the ears with two M3 x 10 into heat-set inserts. The plug "
+                      f"drive shaft's end and the spider and fix the ears with two M3 x {LIFT_EAR_SCREW} into heat-set inserts. The plug "
                       f"holds the near bearing's flange in. Print flange down, 5 walls, 40% infill.")
 
 
@@ -2340,30 +2381,97 @@ def elev_actuator_shapes(p: Feeder, elev_deg: float) -> list:
             _seg(ELEV_ROD_R, at(body_end), at(L - ELEV_EYE_MM), p.elev_act_y)]
 
 
+# Shoulder bolts (2026-11-21, cad/README.md "Shoulder bolts and motor screws"): {thread d: (shoulder d, thread
+# length, head d, head height)}. M5: ISO 7379's 6 mm shoulder, thread 9.5 mm, head 10 x 4.5; M4: the 5 mm shoulder
+# sold with a 5 mm thread, head about 9 x 4 mm (catalogue figures; read the bolt you buy). The thread is all that
+# passes the clamped part, so it, not the shoulder, decides what nut fits. The actuator's eyes are "for M6" (about a
+# 6.3 mm hole): an 8 mm shoulder (the M6-thread size) does not go through them, a 6 mm one does.
+SHOULDER = {4: (5.0, 5.0, 9.0, 4.0), 5: (6.0, 9.5, 10.0, 4.5)}
+THIN_NUT = {4: (2.2, 7.0), 5: (2.7, 8.0)}   # DIN 439 thin hex nut: (height, across flats)
+ELEV_EYE_W = 8.0      # the actuator's clevis eyes, thickness along the pin (assumed: measure yours)
+EYE_FLOAT = 0.5       # left on each shoulder so the eye turns with the nut tight
+ELEV_PIN_SHOULDER, ELEV_ANCHOR_SHOULDER = 40.0, 30.0
+EYE_SPACER_OD = 12.0  # printed sleeves either side of each eye, on the 6 mm shoulder
+
+
+def shoulder_bolt_y(d: int, shoulder: float, y_seat: float, sign: int, clamp_t: float, nut: bool = True):
+    """A shoulder bolt along y in its own (x, z) frame: head behind `y_seat`, shoulder from the seat for `shoulder`
+    mm going `sign`, then the thread; a DIN 439 thin nut on the clamped part's far face (`clamp_t` past the
+    shoulder's end) when `nut`. The whole bolt is drawn, so the sweeps see its head, tail and nut."""
+    sd, th, hd, hh = SHOULDER[d]
+    y_end = y_seat + sign * shoulder
+    s = _y_cyl(hd / 2, y_seat - sign * hh, y_seat) + _y_cyl(sd / 2, y_seat, y_end) + \
+        _y_cyl(d / 2, y_end, y_end + sign * th)
+    if nut:
+        nh, af = THIN_NUT[d]
+        y_far = y_end + sign * clamp_t
+        s = s + _y_cyl(af / math.sqrt(3), y_far, y_far + sign * nh)
+    return s
+
+
+def elev_pin_spec_short(anchor: bool = False) -> str:
+    return f"Shoulder bolt 6 x {ELEV_ANCHOR_SHOULDER if anchor else ELEV_PIN_SHOULDER:g}, M5, + thin nut"
+
+
+def elev_pin_layout(p: Feeder) -> dict:
+    """y of each layer on the elevation actuator's two pins (all on the -y side, going +y from the head): the head's
+    seat, outer spacer, eye, inner spacer, clamped plate's outer face. The eye sits on the actuator's plane; the
+    spacers fill the rest of each catalogue shoulder, so the eye cannot wander along it."""
+    out = {}
+    for name, face, shoulder in (("pin", -(p.plate_half_y + p.plate_t), ELEV_PIN_SHOULDER),
+                                 ("anchor", -(p.plate_half_y + p.plate_t + p.cheek_gap + p.plate_t), ELEV_ANCHOR_SHOULDER)):
+        seat = face - shoulder
+        e0, e1 = p.elev_act_y - ELEV_EYE_W / 2, p.elev_act_y + ELEV_EYE_W / 2
+        out[name] = {"seat": seat, "eye": (e0, e1), "face": face, "outer_mm": e0 - seat,
+                     "inner_mm": face - e1 - EYE_FLOAT,
+                     "shoulder": shoulder}
+    return out
+
+
 def elev_actuator_parts(p: Feeder) -> list[Part]:
     body, rod = elev_actuator_shapes(p, 0.0)
-    y_out = p.elev_act_y - 10.0
-    y_guard = -(p.plate_half_y + p.plate_t)
-    y_cheek = -(p.plate_half_y + p.plate_t + p.cheek_gap + p.plate_t)
     ax, az = elev_anchor_world(p)
-    pin = _y_cyl(3.0, y_guard, y_out)
-    bolt = _y_cyl(3.0, y_cheek, y_out)
+    lay = elev_pin_layout(p)
+    pin = shoulder_bolt_y(5, ELEV_PIN_SHOULDER, lay["pin"]["seat"], 1, p.plate_t)
+    bolt = shoulder_bolt_y(5, ELEV_ANCHOR_SHOULDER, lay["anchor"]["seat"], 1, p.plate_t)
+    sd = SHOULDER[5][0]
+
+    def sleeve(k, inner):
+        L = lay[k]
+        y0, y1 = (L["eye"][1] + EYE_FLOAT, L["face"]) if inner else (L["seat"], L["eye"][0])
+        return _y_cyl(EYE_SPACER_OD / 2, y0, y1) - _y_cyl(sd / 2 + 0.2, y0 - 1, y1 + 1)
+
+    def spacers(k, loc, what):
+        L = lay[k]
+        return [Part(f"elev_{k}_spacer_{side}", "print", "PETG", 1, sleeve(k, side == "inner"), [loc],
+                     notes=f"Sleeve on the {what}, {EYE_SPACER_OD:g} mm OD, {sd + 0.4:g} mm bore, "
+                           f"{L[side + '_mm']:.1f} mm long: " + ("between the eye and the aluminium" if side == "inner"
+                                                              else "under the bolt's head") +
+                           f". With its pair it keeps the eye on the actuator's plane (y {p.elev_act_y:g}; the eye taken "
+                           f"as {ELEV_EYE_W:g} mm thick: shorten the inner one if yours is thicker). Print upright, 100% infill.")
+                for side in ("outer", "inner")]
+
+    nut = f"M5 thin nut (DIN 439, {THIN_NUT[5][0]:g} mm) + medium threadlocker"
     return [
         Part("elev_actuator", "cots", "", 1, body, [Location((0, 0, 0))],
              spec=f"Linear actuator, 12-24 V, {p.elev_act_stroke:g} mm stroke, {p.elev_act_force_n:g} N class, clevis "
                   f"eyes for M6, retracted {p.elev_act_closed:g} mm hole to hole (drawn at 0 deg; posed per pose in the sweeps)"),
         Part("elev_actuator_rod", "cots", "", 1, rod, [Location((0, 0, 0))], spec="The elev_actuator's own rod (not bought separately), drawn at 0 deg"),
         Part("elev_pin", "cots", "", 1, pin, [_head_loc(p, p.elev_pin_x, 0, p.elev_pin_z)],
-             spec="M6 shoulder bolt, 40 mm shoulder, + nyloc: through the guard plate (nut inside), the actuator's rod eye"),
+             spec=f"Shoulder bolt, ISO 7379, 6 x {ELEV_PIN_SHOULDER:g} mm shoulder, M5 thread, + {nut}: through two spacers, the "
+                  "actuator's rod eye and the guard plate (nut inside the head)"),
+        *spacers("pin", _head_loc(p, p.elev_pin_x, 0, p.elev_pin_z), "guard plate's pin"),
         Part("elev_anchor_bolt", "cots", "", 1, bolt, [Location((ax, 0, az))],
-             spec="M6 shoulder bolt, 30 mm shoulder, + nyloc: through the guard-side cheek's tab, the actuator's anchor eye"),
+             spec=f"Shoulder bolt, ISO 7379, 6 x {ELEV_ANCHOR_SHOULDER:g} mm shoulder, M5 thread, + {nut}: through two spacers, "
+                  "the actuator's anchor eye and the guard-side cheek's tab (nut inboard)"),
+        *spacers("anchor", Location((ax, 0, az)), "anchor bolt"),
     ]
 
 
 # ---------------------------------------------------------------- elevation sweep
 
 HEAD_PARTS = {"head_motor_plate", "head_guard_plate", "launcher_wheel", "launcher_motor", "head_standoff",
-              "feed_floor", "feed_roof_column", "feed_shuttle", "elev_pin",
+              "feed_floor", "feed_roof_column", "feed_shuttle", "elev_pin", "elev_pin_spacer_outer", "elev_pin_spacer_inner", "shuttle_pin", "crank_pin",
               "shuttle_rod", "shuttle_crank", "shuttle_servo_bracket", "shuttle_servo", "cable_clip"}
 
 
@@ -2399,7 +2507,7 @@ def feed_stroke_solids(p: Feeder, elev_deg: float, theta_deg: float) -> tuple[li
 
 
 TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "trunnion_cheek_elev", "cheek_foot", "az_gear_sector",
-                                 "elev_anchor_bolt", "cable_gland", *ELEV_ACT_PARTS, "elev_lead_fixed", "elev_lead"}
+                                 "elev_anchor_bolt", "elev_anchor_spacer_outer", "elev_anchor_spacer_inner", "cable_gland", *ELEV_ACT_PARTS, "elev_lead_fixed", "elev_lead"}
 HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar"}  # the hose bends; checked by the take-up model (the spring's
 # parts stay put on their bracket since 2026-11-20, so the sweeps check them)
 COTS_MASS_KG = {"launcher_motor": 0.60, "launcher_wheel": 0.35, "head_standoff": 0.015,
@@ -2526,7 +2634,8 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
          "shelf to the posts, vertical through a taper washer, the shelf and a post wedge, two per post"),
         ("2020 corner bracket with M5 screws and T-nuts", 6, "hopper braces, two per brace"),
         ("2020 corner bracket with M5 screws and T-nuts (cable crossbar)", 2, "cable crossbar to the rear mast posts"),
-        ("M4 x 30 shoulder bolt (5 mm shoulder) + nyloc", 2, "shuttle drive: shuttle pin (into its insert) and crank pin"),
+        ("M4 heat-set insert, 4 mm long (crank pin)", 1, "shuttle rod's crank end, pressed flush from the crank side"),
+        ("Medium-strength threadlocker", 1, "crank pin into the rod's insert; the elevation pins' thin nuts"),
         ("M4 x 12 socket cap screw (servo legs)", 3, "motor plate into the servo bracket's legs, from inside the head"),
         ("M4 x 10 socket cap screw (servo tabs)", 2, "servo tabs into the bracket"),
         ("M4 heat-set insert, 5.7 mm long (servo)", 3 + 2 + 1, "servo bracket legs and tabs, shuttle side"),
@@ -2540,8 +2649,8 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M5 x 12 button head + T-nut (lift)", 4 + 4 + 2 * len(p.lift_clip_z()) + 4, "lift base plate to the mast rails and boot; rod clips and head to the spine"),
         ("2040 corner bracket with M5 screws and T-nuts (lift)", 2, "spine to the lift base plate"),
         ("2020 corner bracket with M5 screws and T-nuts (lift)", 2, "lift strut to the spine and the hopper post"),
-        ("M3 x 6 screw (lift)", 6, "lift gearmotor's face to its spacer, from inside the spacer before it goes on the boot"),
-        ("M3 x 10 socket cap screw + M3 heat-set insert (lift)", 2, "lift motor spacer's ears to the boot"),
+        (f"M3 x {LIFT_FACE_SCREW} screw (lift)", 6, "lift gearmotor's face to its spacer, from inside the spacer before it goes on the boot"),
+        (f"M3 x {LIFT_EAR_SCREW} socket cap screw + M3 heat-set insert, 4 mm long (lift)", 2, "lift motor spacer's ears to the boot"),
         ("8 mm axle, 60 mm, + two 608 bearings + e-clips", 1, "lift's top pulley in the head"),
         ("PU cleat welding by the belt supplier (flights)", p.lift_design()["flights"], "cleats on the belt's back at the flight pitch (lift_belt spec)"),
         ("M3 x 12 countersunk screw + nut (flight caps)", 2 * p.lift_design()["flights"], "each flight cap through its cleat"),

@@ -893,13 +893,14 @@ class FeederGeometryTest(unittest.TestCase):
             tip = rod.center()  # the rod's axis lies on the anchor-pin line
             self.assertAlmostEqual((tip.X - ax) * uz - (tip.Z - az) * ux, 0.0, places=6)
             self.assertAlmostEqual(tip.Y, self.p.elev_act_y, places=6)
-        # the guard plate carries the pin hole, the guard-side cheek the anchor hole
+        # the guard plate carries the pin hole, the guard-side cheek the anchor hole: M5 clearance, so the bolts'
+        # 6 mm shoulders seat on the aluminium (6.4 mm holes for M6 until 2026-11-21)
         guard = next(x for x in self.parts if x.name == "head_guard_plate")
-        self.assertTrue(any(e.geom_type == GeomType.CIRCLE and abs(e.radius - 3.2) < 1e-6
+        self.assertTrue(any(e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.75) < 1e-6
                             and math.hypot(e.arc_center.X - self.p.elev_pin_x, e.arc_center.Y - self.p.elev_pin_z) < 0.01
                             for e in guard.flat.edges()))
         cheek = next(x for x in self.parts if x.name == "trunnion_cheek_elev")
-        self.assertTrue(any(e.geom_type == GeomType.CIRCLE and abs(e.radius - 3.2) < 1e-6
+        self.assertTrue(any(e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.75) < 1e-6
                             and math.hypot(e.arc_center.X - ax, e.arc_center.Y - az) < 0.01 for e in cheek.flat.edges()))
 
     def test_elevation_actuator_sweep_can_fail(self):
@@ -1329,7 +1330,7 @@ class FeederAssemblyGuideTest(unittest.TestCase):
     def test_design_passes_every_guide_check(self):
         rows, bad = self.G.joint_checks(self.p, self.parts)
         self.assertEqual(bad, [])
-        self.assertEqual(len(rows), 26)   # 25 until the shelf-to-post joint, 2026-11-21
+        self.assertEqual(len(rows), 33)   # 26 until the shoulder bolts, motor and lift screws joined, 2026-11-21
         self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.access_problems(self.p, self.parts), [])
@@ -1352,6 +1353,53 @@ class FeederAssemblyGuideTest(unittest.TestCase):
         with unittest.mock.patch.object(self.FG, "joints", lambda p: js):
             bad = self.G.joint_checks(self.p, self.parts)[1]
         self.assertEqual(sorted(b.split(":")[0] for b in bad), sorted(f"joint {n}" for n in old))
+
+    def test_shoulder_bolts_and_small_screws_as_they_were_fail(self):
+        """The fasteners the guide left unchecked until 2026-11-21, as the BOM had them: the shuttle pin's M4 x 30
+        (a 30 mm shoulder through a 12 mm stack), the actuator pins' nylocs (a 9.5 mm thread leaves 4.5 mm past the
+        plate), the lift gearmotor's M3 x 6 (2 mm into its face) and the spacer ears' M3 x 10 (bottoms in a 6 mm
+        pocket)."""
+        import dataclasses
+        old = {"shuttle pin through the rod and the plate's slot": dict(length=30.0),
+               "elevation pin (rod eye) through the guard plate": dict(nut_h=5.0),
+               "elevation anchor (anchor eye) through the cheek's tab": dict(nut_h=5.0),
+               "lift gearmotor face to its spacer": dict(length=6),
+               "lift spacer ear to the boot": dict(length=10)}
+        js = [dataclasses.replace(j, **old[j.name]) for j in self.FG.joints(self.p) if j.name in old]
+        self.assertEqual(len(js), len(old))
+        with unittest.mock.patch.object(self.FG, "joints", lambda p: js):
+            bad = self.G.joint_checks(self.p, self.parts)[1]
+        self.assertEqual(sorted(b.split(":")[0] for b in bad), sorted(f"joint {n}" for n in old))
+
+    def test_shoulder_rows_read_the_cad(self):
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.p, self.parts)[0]}
+        pin = rows["elevation pin (rod eye) through the guard plate"]
+        self.assertEqual(pin["grip_mm"], self.F.ELEV_PIN_SHOULDER)     # the shoulder seats on the guard plate
+        self.assertIn("0.5 mm open", pin["rule"])                      # the eye's float, no more
+        self.assertIn("shuttle_rod 5 + head_motor_plate 5", rows["shuttle pin through the rod and the plate's slot"]["stack"])
+        self.assertEqual(rows["crank pin through the crank"]["grip_mm"], 6.0)
+        # the crank pin's thread ends in the rod: nothing reaches the 1 mm gap to the motor plate
+        self.assertLessEqual(self.F.SHOULDER[4][1], self.p.shuttle_rod_t)
+
+    def test_lift_spacer_keeps_both_ear_seats(self):
+        """The set-screw window ran through the flange until 2026-11-21 and took the top ear's seat with it."""
+        from build123d import Cylinder, Location
+        F, p = self.F, self.p
+        spacer = next(x for x in self.parts if x.name == "lift_motor_spacer").placed()[0]
+        y1 = p.lift_y + p.lift_depth / 2 + p.lift_wall
+        for dz in (-F.SPACER_EAR_Z, F.SPACER_EAR_Z):
+            ring = (Cylinder(2.75, 3.0) - Cylinder(1.8, 4.0)).moved(
+                Location((p.lift_x_pulley, y1 + 1.5, p.lift_z_bottom + dz), (90, 0, 0)))
+            self.assertAlmostEqual((ring & spacer).volume, ring.volume, delta=1.0)
+
+    def test_anchor_tail_needs_the_guard_plate_relief(self):
+        from otr_cad import package as P
+        far = lambda p: ((5000.0, 5000.0), 10.0, 0.0, 10.0, 4.0)   # noqa: E731  a relief that cuts nothing
+        with unittest.mock.patch.object(self.F, "anchor_relief", far):
+            p = Feeder(plate_t=5.0002)          # fresh parts (5.0001 is another test's cache key)
+            bad = P.elevation_sweep(p, steps=4)
+        self.assertTrue(any("head_guard_plate" in b and "elev_anchor_bolt" in b for b in bad))
+        self.assertEqual(P.elevation_sweep(self.p, steps=4), [])
 
     def test_end_bores_and_a_lost_step_are_caught(self):
         with unittest.mock.patch.object(self.F, "_cores", lambda pts: list(pts)):

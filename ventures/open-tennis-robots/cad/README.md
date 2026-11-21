@@ -191,9 +191,9 @@ had no use. All are corrected in `feeder.fasteners` and `COTS_EXTRA`.
 Caveats: as for the collector, bought-in parts are envelopes, so the stacks are
 only as good as `params.py`; the T-nut window (4-8 mm), the standoffs' 8 mm of
 thread, a NEMA 17's 4.5 mm and an extrusion's 15 mm end tap are assumptions the
-guide states. Not checked: the elevation actuator's and shuttle drive's shoulder
-bolts, the launcher motors' screws (check them against your motor), the lift's
-small screws. The take-up spring's bracket is in the CAD since 2026-11-20 (below),
+guide states. The shoulder bolts, the launcher motors' screws and the lift's
+small screws were not checked until 2026-11-21 ("Shoulder bolts, motor and lift
+screws", below); the flight caps' M3s still are not. The take-up spring's bracket is in the CAD since 2026-11-20 (below),
 and its two shelf screws are a checked joint. Nobody has built a feeder.
 
 ### Take-up spring bracket (2026-11-20, `Feeder.spring_bracket_design`, `check_spring_bracket`, `feeder.spring_parts`)
@@ -275,6 +275,36 @@ the tapped bore 12 deg off a screw normal to the shelf, and a mitre cut to
 length is harder to get right than a square cut and a print. Assumed, not
 measured: the friction figure and PETG's creep under the full tub (print the
 wedges solid). Nobody has built one.
+
+### Shoulder bolts, motor and lift screws (2026-11-21, `guide.Joint` kind `clamp`, `feeder.shoulder_bolt_y`)
+
+The last joints the feeder guide left unchecked: the elevation actuator's two pins,
+the shuttle drive's two pins, the launcher motors' eight screws and the lift
+gearmotor's and spacer's screws. The four shoulder bolts are drawn whole now (head,
+shoulder, thread, nut), so the collision check and the elevation, azimuth and feed
+stroke sweeps see them, and a new joint kind checks a shoulder bolt clamped on a
+part: its shoulder ends on that part's face, the parts riding on it fill it but for
+the designed gaps, and the thread past the shoulder takes its nut (or stays inside
+the insert). 33 joints are measured. What it found, all fixed in the same change:
+
+| Found | Was | Now |
+| --- | --- | --- |
+| Crank pin | "M4 x 30 shoulder bolt + nyloc" through the crank and the rod: the nyloc would go between the rod and the motor plate, where there is 1 mm; and a 5 mm shoulder comes with a 5 mm thread, too short for a nyloc anywhere | M4 shoulder bolt, 5 x 6 mm shoulder, through the crank into a short (4 mm) M4 heat-set insert pressed flush into the rod's crank end, with threadlocker: the crank turns on the shoulder, the thread ends at the rod's inner face |
+| Shuttle pin | M4 x 30 shoulder: the stack from the rod's outer face to the shuttle is 12 mm (rod, 1 mm gap, plate slot, 0.8 mm clearance) | 5 x 12 mm shoulder, which seats on the shuttle's face; its 5 mm thread sits in the 5.7 mm insert |
+| Actuator pins: shoulder size | "M6 shoulder bolt": the M6-thread ISO 7379 size has an 8 mm shoulder, and the actuator's eyes are for M6 (about 6.3 mm) | the 6 mm shoulder size (M5 thread, 9.5 mm); the guard plate's and cheek tab's holes go from 6.4 to 5.5 mm so the shoulder seats on the aluminium |
+| Actuator pins: nut | a nyloc on each: the thread leaves 4.5 mm past a 5 mm plate, a nyloc and two threads need 6.6 | a DIN 439 thin nut (2.7 mm) and threadlocker: 4.3 mm needed, 4.5 there |
+| Actuator pins: the eye | the eyes rode loose on 40 and 30 mm shoulders, free to slide 20-30 mm off the actuator's plane | two printed sleeves on each pin (9 / 22.5 mm and 6.5 / 15 mm) hold the eye on the plane with 0.5 mm of float |
+| Anchor bolt's tail | its thread and nut stand 4.5 mm inboard of the cheek's tab, into the 2.5 mm gap to the guard plate; above about 25 deg the anchor is inside the plate's outline (152 mm^3 clash at +30 and +45 deg once drawn) | a 13 mm arc slot in the guard plate's lower rear edge on the anchor's path round the pivot (`anchor_relief`, the elevation range plus 3 deg each end) |
+| Lift spacer's top ear | the coupling's set-screw window ran through the flange and cut the top ear's whole seat away: that screw clamped nothing | the window starts at the flange's outer face; it still spans the motor hub, the one tightened through it |
+| Lift spacer's ears | M3 x 10 through a 3 mm flange: 7 mm into a 6 mm insert pocket | M3 x 8 (5 mm: a 4 mm insert's length, inside the pocket) |
+| Lift gearmotor's face | M3 x 6 through the 4 mm end wall: 2 mm into the motor's threads | M3 x 8 (4 mm, within an assumed 5 mm thread) |
+
+The launcher motors' M4 x 12 pass: 7 mm into the motor past the 5 mm plate, inside
+an assumed 8 mm mounting thread. Assumed, not measured: the clevis eyes' 8 mm
+thickness (shorten the inner sleeves if yours are thicker), the outrunners' 8 mm
+and the gearmotor's 5 mm thread depths, and the catalogue shoulder-bolt figures
+(`SHOULDER`: read the bolt you buy). The relief takes about 13 x 45 mm out of the
+guard plate's edge, about 38 mm from the bottom wheel's rim. Nobody has built one.
 
 ## Changing the design
 

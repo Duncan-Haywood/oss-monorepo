@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVKrhGkbeVyt97FPoH9",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T06:17:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: shoulder bolts, motor and lift screws as checked joints (flagship 10 buildable item)",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 18035,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/cad/tests/test_cad.py",
+      "issue": "Tests share the all_parts cache keyed on Feeder params, so a new test using Feeder(plate_t=5.0001) silently broke another test that patches _cores with the same key; pick a unique param value per patched build."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The brief asks for revenue products; took the allocated hardware flagship row anyway because its buildable item was concrete and had real defects to find, rather than re-litigating the router's pick.",
+      "did": "Worked the assigned row",
+      "result": "Five of seven joints had real faults, all fixed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-tennis-feeder-shoulder-bolts-checked.md"
+  ],
+  "goal": "Land the flagship's named buildable item: measure the feeder's last unchecked bolted joints against the CAD and fix what fails.",
+  "notes": "Started from allocate.py's Start-here row (open-tennis-robots). Added a 'clamp' joint kind (guide.py) and drew the four shoulder bolts whole so the sweeps see them; 7 new joints (33 total). Found and fixed: crank pin nyloc with 1 mm to the motor plate (now a 6 mm shoulder into a short insert in the rod), shuttle pin shoulder 30 vs a 12 mm stack, actuator pins of the 8 mm-shoulder size that cannot pass an M6 clevis eye (now 6 mm shoulder/M5, thin nut, printed eye sleeves, 5.5 mm plate holes), the anchor bolt's tail clashing with the guard plate above ~25 deg (arc relief), the lift spacer's set-screw window cutting away the top ear's seat, lift ear M3x10 bottoming and face M3x6 with 2 mm of thread (both M3x8). Verification here: tests/test_cad.py 177 passed (8 min, scratchpad venv with build123d 0.13.0); feeder package rebuilt (collisions [], design_rules []); run_venture_tests.py open-tennis-robots ok. Shoulder-bolt thread lengths from catalogue/ISO 7379 tables found by web search (6 mm shoulder: 9.5 mm M5 thread; 5 mm shoulder: 5 mm M4 thread); eye thickness and motor thread depths are stated assumptions.",
+  "corrections": [],
+  "redteam": null
+}

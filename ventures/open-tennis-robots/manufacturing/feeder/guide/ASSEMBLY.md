@@ -227,16 +227,18 @@ Slide the cable clip onto the rear lower standoff. Screw the four standoffs to t
 | shuttle_servo | 1 | Standard-size digital servo, 18 kg cm class (1.75 N m stall), 0.16 s per 60 deg, 180 deg between the gate pulses, metal gears, round aluminium horn (drawn 40.5 x 20 x 40.5 mm, tabs 54 mm) |
 | shuttle_crank | 1 | print/shuttle_crank.stl |
 | shuttle_rod | 1 | print/shuttle_rod.stl |
+| shuttle_pin | 1 | M4 shoulder bolt, 5 x 12 mm shoulder, 5 mm thread: through the rod and the motor plate's slot into the shuttle's insert; its shoulder ends on the shuttle's face |
+| crank_pin | 1 | M4 shoulder bolt, 5 x 6 mm shoulder, 5 mm thread: through the crank into the rod's insert (the crank turns on the shoulder); medium threadlocker |
 
 | Fastener or part | Qty |
 | --- | --- |
 | M4 x 12 socket cap screw (servo legs) | 3 |
 | M4 x 10 socket cap screw (servo tabs) | 2 |
-| M4 x 30 shoulder bolt (5 mm shoulder) + nyloc | 2 |
+| M4 heat-set insert, 4 mm long (crank pin) | 1 |
 
-Tools: 3 mm and 2.5 mm hex keys, 7 mm spanner.
+Tools: 3 mm and 2.5 mm hex keys, soldering iron with an insert tip.
 
-Screw the servo bracket's three legs to the motor plate (M4 x 12 from inside the head into the leg inserts) and the servo into the cradle by its tabs (two M4 x 10). Centre the servo, screw the crank to its horn, and join crank and shuttle with the rod: one shoulder bolt through the rod and the plate's slot into the shuttle's insert, one through the rod and the crank with a nyloc. Turn the servo by hand through its range: the shuttle runs its stroke without binding.
+Press the short M4 insert into the rod's crank-end pocket from the side that will face the crank, flush with that face. Screw the servo bracket's three legs to the motor plate (M4 x 12 from inside the head into the leg inserts) and the servo into the cradle by its tabs (two M4 x 10). Centre the servo, screw the crank to its horn, and join crank and shuttle with the rod (insert toward the crank): the 12 mm shoulder bolt through the rod and the plate's slot into the shuttle's insert, tight, so its shoulder seats on the shuttle; the 6 mm one through the crank into the rod's insert with a drop of threadlocker, tight, so its shoulder seats on the insert and the crank turns on it. Neither takes a nut: there is 1 mm between the rod and the plate. Turn the servo by hand through its range: the shuttle runs its stroke without binding.
 
 ### 12. Hang the head and fit the elevation actuator
 
@@ -246,16 +248,21 @@ Screw the servo bracket's three legs to the motor plate (M4 x 12 from inside the
 | --- | --- | --- |
 | elev_actuator | 1 | Linear actuator, 12-24 V, 150 mm stroke, 220 N class, clevis eyes for M6, retracted 246 mm hole to hole (drawn at 0 deg; posed per pose in the sweeps) |
 | elev_actuator_rod | 1 | The elev_actuator's own rod (not bought separately), drawn at 0 deg |
-| elev_pin | 1 | M6 shoulder bolt, 40 mm shoulder, + nyloc: through the guard plate (nut inside), the actuator's rod eye |
-| elev_anchor_bolt | 1 | M6 shoulder bolt, 30 mm shoulder, + nyloc: through the guard-side cheek's tab, the actuator's anchor eye |
+| elev_pin | 1 | Shoulder bolt, ISO 7379, 6 x 40 mm shoulder, M5 thread, + M5 thin nut (DIN 439, 2.7 mm) + medium threadlocker: through two spacers, the actuator's rod eye and the guard plate (nut inside the head) |
+| elev_pin_spacer_outer | 1 | print/elev_pin_spacer_outer.stl |
+| elev_pin_spacer_inner | 1 | print/elev_pin_spacer_inner.stl |
+| elev_anchor_bolt | 1 | Shoulder bolt, ISO 7379, 6 x 30 mm shoulder, M5 thread, + M5 thin nut (DIN 439, 2.7 mm) + medium threadlocker: through two spacers, the actuator's anchor eye and the guard-side cheek's tab (nut inboard) |
+| elev_anchor_spacer_outer | 1 | print/elev_anchor_spacer_outer.stl |
+| elev_anchor_spacer_inner | 1 | print/elev_anchor_spacer_inner.stl |
 
 | Fastener or part | Qty |
 | --- | --- |
 | M8 x 120 bolt + nyloc nut + 4 washers | 1 |
+| Medium-strength threadlocker | 1 |
 
-Tools: 13 mm spanners, 5 mm and 4 mm hex keys.
+Tools: 13 mm and 8 mm spanners, 5 mm, 4 mm and 3 mm hex keys.
 
-Lift the head between the cheeks and push the M8 pivot bolt through cheek, washer, head plate, head plate, washer and cheek, with a washer under the head and the nyloc. Tighten until the head swings freely with no end play. Fit the actuator's anchor eye to the guard cheek's tab and its rod eye to the guard plate's pin, each on its M6 shoulder bolt, nut inside. Drive it to the head's level position before you let go: the head is nose-heavy or tail-heavy depending on the pose.
+Lift the head between the cheeks and push the M8 pivot bolt through cheek, washer, head plate, head plate, washer and cheek, with a washer under the head and the nyloc. Tighten until the head swings freely with no end play. Fit the actuator's anchor eye to the guard cheek's tab and its rod eye to the guard plate's pin, each on its 6 mm shoulder bolt (M5 thread) with the short printed spacer under the head and the long one between the eye and the aluminium, and a thin M5 nut with threadlocker inside: the shoulder seats on the plate, and the eye turns between the spacers. (The bolt's 9.5 mm thread leaves 4.5 mm past a 5 mm plate, too little for a nyloc and two threads.) Drive it to the head's level position before you let go: the head is nose-heavy or tail-heavy depending on the pose.
 
 ### 13. Deck, battery and stepper driver carrier
 
@@ -436,12 +443,12 @@ Each hanger is its own height: match its letter to the y in its notes. Bolt the 
 
 | Fastener or part | Qty |
 | --- | --- |
-| M3 x 6 screw (lift) | 6 |
-| M3 x 10 socket cap screw + M3 heat-set insert (lift) | 2 |
+| M3 x 8 screw (lift) | 6 |
+| M3 x 8 socket cap screw + M3 heat-set insert, 4 mm long (lift) | 2 |
 
 Tools: arbor press or vice, 2.5 and 1.5 mm hex keys, luggage scale.
 
-Press the two flanged bearings into the boot (cad/README.md, "Lift drive shaft"). Build the slip hub on the drive shaft through the boot: collar, plate, facing, the pulley, facing, plate, four disc springs cone to cone, collar; set it to slip at 0.9 N m as the slip plates' notes say. Screw the gearmotor's face to the spacer's end wall (six M3 x 6 from inside), fit the coupling, and fix the spacer's ears to the boot (two M3 x 10 into inserts).
+Press the two flanged bearings into the boot (cad/README.md, "Lift drive shaft"). Build the slip hub on the drive shaft through the boot: collar, plate, facing, the pulley, facing, plate, four disc springs cone to cone, collar; set it to slip at 0.9 N m as the slip plates' notes say. Screw the gearmotor's face to the spacer's end wall (six M3 x 8 from inside), fit the coupling, and fix the spacer's ears to the boot (two M3 x 8 into inserts).
 
 ### 21. Lift base plate and boot on the mast rails
 
@@ -599,6 +606,13 @@ Each length is measured from the head's face through the parts the model puts un
 | sump tab to net beam | M5 x 40 button head + T-nut (sump) | trough_sump 34 | 34 | 40 | 6 | 4 to 8 mm past the extrusion's face: catches the T-nut, short of the slot floor | pass |
 | pole foot to net beam | M5 x 12 button head (pole feet) | pole_foot 6 | 6 | 12 | 6 | 4 to 8 mm past the extrusion's face: catches the T-nut, short of the slot floor | pass |
 | cable clamp to crossbar | M5 x 12 button head + T-nut (cable clamp) | cable_clamp 6 | 6 | 12 | 6 | 4 to 8 mm past the extrusion's face: catches the T-nut, short of the slot floor | pass |
+| elevation pin (rod eye) through the guard plate | Shoulder bolt 6 x 40, M5, + thin nut | elev_pin_spacer_outer 9 + elev_pin_spacer_inner 22.5 (+ 8.5 open) | 40 | 40 | 0 | shoulder ends on the face (+-0.3); 0.5 mm open on it (0 to 1); its 9.5 mm thread 4.5 mm past the 5 mm part, 4.3 for the nut and two threads | pass |
+| elevation anchor (anchor eye) through the cheek's tab | Shoulder bolt 6 x 30, M5, + thin nut | elev_anchor_spacer_outer 6.5 + elev_anchor_spacer_inner 15 (+ 8.5 open) | 30 | 30 | 0 | shoulder ends on the face (+-0.3); 0.5 mm open on it (0 to 1); its 9.5 mm thread 4.5 mm past the 5 mm part, 4.3 for the nut and two threads | pass |
+| shuttle pin through the rod and the plate's slot | M4 shoulder bolt, 5 x 12 | shuttle_rod 5 + head_motor_plate 5 (+ 1 open) | 12 | 12 | 0 | shoulder ends on the face (+-0.3); 2 mm open on it (0 to 2.2); its 5 mm thread 4 to 10 mm into the part | pass |
+| crank pin through the crank | M4 shoulder bolt, 5 x 6 + short insert | shuttle_crank 5 | 6 | 6 | 0 | shoulder ends on the face (+-0.3); 1 mm open on it (0 to 1); its 5 mm thread 4 to 5 mm into the part | pass |
+| launcher motor to the motor plate | M4 x 12 socket cap screw (motors) | head_motor_plate 5 | 5 | 12 | 7 | 4 to 8 mm into the part's tapped hole (its thread depth) | pass |
+| lift gearmotor face to its spacer | M3 x 8 screw (lift) | lift_motor_spacer 4 | 4 | 8 | 4 | 3 to 5 mm into the part's tapped hole (its thread depth) | pass |
+| lift spacer ear to the boot | M3 x 8 socket cap screw + M3 heat-set insert, 4 mm long (lift) | lift_motor_spacer 3 | 3 | 8 | 5 | 4 to 6 mm past the face, the insert's length to the pocket's depth | pass |
 | deck cable saddle | M5 x 16 button head + nyloc nut (deck cables) | deck_cable_saddle 1.5 + base_deck 5 | 6.5 | 16 | 9.5 | needs 6.6 mm past the stack for the nyloc and two threads | pass |
 
 ## Other checks
