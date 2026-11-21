@@ -41,20 +41,20 @@ Stress (held-out, seed 9999): identified total over 72 designs, b = None (7ac) 8
   law stress 75 ms D^0         dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [1219, 2074, 2233, 3389]; 0.25 [1201, 2070, 2228, 3399]; 0.1 [1196, 2067, 2243, 3388]
 
 Post hoc (paired by design, Wilcoxon signed-rank, two-sided):
-  b = 0.25 step tail_off  median 0.0044 against 0.0243, p = nan
-  b = 0.25 step over      median 0.0204 against 0.0512, p = nan
-  b = 0.25 step rise      median 1.9110 against 1.7380, p = nan
+  b = 0.25 step tail_off  median 0.0044 against 0.0243, p = 1.5e-12
+  b = 0.25 step over      median 0.0204 against 0.0512, p = 1.7e-13
+  b = 0.25 step rise      median 1.9110 against 1.7380, p = 1.7e-13
   b = 0.25 wind6 peak     median 0.0251 against 0.0251, p = nan
   b = 0.25 wind6 resid    median 0.0197 against 0.0197, p = nan
-  b = 0.25 identified L2-45 per design: total 819 against 820, p = nan
-  b = 0.25 J_45_1_cap at 36 ms per design: median -1.897 against -1.895, p = nan
-  b = 0.1 step tail_off  median 0.0040 against 0.0243, p = nan
-  b = 0.1 step over      median 0.0162 against 0.0512, p = nan
-  b = 0.1 step rise      median 1.9120 against 1.7380, p = nan
-  b = 0.1 wind6 peak     median 0.0251 against 0.0251, p = nan
-  b = 0.1 wind6 resid    median 0.0197 against 0.0197, p = nan
-  b = 0.1 identified L2-45 per design: total 814 against 820, p = nan
-  b = 0.1 J_45_1_cap at 36 ms per design: median -1.886 against -1.895, p = nan
+  b = 0.25 identified L2-45 per design: total 819 against 820, p = 0.89
+  b = 0.25 J_45_1_cap at 36 ms per design: median -1.897 against -1.895, p = 4.9e-08
+  b = 0.1 step tail_off  median 0.0040 against 0.0243, p = 1.7e-12
+  b = 0.1 step over      median 0.0162 against 0.0512, p = 1.7e-13
+  b = 0.1 step rise      median 1.9120 against 1.7380, p = 1.7e-13
+  b = 0.1 wind6 peak     median 0.0251 against 0.0251, p = 0.0001
+  b = 0.1 wind6 resid    median 0.0197 against 0.0197, p = 2.7e-05
+  b = 0.1 identified L2-45 per design: total 814 against 820, p = 0.67
+  b = 0.1 J_45_1_cap at 36 ms per design: median -1.886 against -1.895, p = 2.4e-06
 
 Verdicts:
   AD1: held (96 of 96 agree (need 90))

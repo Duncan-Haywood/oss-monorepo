@@ -24,14 +24,14 @@ Stress dead by law (L2-45 = dead_45_2_cap, summed over designs; above, below)
   stress 75 ms D^0         cint25 b=0.25: [196, 200]; cint25 b=None: [196, 203]; base b=0.25: [205, 209]; base b=None: [204, 206]
 
 Post hoc (Mann-Whitney U, two-sided, per-design values, cint25 against base, both at b = 0.25 m; per geometry, then pooled)
-  step rise      above p = nan; below p = nan; pooled 1.8320 against 1.8440, p = nan
-  step over      above p = nan; below p = nan; pooled 0.0163 against 0.0188, p = nan
-  step tail_off  above p = nan; below p = nan; pooled 0.0039 against 0.0046, p = nan
-  identified L2-45 per design above p = nan; below p = nan; pooled p = nan
-  75 ms      L2-45 per design above p = nan; below p = nan; pooled p = nan
-  gain kp pooled median 16.98 against 17.54, p = nan
-  gain kd pooled median 6.52 against 6.59, p = nan
-  gain ki/kp pooled median 0.0051 against 0.0567, p = nan
+  step rise      above p = 0.31; below p = 0.423; pooled 1.8320 against 1.8440, p = 0.954
+  step over      above p = 0.24; below p = 0.818; pooled 0.0163 against 0.0188, p = 0.371
+  step tail_off  above p = 0.589; below p = 0.485; pooled 0.0039 against 0.0046, p = 0.285
+  identified L2-45 per design above p = 0.517; below p = 1; pooled p = 0.683
+  75 ms      L2-45 per design above p = 0.937; below p = 0.628; pooled p = 0.794
+  gain kp pooled median 16.98 against 17.54, p = 0.84
+  gain kd pooled median 6.52 against 6.59, p = 0.977
+  gain ki/kp pooled median 0.0051 against 0.0567, p = 0.069
 
 Verdicts:
   AE1: refuted (rise 2.106, 1.740 s against base at b = 0.25 1.913, 1.821)
