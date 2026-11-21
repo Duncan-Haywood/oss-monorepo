@@ -11,9 +11,19 @@
 // file is read again and every written value is tested by the same facet that
 // failed (eval/model-fill-2026-11-21.md).
 //
-// Only STEP (.ifc) is written. Quantities (Qto_ sets), attributes,
-// classifications, materials and relationships are reported, not written.
-import { Model, checkIds, parseIds, psetRecord, psetInfo, psetSources, applies } from "./ids.mjs";
+// Quantities go the same way into IfcElementQuantity sets (Qto_ names, or a
+// name the element already holds as one), each an IfcQuantityLength, Area,
+// Volume, Count, Weight or Time picked by the facet's data type (or the
+// standard Qto_ template's). A quantity's value can also come from the
+// element's own other quantity sets: an IFC2X3 export's BaseQuantities often
+// holds the NetSideArea a Qto_WallBaseQuantities facet asks for
+// (eval/model-fill-attributes-quantities-2026-11-21.md). An attribute the
+// element leaves unset ($ or '') is written into its own record; one that
+// holds a value is never overwritten.
+//
+// Only STEP (.ifc) is written. Classifications, materials and relationships
+// are reported, not written.
+import { Model, checkIds, parseIds, psetRecord, psetInfo, psetSources, applies, PropertyFacet, QUANTITY_MEASURE } from "./ids.mjs";
 import { rowsToCsv, csvToRows } from "./sheet.mjs";
 
 const B64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$";
@@ -60,6 +70,13 @@ export function stepReal(x) {
   return s;
 }
 
+// A REAL written so it reads back as the same double (a copied value).
+function exactReal(x) {
+  let s = String(x).replace("e", "E");
+  if (!s.includes(".")) s = s.includes("E") ? s.replace("E", ".E") : s + ".";
+  return s;
+}
+
 // A value the IDS states (or a person typed) as the model holds it: {v, prim}
 // for IdsValue.match, or {error}.
 function readValue(S, dataType, text) {
@@ -75,7 +92,47 @@ function readValue(S, dataType, text) {
     if (prim === "logical" && k === "unknown") return { v: "UNKNOWN", prim };
     return { error: `"${text}" is not true or false` };
   }
+  if (prim === "enum") {
+    const items = enumItems(S, dataType);
+    const k = t.replace(/^\.|\.$/g, "").toUpperCase();
+    return items && items.includes(k) ? { v: { enum: k }, prim } : { error: `"${text}" is not one of ${items ? items.join(", ") : "the enumeration's values"}` };
+  }
   return { error: `${dataType} is a ${prim} type, which this fill does not write` };
+}
+
+// The values an enumeration type allows (through defined types).
+function enumItems(S, typeName) {
+  let t = typeName;
+  for (let g = 0; g < 20 && t; g++) {
+    const d = S.types[t];
+    if (!d) return null;
+    if (d.kind === "enum") return d.values;
+    t = d.of;
+  }
+  return null;
+}
+
+// The quantity class for a measure type (IFCAREAMEASURE -> IFCQUANTITYAREA).
+const QUANTITY_OF = Object.fromEntries(Object.entries(QUANTITY_MEASURE).map(([q, [, mt]]) => [mt, q]));
+
+// A number in the IDS's SI units as the model's project units hold it.
+function toProjectUnits(model, measure, x) {
+  const ut = model.measureUnits && Object.prototype.hasOwnProperty.call(model.measureUnits, measure) ? model.measureUnits[measure] : null;
+  const u = ut && model.unitFactor.get(ut);
+  return u ? (x - u.offset) / u.scale : x;
+}
+
+// An attribute's value as the record holds it, untyped: the attribute's own
+// declared type says what it is. Numbers are written as given: this checker
+// (and the IDS standard's attribute facet) compares attribute values without
+// unit conversion.
+function attrStepValue(val) {
+  const { v, prim } = val;
+  if (prim === "string") return stepString(v);
+  if (prim === "double") return stepReal(v);
+  if (prim === "integer") return String(v);
+  if (prim === "enum") return "." + v.enum + ".";
+  return v === true ? ".T." : v === false ? ".F." : ".U.";
 }
 
 // The typed value's STEP text, a number converted from the IDS's SI units to
@@ -84,13 +141,8 @@ function stepValue(model, dataType, val) {
   const { v, prim } = val;
   let inner;
   if (prim === "string") inner = stepString(v);
-  else if (prim === "double") {
-    let x = v;
-    const ut = model.measureUnits && Object.prototype.hasOwnProperty.call(model.measureUnits, dataType) ? model.measureUnits[dataType] : null;
-    const u = ut && model.unitFactor.get(ut);
-    if (u) x = (x - u.offset) / u.scale;
-    inner = stepReal(x);
-  } else if (prim === "integer") inner = String(v);
+  else if (prim === "double") inner = stepReal(toProjectUnits(model, dataType, v));
+  else if (prim === "integer") inner = String(v);
   else inner = v === true ? ".T." : v === false ? ".F." : ".U.";
   return `${dataType}(${inner})`;
 }
@@ -171,15 +223,16 @@ const listText = (refs) => "(" + refs.join(",") + ")";
 
 // ------------------------------------------------------------- planning ----
 
-// Every property facet that names set ps and property pn in a specification
-// applying to element e: [{spec, facet}]. A value written for one
+// Every property facet that names set ps and property pn (ps null: every
+// attribute facet naming attribute pn) in a specification applying to
+// element e: [{spec, facet}]. A value written for one
 // specification must not break another that constrains the same property on
 // the same element.
 function facetsOn(ids, model, ctx, e, ps, pn, cache) {
   const out = [];
   for (const [si, spec] of ids.specs.entries()) {
     if (spec.optionality === "prohibited") continue;
-    const rs = spec.requirements.filter((r) => r.kind === "property" && r.propertySet.matchString(ps) && r.baseName.matchString(pn));
+    const rs = spec.requirements.filter((r) => (ps === null ? r.kind === "attribute" && r.name.matchString(pn) : r.kind === "property" && r.propertySet.matchString(ps) && r.baseName.matchString(pn)));
     if (!rs.length) continue;
     let set = cache.get(si);
     if (!set) cache.set(si, (set = new Set(applies(spec, model, ctx).map((x) => x.id))));
@@ -199,6 +252,9 @@ function facetHolds(r, e, model, ctx = null) {
 // a 40 MB MEP export fails 5.3 million times, eval/model-fill-2026-11-21.md).
 const failCount = (s) => s.failedCount ?? s.failed.length;
 const reportFailing = (r) => r.specs.reduce((n, s) => n + failCount(s), 0);
+
+// The PropertySet column's text for an attribute row of the to-fill table.
+export const ATTRIBUTE = "(attribute)";
 
 const KIND_WORDS = { entity: "class", attribute: "attribute", classification: "classification", material: "material", partOf: "part of", property: "property" };
 
@@ -224,11 +280,73 @@ export function planFill(idsText, model, opts = {}) {
   const notWritten = {};
   const ctx = { typeMap: opts.typeMap || null };
   const appliesCache = new Map();
+  const reader = new PropertyFacet({ attrs: {}, children: [] });
+  // Quantity pn of class qclass in the element's other quantity sets, when
+  // they agree on one value: {text: in SI units, for the facet test; raw:
+  // the number as the file holds it, when it is in the project's units (no
+  // Unit of its own), so the copy is exact}.
+  const modelQuantity = (e, ps, pn, qclass) => {
+    const seen = new Map();
+    psetSources(model, e, (d) => {
+      if (d.type !== "IFCELEMENTQUANTITY") return;
+      const info = psetInfo(model, d);
+      if (info.name === ps) return;
+      const q = info.props.get(pn);
+      if (!q || q.type !== qclass) return;
+      const got = reader.values(model, q);
+      const ui = S.attrs(q.type).index.get("Unit"), vi = S.attrs(q.type).index.get(QUANTITY_MEASURE[qclass][0]);
+      const raw = q.args[ui] === null || q.args[ui] === undefined ? q.args[vi] : undefined;
+      for (const x of got.values || []) if (typeof x.v === "number" && Number.isFinite(x.v)) {
+        const k = Number(x.v.toPrecision(12));
+        if (!seen.has(k)) seen.set(k, { text: String(x.v), raw: typeof raw === "number" ? raw : undefined });
+      }
+    });
+    return seen.size === 1 ? [...seen.values()][0] : undefined;
+  };
+  // An attribute the element leaves unset, written into its own record.
+  // What no table value could fix is counted, not listed: a pattern-named
+  // attribute on every entity is one row per entity (203,748 on the 3.9 MB
+  // construction model), none of which a person can type a value for.
+  const count = (k) => { notWritten[k] = (notWritten[k] || 0) + 1; };
+  const planAttribute = (spec, r, e, f) => {
+    const an = r.name.simple;
+    const row = { globalId: f.globalId || "", id: e.id, type: e.type, name: f.name || "", spec: spec.name, pset: ATTRIBUTE, prop: an ?? String(r.name), dataType: "", allowed: r.value.present ? String(r.value) : "(any value)", why: "" };
+    if (an === undefined) return count("attribute named by a pattern or list");
+    const ai = S.attrs(e.type).index.get(an);
+    const a = ai === undefined ? null : S.attrs(e.type)[ai];
+    if (!a) return count("attribute the class does not have");
+    row.dataType = a.type;
+    if (a.derived) return count("attribute derived (computed, not stored)");
+    const prim = S.prim(a.type);
+    if (a.aggregate || !["string", "double", "integer", "boolean", "logical", "enum"].includes(prim)) return count("attribute holding a list, an object or a select");
+    if (an === "GlobalId") return count("attribute GlobalId (the element's identity)");
+    const cur = (e.shallowArgs || e.args)[ai];
+    if (!(cur === null || cur === undefined || cur === "")) return count("attribute already set (not overwritten)");
+    let text = fixedValue(r.value), source = "ids";
+    if (text === undefined && f.globalId) { text = userValue(f.globalId, ATTRIBUTE, an); source = "table"; }
+    if (text === undefined && opts.suggest) { text = opts.suggest(r, a.type, prim); source = "table"; }
+    if (text === undefined || text === null || text === "") { unfilled.push({ ...row, why: f.globalId ? "no value given: type one in the Value column" : "no value given, and the element has no GlobalId to give one by" }); return; }
+    const val = readValue(S, a.type, text);
+    if (val.error) { unfilled.push({ ...row, value: text, why: val.error }); return; }
+    if (r.value.present && !r.value.match(val.v, prim)) { unfilled.push({ ...row, value: text, why: `"${text}" is not ${r.value}` }); return; }
+    for (const { spec: s2, facet: r2 } of facetsOn(ids, model, ctx, e, null, an, appliesCache)) {
+      if (r2 === r) continue;
+      let clash = null;
+      if (r2.cardinality === "prohibited") clash = `specification "${s2.name}" prohibits ${an} here`;
+      else if (r2.value.present && !r2.value.match(val.v, prim)) clash = `specification "${s2.name}" asks for ${an} ${r2.value}`;
+      if (clash) { unfilled.push({ ...row, value: text, why: `"${text}" would break another check: ${clash}` }); return; }
+    }
+    const key = `${e.id}\0${ATTRIBUTE}\0${an}`;
+    const valueText = attrStepValue(val);
+    const prev = writes.get(key);
+    if (prev && prev.valueText !== valueText) { conflicts.add(key); unfilled.push({ ...row, value: text, why: `another specification asks for ${prev.text}` }); return; }
+    if (!prev) writes.set(key, { kind: "attribute", attrIndex: ai, e, globalId: f.globalId, pset: ATTRIBUTE, prop: an, dataType: a.type, text: String(text), valueText, source, spec: spec.name });
+  };
   for (const [si, spec] of ids.specs.entries()) {
     const s = report.specs[si];
     if (s.status !== "fail" || spec.optionality === "prohibited") continue;
-    if (!spec.requirements.some((r) => r.kind === "property" && r.cardinality === "required")) {
-      const k = "elements failing a specification with no required property";
+    if (!spec.requirements.some((r) => (r.kind === "property" || r.kind === "attribute") && r.cardinality === "required")) {
+      const k = "elements failing a specification with no required property or attribute";
       notWritten[k] = (notWritten[k] || 0) + failCount(s);
       continue;
     }
@@ -239,6 +357,7 @@ export function planFill(idsText, model, opts = {}) {
       const f = { globalId: typeof gidAttr === "string" ? gidAttr : "", name: typeof nameAttr === "string" ? nameAttr : "" };
       for (const [ri, r] of spec.requirements.entries()) {
         if (verdicts[ri]) continue;
+        if (r.kind === "attribute" && r.cardinality === "required") { planAttribute(spec, r, e, f); continue; }
         if (r.kind !== "property" || r.cardinality !== "required") {
           const k = (Object.hasOwn(KIND_WORDS, r.kind) ? KIND_WORDS[r.kind] : r.kind) + (r.kind === "entity" || r.cardinality === "required" ? "" : " (" + r.cardinality + ")");
           notWritten[k] = (notWritten[k] || 0) + 1;
@@ -247,30 +366,42 @@ export function planFill(idsText, model, opts = {}) {
         const row = { globalId: f.globalId || "", id: e.id, type: e.type, name: f.name || "", spec: spec.name, pset: r.propertySet.simple ?? String(r.propertySet), prop: r.baseName.simple ?? String(r.baseName), dataType: r.dataType || "", allowed: r.value.present ? String(r.value) : "(any value)", why: "" };
         const ps = r.propertySet.simple, pn = r.baseName.simple;
         if (ps === undefined || pn === undefined) { unfilled.push({ ...row, why: "the IDS names the set or property by a pattern or list, so no one name can be written" }); continue; }
-        if (/^Qto_/.test(ps)) { unfilled.push({ ...row, why: "quantity sets (Qto_) are not written yet" }); continue; }
         if (!f.globalId) { unfilled.push({ ...row, why: "the element has no GlobalId" }); continue; }
-        // A set of this name the element holds as something other than a
-        // property set (IFC2X3 exports name their IfcElementQuantity
-        // BaseQuantities): a property set of the same name beside it would be
-        // merged by this checker but read by IfcTester as the one set, hiding
-        // the quantities (eval/model-fill-2026-11-21.md).
-        let other = null;
-        psetSources(model, e, (d) => { if (!other && d.type !== "IFCPROPERTYSET" && psetInfo(model, d).name === ps) other = d.type; });
-        if (other) { unfilled.push({ ...row, why: `the model holds ${ps} as an ${other}, which this fill does not write` }); continue; }
+        // What the element holds sets of this name as. A set of the other
+        // kind beside it (IFC2X3 exports name their IfcElementQuantity
+        // BaseQuantities) would be merged by this checker but read by
+        // IfcTester as the one set, hiding what is there
+        // (eval/model-fill-2026-11-21.md).
+        const held = new Set();
+        psetSources(model, e, (d) => { if (psetInfo(model, d).name === ps) held.add(d.type); });
+        const quantity = held.has("IFCELEMENTQUANTITY") || (!held.size && /^Qto_/.test(ps));
+        const setType = quantity ? "IFCELEMENTQUANTITY" : "IFCPROPERTYSET";
+        const other = [...held].find((t) => t !== setType);
+        if (other) { unfilled.push({ ...row, why: `the model holds ${ps} as an ${other}, so ${quantity ? "a quantity" : "a property"} of that name is not written beside it` }); continue; }
         let dataType = r.dataType;
         if (!dataType) {
           const tpl = templates && Object.hasOwn(templates, ps) && Object.hasOwn(templates[ps].props, pn) ? templates[ps].props[pn] : null;
-          dataType = (tpl && tpl.type) || "IFCLABEL";
+          dataType = (tpl && tpl.type) || (quantity ? null : "IFCLABEL");
         }
-        row.dataType = dataType;
+        row.dataType = dataType || "";
+        let qclass = null;
+        if (quantity) {
+          qclass = dataType && Object.hasOwn(QUANTITY_OF, dataType) ? QUANTITY_OF[dataType] : null;
+          if (!dataType) { unfilled.push({ ...row, why: "the IDS gives no data type and no standard Qto_ template names this quantity, so its kind (length, area, volume ...) is unknown" }); continue; }
+          if (!qclass || !S.has(qclass)) { unfilled.push({ ...row, why: `${dataType} is not a quantity measure in ${model.schemaId} (length, area, volume, count, weight or time)` }); continue; }
+        }
         const prim = S.prim(dataType);
         if (!["string", "double", "integer", "boolean", "logical"].includes(prim)) { unfilled.push({ ...row, why: `${dataType} is not a value type in ${model.schemaId}` }); continue; }
         let text = fixedValue(r.value), source = "ids";
         if (text === undefined) { text = userValue(f.globalId, ps, pn); source = "table"; }
+        // A quantity the element already holds under the same name in
+        // another quantity set, of the same kind: its value in SI units.
+        let copied;
+        if (text === undefined && quantity) { copied = modelQuantity(e, ps, pn, qclass); if (copied !== undefined) { text = copied.text; source = "model"; } }
         // opts.suggest(facet, dataType): a stand-in for a person typing a
         // value (eval/model-fill-sweep.mjs uses it to exercise the table path).
         if (text === undefined && opts.suggest) { text = opts.suggest(r, dataType, prim); source = "table"; }
-        if (text === undefined || text === "") { unfilled.push({ ...row, why: "no value given: type one in the Value column" }); continue; }
+        if (text === undefined || text === null || text === "") { unfilled.push({ ...row, why: "no value given: type one in the Value column" }); continue; }
         const val = readValue(S, dataType, text);
         if (val.error) { unfilled.push({ ...row, value: text, why: val.error }); continue; }
         if (r.value.present && !r.value.match(val.v, val.prim)) { unfilled.push({ ...row, value: text, why: `"${text}" is not ${r.value}` }); continue; }
@@ -285,10 +416,10 @@ export function planFill(idsText, model, opts = {}) {
         }
         if (clash) { unfilled.push({ ...row, value: text, why: `"${text}" would break another check: ${clash}` }); continue; }
         const key = `${e.id}\0${ps}\0${pn}`;
-        const valueText = stepValue(model, dataType, val);
+        const valueText = quantity ? (copied && copied.raw !== undefined ? exactReal(copied.raw) : stepReal(toProjectUnits(model, dataType, val.v))) : stepValue(model, dataType, val);
         const prev = writes.get(key);
         if (prev && prev.valueText !== valueText) { conflicts.add(key); unfilled.push({ ...row, value: text, why: `another specification asks for ${prev.text}` }); continue; }
-        if (!prev) writes.set(key, { e, globalId: f.globalId, pset: ps, prop: pn, dataType, text: String(text), valueText, source, spec: spec.name });
+        if (!prev) writes.set(key, { kind: quantity ? "quantity" : "property", setType, qclass, e, globalId: f.globalId, pset: ps, prop: pn, dataType, text: String(text), valueText, source, spec: spec.name });
       }
     }
   }
@@ -314,14 +445,18 @@ export function fillModel(idsText, ifc, opts = {}) {
   const at = (type, name) => S.attrs(type).index.get(name);
   const random = opts.random || randomBytes16;
 
-  // Group the writes by element and set name.
+  // Group the writes by element and set name (attributes apart: they go
+  // into the element's own record).
   const byElemSet = new Map();
+  const attrWrites = [];
   for (const w of plan.writes) {
-    const k = `${w.e.id}\0${w.pset}`;
+    if (w.kind === "attribute") { attrWrites.push(w); continue; }
+    const k = `${w.e.id}\0${w.setType}\0${w.pset}`;
     let g = byElemSet.get(k);
-    if (!g) byElemSet.set(k, (g = { e: w.e, pset: w.pset, props: [] }));
+    if (!g) byElemSet.set(k, (g = { e: w.e, pset: w.pset, setType: w.setType, props: [] }));
     g.props.push(w);
   }
+  const listAttr = (type) => (type === "IFCELEMENTQUANTITY" ? "Quantities" : "HasProperties");
   // Which property set each element's values go to: its own (occurrence or
   // type object) set of that name, the last one as psetsOf reads it, or a new
   // one. Groups of elements that get the same values in the same set.
@@ -331,11 +466,11 @@ export function fillModel(idsText, ifc, opts = {}) {
   for (const g of byElemSet.values()) {
     g.props.sort((a, b) => (a.prop < b.prop ? -1 : a.prop > b.prop ? 1 : 0));
     const sig = g.props.map((p) => p.prop + "=" + p.valueText).join("\n");
-    const own = ownSets(g.e).filter((p) => p.type === "IFCPROPERTYSET" && psetInfo(model, p).name === g.pset);
+    const own = ownSets(g.e).filter((p) => p.type === g.setType && psetInfo(model, p).name === g.pset);
     const target = own.length ? own[own.length - 1] : null;
-    const k = (target ? "P" + target.id : "N" + (isType(g.e) ? "T" + g.e.id : "") + g.pset) + "\0" + sig;
+    const k = (target ? "P" + target.id : "N" + g.setType + "\0" + (isType(g.e) ? "T" + g.e.id : "") + g.pset) + "\0" + sig;
     let G = groups.get(k);
-    if (!G) groups.set(k, (G = { target, pset: g.pset, props: g.props, elems: [] }));
+    if (!G) groups.set(k, (G = { target, pset: g.pset, setType: g.setType, props: g.props, elems: [] }));
     G.elems.push(g.e);
   }
 
@@ -357,6 +492,7 @@ export function fillModel(idsText, ifc, opts = {}) {
   const needIds = new Set([...targets]);
   for (const h of holders.values()) { for (const r of h.rels) needIds.add(r.rel.id); for (const t of h.types) needIds.add(t.id); }
   for (const G of groups.values()) if (!G.target) for (const e of G.elems) if (isType(e)) needIds.add(e.id);
+  for (const w of attrWrites) needIds.add(w.e.id);
   const recs = findRecords(text, needIds);
   const changed = new Set();
 
@@ -368,9 +504,11 @@ export function fillModel(idsText, ifc, opts = {}) {
   const oh = (model.byType.get("IFCOWNERHISTORY") || [])[0];
   const ownerRef = oh ? "#" + oh.id : "$";
   const guid = () => stepString(newGlobalId(random));
-  const propRefs = (G) => G.props.map((p) => add(`IFCPROPERTYSINGLEVALUE(${stepString(p.prop)},$,${p.valueText},$)`));
+  // A record of class type with the named arguments given, every other one $.
+  const record = (type, given) => `${type}(${S.attrs(type).map((a) => (Object.hasOwn(given, a.name) ? given[a.name] : a.derived ? "*" : "$")).join(",")})`;
+  const propRefs = (G) => G.props.map((p) => add(p.kind === "quantity" ? record(p.qclass, { Name: stepString(p.prop), [QUANTITY_MEASURE[p.qclass][0]]: p.valueText }) : `IFCPROPERTYSINGLEVALUE(${stepString(p.prop)},$,${p.valueText},$)`));
   const nameOfRef = (P) => { const r = psetRecord(model, P); const m = new Map(); for (let i = 1; i < r.length; i += 2) m.set(r[i + 1].id, r[i]); return m; };
-  const keptRefs = (P, G) => { const names = new Set(G.props.map((p) => p.prop)); const nm = nameOfRef(P); return listRefs(recs.get(P.id).args[at(P.type, "HasProperties")]).filter((r) => !names.has(nm.get(Number(r.slice(1))))); };
+  const keptRefs = (P, G) => { const names = new Set(G.props.map((p) => p.prop)); const nm = nameOfRef(P); return listRefs(recs.get(P.id).args[at(P.type, listAttr(P.type))]).filter((r) => !names.has(nm.get(Number(r.slice(1))))); };
   const sets = { edited: 0, copied: 0, added: 0 };
   const written = [];
   const skipped = [];
@@ -388,7 +526,7 @@ export function fillModel(idsText, ifc, opts = {}) {
   // Sets of a name an element does not have yet: one new set per group.
   for (const G of groups.values()) {
     if (G.target) continue;
-    const pref = add(`IFCPROPERTYSET(${guid()},${ownerRef},${stepString(G.pset)},$,${listText(propRefs(G))})`);
+    const pref = add(G.setType === "IFCPROPERTYSET" ? `IFCPROPERTYSET(${guid()},${ownerRef},${stepString(G.pset)},$,${listText(propRefs(G))})` : record(G.setType, { GlobalId: guid(), OwnerHistory: ownerRef, Name: stepString(G.pset), [listAttr(G.setType)]: listText(propRefs(G)) }));
     relateNew(pref, G.elems);
     sets.added++;
     written.push(G);
@@ -415,7 +553,7 @@ export function fillModel(idsText, ifc, opts = {}) {
       const rec = recs.get(pid);
       const args = rec.args.slice();
       args[at(P.type, "GlobalId")] = guid();
-      args[at(P.type, "HasProperties")] = listText([...keptRefs(P, G), ...propRefs(G)]);
+      args[at(P.type, listAttr(P.type))] = listText([...keptRefs(P, G), ...propRefs(G)]);
       const copy = add(`${rec.type}(${args.join(",")})`);
       const re = new RegExp(`#${pid}(?!\\d)`, "g");
       const loose = [];
@@ -445,11 +583,21 @@ export function fillModel(idsText, ifc, opts = {}) {
     }
     if (inPlace) {
       const rec = recs.get(pid);
-      rec.args[at(P.type, "HasProperties")] = listText([...keptRefs(P, inPlace), ...propRefs(inPlace)]);
+      rec.args[at(P.type, listAttr(P.type))] = listText([...keptRefs(P, inPlace), ...propRefs(inPlace)]);
       changed.add(pid);
       sets.edited++;
       written.push(inPlace);
     }
+  }
+
+  // Attributes left unset, written into the element's own record.
+  const attrsDone = [];
+  for (const w of attrWrites) {
+    const rec = recs.get(w.e.id);
+    if (!rec || rec.args.length <= w.attrIndex) { skipped.push({ elems: [w.e], props: [w], why: "its record could not be found in the file's text" }); continue; }
+    rec.args[w.attrIndex] = w.valueText;
+    changed.add(w.e.id);
+    attrsDone.push(w);
   }
 
   // The new file: edited records in place, new ones before the DATA ENDSEC.
@@ -464,8 +612,9 @@ export function fillModel(idsText, ifc, opts = {}) {
   out += text.slice(p, endsec) + (added.length ? added.join(lineBreak) + lineBreak : "") + text.slice(endsec);
 
   const writtenRows = [];
-  for (const G of written) for (const e of G.elems) for (const w of G.props) writtenRows.push({ id: e.id, globalId: model.attr(e, "GlobalId"), pset: w.pset, prop: w.prop, value: w.valueText });
-  const skippedRows = skipped.flatMap((G) => G.elems.flatMap((e) => G.props.map((w) => ({ globalId: w.globalId, id: e.id, type: e.type, name: "", spec: w.spec, pset: w.pset, prop: w.prop, dataType: w.dataType, allowed: "", value: w.text, why: "its set is shared through a relationship that relates other sets too; not changed" }))));
+  for (const G of written) for (const e of G.elems) for (const w of G.props) writtenRows.push({ kind: w.kind, id: e.id, globalId: model.attr(e, "GlobalId"), pset: w.pset, prop: w.prop, value: w.valueText, source: w.source });
+  for (const w of attrsDone) writtenRows.push({ kind: "attribute", id: w.e.id, globalId: w.globalId, pset: ATTRIBUTE, prop: w.prop, value: w.valueText, source: w.source });
+  const skippedRows = skipped.flatMap((G) => G.elems.flatMap((e) => G.props.map((w) => ({ globalId: w.globalId, id: e.id, type: e.type, name: "", spec: w.spec, pset: w.pset, prop: w.prop, dataType: w.dataType, allowed: "", value: w.text, why: G.why || "its set is shared through a relationship that relates other sets too; not changed" }))));
 
   // Read the new file back and test each written value with the facets that failed.
   let verified = null, after = null;
@@ -482,7 +631,7 @@ export function fillModel(idsText, ifc, opts = {}) {
     const ctx2 = { typeMap: opts.typeMap || null };
     for (const w of writtenRows) {
       const e = m2.entities.get(w.id);
-      const fs = e ? facetsOn(ids, m2, ctx2, e, w.pset, w.prop, cache2) : [];
+      const fs = e ? facetsOn(ids, m2, ctx2, e, w.kind === "attribute" ? null : w.pset, w.prop, cache2) : [];
       if (e && fs.length && fs.every(({ facet }) => facetHolds(facet, e, m2))) ok++;
       else bad.push(w);
     }
@@ -508,6 +657,8 @@ export function fillModel(idsText, ifc, opts = {}) {
     elements: new Set(writtenRows.map((w) => w.id)).size,
     fromIds: plan.writes.filter((w) => w.source === "ids").length,
     fromTable: plan.writes.filter((w) => w.source === "table").length,
+    fromModel: plan.writes.filter((w) => w.source === "model").length,
+    kinds: writtenRows.reduce((o, w) => ((o[w.kind] = (o[w.kind] || 0) + 1), o), {}),
     sets,
     added: added.length,
     editedRecords: changed.size,
@@ -559,12 +710,14 @@ export function readValues(csvText) {
 export function fillReport(r) {
   const out = [];
   const n = (x) => x.toLocaleString("en-US");
-  out.push(`wrote ${n(r.written)} value(s) on ${n(r.elements)} element(s): ${n(r.fromIds)} the IDS fixes, ${n(r.fromTable)} from the table`);
-  out.push(`property sets: ${r.sets.edited} edited, ${r.sets.copied} copied for the elements that differ, ${r.sets.added} added; ${r.editedRecords} record(s) changed, ${r.added} added, every other line as it was`);
+  out.push(`wrote ${n(r.written)} value(s) on ${n(r.elements)} element(s): ${n(r.fromIds)} the IDS fixes, ${n(r.fromTable)} from the table${r.fromModel ? `, ${n(r.fromModel)} copied from the element's own other quantity sets` : ""}`);
+  const k = r.kinds || {};
+  if (k.quantity || k.attribute) out.push(`of them: ${n(k.property || 0)} propert${k.property === 1 ? "y" : "ies"}, ${n(k.quantity || 0)} quantit${k.quantity === 1 ? "y" : "ies"}, ${n(k.attribute || 0)} attribute(s)`);
+  out.push(`property and quantity sets: ${r.sets.edited} edited, ${r.sets.copied} copied for the elements that differ, ${r.sets.added} added; ${r.editedRecords} record(s) changed, ${r.added} added, every other line as it was`);
   if (r.verified) out.push(`read back: ${n(r.verified.pass)} of ${n(r.verified.values)} written value(s) now pass the facet that failed${r.verified.parseErrors ? `; ${r.verified.parseErrors} read error(s)` : ""}`);
   if (r.after) out.push(`failing elements: ${n(r.before.failing)} before, ${n(r.after.failing)} after${r.after.addedRecords ? ` (${n(r.after.addedRecords)} of them the new property sets and relationships themselves, checked by a specification that applies to every entity, as the model's own are)` : ""}`);
   const kinds = Object.entries(r.notWritten);
-  if (kinds.length) out.push(`not written (not property values): ${kinds.map(([k, v]) => `${n(v)} ${k}`).join(", ")}`);
+  if (kinds.length) out.push(`not written (not property, quantity or attribute values): ${kinds.map(([k, v]) => `${n(v)} ${k}`).join(", ")}`);
   if (r.unfilled.length) {
     const why = new Map();
     for (const u of r.unfilled) why.set(u.why, (why.get(u.why) || 0) + 1);

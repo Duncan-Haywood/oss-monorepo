@@ -38,7 +38,7 @@ const suggest = (r, dataType, prim) => {
   if (prim === "boolean" || prim === "logical") return "true";
   if (prim === "double" || prim === "integer") {
     const b = x && (x.minInclusive ?? x.maxInclusive);
-    if (b !== undefined) return prim === "integer" ? String(Math.ceil(Number(b))) : b;
+    if (b !== undefined && b !== null) return prim === "integer" ? String(Math.ceil(Number(b))) : b;
     if (x && (x.minExclusive !== undefined || x.maxExclusive !== undefined)) return x.minExclusive !== undefined ? String(Number(x.minExclusive) + 1) : String(Number(x.maxExclusive) - 1);
     return "1";
   }
@@ -63,7 +63,7 @@ for (const f of files) {
       const newLines = r.text.split(/\r?\n/);
       const changed = newLines.filter((l) => !origSet.has(l)).length;
       Object.assign(row, {
-        written: r.written, elements: r.elements, fromIds: r.fromIds, fromTable: r.fromTable, sets: r.sets,
+        written: r.written, elements: r.elements, fromIds: r.fromIds, fromTable: r.fromTable, fromModel: r.fromModel, kinds: r.kinds, sets: r.sets,
         addedRecords: r.added, editedRecords: r.editedRecords, changedLines: changed, lineCountDelta: newLines.length - origLines.length,
         unfilled: r.unfilled.length, notWritten: r.notWritten,
         verified: r.verified && { values: r.verified.values, pass: r.verified.pass, fail: r.verified.fail.length, parseErrors: r.verified.parseErrors },
