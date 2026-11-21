@@ -252,6 +252,36 @@ CHECKS = [
     ("leak_budget_results.txt", "# L3 -> refuted", "Of five predictions, three held"),
     ("leak_budget_results.txt", "# L5 -> refuted", "Of five predictions, three held"),
 
+    # 11ay cross-validated leak budget and neighbour rule
+    ('budget_cv_results.txt', '# LOLO budget for B: min 0.05, median 0.05, max 0.05; folds in [0.02, 0.1]: 48 of 48', '**0.05** (48 of 48 folds)'),
+    ('budget_cv_results.txt', 'B(LOLO)   median 1.0091', '**1.0091, 1.0078, 1.0122 and 1.0016**'),
+    ('budget_cv_results.txt', 'B(LOLO)   median 1.0078', '**1.0091, 1.0078, 1.0122 and 1.0016**'),
+    ('budget_cv_results.txt', 'B(LOLO)   median 1.0122', '**1.0091, 1.0078, 1.0122 and 1.0016**'),
+    ('budget_cv_results.txt', 'B(LOLO)   median 1.0016', '**1.0091, 1.0078, 1.0122 and 1.0016**'),
+    ('budget_cv_results.txt', 'mean 1.0252', '1.0252 against 1.0259'),
+    ('budget_cv_results.txt', 'mean 1.0259', '1.0252 against 1.0259'),
+    ('budget_cv_results.txt', 'mean 1.0432', '1.0432 against 1.0552'),
+    ('budget_cv_results.txt', 'mean 1.0552', '1.0432 against 1.0552'),
+    ('budget_cv_results.txt', 'mean 1.0233', '1.0233 against 1.0227'),
+    ('budget_cv_results.txt', 'mean 1.0227', '1.0233 against 1.0227'),
+    ('budget_cv_results.txt', 'mean 1.0299', '1.0299 against 1.0488'),
+    ('budget_cv_results.txt', 'mean 1.0488', '1.0299 against 1.0488'),
+    ('budget_cv_results.txt', 'N(LOLO)   median 1.0020', '**1.0000, 1.0000, 1.0020 and 1.0000**'),
+    ('budget_cv_results.txt', '(within 1%: 69 of 96)', '69 to 83 of 96'),
+    ('budget_cv_results.txt', '(within 1%: 83 of 96)', '69 to 83 of 96'),
+    ('budget_cv_results.txt', '(within 1%: 44 of 96)', '(one spacing: 44 to 56)'),
+    ('budget_cv_results.txt', '(within 1%: 56 of 96)', '(one spacing: 44 to 56)'),
+    ('budget_cv_results.txt', 'takes a neighbour of k_B in 32 of 96', '32 to 52 of 96'),
+    ('budget_cv_results.txt', 'takes a neighbour of k_B in 52 of 96', '32 to 52 of 96'),
+    ('budget_cv_results.txt', 'N(LOLO)   median 1.0000  p90 1.0678', '**1.0678** (12 operators)'),
+    ('budget_cv_results.txt', 'N(LOLO)   median 1.0000  p90 1.0522', '**1.0522** (16)'),
+    ('budget_cv_results.txt', 'B(LOLO)   median 1.0078  p90 1.1042', 'p90 1.1042 and 1.0918'),
+    ('budget_cv_results.txt', 'B(LOLO)   median 1.0016  p90 1.0918', 'p90 1.1042 and 1.0918'),
+    ('budget_cv_results.txt', 'max 1.5472', 'still costs 1.5472'),
+    ('budget_cv_results.txt', '# V3 -> refuted', 'Of five predictions, three held'),
+    ('budget_cv_results.txt', '# V5 -> refuted', 'Of five predictions, three held'),
+    ('budget_cv_results.txt', 'budgets: 52 values', 'on 52 budgets'),
+
 ]
 
 
