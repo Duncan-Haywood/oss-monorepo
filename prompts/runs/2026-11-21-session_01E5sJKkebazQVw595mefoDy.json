@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKkebazQVw595mefoDy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T06:18:15Z",
+  "ended": "2026-11-21T06:32:39Z",
+  "wall_minutes": 14.6,
+  "tokens_in": 5006375,
+  "tokens_out": 35342,
+  "cost_usd": 2.7815,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18038",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First test run hit the pinned-results tests before the results file existed (expected; reran after)."
+  ],
+  "integrity_issues": [
+    "One smoke test (Wigley I, Fn 0.2) ran after the expectations were written and before they were committed; disclosed in LOG.md and the script docstring, expectations unchanged, only E0's numerical limit tightened (U 1e-9)."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "marine-hull's Next line asked for Salvesen 1978 'once a host serves the formula's source'; WebSearch found an open DTU manuscript but WebFetch cannot resolve backend.orbit.dtu.dk and curl gets proxy 403 for every literature host, so the named next step was unreachable again; pick_track's HOSTS RECHECK could list orbit.dtu.dk."
+    },
+    {
+      "file": "research/marine-hull/tests",
+      "issue": "Building a ModifiedWigleyStrip section table takes ~100 s, so even a small new test file passes the 120 s foreground limit when combined with others; run marine-hull tests in the background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "why": "The 'Next' step (a second formula, Salvesen 1978) needed a source no reachable host serves, and writing it from memory would fail the citation bar.",
+      "did": "Took the GB formula in use apart term by term instead (the same question: is the formula's speed dependence the L/B 10 gap), which also addressed 7zk's untraced factor against another code.",
+      "result": "Landed a falsifiable result: no speed-term slip explains either gap; the consistent form fits best."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-marine-hull-gb-speed-terms.md",
+    "research/marine-hull/LOG.md (7zr)"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: paper/check_numbers.py ok; research/_homepage/build.py ok; check_posts ok; check_md_links ok; research_live_links 0 changes; tests in tests/test_gb_speed_terms.py (5 variant tests pass; 2 pinned-results tests pass after the run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9f318829-3290-50a6-a17e-70c803a9da14",
+    "transcripts": 1,
+    "first": "2026-11-21T06:18:15Z",
+    "last": "2026-11-21T06:32:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 85,
+        "output": 35342,
+        "thinking": 10573,
+        "cache_read": 4868713,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137577,
+        "api_equivalent_usd": 2.7815,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 85,
+      "output": 35342,
+      "thinking": 10573,
+      "cache_read": 4868713,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137577,
+      "api_equivalent_usd": 2.7815,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.6,
+      "active_minutes": 14.6,
+      "model_minutes": 6.45,
+      "tool_minutes": 8.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a naval architect implementing GB variants, running the sweep and writing the paper sentence and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 215.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
