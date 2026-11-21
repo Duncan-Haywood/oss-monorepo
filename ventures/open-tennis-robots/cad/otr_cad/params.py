@@ -562,6 +562,31 @@ class Collector:
     mast_len: float = 1000.0
     mast_x: float = -225.0        # over the caster: the socket and the caster adapter share one set of bolts
 
+    # Yoke-lift switches, the front bumper (2026-11-21). Each arm carries a cam lobe behind its pivot; a roller-lever
+    # microswitch on a printed tower sits on the horizontal line behind the pivot, its lever in the arm's plane. The
+    # lobe pushes the roller out once the drum has risen `bump_lift_mm` and holds it there for every larger lift (the
+    # azimuth home switch's ramp, `Feeder.home_switch_design`, turned on its side). Switch figures are the same
+    # D2F-L3 class assumptions as the feeder's home switch.
+    bump_lift_mm: float = 10.0        # drum rise at its axle where the switch should click (firmware: forward stops)
+    bump_rest_mm: float = 3.0         # the lobe must not touch the roller below this rise (court bumps, a loose pivot)
+    bump_sw_body: tuple = (12.8, 6.5, 5.8)  # along the lever's sweep (z here), along its travel (x), across (y)
+    bump_sw_hole_pitch: float = 6.5   # its two mounting holes (M2 self-tapping into the tower; assumption)
+    bump_sw_lever_mm: float = 5.0     # body face to the roller's far edge, free (assumption)
+    bump_sw_roller_r: float = 2.4     # roller radius; its axis along y
+    bump_sw_roller_w: float = 3.0     # roller width (inside the arm's 5 mm)
+    bump_sw_pretravel_mm: float = 1.2  # roller travel to the click (assumption)
+    bump_sw_overtravel_mm: float = 1.0  # roller travel past the click before the lever bottoms (assumption)
+    bump_sw_repeat_mm: float = 0.05   # operating-position repeatability at the roller (assumption)
+    bump_sw_op_tol_mm: float = 0.3    # operating-position tolerance part to part, at the roller (assumption)
+    bump_runout_mm: float = 0.3       # the arm's 8.4 mm hole on the 8 mm shoulder (0.2) plus the lobe's cut error
+    bump_free_clear_mm: float = 1.0   # roller's free edge outside the radius the ramp starts from
+    bump_roller_r: float = 50.0       # roller's free near edge, mm from the pivot axis (30 put first touch 0.4 mm up)
+    bump_cam_ramp_deg: float = 45.0   # lobe lead-in against the roller's travel (roller levers take up to about 45)
+    bump_cam_end_deg: float = 45.0    # arm lift (deg) to which the lobe holds the switch closed (past the stop)
+    bump_slot_mm: float = 1.5         # tower's travel either way along x in its base-plate slots, to set the click
+    bump_tower_t: float = 14.0        # tower thickness along y, inboard of the switch
+    bump_tower_len: float = 24.0      # tower length along x (two M4 inserts 12 mm apart)
+
     notes: list[str] = field(default_factory=list)
 
     # ---- derived -----------------------------------------------------------
@@ -652,12 +677,141 @@ class Collector:
             bad.append("arm gap: the hatch cover cannot lift clear of the rod clamp ring to come off")
         if self.pivot_depth < 20:
             bad.append("pivot block under 20 mm deep: use a longer pivot shoulder bolt")
+        bad += self.check_bump_switch()
         return bad
 
     @property
     def pivot_depth(self) -> float:
         """Pivot block depth along y: arm plus block fill the shoulder, less the float."""
         return self.pivot_shoulder - self.pivot_float - self.arm_t
+
+    # ---- yoke-lift switches (2026-11-21) --------------------------------------
+    @property
+    def arm_len(self) -> float:
+        return math.hypot(self.drum_x - self.pivot_x, self.drum_z - self.pivot_z)
+
+    @property
+    def arm_rest_deg(self) -> float:
+        """The pivot-to-axle line's angle above horizontal with the drum on the ground."""
+        return math.degrees(math.atan2(self.drum_z - self.pivot_z, self.drum_x - self.pivot_x))
+
+    def drum_rise_mm(self, lift_deg: float) -> float:
+        """How far the drum's axle rises when the arms turn up by `lift_deg` from rest."""
+        a0 = math.radians(self.arm_rest_deg)
+        return self.arm_len * (math.sin(a0 + math.radians(lift_deg)) - math.sin(a0))
+
+    def lift_for_rise(self, rise_mm: float) -> float:
+        """Arm lift (deg) that raises the axle by `rise_mm`."""
+        a0 = math.radians(self.arm_rest_deg)
+        return math.degrees(math.asin(math.sin(a0) + rise_mm / self.arm_len) - a0)
+
+    def bump_switch_design(self) -> dict:
+        """Where the yoke-lift switch and each arm's cam lobe sit, and when the switch clicks.
+
+        Angles are arm lift from rest. The roller sits on the horizontal line behind the pivot (world angle 180 deg in
+        the x-z plane); as the arm turns up, arm material that sat `lift` degrees above that line comes down onto it.
+        Radii about the pivot: the ramp starts `bump_free_clear_mm` inside the roller's free near edge and rises at
+        `bump_cam_ramp_deg` to the lobe, pretravel plus half the overtravel outside that edge, so the click lands in
+        the middle of the lever's usable travel and stays pressed to `bump_cam_end_deg`. A radial error `d` at the
+        roller moves the click by `d / tan(ramp)` of arc, which the arm turns into axle rise at `arm_len` over the cam
+        radius. As on the feeder's home cam, a round roller is met `rho (1/cos - 1) / tan` of arc early and the ramp
+        is set that much further along."""
+        r_c = self.bump_roller_r
+        r_base = r_c - self.bump_free_clear_mm
+        depth = self.bump_sw_pretravel_mm + self.bump_sw_overtravel_mm / 2
+        r_lobe = r_c + depth
+        tan = math.tan(math.radians(self.bump_cam_ramp_deg))
+        r_mid = (r_base + r_lobe) / 2
+        ramp_deg = math.degrees((r_lobe - r_base) / tan / r_mid)
+        trip = self.lift_for_rise(self.bump_lift_mm)
+        early = math.degrees(self.bump_sw_roller_r * (1 / math.cos(math.radians(self.bump_cam_ramp_deg)) - 1)
+                             / tan / r_mid)
+        ramp0 = trip - math.degrees((r_c + self.bump_sw_pretravel_mm - r_base) / tan / r_mid) + early
+        ramp1 = ramp0 + ramp_deg
+        contact = ramp0 + math.degrees((r_c - r_base) / tan / r_mid) - early
+        tw, rw, hz = self.bump_sw_body
+        r_body_in = r_c + self.bump_sw_lever_mm
+        r_body_out = r_body_in + rw
+        y_mid = self.arm_inner_y + self.arm_t / 2
+        per_mm = lambda d: math.degrees(d / tan / r_c)   # noqa: E731  roller radial mm -> lift deg
+        rise = lambda deg: self.drum_rise_mm(trip + deg) - self.bump_lift_mm   # noqa: E731
+        tol = per_mm(self.bump_sw_op_tol_mm)
+        slot = per_mm(self.bump_slot_mm)
+        return {
+            "r_roller": r_c, "r_base": r_base, "r_lobe": r_lobe, "depth_mm": depth,
+            "r_body_in": r_body_in, "r_body_out": r_body_out, "y_mid": y_mid,
+            "y_tower_face": y_mid - hz / 2,
+            "x_body": self.pivot_x - (r_body_in + r_body_out) / 2,
+            "trip_deg": trip, "ramp0_deg": ramp0, "ramp1_deg": ramp1, "contact_deg": contact,
+            "contact_rise_mm": self.drum_rise_mm(contact), "end_rise_mm": self.drum_rise_mm(self.bump_cam_end_deg),
+            "repeat_rise_mm": rise(per_mm(self.bump_sw_repeat_mm)),
+            "tol_rise_mm": (rise(-tol), rise(tol)),
+            "slot_rise_mm": (rise(-slot), rise(slot)),
+            "travel_window_mm": (self.bump_sw_pretravel_mm + self.bump_runout_mm,
+                                 self.bump_sw_pretravel_mm + self.bump_sw_overtravel_mm - self.bump_runout_mm),
+        }
+
+    def bump_cam_profile(self, step_deg: float = 2.0) -> list[tuple[float, float]]:
+        """The lobe's outline as (radius about the pivot, lift angle) pairs: from inside the pivot boss out along the
+        ramp to the lobe's radius, round the lobe to `bump_cam_end_deg`, and back in round the boss."""
+        h = self.bump_switch_design()
+        r_in = self.arm_end_r - 2.0
+        n = 8
+        pts = [(r_in, h["ramp0_deg"])]
+        pts += [(h["r_base"] + (h["r_lobe"] - h["r_base"]) * k / n,
+                 h["ramp0_deg"] + (h["ramp1_deg"] - h["ramp0_deg"]) * k / n) for k in range(n + 1)]
+        m = max(1, math.ceil((self.bump_cam_end_deg - h["ramp1_deg"]) / step_deg))
+        pts += [(h["r_lobe"], h["ramp1_deg"] + (self.bump_cam_end_deg - h["ramp1_deg"]) * k / m) for k in range(1, m + 1)]
+        pts += [(r_in, self.bump_cam_end_deg - (self.bump_cam_end_deg - h["ramp0_deg"]) * k / m) for k in range(m)]
+        return pts
+
+    def arm_stop_deg(self, step: float = 0.05) -> float:
+        """Arm lift at which the lobe's ramp comes down onto the base plate: the yoke's hard stop. A lobe point drawn
+        at lift k sits (lift - k) degrees below the line behind the pivot once the arm is up by `lift`."""
+        pts = [(r, k) for r, k in self.bump_cam_profile() if r > self.arm_end_r]
+        lift = 0.0
+        while lift < 90.0:
+            low = min(self.pivot_z - r * math.sin(math.radians(lift - k)) for r, k in pts if lift > k)  \
+                if any(lift > k for _, k in pts) else self.pivot_z
+            if low <= self.base_top:
+                return lift
+            lift += step
+        return 90.0
+
+    def check_bump_switch(self) -> list[str]:
+        bad = []
+        h = self.bump_switch_design()
+        lo, hi = h["travel_window_mm"]
+        if not lo <= h["depth_mm"] <= hi:
+            bad.append(f"bump cam depth {h['depth_mm']:.2f} mm is outside the switch's usable travel {lo:.2f}-{hi:.2f} mm")
+        if h["contact_rise_mm"] < self.bump_rest_mm:
+            bad.append(f"bump cam meets the roller at {h['contact_rise_mm']:.1f} mm of drum rise, under "
+                       f"bump_rest_mm {self.bump_rest_mm:g}: the switch would ride the cam at rest")
+        if self.bump_sw_lever_mm < 2 * self.bump_sw_roller_r + 0.2:
+            bad.append("bump switch roller would sit inside the switch body (lever shorter than the roller)")
+        if self.bump_free_clear_mm < self.bump_runout_mm + 0.2:
+            bad.append("bump switch roller could rub the arm before the ramp")
+        if h["r_body_in"] - self.bump_slot_mm < h["r_lobe"] + 1.0:
+            bad.append("bump switch body (at the slots' inner end) comes within 1 mm of the cam lobe")
+        if h["r_base"] - self.bump_slot_mm < self.arm_end_r + 2.0:
+            bad.append("bump cam ramp starts inside the arm's pivot boss: move the roller out")
+        if self.bump_cam_end_deg < h["ramp1_deg"] + 10:
+            bad.append("bump cam lobe is under 10 deg long past its ramp")
+        stop = self.arm_stop_deg()
+        if self.bump_cam_end_deg < stop:
+            bad.append(f"bump cam lobe ends at {self.bump_cam_end_deg:g} deg of lift, before the arm's stop at "
+                       f"{stop:.1f} deg: lifted further, the switch reads clear")
+        if self.bump_sw_roller_w > self.arm_t - 1.0:
+            bad.append("bump switch roller is wider than the arm less 1 mm")
+        tower_x1 = h["x_body"] + self.bump_tower_len / 2 + self.bump_slot_mm
+        if tower_x1 > self.pivot_x - 22 - 1.0:
+            bad.append("bump switch tower (at the slots' front end) comes within 1 mm of the pivot block")
+        if h["y_tower_face"] > self.arm_inner_y - 0.2:
+            bad.append("bump switch body sticks inboard of the arm's plane: the tower would rub the arm")
+        if h["y_tower_face"] - self.bump_tower_t < self.motor_face_y - 0.0 and \
+                h["x_body"] - self.bump_tower_len / 2 - self.bump_slot_mm < self.clamp_w / 2 + 1.0:
+            bad.append("bump switch tower runs into a motor clamp")
+        return bad
 
 
 DEFAULT = Collector()

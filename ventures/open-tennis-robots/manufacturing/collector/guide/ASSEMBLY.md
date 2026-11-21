@@ -12,12 +12,12 @@ Each drawing shows the parts that step adds in black over what is already built 
 
 | Fastener or part | Qty |
 | --- | --- |
-| M4 heat-set insert, 5.7 mm long | 20 |
+| M4 heat-set insert, 5.7 mm long | 24 |
 | M5 rivet nut (blind insert), aluminium | 12 |
 
 Tools: soldering iron with an M4 insert tip, M5 rivet nut tool.
 
-Melt one M4 insert into each 5.6 mm pocket: 4 in the top face of each motor clamp cradle (where the cap meets it), 2 in the underside of each cradle, 2 in the underside of each pivot block, and 4 in the underside of the mast socket's flange. Press each one flush and square. Set an M5 rivet nut in each of the six 7 mm holes of both drum discs, flange on the outer face (the face away from the rods). A standard 1 mm flange holds the cover that far off the disc; the arm gap allows for it.
+Melt one M4 insert into each 5.6 mm pocket: 4 in the top face of each motor clamp cradle (where the cap meets it), 2 in the underside of each cradle, 2 in the underside of each pivot block, 2 in the underside of each yoke-lift switch tower, and 4 in the underside of the mast socket's flange. Press each one flush and square. Set an M5 rivet nut in each of the six 7 mm holes of both drum discs, flange on the outer face (the face away from the rods). A standard 1 mm flange holds the cover that far off the disc; the arm gap allows for it.
 
 ### 2. Lay out the base plate
 
@@ -183,9 +183,29 @@ Tools: 4 mm hex key, two 10 mm and two 13 mm spanners.
 
 Fit each arm to its pivot block with a shoulder bolt from outside and an M6 nyloc inside the block. Tighten it onto the shoulder: the arm must still swing freely. Stand the drum between the arms, put an axle spacer through each cover's centre hole onto the bearing's inner race, and bolt each arm end to it with an M8 x 30 from outside, nyloc on the inner race (reach it between the rods). The drum should roll freely and the arms lift and drop on their own weight.
 
-### 12. Mast and camera
+### 12. Yoke-lift switches (the front bumper)
 
-![Step 12: Mast and camera](step_12.svg)
+![Step 12: Yoke-lift switches (the front bumper)](step_12.svg)
+
+| Part | Qty | File or what to buy |
+| --- | --- | --- |
+| bump_switch_tower | 2 | print/bump_switch_tower.stl |
+| bump_switch | 2 | Subminiature roller-lever microswitch (D2F-01L3 class), about 12.8 x 5.8 x 6.5 mm; normally-open contact to GPIO 13 (left) / 14 (right) and GND: it closes when the drum rises 10 mm |
+| bump_switch_lever | 2 | the switch's roller lever (free position), part of bump_switch |
+
+| Fastener or part | Qty |
+| --- | --- |
+| M4 x 12 socket cap screw | 4 |
+| M4 washer (ISO 7089) | 4 |
+| M2 x 10 self-tapping screw (for plastic) | 4 |
+
+Tools: 3 mm hex key, small Phillips screwdriver, multimeter, a 10 mm block.
+
+On the bench (the wheel hides the screws once it is on), screw each switch to the outboard face of its tower with two M2 self-tappers, roller toward the pivot and lever in the arm's plane. Stand each tower behind its pivot block, outboard face to the arm, and fit two M4 x 12 with washers up through the base plate's slots, finger tight, tower in the middle of its slots. With a meter on the switch, stand both drum discs on a 10 mm block and slide each tower along its slots until its switch just clicks closed; tighten. Off the block, both read open. The lobe on each arm then holds its switch closed from 10 mm of drum rise to the yoke's stop, where the lobe lands on the plate.
+
+### 13. Mast and camera
+
+![Step 13: Mast and camera](step_13.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -197,7 +217,7 @@ Fit each arm to its pivot block with a shoulder bolt from outside and an M6 nylo
 
 Push the tube into the socket (an M4 grub screw if it rattles) and mount the camera at the top, looking forward and down over the drum.
 
-### 13. Electronics
+### 14. Electronics
 
 | Fastener or part | Qty |
 | --- | --- |
@@ -208,13 +228,12 @@ Push the tube into the socket (an M4 grub screw if it rattles) and mount the cam
 | 5 V 5 A buck converter | 1 |
 | 22 mm NC mushroom e-stop + 24 V contactor | 1 |
 | BNO085 (or similar) IMU | 1 |
-| Lever microswitch | 2 |
 
 Tools: screwdrivers, crimp tool, multimeter.
 
-Mount the Pi on its M2.5 pattern and the ESP32, motor driver, buck converter and IMU on the 10 mm M3 grid. Fit the e-stop in its hole and the contactor beside it. Wire to hardware/electronics.md (pin map, power budget, e-stop chain). The two lever switches sense the yoke lifting over an obstacle: their mounting is not in the CAD yet, so place them where each arm's lower edge closes them when the drum rises about 10 mm.
+Mount the Pi on its M2.5 pattern and the ESP32, motor driver, buck converter and IMU on the 10 mm M3 grid. Fit the e-stop in its hole and the contactor beside it. Wire to hardware/electronics.md (pin map, power budget, e-stop chain). Run each yoke-lift switch's common and normally-open tags to GND and GPIO 13 (left) or 14 (right): the switch closes when its arm lifts, which the firmware reads as the bumper.
 
-### 14. Before the first power-up
+### 15. Before the first power-up
 
 Tools: multimeter.
 
@@ -235,6 +254,8 @@ Each length is measured from the head's face through the parts the model puts un
 | hatch | M5 thumb screw, 12 mm | drum_hatch 3 + 1 flange | 4 | 12 | 8 | 5-11 mm into the rivet nut | pass |
 | yoke pivot | 8 mm x 40 mm shoulder bolt (ISO 7379, M6 thread) + M6 nyloc nut | yoke_arm 5 + pivot_block 34.5 | 39.5 | 40 | 0.5 | shoulder 0-1 mm longer than the stack, so the arm swings | pass |
 | drum axle | M8 x 30 hex bolt + M8 nyloc nut | yoke_arm 5 + axle_spacer 7 + drum_bearing 7 | 19 | 30 | 11 | needs 10.5 mm past the stack for the nyloc and two threads | pass |
+| switch tower to base | M4 x 12 socket cap screw | base_plate 5 + 0.8 washers | 5.8 | 12 | 6.2 | 5.7 to 12 mm past the face, the insert's length to the pocket's depth | pass |
+| switch to tower | M2 x 10 self-tapping screw (for plastic) | bump_switch 5.8 | 5.8 | 10 | 4.2 | 2 to 8 mm into the part's tapped hole (its thread depth) | pass |
 | standoff to base | M3 x 10 screw | base_plate 5 | 5 | 10 | 5 | at least 4.5 mm into the standoff | pass |
 | tray to standoff | M3 x 8 screw | electronics_tray 3 | 3 | 8 | 5 | at least 4.5 mm into the standoff | pass |
 

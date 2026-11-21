@@ -104,6 +104,10 @@ class GeometryTest(unittest.TestCase):
         base = next(x for x in self.parts if x.name == "base_plate")
         holes = [(e.arc_center.X, e.arc_center.Y) for e in base.flat.edges()
                  if e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.2) < 1e-6]
+        # The switch towers' slots (2026-11-21): their two end arcs, either side of the slot's middle along x.
+        s = self.p.bump_slot_mm
+        holes += [((ax + bx) / 2, ay) for ax, ay in holes for bx, by in holes
+                  if abs(ay - by) < 1e-6 and abs(bx - ax - 2 * s) < 1e-6]
         radii = (self.p.insert_hole_d / 2, 2.2)
         checked = 0
         for part in self.parts:
@@ -124,7 +128,7 @@ class GeometryTest(unittest.TestCase):
                     self.assertTrue(any(math.hypot(x - hx, y - hy) < 0.01 for hx, hy in holes),
                                     f"{part.name} hole at ({x:.1f}, {y:.1f}) has no base-plate hole")
                     checked += 1
-        self.assertGreaterEqual(checked, 4 + 4 + 4 + 4)   # cradles, pivot blocks, mast socket, caster adapter
+        self.assertGreaterEqual(checked, 4 + 4 + 4 + 4 + 4)   # cradles, pivot blocks, mast socket, caster adapter, towers
 
     def test_insert_pockets_fit_the_insert(self):
         """2026-11-20: the pilots were 4.0-4.4 mm, which no M4 heat-set insert fits."""
@@ -133,7 +137,7 @@ class GeometryTest(unittest.TestCase):
             if part.kind == "print":
                 n += sum(1 for f in part.shape.faces() if f.geom_type == GeomType.CYLINDER
                          and abs(f.radius - self.p.insert_hole_d / 2) < 1e-6)
-        self.assertEqual(n, 4 + 2 + 2 + 4)   # one cradle's top and bottom, one pivot block, the mast socket
+        self.assertEqual(n, 4 + 2 + 2 + 4 + 2)   # one cradle's top and bottom, one pivot block, the mast socket, a tower
 
     def test_laser_parts_fit_a_standard_sheet(self):
         for part in self.parts:
@@ -148,6 +152,76 @@ class GeometryTest(unittest.TestCase):
         self.assertEqual(len(rod_holes), self.p.n_rods)
         for e in rod_holes:
             self.assertAlmostEqual(math.hypot(e.arc_center.X, e.arc_center.Y), self.p.rod_circle_r, places=6)
+
+
+class BumpSwitchParamsTest(unittest.TestCase):
+    """The yoke-lift switch (2026-11-21): the arm's lobe clicks it at the designed drum rise and holds it to the stop."""
+
+    def test_design_numbers(self):
+        p = Collector()
+        h = p.bump_switch_design()
+        self.assertEqual(p.check_bump_switch(), [])
+        self.assertAlmostEqual(p.drum_rise_mm(p.lift_for_rise(p.bump_lift_mm)), p.bump_lift_mm, places=9)
+        self.assertGreaterEqual(h["contact_rise_mm"], p.bump_rest_mm)
+        self.assertLess(h["contact_deg"], h["trip_deg"])
+        self.assertLess(h["trip_deg"], h["ramp1_deg"])
+        lo, hi = h["travel_window_mm"]
+        self.assertTrue(lo <= h["depth_mm"] <= hi)
+        self.assertLess(h["tol_rise_mm"][1], 2.0)            # part to part, before the tower is set
+        self.assertGreater(h["slot_rise_mm"][1], h["tol_rise_mm"][1])   # the slots can take that out
+        self.assertGreaterEqual(p.bump_cam_end_deg, p.arm_stop_deg())
+
+    def test_rules_catch_bad_changes(self):
+        self.assertTrue(any("ride the cam" in r for r in Collector(bump_roller_r=30.0).check()))
+        self.assertTrue(any("before the arm's stop" in r for r in Collector(bump_cam_end_deg=30.0).check()))
+        self.assertTrue(any("usable travel" in r for r in Collector(bump_sw_overtravel_mm=0.4).check()))
+        self.assertTrue(any("pivot block" in r for r in Collector(bump_roller_r=20.0, bump_rest_mm=0.0).check()))
+
+    def test_firmware_reads_the_pins_the_bom_names(self):
+        """The switch's spec names GPIO 13/14 to GND, closed when lifted; the firmware pulls them up, active low."""
+        main = (HERE.parent.parent / "firmware" / "esp32" / "main.py").read_text()
+        self.assertIn("Pin(13, Pin.IN, Pin.PULL_UP)", main)
+        self.assertIn("Pin(14, Pin.IN, Pin.PULL_UP)", main)
+        self.assertIn("self.bump_l.value() == 0 or self.bump_r.value() == 0", main)
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class BumpSwitchGeometryTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import collector as C
+        cls.C = C
+        cls.p = Collector()
+        cls.parts = C.all_parts(cls.p)
+        cls.arm = next(x for x in cls.parts if x.name == "yoke_arm")
+
+    def test_sweep_is_clean_and_the_cad_click_is_the_design(self):
+        bad, m = self.C.bump_sweep(self.p, self.parts)
+        self.assertEqual(bad, [])
+        self.assertLess(abs(m["click_rise_mm"] - self.p.bump_lift_mm), 1.0)
+        self.assertAlmostEqual(m["stop_deg"], self.p.arm_stop_deg())
+
+    def test_roller_free_at_rest_and_pressed_on_the_lobe(self):
+        h = self.p.bump_switch_design()
+        self.assertEqual(self.C.bump_push_mm(self.p, self.arm, 0.0), 0.0)
+        self.assertEqual(self.C.bump_push_mm(self.p, self.arm, h["contact_deg"] - 0.3), 0.0)
+        push = self.C.bump_push_mm(self.p, self.arm, 20.0)
+        self.assertAlmostEqual(push, h["depth_mm"], delta=0.05)
+
+    def test_the_stop_is_where_the_lobe_meets_the_plate(self):
+        from otr_cad.package import cross_clashes
+        stop = self.p.arm_stop_deg()
+        for lift, want in ((stop - 0.5, False), (stop + 1.0, True)):
+            moving, fixed = self.C.lifted_solids(self.p, self.parts, lift)
+            arms = [x for x in moving if x[0].startswith("yoke_arm")]
+            plate = [x for x in fixed if x[0].startswith("base_plate")]
+            self.assertEqual(bool(cross_clashes(arms, plate)), want, lift)
+
+    def test_push_measure_sees_a_roller_set_past_the_lobe(self):
+        """A switch set 3 mm further from the pivot than this arm's lobe reaches reads clear at every lift."""
+        far = Collector(bump_roller_r=self.p.bump_roller_r + 3.0)
+        for lift in (5.0, 20.0, 35.0):
+            self.assertEqual(self.C.bump_push_mm(far, self.arm, lift), 0.0)
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
@@ -166,7 +240,7 @@ class AssemblyGuideTest(unittest.TestCase):
     def test_design_passes_every_guide_check(self):
         rows, bad = self.G.joint_checks(self.p, self.parts)
         self.assertEqual(bad, [])
-        self.assertEqual(len(rows), 11)
+        self.assertEqual(len(rows), 13)
         self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.hatch_check(self.p, self.parts), [])
@@ -211,8 +285,8 @@ class AssemblyGuideTest(unittest.TestCase):
         out = fresh_build("collector")
         text = (out / "guide" / "ASSEMBLY.md").read_text()
         self.assertIn("all pass.", text)
-        self.assertEqual(text.count("![Step"), 11)
-        self.assertEqual(len(list((out / "guide").glob("step_*.svg"))), 11)
+        self.assertEqual(text.count("![Step"), 12)
+        self.assertEqual(len(list((out / "guide").glob("step_*.svg"))), 12)
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
