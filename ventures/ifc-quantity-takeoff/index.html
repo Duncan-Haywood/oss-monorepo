@@ -814,14 +814,14 @@
   async function sampleRevisions() {
     const bytes = async (res) => new Uint8Array(await (await res).arrayBuffer());
     const [a, b] = await Promise.all([bytes(fetch("samples/sample-office.ifc")), bytes(fetch("samples/sample-office-rev2.ifc"))]);
-    earlier = null;
+    earlier = null; diff = null;
     await run(b, "sample-office-rev2.ifc");
     await runEarlier(a, "sample-office.ifc");
     record("sample_opened");
   }
   $("sample-rev").addEventListener("click", sampleRevisions);
   $("sample-pair").addEventListener("click", sampleRevisions);
-  $("dl-delta").addEventListener("click", () => { if (!diff) return; const by = byKeys(); download(`${fileName}-change-since-${earlierName}.csv`, boqDeltaCsv(boqDelta(earlier.rows, current.rows, by, rates), by)); record("delta_downloaded"); });
+  $("dl-delta").addEventListener("click", () => { if (!diff || !earlier || !current) return; const by = byKeys(); download(`${fileName}-change-since-${earlierName}.csv`, boqDeltaCsv(boqDelta(earlier.rows, current.rows, by, rates), by)); record("delta_downloaded"); });
   $("dl-changes").addEventListener("click", () => { if (!diff) return; download(`${fileName}-changed-elements-since-${earlierName}.csv`, changesCsv(diff)); record("changes_downloaded"); });
   $("by").addEventListener("change", () => current && renderBoq());
   $("only-bad").addEventListener("change", () => current && renderChecks());
