@@ -93,7 +93,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, boxSubclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, repairOnOpen, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, setTypeLimit, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, boxSubclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, repairOnOpen, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, setTypeLimit, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, dateTimePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -305,8 +305,8 @@
         // IfcTester 0.9.0 reads range bounds only as numbers, so it fails every
         // object on a date or duration range (eval/date-ranges-2026-11-17.md).
         if (temporal && !(w && w.warn)) {
-          const dp = temporal === "date" ? datePattern(r.min, r.max, r.minEx, r.maxEx) : null;
-          h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">IDS 1.0 allows a ${temporal === "duration" ? "duration" : "date"} range and this checker reads it as one, but IfcOpenShell's IfcTester (0.9.0) compares range bounds only as numbers, so it fails every object on it. ${dp ? "If the file will be checked with IfcTester, write the same dates as a pattern, which both read the same way." : temporal === "duration" ? "If the file will be checked with IfcTester, ask for exact values (one of) instead." : "If the file will be checked with IfcTester, ask for a pattern on the date instead."}${dp ? ` <button type="button" class="ghost small" data-act="date-pattern" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Write as a pattern</button>` : ""}</p>`;
+          const dp = temporal === "date" ? datePattern(r.min, r.max, r.minEx, r.maxEx) : temporal === "dateTime" ? dateTimePattern(r.min, r.max, r.minEx, r.maxEx) : null;
+          h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">IDS 1.0 allows a ${temporal === "duration" ? "duration" : temporal === "dateTime" ? "date-time" : temporal === "time" ? "time" : "date"} range and this checker reads it as one, but IfcOpenShell's IfcTester (0.9.0) compares range bounds only as numbers, so it fails every object on it. ${dp ? `If the file will be checked with IfcTester, write the same ${temporal === "dateTime" ? "instants" : "dates"} as a pattern, which both read the same way.` : temporal === "duration" ? "If the file will be checked with IfcTester, ask for exact values (one of) instead." : "If the file will be checked with IfcTester, ask for a pattern on the date instead."}${dp ? ` <button type="button" class="ghost small" data-act="date-pattern" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Write as a pattern</button>` : ""}</p>`;
         }
       }
       if (r.mode === "pattern") h += `<input style="width:14em" aria-label="pattern" placeholder="[A-Z]{2}-[0-9]+" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="pattern" value="${esc(r.pattern)}">`;
@@ -707,11 +707,12 @@
     // An opened date, time or duration one-of moved from xs:string to its
     // DataTypes base (same values, same verdicts).
     if (a === "oneof-base") { delete rows[+e.target.dataset.r].oneOfBase; record("editor_oneof_base"); }
-    // A date range rewritten as the pattern of the same dates (datePattern),
+    // A date or dateTime range rewritten as the pattern of the same values (datePattern, dateTimePattern),
     // which IfcTester and this checker read the same way.
     if (a === "date-pattern") {
       const r = rows[+e.target.dataset.r];
-      const dp = datePattern(r.min, r.max, r.minEx, r.maxEx);
+      // Each returns null on the other's bounds (a date has no "T").
+      const dp = datePattern(r.min, r.max, r.minEx, r.maxEx) || dateTimePattern(r.min, r.max, r.minEx, r.maxEx);
       if (dp) { r.mode = "pattern"; r.pattern = dp; record("editor_date_pattern"); }
     }
     // A classification that must carry some code, not only the system.

@@ -9,7 +9,7 @@
 // misspelt set, a property the set lacks or a dataType the standard does not
 // give: the faults auditIds() finds in 21 of 64 public IDS files.
 
-import { temporalKind, temporalKey, lexRange, dateRangePattern } from "./temporal.mjs";
+import { temporalKind, temporalKey, lexRange, dateRangePattern, dateTimeRangePattern } from "./temporal.mjs";
 import { nearName } from "./audit.mjs";
 import { fixStructure } from "./fix.mjs";
 
@@ -167,6 +167,21 @@ export function datePattern(min, max, minEx = false, maxEx = false) {
   if (!blank(max)) r[maxEx ? "maxExclusive" : "maxInclusive"] = max;
   if (Object.values(r).some((v) => !/^\d{4}-\d{2}-\d{2}$/.test(v))) return null;
   const p = dateRangePattern(r);
+  return p ? p : null;
+}
+
+// The same for a dateTime range (temporal.mjs dateTimeRangePattern): exact
+// to the millisecond for values with no zone, Z or an offset a time zone uses;
+// a value with an offset no zone uses (+10:17) passes only more than a day
+// inside the range (eval/datetime-pattern-2026-11-21.md). null when a bound
+// is not a dateTime or no value can pass.
+export function dateTimePattern(min, max, minEx = false, maxEx = false) {
+  const blank = (x) => x === "" || x == null;
+  if (blank(min) && blank(max)) return null;
+  const r = {};
+  if (!blank(min)) r[minEx ? "minExclusive" : "minInclusive"] = String(min);
+  if (!blank(max)) r[maxEx ? "maxExclusive" : "maxInclusive"] = String(max);
+  const p = dateTimeRangePattern(r);
   return p ? p : null;
 }
 

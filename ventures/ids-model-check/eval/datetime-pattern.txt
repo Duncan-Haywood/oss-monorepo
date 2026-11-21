@@ -1,0 +1,13 @@
+31 beams, one ActualErectionDate each (2 with +10:17, an offset no zone uses); 10 ranges
+>= 2025-03-01T07:00:00                                                 range fails 11; pattern disagrees on 0 (+1 at +10:17)
+> 2025-03-01T07:00:00                                                  range fails 19; pattern disagrees on 0
+<= 2025-06-30T17:00:00                                                 range fails  8; pattern disagrees on 0
+< 2025-06-30T17:00:00                                                  range fails 13; pattern disagrees on 0
+>= 2025-03-01T07:00:00 and <= 2025-06-30T17:00:00                      range fails 15; pattern disagrees on 0 (+1 at +10:17)
+> 2025-03-01T07:00:00Z and < 2025-06-30T17:00:00.5Z                    range fails 21; pattern disagrees on 0
+>= 2025-03-01T12:45:00+05:45 and <= 2025-06-30T12:00:00-05:00          range fails 15; pattern disagrees on 0 (+1 at +10:17)
+>= 2025-01-01T00:00:00 and <= 2025-12-31T23:59:59.999                  range fails  5; pattern disagrees on 0
+>= 2025-02-28T00:00:00 and <= 2025-03-01T00:00:00                      range fails 29; pattern disagrees on 0
+>= 2025-06-30T16:59:59.999 and <= 2025-06-30T17:00:00.001              range fails 23; pattern disagrees on 0
+beam verdicts unlike the range: 0 of 290 on zones in use; 3 of 20 at +10:17
+pattern length: 2938 to 16294 characters
