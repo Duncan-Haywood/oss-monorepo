@@ -1,9 +1,9 @@
 ---
 title: "Subtitles that drift four minutes: a free resync tool that aligns by rhythm, not words"
-seo_title: "Fix out-of-sync subtitles free: shift, 25 to 23.976 fps, or auto-align to another language"
+seo_title: "Fix out-of-sync subtitles free: shift, frame rate or auto-align"
 date: 2026-11-21
 tags: [ventures, subtitle-resync, subtitles, video, algorithms]
-description: "A free in-browser tool fixes SRT and WebVTT timing four ways, including aligning to a subtitle in another language by timing alone. 200 of 200 synthetic tests landed within half a second."
+description: "A free tool fixes SRT and WebVTT timing, even aligning to a subtitle in another language by timing alone. 200 of 200 synthetic tests landed within 0.5 s."
 ---
 
 A subtitle file that is two seconds late is a nuisance. One that starts in sync and ends four minutes behind is a different problem, and no amount of shifting fixes it. That second kind is nearly always a frame-rate mismatch: the file was timed against a European PAL copy, which plays a 23.976 fps film at 25 fps, about 4.3% fast. On a streaming copy the subtitles fall further behind with every minute.

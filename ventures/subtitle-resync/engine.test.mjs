@@ -62,7 +62,7 @@ test('a broken timing line is reported, not swallowed', () => {
 });
 
 test('CRLF and BOM input parse', () => {
-  const doc = parseSubtitles('﻿1\r\n00:00:01,000 --> 00:00:02,000\r\nA\r\n\r\n2\r\n00:00:03,000 --> 00:00:04,000\r\nB\r\n');
+  const doc = parseSubtitles('\uFEFF1\r\n00:00:01,000 --> 00:00:02,000\r\nA\r\n\r\n2\r\n00:00:03,000 --> 00:00:04,000\r\nB\r\n');
   assert.equal(doc.cues.length, 2);
 });
 

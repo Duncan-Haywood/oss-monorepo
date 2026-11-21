@@ -99,7 +99,7 @@ export function formatTimestamp(ms, format = 'srt') {
  * @returns {{format:'srt'|'webvtt'|'unknown', headerBlocks:string[], cues:Array<{id:string|null,startMs:number,endMs:number,settings:string,lines:string[]}>, errors:string[], droppedNotes:number}}
  */
 export function parseSubtitles(text) {
-  const normalized = String(text ?? '').replace(/^﻿/, '').replace(/\r\n?/g, '\n');
+  const normalized = String(text ?? '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
   const format = /^WEBVTT(?:[ \t]|$)/m.test(normalized.split('\n')[0] ?? '')
     ? 'webvtt'
     : (normalized.trim() ? 'srt' : 'unknown');

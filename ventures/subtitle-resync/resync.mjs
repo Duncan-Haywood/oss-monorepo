@@ -6,6 +6,7 @@
 //   node resync.mjs movie.srt --sync 00:01:00,000=00:01:02,000 --sync 01:40:00,000=01:44:10,000
 //   node resync.mjs movie.es.srt --reference movie.en.srt -o movie.es.fixed.srt
 import { readFile, writeFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import { resyncText, parseUserTime, formatTimestamp } from './engine.mjs';
 
 const HELP = `subtitle-resync: shift, stretch or auto-align an SRT or WebVTT file.
@@ -131,4 +132,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();
