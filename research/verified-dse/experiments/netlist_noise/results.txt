@@ -1,0 +1,52 @@
+Milestone 161: cosmetic rewrites of one mapped netlist, same Yosys 0.71 (mlbh) and OpenROAD 26Q3 (p9p4), on milestone 160's 90 points.
+points with every variant ok: 90 of 90; control (orig reproduces milestone 160's Yosys-0.71 row, all fields): 90 of 90
+
+(1) PRIMARY  O1 (instance order) changes the routed result on 0 of 90 (needed >= 72): refuted
+(2) R (names only) changes it on 90 of 90 (needed >= 45): held
+(3) W (wire declaration order) changes it on 0 of 90: refuted
+(4) median lr O1 vs orig 0.0000 (needed 0.005 to 0.04): refuted
+(5) C(orig), C(O1), C(R) byte-identical on 90 of 90 (needed >= 81): held
+(6) of those 90, the three canonical runs agree on the routed result on 90: held
+(7) sequence pairs in build B's table closer than the design's cosmetic spread: 18296 of 115566 (15.8%; needed >= 15%): held
+
+Reported, not predicted:
+  O1 vs orig: routed differs on 0 of 90; lr median 0.0000, mean 0.0000, max 0.0000
+    first stage that differs: none 90
+  O2 vs orig: routed differs on 0 of 90; lr median 0.0000, mean 0.0000, max 0.0000
+    first stage that differs: none 90
+  W vs orig: routed differs on 0 of 90; lr median 0.0000, mean 0.0000, max 0.0000
+    first stage that differs: none 90
+  R vs orig: routed differs on 90 of 90; lr median 0.0214, mean 0.0281, max 0.1246
+    first stage that differs: global_place 90
+  O1 vs O2: routed differs on 0 of 90; lr median 0.0000
+  S: O1 vs orig lr median 0.0000 (n 60)
+  N: O1 vs orig lr median 0.0000 (n 30)
+  largest pairwise lr among orig, O1, O2, W, R per point: median 0.0214, max 0.1246
+  signed mean ln(O1/orig) +0.0000
+  WL ties: instances sharing a final label, median 0.0 of median 2725.0 instances; points with no tie 90
+  C(orig) vs C(O1) routed differs on 0 of 90
+  C(orig) vs orig: routed differs on 90 of 90; lr median 0.0187
+  per design: cosmetic spread delta, sequence pairs closer than delta in build B's table
+    clamp2l   delta 0.0378    986 of  5253 (18.8%)
+    clamp2r   delta 0.0087    228 of  5253 (4.3%)
+    clamp3l   delta 0.0564   1657 of  5253 (31.5%)
+    clamp4l   delta 0.0144    367 of  5253 (7.0%)
+    clamp4r   delta 0.0130    418 of  5253 (8.0%)
+    clamp6l   delta 0.0058    172 of  5253 (3.3%)
+    clamp6r   delta 0.0087    237 of  5253 (4.5%)
+    csum3     delta 0.0209    518 of  5253 (9.9%)
+    csum6     delta 0.0241    634 of  5253 (12.1%)
+    csum8     delta 0.0156    426 of  5253 (8.1%)
+    div10l    delta 0.0385    965 of  5253 (18.4%)
+    div14r    delta 0.0213    716 of  5253 (13.6%)
+    div8l     delta 0.0758   1909 of  5253 (36.3%)
+    dot4l     delta 0.0028    113 of  5253 (2.2%)
+    dot6r     delta 0.0134    491 of  5253 (9.3%)
+    gtc12r    delta 0.0527   1338 of  5253 (25.5%)
+    gtc8l     delta 0.0201    528 of  5253 (10.1%)
+    gtc8r     delta 0.0062    151 of  5253 (2.9%)
+    isq14     delta 0.0492   1376 of  5253 (26.2%)
+    rng6l     delta 0.0369   1210 of  5253 (23.0%)
+    rng8l     delta 0.0323   1299 of  5253 (24.7%)
+    rng8r     delta 0.0845   2557 of  5253 (48.7%)
+  points with a failed or missing variant: 0

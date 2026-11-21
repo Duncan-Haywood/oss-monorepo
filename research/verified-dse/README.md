@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 160 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 161 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **The ladder's edge survives a tool upgrade; tuned recipes do not** (milestone 158): on 27 SKY130 ss designs under Yosys 0.70
   and 0.71, the clipped ladder beats equal-cost random routing by about 4 points under both (change -0.48, interval -3.05 to
@@ -11,6 +11,11 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   builds ran a byte-identical OpenROAD executable, and with it fixed, swapping only Yosys 0.70 for 0.71 reproduces both
   tables on 90 of 90 sampled points; on points whose mapped netlists differ only in names and order, every routed result
   still moves (median 1.75%): [`experiments/yosys_swap/`](experiments/yosys_swap/results.txt).
+- **OpenROAD's placement depends on instance names, not netlist order; a canonical form removes it** (milestone 161): with Yosys
+  and OpenROAD fixed, shuffling a mapped netlist's instances or wire declarations changes no result on 90 of 90 points, while
+  renaming every net and instance moves routed area x delay on 90 of 90 (median 2.1%, max 12.5%) from global placement on;
+  renaming by a colour-refinement canonical form makes the result the same for every naming and order on 90 of 90, and 15.8%
+  of same-design sequence pairs differ by less than renaming does: [`experiments/netlist_noise/`](experiments/netlist_noise/results.txt).
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
 - **Successive halving does not reliably beat random routed search** once budgets exceed a few

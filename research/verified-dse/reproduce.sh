@@ -73,3 +73,4 @@ $PY experiments/addshort_tt/analyse.py   # milestone 153 (no flow, about 90 s; r
 $PY experiments/rc_corner/analyse.py   # milestone 156 (no flow; experiments/rc_corner/run.py --resume re-runs or extends the 6,480-point flow, about 4 h on 4 cores)
 $PY experiments/rc_corner/analyse157.py   # milestone 157 (no flow; the same table, all 27 designs)
 $PY experiments/yosys_swap/run.py --analyse; $PY experiments/yosys_swap/posthoc.py   # milestone 160 (no flow; run.py --lib /tmp/ss.lib re-runs the 186-run flow, about 18 min on 4 cores, with the nix store paths in run.py)
+$PY experiments/netlist_noise/run.py --analyse   # milestone 161 (no flow; run.py --lib /tmp/ss.lib re-runs the 720-run flow, about 40 min on 4 cores)
