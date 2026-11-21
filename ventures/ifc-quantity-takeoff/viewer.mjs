@@ -33,7 +33,7 @@ void main() { if (dot(cut.xyz, vp) > cut.w) discard; gl_FragColor = vec4(vc, 1.0
 export function visibleRuns(items, visible) {
   const runs = [];
   for (const it of items) {
-    if (visible && !visible(it.id)) continue;
+    if (it.start == null || (visible && !visible(it.id))) continue; // not uploaded yet, or hidden
     const last = runs[runs.length - 1];
     if (last && last[0] + last[1] === it.start) last[1] += it.count;
     else runs.push([it.start, it.count]);
@@ -116,13 +116,13 @@ export class ModelView {
     this.cam = { az: -0.8, el: 0.55, dist: 30, target: [0, 0, 0] };
     this.dirty = true;
     this.buffers = { p: gl.createBuffer(), n: gl.createBuffer(), c: gl.createBuffer(), id: gl.createBuffer() };
-    this.vertexCount = 0;
+    this.vertexCount = 0; this.uploaded = 0; this.cap = 0;
     this._wire();
     this._loop = () => { if (this.dirty) this.draw(); this.raf = requestAnimationFrame(this._loop); };
     this.raf = requestAnimationFrame(this._loop);
   }
 
-  clear() { this.items = []; this.slot.clear(); this.vertexCount = 0; this._upload(); }
+  clear() { this.items = []; this.slot.clear(); this.vertexCount = 0; this.uploaded = 0; this.cap = 0; this.runs = []; this.dirty = true; }
 
   add(id, mesh) {
     if (!mesh || !mesh.positions.length) return;
@@ -131,36 +131,59 @@ export class ModelView {
     for (let i = 0; i < P.length; i += 3) for (let k = 0; k < 3; k++) { const v = P[i + k]; if (v < b[k]) b[k] = v; if (v > b[k + 3]) b[k + 3] = v; }
     this.slot.set(id, this.items.length);
     this.items.push({ id, positions: P, normals: mesh.normals, box: b });
-    this.pending = true;
   }
 
-  /** Uploads what add() collected since the last call. */
-  commit() { if (this.pending) { this.pending = false; this._upload(); } }
-
-  _upload() {
+  /**
+   * Uploads what add() collected since the last call. The GPU buffers grow
+   * by doubling and only the new elements are written into them, so a
+   * model drawn as it streams in costs its size once, not once a commit
+   * (re-uploading a 1.8M-triangle model each second held the page up to
+   * 0.4 s at a time; eval/view-worker-2026-11-21.md).
+   */
+  commit() {
+    if (this.uploaded === this.items.length) return;
     const gl = this.gl;
-    let n = 0;
-    for (const it of this.items) n += it.positions.length;
-    // positions as floats; normals, colours and pick ids as bytes (a 2M-triangle
-    // steel model is 72 MB of positions, and would be four times that all in floats)
-    const P = new Float32Array(n), N = new Int8Array(n), I = new Uint8Array(n);
-    let o = 0;
-    this.items.forEach((it, i) => {
-      it.start = o / 3; it.count = it.positions.length / 3;
+    let v = this.vertexCount;
+    for (let i = this.uploaded; i < this.items.length; i++) { const it = this.items[i]; it.start = v; it.count = it.positions.length / 3; v += it.count; }
+    if (v > this.cap) {
+      this.cap = Math.max(v, this.cap * 2, 1 << 16);
+      for (const [buf, bytes, usage] of [[this.buffers.p, 12, gl.STATIC_DRAW], [this.buffers.n, 3, gl.STATIC_DRAW], [this.buffers.id, 3, gl.STATIC_DRAW], [this.buffers.c, 3, gl.DYNAMIC_DRAW]]) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, this.cap * bytes, usage);
+      }
+      this._write(0, this.items.length); // a new buffer starts empty
+    } else this._write(this.uploaded, this.items.length);
+    this.uploaded = this.items.length;
+    this.vertexCount = v;
+    this.runs = visibleRuns(this.items, this.visible);
+    this.dirty = true;
+  }
+
+  // writes items [from, to) into the GPU buffers at their own offsets:
+  // positions as floats; normals, colours and pick ids as bytes (a 2M-triangle
+  // steel model is 72 MB of positions, and would be four times that all in floats)
+  _write(from, to) {
+    if (from >= to) return;
+    const gl = this.gl, items = this.items;
+    const v0 = items[from].start, v1 = items[to - 1].start + items[to - 1].count, n = (v1 - v0) * 3;
+    const P = new Float32Array(n), N = new Int8Array(n), I = new Uint8Array(n), C = new Uint8Array(n);
+    for (let i = from; i < to; i++) {
+      const it = items[i], o = (it.start - v0) * 3;
       P.set(it.positions, o);
       const nm = it.normals;
       for (let k = 0; k < nm.length; k++) N[o + k] = Math.round(nm[k] * 127);
-      const c = idColor(i).map((v) => Math.round(v * 255));
-      for (let k = 0; k < it.positions.length; k += 3) { I[o + k] = c[0]; I[o + k + 1] = c[1]; I[o + k + 2] = c[2]; }
-      o += it.positions.length;
-    });
-    this.vertexCount = n / 3;
-    this.runs = visibleRuns(this.items, this.visible);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.p); gl.bufferData(gl.ARRAY_BUFFER, P, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.n); gl.bufferData(gl.ARRAY_BUFFER, N, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.id); gl.bufferData(gl.ARRAY_BUFFER, I, gl.STATIC_DRAW);
-    this._recolor();
+      const id = idColor(i).map((x) => Math.round(x * 255));
+      const c = this._rgb(it.id);
+      for (let k = 0; k < it.positions.length; k += 3) {
+        I[o + k] = id[0]; I[o + k + 1] = id[1]; I[o + k + 2] = id[2];
+        C[o + k] = c[0]; C[o + k + 1] = c[1]; C[o + k + 2] = c[2];
+      }
+    }
+    for (const [buf, data, bytes] of [[this.buffers.p, P, 12], [this.buffers.n, N, 3], [this.buffers.id, I, 3], [this.buffers.c, C, 3]]) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferSubData(gl.ARRAY_BUFFER, v0 * bytes, data);
+    }
   }
+
+  _rgb(id) { return (this.colorOf(id) || [0.75, 0.75, 0.75]).map((v) => Math.round(v * 255)); }
 
   setColors(fn) { this.colorOf = fn; this._recolor(); }
 
@@ -181,15 +204,17 @@ export class ModelView {
   }
 
   _recolor() {
+    if (!this.vertexCount) { this.dirty = true; return; }
     const gl = this.gl;
     const C = new Uint8Array(this.vertexCount * 3);
-    for (const it of this.items) {
-      const c = (this.colorOf(it.id) || [0.75, 0.75, 0.75]).map((v) => Math.round(v * 255));
+    for (let i = 0; i < this.uploaded; i++) {
+      const it = this.items[i], c = this._rgb(it.id);
       for (let k = 0, o = it.start * 3; k < it.count; k++, o += 3) { C[o] = c[0]; C[o + 1] = c[1]; C[o + 2] = c[2]; }
     }
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.c); gl.bufferData(gl.ARRAY_BUFFER, C, gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.c); gl.bufferSubData(gl.ARRAY_BUFFER, 0, C);
     this.dirty = true;
   }
+
 
   /** Frames the elements shown, or the ones in ids. */
   fit(ids) {

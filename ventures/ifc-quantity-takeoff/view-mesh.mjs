@@ -525,3 +525,19 @@ export function storeyList(rows) {
     return String(a.name).localeCompare(String(b.name), undefined, { numeric: true });
   });
 }
+
+/**
+ * The meshes of a model's drawable rows (assemblies are drawn as their
+ * parts), one { id, mesh } at a time, mesh null when there is nothing to
+ * draw. The page's fallback and view-worker.mjs both use it, so the two draw
+ * a model the same way.
+ */
+export function* meshRows(rows, origin) {
+  for (const r of rows) {
+    let mesh = null;
+    try { mesh = rowMesh(r, origin); } catch { mesh = null; }
+    yield { id: r.id, mesh };
+  }
+}
+/** The rows the view draws, and the origin it draws them about. */
+meshRows.prepare = (rows) => ({ rows: rows.filter((r) => !r.isAssembly), origin: modelOrigin(rows) });
