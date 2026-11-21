@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKnXcTSW54YC1pAZpL2",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T20:09:28Z",
+  "ended": "2026-11-21T20:27:12Z",
+  "wall_minutes": 17.89,
+  "tokens_in": 7113817,
+  "tokens_out": 33698,
+  "cost_usd": 3.0118,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18139",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First version required <table> display:table; ventures that set table{display:block} to scroll stayed left (148 -> 79 only). Fixed by checking row/cell display.",
+    "Tables filled after load without an input event stayed unmarked until a click; added a per-table MutationObserver."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to re-run platform/ci/wait_for.py until the build returns; the build took ~5 min and the backgrounded '&' inside run_in_background returned immediately, so the DONE marker came from a detached process. Worked, but the snippet is easy to misuse."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-20-number-columns.md",
+      "issue": "Item 1 implied venture tables were mostly static hand-written HTML; a static count (1,057 unmarked columns) overstated the defect ~7x versus computed alignment in a browser (148). Measure in a browser first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-tool-tables-line-up-too.md",
+    "docs/reports/polish-2026-11-21-figure-columns.md"
+  ],
+  "goal": null,
+  "notes": "Full site build of main, then Chromium sweep over 1,168 non-blog pages with tables. 1280px: left-aligned figure columns 148 (42 pages) -> 1 (control column, skipped by design); right 678 -> 810. 390px: 4 left on 2 pages (wall-framing control column; /ask/ card layout), 0 pages scroll sideways. Suite: node --test 'platform/pages/*.test.mjs' 'platform/devlog/*.test.mjs' 1,935 pass, 0 fail. Post checks (check_posts, frontmatter, links) ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "41633f3c-70cc-5cf3-9632-8c99a188dc23",
+    "transcripts": 1,
+    "first": "2026-11-21T20:09:28Z",
+    "last": "2026-11-21T20:27:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 129,
+        "output": 33698,
+        "thinking": 7470,
+        "cache_read": 6996438,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117250,
+        "api_equivalent_usd": 3.0118,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 129,
+      "output": 33698,
+      "thinking": 7470,
+      "cache_read": 6996438,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117250,
+      "api_equivalent_usd": 3.0118,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 62,
+      "Write": 2,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.89,
+      "active_minutes": 17.89,
+      "model_minutes": 6.16,
+      "tool_minutes": 11.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "measure 1,168 pages in a browser, write and test a runtime table pass, before/after sweep, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 166.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
