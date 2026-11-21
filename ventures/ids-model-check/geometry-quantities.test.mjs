@@ -61,7 +61,8 @@ test("a property (not a quantity) is never taken from geometry; the table's reas
   const geometry = geometryLookup(await measureModel(text));
   const p = fillModel(ids(spec("IFCWALL", prop("Pset_Custom", "NetSideArea", "IFCAREAMEASURE"))), text, { ...resources(), random, geometry });
   assert.equal(p.fromGeometry, 0);
-  const q = fillModel(ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "Height", "IFCLENGTHMEASURE"))), text, { ...resources(), random, geometry });
+  // NetWeight: a quantity no body defines
+  const q = fillModel(ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "NetWeight", "IFCMASSMEASURE"))), text, { ...resources(), random, geometry });
   assert.equal(q.fromGeometry, 0);
   assert.ok(q.unfilled.length && q.unfilled.every((u) => /geometry gives none/.test(u.why)));
 });
@@ -96,7 +97,7 @@ test("a wall clipped under a sloped roof keeps its extrusion depth apart from it
   assert.ok(Math.abs(w.length - 10) < 1e-6, w.length); // the base is the longest level
   assert.ok(Math.abs(w.height - 3.5) < 1e-9); // extrusion depth
   assert.ok(Math.abs(w.tallest - 3.4) < 1e-3, w.tallest); // clipped
-  // A faceted body gives nothing.
+  // A faceted body whose faces are not all known gives nothing.
   assert.equal(wallLines({ terms: [], mesh: 1, shells: null }, [1, 0], polyPlanes), null);
 });
 
@@ -130,4 +131,49 @@ test("the fill writes a wall's Length and Height from its axis and body", { skip
   // (Wall C's pieces store theirs already).
   assert.deepEqual(H.writtenList.filter((w) => w.source === "geometry").map((w) => [w.id, w.value]), [[200, "3000."]]);
   assert.equal(H.verified.pass, H.written);
+});
+
+test("a faceted (brep) wall is read through its shells: length on the middle line, height only on a level top", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { prism, polyPlanes, asTerms } = await import(TAKEOFF.href);
+  // The FZK mitred plan again, as a brep's closed shell.
+  const plan = [[0, 0], [4.29, 0], [4.17, 0.24], [0.12, 0.24]];
+  const brep = (faces) => ({ terms: [], mesh: 1, shells: [{ s: 1, loops: faces }], notes: [] });
+  const w = wallLines(brep(prism(plan, [0, 0, 2.5])), [1, 0], polyPlanes, { asTerms });
+  assert.ok(Math.abs(w.length - 4.17) < 1e-9, w.length);
+  assert.ok(w.faceted && w.flatTop && Math.abs(w.height - 2.5) < 1e-9);
+  // Without asTerms a faceted body is not read.
+  assert.equal(wallLines(brep(prism(plan, [0, 0, 2.5])), [1, 0], polyPlanes), null);
+  // A gable wall (elevation 0..6 m long, eaves 2.5, ridge 4): the shell is
+  // not convex, so asTerms fans it into tetrahedra; its top is not level.
+  const elev = [[0, 0], [6, 0], [6, 2.5], [3, 4], [0, 2.5]];
+  const gable = prism(elev, [0, 0, 0.3]).map((f) => f.map(([x, z, y]) => [x, y, z]).reverse());
+  const g = wallLines(brep(gable), [1, 0], polyPlanes, { asTerms });
+  assert.ok(Math.abs(g.length - 6) < 1e-6, g.length);
+  assert.ok(Math.abs(g.height - 4) < 1e-9 && g.flatTop === false);
+  // An L-shaped plan (a corner wall drawn as one body): its middle line runs
+  // through one arm only, 0.3 m of a 5 m wall, so nothing is offered.
+  const L = prism([[0, 0], [5, 0], [5, 0.3], [0.3, 0.3], [0.3, 3], [0, 3]], [0, 0, 2.8]);
+  assert.equal(wallLines(brep(L), [1, 0], polyPlanes, { asTerms }), null);
+});
+
+test("a wall with no Axis takes its direction from its body's side faces", async () => {
+  const { bodyDirection } = await import("./geometry-quantities.mjs");
+  const row = (n) => ({ computed: { status: "ok", areas: { side: { n } } } });
+  const d = bodyDirection(row([0, 1, 0]));
+  assert.ok(Math.abs(d[0] + 1) < 1e-12 && Math.abs(d[1]) < 1e-12);
+  const s = Math.SQRT1_2;
+  const e = bodyDirection(row([s, s, 0]));
+  assert.ok(Math.abs(Math.abs(e[0]) - s) < 1e-12 && Math.abs(e[0] + e[1]) < 1e-12); // perpendicular to n
+  assert.equal(bodyDirection(row([0, 0, 1])), null); // not a side normal
+  assert.equal(bodyDirection({ computed: { status: "ok", areas: { faceted: true } } }), null);
+});
+
+test("the fill writes a Length for a wall with no Axis, from its body", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  // Wall B with no Axis (as in the sample) and its stored Length taken out:
+  // its direction comes from its side faces
+  const text = readFileSync(SAMPLE, "utf8").replace("(#231,#232,#233)", "(#232,#233)");
+  const geometry = geometryLookup(await measureModel(text));
+  const L = fillModel(ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "Length", "IFCLENGTHMEASURE"))), text, { ...resources(), random, geometry });
+  assert.deepEqual(L.writtenList.filter((w) => w.source === "geometry").map((w) => [w.id, w.value]), [[200, "4000."]]);
+  assert.equal(L.verified.pass, L.written);
 });
