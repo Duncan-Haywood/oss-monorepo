@@ -32,6 +32,7 @@ import {
   collectOfflineBundle,
   categoryFor,
   SALES_SLUGS,
+  IMPORT_CHECK_SLUGS,
   DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
@@ -1629,7 +1630,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 20, 'the nineteen named sections (personal-tax and household joined 2026-11-17, bookkeeping and sales 2026-11-21) plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 21, 'the twenty named sections (personal-tax and household joined 2026-11-17, bookkeeping, sales and imports 2026-11-21) plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1766,6 +1767,21 @@ test('the lead-to-invoice pipeline files under sales, and no later rule still na
   const rules = source.slice(source.indexOf('const CATEGORY_RULES = ['), source.indexOf('export const CATCH_ALL_MAX'));
   const afterSales = rules.slice(rules.indexOf("test: (slug) => SALES_SLUGS.has(slug)"));
   const dead = [...SALES_SLUGS].filter((slug) => new RegExp(`['|(]${slug}['|)]`).test(afterSales));
+  assert.deepEqual(dead, []);
+});
+
+test('pre-upload file checks file under imports, and no later rule still names a member', async () => {
+  for (const slug of IMPORT_CHECK_SLUGS) assert.equal(categoryFor(slug).id, 'imports', slug);
+  // Near-misses: product feeds stay with marketplace, accounting imports with bookkeeping, regulation checks in evidence.
+  for (const [slug, id] of [['shopify-product-csv-check', 'marketplace'], ['etsy-listing-csv-check', 'marketplace'],
+    ['quickbooks-import-csv-check', 'bookkeeping'], ['xero-contacts-csv-check', 'bookkeeping'], ['ofx-file-check', 'bookkeeping'],
+    ['pdf-accessibility-tag-check', 'evidence'], ['salary-range-posting-check', 'evidence'], ['internal-link-planner', 'evidence']]) {
+    assert.equal(categoryFor(slug).id, id, slug);
+  }
+  const source = await fs.readFile(path.join(REPO_ROOT, 'platform', 'pages', 'build.mjs'), 'utf8');
+  const rules = source.slice(source.indexOf('const CATEGORY_RULES = ['), source.indexOf('export const CATCH_ALL_MAX'));
+  const after = rules.slice(rules.indexOf('test: (slug) => IMPORT_CHECK_SLUGS.has(slug)'));
+  const dead = [...IMPORT_CHECK_SLUGS].filter((slug) => new RegExp(`['|(]${slug}['|)]`).test(after));
   assert.deepEqual(dead, []);
 });
 
