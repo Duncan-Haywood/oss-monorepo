@@ -149,6 +149,51 @@ On 11,360 `.mjs` files (2026-11-12, commit `4dcaf94d`) the summed lower
 estimate falls from 396,673 to 283,122 removable lines, at the same 0.8 to
 1.0 s as without the flag.
 
+### Suggested guards
+
+`--suggest-guards` writes a `--guarded` file for you to edit. It looks for
+copies that are whole files and token-identical to each other: the mark of a
+module vendored on purpose, or of one pasted once and never touched since.
+Only a person, or a sync test, can tell those two apart, so every line is a
+suggestion. Inside a family, the whole-file copies are grouped by exact token
+sequence, and each group by depth and file name. Segments that agree stay and
+segments that differ become `*`. A partial stray (one helper pasted into an
+unrelated file) is left out, and the comment above each pattern says how many
+other files hold the block. A glob that would also match other scanned files
+(a drifted copy, or an unrelated file with the same name) prints the exact
+paths instead when there are 8 copies or fewer, so the file never folds a
+stranger. Above that it prints the glob with a `CAUTION` line. Patterns
+already passed with `--guarded` are applied first, so the output lists only
+what is still unwatched. With `--json` the output is
+`{"suggested_guards":[{pattern, paths, copies, lines, identical_copies,
+family_copies, also_matches}]}`.
+
+```sh
+dupehound --ext mjs --suggest-guards ventures platform > guards.txt
+dupehound --ext mjs --guarded guards.txt --families ventures platform
+```
+
+On this repository (13,534 `.mjs` files, 2026-11-21, commit `284dedfe`;
+about 1.6 s and 734 MB, against 1.3 s for `--families` alone), it proposed
+25 patterns with no guard file. Its first five recovered the hand-written
+[`guards/oss-monorepo.txt`](guards/oss-monorepo.txt) entries for the copies
+`platform/proposal/sync.test.mjs` keeps identical. The one it could not find
+is `proposal-terms.test.mjs` in `platform/`, whose import line the sync test
+rewrites, so it is not token-identical. With that file in force, 20 remained.
+Checked by hand:
+
+- `byok.mjs` (17 copies) has a sync test in `platform/llm/byok.test.mjs`,
+  and is now in the guard file;
+- `pdf-parser.mjs` and `inflate-browser.mjs` (4 copies each, a PDF parser
+  for untrusted uploads) had none. Each of the four ventures now carries the
+  same `pdf-parser-sync.test.mjs`, and the copies are in the guard file;
+- `repair-fuzz.test.mjs` (50 copies, 11 lines) is a deliberate thin wrapper
+  around `platform/fuzz/`;
+- the other 16 (`greenbutton.mjs`, `licence.mjs`, two `yaml.mjs`, two
+  `search.mjs`, seven `page.test.mjs`, `share.test.mjs` and more) have no
+  sync test found. They are candidates for a shared module or a guard, which
+  is the person's call.
+
 ## Browser page
 
 [`index.html`](index.html) loads [`web/dupehound.mjs`](web/dupehound.mjs) and
@@ -198,9 +243,11 @@ or endorsed by either.
 - Prebuilt binaries from a release workflow, so no Rust toolchain is needed.
 - Pair a window with every earlier occurrence on a diagonal, not only the
   first, so repetitive code in normalised mode reports whole clones.
-- Find guard candidates automatically: a family whose copies are all
-  token-identical and all whole files is probably vendored on purpose; list
-  them as suggested `--guarded` lines for a person to confirm.
+- Look for a sync test automatically: a test file that names a suggested
+  copy and reads its siblings would let `--suggest-guards` tell vendored from
+  forgotten instead of leaving every line to a person.
+- `--suggest-guards` in the browser page (the library has it; the page and
+  `.wasm` do not yet).
 - Labelled data for normalised mode: how many of its extra matches a person
   would call real duplication.
 - Cut memory on large trees: the window table is 16 bytes a token; a

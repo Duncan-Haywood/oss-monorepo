@@ -1272,3 +1272,236 @@ pub fn json_report_with_guarded_families(
     o.push('}');
     o
 }
+
+// ---------------------------------------------------------------------------
+// Suggested guards: families that look vendored on purpose.
+// ---------------------------------------------------------------------------
+
+/// One suggested `--guarded` pattern and the evidence behind it.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GuardSuggestion {
+    /// A path pattern in `--guarded` syntax (`ventures/*/proposal.mjs`).
+    pub pattern: String,
+    /// The copies the pattern was built from, in path order.
+    pub paths: Vec<String>,
+    /// Copies in the family this pattern covers.
+    pub copies: usize,
+    /// Lines in each copy (they are token-identical, so one number).
+    pub lines: u32,
+    /// Whole-file, token-identical copies this pattern came from, including
+    /// any that other patterns (or `--guarded`) already cover.
+    pub identical_copies: usize,
+    /// Occurrences in the family, partial copies included: more than
+    /// `identical_copies` means the block was also pasted into other files.
+    pub family_copies: usize,
+    /// Scanned files the pattern also matches that are not copies in the
+    /// family: a drifted copy, or a broader glob than intended. Each would be
+    /// folded as if a test kept it in sync, so a person should look first.
+    pub also_matches: Vec<String>,
+}
+
+/// Generalise paths of equal depth and file name into one glob: segments
+/// that agree stay, segments that differ become `*`.
+fn generalise(paths: &[&str]) -> String {
+    let split: Vec<Vec<&str>> = paths.iter().map(|p| p.split('/').collect()).collect();
+    (0..split[0].len())
+        .map(|i| {
+            if split.iter().all(|s| s[i] == split[0][i]) {
+                split[0][i]
+            } else {
+                "*"
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+/// Suggest `--guarded` patterns for families whose every copy is a whole
+/// file and token-identical to the others: the signature of a module
+/// vendored into each project on purpose (and the cheapest kind of
+/// duplication to keep in sync with a test, or to replace with one import).
+///
+/// `guards` already in force are applied first: fully guarded families are
+/// skipped, and guarded copies get no new pattern. A family's remaining
+/// paths are grouped by depth and file name, and each group becomes one glob.
+/// These are suggestions only: identical whole files are vendored *or*
+/// pasted once and never edited, and only a person (or a sync test) can say
+/// which. Ordered by lines the pattern would fold, most first.
+pub fn suggest_guards(
+    files: &[SourceFile],
+    fams: Vec<Family>,
+    guards: &Guards,
+) -> Vec<GuardSuggestion> {
+    let g = apply_guards(files, fams, guards);
+    let mut out: Vec<GuardSuggestion> = Vec::new();
+    let mut seen: std::collections::HashSet<String> = Default::default();
+    for fam in &g.families {
+        // Whole-file copies, grouped by exact token sequence. A family is
+        // often a vendored module plus a few partial strays (one helper
+        // pasted into an unrelated file); the strays stay unguarded.
+        let mut exact: std::collections::BTreeMap<(u32, u64), Vec<&str>> = Default::default();
+        for o in fam.occurrences.iter().filter(|o| o.whole_file) {
+            let f = &files[o.span.file as usize];
+            let h = f
+                .tokens
+                .iter()
+                .fold(0u64, |h, t| h.wrapping_mul(BASE).wrapping_add(t.hash));
+            exact
+                .entry((f.tokens.len() as u32, h))
+                .or_default()
+                .push(&f.path);
+        }
+        for copies in exact.into_values().filter(|c| c.len() >= 2) {
+            suggest_for(files, guards, fam, &copies, &mut seen, &mut out);
+        }
+    }
+    out.sort_by(|a, b| {
+        (b.copies as u64 * b.lines as u64)
+            .cmp(&(a.copies as u64 * a.lines as u64))
+            .then(a.pattern.cmp(&b.pattern))
+    });
+    out
+}
+
+fn suggest_for(
+    files: &[SourceFile],
+    guards: &Guards,
+    fam: &Family,
+    copies: &[&str],
+    seen: &mut std::collections::HashSet<String>,
+    out: &mut Vec<GuardSuggestion>,
+) {
+    let n = copies.len();
+    let lines = files
+        .iter()
+        .find(|f| f.path == copies[0])
+        .map_or(0, |f| f.lines);
+    let paths: Vec<&str> = copies
+        .iter()
+        .copied()
+        .filter(|p| guards.matches(p).is_none())
+        .collect();
+    let members: std::collections::HashSet<&str> = copies.iter().copied().collect();
+    let mut groups: std::collections::BTreeMap<(usize, &str), Vec<&str>> = Default::default();
+    for &p in &paths {
+        groups
+            .entry((p.matches('/').count(), name_of(p)))
+            .or_default()
+            .push(p);
+    }
+    for group in groups.into_values() {
+        let pattern = generalise(&group);
+        if !seen.insert(pattern.clone()) {
+            continue;
+        }
+        let probe = Guards {
+            patterns: vec![pattern.clone()],
+        };
+        let also_matches = files
+            .iter()
+            .map(|f| f.path.as_str())
+            .filter(|p| !members.contains(p) && probe.matches(p).is_some())
+            .map(str::to_string)
+            .collect();
+        out.push(GuardSuggestion {
+            pattern,
+            paths: group.iter().map(|p| p.to_string()).collect(),
+            copies: group.len(),
+            lines,
+            identical_copies: n,
+            family_copies: fam.occurrences.len(),
+            also_matches,
+        });
+    }
+}
+
+/// Above this many copies, an over-matching glob is still printed (with a
+/// caution) rather than one exact path a line.
+const EXACT_PATHS_MAX: usize = 8;
+
+/// Suggestions as a `--guarded` file: each pattern under a comment giving
+/// its evidence, so a person can delete the lines they do not confirm. A
+/// glob that would also catch other scanned files is replaced by the exact
+/// paths when there are few of them, so the file never folds a stranger.
+pub fn guards_file(sugs: &[GuardSuggestion]) -> String {
+    let mut o = String::from(
+        "# Suggested by dupehound --suggest-guards: whole files, token-identical in\n\
+         # every copy. Keep a line only if something (a sync test) keeps those\n\
+         # copies identical on purpose; otherwise the copies are debt to remove.\n",
+    );
+    for s in sugs {
+        let _ = write!(
+            o,
+            "\n# {} of {} identical whole-file copies, {} lines each",
+            s.copies, s.identical_copies, s.lines
+        );
+        if s.family_copies > s.identical_copies {
+            let _ = write!(
+                o,
+                " (the block also sits in {} other file(s), not covered)",
+                s.family_copies - s.identical_copies
+            );
+        }
+        let exact = !s.also_matches.is_empty() && s.copies <= EXACT_PATHS_MAX;
+        if exact {
+            let _ = write!(
+                o,
+                "; exact paths, since {} would also match {} other scanned file(s), e.g. {}",
+                s.pattern,
+                s.also_matches.len(),
+                s.also_matches[0]
+            );
+        } else if !s.also_matches.is_empty() {
+            let _ = write!(
+                o,
+                "; CAUTION: also matches {} other scanned file(s), e.g. {}",
+                s.also_matches.len(),
+                s.also_matches[0]
+            );
+        }
+        o.push('\n');
+        if exact {
+            for p in &s.paths {
+                let _ = writeln!(o, "{p}");
+            }
+        } else {
+            let _ = writeln!(o, "{}", s.pattern);
+        }
+    }
+    o
+}
+
+/// Suggestions as JSON: `{"suggested_guards":[{pattern, paths, copies, lines,
+/// identical_copies, family_copies, also_matches}]}`.
+pub fn json_guard_suggestions(sugs: &[GuardSuggestion]) -> String {
+    let mut o = String::from("{\"suggested_guards\":[");
+    for (i, s) in sugs.iter().enumerate() {
+        if i > 0 {
+            o.push(',');
+        }
+        o.push_str("{\"pattern\":");
+        json_str(&mut o, &s.pattern);
+        o.push_str(",\"paths\":[");
+        for (j, p) in s.paths.iter().enumerate() {
+            if j > 0 {
+                o.push(',');
+            }
+            json_str(&mut o, p);
+        }
+        o.push(']');
+        let _ = write!(
+            o,
+            ",\"copies\":{},\"lines\":{},\"identical_copies\":{},\"family_copies\":{},\"also_matches\":[",
+            s.copies, s.lines, s.identical_copies, s.family_copies
+        );
+        for (j, p) in s.also_matches.iter().enumerate() {
+            if j > 0 {
+                o.push(',');
+            }
+            json_str(&mut o, p);
+        }
+        o.push_str("]}");
+    }
+    o.push_str("]}");
+    o
+}
