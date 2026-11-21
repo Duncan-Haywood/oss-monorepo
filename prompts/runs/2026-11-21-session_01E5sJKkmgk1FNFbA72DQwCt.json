@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKkmgk1FNFbA72DQwCt",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T16:19:18Z",
+  "ended": "2026-11-21T19:33:32Z",
+  "wall_minutes": 206.49,
+  "tokens_in": 15691964,
+  "tokens_out": 72262,
+  "cost_usd": 6.1652,
+  "tool_calls": 109,
+  "task": "Advance research programme hanger-codesign (track 18 draw): milestone 4e, the hanger arm-width decision on the calibrated triangle top tier against the 2D chain and 3D spring sheet, nine measured wovens (H1, H3).",
+  "projects": [
+    "research/hanger-codesign"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18109",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First T3 pilots from the flat 2D-chain start crawled for 300+ Newton steps",
+      "fix": "start T3 from T2's converged state; smooth the contact penalty's kink over 10 um (nodes resting exactly on the arm stalled Newton)"
+    },
+    {
+      "what": "9 of 90 registered top-tier solves hit the 600-step cap (E1 refuted)",
+      "fix": "disclosed post hoc --extend pass with a 2,000-step cap, reported separately from the registered scoring"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/hanger-codesign/README.md",
+      "issue": "Reproduce block said 79 tests; the suite had 93 before this run (earlier milestones added tests without updating the count). Fixed."
+    },
+    {
+      "file": "research/hanger-codesign/experiments/m1_kes_fidelity/run.py",
+      "issue": "Milestone 1's 3,000-iteration cap on the 3 cm arm left the spring sheet about 0.1 cm short of converged (F5: 1.81 vs 1.93 cm); 1b says so, but the cap is still the default in hanger_3d.cloth3d.drape, a trap for any new comparison."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Bare python3 lacks numpy; /usr/bin/python3.13 had numpy, scipy and pytest, and pyenv.py printed it within seconds. Worked as documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "One step per PR small enough to merge in this run: this step took about 12 core-hours (3.3 h wall on 4 cores) because the registered 90-case grid could not be cut after the predictions were committed.",
+      "did": "kept the registered grid, ran it to completion, ran a disclosed extension pass rather than shrinking the design",
+      "result": "landed in one session, with every registered prediction scored"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-hanger-tier-decision.md",
+    "research/hanger-codesign/LOG.md (2026-11-21 entry)",
+    "research/hanger-codesign/README.md (Milestone 4e section)"
+  ],
+  "goal": null,
+  "notes": "Registered predictions committed in 7785bfe2c before any registered solve. E2 (acceptance) held: top tier's arm width = spring sheet's on 9/9 uncalibrated, 8/9 calibrated; E3 held: = 2D chain on 18/18; E4 (H3) refuted: calibration never changes the top tier's choice; E1, E5, E6, E7 refuted. Local checks: 93 tests pass (pytest, /usr/bin/python3.13), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, check_posts ok. Post hoc --extend (2,000-step cap, 2.2 core-hours): 6 of 9 capped cases converge, scores move -0.063 to +0.019 cm, no decision changes; 3 still stall at non-best offsets.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b98aa756-214d-5a06-b096-09b88733ed65",
+    "transcripts": 1,
+    "first": "2026-11-21T16:19:18Z",
+    "last": "2026-11-21T19:45:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 184,
+        "output": 72262,
+        "thinking": 22215,
+        "cache_read": 15489110,
+        "cache_write_5m": 0,
+        "cache_write_1h": 202670,
+        "api_equivalent_usd": 6.1652,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 184,
+      "output": 72262,
+      "thinking": 22215,
+      "cache_read": 15489110,
+      "cache_write_5m": 0,
+      "cache_write_1h": 202670,
+      "api_equivalent_usd": 6.1652,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 109,
+    "tools": {
+      "Bash": 99,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 206.49,
+      "active_minutes": 206.49,
+      "model_minutes": 13.12,
+      "tool_minutes": 193.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 40.0,
+      "basis": "a PhD student building a contact-capable FEM cloth sheet, running 90 converged three-tier cases and writing up: about a working week",
+      "rate_usd_per_hour": 100.0,
+      "usd": 4000.0
+    },
+    "leverage": 648.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
