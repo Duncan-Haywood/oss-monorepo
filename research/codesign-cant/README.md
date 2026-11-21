@@ -6,6 +6,17 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Ten seeds (2026-11-21): does canting a quadrotor's motors still pay with ten seeds and proper tests? Yes, but the shared thrust budget does not make it pay more
+
+**Question.** Milestones 1 and 2 ran five seeds, so their paired results rested on sign counts with a floor of p = 0.06. With seeds 5-9 added (nothing else changed) and exact Wilcoxon tests and bootstrap intervals, which findings hold?
+
+**Headline ([`experiments/m12_ten_seeds/results.txt`](experiments/m12_ten_seeds/results.txt); 205 new CMA-ES runs, 27 min on 4 cores; predictions committed to `LOG.md` before the run; simulated).**
+
+- **The cant result holds at ten seeds.** With the corrected allocation at TWR 2 cant ≤ 35° beats no cant by 4.85° of held-out attitude RMS (95% interval 4.79-4.92°, 10 of 10 seeds, Wilcoxon p = 0.002). Under the per-axis torque box it wins 10 of 10 at every power price. Under PX4-style attitude-priority mixing it wins 9 of 10 (p = 0.004), and 9 of 10 at 1° per 100 W with three starts (3.84°, p = 0.004).
+- **Correction: the shared polytope does not make cant worth more.** At five seeds cant's advantage looked larger under the attitude-priority mixer (6.08° against 4.81°). At ten it is 4.98° (3.64-5.91°) against 4.86°. Three of the five new uncanted seeds found a second optimum at about 1700 W that barely saturates, and the five-seed claim rested on seeds that all found the saturated one. The paper draft's section IV is rewritten to match.
+- **Single-start CMA-ES fails on the polytope even with no power price:** one of ten seeds at λ = 0 chose 9.5° and lost to no cant. Restarts remain necessary.
+- Sections IV-V of the [draft](paper/DRAFT.md) now quote Wilcoxon p and bootstrap intervals for every paired result (`stats.py`, stdlib). `paper/check_numbers.py` checks 124 figures.
+
 ## Paper step (2026-11-21, second): the whole draft, introduction to conclusion, and one figure for the cant results
 
 **Question.** With the model, results and stability sections written, what does the paper argue end to end, and where exactly does the co-designed cant fail to win?
@@ -613,6 +624,8 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 **Headline (`experiments/m2_polytope/results.txt` and `restarts.txt`; simulated, 5 seeds, TWR 2).**
 
+> **Revised at ten seeds (2026-11-21, `experiments/m12_ten_seeds`).** Cant's advantage under the attitude-priority mixer is 4.98° (9 of 10, p = 0.004), not 6.08°, no larger than under the box (4.86°); hover power falls 3.0-7.0×; with three starts the chosen cant is 28-37° in 19 of 20 seed-arms; airmode helps by 1.14° and 0.88°. The bullets below are the five-seed record.
+
 - **The shared polytope costs accuracy, and cant more than makes up for it.** With an attitude-priority mixer (roll and pitch first, yaw gets the rest, as PX4 and Betaflight do) held-out RMS error rises by 2.90° without cant and 1.63° with it (5 of 5 seeds each). Cant's paired advantage grows from 4.81° to **6.08°** (SD 0.28, 5 of 5). The tuned no-cant vehicle saturates roll and pitch on 97% of steps, leaving yaw nothing; with cant, yaw rides on the tangential thrust and is scaled on 39% of steps.
 - **Pricing hover power shrinks the vehicle, not the cant.** At 0.3° per 100 W, hover power falls 4–7× (canted design 1380 W to 219–256 W) for at most 0.5° of extra error. The chosen cant stays at **28–37° in 9 of 10 seed-arms** from 0 to 1° per 100 W (best of three CMA-ES starts). The proposal's H1, a small 5–20° optimum, is refuted under this objective.
 - **Cant still wins once power is priced:** −5.28 composite at 0.3° per 100 W (5 of 5) and −2.92 at 1° per 100 W (4 of 5).
@@ -624,6 +637,8 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 **Question.** All seven earlier projects gave the simulator two hand-written torque limits. Are they right, and do the conclusions survive if they are not?
 
 **Headline (numbers from `experiments/m1_allocation/results.txt`; simulated, 5 seeds).**
+
+> **Revised at ten seeds (2026-11-21, `experiments/m12_ten_seeds`).** 4.85° against 4.50° at TWR 2 (10 of 10, p = 0.002); with TWR free at hover the uncanted designs pick TWR 2.1-3.7, the canted ones 2.0-2.1. The bullets below are the five-seed record.
 
 - **The formulas were wrong in three places.** The full 6×4 thrust-to-wrench map with every thrust in [0, Tmax], maximised by a linear programme (closed forms agree to 1e-15 on 300 random designs), gives yaw 4Δ(L sin α + κ cos α) and roll 4Δ(L cos α − κ sin α)/√2, where Δ = min(Th, Tmax − Th) with altitude held, or Tmax/2 if the mixer may give up altitude. The earlier yaw limit used 2 in place of 4 and the moment arm L/√2 in place of L, which understated yaw authority by 2× with no cant and up to 2.8× with cant. The earlier roll limit kept growing above TWR 2 by assuming negative rotor thrust. The side force per unit roll torque in `-poshold` was √2 too large.
 - **Cant's advantage survives the correction.** Paired by seed, cant ≤ 35° beats no cant by 4.81° RMS (SD 0.12, 5 of 5 seeds) with corrected limits at TWR 2, against 4.62° with the old ones. With TWR free the gap is 4.81° (altitude held) or 2.77° (collective free), against 2.43° before.
@@ -736,7 +751,7 @@ python3 paper/check_numbers.py                  # stdlib; every number the paper
 - Milestones 7 and 7b use a feed-forward of fixed gain 1. Milestone 7b's explanation of which designs diverge (the integral-to-proportional gain ratio) is post hoc and rests on two design families; milestone 7c's linear analysis is a necessary test only: it is linearised about hover, and the clips and mixer saturation where divergence happens are outside it (milestone 7d found that the 20° tilt-command limit, not the integrator clip, is what contains its false alarms, from a post-hoc sweep on one geometry); its ki/kp ceiling is numerical, per design, with no closed form yet.
 - Milestone 6's translation model (drag, noise, perfect altitude hold, one wind state driving both the drag and the disturbance torque) is inherited and assumed. Milestone 6b derives the rigid-frame signs and retrains under them, but the centre-of-pressure lever is still assumed (0.05 + 0.3 L, swept 0–2×), the gust torque goes from world-frame wind straight to body axes, and lever 2 was not retrained. Six seeds, two starts.
 - Milestone 5 re-scores designs without retuning them in RotorPy; its aerodynamic coefficients are the Hummingbird's scaled by momentum-theory exponents, not measured for these propellers; the altitude loop is assumed; 32 episodes.
-- Attitude steps only (milestones 1–4), 2 s episodes, five seeds (ten in milestone 4), one κ. The cost fit and the plant ranges are inherited assumptions. Milestone 7q sourced the battery, motor-mass and propulsive-efficiency constants from listings and found the 60-step closure unconverged near its edge; milestones before 7q ran on the inherited closure (`SIZE_SOLVE = "iter60"`). No hardware.
+- Attitude steps only (milestones 1–4), 2 s episodes, ten seeds (milestones 1-2 extended from five on 2026-11-21), one κ. The cost fit and the plant ranges are inherited assumptions. Milestone 7q sourced the battery, motor-mass and propulsive-efficiency constants from listings and found the 60-step closure unconverged near its edge; milestones before 7q ran on the inherited closure (`SIZE_SOLVE = "iter60"`). No hardware.
 
 ## Next steps
 
