@@ -1,0 +1,282 @@
+{
+ "date": "2026-11-21",
+ "xer": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "project": "CCA R03 dt 24Oct11SC",
+   "resourcesWritten": 105,
+   "rsrcNotesNonEmpty": 2,
+   "notesWithText": 0,
+   "inProjectXml": 0,
+   "projectXmlNotes": 0,
+   "backInXer": 0,
+   "xerNotesBack": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "project": "BEW3",
+   "resourcesWritten": 323,
+   "rsrcNotesNonEmpty": 0,
+   "notesWithText": 0,
+   "inProjectXml": 0,
+   "projectXmlNotes": 0,
+   "backInXer": 0,
+   "xerNotesBack": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "example_xer_file.xer",
+   "project": "DEMO-001",
+   "resourcesWritten": 29,
+   "rsrcNotesNonEmpty": 0,
+   "notesWithText": 0,
+   "inProjectXml": 0,
+   "projectXmlNotes": 0,
+   "backInXer": 0,
+   "xerNotesBack": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "hotel-project.xer",
+   "project": "HBTF-2",
+   "resourcesWritten": 6,
+   "rsrcNotesNonEmpty": 1,
+   "notesWithText": 0,
+   "inProjectXml": 0,
+   "projectXmlNotes": 0,
+   "backInXer": 0,
+   "xerNotesBack": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "sample.xer",
+   "project": "Task SE",
+   "resourcesWritten": 0,
+   "rsrcNotesNonEmpty": 0,
+   "notesWithText": 0,
+   "inProjectXml": 0,
+   "projectXmlNotes": 0,
+   "backInXer": 0,
+   "xerNotesBack": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "project": "TERMINAL-2",
+   "resourcesWritten": 6,
+   "rsrcNotesNonEmpty": 0,
+   "notesWithText": 0,
+   "inProjectXml": 0,
+   "projectXmlNotes": 0,
+   "backInXer": 0,
+   "xerNotesBack": 0,
+   "p6Problems": 0
+  }
+ ],
+ "planted": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "project": "CCA R03 dt 24Oct11SC",
+   "resourcesWritten": 105,
+   "rsrcNotesNonEmpty": 100,
+   "notesWithText": 100,
+   "inProjectXml": 100,
+   "projectXmlNotes": 100,
+   "backInXer": 100,
+   "xerNotesBack": 100,
+   "p6Problems": 0,
+   "planted": 100,
+   "plantedForms": {
+    "desktop": 46,
+    "plain": 8,
+    "web": 46
+   },
+   "plantedReadAsMeant": 100,
+   "plantedBack": 100,
+   "miss": []
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "project": "BEW3",
+   "resourcesWritten": 323,
+   "rsrcNotesNonEmpty": 100,
+   "notesWithText": 100,
+   "inProjectXml": 100,
+   "projectXmlNotes": 100,
+   "backInXer": 100,
+   "xerNotesBack": 100,
+   "p6Problems": 0,
+   "planted": 100,
+   "plantedForms": {
+    "desktop": 41,
+    "web": 48,
+    "plain": 11
+   },
+   "plantedReadAsMeant": 100,
+   "plantedBack": 100,
+   "miss": []
+  },
+  {
+   "file": "example_xer_file.xer",
+   "project": "DEMO-001",
+   "resourcesWritten": 29,
+   "rsrcNotesNonEmpty": 29,
+   "notesWithText": 29,
+   "inProjectXml": 29,
+   "projectXmlNotes": 29,
+   "backInXer": 29,
+   "xerNotesBack": 29,
+   "p6Problems": 0,
+   "planted": 29,
+   "plantedForms": {
+    "desktop": 16,
+    "web": 10,
+    "plain": 3
+   },
+   "plantedReadAsMeant": 29,
+   "plantedBack": 29,
+   "miss": []
+  },
+  {
+   "file": "hotel-project.xer",
+   "project": "HBTF-2",
+   "resourcesWritten": 6,
+   "rsrcNotesNonEmpty": 6,
+   "notesWithText": 6,
+   "inProjectXml": 6,
+   "projectXmlNotes": 6,
+   "backInXer": 6,
+   "xerNotesBack": 6,
+   "p6Problems": 0,
+   "planted": 6,
+   "plantedForms": {
+    "desktop": 3,
+    "web": 3
+   },
+   "plantedReadAsMeant": 6,
+   "plantedBack": 6,
+   "miss": []
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "project": "TERMINAL-2",
+   "resourcesWritten": 6,
+   "rsrcNotesNonEmpty": 6,
+   "notesWithText": 6,
+   "inProjectXml": 6,
+   "projectXmlNotes": 6,
+   "backInXer": 6,
+   "xerNotesBack": 6,
+   "p6Problems": 0,
+   "planted": 6,
+   "plantedForms": {
+    "plain": 1,
+    "desktop": 4,
+    "web": 1
+   },
+   "plantedReadAsMeant": 6,
+   "plantedBack": 6,
+   "miss": []
+  }
+ ],
+ "mspdi": [
+  {
+   "file": "generated/resource-misc/resource-misc-project2002-mspdi.xml",
+   "notes": 2,
+   "costResourceNotes": 0,
+   "costNotesWarned": null,
+   "inXer": 2,
+   "assignedBackInProjectXml": 0,
+   "backInProjectXml": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "generated/resource-misc/resource-misc-project2003-mspdi.xml",
+   "notes": 2,
+   "costResourceNotes": 0,
+   "costNotesWarned": null,
+   "inXer": 2,
+   "assignedBackInProjectXml": 0,
+   "backInProjectXml": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "generated/resource-misc/resource-misc-project2007-mspdi.xml",
+   "notes": 2,
+   "costResourceNotes": 0,
+   "costNotesWarned": null,
+   "inXer": 2,
+   "assignedBackInProjectXml": 0,
+   "backInProjectXml": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "generated/resource-misc/resource-misc-project2010-mspdi.xml",
+   "notes": 2,
+   "costResourceNotes": 0,
+   "costNotesWarned": null,
+   "inXer": 2,
+   "assignedBackInProjectXml": 0,
+   "backInProjectXml": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "generated/resource-misc/resource-misc-project2019-mspdi.xml",
+   "notes": 2,
+   "costResourceNotes": 0,
+   "costNotesWarned": null,
+   "inXer": 2,
+   "assignedBackInProjectXml": 0,
+   "backInProjectXml": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "legacy/sample.xml",
+   "notes": 1,
+   "costResourceNotes": 0,
+   "costNotesWarned": null,
+   "inXer": 1,
+   "assignedBackInProjectXml": 1,
+   "backInProjectXml": 1,
+   "p6Problems": 0
+  },
+  {
+   "file": "legacy/sample1.xml",
+   "notes": 2,
+   "costResourceNotes": 0,
+   "costNotesWarned": null,
+   "inXer": 2,
+   "assignedBackInProjectXml": 2,
+   "backInProjectXml": 2,
+   "p6Problems": 0
+  },
+  {
+   "file": "mspdiresource.xml",
+   "notes": 4,
+   "costResourceNotes": 0,
+   "costNotesWarned": null,
+   "inXer": 4,
+   "assignedBackInProjectXml": 3,
+   "backInProjectXml": 3,
+   "p6Problems": 0
+  }
+ ],
+ "totals": {
+  "realResourcesWritten": 469,
+  "realRsrcNotesNonEmpty": 3,
+  "realNotesWithText": 0,
+  "realExtraNotesInXml": 0,
+  "planted": 241,
+  "plantedReadAsMeant": 241,
+  "plantedBack": 241,
+  "plantedExtraNotesBack": 0,
+  "mspdiFiles": 8,
+  "mspdiNotes": 17,
+  "mspdiInXer": 17,
+  "mspdiAssigned": 6,
+  "mspdiBack": 6,
+  "mspdiCostNotes": 0,
+  "p6Problems": 0
+ }
+}

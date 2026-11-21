@@ -13,18 +13,20 @@ and no P6 seat (WBS, activity IDs, calendars, logic, constraints, progress,
 baseline, resources, activity codes as named text columns, user-defined fields
 as named Number, Cost, Date and Text columns, resource user-defined fields as
 named resource columns, WBS user-defined fields as named columns on the summary
-tasks, activity and WBS notebooks as task notes under their topics, expenses
-as cost resources), checked on six public P6 files against this tool's own
+tasks, activity and WBS notebooks as task notes under their topics, resource
+notes as resource notes, expenses as cost resources), checked on six public P6 files against this tool's own
 MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`,
 `eval/msproject-udfs-2026-11-21.md`, `eval/rsrc-udfs-2026-11-21.md`,
 `eval/wbs-udfs-2026-11-21.md`, `eval/notebooks-2026-11-21.md`,
+`eval/resource-notes-2026-11-21.md`,
 `eval/expenses-2026-11-21.md`).
 And the other way: **Microsoft Project XML to a P6 XER** for P6's import, for
 a planner in Project who must submit a P6 file (WBS under a project node,
 activity IDs, calendars, logic, progress with Project's Resume as P6's
 suspend and resume, baseline, resources and assignments with cost, text
 columns as activity codes, Number, Cost and Date columns as named
-user-defined fields, task notes as notebook entries, cost resources and
+user-defined fields, task notes as notebook entries, resource notes as P6
+resource notes, cost resources and
 fixed costs as P6 expenses, Project's scheduling options, saved in
 Windows-1252 as P6 reads an XER), checked on 143 Project files and the six
 P6 files sent through Project and back (`eval/p6xer-check-2026-11-21.md`,
@@ -757,6 +759,17 @@ run as a formula in Excel or Sheets.
   puts on no task and 9 planted plain-text entries starting with a quote
   mark, which MPXJ reads as a quoted value in the original. Before, every
   notebook entry was dropped both ways (and counted). Not imported into P6 itself.
+- **Resource notes** (`eval/resource-notes-2026-11-21.md`, 2026-11-21): P6's
+  resource notes (`RSRC.rsrc_notes`) are written as each resource's Notes in
+  the Project XML, and a Project resource's Notes come back as `rsrc_notes`
+  (P6 Web's HTML). 241 of 241 planted notes (P6 desktop DHTML, P6 Web HTML
+  and plain text) on five public files read as meant in the XML and come back
+  on the same resource ID; 17 of 17 resource notes in MPXJ's Project corpus
+  reach the XER, and MPXJ reads all 17 with the same words and lines from
+  both files. A cost resource's note is reported as not carried (P6 expenses
+  have no notes). No public P6 file has a resource note with text, only
+  empty editor shells, which write nothing. Before, both directions dropped
+  every resource note with no warning.
 - **Resource user-defined fields** (`eval/rsrc-udfs-2026-11-21.md`, 2026-11-21):
   resource UDFs go into Project's resource Text, Number, Cost and Date fields,
   renamed to each UDF's title, and come back from a Project file as P6

@@ -69,10 +69,18 @@
   2026-11-21 (notebook.mjs, eval/notebooks-2026-11-21.md). Still open: a
   real P6 Web export with a multi-line plain-text memo (do 0x7F breaks show
   as lines in P6, as read here, or as spaces, as MPXJ reads them?); project
-  notebooks (PROJMEMO, if a P6 export carries one); resource notes
-  (RSRC.rsrc_notes <-> resource Notes); P6's formatting as Project's rich
+  notebooks (PROJMEMO, if a P6 export carries one); P6's formatting as Project's rich
   notes (needs the .mpp, not MSPDI).
 - (2026-11-21) next a real P6 import, P6 Web plain multi-line memos
+- (2026-11-21) Resource notes (RSRC.rsrc_notes <-> resource Notes) shipped
+  2026-11-21 (eval/resource-notes-2026-11-21.md: 241/241 planted, 17/17
+  Project notes, MPXJ agrees). Still open: a public P6 file with resource
+  notes that hold text (the six have only empty editor shells); unassigned
+  resources: msproject.mjs writes only the resources the project's
+  activities use, so 11 of the 17 Project resource notes (resources with no
+  assignment) do not come back to Project XML after the trip to XER; an
+  option to write the whole resource dictionary, or those a Project file
+  brought in, would keep them.
 - (2026-11-21) Resource curves: spread by P6's curves in earned value shipped
   2026-11-21 (curves.mjs, eval/resource-curves-2026-11-21.md). Still open: a
   P6 export with a curved, cost-loaded assignment and P6's Resource Usage

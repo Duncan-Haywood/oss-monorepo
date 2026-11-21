@@ -1,0 +1,177 @@
+{
+ "planted": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "resources": 59,
+   "xmlSameWords": 59,
+   "xmlSameLines": 55,
+   "backSameWords": 59,
+   "backSameLines": 55,
+   "extraInBack": 0,
+   "miss": [
+    {
+     "name": "FACADE GRANITE VENEER",
+     "orig": "inspection caf\u00e9 <16mm> results slab \u00dcnit results \"hold\" slab RFI 12 RFI pour slab caf\u00e9 inspection",
+     "back": "inspection caf\u00e9 <16mm> results slab \u00dcnit\n\nresults \"hold\"\n\nslab RFI 12 RFI pour slab caf\u00e9 inspection"
+    },
+    {
+     "name": "ASSORTED FLOOR FINISH",
+     "orig": "level \u2013 inspection pump ok level \u00dcnit 12 pour",
+     "back": "level \u2013 inspection pump ok level\n\n\u00dcnit 12 pour"
+    },
+    {
+     "name": "FACADE BACK PAINTED BUTT GLAZED",
+     "orig": "- 12 after client's cube RFI \u00b0C \u2013 cube - caf\u00e9 after crane lift inspection lift 50% lift - RFI \u2013 lift RFI \u2013 slab rebar - \u2013 lift ok results ok caf\u00e9 12 \"hold\"",
+     "back": "- 12 after client's cube RFI \u00b0C \u2013 cube\n\n- caf\u00e9 after crane lift inspection lift 50% lift\n\n- RFI \u2013 lift RFI \u2013 slab rebar\n\n- \u2013 lift ok results ok caf\u00e9 12 \"hold\""
+    }
+   ]
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "resources": 99,
+   "xmlSameWords": 97,
+   "xmlSameLines": 88,
+   "backSameWords": 97,
+   "backSameLines": 88,
+   "extraInBack": 0,
+   "miss": [
+    {
+     "name": "Bituminous Sprayer",
+     "orig": "- level fa\u00e7ade \u2013 cube - crane 12 level pour caf\u00e9",
+     "back": "- level fa\u00e7ade \u2013 cube\n\n- crane 12 level pour caf\u00e9"
+    },
+    {
+     "name": "Formen",
+     "orig": "ok pump cube \u00b0C \u00b0C slab lift cube after crane slab pour",
+     "back": "ok pump cube \u00b0C \u00b0C slab\n\nlift cube after crane slab pour"
+    },
+    {
+     "name": "Stagging Materials (in M3)",
+     "orig": "RFI 50% \"hold\" inspection client's 3 pump \u2013 rebar rebar a&b \u2013",
+     "back": "RFI 50% \"hold\" inspection client's 3 pump \u2013\n\nrebar rebar a&b \u2013"
+    }
+   ]
+  },
+  {
+   "file": "example_xer_file.xer",
+   "resources": 29,
+   "xmlSameWords": 29,
+   "xmlSameLines": 26,
+   "backSameWords": 29,
+   "backSameLines": 26,
+   "extraInBack": 0,
+   "miss": [
+    {
+     "name": "RESOURCE 04",
+     "orig": "client's pump \u00b0C lift caf\u00e9 \"hold\" a&b lift rebar level",
+     "back": "client's pump \u00b0C lift caf\u00e9 \"hold\" a&b\n\nlift rebar level"
+    },
+    {
+     "name": "RESOURCE 05",
+     "orig": "slab ok \u00dcnit inspection pump rebar pour \u00b0C fa\u00e7ade \u00b0C \u00b0C 12 rebar rebar \u00dcnit \u2013 crane rebar level 3 results inspection RFI 12 crane ok 3 cube \"hold\" 3 <16mm>",
+     "back": "slab ok \u00dcnit inspection\n\npump rebar pour \u00b0C fa\u00e7ade \u00b0C \u00b0C 12 rebar rebar \u00dcnit\n\n\u2013 crane rebar level 3 results inspection\n\nRFI 12\n\ncrane ok 3 cube \"hold\" 3 <16mm>"
+    },
+    {
+     "name": "RESOURCE 17",
+     "orig": "caf\u00e9 <16mm> rebar \"hold\" caf\u00e9 \u00dcnit rebar RFI \u2013 3 \u00b0C crane ok crane inspection",
+     "back": "caf\u00e9 <16mm> rebar \"hold\" caf\u00e9\n\n\u00dcnit rebar RFI \u2013 3 \u00b0C crane ok crane inspection"
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "resources": 6,
+   "xmlSameWords": 6,
+   "xmlSameLines": 6,
+   "backSameWords": 6,
+   "backSameLines": 6,
+   "extraInBack": 0,
+   "miss": []
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "resources": 6,
+   "xmlSameWords": 6,
+   "xmlSameLines": 5,
+   "backSameWords": 6,
+   "backSameLines": 5,
+   "extraInBack": 0,
+   "miss": [
+    {
+     "name": "Plain Concrete Quantities",
+     "orig": "results inspection \"hold\" 3 pour \u00dcnit rebar <16mm> crane level after results 3 3 client's pour RFI caf\u00e9 rebar cube",
+     "back": "results inspection \"hold\" 3 pour \u00dcnit\n\nrebar <16mm> crane level after results\n\n3 3 client's pour RFI caf\u00e9 rebar cube"
+    }
+   ]
+  }
+ ],
+ "mspdi": [
+  {
+   "file": "mspdi-mspdiresource-7.xer",
+   "notes": 4,
+   "sameWords": 4,
+   "sameLines": 4,
+   "miss": []
+  },
+  {
+   "file": "mspdi-resource-misc-project2002-mspdi-0.xer",
+   "notes": 2,
+   "sameWords": 2,
+   "sameLines": 2,
+   "miss": []
+  },
+  {
+   "file": "mspdi-resource-misc-project2003-mspdi-1.xer",
+   "notes": 2,
+   "sameWords": 2,
+   "sameLines": 2,
+   "miss": []
+  },
+  {
+   "file": "mspdi-resource-misc-project2007-mspdi-2.xer",
+   "notes": 2,
+   "sameWords": 2,
+   "sameLines": 2,
+   "miss": []
+  },
+  {
+   "file": "mspdi-resource-misc-project2010-mspdi-3.xer",
+   "notes": 2,
+   "sameWords": 2,
+   "sameLines": 2,
+   "miss": []
+  },
+  {
+   "file": "mspdi-resource-misc-project2019-mspdi-4.xer",
+   "notes": 2,
+   "sameWords": 2,
+   "sameLines": 2,
+   "miss": []
+  },
+  {
+   "file": "mspdi-sample-5.xer",
+   "notes": 1,
+   "sameWords": 1,
+   "sameLines": 1,
+   "miss": []
+  },
+  {
+   "file": "mspdi-sample1-6.xer",
+   "notes": 2,
+   "sameWords": 2,
+   "sameLines": 2,
+   "miss": []
+  }
+ ],
+ "totals": {
+  "planted": 199,
+  "xmlSameWords": 197,
+  "xmlSameLines": 180,
+  "backSameWords": 197,
+  "backSameLines": 180,
+  "extraInBack": 0,
+  "mspdiNotes": 17,
+  "mspdiSameWords": 17,
+  "mspdiSameLines": 17
+ }
+}
