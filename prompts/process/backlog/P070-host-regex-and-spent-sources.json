@@ -1,7 +1,7 @@
 {
   "id": "P070",
   "title": "Start here still demotes rows for hosts their buildable names only as spent or alternative sources",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -12,11 +12,15 @@
     "test_allocate.py test_no_outside_input_buildable_skips_stale_hosts had to use zenodo.org because huggingface.co in prose does not match _HOST_RE"
   ],
   "change": "Let a buildable mark a host as spent or optional (e.g. ignore hosts in a clause containing 'all read' or 'spent'), or demote only when every host of the row is refused and say which are refused in the Start here line; add co/ai/ru to _HOST_RE's TLD list with a test that file names still do not match.",
-  "touches": ["portfolio/router/allocate.py", "portfolio/router/test_allocate.py"],
+  "touches": [
+    "portfolio/router/allocate.py",
+    "portfolio/router/test_allocate.py"
+  ],
   "metric": "Deepen rows moved behind for a refused host whose open item does not use it",
   "baseline": "1 (photo-editing) on 2026-11-21 after PR for chant-forge/einvoice",
   "opened": "2026-11-21",
   "source": "process critique, 2026-11-21 (Start here pool)",
   "pr": null,
-  "result": null
+  "result": null,
+  "change_shipped": "need_hosts drops a host the buildable names only in a clause saying 'all read', 'spent' or 'optional' (clauses split at top-level ';' and sentence ends, parentheses kept whole), from the prose and from hosts:. _HOST_RE now knows co, ai and ru, with a test that file names still do not match."
 }
