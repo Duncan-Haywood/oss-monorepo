@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVNjmPMjoHdS3an5ES6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "e02737a67e91be4acf350a18c63c3a73f1d1aacc0ed6fc88c98781f318a98bcc",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T00:56:37Z",
+  "ended": "2026-11-21T01:05:00Z",
+  "wall_minutes": 11.24,
+  "tokens_in": 7720382,
+  "tokens_out": 38450,
+  "cost_usd": 3.3658,
+  "tool_calls": 62,
+  "task": "league-schedule-generator (flagship 9): cards and suspensions on the self-hosted league page",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18000",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "deploy.test.mjs failed first: the Dockerfile COPY line lacked discipline.mjs (fixed)",
+    "preflight repository checks: check_csv_formula_guard flagged discipline.mjs's guard (plain numbers), and check_cli_entry flagged ventures/changepoint-detector/eval/shop-tails.mjs from main (#17997); both fixed in this PR"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace auto-parked a mixed open/finished item ('a real tournament; league officials ...') to HISTORY.md, leaving 'next: Cards ...' in the row; had to hand-edit the yaml to restore 'next: a real tournament'"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks for untracked files to be committed while the run record is waiting on long background tests; the order prompt.md asks for (record last) and the hook clash"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/shop-tails.mjs",
+      "why": "preflight's repository checks failed on a fragile entry guard merged to main by another session; fixed it here (one line) rather than leave the check red",
+      "did": "pathToFileURL guard",
+      "result": "check_cli_entry 0 findings"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-a-rainout-should-not-serve-a-suspension.md",
+    "ventures/league-schedule-generator/how-to-track-yellow-card-suspensions-in-a-rec-league.html",
+    "ventures/league-schedule-generator/README.md (Cards and suspensions section)"
+  ],
+  "goal": null,
+  "notes": "Built discipline.mjs (cards log, accumulation with optional escalation, red/two-yellow bans, served on the team's own played fixtures after rainouts, captain/admin/public views, CSV) wired into server.mjs; guide with a worked table recomputed in tests; flagship next rewritten. discipline.test.mjs 11/11 pass locally. Full suite and venture-preflight rerun after fixes: see PR. No agent doc in docs/reports: the README section and flagship next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "850570fd-66b9-55ae-bde7-c882635f4639",
+    "transcripts": 1,
+    "first": "2026-11-21T00:56:37Z",
+    "last": "2026-11-21T01:07:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 127,
+        "output": 38450,
+        "thinking": 4588,
+        "cache_read": 7585347,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134908,
+        "api_equivalent_usd": 3.3658,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 127,
+      "output": 38450,
+      "thinking": 4588,
+      "cache_read": 7585347,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134908,
+      "api_equivalent_usd": 3.3658,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.24,
+      "active_minutes": 9.58,
+      "model_minutes": 5.84,
+      "tool_minutes": 3.74,
+      "waiting_on_human_minutes": 1.66,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "module, server wiring, 11 tests, guide and post by a mid-level developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 297.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

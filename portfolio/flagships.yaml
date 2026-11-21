@@ -194,22 +194,20 @@ flagships:
       shop's daily series": weekly line ships; revenue deaf at Quiet: shut-Saturday
       drop heard it both years, failed sim power (README "A shop shut one weekday");
       a ramp sim failed (README "round 3"); rounds 4-5 2026-11-21: Christmas closure
-      no effect, calm noise quietest; next a slope check on calm climbs; --closed
-      ships; a recent-days fill failed 2 rounds (README "A closure in the first week
-      after a step": cost ~4/100, pooled); a closure 1-7 days before a step costs
-      ~1/100 and the 2011-09-01 alert was the holiday's zero (README "A closure in
-      the week before a step")); next a provider that documents its own changes.
-      Stale feeds: real carry-forward 84/85 caught but prints 56/56 false;
-      side-adjusted prints fail worse (21/39, README "The trade side"): no
-      price-only fix, the line ends. Counts: count default ships, and is Quiet in
-      --suggest/auto 2026-11-20 (README "The How eager hint for counts"); real shop:
-      new Quiet 2 alerts vs 37 but misses the 2011-09-01 build-up; next a
-      bunched-count ramp cell, real orders. joint drift (measured, not offered).
-      Open: (0) drift model: t-walk increments, biweight on fresh data, why it
-      absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
-      Curvature word ships under --shape-word panel (README "A curvature word"):
-      slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
-      NEXT.md.
+      no effect, calm noise quietest; round 6 2026-11-21: no slow-climb check
+      passes, weekly drift beside daily lifts x1.9 57 to 82 but late (README "round
+      6"); next it on fresh shops, bars by 8 weeks; --closed ships; a recent-days
+      fill failed 2 rounds (README "A closure in the first week after a step": cost
+      ~4/100, pooled); a closure 1-7 days before a step costs ~1/100 and the
+      2011-09-01 alert was the holiday's zero (README "A closure in the week before
+      a step")); next a provider that documents its own changes. Stale feeds: real
+      carry-forward 84/85 caught but prints 56/56 false; side-adjusted prints fail
+      worse (21/39, README "The trade side"): no price-only fix, the line ends.
+      joint drift (measured, not offered). Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; notes quote it. Curvature word ships under --shape-word panel
+      (README "A curvature word"): slope donors straight 73% vs clean 37%, OR 4.74
+      vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -396,13 +394,13 @@ flagships:
       2026-11-20 (tournament.mjs; results fill pools and bracket,
       tournament-results.mjs); referee crews 2026-11-20 (tournament-referees.mjs:
       clubs, hours, caps, ejection chain; CP-SAT check, eval/referee-exact.txt);
-      next: a real tournament; league officials pick and give back games from their
-      own links 2026-11-20 (officiating.mjs, README), next a real league's referees.
-      Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs flighted play-offs,
-      golf-league-schedule.html): tee times at share in 71 of 77 seasons, other 6
-      SAT-proved out (eval/golf-tee-grid.txt); match play recap; next: a real
-      league's season. Box leagues 2026-11-21 (boxleague.mjs, box-league.html);
-      next: a real club's month. More open items: NEXT.md.
+      next: a real tournament. Cards and suspensions 2026-11-21 (discipline.mjs:
+      yellow accumulation, reds, bans served on played fixtures only; next: a real
+      league's cards). Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs flighted
+      play-offs, golf-league-schedule.html): tee times at share in 71 of 77 seasons,
+      other 6 SAT-proved out (eval/golf-tee-grid.txt); match play recap; next: a
+      real league's season. Box leagues 2026-11-21 (boxleague.mjs); next: a real
+      club's month. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Take-up
@@ -524,17 +522,17 @@ flagships:
       --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185
       of 233 changes graded asks more/less, model impact by GlobalId), pattern
       inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md:
-      3,540 of 3,540 public pairs, examples verified); date ranges graded 2026-11-20
-      (eval/date-range-revisions-2026-11-20.md: 132 of 236 public pairs, 94 of 94
-      examples; days the month lacks fail); editor's Write as a pattern exact
-      2026-11-20 (eval/date-pattern-exact-2026-11-20.md: 0 of 310 verdicts unlike
-      the range, old 50); dateTime ranges as patterns 2026-11-21 (dateTimePattern,
-      eval/datetime-pattern-2026-11-21.md: 0 of 290 beam verdicts unlike the range,
-      IfcTester 10 of 10; full fraction 2026-11-21); next: a client's real
-      stage-to-stage IDS pair, time ranges as patterns; a Revit/ARCHICAD IFC4X3
-      export to confirm. Readable document 2026-11-20 (--to-doc, spec-doc.mjs,
-      eval/spec-doc-2026-11-20.md: 4,458 of 4,458 facets agree with IfcTester's
-      reading). More open items: NEXT.md.
+      3,540 of 3,540 public pairs, examples verified); editor's Write as a pattern
+      exact 2026-11-20 (eval/date-pattern-exact-2026-11-20.md: 0 of 310 verdicts
+      unlike the range, old 50); dateTime ranges as patterns 2026-11-21
+      (dateTimePattern, eval/datetime-pattern-2026-11-21.md: 0 of 290 beam verdicts
+      unlike the range, IfcTester 10 of 10; full fraction 2026-11-21); time ranges
+      as patterns 2026-11-21 (timePattern, 24:00:00 = 00:00:00,
+      eval/time-pattern-2026-11-21.md: 0 of 300 verdicts unlike the range, IfcTester
+      10 of 10); next: a client's real stage-to-stage IDS pair; a Revit/ARCHICAD
+      IFC4X3 export to confirm. Readable document 2026-11-20 (--to-doc,
+      spec-doc.mjs, eval/spec-doc-2026-11-20.md: 4,458 of 4,458 facets agree with
+      IfcTester's reading). More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -603,10 +601,11 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
       the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
-      covering areas, 43 wall sides, C20's 2 columns); the 160 unexplained
-      GrossVolumes; curved breps left (eval/curved-breps-2026-11-20.md: #162827
-      band, 4 unexplained); more revision series via eval/revision-diff.mjs (Kegonsa
-      done 2026-11-20; Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
+      covering areas, 43 wall sides, C20's 2 columns); the 233 unexplained
+      NetVolumes (eval/stored-vs-computed-2026-11-21.md); curved breps left
+      (eval/curved-breps-2026-11-20.md: #162827 band, 4 unexplained); more revision
+      series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
+      Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
       Lake_Kegonsa_Home_2015.ifc pair).
     hosts: [https://github.com]
     next: >-

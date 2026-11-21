@@ -20,7 +20,44 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Weekend tournaments: referee crews for every game (2026-11-20, newest)
+## Cards and suspensions served against the fixture list (2026-11-21, newest)
+
+The self-hosted league page (`server.mjs`) keeps a **cards log** and works out who is suspended for which game
+(`discipline.mjs`). The organiser types one line per event under **Cards, suspensions and scorers** in `/admin`:
+
+```
+2026-10-14 Hawks: Ana Lopez yellow
+2026-10-14 Owls: Ben Ruiz second yellow
+2026-10-21 Owls: Cara Diaz red 3        (a red with the ban your panel set; plain "red" takes the default)
+2026-10-28 Wrens: Dan Ito ban 2         (a ban with no card)
+2026-10-21 Owls: Cara Diaz goal 2       (the scorers table)
+```
+
+- **Rules are settings:** a ban after every N yellows (default 5; 0 turns accumulation off), its length (default 1),
+  escalating bans if ticked (5 yellows 1 game, 10 yellows 2, 15 yellows 3, as many county associations run it), the
+  straight-red ban (default 1) and the two-yellow sending-off ban (default 1). A second yellow is a sending off and
+  is not added to the running yellow total.
+- **Serving:** each player's bans queue in card order and are served in their own team's fixtures strictly after
+  the card's game day (after rainouts, withdrawals and late teams are applied). Only games before today count as
+  served, so a rained-out game serves nothing until it is played on its new date, and the game on today's date is
+  still to miss. A ban longer than the fixtures left says how many games carry past the season (the league decides
+  what happens to them). A card dated on a day the team had no game is warned about and served from its next game.
+- **Who sees what:** `/admin` lists live bans with the games still to miss (date and opponent), players one yellow
+  from a ban, parse warnings, and **Download every ban (CSV)** (`/admin/discipline.csv`, formula cells guarded).
+  Each captain's page shows only their own team's suspensions and near-ban players, always. Tick **Show suspensions
+  and top scorers** and the league page lists suspensions and the ten top scorers for everyone.
+- **Alternatives:** a spreadsheet kept by hand, the discipline modules of association systems (e.g. FA Full-Time in
+  England) that only cover affiliated leagues, or paid league platforms. This one is free, needs no affiliation,
+  and ties the ban to the league's real, rainout-adjusted fixture list.
+- **Limits:** it counts; it is not a disciplinary process (no hearings, appeals or fines). Players are matched by
+  the name typed on the team, case-blind; two spellings are two players. Not yet used by a real league.
+- **Checked:** `discipline.test.mjs` (11 tests: settings, parsing and errors, serving only played games, a
+  rained-out game moved later, accumulation and escalation, queued bans, the second-yellow rule, carry-over,
+  off-day warnings, same name on two teams, escaping and the CSV guard, the whole server flow from the admin form to
+  captain, league page and CSV, and the guide's worked table recomputed). Guide:
+  `how-to-track-yellow-card-suspensions-in-a-rec-league.html`.
+
+## Weekend tournaments: referee crews for every game (2026-11-20)
 
 The weekend scheduler placed every game on a field; the referee assignor still worked out who
 officiates which game by hand. `tournament-referees.mjs` and the "Referees" box on

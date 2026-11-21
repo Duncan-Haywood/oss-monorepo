@@ -1,0 +1,5 @@
+warning: IDS 1.0 allows a time range and this checker reads it as one, but IfcOpenShell's IfcTester (0.9.0) compares range bounds only as numbers, so it fails every object on it. If the file will be checked with IfcTester, write the same times as a pattern, which both read the same way. Write as a pattern
+downloaded pattern: 3675 characters; range on xs:time left: false
+inside schedule (12:30:00+05:30, 07:00 UTC): range pass, pattern pass; schedule 1 ms late: range fail, pattern fail
+horizontal scroll at 390 px: false; page errors: none
+OK

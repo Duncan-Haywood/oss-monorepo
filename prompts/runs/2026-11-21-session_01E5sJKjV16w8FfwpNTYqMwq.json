@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKjV16w8FfwpNTYqMwq",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T01:09:48Z",
+  "ended": "2026-11-21T01:24:41Z",
+  "wall_minutes": 15.21,
+  "tokens_in": 4104566,
+  "tokens_out": 28396,
+  "cost_usd": 2.2001,
+  "tool_calls": 44,
+  "task": "changepoint-detector flagship: round 6, a slow-climb check beside the daily watch on calm-noise shops (pre-registered)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18002",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft of slow-climb.test.mjs asserted the slope arm hears a clean x1.9 climb; it does not (a pulse in growth), so the test now pins the deafness and a lasting-slope sanity case",
+      "fixed": true
+    },
+    {
+      "what": "README/post first said `watch.mjs --model drift`; the watch's flag is `--detector drift`; fixed before commit",
+      "fixed": true
+    },
+    {
+      "what": "venture preflight failed check_cli_entry: my sim and main's eval/shop-tails.mjs (from PR #17997) used a file:// string entry guard; both switched to pathToFileURL",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "make-room moved a whole item to HISTORY.md that still carried an open 'next a bunched-count ramp cell, real orders'; I re-parked the open part in NEXT.md by hand"
+    },
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "round 5's Next names `--model drift` for the watch; the watch takes `--detector drift` (drift refuses --period, so a daily shop needs weekly totals)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "the slice is a pre-registered negative result (nothing ships) rather than a product change; it was the flagship row's top named item and the bars were fixed before data",
+      "did": "ran the round, documented it, rewrote next:",
+      "result": "G1/G2 fail for all arms; weekly drift beside daily passes G3 (57 to 82 x1.9 catches) and is named as the next round's arm"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-changepoint-weekly-totals-hear-slow-climbs-late.md",
+    "ventures/changepoint-detector/README.md (round 6 section)"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (211.1s, 1047 tests). check_posts ok; validate.py ok. Sim: 4 processes, ~30 min, eval/slow-climb-sim.out.txt. Venture preflight first failed on check_cli_entry (2 fragile guards, one already on main); fixed and rerun. No agent doc: the README section and NEXT.md carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fe447c77-2776-5ff3-9f87-65a10966f69a",
+    "transcripts": 1,
+    "first": "2026-11-21T01:09:48Z",
+    "last": "2026-11-21T01:25:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 77,
+        "output": 28396,
+        "thinking": 7351,
+        "cache_read": 4000523,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103966,
+        "api_equivalent_usd": 2.2001,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 77,
+      "output": 28396,
+      "thinking": 7351,
+      "cache_read": 4000523,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103966,
+      "api_equivalent_usd": 2.2001,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 39,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.21,
+      "active_minutes": 15.21,
+      "model_minutes": 4.97,
+      "tool_minutes": 10.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design and pre-register a 4-arm simulation round, write and run the sim, write up README section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 272.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

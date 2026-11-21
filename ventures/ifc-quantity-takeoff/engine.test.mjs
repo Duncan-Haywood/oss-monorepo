@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
-import { takeoff, boq, boqCsv, rowsCsv, readUnits, explainChecks, checkSummary, unitRepairNote } from "./qto.mjs";
+import { takeoff, boq, boqCsv, rowsCsv, readUnits, explainChecks, checkSummary, unitRepairNote, rowQuantities } from "./qto.mjs";
 import { prism, clipPoly, polyVolume, convexPieces, filletAll, signedArea } from "./geom.mjs";
 
 const sample = () => takeoff(parseStep(readFileSync(new URL("./samples/sample-office.ifc", import.meta.url))));
@@ -190,6 +190,34 @@ test("explanations: a stored volume a power of ten off is a unit slip", () => {
   assert.equal(rows[0].check.gross.factor, 1000);
   assert.equal(rows[0].trustStored, false);
   assert.equal(rows[1].check.gross.reason, "unexplained");
+});
+
+test("explanations: geometry with its openings already cut is body-is-net (schependomlaan #27645)", () => {
+  const vol = (value) => ({ kind: "volume", value });
+  const row = (sg, sn, computed, openings = 0) => ({ tag: null, ifcClass: "IfcWall", stored: { GrossVolume: vol(sg), NetVolume: vol(sn) }, computed: { gross: computed, net: computed, openings }, check: { gross: { computed, stored: sg, rel: (computed - sg) / sg, agree: false } } });
+  // ArchiCAD: stored gross 1.8219, stored net 1.3573 = the faceted body; the
+  // gap is (GrossSideArea - NetSideArea) x Width = 2.1711 x 0.214
+  const rows = [row(1.82185, 1.35727, 1.35727), row(1.82185, 1.2, 1.35727), row(1.82185, 1.35727, 1.35727, 2)];
+  explainChecks(rows);
+  assert.equal(rows[0].check.gross.reason, "body-is-net");
+  assert.equal(rows[0].trustStored, true); // the stored gross is the right gross
+  assert.equal(rows[1].check.gross.reason, "unexplained"); // body is not the stored net
+  assert.notEqual(rows[2].check.gross.reason, "body-is-net"); // the file has openings: not this cause
+});
+
+test("explanations: litres over the square-foot factor is a unit slip only when several share it", () => {
+  const row = (stored, computed) => ({ tag: null, ifcClass: "IfcSlab", stored: {}, computed: { gross: computed, net: computed, openings: 0 }, check: { gross: { computed, stored, rel: (computed - stored) / stored, agree: false } } });
+  const k = 1000 / 10.7639104; // skolebygg roofs: 20,911.71 stored for 225.09 m3
+  const three = [row(225.0918 * k, 225.0918), row(150.4101 * k, 150.4101), row(7.728 * k, 7.728)];
+  explainChecks(three);
+  for (const r of three) { assert.equal(r.check.gross.reason, "unit-slip"); assert.equal(r.trustStored, false); }
+  close(three[0].check.gross.factor, k, 1e-9);
+  const two = [row(225.0918 * k, 225.0918), row(150.4101 * k, 150.4101)];
+  explainChecks(two);
+  for (const r of two) assert.equal(r.check.gross.reason, "unexplained"); // two could be chance
+  // the volume the BoQ sums is the geometry's, not 92.9 times it
+  const q = rowQuantities({ ...three[0], computed: { ...three[0].computed, status: "ok" }, stored: { GrossVolume: { kind: "volume", value: 225.0918 * k } } });
+  close(q.volume, 225.0918, 1e-9);
 });
 
 // ---- areas cut from the geometry --------------------------------------------
