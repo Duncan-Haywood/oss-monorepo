@@ -184,3 +184,17 @@ test("the separate-collection symbol already applies between Aug 2025 and Aug 20
   assert.equal(by.collection, "applies");
   assert.equal(by.label, "soon");
 });
+
+test("category labels carry the Art 3 limits (portable 5 kg or less and not only consumer; LMT 25 kg; L-category over 25 kg is EV)", () => {
+  assert.match(cat("portable").label, /5 kg or less/);
+  assert.doesNotMatch(cat("portable").label, /consumer use/);
+  assert.match(cat("lmt").label, /25 kg or less/);
+  assert.match(cat("ev").label, /L-category/);
+  assert.match(cat("ev").label, /over 25 kg/);
+});
+
+test("an 'importer' established outside the EU is told an importer is EU-established (Art 3)", () => {
+  const r = run({ category: "sli", role: "importer", location: "noneu", euOperator: "yes" });
+  assert.ok(r.findings.some((f) => f.severity === "high" && /established in the EU \(Art 3\)/.test(f.title)));
+  assert.ok(!run({ category: "sli", role: "importer", location: "eu" }).findings.some((f) => /established in the EU \(Art 3\)/.test(f.title)));
+});

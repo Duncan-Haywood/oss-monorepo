@@ -12,7 +12,8 @@ Open `index.html`. Tests: `node --test 'ventures/eu-battery-regulation-checker/*
 
 ## Known gaps
 
-From the [2026-11-15 quality audit](../../portfolio/quality/audits/2026-11-15-eu-battery-regulation-checker.json), still open:
+From the [2026-11-15 quality audit](../../portfolio/quality/audits/2026-11-15-eu-battery-regulation-checker.json) and its [2026-11-21 re-audit](../../portfolio/quality/audits/2026-11-21-eu-battery-regulation-checker.json), still open:
 
-- Category labels are not checked against Art 3 limits (portable up to 5 kg, the 25 kg LMT ceiling, L-category vehicles over 25 kg as EV batteries); no weight or capacity input.
+- The category labels now state the Art 3 limits (portable 5 kg or less and not designed specifically for industrial use, LMT 25 kg or less, L-category traction batteries over 25 kg as EV batteries), but there is no weight or capacity input that checks the user's choice.
+- The "every duty is marked done" message needs at least one duty, but no test pins that guard (every in-scope role gets a row today).
 - Not modelled: Art 12 safety of stationary storage systems and Art 14 battery-management state-of-health data (both from 18 Aug 2024), Art 10 performance and durability, Art 11(7) spare-part availability, LMT recycled content from 18 Aug 2033.
