@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "m67 run.py first import failed (NameError: E63 used before assignment in a tuple unpack); fixed before the hypotheses were committed"
+    "m67 run.py first import failed (NameError: E63 used before assignment in a tuple unpack); fixed before the hypotheses were committed",
+    "research/buildbot-sheathing tests/test_latex.py failed on main before this PR: milestone 66's paper paragraph uses &part; and paper/build_latex.py had no LaTeX mapping for U+2202; CI's test job did not catch it. Fixed here (one mapping); 222 passed, 4 skipped."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
     "research/buildbot-sheathing/LOG.md (milestone 67 planned and result)"
   ],
   "goal": null,
-  "notes": "Milestone 67: H257-H260 registered before the run, all held. Post hoc: no-flip residual exactly linear in the bias and pose-only, so B||J|| certifies every press to >=0.213 N (G1), 0.279 N (H1). Local checks: paper/check_numbers.py 453/453 ok; research/_homepage/build.py ok; check_md_links ok; check_posts ok; programme_check ok. No new library code, so no new tests.",
+  "notes": "Milestone 67: H257-H260 registered before the run, all held. Post hoc: no-flip residual exactly linear in the bias and pose-only, so B||J|| certifies every press to >=0.213 N (G1), 0.279 N (H1). Local checks: paper/check_numbers.py 453/453 ok; research/_homepage/build.py ok; check_md_links ok; check_posts ok; programme_check ok. No new library code, so no new tests. Local run_workflow_locally --for-changes: all ok except research tests for buildbot-sheathing (pre-existing U+2202 LaTeX mapping gap, fixed in this PR, rerun 222 passed).",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -64,7 +64,7 @@ UNICODE = {
     "¹": r"\ensuremath{^1}", "ᵀ": r"\ensuremath{^\mathsf{T}}", "⁴": r"\ensuremath{^4}",
     "⁵": r"\ensuremath{^5}", "⁷": r"\ensuremath{^7}", "ä": r"\"a", "ö": r"\"o",
     "é": r"\'e", "λ": r"\ensuremath{\lambda}", "Δ": r"\ensuremath{\Delta}",
-    "≤": r"\ensuremath{\leq}", "≥": r"\ensuremath{\geq}", "≈": r"\ensuremath{\approx}",
+    "≤": r"\ensuremath{\leq}", "∂": r"\ensuremath{\partial}", "≥": r"\ensuremath{\geq}", "≈": r"\ensuremath{\approx}",
     "→": r"\ensuremath{\rightarrow}", "’": "'", "‘": "`", "“": "``", "”": "''",
     "α": r"\ensuremath{\alpha}", "β": r"\ensuremath{\beta}", "Σ": r"\ensuremath{\Sigma}",
     "√": r"\ensuremath{\surd}", "…": r"\ldots{}", "\u00a0": "~",
