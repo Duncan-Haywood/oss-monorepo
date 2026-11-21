@@ -1,0 +1,242 @@
+[
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "version": "6.0",
+    "project": "CCA R03 dt 24Oct11SC",
+    "ms": 3256,
+    "bytes": 46506375,
+    "activities": 15849,
+    "spans": 297,
+    "allFields": 15849,
+    "fields": {
+      "name": 15849,
+      "status": 15849,
+      "remaining": 15849,
+      "actualStart": 15849,
+      "actualFinish": 15849,
+      "constraint": 15849,
+      "baseline": 15849,
+      "calendar": 15849
+    },
+    "links": 45483,
+    "linksKept": 45483,
+    "linksExtra": 0,
+    "linksInNotes": 1790,
+    "linksInNotesFound": 1790,
+    "schedule": {
+      "open": 14270,
+      "sameUnderProjectRules": 14266,
+      "sameUnderP6Options": 5979,
+      "earlyFinishSameUnderP6Options": 8560,
+      "finishSame": true,
+      "finishMovesUnderProject": true
+    },
+    "warnings": [
+      "770 lag(s) join activities on different calendars: P6 counts them on the predecessor calendar, Project on the successor's, so their successors can move",
+      "297 level of effort or WBS summary activities are written as manually scheduled tasks on their P6 dates (Project has no level of effort), so they do not move with the logic",
+      "1790 relationship(s) to or from those activities are written into each one's notes rather than as links, so they drive nothing in Project, as in P6",
+      "15 start milestone(s) have predecessors: Project places a milestone at its predecessor's finish (the end of the previous working day) where P6 places a start milestone at the next working start, so they can show a day earlier",
+      "3 activities have external dates from links to projects not in the file: the external early start is written as a start-no-earlier-than constraint (where the activity has no constraint of its own) and the external late finish as a deadline",
+      "the must-finish-by date (2013-07-04 00:00) is not carried: Project scheduled from the start has none; add it as a deadline on the finish milestone if you need it",
+      "not carried: 258951 activity code assignment(s), 41729 user-defined field value(s)"
+    ],
+    "bad": []
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "version": "7.0",
+    "project": "BEW3",
+    "ms": 175,
+    "bytes": 3022154,
+    "activities": 823,
+    "spans": 0,
+    "allFields": 823,
+    "fields": {
+      "name": 823,
+      "status": 823,
+      "remaining": 823,
+      "actualStart": 823,
+      "actualFinish": 823,
+      "constraint": 823,
+      "baseline": 823,
+      "calendar": 823
+    },
+    "links": 1094,
+    "linksKept": 1094,
+    "linksExtra": 0,
+    "linksInNotes": 0,
+    "linksInNotesFound": 0,
+    "schedule": {
+      "open": 823,
+      "sameUnderProjectRules": 823,
+      "sameUnderP6Options": 818,
+      "earlyFinishSameUnderP6Options": 820,
+      "finishSame": true,
+      "finishMovesUnderProject": false
+    },
+    "warnings": [
+      "27 lag(s) join activities on different calendars: P6 counts them on the predecessor calendar, Project on the successor's, so their successors can move",
+      "the must-finish-by date (2016-08-29 00:00) is not carried: Project scheduled from the start has none; add it as a deadline on the finish milestone if you need it",
+      "not carried: 1864 user-defined field value(s), 86 notebook entries"
+    ],
+    "bad": []
+  },
+  {
+    "file": "example_xer_file.xer",
+    "version": "24.12",
+    "project": "DEMO-001",
+    "ms": 82,
+    "bytes": 1463232,
+    "activities": 425,
+    "spans": 10,
+    "allFields": 425,
+    "fields": {
+      "name": 425,
+      "status": 425,
+      "remaining": 425,
+      "actualStart": 425,
+      "actualFinish": 425,
+      "constraint": 425,
+      "baseline": 425,
+      "calendar": 425
+    },
+    "links": 555,
+    "linksKept": 555,
+    "linksExtra": 0,
+    "linksInNotes": 0,
+    "linksInNotesFound": 0,
+    "schedule": {
+      "open": 404,
+      "sameUnderProjectRules": 404,
+      "sameUnderP6Options": 0,
+      "earlyFinishSameUnderP6Options": 404,
+      "finishSame": true,
+      "finishMovesUnderProject": false
+    },
+    "warnings": [
+      "23 expected finish date(s) are not carried (Project has none); the remaining durations P6 stored are written instead",
+      "10 level of effort or WBS summary activities are written as manually scheduled tasks on their P6 dates (Project has no level of effort), so they do not move with the logic",
+      "the must-finish-by date (2027-05-16 17:00) is not carried: Project scheduled from the start has none; add it as a deadline on the finish milestone if you need it",
+      "not carried: 436 activity code assignment(s), 1 notebook entry"
+    ],
+    "bad": []
+  },
+  {
+    "file": "hotel-project.xer",
+    "version": "6.0",
+    "project": "HBTF-2",
+    "ms": 516,
+    "bytes": 8156214,
+    "activities": 4217,
+    "spans": 0,
+    "allFields": 4217,
+    "fields": {
+      "name": 4217,
+      "status": 4217,
+      "remaining": 4217,
+      "actualStart": 4217,
+      "actualFinish": 4217,
+      "constraint": 4217,
+      "baseline": 4217,
+      "calendar": 4217
+    },
+    "links": 7586,
+    "linksKept": 7586,
+    "linksExtra": 0,
+    "linksInNotes": 0,
+    "linksInNotesFound": 0,
+    "schedule": {
+      "open": 4217,
+      "sameUnderProjectRules": 4217,
+      "sameUnderP6Options": 132,
+      "earlyFinishSameUnderP6Options": 2281,
+      "finishSame": true,
+      "finishMovesUnderProject": true
+    },
+    "warnings": [
+      "the file holds 4 projects; HBTF-2 is converted (choose another with the project picker or --project)",
+      "75 lag(s) join activities on different calendars: P6 counts them on the predecessor calendar, Project on the successor's, so their successors can move",
+      "82 start milestone(s) have predecessors: Project places a milestone at its predecessor's finish (the end of the previous working day) where P6 places a start milestone at the next working start, so they can show a day earlier",
+      "the must-finish-by date (2014-07-24 00:00) is not carried: Project scheduled from the start has none; add it as a deadline on the finish milestone if you need it",
+      "not carried: 18020 activity code assignment(s)"
+    ],
+    "bad": []
+  },
+  {
+    "file": "sample.xer",
+    "version": "20.12",
+    "project": "Task SE",
+    "ms": 4,
+    "bytes": 86730,
+    "activities": 42,
+    "spans": 10,
+    "allFields": 42,
+    "fields": {
+      "name": 42,
+      "status": 42,
+      "remaining": 42,
+      "actualStart": 42,
+      "actualFinish": 42,
+      "constraint": 42,
+      "baseline": 42,
+      "calendar": 42
+    },
+    "links": 41,
+    "linksKept": 41,
+    "linksExtra": 0,
+    "linksInNotes": 20,
+    "linksInNotesFound": 20,
+    "schedule": {
+      "open": 42,
+      "sameUnderProjectRules": 42,
+      "sameUnderP6Options": 36,
+      "earlyFinishSameUnderP6Options": 38,
+      "finishSame": true,
+      "finishMovesUnderProject": false
+    },
+    "warnings": [
+      "10 level of effort or WBS summary activities are written as manually scheduled tasks on their P6 dates (Project has no level of effort), so they do not move with the logic",
+      "20 relationship(s) to or from those activities are written into each one's notes rather than as links, so they drive nothing in Project, as in P6",
+      "5 start milestone(s) have predecessors: Project places a milestone at its predecessor's finish (the end of the previous working day) where P6 places a start milestone at the next working start, so they can show a day earlier"
+    ],
+    "bad": []
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "version": "5.0",
+    "project": "TERMINAL-2",
+    "ms": 16,
+    "bytes": 154814,
+    "activities": 66,
+    "spans": 0,
+    "allFields": 66,
+    "fields": {
+      "name": 66,
+      "status": 66,
+      "remaining": 66,
+      "actualStart": 66,
+      "actualFinish": 66,
+      "constraint": 66,
+      "baseline": 66,
+      "calendar": 66
+    },
+    "links": 84,
+    "linksKept": 84,
+    "linksExtra": 0,
+    "linksInNotes": 0,
+    "linksInNotesFound": 0,
+    "schedule": {
+      "open": 66,
+      "sameUnderProjectRules": 66,
+      "sameUnderP6Options": 1,
+      "earlyFinishSameUnderP6Options": 66,
+      "finishSame": true,
+      "finishMovesUnderProject": false
+    },
+    "warnings": [
+      "the must-finish-by date (2013-03-01 00:00) is not carried: Project scheduled from the start has none; add it as a deadline on the finish milestone if you need it",
+      "not carried: 51 activity code assignment(s)"
+    ],
+    "bad": []
+  }
+]

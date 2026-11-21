@@ -72,6 +72,12 @@
 // inserted into the update and the schedule recomputed: the finish and every
 // milestone moved, float used, each event alone; --xer writes the impacted
 // schedule for import into P6.
+// node cli.mjs schedule.xer --to-project schedule.xml [--project CODE] [--json]
+// Converts the XER to Microsoft Project XML instead (msproject.mjs): open the
+// .xml in Microsoft Project, ProjectLibre or GanttProject. WBS as summary
+// tasks, activity IDs in Text1, calendars with every exception, relationships
+// and lags, constraints, progress, baseline, resources and assignments; the
+// lines it prints name what Project will schedule differently.
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -99,9 +105,10 @@ import { milestoneCalendars, milestoneCalendarsText, milestoneCalendarsCsv } fro
 import { earnedValue, earnedValueText, earnedValueCsv, sCurveCsv } from "./evm.mjs";
 import { earnedValueSeries, earnedValueSeriesText, earnedValueSeriesCsv } from "./evmseries.mjs";
 import { gantt, ganttText, ganttCsv, ganttHtml, codeTypes } from "./gantt.mjs";
+import { mspdiText, msprojectSummary } from "./msproject.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -192,6 +199,14 @@ if (args.includes("--previous")) {
   process.exit(0);
 }
 const projId = args.includes("--project") ? projectFor(xer) : null;
+if (args.includes("--to-project")) {
+  if (xer.format === "mspdi") { console.error("--to-project: this file is already Microsoft Project XML"); process.exit(2); }
+  const r = mspdiText(xer, { projId });
+  writeFileSync(opt("--to-project"), r.xml);
+  if (args.includes("--json")) { const { xml, taskUid, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
+  await emit(`${r.project.name}: ${msprojectSummary(r)} to ${opt("--to-project")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);
+  process.exit(0);
+}
 if (args.includes("--risk")) {
   const assessed = args.includes("--report") ? assess(xer, { projId }) : null;
   const r = runRisk(xer, assessed ? assessed.project.id : projId);

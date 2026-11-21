@@ -20,3 +20,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-20) edited-durations list shipped (eval/edited-durations-2026-11-19.md: 300/300 planted)
 - (moved 2026-11-20) windows analysis across many updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate is now a revision in the half-step; eval/windows-check-2026-11-19.md)
 - (moved 2026-11-21) grouped by activity code 2026-11-21 (actvcodes.mjs, --group-by; 1,239,716 of 1,239,716 placements, eval/activity-codes-2026-11-21.md)
+- (moved 2026-11-21) (2) update comparison shipped 2026-11-19 (compare.mjs, half-step split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real files)
