@@ -1,0 +1,42 @@
+Milestone 7zv: panel and station convergence of the near field's X . grad p term (7zu)
+Wigley I, Fn 0.2, 7zg damping (zeta3 0.0375, zeta5 0); sigma = R / (rho g a^2 B^2 / L); Journee's measured Fn 0.2 peak 31.8
+## A. grids (panels per half section, stations)
+# grid: GB+F_peak@lam NF-P_peak@lam NF0-P_peak@lam NF-PG_peak@lam NF0-PG_peak@lam grad@NF-PG-peak grad0@peak | lam/L 8: gb vel vel0 nf_p nf0_p nf_pg grad | lam/L 16: gb vel vel0 nf_p nf0_p nf_pg grad
+P12 S30: 20.796@1.01 31.462@1.02 22.105@1.01 21.322@1.03 14.820@1.01 -10.052 -7.097 | 0.0003962 -0.008429 -0.008429 -0.004369 -0.006648 -0.006294 -0.001926 | 1.263e-05 -0.002402 -0.002402 -0.001569 -0.001771 -0.001745 -0.0001762  (95 s)
+P16 S30: 22.254@1.01 34.162@1.01 23.866@1.00 22.716@1.02 15.812@1.01 -11.379 -7.892 | 0.000397 -0.008369 -0.008369 -0.004374 -0.006636 -0.006271 -0.001897 | 1.269e-05 -0.002377 -0.002377 -0.001562 -0.001761 -0.001739 -0.0001774  (152 s)
+P20 S30: 22.508@1.01 34.690@1.01 24.256@1.00 22.955@1.02 15.996@1.01 -11.614 -8.043 | 0.0003966 -0.008343 -0.008343 -0.004367 -0.006622 -0.006263 -0.001896 | 1.269e-05 -0.002367 -0.002367 -0.001557 -0.001756 -0.001737 -0.0001798  (222 s)
+P24 S30: 22.555@1.01 34.789@1.01 24.339@1.00 23.002@1.02 16.042@1.00 -11.647 -8.062 | 0.0003962 -0.008327 -0.008327 -0.004358 -0.00661 -0.006258 -0.0019 | 1.267e-05 -0.002362 -0.002362 -0.001554 -0.001752 -0.001736 -0.0001818  (211 s)
+P16 S20: 22.134@1.01 33.882@1.01 23.678@1.00 22.436@1.01 15.654@1.00 -11.446 -7.959 | 0.0003908 -0.008461 -0.008461 -0.004401 -0.006647 -0.006376 -0.001974 | 1.209e-05 -0.002394 -0.002394 -0.001562 -0.00176 -0.001756 -0.0001931  (77 s)
+P16 S40: 22.299@1.01 34.262@1.01 23.932@1.01 22.824@1.02 15.873@1.01 -11.406 -7.929 | 0.0003996 -0.00833 -0.00833 -0.004366 -0.006633 -0.006229 -0.001863 | 1.295e-05 -0.002369 -0.002369 -0.001562 -0.001761 -0.001733 -0.0001714  (148 s)
+P16 S60: 22.343@1.01 34.352@1.01 24.008@1.01 22.908@1.02 15.923@1.01 -11.429 -7.958 | 0.0004018 -0.008299 -0.008299 -0.00436 -0.00663 -0.006196 -0.001836 | 1.316e-05 -0.002363 -0.002363 -0.001562 -0.001762 -0.001728 -0.0001668  (184 s)
+peak over Journee's measured Fn 0.2 peak:
+  P12 S30: GB+F 0.654 NF-P 0.989 NF0-P 0.695 NF-PG 0.670 NF0-PG 0.466
+  P16 S30: GB+F 0.700 NF-P 1.074 NF0-P 0.750 NF-PG 0.714 NF0-PG 0.497
+  P20 S30: GB+F 0.708 NF-P 1.091 NF0-P 0.763 NF-PG 0.722 NF0-PG 0.503
+  P24 S30: GB+F 0.709 NF-P 1.094 NF0-P 0.765 NF-PG 0.723 NF0-PG 0.504
+  P16 S20: GB+F 0.696 NF-P 1.065 NF0-P 0.745 NF-PG 0.706 NF0-PG 0.492
+  P16 S40: GB+F 0.701 NF-P 1.077 NF0-P 0.753 NF-PG 0.718 NF0-PG 0.499
+  P16 S60: GB+F 0.703 NF-P 1.080 NF0-P 0.755 NF-PG 0.720 NF0-PG 0.501
+C1 GB+F peak spread over the seven grids 7.91% of the (16, 30) value (< 3%) -> refuted
+C2 grad at the NF-PG peak: 16 -> 24 panels +2.36%, 30 -> 60 stations +0.44% (< 10%); NF-PG / Journee on grids P>=16, S>=30: 0.714 to 0.723 (0.68-0.75) -> held
+observed station order p from f(S) = f_inf + C S^-p: (f20 - f40) / (f30 - f60) = 1.5^p; Richardson f_inf = f60 - (f30 - f60) / (2^p - 1) where 0.5 <= p <= 4; panels: the 24 against 16 change
+       grad@peak: stations 20/30/40/60 -11.45 -11.38 -11.41 -11.43; order n/a; Richardson S->inf n/a; panels 12/16/20/24 -10.05 -11.38 -11.61 -11.65 (24 vs 16 +2.36%)
+      NF-PG peak: stations 20/30/40/60 22.44 22.72 22.82 22.91; order 1.73; Richardson S->inf 22.99 (+0.4% from S60); panels 12/16/20/24 21.32 22.72 22.95 23 (24 vs 16 +1.26%)
+       NF-P peak: stations 20/30/40/60 33.88 34.16 34.26 34.35; order 1.72; Richardson S->inf 34.43 (+0.2% from S60); panels 12/16/20/24 31.46 34.16 34.69 34.79 (24 vs 16 +1.83%)
+       GB+F peak: stations 20/30/40/60 22.13 22.25 22.3 22.34; order 1.52; Richardson S->inf 22.39 (+0.2% from S60); panels 12/16/20/24 20.8 22.25 22.51 22.56 (24 vs 16 +1.35%)
+     vel lam/L 8: stations 20/30/40/60 -0.008461 -0.008369 -0.00833 -0.008299; order 1.55; Richardson S->inf -0.008262 (-0.4% from S60); panels 12/16/20/24 -0.008429 -0.008369 -0.008343 -0.008327 (24 vs 16 -0.50%)
+   NF-PG lam/L 8: stations 20/30/40/60 -0.006376 -0.006271 -0.006229 -0.006196; order 1.67; Richardson S->inf -0.006162 (-0.6% from S60); panels 12/16/20/24 -0.006294 -0.006271 -0.006263 -0.006258 (24 vs 16 -0.21%)
+    NF-P lam/L 8: stations 20/30/40/60 -0.004401 -0.004374 -0.004366 -0.00436; order 2.32; Richardson S->inf -0.004357 (-0.1% from S60); panels 12/16/20/24 -0.004369 -0.004374 -0.004367 -0.004358 (24 vs 16 -0.36%)
+C3 observed station order of grad@peak None against NF-P peak's 1.72 (>= 0.8 times) -> refuted
+C4 velocity term at lambda/L 8: S30 -0.008369, S60 -0.008299 (-0.8%, < 25%) -> held
+(section A 1089 s)
+## B. the 4 m monohull's 30 W loss at share 0.25, 7zh climate, Faltinsen reflection, 7zg damping
+row P16 S30 GB motion 2.844 N loss30W_share025 3.39% share1 12.32% scope200W True
+row P16 S30 NF-P motion 3.930 N loss30W_share025 4.62% share1 15.73% scope200W True
+row P16 S30 NF0-P motion 2.573 N loss30W_share025 3.08% share1 11.29% scope200W True
+row P16 S30 NF-PG motion 2.531 N loss30W_share025 3.04% share1 11.13% scope200W True
+row P16 S30 NF0-PG motion 1.660 N loss30W_share025 2.02% share1 7.63% scope200W True
+  (grid P16 S30: 316 s, 85790 near-field evaluations)
+C0 (16, 30) reproduces 7zu's 30 W losses {'GB': 3.39, 'NF-P': 4.62, 'NF0-P': 3.08, 'NF-PG': 3.04, 'NF0-PG': 2.02} to 0.01 points -> held
+C5: see results_nearfield_convergence_b24.txt (the (24, 40) grid, run separately)
+(elapsed 1468 s)

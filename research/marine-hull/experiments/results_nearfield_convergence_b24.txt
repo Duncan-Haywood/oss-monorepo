@@ -1,0 +1,10 @@
+Milestone 7zv, section B at (24 panels, 40 stations): the 4 m monohull's 30 W loss at share 0.25
+7zh climate, Faltinsen reflection, 7zg damping; (16, 30) reference = 7zu's rows, reproduced by C0 in results_nearfield_convergence.txt
+row P24 S40 GB motion 2.855 N loss30W_share025 3.41% share1 12.37% scope200W True
+row P24 S40 NF-P motion 3.958 N loss30W_share025 4.65% share1 15.81% scope200W True
+row P24 S40 NF0-P motion 2.595 N loss30W_share025 3.11% share1 11.38% scope200W True
+row P24 S40 NF-PG motion 2.556 N loss30W_share025 3.06% share1 11.23% scope200W True
+row P24 S40 NF0-PG motion 1.680 N loss30W_share025 2.05% share1 7.72% scope200W True
+  (grid P24 S40: 909 s, 85790 near-field evaluations)
+C5 change (24, 40) - (16, 30) in points: GB +0.02, NF-P +0.03, NF0-P +0.03, NF-PG +0.02, NF0-PG +0.03 (<= 0.25); 200 W scope in every row True -> held
+(elapsed 1009 s)
