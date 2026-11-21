@@ -83,15 +83,19 @@ function quoteCount(s) {
   return n;
 }
 
-// Split on tabs; a quoted multi-line value loses its quotes ("" -> ").
-// Single-line values are left exactly as written (a name may be `"Phase 2"`).
+// Split on tabs. P6 writes a double quote inside a value as "" (P6 6.0, 7.0
+// and 20.12 exports: every inner quote doubled, none single; MPXJ reads them
+// back as one), so "" -> " in every value. A quoted multi-line value (P6
+// Web's clndr_data) also loses its wrapping quotes. A lone " (hand-made and
+// converter files, e.g. `6" drain`) is kept as written.
 function splitRow(raw) {
   const parts = raw.split("\t");
   if (!raw.includes('"')) return parts;
   const out = [];
   for (let k = 0; k < parts.length; k++) {
     let v = parts[k];
-    if (v.length >= 2 && v.startsWith('"') && v.endsWith('"') && v.includes("\n")) v = v.slice(1, -1).replace(/""/g, '"');
+    if (v.length >= 2 && v.startsWith('"') && v.endsWith('"') && v.includes("\n")) v = v.slice(1, -1);
+    if (v.includes('""')) v = v.replace(/""/g, '"');
     out.push(v);
   }
   return out;
@@ -126,16 +130,19 @@ export const num = (s) => {
 // xerText(xer) -> XER text: the inverse of parseXer for the tables it holds
 // (fields in first-seen order, CRLF line ends, %E at the end), so a schedule
 // built or statused in code (status.mjs) can be saved and read back by P6 or
-// by this tool's CLI. A value holding a line break (P6 Web's clndr_data) is
-// quoted with "" for ", as P6 Web writes it; tabs are not escaped, as P6
-// itself does not.
+// by this tool's CLI. A " in any value is written "", as P6 writes it, and a
+// value holding a line break (P6 Web's clndr_data) is also wrapped in quotes,
+// as P6 Web writes it; tabs are not escaped, as P6 itself does not.
 export function xerText(xer) {
   const L = [`ERMHDR\t${xer.version || "20.12"}\t${xer.exportDate || "2026-01-01"}\tProject\tadmin\tadmin\tdbxDatabaseNoName\tProject Management\tUSD`];
   for (const [name, rows] of Object.entries(xer.tables)) {
     const fields = [];
     for (const r of rows) for (const k of Object.keys(r)) if (!fields.includes(k)) fields.push(k);
     L.push(`%T\t${name}`, `%F\t${fields.join("\t")}`);
-    const cell = (v) => (/[\r\n]/.test(v ?? "") ? `"${v.replace(/"/g, '""')}"` : v ?? "");
+    const cell = (v) => {
+      const t = v === null || v === undefined ? "" : String(v).replace(/"/g, '""');
+      return /[\r\n]/.test(t) ? `"${t}"` : t;
+    };
     for (const r of rows) L.push(`%R\t${fields.map((f) => cell(r[f])).join("\t")}`);
   }
   L.push("%E");

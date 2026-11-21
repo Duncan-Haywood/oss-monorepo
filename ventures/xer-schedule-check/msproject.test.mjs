@@ -79,7 +79,7 @@ test("level of effort becomes a manual task with its links in the notes; quotes 
   const T = x.tables.TASK;
   T.push({ ...T[4], task_id: "6000", task_code: "LOE1", task_name: 'Site "supervision"', task_type: "TT_LOE", status_code: "TK_NotStart", early_start_date: "2026-04-06 07:00", early_end_date: "2026-04-17 15:30" });
   x.tables.TASKPRED.push({ task_pred_id: "9900", task_id: "6000", pred_task_id: "5004", proj_id: "77", pred_proj_id: "77", pred_type: "PR_SS", lag_hr_cnt: "0" });
-  T[5].task_name = 'Procure ""doors""';
+  T[5].task_name = 'Procure "doors"'; // as parseXer reads P6's Procure ""doors""
   T[6].external_early_start_date = "2026-05-04 07:00";
   T[6].external_late_end_date = "2026-06-30 15:30";
   const r = mspdiText(x);

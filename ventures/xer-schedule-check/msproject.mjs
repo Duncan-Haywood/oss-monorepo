@@ -108,8 +108,8 @@ export function guidOf(...parts) {
 const esc = (s) => String(s ?? "")
   .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-// P6 writes a double quote inside a field as "" (MPXJ reads it back as one)
-const nm = (s) => String(s ?? "").replace(/""/g, '"');
+// Names as read: parseXer already turns P6's "" back into one quote.
+const nm = (s) => String(s ?? "");
 const p2 = (n) => String(n).padStart(2, "0");
 // minutes since 1970 (wall clock) -> "2024-03-04T08:00:00"
 export function isoDate(min) {
