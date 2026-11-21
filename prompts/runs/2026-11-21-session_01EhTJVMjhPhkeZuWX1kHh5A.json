@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVMjhPhkeZuWX1kHh5A",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "a833a95ac973b0c43ea8ef7145861b765abca74bc028f7eb44ff2a31d99a23f3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T22:09:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 12) ids-model-check: model fill writes Qto_ quantities measured from geometry (ifc-quantity-takeoff) when no set holds them",
+  "projects": [
+    "ids-model-check",
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18147",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with a NEW text on --field buildable reported 'keep: (nothing; cut the clause)' and refused (exit 1) with no stated reason; a shorter NEW worked. Unclear which rule tripped."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-ids-fill-quantities-from-geometry.md",
+    "ventures/ids-model-check/eval/qto-from-geometry-2026-11-21.md"
+  ],
+  "goal": "Revit-style exports with no quantity sets get Qto_ values written from geometry, with the measured error stated",
+  "notes": "Checks run here: node --test geometry-quantities.test.mjs page.test.mjs (9 pass); python3 platform/ci/run_venture_tests.py ids-model-check (454 tests ok, 2 skipped) before the page wiring, rerun after; Chromium on a local --only build: page checkbox writes 3 wall NetSideArea values, failing 3->0. Sweep on 4 real exports x 69 IDS with geometry: 3,048 values measured and written, all read back passing; IfcTester 0.9.0 6,470 written values pass, 0 newly failing. Measured vs stored on HHS Office: 3,666 of 3,858 within 2%, 190 of the other 192 traced to stored-value faults.",
+  "corrections": [],
+  "redteam": null
+}
