@@ -1,0 +1,140 @@
+[
+ {
+  "xer": "sample.xer",
+  "activities": 42,
+  "missing": 0,
+  "fields": {
+   "name": 42,
+   "start": 42,
+   "finish": 42,
+   "remaining": 42,
+   "actualStart": 42,
+   "actualFinish": 42,
+   "constraint": 42,
+   "calendarWeek": 42,
+   "preds": 42,
+   "assignments": 42,
+   "work": 42,
+   "actualWork": 42,
+   "remainingWork": 42,
+   "cost": 42
+  },
+  "examples": {}
+ },
+ {
+  "xer": "terminal-building-airport.xer",
+  "activities": 66,
+  "missing": 0,
+  "fields": {
+   "name": 66,
+   "start": 66,
+   "finish": 66,
+   "remaining": 66,
+   "actualStart": 66,
+   "actualFinish": 66,
+   "constraint": 66,
+   "calendarWeek": 66,
+   "preds": 66,
+   "assignments": 66,
+   "work": 66,
+   "actualWork": 66,
+   "remainingWork": 66,
+   "cost": 66
+  },
+  "examples": {}
+ },
+ {
+  "xer": "example_xer_file.xer",
+  "activities": 425,
+  "missing": 0,
+  "fields": {
+   "name": 425,
+   "start": 425,
+   "finish": 425,
+   "remaining": 425,
+   "actualStart": 425,
+   "actualFinish": 425,
+   "constraint": 425,
+   "calendarWeek": 425,
+   "preds": 425,
+   "assignments": 425,
+   "work": 425,
+   "actualWork": 425,
+   "remainingWork": 425,
+   "cost": 425
+  },
+  "examples": {}
+ },
+ {
+  "xer": "Expressway_Project.xer",
+  "activities": 823,
+  "missing": 0,
+  "fields": {
+   "name": 823,
+   "start": 823,
+   "finish": 823,
+   "remaining": 823,
+   "actualStart": 823,
+   "actualFinish": 823,
+   "constraint": 823,
+   "calendarWeek": 823,
+   "preds": 823,
+   "assignments": 823,
+   "work": 823,
+   "actualWork": 823,
+   "remainingWork": 823,
+   "cost": 823
+  },
+  "examples": {}
+ },
+ {
+  "xer": "hotel-project.xer",
+  "activities": 4217,
+  "missing": 0,
+  "fields": {
+   "name": 4217,
+   "start": 4217,
+   "finish": 4217,
+   "remaining": 4217,
+   "actualStart": 4217,
+   "actualFinish": 4217,
+   "constraint": 4217,
+   "calendarWeek": 4217,
+   "preds": 4217,
+   "assignments": 4217,
+   "work": 4217,
+   "actualWork": 4217,
+   "remainingWork": 4217,
+   "cost": 4217
+  },
+  "examples": {}
+ },
+ {
+  "xer": "CCA_R03_dt_24Oct11SC.xer",
+  "activities": 15849,
+  "missing": 0,
+  "fields": {
+   "name": 15849,
+   "start": 15849,
+   "finish": 15849,
+   "remaining": 15849,
+   "actualStart": 15849,
+   "actualFinish": 15849,
+   "constraint": 15848,
+   "calendarWeek": 15849,
+   "preds": 15849,
+   "assignments": 15849,
+   "work": 15849,
+   "actualWork": 15849,
+   "remainingWork": 15849,
+   "cost": 15849
+  },
+  "examples": {
+   "constraint": {
+    "id": "T19RK09201C0",
+    "xer": "AS_SOON_AS_POSSIBLE",
+    "xml": "START_NO_EARLIER_THAN"
+   }
+  }
+ }
+]

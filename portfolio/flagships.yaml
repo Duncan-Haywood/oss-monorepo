@@ -555,7 +555,7 @@ flagships:
       (eval/windows-check.mjs, series made by status.mjs); converter/hand-made XERs:
       node eval/converter-corpus.mjs (245 files 2026-11-19: 0 crashes, 0 NaN;
       eval/converter-files-2026-11-19.md); MSPDI: eval/cpm-vs-project.mjs on MPXJ
-      files.
+      files; XML out: eval/msproject-check.mjs, msproject-mpxj.py (pip mpxj jpype1).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -569,9 +569,7 @@ flagships:
       gap searched 2026-11-20, no rule (one link;
       eval/relationship-dates-2026-11-20.md); constraints log's "past late start"
       now says whether a row moves anything (eval/constraints-slack-2026-11-20.md:
-      65/65); (2) update comparison shipped 2026-11-19 (compare.mjs, half-step
-      split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real
-      files); (7) longest path and multiple float paths shipped 2026-11-19
+      65/65); (7) longest path and multiple float paths shipped 2026-11-19
       (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
       P6's flag 261/261 on five files). (9) look-ahead shipped 2026-11-19
       (lookahead.mjs, --lookahead, page panel; eval/lookahead-check-2026-11-19.md:
@@ -584,7 +582,10 @@ flagships:
       calendars and Resume read 2026-11-21 (2,442 of 2,491 = Project's,
       eval/resource-calendars-2026-11-21.md); next contoured work, splits. (12)
       Gantt chart shipped 2026-11-20 (LOE and WBS summary dates = P6's on 305 of
-      305, eval/gantt-check-2026-11-20.md). More open items: NEXT.md.
+      305, eval/gantt-check-2026-11-20.md). (13) XER to Microsoft Project XML
+      shipped 2026-11-21 (msproject.mjs, --to-project, page;
+      eval/msproject-check-2026-11-21.md); next activity codes as Text fields, MSPDI
+      to XER. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
