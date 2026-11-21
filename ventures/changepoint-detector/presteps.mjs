@@ -1034,7 +1034,8 @@ export function preSteps(o, values, labels) {
     // robust: keep the growth term only when it earns its place, its fit beating the flat one (same cost, same
     // exposure otherwise) by log n, one parameter by BIC; a flat series is then left as Middle sees it.
     let keep = true;
-    if (o.trend === 'robust') {
+    // trendGate (with the joint fit, --trend): the same gate on the refitted growth rate (README "The joint growth fit").
+    if (o.trend === 'robust' || (o.trend === true && o.trendGate)) {
       const n0 = original.length, size = o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0;
       const d1 = o.overdispersion === 'nb1' ? nb1Dispersion(original, exposure) - 1 : 0;
       const ms = Math.max(1, Math.floor(Number(o.minSegment) || 2));
