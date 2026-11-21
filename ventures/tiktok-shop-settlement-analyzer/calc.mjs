@@ -144,7 +144,12 @@ const RE_WITHDRAW = /withdraw|payout to|transfer to|paypal|bank transfer|payonee
 const RE_REFUND = /refund|chargeback|dispute|resolution|revoked|reversal|penalty/i;
 const RE_CANCEL = /cancel|declin|reject|expire|void/i;
 const RE_TIP = /\btips?\b|gratuity/i;
-const RE_PENDING = /pend|clearing|clearance|processing|escrow|\bhold\b|in progress|active|not yet|upcoming/i;
+// "\bactive\b", not "active": "Inactive" matched and was counted as still clearing
+// (quality re-audit 2026-11-21), and "Unsettled" / "Awaiting settlement" did not.
+const RE_PENDING = /pend|clearing|clearance|processing|escrow|\bhold\b|in progress|\bactive\b|not yet|upcoming|unsettled|awaiting settlement|to be settled/i;
+// A positive adjustment (a reimbursement, a fee correction) is money TikTok Shop
+// added, not a sale: no order count, no cost per order, no assumed fee.
+const RE_ADJUST = /adjust|reimburs|compensat/i;
 
 // Returns { rows, skipped, currency, columns, dmy, feeSource, error }.
 // A row is { line, id, t (UTC ms or null), kind, pending, product, buyer, gross,
@@ -205,6 +210,7 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", f
     else if (RE_CANCEL.test(label) || RE_CANCEL.test(statusText)) kind = "cancelled";
     else if (RE_TIP.test(label)) kind = "tip";
     else if (negative) kind = "refund";
+    else if (RE_ADJUST.test(label)) kind = "adjustment";
     else kind = "order";
     const cur = get(line, "currency");
     if (cur && !currency) currency = cur;
@@ -232,6 +238,8 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", f
         net = n ?? g; gross = net / (1 - pctRaw);
       }
       row.gross = gross; row.net = net; row.fee = gross - net;
+    } else if (kind === "adjustment") {
+      row.gross = row.net = n ?? g;
     } else if (kind === "refund") {
       row.refundGross = Math.abs(g ?? n);
       row.refundNet = Math.abs(n ?? g);
@@ -283,7 +291,7 @@ export function analyze(rows, opts = {}) {
   const dayMs = 86400000;
   const inRange = rows.filter((x) => x.t === null || ((opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + dayMs)));
   if (!inRange.length) return { invalid: "No rows fall inside that date range." };
-  const revenue = inRange.filter((x) => x.kind === "order" || x.kind === "tip");
+  const revenue = inRange.filter((x) => x.kind === "order" || x.kind === "tip" || x.kind === "adjustment");
   if (!revenue.length) return { invalid: "No order or tip rows were found in that range, only refunds, cancellations or withdrawals." };
   const orders = revenue.filter((x) => x.kind === "order");
   const orderCount = orders.length;
@@ -330,8 +338,12 @@ export function analyze(rows, opts = {}) {
     if (r.t !== null) grab(months, MONTH_FMT(r.t), MONTH_FMT(r.t)).refundNet += r.refundNet;
   }
 
-  const gross = revenue.reduce((s, r) => s + r.gross, 0);
-  const fee = revenue.reduce((s, r) => s + r.fee, 0);
+  // Order value and fee are over sales only, so an adjustment does not dilute the
+  // fee rate; its money is in net and take-home.
+  const sales = revenue.filter((r) => r.kind !== "adjustment");
+  const gross = sales.reduce((s, r) => s + r.gross, 0);
+  const fee = sales.reduce((s, r) => s + r.fee, 0);
+  const adjustmentNet = revenue.reduce((s, r) => s + (r.kind === "adjustment" ? r.net : 0), 0);
   const net = revenue.reduce((s, r) => s + r.net, 0);
   const refundNet = refunds.reduce((s, r) => s + r.refundNet, 0);
   const refundGross = refunds.reduce((s, r) => s + r.refundGross, 0);
@@ -373,7 +385,7 @@ export function analyze(rows, opts = {}) {
   };
 
   const summary = {
-    orders: orderCount, tips: revenue.length - orderCount, gross, fee, net, feeRate,
+    orders: orderCount, tips: revenue.filter((x) => x.kind === "tip").length, adjustments: revenue.filter((x) => x.kind === "adjustment").length, adjustmentNet, gross, fee, net, feeRate,
     refunds: refunds.length, refundNet, refundGross, cancelled: cancelled.length,
     cancelledValue: cancelled.reduce((s, r) => s + r.gross, 0),
     withdrawals: moves.length, moved, moveFees, moveFeesKnown: moves.filter((m) => m.moveFeeKnown).length,
