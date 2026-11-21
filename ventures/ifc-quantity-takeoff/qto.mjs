@@ -234,6 +234,36 @@ function bodyRepresentation(E, shapeId) {
   return fallback;
 }
 
+/**
+ * The one profile a body is swept from: every item an IfcExtrudedAreaSolid of
+ * the same profile, or such a solid clipped by half-spaces (Tekla's cut
+ * ends). Else null. A planar cut of a prism keeps the ratio of two sections'
+ * volumes equal to the ratio of their areas when the sections share a
+ * centroid (I, tube), and close to it otherwise (a filleted L).
+ */
+function sweptProfile(E, repId) {
+  const rep = repId != null ? E.get(repId) : null;
+  if (!rep || !Array.isArray(rep.args[3]) || !rep.args[3].length) return null;
+  const HALF = new Set(["IFCHALFSPACESOLID", "IFCPOLYGONALBOUNDEDHALFSPACE", "IFCBOXEDHALFSPACE"]);
+  const of = (id, depth = 0) => {
+    const x = E.get(id);
+    if (!x || depth > 20) return null;
+    if (x.type === "IFCEXTRUDEDAREASOLID") return refId(x.args[0]);
+    if (x.type === "IFCBOOLEANCLIPPINGRESULT") {
+      const second = E.get(refId(x.args[2]));
+      return second && HALF.has(second.type) ? of(refId(x.args[1]), depth + 1) : null;
+    }
+    return null;
+  };
+  let pid = null;
+  for (const it of rep.args[3]) {
+    const p = of(refId(it));
+    if (p == null || (pid != null && p !== pid)) return null;
+    pid = p;
+  }
+  return pid;
+}
+
 export function isElement(e) {
   if (NOT_ELEMENTS.has(e.type) || e.type.endsWith("TYPE") || e.type.startsWith("IFCREL")) return false;
   const a = e.args;
@@ -298,6 +328,9 @@ export function takeoff(model, opts = {}) {
     if (sid) { const s = E.get(sid); row.storey = s ? (str(s.args[2]) ?? `#${sid}`) : null; if (s && s.type === "IFCBUILDINGSTOREY" && numOf(s.args[9]) != null) row.storeyElevation = numOf(s.args[9]) * f; }
     const parent = idx.parentOf.get(id);
     if (parent) { const pe = E.get(parent); if (pe && isElement(pe)) row.parent = parent; }
+    // the aggregate it belongs to, element or not (an IfcStair is not one here):
+    // explainChecks reads it for a total written on every piece
+    row.assembly = parent ?? null;
     row.isAssembly = (idx.children.get(id) || []).some((c) => { const ce = E.get(c); return ce && isElement(ce); });
     const mid = idx.material.get(id) ?? (tId ? idx.material.get(tId) : undefined);
     if (mid) row.material = materialName(E, mid);
@@ -341,6 +374,10 @@ export function takeoff(model, opts = {}) {
     if (opts.geometry !== false) {
       row.computed = computeVolume(e, idx, E, geo, bodyOf, worldOf, f);
       if (row.computed.status === "ok") {
+        // a body swept from one parametric profile: the simplified sections an
+        // exporter may have computed its stored volume from (explainChecks)
+        const pid = sweptProfile(E, bodyRepresentation(E, refId(e.args[6])));
+        if (pid != null) { const v = geo.sectionVariants(pid); if (v.length) row.computed.sectionVariants = v; }
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
         row.computed.solids.each = null;
         try { row.box = worldBox(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.box = null; }
@@ -381,6 +418,11 @@ export function takeoff(model, opts = {}) {
  *                stored NetVolume (bodyIsNet below);
  *   unit-slip    again, after the rest: a power of ten times the square-foot
  *                factor, shared by several elements (compoundSlips below);
+ *   not-stored   a stored 0 on an element with a body (ArchiCAD skylights);
+ *   assembly-total  one stored value on several pieces of one aggregate, and
+ *                it is the aggregate's whole volume (Revit stairs);
+ *   simplified-section  stored = computed x a simplified section's share of
+ *                the exact one (simplifiedSection below; Tekla steel);
  *   unexplained  none of these.
  * Sets row.check.gross.reason / row.check.net.reason, and row.trustStored =
  * false when the stored volume should not be summed.
@@ -395,6 +437,21 @@ export function explainChecks(rows, tol = 0.02) {
       const k = `${w}|${r.tag}|${r.ifcClass}|${c.stored}`;
       if (!groups.has(k)) groups.set(k, []);
       groups.get(k).push(r);
+    }
+  }
+  // pieces of one aggregate (a Revit stair's stringers, landings, flights)
+  // that carry the same stored value: keyed like the tag groups above
+  const asm = new Map(), kids = new Map();
+  for (const r of rows) {
+    if (r.assembly == null) continue;
+    if (!kids.has(r.assembly)) kids.set(r.assembly, []);
+    kids.get(r.assembly).push(r);
+    for (const w of ["gross", "net"]) {
+      const c = r.check?.[w];
+      if (!c || c.agree) continue;
+      const k = `${w}|${r.assembly}|${c.stored}`;
+      if (!asm.has(k)) asm.set(k, []);
+      asm.get(k).push(r);
     }
   }
   const lhw = (r) => {
@@ -422,11 +479,27 @@ export function explainChecks(rows, tol = 0.02) {
           continue;
         }
       }
+      if (c.stored === 0 && c.computed > 0) { c.reason = "not-stored"; r.trustStored = false; continue; }
       const dims = lhw(r);
       const slip = unitSlip(c.computed, c.stored, tol / 4);
       if (slip) { c.reason = "unit-slip"; c.factor = slip; r.trustStored = false; continue; }
+      const sib = r.assembly != null ? asm.get(`${w}|${r.assembly}|${c.stored}`) : null;
+      if (sib && sib.length > 1) {
+        const all = kids.get(r.assembly);
+        const vol = (q) => (q.computed?.status === "ok" ? q.computed.net ?? q.computed.gross : 0);
+        const sumAll = all.reduce((x, q) => x + vol(q), 0);
+        const sumBuilt = all.filter((q) => q.ifcClass !== "IfcRailing").reduce((x, q) => x + vol(q), 0);
+        const biggest = Math.max(...sib.map(vol));
+        if (near(sumAll, c.stored) || near(sumBuilt, c.stored) || c.stored >= 1.5 * biggest) {
+          c.reason = near(sumAll, c.stored) || near(sumBuilt, c.stored) ? "assembly-total" : "repeated";
+          c.pieces = sib.length;
+          r.trustStored = false;
+          continue;
+        }
+      }
       if (w === "gross" && r.computed.openings > 0 && r.computed.net != null && near(r.computed.net, c.stored)) c.reason = "net-as-gross";
       else if (w === "gross" && bodyIsNet(r, c, near, tol)) c.reason = "body-is-net";
+      else if (simplifiedSection(r, c, tol / 4)) { c.reason = "simplified-section"; r.trustStored = false; r.weightScale ??= c.computed / c.stored; }
       else if (dims != null && !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = "own-dimensions"; r.trustStored = false; }
       else c.reason = "unexplained";
     }
@@ -449,6 +522,24 @@ function bodyIsNet(r, c, near, tol) {
   let sn = null;
   for (const [k, q] of Object.entries(r.stored)) if (q.kind === "volume" && k.toLowerCase() === "netvolume") sn = q.value;
   return sn != null && sn > 0 && near(c.computed, sn) && c.stored > sn * (1 + tol);
+}
+
+/**
+ * simplified-section: the stored volume is the computed one times the ratio
+ * of a simplified section to the exact one (sectionVariants in geom.mjs):
+ * Tekla stores steel volumes, and the weights it derives from them, from the
+ * section without its root fillets (an IPE240: 3,718 mm2 against the
+ * catalogue's 3,912) and with round tubes as 8- or 16-sided polygons. The
+ * geometry follows the profile's own radii, so it is the better figure.
+ * The ratio is exact, so a quarter of the tolerance is asked.
+ */
+function simplifiedSection(r, c, tol) {
+  const v = r.computed?.sectionVariants;
+  if (!v || !(c.computed > 0)) return null;
+  const ratio = c.stored / c.computed;
+  const hit = v.find((x) => Math.abs(ratio - x.ratio) <= tol * x.ratio);
+  if (hit) c.section = hit.label;
+  return hit ?? null;
 }
 
 /**
@@ -705,6 +796,9 @@ export const REASON_TEXT = {
   "unit-slip": "the stored volume is the geometry's times a power of ten, the square-foot factor 10.7639, or both: written in the wrong unit",
   "net-as-gross": "the exporter's GrossVolume equals the volume with openings taken out (net)",
   "own-dimensions": "the stored volume disagrees with the element's own stored length x height x width; the geometry agrees with them",
+  "not-stored": "the stored volume is 0 on an element with a body: a placeholder, not a measurement",
+  "assembly-total": "the same stored volume is written on every piece of one assembly (a stair's stringers, flights and landings), and it is the whole assembly's: the pieces' geometry sums to it",
+  "simplified-section": "the stored volume is computed from a simplified section (no fillet radii, or round tubes as polygons); the geometry follows the profile's own radii, and stored weights are scaled to it",
   "body-is-net": "the body geometry already has the openings cut out (no opening elements in the file): it equals the stored NetVolume, and the stored GrossVolume is larger by the openings",
   unexplained: "no known cause; check the element in a viewer",
 };
@@ -944,7 +1038,8 @@ export function rowQuantities(r) {
     area,
     areaSource,
     length: first(["length", "netlength", "grosslength"], "length"),
-    weight: first(["netweight", "grossweight", "weight"], "weight"),
+    // a weight the exporter derived from a simplified section is scaled to the geometry
+    weight: (() => { const w = first(["netweight", "grossweight", "weight"], "weight"); return w != null && r.weightScale ? w * r.weightScale : w; })(),
   };
 }
 

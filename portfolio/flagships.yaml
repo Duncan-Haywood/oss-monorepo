@@ -602,8 +602,8 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
       the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
-      covering areas, 43 wall sides, C20's 2 columns); the 233 unexplained
-      NetVolumes (eval/stored-vs-computed-2026-11-21.md); curved breps left
+      covering areas, 43 wall sides, C20's 2 columns); 83 unexplained NetVolumes
+      (eval/netvolume-causes-2026-11-21.md); curved breps left
       (eval/curved-breps-2026-11-20.md: #162827 band, 4 unexplained); more revision
       series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
       Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
@@ -615,25 +615,23 @@ flagships:
       second model, the joins rule on an ArchiCAD export with partitions on both
       faces; (2) method of measurement: small voids left in shipped 2026-11-20
       (measure.mjs, page and cli --voids-up-to; 1,099 of 1,136 opening cuts = stored
-      WxH; eval/measure-rules-2026-11-20.md); thresholds per work section shipped
-      2026-11-20 (walls/slabs/coverings/frames, preset and --voids-up-to
-      "a,v;slabs=0,0.05"; single pair moved slab areas on 4 of 11 models;
-      eval/measure-sections-2026-11-20.md), next the 35 openings barely meeting
-      their host; Uniformat II grouping shipped 2026-11-20 (uniformat.mjs, --by
-      uniformat; rules vs authors' codes 482 of 588 at level 3, held-out 66 of 69;
-      eval/uniformat-2026-11-20.md), envelope from geometry shipped 2026-11-20
-      (envelope.mjs: unflagged walls placed by rays, 268 coded; uniform flags set
-      aside; flag vs geometry 3,534 of 4,564; eval/envelope-2026-11-20.md), frames
-      split B1010/B1020/A1010 by the deck they carry 2026-11-20 (level 3 19,767 to
-      22,546 elements; eval/frames-2026-11-20.md), slabs typed FLOOR read as
-      finishes, sun shades or roofs by name and roof by geometry 2026-11-20
-      (slabRole, findRoofDecks: 600 B1010 slabs to 270 floors, 251 finishes, 18 more
-      roofs; 142 frame members to B1020; eval/slab-roles-2026-11-20.md), slab on
-      grade A1030/G2030, gutters B3010, IsExternal railings B2010 2026-11-20
+      WxH; eval/measure-rules-2026-11-20.md); Uniformat II grouping shipped
+      2026-11-20 (uniformat.mjs, --by uniformat; rules vs authors' codes 482 of 588
+      at level 3, held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope from
+      geometry shipped 2026-11-20 (envelope.mjs: unflagged walls placed by rays, 268
+      coded; uniform flags set aside; flag vs geometry 3,534 of 4,564;
+      eval/envelope-2026-11-20.md), frames split B1010/B1020/A1010 by the deck they
+      carry 2026-11-20 (level 3 19,767 to 22,546 elements;
+      eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun shades or
+      roofs by name and roof by geometry 2026-11-20 (slabRole, findRoofDecks: 600
+      B1010 slabs to 270 floors, 251 finishes, 18 more roofs; 142 frame members to
+      B1020; eval/slab-roles-2026-11-20.md), slab on grade A1030/G2030, gutters
+      B3010, IsExternal railings B2010 2026-11-20
       (eval/slab-on-grade-2026-11-20.md), railings by what they stand on 2026-11-20
       (stair C2010, outside B2010, inside C1010 by the envelope rays: coded 77 to
       461 of 486; eval/railings-2026-11-20.md), next roofs as blockers for knee
-      walls; (3) the unexplained disagreements (cross-sections 77 to 2 2026-11-20:
-      half-surface mullions, prism axis for faceted members;
-      eval/cross-sections-2026-11-20.md); overlapping shell pieces as a union. More
-      open items: NEXT.md.
+      walls; (3) the unexplained disagreements (NetVolumes 233 to 83 2026-11-21:
+      Tekla simplified sections, stair totals, eval/netvolume-causes-2026-11-21.md;
+      cross-sections 77 to 2 2026-11-20: half-surface mullions, prism axis for
+      faceted members; eval/cross-sections-2026-11-20.md); overlapping shell pieces
+      as a union. More open items: NEXT.md.
