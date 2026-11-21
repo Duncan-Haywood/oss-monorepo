@@ -431,3 +431,14 @@ test("forecast counts contraction as a loss alongside churn (red team 2026-11-20
   const both = [mo("2026-01", 1000, { churn: 50, contraction: 50 }), mo("2026-02", 1000, { churn: 50, contraction: 50 }), mo("2026-03", 1000)];
   assert.equal(forecast(both, { horizon: 1 }).base[0], 900);
 });
+
+// Quality re-audit 2026-11-21 (portfolio/quality/audits/2026-11-21-mrr-pulse.json):
+// dropping reactivation from the quick ratio's numerator survived every test.
+test("quick ratio counts reactivated MRR in its numerator", () => {
+  const months = [
+    { month: "2026-09", mrr: 1000, customers: 10, new: 100, expansion: 50, contraction: 50, churn: 150, reactivation: 100, newCount: 1, churnCount: 1, startMrr: 1000, startCustomers: 10 },
+    { month: "2026-10", mrr: 1050, customers: 10, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, startMrr: 1050, startCustomers: 10 },
+  ];
+  // By hand: (100 + 50 + 100) / (50 + 150) = 1.25; without reactivation it would be 0.75.
+  assert.equal(summarize(months).rates.quickRatio, 1.25);
+});
