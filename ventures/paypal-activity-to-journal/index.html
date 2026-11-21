@@ -60,12 +60,14 @@
     @media (min-width: 740px) { div.grid:has(#split) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 329px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">PAYPAL ACTIVITY TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Turn a PayPal activity report into a Xero or QuickBooks journal</h1>
-    <p>Paste or drop the <strong>Activity download CSV</strong> from PayPal. The <strong>Balance column is walked row by row</strong> to prove nothing is missing, rows are grouped into sales, fees, refunds, disputes, payments sent, bank transfers and currency conversion, and written as a <strong>balanced journal that moves a PayPal account line by exactly what the balance moved</strong> — <strong>split at month end</strong> — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p>
+    <p class="lede">Paste or drop the <strong>Activity download CSV</strong> from PayPal.</p>
+    <details class="hero-more"><summary>What it books and checks</summary><p>The <strong>Balance column is walked row by row</strong> to prove nothing is missing, rows are grouped into sales, fees, refunds, disputes, payments sent, bank transfers and currency conversion, and written as a <strong>balanced journal that moves a PayPal account line by exactly what the balance moved</strong> — <strong>split at month end</strong> — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. It holds customer names and email addresses, so keep it on your own machine. Independent of PayPal, Xero and Intuit. The report layout and the importer layouts are read from memory of public help documents; no real PayPal export and no live Xero or QuickBooks import was available when this was written.</p>
   </header>
 <main>
