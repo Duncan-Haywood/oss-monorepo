@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-21 · Milestone 12b: section VI's margin sweep (Table VI-1) at ten seeds (predictions written and committed before `experiments/m12b_ten_seeds_vi/run.py` was run in full; outcome below)
+
+- Why: the first item of the draft's "Still to do before submission" and the last log entry's first next step. Section VI's Table VI-1 (milestones 7b, 7e, 7f) rests on six seeds per arm and sign counts; the ten-seed rerun of milestones 1-2 withdrew one of section IV's readings (a shared polytope making cant worth more), so the six-seed sections may move too.
+- Plan (`experiments/m12b_ten_seeds_vi/run.py`; no change to any milestone's code): the six arms of Table VI-1 (unconstrained = 7b's `integ retrained`, and ki <= ceiling / M for M = 1.0, 1.11, 1.25 (7e), 1.43, 1.67; centre of pressure above) trained at seeds 6-9 with the same loop (3200 CMA-ES evaluations, 16 training episodes, two starts; 48 runs), then all 60 designs scored by 7f's own `evaluate` (64 held-out episodes, seed 9999, levers 0/1/2, tilt-command limits 20° and 45°). Reproduction checks first. `experiments/m12b_ten_seeds_vi/stats.py` (stdlib, m12's functions) gives, for every arm minus unconstrained in every condition, the mean, a percentile bootstrap 95% interval over seeds (20,000 resamples), the exact two-sided Wilcoxon signed-rank p and the sign count, plus divergence counts of 640.
+- Looked at before writing these: only the stored seeds 0-5 and a smoke run (seeds 6-7, 64 evaluations, 4 training episodes, scored on seed 4242, never 9999; too short to converge, not evidence).
+- Predictions (ten seeds):
+  - MB0 (check): retraining 7f's M = 1.0 seed 0 start 0 gives its stored best training score exactly; retraining 7b's unconstrained seed 0 gives its stored design exactly; the re-scored seeds 0-5 equal 7f's stored held-out numbers.
+  - MB1 (prior 80%): the optimiser sits on the bound: for M = 1.25, 1.43 and 1.67 the ceiling multiple is in [M, M + 0.15] in at least 9 of 10 seeds, and unconstrained designs sit at 0.85-1.15 of the ceiling in at least 9 of 10.
+  - MB2 (prior 75%): the price is real and small: at 20°, lever 0, M = 1.25 minus unconstrained held-out J is negative in at least 8 of 10 seeds, Wilcoxon p < 0.05, mean between -0.025 and -0.003.
+  - MB3 (prior 65%): M = 1.0 carries no measurable price at 20°, lever 0 (Wilcoxon p > 0.05).
+  - MB4 (prior 70%): the knee holds: at 45°, lever 0, each arm with M >= 1.25 diverges on at most 1 of 640 held-out flights, and the unconstrained arm on at least 15.
+  - MB5 (prior 60%): 0.9x is not enough: M = 1.11 diverges on at least 1 of 640 at 45°, lever 0.
+  - MB6 (prior 70%): the twice-the-lever floor is not a margin effect: at 45°, lever 2, the three arms with M >= 1.25 each diverge on at least 10 of 640, and the largest of the three counts is at most 1.5x the smallest.
+  - MB7 (prior 70%): at 45°, lever 0, M = 1.25 minus unconstrained held-out J is positive with Wilcoxon p < 0.05.
+- Reading fixed in advance: MB1, MB2, MB4 and MB6 held say Table VI-1 and section VI's builder rule (k_i at 0.8x of its ceiling) stand at ten seeds and "six seeds" leaves section VI's limitations. MB4 refuted says the knee is not at 0.8x and the rule needs a larger margin. MB3 and MB5 decide whether the draft keeps "corner stability alone removes a third" and "0.9x still leaves divergences". MB6 refuted would reopen milestone 7g's torque-authority reading.
+- Analysis: as planned; anything else is post hoc and labelled so.
+
 ## 2026-11-21 · Milestones 1-2 at ten seeds, with Wilcoxon tests and bootstrap intervals for sections IV-V (predictions written and committed before `experiments/m12_ten_seeds/run.py` was run in full; outcome below)
 
 - Why: the first gap the draft lists before submission (section VIII, "Seeds and tests", and its closing list): milestones 1 and 2 ran five seeds, so their paired results rest on sign counts whose floor is p = 0.0625, and sections IV-V quote sign counts where a reviewer expects a signed-rank test and an interval. Milestone 4 and milestone 5 already have ten seeds; they need only the tests.
