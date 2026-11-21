@@ -10,7 +10,7 @@
 //   cat jobs.csv | node cli.mjs quote - --flat-per-1000 1
 
 import fs from "node:fs/promises";
-import { analyze, parseJobs, summarize, money, cents, pct, MODEL_NOTE } from "./engine.mjs";
+import { analyze, parseAmount, parseJobs, summarize, money, cents, pct, MODEL_NOTE } from "./engine.mjs";
 import { pathToFileURL } from "node:url";
 
 const FLAGS = {
@@ -83,7 +83,7 @@ export async function run(argv, io = { readFile: (p) => fs.readFile(p, "utf8") }
   const flagInput = {};
   for (const [flag, v] of Object.entries(args.opts)) {
     if (v === undefined) return bad(`${flag} needs a value`);
-    if (flag !== "--breaks" && !(v.trim() !== "" && Number.isFinite(Number(v)) && Number(v) >= 0)) return bad(`${flag} needs a number, zero or more`);
+    if (flag !== "--breaks" && !(Number.isFinite(parseAmount(v)) && parseAmount(v) >= 0)) return bad(`${flag} needs a number, zero or more`);
     flagInput[FLAGS[flag]] = v;
   }
   let jobs;

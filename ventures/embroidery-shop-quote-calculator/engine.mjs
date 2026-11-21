@@ -121,6 +121,18 @@ export function parseQtyList(v) {
   return out;
 }
 
+// A typed amount: optional "$", "%" and spaces, an optional minus, then plain
+// decimal digits. A comma is accepted only as a thousands separator
+// ("1,234.50"), so a European "4,50" is an error rather than $450; hex, binary,
+// exponent and "Infinity" spellings Number() would take are errors too.
+const AMOUNT_RE = /^-?(?:\d{1,3}(?:,\d{3})+|\d+)?(?:\.\d+)?$/;
+export function parseAmount(raw) {
+  if (typeof raw === "number") return raw;
+  const s = String(raw).replace(/[$%\s]/g, "");
+  if (!s || s === "-" || !AMOUNT_RE.test(s) || !/\d/.test(s)) return NaN;
+  return Number(s.replace(/,/g, ""));
+}
+
 // Returns { job, errors }. Missing or blank fields take the default; present
 // but unusable fields are errors, never silently replaced.
 export function normalizeJob(input = {}) {
@@ -129,7 +141,7 @@ export function normalizeJob(input = {}) {
   for (const [key, label, lo, hi, integer] of FIELDS) {
     const raw = input[key];
     if (raw === undefined || raw === null || raw === "") { job[key] = DEFAULTS[key]; continue; }
-    const v = Number(String(raw).replace(/[$,%\s]/g, ""));
+    const v = parseAmount(raw);
     if (!Number.isFinite(v) || v < lo || v > hi || (integer && !Number.isInteger(v))) {
       errors.push(`${label} must be ${integer ? "a whole number" : "a number"} from ${lo} to ${hi}`);
       job[key] = DEFAULTS[key];
@@ -138,7 +150,7 @@ export function normalizeJob(input = {}) {
   const offer = input.offerPerPiece;
   if (offer === undefined || offer === null || offer === "") job.offerPerPiece = null;
   else {
-    const v = Number(String(offer).replace(/[$,\s]/g, ""));
+    const v = parseAmount(offer);
     if (!Number.isFinite(v) || v < 0) { errors.push("offered price per piece must be a number, zero or more"); job.offerPerPiece = null; }
     else job.offerPerPiece = v;
   }

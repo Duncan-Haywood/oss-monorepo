@@ -249,3 +249,27 @@ test("a quoted job name with a comma does not shift the columns (redteam 2026-11
   assert.equal(String(r.jobs[0].fields.quantity), "24");
   assert.equal(String(r.jobs[0].fields.stitches), "8000");
 });
+
+test("a comma is only a thousands separator: '4,50' is an error, never $450", () => {
+  for (const raw of ["4,50", "12,5", "1,23,456"]) {
+    const r = normalizeJob({ garmentCost: raw });
+    assert.equal(r.job.garmentCost, DEFAULTS.garmentCost, raw);
+    assert.equal(r.errors.length, 1, raw);
+  }
+  assert.equal(normalizeJob({ garmentCost: "1,234.50" }).job.garmentCost, 1234.5);
+  assert.equal(normalizeJob({ garmentCost: "$4.50" }).job.garmentCost, 4.5);
+  assert.equal(normalizeJob({ margin: "40%" }).job.margin, 40);
+  assert.equal(normalizeJob({ offerPerPiece: "13,00" }).errors.length, 1);
+  assert.equal(normalizeJob({ offerPerPiece: "1,300" }).job.offerPerPiece, 1300);
+});
+
+test("hex, exponent and other non-decimal spellings are errors, not silent numbers", () => {
+  for (const raw of ["0x18", "1e1", "0b11", "Infinity", "."]) {
+    const r = normalizeJob({ quantity: raw });
+    assert.equal(r.errors.length, 1, raw);
+    assert.equal(r.job.quantity, DEFAULTS.quantity, raw);
+  }
+  assert.equal(normalizeJob({ quantity: " 24 " }).job.quantity, 24);
+  assert.equal(normalizeJob({ garmentCost: ".5" }).job.garmentCost, 0.5);
+  assert.equal(normalizeJob({ quantity: 24 }).job.quantity, 24);
+});
