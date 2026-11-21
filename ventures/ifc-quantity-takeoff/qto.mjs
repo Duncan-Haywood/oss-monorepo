@@ -19,7 +19,7 @@
 import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
-import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
+import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -111,7 +111,7 @@ const QTY = {
 
 /** Index of the relationships an element's row needs, built once per model. */
 function indexModel(E) {
-  const storeyOf = new Map(), typeOf = new Map(), qsets = new Map(), psets = new Map(), material = new Map(), classif = new Map(), voids = new Map(), parentOf = new Map(), children = new Map(), pathJoins = new Map(), fills = new Map(), openingHost = new Map();
+  const storeyOf = new Map(), typeOf = new Map(), qsets = new Map(), psets = new Map(), material = new Map(), classif = new Map(), voids = new Map(), parentOf = new Map(), children = new Map(), pathJoins = new Map(), fills = new Map(), openingHost = new Map(), glass = new Set();
   const push = (m, k, v) => { const a = m.get(k); if (a) a.push(v); else m.set(k, [v]); };
   for (const e of E.values()) {
     const t = e.type;
@@ -138,11 +138,68 @@ function indexModel(E) {
       const a = refId(e.args[5]), b = refId(e.args[6]), tb = e.args[9]?.enum, ta = e.args[10]?.enum;
       if (ta === "ATPATH" && tb && tb !== "ATPATH") push(pathJoins, a, b);
       if (tb === "ATPATH" && ta && ta !== "ATPATH") push(pathJoins, b, a);
+    } else if (t === "IFCSTYLEDITEM") {
+      // a representation item drawn see-through or in a style named glass:
+      // the glazing a window's frame volume leaves out (glazingVolume)
+      if (e.args[0] != null && isGlassStyle(E, e.args[1])) glass.add(refId(e.args[0]));
     } else if (t === "IFCRELAGGREGATES" || t === "IFCRELNESTS") {
       if (t === "IFCRELAGGREGATES") for (const r of e.args[5] || []) { parentOf.set(refId(r), refId(e.args[4])); push(children, refId(e.args[4]), refId(r)); }
     }
   }
-  return { storeyOf, typeOf, qsets, psets, material, classif, voids, parentOf, children, pathJoins, fills, openingHost };
+  return { storeyOf, typeOf, qsets, psets, material, classif, voids, parentOf, children, pathJoins, fills, openingHost, glass };
+}
+
+// whole words only: ArchiCAD's "Isolatie - glaswol" is glass wool, not a pane
+const GLASS_NAME = /\b(glas|glass|glazing|glazed|vitrage|verre|vidrio|vetro)\b/i;
+/**
+ * A styled item's styles (IFC2X3: through IfcPresentationStyleAssignment;
+ * IFC4: IfcSurfaceStyle directly) mark glass when a surface style is named
+ * like glass or renders part see-through (transparency above 0 and below 1:
+ * a style drawn fully invisible is air or a void, not a pane).
+ */
+function isGlassStyle(E, styles) {
+  const seen = [];
+  for (const r of styles || []) {
+    const s = E.get(refId(r));
+    if (!s) continue;
+    if (s.type === "IFCPRESENTATIONSTYLEASSIGNMENT") for (const x of s.args[0] || []) { const y = E.get(refId(x)); if (y) seen.push(y); }
+    else seen.push(s);
+  }
+  for (const s of seen) {
+    if (s.type !== "IFCSURFACESTYLE") continue;
+    if (GLASS_NAME.test(str(s.args[0]) ?? "")) return true;
+    for (const x of s.args[2] || []) {
+      const y = E.get(refId(x));
+      if (y && /^IFCSURFACESTYLE(RENDERING|SHADING)$/.test(y.type) && (numOf(y.args[1]) ?? 0) > 0 && numOf(y.args[1]) < 1) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * The volume of a body's glass items (idx.glass), in model units cubed, and
+ * how many there are; mapped items are followed into their source with the
+ * mapping's scale. Null when the body has none.
+ */
+function glazingVolume(E, geo, idx, repId, depth = 0) {
+  const rep = E.get(repId);
+  if (!rep || !idx.glass.size || depth > 4) return null;
+  let volume = 0, pieces = 0;
+  for (const it of rep.args[3] || []) {
+    const id = refId(it), item = E.get(id);
+    if (!item) continue;
+    if (idx.glass.has(id)) {
+      try { volume += Math.abs(solidVolume(geo.item(id))); pieces++; } catch { return null; }
+    } else if (item.type === "IFCMAPPEDITEM") {
+      const map = E.get(refId(item.args[0]));
+      const inner = map ? glazingVolume(E, geo, idx, refId(map.args[1]), depth + 1) : null;
+      if (inner) {
+        volume += inner.volume * Math.abs(det(geo.operator(item.args[1])));
+        pieces += inner.pieces;
+      }
+    }
+  }
+  return pieces ? { volume, pieces } : null;
 }
 
 function materialName(E, id, depth = 0) {
@@ -428,6 +485,8 @@ export function takeoff(model, opts = {}) {
  *                it is the aggregate's whole volume (Revit stairs);
  *   simplified-section  stored = computed x a simplified section's share of
  *                the exact one (simplifiedSection below; Tekla steel);
+ *   glazing-left-out  stored = computed less the body's glass items
+ *                (glazingLeftOut below; ArchiCAD windows and doors);
  *   unexplained  none of these.
  * Sets row.check.gross.reason / row.check.net.reason, and row.trustStored =
  * false when the stored volume should not be summed.
@@ -505,6 +564,7 @@ export function explainChecks(rows, tol = 0.02) {
       if (w === "gross" && r.computed.openings > 0 && r.computed.net != null && near(r.computed.net, c.stored)) c.reason = "net-as-gross";
       else if (w === "gross" && bodyIsNet(r, c, near, tol)) c.reason = "body-is-net";
       else if (simplifiedSection(r, c, tol / 4)) { c.reason = "simplified-section"; r.trustStored = false; r.weightScale ??= c.computed / c.stored; }
+      else if (glazingLeftOut(r, c, tol / 4)) { c.reason = "glazing-left-out"; r.trustStored = false; }
       else if (dims != null && !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = "own-dimensions"; r.trustStored = false; }
       else c.reason = "unexplained";
     }
@@ -545,6 +605,22 @@ function simplifiedSection(r, c, tol) {
   const hit = v.find((x) => Math.abs(ratio - x.ratio) <= tol * x.ratio);
   if (hit) c.section = hit.label;
   return hit ?? null;
+}
+
+/**
+ * glazing-left-out: the stored volume is the body's less its glass items
+ * (computed.glazing: items drawn in a see-through or glass-named style).
+ * ArchiCAD's window and door objects store "Net Volume" (and the same figure
+ * as "W/D Opening Volume") as the frame and sash only: identical windows store
+ * different figures when their panes differ in thickness. Both terms are the
+ * file's own geometry, so a quarter of the tolerance is asked. The BoQ sums
+ * the whole body; the frame alone stays readable as gross - glazing.
+ */
+function glazingLeftOut(r, c, tol) {
+  const g = r.computed?.glazing;
+  if (!(g > 0) || !(c.computed > g)) return false;
+  const frame = c.computed - g;
+  return Math.abs(c.stored - frame) <= tol * frame;
 }
 
 /**
@@ -804,6 +880,7 @@ export const REASON_TEXT = {
   "not-stored": "the stored volume is 0 on an element with a body: a placeholder, not a measurement",
   "assembly-total": "the same stored volume is written on every piece of one assembly (a stair's stringers, flights and landings), and it is the whole assembly's: the pieces' geometry sums to it",
   "simplified-section": "the stored volume is computed from a simplified section (no fillet radii, or round tubes as polygons); the geometry follows the profile's own radii, and stored weights are scaled to it",
+  "glazing-left-out": "the stored volume is the frame and sash only: the body less its glass panes (ArchiCAD windows and doors); the geometry, panes included, is summed",
   "body-is-net": "the body geometry already has the openings cut out (no opening elements in the file): it equals the stored NetVolume, and the stored GrossVolume is larger by the openings",
   unexplained: "no known cause; check the element in a viewer",
 };
@@ -816,6 +893,10 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
   const f3 = f * f * f;
   const gross = Math.abs(solidVolume(body)) * f3;
   const out = { status: "ok", gross, net: gross, openings: 0, notes: body.notes.slice(), faceted: body.mesh !== 0 };
+  // the glass panes in the body: ArchiCAD stores a window's or door's
+  // volume without them (glazingLeftOut)
+  const glz = /^IFC(WINDOW|DOOR)/.test(e.type) ? glazingVolume(E, geo, idx, repId) : null;
+  if (glz) { out.glazing = glz.volume * f3; out.glazingPieces = glz.pieces; }
   Object.defineProperty(out, "solids", { value: { body, net: body }, enumerable: false, writable: true });
   const opens = idx.voids.get(e.id) || [];
   if (!opens.length) return out;

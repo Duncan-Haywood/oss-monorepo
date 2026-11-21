@@ -114,6 +114,13 @@ this tool says which they are
   scales Tekla's stored weights to it; skolebygg's member volume drops from
   18.16 to 11.52 m3
   ([eval/netvolume-causes-2026-11-21.md](eval/netvolume-causes-2026-11-21.md)).
+  Then 83 to 6: 77 of schependomlaan's 81 ArchiCAD windows and doors store
+  "Net Volume" (and the same figure as "W/D Opening Volume") as the frame and
+  sash only, the body less its glass panes to 0.02% (`glazing-left-out`;
+  panes are the items drawn in a see-through or glass-named style, glass
+  wool excluded). The BoQ sums the whole body: windows 8.46 to 10.26 m3,
+  doors 15.55 to 16.39 m3 on that model
+  ([eval/glazing-left-out-2026-11-21.md](eval/glazing-left-out-2026-11-21.md)).
 - **Areas on the same models.** 6,509 of 7,883 stored areas agree with the
   section cut from the geometry (82.6%), all 1,667 wall GrossFootprintAreas
   among them; where they agree the median difference is 1e-15 relative or less

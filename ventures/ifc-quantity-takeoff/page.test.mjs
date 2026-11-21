@@ -40,7 +40,7 @@ test("the in-page FAQ matches the structured data", () => {
 
 test("the page's corpus numbers match the committed eval", () => {
   const html = page("index.html");
-  const j = JSON.parse(page("eval/stored-vs-computed-2026-11-21-net.json"));
+  const j = JSON.parse(page("eval/stored-vs-computed-2026-11-21-glazing.json"));
   const t = { gross: {}, net: {} };
   for (const f of j) for (const w of ["gross", "net"]) for (const [k, v] of Object.entries(f.classes[w])) t[w][k] = (t[w][k] || 0) + v;
   const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
@@ -60,6 +60,7 @@ test("the page's corpus numbers match the committed eval", () => {
   assert.ok(html.includes(`${t.net["simplified-section"]} Tekla steel parts stored from the section without its root fillets`));
   assert.ok(html.includes(`${t.net["assembly-total"]} stair stringers each carrying the whole stair's volume`));
   assert.ok(html.includes(`${t.net["not-stored"]} skylights and fittings that store 0`));
+  assert.ok(html.includes(`${t.net["glazing-left-out"]} ArchiCAD windows and doors that store the frame and sash without their glass panes`));
 });
 
 test("the page's area numbers match the committed area eval", () => {

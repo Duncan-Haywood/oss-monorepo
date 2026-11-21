@@ -829,3 +829,80 @@ test("explanations: a stored 0 on an element with a body is not-stored, and the 
   assert.equal(row.check.net.reason, "not-stored");
   assert.equal(rowQuantities(row).volume, 0.18356);
 });
+
+// A window: a 1000 x 100 x 1000 frame block (0.1 m3) and a 900 x 20 x 900 pane
+// (0.0162 m3) drawn in ArchiCAD's see-through "Glas - algemeen"; a second window
+// whose pane is mapped in from a representation map at scale 2 (8 x the volume);
+// a third whose "pane" is glass wool insulation, not glass.
+const glazedFile = (stored1, stored2, stored3) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53G9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#16=IFCDIRECTION((0.,0.,1.));
+#20=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,1000.,100.);
+#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,1000.);
+#22=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,900.,20.);
+#23=IFCEXTRUDEDAREASOLID(#22,#11,#16,900.);
+#30=IFCCOLOURRGB($,0.9,0.9,0.9);
+#31=IFCSURFACESTYLERENDERING(#30,0.,$,$,$,$,$,$,.NOTDEFINED.);
+#32=IFCSURFACESTYLE('RAL 9001',.BOTH.,(#31));
+#33=IFCPRESENTATIONSTYLEASSIGNMENT((#32));
+#34=IFCSTYLEDITEM(#21,(#33),$);
+#35=IFCSURFACESTYLERENDERING(#30,0.49,$,$,$,$,$,$,.NOTDEFINED.);
+#36=IFCSURFACESTYLE('Glas - algemeen',.BOTH.,(#35));
+#37=IFCPRESENTATIONSTYLEASSIGNMENT((#36));
+#38=IFCSTYLEDITEM(#23,(#37),$);
+#40=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21,#23));
+#41=IFCPRODUCTDEFINITIONSHAPE($,$,(#40));
+#42=IFCWINDOW('1YvctVUKr0kugbFTf53G9A',$,'R1 18',$,$,#12,#41,$,1000.,1000.);
+#43=IFCQUANTITYVOLUME('Net Volume',$,$,${stored1});
+#44=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53G9A',$,'ArchiCADQuantities',$,$,(#43));
+#45=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53G9A',$,$,$,(#42),#44);
+#50=IFCEXTRUDEDAREASOLID(#22,#11,#16,900.);
+#51=IFCSTYLEDITEM(#50,(#37),$);
+#52=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#50));
+#53=IFCREPRESENTATIONMAP(#11,#52);
+#54=IFCCARTESIANTRANSFORMATIONOPERATOR3D($,$,#10,2.,$);
+#55=IFCMAPPEDITEM(#53,#54);
+#56=IFCSHAPEREPRESENTATION($,'Body','MappedRepresentation',(#21,#55));
+#57=IFCPRODUCTDEFINITIONSHAPE($,$,(#56));
+#58=IFCWINDOW('1YvctVUKr0kugbFTf53G9B',$,'mapped',$,$,#12,#57,$,1000.,1000.);
+#59=IFCQUANTITYVOLUME('Net Volume',$,$,${stored2});
+#60=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53G9B',$,'ArchiCADQuantities',$,$,(#59));
+#61=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53G9B',$,$,$,(#58),#60);
+#70=IFCEXTRUDEDAREASOLID(#22,#11,#16,900.);
+#71=IFCSURFACESTYLE('Isolatie - glaswol-steenwol',.BOTH.,(#31));
+#72=IFCPRESENTATIONSTYLEASSIGNMENT((#71));
+#73=IFCSTYLEDITEM(#70,(#72),$);
+#74=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21,#70));
+#75=IFCPRODUCTDEFINITIONSHAPE($,$,(#74));
+#76=IFCDOOR('1YvctVUKr0kugbFTf53G9C',$,'wool',$,$,#12,#75,$,1000.,1000.);
+#77=IFCQUANTITYVOLUME('Net Volume',$,$,${stored3});
+#78=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53G9C',$,'ArchiCADQuantities',$,$,(#77));
+#79=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53G9C',$,$,$,(#76),#78);
+ENDSEC;END-ISO-10303-21;`;
+
+test("explanations: a stored window volume equal to the body less its glass panes is glazing-left-out (ArchiCAD)", () => {
+  const frame = 0.1, pane = 0.9 * 0.02 * 0.9; // m3
+  const res = takeoff(parseStep(glazedFile(frame, frame, frame)));
+  const [w, m, d] = res.rows;
+  close(w.computed.gross, frame + pane);
+  close(w.computed.glazing, pane);
+  assert.equal(w.computed.glazingPieces, 1);
+  assert.equal(w.check.net.reason, "glazing-left-out");
+  assert.equal(w.trustStored, false);
+  assert.equal(rowQuantities(w).volume, w.computed.gross); // the BoQ sums the panes too
+  // the mapped pane at scale 2 holds 8 times the volume
+  close(m.computed.glazing, 8 * pane);
+  assert.equal(m.check.net.reason, "glazing-left-out");
+  // glass wool is not glass: nothing is left out, the stored figure stays unexplained
+  assert.equal(d.computed.glazing, undefined);
+  assert.equal(d.check.net.reason, "unexplained");
+  // a stored figure 3% under the frame is not this cause
+  const odd = takeoff(parseStep(glazedFile(frame * 0.97, frame, frame))).rows[0];
+  assert.equal(odd.check.net.reason, "unexplained");
+});
