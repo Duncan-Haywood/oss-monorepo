@@ -188,5 +188,6 @@ test("a dormer wall standing on the attic floor and rising through the roof stay
   assignEnvelope([...h.rows, dormer]);
   assert.equal(dormer.envelope.exterior, true);
   assert.equal(dormer.envelope.underRoof, false);
+  assert.equal(dormer.envelope.aboveRoof, true);
   assert.deepEqual(h.knee.map((r) => r.envelope.exterior), [false, false]);
 });

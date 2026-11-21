@@ -219,7 +219,7 @@ export function assignEnvelope(rows, opts = {}) {
     let side = own[0] >= own[1] ? 0 : 1;
     let exterior = own[side] * 2 >= SAMPLES;
     // read without the roof, would it be outside? then the roof closed it
-    let underRoof = false;
+    let underRoof = false, aboveRoof = false;
     if (roof && !exterior) {
       const bare = openCount(p, apart);
       underRoof = Math.max(...bare) * 2 >= SAMPLES;
@@ -234,13 +234,13 @@ export function assignEnvelope(rows, opts = {}) {
           const roofU = segsU.length ? { segs: segsU, low: blockers.filter((b) => b !== w && /^IFCWALL/.test(b.effectiveClass || b.ifcType || "") && b.plan.z1 < zu && b.plan.z1 > zu - LOW_WALL_REACH) } : null;
           const up = openCount(p, nearU, roofU);
           const sideU = up[0] >= up[1] ? 0 : 1;
-          if (up[sideU] * 2 >= SAMPLES) { own = up; side = sideU; exterior = true; underRoof = false; }
+          if (up[sideU] * 2 >= SAMPLES) { own = up; side = sideU; exterior = true; underRoof = false; aboveRoof = true; }
         }
       }
     }
     // read on its own, would it be inside? then it is a lining or inner leaf
     const alone = exterior && apart.length < near.length ? Math.max(...openCount(p, near, roof)) : own[side];
-    w.envelope = { exterior, open: own[side], points: SAMPLES, side: side ? "-" : "+", leaf: exterior && alone * 2 < SAMPLES, underRoof, flagSaysNothing: false };
+    w.envelope = { exterior, open: own[side], points: SAMPLES, side: side ? "-" : "+", leaf: exterior && alone * 2 < SAMPLES, underRoof, aboveRoof, flagSaysNothing: false };
   }
   // A model that flags every wall the same way (HHS Office's architect
   // model and advanced_model flag all their walls IsExternal, partitions
