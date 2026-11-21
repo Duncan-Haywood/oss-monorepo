@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKjPis1dWSDtzeQCHBq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T08:18:22Z",
+  "ended": "2026-11-21T08:31:56Z",
+  "wall_minutes": 13.86,
+  "tokens_in": 9342524,
+  "tokens_out": 59986,
+  "cost_usd": 4.3204,
+  "tool_calls": 74,
+  "task": "Deepen (flagship 13) xer-schedule-check: P6 activity codes as Microsoft Project outline codes with lookup tables (hierarchy and descriptions)",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18055",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "eval first compared numeric task UIDs with string task_ids and reported 0 matches; fixed with String() before any result was recorded",
+    "first p6xer round-trip probe called a non-existent export name and passed parsed tables instead of XML text; fixed in the probe script (scratch only)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/NEXT.md",
+      "issue": "said outline codes wait 'once a reader agrees on the form', without saying MPXJ's own MSPDIWriter can be asked to emit the form; building a lookup table in MPXJ and saving it took two minutes and settled the form"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here row named xer-schedule-check while #18054 (resource UDFs, same files) opened a minute later; claim_check flagged it as SHARE, which worked, but both runs edit the same flagships.yaml next: line, so the second to merge will conflict"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "outline codes shipped opt-in (off by default), not as the new default for code types",
+      "did": "--outline-codes flag and page checkbox; text fields stay the default",
+      "result": "default output unchanged (existing 45 msproject/mspdi/p6xer tests pass); the default can flip once someone opens a file in Project"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-p6-activity-codes-as-project-outline-codes.md",
+    "ventures/xer-schedule-check/eval/msproject-outline-2026-11-21.md"
+  ],
+  "goal": "deepen a flagship's Project XML export so P6 code trees survive",
+  "notes": "Local checks: python3 platform/ci/run_venture_tests.py xer-schedule-check -> ok (259 tests) before the outline.test.mjs count was final; node --test outline/msproject/mspdi/p6xer after merging main -> 55/55. Mutation: dropping the reader's parent link fails 4 of 10 outline tests. Eval on four public XERs (eval/msproject-outline-2026-11-21.md): 434/434 lookup values, 179,400/179,400 assignments back on same path, each task form alone too; MPXJ 16.10.0 (pip mpxj jpype1, Java present) 19/19 aliases, 434/434 lookup, 179,400/179,400 task values for both forms, 2003-only and 2007-only. XER->XML->XER keeps P6's tree 179,400/179,400 (p6xer.mjs patched). Not opened in Microsoft Project. No agent doc in docs/reports: README, NEXT.md and the eval doc carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "41faea7a-87c2-5685-b6ab-89c938baef9f",
+    "transcripts": 1,
+    "first": "2026-11-21T08:18:22Z",
+    "last": "2026-11-21T08:32:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 128,
+        "output": 59986,
+        "thinking": 11568,
+        "cache_read": 9181918,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160478,
+        "api_equivalent_usd": 4.3204,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 128,
+      "output": 59986,
+      "thinking": 11568,
+      "cache_read": 9181918,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160478,
+      "api_equivalent_usd": 4.3204,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 72,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.86,
+      "active_minutes": 13.86,
+      "model_minutes": 9.54,
+      "tool_minutes": 4.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior scheduling-tool developer: learn MSPDI outline-code schema, writer+reader+XER path, MPXJ harness and eval on 4 files",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 231.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
