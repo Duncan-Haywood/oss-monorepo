@@ -66,6 +66,15 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   million times too big) is read at the exact value, and the page says which
   unit it repaired ([eval/units-repair-2026-11-20.md](eval/units-repair-2026-11-20.md)).
 
+- **See what was measured.** A 3D view (WebGL, no library) draws every
+  element from the solid its volume was computed from, openings cut, and
+  colours it by whether its stored quantities agree with the geometry, by
+  class or by storey. Click a bill-of-quantities line or a check to show its
+  elements; click an element for its stored and computed figures. On 11
+  public models the drawn triangles enclose the computed volume within 0.5%
+  for 9,184 of 9,314 elements checked
+  ([eval/model-view-2026-11-21.md](eval/model-view-2026-11-21.md)).
+
 Nothing is uploaded: the model is read in the browser tab.
 
 ## Why use it

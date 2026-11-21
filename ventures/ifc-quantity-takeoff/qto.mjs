@@ -437,6 +437,9 @@ export function takeoff(model, opts = {}) {
         if (pid != null) { const v = geo.sectionVariants(pid); if (v.length) row.computed.sectionVariants = v; }
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
         row.computed.solids.each = null;
+        // what the model view draws the element with (view-mesh.mjs); kept off the row's enumerable fields
+        Object.defineProperty(row, "world", { value: worldOf(refId(e.args[5])), enumerable: false, writable: true });
+        Object.defineProperty(row, "lengthUnit", { value: f, enumerable: false, writable: true });
         try { row.box = worldBox(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.box = null; }
         // the plan rectangle the envelope test reads (envelope.mjs)
         if (/^IFC(WALL|CURTAINWALL$|PLATE|MEMBER|RAILING)/.test(e.type) || (/^IFC(DOOR|WINDOW)/.test(e.type) && row.host == null)) {
@@ -1143,6 +1146,9 @@ export function primaryArea(r) {
  * Assemblies whose parts are elements themselves (a stair and its flights,
  * a curtain wall and its panels) are left out so nothing is counted twice.
  */
+/** The bill-of-quantities line key a row falls under, for grouping keys `by`. */
+export const boqKey = (r, by) => by.map((k) => GROUP_KEYS[k](r));
+
 export function boq(rows, by = ["class", "type"], rule = null) {
   const measured = ruleActive(rule);
   const lines = new Map();

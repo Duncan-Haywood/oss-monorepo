@@ -81,3 +81,15 @@ test("the page's area numbers match the committed area eval", () => {
   assert.ok(html.includes(`${why["unit-slip"]} written in the wrong unit`));
   assert.ok(html.includes(`${why.split + why.repeated} split-by-level pieces`));
 });
+
+test("the page has a model view drawn from the takeoff's own solids", () => {
+  const html = page("index.html");
+  assert.match(html, /<canvas id="view"/);
+  assert.match(html, /import \{ ModelView \} from "\.\/viewer\.mjs"/);
+  assert.match(html, /rowMesh\(rows\[i\], origin\)/);
+  // a bill-of-quantities line and a check row both select elements in the view
+  assert.match(html, /record\("boq_line_shown"\)/);
+  assert.match(html, /tr data-el=/);
+  const viewer = page("viewer.mjs");
+  assert.doesNotMatch(viewer, /from "https?:/, "the viewer loads no library");
+});
