@@ -333,8 +333,11 @@ flagships:
       (eval/near-clean-truth-noise-2026-11-19.md); a min-eigenvalue read failed its
       pre-registered pick 2026-11-19: foliage fills the quietest direction too, and
       the shipped read under-reads white-balanced noise (0.53x at SNR 12;
-      eval/noise-pca-min-eigen-2026-11-19.md); next per-colour ratios with a
-      texture-safe level, pre-registered. More open items: NEXT.md.
+      eval/noise-pca-min-eigen-2026-11-19.md); per-colour ratios + Chen's level
+      (mpcw) default on Bayer 2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0
+      new losers (eval/noise-pca-whitened-level-*); next mpcws (selects with that
+      read: held +0.31 dB, failed the pick on one noisy-truth K-1 II file),
+      pre-registered with a stated noisy-truth test. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

@@ -1671,6 +1671,18 @@ cost 0.020 dB of mean luma (bar 0.01) and fixed none of the 5 losing rows. On al
 as much as what ships (-0.58 dB on a Pentax K-3 Mark III tile at SNR 200): the blend loses near clean, not the
 estimate. `eval/noise-card-floor-rank-2026-11-18.md`.
 
+**Since 2026-11-21 white-balanced noise is read at its level on Bayer files.** After white balance the colours'
+noise differs (red and blue are amplified more than green), and Chen's eigenvalue rule read the mix nearer the
+quiet green: a median 0.52 to 0.62 of the true sigma at SNR 60 to 12, held out. On Bayer, `frame_noise` now reads
+each colour's noise *ratio* from its own block of the patch covariance, scales the colours to equal noise, and
+takes the *level* with Chen's rule as before (`eig="mpcw"`), so texture in the quietest direction is not
+amplified the way the 2026-11-19 smallest-eigenvalue reads amplified it. Picked and tested by rules committed before
+any real row was read, on 51 bodies from github.com/drewnoakes/metadata-extractor-images split by body: held out,
++0.09 dB luma and +0.04 dB colour over what shipped on average, +0.21 dB luma on the white-balanced SNR 25 and 12
+rows, no row newly losing to directional. Reading the noise of the patch *selection* the same way (`eig="mpcws"`)
+gains three times as much held out (+0.31 dB) but failed the pick: it adds 4 losing rows on one Pentax K-1 II file
+whose ISO 1600, 30 s truth is itself noisy. X-Trans keeps Chen's read. `eval/noise-pca-whitened-level-2026-11-21.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
