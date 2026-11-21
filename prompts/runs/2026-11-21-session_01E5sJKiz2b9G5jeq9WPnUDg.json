@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKiz2b9G5jeq9WPnUDg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T21:09:26Z",
+  "ended": "2026-11-21T21:28:36Z",
+  "wall_minutes": 19.44,
+  "tokens_in": 14107059,
+  "tokens_out": 61817,
+  "cost_usd": 5.5018,
+  "tool_calls": 98,
+  "task": "ids-model-check flagship: model fill writes Qto_ quantities and unset attributes",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18143",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first quantity-copy version rounded copied values to 12 significant digits",
+      "fix": "caught by comparing every copied value against the source file text; now copied exactly; sweeps rerun"
+    },
+    {
+      "what": "pkill -f with the pattern repeated elsewhere in the command was refused by the hook",
+      "fix": "split into its own call"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "eval/model-fill-sweep.mjs stand-in returned null for numbers with no restriction (null ?? null), so the 2026-11-21 model-fill note's table-mode counts undercount numeric writes",
+      "fix": "sweep fixed; the fill treats null as no value; caveat added to eval/model-fill-2026-11-21.md"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "the buildable field had 2 characters free, so a new buildable item had to be cut to 79 characters by trial and error; the tool could report the maximum before the first attempt"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-the-quantities-were-already-in-the-model.md",
+    "ventures/ids-model-check/eval/model-fill-attributes-quantities-2026-11-21.md"
+  ],
+  "goal": "deepen flagship ids-model-check (allocate.py Start here row 7)",
+  "notes": "Model fill now writes Qto_ quantities (IfcElementQuantity + IfcQuantity*, class from data type or Qto_ template; values from IDS, table, or copied exactly from the element's other quantity sets such as IFC2X3 BaseQuantities) and unset attributes (element record; never overwrites). 4 real exports x 68 IDS: ids-mode values written 1,344 -> 3,090 (1,726 quantities copied from BaseQuantities on the two HHS models); 590,464 of 590,464 table-mode values read back passing; changed lines = edited+added records in every filled file; IfcTester 0.9.0: 57,680 of 57,680 written values (50,111 properties, 7,271 quantities, 298 attributes) fail before, pass after, 0 existing elements newly failing. Local checks: node --test '*.test.mjs' in ventures/ids-model-check 449/449 on the final code; venture-preflight clean; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "65f6e911-3924-58a9-a79d-3cae34ecc823",
+    "transcripts": 1,
+    "first": "2026-11-21T21:09:26Z",
+    "last": "2026-11-21T21:28:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 176,
+        "output": 61817,
+        "thinking": 13528,
+        "cache_read": 13921840,
+        "cache_write_5m": 0,
+        "cache_write_1h": 185043,
+        "api_equivalent_usd": 5.5018,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 176,
+      "output": 61817,
+      "thinking": 13528,
+      "cache_read": 13921840,
+      "cache_write_5m": 0,
+      "cache_write_1h": 185043,
+      "api_equivalent_usd": 5.5018,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 98,
+    "tools": {
+      "Bash": 89,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "ReadNotifications": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.44,
+      "active_minutes": 19.44,
+      "model_minutes": 11.25,
+      "tool_minutes": 8.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior IFC developer: quantity/attribute writer, exact-copy path, 4-model sweep with IfcTester cross-check, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 181.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
