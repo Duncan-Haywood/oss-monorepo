@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVN6ghyNLtgqdcd4YEE",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (owner's standing ventures brief).",
+  "input_sha256": "96b8dcee141c192cf0d3c5dca049bcda7e21033d35a006d95939179bf11dedc7",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T07:14:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 14) ifc-quantity-takeoff: the Aalseth wall parts that stayed unpaired in the revision change report (NEXT.md parked item)",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18042",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "Found and fixed false groups the 2026-11-20 Kegonsa change report had published (wall split into wall + door; wall + beam merged; 11 mixed-class pieces merged into a fireplace trim wall); the eval note and post say so."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The parked item 'wall parts that stay unpaired' lived only in NEXT.md; allocate.py's BUILDABLE line did not name it, so finding it needed reading NEXT.md and the 2026-11-20 eval."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-a-wall-and-its-window-are-not-one-wall.md",
+    "ventures/ifc-quantity-takeoff/eval/open-shell-boxes-2026-11-21.md"
+  ],
+  "goal": "Make the IFC revision change report pair every Revit part with its host and stop pairing unrelated elements",
+  "notes": "Cause 1: an open faceted shell (0.12 mm vertex gap) dropped its loops, so its box was null; 1,048 of 27,668 elements in 22 public/real models had no box. geom.mjs keeps them as `loose` for extents only (box, plan), never sections. Cause 2: a short wall's layers sum 2.3% under the host; groups whose boxes tile the host's box get 5% (tiledGroupTol). Exposed bug: groups mixed classes; now one class family at a time. Verification: node --test '*.test.mjs' 127/127 pass; seeded faults (no loose in solidPoints, no loose in transformSolid, one family for all, 5% for all) each fail a test; Aalseth all unpaired wall parts paired, other counts unchanged; HHS controls unchanged (architect 1 changed, construction 0); eval/compare-builds.mjs vs main on 22 files: 0 volume and 0 area changes, envelope flag agreement 4,420/5,497 -> 4,459/5,522 (HHS architect -2, noted as next buildable item). run_venture_tests.py and venture-preflight results below.",
+  "corrections": [],
+  "redteam": null
+}
