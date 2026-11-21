@@ -28,3 +28,10 @@
 - (2026-11-20) 52, near-whist 58 by starter + table matching (eval/whist-starter.c)
 - (2026-11-20) Americano/Mexicano scorer page 2026-11-19 (americano-night.html, night.mjs: live table, sit-out credit; eval/sit-out-credit.txt)
 - (2026-11-20) two courses 2026-11-20 (golf-courses.test.mjs)
+
+## Swiss pairer, after bracket-by-bracket (2026-11-21)
+
+- The Dutch rules' exact exchange order between S1 and S2 (article 4.3): `bracketMate` offers an S1 player S1 partners from the boundary up, which is an approximation; the late-round lower brackets are where the remaining 11% of chess-results boards differ (eval/swiss-bracket-dutch.md).
+- C.8 look-ahead (choose downfloaters so the bracket after next can still comply) and the heterogeneous remainder tie are not modelled.
+- spring_2026_chesshouse reads 0.527 later-round recall against 0.81-0.97 for the others: find why (its TRF's pre-entered byes clash with the replay's absences in rounds 7 and 9).
+- Very large brackets (over about 180 players) drop the lowest float criteria in stage B to keep weights exact under 2^50; only an open-condition Graz round showed a difference (1 board).

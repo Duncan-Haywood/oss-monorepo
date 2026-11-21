@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVPG8GHt6bWyfegC2Bv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo...)",
+  "input_sha256": "e1c1e41c32df6a83470ddc9f0fb5b93a9945772a5546800c2284944dcc52e083",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T20:14:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship row 4 league-schedule-generator: bracket-by-bracket Dutch Swiss pairer (the row's 'next bracket-by-bracket Dutch' item)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 18135,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "issue": "The first full eval run printed held-out events before a completeness bug (S2 players left after an exchange were never paired; 35 of 54 rounds failed) was fixed; disclosed in eval/swiss-bracket-dutch.md and the post. All four pre-registered hypotheses were checked on the run after that fix."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: was at 1973 of 2000 characters; a descriptive replacement for the landed item would not fit, so the row now carries a short pointer and the detail went to NEXT.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-swiss-pairing-bracket-by-bracket.md",
+    "ventures/league-schedule-generator/eval/swiss-bracket-dutch.md"
+  ],
+  "goal": "Swiss pairer that matches real arbiters' Dutch-system pairings",
+  "notes": "swissPairings gains pairing: 'bracket' (now the default): score brackets paired top down, stage A one matching over all unpaired players (C4 completability, C5 pairs, C6 PSD, C7 next bracket, colours, floats, coarse order), stage B holds the best colour/float value and fixes partners S1-first in Dutch order; 2025 C5 bye-score rule decided before brackets; falls back to the whole-round matching if a bracket fails or lookahead objects. Real events (gbtami/swisspairing 193ad99, condition played, rounds 2+): chess-results 0.595 -> 0.891 (held out 0.578 -> 0.809), exact rounds 5 -> 15, lichess 0.521 -> 0.590. 440 simulated events: 0 failed; floats -1.0%, strong clashes +2.2%, repeat down-floats +3.7%. 357-player round 1.1 s. Local checks: run_venture_tests.py league-schedule-generator ok (943 tests) + site page checks; venture-preflight.mjs league-schedule-generator: preflight clean (exit 0); check_posts ok; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null
+}
