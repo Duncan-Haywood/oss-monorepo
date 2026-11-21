@@ -6,7 +6,7 @@ milestone 6's session tracker and H5)
     python experiments/baselines/tracker.py collect <MS-SNSD root> <rows_4d.json> [--procs 4] [--reps 2]
     python experiments/baselines/tracker.py score <rows_4d.json>
 
-Session (one per speech block, rep and room): a whole MS-SNSD speech block (about 3.7 min) played to two
+Session (one per speech block, rep and room): a whole MS-SNSD speech block (3.2-3.6 min after trimming) played to two
 devices, each through its own statistical impulse response (step 2a's `rir`, RT60 0.2 or 0.8 s). Device 1's
 clock runs eps slow (`wacd.sim_sro`, paderwasn's resampler), eps one of 17 ppm (step 1's measured Nexus to
 Pixel 6a rate on LibriWASN), 100 ppm and 300 ppm (sweep values, no source: they stand for consumer cameras whose
