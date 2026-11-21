@@ -23,6 +23,16 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3x headline** (is milestone 3w's update rule an artefact of scoring it on the data that picked it? leave-one-sequence-out
+on the three TUM sequences): **no; chosen without the held-out sequence, "adopt unless within 0.5 sd" is picked in all three folds**,
+including a fold that tunes it on the Kinect alone and scores it on the Xtion (worst regret **0.55** points against always-adopt's
+1.38 and the 2-sd gate's 4.61). Pooled out of sample it keeps 0.42 against always's 1.17. Per recording the margin is thin: it ties
+always-adopt on fr1/desk, loses by 0.07 on fr1/xyz, and on fr1/desk the 2-sd gate does better. Across all 36 model, window-count and
+reference cells the out-of-sample rule beats the symmetric 2-sd gate in 36 and always-adopt in 32; against the TUM and target-free
+references the folds do not agree on one rule. Four of six predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![left: worst regret of the in-sample minimax rule, the leave-one-sequence-out rule and always-adopt against the number of pooled windows; right: held-out worst regret of five rules on each TUM sequence, five windows](experiments/m3x_loso/loso.png)
+
 **Milestone 3w headline** (once self-calibration says the held focal length may be stale, which rule should a robot camera use to
 update it? milestone 3v's blocks, eight rules scored by the error they leave over 0 to 10% staleness): **adopt the pool unless it lies
 within half a standard deviation of the held value.** With five pooled windows and the causal prior that rule's worst-case regret
@@ -1150,6 +1160,8 @@ default: with the transferred factor the rule made a harmful adoption in 1.4% of
 ```
 pip install numpy scipy opencv-python-headless matplotlib pytest
 python3 experiments/m3t_poolprior/analyse.py   # milestone 3t, analysis of saved solves, <1 s; summary.json, poolprior.png
+python3 experiments/m3w_update/analyse.py    # milestone 3w, analysis of saved solves, <1 s; summary.json, update.png
+python3 experiments/m3x_loso/analyse.py      # milestone 3x, leave-one-sequence-out, <1 s; summary.json, loso.png
 sh experiments/m3b_natural/fetch.sh tum   # 1.3 GB of TUM RGB-D video (CC BY 4.0)
 OMP_NUM_THREADS=1 python3 experiments/m3b_natural/run.py tum 4  # ~45 min on 4 cores; results.json
 python3 experiments/m3b_natural/analyse.py # summary.json, natural.png
@@ -1280,6 +1292,11 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3x: "adopt unless within 0.5 sd" at five windows survives leave-one-sequence-out against the board reference, and
+the symmetric 2-sd gate loses everywhere; the margin per recording is thin and the choice depends on the reference. Next: Section 4
+of the paper updated with 3u&ndash;3x (the error bar turned into a decision, and its out-of-sample check); the same update decision on
+k<sub>1</sub> and the principal point; a real lens change when one is reachable.
 
 After milestone 3w: with the floored pool, "adopt unless within 0.5 sd" is the minimax update rule at five or more windows and the
 empirical-Bayes blend below that; both were chosen in-sample. Next: score the two rules out of sample (fit the rule on one camera,
