@@ -412,17 +412,27 @@
       if (!fitted && view.items.length) { view.fit(); fitted = true; }
       $("view-status").textContent = last ? "" : `Drawing ${added.size} of ${total} elements...`;
     };
+    // one worker reply per task: replies that queued up while the page was
+    // busy with its own takeoff would otherwise land as one long task
     const fromWorker = meshWorker ? await new Promise((resolve) => {
-      meshSink = (d) => {
-        if (gen !== viewGen) return resolve(false);
-        if (d.failed) { how = ` (${d.failed}; drawn on the page instead)`; stopMeshing(); return resolve(false); }
-        if (d.ready) return;
+      const q = meshQueue;
+      let pumping = false;
+      const one = (d) => {
+        if (gen !== viewGen) { resolve(false); return false; }
+        if (d.failed) { how = ` (${d.failed}; drawn on the page instead)`; stopMeshing(); resolve(false); return false; }
+        if (d.ready) return true;
         for (const it of d.items) take(it.id, it);
         progress(d.done);
-        if (d.done) { stopMeshing(); resolve(true); }
+        if (d.done) { stopMeshing(); resolve(true); return false; }
+        return true;
       };
-      const q = meshQueue; meshQueue = [];
-      for (const d of q) meshSink?.(d);
+      const pump = () => {
+        if (!q.length) { pumping = false; return; }
+        if (one(q.shift())) setTimeout(pump, 0); else q.length = 0;
+      };
+      meshSink = (d) => { q.push(d); if (!pumping) { pumping = true; setTimeout(pump, 0); } };
+      meshQueue = [];
+      if (q.length) { pumping = true; setTimeout(pump, 0); }
     }) : false;
     if (gen !== viewGen) return;
     if (!fromWorker) {

@@ -11,7 +11,10 @@
 // so the page meshes in its own 30 ms slices (the fallback, and what the
 // page did before 2026-11-21).
 //
-//   node eval/view-responsiveness.mjs <model.ifc>... [--json out.json]
+//   node eval/view-responsiveness.mjs <model.ifc>... [--json out.json] [--root dir]
+//
+// --root serves another copy of the venture (say, `git archive` of an older
+// commit) to read the page as it was; it then runs once, as that page is.
 
 import { createRequire } from "node:module";
 import { createServer } from "node:http";
@@ -26,7 +29,9 @@ try { ({ chromium } = require("playwright")); } catch { ({ chromium } = require(
 const args = process.argv.slice(2);
 const ji = args.indexOf("--json");
 const jsonOut = ji >= 0 ? args.splice(ji, 2)[1] : null;
-const root = new URL("..", import.meta.url).pathname;
+const ri = args.indexOf("--root");
+const root = ri >= 0 ? join(args.splice(ri, 2)[1], "/") : new URL("..", import.meta.url).pathname;
+const modes = ri >= 0 ? [true] : [true, false];
 const TYPES = { ".html": "text/html", ".mjs": "text/javascript", ".ifc": "application/octet-stream", ".txt": "text/plain" };
 const server = createServer((req, res) => {
   const p = join(root, decodeURIComponent(new URL(req.url, "http://x").pathname));
@@ -39,7 +44,7 @@ const port = server.address().port;
 const browser = await chromium.launch();
 const results = [];
 for (const file of args) {
-  for (const worker of [true, false]) {
+  for (const worker of modes) {
     const page = await browser.newPage();
     await page.addInitScript((w) => {
       WebGLRenderingContext.prototype.drawArrays = function () {};
@@ -55,7 +60,7 @@ for (const file of args) {
       return { status: document.getElementById("view-status").textContent, by: document.getElementById("view").dataset.meshedBy, ticks: g.length, maxMs: Math.round(g[0]), p99Ms: Math.round(g[Math.floor(g.length / 100)]), over100: g.filter((x) => x > 100).length };
     });
     const secs = +(r.status.match(/drawn in ([\d.]+) s/) || [])[1];
-    const row = { model: basename(file), meshedBy: r.by, drawS: secs, ticks: r.ticks, p99Ms: r.p99Ms, maxMs: r.maxMs, gapsOver100ms: r.over100 };
+    const row = { model: basename(file), meshedBy: r.by ?? "page (before 2026-11-21)", drawS: secs, ticks: r.ticks, p99Ms: r.p99Ms, maxMs: r.maxMs, gapsOver100ms: r.over100 };
     results.push(row);
     console.log(JSON.stringify(row));
     await page.close();
