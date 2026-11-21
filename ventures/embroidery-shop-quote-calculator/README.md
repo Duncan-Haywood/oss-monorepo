@@ -30,6 +30,10 @@ Effective hourly rate is what is left of the price per clock hour after garments
 are paid, before you pay yourself. If an offered price falls below your floor, the verdict names the price that
 reaches it.
 
+Numbers in a CSV cell or a flag may carry `$`, `%` and thousands commas (`1,234.50`). A comma anywhere
+else (`4,50`, the European way to write 4.50) is an error, not 450, and so are hex or exponent spellings
+(`0x18`, `1e1`): the row is refused with a message rather than quoted from a number you did not mean.
+
 ## What it is not
 
 Not a forecast: it prices a job from numbers you supply. Hooping is assumed to happen while the machine is
