@@ -96,8 +96,13 @@ equal what Project stored on 2,406 (96.6%) at first (eval/cpm-vs-project-2026-11
 and on **2,442 (98.0%)** since 2026-11-21: a task now runs on its resources'
 calendars as Project schedules it (a night-shift crew works nights; a day and a
 night resource together work both), and an in-progress task's remaining work
-restarts at Project's Resume date (eval/resource-calendars-2026-11-21.md). The
-49 left are contoured and timephased work, split tasks, manual tasks on start
+restarts at Project's Resume date (eval/resource-calendars-2026-11-21.md).
+**Split tasks** are read too (2,446, 98.2%, later on 2026-11-21): Project
+keeps a split only as zero-work rows in the assignments' timephased data, and
+the reader adds that working time to the task's span, so a split task
+finishes where Project says and its splits move with it when logic pushes it
+(all 7 split tasks in the corpus, eval/split-tasks-2026-11-21.md). The
+45 left are contoured and timephased work, manual tasks on start
 links, and one file whose stored dates contradict each other.
 `node cli.mjs schedule.xml`.
 
@@ -864,8 +869,11 @@ run as a formula in Excel or Sheets.
   2,406 (96.6%), 86 files on every task; since 2026-11-21 2,442 (98.0%), with
   resource calendars and Resume dates read (`eval/resource-calendars-2026-11-21.md`:
   legacy/sample.xml 0 to 16 of 16, the assignments file 1 to 3 of 3 in seven
-  Project versions); the 49 left are contoured or timephased work (38), split
-  tasks, manual tasks on start links and one self-contradicting file.
+  Project versions); split tasks read 2026-11-21 (2,446, 98.2%;
+  `eval/split-tasks-2026-11-21.md`: mspdisplittask.xml 0 to 2 of 2, early
+  finish 30 of 30 in mspditimephased.xml); the 45 left are timephased late
+  dates (36), manual tasks on start links, one assignment delay and one
+  self-contradicting file.
   `mspdi.test.mjs` covers holidays, derived calendars, work weeks, elapsed and
   percent lags, SS and FF links, manual tasks, constraints, progress with a
   status date, and a comparison across renumbered rows. These files are small

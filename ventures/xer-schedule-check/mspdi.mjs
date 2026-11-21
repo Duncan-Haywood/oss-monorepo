@@ -358,6 +358,49 @@ export function parseMspdi(text) {
     if (!taskRes.has(tu)) taskRes.set(tu, new Set());
     taskRes.get(tu).add(cal);
   }
+  // Split tasks: Project stores a split (a stretch inside a task with no
+  // work) only in the assignments' timephased rows, as rows of remaining work
+  // (Type 1) whose value is zero between rows with work. A gap is time no
+  // assignment of the task has work in; moved with the task, it keeps its
+  // length in working time (eval/split-tasks-2026-11-21.md). Rows with no
+  // value are non-working time and are not gaps.
+  const splitGaps = new Map(); // task UID -> [[start, finish], ...]
+  {
+    const byTask = new Map();
+    for (const a of kids(kid(proj, "Assignments"), "Assignment")) {
+      const tu = val(a, "TaskUID");
+      for (const r of kids(a, "TimephasedData")) {
+        const type = val(r, "Type");
+        if (type !== "1" && type !== "2") continue;
+        const v = val(r, "Value");
+        if (v === "") continue;
+        const s = date(val(r, "Start")), f = date(val(r, "Finish"));
+        if (!s || !f || f <= s) continue;
+        const h = durationHours(v);
+        if (h === null) continue;
+        if (!byTask.has(tu)) byTask.set(tu, { work: [], zero: [] });
+        const e = byTask.get(tu);
+        if (h > 0) e.work.push([s, f]);
+        else if (type === "1") e.zero.push([s, f]);
+      }
+    }
+    for (const [tu, e] of byTask) {
+      if (!e.zero.length || !e.work.length) continue;
+      const first = e.work.reduce((m, w) => (w[0] < m ? w[0] : m), e.work[0][0]);
+      const last = e.work.reduce((m, w) => (w[1] > m ? w[1] : m), e.work[0][1]);
+      const gaps = [];
+      for (let [s, f] of e.zero.sort((x, y) => (x[0] < y[0] ? -1 : 1))) {
+        if (s < first) s = first;
+        if (f > last) f = last;
+        if (f <= s) continue;
+        // a zero row another assignment works in is not a gap
+        if (e.work.some((w) => w[0] < f && w[1] > s)) continue;
+        if (gaps.length && gaps[gaps.length - 1][1] >= s) { if (f > gaps[gaps.length - 1][1]) gaps[gaps.length - 1][1] = f; }
+        else gaps.push([s, f]);
+      }
+      if (gaps.length) splitGaps.set(tu, gaps);
+    }
+  }
   const plain = (c) => ({ week: c.week.map((d) => d || []), exceptions: c.exceptions });
   const combined = new Map();
   let onResources = 0, noCommon = 0;
@@ -426,6 +469,7 @@ export function parseMspdi(text) {
   const byUid = new Map();
   const outline = []; // summary UID at each outline level
   const manual = [];
+  let splits = 0;
   let summaries = 0, deadlines = 0, inactive = 0, nulls = 0, elapsed = 0, external = 0;
   const durHours = new Map();
   // task notes -> P6 notebook entries, one per bracketed topic (notebook.mjs);
@@ -489,6 +533,7 @@ export function parseMspdi(text) {
       cstrDate = date(val(t, "Start"));
     }
     if (val(t, "Deadline")) deadlines++;
+    if (splitGaps.has(uid) && status !== "TK_Complete") splits++;
     addNotes(t, "TASKMEMO", uid);
     const isMile = val(t, "Milestone") === "1";
     const slack = (k) => { const v = val(t, k); return v === "" ? "" : String(Number(v) / 600); };
@@ -516,6 +561,9 @@ export function parseMspdi(text) {
       // (eval/resource-calendars-2026-11-21.md, "Resume")
       resume_date: status === "TK_Active" ? date(val(t, "Resume")) : "",
       reend_date: status === "TK_Complete" ? "" : date(val(t, "Finish")),
+      // split gaps (start|finish;...), not a P6 column: cpm.mjs adds their
+      // working time to the task's span
+      ...(splitGaps.has(uid) && status !== "TK_Complete" ? { split_gaps: splitGaps.get(uid).map((g) => g.join("|")).join(";") } : {}),
       target_start_date: bl ? date(val(bl, "Start")) : "",
       target_end_date: bl ? date(val(bl, "Finish")) : "",
       total_float_hr_cnt: slack("TotalSlack"),
@@ -598,6 +646,7 @@ export function parseMspdi(text) {
   if (inactive) warnings.push(`${inactive} inactive task(s) left out, as Project leaves them out of the schedule`);
   if (external) warnings.push(`${external} external (inserted-project) task(s) left out`);
   if (crossProject) warnings.push(`${crossProject} cross-project link(s) left out`);
+  if (splits) warnings.push(`${splits} split task(s): the working time in each split is added to the task's span, so its finish lands where Project's does; P6 has no splits, so an XER written from this file loses them`);
   if (elapsed) warnings.push(`${elapsed} task(s) with an elapsed duration are scheduled on a 24-hour calendar`);
   if (noCommon) warnings.push(`${noCommon} task calendar(s) share no working time with their resources' calendars; those tasks stay on their own calendar (Project warns about the same)`);
   if (onResources) warnings.push(`${onResources} task(s) scheduled on their resources' calendars, as Project does, not the task or project calendar`);
