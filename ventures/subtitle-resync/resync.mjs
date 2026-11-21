@@ -5,13 +5,15 @@
 //   node resync.mjs movie.srt --fps 25:23.976 -o fixed.srt
 //   node resync.mjs movie.srt --sync 00:01:00,000=00:01:02,000 --sync 01:40:00,000=01:44:10,000
 //   node resync.mjs movie.es.srt --reference movie.en.srt -o movie.es.fixed.srt
+//   cat movie.srt | node resync.mjs - --offset 1.2 > fixed.srt
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resyncText, parseUserTime, formatTimestamp } from './engine.mjs';
 
 const HELP = `subtitle-resync: shift, stretch or auto-align an SRT or WebVTT file.
 
-Usage: node resync.mjs <input.srt|.vtt> [one way to find the timing] [options]
+Usage: node resync.mjs <input.srt|.vtt|-> [one way to find the timing] [options]
+       ("-" reads the subtitle file from standard input)
 
 One way to find the timing (pick one; --offset can be added to any):
   --offset <time>        shift every cue; seconds (-2.5) or a timestamp (-00:00:02,500)
@@ -80,6 +82,12 @@ export function parseArgs(argv) {
   return args;
 }
 
+async function readStdin() {
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  return Buffer.concat(chunks).toString('utf8');
+}
+
 async function main() {
   let args;
   try {
@@ -92,7 +100,9 @@ async function main() {
     return;
   }
   if (!args.input) fail(`no input file\n\n${HELP}`);
-  const text = await readFile(args.input, 'utf8').catch((e) => fail(`cannot read ${args.input}: ${e.message}`));
+  const text = args.input === '-'
+    ? await readStdin()
+    : await readFile(args.input, 'utf8').catch((e) => fail(`cannot read ${args.input}: ${e.message}`));
   const referenceText = args.reference
     ? await readFile(args.reference, 'utf8').catch((e) => fail(`cannot read ${args.reference}: ${e.message}`))
     : undefined;
