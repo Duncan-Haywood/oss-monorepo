@@ -78,3 +78,5 @@ hearth-and-horizon | brownout, voltage drop | the end of a long rural line where
 for-other-minds | difference-in-differences | a parish's new Sunday minibus judged by comparing its villages' Mass counts before and after with villages it does not serve; the trends must have been parallel before
 for-other-minds | attrition, missing not at random | a follow-up survey of a debt advice service where the people who were not helped are the ones who stopped answering
 for-other-minds | dose-response | an agent shown that more visits go with better outcomes asks whether the people who got more visits were chosen for them
+hearth-and-horizon | Braess paradox, Braess | a new link road that makes every driver's trip slower once each driver takes the route that is quickest for them; selfish routing, and closing the shortcut to speed everyone up
+hearth-and-horizon | heat index, wet-bulb | a heatwave day judged by the thermometer when the humidity decides whether sweat can cool a body; the same 34 C is a warm afternoon in dry air and a danger in wet
