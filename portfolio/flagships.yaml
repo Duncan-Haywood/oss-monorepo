@@ -408,9 +408,9 @@ flagships:
       Yoke-lift switches (cam lobe, tower, slots) in the CAD 2026-11-21
       (cad/README.md). Hopper post wedges and vertical shelf M5s in the CAD
       2026-11-21 (cad/README.md). Every feeder fastener a checked joint, flight
-      caps' M3 last (2026-11-21, cad/README.md). Next buildable: the collector's
-      unmeasured Pi M2.5 x 6 + standoffs and ball caster screws
-      (guide.collector_joints). Firmware survey tuning is settled on simulated data
+      caps' M3 last (2026-11-21, cad/README.md). Collector Pi and caster joints
+      2026-11-21: all fasteners measured. Next: head access (access_problems) on
+      collector joints. Firmware survey tuning is settled on simulated data
       (firmware/esp32/README.md, NEXT.md): next information there is a real wheel's
       tach log.
     why: >-

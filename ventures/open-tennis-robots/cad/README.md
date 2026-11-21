@@ -80,6 +80,23 @@ Smaller ones: the clamp-ring screws were M4 x 12 with nylocs over an 8 mm stack
 standoff (now M3 x 10, 5 mm). The yoke-lift microswitches had no mount in the
 CAD; they have one since 2026-11-21 (next section).
 
+The last two collector fasteners the guide did not measure (2026-11-21) were the
+Raspberry Pi's and the ball caster's: neither the Pi nor the caster's flange was
+drawn, so there was no stack. Both are now, and the collector has 16 measured
+joints (13 before):
+
+| Found | Was | Now |
+| --- | --- | --- |
+| Pi standoffs | "M2.5 x 6 screw + 6 mm standoff" x 4: a female-female standoff has two ends, so four screws held the Pi to its standoffs and nothing held the standoffs to the tray (or the other way round). With the same M2.5 x 6 at both ends, the top one runs 4.4 mm into a 6 mm standoff whose lower 3 mm the tray's screw already fills: the tips meet 1.4 mm before either is tight | four 6 mm brass F-F standoffs drawn on the tray (`pi_standoff`) and the bare board on them (`raspberry_pi`, 1.6 mm). M2.5 x 5 up through the 3 mm tray (2.0 mm into the standoff) and M2.5 x 4 down through the board (2.4 mm): 1.6 mm between the tips. The standoffs go on the tray on the bench (guide step 7), while its underside can be reached |
+| Ball caster | "Ball caster mounting screws, 1, to suit the caster bought", and "drill the caster's own pattern clear of the heads" into a 10 mm PETG block, with no insert and no length | two M4 heat-set inserts in the adapter's underside on the centre line (`caster_hole_pitch`, 38 mm, 6 mm of plastic to the block's edge and 13 mm to the M4 x 20 counterbores; a rule fails a pitch that breaks either) and two M4 x 10 up through a 3 mm flange: 7.0 mm past the flange, between the insert's 5.7 and the 8.5 mm pocket and pilot |
+
+The caster's flange (50 x 22 x 3 mm, two M4 holes on 38 mm) and the standoff
+being threaded right through are assumptions, not a datasheet: measure the
+caster you buy and set `caster_hole_pitch` and `caster_flange` before printing
+the adapter (a 6 mm flange fails the joint check under M4 x 10, so the build
+says when the screw must change). The Pi is drawn as its bare board; its
+connectors are not, so nothing above the board is clash-checked.
+
 Caveats: the bought-in parts are envelopes drawn from `params.py`, so the stack
 check is only as good as those numbers (nut heights are DIN 985; a rivet nut's
 flange is taken as 1 mm). The guide has not been followed by anyone building one.
