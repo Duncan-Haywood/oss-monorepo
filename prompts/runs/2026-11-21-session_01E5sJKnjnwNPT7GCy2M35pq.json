@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKnjnwNPT7GCy2M35pq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T03:18:09Z",
+  "ended": "2026-11-21T03:36:36Z",
+  "wall_minutes": 18.71,
+  "tokens_in": 11996333,
+  "tokens_out": 79370,
+  "cost_usd": 5.3148,
+  "tool_calls": 83,
+  "task": "league-schedule-generator (flagship row 4): weekly practice slots on shared fields",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18020",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a `kill $(ps aux | grep '[p]ractice-exact.py' ...)` in the same shell call as later steps exited 144 and skipped those steps; reran them separately"
+    },
+    {
+      "what": "first test draft asserted a wrong optimum for a squared-miss case; recomputed by hand and fixed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "league-schedule-generator's `next:` lists only items needing a real league; the buildable gap (practice slots, no module at all) came from grepping the venture, not from the row"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "took a new feature for the flagship rather than one of its listed `next:` items, all of which need a real league's data",
+      "did": "built practice-slot allocation (practice.mjs, page, guide, CP-SAT eval)",
+      "result": "95 of 95 CP-SAT optima matched; page clicked through clean"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-the-practice-grid-nobody-schedules.md",
+    "ventures/league-schedule-generator/eval/practice-exact.txt",
+    "ventures/league-schedule-generator/README.md (Practice slots on shared fields)"
+  ],
+  "goal": null,
+  "notes": "practice.test.mjs 15/15 pass. CP-SAT (OR-Tools 9.15, 20 s x 4 workers): tight 60 cases 55/55 proved optima matched + 1 better than CP-SAT unproved; loose 40/40. Chromium click-through at 390 and 1200 px: no console errors, no horizontal scroll, ics download, share link, reload. Full venture suite and venture-preflight run locally; results in the PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "baa182ab-2408-5286-a738-0abe77bda093",
+    "transcripts": 1,
+    "first": "2026-11-21T03:18:09Z",
+    "last": "2026-11-21T03:36:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 162,
+        "output": 79370,
+        "thinking": 13452,
+        "cache_read": 11825973,
+        "cache_write_5m": 0,
+        "cache_write_1h": 170198,
+        "api_equivalent_usd": 5.3148,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 162,
+      "output": 79370,
+      "thinking": 13452,
+      "cache_read": 11825973,
+      "cache_write_5m": 0,
+      "cache_write_1h": 170198,
+      "api_equivalent_usd": 5.3148,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 76,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "ScheduleWakeup": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.71,
+      "active_minutes": 18.49,
+      "model_minutes": 12.72,
+      "tool_minutes": 5.77,
+      "waiting_on_human_minutes": 0.22,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a developer building a constrained slot allocator with page, guide, tests and an exact-solver comparison",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 451.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
