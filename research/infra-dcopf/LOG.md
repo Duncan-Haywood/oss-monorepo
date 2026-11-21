@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-21 · Confirmation split: finishing the 12 pending rule C and rule P runs (in progress; `research/grid-linopf`)
+- `run_confirm.py CP` resumes from the cached parts, no change to the script, constants, split or adoption rule fixed on 2026-11-20. The outcome replaces this entry in the same pull request.
+
 ## 2026-11-20 · Confirmation split: partial outcome. Rule P loses 2 frozen finishers already (case2848_rte TYP, case2868_rte TYP) and gains none on the 11 of 23 cases scored so far; Q3 refuted, final. 12 cases still to run for C and P
 - Ran as planned for the frozen arm on all 33 cases (`experiments/run_confirm.py F`; parts in `results_confirm_parts/`), then C and P on the cases whose frozen run has a failed hard QP. The C and P job reached the 2-hour background limit after 16 of 40 runs (case2869_pegase TYP alone took 2 hours per arm) and was not restarted in this session. Parts are cached, so `run_confirm.py CP` resumes with the 12 pending cases; `results_confirm.txt` names them and leaves them out of every tally.
 - **Frozen arm (complete).** **Q1 held:** 23 of 33 reach the repair; the other 10 have no DC start under the protocol's DC OPF (all three of case2853_sdet, API of case2312, case2736, case2742, case2746wop and case2868, SAD and TYP of case2383wp_k). From the 2026-11-16 check, PIPS is known to miss DC solutions that Clarabel finds, so this count is the protocol's, not the networks'. The frozen repair finishes **9 of 23** within 20 rounds (case2312 TYP and SAD, case2383wp API, case2737sop API, case2742 TYP and SAD, case2848 TYP and SAD, case2868 TYP), at +0.04 to +6.78 % over PGLib's AC optimum; 20 of the 23 have at least one failed hard QP.
