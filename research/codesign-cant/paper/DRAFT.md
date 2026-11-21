@@ -181,7 +181,9 @@ J = −RMS − λ·P_hover/100 W, where λ is in degrees per 100 W.
 **Search.** CMA-ES [hansen2001] searches the design and the controller together, with 1920 evaluations per
 run. From milestone 2's follow-up on, each run keeps the best training score of three starts, with cant started
 at 4°, 32° and 64° of an 80° bound, because the landscape under the shared polytope is multimodal. Milestones 1
-and 2 use five seeds and milestone 4 uses ten.
+and 2 ran five seeds and were extended to ten (`m12_ten_seeds`, seeds 5–9 added with nothing else changed); milestone 4 uses ten.
+Paired results are given with a percentile bootstrap 95% interval over seeds and an exact two-sided Wilcoxon
+signed-rank p, whose floor at ten seeds is 0.002 (`m12_ten_seeds/results.txt`).
 
 **Position-hold model (sections VI–VII).** Milestone 6 adds the translational axes. The side force is
 F_y = lat·τ_x and F_x = lat·τ_y. The centre of pressure is rigidly offset, so the roll and pitch disturbance
@@ -192,27 +194,35 @@ limit and the motor-lag law each one adds.
 ## IV. Where the optimum is, and whether a better controller removes it (milestones 1, 2, 4; full draft)
 
 **The corrected actuator keeps the advantage.** Correcting the actuator model (section III) does not shrink
-cant's advantage. Paired by seed at TWR 2, cant ≤ 35° beats no cant by 4.81° of held-out RMS with the
-allocation's limits, against 4.62° with the earlier formulas (5 of 5 seeds each;
-`m1_allocation/results.txt`). Doubling the uncanted vehicle's yaw authority improves it by only 1.62° (17.06° to
-15.44°), because yaw still dominates its error. What the correction does remove is the earlier "motor headroom"
-story. With TWR free and the collective held at hover, the optimiser picks TWR 2.0–2.3, since above 2 the low
-rotors can go no lower. The interior optimum near TWR 5 in the earlier projects was an artefact of letting
+cant's advantage. Paired by seed at TWR 2, cant ≤ 35° beats no cant by 4.85° of held-out RMS (95% interval
+4.79–4.92°) with the allocation's limits, against 4.50° with the earlier formulas (10 of 10 seeds each, p = 0.002;
+`m12_ten_seeds/results.txt`). Doubling the uncanted vehicle's yaw authority improves it by only 1.49° (16.96° to
+15.47°), because yaw still dominates its error. What the correction does remove is the earlier "motor headroom"
+story. With TWR free and the collective held at hover, the canted optimiser picks TWR 2.0–2.1, since above 2 the low
+rotors can go no lower; the uncanted one picks 2.1–3.7 (mean 2.5), still far below the earlier projects' 5. The interior optimum near TWR 5 in the earlier projects was an artefact of letting
 thrust go negative.
 
-**A shared polytope makes cant worth more.** On one thrust polytope, a tuned uncanted vehicle saturates roll
-and pitch on 97% of held-out steps, and the attitude-priority mixer then gives yaw nothing on 100% of them
-(`m2_polytope/results.txt`, λ = 0). Cant moves yaw onto the tangential force. Roll and pitch then saturate on
-0.7% of steps and yaw is scaled on 39%. The paired advantage grows from 4.81° (`box`) to 6.08° (`prio`, 5 of 5
-seeds). Airmode recovers 1.56° for the uncanted vehicle and 0.26° for the canted one.
+**A shared polytope costs accuracy, and cant keeps its advantage on it.** On one thrust polytope, a tuned
+uncanted vehicle saturates roll and pitch on 94–99% of held-out steps in 7 of 10 seeds, and the attitude-priority
+mixer then gives yaw nothing on all of them (`m12_ten_seeds/results.txt`, λ = 0). The other three seeds
+found a second optimum: about 1700 W of hover power, roll and pitch saturated on under 1% of steps, and 16.7–17.1°
+of error against 18.1–18.8° for the saturated ones. Cant moves yaw onto the tangential force; the canted designs
+saturate roll and pitch on 0.5–1.0% of steps (one seed excepted, below). The attitude-priority mixer costs
+2.42° without cant and 2.31° with it (10 of 10 seeds each, p = 0.002), and cant's paired advantage under it is
+4.98° (95% interval 3.64–5.91°, 9 of 10 seeds, p = 0.004) against 4.86° under `box` (10 of 10). At five seeds
+this read 6.08° against 4.81°, "cant worth more on the polytope"; with ten the two are within each other's
+intervals, so we claim only that the advantage survives the shared polytope. Airmode recovers 1.14° for the
+uncanted vehicle and 0.88° for the canted one (p = 0.002 and 0.010).
 
 **The optimum is large, and pricing power does not shrink it.** The rule of thumb, and our hypothesis H1, put
-the optimum at 5–20°. It is not there. Pricing hover power at 0.3° per 100 W cuts it by 4.9–7.1× under `box` and `prio`
-(`box`, canted: 1380 W to 219 W), while RMS under `box` moves by at most 0.45°. From 0 to 1° per 100 W the chosen
-cant stays at 29–37° under `box` (`m2_polytope/results.txt`). With three starts per seed under `prio`, it is 28–37° in 9 of 10
-seed-arms at λ = 0.3 and 1 (`m2_polytope/restarts.txt`). The tenth found only a 4° design from all three starts.
-Without restarts, two of five seeds fall to low cant at λ = 0.3 and four of five at λ = 1. At λ = 0.3 those two
-score 18.51° and 21.43° held out, against 12.91–13.03° for the seeds that kept cant. That is an optimiser failure, not a second optimum. Cant is a size
+the optimum at 5–20°. It is not there. Pricing hover power at 0.3° per 100 W cuts it by 3.0–7.0× under `box` and `prio`
+(`box`, canted: 1350 W to 225 W, ten-seed means), while RMS under `box` moves by at most 0.45°. From 0 to 1° per 100 W the chosen
+cant stays at 29–39° under `box` (`m12_ten_seeds/results.txt`). With three starts per seed under `prio`, it is 28–37° in 19 of 20
+seed-arms at λ = 0.3 and 1 (`m12_ten_seeds/results.txt`). The twentieth found only a 4° design from all three starts.
+With three starts cant wins 10 of 10 seeds at λ = 0.3 and 9 of 10 at λ = 1 (3.84°, 95% interval 2.47–4.86°, p = 0.004).
+Without restarts, two of ten seeds fall to low cant (under 15°) at λ = 0.3, five of ten at λ = 1 and one even at λ = 0
+(9.5°, the λ = 0 seed cant loses). At λ = 0.3 the two score 18.51° and 21.43° held out, against 12.91–13.03° for the
+seeds 0–4 that kept cant. That is an optimiser failure, not a second optimum. Cant is a size
 decision only in milestone 1's power-free objective: what that objective inflated was the vehicle's mass, not
 its angle.
 
@@ -223,7 +233,8 @@ dynamic inversion (INDI) [smeur2016], with a nominal actuator model and no adapt
 second is geometric control on SO(3) [lee2010]. Table IV-1 gives the results.
 
 Table IV-1. Held-out attitude RMS (degrees, mean of ten seeds), paired cant-minus-no-cant difference, and the
-median chosen cant (`m4_controllers/results.txt`). A sign count of 10 of 10 is p = 0.002 (two-sided sign test).
+median chosen cant (`m4_controllers/results.txt`). Every paired difference has exact Wilcoxon p = 0.002; the bootstrap
+95% intervals are −6.10 to −4.57° (PID), −4.33 to −4.03° (INDI) and −5.01 to −4.77° (geometric) (`m12_ten_seeds/results.txt`).
 
 | law | no cant | cant ≤ 80° | paired difference | seeds better | chosen cant (median) |
 |---|---|---|---|---|---|
@@ -566,9 +577,11 @@ to listed frames and components for section VII only. RotorPy's aerodynamic coef
 each propeller by momentum-theory exponents. The motor lag is the only uncertain input whose
 randomisation range was swept, and its ceilings are brackets, not sourced values.
 
-**Seeds and tests.** Milestones 1 and 2 use five seeds, milestone 4 ten, and milestones 6–7ac six per
-arm, below the proposal's ten for paper figures; section VII pools the two centre-of-pressure geometries
-to reach twelve. Sign counts stand in for Wilcoxon tests in sections IV and V. Every result in sections
+**Seeds and tests.** Milestones 1, 2 and 4 use ten seeds, with exact Wilcoxon tests and bootstrap intervals in
+sections IV and V (`m12_ten_seeds`). Milestones 6–7ac use six per arm, below the proposal's ten for paper figures;
+section VII pools the two centre-of-pressure geometries to reach twelve. The five-seed reading of milestone 2
+overstated cant's gain from the shared polytope (6.08° against 4.98° at ten seeds), a reminder that the six-seed
+sections may move too. Every result in sections
 VI and VII is scored on one held-out seed of 64 episodes per design.
 
 **What was changed after the fact.** H5's top-ten rank test (section V) was replaced, after the run, by
@@ -597,7 +610,7 @@ it flies. The hardware check is next.
 
 ## Still to do before submission
 
-- Ten seeds for the paper figures (proposal, "Evaluation"); bootstrap intervals and Wilcoxon tests in place of sign counts.
+- Ten seeds for sections VI–VII (milestones 1, 2, 4 and 5 have ten, with Wilcoxon tests and bootstrap intervals, since 2026-11-21).
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
   set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; twelve seeds per geometry at 125 and 150 ms.

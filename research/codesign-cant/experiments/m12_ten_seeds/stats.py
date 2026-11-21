@@ -127,6 +127,20 @@ def main():
     L.append(f"  lam 0.1-1 together: {low} of 30 seed-lam cells under 15 deg")
     S["m2 low cant cells"] = low
 
+    L += ["", "Post hoc: ten-seed arm means (milestone 1: RMS, TWR, chosen cant range; milestone 2: RMS, hover W, sat rp, sat yaw, chosen cant range)"]
+    rng_ = lambda v: f"{min(v):.0f}-{max(v):.0f}"
+    for arm in [(c, w, a) for a in ("prior", "hover") for w in ("2", "free6") for c in (0, 35, 80)] + [(c, "free6", "free") for c in (0, 35, 80)]:
+        rs = by_seed(m1, cap=arm[0], twr_arm=arm[1], act=arm[2])
+        L.append(f"  m1 {arm[2]:6s} TWR {arm[1]:5s} cant<={arm[0]:2d}: RMS {statistics.mean(r['rms'] for r in rs):6.2f}  TWR {statistics.mean(r['twr'] for r in rs):4.2f} "
+                 f"(range {min(r['twr'] for r in rs):.2f}-{max(r['twr'] for r in rs):.2f})  cant {rng_([r['alpha_deg'] for r in rs])}  n {len(rs)}")
+    for mix, lams in (("box", (0.0, 0.1, 0.3, 1.0)), ("prio", (0.0, 0.1, 0.3, 1.0)), ("prio_free", (0.0, 0.3))):
+        for lam in lams:
+            for cap in (0, 80):
+                rs = by_seed(m2, mix=mix, cap=cap, lam=lam)
+                mean = lambda k: statistics.mean(r[k] for r in rs)
+                L.append(f"  m2 {mix:9s} lam {lam} cant<={cap:2d}: RMS {mean('rms'):6.2f}  P {mean('power'):5.0f} W  sat rp {mean('sat_rp'):.3f} "
+                         f"(seeds over 0.5: {sum(r['sat_rp'] > 0.5 for r in rs)})  sat yaw {mean('sat_yaw'):.3f}  cant {rng_([r['alpha_deg'] for r in rs])}  n {len(rs)}")
+
     L += ["", "Milestone 2b (three starts; lam 0.3 seeds 5-9 = milestone 4's PID arms): cant <= 80 minus no cant, prio"]
     for lam in (0.3, 1.0):
         a, b = by_seed(rr, cap=80, lam=lam), by_seed(rr, cap=0, lam=lam)
