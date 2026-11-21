@@ -7,6 +7,10 @@ Free and open source (MIT). Screening metrics on the user's own file, not schedu
 ## Pages
 
 - [The tool](https://marisstella.app/xer-schedule-check/)
+- [How to run a DCMA 14-point schedule assessment](https://marisstella.app/xer-schedule-check/how-to-run-a-dcma-14-point-schedule-assessment.html)
+- [How to open an XER file without Primavera P6](https://marisstella.app/xer-schedule-check/how-to-open-an-xer-file-without-primavera-p6.html)
+- [How to convert a P6 XER file to Microsoft Project](https://marisstella.app/xer-schedule-check/how-to-convert-a-p6-xer-file-to-microsoft-project.html)
+- [How to review a contractor's monthly P6 schedule update](https://marisstella.app/xer-schedule-check/how-to-review-a-contractors-p6-schedule-update.html)
 
 ## For agents
 

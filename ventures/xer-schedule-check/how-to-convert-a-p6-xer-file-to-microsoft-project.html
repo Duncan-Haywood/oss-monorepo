@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Convert A P6 XER File To Microsoft Project XML</title>
+  <meta name="description" content="Convert a Primavera P6 .xer schedule to Microsoft Project XML free in your browser: what carries across, what Project changes, and round-trip results.">
+  <meta property="og:title" content="How To Convert A P6 XER File To Microsoft Project XML">
+  <meta property="og:description" content="XER to Microsoft Project XML, free and private: what maps across and what Project reschedules.">
+  <link rel="canonical" href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can Microsoft Project open an XER file directly?","acceptedAnswer":{"@type":"Answer","text":"Current versions do not import XER. Convert it to Microsoft Project XML first, then open the .xml with File, Open."}},{"@type":"Question","name":"Will the critical path be the same in Project?","acceptedAnswer":{"@type":"Answer","text":"Mostly, but Project schedules with its own rules: lags count on the successor's calendar and a milestone with a predecessor sits at that predecessor's finish. The tool lists which of these apply to your file so you know where to look."}},{"@type":"Question","name":"Can I convert a Microsoft Project file to XER?","acceptedAnswer":{"@type":"Answer","text":"Yes. Save the .mpp as XML in Project (File, Save As, XML Format), open the .xml on the tool page and download the XER. The .mpp format itself is not read."}},{"@type":"Question","name":"Is the file uploaded for conversion?","acceptedAnswer":{"@type":"Answer","text":"No. The conversion runs in your browser tab, and the converted file is produced on your computer."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to convert a P6 XER file to Microsoft Project</h1>
+  <p>To move a Primavera P6 schedule into Microsoft Project, convert the .xer to Microsoft Project XML (MSPDI) and open that file in Project with File, Open. The free tool here does the conversion in your browser: WBS, activities, calendars, logic, constraints, progress, baseline, resources, activity codes and user-defined fields carry across. Project then recalculates with its own rules, so a few dates can move, and the tool lists which rules apply to your file.</p>
+  <p><a class="cta" href="./">Open the free schedule check</a> (open the XER, then press Download for Microsoft Project (.xml))</p>
+<h2>Steps</h2>
+  <ol>
+    <li>In P6, export the project as XER (File, Export, Primavera PM XER), or use the file you were sent.</li>
+    <li>Open it on the <a href="./">tool page</a>.</li>
+    <li>Press <b>Download for Microsoft Project (.xml)</b>. Tick "write activity code descriptions too" if you want codes written as "CON - Construction".</li>
+    <li>In Microsoft Project: File, Open, choose XML Format, select the file. ProjectLibre and GanttProject open the same file.</li>
+    <li>Read the tool's list of what Project will treat differently for this file, and check those activities after Project recalculates.</li>
+  </ol>
+
+  <h2>What maps to what</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>P6</th><th>Microsoft Project</th></tr></thead>
+    <tbody>
+      <tr><td>WBS</td><td>Summary tasks, in P6's order</td></tr>
+      <tr><td>Activity ID</td><td>Text1, named "Activity ID"</td></tr>
+      <tr><td>Calendars, holidays, changed days</td><td>Calendars with the same working week and exceptions</td></tr>
+      <tr><td>FS, SS, FF, SF and lags</td><td>The same link types and lags</td></tr>
+      <tr><td>Start on, start on or after, finish on or before, ...</td><td>Must start on, start no earlier than, finish no later than, ...</td></tr>
+      <tr><td>Actual dates, remaining duration</td><td>Actual dates, remaining work restarting where P6 has it</td></tr>
+      <tr><td>Planned dates</td><td>Baseline 0</td></tr>
+      <tr><td>Resources and assignments</td><td>Resources and assignments with hours and cost</td></tr>
+      <tr><td>Activity codes</td><td>Text2 to Text30, named after each code type (the 29 most used if there are more)</td></tr>
+      <tr><td>Activity, resource and WBS UDFs</td><td>Number, Cost, Date and Text fields</td></tr>
+      <tr><td>Level of effort</td><td>Manually scheduled tasks on their P6 dates; their links listed in the task notes</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>How it was tested</h2>
+  <p>On six public P6 files (21,422 activities, 54,843 relationships) every activity and relationship read back unchanged after conversion, and MPXJ, an independent open-source reader, read the same names, dates, durations, progress, logic and resource hours from the XER and from the converted file. On four of those files, 276,042 of 276,042 activity code values written read back to the same value. Details are in the project's <code>eval/</code> notes.</p>
+
+  <h2>Why some dates move in Project</h2>
+  <ul>
+    <li><b>Lag calendar.</b> Project counts a lag on the successor's calendar; P6 can use the predecessor's, the successor's or a 24-hour calendar.</li>
+    <li><b>Milestones.</b> Project puts a milestone with a predecessor at that predecessor's finish time.</li>
+    <li><b>Level of effort.</b> Project has no equivalent, so these become manually scheduled tasks that keep P6's dates.</li>
+  </ul>
+  <p>The reverse direction works too: open a Microsoft Project .xml file on the tool page and download a P6 XER.</p>
+  <h2>Questions</h2>
+  <h3>Can Microsoft Project open an XER file directly?</h3>
+  <p>Current versions do not import XER. Convert it to Microsoft Project XML first, then open the .xml with File, Open.</p>
+  <h3>Will the critical path be the same in Project?</h3>
+  <p>Mostly, but Project schedules with its own rules: lags count on the successor's calendar and a milestone with a predecessor sits at that predecessor's finish. The tool lists which of these apply to your file so you know where to look.</p>
+  <h3>Can I convert a Microsoft Project file to XER?</h3>
+  <p>Yes. Save the .mpp as XML in Project (File, Save As, XML Format), open the .xml on the tool page and download the XER. The .mpp format itself is not read.</p>
+  <h3>Is the file uploaded for conversion?</h3>
+  <p>No. The conversion runs in your browser tab, and the converted file is produced on your computer.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
