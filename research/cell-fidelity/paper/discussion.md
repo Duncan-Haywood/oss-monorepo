@@ -122,8 +122,15 @@ work. Two consequences for a reader:
   35.5 below the uncorrected rule. A uniform run length on the corrected forecast also stops at ten, so
   on these cells the recipe reduces to "run ten cycles and correct"; the flag has nothing left to catch.
   At f = 10 the saving is uneven (&minus;36 cycles on `Ecker2015`, &minus;2.4 on `Mohtat2020`, where the
-  corrected rule meets 2 of 5 folds). Whether the four committed sets, where the correction is weaker,
-  behave the same is the open question for the recipe.
+  corrected rule meets 2 of 5 folds).
+- Milestone 7w runs the same swap on the four committed sets, and there it does not pay. Against the
+  uncorrected rule it costs +1.4 DFN cycles per design and meets the target on 16 of 20 folds instead of
+  19. On `Ai2020` the observable the correction picks (O2) does not carry over to the held-out pool, and
+  the median ten-cycle error rises from about 0.04 to about 0.4. On `Chen2020` and `OKane2022` it changes
+  little, and only `NCA_Kim2011` gains. A post-hoc gate on the training pools' medians gives the same cost
+  as the uncorrected rule but fewer folds met. So the recipe of section 5.1 stands as written. Correcting
+  the ten-cycle forecast is a conditional step for cells where one early-visible mechanism (here plating)
+  dominates the fade, and the decision to apply it has to be made out of fold.
 
 ## 5.4 Limitations and next steps
 
