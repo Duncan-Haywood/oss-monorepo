@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKiZdPS7X8fZnHQp6Jg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T15:38:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship 14 ifc-quantity-takeoff: model view storeys, section plane and meshing in a Web Worker (NEXT.md item)",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18103",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First worker design (post the page's solids to the worker) measured 18 s of structured clone on the page thread for ARK_NUS (56 MB); replaced by the worker re-reading the bytes in parallel.",
+    "First storey list listed IfcSpace containers as storeys (duplex: 15 entries, 11 rooms); added row.level (the building storey above the container).",
+    "Draining queued worker replies in one task caused 400 ms spikes on kleine_Wohnung; now one reply per task."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Foreground `sleep N; cat` is blocked by the harness; the Monitor tool needs a ToolSearch load first. Not covered in cloud-session.md's 'Long commands'."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-one-storey-at-a-time-in-a-browser-ifc-view.md",
+    "ventures/ifc-quantity-takeoff/eval/view-worker-2026-11-21.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
