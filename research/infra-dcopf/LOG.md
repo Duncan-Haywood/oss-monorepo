@@ -1,5 +1,19 @@
 # Research log
 
+## 2026-11-21 · Confirmation split: a second-solver DC start for the 10 no-start cases (plan, written before any of it ran; `research/grid-linopf`)
+- Why: 10 of the 33 confirmation cases never reached the repair because PYPOWER's PIPS reports no DC OPF solution (the previous entry's Next). On the held-out split (2026-11-16) PIPS missed DC solutions that Clarabel found on all 5 such cases, so the confirmation count of 23 reaching the repair is the protocol's, not the networks'. This arm measures how much of the split the start rule, rather than the repair, decides.
+- **Cases (fixed here):** the confirmation-split cases whose frozen run stopped with "no DC start": case2312_goc API, case2383wp_k TYP and SAD, case2736sp_k API, case2742_goc API, case2746wop_k API, case2853_sdet TYP, API and SAD, case2868_rte API.
+- **Start rule:** `run_dc_rescue.rescue_start`, unchanged from the 2026-11-16 held-out rescue (PIPS first; only where PIPS reports no solution, the same B-theta DC OPF on Clarabel, status Solved only, MP-x0 with angle limits, MP-x0 without, PM with, PM without). No `--x0-angles` warm-start change and no IPOPT reactive stage, unless declared after the fact as a separate line.
+- **Protocol:** `run_confirm.py` arm F unchanged after the start (largest-PMAX slack, load continuation, 20 rounds of the frozen repair on Clarabel). Rules C and P are not rerun: the widening line closed in the previous entry. The 23 scored cases are untouched by construction; the result is reported as a separate arm and the confirmation tally is given both ways.
+- Predictions:
+  - **R0 (gate):** PIPS still reports no DC solution on all 10 (the Clarabel branch is what runs). Prior 95 %.
+  - **R1:** Clarabel returns Solved on at least 8 of 10 (held-out: 5 of 5). Prior 70 %.
+  - **R2:** at least 5 of 10 reach a full-load AC power flow (held-out: 2 of 5). Prior 45 %.
+  - **R3:** the frozen repair finishes at least 1 of the 10 within 20 rounds (held-out: 0 of 5 on J alone). Prior 45 %.
+  - **R4:** among cases that reach the repair, the finishing share is below the protocol's 9 of 23 (these networks are the ones the DC model already finds hard). Prior 60 %.
+  - **R5:** every finisher lands within +7 % of PGLib's AC optimum (the scored range is +0.04 to +6.78 %). Prior 75 %.
+- Script `experiments/run_confirm_rescue.py`; results `results_confirm_rescue.txt`, `.json`, parts in `results_confirm_rescue_parts/`. Reported as found, whatever the verdict.
+
 ## 2026-11-21 · Confirmation split: outcome, complete. Rules C and P each finish 7 of 23 against the frozen repair's 9 (lost 2, gained 0; P = C on every case); Q2, Q3, Q4 refuted, Q0, Q1, Q5, Q6 held. The frozen repair stays and the widening line closes as a finisher rule (`research/grid-linopf`)
 - Ran the 12 pending cases for C and P with `run_confirm.py CP` from the cached parts, no change to the script, constants, split or adoption rule fixed on 2026-11-20 (24 runs, about 30 minutes on 4 processes; `results_confirm.txt`, `.json`, parts in `results_confirm_parts/`). Runs: F 33, C 20, P 20, errors 0; nothing pending.
 - **Tally.** 23 of 33 reach the repair, 20 of those meet a failed hard QP. Finishers: frozen **9**, rule C **7**, rule P **7**. Against F both rules gain 0 and lose 2 (case2848_rte TYP, case2868_rte TYP; sign test P = 0.50); P against C gains 0, loses 0. **Q0 held** (the 2 C and 3 P reruns with no enlarged step equal F). **Q1 held** (23). **Q2 refuted** (7 vs 9). **Q3 refuted** (2 lost). **Q4 refuted** (0 gained). **Q5 held** (7 vs 7). **Q6 held:** on the 7 cases all finish, P's cost moves &minus;0.324 points on average (C &minus;0.299), mostly case2312_goc SAD (P +0.524 %, C +0.466 %, F +2.326 %) and case2848_rte SAD (+0.231 % against +0.699 %); case2312_goc TYP under C finishes later and dearer (round 19, +0.360 % against round 16, +0.122 %), under P as F.

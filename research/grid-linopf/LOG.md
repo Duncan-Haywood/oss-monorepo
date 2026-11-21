@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-21 · Confirmation split: a second-solver DC start for the 10 cases with no PIPS DC start (plan)
+- Plan, cases, start rule and predictions R0 to R5: `research/infra-dcopf/LOG.md` (2026-11-21); script `research/infra-dcopf/experiments/run_confirm_rescue.py`. A separate arm; the 23 scored cases are untouched.
+
 ## 2026-11-21 · Confirmation split: outcome, complete. Rules C and P each finish 7 of 23 against the frozen repair's 9 (lost 2, gained 0); Q2 to Q4 refuted, final. The frozen repair stays; the widening line closes as a finisher rule
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-21); numbers in `research/infra-dcopf/experiments/results_confirm.txt`. All 12 pending cases ran; none reversed the partial result.
 - Where all three finish (7 cases), the widened runs are 0.3 points cheaper on average; 11 of the 20 cases meet only a round-1 failed hard QP, where C and P take the same single widening.
