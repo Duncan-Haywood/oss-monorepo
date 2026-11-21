@@ -1,0 +1,13 @@
+M5 cv0.30 {"detector":"bocpd-window","overdispersion":"nb","threshold":0.05}
+{"base":50,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":24,"watched":2400,"chance":5}
+{"base":50,"fall":0.1,"seeds":20,"heard":4,"delays":[10,11,8,5],"falseA":14,"watched":1200,"chance":0}
+{"base":50,"fall":0.2,"seeds":20,"heard":14,"delays":[9,3,9,10,8,3,9,5,4,10,11,9,12,4],"falseA":4,"watched":1200,"chance":0}
+{"base":50,"fall":0.4,"seeds":20,"heard":20,"delays":[4,5,3,3,4,4,5,9,9,3,10,4,6,10,9,6,5,3,3,4],"falseA":12,"watched":1200,"chance":0}
+{"base":400,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":30,"watched":2400,"chance":3}
+{"base":400,"fall":0.1,"seeds":20,"heard":9,"delays":[6,11,2,12,3,10,11,3,3],"falseA":12,"watched":1200,"chance":0}
+{"base":400,"fall":0.2,"seeds":20,"heard":10,"delays":[2,3,4,11,11,11,4,4,6,9],"falseA":11,"watched":1200,"chance":0}
+{"base":400,"fall":0.4,"seeds":20,"heard":20,"delays":[10,4,4,4,4,5,4,4,4,4,4,3,4,4,2,3,4,4,3,4],"falseA":15,"watched":1200,"chance":0}
+{"base":3000,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":21,"watched":2400,"chance":1}
+{"base":3000,"fall":0.1,"seeds":20,"heard":8,"delays":[12,11,7,10,6,6,6,2],"falseA":10,"watched":1200,"chance":0}
+{"base":3000,"fall":0.2,"seeds":20,"heard":12,"delays":[4,4,9,8,10,3,4,11,2,10,4,4],"falseA":8,"watched":1200,"chance":0}
+{"base":3000,"fall":0.4,"seeds":20,"heard":20,"delays":[4,4,4,9,4,4,4,4,4,4,4,4,3,4,4,4,4,4,10,4],"falseA":12,"watched":1200,"chance":0}

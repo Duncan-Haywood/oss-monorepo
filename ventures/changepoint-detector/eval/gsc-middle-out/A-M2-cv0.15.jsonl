@@ -1,0 +1,13 @@
+M2 cv0.15 {"detector":"pelt","overdispersion":"nb1"}
+{"base":50,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":3,"watched":2400,"chance":0}
+{"base":50,"fall":0.1,"seeds":20,"heard":9,"delays":[31,39,29,40,39,28,59,10,51],"falseA":1,"watched":1200,"chance":0}
+{"base":50,"fall":0.2,"seeds":20,"heard":19,"delays":[9,22,9,9,8,16,22,11,11,14,14,19,15,8,25,19,9,10,4],"falseA":0,"watched":1200,"chance":0}
+{"base":50,"fall":0.4,"seeds":20,"heard":20,"delays":[4,4,4,4,4,4,4,5,4,4,4,4,5,4,4,3,3,4,4,4],"falseA":0,"watched":1200,"chance":0}
+{"base":400,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":0,"watched":2400,"chance":0}
+{"base":400,"fall":0.1,"seeds":20,"heard":15,"delays":[23,19,43,57,37,37,30,17,22,59,40,51,28,40,23],"falseA":2,"watched":1200,"chance":0}
+{"base":400,"fall":0.2,"seeds":20,"heard":20,"delays":[4,8,9,9,5,8,8,4,5,6,15,4,8,8,17,8,10,6,9,16],"falseA":1,"watched":1200,"chance":0}
+{"base":400,"fall":0.4,"seeds":20,"heard":20,"delays":[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],"falseA":0,"watched":1200,"chance":0}
+{"base":3000,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":2,"watched":2400,"chance":0}
+{"base":3000,"fall":0.1,"seeds":20,"heard":14,"delays":[15,23,23,36,44,16,46,10,22,29,30,17,22,36],"falseA":0,"watched":1200,"chance":0}
+{"base":3000,"fall":0.2,"seeds":20,"heard":20,"delays":[4,6,9,8,4,24,12,4,9,8,15,4,8,13,9,8,16,8,10,8],"falseA":1,"watched":1200,"chance":0}
+{"base":3000,"fall":0.4,"seeds":20,"heard":20,"delays":[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],"falseA":3,"watched":1200,"chance":0}
