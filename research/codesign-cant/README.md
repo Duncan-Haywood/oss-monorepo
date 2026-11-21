@@ -6,6 +6,18 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Paper step (2026-11-21): does canting a quadrotor's motors pay under every attitude controller? Sections III-V of the draft
+
+**Question.** The paper's central result (a fixed rotor cant of about 30-35° pays on a small X quadrotor, whichever attitude law flies it, and survives a second simulator) sat in three-line outlines. Written out in full, with every number checked against its results file, what does it say?
+
+**Headline ([`paper/DRAFT.md`](paper/DRAFT.md), sections III-V; reads existing results files and runs no new flights; simulated).**
+
+- **Table IV-1:** cant ≤ 80° beats no cant by 5.27° (PID), 4.18° (INDI) and 4.88° (geometric) of held-out attitude RMS, 10 of 10 seeds each, with the median chosen cant 33.9-35.3°. INDI without cant stays 4.02° worse than PID with cant.
+- **Pricing hover power shrinks the vehicle, not the angle:** at 0.3° per 100 W hover power falls 4.9-7.1× and the chosen cant stays at 28-37° (9 of 10 seed-arms with three starts).
+- **RotorPy keeps the arm ranking** (ρ 0.943-1.000) and cant's win (10 of 10 seeds per law in every aero condition). The stylised model is 1.25-1.47° optimistic, most for INDI.
+- `paper/check_numbers.py` now checks 115 quoted figures. Two new tests recompute Table IV-1 and the arm ranks from the raw per-seed values.
+- **Corrections:** the outline's "34-35°" was 33.9-35.3°, and milestone 2's "4-7× in every arm" misses uncanted airmode (10.8×). Neither changes a reading.
+
 ## Milestone 7ai: can you compute a drone's attitude-loop lag from its gains, with no test flight? Yes: linearise the loop, average over the plant range
 
 **Question.** 7ah read the lag between the commanded and achieved horizontal acceleration off one flown acceleration step, and with it the point mass predicts rise time within 0.10 s for 36 of 36 designs. Can a builder get the same lag from the design file alone, and what made 7ah's untraced early jump and steady overshoot?
@@ -434,10 +446,10 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ## Paper draft (milestone 7, started 2026-11-14): the tilt limit we tested at is PX4's minimum
 
-[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: every section outlined, the stability section (milestones 7c–7g) and the motor-lag randomisation section (milestones 7s–7ac, with Table VII-1 and pooled tests from [`paper/table7_stats.py`](paper/table7_stats.py)) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (58 checks, including every row of Table VII-1; run by `tests/test_paper_numbers.py`).
+[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: sections III–V (model, the cant optimum, the RotorPy check; written in full 2026-11-21), the stability section (milestones 7c–7g) and the motor-lag randomisation section (milestones 7s–7ac, with Table VII-1 and pooled tests from [`paper/table7_stats.py`](paper/table7_stats.py)) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (115 checks since 2026-11-21, including every row of Tables IV-1 and VII-1; run by `tests/test_paper_numbers.py`).
 
 - **Writing it changed how the stability results read.** The simulator's default tilt-command limit is 20°. PX4's `MPC_TILTMAX_AIR` defaults to 45° with 20° as its floor, and ArduPilot's `ANGLE_MAX` defaults to 30° (both read from the autopilots' source on 2026-11-14). So the 45° condition in milestones 7d–7f is the stock PX4 setting, not a stress test: at it, designs CMA-ES tuned onto the linear ceiling diverge on 13 of 384 held-out flights and their position error rises from 0.105 to 0.257 m (`experiments/m7e_margin/tilt.txt`), and the 0.8× margin removes all 13 for 0.7% of cost.
-- No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, sections I–V written out, LaTeX, hardware) are listed at its end.
+- No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, sections I, II, VIII and IX written out, LaTeX, hardware) are listed at its end.
 
 ## Milestone 7f: how much stability margin should the tuner keep?
 

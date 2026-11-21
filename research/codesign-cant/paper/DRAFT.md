@@ -1,13 +1,13 @@
 # Draft: when does rotor cant pay on a small quadrotor co-designed with its motors and controller?
 
-Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph, 7ae's retraining check and 7af's step objective the same day; 7ag-7ai's rise-time rule 2026-11-19 to 20): outline of every
-section, section VI (stability of the side-force feed-forward, milestones 7c–7g) and section VII
+Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph, 7ae's retraining check and 7af's step objective the same day; 7ag-7ai's rise-time rule 2026-11-19 to 20; sections III-V written in full 2026-11-21): sections I, II, VIII
+and IX outlined; sections III-V (model, the cant optimum under three laws, the RotorPy check; milestones 1-5), section VI (stability of the side-force feed-forward, milestones 7c–7g) and section VII
 (motor-lag randomisation, milestones 7s–7ac) written in full. Not submittable.** Target: *IEEE Robotics and
 Automation Letters* (6 pages + 2), fallback ICUAS; an aim, not a claim of acceptance.
 
 Every number in this file is copied from a results file under `../experiments/` or from
 [`../LOG.md`](../LOG.md), and nothing here is new. `python3 paper/check_numbers.py` (from the project
-directory) checks each quoted figure in sections VI and VII and the abstract against the file named beside it,
+directory) checks each quoted figure in sections III–VII and the abstract against the file named beside it,
 and fails if a results file changes under the draft. Everything is simulated; the propeller torque
 ratio comes from measured UIUC data, while the mass, cost and motor fits, the plant ranges and the
 gust model are inherited assumptions (`../README.md`, "Limitations").
@@ -65,29 +65,157 @@ guarantee, for a multi-parameter family [bartlett1988]; we report it as such. Fo
 domain and dynamics randomisation [tobin2017, peng2018] and choosing the randomisation range
 [mehta2019]; motor identifications [bauersfeld2021, foehn2022].
 
-## III. Model (outline)
+## III. Model (milestones 1, 2; full draft)
 
-Sizing closure, $300 cost cap, UIUC-measured κ; full 6×4 allocation with thrusts in [0, Tmax]
-giving yaw 4Δ(L sin α + κ cos α) and roll 4Δ(L cos α − κ sin α)/√2 (milestone 1, checked against a
-linear programme to 1e-15); attitude-priority mixer on one thrust polytope (milestone 2); side force
-F_y = lat·τ_x, F_x = lat·τ_y, lat = sin α/(L cos α − κ sin α); rigid centre-of-pressure offset with
-opposite roll/pitch disturbance signs (milestone 6b); plant randomisation of torque scale, mass and
-motor lag; 6 s position-hold episodes with a ±3 m/s wind step at 3 s; composite objective
-J = −√((pos/0.10 m)² + (yaw/10°)²) − 0.03·P_hover/100 W.
+**Vehicle and sizing.** The vehicle is a four-rotor X. Each rotor is canted by α about its own arm axis,
+with the direction alternating with spin, so the tangential thrust components cancel at hover and add in yaw.
+The design variables are the arm length L (0.08–0.30 m), the propeller diameter D (0.08–0.25 m), α and the
+controller's parameters. Mass comes from a closure: a 0.25 kg payload, 0.06 kg of electronics, a battery for
+15 min of hover at 150 Wh/kg and 80% depth of discharge, a frame of 0.05 + 0.8 L kg, and four motors sized for
+the thrust-to-weight ratio (TWR) times hover thrust. Each rotor hovers at mg/(4 cos α), so cant is paid in thrust.
+Hover power is momentum theory with a figure of merit of 0.65 and a drive efficiency of 0.75. A design is
+feasible when the propellers clear (√2 L ≥ 1.05 D) and its parts cost at most $300. The reaction torque per
+newton of thrust is κ = cD with c = 0.081, the median over measured UIUC propellers [brandt2011]. The mass,
+cost and motor fits are inherited assumptions. Milestones 7p and 7q replace them with laws fitted to listed
+frames and components, and those replacements apply to section VII only.
 
-## IV. Where the optimum is, and whether a better controller removes it (outline; milestones 1, 2, 4)
+**Actuator.** We write out the full 6×4 map from rotor thrusts to body wrench (`allocation.py`). Let
+Δ = min(T_h, T_max − T_h) with the collective held at hover, or T_max/2 with the collective free. Then the pure-axis
+torque limits are
 
-Table: cant minus no cant, paired by seed, per law (PID 5.27°, INDI 4.18°, geometric 4.88°; 10/10
-seeds; `../experiments/m4_controllers/results.txt`). Chosen cant 34–35° median per law; 28–37° in
-9 of 10 seed-arms as hover power is priced from 0 to 1° per 100 W (milestone 2). H1 (a small
-5–20° optimum) refuted; H4 supported. Figure: `m4_controllers.png`.
+  roll 4Δ(L cos α − κ sin α)/√2,  yaw 4Δ(L sin α + κ cos α),
 
-## V. Does it survive another simulator? (outline; milestone 5)
+and the side force per unit roll torque is lat = sin α/(L cos α − κ sin α). These closed forms agree with a
+linear programme over thrusts in [0, T_max] to 1e-15 on 300 random designs (`tests/test_allocation.py`). The
+seven single-step projects this programme consolidates used hand-written limits. Those limits understated yaw
+authority by 2× with no cant and by up to 2√2× with cant, overstated roll authority above TWR 2 (they let rotors
+go below zero thrust), and took the side force √2 too large (milestone 1). The roll, pitch, yaw and collective
+rows of the canted map are orthogonal sign patterns, so combined commands share one thrust polytope. We fly it
+with an attitude-priority mixer (`allocation.mix_priority`): roll and pitch are scaled together first and yaw
+gets what is left, as in PX4 and Betaflight. The collective is held at hover (`prio`) or left free, as in airmode
+(`prio_free`). Milestone 1's per-axis box (`box`), in which every axis can saturate at once, is kept only as a
+reference (milestone 2).
 
-RotorPy 3.0.0 with canted-rotor wrench: cant wins 10/10 seeds for every law; all-design ρ 0.80–0.91
-against the stylised simulator's own fresh-episode ceiling 0.95–0.97; top-ten ρ is noise-bound
-(0.26 for the stylised simulator against itself). The stylised model is 1–2° optimistic, most for
-INDI. Figure: `m5_rotorpy.png`.
+**Attitude simulator (sections IV–V).** The simulator integrates Euler's rigid-body equations with ZYX
+kinematics at 2 ms and passes the torque through a first-order lag. The disturbance is a gust torque
+½ρA·ℓ·v|v| on roll and pitch, with frame area A = 0.02 + 0.5 L² and a lever ℓ = 0.05 + 0.3 L. The wind v is an
+Ornstein–Uhlenbeck process with a 0.5 s correlation time, a mean of 3 m/s and a standard deviation of 4 m/s.
+The task is a 2 s episode of independent ±15°, ±15° and ±30° steps on roll, pitch and yaw (four 0.5 s segments).
+The controller reads angles and rates one step late, with noise. Each episode draws its plant from the wide box:
+torque scale U(0.7, 1), inertia scale U(0.9, 1.3) and lag scale U(1, 2), none of them known to the controller. An
+episode whose roll or pitch passes 60° is scored at 60° from then on. A design's score is the RMS attitude
+error over 64 held-out episodes on a seed never used in training. With hover power priced it is
+J = −RMS − λ·P_hover/100 W, where λ is in degrees per 100 W.
+
+**Search.** CMA-ES [hansen2001] searches the design and the controller together, with 1920 evaluations per
+run. From milestone 2's follow-up on, each run keeps the best training score of three starts, with cant started
+at 4°, 32° and 64° of an 80° bound, because the landscape under the shared polytope is multimodal. Milestones 1
+and 2 use five seeds and milestone 4 uses ten.
+
+**Position-hold model (sections VI–VII).** Milestone 6 adds the translational axes. The side force is
+F_y = lat·τ_x and F_x = lat·τ_y. The centre of pressure is rigidly offset, so the roll and pitch disturbance
+signs are opposite (milestone 6b). Each 6 s position-hold episode has a ±3 m/s wind step at 3 s, and the score is
+J = −√((pos/0.10 m)² + (yaw/10°)²) − 0.03·P_hover/100 W. Sections VI and VII give the controller, the tilt-command
+limit and the motor-lag law each one adds.
+
+## IV. Where the optimum is, and whether a better controller removes it (milestones 1, 2, 4; full draft)
+
+**The corrected actuator keeps the advantage.** Correcting the actuator model (section III) does not shrink
+cant's advantage. Paired by seed at TWR 2, cant ≤ 35° beats no cant by 4.81° of held-out RMS with the
+allocation's limits, against 4.62° with the earlier formulas (5 of 5 seeds each;
+`m1_allocation/results.txt`). Doubling the uncanted vehicle's yaw authority improves it by only 1.62° (17.06° to
+15.44°), because yaw still dominates its error. What the correction does remove is the earlier "motor headroom"
+story. With TWR free and the collective held at hover, the optimiser picks TWR 2.0–2.3, since above 2 the low
+rotors can go no lower. The interior optimum near TWR 5 in the earlier projects was an artefact of letting
+thrust go negative.
+
+**A shared polytope makes cant worth more.** On one thrust polytope, a tuned uncanted vehicle saturates roll
+and pitch on 97% of held-out steps, and the attitude-priority mixer then gives yaw nothing on 100% of them
+(`m2_polytope/results.txt`, λ = 0). Cant moves yaw onto the tangential force. Roll and pitch then saturate on
+0.7% of steps and yaw is scaled on 39%. The paired advantage grows from 4.81° (`box`) to 6.08° (`prio`, 5 of 5
+seeds). Airmode recovers 1.56° for the uncanted vehicle and 0.26° for the canted one.
+
+**The optimum is large, and pricing power does not shrink it.** The rule of thumb, and our hypothesis H1, put
+the optimum at 5–20°. It is not there. Pricing hover power at 0.3° per 100 W cuts it by 4.9–7.1× under `box` and `prio`
+(`box`, canted: 1380 W to 219 W), while RMS under `box` moves by at most 0.45°. From 0 to 1° per 100 W the chosen
+cant stays at 29–37° under `box` (`m2_polytope/results.txt`). With three starts per seed under `prio`, it is 28–37° in 9 of 10
+seed-arms at λ = 0.3 and 1 (`m2_polytope/restarts.txt`). The tenth found only a 4° design from all three starts.
+Without restarts, two of five seeds fall to low cant at λ = 0.3 and four of five at λ = 1. At λ = 0.3 those two
+score 18.51° and 21.43° held out, against 12.91–13.03° for the seeds that kept cant. That is an optimiser failure, not a second optimum. Cant is a size
+decision only in milestone 1's power-free objective: what that objective inflated was the vehicle's mass, not
+its angle.
+
+**A better attitude law narrows the advantage and does not remove it.** A reviewer's first question is
+whether cant only patches a weak controller. Milestone 4 retunes from scratch under two stronger laws, with the
+attitude-priority mixer, TWR 2, λ = 0.3, ten seeds and three starts each. The first is incremental nonlinear
+dynamic inversion (INDI) [smeur2016], with a nominal actuator model and no adaptive effectiveness estimate. The
+second is geometric control on SO(3) [lee2010]. Table IV-1 gives the results.
+
+Table IV-1. Held-out attitude RMS (degrees, mean of ten seeds), paired cant-minus-no-cant difference, and the
+median chosen cant (`m4_controllers/results.txt`). A sign count of 10 of 10 is p = 0.002 (two-sided sign test).
+
+| law | no cant | cant ≤ 80° | paired difference | seeds better | chosen cant (median) |
+|---|---|---|---|---|---|
+| PID | 18.35 | 13.08 | −5.27 (SD 1.32) | 10 of 10 | 34.2° |
+| INDI | 17.10 | 12.92 | −4.18 (SD 0.25) | 10 of 10 | 33.9° |
+| geometric | 17.61 | 12.73 | −4.88 (SD 0.20) | 10 of 10 | 35.3° |
+
+INDI narrows the advantage against PID by 1.09° (9 of 10 seeds) and geometric control by 0.38° (5 of 10).
+Neither law removes it. INDI without cant is 4.02° worse than PID with cant in 10 of 10 seeds, and geometric
+control without cant is 4.53° worse. Without cant the mixer still scales yaw on 54% (INDI) to 60% (geometric) of
+held-out steps, and no law can make yaw torque the rotors cannot produce. Most of what INDI buys is consistency
+in the uncanted vehicle: PID without cant ranges 17.2–21.1° across seeds and INDI 16.9–17.6°. At twice the gust
+intensity, cant still wins 10 of 10 seeds under every law (−9.82° PID, −4.51° INDI, −5.78° geometric). About half
+of PID's larger advantage there is a controller effect that INDI also removes. The optimum does not depend on
+the law: the median chosen cant is 33.9–35.3°. Figure: `../experiments/m4_controllers/m4_controllers.png`.
+
+**For a builder.** On a small X quadrotor that must hold heading, a fixed cant of about 30–35° is worth about
+4–5° of held-out attitude error, whatever the attitude law. Pricing hover power changes how big the vehicle
+should be, not that angle. Search the cant from several starting angles, because a single start can settle on a
+low-cant local optimum that is not one.
+
+## V. Does it survive another simulator? (milestone 5; full draft)
+
+**Set-up.** Everything in section IV comes from one stylised simulator, with a torque lag, a gust torque and
+perfect altitude hold. We re-score the 60 milestone-4 designs, unchanged and not retuned, in RotorPy 3.0.0
+[folk2023]. RotorPy is an independently written simulator with a quaternion rigid body, first-order motor
+*speed* dynamics with thrust ∝ ω² and RK45 integration. It assumes every thrust axis is body z, so we
+subclass its multirotor and replace only the wrench (`rotorpy_twin.py`). Each rotor thrusts along its canted
+axis, its rotor drag and induced inflow act in the rotor's own frame, and its reaction torque turns with the
+axis. At α = 0 the subclass reproduces RotorPy's own wrench to 1e-12. The controller is the same law with the
+same gains, measurements and mixer, plus an altitude loop that RotorPy needs and the stylised model does not.
+The aerodynamic coefficients are RotorPy's Hummingbird file scaled to each propeller by momentum-theory
+exponents, which is an assumption. There are four conditions: `torque` (RotorPy body and motors driven by the
+stylised gust torque), `aero` (RotorPy's aerodynamics driven by the same wind), `aero_cop` (frame drag at the
+stylised lever) and `aero_cop2` (rotor drag doubled). Each design flies 32 held-out episodes.
+
+**The ranking a designer acts on survives.** The six law × cant arms keep their order. Their Spearman ρ against
+the stylised simulator is 1.000 under `aero` and `aero_cop2` and 0.943 under `torque` and `aero_cop`
+(`m5_rotorpy/noise_ceiling.txt`), and geometric control with cant is the best arm in every condition. Over all 60
+designs ρ is 0.799 (`torque`) and 0.880–0.908 (aero conditions) (`m5_rotorpy/results.txt`). The ceiling for
+comparison is the stylised simulator's agreement with itself on fresh episodes, ρ 0.950–0.965. Our
+pre-registered test, H5, asked for ρ ≥ 0.5 over the top ten designs. It is refuted at 0.20–0.30, but it could
+not have been met. The top ten are canted INDI and geometric designs whose stylised J spans 0.064, so they are
+tied, and the stylised simulator re-ranks them against itself with ρ 0.258 on average (range −0.224 to 0.467).
+That test measured episode noise, not fidelity. In place of H5's top-ten test (a change made after the fact),
+we report arm-level agreement and all-design ρ as a fraction of the self-agreement ceiling.
+
+**Cant still wins.** Paired by seed, cant beats no cant in 10 of 10 seeds for every law in every aero condition:
+PID −4.76 to −5.77°, geometric −4.70 to −5.08° and INDI −3.12 to −3.53°, against stylised −5.56, −4.86 and −4.15°.
+INDI without cant stays worse than PID with cant in 10 of 10 seeds in every condition (+3.10 to +3.97°).
+
+**Where the stylised model is optimistic.** RotorPy adds 1.25–1.47° of RMS on average in the aero conditions, with 1–3
+divergent episodes of 1920. The stylised gust torque is harsher than RotorPy's aerodynamics: with it injected
+(`torque`) the added error is 3.41° and 54 episodes diverge, 43 of them on uncanted designs. A likely reason,
+not tested separately, is that in RotorPy the vehicle drifts with the wind, so airspeed and drag fall while an
+injected torque does not. INDI loses most in the move (canted designs lose 1.8–2.1° in the aero conditions). Its
+increment rests on a torque-lag actuator model, and RotorPy's actuator is a speed lag. The law that relies most
+on a model is hurt most when the model changes. Doubling the rotor drag moves mean RMS by under 0.25°, so the
+conclusions do not hang on the assumed drag scaling. Figure: `../experiments/m5_rotorpy/m5_rotorpy.png`.
+
+**Limits of this check.** The designs are not retuned in RotorPy, so part of INDI's loss may be recoverable. The
+aerodynamic coefficients are scaled, not measured. Only attitude is re-scored: the position-loop results of
+sections VI and VII rest on the stylised simulator alone (section VIII).
 
 ## VI. Stability of the side-force feed-forward (milestones 7c–7f; full draft)
 
@@ -372,5 +500,6 @@ real tilt limit. Randomise the motor lag from the slowest identified value up to
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
   set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; twelve seeds per geometry at 125 and 150 ms.
-- Sections I–V and VII–VIII written out from the outlines; LaTeX in the RA-L template.
+- Sections I, II, VIII and IX written out from the outlines (III–VII are full drafts); LaTeX in the RA-L template.
+- Sections IV–V: a combined figure for the paper in place of the two milestone figures; retune the top designs inside RotorPy to separate model mismatch from overfitting (milestone 5's limit).
 - Hardware check (milestone 8).
