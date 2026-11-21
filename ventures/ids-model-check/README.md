@@ -422,6 +422,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes and areas measured from the bodies
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -586,6 +587,37 @@ the units stay right), never computed; when two such sets disagree, nothing
 is copied. A data type that is not a quantity measure
 (`IFCPOSITIVELENGTHMEASURE`, which an `IfcQuantityLength` never holds) is
 refused with that reason.
+
+**Quantities measured from geometry (2026-11-21).** Revit and many other
+exports carry no quantity sets at all, so a `Qto_` requirement had nothing to
+copy and went to the table. Tick *Measure missing Qto_ volumes and areas from
+each element's geometry* on the page (or add `--from-geometry` to `--fill`) and
+quantities no set holds are measured from the element's own body by
+[IFC Quantity Takeoff](../ifc-quantity-takeoff/)'s engine
+(`geometry-quantities.mjs`):
+
+| Quantity | Elements | What is measured |
+| --- | --- | --- |
+| `GrossVolume`, `NetVolume` | any with a body | the body; net less its openings, only when every opening could be cut |
+| `GrossSideArea`, `NetSideArea` | walls | the wall's middle plane |
+| `GrossFootprintArea`, `NetFootprintArea` | walls | the plan at the wall's base |
+| `Width` | walls | the thickness |
+| `GrossArea`, `NetArea` | slabs, plates, coverings, roofs | the extruded profile |
+| `CrossSectionArea` | columns, beams, members, piles | the section at mid-length |
+
+Lengths and heights are not measured: a `Qto_` Length is a centre-line or
+nominal figure that the body alone does not define. A value from the model's
+own quantity sets always wins over a measured one, and a measured value still
+has to pass every facet that names it. Values are written to six significant
+figures in the model's units. How close they come: on the two HHS Office
+exports that do store these quantities, 3,666 of 3,858 measured values are
+within 2% of the stored ones, and IFC Quantity Takeoff's own cause finder
+traces all but 2 of the other 192 to the stored figure (a split wall carrying
+the whole wall's value, a net volume stored as gross, half a member's surface
+stored as its cross-section). On Schultz Residence, a Revit export with no
+quantity sets, a cost-estimating IDS written for this check
+(`eval/qto-from-geometry/base-quantities.ids`) went from 225 failing elements
+to 4 (`eval/qto-from-geometry-2026-11-21.md`).
 
 **Attributes (2026-11-21).** A failing attribute requirement (`Description`,
 `ObjectType`, `Tag`, `LongName`, a `PredefinedType` left `$`) is written into the

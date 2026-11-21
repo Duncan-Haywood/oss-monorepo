@@ -26,12 +26,14 @@
 //                                              # asks nothing more, 1 when it does, 2 on a read error
 //   node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]  # the IDS in plain English, every specification as
 //                                              # sentences (spec-doc.mjs); Markdown on stdout without -o
-//   node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv]
+//   node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry]
 //                                              # write the property values the failing checks lack into a
 //                                              # copy of the model (model-fill.mjs): values the IDS fixes,
 //                                              # and values typed into the Value column of the to-fill table
 //                                              # (--to-fill writes it; --values reads it back). STEP only.
 //                                              # Exit 0 when the filled model passes, 1 when it still fails
+//                                              # --from-geometry: Qto_ volumes and areas no set holds, measured
+//                                              # from each element's body (needs ../ifc-quantity-takeoff)
 //   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
 //                                              # one specification per bSDD class from its property list
 //                                              # (bsdd-spec.mjs; goes on the network like --bsdd); stdout
@@ -105,7 +107,14 @@ if (flag("--from-bsdd") && files.length) {
   try {
     const model = await readModel(ifcPath);
     const values = opt("--values") ? readValues(readFileSync(opt("--values"), "utf8")) : [];
-    r = fillModel(readFileSync(idsPath, "utf8"), model.text, { ...resources(), values });
+    // --from-geometry: Qto_ quantities no set holds, measured from each
+    // element's body by ifc-quantity-takeoff (geometry-quantities.mjs)
+    let geometry;
+    if (flag("--from-geometry")) {
+      const { measureModel, geometryLookup } = await import("./geometry-quantities.mjs");
+      geometry = geometryLookup(await measureModel(model.text));
+    }
+    r = fillModel(readFileSync(idsPath, "utf8"), model.text, { ...resources(), values, geometry });
   } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
   console.error(fillReport(r));
   if (opt("-o")) writeFileSync(opt("-o"), r.text);
@@ -207,7 +216,7 @@ if (flag("--from-bsdd") && files.length) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
