@@ -287,7 +287,8 @@ def mast_plate(p: Feeder) -> Part:
         with Locations((p.head_x, 0)):
             RectangleRounded(2 * p.post_dx + 60, 2 * p.post_half_y + 80, 10)
         _holes(_cores(_post_xy(p)), 5.5)        # two M5 into each post's end
-        _holes([(p.head_x + x, y) for x, y in _ring(60, 4)], 5.5)
+        _holes(bearing_holes(p, False), 5.5)
+        _holes([bearing_access_xy(p, False)], p.bearing_access_d)  # under the fixed ring's: the turning ring's screws
         Polygon(*_mast_notch(p), align=None, mode=Mode.SUBTRACT)  # the head's rear dips past it, nose up and turned
         with Locations((p.head_x, 0)):
             Circle(20, mode=Mode.SUBTRACT)  # cables to the turntable
@@ -454,7 +455,7 @@ def turntable_plate(p: Feeder) -> Part:
         Polygon(*wedge, align=None)                       # carries the gear sector's bolts
         with Locations((p.head_x, 0)):
             Circle(p.az_trim_r, mode=Mode.INTERSECT)      # inside the pinion's tip circle at every azimuth
-        _holes([(p.head_x + x, y) for x, y in _ring(60, 4, 45)], 5.5)
+        _holes(bearing_holes(p, True), 5.5)
         _holes([(x, sy * yy) for x, yy in _foot_xy(p) for sy in (-1, 1)], 4.4)
         _holes(_az_bolts(p), 4.4)
         with Locations((p.head_x, 0)):
@@ -1212,6 +1213,55 @@ def spring_parts(p: Feeder) -> list[Part]:
     return [bracket, spool_p, spring]
 
 
+# ---------------------------------------------------------------- turntable bearing's rings (2026-11-21)
+
+def bearing_holes(p: Feeder, turning: bool) -> list[tuple[float, float]]:
+    """World (x, y) of a ring's four M5 holes at azimuth 0: the fixed ring's at 0, 90, 180 and 270 deg, the
+    turning ring's at 45 deg plus multiples of 90 (the turntable plate's and mast plate's existing holes)."""
+    return [(p.head_x + x, y) for x, y in _ring(p.bearing_bolt_r, 4, 45 if turning else 0)]
+
+
+def bearing_access_xy(p: Feeder, turning: bool) -> tuple[float, float]:
+    a = math.radians(p.bearing_access_turn_deg if turning else p.bearing_access_fixed_deg)
+    return (p.head_x + p.bearing_bolt_r * math.cos(a), p.bearing_bolt_r * math.sin(a))
+
+
+def _bearing_ring(p: Feeder, turning: bool):
+    """One ring: a flat flange from the bore to the rim, with its half of the race band standing into the gap."""
+    t = p.bearing_ring_t
+    half = (p.bearing_h - 2 * t - p.bearing_race_gap) / 2
+    ri, ro = p.bearing_race_r - p.bearing_race_w / 2, p.bearing_race_r + p.bearing_race_w / 2
+    flange = Cylinder(p.bearing_d / 2, t) - Cylinder(p.bearing_bore_d / 2, t + 2)
+    band = (Cylinder(ro, half) - Cylinder(ri, half + 2)).moved(Location((0, 0, (t + half) / 2 * (-1 if turning else 1))))
+    ring = flange + band
+    for x, y in bearing_holes(p, turning):
+        ring = ring - Cylinder(2.75, t + 2).moved(Location((x - p.head_x, y, 0)))
+    ax, ay = bearing_access_xy(p, turning)
+    ring = ring - Cylinder(p.bearing_access_d / 2, t + 2).moved(Location((ax - p.head_x, ay, 0)))
+    z0 = p.mast_top_z + p.plate_t
+    z = z0 + p.bearing_h - t / 2 if turning else z0 + t / 2
+    return ring.moved(Location((p.head_x, 0, z)))
+
+
+def bearing_rings(p: Feeder) -> list[Part]:
+    b = p.bearing_design()
+    fixed = Part("turntable_bearing", "cots", "", 1, _bearing_ring(p, False), [Location((0, 0, 0))],
+                 spec=f"Lazy-susan bearing, {p.bearing_d:g} mm round, {p.bearing_h:g} mm tall, {p.bearing_bore_d:g} mm "
+                      f"open centre: two stacked {p.bearing_ring_t:g} mm steel flanges with the balls between, each with "
+                      f"4 x 5.5 mm holes on a {2 * p.bearing_bolt_r:g} mm circle and one {p.bearing_access_d:g} mm access "
+                      f"hole on it; at least {b['gap_mm']:g} mm between the flanges at the holes (assumed: read yours)",
+                 notes="The fixed (lower) ring, drawn; its turning ring is the next line. Four M5 x 16 down through it "
+                       "and the mast plate, nylocs under the plate.")
+    turning = Part("turntable_bearing_ring", "cots", "", 1, _bearing_ring(p, True), [Location((0, 0, 0))],
+                   spec="The lazy-susan's turning (upper) ring: comes with the bearing above, not bought on its own",
+                   notes="Four M5 x 16 up through it and the turntable plate from the gap, nylocs on the plate; its "
+                         "access hole passes the key to the fixed ring's screw heads.")
+    return [fixed, turning]
+
+
+BEARING_SCREW = "M5 x 16 button head + nyloc nut (turntable bearing)"
+
+
 def envelopes(p: Feeder) -> list[Part]:
     out = []
     # an open box (since 2026-11-13, when the agitator went inside it; a solid block until then)
@@ -1236,9 +1286,7 @@ def envelopes(p: Feeder) -> list[Part]:
     so = Cylinder(5.0, 2 * p.plate_half_y).moved(Location((0, 0, 0), ROT_Y_AXIS))
     out.append(Part("head_standoff", "cots", "", 4, so, [_head_loc(p, x, 0, z) for x, z in _standoffs(p)],
                     spec=f"M5 female-female standoff, {2 * p.plate_half_y:g} mm"))
-    bearing = Cylinder(p.bearing_d / 2, p.bearing_h).moved(Location((p.head_x, 0, p.mast_top_z + p.plate_t + p.bearing_h / 2)))
-    out.append(Part("turntable_bearing", "cots", "", 1, bearing, [Location((0, 0, 0))],
-                    spec=f"Lazy-susan bearing, {p.bearing_d:g} mm, {p.bearing_h:g} mm tall, 4 x M5 on a 120 mm circle each ring"))
+    out += bearing_rings(p)
     sq = 42.3
     out.append(Part("az_stepper", "cots", "", 1, Box(sq, sq, p.stepper_body_mm).moved(Location((0, 0, -p.stepper_body_mm / 2))),
                     [Location((p.head_x, p.az_centre_dist, p.mast_top_z))],
@@ -2575,7 +2623,7 @@ def feed_stroke_solids(p: Feeder, elev_deg: float, theta_deg: float) -> tuple[li
     return moving, other
 
 
-TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "trunnion_cheek_elev", "cheek_foot", "az_gear_sector",
+TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "turntable_bearing_ring", "trunnion_cheek", "trunnion_cheek_elev", "cheek_foot", "az_gear_sector",
                                  "elev_anchor_bolt", "elev_anchor_spacer_outer", "elev_anchor_spacer_inner", "cable_gland", *ELEV_ACT_PARTS, "elev_lead_fixed", "elev_lead"}
 HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar"}  # the hose bends; checked by the take-up model (the spring's
 # parts stay put on their bracket since 2026-11-20, so the sweeps check them)
@@ -2669,12 +2717,12 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
     assembly guide"."""
     return [
         ("M8 x 120 bolt + nyloc nut + 4 washers", 1, "head pivot through the cheeks"),
-        ("M5 x 12 button head", 8 + 8 + 8 + 10 + 8, "standoffs (both ends), mast plate to posts, turntable, deck, brackets"),
+        ("M5 x 12 button head", 8 + 8 + 10 + 8, "standoffs (both ends), mast plate to posts, deck, brackets"),
         ("M5 T-nut (slot 6)", 10 + 8 + 4, "deck, wheel brackets, pole feet"),
         ("M5 x 30 button head (frame)", 16, "side and mast rails' tapped ends, through the beam, rear rail and side rails"),
         ("M5 x 50 button head (mast posts)", 8, "up through the mast rails into the posts' core bores"),
         ("M5 x 12 button head (pole feet)", 4, "pole feet down into T-nuts in the net beam's top slot"),
-        ("M5 nut (turntable bearing)", 8, "on the lazy-susan's rings, if they are not tapped"),
+        (BEARING_SCREW, 8, "the lazy-susan's rings to the mast plate and the turntable plate, heads in the gap between the rings"),
         ("M4 x 12 socket cap screw", 4 + 4, "cheek feet to the turntable plate and the cheeks"),
         ("M4 heat-set insert, 5.7 mm long", 4 + 4, "cheek feet"),
         ("M4 x 12 socket cap screw (motors)", 8, "launcher motors to the motor plate"),

@@ -136,30 +136,45 @@ Tools: 3 mm, 2.5 mm and 1.5 mm hex keys.
 
 Screw the mast plate onto the posts' top ends, two M5 x 12 into each post's bores. Hang the stepper under it, shaft up through the 23 mm hole, with four M3 x 8 from above (a NEMA 17's flange threads are about 4.5 mm deep: a longer screw bottoms before it clamps). Push the pinion on the shaft with its teeth's top face 0.5 mm over the plate, set screw on the flat. Glue a polyurethane pad on each stop block's face toward the gear sector and screw the blocks up from under the plate (two M4 x 12 each). Screw the home switch to its bracket (two M2) and the bracket to the plate through its slots (M3 x 12, washer and nut under the plate), set mid-slot for now; the last step sets it. (The pinion rides 5.5 mm over the stepper's face on its shaft, which is not modelled.)
 
-### 7. Turntable bearing, plate and gear sector
+### 7. Turntable bearing
 
-![Step 7: Turntable bearing, plate and gear sector](step_07.svg)
+![Step 7: Turntable bearing](step_07.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
-| turntable_bearing | 1 | Lazy-susan bearing, 150 mm, 10 mm tall, 4 x M5 on a 120 mm circle each ring |
+| turntable_bearing | 1 | Lazy-susan bearing, 150 mm round, 10 mm tall, 60 mm open centre: two stacked 2 mm steel flanges with the balls between, each with 4 x 5.5 mm holes on a 120 mm circle and one 12 mm access hole on it; at least 6 mm between the flanges at the holes (assumed: read yours) |
+| turntable_bearing_ring | 1 | The lazy-susan's turning (upper) ring: comes with the bearing above, not bought on its own |
+
+| Fastener or part | Qty |
+| --- | --- |
+| M5 x 16 button head + nyloc nut (turntable bearing) | 4 |
+
+Tools: 3 mm hex key, 8 mm spanner.
+
+Set the bearing on the mast plate with the fixed (lower) ring's access hole over the plate's 12 mm access hole and its four holes over the plate's. Turn the upper ring until its access hole is over one of them, drop an M5 x 16 through both, head down on the fixed ring, and run a nyloc on under the plate, the head held with the key through the access hole. Turn the upper ring 90 deg to the next hole and repeat. The heads sit in the gap between the rings, where the upper ring's heads will pass over them.
+
+### 8. Turntable plate and gear sector
+
+![Step 8: Turntable plate and gear sector](step_08.svg)
+
+| Part | Qty | File or what to buy |
+| --- | --- | --- |
 | az_gear_sector | 1 | print/az_gear_sector.stl |
 | turntable_plate | 1 | laser/turntable_plate__aluminium_5mm.dxf |
 | cable_gland | 1 | print/cable_gland.stl |
 
 | Fastener or part | Qty |
 | --- | --- |
-| M5 x 12 button head | 8 |
-| M5 nut (turntable bearing) | 8 |
+| M5 x 16 button head + nyloc nut (turntable bearing) | 4 |
 | M4 x 12 socket cap screw (azimuth) | 3 |
 
 Tools: 3 mm hex key, 8 mm spanner.
 
-Bolt the bearing's fixed ring to the mast plate (four M5 x 12 up from under the plate, nuts on the ring, through the access hole in the other ring) and the turntable plate to its turning ring (four from above, nuts under the ring). If your bearing's rings are tapped, leave the nuts out. Screw the gear sector up under the plate's +y edge, three M4 x 12 from above. Turn the plate by hand through +-35 deg: the sector meshes with the pinion all the way and stops on the pads. Push the cable gland into the plate's centre hole from above.
+Lay the turntable plate on the upper ring, its four 5.5 mm holes over the ring's (the gear sector is not on yet, so plate and ring turn all the way round). Turn them until one hole is over the mast plate's access hole, push an M5 x 16 up from under the mast plate through the access holes and the upper ring and plate, head in the gap, and run a nyloc on above, the head held with the key from below. Turn 90 deg and repeat for the other three. Then screw the gear sector up under the plate's +y edge, three M4 x 12 from above. Turn the plate by hand through +-35 deg: the sector meshes with the pinion all the way and stops on the pads. Push the cable gland into the plate's centre hole from above.
 
-### 8. Trunnion cheeks
+### 9. Trunnion cheeks
 
-![Step 8: Trunnion cheeks](step_08.svg)
+![Step 9: Trunnion cheeks](step_09.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -176,9 +191,9 @@ Tools: 3 mm hex key.
 
 Screw two feet to the outer face of each cheek (M4 x 12 through the cheek into the face inserts), then stand the cheeks on the turntable plate and screw the feet down from under it (M4 x 12 into the underside inserts). The cheek with the rear tab goes on the -y (guard) side. Snap the grommet into that cheek's small hole under the pivot.
 
-### 9. Head: motor plate, launcher motors and wheels (on the bench)
+### 10. Head: motor plate, launcher motors and wheels (on the bench)
 
-![Step 9: Head: motor plate, launcher motors and wheels (on the bench)](step_09.svg)
+![Step 10: Head: motor plate, launcher motors and wheels (on the bench)](step_10.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -195,9 +210,9 @@ Tools: 3 mm hex key.
 
 Lay the motor plate outer face up. Screw each outrunner to it (four M4 x 12 on the 25 mm square; check that a screw reaches no further into your motor than its mounting threads go, or it can touch the windings). Fit each wheel's hub on its shaft from the plate's inner face. Snap the 14 mm grommet into the plate's wiring hole.
 
-### 10. Head: feed floor, roof column, shuttle and guard plate
+### 11. Head: feed floor, roof column, shuttle and guard plate
 
-![Step 10: Head: feed floor, roof column, shuttle and guard plate](step_10.svg)
+![Step 11: Head: feed floor, roof column, shuttle and guard plate](step_11.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -217,9 +232,9 @@ Tools: 3 mm hex key.
 
 Slide the cable clip onto the rear lower standoff. Screw the four standoffs to the motor plate's inner face (M5 x 12), the feed floor and the roof column to it (M4 x 12 into their inserts), drop the shuttle on the floor under the column (insert side toward the motor plate), and close the head with the guard plate (four M5 x 12 into the standoffs, four M4 x 12 into the floor and roof). The shuttle must slide its full stroke by hand.
 
-### 11. Head: shuttle drive
+### 12. Head: shuttle drive
 
-![Step 11: Head: shuttle drive](step_11.svg)
+![Step 12: Head: shuttle drive](step_12.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -240,9 +255,9 @@ Tools: 3 mm and 2.5 mm hex keys, soldering iron with an insert tip.
 
 Press the short M4 insert into the rod's crank-end pocket from the side that will face the crank, flush with that face. Screw the servo bracket's three legs to the motor plate (M4 x 12 from inside the head into the leg inserts) and the servo into the cradle by its tabs (two M4 x 10). Centre the servo, screw the crank to its horn, and join crank and shuttle with the rod (insert toward the crank): the 12 mm shoulder bolt through the rod and the plate's slot into the shuttle's insert, tight, so its shoulder seats on the shuttle; the 6 mm one through the crank into the rod's insert with a drop of threadlocker, tight, so its shoulder seats on the insert and the crank turns on it. Neither takes a nut: there is 1 mm between the rod and the plate. Turn the servo by hand through its range: the shuttle runs its stroke without binding.
 
-### 12. Hang the head and fit the elevation actuator
+### 13. Hang the head and fit the elevation actuator
 
-![Step 12: Hang the head and fit the elevation actuator](step_12.svg)
+![Step 13: Hang the head and fit the elevation actuator](step_13.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -264,9 +279,9 @@ Tools: 13 mm and 8 mm spanners, 5 mm, 4 mm and 3 mm hex keys.
 
 Lift the head between the cheeks and push the M8 pivot bolt through cheek, washer, head plate, head plate, washer and cheek, with a washer under the head and the nyloc. Tighten until the head swings freely with no end play. Fit the actuator's anchor eye to the guard cheek's tab and its rod eye to the guard plate's pin, each on its 6 mm shoulder bolt (M5 thread) with the short printed spacer under the head and the long one between the eye and the aluminium, and a thin M5 nut with threadlocker inside: the shoulder seats on the plate, and the eye turns between the spacers. (The bolt's 9.5 mm thread leaves 4.5 mm past a 5 mm plate, too little for a nyloc and two threads.) Drive it to the head's level position before you let go: the head is nose-heavy or tail-heavy depending on the pose.
 
-### 13. Deck, battery and stepper driver carrier
+### 14. Deck, battery and stepper driver carrier
 
-![Step 13: Deck, battery and stepper driver carrier](step_13.svg)
+![Step 14: Deck, battery and stepper driver carrier](step_14.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -285,9 +300,9 @@ Tools: 3 mm and 2.5 mm hex keys, 5.5 mm spanner.
 
 Bolt the deck onto the side rails' top slots (ten M5 x 12 into T-nuts). Strap the battery down through the two slots, terminals toward the electronics. Screw the stepper driver carrier to the deck's M3 grid (four M3 x 20 down through the block and its standoffs, nuts under the deck, held with a spanner from below), terminals to +y.
 
-### 14. Hopper posts and braces
+### 15. Hopper posts and braces
 
-![Step 14: Hopper posts and braces](step_14.svg)
+![Step 15: Hopper posts and braces](step_15.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -305,9 +320,9 @@ Tools: 3 mm hex key, a second person.
 
 Tap both core bores of each end of the four posts M5. Stand each on the deck and screw it down from under the deck (two M5 x 16 into its bores); the rear pair are the taller ones. Bolt the two x braces outside each side pair and the y brace behind the rear pair with a corner bracket at each end; leave them finger-tight until the shelf is on.
 
-### 15. Hopper shelf, sleeve socket and take-up sleeve
+### 16. Hopper shelf, sleeve socket and take-up sleeve
 
-![Step 15: Hopper shelf, sleeve socket and take-up sleeve](step_15.svg)
+![Step 16: Hopper shelf, sleeve socket and take-up sleeve](step_16.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -331,9 +346,9 @@ Tools: 3 mm and 2.5 mm hex keys, 7 mm spanner.
 
 Screw the sleeve socket under the shelf's outlet hole (four M4 x 12 from above into its flange). Seat the constant-force spring's coil on the printed spool, band leaving the coil's front at the bottom, and hold the spool between the spring bracket's cheeks while the M4 axle goes through both cheeks and the spool; snug the nyloc so the spool still spins. Screw the bracket up under the shelf behind the socket (two M4 x 12 button heads from above into its inserts): the band should hang straight down past the socket's rear, clear of it. Set a post wedge on each post's top, thick edge away from the net, holes over the core bores. Lift the shelf onto the wedges, set a taper washer over each of its eight post holes with its thin side uphill, and screw straight down through washer, shelf and wedge into the posts' bores (two M5 x 25 each, vertical, not square to the shelf). Now tighten the braces. Push the take-up sleeve up into the socket, slot to the rear, and tape the band to the sleeve for now.
 
-### 16. Agitator and tub
+### 17. Agitator and tub
 
-![Step 16: Agitator and tub](step_16.svg)
+![Step 17: Agitator and tub](step_17.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -353,7 +368,7 @@ Tools: 2.5 mm and 1.5 mm hex keys, soldering iron.
 
 Screw the gearmotor's face to the mount (four M3 x 10 from the counterbores) and bolt the mount up under the shelf's small hole (three M4 x 12 from above). Cut the tub's two holes to match the shelf's, set it on and strap it down. Melt the M3 insert into the agitator's boss, push the agitator on the shaft through the tub's hole, a ball's radius over the floor, and tighten the set screw on the flat.
 
-### 17. Feed hose and take-up collar
+### 18. Feed hose and take-up collar
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -370,9 +385,9 @@ Tools: screwdriver.
 
 Bond the hose's top end 25 mm into the collar and let it cure. Slide the collar up the sleeve, tab through the slot, pull the spring's band down to the tab and screw its end to the tab's rear face (one M3 x 8 pan head into a 2.5 mm pilot). Push the hose's lower end over the roof column's socket and clamp it. Swing the head through its whole range: the hose must not kink or pull the collar out of the sleeve's bottom.
 
-### 18. Net poles and camera bar
+### 19. Net poles and camera bar
 
-![Step 18: Net poles and camera bar](step_18.svg)
+![Step 19: Net poles and camera bar](step_19.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -395,9 +410,9 @@ Tools: long 3 mm hex key, 3.3 mm drill, a second person.
 
 Screw each pole foot onto the net beam's top slot at its end (two M5 x 12 down the counterbores into T-nuts). Join the poles with the elbows on the ground, thread the two camera clamps onto the top pole, and stand the frame up into the feet. Slide the camera bar into the clamps; drill 3.3 mm through each clamp's wall into the pole socket and drive an M4 x 25 in as a pinch screw. Hang the netting from the top pole, mount the two cameras on the bar, and leave the net's bottom edge free for the trough.
 
-### 19. Catch trough
+### 20. Catch trough
 
-![Step 19: Catch trough](step_19.svg)
+![Step 20: Catch trough](step_20.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -423,9 +438,9 @@ Tools: long 3 mm hex key.
 
 Each hanger is its own height: match its letter to the y in its notes. Bolt the hangers to the net beam's front slots (two M5 x 12 down each counterbore into T-nuts) and the sump by its rear tab (two M5 x 40, heads in the cavity). Cap each gutter run's outer end, lay the runs in the saddles with their low ends in the sump's saddles, and zip-tie each into its hanger. Lace the net's bottom edge to the gutters' back lips.
 
-### 20. Lift boot and drive (on the bench)
+### 21. Lift boot and drive (on the bench)
 
-![Step 20: Lift boot and drive (on the bench)](step_20.svg)
+![Step 21: Lift boot and drive (on the bench)](step_21.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -450,9 +465,9 @@ Tools: arbor press or vice, 2.5 and 1.5 mm hex keys, luggage scale.
 
 Press the two flanged bearings into the boot (cad/README.md, "Lift drive shaft"). Build the slip hub on the drive shaft through the boot: collar, plate, facing, the pulley, facing, plate, four disc springs cone to cone, collar; set it to slip at 0.9 N m as the slip plates' notes say. Screw the gearmotor's face to the spacer's end wall (six M3 x 8 from inside), fit the coupling, and fix the spacer's ears to the boot (two M3 x 8 into inserts).
 
-### 21. Lift base plate and boot on the mast rails
+### 22. Lift base plate and boot on the mast rails
 
-![Step 21: Lift base plate and boot on the mast rails](step_21.svg)
+![Step 22: Lift base plate and boot on the mast rails](step_22.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -467,9 +482,9 @@ Tools: 3 mm hex key.
 
 Bolt the base plate across the mast rails at the lift (four M5 x 12 into T-nuts), then hang the boot under it on the four inner M5s. The boot's inlet arm butts against the sump's outlet stub at the net beam's rear face: glue or strap the joint.
 
-### 22. Lift column, belt, head and chute
+### 23. Lift column, belt, head and chute
 
-![Step 22: Lift column, belt, head and chute](step_22.svg)
+![Step 23: Lift column, belt, head and chute](step_23.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -497,9 +512,9 @@ Tools: 3 mm and 2 mm hex keys, 8 mm and 5.5 mm spanners, a second person.
 
 Stick the UHMW tape on both 20 mm faces of the spine. Stand the spine in the boot's slot through the base plate and square it with the two 2040 corner brackets. Screw a flight cap to each welded cleat (two M3 x 14 countersunk, a washer and a nyloc on the cleat's back, 64 in all). Loop the belt over the bottom pulley and up the spine, fit the 6 rod clips up the spine with the three rods through them, then the head on the spine's top with the top pulley on its axle inside the belt loop. Tension with the jack screws to the figure in their notes, then tighten the head's four side M5s. Brace the spine to the front hopper post with the strut and push the chute into the head's socket over the tub.
 
-### 23. Wiring: deck-side cables and the elevation lead
+### 24. Wiring: deck-side cables and the elevation lead
 
-![Step 23: Wiring: deck-side cables and the elevation lead](step_23.svg)
+![Step 24: Wiring: deck-side cables and the elevation lead](step_24.svg)
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
@@ -522,7 +537,7 @@ Tools: 3 mm hex key, 8 mm spanner, crimp tool.
 
 Bolt the axis cable clamp to the crossbar's front slot (one M5 x 12 into a T-nut; the head drops into the pocket on top). Route the deck-side run as the manifest's cables line says: deck saddles (nylocs under the deck), the rear post's saddles, the crossbar hangers, up into the clamp's bore, then the twisting run to the gland with no ties on it. Run the elevation lead out of the gland's -y wall, across under the pivot and through the cheek's grommet to its tie on the actuator's body.
 
-### 24. Electronics
+### 25. Electronics
 
 | Fastener or part | Qty |
 | --- | --- |
@@ -569,7 +584,7 @@ Tools: screwdrivers, crimp tool, multimeter, soldering iron.
 
 Mount and wire everything to hardware/electronics.md (pin map, power budget, fuses, e-stop, reset and precharge chain, lift jam cutoff) and the manifest's power and cables lines. Set the stepper driver's current and microsteps as the carrier's notes say. Put the ballast where the manifest's tip-over line says.
 
-### 25. Before the first power-up
+### 26. Before the first power-up
 
 Tools: multimeter.
 
@@ -618,6 +633,8 @@ Each length is measured from the head's face through the parts the model puts un
 | idler axle | M8 x 65 hex bolt + nyloc nut (idler axle) | idler_bracket 5 + idler_axle_spacer 2 + wheel 40 + idler_axle_spacer 2 | 49 | 65 | 16 | needs 10.5 mm past the stack for the nyloc and two threads | pass |
 | take-up spool axle | M4 x 40 socket cap screw + nyloc nut (spring axle) | take_up_spring_bracket 6 + take_up_spool 16.7 + take_up_spring_bracket 6 (+ 1 open) | 29.7 | 40 | 10.3 | needs 6.4 mm past the stack for the nyloc and two threads | pass |
 | driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | stepper_driver_carrier 10 + base_deck 5 | 15 | 20 | 5 | needs 3.4 mm past the stack for the nut and two threads | pass |
+| bearing fixed ring to the mast plate | M5 x 16 button head + nyloc nut (turntable bearing) | turntable_bearing 2 + mast_plate 5 | 7 | 16 | 9 | needs 6.6 mm past the stack for the nyloc and two threads | pass |
+| turntable plate to the bearing's turning ring | M5 x 16 button head + nyloc nut (turntable bearing) | turntable_bearing_ring 2 + turntable_plate 5 | 7 | 16 | 9 | needs 6.6 mm past the stack for the nyloc and two threads | pass |
 
 ## Other checks
 
@@ -641,13 +658,15 @@ and 30 degrees (a 12-point ring's step) to be turned. A hex head turned with a s
 | Joint | Fastener | Step | Spanner on the nut | Holes | Nut (deg) | Head (deg) | Turn | |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | home switch bracket | M3 x 12 socket cap screw + washer + nut (home switch) | 6 | 5.5 mm, 85 long | 1 | 145 | - | head (key) or nut | pass |
-| head pivot | M8 x 120 bolt + nyloc nut + 4 washers | 12 | 13 mm, 165 long | 1 | 165 | 115 | head or nut | pass |
-| elevation pin (rod eye) through the guard plate | Shoulder bolt 6 x 40, M5, + thin nut | 12 | 8 mm, 110 long | 1 | 55 | - | head (key) or nut | pass |
-| elevation anchor (anchor eye) through the cheek's tab | Shoulder bolt 6 x 30, M5, + thin nut | 12 | 8 mm, 110 long | 1 | 85 | - | head (key) or nut | pass |
-| lift flight cap through its cleat | M3 x 14 countersunk screw + washer + nyloc nut (flight caps) | 22 | 5.5 mm, 85 long | 1 | 15 | - | head (key) | pass |
-| deck cable saddle | M5 x 16 button head + nyloc nut (deck cables) | 23 | 8 mm, 110 long | 1 | 225 | - | head (key) or nut | pass |
+| head pivot | M8 x 120 bolt + nyloc nut + 4 washers | 13 | 13 mm, 165 long | 1 | 165 | 115 | head or nut | pass |
+| elevation pin (rod eye) through the guard plate | Shoulder bolt 6 x 40, M5, + thin nut | 13 | 8 mm, 110 long | 1 | 55 | - | head (key) or nut | pass |
+| elevation anchor (anchor eye) through the cheek's tab | Shoulder bolt 6 x 30, M5, + thin nut | 13 | 8 mm, 110 long | 1 | 85 | - | head (key) or nut | pass |
+| lift flight cap through its cleat | M3 x 14 countersunk screw + washer + nyloc nut (flight caps) | 23 | 5.5 mm, 85 long | 1 | 15 | - | head (key) | pass |
+| deck cable saddle | M5 x 16 button head + nyloc nut (deck cables) | 24 | 8 mm, 110 long | 1 | 225 | - | head (key) or nut | pass |
 | idler axle | M8 x 65 hex bolt + nyloc nut (idler axle) | 4 | 13 mm, 165 long | 2 | 360 | 225 | head or nut | pass |
-| take-up spool axle | M4 x 40 socket cap screw + nyloc nut (spring axle) | 15 | 7 mm, 100 long | 1 | 110 | - | head (key) or nut | pass |
-| driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | 13 | 5.5 mm, 85 long | 4 | 205 | - | head (key) or nut | pass |
+| take-up spool axle | M4 x 40 socket cap screw + nyloc nut (spring axle) | 16 | 7 mm, 100 long | 1 | 110 | - | head (key) or nut | pass |
+| driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | 14 | 5.5 mm, 85 long | 4 | 205 | - | head (key) or nut | pass |
+| bearing fixed ring to the mast plate | M5 x 16 button head + nyloc nut (turntable bearing) | 7 | 8 mm, 110 long | 4 | 95 | - | head (key) or nut | pass |
+| turntable plate to the bearing's turning ring | M5 x 16 button head + nyloc nut (turntable bearing) | 8 | 8 mm, 110 long | 4 | 305 | - | head (key) or nut | pass |
 
 Result when this package was built: all pass.

@@ -404,7 +404,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
     guide_bad += G.tally(p, parts, bom_rows) + G.order_problems(p, parts)
     if feeder:
         from . import feeder_guide as FG
-        guide_bad += G.access_problems(p, parts) + FG.end_bore_problems(p, parts)
+        guide_bad += G.access_problems(p, parts) + FG.end_bore_problems(p, parts) + FG.bearing_access_problems(p, parts)
     else:
         guide_bad += (G.hatch_check(p, parts) + G.access_problems(p, parts) + G.step_access_problems(p, parts)
                       + G.hatch_screw_problems(p, parts))
