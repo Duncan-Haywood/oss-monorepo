@@ -24,6 +24,21 @@ open. MIT licensed, no dependencies, nothing uploaded.
   agree on status and failing GlobalIds; every difference left traces to what
   a converter left out (empty strings, empty properties, objects reached only
   through inverses), read by hand (`eval/ifcjson-twins-2026-11-21.md`).
+- **IFC5 alpha** (2026-11-21, `ifcx.mjs`): buildingSMART's `.ifcx` files
+  (IFC5-development examples), composed from their nodes (later nodes win,
+  `inherits` brings a type's or material's attributes, `null` removes) into
+  IFC4X3 objects, spatial tree, property sets, classifications and materials,
+  so every facet checks them. IFC5 keeps no property set names, so each
+  property goes to the standard set whose template names it for the class
+  (IsExternal on a wall: Pset_WallCommon; Height: Qto_WallBaseQuantities),
+  else to a set named after its namespace (`bsi::ifc::prop`). Layers compose
+  weakest first (`--layer` on the CLI). On the 8 public STEP/IFC5 twins,
+  classes agree on 12,115 of 12,116 paired objects and partOf links 1,646 of
+  1,648; every property and material the IFC5 file shares with its STEP twin
+  lands in the same set with the same value; all 47 public `.ifcx` files read
+  (TeklaHouse, 42 MB, in 0.5 s). IFC5 alpha has no Name attribute: Name is
+  the key the parent gives the object (`SLB_150` for STEP's `SLB-150`)
+  (`eval/ifcx-twins-2026-11-21.md`).
 - STEP `.ifc`, ifcXML (`.ifcxml`, both the IFC2X3 and IFC4 layouts) and `.ifczip`
   (any of them zipped), read into the same entities: xBIM's ifcXML export of a
   Revit model agrees with its STEP file on 2,205 of 2,205 attribute values, and

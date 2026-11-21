@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVNUfJ3E76acHcxT24g",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T14:23:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check (flagship 12): IFC5 alpha .ifcx read into the IDS checker",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": 18092,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/corpus/real",
+      "issue": "one public IDS in the fetched corpus is not well-formed XML (unclosed <numeric>); ad-hoc probes that call check() on every corpus file need a try/catch (the twin scripts already have one)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-checking-an-ifc5-model-against-an-ids.md",
+    "ventures/ids-model-check/eval/ifcx-twins-2026-11-21.md"
+  ],
+  "goal": "Land the flagship next item 'IFC5 .ifcx': read buildingSMART's IFC5 alpha files so an IDS check of an .ifcx means what a check of its STEP twin means.",
+  "notes": "Verification run here: node --test ifcx.test.mjs 7/7; python3 platform/ci/run_venture_tests.py ids-model-check: ok, 425 tests, 2 skipped, site page checks ok. eval/ifcx-twins.mjs on 8 STEP/IFC5 twins: class 12,115 of 12,116, predefined 12,017, partOf facts hold on STEP 1,646 of 1,648, material 5 of 5, standard-set properties 24 of 30 (other 6 absent from STEP), 68 IDS same status+failing GlobalIds 371 of 544 with every difference kind an absence on one side. eval/ifcx-sweep.mjs: 47 of 47 public .ifcx read, 0 errors; TeklaHouse 42 MB 0.49 s 249 MB RSS. Playwright on the page: hello-wall.ifcx + starter IDS gives 5 of 7 pass, 'an IFC5 model, read as IFC4X3'. Two reader fixes came from the measurement (IfcRelNests for ports/alignments; materials on unclassed parts). IFC5-development has no licence file, so its examples are fetched by eval/fetch-ifcx-twins.sh, never committed. ifcx.dev imports were refused by the proxy; values typed from IFC4X3 templates instead.",
+  "corrections": [],
+  "redteam": null
+}
