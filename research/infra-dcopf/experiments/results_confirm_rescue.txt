@@ -1,0 +1,27 @@
+Confirmation split: second-solver DC start for the cases with no PIPS DC start (research/grid-linopf)
+Plan and predictions R0 to R5: LOG.md 2026-11-21 (committed before this ran).
+Start: run_dc_rescue.rescue_start (PIPS, else Clarabel MP-x0/PM, with then without angle limits).
+Then run_confirm.py arm F unchanged: continuation to full load, 20 rounds of the frozen repair.
+Final cell as run_confirm: clean round and cost against PGLib's published AC objective.
+
+case               kind   bus                    start    mu* clean@   cost %      s  note
+case2312_goc       api   2312   Clarabel MP-x0, no ang  1.000      -        -    166  best (round 20): 5 over (max 106.38 %), 0 V out (0.0000 pu), 0 Q out (0.000 MVAr)
+case2383wp_k       sad   2383   Clarabel MP-x0, no ang  1.000      -        -    200  best (round 19): 0 over (max 99.90 %), 0 V out (0.0000 pu), 55 Q out (0.087 MVAr)
+case2383wp_k       typ   2383       Clarabel MP-x0+ang  1.000      -        -    191  best (round 19): 0 over (max 99.90 %), 0 V out (0.0000 pu), 64 Q out (0.093 MVAr)
+case2736sp_k       api   2736       Clarabel MP-x0+ang  1.000      -        -    195  best (round 19): 2 over (max 105.27 %), 0 V out (0.0000 pu), 1 Q out (0.114 MVAr)
+case2742_goc       api   2742       Clarabel MP-x0+ang  1.000     15   +1.394     27  
+case2746wop_k      api   2746       Clarabel MP-x0+ang  1.000      -        -    458  best (round 20): 5 over (max 183.15 %), 0 V out (0.0000 pu), 0 Q out (0.000 MVAr)
+case2853_sdet      api   2853                     None  0.000      -        -     14  no DC start
+case2853_sdet      sad   2853   Clarabel MP-x0, no ang  1.000      -        -   2131  best (round 20): 26 over (max 153.18 %), 0 V out (0.0000 pu), 0 Q out (0.000 MVAr)
+case2853_sdet      typ   2853       Clarabel MP-x0+ang  1.000      -        -   1626  best (round 20): 17 over (max 131.77 %), 0 V out (0.0000 pu), 0 Q out (0.000 MVAr)
+case2868_rte       api   2868          Clarabel PM+ang  1.000      -        -    901  best (round 19): 1 over (max 100.01 %), 5 V out (0.0254 pu), 3 Q out (2.315 MVAr)
+
+10 cases, 10 run: DC start on 9 (Clarabel 9, PIPS 0), full-load power flow on 9, frozen repair fully clean within 20 rounds on 1.
+Confirmation tally, frozen repair: 9 of 33 under the protocol's start; 10 of 33 with this start rule (32 reach the repair).
+
+R0 (PIPS still finds no start on all 10): held (0 PIPS starts)
+R1 (Clarabel start on at least 8 of 10): held (9)
+R2 (full-load power flow on at least 5 of 10): held (9)
+R3 (at least 1 finisher): held (1)
+R4 (fewer finishers per case reaching the repair than the protocol's 9 of 23): held (1 of 9)
+R5 (every finisher within +7 % of PGLib's AC optimum): held (max +1.394 %)

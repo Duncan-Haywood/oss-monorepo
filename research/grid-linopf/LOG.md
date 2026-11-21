@@ -1,5 +1,12 @@
 # Research log
 
+## 2026-11-21 · Confirmation split, second-solver DC start: outcome. Clarabel starts 9 of the 10 no-start cases, all 9 reach full load, the frozen repair finishes 1 (case2742_goc API, +1.394 %); split tally 10 of 33 (32 reach the repair); R0 to R5 held
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-21); numbers in `research/infra-dcopf/experiments/results_confirm_rescue.txt`.
+- case2383wp_k TYP and SAD miss only on reactive limits (64 and 55 units, 0.09 MVAr in total); case2853_sdet API has no DC start on Clarabel either (InsufficientProgress / MaxIterations, not a certificate).
+
+## 2026-11-21 · Confirmation split: a second-solver DC start for the 10 cases with no PIPS DC start (plan)
+- Plan, cases, start rule and predictions R0 to R5: `research/infra-dcopf/LOG.md` (2026-11-21); script `research/infra-dcopf/experiments/run_confirm_rescue.py`. A separate arm; the 23 scored cases are untouched.
+
 ## 2026-11-21 · Confirmation split: outcome, complete. Rules C and P each finish 7 of 23 against the frozen repair's 9 (lost 2, gained 0); Q2 to Q4 refuted, final. The frozen repair stays; the widening line closes as a finisher rule
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-21); numbers in `research/infra-dcopf/experiments/results_confirm.txt`. All 12 pending cases ran; none reversed the partial result.
 - Where all three finish (7 cases), the widened runs are 0.3 points cheaper on average; 11 of the 20 cases meet only a round-1 failed hard QP, where C and P take the same single widening.
