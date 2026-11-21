@@ -57,7 +57,8 @@ function play(opts, n, rounds, seed) {
 const SIZES = [[8, 5], [9, 5], [12, 7], [16, 7], [17, 7], [24, 9], [33, 9], [50, 9], [64, 11], [101, 9], [151, 11]];
 const SEEDS = Number(process.argv[2] ?? 40);
 // Optional third argument: the Dutch-order cost to use in both arms (swissPairings `dutchOrder`).
-const ORDER = process.argv[3] ? { dutchOrder: process.argv[3] } : {};
+// Optional fourth: the pairing method, "matching" (default) or "bracket" (eval/swiss-bracket-dutch.md).
+const ORDER = { ...(process.argv[3] && process.argv[3] !== "-" ? { dutchOrder: process.argv[3] } : {}), ...(process.argv[4] ? { pairing: process.argv[4] } : {}) };
 const KEYS = ["rd1", "ru1", "rd2", "ru2", "floaters", "scoreGap", "absClash", "strongClash", "mildClash", "ms", "rounds", "failed"];
 const fmt = (x, d = 2) => x.toFixed(d).padStart(7);
 console.log(`Repeat floats per event, ${SEEDS} seeds per size, the same events with the rule off and on.`);

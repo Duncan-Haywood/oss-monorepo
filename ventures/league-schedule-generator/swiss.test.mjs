@@ -30,7 +30,8 @@ test("round 1: top half meets bottom half, top seed white on board 1, colours al
   const r = swissPairings(players, []);
   assert.deepEqual(r.pairs, [{ white: 0, black: 4 }, { white: 5, black: 1 }, { white: 2, black: 6 }, { white: 7, black: 3 }]);
   assert.equal(r.bye, null);
-  assert.equal(r.method, "matching");
+  assert.equal(r.method, "bracket");
+  assert.deepEqual(swissPairings(players, [], [], [], { pairing: "matching" }).pairs, r.pairs);
 });
 
 test("no player ever gets one colour three times running or a colour gap past 2 (30 events, 8-40 players)", () => {
@@ -66,14 +67,16 @@ function bestPossible(players, games, byes, bye) {
   return best;
 }
 
-test("each round is optimal: no rematch-free round has fewer absolute clashes, or as few and a smaller squared score gap (exhaustive, 6-10 players)", () => {
+// The whole-round matching (pairing: "matching") minimises the total squared score gap; the
+// bracket-by-bracket default pairs the top bracket first, as the Dutch rules do, and may not.
+test("matching: each round is optimal: no rematch-free round has fewer absolute clashes, or as few and a smaller squared score gap (exhaustive, 6-10 players)", () => {
   let checked = 0;
   for (let s = 0; s < 24; s++) {
     const n = 6 + (s % 5);
     const { players, states } = simulate(swissPairings, n, 4, 100 + s);
     for (const { games, byes } of states) {
       // lookahead off: with it on, a round may give up a little to keep the next round possible
-      const round = swissPairings(players, games, byes, [], { lookahead: false });
+      const round = swissPairings(players, games, byes, [], { lookahead: false, pairing: "matching" });
       const table = new Map(swissStandings(players, games, byes).map((r) => [r.index, r]));
       let abs = 0, sq = 0;
       for (const p of round.pairs) {
@@ -172,7 +175,7 @@ test("repeat floats: a downfloat is not repeated when a round without one exists
   assert.equal(on.floaters, off.floaters);
 });
 
-test("repeat floats: every round is within the Dutch-order slack of the fewest weighted repeat floats among rounds equal on the higher tiers", () => {
+test("matching: repeat floats: every round is within the Dutch-order slack of the fewest weighted repeat floats among rounds equal on the higher tiers", () => {
   const W = { rd1: 488, ru1: 244, rd2: 122, ru2: 61 };
   for (let s = 0; s < 24; s++) {
     const n = 6 + (s % 5);
@@ -217,7 +220,7 @@ test("repeat floats: every round is within the Dutch-order slack of the fewest w
         for (const y of rest) if (!met.has(`${x}|${y}`)) rec(rest.filter((q) => q !== y), [...acc, [x, y]], bye);
       };
       rec(players.map((_, i) => i), [], null);
-      const round = swissPairings(players, games, byes, [], { lookahead: false });
+      const round = swissPairings(players, games, byes, [], { lookahead: false, pairing: "matching" });
       const chosen = cost(round.pairs.map((p) => [p.white, p.black]), round.bye);
       const same = all.filter((c) => c.tiers === chosen.tiers);
       const best = Math.min(...same.map((c) => c.f));
@@ -247,5 +250,36 @@ test("Dutch order: an S1 player meets S2, not another S1 player, when a transpos
   for (const p of r.pairs) {
     if (!winners.has(p.white) || !winners.has(p.black)) continue;
     assert.ok(top.has(p.white) !== top.has(p.black), `${P[p.white]} v ${P[p.black]} pairs two of the same half`);
+  }
+});
+
+// Bracket-by-bracket pairing (pairing: "bracket", eval/swiss-bracket-dutch.md).
+const bracket = (players, games, byes) => swissPairings(players, games, byes, [], { pairing: "bracket", groupOrder: "seed" });
+const boards = (r) => r.pairs.map((p) => [p.white, p.black].sort((a, b) => a - b).join("-")).sort();
+
+test("bracket: round 2 pairs each score group S1 against S2, colours before order", () => {
+  const players = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  // Round 1 (1-5, 6-2, 3-7, 8-4): the top half all win.
+  const games = [{ a: 0, b: 4, ga: 1, gb: 0 }, { a: 5, b: 1, ga: 0, gb: 1 }, { a: 2, b: 6, ga: 1, gb: 0 }, { a: 7, b: 3, ga: 0, gb: 1 }];
+  const r = bracket(players, games, []);
+  assert.equal(r.method, "bracket");
+  // 1 v 3 and 2 v 4 would both repeat white for 1 and 3: a colour preference outranks the order (C12).
+  assert.deepEqual(boards(r), ["0-3", "1-2", "4-7", "5-6"]);
+});
+
+test("bracket: the lowest player of an odd group floats down and meets the top of the next group", () => {
+  const players = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  // Round 1: 1, 2, 3 win; 4 and 8 draw. Groups: {1,2,3} on 1, {4,8} on 0.5, {5,6,7} on 0.
+  const games = [{ a: 0, b: 4, ga: 1, gb: 0 }, { a: 5, b: 1, ga: 0, gb: 1 }, { a: 2, b: 6, ga: 1, gb: 0 }, { a: 7, b: 3, ga: 1, gb: 1 }];
+  const r = bracket(players, games, []);
+  // 1 v 2; 3 floats to the 0.5 group and meets its top resident, 4; 8 floats on and meets 5; 6 v 7.
+  assert.deepEqual(boards(r), ["0-1", "2-3", "4-7", "5-6"]);
+  assert.equal(r.floaters, 2);
+});
+
+test("bracket: whole simulated events stay valid (no rematch, one bye each, absolute colours kept)", () => {
+  for (const [n, rounds, seed] of [[7, 5, 1], [12, 6, 2], [23, 7, 3], [40, 8, 4], [9, 7, 5]]) {
+    const { states } = simulate((p, g, b) => bracket(p, g, b), n, rounds, seed);
+    assert.equal(states.length, rounds);
   }
 });
