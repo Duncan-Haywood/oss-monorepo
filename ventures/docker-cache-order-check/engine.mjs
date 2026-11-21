@@ -64,7 +64,9 @@ const ECOSYSTEMS = [
     manifestRe: /(^|\/)(requirements[^/]*\.txt|requirements\/?|pyproject\.toml|poetry\.lock|uv\.lock|Pipfile(\.lock)?)$/i,
     // `pip install --upgrade pip setuptools wheel`, `pip install poetry`: installs only packaging tools,
     // with no `-r`, `.`, `-e` or project package, so it reads no manifest and is not the dependency install.
-    setupRe: /\bpip3?\s+install\s+(?:(?:-U|--upgrade|--user|--no-cache-dir|--quiet|-q)\s+)*(?:(?:pip|setuptools|wheel|poetry|uv|pipenv|pip-tools)(?:[=<>~!]=?[\w.*]+)?\s*)+$/i,
+    // Tools are separated by mandatory whitespace: with `\s*` a version like `==1.0pip` could also end before `pip`,
+    // and a crafted line of glued names split exponentially many ways (found by regex-redos-check's exact check).
+    setupRe: /\bpip3?\s+install\s+(?:(?:-U|--upgrade|--user|--no-cache-dir|--quiet|-q)\s+)*(?:pip|setuptools|wheel|poetry|uv|pipenv|pip-tools)(?:[=<>~!]=?[\w.*]+)?(?:\s+(?:pip|setuptools|wheel|poetry|uv|pipenv|pip-tools)(?:[=<>~!]=?[\w.*]+)?)*\s*$/i,
     installRe: /\bpip3?\s+install\b/i,
   },
   {

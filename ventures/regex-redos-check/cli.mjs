@@ -85,7 +85,7 @@ async function applyProbe(findings) {
   for (const f of findings) {
     if (f.severity === "info" || f.lang !== "js" || f.pattern === undefined) continue;
     const key = `${f.flags}/${f.pattern}`;
-    if (!cache.has(key)) cache.set(key, probePattern(f.pattern, f.flags || ""));
+    if (!cache.has(key)) cache.set(key, probePattern(f.pattern, f.flags || "", f.attack || null));
     const r = cache.get(key);
     f.probe = r;
     if (r.status === "confirmed") f.message += ` Confirmed: ${r.kind} -- ${describeAttack(r.attack)} took ${r.timedOut ? ">" : ""}${r.ms} ms.`;

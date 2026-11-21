@@ -151,3 +151,39 @@ test("regexes inside a template literal's ${...} are found; the template text an
   const src = '#!/usr/bin/env node\nconst a = `x ${b.replace(/(\\n\\s*-{3,}\\s*)+$/, "")} y ${ {k: 1}.k } </td><td>${c}</td>`;\nconst d = /e+f/;\nconst g = `${`${/h+i/.source}`}`;\n';
   assert.deepEqual(extractJsRegexes(src).map((r) => [r.line, r.pattern]), [[2, "(\\n\\s*-{3,}\\s*)+$"], [3, "e+f"], [4, "h+i"]]);
 });
+
+test("exact check: catches exponential shapes the heuristic rules miss, with an attack string", async () => {
+  const { exactAmbiguity } = await import("./engine.mjs");
+  for (const p of ["^(?:(?:bb)+)*$", "^(?:a|a?)+$", "(a{2,5})+$", "^(?:[ab]a+(?:[ab]|a))*$"]) {
+    const r = analyzePattern(p);
+    const f = r.findings.find((x) => x.severity === "error");
+    assert.ok(f, p);
+    assert.ok(f.attack && f.attack.pump, p);
+    const e = exactAmbiguity(p);
+    assert.equal(e.eda, true, p);
+    // The witness is a real word of the pattern's language prefix: the pattern matches a full reading of it.
+    assert.ok(new RegExp(p.replace(/\$$/, "")).test(e.prefix + e.pump.repeat(3)), p);
+  }
+  assert.ok(rules("^(?:(?:bb)+)*$").includes("ambiguous-repeat"));
+});
+
+test("exact check: proves delimited patterns safe and demotes a shape rule's false alarm to a warning", async () => {
+  const { exactAmbiguity } = await import("./engine.mjs");
+  for (const p of ["^([a-z]+\\.)*[a-z]+$", "^(?:b|cb)*$", "^(?:[ab][ab])+(?:a|b)*$"]) assert.deepEqual(exactAmbiguity(p), { eda: false, proof: true }, p);
+  // 'the ' and 'the end of ' share a prefix but never read the same text two ways (the sales-agent pattern's shape).
+  const f = analyzePattern("\\b(until) (the |the end of )*(monday)", "i").findings.find((x) => x.rule === "overlapping-alternation");
+  assert.equal(f.severity, "warn");
+  assert.equal(f.exactNotExponential, true);
+});
+
+test("exact check: stays out of what it cannot model, and of patterns that match before they can fail", async () => {
+  const { exactAmbiguity } = await import("./engine.mjs");
+  for (const p of ["(?=a)(a+)+$", "(a)\\1+", "(?>a+)+b", "a++b", "a\\bb"]) assert.equal(exactAmbiguity(p), null, p);
+  // A nullable, unanchored loop succeeds on its first greedy pass (the wall-framing-takeoff IFC statement splitter).
+  const r = exactAmbiguity("(?:'(?:[^']|'')*'|[^';])*;?");
+  assert.equal(r.eda, false);
+  assert.equal(r.proof, false);
+  assert.equal(r.matchesFirst, true);
+  // A bounded repeat cut short is not a proof of safety.
+  assert.equal(exactAmbiguity("^(?:a{1,9}b)+$").proof, false);
+});

@@ -17,6 +17,7 @@ export const RULES = {
   "overlapping-alternation": { severity: "error", summary: "a repeated alternation where two branches can match the same text (exponential)" },
   "adjacent-overlap": { severity: "warn", summary: "two unbounded repeats next to each other that can match the same characters (polynomial)" },
   "quadratic-end-anchor": { severity: "warn", summary: "an unbounded repeat before $ with no ^ anchor, retried from every start position (quadratic)" },
+  "ambiguous-repeat": { severity: "error", summary: "an exact automaton check found a word the pattern can read two ways inside a loop, with an attack string (exponential)" },
   "dynamic-regexp": { severity: "info", summary: "a RegExp built from a variable, which is a ReDoS and injection risk if the value is user-controlled" },
   "unparsable": { severity: "info", summary: "pattern could not be parsed, so it was not analysed" },
 };
@@ -330,6 +331,193 @@ function walk(node, fn) {
 
 const snippet = (src, node) => (node.s !== undefined ? src.slice(node.s, node.e) : src);
 
+// --- exact exponential-ambiguity check ----------------------------------------
+//
+// The rules above are shape heuristics. This check is exact for the patterns it
+// accepts: it builds the pattern's position (Glushkov) automaton, with each
+// step counted once per way the parse can take it, and asks whether some state
+// has two different paths back to itself on the same word (exponential degree
+// of ambiguity, EDA). A backtracking engine that fails to match tries every one
+// of those paths, so prefix + pump^n + a failing character costs at least 2^n
+// steps. Criterion: Weideman, van der Merwe, Berglund and Watson (CIAA 2016);
+// EDA test: Allauzen, Mohri and Rastogi (IJFCS 2011): a strongly connected
+// component of the squared automaton holding a diagonal pair (p,p) and another
+// pair. ECMAScript rejects an empty iteration past a repeat's minimum, so a
+// repeat takes only its body's non-empty parses. The check gives up (returns
+// null) on lookaround, backreferences, atomic groups, possessive repeats,
+// anchors in the middle and patterns over EXACT_MAX_POSITIONS positions, and
+// cuts a bounded repeat's maximum to EXACT_MAX_EXTRA extra copies, which keeps
+// every path it finds a real path of the uncut pattern. Measured against V8 in
+// eval/README.md.
+const EXACT_MAX_POSITIONS = 800;
+const EXACT_MAX_EXTRA = 3;
+const EXACT_MAX_WORK = 2000000;
+
+function charMask(node) {
+  let m = 0n;
+  ALPHABET.forEach((c, k) => { if (node.match(c)) m |= 1n << BigInt(k); });
+  return m;
+}
+function lowestChar(mask) {
+  for (let k = 0; k < ALPHABET.length; k += 1) if (mask & (1n << BigInt(k))) return ALPHABET[k];
+  return null;
+}
+
+function countedAutomaton(ast) {
+  const labels = [0n];
+  const edges = new Map();
+  let cut = false;
+  const bail = () => { throw new RangeError("outside the exact check"); };
+  const addEdge = (x, y, k) => { if (!k) return; const key = x * 4096 + y; edges.set(key, (edges.get(key) || 0) + k); };
+  const add = (into, from, k = 1) => { if (k) for (const [x, c] of from) into.set(x, (into.get(x) || 0) + c * k); return into; };
+  const cross = (last, first) => { for (const [x, cx] of last) for (const [y, cy] of first) addEdge(x, y, cx * cy); };
+  const EMPTY = () => ({ first: new Map(), last: new Map(), nul: 1 });
+  const seq2 = (A, B) => { cross(A.last, B.first); return { first: add(add(new Map(), A.first), B.first, A.nul), last: add(add(new Map(), B.last), A.last, B.nul), nul: A.nul * B.nul }; };
+  // A later iteration (past the minimum) may not be empty, so it adds 1 empty parse (skip), not 1 + nul.
+  const optNonEmpty = (A) => ({ first: A.first, last: A.last, nul: 1 });
+  function go(n, edge) {
+    switch (n.t) {
+      case "set": {
+        labels.push(charMask(n));
+        if (labels.length > EXACT_MAX_POSITIONS + 1) bail();
+        const x = labels.length - 1;
+        return { first: new Map([[x, 1]]), last: new Map([[x, 1]]), nul: 0 };
+      }
+      case "anchor":
+        // At the start or end an anchor only limits where a match may begin or end, so reading it as empty
+        // adds paths and never removes one: an EDA it finds is real, and "none" is still a proof.
+        if (!edge) bail();
+        return EMPTY();
+      case "group": if (n.atomic) bail(); return go(n.body, edge);
+      case "alt": {
+        const parts = n.alts.map((a) => go(a, edge));
+        return { first: parts.reduce((m, p) => add(m, p.first), new Map()), last: parts.reduce((m, p) => add(m, p.last), new Map()), nul: parts.reduce((s, p) => s + p.nul, 0) };
+      }
+      case "seq": {
+        let acc = EMPTY();
+        n.items.forEach((it, k) => {
+          const atEdge = edge && (k === 0 || k === n.items.length - 1 || n.items.slice(0, k).every((x) => x.t === "anchor") || n.items.slice(k + 1).every((x) => x.t === "anchor"));
+          acc = seq2(acc, go(it, atEdge));
+        });
+        return acc;
+      }
+      case "quant": {
+        if (n.possessive) bail();
+        let acc = EMPTY();
+        for (let k = 0; k < n.min; k += 1) acc = seq2(acc, go(n.body, false));
+        if (n.max === INF) {
+          const B = go(n.body, false);
+          cross(B.last, B.first);
+          acc = seq2(acc, optNonEmpty(B));
+        } else {
+          // body{0,e}: (B (B (B)?)?)? built from the inside out, each later iteration non-empty.
+          const extra = Math.min(n.max - n.min, EXACT_MAX_EXTRA);
+          if (extra < n.max - n.min) cut = true;
+          let tail = null;
+          for (let k = 0; k < extra; k += 1) { const B = go(n.body, false); tail = optNonEmpty(tail ? seq2(B, tail) : B); }
+          if (tail) acc = seq2(acc, tail);
+        }
+        return acc;
+      }
+      default: bail();
+    }
+  }
+  let top;
+  try { top = go(ast, true); } catch (err) { if (err instanceof RangeError) return null; throw err; }
+  for (const [y, c] of top.first) addEdge(0, y, c);
+  const finals = new Set(top.last.keys());
+  if (top.nul) finals.add(0);
+  const out = Array.from({ length: labels.length }, () => []);
+  for (const [key, m] of edges) out[Math.floor(key / 4096)].push({ q: key % 4096, m });
+  return { labels, out, cut, finals };
+}
+
+// True when every top-level branch ends in $ (or \Z), so a match cannot end early.
+function endAnchored(node) {
+  const n = unwrap(node);
+  if (n.t === "alt") return n.alts.every(endAnchored);
+  if (n.t === "seq" && n.items.length) { const last = n.items[n.items.length - 1]; return last.t === "anchor" ? ["$", "\\Z"].includes(last.c) : endAnchored(last); }
+  return n.t === "anchor" && ["$", "\\Z"].includes(n.c);
+}
+
+// Returns null when the pattern is outside the check, { eda: false } when no
+// state is exponentially ambiguous, or { eda: true, prefix, pump, fail } with a
+// word leading to the ambiguous state, the word it can read two ways, and a
+// character no position matches (null when every character can continue).
+export function exactAmbiguity(src, flags = "", lang = "js") {
+  let ast;
+  try { ast = parseRegex(src, { flags, lang }); } catch { return null; }
+  if (flags.includes("m")) {
+    let interior = false;
+    walk(ast, (n) => { if (n.t === "anchor") interior = true; });
+    if (interior) return null;
+  }
+  const A = countedAutomaton(ast);
+  if (!A) return null;
+  const { labels, out, cut, finals } = A;
+  const n = labels.length;
+  const prefix = new Array(n).fill(null);
+  prefix[0] = "";
+  for (const queue = [0]; queue.length;) {
+    const p = queue.shift();
+    for (const { q } of out[p]) if (prefix[q] === null) { prefix[q] = prefix[p] + lowestChar(labels[q]); queue.push(q); }
+  }
+  let work = 0;
+  const wordBack = (q, r, p) => {
+    const seen = new Map([[q * 4096 + r, ""]]);
+    for (const qu = [[q, r]]; qu.length;) {
+      const [x, y] = qu.shift();
+      const w = seen.get(x * 4096 + y);
+      if (x === p && y === p) return w;
+      for (const ex of out[x]) for (const ey of out[y]) {
+        if ((work += 1) > EXACT_MAX_WORK) throw new RangeError("work");
+        const both = labels[ex.q] & labels[ey.q];
+        if (!both) continue;
+        const key = ex.q * 4096 + ey.q;
+        if (!seen.has(key)) { seen.set(key, w + lowestChar(both)); qu.push([ex.q, ey.q]); }
+      }
+    }
+    return null;
+  };
+  const reachesFinal = (word) => {
+    let cur = new Set([0]);
+    if (finals.has(0)) return true;
+    for (const ch of word) {
+      const bit = 1n << BigInt(ALPHABET.indexOf(ch));
+      const next = new Set();
+      for (const x of cur) for (const { q } of out[x]) if (labels[q] & bit) next.add(q);
+      for (const x of next) if (finals.has(x)) return true;
+      cur = next;
+    }
+    return false;
+  };
+  const failMask = labels.reduce((m, l) => m | l, 0n);
+  let fail = null;
+  for (const c of ["!", "@", "~", "#", "%", "/", ...ALPHABET]) if (!(failMask & (1n << BigInt(ALPHABET.indexOf(c))))) { fail = c; break; }
+  try {
+    for (let p = 1; p < n; p += 1) {
+      if (prefix[p] === null) continue;
+      const es = out[p];
+      for (let i = 0; i < es.length; i += 1) {
+        for (let j = i; j < es.length; j += 1) {
+          if (i === j && es[i].m < 2) continue;
+          const both = labels[es[i].q] & labels[es[j].q];
+          if (!both) continue;
+          const back = wordBack(es[i].q, es[j].q, p);
+          if (back === null) continue;
+          const pump = lowestChar(both) + back;
+          // Without a closing $, a backtracking engine stops at the first point a match can end. If the attack
+          // reaches a final state on the way, the search succeeds before it can blow up: not reported.
+          if (!endAnchored(ast) && reachesFinal(prefix[p] + pump.repeat(n + 1))) return { eda: false, proof: false, matchesFirst: true };
+          return { eda: true, prefix: prefix[p], pump, fail };
+        }
+      }
+    }
+  } catch (err) { if (err instanceof RangeError) return null; throw err; }
+  // With a bounded repeat cut short, "none found" is not a proof.
+  return { eda: false, proof: !cut };
+}
+
 export function analyzePattern(src, flags = "", lang = "js") {
   let ast;
   try { ast = parseRegex(src, { flags, lang }); } catch (err) {
@@ -439,12 +627,32 @@ export function analyzePattern(src, flags = "", lang = "js") {
     }
   }
 
+  // 5. the exact check: catches what the shapes above miss, and gives every exponential finding an attack string.
+  const exact = exactAmbiguity(src, flags, lang);
+  if (exact && exact.eda) {
+    const attack = { prefix: exact.prefix, pump: exact.pump, fail: exact.fail };
+    if (!findings.some((f) => f.severity === "error")) {
+      const tail = exact.fail === null ? "" : ` followed by ${JSON.stringify(exact.fail)}`;
+      findings.push({ rule: "ambiguous-repeat", severity: "error", message: `/${src}/ can read ${JSON.stringify(exact.pump)} two different ways inside a repeat, so after ${JSON.stringify(exact.prefix)} each extra copy of it doubles the ways to split the input: ${JSON.stringify(exact.prefix)} + ${JSON.stringify(exact.pump)} repeated n times${tail} costs a backtracking engine at least 2^n steps when the match fails.`, part: src });
+    }
+    for (const f of findings) if (f.severity === "error") f.attack = attack;
+  } else if (exact && exact.proof) {
+    // The automaton has no exponentially ambiguous state, so a shape rule's "exponential" is a false alarm;
+    // backtracking can still be polynomial, so it stays a warning.
+    for (const f of findings) {
+      if (f.severity !== "error") continue;
+      f.severity = "warn";
+      f.message += " The exact automaton check found no word this pattern can read two ways inside a loop, so the time is not exponential; it can still be polynomial.";
+      f.exactNotExponential = true;
+    }
+  }
+
   if (findings.some((f) => f.severity === "error")) {
     for (let k = findings.length - 1; k >= 0; k -= 1) if (findings[k].rule === "quadratic-end-anchor" && findings[k].severity === "info") findings.splice(k, 1);
   }
   const order = { error: 0, warn: 1, info: 2 };
   findings.sort((a, b) => order[a.severity] - order[b.severity]);
-  return { parsed: true, findings };
+  return { parsed: true, findings, exact };
 }
 
 // --- finding regex literals in source ---------------------------------------
@@ -605,5 +813,6 @@ export const FIXES = {
   "overlapping-alternation": "Make the branches disjoint (use a single class like [\\w] instead of (\\d|\\w)), or order and anchor them so only one can match a given character.",
   "adjacent-overlap": "Merge the two repeats into one, or separate them with a mandatory character the repeats cannot match.",
   "quadratic-end-anchor": "Anchor the start (^) or trim with a loop or String.prototype.trim() instead of a regex.",
+  "ambiguous-repeat": "Find the two readings of the pump string the finding names and remove one: make alternatives or adjacent repeats disjoint, put a mandatory delimiter between iterations, use an atomic group or possessive quantifier where your engine has one, or run the pattern on a linear-time engine such as RE2.",
   "dynamic-regexp": "Escape user input before building a pattern, bound its length, and prefer a linear-time engine for untrusted patterns.",
 };

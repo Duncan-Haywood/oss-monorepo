@@ -20,10 +20,28 @@ function timeOne(re, input, timeoutMs = TIMEOUT_MS) {
   return { ms: Number(process.hrtime.bigint() - start) / 1e6, timedOut: false };
 }
 
-export function probePattern(source, flags = "") {
+// The exact check's witness (engine.mjs, exactAmbiguity): prefix + pump x k + fail. The time should at least
+// double for every two extra pumps once it is measurable.
+function probeWitness(re, { prefix, pump, fail }) {
+  let prev = null;
+  for (let k = 4; k <= 64 && prefix.length + pump.length * k < 4000; k += 2) {
+    const r = timeOne(re, prefix + pump.repeat(k) + (fail ?? ""));
+    if (r.timedOut || (r.ms >= 40 && prev && r.ms / Math.max(prev.ms, 0.05) >= 2)) {
+      return { status: "confirmed", kind: "exponential", n: k, ms: Math.round(r.ms), timedOut: r.timedOut, attack: { prefix, pump, suffix: fail ?? "", repeat: k } };
+    }
+    prev = r;
+  }
+  return null;
+}
+
+export function probePattern(source, flags = "", attack = null) {
   let re;
   try { re = new RegExp(source, flags.replace(/[gy]/g, "")); } catch (err) {
     return { status: "skipped", reason: `not a valid JavaScript pattern (${err.message})` };
+  }
+  if (attack && attack.pump) {
+    const hit = probeWitness(re, attack);
+    if (hit) return hit;
   }
   // Pick the pump/suffix pair that hurts most at a moderate size.
   let best = null;
@@ -53,4 +71,4 @@ export function probePattern(source, flags = "") {
   return { status: "not-reproduced", n: last.n, ms: Math.round(last.ms), note: "no slowdown on the generated inputs; the pattern may still be slow on a different input shape" };
 }
 
-export const describeAttack = (a) => `${JSON.stringify(a.pump)}.repeat(${a.repeat}) + ${JSON.stringify(a.suffix)}`;
+export const describeAttack = (a) => `${a.prefix ? `${JSON.stringify(a.prefix)} + ` : ""}${JSON.stringify(a.pump)}.repeat(${a.repeat}) + ${JSON.stringify(a.suffix)}`;
