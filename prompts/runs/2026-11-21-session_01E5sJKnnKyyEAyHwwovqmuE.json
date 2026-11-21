@@ -17,7 +17,7 @@
   "tokens_out": 41934,
   "cost_usd": 3.5246,
   "tool_calls": 61,
-  "task": "Flagship 13 xer-schedule-check: P6 resource curves (RSRCCURVDATA) in earned value's planned and remaining spread",
+  "task": "Flagship 13 xer-schedule-check: P6 resource curves in earned value; after PR 18132 landed the same feature first, cross-checked it and added hours measure, even-spread switch and an actuals-after-data-date fix",
   "projects": [
     "ventures/xer-schedule-check"
   ],
@@ -29,10 +29,11 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 9,
+  "tests_added": 6,
   "outcome": "success",
   "errors": [
-    "Two sessions claimed the same item (resource notes) within 7 seconds; this one yielded to PR 18130 per claim_check and took another item."
+    "Two sessions claimed the same item (resource notes) within 7 seconds; this one yielded to PR 18130 per claim_check and took another item.",
+    "PR 18132 (another session, opened after this one) built and merged the same resource-curves feature while this run was verifying; this run's curves.mjs/eval/post were dropped for main's on the merge and only the additions kept."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -43,6 +44,10 @@
     {
       "file": "ventures/xer-schedule-check/README.md",
       "issue": "The long summary paragraph lives in llms.txt line 3, not README.md; an edit aimed at README by that sentence failed and cost a retry."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "claim_check said HOLD for 'resource curves' at 19:27, but PR 18132 was opened a minute later on the same item and merged first; a newer PR is told to yield, but nothing stops it merging. Merge-time re-check (claim_check before merging) would have caught the duplicate."
     }
   ],
   "deviations": [
@@ -51,14 +56,20 @@
       "why": "The item I first claimed was taken by an older PR seconds earlier; instead of moving to chant-forge as claim_check suggested, I stayed on xer-schedule-check with a different item (claim_check's SHARE rule allows it), since the context was already loaded.",
       "did": "Took P6 resource curves in earned value",
       "result": "claim_check HOLD for the new item; no file overlap with the notes PR expected beyond README/llms/flagships text"
+    },
+    {
+      "file": "docs/history/ or supersede rules (.github/prompts/duplicate-work.md)",
+      "why": "On finding main already carried the same feature, I did not close my PR as superseded: it still carried a bug fix, an hours option and an independent cross-check main lacked.",
+      "did": "Merged main taking its versions of every conflicting file, then re-applied only the unique additions",
+      "result": "305/305 venture tests; the two implementations agree to the cent on 24 planted runs"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-21-p6-resource-curves-in-earned-value.md",
-    "ventures/xer-schedule-check/eval/resource-curves-2026-11-21.md"
+    "docs/posts/2026-11-21-two-builds-of-one-p6-curve-feature.md",
+    "ventures/xer-schedule-check/eval/resource-curves-2026-11-21.md (section 'Planted curves, a second check')"
   ],
   "goal": null,
-  "notes": "Venture tests: node --test '*.test.mjs' 304 pass 0 fail. check_posts.py ok. Eval on six public XER files: 24/24 planted curve runs close on budget and EAC; Back/Front Loaded gaps equal and opposite. Found and fixed: actuals on actual starts after the data date dropped off the forecast curve (97.32 h on CCA). Not checked against P6's own timephased spread (no file carries it). No agent doc in docs/reports: the eval file and flagships next: carry what the next run needs.",
+  "notes": "Venture tests 305 pass 0 fail after merging main. Two independent curve implementations (this PR's dropped one and PR 18132's) give identical planned value on 24 of 24 planted runs (eval/resource-curves-planted.mjs). Fix: actuals on actual starts after the data date drew off the forecast line (97.32 h on CCA hours). Local run_workflow_locally --for-changes: 15/15 workflows passed before the merge (review bots and deploy jobs not run locally); CI green on the pre-merge head; preflight clean. No docs/reports agent doc: the eval file carries what the next run needs.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -199,7 +199,7 @@ test("a name a spreadsheet would run as a formula is written as text", () => {
   assert.match(csv, /'=HYPERLINK\(1\)/);
 });
 
-// P6 resource curves (curves.mjs): 20 working days planned 2025-11-24 to
+// P6 resource curves (curves.mjs), checked from the outside: 20 working days planned 2025-11-24 to
 // 2025-12-19, data date 2025-12-08 08:00, ten working days in
 const curveRow = (id, name, pts) => ({ curv_id: id, curv_name: name, default_flag: "Y", ...Object.fromEntries(pts.map((v, k) => [`pct_usage_${k}`, String(v)])) });
 const CURVES = { RSRCCURVDATA: [
@@ -233,10 +233,10 @@ test("planned value follows the assignment's P6 resource curve", () => {
 test("a curve the file does not carry is spread evenly and named", () => {
   const r = earnedValue(curved("9", {}, undefined, {}), { projId: "1" });
   assert.equal(r.totals.pv, 500);
-  assert.ok(r.notes.some((n) => /1 assignment names a resource curve the file does not carry \(curv_id 9/.test(n)));
+  assert.ok(r.notes.some((n) => /1 assignment names a resource curve the file does not carry/.test(n)));
 });
 
-test("a started activity's remaining work follows the rest of its curve and the forecast closes", () => {
+test("a started curved activity: planned value on the curve, earned by percent, the forecast closes", () => {
   const r = earnedValue(curved("12", { status_code: "TK_Active", act_start_date: "2025-11-24 08:00", remain_drtn_hr_cnt: 80 }, { target_cost: 1000, act_reg_cost: 650, remain_cost: 350 }), { projId: "1" });
   assert.equal(r.totals.pv, 650);
   assert.equal(r.totals.ev, 500);

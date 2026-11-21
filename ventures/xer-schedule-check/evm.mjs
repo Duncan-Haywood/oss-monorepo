@@ -145,7 +145,10 @@ function partBefore(cal, s, e, amount, cut) {
 // pvCuts: [minutes]: also return the planned value at each of those dates
 // (pvAt, same order), from this file's planned dates: how a series of updates
 // holds the first update's planned curve as its baseline (evmseries.mjs).
-export function earnedValue(xer, { projId = null, result = null, pvCuts = null } = {}) {
+// measure: "cost" or "hours" to choose (hours gives the manpower curve on a
+// cost-loaded file); by default cost when any is loaded, else labour hours.
+// curves: false spreads every assignment evenly, ignoring P6 resource curves.
+export function earnedValue(xer, { projId = null, result = null, pvCuts = null, measure: want = null, curves: useCurves = true } = {}) {
   result = result || schedule(xer);
   const model = result.model;
   const T = xer.tables;
@@ -161,21 +164,23 @@ export function earnedValue(xer, { projId = null, result = null, pvCuts = null }
   const costOf = (a) => (num(a.target_cost) ?? 0) + (num(a.act_reg_cost) ?? 0) + (num(a.act_ot_cost) ?? 0) + (num(a.remain_cost) ?? 0);
   const anyCost = assigns.some((a) => costOf(a) > 0) || expenses.some((c) => (num(c.target_cost) ?? 0) + (num(c.act_cost) ?? 0) + (num(c.remain_cost) ?? 0) > 0);
   const labour = assigns.filter((a) => rsrcType.get(a.rsrc_id) === "RT_Labor" && (num(a.target_qty) ?? 0) + (num(a.act_reg_qty) ?? 0) + (num(a.remain_qty) ?? 0) > 0);
-  const measure = anyCost ? "cost" : labour.length ? "hours" : null;
+  const measure = want === "hours" ? (labour.length ? "hours" : null) : want === "cost" ? (anyCost ? "cost" : null) : anyCost ? "cost" : labour.length ? "hours" : null;
   const empty = { measure, currency: null, dataDate: formatDate(dd), project: proj?.code ?? null, totals: null, earnedSchedule: null, curve: [], wbs: [], activities: [], findings: [], notes };
   if (!measure) {
-    notes.push(assigns.length ? "The resource assignments carry no budgeted, actual or remaining cost and no labour hours, so there is nothing to earn against." : "The file has no resource assignments (TASKRSRC) or expenses (PROJCOST): the schedule is not cost or resource loaded.");
+    if (want === "hours" && assigns.length) notes.push("No labour hours are loaded on the resource assignments (RT_Labor budgeted, actual or remaining units).");
+    else if (want === "cost" && assigns.length) notes.push("No cost is loaded on the resource assignments or expenses.");
+    else notes.push(assigns.length ? "The resource assignments carry no budgeted, actual or remaining cost and no labour hours, so there is nothing to earn against." : "The file has no resource assignments (TASKRSRC) or expenses (PROJCOST): the schedule is not cost or resource loaded.");
     return empty;
   }
   const currency = measure === "cost" ? (xer.currency || (T.CURRTYPE || []).length === 1 && T.CURRTYPE[0].curr_short_name || (T.CURRTYPE || []).find((c) => c.base_exch_rate === "1")?.curr_short_name || null) : "h";
-  if (measure === "hours") notes.push("No cost is loaded, so earned value is in labour hours (RT_Labor assignments: budgeted, actual and remaining units).");
+  if (measure === "hours") notes.push(anyCost ? "Earned value in labour hours, as asked (RT_Labor assignments: budgeted, actual and remaining units); the file also carries cost." : "No cost is loaded, so earned value is in labour hours (RT_Labor assignments: budgeted, actual and remaining units).");
   const items = [];
   // P6 resource curves: an assignment naming one is spread by it
-  const curves = readCurves(xer);
+  const curves = useCurves ? readCurves(xer) : new Map();
   const curveUse = new Map();
   let curveMissing = 0;
   const curveOf = (a) => {
-    if (!a.curv_id) return null;
+    if (!a.curv_id || !useCurves) return null;
     const c = curves.get(a.curv_id);
     if (!c) { curveMissing++; return null; }
     if (isEven(c.slices)) return null;
@@ -205,7 +210,7 @@ export function earnedValue(xer, { projId = null, result = null, pvCuts = null }
   };
   const daily = { pv: new Map(), ac: new Map(), fc: new Map() };
   const adder = (m) => (d, v) => m.set(d, (m.get(d) || 0) + v);
-  let missingPlan = 0;
+  let missingPlan = 0, acAfterDd = 0;
   const pvAt = (pvCuts || []).map(() => 0);
   for (const it of items) {
     const A = getAct(it.task);
@@ -226,7 +231,11 @@ export function earnedValue(xer, { projId = null, result = null, pvCuts = null }
     if (pvCuts) for (let k = 0; k < pvCuts.length; k++) pvAt[k] += it.curve ? curvePartBefore(cal, ps, pf, it.bac, it.curve, pvCuts[k]) : partBefore(cal, ps, pf, it.bac, pvCuts[k]);
     // actual: actual start to actual finish, or to the data date
     if (it.ac) {
-      const as = it.as ?? parseDate(r.act_start_date) ?? dd ?? ps;
+      let as = it.as ?? parseDate(r.act_start_date) ?? dd ?? ps;
+      // an actual start after the data date (an invalid date, DCMA check 9)
+      // is drawn at the data date, so the spending stays on the curve: past
+      // the data date the forecast line adds no actuals
+      if (dd !== null && as > dd) { as = dd; acAfterDd++; }
       let af = it.af ?? parseDate(r.act_end_date) ?? dd ?? as;
       if (dd !== null && af > dd) af = dd;
       see(as); see(af);
@@ -245,6 +254,7 @@ export function earnedValue(xer, { projId = null, result = null, pvCuts = null }
       else spread(cal, rs, rf, it.etc, adder(daily.fc), Infinity);
     }
   }
+  if (acAfterDd) notes.push(`${acAfterDd} assignment${acAfterDd === 1 ? " has" : "s have"} actual ${measure} on an actual start after the data date (an invalid date); ${acAfterDd === 1 ? "it is" : "they are"} drawn at the data date.`);
   if (missingPlan) notes.push(`${missingPlan} budgeted assignment${missingPlan === 1 ? " has" : "s have"} no planned dates of ${missingPlan === 1 ? "its" : "their"} own; the activity's planned dates were used, else its actual dates, else the early dates (stored, then recomputed): planned value then follows the forecast for that work.`);
   if (dd !== null) see(dd);
   const top = wbsNames(xer);

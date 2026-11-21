@@ -67,3 +67,49 @@ CCA assignments, and that one names the missing curve 9), so the slice
 reading is not compared with P6's numbers. A P6 export with a curved,
 cost-loaded assignment and its spreadsheet view (Resource Usage) would
 settle it.
+
+## Planted curves, a second check (PR 18131, same day)
+
+A second session built the same feature in parallel (PR 18131) with its own
+code: cumulative shares per twentieth instead of slice walking. That PR
+landed after this one, so its spread code was dropped and its checks were run
+against this code instead. Two independent implementations of the same
+reading give the same numbers to the cent, which is some evidence that the
+reading is implemented as described. It is still not evidence that P6 spreads
+this way.
+
+`eval/resource-curves-planted.mjs` puts every assignment of each public file
+on one of P6's shipped curves in turn, in cost and in labour hours, against
+`curves: false` (the even spread). Planned value at the data date:
+
+| File | Measure | Even | Back Loaded | Front Loaded | Bell Shaped |
+|---|---|---:|---:|---:|---:|
+| example (24.12) | cost (USD) | 250,430.66 | 207,420.92 | 293,440.41 | 164,762.32 |
+| example (24.12) | hours | 2,197.2 | 1,824.9 | 2,569.5 | 1,475.02 |
+| CCA (hospital) | cost (EGP) | 330,091,169.72 | 303,510,918.39 | 356,671,421.04 | 326,437,098.45 |
+| CCA (hospital) | hours | 12,936,825.4 | 12,481,089.61 | 13,392,561.19 | 13,005,477.81 |
+
+- Back and Front Loaded are mirror images, so their gaps from the even spread
+  must be equal and opposite. They are: −43,009.74 / +43,009.75 USD,
+  −372.30 / +372.30 h, −26,580,251.33 / +26,580,251.32 EGP and
+  −455,735.79 / +455,735.79 h.
+- On the 24.12 file the same work has an SPI of 0.202 spread evenly, 0.244 on
+  Back Loaded and 0.172 on Front Loaded.
+- On all four files with assignments, in both measures and with all three
+  curves, the planned curve ends on the budget and the forecast on the
+  estimate at completion: 24 of 24 runs.
+  (`eval/resource-curves-planted-2026-11-21.json`)
+
+What PR 18131 adds on top of this PR:
+
+- **`measure: "hours"`** (CLI `--hours`, page box *in labour hours*): earned
+  value in labour hours even when cost is loaded, i.e. the manpower curve.
+  CCA's curves sit on hours with no cost, so without this the page could not
+  show them. **`curves: false`** (CLI `--even-spread`) gives the old spread
+  for comparison.
+- **A fault the closing check found.** On CCA in hours, the forecast curve
+  ended 97.32 h short of the estimate at completion, with or without curves.
+  Four assignments carry actual hours on activities whose actual start is
+  after the data date (an invalid date). Their actuals were drawn after the
+  data date, where the forecast line adds no actuals. They are now drawn at
+  the data date and counted in a note (test in `evm.test.mjs`).
