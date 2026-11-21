@@ -49,12 +49,14 @@
     
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">SHOPIFY INVENTORY CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my Shopify inventory import update nothing or set the wrong stock?</h1>
-    <p>Paste or drop your <strong>Shopify inventory CSV</strong> and get every problem <strong>with its line number</strong> before you import: a missing or misspelled <strong><code>On hand (new)</code></strong> column, quantities that are <strong>text, fractions or have a thousands comma</strong>, <strong>tenfold typos</strong>, <strong>two rows for the same variant and location</strong>, handles retyped so they match no product, <strong>locations spelled two ways</strong>, and SKUs Excel turned into <code>4.01E+12</code>. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <p class="lede">Paste or drop your <strong>Shopify inventory CSV</strong> and get every problem <strong>with its line number</strong> before you import. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags a missing or misspelled <strong><code>On hand (new)</code></strong> column, quantities that are <strong>text, fractions or have a thousands comma</strong>, <strong>tenfold typos</strong>, <strong>two rows for the same variant and location</strong>, handles retyped so they match no product, <strong>locations spelled two ways</strong>, and SKUs Excel turned into <code>4.01E+12</code>.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Shopify Inc. Column names and rules are read from memory of Shopify's public help pages on updating inventory quantities by CSV; no Shopify store or import was available when this was built.</p>
     <p class="note"><strong>About the counts.</strong> The import sets stock to the figures in the file. Sales and receipts since you exported are not netted off, so export fresh just before you edit, and try a handful of rows first. This tool checks formatting; it never decides what a quantity should be.</p>
   </header>

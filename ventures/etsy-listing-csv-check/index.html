@@ -51,12 +51,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">ETSY LISTING CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my Etsy bulk upload fail?</h1>
-    <p>Paste or drop your <strong>listing CSV</strong> and get every problem <strong>with its line number</strong> before you upload: <strong>titles over 140 characters</strong>, <strong>more than 13 tags</strong> or tags over 20 characters, prices like <code>$18.00</code> or <code>26,50</code>, quantities above 999, image links that are not direct image addresses, duplicate variation choices, SKUs Excel turned into <code>1.23457E+12</code>, and semicolon-separated files. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <p class="lede">Paste or drop your <strong>listing CSV</strong> and get every problem <strong>with its line number</strong> before you upload. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>titles over 140 characters</strong>, <strong>more than 13 tags</strong> or tags over 20 characters, prices like <code>$18.00</code> or <code>26,50</code>, quantities above 999, image links that are not direct image addresses, duplicate variation choices, SKUs Excel turned into <code>1.23457E+12</code>, and semicolon-separated files.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Etsy, Inc. Column names and limits are read from memory of Etsy's public bulk listing upload documentation; no Etsy upload was available when this was built.</p>
   </header>
 <main>

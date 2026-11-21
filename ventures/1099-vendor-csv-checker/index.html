@@ -51,12 +51,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">1099-NEC VENDOR CSV CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Who needs a 1099-NEC, and is the data good enough to file?</h1>
-    <p>Paste or drop your <strong>vendor payments CSV</strong> (name, TIN, address, total paid). It adds up each vendor, tests the total against the <strong>$600 / $2,000 reporting threshold</strong> for the year, and lists every fault with its row: <strong>missing or malformed TINs, blank addresses, bad state codes, ZIPs that lost their leading zero, duplicate vendors, one name with two TINs, probable corporations</strong> and card payments that belong on a 1099-K. Then download a clean list of the vendors who need a form.</p>
+    <p class="lede">Paste or drop your <strong>vendor payments CSV</strong> (name, TIN, address, total paid). It adds up each vendor, tests the total against the <strong>$600 / $2,000 reporting threshold</strong> for the year, and lists every fault with its row. Then download a clean list of the vendors who need a form.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>missing or malformed TINs, blank addresses, bad state codes, ZIPs that lost their leading zero, duplicate vendors, one name with two TINs, probable corporations</strong> and card payments that belong on a 1099-K.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. TINs are masked to their last four digits in the report. Independent of the IRS. Check each rule against current IRS instructions for Form 1099-NEC before you file.</p>
   </header>
 <main>

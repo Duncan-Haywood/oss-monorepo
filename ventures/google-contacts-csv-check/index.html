@@ -51,12 +51,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">GOOGLE CONTACTS CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my Google Contacts import fail?</h1>
-    <p>Paste or drop your <strong>contacts CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>headings Google silently skips</strong> (Email 1 - Value instead of E-mail 1 - Value), an <strong>email cell holding two addresses the wrong way</strong>, phone numbers Excel turned into <code>4.41175E+11</code>, <strong>rows that would import as the same person twice</strong>, and a birthday of 30 February. Then download a cleaned copy.</p>
+    <p class="lede">Paste or drop your <strong>contacts CSV</strong> and get every problem <strong>with its line number</strong> before you import. Then download a cleaned copy.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>headings Google silently skips</strong> (Email 1 - Value instead of E-mail 1 - Value), an <strong>email cell holding two addresses the wrong way</strong>, phone numbers Excel turned into <code>4.41175E+11</code>, <strong>rows that would import as the same person twice</strong>, and a birthday of 30 February.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Google. Column names and rules are read from memory of Google Contacts' public CSV format and help pages, both the current layout and the older one; no Google import was available when this was built.</p>
   </header>
 <main>

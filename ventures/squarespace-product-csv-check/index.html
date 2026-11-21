@@ -50,12 +50,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">SQUARESPACE PRODUCT CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my Squarespace product import fail?</h1>
-    <p>Paste or drop your <strong>product CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>variant rows</strong> that Squarespace reads as new products, <strong>duplicate SKUs</strong> and Product URLs, a blank or <code>$24.00</code>-style price, <strong>On Sale</strong> with no Sale Price, flags that are not Yes or No, <strong>Hosted Image URLs</strong> separated by commas, and SKUs Excel rewrote to <code>1.23457E+12</code>. Then download a cleaned copy.</p>
+    <p class="lede">Paste or drop your <strong>product CSV</strong> and get every problem <strong>with its line number</strong> before you import. Then download a cleaned copy.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>variant rows</strong> that Squarespace reads as new products, <strong>duplicate SKUs</strong> and Product URLs, a blank or <code>$24.00</code>-style price, <strong>On Sale</strong> with no Sale Price, flags that are not Yes or No, <strong>Hosted Image URLs</strong> separated by commas, and SKUs Excel rewrote to <code>1.23457E+12</code>.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Squarespace. Column names and rules are read from memory of Squarespace's public product CSV import documentation; no Squarespace import was available when this was built.</p>
   </header>
 <main>

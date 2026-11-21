@@ -55,12 +55,14 @@
     .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; align-items: end; }
     .plat td, .plat th { font-size: .9rem; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">EMAIL LIST CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Is my email list safe to import?</h1>
-    <p>Paste or drop your <strong>contact list CSV</strong> and see every problem <strong>with its line number</strong> before it goes into Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact: <strong>invalid and duplicate emails</strong>, domain typos like <code>gmial.com</code> and <code>.con</code>, <strong>role</strong> and <strong>disposable</strong> addresses, phone numbers Excel turned into <code>5.56E+09</code>, ZIP codes that lost their zero, garbled accents, and headings the platform will not recognise. Then download a <strong>safe-fixes copy</strong> and a separate <strong>rejected rows</strong> file.</p>
+    <p class="lede">Paste or drop your <strong>contact list CSV</strong> and see every problem <strong>with its line number</strong> before it goes into Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact. Then download a <strong>safe-fixes copy</strong> and a separate <strong>rejected rows</strong> file.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>invalid and duplicate emails</strong>, domain typos like <code>gmial.com</code> and <code>.con</code>, <strong>role</strong> and <strong>disposable</strong> addresses, phone numbers Excel turned into <code>5.56E+09</code>, ZIP codes that lost their zero, garbled accents, and headings the platform will not recognise.</p></details>
     <p class="note">The list is read in this browser tab and never leaves your device. Independent of every email platform named here. Heading names are read from memory of each platform's public import help; no import was tried when this was built.</p>
   </header>
 <main>

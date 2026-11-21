@@ -51,12 +51,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">QUICKBOOKS IMPORT CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my QuickBooks import skip rows?</h1>
-    <p>Choose <strong>customers, vendors or products and services</strong>, paste or drop the CSV, and get every problem <strong>with its line number</strong> before you import: <strong>blank or repeated display names</strong>, names with a colon that become sub-customers, opening balances like <code>$1,250.00</code> or with no as-of date, <strong>dates that mix day/month and month/day</strong>, emails QuickBooks cannot read, ZIP codes that lost their zero, tax IDs and phone numbers Excel turned into <code>5.55E+09</code>, and files over the <strong>1,000-row</strong> limit. Then <strong>apply the safe fixes</strong>, split a long file, and download the result.</p>
+    <p class="lede">Choose <strong>customers, vendors or products and services</strong>, paste or drop the CSV, and get every problem <strong>with its line number</strong> before you import. Then <strong>apply the safe fixes</strong>, split a long file, and download the result.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>blank or repeated display names</strong>, names with a colon that become sub-customers, opening balances like <code>$1,250.00</code> or with no as-of date, <strong>dates that mix day/month and month/day</strong>, emails QuickBooks cannot read, ZIP codes that lost their zero, tax IDs and phone numbers Excel turned into <code>5.55E+09</code>, and files over the <strong>1,000-row</strong> limit.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Intuit Inc. Column names and limits are read from memory of Intuit's public import help pages; no QuickBooks import was available when this was built.</p>
   </header>
 <main>

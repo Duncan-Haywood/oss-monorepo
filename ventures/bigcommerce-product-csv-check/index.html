@@ -51,12 +51,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">BIGCOMMERCE PRODUCT CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my BigCommerce product import fail?</h1>
-    <p>Paste or drop your <strong>product CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>SKU rows</strong> with no product or option set, <strong>duplicate SKUs</strong>, a blank or <code>$24.00</code>-style price, a sale price above the price, flags that are not Y or N, category paths with the wrong separator, barcodes with a wrong check digit, image addresses the store cannot fetch, SKUs Excel turned into <code>1.23457E+12</code>, and semicolon-separated files. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <p class="lede">Paste or drop your <strong>product CSV</strong> and get every problem <strong>with its line number</strong> before you import. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>SKU rows</strong> with no product or option set, <strong>duplicate SKUs</strong>, a blank or <code>$24.00</code>-style price, a sale price above the price, flags that are not Y or N, category paths with the wrong separator, barcodes with a wrong check digit, image addresses the store cannot fetch, SKUs Excel turned into <code>1.23457E+12</code>, and semicolon-separated files.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of BigCommerce. Column names and rules are read from memory of BigCommerce's public product CSV import documentation; no BigCommerce import was available when this was built.</p>
   </header>
 <main>

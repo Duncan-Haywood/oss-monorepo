@@ -2084,6 +2084,21 @@ node platform/pages/fold-check.mjs
 node platform/pages/fold-check.mjs --widths 320,360,375,390 --all
 ```
 
+### How far down a venture page the tool starts
+
+`venture-fold.mjs` is the venture-page counterpart, a measurement rather than a
+gate: for the slugs you name (`--slugs a,b`, `--match csv-check`, or `--all`)
+it prints, per width, how many pages have their first `main .card` and their
+first visible form field on the first screen (top ≤ height − 16 px, the
+`fold.mjs` rule) and the median tops; `--rows` adds one line per page and
+`--json` the raw numbers. Point `DIST` at an `--only` preview to get before
+and after numbers for a family in about a minute each. It exits 0 whatever it
+finds. Helpers tested by `venture-fold.test.mjs`; not in CI (Playwright).
+
+```
+DIST=/tmp/before node platform/pages/venture-fold.mjs --match csv-check --widths 360,390,1280 --rows
+```
+
 ### Lighthouse on the pages a visitor sees first
 
 `lighthouse.mjs` runs Lighthouse (mobile by default) on the hub, /research/,

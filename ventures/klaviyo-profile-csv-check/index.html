@@ -49,12 +49,14 @@
     
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">KLAVIYO PROFILE CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my Klaviyo profile import skip rows or create odd profiles?</h1>
-    <p>Paste or drop your <strong>Klaviyo profile CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>invalid and duplicate emails</strong> (capitals ignored), <strong>phone numbers that are not E.164</strong>, phones turned into <code>4.16556E+09</code>, zips Excel stripped of their <strong>leading zeros</strong>, rows with <strong>no email, phone or External ID</strong>, headers like <code>Phone</code> that will not map to the standard property, bad latitude, longitude and timezone values, and date columns that <strong>mix day-first and month-first</strong>. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <p class="lede">Paste or drop your <strong>Klaviyo profile CSV</strong> and get every problem <strong>with its line number</strong> before you import. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>invalid and duplicate emails</strong> (capitals ignored), <strong>phone numbers that are not E.164</strong>, phones turned into <code>4.16556E+09</code>, zips Excel stripped of their <strong>leading zeros</strong>, rows with <strong>no email, phone or External ID</strong>, headers like <code>Phone</code> that will not map to the standard property, bad latitude, longitude and timezone values, and date columns that <strong>mix day-first and month-first</strong>.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Klaviyo, Inc. Column names and rules are read from memory of Klaviyo's public help pages on importing profiles; no Klaviyo account or import was available when this was built.</p>
     <p class="note"><strong>About consent.</strong> Permission to market comes from a real opt-in you can show, such as a signup form or the subscription list of the platform you are leaving, and Klaviyo asks you to confirm it at import. This tool checks formatting. It does not create, upgrade or change anyone's consent, and no fix here will ever turn a blank or unclear value into a yes.</p>
   </header>

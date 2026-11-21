@@ -51,12 +51,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1d3f66; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1d3f66; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">META CATALOG CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why was my Facebook or Instagram catalog upload rejected?</h1>
-    <p>Paste or drop your <strong>Meta catalog feed CSV or TSV</strong> (Commerce Manager, Facebook Shops, Instagram Shopping, dynamic ads) and get every problem <strong>with its line number</strong> before you upload: <strong>duplicate ids</strong>, prices <strong>without a currency</strong> or written with $ or a decimal comma, <strong>In Stock</strong> instead of <code>in stock</code>, a sale price that is not lower than the price, empty or http links, <strong>WebP images</strong>, barcodes that Excel turned into <code>4.00638E+12</code>, GTINs with a wrong check digit, and variants that look identical. Then <strong>apply the safe fixes</strong> and download a cleaned file.</p>
+    <p class="lede">Paste or drop your <strong>Meta catalog feed CSV or TSV</strong> (Commerce Manager, Facebook Shops, Instagram Shopping, dynamic ads) and get every problem <strong>with its line number</strong> before you upload. Then <strong>apply the safe fixes</strong> and download a cleaned file.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>duplicate ids</strong>, prices <strong>without a currency</strong> or written with $ or a decimal comma, <strong>In Stock</strong> instead of <code>in stock</code>, a sale price that is not lower than the price, empty or http links, <strong>WebP images</strong>, barcodes that Excel turned into <code>4.00638E+12</code>, GTINs with a wrong check digit, and variants that look identical.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Meta Platforms, Inc. Field names, limits and value lists are read from memory of Meta's public catalog help pages; no Commerce Manager upload was available when this was built.</p>
   </header>
 <main>
