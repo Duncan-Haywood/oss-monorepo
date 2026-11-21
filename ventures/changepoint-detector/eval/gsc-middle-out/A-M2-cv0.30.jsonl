@@ -1,0 +1,13 @@
+M2 cv0.30 {"detector":"pelt","overdispersion":"nb1"}
+{"base":50,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":4,"watched":2400,"chance":2}
+{"base":50,"fall":0.1,"seeds":20,"heard":3,"delays":[25,31,16],"falseA":4,"watched":1200,"chance":0}
+{"base":50,"fall":0.2,"seeds":20,"heard":14,"delays":[9,9,19,12,42,36,37,21,23,10,21,36,7,31],"falseA":1,"watched":1200,"chance":0}
+{"base":50,"fall":0.4,"seeds":20,"heard":19,"delays":[12,5,3,3,8,7,8,9,8,6,9,6,4,10,8,6,8,20,6],"falseA":1,"watched":1200,"chance":0}
+{"base":400,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":3,"watched":2400,"chance":0}
+{"base":400,"fall":0.1,"seeds":20,"heard":4,"delays":[30,51,36,11],"falseA":2,"watched":1200,"chance":0}
+{"base":400,"fall":0.2,"seeds":20,"heard":16,"delays":[10,51,28,3,8,39,10,22,37,36,26,23,44,16,15,15],"falseA":2,"watched":1200,"chance":0}
+{"base":400,"fall":0.4,"seeds":20,"heard":20,"delays":[11,4,6,6,3,14,4,4,2,8,4,2,11,4,9,3,8,8,4,4],"falseA":6,"watched":1200,"chance":0}
+{"base":3000,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":3,"watched":2400,"chance":0}
+{"base":3000,"fall":0.1,"seeds":20,"heard":4,"delays":[5,4,22,2],"falseA":1,"watched":1200,"chance":0}
+{"base":3000,"fall":0.2,"seeds":20,"heard":18,"delays":[12,47,36,4,44,20,22,11,10,56,34,52,10,22,19,15,27,16],"falseA":1,"watched":1200,"chance":0}
+{"base":3000,"fall":0.4,"seeds":20,"heard":20,"delays":[8,9,11,9,8,5,8,7,5,7,5,5,4,4,9,4,7,8,9,4],"falseA":1,"watched":1200,"chance":0}

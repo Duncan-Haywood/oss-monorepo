@@ -1,0 +1,13 @@
+M3 cv0.30 {"detector":"bocpd-window","overdispersion":"nb","threshold":0.2}
+{"base":50,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":2,"watched":2400,"chance":0}
+{"base":50,"fall":0.1,"seeds":20,"heard":0,"delays":[],"falseA":3,"watched":1200,"chance":0}
+{"base":50,"fall":0.2,"seeds":20,"heard":7,"delays":[9,9,12,8,10,9,6],"falseA":0,"watched":1200,"chance":0}
+{"base":50,"fall":0.4,"seeds":20,"heard":16,"delays":[5,3,6,6,7,9,22,3,10,6,6,10,9,6,8,5],"falseA":3,"watched":1200,"chance":0}
+{"base":400,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":5,"watched":2400,"chance":0}
+{"base":400,"fall":0.1,"seeds":20,"heard":1,"delays":[11],"falseA":2,"watched":1200,"chance":0}
+{"base":400,"fall":0.2,"seeds":20,"heard":5,"delays":[2,3,8,11,26],"falseA":1,"watched":1200,"chance":0}
+{"base":400,"fall":0.4,"seeds":20,"heard":18,"delays":[10,4,5,4,4,5,4,4,4,4,4,3,4,8,3,6,3,4],"falseA":2,"watched":1200,"chance":0}
+{"base":3000,"fall":0,"seeds":20,"heard":0,"delays":[],"falseA":3,"watched":2400,"chance":0}
+{"base":3000,"fall":0.1,"seeds":20,"heard":3,"delays":[8,6,2],"falseA":1,"watched":1200,"chance":0}
+{"base":3000,"fall":0.2,"seeds":20,"heard":4,"delays":[4,9,10,8],"falseA":0,"watched":1200,"chance":0}
+{"base":3000,"fall":0.4,"seeds":20,"heard":17,"delays":[4,9,5,4,4,4,4,4,4,3,4,4,4,6,7,10,4],"falseA":4,"watched":1200,"chance":0}

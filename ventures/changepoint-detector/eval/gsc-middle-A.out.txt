@@ -1,0 +1,141 @@
+stage A
+
+cv 0.15: setting | false alerts per 1,000 days | 10% heard (median days) | 20% heard | 40% heard
+M1 {"detector":"pelt","overdispersion":"nb"} | 0.72 | 39/60 (33) | 59/60 (9) | 60/60 (4)
+    base 50 fall 0%: false 0.42/1,000, null alerts in the fall window 0/20
+    base 50 fall 10%: 8/20 heard, median 36 d, false 0.83/1,000
+    base 50 fall 20%: 19/20 heard, median 11 d, false 1.67/1,000
+    base 50 fall 40%: 20/20 heard, median 4 d, false 0.00/1,000
+    base 400 fall 0%: false 0.00/1,000, null alerts in the fall window 0/20
+    base 400 fall 10%: 16/20 heard, median 33 d, false 1.67/1,000
+    base 400 fall 20%: 20/20 heard, median 8 d, false 0.83/1,000
+    base 400 fall 40%: 20/20 heard, median 4 d, false 0.00/1,000
+    base 3000 fall 0%: false 0.83/1,000, null alerts in the fall window 0/20
+    base 3000 fall 10%: 15/20 heard, median 28 d, false 0.00/1,000
+    base 3000 fall 20%: 20/20 heard, median 8 d, false 0.83/1,000
+    base 3000 fall 40%: 20/20 heard, median 4 d, false 2.50/1,000
+M2 {"detector":"pelt","overdispersion":"nb1"} | 0.72 | 38/60 (30) | 59/60 (9) | 60/60 (4)
+    base 50 fall 0%: false 1.25/1,000, null alerts in the fall window 0/20
+    base 50 fall 10%: 9/20 heard, median 39 d, false 0.83/1,000
+    base 50 fall 20%: 19/20 heard, median 11 d, false 0.00/1,000
+    base 50 fall 40%: 20/20 heard, median 4 d, false 0.00/1,000
+    base 400 fall 0%: false 0.00/1,000, null alerts in the fall window 0/20
+    base 400 fall 10%: 15/20 heard, median 37 d, false 1.67/1,000
+    base 400 fall 20%: 20/20 heard, median 8 d, false 0.83/1,000
+    base 400 fall 40%: 20/20 heard, median 4 d, false 0.00/1,000
+    base 3000 fall 0%: false 0.83/1,000, null alerts in the fall window 0/20
+    base 3000 fall 10%: 14/20 heard, median 23 d, false 0.00/1,000
+    base 3000 fall 20%: 20/20 heard, median 8 d, false 0.83/1,000
+    base 3000 fall 40%: 20/20 heard, median 4 d, false 2.50/1,000
+M3 {"detector":"bocpd-window","overdispersion":"nb","threshold":0.2} | 0.17 | 0/60 (-) | 28/60 (6) | 60/60 (4)
+    base 50 fall 0%: false 0.00/1,000, null alerts in the fall window 0/20
+    base 50 fall 10%: 0/20 heard, median - d, false 0.00/1,000
+    base 50 fall 20%: 6/20 heard, median 8 d, false 0.00/1,000
+    base 50 fall 40%: 20/20 heard, median 4 d, false 0.00/1,000
+    base 400 fall 0%: false 0.00/1,000, null alerts in the fall window 0/20
+    base 400 fall 10%: 0/20 heard, median - d, false 0.83/1,000
+    base 400 fall 20%: 13/20 heard, median 6 d, false 0.83/1,000
+    base 400 fall 40%: 20/20 heard, median 4 d, false 0.00/1,000
+    base 3000 fall 0%: false 0.00/1,000, null alerts in the fall window 0/20
+    base 3000 fall 10%: 0/20 heard, median - d, false 0.00/1,000
+    base 3000 fall 20%: 9/20 heard, median 4 d, false 0.00/1,000
+    base 3000 fall 40%: 20/20 heard, median 4 d, false 0.83/1,000
+M4 {"detector":"bocpd-window","overdispersion":"nb","threshold":0.1} | 0.50 | 1/60 (3) | 43/60 (5) | 60/60 (4)
+    base 50 fall 0%: false 0.00/1,000, null alerts in the fall window 0/20
+    base 50 fall 10%: 1/20 heard, median 3 d, false 0.00/1,000
+    base 50 fall 20%: 12/20 heard, median 8 d, false 0.00/1,000
+    base 50 fall 40%: 20/20 heard, median 4 d, false 0.00/1,000
+    base 400 fall 0%: false 0.42/1,000, null alerts in the fall window 0/20
+    base 400 fall 10%: 0/20 heard, median - d, false 0.83/1,000
+    base 400 fall 20%: 16/20 heard, median 4 d, false 0.83/1,000
+    base 400 fall 40%: 20/20 heard, median 4 d, false 0.00/1,000
+    base 3000 fall 0%: false 1.67/1,000, null alerts in the fall window 1/20
+    base 3000 fall 10%: 0/20 heard, median - d, false 0.00/1,000
+    base 3000 fall 20%: 15/20 heard, median 5 d, false 0.83/1,000
+    base 3000 fall 40%: 20/20 heard, median 4 d, false 0.83/1,000
+M5 {"detector":"bocpd-window","overdispersion":"nb","threshold":0.05} | 3.11 | 10/60 (10) | 52/60 (4) | 60/60 (4)
+    base 50 fall 0%: false 3.33/1,000, null alerts in the fall window 1/20
+    base 50 fall 10%: 4/20 heard, median 10 d, false 2.50/1,000
+    base 50 fall 20%: 14/20 heard, median 4 d, false 2.50/1,000
+    base 50 fall 40%: 20/20 heard, median 4 d, false 3.33/1,000
+    base 400 fall 0%: false 2.50/1,000, null alerts in the fall window 1/20
+    base 400 fall 10%: 3/20 heard, median 11 d, false 3.33/1,000
+    base 400 fall 20%: 19/20 heard, median 4 d, false 3.33/1,000
+    base 400 fall 40%: 20/20 heard, median 4 d, false 2.50/1,000
+    base 3000 fall 0%: false 3.75/1,000, null alerts in the fall window 1/20
+    base 3000 fall 10%: 3/20 heard, median 4 d, false 3.33/1,000
+    base 3000 fall 20%: 19/20 heard, median 4 d, false 0.83/1,000
+    base 3000 fall 40%: 20/20 heard, median 4 d, false 5.83/1,000
+
+cv 0.30: setting | false alerts per 1,000 days | 10% heard (median days) | 20% heard | 40% heard
+M1 {"detector":"pelt","overdispersion":"nb"} | 1.56 | 14/60 (26) | 49/60 (18) | 60/60 (6)
+    base 50 fall 0%: false 0.42/1,000, null alerts in the fall window 0/20
+    base 50 fall 10%: 5/20 heard, median 24 d, false 2.50/1,000
+    base 50 fall 20%: 14/20 heard, median 12 d, false 0.00/1,000
+    base 50 fall 40%: 20/20 heard, median 7 d, false 1.67/1,000
+    base 400 fall 0%: false 1.67/1,000, null alerts in the fall window 0/20
+    base 400 fall 10%: 4/20 heard, median 30 d, false 2.50/1,000
+    base 400 fall 20%: 16/20 heard, median 17 d, false 1.67/1,000
+    base 400 fall 40%: 20/20 heard, median 4 d, false 5.83/1,000
+    base 3000 fall 0%: false 1.25/1,000, null alerts in the fall window 0/20
+    base 3000 fall 10%: 5/20 heard, median 22 d, false 0.83/1,000
+    base 3000 fall 20%: 19/20 heard, median 20 d, false 0.83/1,000
+    base 3000 fall 40%: 20/20 heard, median 6 d, false 0.83/1,000
+M2 {"detector":"pelt","overdispersion":"nb1"} | 1.61 | 11/60 (22) | 48/60 (21) | 59/60 (7)
+    base 50 fall 0%: false 1.67/1,000, null alerts in the fall window 2/20
+    base 50 fall 10%: 3/20 heard, median 25 d, false 3.33/1,000
+    base 50 fall 20%: 14/20 heard, median 21 d, false 0.83/1,000
+    base 50 fall 40%: 19/20 heard, median 8 d, false 0.83/1,000
+    base 400 fall 0%: false 1.25/1,000, null alerts in the fall window 0/20
+    base 400 fall 10%: 4/20 heard, median 30 d, false 1.67/1,000
+    base 400 fall 20%: 16/20 heard, median 22 d, false 1.67/1,000
+    base 400 fall 40%: 20/20 heard, median 4 d, false 5.00/1,000
+    base 3000 fall 0%: false 1.25/1,000, null alerts in the fall window 0/20
+    base 3000 fall 10%: 4/20 heard, median 4 d, false 0.83/1,000
+    base 3000 fall 20%: 18/20 heard, median 20 d, false 0.83/1,000
+    base 3000 fall 40%: 20/20 heard, median 7 d, false 0.83/1,000
+M3 {"detector":"bocpd-window","overdispersion":"nb","threshold":0.2} | 1.44 | 4/60 (6) | 16/60 (9) | 51/60 (4)
+    base 50 fall 0%: false 0.83/1,000, null alerts in the fall window 0/20
+    base 50 fall 10%: 0/20 heard, median - d, false 2.50/1,000
+    base 50 fall 20%: 7/20 heard, median 9 d, false 0.00/1,000
+    base 50 fall 40%: 16/20 heard, median 6 d, false 2.50/1,000
+    base 400 fall 0%: false 2.08/1,000, null alerts in the fall window 0/20
+    base 400 fall 10%: 1/20 heard, median 11 d, false 1.67/1,000
+    base 400 fall 20%: 5/20 heard, median 8 d, false 0.83/1,000
+    base 400 fall 40%: 18/20 heard, median 4 d, false 1.67/1,000
+    base 3000 fall 0%: false 1.25/1,000, null alerts in the fall window 0/20
+    base 3000 fall 10%: 3/20 heard, median 6 d, false 0.83/1,000
+    base 3000 fall 20%: 4/20 heard, median 8 d, false 0.00/1,000
+    base 3000 fall 40%: 17/20 heard, median 4 d, false 3.33/1,000
+M4 {"detector":"bocpd-window","overdispersion":"nb","threshold":0.1} | 3.72 | 10/60 (6) | 26/60 (8) | 57/60 (4)
+    base 50 fall 0%: false 3.75/1,000, null alerts in the fall window 2/20
+    base 50 fall 10%: 1/20 heard, median 12 d, false 5.00/1,000
+    base 50 fall 20%: 12/20 heard, median 9 d, false 1.67/1,000
+    base 50 fall 40%: 18/20 heard, median 6 d, false 5.83/1,000
+    base 400 fall 0%: false 4.17/1,000, null alerts in the fall window 0/20
+    base 400 fall 10%: 5/20 heard, median 10 d, false 5.83/1,000
+    base 400 fall 20%: 6/20 heard, median 4 d, false 4.17/1,000
+    base 400 fall 40%: 19/20 heard, median 4 d, false 5.83/1,000
+    base 3000 fall 0%: false 2.08/1,000, null alerts in the fall window 0/20
+    base 3000 fall 10%: 4/20 heard, median 6 d, false 3.33/1,000
+    base 3000 fall 20%: 8/20 heard, median 5 d, false 0.83/1,000
+    base 3000 fall 40%: 20/20 heard, median 4 d, false 3.33/1,000
+M5 {"detector":"bocpd-window","overdispersion":"nb","threshold":0.05} | 9.61 | 21/60 (7) | 36/60 (6) | 60/60 (4)
+    base 50 fall 0%: false 10.00/1,000, null alerts in the fall window 5/20
+    base 50 fall 10%: 4/20 heard, median 8 d, false 11.67/1,000
+    base 50 fall 20%: 14/20 heard, median 9 d, false 3.33/1,000
+    base 50 fall 40%: 20/20 heard, median 4 d, false 10.00/1,000
+    base 400 fall 0%: false 12.50/1,000, null alerts in the fall window 3/20
+    base 400 fall 10%: 9/20 heard, median 6 d, false 10.00/1,000
+    base 400 fall 20%: 10/20 heard, median 4 d, false 9.17/1,000
+    base 400 fall 40%: 20/20 heard, median 4 d, false 12.50/1,000
+    base 3000 fall 0%: false 8.75/1,000, null alerts in the fall window 1/20
+    base 3000 fall 10%: 8/20 heard, median 6 d, false 8.33/1,000
+    base 3000 fall 20%: 12/20 heard, median 4 d, false 6.67/1,000
+    base 3000 fall 40%: 20/20 heard, median 4 d, false 10.00/1,000
+
+Eligible (pooled false alerts <= 2.0 per 1,000 days at each cv): M1, M2, M3
+  M1: 10% + 20% falls heard over both cvs 161, median delay on 20% 11
+  M2: 10% + 20% falls heard over both cvs 156, median delay on 20% 11
+  M3: 10% + 20% falls heard over both cvs 48, median delay on 20% 8
+Pick: M1

@@ -1,0 +1,64 @@
+stage B
+
+cv 0.15: setting | false alerts per 1,000 days | 10% heard (median days) | 20% heard | 40% heard
+M1 {"detector":"pelt","overdispersion":"nb"} | 0.83 | 73/120 (29) | 115/120 (8) | 120/120 (4)
+    base 50 fall 0%: false 1.04/1,000, null alerts in the fall window 0/40
+    base 50 fall 10%: 18/40 heard, median 30 d, false 0.83/1,000
+    base 50 fall 20%: 37/40 heard, median 16 d, false 0.83/1,000
+    base 50 fall 40%: 40/40 heard, median 4 d, false 1.25/1,000
+    base 400 fall 0%: false 0.63/1,000, null alerts in the fall window 2/40
+    base 400 fall 10%: 27/40 heard, median 26 d, false 0.42/1,000
+    base 400 fall 20%: 38/40 heard, median 6 d, false 0.83/1,000
+    base 400 fall 40%: 40/40 heard, median 4 d, false 1.25/1,000
+    base 3000 fall 0%: false 0.21/1,000, null alerts in the fall window 0/40
+    base 3000 fall 10%: 28/40 heard, median 29 d, false 2.50/1,000
+    base 3000 fall 20%: 40/40 heard, median 8 d, false 0.00/1,000
+    base 3000 fall 40%: 40/40 heard, median 4 d, false 0.83/1,000
+Q {} (count default) | 0.17 | 0/120 (-) | 38/120 (5) | 118/120 (4)
+    base 50 fall 0%: false 0.21/1,000, null alerts in the fall window 0/40
+    base 50 fall 10%: 0/40 heard, median - d, false 0.42/1,000
+    base 50 fall 20%: 6/40 heard, median 4 d, false 0.00/1,000
+    base 50 fall 40%: 38/40 heard, median 4 d, false 0.42/1,000
+    base 400 fall 0%: false 0.00/1,000, null alerts in the fall window 0/40
+    base 400 fall 10%: 0/40 heard, median - d, false 0.00/1,000
+    base 400 fall 20%: 17/40 heard, median 5 d, false 0.00/1,000
+    base 400 fall 40%: 40/40 heard, median 4 d, false 0.00/1,000
+    base 3000 fall 0%: false 0.00/1,000, null alerts in the fall window 0/40
+    base 3000 fall 10%: 0/40 heard, median - d, false 1.25/1,000
+    base 3000 fall 20%: 15/40 heard, median 5 d, false 0.00/1,000
+    base 3000 fall 40%: 40/40 heard, median 4 d, false 0.00/1,000
+
+cv 0.30: setting | false alerts per 1,000 days | 10% heard (median days) | 20% heard | 40% heard
+M1 {"detector":"pelt","overdispersion":"nb"} | 1.33 | 21/120 (36) | 88/120 (16) | 120/120 (5)
+    base 50 fall 0%: false 0.83/1,000, null alerts in the fall window 0/40
+    base 50 fall 10%: 6/40 heard, median 38 d, false 0.83/1,000
+    base 50 fall 20%: 29/40 heard, median 18 d, false 1.25/1,000
+    base 50 fall 40%: 40/40 heard, median 6 d, false 1.25/1,000
+    base 400 fall 0%: false 1.25/1,000, null alerts in the fall window 1/40
+    base 400 fall 10%: 8/40 heard, median 40 d, false 1.67/1,000
+    base 400 fall 20%: 30/40 heard, median 23 d, false 3.75/1,000
+    base 400 fall 40%: 40/40 heard, median 4 d, false 1.25/1,000
+    base 3000 fall 0%: false 0.42/1,000, null alerts in the fall window 0/40
+    base 3000 fall 10%: 7/40 heard, median 22 d, false 2.08/1,000
+    base 3000 fall 20%: 29/40 heard, median 14 d, false 1.67/1,000
+    base 3000 fall 40%: 40/40 heard, median 5 d, false 1.25/1,000
+Q {} (count default) | 0.58 | 1/120 (4) | 17/120 (7) | 99/120 (4)
+    base 50 fall 0%: false 0.42/1,000, null alerts in the fall window 0/40
+    base 50 fall 10%: 0/40 heard, median - d, false 0.42/1,000
+    base 50 fall 20%: 4/40 heard, median 8 d, false 0.83/1,000
+    base 50 fall 40%: 30/40 heard, median 5 d, false 0.83/1,000
+    base 400 fall 0%: false 0.42/1,000, null alerts in the fall window 0/40
+    base 400 fall 10%: 0/40 heard, median - d, false 0.83/1,000
+    base 400 fall 20%: 5/40 heard, median 6 d, false 1.25/1,000
+    base 400 fall 40%: 34/40 heard, median 4 d, false 0.42/1,000
+    base 3000 fall 0%: false 0.21/1,000, null alerts in the fall window 0/40
+    base 3000 fall 10%: 1/40 heard, median 4 d, false 0.83/1,000
+    base 3000 fall 20%: 8/40 heard, median 6 d, false 0.83/1,000
+    base 3000 fall 40%: 35/40 heard, median 4 d, false 0.42/1,000
+
+cv 0.15: G1 M1 false 0.83 <= 2.0: pass; G3 40% delay 4 <= Quiet 4 + 1: pass
+cv 0.15: G2 20% falls heard 115 vs Quiet 38 (+77, bar +30): pass
+
+cv 0.30: G1 M1 false 1.33 <= 2.0: pass; G3 40% delay 5 <= Quiet 4 + 1: pass
+
+Stage B: PASS

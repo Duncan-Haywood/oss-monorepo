@@ -7,7 +7,7 @@ import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { main } from './watch.mjs';
-import { eagerSettings, chooseDetector, choiceOptions, eagernessReplay, eagernessText, replayWatch, COUNT_DEFAULTS } from './watch-core.mjs';
+import { eagerSettings, chooseDetector, choiceOptions, eagernessReplay, eagernessText, replayWatch, COUNT_DEFAULTS, COUNT_MIDDLE } from './watch-core.mjs';
 
 const lcg = (seed) => { let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 4294967296; }; };
 const poisson = (u, lam) => { let k = 0, p = Math.exp(-lam), c = p; const x = u(); while (x > c) { k++; p *= lam / k; c += p; } return k; };
@@ -18,8 +18,8 @@ const day = (i) => new Date(Date.UTC(2026, 0, 1) + i * 864e5).toISOString().slic
 const clumped = (seed, n = 120) => { const u = lcg(seed); return Array.from({ length: n }, () => nb(u, 30, 3)); };
 const csvOf = (v) => 'date,orders\n' + v.map((x, i) => `${day(i)},${x}`).join('\n') + '\n';
 
-test('the count ladder: the count default then pelt, unless a clumping cost or threshold is named', () => {
-  assert.deepEqual(eagerSettings('poisson'), [{ key: 'quiet', ...COUNT_DEFAULTS }, { key: 'eager', detector: 'pelt' }]);
+test('the count ladder: the count default, the middle (pelt + NB), then pelt, unless a clumping cost or threshold is named', () => {
+  assert.deepEqual(eagerSettings('poisson'), [{ key: 'quiet', ...COUNT_DEFAULTS }, { key: 'middle', ...COUNT_MIDDLE }, { key: 'eager', detector: 'pelt' }]);
   for (const named of [{ overdispersion: 'nb' }, { overdispersion: true }, { threshold: 0.5 }]) {
     assert.deepEqual(eagerSettings('poisson', named).map((s) => s.detector), ['bocpd', 'pelt']);
   }

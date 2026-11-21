@@ -3701,8 +3701,70 @@ So the default hears a 40% fall in about four days with almost no false alerts, 
 every 10% one, whatever the traffic. The page's Eager setting for counts (`--detector pelt`,
 `eval/gsc-watch-sim-eager.out.txt`) hears nearly all of them but sends 39-148 false alerts per 1,000 days (one a week on
 the busier sites), because the Poisson cost takes the extra-Poisson day-to-day swings for changes. Neither is the
-setting a site owner wants for 10-20% falls; for those, read a month of rows with the CLI (`--period 7`) rather than
-wait for an alert. A middle setting for over-dispersed traffic is the open item.
+setting a site owner wants for 10-20% falls. Since 2026-11-21 the middle setting for counts is (next section): it
+hears most 20% falls with under one false alert per 1,000 days.
+
+## A middle setting for over-dispersed counts (2026-11-21, pre-registered; ships)
+
+The section above left a gap: on simulated Search Console sites, whose daily clicks swing beyond Poisson, the count
+default (Quiet) heard 13 of 60 20% falls and Eager (`pelt`, Poisson cost) sent 39-148 false alerts per 1,000 days.
+Nothing sat between them, and the "How eager" hint could not help: on those histories `pelt` is over budget, so the
+hint falls back to Quiet every time. The page's "Middle" for counts ran plain `bocpd`, which an earlier round found is
+not a step up in eagerness on counts (README "The How eager hint for counts").
+
+**The round** (`eval/gsc-middle.prereg.md`, committed before the runs; three stages, disjoint seeds).
+
+- **A, tuning** (`eval/gsc-middle-sweep.mjs`, seeds 101-120, the sites of `eval/gsc-sites.mjs`: 50, 400 or 3,000
+  clicks a day, weekends at 70%, a gamma day multiplier with cv 15% or 30%, a lasting fall of 10, 20 or 40% on day 180
+  or none, the watch run each day from day 120). Five candidates; the rule kept those with at most 2.0 false alerts per
+  1,000 days at both cvs and picked the one hearing the most 10% and 20% falls. `pelt` with the negative-binomial cost
+  (M1) heard 161, `pelt` with NB1 156, the windowed pass at threshold 0.2 48; thresholds 0.1 and 0.05 sent too many
+  false alerts at cv 30% (3.7 and 9.6 per 1,000). Output `eval/gsc-middle-A.out.txt`.
+- **B, fresh sites** (seeds 301-340), M1 against Quiet, `eval/gsc-middle-B.out.txt`:
+
+| cv | setting | false alerts per 1,000 days | 10% falls heard (median days) | 20% falls | 40% falls |
+|---|---|---|---|---|---|
+| 15% | Quiet (count default) | 0.17 | 0/120 | 38/120 (5) | 118/120 (4) |
+| 15% | **Middle: `pelt` + NB cost** | 0.83 | 73/120 (29) | **115/120 (8)** | 120/120 (4) |
+| 30% | Quiet | 0.58 | 1/120 (4) | 17/120 (7) | 99/120 (4) |
+| 30% | **Middle** | 1.33 | 21/120 (36) | **88/120 (16)** | 120/120 (5) |
+
+  All three bars pass: false alerts at most 2.0 per 1,000 days at each cv, 77 more 20% falls heard (bar 30), the delay
+  on 40% falls within a day of Quiet's.
+- **C, the hint with a Middle rung** (`eval/gsc-middle-hint.mjs`, the eleven cells of the count hint round, 200 fresh
+  seeds 2001-2200, output `eval/gsc-middle-hint.out.txt`, 36 min on 4 cores). Ladder (count default, Middle, `pelt`)
+  against today's (count default, `pelt`): **0.37 more false alerts per 1,000 checks (0.24 to 0.50), 49 more of 1,200
+  steps heard (36 to 62)**, worst null cell +0.92 (NB, variance 3x the mean), no step cell worse. All four bars pass.
+  The gain is where the hint used to fall back to Quiet: bunched counts (S5 178 to 192 of 200, S6 136 to 171).
+
+**Read before choosing.** Middle waits until the new level is clear, so on the falls both settings hear it is slower
+than Quiet (a 20% fall: 8 days against 5), and a 10% fall still takes about a month. And in stage C, **Middle alone,
+with no hint, did best of all**: 1.53 false alerts per 1,000 checks and 1,140 steps heard, against the hint's 2.37 and
+1,131 and Quiet's 0.72 and 1,056. The round did not test making it the count default, so the default stays; that is
+the next round, with the delay cost on the table.
+
+**On the one real shop** (deciding nothing; `real-shop.test.mjs`, UCI Online Retail's daily orders). With `--period 7`
+the hint now picks Middle (1.0 alerts per 100 checks on the history, under the budget of 2), and its replay sends 3
+alerts where Quiet sends 2: Easter (2011-04-22 and 2011-04-29) and **one dated 2011-09-19, inside the autumn climb
+Quiet misses** (the climb this README dates from 2011-09-01; Middle dates a step partway up the ramp, not its start).
+Without a period Middle sends 7 (2.33 per 100), over budget, so the hint stays on Quiet. One shop, and the labels are
+our reading of it.
+
+**What ships** (`watch-core.mjs`): `COUNT_MIDDLE = { detector: 'pelt', overdispersion: 'nb' }`; for counts with no
+clumping cost or threshold named, `eagerSettings` is (count default, Middle, `pelt`), so `--suggest`, `--detector auto`
+and the page's hint can pick it, and `--detector auto` stores it with its cost. On the page, "Middle" in the watch card
+runs it for counts (plain `bocpd` for the other models, as before). On the command line and in the workflow it is
+`--detector pelt --overdispersion nb`; for Search Console, `WATCH_OPTIONS="--columns clicks:poisson,impressions:poisson
+--detector pelt --overdispersion nb"` (the watch page says so).
+
+**Checked** (`gsc-middle.test.mjs`, 4): the setting and its words; on stage B's first fresh site Middle alerts the 20%
+fall on day 188 while Quiet sends nothing, and neither alerts on the same site with no fall; the page's watch card maps
+Middle to it for counts; `watch.mjs` with the workflow's Search Console line alerts the clicks fall on the third daily
+check and the default does not. `watch-eagerness-counts.test.mjs`, `watch-eagerness.test.mjs` and `real-shop.test.mjs`
+pin the three-rung ladder and the real shop's picks above.
+
+**Next:** the middle as the count default (stage C's best arm), a round that weighs its slower alerts (8 days against
+5 on a 20% fall) against the steps it adds; then a live Search Console property.
 
 ## Shopify as a source (2026-11-19)
 
