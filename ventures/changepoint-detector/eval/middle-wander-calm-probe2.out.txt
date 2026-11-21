@@ -1,0 +1,10 @@
+Probe seeds 9901-9916. Fall cells: heard / mean days unaware / other alerts. Wander cells: alerts (series alerted).
+| cell | M | W | H60 |
+|---|---|---|---|
+| gsc 50 0.1 | 7 / 48.6 / 5 | 7 / 49.4 / 5 | 7 / 48.6 / 5 |
+| gsc 50 0.2 | 16 / 12.2 / 5 | 15 / 14.6 / 5 | 16 / 12.2 / 5 |
+| gsc 400 0.1 | 9 / 40.4 / 7 | 7 / 44.3 / 7 | 9 / 40.4 / 7 |
+| gsc 400 0.2 | 16 / 9.0 / 2 | 16 / 9.1 / 2 | 16 / 9.0 / 2 |
+| T4 | 8 (7) | 6 (6) | 8 (7) |
+| T5 | 21 (11) | 11 (8) | 14 (9) |
+| T6 | 15 heard, 2 other | 14 heard, 2 other | 15 heard, 2 other |

@@ -3,7 +3,7 @@
 // watch.mjs adds the state file, the CSV URL, the webhook and the exit code around it.
 
 import { analyze, parseSeries, peaks } from './engine.mjs';
-import { driftLevel, driftNoiseML } from './drift-level.mjs';
+import { driftLevel, driftNoiseML, driftSegmentCost } from './drift-level.mjs';
 import { median } from './stats-core.mjs';
 
 // Defaults chosen on synthetic streams only (eval/watch-replay.mjs, eval/watch-replay.out.txt), then
@@ -79,14 +79,14 @@ export function detectChanges(values, labels, opts0 = {}) {
   if ((d.startsWith('bocpd-ar1') || d === 'drift') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
   const floors = (cs) => aboveMoveFloor(aboveSpreadFloor(aboveFloor(cs, minShift), values, minSpreadRatio), values, minMoveRatio);
   if (d === 'drift') return floors(detectDrift(values, labels, opts));
-  const { wander, ...rest } = opts;
+  const { wander, wanderMargin, wanderJump, wanderTest, wanderBefore, wanderSplit, ...rest } = opts;
   if (wander != null && wander !== 'gated') throw new Error('wander takes gated.');
   if (wander && (opts.model ?? 'mean') !== 'poisson') throw new Error('--wander gated is for counts: add --model poisson.');
   const all = detectBoth(values, labels, { ...rest, detector: d });
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
   const found = floors(all[d]);
   if (!wander || !found.length) return found;
-  return wanderFilter(found, values, { window: opts.window ?? WATCH_DEFAULTS.window, tolerance: opts.tolerance ?? WATCH_DEFAULTS.tolerance });
+  return wanderFilter(found, values, { window: opts.window ?? WATCH_DEFAULTS.window, tolerance: opts.tolerance ?? WATCH_DEFAULTS.tolerance, margin: wanderMargin, jump: wanderJump, test: wanderTest, before: wanderBefore, split: wanderSplit });
 }
 
 /**
@@ -97,7 +97,14 @@ export function detectChanges(values, labels, opts0 = {}) {
  * wander beats the flat fit by more than log n, the level is wandering, and a count change is kept only when the
  * drift model also places a jump within `tolerance` points of it; otherwise every change is kept as it was.
  */
-export function wanderGate(values) {
+// Engine-only knobs for the gate (README "A calmer wander gate"): `margin` multiplies the log n the wander must win by
+// (1 as shipped 2026-11-21); `jump` multiplies the log n penalty of the drift fit's jumps (2); with `test` set, a count
+// change the drift fit has no jump near is still kept when forcing a drift jump at it lowers the drift cost by more
+// than test x log n (the change's place is given by the count detector, so it pays less than a searched jump). With
+// `before` (wanderFilter), whether the level wanders is decided on the window before the newest count change (when at
+// least `before` points precede it), so the change itself, a real fall, cannot be what opens the gate. With `split`,
+// it is decided on the whole window with a given jump at the newest count change (the two sides fitted apart).
+export function wanderGate(values, { margin: mk = 1, jump: jk = 2, cut = null } = {}) {
   const n = values.length;
   if (n < 20) return { open: false, margin: null, jumps: [] };
   const y = Array.from(values, (v) => Math.log(Math.max(0, Number(v)) + 0.5));
@@ -109,7 +116,7 @@ export function wanderGate(values) {
   // Steady growth is the growth term's job (trend 'gated'), not wander: both fits see the series less its robust slope,
   // the median of lag-n/4 differences over the lag, from pairs that do not straddle a jump of a first flat fit (a
   // one-step median is as noisy as the counts themselves, and a pair across a fall reads the fall as growth).
-  const beta = 2 * Math.log(n);
+  const beta = jk * Math.log(n);
   const first = driftNoiseML(z0, { penalty: beta, grid: [0] });
   const seg = new Int32Array(n);
   for (const c of first.changepoints) for (let t = c; t < n; t++) seg[t]++;
@@ -119,17 +126,48 @@ export function wanderGate(values) {
   const z = z0.map((v, t) => v - g * t);
   const best = driftNoiseML(z, { penalty: beta });
   if (!(best.q > 0) || !(best.sigma > 0)) return { open: false, margin: null, jumps: best.changepoints ?? [] };
-  const flat = driftNoiseML(z, { penalty: beta, grid: [0], sigma: best.sigma });
-  const margin = flat.objective - best.objective - Math.log(n);
-  return { open: margin > 0, margin, q: best.q, jumps: best.changepoints };
+  let flatObj = driftNoiseML(z, { penalty: beta, grid: [0], sigma: best.sigma }).objective, bestObj = best.objective;
+  if (cut != null && cut >= 20 && cut < n) {
+    // A given jump at `cut` (the newest count change): both fits see the two sides apart, with the window's noise scale.
+    flatObj = 0; bestObj = 0;
+    for (const piece of [z.slice(0, cut), z.slice(cut)]) {
+      const f = driftNoiseML(piece, { penalty: beta, grid: [0], sigma: best.sigma }).objective;
+      flatObj += f;
+      bestObj += piece.length >= 20 ? Math.min(f, driftNoiseML(piece, { penalty: beta, sigma: best.sigma }).objective) : f;
+    }
+  }
+  const margin = flatObj - bestObj - mk * Math.log(n);
+  return { open: margin > 0, margin, q: best.q, sigma: best.sigma, omega: best.omega, jumps: best.changepoints, z };
 }
 
-function wanderFilter(found, values, { window, tolerance }) {
+/** The drift cost of z cut at `cuts` (sorted window indices), as driftLevelChanges sums it (no penalty). */
+function driftPartitionCost(z, cuts, sigma, omega) {
+  const b = [0, ...cuts, z.length];
+  let c = 0;
+  for (let i = 0; i + 1 < b.length; i++) if (b[i + 1] > b[i]) c += driftSegmentCost(z.slice(b[i], b[i + 1]), { sigma, omega });
+  return c;
+}
+
+function wanderFilter(found, values, { window, tolerance, margin, jump, test, before, split }) {
   const off = Math.max(0, values.length - window);
-  const g = wanderGate(values.slice(off));
+  if (before != null) {
+    const last = Math.max(...found.map((c) => c.index));
+    if (last - off >= before && !wanderGate(values.slice(off, last), { margin, jump }).open) return found;
+  }
+  const g = wanderGate(values.slice(off), { margin, jump });
   if (!g.open) return found;
+  if (split && !wanderGate(values.slice(off), { margin, jump, cut: Math.max(...found.map((c) => c.index)) - off }).open) return found;
   const jumps = g.jumps.map((j) => j + off);
-  return found.filter((c) => jumps.some((j) => Math.abs(j - c.index) <= tolerance));
+  const near = (c) => jumps.some((j) => Math.abs(j - c.index) <= tolerance);
+  if (test == null) return found.filter(near);
+  const n = g.z.length, base = driftPartitionCost(g.z, g.jumps, g.sigma, g.omega);
+  return found.filter((c) => {
+    if (near(c)) return true;
+    const at = c.index - off;
+    if (at < 2 || at > n - 2) return false;
+    const cuts = [...g.jumps, at].sort((p, q) => p - q);
+    return base - driftPartitionCost(g.z, cuts, g.sigma, g.omega) > test * Math.log(n);
+  });
 }
 
 /** Points before a change that its spread is read from (README "Round 15"), and the fewest that make a reading. */
