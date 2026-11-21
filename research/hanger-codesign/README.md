@@ -124,7 +124,10 @@ Post hoc: calibration brings the two 3D tiers together, from a mean top-tier exc
 1.7 to 2.0 cm on the 3D tiers, because its panels cannot fall off a narrow arm, yet its margins
 (0.46 to 0.53 cm) are the widest and its choice is the top tier's every time.
 
-Post hoc extension of the nine capped cases (2,000-step cap): running; results follow in this PR.
+Post hoc, added after the first capped cases and not part of the registered scoring: the nine
+capped top-tier cases rerun with a 2,000-step cap (`run.py --extend`). Six converge (607 to 778
+steps) and move by −0.063 to +0.019 cm; three still stall, none at a best width. No decision
+changes.
 
 **Reading.** On these nine wovens and this hanger family, H1 holds and H3 fails at the decision
 level. The cheapest model, wrong by 1.7 cm in absolute shape, picks the calibrated top tier's arm
