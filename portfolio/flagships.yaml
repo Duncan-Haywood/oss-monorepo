@@ -399,12 +399,12 @@ flagships:
       tournament-results.mjs); next: a real tournament. Golf 2026-11-20 (golf.mjs,
       golf-playoffs.mjs flighted play-offs, golf-league-schedule.html): tee times at
       share in 71 of 77 seasons, other 6 SAT-proved out (eval/golf-tee-grid.txt);
-      match play recap; next: a real league's season. Box leagues 2026-11-21
-      (boxleague.mjs); next: a real club's month. Practice slots on shared fields
-      2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima, eval/practice-exact.txt);
-      next: a real league's fields and teams. Swiss bracket by bracket
-      (eval/swiss-bracket-dutch.md): 89% of real boards; next exact exchange order.
-      More open items: NEXT.md.
+      next: a real league's season. Box leagues 2026-11-21 (boxleague.mjs); next: a
+      real club's month. Practice slots on shared fields 2026-11-21 (practice.mjs:
+      95 of 95 CP-SAT optima, eval/practice-exact.txt); next: a real league's fields
+      and teams. Swiss bracket by bracket, FIDE exchange order
+      (eval/swiss-exchange-order.md): 89.3% of real boards; next C.8 downfloater
+      look-ahead. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
