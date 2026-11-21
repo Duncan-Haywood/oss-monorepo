@@ -30,6 +30,8 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 4d (2026-11-21): does the sensor-network field's open tracker keep a drifting pair of recorders in sync better than GCC? No, because its coarse step fails; and clock drift breaks any long coarse correlation.** `paderwasn`'s online pipeline (plain-correlation coarse sync, then online weighted average coherence drift, WACD; Gburrek et al. 2022), ported to [`src/capture_sync/wacd.py`](src/capture_sync/wacd.py), was run against envelope-normalised GCC trackers on 120 twin sessions with device clocks 17 ppm (the real phones' rate), 100 or 300 ppm apart and ten real noise types at -10 dB. Mean share of the session more than a 30 fps frame off: **paderwasn 23.5-34% at 17 ppm, 57-58% at 100 ppm, 84-85% at 300 ppm, against 1.5-3% for a GCC coarse step held, 15-26% for GCC plus WACD and 38-44% for a GCC window tracker at 300 ppm**. Its plain coarse correlation is off by a frame in 23.5-34% of noisy sessions against 1.5-3% for GCC, and WACD's rate estimate then runs away (median error 8-177 ppm, against 0.02-0.66 ppm with no noise). Post hoc, with the drift switched off on the same sessions, GCC's 20 s coarse step fails in 0% of 300 ppm sessions instead of 54%: a 300 ppm clock moves the delay 6 ms in 20 s and smears the correlation peak. At phone-level drift, re-estimating every 5 s did worse than holding a good first estimate (6.3-8.0% against 1.5-3.0%) ([details](#step-4d-paderwasns-online-tracker-on-drifting-sessions-experimentsbaselinestrackerpy)).
+
 **Step 4c (2026-11-21): does the literature's multi-recording consistency step rescue the baselines when four devices record the same scene? No, and it barely helps GCC.** Kammerl et al. (2014) make many recordings' pairwise offsets agree before placing them. With four devices, all six pairs estimated by each of seven methods and the offsets placed by a confidence spanning tree or by closure-trimmed least squares (75,600 pair windows), envelope-normalised GCC's summed -10 dB failure falls only from 0.88 to 0.70-0.80 (1.08 to 0.87-1.02 in the wetter room), plain GCC's rises, and no baseline improves (Haitsma-Kalker 4.3, the rest 6.9-9.2). Pair failures come together: all four devices hear the same speech, so when one pair fails another of the anchor's fails 2.3-2.4x as often as chance for normalised GCC, and the baselines fail 68-91% of pairs, leaving no correct majority. The ground-truth-free closure flag keeps 90% of devices but lets 1.9-3.2% wrong through ([details](#step-4c-four-devices-and-kammerl-et-als-consistency-step-experimentsbaselinesconsistencypy)).
 
 **Step 4b (2026-11-20): do the baselines catch up with more audio? No: longer windows help GCC more.** Rerun at 2, 4 and 8 s windows (74,400 windows), every method fails less, but envelope-normalised GCC's summed -10 dB failure falls from 1.0 to 0.01 while the best baseline's (Haitsma-Kalker) falls from 4.5 to 0.9, so the ratio grows from 4.5x to 70-200x. Haitsma-Kalker needs about four times the audio for GCC's failure share; Kammerl-style feature correlation and landmarks at 8 s are still worse than plain GCC at 2 s ([details](#step-4b-the-same-baselines-at-4-and-8-s-windows-experimentsbaselineswinlengthpy)).
@@ -168,6 +170,9 @@ python experiments/baselines/consistency.py check ~/ms-snsd   # ~10 min
 OMP_NUM_THREADS=1 python experiments/baselines/consistency.py collect ~/ms-snsd /tmp/windows_4c.npz --procs 4   # ~31 min
 python experiments/baselines/consistency.py score /tmp/windows_4c.npz && python experiments/baselines/consistency_figure.py
 python experiments/baselines/consistency_why.py /tmp/windows_4c.npz   # post hoc diagnostics, ~15 min
+# step 4d: paderwasn's online tracker (ported to src/capture_sync/wacd.py) against windowed GCC on drifting sessions
+OMP_NUM_THREADS=1 python experiments/baselines/tracker.py collect ~/ms-snsd /tmp/rows_4d.json --procs 4   # ~50 min
+python experiments/baselines/tracker.py score /tmp/rows_4d.json && python experiments/baselines/tracker_figure.py
 # step 4b: the same baselines at 2, 4 and 8 s windows
 OMP_NUM_THREADS=1 python experiments/baselines/winlength.py collect ~/ms-snsd /tmp/windows_4b.npz --procs 4   # ~70 min
 python experiments/baselines/winlength.py score /tmp/windows_4b.npz && python experiments/baselines/winlength_figure.py
@@ -439,6 +444,37 @@ AUROC of -10 against 0 dB windows (`snr_hat` / `ms`): white 1.00 / 1.00, AirCond
 Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 types failed (2 of 9; above `snr_hat` for 7 of 9); (c) site calibration at -10 dB for 9 of 10 types failed (4 and 4); (d) the oracle ceiling held, mostly by accepting nothing; (e) `ms` beats `snr_hat` under T3 failed (a tie); (f) the level does not fix a change of kind held; (g) leave-one-out under 8 of 10 held; (h) T0 held; (i) `ctx` between the two held for 5 of 9.
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
+
+## Step 4d: paderwasn's online tracker on drifting sessions (`experiments/baselines/tracker.py`)
+
+The plan and predictions were pushed before the run ([`LOG.md`](LOG.md), 2026-11-21). Each session plays one MS-SNSD speech block to two devices in a statistical room (RT60 0.2 or 0.8 s). Device 1's clock runs 17 ppm (step 1's measured Nexus to Pixel 6a rate), 100 or 300 ppm (sweep values with no source) slow or fast, and it starts up to 8 s off. Independent noise goes on each device, none or each of the ten types at -10 dB. The trackers all start from the first 20 s and are scored every second after that (171-193 s per session):
+
+| tracker | what it does |
+|---|---|
+| `pw` | `paderwasn` as published: `coarse_sync` (argmax of plain correlation over 320,000 samples), then `OnlineWACD` with its defaults; delay = integer offset plus the estimator's own running SRO shift |
+| `pw_set` | the same with the experiment script's 40-estimate settling |
+| `fnc` | envelope-normalised GCC (gamma 0.25) over the first 20 s, held |
+| `fnc_wacd` | `fnc`'s offset as the coarse step, then online WACD |
+| `track` | `fnc`, then 2 s envelope-normalised GCC windows every 5 s around the prediction; Theil-Sen through the last 120 s of windows with PSR at or above their median |
+
+Mean out-of-sync share over the ten noise types at -10 dB ([`tracker_results.txt`](experiments/baselines/tracker_results.txt)):
+
+| room, clock offset | `pw` | `fnc` | `fnc_wacd` | `track` | `pw` minus `track` (95% session bootstrap) |
+|---|---|---|---|---|---|
+| 200 ms, 17 ppm | 34.0% | 3.0% | 3.0% | 8.0% | +26.0 (+17.9 to +33.9) |
+| 200 ms, 100 ppm | 57.0% | 15.8% | 15.0% | 16.8% | +40.2 (+31.7 to +48.3) |
+| 200 ms, 300 ppm | 83.5% | 73.1% | 54.0% | 37.9% | +45.6 (+38.6 to +54.1) |
+| 800 ms, 17 ppm | 23.5% | 1.5% | 1.5% | 6.3% | +17.2 (+10.8 to +23.1) |
+| 800 ms, 100 ppm | 58.4% | 26.0% | 25.4% | 22.7% | +35.7 (+26.6 to +43.1) |
+| 800 ms, 300 ppm | 84.5% | 75.3% | 58.0% | 44.2% | +40.3 (+32.5 to +47.6) |
+
+![Out-of-sync share by tracker and clock offset](experiments/baselines/tracker_oos.png)
+
+- With no noise every tracker is in sync at 17 ppm. At 300 ppm the held offset drifts out (41-44% of the session), while `track` stays at 0% and `pw` at 0-5%.
+- Online WACD is the more accurate rate estimator once the pair is aligned: median SRO error 0.02-0.66 ppm with no noise, against 0.08-0.92 ppm for `track`'s line. paderwasn's own coarse step is what loses (wrong in 23.5-85% of -10 dB sessions, against 1.5-58% for GCC's), and after a wrong coarse step WACD's estimate runs away (median 8-177 ppm off).
+- Post hoc ([`tracker_why.py`](experiments/baselines/tracker_why.py), [`tracker_why.txt`](experiments/baselines/tracker_why.txt)): the same 200 ms sessions replayed with the drift switched off. GCC's 20 s coarse step then fails in 0.0% of 300 ppm sessions instead of 54.0%, and plain correlation in 24.5% instead of 84.0%. Drift smears a long correlation peak. A 5 s coarse window avoids the smear but has too little audio (58.5-69.5% fail).
+- Predictions: 4 of 7 held outright and one held in one room of two. The tracker was predicted to match the held offset at 17 ppm and did not (it is 5 points worse). It keeps at least 99% of a session in sync in 63.5% of sessions, not the 80% predicted.
+- Limits: the twin only (LibriWASN's zenodo.org host was still refused); one pair; sessions of about 3.5 min; independent noise; the port was checked on synthetic signals (it recovers 80 ppm within 3 ppm), not compared with the original package, which this session's sandbox would not run.
 
 ## Step 4c: four devices and Kammerl et al.'s consistency step (`experiments/baselines/consistency.py`)
 

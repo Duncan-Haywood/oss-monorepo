@@ -66,11 +66,12 @@ def collector_steps(p: Collector) -> list[Step]:
     shoulder = next(n for n in F if "shoulder bolt" in n)
     return [
         Step("Prepare the printed parts and the drum discs", [], [
-            ("M4 heat-set insert, 5.7 mm long", 24), ("M5 rivet nut (blind insert), aluminium", 12)],
+            ("M4 heat-set insert, 5.7 mm long", 26), ("M5 rivet nut (blind insert), aluminium", 12)],
             "soldering iron with an M4 insert tip, M5 rivet nut tool",
             f"Melt one M4 insert into each {p.insert_hole_d:g} mm pocket: 4 in the top face of each motor clamp "
             "cradle (where the cap meets it), 2 in the underside of each cradle, 2 in the underside of each pivot "
-            "block, 2 in the underside of each yoke-lift switch tower, and 4 in the underside of the mast socket's flange. Press each one flush and square. Set an M5 "
+            "block, 2 in the underside of each yoke-lift switch tower, 4 in the underside of the mast socket's flange, and 2 in the "
+            "underside of the caster adapter (the two pockets on its centre line). Press each one flush and square. Set an M5 "
             f"rivet nut in each of the six {p.rivet_nut_hole_d:g} mm holes of both drum discs, flange on the outer "
             f"face (the face away from the rods). A standard {RIVET_FLANGE:g} mm flange holds the cover that far off "
             "the disc; the arm gap allows for it.", image=False),
@@ -78,11 +79,13 @@ def collector_steps(p: Collector) -> list[Step]:
              "Deburr every hole. The plate's top face is the side the motors sit on; the strap slots are nearest "
              "the front (drum) end.", new_subassembly=True),
         Step("Mast socket, caster adapter and ball caster", ["mast_socket", "caster_adapter", "ball_caster"],
-             [("M4 x 20 socket cap screw", 4), ("Ball caster mounting screws", 1)], "3 mm hex key",
+             [("M4 x 20 socket cap screw", 4), ("M4 x 10 socket cap screw", 2)], "3 mm hex key",
              "Stand the mast socket on the top face over the four rear holes, hold the caster adapter under the "
              "plate with its counterbores facing down, and drive the four M4 x 20 screws up through adapter and "
-             "plate into the socket's inserts. Their heads sit in the counterbores, so the caster can then be "
-             "screwed flat to the adapter: mark and drill its own holes clear of the four heads."),
+             "plate into the socket's inserts. Their heads sit in the counterbores, below the caster's seat. Then "
+             "hold the caster's flange to the adapter and drive an M4 x 10 up through each of its two holes into "
+             f"the adapter's inserts. The adapter is drawn for holes on {p.caster_hole_pitch:g} mm: measure your "
+             "caster's, and if they differ set `caster_hole_pitch` (and `caster_flange`) and rebuild before printing."),
         Step("Drive motors", ["motor_clamp_cradle", "gearmotor", "motor_clamp_cap"],
              [("M4 x 12 socket cap screw", 4), ("M4 x 50 socket cap screw", 8)], "3 mm hex key",
              "Screw each cradle down with two M4 x 12 from under the plate. Lay a gearmotor in each cradle, output "
@@ -94,10 +97,12 @@ def collector_steps(p: Collector) -> list[Step]:
              "between the wheel and the plate's edge.", reach=p.wheel_gap + p.motor_face_inset + 0.5),
         Step("Pivot blocks", ["pivot_block"], [("M4 x 12 socket cap screw", 4)], "3 mm hex key",
              "Screw both pivot blocks down from below with two M4 x 12 each, bores across the robot."),
-        Step("Electronics tray on its standoffs", ["standoff", "electronics_tray"],
-             [("M3 x 10 screw", 4), ("M3 x 8 screw", 4)], "2.5 mm hex key",
-             "Screw the four 30 mm standoffs on from under the plate with M3 x 10, then the tray onto them with "
-             "M3 x 8. The e-stop hole is at the tray's front corner."),
+        Step("Electronics tray on its standoffs", ["standoff", "electronics_tray", "pi_standoff"],
+             [("M3 x 10 screw", 4), ("M3 x 8 screw", 4), ("M2.5 x 5 screw", 4)], "2.5 mm and 2 mm hex keys, 5 mm spanner",
+             "On the bench first, while both faces of the tray can be reached: screw the Pi's four 6 mm standoffs "
+             "to the top face over its M2.5 holes (the 49 x 58 mm pattern) with an M2.5 x 5 up through each, and "
+             "tighten with a spanner on the hex. Then screw the four 30 mm standoffs on from under the plate with "
+             "M3 x 10, and the tray onto them with M3 x 8. The e-stop hole is at the tray's front corner."),
         Step("Battery", ["battery"], [("25 mm hook-and-loop strap, 600 mm", 1), ("15 A blade fuse + holder", 1)],
              "", "Strap the pack down through the two slots in front of the motors. Put the fuse holder on the "
              "positive lead within 100 mm of the terminal, and leave the fuse out until the last step."),
@@ -133,12 +138,13 @@ def collector_steps(p: Collector) -> list[Step]:
         Step("Mast and camera", ["mast_tube"], [("Wide-angle camera module + 1 m ribbon/USB", 1)], "",
              "Push the tube into the socket (an M4 grub screw if it rattles) and mount the camera at the top, "
              "looking forward and down over the drum."),
-        Step("Electronics", [], [("Raspberry Pi 5 (4 GB) or Pi 4", 1), ("M2.5 x 6 screw + 6 mm standoff", 4),
+        Step("Electronics", ["raspberry_pi"], [("M2.5 x 4 screw", 4),
                                  ("ESP32 dev board (ESP32-WROOM-32)", 1), ("Dual DC motor driver, 10 A/ch, PWM+DIR", 1),
                                  ("5 V 5 A buck converter", 1), ("22 mm NC mushroom e-stop + 24 V contactor", 1),
                                  ("BNO085 (or similar) IMU", 1)],
              "screwdrivers, crimp tool, multimeter",
-             "Mount the Pi on its M2.5 pattern and the ESP32, motor driver, buck converter and IMU on the 10 mm M3 "
+             "Screw the Pi onto its standoffs with four M2.5 x 4, nothing longer: the standoff is threaded right "
+             "through and the screw from below fills its lower half. Mount the ESP32, motor driver, buck converter and IMU on the 10 mm M3 "
              "grid. Fit the e-stop in its hole and the contactor beside it. Wire to hardware/electronics.md (pin "
              "map, power budget, e-stop chain). Run each yoke-lift switch's common and normally-open tags to GND and "
              "GPIO 13 (left) or 14 (right): the switch closes when its arm lifts, which the firmware reads as the "
@@ -372,6 +378,14 @@ def collector_joints(p: Collector) -> list[Joint]:
         Joint("switch to tower", "M2 x 10 self-tapping screw (for plastic)", 10, 2, "tapped",
               (bh["x_body"], 0, p.pivot_z + p.bump_sw_hole_pitch / 2), "y", bh["y_mid"] + p.bump_sw_body[2] / 2, -1,
               1.0, 1.9, "bump_switch_tower", C.BUMP_PILOT_DEPTH),
+        Joint("caster flange to adapter", "M4 x 10 socket cap screw", 10, 4, "insert",
+              (p.caster_x + C._caster_flange_holes(p)[1][0], C._caster_flange_holes(p)[1][1], 0), "z",
+              p.caster_height - p.caster_flange[2], 1, 2.3, 3.5, "caster_adapter", C.caster_pilot(p)),
+        Joint("Pi standoff to tray", "M2.5 x 5 screw", 5, 2.5, "standoff", (*C._pi_holes(p)[0], 0), "z",
+              p.base_top + p.standoff_h, 1, 1.4, 2.2, "pi_standoff", p.pi_standoff_h / 2),
+        Joint("Pi to standoff", "M2.5 x 4 screw", 4, 2.5, "standoff", (*C._pi_holes(p)[0], 0), "z",
+              p.base_top + p.standoff_h + p.tray_t + p.pi_standoff_h + p.pi_pcb_t, -1, 1.4, 2.2, "pi_standoff",
+              p.pi_standoff_h / 2),
         Joint("standoff to base", "M3 x 10 screw", 10, 3, "standoff", (*C._tray_corners(p)[0], 0), "z", p.base_z,
               1, 1.8, 2.6, "standoff"),
         Joint("tray to standoff", "M3 x 8 screw", 8, 3, "standoff", (*C._tray_corners(p)[0], 0), "z",

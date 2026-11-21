@@ -48,7 +48,9 @@ def fasteners(p: Collector) -> list[tuple[str, int, str]]:
         ("M4 x 50 socket cap screw", 8, "motor clamp caps"),
         ("M4 x 12 socket cap screw", 4 + 4 + 4, "clamp cradles, pivot blocks and yoke-lift switch towers, from below"),
         ("M4 x 20 socket cap screw", 4, "caster adapter, base plate and mast socket, from below"),
-        ("M4 heat-set insert, 5.7 mm long", 8 + 4 + 4 + 4 + 4, f"cradles, pivot blocks, switch towers, mast socket ({p.insert_hole_d:g} mm pockets)"),
+        ("M4 x 10 socket cap screw", len(C._caster_flange_holes(p)), "ball caster's flange, up into the caster adapter"),
+        ("M4 heat-set insert, 5.7 mm long", 8 + 4 + 4 + 4 + 4 + len(C._caster_flange_holes(p)),
+         f"cradles, pivot blocks, switch towers, mast socket, caster adapter ({p.insert_hole_d:g} mm pockets)"),
         ("M4 washer (ISO 7089)", 4, "under the switch towers' screws, across the base plate's slots"),
         ("M2 x 10 self-tapping screw (for plastic)", 4, "yoke-lift switches onto their towers"),
         ("M4 x 16 button head + nyloc nut", 2 * clamp_bolts, "rod clamp rings"),
@@ -59,13 +61,12 @@ def fasteners(p: Collector) -> list[tuple[str, int, str]]:
         ("M8 x 30 hex bolt + M8 nyloc nut", 2, "drum axles, clamping the 608's inner race"),
         ("M3 x 10 screw", 4, "tray standoffs, from under the base plate"),
         ("M3 x 8 screw", 4, "tray onto its standoffs"),
-        ("M2.5 x 6 screw + 6 mm standoff", 4, "Raspberry Pi"),
-        ("Ball caster mounting screws", 1, "to suit the caster bought"),
+        ("M2.5 x 5 screw", 4, "Pi standoffs, up through the tray"),
+        ("M2.5 x 4 screw", 4, "Raspberry Pi onto its standoffs"),
     ]
 
 
 COTS_EXTRA = [
-    ("Raspberry Pi 5 (4 GB) or Pi 4", 1, "vision + planning"),
     ("Wide-angle camera module + 1 m ribbon/USB", 1, "on the mast"),
     ("ESP32 dev board (ESP32-WROOM-32)", 1, "firmware/esp32"),
     ("Dual DC motor driver, 10 A/ch, PWM+DIR", 1, "e.g. Cytron MDD10A class"),

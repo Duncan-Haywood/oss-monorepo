@@ -40,7 +40,9 @@
 // calendar, progress override, expected finish dates, resource-dependent
 // activities, the must-finish-by date); notes, steps and expenses are not
 // carried and are counted. Activity user-defined fields are carried as
-// Project's Number, Cost, Date and spare Text fields (udfFields, below).
+// Project's Number, Cost, Date and spare Text fields (udfFields, below), and
+// resource user-defined fields as Project's resource Text, Number, Cost and
+// Date fields on the resources written.
 //
 // Activity codes become Project's spare text fields, Text2 to Text30, one per
 // code type, each renamed (Alias) to the code type's name, so a Project user
@@ -53,6 +55,16 @@
 // carries the 29 most assigned (P6's order breaks ties) and counts the rest.
 // mspdi.mjs reads the fields back as activity codes
 // (eval/msproject-codes-2026-11-21.md).
+//
+// With { outlineCodes: true } the 10 most assigned code types are written as
+// Project's Outline Code1..10 instead (outlineCodeFields, below): each with
+// its own lookup table holding the type's whole P6 dictionary, parents and
+// descriptions included, so Project shows the hierarchy (Area A > 001) and
+// the description of every value, and its group-by can roll up a level. Both
+// task forms are written, Project 2003's <OutlineCode><ValueID> and Project
+// 2007's <ExtendedAttribute> with the value's path and GUID; MPXJ reads each
+// (eval/msproject-outline-2026-11-21.md). The other code types stay text
+// fields.
 
 import { Calendar } from "./calendar.mjs";
 import { parseDate, num } from "./xer.mjs";
@@ -65,6 +77,30 @@ const TEXT1 = "188743731"; // Text1's field ID in Project
 export const TASK_TEXT_IDS = ["188743731", "188743734", "188743737", "188743740", "188743743", "188743746", "188743747", "188743748", "188743749", "188743750",
   ...Array.from({ length: 20 }, (_, k) => String(188743997 + k))];
 export const CODE_NAME_SEP = " - ";
+// Project's task Outline Code1..10 (PjField ids, checked against MPXJ 16.10's
+// FieldTypeHelper; the same table is in mspdi.mjs, which reads them back)
+export const TASK_OUTLINE_IDS = Array.from({ length: 10 }, (_, k) => String(188744096 + 2 * k));
+// the separators Project's code mask offers; a type takes the first none of
+// its codes contains, so a value's path splits back into its levels
+export const OUTLINE_SEPS = [".", "-", "+", "/"];
+
+// A fixed GUID for a name, so the same XER always writes the same XML
+// (FNV-1a over the parts, four seeds, version 4 and variant bits set).
+export function guidOf(...parts) {
+  const s = parts.join("\u0001");
+  let hex = "";
+  for (let seed = 0; seed < 4; seed++) {
+    let h = (0x811c9dc5 ^ Math.imul(seed + 1, 0x9e3779b1)) >>> 0;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d) >>> 0; h ^= h >>> 12;
+    hex += (h >>> 0).toString(16).padStart(8, "0");
+  }
+  const x = hex.split("");
+  x[12] = "4";
+  x[16] = "89ab"[parseInt(x[16], 16) & 3];
+  const j = x.join("").toUpperCase();
+  return `${j.slice(0, 8)}-${j.slice(8, 12)}-${j.slice(12, 16)}-${j.slice(16, 20)}-${j.slice(20)}`;
+}
 
 const esc = (s) => String(s ?? "")
   .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
@@ -138,7 +174,7 @@ function calendarXml(uid, name, cal, out) {
   out.push("</Calendar>");
 }
 
-export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
+export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes = false } = {}) {
   const T = xer.tables || {};
   const warnings = [];
   const proj = pickProject(T, projId);
@@ -278,18 +314,24 @@ export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
   // text UDFs together need more than the 29 fields, the ones that fill the
   // most activities get them (a code type wins a tie)
   const textRoom = TASK_TEXT_IDS.length - 1;
-  const codeSizes = activityCodeFields(T, taskRow, codeNames, { room: Infinity }).fields.map((f) => f.values.size);
+  // with outlineCodes, the most assigned code types go to Outline Code1..10 first
+  const ocf = outlineCodes ? outlineCodeFields(T, taskRow, { projId: pid }) : { fields: [], typeIds: new Set(), written: 0, warnings: [] };
+  const skip = ocf.typeIds, takenAliases = ocf.fields.map((f) => f.alias);
+  const codeSizes = activityCodeFields(T, taskRow, codeNames, { room: Infinity, skip, takenAliases }).fields.map((f) => f.values.size);
   const textSizes = udfFields(T, taskRow, { textFrom: 1 }).fields.filter((f) => f.kind === "text").map((f) => f.values.size);
   let codeRoom = textRoom;
   if (codeSizes.length + textSizes.length > textRoom) {
     const pool = [...codeSizes.map((n) => ({ n, code: 1 })), ...textSizes.map((n) => ({ n, code: 0 }))].sort((a, b) => b.n - a.n || b.code - a.code);
     codeRoom = Math.min(codeSizes.length, pool.slice(0, textRoom).filter((x) => x.code).length);
   }
-  const codeFields = activityCodeFields(T, taskRow, codeNames, { room: codeRoom, shared: Math.min(textSizes.length, textRoom - codeRoom) });
+  const codeFields = activityCodeFields(T, taskRow, codeNames, { room: codeRoom, shared: Math.min(textSizes.length, textRoom - codeRoom), skip, takenAliases });
   // activity user-defined fields -> Number, Cost, Date and the free Text fields
-  const udf = udfFields(T, taskRow, { textFrom: codeFields.fields.length + 1, takenAliases: codeFields.fields.map((f) => f.alias) });
+  const udf = udfFields(T, taskRow, { textFrom: codeFields.fields.length + 1, takenAliases: [...takenAliases, ...codeFields.fields.map((f) => f.alias)] });
   const extFields = [...codeFields.fields, ...udf.fields];
-  const codeXml = (taskId) => extFields.map((f) => (f.values.has(taskId) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.values.get(taskId))}</Value></ExtendedAttribute>` : "")).join("");
+  const codeXml = (taskId) => ocf.fields.map((f) => (f.task.has(taskId) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.task.get(taskId).path)}</Value><ValueGUID>${f.task.get(taskId).guid}</ValueGUID></ExtendedAttribute>` : "")).join("")
+    + extFields.map((f) => (f.values.has(taskId) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.values.get(taskId))}</Value></ExtendedAttribute>` : "")).join("");
+  // Project 2003's form: the value's ID in the field's lookup table (after Baseline, as the schema orders it)
+  const outlineXml = (taskId) => ocf.fields.map((f) => (f.task.has(taskId) ? `<OutlineCode><FieldID>${f.fieldId}</FieldID><ValueID>${f.task.get(taskId).vid}</ValueID></OutlineCode>` : "")).join("");
 
   // tasks
   const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject };
@@ -384,6 +426,7 @@ export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
     L.push(`<ExtendedAttribute><FieldID>${TEXT1}</FieldID><Value>${esc(t.task_code)}</Value></ExtendedAttribute>${codeXml(t.task_id)}`);
     const bs = parseDate(t.target_start_date), bf = parseDate(t.target_end_date);
     if (bs !== null && bf !== null) L.push(`<Baseline><Number>0</Number><Start>${isoDate(bs)}</Start><Finish>${isoDate(bf)}</Finish><Duration>${ptHours(isMile ? 0 : num(t.target_drtn_hr_cnt) ?? 0)}</Duration><DurationFormat>7</DurationFormat></Baseline>`);
+    L.push(outlineXml(t.task_id));
     L.push("</Task>");
     taskXml.set(o.uid, L.join(""));
   }
@@ -425,8 +468,12 @@ export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
     rsrcUid.set(r.rsrc_id, uid);
     const material = r.rsrc_type === "RT_Mat";
     const cal = !material && calRows.has(r.clndr_id) ? useCal(r.clndr_id).uid : null;
-    res.push(`<Resource><UID>${uid}</UID><ID>${uid}</ID><Name>${esc(nm(r.rsrc_name || r.rsrc_short_name || r.rsrc_id))}</Name><Type>${material ? 0 : 1}</Type><IsNull>0</IsNull><Initials>${esc(r.rsrc_short_name || "")}</Initials>${material ? `<MaterialLabel>${esc(r.unit_of_measure || "")}</MaterialLabel>` : ""}${cal ? `<CalendarUID>${cal}</CalendarUID>` : ""}</Resource>`);
+    res.push({ id: r.rsrc_id, head: `<Resource><UID>${uid}</UID><ID>${uid}</ID><Name>${esc(nm(r.rsrc_name || r.rsrc_short_name || r.rsrc_id))}</Name><Type>${material ? 0 : 1}</Type><IsNull>0</IsNull><Initials>${esc(r.rsrc_short_name || "")}</Initials>${material ? `<MaterialLabel>${esc(r.unit_of_measure || "")}</MaterialLabel>` : ""}${cal ? `<CalendarUID>${cal}</CalendarUID>` : ""}` });
   }
+  // resource user-defined fields -> Project's resource custom fields, on the
+  // resources written (each resource's ExtendedAttribute after its calendar)
+  const rsrcUdf = udfFields(T, rsrcUid, { table: "RSRC" });
+  const resXml = res.map((r) => `${r.head}${rsrcUdf.fields.map((f) => (f.values.has(r.id) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.values.get(r.id))}</Value></ExtendedAttribute>` : "")).join("")}</Resource>`);
   const asg = [];
   let unknownRsrc = 0;
   for (const a of assigns) {
@@ -474,10 +521,11 @@ export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
     "<NewTasksEffortDriven>0</NewTasksEffortDriven>",
     dataDate !== null ? `<StatusDate>${isoDate(dataDate)}</StatusDate>` : "",
     "<NewTasksAreManual>0</NewTasksAreManual>",
-    `<ExtendedAttributes><ExtendedAttribute><FieldID>${TEXT1}</FieldID><FieldName>Text1</FieldName><Alias>Activity ID</Alias></ExtendedAttribute>${extFields.map((f) => `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><FieldName>${f.fieldName}</FieldName><Alias>${esc(f.alias)}</Alias></ExtendedAttribute>`).join("")}</ExtendedAttributes>`,
+    ocf.fields.length ? `<OutlineCodes>${ocf.fields.map(outlineTableXml).join("")}</OutlineCodes>` : "",
+    `<ExtendedAttributes><ExtendedAttribute><FieldID>${TEXT1}</FieldID><FieldName>Text1</FieldName><Alias>Activity ID</Alias></ExtendedAttribute>${ocf.fields.map((f) => `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><FieldName>${f.fieldName}</FieldName><Alias>${esc(f.alias)}</Alias><Ltuid>${f.guid}</Ltuid></ExtendedAttribute>`).join("")}${[...extFields, ...rsrcUdf.fields].map((f) => `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><FieldName>${f.fieldName}</FieldName><Alias>${esc(f.alias)}</Alias></ExtendedAttribute>`).join("")}</ExtendedAttributes>`,
     "<Calendars>", ...calXml, "</Calendars>",
     "<Tasks>", ...body, "</Tasks>",
-    "<Resources>", ...res, "</Resources>",
+    "<Resources>", ...resXml, "</Resources>",
     "<Assignments>", ...asg, "</Assignments>",
     "</Project>",
   ].filter((x) => x !== "").join("\n") + "\n";
@@ -502,32 +550,39 @@ export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
   const notCarried = [];
   counts.codeTypes = codeFields.fields.length;
   counts.codeAssignments = codeFields.written;
-  warnings.push(...codeFields.warnings);
+  counts.outlineCodeTypes = ocf.fields.length;
+  counts.outlineCodeAssignments = ocf.written;
+  counts.outlineCodeValues = ocf.fields.reduce((n, f) => n + f.items.length, 0);
+  warnings.push(...ocf.warnings, ...codeFields.warnings);
   const nCodes = codeFields.dropped;
   counts.udfFields = udf.fields.length;
   counts.udfValues = udf.written;
   warnings.push(...udf.warnings);
-  const nUdf = udf.dropped;
+  counts.rsrcUdfFields = rsrcUdf.fields.length;
+  counts.rsrcUdfValues = rsrcUdf.written;
+  warnings.push(...rsrcUdf.warnings);
+  const nUdf = udf.dropped, nRsrcUdf = rsrcUdf.dropped;
   const nMemo = (T.TASKMEMO || []).filter((r) => taskUid.has(r.task_id)).length;
   const nProc = (T.TASKPROC || []).filter((r) => taskUid.has(r.task_id)).length;
   const nCost = (T.PROJCOST || []).filter((r) => taskUid.has(r.task_id)).length;
   if (nCodes) notCarried.push(`${nCodes} activity code assignment(s) of the ${codeFields.droppedTypes} code type(s) past Project's 29 spare text fields`);
   if (nUdf) notCarried.push(`${nUdf} user-defined field value(s) of ${udf.droppedTypes} field(s) with no room or no Project equivalent`);
+  if (nRsrcUdf) notCarried.push(`${nRsrcUdf} resource user-defined field value(s) of ${rsrcUdf.droppedTypes} field(s) with no room or no Project equivalent`);
   if (nMemo) notCarried.push(`${nMemo} notebook entr${nMemo === 1 ? "y" : "ies"}`);
   if (nProc) notCarried.push(`${nProc} step(s)`);
   if (nCost) notCarried.push(`${nCost} expense(s)`);
   if (notCarried.length) warnings.push(`not carried: ${notCarried.join(", ")}`);
 
-  return { xml, project: { id: pid, name: proj.proj_short_name || pid, dataDate: proj.last_recalc_date || "" }, counts, warnings, taskUid, codeFields, udfFields: udf };
+  return { xml, project: { id: pid, name: proj.proj_short_name || pid, dataDate: proj.last_recalc_date || "" }, counts, warnings, taskUid, codeFields, outlineFields: ocf, udfFields: udf, rsrcUdfFields: rsrcUdf };
 }
 
 export const msprojectSummary = (r) =>
-  `${r.counts.activities} activities, ${r.counts.wbs} WBS summary tasks, ${r.counts.links} relationships, ${r.counts.calendars} calendar${r.counts.calendars === 1 ? "" : "s"}, ${r.counts.resources} resources, ${r.counts.assignments} assignments${r.counts.codeTypes ? ` and ${r.counts.codeAssignments} activity code values in ${r.counts.codeTypes} text field${r.counts.codeTypes === 1 ? "" : "s"}` : ""}${r.counts.udfFields ? `, ${r.counts.udfValues} user-defined field values in ${r.counts.udfFields} custom field${r.counts.udfFields === 1 ? "" : "s"}` : ""} written`;
+  `${r.counts.activities} activities, ${r.counts.wbs} WBS summary tasks, ${r.counts.links} relationships, ${r.counts.calendars} calendar${r.counts.calendars === 1 ? "" : "s"}, ${r.counts.resources} resources, ${r.counts.assignments} assignments${r.counts.outlineCodeTypes ? `, ${r.counts.outlineCodeAssignments} activity code values in ${r.counts.outlineCodeTypes} outline code${r.counts.outlineCodeTypes === 1 ? "" : "s"} (${r.counts.outlineCodeValues} lookup values)` : ""}${r.counts.codeTypes ? ` and ${r.counts.codeAssignments} activity code values in ${r.counts.codeTypes} text field${r.counts.codeTypes === 1 ? "" : "s"}` : ""}${r.counts.udfFields ? `, ${r.counts.udfValues} user-defined field values in ${r.counts.udfFields} custom field${r.counts.udfFields === 1 ? "" : "s"}` : ""}${r.counts.rsrcUdfFields ? `, ${r.counts.rsrcUdfValues} resource user-defined field values in ${r.counts.rsrcUdfFields} resource field${r.counts.rsrcUdfFields === 1 ? "" : "s"}` : ""} written`;
 
 // The code types this project's activities use, as text fields. Returns
 // { fields: [{ fieldId, fieldName, alias, typeId, values: Map(task_id -> text) }],
 //   written, dropped, droppedTypes, warnings }.
-export function activityCodeFields(T, taskRow, codeNames = false, { room = TASK_TEXT_IDS.length - 1, shared = 0 } = {}) {
+export function activityCodeFields(T, taskRow, codeNames = false, { room = TASK_TEXT_IDS.length - 1, shared = 0, skip = new Set(), takenAliases = [] } = {}) {
   const warnings = [];
   const typeRows = new Map((T.ACTVTYPE || []).map((r) => [r.actv_code_type_id, r]));
   const codeRows = new Map((T.ACTVCODE || []).map((r) => [r.actv_code_id, r]));
@@ -538,6 +593,7 @@ export function activityCodeFields(T, taskRow, codeNames = false, { room = TASK_
     const c = codeRows.get(a.actv_code_id);
     if (!c) { dangling++; continue; }
     const typeId = a.actv_code_type_id || c.actv_code_type_id;
+    if (skip.has(typeId)) continue;
     if (!byType.has(typeId)) byType.set(typeId, new Map());
     const m = byType.get(typeId);
     if (m.has(a.task_id)) { twice++; continue; }
@@ -560,6 +616,7 @@ export function activityCodeFields(T, taskRow, codeNames = false, { room = TASK_
   }
   // Project's field names must be unique: a repeated code type name gets its id
   const seen = new Map([["activity id", 1]]);
+  for (const a of takenAliases) seen.set(a.toLowerCase(), (seen.get(a.toLowerCase()) || 0) + 1);
   for (const t of kept) seen.set(nameOf(t.id).toLowerCase(), (seen.get(nameOf(t.id).toLowerCase()) || 0) + 1);
   let written = 0;
   const leaf = (c) => nm(c.short_name || c.actv_code_name || c.actv_code_id);
@@ -597,6 +654,102 @@ export function activityCodeFields(T, taskRow, codeNames = false, { room = TASK_
   return { fields, written, dropped, droppedTypes, warnings };
 }
 
+// The code types this project's activities use, as Project's Outline Code1..10:
+// the `room` most assigned (P6's order breaks ties, and lists the fields).
+// Each field's lookup table holds the type's whole dictionary from ACTVCODE,
+// used or not, in P6's tree order (seq_num, then code), each value with its
+// parent and description; a task's value is its code's path, the codes from
+// the top level down joined by the type's separator. Returns
+// { fields: [{ fieldId, fieldName, alias, typeId, guid, sep, depth,
+//   items: [{ vid, parentVid, code, desc, guid, path, row }],
+//   task: Map(task_id -> item) }], typeIds, written, warnings }.
+export function outlineCodeFields(T, taskRow, { room = TASK_OUTLINE_IDS.length, projId = "" } = {}) {
+  const warnings = [];
+  const typeRows = new Map((T.ACTVTYPE || []).map((r) => [r.actv_code_type_id, r]));
+  const codeRows = new Map((T.ACTVCODE || []).map((r) => [r.actv_code_id, r]));
+  const byType = new Map();
+  for (const a of T.TASKACTV || []) {
+    if (!taskRow.has(a.task_id)) continue;
+    const c = codeRows.get(a.actv_code_id);
+    if (!c) continue; // counted by activityCodeFields
+    const typeId = a.actv_code_type_id || c.actv_code_type_id;
+    if (!byType.has(typeId)) byType.set(typeId, new Map());
+    const m = byType.get(typeId);
+    if (!m.has(a.task_id)) m.set(a.task_id, c);
+  }
+  const ORDER = { AS_Global: 0, AS_EPS: 1, AS_Project: 2 };
+  const nameOf = (id) => nm(typeRows.get(id)?.actv_code_type || `code type ${id}`).replace(/\[/g, "(").replace(/\]/g, ")").trim() || `code type ${id}`;
+  const types = [...byType.keys()].map((id) => ({ id, n: byType.get(id).size, scope: ORDER[typeRows.get(id)?.actv_code_type_scope] ?? 3, seq: num(typeRows.get(id)?.seq_num) ?? 0 }));
+  types.sort((a, b) => a.scope - b.scope || a.seq - b.seq || nameOf(a.id).localeCompare(nameOf(b.id)) || (a.id < b.id ? -1 : 1));
+  const rank = [...types].sort((a, b) => b.n - a.n || types.indexOf(a) - types.indexOf(b));
+  const keep = new Set(rank.slice(0, room).map((t) => t.id));
+  const kept = types.filter((t) => keep.has(t.id));
+  if (types.length > room) warnings.push(`${types.length} activity code types are used and Project has ${room} outline codes: the ${room} most assigned are outline codes and the other ${types.length - room} go to the spare text fields`);
+  const seen = new Map([["activity id", 1]]);
+  for (const t of kept) seen.set(nameOf(t.id).toLowerCase(), (seen.get(nameOf(t.id).toLowerCase()) || 0) + 1);
+  const leaf = (c) => nm(c.short_name || c.actv_code_name || c.actv_code_id);
+  let written = 0, cycles = 0, twins = 0, noSep = 0;
+  const fields = kept.map((t, k) => {
+    // the dictionary: every value of the type, plus any assigned value filed under another type id
+    const rows = new Map();
+    for (const c of T.ACTVCODE || []) if (c.actv_code_type_id === t.id) rows.set(c.actv_code_id, c);
+    for (const c of byType.get(t.id).values()) rows.set(c.actv_code_id, c);
+    // a parent outside the type makes a top-level value (and so does a loop,
+    // found below as the values the walk from the top never reaches)
+    const kids = new Map();
+    for (const c of rows.values()) {
+      const p = rows.has(c.parent_actv_code_id) && c.parent_actv_code_id !== c.actv_code_id ? c.parent_actv_code_id : "";
+      if (!kids.has(p)) kids.set(p, []);
+      kids.get(p).push(c);
+    }
+    const bySeq = (a, b) => (num(a.seq_num) ?? 0) - (num(b.seq_num) ?? 0) || leaf(a).localeCompare(leaf(b), undefined, { numeric: true }) || (a.actv_code_id < b.actv_code_id ? -1 : 1);
+    const codes = [...rows.values()].map(leaf);
+    const sep = OUTLINE_SEPS.find((s) => !codes.some((c) => c.includes(s))) || OUTLINE_SEPS[0];
+    if (!OUTLINE_SEPS.some((s) => !codes.some((c) => c.includes(s)))) noSep++;
+    const guid = guidOf("lookup", projId, t.id);
+    const items = [], itemOf = new Map();
+    let depth = 0;
+    const walk = (p, parentItem, level) => {
+      const list = (kids.get(p) || []).sort(bySeq);
+      const names = new Set();
+      for (const c of list) {
+        if (itemOf.has(c.actv_code_id)) continue; // back round a loop
+        const code = leaf(c);
+        if (names.has(code)) twins++;
+        names.add(code);
+        const it = { vid: items.length + 1, parentVid: parentItem ? parentItem.vid : null, code, desc: nm(c.actv_code_name || ""), guid: guidOf("value", projId, t.id, c.actv_code_id), path: (parentItem ? parentItem.path + sep : "") + code, row: c };
+        items.push(it);
+        itemOf.set(c.actv_code_id, it);
+        depth = Math.max(depth, level);
+        walk(c.actv_code_id, it, level + 1);
+      }
+    };
+    walk("", null, 1);
+    for (const c of [...rows.values()].sort(bySeq)) {
+      if (itemOf.has(c.actv_code_id)) continue;
+      cycles++;
+      kids.set(`loop:${c.actv_code_id}`, [c]);
+      walk(`loop:${c.actv_code_id}`, null, 1);
+    }
+    const task = new Map();
+    for (const [taskId, c] of byType.get(t.id)) { task.set(taskId, itemOf.get(c.actv_code_id)); written++; }
+    const base = nameOf(t.id);
+    return { fieldId: TASK_OUTLINE_IDS[k], fieldName: `Outline Code${k + 1}`, alias: (seen.get(base.toLowerCase()) > 1 ? `${base} (${t.id})` : base).slice(0, 50), typeId: t.id, guid, sep, depth, items, task };
+  });
+  if (cycles) warnings.push(`${cycles} activity code value(s) sit under a parent that loops back to them; each is written as a top-level value`);
+  if (twins) warnings.push(`${twins} activity code value(s) repeat a code under the same parent: Project's lookup table keeps both, but their paths read alike`);
+  if (noSep) warnings.push(`${noSep} code type(s) use every separator Project offers (. - + /) inside codes; their paths use "." and may not split back into levels`);
+  return { fields, typeIds: new Set(kept.map((t) => t.id)), written, warnings };
+}
+
+// One field's <OutlineCode> lookup table, in the form Project writes and MPXJ
+// reads: values with parent IDs and descriptions, a character mask per level.
+function outlineTableXml(f) {
+  const vals = f.items.map((it) => `<Value><ValueID>${it.vid}</ValueID>${it.parentVid ? `<ParentValueID>${it.parentVid}</ParentValueID>` : ""}<FieldGUID>${it.guid}</FieldGUID><Type>21</Type><IsCollapsed>0</IsCollapsed><Value>${esc(it.code)}</Value><Description>${esc(it.desc)}</Description></Value>`).join("");
+  const masks = Array.from({ length: Math.max(1, f.depth) }, (_, k) => `<Mask><Level>${k + 1}</Level><Type>3</Type><Length>0</Length><Separator>${esc(f.sep)}</Separator></Mask>`).join("");
+  return `<OutlineCode><Guid>${f.guid}</Guid><FieldID>${f.fieldId}</FieldID><FieldName>${f.fieldName}</FieldName><Alias>${esc(f.alias)}</Alias><Values>${vals}</Values><Enterprise>0</Enterprise><ResourceSubstitutionEnabled>0</ResourceSubstitutionEnabled><LeafOnly>0</LeafOnly><AllLevelsRequired>0</AllLevelsRequired><OnlyTableValuesAllowed>1</OnlyTableValuesAllowed><ShowIndent>1</ShowIndent><Masks>${masks}</Masks></OutlineCode>`;
+}
+
 // Project's spare task Number1..20, Date1..10 and Cost1..10 fields (PjField
 // ids, checked against MPXJ 16.10's FieldTypeHelper; the same tables are in
 // mspdi.mjs, which reads them back)
@@ -606,6 +759,15 @@ export const TASK_COST_IDS = ["188743786", "188743787", "188743788", ...Array.fr
 const UDF_KIND = { FT_INT: "number", FT_FLOAT: "number", FT_FLOAT_2_DECIMALS: "number", FT_MONEY: "cost", FT_START_DATE: "date", FT_END_DATE: "date", FT_TEXT: "text" };
 const udfKind = (t) => (Object.hasOwn(UDF_KIND, t) ? UDF_KIND[t] : undefined);
 const KIND_FIELDS = { number: ["Number", TASK_NUMBER_IDS], date: ["Date", TASK_DATE_IDS], cost: ["Cost", TASK_COST_IDS] };
+// Project's resource Text1..30, Number1..20, Cost1..10 and Date1..10 fields
+// (PjField ids from MPXJ 16.10's FieldTypeHelper for ResourceField.TEXT1 and
+// the rest; p6xer.mjs reads them back as resource UDFs)
+const rng = (a, n) => Array.from({ length: n }, (_, k) => String(a + k));
+export const RSRC_TEXT_IDS = ["205520904", "205520905", ...rng(205520926, 3), ...rng(205520993, 5), ...rng(205521121, 20)];
+export const RSRC_NUMBER_IDS = [...rng(205521008, 5), ...rng(205521101, 15)];
+export const RSRC_COST_IDS = [...rng(205521019, 3), ...rng(205521062, 7)];
+export const RSRC_DATE_IDS = rng(205521069, 10);
+const RSRC_KIND_FIELDS = { number: ["Number", RSRC_NUMBER_IDS], date: ["Date", RSRC_DATE_IDS], cost: ["Cost", RSRC_COST_IDS] };
 
 // The activity user-defined fields (UDFTYPE table TASK, values in UDFVALUE)
 // of this project's activities, as Project's spare custom fields: integer and
@@ -619,9 +781,18 @@ const KIND_FIELDS = { number: ["Number", TASK_NUMBER_IDS], date: ["Date", TASK_D
 // date-times, costs in cents (Project stores a cost field in hundredths).
 // Returns { fields: [{ fieldId, fieldName, alias, kind, typeId, values: Map(task_id -> xml value) }],
 //   written, dropped, droppedTypes, warnings }.
-export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAliases = [] } = {}) {
+//
+// With { table: "RSRC" } the same for resource UDFs (UDFTYPE table RSRC, fk_id
+// a rsrc_id; taskRow is then the resources written), as Project's resource
+// fields: all 30 resource Text fields are free.
+export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAliases = [], table = "TASK" } = {}) {
   const warnings = [];
-  const types = new Map((T.UDFTYPE || []).filter((u) => u.table_name === "TASK").map((u) => [u.udf_type_id, u]));
+  const rsrc = table === "RSRC";
+  const textIds = rsrc ? RSRC_TEXT_IDS : TASK_TEXT_IDS;
+  const kindFields = rsrc ? RSRC_KIND_FIELDS : KIND_FIELDS;
+  if (rsrc) textFrom = 0;
+  const who = rsrc ? "resource " : ""; // activity warnings keep their wording
+  const types = new Map((T.UDFTYPE || []).filter((u) => u.table_name === table).map((u) => [u.udf_type_id, u]));
   const byType = new Map(); // type id -> Map(task_id -> value text)
   let unreadable = 0;
   for (const v of T.UDFVALUE || []) {
@@ -646,12 +817,12 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
   }
   const label = (u) => (nm(u.udf_type_label || u.udf_type_name || `UDF ${u.udf_type_id}`).replace(/\[/g, "(").replace(/\]/g, ")").trim() || `UDF ${u.udf_type_id}`);
   const seq = (u) => num(u.udf_type_id) ?? 0;
-  const seen = new Map([["activity id", 1]]);
+  const seen = new Map(rsrc ? [] : [["activity id", 1]]);
   for (const a of takenAliases) seen.set(a.toLowerCase(), 1);
   const fields = [];
   let written = 0, dropped = 0, droppedTypes = 0, noField = 0;
   const noFieldTypes = [];
-  const slots = (kind) => (kind === "text" ? TASK_TEXT_IDS.slice(textFrom).map((id, k) => [id, `Text${textFrom + k + 1}`]) : KIND_FIELDS[kind][1].map((id, k) => [id, `${KIND_FIELDS[kind][0]}${k + 1}`]));
+  const slots = (kind) => (kind === "text" ? textIds.slice(textFrom).map((id, k) => [id, `Text${textFrom + k + 1}`]) : kindFields[kind][1].map((id, k) => [id, `${kindFields[kind][0]}${k + 1}`]));
   for (const kind of ["number", "cost", "date", "text"]) {
     const list = [...byType.keys()].map((id) => types.get(id)).filter((u) => udfKind(u.logical_data_type) === kind)
       .sort((a, b) => seq(a) - seq(b) || (a.udf_type_id < b.udf_type_id ? -1 : 1));
@@ -664,8 +835,8 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
       kept = list.filter((u) => keep.has(u.udf_type_id));
       const left = list.filter((u) => !keep.has(u.udf_type_id));
       for (const u of left) { dropped += byType.get(u.udf_type_id).size; droppedTypes++; }
-      const where = kind === "text" ? `${room.length} Text field${room.length === 1 ? "" : "s"} activity codes leave free` : `${room.length} ${KIND_FIELDS[kind][0]} fields`;
-      warnings.push(`${list.length} ${kind} user-defined fields are used and Project has ${where}: ${room.length ? "the most filled are written; " : ""}left out: ${left.map((u) => `${label(u)} (${byType.get(u.udf_type_id).size})`).join(", ")}`);
+      const where = kind === "text" ? `${room.length} ${rsrc ? "resource " : ""}Text field${room.length === 1 ? "" : "s"}${rsrc ? "" : " activity codes leave free"}` : `${room.length} ${rsrc ? "resource " : ""}${kindFields[kind][0]} fields`;
+      warnings.push(`${list.length} ${kind} ${who}user-defined fields are used and Project has ${where}: ${room.length ? "the most filled are written; " : ""}left out: ${left.map((u) => `${label(u)} (${byType.get(u.udf_type_id).size})`).join(", ")}`);
     }
     kept.forEach((u, k) => {
       let alias = label(u);
@@ -673,7 +844,7 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
       seen.set(alias.toLowerCase(), 1);
       const values = byType.get(u.udf_type_id);
       written += values.size;
-      fields.push({ fieldId: room[k][0], fieldName: room[k][1], alias: alias.slice(0, 50), kind, typeId: u.udf_type_id, values });
+      fields.push({ fieldId: room[k][0], fieldName: room[k][1], alias: alias.slice(0, 50), kind, typeId: u.udf_type_id, values, table });
     });
   }
   for (const id of byType.keys()) {
@@ -682,7 +853,7 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
     noField += byType.get(id).size;
     noFieldTypes.push(`${label(u)} (${u.logical_data_type || "no type"})`);
   }
-  if (noField) warnings.push(`${noField} value(s) of ${noFieldTypes.length} indicator or code user-defined field(s) have no Project field and are not carried: ${noFieldTypes.join(", ")}`);
-  if (unreadable) warnings.push(`${unreadable} user-defined field value(s) could not be read as a number or date and were left out`);
+  if (noField) warnings.push(`${noField} value(s) of ${noFieldTypes.length} indicator or code ${who}user-defined field(s) have no Project field and are not carried: ${noFieldTypes.join(", ")}`);
+  if (unreadable) warnings.push(`${unreadable} ${who}user-defined field value(s) could not be read as a number or date and were left out`);
   return { fields, written, dropped: dropped + noField, droppedTypes: droppedTypes + noFieldTypes.length, warnings };
 }

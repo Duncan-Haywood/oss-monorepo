@@ -1,0 +1,73 @@
+cell-fidelity milestone 7x: a nested, out-of-fold gate for 7c's corrected ten-cycle forecast inside 7h's rule.
+Every corrected E10 a decision is scored on comes from a correction fitted without that row's pool.
+four = 7w's committed sets (lopo5 over 5zk 5zy 5zz 7g 7h); f30 / f10 = 7v's tuned plating cells (7p's pools).
+Cycles are DFN cycles per design; negative differences mean the first rule is cheaper. No new simulation.
+
+control four: replay of theta/U/thetaC vs the source's folds (cycles + met mismatches) = 0.00e+00; nested rules with m_hat = 1 vs theta/U = 0.00e+00
+control f10: replay of theta/U/thetaC vs the source's folds (cycles + met mismatches) = 0.00e+00; nested rules with m_hat = 1 vs theta/U = 0.00e+00
+control f30: replay of theta/U/thetaC vs the source's folds (cycles + met mismatches) = 0.00e+00; nested rules with m_hat = 1 vs theta/U = 0.00e+00
+
+---- four ----
+set                     theta            U       thetaC       thetaH           UH       thetaN           UN   gate (per fold)
+Chen2020            4/5  44.7    4/5  42.0    4/5  44.7    4/5  45.2    4/5  42.0    4/5  45.2    4/5  42.0   nyyyy  picks O2/O2/O2/O2/O2
+OKane2022           5/5  46.3    5/5  50.0    4/5  46.3    4/5  46.3    5/5  50.0    4/5  46.3    5/5  50.0   yyyyy  picks O2/O2/O2/O2/O2
+NCA_Kim2011         5/5  40.0    5/5  50.0    3/5  40.0    4/5  47.0    5/5  50.0    4/5  47.0    5/5  50.0   yyyyy  picks O1/O1/O1/O1/O1
+Ai2020              5/5  43.0    5/5  50.0    5/5  48.5    5/5  48.5    5/5  50.0    5/5  43.0    5/5  50.0   nnnnn  picks O2/O2/O2/O2/O1
+all               19/20  43.5  19/20  48.0  16/20  44.9  17/20  46.8  19/20  48.0  17/20  45.4  19/20  48.0
+pair                mean        set boot 95%  cheaper  dearer  sign p
+thetaN-theta       +1.88    +0.00 to +5.25        0       5   0.062
+thetaN-U           -2.62    -6.00 to +1.46       10       4   0.180
+thetaH-theta       +3.25    +0.25 to +6.25        0       8   0.008
+thetaH-thetaC      +1.88    +0.00 to +5.25        1       2   1.000
+thetaN-thetaC      +0.50    -4.00 to +5.25        4       2   0.688
+theta-U            -4.50    -8.50 to +0.25       14       4   0.031
+thetaN policies: Chen202 5zk 50>=0.019 0.074/0.077; Chen202 5zy 50>=0.014 0.077/0.097; Chen202 5zz 50>=0.014 0.051/0.064; Chen202 7g 50>=0.014 0.053/0.066; Chen202 7h 50>=0.025 0.084/0.056 MISS; OKane20 5zk 50>=0.031 0.051/0.064; OKane20 5zy 50>=0.031 0.053/0.067; OKane20 5zz 50>=0.013 0.040/0.050; OKane20 7g 50>=0.013 0.050/0.063; OKane20 7h 50>=0.031 0.070/0.068 MISS; NCA_Kim 5zk 50>=0.221 0.043/0.032 MISS; NCA_Kim 5zy 50>=0.049 0.020/0.025; NCA_Kim 5zz 50>=0.049 0.025/0.031; NCA_Kim 7g 50>=0.049 0.029/0.036; NCA_Kim 7h 50>=0.049 0.020/0.025; Ai2020 5zk 50>=0.041 0.014/0.017; Ai2020 5zy 50>=0.045 0.045/0.047; Ai2020 5zz 50>=0.041 0.050/0.058; Ai2020 7g 50>=0.041 0.038/0.048; Ai2020 7h 50>=0.041 0.039/0.049
+
+---- f10 ----
+set                     theta            U       thetaC       thetaH           UH       thetaN           UN   gate (per fold)
+Mohtat2020          2/5  23.0    3/5  24.0    2/5  21.6    2/5  21.6    2/5  15.0    2/5  21.0    2/5  15.0   ynyyy  picks O1/O1/O1/O1/O1
+Ecker2015           5/5  42.6    5/5  46.0    4/5  10.0    4/5  18.0    4/5  18.0    4/5  26.6    4/5  34.0   nyynn  picks O1/O1/O1/O1/O1
+all                7/10  32.8   8/10  35.0   6/10  15.8   6/10  19.8   6/10  16.5   6/10  23.8   6/10  24.5
+pair                mean        set boot 95%  cheaper  dearer  sign p
+thetaN-theta       -9.00   -16.00 to -2.00        3       0   0.250
+thetaN-U          -11.20   -19.40 to -3.00        6       0   0.031
+thetaH-theta      -12.99   -24.60 to -1.38        5       1   0.219
+thetaH-thetaC      +4.00    +0.00 to +8.00        0       1   1.000
+thetaN-thetaC      +7.99    -0.62 to +16.60        1       3   0.625
+theta-U            -2.20    -3.40 to -1.00        3       2   1.000
+thetaN policies: Mohtat2 p1 20>=0.001 0.079/0.106; Mohtat2 p2 15>=inf 0.093/0.081 MISS; Mohtat2 p3 20>=0.001 0.088/0.080 MISS; Mohtat2 p4 50>=0.002 0.109/0.093 MISS; Mohtat2 p5 15>=0.079 0.067/0.090; Ecker20 p1 50>=0.135 0.183/0.196; Ecker20 p2 15>=inf 0.108/0.190; Ecker20 p3 15>=inf 0.154/0.136 MISS; Ecker20 p4 50>=0.084 0.212/0.265; Ecker20 p5 50>=0.070 0.164/0.206
+
+---- f30 ----
+set                     theta            U       thetaC       thetaH           UH       thetaN           UN   gate (per fold)
+Mohtat2020          5/5  47.5    5/5  40.0    5/5  10.0    5/5  10.0    5/5  10.0    5/5  10.0    5/5  10.0   yyyyy  picks O3/O3/O3/O3/O3
+Ecker2015           4/5  43.5    5/5  40.0    5/5  10.0    5/5  10.0    5/5  10.0    5/5  10.0    5/5  10.0   yyyyy  picks O3/O3/O3/O3/O3
+all                9/10  45.5  10/10  40.0  10/10  10.0  10/10  10.0  10/10  10.0  10/10  10.0  10/10  10.0
+pair                mean        set boot 95%  cheaper  dearer  sign p
+thetaN-theta      -35.50   -37.50 to -33.50       10       0   0.002
+thetaN-U          -30.00   -30.00 to -30.00       10       0   0.002
+thetaH-theta      -35.50   -37.50 to -33.50       10       0   0.002
+thetaH-thetaC      +0.00    +0.00 to +0.00        0       0   1.000
+thetaN-thetaC      +0.00    +0.00 to +0.00        0       0   1.000
+theta-U            +5.50    +3.50 to +7.50        1       7   0.070
+thetaN policies: Mohtat2 p1 15>=inf 0.072/0.097; Mohtat2 p2 15>=inf 0.066/0.103; Mohtat2 p3 15>=inf 0.098/0.115; Mohtat2 p4 15>=inf 0.096/0.105; Mohtat2 p5 15>=inf 0.043/0.099; Ecker20 p1 15>=inf 0.168/0.202; Ecker20 p2 15>=inf 0.069/0.210; Ecker20 p3 15>=inf 0.142/0.255; Ecker20 p4 15>=inf 0.227/0.239; Ecker20 p5 15>=inf 0.149/0.196
+
+---- six set-conditions (four + f30, 30 folds) ----
+  theta 28/30 44.2  U 29/30 45.3  thetaC 26/30 33.2  thetaH 27/30 34.5  UH 29/30 35.3  thetaN 27/30 33.6  UN 29/30 35.3
+thetaN-theta      -10.58   -24.33 to +2.50       10       5   0.302
+thetaN-U          -11.75   -21.78 to -1.83       20       4   0.002
+thetaH-theta       -9.67   -24.00 to +4.08       10       8   0.815
+thetaH-thetaC      +1.25    +0.00 to +3.58        1       2   1.000
+thetaN-thetaC      +0.33    -2.67 to +3.50        4       2   0.688
+theta-U            -1.17    -6.19 to +3.75       15      11   0.557
+
+POST HOC (not in the plan): gate on the training rows' out-of-fold q75 instead of the median (thetaQ)
+  four: thetaQ 17/20 45.4; gate75 Chen2020 yyyyy; OKane2022 yyyyy; NCA_Kim2011 yyyyy; Ai2020 nnnnn; thetaQ-theta +1.88 (0 cheaper, 5 dearer); thetaQ-U -2.62
+  f10: thetaQ 6/10 19.5; gate75 Mohtat2020 nnnyy; Ecker2015 yyyyy; thetaQ-theta -13.30 (5 cheaper, 0 dearer); thetaQ-U -15.50
+  f30: thetaQ 10/10 10.0; gate75 Mohtat2020 yyyyy; Ecker2015 yyyyy; thetaQ-theta -35.50 (10 cheaper, 0 dearer); thetaQ-U -30.00
+  six: thetaQ 27/30 33.6; thetaQ-theta -10.58 (-24.33 to +2.50), 10 cheaper, 5 dearer
+
+H344 (thetaN meets >= 18 of 20 folds on the four sets): inconclusive
+H345 (four sets, 20-fold mean of thetaN - theta <= 0): refuted
+H346 (f = 30, 10-fold mean of thetaN - U <= -25): supported
+H347 (thetaH meets >= 18 of 20 folds on the four sets): inconclusive
+H348 (six-set bootstrap 95% interval of thetaN - theta below zero): inconclusive

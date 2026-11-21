@@ -11,9 +11,10 @@ uploaded.
 It also **converts an XER to Microsoft Project XML** for someone with Project
 and no P6 seat (WBS, activity IDs, calendars, logic, constraints, progress,
 baseline, resources, activity codes as named text columns, user-defined fields
-as named Number, Cost, Date and Text columns), checked on six public P6 files against this tool's own
+as named Number, Cost, Date and Text columns, resource user-defined fields as
+named resource columns), checked on six public P6 files against this tool's own
 MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`,
-`eval/msproject-udfs-2026-11-21.md`).
+`eval/msproject-udfs-2026-11-21.md`, `eval/rsrc-udfs-2026-11-21.md`).
 And the other way: **Microsoft Project XML to a P6 XER** for P6's import, for
 a planner in Project who must submit a P6 file (WBS under a project node,
 activity IDs, calendars, logic, progress with Project's Resume as P6's
@@ -467,7 +468,12 @@ project's updates for delay claims; and the review itself as a service.
   (duration = actual + remaining, Resume at P6's remaining start), baseline 0,
   resources and assignments; activity codes in Text2..Text30, one per code
   type, named after it (`{ codeNames: true }` writes "code - description"; a
-  leaf code repeated under two parents is written as its path); level of
+  leaf code repeated under two parents is written as its path);
+  `{ outlineCodes: true }` (`--outline-codes`, a box on the page) writes the
+  10 most assigned code types as Outline Code1..10 instead, each with a
+  lookup table holding the type's P6 tree and descriptions
+  (`outlineCodeFields`), and `mspdi.mjs` reads outline codes back as a code
+  tree; level of
   effort as manual tasks with their links in the notes; warnings for what
   Project schedules differently. `mspdi.mjs` reads task text fields back as
   activity codes. Activity UDFs (`udfFields`): integer and decimal UDFs in
@@ -619,6 +625,16 @@ run as a formula in Excel or Sheets.
   named; since text UDFs share the fields (below), 24 code types are
   written there (255,410 of 255,410 back) and 3,541 assignments named.
   Not opened in Microsoft Project itself.
+- **Activity codes as Project outline codes** (`eval/msproject-outline-2026-11-21.md`):
+  with `--outline-codes`, the four public files with codes write 19 code
+  types as outline codes, with 434 lookup values that read back with the
+  same code, parent and description. 179,400 of 179,400 assignments come
+  back on the same code and the same path up P6's tree, from either task
+  form alone. MPXJ 16.10 reads 19 of 19 field names, 434 of 434 lookup
+  values and 179,400 of 179,400 task values, from both forms together and
+  from each alone. Back to XER, P6's tree is kept (179,400 of 179,400). On
+  CCA, 33 of its 37 code types are carried, against 24 with text fields
+  only. Not opened in Microsoft Project itself.
 - **User-defined fields in the Project XML** (`eval/msproject-udfs-2026-11-21.md`):
   on CCA, Expressway and a planted file (cost, start and finish date
   UDFs), every UDF value written reads back the same: 13,859 numbers, 226
@@ -627,6 +643,15 @@ run as a formula in Excel or Sheets.
   UDFs compete with 37 code types for 29 Text fields; 746 values of the 10
   least-filled text UDFs are named, not written. Before, all 41,729 activity
   UDF values on CCA were dropped. Not opened in Microsoft Project itself.
+- **Resource user-defined fields** (`eval/rsrc-udfs-2026-11-21.md`, 2026-11-21):
+  resource UDFs go into Project's resource Text, Number, Cost and Date fields,
+  renamed to each UDF's title, and come back from a Project file as P6
+  resource UDFs. Through XML and back to an XER, 330 of 330 values return the
+  same on the same resource: the 87 real text values on the public 24.12 file
+  and 243 with planted cost, date and number UDFs. MPXJ 16.10 reads 330 of 330
+  cells from the XML and from the XER, and 12 of 12 field names. A finish-date
+  UDF comes back as a start-date one (Project has one date kind). Before, all
+  87 real values were dropped.
 - **Gantt by activity code** (`eval/activity-codes-2026-11-21.md`): 92
   charts (each code type alone, and then the WBS) on the four public files
   with codes: every activity once, under its TASKACTV value and that value's

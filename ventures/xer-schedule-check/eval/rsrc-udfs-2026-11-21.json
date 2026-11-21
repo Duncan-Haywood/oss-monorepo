@@ -1,0 +1,136 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "resourceUdfTypes": 0,
+  "valuesInFile": 0,
+  "onWrittenResources": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "typeKept": 0,
+  "typeChanged": [],
+  "problems": 0,
+  "warnings": []
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "resourceUdfTypes": 0,
+  "valuesInFile": 0,
+  "onWrittenResources": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "typeKept": 0,
+  "typeChanged": [],
+  "problems": 0,
+  "warnings": []
+ },
+ {
+  "file": "example_xer_file.xer",
+  "resourceUdfTypes": 3,
+  "valuesInFile": 87,
+  "onWrittenResources": 87,
+  "byKind": {
+   "text": {
+    "meant": 87,
+    "back": 87
+   }
+  },
+  "back": 87,
+  "wrong": [],
+  "missing": [],
+  "typeKept": 3,
+  "typeChanged": [],
+  "problems": 0,
+  "warnings": [],
+  "mpxj": {
+   "aliases": "3/3",
+   "xmlCells": "87/87",
+   "xerCells": "87/87",
+   "bad": []
+  }
+ },
+ {
+  "file": "hotel-project.xer",
+  "resourceUdfTypes": 0,
+  "valuesInFile": 0,
+  "onWrittenResources": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "typeKept": 0,
+  "typeChanged": [],
+  "problems": 0,
+  "warnings": []
+ },
+ {
+  "file": "rsrc-udfs-planted.xer",
+  "resourceUdfTypes": 9,
+  "valuesInFile": 243,
+  "onWrittenResources": 243,
+  "byKind": {
+   "text": {
+    "meant": 87,
+    "back": 87
+   },
+   "cost": {
+    "meant": 48,
+    "back": 48
+   },
+   "date": {
+    "meant": 50,
+    "back": 50
+   },
+   "number": {
+    "meant": 58,
+    "back": 58
+   }
+  },
+  "back": 243,
+  "wrong": [],
+  "missing": [],
+  "typeKept": 8,
+  "typeChanged": [
+   "Contract ends: FT_END_DATE -> FT_START_DATE"
+  ],
+  "problems": 0,
+  "warnings": [],
+  "mpxj": {
+   "aliases": "9/9",
+   "xmlCells": "243/243",
+   "xerCells": "243/243",
+   "bad": []
+  }
+ },
+ {
+  "file": "sample.xer",
+  "resourceUdfTypes": 0,
+  "valuesInFile": 0,
+  "onWrittenResources": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "typeKept": 0,
+  "typeChanged": [],
+  "problems": 0,
+  "warnings": []
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "resourceUdfTypes": 0,
+  "valuesInFile": 0,
+  "onWrittenResources": 0,
+  "byKind": {},
+  "back": 0,
+  "wrong": [],
+  "missing": [],
+  "typeKept": 0,
+  "typeChanged": [],
+  "problems": 0,
+  "warnings": []
+ }
+]
