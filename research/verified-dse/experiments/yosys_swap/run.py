@@ -226,7 +226,7 @@ def lr(x, y):
     return abs(math.log(sy / sx))
 
 
-def analyse(dst):
+def analyse(dst, quiet=False):
     import statistics
     rows = [json.loads(l) for l in TABLE.read_text().splitlines()]
     pts = sample()
@@ -292,7 +292,8 @@ def analyse(dst):
     fails = [r for r in rec if not r["ok"]]
     L.append(f"  points failing under either Yosys build: {len(fails)}")
     Path(dst).write_text("\n".join(L) + "\n")
-    print("\n".join(L))
+    if not quiet:
+        print("\n".join(L))
     return {"held": held, "n": n, "repA": repA, "repB": repB, "rec": rec}
 
 

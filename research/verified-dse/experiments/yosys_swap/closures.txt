@@ -16,3 +16,19 @@ k3d2rlwjmidx9ir9s4d5mx6fnbr54029-openroad-26Q3 -> h5lmxcar353q54yvk5hsjyqky9xpmi
 bin/openroad (makeCWrapper) in p9p47153: --prefix PATH : /nix/store/mlbhr6nzwzfaqigj8vh5bwmbcrajsd11-yosys-0.71/bin plus Qt and XDG paths.
 
 nixpkgs-unstable releases (releases.nixos.org store-paths.xz; S3 LastModified of git-revision):
+  nixpkgs-26.11pre1114617.f6bf1059f025 (2026-11-12T00:42:58Z): 5hikvxw9-yosys-0.70 9z5vs6xr-yosys-0.70 czrmvp9h-yosys-0.70 d0v1mp3i-yosys-0.70 dzsihg5w-yosys-0.70 nqd84djw-openroad-26Q3 rmrnbsc2-openroad-26Q3 s0819nw0-yosys-0.70 zj2f3x4d-openroad-26Q3 
+  nixpkgs-26.11pre1115905.9ac0edc06bfb (2026-11-12T09:23:18Z): 5hikvxw9-yosys-0.70 9z5vs6xr-yosys-0.70 czrmvp9h-yosys-0.70 d0v1mp3i-yosys-0.70 dzsihg5w-yosys-0.70 hpchrl0h-openroad-26Q3 jphmhqgz-openroad-26Q3 k3d2rlwj-openroad-26Q3 s0819nw0-yosys-0.70 
+  nixpkgs-26.11pre1117836.9397dcb09c95 (2026-11-12T12:38:04Z): 5hikvxw9-yosys-0.70 9z5vs6xr-yosys-0.70 czrmvp9h-yosys-0.70 d0v1mp3i-yosys-0.70 dzsihg5w-yosys-0.70 hpchrl0h-openroad-26Q3 jphmhqgz-openroad-26Q3 k3d2rlwj-openroad-26Q3 s0819nw0-yosys-0.70 
+  nixpkgs-26.11pre1118303.84d01faabc0c (2026-11-12T21:32:51Z): 5hikvxw9-yosys-0.70 9z5vs6xr-yosys-0.70 czrmvp9h-yosys-0.70 d0v1mp3i-yosys-0.70 dzsihg5w-yosys-0.70 hpchrl0h-openroad-26Q3 jphmhqgz-openroad-26Q3 k3d2rlwj-openroad-26Q3 s0819nw0-yosys-0.70 
+  nixpkgs-26.11pre1118975.2074cc672349 (2026-11-12T22:54:03Z): 5hikvxw9-yosys-0.70 9z5vs6xr-yosys-0.70 czrmvp9h-yosys-0.70 d0v1mp3i-yosys-0.70 dzsihg5w-yosys-0.70 hpchrl0h-openroad-26Q3 jphmhqgz-openroad-26Q3 k3d2rlwj-openroad-26Q3 s0819nw0-yosys-0.70 
+  nixpkgs-26.11pre1119636.e126e9e73c33 (2026-11-15T07:11:50Z): 5hikvxw9-yosys-0.70 9z5vs6xr-yosys-0.70 czrmvp9h-yosys-0.70 d0v1mp3i-yosys-0.70 dzsihg5w-yosys-0.70 hpchrl0h-openroad-26Q3 jphmhqgz-openroad-26Q3 k3d2rlwj-openroad-26Q3 s0819nw0-yosys-0.70 
+  nixpkgs-26.11pre1120695.5d2b81a7a3be (2026-11-15T22:14:12Z): 5hikvxw9-yosys-0.70 9z5vs6xr-yosys-0.70 czrmvp9h-yosys-0.70 d0v1mp3i-yosys-0.70 dzsihg5w-yosys-0.70 hpchrl0h-openroad-26Q3 jphmhqgz-openroad-26Q3 k3d2rlwj-openroad-26Q3 s0819nw0-yosys-0.70 
+  nixpkgs-26.11pre1121398.1c872b8c508b (2026-11-17T10:21:18Z): 5hikvxw9-yosys-0.70 9z5vs6xr-yosys-0.70 czrmvp9h-yosys-0.70 d0v1mp3i-yosys-0.70 dzsihg5w-yosys-0.70 hpchrl0h-openroad-26Q3 jphmhqgz-openroad-26Q3 k3d2rlwj-openroad-26Q3 s0819nw0-yosys-0.70 
+  nixpkgs-26.11pre1122334.e21fec321d73 (2026-11-18T02:53:30Z): 6q2c2wx2-openroad-26Q3 6xcrgar6-yosys-0.71 97qy1bkp-yosys-0.71 fd925hql-yosys-0.71 h5lmxcar-openroad-26Q3 p1x5f4is-yosys-0.71 
+  nixpkgs-26.11pre1124565.19cfded70b91 (2026-11-20T02:34:21Z): 1xxkzyxg-yosys-0.71 2k1kzkb4-openroad-26Q3 35qizvkf-yosys-0.71 avlhabyq-openroad-26Q3 k7yn2vfz-yosys-0.71 mlbhr6nz-yosys-0.71 p9p47153-openroad-26Q3 plxbrg04-yosys-0.71 y6njdmx1-yosys-0.71 
+  nixpkgs-26.11pre1125205.b758f1622588 (2026-11-20T21:28:23Z): 1xxkzyxg-yosys-0.71 2k1kzkb4-openroad-26Q3 35qizvkf-yosys-0.71 avlhabyq-openroad-26Q3 k7yn2vfz-yosys-0.71 mlbhr6nz-yosys-0.71 p9p47153-openroad-26Q3 plxbrg04-yosys-0.71 y6njdmx1-yosys-0.71 
+  nixpkgs-26.11pre1125400.9996594bd380 (2026-11-21T03:20:28Z): 1xxkzyxg-yosys-0.71 2k1kzkb4-openroad-26Q3 35qizvkf-yosys-0.71 avlhabyq-openroad-26Q3 k7yn2vfz-yosys-0.71 mlbhr6nz-yosys-0.71 p9p47153-openroad-26Q3 plxbrg04-yosys-0.71 y6njdmx1-yosys-0.71 
+  (several outputs per release are other variants, e.g. a yosys with plugins; the default nixpkgs#openroad and nixpkgs#yosys are the ones named above, from Hydra's job nixpkgs:unstable:openroad.x86_64-linux and :yosys.x86_64-linux)
+
+yosys-0.71 97qy1bkp (11-18 release) vs mlbhr6nz (11-20 release): closures identical apart from the yosys output itself, and bin/yosys
+(53,130,200 bytes each) differs in 30 bytes, all of them the binary's own store hash: replacing 97qy1bkp... by mlbhr6nz... makes the files equal.
