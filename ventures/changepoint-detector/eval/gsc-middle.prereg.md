@@ -36,3 +36,7 @@ near 200 of 200, so a strict gain is not required); D2 no step cell more than 4 
 **What ships.** B passes: the pick is offered as a named setting for counts (watch card, CLI words, README), whatever
 C says. B and C pass: it also becomes the Middle rung of the count ladder, so `--suggest`, `--detector auto` and the
 page's hint can choose it. B fails: nothing ships but the tables, and the next item names the failed bar.
+
+**Before stage C ran** (appended after stages A and B, before C): `eval/gsc-middle-hint.mjs` was smoke-run once on
+seed 1 (1 per cell) to check the wiring; that seed decides nothing. A picked M1; B passed (eval/gsc-middle-A.out.txt,
+eval/gsc-middle-B.out.txt).

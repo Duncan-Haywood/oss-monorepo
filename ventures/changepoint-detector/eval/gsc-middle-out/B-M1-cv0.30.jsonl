@@ -1,0 +1,13 @@
+M1 cv0.30 {"detector":"pelt","overdispersion":"nb"}
+{"base":50,"fall":0,"seeds":40,"heard":0,"delays":[],"falseA":4,"watched":4800,"chance":0}
+{"base":50,"fall":0.1,"seeds":40,"heard":6,"delays":[19,38,39,50,28,52],"falseA":2,"watched":2400,"chance":0}
+{"base":50,"fall":0.2,"seeds":40,"heard":29,"delays":[16,55,15,16,29,37,18,3,41,8,54,23,19,14,4,9,8,15,37,22,51,11,18,28,45,10,9,32,9],"falseA":3,"watched":2400,"chance":0}
+{"base":50,"fall":0.4,"seeds":40,"heard":40,"delays":[8,4,8,9,8,4,6,6,5,7,16,4,5,4,7,9,4,9,5,8,7,4,8,4,8,4,4,4,6,4,9,8,5,12,7,4,6,7,31,7],"falseA":3,"watched":2400,"chance":0}
+{"base":400,"fall":0,"seeds":40,"heard":0,"delays":[],"falseA":6,"watched":4800,"chance":1}
+{"base":400,"fall":0.1,"seeds":40,"heard":8,"delays":[15,45,46,40,14,16,52,51],"falseA":4,"watched":2400,"chance":0}
+{"base":400,"fall":0.2,"seeds":40,"heard":30,"delays":[28,25,23,4,24,53,34,18,12,51,44,31,36,11,7,4,21,55,23,50,11,44,23,14,9,14,8,9,11,34],"falseA":9,"watched":2400,"chance":0}
+{"base":400,"fall":0.4,"seeds":40,"heard":40,"delays":[4,8,10,4,9,5,4,4,3,4,4,5,7,8,4,4,11,5,3,7,4,4,4,4,3,3,9,6,5,8,6,12,4,10,4,4,6,4,4,5],"falseA":3,"watched":2400,"chance":0}
+{"base":3000,"fall":0,"seeds":40,"heard":0,"delays":[],"falseA":2,"watched":4800,"chance":0}
+{"base":3000,"fall":0.1,"seeds":40,"heard":7,"delays":[32,36,17,22,17,4,51],"falseA":5,"watched":2400,"chance":0}
+{"base":3000,"fall":0.2,"seeds":40,"heard":29,"delays":[6,25,13,8,15,16,52,9,20,26,19,4,32,14,30,8,5,15,34,9,13,3,17,38,4,27,9,6,2],"falseA":4,"watched":2400,"chance":0}
+{"base":3000,"fall":0.4,"seeds":40,"heard":40,"delays":[4,4,10,4,7,2,7,6,4,6,10,8,8,4,6,7,7,10,4,4,11,5,3,4,7,4,4,7,6,4,2,8,4,4,16,6,4,11,4,4],"falseA":3,"watched":2400,"chance":0}

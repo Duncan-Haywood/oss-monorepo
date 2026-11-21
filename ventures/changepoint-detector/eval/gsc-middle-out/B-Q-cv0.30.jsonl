@@ -1,0 +1,13 @@
+Q cv0.30 {} (count default)
+{"base":50,"fall":0,"seeds":40,"heard":0,"delays":[],"falseA":2,"watched":4800,"chance":0}
+{"base":50,"fall":0.1,"seeds":40,"heard":0,"delays":[],"falseA":1,"watched":2400,"chance":0}
+{"base":50,"fall":0.2,"seeds":40,"heard":4,"delays":[9,8,4,9],"falseA":2,"watched":2400,"chance":0}
+{"base":50,"fall":0.4,"seeds":40,"heard":30,"delays":[5,4,9,4,6,6,5,6,4,56,5,7,4,9,5,12,4,8,4,8,4,3,4,6,4,8,6,4,4,6],"falseA":2,"watched":2400,"chance":0}
+{"base":400,"fall":0,"seeds":40,"heard":0,"delays":[],"falseA":2,"watched":4800,"chance":0}
+{"base":400,"fall":0.1,"seeds":40,"heard":0,"delays":[],"falseA":2,"watched":2400,"chance":0}
+{"base":400,"fall":0.2,"seeds":40,"heard":5,"delays":[4,10,6,4,8],"falseA":3,"watched":2400,"chance":0}
+{"base":400,"fall":0.4,"seeds":40,"heard":34,"delays":[4,4,9,5,4,4,3,4,4,4,45,4,4,5,3,8,4,4,4,4,3,3,5,4,6,6,4,10,4,4,6,4,4,4],"falseA":1,"watched":2400,"chance":0}
+{"base":3000,"fall":0,"seeds":40,"heard":0,"delays":[],"falseA":1,"watched":4800,"chance":0}
+{"base":3000,"fall":0.1,"seeds":40,"heard":1,"delays":[4],"falseA":2,"watched":2400,"chance":0}
+{"base":3000,"fall":0.2,"seeds":40,"heard":8,"delays":[7,8,9,4,9,3,6,2],"falseA":2,"watched":2400,"chance":0}
+{"base":3000,"fall":0.4,"seeds":40,"heard":35,"delays":[4,4,4,19,2,6,4,6,10,8,8,4,6,7,9,4,4,11,5,3,4,4,4,4,6,4,2,8,4,4,6,4,10,4,4],"falseA":1,"watched":2400,"chance":0}
