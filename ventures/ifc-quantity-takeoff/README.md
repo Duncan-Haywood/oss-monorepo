@@ -266,7 +266,18 @@ room by room, so the takeoff lists every IfcSpace with:
   not of the convex pieces it is cut into: edges two pieces share cancel, and
   a cut takes away the part of an edge it removes.
 - **Height** (lowest to highest point), **wall area** as perimeter x height
-  (gross wall finish, before doors and windows come off), **volume**.
+  (gross wall finish), **volume**.
+- **Net wall area** (eval/net-wall-finish-2026-11-21.md): the gross wall area
+  less the doors, windows and curtain walls in the room's walls. A door or
+  window comes off in every room the file's space boundaries
+  (`IfcRelSpaceBoundary`) name for it; one they do not name is placed by
+  testing a point either side of it, through the wall, against the room
+  solids. It comes off at its stored OverallWidth x OverallHeight (Revit's
+  boundary surface for a door is the frame's width swept to the room's
+  height, 1.37 x the door on Office_A), a curtain wall at its boundary
+  surface. Pieces of one window drawn as several IfcWindows are taken once.
+  Held out against the files' boundaries, the geometric test found the same
+  rooms for 791 of 857 openings and a room the file does not name for 19.
 - A room with no body but a `FootPrint` outline and a `Box` (Revit and
   ArchiCAD both export these) is the outline extruded through the box.
 - Each figure against the stored one (GrossFloorArea then NetFloorArea,
@@ -290,7 +301,9 @@ room by room, so the takeoff lists every IfcSpace with:
 535, perimeter 472 of 475, height 501 of 535 (34 nominal), volume 213 of 535
 (246 unit slips, 57 floor x nominal height in litres, 11 outline prisms, 8
 unexplained). Elements placed by where they stand: 1,024 (coverings,
-furniture, proxies) on top of 1,652 the files place themselves.
+furniture, proxies) on top of 1,652 the files place themselves. Net of
+doors, windows and curtain walls: 6,914 m2 and 352 m2 off 65,368 m2 of gross
+wall in 989 rooms (1,330 deductions named by boundaries, 1,419 by geometry).
 
 `node cli.mjs model.ifc --rooms rooms.csv`; page section "Rooms" (click a room
 to show its elements; CSV download).
@@ -476,7 +489,7 @@ node cli.mjs model.ifc                         # BoQ by class and type, CSV to s
 node cli.mjs model.ifc --by storey,class       # other groupings
 node cli.mjs model.ifc --by uniformat2,uniformat   # elemental estimate (Uniformat II group, element)
 node cli.mjs model.ifc --rows elements.csv     # every element
-node cli.mjs model.ifc --rooms rooms.csv       # room schedule: floor area, perimeter, height, wall area, volume
+node cli.mjs model.ifc --rooms rooms.csv       # room schedule: floor area, perimeter, height, wall area gross and net, volume
 node cli.mjs model.ifc --by space,class        # BoQ room by room
 node cli.mjs model.ifc --check                 # stored vs computed summary
 node cli.mjs model.ifc --voids-up-to 0.5,0.05  # leave in openings up to 0.5 m2 (areas) / 0.05 m3 (volumes)
@@ -492,6 +505,7 @@ node eval/uniformat-check.mjs a.ifc b.ifc      # Uniformat coverage, and the rul
 node eval/envelope-check.mjs a.ifc b.ifc --svg plans/   # the envelope test against authors' IsExternal flags, with plans
 node eval/roof-blockers.mjs a.ifc b.ifc        # the walls sloped roofs move in the envelope test
 node eval/rooms.mjs a.ifc b.ifc                # rooms measured vs stored, and elements placed in rooms
+node eval/net-wall-finish.mjs a.ifc b.ifc      # doors, windows, curtain walls off each room's walls; geometry vs boundaries
 ```
 
 Node 20+, no dependencies. To host your own copy, serve this directory as

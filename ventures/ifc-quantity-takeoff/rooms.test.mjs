@@ -4,8 +4,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { takeoff, boq, rowsCsv } from "./qto.mjs";
-import { outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel } from "./rooms.mjs";
-import { IDENTITY } from "./geom.mjs";
+import { outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings } from "./rooms.mjs";
+import { IDENTITY, Geometry } from "./geom.mjs";
 
 const close = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol * Math.max(1, Math.abs(b)), `${a} vs ${b}`);
 
@@ -88,7 +88,7 @@ test("stored room quantities are checked, with the cause of a disagreement named
 // 2.7 m high) with stored quantities, a table standing in it, a chair outside
 // it, and an L-shaped room on Level 2 drawn only as an outline and a box
 const sampleText = () => readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "latin1");
-const roomsFile = () => {
+const roomsFileText = () => {
   const extra = [
     "#2000=IFCSPACE('0rM0000000000000000001',$,'101','',$,#2001,#2002,'Office',.ELEMENT.,.INTERNAL.,$);",
     "#2001=IFCLOCALPLACEMENT(#51,#21);",
@@ -136,8 +136,9 @@ const roomsFile = () => {
   ].join("\n");
   const text = sampleText().replace("ENDSEC;\nEND-ISO", `${extra}\nENDSEC;\nEND-ISO`);
   assert.ok(text.includes("#2000=IFCSPACE"), "fixture edit applied");
-  return takeoff(parseStep(Buffer.from(text, "latin1")));
+  return text;
 };
+const roomsFile = () => takeoff(parseStep(Buffer.from(roomsFileText(), "latin1")));
 
 test("takeoff lists the rooms with their measured and stored quantities", () => {
   const res = roomsFile();
@@ -182,7 +183,7 @@ test("the room schedule as CSV, and its totals per storey", () => {
   const lines = roomsCsv(res.rooms).trim().split("\n");
   assert.equal(lines.length, 3);
   assert.ok(lines[0].startsWith("Entity,GlobalId,Number,Name,Storey,Floor area m2,Perimeter m"));
-  assert.ok(lines[1].includes(",101,Office,Level 1,12,14,2.7,37.8,32.4,1,12,,14,2.7,32400,"), lines[1]);
+  assert.ok(lines[1].includes(",101,Office,Level 1,12,14,2.7,37.8,0,0,0,37.8,32.4,1,12,,14,2.7,32400,"), lines[1]);
   assert.ok(/volume -99\.9% vs stored NetVolume \(unit-slip\)/.test(lines[1]), lines[1]);
   // a room name that starts like a formula is not run by a spreadsheet
   assert.ok(roomsCsv([{ id: 1, number: "=1+1", stored: {}, check: {} }]).includes(`"'=1+1"`));
@@ -196,4 +197,108 @@ test("the room schedule as CSV, and its totals per storey", () => {
 test("rooms can be left out", () => {
   const text = sampleText();
   assert.deepEqual(takeoff(parseStep(Buffer.from(text, "latin1")), { rooms: false }).rooms, []);
+});
+
+// The office of roomsFile plus: a 900 x 2100 door in its south wall (y = 100)
+// placed by where it stands; a window in its east wall named by a space
+// boundary (an IfcCurveBoundedPlane of 1300 x 1100, its frame) that stores
+// 1000 x 1200 as its own size; and a curtain wall with no body of its own,
+// named by a Revit-style boundary (a 2 m line swept 2.7 m up).
+const openingsFile = () => {
+  const extra = [
+    "#3000=IFCDOOR('0rM0000000000000000101',$,'Door',$,$,#2021,#3002,$,2100.,900.);",
+    "#3002=IFCPRODUCTDEFINITIONSHAPE($,$,(#3003));",
+    "#3003=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#3004));",
+    "#3004=IFCEXTRUDEDAREASOLID(#3005,#21,#23,2100.);",
+    "#3005=IFCRECTANGLEPROFILEDEF(.AREA.,$,#3006,900.,100.);",
+    "#3006=IFCAXIS2PLACEMENT2D(#3007,$);",
+    "#3007=IFCCARTESIANPOINT((2450.,100.));",
+    "#3010=IFCWINDOW('0rM0000000000000000102',$,'Window',$,$,#3011,#3012,$,1000.,1200.);",
+    "#3011=IFCLOCALPLACEMENT(#51,#3018);",
+    "#3018=IFCAXIS2PLACEMENT3D(#3019,$,$);",
+    "#3019=IFCCARTESIANPOINT((0.,0.,900.));",
+    "#3012=IFCPRODUCTDEFINITIONSHAPE($,$,(#3013));",
+    "#3013=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#3014));",
+    "#3014=IFCEXTRUDEDAREASOLID(#3015,#21,#23,1000.);",
+    "#3015=IFCRECTANGLEPROFILEDEF(.AREA.,$,#3016,100.,1200.);",
+    "#3016=IFCAXIS2PLACEMENT2D(#3017,$);",
+    "#3017=IFCCARTESIANPOINT((4500.,1600.));",
+    "#3020=IFCRELSPACEBOUNDARY('0rM0000000000000000103',$,'1stLevel',$,#2000,#3010,#3021,.PHYSICAL.,.EXTERNAL.);",
+    "#3021=IFCCONNECTIONSURFACEGEOMETRY(#3022,$);",
+    "#3022=IFCCURVEBOUNDEDPLANE(#3023,#3025,());",
+    "#3023=IFCPLANE(#3024);",
+    "#3024=IFCAXIS2PLACEMENT3D(#22,#24,#25);",
+    "#3025=IFCPOLYLINE((#3026,#3027,#3028,#3029,#3026));",
+    "#3026=IFCCARTESIANPOINT((0.,0.));",
+    "#3027=IFCCARTESIANPOINT((1300.,0.));",
+    "#3028=IFCCARTESIANPOINT((1300.,1100.));",
+    "#3029=IFCCARTESIANPOINT((0.,1100.));",
+    "#3030=IFCCURTAINWALL('0rM0000000000000000104',$,'Glazing',$,$,$,$,$,$);",
+    "#3031=IFCRELSPACEBOUNDARY('0rM0000000000000000105',$,'1stLevel',$,#2000,#3030,#3032,.PHYSICAL.,.EXTERNAL.);",
+    "#3032=IFCCONNECTIONSURFACEGEOMETRY(#3033,$);",
+    "#3033=IFCSURFACEOFLINEAREXTRUSION(#3034,#21,#23,2700.);",
+    "#3034=IFCARBITRARYOPENPROFILEDEF(.CURVE.,$,#3035);",
+    "#3035=IFCPOLYLINE((#3036,#3037));",
+    "#3036=IFCCARTESIANPOINT((500.,3100.));",
+    "#3037=IFCCARTESIANPOINT((2500.,3100.));",
+  ].join("\n");
+  return extra;
+};
+
+test("doors, windows and curtain walls come off a room's wall area", () => {
+  const text = roomsFileText().replace("ENDSEC;\nEND-ISO", `${openingsFile()}\nENDSEC;\nEND-ISO`);
+  assert.ok(text.includes("#3000=IFCDOOR"), "fixture edit applied");
+  const r = takeoff(parseStep(Buffer.from(text, "latin1")));
+  const office = r.rooms.find((x) => x.label === "101 Office");
+  const c = office.computed;
+  close(c.wallArea, 14 * 2.7);
+  assert.equal(c.openings, 2);
+  close(c.openingArea, 0.9 * 2.1 + 1.2 * 1.0); // the window at its stored size, not its 1.3 x 1.1 boundary
+  close(c.glazedArea, 2 * 2.7);
+  close(c.netWallArea, 14 * 2.7 - 0.9 * 2.1 - 1.2 - 5.4);
+  assert.deepEqual(c.openingsFrom, { boundary: 1, geometry: 1 });
+  const door = r.rows.find((x) => x.name === "Door"), win = r.rows.find((x) => x.name === "Window");
+  assert.deepEqual(door.facesRooms, ["101 Office"]);
+  assert.equal(door.facesFrom, "geometry");
+  assert.equal(win.facesFrom, "boundary");
+  // the room schedule carries them
+  const line = roomsCsv(r.rooms).split("\n").find((l) => l.includes(",101,Office,"));
+  assert.ok(line.includes(",37.8,2,3.09,5.4,29.31,"), line);
+});
+
+test("a space boundary's surface area: a curve-bounded plane less its holes, and a swept line", () => {
+  const E = new Map();
+  const put = (id, type, args) => E.set(id, { id, type, args });
+  const P = (id, x, y) => put(id, "IFCCARTESIANPOINT", [[x, y]]);
+  P(1, 0, 0); P(2, 4, 0); P(3, 4, 3); P(4, 0, 3); P(5, 1, 1); P(6, 2, 1); P(7, 2, 2); P(8, 1, 2);
+  put(10, "IFCPOLYLINE", [[{ ref: 1 }, { ref: 2 }, { ref: 3 }, { ref: 4 }, { ref: 1 }]]);
+  put(11, "IFCPOLYLINE", [[{ ref: 5 }, { ref: 6 }, { ref: 7 }, { ref: 8 }, { ref: 5 }]]);
+  put(12, "IFCCURVEBOUNDEDPLANE", [null, { ref: 10 }, [{ ref: 11 }]]);
+  put(13, "IFCCONNECTIONSURFACEGEOMETRY", [{ ref: 12 }, null]);
+  put(20, "IFCDIRECTION", [[0, 0, 1]]);
+  put(21, "IFCPOLYLINE", [[{ ref: 1 }, { ref: 2 }, { ref: 3 }]]); // 4 + 3 m of wall
+  put(22, "IFCARBITRARYOPENPROFILEDEF", [{ enum: "CURVE" }, null, { ref: 21 }]);
+  put(23, "IFCSURFACEOFLINEAREXTRUSION", [{ ref: 22 }, null, { ref: 20 }, 2.5]);
+  const geo = new Geometry({ entities: E });
+  close(connectionArea(geo, { ref: 13 }), 12 - 1);
+  close(connectionArea(geo, { ref: 23 }), 7 * 2.5);
+});
+
+test("one window drawn as several pieces comes off once; a door between two rooms comes off in both", () => {
+  const rows = [
+    { id: 1, ifcType: "IFCWINDOW", box: [0, 0, 1, 1.2, 0.1, 2] }, // the window, 1.2 x 1.0
+    { id: 2, ifcType: "IFCWINDOW", box: [-0.03, 0, 0.97, 1.23, 0.12, 2.03] }, // its sub-frame, round it
+    { id: 3, ifcType: "IFCWINDOW", box: [0, 0, 0.97, 1.2, 0.12, 1] }, // the sub-frame's sill
+    { id: 4, ifcType: "IFCDOOR", box: [3, 0, 0, 3.9, 0.1, 2.1] },
+  ];
+  const rooms = [{ id: 10, label: "A", computed: { wallArea: 30 } }, { id: 11, label: "B", computed: { wallArea: 20 } }];
+  const bounds = [{ space: 10, element: 1 }, { space: 10, element: 2 }, { space: 10, element: 3 }, { space: 10, element: 4 }, { space: 11, element: 4 }];
+  const overall = new Map([[1, { width: 1.2, height: 1 }], [2, { width: 1.26, height: 1.06 }], [3, { width: 1.2, height: 0.03 }], [4, { width: 0.9, height: 2.1 }]]);
+  deductOpenings(rows, rooms, bounds, overall);
+  const [a, b] = rooms;
+  assert.equal(a.computed.openings, 2); // the sub-frame (largest) and the door
+  assert.equal(a.computed.nestedPieces, 2);
+  close(a.computed.openingArea, 1.26 * 1.06 + 0.9 * 2.1);
+  close(b.computed.netWallArea, 20 - 0.9 * 2.1);
+  assert.deepEqual(rows[3].facesRooms, ["A", "B"]);
 });

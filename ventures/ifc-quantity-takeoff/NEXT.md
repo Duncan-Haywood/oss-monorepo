@@ -12,7 +12,7 @@
 
 ## Rooms (landed 2026-11-21, eval/rooms-2026-11-21.md)
 
-- Net wall finish per room: doors and windows in each room's walls off, via IfcRelSpaceBoundary where the file has it (dental_clinic 3,124, Office_A 1,334).
+- (landed 2026-11-21, eval/net-wall-finish-2026-11-21.md) Net wall finish per room. Left: count only the part of an opening below the room's ceiling (a window over a lowered ceiling comes off in full); dental_clinic's 17 fixed windows the file names only for "2R01/2R02 ROOF" while geometry also finds the office (look at them on the model); HouseZ's 6 openings within 0.5 m of a room's box that no side test reached; curtain walls no boundary names (ARK_NUS's 852 members) from the wall face; reveals added back as a method of measurement option.
 - The five unexplained ARK_NUS rooms (01109, 01170, the two M&H perimeters, 02002) drawn against their stored figures.
 - Ceiling area under a sloped roof from the solid's top faces; the room grouping in the revision diff.
 
