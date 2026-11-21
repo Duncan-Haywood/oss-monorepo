@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKjCG2wHpuGPbAWcM1Y",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T17:09:29Z",
+  "ended": "2026-11-21T17:44:56Z",
+  "wall_minutes": 35.91,
+  "tokens_in": 8995676,
+  "tokens_out": 46543,
+  "cost_usd": 3.9985,
+  "tool_calls": 67,
+  "task": "Advance programme codesign-cant: milestones 1-2 extended from five to ten seeds, exact Wilcoxon tests and bootstrap intervals for paper sections IV-V",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18115",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A heredoc after a backgrounded `cd ... && (...) &` ran in the wrong directory and silently skipped the LOG edit; caught and re-run.",
+    "System python3 (<3.12) rejects nested same-quote f-strings that python3.13 accepts; stats.py was rewritten to run on both."
+  ],
+  "integrity_issues": [
+    "The five-seed draft claim that the shared thrust polytope makes cant worth more (6.08 vs 4.81 deg) did not survive ten seeds (4.98 vs 4.86); withdrawn in DRAFT.md, README, project.json, LOG, with the five-seed record kept and labelled."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/codesign-cant/tests/test_paper_numbers.py",
+      "issue": "test_figures_vii_points_are_table7_rows needs matplotlib, which neither the system python nor python3.13 had; pyenv.py was asked only for pytest numpy scipy cma so the failure looked like a regression until checked on main."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 while plain python3 is older; scripts meant to run under both must avoid 3.12-only f-string syntax. Not stated anywhere."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Milestone 2's three-start lam=0.3 arms at seeds 5-9 were read from milestone 4's stored PID runs instead of re-flown, since milestone 4 uses the same CMA-ES seeds and starts.",
+      "did": "Flew one of them (seed 7) as a reproduction check; it matched exactly.",
+      "result": "Saved ~8 minutes of compute with the equivalence verified."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-five-seeds-said-cant-pays-more-ten-seeds-disagree.md",
+    "research/codesign-cant/LOG.md (milestones 1-2 at ten seeds, predictions and outcome)"
+  ],
+  "goal": "research PhD+ programme step (paper statistics)",
+  "notes": "205 CMA-ES runs + 5 reproduction runs, 27 min on 4 cores. Predictions TS0-TS6 committed before the full run (commit 'predictions before the run'). TS0, TS1, TS4, TS5, TS6 held; TS2 refuted by one seed (prio lam 0 seed 9 single start chose 9.5 deg); TS3 refuted in part. paper/check_numbers.py 124/124 ok; research/_homepage/build.py ok; check_md_links ok; check_posts ok. Project tests: 91 passed, 1 skipped (python3.13, after installing matplotlib).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4941b391-36df-5c09-acb2-62910ac4ab62",
+    "transcripts": 1,
+    "first": "2026-11-21T17:09:29Z",
+    "last": "2026-11-21T17:45:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 136,
+        "output": 46543,
+        "thinking": 9619,
+        "cache_read": 8832974,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162566,
+        "api_equivalent_usd": 3.9985,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 136,
+      "output": 46543,
+      "thinking": 9619,
+      "cache_read": 8832974,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162566,
+      "api_equivalent_usd": 3.9985,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 63,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.91,
+      "active_minutes": 12.43,
+      "model_minutes": 8.7,
+      "tool_minutes": 3.73,
+      "waiting_on_human_minutes": 23.48,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "rerun 205 optimisation runs, write exact-test stats script, revise one paper section and its checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 150.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
