@@ -396,13 +396,13 @@ flagships:
       next: a real club's night on it. Tournaments 2026-11-20 (tournament.mjs;
       results fill pools and bracket, tournament-results.mjs); referee crews
       2026-11-20 (tournament-referees.mjs: clubs, hours, caps, ejection chain;
-      CP-SAT check, eval/referee-exact.txt); next: a real tournament; league
-      officials pick and give back games from their own links 2026-11-20
-      (officiating.mjs, README), next a real league's referees. Golf 2026-11-20
-      (golf.mjs, golf-playoffs.mjs flighted play-offs, golf-league-schedule.html):
-      tee times at share in 71 of 77 seasons, other 6 SAT-proved out
-      (eval/golf-tee-grid.txt); match play recap; next: a real league's season. More
-      open items: NEXT.md.
+      CP-SAT check, eval/referee-exact.txt); next: a real tournament. Cards and
+      suspensions 2026-11-21
+      (discipline.mjs: yellow accumulation, reds, bans served on played fixtures
+      only; next: a real league's cards). Golf 2026-11-20 (golf.mjs,
+      golf-playoffs.mjs flighted play-offs, golf-league-schedule.html): tee times at
+      share in 71 of 77 seasons, other 6 SAT-proved out (eval/golf-tee-grid.txt);
+      match play recap; next: a real league's season. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Take-up

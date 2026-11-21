@@ -36,13 +36,21 @@ import { captainKey, captainTeam, reportableGames, parseReport, recordReport, re
 import { movableGames, tryMove, parseMoveRequest, recordMove, pruneMoves, openMoves, adminMovesHtml, captainMovesHtml, moveAskedEmail } from "./reschedule.mjs";
 import { parseNotice, addNotice, removeNotice, noticesHtml, adminNoticesHtml, noticeEmails } from "./announcements.mjs";
 import { spiritSettings, parseSpirit, recordSpirit, pruneSpirit, spiritTable, captainSpiritHtml, leagueSpiritHtml, adminSpiritHtml, spiritCsv, SPIRIT_MODES } from "./spirit.mjs";
+import { disciplineSettings, parseDiscipline, disciplineState, leagueDisciplineHtml, captainDisciplineHtml, adminDisciplineHtml, disciplineCsv } from "./discipline.mjs";
 import { cleanWaiverText, currentVersion, rememberVersion, parseSignature, parseWaiverForm, recordSignature, removeSignature, waiverFormHtml, registerWaiverHtml, waiverLinkHtml, adminWaiversHtml, waiversCsv, versionText } from "./waivers.mjs";
 import { MAX_TAG_QUESTIONS, MAX_SHEET, faSettings, faClosedReason, parseFreeAgent, allowJoin, addFreeAgent, suggestPlacements, placeFreeAgent, removeFreeAgent, placedEmails, freeAgentsCsv, joinFormHtml, joinedHtml, adminFreeAgentsHtml } from "./freeagents.mjs";
 import { readOfficials, settleOfficials, officialByKey, officialKey, parseOfficialRequest, officialAction, adminAssign, fillOpen, pinDealt, clearUpcoming, withOfficials, officialHtml, leagueOfficialsHtml, adminOfficialsHtml, droppedEmail } from "./officiating.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
-const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts", "playoffResults", "officials"];
+const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts", "playoffResults", "officials", "discipline"];
+
+/** Cards log -> { state, errors } against the built schedule (cards and suspensions, discipline.mjs). */
+function leagueDiscipline(fields, schedule, today) {
+  if (!String(fields.discipline || "").trim()) return null;
+  const p = parseDiscipline(fields.discipline, schedule.teams);
+  return { state: disciplineState(p.events, schedule, disciplineSettings(fields), today), errors: p.errors };
+}
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
@@ -146,8 +154,10 @@ function leaguePage(state, token, base = null, today = dayNumber(Date.now()), ca
     const calendar = official ? (feed ? `<a href="${esc(feed.replace(/^https?:/, "webcal:"))}">subscribe</a> · ` : "") + `<a href="/league/ics?${esc(q)}">download</a>` : "";
     refs = (official ? officialHtml(lo.settled, lo.officials, official.index, { token, key: official.key, today, calendar }) : "") + leagueOfficialsHtml(lo.settled, today);
   }
+  const dq = leagueDiscipline(state.fields, out.schedule, today), dsets = disciplineSettings(state.fields);
+  const disc = dq ? (captain ? captainDisciplineHtml(dq.state, captain.team, out.schedule.teams) : "") + (dsets.show ? leagueDisciplineHtml(dq.state, out.schedule.teams) : "") : "";
   const pwaHead = pwaHeadHtml(token, captain ? captain.key : null), pwaBody = pwaBodyHtml(now, { team: captain ? captain.team : null });
-  return html.replace("<head>", `<head><meta name="robots" content="noindex">${pwaHead}`).replace("</h1>", `</h1>${pwaBody}${news}`).replace("<footer>", `${refs}${cap}${spirit}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
+  return html.replace("<head>", `<head><meta name="robots" content="noindex">${pwaHead}`).replace("</h1>", `</h1>${pwaBody}${news}`).replace("<footer>", `${refs}${cap}${disc}${spirit}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
 function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = process.env, base = null) {
@@ -176,6 +186,8 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const lo = built.schedule ? leagueOfficials(state, built.schedule) : null;
   const refAdmin = lo && state.published ? adminOfficialsHtml(lo.settled, lo.officials, { key, token, base, today, secret: key }) : "";
   if (lo) parseNotes.push(...lo.errors);
+  const ds = disciplineSettings(f), dq = built.schedule ? leagueDiscipline(f, built.schedule, today) : null;
+  const discAdmin = dq ? adminDisciplineHtml(dq.state, names, dq.errors) + `<p><a href="/admin/discipline.csv?key=${k}">Download every ban (CSV)</a></p>` : "";
   return page("League admin", `${note}${signups}${freeAgents}${waiting}${short}${csv}${parseNotes.length ? `<ul class="err">${parseNotes.slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("")}</ul>` : ""}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
@@ -206,10 +218,19 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <fieldset><legend>Sportsmanship ratings (optional)</legend>
 <label>After each game, each captain rates the other team from their captain link<select name="spiritMode">${spiritOpts}</select></label>
 <label><input type="checkbox" name="spiritShow" value="1" style="width:auto" ${f.spiritShow ? "checked" : ""}> Show the sportsmanship table (averages only, never comments) on the league page</label>
-<p class="note">The five-category scale follows the shape of the score sheet ultimate leagues use (rules, fouls and contact, fair-mindedness, attitude, communication; 0 to 4 each, 2 for a normal game). Switching the scale starts the averages again; earlier ratings stay in the state file.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
+<p class="note">The five-category scale follows the shape of the score sheet ultimate leagues use (rules, fouls and contact, fair-mindedness, attitude, communication; 0 to 4 each, 2 for a normal game). Switching the scale starts the averages again; earlier ratings stay in the state file.</p></fieldset>
+<fieldset><legend>Cards, suspensions and scorers (optional)</legend>
+${area("discipline", "Cards log, one event per line: date, team, player, then yellow, second yellow, red (optionally a ban length, red 3), ban 2, or goal (optionally a count, goal 2). E.g. 2026-10-14 Hawks: Ana Lopez yellow")}
+<label>A ban after every this many yellows (0 = yellows never add up)<input name="yellowsPerBan" inputmode="numeric" value="${ds.yellowsPerBan}"></label>
+<label>Games banned for each yellow-card ban<input name="yellowBanGames" inputmode="numeric" value="${ds.yellowBanGames}"></label>
+<label><input type="checkbox" name="yellowEscalate" value="1" style="width:auto" ${ds.escalate ? "checked" : ""}> Each further yellow ban is longer (e.g. 5 yellows 1 game, 10 yellows 2, 15 yellows 3)</label>
+<label>Games banned for a straight red, unless the line gives a number<input name="redBanGames" inputmode="numeric" value="${ds.redBanGames}"></label>
+<label>Games banned for a sending off for two yellows<input name="secondYellowBanGames" inputmode="numeric" value="${ds.secondYellowBanGames}"></label>
+<label><input type="checkbox" name="disciplineShow" value="1" style="width:auto" ${ds.show ? "checked" : ""}> Show suspensions and top scorers on the league page</label>
+<p class="note">Bans are served in the player's team's own games after the game the card came in, and only games already played count, so a rained-out game serves nothing until it is played. Each captain's page shows their own team's suspensions either way. This keeps the count; your league's panel decides.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
 <label><input type="checkbox" name="notify" value="1" style="width:auto"${state.published ? "" : " disabled"}> Email teams whose upcoming games this save moves, cancels or adds (one email per team, to its contacts${smtp && !smtp.error ? "" : "; needs SMTP, see above"})</label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
-${refAdmin}${spiritAdmin}${notices}${waivers}${capLinks}${names.length && state.published ? adminEmbedHtml(key, base, names) : ""}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}). Free agents: <code>/join</code> (${fs.open ? "open" : "closed"}).</p>`);
+${refAdmin}${discAdmin}${spiritAdmin}${notices}${waivers}${capLinks}${names.length && state.published ? adminEmbedHtml(key, base, names) : ""}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}). Free agents: <code>/join</code> (${fs.open ? "open" : "closed"}).</p>`);
 }
 
 async function readForm(req) {
@@ -548,6 +569,9 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       f.waiverText = cleanWaiverText(form.get("waiverText"));
       f.spiritMode = SPIRIT_MODES[form.get("spiritMode")] ? String(form.get("spiritMode")) : "";
       f.spiritShow = form.get("spiritShow") === "1";
+      for (const k of ["yellowsPerBan", "yellowBanGames", "redBanGames", "secondYellowBanGames"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 3);
+      f.yellowEscalate = form.get("yellowEscalate") === "1";
+      f.disciplineShow = form.get("disciplineShow") === "1";
       const wasPublished = state.published, prev = wasPublished ? buildLeague(state.fields) : null;
       state.fields = f;
       rememberVersion(state, clock());
@@ -609,6 +633,12 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       const out = buildLeague(state.fields);
       if (out.error) return send(404, "fix the league first\n", "text/plain");
       return send(200, "\ufeff" + spiritCsv(state.spirit || {}, out.schedule, spiritSettings(state.fields).mode), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="sportsmanship.csv"', "cache-control": "no-store" });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/discipline.csv") {
+      const out = buildLeague(state.fields);
+      if (out.error) return send(404, "fix the league first\n", "text/plain");
+      const dq = leagueDiscipline(state.fields, out.schedule, dayNumber(clock()));
+      return send(200, "\ufeff" + (dq ? disciplineCsv(dq.state, out.schedule.teams) : "player,team\r\n"), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="suspensions.csv"', "cache-control": "no-store" });
     }
     if (req.method === "GET" && url.pathname === "/admin/waivers.csv") {
       return send(200, "\ufeff" + waiversCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="waivers.csv"', "cache-control": "no-store" });
