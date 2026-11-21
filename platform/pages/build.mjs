@@ -678,6 +678,40 @@ export const SALES_SLUGS = new Set([
       'sales-quota-capacity-planner',
 ]);
 
+// The `imports` section's members (CATEGORY_RULES, below): checks that read a file you are about to upload
+// somewhere else (a CRM, an email platform, an ad account, a contacts app, a calendar, a payroll or bank
+// portal, a map or transit feed) and name every row that would be rejected or mangled. Until 2026-11-21
+// twenty-one of them sat in `evidence`, parked there 2026-10-04 to 10-05 for offline-bundle room, so a
+// HubSpot import check's breadcrumb, `BreadcrumbList` JSON-LD and category page said "Compliance checks &
+// evidence records" beside EU regulation checkers; `email-list-csv-check` sat in `backoffice`. Exact list:
+// the slugs share no affix (`-csv-check` also names marketplace product feeds and accounting imports, which
+// stay with `marketplace` and `bookkeeping`, where their readers look). Placed third, after `sales`, so no
+// earlier rule claims a member; `build.test.mjs` fails if a later rule still names one by its exact slug.
+export const IMPORT_CHECK_SLUGS = new Set([
+      'activecampaign-import-csv-check',
+      'brevo-contacts-csv-check',
+      'email-list-csv-check',
+      'google-contacts-csv-check',
+      'hubspot-contacts-csv-check',
+      'klaviyo-profile-csv-check',
+      'mailchimp-audience-csv-check',
+      'pipedrive-import-csv-check',
+      'salesforce-lead-import-csv-check',
+      'zoho-crm-import-csv-check',
+      'vcard-contacts-check',
+      'ics-calendar-check',
+      'google-ads-editor-csv-check',
+      'meta-catalog-csv-check',
+      'gbp-bulk-location-check',
+      'gtin-list-check',
+      'iban-list-check',
+      'payroll-hours-csv-check',
+      'redirect-map-check',
+      'youtube-chapters-check',
+      'gpx-track-check',
+      'gtfs-feed-check',
+]);
+
 const CATEGORY_RULES = [
   {
     // Added 2026-10-16 (P019): the self-hosted SaaS-operations apps had been
@@ -707,6 +741,14 @@ const CATEGORY_RULES = [
     accent: '#8a4b12',
     blurb: 'From the first lead to the paid invoice: a lead list and follow-ups, a prospecting cadence, call notes, an AI inbox agent that drafts replies you approve, proposals, contracts and estimates, tracked time, invoices, payment terms and late-payer letters, plus commission and quota planners.',
     test: (slug) => SALES_SLUGS.has(slug),
+  },
+  {
+    // File checks before an upload, split out of `evidence` 2026-11-21 (IMPORT_CHECK_SLUGS above says why).
+    id: 'imports',
+    title: 'Import & upload file checks',
+    accent: '#3d4f8a',
+    blurb: 'Check a file before you upload it: CRM and email contact imports, ad and catalog feeds, vCard and calendar files, barcode and IBAN lists, payroll hours and map feeds. Every problem named by row.',
+    test: (slug) => IMPORT_CHECK_SLUGS.has(slug),
   },
   {
     // `1099k-reconciliation-worksheet` moved here from `backoffice` 2026-10-10: it reconciles a marketplace's 1099-K against a seller's own sales, a
@@ -1934,47 +1976,9 @@ const CATEGORY_RULES = [
       || slug === 'retirement-plan-startup-credit-calculator'
       || slug === 'mechanics-lien-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker'
-      // `hubspot-contacts-csv-check` joined 2026-10-04: a list preflight that reports what it found with line numbers and an explicit not-checked list, and
-      // `backoffice` is already over its gzipped offline bundle bound, so it cannot take another page.
-      || slug === 'hubspot-contacts-csv-check'
-      // `salesforce-lead-import-csv-check` joined 2026-10-04: the Salesforce half of the CRM import pre-flight above, filed beside it for the same bundle-bound reason.
-      || slug === 'salesforce-lead-import-csv-check'
-      // `pipedrive-import-csv-check` joined 2026-10-04: the Pipedrive (deals, people, organizations) half of the same CRM import pre-flight.
-      || slug === 'pipedrive-import-csv-check'
-      // `zoho-crm-import-csv-check` joined 2026-10-04: the Zoho CRM (leads, contacts, accounts, deals) half of the same CRM import pre-flight.
-      || slug === 'zoho-crm-import-csv-check'
-      // `activecampaign-import-csv-check` joined 2026-10-04: the ActiveCampaign (contacts, accounts, deals) half of the same import pre-flight.
-      || slug === 'activecampaign-import-csv-check'
-      // `klaviyo-profile-csv-check` joined 2026-10-04: the Klaviyo (email/SMS marketing profiles) member of the same import pre-flight family.
-      || slug === 'klaviyo-profile-csv-check'
-      // `google-ads-editor-csv-check` joined 2026-10-04: the Google Ads Editor (campaigns, keywords, responsive search ads) member of the same import pre-flight family.
-      || slug === 'google-ads-editor-csv-check'
-      // `mailchimp-audience-csv-check` joined 2026-10-04: the Mailchimp (email audience contacts) member of the same import pre-flight family.
-      || slug === 'mailchimp-audience-csv-check'
-      // `payroll-hours-csv-check` joined 2026-10-04: the payroll hours sheet member of the same file pre-flight family.
-      || slug === 'payroll-hours-csv-check'
-      // `gbp-bulk-location-check` joined 2026-10-04: a Google Business Profile bulk-location spreadsheet pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
-      || slug === 'gbp-bulk-location-check'
-      // `meta-catalog-csv-check` joined 2026-10-05: a Meta (Facebook and Instagram) catalog feed pre-flight, the same line-numbered findings and explicit not-checked list as the import pre-flights above, filed beside them for the same reason.
-      || slug === 'meta-catalog-csv-check'
-      // `redirect-map-check` joined 2026-10-05: a site-migration redirect map pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
-      || slug === 'redirect-map-check'
-      // `internal-link-planner` joined 2026-10-16: a site-structure audit for the same technical-SEO audience, filed beside `redirect-map-check` rather than in the catch-all.
+      // `internal-link-planner` joined 2026-10-16: a site-structure audit for a technical-SEO audience, filed here rather than in the catch-all
+      // (its file-check sibling `redirect-map-check` moved to `imports` on 2026-11-21).
       || slug === 'internal-link-planner'
-      // `brevo-contacts-csv-check` joined 2026-10-05: the Brevo (email + SMS contacts) member of the same import pre-flight family.
-      || slug === 'brevo-contacts-csv-check'
-      // `gtin-list-check` joined 2026-10-05: a product-list barcode pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
-      || slug === 'gtin-list-check'
-      // `iban-list-check` joined 2026-10-05: a supplier/payroll bank-detail pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
-      || slug === 'iban-list-check'
-      // `ics-calendar-check` joined 2026-10-05: an iCalendar file pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
-      || slug === 'ics-calendar-check'
-      // `gpx-track-check` joined 2026-10-05: a GPX track file pre-flight, filed beside the other file pre-flights for the same bundle-bound reason.
-      || slug === 'gpx-track-check'
-      // `gtfs-feed-check` joined 2026-11-19: a GTFS transit-feed zip pre-flight, the same file-and-line findings and explicit not-checked list as the file pre-flights above, filed beside them.
-      || slug === 'gtfs-feed-check'
-      // `vcard-contacts-check` joined 2026-10-05: a vCard contacts-file pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
-      || slug === 'vcard-contacts-check'
       // `ofx-file-check` joined 2026-10-05: a bank-export (OFX/QFX) pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
       || slug === 'ofx-file-check'
       // `qif-file-check` joined 2026-10-05: the QIF half of the bank-export pre-flights above (no transaction ID, no declared date order), same line-numbered findings and explicit not-checked list.
@@ -2044,11 +2048,7 @@ const CATEGORY_RULES = [
       // `mt940-statement-check` joined 2026-10-05: the SWIFT MT940 half of the bank-export pre-flights above (balance arithmetic, statement continuity, CSV conversion), same line-numbered findings and explicit not-checked list.
       || slug === 'mt940-statement-check'
       // `camt053-statement-check` joined 2026-10-05: the ISO 20022 XML successor to the MT940 check above, same balance arithmetic, continuity and CSV conversion with line-numbered findings.
-      || slug === 'camt053-statement-check'
-      // `youtube-chapters-check` joined 2026-10-05: a chapter-list pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
-      || slug === 'youtube-chapters-check'
-      // `google-contacts-csv-check` joined 2026-10-05: the CSV half of the contacts-file pre-flights above, same line-numbered findings and explicit not-checked list.
-      || slug === 'google-contacts-csv-check'),
+      || slug === 'camt053-statement-check')
   },
   {
     // US personal tax, pay and retirement, split out 2026-11-17. These are one household's own
@@ -2246,9 +2246,6 @@ const CATEGORY_RULES = [
       || slug === 'quickbooks-chart-of-accounts-csv-check'
       // `xero-contacts-csv-check` joined 2026-10-04 on its first commit: the contacts half of the Xero import checker next to it.
       || slug === 'xero-contacts-csv-check'
-      // `email-list-csv-check` joined 2026-10-04 on its first commit: a contact list checked before it is imported into an email
-      // platform, the same CSV-preflight job as the Xero and bank converters next to it.
-      || slug === 'email-list-csv-check'
       // `eu-vat-oss-calculator` joined 2026-10-04 on its first commit: a small seller's EU cross-border VAT return from a sales export, the
       // same back-office compliance-arithmetic job as the SEPA and e-invoice tools here.
       || slug === 'eu-vat-oss-calculator'
@@ -3734,7 +3731,7 @@ const CATEGORY_RULES = [
     // `npm-audit-triage`, `pip-audit-triage` and `cargo-audit-triage`, which
     // it links.
     test: (slug) =>
-      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|csp-policy-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|gitignore-explainer|gitattributes-explainer|editorconfig-explainer|semver-range-explainer|rrule-explainer|icu-message-check|tsconfig-ts7-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|cvss-vector-check|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|systemd-unit-hardening-check|nginx-config-security-check|sudoers-check|sshd-config-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|cyclehound|csshound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
+      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|subtitle-resync|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|csp-policy-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|gitignore-explainer|gitattributes-explainer|editorconfig-explainer|semver-range-explainer|rrule-explainer|icu-message-check|tsconfig-ts7-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|cvss-vector-check|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|systemd-unit-hardening-check|nginx-config-security-check|sudoers-check|sshd-config-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|cyclehound|csshound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
         slug,
       ),
   },
@@ -4953,6 +4950,14 @@ const CATEGORY_PAGE_COPY = {
     intro:
       'One pipeline, from the first lead to the paid invoice: follow-ups and call notes, an inbox agent that drafts replies you approve, proposals, contracts and estimates, tracked time, invoices, and the letters that chase a late payer.',
     audience: 'Freelancers, consultants, agencies and small sales teams',
+  },
+  imports: {
+    title: 'Free CSV import checkers: CRM, email, ads and contact files',
+    description:
+      'Check a HubSpot, Salesforce, Mailchimp, Klaviyo, Google Ads or Meta catalog CSV, a vCard or .ics file before you import it. Free, in your browser.',
+    intro:
+      'Each tool reads the file you are about to upload and names every row the platform would reject or mangle: missing required columns, bad emails and phone numbers, duplicates, broken dates and Excel-damaged IDs. Nothing you upload leaves your browser.',
+    audience: 'Marketing and sales ops, admins and anyone moving a list between systems',
   },
   bookkeeping: {
     title: 'Free bookkeeping tools: bank statements to journals and OFX',

@@ -8,6 +8,8 @@
 
 import { whistRotation } from "./whist.mjs";
 import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, carryOverKeepIndex, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
+import { swissStandings, swissPairings, swissPairingsGreedy, colourClaim } from "./swiss.mjs";
+export { swissStandings, swissPairings, swissPairingsGreedy, colourClaim };
 import { waitFreeNights, seasonLayout, waitFreePossible, waitFreeProvedImpossible } from "./nights.mjs";
 
 export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -3661,99 +3663,6 @@ export function parseSwissResults(text, players) {
   games.push(...parsed.results);
   errors.push(...parsed.errors);
   return { games, byes, withdrawn, errors };
-}
-
-/** Score table: win 1, draw 0.5, bye counts as a win. Buchholz = sum of opponents' scores, then Sonneborn-Berger breaks ties. */
-export function swissStandings(players, games, byes = [], { win = 1, draw = 0.5 } = {}) {
-  const rows = players.map((name, i) => ({ index: i, name, score: 0, played: 0, opponents: [], whites: 0, blacks: 0, last: [], beaten: [], drawn: [] }));
-  for (const g of games) {
-    const A = rows[g.a];
-    const B = rows[g.b];
-    A.played++; B.played++;
-    A.opponents.push(g.b); B.opponents.push(g.a);
-    A.whites++; B.blacks++;
-    A.last.push("W"); B.last.push("B");
-    if (g.ga > g.gb) { A.score += win; A.beaten.push(g.b); }
-    else if (g.ga < g.gb) { B.score += win; B.beaten.push(g.a); }
-    else { A.score += draw; B.score += draw; A.drawn.push(g.b); B.drawn.push(g.a); }
-  }
-  for (const i of byes) rows[i].score += win;
-  for (const r of rows) {
-    r.buchholz = r.opponents.reduce((s, o) => s + rows[o].score, 0);
-    // Sonneborn-Berger: full opponent score for each win, half for each draw. Rewards beating the strong.
-    r.sonnebornBerger = r.beaten.reduce((s, o) => s + rows[o].score, 0) + r.drawn.reduce((s, o) => s + rows[o].score, 0) * (draw / win);
-  }
-  const byeSet = new Map();
-  for (const i of byes) byeSet.set(i, (byeSet.get(i) ?? 0) + 1);
-  for (const r of rows) r.byes = byeSet.get(r.index) ?? 0;
-  rows.sort((x, y) => y.score - x.score || y.buchholz - x.buchholz || y.sonnebornBerger - x.sonnebornBerger || x.index - y.index);
-  rows.forEach((r, i) => { r.rank = i + 1; });
-  return rows;
-}
-
-/**
- * Pair the next Swiss round (Dutch style): players in the same score group meet top half against
- * bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours
- * alternate. Games are `{a, b}` with a = white. `players` are in seed order (strongest first).
- * Returns { pairs: [{white, black}], bye: index | null, floaters: number }.
- */
-export function swissPairings(players, games, byes = [], withdrawn = []) {
-  const gone = new Set(withdrawn);
-  const n = players.length - gone.size;
-  if (n < 2) throw new Error("Swiss pairing needs at least 2 players still in the event.");
-  const table = swissStandings(players, games, byes);
-  const order = table.map((r) => r.index).filter((i) => !gone.has(i));
-  const info = new Map(table.map((r) => [r.index, r]));
-  const met = new Set();
-  for (const g of games) { met.add(`${g.a}|${g.b}`); met.add(`${g.b}|${g.a}`); }
-  let bye = null;
-  let pool = order.slice();
-  if (n % 2 === 1) {
-    for (let k = order.length - 1; k >= 0; k--) {
-      if (info.get(order[k]).byes === 0) { bye = order[k]; break; }
-    }
-    if (bye === null) bye = order[order.length - 1];
-    pool = order.filter((i) => i !== bye);
-  }
-  const scoreOf = (i) => info.get(i).score;
-  let budget = 200000;
-  const solve = (left) => {
-    if (!left.length) return [];
-    if (--budget < 0) return null;
-    const p = left[0];
-    const rest = left.slice(1);
-    const group = rest.filter((q) => scoreOf(q) === scoreOf(p));
-    const ideal = Math.floor((group.length + 1) / 2);
-    const cands = rest
-      .map((q, k) => {
-        const g = group.indexOf(q);
-        return { q, k, d: Math.abs(scoreOf(p) - scoreOf(q)), r: g < 0 ? 0 : Math.abs(g + 1 - ideal) };
-      })
-      .filter((c) => !met.has(`${p}|${c.q}`))
-      .sort((x, y) => x.d - y.d || x.r - y.r || x.k - y.k);
-    for (const c of cands) {
-      const tail = solve(rest.filter((q) => q !== c.q));
-      if (tail) return [[p, c.q], ...tail];
-    }
-    return null;
-  };
-  const matching = solve(pool);
-  if (!matching) throw new Error("No pairing without a rematch exists. Stop here: every player has met everyone they can.");
-  let floaters = 0;
-  const pairs = matching.map(([x, y]) => {
-    if (scoreOf(x) !== scoreOf(y)) floaters++;
-    const [hi, lo] = order.indexOf(x) < order.indexOf(y) ? [x, y] : [y, x];
-    const colourNeed = (i) => {
-      const r = info.get(i);
-      const run = r.last.slice(-2);
-      if (run.length === 2 && run[0] === run[1]) return run[0] === "W" ? -3 : 3;
-      return r.blacks - r.whites;
-    };
-    const needHi = colourNeed(hi);
-    const needLo = colourNeed(lo);
-    return needHi >= needLo ? { white: hi, black: lo } : { white: lo, black: hi };
-  });
-  return { pairs, bye, floaters };
 }
 
 /** Check a pairing: everyone placed once, no rematches, bye unused. Returns a list of problems. */

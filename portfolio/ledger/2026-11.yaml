@@ -254,3 +254,18 @@ entries:
         48.3); 5 seeded bugs all caught. No real floor survey run through it
         yet. Post, llms.txt, contractor guide page.
     mrr_end: 0
+  - venture: subtitle-resync
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/subtitle-resync, a
+        browser page and zero-dependency Node CLI that fixes out-of-sync SRT
+        and WebVTT files by a shift, a frame-rate fix (25 to 23.976 and the
+        other common pairs), two sync points, or alignment to a correctly
+        timed subtitle in any language (offset voting at each frame-rate
+        ratio, then a least-squares fit, with a confidence rating). Sweep of
+        200 synthetic tracks: all within 500 ms (worst 38 ms), all high
+        confidence; 0 of 50 unrelated pairs rated high. Not yet run on real
+        film subtitles. Post, llms.txt, guide page.
+    mrr_end: 0

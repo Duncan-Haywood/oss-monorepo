@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230f4c5c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Fix Out-of-Sync Subtitles: Offset or Frame-Rate Drift?</title>
+  <meta name="description" content="Subtitles that are always 2 seconds late need a shift. Subtitles that start fine and end minutes off need a frame-rate fix, usually 25 to 23.976 fps. How to tell which you have, a worked example with the arithmetic, and when another tool fits better.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./fix-subtitles-out-of-sync.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How to fix out-of-sync subtitles">
+  <meta property="og:description" content="Shift, or stretch? Two minutes with the video tells you which, and two numbers fix it. A worked example with the arithmetic shown.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I tell an offset from a frame-rate drift?","acceptedAnswer":{"@type":"Answer","text":"Check two lines, one in the first few minutes and one near the end. If both are off by the same amount, it is an offset: shift by that amount. If the error at the end is much bigger than at the start, the file was timed for a release at another frame rate, and it needs a stretch as well."}},{"@type":"Question","name":"Why is 25 to 23.976 fps the usual fix?","acceptedAnswer":{"@type":"Answer","text":"Film is shot at 24 frames per second and released for streaming and NTSC regions at 23.976. European PAL television and DVDs run at 25 frames per second and play every frame of the film once, so the whole film runs about 4.3% fast and finishes roughly four minutes early. Subtitles timed against a PAL copy drift steadily behind on a 23.976 copy. Every time in the file has to be multiplied by 25 / 23.976 = 1.0427083."}},{"@type":"Question","name":"When should I use a different tool?","acceptedAnswer":{"@type":"Answer","text":"When there is no correctly timed subtitle to align to and you do not want to read times off the video, a tool that listens to the audio, such as ffsubsync, can find the shift itself. When the two versions differ by cut scenes rather than speed, you need an aligner that splits the file into pieces, such as alass. For editing wording and timing line by line against a waveform, a desktop editor such as Subtitle Edit or Aegisub fits better."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18232b; background: #eef3f4; }
+    body { max-width: 760px; margin: auto; padding: 28px 16px 64px; line-height: 1.6; }
+    a { color: #0f5c55; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #0f3440; margin: .3rem 0; }
+    h2 { color: #0f3440; margin-top: 1.8rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d2dde0; }
+    .table-wrap { overflow-x: auto; }
+    pre { background: #f5f8f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .87rem; }
+    .note, footer { font-size: .86rem; color: #4f5d66; }
+    footer { margin-top: 2rem; border-top: 1px solid #d2dde0; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; Subtitle Resync</a></p>
+  <h1>How to fix out-of-sync subtitles</h1>
+  <p>
+    This is for anyone who has found a subtitle file for a film or episode and watched the lines
+    arrive a beat too late, or start fine and end up minutes adrift: people building a home media
+    library, language learners pairing a film with a second-language track, and video editors and
+    course producers handed a caption file cut for a different export.
+  </p>
+
+  <h2>Shift, or stretch? Check two lines</h2>
+  <p>
+    Out-of-sync subtitles fail in one of two ways, and two minutes with the video tells you which.
+    Play a line in the first few minutes and note how far off it is. Then jump near the end and do
+    the same.
+  </p>
+  <ul>
+    <li><strong>Same error at both ends:</strong> an <em>offset</em>. The release you have has a
+      longer or shorter intro, a different studio logo, or a recap trimmed. Shift every line by that
+      amount.</li>
+    <li><strong>Small error at the start, large at the end:</strong> a <em>frame-rate drift</em>. The
+      file was timed against a copy running at a different speed, and the error grows with every
+      minute. A shift cannot fix it; the timing has to be stretched.</li>
+  </ul>
+
+  <h2>Why the drift is nearly always 25 to 23.976</h2>
+  <p>
+    Film runs at 24 frames per second, and streaming and NTSC copies run it at 23.976 (exactly
+    24000/1001). European PAL television and DVDs run at 25 frames per second and simply play every
+    frame once, so a PAL copy runs about 4.3% fast and a 100-minute film finishes roughly four minutes
+    early. A subtitle ripped from a PAL disc and played on a 23.976 copy drifts behind steadily.
+  </p>
+  <p>
+    The fix is one multiplication. Frame <em>n</em> appears at <em>n</em>/25 seconds on the PAL copy
+    and at <em>n</em>/23.976 on yours, so every time in the file becomes
+    <code>t × 25 / 23.976 = t × 1.0427083</code>. The reverse case (film-rate subtitles on a PAL copy)
+    divides by the same number.
+  </p>
+
+  <h2>A worked example</h2>
+  <p>
+    A subtitle file's line 12 sits at <code>00:02:00,000</code> but is spoken at
+    <code>00:02:07,125</code>. Its last line sits at <code>01:30:00,000</code> but is spoken at
+    <code>01:33:52,625</code>. The error grows from 7.1 seconds to 3 minutes 52.6 seconds, so this is
+    a drift plus a shift.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Step</th><th>Arithmetic</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Stretch</td><td>(5,632.625 − 127.125) / (5,400 − 120)</td><td>1.0427083, the 25 → 23.976 ratio</td></tr>
+        <tr><td>Shift</td><td>127.125 − 120 × 1.0427083</td><td>+2.000 s (a longer logo on this copy)</td></tr>
+        <tr><td>A line at 00:45:00,000</td><td>2,700 × 1.0427083 + 2</td><td>2,817.313 s = 00:46:57,313</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    In <a href="./">the tool</a>, pick <em>Two sync points</em>, enter line 12 and the last line with
+    the times you heard, and it computes both numbers. Or pick <em>Frame-rate fix</em>, 25 → 23.976,
+    with an extra shift of 2. The command line gives the same file either way:
+  </p>
+  <pre>node resync.mjs film.srt --sync 00:02:00,000=00:02:07,125 --sync 01:30:00,000=01:33:52,625
+node resync.mjs film.srt --fps 25:23.976 --offset 2</pre>
+
+  <h2>No time to read times off the video? Use a second subtitle</h2>
+  <p>
+    If you have a correctly timed subtitle for the same copy, in any language, the tool can do the
+    whole thing from timing alone. Dialogue has a rhythm that survives translation: lines begin and
+    end at the same moments. Every pair of lines votes for the shift that would put one on the other,
+    at each common frame-rate ratio; the true answer collects a pile of votes while unrelated pairs
+    scatter. A line fitted through the lines that then land close together gives the final stretch
+    and shift, and a confidence rating says how many lines agreed.
+  </p>
+  <p>
+    On 200 synthetic tracks of 600 to 1,800 lines (a random frame-rate ratio, a shift of up to five
+    minutes either way, a quarter of lines missing from one file, a fifth extra, each line jittered by
+    up to 0.3 s), every one came back within half a second of the true timing at the start and end of
+    the film, rated high confidence; 50 pairs of unrelated tracks were never rated high. Those are
+    generated tracks, not real films: the test file and the sweep are in the
+    <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/subtitle-resync" rel="noopener">source</a>.
+  </p>
+
+  <h2>When to use something else</h2>
+  <ul>
+    <li><strong>No reference subtitle, and you won't scrub the video:</strong> a tool that listens to
+      the audio, such as <a href="https://github.com/smacke/ffsubsync" rel="noopener">ffsubsync</a>,
+      finds the shift from speech itself.</li>
+    <li><strong>The versions differ by cut scenes, not speed</strong> (an extended edition, a TV edit):
+      one straight line cannot fit both halves. <a href="https://github.com/kaegi/alass" rel="noopener">alass</a>
+      splits the file into pieces and aligns each.</li>
+    <li><strong>Fixing wording or individual lines against a waveform:</strong> a desktop editor such
+      as Subtitle Edit or Aegisub.</li>
+  </ul>
+  <h2>Common questions</h2>
+  <h3>How do I tell an offset from a frame-rate drift?</h3>
+  <p>Check two lines, one in the first few minutes and one near the end. If both are off by the same amount, it is an offset: shift by that amount. If the error at the end is much bigger than at the start, the file was timed for a release at another frame rate, and it needs a stretch as well.</p>
+  <h3>Why is 25 to 23.976 fps the usual fix?</h3>
+  <p>Film is shot at 24 frames per second and released for streaming and NTSC regions at 23.976. European PAL television and DVDs run at 25 frames per second and play every frame of the film once, so the whole film runs about 4.3% fast and finishes roughly four minutes early. Subtitles timed against a PAL copy drift steadily behind on a 23.976 copy. Every time in the file has to be multiplied by 25 / 23.976 = 1.0427083.</p>
+  <h3>When should I use a different tool?</h3>
+  <p>When there is no correctly timed subtitle to align to and you do not want to read times off the video, a tool that listens to the audio, such as ffsubsync, can find the shift itself. When the two versions differ by cut scenes rather than speed, you need an aligner that splits the file into pieces, such as alass. For editing wording and timing line by line against a waveform, a desktop editor such as Subtitle Edit or Aegisub fits better.</p>
+  <p class="note">Subtitle Resync is not affiliated with ffsubsync, alass, Subtitle Edit or Aegisub;
+    they are named so you can pick the right tool. Use subtitles you have the right to use.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p class="support">Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

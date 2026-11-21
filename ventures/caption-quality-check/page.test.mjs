@@ -202,3 +202,8 @@ test('the comparison page is reachable from the sitemap and linked from index or
   const sitemap = await read('sitemap.xml');
   assert.match(sitemap, new RegExp(VS_PAGE.replace(/\./g, '\\.')));
 });
+
+test('index links to its timing sibling, subtitle-resync', async () => {
+  const html = await read('index.html');
+  assert.match(html, /href="\.\.\/subtitle-resync\/"/);
+});

@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVNZ7ghdsecRDbQ44Qm",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T13:03:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "polish: Import & upload file checks catalogue section",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 18085,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Does not point at platform/ci/polish_queue.py; found it via process-2026-11-16-polish-queue.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-import-file-checks-section.md",
+    "docs/reports/polish-2026-11-21-imports-section.md"
+  ],
+  "goal": "Impressive sites, SEO and AEO: correct breadcrumb/BreadcrumbList for 22 pre-upload file checks and a query-shaped category page",
+  "notes": "Picked item 1 of polish-2026-11-21-sales-section.md. categoryFor counts: evidence 84->63, backoffice 171->170, imports 0->22. Targeted build/home tests 12 pass 0 fail; full platform/pages suite run locally (result in PR body). Preview --only=hubspot-contacts-csv-check,c/imports,c/evidence: breadcrumb position 2 Import & upload file checks; scrollWidth 390/1280 at 390/1280.",
+  "corrections": [],
+  "redteam": null
+}

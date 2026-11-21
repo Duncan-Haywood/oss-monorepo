@@ -754,7 +754,7 @@ MIT licence, see `LICENSE`.
 
 **Play-off race.** With results typed and a play-off size set, the page lists who has clinched a place, who is out, and how many more points clinch it for everyone still alive. With 12 or fewer games left it works through every win/draw/loss outcome (`playoffRace` in `calc.mjs`, cross-checked against brute force in the tests); with more it uses safe bounds that never call a team clinched or out wrongly. Ranked on points only, with ties on points counted against the team, so goal difference can only help a team shown as alive.
 
-**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Not FIDE-certified pairing: it does not implement every FIDE floater or colour rule, so use an arbiter-approved program for rated events.
+**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Not FIDE-endorsed pairing: it does not implement every FIDE floater rule (repeat floats are not tracked), so use an arbiter-approved program for rated events.
 
 **Calendar for multi-division leagues (2026-10-29).** `multi-division-league-schedule.html` gains "Download calendar (.ics)", and `divisionsIcs(schedule, { division, team, stamp, minutes })` in `divisions.mjs` writes one event per match for the whole league, one division or one team (summary, court and venue, division and round, official if assigned; floating local times, 60-minute games unless `minutes` is set). Test: every match appears once, per-division and per-team counts match, UIDs are unique, no line is over 75 bytes, and a 90-minute game ends where it should (`divisions.test.mjs`).
 
@@ -5384,3 +5384,72 @@ keeping every player once and boxes even, text/CSV/link round trip, page wiring,
 numbers). Clicked through in Chromium at phone width (example league, typed and pasted results, a
 leaver and a joiner, close, reload resumes; no console errors, no sideways scroll). Made-up players
 only; no club has run a round on it yet, which is the next information.
+
+## Swiss rounds as one weighted matching (2026-11-21)
+
+`swiss.mjs` (the pairer, moved out of `calc.mjs`, which re-exports it) and `blossom.mjs` (Edmonds'
+blossom algorithm for maximum-weight matching in a general graph, O(n^3), no dependencies).
+
+The old pairer took the top player, gave that player the nearest-score opponent not yet met, and
+backtracked when the rest could not be paired. Colours were decided afterwards. It never paired a
+rematch, but it could not weigh one board against another, so it floated players it did not need
+to and handed out colour clashes that a different round would have avoided.
+
+Now every pair of players who have not met is an edge whose weight is a constant less a tiered
+penalty, and the round is the heaviest perfect matching:
+
+1. both players owed the same colour absolutely (colour gap past 1, or the same colour in the last
+   two games; FIDE forbids this) - left out of the graph, and only let back in, at the top tier,
+   when no round exists without one;
+2. the score gap, squared in half points;
+3. both players with a strong claim (gap of 1) on one colour;
+4. both with a mild claim (level, alternate from last game) on one colour;
+5. Dutch order: top half v bottom half inside a score group; the lowest of a group floats down to
+   meet the highest of the next.
+
+An odd field adds a bye vertex joined only to players without a bye, priced so it goes to the
+lowest scorer, lowest seed first. Colours then go to whoever is owed them (stronger claim, larger
+colour gap, alternate from the last round the two differed, higher seed), and in round 1 the top
+seed has white on board 1 with colours alternating down the boards. If the best round would leave
+no rematch-free round after it, each of its boards is forbidden in turn and the best round that
+keeps a next round possible is taken instead.
+
+**Checked.** `blossom.test.mjs`: the matching equals brute force on 1,500 random graphs of 2-10
+vertices both with and without the maximum-cardinality rule, and on 200 graphs with weights near
+1e13 (the top tier), so the tiers stay exact in doubles. `swiss.test.mjs` (8 tests): every round
+in 24 events of 6-10 players equals the exhaustive best on (forbidden colour boards, squared score
+gap); no player ends any of 30 events of 8-40 players with three of one colour running or a colour
+gap past 2; the bye goes to the lowest scorer without one; a forced clash is still paired and
+counted; the 6-player position that trapped itself after round 3 pairs a fourth round; a
+150-player round pairs in under a second.
+
+**Measured** (`node eval/swiss-matching.mjs 40`, `eval/swiss-matching.txt`): 40 simulated events
+for each of 11 sizes from 8 to 151 players (5-11 rounds, Elo-style results with draws, the same
+seeds for both pairers), 3,560 rounds each:
+
+| | old (one at a time) | new (whole round) |
+|---|---|---|
+| boards both owed the same colour absolutely | 11,457 | 0 |
+| boards both with a strong claim on one colour | 25,235 | 6,264 |
+| players ending with three of one colour running | 4,767 | 0 |
+| players ending with a colour gap past 2 | 2,420 | 0 |
+| floating boards (players on different scores) | 13,542 | 12,372 |
+| summed score gap | 8,798 | 8,103 |
+| pairing time per round, 151 players | 1.6 ms | 38 ms |
+
+Played as deep as they go (n-1 rounds even, n odd; 8 sizes from 6 to 20 players, 40 events each)
+the new pairer reached the last round in every event at 6, 7, 8, 10 and 16 players and fell at
+most 0.15 rounds short on average elsewhere; the old one stopped sooner than the new one in 59 of
+320 events and later in 2. Without the lookahead the new pairer was no better here (at 6 players
+it stopped sooner than the old one in 11 of 40), because a round that is best on its own can leave
+a field with no fresh opponents for the next one.
+
+The page's status line now says how many boards float and, when every possible round needs one,
+how many boards could not give both players their colour. The Swiss guide's worked example was
+redone on the new pairer: its round 2 now gives all six players their due colour where the old one
+gave two boards a clash, with the same single float.
+
+**Not done:** repeat-float rules (FIDE avoids floating the same player in consecutive rounds),
+accelerated pairings for big opens, the top-scorer colour exception in the last round, and a
+check against bbpPairings or JaVaFo on the same positions. No real event has been paired on it.
+

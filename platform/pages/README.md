@@ -2092,11 +2092,28 @@ it prints, per width, how many pages have their first `main .card` and their
 first visible form field on the first screen (top ≤ height − 16 px, the
 `fold.mjs` rule) and the median tops; `--rows` adds one line per page and
 `--json` the raw numbers. Point `DIST` at an `--only` preview to get before
-and after numbers for a family in about a minute each. It exits 0 whatever it
-finds. Helpers tested by `venture-fold.test.mjs`; not in CI (Playwright).
+and after numbers for a family in about a minute each. Without `--check` it
+exits 0 whatever it finds. Helpers tested by `venture-fold.test.mjs`; not in CI (Playwright).
 
 ```
 DIST=/tmp/before node platform/pages/venture-fold.mjs --match csv-check --widths 360,390,1280 --rows
+```
+
+Since 2026-11-21 it also keeps a ratchet. `venture-fold-baseline.json` lists
+the venture pages whose first field starts below 390×844, with that field's top
+(358 of 1,403 measured pages when written). `--check` exits 1 when a page not
+in the list now starts its field below the screen, or a listed page's field
+sits more than 48 px deeper than recorded; it prints the listed pages that now
+pass. It judges only the pages it measured, so `--check --match <family>` on an
+`--only` preview is a one-minute gate for a hero edit. After a full build,
+`--write-baseline` rewrites the list (it refuses `--slugs`/`--match`); a run
+that fixes pages on an `--only` preview may instead delete their keys by hand,
+which is what the `--check` "now on the first screen" line is for.
+
+```
+node platform/pages/venture-fold.mjs --check                           # whole site, ~3 min
+DIST=/tmp/after node platform/pages/venture-fold.mjs --check --match csv-check
+node platform/pages/venture-fold.mjs --write-baseline                  # after a full build
 ```
 
 ### Lighthouse on the pages a visitor sees first

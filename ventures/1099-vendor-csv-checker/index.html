@@ -59,19 +59,20 @@
     <h1>Who needs a 1099-NEC, and is the data good enough to file?</h1>
     <p class="lede">Paste or drop your <strong>vendor payments CSV</strong> (name, TIN, address, total paid). It adds up each vendor, tests the total against the <strong>$600 / $2,000 reporting threshold</strong> for the year, and lists every fault with its row. Then download a clean list of the vendors who need a form.</p>
     <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>missing or malformed TINs, blank addresses, bad state codes, ZIPs that lost their leading zero, duplicate vendors, one name with two TINs, probable corporations</strong> and card payments that belong on a 1099-K.</p></details>
-    <p class="note">The file is read in this browser tab and never leaves your device. TINs are masked to their last four digits in the report. Independent of the IRS. Check each rule against current IRS instructions for Form 1099-NEC before you file.</p>
+    <p class="note">Read in this tab; nothing is uploaded. TINs are masked to their last four digits in the report. Independent of the IRS. Check each rule against current IRS instructions for Form 1099-NEC before you file.</p>
   </header>
 <main>
 
   <section class="card">
     <h2>1. Your vendor list</h2>
-    <p class="note">Any CSV from QuickBooks, Xero, a bank export or a spreadsheet. Recognised headers include Vendor / Payee / Name, EIN / SSN / TIN / Tax ID, Address, City, State, ZIP, and Total Paid / Amount / YTD. Optional: a "Paid by Card" column (anything except blank, no, 0, check, ACH, wire or cash counts as card) and an "Entity Type" column.</p>
+    <p class="note">Any CSV from QuickBooks, Xero, a bank export or a spreadsheet.</p>
     <label for="year">Payments made in</label>
     <select id="year"><option value="2026" selected>2026 (threshold $2,000)</option><option value="2025">2025 (threshold $600)</option><option value="2024">2024 (threshold $600)</option></select>
     <label for="file">Choose a CSV file</label>
     <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
     <label for="paste">…or paste the CSV text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Vendor Name,EIN/SSN,Address,City,State,ZIP,Total Paid"></textarea>
+    <p class="note">Recognised headers include Vendor / Payee / Name, EIN / SSN / TIN / Tax ID, Address, City, State, ZIP, and Total Paid / Amount / YTD. Optional: a "Paid by Card" column (anything except blank, no, 0, check, ACH, wire or cash counts as card) and an "Entity Type" column.</p>
     <p>
       <button type="button" id="check">Check</button>
       <button type="button" class="secondary" id="load-example">Load a clean example</button>

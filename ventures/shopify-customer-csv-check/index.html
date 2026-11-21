@@ -57,8 +57,7 @@
     <h1>Why did my Shopify customer import fail or skip rows?</h1>
     <p class="lede">Paste or drop your <strong>Shopify customer CSV</strong> and get every problem <strong>with its line number</strong> before you import. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
     <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>invalid and duplicate emails</strong> (capitals ignored), <strong>phone numbers that are not E.164</strong>, zips Excel stripped of their <strong>leading zeros</strong>, phones turned into <code>4.16556E+09</code>, <strong>country and province codes</strong> Shopify will not read, marketing columns that are not yes or no, tags over 255 characters, and rows with <strong>neither an email nor a phone</strong>.</p></details>
-    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Shopify Inc. Column names and limits are read from memory of Shopify's public customer import and export documentation; no Shopify import was available when this was built.</p>
-    <p class="note"><strong>About consent.</strong> A yes in Accepts Email Marketing or Accepts SMS Marketing must come from a real opt-in you can show, such as a signup form or the subscription list of the platform you are leaving. This tool checks that the values are readable. It does not create, upgrade or change anyone's consent, and no fix here will ever turn a blank or unclear value into a yes.</p>
+    <p class="note">Independent of Shopify Inc. Column names and limits are read from memory of Shopify's public customer import and export documentation; no Shopify import was available when this was built.</p>
   </header>
 <main>
 
@@ -75,6 +74,7 @@
       <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
       <button type="button" class="secondary" id="clear-all">Clear</button>
     </p>
+    <p class="note"><strong>About consent.</strong> A yes in Accepts Email Marketing or Accepts SMS Marketing must come from a real opt-in you can show, such as a signup form or the subscription list of the platform you are leaving. This tool checks that the values are readable. It does not create, upgrade or change anyone's consent, and no fix here will ever turn a blank or unclear value into a yes.</p>
     <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
   </section>
 
