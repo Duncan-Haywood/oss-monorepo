@@ -54,7 +54,7 @@ published installed special.
    share of price, not a markup on cost.
 
 It then reports the numbers a shop sanity-checks a bid against:
-effective hourly billing rate, the hour split, and the **walk-away
+price per crew-hour (door and materials included), the hour split, and the **walk-away
 price** — total cost, below which the job makes nothing. Entering a
 price already on the table scores it against the same cost base.
 **Copy bid summary** turns the result into a plain-text draft with
@@ -82,7 +82,8 @@ Control. See [`usage.mjs`](usage.mjs) and
 [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `preset_applied`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `link_copied`,
+`proposal_printed`, `company_forgotten`.
 
 ## Limitations
 
