@@ -25,6 +25,15 @@ act on, aimed at a main-track venue or the field's journal, with theory checked 
 industrial-grade open tools and an artefact a practitioner can adopt. What that means and what
 it does not: `prompts/goals.md`, "Direction: research at PhD+ level, aimed at deep tech".
 
+**Research that can be monetised** (owner, 2026-11-21: research is "still okay ... by
+monetizing the research, like finding white papers with like novel algorithms and like being
+like, how do we monetize this?"). Research now gets a smaller share of runs (`prompts/routing.json`)
+and leans toward novel algorithms with a product in them: each programme's proposal and each
+finished result names the paid product or service it could become (construction, SMB tools,
+deep tech), and a result that works is handed to the ventures or `smb` track as a product
+slice. Integrity rules are unchanged: monetisation never bends a result
+(`prompts/goals.md`, "The 2026-11-21 pivot").
+
 **SEO is a top priority here too** (owner, 2026-10-16; `prompts/goals.md`). A
 project's `README.md` and its page should open with the question it answers and
 its headline result in the words a searcher would use, and link to each other.

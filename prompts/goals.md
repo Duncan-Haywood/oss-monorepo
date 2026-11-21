@@ -29,7 +29,81 @@ it block work from getting done like in the past." Selling through the
 owner's merchant of record is on; it never gates other work (Guardrails,
 "Payments").
 
+## The 2026-11-21 pivot: a paid SaaS portfolio
+
+**This section overrides older text in this file and every file below it
+where they conflict.** The owner, 2026-11-21, dictating "an overall
+repository pivot":
+
+> "Pushing things towards for-profit generally ... as much as possible ...
+> normal web apps, none of the weird privacy stuff. Go to like normal privacy
+> laws, normal privacy terms of use, none of the we never collect your data
+> stuff. ... moving towards paid tools first. Like, it can be ... very low
+> cost ... when it's not like marketing or marketing adjacent ... You can
+> still have like lead magnets and give away stuff for free ... you can do
+> free trials ... freemium is acceptable ... it is not a non-profit
+> organization." "Moving from OSS to paid, and then just like cost plus as the
+> pricing model ... say ... cost plus 100% margin, give or take ... pivoting
+> into a real SaaS portfolio business with a ton of SaaSes." "We're going to
+> probably pivot into like a ton of subdomains ... with their own marketing,
+> their own products, and then the main one links out to all the subdomains."
+
+What that changes, as defaults every run follows:
+
+1. **Paid first.** A product's core is a paid plan, priced at roughly
+   **cost plus 100%** (about twice the measured cost of serving one customer,
+   with a small nominal floor), shown on the page. Free is for marketing:
+   lead magnets, free trials, a freemium tier, and tools whose job is to bring
+   in buyers. Each product keeps a `COSTS.md`: the per-customer cost from
+   providers' published prices, fetched in the run, and the price that follows.
+2. **We host it: normal web apps.** The owner's company runs the products as
+   hosted SaaS (accounts, sign-in, a server, a database, AI on our key where
+   the price covers it). This supersedes the 2026-10-15 "the owner hosts
+   nothing" model below; self-deploy stays possible but is no longer the goal
+   or the finish line.
+3. **Normal privacy and terms, not "we never collect your data".** Products
+   collect what the service needs and say so in a standard privacy policy and
+   terms of service under the company's name, following the law (US federal
+   and state, the Colorado Privacy Act, GDPR/UK rules for those visitors, cookie
+   consent where required) and no stricter. Stop leading marketing with "nothing
+   is uploaded / no data collected". The honesty line is unchanged: a page may
+   never claim less collection than the code does, so copy and behaviour
+   change in the same PR.
+4. **Our own subdomain per product.** Each product line gets a subdomain of
+   marisstella.app with its own marketing site, and the main site links out to
+   all of them. DNS lives in code (`goals.md`, "Direction: everything as code").
+5. **Where the effort goes.** Small-business and nonprofit suites first (the
+   `smb` track, below), with **AI revenue departments** (sales, marketing,
+   revenue operations, business development, voice agents; the whole process,
+   not only first calls) at their head, because they serve customers and our
+   own distribution, "as much, if not more, of a blocker for us than actually
+   being able to develop a product". Then **construction**: one tool that does
+   everything a construction or development company needs, from plans and
+   permits to takeoff, scheduling and cost ("something I feel personally
+   passionate about"). Then deep tech, hardware design and **research aimed at
+   monetisation** (novel algorithms from papers turned into products), and
+   the areas investors are funding (`portfolio/opinions/2026-11-03-requests-for-startups.md`,
+   `docs/reports/startup-funding-2026-11-19.md`).
+
+**Open, for the owner:** whether this repository stays public and MIT. The
+owner, the same day: "There's a private monorepo as well, which, I don't know
+if I'm going to keep this open source." Until the owner decides, the public
+repository rules hold, and the paid value is what a copy of the code does not
+give: the hosted service, its data, its AI and support.
+
+**Unchanged, as hard limits:** never fabricate, honest marketing (no fake
+reviews or claims), payments only through the owner's merchant of record with
+no key anywhere an agent can reach, owner-only actions (opening accounts,
+signing terms in the company's name, moving money), and the law on personal
+data. Terms of service and the privacy policy bind the company, so the first
+versions are drafted by agents and published only once the owner approves them.
+
 ## Mission
+
+**The main theme since 2026-11-21: suites for small businesses, nonprofits
+and parishes, about half of runs**, inside the paid-SaaS pivot above ("Direction: suites for small businesses,
+nonprofits and parishes", below). The shares named in this section were cut
+that day to make room; `prompts/routing.json` holds the current weights.
 
 One public repository for the owner's open-source work, with two portfolios
 and one platform that runs them:
@@ -41,6 +115,8 @@ and one platform that runs them:
   **The business model** (the owner, 2026-10-15): "the model I'm thinking is fully developing one click deploy actual businesses with a web page with some inputs for credentials so people can spin up their own copies of the venture. then I'm not hosting and not liable. it's someone else. but still with a donate to the creator button."
   So a finished venture is a complete business that anyone can launch as
   their own copy from one page: they enter their own credentials, click
+  **Superseded 2026-11-21 ("The 2026-11-21 pivot", above): products are
+  now hosted, paid SaaS; self-deploy stays possible but is not the goal.**
   Deploy, and run it in their own accounts. The owner hosts nothing and is
   not the operator. Each copy keeps a "donate to the creator" link (GitHub
   Sponsors). Credentials entered on that page go straight to the deployer's
@@ -63,10 +139,10 @@ and one platform that runs them:
 - **The platform** (`platform/`, `portfolio/`, `prompts/`): the agents,
   checks and prompts that do the work above. It exists to serve the two
   portfolios, not to grow on its own.
-- **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
+- **Free choice** (about 5% of effort; about 3% since 2026-11-21): in the spirit of Google's "20% time",
   about one run in twenty works on whatever the agent finds most interesting,
   with its own approach (`prompts/explore/`). Same guardrails, same bar.
-- **Creative work** (about 10% of runs; owner, 2026-10-21: "the scheduled
+- **Creative work** (about 10% of runs, about 4% since 2026-11-21; owner, 2026-10-21: "the scheduled
   agents are the throughput power I have I want some portion of them going
   towards carrying out actually operating that goal"): the owner's
   long-running creative projects, written, voiced and published by the
@@ -241,6 +317,50 @@ accounts, email sign-ups, server logs and cookieless analytics vendors are
 fine with a lawful basis and an accurate notice. Table of what is allowed and
 what the law asks: `docs/legal/privacy-baseline.md`. Spec:
 `portfolio/usage/README.md`.
+
+## Direction: suites for small businesses, nonprofits and parishes
+
+Set by the owner on 2026-11-21, as the main theme: "I want to move a lot of the
+dev work towards for-profit tools for small and medium businesses ... full
+working businesses, solving the most common problems for small and medium
+businesses, all sorts of domains. ... The SaaS products, basically at cost
+plus, like full suites of tools for all of the most common problems that
+small and medium businesses have. Also for nonprofits like parishes,
+especially Catholic charities ... very thorough, very high-quality tools ...
+I want to move like probably 60 to 70% of the effort there as a broad theme.
+... Hyper niche tools, very specialized for very specific businesses ...
+solving all of them basically in order of most value delivered. Ideally,
+connecting to revenue generating activities, either for charities, for grants
+and donations and whatnot, or for businesses ... and then secondarily for cost
+reducing things, because those are the things that tend to pay best." On
+learning what firms need: "outreach to businesses either through email
+marketing or cold calls where legally allowed ... but I think, generally
+speaking, you can just look at how an average SMB works and determine what
+type of problems they will most likely have."
+
+So the `smb` track takes about half of runs (weight 0.52 in `routing.json`;
+the same day's pivot gave construction and deep tech in the ventures track
+0.20, and quality, polish and free-choice runs on these suites add to it), and research, ventures outside it and the
+side tracks were cut to make room. The work is whole suites a firm can run
+part of its operation on, revenue work (leads, quotes, getting paid, repeat
+customers, donors, grants) before cost work (books, payroll, scheduling,
+bills), in hyper-niche editions for one trade or kind of organisation, the
+parish office and Catholic charities agencies among the first. The
+programme, the problem map and the queue: [`portfolio/smb/README.md`](../portfolio/smb/README.md)
+and [`portfolio/smb/suites.yaml`](../portfolio/smb/suites.yaml). The other
+directions in this file stay; where they compete for a run, this one wins.
+
+The company is **Maris Stella Labs LLC, based in Colorado** (owner,
+2026-11-21): the seller of paid plans and the sender named in outreach, so
+Colorado rules apply beside federal ones (`portfolio/smb/README.md`, "The
+company"). Acting in its name stays owner-only.
+
+The hard limits hold unchanged. **Cost plus** (about cost plus 100%) is the
+price of a hosted plan the company runs, sold through the merchant of record
+("The 2026-11-21 pivot", above, which settled the hosting question the same
+day). **Outreach** is prepared by agents and sent by a person, one to one,
+within CAN-SPAM, the TCPA and the stricter rules abroad; never unattended,
+never in the company's name without the owner.
 
 ## Direction: sales, marketing and business tools
 
@@ -949,6 +1069,11 @@ when they don't, do the sensible thing and record it as a deviation
     re-probing payment rails. Charge for new depth (a pro tier, hosted
     extras, downloads, support), not by paywalling what the site already
     advertises as free, which would also make those "free" claims false.
+    **Since 2026-11-21 paid is the default** ("The 2026-11-21 pivot"): a
+    product may move to paid by changing its page and its copy in the same PR,
+    so no free claim is left standing. Until the checkout link exists, the
+    product runs as a labelled free early-access period showing the planned
+    price, and nothing waits on the link.
     The code stays MIT.
 - **No API-token billing in Actions, for now.** Owner, 2026-10-31: "generally
   having api token billing running in actions is not ideal at the moment.
@@ -1086,8 +1211,11 @@ good enough to study as well as to steer by. Three rules:
    days: reverted or not, follow-up commits that name it, and the share of
    its added lines still alive. Prompt versions and models are compared on
    that, beside success.
-3. **The products are measured the same way:** counts only, never people
-   (`portfolio/usage/README.md`). That means search impressions and clicks
+3. **The products are measured the same way.** Since 2026-11-21 that
+   includes normal product analytics and the revenue numbers that matter for
+   a paid product (sign-ups, trials, paying customers, revenue, churn), within
+   the privacy policy and the law ("The 2026-11-21 pivot");
+   `portfolio/usage/README.md` covers the anonymous counts. That means search impressions and clicks
    per page, repository stars, forks and outside issues, self-deploys, and
    the compute each venture has cost against the use it gets.
 

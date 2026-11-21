@@ -39,7 +39,13 @@ is wrong, and no amount of code fixes it. The strongest version of that sentence
 ends in the user earning more: a job they can now bid on, an invoice they can
 now issue, a client they can now keep.
 
-## 2. Choose the shape that fits the user; keep our cost per user at zero
+## 2. Choose the shape that fits the user; price above our cost per user
+
+**Since 2026-11-21 products are hosted, paid SaaS** (`prompts/goals.md`, "The 2026-11-21 pivot"): accounts, a
+server and a database are normal, AI on our key is fine when the price covers
+it, and the price is about twice the measured cost per customer (`COSTS.md`).
+The zero-cost and self-deploy text below is older guidance; keep what still
+helps (cheap to run is good margin), drop what conflicts.
 
 **A menu, not a ranking.** There is no static-only, static-first or
 browser-only rule; where a product runs is the agent's and the project's
@@ -82,6 +88,10 @@ at $0; another host (Cloudflare, Vercel) means an account only the owner can
 open, so it needs a stated reason Pages cannot meet.
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
+
+**Superseded 2026-11-21 as the goal** (`prompts/goals.md`, "The 2026-11-21 pivot"): we host the products and sell
+them. Self-deploy may stay where it costs nothing, but it is not the finish
+line, and donations are no longer the money.
 
 Build every app so that a stranger can run their own copy of it, in their own
 cloud account, without us. That lets other people set up businesses from
@@ -355,12 +365,11 @@ or `localStorage` entry a feature needs is fine, and is named here; an
 identifier used for analytics needs consent from EU/UK visitors first;
 accounts, email sign-ups, server logs and server-side features are fine with a
 lawful basis and a notice that says what, why, who receives it and how long it
-is kept. If everything is client-side, say so. It is a feature:
-
-> Everything runs in your browser. Your data is never uploaded, and we don't
-> have accounts, tracking cookies, or an analytics vendor. We count anonymous
-> events (which features get used, nothing about who used them) — see
-> [Usage counting](#d-usage-counting) to turn it off.
+is kept. Since 2026-11-21 (`prompts/goals.md`, "The 2026-11-21 pivot") the default is a **standard privacy policy and
+terms of service** under the company's name (Maris Stella Labs LLC), linked
+from every page, and products collect what the service needs. Do not lead the
+marketing with "nothing is uploaded" or "we never collect your data"; a
+product that really is client-side may say so in its privacy policy.
 
 If anything does leave the machine, name what, where it goes, and how long it
 lives. Never write a privacy claim you haven't checked against the code.
@@ -446,6 +455,11 @@ not just the disclaimer in §5b.
    for a page that costs nothing to make safe instead.
 
 ## 6. Money: the deployer's keys, and the owner's checkout link
+
+**Since 2026-11-21 paid is the default** (`prompts/goals.md`, "The 2026-11-21 pivot"): each product has a paid plan
+at about cost plus 100%, sold through the owner's checkout link, with free
+trials, freemium or lead magnets in front of it. The rules on keys below still
+hold. The donation links are optional extras now, not the business.
 
 Payment code is allowed (the owner, 2026-10-15: "I think payment is okay I just
 don't want mine. if other people want to fork and put their payment in it's

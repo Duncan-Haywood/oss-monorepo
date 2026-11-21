@@ -39,6 +39,7 @@ python3 platform/ci/run_venture_tests.py --changed   # every venture your branch
 (cd platform/ci/agent_review && python3 -m unittest test_review)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
 python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
+python3 -m pytest portfolio/smb -q                       # the SMB suite queue (suites.yaml), under 1 s
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records

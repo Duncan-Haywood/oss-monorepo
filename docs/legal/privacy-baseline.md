@@ -6,6 +6,15 @@ overly strict self-imposed one." It restates the 2026-10-20 one ("follow laws
 but going beyond them is too much"), recorded in
 [`prompts/goals.md`](../../prompts/goals.md).
 
+**2026-11-21, the paid-SaaS pivot** (`prompts/goals.md`, "The 2026-11-21
+pivot"): "normal privacy laws, normal privacy terms of use, none of the we
+never collect your data stuff." Products are now hosted apps with accounts and
+normal analytics, under one standard privacy policy and terms of service in
+the name of Maris Stella Labs LLC (Colorado), so the Colorado Privacy Act joins
+the list below. Agents draft those documents; they go live once the owner
+approves them, because they bind the company. "Nothing is uploaded" stops
+being a selling point; where it is still true it may stay in the policy.
+
 So this file sets the line for every product, page and counter in the
 repository. It replaces the house rules that went further than the law. Three
 things stay fixed because they are liability, not taste:

@@ -1,0 +1,130 @@
+# The small-business and nonprofit suites, in the order the `smb` track works
+# them (portfolio/smb/README.md, "The ordering rule": revenue first, then cost).
+#
+# A run on the `smb` track takes, in order: an open website request from a
+# small business or nonprofit (portfolio/requests/), else the first suite here
+# whose `next:` it can build, landing one working slice and rewriting `next:`
+# to the following milestone in the same PR. Reorder with evidence in the PR;
+# the owner can reorder at will.
+#
+# Fields:
+#   suite:    short id
+#   tier:     revenue | cost
+#   serves:   business | nonprofit | parish
+#   home:     the venture folder the suite lives in (must exist), or null when
+#             the first slice creates it
+#   builds_on: existing ventures whose engines become modules (must exist)
+#   next:     the next slice, one run's work
+#
+# Checked by portfolio/smb/test_suites.py.
+suites:
+  - suite: revenue-department
+    tier: revenue
+    serves: business
+    home: sales-agent
+    builds_on: [missed-call-textback, quote-follow-up-timing]
+    next: >-
+      Turn ventures/sales-agent into the revenue-department suite's core:
+      one account and pipeline model (account, contact, deal, activity) as a
+      hosted app with sign-in, an inbound lead inbox with speed-to-lead, and
+      outbound sequences drafted for a person to approve. Write COSTS.md
+      (hosting, model tokens per drafted message) and price it at about
+      cost plus 100%. Voice agent next.
+
+  - suite: research-baseline
+    tier: revenue
+    serves: business
+    home: null
+    builds_on: []
+    next: >-
+      Replace the first-cut ranking in portfolio/smb/README.md with fetched
+      numbers: firm counts by industry and size (Census County Business
+      Patterns), the top problems small owners report (NFIB Problems and
+      Priorities; Fed Small Business Credit Survey), nonprofit revenue mix
+      (IRS 990 data). Write portfolio/smb/RESEARCH.md with sources and
+      reorder this file by what the numbers say.
+
+  - suite: parish-office
+    tier: revenue
+    serves: parish
+    home: parish-office
+    builds_on: [donor-acknowledgment-letter-generator, volunteer-shift-scheduler, ai-bookkeeper]
+    next: >-
+      The two-counter Sunday collection count sheet (ROADMAP item 1):
+      separate counts, mismatch before sealing, envelope and loose totals,
+      deposit slip, counts reconciled to bank deposits. Then contribution
+      statements (item 2), the parish's donor revenue step.
+
+  - suite: lead-to-booked-job
+    tier: revenue
+    serves: business
+    home: null
+    builds_on: [missed-call-textback, quote-follow-up-timing, sales-agent]
+    next: >-
+      Pick one trade (home services first: HVAC, plumbing, electrical) and
+      create the suite venture with one shared data model (lead, customer,
+      job, quote). First slice: lead inbox from CSV or form, speed-to-lead
+      clock, quote builder with good/better/best, and a follow-up schedule
+      drafted for a person to send.
+
+  - suite: get-paid
+    tier: revenue
+    serves: business
+    home: null
+    builds_on: [invoice-maker, invoice-aging-late-payer-analyzer, late-invoice-collections-kit, einvoice-preflight]
+    next: >-
+      Create the suite venture on the same customer and job records as
+      lead-to-booked-job: invoices with deposits, AR ageing, a reminder and
+      collections ladder drafted for a person to send, and days-sales-
+      outstanding by customer from an accounting export.
+
+  - suite: donor-crm
+    tier: revenue
+    serves: nonprofit
+    home: null
+    builds_on: [donor-retention-analyzer, donor-acknowledgment-letter-generator]
+    next: >-
+      Create the suite venture: donor and gift records imported from a CSV
+      export, retention and lapsed-donor lists, acknowledgment letters with
+      the IRS written-acknowledgment wording (quote Publication 1771 fetched
+      in the run), and year-end statements. Shared with parish-office.
+
+  - suite: grants
+    tier: revenue
+    serves: nonprofit
+    home: null
+    builds_on: [grant-deadline-tracker, grant-reporting-tracker, grant-indirect-cost-calculator]
+    next: >-
+      Create the suite venture: a funder prospect list built from public
+      990-PF grant data for the org's cause and region, a deadline pipeline,
+      and a proposal workspace with reusable sections and a budget built
+      with the indirect-cost engine.
+
+  - suite: charities-agency
+    tier: revenue
+    serves: nonprofit
+    home: null
+    builds_on: [grant-reporting-tracker, volunteer-shift-scheduler]
+    next: >-
+      Create the suite venture as a hosted app with role-based access and an
+      audit log: client intake and household records, service and visit logs,
+      unduplicated client counts by programme and period, and a funder report
+      builder. Food-pantry inventory and distribution counts next.
+
+  - suite: books-and-tax
+    tier: cost
+    serves: business
+    home: ai-bookkeeper
+    builds_on: []
+    next: >-
+      Follow the ai-bookkeeper row in portfolio/flagships.yaml; this row
+      exists so the suite map is complete.
+
+  - suite: people-and-hours
+    tier: cost
+    serves: business
+    home: shift-roster-builder
+    builds_on: []
+    next: >-
+      Follow the shift-roster-builder row in portfolio/flagships.yaml; this
+      row exists so the suite map is complete.

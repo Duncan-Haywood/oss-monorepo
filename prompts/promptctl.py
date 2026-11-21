@@ -231,6 +231,9 @@ def expired(cfg: dict[str, Any], today: date | None = None) -> bool:
 # friction, 2026-10-27 to 29: eight runs asked for revenue products, were drawn
 # research or process, and followed the prompt by hand.
 TASK_HINTS: list[tuple[str, tuple[str, ...]]] = [
+    # Before ventures: an SMB message often says "revenue" too (owner, 2026-11-21).
+    ("smb", ("small business", "small and medium business", "smb", "nonprofit",
+             "non-profit", "parish", "catholic charit", "charities")),
     ("ventures", ("revenue", "products in production", "venture", "sell and support",
                   "ios android", "marketing sites", "portfolio site")),
     ("research", ("research programme", "research program", "phd", "paper")),

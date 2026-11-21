@@ -418,21 +418,21 @@ class RepositoryTest(unittest.TestCase):
         # The owner's request: about 5% of effort is the agent's own choice.
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.05, places=3)
+        self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.02, places=3)
 
     def test_creative_work_gets_about_ten_percent(self):
         # The owner, 2026-10-21: a portion of the scheduled fleet operates the
         # creative projects (prompts/creative/prompt-0.md).
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.10, places=3)
+        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.02, places=3)
 
     def test_polish_gets_about_five_percent_for_a_period(self):
         # The owner, 2026-10-28: "like 5% of work going to making the sites
         # looking as impressive as possible. for some period of time", plus SEO and AEO.
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["polish"] / sum(weights.values()), 0.05, places=3)
+        self.assertAlmostEqual(weights["polish"] / sum(weights.values()), 0.03, places=3)
         self.assertTrue(tracks["polish"].get("until"))
 
     def test_performance_engineering_gets_about_five_percent(self):
@@ -440,7 +440,24 @@ class RepositoryTest(unittest.TestCase):
         # performance engineering across the repo" (prompts/perf/prompt-0.md).
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["perf"] / sum(weights.values()), 0.05, places=3)
+        self.assertAlmostEqual(weights["perf"] / sum(weights.values()), 0.02, places=3)
+
+    def test_smb_suites_get_about_half(self):
+        # The owner, 2026-11-21: "probably 60 to 70% of the effort" to tools for
+        # small businesses, nonprofits and parishes (prompts/smb/prompt-0.md),
+        # then, the same day, the paid-SaaS pivot that also puts construction and
+        # deep tech in the ventures track (goals.md, "The 2026-11-21 pivot"):
+        # smb 52% + ventures 20%. The side tracks were cut to make room.
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["smb"] / sum(weights.values()), 0.52, places=3)
+        self.assertTrue((promptctl.ROOT / "smb" / "prompt-0.md").exists())
+
+    def test_an_smb_message_routes_to_smb_before_ventures(self):
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        self.assertEqual(promptctl.infer_track(
+            "tools for small business revenue and Catholic charities", tracks), "smb")
+        self.assertEqual(promptctl.infer_track("a new venture for revenue", tracks), "ventures")
 
     def test_quality_audits_get_about_five_percent(self):
         # The owner, 2026-11-07: measuring whether the work is "finished and accomplished
@@ -448,7 +465,7 @@ class RepositoryTest(unittest.TestCase):
         # very thorough" (prompts/quality/prompt-0.md, portfolio/quality/README.md).
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["quality"] / sum(weights.values()), 0.05, places=3)
+        self.assertAlmostEqual(weights["quality"] / sum(weights.values()), 0.03, places=3)
         self.assertTrue((promptctl.ROOT / "quality" / "prompt-0.md").exists())
 
 
