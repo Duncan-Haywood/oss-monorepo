@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVPpnnkQpMCamEFevG3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T19:15:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9) league-schedule-generator: Swiss pairer side by side with real published pairings",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18127",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "compiling a fresh clone of bbpPairings (make) was refused by the tool policy, as for earlier sessions",
+      "fix": "used real published chess-results pairings (gbtami/swisspairing fixtures, MIT) as the reference instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator next: said 'bbpPairings on swissToTrf' though two sessions had already been refused building bbpPairings; the reachable route (published chess-results pairings) was not named"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here row photo-editing: every buildable item needs raw.pixls.us, which REFUSED this session (as the last session that left it found)",
+      "did": "took row 4, league-schedule-generator",
+      "result": "landed a measured product fix"
+    },
+    {
+      "file": "ventures/league-schedule-generator/eval/swiss-vs-published.md",
+      "why": "the pre-registered tune rule picked a variant that broke round 1 (h2 fail) because of tied weights; the corrected variant was retested post hoc on already-seen held-out events",
+      "did": "shipped the corrected lex order, the only arm passing h1-h3, and disclosed the deviation in the eval, README and post",
+      "result": "held-out later-round board recall 0.428 to 0.578, round 1 unchanged, simulation within 2% on registered metrics (up-floats two rounds back +8.5%, disclosed)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-our-swiss-pairer-against-real-chess-events.md",
+    "ventures/league-schedule-generator/eval/swiss-vs-published.md"
+  ],
+  "goal": null,
+  "notes": "Replayed 6 real chess-results events and 3 lichess events through swissPairings. Found and fixed: TRF names ending in '.' failed to read back (38/54 rounds unreadable). Dutch-order tier rebuilt (FINE 2048, ABS 1e12, lexicographic transposition cost, exchanges priced above transpositions): later-round boards matched 44.7% -> 59.5% (chess-results), 47.5% -> 52.1% (lichess). Legacy order at the new scale reproduces committed simulation totals exactly. Venture suite run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}

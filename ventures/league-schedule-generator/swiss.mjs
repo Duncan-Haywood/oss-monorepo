@@ -79,9 +79,11 @@ export function colourClaim(row) {
   return { colour: null, strength: 0 };
 }
 
-// Tier sizes. Score differences are capped at 30 half points (15 points), so tier 2 sums to at most
-// 100 boards x 900 x 1e8 = 9e12 < 1e13; every edge weight stays below 2^53 with room for the duals.
-const ABS = 1e13;
+// Tier sizes. Score differences are capped at 30 half points (15 points), so one board's tier 2 is
+// at most 900 x 1e8 = 9e10 < ABS. ABS was 1e13 until 2026-11-21; it came down to 1e12 so the order
+// tier could be FINE times finer (below). A round now prefers an absolute clash only over 10,000
+// squared half points of extra score gaps, which no real round reaches.
+const ABS = 1e12;
 const SCORE = 1e8;
 const STRONG = 5e5;
 const MILD = 4e3;
@@ -100,6 +102,39 @@ const RD1 = 488;
 const RU1 = 244;
 const RD2 = 122;
 const RU2 = 61;
+
+// Edge penalties are built in units of 1/FINE of the tiers above, so the Dutch-order tier can rank
+// boards more finely than the integer steps the tiers leave it. ABS (1e12) is still above all a
+// board's lower tiers (at most SCORE x 900 + 3 x UNPLAYED + STRONG, about 9.0e10), and ABS x FINE
+// (2.0e15) keeps twice the largest weight under 2^53, so every weight and dual stays an exact
+// integer. The legacy order scales by FINE and pairs exactly as before (eval/swiss-vs-published.md).
+const FINE = 2048;
+
+/**
+ * The Dutch-order cost of pairing positions a < b of one score group of size n, in 1/FINE units,
+ * at most 60 x FINE (under the smallest repeat-float step, RU2 x FINE).
+ *
+ * FIDE's Dutch system pairs S1 (the top floor(n/2)) against S2 in order, tries every transposition
+ * of S2 in lexicographic order before any exchange between S1 and S2 (C.04.3, articles 4.2-4.3).
+ * So an S1-S2 board costs w_i x j (S1 position i, S2 position j, w_i = h - i): the sum is least
+ * for S2 in order, and a deviation near the top of S1 costs more than one lower down, as in a
+ * lexicographic order. A same-half board (an exchange)
+ * costs more than any S1-S2 board, less when its players sit next to the S1/S2 boundary.
+ */
+function dutchOrderFine(a, b, n, order) {
+  const h = Math.floor(n / 2);
+  if (a < h && b >= h) {
+    // w_i = h - i falls by at least 1 a row, so swapping two rows' partners is never a tie.
+    const i = a;
+    const j = b - h;
+    const w = order === "lex2" ? (h - i) * (h - i) : h - i;
+    const top = order === "lex2" ? h * h * h : h * h;
+    const room = FINE * 29;
+    return top <= room ? w * j : Math.floor((w * j * room) / top);
+  }
+  const e = a < h ? (h - 1 - a) + (h - 1 - b) : (a - h) + (b - h);
+  return FINE * 30 + Math.min(FINE * 30, Math.floor((e * FINE * 30) / Math.max(1, 2 * n)));
+}
 
 /**
  * Who floated in each earlier round. Games are in the order they were played (as the colour rules
@@ -175,6 +210,7 @@ export function floatHistory(players, games, byes = [], byeRounds = null, { game
 export function swissPairings(players, games, byes = [], withdrawn = [], {
   lookahead = true, repeatFloats = true, byeRounds = null,
   extra = null, extraRounds = [], gameRounds = null, byeBlocked = [], unplayed = null, absent = [], groupOrder = "buchholz",
+  dutchOrder = "lex",
 } = {}) {
   const gone = new Set([...withdrawn, ...absent]);
   const n = players.length - gone.size;
@@ -234,14 +270,14 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
       const g = groups[groupOf.get(x)];
       const h = Math.floor(g.length / 2);
       const [a, b] = [posInGroup.get(x), posInGroup.get(y)].sort((m, k) => m - k);
-      p += Math.min(ORDER_CAP, Math.abs(b - a - h));
-    } else {
-      const [hi, lo] = half(x) > half(y) ? [x, y] : [y, x];
-      const gHi = groups[groupOf.get(hi)];
-      p += Math.min(ORDER_CAP, gHi.length - 1 - posInGroup.get(hi)) + Math.min(ORDER_CAP, posInGroup.get(lo));
-      p += repeatCost(hi, lo);
+      if (dutchOrder === "legacy") return p * FINE + FINE * Math.min(ORDER_CAP, Math.abs(b - a - h));
+      return p * FINE + dutchOrderFine(a, b, g.length, dutchOrder);
     }
-    return p;
+    const [hi, lo] = half(x) > half(y) ? [x, y] : [y, x];
+    const gHi = groups[groupOf.get(hi)];
+    p += Math.min(ORDER_CAP, gHi.length - 1 - posInGroup.get(hi)) + Math.min(ORDER_CAP, posInGroup.get(lo));
+    p += repeatCost(hi, lo);
+    return p * FINE;
   };
 
   const build = (allowAbsolute) => {
@@ -267,7 +303,7 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
         // boards it frees (FIDE's 2025 C9 example: bye to seed 4, not seed 3, both on 0 points);
         // 2 x ORDER_CAP = 60 stays under the smallest repeat-float step (61).
         const missed = Math.min(UNPLAYED_CAP, unplayed?.[i] ?? 0);
-        raw.push([vertexOf.get(i), byeVertex, SCORE * d * d + UNPLAYED * missed + 2 * Math.min(ORDER_CAP, fromBottom) + repeatCost(i, undefined) + (fresh.length ? 0 : ABS)]);
+        raw.push([vertexOf.get(i), byeVertex, FINE * (SCORE * d * d + UNPLAYED * missed + 2 * Math.min(ORDER_CAP, fromBottom) + repeatCost(i, undefined) + (fresh.length ? 0 : ABS))]);
       }
     }
     let top = 0;
