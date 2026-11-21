@@ -212,8 +212,9 @@ schedule held on paper. A windows run of another project, or one that does not
 end at the reviewed update's data date, is left out with a note. With the
 appendix option the body still prints the first 40 activities of each
 correction, and an appendix lists all of them, so the document alone is the
-complete list. `xer.mjs` `xerText` writes a schedule back to XER text (P6 Web's
-multi-line calendars quoted as P6 Web writes them). Checked on the six public
+complete list. `xer.mjs` `xerText` writes a schedule back to XER text (quotes doubled and P6 Web's
+multi-line calendars quoted as P6 writes them; 448,834 of 448,835 rows of the
+public files written back byte for byte, eval/quotes-2026-11-21.md). Checked on the six public
 files: 18 update series built from them with planted re-estimates, slips and paper recoveries, written to disk and read by the CLI in shuffled order: the corrections equal the rules on all 18, every planted activity is named, every recovery plan expected (8) is asked and no other, and the appendix holds every row the body cut (on the 14,270-activity file that is 582 pages, so it is off by default) (eval/review-windows-check-2026-11-19.md).
 **Resource levelling** (2026-11-19, `level.mjs`, the page's "Resource
 levelling" box, `--level`): the logic alone lets every crew work on everything
@@ -451,7 +452,9 @@ project's updates for delay claims; and the review itself as a service.
 ## How it works
 
 - `xer.mjs`: reads the tab-separated XER tables (`%T`, `%F`, `%R`), UTF-8 or
-  Windows-1252, CRLF, P6 Web's quoted multi-line values, names with stray quotes.
+  Windows-1252, CRLF, P6 Web's quoted multi-line values, P6's doubled quotes
+  (`""` read as one, written back as P6 writes it: 22,260 of 22,260 names = MPXJ's,
+  eval/quotes-2026-11-21.md), names with stray quotes.
 - `p6xer.mjs`: `p6XerText(text, { projectId, activityIds })` writes a P6 XER
   from Microsoft Project XML: every field P6 20.12 writes in CURRTYPE,
   FINTMPL, OBS, PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, RSRC, ACTVTYPE,

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLkXicgRUW4GsbWPHw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt)",
+  "input_sha256": "4207abd77e9a8607d5ea627a8aa7754abc9fab62bb68e0f6eb3a480afbda5e64",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T12:02:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: P6's doubled quotes read as one across the XER reader, written back doubled",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": 18077,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here picked open-tennis-robots (hardware CAD with no market path; 4 earlier sessions left it for the same reason). The brief asks for revenue products, so I took xer-schedule-check (row 8, B2B construction scheduling that competes with paid P6 analysis tools) and a correctness bug in its core reader from its NEXT.md.",
+      "did": "fixed the XER reader's quote handling, checked on six public P6 files against MPXJ",
+      "result": "22,260 of 22,260 names agree with MPXJ (11 wrong before); CPM unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-p6-xer-doubled-quotes.md",
+    "ventures/xer-schedule-check/eval/quotes-2026-11-21.md"
+  ],
+  "goal": null,
+  "notes": "Verification run here: node --test *.test.mjs in ventures/xer-schedule-check 263/263 (run_venture_tests.py xer-schedule-check); eval/cpm-vs-p6.mjs on the six public files 19,820/19,822 (unchanged); eval/quotes-check.mjs with MPXJ 16.10.0: 22,260/22,260 names agree (before 22,249), 448,834/448,835 %R lines written back byte for byte; Project XML -> XER round trip: MPXJ reads 11/11 quoted names with one quote; check_posts.py ok; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

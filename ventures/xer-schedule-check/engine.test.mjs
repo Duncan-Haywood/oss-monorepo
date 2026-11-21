@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseXer, decodeXer, parseDate, formatDate } from "./xer.mjs";
+import { parseXer, decodeXer, parseDate, formatDate, xerText as writeXer } from "./xer.mjs";
 import { Calendar, parseClndrData } from "./calendar.mjs";
 import { schedule, drivingPath } from "./cpm.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
@@ -54,6 +54,26 @@ test("parser: tables, CRLF, quoted multi-line values, odd quotes in names, Windo
   const bytes = new Uint8Array([...Buffer.from("ERMHDR\t6.0\r\n%T\tTASK\r\n%F\ttask_name\r\n%R\tB\xe9ton\r\n", "latin1")]);
   assert.equal(parseXer(decodeXer(bytes)).tables.TASK[0].task_name, "Béton");
   assert.throws(() => parseXer("hello"), /not an XER file/);
+});
+
+test("parser: P6's doubled quotes read as one; xerText writes them back doubled", () => {
+  // P6 6.0, 7.0 and 20.12 exports write every " inside a value as "" (unquoted field)
+  const text = 'ERMHDR\t7.0\t2015-02-14\r\n%T\tTASK\r\n%F\ttask_id\ttask_name\ttask_code\r\n'
+    + '%R\t1\tPrestressing Cables -  0.6""\tA1\r\n'
+    + '%R\t2\tReadiness for ICU  ""Controlled Zone""\tA2\r\n'
+    + '%R\t3\tInstall 6" drain\t""Q""\r\n%E\r\n';
+  const x = parseXer(text);
+  assert.deepEqual(x.tables.TASK.map((r) => r.task_name), ['Prestressing Cables -  0.6"', 'Readiness for ICU  "Controlled Zone"', 'Install 6" drain']);
+  assert.equal(x.tables.TASK[2].task_code, '"Q"', "a doubled quote that opens the last value does not join the next line");
+  assert.equal(x.tables.TASK.length, 3);
+  const out = writeXer(x);
+  assert.match(out, /0\.6""\t/);
+  assert.match(out, /Install 6"" drain/);
+  const back = parseXer(out);
+  assert.deepEqual(back.tables.TASK, x.tables.TASK);
+  // a multi-line value with a quote inside: wrapped and doubled, read back exactly
+  const y = { version: "20.12", tables: { CALENDAR: [{ clndr_id: "1", clndr_data: 'line "one"\nline two' }, { clndr_id: "2", clndr_data: "x" }] } };
+  assert.deepEqual(parseXer(writeXer(y)).tables.CALENDAR, y.tables.CALENDAR);
 });
 
 test("calendar: clndr_data with 0x7F line breaks, holidays, half days, working-time arithmetic", () => {
