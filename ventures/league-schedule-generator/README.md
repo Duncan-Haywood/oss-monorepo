@@ -5261,3 +5261,38 @@ the email and the feed). No real league's officials have used it yet; that is th
 ## Flighted play-offs for golf leagues (2026-11-20)
 
 `golfPlayoffs(recap, season, opts)` in `golf-playoffs.mjs`, and a "Play-offs by flight" block on `golf-league-schedule.html` under the recap, turn the season's standings into the play-off nights: consecutive places cut into flights (as even as possible, larger first, or `sizes: [8, 2]`), a single-elimination bracket per flight (byes for the top seeds of an uneven field, optional third-place match), the date and nine of each round, and a tee time or shotgun hole for every group. Every flight's final is on the last night (a shorter flight starts later); a tie across a flight cut is named, never broken. Text and CSV. Tested in `golf-playoffs.test.mjs` (6 tests, hand-checked pairings); no real league's play-off night has used it yet.
+
+## Box leagues: even boxes, results, up and down (2026-11-21)
+
+`box-league.html` and `boxleague.mjs`. Squash, badminton, tennis, table tennis and racketball clubs
+run box leagues: members ranked, split into boxes of four to six, a round robin in each box over a
+few weeks that players book themselves, then the top of each box up and the bottom down. Until now
+the generator had a challenge ladder and promotion between whole divisions, but nothing for this
+format, which club organisers otherwise keep in a spreadsheet or pay a club platform for.
+
+- **Boxes:** `boxSizes(n, size)` uses the fewest boxes at or under the target, sizes within one,
+  bigger boxes on top, never a box under 3 (when the target cannot hold without one, one box fewer).
+  Checked for every n 3-200 and target 3-8.
+- **Results:** per match on the page (two scores, or a walkover to either player), or pasted from a
+  group chat (`Ana 3-1 Ben`, `Ana beat Ben 3-1`, `Ana w/o Ben`), with bad lines named by number.
+  Games scoring checks the winner has ceil(bestOf/2) games (best of 3, 5, 7); one-score scoring
+  takes any two different numbers.
+- **Tables:** win / loss / walkover-loss points and a per-game bonus, all settable (default 3/1/0,
+  no bonus); ties by head-to-head between exactly two, then game difference, games won, seeding.
+- **Closing a round:** top `up` and bottom `down` move (top and bottom boxes excepted); a player
+  with no match played (walkovers aside) drops whatever the table says and the box below sends its
+  next best up to fill the place; leavers removed, joiners at the foot of the bottom box or of a
+  named box (`Name: 2`); then the ranked list is re-split so boxes stay even. Every move is listed
+  with its reason, and any points tie on a movement line is named with what decided it.
+- Copy (boxes and fixtures, standings), CSV of every result (formula-looking names defused), print,
+  read-only share link carrying the league in the URL; saved in localStorage; nothing uploaded.
+- Guide: `how-to-run-a-box-league.html`, a worked 14-player example whose tables and moves a test
+  recomputes from the module.
+
+Checked: `boxleague.test.mjs` (20 tests: sizes over the whole grid, fixtures, scores, standings and
+both tie paths, pasted results, one and two up/down with upsets, no-shows above and on the
+relegation place, joiners and leavers, 12 rounds of random results on 37 players with 2 up 1 down
+keeping every player once and boxes even, text/CSV/link round trip, page wiring, the guide's
+numbers). Clicked through in Chromium at phone width (example league, typed and pasted results, a
+leaver and a joiner, close, reload resumes; no console errors, no sideways scroll). Made-up players
+only; no club has run a round on it yet, which is the next information.

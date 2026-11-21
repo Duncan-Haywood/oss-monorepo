@@ -377,32 +377,32 @@ flagships:
     next: >-
       Landed work and every measurement are in
       ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
-      rainouts, standings (set scoring in race, odds, post, H2H 2026-11-20),
-      officials, duty rota, team sheets; carry-over and break floors, frontier
-      picker, blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-15
-      sections; 2026-11-17 shorter seasons with even strength of schedule,
-      eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible ones named,
-      eval/limit-conflicts.txt; promotion/relegation, play-off results (tests);
-      league page (availability, subs, sign-ups, free agents, waivers, ratings;
-      installs to a phone, opens offline, pwa.mjs; club-site embed, embed.mjs
-      2026-11-20: README; next: a real league's use, a real Wix/Squarespace paste);
-      2026-11-19 balanced teams, /join free agents (eval/free-agent-fit.txt),
-      crossover pool seeds (eval/crossover-seeds.txt); bowling lanes 36 of 36 even
-      (eval/bowling-repeat-sat.txt); bowling averages, handicaps, points, standings
-      from score sheets (bowling-recap.test.mjs)). 3-game nights
-      (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
-      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
-      1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
-      next: a real club's night on it. Tournaments 2026-11-20 (tournament.mjs;
-      results fill pools and bracket, tournament-results.mjs); referee crews
-      2026-11-20 (tournament-referees.mjs: clubs, hours, caps, ejection chain;
-      CP-SAT check, eval/referee-exact.txt); next: a real tournament; league
-      officials pick and give back games from their own links 2026-11-20
-      (officiating.mjs, README), next a real league's referees. Golf 2026-11-20
-      (golf.mjs, golf-playoffs.mjs flighted play-offs, golf-league-schedule.html):
-      tee times at share in 71 of 77 seasons, other 6 SAT-proved out
-      (eval/golf-tee-grid.txt); match play recap; next: a real league's season. More
-      open items: NEXT.md.
+      rainouts, standings, officials, duty rota, team sheets; carry-over and break
+      floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
+      2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
+      schedule, eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible
+      ones named, eval/limit-conflicts.txt; promotion/relegation, play-off results
+      (tests); league page (availability, subs, sign-ups, free agents, waivers,
+      ratings; installs to a phone, opens offline, pwa.mjs; club-site embed,
+      embed.mjs 2026-11-20: README; next: a real league's use, a real
+      Wix/Squarespace paste); 2026-11-19 balanced teams, /join free agents
+      (eval/free-agent-fit.txt), crossover pool seeds (eval/crossover-seeds.txt);
+      bowling lanes 36 of 36 even (eval/bowling-repeat-sat.txt); bowling averages,
+      handicaps, points, standings from score sheets (bowling-recap.test.mjs)).
+      3-game nights (eval/three-game-nights.txt): SAT session designs
+      (session-designs.mjs) take every even 10-48 teams on 6 slots, 16 of 19 sizes
+      on 9, to 0 waits; 5, 7 on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py):
+      21, 23 on 4x9, 27 on 7x6; next: a real club's night on it. Tournaments
+      2026-11-20 (tournament.mjs; results fill pools and bracket,
+      tournament-results.mjs); referee crews 2026-11-20 (tournament-referees.mjs:
+      clubs, hours, caps, ejection chain; CP-SAT check, eval/referee-exact.txt);
+      next: a real tournament; league officials pick and give back games from their
+      own links 2026-11-20 (officiating.mjs, README), next a real league's referees.
+      Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs flighted play-offs,
+      golf-league-schedule.html): tee times at share in 71 of 77 seasons, other 6
+      SAT-proved out (eval/golf-tee-grid.txt); match play recap; next: a real
+      league's season. Box leagues 2026-11-21 (boxleague.mjs, box-league.html);
+      next: a real club's month. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Take-up

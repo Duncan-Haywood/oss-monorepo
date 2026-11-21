@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='white'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Box League Manager: Squash, Badminton and Tennis Boxes, Free</title>
+  <meta name="description" content="Run a club box league from your phone: ranked players split into even boxes, results typed or pasted, standings with tie-breaks, and promotion and relegation each round. Free, no sign-up.">
+  <meta property="og:title" content="Box league manager for squash, badminton, tennis and table tennis clubs">
+  <meta property="og:description" content="Even boxes, results, standings and up-and-down moves each round, with joiners and leavers. Share a read-only link. Free and private.">
+  <link rel="canonical" href="./box-league.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a box league?", "acceptedAnswer": {"@type": "Answer", "text": "Players are ranked and split into small boxes of four to six. Everyone in a box plays everyone else once over a few weeks, arranging the matches themselves. When the round closes, the top of each box moves up a box and the bottom moves down, and a new round starts."}}, {"@type": "Question", "name": "How are box league points scored?", "acceptedAnswer": {"@type": "Answer", "text": "The page defaults to 3 points for a win and 1 for playing and losing, with a walkover worth 3 to the winner and 0 to the other player. You can change each value and add a bonus point per game won. Ties on points go to the head-to-head result when two players are level, then game difference, then games won, then the order the box started in."}}, {"@type": "Question", "name": "What happens when players join or leave?", "acceptedAnswer": {"@type": "Answer", "text": "Before closing a round, list who is leaving and who is joining. A new player goes to the foot of the bottom box, or of any box you name. The page then re-splits the ranked list so every box stays within one player of the target size."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Names and results stay on the device that typed them. A share link carries the league inside the link itself; nothing is stored on a server."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Box league manager", "applicationCategory": "SportsApplication", "operatingSystem": "Any (browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "url": "./box-league.html"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; line-height: 1.5; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.035em; line-height: 1.08; margin-bottom: .3em; }
+    h2 { font-size: 1.2rem; margin-top: 1.6em; }
+    h3 { font-size: 1rem; margin: .2em 0 .4em; }
+    a { color: #1d5a3f; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; font: 15px/1.4 ui-monospace, monospace; padding: 8px; border: 1px solid #b9c2b6; border-radius: 8px; }
+    input, select { font: inherit; padding: 7px 8px; border: 1px solid #b9c2b6; border-radius: 8px; background: #fff; }
+    input[type=number] { width: 4.5em; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+    button { font: inherit; font-weight: 650; padding: 10px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #fff; cursor: pointer; margin: 8px 8px 0 0; }
+    button.secondary { background: #e4e9e2; color: #1d2330; }
+    button:disabled { opacity: .5; cursor: default; }
+    .note { color: #4a5148; font-size: .92rem; }
+    .err { color: #9b2c1f; white-space: pre-line; }
+    .warn { color: #7a4b00; white-space: pre-line; }
+    .boxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; }
+    .box { border: 1px solid #d4dad2; border-radius: 10px; padding: 10px 12px; }
+    .fx { display: flex; align-items: center; gap: 4px; padding: 4px 0; border-bottom: 1px solid #eef1ec; }
+    .fx .who { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font-size: .93rem; }
+    .fx input[type=number] { width: 2.6em; padding: 5px 3px; text-align: center; }
+    .fx select { padding: 5px 2px; width: 6.2em; font-size: .85rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .93rem; margin-top: 8px; }
+    th, td { padding: 4px 6px; border-bottom: 1px solid #e4e9e2; text-align: right; white-space: nowrap; }
+    th:nth-child(2), td:nth-child(2) { text-align: left; white-space: normal; }
+    th { font-size: .78rem; color: #4a5148; font-weight: 650; }
+    tr.up td { color: #1d5a3f; font-weight: 650; }
+    tr.down td { color: #9b2c1f; }
+    .nav { display: flex; align-items: center; gap: 8px; }
+    .nav h2 { margin: 0; flex: 1; }
+    .readonly { background: #fff6e0; border-radius: 8px; padding: 8px 10px; }
+    pre { white-space: pre-wrap; background: #f7f8f6; padding: 8px; border-radius: 8px; font-size: .9rem; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+    @media print { #setup, .actions, footer, .guide, #topnav, #close, #paste, .nav button { display: none !important; } .card { border: 0; } .fx input, .fx select { border: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <p id="topnav"><a href="./">&larr; League schedule generator</a></p>
+  <h1>Box league manager</h1>
+  <p>For squash, badminton, tennis, table tennis and racketball clubs. Paste your players in ranked order and the page splits them into even boxes. Players arrange their own matches; type or paste the results and each box's <strong>table is right after every match</strong>. When the round ends, the top of each box goes up and the bottom goes down, with joiners and leavers handled, and the next round's boxes are ready to send. No accounts, nothing to install, nothing uploaded.</p>
+
+  <section class="card" id="resume" hidden>
+    <p><strong>A box league is saved on this device.</strong> <span id="resume-info"></span></p>
+    <button type="button" id="resume-go">Open it</button>
+    <button type="button" class="secondary" id="resume-new">Start a new league</button>
+  </section>
+
+  <section class="card" id="setup">
+    <h2 style="margin-top:0">Set up the league</h2>
+    <label for="lname">League name (optional)</label>
+    <input id="lname" maxlength="80" placeholder="Winter squash boxes" style="width:100%;box-sizing:border-box">
+    <label for="players">Players in ranked order, best first: one per line (or separated by commas)</label>
+    <textarea id="players" spellcheck="false" autocomplete="off"></textarea>
+    <div class="row">
+      <div><label for="size">Box size</label><input id="size" type="number" min="3" max="8" value="5" inputmode="numeric"></div>
+      <div><label for="up">Up per box</label><input id="up" type="number" min="0" max="3" value="1" inputmode="numeric"></div>
+      <div><label for="down">Down per box</label><input id="down" type="number" min="0" max="3" value="1" inputmode="numeric"></div>
+      <div><label for="scoring">Scoring</label>
+        <select id="scoring"><option value="games:5" selected>Games, best of 5 (squash)</option><option value="games:3">Games, best of 3 (badminton, table tennis)</option><option value="games:7">Games, best of 7</option><option value="points:0">One score each (a pro set, a single game)</option></select></div>
+      <div><label for="weeks">Weeks per round</label><input id="weeks" type="number" min="1" max="26" value="4" inputmode="numeric"></div>
+      <div><label for="start">First round starts</label><input id="start" type="date"></div>
+    </div>
+    <div class="row">
+      <div><label for="win">Win</label><input id="win" type="number" min="0" max="99" value="3" inputmode="numeric"></div>
+      <div><label for="loss">Loss (played)</label><input id="loss" type="number" min="0" max="99" value="1" inputmode="numeric"></div>
+      <div><label for="pergame">Bonus per game won</label><input id="pergame" type="number" min="0" max="9" value="0" inputmode="numeric"></div>
+      <div><label for="woloss">Walkover loss</label><input id="woloss" type="number" min="0" max="99" value="0" inputmode="numeric"></div>
+    </div>
+    <p class="note" id="setup-hint">Boxes keep within one player of the size you pick, larger boxes at the top, and never fewer than 3 players.</p>
+    <div>
+      <button type="button" id="start-btn">Make the boxes</button>
+      <button type="button" class="secondary" id="example">Load 14 example players</button>
+    </div>
+    <p id="setup-status" role="status" class="err"></p>
+  </section>
+
+  <section class="card" id="league" hidden>
+    <div id="ro-banner" class="readonly" hidden>
+      <strong>Read-only copy</strong> of a box league as it stood when the link was made. <button type="button" class="secondary" id="ro-adopt">Keep running it on this device</button>
+    </div>
+    <div class="nav">
+      <button type="button" class="secondary" id="prev" aria-label="Previous round">&larr;</button>
+      <h2 id="round-title">Round 1</h2>
+      <button type="button" class="secondary" id="next" aria-label="Next round">&rarr;</button>
+    </div>
+    <p class="note" id="round-info"></p>
+    <div class="boxes" id="boxes"></div>
+    <p id="score-status" role="status" class="err"></p>
+
+    <details id="paste">
+      <summary>Paste results from a group chat</summary>
+      <p class="note">One per line: <code>Ana 3-1 Ben</code>, <code>Ana beat Ben 3-1</code> or <code>Ana w/o Ben</code> (Ana wins a walkover).</p>
+      <textarea id="paste-text" spellcheck="false"></textarea>
+      <button type="button" id="paste-go">Add these results</button>
+      <p id="paste-status" role="status" class="err"></p>
+    </details>
+
+    <div class="actions">
+      <button type="button" class="secondary" id="copy-round">Copy boxes and fixtures</button>
+      <button type="button" class="secondary" id="copy-table">Copy standings</button>
+      <button type="button" class="secondary" id="share">Share read-only link</button>
+      <button type="button" class="secondary" id="csv">Download CSV</button>
+      <button type="button" class="secondary" id="print">Print</button>
+      <button type="button" class="secondary" id="end">New league</button>
+    </div>
+    <p id="share-status" role="status" class="note"></p>
+
+    <section id="close">
+      <h2>Close the round</h2>
+      <div class="row">
+        <div style="flex:1 1 220px"><label for="leaving">Leaving (one per line)</label><textarea id="leaving" style="min-height:70px"></textarea></div>
+        <div style="flex:1 1 220px"><label for="joining">Joining: <code>Name</code> (bottom box) or <code>Name: 2</code></label><textarea id="joining" style="min-height:70px"></textarea></div>
+      </div>
+      <label for="inactive">A player who played no match</label>
+      <select id="inactive"><option value="down" selected>goes down a box</option><option value="stay">is ranked like anyone else</option></select>
+      <div><button type="button" class="secondary" id="preview">Preview the moves</button><button type="button" id="advance">Close round and make the next boxes</button></div>
+      <pre id="moves" hidden></pre>
+      <p id="close-status" role="status" class="warn"></p>
+    </section>
+  </section>
+
+  <section class="guide">
+    <h2>How it works</h2>
+    <h3>What is a box league?</h3>
+    <p>Players are ranked and split into small boxes of four to six. Everyone in a box plays everyone else once over a few weeks, arranging the matches themselves. When the round closes, the top of each box moves up a box and the bottom moves down, and a new round starts. Over a season the boxes sort themselves by level, so most matches are close.</p>
+    <h3>How are box league points scored?</h3>
+    <p>The page defaults to 3 points for a win and 1 for playing and losing, with a walkover worth 3 to the winner and 0 to the other player. You can change each value and add a bonus point per game won. Ties on points go to the head-to-head result when two players are level, then game difference, then games won, then the order the box started in. When a tie sits on a promotion or relegation line, the page says how it was decided so you can overrule it.</p>
+    <h3>What happens when players join or leave?</h3>
+    <p>Before closing a round, list who is leaving and who is joining. A new player goes to the foot of the bottom box, or of any box you name. The page then re-splits the ranked list so every box stays within one player of the target size, and lists every move for the group chat.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Names and results stay on the device that typed them. A share link carries the league inside the link itself; nothing is stored on a server.</p>
+    <p>More: <a href="./how-to-run-a-box-league.html">how to run a box league</a> (a worked 14-player example), <a href="./how-to-run-a-ladder-league.html">challenge ladders</a>, <a href="./americano-night.html">Americano nights</a>, <a href="./">season round robins with courts and dates</a>.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information and does not replace your club's own rules; check the tables and moves before announcing them. The example players are invented.</p>
+  <p><strong>Independent.</strong> Not affiliated with any club, federation, booking platform or rating system.</p>
+  <p>Everything runs in your browser; names and results are saved only on this device. Anonymous feature events (<code>box_started</code>, <code>box_example</code>, <code>box_result</code>, <code>box_pasted</code>, <code>box_round_closed</code>, <code>box_copied</code>, <code>box_shared</code>, <code>box_csv</code>, <code>box_link_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free and open source under an <a href="LICENSE">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+<script type="module">
+  import { parsePlayersList, newLeague, boxFixtures, setResult, getResult, parseResults, boxStandings, roundProgress, nextBoxes, advance, roundText, standingsText, leagueCsv, checkLeague, encodeLeague, decodeLeague } from "./boxleague.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const $ = (s) => document.querySelector(s);
+  const KEY = "league-schedule-generator-box";
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const EXAMPLE = ["Ana", "Ben", "Cy", "Dee", "Eli", "Fay", "Gus", "Hal", "Ivy", "Jo", "Kai", "Lou", "Max", "Ned"];
+  const lines = (s) => String(s || "").split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+
+  let league = null, view = 0, readOnly = false;
+
+  const save = () => { if (readOnly || !league) return; try { localStorage.setItem(KEY, JSON.stringify(league)); } catch { /* storage blocked: the league lives in this tab */ } };
+  const load = () => { try { const l = JSON.parse(localStorage.getItem(KEY) || "null"); return l && checkLeague(l).length === 0 ? l : null; } catch { return null; } };
+  const clear = () => { try { localStorage.removeItem(KEY); } catch { /* ignore */ } };
+
+  function show(l, { ro = false } = {}) {
+    league = l; readOnly = ro; view = l.rounds.length - 1;
+    $("#setup").hidden = true; $("#resume").hidden = true; $("#league").hidden = false;
+    $("#ro-banner").hidden = !ro;
+    render();
+  }
+
+  function render() {
+    const round = league.rounds[view];
+    const latest = view === league.rounds.length - 1;
+    const editable = !readOnly && latest;
+    const prog = roundProgress(league, view);
+    $("#round-title").textContent = `${league.name ? `${league.name}: ` : ""}Round ${view + 1}${round.closed ? " (closed)" : ""}`;
+    $("#round-info").textContent = `${round.start ? `${round.start} to ${round.end}. ` : ""}${prog.done} of ${prog.total} matches in. ${league.rules.up} up, ${league.rules.down} down per box.`;
+    $("#prev").disabled = view === 0;
+    $("#next").disabled = latest;
+    const scoreOpts = league.rules.scoring === "games" ? `min="0" max="${Math.ceil(league.rules.bestOf / 2)}"` : `min="0" max="999"`;
+    $("#boxes").innerHTML = round.boxes.map((box, b) => {
+      const t = boxStandings(league, view, b);
+      const moved = new Map((round.moves || []).map((m) => [m.player, m]));
+      const fx = boxFixtures(box).map(([pa, pb]) => {
+        const res = getResult(round, pa, pb);
+        const sa = Array.isArray(res) ? res[0] : "", sb = Array.isArray(res) ? res[1] : "";
+        const wo = res && !Array.isArray(res) ? res.wo : "";
+        const dis = editable ? "" : "disabled";
+        return `<div class="fx" data-a="${esc(pa)}" data-b="${esc(pb)}"><span class="who">${esc(pa)} v ${esc(pb)}</span>
+          <input type="number" ${scoreOpts} inputmode="numeric" aria-label="${esc(pa)} score" value="${sa}" ${dis} ${wo ? "hidden" : ""}>
+          <input type="number" ${scoreOpts} inputmode="numeric" aria-label="${esc(pb)} score" value="${sb}" ${dis} ${wo ? "hidden" : ""}>
+          <select aria-label="Walkover" ${dis}><option value="">played</option><option value="${esc(pa)}" ${wo === pa ? "selected" : ""}>w/o to ${esc(pa)}</option><option value="${esc(pb)}" ${wo === pb ? "selected" : ""}>w/o to ${esc(pb)}</option></select></div>`;
+      }).join("");
+      const n = t.rows.length, up = b > 0 ? league.rules.up : 0, down = b < round.boxes.length - 1 ? league.rules.down : 0;
+      const rows = t.rows.map((x) => {
+        const cls = x.place <= up ? "up" : x.place > n - down ? "down" : "";
+        const mv = moved.get(x.player);
+        return `<tr class="${cls}"><td>${x.place}</td><td>${esc(x.player)}${mv && mv.to ? ` <span class="note">&rarr; box ${mv.to}</span>` : ""}</td><td>${x.pts}</td><td>${x.won}</td><td>${x.lost}</td><td>${x.gf}-${x.ga}</td></tr>`;
+      }).join("");
+      return `<div class="box"><h3>Box ${b + 1} <span class="note">(${t.done} of ${t.total})</span></h3>${fx}
+        <table><thead><tr><th>#</th><th>Player</th><th>Pts</th><th>W</th><th>L</th><th>${league.rules.scoring === "games" ? "Games" : "Score"}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }).join("");
+    $("#close").hidden = !editable;
+    $("#paste").hidden = !editable;
+    $("#moves").hidden = true; $("#close-status").textContent = "";
+  }
+
+  $("#boxes").addEventListener("change", (e) => {
+    const fx = e.target.closest(".fx");
+    if (!fx || readOnly) return;
+    const [ia, ib] = fx.querySelectorAll("input");
+    const wo = fx.querySelector("select").value;
+    let result;
+    if (wo) result = { wo };
+    else if (ia.value === "" && ib.value === "") result = null;
+    else if (ia.value === "" || ib.value === "") return; // wait for the other score
+    else result = [Number(ia.value), Number(ib.value)];
+    const r = setResult(league, view, fx.dataset.a, fx.dataset.b, result);
+    if (r.error) { $("#score-status").textContent = `${fx.dataset.a} v ${fx.dataset.b}: ${r.error}`; return; }
+    $("#score-status").textContent = "";
+    league = r.league; save(); record("box_result"); render();
+  });
+
+  $("#paste-go").addEventListener("click", () => {
+    const r = parseResults(league, view, $("#paste-text").value);
+    league = r.league; save(); render();
+    $("#paste").open = true;
+    $("#paste-status").textContent = `${r.count} result${r.count === 1 ? "" : "s"} added.${r.errors.length ? `\n${r.errors.join("\n")}` : ""}`;
+    if (r.count) { record("box_pasted"); if (!r.errors.length) $("#paste-text").value = ""; }
+  });
+
+  const closeOpts = () => ({ leaving: lines($("#leaving").value), joining: $("#joining").value, inactive: $("#inactive").value });
+  $("#preview").addEventListener("click", () => {
+    const nb = nextBoxes(league, view, closeOpts());
+    $("#moves").hidden = false;
+    $("#moves").textContent = nb.errors.length ? nb.errors.join("\n") : `${nb.text}\n\nNext round:\n${nb.boxes.map((b, i) => `Box ${i + 1}: ${b.join(", ")}`).join("\n")}`;
+    $("#close-status").textContent = nb.warnings.join("\n");
+  });
+  $("#advance").addEventListener("click", () => {
+    const prog = roundProgress(league, view);
+    if (prog.done < prog.total && !confirm(`${prog.total - prog.done} matches have no result. Close the round anyway?`)) return;
+    const a = advance(league, view, closeOpts());
+    if (a.errors.length) { $("#close-status").textContent = a.errors.join("\n"); return; }
+    league = a.league; save(); record("box_round_closed");
+    $("#leaving").value = ""; $("#joining").value = "";
+    view = league.rounds.length - 1; render();
+    $("#close-status").textContent = a.warnings.length ? `Closed with notes:\n${a.warnings.join("\n")}` : "";
+  });
+
+  $("#prev").addEventListener("click", () => { if (view > 0) { view--; render(); } });
+  $("#next").addEventListener("click", () => { if (view < league.rounds.length - 1) { view++; render(); } });
+
+  async function copy(text, label) {
+    try { await navigator.clipboard.writeText(text); $("#share-status").textContent = `${label} copied.`; }
+    catch { $("#share-status").textContent = text; }
+  }
+  $("#copy-round").addEventListener("click", () => { copy(roundText(league, view), "Boxes and fixtures"); record("box_copied"); });
+  $("#copy-table").addEventListener("click", () => { copy(standingsText(league, view), "Standings"); record("box_copied"); });
+  $("#share").addEventListener("click", () => {
+    const url = `${location.origin}${location.pathname}#l=${encodeLeague(league)}`;
+    copy(url, "Read-only link"); record("box_shared");
+  });
+  $("#csv").addEventListener("click", () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([leagueCsv(league)], { type: "text/csv" }));
+    a.download = "box-league-results.csv"; a.click(); record("box_csv");
+  });
+  $("#print").addEventListener("click", () => window.print());
+  $("#end").addEventListener("click", () => {
+    if (!readOnly && !confirm("Start a new league? The current one is removed from this device (download the CSV first if you want it).")) return;
+    if (!readOnly) clear();
+    league = null; readOnly = false; history.replaceState(null, "", location.pathname);
+    $("#league").hidden = true; $("#setup").hidden = false;
+  });
+  $("#ro-adopt").addEventListener("click", () => {
+    if (load() && !confirm("This device already has a box league saved. Replace it with this copy?")) return;
+    readOnly = false; save(); history.replaceState(null, "", location.pathname); show(league);
+  });
+
+  $("#example").addEventListener("click", () => { $("#players").value = EXAMPLE.join("\n"); $("#lname").value = "Example squash boxes"; record("box_example"); });
+  $("#start-btn").addEventListener("click", () => {
+    const { players, errors } = parsePlayersList($("#players").value);
+    if (errors.length) { $("#setup-status").textContent = errors.join("\n"); return; }
+    const [scoring, bestOf] = $("#scoring").value.split(":");
+    try {
+      const l = newLeague({ players, name: $("#lname").value, size: $("#size").value, up: $("#up").value, down: $("#down").value, scoring, bestOf: Number(bestOf), win: $("#win").value, loss: $("#loss").value, perGame: $("#pergame").value, woLoss: $("#woloss").value, weeks: $("#weeks").value, start: $("#start").value || null });
+      $("#setup-status").textContent = "";
+      record("box_started"); show(l); save();
+    } catch (e) { $("#setup-status").textContent = e.message; }
+  });
+  $("#resume-go").addEventListener("click", () => { const l = load(); if (l) show(l); });
+  $("#resume-new").addEventListener("click", () => { $("#resume").hidden = true; });
+
+  $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
+  if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+
+  const m = location.hash.match(/^#l=([\w-]+)$/);
+  if (m) {
+    const d = decodeLeague(m[1]);
+    if (d.league) { record("box_link_opened"); show(d.league, { ro: true }); }
+    else $("#setup-status").textContent = d.error;
+  } else {
+    const saved = load();
+    if (saved) {
+      const p = roundProgress(saved, saved.rounds.length - 1);
+      $("#resume-info").textContent = `${saved.name || "Unnamed league"}, round ${saved.rounds.length}, ${p.done} of ${p.total} matches in.`;
+      $("#resume").hidden = false;
+    }
+  }
+</script>
+</body>
+</html>
