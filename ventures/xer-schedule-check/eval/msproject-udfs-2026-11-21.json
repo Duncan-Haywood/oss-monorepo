@@ -1,0 +1,133 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "project": "CCA R03 dt 24Oct11SC",
+  "byKind": {
+   "number": {
+    "values": 12992,
+    "carried": 12992,
+    "same": 12992,
+    "notWritten": 0
+   },
+   "date": {
+    "values": 182,
+    "carried": 182,
+    "same": 182,
+    "notWritten": 0
+   },
+   "text": {
+    "values": 28555,
+    "carried": 27809,
+    "same": 27809,
+    "notWritten": 746
+   }
+  },
+  "written": 40983,
+  "left": 746,
+  "mismatches": [],
+  "mpxj": {
+   "aliases": 22,
+   "aliasSame": 22,
+   "cells": 40983,
+   "cellSame": 40983,
+   "extra": 0,
+   "examples": []
+  }
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "project": "BEW3",
+  "byKind": {
+   "text": {
+    "values": 1041,
+    "carried": 1041,
+    "same": 1041,
+    "notWritten": 0
+   },
+   "number": {
+    "values": 823,
+    "carried": 823,
+    "same": 823,
+    "notWritten": 0
+   }
+  },
+  "written": 1864,
+  "left": 0,
+  "mismatches": [],
+  "mpxj": {
+   "aliases": 4,
+   "aliasSame": 4,
+   "cells": 1864,
+   "cellSame": 1864,
+   "extra": 0,
+   "examples": []
+  }
+ },
+ {
+  "file": "example_xer_file.xer",
+  "project": "DEMO-001",
+  "byKind": {},
+  "written": 0,
+  "left": 0,
+  "mismatches": []
+ },
+ {
+  "file": "hotel-project.xer",
+  "project": "HBTF-2",
+  "byKind": {},
+  "written": 0,
+  "left": 0,
+  "mismatches": []
+ },
+ {
+  "file": "msproject-udfs-planted.xer",
+  "project": "OFFICE-FITOUT",
+  "byKind": {
+   "cost": {
+    "values": 36,
+    "carried": 36,
+    "same": 36,
+    "notWritten": 0
+   },
+   "date": {
+    "values": 44,
+    "carried": 44,
+    "same": 44,
+    "notWritten": 0
+   },
+   "number": {
+    "values": 44,
+    "carried": 44,
+    "same": 44,
+    "notWritten": 0
+   }
+  },
+  "written": 124,
+  "left": 0,
+  "mismatches": [],
+  "mpxj": {
+   "aliases": 6,
+   "aliasSame": 6,
+   "cells": 124,
+   "cellSame": 124,
+   "extra": 0,
+   "examples": []
+  }
+ },
+ {
+  "file": "sample.xer",
+  "project": "Task SE",
+  "byKind": {},
+  "written": 0,
+  "left": 0,
+  "mismatches": []
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "project": "TERMINAL-2",
+  "byKind": {},
+  "written": 0,
+  "left": 0,
+  "mismatches": []
+ }
+]

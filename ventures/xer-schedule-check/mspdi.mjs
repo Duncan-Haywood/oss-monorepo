@@ -40,9 +40,22 @@
 //   field whose values are all different (a note per task) is not a code
 //   and is skipped; the Text1 msproject.mjs names "Activity ID" is read as
 //   the activity ID's own field, not a code.
+// - task Number1..20, Cost1..10 and Date1..10 fields that hold values become
+//   activity user-defined fields (UDFTYPE, UDFVALUE), titled by the field's
+//   Alias (else Number3, ...): whole numbers as integer UDFs, others as
+//   decimals, costs (stored in hundredths) as cost UDFs, dates as date UDFs.
+//   So the UDFs msproject.mjs writes from an XER come back, and a Project
+//   file's own Number fields (optimistic and pessimistic durations, say) feed
+//   the risk run's ranges as a P6 file's numeric UDFs do.
 
 import { parseXer } from "./xer.mjs";
 
+// Number1..20, Date1..10, Cost1..10 (the same tables are in msproject.mjs)
+const UDF_FIELD_IDS = [
+  ...["188743767", "188743768", "188743769", "188743770", "188743771", ...Array.from({ length: 15 }, (_, k) => String(188743982 + k))].map((id, k) => [id, "number", `Number${k + 1}`]),
+  ...["188743786", "188743787", "188743788", ...Array.from({ length: 7 }, (_, k) => String(188743938 + k))].map((id, k) => [id, "cost", `Cost${k + 1}`]),
+  ...Array.from({ length: 10 }, (_, k) => [String(188743945 + k), "date", `Date${k + 1}`]),
+];
 const TASK_TEXT_IDS = ["188743731", "188743734", "188743737", "188743740", "188743743", "188743746", "188743747", "188743748", "188743749", "188743750",
   ...Array.from({ length: 20 }, (_, k) => String(188743997 + k))];
 
@@ -493,6 +506,7 @@ export function parseMspdi(text) {
     warnings.push(`no status date in the file (Project, Status Date): ${first || "no date"}, the ${first && first < start ? "earliest task start" : "project start"}, is used as the data date, so any progress recorded is not checked against it`);
   }
   const codes = readTextCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings);
+  const udfs = readUdfFields(proj, taskNodes, new Set(TASK.map((r) => r.task_id)));
 
   // relationships, after every task is known
   let summaryLinks = 0, pctLags = 0, elapsedLags = 0, crossProject = 0;
@@ -539,7 +553,7 @@ export function parseMspdi(text) {
   return {
     version: `MSPDI ${val(proj, "SaveVersion") || ""}`.trim(),
     exportDate: date(val(proj, "LastSaved")),
-    tables: { PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, TASK, TASKPRED, ...codes },
+    tables: { PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, TASK, TASKPRED, ...codes, ...udfs },
     warnings,
     format: "mspdi",
   };
@@ -602,6 +616,43 @@ function readTextCodes(proj, taskNodes, taskIds, warnings) {
   }
   if (skipped.length) warnings.push(`text field(s) with a different value on every task are not read as activity codes: ${skipped.join(", ")}`);
   return ACTVTYPE.length ? { ACTVTYPE, ACTVCODE, TASKACTV } : {};
+}
+
+// Task Number, Cost and Date fields -> activity user-defined fields.
+function readUdfFields(proj, taskNodes, taskIds) {
+  const defs = new Map();
+  for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) defs.set(val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") });
+  const known = new Set(UDF_FIELD_IDS.map(([id]) => id));
+  const fields = new Map(); // field id -> Map(task uid -> value)
+  for (const t of taskNodes) {
+    const uid = val(t, "UID");
+    if (!taskIds.has(uid)) continue;
+    for (const e of kids(t, "ExtendedAttribute")) {
+      const id = val(e, "FieldID"), v = val(e, "Value").trim();
+      if (!v || !known.has(id)) continue;
+      if (!fields.has(id)) fields.set(id, new Map());
+      fields.get(id).set(uid, v);
+    }
+  }
+  const UDFTYPE = [], UDFVALUE = [];
+  for (const [id, kind, name] of UDF_FIELD_IDS) {
+    const vals = fields.get(id);
+    if (!vals) continue;
+    const rows = [];
+    for (const [uid, v] of vals) {
+      if (kind === "date") { const d = date(v); if (d) rows.push({ uid, udf_date: d, udf_number: "" }); continue; }
+      const n = Number(v);
+      if (!Number.isFinite(n)) continue;
+      rows.push({ uid, udf_date: "", udf_number: String(kind === "cost" ? n / 100 : n) });
+    }
+    if (!rows.length) continue;
+    const def = defs.get(id) || {};
+    const typeId = `mspdi-${name.toLowerCase()}`;
+    const type = kind === "date" ? "FT_START_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
+    UDFTYPE.push({ udf_type_id: typeId, table_name: "TASK", udf_type_name: `user_${name.toLowerCase()}`, udf_type_label: def.alias || def.name || name, logical_data_type: type });
+    for (const r of rows) UDFVALUE.push({ udf_type_id: typeId, fk_id: r.uid, proj_id: "1", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: "", udf_code_id: "" });
+  }
+  return UDFTYPE.length ? { UDFTYPE, UDFVALUE } : {};
 }
 
 // An XML file (after a BOM and white space) is MSPDI; anything else is read as XER.

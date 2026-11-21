@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVPmXpqEb9Xngf9fDs7",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue software); merge when done",
+  "input_sha256": "aba4c7bf528a16c4e622946a7cedd92da87ff3392e691eba15f6c54ce50ebae8",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T06:07:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore run spent on flagship 13 (xer-schedule-check), item 13: P6 activity UDFs as Microsoft Project XML custom fields",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 18036,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Explore run took the allocator's flagship row instead of a new idea: a deep product with buildable, verifiable work landable in one run beat starting something shallow",
+      "did": "Shipped flagship item 13 slice",
+      "result": "merged feature with eval"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-p6-user-defined-fields-in-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/msproject-udfs-2026-11-21.md"
+  ],
+  "goal": null,
+  "notes": "Idea: carry P6 activity user-defined fields into the XER-to-Project XML conversion (Number1..20, Cost1..10 in hundredths, Date1..10, free Text fields) and read them back in mspdi.mjs as UDFTYPE/UDFVALUE, so Project Number fields also feed the risk ranges. Field ids taken from MPXJ 16.10 FieldTypeHelper; cost form from MPXJ's MSPDIWriter. Codes and text UDFs now share the 29 text fields by fill count (CCA: 4,287 values left out vs 29,971 codes-first). Verification run here: eval/msproject-udfs.mjs on six public XERs + a planted cost/date file: 42,971/42,971 values back via own reader and MPXJ, 32/32 aliases; eval/msproject-check.mjs unchanged (21,422/21,422 activities, 54,843/54,843 links, 19,818/19,822 schedule equal); eval/msproject-codes.mjs CCA 255,410/255,410; run_venture_tests.py xer-schedule-check: 1 suite, 0 failed (after fixing 3 unguarded object-map lookups it flagged); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
