@@ -25,6 +25,9 @@
 
 const EPS_REL = 1e-9;
 const ARC_SEGS = 360;
+// polygon side counts tried for an exporter's faceted circles (sectionVariants);
+// above 24 sides the area is within 1.2% of the circle's, inside the 2% check
+export const SECTION_POLYGON_SIDES = [6, 8, 12, 16, 24];
 import { bsplineCurve, bsplineSurface, invertSurface, surfaceGrid, meshFace } from "./surface.mjs";
 
 export const MAX_TERMS = 20000;
@@ -665,11 +668,18 @@ export class Geometry {
 
   // ---- profiles to signed loops ----------------------------------------------
 
-  /** -> [{s: +1|-1, pts: [[x,y],...]}] in the profile's own position */
-  profile(ref, depth = 0) {
+  /**
+   * -> [{s: +1|-1, pts: [[x,y],...]}] in the profile's own position.
+   * opts.plain drops the fillet and edge radii of parametric profiles, and
+   * opts.sides draws circles as inscribed polygons of that many sides: the
+   * simplified sections some exporters compute their stored volumes from
+   * (sectionVariants below).
+   */
+  profile(ref, depth = 0, opts = null) {
     const e = this.get(ref);
     const a = e.args;
     const n = (i) => this.num(a[i]);
+    const rad = (i) => (opts?.plain ? 0 : (n(i) ?? 0));
     const pos = () => (a[2] ? this.placement(a[2]) : IDENTITY);
     const place = (loops) => {
       const m = pos();
@@ -677,6 +687,7 @@ export class Geometry {
     };
     const rect = (w, h) => [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]];
     const circle = (r) => {
+      if (opts?.sides) return Array.from({ length: opts.sides }, (_, i) => { const t = (2 * Math.PI * i) / opts.sides; return [r * Math.cos(t), r * Math.sin(t)]; });
       const k = Math.sqrt((2 * Math.PI) / (ARC_SEGS * Math.sin((2 * Math.PI) / ARC_SEGS)));
       const pts = [];
       for (let i = 0; i < ARC_SEGS; i++) { const t = (2 * Math.PI * i) / ARC_SEGS; pts.push([k * r * Math.cos(t), k * r * Math.sin(t)]); }
@@ -686,7 +697,7 @@ export class Geometry {
       case "IFCRECTANGLEPROFILEDEF":
         return place([{ s: 1, pts: rect(n(3), n(4)) }]);
       case "IFCROUNDEDRECTANGLEPROFILEDEF": {
-        const r = n(5) ?? 0;
+        const r = rad(5);
         let pts = rect(n(3), n(4));
         if (r > 0) pts = filletAll(pts, [0, 1, 2, 3], r);
         return place([{ s: 1, pts }]);
@@ -694,7 +705,7 @@ export class Geometry {
       case "IFCRECTANGLEHOLLOWPROFILEDEF": {
         const w = n(3), h = n(4), t = n(5);
         let outer = rect(w, h), inner = rect(w - 2 * t, h - 2 * t);
-        const ri = n(6) ?? 0, ro = n(7) ?? 0;
+        const ri = rad(6), ro = rad(7);
         if (ro > 0) outer = filletAll(outer, [0, 1, 2, 3], ro);
         if (ri > 0) inner = filletAll(inner, [0, 1, 2, 3], ri);
         return place([{ s: 1, pts: outer }, { s: -1, pts: inner }]);
@@ -708,25 +719,25 @@ export class Geometry {
         return place([{ s: 1, pts: circle(n(3)).map((p) => [p[0], p[1] * b]) }]);
       }
       case "IFCISHAPEPROFILEDEF": {
-        const w = n(3), d = n(4), tw = n(5), tf = n(6), r = n(7) ?? 0;
+        const w = n(3), d = n(4), tw = n(5), tf = n(6), r = rad(7);
         if (n(9)) throw new Unresolved("sloped I flanges");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf], [-tw / 2, -d / 2 + tf], [-w / 2, -d / 2 + tf]];
         return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3, 4, 9, 10], r) : pts }]);
       }
       case "IFCLSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4) ?? n(3), t = n(5), r = n(6) ?? 0;
+        const d = n(3), w = n(4) ?? n(3), t = n(5), r = rad(6);
         if (n(8)) throw new Unresolved("sloped L legs");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + t], [-w / 2 + t, -d / 2 + t], [-w / 2 + t, d / 2], [-w / 2, d / 2]];
         return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3], r) : pts }]);
       }
       case "IFCTSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = n(7) ?? 0;
+        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7);
         if (n(10) || n(11)) throw new Unresolved("sloped T");
         const pts = [[-tw / 2, -d / 2], [tw / 2, -d / 2], [tw / 2, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf]];
         return place([{ s: 1, pts: r > 0 ? filletAll(pts, [2, 7], r) : pts }]);
       }
       case "IFCUSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = n(7) ?? 0;
+        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7);
         if (n(9)) throw new Unresolved("sloped U flanges");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [-w / 2 + tw, -d / 2 + tf], [-w / 2 + tw, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2]];
         return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3, 4], r) : pts }]);
@@ -750,13 +761,43 @@ export class Geometry {
       case "IFCDERIVEDPROFILEDEF":
       case "IFCMIRROREDPROFILEDEF": {
         const m = this.operator(a[3]);
-        return this.profile(a[2], depth + 1).map((l) => ({ s: l.s, pts: l.pts.map((p) => { const q = apply(m, [p[0], p[1], 0]); return [q[0], q[1]]; }) }));
+        return this.profile(a[2], depth + 1, opts).map((l) => ({ s: l.s, pts: l.pts.map((p) => { const q = apply(m, [p[0], p[1], 0]); return [q[0], q[1]]; }) }));
       }
       case "IFCCOMPOSITEPROFILEDEF":
-        return a[2].flatMap((p) => this.profile(p, depth + 1));
+        return a[2].flatMap((p) => this.profile(p, depth + 1, opts));
       default:
         throw new Unresolved(`profile ${e.type}`);
     }
+  }
+
+  /**
+   * The ways an exporter is seen to simplify a parametric section, each as
+   * the ratio of the simplified area to the exact one: "no fillets" (root and
+   * edge radii left out; Tekla's stored volumes and weights), "N-gon circles"
+   * (round parts as inscribed polygons of N sides), and both together. Only
+   * variants that differ from the exact area by more than 0.1% are returned;
+   * an arbitrary (drawn) profile has none.
+   */
+  sectionVariants(ref) {
+    const area = (loops) => loops.reduce((x, l) => x + l.s * Math.abs(signedArea(l.pts)), 0);
+    const e = this.get(ref);
+    if (!e || /ARBITRARY/.test(e.type)) return [];
+    let exact;
+    try { exact = area(this.profile(ref)); } catch { return []; }
+    if (!(exact > 0)) return [];
+    const out = [];
+    const tryOne = (label, opts) => {
+      let v;
+      try { v = area(this.profile(ref, 0, opts)); } catch { return; }
+      const ratio = v / exact;
+      if (Math.abs(ratio - 1) > 0.001 && !out.some((o) => Math.abs(o.ratio - ratio) < 1e-6)) out.push({ label, ratio });
+    };
+    tryOne("no fillets", { plain: true });
+    for (const sides of SECTION_POLYGON_SIDES) {
+      tryOne(`${sides}-gon circles`, { sides });
+      tryOne(`no fillets, ${sides}-gon circles`, { plain: true, sides });
+    }
+    return out;
   }
 
   // ---- representation items to solids ----------------------------------------

@@ -731,3 +731,101 @@ test("summary: area pairs are counted", () => {
   assert.ok(s.areaPairs > 0);
   assert.ok(s.areaAgree > 0 && s.areaAgree <= s.areaPairs);
 });
+
+// Three Tekla-style steel parts, mm, each 1 m long, with the stored volume and
+// weight computed by hand from a simplified section (Mini Project, Tekla):
+// - L80x80x8, root radius 12: stored from 8 x (80 + 80 - 8) = 1,216 mm2,
+//   the geometry has 1,216 + (1 - pi/4) x 144 = 1,246.90 mm2;
+// - a 60 x 1 round tube stored as 16-sided polygons: the annulus
+//   pi (30^2 - 29^2) = 185.35 mm2, as 16-gons 59 x 8 sin(pi/8) = 180.62 mm2;
+// - an IPE240 clipped by a half-space at one end, stored from the section
+//   without its four root radii (3,718.5 against 3,911.6 mm2).
+const steelFile = (storedL, storedTube, storedOdd) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#16=IFCDIRECTION((0.,0.,1.));
+#20=IFCLSHAPEPROFILEDEF(.AREA.,'L80/80/8',#13,80.,80.,8.,12.,$,$,$,$);
+#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,1000.);
+#22=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21));
+#23=IFCPRODUCTDEFINITIONSHAPE($,$,(#22));
+#24=IFCBEAM('1YvctVUKr0kugbFTf53O9A',$,'angle',$,$,#12,#23,'M/1');
+#25=IFCQUANTITYVOLUME('NetVolume',$,$,${storedL});
+#26=IFCQUANTITYWEIGHT('NetWeight',$,$,${storedL * 8000});
+#27=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53O9A',$,'BaseQuantities',$,$,(#25,#26));
+#28=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53O9A',$,$,$,(#24),#27);
+#30=IFCCIRCLEHOLLOWPROFILEDEF(.AREA.,'BUIS60/1',#13,30.,1.);
+#31=IFCEXTRUDEDAREASOLID(#30,#11,#16,1000.);
+#32=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#31));
+#33=IFCPRODUCTDEFINITIONSHAPE($,$,(#32));
+#34=IFCBEAM('1YvctVUKr0kugbFTf53O9B',$,'tube',$,$,#12,#33,'M/2');
+#35=IFCQUANTITYVOLUME('NetVolume',$,$,${storedTube});
+#37=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53O9B',$,'BaseQuantities',$,$,(#35));
+#38=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53O9B',$,$,$,(#34),#37);
+#40=IFCISHAPEPROFILEDEF(.AREA.,'IPE240',#13,120.,240.,6.2,9.8,15.);
+#41=IFCEXTRUDEDAREASOLID(#40,#11,#16,1000.);
+#42=IFCPLANE(#43);
+#43=IFCAXIS2PLACEMENT3D(#44,#16,$);
+#44=IFCCARTESIANPOINT((0.,0.,900.));
+#45=IFCHALFSPACESOLID(#42,.F.);
+#46=IFCBOOLEANCLIPPINGRESULT(.DIFFERENCE.,#41,#45);
+#47=IFCSHAPEREPRESENTATION($,'Body','Clipping',(#46));
+#48=IFCPRODUCTDEFINITIONSHAPE($,$,(#47));
+#49=IFCBEAM('1YvctVUKr0kugbFTf53O9C',$,'ipe',$,$,#12,#48,'M/3');
+#50=IFCQUANTITYVOLUME('NetVolume',$,$,${storedOdd});
+#51=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53O9C',$,'BaseQuantities',$,$,(#50));
+#52=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53O9C',$,$,$,(#49),#51);
+ENDSEC;END-ISO-10303-21;`;
+
+test("explanations: a stored volume from the section without fillets or with polygon tubes is simplified-section (Tekla)", async () => {
+  const { Geometry } = await import("./geom.mjs");
+  const plainL = 8 * 152 * 1e-6, tube16 = 59 * 8 * Math.sin(Math.PI / 8) * 1e-6; // m3 a metre
+  const plainI = (2 * 120 * 9.8 + (240 - 19.6) * 6.2) * 0.9e-6; // clipped to 900 mm
+  const res = takeoff(parseStep(steelFile(plainL, tube16, plainI)));
+  const [L, T, I] = res.rows;
+  close(L.computed.gross, (1216 + (1 - Math.PI / 4) * 144) * 1e-6, 1e-4);
+  close(T.computed.gross, Math.PI * 59 * 1e-6, 1e-4);
+  close(I.computed.gross, (3718.5 + (4 - Math.PI) * 225) * 0.9e-6, 1e-4);
+  for (const r of [L, T, I]) { assert.equal(r.check.net.reason, "simplified-section", `${r.name}: ${r.check.net.reason}`); assert.equal(r.trustStored, false); }
+  assert.equal(L.check.net.section, "no fillets");
+  assert.equal(T.check.net.section, "16-gon circles");
+  // the stored weight (8,000 kg/m3 on the plain section) is scaled to the geometry
+  const q = rowQuantities(L);
+  close(q.weight, L.computed.gross * 8000, 1e-6);
+  assert.equal(q.volumeSource, "computed");
+  // a ratio no simplification gives stays unexplained
+  const odd = takeoff(parseStep(steelFile(plainL * 0.9, tube16, plainI))).rows[0];
+  assert.equal(odd.check.net.reason, "unexplained");
+  // the variants themselves, from the profile entities
+  const g = new Geometry(parseStep(steelFile(1, 1, 1)));
+  const v = Object.fromEntries(g.sectionVariants(20).map((x) => [x.label, x.ratio]));
+  close(v["no fillets"], 1216 / (1216 + (1 - Math.PI / 4) * 144), 1e-4);
+  const t = Object.fromEntries(g.sectionVariants(30).map((x) => [x.label, x.ratio]));
+  close(t["8-gon circles"], (4 * Math.sin(Math.PI / 4)) / Math.PI, 1e-9); // 0.9003: Tekla's 20 x 1 tubes
+  assert.equal(t["no fillets"], undefined); // a round tube has none
+});
+
+test("explanations: one stored volume on every piece of a stair, equal to the stair's total, is assembly-total (skolebygg)", () => {
+  const vol = (value) => ({ kind: "volume", value });
+  const row = (id, cls, computed, sn) => ({ id, tag: `t${id}`, ifcClass: cls, assembly: 9, stored: sn == null ? {} : { NetVolume: vol(sn) }, computed: { status: "ok", gross: computed, net: computed, openings: 0 }, check: sn == null ? null : { net: { computed, stored: sn, rel: (computed - sn) / sn, agree: Math.abs(computed - sn) <= 0.02 * sn } } });
+  // flights 0.588, landings 0.665, stringers 0.0875 (railings left out) = 1.3401
+  const rows = [row(1, "IfcStairFlight", 0.588), row(2, "IfcSlab", 0.665), row(3, "IfcMember", 0.05, 1.3401), row(4, "IfcMember", 0.0375, 1.3401), row(5, "IfcRailing", 0.116)];
+  explainChecks(rows);
+  for (const r of [rows[2], rows[3]]) { assert.equal(r.check.net.reason, "assembly-total"); assert.equal(r.trustStored, false); }
+  assert.equal(rowQuantities(rows[2]).volume, 0.05); // the piece's own geometry, not the stair's
+  // one piece alone carrying a figure is not this cause
+  const lone = [row(1, "IfcStairFlight", 0.588), row(3, "IfcMember", 0.05, 0.638)];
+  explainChecks(lone);
+  assert.equal(lone[1].check.net.reason, "unexplained");
+});
+
+test("explanations: a stored 0 on an element with a body is not-stored, and the geometry is summed", () => {
+  const row = { tag: null, ifcClass: "IfcWindow", stored: { NetVolume: { kind: "volume", value: 0 } }, computed: { status: "ok", gross: 0.18356, net: 0.18356, openings: 0 }, check: { net: { computed: 0.18356, stored: 0, rel: Infinity, agree: false } } };
+  explainChecks([row]);
+  assert.equal(row.check.net.reason, "not-stored");
+  assert.equal(rowQuantities(row).volume, 0.18356);
+});

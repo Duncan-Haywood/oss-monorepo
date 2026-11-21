@@ -104,6 +104,16 @@ this tool says which they are
   with the raw output beside it (rerun 2026-11-20: 58 Revit members whose
   faceted faces were written reversed now agree,
   [eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).
+- **Why NetVolumes miss (2026-11-21).** Unexplained NetVolumes fell from 233
+  to 83 of 6,405: 120 Tekla steel parts store volume (and weight) from the
+  section without its root fillets or with round tubes as 8- or 16-sided
+  polygons, 2 to 11% under the profile's real area (the file's own
+  CrossSectionArea agrees with the geometry); 23 Revit stair stringers each
+  carry the whole stair's volume (flights + landings + stringers, to five
+  decimals); 7 skylights store 0. The BoQ sums the geometry for all three and
+  scales Tekla's stored weights to it; skolebygg's member volume drops from
+  18.16 to 11.52 m3
+  ([eval/netvolume-causes-2026-11-21.md](eval/netvolume-causes-2026-11-21.md)).
 - **Areas on the same models.** 6,509 of 7,883 stored areas agree with the
   section cut from the geometry (82.6%), all 1,667 wall GrossFootprintAreas
   among them; where they agree the median difference is 1e-15 relative or less
