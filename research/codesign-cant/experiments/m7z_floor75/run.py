@@ -68,7 +68,7 @@ def stress_summary(out, tr):
             rej = f"; rejected {np.mean([x[6] for x in t]) / R.BUDGET:.2f} of training candidates" if t else ""
             one = sorted((r for r in rs0 if r["law_name"] == ORDER[0]), key=lambda r: r["seed"])
             Ls.append(f"[{g}, {s}] D {np.mean([r['D'] for r in one]):.3f} m; L {np.mean([r['L'] for r in one]):.3f} m; "
-                      f"mass {np.mean([r['mass'] for r in one]):.3f} kg ({', '.join(f'{r['mass']:.3f}' for r in one)}); "
+                      f"""mass {np.mean([r['mass'] for r in one]):.3f} kg ({', '.join(f'{r["mass"]:.3f}' for r in one)}); """
                       f"pos kp {np.mean([r['pos_kp'] for r in one]):.2f}{rej}")
             for law in ORDER:
                 rs = sorted((r for r in rs0 if r["law_name"] == law), key=lambda r: r["seed"])

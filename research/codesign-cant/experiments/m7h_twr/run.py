@@ -131,10 +131,10 @@ def summarise(out, train, labels):
             if not rs: continue
             tr = [t for t in train if t[0] == geom] if lab == "free" else []
             rej = f"; rejected {np.mean([t[5] for t in tr]) / BUDGET:.2f} of training candidates" if tr else ""
-            L.append(f"[{geom}, {lab}] TWR {', '.join(f'{r['twr']:.2f}' for r in rs)}; cant {np.mean([r['alpha_deg'] for r in rs]):.1f} deg; "
+            L.append(f"""[{geom}, {lab}] TWR {', '.join(f'{r["twr"]:.2f}' for r in rs)}; cant {np.mean([r['alpha_deg'] for r in rs]):.1f} deg; """
                      f"mass {np.mean([r['mass'] for r in rs]):.3f} kg; hover W {np.mean([r['power'] for r in rs]):.1f}; cost ${np.mean([r['cost'] for r in rs]):.0f}; "
                      f"feasible {sum(r['feasible'] for r in rs)}/{len(rs)}{rej}")
-            L.append(f"  ki/kp {', '.join(f'{r['ki_over_kp']:.2f}' for r in rs)}; rho {', '.join(f'{r['rho']:.4f}' for r in rs)}; ceil {', '.join(f'{r['ceil']:.2f}' for r in rs)}")
+            L.append(f"""  ki/kp {', '.join(f'{r["ki_over_kp"]:.2f}' for r in rs)}; rho {', '.join(f'{r["rho"]:.4f}' for r in rs)}; ceil {', '.join(f'{r["ceil"]:.2f}' for r in rs)}""")
             for cap in CAPS:
                 for lev in LEVERS:
                     t = f"{cap:g}_{lev:g}"

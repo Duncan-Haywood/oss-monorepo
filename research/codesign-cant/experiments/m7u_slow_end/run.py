@@ -91,7 +91,7 @@ def summarise(out, tr):
             rej = f"; rejected {np.mean([x[6] for x in t]) / R.BUDGET:.2f} of training candidates" if t else ""
             one = [r for r in rs0 if r["law_name"] == "inherited 15 ms D^1.5"]
             Ls.append(f"[{g}, {s}] D {np.mean([r['D'] for r in one]):.3f} m; L {np.mean([r['L'] for r in one]):.3f} m; "
-                      f"mass {np.mean([r['mass'] for r in one]):.3f} kg ({', '.join(f'{r['mass']:.3f}' for r in sorted(one, key=lambda r: r['seed']))}); "
+                      f"""mass {np.mean([r['mass'] for r in one]):.3f} kg ({', '.join(f'{r["mass"]:.3f}' for r in sorted(one, key=lambda r: r['seed']))}); """
                       f"pos kp {np.mean([r['pos_kp'] for r in one]):.2f}{rej}")
             for law in LAWS:
                 rs = sorted((r for r in rs0 if r["law_name"] == law), key=lambda r: r["seed"])

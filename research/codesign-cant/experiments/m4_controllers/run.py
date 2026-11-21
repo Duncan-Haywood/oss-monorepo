@@ -69,9 +69,9 @@ def summarise(out):
              "ctrl  cant  rms deg (mean; per seed)                                              roll   yaw    gust8   J       P_hover W  chosen cant deg (median)  sat rp  sat yaw"]
     for c, cap in ARMS:
         rs = sel(c, cap)
-        lines.append(f"{c:4s}  {cap:3d}   {m(rs, 'rms'):6.2f} ({', '.join(f'{r['rms']:.2f}' for r in rs)})  {m(rs, 'roll'):5.2f}  {m(rs, 'yaw'):5.2f}  "
+        lines.append(f"""{c:4s}  {cap:3d}   {m(rs, 'rms'):6.2f} ({', '.join(f'{r["rms"]:.2f}' for r in rs)})  {m(rs, 'roll'):5.2f}  {m(rs, 'yaw'):5.2f}  """
                      f"{m(rs, 'rms_gust8'):6.2f}  {m(rs, 'J'):7.2f}  {m(rs, 'power'):8.0f}   {np.median([r['alpha_deg'] for r in rs]):5.1f} "
-                     f"({', '.join(f'{r['alpha_deg']:.0f}' for r in rs)})  {m(rs, 'sat_rp'):5.3f}   {m(rs, 'sat_yaw'):5.3f}")
+                     f"""({', '.join(f'{r["alpha_deg"]:.0f}' for r in rs)})  {m(rs, 'sat_rp'):5.3f}   {m(rs, 'sat_yaw'):5.3f}""")
     n = SEEDS
     lines += ["", "Paired by seed: cant <= 80 minus no cant, same law (negative = cant better)"]
     for c in CTRLS:

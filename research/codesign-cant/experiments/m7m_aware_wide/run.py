@@ -136,8 +136,8 @@ def summarise(out, train, labels):
             Ls.append(f"[{geom}, {lab}] cant {np.mean([r['alpha_deg'] for r in rs]):.1f} deg; L {np.mean([r['L'] for r in rs]):.3f} m; D {np.mean([r['D'] for r in rs]):.3f} m; "
                       f"mass {np.mean([r['mass'] for r in rs]):.3f} kg; hover W {np.mean([r['power'] for r in rs]):.1f}; tau_max {np.mean([r['tau_max'] for r in rs]):.3f} N m; "
                       f"tau/W {np.mean([r['tau_per_weight'] for r in rs]):.4f} m{rej}")
-            Ls.append(f"  mass {', '.join(f'{r['mass']:.3f}' for r in rs)}; pos kp {', '.join(f'{r['pos_kp']:.2f}' for r in rs)}; pos kd {', '.join(f'{r['pos_kd']:.2f}' for r in rs)}; "
-                      f"pos ki {', '.join(f'{r['pos_ki']:.3f}' for r in rs)}; att kp {', '.join(f'{r['att_kp']:.2f}' for r in rs)}; rho {', '.join(f'{r['rho']:.4f}' for r in rs)}")
+            Ls.append(f"""  mass {', '.join(f'{r["mass"]:.3f}' for r in rs)}; pos kp {', '.join(f'{r["pos_kp"]:.2f}' for r in rs)}; pos kd {', '.join(f'{r["pos_kd"]:.2f}' for r in rs)}; """
+                      f"""pos ki {', '.join(f'{r["pos_ki"]:.3f}' for r in rs)}; att kp {', '.join(f'{r["att_kp"]:.2f}' for r in rs)}; rho {', '.join(f'{r["rho"]:.4f}' for r in rs)}""")
             for c in conditions():
                 k = tag(*c)
                 dc = [a[f"C_{k}"] - b[f"C_{k}"] for a, b in zip(rs, base)]
