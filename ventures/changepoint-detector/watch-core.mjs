@@ -48,7 +48,11 @@ export const COUNT_DEFAULTS = { detector: 'bocpd-window', overdispersion: 'nb', 
  * hear (a median of 8 days on a 20% fall) because PELT waits until the new level is clear. Plain `pelt` (Eager) takes
  * the extra swings for changes, 39-148 false alerts per 1,000 days on the same sites.
  */
-export const COUNT_MIDDLE = { detector: 'pelt', overdispersion: 'nb' };
+export const COUNT_MIDDLE = { detector: 'pelt', overdispersion: 'nb', trend: 'gated' };
+// Since 2026-11-21 (eval/middle-trend-joint.prereg.md, README "The joint growth fit, gated", every H bar passed) Middle
+// also refits one growth rate under the steps and keeps it when it beats a flat level by log n: on sites growing 30%
+// over 240 days it alerted on 6 of 40 against plain PELT + NB's 27 (1.46 alerts per 1,000 days against 7.71), with the
+// same steps found on flat series and 0.2-0.7 more days unaware per fall. About 2.5x plain PELT + NB's time a check.
 export function withCountDefaults(opts = {}) {
   if ((opts.model ?? 'mean') !== 'poisson' || opts.detector != null || opts.overdispersion != null || opts.threshold != null) return opts;
   return { ...opts, ...COUNT_DEFAULTS };
@@ -537,7 +541,7 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
       : `Suggested: Quiet. The more eager settings would have sent more than ${fb} alerts per 100 checks on this history.`)
     : `Suggested: ${eagerName(res.suggest)}, the most eager setting that stayed at or under ${fb} alerts per 100 checks on this history.`);
   lines.push(`Budget: ${fb} alert${fb === 1 ? '' : 's'} per 100 checks, ${plainBudgetText(res.budget, every)}.`);
-  if (res.model === 'poisson' && res.settings[0]?.overdispersion === 'nb') lines.push('For counts (README "A middle setting for over-dispersed counts", pre-registered): on 2,200 fresh simulated shops this hint sent 2.37 false alerts per 1,000 checks and heard 1,131 of 1,200 steps; staying on Quiet (no hint) sent 0.72 and heard 1,056, and Middle alone sent 1.53 and heard 1,140, so on counts that bunch or swing beyond Poisson, Middle is a good place to start on a flat series. On a growing or wandering one it alerts on the trend itself: on simulated sites growing 30% over 240 days it alerted on 20 of 40 against Quiet\'s 1 (README "Middle as the count default? No").');
+  if (res.model === 'poisson' && res.settings[0]?.overdispersion === 'nb') lines.push('For counts (README "A middle setting for over-dispersed counts", pre-registered): on 2,200 fresh simulated shops this hint sent 2.37 false alerts per 1,000 checks and heard 1,131 of 1,200 steps; staying on Quiet (no hint) sent 0.72 and heard 1,056, and Middle alone sent 1.53 and heard 1,140, so on counts that bunch or swing beyond Poisson, Middle is a good place to start. Since 2026-11-21 Middle allows for steady growth: on simulated sites growing 30% over 240 days it alerted on 6 of 40 against Quiet\'s 2 and the old flat Middle\'s 27; on a level that wanders at random it still alerts on the wander (20 of 40 at a 1% daily walk; README "The joint growth fit, gated").');
   lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 15.7 (replayed with the shipped persist 2), and on 6 held-out series it changed nothing. On a second labelled set it was not confirmed: on 47 server, traffic, ad and Twitter series from the Numenta Anomaly Benchmark, watched hourly, it reached 49 of 61 later anomaly windows against the default\'s 50 (README "Round 10"). Nor on a third: on 33 fault runs of a water-pump testbed (SKAB, all 8 sensors watched), picked from a normal run, it reached 118 of 123 marked changes against the default\'s 97, but only 28.4% of its alerts sat at a marked change against the default\'s 36.8%, at 163 alerts per 1,000 checks against 69 (README "Round 12").'
     + (Math.abs(res.budget - HINT_BUDGET) > 1e-9 ? ` Those numbers are for the tested budget of ${HINT_BUDGET} per 100 (${plainBudgetText(HINT_BUDGET)}); at about 1 a month the same series reached 19 of 31 at 19.3 per 1,000, at about 1 a week 29 of 31 at 74.0 per 1,000.` : ''));
   const wk = res.settings.find((s) => s.key === res.suggest)?.weekly ?? res.settings.find((s) => s.weekly)?.weekly;
@@ -689,13 +693,14 @@ export function plainBudgetText(budget, every = 'day') {
  */
 export function choiceOptions(c) {
   if (!c || !DETECTORS.includes(c.detector)) return null;
-  return { detector: c.detector, ...(c.overdispersion != null ? { overdispersion: c.overdispersion } : {}), ...(c.threshold != null ? { threshold: c.threshold } : {}) };
+  return { detector: c.detector, ...(c.overdispersion != null ? { overdispersion: c.overdispersion } : {}), ...(c.threshold != null ? { threshold: c.threshold } : {}), ...(c.trend != null ? { trend: c.trend } : {}) };
 }
 
 /** Plain words for a setting: its detector, and the count default's cost and threshold when it has them. */
 export function settingWords(s) {
   const nb = s.overdispersion === 'nb' ? ', negative-binomial cost' : s.overdispersion ? ', clumping-corrected cost' : '';
-  return `${s.detector}${nb}${s.threshold != null ? `, alert threshold ${s.threshold}` : ''}`;
+  const tr = s.trend === 'gated' ? ', growth term when it earns its place' : s.trend === 'robust' ? ', robust growth term' : '';
+  return `${s.detector}${nb}${tr}${s.threshold != null ? `, alert threshold ${s.threshold}` : ''}`;
 }
 
 /** Below this many points the history is too short to choose from (round 6 skipped series with fewer than 30). */

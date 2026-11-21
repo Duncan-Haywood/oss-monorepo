@@ -126,7 +126,7 @@ Options:
                             (README "A Middle that allows for growth").
   --trend gated             for counts: the growth rate refitted under the steps (alternating with them), kept only
                             when it beats a flat level by log n; steadier from one check to the next than robust,
-                            about 2.5x its time a check (README "The joint growth fit, gated").
+                            about 2.5x its time a check; the count Middle since 2026-11-21 (README "The joint growth fit, gated").
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)
