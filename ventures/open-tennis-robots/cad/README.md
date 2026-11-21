@@ -77,12 +77,67 @@ package as committed before 2026-11-20 would have hit, all fixed in the same cha
 Smaller ones: the clamp-ring screws were M4 x 12 with nylocs over an 8 mm stack
 (now M4 x 16); the disc holes for the M5 rivet nuts were 5.5 mm (now 7.0 mm,
 `rivet_nut_hole_d`); the standoffs' screws from below reached 3 mm into the
-standoff (now M3 x 10, 5 mm). The yoke-lift microswitches have no mount in the
-CAD yet; the guide says so.
+standoff (now M3 x 10, 5 mm). The yoke-lift microswitches had no mount in the
+CAD; they have one since 2026-11-21 (next section).
 
 Caveats: the bought-in parts are envelopes drawn from `params.py`, so the stack
 check is only as good as those numbers (nut heights are DIN 985; a rivet nut's
 flange is taken as 1 mm). The guide has not been followed by anyone building one.
+
+## Yoke-lift switches, the front bumper (2026-11-21)
+
+The drum hangs on two arms; when it meets something it cannot roll over (a
+foot, a net post) it climbs it and the arms turn up. The firmware has had the
+bumper rule since v0.1 (`bumper()` on GPIO 13/14, active low: only reversing
+is allowed while either reads closed), but nothing in the CAD closed those
+switches. Now:
+
+- **A cam lobe on each arm** (`collector.bump_cam_points`, drawn from
+  `Collector.bump_cam_profile`): a fin of the laser-cut arm behind the pivot.
+  As the arm turns up, the fin comes down onto a roller sitting on the
+  horizontal line 50 mm behind the pivot axis. Its 45 deg ramp pushes the
+  roller out 1.7 mm (pretravel 1.2 plus half the 1.0 overtravel, so the click
+  is mid-travel) and its arc holds it there for every larger lift. This is the
+  feeder's azimuth home cam (`Feeder.home_switch_design`) turned on its side.
+- **A printed tower** (`bump_switch_tower`, two of one STL) behind each pivot
+  block, inboard of the arm's plane. A D2F-L3 class roller-lever switch
+  screws to its outboard face with two M2 self-tappers, lever in the arm's
+  plane. Two M4 inserts underneath take M4 x 12 and washers up through **slots**
+  in the base plate, 1.5 mm either way along x, which moves the click by
+  about -7/+7 mm of drum rise: stand the drum on a 10 mm block and slide the
+  tower until it clicks (guide step 12).
+- **Wiring**: common and normally-open to GND and GPIO 13 (left) / 14 (right).
+  The switch closes when the arm lifts, which is what `main.py` reads as the
+  bumper. A cut wire reads as no bump, as it did before; the e-stop chain, not
+  this switch, is the fail-safe stop.
+
+What the build checks (`Collector.check_bump_switch`, `collector.bump_sweep`):
+
+| Check | Number (defaults) |
+| --- | --- |
+| First touch of lobe on roller | 4.2 mm of drum rise (rule: not below `bump_rest_mm`, 3 mm, so court bumps and the pivot's 0.2 mm play ride free) |
+| Click, from the formula | 10.0 mm of drum rise (2.35 deg of arm lift) |
+| Click, measured on the CAD | 10.4 mm: the roller is pushed out by bisection on the solid arm and roller at each lift, and the click is the lift where the push reaches the pretravel (rule: within 1 mm of the design) |
+| Switch part-to-part (0.3 mm at the roller) | -1.5/+1.4 mm of drum rise before the tower is set; repeatability (0.05 mm) 0.24 mm |
+| Push on the lobe | 1.69-1.70 mm from 5 deg of lift to the stop, inside the lever's usable 1.5-1.9 mm |
+| The yoke's stop | the lobe's ramp lands on the base plate at 38.7 deg of lift (131 mm of drum rise); the lobe runs to 45 deg, so the switch reads closed all the way there |
+| Clashes, lift 0 to the stop | none but the lobe on the roller (6 poses) |
+
+The radius took one try to set: with the roller 30 mm from the pivot, 1.2 mm
+of pretravel up a 45 deg ramp is 2.3 deg of arc, which is all of the 2.35 deg
+between rest and a 10 mm rise, so the lobe would have touched the roller
+0.4 mm up and ridden on it at rest. At 50 mm it first touches at 4.2 mm. The
+rule that fails it is `bump_rest_mm`.
+
+Caveats: the switch figures are the same assumptions as the feeder's home
+switch (a D2F-01L3 class part; check yours, and the M2 pitch). Whether 10 mm
+is the right trip is not measured: a drum squeezing a ball between its rods may
+lift by some millimetres (the rods are 3 mm wire and bend a lot over 450 mm, so
+probably little), so the first drive over a scatter of balls should log the
+switch. The M2 heads face the wheel, 13.6 mm
+outboard of them, so no screwdriver reaches them on the robot: the guide fits
+each switch to its tower on the bench first, and a switch is changed by taking
+its tower off from below. Not checked: the lobe's edge wear on the roller.
 
 ## Feeder assembly guide (2026-11-20)
 

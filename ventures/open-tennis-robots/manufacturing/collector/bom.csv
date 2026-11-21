@@ -5,10 +5,11 @@ drum_disc,laser,2,aluminium 5052 5 mm,18 rod holes on R158; 22 mm bore takes a 6
 rod_clamp_ring,laser,2,aluminium 5052 3 mm,Holds the rod ends in the disc.
 drum_cover,laser,1,aluminium 5052 3 mm,"Fixed end cover, M5 button heads into the disc's rivet nuts."
 drum_hatch,laser,1,aluminium 5052 3 mm,Emptying hatch on M5 thumb screws; its slot lets it off past the axle spacer.
-yoke_arm,laser,2,aluminium 5052 5 mm,Swings on an 8 mm shoulder bolt at the pivot; the drum's M8 axle bolt clamps the 608's inner race; drum hangs on its own weight.
+yoke_arm,laser,2,aluminium 5052 5 mm,"Swings on an 8 mm shoulder bolt at the pivot; the drum's M8 axle bolt clamps the 608's inner race; drum hangs on its own weight. The lobe behind the pivot presses the yoke-lift switch once the drum rises 10 mm: deburr its ramp, the roller runs on it."
 motor_clamp_cradle,print,2,PETG,"PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle (top and bottom); M4x50 through the cap."
 motor_clamp_cap,print,2,PETG,"PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle (top and bottom); M4x50 through the cap."
 pivot_block,print,2,PETG,M4 heat-set inserts underneath; 40 mm shoulder bolt through.
+bump_switch_tower,print,2,PETG,"Yoke-lift switch tower, one behind each pivot block. M4 heat-set inserts underneath; M4 x 12 up through the base plate's slots (1.5 mm either way). M2 pilots 6.5 mm apart on the outboard face for the switch: check against yours. 100% infill."
 caster_adapter,print,1,PETG,Spacer between base and a ball caster. Its four M4s go up through the plate into the mast socket; fit them before the caster. Drill the caster's own pattern clear of their heads.
 mast_socket,print,1,PETG,20 mm tube push fit; add an M4 grub screw if it rattles. Held by the caster adapter's M4s.
 drum_rod,stock,18,"3 mm music wire, cut 460 mm",Deburr ends.
@@ -20,10 +21,14 @@ ball_caster,cots,1,"ball caster, 25 mm mounting height (e.g. 3/4-1 in ball)",
 drum_bearing,cots,2,"608 (or F608) bearing, 8 x 22 x 7",
 axle_spacer,cots,2,"spacer 8.1 mm ID x 12 mm OD x 7 mm, aluminium or steel (through the cover's 14 mm hole, onto the 608's inner race only)",
 battery,cots,1,"24 V LiFePO4 10 Ah with BMS, max 80 x 180 x 100 mm",
+bump_switch,cots,2,"Subminiature roller-lever microswitch (D2F-01L3 class), about 12.8 x 5.8 x 6.5 mm; normally-open contact to GPIO 13 (left) / 14 (right) and GND: it closes when the drum rises 10 mm",
+bump_switch_lever,cots,2,"the switch's roller lever (free position), part of bump_switch",
 M4 x 50 socket cap screw,cots,8,M4 x 50 socket cap screw,motor clamp caps
-M4 x 12 socket cap screw,cots,8,M4 x 12 socket cap screw,"clamp cradles and pivot blocks, from below"
+M4 x 12 socket cap screw,cots,12,M4 x 12 socket cap screw,"clamp cradles, pivot blocks and yoke-lift switch towers, from below"
 M4 x 20 socket cap screw,cots,4,M4 x 20 socket cap screw,"caster adapter, base plate and mast socket, from below"
-"M4 heat-set insert, 5.7 mm long",cots,20,"M4 heat-set insert, 5.7 mm long","cradles, pivot blocks, mast socket (5.6 mm pockets)"
+"M4 heat-set insert, 5.7 mm long",cots,24,"M4 heat-set insert, 5.7 mm long","cradles, pivot blocks, switch towers, mast socket (5.6 mm pockets)"
+M4 washer (ISO 7089),cots,4,M4 washer (ISO 7089),"under the switch towers' screws, across the base plate's slots"
+M2 x 10 self-tapping screw (for plastic),cots,4,M2 x 10 self-tapping screw (for plastic),yoke-lift switches onto their towers
 M4 x 16 button head + nyloc nut,cots,12,M4 x 16 button head + nyloc nut,rod clamp rings
 M5 x 12 button head,cots,6,M5 x 12 button head,fixed drum cover
 "M5 thumb screw, 12 mm",cots,6,"M5 thumb screw, 12 mm",hatch drum cover
@@ -40,7 +45,6 @@ ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),firmwar
 "Dual DC motor driver, 10 A/ch, PWM+DIR",cots,1,"Dual DC motor driver, 10 A/ch, PWM+DIR",e.g. Cytron MDD10A class
 5 V 5 A buck converter,cots,1,5 V 5 A buck converter,Pi supply
 22 mm NC mushroom e-stop + 24 V contactor,cots,1,22 mm NC mushroom e-stop + 24 V contactor,hard power cut
-Lever microswitch,cots,2,Lever microswitch,yoke-lift bumper sensing
 BNO085 (or similar) IMU,cots,1,BNO085 (or similar) IMU,yaw
 "25 mm hook-and-loop strap, 600 mm",cots,1,"25 mm hook-and-loop strap, 600 mm",battery
 15 A blade fuse + holder,cots,1,15 A blade fuse + holder,battery positive

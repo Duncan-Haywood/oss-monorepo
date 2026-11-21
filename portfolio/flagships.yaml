@@ -405,11 +405,11 @@ flagships:
       match play recap; next: a real league's season. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
-      CAD and firmware with no outside input (build123d: pypi venv, 2 min). Take-up
-      spring bracket in the CAD 2026-11-20 (cad/README.md). Next buildable: the
-      collector's yoke-lift switch mounts in the CAD; a wedge squaring the hopper
-      posts' tops to the shelf; joints the feeder guide leaves unchecked (shoulder
-      bolts, lift screws). Firmware survey tuning is settled on simulated data
+      CAD and firmware with no outside input (build123d: pypi venv, 2 min).
+      Yoke-lift switches (cam lobe, tower, slots) in the CAD 2026-11-21
+      (cad/README.md). Next buildable: a wedge squaring the hopper posts' tops to
+      the shelf; joints the feeder guide leaves unchecked (shoulder bolts, lift
+      screws). Firmware survey tuning is settled on simulated data
       (firmware/esp32/README.md, NEXT.md): next information there is a real wheel's
       tach log.
     why: >-
@@ -432,15 +432,17 @@ flagships:
       on the shuttle and the servo's loaded stroke time and stall current; click the
       home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
       stop with a scale; hang a real hose from a tube; bend a built cable loop
-      through the actuator's travel. Scope a real contactor's pull-in and bounce.
-      Wire the RESET latch (2026-11-18, hardware/electronics.md "Reset at the
-      machine") and check a released e-stop stays dark until RESET. Regen
-      (cad/README.md): scope the bus on a 20% slow-down; log a real ESC braking and
-      the battery reading noise. Lift (cad/README.md): weigh a belt and a flight,
-      film the empty strands; drag a capped cleat over a strip; scope the lift shunt
-      on a start and a stall; read the gearmotor's rotor inertia; set a built slip
-      hub with a scale, hold a flight, watch it slip and trip; twist a jaw coupling
-      with a lever and a scale for its stiffness and play. More open items: NEXT.md.
+      through the actuator's travel. Drive the collector over scattered balls and
+      log the yoke-lift switches (a false trip raises bump_lift_mm). Scope a real
+      contactor's pull-in and bounce. Wire the RESET latch (2026-11-18,
+      hardware/electronics.md "Reset at the machine") and check a released e-stop
+      stays dark until RESET. Regen (cad/README.md): scope the bus on a 20%
+      slow-down; log a real ESC braking and the battery reading noise. Lift
+      (cad/README.md): weigh a belt and a flight, film the empty strands; drag a
+      capped cleat over a strip; scope the lift shunt on a start and a stall; read
+      the gearmotor's rotor inertia; set a built slip hub with a scale, hold a
+      flight, watch it slip and trip; twist a jaw coupling with a lever and a scale
+      for its stiffness and play. More open items: NEXT.md.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

@@ -66,11 +66,11 @@ def collector_steps(p: Collector) -> list[Step]:
     shoulder = next(n for n in F if "shoulder bolt" in n)
     return [
         Step("Prepare the printed parts and the drum discs", [], [
-            ("M4 heat-set insert, 5.7 mm long", 20), ("M5 rivet nut (blind insert), aluminium", 12)],
+            ("M4 heat-set insert, 5.7 mm long", 24), ("M5 rivet nut (blind insert), aluminium", 12)],
             "soldering iron with an M4 insert tip, M5 rivet nut tool",
             f"Melt one M4 insert into each {p.insert_hole_d:g} mm pocket: 4 in the top face of each motor clamp "
             "cradle (where the cap meets it), 2 in the underside of each cradle, 2 in the underside of each pivot "
-            "block, and 4 in the underside of the mast socket's flange. Press each one flush and square. Set an M5 "
+            "block, 2 in the underside of each yoke-lift switch tower, and 4 in the underside of the mast socket's flange. Press each one flush and square. Set an M5 "
             f"rivet nut in each of the six {p.rivet_nut_hole_d:g} mm holes of both drum discs, flange on the outer "
             f"face (the face away from the rods). A standard {RIVET_FLANGE:g} mm flange holds the cover that far off "
             "the disc; the arm gap allows for it.", image=False),
@@ -120,19 +120,29 @@ def collector_steps(p: Collector) -> list[Step]:
              "an axle spacer through each cover's centre hole onto the bearing's inner race, and bolt each arm "
              "end to it with an M8 x 30 from outside, nyloc on the inner race (reach it between the rods). The "
              "drum should roll freely and the arms lift and drop on their own weight."),
+        Step("Yoke-lift switches (the front bumper)", ["bump_switch_tower", "bump_switch", "bump_switch_lever"],
+             [("M4 x 12 socket cap screw", 4), ("M4 washer (ISO 7089)", 4), ("M2 x 10 self-tapping screw (for plastic)", 4)],
+             "3 mm hex key, small Phillips screwdriver, multimeter, a 10 mm block",
+             f"On the bench (the wheel hides the screws once it is on), screw each switch to the outboard face of its "
+             f"tower with two M2 self-tappers, roller toward the pivot and lever in the arm's plane. Stand each tower behind its pivot block, outboard face to the arm, and "
+             f"fit two M4 x 12 with washers up through the base plate's slots, finger tight, tower in the middle of "
+             f"its slots. With a meter on the switch, stand both drum discs on a {p.bump_lift_mm:g} mm block and slide "
+             f"each tower along its slots until its switch just clicks closed; tighten. Off the block, both read open. "
+             f"The lobe on each arm then holds its switch closed from {p.bump_lift_mm:g} mm of drum rise to the "
+             f"yoke's stop, where the lobe lands on the plate."),
         Step("Mast and camera", ["mast_tube"], [("Wide-angle camera module + 1 m ribbon/USB", 1)], "",
              "Push the tube into the socket (an M4 grub screw if it rattles) and mount the camera at the top, "
              "looking forward and down over the drum."),
         Step("Electronics", [], [("Raspberry Pi 5 (4 GB) or Pi 4", 1), ("M2.5 x 6 screw + 6 mm standoff", 4),
                                  ("ESP32 dev board (ESP32-WROOM-32)", 1), ("Dual DC motor driver, 10 A/ch, PWM+DIR", 1),
                                  ("5 V 5 A buck converter", 1), ("22 mm NC mushroom e-stop + 24 V contactor", 1),
-                                 ("BNO085 (or similar) IMU", 1), ("Lever microswitch", 2)],
+                                 ("BNO085 (or similar) IMU", 1)],
              "screwdrivers, crimp tool, multimeter",
              "Mount the Pi on its M2.5 pattern and the ESP32, motor driver, buck converter and IMU on the 10 mm M3 "
              "grid. Fit the e-stop in its hole and the contactor beside it. Wire to hardware/electronics.md (pin "
-             "map, power budget, e-stop chain). The two lever switches sense the yoke lifting over an obstacle: "
-             "their mounting is not in the CAD yet, so place them where each arm's lower edge closes them when "
-             "the drum rises about 10 mm.", image=False),
+             "map, power budget, e-stop chain). Run each yoke-lift switch's common and normally-open tags to GND and "
+             "GPIO 13 (left) or 14 (right): the switch closes when its arm lifts, which the firmware reads as the "
+             "bumper.", image=False),
         Step("Before the first power-up", [], [], "multimeter",
              "With the fuse out: check the e-stop opens the contactor's coil circuit, and that there is no short "
              "from battery positive to the frame. Then fit the fuse with the wheels off the ground and the e-stop "
@@ -325,6 +335,7 @@ def collector_joints(p: Collector) -> list[Joint]:
     ring_out = yo + p.clamp_ring_t
     arm_out = p.arm_inner_y + p.arm_t
     pilot_cradle = p.axle_z - p.base_top - 6
+    bh = p.bump_switch_design()
     return [
         Joint("motor clamp cap", "M4 x 50 socket cap screw", 50, 4, "insert", (p.clamp_bolt_x, ymid + 12, 0), "z",
               top, -1, 2.3, 3.5, "motor_clamp_cradle", pilot_cradle),
@@ -345,6 +356,11 @@ def collector_joints(p: Collector) -> list[Joint]:
               4.3, 6.0),
         Joint("drum axle", "M8 x 30 hex bolt + M8 nyloc nut", 30, 8, "nut", (p.drum_x, 0, p.drum_z), "y", arm_out,
               -1, 4.3, 5.9),
+        Joint("switch tower to base", "M4 x 12 socket cap screw", 12, 4, "insert", (*C._bump_tower_bolts(p)[0], 0),
+              "z", p.base_z, 1, 2.3, 3.5, "bump_switch_tower", 12, extra=0.8),
+        Joint("switch to tower", "M2 x 10 self-tapping screw (for plastic)", 10, 2, "tapped",
+              (bh["x_body"], 0, p.pivot_z + p.bump_sw_hole_pitch / 2), "y", bh["y_mid"] + p.bump_sw_body[2] / 2, -1,
+              1.0, 1.9, "bump_switch_tower", C.BUMP_PILOT_DEPTH),
         Joint("standoff to base", "M3 x 10 screw", 10, 3, "standoff", (*C._tray_corners(p)[0], 0), "z", p.base_z,
               1, 1.8, 2.6, "standoff"),
         Joint("tray to standoff", "M3 x 8 screw", 8, 3, "standoff", (*C._tray_corners(p)[0], 0), "z",

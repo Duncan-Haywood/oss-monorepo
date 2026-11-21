@@ -46,9 +46,11 @@ def fasteners(p: Collector) -> list[tuple[str, int, str]]:
     cover_bolts = len(C._cover_bolts(p))
     return [
         ("M4 x 50 socket cap screw", 8, "motor clamp caps"),
-        ("M4 x 12 socket cap screw", 4 + 4, "clamp cradles and pivot blocks, from below"),
+        ("M4 x 12 socket cap screw", 4 + 4 + 4, "clamp cradles, pivot blocks and yoke-lift switch towers, from below"),
         ("M4 x 20 socket cap screw", 4, "caster adapter, base plate and mast socket, from below"),
-        ("M4 heat-set insert, 5.7 mm long", 8 + 4 + 4 + 4, f"cradles, pivot blocks, mast socket ({p.insert_hole_d:g} mm pockets)"),
+        ("M4 heat-set insert, 5.7 mm long", 8 + 4 + 4 + 4 + 4, f"cradles, pivot blocks, switch towers, mast socket ({p.insert_hole_d:g} mm pockets)"),
+        ("M4 washer (ISO 7089)", 4, "under the switch towers' screws, across the base plate's slots"),
+        ("M2 x 10 self-tapping screw (for plastic)", 4, "yoke-lift switches onto their towers"),
         ("M4 x 16 button head + nyloc nut", 2 * clamp_bolts, "rod clamp rings"),
         ("M5 x 12 button head", cover_bolts, "fixed drum cover"),
         ("M5 thumb screw, 12 mm", cover_bolts, "hatch drum cover"),
@@ -69,7 +71,6 @@ COTS_EXTRA = [
     ("Dual DC motor driver, 10 A/ch, PWM+DIR", 1, "e.g. Cytron MDD10A class"),
     ("5 V 5 A buck converter", 1, "Pi supply"),
     ("22 mm NC mushroom e-stop + 24 V contactor", 1, "hard power cut"),
-    ("Lever microswitch", 2, "yoke-lift bumper sensing"),
     ("BNO085 (or similar) IMU", 1, "yaw"),
     ("25 mm hook-and-loop strap, 600 mm", 1, "battery"),
     ("15 A blade fuse + holder", 1, "battery positive"),
@@ -325,7 +326,13 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
     rules = p.check()
     parts = M.all_parts(p)
     clash = collisions(parts)
-    turning = gravity = None
+    turning = gravity = bump = None
+    if not feeder:
+        bump_bad, bump = C.bump_sweep(p, parts)
+        clash += bump_bad
+        if abs(bump["click_rise_mm"] - p.bump_lift_mm) > 1.0:
+            rules = rules + [f"yoke-lift switch clicks at {bump['click_rise_mm']:.1f} mm of drum rise on the CAD, not "
+                             f"the {p.bump_lift_mm:g} mm designed"]
     if feeder:
         clash += elevation_sweep(p)
         clash += azimuth_sweep(p)
@@ -418,6 +425,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
                       f"step order, head access, extrusion end bores: {'pass' if not guide_bad else 'FAIL'}")
     else:
         length, width = p.overall
+        bh = p.bump_switch_design()
         checks = [
             f"design rules: {'pass' if not rules else '; '.join(rules)}",
             f"collisions between parts: {'none' if not clash else '; '.join(clash)}",
@@ -428,10 +436,21 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
             f"made-part mass (estimate, excludes bought-in parts): {mass_g / 1000:.1f} kg",
             f"assembly guide (guide/ASSEMBLY.md): {len(joint_rows)} fastener stacks, part and BOM tally, step "
             f"order, hatch removal: {'pass' if not guide_bad else 'FAIL'}",
+            f"yoke-lift switches: the arm's lobe first touches the roller at {bh['contact_rise_mm']:.1f} mm of drum "
+            f"rise and clicks it at {bump['click_rise_mm']:.1f} mm (measured on the CAD; designed {p.bump_lift_mm:g}, "
+            f"switch tolerance {bh['tol_rise_mm'][0]:+.1f}/{bh['tol_rise_mm'][1]:+.1f} mm, set it with the tower's "
+            f"slots: {bh['slot_rise_mm'][0]:+.0f}/{bh['slot_rise_mm'][1]:+.0f} mm); held closed to the yoke's stop "
+            f"(lobe on the base plate) at {bump['stop_deg']:.1f} deg, {bump['stop_rise_mm']:.0f} mm up",
         ]
         derived = {"n_rods": p.n_rods, "rod_gap_mm": round(p.rod_gap, 2), "rod_len_mm": p.rod_len,
                    "track_mm": p.track, "overall_mm": [round(length), round(width)],
-                   "drum_capacity_balls": p.drum_capacity(), "made_part_mass_kg": round(mass_g / 1000, 2)}
+                   "drum_capacity_balls": p.drum_capacity(), "made_part_mass_kg": round(mass_g / 1000, 2),
+                   "bump_switch": {"contact_rise_mm": round(bh["contact_rise_mm"], 2),
+                                   "click_rise_mm": round(bump["click_rise_mm"], 2),
+                                   "tol_rise_mm": [round(x, 2) for x in bh["tol_rise_mm"]],
+                                   "slot_rise_mm": [round(x, 1) for x in bh["slot_rise_mm"]],
+                                   "stop_deg": round(bump["stop_deg"], 2), "stop_rise_mm": round(bump["stop_rise_mm"], 1),
+                                   "roller_push_mm_by_lift_deg": {str(k): v for k, v in bump["pushes"].items()}}}
     (out / "README.txt").write_text(readme.format(version=__version__, checks="\n".join("- " + c for c in checks)))
     manifest = {
         "generator": f"otr_cad {__version__}",

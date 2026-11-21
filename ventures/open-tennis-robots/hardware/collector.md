@@ -27,8 +27,10 @@ it into a basket.
 
 The drum hangs on two yoke arms that pivot on the base. It rides on its
 own weight, so it follows uneven courts. If the drum is pushed back hard
-(someone's foot, a net post), the arms lift and a microswitch on the pivot
-stops the drive. That is the front bumper.
+(someone's foot, a net post), the arms lift and a cam lobe on each arm
+closes a roller microswitch behind the pivot once the drum has risen about
+10 mm; the firmware then allows only reversing. That is the front bumper
+(CAD and checks: `../cad/README.md`, "Yoke-lift switches").
 
 v0.1 proposed a powered paddle roller and a curved ramp. The CAD showed
 that the ramp could not reliably drop balls into a hopper above it, and
