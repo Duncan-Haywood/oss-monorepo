@@ -51,12 +51,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">SALESFORCE LEAD IMPORT CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my Salesforce lead import reject rows or create duplicates?</h1>
-    <p>Paste or drop your <strong>lead CSV</strong> and get every problem <strong>with its line number</strong> before you run the Data Import Wizard or Data Loader: <strong>rows with no LastName or Company</strong>, <strong>the same email twice</strong>, several addresses in one cell, <code>gmial.com</code> typos, a <strong>Status</strong> your org does not have, <code>AnnualRevenue</code> written as <code>$1.2M</code>, <code>NumberOfEmployees</code> as <code>11-50</code>, phone numbers Excel turned into <code>4.15556E+09</code>, and dates that <strong>mix 03/14 and 14/03</strong>. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <p class="lede">Paste or drop your <strong>lead CSV</strong> and get every problem <strong>with its line number</strong> before you run the Data Import Wizard or Data Loader. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>rows with no LastName or Company</strong>, <strong>the same email twice</strong>, several addresses in one cell, <code>gmial.com</code> typos, a <strong>Status</strong> your org does not have, <code>AnnualRevenue</code> written as <code>$1.2M</code>, <code>NumberOfEmployees</code> as <code>11-50</code>, phone numbers Excel turned into <code>4.15556E+09</code>, and dates that <strong>mix 03/14 and 14/03</strong>.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Salesforce, Inc. Field names, picklist defaults and limits are read from memory of Salesforce's public import documentation; no Salesforce org was available when this was built, and your org may have custom picklists, validation rules and required fields.</p>
   </header>
 <main>

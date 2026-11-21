@@ -51,12 +51,14 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">WOOCOMMERCE PRODUCT CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why did my WooCommerce product import fail?</h1>
-    <p>Paste or drop your <strong>product CSV</strong> and get every problem <strong>with its line number</strong> before you import: variations whose <strong>Parent</strong> matches no row, <strong>duplicate SKUs</strong>, a variation value the parent does not list, prices like <code>$24.00</code> or <code>12,50</code>, a sale price above the regular price, day-first sale dates, barcodes with a wrong check digit, image URLs the shop cannot fetch, SKUs Excel turned into <code>1.23457E+12</code>, and semicolon-separated files. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <p class="lede">Paste or drop your <strong>product CSV</strong> and get every problem <strong>with its line number</strong> before you import. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags variations whose <strong>Parent</strong> matches no row, <strong>duplicate SKUs</strong>, a variation value the parent does not list, prices like <code>$24.00</code> or <code>12,50</code>, a sale price above the regular price, day-first sale dates, barcodes with a wrong check digit, image URLs the shop cannot fetch, SKUs Excel turned into <code>1.23457E+12</code>, and semicolon-separated files.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of WooCommerce and Automattic. Column names and rules are read from memory of WooCommerce's public product CSV importer documentation; no WooCommerce import was available when this was built.</p>
   </header>
 <main>

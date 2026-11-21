@@ -49,12 +49,14 @@
     
     textarea.small { min-height: 90px; }
   </style>
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">PAYROLL HOURS CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why do my payroll hours import wrong or get rejected?</h1>
-    <p>Paste or drop your <strong>timesheet or hours CSV</strong> and get every problem <strong>with its line number</strong> before you key or import it into payroll: <strong>8:30 mixed with 8.5</strong>, text like <code>8h</code>, <strong>dates Excel turned into serial numbers</strong> or mixed day-first and month-first, <strong>the same person and day twice</strong>, <strong>hours over 24</strong>, <strong>Start and End times that disagree with the hours typed</strong>, overnight shifts, and names with an unquoted comma that shift the columns. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <p class="lede">Paste or drop your <strong>timesheet or hours CSV</strong> and get every problem <strong>with its line number</strong> before you key or import it into payroll. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <details class="hero-more"><summary>What it checks</summary><p>It flags <strong>8:30 mixed with 8.5</strong>, text like <code>8h</code>, <strong>dates Excel turned into serial numbers</strong> or mixed day-first and month-first, <strong>the same person and day twice</strong>, <strong>hours over 24</strong>, <strong>Start and End times that disagree with the hours typed</strong>, overnight shifts, and names with an unquoted comma that shift the columns.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of any payroll or time-tracking vendor. It checks the sheet, not any one vendor's importer, whose exact columns it does not claim to know.</p>
     <p class="note"><strong>About pay rules.</strong> Overtime, meal-break, minimum-wage and record-keeping rules depend on where you operate. This tool checks formatting and arithmetic. It never enters, removes or recalculates anyone's pay, and a clean result is not evidence that anyone was paid correctly.</p>
   </header>
