@@ -36,7 +36,9 @@
   shipped 2026-11-21 (eval/msproject-codes-2026-11-21.md). Activity UDFs
   as Number/Cost/Date/Text fields shipped 2026-11-21
   (eval/msproject-udfs-2026-11-21.md; P6 has no yes/no UDF, so no Flag
-  fields). Next: resource and WBS UDFs (Project's resource custom fields);
+  fields). Resource UDFs as resource fields shipped 2026-11-21
+  (eval/rsrc-udfs-2026-11-21.md, both directions). Next: WBS UDFs (on the
+  summary tasks);
   keep the Date UDF start/finish subtype on the way back; activity codes as outline codes (hierarchy and
   descriptions as Project's own lookup table, once a reader agrees on the
   form); the 8 CCA code types past 29 fields. MSPDI to XER for P6 import
@@ -49,8 +51,9 @@
   (eval/p6xer-udfs-2026-11-21.md). Still open there: the UDF type on a round
   trip (whole numbers come back as integer UDFs, so 6 of CCA's decimal UDFs
   change type, 7,104 of 13,174 values keep P6's; a hint that survives a save
-  in Project is needed), finish-date UDFs (Project has one date kind),
-  resource custom fields as RSRC UDFs.
+  in Project is needed), finish-date UDFs (Project has one date kind).
+  Resource custom fields as RSRC UDFs shipped 2026-11-21
+  (eval/rsrc-udfs-2026-11-21.md).
 - (2026-11-21) constraints log's "past late start" now says whether a row moves anything (eval/constraints-slack-2026-11-20.md: 65/65)
 - (2026-11-21) its forward gap searched 2026-11-20, no rule (one link; eval/relationship-dates-2026-11-20.md)
 - (2026-11-21) relationship dates (TASKPRED aref/arls) decoded 2026-11-20 (reldates.mjs, eval/relationship-dates-2026-11-20.md: arls 40,476/40,476; lags changed after the run read back, 1,200/1,200 planted): the 5-node SS chain is P6 contradicting its own arls (closed), the 608 h lag was not edited
