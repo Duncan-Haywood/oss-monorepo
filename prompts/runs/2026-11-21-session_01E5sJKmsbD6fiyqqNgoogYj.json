@@ -27,11 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Forgot to rebuild the committed manufacturing/collector package after changing the guide text; the full cad suite caught it (stale ASSEMBLY.md) before merge."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -56,7 +58,7 @@
     "ventures/open-tennis-robots/cad/README.md (Head access on every collector joint)"
   ],
   "goal": "Deepen a flagship: assembly-guide checks for the collector",
-  "notes": "All 16 collector joints access-checked at 76 holes (= steps' screw counts). New step_access_problems (bench joints: switch-to-tower behind the wheel, Pi standoff screws behind the base plate), service_access table in ASSEMBLY.md, hatch_screw_problems: yoke arm hides a hatch thumb screw over 24 of every 60 deg of drum turn; slot-down is clear by 11/24 deg. Local: python -m unittest tests.test_cad.AssemblyGuideTest -> Ran 14 tests in 64s OK (includes package build 'all pass.'). PR CI: all checks green except the cad job, which was still running when this was written; merge waits on it.",
+  "notes": "All 16 collector joints access-checked at 76 holes (= steps' screw counts). New step_access_problems (bench joints: switch-to-tower behind the wheel, Pi standoff screws behind the base plate), service_access table in ASSEMBLY.md, hatch_screw_problems: yoke arm hides a hatch thumb screw over 24 of every 60 deg of drum turn; slot-down is clear by 11/24 deg. Local: python -m unittest tests.test_cad.AssemblyGuideTest -> Ran 14 tests in 64s OK (includes package build 'all pass.'). Full local suite: python -m unittest tests.test_cad -> Ran 186 tests in 660s, FAILED (failures=1): test_committed_package_is_current, stale guide/ASSEMBLY.md. Rebuilt manufacturing/collector (python -m otr_cad collector --out ../manufacturing/collector); PackageTest then Ran 2 tests OK. The other 185 passed.",
   "corrections": [],
   "redteam": null,
   "usage": {
