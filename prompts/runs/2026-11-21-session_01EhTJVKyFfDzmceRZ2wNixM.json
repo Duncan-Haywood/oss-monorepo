@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVKyFfDzmceRZ2wNixM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating software; merge when done)",
+  "input_sha256": "790785e5a9783ff3da4db908cb1c87e966d64cb67a7c1e9f61d64459fbbc1020",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T02:09:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/marine-hull milestone 7zp: Kashiwagi modified-EUT and measured heave-pitch coupling carried to strip motions on Journee's L/B 10 Wigley hulls and the monohull",
+  "projects": [
+    "marine-hull"
+  ],
+  "pr": 18006,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "K5 check compared the printed (negative) range change with a positive bar, printing False on the first run",
+      "fix": "check uses the size; rerun identical except that line"
+    },
+    {
+      "what": "unit-test fake hull used g 9.80665 while strip.G is 9.81",
+      "fix": "test imports strip.G"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt (scheduled task text)",
+      "why": "the routine's text asks for revenue-generating product work, but prompt.md routed this run to the research track by its weighted draw; followed the router",
+      "did": "advanced the drawn research programme",
+      "result": "one programme step landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-marine-hull-eut-coupling-lb10.md"
+  ],
+  "goal": null,
+  "notes": "Plan and expectations committed (1c4d73f94) before the run. Result: coupling (strip, EUT by two transfer rules, measured, A0 rule) moves Journee Fn 0.2 peak ratios within 0.62-0.79; undamped best 0.750/0.804; monohull 30 W loss 3.54%, bracket stands. Checks: run 276 s deterministic, rerun identical apart from the fixed K5 line; check_numbers ok; homepage build ok; check_md_links ok; check_posts ok; new tests pass.",
+  "corrections": [],
+  "redteam": null
+}
