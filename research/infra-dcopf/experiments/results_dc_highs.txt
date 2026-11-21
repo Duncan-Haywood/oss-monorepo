@@ -1,0 +1,22 @@
+case2853_sdet: DC OPF feasibility on HiGHS (zero objective) and the elastic phase-1 LP (research/grid-linopf)
+Plan and prediction H1: LOG.md 2026-11-21. Network: fix_ref, then the largest-PMAX slack (the protocol's).
+
+case2853_sdet api: load_mw 93537.7, gs_mw 0.0, pmin_mw 24395.6, pmax_mw 163876.0, n_live 819, n_neg_pmin 2, n_components 1, n_active_components 1, n_load_only_components 0, n_rated 3921, n_tap 1046, n_shift 8, n_zero_x 0, zero_x []
+  HiGHS feasibility MP-x0 with angle limits: Feasible
+  HiGHS feasibility MP-x0 no   angle limits: Feasible
+  HiGHS feasibility PM    with angle limits: Feasible
+  HiGHS feasibility PM    no   angle limits: Feasible
+
+case2853_sdet typ: load_mw 76683.5, gs_mw 0.0, pmin_mw 49063.4, pmax_mw 181149.8, n_live 819, n_neg_pmin 2, n_components 1, n_active_components 1, n_load_only_components 0, n_rated 3921, n_tap 1046, n_shift 8, n_zero_x 0, zero_x []
+  HiGHS feasibility MP-x0 with angle limits: Feasible
+  HiGHS feasibility MP-x0 no   angle limits: Feasible
+  HiGHS feasibility PM    with angle limits: Feasible
+  HiGHS feasibility PM    no   angle limits: Feasible
+
+case2853_sdet sad: load_mw 76683.5, gs_mw 0.0, pmin_mw 49063.4, pmax_mw 181149.8, n_live 819, n_neg_pmin 2, n_components 1, n_active_components 1, n_load_only_components 0, n_rated 3921, n_tap 1046, n_shift 8, n_zero_x 0, zero_x []
+  HiGHS feasibility MP-x0 with angle limits: HiGHS 4: (HiGHS Status 0: Not Set)
+  HiGHS feasibility MP-x0 no   angle limits: Feasible
+  HiGHS feasibility PM    with angle limits: HiGHS 4: The HiGHS status code was not recognized. (HiGHS Status 15: model_status is Unknown; primal_status is Infeasible)
+  HiGHS feasibility PM    no   angle limits: Feasible
+
+H1 (HiGHS reports infeasible under all four conventions on case2853_sdet API): refuted ({'MP-x0+ang': 'Feasible', 'MP-x0': 'Feasible', 'PM+ang': 'Feasible', 'PM': 'Feasible'})

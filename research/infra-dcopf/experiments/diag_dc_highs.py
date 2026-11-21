@@ -7,7 +7,12 @@
 (b) where (a) says infeasible: diag_dc_infeasible.elastic (HiGHS phase-1 LP, no angle limits, 1 per MW of slack on
     every rated flow and PMIN/PMAX row) on the same convention, to say how far from feasible the case is and where.
 For contrast both run on case2853_sdet TYP and SAD, which Clarabel started. Writes results_dc_highs.txt and .json.
-Usage: diag_dc_highs.py
+--start (declared in the plan for the case that HiGHS finds feasible): the DC OPF QP on HiGHS (dc_ref
+solver="highs-qp") in rescue_start's order (MP-x0 with angle limits, MP-x0 without, PM with, PM without) as the start,
+then run_confirm._job's arm F unchanged (continuation, 20 rounds of the frozen repair); where that is not clean, the
+IPOPT reactive stage at its best point (run_confirm_reactive.r_step's rule, 45-minute wall limit). Writes
+results_dc_highs_start.json and appends to results_dc_highs.txt.
+Usage: diag_dc_highs.py [--start]
 """
 import json
 import sys
@@ -64,5 +69,65 @@ def main():
     print("\n".join(L))
 
 
+def highs_start(p):
+    for conv in ("MP-x0", "PM"):
+        q = convention(p, conv)
+        for ang in (True, False):
+            f, status, pg = dc_ref(q, ang, want_pg=True, solver="highs-qp")
+            if status == "Optimal":
+                return pg, f"HiGHS QP {conv}{'+ang' if ang else ', no ang'}"
+    return None, None
+
+
+def start(name="case2853_sdet", kind="api"):
+    import subprocess
+    import numpy as np
+    import run_confirm as rc
+    import run_confirm_reactive as rr
+    import run_homotopy
+    from infra_dcopf import vlin
+    got = {}
+    orig = vlin.best_of
+
+    def capture(hist, base):
+        got["best"] = orig(hist, base)
+        return got["best"]
+
+    vlin.best_of = capture
+    run_homotopy.dc_start = highs_start
+    out = rc._job("F", name, kind)
+    b = got.get("best")
+    out["best_pg"] = None if b is None else np.asarray(b["pg"]).tolist()
+    out["reproduced"] = True  # not a rerun: lets run_confirm_reactive.r_step read this part
+    rr.PARTS.mkdir(exist_ok=True)
+    rr.part("H", name, kind, "best").write_text(json.dumps(out, default=float))
+    if out.get("final") and not out.get("clean_at"):
+        try:
+            subprocess.run([sys.executable, rr.__file__, "r", "H", name, kind], timeout=rr.WALL, check=False)
+            out["JR"] = json.loads(rr.part("H", name, kind, "R").read_text())["JR"]
+        except subprocess.TimeoutExpired:
+            out["JR"], out["JR_timeout"] = None, True
+    (HERE / "results_dc_highs_start.json").write_text(json.dumps(out, default=float, indent=1))
+    f, ac = out.get("final"), out["ac"]
+    L = ["", f"--start: {name} {kind}, start {out.get('start_rule')}, mu* {out.get('mu_star', 0):.3f}, "
+         + (out.get("stop") or f"frozen repair clean at round {out['clean_at']}" if out.get("clean_at") or out.get("stop")
+            else "frozen repair not clean in 20 rounds")]
+    if f:
+        L.append(f"  J best (round {f['it']}): {f['n_over']} over (max {100 * f['max_load']:.2f} %), {f['vviol']} V out, "
+                 f"{f['qviol']} Q out ({f['q_exc_mvar']:.3f} MVAr), cost {100 * (f['cost'] - ac) / ac:+.3f} % "
+                 f"against PGLib's AC optimum; {out['secs']:.0f} s")
+    if "JR" in out:
+        jr = out["JR"]
+        L.append("  J+R: " + ("over the 45-minute wall limit" if out.get("JR_timeout") else "no solution" if jr is None
+                              else f"{jr['n_over']} over (max {100 * jr['max_load']:.2f} %), {jr['vviol']} V out, "
+                              f"{jr['qviol']} Q out" + (f", clean at {100 * (jr['cost'] - ac) / ac:+.3f} %" if jr["clean"] else "")))
+    with open(HERE / "results_dc_highs.txt", "a") as fh:
+        fh.write("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
-    main()
+    if "--start" in sys.argv:
+        start()
+    else:
+        main()

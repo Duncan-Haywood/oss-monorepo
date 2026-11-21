@@ -235,6 +235,37 @@ def dc_ref(ppc, angles=True, want_pg=False, solver="clarabel"):
             full = np.zeros(ppc["gen"].shape[0])
             full[gen[:, 20].astype(int)] = res.x[n:] * base
         return None, status, full
+    if solver == "highs-qp":  # added 2026-11-21 (diag_dc_highs.py --start): the same QP on HiGHS's QP solver
+        import highspy
+        h = highspy.Highs()
+        h.setOptionValue("output_flag", False)
+        nv, neq = A.shape[1], Aeq.shape[0]
+        A = A.tocsc()
+        lo = np.r_[b[:neq], np.full(A.shape[0] - neq, -highspy.kHighsInf)]
+        Pl = sp.tril(P).tocsc()
+        model = highspy.HighsModel()
+        lp = model.lp_
+        lp.num_col_, lp.num_row_ = nv, A.shape[0]
+        lp.col_cost_, lp.col_lower_, lp.col_upper_ = q, np.full(nv, -highspy.kHighsInf), np.full(nv, highspy.kHighsInf)
+        lp.row_lower_, lp.row_upper_ = lo, b
+        lp.a_matrix_.format_ = highspy.MatrixFormat.kColwise
+        lp.a_matrix_.start_, lp.a_matrix_.index_, lp.a_matrix_.value_ = A.indptr, A.indices, A.data
+        hs = model.hessian_
+        hs.dim_, hs.format_ = nv, highspy.HessianFormat.kTriangular
+        hs.start_, hs.index_, hs.value_ = Pl.indptr, Pl.indices, Pl.data
+        h.passModel(model)
+        h.run()
+        status = h.modelStatusToString(h.getModelStatus())
+        if status != "Optimal":
+            return (None, status, None) if want_pg else (None, status)
+        x = np.asarray(h.getSolution().col_value)
+        pg = x[n:] * base
+        f = float((coef[:, 0] * pg * pg + coef[:, 1] * pg + coef[:, 2]).sum())
+        if not want_pg:
+            return f, status
+        full = np.zeros(ppc["gen"].shape[0])
+        full[gen[:, 20].astype(int)] = pg
+        return f, status, full
     st = clarabel.DefaultSettings()
     st.verbose = False
     sol = clarabel.DefaultSolver(sp.triu(P).tocsc(), q, A, b,
