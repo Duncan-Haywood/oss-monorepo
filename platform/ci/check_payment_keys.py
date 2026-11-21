@@ -35,6 +35,7 @@ are skipped: they carry package authors' funding links, not ours.
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -88,25 +89,85 @@ BINARY_SUFFIXES = {
 }
 SKIP_DIRS = {"node_modules", ".next", "dist", "build", "__pycache__", ".git"}
 SKIP_NAMES = {"package-lock.json", "pnpm-lock.yaml", "yarn.lock"}
+SELF_NAMES = {p.name for p in SELF_TESTS}
+
+# A bytes `in` test costs one pass over the file whatever the literal, and
+# the scanned trees hold ~400 MB of text, so eleven literals cost eleven
+# passes. Each gate below is contained in one or more literals, so a file
+# without the gate cannot hold any of them: five passes decide almost every
+# file, and the literals behind a gate are tried only where it appears
+# (docs/history/ci-perf-2026-11-21-payment-keys-gates-and-walk.md).
+GATES = (b"_live_", b"polar", b".com/", b"hosted_button_id", b"paddle.io/hsc_")
+
+
+def _gated(patterns=PATTERNS, gates=GATES):
+    """Group patterns under the first gate their literal contains."""
+    groups: dict[bytes, list] = {}
+    for kind, needle, pattern in patterns:
+        gate = next((g for g in gates if g in needle), needle)
+        groups.setdefault(gate, []).append((kind, needle, pattern))
+    return tuple((gate, tuple(members)) for gate, members in groups.items())
+
+
+GATED = _gated()
+
+
+def _files(root: Path):
+    """Yield (path, name, is_symlink) for every regular file under root.
+
+    Same set as `root.rglob("*")` filtered by `is_file()` and SKIP_DIRS, but a
+    skipped directory is never entered, the file type comes from the
+    directory entry instead of a stat, and symlinked directories are not
+    followed (neither are they by rglob). Paths stay strings: building a
+    Path per file cost more than reading the file.
+    """
+    stack = [str(root)]
+    while stack:
+        top = stack.pop()
+        try:
+            it = os.scandir(top)
+        except OSError:
+            continue
+        with it:
+            for entry in it:
+                if entry.name in SKIP_DIRS:
+                    # rglob filtered on every part of the relative path,
+                    # the file's own name included.
+                    continue
+                try:
+                    if entry.is_dir(follow_symlinks=False):
+                        stack.append(entry.path)
+                        continue
+                    if entry.is_file():
+                        yield entry.path, entry.name, entry.is_symlink()
+                except OSError:
+                    continue
 
 
 def findings_in(root: Path):
     """Yield (path, kind) for every hardcoded payment account under root."""
-    for path in root.rglob("*"):
-        if not path.is_file() or path.name in SKIP_NAMES or path.resolve() in SELF_TESTS:
+    for path, name, is_link in _files(root):
+        if name in SKIP_NAMES:
             continue
-        if any(part in SKIP_DIRS for part in path.relative_to(root).parts):
+        # Only a file with the test's name, or a symlink, can resolve to it.
+        if (name in SELF_NAMES or is_link) and Path(path).resolve() in SELF_TESTS:
             continue
-        if path.suffix.lower() in BINARY_SUFFIXES:
+        dot = name.rfind(".")  # Path.suffix: a leading or trailing dot is no suffix
+        if 0 < dot < len(name) - 1 and name[dot:].lower() in BINARY_SUFFIXES:
             continue
         try:
-            data = path.read_bytes()
+            with open(path, "rb") as fh:
+                data = fh.read()
         except OSError:
             continue
         if b"\0" in data[:8192]:
             continue
         lowered = data.lower()  # hostnames are case-insensitive: BUY.Stripe.com is the same link
-        candidates = [(kind, pattern) for kind, needle, pattern in PATTERNS if needle in lowered]
+        candidates = [
+            (kind, pattern)
+            for gate, members in GATED if gate in lowered
+            for kind, needle, pattern in members if needle in lowered
+        ]
         if not candidates:
             continue
         text = data.decode("utf-8", errors="ignore")
@@ -114,7 +175,7 @@ def findings_in(root: Path):
         for kind, pattern in candidates:
             if kind not in seen and pattern.search(text):
                 seen.add(kind)
-                yield path, kind
+                yield Path(path), kind
 
 
 def check(ventures_root: Path = VENTURES) -> list[str]:

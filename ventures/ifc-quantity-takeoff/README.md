@@ -86,6 +86,12 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   on 128: a body's overlapping items were summed, so a kitchen cabinet
   counted 1.8 times its own box. They are now joined
   ([eval/item-union-2026-11-21.md](eval/item-union-2026-11-21.md)).
+  Extruded profiles are drawn from outlines thinned to within 0.05% of
+  their size and scaled back to their own area (the quantities keep the
+  full 360-to-the-turn arcs): the Tekla Mini Project went from 1.82 million
+  triangles to 416 thousand, about 115 MB to 26 MB of GPU memory, with the
+  same volume check
+  ([eval/display-thinning-2026-11-21.md](eval/display-thinning-2026-11-21.md)).
   Storeys can be shown or hidden one at a time, and a section plane cuts
   the model: a plan cut (starting 1.2 m above the floor of what is shown,
   where a floor plan is drawn) or a vertical cut across x or y. Cut solids

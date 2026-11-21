@@ -170,6 +170,42 @@ class FindingsIn(unittest.TestCase):
         self.write("c.env", "PADDLE_KEY=pdl_" + "sdbx_" + "apikey_01abcdefghijklmnop\n")
         self.assertEqual(self.kinds(), [])
 
+    def test_suffix_follows_path_suffix_rules(self):
+        # The walk reads names as strings, so it re-implements Path.suffix:
+        # ".png" (a leading dot only) has none and is scanned, while "..png"
+        # and "a.PNG" end in .png and are skipped.
+        self.write(".png", f'"{LIVE}"\n')
+        self.write("..png", f'"{LIVE}"\n')
+        self.write("a.PNG", f'"{LIVE}"\n')
+        self.assertEqual(self.kinds(), ["live Stripe key"])
+
+    def test_skip_dir_names_skip_files_too(self):
+        # rglob's filter read every part of the relative path, the file's own
+        # name included; the pruned walk keeps that.
+        self.write("build", f'"{LIVE}"\n')
+        self.write("deep/dist/x.js", f'"{LIVE}"\n')
+        self.assertEqual(self.kinds(), [])
+
+    def test_symlinked_dirs_not_followed_symlinked_files_read(self):
+        self.write("real/a.js", f'"{LIVE}"\n')
+        (self.root / "linkdir").symlink_to(self.root / "real", target_is_directory=True)
+        (self.root / "link.js").symlink_to(self.root / "real" / "a.js")
+        self.assertEqual(sorted(p.name for p, _k in guard.findings_in(self.root)),
+                         ["a.js", "link.js"])
+
+    def test_symlink_to_own_tests_is_not_a_finding(self):
+        (self.root / "other.py").symlink_to(next(iter(guard.SELF_TESTS)))
+        self.assertEqual(self.kinds(), [])
+
+    def test_every_literal_sits_under_a_gate_it_contains(self):
+        def key(m):
+            return (m[0], m[1], m[2].pattern)
+        grouped = [m for _g, members in guard.GATED for m in members]
+        self.assertEqual(sorted(map(key, grouped)), sorted(map(key, guard.PATTERNS)))
+        for gate, members in guard.GATED:
+            for _kind, needle, _pattern in members:
+                self.assertIn(gate, needle)
+
     def test_lockfiles_and_node_modules_skipped(self):
         self.write("package-lock.json", '"funding": "https://buy.stripe.com/aBcDeF123456"\n')
         self.write("node_modules/x/index.js", f'"{LIVE}"\n')
