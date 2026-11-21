@@ -70,7 +70,16 @@ the gaps between ticks are how long a click would have waited. WebGL's
 draw call is stubbed out, because software rendering in a container takes
 hundreds of milliseconds a frame on a model a real GPU draws in a few.
 
-RESULTS_TABLE
+| Model | Before | Worker |
+|---|---|---|
+| Tekla steel, 2,636 elements | 18 stalls over 100 ms, 99th percentile 317 ms | 2 stalls, 34 ms |
+| School, 56 MB, 4,459 elements | 59 stalls, 605 ms; drawn in 38.8 s | 4 stalls, 31 ms; drawn in 25.7 s |
+| Duplex, 215 elements | 1 stall (374 ms) | none, 15 ms |
+
+Not everything is better. A few stalls of 250 to 650 ms remain on the big
+models; they are not traced yet. On the small schependomlaan model
+the worker finished first and all its batches landed at once, so there was
+one 146 ms gap where the old page had none.
 
 The full output and method are in
 [eval/view-worker-2026-11-21.md](../../ventures/ifc-quantity-takeoff/eval/view-worker-2026-11-21.md).
