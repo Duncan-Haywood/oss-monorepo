@@ -32,7 +32,7 @@ working time.
 
 ## Result
 
-**2,406 of 2,491 open tasks (96.6%) match on all three**; early finish on
+**2,406 of 2,491 open tasks (96.6%) match on all three** (2,442 since 2026-11-21, once resource calendars and Resume dates are read: `eval/resource-calendars-2026-11-21.md`); early finish on
 2,447, late finish on 2,426, total float on 2,411. 86 of the 102 files match
 on every task, including every calendar, duration-unit, baseline, constraint
 and link-type file from Project 2007 to 2019.

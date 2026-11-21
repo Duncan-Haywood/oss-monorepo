@@ -25,3 +25,4 @@
 - (2026-11-20) (3) GitHub ERMHDR search, size-split 2026-11-19: a seventh P6 file (Harbour Pointe 17.12) 113/113 once 8 durations edited after its last run are put back
 - (2026-11-20) next a real site's log
 - (2026-11-21) next a real series of updates to check the split and drivers against (windows in the review shipped 2026-11-19)
+- (2026-11-21) next a real baseline and update pair, a P6 layout export to check value order ties
