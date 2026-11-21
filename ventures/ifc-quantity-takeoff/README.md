@@ -72,8 +72,12 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   class or by storey. Click a bill-of-quantities line or a check to show its
   elements; click an element for its stored and computed figures. On 11
   public models the drawn triangles enclose the computed volume within 0.5%
-  for 9,184 of 9,314 elements checked
-  ([eval/model-view-2026-11-21.md](eval/model-view-2026-11-21.md)).
+  for 9,310 of 9,312 elements checked
+  ([eval/model-view-2026-11-21.md](eval/model-view-2026-11-21.md)). Tracing
+  the first version's 130 misses found the takeoff, not the picture, wrong
+  on 128: a body's overlapping items were summed, so a kitchen cabinet
+  counted 1.8 times its own box. They are now joined
+  ([eval/item-union-2026-11-21.md](eval/item-union-2026-11-21.md)).
 
 Nothing is uploaded: the model is read in the browser tab.
 
@@ -382,7 +386,12 @@ size off its surface, open shells, tapered extrusions, swept
 solids along curves other than disks, centre-line profiles, sloped flanges.
 Overlapping openings in one element are taken out once (each opening is
 subtracted from the body less the ones before it, so their overlap is added
-back; `measure.test.mjs`). The overlapping pieces of one shell are counted
+back; `measure.test.mjs`). A body of several items is their union: where
+two items run into each other (a cabinet's carcass and doors, a door leaf set
+into its posts) the shared part is counted once, A + B - (A n B), exactly
+(`engine.test.mjs`; [eval/item-union-2026-11-21.md](eval/item-union-2026-11-21.md)).
+An item whose overlap would take more than 4,000 pieces keeps the plain sum
+and the element says so. The overlapping pieces of one shell are counted
 twice (the element carries a note). A faceted body
 clipped by a half-space, or mixed with a swept disk, revolved area or CSG
 primitive, is not cut: it keeps the stored area. A faceted shell of more than

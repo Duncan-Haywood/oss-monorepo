@@ -57,6 +57,12 @@ faceted bodies (4,935, drawn as the file gives them) and box fallbacks.
 Times are Node 22 on the session's container, single thread; the page does
 the same work in 30 ms slices and draws as it goes.
 
+**Update, same day (eval/item-union-2026-11-21.md):** 128 of the 130 were
+the takeoff over-counting overlapping body items; one was this mesher
+missing a cut 5 um off a face. After the fixes, 9,310 of 9,312 agree
+(`model-view-2026-11-21-union.txt`). The paragraph below is the first
+reading.
+
 **What the 130 disagreements are.** 126 are on ARK_NUS; the five worst are
 furnishing elements whose drawn solid holds 56% of the computed volume.
 Not traced yet: the general method's coplanar rule is the first suspect

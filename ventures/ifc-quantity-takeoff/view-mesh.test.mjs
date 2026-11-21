@@ -118,3 +118,24 @@ test("a hollow section's caps are its ring, holes bridged, and it stays closed",
   // sides 2 x 72 quads, caps about one triangle per vertex: far fewer than trapezoids
   assert.ok(m.positions.length / 9 < 2 * 72 * 2 + 2 * (2 * 72 + 2) + 1, `${m.positions.length / 9} triangles`);
 });
+
+test("a cut whose end lies a few micrometres off the face it trims still cuts it (Tekla beam #1717)", () => {
+  // a 8585 x 200 x 900 mm beam, a full-height notch at its end and a bottom
+  // cut whose end plane the exporter left 5 um inside x = 0 (the clip's own
+  // rounding), with the notch's and the cut's shared part added back
+  const box = (x0, y0, z0, x1, y1, z1) => prism([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], [0, 0, z1 - z0]).map((f) => f.map(([x, y, z]) => [x, y, z + z0]));
+  const terms = [
+    { s: 1, faces: box(0, -100, -450, 8585, 100, 450) },
+    { s: -1, faces: box(0, 40, -450, 160, 100, 450) },
+    { s: -1, faces: box(5e-6, -100, -450, 1558, 100, -50) },
+    { s: 1, faces: box(5e-6, 40, -450, 160, 100, -50) },
+  ];
+  const want = solidVolume({ terms, mesh: 0 });
+  const b = termBoundary(terms);
+  assert.ok(b.exact);
+  // the end face at x = 0 is the part above the cut and outside the notch: 140 x 500
+  let end = 0;
+  for (const f of b.faces) if (f.every((p) => Math.abs(p[0]) < 1e-3)) end += Math.hypot(...f.slice(2).reduce((n, p, i) => { const a = f[0], q = f[i + 1]; const u = [q[0] - a[0], q[1] - a[1], q[2] - a[2]], v = [p[0] - a[0], p[1] - a[1], p[2] - a[2]]; return [n[0] + (u[1] * v[2] - u[2] * v[1]) / 2, n[1] + (u[2] * v[0] - u[0] * v[2]) / 2, n[2] + (u[0] * v[1] - u[1] * v[0]) / 2]; }, [0, 0, 0]));
+  assert.ok(Math.abs(end - 140 * 500) < 1, `end face ${end} mm2`);
+  assert.ok(Math.abs(polyVolume(b.faces) - want) <= 1e-6 * want, `${polyVolume(b.faces)} vs ${want}`);
+});

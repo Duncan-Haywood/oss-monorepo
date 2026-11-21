@@ -1,0 +1,1530 @@
+[
+ {
+  "model": "sample-office.ifc",
+  "elements": 7,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ },
+ {
+  "model": "IfcOpenHouse_IFC4.ifc",
+  "elements": 34,
+  "changed": 1,
+  "before": 0.088232,
+  "after": 0.08696000000000001,
+  "byClass": {
+   "IfcDoor": {
+    "n": 1,
+    "before": 0.088232,
+    "after": 0.08696000000000001
+   }
+  },
+  "unjoined": 0,
+  "list": [
+   {
+    "id": 2441,
+    "cls": "IfcDoor",
+    "name": null,
+    "before": 0.088232,
+    "after": 0.08696
+   }
+  ]
+ },
+ {
+  "model": "AC20-FZK-Haus.ifc",
+  "elements": 82,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ },
+ {
+  "model": "duplex.ifc",
+  "elements": 215,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ },
+ {
+  "model": "C20-Institute-Var-2.ifc",
+  "elements": 697,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ },
+ {
+  "model": "ISSUE_021_Mini Project.ifc",
+  "elements": 2636,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ },
+ {
+  "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "elements": 419,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ },
+ {
+  "model": "schependomlaan.ifc",
+  "elements": 3551,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ },
+ {
+  "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "elements": 4459,
+  "changed": 196,
+  "before": 43.186772983834246,
+  "after": 35.37325685782219,
+  "byClass": {
+   "IfcDoor": {
+    "n": 22,
+    "before": 2.211923908055024,
+    "after": 2.1941671932806455
+   },
+   "IfcBuildingElementProxy": {
+    "n": 34,
+    "before": 12.085580582344573,
+    "after": 11.713091730136584
+   },
+   "IfcFurnishingElement": {
+    "n": 55,
+    "before": 16.124880114399517,
+    "after": 9.209275717678938
+   },
+   "IfcWindow": {
+    "n": 56,
+    "before": 11.707908392000055,
+    "after": 11.222636552000004
+   },
+   "IfcFlowTerminal": {
+    "n": 25,
+    "before": 0.04731242099452372,
+    "after": 0.045545122058470326
+   },
+   "IfcRailing": {
+    "n": 4,
+    "before": 1.0091675660405683,
+    "after": 0.9885405426675722
+   }
+  },
+  "unjoined": 2,
+  "list": [
+   {
+    "id": 324348,
+    "cls": "IfcDoor",
+    "name": "Dør Enkel_ Glassfelt:IDT 3.6 10x21M 38dB:1886980",
+    "before": 0.0551954,
+    "after": 0.0551561
+   },
+   {
+    "id": 518839,
+    "cls": "IfcDoor",
+    "name": "Side_Stack_Operable_Wall_6500:IDF 1.1 Foldevegg 6500x2800:2154531",
+    "before": 1.0432,
+    "after": 1.03633
+   },
+   {
+    "id": 543518,
+    "cls": "IfcBuildingElementProxy",
+    "name": "NO_Kjøleskap:Moppekjøleskap:2209681",
+    "before": 0.350847,
+    "after": 0.343273
+   },
+   {
+    "id": 576659,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 720mm:2363132",
+    "before": 0.307479,
+    "after": 0.175315
+   },
+   {
+    "id": 576830,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:2363588",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 577001,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:2364905",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 578010,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap, krogsæter 600 x 300 x 720mm:2371659",
+    "before": 0.235654,
+    "after": 0.135233
+   },
+   {
+    "id": 604594,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Elevbord-sybord:Sybord:2437925",
+    "before": 0.095616,
+    "after": 0.0948
+   },
+   {
+    "id": 604808,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 1000 x 300 x 720mm:2438601",
+    "before": 0.385988,
+    "after": 0.219135
+   },
+   {
+    "id": 615449,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 720mm:2471048",
+    "before": 0.307479,
+    "after": 0.175315
+   },
+   {
+    "id": 648400,
+    "cls": "IfcWindow",
+    "name": "Vindu_2felt:GF 4.3 33dB EI30:2532106",
+    "before": 0.0690944,
+    "after": 0.0684926
+   },
+   {
+    "id": 665466,
+    "cls": "IfcFlowTerminal",
+    "name": "Utslagsvask:Kum kantine:2558997",
+    "before": 0.00258275,
+    "after": 0.00258095
+   },
+   {
+    "id": 665652,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:2561632",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 665718,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:2561701",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 665789,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:2561864",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 665854,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:2562038",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 665925,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:2562119",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 666686,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 600mm:2564651",
+    "before": 0.262475,
+    "after": 0.150275
+   },
+   {
+    "id": 666857,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 600mm:2564725",
+    "before": 0.195448,
+    "after": 0.112697
+   },
+   {
+    "id": 666951,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 600mm:2564796",
+    "before": 0.195448,
+    "after": 0.112697
+   },
+   {
+    "id": 667022,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 600mm:2564839",
+    "before": 0.195448,
+    "after": 0.112697
+   },
+   {
+    "id": 667087,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 600mm:2564973",
+    "before": 0.195448,
+    "after": 0.112697
+   },
+   {
+    "id": 667152,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:2565263",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 667349,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Corner-Single Door:Overskap, hjørne 600 x 300 x 720mm:2565537",
+    "before": 0.343791,
+    "after": 0.194359
+   },
+   {
+    "id": 667597,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:2566231",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 667751,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 400 x 300 x 700mm:2566428",
+    "before": 0.150444,
+    "after": 0.0876572
+   },
+   {
+    "id": 668308,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:2567838",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 735486,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:2568478",
+    "before": 0.322404,
+    "after": 0.310702
+   },
+   {
+    "id": 735664,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:2568479",
+    "before": 0.322404,
+    "after": 0.310702
+   },
+   {
+    "id": 802701,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:2568774",
+    "before": 0.322404,
+    "after": 0.310702
+   },
+   {
+    "id": 802798,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:2568775",
+    "before": 0.322404,
+    "after": 0.310702
+   },
+   {
+    "id": 873354,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:2572076",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 873457,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:2572077",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 925725,
+    "cls": "IfcDoor",
+    "name": "Dbl Glass (1):YDG 3:4002466",
+    "before": 0.0752771,
+    "after": 0.0752655
+   },
+   {
+    "id": 947593,
+    "cls": "IfcDoor",
+    "name": "Glassdører aula:IDG 1.2 38dB:3080385",
+    "before": 0.0753426,
+    "after": 0.075331
+   },
+   {
+    "id": 950271,
+    "cls": "IfcDoor",
+    "name": "Glassdører aula2:IDG 1.1 38dB EI30CS:3080440",
+    "before": 0.0934456,
+    "after": 0.0934339
+   },
+   {
+    "id": 1191834,
+    "cls": "IfcDoor",
+    "name": "Dør Enkel_ Glassfelt_glassfelt over:YDA 2.1 12x30 36dB:3974002",
+    "before": 0.101428,
+    "after": 0.10129
+   },
+   {
+    "id": 1215165,
+    "cls": "IfcFlowTerminal",
+    "name": "Utslagsvask:Intra vaskekar, krogsæter:4110444",
+    "before": 0.00601657,
+    "after": 0.00600822
+   },
+   {
+    "id": 1228867,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 720mm:4125678",
+    "before": 0.307479,
+    "after": 0.175315
+   },
+   {
+    "id": 1229015,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:4125679",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 1229081,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4125681",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1229703,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 720mm:4125701",
+    "before": 0.307479,
+    "after": 0.175315
+   },
+   {
+    "id": 1229768,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:4125702",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 1229839,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4125704",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1230486,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 720mm:4125719",
+    "before": 0.307479,
+    "after": 0.175315
+   },
+   {
+    "id": 1230551,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:4125720",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 1230616,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4125722",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1231263,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 720mm:4126014",
+    "before": 0.307479,
+    "after": 0.175315
+   },
+   {
+    "id": 1231334,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:4126015",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 1231399,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4126017",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1232045,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 720mm:4126047",
+    "before": 0.307479,
+    "after": 0.175315
+   },
+   {
+    "id": 1232116,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:4126048",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 1232187,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4126050",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1232833,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Double Door:Overskap 800 x 300 x 720mm:4126065",
+    "before": 0.307479,
+    "after": 0.175315
+   },
+   {
+    "id": 1232904,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:4126066",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 1232975,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4126068",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1243002,
+    "cls": "IfcBuildingElementProxy",
+    "name": "NO_Kjøleskap:Siemens frittstående kjøleskap:4145998",
+    "before": 0.332602,
+    "after": 0.326224
+   },
+   {
+    "id": 1243324,
+    "cls": "IfcBuildingElementProxy",
+    "name": "NO_Kjøleskap:Siemens Frittstående fryseskap:4146120",
+    "before": 0.332602,
+    "after": 0.326224
+   },
+   {
+    "id": 1243640,
+    "cls": "IfcBuildingElementProxy",
+    "name": "NO_Kjøleskap:Siemens frittstående kjøleskap:4146192",
+    "before": 0.332602,
+    "after": 0.326224
+   },
+   {
+    "id": 1243939,
+    "cls": "IfcBuildingElementProxy",
+    "name": "NO_Kjøleskap:Siemens Frittstående fryseskap:4146193",
+    "before": 0.332602,
+    "after": 0.326224
+   },
+   {
+    "id": 1261407,
+    "cls": "IfcDoor",
+    "name": "Dør Enkel_ Glassfelt:IDA 1.1 10x21M:4270404",
+    "before": 0.0551954,
+    "after": 0.0551561
+   },
+   {
+    "id": 1264317,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Tall Cabinet-Single Door:Høyskap, kjøkken 600 x 600 x 2100mm:4322010",
+    "before": 1.36828,
+    "after": 0.767788
+   },
+   {
+    "id": 1264504,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Tall Cabinet-Single Door:Høyskap, kjøkken 600 x 600 x 2100mm:4322013",
+    "before": 1.36828,
+    "after": 0.767788
+   },
+   {
+    "id": 1264788,
+    "cls": "IfcBuildingElementProxy",
+    "name": "NO_Kjøleskap:Siemens frittstående kjøleskap:4328608",
+    "before": 0.332602,
+    "after": 0.326224
+   },
+   {
+    "id": 1264865,
+    "cls": "IfcBuildingElementProxy",
+    "name": "NO_Kjøleskap:Siemens Frittstående fryseskap:4328714",
+    "before": 0.332602,
+    "after": 0.326224
+   },
+   {
+    "id": 1272501,
+    "cls": "IfcBuildingElementProxy",
+    "name": "NO_Kjøleskap_lite:Siemens Kjøleskap under benk:4383662",
+    "before": 0.192461,
+    "after": 0.187245
+   },
+   {
+    "id": 1277488,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Elevbord-sybord:Sybord:4386820",
+    "before": 0.095616,
+    "after": 0.0948
+   },
+   {
+    "id": 1277571,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Elevbord-sybord:Sybord:4386830",
+    "before": 0.095616,
+    "after": 0.0948
+   },
+   {
+    "id": 1277648,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Elevbord-sybord:Sybord:4386838",
+    "before": 0.095616,
+    "after": 0.0948
+   },
+   {
+    "id": 1277725,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Elevbord-sybord:Sybord:4386892",
+    "before": 0.095616,
+    "after": 0.0948
+   },
+   {
+    "id": 1300907,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4467960",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1300972,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 400 x 300 x 700mm:4468034",
+    "before": 0.150444,
+    "after": 0.0876572
+   },
+   {
+    "id": 1301043,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4469149",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1301586,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 400 x 300 x 700mm:4474721",
+    "before": 0.150444,
+    "after": 0.0876572
+   },
+   {
+    "id": 1301658,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 300 x 300 x 700mm:4474723",
+    "before": 0.11119,
+    "after": 0.0657472
+   },
+   {
+    "id": 1304776,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4491795",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1304924,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 500 x 300 x 700mm:4492490",
+    "before": 0.189698,
+    "after": 0.109567
+   },
+   {
+    "id": 1305168,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 600mm:4493404",
+    "before": 0.195448,
+    "after": 0.112697
+   },
+   {
+    "id": 1305240,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:4493408",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1342939,
+    "cls": "IfcDoor",
+    "name": "CW_Dør-Enkel-Glassfelt:YDG 1:4856149",
+    "before": 0.0822634,
+    "after": 0.0819434
+   },
+   {
+    "id": 1346427,
+    "cls": "IfcDoor",
+    "name": "CW_Dør-Enkel-Glassfelt:YDG 2:4856466",
+    "before": 0.0980608,
+    "after": 0.0977408
+   },
+   {
+    "id": 1352751,
+    "cls": "IfcDoor",
+    "name": "CW_Dør-Enkel-Glassfelt:YDG 1:4856873",
+    "before": 0.0822634,
+    "after": 0.0819434
+   },
+   {
+    "id": 1365491,
+    "cls": "IfcWindow",
+    "name": "Vindu_3felt:GF 13.1 36x21 38dB:5149291",
+    "before": 0.124655,
+    "after": 0.123446
+   },
+   {
+    "id": 1365847,
+    "cls": "IfcWindow",
+    "name": "Vindu_3felt:GF 13.1 36x21 38dB:5153882",
+    "before": 0.124655,
+    "after": 0.123446
+   },
+   {
+    "id": 1366131,
+    "cls": "IfcWindow",
+    "name": "Vindu_2felt:GF 14.1:5156029",
+    "before": 0.0857672,
+    "after": 0.0851654
+   },
+   {
+    "id": 1366414,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie dusjpanel 749350:5271117",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1366645,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie Sportsdusj 714700-S2:5271188",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1366737,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie Sportsdusj 714700-S2:5271207",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1366814,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie Sportsdusj 714700-S2:5271231",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1366891,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie Sportsdusj 714700-S2:5271255",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1367097,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie Sportsdusj 714700-S2:5271371",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1367176,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie Sportsdusj 714700-S2:5271372",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1367254,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie Sportsdusj 714700-S2:5271373",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1367332,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie Sportsdusj 714700-S2:5271374",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1367538,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Delabie dusjpanel 749350:5271375",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1367743,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Dusjhode - Oras Apollo 530:5271423",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1367964,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Dusjhode:5271499",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1368186,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Dusjhode - Oras Apollo 530:5271522",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1368265,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Dusjhode - Oras Apollo 530:5271553",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1368343,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Dusjhode - Oras Apollo 530:5271605",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1368548,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Dusjhode - Oras Apollo 530:5271670",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1368755,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Dusjhode - Oras Apollo 530:5271721",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1368961,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Dusjhode - Oras Apollo 530:5271791",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1369166,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Haws nøddusjsøyle 8320 Axion ECO:5272702",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1369387,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Haws nøddusjsøyle 8320 Axion ECO:5272756",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1369593,
+    "cls": "IfcFlowTerminal",
+    "name": "Dusj:Haws nøddusjsøyle 8320 Axion ECO:5272796",
+    "before": 0.0015975,
+    "after": 0.001514
+   },
+   {
+    "id": 1383699,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5436093",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1384028,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5444204",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1384340,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V9 30x22:5444681",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1384652,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V10 30x22:5444956",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1384965,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V9 30x22:5445253",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1385269,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V8 27x22:5445842",
+    "before": 0.207092,
+    "after": 0.197829
+   },
+   {
+    "id": 1385376,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V8 27x22:5445970",
+    "before": 0.207092,
+    "after": 0.197829
+   },
+   {
+    "id": 1385680,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5446097",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1385788,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5446268",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1385887,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5446392",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1385986,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V9 30x22:5446585",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1386289,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5446726",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1386389,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5446860",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1386487,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5447015",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1386585,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V9 30x22:5447190",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1386683,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5447258",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1386986,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V10 30x22:5447393",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1387086,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5447550",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1387184,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5447657",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1387282,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5447751",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1387380,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5447850",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1387479,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5447942",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1387577,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V7 24x22:5448050",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1387675,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V9 30x22:5448169",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1387773,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5448868",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1387871,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V10 30x22:5449018",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1387969,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5449148",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1388067,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5449245",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1388166,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5449408",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1388470,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5449631",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1388570,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V8 27x22:5449824",
+    "before": 0.207092,
+    "after": 0.197829
+   },
+   {
+    "id": 1388669,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5449911",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1389036,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5450076",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1389135,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V10 30x22:5450200",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1389234,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V10 30x22:5450454",
+    "before": 0.225125,
+    "after": 0.215862
+   },
+   {
+    "id": 1389538,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V12 35x22:5463949",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1389851,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5464245",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1389951,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5464381",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1390255,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V12 35x22:5464550",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1390354,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5464682",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1390453,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V12 35x22:5464775",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1390552,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5465087",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1390651,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5465298",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1390750,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5465449",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1390849,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V12 35x22:5466633",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1390948,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V12 35x22:5471862",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1391046,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V12 35x22:5471944",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1391144,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V12 35x22:5472149",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1391242,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5472303",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1391341,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V11 35x22:5472408",
+    "before": 0.25518,
+    "after": 0.245917
+   },
+   {
+    "id": 1391440,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5472607",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1391743,
+    "cls": "IfcWindow",
+    "name": "Vindu 3 felt:V6 24x22:5472792",
+    "before": 0.189059,
+    "after": 0.179796
+   },
+   {
+    "id": 1409885,
+    "cls": "IfcDoor",
+    "name": "Dør Enkel_ Glassfelt:IDA 6.1 12x21M EI60 CS:5876404",
+    "before": 0.0614847,
+    "after": 0.0614725
+   },
+   {
+    "id": 1421924,
+    "cls": "IfcDoor",
+    "name": "CW_Dør-Enkel-Glassfelt:YDG 1:6036689",
+    "before": 0.0822634,
+    "after": 0.0819434
+   },
+   {
+    "id": 1436628,
+    "cls": "IfcDoor",
+    "name": "CW_Dør-Enkel-Glassfelt:YDG 1:4856940",
+    "before": 0.0822634,
+    "after": 0.0819434
+   },
+   {
+    "id": 1458139,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap, krogsæter 600 x 300 x 720mm:6303536",
+    "before": 0.235654,
+    "after": 0.135233
+   },
+   {
+    "id": 1475110,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Tall Cabinet-Single Door:Høyskap 500 x 600 x 2100mm:6596197",
+    "before": 1.13345,
+    "after": 0.639826
+   },
+   {
+    "id": 1477424,
+    "cls": "IfcDoor",
+    "name": "Luke600:Luke 600:6609756",
+    "before": 0.0188962,
+    "after": 0.0181436
+   },
+   {
+    "id": 1477522,
+    "cls": "IfcDoor",
+    "name": "Luke600:Luke 600:6622567",
+    "before": 0.0188962,
+    "after": 0.0181436
+   },
+   {
+    "id": 1479838,
+    "cls": "IfcDoor",
+    "name": "Luke600:Luke 600:6623186",
+    "before": 0.0188962,
+    "after": 0.0181436
+   },
+   {
+    "id": 1479928,
+    "cls": "IfcDoor",
+    "name": "Luke600:Luke 600:6623547",
+    "before": 0.0188962,
+    "after": 0.0181436
+   },
+   {
+    "id": 1480018,
+    "cls": "IfcDoor",
+    "name": "Luke600:Luke 600:6623636",
+    "before": 0.0188962,
+    "after": 0.0181436
+   },
+   {
+    "id": 1480108,
+    "cls": "IfcDoor",
+    "name": "Luke600:Luke 600:6623637",
+    "before": 0.0188962,
+    "after": 0.0181436
+   },
+   {
+    "id": 1488449,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Tall Cabinet-Single Door:Høyskap 500 x 600 x 2100mm:6910774",
+    "before": 1.13345,
+    "after": 0.639826
+   },
+   {
+    "id": 1491666,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:6947893",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1491907,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:6948163",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1492004,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 5rom 30cm:6948177",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1494032,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:6970807",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1494103,
+    "cls": "IfcFurnishingElement",
+    "name": "N_Upper Cabinet-Single Door:Overskap 600 x 300 x 700mm:6970876",
+    "before": 0.228953,
+    "after": 0.131477
+   },
+   {
+    "id": 1496769,
+    "cls": "IfcDoor",
+    "name": "Luke600:IDA 11 10x6:6972200",
+    "before": 0.0314206,
+    "after": 0.0298816
+   },
+   {
+    "id": 1496905,
+    "cls": "IfcDoor",
+    "name": "Luke600:IDA 11 10x6:6972584",
+    "before": 0.0314206,
+    "after": 0.0298816
+   },
+   {
+    "id": 1503658,
+    "cls": "IfcFlowTerminal",
+    "name": "Utslagsvask:Kum kantine:7159897",
+    "before": 0.00258275,
+    "after": 0.00258095
+   },
+   {
+    "id": 1503880,
+    "cls": "IfcFlowTerminal",
+    "name": "Utslagsvask:Kum kantine:7159925",
+    "before": 0.00258275,
+    "after": 0.00258095
+   },
+   {
+    "id": 1504401,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 30cm 3:7182925",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1504504,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 30cm 3:7182927",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1504600,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 30cm 3:7182928",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1504696,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 30cm 3:7182932",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1504792,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 30cm 3:7182933",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1504888,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 30cm 3:7182934",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1504984,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:gard skap 30cm 3:7182935",
+    "before": 0.23415,
+    "after": 0.225877
+   },
+   {
+    "id": 1507670,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:Corpus 800:7217252",
+    "before": 0.993832,
+    "after": 0.959578
+   },
+   {
+    "id": 1507970,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:Corpus 800:7217420",
+    "before": 0.993832,
+    "after": 0.959578
+   },
+   {
+    "id": 1508073,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:Corpus 800:7217434",
+    "before": 0.993832,
+    "after": 0.959578
+   },
+   {
+    "id": 1508175,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:Corpus 800:7217447",
+    "before": 0.993832,
+    "after": 0.959578
+   },
+   {
+    "id": 1508277,
+    "cls": "IfcBuildingElementProxy",
+    "name": "Locker_Metal_Hadrian_Replacement-Front:Corpus 800:7217460",
+    "before": 0.993832,
+    "after": 0.959578
+   },
+   {
+    "id": 1512075,
+    "cls": "IfcDoor",
+    "name": "Luke600:Luke 10M:7318563",
+    "before": 0.0480226,
+    "after": 0.046598
+   },
+   {
+    "id": 1591984,
+    "cls": "IfcRailing",
+    "name": "Railing:Glassfelt - h=1000 bro:3078809",
+    "before": 0.50494,
+    "after": 0.494632
+   },
+   {
+    "id": 1596214,
+    "cls": "IfcRailing",
+    "name": "Railing:Glassfelt - h=1000 bro:5247453",
+    "before": 0.503414,
+    "after": 0.493139
+   },
+   {
+    "id": 1613540,
+    "cls": "IfcRailing",
+    "name": "Railing:Handrail - vestibyle:6605723",
+    "before": 0.000406991,
+    "after": 0.000384904
+   },
+   {
+    "id": 1613626,
+    "cls": "IfcRailing",
+    "name": "Railing:Handrail - vestibyle:6605920",
+    "before": 0.000406991,
+    "after": 0.000384904
+   }
+  ]
+ },
+ {
+  "model": "architect.ifc",
+  "elements": 2527,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ },
+ {
+  "model": "construction.ifc",
+  "elements": 339,
+  "changed": 0,
+  "before": 0,
+  "after": 0,
+  "byClass": {},
+  "unjoined": 0,
+  "list": []
+ }
+]

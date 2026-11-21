@@ -831,7 +831,8 @@ test("explanations: a stored 0 on an element with a body is not-stored, and the 
 });
 
 // A window: a 1000 x 100 x 1000 frame block (0.1 m3) and a 900 x 20 x 900 pane
-// (0.0162 m3) drawn in ArchiCAD's see-through "Glas - algemeen"; a second window
+// (0.0162 m3) set 200 mm off it (the body is the union of its items, so a
+// pane inside the block would add nothing), drawn in ArchiCAD's see-through "Glas - algemeen"; a second window
 // whose pane is mapped in from a representation map at scale 2 (8 x the volume);
 // a third whose "pane" is glass wool insulation, not glass.
 const glazedFile = (stored1, stored2, stored3) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
@@ -842,11 +843,13 @@ const glazedFile = (stored1, stored2, stored3) => `ISO-10303-21;HEADER;FILE_SCHE
 #11=IFCAXIS2PLACEMENT3D(#10,$,$);
 #12=IFCLOCALPLACEMENT($,#11);
 #13=IFCAXIS2PLACEMENT2D(#10,$);
+#14=IFCCARTESIANPOINT((0.,200.,0.));
+#15=IFCAXIS2PLACEMENT3D(#14,$,$);
 #16=IFCDIRECTION((0.,0.,1.));
 #20=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,1000.,100.);
 #21=IFCEXTRUDEDAREASOLID(#20,#11,#16,1000.);
 #22=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,900.,20.);
-#23=IFCEXTRUDEDAREASOLID(#22,#11,#16,900.);
+#23=IFCEXTRUDEDAREASOLID(#22,#15,#16,900.);
 #30=IFCCOLOURRGB($,0.9,0.9,0.9);
 #31=IFCSURFACESTYLERENDERING(#30,0.,$,$,$,$,$,$,.NOTDEFINED.);
 #32=IFCSURFACESTYLE('RAL 9001',.BOTH.,(#31));
@@ -862,7 +865,7 @@ const glazedFile = (stored1, stored2, stored3) => `ISO-10303-21;HEADER;FILE_SCHE
 #43=IFCQUANTITYVOLUME('Net Volume',$,$,${stored1});
 #44=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53G9A',$,'ArchiCADQuantities',$,$,(#43));
 #45=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53G9A',$,$,$,(#42),#44);
-#50=IFCEXTRUDEDAREASOLID(#22,#11,#16,900.);
+#50=IFCEXTRUDEDAREASOLID(#22,#15,#16,900.);
 #51=IFCSTYLEDITEM(#50,(#37),$);
 #52=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#50));
 #53=IFCREPRESENTATIONMAP(#11,#52);
@@ -874,7 +877,7 @@ const glazedFile = (stored1, stored2, stored3) => `ISO-10303-21;HEADER;FILE_SCHE
 #59=IFCQUANTITYVOLUME('Net Volume',$,$,${stored2});
 #60=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53G9B',$,'ArchiCADQuantities',$,$,(#59));
 #61=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53G9B',$,$,$,(#58),#60);
-#70=IFCEXTRUDEDAREASOLID(#22,#11,#16,900.);
+#70=IFCEXTRUDEDAREASOLID(#22,#15,#16,900.);
 #71=IFCSURFACESTYLE('Isolatie - glaswol-steenwol',.BOTH.,(#31));
 #72=IFCPRESENTATIONSTYLEASSIGNMENT((#71));
 #73=IFCSTYLEDITEM(#70,(#72),$);
@@ -905,4 +908,60 @@ test("explanations: a stored window volume equal to the body less its glass pane
   // a stored figure 3% under the frame is not this cause
   const odd = takeoff(parseStep(glazedFile(frame * 0.97, frame, frame))).rows[0];
   assert.equal(odd.check.net.reason, "unexplained");
+});
+
+// A body of several items is their union: an IFC shape representation's items
+// together make the element's shape, and where two run into each other (a
+// cabinet's carcass and its doors, a door leaf set 10 mm into each post) the
+// shared part is one piece of material, not two.
+const itemsFile = (items) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53G9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#16=IFCDIRECTION((0.,0.,1.));
+${items.map(([x, y, w, d, h], i) => `#${100 + i * 10}=IFCCARTESIANPOINT((${x}.,${y}.));
+#${101 + i * 10}=IFCAXIS2PLACEMENT2D(#${100 + i * 10},$);
+#${102 + i * 10}=IFCRECTANGLEPROFILEDEF(.AREA.,$,#${101 + i * 10},${w}.,${d}.);
+#${103 + i * 10}=IFCEXTRUDEDAREASOLID(#${102 + i * 10},#11,#16,${h}.);`).join("\n")}
+#300=IFCCARTESIANPOINT((0.,0.));
+#301=IFCCARTESIANPOINT((600.,0.));
+#302=IFCCARTESIANPOINT((600.,200.));
+#303=IFCCARTESIANPOINT((200.,200.));
+#304=IFCCARTESIANPOINT((200.,600.));
+#305=IFCCARTESIANPOINT((0.,600.));
+#306=IFCPOLYLINE((#300,#301,#302,#303,#304,#305,#300));
+#307=IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,$,#306);
+#308=IFCEXTRUDEDAREASOLID(#307,#11,#16,100.);
+#309=IFCCARTESIANPOINT((300.,300.));
+#310=IFCAXIS2PLACEMENT2D(#309,$);
+#311=IFCRECTANGLEPROFILEDEF(.AREA.,$,#310,200.,200.);
+#312=IFCEXTRUDEDAREASOLID(#311,#11,#16,100.);
+#40=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(${items.map((_, i) => `#${103 + i * 10}`).join(",")}));
+#41=IFCPRODUCTDEFINITIONSHAPE($,$,(#40));
+#42=IFCFURNISHINGELEMENT('1YvctVUKr0kugbFTf53G9A',$,'boxes',$,$,#12,#41,$);
+#50=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#308,#312));
+#51=IFCPRODUCTDEFINITIONSHAPE($,$,(#50));
+#52=IFCFURNISHINGELEMENT('1YvctVUKr0kugbFTf53G9B',$,'L and square',$,$,#12,#51,$);
+ENDSEC;END-ISO-10303-21;`;
+
+test("a body's overlapping items are joined: the shared part counts once", () => {
+  // door: two 80 x 80 posts at x = +-460, an 860 x 30 leaf between them that runs 10 mm into each
+  const res = takeoff(parseStep(itemsFile([[460, 0, 80, 80, 2120], [-460, 0, 80, 80, 2120], [0, 0, 860, 30, 2120]])));
+  const [door, ell] = res.rows;
+  close(door.computed.gross, (2 * 80 * 80 * 2120 + 860 * 30 * 2120 - 2 * 10 * 30 * 2120) / 1e9);
+  assert.ok(door.computed.notes.some((n) => /1 overlapping body item joined/.test(n)), door.computed.notes.join("; "));
+  // the L (fanned into signed triangles, 600 x 600 less a 400 x 400 corner) and a
+  // 200 x 200 square at (200..400, 200..400) touch along the inner corner only: no overlap
+  close(ell.computed.gross, (600 * 600 - 400 * 400 + 200 * 200) * 100 / 1e9);
+  assert.ok(!ell.computed.notes.some((n) => /joined/.test(n)));
+  // items that only touch face to face are not changed
+  const [side] = takeoff(parseStep(itemsFile([[0, 0, 100, 100, 100], [100, 0, 100, 100, 100]]))).rows;
+  close(side.computed.gross, 2e-3);
+  assert.ok(!side.computed.notes.some((n) => /joined/.test(n)));
+  // one box inside another adds nothing
+  const [nest] = takeoff(parseStep(itemsFile([[0, 0, 300, 300, 300], [0, 0, 100, 100, 100]]))).rows;
+  close(nest.computed.gross, 0.027);
 });
