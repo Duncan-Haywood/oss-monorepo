@@ -103,7 +103,8 @@ The scores above are from before these fixes. A later round re-audits. Each audi
   - The takeoff chain is now a tested function, `takeoffChain` in `calc.mjs`, and the page calls it when a takeoff field changes. In a browser, 1,200 sf now gives a 1,296 sf order and a $6,310.74 price.
   - A cleared field is an error, not a zero.
   - New tests catch the wall-foam and break-even bugs that survived.
-  - The copied water-heater test fixture is replaced, and the README lists the hopper, water-volume and uncited-rate gaps. 139 of 139 tests pass.
+  - The README lists the hopper, water-volume and uncited-rate gaps. 139 of 139 tests pass.
+  - One finding was withdrawn on review. The "water-heater" fixture in `proposal-terms.test.mjs` is in a synced copy of the shared proposal-terms tests, and a sync test requires that copy to match byte for byte.
   - The depth-driven hopper allowance, water volume and the liner-share test are still open.
 - **inference-substitution:**
   - The `f_star` test now uses a case where f\* is about 0.15, inside the range, and `savings_curve` has a test. All three surviving bugs are now caught. 11 of 11 tests pass.

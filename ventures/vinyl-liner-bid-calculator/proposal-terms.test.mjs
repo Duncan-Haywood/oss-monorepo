@@ -134,7 +134,7 @@ test('a JSON payload comes back byte-for-byte, which is what lets it parse', () 
 });
 
 test('a query-string payload keeps every one of its own parameters', () => {
-  const payload = 'shape=oval&depth=hopper&mil=27&lengthFeet=36';
+  const payload = 'heaterType=tankless&location=attic&gallons=50';
   const split = splitTerms(withTerms(payload, SENT));
   assert.equal(split.payload, payload);
   assert.deepEqual(decodeTerms(split.terms), SENT);
