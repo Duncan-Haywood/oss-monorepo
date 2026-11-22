@@ -6,6 +6,17 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Ten seeds for the lag-range knee (2026-11-22): train a drone's motor lag up to 125 or 150 ms? 150 ms: it crashes 43% less at the measured lag
+
+**Question.** Section VII's ceiling sweep found the identified-lag crash count falling from a 78.2 ms to a 200 ms training-lag ceiling, but at six seeds per geometry it could not tell 125 ms (3.2× the slowest published identification, 39.1 ms) from 150 ms (3.8×): 101 against 65 crashes, p = 0.10. The builder rule had picked 125 ms for its faster rise. With seeds 6-9 added to both arms in both centre-of-pressure geometries (nothing else changed), are they different?
+
+**Headline ([`experiments/m12c_ten_seeds_vii/stats.txt`](experiments/m12c_ten_seeds_vii/stats.txt); 32 new CMA-ES runs, about 2 h 20 min on 4 cores; 8 predictions committed to `LOG.md` before the run, all held; reproduction checks exact ([`checks.txt`](experiments/m12c_ten_seeds_vii/checks.txt)); simulated).**
+
+- **They differ.** Flights that diverge at twice the trained centre-of-pressure lever and the 45° tilt limit, summed over the 33, 36 and 39.1 ms laws: **196 against 112 of 3,840** (pooled Mann-Whitney p = 0.004). Paired by geometry and seed, 125 ms crashes more in 17 of 20 pairs (exact Wilcoxon p = 0.00003). The four new seeds alone give 95 against 47.
+- **At a 75 ms motor the gap is wider:** 695 against 462 of 1,280, worse in 19 of 20 pairs.
+- **The price is rise time:** median rise to 90% of a 1 m step 2.08 against 1.68 s (centre of pressure above) and 1.83 against 1.73 s (below). All 40 designs pass the linear certificate at the identified lags.
+- **For a builder:** set the training ceiling at about 4× the slowest identified lag, not 3-4×. Pick 125 ms only if rise time matters more than the extra crashes. Whether 200 ms still beats 150 ms is open: it has six seeds per geometry so far.
+
 ## Ten seeds for the stability margin (2026-11-22): how much integral-gain margin should a drone tuner keep? Still 0.8× the linear ceiling, and without it a fifth of tunes crash at their own tilt limit
 
 **Question.** Section VI's Table VI-1 (milestones 7b, 7e, 7f) says a CMA-ES tuner with the side-force feed-forward should keep the attitude integral gain at 0.8× the 11-state linear model's ceiling. It rested on six seeds per arm. With seeds 6-9 added to all six arms (nothing else changed), exact Wilcoxon tests and bootstrap intervals, does it hold?
@@ -145,7 +156,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 - **Drawing the training lag exactly across the measured range is the worst choice tested.** 33-78.2 ms crashes on 486 of 2,304 identified-range stress flights; moving only the floor to the slow identified value (39.1-78.2 ms) gives 348 (pooled Mann-Whitney p = 0.011).
 - **The ceiling, not the floor, buys robustness.** With a 150 ms ceiling the floor no longer matters (39.1 against 75 ms floor: 65 against 62, p = 0.83). Along the ceiling sweep 78.2 / 100 / 125 / 150 / 200 ms the identified-range total falls 348 / 191 / 101 / 65 / 53 (Jonckheere-Terpstra trend p at the permutation floor in both geometries); neighbours separate up to 125 ms (p = 0.018, 0.025), not after (p = 0.10, 0.16). At a 75 ms motor every step of ceiling pays (all p ≤ 0.0002).
 - **Table VII-1** gathers all eleven training ranges with crashes, rise time and mass, and is generated from the results files by `paper/check_numbers.py` (58 checks), so the draft cannot drift from the data.
-- **For a builder:** anchor the randomised lag at the slowest identification for your motor class, never draw faster plants, and set the ceiling at 3-4× it; the price is rise time (1.44 s at 78.2 ms to 2.0-2.3 s at 200 ms), not crashes.
+- **For a builder:** anchor the randomised lag at the slowest identification for your motor class, never draw faster plants, and set the ceiling at about 4× it (ten seeds at 125 and 150 ms, 2026-11-22, separated the pair this six-seed sweep could not); the price is rise time (1.44 s at 78.2 ms to 2.0-2.3 s at 200 ms), not crashes.
 
 ## Milestone 7ac: is there a sharp knee in how wide a drone's motor-lag training range must be? No: a slope, and 3× gets most of it at the measured lag
 
