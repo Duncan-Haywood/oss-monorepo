@@ -15,8 +15,14 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 
 **No warranty.** Free and as-is; arithmetic on figures you type, not tax or
-financial advice. It does not model sales tax, insurance, testing and labelling
+financial advice. It does not model fixed per-order fees, a wholesale platform's
+commission (enter the net you receive), sales tax, insurance, testing and labelling
 rules, shipping, returns, breakage or unsold stock. Unverified against a real
 maker's books: tested on hand-calculated examples.
 
 MIT licence, see `LICENSE`.
+
+**Known gaps** (quality round 98, [`audit`](../../portfolio/quality/audits/2026-11-22-candle-batch-cost-calculator.json)):
+the built-in example enters jar size as wax weight (an 8 fl oz jar holds about 6.9 oz of soy wax); no fields yet for a
+fixed per-order fee or a wholesale platform's commission (both disclosed on the page); no batch view (wax and fragrance
+to melt for N units); a unit typed into a cell (`8 oz`) drops the row.

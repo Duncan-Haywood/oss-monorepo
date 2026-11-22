@@ -109,3 +109,11 @@ test("related-tool links point at ventures that exist", () => {
 test("links to the pottery piece pricing calculator, a sibling maker tool", () => {
   assert.match(page("index.html"), /href="\.\.\/pottery-piece-pricing-calculator\/"/);
 });
+
+test("round 98: the pricing FAQ states the formula the code uses", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /by one minus the margin you want and by one minus the fees/);
+  assert.match(html, /minus the margin you want: for 10% fees and a 50% margin, cost ÷ 0\.40/);
+  assert.match(html, /wholesale platform's commission/);
+});

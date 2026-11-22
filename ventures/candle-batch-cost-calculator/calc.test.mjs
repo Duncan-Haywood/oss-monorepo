@@ -106,3 +106,23 @@ testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a m
   assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
   assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
 });
+
+// Quality round 98 (portfolio/quality/audits/2026-11-22-candle-batch-cost-calculator.json).
+test("round 98: retail floor earns exactly the target margin after fees", () => {
+  const l = analyze(rows(ONE), OPTS).lines[0];
+  // cost = 8/16*4 + 8*0.1*2 + 2 + 10 = 15.6; floor = 15.6 / (1 - 0.1 - 0.5) = 39
+  near(l.floorOnline, 39, 1e-9);
+  near(l.floorOnline * (1 - 0.1) - l.cost.total, 0.5 * l.floorOnline, 1e-9);
+});
+
+test("round 98: no wholesale price falls back to the online net; per-hour excludes labor", () => {
+  const l = analyze(rows("NoWh,20,0,8,2,30,100"), { ...OPTS, wholesaleSharePct: 50 }).lines[0];
+  near(l.blendedNet, l.onlineNet, 1e-9);
+  near(l.onlineNet, 2.4, 1e-9);
+  near(analyze(rows(ONE), OPTS).lines[0].perHourOnline, (20 * 0.9 - (2 + 1.6 + 2)) / 0.5, 1e-9);
+});
+
+test("round 98: waste of 50% or more is refused", () => {
+  assert.ok(analyze(rows(ONE), { ...OPTS, wastePct: 50 }).error);
+  assert.ok(!analyze(rows(ONE), { ...OPTS, wastePct: 49 }).error);
+});

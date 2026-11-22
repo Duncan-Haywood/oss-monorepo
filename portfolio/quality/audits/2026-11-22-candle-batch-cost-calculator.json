@@ -1,0 +1,263 @@
+{
+ "date": "2026-11-22",
+ "subject": "ventures/candle-batch-cost-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-22-i-b012",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a small-batch candle maker who sells on Etsy, at markets and wholesale to gift shops (or the maker-business bookkeeper who prices their line). First checks: fragrance load computed on wax weight (supplier convention, 10% = 1.6 oz per lb), what 'wax oz' means for a jar sold as '8 oz' (fluid-ounce capacity vs wax weight vs net weight), waste gross-up, per-order marketplace fees (Etsy 6.5% + 3% + USD 0.25 + USD 0.20 listing), wholesale platform commission (Faire 15%), and whether the price floors agree with margin-vs-markup conventions (wholesale 2x cost, retail 2x wholesale)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the shipped analyze()/unitCost() on a probe (scratchpad cb/probe.mjs) with real-shaped inputs and recomputed every field by hand. Case A (6.5 oz wax, wax USD 2.50/lb, FO USD 2/oz at 10%, 5% waste, USD 3 other, 10 min at USD 20/h, Etsy 6.5+3, channel mix 50/20/30, fixed 300): wax 6.5/16*2.5/0.95 = 1.0691, FO 6.5*0.10*2/0.95 = 1.3684, labor 3.3333, cost 8.7708, online net 28*0.905-8.7708 = 16.5692, fair net 18.3892, wholesale net 5.2292, retail floor 8.7708/0.405 = 21.656 (margin at that price checks to exactly 50%), wholesale floor 17.5417, blended 13.5312, month net 1,053.12, break-even 22.17 units, effective hourly (1053.12+333.33)/16.667 = 83.19, 20% wax shock 21.38: all match. The page's example data matches too. Fragrance on wax weight matches the CandleScience convention (1 lb at 10% -> 1.6 oz; tool gives 1.6). The arithmetic is right for what it models: 3. Departures that change a real seller's number (no fixed per-order fee, no wholesale commission, 'wax oz' ambiguity) are scored under domain and fitness, not here.",
+  "completeness": "Every feature the page, README, VENTURE.yaml and llms.txt claim was exercised through analyze(): cost per unit with waste and fragrance load, online/fair/wholesale net and margin, retail and wholesale floors, break-even units, earnings per making hour, wax shock, CSV export (with formula-injection guard), warnings for free wax/time, loss-making products and below-floor prices. page.test.mjs (run, green) checks ids, imports and usage events. Page not loaded in a browser (marisstella.app proxy 403). No stubs or TODOs. The name says 'Batch' but there is no batch view (wax lbs and FO oz to melt for N units), and 'soap makers' are claimed but soap costing (oils, lye, FO on oil weight) is not modelled; nothing on the page promises those outright: 3.",
+  "verification": "`node --test '*.test.mjs'` in the subject root: 29/29 pass in 0.09 s. Seven seeded mutants via platform/ci/quality_mutate.py: 3 caught (retail-floor formula, fair fee = marketplace+payment, underFloor comparison flipped), 4 survive: the wholesale-share fallback for products with no wholesale price set to 0 (changes the month net shown), 'online net per hour making' charging labor (displayed column), the 50% waste bound moved to 60% (the test probes 60), and the 'worst product' sort reversed (dead output, never displayed). Tests pin the core cost formulas but not the fallbacks or several displayed columns: 2.",
+  "craft": "Read calc.mjs (175 lines), calc.test.mjs, page.test.mjs, usage.mjs and index.html. Pure, dependency-free module, one unitCost() reused for the wax shock, validation with clear errors, a careful CSV splitter and CSV injection guard. Defects: three computed outputs are never shown (month.worst, line.monthlyRevenue, line.wholesaleMargin; calc.mjs:91,94,122), the test file re-imports node:test and assert under new names for one appended test (calc.test.mjs:100-102), money()/money2() are dense one-liners, and a unit typed into a cell ('8 oz', '227g') drops the whole row with a generic message. A senior JS reviewer would accept it with nits: 3.",
+  "claims": "Disclaimer (no warranty, not legal/tax/financial advice), privacy line, independence line, 'Not modelled' and 'Unverified' are on the page and asserted by page.test.mjs; usage counting is local-only with Do Not Track and an opt-out button (usage.mjs, index.html:140,203). Served llms.txt/sitemap/canonicals are clean (served-copy.mjs; the source llms.txt's github.io URL is rewritten at deploy). But the first FAQ answer, shown on the page and in the FAQPage JSON-LD that search engines read, gives the wrong pricing formula: 'divide that cost by one minus the margin you want and by one minus the fees', i.e. cost/((1-m)(1-f)), while the tool (correctly) uses cost/(1-f-m). At cost 15.60, 10% fees, 50% target the FAQ gives 34.67 (a 45% margin) vs the tool's 39.00. 'Candle and soap maker' is claimed in the meta description and lead without soap-specific costing. A wrong formula a reader would act on: 2.",
+  "fitness": "Walked the maker's job: list four products, enter wax and FO prices, wage, fees and channel mix, read floors and monthly net. It answers 'does this wholesale price lose money once my time is counted', which is the stated trap. A maker would hit in the first hour: (1) no per-order fixed fee, so Etsy's USD 0.25 processing + USD 0.20 listing is missing (USD 0.45 on a USD 9 wax melt, about 10% of its online net); (2) wholesale assumed fee-free, so a USD 12 Faire order on the sample 8 oz jar shows +USD 1.42 net when 15% commission makes it -USD 0.38; (3) no batch quantities (how much wax and FO to melt for a pour of N jars), despite the name; (4) ounces only, no grams. Usable as a cross-check, not as the pricing sheet: 2.",
+  "domain": "Compared with supplier and maker practice: fragrance load as % of wax weight (CandleScience convention, 10% = 1.6 oz/lb) is right, and the label says so; waste as a gross-up on wax and FO is sound; margin-based floors are algebraically right and a 50% target on wholesale reproduces the 2x-cost convention. Departures: 'wax oz' is not defined as wax weight vs fill/net weight, and the built-in example enters '8 oz soy jar' with 8 oz of wax plus 8% FO (8.64 oz fill) although an 8 fl oz jar holds about 6.9 oz of wax at SG 0.86, which teaches users to type the jar's label size and overstates wax and FO cost about 16%; a user who types net weight double-counts FO (8 oz net at 8% is 7.41 wax + 0.59 FO, tool costs 8 + 0.64). No fixed marketplace fee, no wholesale commission, retail floor not tied to keystone (retail >= 2x wholesale) for makers who wholesale. A senior maker would not sign off the method as is: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Unit cost for a 6.5 oz-wax 8 oz jar: wax, fragrance, labor, total",
+   "method": "Hand arithmetic from first principles (16 oz per avoirdupois lb; FO on wax weight per CandleScience support 'How do I calculate the amount of fragrance oil I need', via search snippet: SimplySoy max 10% = 1.6 oz per lb; support.candlescience.com itself would not resolve in this session); wax 6.5/16*2.50/0.95 = 1.0691, FO 6.5*0.10*2.00/0.95 = 1.3684, labor 10/60*20 = 3.3333, + other 3.00",
+   "command": "node scratchpad/cb/probe.mjs $PWD/ventures/candle-batch-cost-calculator/calc.mjs (case A)",
+   "expected": "wax 1.0691, FO 1.3684, labor 3.3333, total 8.7708",
+   "observed": "wax 1.0691, fo 1.3684, lab 3.3333, tot 8.7708",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Channel nets and price floors (case A)",
+   "method": "Margin = net/price, so price = cost/((1-fee)-margin); hand: online 28*(1-0.095)-8.7708 = 16.5692; fair 28*0.97-8.7708 = 18.3892; wholesale 14-8.7708 = 5.2292; retail floor 8.7708/0.405 = 21.656, re-checked: 21.656*0.905-8.7708 = 10.828 = 50.0% of 21.656; wholesale floor 8.7708/0.5 = 17.5417",
+   "command": "node scratchpad/cb/probe.mjs ... (case A)",
+   "expected": "16.5692 / 18.3892 / 5.2292 / 21.6564 / 17.5417",
+   "observed": "onlineNet 16.5692, fairNet 18.3892, whNet 5.2292, floorOn 21.6564, floorWh 17.5417",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Month result: blended net, break-even, effective hourly, wax shock (case A, mix 50/20/30, fixed 300, wax +20%)",
+   "method": "Hand: blended 0.5*16.5692 + 0.2*18.3892 + 0.3*5.2292 = 13.5312; net 100*13.5312-300 = 1,053.12; break-even 300/13.5312 = 22.17; effective hourly (1053.12 + 100*3.3333)/16.667 = 83.19; shock 100*1.0691*0.20 = 21.38",
+   "command": "node scratchpad/cb/probe.mjs ... (case A)",
+   "expected": "13.5312, 1053.12, 22.17, 83.19, 21.38",
+   "observed": "blended 13.5312, net 1053.1167, breakEvenUnits 22.171, effectiveHourly 83.187, waxLoss 21.3816",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fragrance load convention: 1 lb of wax at 10%",
+   "method": "CandleScience support (search snippet): 10% load = 1.6 oz per pound of wax, i.e. % of wax weight, not of total weight",
+   "command": "node -e unitCost({waxOz:16,...},{fragrancePct:10,fragrancePerOz:1,wastePct:0})",
+   "expected": "1.6 oz of FO (USD 1.60 at USD 1/oz)",
+   "observed": "fragrance 1.6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Page example ('Load an example' inputs) recomputed",
+   "method": "Hand: 8 oz soy jar wax 8/16*4.5/0.95 = 2.3684, FO 8*0.08*2.1/0.95 = 1.4147, labor 12/60*18 = 3.6, + 3.2 = 10.5832",
+   "command": "node scratchpad/cb/probe.mjs ... (case B)",
+   "expected": "cost 10.5832, online net 24*0.88-10.5832 = 10.5368",
+   "observed": "tot 10.5832, onlineNet 10.5368; month net 2,246.52 (verdict '$2,247')",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "What 'wax oz' an '8 oz soy jar' holds (built-in example)",
+   "method": "Wax specific gravity about 0.86 (search results: an 8 fl oz container holds about 6.88 oz of wax); fill = wax + FO",
+   "command": "sampleProducts() in calc.mjs:135 (8 oz soy jar, 8 wax oz, 8% load)",
+   "expected": "about 6.9 oz wax for an 8 fl oz jar, or wax = net/(1+load) = 7.41 oz for an 8 oz net-weight candle",
+   "observed": "8 oz wax + 0.64 oz FO = 8.64 oz fill; 'wax oz' undefined on the page; wax+FO cost overstated about 16% vs a 6.9 oz fill",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Etsy per-order fees on a USD 9 wax melt",
+   "method": "Etsy fee schedule (help.etsy.com 'Fees and taxes', via search): 6.5% transaction + 3% + USD 0.25 payment processing (US) + USD 0.20 listing",
+   "command": "node -e analyze(melt,9,...,{marketplaceFeePct:6.5,paymentFeePct:3})",
+   "expected": "online net 3.8763 (after the USD 0.45 fixed fees)",
+   "observed": "4.3263; no field for a fixed per-order fee",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Wholesale net through Faire on the sample 8 oz jar at USD 12",
+   "method": "Faire brand pricing (faire.com/brands, via search): 15% commission on orders, plus USD 10 on opening orders from marketplace-found retailers",
+   "command": "node -e analyze(jar,24,12,8,3.2,12,120,{waxPerLb:4.5,fragrancePerOz:2.1,hourlyWage:18})",
+   "expected": "12*0.85 - 10.5832 = -0.38 (loses money)",
+   "observed": "wholesaleNet +1.4168; wholesale is fee-free by design (calc.mjs:83 comment) and 'Not modelled' does not list wholesale commission",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Margin vs markup conventions (wholesale 2x cost, retail 2x wholesale)",
+   "method": "Craftybase 'How to price candles' and CandleScience 'How to price your candles' (search): COGS x2 = wholesale, x2 again = retail (keystone)",
+   "command": "case E: cost 8, wholesale 14, retail 28, no fees, target 50%",
+   "expected": "wholesale floor 2x cost = 16; retail floor at 50% = 16 (keystone would need 32)",
+   "observed": "floorWh 16, floorOn 16; wholesale-as-%-of-retail column shown, but retail floor not tied to 2x wholesale for a wholesaling maker",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ 'How do I price a candle?' formula vs the code",
+   "method": "Algebra: margin m = (P(1-f) - C)/P gives P = C/(1-f-m); the FAQ says C/((1-m)(1-f))",
+   "command": "node -e: floorOnline for cost 15.60, fee 10%, target 50% vs 15.6/(0.5*0.9)",
+   "expected": "page text and tool agree on 39.00",
+   "observed": "tool 39.00 (right); FAQ formula 34.67, which yields a 45% margin; the same text is in the FAQPage JSON-LD (index.html:12) and the visible FAQ (index.html:117)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, privacy, usage tracking with opt-out",
+   "method": "read index.html footer and usage.mjs; page.test.mjs asserts them",
+   "command": "grep -n 'No warranty\\|optout\\|record(' ventures/candle-batch-cost-calculator/index.html",
+   "expected": "disclaimer, local-only counters, DNT and opt-out",
+   "observed": "all present; events analysis_run, example_loaded, report_downloaded; opt-out persists in localStorage",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt, sitemap, robots, canonicals",
+   "method": "build rewrite (platform/ci/build_pages_site.py)",
+   "command": "node platform/pages/served-copy.mjs candle-batch-cost-calculator",
+   "expected": "no placeholder or retired origin",
+   "observed": "none left (source llms.txt points at github.io, rewritten at deploy; marisstella.app itself: proxy 403)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run in subject root",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "29/29 pass in 0.09 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutations in calc.mjs",
+   "method": "platform/ci/quality_mutate.py, 7 mutants",
+   "command": "python3 platform/ci/quality_mutate.py ventures/candle-batch-cost-calculator/calc.mjs --old ... --new ... -- node --test '*.test.mjs'",
+   "expected": "every mutant caught",
+   "observed": "3 of 7 caught; wholesale fallback, per-hour column, waste bound and worst-product sort survive",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:84",
+   "change": "c.total / ((1 - onlineFee) - target) -> c.total / ((1 - target) * (1 - onlineFee))",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:73",
+   "change": "fairFee = paymentFeePct -> marketplaceFeePct + paymentFeePct",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:96",
+   "change": "p.retail < floorOnline -> p.retail > floorOnline",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:82",
+   "change": "(p.wholesale > 0 ? wS * wholesaleNet : wS * onlineNet) -> (... : 0)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:87",
+   "change": "perHourOnline: retail*(1-fee) - c.materials -> - c.total",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:66",
+   "change": "o.wastePct >= 50 -> >= 60",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:122",
+   "change": "sort a.blendedNet - b.blendedNet -> b.blendedNet - a.blendedNet (worst product; output never displayed)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The first FAQ answer, visible on the page and in the FAQPage JSON-LD, gives the wrong pricing formula: 'divide that cost by one minus the margin you want and by one minus the fees', i.e. cost/((1-m)(1-f)). The tool correctly uses cost/(1-f-m). At cost 15.60, 10% fees, 50% target the FAQ gives 34.67, which earns a 45% margin, not 50%. A maker pricing by the FAQ undercharges.",
+   "where": "ventures/candle-batch-cost-calculator/index.html:117",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
+  },
+  {
+   "severity": "medium",
+   "what": "'Wax oz' is not defined (wax weight vs fill/net weight vs the jar's fluid-ounce size), and the built-in example enters '8 oz soy jar' with 8 oz wax and '4 oz travel tin' with 4 oz wax, then adds 8% FO on top (8.64 oz fill). An 8 fl oz jar holds about 6.9 oz of wax (SG 0.86); an 8 oz net-weight candle at 8% is 7.41 oz wax + 0.59 oz FO. Users who copy the example's pattern overstate wax+FO cost by about 8-16%, or double-count FO.",
+   "where": "ventures/candle-batch-cost-calculator/calc.mjs:135",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Online fees are percentage-only: no per-order fixed fee, so Etsy's USD 0.25 payment processing and USD 0.20 listing fee (and Square's in-person fixed fee at fairs) are missing. On the sample USD 9 wax melt the online net is overstated by USD 0.45 (4.33 vs 3.88 at Etsy's 6.5% + 3%).",
+   "where": "ventures/candle-batch-cost-calculator/calc.mjs:72",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Wholesale is modelled fee-free (wholesale net = price - cost), and the page's 'Not modelled' list does not say so. Small makers commonly wholesale through Faire at 15% commission: the sample 8 oz jar at USD 12 shows +USD 1.42 net but loses USD 0.38 after commission, the exact trap VENTURE.yaml says the tool exists to catch.",
+   "where": "ventures/candle-batch-cost-calculator/calc.mjs:81",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests miss displayed logic: setting the no-wholesale-price fallback to zero, charging labor in 'online net per hour making', and moving the 50% waste bound to 60% all leave 29/29 green (4 of 7 seeded mutants survive).",
+   "where": "ventures/candle-batch-cost-calculator/calc.test.mjs:42",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
+  },
+  {
+   "severity": "low",
+   "what": "Named a 'batch' calculator and pitched to soap makers, but there is no batch view (total wax lbs and FO oz to melt for a pour of N units) and no soap costing (oils, lye, FO on oil weight).",
+   "where": "ventures/candle-batch-cost-calculator/index.html:7",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Dead outputs: month.worst, line.monthlyRevenue and line.wholesaleMargin are computed but never displayed or exported; the appended test re-imports node:test and assert under new names.",
+   "where": "ventures/candle-batch-cost-calculator/calc.mjs:94",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "A unit typed in a cell ('8 oz', '227g') makes the row's number NaN and the row is silently dropped with a generic 'need a positive wax weight' message; there is no metric (grams) option for UK/EU makers.",
+   "where": "ventures/candle-batch-cost-calculator/calc.mjs:22",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"],
+ "verdict": "The arithmetic is right: cost per unit, channel nets, both price floors, blended month, break-even, effective hourly and the wax shock all recompute by hand on a fresh case and on the page's example, and fragrance load on wax weight matches the CandleScience convention (10% = 1.6 oz/lb). But the page's own first FAQ, also in the search-engine JSON-LD, tells makers to price with cost/((1-m)(1-f)), which gives 34.67 instead of 39.00 at a 50% target (a 45% margin). The model also misses what a seller hits first: Etsy's fixed USD 0.45 per order, Faire's 15% wholesale commission (the sample jar's +1.42 wholesale net is really -0.38), and what 'wax oz' means; the example types an 8 oz jar as 8 oz of wax plus FO, about 16% more than an 8 fl oz jar holds. Tests pass 29/29; 4 of 7 seeded mutants survive. Scores: correctness 3, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished, does not meet the bar (claims, verification). The FAQ fix is one sentence; the fee and wax-weight gaps are small additions. support.candlescience.com, Etsy and Faire pages were read through search snippets only (direct fetch blocked), so those figures rest on the snippets."
+}

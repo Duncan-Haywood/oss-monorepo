@@ -222,7 +222,7 @@
     {
      "slug": "multi-verifier-audit",
      "title": "Many verifiers, one solver: the volunteer's dilemma in refereed verification",
-     "summary": "Closed-form m-verifier audit equilibrium (detection pinned at s/(s+S), redundancy bounded by ln(1/(1-q))/q, cheating rising with m under split rewards), a saddle-point stability result, Hedge dynamics that concentrate audit burden on a subset, and bandit learners that need an exploration floor. Stylised."
+     "summary": "Closed-form m-verifier audit equilibrium (detection pinned at s/(s+S), redundancy bounded by ln(1/(1-q))/q, cheating rising with m under split rewards), a saddle-point stability result, Hedge dynamics that leave one de facto auditor with detection still cycling (corrected: an earlier committee result came from a tied start), and bandit learners that need an exploration floor. Stylised."
     },
     {
      "slug": "spot-check-slashing",

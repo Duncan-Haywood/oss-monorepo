@@ -31,7 +31,7 @@ export const KIND_LABEL = { people: "person", organizations: "organization", dea
 export const REQUIRED = { people: ["name"], organizations: ["name"], deals: ["title"] };
 
 export const DEAL_STATUS = ["Open", "Won", "Lost"];
-export const ROW_LIMIT = 100000;
+export const ROW_LIMIT = 50000;
 export const FILE_LIMIT = 50 * 1024 * 1024;
 
 export const NOT_CHECKED = [
@@ -136,8 +136,12 @@ function prepare(input) {
 function chooseKind(header, kind) {
   if (KIND_PROPS[kind]) return kind;
   const n = header.map(norm);
-  if (n.some((h) => ["value", "dealvalue", "amount", "stage", "pipeline", "dealtitle", "expectedclosedate", "probability", "currency"].includes(h))) return "deals";
+  if (n.some((h) => ["value", "dealvalue", "amount", "stage", "pipeline", "dealtitle", "expectedclosedate", "probability", "currency", "wontime", "losttime", "lostreason"].includes(h))) return "deals";
   if (n.some((h) => ["email", "emailaddress", "firstname", "lastname", "phone", "jobtitle"].includes(h))) return "people";
+  // A Title with no Name column, or a Status column, is a deal once no person signal (email, phone, first or last name) has matched.
+  if (!n.includes("name") && (n.includes("title") || n.includes("status"))) return "deals";
+  // Name plus Organization with nothing address-like is a list of people at companies.
+  if (n.includes("name") && n.some((h) => ["organization", "organisation", "company"].includes(h)) && !n.some((h) => ["address", "website"].includes(h))) return "people";
   if (n.some((h) => ["organization", "organisation", "address", "website"].includes(h)) || n.includes("name")) return "organizations";
   return "people";
 }
@@ -279,13 +283,14 @@ export function validate(input, options = {}) {
     const label = table.byExact.get(req)[0];
     add("error", rows[0].line, `No ${label} column`, `A ${kindName} cannot be created without ${label}${kind === "people" ? " (or first and last name)" : ""}, so every row would be skipped unless you map another column to it.`);
   }
+  if (kind === "deals" && !("person_name" in idx) && !("org_name" in idx)) add("error", rows[0].line, "No Person or Organization column", "Pipedrive links every imported deal to a person or an organization and skips a deal that has neither. Add a Person or Organization column.");
   if (kind === "deals" && !("value" in idx)) add("info", rows[0].line, "No Value column", "Deals import with no value, which makes pipeline totals and forecasts read zero.");
   if (kind === "deals" && "value" in idx && !("currency" in idx)) add("info", rows[0].line, "Value without a Currency column", "Every deal takes your account's default currency. Add a Currency column of 3-letter codes if the file mixes currencies.");
   if (kind === "deals" && !("pipeline" in idx) && !("stage" in idx)) add("info", rows[0].line, "No Pipeline or Stage column", "Every deal lands in your default pipeline's first stage.");
 
   const data = rows.slice(1);
   if (data.length === 0) add("error", 0, "There are no records", "The file has a header and nothing under it.");
-  if (data.length > rowLimit) add("warning", 0, `The file has ${data.length.toLocaleString("en-US")} rows`, `Pipedrive's import help describes a per-file row limit (from memory, about ${ROW_LIMIT.toLocaleString("en-US")}; check the current figure). Split the file and import the parts one at a time.`);
+  if (data.length > rowLimit) add("warning", 0, `The file has ${data.length.toLocaleString("en-US")} rows`, `Pipedrive's import help describes a per-file row limit (${ROW_LIMIT.toLocaleString("en-US")} rows per file; check the current figure). Split the file and import the parts one at a time.`);
 
   const get = (r, key) => (key in idx && idx[key] < r.cells.length ? r.cells[idx[key]] : "");
   const emails = new Map(), names = new Map(), titles = new Map();
@@ -306,6 +311,7 @@ export function validate(input, options = {}) {
       if (kind === "people" && hasNameParts && (get(r, "first_name").trim() || get(r, "last_name").trim())) continue;
       add("error", L, `${table.byExact.get(req)[0]} is empty`, `${kindName[0].toUpperCase() + kindName.slice(1)}s need ${table.byExact.get(req)[0]}; this row will be skipped.`);
     }
+    if (kind === "deals" && ("person_name" in idx || "org_name" in idx) && !get(r, "person_name").trim() && !get(r, "org_name").trim()) add("error", L, "Deal has no Person or Organization", "Pipedrive skips a deal that is linked to neither; fill one in.");
     if (kind === "people" && !("name" in idx) && hasNameParts && !get(r, "first_name").trim() && !get(r, "last_name").trim()) add("error", L, "First and last name are both empty", "A person needs a name; this row will be skipped.");
 
     const em = get(r, "email").trim();
@@ -367,7 +373,7 @@ export function validate(input, options = {}) {
       if (type === "percent") {
         const n = Number(v.replace(/%$/, ""));
         if (!/^\d+(\.\d+)?%?$/.test(v) || n > 100) add("error", L, `Probability "${v}" is not a number from 0 to 100`, "Write 60, not 0.6 or sixty percent. A value above 100 is rejected.");
-        else if (n > 0 && n <= 1 && !/%/.test(v) && String(n).includes(".")) add("warning", L, `Probability ${v} looks like a fraction`, "Pipedrive reads 0.6 as 0.6 percent, not 60. Write 60.");
+        else if (n > 0 && n <= 1 && !/%/.test(v) && v.includes(".")) add("warning", L, `Probability ${v} looks like a fraction`, "Pipedrive reads 0.6 as 0.6 percent, not 60. Write 60.");
       }
       if (type === "owner") {
         if (!owners.has(v)) owners.set(v, []);
@@ -378,7 +384,7 @@ export function validate(input, options = {}) {
         else totalValue += Number(v);
       }
       if (type === "url" && (/\s/.test(v) || !/\./.test(v))) add("warning", L, `${label} "${v}" does not look like a web address`, "A name or note in the website column.");
-      if (type === "id" && !/^\d+$/.test(v)) add("warning", L, `${label} "${v}" is not a whole number`, "Pipedrive IDs are whole numbers. A rewritten ID updates the wrong record or none.");
+      if (type === "id" && !/^\d+$/.test(v)) add("error", L, `${label} "${v}" is not a whole number`, "Pipedrive IDs are whole numbers. A rewritten ID updates the wrong record or none.");
       if (key === "stage") { stages.set(v, (stages.get(v) || 0) + 1); }
       if (key === "pipeline") { pipelines.set(v, (pipelines.get(v) || 0) + 1); }
     }
