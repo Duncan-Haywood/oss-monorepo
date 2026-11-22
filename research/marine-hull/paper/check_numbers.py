@@ -257,6 +257,12 @@ CLAIMS = [
     ("results_relative_damping.txt", "row rel GB 2.866 -3.42"),
     ("results_relative_damping.txt", "row rel NF-PG 2.754 -3.29"),
     ("results_relative_damping.txt", "abs 0.0375: 25.503, -20.526; rel 0.0375: 2.013, 0.112"),
+    # milestone 7zx: Pinkster's near field on Capytaine's panel solution, zero speed
+    ("results_panel_nearfield.txt", "P2 free NF3D/Maruo T 1.0054, M 1.0049"),
+    ("results_panel_nearfield.txt", "P1 restrained NF3D/Maruo T 1.0125, M 1.0072"),
+    ("results_panel_nearfield.txt", "(0.047% of the peak at most)"),
+    ("results_panel_nearfield.txt", "(0.070% of the peak at most)"),
+    ("results_panel_nearfield.txt", "P5 strip NF-PG at lambda/L 8, monohull, zero speed: -0.003101"),
 
 ]
 

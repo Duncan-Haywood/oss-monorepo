@@ -1,0 +1,123 @@
+Milestone 7zx: Pinkster's near field on Capytaine's 3D panel solution against Maruo's far field, zero speed, head waves, and the strip near field term by term
+capytaine 3.0.0; indirect method; full meshes with a waterplane lid; compute_potential and compute_velocity on the hull faces; heave and pitch free (7zm panel motions) or restrained
+
+== P0b code check: fixed vertical cylinder, radius 1 m, draft 4 m, waves along -x; near field (WL + VEL) against the exact infinite-draft drift and Capytaine's far field on the same mesh ==
+  ka   exact  NF 48x16  FF 48x16  NF 96x32  FF 96x32 NF/exact   NF/FF
+ 1.0  0.6649    0.6770    0.6795    0.6749    0.6737   1.0149  1.0017
+ 2.0  0.6272    0.6343    0.6348    0.6383    0.6334   1.0178  1.0078
+ 4.0  0.6391    0.6516    0.6406    0.6524    0.6429   1.0209  1.0148
+P0b: largest |NF/exact - 1| or |NF/FF - 1| on the fine mesh 0.0209 -> held (< 0.05)
+
+== T (tank, modified Wigley, L/B 6.67): L 2.0 m, B 0.3 m, T 0.1250 m, rho 1000.0, kyy 0.248 L; mass 42.08 kg, Iyy 10.352 kg m2, C33 4083.6 N/m, C55 854.7 N m; sigma = R_aw / (rho g zeta^2 B^2 / L) ==
+
+-- T (tank, modified Wigley, L/B 6.67): fine mesh 80x16 per half (2560 hull panels), 495 s; coarse 40x8 (640), 60 s --
+P0a: largest rms radiation boundary-condition residual |v.n - BC| / |BC|: fine 2.77e-15, coarse 1.66e-15
+ lam/L   FF fix   NF fix  FF free  NF free       WL      VEL     GRAD      ROT NFc free
+  0.30   0.3330   0.3678   0.3603   0.3957   1.5437  -1.1062  -0.0372  -0.0047   0.4082
+  0.35   0.3749   0.4058   0.4334   0.4658   1.5319  -0.9954  -0.0538  -0.0169   0.4801
+  0.40   0.4149   0.4425   0.7489   0.7773   2.0127  -0.9130  -0.2544  -0.0680   0.7889
+  0.45   0.4479   0.4728   1.1984   1.2209   2.7022  -0.7930  -0.5249  -0.1634   1.2245
+  0.50   0.4812   0.5036   1.2683   1.2873   2.6911  -0.6919  -0.4518  -0.2602   1.2920
+  0.60   0.5293   0.5477   0.9492   0.9686   2.0096  -0.5732  -0.1254  -0.3423   0.9849
+  0.70   0.5660   0.5811   0.9846   0.9988   1.9352  -0.4009  -0.2128  -0.3227   1.0192
+  0.80   0.5857   0.5980   0.9643   0.9708   1.8040  -0.2540  -0.2647  -0.3144   0.9904
+  0.90   0.6057   0.6158   0.7790   0.7798   1.4238  -0.1454  -0.2013  -0.2973   0.7953
+  1.00   0.6107   0.6191   0.5527   0.5507   0.9873  -0.0730  -0.1049  -0.2587   0.5612
+  1.10   0.5990   0.6058   0.3678   0.3649   0.6345  -0.0306  -0.0294  -0.2096   0.3710
+  1.25   0.5736   0.5787   0.1942   0.1915   0.3082  -0.0022   0.0276  -0.1420   0.1937
+  1.40   0.5593   0.5630   0.1063   0.1042   0.1490   0.0059   0.0428  -0.0934   0.1047
+  1.60   0.5553   0.5576   0.0528   0.0514   0.0596   0.0066   0.0397  -0.0544   0.0512
+  1.80   0.5514   0.5526   0.0294   0.0286   0.0258   0.0048   0.0312  -0.0333   0.0282
+  2.00   0.5375   0.5380   0.0180   0.0174   0.0121   0.0032   0.0235  -0.0214   0.0171
+  2.25   0.5053   0.5052   0.0107   0.0103   0.0051   0.0018   0.0165  -0.0130   0.0101
+  2.50   0.4627   0.4622   0.0068   0.0066   0.0023   0.0010   0.0116  -0.0084   0.0064
+  3.00   0.3705   0.3697   0.0032   0.0031   0.0006   0.0003   0.0061  -0.0039   0.0030
+  4.00   0.2253   0.2245   0.0009   0.0009   0.0001  -0.0000   0.0020  -0.0011   0.0009
+  6.00   0.0911   0.0907   0.0002   0.0001  -0.0000  -0.0000   0.0003  -0.0002   0.0001
+  8.00   0.0439   0.0437   0.0000   0.0000  -0.0000  -0.0000   0.0001  -0.0000   0.0000
+areas on lambda/L 0.5-2.0, fine: ff_fix 0.8477, nf_fix 0.8583, ff_free 0.5983, nf_free 0.6015
+areas on lambda/L 0.5-2.0, coarse: ff_fix 0.8646, nf_fix 0.8712, ff_free 0.6099, nf_free 0.6111
+NF3D / Maruo area: restrained 1.0125, free 1.0054; coarse -> fine free area change NF3D 1.58%, Maruo 1.94%
+free NF3D peak 1.2873; at lambda/L (4.0, 6.0, 8.0): 0.000903, 0.000149, 0.000039 (0.070% of the peak at most)
+
+strip near field at zero speed, zeta 0, strip motions (nearfield.NearField) against NF3D free, fine mesh; sigma units; strip rot = rot_newton
+ lam/L    row     total        WL       VEL      GRAD       ROT        GB
+  0.50     3D   1.28726   2.69109  -0.69187  -0.45176  -0.26020          
+        strip   1.11317   1.10209   0.37752  -0.30660  -0.05984   3.19282
+              strip NF (PDSTRIP rot) 1.46088, NF-P 1.41977; motions |z| strip 0.2055 panel 0.2097, |theta|/k strip 0.1060 panel 0.1146
+  1.00     3D   0.55073   0.98732  -0.07303  -0.10489  -0.25867          
+        strip   0.65766   0.62816   0.50753  -0.40802  -0.07002   1.06869
+              strip NF (PDSTRIP rot) 1.05017, NF-P 1.06568; motions |z| strip 0.2706 panel 0.2682, |theta|/k strip 0.5317 panel 0.5547
+  2.00     3D   0.01743   0.01209   0.00317   0.02353  -0.02136          
+        strip   0.03849   0.05362   0.02329  -0.03460  -0.00382   0.07551
+              strip NF (PDSTRIP rot) 0.07248, NF-P 0.07309; motions |z| strip 0.7839 panel 0.7757, |theta|/k strip 0.8867 panel 0.9219
+  4.00     3D   0.00090   0.00005  -0.00002   0.00196  -0.00109          
+        strip  -0.00909   0.00209  -0.01011  -0.00114   0.00007   0.00385
+              strip NF (PDSTRIP rot) -0.00795, NF-P -0.00795; motions |z| strip 0.9466 panel 0.9427, |theta|/k strip 0.9806 panel 0.9991
+  8.00     3D   0.00004  -0.00000  -0.00001   0.00010  -0.00004          
+        strip  -0.00358   0.00006  -0.00367   0.00001   0.00002   0.00023
+              strip NF (PDSTRIP rot) -0.00358, NF-P -0.00358; motions |z| strip 0.9875 panel 0.9850, |theta|/k strip 0.9994 panel 1.0101
+lambda/L 8, |strip - 3D| per term: wl 0.00006, vel 0.00365, grad 0.00009, rot 0.00006
+
+== M (4 m monohull, Wigley, L/B 10): L 4.0 m, B 0.4 m, T 0.2744 m, rho 1025.0, kyy 0.25 L; mass 200.00 kg, Iyy 200.000 kg m2, C33 10731.6 N/m, C55 8604.3 N m; sigma = R_aw / (rho g zeta^2 B^2 / L) ==
+
+-- M (4 m monohull, Wigley, L/B 10): fine mesh 80x16 per half (2560 hull panels), 526 s; coarse 40x8 (640), 64 s --
+P0a: largest rms radiation boundary-condition residual |v.n - BC| / |BC|: fine 2.28e-15, coarse 1.28e-15
+ lam/L   FF fix   NF fix  FF free  NF free       WL      VEL     GRAD      ROT NFc free
+  0.30   0.4718   0.5114   0.5070   0.5464   2.0234  -1.4060  -0.0592  -0.0118   0.5622
+  0.35   0.5382   0.5713   0.6337   0.6672   2.0913  -1.2529  -0.1290  -0.0423   0.6845
+  0.40   0.5963   0.6243   1.1318   1.1557   2.9607  -1.1186  -0.5831  -0.1032   1.1695
+  0.45   0.6414   0.6654   1.3722   1.3878   3.3009  -0.9935  -0.7285  -0.1911   1.4002
+  0.50   0.6806   0.7012   1.0694   1.0840   2.5205  -0.9029  -0.3508  -0.1827   1.0980
+  0.60   0.7313   0.7469   0.9261   0.9402   1.9256  -0.6154  -0.1675  -0.2024   0.9547
+  0.70   0.7565   0.7683   1.0868   1.0956   2.0098  -0.3603  -0.3031  -0.2507   1.1111
+  0.80   0.7627   0.7720   0.9973   1.0004   1.7845  -0.1959  -0.3126  -0.2756   1.0143
+  0.90   0.7719   0.7791   0.7338   0.7337   1.3030  -0.0961  -0.2134  -0.2597   0.7442
+  1.00   0.7645   0.7701   0.4781   0.4771   0.8407  -0.0402  -0.1061  -0.2173   0.4838
+  1.10   0.7410   0.7454   0.2963   0.2952   0.5090  -0.0120  -0.0329  -0.1689   0.2989
+  1.25   0.7037   0.7067   0.1444   0.1435   0.2310   0.0039   0.0174  -0.1087   0.1448
+  1.40   0.6824   0.6844   0.0749   0.0743   0.1066   0.0069   0.0299  -0.0690   0.0746
+  1.60   0.6699   0.6710   0.0358   0.0354   0.0410   0.0058   0.0278  -0.0391   0.0353
+  1.80   0.6545   0.6549   0.0197   0.0195   0.0174   0.0040   0.0217  -0.0236   0.0193
+  2.00   0.6268   0.6267   0.0120   0.0119   0.0080   0.0026   0.0164  -0.0151   0.0117
+  2.25   0.5770   0.5764   0.0072   0.0071   0.0034   0.0015   0.0115  -0.0092   0.0070
+  2.50   0.5185   0.5177   0.0046   0.0046   0.0015   0.0008   0.0082  -0.0059   0.0045
+  3.00   0.4029   0.4019   0.0022   0.0022   0.0004   0.0003   0.0043  -0.0028   0.0021
+  4.00   0.2353   0.2345   0.0007   0.0007   0.0000   0.0000   0.0014  -0.0008   0.0006
+  6.00   0.0913   0.0909   0.0001   0.0001  -0.0000  -0.0000   0.0002  -0.0001   0.0001
+  8.00   0.0431   0.0429   0.0000   0.0000  -0.0000  -0.0000   0.0001  -0.0000   0.0000
+areas on lambda/L 0.5-2.0, fine: ff_fix 1.0579, nf_fix 1.0655, ff_free 0.5598, nf_free 0.5625
+areas on lambda/L 0.5-2.0, coarse: ff_fix 1.0788, nf_fix 1.0781, ff_free 0.5716, nf_free 0.5699
+NF3D / Maruo area: restrained 1.0072, free 1.0049; coarse -> fine free area change NF3D 1.31%, Maruo 2.11%
+free NF3D peak 1.3878; at lambda/L (4.0, 6.0, 8.0): 0.000651, 0.000109, 0.000029 (0.047% of the peak at most)
+
+strip near field at zero speed, zeta 0, strip motions (nearfield.NearField) against NF3D free, fine mesh; sigma units; strip rot = rot_newton
+ lam/L    row     total        WL       VEL      GRAD       ROT        GB
+  0.50     3D   1.08402   2.52045  -0.90292  -0.35080  -0.18272          
+        strip   0.63872   0.83673   0.21365  -0.32463  -0.08702   4.15269
+              strip NF (PDSTRIP rot) 0.96627, NF-P 0.96336; motions |z| strip 0.1201 panel 0.1153, |theta|/k strip 0.0835 panel 0.0850
+  1.00     3D   0.47710   0.84074  -0.04023  -0.10612  -0.21729          
+        strip   0.57321   0.50816   0.50487  -0.34330  -0.09651   1.08984
+              strip NF (PDSTRIP rot) 0.91763, NF-P 0.91652; motions |z| strip 0.3134 panel 0.3089, |theta|/k strip 0.5464 panel 0.5501
+  2.00     3D   0.01191   0.00803   0.00256   0.01640  -0.01509          
+        strip   0.02901   0.04709   0.01479  -0.02675  -0.00612   0.06453
+              strip NF (PDSTRIP rot) 0.05599, NF-P 0.05576; motions |z| strip 0.7878 panel 0.7846, |theta|/k strip 0.8904 panel 0.8955
+  4.00     3D   0.00065   0.00003   0.00002   0.00139  -0.00079          
+        strip  -0.00888   0.00186  -0.00998  -0.00067  -0.00009   0.00301
+              strip NF (PDSTRIP rot) -0.00820, NF-P -0.00821; motions |z| strip 0.9460 panel 0.9439, |theta|/k strip 0.9823 panel 0.9799
+  8.00     3D   0.00003  -0.00000  -0.00000   0.00007  -0.00003          
+        strip  -0.00310   0.00005  -0.00319   0.00003   0.00001   0.00018
+              strip NF (PDSTRIP rot) -0.00313, NF-P -0.00313; motions |z| strip 0.9869 panel 0.9853, |theta|/k strip 1.0005 panel 0.9955
+lambda/L 8, |strip - 3D| per term: wl 0.00005, vel 0.00319, grad 0.00004, rot 0.00004
+
+== expectations ==
+P0a BC residual T 2.77e-15, M 2.28e-15 -> held
+P0b cylinder worst 0.0209 -> held
+P1 restrained NF3D/Maruo T 1.0125, M 1.0072 -> held (0.9-1.1)
+P2 free NF3D/Maruo T 1.0054, M 1.0049 -> held (0.85-1.15)
+P3 mesh change NF3D vs Maruo: T 1.58% vs 1.94%, M 1.31% vs 2.11% -> refuted
+P4 long-wave free NF3D / peak: T max 0.070% min 0.003%, M max 0.047% min 0.002% -> held
+P5 strip NF-PG at lambda/L 8, monohull, zero speed: -0.003101 -> held
+P6 term furthest from 3D at lambda/L 8: T vel, M vel -> held
+
+run time 1363 s
