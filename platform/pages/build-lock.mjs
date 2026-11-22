@@ -9,6 +9,12 @@
 // file, `<outDir>.building`, holding the builder's pid, so it survives the rm
 // and a probe can tell a finished dist/ from one still being written. A lock
 // whose pid is gone (a killed build) is taken over, not obeyed.
+//
+// A caller that would rather queue than fail (run_workflow_locally.py, whose
+// --for-changes build used to die on exit 75 while another session's local
+// build held dist/: doc friction 2026-11-21) sets PAGES_BUILD_LOCK_WAIT to a
+// number of seconds; waitForBuildLock() then polls until the holder finishes.
+// CI leaves it unset, so a clash there still fails at once.
 import fs from 'node:fs';
 
 export function lockPath(outDir) {
@@ -56,4 +62,26 @@ export function acquireBuildLock(outDir, { pid = process.pid, isAlive = alive } 
     }
   }
   throw new Error(`could not take the build lock ${file}`);
+}
+
+// Like acquireBuildLock, but polls while a live build holds outDir, for up to
+// waitMs, calling onWait(message) once. Throws BUILD_LOCKED when time runs out.
+export async function waitForBuildLock(outDir, {
+  waitMs = 0, pollMs = 5000, onWait = () => {},
+  sleep = (ms) => new Promise((r) => setTimeout(r, ms)), now = Date.now, ...opts
+} = {}) {
+  const deadline = now() + waitMs;
+  let told = false;
+  for (;;) {
+    try {
+      return acquireBuildLock(outDir, opts);
+    } catch (err) {
+      if (err.code !== 'BUILD_LOCKED' || now() >= deadline) throw err;
+      if (!told) {
+        onWait(`${err.message.split(';')[0]}; waiting up to ${Math.round(waitMs / 1000)} s`);
+        told = true;
+      }
+      await sleep(Math.max(1, Math.min(pollMs, deadline - now())));
+    }
+  }
 }

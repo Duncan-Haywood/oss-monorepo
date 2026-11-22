@@ -567,6 +567,18 @@ class Execute(unittest.TestCase):
         with open(mine) as f:
             self.assertIn("mine@example.org", f.read())
 
+    def test_a_site_build_queues_behind_another_local_build(self):
+        """A second session's build held platform/pages/dist.building and
+        --for-changes reported 'Build the site' FAIL on exit 75 (doc friction
+        2026-11-21); the step now waits (build-lock.mjs)."""
+        with mock.patch.dict(os.environ):
+            os.environ.pop("PAGES_BUILD_LOCK_WAIT", None)
+            step = self.run_one(f'test "$PAGES_BUILD_LOCK_WAIT" = {runner.PAGES_BUILD_LOCK_WAIT_S}')
+            self.assertEqual(step.status, "ok", step.tail)
+            os.environ["PAGES_BUILD_LOCK_WAIT"] = "7"
+            step = self.run_one('test "$PAGES_BUILD_LOCK_WAIT" = 7')
+            self.assertEqual(step.status, "ok", step.tail)
+
     def test_a_resolved_variable_reaches_the_step_as_empty(self):
         step = runner.Step("j", "n", 'test -z "${BASE_URL-unset}"', ".")
         step.env = {"BASE_URL": ""}
