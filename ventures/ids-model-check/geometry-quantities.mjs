@@ -49,6 +49,11 @@
 //                            reading of the space's own solid, or its plan
 //                            outline and box (spaceQuantities below;
 //                            eval/space-quantities-2026-11-22.md)
+//   Length, Width, Height, CrossSectionArea, OuterSurfaceArea, GrossSurfaceArea
+//                            footings (IfcFooting): the sides of the body's
+//                            smallest box and its faces' area, by Tekla's
+//                            convention; GrossSurfaceArea for any tool
+//                            (footingLines below; eval/footing-quantities-2026-11-22.md)
 //   NetWeight, GrossWeight   any element with one material whose density the
 //                            user's table, the model's material properties or
 //                            the model's own stored weights give: its stored
@@ -66,6 +71,7 @@ const CROSS = /^IFC(COLUMN|BEAM|MEMBER|PILE)/;
 const SLAB = /^IFCSLAB/;
 const LINEAR = /^IFC(WALL|COLUMN|BEAM|MEMBER|PILE)/; // Length: walls and linear members
 const OPENING = /^IFC(DOOR|WINDOW)/;
+const FOOTING = /^IFCFOOTING/;
 const LINES = new Set(["Length", "Height"]); // read from computed.lines, not the sections
 const SURFACES = new Set(["OuterSurfaceArea", "GrossSurfaceArea"]); // computed.surface, faceted bodies too
 
@@ -91,6 +97,12 @@ export const GEOMETRY_QUANTITIES = [
   ["Height", "length", OPENING, (r) => r.computed.opening?.height ?? r.computed.revitSize?.height],
   ["Area", "area", OPENING, (r) => r.computed.opening?.area ?? r.computed.revitSize?.area],
   ["Perimeter", "length", OPENING, (r) => r.computed.opening?.perimeter],
+  ["Length", "length", FOOTING, (r) => r.computed.footing?.length],
+  ["Width", "length", FOOTING, (r) => r.computed.footing?.width],
+  ["Height", "length", FOOTING, (r) => r.computed.footing?.height],
+  ["CrossSectionArea", "area", FOOTING, (r) => r.computed.footing?.cross],
+  ["OuterSurfaceArea", "area", FOOTING, (r) => r.computed.footing?.outer],
+  ["GrossSurfaceArea", "area", FOOTING, (r) => r.computed.footing?.gross],
 ];
 
 // The IFC quantity class each kind is written as.
@@ -112,7 +124,7 @@ export function quantitiesFromRows(rows) {
     let m = null;
     for (const [name, kind, cls, read] of GEOMETRY_QUANTITIES) {
       if (cls && !cls.test(r.ifcType)) continue;
-      if (kind !== "volume" && !areasOk && !LINES.has(name) && !SURFACES.has(name) && !(cls === OPENING)) continue;
+      if (kind !== "volume" && !areasOk && !LINES.has(name) && !SURFACES.has(name) && cls !== OPENING && cls !== FOOTING) continue;
       const v = read(r);
       if (!usable(v)) continue;
       if (!m) out.set(r.id, (m = new Map()));
@@ -940,6 +952,123 @@ export function addSlabLines(model, rows, { solidExtent }) {
   return n;
 }
 
+// ---- a footing's sides, section and surface ---------------------------------
+//
+// Qto_FootingBaseQuantities: Length, Width and Height are the footing's
+// "total nominal" length, width and height, CrossSectionArea the area of its
+// cross section, OuterSurfaceArea and GrossSurfaceArea its surfaces. A pad is
+// priced off its plan size and depth, a strip off its run, so these are what
+// a concrete estimate reads. The only public exports that store the set are
+// Tekla's (ThatOpen/engine_web-ifc ISSUE_102_M3D-CON and -CON-CD, 88
+// footings; eval/footing-quantities-2026-11-22.md), and Tekla measures the
+// part, not the plan:
+//   - a pad (its thinnest side upright): Length is the depth, Width and
+//     Height the two plan sides; CrossSectionArea the plan section (volume /
+//     depth, a trapezoid pad's 98.5 m2, not its 116 m2 box);
+//   - any other footing (a strip, a wall-like part): Length is the longest
+//     side of its smallest box (the cut-member convention, boxLength; a
+//     tapered strip too, whose mid section spans a quarter of its box, so
+//     boxLength's straightness test is not asked), when it is clearly (5%)
+//     the longest; Width and Height the other two; its CrossSectionArea Tekla writes as
+//     Width x Width (0.4225 m2 for a 0.65 x 5 m section), not a section, so
+//     none is offered;
+//   - in both, Width is the side along the part's own y axis (the body's
+//     frame), Height the third;
+//   - OuterSurfaceArea and GrossSurfaceArea: every face's area, ends
+//     included, as Tekla writes for its members (memberSurface). Tekla's
+//     non-pad parts store Length x Height as GrossSurfaceArea (31.5 m2 for a
+//     body of 69.2 m2 faces); the definition's total is offered instead.
+// For other tools only GrossSurfaceArea ("the total gross surface area")
+// is offered: no export shows which side they call Length or Width.
+
+const FOOTING_CONVENTIONS = [[/tekla/i, "tekla"]];
+const PAD_UPRIGHT = 0.99; // the thinnest side within 8 deg of vertical
+const AXIS_PICK = 0.7; // Width's side clearly along the body's y (within 45 deg)
+
+/** Every face's area of a body read as one closed surface (body units), or null when it is pieces that may overlap. */
+function faceArea(body) {
+  let loops;
+  if (body.shells?.length && !body.terms?.length && body.shells.every((sh) => (sh.s ?? 1) > 0)) loops = body.shells.flatMap((sh) => sh.loops);
+  else if (body.terms?.length === 1 && !body.shells?.length && (body.terms[0].s ?? 1) > 0) loops = body.terms[0].faces;
+  else return null;
+  let A = 0;
+  for (const l of loops) { const a = loopArea(l); if (a) A += a.area; }
+  return A > 0 ? A : null;
+}
+
+/**
+ * A footing's readings (SI) and which are offered.
+ * @param {{computed: object, lengthUnit?: number, world?: number[]}} row a takeoff row (world: its 3x4 placement, row-major)
+ * @param {Function} solidExtent geom.mjs
+ * @param {string|null} convention 'tekla' or null (FOOTING_CONVENTIONS)
+ * @returns {{length: number|null, width: number|null, height: number|null, cross: number|null, outer: number|null, gross: number|null, pad: boolean, dims: number[], total: number|null} | null}
+ */
+export function footingLines(row, solidExtent, convention = null) {
+  const body = row.computed?.solids?.body, V = row.computed?.gross;
+  if (!body || !(V > 0)) return null;
+  const f = row.lengthUnit ?? 1;
+  const A = faceArea(body);
+  const total = A == null ? null : A * f * f;
+  const out = { length: null, width: null, height: null, cross: null, outer: null, gross: total, pad: false, dims: [], total };
+  const box = boxAxis(body, solidExtent);
+  if (!box) return out;
+  out.dims = box.dims.map((d) => d * f);
+  if (convention !== "tekla") return out;
+  out.outer = total;
+  const W = row.world;
+  const up = W ? v3.unit([W[8], W[9], W[10]]) : [0, 0, 1];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const pad = Math.abs(dot(box.axes[2], up)) >= PAD_UPRIGHT && box.dims[2] < box.dims[1];
+  out.pad = pad;
+  let k;
+  if (pad) k = 2;
+  else if (box.dims[0] > 1.05 * box.dims[1]) k = 0; // clearly longer than wide; a wedge (a tapered strip) too
+  else return out;
+  const [i, j] = [0, 1, 2].filter((x) => x !== k);
+  const yi = Math.abs(box.axes[i][1]), yj = Math.abs(box.axes[j][1]);
+  let wi = null;
+  if (Math.abs(box.dims[i] - box.dims[j]) <= 1e-6 * box.dims[i]) wi = i; // a square section: either
+  else if (yi >= AXIS_PICK && yi > yj) wi = i;
+  else if (yj >= AXIS_PICK && yj > yi) wi = j;
+  out.length = box.dims[k] * f;
+  if (wi != null) {
+    out.width = box.dims[wi] * f;
+    out.height = box.dims[wi === i ? j : i] * f;
+  }
+  if (pad) {
+    // a prism through its depth: the faces square to it are its two ends, of the volume / depth each
+    const n = box.axes[k];
+    let caps = 0, prism = true;
+    const loops = body.shells?.length ? body.shells.flatMap((sh) => sh.loops) : body.terms?.length === 1 ? body.terms[0].faces : [];
+    for (const l of loops) {
+      const a = loopArea(l);
+      if (!a) continue;
+      const d = Math.abs(dot(a.n, n));
+      if (d > 1 - 1e-6) caps += a.area;
+      else if (d > 1e-6) { prism = false; break; }
+    }
+    const section = V / (box.dims[k] * f); // m2 (the takeoff's volume is SI)
+    caps *= f * f;
+    if (prism && loops.length && Math.abs(caps - 2 * section) <= END_CAPS_TOL * 2 * section) out.cross = section;
+  }
+  return out;
+}
+
+/** Adds computed.footing (footingLines) to each footing row. Returns how many. */
+export function addFootingLines(model, rows, { solidExtent }) {
+  const apps = new Map();
+  let n = 0;
+  for (const r of rows) {
+    if (!FOOTING.test(r.ifcType) || !r.computed || r.computed.status !== "ok") continue;
+    let m;
+    try { m = footingLines(r, solidExtent, toolConvention(model, model.entities.get(r.id), FOOTING_CONVENTIONS, apps)); } catch { m = null; }
+    if (!m) continue;
+    r.computed.footing = m;
+    n++;
+  }
+  return n;
+}
+
 // ---- a door's or window's width, height, area and perimeter ----------------
 //
 // Qto_DoorBaseQuantities and Qto_WindowBaseQuantities: Width and Height are
@@ -1262,6 +1391,7 @@ export async function measureModel(ifcText, opts = {}) {
   addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
   addMemberLines(model, rows, { solidExtent });
   addSlabLines(model, rows, { solidExtent });
+  addFootingLines(model, rows, { solidExtent });
   addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms });
   addRevitSizeLines(model, rows, { readUnits });
   const out = addSpaceQuantities(quantitiesFromRows(rows), model, rooms, rows);
