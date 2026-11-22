@@ -1,0 +1,35 @@
+Trend walk (routed) vs shipped drift (wander by likelihood), NBER peaks and troughs, margin 5
+  macrodata realgdp          n 203 labels 16 routes yes  shipped   7 cuts F1 0.240 recall 3/16  routed   1 cuts F1 0.211 recall 2/16  diff -0.029
+      labels [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1978Q2 1998Q4 1999Q4 2000Q2 2003Q3 2006Q1 2009Q1]
+      routed  [2009Q1]
+  macrodata realcons         n 203 labels 16 routes yes  shipped   7 cuts F1 0.160 recall 2/16  routed   2 cuts F1 0.300 recall 5/16  diff +0.140
+      labels [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1997Q3 1998Q2 1998Q4 1999Q2 2000Q1 2001Q4 2003Q3]
+      routed  [1980Q2 2008Q3]
+  macrodata realinv          n 203 labels 16 routes yes  shipped   7 cuts F1 0.480 recall 7/16  routed   1 cuts F1 0.211 recall 2/16  diff -0.269
+      labels [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1975Q1 1984Q1 1997Q2 2000Q2 2001Q1 2001Q4 2009Q1]
+      routed  [2009Q1]
+  macrodata realdpi          n 203 labels 16 routes yes  shipped  12 cuts F1 0.467 recall 6/16  routed   2 cuts F1 0.200 recall 2/16  diff -0.267
+      labels [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1972Q4 1975Q2 1998Q1 2000Q1 2001Q3 2002Q1 2003Q2 2004Q4 2006Q1 2006Q4 2008Q2 2009Q2]
+      routed  [2005Q1 2008Q3]
+  macrodata unemp            n 203 labels 16 routes yes  shipped   7 cuts F1 0.640 recall 8/16  routed   2 cuts F1 0.300 recall 3/16  diff -0.340
+      labels [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1975Q1 1980Q2 1981Q4 1982Q4 1983Q4 2008Q4 2009Q2]
+      routed  [1975Q1 1983Q1]
+  us-real-gdp                n 204 labels 16 routes yes  shipped   6 cuts F1 0.083 recall 0/16  routed   0 cuts F1 0.111 recall 0/16  diff +0.028
+      labels [1953Q3 1954Q2 1957Q3 1958Q2 1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1]
+      shipped [1978Q2 1996Q2 1998Q1 1998Q4 1999Q4 2000Q2]
+      routed  []
+  us-unemployment-duration   n 574 labels 14 routes yes  shipped  18 cuts F1 0.235 recall 3/14  routed  11 cuts F1 0.222 recall 2/14  diff -0.013
+      labels [1969-12 1970-11 1973-11 1975-03 1980-01 1980-07 1981-07 1982-11 1990-07 1991-03 2001-03 2001-11 2007-12 2009-06]
+      shipped [1975-04 1977-06 1983-05 1984-06 2002-07 2003-06 2004-07 2008-05 2009-06 2009-09 2010-04 2010-06 2010-08 2011-10 2012-07 2012-11 2013-01 2014-01]
+      routed  [1975-04 1983-07 2002-07 2009-06 2009-09 2010-06 2010-09 2012-04 2012-07 2012-10 2013-02]
+
+N1 FAILS: mean diff -0.107 (bar +0.03); F1 0.329 -> 0.222
+N2 FAILS: 2 wins, 5 losses, 0 ties
+N3 FAILS: pooled recall routed 16/110 vs shipped 29/110
+
+Ships: nothing in the CLI (N1 and N2 must both pass).
