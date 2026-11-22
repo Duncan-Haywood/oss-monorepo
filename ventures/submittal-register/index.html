@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Submittal Register from Spec Book PDF — free submittal log generator</title>
-<meta name="description" content="Drop a construction project manual PDF and get a submittal register: every Part 1 submittal by spec section, typed and phased, as a CSV. Free, in your browser.">
+<meta name="description" content="Turn a spec book PDF into a submittal register by section, typed and phased; add a P6 schedule for submit-by dates. Free, in your browser.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a8461a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="canonical" href="https://marisstella.app/submittal-register/">
 <style>
@@ -41,10 +41,14 @@ td.desc{min-width:18rem}
 .sec{white-space:nowrap;font-variant-numeric:tabular-nums}
 details{margin:.4rem 0}
 small{color:var(--mut)}
+.sched{border:1px solid var(--line);border-radius:10px;padding:.5rem .8rem;background:var(--card);margin:.8rem 0}
+.sched label{display:inline-flex;gap:.35rem;align-items:center;flex-wrap:wrap}
+.sched input[type=text],.sched input[type=number],.sched input[type=date]{font:inherit;padding:.3rem .45rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+b.late{color:var(--acc)}
 @media print{.noprint{display:none!important}body{background:#fff;color:#000}.tablewrap{border:0}th{position:static}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Submittal Register","url":"https://marisstella.app/submittal-register/","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in the browser)","description":"Reads a construction project manual (spec book) PDF in the browser and lists every Part 1 submittal requirement by specification section, typed (product data, shop drawings, samples, certificates, O&M, warranties) and phased (action, informational, closeout), with a CSV export. Nothing is uploaded.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT"}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a submittal register from a spec book?", "acceptedAnswer": {"@type": "Answer", "text": "Choose the project manual PDF, or every volume at once. The tool finds each SECTION heading, reads the submittal articles in Part 1 (ACTION, INFORMATIONAL, CLOSEOUT and MAINTENANCE MATERIAL SUBMITTALS, or UFGS SD-01 to SD-11 lists) and lists one row per requirement. Download the CSV and open it in Excel, Google Sheets or your project-management tool's import."}}, {"@type": "Question", "name": "Is my project manual uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The PDF is read by code running in this tab; nothing is sent anywhere. A 2,000-page book takes about half a minute on a laptop."}}, {"@type": "Question", "name": "Which spec formats does it read?", "acceptedAnswer": {"@type": "Answer", "text": "CSI SectionFormat books with numbered articles and lettered paragraphs, which is how most commercial and public project manuals are laid out, and UFGS books with SD lists and the G Government-approval mark (kept in the Approval column, with any reviewer code after it). A scanned PDF with no text layer needs OCR first; the tool says so when it sees one."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "On 690 Unified Facilities Guide Specification sections whose XML tags each submittal, it found 99.3% of the 12,952 tagged items with 99.9% precision. Printed to PDF and read back the way this page reads a book, 98.8% to 99.1%. It has not yet been measured on a commercial (SectionFormat) project manual, so check every section by hand before relying on the list. How it was checked."}}, {"@type": "Question", "name": "Does it find submittals mentioned in Part 2 or Part 3?", "acceptedAnswer": {"@type": "Answer", "text": "Not yet. It reads the Part 1 submittal articles, which is where SectionFormat puts them. A requirement written only in Part 3 (\"submit test reports to the Architect\") is not listed, and Division 01 general requirements apply on top of every section."}}, {"@type": "Question", "name": "Can I run it on my own machine or server?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is MIT-licensed, has no dependencies and runs from a folder: node cli.mjs project-manual.pdf --csv register.csv. Source and instructions are on GitHub."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a submittal register from a spec book?", "acceptedAnswer": {"@type": "Answer", "text": "Choose the project manual PDF, or every volume at once. The tool finds each SECTION heading, reads the submittal articles in Part 1 (ACTION, INFORMATIONAL, CLOSEOUT and MAINTENANCE MATERIAL SUBMITTALS, or UFGS SD-01 to SD-11 lists) and lists one row per requirement. Download the CSV and open it in Excel, Google Sheets or your project-management tool's import."}}, {"@type": "Question", "name": "Is my project manual uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The PDF is read by code running in this tab; nothing is sent anywhere. A 2,000-page book takes about half a minute on a laptop."}}, {"@type": "Question", "name": "Which spec formats does it read?", "acceptedAnswer": {"@type": "Answer", "text": "CSI SectionFormat books with numbered articles and lettered paragraphs, which is how most commercial and public project manuals are laid out, and UFGS books with SD lists and the G Government-approval mark (kept in the Approval column, with any reviewer code after it). A scanned PDF with no text layer needs OCR first; the tool says so when it sees one."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "On 690 Unified Facilities Guide Specification sections whose XML tags each submittal, it found 99.3% of the 12,952 tagged items with 99.9% precision. Printed to PDF and read back the way this page reads a book, 98.8% to 99.1%. It has not yet been measured on a commercial (SectionFormat) project manual, so check every section by hand before relying on the list. How it was checked."}}, {"@type": "Question", "name": "Does it find submittals mentioned in Part 2 or Part 3?", "acceptedAnswer": {"@type": "Answer", "text": "Not yet. It reads the Part 1 submittal articles, which is where SectionFormat puts them. A requirement written only in Part 3 (\"submit test reports to the Architect\") is not listed, and Division 01 general requirements apply on top of every section."}}, {"@type": "Question", "name": "Can it tell me when each submittal is due?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Add the project schedule (a Primavera P6 .xer export or an activity CSV). Each spec section is matched to the first activity that installs its work, and the submit-by date is that start minus lead time and the Division 01 review period times the review cycles. Each row shows the activity used so it can be checked and pinned."}}, {"@type": "Question", "name": "Can I run it on my own machine or server?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is MIT-licensed, has no dependencies and runs from a folder: node cli.mjs project-manual.pdf --csv register.csv. Source and instructions are on GitHub."}}]}</script>
 </head>
 <body>
 <main>
@@ -69,9 +73,24 @@ small{color:var(--mut)}
     <button type="button" id="csv">Download CSV</button>
     <button type="button" class="secondary" id="print">Print</button>
   </div>
+  <details class="noprint sched" id="schedPanel" open>
+    <summary><b>Submittal schedule:</b> date every submittal from your P6 schedule</summary>
+    <p class="note">Add the project schedule (a Primavera P6 <code>.xer</code> export, or a CSV with an activity name and start column). Each section is matched to the first activity that installs its work; Submit by = that start, minus lead time, minus review days x review cycles. Closeout items are due one review period before the last finish. The schedule is read in this tab too.</p>
+    <p class="row"><label>Schedule <input id="schedFile" type="file" accept=".xer,.csv,text/csv"></label> <small id="schedName"></small></p>
+    <p class="row">
+      <label>Review days <input id="reviewDays" type="number" min="1" max="90" placeholder="from Div 01, else 14" style="width:9rem"></label>
+      <label><input id="working" type="checkbox"> working days</label>
+      <label>Cycles <select id="cycles"><option value="1">1</option><option value="2" selected>2 (one resubmittal)</option><option value="3">3</option></select></label>
+      <label>Data date <input id="dataDate" type="date"></label>
+    </p>
+    <p class="row"><label style="flex:1">Lead times, days by section <input id="leads" type="text" placeholder="05 12=56, 08 71=70, 26 24=120" style="width:100%"></label></p>
+    <p class="row"><label style="flex:1">Pin a section to an activity ID <input id="pins" type="text" placeholder="09 68 00=A2340, 08 71=A2000" style="width:100%"></label></p>
+    <p class="row"><button type="button" id="dateIt">Date the register</button></p>
+    <p class="note" id="schedStatus" aria-live="polite"></p>
+  </details>
   <p class="note" id="shown"></p>
   <div class="tablewrap"><table>
-    <thead><tr><th>No.</th><th>Section</th><th>Type</th><th>Phase</th><th>Requirement</th><th>Page</th></tr></thead>
+    <thead><tr><th>No.</th><th>Section</th><th>Type</th><th>Phase</th><th>Requirement</th><th>Page</th><th id="dueHead" hidden>Submit by</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
   <details class="noprint"><summary>Sections with no submittal list found</summary><p class="note" id="empty"></p></details>
@@ -91,6 +110,8 @@ small{color:var(--mut)}
 <p>On 690 Unified Facilities Guide Specification sections whose XML tags each submittal, it found 99.3% of the 12,952 tagged items with 99.9% precision. Printed to PDF and read back the way this page reads a book, 98.8% to 99.1%. It has not yet been measured on a commercial (SectionFormat) project manual, so check every section by hand before relying on the list. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/submittal-register#how-it-was-checked">How it was checked</a>.</p>
 <h3>Does it find submittals mentioned in Part 2 or Part 3?</h3>
 <p>Not yet. It reads the Part 1 submittal articles, which is where SectionFormat puts them. A requirement written only in Part 3 ("submit test reports to the Architect") is not listed, and Division 01 general requirements apply on top of every section.</p>
+<h3>Can it tell me when each submittal is due?</h3>
+<p>Yes. Open "Submittal schedule" under the register and add the project schedule: a Primavera P6 <code>.xer</code> export, or a CSV with an activity name and a start column. Each spec section is matched to the first activity that installs its work, and Submit by = that start minus any lead time you enter, minus the review period times the review cycles. The review period comes from the book's Division 01 when it states one, else 14 calendar days. Closeout items are due one review period before the last finish. On 80 sections checked by hand against four public P6 schedules, the matched activity was right 72.5% of the time and wrong 25%, so each row shows the activity it used. Check it, and pin a section to the right activity ID where it is wrong.</p>
 <h3>Can I run it on my own machine or server?</h3>
 <p>Yes. It is MIT-licensed, has no dependencies and runs from a folder: <code>node cli.mjs project-manual.pdf --csv register.csv</code>. Source and instructions are on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/submittal-register">GitHub</a>.</p>
 
@@ -100,12 +121,17 @@ small{color:var(--mut)}
 </main>
 <script type="module">
 import { buildRegister, linesFromText, toCsv } from "./engine.mjs";
-import { SAMPLE_TEXT } from "./sample.mjs";
+import { SAMPLE_TEXT, SAMPLE_SCHEDULE_CSV } from "./sample.mjs";
+import { readReviewPeriod, readSchedule, scheduleCsv, scheduleRegister } from "./schedule.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 let reg = null;
+let bookLines = [];
+let sched = null;
+let schedText = "";
+let schedIsSample = false;
 let bookName = "submittal-register";
 
 function show(r) {
@@ -126,9 +152,32 @@ function show(r) {
 function render() {
   if (!reg) return;
   const q = $("#q").value.trim().toLowerCase(), ph = $("#phase").value, ty = $("#type").value;
+  const by = sched ? new Map(sched.rows.map((r) => [r.id, r])) : null;
   const rows = reg.items.filter((i) => (!ph || i.phase === ph) && (!ty || i.type === ty) && (!q || `${i.section} ${i.sectionTitle} ${i.label} ${i.description}`.toLowerCase().includes(q)));
   $("#shown").textContent = rows.length === reg.items.length ? "" : `Showing ${rows.length} of ${reg.items.length}.`;
-  $("#rows").innerHTML = rows.slice(0, 3000).map((i) => `<tr><td class="sec">${esc(i.id)}</td><td><span class="sec">${esc(i.section)}</span><br><small>${esc(i.sectionTitle)}</small></td><td>${esc(i.type)}${i.sd ? `<br><small>${esc(i.sd)}</small>` : ""}</td><td>${esc(i.phase)}${i.approval ? `<br><span class="tag">${esc(i.approval)}${i.reviewer ? ", " + esc(i.reviewer) : ""}</span>` : ""}</td><td class="desc"><b>${esc(i.label)}</b><br>${esc(i.description)}${i.flags.map((f) => `<span class="tag">${esc(f)}</span>`).join("")}<br><small>${esc(i.article)}${i.para ? " " + esc(i.para) : ""}</small></td><td class="sec">${i.file && reg.files > 1 ? esc(i.file) + " " : ""}p. ${esc(i.filePage ?? i.page)}</td></tr>`).join("") + (rows.length > 3000 ? `<tr><td colspan="6">First 3,000 rows shown; the CSV has all ${rows.length}.</td></tr>` : "");
+  $("#rows").innerHTML = rows.slice(0, 3000).map((i) => `<tr><td class="sec">${esc(i.id)}</td><td><span class="sec">${esc(i.section)}</span><br><small>${esc(i.sectionTitle)}</small></td><td>${esc(i.type)}${i.sd ? `<br><small>${esc(i.sd)}</small>` : ""}</td><td>${esc(i.phase)}${i.approval ? `<br><span class="tag">${esc(i.approval)}${i.reviewer ? ", " + esc(i.reviewer) : ""}</span>` : ""}</td><td class="desc"><b>${esc(i.label)}</b><br>${esc(i.description)}${i.flags.map((f) => `<span class="tag">${esc(f)}</span>`).join("")}<br><small>${esc(i.article)}${i.para ? " " + esc(i.para) : ""}</small></td><td class="sec">${i.file && reg.files > 1 ? esc(i.file) + " " : ""}p. ${esc(i.filePage ?? i.page)}</td>${by ? due(by.get(i.id)) : ""}</tr>`).join("") + (rows.length > 3000 ? `<tr><td colspan="${by ? 7 : 6}">First 3,000 rows shown; the CSV has all ${rows.length}.</td></tr>` : "");
+}
+
+function due(r) {
+  if (!r || !r.submitBy) return `<td><small>No activity found</small></td>`;
+  return `<td class="sec"><b${r.late ? ' class="late"' : ""}>${esc(r.submitBy)}</b>${r.late ? " <span class=\"tag\">late</span>" : ""}<br><small>need ${esc(r.needBy)}</small><br><small>${esc(r.activityCode)} ${esc(r.activityName)}</small><br><span class="tag">${esc(r.match)}</span></td>`;
+}
+
+function dateRegister() {
+  if (!reg || !schedText) return;
+  let s;
+  try { s = readSchedule(schedText); } catch (e) { $("#schedStatus").textContent = e.message; return; }
+  if (!s.activities.length) { $("#schedStatus").textContent = "No activities with a start date found in that file."; return; }
+  if ($("#dataDate").value) s.dataDate = $("#dataDate").value;
+  const review = readReviewPeriod(bookLines);
+  const rd = $("#reviewDays").value.trim();
+  sched = scheduleRegister(reg, s, { review, reviewDays: rd ? Number(rd) : undefined, working: $("#working").checked || undefined, cycles: Number($("#cycles").value) || 2, leadTimes: $("#leads").value, pins: $("#pins").value });
+  if (!rd) { $("#reviewDays").placeholder = String(sched.reviewDays); if (sched.working) $("#working").checked = true; }
+  const u = sched.summary;
+  $("#schedStatus").innerHTML = `Dated <b>${u.dated}</b> of ${u.items} submittals; ${u.matchedSections} of ${u.sections} sections matched to an activity. Review: ${sched.reviewDays} ${sched.working ? "working" : "calendar"} days x ${sched.cycles}, ${esc(sched.reviewSource)}.` + (sched.dataDate ? ` Data date ${esc(sched.dataDate)}: <b>${u.late}</b> already past their submit-by date.` : "") + (u.unmatched.length ? `<br>No activity found for: ${u.unmatched.map((x) => esc(x.number + " " + x.title)).join("; ")}. Pin them below.` : "");
+  $("#dueHead").hidden = false;
+  record("schedule_dated");
+  render();
 }
 
 async function readFiles(files) {
@@ -154,9 +203,13 @@ async function readFiles(files) {
   r.files = files.length;
   r.warnings = notes.concat(r.warnings);
   $("#status").textContent = `Read ${files.length > 1 ? files.length + " files" : esc(files[0].name)} in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+  bookLines = lines;
+  sched = null; $("#dueHead").hidden = true; $("#schedStatus").textContent = "";
+  if (schedIsSample) { schedText = ""; schedIsSample = false; $("#schedName").textContent = ""; }
   record("book_read");
   if (r.items.length) record("register_built");
   show(r);
+  if (schedText) dateRegister();
 }
 
 $("#file").addEventListener("change", (e) => { if (e.target.files.length) readFiles(e.target.files).catch((err) => { $("#status").textContent = "Could not read the file: " + err.message; }); });
@@ -164,15 +217,24 @@ const drop = $("#drop");
 drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
 drop.addEventListener("dragleave", () => drop.classList.remove("over"));
 drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); if (e.dataTransfer.files.length) readFiles(e.dataTransfer.files).catch((err) => { $("#status").textContent = "Could not read the file: " + err.message; }); });
-$("#sample").addEventListener("click", () => { bookName = "sample-book"; const r = buildRegister(linesFromText(SAMPLE_TEXT)); r.files = 1; $("#status").textContent = "Sample: a short made-up project manual (three sections)."; record("sample_loaded"); show(r); });
+$("#sample").addEventListener("click", () => { bookName = "sample-book"; bookLines = linesFromText(SAMPLE_TEXT); sched = null; $("#dueHead").hidden = true; schedText = SAMPLE_SCHEDULE_CSV; schedIsSample = true; $("#schedStatus").textContent = ""; $("#schedName").textContent = "sample schedule (made up)"; const r = buildRegister(bookLines); r.files = 1; $("#status").textContent = "Sample: a short made-up project manual (three sections)."; record("sample_loaded"); show(r); });
 for (const id of ["#q", "#phase", "#type"]) $(id).addEventListener("input", render);
 $("#csv").addEventListener("click", () => {
   if (!reg) return;
-  const blob = new Blob([toCsv(reg)], { type: "text/csv;charset=utf-8" });
-  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `${bookName}-submittal-register.csv` });
+  const blob = new Blob([sched ? scheduleCsv(sched) : toCsv(reg)], { type: "text/csv;charset=utf-8" });
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `${bookName}-submittal-${sched ? "schedule" : "register"}.csv` });
   document.body.append(a); a.click(); a.remove();
   record("csv_downloaded");
 });
+$("#schedFile").addEventListener("change", async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const buf = await f.arrayBuffer();
+  schedText = new TextDecoder(/\.xer$/i.test(f.name) ? "windows-1252" : "utf-8").decode(buf);
+  $("#schedName").textContent = f.name;
+  schedIsSample = false;
+  dateRegister();
+});
+$("#dateIt").addEventListener("click", dateRegister);
 $("#print").addEventListener("click", () => { record("register_printed"); window.print(); });
 $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
 if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }

@@ -77,7 +77,7 @@ node cli.mjs vol1.pdf vol2.pdf --json > register.json  # several volumes
 node cli.mjs book.txt                                  # pdftotext output (form feeds = pages)
 ```
 
-Exit code 1 when no submittal was found. Tests: `node --test engine.test.mjs page.test.mjs`.
+Exit code 1 when no submittal was found. Tests: `node --test engine.test.mjs page.test.mjs schedule.test.mjs`.
 
 CSV columns: Submittal No. (section + sequence, e.g. `099123-002`), Spec
 Section, Section Title, Article, Paragraph, Submittal Type, SD, Phase, Title,
@@ -113,6 +113,60 @@ SectionFormat path is covered only by the unit tests and the sample book in
 manual PDF was reachable from the build session; the next run should score
 one or more public-agency bid project manuals against a hand-made list.
 
+## Submittal schedule from a P6 schedule (2026-11-22)
+
+A register says *what* to submit; a submittal schedule says *when*. Add the
+project schedule and every submittal gets a **Submit By** date:
+
+```
+node cli.mjs book.pdf --schedule schedule.xer --csv submittal-schedule.csv
+node cli.mjs book.pdf --schedule activities.csv --review-days 10 --working --cycles 2 \
+  --lead "05 12=56, 08 71=70, 26 24=120" --pin "09 68 00=A2340" --data-date 2026-03-02
+```
+
+On the page, open "Submittal schedule" under the register and choose the
+`.xer` (or a CSV with an activity name and a start column, such as a P6 or
+Microsoft Project export to Excel saved as CSV). It is read in the tab, like
+the book.
+
+How the date is worked out (`schedule.mjs`):
+
+1. **Need-by date.** Each spec section is matched to the first activity that
+   installs its work: an activity whose ID or name carries the section number
+   (`09 91 23`, `099123`) wins outright; otherwise activity names are scored
+   on the trade words for that section (`WORK_TERMS`, keyed by MasterFormat
+   level 3, then the level-2 group, then the division) plus the section
+   title's own words. Submit, approve, procure, scaffolding and change-order
+   activities, milestones, and activities that read more like another trade's
+   work are skipped; text in parentheses (a location) is ignored. Of the
+   activities within one point of the best score, the earliest start is the
+   need-by date, since the first install is what a late submittal holds up.
+2. **Review time.** Read from Division 01 when the book states it ("Allow 15
+   days for initial review", "at least 15 working days", "fourteen (14)
+   calendar days"), else 14 calendar days, and the page says which. Times the
+   number of review cycles (default 2: a first review and one resubmittal).
+3. **Lead time.** Fabrication and delivery days per section or prefix, which
+   you enter (no default is assumed: a schedule without them gives the latest
+   date the review can start before fabrication must).
+4. **Submit By** = need-by - lead - review x cycles. Closeout submittals (O&M
+   data, warranties, extra stock) are due one review period before the
+   schedule's last finish. With a data date (the XER's own, or `--data-date`)
+   rows already past their date are flagged late.
+
+The CSV adds Submit By, Need By, Activity ID, Activity, Matched On, Review
+Days, Review Cycles, Lead Days and Late at Data Date, sorted soonest first.
+Sections with no activity are listed; pin them with `--pin` or the page's
+pin box.
+
+**How well it matches** ([`eval/schedule-match-2026-11-22.md`](eval/schedule-match-2026-11-22.md)):
+545 UFGS work sections against four public P6 schedules (a hotel, a
+hospital, an airport terminal, an expressway). On a held-out sample of 80
+section-to-activity pairs, read by one reader, 58 (72.5%) were the right
+activity, 2 an earlier related one and 20 (25%) wrong. The misses are mostly
+a generic word standing in for a product ("door" taking the first door of any
+material). So the Matched On column is there to be read: check each
+section's activity before you send the schedule, and pin the wrong ones.
+
 ## Limits
 
 - Part 1 submittal articles only. A requirement written only in Part 3
@@ -130,7 +184,8 @@ one or more public-agency bid project manuals against a hand-made list.
 `pdf-parser.mjs` (text with positions from a PDF, copied from
 `ventures/bank-statement-pdf-to-csv` with one fix: line order on pages drawn
 with a y-down matrix), `inflate-browser.mjs`, `worker.mjs`, `cli.mjs`,
-`sample.mjs`, `usage.mjs` (anonymous feature counts that stay in the
+`sample.mjs`, `schedule.mjs` (XER/CSV schedule reader, section-to-activity
+matching, Division 01 review period, submit-by dates), `usage.mjs` (anonymous feature counts that stay in the
 browser), `eval/`.
 
 ## Next
@@ -139,8 +194,10 @@ browser), `eval/`.
    a hand-made register; fix what that shows.
 2. Submittals named in Part 2 and Part 3 ("submit ... for approval"), as a
    separate, flagged list.
-3. A schedule: required-on-site dates from a project schedule CSV minus review
-   and lead times per type, so the log says when each submittal is due.
+3. Submittal schedule: shipped 2026-11-22 (above). Next: weigh material
+   words (aluminium, steel, wood) so "door" stops taking the first door of any
+   kind; score a real job's spec book against its own schedule; a second
+   reader for the match judgments.
 4. Division 01 defaults (copies, review periods) read from 01 33 00 and
    applied to every row.
 5. An import CSV laid out for the common construction platforms' submittal
