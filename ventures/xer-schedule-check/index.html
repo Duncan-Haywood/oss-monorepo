@@ -139,7 +139,7 @@
 
   <section class="card" aria-labelledby="win">
     <h2 id="win">Windows analysis across every update</h2>
-    <p class="note">For a delay claim, an extension of time request or a monthly owner's report: open all the job's updates at once (any order). Each window between two data dates gets how far the forecast finish moved, the half-step split into the part progress caused and the part revisions caused, and the activities on the driving path behind it: work that finished late or started late, remaining durations that grew, and the logic, duration and constraint changes that touched the path. The windows add up to the whole movement. On cost- or hours-loaded updates, each window also gets its earned value: what was earned against what the previous update promised, against the first update's planned curve, and against what was spent, with the activities that fell short. It names candidates; who is responsible for a delay is the analyst's call.</p>
+    <p class="note">For a delay claim, an extension of time request or a monthly owner's report: open all the job's updates at once (any order). Each window between two data dates gets how far the forecast finish moved, the half-step split into the part progress caused and the part revisions caused, and the activities on the driving path behind it: work that finished late or started late, remaining durations that grew, and the logic, duration and constraint changes that touched the path. The windows add up to the whole movement. On cost- or hours-loaded updates, each window also gets its earned value: what was earned against what the previous update promised, against the first update's planned curve, and against what was spent, with the activities that fell short. It names candidates; who is responsible for a delay is the analyst's call. Below the windows, the <strong>schedule health trend</strong>: the DCMA points passed in each update, critical and near-critical counts, how much of the driving path stayed the driving path, BEI and missed tasks against the first update as baseline (not the planned dates P6 resets each run), what newly fails each point, and the activities losing float toward zero with the months left at their rate.</p>
     <label for="win-files">All updates (.xer or .xml, choose several)</label>
     <input type="file" id="win-files" accept=".xer,.xml,text/plain,text/xml,application/xml" multiple>
     <button type="button" id="load-example-series" class="secondary">Load an example series of four updates</button>
@@ -150,8 +150,10 @@
       <div class="tablewrap"><table id="win-table"><thead><tr><th>Window</th><th>Data dates</th><th class="n">Working days</th><th class="n">Finish moved</th><th class="n">Progress</th><th class="n">Revisions</th><th>Finish at end</th></tr></thead><tbody></tbody></table></div>
       <div id="win-detail"></div>
       <div id="win-ev"></div>
+      <div id="win-trend"></div>
       <button type="button" id="win-download">Download windows (CSV)</button>
       <button type="button" id="win-ev-download" class="secondary" hidden>Download earned value by window (CSV)</button>
+      <button type="button" id="win-trend-download" class="secondary" hidden>Download health trend (CSV)</button>
       <button type="button" id="win-download-json" class="secondary">Download full analysis (JSON)</button>
     </div>
   </section>
@@ -507,6 +509,7 @@
     import { xerText } from "./xer.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
     import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
+    import { trend, trendCsv } from "./trend.mjs";
     import { lookahead, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
     import { constraintLogCsv, EXAMPLE_LOG, pastLabel } from "./constraints.mjs";
     import { gantt, ganttSvg, ganttHtml, ganttCsv, visibleRows, ganttLegend, codeTypes, groupsPhrase } from "./gantt.mjs";
@@ -1075,11 +1078,39 @@
       $("#win-ev-download").hidden = false;
     }
     $("#win-ev-download").addEventListener("click", () => { if (!lastWinEv) return; save(new Blob([earnedValueSeriesCsv(lastWinEv)], { type: "text/csv" }), `${(lastWinEv.project || "project").replace(/[^\w.-]+/g, "-")}-earned-value-windows.csv`); record("findings_downloaded"); });
+    // schedule health across the updates
+    let lastTrend = null;
+    function renderTrend(list) {
+      lastTrend = null;
+      $("#win-trend").innerHTML = "";
+      $("#win-trend-download").hidden = true;
+      let r;
+      try { r = trend(list); } catch (e) { $("#win-trend").innerHTML = `<p class="note">Schedule health trend: ${esc(e.message)}</p>`; return; }
+      lastTrend = r;
+      const s = r.summary, U = r.updates;
+      const pc = (x) => (x === null || x === undefined ? "-" : `${Math.round(x * 100)}%`);
+      const rows = U.map((u) => `<tr><td>${esc(u.label)}</td><td>${esc(u.dataDate.slice(0, 10))}</td><td class="n"><span class="pill ${u.passed >= 12 ? "pass" : u.passed >= 9 ? "warn" : "fail"}">${u.passed}/14</span></td><td>${esc(u.finish.slice(0, 10))}</td><td class="n">${sgn(u.finishMoved)}</td><td class="n">${u.open}</td><td class="n">${u.critical}</td><td class="n">${u.negative}</td><td class="n">${u.nearCritical}</td><td class="n">${pc(u.pathKept)}</td><td class="n">${u.baselineExecution.bei ?? "-"}</td><td class="n">${u.baselineExecution.missed}</td></tr>`).join("");
+      const grid = U[0].points.map((pt, i) => `<tr><td>${pt.id}. ${esc(pt.name)}</td>${U.map((u) => `<td class="n"><span class="pill ${u.points[i].pass ? "pass" : "fail"}" title="${esc(String(u.points[i].value ?? ""))} ${esc(u.points[i].unit || "")}">${u.points[i].pass ? "pass" : "fail"}</span></td>`).join("")}</tr>`).join("");
+      const newly = U.filter((u) => u.newlyFailing.length).map((u) => `<p><strong>${esc(u.label)}</strong>: ${u.newlyFailing.map((n) => `${esc(n.name)} ${n.count} (${esc(n.codes.slice(0, 8).join(", "))}${n.count > 8 ? ", ..." : ""})`).join("; ")}</p>`).join("");
+      const CAUSE = { "finish later": "its own forecast finish moved later", "late finish earlier": "late finish moved earlier (work after it tightened)", both: "finish later and late finish earlier", calendar: "calendar arithmetic" };
+      const ero = r.erosion.slice(0, 40).map((e) => `<tr><td>${esc(e.code)}</td><td>${esc(e.name)}</td><td>${esc(e.float.join(" → "))}</td><td class="n">${e.perMonth}</td><td class="n">${e.floatNow > 0 ? e.monthsToZero : `<span class="pill fail">critical</span>`}</td><td>${esc(Object.hasOwn(CAUSE, e.cause) ? CAUSE[e.cause] : e.cause)}</td></tr>`).join("");
+      $("#win-trend").innerHTML = `<h3>Schedule health trend</h3>
+        <div class="big"><div><strong>${s.passedFirst} → ${s.passedLast}</strong>DCMA points passed, first to last update</div><div><strong>${s.bei ?? "n/a"}</strong>BEI in the last update against the first (${esc(r.baseline)})</div><div><strong>${s.eroding}</strong>activities losing float toward zero</div></div>
+        ${r.warnings.length ? `<div class="warnbox">${r.warnings.slice(0, 10).map(esc).join("<br>")}</div>` : ""}
+        <div class="tablewrap"><table id="trend-table"><thead><tr><th>Update</th><th>Data date</th><th class="n">DCMA</th><th>Finish</th><th class="n">Moved</th><th class="n">Open</th><th class="n">Float ≤ 0</th><th class="n">Negative</th><th class="n">Float 1-10 d</th><th class="n">Path kept</th><th class="n">BEI vs first</th><th class="n">Missed</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="note">Path kept: of the previous update's driving-path activities still open, the share still on the driving path. BEI and missed tasks use the first update as the baseline: each activity's finish there (actual, or the recomputed early finish); activities added later are left out.</p>
+        <details><summary>Each DCMA point by update</summary><div class="tablewrap"><table><thead><tr><th>Point</th>${U.map((u) => `<th class="n">${esc(u.label)}</th>`).join("")}</tr></thead><tbody>${grid}</tbody></table></div></details>
+        ${newly ? `<details open><summary>Newly failing in each update</summary>${newly}</details>` : ""}
+        ${ero ? `<h4>Losing float</h4><p class="note">Activities open in the last update, in at least three updates, whose float fell: working days of float in each update, the loss per month fitted across them, and the months to zero at that rate. Float can also fall with nothing late: work under way whose successors are start-to-start has its late finish pulled in as its remaining duration shrinks.</p><div class="tablewrap"><table id="erosion-table"><thead><tr><th>Activity</th><th>Name</th><th>Float by update (days)</th><th class="n">Per month</th><th class="n">Months to zero</th><th>Where it went</th></tr></thead><tbody>${ero}</tbody></table></div>` : ""}`;
+      $("#win-trend-download").hidden = false;
+    }
+    $("#win-trend-download").addEventListener("click", () => { if (!lastTrend) return; save(new Blob([trendCsv(lastTrend)], { type: "text/csv" }), `${(lastTrend.project || "project").replace(/[^\w.-]+/g, "-")}-health-trend.csv`); record("findings_downloaded"); });
     function runWindows(list, note) {
       try {
         const r = windows(list);
         renderWindows(r);
         renderWinEv(list);
+        renderTrend(list);
         $("#win-status").textContent = note || `Done: ${r.windows.length} windows from ${r.updates.length} updates, in data-date order.`;
         return true;
       } catch (e) {

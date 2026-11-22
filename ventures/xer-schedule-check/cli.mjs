@@ -32,6 +32,12 @@
 // driving path behind each. With --report review.html [--appendix] [--risk]:
 // the written review of the latest update, compared with the one before it,
 // with a "Delay by window" section and its corrections.
+// node cli.mjs --trend u1.xer u2.xer u3.xer ... [--json] [--csv trend.csv] [--project CODE]
+// Schedule health across the series instead (trend.mjs): DCMA points passed
+// per update, finish, critical and near-critical counts, how much of the
+// driving path stayed the driving path, BEI and missed tasks against the
+// first update as baseline, what newly fails each point, and the activities
+// losing float toward zero with the months left at their rate.
 // node cli.mjs --windows u1.xer u2.xer ... --earned-value [--csv ev-windows.csv] [--json] [--project CODE]
 // Earned value across the series instead (evmseries.mjs): per window, what was
 // earned against what the previous update's forecast promised, against the
@@ -134,6 +140,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 // with one line saying why, not a stack trace. XER_DEBUG=1 keeps the trace.
 if (!process.env.XER_DEBUG) process.on("uncaughtException", (e) => { console.error(`xer-schedule-check: ${e && e.message ? e.message : e}`); process.exit(1); });
 import { windows, windowsText, windowsCsv } from "./windows.mjs";
+import { trend, trendText, trendCsv } from "./trend.mjs";
 import { decodeXer } from "./xer.mjs";
 import { parseSchedule } from "./mspdi.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
@@ -173,6 +180,15 @@ function writeReview(report, cmp, risk = null, win = null) {
   writeFileSync(opt("--report"), reviewHtml(report, cmp, { recipient: opt("--to"), reviewer: opt("--from"), reference: opt("--ref"), notes: opt("--notes"), risk, windows: win, appendix: args.includes("--appendix") }));
   const items = reviewItems(report, cmp, risk, windowsFor(report, win)), n = (s) => items.filter((x) => x.severity === s).length;
   console.error(`review written to ${opt("--report")}: ${items.length} corrections (${n("high")} high, ${n("medium")} medium, ${n("low")} low)`);
+}
+if (args.includes("--trend")) {
+  const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+  if (files.length < 2) { console.error("usage: node cli.mjs --trend update1.xer update2.xer [update3.xer ...] [--json] [--csv trend.csv] [--project CODE]"); process.exit(2); }
+  const ups = files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() }));
+  const rep = trend(ups, { projectName: opt("--project") });
+  if (opt("--csv")) writeFileSync(opt("--csv"), trendCsv(rep));
+  await emit(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : trendText(rep));
+  process.exit(0);
 }
 if (args.includes("--windows")) {
   const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
