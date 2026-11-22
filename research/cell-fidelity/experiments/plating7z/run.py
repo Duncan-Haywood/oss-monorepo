@@ -134,10 +134,10 @@ def report():
         h7 = {r: _folds(EXP / "fresh7h" / "summary.json", r) for r in ("theta", "U")}
         r7 = {r: _folds(EXP / "plating7r" / "summary.json", r) for r in ("theta", "U")}
         r7s = {r: _folds(EXP / "plating7s" / "summary.json", r) for r in ("theta", "U")}
-        combos = dict(six_f10=(h7, r7), seven_f10=(h7, r7, new), seven_f30=(h7, r7s, new), five_new=(h7, new))
+        combos = dict(six_probe=(h7, r7), seven_probe=(h7, r7, new), seven_f30=(h7, r7s, new), five_new=(h7, new))
         for name, parts in combos.items():
             extra[name] = pool_pairs(S, [f for p in parts for f in p["theta"]], [f for p in parts for f in p["U"]])
-        seven = extra["seven_f10"]
+        seven = extra["seven_probe"]
         fin = [r for r in R._load(HERE / "bench.jsonl")
                if r.get("ok") and r.get("ok_cycles", 0) >= 100 and r["mult"] == kept[CELLS[0]]]
         phis = [v for v in (phi10(r["pl_mol"], r["lost_mol"]) for r in fin) if v is not None]
@@ -155,12 +155,12 @@ def report():
             bt = f"{d['boot'][0]:+.2f} to {d['boot'][1]:+.2f}" if d["boot"] else "-"
             L.append(f"{name:12s}{d['sets']:5d}{d['n']:6d}{d['mean']:+8.2f}{bt:>22s}{d['cheaper']:9d}{d['dearer']:8d}"
                      f"{d['sign_p']:8.3f}{d['met_a']:>5d}/{d['met_b']}")
-        L.append("per set (seven_f10): " + ", ".join(f"{k} {v:+.2f}" for k, v in seven["per_set"].items()))
+        L.append("per set (seven_probe): " + ", ".join(f"{k} {v:+.2f}" for k, v in seven["per_set"].items()))
     V = judge(kept, q75, met, seven)
     for h, t in (("H354", "some multiplier in (3, 10, 30, 100) makes Marquis2019@2x pass 7r's probe rule"),
                  ("H355", "the forecast law works on the kept cell, q75 E10 <= 0.2"),
                  ("H356", "theta meets >= 4 of 5 lopo5 folds on the kept cell"),
-                 ("H357", "the seven-set (f = 10 tuned cells) bootstrap interval of theta - U lies below zero")):
+                 ("H357", "the seven-set (probe-chosen multipliers: Mohtat2020 and Ecker2015 f = 10, Marquis2019 its own) bootstrap interval of theta - U lies below zero")):
         L.append(f"{h} ({t}): {V[h]}")
     with (HERE / "results.txt").open("a") as fh:
         fh.write("\n".join(L) + "\n")
