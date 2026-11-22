@@ -56,10 +56,6 @@ class RowFilters(unittest.TestCase):
         self.assertFalse(self.ncg.clean_enough({"snr": 60.0, "truth_sigma18": 0.0005, "truth_grain18": 0.01}))
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 @unittest.skipUnless(HAVE_NUMPY, "numpy not installed")
 class Whitened(unittest.TestCase):
     """eval/noise-pca-whitened-level-2026-11-21.md's pick and test on hand-made rows."""
@@ -96,3 +92,7 @@ class Whitened(unittest.TestCase):
         out = self._run("whitened", p, "--split", "held", "--eig", "mpcws")
         self.assertIn("FAIL h3", out)
         self.assertIn("verdict: what ships stays", out)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -710,10 +710,6 @@ class TelemetryTest(unittest.TestCase):
         self.assertEqual(P.FLAG_WHEELS_SETTLING & (P.FLAG_AIM_SETTLING | P.FLAG_ELEV_FAULT), 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class LiftJamTest(unittest.TestCase):
     """The ball lift's jam cutoff (2026-11-15, cad/README.md "Lift jam cutoff"): the real board layer reading the
     comparator on GPIO 0, and the plant model in tests/lift_jam_sweep.py."""
@@ -2519,3 +2515,7 @@ class TakeSurveyTest(unittest.TestCase):
             self.assertEqual(len(host.read_shot_log(path)), 1)
             self.assertEqual(host.last_take_survey_from_log(path)["refined_ms10"], 57)
             self.assertIsNone(host.last_survey_from_log(path))
+
+
+if __name__ == "__main__":
+    unittest.main()

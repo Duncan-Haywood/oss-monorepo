@@ -202,10 +202,6 @@ class EndpointInvoiceIntegrationTest(unittest.TestCase):
             self.assertNotIn("1234567890129", report)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class PeppolCommonRulesTest(unittest.TestCase):
     """2026-11-17: the checksummed schemes follow OpenPeppol's PEPPOL-COMMON rules.
 
@@ -273,3 +269,7 @@ class PartyIdentifierTests(unittest.TestCase):
         from einvoice_preflight.endpoint import inspect_party_identifiers
 
         self.assertEqual(inspect_party_identifiers({"legal_id": {"scheme": "0106", "id": "1234567"}}, "customer"), [])
+
+
+if __name__ == "__main__":
+    unittest.main()

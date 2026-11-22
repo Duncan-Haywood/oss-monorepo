@@ -43,10 +43,6 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(r["peak_max"], KP * LEAD * 0.1, delta=0.5)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Pinned(unittest.TestCase):
     """Quality audit 2026-11-12: four seeded bugs in tip_mass and the gain survived the tests above.
     These pin values from an independent closed-form 2R calculation (planar 2-link arm, L = 0.25 m each,
@@ -65,3 +61,7 @@ class Pinned(unittest.TestCase):
         # 4x the mass halves the free approach speed: entry time 0.71 s -> 1.42 s (a fixed gain would give about 0.74 s)
         self.assertAlmostEqual(light["t"], 0.71, places=2)
         self.assertAlmostEqual(heavy["t"], 1.42, places=2)
+
+
+if __name__ == "__main__":
+    unittest.main()

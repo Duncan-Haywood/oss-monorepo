@@ -560,10 +560,6 @@ class Skipped(unittest.TestCase):
         self.assertEqual(rvt.skipped("FAILED (failures=1, skipped=2)\n")[0], 2)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class NoPyYAML(unittest.TestCase):
     """Without PyYAML a named mixed venture printed "ok" for its Node suite
     alone (doc friction 2026-11-14, open-tennis-robots: 0.4 s, its Python and
@@ -629,3 +625,7 @@ class NoPyYAML(unittest.TestCase):
             _, lines = self.main_lines(["--since", "0" * 40, "--no-unwired"])
         finder.assert_not_called()
         self.assertNotIn("PART", lines)
+
+
+if __name__ == "__main__":
+    unittest.main()

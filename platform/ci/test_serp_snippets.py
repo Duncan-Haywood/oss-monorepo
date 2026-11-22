@@ -108,10 +108,6 @@ class Audit(unittest.TestCase):
             self.assertEqual(s.main(["--root", d]), 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class BrokenMeta(unittest.TestCase):
     def test_unescaped_quote_flagged(self):
         h = '<meta name="description" content="says "8-10%" and stop">'
@@ -129,3 +125,7 @@ class BrokenMeta(unittest.TestCase):
             (root / "ventures/a/x.html").write_text(
                 '<title>T</title><meta name="description" content="a "b" c">')
             self.assertEqual(s.audit(root)["broken_meta"], ["ventures/a/x.html"])
+
+
+if __name__ == "__main__":
+    unittest.main()

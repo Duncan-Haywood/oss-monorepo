@@ -83,10 +83,6 @@ class OpenShares(unittest.TestCase):
         self.assertAlmostEqual(open_share.recent_old_share(d, datetime.date(2018, 1, 1)), 2 / 3)  # all three end in 2015 to 2017
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Session105(unittest.TestCase):
     def test_batch_days(self):
         """A day closing more than BATCH_N permits issued over 8 years earlier drops every completion that day."""
@@ -165,3 +161,7 @@ class AustinSummary(unittest.TestCase):
         self.assertAlmostEqual(s["pooled_fixed_regret"]["cpin_es3_nc4"], 30.0 / 18)
         self.assertAlmostEqual(s["austin_ncrd_regret"], 10.0)
         self.assertEqual(s["austin_chooser_picks"]["cpin_es3_nc3"], 6)
+
+
+if __name__ == "__main__":
+    unittest.main()

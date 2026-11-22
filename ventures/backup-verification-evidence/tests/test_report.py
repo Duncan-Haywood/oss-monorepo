@@ -276,10 +276,6 @@ class TrendTests(unittest.TestCase):
         self.assertIn("12.0 MB", output)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class IntegrityClassificationTests(unittest.TestCase):
     """A proven-bad artifact must never survive as `verified`.
 
@@ -376,3 +372,7 @@ class MarkdownEscapingTests(unittest.TestCase):
         row = [line for line in output.splitlines() if "pg_dump" in line and line.startswith("|")][0]
         self.assertIn(r"pg_dump\|gzip", row)
         self.assertEqual(row.count("|") - row.count(r"\|"), 5)
+
+
+if __name__ == "__main__":
+    unittest.main()

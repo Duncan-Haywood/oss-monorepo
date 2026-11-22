@@ -35,10 +35,6 @@ class PulloffTests(unittest.TestCase):
             P.set_grip_bound(old)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class HeadlineMatchesResults(unittest.TestCase):
     """Quality round 89: the README said no run at 13.94 N found a working gripper; 4 of 60 did."""
 
@@ -54,3 +50,7 @@ class HeadlineMatchesResults(unittest.TestCase):
 
     def test_sourced_constants(self):
         self.assertEqual((P.PULL_BEND, P.PULL_ONLY, P.GRIP_LIMIT), (3.17, 13.94, 10.0))
+
+
+if __name__ == "__main__":
+    unittest.main()

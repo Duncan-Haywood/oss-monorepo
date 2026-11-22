@@ -41,10 +41,6 @@ class TestLabelAudit(unittest.TestCase):
         self.assertAlmostEqual(c["dead"], 0.4)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 def test_stamp_check_counts_exact_label():
     """Session 95: stamp_check counts rows exactly on the stamp per era and status group."""
     import os, sys, tempfile
@@ -62,3 +58,7 @@ def test_stamp_check_counts_exact_label():
     assert s["n"] == 3 and s["at_stamp"] == 1  # a: 1990-01-01 to 1990-06-30 is 180 days
     assert s["by_era"]["1900-1999 dead"]["share_at_stamp"] == 1.0
     assert s["by_era"]["1900-1999 done"]["at_stamp"] == 0
+
+
+if __name__ == "__main__":
+    unittest.main()

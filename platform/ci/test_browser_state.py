@@ -655,10 +655,6 @@ class ArtifactCountIsNotAttributedToAnyCheck(unittest.TestCase):
         self.assertIn(browser_state.CHECKS[0], text.split("artifact at")[1])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class SharedFilesChangedTest(unittest.TestCase):
     """Naming the files behind "the builder changed".
 
@@ -697,3 +693,7 @@ class SharedFilesChangedTest(unittest.TestCase):
         recorded = {"platform/pages": "a" * 40, "platform/marketing": "b" * 40}
         head = {"platform/pages": "c" * 40, "platform/marketing": "b" * 40}
         self.assertTrue(browser_state._shared_changed_trees(recorded, head))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -210,13 +210,13 @@ class TaxInvoiceIntegrationTest(unittest.TestCase):
             self.assertNotIn("SECRET-LINE", report)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ZeroRatedTests(unittest.TestCase):
     def test_category_z_needs_no_reason_but_e_does(self):
         def doc(category):
             return {"lines": [{"description": "Goods", "quantity": 1, "unit_price": 10, "tax_percent": 0, "net": 10, "tax_category": category}]}
         self.assertEqual(inspect_tax_exemption(doc("Z")), [])
         self.assertEqual([f["rule"] for f in inspect_tax_exemption(doc("E"))], ["INV-035"])
+
+
+if __name__ == "__main__":
+    unittest.main()

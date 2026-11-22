@@ -262,10 +262,6 @@ class Contract(unittest.TestCase):
             self.assertIn("0 files OK", out)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class BareStorageArgs(unittest.TestCase):
     """Red team 2026-11-14: 292 pages passed the bare global to usage.mjs."""
 
@@ -402,3 +398,7 @@ class InlineReads(unittest.TestCase):
             (v / "index.html").write_text("<p>it's</p>\n<script>\nb.onclick = () => { localStorage.clear(); };\n</script>\n")
             self.assertEqual([p.split(d)[1] for p in check_tree(d)],
                              ["/a/index.html:3: inline script reads `localStorage` outside try"])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -190,10 +190,6 @@ class BicInvoiceIntegrationTest(unittest.TestCase):
             self.assertNotIn("CHASUS33", report)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ClearingCodeTest(unittest.TestCase):
     """BT-86 admits a national clearing code as well as a BIC (mirrors bic.test.mjs, 2026-11-12)."""
 
@@ -228,3 +224,7 @@ class ClearingCodeTest(unittest.TestCase):
         for iban, bic, rules in cases:
             findings = inspect_payment_bic({"payment": {"iban": iban, "bic": bic}})
             self.assertEqual([f["rule"] for f in findings], rules, f"{iban} {bic}")
+
+
+if __name__ == "__main__":
+    unittest.main()

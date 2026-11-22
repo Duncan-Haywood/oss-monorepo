@@ -1114,10 +1114,6 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([str(invoice_path), "--format", "html", "--output", directory]), 2)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class XRechnungSuiteTotalsTests(unittest.TestCase):
     """Found by running the KoSIT XRechnung test suite."""
 
@@ -1170,3 +1166,7 @@ class NegativeInvoiceTests(unittest.TestCase):
         self.assertEqual(self.rules(base), set())
         base["totals"]["due"] = 119
         self.assertIn("INV-028", self.rules(base))
+
+
+if __name__ == "__main__":
+    unittest.main()

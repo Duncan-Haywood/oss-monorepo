@@ -35,10 +35,6 @@ class T(unittest.TestCase):
         self.assertFalse(one((0.5, 12.0, 16.0))[3])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class FineMesh(unittest.TestCase):
     def test_mesher_works_below_0p3_mm(self):
         # quality round 88: the dense distance matrix returned None past 4e7 pairs
@@ -46,3 +42,7 @@ class FineMesh(unittest.TestCase):
         from simdesign_meshconverge.model import make_mesh
         m = make_mesh(Params(w=16.0, r=14.0), h=0.25)
         self.assertGreater(m.t.shape[1], 50000)
+
+
+if __name__ == "__main__":
+    unittest.main()

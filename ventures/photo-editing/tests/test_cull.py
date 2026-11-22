@@ -195,10 +195,6 @@ class ThumbnailTests(CullTests):
         self.assertLess(len(data), 40000)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class NearDuplicateGroupingTest(unittest.TestCase):
     def test_groups_match_the_hamming_distance_definition(self):
         import random
@@ -412,3 +408,7 @@ class GroupingIndexTest(unittest.TestCase):
         self.assertEqual(sum(bits for _s, _m, bits in _chunks(3)), 64)
         self.assertEqual(len(_flips(22, 2)), 1 + 22 + 231)
         self.assertEqual(len(_flips(21, 1)), 22)
+
+
+if __name__ == "__main__":
+    unittest.main()

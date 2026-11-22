@@ -78,10 +78,6 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(spherical_regret(r, p), curv_spherical(p, d), 10)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ZeroMass(unittest.TestCase):
     """Quality audit round 62: the log score's zero handling had no test."""
 
@@ -95,3 +91,7 @@ class ZeroMass(unittest.TestCase):
         want = .5 * math.log(.5 / .25) + .5 * math.log(.5 / .75)
         self.assertAlmostEqual(regret(log_loss, r, p), want, places=12)
         self.assertAlmostEqual(kl(p, r), want, places=12)
+
+
+if __name__ == "__main__":
+    unittest.main()
