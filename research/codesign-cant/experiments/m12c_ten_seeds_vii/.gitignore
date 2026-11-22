@@ -1,0 +1,4 @@
+.cache/
+.cache_smoke/
+full.log
+__pycache__/
