@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 3,
@@ -65,7 +65,7 @@
     "research/verified-dse/LOG.md (milestone 162)"
   ],
   "goal": null,
-  "notes": "Flow: 1,336 ok points x 2 renamings (+26 control runs) on 4 cores, ~119 min. Controls: rung 1 and mapped rung equal build B on 1336/1336; Yosys's own netlist reproduces build B on 26/26. Predictions: (1) primary held, (2) held, (3) refuted, (4) held, (5) refuted, (6) held, (7) refuted. Local checks: research/_homepage/build.py ok, research_live_links ok, check_md_links ok, check_posts ok, cite_check 0 ids, tests/test_naming_ladder162.py 3 passed; full verified-dse suite run noted in PR.",
+  "notes": "Flow: 1,336 ok points x 2 renamings (+26 control runs) on 4 cores, ~119 min. Controls: rung 1 and mapped rung equal build B on 1336/1336; Yosys's own netlist reproduces build B on 26/26. Predictions: (1) primary held, (2) held, (3) refuted, (4) held, (5) refuted, (6) held, (7) refuted. Local checks: research/_homepage/build.py ok, research_live_links ok, check_md_links ok, check_posts ok, cite_check 0 ids, tests/test_naming_ladder162.py 3 passed; full verified-dse suite run noted in PR. Full verified-dse suite: 265 passed, 1 skipped, 2 failed (test_ladder_confirm.py and test_ladder_confirm2.py ::test_designs_are_unseen), both failing identically on origin/main without this PR (pre-existing). PR CI green.",
   "corrections": [],
   "redteam": null,
   "usage": {
