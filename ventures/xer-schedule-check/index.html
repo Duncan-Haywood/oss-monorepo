@@ -4,7 +4,7 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>XER Schedule Check — Free DCMA 14-Point Assessment of a Primavera P6 XER File</title>
-  <meta name="description" content="Free DCMA 14-point check of Primavera P6 XER and Microsoft Project XML schedules in your browser, with a recomputed critical path, every activity behind each finding, an update-to-update comparison, and conversion both ways between XER and Microsoft Project XML. Nothing is uploaded.">
+  <meta name="description" content="Free DCMA 14-point check of Primavera P6 XER and Microsoft Project XML schedules in your browser, with a recomputed critical path, every activity behind each finding, an update-to-update comparison, an Excel workbook of the XER, and conversion both ways between XER and Microsoft Project XML. Nothing is uploaded.">
   <meta property="og:title" content="XER Schedule Check — DCMA 14-point check of a P6 schedule, free and private">
   <meta property="og:description" content="Open a Primavera P6 .xer file and get the DCMA 14-point assessment, a recomputed critical path and every activity behind each finding. Runs in your browser.">
   <link rel="canonical" href="./index.html">
@@ -76,6 +76,13 @@
     </div>
     <button type="button" id="load-example" class="secondary">Load an example schedule</button>
     <p id="form-status" role="status" aria-live="polite">Choose an XER file exported from P6 (File, Export, Primavera PM XER) or a Microsoft Project file saved as XML (File, Save As, XML Format).</p>
+    <div id="xlsx-wrap" hidden>
+      <h3 id="to-excel">Open this P6 schedule in Excel</h3>
+      <p class="note">Writes the XER as an Excel workbook in this tab, every internal id replaced by what P6 shows: one row per activity with its WBS path, type, status, calendar, durations and float in days of its own calendar, the start, finish, actual, early, late and planned dates as real Excel dates (sort and filter work), constraints, every predecessor and successor ("A1010 FS+2d"), one column per activity code type and per activity user-defined field, and this tool's recomputed dates and float beside P6's with a Float Agrees column. Further sheets list the relationships, WBS, resources, resource assignments with units and cost, expenses, calendars and activity code values. Header rows are frozen with filters on. On six public P6 files (21,758 activities), a separate reader found every one of 6,239,763 values checked equal to the XER's.</p>
+      <p><input type="checkbox" id="xlsx-raw"> <label for="xlsx-raw">also add every XER table as it is, one sheet each under P6's own field names (TASK, TASKPRED, PROJWBS, ...)</label></p>
+      <button type="button" id="xlsx-download">Download for Excel (.xlsx)</button>
+      <div id="xlsx-out"></div>
+    </div>
     <div id="conv-wrap" hidden>
       <h3 id="conv">Open this P6 schedule in Microsoft Project</h3>
       <p class="note">Converts the XER to Microsoft Project XML in this tab: the WBS as summary tasks, each activity ID in the Text1 column (named Activity ID), every calendar with its holidays, relationships and lags, constraints, progress and the baseline, resources and assignments (P6's resource tree as each resource's Group, "LAB/CARP"), and activity codes as named text columns (Text2 to Text30, one per code type, so you can group and filter by Phase or Area in Project). Activity user-defined fields become named Number, Cost, Date and Text columns, resource user-defined fields (capacity, day rate, induction date) named columns on the resource sheet, and WBS user-defined fields (a cost code, a budget, a handover date) named columns on the summary tasks, sharing the column of an activity field with the same name. Activity and WBS notebooks become each task's notes, one <code>[Topic]</code> heading per notebook topic (Description, Delays, ...), as plain text, and each resource's notes go on its resource in Project. In Project use File, Open and choose the .xml (ProjectLibre and GanttProject open it too). On six public P6 files every activity and relationship read back unchanged, and MPXJ, an independent reader, read the same dates, durations, progress, logic and resource hours from both files.</p>
@@ -425,6 +432,7 @@
       <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment</a></li>
       <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
       <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+      <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
       <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
       <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
     </ul>
@@ -433,7 +441,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>converted_to_project</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -448,6 +456,7 @@
     import { narrative, narrativeText, narrativeHtml } from "./narrative.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { mspdiText, msprojectSummary } from "./msproject.mjs";
+    import { xerToXlsx, xlsxSummary } from "./excel.mjs";
     import { p6XerText, p6xerSummary } from "./p6xer.mjs";
     import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
     import { riskAnalysisAsync, riskCsv, parseRanges, parseRisks, parseBranches, branchRows } from "./risk.mjs";
@@ -520,6 +529,7 @@
 
     function run(projId) {
       $("#conv-wrap").hidden = !xer || xer.format === "mspdi";
+      $("#xlsx-wrap").hidden = !xer || xer.format === "mspdi";
       $("#p6-wrap").hidden = !xer || xer.format !== "mspdi";
       $("#p6-out").innerHTML = "";
       $("#conv-out").innerHTML = "";
@@ -591,6 +601,19 @@
         record("converted_to_p6");
       } catch (e) {
         $("#p6-out").innerHTML = `<p class="note">Could not convert this file: ${esc(e.message)}</p>`;
+      }
+    });
+    $("#xlsx-download").addEventListener("click", async () => {
+      if (!xer || xer.format === "mspdi") return;
+      const out = $("#xlsx-out");
+      out.innerHTML = `<p class="note">Writing the workbook...</p>`;
+      try {
+        const r = await xerToXlsx(xer, { projId: last ? last.project.id : null, raw: $("#xlsx-raw").checked });
+        save(new Blob([r.bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${fileName}.xlsx`);
+        out.innerHTML = `<p class="note">${esc(xlsxSummary(r.summary))}.</p>${r.warnings.length ? `<div class="warnbox"><ul>${r.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : ""}`;
+        record("converted_to_excel");
+      } catch (e) {
+        out.innerHTML = `<p class="note">Could not write the workbook: ${esc(e.message)}</p>`;
       }
     });
     $("#conv-xml").addEventListener("click", () => {
