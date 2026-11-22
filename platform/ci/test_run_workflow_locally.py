@@ -2691,7 +2691,7 @@ class PostPrecheck(unittest.TestCase):
 
 
 class DeferHeavyOnProse(unittest.TestCase):
-    """A prose-only diff leaves the measured-heavy workflows to the PR's CI."""
+    """A content-only diff leaves the measured-heavy workflows to the PR's CI."""
 
     SEL = [("portfolio-pages.yml", {}, {"test"}), ("portfolio-validate.yml", {}, {"v"}),
            ("pages.yml", {}, {"b"})]
@@ -2705,6 +2705,28 @@ class DeferHeavyOnProse(unittest.TestCase):
         kept, deferred = runner.defer_heavy(self.SEL, ["docs/posts/p.md", "x/notes.txt"], self.args())
         self.assertEqual([s[0] for s in kept], ["pages.yml"])
         self.assertEqual(deferred, ["portfolio-pages.yml", "portfolio-validate.yml"])
+
+    def test_story_and_research_diffs_are_content(self):
+        # The diffs of PRs 18277 (a story) and 18270 (a research milestone):
+        # page, feeds and code beside the prose, plus the run record.
+        for changed in (["docs/posts/p.md", "prompts/runs/2026-11-22-session_x.json",
+                         "ventures/hearth-and-horizon/four-of-the-six.html",
+                         "ventures/hearth-and-horizon/feed.xml"],
+                        ["docs/posts/p.md", "research/README.md",
+                         "research/capture-sync/src/capture_sync/track.py",
+                         "research/capture-sync/experiments/tracker/gated_oos.png"]):
+            kept, deferred = runner.defer_heavy(self.SEL, changed, self.args())
+            self.assertEqual(deferred, ["portfolio-pages.yml", "portfolio-validate.yml"], changed)
+
+    def test_tooling_and_root_files_are_not_content(self):
+        for path in ("platform/ci/x.py", "portfolio/router/allocate.py",
+                     ".github/workflows/a.yml", "prompts/promptctl.py",
+                     "research/_homepage/build.mjs", "research/_shared/cite_check.py",
+                     "package.json"):
+            self.assertFalse(runner.is_content(path), path)
+        for path in ("prompts/runs/r.json", "portfolio/flagships.yaml", "CLAUDE.md", "docs/posts/p.md",
+                     "ventures/a/index.html", "research/x/run.py"):
+            self.assertTrue(runner.is_content(path), path)
 
     def test_code_full_only_or_listing_keeps_everything(self):
         for changed, kw in ((["docs/posts/p.md", "platform/pages/build.mjs"], {}),
