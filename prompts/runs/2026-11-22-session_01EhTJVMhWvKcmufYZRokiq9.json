@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMhWvKcmufYZRokiq9",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T19:43:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/aerolog-scaling milestone 11bb: pre-registered test of the one-sided spacing searches U3/U2 against W on a second set of 24 fresh layouts",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": 18295,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "fresh_tail2.py's first results header printed 168 seed clashes: __main__ repointed fresh_tail.FRESH before check_seeds read it, so it compared the new set with itself",
+      "fix": "check_seeds uses a copy of 11ba's set taken at import; test added; results regenerated with --summarise from the saved data (no other line changed); disclosed in LOG.md"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt (scheduled task text)",
+      "why": "the stored prompt asks for revenue products; prompt.md's router drew the research track, which this run followed as the owner's mechanism for splitting runs",
+      "did": "advanced the drawn programme",
+      "result": "one pre-registered milestone landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-aerolog-one-sided-spacing-search-second-fresh-set.md"
+  ],
+  "goal": "advance an open programme with a pre-registered fresh-data test",
+  "notes": "Predictions G1-G8 pushed in 88235e509 before any layout was built. 6 of 8 held (G1, G4 refuted): U3 beats W at twice the offset (p90 1.0000/1.0044 vs 1.0014/1.0079) but misses a below-side draw (worst 1.1099 vs 1.0278); W stays per the fixed reading. Post hoc union S6 (k_B-2..k_B+3) at or below both on all 3 data sets, worst 1.0489. Local checks: aerolog-scaling tests 317 passed; check_airspace_numbers 267/267; research/_homepage/build.py ok; check_posts ok; check_md_links ok.",
+  "corrections": [],
+  "redteam": null
+}

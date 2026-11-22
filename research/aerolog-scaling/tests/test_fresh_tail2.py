@@ -37,4 +37,13 @@ def test_spacings_clip_to_available_band_counts():
 def test_second_fresh_set_shares_no_seed():
     assert f2.check_seeds() == set()
     for m in (12, 16):
-        assert not set(f2.FRESH2[m]) & (set(f2.ft.OLD[m]) | set(f2.ft.FRESH[m]))
+        assert not set(f2.FRESH2[m]) & (set(f2.ft.OLD[m]) | set(f2.FIRST[m]))
+
+
+def test_seed_check_is_independent_of_ft_fresh():
+    saved = f2.ft.FRESH
+    try:
+        f2.ft.FRESH = f2.FRESH2
+        assert f2.check_seeds() == set()
+    finally:
+        f2.ft.FRESH = saved

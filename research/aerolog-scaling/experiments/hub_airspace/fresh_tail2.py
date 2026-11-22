@@ -58,6 +58,7 @@ import fresh_tail as ft  # noqa: E402
 FRESH2 = {12: list(range(1236, 1248)), 16: list(range(1636, 1648))}
 OUT = os.path.join(HERE, "fresh_tail2.json.gz")
 RULES = ("B", "N", "W", "U2", "U3", "oracle")
+FIRST = {m: list(v) for m, v in ft.FRESH.items()}   # 11ba's set, copied before __main__ points ft.FRESH here
 
 
 def _seeds(i):
@@ -66,7 +67,7 @@ def _seeds(i):
 
 def check_seeds():
     """Seeds of the second fresh set that coincide with an old or first-fresh layout's (should be empty)."""
-    prior = set().union(*(_seeds(i) for g in (ft.OLD, ft.FRESH) for m in g for i in g[m]))
+    prior = set().union(*(_seeds(i) for g in (ft.OLD, FIRST) for m in g for i in g[m]))
     new = set().union(*(_seeds(i) for m in FRESH2 for i in FRESH2[m]))
     return prior & new
 
