@@ -949,9 +949,15 @@ function outlineTableXml(f) {
 export const TASK_NUMBER_IDS = ["188743767", "188743768", "188743769", "188743770", "188743771", ...Array.from({ length: 15 }, (_, k) => String(188743982 + k))];
 export const TASK_DATE_IDS = Array.from({ length: 10 }, (_, k) => String(188743945 + k));
 export const TASK_COST_IDS = ["188743786", "188743787", "188743788", ...Array.from({ length: 7 }, (_, k) => String(188743938 + k))];
-const UDF_KIND = { FT_INT: "number", FT_FLOAT: "number", FT_FLOAT_2_DECIMALS: "number", FT_MONEY: "cost", FT_START_DATE: "date", FT_END_DATE: "date", FT_TEXT: "text" };
+// Project's task Start1..10 and Finish1..10 custom fields (MPXJ 16.10's
+// MPPTaskField: index 52/53, 55/56 ... 64/65 for 1..5, 282/283 ... 290/291
+// for 6..10, on the task base 0x0B400000). Finish-date UDFs go to Finish
+// fields so they come back as finish-date UDFs (eval/finish-udfs-2026-11-22.md).
+export const TASK_START_IDS = [...[52, 55, 58, 61, 64], ...[282, 284, 286, 288, 290]].map((k) => String(188743680 + k));
+export const TASK_FINISH_IDS = [...[53, 56, 59, 62, 65], ...[283, 285, 287, 289, 291]].map((k) => String(188743680 + k));
+const UDF_KIND = { FT_INT: "number", FT_FLOAT: "number", FT_FLOAT_2_DECIMALS: "number", FT_MONEY: "cost", FT_START_DATE: "date", FT_END_DATE: "finish", FT_TEXT: "text" };
 const udfKind = (t) => (Object.hasOwn(UDF_KIND, t) ? UDF_KIND[t] : undefined);
-const KIND_FIELDS = { number: ["Number", TASK_NUMBER_IDS], date: ["Date", TASK_DATE_IDS], cost: ["Cost", TASK_COST_IDS] };
+const KIND_FIELDS = { number: ["Number", TASK_NUMBER_IDS], date: ["Date", TASK_DATE_IDS], cost: ["Cost", TASK_COST_IDS], finish: ["Finish", TASK_FINISH_IDS] };
 // Project's resource Text1..30, Number1..20, Cost1..10 and Date1..10 fields
 // (PjField ids from MPXJ 16.10's FieldTypeHelper for ResourceField.TEXT1 and
 // the rest; p6xer.mjs reads them back as resource UDFs)
@@ -960,12 +966,17 @@ export const RSRC_TEXT_IDS = ["205520904", "205520905", ...rng(205520926, 3), ..
 export const RSRC_NUMBER_IDS = [...rng(205521008, 5), ...rng(205521101, 15)];
 export const RSRC_COST_IDS = [...rng(205521019, 3), ...rng(205521062, 7)];
 export const RSRC_DATE_IDS = rng(205521069, 10);
-const RSRC_KIND_FIELDS = { number: ["Number", RSRC_NUMBER_IDS], date: ["Date", RSRC_DATE_IDS], cost: ["Cost", RSRC_COST_IDS] };
+// resource Start1..10 and Finish1..10 (MPPResourceField: 102-106 and
+// 220-224, 107-111 and 190-194, on the resource base 0x0C400000)
+export const RSRC_START_IDS = [...rng(205520998, 5), ...rng(205521116, 5)];
+export const RSRC_FINISH_IDS = [...rng(205521003, 5), ...rng(205521086, 5)];
+const RSRC_KIND_FIELDS = { number: ["Number", RSRC_NUMBER_IDS], date: ["Date", RSRC_DATE_IDS], cost: ["Cost", RSRC_COST_IDS], finish: ["Finish", RSRC_FINISH_IDS] };
 
 // The activity user-defined fields (UDFTYPE table TASK, values in UDFVALUE)
 // of this project's activities, as Project's spare custom fields: integer and
-// decimal UDFs as Number1..20, cost UDFs as Cost1..10, start and finish date
-// UDFs as Date1..10, and text UDFs in the Text fields activity codes left
+// decimal UDFs as Number1..20, cost UDFs as Cost1..10, start-date UDFs as
+// Date1..10, finish-date UDFs as Finish1..10 (more than ten spill into the
+// Date fields start-date UDFs leave free, and come back as start dates), and text UDFs in the Text fields activity codes left
 // free (textFrom is the first free index into TASK_TEXT_IDS). Each field is
 // renamed (Alias) to the UDF's title. A kind with more UDFs than fields keeps
 // the most-filled (P6's order breaks ties) and counts the rest. Indicator
@@ -1005,7 +1016,7 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
       const n = num(v.udf_number);
       if (n === null || v.udf_number === "") { if ((v.udf_number || "").trim()) unreadable++; continue; }
       x = kind === "cost" ? String(Math.round(n * 100)) : String(n);
-    } else if (kind === "date") {
+    } else if (kind === "date" || kind === "finish") {
       const d = parseDate(v.udf_date);
       if (d === null) { if ((v.udf_date || "").trim()) unreadable++; continue; }
       x = isoDate(d);
@@ -1025,7 +1036,7 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
   const noFieldTypes = [];
   const slots = (kind) => (kind === "text" ? textIds.slice(textFrom).map((id, k) => [id, `Text${textFrom + k + 1}`]) : kindFields[kind][1].map((id, k) => [id, `${kindFields[kind][0]}${k + 1}`])).filter(([id]) => !usedIds.has(id));
   const shareOf = (u, kind) => shareWith.find((f) => f.kind === kind && f.alias.toLowerCase() === label(u).slice(0, 50).toLowerCase());
-  for (const kind of ["number", "cost", "date", "text"]) {
+  for (const kind of ["number", "cost", "date", "finish", "text"]) {
     let list = [...byType.keys()].map((id) => types.get(id)).filter((u) => udfKind(u.logical_data_type) === kind)
       .sort((a, b) => seq(a) - seq(b) || (a.udf_type_id < b.udf_type_id ? -1 : 1));
     if (!list.length) continue;
@@ -1036,7 +1047,7 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
     }
     list = list.filter((x) => !shareOf(x, kind));
     if (!list.length) continue;
-    const room = slots(kind);
+    const room = kind === "finish" ? [...slots("finish"), ...slots("date").filter(([id]) => !fields.some((f) => f.fieldId === id))] : slots(kind);
     let kept = list;
     if (list.length > room.length) {
       const rank = [...list].sort((a, b) => byType.get(b.udf_type_id).size - byType.get(a.udf_type_id).size || list.indexOf(a) - list.indexOf(b));
@@ -1045,8 +1056,8 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
       const left = list.filter((u) => !keep.has(u.udf_type_id));
       for (const u of left) { dropped += byType.get(u.udf_type_id).size; droppedTypes++; }
       const left2 = table === "PROJWBS" ? " activity codes and UDFs leave free" : rsrc ? "" : " activity codes leave free";
-      const where = kind === "text" ? `${room.length} ${rsrc ? "resource " : ""}Text field${room.length === 1 ? "" : "s"}${left2}` : `${room.length} ${rsrc ? "resource " : ""}${kindFields[kind][0]} field${room.length === 1 ? "" : "s"}${table === "PROJWBS" ? " activity UDFs leave free" : ""}`;
-      warnings.push(`${list.length} ${kind} ${who}user-defined fields are used and Project has ${where}: ${room.length ? "the most filled are written; " : ""}left out: ${left.map((u) => `${label(u)} (${byType.get(u.udf_type_id).size})`).join(", ")}`);
+      const where = kind === "finish" ? `${room.length} ${rsrc ? "resource " : ""}Finish and free Date field${room.length === 1 ? "" : "s"}${table === "PROJWBS" ? " activity UDFs leave free" : ""}` : kind === "text" ? `${room.length} ${rsrc ? "resource " : ""}Text field${room.length === 1 ? "" : "s"}${left2}` : `${room.length} ${rsrc ? "resource " : ""}${kindFields[kind][0]} field${room.length === 1 ? "" : "s"}${table === "PROJWBS" ? " activity UDFs leave free" : ""}`;
+      warnings.push(`${list.length} ${kind === "finish" ? "finish-date" : kind} ${who}user-defined fields are used and Project has ${where}: ${room.length ? "the most filled are written; " : ""}left out: ${left.map((u) => `${label(u)} (${byType.get(u.udf_type_id).size})`).join(", ")}`);
     }
     kept.forEach((u, k) => {
       let alias = label(u);
@@ -1056,6 +1067,8 @@ export function udfFields(T, taskRow, { textFrom = TASK_TEXT_IDS.length, takenAl
       written += values.size;
       fields.push({ fieldId: room[k][0], fieldName: room[k][1], alias: alias.slice(0, 50), kind, typeId: u.udf_type_id, values, table });
     });
+    const spilled = kind === "finish" ? fields.filter((f) => f.kind === "finish" && !f.shared && f.fieldName.startsWith("Date")) : [];
+    if (spilled.length) warnings.push(`${spilled.length} finish-date ${who}user-defined field(s) are past Project's ten Finish fields and are written to Date fields, which come back as start-date UDFs: ${spilled.map((f) => f.alias).join(", ")}`);
   }
   for (const id of byType.keys()) {
     const u = types.get(id);

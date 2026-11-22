@@ -41,7 +41,8 @@
   (eval/rsrc-udfs-2026-11-21.md, both directions). WBS UDFs on the summary
   tasks shipped 2026-11-21 (eval/wbs-udfs-2026-11-21.md, both directions,
   planted: no public XER has one; next: a real file with WBS UDFs);
-  keep the Date UDF start/finish subtype on the way back; activity codes as outline codes shipped 2026-11-21 (opt-in
+  the Date UDF start/finish subtype kept through Finish1..10 shipped
+  2026-11-22 (eval/finish-udfs-2026-11-22.md); activity codes as outline codes shipped 2026-11-21 (opt-in
   `--outline-codes`, eval/msproject-outline-2026-11-21.md; next: open one in
   Microsoft Project to settle the default and which task form it wants); the 8 CCA code types past 29 fields. MSPDI to XER for P6 import
   shipped 2026-11-21 (p6xer.mjs, eval/p6xer-check-2026-11-21.md).
@@ -60,7 +61,9 @@
   (eval/p6xer-udfs-2026-11-21.md). Still open there: the UDF type on a round
   trip (whole numbers come back as integer UDFs, so 6 of CCA's decimal UDFs
   change type, 7,104 of 13,174 values keep P6's; a hint that survives a save
-  in Project is needed), finish-date UDFs (Project has one date kind).
+  in Project is needed). Finish-date UDFs and Project's Start/Finish fields
+  shipped 2026-11-22 (eval/finish-udfs-2026-11-22.md); still open there: a
+  switch to leave interim-plan Start/Finish fields out.
   Resource custom fields as RSRC UDFs shipped 2026-11-21
   (eval/rsrc-udfs-2026-11-21.md).
 - (2026-11-21) constraints log's "past late start" now says whether a row moves anything (eval/constraints-slack-2026-11-20.md: 65/65)

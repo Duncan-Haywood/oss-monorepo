@@ -560,31 +560,27 @@ flagships:
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
-      (1) CPM fourth pass shipped 2026-11-19 (rules 12-16: 19,820 of 19,822, late
-      finish 19,822; eval/cpm-vs-p6-2026-11-19.md); (7) longest path and multiple
-      float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths, page panel;
-      eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files). (9)
-      look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel;
-      eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed activities =
-      P6's); milestone calendars shipped 2026-11-20 (milestones.mjs;
-      eval/milestone-calendars-2026-11-20.md). (10) earned value shipped 2026-11-20
-      (evm.mjs; % complete = P6's actuals 2,020/2,020); next a real series, baseline
-      export (curved spread shipped, curves.mjs). (11) time impact analysis shipped
-      2026-11-20 (tia.mjs, --tia, page; eval/tia-check-2026-11-20.md); next a real
-      TIA exhibit. (8) MSPDI: resource calendars, Resume, splits read 2026-11-21
-      (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md); P6 curves out as
-      Project timephased work 2026-11-22 (eval/curves-to-project-2026-11-22.md);
-      next a Project open of those rows, a P6 import of a curve, timephased late
-      dates. (12) Gantt chart shipped 2026-11-20 (LOE and WBS summary dates = P6's
-      on 305 of 305, eval/gantt-check-2026-11-20.md). (13) XER to Project XML
-      shipped 2026-11-21; late dates 19,822/19,822 2026-11-22
+      (10) earned value shipped 2026-11-20 (evm.mjs; % complete = P6's actuals
+      2,020/2,020); next a real series, baseline export (curved spread shipped,
+      curves.mjs). (11) time impact analysis shipped 2026-11-20 (tia.mjs, --tia,
+      page; eval/tia-check-2026-11-20.md); next a real TIA exhibit. (8) MSPDI:
+      resource calendars, Resume, splits read 2026-11-21 (2,446 of 2,491 =
+      Project's, eval/split-tasks-2026-11-21.md); P6 curves out as Project
+      timephased work 2026-11-22 (eval/curves-to-project-2026-11-22.md); next a
+      Project open of those rows, a P6 import of a curve, timephased late dates.
+      (12) Gantt chart shipped 2026-11-20 (LOE and WBS summary dates = P6's on 305
+      of 305, eval/gantt-check-2026-11-20.md). (13) XER to Project XML shipped
+      2026-11-21; late dates 19,822/19,822 2026-11-22
       (eval/msproject-latedates-2026-11-22.md); next a Project check. MSPDI to XER
       shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md); deadlines in float and
       XER (eval/deadlines-2026-11-21.md). Expenses <-> cost resources and fixed
       costs 2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;
       eval/expenses-2026-11-21.md); next a P6-written XER with expenses, a P6 import
       (category by name?). Notebooks <-> task notes 2026-11-21 (88/88 real,
-      2,006/2,006 planted; eval/notebooks-2026-11-21.md). More open items: NEXT.md.
+      2,006/2,006 planted; eval/notebooks-2026-11-21.md). Finish-date UDFs <->
+      Project Finish fields, Start/Finish fields read 2026-11-22
+      (eval/finish-udfs-2026-11-22.md: 120/120 Project values, CCA 182/182); next:
+      decimal-type hint. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
