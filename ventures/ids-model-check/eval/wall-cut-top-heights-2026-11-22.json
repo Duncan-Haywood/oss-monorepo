@@ -1,0 +1,520 @@
+{
+ "AC20-FZK-Haus.ifc": {
+  "apps": [
+   "ARCHICAD-64"
+  ],
+  "walls": 13,
+  "measured": 13,
+  "clipped": 2,
+  "offeredBefore": 11,
+  "offeredAfter": 13,
+  "newByConvention": {
+   "tallest": 2
+  },
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 11,
+   "unclippedWithin2": 11,
+   "clipped": 2,
+   "clippedOffered": 2,
+   "clippedWithin2": 2,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 0.295,
+  "misses": []
+ },
+ "C20-Institute-Var-2.ifc": {
+  "apps": [
+   "ARCHICAD-64"
+  ],
+  "walls": 121,
+  "measured": 121,
+  "clipped": 9,
+  "offeredBefore": 112,
+  "offeredAfter": 121,
+  "newByConvention": {
+   "tallest": 9
+  },
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 112,
+   "unclippedWithin2": 112,
+   "clipped": 9,
+   "clippedOffered": 9,
+   "clippedWithin2": 9,
+   "otherReadingWithin2": 2
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 0.703,
+  "misses": []
+ },
+ "FM_ARC_DigitalHub.ifc": {
+  "apps": [
+   "Autodesk Revit 2019 (DEU)"
+  ],
+  "walls": 178,
+  "measured": 178,
+  "clipped": 0,
+  "offeredBefore": 178,
+  "offeredAfter": 178,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 13.227,
+  "misses": []
+ },
+ "ISSUE_034_HouseZ.ifc": {
+  "apps": [
+   "Asuni IFC Rhino Export Plug-In"
+  ],
+  "walls": 140,
+  "measured": 134,
+  "clipped": 39,
+  "offeredBefore": 95,
+  "offeredAfter": 95,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 39
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 1.445,
+  "misses": []
+ },
+ "ISSUE_126_model.ifc": {
+  "apps": [
+   "ARCHICAD-64"
+  ],
+  "walls": 65,
+  "measured": 57,
+  "clipped": 0,
+  "offeredBefore": 57,
+  "offeredAfter": 57,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 0.253,
+  "misses": []
+ },
+ "ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc": {
+  "apps": [
+   "Autodesk Revit 2017 (FRA)"
+  ],
+  "walls": 336,
+  "measured": 333,
+  "clipped": 23,
+  "offeredBefore": 310,
+  "offeredAfter": 310,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 23,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 7.274,
+  "misses": []
+ },
+ "ISSUE_159_kleine_Wohnung_R22.ifc": {
+  "apps": [
+   "Autodesk Revit 2022 (DEU)"
+  ],
+  "walls": 211,
+  "measured": 211,
+  "clipped": 0,
+  "offeredBefore": 211,
+  "offeredAfter": 211,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 210,
+   "unclippedWithin2": 210,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 210,
+   "attached": 67,
+   "attachedWithin2": 0,
+   "unattached": 84,
+   "unattachedWithin2": 84,
+   "noLevel": 59
+  },
+  "seconds": 7.457,
+  "misses": []
+ },
+ "Office_A_20110811.ifc": {
+  "apps": [
+   "Autodesk Revit Architecture 2011"
+  ],
+  "walls": 487,
+  "measured": 487,
+  "clipped": 0,
+  "offeredBefore": 487,
+  "offeredAfter": 487,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 1.214,
+  "misses": []
+ },
+ "S_Office_Integrated Design Archi.ifc": {
+  "apps": [
+   "ARCHICAD"
+  ],
+  "walls": 226,
+  "measured": 186,
+  "clipped": 0,
+  "offeredBefore": 186,
+  "offeredAfter": 186,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 14.266,
+  "misses": []
+ },
+ "Schultz_Residence.ifc": {
+  "apps": [
+   "Autodesk Revit 2014 (ENU)"
+  ],
+  "walls": 105,
+  "measured": 100,
+  "clipped": 10,
+  "offeredBefore": 90,
+  "offeredAfter": 100,
+  "newByConvention": {
+   "extrusion": 10
+  },
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 25.922,
+  "misses": []
+ },
+ "advanced_model.ifc": {
+  "apps": [
+   "Autodesk Revit 2021 (ENU)"
+  ],
+  "walls": 133,
+  "measured": 133,
+  "clipped": 5,
+  "offeredBefore": 128,
+  "offeredAfter": 128,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 5,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 15.629,
+  "misses": []
+ },
+ "architect.ifc": {
+  "apps": [
+   "Autodesk Revit Architecture 2010"
+  ],
+  "walls": 112,
+  "measured": 112,
+  "clipped": 0,
+  "offeredBefore": 112,
+  "offeredAfter": 112,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 112,
+   "unclippedWithin2": 112,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 112,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 112,
+   "unattachedWithin2": 104,
+   "noLevel": 0
+  },
+  "seconds": 9.161,
+  "misses": []
+ },
+ "construction.ifc": {
+  "apps": [
+   "Autodesk Revit Architecture 2010"
+  ],
+  "walls": 48,
+  "measured": 48,
+  "clipped": 16,
+  "offeredBefore": 32,
+  "offeredAfter": 37,
+  "newByConvention": {
+   "extrusion": 5
+  },
+  "clippedLeft": {
+   "faceted": 11,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 31,
+   "unclippedWithin2": 31,
+   "clipped": 5,
+   "clippedOffered": 5,
+   "clippedWithin2": 5,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 36,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 36,
+   "unattachedWithin2": 11,
+   "noLevel": 0
+  },
+  "seconds": 0.89,
+  "misses": []
+ },
+ "dental_clinic.ifc": {
+  "apps": [
+   "Autodesk Revit Architecture 2011"
+  ],
+  "walls": 1080,
+  "measured": 1077,
+  "clipped": 10,
+  "offeredBefore": 1067,
+  "offeredAfter": 1067,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 10,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 1.923,
+  "misses": []
+ },
+ "duplex.ifc": {
+  "apps": [
+   "Autodesk Revit Architecture 2011"
+  ],
+  "walls": 57,
+  "measured": 57,
+  "clipped": 0,
+  "offeredBefore": 57,
+  "offeredAfter": 57,
+  "newByConvention": {},
+  "clippedLeft": {
+   "faceted": 0,
+   "extruded": 0,
+   "noConvention": 0
+  },
+  "stored": {
+   "unclipped": 0,
+   "unclippedWithin2": 0,
+   "clipped": 0,
+   "clippedOffered": 0,
+   "clippedWithin2": 0,
+   "otherReadingWithin2": 0
+  },
+  "revit": {
+   "stored": 0,
+   "attached": 0,
+   "attachedWithin2": 0,
+   "unattached": 0,
+   "unattachedWithin2": 0,
+   "noLevel": 0
+  },
+  "seconds": 0.37,
+  "misses": []
+ }
+}

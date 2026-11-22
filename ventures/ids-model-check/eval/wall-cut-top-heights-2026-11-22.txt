@@ -1,0 +1,38 @@
+
+AC20-FZK-Haus.ifc (ARCHICAD-64): 13 walls, 13 measured, 2 clipped; Heights offered 11 -> 13 {"tallest":2}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 0.295 s
+  Stored Heights: unclipped 11/11 within 2%; clipped 2, offered 2, within 2% 2 (the other reading 0)
+
+C20-Institute-Var-2.ifc (ARCHICAD-64): 121 walls, 121 measured, 9 clipped; Heights offered 112 -> 121 {"tallest":9}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 0.703 s
+  Stored Heights: unclipped 112/112 within 2%; clipped 9, offered 9, within 2% 9 (the other reading 2)
+
+FM_ARC_DigitalHub.ifc (Autodesk Revit 2019 (DEU)): 178 walls, 178 measured, 0 clipped; Heights offered 178 -> 178 {}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 13.227 s
+
+ISSUE_034_HouseZ.ifc (Asuni IFC Rhino Export Plug-In): 140 walls, 134 measured, 39 clipped; Heights offered 95 -> 95 {}; clipped left {"faceted":0,"extruded":0,"noConvention":39}, 1.445 s
+
+ISSUE_126_model.ifc (ARCHICAD-64): 65 walls, 57 measured, 0 clipped; Heights offered 57 -> 57 {}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 0.253 s
+
+ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc (Autodesk Revit 2017 (FRA)): 336 walls, 333 measured, 23 clipped; Heights offered 310 -> 310 {}; clipped left {"faceted":23,"extruded":0,"noConvention":0}, 7.274 s
+
+ISSUE_159_kleine_Wohnung_R22.ifc (Autodesk Revit 2022 (DEU)): 211 walls, 211 measured, 0 clipped; Heights offered 211 -> 211 {}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 7.457 s
+  Stored Heights: unclipped 210/210 within 2%; clipped 0, offered 0, within 2% 0 (the other reading 0)
+  Revit constraints vs stored: unattached 84/84, top attached 0/67, a level not a storey 59
+
+Office_A_20110811.ifc (Autodesk Revit Architecture 2011): 487 walls, 487 measured, 0 clipped; Heights offered 487 -> 487 {}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 1.214 s
+
+S_Office_Integrated Design Archi.ifc (ARCHICAD): 226 walls, 186 measured, 0 clipped; Heights offered 186 -> 186 {}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 14.266 s
+
+Schultz_Residence.ifc (Autodesk Revit 2014 (ENU)): 105 walls, 100 measured, 10 clipped; Heights offered 90 -> 100 {"extrusion":10}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 25.922 s
+
+advanced_model.ifc (Autodesk Revit 2021 (ENU)): 133 walls, 133 measured, 5 clipped; Heights offered 128 -> 128 {}; clipped left {"faceted":5,"extruded":0,"noConvention":0}, 15.629 s
+
+architect.ifc (Autodesk Revit Architecture 2010): 112 walls, 112 measured, 0 clipped; Heights offered 112 -> 112 {}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 9.161 s
+  Stored Heights: unclipped 112/112 within 2%; clipped 0, offered 0, within 2% 0 (the other reading 0)
+  Revit constraints vs stored: unattached 104/112, top attached 0/0, a level not a storey 0
+
+construction.ifc (Autodesk Revit Architecture 2010): 48 walls, 48 measured, 16 clipped; Heights offered 32 -> 37 {"extrusion":5}; clipped left {"faceted":11,"extruded":0,"noConvention":0}, 0.89 s
+  Stored Heights: unclipped 31/31 within 2%; clipped 5, offered 5, within 2% 5 (the other reading 0)
+  Revit constraints vs stored: unattached 11/36, top attached 0/0, a level not a storey 0
+
+dental_clinic.ifc (Autodesk Revit Architecture 2011): 1080 walls, 1077 measured, 10 clipped; Heights offered 1067 -> 1067 {}; clipped left {"faceted":10,"extruded":0,"noConvention":0}, 1.923 s
+
+duplex.ifc (Autodesk Revit Architecture 2011): 57 walls, 57 measured, 0 clipped; Heights offered 57 -> 57 {}; clipped left {"faceted":0,"extruded":0,"noConvention":0}, 0.37 s

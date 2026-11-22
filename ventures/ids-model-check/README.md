@@ -605,7 +605,7 @@ quantities no set holds are measured from the element's own body by
 | `GrossArea`, `NetArea` | slabs, plates, coverings, roofs | the extruded profile |
 | `CrossSectionArea` | columns, beams, members, piles | the section at mid-length |
 | `Length` | walls (direction from a straight `Axis`, or from the body's side faces when there is none; extruded or brep bodies) | along that direction, on the plane halfway through the thickness, at the longest level |
-| `Height` | the same walls | the extrusion depth; none when a roof or slab clips the wall, and on a brep only when its top is level |
+| `Height` | the same walls | the extrusion depth; when a roof or slab clips the wall, the figure its authoring tool's export stores (ARCHICAD: the highest point; Revit: the extrusion depth, so none on a Revit brep), none for other tools; on a brep with a level top, its extent |
 
 **Wall Length and Height (2026-11-21).** The `Axis` curve's own length is not
 the wall's length: ARCHICAD draws it on the reference line, often a face, so
@@ -628,6 +628,17 @@ public models, 3,247 of 3,312 walls are now measured (2,955 before), and
 filling `Length` and `Height` on the seven models this reaches leaves 100
 walls failing instead of 305, all 3,478 written values passing here and in
 IfcTester (`eval/wall-brep-lengths-2026-11-21.md`).
+
+**Clipped walls' Height by the authoring tool (2026-11-22).** A wall a roof or
+slab cuts has two heights, and the exporters disagree: ARCHICAD stores the cut
+wall's highest point, Revit the extrusion depth before the cut. The fill now
+reads the tool from the wall's owner history and offers that one figure: on
+the 16 clipped walls that store a Height, 16 of 16 match (ARCHICAD 11, Revit
+5), and 26 more walls get a Height (3,159 of 3,247 measured walls). The
+highest point is also found at a mitred end's corner now (C20's Wand-003:
+2.0257 m, as stored; 1.985 before). Revit's own constraint set was tried as a
+reference and dropped: walls whose top is attached to a roof match it 0 of 67
+times (`eval/wall-cut-top-heights-2026-11-22.md`).
 Other lengths and heights (beams, members, curved walls) are not measured. A value from the model's
 own quantity sets always wins over a measured one, and a measured value still
 has to pass every facet that names it. Values are written to six significant
