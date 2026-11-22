@@ -16,9 +16,10 @@ masked is skipped. The scene on one tune burst (`0030_20151214_101221_477`) repr
 (D 47.913 / 51.289, `ship+12` 47.973 / 51.438 colour / luma dB).
 
 Per burst and arm (`ship` = `frame_noise` as it ships, `mpcws`, and `true`, the oracle), all lifted by
-`NEAR_DETAIL` 12 as Bayer ships, the blend is scored on every colour ramp of a 46-point grid (q_low 0.2 to 1.2,
-q_high 0.8 to 4.0) with the shipped luma ramp, every luma ramp of the same grid with the shipped colour ramp, and
-a 7 x 7 joint neighbourhood (`JOINT_C`, `JOINT_L`).
+`NEAR_DETAIL` 12 as Bayer ships, the blend is scored on every colour ramp of a 74-point grid (q_low 0.2 to 1.2,
+q_high 0.8 to 8.0) with the shipped luma ramp, every luma ramp of the same grid with the shipped colour ramp, and
+a 7 x 7 joint neighbourhood (`JOINT_C`, `JOINT_L`). The grid first stopped at q_high 4.0; a smoke test of the
+fit on one tune burst picked a luma ramp on that edge, so q_high 6.0 and 8.0 were added before any set was scored.
 
 **Sets.**
 

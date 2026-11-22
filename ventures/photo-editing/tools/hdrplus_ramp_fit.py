@@ -43,7 +43,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 LOWS = (0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2)
-HIGHS = (0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0)
+HIGHS = (0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 6.0, 8.0)
 GRID = [(lo, hi) for lo in LOWS for hi in HIGHS if hi > lo]
 SHIP_C, SHIP_L = (0.4, 1.2), (0.8, 1.5)  # RAMPS[2], LUMA_RAMPS[2] as of 2026-11-22
 ARMS = ("ship", "mpcws", "true")
@@ -221,7 +221,41 @@ def fit(args) -> int:
             res.update(held_colour=round(float(gc.mean()), 4), held_luma=round(float(gl.mean()), 4),
                        held_thirds=[[round(a, 4), round(b, 4)] for a, b in cells], held_worse=worse,
                        held_new_losers=losers_new, held_ship_losers=losers_ship)
+            if arm == "ship":
+                h = {"h1": gc.mean() >= -0.005 and gl.mean() >= -0.005 and gc.mean() + gl.mean() >= 0.03,
+                     "h2": min(min(a, b) for a, b in cells) >= -0.02, "h3": worse == 0, "h4": losers_new == 0}
+                print("  R1: " + ", ".join(f"{k} {'PASS' if v else 'FAIL'}" for k, v in h.items()))
+                res["R1"] = {k: bool(v) for k, v in h.items()}
         out[arm] = res
+        if held:
+            # R3: the best row chosen on held itself (reported only)
+            hs = {}
+            for k in keys:
+                gc, gl = _gains(t, held, k, ship)
+                hs[k] = (gc.mean() + gl.mean(), gc.mean(), gl.mean())
+            hb = max(hs, key=lambda k: hs[k][0])
+            print(f"  R3 held-chosen best: colour {hb[1]} luma {hb[2]}: colour {hs[hb][1]:+.4f} luma {hs[hb][2]:+.4f}")
+            res["held_oracle_pick"] = [list(hb[1]), list(hb[2]), round(float(hs[hb][1]), 4), round(float(hs[hb][2]), 4)]
+    if held:
+        # R2: does the oracle still lose to what ships once each arm has its own tune pick?
+        def under(set_, k_true, k_ship):
+            gc, gl = _gains(t, set_, k_true, k_ship)
+            return int(((gc < -0.1) | (gl < -0.1)).sum())
+
+        shipped = under(held, ("true", SHIP_C, SHIP_L), ("ship", SHIP_C, SHIP_L))
+        pt, ps = out["true"]["pick"], out["ship"]["pick"]
+        picked = under(held, ("true", tuple(pt[0]), tuple(pt[1])), ("ship", tuple(ps[0]), tuple(ps[1])))
+        tune_shipped = under(tune, ("true", SHIP_C, SHIP_L), ("ship", SHIP_C, SHIP_L))
+        print(f"\n## R2: held bursts where true is > 0.1 dB under ship: shipped ramps {shipped}, each arm's pick "
+              f"{picked} (tune, shipped ramps: {tune_shipped})")
+        out["R2"] = {"shipped": shipped, "picked": picked, "tune_shipped": tune_shipped}
+        # mpcws against ship, each on its own pick and both on the shipped ramps (reported only)
+        pm = out["mpcws"]["pick"]
+        for label, km, kc in (("shipped ramps", ("mpcws", SHIP_C, SHIP_L), ("ship", SHIP_C, SHIP_L)),
+                              ("own picks", ("mpcws", tuple(pm[0]), tuple(pm[1])), ("ship", tuple(ps[0]), tuple(ps[1])))):
+            gc, gl = _gains(t, held, km, kc)
+            print(f"  mpcws over ship, {label}: colour {gc.mean():+.4f} luma {gl.mean():+.4f}, "
+                  f"bursts > 0.1 dB under: {int(((gc < -0.1) | (gl < -0.1)).sum())}")
     if args.json:
         args.json.write_text(json.dumps(out, indent=1) + "\n")
     return 0
