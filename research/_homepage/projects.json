@@ -2005,7 +2005,7 @@
     {
      "slug": "ambient-exploreonly",
      "title": "Does fitting only on the windows an assistant explored at random fix learning from its own feedback?",
-     "summary": "A stylised follow-up to <em>ambient-labelmatch</em> and the reweighting and doubly robust fixes after it. The deployed learner already draws a random sample for free: the windows it spoke on only because its &epsilon; coin came up. Fitting on those windows alone, unweighted, reaches 11.99 utility/h at &epsilon; = 0.02 and 12.25 at 0.05 with an uninformed prior, against &minus;13.08 and &minus;71.85 for the fit on every spoken window (oracle 12.71; 20 seeds), and as a learner it earns 6.49/h online at &epsilon; = 0.005 against &minus;2.04. Exploration costs dismissals (online utility falls at larger &epsilon;), and with an informed prior the plain fit is better at small &epsilon;. Stylised simulation only."
+     "summary": "A stylised follow-up to <em>ambient-labelmatch</em>. The deployed learner already draws a random sample for free: the windows it spoke on only because its &epsilon; coin came up. Fitting on those windows alone, unweighted, loses to the plain refit on every spoken window at every &epsilon; and under both priors (uninformed prior, &epsilon; = 0.02: 8.13 against 11.44 utility/h; oracle 12.71; 20 seeds), and online it earns less at small &epsilon; while interrupting less. An earlier version reported the opposite; that was the MAP solver diverging from the uninformed prior, corrected on 2026-11-22 after a quality audit. Stylised simulation only."
     },
     {
      "slug": "ambient-falsewake",
