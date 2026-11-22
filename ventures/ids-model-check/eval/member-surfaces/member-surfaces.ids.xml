@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Linear members carry their surface areas (geometry fill check)</title>
+    <description>Beams, columns, members and piles carry Qto_ OuterSurfaceArea and GrossSurfaceArea, as a coating, fire protection or galvanising takeoff reads them. Written for eval/member-surfaces-2026-11-22.md; MIT.</description>
+  </info>
+  <specifications>
+    <specification name="Beams carry an outer surface area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCBEAM</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_BeamBaseQuantities</simpleValue></propertySet><baseName><simpleValue>OuterSurfaceArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Beams carry a gross surface area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCBEAM</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_BeamBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossSurfaceArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Columns carry an outer surface area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCCOLUMN</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_ColumnBaseQuantities</simpleValue></propertySet><baseName><simpleValue>OuterSurfaceArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Columns carry a gross surface area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCCOLUMN</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_ColumnBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossSurfaceArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Members carry an outer surface area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCMEMBER</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_MemberBaseQuantities</simpleValue></propertySet><baseName><simpleValue>OuterSurfaceArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Members carry a gross surface area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCMEMBER</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_MemberBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossSurfaceArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Piles carry an outer surface area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCPILE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_PileBaseQuantities</simpleValue></propertySet><baseName><simpleValue>OuterSurfaceArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Piles carry a gross surface area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCPILE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_PileBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossSurfaceArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>

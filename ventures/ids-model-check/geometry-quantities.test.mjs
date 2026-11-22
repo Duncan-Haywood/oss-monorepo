@@ -659,3 +659,95 @@ test("a Revit room gets its net floor area, and one whose top is a ceiling's und
   // Asked as the wrong kind: nothing.
   assert.equal(plain({ id: 2000 }, "GrossFloorArea", "IFCQUANTITYLENGTH"), undefined);
 });
+
+// a convex box's faces (counter-clockwise from outside), corners lo..hi
+const boxFaces = (lo, hi) => {
+  const [x0, y0, z0] = lo, [x1, y1, z1] = hi;
+  const p = (x, y, z) => [x, y, z];
+  return [
+    [p(x0, y0, z0), p(x0, y1, z0), p(x1, y1, z0), p(x1, y0, z0)],
+    [p(x0, y0, z1), p(x1, y0, z1), p(x1, y1, z1), p(x0, y1, z1)],
+    [p(x0, y0, z0), p(x1, y0, z0), p(x1, y0, z1), p(x0, y0, z1)],
+    [p(x0, y1, z0), p(x0, y1, z1), p(x1, y1, z1), p(x1, y1, z0)],
+    [p(x0, y0, z0), p(x0, y0, z1), p(x0, y1, z1), p(x0, y1, z0)],
+    [p(x1, y0, z0), p(x1, y1, z0), p(x1, y1, z1), p(x1, y0, z1)],
+  ];
+};
+const boxExtent = (s, d) => {
+  let lo = Infinity, hi = -Infinity;
+  const pts = [...(s.terms || []).flatMap((t) => t.faces.flat()), ...(s.shells || []).flatMap((sh) => sh.loops.flat())];
+  for (const q of pts) { const v = q[0] * d[0] + q[1] * d[1] + q[2] * d[2]; if (v < lo) lo = v; if (v > hi) hi = v; }
+  return [lo, hi];
+};
+const memberRow = (body, volume, section) => ({ id: 1, ifcType: "IFCBEAM", lengthUnit: 1, computed: { status: "ok", gross: volume, net: volume, solids: { body }, areas: { cross: { n: [1, 0, 0], gross: section } } } });
+
+test("a member's surface areas: side faces = outline x length, gross adds both ends, each by the authoring tool's convention", async () => {
+  const { memberSurface } = await import("./geometry-quantities.mjs");
+  // a 4 m bar, 0.2 x 0.1: outline 0.6, side 2.4, ends 2 x 0.02
+  const r = memberRow({ terms: [{ s: 1, faces: boxFaces([0, 0, 0], [4, 0.2, 0.1]) }] }, 0.08, 0.02);
+  const close = (a, b) => Math.abs(a - b) < 1e-9;
+  const archicad = memberSurface(r, boxExtent, { outer: "side", gross: "total" });
+  assert.ok(close(archicad.side, 2.4) && close(archicad.total, 2.44));
+  assert.ok(close(archicad.outer, 2.4) && close(archicad.gross, 2.44));
+  const tekla = memberSurface(r, boxExtent, { outer: "total", gross: "total", hollow: "outside" });
+  assert.ok(close(tekla.outer, 2.44));
+  const revit = memberSurface(r, boxExtent, { outer: "side", gross: null });
+  assert.equal(revit.gross, null);
+  // another tool: Gross by the definition; Outer only while the ends are under 2% of the total (here 1.6%)
+  const other = memberSurface(r, boxExtent, null);
+  assert.ok(close(other.outer, 2.4) && close(other.gross, 2.44));
+  const stubby = memberSurface(memberRow({ terms: [{ s: 1, faces: boxFaces([0, 0, 0], [0.5, 0.2, 0.1]) }] }, 0.01, 0.02), boxExtent, null);
+  assert.equal(stubby.outer, null);
+  assert.ok(close(stubby.gross, 0.3 + 0.04));
+  // a cut end (volume / section short of the extent) and a plate (no longer than wide) give none
+  assert.equal(memberSurface(memberRow({ terms: [{ s: 1, faces: boxFaces([0, 0, 0], [4, 0.2, 0.1]) }] }, 0.078, 0.02), boxExtent, null), null);
+  assert.equal(memberSurface(memberRow({ terms: [{ s: 1, faces: boxFaces([0, 0, 0], [0.1, 0.2, 0.3]) }] }, 0.006, 0.06), boxExtent, null), null);
+});
+
+test("a tube's surface: the bore is found and left out by Tekla's convention; other tools' tube figures are held back", async () => {
+  const { memberSurface, innerTerms } = await import("./geometry-quantities.mjs");
+  // a 3 m square tube 0.1 x 0.1, wall 0.01: outside outline 0.4, bore 0.32
+  const outer = { s: 1, faces: boxFaces([0, 0, 0], [3, 0.1, 0.1]) }, bore = { s: -1, faces: boxFaces([0, 0.01, 0.01], [3, 0.09, 0.09]) };
+  const body = { terms: [outer, bore] };
+  const A = 0.01 - 0.0064;
+  assert.deepEqual([...innerTerms(body, [1, 0, 0], 1.5)], [bore]);
+  const r = memberRow(body, A * 3, A);
+  const t = memberSurface(r, boxExtent, { outer: "total", gross: "total", hollow: "outside" });
+  assert.equal(t.hollow, true);
+  assert.ok(Math.abs(t.side - 0.72 * 3) < 1e-9);
+  assert.ok(Math.abs(t.outer - 1.2) < 1e-9 && Math.abs(t.gross - 1.2) < 1e-9);
+  const a = memberSurface(r, boxExtent, { outer: "side", gross: "total" });
+  assert.equal(a.outer, null);
+  assert.equal(a.gross, null);
+  // a notch cut from the outline is not a bore
+  const notch = { s: -1, faces: boxFaces([0, 0, 0.05], [3, 0.02, 0.1]) };
+  assert.equal(innerTerms({ terms: [outer, notch] }, [1, 0, 0], 1.5).size, 0);
+});
+
+test("a faceted member's side faces: faces square to the axis, offered only when what is left is two end caps", async () => {
+  const { memberSurface } = await import("./geometry-quantities.mjs");
+  const shells = (faces) => ({ shells: [{ loops: faces }], mesh: 1 });
+  const r = memberRow(shells(boxFaces([0, 0, 0], [4, 0.2, 0.1])), 0.08, 0.02);
+  const s = memberSurface(r, boxExtent, { outer: "side", gross: "total" });
+  assert.equal(s.from, "faces");
+  assert.ok(Math.abs(s.outer - 2.4) < 1e-9 && Math.abs(s.gross - 2.44) < 1e-9);
+  // the takeoff's section is not this body's (an axis picked off the member): the leftover faces are not two caps
+  assert.equal(memberSurface(memberRow(shells(boxFaces([0, 0, 0], [4, 0.2, 0.1])), 0.08, 0.03), boxExtent, null), null);
+});
+
+test("the fill writes a beam's surface areas from its I-section outline, and a round column's gross area", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const text = readFileSync(SAMPLE, "utf8");
+  const geometry = geometryLookup(await measureModel(text));
+  const S = (cls, set, name) => fillModel(ids(spec(cls, prop(set, name, "IFCAREAMEASURE"))), text, { ...resources(), random, geometry });
+  // IPE 200 with its root radii: 0.768 m2 per metre, the section tables' figure, x 4 m
+  const outer = S("IFCBEAM", "Qto_BeamBaseQuantities", "OuterSurfaceArea");
+  const [w] = outer.writtenList.filter((x) => x.source === "geometry");
+  assert.equal(w.id, 600);
+  assert.ok(Math.abs(Number(w.value) - 3.0728) < 0.001);
+  assert.equal(outer.verified.pass, outer.written);
+  // a 300 mm round column, 3 m: its ends are 4.8% of its area, so with no known tool only the gross figure
+  const col = S("IFCCOLUMN", "Qto_ColumnBaseQuantities", "GrossSurfaceArea");
+  const [c] = col.writtenList.filter((x) => x.source === "geometry");
+  assert.ok(Math.abs(Number(c.value) - (Math.PI * 0.3 * 3 + 2 * Math.PI * 0.15 ** 2)) < 0.001);
+  assert.equal(S("IFCCOLUMN", "Qto_ColumnBaseQuantities", "OuterSurfaceArea").writtenList.filter((x) => x.source === "geometry").length, 0);
+});

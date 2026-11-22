@@ -1,0 +1,16 @@
+AC20-FZK-Haus.ifc: 8 written from geometry (8 in all), verified 8 of 8 pass; OuterSurfaceArea: 4 written, 1 with a stored figure, 1 within 2%; GrossSurfaceArea: 4 written, 1 with a stored figure, 1 within 2%; 84 left to the to-fill table; 0.558 s
+ISSUE_005_haus.ifc: 8 written from geometry (8 in all), verified 8 of 8 pass; OuterSurfaceArea: 4 written, 1 with a stored figure, 1 within 2%; GrossSurfaceArea: 4 written, 1 with a stored figure, 1 within 2%; 84 left to the to-fill table; 0.386 s
+ISSUE_021_Mini Project.ifc: 2680 written from geometry (2680 in all), verified 2680 of 2680 pass; OuterSurfaceArea: 1340 written, 1340 with a stored figure, 1285 within 2%; GrossSurfaceArea: 1340 written, 228 with a stored figure, 228 within 2%; 1726 left to the to-fill table; 6.699 s
+  OuterSurfaceArea #1160 stored 0.0120 written 0.0126 m2
+  OuterSurfaceArea #1289 stored 0.0120 written 0.0126 m2
+  OuterSurfaceArea #1326 stored 0.0120 written 0.0126 m2
+ISSUE_102_M3D-CON.ifc: 0 written from geometry (0 in all), verified 0 of 0 pass; OuterSurfaceArea: 0 written, 0 with a stored figure, 0 within 2%; GrossSurfaceArea: 0 written, 0 with a stored figure, 0 within 2%; 62 left to the to-fill table; 1.439 s
+ISSUE_102_M3D-CON-CD.ifc: 176 written from geometry (176 in all), verified 176 of 176 pass; OuterSurfaceArea: 88 written, 88 with a stored figure, 88 within 2%; GrossSurfaceArea: 88 written, 68 with a stored figure, 56 within 2%; 508 left to the to-fill table; 8.746 s
+  GrossSurfaceArea #497622 stored 121.2910 written 145.0409 m2
+  GrossSurfaceArea #497709 stored 121.2910 written 145.0409 m2
+  GrossSurfaceArea #497781 stored 121.2910 written 145.0409 m2
+ISSUE_068_ARK_NUS_skolebygg.ifc: 893 written from geometry (893 in all), verified 893 of 893 pass; OuterSurfaceArea: 893 written, 2 with a stored figure, 0 within 2%, 2 the stored figure in mm2 under an m2 unit; GrossSurfaceArea: 0 written, 0 with a stored figure, 0 within 2%; 957 left to the to-fill table; 26.711 s
+schependomlaan.ifc: 276 written from geometry (276 in all), verified 276 of 276 pass; OuterSurfaceArea: 138 written, 110 with a stored figure, 102 within 2%; GrossSurfaceArea: 138 written, 110 with a stored figure, 110 within 2%; 136 left to the to-fill table; 6.487 s
+  OuterSurfaceArea #737154 stored 0.0992 written 0.1091 m2
+  OuterSurfaceArea #737602 stored 0.0992 written 0.1091 m2
+  OuterSurfaceArea #738386 stored 0.0992 written 0.1091 m2

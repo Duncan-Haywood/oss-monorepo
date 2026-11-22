@@ -28,6 +28,12 @@
 //                            tool's convention (ARCHICAD: volume / section;
 //                            Tekla: the extent along its smallest box)
 //                            (eval/member-lengths-2026-11-22.md)
+//   OuterSurfaceArea, GrossSurfaceArea
+//                            columns, beams, members, piles with square ends:
+//                            the side faces' area (section perimeter x length)
+//                            and that plus both end faces, each by the
+//                            authoring tool's convention (memberSurface below;
+//                            eval/member-surfaces-2026-11-22.md)
 //   Width, Perimeter         slabs: the thickness across the extruded profile,
 //                            and the profile's outline at mid-thickness
 //                            (slabLines below; eval/slab-width-perimeter-2026-11-22.md)
@@ -54,6 +60,7 @@ const SLAB = /^IFCSLAB/;
 const LINEAR = /^IFC(WALL|COLUMN|BEAM|MEMBER|PILE)/; // Length: walls and linear members
 const OPENING = /^IFC(DOOR|WINDOW)/;
 const LINES = new Set(["Length", "Height"]); // read from computed.lines, not the sections
+const SURFACES = new Set(["OuterSurfaceArea", "GrossSurfaceArea"]); // computed.surface, faceted bodies too
 
 // [quantity name, quantity kind, class test or null for any, reader(row) -> number|null]
 export const GEOMETRY_QUANTITIES = [
@@ -69,6 +76,8 @@ export const GEOMETRY_QUANTITIES = [
   ["GrossArea", "area", PLAN, (r) => r.computed.areas?.plan?.gross],
   ["NetArea", "area", PLAN, (r) => r.computed.areas?.plan?.net],
   ["CrossSectionArea", "area", CROSS, (r) => r.computed.areas?.cross?.gross],
+  ["OuterSurfaceArea", "area", CROSS, (r) => r.computed.surface?.outer],
+  ["GrossSurfaceArea", "area", CROSS, (r) => r.computed.surface?.gross],
   ["Length", "length", LINEAR, (r) => r.computed.lines?.length],
   ["Height", "length", WALL, (r) => r.computed.lines?.height],
   ["Width", "length", OPENING, (r) => r.computed.opening?.width ?? r.computed.revitSize?.width],
@@ -96,7 +105,7 @@ export function quantitiesFromRows(rows) {
     let m = null;
     for (const [name, kind, cls, read] of GEOMETRY_QUANTITIES) {
       if (cls && !cls.test(r.ifcType)) continue;
-      if (kind !== "volume" && !areasOk && !LINES.has(name) && !(cls === OPENING)) continue;
+      if (kind !== "volume" && !areasOk && !LINES.has(name) && !SURFACES.has(name) && !(cls === OPENING)) continue;
       const v = read(r);
       if (!usable(v)) continue;
       if (!m) out.set(r.id, (m = new Map()));
@@ -610,11 +619,146 @@ export function addMemberLines(model, rows, { solidExtent }) {
       m = memberLength(r, solidExtent, null);
       if (m && !m.square && m.extent > m.width) m = memberLength(r, solidExtent, toolConvention(model, model.entities.get(r.id), LENGTH_CONVENTIONS, apps));
     } catch { m = null; }
+    try {
+      const sf = memberSurface(r, solidExtent, toolConvention(model, model.entities.get(r.id), SURFACE_CONVENTIONS, apps));
+      if (sf) r.computed.surface = sf;
+    } catch { /* no surface reading */ }
     if (!m || m.length == null) continue;
     r.computed.lines = { length: m.length, height: null, lengthFrom: m.lengthFrom, extent: m.extent, centroid: m.centroid, width: m.width };
     n++;
   }
   return n;
+}
+
+// ---- a column's, beam's or member's surface areas -------------------------
+//
+// Qto_BeamBaseQuantities, Qto_ColumnBaseQuantities, Qto_MemberBaseQuantities
+// and Qto_PileBaseQuantities: OuterSurfaceArea is "the total area of the
+// extruded surfaces ... not taking into account the end cap areas", normally
+// perimeter x length; GrossSurfaceArea "the total area ... normally generated
+// as perimeter * length + 2 * cross section area". Coating, fire protection
+// and galvanising are priced off them. Both are read only on a straight
+// member with square ends (memberLength's 'square': extent = volume / section),
+// where they are one figure whichever way they are measured:
+//   - an extruded body (signed convex pieces): the section's outline at
+//     mid-length (sectionPerimeter, a hollow section's inside included) times
+//     the length;
+//   - a faceted body: the area of the faces whose normal is square to the
+//     axis, accepted only when the faces left over are the two end caps
+//     (their area within 1% of twice the section).
+// What the exporters store (eval/member-surfaces-2026-11-22.md, the public
+// exports with either figure):
+//   - ARCHICAD: Outer the side faces, Gross the side faces and both ends;
+//   - Revit: Outer the side faces (one file, ARK_NUS, written in mm2 under an
+//     m2 unit), Gross the same side-face figure again, so no Gross is offered;
+//   - Tekla: both the total area, ends included, against the Outer definition;
+//     on a hollow section (a tube) the outside faces alone, bore and ends left
+//     out. ARCHICAD's and Revit's tube figures are not known: held back.
+// For other tools the Gross figure (ARCHICAD and Tekla agree with the
+// definition) is offered, and Outer only where the ends are under 2% of the
+// total, so the two conventions are one figure.
+
+const SURFACE_CONVENTIONS = [
+  [/archicad|graphisoft/i, { outer: "side", gross: "total" }],
+  [/revit/i, { outer: "side", gross: null }],
+  [/tekla/i, { outer: "total", gross: "total", hollow: "outside" }],
+];
+const OTHER_SURFACE = { outer: null, gross: "total" };
+const END_CAPS_TOL = 0.01;
+const SMALL_ENDS = 0.02;
+
+/** Area of a planar polygon loop (Newell's normal) and its unit normal. */
+function loopArea(l) {
+  let x = 0, y = 0, z = 0;
+  for (let i = 0; i < l.length; i++) {
+    const p = l[i], q = l[(i + 1) % l.length];
+    x += (p[1] - q[1]) * (p[2] + q[2]); y += (p[2] - q[2]) * (p[0] + q[0]); z += (p[0] - q[0]) * (p[1] + q[1]);
+  }
+  const L = Math.hypot(x, y, z);
+  return L > 0 ? { area: L / 2, n: [x / L, y / L, z / L] } : null;
+}
+
+/**
+ * A linear member's side-face and total surface areas (SI m2), and which
+ * figures are offered as OuterSurfaceArea and GrossSurfaceArea.
+ * @param {{computed: object, lengthUnit?: number}} row a takeoff row with computed.areas.cross
+ * @param {Function} solidExtent geom.mjs
+ * @param {{outer: string|null, gross: string|null}|null} convention SURFACE_CONVENTIONS' entry for the authoring tool, null for another tool
+ * @returns {{outer: number|null, gross: number|null, side: number, total: number, from: string} | null}
+ */
+export function memberSurface(row, solidExtent, convention = null) {
+  const c = row.computed?.areas?.cross, body = row.computed?.solids?.body;
+  const m = memberLength(row, solidExtent);
+  if (!m || !m.square || !(m.extent > m.width) || !c?.n || !(c.gross > 0)) return null;
+  const f = row.lengthUnit ?? 1;
+  let side, from, hollow = false, outside = null;
+  if (body.shells?.length) {
+    let lat = 0, all = 0;
+    for (const sh of body.shells) for (const l of sh.loops) {
+      const a = loopArea(l);
+      if (!a) continue;
+      all += a.area;
+      if (Math.abs(a.n[0] * c.n[0] + a.n[1] * c.n[1] + a.n[2] * c.n[2]) < 1e-3) lat += a.area;
+    }
+    lat *= f * f; all *= f * f;
+    if (!(lat > 0) || Math.abs(all - lat - 2 * c.gross) > END_CAPS_TOL * all) return null;
+    side = lat; from = "faces";
+  } else {
+    const [lo, hi] = solidExtent(body, c.n);
+    const k = (lo + hi) / 2 + (hi - lo) * 1e-7;
+    const P = sectionPerimeter(body, c.n, k);
+    if (P == null || !(P > 0)) return null;
+    side = P * f * m.extent; from = "outline";
+    // a hollow section (a tube): the outline less its inside
+    const inner = innerTerms(body, c.n, k);
+    if (inner.size) {
+      const Po = sectionPerimeter({ ...body, terms: body.terms.filter((t) => !inner.has(t)) }, c.n, k);
+      if (Po != null && Po > 0 && Po < P) { hollow = true; outside = Po * f * m.extent; }
+    }
+  }
+  const total = side + 2 * c.gross;
+  const conv = convention || OTHER_SURFACE;
+  let outer, gross;
+  if (hollow) {
+    // only Tekla's figure is known: the outside faces alone
+    // (Mini Project's lifting eyes and tubes); ARCHICAD's and Revit's not
+    const t = conv.hollow === "outside" ? outside : null;
+    outer = t; gross = t;
+  } else {
+    const pick = (x) => (x === "side" ? side : x === "total" ? total : null);
+    outer = pick(conv.outer);
+    gross = pick(conv.gross);
+    if (outer == null && !convention && 2 * c.gross <= SMALL_ENDS * total) outer = side;
+  }
+  return { outer, gross, side, total, from, hollow, outside };
+}
+
+/**
+ * The negative pieces of a body whose section at n.x = k lies wholly inside
+ * one positive piece's section, touching none of its edges: a tube's bore,
+ * not a notch cut from the outline.
+ * @returns {Set<object>} the body's terms that are such insides
+ */
+export function innerTerms(s, n0, k) {
+  const out = new Set();
+  if (!s?.terms?.length) return out;
+  const n = v3.unit(n0);
+  const u = v3.unit(Math.abs(n[0]) < 0.9 ? v3.cross(n, [1, 0, 0]) : v3.cross(n, [0, 1, 0]));
+  const v = v3.cross(n, u);
+  const secs = s.terms.map((t) => ({ t, P: convexSection(t.faces, n, k, u, v) })).filter((x) => x.P);
+  let span = 0;
+  for (const { P } of secs) for (const p of P) span = Math.max(span, Math.abs(p[0]), Math.abs(p[1]));
+  const tol = 1e-6 * (span + 1);
+  // signed distance of q inside convex counter-clockwise polygon P's edge i
+  const inside = (P, q) => P.every((a, i) => {
+    const b = P[(i + 1) % P.length], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    return L <= tol || ((b[0] - a[0]) * (q[1] - a[1]) - (b[1] - a[1]) * (q[0] - a[0])) / L > tol;
+  });
+  for (const x of secs) {
+    if (x.t.s >= 0) continue;
+    if (secs.some((y) => y.t.s > 0 && x.P.every((q) => inside(y.P, q)))) out.add(x.t);
+  }
+  return out;
 }
 
 // ---- a slab's thickness and perimeter ---------------------------------------
