@@ -90,6 +90,14 @@ Events counted: `bid_calculated`, `job_preset_applied`, `pattern_changed`,
   or an engineered pavement design.
 - Crew hours assume one blended labor rate, not a split between machine
   operator and installers.
+- **Known gaps** ([quality audit 2026-11-22](../../portfolio/quality/audits/2026-11-22-paver-patio-bid-calculator.json)):
+  base stone is priced on compacted in-place cubic yards with no compaction
+  factor (suppliers sell loose yards or tons, typically 20-30% more), haul-away
+  is priced on in-place (bank) volume with no swell, and the base is not
+  extended past the paver edge as ICPI-style guidance recommends; together
+  about 7.6% low on the default patio. Raise the gravel and haul rates to
+  match until this is modelled. The pattern-change guard that keeps a
+  hand-edited waste figure is not covered by a test.
 
 ## Disclaimer
 

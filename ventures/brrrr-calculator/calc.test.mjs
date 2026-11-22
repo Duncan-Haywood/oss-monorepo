@@ -104,3 +104,13 @@ test("csv neutralises formula cells", () => {
   assert.match(csv, /^Item,Amount\n/);
   assert.match(csv, /Cash left in the deal,26950/);
 });
+
+// Audit 2026-11-22: seeded mutants dropping HOA from the DSCR cap, or charging refinance closing
+// costs on the LTV loan instead of the (smaller) DSCR-capped loan, survived every test.
+test("DSCR cap counts HOA, and refinance costs follow the capped loan", () => {
+  const d = deal({ ...P, rent: 1200, targetDscr: 1.25, hoa: 100 });
+  const annualDebt = 1200 * 12 / 1.25 - 2800 - 1500 - 1200;
+  near(d.dscrLoan, maxLoanForPayment(annualDebt / 12, 7, 30), 0.5);
+  near(d.refiCosts, d.dscrLoan * 0.025, 0.01);
+  near(d.cashOut, d.dscrLoan * 0.975 - 167500, 0.01);
+});

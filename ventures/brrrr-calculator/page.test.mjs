@@ -100,3 +100,15 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: brrrr-calculator$/m);
 });
+
+// Audit 2026-11-22 (portfolio/quality/audits/2026-11-22-brrrr-calculator.json, defect 0): the
+// placeholders showed tax 2800, insurance 1500, management 8% and DSCR 1.1 while a blank field
+// counted as 0, so a user who left them blank got an inflated cash flow and refinance.
+test("every optional input's placeholder is the value a blank field uses", async () => {
+  const { OPTIONAL } = await import("./calc.mjs");
+  const html = page("index.html");
+  for (const [key, , dflt] of OPTIONAL) {
+    const ph = html.match(new RegExp(`id="${key}"[^>]*placeholder="([^"]*)"`))?.[1];
+    assert.equal(Number(ph), dflt, `${key}: placeholder ${ph}, blank uses ${dflt}`);
+  }
+});

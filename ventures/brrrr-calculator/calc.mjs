@@ -82,7 +82,17 @@ function parseInput(raw) {
     if (!(v > 0 && v <= max)) return { error: `Enter ${name}, above zero and up to ${money(max)}.` };
     o[key] = v;
   }
-  for (const [key, name, dflt, max] of [
+  for (const [key, name, dflt, max] of OPTIONAL) {
+    const v = opt(raw[key], dflt);
+    if (!(v >= 0 && v <= max)) return { error: `${name} must be a number between 0 and ${money(max)}, or blank.` };
+    o[key] = v;
+  }
+  return finish(o);
+}
+
+// Optional inputs: [key, label, value used when blank, max]. The page's placeholders must show
+// the blank value (page.test.mjs checks), so an empty field never looks like an example it does not use.
+export const OPTIONAL = [
     ["rehab", "Rehab budget, dollars", 0, 1e8], ["holdMonths", "Months from purchase to refinance", 6, 60],
     ["carryMonthly", "Monthly holding cost (taxes, insurance, utilities)", 0, 1e6], ["closingPct", "Closing costs at purchase, percent", 3, 20],
     ["hardPct", "Hard-money loan on the purchase price, percent", 0, 100], ["hardRehabPct", "Hard-money loan on the rehab, percent", 0, 100],
@@ -93,11 +103,9 @@ function parseInput(raw) {
     ["vacancy", "Vacancy, percent", 5, 100], ["propertyTax", "Yearly property tax", 0, 1e7], ["insurance", "Yearly insurance", 0, 1e7],
     ["hoa", "Monthly HOA", 0, 1e5], ["utilities", "Monthly utilities you pay", 0, 1e5],
     ["management", "Property management, percent of rent", 0, 50], ["maintenance", "Maintenance reserve, percent of rent", 5, 50],
-  ]) {
-    const v = opt(raw[key], dflt);
-    if (!(v >= 0 && v <= max)) return { error: `${name} must be a number between 0 and ${money(max)}, or blank.` };
-    o[key] = v;
-  }
+];
+
+function finish(o) {
   if (o.hardPct > 100 || o.hardRehabPct > 100) return { error: "Loan percentages cannot exceed 100." };
   if (o.refiTerm < 1) return { error: "Refinance term must be at least 1 year." };
   const p = { price: o.price, arv: o.arv, rent: o.rent, rehab: o.rehab, holdMonths: o.holdMonths, carryMonthly: o.carryMonthly,
