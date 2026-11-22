@@ -307,9 +307,8 @@ flagships:
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
       the old one lost 1-39 of (eval/shadow-lift-banding-*). HDR+ bursts
       (storage.googleapis.com/hdrplusdata; tools/hdrplus_noise_truth.py):
-      tools/hdrplus_demosaic_sweep.py; next a q-ramp fit by burst. X-Trans lift
-      settled off. DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      tools/hdrplus_ramp_fit.py prep --bucket (3,640 bursts). X-Trans lift settled
+      off. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
@@ -332,10 +331,11 @@ flagships:
       whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
       2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
       (eval/noise-pca-whitened-level-*); gain and over-read share a cause, so this
-      set is spent (eval/noise-pca-mpcw1-*); HDR+ dB sweep 2026-11-22 (48 bursts,
-      real noise): mpcws +0.13 dB luma over mpcw but 2 bursts lose >0.1, default
-      stays; the oracle loses on both (eval/hdrplus-demosaic-sweep-*); next the
-      blend's q ramps on real noise, then mpcws again. More open items: NEXT.md.
+      set is spent (eval/noise-pca-mpcw1-*); the oracle loses on both
+      (eval/hdrplus-demosaic-sweep-*); q ramps refit 2026-11-22
+      (eval/hdrplus-ramp-fit-*): ship's pick fails h3/h4 on 79 fresh bursts, ramps
+      stay; on own ramps the oracle's 14 losses go to 0; next mpcws on its ramps,
+      fresh draw from the full 3,640-burst set. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

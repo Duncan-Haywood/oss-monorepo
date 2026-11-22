@@ -54,6 +54,67 @@ shipped ramps on the same arm. The decision is on the `ship` arm, what the devel
 - **R3 (headroom):** the best single grid row on held (an oracle pick, chosen on held) over the shipped ramps,
   reported only, to say how much any ramp could buy here.
 
-## Result
+## Result: the refit for what ships fails h3 and h4, so the ramps stay; with an accurate model the oracle's losses vanish
 
-(Filled in after the held-out bursts were scored.)
+139 bursts prepared (about 25 minutes on 4 cores, then the grid about 22 minutes): all 48 tune bursts scored; of
+the 91 held out, 79 scored and 12 skipped, each with 0.27 to 0.89 of its frame masked by moving subjects the
+merge rejected. The held-out phones are older than the tune set's: Nexus 6 (43), Nexus 5 (11) and 25 whose
+files name no model, against the tune set's Nexus 6P, Pixel and Pixel XL, Nexus 5X and 8 Nexus 6. Rows (589 per
+burst): `hdrplus-ramp-fit-2026-11-22.jsonl.gz`; scenes and their reads: `hdrplus-ramp-fit-scenes-2026-11-22.jsonl`;
+held-out ids: `hdrplus-ramp-fit-held-2026-11-22.txt`; every number below: `hdrplus-ramp-fit-2026-11-22.txt`
+(`fit`) and `.json`.
+
+Tune picks (colour ramp, luma ramp), and their mean gain over the shipped ramps on the same arm:
+
+| arm | tune pick | tune colour / luma | held colour / luma | held bursts > 0.1 dB worse |
+|---|---|---|---|---|
+| `ship` (what ships) | (0.3, 1.0) / (1.2, 2.0) | +0.106 / +0.115 | +0.104 / +0.096 | 6 |
+| `mpcws` | (0.3, 1.0) / (1.0, 2.0) | +0.080 / +0.027 | +0.086 / +0.047 | 2 |
+| `true` (oracle) | (0.2, 0.8) / (0.8, 1.5) | +0.161 / 0 | +0.163 / 0 | 0 |
+
+The `ship` pick's luma q_low (1.2) is the grid's largest q_low, so a still higher one is untested for that arm;
+no other pick touches an edge. On held each arm's tune pick is also the best row chosen on held itself (R3), so
+the picks transfer; what fails is the tail.
+
+**R1, the `ship` pick against the shipped ramps on 79 held-out bursts: h1 and h2 pass, h3 and h4 fail.**
+
+| | reading | bar | |
+|---|---|---|---|
+| h1 means | colour **+0.104**, luma **+0.096**, sum +0.199 | each at least -0.005, sum at least +0.03 | pass |
+| h2 thirds (luma / colour) | +0.098 / +0.097, +0.084 / +0.082, +0.104 / +0.131 | each at least -0.02 | pass |
+| h3 bursts over 0.1 dB worse | **6 of 79** (worst -0.62 dB luma) | none | **fail** |
+| h4 new losers to `D` | **1** (shipped ramps lose to `D` on 2) | none | **fail** |
+
+So by the rule, **`RAMPS` and `LUMA_RAMPS` stay**, no option is added, and the drawn-noise check is not opened.
+All six bursts that lose are luma losses (-0.16 to -0.62 dB) on the held set's older phones (four Nexus 6, two
+with no model named); the pick's luma ramp (1.2, 2.0) leans toward bilinear for luma, and on those frames
+directional luma was the better one. The median luma gain is +0.038 against the mean +0.096: most of the gain is
+on a minority of bursts.
+
+**R2, is the oracle's loss the ramps': yes.** On the shipped ramps `true` is over 0.1 dB under `ship` on 14 of 79
+held-out bursts (9 of 48 on tune). With each arm on its own tune pick, on **0**. The cut is more than half, so by
+the rule the next `mpcws` question is asked on picked ramps.
+
+**Readings after the verdict (they decide nothing).**
+
+- **The ramps and the read are one calibration.** What ships reads the noise under the truth (median 0.77 x,
+  the 0.8 frame scale), which raises every block's `q` and moves the blend toward directional; its best ramps move
+  the luma ramp up (toward bilinear) to take that back. The oracle, reading the noise right, wants the opposite:
+  the same luma ramp and a colour ramp lower and narrower, (0.2, 0.8) against (0.4, 1.2), so more directional
+  colour. Tuning the ramps to an under-read makes an accurate read look worse than it is, which is what the
+  dB sweep's two `mpcws` h4 bursts were.
+- **Headroom.** Against what ships today, the oracle on its own pick gains +0.180 dB colour and +0.224 luma on
+  held, with no burst over 0.1 dB worse (tune: +0.148 / +0.193, one). `mpcws` on its pick gains +0.133 / +0.152,
+  with 2 held bursts worse (tune: +0.119 / +0.161, none). That is more than either the read change or the ramp
+  change bought alone (`mpcws` on shipped ramps: +0.047 / +0.105, 2 worse).
+- **A fresh pool.** The subset's 153 bursts are now all spent for ramp questions. The full HDR+ set
+  (`https://storage.googleapis.com/hdrplusdata/20171106`, listed through the JSON API on 2026-11-22: 3,640 bursts
+  under `results_20171023/`, the same layout) is reachable from this session; `prep --bucket` reads it.
+
+## Next
+
+A joint question, committed before scoring, on a fresh draw from the full 3,640-burst set (a seeded sample of
+bursts whose files carry NoiseProfiles, so `m` is measured): `mpcws` with the colour ramp (0.3, 1.0) and luma
+ramp (1.0, 2.0) against what ships on its shipped ramps, under the same four tests as the dB sweep's R1, plus a
+drawn-noise check on Bayer files no ramp fit has used (metadata-extractor-images) before any default changes,
+since every burst here is a phone.

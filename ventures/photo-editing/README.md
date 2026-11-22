@@ -1713,6 +1713,16 @@ noise (+0.06, +0.12, +0.22 by thirds), and passed three of four pre-registered t
 question is the blend's ramps on real noise, not the read. The phones' own NoiseProfiles, as the developer uses
 them, gain luma (+0.16) but lose colour (-0.13) against the frame read. `eval/hdrplus-demosaic-sweep-2026-11-22.md`.
 
+**The blend's ramps on real noise (2026-11-22, later still).** `tools/hdrplus_ramp_fit.py` refits the two ramps on
+those 48 bursts and scores the picks on 91 bursts no demosaic test had used (79 scored), with the questions
+committed first. Ramps fitted for what ships gain +0.10 dB colour and +0.10 luma on the fresh bursts but leave 6
+of them over 0.1 dB worse, so by the committed rule the ramps stay. The finding is elsewhere: on the shipped ramps
+the oracle noise model is over 0.1 dB worse than what ships on 14 of 79 bursts, and with each read on its own
+fitted ramps on none. The ramps were tuned around a read that errs low, so a read that is right looked worse than
+it is; the oracle on its own ramps gains +0.18 colour and +0.22 luma over what ships with no burst losing. Next is
+`mpcws` on its fitted ramps, tested on a fresh draw from the full 3,640-burst HDR+ set.
+`eval/hdrplus-ramp-fit-2026-11-22.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

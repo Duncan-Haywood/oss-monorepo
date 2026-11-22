@@ -29,8 +29,13 @@
   (`frame_mpcw`) reads under the truth on 55 of 57, median 0.77. (2026-11-22, eval/hdrplus-demosaic-sweep-2026-11-22.md) The demosaic dB sweep on those bursts
   (48 scored): `mpcws` +0.13 dB luma, +0.04 colour over `mpcw`, but 2 bursts lose over 0.1 dB (h4), so `mpcw` stays;
   the oracle loses on both, so next is the blend's `q` ramps fitted on real noise (split by burst), then `mpcws`'s
-  h4 again; the NoiseProfile path loses 0.13 dB colour to the frame read there. Still open: the 91 bursts with no NoiseProfile
-  with `m = 1/N`. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
+  h4 again; the NoiseProfile path loses 0.13 dB colour to the frame read there. (2026-11-22,
+  eval/hdrplus-ramp-fit-2026-11-22.md) Ramps refitted on the 48, scored on the 91 no-NoiseProfile bursts (79 scored,
+  `m` = the tune median 0.1532): the `ship` pick (0.3, 1.0) / (1.2, 2.0) gains +0.10 / +0.10 dB but 6 bursts lose
+  over 0.1 (h3) and 1 new loser to D (h4), so ramps stay. The oracle's losses to what ships go from 14 to 0 with each
+  arm on its own pick: ramps and read are one calibration. Next: `mpcws` on (0.3, 1.0) / (1.0, 2.0) against what
+  ships, committed first, on a seeded fresh draw from the full set (`prep --bucket
+  https://storage.googleapis.com/hdrplusdata/20171106`, 3,640 bursts), then a drawn-noise check before any default. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
   been tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
@@ -115,3 +120,4 @@
 - (2026-11-19) a real evenly lit frame shot wide open (corners level after lensfun's vignetting?)
 - (2026-11-19) a real DNG and a vignetting-calibrated lens through the pipeline's lens stage
 - (2026-11-19) calibration on IIQ S (iXU180 blue 5.2%)
+- (2026-11-22) HDR+ dB sweep 2026-11-22 (48 bursts, real noise): mpcws +0.13 dB luma over mpcw but 2 bursts lose >0.1, default stays

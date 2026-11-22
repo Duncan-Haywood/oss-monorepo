@@ -28,6 +28,8 @@ Usage (from ``ventures/photo-editing``, numpy and rawpy installed)::
     PYTHONPATH=src python tools/hdrplus_ramp_fit.py prep --bursts IDS.txt --out SCENES [--m-default 0.1532]
     PYTHONPATH=src python tools/hdrplus_ramp_fit.py grid SCENES/*.npz > rows.jsonl
     python tools/hdrplus_ramp_fit.py fit rows.jsonl --tune TUNE_IDS.txt --held HELD_IDS.txt
+
+Results: ``eval/hdrplus-ramp-fit-2026-11-22.md``.
 """
 
 from __future__ import annotations
@@ -96,6 +98,8 @@ def prep(args) -> int:
     import hdrplus_noise_truth as hn
 
     args.out.mkdir(parents=True, exist_ok=True)
+    if args.bucket:
+        hn.BUCKET = args.bucket
     for burst in [x.strip() for x in args.bursts.read_text().splitlines() if x.strip()]:
         dest = args.out / f"{burst}.npz"
         if dest.exists():
@@ -269,6 +273,8 @@ def main(argv=None) -> int:
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--cache", type=Path, default=Path("/tmp/hdrplus"))
     p.add_argument("--m-default", type=float)
+    p.add_argument("--bucket", help="burst root URL; the full 3,640-burst set is "
+                   "https://storage.googleapis.com/hdrplusdata/20171106 (default: the 153-burst subset)")
     g = sub.add_parser("grid")
     g.add_argument("scenes", nargs="+")
     f = sub.add_parser("fit")
