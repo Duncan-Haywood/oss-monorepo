@@ -69,42 +69,76 @@ export const DEFAULTS = {
 // (1..n), as in the paper, so `xs` and the neighbourhood [nleft, nright] are
 // in the same units.
 
+// Tricube weights by integer distance r = |j - xs| for one half-width h:
+// 1 within 0.001 h, (1 - (r/h)^3)^3 out to 0.999 h, and 0 beyond. Positions
+// and h are whole numbers, so every call with the same h reads the same
+// values est used to recompute point by point (loess is ~all of the run
+// time, and a whole smoothing pass shares one or two h values).
+const TRICUBE = new Map();
+function tricube(h) {
+  let tri = TRICUBE.get(h);
+  if (tri) return tri;
+  const h9 = 0.999 * h;
+  const h1 = 0.001 * h;
+  tri = new Float64Array(Math.ceil(h) + 2);
+  for (let r = 0; r < tri.length; r++) {
+    if (r > h9) tri[r] = 0;
+    else if (r <= h1) tri[r] = 1;
+    else {
+      const q = r / h;
+      const t = 1 - q * q * q;
+      tri[r] = t * t * t;
+    }
+  }
+  if (TRICUBE.size > 4096) TRICUBE.clear();
+  TRICUBE.set(h, tri);
+  return tri;
+}
+
 function est(y, n, len, ideg, xs, nleft, nright, w, userw, rw) {
   const range = n - 1;
   let h = Math.max(xs - nleft, nright - xs);
   if (len > n) h += Math.floor((len - n) / 2);
   const h9 = 0.999 * h;
-  const h1 = 0.001 * h;
+  // Only points with |j - xs| <= h9 get a weight; the rest are zero and add
+  // nothing (exactly +0) to any sum below, so the loops run over [lo, hi]
+  // alone. Each sum still adds the same terms in the same order as the
+  // five-pass form (one pass per quantity), so the result is bit-identical.
+  let lo = nleft;
+  let hi = nright;
+  while (lo <= hi && Math.abs(lo - xs) > h9) lo++;
+  while (hi >= lo && Math.abs(hi - xs) > h9) hi--;
+  const tri = tricube(h);
   let a = 0;
-  for (let j = nleft; j <= nright; j++) {
-    w[j - 1] = 0;
-    const r = Math.abs(j - xs);
-    if (r <= h9) {
-      if (r <= h1) w[j - 1] = 1;
-      else {
-        const q = r / h;
-        const t = 1 - q * q * q;
-        w[j - 1] = t * t * t;
-      }
-      if (userw) w[j - 1] *= rw[j - 1];
-      a += w[j - 1];
-    }
+  for (let j = lo; j <= hi; j++) {
+    let wj = tri[Math.abs(j - xs)];
+    if (userw) wj *= rw[j - 1];
+    w[j - 1] = wj;
+    a += wj;
   }
   if (a <= 0) return null;
-  for (let j = nleft; j <= nright; j++) w[j - 1] /= a;
+  let ys = 0;
   if (h > 0 && ideg > 0) {
     let mean = 0;
-    for (let j = nleft; j <= nright; j++) mean += w[j - 1] * j;
-    let b = xs - mean;
-    let c = 0;
-    for (let j = nleft; j <= nright; j++) c += w[j - 1] * (j - mean) * (j - mean);
-    if (Math.sqrt(c) > 0.001 * range) {
-      b /= c;
-      for (let j = nleft; j <= nright; j++) w[j - 1] *= b * (j - mean) + 1;
+    for (let j = lo; j <= hi; j++) {
+      const wj = w[j - 1] / a;
+      w[j - 1] = wj;
+      mean += wj * j;
     }
+    let c = 0;
+    for (let j = lo; j <= hi; j++) {
+      const d = j - mean;
+      c += w[j - 1] * d * d;
+    }
+    if (Math.sqrt(c) > 0.001 * range) {
+      const b = (xs - mean) / c;
+      for (let j = lo; j <= hi; j++) ys += w[j - 1] * (b * (j - mean) + 1) * y[j - 1];
+    } else {
+      for (let j = lo; j <= hi; j++) ys += w[j - 1] * y[j - 1];
+    }
+  } else {
+    for (let j = lo; j <= hi; j++) ys += (w[j - 1] / a) * y[j - 1];
   }
-  let ys = 0;
-  for (let j = nleft; j <= nright; j++) ys += w[j - 1] * y[j - 1];
   return ys;
 }
 
