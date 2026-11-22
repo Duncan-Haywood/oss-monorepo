@@ -320,7 +320,13 @@ export function rebarSchedule(rows) {
   return { lines: out, bySize, total, notes };
 }
 
-const csvCell = (v) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+// a cell a spreadsheet would read as a formula (a bar mark or member name
+// from the file starting =, +, -, @) is prefixed with an apostrophe
+const csvCell = (v) => {
+  let s = v == null ? "" : String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
 
 /**
  * The schedule as CSV, laid out like a BS 8666 bar schedule (member, bar

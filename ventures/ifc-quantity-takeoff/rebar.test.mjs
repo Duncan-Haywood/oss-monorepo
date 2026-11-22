@@ -272,3 +272,9 @@ test("bars the schedule cannot read are named in its notes", () => {
   assert.equal(s.lines.length, 0);
   assert.deepEqual(s.notes, ["1 reinforcing bar element not in the schedule: body IFCFOO"]);
 });
+
+test("rebarCsv: a mark or member a spreadsheet would run as a formula is quoted with an apostrophe", () => {
+  const line = { member: "=HYPERLINK(1)", mark: "-2", markFrom: "file", grade: "@x", size: 10, count: 1, length: 1, dims: [1], bends: [], shape: "straight", bs8666: "00", fileShape: null, totalLength: 1, mass: 0.6, author: { count: null, length: null, weight: null }, notes: [] };
+  const csv = rebarCsv({ lines: [line], bySize: [], total: { bars: 1, length: 1, mass: 0.6 } }).split("\n")[1];
+  assert.ok(csv.startsWith("'=HYPERLINK(1),-2,file,'@x,10,"), csv);
+});
