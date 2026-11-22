@@ -769,6 +769,12 @@ STILL_OPEN = re.compile(
 # ("... (eval/pair-exact.txt): a ... search on it") or an imperative sentence
 # keeps an item open, as does any STILL_OPEN cue.
 DATED_EVIDENCE = re.compile(r"\b20\d\d-\d\d-\d\d \(((?:[^()]|\([^()]*\))*)\)\.?$")
+# A matched count ("17/17 notes back", "502/502") is evidence too. Why: on
+# 2026-11-22 a park filed xer-schedule-check's "unassigned resources
+# 2026-11-21 (--all-resources, 17/17 notes back)" and "resource tree as Group
+# 2026-11-22 (502/502)" in NEXT.md as open work (PR #18170's record).
+# A count over a total counts only when it can be one (N <= M), so "24/7" does not.
+COUNT = re.compile(r"\b(\d[\d,]*)/(\d[\d,]*)\b")
 EVIDENCE = re.compile(r"\beval/|\b[\w*.-]+\.(?:mjs|js|ts|py|txt|md|json|csv|html|c|rs|go|ipynb)\b")
 
 
@@ -794,7 +800,16 @@ def is_result(item: str) -> bool:
     if (SHIPPED_WORD if NUMBERED.match(body) else RESULTISH).search(body):
         return True
     m = DATED_EVIDENCE.search(body)
-    return bool(m and EVIDENCE.search(m.group(1)))
+    return bool(m and (EVIDENCE.search(m.group(1)) or _count(m.group(1))))
+
+
+def _count(text: str) -> bool:
+    """True when `text` holds a matched count such as 17/17 or 3,227/3,233."""
+    for a, b in COUNT.findall(text):
+        a, b = int(a.replace(",", "")), int(b.replace(",", ""))
+        if 0 < b and a <= b:
+            return True
+    return False
 
 
 def history_text(existing: str | None, venture: str, pieces: list[str], day: str) -> str:
