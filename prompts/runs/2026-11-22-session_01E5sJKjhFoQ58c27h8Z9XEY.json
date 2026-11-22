@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKjhFoQ58c27h8Z9XEY",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T04:18:54Z",
+  "ended": "2026-11-22T04:49:54Z",
+  "wall_minutes": 31.31,
+  "tokens_in": 18618510,
+  "tokens_out": 135197,
+  "cost_usd": 9.2962,
+  "tool_calls": 182,
+  "task": "quality audit round 92 (sample mode)",
+  "projects": [
+    "ventures/cash-runway-planner",
+    "ventures/paid-sick-leave-accrual-calculator",
+    "research/energy-density",
+    "research/society-lanes"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18193",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "First auditor brief went out with unfilled SUBJECT/STRATUM placeholders; corrected by SendMessage before it started work.",
+    "Local portfolio-pages run failed faq-visible: the cash-runway visible FAQ answer still had old wording while the JSON-LD was updated; fixed in a follow-up commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Auditors run `node --test '*.test.mjs'` per the house convention; cash-runway-planner's 27-test bare test.mjs is not matched by that glob, so the audit's verification evidence counted 50 of 77 tests. Suggest the README say to run bare `node --test` in the subject root (what CI runs)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says use `node --test '*.test.mjs'` not `node --test .`; the glob silently skips a bare test.mjs, while bare `node --test` (no args) works on Node 22 and is what ventures-tests.yml runs."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-quality-audit-round-92.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-22-c-1f0f, round 92, mode sample. Subjects: ventures/cash-runway-planner, ventures/paid-sick-leave-accrual-calculator, research/energy-density, research/society-lanes (no flagship or platform eligible). Share meeting the bar: 0 of 4 (sampled total 36 of 376, Wilson 7%-13%). Seeded mutants caught 13 of 25. Spot-checks rerun by the coordinator: cash-runway case B (week 2 stays -500 after the suggested move), PSL California cost ($880 vs $1,220), energy-density fibre vessel 114.4 kg/m3, society-lanes street counts 473/723 and 334/491 (auditor script). Fix PR: this one (#18193): cash-runway clears rule + docs; PSL MD/MN caps, use-capped cost, size-aware front-load, 5 new tests; energy-density K=0.5 flywheel (378 Wh/kg) and netting-bound vessel (26.0 wt%), Zu and Li 2011 cited, homepage card updated; society-lanes README beta=0.1 miss, stale 'no robots', shared steering limit, lane-order mixed-bin test. Local checks: run_workflow_locally --for-changes 13/15 passed before the FAQ fix (both failures were faq-visible on cash-runway index.html); after the fix faq-visible.test.mjs 4/4, cash-runway 77/77, PSL 30/30, energy-density 15/15, society-lanes test_lanes 8/8, research homepage build ok, check_posts ok, check_md_links ok, quality_audit validate 610 files 0 problems. Statute citations for PSL are from knowledge; legislature sites 403 through the proxy.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "92cfe250-b44b-5ceb-8f2b-78972f263b8c",
+    "transcripts": 5,
+    "first": "2026-11-22T04:18:54Z",
+    "last": "2026-11-22T04:50:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 175,
+        "input": 351,
+        "output": 135197,
+        "thinking": 37615,
+        "cache_read": 18104160,
+        "cache_write_5m": 380668,
+        "cache_write_1h": 133331,
+        "api_equivalent_usd": 9.2962,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 175,
+      "input": 351,
+      "output": 135197,
+      "thinking": 37615,
+      "cache_read": 18104160,
+      "cache_write_5m": 380668,
+      "cache_write_1h": 133331,
+      "api_equivalent_usd": 9.2962,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 182,
+    "tools": {
+      "Bash": 168,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "SendMessage": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 31.31,
+      "active_minutes": 9.57,
+      "model_minutes": 6.54,
+      "tool_minutes": 3.03,
+      "waiting_on_human_minutes": 21.73,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 21.68
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four domain audits (~2.5 h each for a senior reviewer) plus fixes and tests in four subjects (~4 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 150.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
