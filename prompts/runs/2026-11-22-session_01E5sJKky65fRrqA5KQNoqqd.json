@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKky65fRrqA5KQNoqqd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T01:30:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship (row 3 Start here): pre-registered noisy-truth test for the mpcws noise read",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18173",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first patch to near_clean_gate.py asserted on a docstring line I had re-wrapped; nothing was written, redone",
+      "cost_minutes": 2
+    },
+    {
+      "what": "a synthetic test's expected value was wrong (column-streak noise reads sqrt(2) above white, not 1.5x); fixed the test, not the code",
+      "cost_minutes": 3
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/README.md",
+      "issue": "stated the K-1 II truth 'is itself noisy' as fact on 2026-11-21; this run's test found the losses are mpcws's own over-read on one tile. Corrected in this PR."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace made room by moving two IIQ results to HISTORY.md, one ('IQ4 matrix vs LibRaw dE 16, unsettled') still half-open; harmless here but the parker cannot tell finished from open text."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "the result is a pre-registered negative: no shipped default changed; the run's value is the tool, the corrected diagnosis and the next item",
+      "did": "landed the green-pair reading, the validity test, the corrected README claim and the next pre-registrable item instead of a product change",
+      "result": "mpcws stays opt-in; next run has a concrete, testable fix (cut the selection feedback)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-we-blamed-the-reference-image-the-estimator-was-wrong.md",
+    "ventures/photo-editing/eval/noise-pca-mpcws-noisy-truth-2026-11-22.md"
+  ],
+  "goal": "deepen flagship 7 (photo-editing)",
+  "notes": "Pre-registration committed (e5cae4f46, 01:23Z) before gg18 was computed on any file except a 2-file smoke run of the tool (K-1 II and NEX-5N), whose numbers were seen before the 53-file run; the rule was not changed after it. P1 and P2 both failed; verdict per rule: reading only. Checks run here: tests/test_noise_pca.py, test_truth_green_pair.py, test_near_clean_gate_split.py 24 passed; check_posts ok; validate.py ok; run_venture_tests.py photo-editing (see PR).",
+  "corrections": [],
+  "redteam": null
+}

@@ -67,6 +67,10 @@ foliage rows) and any fresh body, when reachable.
 
 ## Result: the green-pair reading fails both validity tests; `mpcws` stays opt-in
 
+The section above was committed (e5cae4f46) before the tool existed. A two-file smoke run of the finished tool
+(the K-1 II and the NEX-5N) came before the full run, and its numbers (K-1 II 0.16 / 1.85 / 2.11, NEX-5N 4.34)
+were seen; neither the method nor the bars changed after it.
+
 `tools/truth_noise_check.py` (now writing `gg18` beside `raw_grain18`) on the 53 files: 67 tiles, 64 with both
 readings (the two X-Trans RAFs have no green pair; the `raw_grain18` values match the committed sweep's on every
 tile). 1 min 43 s on 4 cores. Output: `noise-pca-mpcws-noisy-truth-gg-2026-11-22.jsonl`; the test,
