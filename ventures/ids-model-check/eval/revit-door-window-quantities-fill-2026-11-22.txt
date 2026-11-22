@@ -1,0 +1,6 @@
+ISSUE_159_kleine_Wohnung_R22.ifc: 297 written from geometry (297 in all), verified 297 of 297 pass; Width: 99 written, 99 with a stored figure, 99 within 2%; Height: 99 written, 99 with a stored figure, 99 within 2%; Area: 99 written, 99 with a stored figure, 99 within 2%; Perimeter: 0 written, 0 with a stored figure, 0 within 2%; 99 left to the to-fill table; 5.251 s
+architect.ifc: 266 written from geometry (266 in all), verified 266 of 266 pass; Width: 133 written, 133 with a stored figure, 129 within 2%; Height: 133 written, 133 with a stored figure, 133 within 2%; Area: 0 written, 0 with a stored figure, 0 within 2%; Perimeter: 0 written, 0 with a stored figure, 0 within 2%; 266 left to the to-fill table; 7.528 s
+  Width #14843 stored 0.9339 written 0.8850 (SI)
+  Width #60921 stored 0.9339 written 0.8850 (SI)
+  Width #61420 stored 0.9339 written 0.8850 (SI)
+  Width #89836 stored 0.9339 written 0.8850 (SI)

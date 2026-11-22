@@ -65,9 +65,9 @@ export const GEOMETRY_QUANTITIES = [
   ["CrossSectionArea", "area", CROSS, (r) => r.computed.areas?.cross?.gross],
   ["Length", "length", LINEAR, (r) => r.computed.lines?.length],
   ["Height", "length", WALL, (r) => r.computed.lines?.height],
-  ["Width", "length", OPENING, (r) => r.computed.opening?.width],
-  ["Height", "length", OPENING, (r) => r.computed.opening?.height],
-  ["Area", "area", OPENING, (r) => r.computed.opening?.area],
+  ["Width", "length", OPENING, (r) => r.computed.opening?.width ?? r.computed.revitSize?.width],
+  ["Height", "length", OPENING, (r) => r.computed.opening?.height ?? r.computed.revitSize?.height],
+  ["Area", "area", OPENING, (r) => r.computed.opening?.area ?? r.computed.revitSize?.area],
   ["Perimeter", "length", OPENING, (r) => r.computed.opening?.perimeter],
 ];
 
@@ -800,10 +800,9 @@ export function addSlabLines(model, rows, { solidExtent }) {
 //   ARCHICAD   Width, Height: the opening's; Area: the opening's own section
 //              (a round window's pi/4 m2, not 1 m2); Perimeter: 2 (W + H),
 //              the bounding rectangle's, round windows included. Offered.
-//   Revit      no one rule: Revit 2010 (HHS Office) stores OverallWidth and
-//              OverallHeight, 2019 (ARK_NUS) neither them nor the opening's
-//              to the centimetre, 2022 (kleine Wohnung) the opening's Width
-//              and a window's Height but a door's leaf height. Not offered.
+//   Revit      not the opening: the family's own Width and Height
+//              parameters, which the export carries as properties
+//              (revitSizeLines below). Offered from those.
 //   others     no public export stores the sets to compare. Not offered.
 // An opening several elements fill (a window assembly) offers nothing, nor
 // one whose width or height is more than 1% off the element's own
@@ -887,6 +886,108 @@ export function addOpeningLines(model, rows, { Geometry, readUnits, solidExtent,
   return n;
 }
 
+// ---- a Revit door's or window's size, from the parameters it exports -------
+//
+// The Revit IFC exporter (github.com/Autodesk/revit-ifc, WidthCalculator,
+// HeightCalculator, AreaCalculator) writes a door's and window's Width and
+// Height from the family's Width and Height parameters (DOOR_WIDTH,
+// DOOR_HEIGHT; the instance's if it has them, else the type's) and Area as
+// their product, the same since 2018. Its default export also writes those
+// parameters as properties, in the group's set ("Dimensions",
+// "Dimensions(Type)", 2010's "PSet_Revit_Dimensions" and
+// "PSet_Revit_Type_Dimensions"; German "Bemaßungen"), on the element or its
+// type. Read them back the same way (eval/revit-door-window-quantities-2026-11-22.md):
+// Width and Height equal the stored figures on 566 of 566 Revit 2019 and 99
+// of 99 Revit 2022 doors and windows, 129 of 133 Revit 2010 doors; Area = W x
+// H on 99 of 99 Revit 2022 ones. Area only in IFC4 and later files: the
+// exporter writes Qto_DoorBaseQuantities and Qto_WindowBaseQuantities (its
+// W x H) only there, and an IFC2x3 export's "BaseQuantities" Area is not W x
+// H (Revit 2019, 0 of 576). Perimeter is the body's outer outline in the
+// exporter: not offered.
+
+const REVIT_CONVENTIONS = [[/revit/i, "revit"]];
+const REVIT_DIM_SET = /^(PSet_Revit_(Type_)?)?(Dimensions|Bema\u00dfungen|Abmessungen)( ?\(Type\))?$/i;
+const REVIT_WIDTH = new Set(["width", "breite"]);
+const REVIT_HEIGHT = new Set(["height", "h\u00f6he"]);
+
+/**
+ * A Revit door's or window's Width, Height and Area (SI) from the size
+ * parameters on the element's and its type's property sets, or null.
+ * @param {Array<{set: string, name: string, value: number, own: boolean}>} props length-typed properties in model units; own: on the element itself (not its type object)
+ * @param {number} f the length unit in metres
+ * @param {{area?: boolean}} opts area: false offers Width and Height only (an IFC2x3 file)
+ */
+export function revitSizeLines(props, f, { area = true } = {}) {
+  const typeSet = (s) => /type/i.test(s);
+  // the instance's own parameters, then type parameters (on the element, as
+  // 2010 wrote them, or on the type object), as the exporter looks them up
+  const rank = (p) => (p.own && !typeSet(p.set) ? 0 : p.own ? 1 : 2);
+  const pick = (names) => {
+    let best = null;
+    for (const p of props) {
+      if (!REVIT_DIM_SET.test(p.set) || !names.has(p.name.toLowerCase()) || !(p.value > 0)) continue;
+      if (!best || rank(p) < rank(best)) best = p;
+    }
+    return best ? best.value * f : null;
+  };
+  const width = pick(REVIT_WIDTH), height = pick(REVIT_HEIGHT);
+  if (!(width > 0) || !(height > 0)) return null;
+  return { width, height, area: area ? width * height : null };
+}
+
+/**
+ * Adds computed.revitSize = {width, height, area} (SI) to each Revit door
+ * and window row whose exported size parameters read (revitSizeLines).
+ * Returns how many rows got one.
+ */
+export function addRevitSizeLines(model, rows, { readUnits }) {
+  const E = model.entities;
+  const ref = (v) => (v && typeof v === "object" && "ref" in v ? v.ref : null);
+  const str = (v) => (typeof v === "string" ? v : typeof v?.value === "string" ? v.value : null);
+  const doors = rows.filter((r) => OPENING.test(r.ifcType) && r.computed && r.computed.status === "ok");
+  if (!doors.length) return 0;
+  const apps = new Map();
+  const want = new Set(doors.map((r) => r.id));
+  if (!doors.some((r) => toolConvention(model, E.get(r.id), REVIT_CONVENTIONS, apps) === "revit")) return 0;
+  const setsOf = new Map(), typeOf = new Map();
+  const add = (o, p) => { if (!setsOf.has(o)) setsOf.set(o, []); setsOf.get(o).push(p); };
+  for (const e of E.values()) {
+    if (e.type === "IFCRELDEFINESBYPROPERTIES") for (const o of e.args[4] || []) add(ref(o), ref(e.args[5]));
+    else if (e.type === "IFCRELDEFINESBYTYPE") for (const o of e.args[4] || []) if (want.has(ref(o))) typeOf.set(ref(o), ref(e.args[5]));
+  }
+  const lengths = (ids, own, out) => {
+    for (const pid of ids) {
+      const ps = E.get(pid);
+      if (ps?.type !== "IFCPROPERTYSET") continue;
+      const set = str(ps.args[2]) ?? "";
+      if (!REVIT_DIM_SET.test(set)) continue;
+      for (const x of ps.args[4] || []) {
+        const p = E.get(ref(x));
+        const v = p?.type === "IFCPROPERTYSINGLEVALUE" ? p.args[2] : null;
+        if (!v || typeof v.value !== "number" || !/LENGTHMEASURE$/.test(v.typed || "")) continue;
+        out.push({ set, name: str(p.args[0]) ?? "", value: v.value, own });
+      }
+    }
+  };
+  let n = 0;
+  for (const r of doors) {
+    const e = E.get(r.id);
+    if (toolConvention(model, e, REVIT_CONVENTIONS, apps) !== "revit") continue;
+    const props = [];
+    lengths(setsOf.get(r.id) || [], true, props);
+    const t = E.get(typeOf.get(r.id));
+    if (t) {
+      lengths(setsOf.get(t.id) || [], false, props);
+      if (Array.isArray(t.args[5])) lengths(t.args[5].map(ref), false, props);
+    }
+    const m = revitSizeLines(props, r.lengthUnit ?? readUnits(model).LENGTHUNIT, { area: !/^IFC2X/.test(model.schema || "") });
+    if (!m) continue;
+    r.computed.revitSize = m;
+    n++;
+  }
+  return n;
+}
+
 /**
  * The model fill's opts.geometry: (element, quantity name, quantity class)
  * -> SI value or undefined.
@@ -916,5 +1017,6 @@ export async function measureModel(ifcText, opts = {}) {
   addMemberLines(model, rows, { solidExtent });
   addSlabLines(model, rows, { solidExtent });
   addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms });
+  addRevitSizeLines(model, rows, { readUnits });
   return quantitiesFromRows(rows);
 }

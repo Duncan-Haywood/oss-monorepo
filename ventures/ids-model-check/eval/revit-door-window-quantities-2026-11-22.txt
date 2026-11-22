@@ -1,0 +1,23 @@
+architect: 133 doors+windows, 133 with Revit size parameters read. stored/offered/within 2%/exact (stored set):
+  Width: 133/133/129/129 (BaseQuantities 133); offered where nothing is stored: 0
+    miss #14843 IFCDOOR Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573587 (BaseQuantities): stored 0.9339, offered 0.885
+    miss #60921 IFCDOOR Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573702 (BaseQuantities): stored 0.9339, offered 0.885
+    miss #61420 IFCDOOR Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573712 (BaseQuantities): stored 0.9339, offered 0.885
+    miss #89836 IFCDOOR Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573750 (BaseQuantities): stored 0.9339, offered 0.885
+  Height: 133/133/133/129 (BaseQuantities 133); offered where nothing is stored: 0
+    miss #14843 IFCDOOR Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573587 (BaseQuantities): stored 2.2845, offered 2.26
+    miss #60921 IFCDOOR Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573702 (BaseQuantities): stored 2.2845, offered 2.26
+    miss #61420 IFCDOOR Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573712 (BaseQuantities): stored 2.2845, offered 2.26
+    miss #89836 IFCDOOR Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573750 (BaseQuantities): stored 2.2845, offered 2.26
+  Area: 0/0/0/0 (none stored); offered where nothing is stored: 0
+  Perimeter: 0/0/0/0 (none stored); offered where nothing is stored: 0
+ISSUE_159_kleine_Wohnung_R22: 99 doors+windows, 99 with Revit size parameters read. stored/offered/within 2%/exact (stored set):
+  Width: 99/99/99/99 (Qto_WindowBaseQuantities 52, Qto_DoorBaseQuantities 47); offered where nothing is stored: 0
+  Height: 99/99/99/99 (Qto_WindowBaseQuantities 52, Qto_DoorBaseQuantities 47); offered where nothing is stored: 0
+  Area: 99/99/99/99 (Qto_WindowBaseQuantities 52, Qto_DoorBaseQuantities 47); offered where nothing is stored: 0
+  Perimeter: 0/0/0/0 (none stored); offered where nothing is stored: 0
+ISSUE_068_ARK_NUS_skolebygg: 576 doors+windows, 576 with Revit size parameters read. stored/offered/within 2%/exact (stored set):
+  Width: 568/568/568/568 (BaseQuantities 568); offered where nothing is stored: 8
+  Height: 568/568/568/568 (BaseQuantities 568); offered where nothing is stored: 8
+  Area: 576/0/0/0 (BaseQuantities 576); offered where nothing is stored: 0
+  Perimeter: 0/0/0/0 (none stored); offered where nothing is stored: 0

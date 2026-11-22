@@ -503,7 +503,7 @@ test("the fill writes a door's Qto_DoorBaseQuantities from the opening it fills 
   assert.equal(check(I, new Model(r.text, resources().schemas)).specs[0].status, "pass");
 });
 
-test("a Revit door gets no opening figures; an opening two windows fill gives none either", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+test("a Revit door gets no opening figures (nor any figures without its size parameters); an opening two windows fill gives none either", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
   const base = readFileSync(SAMPLE, "utf8");
   const door = (app, extra = "") => [
     "#950=IFCORGANIZATION($,'Autodesk',$,$,$);",
@@ -524,4 +524,63 @@ test("a Revit door gets no opening figures; an opening two windows fill gives no
   assert.equal(revit.get(960)?.has("Width") ?? false, false);
   const shared = await measureModel(at(door("ARCHICAD-64", "#970=IFCWINDOW('0Wi00wWindAAAAAAAAAAAA',$,'W',$,$,#961,#962,$,2100.,1000.,.WINDOW.,.SINGLE_PANEL.,$);\n#971=IFCRELFILLSELEMENT('0Fi11sWindAAAAAAAAAAAA',$,$,$,#110,#970);")));
   assert.equal(shared.get(960)?.has("Width") ?? false, false);
+});
+
+test("a Revit door's size comes from the Width and Height parameters it exports, the instance's before the type's", async () => {
+  const { revitSizeLines } = await import("./geometry-quantities.mjs");
+  const near = (a, b) => Math.abs(a - b) < 1e-9;
+  // Revit 2022 (DEU): the type's Bemaßungen(Type) Breite/Höhe, millimetres
+  const deu = revitSizeLines([
+    { set: "Bemaßungen", name: "RAM Breite", value: 1010, own: true },
+    { set: "Bemaßungen(Type)", name: "Breite", value: 885, own: false },
+    { set: "Bemaßungen(Type)", name: "Höhe", value: 2050, own: false },
+    { set: "Bemaßungen(Type)", name: "Rohbauhöhe", value: 2150, own: false },
+  ], 0.001);
+  assert.ok(near(deu.width, 0.885) && near(deu.height, 2.05) && near(deu.area, 0.885 * 2.05));
+  // Revit 2010: the instance's PSet_Revit_Dimensions before PSet_Revit_Type_Dimensions on the same element
+  const r10 = revitSizeLines([
+    { set: "PSet_Revit_Type_Dimensions", name: "Width", value: 0.9, own: true },
+    { set: "PSet_Revit_Dimensions", name: "Width", value: 1.2, own: true },
+    { set: "PSet_Revit_Type_Dimensions", name: "Height", value: 2.1, own: true },
+    { set: "Other", name: "Height", value: 9, own: true },
+  ], 1, { area: false });
+  assert.ok(near(r10.width, 1.2) && near(r10.height, 2.1));
+  assert.equal(r10.area, null);
+  // a width with no height, or sizes outside a dimensions set: nothing
+  assert.equal(revitSizeLines([{ set: "Dimensions", name: "Width", value: 900, own: false }], 0.001), null);
+  assert.equal(revitSizeLines([{ set: "Pset_DoorCommon", name: "Width", value: 900, own: true }, { set: "Pset_DoorCommon", name: "Height", value: 2100, own: true }], 0.001), null);
+});
+
+test("the fill writes a Revit door's Width, Height and Area from its type's Dimensions(Type) set", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const door = [
+    "#950=IFCORGANIZATION($,'Autodesk',$,$,$);",
+    "#951=IFCAPPLICATION(#950,'2022','Autodesk Revit 2022 (ENG)','Revit');",
+    "#960=IFCDOOR('0Dr00rDoorAAAAAAAAAAAA',$,'Door',$,$,#961,#962,$,2150.,1010.,.DOOR.,.SINGLE_SWING_LEFT.,$);",
+    "#961=IFCLOCALPLACEMENT(#111,#21);",
+    "#962=IFCPRODUCTDEFINITIONSHAPE($,$,(#963));",
+    "#963=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#964));",
+    "#964=IFCEXTRUDEDAREASOLID(#965,#21,#23,2000.);",
+    "#965=IFCRECTANGLEPROFILEDEF(.AREA.,$,#966,900.,50.);",
+    "#966=IFCAXIS2PLACEMENT2D(#967,$);",
+    "#967=IFCCARTESIANPOINT((500.,0.));",
+    "#968=IFCRELFILLSELEMENT('0Fi11sDoorAAAAAAAAAAAA',$,$,$,#110,#960);",
+    "#969=IFCRELCONTAINEDINSPATIALSTRUCTURE('0Co11tDoorAAAAAAAAAAAA',$,$,$,(#960),#50);",
+    "#970=IFCDOORTYPE('0Ty00pDoorAAAAAAAAAAAA',$,'M_Single-Flush:0915 x 2134mm',$,$,(#971),$,$,$,.DOOR.,.SINGLE_SWING_LEFT.,$,$);",
+    "#971=IFCPROPERTYSET('0Ps00tDoorAAAAAAAAAAAA',$,'Dimensions(Type)',$,(#972,#973,#974));",
+    "#972=IFCPROPERTYSINGLEVALUE('Width',$,IFCLENGTHMEASURE(915.),$);",
+    "#973=IFCPROPERTYSINGLEVALUE('Height',$,IFCLENGTHMEASURE(2134.),$);",
+    "#974=IFCPROPERTYSINGLEVALUE('Rough Width',$,IFCLENGTHMEASURE(1010.),$);",
+    "#975=IFCRELDEFINESBYTYPE('0Rt00pDoorAAAAAAAAAAAA',$,$,$,(#960),#970);",
+  ].join("\n");
+  const text = readFileSync(SAMPLE, "utf8").replace("ENDSEC;\nEND-ISO", `${door}\nENDSEC;\nEND-ISO`);
+  const geometry = geometryLookup(await measureModel(text));
+  const Q = (n, t) => prop("Qto_DoorBaseQuantities", n, t);
+  const I = ids(spec("IFCDOOR", Q("Width", "IFCLENGTHMEASURE") + Q("Height", "IFCLENGTHMEASURE") + Q("Area", "IFCAREAMEASURE") + Q("Perimeter", "IFCLENGTHMEASURE")));
+  const r = fillModel(I, text, { ...resources(), random, geometry });
+  // the type's 915 x 2134 mm, not the opening's 1000 x 2100 or the attributes'; no Perimeter (Revit's is the body's outline)
+  const w = Object.fromEntries(r.writtenList.filter((x) => x.id === 960).map((x) => [x.prop, x.value]));
+  assert.deepEqual(Object.keys(w).sort(), ["Area", "Height", "Width"]);
+  assert.equal(Number(w.Width), 915);
+  assert.equal(Number(w.Height), 2134);
+  assert.ok(Math.abs(Number(w.Area) - 0.915 * 2.134) < 1e-6);
 });
