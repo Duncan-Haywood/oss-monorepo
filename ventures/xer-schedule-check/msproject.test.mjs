@@ -481,3 +481,38 @@ test("an expense accrual or code scope named after an Object.prototype key is th
   assert.deepEqual(p6Problems(back.xer.tables), []);
   assert.deepEqual(back.xer.tables.PROJCOST.map((c) => c.cost_load_type), ["CL_Uniform"]);
 });
+
+// Red-team 2026-11-22: the PjField id tables, the outline numbers and the
+// warnings that must stay quiet were unguarded (mutants survived at
+// msproject.mjs:284, 361, 555, 951, 956).
+import * as W from "./msproject.mjs";
+import * as R from "./mspdi.mjs";
+
+test("Project field id tables: the right sizes, no id used twice, and the writer's tables are the reader's", () => {
+  const task = { TEXT: [W.TASK_TEXT_IDS, 30], NUMBER: [W.TASK_NUMBER_IDS, 20], DATE: [W.TASK_DATE_IDS, 10], COST: [W.TASK_COST_IDS, 10], START: [W.TASK_START_IDS, 10], FINISH: [W.TASK_FINISH_IDS, 10], OUTLINE: [W.TASK_OUTLINE_IDS, 10] };
+  const rsrc = { TEXT: [W.RSRC_TEXT_IDS, 30], NUMBER: [W.RSRC_NUMBER_IDS, 20], COST: [W.RSRC_COST_IDS, 10], DATE: [W.RSRC_DATE_IDS, 10], START: [W.RSRC_START_IDS, 10], FINISH: [W.RSRC_FINISH_IDS, 10] };
+  for (const [scope, tables] of [["task", task], ["resource", rsrc]]) {
+    const all = [];
+    for (const [name, [ids, n]] of Object.entries(tables)) { assert.equal(ids.length, n, `${scope} ${name}`); all.push(...ids); }
+    assert.equal(new Set(all).size, all.length, `${scope} field ids collide`);
+  }
+  // Start n and Finish n sit next to each other (MPPTaskField 52/53 ... 290/291)
+  W.TASK_START_IDS.forEach((id, k) => assert.equal(Number(W.TASK_FINISH_IDS[k]) - Number(id), 1, `Start${k + 1}/Finish${k + 1}`));
+  // mspdi.mjs reads back what msproject.mjs writes
+  const reader = (kind, prefix) => R.UDF_FIELD_IDS.filter(([, k, name]) => k === kind && name.startsWith(prefix)).map(([id]) => id);
+  assert.deepEqual(reader("number", "Number"), W.TASK_NUMBER_IDS);
+  assert.deepEqual(reader("cost", "Cost"), W.TASK_COST_IDS);
+  assert.deepEqual(reader("date", "Date"), W.TASK_DATE_IDS);
+  assert.deepEqual(reader("date", "Start"), W.TASK_START_IDS);
+  assert.deepEqual(reader("finish", "Finish"), W.TASK_FINISH_IDS);
+  assert.deepEqual(R.TASK_TEXT_IDS, W.TASK_TEXT_IDS);
+  assert.deepEqual(R.TASK_OUTLINE_IDS, W.TASK_OUTLINE_IDS);
+});
+
+test("outline numbers count from 1 and the example raises no curve or resource-dependent warning", () => {
+  const r = mspdiText(xer);
+  const nums = [...r.xml.matchAll(/<OutlineNumber>([^<]*)</g)].map((m) => m[1]);
+  assert.deepEqual(nums.slice(0, 4), ["0", "1", "2", "3"]);
+  assert.equal(new Set(nums).size, nums.length);
+  assert.ok(!r.warnings.some((w) => /resource-dependent|resource curve/.test(w)), r.warnings.join("; "));
+});
