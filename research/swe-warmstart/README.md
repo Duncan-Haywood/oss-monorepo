@@ -40,7 +40,7 @@ python3 experiments/figure.py                             # writes experiments/s
 
 ## Builds on
 
-`swe-bootstrap` (resampling), `swe-decay` (replay), `swe-allocate` (policies, data), `swe-value` (scores). Badanidiyuru, Kleinberg and Slivkins (2018), "Bandits with knapsacks", *Journal of the ACM* 65(3); Russo, Van Roy, Kazerouni, Osband and Wen (2018), "A tutorial on Thompson sampling", *Foundations and Trends in Machine Learning* 11(1). No lab's work is built on, and no lab is affiliated with or endorses this project.
+`swe-bootstrap` (resampling), `swe-decay` (replay), `swe-allocate` (policies, data), `swe-value` (scores). Badanidiyuru, Kleinberg and Slivkins (2018), "Bandits with knapsacks", *Journal of the ACM* 65(3); Russo, Van Roy, Kazerouni, Osband and Wen (2018), "A tutorial on Thompson sampling", *Foundations and Trends in Machine Learning* 11(1). Nearest prior work on the question itself, sizing exploration to a budget: Tran-Thanh, Chapman, Munoz de Cote, Rogers and Jennings (2010), "Epsilon-first policies for budget-limited multi-armed bandits", AAAI; and Tran-Thanh, Chapman, Rogers and Jennings (2012), "Knapsack based optimal policies for budget-limited multi-armed bandits" (KUBE), AAAI. The one-versus-two forced-pull trade-off here is that known exploration-budget trade-off checked on this repository's data, not a new method; neither KUBE nor UCB1 (Auer, Cesa-Bianchi and Fischer 2002, *Machine Learning* 47) was run as a baseline. Arms whose value drifts are the setting of rotting bandits (Levine, Crammer and Mannor 2017, NeurIPS). No lab's work is built on, and no lab is affiliated with or endorses this project.
 
 ## Next steps
 
