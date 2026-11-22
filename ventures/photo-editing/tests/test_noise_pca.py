@@ -138,6 +138,33 @@ class NoisePcaTests(unittest.TestCase):
         self.assertGreater(w1, w0 + 0.02)
         self.assertLess(w1, ws)
 
+    def test_envelope_fit_keeps_a_linear_model_and_drops_texture_bins(self):
+        # eval/noise-envelope-fit-2026-11-22.md: on bins that follow shot * level + read the envelope is the line;
+        # bright bins inflated by texture (sigma^2 climbing faster than any line) are dropped, not fitted.
+        from shootflow.noise_pca import fit_envelope, fit_line
+
+        np = self.np
+        x = np.linspace(0.02, 0.8, 8)
+        g, r = 1e-4, 4e-6
+        y = (g * x + r) * (1 + 0.03 * self.rng.normal(size=8))  # a few percent: a bin's sampling error
+        self.assertEqual(fit_envelope(x, y), fit_line(x, y))
+        y2 = g * x + r + np.where(x > 0.5, 2e-3 * (x - 0.4) ** 2 / 0.16, 0.0)  # the three brightest bins textured
+        g2, r2 = fit_envelope(x, y2)
+        self.assertAlmostEqual(g2 / g, 1.0, delta=0.02)
+        self.assertAlmostEqual(r2 / r, 1.0, delta=0.05)
+        lg, lr = fit_line(x, y2)
+        self.assertGreater(lg * 0.18 + lr, 2 * (g * 0.18 + r))  # the plain line reads the texture
+        self.assertEqual(len(np.atleast_1d(fit_envelope(x[:3], y2[:3]))), 2)  # never under 3 bins: no drop
+
+    def test_envelope_fit_reaches_frame_noise(self):
+        from shootflow.xtrans_demosaic import frame_noise
+
+        c = self._noisy(self.smooth)
+        a, b = frame_noise(c, BAYER), frame_noise(c, BAYER, fit="envelope")
+        self.assertAlmostEqual(self._sigma(b) / self._sigma(a), 1.0, delta=0.05)
+        with self.assertRaises(ValueError):
+            frame_noise(c, BAYER, fit="nope")
+
     def test_smooth_field_reads_the_true_sigma(self):
         from shootflow.noise_pca import estimate_noise_pca
 

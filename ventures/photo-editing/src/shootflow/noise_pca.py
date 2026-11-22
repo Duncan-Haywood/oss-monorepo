@@ -401,16 +401,49 @@ def fit_line(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
     return float(g), float(r)
 
 
+# The lower-envelope line (2026-11-22, eval/noise-envelope-fit-2026-11-22.md). On dense foliage the bins' sigma^2
+# climbs with level faster than any line (D780 DSC_0336 [0, 0]: sigma 0.001 dark to 0.035 bright,
+# eval/noise-pca-min-eigen-2026-11-19.md): bright bins keep fine texture the weak-texture test cannot tell from
+# noise. Texture only adds variance, so a bin far above the line through the others is texture: drop the bin
+# furthest above the fitted line while its sigma^2 is over ENVELOPE_RATIO times the line's, refit, and keep at
+# least ENVELOPE_MIN bins. A bin's sigma^2 from thousands of patches is good to a few percent, so honest
+# signal-dependent noise (exactly linear) never trips 1.5.
+ENVELOPE_RATIO = 1.5
+ENVELOPE_MIN = 3
+FITS = ("line", "envelope")
+
+
+def fit_envelope(x: np.ndarray, y: np.ndarray, ratio: float = ENVELOPE_RATIO,
+                 keep: int = ENVELOPE_MIN) -> tuple[float, float]:
+    """``fit_line`` through the bins left after dropping, one at a time, the bin furthest above the line (by
+    sigma^2 over the line's) while it is over ``ratio`` times the line and more than ``keep`` bins remain."""
+
+    x, y = np.asarray(x, dtype=np.float64), np.asarray(y, dtype=np.float64)
+    while x.size > keep:
+        g, r = fit_line(x, y)
+        pred = g * x + r
+        floor = max(float(np.max(pred)), 1e-30) * 1e-6  # a line through 0 at the darkest bin: no divide by 0
+        over = y / np.maximum(pred, floor)
+        i = int(np.argmax(over))
+        if over[i] <= ratio:
+            break
+        x, y = np.delete(x, i), np.delete(y, i)
+    return fit_line(x, y)
+
+
 def estimate_noise_pca(c: np.ndarray, pat, d: int = 6, stride: int = 2, mosaic: bool = True,
                        texture: str | None = None, shifts: tuple = ((0, 0),),
-                       info: dict | None = None, eig: str = "chen") -> tuple[float, float]:
+                       info: dict | None = None, eig: str = "chen", fit: str = "line") -> tuple[float, float]:
     """The (shot, read) model of the mosaic ``c`` from patch PCA on weak-texture patches. The default, 6 x 6
     patches of the mosaic itself, read closest to the truth on the tune tiles
     (eval/noise-pca-estimator-2026-11-17.md; tools/noise_estimator_accuracy.py); on X-Trans with the "near"
-    texture test (touching same-colour sensels; eval/xtrans-noise-pca-12-2026-11-17.md). ``info``: as ``pca_bins``."""
+    texture test (touching same-colour sensels; eval/xtrans-noise-pca-12-2026-11-17.md). ``info``: as ``pca_bins``.
+    ``fit``: "line" (least squares through every bin) or "envelope" (``fit_envelope``, opt-in)."""
 
     period = 6 if len(pat) == 36 else 2
-    return fit_line(*pca_bins(c, period, d, stride, mosaic=mosaic, pat=pat, texture=texture,
+    if fit not in FITS:
+        raise ValueError(f"unknown fit {fit!r} ({', '.join(FITS)})")
+    return (fit_envelope if fit == "envelope" else fit_line)(*pca_bins(c, period, d, stride, mosaic=mosaic, pat=pat, texture=texture,
                              shifts=shifts, info=info, eig=eig))
 
 

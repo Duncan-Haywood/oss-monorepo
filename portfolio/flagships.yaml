@@ -324,13 +324,13 @@ flagships:
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
       reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
       D780/D600: 6 of 11 losers are real over-reads on clean truths
-      (eval/near-clean-truth-noise-2026-11-19.md); a min-eigenvalue read failed its
-      pre-registered pick 2026-11-19: foliage fills the quietest direction too, and
-      the shipped read under-reads white-balanced noise (0.53x at SNR 12;
-      eval/noise-pca-min-eigen-2026-11-19.md); per-colour ratios + Chen's level
-      (mpcw) default on Bayer 2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0
-      new losers (eval/noise-pca-whitened-level-*); mpcws (held +0.31 dB) failed on
-      K-1 II not by a noisy truth: a green-pair truth read failed its validity tests
+      (eval/near-clean-truth-noise-2026-11-19.md); a lower-envelope line fit
+      (opt-in) rescued 3 of 6 K-1 II losers but failed h1 2026-11-22 (-0.2 dB luma
+      at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
+      whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
+      2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
+      (eval/noise-pca-whitened-level-*); mpcws (held +0.31 dB) failed on K-1 II not
+      by a noisy truth: a green-pair truth read failed its validity tests
       2026-11-22, and mpcws's own selection over-reads 2.3x there
       (eval/noise-pca-mpcws-noisy-truth-*); mpcw1 (select once at mpcw's level)
       failed its gates 2026-11-22: 1.48x mpcw on that tile, +0.01 of mpcws's +0.26

@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVLv1EHomCg6HUdP6LN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "bd21f1129ba809e796b68a1d2bf7670ff90157ecee0ebfc70c69514b21bd90b4",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T03:56:29Z",
+  "ended": "2026-11-22T04:07:01Z",
+  "wall_minutes": 10.77,
+  "tokens_in": 5864391,
+  "tokens_out": 29370,
+  "cost_usd": 2.6771,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18191",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First background clone of metadata-extractor-images wrote nothing: the subshell was backgrounded inside an already-backgrounded Bash call and died; re-ran it as its own background task.",
+    "`whitened --split tune --eig X` crashes (KeyError 'mpcw+12'): the tune branch ignores --eig and uses the default --eigs; computed tune's h1/h2 in a short script instead (in the .txt)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/noise-pca-whitened-level-2026-11-21.md",
+      "issue": "Reproduce recipe clones with --no-checkout and sparse-checkout set but never runs git checkout, so the tree stays empty (0 raws)."
+    },
+    {
+      "file": "ventures/photo-editing/NEXT.md",
+      "issue": "The foliage item names D780 DSC_0336, which lives on raw.pixls.us (refused this session), not in the reachable metadata-extractor-images set; the item's own data was out of reach."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-dropping-bright-noise-bins-fixed-foliage-broke-white-balance.md",
+    "ventures/photo-editing/eval/noise-envelope-fit-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Flagship photo-editing (Start here row 3), NEXT.md foliage item. Shipped opt-in lower-envelope noise line (fit='envelope'), pre-registered gates (commit 4f2ab6ad3) then a 35-min sweep on the 53 metadata-extractor-images raws: losers 6->3 (the K-1 II textured tiles) but h1 failed on both splits (-0.20/-0.18 dB luma at SNR 12 wb); stays opt-in, default unchanged (R: 99.44% of ship scores match). Next: envelope on colour-whitened bins, on a blind set.",
+  "corrections": [],
+  "redteam": null,
+  "venture": "photo-editing",
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6eb59fa2-aa25-55c8-a32b-f85144071b56",
+    "transcripts": 1,
+    "first": "2026-11-22T03:56:29Z",
+    "last": "2026-11-22T04:07:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 109,
+        "output": 29370,
+        "thinking": 6418,
+        "cache_read": 5746789,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117493,
+        "api_equivalent_usd": 2.6771,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 109,
+      "output": 29370,
+      "thinking": 6418,
+      "cache_read": 5746789,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117493,
+      "api_equivalent_usd": 2.6771,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.77,
+      "active_minutes": 10.77,
+      "model_minutes": 4.77,
+      "tool_minutes": 6.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an imaging engineer implementing an opt-in fit, pre-registering, running and writing up a 53-file sweep",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 224.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

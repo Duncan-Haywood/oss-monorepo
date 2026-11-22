@@ -755,7 +755,7 @@ FRAME_ESTIMATORS = ("pca", "spread")
 
 
 def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE,
-                estimator: str = "pca", eig: str | None = None) -> tuple[float, float]:
+                estimator: str = "pca", eig: str | None = None, fit: str = "line") -> tuple[float, float]:
     """A (shot, read) noise model for the noise-aware blend read from the mosaic ``c`` alone, on ``c``'s scale:
     patch PCA (``noise_pca.estimate_noise_pca``; ``estimator="spread"``: ``estimate_noise`` at the ``pct``th
     block-spread percentile, the 2026-11-17 morning model), sigma times ``scale``, through ``guard_profile``.
@@ -769,7 +769,7 @@ def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE,
 
         if eig is None:
             eig = "chen" if len(pat) == 36 else "mpcw"
-        shot, read = estimate_noise_pca(c, pat, eig=eig)
+        shot, read = estimate_noise_pca(c, pat, eig=eig, fit=fit)
     elif estimator == "spread":
         shot, read = estimate_noise(c, pat, pct=pct)
     else:
