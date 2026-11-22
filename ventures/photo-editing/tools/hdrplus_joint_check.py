@@ -105,11 +105,11 @@ def draw(args) -> int:
 # ---- score ----
 
 def score_scene(path: Path) -> list[dict]:
-    from shootflow import xtrans_demosaic as xd
-    from shootflow.bayer_demosaic import directional
-
     import hdrplus_demosaic_sweep as sw
     import xtrans_demosaic_check as chk
+
+    from shootflow import xtrans_demosaic as xd
+    from shootflow.bayer_demosaic import directional
 
     z = np.load(path)
     meta = json.loads(str(z["meta"]))

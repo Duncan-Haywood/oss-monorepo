@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 
 try:
-    import numpy as np  # noqa: F401
+    import numpy as np
 except ImportError:  # pragma: no cover
     np = None
 
