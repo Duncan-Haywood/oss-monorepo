@@ -1,0 +1,146 @@
+Step 6b: what a session tracker should do with its re-estimates, started from 6a's joint lag-and-rate search
+(step 4d's drifting twin sessions; out of sync = more than one 30 fps frame off, share of scored seconds)
+
+== room 200 ms, |SRO| 17 ppm ==
+condition              rl1 fail  track_rl      hold        kr     gated
+none                       0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      0.4%      0.0%      0.4%      0.0%
+AirConditioner -10        10.0%     26.8%     10.0%     26.8%     12.5%
+AirportAnnouncements -10    10.0%     15.1%     10.0%     15.1%     12.3%
+Babble -10                10.0%     24.1%     10.0%     23.9%     12.6%
+CopyMachine -10            0.0%      4.1%      0.0%      4.2%      2.5%
+Munching -10               0.0%      0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      4.3%      0.0%      4.3%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10         10.0%     13.8%     10.0%     12.6%     10.0%
+mean, ten types -10 dB     4.0%      8.9%      4.0%      8.7%      5.0%
+  sessions >= 99% in sync at -10 dB: track_rl 63.5%, hold 96.0%, kr 63.5%, gated 94.0%
+  track_rl  where rl1 is right (192 sessions): out of sync 5.42%, median |final slope error| 0.21 ppm
+  hold      where rl1 is right (192 sessions): out of sync 0.00%, median |final slope error| 3.00 ppm
+  kr        where rl1 is right (192 sessions): out of sync 5.27%, median |final slope error| 0.23 ppm
+  gated     where rl1 is right (192 sessions): out of sync 1.04%, median |final slope error| 0.17 ppm
+  out of sync gated minus track_rl: -3.9 points (95% session bootstrap -6.8 to -1.2)
+  out of sync gated minus hold: +1.0 points (95% session bootstrap +0.0 to +2.0)
+  out of sync kr minus track_rl: -0.1 points (95% session bootstrap -0.4 to +0.0)
+  out of sync hold minus track_rl: -4.9 points (95% session bootstrap -7.5 to -2.4)
+
+== room 200 ms, |SRO| 100 ppm ==
+condition              rl1 fail  track_rl      hold        kr     gated
+none                       0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      0.1%      0.0%      0.1%      0.0%
+AirConditioner -10         0.0%      7.2%      0.0%      7.2%      0.0%
+AirportAnnouncements -10     0.0%     11.3%      0.0%     11.3%      2.7%
+Babble -10                 0.0%     33.1%      0.0%     33.1%      2.3%
+CopyMachine -10            0.0%     13.3%      0.0%     13.4%      0.0%
+Munching -10               0.0%      0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      2.7%      0.0%      2.7%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          0.0%      4.8%      0.0%      4.8%      0.0%
+mean, ten types -10 dB     0.0%      7.3%      0.0%      7.3%      0.5%
+  sessions >= 99% in sync at -10 dB: track_rl 69.0%, hold 100.0%, kr 69.0%, gated 99.0%
+  track_rl  where rl1 is right (200 sessions): out of sync 7.25%, median |final slope error| 0.33 ppm
+  hold      where rl1 is right (200 sessions): out of sync 0.00%, median |final slope error| 0.00 ppm
+  kr        where rl1 is right (200 sessions): out of sync 7.27%, median |final slope error| 0.32 ppm
+  gated     where rl1 is right (200 sessions): out of sync 0.50%, median |final slope error| 0.27 ppm
+  out of sync gated minus track_rl: -6.8 points (95% session bootstrap -8.7 to -4.9)
+  out of sync gated minus hold: +0.5 points (95% session bootstrap +0.0 to +1.2)
+  out of sync kr minus track_rl: +0.0 points (95% session bootstrap +0.0 to +0.0)
+  out of sync hold minus track_rl: -7.3 points (95% session bootstrap -9.2 to -5.5)
+
+== room 200 ms, |SRO| 300 ppm ==
+condition              rl1 fail  track_rl      hold        kr     gated
+none                       0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      1.6%      0.0%      1.6%      2.5%
+AirConditioner -10         5.0%     31.4%      5.0%     31.4%      9.4%
+AirportAnnouncements -10    10.0%     27.0%     10.0%     27.0%     15.0%
+Babble -10                10.0%     48.4%     10.0%     48.3%     13.6%
+CopyMachine -10            5.0%     12.9%      5.0%     13.1%      5.0%
+Munching -10               0.0%      0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      3.8%      0.0%      3.8%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          5.0%     11.0%      5.0%     12.0%      5.0%
+mean, ten types -10 dB     3.5%     13.6%      3.5%     13.7%      5.1%
+  sessions >= 99% in sync at -10 dB: track_rl 54.0%, hold 96.5%, kr 54.0%, gated 93.0%
+  track_rl  where rl1 is right (193 sessions): out of sync 10.73%, median |final slope error| 1.12 ppm
+  hold      where rl1 is right (193 sessions): out of sync 0.00%, median |final slope error| 5.00 ppm
+  kr        where rl1 is right (193 sessions): out of sync 10.84%, median |final slope error| 1.00 ppm
+  gated     where rl1 is right (193 sessions): out of sync 1.61%, median |final slope error| 1.01 ppm
+  out of sync gated minus track_rl: -8.6 points (95% session bootstrap -11.1 to -6.0)
+  out of sync gated minus hold: +1.6 points (95% session bootstrap +0.0 to +3.1)
+  out of sync kr minus track_rl: +0.1 points (95% session bootstrap -0.0 to +0.3)
+  out of sync hold minus track_rl: -10.1 points (95% session bootstrap -11.9 to -8.4)
+
+== room 800 ms, |SRO| 17 ppm ==
+condition              rl1 fail  track_rl      hold        kr     gated
+none                       0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      0.3%      0.0%      0.3%      0.0%
+AirConditioner -10         5.0%     19.8%      5.0%     19.8%      7.4%
+AirportAnnouncements -10     5.0%     13.2%      5.0%     13.2%      5.0%
+Babble -10                15.0%     23.9%     15.0%     23.9%     15.0%
+CopyMachine -10            0.0%      8.6%      0.0%      8.6%      0.0%
+Munching -10               0.0%      0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      0.9%      0.0%      0.9%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          0.0%      3.1%      0.0%      3.1%      0.0%
+mean, ten types -10 dB     2.5%      7.0%      2.5%      7.0%      2.7%
+  sessions >= 99% in sync at -10 dB: track_rl 68.5%, hold 97.5%, kr 68.5%, gated 97.0%
+  track_rl  where rl1 is right (195 sessions): out of sync 4.81%, median |final slope error| 0.19 ppm
+  hold      where rl1 is right (195 sessions): out of sync 0.00%, median |final slope error| 2.00 ppm
+  kr        where rl1 is right (195 sessions): out of sync 4.81%, median |final slope error| 0.21 ppm
+  gated     where rl1 is right (195 sessions): out of sync 0.24%, median |final slope error| 0.13 ppm
+  out of sync gated minus track_rl: -4.2 points (95% session bootstrap -6.5 to -2.1)
+  out of sync gated minus hold: +0.2 points (95% session bootstrap +0.0 to +0.7)
+  out of sync kr minus track_rl: +0.0 points (95% session bootstrap +0.0 to +0.0)
+  out of sync hold minus track_rl: -4.5 points (95% session bootstrap -6.6 to -2.7)
+
+== room 800 ms, |SRO| 100 ppm ==
+condition              rl1 fail  track_rl      hold        kr     gated
+none                       0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      0.7%      0.0%      0.7%      0.0%
+AirConditioner -10         0.0%     12.4%      0.0%     12.4%      0.0%
+AirportAnnouncements -10     0.0%     22.9%      0.0%     22.9%      0.0%
+Babble -10                 0.0%     22.0%      0.0%     22.0%      4.6%
+CopyMachine -10            0.0%      9.5%      0.0%      9.5%      0.0%
+Munching -10               0.0%      0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      0.7%      0.0%      0.7%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          0.0%      3.0%      0.0%      3.0%      0.0%
+mean, ten types -10 dB     0.0%      7.1%      0.0%      7.1%      0.5%
+  sessions >= 99% in sync at -10 dB: track_rl 66.5%, hold 100.0%, kr 66.5%, gated 99.5%
+  track_rl  where rl1 is right (200 sessions): out of sync 7.14%, median |final slope error| 0.29 ppm
+  hold      where rl1 is right (200 sessions): out of sync 0.00%, median |final slope error| 0.00 ppm
+  kr        where rl1 is right (200 sessions): out of sync 7.14%, median |final slope error| 0.30 ppm
+  gated     where rl1 is right (200 sessions): out of sync 0.46%, median |final slope error| 0.23 ppm
+  out of sync gated minus track_rl: -6.7 points (95% session bootstrap -9.0 to -4.4)
+  out of sync gated minus hold: +0.5 points (95% session bootstrap +0.0 to +1.4)
+  out of sync kr minus track_rl: +0.0 points (95% session bootstrap +0.0 to +0.0)
+  out of sync hold minus track_rl: -7.1 points (95% session bootstrap -9.2 to -5.2)
+
+== room 800 ms, |SRO| 300 ppm ==
+condition              rl1 fail  track_rl      hold        kr     gated
+none                       0.0%      0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      0.9%      0.0%      1.0%      0.5%
+AirConditioner -10         5.0%     27.7%      5.0%     27.7%      5.0%
+AirportAnnouncements -10     5.0%     15.8%      5.0%     15.8%      5.0%
+Babble -10                25.0%     54.4%     25.0%     54.5%     25.0%
+CopyMachine -10            0.0%      7.5%      0.0%      7.5%      0.0%
+Munching -10               0.0%      0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      2.8%      0.0%      2.6%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          5.0%     16.2%      5.0%     16.0%      5.0%
+mean, ten types -10 dB     4.0%     12.5%      4.0%     12.5%      4.1%
+  sessions >= 99% in sync at -10 dB: track_rl 56.5%, hold 96.0%, kr 57.0%, gated 95.5%
+  track_rl  where rl1 is right (192 sessions): out of sync 8.89%, median |final slope error| 0.95 ppm
+  hold      where rl1 is right (192 sessions): out of sync 0.00%, median |final slope error| 5.00 ppm
+  kr        where rl1 is right (192 sessions): out of sync 8.88%, median |final slope error| 1.01 ppm
+  gated     where rl1 is right (192 sessions): out of sync 0.05%, median |final slope error| 0.85 ppm
+  out of sync gated minus track_rl: -8.5 points (95% session bootstrap -11.2 to -5.8)
+  out of sync gated minus hold: +0.1 points (95% session bootstrap +0.0 to +0.2)
+  out of sync kr minus track_rl: -0.0 points (95% session bootstrap -0.1 to +0.0)
+  out of sync hold minus track_rl: -8.5 points (95% session bootstrap -11.4 to -5.8)
