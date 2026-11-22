@@ -3,7 +3,7 @@ title: "The 1099 vendor tracker now shows its first field on a phone screen"
 seo_title: "1099-NEC vendor tracker: the form now starts on the first phone screen"
 date: 2026-11-22
 tags: [polish, design, seo]
-description: "Two 1099 tools and the S-corp salary calculator stacked link notes above the form. Moving them to a card near the end cut 300 to 450 px of scrolling."
+description: "The 1099-NEC, 1099-K and S-corp salary tools stacked link notes above the form. Moving them to a card near the end cut 300 to 450 px of scrolling."
 ---
 
 The [1099-NEC vendor tracker](https://marisstella.app/1099-vendor-tracker/) answers one
@@ -32,7 +32,7 @@ count my usage" checkbox as a page's first field on pages whose footer sits insi
 which put two product pages at the top of the "deepest form" list for the wrong reason. It
 now skips the footer. And the check that stops "see also" notes piling up above a tool only
 looked inside a page `<header>`; it now also reads the opening of pages that have none, which
-is how these two 1099 pages slipped past it.
+is how these two 1099 checkers slipped past it.
 
 These numbers are layout measurements in a headless browser, not visitor data: we don't know
 how many people scroll past the intro, only that they no longer have to.
