@@ -18,8 +18,9 @@ Here the reference frame's own sensor noise is the thing measured: the reference
 noise with the scene removed. `tools/hdrplus_noise_truth.py` (its docstring has every step):
 
 1. Both DNGs go through the developer to the white-balanced plane the noise-aware blend reads.
-2. The merge has lens shading corrected and its own exposure scale, so `reference ~= g * merged + o` is fitted per
-   colour site in 32 x 32-sensel cells; the residual is what is left.
+2. The merge has lens shading corrected and its own exposure scale, so `reference ~= (g0 + gu u + gv v) * merged
+   + o` is fitted per colour site in 32 x 32-sensel cells (`u`, `v` the place in the cell); the residual, times
+   sqrt(n / (n - 4)) for the four fitted parameters, is what is left.
 3. Per colour, the residual's variance (cut at 4 sigma, iterated) in 12 brightness bins of the fitted level,
    using in each bin only the half of the sensels where the merge's own gradient is lowest (a sub-pixel
    misalignment leaves edges; the all-sensel truth is recorded beside it), and `variance = shot x level + read`
@@ -34,11 +35,20 @@ default), `mpcws` and `mpcw1`, before `FRAME_SCALE`; `xtrans_demosaic.frame_nois
 calibration. Each is a sigma at the plane's 50th and 90th percentile levels and at 18% grey, over the truth's.
 
 **Pilot (one burst, `0006_20160722_115157_431`, a Pixel at ISO 51; used to build the tool, left out of the set
-below):** the phone's NoiseProfile reads 0.97-1.00 of this truth at the p90 level and 18% grey and 1.22 at the
-p50 level (0.008 of white); `pca_mpcws` 1.02-1.04, `pca_mpcw1` 0.91-0.97, `pca_mpcw` 0.85-0.89, `pca_chen`
-0.78; the all-sensel truth is 1.05-1.14x the low-gradient one. While building it, MAD in place of the cut
+below; rows: `hdrplus-noise-truth-pilot-2026-11-22.jsonl`, with the final fit):** the phone's NoiseProfile reads
+1.06-1.08 of this truth at the p90 level and 18% grey and 1.21 at the p50 level (0.008 of white); `pca_mpcws`
+1.01-1.13, `pca_mpcw1` 0.90-1.06, `pca_mpcw` 0.84-0.97, `pca_chen` 0.78-0.85; the all-sensel truth is
+1.05-1.17x the low-gradient one. While building it, MAD in place of the cut
 variance gave dark bins that jumped by 7x between neighbours (the 10-bit frame's noise is under 1 DN there), and
 bin medians in place of means put the widest bin off the line; both were changed before anything below was run.
+
+**One change after the questions below were committed (78b37b50b).** The first full run used a constant gain per
+cell (`a ~= g b + o`). The synthetic test written while it ran (`tests/test_hdrplus_noise_truth.py`: a known
+noise model under a vignetting gain, 10-bit steps and sparse spikes) showed that fit reads 10-40% high: the
+shading's change across a cell times the scene's texture stays in the residual. The run was stopped after 5
+rows, which were not opened (kept outside the tree), the gain made linear across the cell (item 2 above; the
+test's bins then land within 3% but the darkest), and the 152 bursts run again from the start. The questions
+and bars are unchanged.
 
 ## What is asked, and what each answer decides (committed before the 152 other bursts were scored)
 

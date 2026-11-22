@@ -102,7 +102,7 @@ def _cells(x: np.ndarray, k: int) -> np.ndarray:
 
 def residual_sites(a: np.ndarray, b: np.ndarray):
     """Per CFA site (oy, ox): (fitted clean level, residual, median gain, the merge's local gradient), from
-    ``a ~= g b + o`` per cell. The gradient (same-site neighbours either side, both axes) is of the merge only,
+    ``a ~= (g0 + gu u + gv v) b + o`` per cell (``u``, ``v`` the place in the cell). The gradient (same-site neighbours either side, both axes) is of the merge only,
     so selecting on it does not select on the reference's noise; where it is high, a sub-pixel misalignment of
     the merge leaves scene edges in the residual."""
 
@@ -114,12 +114,21 @@ def residual_sites(a: np.ndarray, b: np.ndarray):
             A = _cells(a[oy::2, ox::2], CELL)
             B = _cells(sb, CELL)
             G = _cells(grad, CELL)
-            bm, am = B.mean(axis=2, keepdims=True), A.mean(axis=2, keepdims=True)
-            vb = ((B - bm) ** 2).sum(axis=2, keepdims=True)
-            g = ((B - bm) * (A - am)).sum(axis=2, keepdims=True) / np.maximum(vb, 1e-30)
-            fit = am + g * (B - bm)
-            ok = (vb[..., 0] > 0) & (g[..., 0] > 0)
-            out[(oy, ox)] = (fit[ok].ravel(), (A - fit)[ok].ravel(), float(np.median(g[ok])), G[ok].ravel())
+            n = CELL * CELL
+            v, u = np.mgrid[0:CELL, 0:CELL].reshape(2, n) / CELL - 0.5
+            # a = (g0 + gu u + gv v) b + o per cell: lens shading changes across a cell, and a constant gain
+            # leaves that change times the scene's texture in the residual
+            X = np.stack([B, B * u, B * v, np.ones_like(B)], axis=-1)  # (cells_y, cells_x, n, 4)
+            XtX = np.einsum("ijnk,ijnl->ijkl", X, X)
+            Xty = np.einsum("ijnk,ijn->ijk", X, A)
+            ok = np.linalg.cond(XtX) < 1e12
+            XtX[~ok] = np.eye(4)
+            beta = np.linalg.solve(XtX, Xty[..., None])[..., 0]
+            fit = np.einsum("ijnk,ijk->ijn", X, beta)
+            ok &= beta[..., 0] > 0
+            g = beta[..., 0]
+            res = (A - fit) * np.sqrt(n / (n - 4))  # the four fitted parameters' share of the variance
+            out[(oy, ox)] = (fit[ok].ravel(), res[ok].ravel(), float(np.median(g[ok])), G[ok].ravel())
     return out
 
 
