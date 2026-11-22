@@ -137,6 +137,6 @@ test('an unset METRIC_CSV fails the first step with the instruction, and saves n
   const run = runWorkflow({ workflow: r.workflow, remote: r.remote });
   assert.equal(run.ok, false);
   assert.equal(run.steps[CHECK].code, 2);
-  assert.match(run.steps[CHECK].stdout, /Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN or GSC_SERVICE_ACCOUNT_JSON secret/);
+  assert.match(run.steps[CHECK].stdout, /Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON or GA4_SERVICE_ACCOUNT_JSON secret/);
   assert.equal(run.steps[SAVE].code, 0);
 });
