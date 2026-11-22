@@ -30,3 +30,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) activity codes as Text2-30 2026-11-21 (276,042/276,042 back, MPXJ agrees; eval/msproject-codes-2026-11-21.md)
 - (moved 2026-11-21) outline codes 2026-11-21 (eval/msproject-outline-2026-11-21.md)
 - (moved 2026-11-21) P6 resource curves 2026-11-21 (curves.mjs, eval/resource-curves-2026-11-21.md)
+- (moved 2026-11-22) fifth pass 2026-11-19 (rule 17, unspent FS/FF lag of a finished node: its late dates 1,529 of 1,534)
