@@ -821,3 +821,22 @@ averaged 1981-89, schooling 1980 and 1985, investment 1980-84 and GDP per head 1
   *Lancet Infectious Diseases* 20(5), 533-534. doi:10.1016/S1473-3099(20)30120-1.
 - **Used by:** `eval/update-rate-covid-schedules.mjs` (full file via `eval/covid-schedules-fetch.sh`),
   `update-rate-covid.test.mjs` (README "A provider's own schedule changes").
+
+# US quarterly activity series and NBER recession dates (fresh labels for the trend-walk route)
+
+`us-macro-quarterly.csv`: the `realgdp`, `realcons`, `realinv`, `realdpi` and `unemp` columns of statsmodels'
+`macrodata` dataset, 203 quarters, 1959Q1 to 2009Q3 (`us-unemployment.csv` is the same `unemp` from 1959Q2).
+
+- **Retrieved:** 2026-11-22 from
+  <https://raw.githubusercontent.com/statsmodels/statsmodels/main/statsmodels/datasets/macrodata/macrodata.csv>.
+- **Licence:** public domain (statsmodels' dataset module, `COPYRIGHT`); the figures are US Bureau of Economic
+  Analysis and Bureau of Labor Statistics data via FRED.
+
+`nber-recessions.csv`: the first and last month of each US recession from 1857 to 2020, the 34 rows of `nberDates()`
+in the R package tis 1.39 (NBER Business Cycle Dating Committee dates; a peak is the month before `start`, a trough
+is `end`).
+
+- **Retrieved:** 2026-11-22 from <https://raw.githubusercontent.com/cran/tis/master/R/nber.R> (the CRAN mirror on
+  GitHub; nber.org and fred.stlouisfed.org refused this session).
+- **Licence:** tis is released as "Unlimited"; the dates are published facts.
+- **Used by:** `eval/trend-walk-nber.mjs`, `trend-walk-nber.test.mjs`.
