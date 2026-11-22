@@ -5,6 +5,7 @@ import {
   parseCopyArgs,
   isBroadCopy,
   scanText,
+  escapeChar,
   scanFiles,
   hasRisk,
   summarize,
@@ -222,4 +223,18 @@ test("yarn build is not an install; bare yarn is", () => {
 test("apt-get update with flags, alone in its RUN, is flagged", () => {
   assert.deepEqual(kindsOf(["FROM debian:12", "RUN apt-get -qq update", "RUN apt-get -qq install -y curl"]), [FINDING_KINDS.APT_UPDATE_INSTALL_SPLIT]);
   assert.deepEqual(kindsOf(["FROM debian:12", "RUN apt-get -qq update && apt-get -y install curl"]), []);
+});
+
+// Red-team 2026-11-22, real defect: under `# escape=`` (Windows Dockerfiles)
+// `COPY . C:\app\` ends with a backslash that is not a continuation. The
+// parser glued `RUN npm install` onto the COPY and reported nothing.
+test("an escape=` directive stops a trailing backslash hiding the install step", () => {
+  const windows = "# escape=`\nFROM mcr.microsoft.com/windows/servercore:ltsc2022\nWORKDIR C:\\app\\\nCOPY . C:\\app\\\nRUN npm install\n";
+  const linux = "FROM node:20\nWORKDIR /app\nCOPY . /app/\nRUN npm install\n";
+  // Same finding; the Windows file is one line longer (the directive).
+  assert.deepEqual(scanText(windows).map((f) => [f.line - 1, f.kind]), scanText(linux).map((f) => [f.line, f.kind]));
+  assert.deepEqual(scanText(windows).map((f) => f.line), [5]);
+  assert.equal(escapeChar("# hello\n# escape=`\n"), "\\");
+  assert.equal(escapeChar("# syntax=docker/dockerfile:1\r\n#  ESCAPE = `\r\n"), "`");
+  assert.equal(escapeChar("FROM x\n# escape=`\n"), "\\");
 });
