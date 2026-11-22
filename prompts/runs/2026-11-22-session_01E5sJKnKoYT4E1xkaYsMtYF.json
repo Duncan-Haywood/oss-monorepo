@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKnKoYT4E1xkaYsMtYF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T17:18:43Z",
+  "ended": "2026-11-22T17:36:29Z",
+  "wall_minutes": 17.89,
+  "tokens_in": 4477959,
+  "tokens_out": 22804,
+  "cost_usd": 2.2307,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18285",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py with only 'pytest numpy scipy pypower' returned /usr/bin/python3.13 without clarabel; infra-dcopf needs clarabel/pandapower/scs too, so the first call had to be repeated. A per-project hint (pyenv.py -r pyproject deps) would save one round trip."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-grid-repair-margin-without-round-one.md",
+    "research/infra-dcopf/LOG.md (plan and outcome)",
+    "research/grid-linopf/LOG.md"
+  ],
+  "goal": null,
+  "notes": "grid-linopf drawn by pick_track. Pre-registered rules K1 (no round-1 arming) and Kr (round-1 remainder rescaled by step squared) in LOG before the scored run (commit c5bd1a757). Ran run_kfirst.py dev held (~35 min, 4 procs). K1: development 32 of 34 none lost (first K variant with no loss), held-out 10 of 19, 8 of 10 common finishers sooner (P=0.039) at +0.65 cost points; Kr 31/34, 10/19; F7 adoption not met. Checks: infra-dcopf pytest 98 passed 2 skipped; build.py ok; check_md_links ok; check_posts ok. No new citations, so cite_check not rerun.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "24857e2b-a312-5129-8d23-35ecc04b65fa",
+    "transcripts": 1,
+    "first": "2026-11-22T17:18:43Z",
+    "last": "2026-11-22T17:36:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 22804,
+        "thinking": 3646,
+        "cache_read": 4365223,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112651,
+        "api_equivalent_usd": 2.2307,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 22804,
+      "thinking": 3646,
+      "cache_read": 4365223,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112651,
+      "api_equivalent_usd": 2.2307,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.89,
+      "active_minutes": 17.89,
+      "model_minutes": 4.62,
+      "tool_minutes": 13.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a power-systems researcher implementing two rule variants, pre-registering, running 106 OPF repairs and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 269.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,155 @@
+Rules K1 and Kr: rule K without the unboxed round 1's remainder (research/grid-linopf)
+Plan and predictions F0 to F7: LOG.md 2026-11-22 (committed before this ran).
+
+Arm K1 (skip), development: 34 cases (34 run), 30-round budget
+  case               kind  frozen@  K@  K1@   cost % over AC optimum frozen / K / K1
+  case118_ieee       api     None   29   28          - /   +0.778 /   +0.654  <-
+  case14_ieee        api        3    6    3     +1.127 /   +4.537 /   +1.127
+  case162_ieee_dtc   api       11   12   12     +0.317 /   +0.444 /   +0.335  <-
+  case200_activ      api       10   10    9     +0.130 /   +0.218 /   +0.247  <-
+  case240_pserc      api       17   18   18     +0.052 /   +0.075 /   +0.049  <-
+  case24_ieee_rts    api       10    3    8     +0.711 /   +0.646 /   +0.769  <-
+  case300_ieee       api       12   19   19     +1.017 /   +0.255 /   +0.255  <-
+  case30_ieee        api        7    7    8     +0.337 /   +1.962 /   +1.842  <-
+  case39_epri        api        7    6    7     +0.073 /   +0.087 /   +0.073
+  case57_ieee        api       12   12   12     +0.710 /   +0.609 /   +0.710
+  case73_ieee_rts    api     None None None          - /        - /        -
+  case118_ieee       sad       12   12    9     +0.379 /   +0.278 /   +0.439  <-
+  case14_ieee        sad        2    2    2     +3.845 /   +3.845 /   +3.845
+  case162_ieee_dtc   sad       10    9    8     +0.514 /   +1.243 /   +0.383  <-
+  case179_goc        sad       11    9    9     +0.830 /   +1.042 /   +1.042  <-
+  case200_activ      sad        3    3    3     +0.004 /   +0.004 /   +0.004
+  case240_pserc      sad       20 None   20     +0.374 /        - /   +0.381
+  case24_ieee_rts    sad        6    3    5     +0.208 /   +0.531 /   +0.207  <-
+  case30_ieee        sad        7    3    7     +0.076 /   +1.146 /   +0.076
+  case39_epri        sad        3    3    3     +0.112 /   +0.112 /   +0.112
+  case57_ieee        sad        7    7    7     +0.033 /   +0.033 /   +0.033
+  case73_ieee_rts    sad        8    3    5     +0.182 /   +0.246 /   +0.190  <-
+  case118_ieee       typ       11   13   12     +0.087 /   +0.040 /   +0.043  <-
+  case14_ieee        typ        4    4    4     +0.034 /   +0.034 /   +0.034
+  case162_ieee_dtc   typ        8   10   11     +0.261 /   +0.271 /   +0.235  <-
+  case179_goc        typ       10    7    7     +0.003 /   +0.007 /   +0.007  <-
+  case200_activ      typ        1    1    1     +0.039 /   +0.039 /   +0.039
+  case240_pserc      typ       15   22   15     +0.303 /   +0.260 /   +0.075
+  case24_ieee_rts    typ        2    2    2     +0.158 /   +0.158 /   +0.158
+  case300_ieee       typ     None None None          - /        - /        -
+  case30_ieee        typ        6    6    6     +0.076 /   +0.077 /   +0.076
+  case39_epri        typ        6    6    6     +0.021 /   +0.021 /   +0.021
+  case57_ieee        typ       12   12   12     +0.057 /   +0.057 /   +0.057
+  case73_ieee_rts    typ        6    6    6     +0.040 /   +0.040 /   +0.040
+  gate F0 (rule K never armed on round 1: equals rule K's run): 12 of 12
+  finishers: frozen 31, rule K 31, K1 32 of 34; against frozen gained 1 ['case118_ieee api'], lost 0 [] (sign test P = 1.000)
+  both finish (31): rounds K1 minus frozen median +0.0 (faster 8, slower 6, sign test P = 0.791); cost points mean +0.026, median +0.000, range -0.762 to +1.506
+
+Arm Kr (scale), development: 34 cases (34 run), 30-round budget
+  case               kind  frozen@  K@  Kr@   cost % over AC optimum frozen / K / Kr
+  case118_ieee       api     None   29 None          - /   +0.778 /        -
+  case14_ieee        api        3    6    8     +1.127 /   +4.537 /   +3.205  <-
+  case162_ieee_dtc   api       11   12   11     +0.317 /   +0.444 /   +0.347
+  case200_activ      api       10   10    9     +0.130 /   +0.218 /   +0.251  <-
+  case240_pserc      api       17   18   19     +0.052 /   +0.075 /   +0.048  <-
+  case24_ieee_rts    api       10    3    3     +0.711 /   +0.646 /   +0.646  <-
+  case300_ieee       api       12   19   19     +1.017 /   +0.255 /   +0.255  <-
+  case30_ieee        api        7    7    7     +0.337 /   +1.962 /   +1.962
+  case39_epri        api        7    6    6     +0.073 /   +0.087 /   +0.087  <-
+  case57_ieee        api       12   12   12     +0.710 /   +0.609 /   +0.710
+  case73_ieee_rts    api     None None None          - /        - /        -
+  case118_ieee       sad       12   12    9     +0.379 /   +0.278 /   +0.439  <-
+  case14_ieee        sad        2    2    2     +3.845 /   +3.845 /   +3.845
+  case162_ieee_dtc   sad       10    9    8     +0.514 /   +1.243 /   +0.778  <-
+  case179_goc        sad       11    9    9     +0.830 /   +1.042 /   +1.042  <-
+  case200_activ      sad        3    3    3     +0.004 /   +0.004 /   +0.004
+  case240_pserc      sad       20 None   22     +0.374 /        - /   +0.373  <-
+  case24_ieee_rts    sad        6    3    3     +0.208 /   +0.531 /   +0.227  <-
+  case30_ieee        sad        7    3    3     +0.076 /   +1.146 /   +1.146  <-
+  case39_epri        sad        3    3    3     +0.112 /   +0.112 /   +0.112
+  case57_ieee        sad        7    7    7     +0.033 /   +0.033 /   +0.033
+  case73_ieee_rts    sad        8    3    3     +0.182 /   +0.246 /   +0.193  <-
+  case118_ieee       typ       11   13   14     +0.087 /   +0.040 /   +0.032  <-
+  case14_ieee        typ        4    4    4     +0.034 /   +0.034 /   +0.034
+  case162_ieee_dtc   typ        8   10   10     +0.261 /   +0.271 /   +0.250  <-
+  case179_goc        typ       10    7    7     +0.003 /   +0.007 /   +0.007  <-
+  case200_activ      typ        1    1    1     +0.039 /   +0.039 /   +0.039
+  case240_pserc      typ       15   22   15     +0.303 /   +0.260 /   +0.093
+  case24_ieee_rts    typ        2    2    2     +0.158 /   +0.158 /   +0.158
+  case300_ieee       typ     None None None          - /        - /        -
+  case30_ieee        typ        6    6    6     +0.076 /   +0.077 /   +0.077
+  case39_epri        typ        6    6    6     +0.021 /   +0.021 /   +0.021
+  case57_ieee        typ       12   12   12     +0.057 /   +0.057 /   +0.057
+  case73_ieee_rts    typ        6    6    6     +0.040 /   +0.040 /   +0.040
+  gate F0 (rule K never armed on round 1: equals rule K's run): 12 of 12
+  finishers: frozen 31, rule K 31, Kr 31 of 34; against frozen gained 0 [], lost 0 [] (sign test P = 1.000)
+  both finish (31): rounds Kr minus frozen median +0.0 (faster 10, slower 6, sign test P = 0.454); cost points mean +0.142, median +0.000, range -0.762 to +2.077
+
+Arm K1 (skip), held-out: 19 cases (19 run), 20-round budget
+  case               kind  frozen@  K@  K1@   cost % over AC optimum frozen / K / K1
+  case1354_pegase    api     None None None          - /        - /        -
+  case1888_rte       api       13    8   12     +0.617 /   +1.718 /   +0.608  <-
+  case500_goc        api       14   13   11     +0.805 /   +0.921 /   +2.824  <-
+  case588_sdet       api       19   14   12     +0.868 /   +2.691 /   +3.105  <-
+  case793_goc        api       17   12   13     +0.254 /   +0.334 /   +0.328  <-
+  case1354_pegase    sad     None None None          - /        - /        -
+  case1888_rte       sad     None None None          - /        - /        -
+  case1951_rte       sad       20   20   20     +0.050 /   +0.050 /   +0.050
+  case2000_goc       sad     None None None          - /        - /        -
+  case500_goc        sad     None None None          - /        - /        -
+  case588_sdet       sad     None None None          - /        - /        -
+  case793_goc        sad       16   10   11     +0.865 /   +0.881 /   +1.141  <-
+  case1354_pegase    typ     None None None          - /        - /        -
+  case1888_rte       typ     None None None          - /        - /        -
+  case1951_rte       typ       17   14   14     +0.019 /   +0.426 /   +0.426  <-
+  case2000_goc       typ     None None None          - /        - /        -
+  case500_goc        typ       10   12   12     +0.029 /   +0.035 /   +0.035  <-
+  case588_sdet       typ       20   18   19     +2.124 /   +3.332 /   +3.684  <-
+  case793_goc        typ       17   13   12     +0.140 /   +0.066 /   +0.082  <-
+  gate F0 (rule K never armed on round 1: equals rule K's run): 3 of 3
+  finishers: frozen 10, rule K 10, K1 10 of 19; against frozen gained 0 [], lost 0 [] (sign test P = 1.000)
+  both finish (10): rounds K1 minus frozen median -3.0 (faster 8, slower 1, sign test P = 0.039); cost points mean +0.651, median +0.175, range -0.058 to +2.237
+    stall case1354_pegase typ: clean@None, best point overloads 2, max load 1.1201276184402755
+    stall case1354_pegase api: clean@None, best point overloads 1, max load 1.1662420145473769
+    stall case1354_pegase sad: clean@None, best point overloads 1, max load 1.080714899330122
+    stall case588_sdet sad: clean@None, best point overloads 0, max load 0.9995942075405588
+    stall case500_goc sad: clean@None, best point overloads 0, max load 0.9719605409659796
+
+Arm Kr (scale), held-out: 19 cases (19 run), 20-round budget
+  case               kind  frozen@  K@  Kr@   cost % over AC optimum frozen / K / Kr
+  case1354_pegase    api     None None None          - /        - /        -
+  case1888_rte       api       13    8   14     +0.617 /   +1.718 /   +0.540  <-
+  case500_goc        api       14   13   16     +0.805 /   +0.921 /   +0.605  <-
+  case588_sdet       api       19   14   14     +0.868 /   +2.691 /   +3.115  <-
+  case793_goc        api       17   12   12     +0.254 /   +0.334 /   +0.322  <-
+  case1354_pegase    sad     None None None          - /        - /        -
+  case1888_rte       sad     None None None          - /        - /        -
+  case1951_rte       sad       20   20   20     +0.050 /   +0.050 /   +0.050
+  case2000_goc       sad     None None None          - /        - /        -
+  case500_goc        sad     None None None          - /        - /        -
+  case588_sdet       sad     None None None          - /        - /        -
+  case793_goc        sad       16   10   11     +0.865 /   +0.881 /   +1.956  <-
+  case1354_pegase    typ     None None None          - /        - /        -
+  case1888_rte       typ     None None None          - /        - /        -
+  case1951_rte       typ       17   14   17     +0.019 /   +0.426 /   +0.020
+  case2000_goc       typ     None None None          - /        - /        -
+  case500_goc        typ       10   12   12     +0.029 /   +0.035 /   +0.035  <-
+  case588_sdet       typ       20   18   19     +2.124 /   +3.332 /   +3.682  <-
+  case793_goc        typ       17   13   12     +0.140 /   +0.066 /   +0.088  <-
+  gate F0 (rule K never armed on round 1: equals rule K's run): 3 of 3
+  finishers: frozen 10, rule K 10, Kr 10 of 19; against frozen gained 0 [], lost 0 [] (sign test P = 1.000)
+  both finish (10): rounds Kr minus frozen median -0.5 (faster 5, slower 3, sign test P = 0.727); cost points mean +0.464, median +0.003, range -0.200 to +2.246
+    stall case1354_pegase typ: clean@None, best point overloads 3, max load 1.1038562289951508
+    stall case1354_pegase api: clean@None, best point overloads 1, max load 1.1838763933312686
+    stall case1354_pegase sad: clean@None, best point overloads 2, max load 1.0806352228850948
+    stall case588_sdet sad: clean@None, best point overloads 1, max load 1.000695978787541
+    stall case500_goc sad: clean@None, best point overloads 0, max load 0.9719605409659796
+
+[K1] F1 (development case240 SAD finishes): held (clean@20)
+[K1] F2 (development finishers at least 32 of 34): held (32)
+[K1] F3 (development: no frozen finisher lost): held []
+[K1] F4 (held-out finishers at least 10 of 19, none lost): held (10, lost [])
+[K1] F6 (held-out, both finish: mean cost change below rule K's): refuted (+0.651 against +0.468)
+[K1] F7 (adoption: development loses none, held-out gains more than it loses): not met
+[Kr] F1 (development case240 SAD finishes): held (clean@22)
+[Kr] F2 (development finishers at least 32 of 34): refuted (31)
+[Kr] F3 (development: no frozen finisher lost): held []
+[Kr] F4 (held-out finishers at least 10 of 19, none lost): held (10, lost [])
+[Kr] F6 (held-out, both finish: mean cost change below rule K's): held (+0.464 against +0.468)
+[Kr] F7 (adoption: development loses none, held-out gains more than it loses): not met

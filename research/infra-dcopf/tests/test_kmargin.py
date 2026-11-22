@@ -72,3 +72,17 @@ def test_kmargin_arms_held_rows_that_broke():
         assert e["armed"] >= e["set"] >= 0 and e["r_max"] > 0
         assert any(x["it"] == e["it"] and x.get("n_over", 0) > 0 for x in h)
     assert all("end_load" not in x for x in h)
+
+
+def test_k_first_skip_never_arms_round_one_and_scale_shrinks_it():
+    ppc, pg, vf = _start("case30_ieee", "api")
+    kw = dict(rounds=3, margin=vlin.MARGIN, analytic=True, solver="clarabel", kmargin=0.05)
+    keep, skip, scale = [], [], []
+    vlin.slp(ppc, pg, vf, kinfo=keep, **kw)
+    vlin.slp(ppc, pg, vf, kinfo=skip, k_first="skip", **kw)
+    vlin.slp(ppc, pg, vf, kinfo=scale, k_first="scale", **kw)
+    assert keep and keep[0]["it"] == 1, "rule K arms on case30 API's unboxed round 1"
+    assert all(e["it"] > 1 for e in skip)
+    first = [e for e in scale if e["it"] == 1]
+    # the same round-1 step is checked, so the same rows arm; the stored remainder is never larger
+    assert first and first[0]["armed"] == keep[0]["armed"] and first[0]["r_max"] <= keep[0]["r_max"] + 1e-12
