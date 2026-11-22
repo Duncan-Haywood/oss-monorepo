@@ -59,7 +59,9 @@ export function driftNoise(x, { maxLag = 10 } = {}) {
   // A pure random walk has sigma = 0; keep a small floor so the cost stays finite. The floor
   // (2% of the lag-1 variance) is a numerical guard, not tuned on any scored series.
   const sigma2 = Math.max(a / 2, 0.02 * v[0].v / 2, 1e-12);
-  return { sigma: Math.sqrt(sigma2), omega: Math.sqrt(Math.max(b, 0)), lagVariances: v };
+  // flooredSigma: the lag line's intercept fell below that floor, so sigma is the guard, not an
+  // estimate (README "Why the likelihood's wander absorbs a step").
+  return { sigma: Math.sqrt(sigma2), omega: Math.sqrt(Math.max(b, 0)), lagVariances: v, flooredSigma: a / 2 < 0.02 * v[0].v / 2 };
 }
 
 // The level's steady drift per step: the median first difference, which a few jumps barely move.
