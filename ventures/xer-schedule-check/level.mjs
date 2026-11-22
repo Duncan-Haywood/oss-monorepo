@@ -462,6 +462,8 @@ export function* levelSteps(xer, opts = {}) {
     placed,
     ignored: ignore,
     movedBy: by,
+    xer,
+    durations: durs,
     spansAt: (id, start) => spansOf(model.tasks.get(id), start),
     usesOf: new Map([...assigns].map(([id, list]) => [id, new Set(list.map((a) => a.rsrc))])),
     result: fin,
@@ -483,9 +485,14 @@ export function level(xer, opts = {}) {
 // cut }: cut is true when a floored activity's blocker could not be named
 // (its floor came from a change in the resource's limit, not from another
 // activity's use ending), so the path stops there.
-export function levelledDrivingPath(lr, projId) {
-  const { model, tasks: res } = lr.result;
-  const p = lr.result.projects.get(projId);
+export function levelledDrivingPath(lr, projId, result = null) {
+  // walk a forward-only run with the levelling floors, as cpm.drivingPath is
+  // walked in a plain risk run: the full run's backward pass moves as late as
+  // possible work, which cuts the walk short (the hotel file: 1 activity
+  // against 79 on the same dates)
+  const rr = result || schedule(lr.xer, { model: lr.result.model, durations: lr.durations, levelStart: lr.floors, forwardOnly: true });
+  const { model, tasks: res } = rr;
+  const p = rr.projects.get(projId);
   if (!p || p.finish === null) return { path: [], resourceLinks: 0, cut: false };
   const users = new Map(); // rsrc -> task ids
   for (const [id, set] of lr.usesOf) for (const k of set) (users.get(k) || users.set(k, []).get(k)).push(id);

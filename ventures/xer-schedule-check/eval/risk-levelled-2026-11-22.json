@@ -1,0 +1,498 @@
+[
+ {
+  "file": "example_xer_file.xer",
+  "n": 100,
+  "plainMs": 168,
+  "identityMs": 3681,
+  "identity": {
+   "percentilesEqual": true,
+   "criticalityEqual": 80,
+   "of": 80,
+   "resourceDelayMax": 0,
+   "plainP": [
+    218.3,
+    223,
+    225.3,
+    227
+   ]
+  },
+  "crews": [
+   {
+    "crew": 1,
+    "ms": 5760,
+    "resources": 26,
+    "levelledForecastDays": 240.2,
+    "pLevelledForecast": 0,
+    "levelled": [
+     244.8,
+     251.3,
+     255.1,
+     257.2
+    ],
+    "unlevelled": [
+     218.3,
+     223,
+     225.3,
+     227
+    ],
+    "resourceDelay": {
+     "mean": 28.4,
+     "min": 18.4,
+     "p80": 33.2,
+     "noDelay": 0
+    },
+    "resourceDriven": 1,
+    "pathCut": 0,
+    "leftMax": 16,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "A10550 1",
+     "A10540 1",
+     "A10560 1",
+     "A10570 1",
+     "A10580 1"
+    ]
+   },
+   {
+    "crew": 2,
+    "ms": 4817,
+    "resources": 26,
+    "levelledForecastDays": 240.2,
+    "pLevelledForecast": 0.03,
+    "levelled": [
+     244.6,
+     250.5,
+     253.1,
+     255
+    ],
+    "unlevelled": [
+     218.3,
+     223,
+     225.3,
+     227
+    ],
+    "resourceDelay": {
+     "mean": 27.1,
+     "min": 11.8,
+     "p80": 31,
+     "noDelay": 0
+    },
+    "resourceDriven": 1,
+    "pathCut": 0,
+    "leftMax": 8,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "A10440 1",
+     "A10450 1",
+     "A10460 1",
+     "A10440.1 1",
+     "A10440.2 1"
+    ]
+   },
+   {
+    "crew": 4,
+    "ms": 3967,
+    "resources": 26,
+    "levelledForecastDays": 213,
+    "pLevelledForecast": 0,
+    "levelled": [
+     218.3,
+     223,
+     225.3,
+     227
+    ],
+    "unlevelled": [
+     218.3,
+     223,
+     225.3,
+     227
+    ],
+    "resourceDelay": {
+     "mean": 0.1,
+     "min": 0,
+     "p80": 0,
+     "noDelay": 0.94
+    },
+    "resourceDriven": 0.06,
+    "pathCut": 0,
+    "leftMax": 3,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "A10210 0.83",
+     "A10390 0.83",
+     "A10400 0.83",
+     "A10390-1 0.83",
+     "A10770 0.53"
+    ]
+   }
+  ]
+ },
+ {
+  "file": "sample.xer",
+  "n": 100,
+  "plainMs": 12,
+  "identityMs": 44,
+  "identity": {
+   "percentilesEqual": true,
+   "criticalityEqual": 30,
+   "of": 30,
+   "resourceDelayMax": 0,
+   "plainP": [
+    154.5,
+    157.1,
+    159.1,
+    160.4
+   ]
+  },
+  "crews": [
+   {
+    "crew": 1,
+    "ms": 60,
+    "resources": 0,
+    "levelledForecastDays": 150,
+    "pLevelledForecast": 0,
+    "levelled": [
+     154.5,
+     157.1,
+     159.1,
+     160.4
+    ],
+    "unlevelled": [
+     154.5,
+     157.1,
+     159.1,
+     160.4
+    ],
+    "resourceDelay": {
+     "mean": 0,
+     "min": 0,
+     "p80": 0,
+     "noDelay": 1
+    },
+    "resourceDriven": 0,
+    "pathCut": 0,
+    "leftMax": 0,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "A1010 1",
+     "A1020 1",
+     "A1030 1",
+     "A1040 1",
+     "A1050 1"
+    ]
+   },
+   {
+    "crew": 2,
+    "ms": 67,
+    "resources": 0,
+    "levelledForecastDays": 150,
+    "pLevelledForecast": 0,
+    "levelled": [
+     154.5,
+     157.1,
+     159.1,
+     160.4
+    ],
+    "unlevelled": [
+     154.5,
+     157.1,
+     159.1,
+     160.4
+    ],
+    "resourceDelay": {
+     "mean": 0,
+     "min": 0,
+     "p80": 0,
+     "noDelay": 1
+    },
+    "resourceDriven": 0,
+    "pathCut": 0,
+    "leftMax": 0,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "A1010 1",
+     "A1020 1",
+     "A1030 1",
+     "A1040 1",
+     "A1050 1"
+    ]
+   },
+   {
+    "crew": 4,
+    "ms": 33,
+    "resources": 0,
+    "levelledForecastDays": 150,
+    "pLevelledForecast": 0,
+    "levelled": [
+     154.5,
+     157.1,
+     159.1,
+     160.4
+    ],
+    "unlevelled": [
+     154.5,
+     157.1,
+     159.1,
+     160.4
+    ],
+    "resourceDelay": {
+     "mean": 0,
+     "min": 0,
+     "p80": 0,
+     "noDelay": 1
+    },
+    "resourceDriven": 0,
+    "pathCut": 0,
+    "leftMax": 0,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "A1010 1",
+     "A1020 1",
+     "A1030 1",
+     "A1040 1",
+     "A1050 1"
+    ]
+   }
+  ]
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "n": 100,
+  "plainMs": 28,
+  "identityMs": 145,
+  "identity": {
+   "percentilesEqual": true,
+   "criticalityEqual": 46,
+   "of": 46,
+   "resourceDelayMax": 0,
+   "plainP": [
+    314.2,
+    320.3,
+    324,
+    327.1
+   ]
+  },
+  "crews": [
+   {
+    "crew": 1,
+    "ms": 128,
+    "resources": 0,
+    "levelledForecastDays": 303,
+    "pLevelledForecast": 0,
+    "levelled": [
+     314.2,
+     320.3,
+     324,
+     327.1
+    ],
+    "unlevelled": [
+     314.2,
+     320.3,
+     324,
+     327.1
+    ],
+    "resourceDelay": {
+     "mean": 0,
+     "min": 0,
+     "p80": 0,
+     "noDelay": 1
+    },
+    "resourceDriven": 0,
+    "pathCut": 0,
+    "leftMax": 0,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "BA-P1-10 1",
+     "BA-P2-10 0.49",
+     "BA-P4-10 0.49",
+     "BA-P4-20 0.49",
+     "BA-P4-30 0.49"
+    ]
+   },
+   {
+    "crew": 2,
+    "ms": 151,
+    "resources": 0,
+    "levelledForecastDays": 303,
+    "pLevelledForecast": 0,
+    "levelled": [
+     314.2,
+     320.3,
+     324,
+     327.1
+    ],
+    "unlevelled": [
+     314.2,
+     320.3,
+     324,
+     327.1
+    ],
+    "resourceDelay": {
+     "mean": 0,
+     "min": 0,
+     "p80": 0,
+     "noDelay": 1
+    },
+    "resourceDriven": 0,
+    "pathCut": 0,
+    "leftMax": 0,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "BA-P1-10 1",
+     "BA-P2-10 0.49",
+     "BA-P4-10 0.49",
+     "BA-P4-20 0.49",
+     "BA-P4-30 0.49"
+    ]
+   },
+   {
+    "crew": 4,
+    "ms": 101,
+    "resources": 0,
+    "levelledForecastDays": 303,
+    "pLevelledForecast": 0,
+    "levelled": [
+     314.2,
+     320.3,
+     324,
+     327.1
+    ],
+    "unlevelled": [
+     314.2,
+     320.3,
+     324,
+     327.1
+    ],
+    "resourceDelay": {
+     "mean": 0,
+     "min": 0,
+     "p80": 0,
+     "noDelay": 1
+    },
+    "resourceDriven": 0,
+    "pathCut": 0,
+    "leftMax": 0,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "BA-P1-10 1",
+     "BA-P2-10 0.49",
+     "BA-P4-10 0.49",
+     "BA-P4-20 0.49",
+     "BA-P4-30 0.49"
+    ]
+   }
+  ]
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "n": 40,
+  "plainMs": 230,
+  "identityMs": 87713,
+  "identity": {
+   "percentilesEqual": true,
+   "criticalityEqual": 25,
+   "of": 25,
+   "resourceDelayMax": 0,
+   "plainP": [
+    1343.5,
+    1379.3,
+    1399.2,
+    1406.2
+   ]
+  },
+  "crews": [
+   {
+    "crew": 4,
+    "ms": 186980,
+    "resources": 322,
+    "levelledForecastDays": 6201.4,
+    "pLevelledForecast": 0.125,
+    "levelled": [
+     6154.7,
+     6351.7,
+     7699.3,
+     11359.6
+    ],
+    "unlevelled": [
+     1343.5,
+     1379.3,
+     1399.2,
+     1406.2
+    ],
+    "resourceDelay": {
+     "mean": 5886.1,
+     "min": 4061.4,
+     "p80": 6273.9,
+     "noDelay": 0
+    },
+    "resourceDriven": 0.9,
+    "pathCut": 0.175,
+    "leftMax": 409,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "BEW/CL/GEN/1010 0.925",
+     "BEW/ST/PL/2030 0.85",
+     "BEW/ST/PL/2050 0.85",
+     "BEW/ST/PL/2090 0.825",
+     "BEW/ST/PL/2130 0.825"
+    ]
+   }
+  ]
+ },
+ {
+  "file": "hotel-project.xer",
+  "n": 40,
+  "plainMs": 918,
+  "identityMs": 8637,
+  "identity": {
+   "percentilesEqual": true,
+   "criticalityEqual": 0,
+   "of": 498,
+   "resourceDelayMax": 0,
+   "plainP": [
+    702,
+    719.2,
+    729.8,
+    732.9
+   ]
+  },
+  "crews": [
+   {
+    "crew": 4,
+    "ms": 582267,
+    "resources": 6,
+    "levelledForecastDays": 959,
+    "pLevelledForecast": 0,
+    "levelled": [
+     982.6,
+     995.7,
+     1005.3,
+     1011.3
+    ],
+    "unlevelled": [
+     702,
+     719.2,
+     729.8,
+     732.9
+    ],
+    "resourceDelay": {
+     "mean": 277.4,
+     "min": 250.6,
+     "p80": 285.6,
+     "noDelay": 0
+    },
+    "resourceDriven": 0.15,
+    "pathCut": 0,
+    "leftMax": 40,
+    "selfCheckMax": 0,
+    "topCritical": [
+     "H0000 0.15",
+     "H0010 0.15",
+     "HHAWAFAZ0010 0.15",
+     "HHAWAFAZ0020 0.15",
+     "HCSWSSZ1000 0.1"
+    ]
+   }
+  ]
+ }
+]
