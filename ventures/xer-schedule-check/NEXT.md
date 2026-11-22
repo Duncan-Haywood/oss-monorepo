@@ -29,9 +29,11 @@
 - (2026-11-21) Doubled quotes: read as one reader-wide and written back doubled
   shipped 2026-11-21 (eval/quotes-2026-11-21.md). Still open: a P6 Web export
   with a quote in a single-line value, to see whether P6 Web doubles it too.
-- (2026-11-21) Project XML out: 4 in-progress CCA activities differ in late
-  dates only after the round trip (eval/msproject-check-2026-11-21.md); Resume
-  and at-completion duration ruled out. Activity codes as Text2..Text30
+- (2026-11-21) Project XML out: the 4 in-progress CCA late dates traced
+  2026-11-22 (eval/msproject-latedates-2026-11-22.md: P6 rolls a
+  zero-duration activity's late start up from a running assignment, Project
+  does not; 19,822/19,822, converter warns). Still open there: a P6 Resource
+  Usage export of such an activity. Activity codes as Text2..Text30
   shipped 2026-11-21 (eval/msproject-codes-2026-11-21.md). Activity UDFs
   as Number/Cost/Date/Text fields shipped 2026-11-21
   (eval/msproject-udfs-2026-11-21.md; P6 has no yes/no UDF, so no Flag

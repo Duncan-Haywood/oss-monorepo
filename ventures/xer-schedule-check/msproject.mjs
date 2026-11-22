@@ -720,6 +720,22 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   if (counts.external) warnings.push(`${counts.external} activit${counts.external === 1 ? "y has" : "ies have"} external dates from links to projects not in the file: the external early start is written as a start-no-earlier-than constraint (where the activity has no constraint of its own) and the external late finish as a deadline`);
   if (crossProject) warnings.push(`${crossProject} relationship(s) to activities in other projects left out`);
   if (parseDate(proj.plan_end_date) !== null) warnings.push(`the must-finish-by date (${proj.plan_end_date}) is not carried: Project scheduled from the start has none; add it as a deadline on the finish milestone if you need it`);
+  // P6 (cpm.mjs, bwRsrcRemain) rolls an assignment's late dates up to its
+  // activity: a started activity with no remaining duration whose labour row
+  // still runs from restart to reend gets a late start that much before its
+  // late finish. Project keeps an assignment inside its task's dates and has
+  // no such rule, so those late starts (and the float of what precedes them)
+  // move later in Project: the 4 CCA activities in
+  // eval/msproject-check-2026-11-21.md, traced 2026-11-22.
+  const rollUp = new Set(), byId = new Map(tasks.map((t) => [t.task_id, t]));
+  for (const a of assigns) {
+    const t = byId.get(a.task_id);
+    if (!t || t.status_code !== "TK_Active" || (num(t.remain_drtn_hr_cnt) ?? 0) !== 0 || t.task_type === "TT_LOE" || t.task_type === "TT_WBS") continue;
+    const rs = parseDate(a.restart_date), re = parseDate(a.reend_date);
+    if (rs !== null && re !== null && re > rs) rollUp.add(t.task_id);
+  }
+  counts.rsrcRollUp = rollUp.size;
+  if (rollUp.size) warnings.push(`${rollUp.size} started activit${rollUp.size === 1 ? "y has" : "ies have"} no remaining duration but an assignment still running past the data date (restart to reend): P6 sets ${rollUp.size === 1 ? "its" : "their"} late start that much before the late finish, Project has no such rule, so ${rollUp.size === 1 ? "its" : "their"} late start and the total float of ${rollUp.size === 1 ? "its" : "their"} predecessors can come out later in Project (${[...rollUp].slice(0, 5).map((id) => byId.get(id).task_code).join(", ")}${rollUp.size > 5 ? ` and ${rollUp.size - 5} more` : ""})`);
   if (unknownRsrc) warnings.push(`${unknownRsrc} assignment(s) name a resource the file does not list and were left out`);
   const notCarried = [];
   counts.codeTypes = codeFields.fields.length;
