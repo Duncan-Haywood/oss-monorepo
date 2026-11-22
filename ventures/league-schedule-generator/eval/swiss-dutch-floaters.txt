@@ -1,0 +1,39 @@
+# node eval/swiss-vs-published.mjs <fixtures> --pairing bracket, gbtami/swisspairing 193ad99, after Dutch-order downfloaters (2026-11-22; before: eval/swiss-bracketed-names.txt)
+
+
+== condition: open
+aeroflot_open_2026                                   rounds   9 (err 0)  exact   3  board recall 0.825 (610/739)  rounds 2+: recall 0.803, colour 0.504
+budapest_spring_festival_2026_group_a_2200           rounds   9 (err 0)  exact   1  board recall 0.788 (356/452)  rounds 2+: recall 0.760, colour 0.516
+budapest_spring_festival_2026_group_b_2250           rounds   9 (err 0)  exact   0  board recall 0.608 (211/347)  rounds 2+: recall 0.629, colour 0.508
+international_chessopen_graz_2026_a                  rounds   9 (err 0)  exact   0  board recall 0.622 (753/1210)  rounds 2+: recall 0.700, colour 0.525
+prague_international_chess_festival_2026_d           rounds   9 (err 0)  exact   0  board recall 0.676 (1055/1560)  rounds 2+: recall 0.749, colour 0.516
+spring_2026_chesshouse                               rounds   9 (err 0)  exact   1  board recall 0.785 (608/775)  rounds 2+: recall 0.869, colour 0.480
+2026.02.14_cY3wR140_weekly-agca-prize-50-dollars     rounds  13 (err 0)  exact   0  board recall 0.482 (298/618)  rounds 2+: recall 0.531, colour 0.993
+2026.02.28_KQYWuizM_weekly-agca-prize-50-dollars     rounds  11 (err 0)  exact   0  board recall 0.598 (268/448)  rounds 2+: recall 0.672, colour 0.977
+2026.03.03_7TYuxURK_bullet-increment                 rounds  14 (err 0)  exact   8  board recall 0.871 (101/116)  rounds 2+: recall 0.888, colour 0.989
+ALL chess-results                                    rounds  54 (err 0)  exact   5  board recall 0.707 (3593/5083)  rounds 2+: recall 0.756, colour 0.509
+ALL lichess                                          rounds  38 (err 0)  exact   8  board recall 0.564 (667/1182)  rounds 2+: recall 0.620, colour 0.986
+
+== condition: played
+aeroflot_open_2026                                   rounds   9 (err 0)  exact   5  board recall 0.969 (716/739)  rounds 2+: recall 0.965, colour 0.506
+budapest_spring_festival_2026_group_a_2200           rounds   9 (err 0)  exact   3  board recall 0.914 (413/452)  rounds 2+: recall 0.902, colour 0.512
+budapest_spring_festival_2026_group_b_2250           rounds   9 (err 0)  exact   5  board recall 0.893 (310/347)  rounds 2+: recall 0.951, colour 0.503
+international_chessopen_graz_2026_a                  rounds   9 (err 0)  exact   2  board recall 0.830 (1004/1210)  rounds 2+: recall 0.931, colour 0.510
+prague_international_chess_festival_2026_d           rounds   9 (err 0)  exact   4  board recall 0.983 (1533/1560)  rounds 2+: recall 0.980, colour 0.510
+spring_2026_chesshouse                               rounds   9 (err 0)  exact   6  board recall 0.988 (766/775)  rounds 2+: recall 0.987, colour 0.486
+2026.02.14_cY3wR140_weekly-agca-prize-50-dollars     rounds  13 (err 0)  exact   0  board recall 0.482 (298/618)  rounds 2+: recall 0.531, colour 0.993
+2026.02.28_KQYWuizM_weekly-agca-prize-50-dollars     rounds  11 (err 0)  exact   0  board recall 0.598 (268/448)  rounds 2+: recall 0.672, colour 0.977
+2026.03.03_7TYuxURK_bullet-increment                 rounds  14 (err 0)  exact   8  board recall 0.871 (101/116)  rounds 2+: recall 0.888, colour 0.989
+ALL chess-results                                    rounds  54 (err 0)  exact  25  board recall 0.933 (4742/5083)  rounds 2+: recall 0.959, colour 0.505
+ALL lichess                                          rounds  38 (err 0)  exact   8  board recall 0.564 (667/1182)  rounds 2+: recall 0.620, colour 0.986
+
+== per round, condition played (exact? recall)
+aeroflot_open_2026                           =1.00 =1.00 =1.00 =1.00 =1.00 x0.93 x0.93 x0.94 x0.92
+budapest_spring_festival_2026_group_a_2200   =1.00 x0.92 =1.00 x0.94 x0.80 x0.92 =1.00 x0.84 x0.79
+budapest_spring_festival_2026_group_b_2250   x0.45 =1.00 =1.00 =1.00 =1.00 =1.00 x0.92 x0.89 x0.78
+international_chessopen_graz_2026_a          x0.03 x0.98 =1.00 x0.71 x0.98 x0.95 =1.00 x0.92 x0.91
+prague_international_chess_festival_2026_d   =1.00 x0.98 =1.00 =1.00 x0.99 x0.96 =1.00 x0.96 x0.96
+spring_2026_chesshouse                       =1.00 x0.97 =1.00 =1.00 =1.00 x0.97 x0.97 =1.00 =1.00
+2026.02.14_cY3wR140_weekly-agca-prize-50-dol x0.12 x0.39 x0.32 x0.37 x0.42 x0.56 x0.48 x0.64 x0.71 x0.86 x0.63 x0.74 x0.85
+2026.02.28_KQYWuizM_weekly-agca-prize-50-dol x0.16 x0.37 x0.36 x0.62 x0.65 x0.81 x0.74 x0.86 x0.90 x0.86 x0.88
+2026.03.03_7TYuxURK_bullet-increment         x0.67 x0.83 =1.00 =1.00 =1.00 x0.75 =1.00 =1.00 =1.00 x0.71 =1.00 x0.67 x0.33 =1.00

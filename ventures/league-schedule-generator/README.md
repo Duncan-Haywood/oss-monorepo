@@ -754,7 +754,7 @@ MIT licence, see `LICENSE`.
 
 **Play-off race.** With results typed and a play-off size set, the page lists who has clinched a place, who is out, and how many more points clinch it for everyone still alive. With 12 or fewer games left it works through every win/draw/loss outcome (`playoffRace` in `calc.mjs`, cross-checked against brute force in the tests); with more it uses safe bounds that never call a team clinched or out wrongly. Ranked on points only, with ties on points counted against the team, so goal difference can only help a team shown as alive.
 
-**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Since 2026-11-21 (later) score brackets are paired one at a time from the top, as the Dutch system does: see "Bracket-by-bracket Dutch pairing" below. Not FIDE-endorsed pairing: it follows the Dutch system's procedure closely but not exactly; replayed against six real events it reproduces 94.8% of the published later-round boards (59.5% for the whole-round matching it replaced; 89.3% before a bracketed-name fix, eval/swiss-bracketed-names.txt), so use an arbiter-approved program for rated events.
+**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Since 2026-11-21 (later) score brackets are paired one at a time from the top, as the Dutch system does: see "Bracket-by-bracket Dutch pairing" below. Not FIDE-endorsed pairing: it follows the Dutch system's procedure closely but not exactly; replayed against six real events it reproduces 95.9% of the published later-round boards (59.5% for the whole-round matching it replaced; 94.8% before the 2026-11-22 Dutch-order downfloaters, eval/swiss-dutch-floaters.txt), so use an arbiter-approved program for rated events.
 
 **Calendar for multi-division leagues (2026-10-29).** `multi-division-league-schedule.html` gains "Download calendar (.ics)", and `divisionsIcs(schedule, { division, team, stamp, minutes })` in `divisions.mjs` writes one event per match for the whole league, one division or one team (summary, court and venue, division and round, official if assigned; floating local times, 60-minute games unless `minutes` is set). Test: every match appears once, per-division and per-team counts match, UIDs are unique, no line is over 75 bytes, and a 90-minute game ends where it should (`divisions.test.mjs`).
 
@@ -5665,6 +5665,65 @@ later-round recall 89.1% to 89.3%, no round worse (Budapest B round 7 74% to 84%
 of the remaining gap is elsewhere (NEXT.md). FIDE's colour-criteria order (C.12 before C.13) was
 also tried and changed no board. Measurements: `eval/swiss-exchange-order.md`.
 
+
+## Who floats down, chosen in Dutch order (2026-11-22)
+
+A new diagnostic, `eval/swiss-miss-brackets.mjs`, finds the highest score bracket where each missed
+round first differs from the published one and asks whether the two pairings already disagree on
+who floats down out of it. Before this change, of the 48 later rounds on the six chess-results
+events, 33 had a differing board; in 12 the first difference was **who floats**, in 21 only who meets
+whom. Reading those 12 brackets by hand gave three causes, each now fixed in `bracketMate`:
+
+1. **The floater's colour in the next bracket counted.** Stage A gave a cross-bracket board its
+   colour fit and its partner's up-float history, so a player floated because they would get their
+   colour against someone a bracket down. FIDE C.7 judges the downfloaters only by the pairs and
+   score differences they leave the next bracket; their colours are the next bracket's business.
+   Graz round 9: three players on 7 points, all due white; the arbiters paired 7-11 and floated 21,
+   the pairer floated 11 because 11 suited 10 (on 6.5) better.
+2. **The remainder was assumed to be the residents after the first M1.** When a moved-down player
+   could not take the first resident (a rematch), the coarse Dutch order judged the remainder's
+   S1/S2 split on the wrong players. Stage A now runs a second time with the remainder its MDP
+   boards actually leave (Aeroflot round 8, 5.5 points).
+3. **A coarse order picked the floaters.** In the rules, who floats out of a homogeneous remainder
+   falls out of the first candidate in Dutch order that reaches the best value: S1 takes the
+   earliest S2 players it can, and whoever is left in S2 floats; if no candidate without an exchange
+   reaches that value, exchanges are tried in article 4.3 order first. `dutchFloaters` replays
+   exactly that over the remainder plus stage A's floaters, with floating priced by the player's own
+   repeat-downfloat criteria (C.14, C.16) and an S1 player floating or pairing inside S1 counted as an
+   exchange. The new choice is kept only if stage A, with those players barred from the bracket,
+   still reaches the same value on C.4 to C.7 (the round completes, as many pairs, the same score
+   differences and next-bracket pairs); otherwise stage A's stands. Chesshouse round 9, 6 points:
+   the only candidates at the best value need one exchange, S1' = {6, 13}, and S2' = {12, 17, 25} in
+   order gives 6-12, 13-25, 17 down, as published; a greedy without the exchange order floated 12.
+
+Replayed (`node eval/swiss-vs-published.mjs <fixtures> --pairing bracket`, condition `played`,
+step by step):
+
+| | chess-results boards | later rounds | exact rounds | lichess boards |
+|---|---|---|---|---|
+| before (main, eval/swiss-bracketed-names.txt) | 4,694 / 5,083 | 94.8% | 19 / 54 | 640 / 1,182 |
+| 1. next-bracket colours out of the floater choice | 4,705 | 95.0% | 20 | 653 |
+| 2. + the remainder the MDPs leave | 4,703 | 95.0% | 21 | 658 |
+| 3. + Dutch-order floaters, fewest exchanges only | 4,740 | 95.8% | 24 | 661 |
+| 3. + exchanges in article 4.3 order (shipped) | **4,742** | **95.9%** | **25** | **667** |
+
+The `open` condition (the pairer also chooses who sits out) moves from 3,564 to 3,593 boards. No
+event got worse: Chesshouse 97.5% to 98.7% later-round recall, Budapest B 92.5% to 95.1%, Graz 91.7%
+to 93.1%, Prague 97.3% to 98.0%; the lichess events (bbpPairings) gain 2 to 5 points each. The
+diagnostic after the change (`eval/swiss-miss-brackets.txt`): 27 rounds differ, the first difference
+is who floats in 2 and only who meets whom in 25, so the gap left is mostly stage B (which S1
+player meets which S2 player inside a bracket that floats the right people). Tests: two brackets
+from the replay as unit cases in `swiss.test.mjs` (`dutchFloaters`), the second fails without the
+exchange order. Brackets over 160 players keep stage A's floaters (one matching per player).
+Measurements: `eval/swiss-dutch-floaters.txt`.
+
+The cost, on the 440 simulated events (`eval/swiss-repeat-floats.mjs 40`,
+`eval/swiss-dutch-floaters-sim.txt` against `eval/swiss-exchange-sim.txt`, rule on): every event still
+pairs and no board breaks an absolute colour claim, but repeat downfloats rise 2,120 to 2,162,
+repeat upfloats 1,699 to 1,752 and strong-colour boards 6,454 to 6,590 (mild 8,222 to 8,163). That is
+the price of no longer letting a floater's partner and colours in the next bracket steer the choice,
+which the Dutch rules do not do; the real events, which is what the rules are judged on, all
+improved.
 
 ## Players told apart by "(id)" kept their own results (2026-11-21, later)
 
