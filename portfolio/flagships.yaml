@@ -535,10 +535,9 @@ flagships:
       eval/member-lengths-2026-11-22.md; Tekla's cut members by a face-flush box
       2026-11-22, 147 more, 147 within 0.1%, eval/tekla-cut-members-2026-11-22.md;
       slab Width/Perimeter 2026-11-22, 396/396, 375/377; door/window sizes
-      2026-11-22, ARCHICAD 377/380 and Revit 796/800 exact,
-      eval/door-window-quantities-2026-11-22.md,
-      eval/revit-door-window-quantities-2026-11-22.md; next: a Revit Perimeter);
-      next: a BIM manager's filled table. HTML report
+      2026-11-22, ARCHICAD 377/380, Revit 796/800; space Qto_ 2026-11-22, 528/530
+      floor areas, 445/446 heights, eval/space-quantities-2026-11-22.md; next: a
+      Revit Perimeter); next: a BIM manager's filled table. HTML report
       (eval/html-report-2026-11-21.md): next, a consultant's read. ifcJSON read
       2026-11-21 (ifcjson.mjs, eval/ifcjson-twins-2026-11-21.md: 97 twins, starter
       verdicts 291 of 291; with 65 public IDS 6,552 of 6,596, the rest converter

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Spaces carry their base quantities (geometry fill check)</title>
+    <description>Every IfcSpace carries the Qto_SpaceBaseQuantities a room schedule, a finishes takeoff or an FM handover reads: floor area, perimeter, heights, ceiling area and volume. Written for eval/space-quantities-2026-11-22.md; MIT.</description>
+  </info>
+  <specifications>
+    <specification name="Spaces carry a gross floor area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_SpaceBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossFloorArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Spaces carry a net floor area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_SpaceBaseQuantities</simpleValue></propertySet><baseName><simpleValue>NetFloorArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Spaces carry a gross perimeter" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_SpaceBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossPerimeter</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Spaces carry a height" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_SpaceBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Height</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Spaces carry a finished ceiling height" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_SpaceBaseQuantities</simpleValue></propertySet><baseName><simpleValue>FinishCeilingHeight</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Spaces carry a gross ceiling area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_SpaceBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossCeilingArea</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Spaces carry a gross volume" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCVOLUMEMEASURE"><propertySet><simpleValue>Qto_SpaceBaseQuantities</simpleValue></propertySet><baseName><simpleValue>GrossVolume</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Spaces carry a net volume" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCVOLUMEMEASURE"><propertySet><simpleValue>Qto_SpaceBaseQuantities</simpleValue></propertySet><baseName><simpleValue>NetVolume</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>

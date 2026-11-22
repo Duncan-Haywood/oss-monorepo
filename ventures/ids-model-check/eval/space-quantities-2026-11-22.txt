@@ -1,0 +1,121 @@
+
+ISSUE_068_ARK_NUS_skolebygg.ifc: 307 spaces; 2238 written from geometry (2238 in all), verified 2238 of 2238 pass; 218 left to the to-fill table; 26.581 s
+  GrossFloorArea: 306 written, 306 with a stored figure, 304 within 2%; misses #16527 x0.6036, #43208 x0.2353
+  NetFloorArea: 306 written, 306 with a stored figure, 304 within 2%; misses #16527 x0.6036, #43208 x0.2353
+  GrossPerimeter: 306 written, 246 with a stored figure, 243 within 2%; misses #6367 x1.1938, #7306 x1.1937, #35607 x1.0587
+  Height: 227 written, 227 with a stored figure, 226 within 2%; misses #31188 x0.6849
+  FinishCeilingHeight: 280 written, 0 with a stored figure, 0 within 2%
+  GrossCeilingArea: 280 written, 0 with a stored figure, 0 within 2%
+  GrossVolume: 227 written, 227 with a stored figure, 0 within 2%, 218 the stored figure a power of ten off (an exporter's unit slip); misses #5159 x0.001, #9635 x0.001, #16180 x0.001, #16527 x0.0006 ...
+  NetVolume: 306 written, 0 with a stored figure, 0 within 2%
+
+schependomlaan.ifc: 100 spaces; 512 written from geometry (512 in all), verified 512 of 512 pass; 288 left to the to-fill table; 5.31 s
+  GrossFloorArea: 100 written, 100 with a stored figure, 100 within 2%
+  GrossPerimeter: 100 written, 100 with a stored figure, 100 within 2%
+  Height: 100 written, 100 with a stored figure, 100 within 2%
+  FinishCeilingHeight: 100 written, 100 with a stored figure, 100 within 2%
+  GrossCeilingArea: 100 written, 100 with a stored figure, 100 within 2%
+  GrossVolume: 6 written, 6 with a stored figure, 6 within 2%
+  NetVolume: 6 written, 6 with a stored figure, 6 within 2%
+
+C20-Institute-Var-2.ifc: 82 spaces; 562 written from geometry (562 in all), verified 562 of 562 pass; 94 left to the to-fill table; 1.054 s
+  GrossFloorArea: 82 written, 82 with a stored figure, 82 within 2%
+  GrossPerimeter: 82 written, 82 with a stored figure, 82 within 2%
+  Height: 79 written, 79 with a stored figure, 79 within 2%
+  FinishCeilingHeight: 79 written, 79 with a stored figure, 79 within 2%
+  GrossCeilingArea: 79 written, 79 with a stored figure, 79 within 2%
+  GrossVolume: 79 written, 79 with a stored figure, 79 within 2%
+  NetVolume: 82 written, 82 with a stored figure, 82 within 2%
+
+ISSUE_159_kleine_Wohnung_R22.ifc: 28 spaces; 224 written from geometry (224 in all), verified 224 of 224 pass; 0 left to the to-fill table; 6.75 s
+  GrossFloorArea: 28 written, 28 with a stored figure, 28 within 2%
+  NetFloorArea: 28 written, 28 with a stored figure, 28 within 2%
+  GrossPerimeter: 28 written, 28 with a stored figure, 28 within 2%
+  Height: 28 written, 28 with a stored figure, 28 within 2%
+  FinishCeilingHeight: 28 written, 0 with a stored figure, 0 within 2%
+  GrossCeilingArea: 28 written, 0 with a stored figure, 0 within 2%
+  GrossVolume: 28 written, 28 with a stored figure, 28 within 2%
+  NetVolume: 28 written, 0 with a stored figure, 0 within 2%
+
+AC20-FZK-Haus.ifc: 7 spaces; 45 written from geometry (45 in all), verified 45 of 45 pass; 11 left to the to-fill table; 0.297 s
+  GrossFloorArea: 7 written, 7 with a stored figure, 7 within 2%
+  GrossPerimeter: 7 written, 7 with a stored figure, 7 within 2%
+  Height: 6 written, 6 with a stored figure, 6 within 2%
+  FinishCeilingHeight: 6 written, 6 with a stored figure, 6 within 2%
+  GrossCeilingArea: 6 written, 6 with a stored figure, 6 within 2%
+  GrossVolume: 6 written, 6 with a stored figure, 6 within 2%
+  NetVolume: 7 written, 7 with a stored figure, 7 within 2%
+
+ISSUE_005_haus.ifc: 7 spaces; 45 written from geometry (45 in all), verified 45 of 45 pass; 11 left to the to-fill table; 0.287 s
+  GrossFloorArea: 7 written, 7 with a stored figure, 7 within 2%
+  GrossPerimeter: 7 written, 7 with a stored figure, 7 within 2%
+  Height: 6 written, 6 with a stored figure, 6 within 2%
+  FinishCeilingHeight: 6 written, 6 with a stored figure, 6 within 2%
+  GrossCeilingArea: 6 written, 6 with a stored figure, 6 within 2%
+  GrossVolume: 6 written, 6 with a stored figure, 6 within 2%
+  NetVolume: 7 written, 7 with a stored figure, 7 within 2%
+
+ISSUE_034_HouseZ.ifc: 5 spaces; 35 written from geometry (35 in all), verified 35 of 35 pass; 5 left to the to-fill table; 0.87 s
+  GrossFloorArea: 5 written, 0 with a stored figure, 0 within 2%
+  GrossPerimeter: 5 written, 0 with a stored figure, 0 within 2%
+  Height: 5 written, 0 with a stored figure, 0 within 2%
+  FinishCeilingHeight: 5 written, 0 with a stored figure, 0 within 2%
+  GrossCeilingArea: 5 written, 0 with a stored figure, 0 within 2%
+  GrossVolume: 5 written, 0 with a stored figure, 0 within 2%
+  NetVolume: 5 written, 5 with a stored figure, 0 within 2%, 5 the stored figure a power of ten off (an exporter's unit slip)
+
+dental_clinic.ifc: 269 spaces; 2136 written from geometry (2136 in all), verified 2136 of 2136 pass; 16 left to the to-fill table; 2.735 s
+  GrossFloorArea: 269 written, 0 with a stored figure, 0 within 2%
+  NetFloorArea: 269 written, 0 with a stored figure, 0 within 2%
+  GrossPerimeter: 269 written, 0 with a stored figure, 0 within 2%
+  Height: 261 written, 0 with a stored figure, 0 within 2%
+  FinishCeilingHeight: 269 written, 0 with a stored figure, 0 within 2%
+  GrossCeilingArea: 269 written, 0 with a stored figure, 0 within 2%
+  GrossVolume: 261 written, 0 with a stored figure, 0 within 2%
+  NetVolume: 269 written, 0 with a stored figure, 0 within 2%
+
+Office_A_20110811.ifc: 99 spaces; 598 written from geometry (598 in all), verified 598 of 598 pass; 194 left to the to-fill table; 0.817 s
+  GrossFloorArea: 99 written, 0 with a stored figure, 0 within 2%
+  NetFloorArea: 99 written, 0 with a stored figure, 0 within 2%
+  GrossPerimeter: 99 written, 0 with a stored figure, 0 within 2%
+  Height: 2 written, 0 with a stored figure, 0 within 2%
+  FinishCeilingHeight: 99 written, 0 with a stored figure, 0 within 2%
+  GrossCeilingArea: 99 written, 0 with a stored figure, 0 within 2%
+  GrossVolume: 2 written, 0 with a stored figure, 0 within 2%
+  NetVolume: 99 written, 0 with a stored figure, 0 within 2%
+
+duplex.ifc: 21 spaces; 120 written from geometry (120 in all), verified 120 of 120 pass; 48 left to the to-fill table; 0.49 s
+  GrossFloorArea: 21 written, 0 with a stored figure, 0 within 2%
+  NetFloorArea: 21 written, 0 with a stored figure, 0 within 2%
+  GrossPerimeter: 21 written, 0 with a stored figure, 0 within 2%
+  Height: 1 written, 0 with a stored figure, 0 within 2%
+  FinishCeilingHeight: 17 written, 0 with a stored figure, 0 within 2%
+  GrossCeilingArea: 17 written, 0 with a stored figure, 0 within 2%
+  GrossVolume: 1 written, 0 with a stored figure, 0 within 2%
+  NetVolume: 21 written, 0 with a stored figure, 0 within 2%
+
+FM_ARC_DigitalHub.ifc: 64 spaces; 412 written from geometry (412 in all), verified 412 of 412 pass; 100 left to the to-fill table; 14.662 s
+  GrossFloorArea: 64 written, 0 with a stored figure, 0 within 2%
+  NetFloorArea: 64 written, 0 with a stored figure, 0 within 2%
+  GrossPerimeter: 64 written, 0 with a stored figure, 0 within 2%
+  Height: 17 written, 0 with a stored figure, 0 within 2%
+  FinishCeilingHeight: 61 written, 0 with a stored figure, 0 within 2%
+  GrossCeilingArea: 61 written, 0 with a stored figure, 0 within 2%
+  GrossVolume: 17 written, 0 with a stored figure, 0 within 2%
+  NetVolume: 64 written, 0 with a stored figure, 0 within 2%
+
+example.ifc: 1 spaces; 4 written from geometry (4 in all), verified 4 of 4 pass; 4 left to the to-fill table; 0.36 s
+  GrossFloorArea: 1 written, 0 with a stored figure, 0 within 2%
+  NetFloorArea: 1 written, 0 with a stored figure, 0 within 2%
+  GrossPerimeter: 1 written, 0 with a stored figure, 0 within 2%
+  NetVolume: 1 written, 0 with a stored figure, 0 within 2%
+
+All models:
+  GrossFloorArea: 989 written, 530 with a stored figure, 528 within 2%, 0 unit slips, 2 other misses
+  NetFloorArea: 788 written, 334 with a stored figure, 332 within 2%, 0 unit slips, 2 other misses
+  GrossPerimeter: 989 written, 470 with a stored figure, 467 within 2%, 0 unit slips, 3 other misses
+  Height: 732 written, 446 with a stored figure, 445 within 2%, 0 unit slips, 1 other misses
+  FinishCeilingHeight: 950 written, 191 with a stored figure, 191 within 2%, 0 unit slips, 0 other misses
+  GrossCeilingArea: 950 written, 191 with a stored figure, 191 within 2%, 0 unit slips, 0 other misses
+  GrossVolume: 638 written, 352 with a stored figure, 125 within 2%, 218 unit slips, 9 other misses
+  NetVolume: 895 written, 107 with a stored figure, 102 within 2%, 5 unit slips, 0 other misses
