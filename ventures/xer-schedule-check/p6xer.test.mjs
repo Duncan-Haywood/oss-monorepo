@@ -486,6 +486,44 @@ test("a WorkContour of 'constructor' or '__proto__' converts as flat, not a cras
   }
 });
 
+test("calendar hours per week, month and year come from the working periods", () => {
+  // 08:00-12:00 and 13:00-17:00 on five days: 40 hours a week
+  const c = p6XerText(XML()).xer.tables.CALENDAR[0];
+  assert.deepEqual([c.week_hr_cnt, c.month_hr_cnt, c.year_hr_cnt], ["40", "173.33", "2080"]);
+});
+
+test("remaining late dates: blank on a complete activity, the late dates on the rest", () => {
+  const late = "<LateStart>2026-03-30T08:00:00</LateStart><LateFinish>2026-04-08T17:00:00</LateFinish>";
+  const T = p6XerText(XML().replace("<WBS>1.2</WBS>", `<WBS>1.2</WBS>${late}`).replace("<WBS>1.3</WBS>", `<WBS>1.3</WBS>${late}`).replace("<WBS>1.1</WBS>", `<WBS>1.1</WBS>${late}`)).xer.tables;
+  assert.equal(T.TASK.filter((t) => t.late_end_date).length, 3);
+  for (const t of T.TASK.filter((t) => t.late_end_date)) {
+    if (t.status_code === "TK_Complete") assert.deepEqual([t.rem_late_start_date, t.rem_late_end_date], ["", ""], t.task_code);
+    else assert.deepEqual([t.rem_late_start_date, t.rem_late_end_date], [t.late_start_date, t.late_end_date], t.task_code);
+  }
+});
+
+test("an Activity ID alias on Text12 or Text30 gives the activity IDs too", () => {
+  for (const id of ["188743998", "188744016"]) {
+    const xml = XML({ idAlias: "Activity ID", code2: "DEM-100", code3: "FRM-200", code4: "DRY-300" }).replace(/188743731/g, id);
+    assert.deepEqual(p6XerText(xml).xer.tables.TASK.slice(0, 3).map((t) => t.task_code), ["DEM-100", "FRM-200", "DRY-300"], id);
+  }
+});
+
+test("p6Problems reports a WBS loop that never reaches the project node", () => {
+  const T = p6XerText(XML()).xer.tables;
+  const node = T.PROJWBS.find((w) => w.proj_node_flag === "Y");
+  const loop = [{ ...node, wbs_id: "901", parent_wbs_id: "902", proj_node_flag: "N" }, { ...node, wbs_id: "902", parent_wbs_id: "901", proj_node_flag: "N" }, { ...node, wbs_id: "903", parent_wbs_id: "903", proj_node_flag: "N" }];
+  const problems = p6Problems({ ...T, PROJWBS: [...T.PROJWBS, ...loop] });
+  for (const id of ["901", "902", "903"]) assert.ok(problems.includes(`PROJWBS ${id}: does not reach the project node`), id);
+});
+
+test("p6Problems follows a WBS chain 1000 levels deep to the project node", () => {
+  const T = p6XerText(XML()).xer.tables;
+  const node = T.PROJWBS.find((w) => w.proj_node_flag === "Y");
+  const chain = Array.from({ length: 1000 }, (_, k) => ({ ...node, wbs_id: String(5000 + k), parent_wbs_id: k ? String(4999 + k) : node.wbs_id, proj_node_flag: "N" }));
+  assert.deepEqual(p6Problems({ ...T, PROJWBS: [...T.PROJWBS, ...chain] }).filter((p) => /does not reach/.test(p)), []);
+});
+
 test("with the original XER (typesFrom), text UDFs come back as text UDFs, not activity codes, beside the number types", () => {
   const X = parseXer(EXAMPLE_XER);
   const T = X.tables;

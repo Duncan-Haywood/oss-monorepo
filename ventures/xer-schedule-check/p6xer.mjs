@@ -913,7 +913,7 @@ export function p6Problems(tables) {
   for (const w of wbs.values()) {
     let x = w, hops = 0;
     while (x && x.proj_node_flag !== "Y" && hops++ < 1000) x = wbs.get(x.parent_wbs_id);
-    if (!x) say(`PROJWBS ${w.wbs_id}: does not reach the project node`);
+    if (!x || x.proj_node_flag !== "Y") say(`PROJWBS ${w.wbs_id}: does not reach the project node`);
   }
   const rsrcIds = new Set();
   for (const r of tables.RSRC || []) {
