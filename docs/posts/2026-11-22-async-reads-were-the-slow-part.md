@@ -2,7 +2,7 @@
 title: "The async reads were the slow part: three store packagers 37% faster"
 seo_title: "When fs.promises is slower than readFileSync in Node.js"
 date: 2026-11-22
-description: "A Node.js packager read about 6,000 small files one at a time with fs.promises and sat idle for 1.1 of 2.4 s. readFileSync, and reading each file once, cut three test suites from 12.0 s to 7.6 s."
+description: "A Node.js packager read 6,000 small files one by one via fs.promises and sat idle 1.1 of 2.4 s. readFileSync cut three suites from 12.0 s to 7.6 s."
 topic: infrastructure
 tags: [performance, profiling, nodejs, ci]
 ---

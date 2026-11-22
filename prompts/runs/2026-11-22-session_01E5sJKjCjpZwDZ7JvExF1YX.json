@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKjCjpZwDZ7JvExF1YX",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T03:09:14Z",
+  "ended": "2026-11-22T03:15:48Z",
+  "wall_minutes": 7.07,
+  "tokens_in": 5097832,
+  "tokens_out": 20573,
+  "cost_usd": 2.2153,
+  "tool_calls": 55,
+  "task": "perf: store packagers' catalogue-wide plan() (desktop/ios/android/webext suites in the unwired pool)",
+  "projects": [
+    "platform/distribution"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18185",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are CODEOWNERS-gated again; the prompt already says to skip to 2-4, which worked, but the backlog still lists them as first stop."
+    },
+    {
+      "file": "docs/history/ci-perf-2026-11-21-csv-split-ratchet-once.md",
+      "issue": "Quoted desktop 4.3 s / ios 3.6 s; my first cold-cache reading was 10.4 s for desktop, warm 4.3 s. Readings should say warm or cold."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-async-reads-were-the-slow-part.md",
+    "docs/history/ci-perf-2026-11-22-store-packager-sync-reads.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of platform/distribution desktop+ios+android node suites (run in every ventures-tests job via unwired_checks.py). Before ~12.0 s (desktop 4.42/4.28/4.22, ios 3.75/3.65/3.82, android 1.39/1.40/1.29 s), after ~7.6 s (desktop 2.82/2.97/3.08, ios 2.07/2.22/2.09, android 0.84/0.82/0.83 s); warm cache, 4-core container, `node --test <file>` timed with date, before via git stash. plan() alone: webext 2360->843 ms, desktop 2330->707, ios 3561->1825, android 963->579. Profile (node --cpu-prof) before: 1082 ms idle of 2.6 s, fs.promises handle ops. Tried mapLimit concurrency first (2444->1764 ms at 16) and chose sync reads (->843 ms). Verification: hash dump of all four plan()s, every venture's buildExtension files and the ci/learning desktop suites byte-identical (cmp); suites desktop 11, ios 8, android 6, webext 9, published-host 4, vscode 5, wordpress 7 pass; run_workflow_locally --for-changes output in PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2892a3e5-3d79-5bdd-a29f-bc302b2837fa",
+    "transcripts": 1,
+    "first": "2026-11-22T03:09:14Z",
+    "last": "2026-11-22T03:16:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 98,
+        "output": 20573,
+        "thinking": 3010,
+        "cache_read": 4997233,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100501,
+        "api_equivalent_usd": 2.2153,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 98,
+      "output": 20573,
+      "thinking": 3010,
+      "cache_read": 4997233,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100501,
+      "api_equivalent_usd": 2.2153,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 51,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.07,
+      "active_minutes": 7.07,
+      "model_minutes": 4.31,
+      "tool_minutes": 2.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, two candidate fixes, byte-identity harness, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 135.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
