@@ -39,7 +39,9 @@ its log path and a `wait_for.py` line (exit 3); `--foreground` stays attached.
 A sweep exits 0 when every selected workflow passed, 1 when a step failed
 (or the checkout moved, or nothing was selected), and 5 (NO_VERDICT) when
 nothing failed but a workflow ran out of budget or stopped after a skipped
-step: not a pass, and not a failure either.
+step: not a pass, and not a failure either. On a prose-only (.md/.txt) diff
+it leaves portfolio-pages and portfolio-validate (~13 min here, ~4 on CI) to
+the pull request's CI and exits 5; `--full` runs them (when CI is starved).
 
 `--for-changes` and `--tree` ask different questions and the difference
 matters. The first is "is my diff sound?" and on a clean checkout it
@@ -2143,13 +2145,25 @@ def run_for_changes(args) -> int:
                        args.list)
     if hint:
         print(hint, flush=True)
+    selected, deferred = defer_heavy(selected, changed, args)
+    if deferred:
+        print(DEFER_NOTE.format(names=", ".join(deferred)), flush=True)
     cost = local_cost_hint([name for name, *_ in selected], args.list)
     if cost:
         print(cost, flush=True)
     note = uncommitted_note(changed)
     if note:
         print(note, flush=True)
-    rc = _run_selected(args, selected, held, changed=changed)
+    if deferred and not selected:
+        rc = 0  # nothing cheap was selected; the deferral below is the verdict
+    else:
+        rc = _run_selected(args, selected, held, changed=changed)
+    if deferred and not args.list:
+        print(f"  Not a clean sweep: {', '.join(deferred)} deferred to the pull "
+              "request's CI (prose-only diff). Its green check runs are their "
+              "verdict; if CI is starved, re-run with --full.", flush=True)
+        if rc == 0:
+            rc = NO_VERDICT
     if not args.list and not getattr(args, "no_research_tests", False):
         rc = research_tests(changed) or rc
     return rc
@@ -2333,6 +2347,31 @@ def local_cost_hint(names, listing: bool) -> str | None:
             "runners (ci_starvation.py --run <id> exits 0), its verdict comes first "
             "and this sweep adds nothing: wait for CI, or run only the workflow "
             "your change is about, by name.")
+
+
+# The hint above did not change behaviour: five sessions in the two days to
+# 2026-11-22 (friction_rank.py --live, run_workflow_locally.py first) still ran
+# the 13-minute sweep on a story, episode or post diff and stopped it once the
+# PR's CI went green in about 4. So a diff of prose alone (.md/.txt) leaves the
+# measured-heavy workflows to that CI by default, and says so; the cheap ones,
+# the post precheck and the research suites still run. It is never a pass: the
+# exit is NO_VERDICT until the PR's checks are read. `--full` (or naming them
+# with --only, or by name) runs them, which is the route when CI is starved.
+DEFER_MIN_S = 200
+PROSE_SUFFIXES = (".md", ".txt")
+DEFER_NOTE = ("  prose-only diff: deferring {names} to the pull request's CI "
+              "(~4-5 min there, ~13 min here); --full runs them here.")
+
+
+def defer_heavy(selected, changed, args):
+    """(selected without the heavy workflows, their names) for a prose-only diff."""
+    if (getattr(args, "full", False) or getattr(args, "only", None) or args.list
+            or not changed or not all(p.endswith(PROSE_SUFFIXES) for p in changed)):
+        return selected, []
+    heavy = [s for s in selected if MEASURED_LOCAL_S.get(s[0], 0) >= DEFER_MIN_S]
+    if not heavy:
+        return selected, []
+    return [s for s in selected if s not in heavy], [s[0] for s in heavy]
 
 
 GONE = "-"  # a tracked path deleted from the worktree
@@ -2892,6 +2931,11 @@ def _main(argv=None) -> int:
                     help="with --for-changes: sweep even when a changed post "
                          "fails check_post_frontmatter (by default the sweep "
                          "stops first; see POST_PRECHECK_STOP)")
+    ap.add_argument("--full", action="store_true",
+                    help="with --for-changes on a prose-only (.md/.txt) diff: "
+                         "run the heavy workflows too (portfolio-pages, "
+                         "portfolio-validate) instead of deferring them to "
+                         "the PR's CI; use it when CI is starved")
     ap.add_argument("--no-browser-sweeps", action="store_true",
                     help="with --for-changes: skip the venture browser sweeps "
                          "(venture_sweeps.py) run on the ventures the diff touches")
