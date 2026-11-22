@@ -437,8 +437,8 @@ cable saddles' 225, the elevation pin's and anchor's thin nuts 55 and 85, and
 the flight caps' M3 nyloc on the cleat's back 15: held only, which is what the
 step does (the countersunk head turns with a key).
 
-Not checked: the feeder's nuts that are not joints yet, because the parts they
-clamp are not drawn as they are: the levelling feet's jam nuts. The turntable
+The levelling feet's jam nuts joined on 2026-11-22 ("Levelling feet", below),
+so every feeder nut is in the table now. The turntable
 bearing's eight M5 screws joined on 2026-11-21 ("Turntable bearing's two rings",
 below). The idler axles and the spool axle joined on
 2026-11-21 (next section). A deep socket
@@ -523,6 +523,40 @@ also sold as two concentric rings in one plane with countersunk holes, which
 mount differently; the spec line names the stacked kind and the 6 mm gap it
 needs. If your bearing's gap is under 5.8 mm the two sets of heads touch:
 `check_bearing` says so with `--set bearing_h=...`. Nobody has built one.
+
+### Levelling feet (2026-11-22, `Feeder.levelling_foot_design`, `check_levelling_foot`, `feeder.foot_block`)
+
+The two levelling feet under the net beam's ends were a 40 x 155 mm cylinder
+in the CAD and a BOM line: "M6 levelling foot with a 40 mm rubber pad, 155 mm
+of stud, into an M6 slot-6 T-nut in the beam's bottom slot, with a jam nut".
+Drawing the pad and the stud apart, to make the jam nut a joint, showed that
+mount cannot level anything:
+
+| Found | Was | Now |
+| --- | --- | --- |
+| No travel | a stud screwed up into a T-nut can only sit between catching the nut and the slot's floor: the window the T-nut joints use, 4 to 8 mm past the beam's face, so 4 mm of adjustment in all. A foot must reach a court's fall and crown over the 2.9 m between the two feet and the tyres' squash (12 mm either way assumed, `foot_adjust_mm`) | a printed foot block under each beam end: a 6 mm flange with two M5 x 12 up into T-nuts in the bottom slot (6 mm past the face, mid-window) and a 20 x 24 mm column down to 55 mm over the ground. An M6 nut slides into a slot low in the column from the rear, on a 5 mm wall; the stud screws up through it into a 6.6 mm bore that runs to the beam's face. The pad rises 50 mm or drops 38 mm from level before the stud meets the beam or leaves the nut's threads |
+| The listed stud did not fit | 155 mm of stud on a 25 mm pad (assumed) puts the tip at 180 mm, 25 mm past the beam's face at 155: 17 mm past the slot's floor | an M6 x 80 foot, tip at 105 mm on level ground |
+| The stud bends | a swivel pad's ball takes no moment, so the bare stud between pad and beam is a cantilever. 130 mm of it (142 with the ground fallen 12 mm away), with half the design wind's 69 N on the net at the pad (the wheels are not braked, so the feet may take it all), is 4.9 N m on an M6's 4.77 mm core: 460 MPa, past a class 4.8 stud's 320 | 42 mm of bare stud at worst: 136 MPa, 2.35x yield (`check_levelling_foot` wants 2). The column takes the moment to the flange at 3.0 MPa (10 allowed for PETG), and the flange, tipping about its edge 10 mm from the screws, pulls each T-nut with 235 N (500 allowed, assumed) |
+| The spanner | "13 mm spanner" for an M6 jam nut (10 mm across flats) | 10 mm spanner |
+
+Two joints, 41 measured: "levelling foot block to net beam" (`tnut`, both
+screws of both blocks, the heads reached with the key from below past the
+column) and "levelling foot jam nut", whose stack is the column's 5 mm wall
+between the captive nut and the jam nut (`nut`, ISO 4035 thin nut, 3.2 mm, with
+5.2 needed past the wall: 30 mm of stud there). The spanner table has the jam
+nut: a 10 mm spanner and the hand turn all the way round at both feet, over the
+pad, and there are 14.8 mm of stud between the pad and the block with the
+ground risen 12 mm, so the jam nut always takes a spanner. The captive nut sits
+in its slot (flats 0.15 mm off each wall), so the jam nut is turned alone. The
+block and foot clash with nothing and the pad is on the ground (tests
+`LevellingFootParamsTest`, `LevellingFootCadTest`; each check is made to fire
+on a bad value).
+
+Assumed, not measured: the pad's height, the stud's grade, the share of the
+wind a foot takes, a T-nut's allowed pull, how far a court falls between the
+feet and the slot's depth. A PETG column under the beam's end creeps under a
+steady load; the feet are set "just off the ground", so they carry little
+until the wind blows. Nobody has built one.
 
 ## Changing the design
 

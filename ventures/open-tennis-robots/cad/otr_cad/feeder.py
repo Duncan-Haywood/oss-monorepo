@@ -962,6 +962,41 @@ def az_gear_sector(p: Feeder) -> Part:
                       f"Print flat, 100% infill, 0.1 mm layers for the flanks; grease the teeth.")
 
 
+FOOT_BLOCK_W = (20.0, 24.0)   # levelling foot block's column, x by y (the beam's bottom face is 20 wide)
+FOOT_NUT_SLOT = (10.3, 5.3)   # captive M6 nut's slot: width (over the nut's 10 mm flats) and height
+
+
+def foot_block_screws(p: Feeder) -> list[tuple[float, float]]:
+    """World (x, y) of the levelling foot blocks' M5 screws up into the net beam's bottom slot."""
+    return [(-10.0, s * p.foot_half_y + dy) for s in (1, -1) for dy in (p.foot_screw_dy, -p.foot_screw_dy)]
+
+
+def foot_block(p: Feeder) -> Part:
+    """Under each end of the net beam (2026-11-22): a flange screwed up into the bottom slot (two M5 x 12 into
+    T-nuts) and a column down to `foot_block_z` with an M6 nut slid into a slot from the rear, low in it, and a bore up
+    to the beam's face: the foot's stud travels in the bore and a thin jam nut under the column locks it. Origin on
+    the stud's axis at the ground; the column's slot opens to -x (behind the net)."""
+    cx, cy = FOOT_BLOCK_W
+    z0, z1, ft = p.foot_block_z, p.rail_z, p.foot_flange_t
+    col = Box(cx, cy, z1 - ft - z0).moved(Location((0, 0, (z0 + z1 - ft) / 2)))
+    fl_y = 2 * p.foot_screw_dy + 16.0
+    blk = col + Box(cx, fl_y, ft).moved(Location((0, 0, z1 - ft / 2)))
+    blk = blk - Cylinder(3.3, z1 - z0 + 1).moved(Location((0, 0, (z0 + z1) / 2)))
+    sw, sh = FOOT_NUT_SLOT
+    x_in = 6.0                                     # past the nut's far corner (5.8 from its axis)
+    blk = blk - Box(x_in + cx / 2 + 1, sw, sh).moved(
+        Location(((x_in - cx / 2 - 1) / 2, 0, z0 + p.foot_block_wall + sh / 2)))
+    for dy in (p.foot_screw_dy, -p.foot_screw_dy):
+        blk = blk - Cylinder(2.75, ft + 1).moved(Location((0, dy, z1 - ft / 2)))
+    return Part("foot_block", "print", "PETG", 2, blk,
+                [Location((-10, s * p.foot_half_y, 0)) for s in (1, -1)],
+                notes=f"Levelling foot block: two M5 x 12 up through its flange into T-nuts in the net beam's bottom "
+                      f"slot; an M6 nut slides into the slot from the rear and the foot's stud screws up through it "
+                      f"(the pad rises {p.levelling_foot_design()['up_mm']:.0f} mm or drops "
+                      f"{p.levelling_foot_design()['down_mm']:.0f} mm from level), locked by a thin jam nut under "
+                      f"the column. Print standing on the flange, 6 walls, 40% infill.")
+
+
 POLE_FOOT_SCREWS = (-50.0, -30.0)   # foot-frame y of its two screws, inboard of the pole (the pole stands at the beam's end)
 
 
@@ -1315,11 +1350,13 @@ def envelopes(p: Feeder) -> list[Part]:
     ygm = p.base_half_w - p.gearmotor_len / 2
     out.append(Part("gearmotor", "cots", "", 2, gm, [Location((p.wheel_x[0], s * ygm, p.wheel_d / 2)) for s in (1, -1)],
                     spec="37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder"))
-    foot = Cylinder(20, p.rail_z).moved(Location((0, 0, p.rail_z / 2)))
+    foot = (Cylinder(20, p.foot_pad_h).moved(Location((0, 0, p.foot_pad_h / 2)))
+            + Cylinder(3.0, p.foot_stud_len).moved(Location((0, 0, p.foot_pad_h + p.foot_stud_len / 2))))
     out.append(Part("levelling_foot", "cots", "", 2, foot, [Location((-10, s * p.foot_half_y, 0)) for s in (1, -1)],
-                    spec="M6 levelling foot with a 40 mm rubber pad, 155 mm of stud, into an M6 slot-6 T-nut in the "
-                         "beam's bottom slot, with a jam nut (an M10 stud, as listed until 2026-11-20, cannot pass a "
-                         "slot-6 opening)"))
+                    spec=f"M6 x {p.foot_stud_len:g} swivel levelling foot, 40 mm rubber pad about {p.foot_pad_h:g} mm "
+                         f"tall, up into the captive nut of a printed foot block under the beam, with a thin jam nut "
+                         f"(155 mm of stud into a T-nut, as listed until 2026-11-22: 4 mm of travel and a stud that "
+                         f"bent in the design wind; cad/README.md, \"Levelling feet\")"))
     bx, by, bz = 90.0, 200.0, 130.0
     out.append(Part("battery", "cots", "", 1, Box(bx, by, bz).moved(Location((0, 0, bz / 2))),
                     [Location((BATTERY_X, 0, p.rail_top + p.plate_t))],
@@ -2458,7 +2495,7 @@ def bbox(s):
 def _build_all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
-            cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
+            cheek_foot(p), az_gear_sector(p), foot_block(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), az_stop_block(p), az_stop_pads(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p),
             cable_clip(p), cable_gland(p), cable_clamp(p), cable_bar(p), *elev_lead_parts(p),
@@ -2737,7 +2774,8 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M4 heat-set insert, 5.7 mm long (stops)", 4, "azimuth stop blocks"),
         ("Contact adhesive (polyurethane to PETG)", 1, "stop pads to their blocks"),
         (idler_axle_spec(), 2, "idler axles, fixed to the brackets (the wheels' hub bearings turn)"),
-        ("M6 T-nut (slot 6) + M6 jam nut (levelling foot)", 2, "beam ends"),
+        ("M5 x 12 button head + T-nut (levelling feet)", 4, "foot blocks up into the net beam's bottom slot"),
+        ("M6 nut + M6 thin jam nut (levelling feet)", 2, "captive in each foot block, and locking the foot's stud"),
         ("M4 x 12 socket cap screw (feed)", 8, "feed floor and roof to the head plates (through the plates, into inserts)"),
         ("M4 heat-set insert, 5.7 mm long (feed)", 8 + 4, "feed floor, roof and sleeve socket"),
         ("M4 x 12 socket cap screw (spigot)", 4, "sleeve socket to the shelf"),

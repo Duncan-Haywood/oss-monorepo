@@ -50,8 +50,8 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - hopper agitator: two 115 mm arms 27.5-39.5 mm over the tub floor (a floor ball's centre is at 33.5), shaft 103 mm from the outlet's centre, so the tips pass 12 mm beyond it and 12 mm from the tub's walls; at 20 rpm an arm crosses the outlet 40 times a minute (feed rate 36); both arms ploughing a full tub need 0.45 N m (3.3x margin on 1.5 N m assumed), 0.9 W; at the 3 N m stall an arm's root sees 5.9 MPa and a tip pushes 26 N (load, friction and motor figures assumed; one ball freed per pass is an assumption to measure)
 - net: 3000 wide x 2470 mm tall between the poles
 - wind: 69 N on the net at 8 m/s (solidity 0.2, Cd 1.2); ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): 9 kg
-- made-part mass (estimate, excludes bought-in parts): 45.6 kg
-- assembly guide (guide/ASSEMBLY.md): 39 fastener stacks, part and BOM tally, step order, head access, extrusion end bores, spanners on 11 nut joints: pass
+- made-part mass (estimate, excludes bought-in parts): 45.7 kg
+- assembly guide (guide/ASSEMBLY.md): 41 fastener stacks, part and BOM tally, step order, head access, extrusion end bores, spanners on 12 nut joints: pass
 
 STATUS
 Design v0.1, not yet built, and the launcher head throws balls at 30+ m/s:

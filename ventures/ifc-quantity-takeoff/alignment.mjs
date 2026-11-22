@@ -406,3 +406,66 @@ export function sectionedSolidHorizontal(A, e, loopsOf) {
   }
   return { parts, slices: slices.length, notes };
 }
+
+/**
+ * IfcFixedReferenceSweptAreaSolid(SweptArea, Position, Directrix, StartParam,
+ * EndParam, FixedReference) on a curve the AlignmentReader reads (gradient,
+ * horizontal composite, polyline), as closed faceted tubes like
+ * sectionedSolidHorizontal. At each slice the profile stands square to the
+ * directrix's 3D tangent T: its x axis is FixedReference projected onto the
+ * plane normal to T, its y axis T x X (the IFC 4.3 text). Slices at most
+ * MAX_TURN apart in heading, and at least every 1/64 of the run.
+ *
+ * @returns {{parts: {s: number, faces: number[][][]}[], slices: number, notes: string[]}}
+ */
+export function fixedReferenceSweep(A, e, loopsOf) {
+  const g = A.geo;
+  const [areaRef, , dirRef, startP, endP, refDir] = e.args;
+  const B = A.basis(dirRef.ref ?? dirRef);
+  const d0 = g.num(startP) ?? 0, d1 = g.num(endP) ?? B.length;
+  if (!(d1 > d0)) A.fail("fixed reference sweep: EndParam not past StartParam");
+  const notes = [];
+  if (d0 < -1e-6 || d1 > B.length + 1e-6) notes.push(`the sweep runs ${Math.max(-d0, d1 - B.length).toFixed(3)} past the end of its directrix: carried on along the end tangent`);
+  const R = g.dir(refDir, [0, 0, 1]);
+  const loops = loopsOf(areaRef).map((l) => {
+    const p = l.pts.slice();
+    const f = p[0], z = p[p.length - 1];
+    if (p.length > 1 && Math.hypot(f[0] - z[0], f[1] - z[1]) < 1e-12) p.pop();
+    return { s: l.s, pts: p };
+  });
+  const frameAt = (d) => {
+    const f = B.frame(d);
+    const gr = f.g ?? 0, c = 1 / Math.hypot(1, gr);
+    const T = [f.t[0] * c, f.t[1] * c, gr * c];
+    const k = R[0] * T[0] + R[1] * T[1] + R[2] * T[2];
+    let X = [R[0] - k * T[0], R[1] - k * T[1], R[2] - k * T[2]];
+    const n = Math.hypot(...X);
+    if (!(n > 1e-9)) A.fail("fixed reference sweep: FixedReference along the directrix");
+    X = X.map((x) => x / n);
+    const Y = [T[1] * X[2] - T[2] * X[1], T[2] * X[0] - T[0] * X[2], T[0] * X[1] - T[1] * X[0]];
+    return loops.map((l) => ({ s: l.s, pts: l.pts.map(([u, v]) => [0, 1, 2].map((i) => f.p[i] + u * X[i] + v * Y[i])) }));
+  };
+  let turn = 0, prev = B.frame(d0).t;
+  for (let k = 1; k <= 64; k++) {
+    const t = B.frame(d0 + ((d1 - d0) * k) / 64).t;
+    turn += Math.abs(Math.atan2(prev[0] * t[1] - prev[1] * t[0], prev[0] * t[0] + prev[1] * t[1]));
+    prev = t;
+  }
+  const n = Math.min(4000, Math.max(64, Math.ceil(turn / MAX_TURN)));
+  const slices = [];
+  for (let k = 0; k <= n; k++) slices.push(frameAt(d0 + ((d1 - d0) * k) / n));
+  const parts = [];
+  for (let k = 0; k < loops.length; k++) {
+    const faces = [slices[0][k].pts.slice().reverse(), slices[n][k].pts.slice()];
+    for (let j = 0; j < n; j++) {
+      const P = slices[j][k].pts, Q = slices[j + 1][k].pts, N = P.length;
+      for (let m = 0; m < N; m++) {
+        const m1 = (m + 1) % N;
+        const c = [0, 1, 2].map((x) => (P[m][x] + P[m1][x] + Q[m1][x] + Q[m][x]) / 4);
+        faces.push([P[m], P[m1], c], [P[m1], Q[m1], c], [Q[m1], Q[m], c], [Q[m], P[m], c]);
+      }
+    }
+    parts.push({ s: loops[k].s, faces });
+  }
+  return { parts, slices: slices.length, notes };
+}

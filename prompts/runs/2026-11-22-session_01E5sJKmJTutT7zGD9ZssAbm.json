@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmJTutT7zGD9ZssAbm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T07:18:20Z",
+  "ended": "2026-11-22T07:30:54Z",
+  "wall_minutes": 35.05,
+  "tokens_in": 10630370,
+  "tokens_out": 45047,
+  "cost_usd": 4.2808,
+  "tool_calls": 71,
+  "task": "open-tennis-robots (flagship 10) buildable item: the levelling feet's jam nuts as joints",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18214",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "params.levelling_foot_design imported guide.TNUT, which pulls build123d into a module that must run without it",
+      "fix": "the window is copied with a comment"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "the buildable field's 600-character cap refused my first rewrite; it says so clearly, but the field is already 500+ characters of history, so every run gets a few dozen characters for its own item"
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/otr_cad/guide.py",
+      "issue": "spanner_checks reports 'head (key) or nut' for a nut joint whose 'head' is a captive nut (the levelling feet's jam nut), since Joint has no way to say the head is a nut held in a slot; harmless but misleading in the table"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-tennis-feeder-levelling-feet.md",
+    "ventures/open-tennis-robots/cad/README.md (Levelling feet)"
+  ],
+  "goal": "Deepen a flagship: make the last unchecked feeder nuts (levelling feet's jam nuts) checked joints",
+  "notes": "Drawing the foot as pad + stud showed the BOM's T-nut mount could not work: 4 mm of travel, the 155 mm stud 25 mm past the beam's face, 460 MPa stud bending at half the design wind (0.70x a class 4.8 yield), and a 13 mm spanner for an M6 nut. New printed foot_block (flange with 2 M5 x 12 into T-nuts, captive M6 nut, bore), M6 x 80 foot: +50/-38 mm travel, 136 MPa (2.35x). Two joints (41 feeder joints), jam nut in the spanner table at 360 deg. Verification: guide checks (joint_checks, tally, order, access, step access, spanner) all empty; LevellingFoot tests 6 passed; package regenerated; full cad suite 209 passed in 866 s (build123d 0.13.0 venv); run_venture_tests.py open-tennis-robots ok (535 tests); venture-preflight clean; package rebuild design_rules [] and collisions [], pads at z 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "20430353-5eca-59d1-861b-094674a26410",
+    "transcripts": 1,
+    "first": "2026-11-22T07:18:20Z",
+    "last": "2026-11-22T07:53:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 150,
+        "output": 45047,
+        "thinking": 18221,
+        "cache_read": 10469553,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160667,
+        "api_equivalent_usd": 4.2808,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 150,
+      "output": 45047,
+      "thinking": 18221,
+      "cache_read": 10469553,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160667,
+      "api_equivalent_usd": 4.2808,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.05,
+      "active_minutes": 16.02,
+      "model_minutes": 8.89,
+      "tool_minutes": 7.13,
+      "waiting_on_human_minutes": 19.03,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a mechanical engineer drawing the foot, checking travel, stud bending and joints, and updating the CAD, tests, docs and package",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 140.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

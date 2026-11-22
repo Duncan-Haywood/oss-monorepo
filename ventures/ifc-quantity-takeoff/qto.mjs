@@ -183,26 +183,64 @@ function isGlassStyle(E, styles) {
  * The volume of a body's glass items (idx.glass), in model units cubed, and
  * how many there are; mapped items are followed into their source with the
  * mapping's scale. Null when the body has none.
+ *
+ * `planes` groups the panes by the plane they sit in, in the body's frame: a
+ * pane's thinnest box axis and its span along it (glassPlanes). A door with
+ * side lights holds its leaf glass in one plane and the side lights' in
+ * another (schependomlaan's "D2R 2zl 18" doors), and some objects store the
+ * body less one plane's glass only (glazingLeftOut).
  */
-function glazingVolume(E, geo, idx, repId, depth = 0) {
+function glazingVolume(E, geo, idx, repId, depth = 0, M = null) {
   const rep = E.get(repId);
   if (!rep || !idx.glass.size || depth > 4) return null;
   let volume = 0, pieces = 0;
+  const boxes = [];
   for (const it of rep.args[3] || []) {
     const id = refId(it), item = E.get(id);
     if (!item) continue;
     if (idx.glass.has(id)) {
-      try { volume += Math.abs(solidVolume(geo.item(id))); pieces++; } catch { return null; }
+      let s;
+      try { s = geo.item(id); volume += Math.abs(solidVolume(s)); pieces++; } catch { return null; }
+      const box = paneBox(M ? transformSolid(s, M) : s);
+      if (box) boxes.push({ ...box, volume: Math.abs(solidVolume(s)) * (M ? Math.abs(det(M)) : 1) });
     } else if (item.type === "IFCMAPPEDITEM") {
       const map = E.get(refId(item.args[0]));
-      const inner = map ? glazingVolume(E, geo, idx, refId(map.args[1]), depth + 1) : null;
+      let op;
+      try { op = mul(geo.operator(item.args[1]), invert(geo.placement(map?.args[0]))); } catch { op = geo.operator(item.args[1]); }
+      const inner = map ? glazingVolume(E, geo, idx, refId(map.args[1]), depth + 1, M ? mul(M, op) : op) : null;
       if (inner) {
         volume += inner.volume * Math.abs(det(geo.operator(item.args[1])));
         pieces += inner.pieces;
+        boxes.push(...inner.boxes);
       }
     }
   }
-  return pieces ? { volume, pieces } : null;
+  return pieces ? { volume, pieces, boxes, planes: depth ? null : glassPlanes(boxes) } : null;
+}
+
+/** a pane's box: its thinnest axis and its lowest and highest coordinate along it */
+function paneBox(s) {
+  const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+  for (const t of s.terms || []) for (const f of t.faces) for (const p of f) for (let k = 0; k < 3; k++) { if (p[k] < lo[k]) lo[k] = p[k]; if (p[k] > hi[k]) hi[k] = p[k]; }
+  if (s.shells) for (const sh of s.shells) for (const f of sh.loops) for (const p of f) for (let k = 0; k < 3; k++) { if (p[k] < lo[k]) lo[k] = p[k]; if (p[k] > hi[k]) hi[k] = p[k]; }
+  if (!(hi[0] >= lo[0])) return null;
+  let axis = 0;
+  for (let k = 1; k < 3; k++) if (hi[k] - lo[k] < hi[axis] - lo[axis]) axis = k;
+  return { axis, lo: lo[axis], hi: hi[axis] };
+}
+
+/**
+ * Panes in one plane: the same thinnest axis, and both faces within a tenth of
+ * the thinner pane's thickness of each other. -> [{volume, pieces}]
+ */
+export function glassPlanes(boxes) {
+  const planes = [];
+  for (const b of boxes) {
+    const t = b.hi - b.lo;
+    const p = planes.find((q) => q.axis === b.axis && Math.abs(q.lo - b.lo) <= 0.1 * Math.min(t, q.hi - q.lo) && Math.abs(q.hi - b.hi) <= 0.1 * Math.min(t, q.hi - q.lo));
+    if (p) { p.volume += b.volume; p.pieces++; } else planes.push({ axis: b.axis, lo: b.lo, hi: b.hi, volume: b.volume, pieces: 1 });
+  }
+  return planes.map(({ volume, pieces }) => ({ volume, pieces }));
 }
 
 function materialName(E, id, depth = 0) {
@@ -332,7 +370,7 @@ export function isElement(e) {
 }
 
 /** Pretty class name: IFCWALLSTANDARDCASE -> IfcWallStandardCase (by a word list). */
-const WORDS = ["Standard", "Case", "Elemented", "Element", "Proxy", "Building", "Covering", "Curtain", "Wall", "Slab", "Beam", "Column", "Member", "Plate", "Door", "Window", "Roof", "Stair", "Flight", "Ramp", "Railing", "Footing", "Pile", "Furnishing", "Furniture", "Flow", "Segment", "Fitting", "Terminal", "Pipe", "Duct", "Cable", "Carrier", "Distribution", "Energy", "Conversion", "Device", "Controller", "Moving", "Transport", "Chimney", "Shading", "Reinforcing", "Bar", "Mesh", "Tendon", "Anchor", "Mechanical", "Fastener", "Discrete", "Accessory", "System", "Furnishing", "Geographic", "Air", "Sanitary", "Light", "Fixture", "Outlet", "Space", "Heater", "Valve", "Pump", "Tank", "Fire", "Suppression", "Electric", "Appliance", "Junction", "Box", "Unitary", "Equipment", "Coil", "Damper", "Fan", "Filter", "Chiller", "Boiler", "Port", "Course", "Pavement", "Kerb", "Earthworks", "Fill", "Cut", "Sign", "Signal", "Rail", "Track", "Deep", "Foundation", "Bearing", "Part", "Surface", "Feature", "Sensor", "Alarm", "Actuator", "Protective", "Switching", "Audio", "Visual", "Communications", "Lamp", "Motor", "Connection", "Storage", "Treatment", "Interceptor", "Waste", "Stack", "Hood", "Burner", "Evaporator", "Condenser", "Humidifier", "Cooling", "Tower", "Compressor", "Engine", "Generator", "Transformer", "Tube", "Bundle", "Radiator", "Recovery", "Heat", "Exchanger", "Medical", "Solar", "Panel", "Spaceheater", "Vibration", "Isolator", "Impact", "Protection", "Sound", "Mobile", "Telecom", "Plant", "Building"];
+const WORDS = ["Standard", "Case", "Elemented", "Element", "Proxy", "Building", "Covering", "Curtain", "Wall", "Slab", "Beam", "Column", "Member", "Plate", "Door", "Window", "Roof", "Stair", "Flight", "Ramp", "Railing", "Footing", "Pile", "Furnishing", "Furniture", "Flow", "Segment", "Fitting", "Terminal", "Pipe", "Duct", "Cable", "Carrier", "Distribution", "Energy", "Conversion", "Device", "Controller", "Moving", "Transport", "Chimney", "Shading", "Reinforcing", "Bar", "Mesh", "Tendon", "Anchor", "Mechanical", "Fastener", "Discrete", "Accessory", "System", "Furnishing", "Geographic", "Air", "Sanitary", "Light", "Fixture", "Outlet", "Space", "Heater", "Valve", "Pump", "Tank", "Fire", "Suppression", "Electric", "Appliance", "Junction", "Box", "Unitary", "Equipment", "Coil", "Damper", "Fan", "Filter", "Chiller", "Boiler", "Port", "Course", "Pavement", "Kerb", "Earthworks", "Fill", "Cut", "Sign", "Signal", "Rail", "Track", "Deep", "Foundation", "Bearing", "Part", "Surface", "Feature", "Sensor", "Alarm", "Actuator", "Protective", "Switching", "Audio", "Visual", "Communications", "Lamp", "Motor", "Connection", "Storage", "Treatment", "Interceptor", "Waste", "Stack", "Hood", "Burner", "Evaporator", "Condenser", "Humidifier", "Cooling", "Tower", "Compressor", "Engine", "Generator", "Transformer", "Tube", "Bundle", "Radiator", "Recovery", "Heat", "Exchanger", "Medical", "Solar", "Panel", "Spaceheater", "Vibration", "Isolator", "Impact", "Protection", "Sound", "Mobile", "Telecom", "Plant", "Building", "Built", "Facility", "Geotechnical", "Stratum", "Assembly", "Mooring", "Marine", "Navigation", "Transportation", "Vehicle", "Conveyor", "Liquid", "Terminal", "Borehole", "Geomodel", "Slice"];
 export function prettyClass(t) {
   if (!t.startsWith("IFC")) return t;
   let s = t.slice(3).toLowerCase();
@@ -756,12 +794,23 @@ function simplifiedSection(r, c, tol) {
  * different figures when their panes differ in thickness. Both terms are the
  * file's own geometry, so a quarter of the tolerance is asked. The BoQ sums
  * the whole body; the frame alone stays readable as gross - glazing.
+ * Failing that, the body less one plane's panes (computed.glazingPlanes, two
+ * or more planes only): c.glassLeftOut names that plane's volume and panes.
+ * Only whole planes are tried, never every subset of the panes, which would
+ * match by chance too often.
  */
 function glazingLeftOut(r, c, tol) {
   const g = r.computed?.glazing;
   if (!(g > 0) || !(c.computed > g)) return false;
   const frame = c.computed - g;
-  return Math.abs(c.stored - frame) <= tol * frame;
+  if (Math.abs(c.stored - frame) <= tol * frame) return true;
+  // the body less one plane's panes only: a door whose leaf glass is counted
+  // and its side lights' is not (schependomlaan's "D2R 2zl 18": 4 of 4)
+  for (const p of r.computed.glazingPlanes || []) {
+    const less = c.computed - p.volume;
+    if (Math.abs(c.stored - less) <= tol * less) { c.glassLeftOut = { volume: p.volume, pieces: p.pieces }; return true; }
+  }
+  return false;
 }
 
 /**
@@ -1056,7 +1105,7 @@ export const REASON_TEXT = {
   "not-stored": "the stored volume is 0 on an element with a body: a placeholder, not a measurement",
   "assembly-total": "the same stored volume is written on every piece of one assembly (a stair's stringers, flights and landings), and it is the whole assembly's: the pieces' geometry sums to it",
   "simplified-section": "the stored volume is computed from a simplified section (no fillet radii, or round tubes as polygons); the geometry follows the profile's own radii, and stored weights are scaled to it",
-  "glazing-left-out": "the stored volume is the frame and sash only: the body less its glass panes (ArchiCAD windows and doors); the geometry, panes included, is summed",
+  "glazing-left-out": "the stored volume is the frame and sash only: the body less its glass panes, or less the panes of one plane such as a door's side lights (ArchiCAD windows and doors); the geometry, panes included, is summed",
   "body-is-net": "the body geometry already has the openings cut out (no opening elements in the file): it equals the stored NetVolume, and the stored GrossVolume is larger by the openings",
   unexplained: "no known cause; check the element in a viewer",
 };
@@ -1072,7 +1121,10 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
   // the glass panes in the body: ArchiCAD stores a window's or door's
   // volume without them (glazingLeftOut)
   const glz = /^IFC(WINDOW|DOOR)/.test(e.type) ? glazingVolume(E, geo, idx, repId) : null;
-  if (glz) { out.glazing = glz.volume * f3; out.glazingPieces = glz.pieces; }
+  if (glz) {
+    out.glazing = glz.volume * f3; out.glazingPieces = glz.pieces;
+    if (glz.planes?.length > 1) out.glazingPlanes = glz.planes.map((p) => ({ volume: p.volume * f3, pieces: p.pieces }));
+  }
   Object.defineProperty(out, "solids", { value: { body, net: body }, enumerable: false, writable: true });
   const opens = idx.voids.get(e.id) || [];
   if (!opens.length) return out;
@@ -1247,9 +1299,13 @@ const extentOf = solidExtent;
 // otherwise price a per-metre or per-kg rate at 0.
 
 export const LINEAR_CLASS = /^IFC(COLUMN|BEAM|MEMBER|PILE)/;
+export const REBAR_CLASS = /^IFC(REINFORCINGBAR|TENDON)$/;
 
 /** A linear member's length from its body, in metres; null when it has no axis to read. */
 export function memberLength(type, body, f) {
+  // a reinforcing bar (or tendon) swept as a disk: its cut length is the
+  // directrix's, bends included (buildingSMART reinforcing-stirrup)
+  if (REBAR_CLASS.test(type)) return body?.sweepLength != null ? body.sweepLength * f : null;
   if (!LINEAR_CLASS.test(type) || !body || (body.mesh && !body.shells)) return null;
   const n = body.axis ?? (body.terms.length ? null : prismAxis(body) ?? thinnestNormal(body, () => true, true)?.n);
   if (!n) return null;
@@ -1263,6 +1319,8 @@ export function memberLength(type, body, f) {
 export const STEEL_DENSITY = 7850;
 const STEEL_NAME = /\b(steel|stahl|staal|acier|acero|acciaio|stål|teräs|stal|metal\s*-\s*steel|s(?:185|235|275|355|420|450|460|690)(?:[a-z0-9+]*)|a(?:36|500|572|588|913|992)|q(?:235|345|355)[a-z]*|ss400|sm490)\b/i;
 const NOT_STEEL = /concrete|beton|béton|hormig|calcestruzzo|timber|wood|holz|hout|glulam|stainless|inox|edelstahl|rvs|alumin|fibre|fiber|faser|reinforc|rebar|bewehr|wapening|neoprene|rubber|elastomer|grout|mortar|paint|coating|insulat|isol/i;
+
+const NOT_REBAR_STEEL = /gfrp|frp|glass|basalt|carbon|aramid|fibre|fiber|faser|stainless|inox|edelstahl|rvs|alumin|timber|wood/i;
 
 /** True when a material name reads as plain structural steel. */
 export function isSteel(material) {
@@ -1347,6 +1405,10 @@ function lengthAndWeight(r, first, volume, volumeSource) {
   let weight = first(["netweight", "grossweight", "weight"], "weight"), weightSource = weight != null ? "stored" : null;
   // a weight the exporter derived from a simplified section is scaled to the geometry
   if (weight != null && r.weightScale) weight *= r.weightScale;
+  // a reinforcing bar is steel unless its material names something else
+  // (GFRP, basalt, stainless): "ReinforcingSteel" reads as not-steel to
+  // isSteel, which guards against reinforced concrete
+  if (weight == null && volume != null && REBAR_CLASS.test(r.ifcType ?? "") && !NOT_REBAR_STEEL.test(r.material ?? "")) { weight = volume * STEEL_DENSITY; weightSource = volumeSource === "stored" ? "density-stored-volume" : "density"; }
   if (weight == null && volume != null && isSteel(r.material)) { weight = volume * STEEL_DENSITY; weightSource = volumeSource === "stored" ? "density-stored-volume" : "density"; }
   return { length, lengthSource, weight, weightSource };
 }

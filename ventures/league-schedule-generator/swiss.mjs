@@ -756,18 +756,45 @@ const DUTCH_FLOAT_CAP = 160;
  * in order, then S1 from the boundary up, then floating) that keeps that value. Returns the players
  * left floating, or null.
  */
+/**
+ * Mixed-radix weights for a lexicographic criteria vector (each entry 0 or 1 per board or float
+ * seat). Criterion j's total over one matching is at most min(slots, players who touch a board or
+ * seat where it is 1), so its digit needs only that many + 1 values. Radix `players + 1` for every
+ * digit (the earlier rule) left room for only 5 of the 7 criteria in a 51-player bracket and
+ * dropped C.16 (downfloated two rounds ago); these bases keep all 7. Trailing criteria are dropped
+ * only when even these bases pass 2^50 / `extra`. Returns { q(k), qM }.
+ */
+export function lexRadix(U, slots, extra, { allowed, crit, floatVec = null, canFloat = () => true }) {
+  const len = 7;
+  const touch = Array.from({ length: len }, () => new Set());
+  for (let a = 0; a < U.length; a++) {
+    const x = U[a];
+    for (let b = a + 1; b < U.length; b++) {
+      const y = U[b];
+      if (!allowed(x, y)) continue;
+      const k = crit(x, y);
+      for (let j = 0; j < len; j++) if (k[j]) { touch[j].add(x); touch[j].add(y); }
+    }
+    if (floatVec && canFloat(x)) { const k = floatVec(x); for (let j = 0; j < len; j++) if (k[j]) touch[j].add(x); }
+  }
+  const base = touch.map((t) => Math.min(slots, t.size) + 1);
+  let nc = len;
+  const prod = (n) => base.slice(0, n).reduce((p, b) => p * b, 1);
+  while (nc > 1 && prod(nc) * extra > 2 ** 50) nc--;
+  const mult = [];
+  for (let j = 0; j < nc; j++) mult.push(prod(nc) / prod(j + 1));
+  return { q: (k) => { let s = 0; for (let j = 0; j < nc; j++) s += k[j] * mult[j]; return s; }, qM: prod(nc) };
+}
+
 export function dutchFloaters(rem, fr, { allowed, crit, fa, order }, budget = 4000) {
   const inU = new Set([...rem, ...fr]);
   const U = order.filter((x) => inU.has(x));
   const nP = rem.length / 2;
-  const R2 = U.length + 1;
   const RB = U.length + 2;
   const XR = nP + 2;
-  let nc = 7;
-  while (nc > 1 && R2 ** nc * XR * RB * (U.length + 1) > 2 ** 50) nc--;
-  const qM = R2 ** nc;
-  const q = (k) => k.slice(0, nc).reduce((s, b, j) => s + b * R2 ** (nc - 1 - j), 0);
-  const qFloat = (x) => q([0, 0, 0, fa(x, 1) === "down" ? 1 : 0, 0, fa(x, 2) === "down" ? 1 : 0, 0]);
+  const fv = (x) => [0, 0, 0, fa(x, 1) === "down" ? 1 : 0, 0, fa(x, 2) === "down" ? 1 : 0, 0];
+  const { q, qM } = lexRadix(U, nP + fr.length, XR * RB * (U.length + 1), { allowed, crit, floatVec: fv });
+  const qFloat = (x) => q(fv(x));
   // One matching over `list` plus `dummies` float seats. Tiers: colour-and-float value, then
   // exchanges, then (when `s` is set) s's rank. Returns { m, q, x } or null.
   const solve = (S1, list, dummies, s = null, rank = null, floatRank = 0) => {
@@ -866,13 +893,10 @@ export function mdpFloaters(mdps, res, nf, { allowed, crit, fa, order }) {
   const U = order.filter((x) => inU.has(x));
   const isM = new Set(mdps);
   const boards = (U.length + nf) / 2;
-  const R2 = boards + 1;
   const RB = U.length + 2;
-  let nc = 7;
-  while (nc > 1 && R2 ** nc * RB * (U.length + 1) > 2 ** 50) nc--;
-  const qM = R2 ** nc;
-  const q = (k) => k.slice(0, nc).reduce((s, b, j) => s + b * R2 ** (nc - 1 - j), 0);
-  const qFloat = (x) => q([0, 0, 0, fa(x, 1) === "down" ? 1 : 0, 0, fa(x, 2) === "down" ? 1 : 0, 0]);
+  const fv = (x) => [0, 0, 0, fa(x, 1) === "down" ? 1 : 0, 0, fa(x, 2) === "down" ? 1 : 0, 0];
+  const { q, qM } = lexRadix(U, boards, RB * (U.length + 1), { allowed, crit, floatVec: fv, canFloat: (x) => !isM.has(x) });
+  const qFloat = (x) => q(fv(x));
   const solve = (list, s = null, rank = null) => {
     const n = list.length;
     const edges = [];

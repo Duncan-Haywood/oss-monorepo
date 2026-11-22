@@ -403,18 +403,18 @@ flagships:
       next: a real league's season. Box leagues 2026-11-21 (boxleague.mjs); next: a
       real club's month. Practice slots on shared fields 2026-11-21 (practice.mjs:
       95 of 95 CP-SAT optima, eval/practice-exact.txt); next: a real league's fields
-      and teams. Swiss: 99.1% of real later boards, 46/48 rounds exact
-      (eval/swiss-stage-b.txt); next Graz r4, Prague r5 floaters. More open items:
-      NEXT.md.
+      and teams. Swiss: 47/48 real later rounds exact (eval/swiss-big-brackets.txt);
+      next lichess acceleration. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
       CAD work and every check: cad/README.md (2026-11-21: switches, post wedges,
       every fastener a joint, nut spanners, idler axles fixed and the spool axle as
-      joints). Turntable bearing's two rings, access holes and eight M5 screws as
-      joints 2026-11-21. Next: the levelling feet's jam nuts as joints. Firmware
-      survey tuning is settled on simulated data (firmware/esp32/README.md,
-      NEXT.md): next information there is a real wheel's tach log.
+      joints). Bearing rings 2026-11-21; levelling feet's blocks and jam nuts as
+      joints 2026-11-22 (every feeder nut a joint). Next: a deep socket on an
+      extension (cad/README.md, Spanners). Firmware survey tuning is settled on
+      simulated data (firmware/esp32/README.md, NEXT.md): next information there is
+      a real wheel's tach log.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -609,8 +609,8 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
       the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
-      covering areas, 43 wall sides, C20's 2 columns); 6 unexplained NetVolumes
-      (eval/glazing-left-out-2026-11-21.md); curved breps left
+      covering areas, 43 wall sides, C20's 2 columns); 2 zinc copings' NetVolumes
+      (eval/side-lights-2026-11-22.md); curved breps left
       (eval/curved-breps-2026-11-20.md: #162827 band, 4 unexplained); more revision
       series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
       Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
@@ -620,10 +620,10 @@ flagships:
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
       eval/. its misses traced 2026-11-21: overlapping body items joined (a cabinet
       had counted 1.8x its box), 9,310 of 9,312 now enclose the computed volume
-      (eval/item-union-2026-11-21.md; next in NEXT.md). Member length, steel weight
-      2026-11-22 (eval/member-length-weight-*). IFC4X3 bridges 2026-11-22: linear
-      placements, sectioned-solid lofts (eval/linear-placement-2026-11-22.md); next
-      cant, a 2nd bridge (NEXT.md). Room schedule 2026-11-21
+      (eval/item-union-2026-11-21.md; next in NEXT.md). IFC4X3 bridges, rebar on
+      arcs, grid placements, fixed-reference sweeps 2026-11-22
+      (eval/linear-placement-*, eval/bsi-samples-*); next cant, a 2nd bridge, a
+      rebar schedule by mark and shape code (NEXT.md). Room schedule 2026-11-21
       (eval/rooms-2026-11-21.md); next: HouseZ's 3 openings 0.51 m under their
       room's floor, dental_clinic's 17 ROOF windows (NEXT.md). Next, most valuable
       first: (1) the covering up-cut rule tested on a second model, the joins rule

@@ -348,3 +348,21 @@ test("mdpFloaters: the MDP takes the earliest resident first, even when that cha
   met.clear();
   assert.equal(mdpFloaters([25], [1, 2, 4, 9, 18, 22], 1, opts).length, 1);
 });
+
+test("lexRadix keeps all seven criteria in a 51-player bracket (C.16 was dropped)", async () => {
+  const { lexRadix } = await import("./swiss.mjs");
+  const U = Array.from({ length: 51 }, (_, i) => i + 1);
+  // Colour clashes possible on every board; two players floated down two rounds ago.
+  const crit = (x, y) => [0, 0, (x + y) % 2, 0, 0, 0, 0];
+  const fv = (x) => [0, 0, 0, 0, 0, x === 50 || x === 51 ? 1 : 0, 0];
+  const XR = 27, RB = U.length + 2;
+  const { q, qM } = lexRadix(U, 26, XR * RB * (U.length + 1), { allowed: () => true, crit, floatVec: fv });
+  assert.ok(q(fv(51)) > 0, "C.16 still has a digit");
+  // One more mild clash outweighs every C.16 count a matching can reach.
+  assert.ok(q([0, 0, 1, 0, 0, 0, 0]) > q([0, 0, 0, 0, 0, 2, 0]));
+  assert.ok(qM * XR * RB * (U.length + 1) <= 2 ** 50);
+  // The old radix (players + 1 per digit) had room for only 5 digits here.
+  let nc = 7;
+  while (nc > 1 && 52 ** nc * XR * RB * 52 > 2 ** 50) nc--;
+  assert.equal(nc, 5);
+});
