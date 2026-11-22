@@ -64,3 +64,75 @@ Anything fails: defaults stay and this note says where.
 against Chen there (0 losers), and the new rule can only remove rows. Its weight here is that the rule is fixed,
 with P1 and P2, before the column exists. A blind check stays open: raw.pixls.us's `first` set (the D780/D600
 foliage rows) and any fresh body, when reachable.
+
+## Result: the green-pair reading fails both validity tests; `mpcws` stays opt-in
+
+`tools/truth_noise_check.py` (now writing `gg18` beside `raw_grain18`) on the 53 files: 67 tiles, 64 with both
+readings (the two X-Trans RAFs have no green pair; the `raw_grain18` values match the committed sweep's on every
+tile). 1 min 43 s on 4 cores. Output: `noise-pca-mpcws-noisy-truth-gg-2026-11-22.jsonl`; the test,
+`python tools/near_clean_gate.py noisytruth <that file>`, in `noise-pca-mpcws-noisy-truth-2026-11-22.txt`.
+
+| test | reading | bar | |
+|---|---|---|---|
+| P1, K-1 Mark II [0, 0] / [0, 1362] / [372, 678] | gg / grain 1.85 / 2.11 / **0.16** | each at least 1.5 | FAIL |
+| P2, other tiles (n = 62) | median 2.11 (quartiles 1.42 to 3.88) | 0.67 to 1.5 | FAIL |
+| P2, textured tiles (n = 5) | median 5.44 | at most 1.5 | FAIL |
+
+So by the rule committed above the column is a reading only: `clean_enough` is unchanged, the pick and test were
+not run under it, and `mpcws` stays opt-in (`eig="mpcws"`). The Bayer default stays `mpcw`.
+
+**Why it failed (readings after the verdict; they decide nothing).**
+
+- The calibration holds where the scene is flat: on the full-size frames whose frame read is at most 1.1 times the
+  raw read (Sony A7 III, A7 IV, NEX-7, Nikon D800E, D810, 13 tiles), gg / grain is 0.96 to 1.27 on 11 and 1.54 to 1.74
+  on 2. On the 3-tile (full-size) frames the median is 1.14, on the 1-tile (small) frames 2.60: a small frame puts
+  more scene into each sensel, and the sites' one-sensel diagonal offset passes it into the difference. gg / grain
+  rises with the frame read's own over-read (Spearman 0.56 with `truth_sigma18 / raw_grain18`, n = 62).
+- K-1 II [372, 678] reads 0.16: the two green sites' noise is shared there (the 2 x 2-shared-noise case in
+  `tests/test_truth_green_pair.py`, which the difference cancels). A raw that is filtered in camera, or a long
+  exposure's noise common to neighbouring sensels, would do this; this note cannot say which.
+
+**What the losing rows are, whatever the truth's noise (also after the verdict).** Had P1 and P2 passed, the rule
+would have dropped 56 of the 162 tune rows, mostly by reading texture, and the pick would still have failed:
+`mpcws+12` 6 losing rows against `mpcw+12`'s 2, all six on the K-1 II at SNR 12, which stays "clean" under either
+reading (0.18 / 0.013 = 13.8 at least 12). And the reads themselves (sigma at 18% grey, the committed rows):
+
+| K-1 II tile, SNR 25 / 12 (equal noise) | added | `raw_grain18` | `mpcw` | `mpcws` |
+|---|---|---|---|---|
+| [372, 678] | 0.0072 / 0.0150 | 0.0113 | 0.0146 / 0.0172 | 0.0299 / 0.0329 |
+| [0, 0] | 0.0072 / 0.0150 | 0.0070 | 0.0262 / 0.0302 | 0.0229 / 0.0280 |
+| [0, 1362] | 0.0072 / 0.0150 | 0.0066 | 0.0277 / 0.0302 | 0.0261 / 0.0283 |
+
+On [372, 678] the truth's grain and the added noise together are about 0.013 at SNR 25 (sqrt(0.0072^2 + 0.0113^2)):
+`mpcw` reads that, `mpcws` reads 2.3 times it. That is `mpcws`'s own fault: Liu's iteration keeps patches whose
+texture energy is under `s2 x tr x q`, and with `SELECT_WITH` the `s2` is the whitened read itself, so a high read
+loosens the threshold, keeps more texture and reads higher again. On the two other tiles (frame read 3.5 to 4 times
+the raw grain: textured) both reads over-read about equally, 3 to 4 times the added noise at SNR 25; why `mpcws`
+loses more there with a slightly lower read at 18% grey is not settled here (the blend takes the whole line, not
+the 18% point).
+
+## Next (for the flagship row)
+
+`mpcws` with its feedback cut: select with `mpcw`'s level (one pass, not iterated on its own read), pre-registered
+against `mpcw` on this sweep's tune and held splits, with the K-1 II [372, 678] over-read (`mpcws` / `mpcw` read at
+most 1.3 there) as a stated check. The green-pair reading stays a tool for flat full-size frames only; it is not a
+noisy-truth judge.
+
+## What changed
+
+- `tools/truth_noise_check.py`: `green_pair18` and the `gg18` column.
+- `tools/near_clean_gate.py`: `noisytruth` (P1 and P2), `whitened --base` (the read to beat; `mpcw` since
+  2026-11-21) and `--gg` (join `truth_gg18`; `clean_enough` takes the larger reading when it is joined).
+- `tests/test_truth_green_pair.py`: white noise reads its own level, column-streak noise reads sqrt(2) above
+  it, noise shared by both sites cancels, and a joined `truth_gg18` drops a row the raw read keeps.
+
+## Reproduce
+
+    git clone --filter=blob:none --no-checkout --depth 1 https://github.com/drewnoakes/metadata-extractor-images.git mei
+    cd mei && git sparse-checkout set arw cr2 dng nef orf pef raf rw2 srw && cd -
+    # the 53 files the 2026-11-21 sweep scored (its rows' "file" names)
+    PYTHONPATH=src python tools/truth_noise_check.py --cache /tmp/truths FILES... > gg.jsonl
+    python tools/near_clean_gate.py noisytruth gg.jsonl
+    python tools/near_clean_gate.py whitened eval/noise-pca-whitened-level-2026-11-21.jsonl --split tune --base mpcw --eigs mpcws
+
+Python 3.11.18, numpy 2.4.6, rawpy 0.28.0.

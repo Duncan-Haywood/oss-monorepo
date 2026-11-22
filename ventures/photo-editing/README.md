@@ -1681,7 +1681,13 @@ any real row was read, on 51 bodies from github.com/drewnoakes/metadata-extracto
 +0.09 dB luma and +0.04 dB colour over what shipped on average, +0.21 dB luma on the white-balanced SNR 25 and 12
 rows, no row newly losing to directional. Reading the noise of the patch *selection* the same way (`eig="mpcws"`)
 gains three times as much held out (+0.31 dB) but failed the pick: it adds 4 losing rows on one Pentax K-1 II file
-whose ISO 1600, 30 s truth is itself noisy. X-Trans keeps Chen's read. `eval/noise-pca-whitened-level-2026-11-21.md`.
+(ISO 1600, 30 s). X-Trans keeps Chen's read. `eval/noise-pca-whitened-level-2026-11-21.md`. A noisy truth does not
+explain those rows (2026-11-22): a second reading of each truth's grain from the difference of the two green sites,
+pre-registered as the judge, failed its own validity tests (it reads scene detail as grain on small frames, median
+2.6 times the raw read there against 1.1 on full-size frames), and even taken at face value it keeps every K-1 II
+SNR 12 row clean, where `mpcws` still loses. On the tile where it loses alone, `mpcws` reads 0.028 to 0.040 against
+0.013 to 0.014 for `mpcw`, more than the truth's grain and the added noise together: its patch selection, driven by
+its own higher read, keeps texture. `eval/noise-pca-mpcws-noisy-truth-2026-11-22.md`.
 
 ## A directional demosaic for Bayer files (2026-11-15)
 

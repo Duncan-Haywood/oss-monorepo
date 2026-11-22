@@ -14,8 +14,12 @@
   is the Bayer default: held out +0.09 dB luma, +0.21 dB on white-balanced SNR 25 and 12 rows, no new loser. Next:
   `mpcws` (the same read also picks the weak-texture patches): held out +0.31 dB luma and 0 losers, but on the tune
   split it adds 4 losing rows, all on `Pentax K-1 Mark II.pef` (ISO 1600, 30 s), whose raw-read grain passes
-  `clean_enough` while the frame read of the clean mosaic is 2-4x higher. Pre-register a noisy-truth test that
-  settles that file first (e.g. the stricter of the two truth readings), then the pick; and rerun both on
+  `clean_enough` while the frame read of the clean mosaic is 2-4x higher. (2026-11-22,
+  eval/noise-pca-mpcws-noisy-truth-2026-11-22.md) A green-pair truth reading, pre-registered as the noisy-truth
+  judge, failed its validity tests (reads scene detail on small frames; 0.16x on one K-1 tile where the sites share
+  noise), and the K-1 SNR 12 losers stay clean under either reading. On [372, 678] `mpcws` reads 2.3x truth grain +
+  added noise, `mpcw` 1.1x: the selection feeds on its own read. Next: `mpcws` selecting with `mpcw`'s level, one
+  pass, pre-registered against `mpcw` with "read ratio at most 1.3 on that tile" as a stated check; rerun on
   raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) when it is reachable. X-Trans has not been
   tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
