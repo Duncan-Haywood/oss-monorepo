@@ -140,3 +140,50 @@ test('an unset METRIC_CSV fails the first step with the instruction, and saves n
   assert.match(run.steps[CHECK].stdout, /Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON or GA4_SERVICE_ACCOUNT_JSON secret/);
   assert.equal(run.steps[SAVE].code, 0);
 });
+
+// README "The weekly watch in GitHub Actions": WATCH_WEEKLY=on runs a second watch, on whole weekly totals with the
+// drift detector, beside the daily one. A shop of about 1,000 orders a day (a busy Saturday, a quiet Sunday,
+// lognormal day noise sd 0.2) climbs to x1.9 over 42 days from day 160, linear in the log. Runs come once a week.
+function climb(N = 260, at = 160, len = 42, seed = 11) {
+  const u = lcg(seed), g = gauss(u), wf = [1.1, 1, 1, 1, 1.05, 1.3, 0.6];
+  return Array.from({ length: N }, (_, i) => { const f = i < at ? 0 : Math.min(1, (i - at) / len); return Math.round(1000 * Math.exp(f * Math.log(1.9)) * wf[i % 7] * Math.exp(0.2 * g())); });
+}
+const mday = (i) => new Date(Date.UTC(2026, 0, 5) + i * 864e5).toISOString().slice(0, 10); // 2026-01-05 is a Monday
+
+test('WATCH_WEEKLY=on: the weekly watch hears a slow climb the daily watch does not, once, saved in its own record', () => {
+  const values = climb();
+  const r = deployerRepo([], 0);
+  const csv = (n) => 'date,orders\n' + values.slice(0, n).map((v, i) => `${mday(i)},${v}\n`).join('');
+  const push = (n) => { git(r.dev, 'pull', '-q', '--rebase'); writeFileSync(join(r.dev, 'data/metric.csv'), csv(n)); git(r.dev, 'commit', '-qam', `data to ${mday(n - 1)}`); git(r.dev, 'push', '-q'); };
+  const vars = { METRIC_CSV: 'data/metric.csv', WATCH_WEEKLY: 'on' };
+  const red = [];
+  let weeksSeen = 0;
+  for (let n = 140; n <= values.length; n += 7) {
+    push(n);
+    const run = runWorkflow({ workflow: r.workflow, remote: r.remote, vars });
+    assert.equal(run.steps[SAVE].code, 0, run.steps[SAVE].stderr);
+    assert.match(run.summary, /Weekly: \d+ whole Monday-to-Sunday weeks/, 'the weekly watch reports into the job summary');
+    if (!run.ok) red.push({ n, out: run.steps[CHECK].stdout });
+    git(r.dev, 'pull', '-q', '--rebase');
+    const wk = JSON.parse(readFileSync(join(r.dev, 'weekly-state.json'), 'utf8'));
+    assert.ok(wk.n > weeksSeen, `run at day ${n}: the weekly record advanced every run, red or green`);
+    weeksSeen = wk.n;
+    assert.ok(JSON.parse(readFileSync(join(r.dev, 'watch-state.json'), 'utf8')).n === n, 'the daily record is saved beside it');
+  }
+  assert.equal(red.length, 1, JSON.stringify(red));
+  const m = red[0].out.match(/orders \(weekly total\) changed from the week of (\d{4}-\d\d-\d\d)/);
+  assert.ok(m, red[0].out);
+  const dated = Math.round((Date.parse(m[1]) - Date.UTC(2026, 0, 5)) / 864e5);
+  assert.ok(dated >= 160 - 7 && dated <= 160 + 42, `dated to the week of ${m[1]}, inside the climb`);
+  assert.doesNotMatch(red[0].out, /^ {2}orders changed from/m, 'the daily watch sent nothing on this climb');
+  assert.match(red[0].out, /whole weeks since/);
+});
+
+test('WATCH_WEEKLY unset: no weekly watch and no weekly-state.json, as before', () => {
+  const r = deployerRepo(series(), 60);
+  const run = runWorkflow({ workflow: r.workflow, remote: r.remote, vars: { METRIC_CSV: 'data/metric.csv' } });
+  assert.ok(run.ok);
+  assert.doesNotMatch(run.summary, /Weekly:/);
+  git(r.dev, 'pull', '-q', '--rebase');
+  assert.throws(() => readFileSync(join(r.dev, 'weekly-state.json')));
+});

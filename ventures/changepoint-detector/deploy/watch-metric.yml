@@ -12,6 +12,12 @@
 #                               "orders:poisson:bocpd-window" gives one column its own detector, and
 #                               "orders:poisson:bocpd" the count default before 2026-11-20 (a count column that
 #                               names nothing gets bocpd-window with a clumped-count cost at threshold 0.3)
+#   variable WATCH_WEEKLY       optional: "on" adds a second watch, on whole Monday-to-Sunday weekly totals with the
+#                               drift detector, beside the daily one, with its own record in weekly-state.json. It
+#                               hears a slow climb over weeks (a season building) that the daily watch misses, weeks
+#                               in, not days (README "Round 7: the weekly drift watch beside the daily watch").
+#                               Its messages say "(weekly total)". Or give its options yourself, e.g.
+#                               "--column orders --detector drift" or "--columns revenue,orders --detector drift".
 #   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
 #   secret   STRIPE_API_KEY     optional: a Stripe restricted key with read access to Charges. Each run then writes
 #                               data/stripe.csv (date,payments,revenue,failed per complete day; stripe-metrics.mjs) and,
@@ -44,7 +50,7 @@ on:
     - cron: '17 7 * * *'   # daily at 07:17 UTC; change to suit how often a row arrives
   workflow_dispatch:
 permissions:
-  contents: write          # to commit watch-state.json, which remembers what was already reported
+  contents: write          # to commit watch-state.json (and weekly-state.json), which remember what was already reported
 concurrency: watch-metric
 jobs:
   watch:
@@ -109,34 +115,52 @@ jobs:
         env:
           METRIC_CSV: ${{ vars.METRIC_CSV }}
           WATCH_OPTIONS: ${{ vars.WATCH_OPTIONS }}
+          WATCH_WEEKLY: ${{ vars.WATCH_WEEKLY }}
           WATCH_WEBHOOK_URL: ${{ secrets.WATCH_WEBHOOK_URL }}
         run: |
           set -u
+          # The weekly watch's default per source: the money or traffic total, where a season builds.
+          WEEKLY_DEFAULT="--detector drift"
           if [ -z "$METRIC_CSV" ] && [ -f data/stripe.csv ]; then
             METRIC_CSV=data/stripe.csv
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns payments:poisson,revenue,failed:poisson"
+            WEEKLY_DEFAULT="--columns revenue,payments --detector drift"
           elif [ -z "$METRIC_CSV" ] && [ -f data/shopify.csv ]; then
             METRIC_CSV=data/shopify.csv
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns orders:poisson,revenue,cancelled:poisson"
+            WEEKLY_DEFAULT="--columns revenue,orders --detector drift"
           elif [ -z "$METRIC_CSV" ] && [ -f data/gsc.csv ]; then
             METRIC_CSV=data/gsc.csv
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns clicks:poisson,impressions:poisson"
+            WEEKLY_DEFAULT="--columns clicks,impressions --detector drift"
           elif [ -z "$METRIC_CSV" ] && [ -f data/ga4.csv ]; then
             METRIC_CSV=data/ga4.csv
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson"
+            WEEKLY_DEFAULT="--columns sessions,keyEvents --detector drift"
           fi
           if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON or GA4_SERVICE_ACCOUNT_JSON secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
+          # Both watches run even when the first fails (a new change, or a webhook that answered an error); the step
+          # fails if either did, and each watch's record is saved by the next step either way.
+          DAILY=0; WEEKLY=0
           # word-splitting of WATCH_OPTIONS is intended
-          node watch.mjs "$METRIC_CSV" --state watch-state.json $HOOK $WATCH_OPTIONS $FAIL | tee -a "$GITHUB_STEP_SUMMARY"
+          node watch.mjs "$METRIC_CSV" --state watch-state.json $HOOK $WATCH_OPTIONS $FAIL | tee -a "$GITHUB_STEP_SUMMARY" || DAILY=$?
+          if [ -n "$WATCH_WEEKLY" ]; then
+            [ "$WATCH_WEEKLY" = "on" ] && WATCH_WEEKLY="$WEEKLY_DEFAULT"
+            echo "" | tee -a "$GITHUB_STEP_SUMMARY"
+            # word-splitting of WATCH_WEEKLY is intended
+            node watch.mjs "$METRIC_CSV" --state weekly-state.json --weekly $HOOK $WATCH_WEEKLY $FAIL | tee -a "$GITHUB_STEP_SUMMARY" || WEEKLY=$?
+          fi
+          [ "$DAILY" -ne 0 ] && exit "$DAILY"
+          exit "$WEEKLY"
       - name: Save what was reported
         if: always()
         run: |
-          [ -f watch-state.json ] || exit 0
+          [ -f watch-state.json ] || [ -f weekly-state.json ] || exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add watch-state.json
+          for f in watch-state.json weekly-state.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           git diff --cached --quiet && exit 0
           git commit -m "watch: state after $(date -u +%F)"
           # Another job (or you) may have pushed rows since the checkout; a plain push would then be refused, the
@@ -145,5 +169,5 @@ jobs:
             sleep $wait
             git pull --rebase --quiet && git push --quiet && exit 0
           done
-          echo "Could not push watch-state.json after 4 tries; the next run may report the same change again."
+          echo "Could not push the watch state after 4 tries; the next run may report the same change again."
           exit 1

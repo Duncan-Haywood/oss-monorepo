@@ -50,6 +50,15 @@ bunched counts at alert threshold 0.3: on 2,200 fresh simulated shops it sent 1.
 against the older default's 3.26 and heard 1,056 of 1,200 drops and rises against 701 (README "A count default for
 clumped orders"). `--columns orders:poisson:bocpd,revenue` keeps the older default. Revenue keeps its default.
 
+A slow climb over weeks (a season building): set the variable `WATCH_WEEKLY` to `on`. Each run then also watches
+whole Monday-to-Sunday weekly totals with the drift detector, with its own record in `weekly-state.json`, and its
+messages say "(weekly total)". On 150 simulated shops climbing to 1.9 times their level over 4 to 8 weeks, the daily
+watch alone heard 92 by 8 weeks and the two together 131, for about half a false alert a year more (README "Round 7:
+the weekly drift watch beside the daily watch"). It is late by design: it hears a climb weeks in, not days. It needs
+4 whole weeks of rows. With Stripe or Shopify it watches revenue and payments or orders; with Search Console clicks
+and impressions; with Google Analytics sessions and key events. To choose yourself, set it to options instead, e.g.
+`--column orders --detector drift`.
+
 Stripe: add the secret `STRIPE_API_KEY` (a restricted key with read access to Charges; Dashboard > Developers >
 API keys > Create restricted key) and leave `METRIC_CSV` unset. Each run then fetches your complete days into
 `data/stripe.csv` (payments, revenue, failed payments; `node stripe-metrics.mjs --help`) and watches all three, so

@@ -249,7 +249,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   const changes = detectChanges(values, labels, detOpts);
   const countDefault = withCountDefaults(detOpts) !== detOpts;
   const res = advance(state, changes, values.length, labels, o);
-  const textOpts = { column, model: o.model || 'mean', confirm: o.confirm };
+  const textOpts = { column, model: o.model || 'mean', confirm: o.confirm, weekly: !!wk };
   if (hookEnv && res.alerts.length) {
     const url = env[hookEnv];
     if (!url) throw new Error(`--webhook-env ${hookEnv}: that environment variable is empty.`);
@@ -459,7 +459,7 @@ async function watchColumns({ csv, closed = null, weeklyOn = false, specs, o, st
     results.push({ column: c.column, model: det.model || 'mean', detector: c.detector ?? null, clumping: c.overdispersion ?? null, countDefault: withCountDefaults(det) !== det, n: c.values.length, picked, res, fill: c.fill });
   }
   const alerting = results.filter((r) => r.res.alerts.length);
-  const message = alerting.map((r) => alertText(r.res, { column: r.column, model: r.model })).join('\n');
+  const message = alerting.map((r) => alertText(r.res, { column: r.column, model: r.model, weekly: weeklyOn })).join('\n');
   if (hookEnv && alerting.length) {
     const url = env[hookEnv];
     if (!url) throw new Error(`--webhook-env ${hookEnv}: that environment variable is empty.`);
