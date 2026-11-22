@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmbvszqoo1cAteTDnX",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T22:18:52Z",
+  "ended": "2026-11-22T22:31:37Z",
+  "wall_minutes": 13.1,
+  "tokens_in": 4842638,
+  "tokens_out": 47139,
+  "cost_usd": 2.8678,
+  "tool_calls": 49,
+  "task": "creative: new Hearth & Horizon story from the BIBLE.md Next up list",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18321",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "WebFetch of en.wikipedia.org failed (host not in allowed network domains)",
+      "fix": "verified the Leidenfrost spoon experiment through WebSearch results (Walker's essay) instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Leidenfrost proposal said the failed first try was the agent 'lowering the setting because the drops lasted', which contradicts its own premise (a rule of 'lasting means cool' raises the setting); cost a few minutes working out which the proposer meant."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The proposal's suggested source, a translation of Leidenfrost's tract, could not be confirmed (venue and year conflict between sources), so the note cites the 1756 tract and Walker's retelling instead; proposals should only name sources they have checked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Proposal had the agent lower the setting; physically, misreading a long-lived drop as a cool plate makes it raise it.",
+      "did": "Agent raises 9 to 12 (wrong-sign feedback runs the plate hot); said so in DONE.md, the PR and the post.",
+      "result": "Story's failure is consistent with its note's model."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB of 400 MB).",
+      "did": "Text only, no audio, as the prompt directs.",
+      "result": "Story listed as text only."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-hearth-and-horizon-the-drop-that-dances.md",
+    "ventures/hearth-and-horizon/stories/the-drop-that-dances.md",
+    "ventures/hearth-and-horizon/BIBLE.md (new Next up proposal: The share that goes back in, Kelly criterion)"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (headline shelf), piece: the-drop-that-dances (4,382 words, text only). creative_due.py drew hearth-and-horizon. Claimed the proposal via draft PR #18321 before drafting; searched open PRs for 'dances' and 'Leidenfrost' first (none). Adversarial re-read against the note's model fixed three dialogue slips (Saturday lifetimes 41 s -> 64 s and 35 s -> 50 s; Thursday reading count five -> six). Dates checked with code (Easter 2047 = 14 April, Shrove Tuesday 26 Feb). Verification: node --test in ventures/hearth-and-horizon 20/20 pass; check_posts.py ok; run_workflow_locally.py --for-changes: 9/9 selected workflows passed (exit 5 = not a clean sweep: agent-cross-review and portfolio-pages deploy/gate jobs, portfolio-pages and portfolio-validate deferred to PR CI as content-only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "84cee662-d40f-5857-a04b-e065c2e36113",
+    "transcripts": 1,
+    "first": "2026-11-22T22:18:52Z",
+    "last": "2026-11-22T22:31:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 92,
+        "output": 47139,
+        "thinking": 22503,
+        "cache_read": 4719960,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122586,
+        "api_equivalent_usd": 2.8678,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 92,
+      "output": 47139,
+      "thinking": 22503,
+      "cache_read": 4719960,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122586,
+      "api_equivalent_usd": 2.8678,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 4,
+      "WebSearch": 4,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebFetch": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.1,
+      "active_minutes": 13.1,
+      "model_minutes": 10.07,
+      "tool_minutes": 3.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a researched 4,400-word short story with worked physics notes, at roughly 550 finished words an hour including checking",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 279.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
