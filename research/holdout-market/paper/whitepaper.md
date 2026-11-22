@@ -17,12 +17,15 @@ State: published model θ with published holdout loss ℓ (log loss, clipped to 
 * **ladder(η)**: accept iff L_H(θ') < ℓ − η; publish ℓ' = round(L_H(θ'), η); pay B(ℓ − ℓ').
 
 ## Results
-**1. Budget telescopes (proved, tested).** Payments sum to B(ℓ₀ − ℓ_T) ≤ Bℓ₀ for any number of submissions, so the
+**1. Budget telescopes (telescoping sum; tested).** Payments sum to B(ℓ₀ − ℓ_T) ≤ Bℓ₀ for any number of submissions, so the
 sponsor's worst-case outlay is known in advance. Submitting the current model pays 0 (copy-proof).
 
 **2. Splitting.** Under raw, splitting an improvement into steps never lowers the total (final published loss ≤ the loss of
-the last submission). Under the ladder, the gate is against the published loss, so splitting changes the total by at most
-one rung (B·η, tested). The real cost is that improvements below η are unpaid and are not published.
+the last submission). Under the ladder, when the holdout loss falls steadily along the split path, splitting changed the
+total by at most one rung (B·η) in our tests (2,000 monotone cases). **Correction (quality round 98):** this is not a
+general bound. Along a path whose loss dips and rises, splitting can be paid far more: a 5-dimensional overshooting
+update is paid 0 when submitted once and 13 rungs (0.26) when split into 40 steps, because a midway point reaches loss
+0.43 (`tests/test_market.py`, `test_splitting_overshoot_counterexample`). The real cost is that improvements below η are unpaid and are not published.
 
 **3. Naive payments reward overfitting; the published model gets worse.** After an honest phase (d=20, holdout n=100, 8
 seeds), an adversary with no data proposes random perturbations around the published model and keeps whatever is paid.
@@ -33,7 +36,7 @@ degrades the model by 0.002; at η=0.05 it is paid 0.
 **4. The ladder's price.** Honest contributors with small shards (10 samples, 30 contributors) improve the true loss by
 0.336 under raw but 0.293 (η=0.02) and 0.227 (η=0.05) under the ladder: sub-η improvements are neither paid nor
 published, so the model is slower to improve. For n=100 holdout points, η≈0.02–0.05 is the workable window here; at
-η=0.1 even the first phase loses ~25% of the paid gain.
+η=0.1 even the first phase loses ~23% of the paid gain (0.313 vs 0.408).
 
 ## Implications
 * The holdout must be treated as a consumable. Any protocol that publishes exact per-submission scores for verifiable
@@ -45,7 +48,9 @@ published, so the model is slower to improve. For n=100 holdout points, η≈0.0
 
 ## Limitations
 Synthetic logistic model, one attack (greedy random search — a stronger adversary using gradient-free or
-label-inference attacks would do more damage to raw; the ladder bound is worst-case), one holdout size, 8 seeds, no
+label-inference attacks would do more damage to raw; the Ladder's worst-case bound, O((log(kn)/n)^(1/3)), is
+vacuous at n=100 and k=5000, so the ladder's result here holds against random search only; Blum and Hardt's own
+boosting attack was not run), one holdout size, no spread across seeds reported, 8 seeds, no
 sybil/collusion analysis, positive-only payments (a signed rule would penalise random probing but needs stake).
 Not tested: neural networks, fresh-holdout rotation, the reusable holdout (Thresholdout) as an alternative.
 
