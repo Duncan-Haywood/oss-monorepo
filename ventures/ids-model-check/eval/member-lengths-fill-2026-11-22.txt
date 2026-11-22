@@ -1,0 +1,10 @@
+construction.ifc: 257 Lengths written from geometry (257 in all), verified 257 of 257 pass; 257 had a stored Length: 257 within 2%; 0 left to the to-fill table; 0.933 s
+architect.ifc: 1375 Lengths written from geometry (1375 in all), verified 1375 of 1375 pass; 1375 had a stored Length: 1375 within 2%; 75 left to the to-fill table; 9.248 s
+ISSUE_021_Mini Project.ifc: 1340 Lengths written from geometry (1340 in all), verified 1340 of 1340 pass; 1337 had a stored Length: 1337 within 2%; 863 left to the to-fill table; 4.632 s
+ISSUE_102_M3D-CON-CD.ifc: 102 Lengths written from geometry (102 in all), verified 102 of 102 pass; 102 had a stored Length: 102 within 2%; 240 left to the to-fill table; 6.601 s
+schependomlaan.ifc: 188 Lengths written from geometry (188 in all), verified 188 of 188 pass; 123 had a stored Length: 118 within 2%; 18 left to the to-fill table; 5.997 s
+  #7939 stored 0.2811 written 0.5000 m
+  #8937 stored 0.2811 written 0.5000 m
+  #10265 stored 0.2811 written 0.5000 m
+  #12513 stored 0.2811 written 0.5000 m
+  #8123 stored 0.3500 written 0.6549 m

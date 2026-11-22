@@ -38,3 +38,6 @@
 - (2026-11-21) next: a real tool's .ifcx
 - (2026-11-22) next: a client's real stage-to-stage IDS pair
 - (2026-11-22) an RVB/ILS author on \s
+- (2026-11-22) a Revit/ARCHICAD IFC4X3 export to confirm
+- (2026-11-22) a page route for bSDD if its API ever allows CORS; a BIM manager's real table or filled Excel2IDS workbook via --from-sheet; Excel itself typing into the download (dropdown lists in it 2026-11-19, eval/sheet-dropdowns-2026-11-19.md: 0 strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476)
+- (2026-11-22) member Length: Tekla's cut members (extent right 156 of 172; its Length may be the reference line's, which the IFC body does not carry) and Revit cut members (none stored in a public model); plates exported as beams (PL..., 221 store the extrusion, 56 the plate length: no rule separates them), eval/member-lengths-2026-11-22.md

@@ -1,0 +1,230 @@
+{
+ "construction.ifc": {
+  "Revit IFCCOLUMN": {
+   "stored": 257,
+   "offered": 257,
+   "within2": 257,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 0,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  }
+ },
+ "architect.ifc": {
+  "Revit IFCMEMBER": {
+   "stored": 1392,
+   "offered": 1375,
+   "within2": 1375,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 17,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  }
+ },
+ "Schultz_Residence.ifc": {},
+ "AC20-FZK-Haus.ifc": {
+  "ARCHICAD IFCBEAM": {
+   "stored": 1,
+   "offered": 1,
+   "within2": 1,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 0,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  }
+ },
+ "C20-Institute-Var-2.ifc": {
+  "ARCHICAD IFCCOLUMN": {
+   "stored": 2,
+   "offered": 2,
+   "within2": 2,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 0,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  }
+ },
+ "ISSUE_021_Mini Project.ifc": {
+  "Tekla IFCMEMBER": {
+   "stored": 228,
+   "offered": 228,
+   "within2": 228,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 0,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  },
+  "Tekla IFCBEAM": {
+   "stored": 1946,
+   "offered": 1101,
+   "within2": 1101,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 808,
+   "cutHeld": 37,
+   "cutHeldExtent": 34,
+   "cutHeldCentroid": 24
+  },
+  "Tekla IFCCOLUMN": {
+   "stored": 26,
+   "offered": 8,
+   "within2": 8,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 0,
+   "cutHeld": 18,
+   "cutHeldExtent": 18,
+   "cutHeldCentroid": 0
+  }
+ },
+ "ISSUE_068_ARK_NUS_skolebygg.ifc": {
+  "Revit IFCMEMBER": {
+   "stored": 687,
+   "offered": 660,
+   "within2": 7,
+   "repeated": 653,
+   "wrong": [],
+   "notLinear": 27,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  },
+  "Revit IFCBEAM": {
+   "stored": 40,
+   "offered": 40,
+   "within2": 16,
+   "repeated": 23,
+   "wrong": [
+    {
+     "id": 1165849,
+     "name": "IPE-Beams:IPE 200:3714985",
+     "stored": 1.92,
+     "offered": 2.0795,
+     "from": "square"
+    }
+   ],
+   "notLinear": 0,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  }
+ },
+ "ISSUE_102_M3D-CON-CD.ifc": {
+  "Tekla IFCBEAM": {
+   "stored": 242,
+   "offered": 18,
+   "within2": 18,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 120,
+   "cutHeld": 104,
+   "cutHeldExtent": 100,
+   "cutHeldCentroid": 0
+  },
+  "Tekla IFCPILE": {
+   "stored": 68,
+   "offered": 68,
+   "within2": 68,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 0,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  },
+  "Tekla IFCCOLUMN": {
+   "stored": 32,
+   "offered": 16,
+   "within2": 16,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 12,
+   "cutHeld": 4,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  }
+ },
+ "ISSUE_102_M3D-CON.ifc": {
+  "Tekla IFCBEAM": {
+   "stored": 31,
+   "offered": 12,
+   "within2": 12,
+   "repeated": 0,
+   "wrong": [],
+   "notLinear": 6,
+   "cutHeld": 13,
+   "cutHeldExtent": 4,
+   "cutHeldCentroid": 0
+  }
+ },
+ "schependomlaan.ifc": {
+  "ARCHICAD IFCBEAM": {
+   "stored": 127,
+   "offered": 123,
+   "within2": 118,
+   "repeated": 0,
+   "wrong": [
+    {
+     "id": 7939,
+     "name": "fund_strook",
+     "stored": 0.2811,
+     "offered": 0.5,
+     "from": "square"
+    },
+    {
+     "id": 8123,
+     "name": "fund_opstort",
+     "stored": 0.35,
+     "offered": 0.6549,
+     "from": "centroid"
+    },
+    {
+     "id": 8937,
+     "name": "fund_strook",
+     "stored": 0.2811,
+     "offered": 0.5,
+     "from": "square"
+    },
+    {
+     "id": 10265,
+     "name": "fund_strook",
+     "stored": 0.2811,
+     "offered": 0.5,
+     "from": "square"
+    },
+    {
+     "id": 12513,
+     "name": "fund_strook",
+     "stored": 0.2811,
+     "offered": 0.5,
+     "from": "square"
+    }
+   ],
+   "notLinear": 4,
+   "cutHeld": 0,
+   "cutHeldExtent": 0,
+   "cutHeldCentroid": 0
+  }
+ },
+ "total": {
+  "stored": 5079,
+  "offered": 3909,
+  "within2": 3227,
+  "repeated": 676,
+  "wrong": 6,
+  "notLinear": 994,
+  "cutHeld": 176,
+  "cutHeldExtent": 156,
+  "cutHeldCentroid": 24
+ }
+}

@@ -33,7 +33,7 @@
 //                                              # (--to-fill writes it; --values reads it back). Any model
 //                                              # format: ifcXML, ifcJSON and IFC5 are written as STEP first
 //                                              # Exit 0 when the filled model passes, 1 when it still fails
-//                                              # --from-geometry: Qto_ volumes, areas, wall lengths and heights no set holds, measured
+//                                              # --from-geometry: Qto_ volumes, areas, wall and member lengths, wall heights no set holds, measured
 //                                              # from each element's body (needs ../ifc-quantity-takeoff)
 //   node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx|.ifczip -o OUT.ifc
 //                                              # the model written as a STEP .ifc file (step-writer.mjs),
