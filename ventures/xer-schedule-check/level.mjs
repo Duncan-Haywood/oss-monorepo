@@ -34,7 +34,19 @@
 // Settings from the file (SCHEDOPTIONS): level within float
 // (level_within_float_flag, with level_float_thrs_cnt hours to keep and
 // level_over_alloc_pct allowed over the limit when float runs out).
+//
+// Resource curves (opts.curves, opt-in; CLI --curves): an assignment that
+// names a P6 resource curve (TASKRSRC.curv_id, RSRCCURVDATA, read by
+// curves.mjs) uses its units at the curve's rate, not evenly. Its span is cut
+// into the curve's twenty slices of working time on the activity's calendar,
+// each a span of its own at rate x 20 x the slice's share, so a back-loaded
+// crew fits beside work its even average would have clashed with, and a peak
+// above the limit is seen where the average hid it. The pieces' units sum to
+// the assignment's. Whether P6's own leveller reads curves is not shown by
+// any public file (none carries a levelled curved assignment), so the even
+// spread stays the default (eval/level-curves-2026-11-22.md).
 import { buildModel, schedule } from "./cpm.mjs";
+import { readCurves, isEven, SLICES } from "./curves.mjs";
 import { num, parseDate, formatDate } from "./xer.mjs";
 
 const PRIORITY = { PT_Top: 1, PT_High: 2, PT_Normal: 3, PT_Low: 4, PT_Lowest: 5 };
@@ -189,8 +201,11 @@ export function* levelSteps(xer, opts = {}) {
     profiles.set(id, new Profile(lim.map((l) => ({ from: l.from, max: l.max > 0 ? l.max * scale : Infinity }))));
   }
 
+  // P6 resource curves, when asked for
+  const curves = opts.curves ? readCurves(xer) : new Map();
+  const curveUse = { curved: 0, even: 0, missing: 0, byName: {} };
   // assignments on open activities of levelled resources
-  const assigns = new Map(); // task id -> [{ rsrc, rate, lag, dur }]
+  const assigns = new Map(); // task id -> [{ rsrc, rate, lag, dur, slices }]
   for (const a of T.TASKRSRC || []) {
     if (!profiles.has(a.rsrc_id)) continue;
     const t = model.tasks.get(a.task_id);
@@ -200,14 +215,22 @@ export function* levelSteps(xer, opts = {}) {
     let dur = rate > 0 && qty > 0 ? Math.round((qty / rate) * 60) : t.remain;
     if (rate <= 0 && qty > 0 && t.remain > 0) { rate = qty / (t.remain / 60); dur = t.remain; }
     if (rate <= 0 || dur <= 0) continue;
+    let slices = null;
+    if (opts.curves && a.curv_id) {
+      const c = curves.get(a.curv_id);
+      if (!c) curveUse.missing++;
+      else if (isEven(c.slices)) curveUse.even++;
+      else { slices = c.slices; curveUse.curved++; curveUse.byName[c.name] = (curveUse.byName[c.name] || 0) + 1; }
+    }
     const list = assigns.get(t.id) || [];
-    list.push({ rsrc: a.rsrc_id, rate, lag: Math.round((num(a.relag_drtn_hr_cnt) ?? 0) * 60), dur });
+    list.push({ rsrc: a.rsrc_id, rate, lag: Math.round((num(a.relag_drtn_hr_cnt) ?? 0) * 60), dur, slices });
     assigns.set(t.id, list);
   }
 
-  const spansOf = (t, start) => (assigns.get(t.id) || []).map((a) => {
+  const spansOf = (t, start) => (assigns.get(t.id) || []).flatMap((a) => {
     const s = a.lag ? t.cal.addWork(start, a.lag) : start;
-    return { rsrc: a.rsrc, task: t.id, rate: a.rate, s, e: t.cal.addWork(s, a.dur), work: a.dur };
+    if (!a.slices) return [{ rsrc: a.rsrc, task: t.id, rate: a.rate, s, e: t.cal.addWork(s, a.dur), work: a.dur }];
+    return curvePieces(t.cal, s, a.dur, a.rate, a.slices).map((p) => ({ rsrc: a.rsrc, task: t.id, curved: true, ...p }));
   });
 
   const base = schedule(xer, { model });
@@ -372,7 +395,7 @@ export function* levelSteps(xer, opts = {}) {
       }
     }
     const work = b.reduce((n, x) => n + x.rate * x.work, 0);
-    resources.push({ id, code: r.rsrc_short_name, name: r.rsrc_name, type: r.rsrc_type, limit: round3(prof.limits.at(-1).max), activities: b.length, left: [...ignore].filter(([, set]) => set.has(id)).length, before: overload(b, prof, proj.cal), after: overload(after, prof, proj.cal), afterLevelled: overload(levelledOnly, prof, proj.cal), selfCheckHours: movedOver(levelledOnly, prof, proj.cal), _work: work });
+    resources.push({ id, code: r.rsrc_short_name, name: r.rsrc_name, type: r.rsrc_type, limit: round3(prof.limits.at(-1).max), activities: new Set(b.map((x) => x.task)).size, left: [...ignore].filter(([, set]) => set.has(id)).length, before: overload(b, prof, proj.cal), after: overload(after, prof, proj.cal), afterLevelled: overload(levelledOnly, prof, proj.cal), selfCheckHours: movedOver(levelledOnly, prof, proj.cal), _work: work });
   }
   resources.sort((a, b) => b.before.overHours - a.before.overHours || a.code.localeCompare(b.code));
 
@@ -407,11 +430,13 @@ export function* levelSteps(xer, opts = {}) {
   const warnings = [];
   const dflt = resources.filter((x) => x.limit === 1 && x.before.peak >= 3);
   if (dflt.length) warnings.push(`${dflt.length} resource${dflt.length === 1 ? "" : "s"} (${dflt.slice(0, 5).map((x) => x.code).join(", ")}${dflt.length > 5 ? ", ..." : ""}) ha${dflt.length === 1 ? "s" : "ve"} a limit of 1 unit per hour, P6's default for a new resource, but the schedule uses up to ${Math.max(...dflt.map((x) => x.before.peak))} at once: if that limit was never set on purpose, set the real crew or fleet size (RSRCRATE max units) before trusting the levelled dates`);
+  if (curveUse.missing) warnings.push(`${curveUse.missing} assignment${curveUse.missing === 1 ? " names a resource curve" : "s name resource curves"} the file does not carry (P6 leaves some built-in curves out of an export): ${curveUse.missing === 1 ? "it is" : "they are"} levelled as an even spread`);
   if (left.length) warnings.push(`${left.length} activit${left.length === 1 ? "y" : "ies"} could not be levelled and stay over-allocated (listed with the reason)`);
   const hpd = pcal.hoursPerDay || 8;
   return {
     project: { id: proj.id, code: proj.code, dataDate: formatDate(proj.dataDate) },
-    settings: { ...settings, skipped },
+    settings: { ...settings, curves: !!opts.curves, skipped },
+    curves: opts.curves ? curveUse : null,
     resources,
     activities,
     left,
@@ -469,8 +494,37 @@ function capacityBound(cal, start, limits, work, factor = 1) {
   return null;
 }
 
+// A curved assignment of `dur` working minutes from `s` at an average `rate`
+// as up to twenty constant-rate pieces, one per slice of the curve: piece k
+// covers working minutes [round(k dur/20), round((k+1) dur/20)) and holds
+// rate x dur x slices[k] units-minutes. A piece rounded to no working time
+// (an assignment under 20 minutes) hands its share to the next one, and the
+// last to the one before, so the units always sum to rate x dur. Zero-share
+// pieces are left out: they use nothing.
+function curvePieces(cal, s, dur, rate, slices) {
+  const total = rate * dur;
+  const cuts = [];
+  for (let k = 0; k <= SLICES; k++) cuts.push(Math.round((k * dur) / SLICES));
+  const out = [];
+  let carry = 0;
+  for (let k = 0; k < SLICES; k++) {
+    const w = cuts[k + 1] - cuts[k];
+    const units = total * slices[k] + carry;
+    if (w <= 0) { carry = units; continue; }
+    carry = 0;
+    if (!(units > 0)) continue;
+    const ps = cuts[k] ? cal.addWork(s, cuts[k]) : s;
+    out.push({ rate: units / w, s: ps, e: cal.addWork(s, cuts[k + 1]), work: w });
+  }
+  if (carry > 0) {
+    if (out.length) { const l = out.at(-1); l.rate += carry / l.work; }
+    else out.push({ rate, s, e: cal.addWork(s, dur), work: dur });
+  }
+  return out;
+}
+
 // for the tests: the measures behind the resource table
-export const _internal = { Profile, overload, movedOver, capacityBound, priorityCmp };
+export const _internal = { Profile, overload, movedOver, capacityBound, priorityCmp, curvePieces };
 
 const round3 = (x) => (Number.isFinite(x) ? Math.round(x * 1000) / 1000 : x);
 const rsrcCode = (rsrc, id) => rsrc.get(id)?.rsrc_short_name || id;

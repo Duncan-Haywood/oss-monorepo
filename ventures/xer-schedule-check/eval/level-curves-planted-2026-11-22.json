@@ -1,0 +1,170 @@
+[
+  {
+    "file": "hotel-project.xer",
+    "planted": 703,
+    "of": 2278,
+    "even": {
+      "levelledFinish": "2021-03-15 16:00",
+      "extensionDays": 2079,
+      "moved": 1119,
+      "left": 55,
+      "selfCheckHours": 0,
+      "peakBefore": 40.818,
+      "links": "6250 of 6250",
+      "startedEarlier": 0,
+      "lowerBound": "2019-02-03 15:00",
+      "curves": null,
+      "ms": 14050
+    },
+    "curves": {
+      "levelledFinish": "2021-10-24 08:36",
+      "extensionDays": 2269.1,
+      "moved": 1384,
+      "left": 57,
+      "selfCheckHours": 0,
+      "peakBefore": 37.805,
+      "links": "6250 of 6250",
+      "startedEarlier": 0,
+      "lowerBound": "2019-02-03 15:00",
+      "curves": {
+        "curved": 567,
+        "even": 136,
+        "missing": 0,
+        "byName": {
+          "Back Loaded": 154,
+          "Bell Shaped": 135,
+          "Triangular Increase": 156,
+          "Front Loaded": 122
+        }
+      },
+      "ms": 24822
+    },
+    "unlimitedEqualsCpm": "4236 of 4236"
+  },
+  {
+    "file": "example_xer_file.xer",
+    "planted": 431,
+    "of": 1397,
+    "even": {
+      "levelledFinish": "2027-06-16 09:39",
+      "extensionDays": 27.2,
+      "moved": 297,
+      "left": 16,
+      "selfCheckHours": 0,
+      "peakBefore": 11.39,
+      "links": "454 of 454",
+      "startedEarlier": 0,
+      "lowerBound": "2026-11-06 10:24",
+      "curves": null,
+      "ms": 68
+    },
+    "curves": {
+      "levelledFinish": "2027-07-28 13:17",
+      "extensionDays": 56.5,
+      "moved": 290,
+      "left": 20,
+      "selfCheckHours": 0,
+      "peakBefore": 11.39,
+      "links": "454 of 454",
+      "startedEarlier": 0,
+      "lowerBound": "2026-11-06 10:24",
+      "curves": {
+        "curved": 333,
+        "even": 65,
+        "missing": 0,
+        "byName": {
+          "Back Loaded": 78,
+          "Bell Shaped": 81,
+          "Triangular Increase": 77,
+          "Front Loaded": 97
+        }
+      },
+      "ms": 227
+    },
+    "unlimitedEqualsCpm": "404 of 404"
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "planted": 8313,
+    "of": 26769,
+    "even": {
+      "levelledFinish": "2042-10-12 15:23",
+      "extensionDays": 9142.8,
+      "moved": 9943,
+      "left": 3368,
+      "selfCheckHours": 0,
+      "peakBefore": 352947.029,
+      "links": "29879 of 29879",
+      "startedEarlier": 0,
+      "lowerBound": null,
+      "curves": null,
+      "ms": 227070
+    },
+    "curves": {
+      "levelledFinish": "2042-12-23 08:48",
+      "extensionDays": 9204.1,
+      "moved": 10357,
+      "left": 3486,
+      "selfCheckHours": 0,
+      "peakBefore": 352947.029,
+      "links": "29879 of 29879",
+      "startedEarlier": 0,
+      "lowerBound": null,
+      "curves": {
+        "curved": 3673,
+        "even": 835,
+        "missing": 0,
+        "byName": {
+          "Triangular Increase": 956,
+          "Back Loaded": 867,
+          "Front Loaded": 916,
+          "Bell Shaped": 934
+        }
+      },
+      "ms": 273133
+    },
+    "unlimitedEqualsCpm": "14270 of 14270"
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "planted": 1079,
+    "of": 3519,
+    "even": {
+      "levelledFinish": "2045-05-01 15:30",
+      "extensionDays": 10472.8,
+      "moved": 562,
+      "left": 473,
+      "selfCheckHours": 0,
+      "peakBefore": 465.375,
+      "links": "990 of 990",
+      "startedEarlier": 0,
+      "lowerBound": null,
+      "curves": null,
+      "ms": 3320
+    },
+    "curves": {
+      "levelledFinish": "2044-09-25 11:18",
+      "extensionDays": 10254.5,
+      "moved": 560,
+      "left": 472,
+      "selfCheckHours": 0,
+      "peakBefore": 497.313,
+      "links": "990 of 990",
+      "startedEarlier": 0,
+      "lowerBound": null,
+      "curves": {
+        "curved": 875,
+        "even": 204,
+        "missing": 0,
+        "byName": {
+          "Front Loaded": 208,
+          "Triangular Increase": 227,
+          "Bell Shaped": 232,
+          "Back Loaded": 208
+        }
+      },
+      "ms": 15297
+    },
+    "unlimitedEqualsCpm": "823 of 823"
+  }
+]
