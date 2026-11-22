@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPZtqPA2DEtCDwPzNk",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T15:09:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff: three search guides with engine-checked worked examples; member stored volume vs own Length x CrossSectionArea",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18268",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "changed-ventures failed once: a literal U+FEFF in guides.test.mjs tripped check_hidden_unicode.py (not run locally: run_venture_tests.py only notes the unwired checks); written as an escape"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Ran a bare `promptctl.py route` first and drew process for the scheduled revenue brief, as many earlier records report; re-routed with --task to ventures/2. About 10 minutes went on process-track reading (backlog, measure)."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named photo-editing again; its buildable items need raw.pixls.us (REFUSED this session) or a fresh blind raw set; the metadata-extractor-images set is marked spent. Same reason as the two earlier sessions that left the row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py (Start here: photo-editing)",
+      "did": "Took ifc-quantity-takeoff (flagship 14): three how-to search guides plus an engine fix the guides exposed",
+      "why": "photo-editing's buildable work needs raw.pixls.us (refused) or a fresh public raw set; its remaining noise-selection items are on a spent set. ifc-quantity-takeoff is a deep B2B tool with paid comparables (CostX, Cubit, Solibri) and had only its tool page, while xer-schedule-check and ids-model-check carry search guides.",
+      "result": "3 guides published (built with --only, 390 px no overflow); guides.test.mjs 6/6; venture suite 210/210"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-a-beam-that-stores-a-quarter-too-much-steel.md"
+  ],
+  "goal": "distribution (SEO guides) and correctness for a construction flagship",
+  "notes": "Engine: explainChecks' own-dimensions now also uses a member's stored Length x CrossSectionArea when no L x H x W triple is stored. Sample office IPE 200: reason unexplained -> own-dimensions, BoQ 0.0142 m3/111.47 kg -> 0.011394 m3/89.44 kg. 13 public models (eval/stored-vs-computed set): output identical before/after (eval/member-length-section-2026-11-22.md) - a guard, not a measured gain. Checks run here: python3 platform/ci/run_venture_tests.py ifc-quantity-takeoff -> ok (210 tests) + site page checks ok; node platform/pages/build.mjs --only=ifc-quantity-takeoff -> exit 0, guides in output and venture sitemap; check_posts ok; portfolio/router/validate.py ok; main_health 313/313 at start.",
+  "corrections": [],
+  "redteam": null
+}

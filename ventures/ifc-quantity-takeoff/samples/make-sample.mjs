@@ -14,7 +14,8 @@
 //   Beam     IPE 200 (100 x 200, web 5.6, flange 8.5, root radius 12), 4000 long:
 //            section 2 x 100 x 8.5 + 183 x 5.6 + (4 - pi) x 12^2 = 2848.45 mm2
 //            (the steel tables give 28.48 cm2), 0.0113938 m3; it stores
-//            0.0142 m3, a wrong value the check should flag as unexplained
+//            0.0142 m3, a wrong value: it contradicts its own stored Length x
+//            CrossSectionArea, so the check names it (own-dimensions)
 
 import { writeFileSync } from "node:fs";
 

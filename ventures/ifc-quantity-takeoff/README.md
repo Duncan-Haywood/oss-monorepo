@@ -37,8 +37,17 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   and when they disagree by more than 2%, the likely cause: a split-by-level
   piece carrying the whole element's figure, a GrossVolume that is really net,
   a volume a power of ten off (written in the wrong unit), or a stored volume
-  that contradicts the element's own stored length, height and width. Where the
+  that contradicts the element's own stored length, height and width (for a
+  beam, column or member, its stored length x cross-section area; 2026-11-22,
+  [eval/member-length-section-2026-11-22.md](eval/member-length-section-2026-11-22.md):
+  no public model has the fault, the sample office's IPE 200 does). Where the
   stored figure is the wrong one, the bill of quantities uses the computed one.
+
+**Guides** (2026-11-22, worked examples on the sample office, every number
+checked against the engine by `guides.test.mjs`):
+[a bill of quantities from an IFC model](how-to-get-a-bill-of-quantities-from-an-ifc-model.html),
+[checking stored quantities before pricing](how-to-check-ifc-quantities-before-pricing.html),
+[comparing two revisions for a change order](how-to-compare-two-ifc-revisions-for-a-change-order.html).
 
 - **Small voids left in, as a method of measurement does.** Choose
   "deduct every opening" (as modelled), "leave in voids up to 0.50 m2 /
