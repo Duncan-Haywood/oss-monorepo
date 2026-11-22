@@ -885,6 +885,17 @@ It certifies every press to at least 0.213 N on the G1 and 0.279 N on the H1 (me
 guarantee of milestones 55 to 65 is, for its no-flip part, a certificate rather than an empirical result; the flip
 part is still bounded by the four-row budget. J does not depend on the load (one value per pose over the 8 loads, on
 all 15 G1 and 19 H1 poses), so the certificate is a per-pose table computed once.
+That table is enough to certify presses at larger biases (milestone 68, a twelfth held-out set of 12 loads, seed 68).
+With milestone 67's row norms ||J<sub>k</sub>|| frozen per pose, the planner accepts a press only if Y<sub>k</sub> +
+B||J<sub>k</sub>|| &le; 0.03 mm in every row. On the new loads the sensitivity measured afresh equals the table on
+every press to 4 &times; 10<sup>&minus;14</sup> mm/N, and at B = 0.3, 0.4, 0.6 and 1.0 N, under the direct-aimed and the
+margin-aimed bias, none of the 3,219 presses the gate passes leaves 0.03 mm (worst 0.0285 mm on the G1, 0.0292 mm on the
+H1), where without the gate the direct-aimed bias leaves 144 G1 and 68 H1 presses over at 0.4 N. Gate coverage of the
+balance-envelope cases is 64.1%, 56.9%, 21.0% and 20.4% on the G1 and 90.3%, 84.5%, 51.8% and 9.7% on the H1 at the
+four bounds. Against the direct-aimed bias the realised worst row equals max<sub>k</sub>(Y<sub>k</sub> +
+B||J<sub>k</sub>||) on every gate-passed press, so the gate is exact rather than conservative for that adversary, and
+the flip budget (at most 0.0082 mm, and zero on the H1) decides no refusal: the gate is a per-pose bias rating,
+0.03 mm / max<sub>k</sub>||J<sub>k</sub>||, from 0.213 to 1.06 N on the G1 and 0.279 to 1.31 N on the H1.
 
 ### 5.12 What the remedies cost (milestone 13)
 

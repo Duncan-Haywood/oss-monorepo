@@ -561,6 +561,14 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    0.3 N 34% of G1 and 10% of H1 presses do, all with no flip (H260 held). Post hoc: the no-flip residual is exactly
    linear in the bias, so B||J_k|| is its exact worst case, certifying every press to at least 0.213 N (G1) and
    0.279 N (H1). Next: a registered gate Y_k + B||J_k|| at 0.3 to 1.0 N; dynamics.
+68. **A gate on the per-pose sensitivity table** (done 2026-11-22, `experiments/m68_jgate/`): milestone 67's
+   ||J_k|| frozen as a per-pose table, the gate Y_k + B||J_k|| <= 0.03 mm after milestone 65's chain, 12 new loads
+   (seed 68), B = 0.3 to 1.0 N, the direct-aimed and margin-aimed biases. The table matches fresh J to 4e-14 mm/N
+   (H262 held); no gate-passed press of 3,219 leaves 0.03 mm (H261 held); coverage G1 64% and H1 90% at 0.3 N, 20% and
+   10% at 1.0 N (H263, H264 held); without the gate 144 G1 and 68 H1 presses fail at 0.4 N (H265 held). Post hoc: the
+   bound is exact against the direct-aimed bias and the flip budget never binds, so the gate is a per-pose bias rating
+   (G1 0.213 to 1.06 N, H1 0.279 to 1.31 N). Next: what sets the weakest poses' ratings, and can a second calibration
+   pose raise them; dynamics.
 
 ## Target venue
 
