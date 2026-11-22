@@ -93,8 +93,10 @@ export function quantitiesFromRows(rows) {
 // extrusion depth", the Qto_ definition says): the positive pieces' extent
 // up the wall, before a roof or slab clips it. Revit stores that; ARCHICAD
 // stores the clipped wall's tallest point (`tallest`). Where the two differ
-// (a clipped wall) no Height is offered (addWallLines); elsewhere they are the
-// same figure (eval/wall-axis-lengths-2026-11-21.md counts both).
+// (a clipped wall) the Height offered is the one the authoring tool's export
+// stores (heightConvention: ARCHICAD or Revit), and none for other tools;
+// elsewhere they are the same figure (eval/wall-axis-lengths-2026-11-21.md
+// counts both; eval/wall-cut-top-heights-2026-11-22.md the clipped walls).
 
 /** The parameter range [lo, hi] where the line o + t d is inside a convex polyhedron (outward planes), or null. */
 function lineThrough(planes, o, d) {
@@ -219,6 +221,25 @@ export function wallLines(body, dir, polyPlanes, opts = {}) {
       if (r && c === mid && a > alo + (ahi - alo) * 0.01 && a < ahi - (ahi - alo) * 0.01 && r[1] < topLow) topLow = r[1];
     }
   }
+  // and, on an extruded body (a faceted one's faces hold its cut already, so
+  // its vertices' extent is its highest point), through every vertex, nudged
+  // a hair into each quadrant around it: a
+  // mitred end's acute corner or a hip clip's meeting point can hold the
+  // highest point, where no line on a face or the middle passes (ARCHICAD's
+  // stored Height is that point: eval/wall-cut-top-heights-2026-11-22.md)
+  const corners = new Map();
+  for (const p of pieces) for (const f of p.faces) for (const q of f) {
+    const a = d[0] * q[0] + d[1] * q[1], c = n[0] * q[0] + n[1] * q[1];
+    corners.set(`${a.toFixed(6)},${c.toFixed(6)}`, [a, c]);
+  }
+  if (!faceted && corners.size <= MAX_SAMPLES) {
+    // (not diagonally: a 45-degree mitre's face would hold the line)
+    for (const [a, c] of corners.values()) for (const da of [-eps, eps]) for (const dc of [-0.382 * eps, 0.382 * eps]) {
+      const o = [n[0] * (c + dc) + d[0] * (a + da), n[1] * (c + dc) + d[1] * (a + da), 0];
+      const r = insideSpan(pieces, o, [0, 0, 1]);
+      if (r && r[1] - r[0] > tallest) tallest = r[1] - r[0];
+    }
+  }
   const flatTop = Number.isFinite(topLow) && zhi - topLow <= 0.005 * (zhi - zlo);
   // A body the middle line crosses on a short leg (an L-shaped plan: the
   // middle of its extent across runs through one arm only) is no single
@@ -262,6 +283,51 @@ export function bodyDirection(row) {
   return L > 0 ? [-n[1] / L, n[0] / L] : null;
 }
 
+// What each authoring tool's IFC export stores as a clipped wall's
+// Qto_WallBaseQuantities Height, measured on the public models that store one
+// (eval/wall-cut-top-heights-2026-11-22.md): ARCHICAD the clipped wall's
+// highest point (its "Maximale Höhe der Wand"), Revit the unclipped extrusion
+// depth. Other tools: not known, so nothing is offered.
+const HEIGHT_CONVENTIONS = [
+  [/archicad|graphisoft/i, "tallest"],
+  [/revit/i, "extrusion"],
+];
+
+/**
+ * The Height a wall's lines give (body units) and where it came from: an
+ * unclipped wall's extrusion depth; a clipped one's only by its authoring
+ * tool's convention ('tallest': the highest point, which is a faceted body's
+ * own extent; 'extrusion' only while the body still holds one).
+ * @returns {{height: number|null, heightFrom: string|null}}
+ */
+export function offeredHeight(w, clipped, convention) {
+  if (!clipped) return { height: w.height, heightFrom: "body" };
+  // a faceted body's faces are the clipped wall: its extent is its highest point
+  if (convention === "tallest") return { height: w.faceted ? w.height : w.tallest, heightFrom: "tallest" };
+  if (convention === "extrusion" && !w.faceted) return { height: w.height, heightFrom: "extrusion" };
+  return { height: null, heightFrom: null };
+}
+
+/** The convention of the application an element's owner history names (or the file's only application), or null. */
+export function heightConvention(model, e, cache = new Map()) {
+  const E = model.entities;
+  const appName = (a) => {
+    if (!a || a.type !== "IFCAPPLICATION") return "";
+    const dev = E.get(a.args[0]?.ref);
+    return [a.args[2], a.args[3], dev?.args?.[1]].filter((x) => typeof x === "string").join(" ");
+  };
+  const ofApp = (a) => { const t = appName(a); for (const [re, c] of HEIGHT_CONVENTIONS) if (re.test(t)) return c; return null; };
+  const oh = E.get(e?.args?.[1]?.ref);
+  const own = oh && oh.type === "IFCOWNERHISTORY" ? E.get(oh.args[1]?.ref) : null;
+  if (own) return ofApp(own);
+  if (!cache.has("file")) {
+    const all = new Set();
+    for (const x of E.values()) if (x.type === "IFCAPPLICATION") all.add(ofApp(x));
+    cache.set("file", all.size === 1 ? [...all][0] : null);
+  }
+  return cache.get("file");
+}
+
 /**
  * Adds computed.lines = {length, height} (SI) to each wall row whose
  * direction is known (a straight axis, or with no axis its body's side
@@ -273,6 +339,7 @@ export function bodyDirection(row) {
 export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms, bodyDirection: useBody = true }) {
   const units = readUnits(model);
   const geo = new Geometry(model, { angle: units.PLANEANGLEUNIT });
+  const apps = new Map();
   let n = 0;
   for (const r of rows) {
     if (!WALL.test(r.ifcType) || !r.computed || r.computed.status !== "ok") continue;
@@ -295,7 +362,12 @@ export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asT
     // left, only its faces: its height is offered only when its top is
     // level along the whole wall, where the two readings are one figure.
     const clipped = Math.abs(w.height - w.tallest) > 0.005 * w.height || (w.faceted && !w.flatTop);
-    r.computed.lines = { length: w.length * f, height: clipped ? null : w.height * f, extrusion: w.height * f, tallest: w.tallest * f, clipped, from, faceted: w.faceted };
+    // ...unless the authoring tool says which one its own export stores:
+    // ARCHICAD the clipped tallest point, Revit the extrusion depth (which a
+    // faceted body no longer holds). eval/wall-cut-top-heights-2026-11-22.md.
+    const convention = clipped ? heightConvention(model, e, apps) : null;
+    const { height, heightFrom } = offeredHeight(w, clipped, convention);
+    r.computed.lines = { length: w.length * f, height: height == null ? null : height * f, extrusion: w.height * f, tallest: w.tallest * f, clipped, heightFrom, convention, from, faceted: w.faceted };
     n++;
   }
   return n;

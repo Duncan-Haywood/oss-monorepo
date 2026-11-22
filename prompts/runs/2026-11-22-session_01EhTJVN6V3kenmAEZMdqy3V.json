@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVN6V3kenmAEZMdqy3V",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (ventures brief)",
+  "input_sha256": "7fb7527f121fc8be3a2ec1f0a694d1c86d1bf57b9de9ab9db437a055d3692fd0",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T00:19:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 12): ids-model-check, clipped walls' cut-top Height (eval/wall-brep-lengths-2026-11-21.md, What is left)",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18161",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "The plain draw sent the run to process (no agent-owned backlog item); the scheduled message is the ventures brief, so routed with --task as prompt.md says for a message that names a task.",
+      "did": "route --task <brief> -> ventures/1",
+      "result": "a flagship slice landed"
+    },
+    {
+      "file": "eval/wall-brep-lengths-2026-11-21.md",
+      "why": "Its What-is-left suggested Revit's unconnected height (PSet_Revit_Constraints) for faceted cut-top walls; measured against stored Heights it fails on top-attached walls (0/67) and storey-split walls, so it was not shipped; the exporter-convention rule shipped instead.",
+      "did": "tested and recorded as a negative result",
+      "result": "26 more walls get a Height, 16/16 stored matched"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-archicad-and-revit-disagree-on-a-clipped-walls-height.md",
+    "ventures/ids-model-check/eval/wall-cut-top-heights-2026-11-22.md"
+  ],
+  "goal": "A clipped wall's Qto_ Height in the model fill, only where it can be trusted",
+  "notes": "Rule: owner history's application -> ARCHICAD tallest point, Revit extrusion depth (not on a brep), others none. 15 public models: 16/16 clipped walls with stored Height matched (ARCHICAD 11, Revit 5); 476/476 unclipped unchanged; Heights offered 3,133 -> 3,159. Fixed under-read tallest at mitred acute corners (C20 Wand-003 1.985 -> 2.0257, stored 2.02569). Schultz fill: 14 -> 5 walls failing; IfcTester 0.9.0 (IfcOpenShell 0.9.0.post1) 200/200 fail-before/pass-after, 0 newly failing. Revit constraints tested and dropped (unattached 199/232, attached 0/67). Checks: run_venture_tests ids-model-check ok (463 tests); venture-preflight clean; check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

@@ -177,3 +177,70 @@ test("the fill writes a Length for a wall with no Axis, from its body", { skip: 
   assert.deepEqual(L.writtenList.filter((w) => w.source === "geometry").map((w) => [w.id, w.value]), [[200, "4000."]]);
   assert.equal(L.verified.pass, L.written);
 });
+
+// ---- a clipped wall's Height by its authoring tool's convention -----------
+
+test("the tallest point is found at a mitred end's acute corner (C20 Wand-003: ARCHICAD stores 2.0257)", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { polyPlanes } = await import(TAKEOFF.href);
+  // C20-Institute-Var-2 #229235 as the takeoff holds it: a 2 m wall, 0.3
+  // thick, mitred at both ends, 2.7 m extruded, two roof clips meeting at
+  // x = 0.693; its highest point is the corner (-0.3, -0.3) at 2.0257.
+  const hull = (pts) => {
+    // the convex hull's faces of a small point set (brute force: planes through 3 points with all points on one side)
+    const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+    const crs = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+    const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const faces = [], seen = new Set();
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) for (let k = j + 1; k < pts.length; k++) {
+      let nn = crs(sub(pts[j], pts[i]), sub(pts[k], pts[i]));
+      if (Math.hypot(...nn) < 1e-12) continue;
+      const side = pts.map((p) => dot(nn, sub(p, pts[i])));
+      if (side.every((x) => x <= 1e-9)) {} else if (side.every((x) => x >= -1e-9)) nn = nn.map((x) => -x); else continue;
+      const on = pts.filter((p) => Math.abs(dot(nn, sub(p, pts[i]))) <= 1e-9);
+      const c = on.reduce((a, p) => [a[0] + p[0] / on.length, a[1] + p[1] / on.length, a[2] + p[2] / on.length], [0, 0, 0]);
+      const u = sub(on[0], c), v = crs(nn, u);
+      on.sort((a, b) => Math.atan2(dot(sub(a, c), v), dot(sub(a, c), u)) - Math.atan2(dot(sub(b, c), v), dot(sub(b, c), u)));
+      const key = on.map((p) => p.join()).sort().join("|");
+      if (!seen.has(key)) { seen.add(key); faces.push(on); }
+    }
+    return faces;
+  };
+  const T = (s, pts) => ({ s, faces: hull(pts) });
+  const body = { mesh: 0, shells: [], terms: [
+    T(1, [[0, 0, 0], [2, 0, 0], [1.7, -0.3, 0], [-0.3, -0.3, 0], [-0.3, -0.3, 2.7], [1.7, -0.3, 2.7], [2, 0, 2.7], [0, 0, 2.7]]),
+    T(-1, [[0.693, -0.3, 2.7], [1.7, -0.3, 2.7], [2, 0, 2.7], [0.693, 0, 2.7], [1.7, -0.3, 1.33355], [0.693, -0.3, 1.75633], [2, 0, 1.20763], [0.693, 0, 1.75633]]),
+    T(-1, [[-0.3, -0.3, 2.7], [0.693, -0.3, 2.7], [0.693, 0, 2.7], [0, 0, 2.7], [-0.3, -0.3, 2.02569], [0.693, -0.3, 1.75633], [0, 0, 1.94431], [0.693, 0, 1.75633]]),
+    T(1, [[0.693, 0, 2.7], [0.693, 0, 1.75633], [0.693, -0.3, 1.75633], [0.693, -0.3, 2.7]]),
+  ] };
+  const w = wallLines(body, [1, 0], polyPlanes);
+  assert.ok(Math.abs(w.length - 2) < 1e-6, w.length);
+  assert.ok(Math.abs(w.height - 2.7) < 1e-9);
+  assert.ok(Math.abs(w.tallest - 2.02569) < 1e-4, w.tallest); // was 1.985 before the corner lines
+});
+
+test("a clipped wall's Height is the one its authoring tool's export stores, or none", async () => {
+  const { offeredHeight, heightConvention } = await import("./geometry-quantities.mjs");
+  const w = { height: 3.5, tallest: 3.4, faceted: false };
+  assert.deepEqual(offeredHeight(w, false, null), { height: 3.5, heightFrom: "body" });
+  assert.deepEqual(offeredHeight(w, true, null), { height: null, heightFrom: null });
+  assert.deepEqual(offeredHeight(w, true, "tallest"), { height: 3.4, heightFrom: "tallest" });
+  assert.deepEqual(offeredHeight(w, true, "extrusion"), { height: 3.5, heightFrom: "extrusion" });
+  // a faceted body holds no extrusion depth, only its clipped faces
+  assert.deepEqual(offeredHeight({ ...w, faceted: true }, true, "extrusion"), { height: null, heightFrom: null });
+  // a faceted body's faces hold the cut: its own extent is the highest point
+  assert.deepEqual(offeredHeight({ height: 3.4, tallest: 3.2, faceted: true }, true, "tallest"), { height: 3.4, heightFrom: "tallest" });
+  if (!existsSync(new URL("../ifc-quantity-takeoff/step.mjs", import.meta.url))) return;
+  const { parseStep } = await import(new URL("../ifc-quantity-takeoff/step.mjs", import.meta.url).href);
+  const m = parseStep(`ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCORGANIZATION($,'Graphisoft',$,$,$);#2=IFCAPPLICATION(#1,'20.0.0','ARCHICAD-64','IFC2x3 add-on version: 4009 GER FULL');
+#3=IFCORGANIZATION($,'Autodesk Revit 2022 (DEU)',$,$,$);#4=IFCAPPLICATION(#3,'2022','Autodesk Revit 2022 (DEU)','Revit');
+#5=IFCORGANIZATION($,'McNeel',$,$,$);#6=IFCAPPLICATION(#5,'1','Asuni IFC Rhino Export Plug-In','ASIFC');
+#11=IFCOWNERHISTORY($,#2,$,.ADDED.,$,$,$,0);#12=IFCOWNERHISTORY($,#4,$,.ADDED.,$,$,$,0);#13=IFCOWNERHISTORY($,#6,$,.ADDED.,$,$,$,0);
+#21=IFCWALL('a',#11,$,$,$,$,$,$);#22=IFCWALL('b',#12,$,$,$,$,$,$);#23=IFCWALL('c',#13,$,$,$,$,$,$);#24=IFCWALL('d',$,$,$,$,$,$,$);
+ENDSEC;END-ISO-10303-21;`);
+  const E = m.entities;
+  assert.equal(heightConvention(m, E.get(21)), "tallest");
+  assert.equal(heightConvention(m, E.get(22)), "extrusion");
+  assert.equal(heightConvention(m, E.get(23)), null);
+  assert.equal(heightConvention(m, E.get(24)), null); // no owner history, and the file names three tools
+});
