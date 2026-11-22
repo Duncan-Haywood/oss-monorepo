@@ -38,7 +38,7 @@ test("every table carries P6's fields, whole-number ids that resolve, and passes
   assert.deepEqual(Object.keys(r.xer.tables), ["CURRTYPE", "FINTMPL", "OBS", "PROJECT", "CALENDAR", "SCHEDOPTIONS", "PROJWBS", "RSRC", "ACTVTYPE", "ACTVCODE", "TASK", "PROJCOST", "TASKPRED", "TASKACTV", "TASKRSRC"]);
   assert.match(r.text, /^ERMHDR\t20\.12\t/);
   assert.match(r.text, /%E\r\n$/);
-  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0, wbsUdfFields: 0, wbsUdfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0, rsrcGroups: 0, parentResources: 0, expenses: 1, costTypes: 0, notebookTopics: 0, taskNotebooks: 0, wbsNotebooks: 0 });
+  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, curves: 0, contoured: 0, codeTypes: 1, udfFields: 0, udfValues: 0, wbsUdfFields: 0, wbsUdfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0, rsrcGroups: 0, parentResources: 0, expenses: 1, costTypes: 0, notebookTopics: 0, taskNotebooks: 0, wbsNotebooks: 0 });
   assert.equal(r.encoding, "windows-1252");
   assert.equal(r.bytes.length, r.text.length);
 });
@@ -425,4 +425,53 @@ test("p6Problems: an expense on an activity the file does not have, or in a cate
   const p = p6Problems(t);
   assert.ok(p.some((x) => /PROJCOST 1: task_id 999 is not in TASK/.test(x)));
   assert.ok(p.some((x) => /PROJCOST 1: cost_type_id 7 is not in COSTTYPE/.test(x)));
+});
+
+test("work contours: written as resource curves of Project's shape, hand-edited ones named", async () => {
+  const { readCurves } = await import("./curves.mjs");
+  const { contourSlices } = await import("./contours.mjs");
+  const text = XML().replace("<Work>PT120H0M0S</Work><Cost>180000</Cost>", "<Work>PT120H0M0S</Work><Cost>180000</Cost><WorkContour>6</WorkContour>")
+    .replace("<RemainingWork>PT112H0M0S</RemainingWork>", "<RemainingWork>PT112H0M0S</RemainingWork><WorkContour>8</WorkContour>");
+  const r = p6XerText(text);
+  assert.deepEqual(p6Problems(r.xer.tables), []);
+  assert.equal(r.xer.tables.RSRCCURVDATA.length, 1);
+  assert.equal(r.xer.tables.RSRCCURVDATA[0].curv_name, "MS Project Bell");
+  assert.deepEqual(Object.keys(r.xer.tables).slice(0, 4), ["CURRTYPE", "FINTMPL", "OBS", "RSRCCURVDATA"], "a global table, before PROJECT as P6 writes it");
+  const byCurve = r.xer.tables.TASKRSRC.map((a) => a.curv_id).sort();
+  assert.deepEqual(byCurve, ["", "1"]);
+  assert.equal(r.counts.curves, 1);
+  assert.equal(r.counts.contoured, 1);
+  const w = r.warnings.join("\n");
+  assert.match(w, /1 contoured assignment\(s\) written with a resource curve of Project's shape \(MS Project Bell\)/);
+  assert.match(w, /1 assignment\(s\) with hand-edited timephased work/);
+  // the XER text reads back with the same shape
+  const back = readCurves(parseXer(r.text)).get("1");
+  const want = contourSlices(6);
+  for (let k = 0; k < 20; k++) assert.ok(Math.abs(back.slices[k] - want[k]) < 1e-6);
+  // no contour, no curve table
+  assert.equal(p6XerText(XML()).xer.tables.RSRCCURVDATA, undefined);
+});
+
+test("work contours come back: Project -> XER -> Project keeps the contour and Project's spread as timephased rows", async () => {
+  const { mspdiText } = await import("./msproject.mjs");
+  const { parseXml, durationHours } = await import("./mspdi.mjs");
+  const text = XML().replace("<Work>PT120H0M0S</Work><Cost>180000</Cost>", "<Work>PT120H0M0S</Work><Cost>180000</Cost><WorkContour>6</WorkContour>");
+  const back = mspdiText(parseXer(p6XerText(text).text));
+  assert.equal(back.counts.curved, 1);
+  assert.match(back.warnings.join("\n"), /1 assignment\(s\) on a P6 resource curve \(MS Project Bell 1\) written as Project timephased work/);
+  const root = parseXml(back.xml);
+  const proj = root.name === "Project" ? root : root.children.find((c) => c.name === "Project");
+  const asg = proj.children.find((c) => c.name === "Assignments").children;
+  const curved = asg.filter((a) => a.children.some((c) => c.name === "WorkContour"));
+  assert.equal(curved.length, 1);
+  const val = (n, t) => n.children.find((c) => c.name === t)?.text ?? "";
+  assert.equal(val(curved[0], "WorkContour"), "6", "a curve from a Project contour goes back as that contour");
+  const rows = curved[0].children.filter((c) => c.name === "TimephasedData");
+  const work = rows.map((r) => (val(r, "Value") ? durationHours(val(r, "Value")) : 0));
+  assert.ok(Math.abs(work.reduce((a, b) => a + b, 0) - durationHours(val(curved[0], "RemainingWork"))) < 1e-9, "the rows sum to the remaining work, to the second");
+  // bell: the middle carries more than the ends
+  const nz = work.filter((w) => w > 0);
+  assert.ok(nz[0] < nz[Math.floor(nz.length / 2)] && nz[nz.length - 1] < nz[Math.floor(nz.length / 2)]);
+  // schema order: WorkContour after Work, rows last
+  assert.match(back.xml, /<\/Work><WorkContour>6<\/WorkContour><Baseline>[\s\S]*?<\/Baseline><TimephasedData><Type>1<\/Type>/);
 });

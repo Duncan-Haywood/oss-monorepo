@@ -68,8 +68,17 @@
 //   reviewer counts as hard ones (check 5), and comes back from
 //   msproject.mjs as a deadline only where it was the secondary.
 //
-// Not carried (counted in the warnings): task splits and contoured
-// work, deadlines unless asked for, elapsed lags on links (P6 has one lag
+// Work contours (Assignment WorkContour 1-7: back loaded, front loaded,
+// double peak, early peak, late peak, bell, turtle) are written as P6
+// resource curves (RSRCCURVDATA, named "MS Project <contour>", and the
+// assignment's curv_id) with the shape Project gives the work over the
+// assignment's dates (contours.mjs, measured from Project's own timephased
+// work: eval/work-contours-2026-11-21.md). They are not P6's shipped curves
+// of the same names, which have other shapes. Project stretches a contoured
+// assignment's dates; the task's dates written here already hold that.
+//
+// Not carried (counted in the warnings): task splits and hand-contoured
+// work (WorkContour 8, edited timephased work), deadlines unless asked for, elapsed lags on links (P6 has one lag
 // calendar per project), cost resource assignments on summary tasks, P6's finish-date subtype of a date
 // UDF (Project has one kind of date field, so a date comes back as a start
 // date UDF).
@@ -77,6 +86,7 @@
 import { parseMspdi, parseXml, durationHours } from "./mspdi.mjs";
 import { xerText, xerBytes } from "./xer.mjs";
 import { memoHtml } from "./notebook.mjs";
+import { contourCurveValues, contourName } from "./contours.mjs";
 import { RSRC_TEXT_IDS, RSRC_NUMBER_IDS, RSRC_COST_IDS, RSRC_DATE_IDS } from "./msproject.mjs";
 
 // Project's resource custom fields, by PjField id -> [kind, field name]
@@ -119,6 +129,8 @@ export const FIELDS = {
   // expenses and their categories, as P6 20.12 and 23.12 write them
   COSTTYPE: "cost_type_id seq_num cost_type",
   PROJCOST: "cost_item_id acct_id pobs_id cost_type_id proj_id task_id cost_name po_number vendor_name act_cost cost_per_qty remain_cost target_cost cost_load_type auto_compute_act_flag target_qty qty_name cost_descr contract_manager_import",
+  // resource curves, as P6 6.0 to 24.12 write them (a global table)
+  RSRCCURVDATA: ["curv_id curv_name default_flag", ...Array.from({ length: 21 }, (_, k) => `pct_usage_${k}`)].join(" "),
   UDFTYPE: "udf_type_id table_name udf_type_name udf_type_label logical_data_type super_flag indicator_expression summary_indicator_expression",
   UDFVALUE: "udf_type_id fk_id proj_id udf_date udf_number udf_text udf_code_id",
   TASKRSRC: "taskrsrc_id task_id proj_id cost_qty_link_flag role_id acct_id rsrc_id pobs_id skill_level remain_qty target_qty remain_qty_per_hr target_lag_drtn_hr_cnt target_qty_per_hr act_ot_qty act_reg_qty relag_drtn_hr_cnt ot_factor cost_per_qty target_cost act_reg_cost act_ot_cost remain_cost act_start_date act_end_date restart_date reend_date target_start_date target_end_date rem_late_start_date rem_late_end_date rollup_dates_flag target_crv remain_crv actual_crv ts_pend_act_end_flag guid rate_type act_this_per_cost act_this_per_qty curv_id rsrc_type cost_per_qty_source_type create_user create_date has_rsrchours taskrsrc_sum_id",
@@ -285,7 +297,19 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   };
 
   // resources and assignments, read here (mspdi.mjs reads only their calendars)
-  const RSRC = [], TASKRSRC = [];
+  const RSRC = [], TASKRSRC = [], RSRCCURVDATA = [];
+  const curveOf = new Map(); // WorkContour -> written curv_id
+  let contoured = 0, handContoured = 0;
+  const contourCurve = (wc) => {
+    if (!contourName(wc)) return "";
+    if (!curveOf.has(wc)) {
+      const id = String(RSRCCURVDATA.length + 1);
+      const v = contourCurveValues(wc);
+      RSRCCURVDATA.push(full("RSRCCURVDATA", { curv_id: id, curv_name: `MS Project ${contourName(wc)}`, default_flag: "N", ...Object.fromEntries(v.map((x, k) => [`pct_usage_${k}`, String(x)])) }));
+      curveOf.set(wc, id);
+    }
+    return curveOf.get(wc);
+  };
   const rsrcType = new Map();
   let costRes = 0, costAssign = 0, dupRsrc = 0, summaryAssign = 0, summaryCost = 0, rsrcNotes = 0, costNotes = 0;
   const costRsrc = new Map(); // cost resource uid -> { name, group, accrue }
@@ -518,13 +542,17 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     const tc = cost("Cost"), ac = cost("ActualCost"), rc = val(a, "RemainingCost") ? cost("RemainingCost") : Math.max(0, tc - ac);
     const dur = Number(t.target_drtn_hr_cnt) || 0;
     const rt = rsrcType.get(ru);
+    const wc = val(a, "WorkContour").trim();
+    const curv = contourCurve(wc);
+    if (curv) contoured++;
+    else if (wc === "8") handContoured++;
     TASKRSRC.push(full("TASKRSRC", {
       taskrsrc_id: idOf("TASKRSRC", val(a, "UID") || `${tu}-${ru}`), task_id: t.task_id, proj_id: P, rsrc_id: idOf("RSRC", ru),
       remain_qty: n2(remain), target_qty: n2(target), act_reg_qty: n2(act), act_ot_qty: "0",
       target_qty_per_hr: n2(dur ? target / dur : 0), remain_qty_per_hr: n2(Number(t.remain_drtn_hr_cnt) ? remain / Number(t.remain_drtn_hr_cnt) : 0),
       cost_per_qty: n2(target ? tc / target : 0), target_cost: n2(tc), act_reg_cost: n2(ac), act_ot_cost: "0", remain_cost: n2(rc),
       act_start_date: t.act_start_date, act_end_date: t.act_end_date, restart_date: t.restart_date, reend_date: t.reend_date,
-      target_start_date: t.target_start_date, target_end_date: t.target_end_date, rsrc_type: rt,
+      target_start_date: t.target_start_date, target_end_date: t.target_end_date, rsrc_type: rt, curv_id: curv,
     }, { cost_qty_link_flag: "Y", skill_level: "", target_lag_drtn_hr_cnt: "0", relag_drtn_hr_cnt: "0", rollup_dates_flag: "Y", ts_pend_act_end_flag: "N", rate_type: "COST_PER_QTY", act_this_per_cost: "0", act_this_per_qty: "0", cost_per_qty_source_type: "ST_Rsrc", has_rsrchours: "N" }));
     if (rt === "RT_Labor") { t.target_work_qty = n2(Number(t.target_work_qty) + target); t.act_work_qty = n2(Number(t.act_work_qty) + act); t.remain_work_qty = n2(Number(t.remain_work_qty) + remain); }
   }
@@ -662,6 +690,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     FINTMPL: [full("FINTMPL", { fintmpl_id: "1", fintmpl_name: "Calendar", default_flag: "Y" })],
     ...(MEMOTYPE.length ? { MEMOTYPE } : {}),
     OBS: [full("OBS", { obs_id: "1", seq_num: "0", obs_name: "Enterprise" })],
+    ...(RSRCCURVDATA.length ? { RSRCCURVDATA } : {}),
     // P6 writes the UDF titles with the global tables, before PROJECT, and the values last
     ...(UDFTYPE.length ? { UDFTYPE } : {}),
     ...(COSTTYPE.length ? { COSTTYPE } : {}),
@@ -684,6 +713,8 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   if (kept) warnings.push(`${kept} activity code type(s) keep the hierarchy of their outline code's lookup table`);
   if (trees) warnings.push(`${trees} activity code type(s) written as parent.child paths rebuilt as P6 code hierarchies`);
   if (dupRsrc) warnings.push(`${dupRsrc} repeated resource ID(s) given a -2, -3 suffix (P6 needs them unique; Project fills Initials with the name's first letter)`);
+  if (contoured) warnings.push(`${contoured} contoured assignment(s) written with a resource curve of Project's shape (${[...curveOf.keys()].map((w) => `MS Project ${contourName(w)}`).join(", ")}): P6 spreads their units and cost as Project spreads the work`);
+  if (handContoured) warnings.push(`${handContoured} assignment(s) with hand-edited timephased work (contour "Contoured") written with an even spread: P6 has no per-period edit an XER carries`);
   if (summaryAssign) warnings.push(`${summaryAssign} assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no resources`);
   const taskUdfTypes = UDFTYPE.length - rsrcUdfFields - wbsUdfFields, taskUdfValues = UDFVALUE.length - rsrcUdfValues - wbsUdfValues;
   if (taskUdfTypes) warnings.push(`${taskUdfValues} custom field value(s) in ${taskUdfTypes} field(s) written as activity user-defined fields${UDFTYPE.some((u) => u.table_name === "TASK" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
@@ -711,7 +742,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   if (summaryCost) warnings.push(`${summaryCost} cost resource assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, rsrcGroups: hier.groups, parentResources: hier.parentsAdded, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
+  const counts = { activities: TASK.length, rsrcGroups: hier.groups, parentResources: hier.parentsAdded, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, curves: RSRCCURVDATA.length, contoured, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
   const out = xerText(xer);
   // saved in Windows-1252, as P6 writes and reads an XER, when every
   // character fits it (xer.mjs, xerBytes)
@@ -741,7 +772,7 @@ export const p6xerSummary = (r) =>
 export function p6Problems(tables) {
   const out = [];
   const say = (s) => { if (out.length < 50) out.push(s); };
-  const KEY = { CURRTYPE: "curr_id", FINTMPL: "fintmpl_id", OBS: "obs_id", PROJECT: "proj_id", CALENDAR: "clndr_id", SCHEDOPTIONS: "schedoptions_id", PROJWBS: "wbs_id", RSRC: "rsrc_id", ACTVTYPE: "actv_code_type_id", ACTVCODE: "actv_code_id", TASK: "task_id", TASKPRED: "task_pred_id", TASKRSRC: "taskrsrc_id", UDFTYPE: "udf_type_id", MEMOTYPE: "memo_type_id", TASKMEMO: "memo_id", WBSMEMO: "wbs_memo_id", COSTTYPE: "cost_type_id", PROJCOST: "cost_item_id" };
+  const KEY = { CURRTYPE: "curr_id", FINTMPL: "fintmpl_id", OBS: "obs_id", PROJECT: "proj_id", CALENDAR: "clndr_id", SCHEDOPTIONS: "schedoptions_id", PROJWBS: "wbs_id", RSRC: "rsrc_id", ACTVTYPE: "actv_code_type_id", ACTVCODE: "actv_code_id", TASK: "task_id", TASKPRED: "task_pred_id", TASKRSRC: "taskrsrc_id", RSRCCURVDATA: "curv_id", UDFTYPE: "udf_type_id", MEMOTYPE: "memo_type_id", TASKMEMO: "memo_id", WBSMEMO: "wbs_memo_id", COSTTYPE: "cost_type_id", PROJCOST: "cost_item_id" };
   const keys = {};
   for (const [t, rows] of Object.entries(tables)) {
     if (!FIELDS[t]) { say(`${t}: not a table this writer knows`); continue; }
@@ -783,7 +814,7 @@ export function p6Problems(tables) {
   ref("TASK", "proj_id", "PROJECT"); ref("TASK", "wbs_id", "PROJWBS"); ref("TASK", "clndr_id", "CALENDAR");
   ref("TASKPRED", "task_id", "TASK"); ref("TASKPRED", "pred_task_id", "TASK");
   ref("TASKACTV", "task_id", "TASK"); ref("TASKACTV", "actv_code_id", "ACTVCODE"); ref("TASKACTV", "actv_code_type_id", "ACTVTYPE");
-  ref("TASKRSRC", "task_id", "TASK"); ref("TASKRSRC", "rsrc_id", "RSRC");
+  ref("TASKRSRC", "task_id", "TASK"); ref("TASKRSRC", "rsrc_id", "RSRC"); ref("TASKRSRC", "curv_id", "RSRCCURVDATA", true);
   ref("UDFVALUE", "udf_type_id", "UDFTYPE");
   ref("PROJCOST", "task_id", "TASK"); ref("PROJCOST", "proj_id", "PROJECT"); ref("PROJCOST", "cost_type_id", "COSTTYPE", true);
   ref("TASKMEMO", "task_id", "TASK"); ref("TASKMEMO", "memo_type_id", "MEMOTYPE"); ref("TASKMEMO", "proj_id", "PROJECT");

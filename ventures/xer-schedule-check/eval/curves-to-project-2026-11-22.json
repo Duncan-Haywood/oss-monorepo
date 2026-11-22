@@ -1,0 +1,1758 @@
+{
+  "summary": {
+    "roundTrip": {
+      "assignments": 19,
+      "measured": 19,
+      "contourBack": 19,
+      "largestGapHours": 0.0366,
+      "largestGapFlatHours": 31.253,
+      "within0_05h": 19
+    },
+    "planted": {
+      "assignments": 160,
+      "measured": 14,
+      "contour8": 14,
+      "largestDailyGapHours": 0.0002,
+      "largestSumGapHours": 0,
+      "skipped": 146
+    },
+    "realFile": {
+      "file": "CCA.xer",
+      "curvedAssignments": 36,
+      "written": 33,
+      "skipped": {
+        "no remaining work": 3
+      },
+      "largestDailyGapHours": 0.0003,
+      "largestSumGapHours": 0,
+      "curves": [
+        "PCO119",
+        "Triangular Increase",
+        "Back Loaded",
+        "Front Loaded",
+        "Bell Shaped"
+      ],
+      "notes": {
+        "curved": 33,
+        "warnings": [
+          "33 assignment(s) on a P6 resource curve (PCO119 23, Triangular Increase 1, Back Loaded 7, Front Loaded 1, Bell Shaped 1) written as Project timephased work in the curve's shape (contour \"Contoured\", or the Project contour the curve came from)",
+          "1 assignment(s) name a resource curve the file does not carry; written spread evenly"
+        ]
+      }
+    }
+  },
+  "roundTrip": [
+    {
+      "file": "mspdiresource",
+      "assignment": "Contoured Task|Wade Golden",
+      "contour": "Turtle",
+      "work": 40,
+      "contourBack": true,
+      "rowsWritten": 29,
+      "writtenSum": 40,
+      "gapHours": 0.0366,
+      "gapFlatHours": 3.7115
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 2|Resource 2",
+      "contour": "Front Loaded",
+      "work": 75,
+      "contourBack": true,
+      "rowsWritten": 41,
+      "writtenSum": 75,
+      "gapHours": 0,
+      "gapFlatHours": 18.75
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 3|Resource 3",
+      "contour": "Back Loaded",
+      "work": 75,
+      "contourBack": true,
+      "rowsWritten": 41,
+      "writtenSum": 75,
+      "gapHours": 0,
+      "gapFlatHours": 18.75
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 2 - Night Shift|Resource 10",
+      "contour": "Front Loaded",
+      "work": 75,
+      "contourBack": true,
+      "rowsWritten": 41,
+      "writtenSum": 75,
+      "gapHours": 0,
+      "gapFlatHours": 18.75
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 3 - Night Shift|Resource 11",
+      "contour": "Back Loaded",
+      "work": 75,
+      "contourBack": true,
+      "rowsWritten": 41,
+      "writtenSum": 75,
+      "gapHours": 0,
+      "gapFlatHours": 18.75
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 2 - 24 Hour|Resource 18",
+      "contour": "Front Loaded",
+      "work": 75,
+      "contourBack": true,
+      "rowsWritten": 25,
+      "writtenSum": 75,
+      "gapHours": 0,
+      "gapFlatHours": 18.75
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 3 - 24 Hour|Resource 19",
+      "contour": "Back Loaded",
+      "work": 75,
+      "contourBack": true,
+      "rowsWritten": 25,
+      "writtenSum": 75,
+      "gapHours": 0,
+      "gapFlatHours": 18.75
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 2 - 50%|Resource 26",
+      "contour": "Front Loaded",
+      "work": 75,
+      "contourBack": true,
+      "rowsWritten": 63,
+      "writtenSum": 75,
+      "gapHours": 0,
+      "gapFlatHours": 18.75
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 3 - 50%|Resource 27",
+      "contour": "Back Loaded",
+      "work": 75,
+      "contourBack": true,
+      "rowsWritten": 63,
+      "writtenSum": 75,
+      "gapHours": 0,
+      "gapFlatHours": 18.75
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 2 - 150%|Resource 34",
+      "contour": "Front Loaded",
+      "work": 125,
+      "contourBack": true,
+      "rowsWritten": 45,
+      "writtenSum": 125,
+      "gapHours": 0.0118,
+      "gapFlatHours": 31.2508
+    },
+    {
+      "file": "mspditimephased",
+      "assignment": "Task 3 - 150%|Resource 35",
+      "contour": "Back Loaded",
+      "work": 125,
+      "contourBack": true,
+      "rowsWritten": 45,
+      "writtenSum": 125,
+      "gapHours": 0.0124,
+      "gapFlatHours": 31.253
+    },
+    {
+      "file": "mspditimephasedsegments",
+      "assignment": "Task Nine|Resource Four",
+      "contour": "Front Loaded",
+      "work": 80,
+      "contourBack": true,
+      "rowsWritten": 42,
+      "writtenSum": 80,
+      "gapHours": 0,
+      "gapFlatHours": 20
+    },
+    {
+      "file": "mspditimephasedsegments",
+      "assignment": "Task Ten|Resource Four",
+      "contour": "Back Loaded",
+      "work": 80,
+      "contourBack": true,
+      "rowsWritten": 42,
+      "writtenSum": 80,
+      "gapHours": 0,
+      "gapFlatHours": 20
+    },
+    {
+      "file": "mspditimephasedsegments",
+      "assignment": "Task Eleven|Resource Four",
+      "contour": "Double Peak",
+      "work": 80,
+      "contourBack": true,
+      "rowsWritten": 45,
+      "writtenSum": 80,
+      "gapHours": 0,
+      "gapFlatHours": 4
+    },
+    {
+      "file": "mspditimephasedsegments",
+      "assignment": "Task Twelve|Resource Four",
+      "contour": "Early Peak",
+      "work": 80,
+      "contourBack": true,
+      "rowsWritten": 45,
+      "writtenSum": 80,
+      "gapHours": 0,
+      "gapFlatHours": 16
+    },
+    {
+      "file": "mspditimephasedsegments",
+      "assignment": "Task Thirteen|Resource Four",
+      "contour": "Late Peak",
+      "work": 80,
+      "contourBack": true,
+      "rowsWritten": 45,
+      "writtenSum": 80,
+      "gapHours": 0,
+      "gapFlatHours": 16
+    },
+    {
+      "file": "mspditimephasedsegments",
+      "assignment": "Task Fourteen|Resource Four",
+      "contour": "Bell",
+      "work": 80,
+      "contourBack": true,
+      "rowsWritten": 45,
+      "writtenSum": 80,
+      "gapHours": 0,
+      "gapFlatHours": 12.8
+    },
+    {
+      "file": "mspditimephasedsegments",
+      "assignment": "Task Fifteen|Resource Four",
+      "contour": "Turtle",
+      "work": 80,
+      "contourBack": true,
+      "rowsWritten": 38,
+      "writtenSum": 80,
+      "gapHours": 0.017,
+      "gapFlatHours": 7.433
+    },
+    {
+      "file": "mspditimephasedsegments",
+      "assignment": "Task Seventeen|Resource Five",
+      "contour": "Front Loaded",
+      "work": 80,
+      "contourBack": true,
+      "rowsWritten": 43,
+      "writtenSum": 80,
+      "gapHours": 0,
+      "gapFlatHours": 20
+    }
+  ],
+  "planted": [
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1010 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1020 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1030 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1050 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1060 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1070 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1080 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1090 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1100 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1110 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1120 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1130 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1140 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1150 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1160 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1170 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1190 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1200 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1120 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Back Loaded",
+      "assignment": "A1130 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1010 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1020 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1030 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1050 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1060 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1070 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1080 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1090 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1100 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1110 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1120 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1130 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1140 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1150 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1160 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1170 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1190 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1200 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1120 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Front Loaded",
+      "assignment": "A1130 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1010 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1020 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1030 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1050 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1060 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1070 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1080 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1090 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1100 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1110 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1120 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1130 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1140 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1150 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1160 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1170 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1190 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1200 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1120 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Double Peak",
+      "assignment": "A1130 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1010 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1020 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1030 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1050 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1060 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1070 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1080 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1090 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1100 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1110 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1120 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1130 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1140 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1150 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1160 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1170 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1190 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1200 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1120 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Early Peak",
+      "assignment": "A1130 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1010 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1020 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1030 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1050 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1060 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1070 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1080 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1090 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1100 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1110 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1120 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1130 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1140 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1150 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1160 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1170 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1190 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1200 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1120 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Late Peak",
+      "assignment": "A1130 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1010 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1020 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1030 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1050 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1060 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1070 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1080 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1090 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1100 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1110 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1120 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1130 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1140 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1150 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1160 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1170 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1190 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1200 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1120 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Bell",
+      "assignment": "A1130 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1010 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1020 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1030 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1050 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1060 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1070 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1080 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1090 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1100 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1110 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1120 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1130 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1140 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1150 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1160 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1170 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1190 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1200 GC",
+      "remaining": 0,
+      "skipped": "no remaining work",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1120 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Turtle",
+      "assignment": "A1130 DRY",
+      "remaining": 64,
+      "contour": "8",
+      "rowsWritten": 29,
+      "dailyGapHours": 0,
+      "sumGapHours": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1010 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1020 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1030 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1050 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1060 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1070 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1080 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1090 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1100 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1110 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1120 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1130 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1140 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1150 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1160 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1170 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1190 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1200 GC",
+      "remaining": 0,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1120 DRY",
+      "remaining": 64,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    },
+    {
+      "curve": "Linear",
+      "assignment": "A1130 DRY",
+      "remaining": 64,
+      "skipped": "even: no rows",
+      "rowsWritten": 0
+    }
+  ],
+  "realFile": [
+    {
+      "assignment": "UZ9GZ11050R2 LAB GEN",
+      "curve": "Linear",
+      "remaining": -35,
+      "actual": 0,
+      "skipped": "no remaining work"
+    },
+    {
+      "assignment": "UZ9GZ27053R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 79129,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 111,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "CZ9GZ08154R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 5949,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 367,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "CZ9GZ09055R2 LAB GEN",
+      "curve": "Triangular Increase",
+      "remaining": 97305,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 365,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "CZ9GZ22059R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 9428,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 405,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "DZ9GZ08154R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 6073,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 413,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "DZ9GZ09055R2 LAB GEN",
+      "curve": "Back Loaded",
+      "remaining": 74947,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 417,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "DZ9GZ22059R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 12092,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 431,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "DZ9GZ23060R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 10612,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 386,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "DZ9GZ27061R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 48341,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 447,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "GZ9GZ31250R2 LAB GEN",
+      "curve": "Front Loaded",
+      "remaining": 9595,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 506,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "GZ9GZ27061R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 9699,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 448,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "IZ9GZ31250R2 LAB GEN",
+      "curve": "Bell Shaped",
+      "remaining": 7333,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 469,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "IZ9GZ06153R2 LAB GEN",
+      "curve": "Back Loaded",
+      "remaining": 20183,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 90,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "IZ9GZ09056R2 LAB GEN",
+      "curve": "Back Loaded",
+      "remaining": 32946,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 394,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "IZ9GZ22060R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 6025,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 422,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "SZ9GZ09053R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 45232,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 224,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "SZ9GZ27058R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 13458,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 453,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "TZ9GZ05150R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 41829,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 335,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "TZ9GZ06151R2 LAB GEN",
+      "curve": "Back Loaded",
+      "remaining": 37365,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 196,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "TZ9GZ09053R2 LAB GEN",
+      "curve": "Back Loaded",
+      "remaining": 52661,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 230,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "TZ9GZ10254R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 43528,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 295,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "TZ9GZ22056R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 47243,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 519,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "TZ9GZ23057R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 7619,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 433,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "PZ9GZ03351R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 19999,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 338,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "PZ9GZ06154R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 7311,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 200,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "PZ9GZ09056R2 LAB GEN",
+      "curve": "Back Loaded",
+      "remaining": 14261,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 177,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "LZ9GZ31250R2 LAB GEN",
+      "curve": "Back Loaded",
+      "remaining": 69970,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 567,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "UV10AF09207R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 0,
+      "actual": 0,
+      "skipped": "no remaining work"
+    },
+    {
+      "assignment": "PV10AF08107R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": -136,
+      "actual": 0,
+      "skipped": "no remaining work"
+    },
+    {
+      "assignment": "PV10AF09207R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 1566,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 112,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "SV10AF11007R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 52,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 196,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "LV10AF09207R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 277,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 176,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "DV10GZ27061R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 7,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 448,
+      "dailyGapHours": 0.0003,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "IV10AF08109R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 1604,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 70,
+      "dailyGapHours": 0.0002,
+      "sumGapHours": 0
+    },
+    {
+      "assignment": "IV10AF04407R2 LAB GEN",
+      "curve": "PCO119",
+      "remaining": 572,
+      "actual": 0,
+      "contour": "8",
+      "rowsWritten": 76,
+      "dailyGapHours": 0.0001,
+      "sumGapHours": 0
+    }
+  ]
+}
