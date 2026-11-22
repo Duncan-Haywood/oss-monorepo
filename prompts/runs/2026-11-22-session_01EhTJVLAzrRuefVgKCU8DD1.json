@@ -19,7 +19,7 @@
   "projects": [
     "package-exports-drift-check"
   ],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18247",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -331,17 +331,20 @@
       {
         "file": "ventures/package-exports-drift-check/cli.mjs",
         "issue": "A directory passed stat() as an existing export target, so a '.' target naming a folder exited 0 though Node 22 refuses it (ERR_UNSUPPORTED_DIR_IMPORT). Fixed: a directory reads missing; real-filesystem test added.",
-        "patched": true
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18247"
       },
       {
         "file": "ventures/package-exports-drift-check/engine.mjs",
         "issue": "A folder-mapping key ('./lib/': './lib/', removed in Node 17) was classified literal: the CLI passed it (folder exists) and the page called it a missing file, while every import through it fails with ERR_PACKAGE_PATH_NOT_EXPORTED (checked on node v22.23.5). Fixed: reported invalid with the './lib/*' replacement.",
-        "patched": true
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18247"
       },
       {
         "file": "ventures/package-exports-drift-check/engine.mjs",
         "issue": "checkWildcards counted a file as reached when the * part held a node_modules/./.. segment, which Node refuses (ERR_INVALID_MODULE_SPECIFIER, checked on node v22.23.5); matters on the page, where a pasted listing can include bundled node_modules. Fixed with a test.",
-        "patched": true
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18247"
       }
     ]
   }
