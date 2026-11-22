@@ -1,7 +1,7 @@
 # Bank Statement Pdf To Csv
 
 Free browser tool that converts a bank or credit card statement PDF (text-based, or a scan or photo read by OCR in the tab) into CSV for Xero,
-QuickBooks Online or a spreadsheet, and proves the result against the statement itself: opening
+QuickBooks Online or a spreadsheet, or an Excel workbook that re-checks itself, and proves the result against the statement itself: opening
 balance plus every row must equal the closing balance, each row is checked against the printed
 running balance, and a gap is reported with its amount, the line where the balance first breaks, and
 the likeliest cause (a missing row, a row on the wrong side, a flipped sign). The PDF is read
@@ -149,10 +149,59 @@ and real banks' statements. Batch conversion was listed below as a paid-tier
 candidate; it ships free for the same reason OCR did: it runs on the visitor's
 machine at no per-user cost.
 
+## An Excel workbook that checks itself (2026-11-22)
+
+"Convert bank statement to Excel" is the phrase most people search, and the
+paid per-page converters sell an Excel download. A CSV opened in Excel loses
+what made the rows trustworthy here: dates arrive as text (or as the wrong
+day when Excel guesses 03/04 the other way round), and the balance proof stays
+behind on the page. **Download Excel (.xlsx)** (`xlsx.mjs`, no dependency)
+keeps it in the file:
+
+- dates are real Excel dates and amounts real numbers (money in, money out,
+  signed amount), so they sort, sum and pivot;
+- each account gets a sheet with the balance the statement printed beside a
+  **running balance written as formulas** (opening, then the row above plus
+  each row; a card's balance owed rises with a charge), and a **Check** column
+  that says `ok` or `off by 12.34` on every row;
+- a **Summary** sheet totals money in and out with `SUM` formulas over those
+  sheets and compares opening + net with the printed closing balance, per
+  account (with the statement's printed totals for a PDF holding several
+  accounts), and for a year of joined statements lists each file and any gap;
+- the findings are a sheet of their own.
+
+So the check travels with the file: delete a row or change an amount later in
+Excel and the checks and Summary recalculate and say where. Each formula is
+also written with its value, computed in integer cents, for readers that do
+not calculate; the workbook asks Excel and LibreOffice to recalculate on open.
+
+**Measured** (`node eval/xlsx-check.mjs OUT <pdf folders>`, needs
+LibreOffice; output in `eval/xlsx-check-2026-11-22.txt`): each statement is
+written a second time with no cached formula values, LibreOffice 24.2 opens it
+and must calculate every formula itself, and every cell of every sheet is
+compared with what this tool computed. On 11 workbooks (the three examples, a
+joined two-month run, the five benchmark PDFs including the two-account Hong
+Kong one, and the two transtractor fixtures) **3,280 cells, 830 of them
+formulas, 0 differ.** The first run of that check found a real fault before
+it shipped (formula cells written as the number 0.01) and, once fixed, float
+noise in a Difference cell (-86.1900000000005), now rounded to the cent.
+Blanking one amount (86.19) in a written workbook and letting LibreOffice
+recalculate turned that row and every row after it to `off by 86.19` and the
+Summary to `no, off by 86.19`. The shipped files also read in openpyxl with
+the Summary's verdict intact. The page was driven in headless Chromium: the
+bank example and the lost-row example each downloaded (5.7 kB,
+`statement.xlsx` and `statement-unproved.xlsx`), with no request leaving the
+page.
+
+Not tested: opening the files in Microsoft Excel itself (no licence here;
+the format follows the same SpreadsheetML another venture in this repository
+writes) or Google Sheets, and real customers' statements.
+
 ## Files
 
 - `index.html`: the tool's page.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
+- `xlsx.mjs`: the Excel workbook (Summary, a sheet per account with running-balance and Check formulas, Findings) and its zip writer.
 - `bankfile.mjs`: OFX, QFX, QBO and QIF from a read statement, and several statements joined and checked month to month.
 - `ocr.mjs`: scans and photos: the picture out of each PDF page, OCR word boxes into column-aligned lines, the tesseract.js loader (on click only).
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
