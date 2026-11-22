@@ -185,3 +185,32 @@ test("summarize: wildcards that reach files count as checked", () => {
   assert.equal(status, "ok");
   assert.match(text, /1 wildcard target\(s\) each reach at least one file/);
 });
+
+// Red team 2026-11-22 (mutants that escaped, and a real defect).
+test("classifyExportEntries: '..' and '../x' both read as outside the package", () => {
+  for (const target of ["..", "../x.js"]) {
+    const { invalid } = classifyExportEntries([{ subpath: ".", condition: null, target }]);
+    assert.match(invalid[0].reason, /outside the package/, target);
+  }
+});
+
+test("classifyExportEntries: a folder-mapping key ('./lib/') is dead in Node 17+, not a file to look for", () => {
+  const { literal, invalid } = classifyExportEntries(extractExportEntries({ ".": "./i.js", "./lib/": "./lib/" }));
+  assert.deepEqual(literal.map((e) => e.target), ["./i.js"]);
+  assert.deepEqual(invalid.map((e) => e.subpath), ["./lib/"]);
+  assert.match(invalid[0].reason, /"\.\/lib\/\*"/);
+});
+
+test("checkWildcards: a file Node refuses to reach (node_modules or '.' in the * part) does not count", () => {
+  const files = new Set(["dist/node_modules/x.js", "dist/a/./b.js"]);
+  const [w] = checkWildcards([{ subpath: "./*", condition: null, target: "./dist/*.js" }], files);
+  assert.deepEqual(w.reached, []);
+  const [v] = checkWildcards([{ subpath: "./*", condition: null, target: "./dist/*.js" }], new Set(["dist/node_modules/x.js", "dist/ok.js"]));
+  assert.deepEqual(v.reached, ["dist/ok.js"]);
+});
+
+test("exportsConfigErrors: array-index keys stop at 4294967294, as in Node", () => {
+  assert.equal(exportsConfigErrors({ ".": { 4294967294: "./a.js" } }).length, 1);
+  assert.equal(exportsConfigErrors({ ".": { 4294967295: "./a.js" } }).length, 0);
+  assert.equal(exportsConfigErrors({ ".": { "01": "./a.js", "-1": "./b.js" } }).length, 0);
+});

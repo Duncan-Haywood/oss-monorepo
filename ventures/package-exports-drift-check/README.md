@@ -77,6 +77,7 @@ publish: [the docs page](why-package-json-exports-fields-drift-from-what-you-act
 | A literal path, any subpath, any condition nesting, any fallback array position | Checked against the file listing / filesystem |
 | A wildcard target (`"./features/*": "./src/features/*.js"`) | Matched against the file listing (every `*` filled with the same text, as Node does); reported **no file** if it reaches none |
 | A target Node refuses: no leading `./` (`"dist/index.js"`, `"other-pkg/sub"`), `"../x"`, an absolute path or URL, a `.`, `..` or `node_modules` segment | Reported **invalid**: Node throws `ERR_INVALID_PACKAGE_TARGET`. Earlier versions skipped these as "re-exports of another package", but `exports` cannot point at another package; only `imports` can |
+| A folder-mapping key ending in `/` with no `*` (`"./lib/": "./lib/"`) | Reported **invalid**: Node 17 removed folder mappings, so no import matches the key (`ERR_PACKAGE_PATH_NOT_EXPORTED`). The CLI used to pass it because the folder exists on disk; a directory no longer counts as a target, and a wildcard file whose `*` part holds a `node_modules` or `.` segment no longer counts as reached |
 | A map mixing `"."` keys with condition keys; a numeric condition key | Reported **config**: Node throws `ERR_INVALID_PACKAGE_CONFIG` |
 | `null` (explicitly blocked subpath) | Not a file target, ignored — intentional, correct `package.json` |
 | Top-level `main` / `module` / `types` fields | Not read in v0 — see the docs page |

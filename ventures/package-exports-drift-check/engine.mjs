@@ -93,11 +93,19 @@ export function classifyExportEntries(entries) {
     const probe = pattern
       ? resolveExports({ [entry.subpath]: entry.target }, entry.subpath.replace("*", "x"), { conditions: [] })
       : resolveExports({ ".": entry.target }, ".", { conditions: [] });
-    if (!probe.ok && probe.code === "ERR_INVALID_PACKAGE_TARGET") invalid.push({ ...entry, reason: invalidReason(entry.target) });
+    if (!pattern && entry.subpath !== "." && entry.subpath.endsWith("/")) invalid.push({ ...entry, reason: folderMappingReason(entry.subpath) });
+    else if (!probe.ok && probe.code === "ERR_INVALID_PACKAGE_TARGET") invalid.push({ ...entry, reason: invalidReason(entry.target) });
     else if (pattern && entry.target.includes("*")) wildcard.push(entry);
     else literal.push(entry);
   }
   return { literal, wildcard, invalid };
+}
+
+// Node 17 removed folder mappings: a key ending in "/" with no "*" matches
+// no import at all (ERR_PACKAGE_PATH_NOT_EXPORTED), so its target is never
+// read, whatever is on disk.
+function folderMappingReason(subpath) {
+  return `is a folder mapping, which Node 17 removed: no import matches the key "${subpath}" (ERR_PACKAGE_PATH_NOT_EXPORTED); write ${JSON.stringify(subpath + "*")} with a "*" target instead`;
 }
 
 function invalidReason(target) {
@@ -122,7 +130,13 @@ export function checkWildcards(wildcard, fileSet) {
     const t = normalizePath(entry.target);
     const parts = t.split("*").map((p) => p.replace(/[.+?^${}()|[\]\\]/g, "\\$&"));
     const re = new RegExp("^" + parts[0] + parts.slice(1).map((p, i) => (i === 0 ? "(.+)" : "\\1") + p).join("") + "$");
-    const reached = files.filter((f) => re.test(f)).sort();
+    // Node refuses a request whose "*" part holds a ".", ".." or
+    // "node_modules" segment (ERR_INVALID_MODULE_SPECIFIER), so such a file
+    // is not reachable through the pattern.
+    const reached = files.filter((f) => {
+      const m = re.exec(f);
+      return m && !m[1].split("/").some((seg) => seg === "." || seg === ".." || seg.toLowerCase() === "node_modules");
+    }).sort();
     return {
       ...entry,
       reached,
