@@ -5666,6 +5666,46 @@ of the remaining gap is elsewhere (NEXT.md). FIDE's colour-criteria order (C.12 
 also tried and changed no board. Measurements: `eval/swiss-exchange-order.md`.
 
 
+## The lichess gap is mostly the file's ratings, not the pairer (2026-11-22)
+
+On the six chess-results events the pairer now reproduces 99.2% of later-round boards, but on the
+three lichess Swiss events only 58.3% of all boards (689 of 1,182), and round 1, which has no
+history at all, only 12% and 16% on the two big events. Round 1 of a Dutch Swiss is just "top half
+against bottom half in rating order", so a 12% round 1 means the order is wrong, not the rules.
+
+The cause is the ratings in the file. lichess pairs each round on the players' live ratings, and the
+TRF it exports carries the ratings at export time: after the whole event (11 to 14 bullet and blitz
+games) and possibly weeks of other games. In the 2026-02-14 event, the top seed met the player the
+file ranks 67th of 148 present, not the 75th; the published round-1 boards are a clean top-half
+against bottom-half split, only in an order a few hundred rating points of drift away from the
+file's. The replay's recall also climbs round by round as the file's ratings get closer to the ones
+used (0.12, 0.39 ... 0.93, 0.85 on that event), which is what drift predicts and a rules defect
+would not.
+
+**Test** (`node eval/lichess-live-ratings.mjs <fixtures>/lichess [K ...]`): before replaying round k,
+each player's rating is walked back from the file's value over rounds k to the last, one game at a
+time, by K x (score - expected) (an Elo-style step standing in for lichess's Glicko-2, whose
+rating deviations the file does not hold), and the pairing numbers are re-sorted by that estimate.
+Condition `played`, as in `eval/swiss-vs-published.mjs`; full table `eval/lichess-live-ratings.txt`:
+
+| K | 0 (the file) | 4 | 8 | 10 | 12 | 14 | 20 | 30 |
+|---|---|---|---|---|---|---|---|---|
+| lichess boards matched | 689 (58.3%) | 721 | 758 | 789 | **803 (67.9%)** | 787 | 734 | 648 |
+| rounds 2+ recall | 64.2% | 67.8% | 70.1% | 73.3% | 73.4% | 72.9% | 68.9% | 61.4% |
+
+Every K from 4 to 20 beats the file's own ratings; past about 25 the walk overshoots and does worse. K was not chosen on the event it is scored on:
+leave one event out, the other two pick K = 12 each time, and the held-out events score 361/618
+(was 311), 341/448 (was 277) and 101/116 (unchanged): 803 of 1,182, 67.9%. The pairer was not
+changed. Round 1 stays low (0.24 and 0.28 on the big events) because a single K cannot undo
+Glicko-2 steps that differ per player, or games played outside the event.
+
+**What it means.** The lichess fixtures cannot score a Dutch pairer to the board until they carry
+the ratings each round was paired on; the 58% was mostly a measurement of rating drift. They stay
+in the replay as a regression check, now best read through this script. For the product nothing
+changes: a club pairs its own event from the ratings it enters, and the page pairs on those
+(FIDE's Dutch rules fix the order at the start). Test: `lichess-live-ratings.test.mjs` (the
+back-out's direction, and re-numbering keeps every pairing).
+
 ## Big brackets kept the two-rounds-ago float rule (2026-11-22, later)
 
 After the S1-against-S2 fix (below), two of the 48 later rounds on the six chess-results events still
