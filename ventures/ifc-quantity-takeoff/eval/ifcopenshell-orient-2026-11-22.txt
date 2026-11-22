@@ -1,0 +1,5 @@
+#162827: IfcOpenShell 0.00190124, directed edges unpaired 1260 of 375000, pieces 1, turned to agree 0.00203951
+#207801: IfcOpenShell 1.39042e-05, directed edges unpaired 1404 of 755532, pieces 1, turned to agree 1.656e-05
+#121421: IfcOpenShell 0.105378, directed edges unpaired 1786 of 971120, pieces 1, turned to agree 0.110598
+#128967: IfcOpenShell 0.000288111, directed edges unpaired 2520 of 1210848, pieces 1, turned to agree 0.000227049
+#130735: IfcOpenShell 2.17321e-05, directed edges unpaired 1393 of 2205431, pieces 1, turned to agree 1.33468e-05

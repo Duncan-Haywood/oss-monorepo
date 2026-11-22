@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMg673F1givx3C6tYU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing brief)",
+  "input_sha256": "bbe1743fea9b4cb7e63f352a5b8a854f6bf8b17598fb70408e0efa29e07b0542",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T10:56:07Z",
+  "ended": "2026-11-22T11:21:58Z",
+  "wall_minutes": 41.53,
+  "tokens_in": 7542647,
+  "tokens_out": 39129,
+  "cost_usd": 3.3263,
+  "tool_calls": 68,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18239",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first edit redeclared `const h` in geom.mjs (SyntaxError), fixed at once; a first pole fix only skipped pole points, which still rounded the half turn the wrong way, replaced by putting the turn across the pole."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/eval/curved-breps-2026-11-20.md",
+      "issue": "Called #162827 'a face that goes once round a closed surface (needs a seam cut or a pole cap)'; it was two half faces meeting on the axis, a pole-unwrapping bug, not a seam case. The label sent the next item toward the wrong fix."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-when-the-reference-kernel-turns-a-face-inside-out.md",
+    "ventures/ifc-quantity-takeoff/eval/pole-faces-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Flagship row 9 (ifc-quantity-takeoff), third BUILDABLE item (curved breps left). kleine_Wohnung #162827 read (775/775 advanced breps); volume 0.0020392 vs Pappus 0.0020402 (0.05% light). All five unexplained curved brep disagreements traced to IfcOpenShell 0.9 meshes with inward-facing faces; turned to agree they match within 0.3%. Checks run here: node --test surface.test.mjs 10/10 (new test fails with the fix removed); run_venture_tests.py ifc-quantity-takeoff 191 pass; check_posts ok; validate.py ok; run_workflow_locally --for-changes: 11/11 selected workflows passed (agent-cross-review and portfolio-pages deploy/gate jobs not runnable locally); venture-preflight: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c8b090d-60af-59be-bd3b-059282465637",
+    "transcripts": 1,
+    "first": "2026-11-22T10:56:07Z",
+    "last": "2026-11-22T11:37:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 122,
+        "output": 39129,
+        "thinking": 9057,
+        "cache_read": 7409862,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132663,
+        "api_equivalent_usd": 3.3263,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 122,
+      "output": 39129,
+      "thinking": 9057,
+      "cache_read": 7409862,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132663,
+      "api_equivalent_usd": 3.3263,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 63,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.53,
+      "active_minutes": 41.53,
+      "model_minutes": 6.41,
+      "tool_minutes": 35.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a geometry engineer tracing a parametric unwrapping bug, writing the fix and tests, and auditing a reference kernel's meshes by formula and edge orientation",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 180.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

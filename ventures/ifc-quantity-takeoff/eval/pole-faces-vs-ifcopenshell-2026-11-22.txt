@@ -1,0 +1,13 @@
+ISSUE_159_kleine_Wohnung_R22.ifc: 775 advanced breps, read 775, agree within 0.1% 708
+  faces on plane: 638 breps, read 638, agree 601
+  faces on cylindricalsurface+plane: 129 breps, read 129, agree 102
+  faces on plane+surfaceofrevolution: 5 breps, read 5, agree 5
+  faces on cylindricalsurface+plane+surfaceofrevolution: 2 breps, read 2, agree 0
+  faces on plane+rationalbsplinesurfacewithknots: 1 breps, read 1, agree 0
+  disagreements: ifcopenshell-over-box 35, overlapping-pieces 27, not-closed 2, unexplained 3
+  not read: none
+    #162827 unexplained: here 0.0020392 IfcOpenShell 0.0019012 box 0.004762 (cylindricalsurface+plane+surfaceofrevolution)
+    #207801 unexplained: here 0.000016549 IfcOpenShell 0.000013904 box 0.0001456 (cylindricalsurface+plane+surfaceofrevolution)
+    #207997 unexplained: here 0.00041275 IfcOpenShell 0.00041364 box 0.0009800 (plane+rationalbsplinesurfacewithknots)
+    #160849 not-closed: here 0.000010573 IfcOpenShell 0.000012185 box 0.00002149 (cylindricalsurface+plane)
+    #172538 not-closed: here 1.4181e-7 IfcOpenShell 0.0000010289 box 0.000001066 (cylindricalsurface+plane)

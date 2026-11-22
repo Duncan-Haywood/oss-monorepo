@@ -1343,6 +1343,9 @@ export class Geometry {
         const C = [m[3], m[7], m[11]], N = [m[2], m[6], m[10]];
         ref = sub(C, A);
         if (Math.abs(dot(N, D)) > 1e-6) throw new Unresolved("revolved circle not in a plane through the axis");
+        // a circle centred on the axis sweeps a sphere: any direction in its
+        // plane across the axis serves as the meridian frame's X0
+        if (norm(sub(ref, mulS(D, dot(ref, D)))) < 1e-12) ref = cross(N, D);
         meridian = { C, rho: this.num(c.args[1]) };
         period = TAU;
       } else throw new Unresolved(`revolved ${c.type}`);
@@ -1429,23 +1432,48 @@ export class Geometry {
       uv.push(q);
       prev = q;
     }
-    for (let k = 0; k < 2; k++) {
-      if (!S.periods[k]) continue;
-      const total = uv[n - 1][k] - uv[0][k] + wrapTo(uv[0][k] - uv[n - 1][k], S.periods[k]);
-      if (Math.abs(total) > S.periods[k] / 2) throw new Unresolved(`face round a closed ${surf.type}`);
-    }
     // A pole: a boundary point where the surface pinches (all of one
     // parameter's line maps to one point, as at the tip of a ruled B-spline
-    // face that narrows to a point). Its (u, v) is a whole segment, which the
-    // loop must run along: the point is written twice, at the pinched
-    // parameter of the point before it and of the point after it.
+    // face that narrows to a point, or where a surface of revolution meets
+    // its axis). Its (u, v) is a whole segment, which the loop must run
+    // along: the point is written twice, at the pinched parameter of the
+    // point before it and of the point after it.
+    const h = 1e-6;
+    const scaleAt = (q, k) => { const d = k ? [0, h] : [h, 0]; return norm(sub(S.at(q[0] + d[0], q[1] + d[1]), S.at(q[0] - d[0], q[1] - d[1]))) / (2 * h); };
+    const ref = [0, 1].map((k) => Math.max(...uv.map((q) => scaleAt(q, k))));
+    const pinched = uv.map((q) => [0, 1].map((k) => scaleAt(q, k) <= 1e-6 * ref[k]));
+    // A pinched periodic parameter (the angle at a point on the axis) is
+    // arbitrary there, and the loop may come back from the pole at any
+    // angle: half of a domed bowl bottom runs half a turn round the rim, down
+    // a meridian to the axis and up the opposite meridian, half a turn away.
+    // Unwrapping cannot tell +1/2 from -1/2 of a turn at that step, so the
+    // angle is unwrapped from the last point where it means something, and
+    // the turn across the pole is the one that closes the loop. Without
+    // this, such a face read as a face round the whole surface.
+    for (let k = 0; k < 2; k++) {
+      if (!S.periods[k]) continue;
+      const P = S.periods[k];
+      let last = null, firstPole = -1;
+      for (let i = 0; i < n; i++) {
+        if (pinched[i][k]) { if (firstPole < 0 && last !== null) firstPole = i; if (last !== null) uv[i][k] = last; continue; }
+        if (last !== null) uv[i][k] = last + wrapTo(uv[i][k] - last, P);
+        last = uv[i][k];
+      }
+      const free = uv.filter((_, i) => !pinched[i][k]);
+      if (free.length < 2) continue;
+      const m = free.length;
+      let total = free[m - 1][k] - free[0][k] + wrapTo(free[0][k] - free[m - 1][k], P);
+      if (Math.abs(total) > P / 2 && firstPole >= 0) {
+        const shift = -P * Math.round(total / P);
+        for (let i = firstPole + 1; i < n; i++) if (!pinched[i][k]) uv[i][k] += shift;
+        total += shift;
+      }
+      if (Math.abs(total) > P / 2) throw new Unresolved(`face round a closed ${surf.type}`);
+    }
     {
-      const h = 1e-6;
-      const scaleAt = (q, k) => { const d = k ? [0, h] : [h, 0]; return norm(sub(S.at(q[0] + d[0], q[1] + d[1]), S.at(q[0] - d[0], q[1] - d[1]))) / (2 * h); };
-      const ref = [0, 1].map((k) => Math.max(...uv.map((q) => scaleAt(q, k))));
       for (let i = n - 1; i >= 0; i--) {
         for (let k = 0; k < 2; k++) {
-          if (scaleAt(uv[i], k) > 1e-6 * ref[k]) continue;
+          if (!pinched[i][k]) continue;
           const a = uv[(i + n - 1) % n], b = uv[(i + 1) % n];
           const q0 = uv[i].slice(), q1 = uv[i].slice();
           q0[k] = a[k]; q1[k] = b[k];
@@ -1465,7 +1493,6 @@ export class Geometry {
     if (off > 1e-3 * size + 1e-9) throw new Unresolved(`face bound off its ${surf.type}`);
     // parameter scales at the middle, so the ear clipping sees lengths
     const mid = [uv.reduce((s, q) => s + q[0], 0) / n, uv.reduce((s, q) => s + q[1], 0) / n];
-    const h = 1e-6;
     const P0 = S.at(mid[0], mid[1]);
     const su = norm(sub(S.at(mid[0] + h, mid[1]), P0)) / h || 1, sv = norm(sub(S.at(mid[0], mid[1] + h), P0)) / h || 1;
     // a loop monotone in u (or v) is walked by that parameter, so triangles

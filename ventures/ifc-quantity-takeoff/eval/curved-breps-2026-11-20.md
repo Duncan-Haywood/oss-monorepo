@@ -135,7 +135,10 @@ carries its body's mesh through the faceted path.
 ## What is left
 
 - A face that goes once round a closed surface (kleine_Wohnung #162827, 6
-  elements): needs a seam cut or a pole cap in (u, v).
+  elements): needs a seam cut or a pole cap in (u, v). (2026-11-22: #162827
+  was two dome halves meeting on the axis, read now; the four unexplained
+  below are IfcOpenShell faces turned inside out:
+  [pole-faces-2026-11-22.md](pole-faces-2026-11-22.md).)
 - Two FM_ARC_DigitalHub breps whose face bounds sit 5e-3 of the face's size
   off their torus (0.45 mm on 90 mm), and three with cylinder faces the
   cylinder reader does not take (a hole, or a loop round the cylinder).

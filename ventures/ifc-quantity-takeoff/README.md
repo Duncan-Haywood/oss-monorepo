@@ -483,8 +483,15 @@ inner edge's midpoint on the surface lies within 2e-4 of the face's size of
 the straight edge, and the set-aside points are fanned back in. Boundary
 points are never moved or added, so the face still meets its neighbours point
 for point; a point where the surface pinches (the tip of a ruled face) is run
-along in (u, v) as the segment it is. Checked against IfcOpenShell and by
-formula in [eval/curved-breps-2026-11-20.md](eval/curved-breps-2026-11-20.md).
+along in (u, v) as the segment it is, and a face whose meridians meet on a
+surface of revolution's axis (half of a domed basin bottom) takes the turn
+across that pole instead of reading as a face round the whole surface.
+Checked against IfcOpenShell and by formula in
+[eval/curved-breps-2026-11-20.md](eval/curved-breps-2026-11-20.md) and
+[eval/pole-faces-2026-11-22.md](eval/pole-faces-2026-11-22.md): kleine_Wohnung
+reads 775 of 775 advanced breps, and the five curved breps that disagreed with
+IfcOpenShell for no named cause are its own meshes with faces turned inside
+out (turned back, they agree within 0.3%).
 A plane
 cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids

@@ -611,8 +611,8 @@ flagships:
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
       the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
       covering areas, 43 wall sides, C20's 2 columns); 2 zinc copings' NetVolumes
-      (eval/side-lights-2026-11-22.md); curved breps left
-      (eval/curved-breps-2026-11-20.md: #162827 band, 4 unexplained); more revision
+      (eval/side-lights-2026-11-22.md); turned-face figure in
+      ifcopenshell-volumes.py --breps (eval/pole-faces-2026-11-22.md); more revision
       series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
       Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
       Lake_Kegonsa_Home_2015.ifc pair).
