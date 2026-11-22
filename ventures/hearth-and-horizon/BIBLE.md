@@ -374,6 +374,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *As of Monday* *(Drafting, 2026-11-22.)* (proposed 2026-11-22): time-to-live and a stale cache. A three-church parish in north Pembrokeshire (invented villages) has an answering agent that tells people Mass times from its own copy of the parish website, refreshed weekly because the volunteer-run site kept falling over in winter storms (`cache_ttl: 7d`, no reason written). The summer timetable goes up on a Friday evening; the agent goes on answering from Monday's copy and three people stand at a locked church on the Saturday evening. Work before drafting: who was told what between the change and the catch (messages by church, which answers happened to stay right), who can be reached with a correction (numbers, not the web chat), the failed first try (a TTL of zero, which copies the webmaster's mid-edit typo just as fast), the reasonable no (the webmaster with a small server in his loft), and the fix: expiry from the content (the timetable's own valid-until date), cheap revalidation (HTTP conditional requests, a 304 of a few hundred bytes every 15 minutes), the copy's age said in any answer from a copy over a day old, and the reason for each number written in the handoff. The angle is how long a copy may be trusted, a decision, not a default; keep clear of the stale queued reminder in *The Timeout at Four*. 'cache' and 'time-to-live' are unused in `overlap.mjs` (from `subjects.txt`).
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
