@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKjoA1LtBGY1imx1y7Q",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T19:19:11Z",
+  "ended": "2026-11-22T19:34:28Z",
+  "wall_minutes": 15.56,
+  "tokens_in": 6726057,
+  "tokens_out": 57837,
+  "cost_usd": 3.6353,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18301",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Generator first crashed: a lowercased key was used to look up its value list (fixed in a minute).",
+    "First RestrictAddressFamilies mode model (re-decide whenever the set is empty) was wrong; the next diff run showed it and it was corrected to systemd's 'set freed' rule."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The 'skip audits already found clean' list covers SEO/HTML sweeps but not which ventures already have a differential test against a reference; I had to grep each candidate (rrule-explainer and gitattributes-explainer were already done) before finding one that was not."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-systemd-ignores-protectsystem-strict-with-a-capital-s.md",
+    "ventures/systemd-unit-hardening-check/README.md (How it is checked: against systemd itself)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: differential-test systemd-unit-hardening-check against systemd's own parser (systemd-analyze security --offline=yes --json=short, systemd 255.4 in the container, ~8 ms/unit). Ten finding types mapped to its tests. Baseline 1,455 of 3,797 loadable trees disagreed (seed 101). Fixed in both twins: invalid assignments ignored with earlier value standing (finding names the ignored line), case-sensitive ProtectSystem/ProtectHome words (ProtectSystem=Strict was reported protected), y/t/n/f booleans, fatal DynamicUser= ending a drop-in, [ Service ] not Service, list-mode semantics for lone ~ and none. Held-out seeds 101-105: 63 of 19,082 differ, all deny lists of unknown names (documented gap, classified only when systemd warned). Developed on seeds 1-5. node tests 38 pass, unittest OK.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ff3895b3-0a2b-564d-bc38-5408b9e86dfd",
+    "transcripts": 1,
+    "first": "2026-11-22T19:19:11Z",
+    "last": "2026-11-22T19:34:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 109,
+        "output": 57837,
+        "thinking": 19014,
+        "cache_read": 6580694,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145254,
+        "api_equivalent_usd": 3.6353,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 109,
+      "output": 57837,
+      "thinking": 19014,
+      "cache_read": 6580694,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145254,
+      "api_equivalent_usd": 3.6353,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.56,
+      "active_minutes": 15.56,
+      "model_minutes": 9.48,
+      "tool_minutes": 6.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer building a systemd-analyze differential harness, tracing seven parser semantics and fixing two twins with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 165.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
