@@ -694,6 +694,33 @@ identity pair reports nothing; eval/narrative-check-2026-11-22.md). Not yet read
 scheduler or owner's reviewer; the hotel file had no driving work due in the window, so its
 3 runs plant nothing. Guide: `how-to-write-a-monthly-construction-schedule-narrative.html`.
 
+## Critical path drag and drag cost (2026-11-22)
+
+`drag.mjs`, `--drag [--drag-cost 12500] [--csv drag.csv]`, and the page's **Find critical path
+drag**: which critical activity is worth accelerating. Every critical activity has the same total
+float, so float cannot rank them; Devaux's drag can. An activity's drag is how much earlier the
+forecast finish would be if it took no time, everything else as is: the most accelerating it can
+ever win. Drag cost is drag in calendar days times a typed cost per day of finish (liquidated
+damages, extended general conditions). P6 and Microsoft Project do not compute it.
+
+How: each open activity on the longest path (every driving chain into the finish,
+`floatpaths.mjs`) is rescheduled at zero remaining duration with `cpm.mjs` (calendars, lag
+calendars, SS/FF/SF, constraints, progress, retained logic as everywhere else), and each lag
+between them at zero. Negative drag is **reverse drag** (the path enters at the finish by FF and
+leaves at the start by SS: shortening moves the finish later), flagged. A drag below the remaining
+duration names the parallel path that takes over. A bisection finds the least shortening that wins
+the whole drag, since on real calendars the gain can come in steps. An expected finish date in use
+overrides a shorter duration, and the row says so.
+
+Checked (eval/drag-check-2026-11-22.md): equal to an independent longest-path oracle (sharing no
+code with `cpm.mjs`) on 2,477 of 2,477 activities in 200 random networks, `shortenForHours` too; on
+the six public files, shortening each activity by its drag moves the finish by exactly the drag
+for 47 of 50 (the 3 explained: an expected finish, a different calendar, a stepped gain). The files
+show equal parallel chains (terminal-building-airport: 33 longest-path activities, one with drag)
+and reverse drag in practice (hotel-project HEPSS00010/20, -111 and -117 working days). CCA's
+19,822 activities take 105 reschedules, 11.7 s in Node. Not compared with a commercial drag
+calculation (none public for these files). Guide: `how-to-find-critical-path-drag-in-a-p6-schedule.html`.
+
 ## XER to Excel workbook (2026-11-22)
 
 `excel.mjs`, `--excel out.xlsx [--raw]`, and the page's **Download for Excel (.xlsx)**: the XER as a
@@ -739,6 +766,7 @@ button drifts. Search impressions not measured yet.
 | A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
 | Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, cost resources and fixed costs as P6 expenses, deadlines as finish-on-or-before constraints on request (so P6's float counts down to them as Project's slack does), and a list of what is not carried (elapsed lags, splits) |
+| Accelerating by hand: pick the longest critical activity, add overtime, reschedule in P6 and see; or a paid tool that computes drag (Spider Project) | Trial and error in a P6 seat; most crews shorten an activity that a parallel path then caps | Drag and drag cost for every longest-path activity and lag from the XER, free in the browser: how many days each one really holds the finish, what that costs per your daily rate, which parallel path takes over, and reverse drag flagged |
 | A narrative written by hand each month from P6 layouts and last month's report | Whatever the scheduler copies across; slow, and easy to miss a change the owner's reviewer will find | The draft narrative from the two XERs: status, critical path, work done and missed, every change with a fill-in for its reason, float, next period, free and in the browser |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
@@ -1314,6 +1342,8 @@ reading of both files. `p6xer.mjs` writes Microsoft Project XML as a P6 XER
 Project XML, `eval/p6xer-mpxj.py` compares MPXJ's reading of the XML and the XER.
 `excel.mjs` writes an XER as an Excel workbook (`xerToXlsx`; `node cli.mjs file.xer --excel out.xlsx [--raw]`);
 `eval/excel-check.py` reads it back with openpyxl against its own XER reader.
+`drag.mjs` computes critical path drag and drag cost (`dragAnalysis`; `node cli.mjs file.xer --drag [--drag-cost N]`);
+`eval/drag-check.mjs` runs it on the public files with a shorten-by-drag consistency check.
 `samples/constraints-log.csv` is a constraints log for the example schedule
 (the page's "Example log" button); `eval/constraints-check.mjs` plants logs on
 real files and checks the what-if against P6 start-on-or-after constraints.

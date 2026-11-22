@@ -17,6 +17,7 @@ const GUIDES = [
   "how-to-review-a-contractors-p6-schedule-update.html",
   "how-to-write-a-monthly-construction-schedule-narrative.html",
   "how-to-convert-an-xer-file-to-excel.html",
+  "how-to-find-critical-path-drag-in-a-p6-schedule.html",
 ];
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
@@ -110,4 +111,21 @@ test("the narrative guide's worked example equals the draft on the built-in exam
   assert.match(html, /nine changes/);
   const index = page("index.html");
   for (const label of ["Load an example pair of updates", "Download narrative (text)"]) assert.ok(index.includes(label), label);
+});
+
+test("the drag guide's worked example equals dragAnalysis on the built-in example", () => {
+  const html = page("how-to-find-critical-path-drag-in-a-p6-schedule.html");
+  const r = cli(join(dir, "cur.xer"), "--drag", "--drag-cost", "2500");
+  assert.equal(r.finish.slice(0, 10), "2026-07-27");
+  assert.equal(r.summary.tested, 7);
+  assert.equal(r.summary.withDrag, 5);
+  assert.match(html, /Seven activities with work left are on the longest path, and five of them hold the finish back/);
+  for (const a of r.activities) {
+    const row = `<tr><td>${a.code} ${a.name}</td><td>${a.remainingDays}</td><td>${a.drag.days}</td><td>$${a.drag.cost.toLocaleString("en-US")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  }
+  assert.equal(r.lags.find((l) => l.pred === "A1160" && l.succ === "A1180").drag.days, 6);
+  assert.match(html, /80-hour lag between flooring and furniture has 6 days of drag/);
+  assert.equal(r.activities[0].drag.calendarDays, 14);
+  assert.ok(page("index.html").includes("Find critical path drag"));
 });

@@ -1,0 +1,128 @@
+[
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "project": "CCA R03 dt 24Oct11SC",
+    "finish": "2013-06-22 16:59",
+    "tested": 54,
+    "withDrag": 4,
+    "reverse": 2,
+    "limitedByParallel": 2,
+    "largest": {
+      "code": "BAFTS01801G0",
+      "days": 5.65,
+      "cost": null
+    },
+    "lagsWithDrag": 3,
+    "runs": 105,
+    "ms": 11704,
+    "exact": "2/3",
+    "noMore": "2/2",
+    "expectedSkipped": 0,
+    "otherCal": 1
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "project": "BEW3",
+    "finish": "2016-08-28 17:00",
+    "tested": 31,
+    "withDrag": 1,
+    "reverse": 0,
+    "limitedByParallel": 0,
+    "largest": {
+      "code": "BEW/MO/NC/1000",
+      "days": 5,
+      "cost": null
+    },
+    "lagsWithDrag": 0,
+    "runs": 41,
+    "ms": 167,
+    "exact": "1/1",
+    "noMore": "0/0",
+    "expectedSkipped": 0,
+    "otherCal": 0
+  },
+  {
+    "file": "example_xer_file.xer",
+    "project": "DEMO-001",
+    "finish": "2027-05-06 16:59",
+    "tested": 13,
+    "withDrag": 12,
+    "reverse": 0,
+    "limitedByParallel": 9,
+    "largest": {
+      "code": "A10210",
+      "days": 3.32,
+      "cost": null
+    },
+    "lagsWithDrag": 3,
+    "runs": 113,
+    "ms": 149,
+    "exact": "11/11",
+    "noMore": "9/9",
+    "expectedSkipped": 1,
+    "otherCal": 0
+  },
+  {
+    "file": "hotel-project.xer",
+    "project": "HBTF-2",
+    "finish": "2014-07-23 16:00",
+    "tested": 130,
+    "withDrag": 2,
+    "reverse": 2,
+    "limitedByParallel": 0,
+    "largest": {
+      "code": "H0000",
+      "days": 1,
+      "cost": null
+    },
+    "lagsWithDrag": 0,
+    "runs": 160,
+    "ms": 1714,
+    "exact": "2/2",
+    "noMore": "0/0",
+    "expectedSkipped": 0,
+    "otherCal": 0
+  },
+  {
+    "file": "sample.xer",
+    "project": "Task SE",
+    "finish": "2021-10-07 16:00",
+    "tested": 30,
+    "withDrag": 30,
+    "reverse": 0,
+    "limitedByParallel": 0,
+    "largest": {
+      "code": "A1000",
+      "days": 5,
+      "cost": null
+    },
+    "lagsWithDrag": 0,
+    "runs": 330,
+    "ms": 20,
+    "exact": "30/30",
+    "noMore": "0/0",
+    "expectedSkipped": 0,
+    "otherCal": 0
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "project": "TERMINAL-2",
+    "finish": "2013-02-27 17:00",
+    "tested": 33,
+    "withDrag": 1,
+    "reverse": 0,
+    "limitedByParallel": 1,
+    "largest": {
+      "code": "BA-P1-10",
+      "days": 1,
+      "cost": null
+    },
+    "lagsWithDrag": 0,
+    "runs": 51,
+    "ms": 10,
+    "exact": "1/1",
+    "noMore": "1/1",
+    "expectedSkipped": 0,
+    "otherCal": 0
+  }
+]
