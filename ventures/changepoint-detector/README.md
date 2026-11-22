@@ -9394,6 +9394,36 @@ It works with `--columns` and `--closed` (closed days are filled first, then sum
 zero; whole weeks never change as days are added; undated rows refused; the CLI with one column, `--json` and
 `--columns`; the committed round-7 verdict; the real shop's readings above.
 
-Next (most useful first): the weekly watch on a deployer's real export, and in the GitHub Actions watch (a second step
-with `--weekly`); a pulse-in-growth test (an epidemic-change statistic on weekly growth) to hear x1.3 climbs; why Q's
+Next (most useful first): the weekly watch on a deployer's real export (in the GitHub Actions watch since 2026-11-22,
+next section); a pulse-in-growth test (an epidemic-change statistic on weekly growth) to hear x1.3 climbs; why Q's
 false alerts rise on uneven weekday patterns.
+
+## The weekly watch in GitHub Actions (2026-11-22)
+
+Round 7 shipped `--weekly` on the CLI. The self-deploy workflow (`deploy/watch-metric.yml`, and the same file the
+watch page's no-terminal set-up writes) now runs it too: set the repository variable `WATCH_WEEKLY` to `on` and the
+check step runs a second watch on whole Monday-to-Sunday weekly totals with the drift detector, with its own record in
+`weekly-state.json`, which the save step commits beside `watch-state.json`. With a data source and no `METRIC_CSV`, `on`
+picks the totals where a season builds: revenue and payments (Stripe), revenue and orders (Shopify), clicks and
+impressions (Search Console), sessions and key events (Google Analytics). Any other value is used as the weekly
+watch's options (`--column orders --detector drift`).
+
+Two things a person would trip on, handled:
+
+- **Which watch sent this?** Both watches post to the same webhook. A weekly alert now reads `orders (weekly total)
+  changed from the week of 2026-06-29: level up from 7209.6 to 9644.5 (2.93 noise sd); 5 whole weeks since.`
+  (`alertText`'s `weekly` option, set by `--weekly` for one column and for `--columns`).
+- **A red daily run must not skip the weekly one.** With no webhook, a new change fails the daily `watch.mjs` on
+  purpose (`--fail-on-alert`), and the step runs under `bash -e`. Each watch's exit code is now caught, both run every
+  time, and the step fails if either did.
+
+**Checked** (`watch-workflow.test.mjs`, two new tests, run through `deploy/run-workflow.mjs`, which runs the
+workflow's own shell steps under GitHub's bash flags against a local bare repository): a shop of about 1,000 orders a
+day (a busy Saturday, a quiet Sunday, lognormal day noise sd 0.2) climbs to x1.9 over 42 days from day 160, with one
+run a week from day 140 to day 259. The weekly watch alerts once, dated to the week of 2026-06-29 (the climb began
+2026-06-14) and sent on the run of 2026-08-02, seven weeks in. The daily watch on the same rows sends nothing at all.
+The weekly record advances on every run, red or green, and with `WATCH_WEEKLY` unset the workflow behaves as before (no
+weekly line, no `weekly-state.json`). One seeded series: it shows the wiring works and the case it is for, not a rate;
+the rates are round 7's.
+
+Not done: a live repository on GitHub (the four-link set-up is still untried there), and a deployer's real export.
