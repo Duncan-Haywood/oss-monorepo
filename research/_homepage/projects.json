@@ -1960,7 +1960,7 @@
     {
      "slug": "ambient-fullinfo",
      "title": "Does selection bias actually hurt an always-on assistant that learns only from windows where it spoke?",
-     "summary": "A stylised follow-up to <em>ambient-ips</em>: on the same logged history, a model fitted only on windows where the assistant spoke is compared with an inverse-propensity-weighted fit and with a full-information fit that sees every window&rsquo;s label. The full-information fit reaches the oracle (12.72 against 12.71 utility per hour); the biased fit loses 1.3 to 2.1 per hour with an informed prior and fails with an uninformed one, so the bias is large, contrary to a guess in <em>ambient-ips</em>. Weighting recovers part of the loss only at &epsilon;&nbsp;=&nbsp;0.02 with an informed prior. The comparison also mixes bias with data volume (no label-matched control). Stylised, simulated only."
+     "summary": "A stylised follow-up to <em>ambient-ips</em>: on the same logged history, a model fitted only on windows where the assistant spoke is compared with an inverse-propensity-weighted fit and with a full-information fit that sees every window&rsquo;s label. The full-information fit reaches the oracle (12.72 against 12.71 utility per hour); the biased fit loses 1.3 to 2.1 per hour with either prior and its weights stay 2.2 to 2.7 from the oracle&rsquo;s as data grows, so the bias is real, contrary to a guess in <em>ambient-ips</em>. Weighting recovers most of the loss at &epsilon;&nbsp;=&nbsp;0.02 and is noisier than no weighting at 0.002. (Corrected 2026-11-22: earlier uninformed-prior results were a solver divergence.) The comparison also mixes bias with data volume (no label-matched control). Stylised, simulated only."
     },
     {
      "slug": "ambient-labelmatch",

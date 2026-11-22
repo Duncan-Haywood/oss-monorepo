@@ -30,26 +30,32 @@ Each fit is scored by its utility per hour on 20 fresh 100 h held-out streams wi
 
 ```bash
 cd research/ambient-fullinfo
-PYTHONPATH=src python3 -m pytest -q tests       # 4 tests
+PYTHONPATH=src python3 -m pytest -q tests       # 8 tests
 PYTHONPATH=src python3 experiments/run.py       # about 6 min, writes experiments/results.txt
 ```
 
 ## Results (all from `experiments/results.txt`; held-out utility per hour, mean &plusmn; std over 20 seeds; oracle 12.71)
 
+> **Corrected 2026-11-22 (quality round 94).** An earlier version of this section reported that the biased fit "fails entirely" with the uninformed prior and that IPS weights end up thousands away from the oracle. Both were optimizer failures, not selection bias or IPS variance: `fit_map` took 40 undamped Newton steps, and from the uninformed start it diverged, returning weights whose MAP objective was 450 to 360,000 times the minimum ([audit](../../portfolio/quality/audits/2026-11-22-ambient-fullinfo.json)). `fit_map` is now a damped Newton (each step is halved until the objective falls). An independent line-searched solver gives the same objective on every checked fit, and the table below was regenerated with it.
+
 Fits at hour 100:
 
 | prior | &epsilon; | biased | ips | full | labelled windows |
 |---|---|---|---|---|---|
-| uninformed | 0.002 | 1.59 &plusmn; 5.70 | &minus;23.80 &plusmn; 50.17 | 12.72 &plusmn; 0.58 | 814 |
-| uninformed | 0.005 | &minus;0.15 &plusmn; 6.29 | &minus;32.73 &plusmn; 60.24 | 12.72 &plusmn; 0.58 | 932 |
-| uninformed | 0.020 | &minus;13.08 &plusmn; 8.66 | &minus;45.55 &plusmn; 85.65 | 12.72 &plusmn; 0.58 | 2691 |
-| informed | 0.002 | 10.62 &plusmn; 0.77 | 9.73 &plusmn; 4.38 | 12.72 &plusmn; 0.58 | 1688 |
+| uninformed | 0.002 | 10.63 &plusmn; 0.77 | 9.61 &plusmn; 4.44 | 12.72 &plusmn; 0.58 | 1685 |
+| uninformed | 0.005 | 10.85 &plusmn; 0.79 | 11.15 &plusmn; 1.51 | 12.72 &plusmn; 0.58 | 1757 |
+| uninformed | 0.020 | 11.44 &plusmn; 0.78 | 12.36 &plusmn; 0.57 | 12.72 &plusmn; 0.58 | 2174 |
+| informed | 0.002 | 10.62 &plusmn; 0.77 | 9.65 &plusmn; 4.50 | 12.72 &plusmn; 0.58 | 1688 |
 | informed | 0.005 | 10.84 &plusmn; 0.81 | 11.14 &plusmn; 1.49 | 12.72 &plusmn; 0.58 | 1757 |
 | informed | 0.020 | 11.42 &plusmn; 0.77 | 12.36 &plusmn; 0.56 | 12.72 &plusmn; 0.58 | 2178 |
 
-1. **The selection bias is large here, contrary to the guess in `ambient-ips`.** The full-information fit reaches the oracle (12.72 against 12.71) at every setting and from hour 20, with weights within 0.3 of the oracle's. The biased fit loses 1.3 to 2.1 utility per hour with the informed prior (10.6 to 11.4) and fails entirely with the uninformed one, where its weights end up 179 to 658 away from the oracle's and get *worse* with more hours (55 at hour 20 to 179 at hour 100 for &epsilon; = 0.002). The earlier guess confused "close to the oracle on utility" with "unbiased".
-2. **Weighting recovers part of the loss, and only in one regime.** With the informed prior, IPS closes most of the gap at &epsilon; = 0.02 (12.36 against 11.42 biased, with distance to the oracle 0.83 against 2.15) but is no better, and far noisier, at &epsilon; = 0.002 (9.73 &plusmn; 4.38). With the uninformed prior it is worse than the biased fit in every row, with a std of 50 to 86 and weight distances in the thousands. The raw weights (up to 1/&epsilon; = 500) are the likely cause; I did not test clipping or self-normalisation here.
+1. **The selection bias costs about 1.3 to 2.1 utility per hour, contrary to the guess in `ambient-ips`.** The full-information fit reaches the oracle (12.72 against 12.71) at every setting and from hour 20, with weights within 0.32 of the oracle's. The biased fit stays at 10.5 to 11.4 with either prior, and its weights sit 2.2 to 2.7 from the oracle's at hours 20, 50 and 100: more data does not shrink the gap, which is what bias rather than noise looks like. The prior barely matters once a few hundred windows are labelled (rows agree within 0.1). The earlier guess confused "close to the oracle on utility" with "unbiased".
+2. **Weighting recovers part of the loss, and only with enough exploration.** At &epsilon; = 0.02, IPS closes most of the gap (12.36 against 11.43 biased, distance to the oracle 0.83 against 2.16). At &epsilon; = 0.005 it is about level with the biased fit (11.15 against 10.85, std 1.5). At &epsilon; = 0.002 it is worse and far noisier (9.6 &plusmn; 4.5 at hour 100, 2.8 &plusmn; 26 at hour 20). The raw weights (up to 1/&epsilon; = 500) are the likely cause; I did not test clipping or self-normalisation here.
 3. **What this does not show.** The gap to *full* is partly selection bias and partly 360 labels per hour against a few per hour. I did not build a control with the same number of random-sample labels, so I cannot say how much of the gap is bias. An assistant could never get the *full* labels in any case; the figure is a ceiling.
+
+### Builds on, from the literature (added 2026-11-22)
+
+The setting is learning from logged bandit feedback. The relevant prior work is covariate shift and importance weighting (Shimodaira 2000, *J. Statistical Planning and Inference* 90(2):227&ndash;244), learning from logged implicit exploration data (Strehl, Langford, Li and Kakade, NeurIPS 2010), doubly robust policy evaluation (Dud&iacute;k, Langford and Li, ICML 2011) and counterfactual risk minimisation (Swaminathan and Joachims, JMLR 2015), which addresses the variance of raw IPS weights seen in result 2. Citations are from the bibliographic records, not re-read for this note. Nothing here is new to that literature; the contribution is a measured size of the effect in this stylised assistant world.
 
 ## Limitations
 
