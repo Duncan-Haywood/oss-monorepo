@@ -2,6 +2,7 @@
 // before it, as the page would after opening the file.
 import { trfToResults } from "../trf.mjs";
 import { parseSwissResults, swissPairings } from "../calc.mjs";
+import { swissStandings } from "../swiss.mjs";
 
 /** Pair round k (1-based) of a parsed TRF, using only rounds before k; `absentIds` sit out round k. */
 export function pairRound(trf, k, absentIds = [], opts = {}) {
@@ -24,6 +25,12 @@ export function pairRound(trf, k, absentIds = [], opts = {}) {
   if (p.errors.length) throw new Error(p.errors.slice(0, 3).join("; "));
   const round = swissPairings(box.players, p.games, p.byes, p.withdrawn, { ...p, groupOrder: "seed", ...opts });
   const id = (i) => trf.players[i].id;
-  return { boards: round.pairs.map((b) => [id(b.white), id(b.black)]), bye: round.bye == null ? null : id(round.bye) };
+  const out = { boards: round.pairs.map((b) => [id(b.white), id(b.black)]), bye: round.bye == null ? null : id(round.bye), method: round.method };
+  if (opts.withScores) {
+    // Pre-round score by TRF id, as the pairer ranks it (for eval/swiss-miss-brackets.mjs).
+    const table = swissStandings(box.players, p.games, p.byes, { extra: p.extra ?? null });
+    out.scores = new Map(table.map((r) => [id(r.index), r.score]));
+  }
+  return out;
 }
 

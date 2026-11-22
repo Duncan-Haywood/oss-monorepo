@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { swissPairings, swissPairingsGreedy, swissStandings, colourClaim, floatHistory, exchangeFor } from "./swiss.mjs";
+import { swissPairings, swissPairingsGreedy, swissStandings, colourClaim, floatHistory, exchangeFor, dutchFloaters } from "./swiss.mjs";
 import { validateSwiss } from "./calc.mjs";
 
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 2 ** 32; }; }
@@ -302,4 +302,35 @@ test("exchangeFor: FIDE C.04.3 4.3 exchange order (fewest moved, smallest BSN-su
   assert.deepEqual(exchangeFor([1, 2, 3, 4, 5, 6], { allowed: allowed3, qOf: () => 0, qMax: 1 }), { s1: [1, 2, 5], s2: [3, 4, 6] });
   // No exchange needed: null (the caller pairs S1 against S2 as before).
   assert.equal(exchangeFor([1, 2, 3, 4], { allowed: () => true, qOf: () => 0, qMax: 1 }), null);
+});
+
+// Colour criteria as bracketMate's stage B builds them: [absolute, strong, mild, down1, up1, down2, up2].
+const floatCtx = ({ wants, met = [], downLast = [] }) => {
+  const metS = new Set(met.flatMap(([a, b]) => [`${a}|${b}`, `${b}|${a}`]));
+  return {
+    allowed: (x, y) => !metS.has(`${x}|${y}`),
+    crit: (x, y) => [0, 0, wants[x] === wants[y] ? 1 : 0, 0, 0, 0, 0],
+    fa: (x, k) => (k === 1 && downLast.includes(x) ? "down" : null),
+  };
+};
+
+test("dutchFloaters: the last S2 player floats when every candidate is as good (Graz 2026 round 9, the 7-point bracket)", () => {
+  // Three players on 7 points, all due white, none floated lately: S1 = {7}, S2 = {11, 21}.
+  // The arbiters' program paired 7-11 and floated 21; stage A had floated 11 for a better colour
+  // fit with its partner in the next bracket, which the Dutch rules do not weigh.
+  const ctx = floatCtx({ wants: { 7: "W", 11: "W", 21: "W" } });
+  assert.deepEqual(dutchFloaters([7, 11], [21], { ...ctx, order: [7, 11, 21] }), [21]);
+  assert.deepEqual(dutchFloaters([7, 21], [11], { ...ctx, order: [7, 11, 21] }), [21]);
+  // 21 floated down last round: 21 stays, 11 floats (C.14 before Dutch order).
+  const ctx2 = floatCtx({ wants: { 7: "W", 11: "W", 21: "W" }, downLast: [21] });
+  assert.deepEqual(dutchFloaters([7, 11], [21], { ...ctx2, order: [7, 11, 21] }), [11]);
+});
+
+test("dutchFloaters: an exchange is tried in article 4.3 order before an S1 player floats (chesshouse 2026 round 9, 6 points)", () => {
+  // Five players, S1 = {6, 12}, S2 = {13, 17, 25}. 6 and 13 have met; 25 floated down last round;
+  // 13 is due black, the rest white. Best value: one shared colour, no repeat float. Two
+  // one-exchange candidates reach it, both with S1' = {6, 13}: 6-12 13-25 (17 floats) and 6-17
+  // 13-25 (12 floats); S2' = {12, 17, 25} in order gives 6-12 first, as published.
+  const ctx = floatCtx({ wants: { 6: "W", 12: "W", 13: "B", 17: "W", 25: "W" }, met: [[6, 13]], downLast: [25] });
+  assert.deepEqual(dutchFloaters([6, 12, 13, 25], [17], { ...ctx, order: [6, 12, 13, 17, 25] }), [17]);
 });
