@@ -1,0 +1,16 @@
+AC20-FZK-Haus | Slabs carry a thickness | 4 applicable | 0 pass before | 4 pass after
+AC20-FZK-Haus | Slabs carry a perimeter | 4 applicable | 0 pass before | 4 pass after
+C20-Institute-Var-2 | Slabs carry a thickness | 26 applicable | 0 pass before | 5 pass after
+C20-Institute-Var-2 | Slabs carry a perimeter | 26 applicable | 0 pass before | 5 pass after
+ISSUE_021_Mini Project | Slabs carry a thickness | 24 applicable | 0 pass before | 24 pass after
+ISSUE_021_Mini Project | Slabs carry a perimeter | 24 applicable | 0 pass before | 24 pass after
+ISSUE_068_ARK_NUS_skolebygg | Slabs carry a thickness | 126 applicable | 0 pass before | 115 pass after
+ISSUE_068_ARK_NUS_skolebygg | Slabs carry a perimeter | 126 applicable | 0 pass before | 115 pass after
+ISSUE_159_kleine_Wohnung_R22 | Slabs carry a thickness | 53 applicable | 0 pass before | 53 pass after
+ISSUE_159_kleine_Wohnung_R22 | Slabs carry a perimeter | 53 applicable | 0 pass before | 53 pass after
+architect | Slabs carry a thickness | 75 applicable | 0 pass before | 75 pass after
+architect | Slabs carry a perimeter | 75 applicable | 0 pass before | 75 pass after
+construction | Slabs carry a thickness | 8 applicable | 0 pass before | 8 pass after
+construction | Slabs carry a perimeter | 8 applicable | 0 pass before | 8 pass after
+schependomlaan | Slabs carry a thickness | 279 applicable | 0 pass before | 130 pass after
+schependomlaan | Slabs carry a perimeter | 279 applicable | 0 pass before | 130 pass after

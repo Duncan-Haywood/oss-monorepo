@@ -1,0 +1,13 @@
+architect.ifc: 150 written from geometry (150 in all), verified 150 of 150 pass; Width: 75 written, 75 with a stored figure, 75 within 2%; Perimeter: 75 written, 75 with a stored figure, 75 within 2%; 0 left to the to-fill table; 9.076 s
+construction.ifc: 16 written from geometry (16 in all), verified 16 of 16 pass; Width: 8 written, 8 with a stored figure, 8 within 2%; Perimeter: 8 written, 8 with a stored figure, 8 within 2%; 0 left to the to-fill table; 0.832 s
+AC20-FZK-Haus.ifc: 8 written from geometry (8 in all), verified 8 of 8 pass; Width: 4 written, 4 with a stored figure, 4 within 2%; Perimeter: 4 written, 4 with a stored figure, 4 within 2%; 0 left to the to-fill table; 0.22 s
+C20-Institute-Var-2.ifc: 10 written from geometry (10 in all), verified 10 of 10 pass; Width: 5 written, 5 with a stored figure, 5 within 2%; Perimeter: 5 written, 5 with a stored figure, 5 within 2%; 42 left to the to-fill table; 0.953 s
+ISSUE_068_ARK_NUS_skolebygg.ifc: 230 written from geometry (230 in all), verified 230 of 230 pass; Width: 115 written, 100 with a stored figure, 100 within 2%; Perimeter: 115 written, 115 with a stored figure, 100 within 2%; 22 left to the to-fill table; 23.089 s
+  Perimeter #54281 stored 146.3409 written 113.2008 m
+  Perimeter #54284 stored 146.3409 written 33.1401 m
+  Perimeter #597309 stored 62.2026 written 43.3838 m
+  Perimeter #597312 stored 62.2026 written 18.8188 m
+  Perimeter #993780 stored 195.8285 written 86.4660 m
+ISSUE_159_kleine_Wohnung_R22.ifc: 106 written from geometry (106 in all), verified 106 of 106 pass; Width: 53 written, 50 with a stored figure, 50 within 2%; Perimeter: 53 written, 53 with a stored figure, 53 within 2%; 0 left to the to-fill table; 5.353 s
+schependomlaan.ifc: 260 written from geometry (260 in all), verified 260 of 260 pass; Width: 130 written, 130 with a stored figure, 130 within 2%; Perimeter: 130 written, 130 with a stored figure, 130 within 2%; 298 left to the to-fill table; 5.813 s
+ISSUE_021_Mini Project.ifc: 48 written from geometry (48 in all), verified 48 of 48 pass; Width: 24 written, 24 with a stored figure, 24 within 2%; Perimeter: 24 written, 0 with a stored figure, 0 within 2%; 0 left to the to-fill table; 4.45 s

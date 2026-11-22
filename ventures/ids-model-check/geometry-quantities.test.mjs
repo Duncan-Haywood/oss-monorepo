@@ -382,3 +382,73 @@ ENDSEC;END-ISO-10303-21;`);
   assert.ok(Math.abs(tekla.computed.lines.length - 3) < 1e-9);
   assert.equal(other.computed.lines, undefined);
 });
+
+// ---- a slab's Width and Perimeter --------------------------------------------
+
+// an axis-aligned box as a convex term: [x0, y0, z0] to [x1, y1, z1]
+function boxTerm(a, b, s = 1) {
+  const [x0, y0, z0] = a, [x1, y1, z1] = b;
+  const p = (x, y, z) => [x, y, z];
+  const faces = [
+    [p(x0, y0, z0), p(x0, y1, z0), p(x1, y1, z0), p(x1, y0, z0)],
+    [p(x0, y0, z1), p(x1, y0, z1), p(x1, y1, z1), p(x0, y1, z1)],
+    [p(x0, y0, z0), p(x1, y0, z0), p(x1, y0, z1), p(x0, y0, z1)],
+    [p(x0, y1, z0), p(x0, y1, z1), p(x1, y1, z1), p(x1, y1, z0)],
+    [p(x0, y0, z0), p(x0, y0, z1), p(x0, y1, z1), p(x0, y1, z0)],
+    [p(x1, y0, z0), p(x1, y1, z0), p(x1, y1, z1), p(x1, y0, z1)],
+  ];
+  return { s, faces };
+}
+
+test("a section's outline: shared edges of convex pieces cancel, a negative piece's edges count against", async () => {
+  const { sectionPerimeter } = await import("./geometry-quantities.mjs");
+  const near = (a, b) => Math.abs(a - b) < 1e-9;
+  // an L in plan as two pieces meeting along part of an edge (a T-junction): 4x1 and 1x3 on top
+  const L = { terms: [boxTerm([0, 0, 0], [4, 1, 0.2]), boxTerm([0, 1, 0], [1, 4, 0.2])] };
+  assert.ok(near(sectionPerimeter(L, [0, 0, 1], 0.1), 16), sectionPerimeter(L, [0, 0, 1], 0.1));
+  // a 5x4 rectangle less a 1x1 corner notch, as a positive and a negative piece: the outline keeps 18
+  const notch = { terms: [boxTerm([0, 0, 0], [5, 4, 0.2]), boxTerm([4, 3, 0], [5, 4, 0.2], -1)] };
+  assert.ok(near(sectionPerimeter(notch, [0, 0, 1], 0.1), 18));
+  // a hole in the middle adds its own outline
+  const hole = { terms: [boxTerm([0, 0, 0], [5, 4, 0.2]), boxTerm([2, 1, 0], [3, 2, 0.2], -1)] };
+  assert.ok(near(sectionPerimeter(hole, [0, 0, 1], 0.1), 22));
+  // overlapping positive pieces with their overlap taken off once: the union's outline (3x1 and 1x3 crossing: a plus)
+  const plus = { terms: [boxTerm([0, 1, 0], [3, 2, 0.2]), boxTerm([1, 0, 0], [2, 3, 0.2]), boxTerm([1, 1, 0], [2, 2, 0.2], -1)] };
+  assert.ok(near(sectionPerimeter(plus, [0, 0, 1], 0.1), 12));
+  // a faceted body has no pieces to read
+  assert.equal(sectionPerimeter({ terms: [], shells: [{ loops: [] }] }, [0, 0, 1], 0), null);
+});
+
+test("a slab's Width only from an extruded body; with openings the Perimeter is the one its tool stores, or none", async () => {
+  const { slabLines } = await import("./geometry-quantities.mjs");
+  const ext = (b, d) => { const v = b.terms.flatMap((t) => t.faces.flat()).map((p) => p[0] * d[0] + p[1] * d[1] + p[2] * d[2]); return [Math.min(...v), Math.max(...v)]; };
+  const body = { terms: [boxTerm([0, 0, 0], [5, 4, 0.25])], axis: [0, 0, 1] };
+  const net = { terms: [boxTerm([0, 0, 0], [5, 4, 0.25]), boxTerm([2, 1, 0], [3, 2, 0.25], -1)] };
+  const row = (solids) => ({ computed: { status: "ok", solids, areas: { plan: { n: [0, 0, 1] } } }, lengthUnit: 1 });
+  const plain = slabLines(row({ body, net: null }), ext, null);
+  assert.equal(plain.width, 0.25);
+  assert.equal(plain.perimeter, 18);
+  assert.equal(plain.openings, false);
+  const holed = row({ body, net });
+  assert.equal(slabLines(holed, ext, null).perimeter, null);
+  assert.equal(slabLines(holed, ext, "gross").perimeter, 18); // Revit
+  assert.equal(slabLines(holed, ext, "net").perimeter, 22); // ARCHICAD
+  // an opening that does not reach the middle of the slab leaves the outline alone
+  const recess = { terms: [boxTerm([0, 0, 0], [5, 4, 0.25]), boxTerm([2, 1, 0.2], [3, 2, 0.25], -1)] };
+  assert.equal(slabLines(row({ body, net: recess }), ext, null).perimeter, 18);
+  // no extrusion (a brep read as pieces): the thickness is kept but not offered
+  const brep = slabLines(row({ body: { terms: body.terms }, net: null }), ext, null);
+  assert.equal(brep.width, null);
+  assert.equal(brep.thickness, 0.25);
+});
+
+test("the fill writes a slab's Width and Perimeter from its body", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const text = readFileSync(SAMPLE, "utf8");
+  const geometry = geometryLookup(await measureModel(text));
+  const I = ids(spec("IFCSLAB", prop("Qto_SlabBaseQuantities", "Width", "IFCLENGTHMEASURE") + prop("Qto_SlabBaseQuantities", "Perimeter", "IFCLENGTHMEASURE")));
+  const r = fillModel(I, text, { ...resources(), random, geometry });
+  // 5 x 4 m, 250 mm thick, in millimetres
+  assert.deepEqual(r.writtenList.map((w) => [w.id, w.prop, w.value, w.source]).sort(), [[400, "Perimeter", "18000.", "geometry"], [400, "Width", "250.", "geometry"]]);
+  assert.equal(r.verified.pass, 2);
+  assert.equal(check(I, new Model(r.text, resources().schemas)).specs[0].status, "pass");
+});

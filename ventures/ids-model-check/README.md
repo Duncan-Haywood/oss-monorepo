@@ -422,7 +422,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
-node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights and member lengths measured from the bodies
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights, member lengths and slab thickness and perimeter measured from the bodies
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -692,6 +692,20 @@ offset bend). On the three public Tekla exports that is 147 more lengths, all
 With the stored lengths hidden the fill writes 1,386, 190 and 25 lengths on
 them, all matching, and IfcTester passes the same elements
 (`eval/tekla-cut-members-2026-11-22.md`).
+**Slab thickness and perimeter (2026-11-22).** `Qto_SlabBaseQuantities`
+`Width` (the slab's thickness) and `Perimeter` (its outline) are measured too:
+the thickness is the body's depth along its extrusion, offered only when the
+body is extruded (a faceted slab's thinnest extent was right on only 158 of
+221: Tekla's grout strips store their profile's width, ARCHICAD's sloped
+pieces a vertical figure); the outline is cut through the slab's middle and
+read off its convex pieces, edges shared by two pieces cancelling. A slab with
+openings gets ARCHICAD's figure (the openings' outlines added) or Revit's (the
+outer outline only, 40 of 42 Revit slabs with openings), and none from other tools. On eleven public exports the
+thickness matches the stored figure on 396 of 396 offered, the perimeter on
+375 of 390 (13 of the other 15 are pieces of a split floor each storing the
+whole floor's figure). With the stored figures hidden, the fill writes 828
+values on eight exports, every one passes the fill's re-read and IfcTester
+takes the same 828 from fail to pass (`eval/slab-width-perimeter-2026-11-22.md`).
 Curved walls' lengths and other heights are not measured. A value from the model's
 own quantity sets always wins over a measured one, and a measured value still
 has to pass every facet that names it. Values are written to six significant
