@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-22 · Rule K: a curvature-aware thermal margin on rows whose AC remainder broke the rating (plan)
+- Plan, rule K (`vlin.slp(kmargin=cap)`: an armed row's bound pulled in by its observed remainder, decayed by 4 per halving, capped at 0.05) and predictions K0 to K7: `research/infra-dcopf/LOG.md` (2026-11-22); script `research/infra-dcopf/experiments/run_kmargin.py`. Development and held-out, against the frozen repair.
+
 ## 2026-11-21 · Confirmation split, J+R and a third DC solver: outcome. The IPOPT reactive stage finishes 8 of 22 unfinished cases at +0.008 to +0.212 %; J or J+R 15 of 23 under the protocol (J 9), 18 of 33 over the split; HiGHS solves case2853_sdet API's DC OPF (H1 refuted), so all 33 reach the repair
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-21); numbers in `research/infra-dcopf/experiments/results_confirm_reactive.txt` and `results_dc_highs.txt`. G0 to G5 held.
 - 10 of the 22 unfinished cases failed only on reactive limits under 0.1 MVAr in total; 8 of those finish after the reactive stage. No case with real overloads finishes.

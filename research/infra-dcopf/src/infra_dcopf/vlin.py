@@ -217,7 +217,9 @@ def linearise(ppc, pg0, v0, lay=None, warm=None, analytic=False):
 def rows(ppc, lin, margin=None):
     """One-sided linear rows A x <= u, the row kind per row, and the balance row (a_eq x = b_eq).
     margin: None (bounds as given) or a dict like MARGIN: each bound pulled inward by that amount
-    (thermal as a fraction of rating), never past the bound range's midpoint."""
+    (thermal as a fraction of rating), never past the bound range's midpoint. Rule K (LOG.md 2026-11-22): an
+    optional margin["load_end"], one extra thermal margin per branch end (fraction of rating, 2 nbr long, from
+    end ends first), is added to the uniform thermal margin on that end's row."""
     mg = margin or {}
     lay, J, m0, aidx = lin["lay"], lin["J"], lin["m0"], lin["aidx"]
     x0 = np.concatenate([lin["pg0"], lin["v0"]])
@@ -247,7 +249,9 @@ def rows(ppc, lin, margin=None):
     on = np.concatenate([br[:, BR_STATUS], br[:, BR_STATUS]]) > 0
     keep = on & (rate > 0)
     Jf, mf = J[i:i + 2 * nbr][keep], m0[i:i + 2 * nbr][keep]
-    rk = rate[keep] * (1.0 - mg.get("load", 0.0))
+    extra = mg.get("load_end")
+    extra = np.zeros(2 * nbr) if extra is None else np.asarray(extra, float)
+    rk = rate[keep] * (1.0 - mg.get("load", 0.0) - extra[keep])
     # thermal tolerance is relative (1 ppm of loading), as in the AC check
     hi = np.maximum(rk, np.minimum(mf, rk * (1.0 + TOL["load"])))
     A.append(Jf)
@@ -418,9 +422,11 @@ def shrink(lo, hi, m):
     return np.where(np.isfinite(lo), lo + d, lo), np.where(np.isfinite(hi), hi - d, hi)
 
 
-def check(ppc, pg, vg, warm=None):
+def check(ppc, pg, vg, warm=None, ends=False):
     """Full AC check of (pg, vg): counts and worst excesses of every limit class, and AC cost.
-    warm: a power-flow result whose bus voltages start Newton (default: the case file's)."""
+    warm: a power-flow result whose bus voltages start Newton (default: the case file's).
+    ends (rule K): also return "end_load", every branch end's loading (|S| / rating, from ends first;
+    -inf where unrated or off)."""
     r = run_point(ppc, pg, vg, warm)
     if r is None:
         return None
@@ -451,6 +457,9 @@ def check(ppc, pg, vg, warm=None):
         "losses": float(g[live, PG].sum() - bus[:, 2].sum()),
         "worst_br": wb, "worst_end": None if wb is None else int(wb if sf[wb] >= sf[nbr + wb] else nbr + wb),
     }
+    if ends:
+        on2 = np.concatenate([on, on])
+        out["end_load"] = np.where(on2, sf / np.where(on2, np.concatenate([rate, rate]), 1.0), -np.inf)
     out["p_clean"] = out["n_over"] == 0 and out["slack_out_mw"] < TOL["slack"] and out["n_ang"] == 0
     out["clean"] = out["p_clean"] and out["vviol"] == 0 and out["qviol"] == 0
     return out
@@ -478,7 +487,7 @@ VBOX = 0.03
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
         record=False, warm=None, warm_check=False, merit_fn=None, enlarge=None, info=None,
         enlarge_once=False, enlarge_rel=False, trace=None, enlarge_skip=(),
-        enlarge_pre=False):
+        enlarge_pre=False, kmargin=None, kinfo=None):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg".
@@ -499,7 +508,14 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
     enlarge_skip (an ablation, same entry): rounds on which the enlarged step is not tried (the round then
     goes straight to the elastic chain); default none.
     enlarge_pre: rule P (LOG.md 2026-11-20, after the case1888 diagnosis): the enlarged step is tried only
-    before the first halving of the boxes; after it a failed hard QP goes to the elastic chain."""
+    before the first halving of the boxes; after it a failed hard QP goes to the elastic chain.
+    kmargin: rule K (LOG.md 2026-11-22), None = frozen, else the cap on the extra thermal margin (fraction of
+    rating). After every solved round's AC check, a rated branch end the QP's linear model held at or inside its
+    margin (predicted loading <= 1 - margin) but which loads over its rating in the AC check is armed with its
+    remainder r = AC loading - predicted loading and the halving count h0 at that round. From then on its row
+    carries an extra margin min(cap, r 4^-(h - h0)) at h halvings: the second-order remainder of a step scales
+    with the step squared, and every halving halves the boxes. A row armed again keeps the larger current value.
+    kinfo: a list that collects one record per round on which rule K armed a row."""
     mf = merit_fn or merit
     halvings = 0
     lay = Layout(ppc)
@@ -511,7 +527,13 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
     cur = check(ppc, pg, lay.vg_of(v), warm)
     hist = []
     used_here = False  # rule O: an enlarged step has been taken from the current base point
+    nbr = ppc["branch"].shape[0]
+    k_r, k_h = np.zeros(2 * nbr), np.zeros(2 * nbr)  # rule K: armed remainder and halvings at arming
+    base_margin = margin
     for it in range(1, rounds + 1):
+        if kmargin is not None:
+            margin = dict(base_margin or {})
+            margin["load_end"] = np.minimum(kmargin, k_r * 4.0 ** -(halvings - k_h))
         lin = linearise(ppc, pg, v, lay, warm, analytic=analytic)
         if lin is None:
             hist.append({"it": it, "status": "PF failed at point"})
@@ -551,7 +573,27 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
             halvings += 1
             continue
         vg = lay.vg_of(xv)
-        c = check(ppc, xp, vg, warm if warm_check else None)
+        c = check(ppc, xp, vg, warm if warm_check else None, ends=kmargin is not None)
+        if c is not None and kmargin is not None:
+            el = c.pop("end_load")
+            x0 = np.concatenate([lin["pg0"], lin["v0"]])
+            dx = np.concatenate([xp, xv]) - x0
+            pred_flow = lin["m0"][1:1 + 2 * nbr] + lin["J"][1:1 + 2 * nbr] @ dx
+            rate2 = np.concatenate([ppc["branch"][:, RATE_A]] * 2)
+            rated = np.isfinite(el)
+            pred = np.where(rated, pred_flow / np.where(rated, rate2, 1.0), np.inf)
+            lm = (base_margin or {}).get("load", 0.0)
+            hit = rated & (el > 1.0 + TOL["load"]) & (pred <= 1.0 - lm + 1e-9)
+            if hit.any():
+                r_new = el[hit] - pred[hit]
+                cur_val = k_r[hit] * 4.0 ** -(halvings - k_h[hit])
+                take = r_new > cur_val
+                idx = np.flatnonzero(hit)[take]
+                k_r[idx], k_h[idx] = r_new[take], halvings
+                if kinfo is not None:
+                    kinfo.append({"it": it, "halvings": halvings, "armed": int(hit.sum()),
+                                  "set": int(take.sum()), "r_max": float(r_new.max()),
+                                  "n_active": int((k_r * 4.0 ** -(halvings - k_h) > 1e-6).sum())})
         if c is None:
             hist.append({"it": it, "status": "PF failed"})
             if trace is not None:
