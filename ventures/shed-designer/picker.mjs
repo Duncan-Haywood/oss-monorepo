@@ -128,6 +128,10 @@ export function mountPicker(opts) {
 
   /** @type {any} */
   let manifest = null;
+  // Live thumbnails wait for the stored pictures' list: before it arrives every
+  // card looks unrendered, so the queue drew a card live (about 160 ms of main
+  // thread each, plus a WebGL context) that the stored picture then replaced.
+  let manifestSettled = false;
   /** The stored picture of a design from one view, when that exact design was drawn (a preset or a gallery card, unchanged). */
   const stored = (id, view) => {
     const e = entry(id);
@@ -191,6 +195,7 @@ export function mountPicker(opts) {
   let shotTimer = /** @type {any} */ (0);
   function queueShots() {
     clearTimeout(shotTimer);
+    if (!manifestSettled) return;
     const next = root.querySelector('[data-shot] .thumb-wait')?.parentElement;
     if (!next) return;
     shotTimer = setTimeout(() => {
@@ -364,10 +369,11 @@ export function mountPicker(opts) {
   renderStrip();
   // The stored pictures' list; without it (offline, an old copy) every picture is drawn live.
   fetch(new URL('renders/manifest.json', import.meta.url)).then((r) => (r.ok ? r.json() : null)).then((m) => {
-    if (!m?.designs) return;
+    manifestSettled = true;
+    if (!m?.designs) return queueShots();
     manifest = m;
     renderStrip();
-  }).catch(() => {});
+  }).catch(() => { manifestSettled = true; queueShots(); });
   renderTray();
 
   return {

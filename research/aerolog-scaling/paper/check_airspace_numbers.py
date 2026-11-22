@@ -272,6 +272,23 @@ CHECKS = [
     ('tail_rule_results.txt', 'W        median 1.0000', '| leak budget 0.027, 50 starts at it and two band counts either side (6.9) | 250 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |'),
     ('tail_rule_results.txt', 'W        median 1.0000', '| leak budget 0.027, 50 starts at it and two band counts either side (6.9) | 250 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |'),
     ('tail_rule_results.txt', 'W        median 1.0000', '| leak budget 0.027, 50 starts at it and two band counts either side (6.9) | 250 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |'),
+    # 11ba fresh-layout test (pre-registered) and its post hoc one-sided search
+    ('fresh_tail_results.txt', 'W          median 1.0000  p90 1.0137', 'p90 **1.0137, 1.0065, 1.0080 and 1.0085**'),
+    ('fresh_tail_results.txt', 'W          median 1.0000  p90 1.0065', 'p90 **1.0137, 1.0065, 1.0080 and 1.0085**'),
+    ('fresh_tail_results.txt', 'W          median 1.0000  p90 1.0080', 'p90 **1.0137, 1.0065, 1.0080 and 1.0085**'),
+    ('fresh_tail_results.txt', 'W          median 1.0000  p90 1.0085', 'p90 **1.0137, 1.0065, 1.0080 and 1.0085**'),
+    ('fresh_tail_results.txt', 'N          median 1.0000  p90 1.0747', 'only from 1.0747 to **1.0566**'),
+    ('fresh_tail_results.txt', 'C(0.00135) median 1.0000  p90 1.0566', 'only from 1.0747 to **1.0566**'),
+    ('fresh_tail_results.txt', 'C(0.00135) median 1.0000  p90 1.0559', 'stays above 1.05 in two cells'),
+    ('fresh_tail_results.txt', 'frozen budget p_N = 0.02716', 'frozen on all 48 layouts (0.02716)'),
+    ('fresh_tail_results.txt', '24 fresh layouts, 192 draws', '24 fresh layouts (11ba, 192 draws'),
+    ('fresh_tail_results.txt', '# F5 -> refuted', '11ba seven of eight'),
+    ('fresh_tail_posthoc_results.txt', 'U3  median 1.0000  p90 1.0028', '**1.0028 and 1.0004**'),
+    ('fresh_tail_posthoc_results.txt', 'U3  median 1.0000  p90 1.0004', '**1.0028 and 1.0004**'),
+    ('fresh_tail_posthoc_results.txt', 'U3  median 1.0000  p90 1.0016', '1.0016 and 1.0079 on the old layouts'),
+    ('fresh_tail_posthoc_results.txt', 'U3  median 1.0000  p90 1.0079', '1.0016 and 1.0079 on the old layouts'),
+    ('fresh_tail_posthoc_results.txt', 'M = 16, s = 2.0: N tail draws with best above k_B 6, below 0', '15 of 16 on the fresh ones'),
+    ('fresh_tail_posthoc_results.txt', 'M = 12, s = 2.0: N tail draws with best above k_B 5, below 1', '15 of 16 on the fresh ones'),
 ]
 
 

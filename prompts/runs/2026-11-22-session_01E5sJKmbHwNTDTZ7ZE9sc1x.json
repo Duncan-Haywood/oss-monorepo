@@ -42,15 +42,19 @@
     {
       "file": "platform/perf/module-exclusive.mjs",
       "issue": "It takes only an HTML page, so splitting a single-entry page (shed-designer's app.mjs) needs a temporary probe page holding the entry's imports. An entry-module argument would save that step."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "I searched open PRs before starting and found no shed-designer one; #18293 was opened afterwards for the same page off the same 'not changed' list. Our history note names collided (add/add conflict). A per-page claim (draft PR first) would have shown it."
     }
   ],
   "deviations": [],
   "writeups": [
     "docs/posts/2026-11-22-one-import-line-pulled-a-search-engine-into-the-shed-designer.md",
-    "docs/history/shed-designer-page-perf-2026-11-22.md"
+    "docs/history/shed-designer-page-perf-2026-11-22-looks-split.md"
   ],
   "goal": "what visitors wait on: page weight",
-  "notes": "Metric: gzip bytes of the static module graph on ventures/shed-designer/index.html, from node platform/perf/module-exclusive.mjs. Before 384 kB/55 files (main 241225222); after 373 kB/55 files (-11 kB, -3%). designsearch.mjs (13.4 kB gz) is off the page; looksscore.mjs (2.6 kB gz) is on it. Same answers: looksOf over the 1,168 designs searchDesigns({}) evaluates, JSON cmp identical. Playwright old vs new: designsearch.mjs requested only on old; 11 card looks lines have the same SHA-1; no errors. designfacts+designsearch tests 25/25. Full suite: run_venture_tests.py shed-designer ok, 542 tests in 132.4 s (3 skipped: axe-core not installed).",
+  "notes": "Metric: gzip bytes of the static module graph on ventures/shed-designer/index.html, from node platform/perf/module-exclusive.mjs. Before 384 kB/55 files (main 241225222); after 373 kB/55 files (-11 kB, -3%). designsearch.mjs (13.4 kB gz) is off the page; looksscore.mjs (2.6 kB gz) is on it. Same answers: looksOf over the 1,168 designs searchDesigns({}) evaluates, JSON cmp identical. Playwright old vs new: designsearch.mjs requested only on old; 11 card looks lines have the same SHA-1; no errors. designfacts+designsearch tests 25/25. Full suite: run_venture_tests.py shed-designer ok, 542 tests in 132.4 s (3 skipped: axe-core not installed). Merge: PR #18293 (parallel run, same page) landed first with instructions.mjs on demand; it does not overlap. After merging main: 355 kB/54 files vs 366 kB on main; designfacts+designsearch+page tests 32/32; card looks text hash unchanged.",
   "corrections": [],
   "redteam": null,
   "usage": {

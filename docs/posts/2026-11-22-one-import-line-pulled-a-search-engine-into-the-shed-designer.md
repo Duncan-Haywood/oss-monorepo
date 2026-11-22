@@ -41,10 +41,11 @@ The page went from 384 kB to **373 kB** gzip.
 - A test now walks the card module's imports and fails if the search engine
   ever comes back onto the page that way.
 
-## What we left alone
+## Same day, another pass
 
-The next-largest piece, the build instructions (19 kB), looks optional
-because it fills a tab. But the page rebuilds those steps after every edit,
-and two other features read them. Loading it later would only move the bytes,
-not save them. The full reading and the ranked list for the next pass are in
-[the perf note](../history/shed-designer-page-perf-2026-11-22.md).
+A parallel run made the build instructions (19 kB) load on demand and stopped
+the page drawing a gallery thumbnail it then threw away
+([the shed picture nobody saw](2026-11-22-the-shed-picture-nobody-saw.md)).
+The two changes stack: with both, the page's static module graph is
+**355 kB**, down from 384 kB this morning. The full reading is in
+[the perf note](../history/shed-designer-page-perf-2026-11-22-looks-split.md).

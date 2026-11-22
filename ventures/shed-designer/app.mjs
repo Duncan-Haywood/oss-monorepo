@@ -18,7 +18,6 @@ import { CHECKOUT_URL, VALIDATE_URL } from './checkout.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
-import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
@@ -653,8 +652,22 @@ function showPieces(ids, title, { scroll = false } = {}) {
   if (scroll) $('#view3d').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function renderBuild(shed, est) {
-  const sections = buildInstructions(shed, est);
+// The build steps come from instructions.mjs (60 kB raw, 19 kB gzip). They are
+// drawn in renderLate, after the first frame, so the module is fetched there
+// with import() instead of on the page's critical path; a failed load clears
+// the memo so the next render retries. buildReady settles once the steps for
+// the latest render are drawn, for the Markdown download.
+/** @type {Promise<typeof import('./instructions.mjs')> | null} */
+let instructionsMod = null;
+const loadInstructions = () => (instructionsMod ||= import('./instructions.mjs').catch((e) => { instructionsMod = null; throw e; }));
+let buildReady = /** @type {Promise<void>} */ (Promise.resolve());
+function renderBuild(shed, est, turn) {
+  buildReady = loadInstructions().then(({ buildInstructions, instructionsMarkdown }) => {
+    if (turn !== lateTurn) return; // a newer render draws its own steps
+    drawBuild(shed, buildInstructions(shed, est), instructionsMarkdown);
+  }, (e) => { console.error('build steps failed to load', e); });
+}
+function drawBuild(shed, sections, instructionsMarkdown) {
   buildSections = sections;
   buildMd = instructionsMarkdown(sections, shed.design.name);
   $('#build-steps').innerHTML = sections.map((s) => `<li><h3>${esc(s.title)}</h3>${s.why ? `<p class="muted">${esc(s.why)}</p>` : ''}<ol>${s.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.check?.length ? `<div class="check"><strong>Check:</strong> ${s.check.map(esc).join(' ')}</div>` : ''}</li>`).join('');
@@ -797,7 +810,7 @@ function renderLate(shed, est, d) {
     renderCuts(est);
     renderParts(est);
     renderPlans(shed, est);
-    renderBuild(shed, est);
+    renderBuild(shed, est, turn);
     renderQuote(shed, est);
     renderCompare();
     queueThumbs();
@@ -1307,7 +1320,7 @@ function wire() {
     count('csv-downloads');
   });
   $('#print-build').addEventListener('click', () => printWhat('build'));
-  $('#md-build').addEventListener('click', () => { download(`${slug()}-how-to-build.md`, buildMd, 'text/markdown'); count('csv-downloads'); });
+  $('#md-build').addEventListener('click', async () => { await buildReady; download(`${slug()}-how-to-build.md`, buildMd, 'text/markdown'); count('csv-downloads'); });
   {
     // Branded build pack: dark until a checkout link is set in checkout.mjs (no card, no Buy button).
     const buy = buyLink(CHECKOUT_URL);
