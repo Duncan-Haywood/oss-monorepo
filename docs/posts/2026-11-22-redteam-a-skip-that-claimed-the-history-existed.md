@@ -1,6 +1,6 @@
 ---
 title: "A skip that claimed the history existed: red team on a shallow-clone guard"
-seo_title: "Shallow git clone test skips: telling a missing commit from a wrong path"
+seo_title: "Shallow git clone test skips: a missing commit or a wrong path?"
 date: 2026-11-22
 tags: [redteam, testing, mutation-testing, git, shallow-clone, javascript, platform]
 description: "Red team on two files: 10 of 11 non-equivalent seeded bugs caught, and a test helper that turned any git failure in a shallow clone into a silent skip."
