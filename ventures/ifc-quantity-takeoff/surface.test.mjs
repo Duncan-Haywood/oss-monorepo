@@ -181,3 +181,30 @@ test("a face wrapping all the way round a surface of revolution is reported, not
   });
   assert.throws(() => new Geometry(m).item(id), (e) => e instanceof Unresolved);
 });
+
+for (const flip of [false, true]) test(`a bowl in two halves meeting on the axis${flip ? ", loops reversed" : ""}: the angle across the pole closes the loop`, () => {
+  // A hemisphere below z = 0 (radius 1), each half bounded by half the rim
+  // and two meridians that meet at the bottom pole. Unwrapping the angle at
+  // the pole could take half a turn either way; one of them made the face
+  // look as if it went round the whole surface (kleine_Wohnung #162827,
+  // a basin's domed bottom, was not read for that reason). Both loop
+  // directions are tried, as each one rounds the half turn its own way.
+  const { model: m, id } = model(({ vertex, circle, edge, loop, face, plane, revolution }) => {
+    const L = (oes) => loop(flip ? oes.slice().reverse().map(([e, f]) => [e, !f]) : oes);
+    const B0 = [1, 0, 0], B1 = [-1, 0, 0], P = [0, 0, -1];
+    const [b0, b1, p] = [B0, B1, P].map(vertex);
+    const r0 = edge(b0, b1, circle([0, 0, 0], 1)), r1 = edge(b1, b0, circle([0, 0, 0], 1));
+    const m0 = edge(b0, p, circle([0, 0, 0], 1, [0, 1, 0], [1, 0, 0]));
+    const m1 = edge(b1, p, circle([0, 0, 0], 1, [0, -1, 0], [-1, 0, 0]));
+    const sphere = () => revolution(circle([0, 0, 0], 1, [0, 1, 0], [1, 0, 0]), [0, 0, 0], [0, 0, 1]);
+    return [
+      face([L([[r1, false], [r0, false]])], plane([0, 0, 0], [0, 0, 1])),
+      face([L([[r0, true], [m1, true], [m0, false]])], sphere()),
+      face([L([[r1, true], [m0, true], [m1, false]])], sphere()),
+    ];
+  });
+  const s = new Geometry(m).item(id);
+  assert.ok(s.shells, "closed");
+  close(Math.abs(solidVolume(s)), (2 * Math.PI) / 3, 3e-3);
+  close(sectionArea(s, [0, 0, 1], -0.5), Math.PI * 0.75, 3e-3);
+});
