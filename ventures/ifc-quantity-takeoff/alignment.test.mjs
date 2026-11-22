@@ -150,3 +150,52 @@ ${box(40, 10)}
   assert.equal(beam.computed.status, "not read");
   assert.match(beam.computed.reason, /^placement: basis curve IFCSEGMENTEDREFERENCECURVE/);
 });
+
+// IfcSectionedSolidHorizontal: lofted between cross-sections along the directrix
+const loft = (dir, sections, positions) => `
+#900=IFCCARTESIANPOINT((0.,0.));
+${sections.map((pts, i) => `${pts.map((p, j) => `#${1000 + i * 20 + j}=IFCCARTESIANPOINT((${p[0]},${p[1]}));`).join("\n")}
+#${1000 + i * 20 + 19}=IFCPOLYLINE((${[...pts, pts[0]].map((_, j) => `#${1000 + i * 20 + (j % pts.length)}`).join(",")}));
+#${1500 + i}=IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,$,#${1000 + i * 20 + 19});`).join("\n")}
+${positions.map((d, i) => `#${1600 + i}=IFCPOINTBYDISTANCEEXPRESSION(IFCLENGTHMEASURE(${d}),$,$,$,${dir});
+#${1700 + i}=IFCAXIS2PLACEMENTLINEAR(#${1600 + i},$,$);`).join("\n")}
+#1800=IFCSECTIONEDSOLIDHORIZONTAL(${dir},(${sections.map((_, i) => `#${1500 + i}`).join(",")}),(${positions.map((_, i) => `#${1700 + i}`).join(",")}));`;
+const rect = (w, h) => [[-w / 2, 0], [w / 2, 0], [w / 2, h], [-w / 2, h]];
+
+test("sectioned solid on a straight 3D polyline: area x 3D length, box square to the climb", () => {
+  // 30 m level, 0.4 m up: stations are 3D distances along it
+  const body = `#50=IFCCARTESIANPOINT((0.,0.,0.));
+#51=IFCCARTESIANPOINT((30.,0.,0.4));
+#52=IFCPOLYLINE((#50,#51));
+${loft("#52", [rect(2, 1), rect(2, 1)], [0, Math.hypot(30, 0.4)])}`;
+  const s = new Geometry(parseStep(file(body))).item(1800);
+  assert.ok(Math.abs(s.mesh - 2 * Math.hypot(30, 0.4)) < 1e-9, `volume ${s.mesh}`);
+  assert.deepEqual(s.notes, []);
+});
+
+test("sectioned solid on an arc: Pappus, the centroid's side of the curve decides", () => {
+  // the left-turning 200 m arc of H from station 100 to 150; a 2 x 1 section whose
+  // centre sits 3 m left (profile x +3): the centroid path is R - 3 long per radian
+  const left = rect(2, 1).map(([x, y]) => [x + 3, y]);
+  const s = new Geometry(parseStep(file(`${H}${loft("#18", [left, left], [100, 150])}`))).item(1800);
+  const want = 2 * 50 * (1 - 3 / R);
+  assert.ok(Math.abs(s.mesh / want - 1) < 2e-5, `volume ${s.mesh} vs ${want}`);
+});
+
+test("a cross-section that twists (a crossfall turning over) is lofted exactly, and a station past the end is said", () => {
+  // a 0.04 m course 10 m wide whose left edge rises 0.26 m between stations 0 and 25:
+  // the volume is the integral of the interpolated section's area (prismatoid)
+  const a = [[5, -0.1], [-5, -0.1], [-5, -0.14], [5, -0.14]];
+  const b = [[5, -0.1], [-5, 0.16], [-5, 0.12], [5, -0.14]];
+  const area = (p) => Math.abs(p.reduce((s, q, i) => { const r = p[(i + 1) % p.length]; return s + q[0] * r[1] - r[0] * q[1]; }, 0)) / 2;
+  const mid = a.map((p, i) => [(p[0] + b[i][0]) / 2, (p[1] + b[i][1]) / 2]);
+  const want = (25 / 6) * (area(a) + 4 * area(mid) + area(b));
+  const body = `#50=IFCCARTESIANPOINT((0.,0.,0.));
+#51=IFCCARTESIANPOINT((20.,0.,0.));
+#52=IFCPOLYLINE((#50,#51));
+${loft("#52", [a, b], [0, 25])}`;
+  const s = new Geometry(parseStep(file(body))).item(1800);
+  assert.ok(Math.abs(s.mesh / want - 1) < 1e-9, `volume ${s.mesh} vs ${want}`);
+  assert.equal(s.notes.length, 1);
+  assert.match(s.notes[0], /5\.000 m past the end of its directrix/);
+});

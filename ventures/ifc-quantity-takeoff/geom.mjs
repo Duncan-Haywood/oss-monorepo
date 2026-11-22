@@ -23,7 +23,7 @@
 // Pure functions over a parsed STEP model (step.mjs). Lengths stay in the
 // model's own length unit; the caller converts.
 
-import { AlignmentReader, AlignmentError } from "./alignment.mjs";
+import { AlignmentReader, AlignmentError, sectionedSolidHorizontal } from "./alignment.mjs";
 
 const EPS_REL = 1e-9;
 const ARC_SEGS = 360;
@@ -905,6 +905,16 @@ export class Geometry {
         if (op === "UNION") return solid(guard([...first.terms, ...b.terms, ...both.map((t) => ({ s: -t.s, faces: t.faces }))]), 0, [...first.notes, ...b.notes]);
         throw new Unresolved(`boolean ${op}`);
       }
+      case "IFCSECTIONEDSOLIDHORIZONTAL": {
+        // a deck, girder or pavement course lofted along an IFC4X3 alignment (alignment.mjs)
+        this.alignments ??= new AlignmentReader(this);
+        let loft;
+        try { loft = sectionedSolidHorizontal(this.alignments, e, (r) => this.profile(r)); } catch (err) {
+          if (err instanceof AlignmentError) throw new Unresolved(err.message);
+          throw err;
+        }
+        return orientedShells(loft.parts, loft.notes);
+      }
       case "IFCMAPPEDITEM": {
         const map = this.get(a[0]);
         const origin = map.args[0] ? (this.get(map.args[0]).type.startsWith("IFCAXIS2PLACEMENT") ? this.placement(map.args[0]) : this.operator(map.args[0])) : IDENTITY;
@@ -1714,6 +1724,24 @@ function faceted(parts, notes = []) {
   if (flipped) n.push(`${flipped} face${flipped === 1 ? "" : "s"} of a faceted body turned to match their neighbours`);
   if (overlaps) n.push(`a shell in pieces that may overlap: any overlap is counted once for each piece`);
   return solid([], v, n, open ? null : shells);
+}
+
+/**
+ * Closed shells whose faces are already oriented one way round (the lofts of
+ * alignment.mjs): only the sign is settled, by the enclosed volume, so the
+ * neighbour search faceted() runs is skipped (Viadotto Acerno 30 s to 6 s).
+ */
+function orientedShells(parts, notes = []) {
+  let v = 0;
+  const shells = [];
+  for (const { s, faces } of parts) {
+    let vs = shellVolume(faces);
+    const loops = vs < 0 ? faces.map((f) => f.slice().reverse()) : faces;
+    vs = Math.abs(vs);
+    v += s * vs;
+    shells.push({ s, loops });
+  }
+  return solid([], v, notes.slice(), shells);
 }
 
 /**

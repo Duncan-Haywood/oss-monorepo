@@ -140,15 +140,19 @@ export class AlignmentReader {
     const g = this.geo;
     const pts = (e.args[0] || []).map((r) => g.point(r));
     if (pts.length < 2) this.fail("polyline with fewer than two points");
+    // distance along a 3D polyline is its 3D length (a girder's directrix
+    // climbing with the deck); t is the level heading, g the grade
     const cum = [0];
-    for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1], pts[i][2] - pts[i - 1][2]));
+    for (let i = 1; i < pts.length; i++) if (Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]) < 1e-12 && cum[i] > cum[i - 1]) this.fail("polyline with a plumb piece");
     const at = (s) => {
       let i = 0;
       while (i < pts.length - 2 && s > cum[i + 1]) i++;
       const L = cum[i + 1] - cum[i] || 1;
-      const t = [(pts[i + 1][0] - pts[i][0]) / L, (pts[i + 1][1] - pts[i][1]) / L];
-      const u = s - cum[i];
-      return { p: [pts[i][0] + u * t[0], pts[i][1] + u * t[1]], t, z: pts[i][2] + (u / L) * (pts[i + 1][2] - pts[i][2]) };
+      const dx = pts[i + 1][0] - pts[i][0], dy = pts[i + 1][1] - pts[i][1], dz = pts[i + 1][2] - pts[i][2];
+      const h = Math.hypot(dx, dy) || 1;
+      const u = (s - cum[i]) / L;
+      return { p: [pts[i][0] + u * dx, pts[i][1] + u * dy], t: [dx / h, dy / h], z: pts[i][2] + u * dz, g: dz / h };
     };
     // IfcPolyline's parameter runs 0..1 on each piece
     const paramToLength = (u) => {
@@ -252,7 +256,7 @@ export class AlignmentReader {
       out = { kind: "gradient", length: H.length, frame: (d) => { const h = H.at(d); const v = elevation(d); return { p: [h.p[0], h.p[1], v.z], t: h.t, g: v.g }; } };
     } else if (e.type === "IFCCOMPOSITECURVE" || e.type === "IFCPOLYLINE") {
       const H = this.composite(ref);
-      out = { kind: "horizontal", length: H.length, frame: (d) => { const h = H.at(d); return { p: [h.p[0], h.p[1], h.z ?? 0], t: h.t }; } };
+      out = { kind: e.type === "IFCPOLYLINE" ? "polyline" : "horizontal", length: H.length, frame: (d) => { const h = H.at(d); return { p: [h.p[0], h.p[1], h.z ?? 0], t: h.t, g: h.g ?? 0 }; } };
     } else {
       this.fail(`basis curve ${e.type}`);
     }
@@ -292,4 +296,113 @@ export class AlignmentReader {
     const y = [z[1] * x[2] - z[2] * x[1], z[2] * x[0] - z[0] * x[2], z[0] * x[1] - z[1] * x[0]];
     return [x[0], y[0], z[0], o[0], x[1], y[1], z[1], o[1], x[2], y[2], z[2], o[2]];
   }
+}
+
+/**
+ * IfcSectionedSolidHorizontal(Directrix, CrossSections, CrossSectionPositions)
+ * as closed faceted tubes, one per profile loop (signed as the loop: a hole
+ * is a tube subtracted). Each cross-section stands square to the
+ * directrix's tangent at its station, in the frame axis2Linear gives it:
+ * profile x along the level y axis (SIGN_X: to the left), profile y along z
+ * (the spec's "profile Y axis is the direction of Axis"; on a 1.3% grade a 2 m
+ * girder's top sits 2.6 cm up-station of its foot, as IfcOpenShell draws it). Between two
+ * stations the profile's points move linearly with the station (a ruled loft)
+ * and the solid is cut into slices at most MAX_TURN apart in heading, so a
+ * curved deck follows its arc.
+ *
+ * @param {AlignmentReader} A
+ * @param {object} e the IFCSECTIONEDSOLIDHORIZONTAL entity
+ * @param {(ref) => {s: number, pts: number[][]}[]} loopsOf profile -> loops (geom.mjs profile)
+ * @returns {{parts: {s: number, faces: number[][][]}[], slices: number, notes: string[]}} parts for geom.mjs faceted()
+ */
+export const MAX_TURN = (0.25 * Math.PI) / 180;
+export const SIGN_X = 1;
+export function sectionedSolidHorizontal(A, e, loopsOf) {
+  const g = A.geo;
+  const [dirRef, secRefs, posRefs] = e.args;
+  if (!secRefs || !posRefs || secRefs.length !== posRefs.length || secRefs.length < 2) A.fail("sectioned solid: sections and positions do not pair");
+  const B = A.basis(dirRef.ref ?? dirRef);
+  const stations = posRefs.map((r) => {
+    const pl = g.get(r);
+    if (!pl || pl.type !== "IFCAXIS2PLACEMENTLINEAR") A.fail(`sectioned solid position ${pl ? pl.type : "missing"}`);
+    if (pl.args[1] || pl.args[2]) A.fail("sectioned solid: a turned cross-section (Axis or RefDirection)");
+    const pe = g.get(pl.args[0]);
+    const [dist, lat, vert, lon] = pe.args;
+    if (g.num(lon)) A.fail("sectioned solid: a longitudinal offset");
+    return { d: g.num(dist) ?? 0, lat: g.num(lat) ?? 0, vert: g.num(vert) ?? 0 };
+  });
+  for (let i = 1; i < stations.length; i++) if (!(stations[i].d > stations[i - 1].d)) A.fail("sectioned solid: stations not increasing");
+  // a station off either end of its directrix: carried on along the end
+  // tangent, and said (Viadotto Acerno's span-4 diaphragms run 0.20 m past
+  // their 0.505 m polylines; IfcOpenShell 0.8 stops them at the end)
+  const notes = [];
+  const past = Math.max(0, -stations[0].d, stations[stations.length - 1].d - B.length);
+  if (past > 1e-6) notes.push(`a cross-section ${past.toFixed(3)} m past the end of its directrix: the solid carries on along the end tangent`);
+  const sections = secRefs.map((r) => loopsOf(r).map((l) => {
+    const p = l.pts.slice();
+    const f = p[0], z = p[p.length - 1];
+    if (p.length > 1 && Math.hypot(f[0] - z[0], f[1] - z[1]) < 1e-12) p.pop();
+    return { s: l.s, pts: p };
+  }));
+  const shape = sections[0].map((l) => l.pts.length).join(",");
+  for (const s of sections) if (s.map((l) => l.pts.length).join(",") !== shape) A.fail("sectioned solid: cross-sections with different point counts");
+
+  // every slice: station d, its frame, and the profile there
+  const slices = [];
+  const at = (d, i, t) => {
+    const f = B.frame(d);
+    const a = stations[i], b = stations[i + 1] ?? a;
+    const lat = a.lat + t * (b.lat - a.lat), vert = a.vert + t * (b.vert - a.vert);
+    const left = [-f.t[1], f.t[0]];
+    // the station's frame (axis2Linear): profile x along the level y axis,
+    // profile y along z, square to the tangent in its vertical plane
+    const gr = f.g ?? 0, c = 1 / Math.hypot(1, gr);
+    const Z = [-gr * f.t[0] * c, -gr * f.t[1] * c, c];
+    const loops = sections[i].map((l, k) => ({
+      s: l.s,
+      pts: l.pts.map((p, j) => {
+        const q = t ? sections[i + 1][k].pts[j] : p;
+        const x = p[0] + t * (q[0] - p[0]), y = p[1] + t * (q[1] - p[1]);
+        const side = lat + SIGN_X * x, up = vert + y;
+        return [f.p[0] + side * left[0] + up * Z[0], f.p[1] + side * left[1] + up * Z[1], f.p[2] + up * Z[2]];
+      }),
+    }));
+    return loops;
+  };
+  for (let i = 0; i + 1 < stations.length; i++) {
+    const d0 = stations[i].d, d1 = stations[i + 1].d;
+    // the heading turned through between the two stations, sampled
+    let turn = 0, prev = B.frame(d0).t;
+    for (let k = 1; k <= 16; k++) {
+      const t = B.frame(d0 + ((d1 - d0) * k) / 16).t;
+      turn += Math.abs(Math.atan2(prev[0] * t[1] - prev[1] * t[0], prev[0] * t[0] + prev[1] * t[1]));
+      prev = t;
+    }
+    const n = Math.min(400, Math.max(1, Math.ceil(turn / MAX_TURN)));
+    for (let k = i ? 1 : 0; k <= n; k++) {
+      const t = k / n;
+      slices.push(t === 1 && i + 2 < stations.length ? at(d1, i + 1, 0) : at(d0 + (d1 - d0) * t, i, t));
+    }
+  }
+  // tubes
+  const parts = [];
+  for (let k = 0; k < sections[0].length; k++) {
+    const faces = [];
+    const first = slices[0][k].pts, last = slices[slices.length - 1][k].pts;
+    faces.push(first.slice().reverse(), last.slice());
+    for (let j = 0; j + 1 < slices.length; j++) {
+      const P = slices[j][k].pts, Q = slices[j + 1][k].pts, N = P.length;
+      for (let m = 0; m < N; m++) {
+        const m1 = (m + 1) % N;
+        // a side between two slices is a bilinear (twisted) quad when the
+        // profile changes (a crossfall turning over): four triangles about its
+        // mean point enclose the patch's volume exactly, where one diagonal
+        // is off by the twist (a 4 cm course whose edge rises 0.26 m: 55%)
+        const c = [0, 1, 2].map((x) => (P[m][x] + P[m1][x] + Q[m1][x] + Q[m][x]) / 4);
+        faces.push([P[m], P[m1], c], [P[m1], Q[m1], c], [Q[m1], Q[m], c], [Q[m], P[m], c]);
+      }
+    }
+    parts.push({ s: sections[0][k].s, faces });
+  }
+  return { parts, slices: slices.length, notes };
 }

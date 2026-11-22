@@ -1,0 +1,10 @@
+Viadotto Acerno.ifc: 638 elements with an IfcSectionedSolidHorizontal body
+  volume vs the integral: |diff| median 3.21e-12, p95 3.61e-6, max 2.92e-5; within 0.1%: 638, within 0.01%: 638
+  largest: #160689 IfcSlab 108.2269 vs 108.2300 m3 (-0.0029%); #193141 IfcCourse 21.1694 vs 21.1700 m3 (-0.0029%); #193639 IfcCourse 10.5847 vs 10.5850 m3 (-0.0029%); #193249 IfcCourse 10.6447 vs 10.6450 m3 (-0.0029%); #192721 IfcCourse 21.2894 vs 21.2900 m3 (-0.0029%)
+  IfcSlab: 19, 1889.354 m3 here vs 1889.360 m3 integral (-0.0004%)
+  IfcBeam: 572, 3259.596 m3 here vs 3259.596 m3 integral (-0.0000%)
+  IfcCourse: 38, 604.000 m3 here vs 604.002 m3 integral (-0.0004%)
+  IfcSurfaceFeature: 3, 0.755 m3 here vs 0.755 m3 integral (-0.0003%)
+  IfcRailing: 4, 2.893 m3 here vs 2.893 m3 integral (-0.0007%)
+  IfcPavement: 2, 193.724 m3 here vs 193.725 m3 integral (-0.0004%)
+  world box corners vs IfcOpenShell: median 5.68e-14 m, p95 5.00e-12 m, max 1.99e-1 m (#169763); n=634
