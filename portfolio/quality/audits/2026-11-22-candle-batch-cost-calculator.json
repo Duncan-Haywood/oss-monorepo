@@ -203,7 +203,8 @@
    "what": "The first FAQ answer, visible on the page and in the FAQPage JSON-LD, gives the wrong pricing formula: 'divide that cost by one minus the margin you want and by one minus the fees', i.e. cost/((1-m)(1-f)). The tool correctly uses cost/(1-f-m). At cost 15.60, 10% fees, 50% target the FAQ gives 34.67, which earns a 45% margin, not 50%. A maker pricing by the FAQ undercharges.",
    "where": "ventures/candle-batch-cost-calculator/index.html:117",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
   },
   {
    "severity": "medium",
@@ -224,14 +225,16 @@
    "what": "Wholesale is modelled fee-free (wholesale net = price - cost), and the page's 'Not modelled' list does not say so. Small makers commonly wholesale through Faire at 15% commission: the sample 8 oz jar at USD 12 shows +USD 1.42 net but loses USD 0.38 after commission, the exact trap VENTURE.yaml says the tool exists to catch.",
    "where": "ventures/candle-batch-cost-calculator/calc.mjs:81",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
   },
   {
    "severity": "medium",
    "what": "Tests miss displayed logic: setting the no-wholesale-price fallback to zero, charging labor in 'online net per hour making', and moving the 50% waste bound to 60% all leave 29/29 green (4 of 7 seeded mutants survive).",
    "where": "ventures/candle-batch-cost-calculator/calc.test.mjs:42",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
   },
   {
    "severity": "low",
@@ -255,6 +258,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"],
  "verdict": "The arithmetic is right: cost per unit, channel nets, both price floors, blended month, break-even, effective hourly and the wax shock all recompute by hand on a fresh case and on the page's example, and fragrance load on wax weight matches the CandleScience convention (10% = 1.6 oz/lb). But the page's own first FAQ, also in the search-engine JSON-LD, tells makers to price with cost/((1-m)(1-f)), which gives 34.67 instead of 39.00 at a 50% target (a 45% margin). The model also misses what a seller hits first: Etsy's fixed USD 0.45 per order, Faire's 15% wholesale commission (the sample jar's +1.42 wholesale net is really -0.38), and what 'wax oz' means; the example types an 8 oz jar as 8 oz of wax plus FO, about 16% more than an 8 fl oz jar holds. Tests pass 29/29; 4 of 7 seeded mutants survive. Scores: correctness 3, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished, does not meet the bar (claims, verification). The FAQ fix is one sentence; the fee and wax-weight gaps are small additions. support.candlescience.com, Etsy and Faire pages were read through search snippets only (direct fetch blocked), so those figures rest on the snippets."
 }

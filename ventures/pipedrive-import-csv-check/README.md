@@ -45,3 +45,8 @@ name, a value, a date, an ID or the digits of a phone number, and never deletes 
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+**Known gaps** (quality round 98, [`audit`](../../portfolio/quality/audits/2026-11-22-pipedrive-import-csv-check.json)):
+headings in Pipedrive's own export style (`Person - Name`, `Deal - Title`) are not recognised; the day-first and
+month-first labels have no test that fails when swapped; the probability rule is stated from memory, not from a
+Pipedrive document.

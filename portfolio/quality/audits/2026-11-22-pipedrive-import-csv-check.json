@@ -236,21 +236,24 @@
    "what": "Deals are not checked for a linked Person or Organization. Pipedrive's mandatory-fields article says a deal row needs a person name or an organization name, or it lands in the skip file; the tool requires only Title (REQUIRED.deals = ['title']), gives a deals file with neither column a clean result, and the page tells users 'a deal needs a title'.",
    "where": "ventures/pipedrive-import-csv-check/calc.mjs:31",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
   },
   {
    "severity": "high",
    "what": "Auto-detection misreads common files. 'Name,Organization' (a people file, the README's own example headings) is read as organizations with a false 'Name appears in two columns' warning; 'Title,Organization,Status' deals are read as organizations, so 'Closed Won' is never checked and every deal is flagged as a duplicate organization. chooseKind tests deal headings first, then people headings without 'name'/'organization', then treats 'organization' or 'name' as an organizations file, and never treats 'title' or 'status' as a deal signal. The kind dropdown defaults to auto.",
    "where": "ventures/pipedrive-import-csv-check/calc.mjs:139",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
   },
   {
    "severity": "medium",
    "what": "Row limit is 100,000; Pipedrive's import help states 50,000 rows per spreadsheet. A 60,000-row file gets no warning. The warning text also says 'about 100,000'.",
    "where": "ventures/pipedrive-import-csv-check/calc.mjs:34",
    "category": "source-data",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
   },
   {
    "severity": "medium",
@@ -271,7 +274,8 @@
    "what": "Non-integer ID is a warning, but Pipedrive's skip-file help says such rows are skipped; it should be an error.",
    "where": "ventures/pipedrive-import-csv-check/calc.mjs:381",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
   },
   {
    "severity": "low",
@@ -281,6 +285,6 @@
    "origin": "claims"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"],
  "verdict": "A careful spreadsheet-damage checker that gets the generic faults right (currency symbols, Excel scientific notation, mixed day/month dates, impossible dates, duplicate emails, formatting-only repair) but misses Pipedrive's own rules where they matter: deals without a linked Person or Organization, which Pipedrive's mandatory-fields help says are skipped, pass clean; the row cap is 100,000 against the documented 50,000; and auto-detection reads an ordinary 'Name,Organization' people file, or a 'Title,Organization,Status' deals file, as organizations, with false warnings and the status check skipped. 31/31 tests pass but 5 of 8 seeded mutants survive. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished, does not meet the bar. Pipedrive's help site could not be fetched directly from this session; the rules are as quoted by web search."
 }
