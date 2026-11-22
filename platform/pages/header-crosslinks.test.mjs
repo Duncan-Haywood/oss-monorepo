@@ -68,3 +68,42 @@ test(`no venture header stacks more than ${MAX_HEADER_CROSSLINK_NOTES} cross-too
   }
   assert.deepEqual(over, [], 'move the extra "see also" notes into a "Related guides and tools" card before "Common questions"');
 });
+
+/**
+ * Every paragraph in the first <header> whose job is a link: to another tool
+ * (`../slug/`) or to the page's own guide and comparison pages (`*.html`),
+ * whatever its class (`p.note`, `p.lede`, `p.seo-link`, `p.tagline`, `p.fine`).
+ * The answer lead (`data-answer-lead`, kept for answer engines) and privacy
+ * notes are not counted.
+ * WHY: on 2026-11-22 six pages stacked 3 to 5 such paragraphs above the tool
+ * (polish-2026-11-22-related-links-cards.md); `headerCrosslinkNotes` saw only
+ * `p.note` with a cross-tool link, so none of them failed it.
+ */
+export const MAX_HEADER_LINK_PARAGRAPHS = 2;
+export function headerLinkParagraphs(html) {
+  const header = /<header\b[^>]*>([\s\S]*?)<\/header>/.exec(html);
+  if (!header) return 0;
+  const paras = header[1].match(/<p\b(?![^>]*data-answer-lead)[^>]*>[\s\S]*?<\/p>/g) || [];
+  return paras.filter((p) => /href="(\.\.\/[a-z0-9-]+\/[^"]*|(\.\/)?[a-z0-9-]+\.html)"/.test(p)
+    && !/[Nn]othing is uploaded|never leaves/.test(p)).length;
+}
+
+test('headerLinkParagraphs counts link paragraphs of any class, not the answer lead', () => {
+  const html = '<header><p class="answer-source" data-answer-lead>Fact. <a href="guide.html">g</a></p>'
+    + '<p class="seo-link"><a href="vs-x.html">vs x</a></p><p class="tagline">Or <a href="../b/">b</a>.</p>'
+    + '<p>Plain lede, no link.</p><p class="note">Nothing is uploaded. <a href="../c/">c</a></p>'
+    + '<p class="fine"><a href="./how.html">how</a></p></header><p><a href="y.html">y</a></p>';
+  assert.equal(headerLinkParagraphs(html), 3);
+  assert.equal(headerLinkParagraphs('<main></main>'), 0);
+});
+
+test(`no venture header stacks more than ${MAX_HEADER_LINK_PARAGRAPHS} link paragraphs above the tool`, () => {
+  const over = [];
+  for (const slug of readdirSync(VENTURES)) {
+    const p = join(VENTURES, slug, 'index.html');
+    if (!existsSync(p)) continue;
+    const n = headerLinkParagraphs(readFileSync(p, 'utf8'));
+    if (n > MAX_HEADER_LINK_PARAGRAPHS) over.push(`${slug}: ${n}`);
+  }
+  assert.deepEqual(over, [], 'move the guide and "see also" paragraphs into a "Related guides and tools" card before "Common questions"');
+});
