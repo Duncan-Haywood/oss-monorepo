@@ -1693,6 +1693,16 @@ reselection at `mpcw`'s level, never iterated) failed its pre-registered gates t
 cell held out, while keeping only +0.01 dB of `mpcws`'s +0.26 dB tune gain. The gain and the over-read share one
 cause. `mpcw` stays the default. `eval/noise-pca-mpcw1-2026-11-22.md`.
 
+**Real noise, not added noise (2026-11-22).** Every test above draws its noise. Google's HDR+ burst dataset (CC BY-SA
+4.0) holds, per burst, the phone's raw reference frame and the burst merged onto it, so the reference minus the merge
+is that frame's own sensor noise with the scene removed (`tools/hdrplus_noise_truth.py`: a lens-shading gain fitted
+per cell, edges left out, the merge's remaining noise corrected for). On 57 bursts from Nexus and Pixel phones the
+phones' own calibrated NoiseProfiles read a median 1.09 of that truth. Against it the frame reads, before the 0.8
+scale, come out `mpcw1` 1.03, `mpcw` (the default) 0.96, Chen 0.87 and `mpcws` 1.16, above the truth on 52 of 57: the
+read that looked best on synthetic noise over-reads real noise. What ships reads under the truth on 55 of 57
+(median 0.77), the safe side by design. Questions and bars were committed before the 57 were scored.
+`eval/hdrplus-noise-truth-2026-11-22.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

@@ -1,0 +1,131 @@
+# The frame noise reads against real noise: HDR+ bursts (2026-11-22)
+
+Flagship item (portfolio/flagships.yaml photo-editing `next:`, "next both on a fresh blind set"; NEXT.md, "Next:
+`mpcws` and `mpcw1` as arms on a fresh blind set ... or another public sample set, when one is reachable").
+raw.pixls.us refuses this session (CONNECT 403), as it did for the last two sessions sent here, and the
+53-file metadata-extractor-images set is spent for selection tests (eval/noise-pca-mpcw1-2026-11-22.md).
+
+## A fresh set, and a truth that is real noise
+
+Google's HDR+ burst dataset (Hasinoff et al., "Burst photography for high dynamic range and low-light imaging
+on mobile cameras", SIGGRAPH Asia 2016; CC BY-SA 4.0; `gs://hdrplusdata`, which storage.googleapis.com
+serves to this session) has 153 bursts in its public subset (`20171106_subset`). Each has the phone's raw
+frames as DNGs and `results_20171023/<id>/merged.dng`, the burst aligned and merged onto the reference
+frame's geometry. No photo-editing note has used it before (`grep -ri hdrplus` finds nothing here).
+
+Every earlier noise test added synthetic noise to a near-clean mosaic, so its truth was the noise it drew.
+Here the reference frame's own sensor noise is the thing measured: the reference minus the merge is that
+noise with the scene removed. `tools/hdrplus_noise_truth.py` (its docstring has every step):
+
+1. Both DNGs go through the developer to the white-balanced plane the noise-aware blend reads.
+2. The merge has lens shading corrected and its own exposure scale, so `reference ~= (g0 + gu u + gv v) * merged
+   + o` is fitted per colour site in 32 x 32-sensel cells (`u`, `v` the place in the cell); the residual, times
+   sqrt(n / (n - 4)) for the four fitted parameters, is what is left.
+3. Per colour, the residual's variance (cut at 4 sigma, iterated) in 12 brightness bins of the fitted level,
+   using in each bin only the half of the sensels where the merge's own gradient is lowest (a sub-pixel
+   misalignment leaves edges; the all-sensel truth is recorded beside it), and `variance = shot x level + read`
+   through the bins.
+4. The merge keeps a fraction `m` of the reference's noise (its NoiseProfile over the reference's: 0.17 on the
+   pilot's 7 frames), so the truth is `var / (1 - m)`. This scales every read's ratio by one factor: it cannot
+   change which read is closer.
+
+The reads, all on the reference plane alone: `noise_pca.estimate_noise_pca` with `eig` = `chen`, `mpcw` (the Bayer
+default), `mpcws` and `mpcw1`, before `FRAME_SCALE`; `xtrans_demosaic.frame_noise` with each, as it ships
+(x 0.8 sigma, `guard_profile`); and the phone's own NoiseProfile carried to the plane, an independent
+calibration. Each is a sigma at the plane's 50th and 90th percentile levels and at 18% grey, over the truth's.
+
+**Pilot (one burst, `0006_20160722_115157_431`, a Pixel at ISO 51; used to build the tool, left out of the set
+below; rows: `hdrplus-noise-truth-pilot-2026-11-22.jsonl`, with the final fit):** the phone's NoiseProfile reads
+1.06-1.08 of this truth at the p90 level and 18% grey and 1.21 at the p50 level (0.008 of white); `pca_mpcws`
+1.01-1.13, `pca_mpcw1` 0.90-1.06, `pca_mpcw` 0.84-0.97, `pca_chen` 0.78-0.85; the all-sensel truth is
+1.05-1.17x the low-gradient one. While building it, MAD in place of the cut
+variance gave dark bins that jumped by 7x between neighbours (the 10-bit frame's noise is under 1 DN there), and
+bin medians in place of means put the widest bin off the line; both were changed before anything below was run.
+
+**One change after the questions below were committed (78b37b50b).** The first full run used a constant gain per
+cell (`a ~= g b + o`). The synthetic test written while it ran (`tests/test_hdrplus_noise_truth.py`: a known
+noise model under a vignetting gain, 10-bit steps and sparse spikes) showed that fit reads 10-40% high: the
+shading's change across a cell times the scene's texture stays in the residual. The run was stopped after 5
+rows, which were not opened (kept outside the tree), the gain made linear across the cell (item 2 above; the
+test's bins then land within 3% but the darkest), and the 152 bursts run again from the start. The questions
+and bars are unchanged.
+
+## What is asked, and what each answer decides (committed before the 152 other bursts were scored)
+
+Data: every other burst in `20171106_subset/bursts/` (152), one row each; a burst the tool cannot read is
+reported as skipped, not dropped. Nothing is tuned on this set, so there is no split.
+
+- **V (validity of the truth):** the phone's NoiseProfile over the truth at 18% grey, median over bursts, within
+  [0.8, 1.25]. Two independent readings of the same sensor (the maker's calibration, the burst's residual)
+  agreeing is the check that the truth is the noise. If V fails, only the reads' order is reported, not their
+  levels.
+- **Q1 (which read is closest):** median |log(read / truth)| at the p50 level, `pca_*` arms. Reported, and
+  compared with the synthetic sweeps' order (`mpcws` closest, then `mpcw1`, `mpcw`, `chen`: the 2026-11-22
+  notes and `tests/test_noise_pca.py`).
+- **Q2 (does `mpcws`'s over-read carry over to real noise):** bursts where the shipped read (`frame_*`) exceeds
+  1.3 x truth at the p50 level. If `frame_mpcws` does on more than 5% of bursts, its K-1 II over-read is not one
+  file's and it stays opt-in for that reason too. If it does on none and its median is nearer 1 than
+  `frame_mpcw`'s, the next step is a demosaic dB sweep on this set with the merge as the clean truth (an
+  arm of the 2026-11-21 kind), not a default change here.
+- **Q3 (does the shipped scale understate, as intended):** `frame_mpcw`'s share of bursts under 1.0 x truth at
+  the p50 level. `FRAME_SCALE` 0.8 exists so a read errs low (an understated model only moves the blend
+  toward directional). At least 90% under 1.0 holds that on real noise; under 90% is a finding against it.
+
+No default changes on this note's evidence alone: it measures read accuracy on one camera family's 10-bit
+frames, not demosaic quality.
+
+## Result: the truth holds; `mpcw1` and `mpcw` read closest, `mpcws` over-reads real noise; the shipped scale errs low as meant
+
+152 bursts given, 57 scored, 95 skipped and reported: 91 because one of the two files has no NoiseProfile
+(so `m` cannot be read; mostly the 2014-15 phones' bursts), 3 because the merge's size differs from the
+reference's (the merge was cropped), 1 by a divide by zero in the developer. About 25 minutes on 4 cores, one
+burst's two DNGs (~17 MB) on disk at a time. The 57: Nexus 6P (`angler` 17, `Nexus 6P` 13), Nexus 6 (9),
+Nexus 5X (`bullhead` 6), Pixel and Pixel XL (`sailfish`, `marlin`, `Pixel XL`, `Pixel`: 12); ISO 50 to 826 where
+the file states it (23 of 57). Rows: `hdrplus-noise-truth-2026-11-22.jsonl`; every number below:
+`hdrplus-noise-truth-2026-11-22.txt` (`--summary`).
+
+| question | reading | bar | |
+|---|---|---|---|
+| V, phone NoiseProfile / truth at 18% grey | median **1.09** [p10 0.91, p90 1.26] | median in [0.8, 1.25] | pass |
+| Q1, median \|log(read / truth)\| at p50, `pca_*` | `mpcw1` **0.086**, `mpcw` 0.095, `chen` 0.147, `mpcws` 0.148 | (reported) | |
+| Q2, `frame_mpcws` over 1.3 x truth at p50 | **0 of 57** (max 1.27); median 0.93 vs `frame_mpcw` 0.77 | over 5% keeps it opt-in for that | not met |
+| Q3, `frame_mpcw` under 1.0 x truth at p50 | **55 of 57** (96%) | at least 90% | holds |
+
+So, by the rules above:
+
+- **The truth is the noise.** The phones' own calibrations read a median 1.09 of it at 18% grey, without being
+  fitted to it. The all-sensel truth is a median 1.03 of the low-gradient one (max 1.16), so the edge filter
+  moves it little.
+- **On real noise the order is not the synthetic sweeps' order.** Before `FRAME_SCALE`, `mpcw1` (median 1.03 x
+  truth) and `mpcw` (0.96) read closest; `mpcws` reads above the truth on 52 of 57 bursts (median 1.16, 7 over
+  1.3) and is as far off as Chen's rule (0.87), from the other side. On synthetic white-balanced noise it was
+  the closest read (0.99 against `mpcw`'s 0.78 in `tests/test_noise_pca.py`). The 2026-11-22 K-1 II finding,
+  that its patch selection feeds on its own high read and keeps texture, is what a real scene with real noise
+  shows here too, not one file's quirk.
+- **Q2 did not trip, and its second clause holds,** so by the rule the next step for `mpcws` is a demosaic dB sweep
+  on this set with the merge as the clean truth, not a default change. After the 0.8 scale `frame_mpcws` sits
+  nearest 1 (0.93) precisely because its read is high; whether that buys dB or costs it on real noise is what
+  the sweep would say.
+- **`FRAME_SCALE` works as meant on real noise:** the shipped read is under the truth on 55 of 57 bursts, a median
+  0.77 of it (0.65 to 0.92, p10 to p90). By the design's own argument this leaves blend gain on the table rather
+  than risking it; how much is again the sweep's question.
+
+**Readings after the verdict (they decide nothing).**
+
+- One burst's truth is bad: `0543_20150918_143723_450` (Nexus 6P) fits its line with a relative RMS of 1.7
+  (median 0.09), and the phone's profile reads 0.39 of it: a large moving subject the merge rejected tile by tile.
+  Dropping the 4 bursts over 0.3 leaves 53, and every median above moves by under 0.01.
+- By ISO (23 bursts that state it, thirds of ~8): `mpcws` over-reads in every third (1.08, 1.15, 1.16); `mpcw`
+  stays 0.93-0.99, `mpcw1` 1.00-1.06.
+- `m`, the merge's remaining noise fraction, is a median 0.15 (p10 0.12, p90 0.31). It scales all reads of a
+  burst together; taking `m = 0` would raise every ratio above by `1 / sqrt(1 - m)`, about 8%.
+- Limits: one maker's phones, 10-bit, small sensels, mostly daylight scenes at low ISO. It says nothing about
+  X-Trans or about large-sensor bodies' 14-bit frames; and it scores reads, not the blend.
+
+## Next
+
+- A demosaic dB sweep on these 57 bursts: the merge (shading-fitted to the reference, as here) as the clean truth,
+  the reference's own noise as the noise, `mpcw` against `mpcws` and `mpcw1` and against the profile. The truth
+  keeps 12-31% of the noise (`m`), so a score must either subtract it or compare arms only against each other.
+- The 91 bursts with no NoiseProfile: `m` from the burst's frame count (`1/N` for an even merge) as a
+  labelled second reading, checked first on the 57 where both exist.

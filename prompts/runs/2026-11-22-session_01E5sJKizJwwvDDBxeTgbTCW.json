@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKizJwwvDDBxeTgbTCW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T15:18:39Z",
+  "ended": "2026-11-22T15:53:47Z",
+  "wall_minutes": 35.57,
+  "tokens_in": 10191418,
+  "tokens_out": 56202,
+  "cost_usd": 4.3946,
+  "tool_calls": 81,
+  "task": "Deepen (flagship 7) photo-editing: the frame noise reads (mpcw, mpcws, mpcw1, Chen) on a fresh blind set",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18271",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First full run used a constant per-cell gain; the synthetic test written during the run showed it reads the truth 10-40% high (shading slope x scene texture). Stopped after 5 unread rows, fit made linear across the cell, rerun from the start; recorded in the eval note.",
+    "Pre-registered `skip` rule left 95 of 152 bursts unscored (91 with no NoiseProfile to read m from)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Answered YIELD because older PR #18235 claims photo-editing, although #18235 names a different item (optical-black margins) and allocate.py says sessions on different items can share a flagship; the check seems to match on slug, not item."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing's buildable list named only raw.pixls.us and the spent metadata-extractor set; storage.googleapis.com (HDR+ dataset) answered and was not listed; now added to buildable and hosts."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook rejects `pkill -f '[n]ame'` when the same name appears elsewhere in the command line (e.g. in a following mv); CLAUDE.md only mentions bracketing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "YIELD was about a different item on the same flagship",
+      "did": "kept the photo-editing claim with a distinct item (HDR+ real-noise truth)",
+      "result": "no overlap with #18235's files"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-photo-editing-hdrplus-real-noise-truth.md",
+    "ventures/photo-editing/eval/hdrplus-noise-truth-2026-11-22.md"
+  ],
+  "goal": "flagship depth: first real-noise truth for the noise-aware demosaic's frame noise read",
+  "notes": "New fresh set reachable when raw.pixls.us is not: Google HDR+ bursts on storage.googleapis.com. Truth = reference frame minus burst merge (shading fitted per cell, low-gradient half per bin, m from NoiseProfiles). V passed (phone profiles 1.09x truth), mpcws over-reads real noise (1.16x, 52/57 above), mpcw 0.96, mpcw1 1.03; shipped read under truth on 55/57. Questions committed (78b37b50b) before scoring. Tests: tests.test_hdrplus_noise_truth + test_noise_pca 21 OK; check_posts ok; validate.py ok; full venture suite result below.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "09962c97-3502-5e43-a049-13befa91c6d3",
+    "transcripts": 1,
+    "first": "2026-11-22T15:18:39Z",
+    "last": "2026-11-22T15:54:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 153,
+        "output": 56202,
+        "thinking": 16791,
+        "cache_read": 10033354,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157911,
+        "api_equivalent_usd": 4.3946,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 153,
+      "output": 56202,
+      "thinking": 16791,
+      "cache_read": 10033354,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157911,
+      "api_equivalent_usd": 4.3946,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 74,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.57,
+      "active_minutes": 14.91,
+      "model_minutes": 10.7,
+      "tool_minutes": 4.21,
+      "waiting_on_human_minutes": 20.66,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an imaging engineer designing and validating a burst-merge noise truth, writing the tool and test, and running/writing up 152 bursts",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 273.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
