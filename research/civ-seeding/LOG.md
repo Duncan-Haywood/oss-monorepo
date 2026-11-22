@@ -1,5 +1,18 @@
 # civ-seeding research log
 
+## 2026-11-22 · Plan: does take-up by the *share* of adopting neighbours split a threshold from reinforcement, under a scale the data supply? (milestone 26, plan written and pushed before the run; outcome below)
+
+- Why: milestone 24's awareness question lifts recovery of the information and reinforcement models above 90% but drops the threshold model to 73.5%, 22% of its datasets called reinforcement, because both make take-up among the aware rise with the *count* of adopting neighbours. A fractional threshold acts on the *share* (adopt once k / degree &ge; &theta;), reinforcement on the count. Milestone 25 then found the synthetic scale that made identification look easy is partly borrowed from the model; a study's own scale recovers less. Both "Next" items in one run: the share moment, and the awareness designs under the data's own scale.
+- New moments (`measure.moments_aware_share`, four, unit-tested): take-up among aware non-leaders whose adopting-neighbour share at the survey is 0, (0, 0.4), [0.4, 0.6), [0.6, 1]. Edges fixed now to span the grid's thresholds (0.4 to 0.75); the threshold process sits at &theta; = 0.6, so the top edge is not blind to it (disclosed, not tuned after the run).
+- Run (`experiments/m26_share/run.py`): milestone 3's harness unchanged (850-point grid, S = 75, seed 0 fits, seed 1 scores, the three identity-fit processes and their 200 datasets per process from the same seeds), milestone 24's subsets of 20 villages. Designs: **X** (ext8), **XA** (milestone 24: aware share + take-up by count 0/1/2/3+), **XS** (aware share + take-up by share bin), **XAS** (all 17). Weightings: identity; **sd-synth** (SD across all synthetic villages, milestone 24); **sd-data** (primary: SD across the dataset's own villages, from that dataset alone, within the subset when 20 villages are used; milestone 25). Leave one village out (primary) and in sample.
+- H90 (sanity): identity X reproduces milestone 3 (58.5 / 82.0 / 55.5%), identity XA milestone 24 (91.0 / 73.5 / 91.5%), sd-data X milestone 25 (69.0 / 81.5 / 79.0%).
+- H91 (the share splits T from R): XS, identity, 43 villages: threshold recovery at least 85% and its share called reinforcement at most half of XA's.
+- H92 (identified on the data's own scale): XAS, sd-data, 43 villages: every family recovered in at least 85% of datasets. Refuted below 75%.
+- H93 (power): XAS, sd-data, 20 villages: lowest at least 70%.
+- H94 (share beats count at the weakest family): XS's lowest recovery at least XA's under each of the three weightings, 43 villages.
+- Predictions (not tests): H90 exact; H91 held; H92 held; H93 refuted; H94 held.
+- Caveats fixed now: beta at the real-data leader logit; one grid (a threshold off its four values is not searched); the three families are the only alternatives; the share is measured at the survey, not at the moment of decision; 200 datasets per process, about &plusmn;3 points of Monte Carlo error on a recovery share.
+
 ## 2026-11-22 · Plan: refit the real villages with scaled moments; do the data now tell simple from complex contagion? (milestone 25, plan written and pushed before the run; outcome below)
 
 - Why: milestone 24's largest effect, reported but not tested: dividing each moment by its SD across synthetic villages lifts milestone 3's leave-one-out recovery from 58.5 / 82.0 / 55.5% (I, T, R&delta;) to 83.5 / 87.0 / 87.5%. Milestone 2's real-data comparison (I's held-out loss lowest; R&delta; better than I in 13 of 43 villages) was made under the identity weights where moment 5 dominates. Two open caveats: the scale came from synthetic data a study would not have, and the three processes were the identity-weighted fits.
