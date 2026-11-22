@@ -2,6 +2,24 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-22 · Milestone 12d: section VII's knee past 150 ms (150 against 200 ms ceiling) at ten seeds per geometry (predictions written and committed before `experiments/m12d_ten_seeds_c200/run.py` was run in full; outcome below)
+
+- Why: milestone 12c moved the knee to 150 ms or past it and named the next step: ten seeds at 200 ms, to test whether 150→200 ms separates (p = 0.16 at six seeds; identified total 65 against 53 of 2,304). That decides whether the builder rule reads "about 4x the slowest identified lag" (150 ms) or "about 5x" (200 ms), and what the extra coverage costs in mass and rise time.
+- Plan (`experiments/m12d_ten_seeds_c200/run.py`; no change to any milestone's code): train seeds 6-9 of 7ab's 200 ms arm, both geometries, both starts, through 7ab's own `patch` and `train` (16 CMA-ES runs of 3,200 evaluations plus one reproduction run), then score all 20 designs (seeds 0-9) with 7z's held-out stress set and 7y's response tests (seed 9999, 64 episodes). The 150 ms arm's ten seeds are 12c's stored records, scored by the same functions on the same held-out set. `stats.py` is 12c's with the arms swapped: identified total (diverged flights at lever 2, 45 deg, cap, summed over the 33, 36 and 39.1 ms laws, of 192), the 75 ms count, the certificate, the median 1 m-step rise at 36 ms and mass; pooled permutation Mann-Whitney (20 a side), exact Wilcoxon on the 20 (geometry, seed) pairs, stratified bootstrap intervals.
+- Looked at before writing these: only the stored seeds 0-5 of the 200 ms arm (identified per design: above 3, 3, 3, 3, 3, 2; below 9, 3, 8, 3, 6, 7) and 12c's stored 150 ms ten seeds, plus a smoke run (seeds 6-7, 64 evaluations, 8 test episodes on seed 4242, never 9999; not evidence).
+- Predictions (ten seeds per geometry):
+  - MD0 (check): retraining 7ab's 200 ms above / seed 0 / start 0 gives its stored best training score exactly (-7.1083574967342065), and the re-scored seeds 0-5 equal 7ac's stored stress and response records (NaN-aware).
+  - MD1 (prior 40%): 150→200 ms separates on the identified range: pooled Mann-Whitney on the identified total p < 0.05, 150 ms crashing more.
+  - MD2 (prior 50%): paired, the exact Wilcoxon on the 20 pairs gives p < 0.05, 150 ms worse.
+  - MD3 (prior 90%): at the 75 ms law, 200 ms crashes less than 150 ms, pooled Mann-Whitney p < 0.001 (six seeds: 121 against 269 of 768).
+  - MD4 (prior 70%): the six-seed 200 ms total was not a fluke: its ten-seed mean identified total per design lies inside its six-seed bootstrap interval divided by 12 (3.5-5.3).
+  - MD5 (prior 75%): a floor: with the centre of pressure above, every one of the ten 200 ms designs crashes on 2-4 of 192 identified-range flights (seeds 0-5: 2-3). If held, part of what is left at 150 ms is not coverage-limited.
+  - MD6 (prior 80%): every one of the 20 designs is certified (margin rho < 1) at all three identified laws.
+  - MD7 (prior 85%): the price in mass: the median design mass is larger at 200 than at 150 ms in both geometries (six seeds: 1.558 against 1.454 kg above, 1.463 against 1.402 kg below).
+  - MD8 (prior 70%): the price in response: with the centre of pressure below, the median 1 m-step rise at 36 ms is larger at 200 than at 150 ms (six seeds: 2.27 against 1.76 s). With it above, no prediction (six seeds: 2.02 against 2.23 s, the other way).
+- Reading fixed in advance: MD1 or MD2 held says the identified-range crash count still falls from 150 to 200 ms, so the knee is at 200 ms (5.1x the slowest identified lag) or past it and the rule's "about 4x" becomes "at least 5x". Both refuted says ten seeds cannot separate 150 from 200 ms on the identified range: the knee is at about 150 ms (3.8x), and 200 ms buys slow-law robustness (MD3) for the price in MD7-MD8, a choice for a builder who expects the motors to be slower than identified. MD5 held bounds what any ceiling can buy above.
+- Analysis: as planned; anything else is post hoc and labelled so.
+
 ## 2026-11-22 · Milestone 12c: section VII's knee (125 against 150 ms ceiling) at ten seeds per geometry (predictions written and committed before `experiments/m12c_ten_seeds_vii/run.py` was run in full; outcome below)
 
 - Why: the draft's "Still to do" asks for more seeds at 125 and 150 ms, and the log's last next step is ten seeds for section VII. Table VII-1's ceiling sweep at the 39.1 ms floor is the section's main result, and its one unresolved neighbour pair is 125 against 150 ms (identified total 101 against 65 of 2,304, pooled Mann-Whitney p = 0.10 at six seeds per geometry). Whether coverage past 3.2x the slowest identified lag still buys robustness decides the builder rule's "3-4x" range.
