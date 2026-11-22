@@ -74,6 +74,8 @@
 
 import { Calendar } from "./calendar.mjs";
 import { parseDate, num } from "./xer.mjs";
+import { readCurves, isEven, curveRows, matchContour } from "./curves.mjs";
+import { contourSlices } from "./contours.mjs";
 import { notebookSections, notesText, memoText, CONVERSION_TOPIC } from "./notebook.mjs";
 
 const DAY = 1440;
@@ -358,11 +360,13 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject, notebookTasks: 0, notebookEntries: 0, notebookWbs: 0, notebookWbsEntries: 0, rsrcNotes: 0, rsrcGroups: 0 };
   let rsrcDependent = 0, expected = 0, secondaryDropped = 0, startMilestones = 0;
   const span = new Map(); // uid -> [start, finish] for summary roll-up
+  const taskCal = new Map(); // uid -> the task's Calendar, for curved spreads
   const taskXml = new Map();
   for (const o of outline) {
     if (o.kind !== "task") continue;
     const t = o.row;
     const { uid: cUid, cal } = useCal(t.clndr_id);
+    taskCal.set(o.uid, cal);
     const status = t.status_code || "TK_NotStart";
     const isMile = t.task_type === "TT_Mile" || t.task_type === "TT_FinMile";
     const isSpan = t.task_type === "TT_LOE" || t.task_type === "TT_WBS";
@@ -537,6 +541,19 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   const resXml = res.map((r) => `${r.head}${rsrcUdf.fields.map((f) => (f.values.has(r.id) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.values.get(r.id))}</Value></ExtendedAttribute>` : "")).join("")}</Resource>`);
   const asg = [];
   let unknownRsrc = 0;
+  // P6 resource curves (TASKRSRC.curv_id, RSRCCURVDATA) as Project's
+  // timephased work. Project has no curve table: its built-in contours are
+  // fixed shapes of their own (contours.mjs), so an assignment's spread is
+  // written out as rows of remaining work (TimephasedData Type 1) cut by
+  // curves.mjs's curveRows, with WorkContour 8 ("contoured", Project's word
+  // for an edited spread). A curve that is one of Project's contours (as
+  // p6xer.mjs writes them, "MS Project Back Loaded") goes back as that
+  // contour number, with the same rows. Only assignments with no actual
+  // units are curved: P6 re-fits a started assignment's curve to what is
+  // left in a way no public file shows, so those stay even, as in evm.mjs.
+  const curves = readCurves(xer);
+  let curved = 0, curvedStarted = 0, curveMissing = 0;
+  const curveNames = new Map();
   for (const a of assigns) {
     const ru = rsrcUid.get(a.rsrc_id);
     if (!ru) { unknownRsrc++; continue; }
@@ -554,7 +571,33 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
     const units = num(a.target_qty_per_hr) ?? num(a.remain_qty_per_hr) ?? 1;
     const pctW = atComplete > 0 ? Math.round((actQ / atComplete) * 100) : 0;
     const s = span.get(taskUid.get(a.task_id));
-    asg.push(`<Assignment><UID>${asg.length + 1}</UID><TaskUID>${taskUid.get(a.task_id)}</TaskUID><ResourceUID>${ru}</ResourceUID><PercentWorkComplete>${pctW}</PercentWorkComplete><ActualCost>${Math.round(actC * 100)}</ActualCost><ActualWork>${ptHours(actQ)}</ActualWork><Cost>${Math.round(cost * 100)}</Cost>${s ? `<Finish>${isoDate(s[1])}</Finish>` : ""}<RemainingCost>${Math.round(remC * 100)}</RemainingCost><RemainingWork>${ptHours(remQ)}</RemainingWork>${s ? `<Start>${isoDate(s[0])}</Start>` : ""}<Units>${r4(units)}</Units><Work>${ptHours(atComplete)}</Work><Baseline><Number>0</Number><Work>${ptHours(tgtQ)}</Work><Cost>${Math.round((num(a.target_cost) || 0) * 100)}</Cost></Baseline></Assignment>`);
+    const uid = asg.length + 1;
+    let contour = "", tp = "";
+    if (a.curv_id) {
+      const c = curves.get(a.curv_id);
+      if (!c) curveMissing++;
+      else if (!isEven(c.slices)) {
+        if (actQ > 0) curvedStarted++;
+        else if (s && remQ > 0 && s[1] > s[0]) {
+          const rows = curveRows(taskCal.get(taskUid.get(a.task_id)), s[0], s[1], remQ, c.slices);
+          if (rows.length) {
+            curved++;
+            curveNames.set(c.name, (curveNames.get(c.name) || 0) + 1);
+            contour = `<WorkContour>${matchContour(c.slices, contourSlices) || 8}</WorkContour>`;
+            // each row's work to the second, rounded on the running total so
+            // the rows still sum to the remaining work
+            let cum = 0, done = 0;
+            tp = rows.map((r) => {
+              cum += r.work;
+              const sec = Math.round(cum * 3600) - done;
+              done += sec;
+              return `<TimephasedData><Type>1</Type><UID>${uid}</UID><Start>${isoDate(r.start)}</Start><Finish>${isoDate(r.finish)}</Finish><Unit>${r.finish - r.start >= DAY ? 2 : 1}</Unit>${sec > 0 ? `<Value>${ptHours(sec / 3600)}</Value>` : ""}</TimephasedData>`;
+            }).join("");
+          }
+        }
+      }
+    }
+    asg.push(`<Assignment><UID>${uid}</UID><TaskUID>${taskUid.get(a.task_id)}</TaskUID><ResourceUID>${ru}</ResourceUID><PercentWorkComplete>${pctW}</PercentWorkComplete><ActualCost>${Math.round(actC * 100)}</ActualCost><ActualWork>${ptHours(actQ)}</ActualWork><Cost>${Math.round(cost * 100)}</Cost>${s ? `<Finish>${isoDate(s[1])}</Finish>` : ""}<RemainingCost>${Math.round(remC * 100)}</RemainingCost><RemainingWork>${ptHours(remQ)}</RemainingWork>${s ? `<Start>${isoDate(s[0])}</Start>` : ""}<Units>${r4(units)}</Units><Work>${ptHours(atComplete)}</Work>${contour}<Baseline><Number>0</Number><Work>${ptHours(tgtQ)}</Work><Cost>${Math.round((num(a.target_cost) || 0) * 100)}</Cost></Baseline>${tp}</Assignment>`);
   }
   // expenses (PROJCOST) -> cost resources. Project has no expense item; a
   // cost on a task with no work is a cost resource's assignment. So each
@@ -624,6 +667,10 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   if (expVariants) warnings.push(`${expVariants} expense name(s) used with a second category or accrual written as cost resources of their own, named with them (Project keeps both on the resource); their assignments' notes keep the expense name`);
   counts.resources = res.length + costRes.size;
   counts.assignments = asg.length;
+  counts.curved = curved;
+  if (curved) warnings.push(`${curved} assignment(s) on a P6 resource curve (${[...curveNames].map(([n, k]) => `${n} ${k}`).join(", ")}) written as Project timephased work in the curve's shape (contour "Contoured", or the Project contour the curve came from)`);
+  if (curvedStarted) warnings.push(`${curvedStarted} started assignment(s) on a resource curve written with their remaining work spread evenly (P6's re-fit of a curve to the remaining units is not in the file)`);
+  if (curveMissing) warnings.push(`${curveMissing} assignment(s) name a resource curve the file does not carry; written spread evenly`);
 
   // calendars last, once every user is known
   const calXml = [];

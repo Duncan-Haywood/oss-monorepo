@@ -449,6 +449,27 @@ the span at fixed percentages of the peak units (back loaded 10 15 25 50 50
 by up to 15.8 h, an even spread by 31 h. MPXJ reads the written curves back
 as the same shapes (eval/work-contours-2026-11-21.md).
 
+**Resource curves in the Project XML** (2026-11-22, `curveRows` in
+`curves.mjs`): the other way, an XER converted to Project XML (`--to-project`,
+the page's Project button) now writes each unstarted assignment on a P6
+resource curve as Project's timephased work in the curve's shape: rows of
+remaining work cut at midnights and at the curve's twenty slice ends, each
+row's work rounded to the second on the running total so the rows sum to the
+remaining units exactly, with WorkContour 8 ("Contoured", Project's word for
+an edited spread). Project has no curve table, and its built-in contours are
+other shapes, so the rows are the faithful route. A curve that came from a
+Project contour (`--to-p6`'s "MS Project Bell") goes back as that contour
+number with the same rows, so a Project -> XER -> Project trip keeps it. On
+the public hospital file all 33 unstarted curved assignments (PCO119,
+Triangular Increase, Back Loaded, Front Loaded, Bell Shaped; up to 567 rows
+each) give the earned-value spread day by day within 0.0003 h; on MPXJ's 19
+contoured Project assignments the round trip keeps 19 of 19 contours and
+Project's own cumulative work to 0.037 h (15 exactly), where it came back
+flat before, up to 31 h off. MPXJ reads every written row and contour back,
+66 of 66 assignments. Started assignments stay even, as in earned value: P6's
+re-fit of a curve to the remaining units is in no public file
+(eval/curves-to-project-2026-11-22.md).
+
 `--hours` (page: *in labour hours*) reads labour hours even when cost is
 loaded, which gives the manpower curve where a file's curves sit on hours.
 `--even-spread` turns the curves off. A second, independent implementation

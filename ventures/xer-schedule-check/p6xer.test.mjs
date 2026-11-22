@@ -451,3 +451,27 @@ test("work contours: written as resource curves of Project's shape, hand-edited 
   // no contour, no curve table
   assert.equal(p6XerText(XML()).xer.tables.RSRCCURVDATA, undefined);
 });
+
+test("work contours come back: Project -> XER -> Project keeps the contour and Project's spread as timephased rows", async () => {
+  const { mspdiText } = await import("./msproject.mjs");
+  const { parseXml, durationHours } = await import("./mspdi.mjs");
+  const text = XML().replace("<Work>PT120H0M0S</Work><Cost>180000</Cost>", "<Work>PT120H0M0S</Work><Cost>180000</Cost><WorkContour>6</WorkContour>");
+  const back = mspdiText(parseXer(p6XerText(text).text));
+  assert.equal(back.counts.curved, 1);
+  assert.match(back.warnings.join("\n"), /1 assignment\(s\) on a P6 resource curve \(MS Project Bell 1\) written as Project timephased work/);
+  const root = parseXml(back.xml);
+  const proj = root.name === "Project" ? root : root.children.find((c) => c.name === "Project");
+  const asg = proj.children.find((c) => c.name === "Assignments").children;
+  const curved = asg.filter((a) => a.children.some((c) => c.name === "WorkContour"));
+  assert.equal(curved.length, 1);
+  const val = (n, t) => n.children.find((c) => c.name === t)?.text ?? "";
+  assert.equal(val(curved[0], "WorkContour"), "6", "a curve from a Project contour goes back as that contour");
+  const rows = curved[0].children.filter((c) => c.name === "TimephasedData");
+  const work = rows.map((r) => (val(r, "Value") ? durationHours(val(r, "Value")) : 0));
+  assert.ok(Math.abs(work.reduce((a, b) => a + b, 0) - durationHours(val(curved[0], "RemainingWork"))) < 1e-9, "the rows sum to the remaining work, to the second");
+  // bell: the middle carries more than the ends
+  const nz = work.filter((w) => w > 0);
+  assert.ok(nz[0] < nz[Math.floor(nz.length / 2)] && nz[nz.length - 1] < nz[Math.floor(nz.length / 2)]);
+  // schema order: WorkContour after Work, rows last
+  assert.match(back.xml, /<\/Work><WorkContour>6<\/WorkContour><Baseline>[\s\S]*?<\/Baseline><TimephasedData><Type>1<\/Type>/);
+});
