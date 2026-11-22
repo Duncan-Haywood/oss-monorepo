@@ -32,7 +32,7 @@
     .figure strong { display:block; font-size:1.35rem; }
     .figure span { color:var(--muted); font-size:.82rem; }
     .note { background:#fbf0dc; border:1px solid #e3c98f; border-radius:8px; padding:10px 12px; font-size:.9rem; margin-top:10px; }
-    .privacy { font-size:.9rem; color:var(--muted); }
+    .privacy { font-size:.9rem; color:var(--muted); } .field-note { margin:10px 0 12px; }
     .factor { border-bottom:1px solid var(--line); padding:12px 0; }
     .factor:last-child { border-bottom:0; }
     .factor h3 { margin:0 0 4px; }
@@ -47,12 +47,12 @@
   <p class="value"><strong>After using this, you can now</strong> see whether your planned S-corp salary is defensible against the actual test the IRS and courts apply, and exactly how much closing the gap costs in FICA tax — which used to mean paying $200-900 for a third-party reasonable-compensation report or guessing at a mythical "60/40 rule" that isn't an IRS rule at all.</p>
 
 
-  <section class="card"><h2>Your numbers</h2><p class="privacy">"Compensation pool" is your S-corp's net ordinary income for the year, before your own wages are subtracted. The comparable-wage figure is one you supply — from BLS OEWS wage data, a trade salary survey, or your own judgment of what a competing employer would pay for this exact role and these exact hours.</p><form id="entry-form"><div class="row">
-    <label>Compensation pool this year ($, optional)<input name="compensationPool" type="number" min="0" step="100" placeholder="e.g. 180000"></label>
+  <section class="card"><h2>Your numbers</h2><form id="entry-form"><div class="row">
+    <label>Compensation pool this year ($, optional)<input name="compensationPool" aria-describedby="field-note" type="number" min="0" step="100" placeholder="e.g. 180000"></label>
     <label>Planned or current W-2 salary ($)<input name="plannedSalary" type="number" min="0" step="100" value="0" required></label>
-    <label>Comparable full-time wage for this role ($/yr, optional)<input name="marketWageFullTime" type="number" min="0" step="100" placeholder="e.g. 85000"></label>
+    <label>Comparable full-time wage for this role ($/yr, optional)<input name="marketWageFullTime" aria-describedby="field-note" type="number" min="0" step="100" placeholder="e.g. 85000"></label>
     <label>Hours worked per week<input name="hoursPerWeek" type="number" min="0" step="1" value="40"></label>
-  </div><div class="row" style="grid-template-columns:1fr auto"><label>Filing status (sets the Additional Medicare Tax threshold)<select name="filingStatus" id="filingStatus"></select></label><div></div></div>
+  </div><p class="privacy field-note" id="field-note">"Compensation pool" is your S-corp's net ordinary income for the year, before your own wages are subtracted. The comparable-wage figure is one you supply — from BLS OEWS wage data, a trade salary survey, or your own judgment of what a competing employer would pay for this exact role and these exact hours.</p><div class="row" style="grid-template-columns:1fr auto"><label>Filing status (sets the Additional Medicare Tax threshold)<select name="filingStatus" id="filingStatus"></select></label><div></div></div>
   <div class="actions"><button type="submit">Assess</button><button class="secondary" type="button" id="sample">Load a sample scenario</button></div></form></section>
 
   <section class="card"><h2>Result</h2>
