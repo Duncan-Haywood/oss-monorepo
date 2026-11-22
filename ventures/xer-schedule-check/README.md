@@ -87,7 +87,10 @@ fragnets against answers reached another way (a null fragnet moves nothing
 impacted XER reads back to the same finish 115 of 115; the finish moves by
 the days past relative float 112 of 120, the 8 others crossing another
 calendar or absorbed by an expected finish the tool names;
-`eval/tia-check-2026-11-20.md`).
+`eval/tia-check-2026-11-20.md`). Where the event can go more than one way, branch
+groups with probabilities in the fragnet give the expected delay, P50 and P80
+over every outcome, each scheduled exactly (2026-11-22, "Probabilistic
+branches in the time impact analysis" below).
 
 **Microsoft Project files too** (2026-11-19, `mspdi.mjs`): open a schedule
 saved from Microsoft Project as XML (File, Save As, XML Format; also written
@@ -563,6 +566,52 @@ public files, branches planted on each file's own driving path and every run's
 finish checked against cpm.mjs scheduled directly with the dropped activity at
 0 (eval/branches-2026-11-22.md). Not yet run on a real job's branch register
 (none is public).
+
+## Probabilistic branches in the time impact analysis (2026-11-22)
+
+A fragnet is written as if the delay event will go one way. Often it will
+not: the redesigned drawings go back for review and come back approved (5
+days) or rejected and resubmitted (15 days and 4 days of rework); the late
+hardware may or may not arrive late. A single-path TIA either picks one, and
+argues about which, or stacks the worst case. Paid risk tools treat these as
+probabilistic branches; the risk run here has had them since this morning
+("Probabilistic branches in the risk run"), but the TIA did not.
+
+Now the fragnet takes three more columns, found by name like the others:
+`Branch group`, `Branch` and `Probability` (`70%`, `0.7` or `70`). Rows
+sharing a group are alternatives, one of which happens; rows with no group are
+in every outcome. A branch's probability may be written on any of its rows;
+branches with none share what the given ones leave; given probabilities under
+100% leave the rest to "none of these" (no row of the group happens); over
+100% is refused. The same activity ID may be written on two branches with
+different durations or logic, and a link from a common row to an activity
+that exists only on a branch not taken is dropped in that outcome.
+
+The TIA is deterministic, so there is nothing to sample: every combination of
+branches (up to 512) is inserted and scheduled exactly as a plain fragnet is,
+and the result gives the expected delay (each outcome's delay weighted by its
+probability), P50 and P80, the range, the chance the finish moves at all, and
+for each branch the expected delay if that branch happens (the swing between
+a group's branches is what that decision is worth). The finish, milestones,
+float and events above it are the run with the most likely branch of each
+group, and say so. On the example office fit-out (a 70/30 review and a 40%
+hardware delay) the most likely run says 3 working days and the expected
+delay is 9.2, P80 18: a TIA that took the most likely path would understate
+the request by two thirds.
+
+Page: the same TIA box (a "Probabilistic branches" table above the fragnet);
+CLI: `--tia fragnet.csv` reads the columns; the text, CSV (`branches`,
+`branch` and `outcome` rows) and printable exhibit carry the section.
+`tia.mjs`: `branchSetup(rows)`, `rowsForOutcome(rows, picks, codes)`, and
+`timeImpact(...).branches`.
+
+Checked: `tia.test.mjs` (a 30% hold moves the expectation by exactly 30% of
+its days; the same ID on two branches; a link to a branch-only activity
+dropped; two groups multiply and the probabilities add to 1; over 100%
+refused; no branch columns leaves the result unchanged).
+`eval/tia-branches-check.mjs` on the six public files: RESULTS
+(eval/tia-branches-2026-11-22.md). Not yet run on a real job's fragnet with
+alternatives; a TIA exhibit with branches is the next thing to read.
 
 ## Monthly schedule narrative (2026-11-22)
 

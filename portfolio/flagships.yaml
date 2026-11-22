@@ -578,17 +578,17 @@ flagships:
       expenses, a P6 import (category by name?). Finish-date UDFs <-> Project Finish
       fields, Start/Finish fields read 2026-11-22 (eval/finish-udfs-2026-11-22.md:
       120/120 Project values, CCA 182/182); interim plans named, --no-interim
-      2026-11-22 (eval/interim-plans-2026-11-22.md: 354/354 planted); UDF types from
-      the original XER 2026-11-22 (--types-from; CCA 13,174/13,174 typed, was 7,104;
-      eval/udf-types-from-2026-11-22.md), text UDFs back as text UDFs not codes
-      (28,850 values, eval/udf-type-hints-2026-11-22.md); next: a P6 import of the
-      result. Contractor's monthly narrative 2026-11-22 (narrative.mjs, --narrative,
-      page; causes as fill-ins; eval/narrative-check-2026-11-22.md); next a real
-      scheduler's read. Levelling on P6 resource curves 2026-11-22 (--curves,
-      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve.
-      Probabilistic branches in the risk run 2026-11-22 (--branches, page, review;
-      eval/branches-2026-11-22.md: 113/113 planted); next a real branch register,
-      branches in TIA. More open items: NEXT.md.
+      2026-11-22 (eval/interim-plans-2026-11-22.md: 354/354 planted); next: a P6
+      import of the result. Contractor's monthly narrative 2026-11-22
+      (narrative.mjs, --narrative, page; causes as fill-ins;
+      eval/narrative-check-2026-11-22.md); next a real scheduler's read. Levelling
+      on P6 resource curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md);
+      next a P6-levelled file with a curve. Probabilistic branches in the risk run
+      2026-11-22 (--branches, page, review; eval/branches-2026-11-22.md: 113/113
+      planted); next a real branch register; branches in TIA 2026-11-22 (tia.mjs
+      Branch group/Branch/Probability, every outcome scheduled,
+      eval/tia-branches-2026-11-22.md), next a real TIA exhibit with alternatives.
+      More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
