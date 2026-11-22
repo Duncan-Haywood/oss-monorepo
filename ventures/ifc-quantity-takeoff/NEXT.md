@@ -5,7 +5,7 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-20) (6) a real estimator's reading of the BoQ CSV (needs a person)
-- (2026-11-20) next an ArchiCAD series, Lake_Mills, wall parts that stay unpaired
+- (2026-11-20) next an ArchiCAD series, wall parts that stay unpaired
 - (2026-11-20) (4) curved breps shipped 2026-11-20 (eval/curved-breps-2026-11-20.md); 2026-11-22 faces meeting on the axis read and the unexplained ones traced to IfcOpenShell (eval/pole-faces-2026-11-22.md): next a face round a whole surface with no pole on it (seam cut; none in the public models now), the turned figure written by ifcopenshell-volumes.py --breps, speed on MEP fittings
 - (2026-11-21) thresholds per work section shipped 2026-11-20 (walls/slabs/coverings/frames, preset and --voids-up-to "a,v;slabs=0,0.05"; single pair moved slab areas on 4 of 11 models; eval/measure-sections-2026-11-20.md), next the 35 openings barely meeting their host
 - (2026-11-21) overlapping shell pieces as a union

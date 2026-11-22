@@ -1,0 +1,157 @@
+0-0721.ifc: IFC2X3, 129 elements (4 without a box)
+1-0913.ifc: IFC2X3, 402 elements (84 without a box)
+2-0925.ifc: IFC2X3, 491 elements (87 without a box)
+3-1014.ifc: IFC2X3, 641 elements (78 without a box)
+3b-1021.ifc: IFC2X3, 697 elements (2 without a box)
+4-dd375a5.ifc: IFC2X3, 714 elements (2 without a box)
+5-2015.ifc: IFC2X3, 920 elements (2 without a box)
+
+0-0721.ifc -> 1-0913.ifc
+  elements 129 -> 402; matched 29 (GlobalId 27, Tag 2, geometry 0); unchanged 0, changed 30; added 372, removed 99; merged 0, split 0; replaced in place 1
+  a GlobalId-only comparison: 375 added, 102 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":25,"quantity: area":19,"quantity: length":19,"attribute: name":17,"attribute: type":15,"attribute: storey":24,"attribute: material":19,"reshaped":17,"moved":5,"attribute: class":1}
+  new GlobalId: {"tag: IfcWindow":2}
+  replaced in place: IfcWallStandardCase (Basement) Basic Wall:Foundation - 14" Concrete, box resized, volume 4.9938 -> 6.0847 m3
+  added: {"IfcWallStandardCase":92,"IfcMember":76,"IfcWindow":52,"IfcFurnishingElement":39,"IfcFooting":23,"IfcDoor":18,"IfcColumn":16,"IfcSlab":12,"IfcBuildingElementProxy":12,"IfcBeam":11,"IfcWall":7,"IfcStairFlight":6,"IfcFlowTerminal":5,"IfcRoof":2,"IfcCovering":1}
+  removed: {"IfcWallStandardCase":32,"IfcWindow":28,"IfcSlab":13,"IfcDoor":10,"IfcMember":6,"IfcColumn":6,"IfcStairFlight":2,"IfcFlowTerminal":1,"IfcRailing":1}
+  commonest moves (dx, dy, dz m): {"-0.06, 0.00, 0.00":1,"-0.09, -0.00, 0.00":1,"-0.00, 0.08, 0.00":1,"0.01, 0.52, 0.00":1,"-0.01, -0.22, 0.00":1}
+
+1-0913.ifc -> 2-0925.ifc
+  elements 402 -> 491; matched 333 (GlobalId 320, Tag 13, geometry 0); unchanged 171, changed 168; added 150, removed 62; merged 0, split 1; replaced in place 6
+  a GlobalId-only comparison: 171 added, 82 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":143,"quantity: area":64,"attribute: class":4,"reshaped":114,"quantity: length":9,"moved":29,"attribute: name":24,"attribute: material":14,"attribute: type":9,"attribute: storey":3,"quantity: weight":1}
+  new GlobalId: {"tag: IfcWindow":8,"tag: IfcDoor":5}
+  split: 1 -> 2  IfcWallStandardCase Basic Wall:Interior 2x4 w/ gyp.:396659  volume 1.8264 -> 1.8444 m3
+  replaced in place: IfcWallStandardCase (Garage) Basic Wall:flagstone-one side, box resized, volume 1.2639 -> 1.2449 m3
+  replaced in place: IfcWallStandardCase (Garage) Basic Wall:flagstone-one side, box resized, volume 1.4306 -> 1.4233 m3
+  replaced in place: IfcWallStandardCase (1st Floor) Basic Wall:flagstone-one side -> Basic Wall:flagstone-knee wall, box resized, volume 0.6950 -> 0.7684 m3
+  replaced in place: IfcBeam (Top of Stone) Glulam-Western Species:3.125x9:437428 -> Glulam-Western Species:3.125x9:539632, moved 0.048 m, volume 0.0722 -> 0.0722 m3
+  replaced in place: IfcBuildingElementProxy (1st Floor) FireplaceAccessories_Face_Travis_864-Basic:FireplaceAccessories_Face_Travis_864-Basic:443801 -> FireplaceAccessories_Face_Travis_864-Basic:FireplaceAccessories_Face_Travis_864-Basic:536225, moved 0.033 m, volume 0.0133 -> 0.0133 m3
+  replaced in place: IfcWallStandardCase (Basement) Basic Wall:Foundation - 10" -> Basic Wall:Foundation - 10" with rigid, box resized, volume 2.0117 -> 2.4560 m3
+  added: {"IfcWallStandardCase":84,"IfcFooting":29,"IfcBuildingElementProxy":11,"IfcWindow":8,"IfcSlab":6,"IfcColumn":5,"IfcFurnishingElement":4,"IfcBeam":2,"IfcWall":1}
+  removed: {"IfcWallStandardCase":29,"IfcFooting":17,"IfcWindow":6,"IfcColumn":4,"IfcSlab":3,"IfcDoor":1,"IfcWall":1,"IfcBuildingElementProxy":1}
+  commonest moves (dx, dy, dz m): {"0.00, 0.00, -2.91":3,"-0.05, 0.00, 0.00":3,"0.00, 0.17, 0.00":2,"-0.09, 0.00, 0.00":2,"0.00, 0.14, 0.00":2,"-0.00, -0.00, -0.08":2}
+
+2-0925.ifc -> 3-1014.ifc
+  elements 491 -> 641; matched 420 (GlobalId 402, Tag 18, geometry 0); unchanged 205, changed 241; added 195, removed 45; merged 0, split 0; replaced in place 26
+  a GlobalId-only comparison: 239 added, 89 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":173,"attribute: name":19,"attribute: type":13,"attribute: storey":10,"attribute: material":15,"quantity: area":96,"reshaped":183,"attribute: class":5,"moved":45,"quantity: length":13,"quantity: weight":6}
+  new GlobalId: {"tag: IfcWindow":13,"tag: IfcDoor":5}
+  replaced in place: IfcWallStandardCase (Basement) Basic Wall:Foundation - 14" Concrete -> Basic Wall:Foundation - 12", box resized, volume 3.3956 -> 2.7234 m3
+  replaced in place: IfcWallStandardCase (Basement) Basic Wall:Foundation - 14" Concrete -> Basic Wall:Foundation - 12", box resized, volume 5.9961 -> 5.6189 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0043 -> 0.0044 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0048 -> 0.0046 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0048 -> 0.0046 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0048 -> 0.0046 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0048 -> 0.0046 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0048 -> 0.0046 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0048 -> 0.0046 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0048 -> 0.0046 m3
+  replaced in place: IfcMember (1st Floor) Curtain Wall:Screenwall:435901, box resized, volume 0.0048 -> 0.0046 m3
+  replaced in place: IfcWallStandardCase (1st Floor) Basic Wall:flagstone-just -> Basic Wall:Interior 2x4 w/ gyp one side, box resized, volume 0.8047 -> 0.9218 m3
+  replaced in place: IfcWallStandardCase (Basement) Basic Wall:flagstone-just, box resized, volume 0.0742 -> 0.0848 m3
+  replaced in place: IfcWallStandardCase (Basement) Basic Wall:Foundation - 5" with rigid, box resized, volume 0.1457 -> 0.1496 m3
+  replaced in place: IfcWallStandardCase (Basement) Basic Wall:Foundation - 8" with rigid -> Basic Wall:Foundation - 10" with rigid, box resized, volume 0.7369 -> 0.9091 m3
+  replaced in place: IfcFooting (Basement) Wall Foundation:Bearing Footing - 24" x 12":512751 -> Wall Foundation:Bearing Footing - 24" x 12":552547, box resized, volume 0.7027 -> 0.7233 m3
+  replaced in place: IfcBuildingElementProxy (1st Floor) FireplaceAccessories_Face_Travis_864-Basic:FireplaceAccessories_Face_Travis_864-Basic:536225 -> FireplaceAccessories_Face_Travis_864-Basic:FireplaceAccessories_Face_Travis_864-Basic:589122, moved 0.156 m, volume 0.0133 -> 0.0133 m3
+  added: {"IfcBeam":123,"IfcMember":26,"IfcWallStandardCase":16,"IfcSlab":7,"IfcFooting":6,"IfcDoor":3,"IfcFurnishingElement":3,"IfcWindow":3,"IfcCovering":3,"IfcFlowTerminal":2,"IfcBuildingElementProxy":2,"IfcRoof":1}
+  removed: {"IfcMember":18,"IfcWallStandardCase":11,"IfcFooting":4,"IfcBuildingElementProxy":3,"IfcFurnishingElement":2,"IfcSlab":1,"IfcRoof":1,"IfcColumn":1,"IfcBeam":1,"IfcCovering":1,"IfcWindow":1,"IfcDoor":1}
+  commonest moves (dx, dy, dz m): {"-0.00, -0.00, -0.02":7,"0.00, 0.00, -0.02":6,"0.00, -0.00, -0.02":4,"0.00, 0.07, -0.00":4,"-0.05, 0.00, -0.00":2,"0.08, -0.00, -0.00":2}
+
+3-1014.ifc -> 3b-1021.ifc
+  elements 641 -> 697; matched 588 (GlobalId 567, Tag 20, geometry 1); unchanged 71, changed 521; added 105, removed 49; merged 0, split 0; replaced in place 4
+  a GlobalId-only comparison: 130 added, 74 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: area":89,"attribute: material":54,"attribute: classification":309,"quantity: volume":234,"attribute: storey":196,"reshaped":179,"quantity: length":139,"quantity: weight":8,"attribute: name":60,"attribute: type":47,"moved":33,"attribute: class":4}
+  new GlobalId: {"tag: IfcWindow":14,"tag: IfcDoor":5,"tag: IfcBuildingElementProxy":1,"geometry: IfcWallStandardCase":1}
+  replaced in place: IfcWallStandardCase (3rd Floor) Basic Wall:Exterior Wall-New, box resized, volume 1.1915 -> 1.4387 m3
+  replaced in place: IfcBuildingElementProxy (1st Floor) , moved 0.013 m, volume 0.0591 -> 0.0591 m3
+  replaced in place: IfcFooting (Basement) Wall Foundation:Bearing Footing - 24" x 12":512073 -> Wall Foundation:Bearing Footing - 24" x 12":910851, box resized, volume 1.0880 -> 0.8525 m3
+  replaced in place: IfcFooting (Basement) Wall Foundation:Bearing Footing - 24" x 12":552547 -> Wall Foundation:Bearing Footing - 24" x 12":907254, box resized, volume 0.7233 -> 0.8243 m3
+  added: {"IfcBeam":59,"IfcFurnishingElement":20,"IfcWallStandardCase":11,"IfcColumn":8,"IfcFooting":4,"IfcRoof":1,"IfcSlab":1,"IfcBuildingElementProxy":1}
+  removed: {"IfcWallStandardCase":15,"IfcBeam":13,"IfcColumn":7,"IfcBuildingElementProxy":5,"IfcWindow":3,"IfcFooting":3,"IfcFlowTerminal":1,"IfcSlab":1,"IfcWall":1}
+  commonest moves (dx, dy, dz m): {"-0.00, -0.05, 0.00":13,"-0.31, 0.01, 0.00":7,"-0.08, 0.00, 0.00":4,"-0.05, 0.00, -0.00":2,"0.00, 0.00, -0.06":1,"-0.00, -0.03, 1.07":1}
+
+3b-1021.ifc -> 4-dd375a5.ifc
+  elements 697 -> 714; matched 677 (GlobalId 658, Tag 18, geometry 1); unchanged 551, changed 141; added 18, removed 4; merged 0, split 1; replaced in place 15
+  a GlobalId-only comparison: 56 added, 39 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":100,"quantity: area":47,"reshaped":95,"attribute: name":17,"attribute: type":5,"attribute: material":11,"attribute: class":2,"moved":37,"quantity: length":22}
+  new GlobalId: {"tag: IfcWindow":13,"tag: IfcDoor":4,"tag: IfcBuildingElementProxy":1,"geometry: IfcBuildingElementProxy":1}
+  split: 1 -> 4  IfcRoof Basic Roof:Soffit:566700  volume 6.4659 -> 6.4852 m3
+  replaced in place: IfcWindow (3rd Floor) 33-5/8" x 48-7/8" -> 31-1/2" x 48", box resized, volume 0.0699 -> 0.0670 m3
+  replaced in place: IfcWindow (3rd Floor) 33-5/8" x 48-7/8" -> 31-1/2" x 48", box resized, volume 0.0699 -> 0.0670 m3
+  replaced in place: IfcWallStandardCase (3rd Floor) Basic Wall:Exterior Wall-New, box resized, volume 1.5448 -> 1.6828 m3
+  replaced in place: IfcWallStandardCase (Top of Kneewall) Basic Wall:Exterior Wall-New -> Basic Wall:Exterior Wall-2x6, box resized, volume 1.4636 -> 1.6064 m3
+  replaced in place: IfcWindow (1st Floor) 28-3/8" x 20-1/2", box resized, volume 0.0397 -> 0.0414 m3
+  replaced in place: IfcWindow (1st Floor) 28-3/8" x 20-1/2", box resized, volume 0.0397 -> 0.0414 m3
+  replaced in place: IfcWindow (1st Floor) 28-3/8" x 71-7/8", box resized, volume 0.0842 -> 0.0878 m3
+  replaced in place: IfcWindow (1st Floor) 28-3/8" x 71-7/8", box resized, volume 0.0842 -> 0.0878 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.053 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.058 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.055 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.027 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.026 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcDoor (3rd Floor) 32" x 84", moved 0.051 m, volume 0.1084 -> 0.1084 m3
+  replaced in place: IfcWallStandardCase (1st Floor) Basic Wall:flagstone-knee wall, box resized, volume 0.7785 -> 0.9120 m3
+  added: {"IfcFlowSegment":7,"IfcWallStandardCase":3,"IfcBeam":3,"IfcWindow":2,"IfcBuildingElementProxy":1,"IfcCovering":1,"IfcDoor":1}
+  removed: {"IfcWindow":1,"IfcWallStandardCase":1,"IfcDoor":1,"IfcBeam":1}
+  commonest moves (dx, dy, dz m): {"-0.01, -0.47, 0.00":11,"0.00, 0.00, -0.02":4,"-0.05, 0.00, -0.02":3,"0.01, 0.30, 0.00":2,"-0.00, -0.06, -0.00":2,"0.03, -0.00, -0.04":2}
+
+4-dd375a5.ifc -> 5-2015.ifc
+  elements 714 -> 920; matched 449 (GlobalId 441, Tag 6, geometry 2); unchanged 49, changed 440; added 429, removed 212; merged 2, split 0; replaced in place 40
+  a GlobalId-only comparison: 479 added, 273 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":310,"quantity: area":117,"reshaped":316,"attribute: storey":23,"moved":116,"attribute: material":43,"attribute: name":184,"attribute: type":60,"quantity: length":79,"quantity: weight":23,"attribute: class":5}
+  new GlobalId: {"tag: IfcWindow":5,"geometry: IfcWindow":2,"tag: IfcDoor":1}
+  merged: 2 -> 1  IfcWallStandardCase Basic Wall:Exterior Wall-New:1019252  volume 1.0993 -> 1.1147 m3
+  merged: 11 -> 1  IfcWallStandardCase Basic Wall:fireplace trim wall:1417311  volume 0.3109 -> 0.3163 m3
+  replaced in place: IfcWallStandardCase (Top of Stone) Basic Wall:Exterior Wall-New, box resized, volume 2.2760 -> 2.1475 m3
+  replaced in place: IfcBuildingElementProxy (Garage) 27" x 25" x 35", box resized, volume 0.3858 -> 0.4391 m3
+  replaced in place: IfcWallStandardCase (Top of Kneewall) Basic Wall:Exterior Wall-New -> Basic Wall:Exterior Wall-2x6, box resized, volume 1.3395 -> 1.5277 m3
+  replaced in place: IfcWallStandardCase (Top of Kneewall) Basic Wall:Exterior Wall-2x6, box resized, volume 1.4806 -> 1.5654 m3
+  replaced in place: IfcWallStandardCase (Top of Stone) Basic Wall:Exterior Wall-New, box resized, volume 3.9060 -> 4.0559 m3
+  replaced in place: IfcWallStandardCase (Top of Stone) Basic Wall:Exterior Wall-New, box resized, volume 1.2512 -> 1.3020 m3
+  replaced in place: IfcWindow (2nd Floor) 29-5/8" x 88-7/8" -> 25-5/8" x 88-7/8", box resized, volume 0.0698 -> 0.0912 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 20-1/2", moved 0.132 m, volume 0.0442 -> 0.0442 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 71-7/8", box resized, volume 0.0923 -> 0.0942 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 20-1/2", moved 0.141 m, volume 0.0442 -> 0.0442 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 71-7/8", box resized, volume 0.0923 -> 0.0942 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 20-1/2", moved 0.152 m, volume 0.0442 -> 0.0442 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 71-7/8", box resized, volume 0.0923 -> 0.0942 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 20-1/2", moved 0.144 m, volume 0.0442 -> 0.0442 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.107 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 17", box resized, volume 0.0408 -> 0.0416 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 17", box resized, volume 0.0408 -> 0.0416 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 17", box resized, volume 0.0408 -> 0.0416 m3
+  replaced in place: IfcWindow (4th Floor) 28-3/8" x 59-7/8", moved 0.036 m, volume 0.0735 -> 0.0735 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 20-1/2", moved 0.163 m, volume 0.0442 -> 0.0442 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 71-7/8", box resized, volume 0.0923 -> 0.0942 m3
+  replaced in place: IfcWallStandardCase (1st Floor) Basic Wall:flagstone-just, box resized, volume 0.1768 -> 0.1653 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 17", box resized, volume 0.0408 -> 0.0416 m3
+  replaced in place: IfcWindow (Garage) 31-1/2" x 31-1/2", moved 0.101 m, volume 0.0525 -> 0.0525 m3
+  replaced in place: IfcWallStandardCase (3rd Floor) Basic Wall:Exterior Wall-New, box resized, volume 1.3380 -> 1.4612 m3
+  replaced in place: IfcWallStandardCase (3rd Floor) Basic Wall:Exterior Wall-New, box resized, volume 0.4884 -> 0.5552 m3
+  replaced in place: IfcWindow (3rd Floor) 28-3/8" x 28-3/8", moved 0.054 m, volume 0.0467 -> 0.0467 m3
+  replaced in place: IfcWallStandardCase (Basement) Basic Wall:Foundation - 12", box resized, volume 5.5762 -> 5.1761 m3
+  replaced in place: IfcWallStandardCase (Top of Kneewall) Basic Wall:Exterior Wall-2x6, box resized, volume 1.6064 -> 1.8086 m3
+  replaced in place: IfcWindow (1st Floor) 28-3/8" x 20-1/2", box resized, volume 0.0414 -> 0.0422 m3
+  replaced in place: IfcWindow (1st Floor) 28-3/8" x 20-1/2", box resized, volume 0.0414 -> 0.0422 m3
+  replaced in place: IfcWindow (1st Floor) 28-3/8" x 71-7/8", box resized, volume 0.0878 -> 0.0899 m3
+  replaced in place: IfcWindow (1st Floor) 28-3/8" x 71-7/8", box resized, volume 0.0878 -> 0.0899 m3
+  replaced in place: IfcWallStandardCase (3rd Floor) Basic Wall:Exterior Wall-New, box resized, volume 1.6828 -> 1.6640 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.019 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.019 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.019 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.019 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (3rd Floor) 31-1/2" x 59-7/8", moved 0.019 m, volume 0.0777 -> 0.0777 m3
+  replaced in place: IfcWindow (1st Floor) 31-1/2" x 71-7/8", box resized, volume 0.0923 -> 0.0942 m3
+  added: {"IfcBeam":249,"IfcWallStandardCase":71,"IfcFooting":21,"IfcWindow":19,"IfcDoor":16,"IfcWall":11,"IfcFlowSegment":10,"IfcFurnishingElement":9,"IfcFlowFitting":6,"IfcBuildingElementProxy":5,"IfcColumn":2,"IfcCovering":2,"IfcMember":2,"IfcFlowTerminal":2,"IfcRoof":1,"IfcSlab":1,"IfcStairFlight":1,"IfcRailing":1}
+  removed: {"IfcWallStandardCase":71,"IfcMember":64,"IfcFooting":19,"IfcWindow":15,"IfcDoor":12,"IfcBuildingElementProxy":9,"IfcFurnishingElement":8,"IfcBeam":6,"IfcFlowSegment":3,"IfcSlab":2,"IfcWall":2,"IfcStairFlight":1}
+  commonest moves (dx, dy, dz m): {"0.00, 0.00, 0.02":41,"-0.00, -0.11, 0.02":13,"0.00, -0.00, 0.02":10,"0.00, 0.03, 0.02":7,"-0.00, 0.00, 0.02":5,"0.00, 0.00, 0.04":2}

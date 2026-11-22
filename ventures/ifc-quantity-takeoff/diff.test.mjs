@@ -132,3 +132,48 @@ test("the change CSV neutralises a name that starts a spreadsheet formula", () =
   const csv = changesCsv(d);
   assert.match(csv, /"'=HYPERLINK/);
 });
+
+test("a window deleted and placed again (new GlobalId and Tag): replaced in place, not removed and added", () => {
+  // Lake Kegonsa Home, 2014-10-21 -> 10-23: Andersen casements re-placed 22 mm
+  // lower, a double-hung swapped for a shorter casement in the same opening
+  const w = (g, tag, type, v, box) => ({ ...row({ g, cls: "IfcWindow", tag, v, box, storey: "3rd Floor" }), type });
+  const a = [
+    w("A1", "369345", "Casement 31-1/2 x 59-7/8", 0.07774, [6.459, 12.307, 2.692, 7.539, 12.508, 4.493]),
+    w("A2", "144703", "Double hung 33-5/8 x 48-7/8", 0.06988, [3.632, 6.511, 3.010, 3.835, 7.646, 4.455]),
+    w("A3", "144701", "Double hung 33-5/8 x 48-7/8", 0.06988, [3.585, 4.531, 3.010, 3.788, 5.665, 4.455]),
+  ];
+  const b = [
+    w("B1", "971146", "Casement 31-1/2 x 59-7/8", 0.07774, [6.405, 12.309, 2.670, 7.485, 12.510, 4.470]),
+    w("B2", "965978", "Casement 31-1/2 x 48", 0.06700, [3.632, 6.505, 2.972, 3.833, 7.585, 4.470]),
+    // A3's replacement went a metre along the wall: not the same place
+    w("B3", "965849", "Casement 31-1/2 x 48", 0.06700, [3.610, 5.581, 2.972, 3.811, 6.662, 4.470]),
+  ];
+  const d = diffTakeoffs(a, b);
+  assert.equal(d.summary.replacedInPlace, 2);
+  assert.equal(d.summary.byTag + d.summary.byGeometry, 0, "not the same element");
+  assert.deepEqual(d.removed.map((r) => r.globalId), ["A3"]);
+  assert.deepEqual(d.added.map((r) => r.globalId), ["B3"]);
+  const swap = d.changed.find((c) => c.b.globalId === "B2");
+  assert.equal(swap.how, "place");
+  assert.deepEqual(swap.attributes.type, { before: "Double hung 33-5/8 x 48-7/8", after: "Casement 31-1/2 x 48" });
+  // same type, nothing measurable changed but the 22 mm drop: still listed, as a new element
+  const same = d.changed.find((c) => c.b.globalId === "B1");
+  assert.equal(same.how, "place");
+  assert.match(changesCsv(d), /replaced in place,A1,B1,IfcWindow/);
+  // another storey, another class, or two candidates: not paired
+  assert.equal(diffTakeoffs([a[0]], [{ ...b[0], storey: "2nd Floor" }]).summary.replacedInPlace, 0);
+  assert.equal(diffTakeoffs([a[0]], [{ ...b[0], ifcClass: "IfcDoor" }]).summary.replacedInPlace, 0);
+  assert.equal(diffTakeoffs([a[0]], [b[0], { ...b[0], globalId: "B1b" }]).summary.replacedInPlace, 0);
+  // off when asked
+  assert.equal(diffTakeoffs(a, b, { placeOverlap: 0 }).summary.replacedInPlace, 0);
+});
+
+test("a host and one of its layers are not 'replaced in place'", () => {
+  const host = row({ g: "HOST", cls: "IfcWall", v: 3.0, box: [0, 0, 0, 5, 0.3, 3] });
+  // the core layer fills two thirds of the host's box; the volumes don't sum, so no group either
+  const core = row({ g: "CORE", cls: "IfcWall", v: 2.6, box: [0, 0.05, 0, 5, 0.25, 3] });
+  const skin = row({ g: "SKIN", cls: "IfcWall", v: 0.2, box: [0, 0.25, 0, 5, 0.3, 3] });
+  assert.equal(diffTakeoffs([host], [core, skin]).summary.replacedInPlace, 0, "a second layer centred in the host");
+  // alone, a layer of 2.0 against a host of 3.0 is too far off in volume
+  assert.equal(diffTakeoffs([host], [row({ g: "C2", cls: "IfcWall", v: 2.0, box: [0, 0.05, 0, 5, 0.25, 3] })]).summary.replacedInPlace, 0);
+});

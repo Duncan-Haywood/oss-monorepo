@@ -814,6 +814,7 @@
       ["Removed", s.removed, s.removed ? "warn" : ""],
       ["New GlobalId, same element", s.byTag + s.byGeometry, s.byTag + s.byGeometry ? "warn" : ""],
       ["Parts and hosts paired", s.merged + s.split],
+      ["Replaced in place", s.replacedInPlace, s.replacedInPlace ? "warn" : ""],
     ].map(([k, v, c]) => `<div class="card">${esc(k)}<b class="${c || ""}">${esc(v)}</b></div>`).join("");
     $("diff-out").hidden = false;
     renderDelta();
@@ -834,7 +835,7 @@
     $("delta-total").textContent = !lines.length ? "No bill-of-quantities line changed." : priced ? `Change on ${priced} priced line${priced > 1 ? "s" : ""}: ${sgn(total, 2) || "0"}` : "Type rates in the bill of quantities above to price the change.";
   }
 
-  const HOW = { tag: "new GlobalId (matched by Tag)", geometry: "new GlobalId (matched by place and volume)" };
+  const HOW = { tag: "new GlobalId (matched by Tag)", geometry: "new GlobalId (matched by place and volume)", place: "a new element where the old one stood" };
   const howText = (h) => (Object.hasOwn(HOW, h) ? HOW[h] : "");
   function renderChanges() {
     const out = [];
@@ -845,7 +846,7 @@
       ...(c.reshaped ? ["box resized"] : []),
       ...(howText(c.how) ? [howText(c.how)] : []),
     ].join("; ");
-    for (const c of diff.changed) out.push(["Changed", c.b, what(c), "warn"]);
+    for (const c of diff.changed) out.push([c.how === "place" ? "Replaced in place" : "Changed", c.b, what(c), "warn"]);
     for (const c of diff.unchanged) if (howText(c.how)) out.push(["Same element", c.b, howText(c.how), ""]);
     for (const g of diff.groups) out.push([g.kind === "merged" ? "Parts \u2192 host" : "Host \u2192 parts", g.after.length === 1 ? g.after[0] : g.before[0], `${g.before.length} \u2192 ${g.after.length} elements, volume ${g.volumeBefore.toFixed(3)} \u2192 ${g.volumeAfter.toFixed(3)} m\u00b3`, ""]);
     for (const r of diff.added) out.push(["Added", r, "", "warn"]);

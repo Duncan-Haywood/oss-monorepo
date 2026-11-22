@@ -61,7 +61,7 @@
     <li><strong>The beam moved</strong> 1 m with the same quantities, so it changes no line.</li>
     <li><strong>One column was added</strong>, and the existing column came back under a new GlobalId. Matched by its Tag, it is reported as the same element, not as one removed and two added.</li>
   </ul>
-  <p>On five real Revit exports of one house, a GlobalId-only comparison listed 190 element records as added or removed that were the same element under a new GlobalId, or a host wall switched to its parts; this comparison pairs them. A model re-serialised with no edit gives 0 changes.</p>
+  <p>On five real Revit exports of one house, a GlobalId-only comparison listed 190 element records as added or removed that were the same element under a new GlobalId, or a host wall switched to its parts; this comparison pairs them. A model re-serialised with no edit gives 0 changes. When a designer deletes a window and places another in the same opening, the new one has a new GlobalId and a new element id; the comparison lists it as <strong>replaced in place</strong>, with the type it replaced, instead of one window removed and one added. On a two-day step of a second house, 22 of the 25 window records a plain comparison listed as removed or added were 11 windows re-placed or swapped for another size.</p>
   <h2>On the command line</h2>
   <pre><code>node cli.mjs new.ifc --compare old.ifc --changes changes.csv   # line changes to stdout, elements to changes.csv</code></pre>
   <h2>Questions</h2>

@@ -77,6 +77,14 @@ checked against the engine by `guides.test.mjs`):
   export that renews GlobalIds), then by place and volume; Revit parts in one
   issue and their host in the other are paired, not counted as removed and
   added ([eval/revision-diff-2026-11-20.md](eval/revision-diff-2026-11-20.md)).
+  An element deleted and placed again (new GlobalId and new Tag) where the
+  old one stood, as the same type or another, is listed as **replaced in
+  place** with its type, size and move, not as one removed and one added
+  (same class and storey, boxes overlapping by half their union, volumes
+  within a quarter, one candidate each way; on a 2-day step of a real Revit
+  house, 22 of the 25 window records the report had listed as removed or added were 11
+  windows re-placed or swapped for another type;
+  [eval/replaced-in-place-2026-11-22.md](eval/replaced-in-place-2026-11-22.md)).
 - **Faulty units repaired, and said so.** A unit named INCH, FOOT, SQUARE
   FOOT and so on whose declared factor is not that unit (a 2014 Revit export
   declares its inch as 3.6576 m, 144 inches, which makes every volume 3
