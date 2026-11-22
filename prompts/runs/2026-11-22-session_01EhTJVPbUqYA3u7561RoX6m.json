@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPbUqYA3u7561RoX6m",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled revenue brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "89a218137032db9eea978200b4a1d3a7ab82026b4e71dccf41b19b9877dc5216",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T10:03:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship row 4: league-schedule-generator, Swiss pairer's lichess gap ('next lichess acceleration')",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18232",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator's next: named 'lichess acceleration' as the cause of the lichess gap; round 1 at 12% (no history, so no acceleration effect) showed it was the TRF's export-time ratings instead. A next: item that states a cause untested can send runs at the wrong fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row said 'next lichess acceleration'; I tested the cause first and found rating drift, so I measured that instead of building acceleration.",
+      "did": "eval/lichess-live-ratings.mjs backs ratings out game by game and re-seeds each replayed round",
+      "result": "lichess board recall 58.3% to 67.9% leave-one-event-out, pairer unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-our-swiss-pairer-was-not-wrong-about-lichess-the-ratings-were.md"
+  ],
+  "goal": "deepen a flagship: explain and shrink the Swiss pairer's 58% gap on lichess events",
+  "notes": "Routed with --task (ventures). Ideas inbox and website requests empty. Finding: lichess TRF ratings are export-time; every K 4-20 beats K=0; LOO K=12 picks the same on all folds: 803/1182 vs 689/1182. Checks: node --test lichess-live-ratings.test.mjs (2 pass); run_venture_tests.py league-schedule-generator (see PR); check_posts ok; portfolio/router/validate.py ok; main_health 313/313 at start.",
+  "corrections": [],
+  "redteam": null
+}
