@@ -4,7 +4,7 @@
 
 ## Parked from flagships.yaml `next:`
 
-- (2026-11-19) next: a P6-levelled XER to compare dates with, levelling in the written review and the risk run
+- (2026-11-19) next: a P6-levelled XER to compare dates with, levelling in the written review (the risk run levels every run since 2026-11-22, eval/risk-levelled-2026-11-22.md)
 - (2026-11-19) (8) MSPDI: next a real construction .xml (task splits read 2026-11-21, eval/split-tasks-2026-11-21.md; next one with splits from a real job)
 - (2026-11-19) next a second P6 file using them, a risk-page switch to sample them
 - (2026-11-19) next: a real file with range UDFs, probabilistic branches
@@ -106,3 +106,4 @@
   started curved assignments, a curved cost per day); what curve id 9, named
   in three files and exported in none, is.
 - (2026-11-22) UDF types from the original XER 2026-11-22 (--types-from; CCA 13,174/13,174 typed, was 7,104; eval/udf-types-from-2026-11-22.md), text UDFs back as text UDFs not codes (28,850 values, eval/udf-type-hints-2026-11-22.md)
+- (2026-11-22) next an open in desktop Excel

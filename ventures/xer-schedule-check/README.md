@@ -570,6 +570,58 @@ finish checked against cpm.mjs scheduled directly with the dropped activity at
 0 (eval/branches-2026-11-22.md). Not yet run on a real job's branch register
 (none is public).
 
+## Resource-levelled risk run (2026-11-22)
+
+The CPM date assumes every crew can work on everything at once, and so does a
+plain Monte Carlo over it: when two activities that share a crew of one both
+run long, the plain run lets them overlap. Primavera Risk Analysis and Safran
+Risk can level resources inside every iteration; this tool could level the
+file once, or run the risk analysis without levelling, but not both together.
+
+Now it can. Page: "Resource limits in each run: Level every run" in the risk
+section (crew size, level within float and resource curves are taken from the
+Resource levelling section). CLI: `--risk [N] --levelled [--crew 2]
+[--within-float] [--curves]` (100 runs by default, since each run is a whole
+levelling). `risk.mjs`: `riskAnalysis(xer, { level: true | { limitScale,
+withinFloat, curves } })`.
+
+In each run the sampled durations (and risk events, and the branches drawn)
+go to `level.mjs` as `durations`, and the levelled finish is the run's finish.
+An assignment that spans its activity stretches with the drawn duration at
+the same rate per hour (same crew, longer work); an activity drawn to 0 (a
+branch not taken) uses no crew. Every run is also scheduled without levelling
+on the same draws (common random numbers), so `levelling.resourceDelay` (the
+levelled finish minus the unlevelled one, run by run) is what the crew limits
+cost, with no sampling noise between two separate runs. The driving path of a
+levelled run (`level.levelledDrivingPath`) follows logic as before and, where
+an activity starts on its levelling floor with no driving predecessor, crosses
+to the activity sharing that resource whose use of it ended at that start, so
+the criticality index counts the work a crew was waiting for. `pathCut` counts
+runs where no such activity could be named (a floor set by a change in the
+limit itself); `selfCheckMax` is level.mjs's self-check summed over each run
+(hours a placed activity is over a limit; 0 when sound).
+
+Checked (eval/risk-levelled-2026-11-22.md, `node eval/risk-levelled.mjs DIR`):
+with every limit x1e6 the levelled run equals the plain run exactly, on every
+percentile and every activity's criticality index, on all public files run;
+at the file's own limits no run's levelling leaves a placed activity over a
+limit (self-check 0 h in every run), no run finishes earlier levelled than
+unlevelled; a wait's blocker went unnamed only on Expressway (17.5% of runs at
+x4, where up to 409 activities a run stay over-allocated past the 30-year
+horizon). On the 24.12 example file (26
+labour resources at P6's default limit of 1 per hour): the limits add 29.8
+working days at P80 (225.3 -> 255.1 days from the data date) and 28.4 on
+average per run; doubling every crew still costs 27.1 days a run, and only at
+four times the file's limits does the delay vanish (0 in 94% of runs), while
+the levelled forecast at x2 is still 27 days later than at x4: the limits
+matter far more than one levelled date at x1 suggests. `risk-levelled.test.mjs`
+(drawn durations stretch assignments; a dropped activity uses no crew; the
+path crosses the wait; x1e6 identity; the crew of one adds the shorter
+activity in every run). On the hotel file at four times its limits the
+limits add 251 to 286 working days to every run (P80 729.8 -> 1,005.3 days).
+Not yet compared with a commercial tool's levelled
+risk run (no public file carries one).
+
 ## Probabilistic branches in the time impact analysis (2026-11-22)
 
 A fragnet is written as if the delay event will go one way. Often it will

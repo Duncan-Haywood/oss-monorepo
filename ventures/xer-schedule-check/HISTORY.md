@@ -42,3 +42,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) MSPDI to XER shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md); deadlines in float and XER (eval/deadlines-2026-11-21.md)
 - (moved 2026-11-22) Notebooks <-> task notes 2026-11-21 (88/88 real, 2,006/2,006 planted; eval/notebooks-2026-11-21.md)
 - (moved 2026-11-22) interim plans named, --no-interim 2026-11-22 (eval/interim-plans-2026-11-22.md: 354/354 planted)
+- (moved 2026-11-22) late dates 19,822/19,822 2026-11-22 (eval/msproject-latedates-2026-11-22.md)
+- (moved 2026-11-22) P6 curves out as Project timephased work 2026-11-22 (eval/curves-to-project-2026-11-22.md)

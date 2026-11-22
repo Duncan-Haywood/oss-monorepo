@@ -63,8 +63,26 @@
 // work already started on one branch has taken it: that branch is kept in
 // every run. Branches draw from their own random stream, so adding them
 // leaves every duration and event draw as it was.
+//
+// Resource levelling in every run (`level`: true or level.mjs options such
+// as { limitScale, withinFloat, curves }; opt-in, CLI --levelled): the
+// single CPM date assumes unlimited crews, and so does a plain Monte Carlo
+// over it. With `level`, each run's sampled durations (and events) are
+// levelled by level.mjs against the file's resource limits before the finish
+// is read, as Primavera Risk Analysis offers with "resource levelling during
+// risk analysis". An assignment that spans its activity stretches with the
+// drawn duration at the same rate per hour. Every run is also scheduled
+// without levelling on the same draws, so `levelling.resourceDelay` (the
+// levelled finish minus the unlevelled one, run by run) is the time the
+// crew limits themselves cost, free of sampling noise. The driving path of a
+// levelled run follows resource waits as well as logic
+// (level.levelledDrivingPath), so the criticality index counts the activity
+// a crew was waiting for. Levelling is slow on large files (a whole levelling
+// per run, twice when a risk event occurs): the page and CLI default to fewer
+// runs with it on.
 
 import { schedule, buildModel, drivingPath } from "./cpm.mjs";
+import { level, levelledDrivingPath } from "./level.mjs";
 
 export const DEFAULT_RANGE = { min: 0.9, likely: 1, max: 1.25 };
 
@@ -285,6 +303,13 @@ export function* riskSteps(xer, opts = {}) {
   if (inconsistent.length) warnings.push(`${inconsistent.length} activity range(s) left on the default range because 0 <= optimistic <= most likely <= pessimistic fails (a point is negative or out of order)${overrides.size && [...overrides.values()].some((o) => o.likely == null) ? " (most likely = the file's remaining duration)" : ""}: ${inconsistent.slice(0, 5).join(", ")}${inconsistent.length > 5 ? ", ..." : ""}`);
   if (opts.rangeSource) warnings.push(opts.rangeSource);
   if (!overrides.size) warnings.push(`every open activity uses the same range (${Math.round(range.min * 100)}% / ${Math.round(range.likely * 100)}% / ${Math.round(range.max * 100)}% of its remaining duration): an assumption, not data from the file; replace it with ranges from the people doing the work`);
+  const lvl = opts.level ? (opts.level === true ? {} : opts.level) : null;
+  let lvl0 = null; // the levelled forecast, with the file's durations
+  if (lvl) {
+    lvl0 = level(xer, { ...lvl, model, projId: pid });
+    if (!lvl0.resources.length) warnings.push("levelling asked for, but no resource in the file has a limit to level against (RSRCRATE max units per hour): the levelled runs equal the plain ones");
+    for (const w of lvl0.warnings) if (!/could not be levelled/.test(w)) warnings.push(`levelling: ${w}`);
+  }
   if (base.loops.length) warnings.push(`${base.loops.length} logic loop(s): activities on a loop are left out of every run`);
 
   const n = vary.length;
@@ -305,6 +330,14 @@ export function* riskSteps(xer, opts = {}) {
   const durations = new Map();
   const us = new Float64Array(n);
   const sr = Math.sqrt(rho), se = Math.sqrt(1 - rho);
+  const unlev = lvl ? new Float64Array(iterations) : null; // the same draws, not levelled
+  let resLinkRuns = 0, cutRuns = 0, leftMax = 0, selfCheckMax = 0;
+  const finishOf = (dm) => {
+    const r = schedule(xer, { model, forwardOnly: true, durations: dm });
+    if (!lvl) return { f: r.projects.get(pid).finish, r, plainF: null };
+    const lr = level(xer, { ...lvl, model, projId: pid, durations: dm });
+    return { f: lr.result.projects.get(pid).finish, r: lr.result, lr, plainF: r.projects.get(pid).finish };
+  };
   for (let it = 0; it < iterations; it++) {
     const z0 = rho > 0 ? normal(rand) : 0;
     for (let i = 0; i < n; i++) {
@@ -333,22 +366,32 @@ export function* riskSteps(xer, opts = {}) {
     });
     let f0 = null; // the finish without the events, when one occurred
     if (anyHit) {
-      f0 = schedule(xer, { model, forwardOnly: true, durations }).projects.get(pid).finish;
+      f0 = finishOf(durations).f;
       events.forEach((e, k) => {
         if (hit[k] === null) return;
         for (const t of e.targets) if (!dropped.has(t.id)) evDur.set(t.id, (evDur.get(t.id) ?? durations.get(t.id) ?? t.remain) + Math.round(hit[k] * (t.cal.hoursPerDay || 8) * 60));
       });
     }
-    const r = schedule(xer, { model, forwardOnly: true, durations: evDur.size ? new Map([...durations, ...evDur]) : durations });
+    const run = finishOf(evDur.size ? new Map([...durations, ...evDur]) : durations);
     evDur.clear();
-    const f = r.projects.get(pid).finish;
+    const r = run.r, f = run.f;
+    if (unlev) unlev[it] = run.plainF;
     finishes[it] = f;
     if (plain) plain[it] = f0 ?? f;
     const y = dayOf(f);
     events.forEach((e, k) => { if (hit[k] !== null) { e.hits++; e.sumHit += y; e.sumImpact += hit[k]; } else e.sumMiss += y; });
     evDays[it] = plain ? y - dayOf(plain[it]) : 0;
     for (let i = 0; i < n; i++) { sumU[i] += us[i]; sumUU[i] += us[i] * us[i]; sumUY[i] += us[i] * y; }
-    for (const id of drivingPath(r, pid)) if (!dropped.has(id)) onPath.set(id, (onPath.get(id) || 0) + 1);
+    let pathIds;
+    if (run.lr) {
+      const dp = levelledDrivingPath(run.lr, pid);
+      pathIds = dp.path;
+      if (dp.resourceLinks) resLinkRuns++;
+      if (dp.cut) cutRuns++;
+      leftMax = Math.max(leftMax, run.lr.left.length);
+      selfCheckMax = Math.max(selfCheckMax, run.lr.resources.reduce((a, x) => a + x.selfCheckHours, 0));
+    } else pathIds = drivingPath(r, pid);
+    for (const id of pathIds) if (!dropped.has(id)) onPath.set(id, (onPath.get(id) || 0) + 1);
     groups.forEach((g, k) => { if (chosen[k] >= 0) { g.bs[chosen[k]].taken++; g.bs[chosen[k]].sumY += y; } else { g.noneTaken++; g.noneSumY += y; } });
     for (const id of dropped) if (!varyIds.has(id)) durations.delete(id);
     yield { done: it + 1, of: iterations };
@@ -379,7 +422,7 @@ export function* riskSteps(xer, opts = {}) {
   // Expressway file: 0.22 on activities never on the driving path). Below
   // 4/sqrt(N) a sensitivity is reported as null (not told apart from noise).
   const noiseFloor = 4 / Math.sqrt(iterations);
-  const detPath = new Set(drivingPath(base, pid));
+  const detPath = new Set(lvl0 ? levelledDrivingPath(lvl0, pid).path : drivingPath(base, pid));
   const activities = vary.map((v, i) => {
     const mU = sumU[i] / iterations;
     const vU = sumUU[i] / iterations - mU * mU;
@@ -436,6 +479,35 @@ export function* riskSteps(xer, opts = {}) {
     };
   }
 
+  let levelling = null;
+  if (lvl) {
+    const s0 = Array.from(unlev).sort((a, b) => a - b);
+    const sh0 = (lim) => s0.filter((f) => f <= lim).length / iterations;
+    const rd = days.map((d, i) => d - dayOf(unlev[i])).sort((a, b) => a - b);
+    const lf = lvl0.result.projects.get(pid).finish;
+    levelling = {
+      settings: { ...lvl0.settings, limitScale: lvl.limitScale || null },
+      resources: lvl0.resources.length,
+      // the levelled forecast with the file's durations, and the chance of meeting it
+      finish: lf, finishDays: round1(dayOf(lf)), pLevelledFinish: Math.round(share(lf) * 1000) / 1000,
+      unlevelled: {
+        percentiles: [10, 50, 80, 90].map((p) => { const d = quantile(s0, p / 100); return { p, date: d, days: round1(dayOf(d)), overDeterministic: round1(dayOf(d) - detDays) }; }),
+        pDeterministic: Math.round(sh0(p0.finish) * 1000) / 1000,
+        pMustFinish: p0.mustFinish != null ? Math.round(sh0(p0.mustFinish) * 1000) / 1000 : null,
+      },
+      // working days the resource limits add to the same run's finish
+      resourceDelay: { mean: round1(rd.reduce((a, b) => a + b, 0) / iterations), min: round1(rd[0]), p80: round1(quantile(rd, 0.8)), noDelay: Math.round((rd.filter((d) => d <= 0).length / iterations) * 1000) / 1000 },
+      // share of runs whose driving path passed through a resource wait, and
+      // runs where a wait's blocker could not be named (path stopped there)
+      resourceDriven: Math.round((resLinkRuns / iterations) * 1000) / 1000,
+      pathCut: Math.round((cutRuns / iterations) * 1000) / 1000,
+      leftMax,
+      // hours any run's levelling left a placed activity over a limit (level.mjs's self-check; 0 when sound)
+      selfCheckMax: Math.round(selfCheckMax * 10) / 10,
+    };
+    if (leftMax) warnings.push(`levelling: up to ${leftMax} activit${leftMax === 1 ? "y" : "ies"} per run could not be levelled and stay over-allocated`);
+  }
+
   const projRow = (xer.tables.PROJECT || []).find((r) => r.proj_id === pid) || {};
   return {
     project: { id: pid, code: projRow.proj_short_name || pid, dataDate: p0.dataDate ?? null, finish: p0.finish, mustFinish: p0.mustFinish ?? null, finishDays: round1(detDays) },
@@ -449,6 +521,7 @@ export function* riskSteps(xer, opts = {}) {
     risks,
     withoutRisks,
     branches,
+    levelling,
     warnings,
   };
 }

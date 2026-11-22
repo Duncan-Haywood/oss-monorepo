@@ -220,6 +220,7 @@ function riskSection(r, limit) {
     `${r.iterations} runs (seed ${r.seed}) over ${r.varied} open activities, each remaining duration drawn from a triangular range: ${r.overrides ? `${r.overrides} activity ranges ${r.rangeSource ? `from the schedule itself or the reviewer (${r.rangeSource})` : "supplied by the reviewer"}, ${rangeText(r)} on the rest` : rangeText(r)}.`,
     r.correlation ? `A shared factor correlates the draws (${r.correlation}), for causes such as weather or productivity that move many activities together.` : "The draws are independent; a cause that moves many activities together (weather, productivity) would widen the spread.",
     r.branches?.length ? `${r.branches.length} probabilistic branch group${r.branches.length === 1 ? "" : "s"} (below): each run takes one branch per group and drops the others' work, which the forecast finish counts in full.` : null,
+    r.levelling ? `Every run was levelled against the file's resource limits (${r.levelling.resources} resource${r.levelling.resources === 1 ? "" : "s"}${r.levelling.settings?.limitScale ? `, limits x${r.levelling.settings.limitScale["*"]}` : ""}) and also scheduled without levelling on the same draws: the limits add ${r.levelling.resourceDelay.mean} working days to the finish on average per run (P80 of the difference ${r.levelling.resourceDelay.p80}; none in ${pct(r.levelling.resourceDelay.noDelay)} of runs). With unlimited crews the P80 would be ${day(r.levelling.unlevelled.percentiles.find((x) => x.p === 80).date)}.` : null,
     r.risks.length ? `${r.risks.length} risk register event${r.risks.length === 1 ? "" : "s"} added (below); every run is also scheduled without them on the same draws.` : "No risk register events were added.",
   ].filter(Boolean);
   const rows = r.percentiles.map((q) => {
@@ -240,7 +241,7 @@ ${ev}
 ${br}
 ${drivers ? `<h3>Activities that most often drive the finish</h3>${drivers}` : ""}
 ${r.warnings.length ? `<p class="small"><strong>Read with care:</strong> ${r.warnings.map(esc).join(" ")}</p>` : ""}
-<p class="small">The ranges are inputs to this analysis, not data from the file; the result is only as good as they are. Resource limits are not modelled.</p>`;
+<p class="small">The ranges are inputs to this analysis, not data from the file; the result is only as good as they are. ${r.levelling ? "Resource limits are modelled by a serial levelling pass like P6's, not P6's own code." : "Resource limits are not modelled."}</p>`;
 }
 
 function windowsSection(w, limit) {
