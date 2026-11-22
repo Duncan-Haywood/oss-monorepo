@@ -193,7 +193,8 @@
     {
       "name": "identify 2.6.20 file-type tags and pre-commit 4.7.0 schema constants",
       "paths": [
-        "ventures/pre-commit-config-check/tables.mjs"
+        "ventures/pre-commit-config-check/tables.mjs",
+        "ventures/pre-commit-config-check/differential/gen-tables.py"
       ],
       "license": "MIT",
       "source": "https://github.com/pre-commit/identify (ALL_TAGS) and https://github.com/pre-commit/pre-commit (clientlib.py, all_languages.py), generated from the installed packages",

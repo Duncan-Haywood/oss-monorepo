@@ -127,7 +127,7 @@ function stripComment(line) {
 
 class Parser {
   constructor(text) {
-    const norm = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+    const norm = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
     this.raw = norm.split("\n");
     this.anchors = new Map();
     this.docLines();
