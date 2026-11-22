@@ -881,9 +881,38 @@ def test_refusal_names_history_flags(tmp_path, capsys):
 
 
 def test_history_candidates_skip_pointer_and_own_text():
-    v = "History and every measurement: README. Next: A passed 3 of 4; next a real file; B ships."
+    v = "History and every measurement: README. Next: A passed 3 of 4; a real file; B ships."
     got = ff.history_candidates(v, keep=("B ships",))
     assert got == ["A passed 3 of 4"]
+
+
+def test_history_candidates_never_orphan_the_open_step_after_a_result():
+    # 2026-11-22 (xer-schedule-check, 16:33 and 17:04): moving "X shipped ..."
+    # would leave "next a real series" in the row with no subject
+    v = ("History: README. Next, most valuable first: (10) earned value shipped 2026-11-20 "
+         "(evm.mjs; 2,020/2,020); next a real series. C passed 2026-11-21 (eval/c.md); "
+         "D passed 3 of 4 2026-11-22 (eval/d.md). Open: e; f.")
+    got = ff.history_candidates(v)
+    assert not any("earned value" in c for c in got)
+    assert "C passed 2026-11-21 (eval/c.md)" in got
+
+
+def test_history_candidates_split_an_item_at_its_sentences():
+    # the hint offered "a P6 import of the result. Contractor's monthly
+    # narrative 2026-11-22 (...)" whole, open step and all
+    v = ("History: README. Next: UDFs read 2026-11-22 (eval/u.md); next: a P6 import of the "
+         "result. Monthly narrative passed 2026-11-22 (eval/n.md: 40/40); a third thing. "
+         "Regen (cad/README.md): scope the bus on a 20% slow-down; more. Open: z.")
+    got = ff.history_candidates(v)
+    assert "Monthly narrative passed 2026-11-22 (eval/n.md: 40/40)" in got
+    assert not any("P6 import" in c for c in got)
+    assert not any(c.startswith("Regen") for c in got)  # undated sentence cut from its item
+
+
+def test_history_candidates_skip_labelled_and_conditional_items():
+    v = ("History: README. Next: (15) Drag 2026-11-22 (crash.mjs); a; "
+         "a dark frame to say if offset tables apply (5.2% gap); b. Open: z.")
+    assert ff.history_candidates(v) == []
 
 
 def test_new_budget_splits_the_cut_across_several_replacements():
