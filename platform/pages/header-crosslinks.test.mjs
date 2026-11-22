@@ -29,6 +29,26 @@ export function headerCrosslinkNotes(html) {
   return notes.filter((n) => /href="\.\.\/[a-z0-9-]+\/[^"]*"/.test(n) && !/Nothing is uploaded/.test(n)).length;
 }
 
+/**
+ * The same count for pages with no <header>: the muted `p.privacy` notes
+ * between <main> and its first <section> (the lede above the tool's first card).
+ * WHY: on 2026-11-22 the 1099 pair stacked 2 and 3 such notes there
+ * (polish-2026-11-22-lede-crosslinks.md); the header check did not see them.
+ */
+export function ledeCrosslinkNotes(html) {
+  const lede = /<main\b[^>]*>([\s\S]*?)<section\b/.exec(html);
+  if (!lede) return 0;
+  const notes = lede[1].match(/<p class="privacy"[^>]*>[\s\S]*?<\/p>/g) || [];
+  return notes.filter((n) => /href="\.\.\/[a-z0-9-]+\/[^"]*"/.test(n) && !/Nothing is uploaded/.test(n)).length;
+}
+
+test('ledeCrosslinkNotes counts privacy notes before the first card only', () => {
+  const html = '<main><h1>x</h1><p class="privacy">See <a href="../a/">a</a>.</p><p class="privacy">Or <a href="../b/">b</a>.</p>'
+    + '<p class="privacy">Nothing is uploaded; <a href="../c/">c</a>.</p><section class="card"><p class="privacy"><a href="../d/">d</a></p></section></main>';
+  assert.equal(ledeCrosslinkNotes(html), 2);
+  assert.equal(ledeCrosslinkNotes('<main><section></section></main>'), 0);
+});
+
 test('headerCrosslinkNotes counts only notes that point at another tool', () => {
   const html = '<header><p class="note">Nothing is uploaded. See <a href="../x/">x</a>.</p>'
     + '<p class="note">Also <a href="../a-b/">a</a>.</p><p class="note"><a href="guide.html">own guide</a></p>'
@@ -42,7 +62,8 @@ test(`no venture header stacks more than ${MAX_HEADER_CROSSLINK_NOTES} cross-too
   for (const slug of readdirSync(VENTURES)) {
     const p = join(VENTURES, slug, 'index.html');
     if (!existsSync(p)) continue;
-    const n = headerCrosslinkNotes(readFileSync(p, 'utf8'));
+    const html = readFileSync(p, 'utf8');
+    const n = Math.max(headerCrosslinkNotes(html), ledeCrosslinkNotes(html));
     if (n > MAX_HEADER_CROSSLINK_NOTES) over.push(`${slug}: ${n}`);
   }
   assert.deepEqual(over, [], 'move the extra "see also" notes into a "Related guides and tools" card before "Common questions"');
