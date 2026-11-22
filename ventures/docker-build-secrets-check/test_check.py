@@ -307,5 +307,23 @@ class Main(unittest.TestCase):
                 os.chdir(cwd)
 
 
+class RedTeam20261122(unittest.TestCase):
+    """Red-team 2026-11-22, real defect: under `# escape=`` a trailing
+    backslash (`WORKDIR C:\\app\\`) is not a continuation, but the joiner
+    treated it as one and hid the next instruction's secret."""
+
+    def test_escape_directive_backslash_is_not_a_continuation(self):
+        text = (
+            "# escape=`\nFROM mcr.microsoft.com/windows/servercore:ltsc2022\n"
+            "WORKDIR C:\\app\\\nARG GITHUB_TOKEN\n"
+        )
+        findings = dbs.scan_text(text)
+        self.assertEqual([(f["line"], f["name"]) for f in findings], [(4, "GITHUB_TOKEN")])
+
+    def test_directive_only_counts_at_the_top(self):
+        self.assertEqual(dbs.escape_char("# hello\n# escape=`\n"), "\\")
+        self.assertEqual(dbs.escape_char("# syntax=docker/dockerfile:1\n# escape=`\n"), "`")
+
+
 if __name__ == "__main__":
     unittest.main()

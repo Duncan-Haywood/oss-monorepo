@@ -56,10 +56,27 @@ function stripQuotes(value) {
   return trimmed;
 }
 
+const DIRECTIVE_RE = /^#\s*([a-zA-Z][a-zA-Z0-9]*)\s*=\s*(.+?)\s*$/;
+const KNOWN_DIRECTIVES = new Set(["syntax", "escape", "check"]);
+
+/** The line-continuation character a `# escape=` parser directive sets, or
+ * a backslash: directives count only at the very top of the file, and an
+ * unknown one ends the run, as in BuildKit. Mirrors check.py's escape_char. */
+export function escapeChar(text) {
+  let escape = "\\";
+  for (const line of text.split(/\r\n|\r|\n/)) {
+    const m = DIRECTIVE_RE.exec(line.trim());
+    if (!m || !KNOWN_DIRECTIVES.has(m[1].toLowerCase())) break;
+    if (m[1].toLowerCase() === "escape" && (m[2] === "\\" || m[2] === "`")) escape = m[2];
+  }
+  return escape;
+}
+
 /** Yield {line, text} per Dockerfile logical line, joining a trailing
  * backslash continuation onto the following physical line. Mirrors
  * check.py's iter_logical_lines exactly. */
 export function iterLogicalLines(text) {
+  const escape = escapeChar(text);
   const lines = text.split("\n");
   const out = [];
   let i = 0;
@@ -72,7 +89,7 @@ export function iterLogicalLines(text) {
       continue;
     }
     const parts = [lines[i]];
-    while (parts[parts.length - 1].replace(/\s+$/, "").endsWith("\\") && i + 1 < n) {
+    while (parts[parts.length - 1].replace(/\s+$/, "").endsWith(escape) && i + 1 < n) {
       parts[parts.length - 1] = parts[parts.length - 1].replace(/\s+$/, "").slice(0, -1);
       i += 1;
       parts.push(lines[i]);

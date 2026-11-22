@@ -139,6 +139,28 @@ def _strip_quotes(value):
     return value
 
 
+_DIRECTIVE_RE = re.compile(r"^#\s*([a-zA-Z][a-zA-Z0-9]*)\s*=\s*(.+?)\s*$")
+_KNOWN_DIRECTIVES = {"syntax", "escape", "check"}
+
+
+def escape_char(text):
+    """The line-continuation character a `# escape=` parser directive sets,
+    or a backslash. BuildKit reads directives only at the very top of the
+    file, before any blank line, comment or instruction, and an unknown
+    directive ends the run. Windows Dockerfiles set escape=` so a path
+    like `C:\\app\\` at the end of a line is not a continuation (red-team
+    2026-11-22: treating it as one hid the next ARG). Mirrors classify.mjs's
+    escapeChar and docker-base-image-pin-check's escape_char."""
+    escape = "\\"
+    for line in text.splitlines():
+        match = _DIRECTIVE_RE.match(line.strip())
+        if not match or match.group(1).lower() not in _KNOWN_DIRECTIVES:
+            break
+        if match.group(1).lower() == "escape" and match.group(2) in ("\\", "`"):
+            escape = match.group(2)
+    return escape
+
+
 def iter_logical_lines(text):
     """Yield (start_lineno, joined_text) per Dockerfile logical line, joining
     a trailing backslash continuation onto the following physical line.
@@ -150,6 +172,7 @@ def iter_logical_lines(text):
     A comment line (starts with `#` once stripped) is never joined, matching
     Dockerfile's own rule that a comment cannot appear mid-instruction.
     """
+    escape = escape_char(text)
     lines = text.splitlines()
     i = 0
     n = len(lines)
@@ -160,7 +183,7 @@ def iter_logical_lines(text):
             i += 1
             continue
         parts = [lines[i]]
-        while parts[-1].rstrip().endswith("\\") and i + 1 < n:
+        while parts[-1].rstrip().endswith(escape) and i + 1 < n:
             parts[-1] = parts[-1].rstrip()[:-1]
             i += 1
             parts.append(lines[i])

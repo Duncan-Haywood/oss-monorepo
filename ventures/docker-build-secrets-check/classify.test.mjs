@@ -14,6 +14,7 @@ import {
   looksSecret,
   parseEnvPairs,
   parseArg,
+  escapeChar,
   parseCopySources,
   scanText,
   scanFiles,
@@ -213,4 +214,21 @@ RUN npm ci
     assert.equal(js.line, py.line, `line mismatch at index ${i}`);
     assert.equal(js.remediation, py.remediation, `remediation mismatch at index ${i}`);
   }
+});
+
+// Red-team 2026-11-22, real defect: under `# escape=`` (Windows Dockerfiles)
+// a trailing backslash, as in `WORKDIR C:\app\`, is not a continuation. The
+// joiner glued the next instruction onto the WORKDIR, so `ARG GITHUB_TOKEN`
+// went unreported by both this page and the CLI.
+test("an escape=` directive stops a trailing backslash hiding the next ARG", () => {
+  const text = "# escape=`\nFROM mcr.microsoft.com/windows/servercore:ltsc2022\nWORKDIR C:\\app\\\nARG GITHUB_TOKEN\n";
+  assert.deepEqual(scanText(text, "Dockerfile").map((f) => [f.line, f.classification]), [[4, ARG_DECLARED]]);
+  const tick = scanText("# escape=`\r\nFROM x\r\nARG `\r\n  NPM_TOKEN\r\n", "Dockerfile");
+  assert.deepEqual(tick.map((f) => [f.line, f.name]), [[3, "NPM_TOKEN"]]);
+  assert.equal(escapeChar("# hello\n# escape=`\n"), "\\");
+  assert.equal(escapeChar("# syntax=docker/dockerfile:1\n#  ESCAPE = `\n"), "`");
+  const dir = mkdtempSync(path.join(tmpdir(), "dbs-escape-"));
+  writeFileSync(path.join(dir, "Dockerfile"), text);
+  const py = JSON.parse(execFileSync("python3", [CLI, dir, "--format", "json"], { encoding: "utf8" }));
+  assert.deepEqual(py.map((f) => [f.line, f.classification]), [[4, ARG_DECLARED]]);
 });
