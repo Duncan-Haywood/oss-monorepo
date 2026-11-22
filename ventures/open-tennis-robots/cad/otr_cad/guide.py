@@ -24,6 +24,9 @@ The nut side of every through-bolt (2026-11-21, `spanner_checks`): a ring spanne
 the nut and turned about the bolt's axis 5 degrees at a time against what is on the work when the step comes. Each
 nut must take a spanner at some angle (to hold it while the head turns), and a hex head that is itself turned with a
 spanner must swing 30 degrees (a 12-point ring's step) at its head or at its nut.
+
+The same nuts with a deep socket on an extension (2026-11-22, `socket_checks`): along the bolt's axis, the tail inside
+the socket, on the shortest bar that clears the work, with a ratchet and the hand on its end. A report for the guide.
 """
 
 from __future__ import annotations
@@ -739,6 +742,101 @@ def spanner_checks(p, parts) -> tuple[list[dict], list[str]]:
     return rows, bad
 
 
+# A deep socket on an extension, the other way onto a nut (2026-11-22, `socket_checks`): it goes on along the bolt's axis,
+# so the bolt's tail runs up inside it, and a ratchet on the extension's end turns it from outside the work. Sizes are
+# typical of 1/4" drive sets (3/8" for 13 mm), not a standard's figures (assumed).
+SOCKET_OD = {3: 10.0, 4: 11.7, 5: 12.5, 6: 15.0, 8: 18.5}     # a deep socket's outside diameter, mm, by thread
+SOCKET_LEN = {3: 50.0, 4: 50.0, 5: 50.0, 6: 50.0, 8: 63.0}    # its length, mm
+SOCKET_BORE = {3: 38.0, 4: 38.0, 5: 38.0, 6: 38.0, 8: 48.0}   # how much bolt tail fits up inside it past the nut, mm
+EXT_D = {3: 10.0, 4: 10.0, 5: 10.0, 6: 10.0, 8: 14.0}         # the extension bar's diameter, mm
+EXTENSIONS = (0.0, 50.0, 75.0, 100.0, 150.0, 250.0)           # the bars a set has, mm (0: the ratchet on the socket)
+RATCHET = {3: (25.0, 14.0, 140.0), 4: (25.0, 14.0, 140.0), 5: (25.0, 14.0, 140.0), 6: (25.0, 14.0, 140.0),
+           8: (34.0, 18.0, 200.0)}                             # ratchet head diameter, head thickness, length, mm
+RATCHET_SWING = 15   # degrees of handle swing that turn the nut with a 72-tooth ratchet and the hand's play (assumed)
+
+
+def socket_solid(d: int, ext: float, hand: bool = True):
+    """A deep socket and `ext` mm of extension along +z from a nut's face on z = 0, with the ratchet's head on the
+    end and its handle along +x, and the hand on the handle's end (as the spanner's)."""
+    ls, hd, ht, hl = SOCKET_LEN[d], *RATCHET[d]
+    s = Cylinder(SOCKET_OD[d] / 2, ls).moved(Location((0, 0, ls / 2)))
+    if ext:
+        s += Cylinder(EXT_D[d] / 2, ext).moved(Location((0, 0, ls + ext / 2)))
+    z = ls + ext
+    s += Cylinder(hd / 2, ht).moved(Location((0, 0, z + ht / 2)))
+    s += Box(hl, hd * 0.6, ht).moved(Location((hl / 2, 0, z + ht / 2)))
+    if hand:
+        run = GRIP + REACH_IN
+        s += Box(run, hd * 0.6 + HAND_W, HAND_D).moved(Location((hl - GRIP + run / 2, 0, z + HAND_D / 2)))
+    return s
+
+
+def socket_free(j: Joint, d: int, point, seat: float, away: int, shapes, ext: float, step: int = SPANNER_STEP,
+                tol_mm3: float = 1.0) -> list[bool]:
+    """At each angle of the ratchet's handle about the bolt (0, step, ...), whether the socket, `ext` mm of extension,
+    the ratchet and the hand, the socket's mouth 0.2 mm off `seat` and standing `away` along the axis, miss `shapes`.
+    The socket and bar are round, so a hit on them is a hit at every angle."""
+    base = frame_of(point, j.axis) * Location((0, 0, seat + away * 0.2))
+    if away < 0:
+        base = base * Location((0, 0, 0), (180, 0, 0))
+    hl = RATCHET[d][2]
+    zl = SOCKET_LEN[d] + ext + HAND_D + 1
+    env = Cylinder(hl + REACH_IN + 1, zl).moved(base * Location((0, 0, zl / 2)))
+    near = [(n, s) for n, s in shapes if _near(env, s, 0.0)]
+    ls = SOCKET_LEN[d]
+    bar = Cylinder(SOCKET_OD[d] / 2, ls).moved(Location((0, 0, ls / 2)))
+    if ext:
+        bar += Cylinder(EXT_D[d] / 2, ext).moved(Location((0, 0, ls + ext / 2)))
+    if _blockers(bar.moved(base), near, tol_mm3):
+        return [False] * (360 // step)
+    tool = socket_solid(d, ext)
+    return [not _blockers(tool.moved(base * Location((0, 0, 0), (0, 0, a))), near, tol_mm3) for a in range(0, 360, step)]
+
+
+def bolt_tail(p, parts, j: Joint, seat: float) -> float | None:
+    """mm of bolt past the nut's outer face, which a socket must swallow: a nut joint's length less its grip and nut
+    (None where the CAD's joint does not say: a shoulder bolt's thread, a clamp)."""
+    if j.kind != "nut":
+        return None
+    return j.length - seat - (j.nut_h or NYLOC_H[j.d])
+
+
+def socket_checks(p, parts) -> list[dict]:
+    """Every nut `spanner_checks` lays a spanner on, at each of its holes when its step comes: the shortest bar in
+    EXTENSIONS on which a deep socket, the ratchet and the hand fit at some angle, and the widest handle arc there
+    at the worst hole (a report: the guide's spanner is what the steps ask for; 2026-11-22)."""
+    rows = []
+    for j in joints(p):
+        seat = nut_seat(p, parts, j)
+        if seat is None:
+            continue
+        k = joint_step(p, j)
+        if k is None:
+            continue
+        shapes = _placed(parts, steps(p)[k - 1].parts) if j.bench else built_at(p, parts, k)
+        if j.bolt:
+            shapes = [(n, s) for n, s in shapes if n != j.bolt]
+        tail = bolt_tail(p, parts, j, seat)
+        fits_tail = tail is None or tail <= SOCKET_BORE[j.d]
+        found, arc, why = None, 0, ""
+        if not fits_tail:
+            why = f"{tail:.0f} mm of bolt past the nut, {SOCKET_BORE[j.d]:g} fits in the socket"
+        else:
+            for ext in EXTENSIONS:
+                runs = [longest_run(socket_free(j, j.d, point, start + sign * seat, sign, shapes, ext))
+                        for point, start, sign in _instances(j)]
+                if min(runs) > 0:
+                    found, arc = ext, min(runs)
+                    break
+            if found is None:
+                why = f"no bar up to {EXTENSIONS[-1]:g} mm clears the work at every hole"
+        rows.append({"joint": j.name, "fastener": j.fastener, "step": k, "socket_mm": NUT_AF[j.d],
+                     "tail_mm": None if tail is None else round(tail, 1), "ext_mm": found, "arc_deg": arc,
+                     "turns": found is not None and arc >= RATCHET_SWING, "why": why,
+                     "holes": len(_instances(j))})
+    return rows
+
+
 def hatch_check(p: Collector, parts, tol_mm3: float = 1.0) -> list[str]:
     """The hatch, turned with the drum so its slot points down, lifts out of its seat and rises off the spacer."""
     hatch = next(pt for pt in parts if pt.name == "drum_hatch")
@@ -826,7 +924,8 @@ def _files(parts, name):
     return pt.spec
 
 
-def write(out, p, parts, bom_rows, joint_rows, problems, drawings: bool = True, spanner_rows=None) -> None:
+def write(out, p, parts, bom_rows, joint_rows, problems, drawings: bool = True, spanner_rows=None,
+          socket_rows=None) -> None:
     folder = out / "guide"
     folder.mkdir(parents=True, exist_ok=True)
     st = steps(p)
@@ -910,6 +1009,22 @@ def write(out, p, parts, bom_rows, joint_rows, problems, drawings: bool = True, 
             lines.append(f"| {r['joint']} | {r['fastener']} | {r['step']} | {r['spanner_mm']:g} mm, "
                          f"{r['spanner_len']:g} long | {r['holes']} | "
                          f"{r['nut_deg']} | {head} | {r['turn']} | {'pass' if r['ok'] else 'FAIL'} |")
+    if socket_rows:
+        lines += ["", "## A deep socket on an extension", "",
+                  "The other way onto each nut: a deep socket along the bolt's axis, so the bolt's tail runs up inside",
+                  "it, on the shortest bar of a set (" + ", ".join(f"{e:g}" for e in EXTENSIONS) + " mm) that clears "
+                  "the work, with a ratchet on the bar's end and the hand on the ratchet's handle as on a spanner.",
+                  f"Sizes are typical of 1/4\" drive deep sockets (3/8\" for 13 mm), assumed. \"Arc\" is the widest "
+                  f"clear arc of the handle at the worst hole; {RATCHET_SWING} degrees turns the nut. A report, not a",
+                  "check: the steps ask for the spanners above. How the socket gets to the nut (in between parts, then",
+                  "along the axis) is not tried.", "",
+                  "| Joint | Socket | Tail past the nut (mm) | Bar (mm) | Arc (deg) | Socket turns it |",
+                  "| --- | --- | --- | --- | --- | --- |"]
+        for r in socket_rows:
+            tail = "-" if r["tail_mm"] is None else f"{r['tail_mm']:g}"
+            bar = "-" if r["ext_mm"] is None else f"{r['ext_mm']:g}"
+            verdict = "yes" if r["turns"] else ("held only" if r["ext_mm"] is not None else f"no: {r['why']}")
+            lines.append(f"| {r['joint']} | {r['socket_mm']:g} mm deep | {tail} | {bar} | {r['arc_deg']} | {verdict} |")
     lines += [
               "", "Result when this package was built: " + ("all pass." if not problems else "; ".join(problems)), ""]
     (folder / "ASSEMBLY.md").write_text("\n".join(lines))
