@@ -72,6 +72,15 @@ choices agree uncalibrated and 26 of 27 calibrated, and calibrating bending (4a'
 changes the top tier's choice. The chain is 1.7 cm off in absolute shape and still right; the one
 miss is the spring sheet's, by 0.05 cm of regret.
 
+**Milestone 5c (could that choice have been certified before running the top tier everywhere?):**
+mostly not for the chain, often for the sheet. Milestone 5b's penalty bound with its slope taken from
+three top-tier runs around the cheap choice certifies the spring sheet's width on 8 of 18
+fabric-setting cases but the 2D chain's on 1 of 18, although the chain is never wrong: its paired
+error against the top tier tilts by a median 0.58 cm per cm of arm width, more than its own margin
+(0.47 cm), while the sheet's tilts by 0.11. Borrowing the slope from the other eight fabrics bounds
+the regret of trusting either cheap tier, with no top-tier run on that fabric, at 0.27 cm (chain) and
+0.20 cm (sheet), but certifies none.
+
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
@@ -877,6 +886,68 @@ Re-solving milestone 2b's spring sheet by Newton keeps its mesh dependence (A at
 contact or friction; Newton capped at 400 steps; two solvers or two meshes can settle into different
 fold patterns, so a DC difference mixes convergence with branch selection.
 
+## Milestone 5c: certificates on the calibrated top tier, and a slope borrowed from other fabrics
+
+`experiments/m5c_tier_bounds/run.py` (stdlib only; no new simulation, it reads milestone 4e's
+`results.json` and `run_log_extend.txt`). Predictions G1 to G9 are in its docstring, committed and
+pushed before the first run, but after 4e's per-case table was public, so none of G2 to G9 is blind.
+
+**Question.** Milestone 4e found the cheap tiers' arm-width choice agrees with the top tier's (the
+triangle FEM) on 35 of 36 fabric-setting cases. Agreement found by running the top tier on every
+width is not a certificate. Milestones 5 and 5b built certificates with our own spring sheet as the
+reference; this step asks, with the real top tier as reference, which cheap choices could have been
+certified from the cheap scores plus a few top-tier runs, and adds one new question: can a slope
+measured on other fabrics stand in for runs on this one?
+
+**Instances (45).** On each of the nine Petrak et al. (2021) wovens and both bending settings
+(FAST, and 0.485 × FAST): 2D chain → top tier (18) and spring sheet → top tier (18); and the
+calibration pair, top tier uncalibrated → calibrated (9). Five offsets, −1 to +3 cm.
+
+**Quantities.** As in 5 and 5b (e = s_T − s_t, Dt(d) = s_t(d) − s_t(d^)): C1 (margin above the
+oscillation of e), C2 (cone with the oracle neighbour slope L), R(K) = max(0, max_d K|d − d^| −
+Dt(d)) with R = 0 a certificate, K3 the star slope from the top tier at d^ and its two neighbours.
+New: **K_loo**, the largest star slope K* among the other eight fabrics of the same tier pair and
+setting. If K_loo ≥ this fabric's K*, R(K_loo) bounds its regret with no top-tier run on it.
+
+| family | instances | regret > 0 | C1 | C2 | R(K3) = 0 | median K* (cm/cm) | median R(K3) (cm) | K_loo ≥ K* | R(K_loo) = 0 | median, max R(K_loo) (cm) | mean SV(1) runs of 5 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2D chain → top tier | 18 | 0 | 0 | 1 | 1 | 0.584 | 0.097 | 16 | 0 | 0.146, 0.270 | 3.06 |
+| spring sheet → top tier | 18 | 1 (0.050 cm) | 3 | 7 | 8 | 0.112 | 0.036 | 16 | 0 | 0.124, 0.200 | 3.06 |
+| top tier, uncalibrated → calibrated | 9 | 0 | 2 | 5 | 6 | 0.104 | 0 | 8 | 1 | 0.059, 0.169 | 3.00 |
+
+| | prediction | outcome |
+|---|---|---|
+| G1 | r ≤ pair ≤ osc, r ≤ R(K*) ≤ R(L), K* ≤ L, r ≤ (osc − margin)₊ (theorems) | held, all 45, both score sets |
+| G2 | C1 certifies none of 36 tier instances, at most 2 of 9 calibration pairs | **refuted:** C1 certifies 3 spring-sheet instances (F3 both settings, F8 uncalibrated); 2 calibration pairs |
+| G3 | C2 certifies at least 1 of 18 chain instances; C2 ≥ C1 in every family | held: 1 (F9 calibrated), the programme's first 2D → 3D certificate; 1/0, 7/3, 5/2 |
+| G4 | R(K3) = 0 on at least 1 chain instance, and on fewer sheet instances | **refuted:** 1 chain, 8 sheet (the opposite order) |
+| G5 | R(K3) ≥ r in all 45 | held; on the one regret (sheet, F2 calibrated) R(K3) equals r exactly |
+| G6 | K_loo ≥ K* on at least 16 of 18 in both tier families; R(K_loo) ≥ r in all 36 | held: 16 and 16; 36 |
+| G7 | R(K_loo) = 0 on at least 1 chain instance | **refuted:** 0 |
+| G8 | SV(1) zero regret in all 45, at most 3.5 mean runs on the chain | held: 45; 3.06 |
+| G9 | every count moves by at most 1 with 4e's 2,000-step reruns in place of the nine capped cases | held: no count moves |
+
+**Reading.** What makes a cheap tier certifiable is not that it is close to the top tier but that its
+error is flat across the design. The chain is 1.7 cm off in absolute shape and right on all 18, yet
+its right answers cannot be known in advance: its V-shaped width curve is sharp (margin 0.47 cm),
+the top tier's is shallow, so the paired error tilts by 0.58 cm per cm, more than the margin, and
+three top-tier runs leave a median 0.10 cm of regret the bound cannot exclude. The spring sheet,
+which is wrong once, has a paired error that tilts by only 0.11 cm per cm, and three top-tier runs
+certify its choice on 8 of 18; on the case it gets wrong (F2 calibrated, 0.050 cm) the bound
+from those three runs equals the realised regret exactly. The bending calibration is easiest of all
+(6 of 9 certified from three runs), which with 4e's E4 says that refitting bending does not move this
+decision. As a loop, local-3 already reaches zero regret on all 45, and screen-and-verify adds about
+one run in sixteen cases. Borrowing the slope from the other eight fabrics gives an a-priori regret
+bound with no top-tier run on the fabric (median 0.15 cm for the chain, 0.12 cm for the sheet), but
+it never reaches zero on a tier pair, and the borrowed slope is below the fabric's own on 2 of 18 in
+each family, so it is an estimate, not a guarantee.
+
+**Limits.** Five widths, so local-3 runs three of five candidates and the run saving is small; one
+hanger profile and depth; the reference is our calibrated top tier, not a measured hung garment;
+the nine registered top-tier cases stopped at the 600-step cap are scored as they are (G9 checks
+the reruns); K_loo is a maximum over eight fabrics from one laboratory; overlapping instances (the
+chain and sheet share the top-tier scores), so no interval is claimed.
+
 ## Milestone 5b: a regret bound that keeps the cheap tier's penalty, and a screen-and-verify loop
 
 `experiments/m5b_penalty_bound/run.py` (stdlib only; no new simulation, it reuses milestone 5's 50
@@ -1273,6 +1344,10 @@ no validated solver yet (the continued triangle element passes the Cusick accept
    Milestone 5b did the sharper bound and the loop on a 7-candidate grid (SV(1): 48 of 50 at 3.9
    runs); next is SV inside a design loop over a continuous profile, where the candidate set is
    large enough for the saving to matter, and a curvature-aware K for soft cloth, where SV(1) misses.
+   Milestone 5c applied the bounds with the real top tier as reference: three top-tier runs certify
+   the spring sheet's width on 8 of 18 cases but the chain's on 1 of 18, so in a multi-fidelity loop
+   the sheet, not the chain, is the tier to verify against; a slope borrowed from other fabrics
+   bounds the regret (0.12 to 0.15 cm median) but certifies nothing on its own.
 5. After milestone 4c: a nonconforming (edge-midpoint) membrane on the nine wovens, registered to
    make the DC flat in EA above about 150 N/m; then re-run 4a's comparison, whose bias should drop
    by about 0.044 if the locking share is right. Separately, a measured node count or a low-load
@@ -1328,4 +1403,5 @@ python3 experiments/m4e_hanger_tier/run.py            # milestone 4e, 90 cases, 
 python3 experiments/m4e_hanger_tier/run.py --extend   # post hoc: unconverged cases with a 2,000-step cap
 python3 experiments/m4e_hanger_tier/run.py --report   # seconds
 python3 experiments/m4e_hanger_tier/figure.py         # stdlib only
+python3 experiments/m5c_tier_bounds/run.py           # milestone 5c, stdlib only, seconds
 ```
