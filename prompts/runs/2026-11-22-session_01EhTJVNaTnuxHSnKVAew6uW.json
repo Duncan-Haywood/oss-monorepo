@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVNaTnuxHSnKVAew6uW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T18:03:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: smooth-trend jump model on the floored-sigma TCPD series, pre-registered",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": 18289,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--make-room could not fit a 230-char replacement even after parking; had to shorten the text by hand"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-a-slope-that-wanders-finds-steps-a-random-walk-hides.md"
+  ],
+  "goal": null,
+  "notes": "New drift-trend.mjs (smooth-trend / integrated random walk jump model, exact O(n^2) partition, sigma and zeta from lag-k second differences, zeta by likelihood). Pre-registered eval/trend-walk-floored.mjs committed before its first run: S1 pass (0.005 false cuts/series), S2 fail (38% power at zeta 0.1, bar 50%), T1 fail (+0.028 vs +0.03 on 21 floored series), T2 pass (10 wins / 8 losses), T3 pass (held out +0.060), T4 pass (qc4 cut once at 342). Nothing ships in the CLI by the rule. Post hoc: on 17 floored series where the trend sigma is not floored too, +0.063 (10/4), to test on fresh series. Verification: node --test drift-trend.test.mjs 4/4; run_venture_tests.py changepoint-detector (see PR); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
