@@ -5666,6 +5666,47 @@ of the remaining gap is elsewhere (NEXT.md). FIDE's colour-criteria order (C.12 
 also tried and changed no board. Measurements: `eval/swiss-exchange-order.md`.
 
 
+## Big brackets kept the two-rounds-ago float rule (2026-11-22, later)
+
+After the S1-against-S2 fix (below), two of the 48 later rounds on the six chess-results events still
+differed, both first on **who floats**. Prague round 5, the 1-point bracket: 52 residents and one
+moved-down player, so one resident floats. The arbiters floated 332; the pairer floated 355, whose
+round-3 bye counts as a downfloat two rounds back (FIDE C.16). Both choices give 287 the same colour,
+so C.16 should have decided it, and the pairer ignored it.
+
+The cause was arithmetic, not the rules. `dutchFloaters` and `mdpFloaters` score each board and
+float seat by a 7-digit criteria vector (C.12 colours down to C.17 upfloats two rounds back) packed
+into one integer weight, and the weight must stay under 2^50 to stay exact. Every digit had radix
+"players + 1", so a 51-player remainder had room for only 5 digits and dropped C.16 and C.17. Any
+bracket over about 45 players lost them. `lexRadix` now gives each digit only the room it can use:
+a digit's total over one matching is at most the number of players who touch a board or seat where
+it is 1 (and at most the number of boards), so the C.16 digit in that bracket needs 3 values, not 52.
+All 7 digits fit; trailing ones are dropped only if even these bases pass 2^50.
+
+Replayed (`node eval/swiss-vs-published.mjs <fixtures> --pairing bracket`, condition `played`;
+`eval/swiss-big-brackets.txt`):
+
+| | chess-results boards | later rounds | exact rounds | lichess boards |
+|---|---|---|---|---|
+| before (eval/swiss-stage-b.txt) | 4,890 / 5,083 | 99.1% | 50 / 54 | 689 / 1,182 |
+| digits sized to what they can reach | **4,892** | **99.2%** | **51** | 689 |
+
+Prague now matches the published pairings in all nine rounds; five of the six events match every
+later round. The 440 simulated events (`eval/swiss-repeat-floats.mjs 40`,
+`eval/swiss-big-brackets-sim.txt`): SIMLINE
+
+**Graz round 4 is left, and may not be the rules.** At 2.5 points (42 players, MDP 112 takes 3),
+the arbiters floated 21 (rated 2430, tenth in the bracket); the pairer floats 152, the bracket's
+last player. A new diagnostic, `node eval/swiss-bracket-colours.mjs <fixtures> <event> <round>
+<score>`, counts unmet colour claims on the boards touching a bracket: both pairings leave 2 boards
+with a shared claim (1 strong), both floaters claim black strongly, and neither has floated in the
+last two rounds. The 2-point bracket below repeats the pattern (they float 19, we float 274), again
+with no colour difference. With every criterion we model tied, the Dutch order floats the last S2
+player, so the published choice comes from something we do not see in the file (a criterion lower in
+the round, or an arbiter's change). Round 1 of Budapest B and Graz (the first round's order) and the
+lichess events (acceleration, late joiners) are the rest of the gap. Test: `lexRadix` keeps C.16 in a
+51-player bracket where the old radix kept 5 digits (`swiss.test.mjs`).
+
 ## Inside a bracket: S1 meets S2, and MDPs choose first (2026-11-22)
 
 After the Dutch-order downfloaters (below), 25 of the 27 missed later rounds on the six
