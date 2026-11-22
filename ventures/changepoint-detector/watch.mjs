@@ -19,7 +19,7 @@ import { existsSync } from 'node:fs';
 import process from 'node:process';
 import { parseSeries } from './engine.mjs';
 import { parseColumns } from './multivariate.mjs';
-import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector, withCountDefaults, choiceOptions, settingWords } from './watch-core.mjs';
+import { weeklyTotals, WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector, withCountDefaults, choiceOptions, settingWords } from './watch-core.mjs';
 import { pathToFileURL } from 'node:url';
 
 // The logic lives in watch-core.mjs (no file or network access, so the page and the agent tool import it too).
@@ -77,6 +77,14 @@ Options:
                             1 step in 100 (179 of 300 caught against 183); left as zeros it lends alerts instead
                             (122 of 274 'catches' were only the closure). README, "Steps beside a closure" and
                             "A closure in the week before a step".
+  --weekly                  sum the daily rows into whole Monday-to-Sunday weeks (labelled by their Monday) before
+                            watching; the current, unfinished week waits until it is whole, and days missing from the
+                            export count as zero (a week is whole once the export has a row on or after its Sunday).
+                            Run it with --detector drift as a second watch, with its own --state, beside the daily one:
+                            on 150 fresh simulated shops a revenue climb to x1.9 over four to eight weeks was heard
+                            within 8 weeks by the daily watch alone in 92 and by the two together in 131, for about half
+                            a false alert a year more (README "Round 7: the weekly drift watch beside the daily watch").
+                            A weekly watch is late by design: it hears a climb weeks in, not days.
   --detector <name>         which detector's changes to alert on: bocpd-ar1-window (default for --model mean: the Bayesian
                             detections allowing for sticky, autocorrelated noise, probability summed over 5 neighbouring
                             points), bocpd-ar1, bocpd (default for meanvar), bocpd-window (default for poisson, with the nb cost at
@@ -144,7 +152,7 @@ Statistical analysis of data you supply, not advice. MIT licence.`;
 export async function main(argv, { out = (s) => process.stdout.write(s), env = process.env, fetchImpl = globalThis.fetch } = {}) {
   const o = {};
   let src = null, statePath = null, json = false, failOnAlert = false, dry = false, hookEnv = null;
-  let closedSpec = null, suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null, floorSpec = null, spreadSpec = null;
+  let closedSpec = null, weeklyOn = false, suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null, floorSpec = null, spreadSpec = null;
   const num = (s, name) => { const v = Number(s); if (!(v > 0) || !Number.isInteger(v)) throw new Error(`${name} takes a whole number above 0.`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -157,6 +165,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--penalty') { const p = argv[++i]; o.penalty = /^\d+(\.\d+)?$/.test(p) ? Number(p) : p; }
     else if (a === '--period') o.period = num(argv[++i], '--period');
     else if (a === '--log') o.log = true;
+    else if (a === '--weekly') weeklyOn = true;
     else if (a === '--closed') { closedSpec = argv[++i]; if (!closedSpec || closedSpec.startsWith('-')) throw new Error('--closed takes a comma list of dates (2024-12-25,2024-12-26) or @file.'); }
     else if (a === '--detector' && argv[i + 1] === 'auto') { auto = true; i++; }
     else if (a === '--suggest') suggest = true;
@@ -202,14 +211,19 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   const closed = closedSpec == null ? null : await closedList(closedSpec);
   if (columnsSpec) {
     if (o.column != null) throw new Error('Give --column or --columns, not both.');
-    return watchColumns({ csv, closed, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec, spreadSpec });
+    return watchColumns({ csv, closed, weeklyOn, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec, spreadSpec });
   }
   if (floorSpec?.byColumn) throw new Error('--min-shift column=x,... is for --columns; with one column give a number.');
   if (spreadSpec?.byColumn) throw new Error('--min-spread column=k,... is for --columns; with one column give a number.');
-  const { labels, values: raw, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
-  if (raw.length < 4) throw new Error(`Need at least 4 numbers; got ${raw.length}.`);
-  const fill = closedFill(raw, labels, closed, o);
-  const values = fill.values;
+  const parsed = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
+  const { column } = parsed;
+  if (parsed.values.length < 4) throw new Error(`Need at least 4 numbers; got ${parsed.values.length}.`);
+  const fill = closedFill(parsed.values, parsed.labels, closed, o);
+  const wk = weeklyOn ? weeklyLine(fill.values, parsed.labels) : null;
+  if (wk) fill.line += wk.line;
+  if (wk) fill.json = { ...fill.json, weekly: wk.json };
+  const values = wk ? wk.values : fill.values, labels = wk ? wk.labels : parsed.labels;
+  if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}${wk ? ' whole weeks' : ''}.`);
   const { column: _c, labelColumn: _l, alertHistory: _h, ...detOpts } = o;
   if (suggest) {
     if (values.length < 10) throw new Error(`--suggest needs at least 10 points; got ${values.length}.`);
@@ -249,6 +263,13 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     : null;
   out((json ? JSON.stringify({ column, n: values.length, ...(picked ? { picked } : {}), ...fill.json, ...res }, null, 2) : fill.line + (pickLine ? pickLine + '\n' : '') + (countDefault ? COUNT_DEFAULT_LINE + '\n' : '') + statusText(res, textOpts)) + '\n');
   return failOnAlert && res.alerts.length ? 1 : 0;
+}
+
+/** `--weekly`: whole Monday-to-Sunday weeks (watch-core.mjs weeklyTotals), with the line the text output prints. */
+export function weeklyLine(values, labels) {
+  const w = weeklyTotals(values, labels);
+  const line = `Weekly: ${w.weeks} whole Monday-to-Sunday week${w.weeks === 1 ? '' : 's'}${w.weeks ? ` (${w.from} to ${w.to})` : ''}, each the sum of its days; a week is watched once it is whole.\n`;
+  return { values: w.values, labels: w.labels, line, json: { weeks: w.weeks, from: w.from, to: w.to } };
 }
 
 /** `--closed`: the listed dates, from "a,b" or "@file" (one per line, # comments and blank lines skipped). */
@@ -362,7 +383,7 @@ function parseColumnNumbers(spec, flag, what0, forms) {
 /** The record for several columns: { version, columns: { <name>: <one column's state> } }. */
 export function emptyMultiState() { return { version: 1, columns: {} }; }
 
-async function watchColumns({ csv, closed = null, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec = null, spreadSpec = null }) {
+async function watchColumns({ csv, closed = null, weeklyOn = false, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec = null, spreadSpec = null }) {
   const k = specs.length;
   // Each column is picked against the whole budget, as a one-column watch would be. Splitting it (1/k each) was
   // pre-registered and failed (eval/watch-columns.mjs): on 5 noise columns the unsplit picks already sent 1.33 alerts per
@@ -382,6 +403,11 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
     if ((opts.model ?? 'mean') !== 'poisson') delete opts.wander;
     if ((opts.model ?? 'mean') !== 'poisson') delete opts.trend;  // a global --trend robust applies to the count columns only
     const fill = closedFill(raw, labels, closed, opts);
+    if (weeklyOn) {
+      const wk = weeklyLine(fill.values, labels);
+      if (wk.values.length < 4) throw new Error(`${column}: need at least 4 whole weeks; got ${wk.values.length}.`);
+      return { ...s, column: String(column), labels: wk.labels, values: wk.values, fill: { line: fill.line + wk.line, json: { ...fill.json, weekly: wk.json } }, opts };
+    }
     return { ...s, column: String(column), labels, values: fill.values, fill, opts };
   });
   const applyPerColumn = (spec, key, flag) => {

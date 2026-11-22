@@ -1,0 +1,471 @@
+N shop 1 (s 0.41, open daily): Q 3, DW 1
+N shop 5 (s 0.24, open daily): Q 0, DW 0
+N shop 9 (s 0.23, open daily): Q 1, DW 0
+N shop 13 (s 0.21, shut weekday 4): Q 6, DW 2
+N shop 17 (s 0.22, open daily): Q 2, DW 1
+N shop 21 (s 0.19, open daily): Q 2, DW 1
+N shop 25 (s 0.26, open daily): Q 1, DW 1
+N shop 29 (s 0.31, open daily): Q 5, DW 3
+N shop 33 (s 0.36, open daily): Q 1, DW 0
+N shop 37 (s 0.33, shut weekday 6): Q 1, DW 0
+N shop 41 (s 0.24, open daily): Q 4, DW 1
+N shop 45 (s 0.26, shut weekday 6): Q 0, DW 0
+N shop 49 (s 0.15, shut weekday 5): Q 5, DW 1
+N shop 53 (s 0.21, shut weekday 4): Q 5, DW 0
+N shop 57 (s 0.15, open daily): Q 5, DW 0
+N shop 61 (s 0.37, open daily): Q 4, DW 1
+N shop 65 (s 0.16, shut weekday 6): Q 2, DW 0
+N shop 69 (s 0.33, open daily): Q 4, DW 1
+N shop 73 (s 0.21, shut weekday 3): Q 4, DW 0
+N shop 77 (s 0.43, open daily): Q 6, DW 2
+N shop 81 (s 0.39, shut weekday 0): Q 3, DW 0
+N shop 85 (s 0.25, shut weekday 5): Q 0, DW 0
+N shop 89 (s 0.37, open daily): Q 4, DW 1
+N shop 93 (s 0.31, open daily): Q 3, DW 1
+N shop 97 (s 0.36, open daily): Q 3, DW 0
+N shop 101 (s 0.19, shut weekday 5): Q 5, DW 1
+N shop 105 (s 0.18, open daily): Q 2, DW 0
+N shop 109 (s 0.18, shut weekday 5): Q 3, DW 0
+N shop 113 (s 0.36, shut weekday 4): Q 4, DW 1
+N shop 117 (s 0.33, shut weekday 3): Q 2, DW 1
+N shop 121 (s 0.31, open daily): Q 1, DW 0
+N shop 125 (s 0.18, shut weekday 5): Q 6, DW 0
+N shop 129 (s 0.27, shut weekday 5): Q 2, DW 1
+N shop 133 (s 0.18, shut weekday 0): Q 5, DW 0
+N shop 137 (s 0.43, shut weekday 3): Q 2, DW 0
+N shop 141 (s 0.33, shut weekday 4): Q 1, DW 0
+N shop 145 (s 0.15, open daily): Q 2, DW 0
+N shop 149 (s 0.19, shut weekday 6): Q 3, DW 1
+R30 shop 3 (s 0.15, shut weekday 0): climb 2024-08-29 over 34 days: Q caught (dated 2024-09-04, sent 2024-09-08), DW caught (dated 2024-09-02, sent 2024-10-06)
+R30 shop 7 (s 0.20, shut weekday 2): climb 2024-09-04 over 34 days: Q caught (dated 2024-09-19, sent 2024-09-23), DW missed
+R30 shop 11 (s 0.22, open daily): climb 2024-08-31 over 47 days: Q missed, DW missed
+R30 shop 15 (s 0.38, shut weekday 4): climb 2024-08-06 over 46 days: Q missed, DW missed
+R30 shop 19 (s 0.27, open daily): climb 2024-09-12 over 38 days: Q caught (dated 2024-09-18, sent 2024-09-22), DW missed
+R30 shop 23 (s 0.44, shut weekday 6): climb 2024-09-18 over 42 days: Q caught (dated 2024-09-14, sent 2024-09-19), DW missed
+R30 shop 27 (s 0.37, open daily): climb 2024-10-04 over 51 days: Q caught (dated 2024-09-30, sent 2024-10-04), DW missed
+R30 shop 31 (s 0.24, shut weekday 5): climb 2024-09-30 over 32 days: Q missed, DW caught (dated 2024-10-14, sent 2024-11-17)
+R30 shop 35 (s 0.23, open daily): climb 2024-08-31 over 42 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R30 shop 39 (s 0.29, open daily): climb 2024-10-25 over 46 days: Q missed, DW missed
+R30 shop 43 (s 0.43, open daily): climb 2024-10-21 over 54 days: Q missed, DW missed
+R30 shop 47 (s 0.37, shut weekday 3): climb 2024-08-29 over 45 days: Q missed, DW missed
+R30 shop 51 (s 0.39, shut weekday 0): climb 2024-08-11 over 44 days: Q caught (dated 2024-09-13, sent 2024-09-17), DW missed
+R30 shop 55 (s 0.24, shut weekday 3): climb 2024-09-02 over 40 days: Q caught (dated 2024-09-25, sent 2024-09-29), DW missed
+R30 shop 59 (s 0.40, shut weekday 3): climb 2024-08-28 over 46 days: Q missed, DW missed
+R30 shop 63 (s 0.29, shut weekday 3): climb 2024-10-09 over 50 days: Q caught (dated 2024-11-02, sent 2024-11-06), DW missed
+R30 shop 67 (s 0.15, open daily): climb 2024-08-06 over 28 days: Q missed, DW caught (dated 2024-08-19, sent 2024-09-22)
+R30 shop 71 (s 0.32, shut weekday 2): climb 2024-10-27 over 50 days: Q caught (dated 2024-12-13, sent 2024-12-17), DW missed
+R30 shop 75 (s 0.38, open daily): climb 2024-07-29 over 28 days: Q caught (dated 2024-08-26, sent 2024-08-30), DW caught (dated 2024-08-19, sent 2024-09-22)
+R30 shop 79 (s 0.45, shut weekday 0): climb 2024-09-17 over 31 days: Q missed, DW missed
+R30 shop 83 (s 0.20, shut weekday 1): climb 2024-09-21 over 33 days: Q missed, DW missed
+R30 shop 87 (s 0.18, open daily): climb 2024-09-12 over 51 days: Q caught (dated 2024-09-30, sent 2024-10-04), DW missed
+R30 shop 91 (s 0.24, shut weekday 3): climb 2024-08-05 over 51 days: Q caught (dated 2024-09-21, sent 2024-09-25), DW missed
+R30 shop 95 (s 0.36, shut weekday 3): climb 2024-07-27 over 30 days: Q caught (dated 2024-07-27, sent 2024-07-31), DW caught (dated 2024-07-22, sent 2024-08-25)
+R30 shop 99 (s 0.27, open daily): climb 2024-10-16 over 32 days: Q caught (dated 2024-11-16, sent 2024-11-20), DW caught (dated 2024-10-28, sent 2024-12-01)
+R30 shop 103 (s 0.27, open daily): climb 2024-08-23 over 37 days: Q caught (dated 2024-08-26, sent 2024-08-30), DW caught (dated 2024-08-26, sent 2024-09-29)
+R30 shop 107 (s 0.19, shut weekday 0): climb 2024-08-13 over 55 days: Q caught (dated 2024-10-03, sent 2024-10-07), DW missed
+R30 shop 111 (s 0.30, open daily): climb 2024-10-11 over 45 days: Q missed, DW missed
+R30 shop 115 (s 0.31, shut weekday 6): climb 2024-10-13 over 48 days: Q missed, DW missed
+R30 shop 119 (s 0.26, open daily): climb 2024-10-15 over 40 days: Q missed, DW missed
+R30 shop 123 (s 0.16, shut weekday 3): climb 2024-10-03 over 47 days: Q caught (dated 2024-10-05, sent 2024-10-09), DW missed
+R30 shop 127 (s 0.38, open daily): climb 2024-09-22 over 46 days: Q caught (dated 2024-10-22, sent 2024-10-27), DW missed
+R30 shop 131 (s 0.37, shut weekday 2): climb 2024-07-31 over 56 days: Q caught (dated 2024-09-04, sent 2024-09-08), DW missed
+R30 shop 135 (s 0.30, open daily): climb 2024-10-02 over 37 days: Q missed, DW caught (dated 2024-10-14, sent 2024-11-17)
+R30 shop 139 (s 0.32, shut weekday 6): climb 2024-09-13 over 43 days: Q caught (dated 2024-10-14, sent 2024-10-18), DW missed
+R30 shop 143 (s 0.26, open daily): climb 2024-08-25 over 52 days: Q missed, DW missed
+R30 shop 147 (s 0.33, shut weekday 1): climb 2024-08-04 over 29 days: Q missed, DW missed
+R90 shop 1 (s 0.32, open daily): climb 2024-09-24 over 39 days: Q caught (dated 2024-09-29, sent 2024-10-03), DW caught (dated 2024-09-23, sent 2024-10-27)
+R90 shop 5 (s 0.15, shut weekday 3): climb 2024-08-21 over 55 days: Q missed, DW caught (dated 2024-08-26, sent 2024-09-29)
+R90 shop 9 (s 0.28, open daily): climb 2024-08-18 over 55 days: Q missed, DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 13 (s 0.16, open daily): climb 2024-09-05 over 32 days: Q caught (dated 2024-09-17, sent 2024-09-21), DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 17 (s 0.20, open daily): climb 2024-09-17 over 50 days: Q caught (dated 2024-10-08, sent 2024-10-12), DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 21 (s 0.17, open daily): climb 2024-09-16 over 35 days: Q missed, DW caught (dated 2024-09-23, sent 2024-10-27)
+R90 shop 25 (s 0.33, shut weekday 1): climb 2024-08-04 over 43 days: Q caught (dated 2024-08-19, sent 2024-08-27), DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 29 (s 0.18, open daily): climb 2024-07-22 over 56 days: Q missed, DW missed
+R90 shop 33 (s 0.38, open daily): climb 2024-09-22 over 34 days: Q caught (dated 2024-09-28, sent 2024-10-04), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 37 (s 0.21, shut weekday 6): climb 2024-10-15 over 44 days: Q caught (dated 2024-11-25, sent 2024-11-29), DW caught (dated 2024-10-28, sent 2024-12-01)
+R90 shop 41 (s 0.32, open daily): climb 2024-07-22 over 48 days: Q missed, DW missed
+R90 shop 45 (s 0.40, open daily): climb 2024-07-30 over 32 days: Q caught (dated 2024-08-20, sent 2024-09-19), DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 49 (s 0.19, shut weekday 0): climb 2024-07-22 over 53 days: Q missed, DW caught (dated 2024-08-05, sent 2024-09-08)
+R90 shop 53 (s 0.27, shut weekday 1): climb 2024-09-16 over 50 days: Q caught (dated 2024-10-28, sent 2024-11-02), DW caught (dated 2024-09-30, sent 2024-11-10)
+R90 shop 57 (s 0.43, open daily): climb 2024-10-22 over 51 days: Q caught (dated 2024-11-09, sent 2024-11-13), DW missed
+R90 shop 61 (s 0.35, shut weekday 1): climb 2024-09-03 over 35 days: Q caught (dated 2024-09-11, sent 2024-09-17), DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 65 (s 0.41, open daily): climb 2024-08-30 over 48 days: Q caught (dated 2024-10-06, sent 2024-10-10), DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 69 (s 0.34, shut weekday 3): climb 2024-09-09 over 37 days: Q caught (dated 2024-09-27, sent 2024-10-02), DW missed
+R90 shop 73 (s 0.32, shut weekday 0): climb 2024-10-08 over 43 days: Q missed, DW caught (dated 2024-10-21, sent 2024-11-24)
+R90 shop 77 (s 0.36, open daily): climb 2024-08-15 over 47 days: Q caught (dated 2024-08-15, sent 2024-08-19), DW caught (dated 2024-08-12, sent 2024-09-29)
+R90 shop 81 (s 0.26, open daily): climb 2024-07-19 over 31 days: Q caught (dated 2024-08-16, sent 2024-08-20), DW missed
+R90 shop 85 (s 0.23, open daily): climb 2024-09-25 over 34 days: Q missed, DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 89 (s 0.20, shut weekday 3): climb 2024-09-26 over 46 days: Q missed, DW caught (dated 2024-10-14, sent 2024-11-17)
+R90 shop 93 (s 0.17, shut weekday 4): climb 2024-07-28 over 45 days: Q caught (dated 2024-08-25, sent 2024-08-29), DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 97 (s 0.30, shut weekday 6): climb 2024-10-22 over 46 days: Q caught (dated 2024-12-02, sent 2024-12-07), DW missed
+R90 shop 101 (s 0.31, shut weekday 3): climb 2024-07-26 over 45 days: Q missed, DW missed
+R90 shop 105 (s 0.35, shut weekday 2): climb 2024-09-12 over 40 days: Q missed, DW missed
+R90 shop 109 (s 0.36, shut weekday 2): climb 2024-08-03 over 31 days: Q caught (dated 2024-08-23, sent 2024-08-27), DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 113 (s 0.15, open daily): climb 2024-10-11 over 43 days: Q caught (dated 2024-10-26, sent 2024-10-30), DW missed
+R90 shop 117 (s 0.33, shut weekday 1): climb 2024-08-29 over 53 days: Q missed, DW missed
+R90 shop 121 (s 0.30, shut weekday 4): climb 2024-10-19 over 42 days: Q caught (dated 2024-11-03, sent 2024-11-07), DW missed
+R90 shop 125 (s 0.29, shut weekday 5): climb 2024-10-26 over 29 days: Q caught (dated 2024-11-18, sent 2024-11-22), DW caught (dated 2024-10-28, sent 2024-12-01)
+R90 shop 129 (s 0.44, open daily): climb 2024-10-10 over 53 days: Q caught (dated 2024-11-15, sent 2024-11-19), DW missed
+R90 shop 133 (s 0.36, shut weekday 0): climb 2024-09-07 over 50 days: Q caught (dated 2024-10-19, sent 2024-10-24), DW missed
+R90 shop 137 (s 0.24, shut weekday 1): climb 2024-10-01 over 53 days: Q caught (dated 2024-10-06, sent 2024-10-10), DW missed
+R90 shop 141 (s 0.31, open daily): climb 2024-10-18 over 48 days: Q missed, DW missed
+R90 shop 145 (s 0.34, shut weekday 4): climb 2024-10-25 over 49 days: Q caught (dated 2024-10-28, sent 2024-11-02), DW caught (dated 2024-10-28, sent 2024-12-01)
+R90 shop 149 (s 0.25, shut weekday 3): climb 2024-08-21 over 55 days: Q caught (dated 2024-09-08, sent 2024-09-12), DW caught (dated 2024-09-02, sent 2024-10-06)
+N shop 2 (s 0.24, open daily): Q 3, DW 1
+N shop 6 (s 0.18, shut weekday 4): Q 3, DW 0
+N shop 10 (s 0.44, shut weekday 2): Q 7, DW 1
+N shop 14 (s 0.27, open daily): Q 4, DW 0
+N shop 18 (s 0.23, open daily): Q 2, DW 1
+N shop 22 (s 0.27, open daily): Q 4, DW 0
+N shop 26 (s 0.39, open daily): Q 2, DW 1
+N shop 30 (s 0.31, open daily): Q 0, DW 0
+N shop 34 (s 0.26, open daily): Q 3, DW 0
+N shop 38 (s 0.17, open daily): Q 5, DW 0
+N shop 42 (s 0.18, open daily): Q 4, DW 1
+N shop 46 (s 0.29, open daily): Q 3, DW 2
+N shop 50 (s 0.44, shut weekday 1): Q 7, DW 0
+N shop 54 (s 0.27, open daily): Q 1, DW 0
+N shop 58 (s 0.39, shut weekday 3): Q 3, DW 0
+N shop 62 (s 0.44, open daily): Q 3, DW 0
+N shop 66 (s 0.23, open daily): Q 2, DW 0
+N shop 70 (s 0.43, shut weekday 3): Q 0, DW 1
+N shop 74 (s 0.29, shut weekday 0): Q 2, DW 0
+N shop 78 (s 0.16, open daily): Q 5, DW 1
+N shop 82 (s 0.38, shut weekday 3): Q 2, DW 0
+N shop 86 (s 0.28, open daily): Q 0, DW 0
+N shop 90 (s 0.17, open daily): Q 3, DW 0
+N shop 94 (s 0.26, open daily): Q 0, DW 0
+N shop 98 (s 0.19, open daily): Q 1, DW 0
+N shop 102 (s 0.40, open daily): Q 3, DW 0
+N shop 106 (s 0.16, open daily): Q 3, DW 0
+N shop 110 (s 0.28, open daily): Q 5, DW 1
+N shop 114 (s 0.24, shut weekday 5): Q 4, DW 0
+N shop 118 (s 0.39, open daily): Q 2, DW 0
+N shop 122 (s 0.28, shut weekday 5): Q 3, DW 0
+N shop 126 (s 0.39, shut weekday 1): Q 4, DW 0
+N shop 130 (s 0.16, open daily): Q 3, DW 0
+N shop 134 (s 0.18, shut weekday 4): Q 3, DW 0
+N shop 138 (s 0.35, shut weekday 2): Q 8, DW 2
+N shop 142 (s 0.23, shut weekday 5): Q 1, DW 0
+N shop 146 (s 0.28, shut weekday 2): Q 1, DW 0
+N shop 150 (s 0.41, open daily): Q 1, DW 1
+R30 shop 4 (s 0.32, shut weekday 2): climb 2024-09-20 over 48 days: Q missed, DW missed
+R30 shop 8 (s 0.24, open daily): climb 2024-10-15 over 42 days: Q missed, DW missed
+R30 shop 12 (s 0.24, open daily): climb 2024-07-20 over 56 days: Q missed, DW missed
+R30 shop 16 (s 0.18, shut weekday 4): climb 2024-07-29 over 51 days: Q caught (dated 2024-08-18, sent 2024-08-22), DW missed
+R30 shop 20 (s 0.42, open daily): climb 2024-08-26 over 45 days: Q missed, DW missed
+R30 shop 24 (s 0.45, shut weekday 3): climb 2024-10-14 over 32 days: Q missed, DW missed
+R30 shop 28 (s 0.30, shut weekday 2): climb 2024-07-24 over 45 days: Q caught (dated 2024-08-20, sent 2024-08-24), DW missed
+R30 shop 32 (s 0.37, shut weekday 1): climb 2024-08-26 over 49 days: Q missed, DW missed
+R30 shop 36 (s 0.28, open daily): climb 2024-10-11 over 29 days: Q missed, DW missed
+R30 shop 40 (s 0.20, open daily): climb 2024-07-31 over 45 days: Q caught (dated 2024-08-07, sent 2024-08-11), DW caught (dated 2024-08-05, sent 2024-09-08)
+R30 shop 44 (s 0.32, shut weekday 3): climb 2024-08-20 over 53 days: Q missed, DW missed
+R30 shop 48 (s 0.21, open daily): climb 2024-07-22 over 35 days: Q caught (dated 2024-08-07, sent 2024-08-11), DW caught (dated 2024-08-05, sent 2024-09-15)
+R30 shop 52 (s 0.34, open daily): climb 2024-10-14 over 38 days: Q missed, DW missed
+R30 shop 56 (s 0.26, open daily): climb 2024-08-31 over 51 days: Q caught (dated 2024-08-27, sent 2024-09-28), DW missed
+R30 shop 60 (s 0.26, open daily): climb 2024-10-13 over 40 days: Q missed, DW caught (dated 2024-11-04, sent 2024-12-08)
+R30 shop 64 (s 0.25, shut weekday 1): climb 2024-08-21 over 36 days: Q missed, DW missed
+R30 shop 68 (s 0.16, open daily): climb 2024-08-03 over 49 days: Q missed, DW missed
+R30 shop 72 (s 0.31, shut weekday 1): climb 2024-08-24 over 55 days: Q caught (dated 2024-08-29, sent 2024-09-02), DW missed
+R30 shop 76 (s 0.33, shut weekday 5): climb 2024-09-21 over 29 days: Q missed, DW caught (dated 2024-10-07, sent 2024-11-10)
+R30 shop 80 (s 0.36, open daily): climb 2024-09-19 over 37 days: Q caught (dated 2024-10-11, sent 2024-10-15), DW missed
+R30 shop 84 (s 0.27, open daily): climb 2024-08-12 over 41 days: Q caught (dated 2024-08-21, sent 2024-08-25), DW missed
+R30 shop 88 (s 0.19, open daily): climb 2024-10-10 over 47 days: Q missed, DW caught (dated 2024-10-28, sent 2024-12-01)
+R30 shop 92 (s 0.29, open daily): climb 2024-09-18 over 40 days: Q missed, DW missed
+R30 shop 96 (s 0.39, shut weekday 6): climb 2024-08-01 over 55 days: Q caught (dated 2024-08-16, sent 2024-08-20), DW missed
+R30 shop 100 (s 0.22, open daily): climb 2024-09-09 over 40 days: Q missed, DW missed
+R30 shop 104 (s 0.29, shut weekday 3): climb 2024-08-10 over 43 days: Q missed, DW caught (dated 2024-08-26, sent 2024-09-29)
+R30 shop 108 (s 0.43, open daily): climb 2024-10-06 over 49 days: Q caught (dated 2024-10-20, sent 2024-10-24), DW missed
+R30 shop 112 (s 0.39, open daily): climb 2024-07-21 over 49 days: Q caught (dated 2024-07-23, sent 2024-07-27), DW caught (dated 2024-07-22, sent 2024-08-25)
+R30 shop 116 (s 0.23, open daily): climb 2024-09-02 over 30 days: Q missed, DW missed
+R30 shop 120 (s 0.20, open daily): climb 2024-07-26 over 37 days: Q caught (dated 2024-08-30, sent 2024-09-06), DW missed
+R30 shop 124 (s 0.43, shut weekday 5): climb 2024-09-02 over 48 days: Q missed, DW missed
+R30 shop 128 (s 0.20, open daily): climb 2024-08-22 over 51 days: Q missed, DW missed
+R30 shop 132 (s 0.37, shut weekday 1): climb 2024-09-13 over 52 days: Q caught (dated 2024-10-03, sent 2024-10-07), DW missed
+R30 shop 136 (s 0.29, open daily): climb 2024-10-15 over 49 days: Q missed, DW missed
+R30 shop 140 (s 0.16, shut weekday 5): climb 2024-07-25 over 41 days: Q missed, DW caught (dated 2024-08-12, sent 2024-09-15)
+R30 shop 144 (s 0.33, open daily): climb 2024-08-06 over 32 days: Q missed, DW missed
+R30 shop 148 (s 0.41, open daily): climb 2024-07-19 over 53 days: Q missed, DW missed
+R90 shop 2 (s 0.28, shut weekday 6): climb 2024-08-25 over 47 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 6 (s 0.16, shut weekday 1): climb 2024-08-23 over 55 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 10 (s 0.18, shut weekday 5): climb 2024-07-21 over 40 days: Q caught (dated 2024-07-29, sent 2024-08-02), DW caught (dated 2024-07-29, sent 2024-09-01)
+R90 shop 14 (s 0.43, open daily): climb 2024-10-12 over 36 days: Q missed, DW missed
+R90 shop 18 (s 0.41, shut weekday 1): climb 2024-09-26 over 54 days: Q missed, DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 22 (s 0.26, shut weekday 3): climb 2024-08-31 over 49 days: Q caught (dated 2024-09-13, sent 2024-09-17), DW missed
+R90 shop 26 (s 0.31, open daily): climb 2024-08-11 over 30 days: Q caught (dated 2024-09-01, sent 2024-09-06), DW caught (dated 2024-08-26, sent 2024-09-29)
+R90 shop 30 (s 0.41, open daily): climb 2024-10-25 over 52 days: Q missed, DW missed
+R90 shop 34 (s 0.16, open daily): climb 2024-09-28 over 49 days: Q caught (dated 2024-10-06, sent 2024-10-10), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 38 (s 0.17, open daily): climb 2024-10-03 over 31 days: Q caught (dated 2024-10-21, sent 2024-10-27), DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 42 (s 0.17, shut weekday 1): climb 2024-08-03 over 40 days: Q missed, DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 46 (s 0.19, shut weekday 6): climb 2024-07-22 over 52 days: Q caught (dated 2024-08-05, sent 2024-08-28), DW caught (dated 2024-08-05, sent 2024-09-08)
+R90 shop 50 (s 0.44, open daily): climb 2024-09-23 over 30 days: Q caught (dated 2024-10-03, sent 2024-10-07), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 54 (s 0.16, shut weekday 0): climb 2024-09-25 over 36 days: Q caught (dated 2024-10-04, sent 2024-10-08), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 58 (s 0.16, open daily): climb 2024-09-04 over 28 days: Q caught (dated 2024-09-19, sent 2024-09-25), DW missed
+R90 shop 62 (s 0.41, open daily): climb 2024-10-27 over 31 days: Q missed, DW missed
+R90 shop 66 (s 0.24, shut weekday 0): climb 2024-09-26 over 39 days: Q caught (dated 2024-10-05, sent 2024-10-09), DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 70 (s 0.40, open daily): climb 2024-10-01 over 33 days: Q caught (dated 2024-10-18, sent 2024-10-22), DW caught (dated 2024-10-14, sent 2024-11-17)
+R90 shop 74 (s 0.23, open daily): climb 2024-08-17 over 35 days: Q missed, DW caught (dated 2024-08-26, sent 2024-09-29)
+R90 shop 78 (s 0.31, open daily): climb 2024-08-26 over 29 days: Q caught (dated 2024-09-13, sent 2024-09-17), DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 82 (s 0.36, open daily): climb 2024-08-04 over 28 days: Q missed, DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 86 (s 0.36, shut weekday 5): climb 2024-10-11 over 54 days: Q missed, DW missed
+R90 shop 90 (s 0.43, shut weekday 0): climb 2024-10-06 over 34 days: Q missed, DW missed
+R90 shop 94 (s 0.35, shut weekday 2): climb 2024-09-08 over 29 days: Q caught (dated 2024-09-20, sent 2024-09-24), DW caught (dated 2024-09-23, sent 2024-10-27)
+R90 shop 98 (s 0.37, shut weekday 5): climb 2024-10-13 over 35 days: Q missed, DW caught (dated 2024-10-28, sent 2024-12-01)
+R90 shop 102 (s 0.27, open daily): climb 2024-10-01 over 32 days: Q missed, DW missed
+R90 shop 106 (s 0.28, open daily): climb 2024-08-25 over 38 days: Q caught (dated 2024-09-04, sent 2024-09-08), DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 110 (s 0.19, open daily): climb 2024-08-27 over 54 days: Q caught (dated 2024-08-27, sent 2024-08-31), DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 114 (s 0.35, shut weekday 3): climb 2024-10-20 over 34 days: Q missed, DW caught (dated 2024-11-04, sent 2024-12-08)
+R90 shop 118 (s 0.41, open daily): climb 2024-07-28 over 35 days: Q caught (dated 2024-07-30, sent 2024-08-03), DW caught (dated 2024-07-29, sent 2024-09-01)
+R90 shop 122 (s 0.39, open daily): climb 2024-09-13 over 38 days: Q caught (dated 2024-09-27, sent 2024-10-01), DW caught (dated 2024-09-23, sent 2024-10-27)
+R90 shop 126 (s 0.20, open daily): climb 2024-09-02 over 41 days: Q missed, DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 130 (s 0.33, open daily): climb 2024-10-25 over 30 days: Q missed, DW caught (dated 2024-10-21, sent 2024-11-24)
+R90 shop 134 (s 0.23, open daily): climb 2024-07-29 over 40 days: Q caught (dated 2024-09-01, sent 2024-09-05), DW missed
+R90 shop 138 (s 0.29, open daily): climb 2024-10-24 over 28 days: Q caught (dated 2024-11-11, sent 2024-11-16), DW caught (dated 2024-11-11, sent 2024-12-15)
+R90 shop 142 (s 0.31, shut weekday 4): climb 2024-09-03 over 41 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 146 (s 0.42, open daily): climb 2024-08-02 over 52 days: Q caught (dated 2024-08-15, sent 2024-08-19), DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 150 (s 0.20, shut weekday 0): climb 2024-09-12 over 50 days: Q caught (dated 2024-09-28, sent 2024-10-04), DW missed
+N shop 3 (s 0.16, shut weekday 2): Q 3, DW 0
+N shop 7 (s 0.45, shut weekday 3): Q 3, DW 0
+N shop 11 (s 0.38, open daily): Q 3, DW 0
+N shop 15 (s 0.17, shut weekday 5): Q 4, DW 0
+N shop 19 (s 0.28, open daily): Q 1, DW 0
+N shop 23 (s 0.38, shut weekday 3): Q 1, DW 0
+N shop 27 (s 0.36, shut weekday 4): Q 5, DW 0
+N shop 31 (s 0.42, open daily): Q 3, DW 0
+N shop 35 (s 0.26, shut weekday 6): Q 2, DW 0
+N shop 39 (s 0.21, open daily): Q 1, DW 0
+N shop 43 (s 0.21, open daily): Q 1, DW 0
+N shop 47 (s 0.42, open daily): Q 2, DW 0
+N shop 51 (s 0.27, open daily): Q 1, DW 0
+N shop 55 (s 0.33, shut weekday 4): Q 3, DW 3
+N shop 59 (s 0.30, open daily): Q 3, DW 1
+N shop 63 (s 0.20, shut weekday 6): Q 5, DW 2
+N shop 67 (s 0.30, shut weekday 0): Q 2, DW 0
+N shop 71 (s 0.35, open daily): Q 2, DW 0
+N shop 75 (s 0.18, open daily): Q 2, DW 0
+N shop 79 (s 0.30, open daily): Q 2, DW 0
+N shop 83 (s 0.27, shut weekday 0): Q 3, DW 0
+N shop 87 (s 0.20, shut weekday 5): Q 3, DW 0
+N shop 91 (s 0.44, shut weekday 4): Q 4, DW 2
+N shop 95 (s 0.29, open daily): Q 0, DW 0
+N shop 99 (s 0.16, open daily): Q 5, DW 1
+N shop 103 (s 0.45, shut weekday 0): Q 3, DW 0
+N shop 107 (s 0.23, shut weekday 1): Q 2, DW 0
+N shop 111 (s 0.25, shut weekday 2): Q 2, DW 1
+N shop 115 (s 0.21, shut weekday 4): Q 2, DW 0
+N shop 119 (s 0.24, shut weekday 2): Q 3, DW 0
+N shop 123 (s 0.24, open daily): Q 2, DW 1
+N shop 127 (s 0.20, open daily): Q 2, DW 0
+N shop 131 (s 0.29, open daily): Q 3, DW 0
+N shop 135 (s 0.40, shut weekday 4): Q 3, DW 2
+N shop 139 (s 0.16, open daily): Q 4, DW 0
+N shop 143 (s 0.17, shut weekday 0): Q 5, DW 0
+N shop 147 (s 0.23, shut weekday 2): Q 3, DW 0
+R30 shop 1 (s 0.31, shut weekday 4): climb 2024-08-14 over 54 days: Q caught (dated 2024-08-25, sent 2024-08-30), DW missed
+R30 shop 5 (s 0.34, shut weekday 1): climb 2024-07-25 over 44 days: Q missed, DW missed
+R30 shop 9 (s 0.41, open daily): climb 2024-09-16 over 32 days: Q caught (dated 2024-10-17, sent 2024-10-21), DW missed
+R30 shop 13 (s 0.23, open daily): climb 2024-08-03 over 33 days: Q missed, DW caught (dated 2024-08-05, sent 2024-09-08)
+R30 shop 17 (s 0.39, open daily): climb 2024-09-05 over 38 days: Q missed, DW missed
+R30 shop 21 (s 0.16, open daily): climb 2024-07-31 over 29 days: Q caught (dated 2024-08-19, sent 2024-08-25), DW caught (dated 2024-08-05, sent 2024-09-15)
+R30 shop 25 (s 0.31, open daily): climb 2024-09-28 over 41 days: Q caught (dated 2024-11-05, sent 2024-11-10), DW missed
+R30 shop 29 (s 0.30, open daily): climb 2024-10-06 over 41 days: Q missed, DW caught (dated 2024-10-28, sent 2024-12-01)
+R30 shop 33 (s 0.15, shut weekday 4): climb 2024-09-25 over 49 days: Q missed, DW caught (dated 2024-09-30, sent 2024-11-03)
+R30 shop 37 (s 0.27, shut weekday 1): climb 2024-07-22 over 28 days: Q caught (dated 2024-08-04, sent 2024-08-08), DW missed
+R30 shop 41 (s 0.43, shut weekday 2): climb 2024-09-18 over 39 days: Q caught (dated 2024-09-29, sent 2024-10-03), DW missed
+R30 shop 45 (s 0.22, shut weekday 2): climb 2024-08-02 over 28 days: Q missed, DW missed
+R30 shop 49 (s 0.35, shut weekday 2): climb 2024-09-18 over 46 days: Q missed, DW missed
+R30 shop 53 (s 0.33, shut weekday 1): climb 2024-09-19 over 53 days: Q missed, DW missed
+R30 shop 57 (s 0.21, shut weekday 4): climb 2024-08-07 over 54 days: Q missed, DW caught (dated 2024-08-26, sent 2024-09-29)
+R30 shop 61 (s 0.35, shut weekday 2): climb 2024-09-26 over 32 days: Q missed, DW missed
+R30 shop 65 (s 0.42, open daily): climb 2024-10-23 over 48 days: Q missed, DW missed
+R30 shop 69 (s 0.17, shut weekday 5): climb 2024-09-17 over 49 days: Q missed, DW missed
+R30 shop 73 (s 0.26, open daily): climb 2024-08-20 over 46 days: Q missed, DW caught (dated 2024-08-26, sent 2024-09-29)
+R30 shop 77 (s 0.35, open daily): climb 2024-09-21 over 54 days: Q missed, DW missed
+R30 shop 81 (s 0.17, open daily): climb 2024-08-25 over 29 days: Q caught (dated 2024-09-17, sent 2024-09-22), DW caught (dated 2024-09-16, sent 2024-10-20)
+R30 shop 85 (s 0.21, open daily): climb 2024-10-01 over 44 days: Q missed, DW missed
+R30 shop 89 (s 0.44, open daily): climb 2024-10-26 over 39 days: Q missed, DW missed
+R30 shop 93 (s 0.24, shut weekday 4): climb 2024-10-23 over 40 days: Q caught (dated 2024-10-29, sent 2024-11-02), DW missed
+R30 shop 97 (s 0.28, open daily): climb 2024-08-19 over 40 days: Q caught (dated 2024-08-23, sent 2024-08-28), DW missed
+R30 shop 101 (s 0.38, shut weekday 2): climb 2024-08-09 over 45 days: Q missed, DW missed
+R30 shop 105 (s 0.23, shut weekday 2): climb 2024-07-28 over 33 days: Q missed, DW missed
+R30 shop 109 (s 0.43, open daily): climb 2024-10-15 over 29 days: Q missed, DW caught (dated 2024-11-04, sent 2024-12-08)
+R30 shop 113 (s 0.38, open daily): climb 2024-10-09 over 38 days: Q missed, DW missed
+R30 shop 117 (s 0.22, open daily): climb 2024-08-13 over 42 days: Q caught (dated 2024-08-15, sent 2024-08-19), DW missed
+R30 shop 121 (s 0.27, shut weekday 4): climb 2024-08-20 over 43 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R30 shop 125 (s 0.45, shut weekday 1): climb 2024-10-12 over 49 days: Q missed, DW missed
+R30 shop 129 (s 0.29, open daily): climb 2024-09-23 over 48 days: Q caught (dated 2024-09-29, sent 2024-10-03), DW missed
+R30 shop 133 (s 0.17, open daily): climb 2024-09-17 over 53 days: Q missed, DW missed
+R30 shop 137 (s 0.42, shut weekday 0): climb 2024-09-15 over 36 days: Q caught (dated 2024-10-18, sent 2024-10-22), DW missed
+R30 shop 141 (s 0.19, shut weekday 6): climb 2024-09-06 over 33 days: Q caught (dated 2024-10-01, sent 2024-10-05), DW missed
+R30 shop 145 (s 0.27, shut weekday 4): climb 2024-08-28 over 43 days: Q missed, DW missed
+R30 shop 149 (s 0.38, shut weekday 0): climb 2024-08-19 over 30 days: Q missed, DW caught (dated 2024-08-26, sent 2024-10-13)
+R90 shop 3 (s 0.25, open daily): climb 2024-09-03 over 51 days: Q caught (dated 2024-10-06, sent 2024-10-10), DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 7 (s 0.21, open daily): climb 2024-08-04 over 43 days: Q caught (dated 2024-08-04, sent 2024-08-09), DW caught (dated 2024-08-05, sent 2024-09-08)
+R90 shop 11 (s 0.33, open daily): climb 2024-09-23 over 53 days: Q caught (dated 2024-10-06, sent 2024-10-10), DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 15 (s 0.44, open daily): climb 2024-08-24 over 41 days: Q caught (dated 2024-09-28, sent 2024-10-02), DW missed
+R90 shop 19 (s 0.26, shut weekday 5): climb 2024-09-25 over 46 days: Q missed, DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 23 (s 0.41, shut weekday 5): climb 2024-10-25 over 48 days: Q caught (dated 2024-11-07, sent 2024-11-11), DW caught (dated 2024-11-04, sent 2024-12-08)
+R90 shop 27 (s 0.40, open daily): climb 2024-09-24 over 32 days: Q caught (dated 2024-10-24, sent 2024-10-29), DW missed
+R90 shop 31 (s 0.38, open daily): climb 2024-10-27 over 38 days: Q caught (dated 2024-11-07, sent 2024-11-13), DW caught (dated 2024-10-28, sent 2024-12-08)
+R90 shop 35 (s 0.31, open daily): climb 2024-09-11 over 31 days: Q missed, DW caught (dated 2024-09-23, sent 2024-10-27)
+R90 shop 39 (s 0.37, shut weekday 4): climb 2024-10-05 over 53 days: Q missed, DW missed
+R90 shop 43 (s 0.41, open daily): climb 2024-08-01 over 29 days: Q caught (dated 2024-08-11, sent 2024-08-16), DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 47 (s 0.19, open daily): climb 2024-08-09 over 39 days: Q missed, DW caught (dated 2024-08-19, sent 2024-09-29)
+R90 shop 51 (s 0.25, open daily): climb 2024-09-30 over 42 days: Q missed, DW caught (dated 2024-10-21, sent 2024-11-24)
+R90 shop 55 (s 0.24, open daily): climb 2024-07-25 over 34 days: Q caught (dated 2024-08-19, sent 2024-08-23), DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 59 (s 0.26, shut weekday 0): climb 2024-09-22 over 29 days: Q missed, DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 63 (s 0.36, shut weekday 4): climb 2024-08-05 over 50 days: Q caught (dated 2024-08-21, sent 2024-08-25), DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 67 (s 0.36, open daily): climb 2024-10-01 over 40 days: Q caught (dated 2024-10-28, sent 2024-11-01), DW missed
+R90 shop 71 (s 0.15, shut weekday 6): climb 2024-08-24 over 31 days: Q caught (dated 2024-08-31, sent 2024-09-05), DW caught (dated 2024-09-02, sent 2024-10-06)
+R90 shop 75 (s 0.44, shut weekday 5): climb 2024-10-14 over 30 days: Q missed, DW caught (dated 2024-10-28, sent 2024-12-01)
+R90 shop 79 (s 0.30, shut weekday 1): climb 2024-10-04 over 46 days: Q caught (dated 2024-10-11, sent 2024-10-17), DW caught (dated 2024-10-14, sent 2024-11-17)
+R90 shop 83 (s 0.16, open daily): climb 2024-09-20 over 44 days: Q caught (dated 2024-10-04, sent 2024-10-10), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 87 (s 0.45, open daily): climb 2024-08-09 over 48 days: Q caught (dated 2024-09-11, sent 2024-09-15), DW caught (dated 2024-08-26, sent 2024-09-29)
+R90 shop 91 (s 0.29, shut weekday 1): climb 2024-08-26 over 31 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 95 (s 0.32, open daily): climb 2024-08-30 over 47 days: Q caught (dated 2024-10-10, sent 2024-10-14), DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 99 (s 0.16, shut weekday 3): climb 2024-08-12 over 30 days: Q caught (dated 2024-08-16, sent 2024-08-30), DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 103 (s 0.45, open daily): climb 2024-08-27 over 52 days: Q missed, DW missed
+R90 shop 107 (s 0.15, open daily): climb 2024-09-12 over 48 days: Q caught (dated 2024-09-23, sent 2024-09-27), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 111 (s 0.44, open daily): climb 2024-09-28 over 56 days: Q caught (dated 2024-11-07, sent 2024-11-12), DW missed
+R90 shop 115 (s 0.26, shut weekday 2): climb 2024-09-16 over 34 days: Q missed, DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 119 (s 0.18, open daily): climb 2024-08-19 over 30 days: Q missed, DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 123 (s 0.44, shut weekday 2): climb 2024-10-07 over 53 days: Q caught (dated 2024-10-26, sent 2024-10-30), DW missed
+R90 shop 127 (s 0.15, shut weekday 0): climb 2024-07-19 over 49 days: Q caught (dated 2024-08-13, sent 2024-08-19), DW missed
+R90 shop 131 (s 0.38, open daily): climb 2024-10-04 over 45 days: Q caught (dated 2024-10-24, sent 2024-10-28), DW caught (dated 2024-10-21, sent 2024-11-24)
+R90 shop 135 (s 0.25, shut weekday 6): climb 2024-08-28 over 54 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 139 (s 0.17, open daily): climb 2024-08-30 over 31 days: Q caught (dated 2024-09-05, sent 2024-09-09), DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 143 (s 0.41, open daily): climb 2024-09-14 over 32 days: Q missed, DW missed
+R90 shop 147 (s 0.35, shut weekday 4): climb 2024-09-21 over 50 days: Q caught (dated 2024-10-01, sent 2024-10-05), DW caught (dated 2024-09-30, sent 2024-11-03)
+N shop 4 (s 0.18, shut weekday 0): Q 6, DW 0
+N shop 8 (s 0.23, shut weekday 2): Q 4, DW 0
+N shop 12 (s 0.27, shut weekday 0): Q 3, DW 0
+N shop 16 (s 0.15, shut weekday 4): Q 4, DW 0
+N shop 20 (s 0.42, shut weekday 3): Q 1, DW 0
+N shop 24 (s 0.39, open daily): Q 2, DW 1
+N shop 28 (s 0.19, open daily): Q 3, DW 0
+N shop 32 (s 0.29, open daily): Q 3, DW 1
+N shop 36 (s 0.38, shut weekday 6): Q 3, DW 0
+N shop 40 (s 0.22, shut weekday 5): Q 4, DW 0
+N shop 44 (s 0.28, open daily): Q 2, DW 1
+N shop 48 (s 0.20, shut weekday 2): Q 3, DW 1
+N shop 52 (s 0.25, shut weekday 6): Q 2, DW 1
+N shop 56 (s 0.33, open daily): Q 1, DW 0
+N shop 60 (s 0.37, shut weekday 5): Q 5, DW 0
+N shop 64 (s 0.18, shut weekday 6): Q 1, DW 0
+N shop 68 (s 0.23, shut weekday 1): Q 2, DW 1
+N shop 72 (s 0.21, open daily): Q 2, DW 0
+N shop 76 (s 0.38, open daily): Q 2, DW 0
+N shop 80 (s 0.33, shut weekday 6): Q 0, DW 0
+N shop 84 (s 0.43, open daily): Q 4, DW 0
+N shop 88 (s 0.24, open daily): Q 2, DW 1
+N shop 92 (s 0.17, open daily): Q 4, DW 0
+N shop 96 (s 0.39, shut weekday 1): Q 5, DW 0
+N shop 100 (s 0.18, open daily): Q 1, DW 1
+N shop 104 (s 0.27, open daily): Q 1, DW 0
+N shop 108 (s 0.45, open daily): Q 4, DW 1
+N shop 112 (s 0.24, open daily): Q 2, DW 0
+N shop 116 (s 0.33, open daily): Q 2, DW 0
+N shop 120 (s 0.43, open daily): Q 2, DW 0
+N shop 124 (s 0.25, open daily): Q 2, DW 0
+N shop 128 (s 0.24, shut weekday 5): Q 2, DW 0
+N shop 132 (s 0.28, shut weekday 1): Q 1, DW 0
+N shop 136 (s 0.43, open daily): Q 4, DW 2
+N shop 140 (s 0.41, shut weekday 2): Q 3, DW 0
+N shop 144 (s 0.27, open daily): Q 4, DW 0
+N shop 148 (s 0.23, shut weekday 2): Q 1, DW 1
+R30 shop 2 (s 0.28, shut weekday 3): climb 2024-09-08 over 31 days: Q missed, DW missed
+R30 shop 6 (s 0.18, open daily): climb 2024-08-19 over 39 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R30 shop 10 (s 0.30, open daily): climb 2024-10-10 over 48 days: Q caught (dated 2024-11-06, sent 2024-11-10), DW missed
+R30 shop 14 (s 0.20, shut weekday 6): climb 2024-08-10 over 56 days: Q missed, DW missed
+R30 shop 18 (s 0.42, shut weekday 3): climb 2024-08-20 over 36 days: Q caught (dated 2024-09-04, sent 2024-09-08), DW caught (dated 2024-09-02, sent 2024-10-06)
+R30 shop 22 (s 0.19, open daily): climb 2024-09-04 over 53 days: Q caught (dated 2024-10-16, sent 2024-10-20), DW missed
+R30 shop 26 (s 0.37, open daily): climb 2024-10-20 over 39 days: Q missed, DW missed
+R30 shop 30 (s 0.29, shut weekday 4): climb 2024-10-02 over 44 days: Q caught (dated 2024-10-07, sent 2024-10-12), DW missed
+R30 shop 34 (s 0.34, shut weekday 5): climb 2024-08-26 over 50 days: Q missed, DW missed
+R30 shop 38 (s 0.36, open daily): climb 2024-09-07 over 43 days: Q missed, DW caught (dated 2024-09-16, sent 2024-10-20)
+R30 shop 42 (s 0.36, open daily): climb 2024-10-23 over 33 days: Q caught (dated 2024-11-25, sent 2024-11-29), DW missed
+R30 shop 46 (s 0.24, shut weekday 1): climb 2024-08-14 over 53 days: Q caught (dated 2024-08-11, sent 2024-08-15), DW caught (dated 2024-08-26, sent 2024-10-06)
+R30 shop 50 (s 0.44, open daily): climb 2024-08-23 over 31 days: Q caught (dated 2024-08-21, sent 2024-08-25), DW caught (dated 2024-08-19, sent 2024-09-22)
+R30 shop 54 (s 0.42, shut weekday 4): climb 2024-10-02 over 55 days: Q caught (dated 2024-10-22, sent 2024-10-26), DW caught (dated 2024-10-07, sent 2024-11-10)
+R30 shop 58 (s 0.16, open daily): climb 2024-08-08 over 46 days: Q missed, DW caught (dated 2024-08-26, sent 2024-09-29)
+R30 shop 62 (s 0.35, shut weekday 2): climb 2024-10-07 over 51 days: Q missed, DW missed
+R30 shop 66 (s 0.39, open daily): climb 2024-09-14 over 38 days: Q missed, DW missed
+R30 shop 70 (s 0.29, open daily): climb 2024-07-26 over 50 days: Q caught (dated 2024-08-25, sent 2024-08-30), DW missed
+R30 shop 74 (s 0.30, shut weekday 3): climb 2024-10-25 over 43 days: Q missed, DW missed
+R30 shop 78 (s 0.41, shut weekday 5): climb 2024-09-21 over 34 days: Q missed, DW missed
+R30 shop 82 (s 0.42, open daily): climb 2024-08-08 over 56 days: Q caught (dated 2024-08-07, sent 2024-08-11), DW missed
+R30 shop 86 (s 0.33, open daily): climb 2024-08-10 over 56 days: Q caught (dated 2024-09-06, sent 2024-09-10), DW missed
+R30 shop 90 (s 0.24, open daily): climb 2024-10-16 over 31 days: Q missed, DW caught (dated 2024-10-28, sent 2024-12-08)
+R30 shop 94 (s 0.33, open daily): climb 2024-09-22 over 56 days: Q caught (dated 2024-10-24, sent 2024-10-28), DW missed
+R30 shop 98 (s 0.39, open daily): climb 2024-08-15 over 35 days: Q missed, DW missed
+R30 shop 102 (s 0.28, shut weekday 3): climb 2024-08-21 over 34 days: Q caught (dated 2024-09-07, sent 2024-09-11), DW caught (dated 2024-09-09, sent 2024-10-13)
+R30 shop 106 (s 0.39, shut weekday 6): climb 2024-10-19 over 33 days: Q missed, DW missed
+R30 shop 110 (s 0.30, shut weekday 1): climb 2024-09-20 over 41 days: Q missed, DW missed
+R30 shop 114 (s 0.19, open daily): climb 2024-09-24 over 41 days: Q caught (dated 2024-10-16, sent 2024-10-21), DW missed
+R30 shop 118 (s 0.43, shut weekday 4): climb 2024-09-20 over 32 days: Q missed, DW missed
+R30 shop 122 (s 0.44, shut weekday 3): climb 2024-08-14 over 29 days: Q missed, DW missed
+R30 shop 126 (s 0.41, open daily): climb 2024-09-22 over 42 days: Q caught (dated 2024-10-13, sent 2024-10-17), DW missed
+R30 shop 130 (s 0.23, shut weekday 0): climb 2024-08-12 over 52 days: Q missed, DW missed
+R30 shop 134 (s 0.21, open daily): climb 2024-10-11 over 40 days: Q caught (dated 2024-10-26, sent 2024-10-30), DW missed
+R30 shop 138 (s 0.40, shut weekday 3): climb 2024-09-26 over 38 days: Q caught (dated 2024-10-26, sent 2024-10-30), DW missed
+R30 shop 142 (s 0.22, shut weekday 2): climb 2024-07-27 over 50 days: Q caught (dated 2024-07-30, sent 2024-08-05), DW missed
+R30 shop 146 (s 0.31, shut weekday 0): climb 2024-08-28 over 36 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R30 shop 150 (s 0.41, shut weekday 3): climb 2024-10-26 over 49 days: Q caught (dated 2024-11-03, sent 2024-11-07), DW missed
+R90 shop 4 (s 0.40, open daily): climb 2024-09-19 over 33 days: Q caught (dated 2024-09-30, sent 2024-10-04), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 8 (s 0.27, open daily): climb 2024-08-17 over 53 days: Q caught (dated 2024-08-30, sent 2024-09-05), DW caught (dated 2024-09-02, sent 2024-10-06)
+R90 shop 12 (s 0.40, open daily): climb 2024-07-28 over 29 days: Q missed, DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 16 (s 0.44, open daily): climb 2024-07-22 over 50 days: Q caught (dated 2024-08-13, sent 2024-08-17), DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 20 (s 0.26, shut weekday 2): climb 2024-10-07 over 52 days: Q caught (dated 2024-11-25, sent 2024-11-29), DW caught (dated 2024-10-21, sent 2024-11-24)
+R90 shop 24 (s 0.28, shut weekday 3): climb 2024-07-28 over 49 days: Q caught (dated 2024-08-30, sent 2024-09-04), DW missed
+R90 shop 28 (s 0.29, shut weekday 3): climb 2024-09-15 over 46 days: Q missed, DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 32 (s 0.28, open daily): climb 2024-08-04 over 55 days: Q caught (dated 2024-08-21, sent 2024-08-26), DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 36 (s 0.29, shut weekday 4): climb 2024-09-07 over 43 days: Q caught (dated 2024-10-06, sent 2024-10-10), DW caught (dated 2024-09-23, sent 2024-10-27)
+R90 shop 40 (s 0.45, open daily): climb 2024-10-18 over 38 days: Q caught (dated 2024-11-06, sent 2024-11-10), DW caught (dated 2024-11-04, sent 2024-12-08)
+R90 shop 44 (s 0.43, shut weekday 3): climb 2024-08-26 over 39 days: Q missed, DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 48 (s 0.35, open daily): climb 2024-08-13 over 41 days: Q missed, DW missed
+R90 shop 52 (s 0.26, open daily): climb 2024-07-28 over 56 days: Q caught (dated 2024-08-13, sent 2024-08-17), DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 56 (s 0.38, shut weekday 6): climb 2024-09-24 over 51 days: Q missed, DW missed
+R90 shop 60 (s 0.39, open daily): climb 2024-08-29 over 32 days: Q caught (dated 2024-08-27, sent 2024-08-31), DW caught (dated 2024-08-26, sent 2024-09-29)
+R90 shop 64 (s 0.20, open daily): climb 2024-10-12 over 28 days: Q caught (dated 2024-10-19, sent 2024-10-23), DW caught (dated 2024-10-21, sent 2024-11-24)
+R90 shop 68 (s 0.24, shut weekday 6): climb 2024-09-05 over 51 days: Q missed, DW missed
+R90 shop 72 (s 0.29, open daily): climb 2024-08-22 over 39 days: Q missed, DW caught (dated 2024-09-09, sent 2024-10-13)
+R90 shop 76 (s 0.31, open daily): climb 2024-08-24 over 36 days: Q caught (dated 2024-09-05, sent 2024-09-09), DW caught (dated 2024-09-02, sent 2024-10-06)
+R90 shop 80 (s 0.15, shut weekday 2): climb 2024-08-09 over 29 days: Q caught (dated 2024-08-22, sent 2024-08-26), DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 84 (s 0.23, shut weekday 6): climb 2024-09-14 over 47 days: Q caught (dated 2024-09-30, sent 2024-10-04), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 88 (s 0.16, open daily): climb 2024-10-25 over 44 days: Q caught (dated 2024-11-10, sent 2024-11-15), DW missed
+R90 shop 92 (s 0.25, shut weekday 0): climb 2024-09-29 over 39 days: Q missed, DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 96 (s 0.28, open daily): climb 2024-08-11 over 39 days: Q caught (dated 2024-09-06, sent 2024-09-10), DW caught (dated 2024-08-19, sent 2024-09-22)
+R90 shop 100 (s 0.19, open daily): climb 2024-10-08 over 41 days: Q caught (dated 2024-10-20, sent 2024-10-24), DW caught (dated 2024-10-14, sent 2024-11-17)
+R90 shop 104 (s 0.43, open daily): climb 2024-09-24 over 41 days: Q missed, DW caught (dated 2024-10-14, sent 2024-11-17)
+R90 shop 108 (s 0.41, open daily): climb 2024-10-16 over 28 days: Q caught (dated 2024-11-08, sent 2024-11-12), DW caught (dated 2024-11-04, sent 2024-12-08)
+R90 shop 112 (s 0.22, shut weekday 6): climb 2024-09-26 over 54 days: Q missed, DW caught (dated 2024-10-07, sent 2024-11-10)
+R90 shop 116 (s 0.15, shut weekday 5): climb 2024-10-16 over 36 days: Q caught (dated 2024-11-04, sent 2024-11-08), DW caught (dated 2024-11-04, sent 2024-12-08)
+R90 shop 120 (s 0.19, shut weekday 3): climb 2024-08-04 over 32 days: Q missed, DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 124 (s 0.24, open daily): climb 2024-08-21 over 55 days: Q caught (dated 2024-08-19, sent 2024-08-23), DW missed
+R90 shop 128 (s 0.22, open daily): climb 2024-08-04 over 29 days: Q missed, DW caught (dated 2024-08-12, sent 2024-09-15)
+R90 shop 132 (s 0.41, shut weekday 5): climb 2024-10-12 over 34 days: Q missed, DW missed
+R90 shop 136 (s 0.41, shut weekday 1): climb 2024-09-10 over 31 days: Q caught (dated 2024-10-04, sent 2024-10-08), DW caught (dated 2024-09-30, sent 2024-11-03)
+R90 shop 140 (s 0.40, open daily): climb 2024-08-28 over 49 days: Q missed, DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 144 (s 0.15, shut weekday 6): climb 2024-09-08 over 44 days: Q missed, DW caught (dated 2024-09-16, sent 2024-10-20)
+R90 shop 148 (s 0.20, open daily): climb 2024-09-16 over 48 days: Q caught (dated 2024-10-08, sent 2024-10-12), DW caught (dated 2024-09-23, sent 2024-10-27)
+
+######## Summary ########
+N: Q 417 alerts in 44550 days (0.936 per 100), Q+DW 477 (1.071 per 100)
+N, s < 0.30: Q 0.909, Q+DW 1.017 per 100 days
+N, s >= 0.30: Q 0.981, Q+DW 1.158 per 100 days
+R30 all (150 shops): by 8 weeks Q 65, Q+DW 87 (+22); median delay Q 24, Q+DW 29 days; round-3 rule Q 65, Q+DW 82
+R30 lo (75 shops): by 8 weeks Q 34, Q+DW 50 (+16); median delay Q 20, Q+DW 28 days; round-3 rule Q 34, Q+DW 48
+R30 hi (75 shops): by 8 weeks Q 31, Q+DW 37 (+6); median delay Q 25, Q+DW 31 days; round-3 rule Q 31, Q+DW 34
+R30 shut (75 shops): by 8 weeks Q 32, Q+DW 41 (+9); median delay Q 19, Q+DW 27 days; round-3 rule Q 32, Q+DW 38
+R30 open (75 shops): by 8 weeks Q 33, Q+DW 46 (+13); median delay Q 25, Q+DW 31 days; round-3 rule Q 33, Q+DW 44
+R90 all (150 shops): by 8 weeks Q 92, Q+DW 131 (+39); median delay Q 21, Q+DW 27 days; round-3 rule Q 91, Q+DW 125
+R90 lo (76 shops): by 8 weeks Q 47, Q+DW 73 (+26); median delay Q 21, Q+DW 31 days; round-3 rule Q 47, Q+DW 71
+R90 hi (74 shops): by 8 weeks Q 45, Q+DW 58 (+13); median delay Q 22, Q+DW 24 days; round-3 rule Q 44, Q+DW 54
+R90 shut (68 shops): by 8 weeks Q 36, Q+DW 59 (+23); median delay Q 22, Q+DW 37 days; round-3 rule Q 36, Q+DW 54
+R90 open (82 shops): by 8 weeks Q 56, Q+DW 72 (+16); median delay Q 21, Q+DW 24 days; round-3 rule Q 55, Q+DW 71
+
+######## Bars ########
+K1 R90 by 8 weeks: Q+DW 131 vs Q 92 + 15 -> PASS
+K2 N false: Q+DW 1.071 vs Q 0.936 + 0.15 -> PASS
+K3 gain in each half: s < 0.30 +26, s >= 0.30 +13 (each >= 5) -> PASS
+Ships --weekly: yes
