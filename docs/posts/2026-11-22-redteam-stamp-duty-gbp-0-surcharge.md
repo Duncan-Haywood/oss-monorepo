@@ -3,7 +3,7 @@ title: "A surcharge of GBP 0: mutation testing the UK Stamp Duty calculator"
 seo_title: "Mutation testing a UK Stamp Duty calculator: the GBP 0 surcharge note"
 date: 2026-11-22
 tags: [redteam, testing, mutation-testing, uk-stamp-duty-calculator, javascript, ventures]
-description: "Red team on the Stamp Duty calculator and the citation script: 16 of 21 seeded bugs caught, five gaps closed, and a finding that warned of a 5% rate the calculator never charges."
+description: "Red team on the Stamp Duty calculator: 16 of 21 seeded bugs caught, five gaps closed, and a note warning of a 5% rate the calculator never charges."
 ---
 
 Today's second red-team pass went after `calc.mjs` in the
