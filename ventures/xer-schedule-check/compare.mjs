@@ -261,7 +261,11 @@ export function compare(prevXer, curXer, opts = {}) {
     previous: { name: A.name, version: A.version, dataDate: formatDate(ddA), finish: formatDate(A.p.finish), storedFinish: formatDate(A.p.storedFinish), mustFinish: formatDate(A.p.mustFinish), activities: A.byCode.size, relationships: A.rels.size, agreement: A.agreement },
     current: { name: B.name, version: B.version, dataDate: formatDate(ddB), finish: formatDate(B.p.finish), storedFinish: formatDate(B.p.storedFinish), mustFinish: formatDate(B.p.mustFinish), activities: B.byCode.size, relationships: B.rels.size, agreement: B.agreement },
     period: { workingDays: wd(ddA, ddB) },
-    finish: { moved, storedMoved, halfStep: formatDate(half), progressEffect, revisionEffect },
+    // working days from the must-finish date (plan_end_date) to the forecast
+    // finish, on the current project calendar: positive = after it (late)
+    finish: { moved, storedMoved, halfStep: formatDate(half), progressEffect, revisionEffect,
+      vsMustFinish: B.p.mustFinish !== null ? wd(B.p.mustFinish, B.p.finish) : null,
+      prevVsMustFinish: A.p.mustFinish !== null ? wd(A.p.mustFinish, A.p.finish) : null },
     flags,
     progress: { started, finished, reversed, actualsEdited, futureActuals, plannedNotFinished, plannedNotStarted, remainingUp,
       planned: plannedNotFinished.length + finished.filter((f) => f.plannedFinish && parseDate(f.plannedFinish) <= ddB).length },

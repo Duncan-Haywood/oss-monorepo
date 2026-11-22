@@ -15,6 +15,7 @@ const GUIDES = [
   "how-to-open-an-xer-file-without-primavera-p6.html",
   "how-to-convert-a-p6-xer-file-to-microsoft-project.html",
   "how-to-review-a-contractors-p6-schedule-update.html",
+  "how-to-write-a-monthly-construction-schedule-narrative.html",
 ];
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
@@ -87,4 +88,25 @@ test("the update-review guide's worked example equals the comparison engine", ()
   assert.equal(r.finish.progressEffect, 8);
   assert.equal(r.finish.revisionEffect, 7);
   assert.match(html, /\+15 working days: progress \+8, revisions \+7/);
+});
+
+test("the narrative guide's worked example equals the draft on the built-in example", () => {
+  const html = page("how-to-write-a-monthly-construction-schedule-narrative.html");
+  const out = join(dir, "narrative.txt");
+  execFileSync(process.execPath, [new URL("./cli.mjs", import.meta.url).pathname, join(dir, "cur.xer"), "--previous", join(dir, "prev.xer"), "--narrative", out], { encoding: "utf8", stdio: ["ignore", "ignore", "ignore"] });
+  const text = readFileSync(out, "utf8");
+  for (const quote of [
+    "The forecast completion is 2026-07-27, 15 working days later than the previous update's 2026-07-06.",
+    "That is 4 working days ahead of the contract completion date of 2026-07-31 (the previous update was 19 working days ahead of it).",
+    "progress during the period moved the finish 8 working days later, and the changes made to the schedule 7 working days later.",
+  ]) { assert.ok(text.includes(quote), quote); assert.ok(html.includes(quote), quote); }
+  assert.match(text, /\(20 fill-ins left/);
+  assert.match(html, /The draft leaves 20 fill-ins/);
+  assert.match(text, /A1020 Shop drawings: partitions and ceilings, 2026-03-20 \(3 working days after the previous forecast\)/);
+  assert.equal((text.match(/^- .*Cause: \[FILL IN/gm) || []).length, 6);
+  assert.match(html, /six activities that were due/);
+  assert.equal((text.match(/^- .*Reason: \[FILL IN: reason(\]| \()/gm) || []).length, 9);
+  assert.match(html, /nine changes/);
+  const index = page("index.html");
+  for (const label of ["Load an example pair of updates", "Download narrative (text)"]) assert.ok(index.includes(label), label);
 });

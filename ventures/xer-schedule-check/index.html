@@ -116,6 +116,18 @@
     <div id="cmp-sections"></div>
     <button type="button" id="cmp-download">Download changes (CSV)</button>
     <button type="button" id="cmp-download-json" class="secondary">Download full comparison (JSON)</button>
+    <h3 id="nar">Contractor's monthly schedule narrative</h3>
+    <p class="note">For the scheduler who submits the update: most specs ask for a written narrative with every update (status against the contract date, the critical path, work done, planned work missed, every change with its reason, float, the next period's work, delays and corrective action). This drafts it from the two files: every date, activity and day count is filled in, and every cause and reason is left as a highlighted fill-in for you to write, because a file cannot say why work slipped. Edit it in any word processor or print it.</p>
+    <label for="nar-by">Prepared by (optional)</label>
+    <input type="text" id="nar-by" autocomplete="organization">
+    <label for="nar-to">For (optional)</label>
+    <input type="text" id="nar-to">
+    <label for="nar-weeks">Next-period window (weeks)</label>
+    <input type="number" id="nar-weeks" min="1" max="26" value="4">
+    <p id="nar-status" role="status" aria-live="polite"></p>
+    <button type="button" id="nar-print">Print narrative</button>
+    <button type="button" id="nar-download" class="secondary">Download narrative (HTML)</button>
+    <button type="button" id="nar-download-text" class="secondary">Download narrative (text)</button>
   </section>
 
   <section class="card" aria-labelledby="win">
@@ -406,13 +418,14 @@
       <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
       <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
       <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+      <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
     </ul>
   </section>
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>converted_to_project</code>, <code>converted_to_p6</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>converted_to_project</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -424,6 +437,7 @@
     import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
     import { EXAMPLE_XER, EXAMPLE_PREV_XER } from "./example.mjs";
     import { compare, compareCsv } from "./compare.mjs";
+    import { narrative, narrativeText, narrativeHtml } from "./narrative.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { mspdiText, msprojectSummary } from "./msproject.mjs";
     import { p6XerText, p6xerSummary } from "./p6xer.mjs";
@@ -1056,6 +1070,25 @@
     });
     $("#rev-download").addEventListener("click", () => { if (!last) return; save(new Blob([reviewHtml(last, lastCmp, reviewMeta())], { type: "text/html" }), `${fileName}-schedule-review.html`); record("review_printed"); });
     $("#cmp-download").addEventListener("click", () => { if (!lastCmp) return; save(new Blob([compareCsv(lastCmp)], { type: "text/csv" }), `${fileName}-update-changes.csv`); record("findings_downloaded"); });
+    function buildNarrative() {
+      if (!lastCmp || !xer) return null;
+      const projId = $("#proj-wrap").hidden ? undefined : $("#proj").value;
+      const la = lookahead(xer, { weeks: Number($("#nar-weeks").value) || 4, projId: last ? last.project.id : projId });
+      const n = narrative(lastCmp, { lookahead: la });
+      $("#nar-status").textContent = `Drafted: ${n.sections.length} sections, ${n.fillIns} highlighted fill-in${n.fillIns === 1 ? "" : "s"} left for causes and reasons.`;
+      return n;
+    }
+    const narMeta = () => ({ by: $("#nar-by").value.trim(), to: $("#nar-to").value.trim() });
+    $("#nar-print").addEventListener("click", () => {
+      const n = buildNarrative();
+      if (!n) return;
+      const w = window.open("", "_blank");
+      if (!w) { $("#nar-status").textContent = "The browser blocked the new window: use Download narrative (HTML) and print that file."; return; }
+      w.document.write(narrativeHtml(n, narMeta())); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+      record("narrative_written");
+    });
+    $("#nar-download").addEventListener("click", () => { const n = buildNarrative(); if (!n) return; save(new Blob([narrativeHtml(n, narMeta())], { type: "text/html" }), `${fileName}-schedule-narrative.html`); record("narrative_written"); });
+    $("#nar-download-text").addEventListener("click", () => { const n = buildNarrative(); if (!n) return; save(new Blob([narrativeText(n)], { type: "text/plain" }), `${fileName}-schedule-narrative.txt`); record("narrative_written"); });
     $("#cmp-download-json").addEventListener("click", () => { if (!lastCmp) return; save(new Blob([JSON.stringify(lastCmp, null, 2)], { type: "application/json" }), `${fileName}-update-comparison.json`); record("findings_downloaded"); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
