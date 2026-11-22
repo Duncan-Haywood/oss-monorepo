@@ -1,6 +1,6 @@
 import numpy as np
 from sensing_recon import (make_object, orbit_cameras, project, visible, triangulate_all,
-                           surface_error, run_trial, SURFACE)
+                           surface_error, run_trial, perturb_rotation, SURFACE)
 from sensing_recon.recon import _implicit
 
 
@@ -74,3 +74,65 @@ def test_deterministic():
     a = run_trial(6, 360, 1.0, 4, n_feat=200)
     b = run_trial(6, 360, 1.0, 4, n_feat=200)
     assert a == b
+
+
+# Added in quality round 94 (2026-11-22): each pins a quantity the earlier tests left free.
+
+def test_error_per_pixel_matches_first_order_prediction():
+    # First-order propagation (Hartley & Zisserman 2004, ch. 5) of 1 px noise through the
+    # 12-view rig predicts a mean radial error of 0.0028 radii; an independent midpoint
+    # triangulation gave the same. A wrong noise scale moves this by a factor.
+    e = np.mean([run_trial(12, 360, 1.0, s, n_feat=300)["mean_err"] for s in range(3)])
+    assert 0.0024 < e < 0.0033
+
+
+def test_six_view_completeness_pins_visibility_rule():
+    c = np.mean([run_trial(6, 360, 0.5, s)["completeness"] for s in range(3)])
+    assert 0.53 < c < 0.65   # README and results.txt: 0.588 over 10 seeds
+
+
+def test_ray_angle_rule_drops_narrow_pairs():
+    pts, nrm = make_object(400, seed=7)
+    for span, expect_some in [(1.0, False), (8.0, True)]:
+        c3 = orbit_cameras(3, span)
+        cams = [c3[0], c3[2]]                     # same elevation, rays about 1.2 deg apart at span 1
+        vis = np.array([visible(c, pts, nrm) for c in cams])
+        assert (vis.sum(0) >= 2).sum() > 50
+        rec, _ = triangulate_all(cams, np.array([project(c, pts) for c in cams]), vis)
+        assert (len(rec) > 0) == expect_some
+
+
+def test_elevation_alternates():
+    z = np.array([c.centre()[2] for c in orbit_cameras(6, 360)])
+    assert np.allclose(z, 4.0 * np.sin(np.radians(30)) * np.array([1, -1, 1, -1, 1, -1]))
+
+
+def test_surface_error_is_radial_offset():
+    pts, _ = make_object(50, seed=8)
+    d = pts / np.linalg.norm(pts, axis=1, keepdims=True)
+    off = pts + 0.01 * d
+    assert np.allclose(surface_error(off), 0.01, atol=1e-12)
+
+
+def test_radial_offset_bounds_euclidean_distance():
+    pts, nrm = make_object(400, seed=9)
+    off = pts + 0.005 * nrm                       # Euclidean distance 0.005 to first order
+    ratio = surface_error(off) / 0.005
+    assert (ratio > 0.99).all() and 1.0 < ratio.mean() < 1.2
+
+
+def test_perturb_rotation_angle_and_centre():
+    cam = orbit_cameras(4, 360)[1]
+    w = np.radians([0.6, -0.3, 0.2])
+    ang = np.linalg.norm(w)
+    for about in (False, True):
+        c2 = perturb_rotation(cam, w, about_centre=about)
+        cos_t = (np.trace(c2.R @ cam.R.T) - 1) / 2
+        assert abs(np.arccos(np.clip(cos_t, -1, 1)) - ang) < 1e-6
+        shift = np.linalg.norm(c2.centre() - cam.centre())
+        if about:
+            assert shift < 1e-12
+        else:                                     # t kept: the camera swings about the object
+            w_world = cam.R.T @ w                 # the rotation acts in camera axes
+            expect = np.linalg.norm(np.cross(w_world, cam.centre()))
+            assert abs(shift - expect) < 0.01 * expect and shift > 0.02

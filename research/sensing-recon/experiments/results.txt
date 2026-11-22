@@ -33,7 +33,7 @@ sigma mean_err rms_err completeness n_points
 16.0 0.0454 0.0584 1.000 800
 32.0 0.0923 0.1177 1.000 800
 
-== D. camera pose error (rotation, degrees per axis), 12 views, pixel noise 0.5 px
+== D. camera pose error (rotation about the object centre with t kept, so the camera centre moves by about 4 x angle; degrees per axis), 12 views, pixel noise 0.5 px
 pose mean_err rms_err completeness n_points
 0.0 0.0014 0.0018 1.000 800
 0.05 0.0014 0.0019 1.000 800
@@ -42,7 +42,16 @@ pose mean_err rms_err completeness n_points
 0.5 0.0035 0.0047 1.000 800
 1.0 0.0064 0.0088 1.000 800
 
-== E. views needed for 90 percent completeness, by pixel noise (first count in 2..48 whose mean completeness >= 0.9, else none)
+== D2. camera orientation error (rotation about each camera's own centre, degrees per axis), 12 views, pixel noise 0.5 px
+pose mean_err rms_err completeness n_points
+0.0 0.0014 0.0018 1.000 800
+0.05 0.0023 0.0029 1.000 800
+0.1 0.0038 0.0049 1.000 800
+0.25 0.0089 0.0114 1.000 800
+0.5 0.0177 0.0226 1.000 800
+1.0 0.0357 0.0455 1.000 800
+
+== E. views needed for 90 percent completeness, by pixel noise (first count in 3..48 whose mean completeness >= 0.9, else none)
 sigma views
 0.5 12
 4.0 12

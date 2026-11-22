@@ -42,13 +42,19 @@ def main():
         c = cell(n_views=12, span_deg=360, sigma_px=sg)
         p(f"{sg} {c['mean_err']:.4f} {c['rms_err']:.4f} {c['completeness']:.3f} {c['n_points']:.0f}")
     p("")
-    p("== D. camera pose error (rotation, degrees per axis), 12 views, pixel noise 0.5 px")
+    p("== D. camera pose error (rotation about the object centre with t kept, so the camera centre moves by about 4 x angle; degrees per axis), 12 views, pixel noise 0.5 px")
     p("pose mean_err rms_err completeness n_points")
     for ps in [0.0, 0.05, 0.1, 0.25, 0.5, 1.0]:
         c = cell(n_views=12, span_deg=360, sigma_px=0.5, pose_sigma_deg=ps)
         p(f"{ps} {c['mean_err']:.4f} {c['rms_err']:.4f} {c['completeness']:.3f} {c['n_points']:.0f}")
     p("")
-    p("== E. views needed for 90 percent completeness, by pixel noise (first count in 2..48 whose mean completeness >= 0.9, else none)")
+    p("== D2. camera orientation error (rotation about each camera's own centre, degrees per axis), 12 views, pixel noise 0.5 px")
+    p("pose mean_err rms_err completeness n_points")
+    for ps in [0.0, 0.05, 0.1, 0.25, 0.5, 1.0]:
+        c = cell(n_views=12, span_deg=360, sigma_px=0.5, pose_sigma_deg=ps, pose_about_centre=True)
+        p(f"{ps} {c['mean_err']:.4f} {c['rms_err']:.4f} {c['completeness']:.3f} {c['n_points']:.0f}")
+    p("")
+    p("== E. views needed for 90 percent completeness, by pixel noise (first count in 3..48 whose mean completeness >= 0.9, else none)")
     p("sigma views")
     for sg in [0.5, 4.0, 16.0]:
         found = "none"

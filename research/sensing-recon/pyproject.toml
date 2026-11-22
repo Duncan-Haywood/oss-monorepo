@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sensing-recon"
 version = "0.1.0"
-description = "Synthetic multi-view triangulation of a textured object: Chamfer error and coverage against number of views, baseline and pixel noise"
+description = "Synthetic multi-view triangulation of a bumpy ellipsoid: surface error and completeness against number of views, baseline, pixel noise and pose error"
 requires-python = ">=3.9"
 dependencies = ["numpy"]
 license = { text = "MIT" }

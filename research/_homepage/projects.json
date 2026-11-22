@@ -3902,7 +3902,7 @@
    {
     "slug": "sensing-recon",
     "title": "How many photos does a usable 3-D reconstruction need?",
-    "summary": "Synthetic bumpy-ellipsoid object, 800 features, pinhole cameras on an orbit with known poses and linear (DLT) triangulation. On a full orbit 12 views reconstruct every feature, 8 views 89%, 6 views 59% and 4 or fewer at most 13%, because a point must be seen by two cameras. Once triangulated, error is about 0.0028 object radii per pixel of image noise, a 1&deg; pose error does the damage of about 2&nbsp;px, and a narrow baseline (5&deg; span) raises error about 7&times; against a 40&deg; span. Triangulation stage only: matches and poses are given, there is no occlusion, mesh or splat, and no real images."
+    "summary": "Synthetic bumpy-ellipsoid object, 800 features, pinhole cameras on an orbit with known poses and linear (DLT) triangulation. On a full orbit 12 views reconstruct every feature, 8 views 89%, 6 views 59% and 4 or fewer at most 13%, because a point must be seen by two cameras. Once triangulated, error is about 0.0028 object radii per pixel of image noise, a true 1&deg; camera orientation error does the damage of about 13&nbsp;px (moving the camera around the object by 1&deg; costs about 2&nbsp;px), and a narrow baseline (5&deg; span) raises error about 7&times; against a 40&deg; span. Triangulation stage only: matches and poses are given, there is no occlusion, mesh or splat, and no real images."
    },
    {
     "slug": "sensing-thermalfuse",
