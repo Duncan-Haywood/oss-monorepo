@@ -67,6 +67,14 @@ class T(unittest.TestCase):
         self.assertLess(ys[0], 1e-6)       # at least one verifier stopped auditing entirely
         self.assertAlmostEqual(detect_prob(out[-1][1]), q, places=2)
 
+    # Quality round 98: the committee above exists only because verifiers 0 and 2 start exactly tied.
+    def test_hedge_untied_start_ends_with_one_auditor(self):
+        P = Params()
+        x, y, q = equilibrium(P, 3)
+        out = hedge_run(P, 3, 40000, 0.02, min(0.95, x + 0.15), [y * 1.5, y * 0.5, y * 1.5 * 1.001], record_every=1000)
+        ys = out[-1][1]
+        self.assertEqual(sum(v > 1e-3 for v in ys), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -7,9 +7,10 @@ from one verifier to m. See `paper/whitepaper.md`.
 
 ```bash
 cd research/multi-verifier-audit
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests
-PYTHONPATH=src python3 experiments/run.py                  # ~10 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests
+PYTHONPATH=src python3 experiments/run.py                  # ~12 s
 ```
 Results: aggregate detection is pinned at `s/(s+S)` for any m while equilibrium cheating *rises* with m under split rewards;
-the symmetric equilibrium is a saddle for m ≥ 2 (volunteer's dilemma), Hedge concentrates audit burden on a subset while keeping
-detection; bandit learners without an exploration floor are absorbed at "no cheating, no auditing". Stylised; limitations in the paper. MIT.
+the symmetric equilibrium is a saddle for m ≥ 2 (volunteer's dilemma), Hedge concentrates the audit burden on a single verifier and detection still cycles
+(corrected 2026-11-22: an earlier "committee keeps detection" result came from a tied start; see paper result 4);
+bandit learners without an exploration floor are absorbed at "no cheating, no auditing" for m ≥ 2 (m=1 overshoots). Stylised; limitations in the paper. MIT.
