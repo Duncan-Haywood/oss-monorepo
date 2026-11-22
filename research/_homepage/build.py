@@ -269,7 +269,39 @@ def _short_lede(lede, limit):
     neighbours' pages. If the first clause alone is over twice the limit, the lede is left whole
     rather than cut mid-claim."""
     if _words(lede) <= limit:
-        return lede
+        return _full_stop(lede)
+    cuts = _clause_ends(lede)
+    # A closing disclosure ("Stylised, nothing built.", "Simulated only, not yet built.") is the
+    # lede's honesty line; a cut that drops it makes a simulated result read as a built one
+    # (26 page headers did on 2026-11-22). Keep it after the ellipsis and cut the rest shorter.
+    keep = ""
+    if cuts and _DISCLOSURE.match(tail := lede[cuts[-1] + 1:].strip()) and _words(tail) <= DISCLOSURE_WORDS:
+        keep, limit, cuts = " " + _full_stop(tail[:1].upper() + tail[1:]), limit - _words(tail), cuts[:-1]
+    fits = [k for k in cuts if _words(lede[:k]) <= limit]
+    if fits:
+        k = fits[-1]
+    elif cuts and _words(lede[:cuts[0]]) <= 2 * limit:
+        k = cuts[0]
+    else:
+        return _full_stop(lede)
+    return lede[:k].rstrip(" ;,:.") + "&hellip;" + keep
+
+
+# The closing clause of a lede that says what kind of result it is. Matched at the clause start.
+_DISCLOSURE = re.compile(r"(?i)(?:stylised|stylized|simulated|simulation only|synthetic|preliminary|"
+                         r"untested|not yet built|nothing built|no real\b)")
+DISCLOSURE_WORDS = 12
+
+
+def _full_stop(lede):
+    """A README bullet often ends without a full stop; a page header is a sentence, so give it one
+    (82 of 1,080 headers ended bare on 2026-11-22). Leaves "?", "!", ")" and closing tags alone."""
+    end = re.sub(r"(?:<[^>]+>|\s)+$", "", lede)
+    return lede + "." if end and (end[-1].isalnum() or end[-1] == "%") else lede
+
+
+def _clause_ends(lede):
+    """Positions of each "; " or sentence-ending ". " outside inline tags and parentheses."""
     cuts, depth, parens, i = [], 0, 0, 0
     while i < len(lede):
         c = lede[i]
@@ -289,15 +321,10 @@ def _short_lede(lede, limit):
         elif c == " " and depth == 0 and parens == 0 and (lede[i - 1] == ";" or (
                 lede[i - 1] == "." and not _ABBREV.search(lede, max(0, i - 16), i))):
             cuts.append(i - 1)
+        elif c == " " and depth == 0 and parens == 0 and lede[i - 2:i] == ".)":
+            cuts.append(i)  # a sentence closed inside its own parentheses: keep the ")"
         i += 1
-    fits = [k for k in cuts if _words(lede[:k]) <= limit]
-    if fits:
-        k = fits[-1]
-    elif cuts and _words(lede[:cuts[0]]) <= 2 * limit:
-        k = cuts[0]
-    else:
-        return lede
-    return lede[:k].rstrip(" ;,:.") + "&hellip;"
+    return cuts
 
 
 # A summary past SUMMARY_FOLD words shows its first SUMMARY_OPEN words and folds the rest into a
