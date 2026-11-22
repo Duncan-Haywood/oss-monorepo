@@ -1,3 +1,7 @@
+---
+kind: note
+subjects: [package-exports-drift-check]
+---
 # package-exports-drift-check: a resolver checked against Node (2026-11-22)
 
 What landed: `ventures/package-exports-drift-check/resolve.mjs`, an implementation of Node's
