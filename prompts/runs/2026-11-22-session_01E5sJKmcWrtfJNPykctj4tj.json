@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmcWrtfJNPykctj4tj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T04:18:44Z",
+  "ended": "2026-11-22T04:30:50Z",
+  "wall_minutes": 12.52,
+  "tokens_in": 11956848,
+  "tokens_out": 45148,
+  "cost_usd": 4.5006,
+  "tool_calls": 91,
+  "task": "ifc-quantity-takeoff flagship: quality audit 2026-11-22 items (steel length and mass from geometry; untested geometry branches)",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18194",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval/member-length-weight.mjs crashed on Viadotto Acerno.ifc (Unresolved: object placement IFCLINEARPLACEMENT), which stopped the corpus run partway",
+      "fix": "wrapped each file in try/catch, reran the remaining files into -b.txt; the IfcLinearPlacement gap (pre-existing, whole-file failure) logged in NEXT.md"
+    },
+    {
+      "what": "isSteel's first pattern accepted Tekla 'STEEL/NEOPRENE' bearing pads and missed '05 Staal_bordes_hoeklijnen' (underscore is a word char)",
+      "fix": "rubber/neoprene/grout/paint/insulation excluded; underscores read as spaces; schependomlaan rerun (steel 114 to 120)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Stop hook demands a commit whenever any file is untracked or modified, including an eval output a background job is still writing; I committed partial outputs twice to satisfy it."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The pkill hook rejects a bracketed pattern if the same word appears anywhere else in the command line (here in a python heredoc in the same call), so the kill has to be a separate call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-mullions-that-measured-their-whole-facade.md",
+    "ventures/ifc-quantity-takeoff/eval/member-length-weight-2026-11-22.md"
+  ],
+  "goal": "Deepen flagship 14 (ifc-quantity-takeoff): close the quality audit's top two open items",
+  "notes": "Members with no stored Length now get the body's extent along its extrusion; plain steel without a stored weight gets volume x 7850 kg/m3; a new checkLengths names host-figure lengths (Revit mullions storing their curtain wall's length) and the BoQ sums the body. On 30 public models (eval/member-length-weight-2026-11-22.md): 4,948 of 4,952 zero-length members now have a length; stored vs body agree 4,153 of 5,083; 603 ARK_NUS mullions stored 5,479.9 m against 794.6 m (the BoQ overstated them 6.9x); density x volume agrees with 230 of 233 stored steel weights; 512 steel members weighed. Tests for ellipse ratio, offset revolve axis and CENTI added; each seeded mutant verified to fail the suite. Verification: run_venture_tests.py ifc-quantity-takeoff ok (175 tests); check_posts ok; validate.py ok; venture-preflight.mjs ifc-quantity-takeoff: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5a0d026d-0f80-548e-b3b7-db547a73cec1",
+    "transcripts": 1,
+    "first": "2026-11-22T04:18:44Z",
+    "last": "2026-11-22T04:31:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 182,
+        "output": 45148,
+        "thinking": 8269,
+        "cache_read": 11802108,
+        "cache_write_5m": 0,
+        "cache_write_1h": 154558,
+        "api_equivalent_usd": 4.5006,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 182,
+      "output": 45148,
+      "thinking": 8269,
+      "cache_read": 11802108,
+      "cache_write_5m": 0,
+      "cache_write_1h": 154558,
+      "api_equivalent_usd": 4.5006,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 87,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.52,
+      "active_minutes": 12.36,
+      "model_minutes": 8.43,
+      "tool_minutes": 3.93,
+      "waiting_on_human_minutes": 0.16,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer adding geometry-derived member length and steel weight to a BoQ engine, a 30-model check and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 222.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
