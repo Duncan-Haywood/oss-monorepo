@@ -33,8 +33,11 @@ test("the sleeve cap is as long as the armhole plus the ease, front and back sep
 test("the sleeve is a whole sleeve: its width is the full bicep girth and its length runs from the shoulder point", () => {
   // Until 2026-11-13 a flat (half) bicep was drawn as the full width (24 cm round at M) and the
   // length ran from the underarm, so sleeves came out a cap height too long. spec.mjs and
-  // tryon.mjs measure the sleeve shoulder point to cuff: tee 22, long sleeve 62 by default here.
-  for (const [g, want] of [["tee", 22], ["longsleeve", 62], ["crewneck", 62], ["hoodie", 63]]) for (const size of ["XS", "M", "XXL"]) {
+  // tryon.mjs measure the sleeve shoulder point to cuff. Since the 2026-11-22 quality audit the pattern
+  // grades it as they do: tee 21, long sleeves 63, hoodie 64 at M, +1 cm per size step.
+  const step = { XS: -2, M: 0, XXL: 3 };
+  for (const [g, m] of [["tee", 21], ["longsleeve", 63], ["crewneck", 63], ["hoodie", 64]]) for (const size of ["XS", "M", "XXL"]) {
+    const want = m + step[size];
     const d = draft(g, size);
     assert.ok(d.ok, `${g} ${size}`);
     const sl = d.pieces.find(p => p.name === "sleeve");
@@ -202,4 +205,18 @@ test("zip facing strips nest with the rest of the hoodie with no overlap", async
   assert.ok(JSON.stringify(r).includes("zipFacing"));
   const v = verifyNest(r);
   assert.ok(v.ok !== false && !v.overlaps, JSON.stringify(v).slice(0, 200));
+});
+
+test("the drafted sleeve length matches the spec sheet's sleeve row in every size", async () => {
+  // Quality audit 2026-11-22: the pattern drew a 22 cm tee sleeve in all sizes against a spec of 19 to 24.
+  const { specSheet } = await import("./spec.mjs");
+  for (const g of ["tee", "longsleeve", "hoodie"]) {
+    const spec = specSheet({ garment: g });
+    for (const [size, row] of Object.entries(spec.sizes)) {
+      const d = draft(g, size);
+      if (!d.ok) continue;
+      const ys = d.pieces.find(p => p.name === "sleeve").stitch.map(p => p[1]);
+      assert.ok(Math.abs(Math.max(...ys) - Math.min(...ys) - row.sleeve) < 0.05, `${g} ${size}: ${Math.max(...ys) - Math.min(...ys)} vs spec ${row.sleeve}`);
+    }
+  }
 });

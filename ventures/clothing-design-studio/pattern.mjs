@@ -20,12 +20,13 @@
  * (neck edge solved to the neck seam) and a kangaroo pocket; hem and cuff rib bands are optional (`rib: true`, crewneck and hoodie).
  */
 import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
+import { SLEEVE_CM_M } from "./tryon.mjs";
 
 const r2 = v => Math.round(v * 100) / 100;
 const KAPPA = 0.5522847498;
 
 export const DRAFTED = Object.freeze(["tee", "longsleeve", "crewneck", "hoodie"]);
-export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62, hoodie: 63 }, rib: false, zip: false, zipSeamCm: 1.5, facing: false, facingWidthCm: 4, hemRibCm: 6, cuffRibCm: 6, hemRibRatio: 0.85, cuffRibRatio: 0.85 });
+export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { ...SLEEVE_CM_M } /* at size M; graded +1 cm a size step */, rib: false, zip: false, zipSeamCm: 1.5, facing: false, facingWidthCm: 4, hemRibCm: 6, cuffRibCm: 6, hemRibRatio: 0.85, cuffRibRatio: 0.85 });
 
 /* ---------- geometry ---------- */
 
@@ -185,7 +186,7 @@ function sleevePiece(g, b, front, back, garment, o) {
   // Sleeve length is measured from the shoulder point (the cap's top) to the cuff, as in
   // the spec sheet (spec.mjs, tryon.mjs). Until 2026-11-13 it ran from the underarm,
   // so every sleeve came out a cap height (9 to 17 cm) too long.
-  const sl = o.sleeveLenCm[garment] - (o.rib ? o.cuffRibCm : 0) - solved.h;
+  const sl = o.sleeveGradedCm - (o.rib ? o.cuffRibCm : 0) - solved.h;
   if (!(sl > 3)) return { error: "the sleeve is shorter than its cap: lengthen the sleeve" };
   const hemW = garment === "tee" ? w * 0.85 : Math.max(0.21 * bc, w * 0.52);
   const cp = solved.cap.pts;
@@ -332,6 +333,11 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
   const g = garmentMeasurements(garment, fit, sizeChart)[size];
   if (!g) return { ok: false, error: `Size ${size} is not in the size chart.` };
   const o = { ...DEFAULTS, ...opt, sleeveLenCm: { ...DEFAULTS.sleeveLenCm, ...(opt.sleeveLenCm || {}) } };
+  // sleeveLenCm is the size-M length (shoulder point to cuff); each size step from M adds or takes 1 cm,
+  // as the spec sheet (spec.mjs) and the cuff check (tryon.mjs) grade it. Until 2026-11-22 the pattern
+  // drew one length in every size, so the drafted sleeve contradicted the tech pack's spec table.
+  const step = ["XS", "S", "M", "L", "XL", "XXL"].indexOf(size);
+  o.sleeveGradedCm = o.sleeveLenCm[garment] + (step < 0 ? 0 : step - 2);
   for (const k of ["seamCm", "neckSeamCm", "hemCm", "capEaseCm"]) {
     if (!(Number.isFinite(o[k]) && o[k] >= 0 && o[k] <= 10)) return { ok: false, error: `${k} must be a number from 0 to 10.` };
   }

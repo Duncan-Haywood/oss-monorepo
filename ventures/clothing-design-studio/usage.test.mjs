@@ -109,3 +109,11 @@ test("corrupt stored counters are replaced rather than propagated", () => {
   recordUsage("estimate", arrayed);
   assert.equal(readUsage(arrayed).estimate, 1);
 });
+
+test("every page records usage", async () => {
+  // Quality audit 2026-11-22: five guide pages carried no usage counter.
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const dir = new URL("./", import.meta.url);
+  const missing = readdirSync(dir).filter(f => f.endsWith(".html")).filter(f => !/import \{[^}]*recordUsage[^}]*\} from "\.\/usage\.mjs"/.test(readFileSync(new URL(f, dir), "utf8")));
+  assert.deepEqual(missing, []);
+});
