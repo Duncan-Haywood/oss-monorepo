@@ -1,0 +1,27 @@
+Ten-seed statistics for section VII's 100 ms row (milestone 12e): training-lag ceiling 100 ms against 125 ms at the 39.1 ms floor.
+seeds 0-9; 20000 bootstrap resamples, 20000 permutations, random seed 0.
+
+== per design (identified total of 192 | 75 ms law of 64), seeds in order ==
+  aware lag39c100  above: ident [28, 13, 11, 4, 6, 20, 17, 36, 3, 9] | 75 ms [53, 46, 41, 39, 38, 49, 47, 57, 32, 36]
+  aware lag39c100  below: ident [26, 28, 18, 11, 19, 7, 14, 37, 4, 15] | 75 ms [52, 50, 45, 46, 46, 38, 44, 58, 33, 43]
+  aware lag39c125  above: ident [13, 8, 8, 3, 3, 4, 6, 21, 7, 5] | 75 ms [45, 36, 33, 28, 30, 32, 37, 45, 33, 24]
+  aware lag39c125  below: ident [17, 10, 8, 7, 11, 9, 9, 22, 16, 9] | 75 ms [38, 31, 32, 34, 40, 31, 32, 47, 37, 30]
+
+== totals (both geometries), stratified bootstrap 95% interval ==
+  aware lag39c100  ident: 326 of 3840, 95% [243, 416]; per design mean 16.30; seeds 0-5 191 of 2304
+  aware lag39c100  slow : 893 of 1280, 95% [831, 955]; per design mean 44.65; seeds 0-5 543 of 768
+  aware lag39c125  ident: 196 of 3840, 95% [156, 242]; per design mean 9.80; seeds 0-5 101 of 2304
+  aware lag39c125  slow : 695 of 1280, 95% [646, 748]; per design mean 34.75; seeds 0-5 410 of 768
+
+== 100 ms against 125 ms (positive: 100 ms crashes more) ==
+  ident pooled MWU (20 a side): sums 326 vs 196; U = 276.0 of 400, p = 0.04015
+  ident paired Wilcoxon (20 pairs): mean diff +6.50; 100 worse in 17, tied 0, better in 3; W+ = 187.0, p = 0.00114
+  ident new seeds only ([6, 7, 8, 9], 8 a side): sums 135 vs 95; U = 36.0, p = 0.72166
+  slow  pooled MWU (20 a side): sums 893 vs 695; U = 342.5 of 400, p = 0.00010
+  slow  paired Wilcoxon (20 pairs): mean diff +9.90; 100 worse in 18, tied 0, better in 2; W+ = 207.0, p = 0.00001
+
+== certificate and response ==
+  aware lag39c100  above: certified at all identified laws 10 of 10; rise90 (36 ms, step) median over seeds 1.596 s (seeds 0-5 1.471); mass median 1.417 kg
+  aware lag39c100  below: certified at all identified laws 10 of 10; rise90 (36 ms, step) median over seeds 1.580 s (seeds 0-5 1.536); mass median 1.373 kg
+  aware lag39c125  above: certified at all identified laws 10 of 10; rise90 (36 ms, step) median over seeds 1.682 s (seeds 0-5 1.573); mass median 1.477 kg
+  aware lag39c125  below: certified at all identified laws 10 of 10; rise90 (36 ms, step) median over seeds 1.730 s (seeds 0-5 1.648); mass median 1.411 kg

@@ -474,7 +474,11 @@ So robustness at the identified lags keeps coming up to 150 ms (3.8× the slowes
 Ten seeds per geometry at 200 ms (milestone 12d, `m12d_ten_seeds_c200/stats.txt`) do not separate the
 next pair: 112 against 86 crashes of 3,840 (pooled Mann–Whitney p = 0.08), and 150 ms crashes more in
 only 13 of 20 pairs, ties 4 (exact Wilcoxon p = 0.07). On the identified range the knee is at about
-150 ms; any gain past it is under a quarter and not detected at ten seeds. The total for each row has a stratified
+150 ms; any gain past it is under a quarter and not detected at ten seeds. Ten seeds per geometry at
+100 ms (milestone 12e, `m12e_ten_seeds_c100/stats.txt`) keep the step below: 326 against 196 crashes
+of 3,840 against 125 ms (pooled Mann–Whitney p = 0.04), 100 ms worse in 17 of 20 pairs (exact Wilcoxon
+p = 0.001). At ten seeds the four knee-region rows read 326 / 196 / 112 / 86 of 3,840 at 100 / 125 /
+150 / 200 ms. The total for each row has a stratified
 bootstrap interval in `table7_stats.txt` (e.g. 101 [79, 125] at 125 ms against 65 [49, 82] at
 150 ms; at ten seeds 196 [156, 242] against 112 [89, 138] of 3,840). At the 75 ms law, slower than either
 identification, every extra step of ceiling pays and every pooled neighbour pair is separated
@@ -637,7 +641,7 @@ it flies. The hardware check is next.
 
 ## Still to do before submission
 
-- Ten seeds for the rest of section VII (125, 150 and 200 ms have ten per geometry since 2026-11-22; 150→200 ms is not separated at the identified lags, p = 0.08; 100 ms next) and for milestones 7c, 7d and 7g of section VI (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
+- Ten seeds for the rest of section VII (100, 125, 150 and 200 ms have ten per geometry since 2026-11-22; 100→125 and 125→150 ms are separated at the identified lags, 150→200 ms is not, p = 0.08; 78.2 ms and the floor rows remain) and for milestones 7c, 7d and 7g of section VI (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
   set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier.
