@@ -39,7 +39,10 @@
   to D, but h4 fails on both (2 of 125: collapsed `mpcws` reads; 3 of 122 with a collapse fallback: mild luma
   losses from the luma ramp, where the oracle also loses on 2). Next: `mpcws` with colour (0.3, 1.0), the shipped
   luma ramp and the fallback, on a third draw (seed 20261124, `--exclude` both lists), h4 counted against the
-  oracle; then a drawn-noise check before any default. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
+  oracle; then a drawn-noise check before any default. (2026-11-22, eval/hdrplus-joint-check-j3-2026-11-22.md) J3 ran
+  that: 137 scored, +0.068 colour / +0.102 luma, h1-h3 pass, h4o fails on 2 luma losses where the read partly
+  collapses (shot slope ~0, 0.34-0.58x truth, above the 0.25 line). Next J4: the same with `COLLAPSE` 0.6, seed
+  20261125, all three lists excluded. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
   been tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
