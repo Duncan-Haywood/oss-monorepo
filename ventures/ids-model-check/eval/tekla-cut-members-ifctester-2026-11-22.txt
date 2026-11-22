@@ -1,0 +1,12 @@
+ISSUE_021_Mini Project | Columns carry a length | 26 applicable | 0 pass before | 26 pass after
+ISSUE_021_Mini Project | Beams carry a length | 1949 applicable | 0 pass before | 1132 pass after
+ISSUE_021_Mini Project | Members carry a length | 228 applicable | 0 pass before | 228 pass after
+ISSUE_102_M3D-CON-CD | Columns carry a length | 32 applicable | 0 pass before | 16 pass after
+ISSUE_102_M3D-CON-CD | Beams carry a length | 242 applicable | 0 pass before | 106 pass after
+ISSUE_102_M3D-CON-CD | Piles carry a length | 68 applicable | 0 pass before | 68 pass after
+ISSUE_102_M3D-CON | Beams carry a length | 31 applicable | 0 pass before | 25 pass after
+architect | Members carry a length | 1450 applicable | 0 pass before | 1375 pass after
+construction | Columns carry a length | 257 applicable | 0 pass before | 257 pass after
+schependomlaan | Columns carry a length | 23 applicable | 0 pass before | 18 pass after
+schependomlaan | Beams carry a length | 174 applicable | 0 pass before | 161 pass after
+schependomlaan | Members carry a length | 9 applicable | 0 pass before | 9 pass after

@@ -681,6 +681,17 @@ figure is not one value repeated across pieces of different length are within
 2%. With the stored lengths hidden, the fill wrote 3,262 lengths on five of
 them and 3,189 of the 3,194 with a stored figure match it; IfcTester takes the
 same 3,262 elements from fail to pass (`eval/member-lengths-2026-11-22.md`).
+**Tekla's cut members (2026-11-22).** Tekla's stored Length is the extent
+along the member's own axis, and the axis is the direction of its long side
+faces: the takeoff's guess was 7 degrees off on braces drawn as a polygon
+outline. A cut Tekla member now gets the longest side of the smallest box
+flush with its own faces, unless the box is about as wide as long (a base
+plate) or the section at its middle does not span the box (a downpipe with an
+offset bend). On the three public Tekla exports that is 147 more lengths, all
+147 within 0.1% of Tekla's own figure; 176 cut members held back become 29.
+With the stored lengths hidden the fill writes 1,386, 190 and 25 lengths on
+them, all matching, and IfcTester passes the same elements
+(`eval/tekla-cut-members-2026-11-22.md`).
 Curved walls' lengths and other heights are not measured. A value from the model's
 own quantity sets always wins over a measured one, and a measured value still
 has to pass every facet that names it. Values are written to six significant

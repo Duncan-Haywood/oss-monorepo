@@ -313,3 +313,72 @@ test("a wall running along y is read like one along x", { skip: !haveGeom && "if
   const w = wallLines(body, [0, 1], polyPlanes);
   assert.ok(w && Math.abs(w.length - 5) < 1e-9 && Math.abs(w.height - 3) < 1e-9, JSON.stringify(w));
 });
+
+// A polygon outline in the xz plane extruded t along y, as faceted loops
+// (Tekla writes braces and haunched pieces this way).
+function outlinePrism(xz, t) {
+  const at = (y) => xz.map(([x, z]) => [x, y, z]);
+  const lo = at(-t / 2), hi = at(t / 2), faces = [lo.slice().reverse(), hi];
+  for (let i = 0; i < xz.length; i++) { const j = (i + 1) % xz.length; faces.push([lo[i], lo[j], hi[j], hi[i]]); }
+  return { terms: [{ s: 1, faces }] };
+}
+
+test("Tekla's cut members: the length along the smallest box flush with the body's faces, not the takeoff's axis", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { memberLength, boxAxis } = await import("./geometry-quantities.mjs");
+  const { solidExtent } = await import(TAKEOFF.href);
+  // a brace 1.45 m deep running 38 deg up, its ends cut square to the floor
+  // and to a wall (M3D-CON's 'DIA-2', 250 mm thick): 2.5 m along its faces
+  const th = (38 * Math.PI) / 180, d = [Math.cos(th), Math.sin(th)], m = [-Math.sin(th), Math.cos(th)];
+  const P = (s, r) => [s * d[0] + r * m[0], s * d[1] + r * m[1]];
+  const a = P(0, 0), b = P(2.5, 0), c = P(2.5, 1.45), e = P(0, 1.45);
+  const xz = [a, b, [b[0], c[1]], c, e, [a[0] - 0.3, e[1] - 0.4]];
+  const body = outlinePrism(xz, 0.25);
+  const box = boxAxis(body, solidExtent);
+  assert.ok(Math.abs(Math.abs(box.n[0] * d[0] + box.n[2] * d[1]) - 1) < 1e-9, "the box runs along the brace");
+  const [lo, hi] = solidExtent(body, [d[0], 0, d[1]]);
+  // the takeoff took the x axis (7 deg off on the real file; any wrong axis here)
+  const row = { computed: { status: "ok", gross: 1, solids: { body }, areas: { cross: { n: [1, 0, 0], gross: 0.5 } } }, lengthUnit: 1 };
+  const t = memberLength(row, solidExtent, "box");
+  assert.equal(t.lengthFrom, "box");
+  assert.ok(Math.abs(t.length - (hi - lo)) < 1e-9);
+  assert.equal(memberLength(row, solidExtent, null).length, null);
+});
+
+test("Tekla's convention holds back a bent pipe and a square base plate", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { boxLength } = await import("./geometry-quantities.mjs");
+  const { solidExtent } = await import(TAKEOFF.href);
+  const row = (body) => ({ computed: { status: "ok", gross: 1, solids: { body } }, lengthUnit: 1 });
+  // a 0.11 m downpipe with an offset in the middle: 2 m down, 0.12 m across, 2 m down
+  const w = 0.11, jog = [[0, 0], [w, 0], [w, 2], [w + 0.12, 2.2], [w + 0.12, 4.2], [0.12, 4.2], [0.12, 2.2], [0, 2]];
+  const pipe = boxLength(row(outlinePrism(jog, w)), solidExtent);
+  assert.equal(pipe.linear, true);
+  assert.equal(pipe.straight, false);
+  assert.equal(pipe.length, null);
+  // the same pipe straight, its foot cut at 45 deg: offered, along its run
+  const straight = boxLength(row(outlinePrism([[0, 0], [w, w], [w, 4.2], [0, 4.2]], w)), solidExtent);
+  assert.ok(Math.abs(straight.length - 4.2) < 1e-9);
+  // a 51 x 51 x 4.5 mm plate with a corner cut ('BOTTOM_PART')
+  const plate = boxLength(row(outlinePrism([[0, 0], [0.0514, 0], [0.0514, 0.04], [0.04, 0.0514], [0, 0.0514]], 0.0045)), solidExtent);
+  assert.equal(plate.linear, false);
+  assert.equal(plate.length, null);
+});
+
+test("a Tekla export's cut member gets the box length; an unknown tool's none", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { addMemberLines } = await import("./geometry-quantities.mjs");
+  const { solidExtent } = await import(TAKEOFF.href);
+  const { parseStep } = await import(new URL("../ifc-quantity-takeoff/step.mjs", import.meta.url).href);
+  const m = parseStep(`ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCORGANIZATION($,'Tekla',$,$,$);#2=IFCAPPLICATION(#1,'2016','Tekla Structures','Multi material modeling');
+#3=IFCORGANIZATION($,'Someone',$,$,$);#4=IFCAPPLICATION(#3,'1','Other exporter','X');
+#11=IFCOWNERHISTORY($,#2,$,.ADDED.,$,$,$,0);#12=IFCOWNERHISTORY($,#4,$,.ADDED.,$,$,$,0);
+#21=IFCBEAM('a',#11,$,$,$,$,$,$);#22=IFCBEAM('b',#12,$,$,$,$,$,$);
+ENDSEC;END-ISO-10303-21;`);
+  // 3 m along x, 0.2 x 0.3, one end mitred 45 deg in plan: extent 3, volume / section 2.9
+  const body = outlinePrism([[0, 0], [3, 0], [2.8, 0.2], [0, 0.2]], 0.3);
+  const row = (id) => ({ id, ifcType: "IFCBEAM", computed: { status: "ok", gross: 2.9 * 0.06, solids: { body }, areas: { cross: { n: [1, 0, 0], gross: 0.06 } } }, lengthUnit: 1 });
+  const tekla = row(21), other = row(22);
+  assert.equal(addMemberLines(m, [tekla, other], { solidExtent }), 1);
+  assert.equal(tekla.computed.lines.lengthFrom, "box");
+  assert.ok(Math.abs(tekla.computed.lines.length - 3) < 1e-9);
+  assert.equal(other.computed.lines, undefined);
+});

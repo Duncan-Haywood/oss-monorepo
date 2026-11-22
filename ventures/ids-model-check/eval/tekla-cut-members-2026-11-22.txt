@@ -1,0 +1,52 @@
+
+construction.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+Revit IFCCOLUMN | 257 | 257 | 257 | 0 | 0 | 0 | 0 (0 / 0)
+
+architect.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+Revit IFCMEMBER | 1392 | 1375 | 1375 | 0 | 0 | 17 | 0 (0 / 0)
+
+Schultz_Residence.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+
+AC20-FZK-Haus.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+ARCHICAD IFCBEAM | 1 | 1 | 1 | 0 | 0 | 0 | 0 (0 / 0)
+
+C20-Institute-Var-2.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+ARCHICAD IFCCOLUMN | 2 | 2 | 2 | 0 | 0 | 0 | 0 (0 / 0)
+
+ISSUE_021_Mini Project.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+Tekla IFCBEAM | 1946 | 1129 | 1129 | 0 | 0 | 808 | 9 (6 / 8)
+Tekla IFCCOLUMN | 26 | 26 | 26 | 0 | 0 | 0 | 0 (0 / 0)
+Tekla IFCMEMBER | 228 | 228 | 228 | 0 | 0 | 0 | 0 (0 / 0)
+
+ISSUE_068_ARK_NUS_skolebygg.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+Revit IFCBEAM | 40 | 40 | 16 | 23 | 1 | 0 | 0 (0 / 0)
+Revit IFCMEMBER | 687 | 660 | 7 | 653 | 0 | 27 | 0 (0 / 0)
+  miss Revit IFCBEAM #1165849: stored 1.92, offered 2.0795 (square)
+
+ISSUE_102_M3D-CON-CD.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+Tekla IFCBEAM | 242 | 106 | 106 | 0 | 0 | 120 | 16 (12 / 0)
+Tekla IFCCOLUMN | 32 | 16 | 16 | 0 | 0 | 12 | 4 (0 / 0)
+Tekla IFCPILE | 68 | 68 | 68 | 0 | 0 | 0 | 0 (0 / 0)
+
+ISSUE_102_M3D-CON.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+Tekla IFCBEAM | 31 | 25 | 25 | 0 | 0 | 6 | 0 (0 / 0)
+
+schependomlaan.ifc
+tool class | stored | offered | within 2% | repeated figure | other misses | not linear (plate, footing) | cut ends held back (extent right / volume over section right)
+ARCHICAD IFCBEAM | 127 | 123 | 118 | 0 | 5 | 4 | 0 (0 / 0)
+  miss ARCHICAD IFCBEAM #7939: stored 0.2811, offered 0.5 (square)
+  miss ARCHICAD IFCBEAM #8123: stored 0.35, offered 0.6549 (centroid)
+  miss ARCHICAD IFCBEAM #8937: stored 0.2811, offered 0.5 (square)
+  miss ARCHICAD IFCBEAM #10265: stored 0.2811, offered 0.5 (square)
+  miss ARCHICAD IFCBEAM #12513: stored 0.2811, offered 0.5 (square)
+
+all: 5079 stored; 4056 offered, 3374 within 2%, 676 a repeated stored figure, 6 other misses; 994 not linear; 29 cut ends held back (extent right 18, volume/section right 8)
