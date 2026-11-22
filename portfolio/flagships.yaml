@@ -607,9 +607,9 @@ flagships:
       Autodesk Takeoff, Solibri ITO.
     buildable: >-
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
-      opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
-      the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
-      covering areas, 43 wall sides, C20's 2 columns); 2 zinc copings' NetVolumes
+      opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
+      unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); a curved
+      wall's own side area (bendsInPlan walls); 2 zinc copings' NetVolumes
       (eval/side-lights-2026-11-22.md); turned-face figure in
       ifcopenshell-volumes.py --breps (eval/pole-faces-2026-11-22.md); revision
       series: Kegonsa's 7 exports done, replaced-in-place 2026-11-22

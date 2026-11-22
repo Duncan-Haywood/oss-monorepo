@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKk7Tb3qSonxTLFfd3c",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T22:09:29Z",
+  "ended": "2026-11-22T22:26:10Z",
+  "wall_minutes": 16.93,
+  "tokens_in": 11071393,
+  "tokens_out": 52344,
+  "cost_usd": 4.711,
+  "tool_calls": 80,
+  "task": "ifc-quantity-takeoff (flagship 14, allocator row 9): the 117 unexplained stored areas on the 8 public models",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18319",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "planeAreas tried on multi-piece bodies for the zinc copings; they are CSG differences (95 negative pieces), so the option was reverted",
+    "first curved-wall test (count of side directions) flagged two straight stud walls with an arched cut-out; replaced by an area-weighted test (no one direction over half the side area)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-ifc-stored-areas-holes-faces-curved-walls.md",
+    "ventures/ifc-quantity-takeoff/eval/curved-and-faces-2026-11-22.md"
+  ],
+  "goal": "deepen a flagship: explain the stored areas that disagree with the geometry",
+  "notes": "Unexplained stored areas on the 8 public models 117 -> 14 (eval/areas-vs-stored-2026-11-22-faces.txt vs -2026-11-20-sections.txt: only unexplained lines changed). Five causes: holes-added (14 ArchiCAD slabs, GrossArea = NetArea + Holes Surface Area), faces-averaged from the geometry's two cut faces (12 gross / 15 net wall sides), centre-line for wall-tool coverings (20 pairs), a-body-face via new geom planeAreas (12 pairs), curved via new geom bendsInPlan (10 Revit quarter-arc walls storing their outer face, to 0.000%). No trust change, so no BoQ total moves. Verification: node --test engine.test.mjs 58/58; run_venture_tests.py ifc-quantity-takeoff 218 tests ok; check_posts ok; validate.py ok; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0fe964db-c7bd-52e0-bffd-3046f29885fe",
+    "transcripts": 1,
+    "first": "2026-11-22T22:09:29Z",
+    "last": "2026-11-22T22:26:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 149,
+        "output": 52344,
+        "thinking": 16321,
+        "cache_read": 10885439,
+        "cache_write_5m": 0,
+        "cache_write_1h": 185805,
+        "api_equivalent_usd": 4.711,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 149,
+      "output": 52344,
+      "thinking": 16321,
+      "cache_read": 10885439,
+      "cache_write_5m": 0,
+      "cache_write_1h": 185805,
+      "api_equivalent_usd": 4.711,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 76,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.93,
+      "active_minutes": 16.93,
+      "model_minutes": 10.73,
+      "tool_minutes": 6.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a BIM QS engineer tracing 117 figure mismatches across 3 models, writing 5 rules and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 169.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

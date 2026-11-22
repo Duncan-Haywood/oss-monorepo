@@ -1136,3 +1136,95 @@ test("steel: a member with no quantity set gets its length from the body and its
   for (const m of ["Steel", "STEEL/S235JR", "Stahl S235", "ASTM A992", "Structural Steel - S275", "05 Staal_bordes_hoeklijnen"]) assert.ok(isSteel(m), m);
   for (const m of [null, "Concrete / Steel", "STEEL/NEOPRENE", "Stainless steel", "Steel fibre concrete", "Timber", "Aluminium"]) assert.ok(!isSteel(m), String(m));
 });
+
+// ---- eval/curved-and-faces-2026-11-22.md -----------------------------------
+
+const planRow = (id, { ifcClass = "IfcSlab", stored = {}, check = {}, plan } = {}) => ({
+  id, tag: null, ifcClass, type: null, pathJoins: [], box: [0, 0, 0, 5, 3, 0.2], stored, areaCheck: check,
+  computed: { openings: 0, areas: { plan } },
+});
+const planCheck = (which, stored, computed) => ({ kind: "plan", which, stored, computed, agree: false });
+const ar = (value) => ({ kind: "area", value }), ln = (value) => ({ kind: "length", value });
+
+test("explanations: ArchiCAD's slab GrossArea is its outline, the profile's holes added back (schependomlaan #700118)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const plan = { gross: 12.1992, net: 12.1992, faces: { gross: [12.1992, 12.1545], net: [12.1992, 12.1545] } };
+  const rows = [
+    planRow(1, { stored: { GrossArea: ar(13.1481), NetArea: ar(12.1992), "Holes Surface Area": ar(0.9488) }, check: { GrossArea: planCheck("gross", 13.1481, 12.1992) }, plan }),
+    // a sloped roof slab: its stored NetArea is the top face, the gross that face plus the holes (#785682)
+    planRow(2, { stored: { GrossArea: ar(12.5030), "Holes Surface Area": ar(1.7831) }, check: { GrossArea: planCheck("gross", 12.5030, 11.3869) }, plan: { gross: 11.3869, net: 11.3869, faces: { gross: [11.2730, 10.7199], net: [11.2730, 10.7199] } } }),
+    // the same gap with no holes figure stays unexplained
+    planRow(3, { stored: { GrossArea: ar(13.1481) }, check: { GrossArea: planCheck("gross", 13.1481, 12.1992) }, plan }),
+  ];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.GrossArea.reason, "holes-added");
+  assert.equal(rows[1].areaCheck.GrossArea.reason, "holes-added");
+  assert.equal(rows[2].areaCheck.GrossArea.reason, "unexplained");
+});
+
+test("explanations: a side area that is the mean of the two faces cut from the geometry (schependomlaan's knee walls)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const side = { gross: 0.0449, net: 0.0449, faces: { gross: [0.0773, 0.0449], net: [0.0773, 0.0449] }, width: 0.049 };
+  const rows = [
+    wallRow(1, { side, check: { GrossSideArea: sideCheck("gross", 0.0611, 0.0449) } }),
+    wallRow(2, { side, check: { GrossSideArea: sideCheck("gross", 0.0700, 0.0449) } }),
+  ];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.GrossSideArea.reason, "faces-averaged");
+  assert.equal(rows[1].areaCheck.GrossSideArea.reason, "unexplained");
+});
+
+test("explanations: a covering drawn with ArchiCAD's wall tool stores centre length x thickness (schependomlaan #62352)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const plan = { gross: 0.0967, net: 0.0967, faces: { gross: [0.0967, 0.0967], net: [0.0967, 0.0967] } };
+  const stored = { GrossArea: ar(0.0885), "Length of the Wall at the Center": ln(1.1961), Thickness: ln(0.074) };
+  const rows = [
+    planRow(1, { ifcClass: "IfcCovering", stored, check: { GrossArea: planCheck("gross", 0.0885, 0.0967) }, plan }),
+    planRow(2, { ifcClass: "IfcCovering", stored: { ...stored, Thickness: ln(0.09) }, check: { GrossArea: planCheck("gross", 0.0885, 0.0967) }, plan }),
+  ];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.GrossArea.reason, "centre-line");
+  assert.equal(rows[1].areaCheck.GrossArea.reason, "unexplained");
+});
+
+test("explanations: a stored area that is one plane's face of the body (schependomlaan's sill #868801)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const plan = (planes) => ({ gross: 0.0044, net: 0.0044, faces: { gross: [0.0044, 0.0044], net: [0.0044, 0.0044] }, planes });
+  const rows = [
+    planRow(1, { ifcClass: "IfcCovering", check: { GrossArea: planCheck("gross", 0.6777, 0.0044) }, plan: plan([0.67771, 0.06161, 0.0044]) }),
+    planRow(2, { ifcClass: "IfcCovering", check: { GrossArea: planCheck("gross", 0.6777, 0.0044) }, plan: plan([0.7, 0.06161, 0.0044]) }),
+  ];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.GrossArea.reason, "a-body-face");
+  assert.equal(rows[1].areaCheck.GrossArea.reason, "unexplained");
+});
+
+test("explanations: a curved wall's side is not a plane cut (skolebygg's quarter-arc walls)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const side = (curved) => ({ gross: 0.7573, net: 0.7573, faces: { gross: [0.0002, 0.0427], net: [0.0002, 0.0427] }, width: 0.821, curved });
+  const rows = [
+    wallRow(1, { side: side(true), check: { GrossSideArea: sideCheck("gross", 2.5918, 0.7573) } }),
+    wallRow(2, { side: side(undefined), check: { GrossSideArea: sideCheck("gross", 2.5918, 0.7573) } }),
+  ];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.GrossSideArea.reason, "curved");
+  assert.equal(rows[0].areaCheck.GrossSideArea.trust, true);
+  assert.equal(rows[1].areaCheck.GrossSideArea.reason, "unexplained");
+});
+
+test("bendsInPlan: a quarter-arc wall bends, a straight one and one with a rounded nib do not; planeAreas per plane", async () => {
+  const { bendsInPlan, planeAreas } = await import("./geom.mjs");
+  const arc = (r, n) => Array.from({ length: n + 1 }, (_, i) => [r * Math.cos((i * Math.PI) / 2 / n), r * Math.sin((i * Math.PI) / 2 / n)]);
+  // 90 facets each side, 2.2 m outside and 1.95 m inside, 0.75 m high
+  const plan = [...arc(2.2, 90), ...arc(1.95, 90).reverse()];
+  const curved = { terms: [], mesh: 1, shells: [{ s: 1, loops: prism(plan, [0, 0, 0.75]) }] };
+  assert.equal(bendsInPlan(curved, [0, 0, 1], [Math.SQRT1_2, Math.SQRT1_2, 0]), true);
+  const box = { terms: [{ s: 1, faces: prism([[0, 0], [3, 0], [3, 0.25], [0, 0.25]], [0, 0, 2]) }], mesh: 0, shells: [] };
+  assert.equal(bendsInPlan(box, [0, 0, 1], [0, 1, 0]), false);
+  // a 3 m wall with a 20 mm half-round nib on one face: 12 small faces in 12 directions
+  const nib = Array.from({ length: 13 }, (_, i) => [1.5 + 0.02 * Math.cos(Math.PI - (i * Math.PI) / 12), -0.02 * Math.sin((i * Math.PI) / 12)]);
+  const nibbed = { terms: [], mesh: 1, shells: [{ s: 1, loops: prism([[0, 0], ...nib, [3, 0], [3, 0.07], [0, 0.07]], [0, 0, 2]) }] };
+  assert.equal(bendsInPlan(nibbed, [0, 0, 1], [0, 1, 0]), false);
+  const P = planeAreas(box).map((p) => p.area).sort((a, b) => a - b);
+  assert.deepEqual(P.map((x) => +x.toFixed(9)), [0.5, 0.5, 0.75, 0.75, 6, 6]);
+});
