@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, repair, sampleFile, sampleBrokenFile, sampleDealsFile, findingsCsv, parseCsv, toCsv, classifyDate, decodeBuffer, NOT_CHECKED, DEAL_STATUS } from "./calc.mjs";
+import { validate, repair, sampleFile, sampleBrokenFile, sampleDealsFile, findingsCsv, parseCsv, toCsv, classifyDate, decodeBuffer, NOT_CHECKED, DEAL_STATUS, ROW_LIMIT } from "./calc.mjs";
 
 const HEAD = "Title,Value,Currency,Stage,Status,Expected close date,Probability,Organization";
 const file = (...rows) => [HEAD, ...rows].join("\n") + "\n";
@@ -124,4 +124,42 @@ test("findings CSV and NOT_CHECKED travel with the result", () => {
   assert.deepEqual(r.notChecked, NOT_CHECKED);
   assert.equal(parseCsv(findingsCsv(r)).rows.length, r.findings.length + 1);
   assert.equal(toCsv([["a,b", 'c"d']]), '"a,b","c""d"\r\n');
+});
+
+// Quality round 98 (portfolio/quality/audits/2026-11-22-pipedrive-import-csv-check.json).
+test("round 98: a deal needs a person or an organization", () => {
+  const none = validate("Title,Value\nA,1\n", { kind: "deals" });
+  assert.ok(none.findings.some((f) => f.severity === "error" && /No Person or Organization column/.test(f.title)));
+  const blank = validate("Title,Organization\nA,\n", { kind: "deals" });
+  assert.ok(blank.findings.some((f) => f.severity === "error" && /Deal has no Person or Organization/.test(f.title)));
+  const ok = validate("Title,Organization\nA,Acme\n", { kind: "deals" });
+  assert.ok(!ok.findings.some((f) => /Person or Organization/.test(f.title)));
+});
+
+test("round 98: automatic file type reads common people and deals files right", () => {
+  const people = validate("Name,Organization\nMaya Chen,Harbour Ltd\n");
+  assert.equal(people.summary.kind, "people");
+  assert.ok(!people.findings.some((f) => /appears in two columns/.test(f.title)));
+  const deals = validate("Title,Organization,Status\nA,Acme,Closed Won\n");
+  assert.equal(deals.summary.kind, "deals");
+  assert.ok(deals.findings.some((f) => f.severity === "error" && /Closed Won/.test(f.title)));
+  assert.equal(validate("First name,Last name,Title,Email\nMaya,Chen,CTO,m@x.io\n").summary.kind, "people");
+  assert.equal(validate("Name,Address,Website\nAcme,1 Main St,acme.io\n").summary.kind, "organizations");
+});
+
+test("round 98: Pipedrive's 50,000-row file limit applies by default", () => {
+  assert.equal(ROW_LIMIT, 50000);
+  const body = Array.from({ length: 50001 }, (_, i) => `P${i}`).join("\n");
+  const r = validate("Name\n" + body + "\n");
+  assert.ok(r.findings.some((f) => /50,001 rows/.test(f.title)));
+  const under = validate("Name\n" + body.split("\n").slice(0, 50000).join("\n") + "\n");
+  assert.ok(!under.findings.some((f) => /rows$/.test(f.title) && /50,000/.test(f.title)));
+});
+
+test("round 98: a non-integer ID is an error, and pinned survivors", () => {
+  assert.ok(validate("Name,ID\nA,12a\n").findings.some((f) => f.severity === "error" && /not a whole number/.test(f.title)));
+  assert.ok(validate("Title,Organization,Probability\nA,Acme,1.0\n").findings.some((f) => /fraction/i.test(f.title + f.detail)));
+  assert.ok(validate('Title,Organization,Value\nA,Acme,"12,000"\n').findings.some((f) => f.severity === "error" && /plain number/i.test(f.title + f.detail)));
+  const d = validate("Title,Organization,Value\nA,Acme,5\nA,Beta,5\n");
+  assert.ok(!d.findings.some((f) => /duplicate|twice|same/i.test(f.title)));
 });
