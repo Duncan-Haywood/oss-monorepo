@@ -1,0 +1,225 @@
+{
+ "date": "2026-11-22",
+ "subject": "research/sensing-imuarray",
+ "stratum": "research",
+ "seed": "2026-11-22-j-58a2",
+ "drawn_by": "sample",
+ "round": 99,
+ "auditor": "agent session (Claude), quality round 99",
+ "status": "audited",
+ "professional": "an inertial navigation researcher who characterises MEMS gyros with IEEE Std 952 Allan analysis and has worked on redundant/virtual-gyro arrays; first checks: is the angle-error variance N^2 T + K^2 T^3/3 right, does the equicorrelated fusion factor and the k^2 / 1/k^2 rules follow, is the Allan fit unbiased, and is the result new against the gyro-array literature (Bayard and Ploen 2003; Chang, Xue et al. 2008; Skog et al. 2016; Vaccaro and Zaki 2017)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran experiments/run.py in a scratch copy (python 3.13, numpy; 4.9 s): results.txt byte-identical to the committed one (the figure step stopped on missing matplotlib, after results.txt is written). Independent recomputation in exact rational arithmetic with my own closed forms, no package import (/tmp/claude-0/-home-user-oss-monorepo/20d3eb67-43fe-5ab8-a54f-4c717b426b39/scratchpad/indep.py): k^2 rule 9 and 100 at every T; rho tables k=3 [9,10,10,10,12,81] match; k=10 exact [100,111,143,none,none,none] at every T, while the package prints 101 and 112 at T=10 and 100 s (float ties: fused(100)-target = +6.8e-21); section C 101/142/none and 10/10/none match; section F matches except T=1 s, rho=0.01, where the exact answer is 97,922 and the package prints 'none' because units_needed hits nmax=100000 during doubling; break-even rho (c/k^2-1)/(c-1) = 0.0519/0.0824/0.1021/0.0067/0.0090 match, but k=10, c=100 is exactly 0 and the package prints '<0 (loses even at rho=0)'; MC formula column (2.000, 2.059, 2.280, 1.000, 1.140, 1.581, 0.707, 0.900, 1.432) matches. Allan: package fit over 10 seeds gives K_hat/K = 0.998 +/- 0.019 (unbiased); my own overlapping-Allan ARW read at tau=1 s gives 0.00500. Substance right; the wrong cells are off-by-one or sign artefacts of exact ties and an iteration cap.",
+  "completeness": "Everything the README lists runs: 8 tests (README says 8) pass in 0.41 s; run.py reproduces results.txt sections A-F; imuarray.png is committed. Track 15 milestone 1 (PROJECTS.md:1127) asks for break-even, shared mount and temperature drift: all three are modelled (sections B, C). Owner step (real logs to measure rho) is declared, not claimed. Live page https://marisstella.app/research/sensing-imuarray/ not loadable here (curl 000 through proxy); project is listed in research/_homepage/projects.json.",
+  "verification": "`cd research/sensing-imuarray && PYTHONPATH=src python3.13 -m pytest -q tests`: 8 passed in 0.41 s. Four mutants via platform/ci/quality_mutate.py: 2 caught (fused_factor (n-1)*rho -> n*rho; sqrt(rho_b) -> rho_b in simulate_units), 2 survived: the bias-walk step K*sqrt(dt) -> K*dt (every test and experiment uses dt=1, so the time-step scaling is unchecked), and the infeasibility floor check loosened by 10x (the nmax backstop returns None anyway, so tests cannot tell 'infeasible' from 'exceeded cap'). No test pins an exact tie, which is why the 101-vs-100 float artefact went unnoticed.",
+  "craft": "Read src/sensing_imuarray/model.py (106 lines), __init__.py, tests/test_model.py, experiments/run.py. Small, readable, numpy-only, seeded. Defects: units_needed compares floats at an exact tie with no tolerance (model.py:43,48,54) so integer break-evens come out one high; returns None both for 'infeasible' and for 'more than nmax' (model.py:50-51) with no way to tell; breakeven_rho has a dead alias `a = better_target` (model.py:63) and returns nan for n=1; simulate_units is an O(T/dt) Python loop (fine at this size). run.py filters `c > 1` on a list with none <= 1.",
+  "claims": "Backed: k^2 rule, 1/k^2 infeasibility, floor sigma*sqrt(rho), section C and F statements, break-even values, Allan fit numbers, '8 tests'. Not backed: 'fused/better RMS ratio within 0.03 of the formula in all nine cases' (results.txt: n=4, rho=0.02 is 2.013 vs 2.059, gap 0.046); 'for k = 10 it needs 100-101' and '111-112' present float artefacts as results right after saying the answer is independent of T (exact: 100 and 111); 'for k = 10 no rho rescues price ratios up to 100' (at c=100 rho=0 ties exactly); '~1 min' runtime (4.9 s). Disclaimers and limitations (no real data, illustrative grades, no flicker/scale factor) are good. Gyro-array literature is acknowledged only as 'an old idea' with no citation.",
+  "fitness": "A researcher could build on the closed forms, but the result is the textbook equicorrelated-mean variance applied to a two-term Allan model; nearest prior work (Bayard and Ploen 2003 JPL virtual gyro; Chang, Xue et al. 2008 IEEE TIM, Kalman-combined MEMS gyro arrays; Skog, Nilsson, Handel et al. 2016 IEEE TSP, inertial sensor arrays and CRB; Vaccaro and Zaki 2017 Sensors, reduced-drift virtual gyro) already covers sqrt(n) averaging and the effect of correlated errors, and none is cited. The README does not claim novelty loudly, but there is no real data, no rho measurement, and nothing near the PhD/publishable bar research/CLAUDE.md sets.",
+  "domain": "Matches IEEE Std 952 for the two terms it models (ARW -1/2 slope, RRW +1/2 slope, avar = N^2/tau + K^2 tau/3; angle variance N^2 T + K^2 T^3/3). Departs where a practitioner looks first: bias instability (flicker, the Allan floor) is the dominant MEMS term between roughly 10 and 1000 s and is omitted, so the horizon-dependent conclusions (section C, F) are drawn exactly where the missing term rules; quantisation, scale factor and g-sensitivity omitted; equal-weight only (optimal for exchangeable units, so that one is fine). All stated as limitations, which is honest, but a senior navigation engineer would not sign off the T-dependent results without flicker."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Rerun headline experiment and diff results.txt",
+   "method": "rerun in scratch copy",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/20d3eb67-43fe-5ab8-a54f-4c717b426b39/scratchpad/rerun && python3.13 experiments/run.py; diff experiments/results.txt committed.txt",
+   "expected": "identical",
+   "observed": "identical (figure step needs matplotlib, after results are written)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Independent-error tie needs n = k^2, independent of T",
+   "method": "exact rational arithmetic, own closed form N^2 T + K^2 T^3/3 times 1/n (Allan 1966 / IEEE 952 two-term model)",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/20d3eb67-43fe-5ab8-a54f-4c717b426b39/scratchpad/indep.py",
+   "expected": "k=3: 9; k=10: 100 at T=10,100,1000,3600 (README '100-101')",
+   "observed": "exact 9 and 100 at every T; package prints 101 at T=10 and 100 s",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Units needed vs common rho, k=3 and k=10",
+   "method": "n >= (1-rho)/(1/k^2 - rho), exact fractions",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/20d3eb67-43fe-5ab8-a54f-4c717b426b39/scratchpad/indep.py",
+   "expected": "results.txt B: k=3 9,10,10,10,12,81; k=10 101,112,143,none x3",
+   "observed": "k=3 identical; k=10 exact 100,111,143,none x3 (111.0 and 142.43 from the closed form)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Section F unequal improvement (kN=10, kK=3)",
+   "method": "exact rational search",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/20d3eb67-43fe-5ab8-a54f-4c717b426b39/scratchpad/indep.py",
+   "expected": "results.txt F table",
+   "observed": "all cells match except T=1, rho=0.01: exact 97,922, package 'none' (nmax=100000 cap)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even rho at T=100 s",
+   "method": "rho* = (c/k^2 - 1)/(c - 1) from equicorrelated variance algebra",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/20d3eb67-43fe-5ab8-a54f-4c717b426b39/scratchpad/indep.py",
+   "expected": "0.0519, 0.0824, 0.1021 (k=3); 0.0067, 0.0090 (k=10); README 'no rho rescues c up to 100' for k=10",
+   "observed": "0.05185, 0.08244, 0.10213, 0.00669, 0.00901; k=10 c=100 exactly 0.0 (package -2.2e-18, printed '<0')",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Allan fit recovers N and K without bias",
+   "method": "package fit over seeds 0-9; own overlapping Allan (IEEE 952 Annex C) ARW read at tau = 1 s",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/20d3eb67-43fe-5ab8-a54f-4c717b426b39/scratchpad/allan.py",
+   "expected": "N 0.005, K 8.66e-5",
+   "observed": "K_hat/K mean 0.998 sd 0.019 over 10 seeds; own ARW read 0.00500",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Monte Carlo within 0.03 of the formula in all nine cases'",
+   "method": "read results.txt E against my exact formula column",
+   "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/20d3eb67-43fe-5ab8-a54f-4c717b426b39/scratchpad/indep.py",
+   "expected": "max |MC - formula| <= 0.03",
+   "observed": "n=4, rho=0.02: 2.013 vs 2.059 (gap 0.046); other gaps <= 0.026",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'8 tests' and '~1 min' runtime",
+   "method": "ran them",
+   "command": "PYTHONPATH=src python3.13 -m pytest -q tests; time python3.13 experiments/run.py",
+   "expected": "8 tests; ~1 min",
+   "observed": "8 passed in 0.41 s; run.py 4.9 s",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Tests pass",
+   "method": "pytest",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "8 passed",
+   "observed": "8 passed in 0.41s",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited and novelty",
+   "method": "compare against gyro-array literature",
+   "command": "grep -n 'Builds on' research/sensing-imuarray/README.md",
+   "expected": "array papers cited (Bayard and Ploen 2003; Chang/Xue 2008; Skog et al. 2016; Vaccaro and Zaki 2017)",
+   "observed": "only Allan 1966, IEEE 952 and in-repo fusion-twin; 'no specific array paper is reproduced here'",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Noise model against IEEE Std 952 terms",
+   "method": "IEEE 952-1997 Annex C Allan slopes",
+   "command": "sed -n 1,35p research/sensing-imuarray/src/sensing_imuarray/model.py",
+   "expected": "ARW, bias instability, RRW at minimum for MEMS",
+   "observed": "ARW and RRW only; bias instability omitted (stated limitation)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Track 15 milestone 1 scope (break-even, shared mount, temperature drift)",
+   "method": "research/PROJECTS.md:1127 vs results.txt",
+   "command": "sed -n 1126,1131p research/PROJECTS.md",
+   "expected": "all three modelled",
+   "observed": "break-even (B, D), shared mount (rho_w), drift (C, rho_b) present",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/sensing_imuarray/model.py:45",
+   "change": "if floor >= target: -> if floor > 10 * target:",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/sensing_imuarray/model.py:81",
+   "change": "sb = g.K * math.sqrt(dt) -> g.K * dt",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/sensing_imuarray/model.py:87",
+   "change": "math.sqrt(rho_b) * cb -> rho_b * cb",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/sensing_imuarray/model.py:28",
+   "change": "(1.0 + (n - 1) * rho) / n -> (1.0 + n * rho) / n",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "units_needed compares floats at exact ties with no tolerance, so integer break-evens print one high (k=10: 101 not 100 at rho=0, 112 not 111 at rho=0.001, T=10/100 s) and the README reports them as '100-101' and '111-112', contradicting its own 'independent of T'. A relative tolerance (target * (1 + 1e-12)) gives the exact 100/111 and keeps all 8 tests green.",
+   "where": "research/sensing-imuarray/src/sensing_imuarray/model.py:43",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "README says the Monte Carlo is within 0.03 of the formula in all nine cases; results.txt shows 2.013 vs 2.059 (gap 0.046) at n=4, rho=0.02.",
+   "where": "research/sensing-imuarray/README.md:22",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work on gyro arrays / virtual gyros (Bayard and Ploen 2003; Chang, Xue et al. 2008 IEEE TIM; Skog et al. 2016 IEEE TSP; Vaccaro and Zaki 2017 Sensors) is not cited; the project is a textbook equicorrelated-mean result with no real data, well below the research PhD bar.",
+   "where": "research/sensing-imuarray/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Bias instability (flicker), the dominant MEMS Allan term in the 10-1000 s band, is omitted, yet the horizon-dependent conclusions (sections C and F) are drawn in exactly that band. Stated as a limitation.",
+   "where": "research/sensing-imuarray/src/sensing_imuarray/model.py:1",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "units_needed returns None both for 'infeasible' and for 'exceeds nmax=100000'; results.txt F prints 'none' at T=1 s, rho=0.01 where the exact answer is 97,922. The floor check could be weakened 10x with every test green.",
+   "where": "research/sensing-imuarray/src/sensing_imuarray/model.py:50",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Bias-walk step scaling K*sqrt(dt) is untested: every test and experiment uses dt=1, so K*dt survives.",
+   "where": "research/sensing-imuarray/src/sensing_imuarray/model.py:81",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README 'for k = 10 no rho rescues price ratios up to 100' and results.txt '<0 (loses even at rho=0)' at c=100: the exact break-even is rho=0 (a tie); float gives -2.2e-18.",
+   "where": "research/sensing-imuarray/README.md:25",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README says run.py takes ~1 min; it takes about 5 s.",
+   "where": "research/sensing-imuarray/README.md:15",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, reproducible stylised model: results.txt reruns byte-identical, and an exact-arithmetic recomputation confirms the k^2 rule, the 1/k^2 infeasibility, the break-even rho and the Monte Carlo formula column. The wrong cells are float-tie artefacts (101/112 instead of 100/111, '<0' instead of 0) and one iteration-cap 'none' (97,922), which the README partly repeats, and the 'within 0.03' Monte Carlo claim is false (0.046). Two of four mutants survive (dt scaling, floor check). For an inertial navigation researcher the method is right for the two terms it models but omits bias instability where its horizon conclusions live, and it cites none of the gyro-array literature it sits inside. Finished, not at the bar (claims 2, verification 2, median 2)."
+}
