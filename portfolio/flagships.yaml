@@ -307,9 +307,10 @@ flagships:
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
       the old one lost 1-39 of (eval/shadow-lift-banding-*). HDR+ bursts
-      (storage.googleapis.com/hdrplusdata; tools/hdrplus_noise_truth.py): real-noise
-      truth, next a dB sweep (eval/hdrplus-noise-truth-*). X-Trans lift settled off.
-      DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      (storage.googleapis.com/hdrplusdata; tools/hdrplus_noise_truth.py):
+      tools/hdrplus_demosaic_sweep.py; next a q-ramp fit by burst. X-Trans lift
+      settled off. DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
@@ -331,14 +332,11 @@ flagships:
       at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
       whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
       2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
-      (eval/noise-pca-whitened-level-*); mpcws (held +0.31 dB) failed on K-1 II not
-      by a noisy truth: a green-pair truth read failed its validity tests
-      2026-11-22, and mpcws's own selection over-reads 2.3x there
-      (eval/noise-pca-mpcws-noisy-truth-*); gain and over-read share a cause, so
-      this set is spent (eval/noise-pca-mpcw1-*); on real noise (57 HDR+ bursts,
-      truth = frame minus burst merge, 2026-11-22) mpcws reads 1.16x truth, mpcw
-      0.96, mpcw1 1.03 (eval/hdrplus-noise-truth-*); next a dB sweep there. More
-      open items: NEXT.md.
+      (eval/noise-pca-whitened-level-*); gain and over-read share a cause, so this
+      set is spent (eval/noise-pca-mpcw1-*); HDR+ dB sweep 2026-11-22 (48 bursts,
+      real noise): mpcws +0.13 dB luma over mpcw but 2 bursts lose >0.1, default
+      stays; the oracle loses on both (eval/hdrplus-demosaic-sweep-*); next the
+      blend's q ramps on real noise, then mpcws again. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

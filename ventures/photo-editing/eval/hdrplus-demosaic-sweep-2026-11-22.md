@@ -59,6 +59,84 @@ tuned on this set. Cells are thirds of the bursts by the true sigma at 18% grey 
   opened to test the same on camera DNGs; no developer change rests on phones alone.
 - **R3 (headroom):** `true+12` minus `ship+12` and minus the R1 winner, reported.
 
-## Result
+## Result: `mpcws` gains on real noise but fails h4 on 2 bursts, so defaults stay; the oracle loses on the same 2
 
-(Filled in after the run.)
+53 bursts given, 48 scored, 5 skipped and reported: each had over 25% of its frame masked (0.26 to 0.72) by
+moving subjects the merge rejected (four `angler` bursts, `0543_*` and `0919_*`, and one Nexus 6). About 25 minutes
+on 4 cores. Rows: `hdrplus-demosaic-sweep-2026-11-22.jsonl`; every number below:
+`hdrplus-demosaic-sweep-2026-11-22.txt` (`--summary`).
+
+Every arm over `D` (mean dB, 48 bursts; losers lose over 0.1 dB to `D` on luma or colour):
+
+| arm | luma | colour | losers |
+|---|---|---|---|
+| `true+12` (oracle) | +0.751 | +0.244 | 0 |
+| `ship+12` (`mpcw`, what ships) | +0.558 | +0.257 | 0 |
+| `chen+12` | +0.362 | +0.196 | 0 |
+| `mpcws+12` | **+0.692** | **+0.296** | 0 |
+| `mpcw1+12` | +0.605 | +0.275 | 0 |
+| `profile+12` (the phone's NoiseProfile) | +0.721 | +0.132 | 2 |
+
+**R1, `mpcws+12` against `ship+12`: h1, h2 and h3 pass; h4 fails.**
+
+| | reading | bar | |
+|---|---|---|---|
+| h1 means | luma **+0.134**, colour **+0.039**; lowest third +0.031 | each at least -0.005, thirds at least -0.02 | pass |
+| h2 losers to `D` | 0 and 0, none new | no new, no more | pass |
+| h3 mean luma | **+0.134** | at least +0.02 | pass |
+| h4 bursts over 0.1 dB under `ship+12` | **2 of 48** | none | **fail** |
+
+By thirds of the noise level the luma gain grows with noise: +0.062, +0.124, +0.216 dB (colour +0.031, +0.040,
++0.045). It gains luma on 38 of 48 bursts, colour on 35, both on 28; median +0.049 luma, best +0.98. The two h4
+bursts:
+
+- `0043_20160825_193900_964` (Pixel XL, ISO 50): colour -0.157, luma -0.011.
+- `0127_20161018_111029_303` (Pixel XL, ISO 826): luma -0.186, colour +0.028.
+
+So by the rule committed above, **defaults stay**: `frame_noise` keeps `mpcw` on Bayer; `mpcws` stays an option.
+
+**R2, the phone's NoiseProfile against the frame read:** `profile+12` over `ship+12` +0.164 dB luma but -0.125
+colour, 22 of 48 bursts over 0.1 dB worse on colour (one of them on luma too). `ship+12` is not ahead on both,
+so by the rule no item is opened. The profile as the developer pools it reads a median 1.22 x the true model
+(p10 1.04, p90 1.39).
+
+**R3, headroom:** `true+12` over `ship+12` +0.193 dB luma, -0.013 colour; over `mpcws+12` +0.059 luma, -0.052
+colour. `mpcws` closes about 70% of the luma gap between what ships and the oracle and is ahead of the oracle
+on colour.
+
+**Readings after the verdict (they decide nothing).**
+
+- **Both h4 bursts are bursts where the oracle loses too, by as much.** On `0043_20160825_193900_964` `true+12`
+  loses -0.24 dB colour to `ship+12` (`mpcws` -0.16); `mpcws` reads 0.88 of the true model there and `ship`
+  0.67. On `0127_20161018_111029_303` `true+12` loses -0.18 dB luma (`mpcws` -0.19); there `ship` reads 1.44 of the
+  true model and `mpcws` 1.03. On those two frames a read nearer the truth costs, whichever read it is: the loss
+  is in what the blend does with an accurate model (its `q` ramps, tuned on drawn noise), not in `mpcws`'s
+  over-read, which the 2026-11-22 noise-truth note found before the 0.8 frame scale and which the scale takes back
+  (0.80 of the true model here). `true+12` has 9 bursts over 0.1 dB under `ship+12`, more than `mpcws+12`'s 2.
+- The lift (`+12`) costs a little on real noise in every arm (-0.02 to -0.03 dB luma, 0 to -0.01 colour against
+  the unlifted blend); it was tuned against near-clean leaks on drawn noise, and no burst here loses to `D` either way.
+- The NoiseProfile's colour loss comes with a read 1.22 x the true model, and an over-read blends toward
+  bilinear; whether the one-gain carry (the planes' mean pair times the mean gain) is the cause is a guess this
+  run did not test.
+- Limits: one maker's phones, 10-bit, mostly daylight; the truth keeps about 0.2 of the input's noise sigma; the
+  noisy mosaic is built on a 4 x 4 binned scene. Nothing here is X-Trans or a large-sensor 14-bit body.
+
+## Next
+
+- The blend's `q` ramps on real noise: on 9 of 48 bursts the oracle model loses over 0.1 dB to what ships. A
+  ramp fit on this set (split by burst) would say whether the drawn-noise tuning leaves real-noise dB behind,
+  and h4 for `mpcws` should be rerun after it (both its losers are oracle losers).
+- The NoiseProfile path's colour loss (-0.125 dB against the frame read on these DNGs): a per-colour carry was
+  rejected on 2026-11-16 on drawn noise; real noise is a fresh test.
+- The 91 bursts with no NoiseProfile (`m = 1/N`), which would double this set.
+
+## Reproduce
+
+```
+cd ventures/photo-editing
+PYTHONPATH=src python tools/hdrplus_demosaic_sweep.py --bursts eval/hdrplus-demosaic-sweep-bursts-2026-11-22.txt --cache /tmp/hdrplus > rows.jsonl
+PYTHONPATH=src python tools/hdrplus_demosaic_sweep.py --summary rows.jsonl
+```
+
+Each burst downloads two DNGs (~17 MB) from storage.googleapis.com/hdrplusdata (CC BY-SA 4.0) and deletes them
+after (`--keep` keeps them). Test: `tests/test_hdrplus_demosaic_sweep.py`.

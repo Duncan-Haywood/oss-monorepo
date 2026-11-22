@@ -16,3 +16,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) IIQ 16-bit (IQ4, IQ3 100MP, Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled (eval/phaseone-iiq-16bit-*)
 - (moved 2026-11-22) IIQ calibration (0x110) 2026-11-19: LibRaw's to 3 codes off dead columns (eval/phaseone-iiq-calibration-*)
 - (moved 2026-11-22) mpcw1 (select once at mpcw's level) failed its gates 2026-11-22: 1.48x mpcw on that tile, +0.01 of mpcws's +0.26 dB
+- (moved 2026-11-22) mpcws (held +0.31 dB) failed on K-1 II not by a noisy truth: a green-pair truth read failed its validity tests 2026-11-22, and mpcws's own selection over-reads 2.3x there (eval/noise-pca-mpcws-noisy-truth-*)
