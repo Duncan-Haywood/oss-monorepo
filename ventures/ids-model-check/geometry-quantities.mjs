@@ -31,6 +31,12 @@
 //   Width, Perimeter         slabs: the thickness across the extruded profile,
 //                            and the profile's outline at mid-thickness
 //                            (slabLines below; eval/slab-width-perimeter-2026-11-22.md)
+//   Width, Height, Area, Perimeter
+//                            doors and windows: the opening each fills, in
+//                            its placement's x (width) and z (height), its
+//                            section and bounding perimeter; ARCHICAD exports
+//                            only, the one tool whose convention is known
+//                            (openingLines below; eval/door-window-quantities-2026-11-22.md)
 // Other lengths and heights are not offered.
 //
 // Every value is in SI units (m, m2, m3), as the IDS standard reads values.
@@ -40,6 +46,7 @@ const PLAN = /^IFC(SLAB|PLATE|COVERING|ROOF)/;
 const CROSS = /^IFC(COLUMN|BEAM|MEMBER|PILE)/;
 const SLAB = /^IFCSLAB/;
 const LINEAR = /^IFC(WALL|COLUMN|BEAM|MEMBER|PILE)/; // Length: walls and linear members
+const OPENING = /^IFC(DOOR|WINDOW)/;
 const LINES = new Set(["Length", "Height"]); // read from computed.lines, not the sections
 
 // [quantity name, quantity kind, class test or null for any, reader(row) -> number|null]
@@ -58,6 +65,10 @@ export const GEOMETRY_QUANTITIES = [
   ["CrossSectionArea", "area", CROSS, (r) => r.computed.areas?.cross?.gross],
   ["Length", "length", LINEAR, (r) => r.computed.lines?.length],
   ["Height", "length", WALL, (r) => r.computed.lines?.height],
+  ["Width", "length", OPENING, (r) => r.computed.opening?.width],
+  ["Height", "length", OPENING, (r) => r.computed.opening?.height],
+  ["Area", "area", OPENING, (r) => r.computed.opening?.area],
+  ["Perimeter", "length", OPENING, (r) => r.computed.opening?.perimeter],
 ];
 
 // The IFC quantity class each kind is written as.
@@ -79,7 +90,7 @@ export function quantitiesFromRows(rows) {
     let m = null;
     for (const [name, kind, cls, read] of GEOMETRY_QUANTITIES) {
       if (cls && !cls.test(r.ifcType)) continue;
-      if (kind !== "volume" && !areasOk && !LINES.has(name)) continue;
+      if (kind !== "volume" && !areasOk && !LINES.has(name) && !(cls === OPENING)) continue;
       const v = read(r);
       if (!usable(v)) continue;
       if (!m) out.set(r.id, (m = new Map()));
@@ -772,6 +783,110 @@ export function addSlabLines(model, rows, { solidExtent }) {
   return n;
 }
 
+// ---- a door's or window's width, height, area and perimeter ----------------
+//
+// Qto_DoorBaseQuantities and Qto_WindowBaseQuantities: Width and Height are
+// the door's (window's) overall width and height, Area its total area and
+// Perimeter its total perimeter. They are read from the opening the element
+// fills (IfcRelFillsElement), taken into the element's own placement, where
+// x is the width and z the height as for OverallWidth and OverallHeight: its
+// extent along x and z, and its section across y (the wall's thickness). The
+// opening, not the element's attributes or body, because that is what the
+// exporters measured (eval/door-window-quantities-2026-11-22.md): a Revit
+// window's OverallHeight is its frame's 1.365 m where Width/Height/Area store
+// the opening's 1.35 m, and a Revit door's body includes its casing.
+//
+// What each tool stores, measured on the public models that store the sets:
+//   ARCHICAD   Width, Height: the opening's; Area: the opening's own section
+//              (a round window's pi/4 m2, not 1 m2); Perimeter: 2 (W + H),
+//              the bounding rectangle's, round windows included. Offered.
+//   Revit      no one rule: Revit 2010 (HHS Office) stores OverallWidth and
+//              OverallHeight, 2019 (ARK_NUS) neither them nor the opening's
+//              to the centimetre, 2022 (kleine Wohnung) the opening's Width
+//              and a window's Height but a door's leaf height. Not offered.
+//   others     no public export stores the sets to compare. Not offered.
+// An opening several elements fill (a window assembly) offers nothing, nor
+// one whose width or height is more than 1% off the element's own
+// OverallWidth/OverallHeight (schependomlaan's 'merk J' windows: 0.9 x 1.5 m,
+// in a 1.53 x 2.637 m opening, storing a 0.30 m Width).
+
+const OPENING_CONVENTIONS = [
+  [/archicad|graphisoft/i, "archicad"],
+];
+
+/**
+ * A door's or window's readings from its opening (SI) and which are offered.
+ * @param {object} opening the filled opening's solid in the element's placement frame (body units)
+ * @param {number} f the length unit in metres
+ * @param {string|null} convention 'archicad' or null (OPENING_CONVENTIONS)
+ * @param {{width?: number|null, height?: number|null}} overall the element's OverallWidth/OverallHeight (SI), when set
+ * @param {{solidExtent: Function, sectionArea: Function}} geom geom.mjs
+ * @returns {{width: number|null, height: number|null, area: number|null, perimeter: number|null, openWidth: number, openHeight: number, section: number|null} | null}
+ */
+export function openingLines(opening, f, convention, overall, { solidExtent, sectionArea }) {
+  const [x0, x1] = solidExtent(opening, [1, 0, 0]);
+  const [z0, z1] = solidExtent(opening, [0, 0, 1]);
+  if (!(x1 > x0) || !(z1 > z0) || !Number.isFinite(x1 - x0) || !Number.isFinite(z1 - z0)) return null;
+  const W = (x1 - x0) * f, H = (z1 - z0) * f;
+  let section = null;
+  try { const a = sectionArea(opening, [0, 1, 0]); if (a > 0) section = a * f * f; } catch { section = null; }
+  const off = (a, b) => a > 0 && Math.abs(a - b) > 0.01 * a;
+  const agrees = !off(overall?.width, W) && !off(overall?.height, H);
+  const out = { width: null, height: null, area: null, perimeter: null, openWidth: W, openHeight: H, section, convention, agrees };
+  if (convention === "archicad" && agrees) {
+    out.width = W; out.height = H;
+    out.area = section;
+    out.perimeter = 2 * (W + H);
+  }
+  return out;
+}
+
+/**
+ * Adds computed.opening (SI) to each door and window row that fills an
+ * opening with a readable body. Returns how many rows got one.
+ */
+export function addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms }) {
+  const E = model.entities;
+  const ref = (v) => (v && typeof v === "object" && "ref" in v ? v.ref : null);
+  const fills = new Map();
+  const filledBy = new Map();
+  for (const e of E.values()) {
+    if (e.type !== "IFCRELFILLSELEMENT") continue;
+    const op = ref(e.args[4]), el = ref(e.args[5]);
+    fills.set(el, op);
+    filledBy.set(op, (filledBy.get(op) || 0) + 1);
+  }
+  let geo = null;
+  const apps = new Map();
+  let n = 0;
+  for (const r of rows) {
+    if (!OPENING.test(r.ifcType) || !r.computed || r.computed.status !== "ok") continue;
+    const e = E.get(r.id), o = E.get(fills.get(r.id));
+    if (!e || !o || filledBy.get(o.id) !== 1) continue;
+    try {
+      if (!geo) geo = new Geometry(model, { angle: readUnits(model).PLANEANGLEUNIT });
+      const shape = E.get(ref(o.args[6]));
+      const reps = Array.isArray(shape?.args?.[2]) ? shape.args[2].map(ref) : [];
+      const label = (id) => { const x = E.get(id)?.args?.[1]; return typeof x === "string" ? x : x?.value; };
+      const rid = reps.find((id) => label(id) === "Body") ?? reps[0];
+      if (rid == null) continue;
+      const body = geo.representation(rid);
+      if (!body || body.error) continue;
+      const solid = asTerms(body) ?? body;
+      const W = geo.objectPlacement(ref(e.args[5])), Wo = geo.objectPlacement(ref(o.args[5]));
+      const inElem = transformSolid(solid, mul(invert(W), Wo));
+      const f = r.lengthUnit ?? readUnits(model).LENGTHUNIT;
+      const num = (v) => (typeof v === "number" ? v : typeof v?.value === "number" ? v.value : null);
+      const overall = { width: num(e.args[9]) > 0 ? num(e.args[9]) * f : null, height: num(e.args[8]) > 0 ? num(e.args[8]) * f : null };
+      const m = openingLines(inElem, f, toolConvention(model, e, OPENING_CONVENTIONS, apps), overall, { solidExtent, sectionArea });
+      if (!m) continue;
+      r.computed.opening = m;
+      n++;
+    } catch { /* an unread opening offers nothing */ }
+  }
+  return n;
+}
+
 /**
  * The model fill's opts.geometry: (element, quantity name, quantity class)
  * -> SI value or undefined.
@@ -794,11 +909,12 @@ export async function measureModel(ifcText, opts = {}) {
   const base = opts.dir ? new URL(String(opts.dir).replace(/\/?$/, "/"), import.meta.url) : new URL("../ifc-quantity-takeoff/", import.meta.url);
   const { parseStep } = await import(new URL("step.mjs", base).href);
   const { takeoff, readUnits } = await import(new URL("qto.mjs", base).href);
-  const { Geometry, polyPlanes, asTerms, solidExtent } = await import(new URL("geom.mjs", base).href);
+  const { Geometry, polyPlanes, asTerms, solidExtent, sectionArea, mul, invert, transformSolid } = await import(new URL("geom.mjs", base).href);
   const model = parseStep(ifcText);
   const { rows } = takeoff(model);
   addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
   addMemberLines(model, rows, { solidExtent });
   addSlabLines(model, rows, { solidExtent });
+  addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms });
   return quantitiesFromRows(rows);
 }

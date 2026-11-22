@@ -706,6 +706,20 @@ thickness matches the stored figure on 396 of 396 offered, the perimeter on
 whole floor's figure). With the stored figures hidden, the fill writes 828
 values on eight exports, every one passes the fill's re-read and IfcTester
 takes the same 828 from fail to pass (`eval/slab-width-perimeter-2026-11-22.md`).
+**Doors' and windows' Width, Height, Area and Perimeter (2026-11-22).**
+`Qto_DoorBaseQuantities` and `Qto_WindowBaseQuantities` are read from the
+opening each door or window fills, taken into the element's own placement:
+its width and height, its section across the wall (a round window's pi/4 m2)
+and its bounding rectangle's perimeter. That is what ARCHICAD stores, on 315 of
+315 elements of three exports to the last digit, so ARCHICAD exports get them.
+Revit's three public exports each store something different (2010 the
+`OverallWidth`/`OverallHeight` attributes, 2019 neither, 2022 a door's leaf
+height under its frame), so Revit and other tools get none rather than a
+figure that is wrong for one of them. On four ARCHICAD exports 380 elements
+are offered, all within 2% of the stored figures and 377 to the last digit;
+with the stored figures hidden the fill writes 1,824 values, 1,520 of 1,520
+with a stored figure match, and IfcTester takes exactly the written elements
+from fail to pass (`eval/door-window-quantities-2026-11-22.md`).
 Curved walls' lengths and other heights are not measured. A value from the model's
 own quantity sets always wins over a measured one, and a measured value still
 has to pass every facet that names it. Values are written to six significant

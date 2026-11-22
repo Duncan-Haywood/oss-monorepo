@@ -1,0 +1,52 @@
+AC20-FZK-Haus | Doors carry a width | 5 applicable | 0 pass before | 5 pass after
+AC20-FZK-Haus | Doors carry a height | 5 applicable | 0 pass before | 5 pass after
+AC20-FZK-Haus | Doors carry an area | 5 applicable | 0 pass before | 5 pass after
+AC20-FZK-Haus | Doors carry a perimeter | 5 applicable | 0 pass before | 5 pass after
+AC20-FZK-Haus | Windows carry a width | 11 applicable | 0 pass before | 11 pass after
+AC20-FZK-Haus | Windows carry a height | 11 applicable | 0 pass before | 11 pass after
+AC20-FZK-Haus | Windows carry an area | 11 applicable | 0 pass before | 11 pass after
+AC20-FZK-Haus | Windows carry a perimeter | 11 applicable | 0 pass before | 11 pass after
+C20-Institute-Var-2 | Doors carry a width | 77 applicable | 0 pass before | 77 pass after
+C20-Institute-Var-2 | Doors carry a height | 77 applicable | 0 pass before | 77 pass after
+C20-Institute-Var-2 | Doors carry an area | 77 applicable | 0 pass before | 77 pass after
+C20-Institute-Var-2 | Doors carry a perimeter | 77 applicable | 0 pass before | 77 pass after
+C20-Institute-Var-2 | Windows carry a width | 206 applicable | 0 pass before | 206 pass after
+C20-Institute-Var-2 | Windows carry a height | 206 applicable | 0 pass before | 206 pass after
+C20-Institute-Var-2 | Windows carry an area | 206 applicable | 0 pass before | 206 pass after
+C20-Institute-Var-2 | Windows carry a perimeter | 206 applicable | 0 pass before | 206 pass after
+ISSUE_005_haus | Doors carry a width | 5 applicable | 0 pass before | 5 pass after
+ISSUE_005_haus | Doors carry a height | 5 applicable | 0 pass before | 5 pass after
+ISSUE_005_haus | Doors carry an area | 5 applicable | 0 pass before | 5 pass after
+ISSUE_005_haus | Doors carry a perimeter | 5 applicable | 0 pass before | 5 pass after
+ISSUE_005_haus | Windows carry a width | 11 applicable | 0 pass before | 11 pass after
+ISSUE_005_haus | Windows carry a height | 11 applicable | 0 pass before | 11 pass after
+ISSUE_005_haus | Windows carry an area | 11 applicable | 0 pass before | 11 pass after
+ISSUE_005_haus | Windows carry a perimeter | 11 applicable | 0 pass before | 11 pass after
+ISSUE_126_model | Doors carry a width | 16 applicable | 0 pass before | 16 pass after
+ISSUE_126_model | Doors carry a height | 16 applicable | 0 pass before | 16 pass after
+ISSUE_126_model | Doors carry an area | 16 applicable | 0 pass before | 16 pass after
+ISSUE_126_model | Doors carry a perimeter | 16 applicable | 0 pass before | 16 pass after
+ISSUE_126_model | Windows carry a width | 13 applicable | 0 pass before | 1 pass after
+ISSUE_126_model | Windows carry a height | 13 applicable | 0 pass before | 1 pass after
+ISSUE_126_model | Windows carry an area | 13 applicable | 0 pass before | 1 pass after
+ISSUE_126_model | Windows carry a perimeter | 13 applicable | 0 pass before | 1 pass after
+ISSUE_159_kleine_Wohnung_R22 | Doors carry a width | 47 applicable | 0 pass before | 0 pass after
+ISSUE_159_kleine_Wohnung_R22 | Doors carry a height | 47 applicable | 0 pass before | 0 pass after
+ISSUE_159_kleine_Wohnung_R22 | Doors carry an area | 47 applicable | 0 pass before | 0 pass after
+ISSUE_159_kleine_Wohnung_R22 | Doors carry a perimeter | 47 applicable | 0 pass before | 0 pass after
+ISSUE_159_kleine_Wohnung_R22 | Windows carry a width | 52 applicable | 0 pass before | 0 pass after
+ISSUE_159_kleine_Wohnung_R22 | Windows carry a height | 52 applicable | 0 pass before | 0 pass after
+ISSUE_159_kleine_Wohnung_R22 | Windows carry an area | 52 applicable | 0 pass before | 0 pass after
+ISSUE_159_kleine_Wohnung_R22 | Windows carry a perimeter | 52 applicable | 0 pass before | 0 pass after
+S_Office_Integrated Design Archi | Doors carry a width | 65 applicable | 0 pass before | 59 pass after
+S_Office_Integrated Design Archi | Doors carry a height | 65 applicable | 0 pass before | 59 pass after
+S_Office_Integrated Design Archi | Doors carry an area | 65 applicable | 0 pass before | 59 pass after
+S_Office_Integrated Design Archi | Doors carry a perimeter | 65 applicable | 0 pass before | 59 pass after
+schependomlaan | Doors carry a width | 205 applicable | 0 pass before | 29 pass after
+schependomlaan | Doors carry a height | 205 applicable | 0 pass before | 29 pass after
+schependomlaan | Doors carry an area | 205 applicable | 0 pass before | 29 pass after
+schependomlaan | Doors carry a perimeter | 205 applicable | 0 pass before | 29 pass after
+schependomlaan | Windows carry a width | 259 applicable | 0 pass before | 36 pass after
+schependomlaan | Windows carry a height | 259 applicable | 0 pass before | 36 pass after
+schependomlaan | Windows carry an area | 259 applicable | 0 pass before | 36 pass after
+schependomlaan | Windows carry a perimeter | 259 applicable | 0 pass before | 36 pass after

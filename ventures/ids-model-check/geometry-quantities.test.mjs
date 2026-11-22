@@ -452,3 +452,76 @@ test("the fill writes a slab's Width and Perimeter from its body", { skip: !have
   assert.equal(r.verified.pass, 2);
   assert.equal(check(I, new Model(r.text, resources().schemas)).specs[0].status, "pass");
 });
+
+test("a door's or window's figures come from the opening it fills, by ARCHICAD's convention only", async () => {
+  const { openingLines } = await import("./geometry-quantities.mjs");
+  const ext = (b, d) => { const v = b.terms.flatMap((t) => t.faces.flat()).map((p) => p[0] * d[0] + p[1] * d[1] + p[2] * d[2]); return [Math.min(...v), Math.max(...v)]; };
+  const near = (a, b) => Math.abs(a - b) < 1e-9;
+  // a 1.0 x 1.2 m opening, 0.3 m deep (y), in metres
+  const rect = { terms: [boxTerm([0, -0.15, 0], [1, 0.15, 1.2])] };
+  const g = { solidExtent: ext, sectionArea: () => 1.2 };
+  const a = openingLines(rect, 1, "archicad", { width: 1, height: 1.2 }, g);
+  assert.ok(near(a.width, 1) && near(a.height, 1.2));
+  assert.ok(near(a.area, 1.2) && near(a.perimeter, 4.4));
+  // a round window: the opening's own section, the bounding rectangle's perimeter
+  const round = openingLines({ terms: [boxTerm([0, -0.15, 0], [1, 0.15, 1])] }, 1, "archicad", null, { solidExtent: ext, sectionArea: () => Math.PI / 4 });
+  assert.ok(near(round.area, Math.PI / 4) && near(round.perimeter, 4));
+  // Revit and other tools: measured, not offered (no one convention); millimetres scale to metres
+  const o = openingLines({ terms: [boxTerm([0, 0, 0], [900, 200, 2100])] }, 0.001, null, null, g);
+  assert.ok(near(o.openWidth, 0.9) && near(o.openHeight, 2.1));
+  assert.deepEqual([o.width, o.height, o.area, o.perimeter], [null, null, null, null]);
+  // an opening far larger than the window's own OverallWidth/OverallHeight: nothing offered
+  const big = openingLines(rect, 1, "archicad", { width: 0.9, height: 1.2 }, g);
+  assert.equal(big.agrees, false);
+  assert.equal(big.width, null);
+});
+
+test("the fill writes a door's Qto_DoorBaseQuantities from the opening it fills (ARCHICAD convention)", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  // the sample office's 1000 x 2100 mm door opening in Wall A, filled by a door with a smaller body (a leaf)
+  const door = [
+    "#950=IFCORGANIZATION($,'GRAPHISOFT',$,$,$);",
+    "#951=IFCAPPLICATION(#950,'26.0','ARCHICAD-64','IFC2x3 add-on version');",
+    "#960=IFCDOOR('0Dr00rDoorAAAAAAAAAAAA',$,'Door',$,$,#961,#962,$,2100.,1000.,.DOOR.,.SINGLE_SWING_LEFT.,$);",
+    "#961=IFCLOCALPLACEMENT(#111,#21);",
+    "#962=IFCPRODUCTDEFINITIONSHAPE($,$,(#963));",
+    "#963=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#964));",
+    "#964=IFCEXTRUDEDAREASOLID(#965,#21,#23,2000.);",
+    "#965=IFCRECTANGLEPROFILEDEF(.AREA.,$,#966,900.,50.);",
+    "#966=IFCAXIS2PLACEMENT2D(#967,$);",
+    "#967=IFCCARTESIANPOINT((500.,0.));",
+    "#968=IFCRELFILLSELEMENT('0Fi11sDoorAAAAAAAAAAAA',$,$,$,#110,#960);",
+    "#969=IFCRELCONTAINEDINSPATIALSTRUCTURE('0Co11tDoorAAAAAAAAAAAA',$,$,$,(#960),#50);",
+  ].join("\n");
+  const text = readFileSync(SAMPLE, "utf8").replace("ENDSEC;\nEND-ISO", `${door}\nENDSEC;\nEND-ISO`);
+  const geometry = geometryLookup(await measureModel(text));
+  const Q = (n, t) => prop("Qto_DoorBaseQuantities", n, t);
+  const I = ids(spec("IFCDOOR", Q("Width", "IFCLENGTHMEASURE") + Q("Height", "IFCLENGTHMEASURE") + Q("Area", "IFCAREAMEASURE") + Q("Perimeter", "IFCLENGTHMEASURE")));
+  const r = fillModel(I, text, { ...resources(), random, geometry });
+  // the opening's 1000 x 2100 mm, not the leaf's 900 x 2000; area in m2, lengths in mm
+  assert.deepEqual(r.writtenList.map((w) => [w.id, w.prop, w.value, w.source]).sort(), [[960, "Area", "2.1", "geometry"], [960, "Height", "2100.", "geometry"], [960, "Perimeter", "6200.", "geometry"], [960, "Width", "1000.", "geometry"]]);
+  assert.equal(r.verified.pass, 4);
+  assert.equal(check(I, new Model(r.text, resources().schemas)).specs[0].status, "pass");
+});
+
+test("a Revit door gets no opening figures; an opening two windows fill gives none either", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const base = readFileSync(SAMPLE, "utf8");
+  const door = (app, extra = "") => [
+    "#950=IFCORGANIZATION($,'Autodesk',$,$,$);",
+    `#951=IFCAPPLICATION(#950,'2022','${app}','${app}');`,
+    "#960=IFCDOOR('0Dr00rDoorAAAAAAAAAAAA',$,'Door',$,$,#961,#962,$,2100.,1000.,.DOOR.,.SINGLE_SWING_LEFT.,$);",
+    "#961=IFCLOCALPLACEMENT(#111,#21);",
+    "#962=IFCPRODUCTDEFINITIONSHAPE($,$,(#963));",
+    "#963=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#964));",
+    "#964=IFCEXTRUDEDAREASOLID(#965,#21,#23,2000.);",
+    "#965=IFCRECTANGLEPROFILEDEF(.AREA.,$,#966,900.,50.);",
+    "#966=IFCAXIS2PLACEMENT2D(#967,$);",
+    "#967=IFCCARTESIANPOINT((500.,0.));",
+    "#968=IFCRELFILLSELEMENT('0Fi11sDoorAAAAAAAAAAAA',$,$,$,#110,#960);",
+    extra,
+  ].join("\n");
+  const at = (t) => base.replace("ENDSEC;\nEND-ISO", `${t}\nENDSEC;\nEND-ISO`);
+  const revit = await measureModel(at(door("Autodesk Revit 2022")));
+  assert.equal(revit.get(960)?.has("Width") ?? false, false);
+  const shared = await measureModel(at(door("ARCHICAD-64", "#970=IFCWINDOW('0Wi00wWindAAAAAAAAAAAA',$,'W',$,$,#961,#962,$,2100.,1000.,.WINDOW.,.SINGLE_PANEL.,$);\n#971=IFCRELFILLSELEMENT('0Fi11sWindAAAAAAAAAAAA',$,$,$,#110,#970);")));
+  assert.equal(shared.get(960)?.has("Width") ?? false, false);
+});

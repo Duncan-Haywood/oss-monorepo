@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Doors and windows carry their base quantities (geometry fill check)</title>
+    <description>Doors and windows carry Qto_DoorBaseQuantities / Qto_WindowBaseQuantities Width, Height, Area and Perimeter, as a door and window schedule or a glazing takeoff reads them. Written for eval/door-window-quantities-2026-11-22.md; MIT.</description>
+  </info>
+  <specifications>
+    <specification name="Doors carry a width" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCDOOR</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_DoorBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Width</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Doors carry a height" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCDOOR</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_DoorBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Height</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Doors carry an area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCDOOR</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_DoorBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Area</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Doors carry a perimeter" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCDOOR</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_DoorBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Perimeter</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Windows carry a width" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCWINDOW</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_WindowBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Width</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Windows carry a height" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCWINDOW</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_WindowBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Height</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Windows carry an area" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCWINDOW</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCAREAMEASURE"><propertySet><simpleValue>Qto_WindowBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Area</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Windows carry a perimeter" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCWINDOW</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_WindowBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Perimeter</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>
