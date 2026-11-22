@@ -15,3 +15,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-19) RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no public file has a tone curve (eval/panasonic-rw2-format8-grid-*)
 - (moved 2026-11-22) IIQ 16-bit (IQ4, IQ3 100MP, Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled (eval/phaseone-iiq-16bit-*)
 - (moved 2026-11-22) IIQ calibration (0x110) 2026-11-19: LibRaw's to 3 codes off dead columns (eval/phaseone-iiq-calibration-*)
+- (moved 2026-11-22) mpcw1 (select once at mpcw's level) failed its gates 2026-11-22: 1.48x mpcw on that tile, +0.01 of mpcws's +0.26 dB

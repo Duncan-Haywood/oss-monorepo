@@ -73,3 +73,59 @@ reported as skipped, not dropped. Nothing is tuned on this set, so there is no s
 
 No default changes on this note's evidence alone: it measures read accuracy on one camera family's 10-bit
 frames, not demosaic quality.
+
+## Result: the truth holds; `mpcw1` and `mpcw` read closest, `mpcws` over-reads real noise; the shipped scale errs low as meant
+
+152 bursts given, 57 scored, 95 skipped and reported: 91 because one of the two files has no NoiseProfile
+(so `m` cannot be read; mostly the 2014-15 phones' bursts), 3 because the merge's size differs from the
+reference's (the merge was cropped), 1 by a divide by zero in the developer. About 25 minutes on 4 cores, one
+burst's two DNGs (~17 MB) on disk at a time. The 57: Nexus 6P (`angler` 17, `Nexus 6P` 13), Nexus 6 (9),
+Nexus 5X (`bullhead` 6), Pixel and Pixel XL (`sailfish`, `marlin`, `Pixel XL`, `Pixel`: 12); ISO 50 to 826 where
+the file states it (23 of 57). Rows: `hdrplus-noise-truth-2026-11-22.jsonl`; every number below:
+`hdrplus-noise-truth-2026-11-22.txt` (`--summary`).
+
+| question | reading | bar | |
+|---|---|---|---|
+| V, phone NoiseProfile / truth at 18% grey | median **1.09** [p10 0.91, p90 1.26] | median in [0.8, 1.25] | pass |
+| Q1, median \|log(read / truth)\| at p50, `pca_*` | `mpcw1` **0.086**, `mpcw` 0.095, `chen` 0.147, `mpcws` 0.148 | (reported) | |
+| Q2, `frame_mpcws` over 1.3 x truth at p50 | **0 of 57** (max 1.27); median 0.93 vs `frame_mpcw` 0.77 | over 5% keeps it opt-in for that | not met |
+| Q3, `frame_mpcw` under 1.0 x truth at p50 | **55 of 57** (96%) | at least 90% | holds |
+
+So, by the rules above:
+
+- **The truth is the noise.** The phones' own calibrations read a median 1.09 of it at 18% grey, without being
+  fitted to it. The all-sensel truth is a median 1.03 of the low-gradient one (max 1.16), so the edge filter
+  moves it little.
+- **On real noise the order is not the synthetic sweeps' order.** Before `FRAME_SCALE`, `mpcw1` (median 1.03 x
+  truth) and `mpcw` (0.96) read closest; `mpcws` reads above the truth on 52 of 57 bursts (median 1.16, 7 over
+  1.3) and is as far off as Chen's rule (0.87), from the other side. On synthetic white-balanced noise it was
+  the closest read (0.99 against `mpcw`'s 0.78 in `tests/test_noise_pca.py`). The 2026-11-22 K-1 II finding,
+  that its patch selection feeds on its own high read and keeps texture, is what a real scene with real noise
+  shows here too, not one file's quirk.
+- **Q2 did not trip, and its second clause holds,** so by the rule the next step for `mpcws` is a demosaic dB sweep
+  on this set with the merge as the clean truth, not a default change. After the 0.8 scale `frame_mpcws` sits
+  nearest 1 (0.93) precisely because its read is high; whether that buys dB or costs it on real noise is what
+  the sweep would say.
+- **`FRAME_SCALE` works as meant on real noise:** the shipped read is under the truth on 55 of 57 bursts, a median
+  0.77 of it (0.65 to 0.92, p10 to p90). By the design's own argument this leaves blend gain on the table rather
+  than risking it; how much is again the sweep's question.
+
+**Readings after the verdict (they decide nothing).**
+
+- One burst's truth is bad: `0543_20150918_143723_450` (Nexus 6P) fits its line with a relative RMS of 1.7
+  (median 0.09), and the phone's profile reads 0.39 of it: a large moving subject the merge rejected tile by tile.
+  Dropping the 4 bursts over 0.3 leaves 53, and every median above moves by under 0.01.
+- By ISO (23 bursts that state it, thirds of ~8): `mpcws` over-reads in every third (1.08, 1.15, 1.16); `mpcw`
+  stays 0.93-0.99, `mpcw1` 1.00-1.06.
+- `m`, the merge's remaining noise fraction, is a median 0.15 (p10 0.12, p90 0.31). It scales all reads of a
+  burst together; taking `m = 0` would raise every ratio above by `1 / sqrt(1 - m)`, about 8%.
+- Limits: one maker's phones, 10-bit, small sensels, mostly daylight scenes at low ISO. It says nothing about
+  X-Trans or about large-sensor bodies' 14-bit frames; and it scores reads, not the blend.
+
+## Next
+
+- A demosaic dB sweep on these 57 bursts: the merge (shading-fitted to the reference, as here) as the clean truth,
+  the reference's own noise as the noise, `mpcw` against `mpcws` and `mpcw1` and against the profile. The truth
+  keeps 12-31% of the noise (`m`), so a score must either subtract it or compare arms only against each other.
+- The 91 bursts with no NoiseProfile: `m` from the burst's frame count (`1/N` for an even merge) as a
+  labelled second reading, checked first on the 57 where both exist.

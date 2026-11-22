@@ -22,9 +22,14 @@
   `mpcw1`, `mpcws` selecting once at `mpcw`'s level, failed its pre-registered gates (1.48x `mpcw` on that tile, bar
   1.3; one more tune loser; held SNR 200 wb cell -0.05 dB) and kept +0.01 of `mpcws`'s +0.26 dB tune gain: gain and
   over-read share one cause. This 53-file set is spent for selection tests (no split is blind to a whitened read
-  now). Next: `mpcws` and `mpcw1` as arms on a fresh blind set, raw.pixls.us's `first` set (the 6 named D780/D600
-  foliage rows) or another public sample set, when one is reachable. X-Trans has not been
-  tested with either read.
+  now). (2026-11-22, eval/hdrplus-noise-truth-2026-11-22.md) A fresh set with a real-noise truth: 57 HDR+
+  bursts (Google's phones, storage.googleapis.com), the truth the reference frame minus its burst merge, checked
+  against the phones' own NoiseProfiles (median 1.09). Before the frame scale `mpcw1` reads 1.03 x truth, `mpcw`
+  0.96, Chen 0.87, `mpcws` 1.16 (above the truth on 52 of 57): its over-read is general, not the K-1 II's. Shipped
+  (`frame_mpcw`) reads under the truth on 55 of 57, median 0.77. Next: a demosaic dB sweep on those bursts with
+  the merge as the clean truth (arms `mpcw`, `mpcws`, `mpcw1`, profile); the 91 bursts with no NoiseProfile
+  with `m = 1/N`. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
+  been tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
   (2026-11-22, eval/noise-envelope-fit-2026-11-22.md) A lower-envelope fit (drop bins over 1.5x the line,
