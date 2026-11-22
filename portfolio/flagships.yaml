@@ -611,10 +611,10 @@ flagships:
       the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
       covering areas, 43 wall sides, C20's 2 columns); 2 zinc copings' NetVolumes
       (eval/side-lights-2026-11-22.md); turned-face figure in
-      ifcopenshell-volumes.py --breps (eval/pole-faces-2026-11-22.md); more revision
-      series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
-      Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
-      Lake_Kegonsa_Home_2015.ifc pair).
+      ifcopenshell-volumes.py --breps (eval/pole-faces-2026-11-22.md); revision
+      series: Kegonsa's 7 exports done, replaced-in-place 2026-11-22
+      (eval/replaced-in-place-2026-11-22.md); Lake Mills has no series; next a
+      public non-Revit series.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

@@ -53,7 +53,7 @@ if (opt("--compare")) {
   if (unitRepairNote(before.units)) console.error(`${opt("--compare")}: ${unitRepairNote(before.units)}`);
   const d = diffTakeoffs(before.rows, res.rows);
   const s = d.summary;
-  console.error(`${opt("--compare")} -> ${file}: ${s.before} -> ${s.after} elements; ${s.unchanged} unchanged, ${s.changed} changed (${s.quantityChanged} quantity, ${s.attributeChanged} attribute, ${s.moved} moved, ${s.reshaped} reshaped), ${s.added} added, ${s.removed} removed, ${s.merged} merged, ${s.split} split; ${s.byTag + s.byGeometry} matched under a new GlobalId (${s.byTag} by Tag, ${s.byGeometry} by geometry)`);
+  console.error(`${opt("--compare")} -> ${file}: ${s.before} -> ${s.after} elements; ${s.unchanged} unchanged, ${s.changed} changed (${s.quantityChanged} quantity, ${s.attributeChanged} attribute, ${s.moved} moved, ${s.reshaped} reshaped), ${s.added} added, ${s.removed} removed, ${s.merged} merged, ${s.split} split, ${s.replacedInPlace} replaced in place; ${s.byTag + s.byGeometry} matched under a new GlobalId (${s.byTag} by Tag, ${s.byGeometry} by geometry)`);
   if (opt("--changes")) writeFileSync(opt("--changes"), changesCsv(d));
   process.stdout.write(boqDeltaCsv(boqDelta(before.rows, res.rows, by), by));
   process.exit(0);

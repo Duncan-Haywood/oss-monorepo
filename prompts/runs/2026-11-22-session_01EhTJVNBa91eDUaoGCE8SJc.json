@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVNBa91eDUaoGCE8SJc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T16:07:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff (flagship row 9): buildable item 'more revision series via eval/revision-diff.mjs'",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": 18276,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "buildable listed 'Lake_Mills_Residence_Expansion 2 IFC commits' as a revision series; the repo has one export (added, then deleted), so there was no series. Removed from buildable."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-ifc-revisions-windows-replaced-in-place.md",
+    "ventures/ifc-quantity-takeoff/eval/replaced-in-place-2026-11-22.md"
+  ],
+  "goal": "Run the change report on the remaining public revision series and fix what it gets wrong.",
+  "notes": "Lake Mills: one export, no series. Kegonsa: listing every IFC commit found 2 exports the 2026-11-20 run missed (07-21 Project1.ifc, 10-21 7a3fc98); 935511d = dd375a5 byte-identical. The 10-21 export splits old step 3->4 into an exporter switch (306 classification/196 storey changes) and a clean 2-day design step (551 unchanged/141 changed). In that step 12 windows removed + 13 added were mostly the same openings re-placed (new GlobalId and Tag). Added diffTakeoffs step 5 'replaced in place' (same class+storey, box IoU>=0.5, volume within 25%, one candidate each way, crowding guard against host/parts); page card + row label, CSV label, CLI count. Kegonsa: 92 pairs over 6 steps; Aalseth: 1 (duct), parts/hosts unchanged; HHS controls: 0. Verification: node --test diff.test.mjs 9/9; run_venture_tests.py ifc-quantity-takeoff ok (212 tests); guides/page tests 14/14; seeded faults: removing storey test, volume band or crowding guard each fails a test; check_posts ok; validate.py ok; venture-preflight.mjs ifc-quantity-takeoff: clean.",
+  "corrections": [],
+  "redteam": null
+}

@@ -11,7 +11,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
 import { parseStep } from "../step.mjs";
-import { takeoff } from "../qto.mjs";
+import { takeoff, rowQuantities } from "../qto.mjs";
+const volOf = (r) => rowQuantities(r).volume ?? null;
 import { diffTakeoffs, boqDelta } from "../diff.mjs";
 
 const args = process.argv.slice(2);
@@ -49,7 +50,8 @@ for (let i = 1; i < runs.length; i++) {
   const delta = boqDelta(A.rows, B.rows, ["class"]).filter((l) => l.delta.count || Math.abs(l.delta.volume) > 1e-6);
   const rec = {
     before: basename(A.file), after: basename(B.file), summary: s, gidOnly, what,
-    reid: count([...d.changed, ...d.unchanged].filter((p) => p.how !== "globalId"), (p) => `${p.how}: ${p.b.ifcClass}`),
+    reid: count([...d.changed, ...d.unchanged].filter((p) => p.how === "tag" || p.how === "geometry"), (p) => `${p.how}: ${p.b.ifcClass}`),
+    replaced: d.changed.filter((c) => c.how === "place").map((c) => ({ class: c.b.ifcClass, storey: c.b.storey, before: c.a.type || c.a.name, after: c.b.type || c.b.name, moved: c.moved ? c.moved.distance : null, reshaped: !!c.reshaped, volume: [volOf(c.a), volOf(c.b)] })),
     groups: d.groups.map((g) => ({ kind: g.kind, before: g.before.map((r) => `${r.ifcClass} ${r.name}`), after: g.after.map((r) => `${r.ifcClass} ${r.name}`), volumeBefore: g.volumeBefore, volumeAfter: g.volumeAfter })),
     added: count(d.added, (r) => r.ifcClass), removed: count(d.removed, (r) => r.ifcClass),
     moves: Object.fromEntries(Object.entries(moves).slice(0, 6)),
@@ -57,11 +59,12 @@ for (let i = 1; i < runs.length; i++) {
   };
   out.push(rec);
   console.log(`\n${rec.before} -> ${rec.after}`);
-  console.log(`  elements ${s.before} -> ${s.after}; matched ${s.matched} (GlobalId ${s.byGlobalId}, Tag ${s.byTag}, geometry ${s.byGeometry}); unchanged ${s.unchanged}, changed ${s.changed}; added ${s.added}, removed ${s.removed}; merged ${s.merged}, split ${s.split}`);
+  console.log(`  elements ${s.before} -> ${s.after}; matched ${s.matched} (GlobalId ${s.byGlobalId}, Tag ${s.byTag}, geometry ${s.byGeometry}); unchanged ${s.unchanged}, changed ${s.changed}; added ${s.added}, removed ${s.removed}; merged ${s.merged}, split ${s.split}; replaced in place ${s.replacedInPlace}`);
   console.log(`  a GlobalId-only comparison: ${gidOnly.added} added, ${gidOnly.removed} removed; GlobalIds repeated within a file: ${s.duplicateGlobalIds.before} before, ${s.duplicateGlobalIds.after} after`);
   console.log(`  changed: ${JSON.stringify(what)}`);
   console.log(`  new GlobalId: ${JSON.stringify(rec.reid)}`);
   for (const g of rec.groups) console.log(`  ${g.kind}: ${g.before.length} -> ${g.after.length}  ${g.kind === "merged" ? g.after[0] : g.before[0]}  volume ${g.volumeBefore.toFixed(4)} -> ${g.volumeAfter.toFixed(4)} m3`);
+  for (const r of rec.replaced) console.log(`  replaced in place: ${r.class} (${r.storey}) ${r.before === r.after ? r.before : `${r.before} -> ${r.after}`}${r.moved != null ? `, moved ${r.moved.toFixed(3)} m` : ""}${r.reshaped ? ", box resized" : ""}, volume ${r.volume.map((v) => (v == null ? "-" : v.toFixed(4))).join(" -> ")} m3`);
   console.log(`  added: ${JSON.stringify(rec.added)}`);
   console.log(`  removed: ${JSON.stringify(rec.removed)}`);
   if (Object.keys(rec.moves).length) console.log(`  commonest moves (dx, dy, dz m): ${JSON.stringify(rec.moves)}`);

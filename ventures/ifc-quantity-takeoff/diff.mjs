@@ -27,6 +27,18 @@
 // the file says so, and a takeoff tool keyed on GlobalId alone counts each of
 // them as one removed and one added element.
 //
+// After merged/split groups, one more pairing (`how` = "place"): an element
+// deleted and placed again in the authoring tool (a new Revit ElementId, so
+// a new GlobalId and Tag) at nearly the same spot, possibly as another type.
+// Same class and storey, the two world boxes overlapping by at least
+// `placeOverlap` of their union (intersection volume / union volume), and
+// exactly one candidate both ways. It is reported as "replaced in place",
+// a change with its type, size and move listed, not as "same element": the
+// count on the bill of quantities is unchanged, and what an estimator prices
+// is the swap. On the Lake Kegonsa Home's 2014-10-21 -> 10-23 exports, 22 of
+// the 25 window records listed as removed or added were 11 windows re-placed
+// this way (eval/replaced-in-place-2026-11-22.md).
+//
 // `boqDelta` sums each revision by the same grouping as the bill of
 // quantities and subtracts: the lines an estimator prices for a change order.
 
@@ -45,6 +57,14 @@ const relDiff = (a, b) => {
 
 const boxCentre = (b) => [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2];
 const boxSize = (b) => [b[3] - b[0], b[4] - b[1], b[5] - b[2]];
+/** intersection volume over union volume of two boxes; 0 when they do not overlap or either is flat. */
+const boxIoU = (a, b) => {
+  let inter = 1;
+  for (let i = 0; i < 3; i++) { const d = Math.min(a[i + 3], b[i + 3]) - Math.max(a[i], b[i]); if (!(d > 0)) return 0; inter *= d; }
+  const va = (a[3] - a[0]) * (a[4] - a[1]) * (a[5] - a[2]), vb = (b[3] - b[0]) * (b[4] - b[1]) * (b[5] - b[2]);
+  const u = va + vb - inter;
+  return u > 0 ? inter / u : 0;
+};
 const boxGap = (a, b) => Math.max(...a.map((v, i) => Math.abs(v - b[i])));
 /** true when point p lies inside box b, give or take `tol` metres. */
 const pointInside = (p, b, tol) => p[0] >= b[0] - tol && p[1] >= b[1] - tol && p[2] >= b[2] - tol && p[0] <= b[3] + tol && p[1] <= b[4] + tol && p[2] <= b[5] + tol;
@@ -98,6 +118,8 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
   // parts and their host differ a little where joins are cleaned up (0.4 to
   // 0.6% on the Aalseth Residence's walls), so a group gets more room
   const groupTol = opts.groupTol ?? 0.02;
+  // replaced in place: boxes overlapping by this share of their union (0 turns it off)
+  const placeOverlap = opts.placeOverlap ?? 0.5;
   // assemblies whose parts are elements are left out of the BoQ; leave them
   // out here too so a stair and its flights are not reported twice
   const A = rowsA.filter((r) => !r.isAssembly), B = rowsB.filter((r) => !r.isAssembly);
@@ -162,20 +184,41 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
   findGroups(freeB, freeA, "merged");
   findGroups(freeA, freeB, "split");
 
+  // 5. replaced in place: what is still unpaired, same class and storey,
+  //    boxes overlapping by `placeOverlap` of their union, one candidate both ways
+  if (placeOverlap > 0) {
+    // volumes within a quarter: a swapped window type differs by a few
+    // percent; a host and its thickest layer by a third or more
+    const placeFits = (a, b) => a.ifcClass === b.ifcClass && a.box && b.box && (a.storey ?? null) === (b.storey ?? null) && boxIoU(a.box, b.box) >= placeOverlap && relDiff(volOf(a), volOf(b)) <= 0.25;
+    // another unpaired element of the class centred inside the box on the
+    // other side is the mark of parts and their host, not of a swap
+    const crowded = (one, others, self) => [...others].some((o) => o !== self && o.ifcClass === one.ifcClass && o.box && (o.storey ?? null) === (one.storey ?? null) && pointInside(boxCentre(o.box), one.box, 0));
+    const cand = new Map();
+    for (const a of freeA) { if (!a.box) continue; const c = [...freeB].filter((b) => placeFits(a, b)); if (c.length === 1) cand.set(a, c[0]); }
+    for (const [a, b] of cand) {
+      if (!freeA.has(a) || !freeB.has(b)) continue;
+      if ([...freeA].filter((a2) => placeFits(a2, b)).length !== 1) continue;
+      if (crowded(a, freeB, b) || crowded(b, freeA, a)) continue;
+      take(a, b, "place");
+    }
+  }
+
   const changed = [], unchanged = [];
   for (const p of pairs) {
     const c = compareRows(p.a, p.b, tol, moveTol);
     const entry = { ...p, ...c };
-    if (Object.keys(c.quantities).length || Object.keys(c.attributes).length || c.moved || c.reshaped) changed.push(entry);
+    if (p.how === "place") changed.push(entry); // a new element, even when nothing measurable differs
+    else if (Object.keys(c.quantities).length || Object.keys(c.attributes).length || c.moved || c.reshaped) changed.push(entry);
     else unchanged.push(entry);
   }
   const added = [...freeB], removed = [...freeA];
-  const reid = pairs.filter((p) => p.how !== "globalId");
+  const reid = pairs.filter((p) => p.how === "tag" || p.how === "geometry");
   return {
     changed, unchanged, added, removed, groups,
     summary: {
       before: A.length, after: B.length,
-      matched: pairs.length, byGlobalId: pairs.length - reid.length, byTag: reid.filter((p) => p.how === "tag").length, byGeometry: reid.filter((p) => p.how === "geometry").length,
+      matched: pairs.length - pairs.filter((p) => p.how === "place").length, byGlobalId: pairs.filter((p) => p.how === "globalId").length, byTag: reid.filter((p) => p.how === "tag").length, byGeometry: reid.filter((p) => p.how === "geometry").length,
+      replacedInPlace: pairs.filter((p) => p.how === "place").length,
       unchanged: unchanged.length, changed: changed.length,
       quantityChanged: changed.filter((c) => Object.keys(c.quantities).length).length,
       attributeChanged: changed.filter((c) => Object.keys(c.attributes).length).length,
@@ -241,7 +284,7 @@ export function boqDeltaCsv(lines, by, { all = false } = {}) {
   return out.join("\r\n") + "\r\n";
 }
 
-const HOW_TEXT = { globalId: "", tag: "new GlobalId, matched by Tag", geometry: "new GlobalId, matched by geometry" };
+const HOW_TEXT = { globalId: "", tag: "new GlobalId, matched by Tag", geometry: "new GlobalId, matched by geometry", place: "new element in the same place (box overlap)" };
 
 /** One CSV row per element that is not unchanged. */
 export function changesCsv(d) {
@@ -255,7 +298,7 @@ export function changesCsv(d) {
       ...(c.moved ? [`moved ${Math.round(c.moved.distance * 1000) / 1000} m`] : []),
       ...(c.reshaped ? [`box ${c.reshaped.before.map((v) => Math.round(v * 1000) / 1000).join(" x ")} -> ${c.reshaped.after.map((v) => Math.round(v * 1000) / 1000).join(" x ")} m`] : []),
     ].join("; ");
-    out.push(["changed", c.a.globalId, c.b.globalId, c.b.ifcClass, c.b.name, c.b.type, c.b.storey, (Object.hasOwn(HOW_TEXT, c.how) ? HOW_TEXT[c.how] : ""), what, ...qcells(c.before, c.after), c.moved ? c.moved.distance : null].map(csvCell).join(","));
+    out.push([c.how === "place" ? "replaced in place" : "changed", c.a.globalId, c.b.globalId, c.b.ifcClass, c.b.name, c.b.type, c.b.storey, (Object.hasOwn(HOW_TEXT, c.how) ? HOW_TEXT[c.how] : ""), what, ...qcells(c.before, c.after), c.moved ? c.moved.distance : null].map(csvCell).join(","));
   }
   for (const c of d.unchanged) if (c.how !== "globalId") out.push(["same element, new GlobalId", c.a.globalId, c.b.globalId, c.b.ifcClass, c.b.name, c.b.type, c.b.storey, (Object.hasOwn(HOW_TEXT, c.how) ? HOW_TEXT[c.how] : ""), "", ...qcells(c.before, c.after), null].map(csvCell).join(","));
   for (const g of d.groups) {
