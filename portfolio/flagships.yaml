@@ -333,12 +333,11 @@ flagships:
       2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
       (eval/noise-pca-whitened-level-*); gain and over-read share a cause, so this
       set is spent (eval/noise-pca-mpcw1-*); the oracle loses on both
-      (eval/hdrplus-demosaic-sweep-*); q ramps refit 2026-11-22
-      (eval/hdrplus-ramp-fit-*): ship's pick fails h3/h4 on 79 fresh bursts, ramps
-      stay; on own ramps the oracle's 14 losses go to 0; mpcws on its ramps on 2
-      fresh draws (eval/hdrplus-joint-check-*): +0.08 dB, h4 fails (collapsed reads;
-      luma ramp); next mpcws, colour ramp only, h4 vs the oracle. More open items:
-      NEXT.md.
+      (eval/hdrplus-demosaic-sweep-*); on own ramps the oracle's 14 losses go to 0;
+      mpcws on its ramps on 2 fresh draws (eval/hdrplus-joint-check-*): +0.08 dB, h4
+      fails (collapsed reads; luma ramp); colour ramp only + shipped luma 2026-11-22
+      (eval/hdrplus-joint-check-j3-*): +0.07/+0.10 dB, h4o fails on 2 part-collapsed
+      reads; next J4, collapse line 0.6, seed 20261125. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
