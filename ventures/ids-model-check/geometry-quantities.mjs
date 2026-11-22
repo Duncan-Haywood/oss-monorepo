@@ -25,7 +25,8 @@
 //                            along its extrusion (memberLength below), when
 //                            the body is longer than its section is wide; with
 //                            square ends only, or cut ends by the authoring
-//                            tool's convention (ARCHICAD: volume / section)
+//                            tool's convention (ARCHICAD: volume / section;
+//                            Tekla: the extent along its smallest box)
 //                            (eval/member-lengths-2026-11-22.md)
 // Other lengths and heights are not offered.
 //
@@ -395,9 +396,20 @@ export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asT
 // centroid. With square ends they are one figure, and every authoring tool's
 // stored Length on the public models is that figure. With cut ends (a mitre,
 // a sloped cut, a fitting) they part, and the tools part with them: ARCHICAD
-// stores volume / section (16 of 17 on schependomlaan), Tekla neither in most
-// of its faceted cuts, Revit no cut member here at all. So a cut member's
+// stores volume / section (16 of 17 on schependomlaan), Tekla the extent along
+// the part's own axis, Revit no cut member here at all. So a cut member's
 // Length is offered only by its tool's convention (eval/member-lengths-2026-11-22.md).
+//
+// Tekla's convention is 'box': the longest side of the body's smallest box
+// whose faces are flush with its own faces (boxAxis). The takeoff's axis is
+// right for a plain prism, but a Tekla brace drawn as a polygon outline
+// (M3D-CON's 'DIA-2', a 250 mm slab of a diagonal) has its outline's faces
+// lying along every direction in its plane, and the takeoff picked one 7 deg
+// off the brace. The box follows the brace's long faces. A body whose volume
+// over the box's mid section is longer than the box is not a straight prism
+// (a downpipe with an offset bend, Mini Project's 'AFLOOP'): held back. So is
+// one whose box is about as wide as it is long (a square base plate exported
+// as a beam). eval/tekla-cut-members-2026-11-22.md.
 //
 // A body no longer along its axis than it is wide across it is not taken for
 // a linear member: Tekla exports plates as IfcBeam ('PL6*60', its stored
@@ -406,7 +418,111 @@ export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asT
 
 const LENGTH_CONVENTIONS = [
   [/archicad|graphisoft/i, "centroid"],
+  [/tekla/i, "box"],
 ];
+
+const MAX_BOX_NORMALS = 200;
+const BOX_FIRST = 6;
+
+/**
+ * The smallest box around a body among the frames set by two of its own face
+ * normals: one of its largest faces' normals (the BOX_FIRST largest planes by
+ * area), and a second normal turned square to it. A cut prism's box is flush
+ * with its side faces whatever its ends do. null when the body has no faces
+ * to read or more than maxNormals distinct face directions.
+ * @returns {{n: number[], axes: number[][], dims: number[]} | null} n the longest side's direction; axes all three, dims in body units, both longest first
+ */
+export function boxAxis(body, solidExtent, maxNormals = MAX_BOX_NORMALS) {
+  const loops = [];
+  for (const t of body.terms || []) loops.push(...t.faces);
+  for (const sh of body.shells || []) loops.push(...sh.loops);
+  if (!loops.length) return null;
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  // face directions with their area, a face and its opposite as one
+  const ns = [];
+  for (const l of loops) {
+    let x = 0, y = 0, z = 0;
+    for (let i = 0; i < l.length; i++) {
+      const p = l[i], q = l[(i + 1) % l.length];
+      x += (p[1] - q[1]) * (p[2] + q[2]); y += (p[2] - q[2]) * (p[0] + q[0]); z += (p[0] - q[0]) * (p[1] + q[1]);
+    }
+    const L = Math.hypot(x, y, z);
+    if (!(L > 0)) continue;
+    const u = [x / L, y / L, z / L];
+    const m = ns.find((e) => Math.abs(dot(e.u, u)) > 1 - 1e-9);
+    if (m) m.A += L / 2;
+    else { ns.push({ u, A: L / 2 }); if (ns.length > maxNormals) return null; }
+  }
+  if (ns.length < 2) return null;
+  const firsts = [...ns].sort((p, q) => q.A - p.A).slice(0, BOX_FIRST);
+  const ext = (d) => { const [lo, hi] = solidExtent(body, d); return hi - lo; };
+  let best = null;
+  for (const { u: a } of firsts) {
+    const ea = ext(a), seen = [];
+    for (const { u: m } of ns) {
+      let b = cross(a, m);
+      const L = Math.hypot(...b);
+      if (L < 1e-9) continue;
+      b = b.map((x) => x / L);
+      if (seen.some((e) => Math.abs(dot(e, b)) > 1 - 1e-9)) continue;
+      seen.push(b);
+      const c = cross(a, b), V = ea * ext(b) * ext(c);
+      if (!best || V < best.V * (1 - 1e-9)) best = { V, axes: [a, b, c], ex: [ea, ext(b), ext(c)] };
+    }
+  }
+  if (!best) return null;
+  const o = [0, 1, 2].sort((p, q) => best.ex[q] - best.ex[p]);
+  return { n: best.axes[o[0]], axes: o.map((k) => best.axes[k]), dims: o.map((k) => best.ex[k]) };
+}
+
+/**
+ * How far the section through the middle of the box reaches across it, as a
+ * share of the box's two widths: where the body's face edges cross the
+ * mid plane. A straight prism's section spans its box however its ends are
+ * cut (openings and recesses inside it included); a bent one's (a downpipe
+ * with an offset) covers a part of it.
+ */
+export function midSpan(body, box, solidExtent) {
+  const [n, b, c] = box.axes;
+  const dot = (a, q) => a[0] * q[0] + a[1] * q[1] + a[2] * q[2];
+  const [lo, hi] = solidExtent(body, n);
+  const at = (lo + hi) / 2 + (hi - lo) * 1e-7;
+  let b0 = Infinity, b1 = -Infinity, c0 = Infinity, c1 = -Infinity;
+  const scan = (loops) => {
+    for (const f of loops) for (let i = 0; i < f.length; i++) {
+      const p = f[i], q = f[(i + 1) % f.length], dp = dot(n, p) - at, dq = dot(n, q) - at;
+      if ((dp < 0) === (dq < 0)) continue;
+      const t = dp / (dp - dq), x = [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, p[2] + (q[2] - p[2]) * t];
+      const u = dot(b, x), v = dot(c, x);
+      if (u < b0) b0 = u; if (u > b1) b1 = u; if (v < c0) c0 = v; if (v > c1) c1 = v;
+    }
+  };
+  for (const t of body.terms || []) scan(t.faces);
+  for (const sh of body.shells || []) scan(sh.loops);
+  if (!(b1 > b0) || !(c1 > c0)) return null;
+  return [(b1 - b0) / box.dims[1], (c1 - c0) / box.dims[2]];
+}
+
+const MID_SPAN = 0.9;
+
+/**
+ * A cut member's Length by Tekla's convention: the extent along boxAxis, or
+ * null when the box is not clearly longer than wide (5%) or the section at
+ * its middle spans less than 90% of either width (not a straight prism).
+ */
+export function boxLength(row, solidExtent) {
+  const body = row.computed?.solids?.body;
+  if (!body) return null;
+  const box = boxAxis(body, solidExtent);
+  if (!box) return null;
+  const f = row.lengthUnit ?? 1;
+  const length = box.dims[0] * f;
+  const span = midSpan(body, box, solidExtent);
+  const linear = box.dims[0] > 1.05 * box.dims[1];
+  const straight = span != null && span[0] >= MID_SPAN && span[1] >= MID_SPAN;
+  return { length: linear && straight ? length : null, box: length, span, widths: [box.dims[1] * f, box.dims[2] * f], linear, straight };
+}
 
 const SQUARE_TOL = 0.005;
 
@@ -432,7 +548,7 @@ export function widthAcross(body, n, solidExtent) {
  * A linear member's two length readings (SI) and which one is offered.
  * @param {{computed: object, lengthUnit?: number}} row a takeoff row with computed.areas.cross
  * @param {Function} solidExtent geom.mjs
- * @param {string|null} convention the authoring tool's, for cut ends ('centroid' or 'extent')
+ * @param {string|null} convention the authoring tool's, for cut ends ('centroid', 'extent' or 'box')
  * @returns {{length: number|null, extent: number, centroid: number, width: number, square: boolean, lengthFrom: string|null} | null}
  */
 export function memberLength(row, solidExtent, convention = null) {
@@ -450,6 +566,10 @@ export function memberLength(row, solidExtent, convention = null) {
   else if (square) { length = extent; lengthFrom = "square"; }
   else if (convention === "centroid") { length = centroid; lengthFrom = "centroid"; }
   else if (convention === "extent") { length = extent; lengthFrom = "extent"; }
+  else if (convention === "box") {
+    const b = boxLength(row, solidExtent);
+    if (b?.length != null) { length = b.length; lengthFrom = "box"; }
+  }
   return { length, extent, centroid, width, square, lengthFrom };
 }
 
