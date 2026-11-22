@@ -100,13 +100,13 @@ All fixes are in PR #18259. Each defect it fixed carries `fixed_by` in its audit
   - The independent solver now agrees with the project's objective on every checked fit.
 - **platform/perf:**
   - `module-exclusive.mjs` reads `src=` module scripts, minified imports and query strings, and fails loudly when it finds nothing.
-  - Five tests were added.
+  - Its first five tests go in a separate PR: a new test directory must be named in the merge checklist under `.github/`, which waits for the owner.
 
 Still open:
 
 - The parcel tool doesn't model USPS's one-cubic-foot rule; it only discloses it.
 - The lawn calculator has no multi-aerator crews and no species-specific seed rates.
-- platform/perf has no CI trigger. Adding one touches a CODEOWNERS path, so it needs its own PR.
+- platform/perf tests and the checklist line that runs them wait on the owner-gated follow-up PR.
 - One surviving IPS-weight mutant in ambient-fullinfo.
 
 ## What changed since the last round
