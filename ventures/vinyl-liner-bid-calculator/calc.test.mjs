@@ -11,6 +11,7 @@ import {
   suggestedLinerSf,
   suggestedWastePercent,
   suggestedOrderSf,
+  takeoffChain,
   suggestedMilKit,
   suggestedBeadKit,
   suggestedAccessKit,
@@ -340,4 +341,46 @@ test('the customer-facing summary omits wages and names the liner and stairs', (
   assert.doesNotMatch(text, /\$30/);
   assert.doesNotMatch(text, /burden/i);
   assert.doesNotMatch(text, /wage/i);
+});
+
+// Quality audit 2026-11-22 (portfolio/quality/audits/2026-11-22-vinyl-liner-bid-calculator.json):
+// a measured liner area typed over the suggestion never reached the order or the price.
+const geometry = { lengthFeet: 32, widthFeet: 16, wallHeightFeet: 3.5, shape: 'rectangle', depth: 'hopper', stairs: 'none', pattern: 'solid' };
+
+test('takeoff chain: with nothing edited it is the coupon takeoff', () => {
+  const c = takeoffChain(geometry);
+  assert.equal(c.waterSurfaceSf, 512);
+  assert.equal(c.wallSf, 336);
+  assert.ok(Math.abs(c.linerSf - 960.64) < 1e-9);
+  assert.ok(Math.abs(c.orderSf - 1037.4912) < 1e-9);
+});
+
+test('takeoff chain: an edited liner area drives the order square feet', () => {
+  const c = takeoffChain(geometry, { linerSf: '1200' });
+  assert.equal(c.linerSf, 1200);
+  assert.ok(Math.abs(c.orderSf - 1296) < 1e-9); // 1200 × 1.08
+  const bid = calculateBid({ ...coupon(), linerSf: c.linerSf, orderSf: c.orderSf });
+  assert.ok(Math.abs(bid.linerMaterial - 1296 * 1.85) < 1e-6);
+});
+
+test('takeoff chain: edited wall, hopper and perimeter flow into liner and order', () => {
+  const c = takeoffChain(geometry, { perimeterLf: '100', hopperExtraSf: '60' });
+  assert.equal(c.wallSf, 350); // 100 lf × 3.5 ft
+  assert.equal(c.linerSf, 512 + 350 + 60);
+  const d = takeoffChain(geometry, { wallSf: '400', wastePercent: '10' });
+  assert.ok(Math.abs(d.linerSf - (512 + 400 + 112.64)) < 1e-9);
+  assert.ok(Math.abs(d.orderSf - d.linerSf * 1.1) < 1e-9);
+  assert.equal(takeoffChain(geometry, { orderSf: '1100' }).orderSf, 1100);
+});
+
+test('a cleared field is an error, not a silent zero', () => {
+  assert.throws(() => calculateBid({ ...coupon(), orderSf: '' }), /required/);
+  assert.throws(() => calculateBid({ ...coupon(), linerPerSf: '  ' }), /required/);
+});
+
+test('wall foam material is perimeter × $/lf, and break-even is strict', () => {
+  const bid = calculateBid({ ...coupon(), replaceWallFoam: true });
+  assert.ok(Math.abs(bid.foamMaterial - 96 * 4.25) < 1e-9);
+  const atCost = calculateBid({ ...coupon(), proposedPrice: calculateBid(coupon()).totalCost });
+  assert.equal(atCost.proposed.belowBreakEven, false);
 });

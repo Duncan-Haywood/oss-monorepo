@@ -358,6 +358,7 @@
       suggestedLinerSf,
       suggestedWastePercent,
       suggestedOrderSf,
+      takeoffChain,
       suggestedMilKit,
       suggestedBeadKit,
       suggestedAccessKit,
@@ -382,6 +383,7 @@
       'mobilizationFee','permitFee',
       'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin','proposedPrice',
     ];
+    const TAKEOFF_CHAIN_IDS = new Set(['waterSurfaceSf','perimeterLf','wallSf','hopperExtraSf','stairSf','linerSf','wastePercent']);
     const KIT_IDS = new Set([
       'waterSurfaceSf','perimeterLf','wallSf','hopperExtraSf','stairSf','linerSf','wastePercent','orderSf',
       'hoursPer100SfLiner','linerPerSf','hoursStairs','hoursBead','hoursAccess',
@@ -446,21 +448,18 @@
       const depth = el('depth').value;
       const stairs = el('stairs').value;
       const pattern = el('pattern').value;
-      const water = suggestedWaterSurface(length, width, shape);
-      const perimeter = suggestedPerimeter(length, width, shape);
-      const walls = suggestedWallSf(perimeter, wallHeight);
-      const hopper = suggestedHopperExtraSf(water, depth);
-      const stair = suggestedStairSf(stairs);
-      const liner = suggestedLinerSf(water, walls, hopper, stair);
-      const waste = suggestedWastePercent(pattern);
-      if (!el('waterSurfaceSf').dataset.edited) el('waterSurfaceSf').value = Number(water.toFixed(4));
-      if (!el('perimeterLf').dataset.edited) el('perimeterLf').value = Number(perimeter.toFixed(4));
-      if (!el('wallSf').dataset.edited) el('wallSf').value = Number(walls.toFixed(4));
-      if (!el('hopperExtraSf').dataset.edited) el('hopperExtraSf').value = Number(hopper.toFixed(4));
-      if (!el('stairSf').dataset.edited) el('stairSf').value = stair;
-      if (!el('linerSf').dataset.edited) el('linerSf').value = Number(liner.toFixed(4));
-      if (!el('wastePercent').dataset.edited) el('wastePercent').value = waste;
-      if (!el('orderSf').dataset.edited) el('orderSf').value = Number(suggestedOrderSf(liner, waste).toFixed(4));
+      const TAKEOFF_IDS = ['waterSurfaceSf','perimeterLf','wallSf','hopperExtraSf','stairSf','linerSf','wastePercent','orderSf'];
+      const edited = {};
+      TAKEOFF_IDS.forEach(id => { if (el(id).dataset.edited) edited[id] = el(id).value; });
+      let chain;
+      try {
+        chain = takeoffChain({ lengthFeet: length, widthFeet: width, wallHeightFeet: wallHeight, shape, depth, stairs, pattern }, edited);
+      } catch (error) {
+        return;
+      }
+      TAKEOFF_IDS.forEach(id => {
+        if (!el(id).dataset.edited) el(id).value = Number(chain[id].toFixed(4));
+      });
     }
 
     function readInput() {
@@ -677,6 +676,11 @@
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
       if (KIT_IDS.has(id)) {
         el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+      }
+      // A typed takeoff number (a measured liner area, say) flows to every
+      // field below it in the chain, and so to the order and the price.
+      if (TAKEOFF_CHAIN_IDS.has(id)) {
+        el(id).addEventListener('input', () => { applyGeometryKits(); update(); });
       }
     });
     ['replaceTrack','replaceCove','replaceWallFoam','includeCover','includePermit','pumpDown'].forEach(id => {
