@@ -5,8 +5,9 @@
 // with module-exclusive.mjs to see what a dynamic import would save.
 import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
 const root = process.argv[2];
-const staticRe = /(?:^|[;\n}])\s*import\s+(?:[\w*{}\s,$]+\s+from\s+)?['"]([^'"]+)['"]/g;
-const exportFromRe = /export\s+(?:\*|\{[^}]*\})\s+from\s+['"]([^'"]+)['"]/g;
+// \s* (not \s+) around the clause so minified `import{a}from'./a.mjs'` counts too.
+const staticRe = /(?:^|[;\n}])\s*import\s*(?:[\w*{}\s,$]+?\s*from\s*)?['"]([^'"]+)['"]/g;
+const exportFromRe = /export\s*(?:\*(?:\s*as\s+[\w$]+)?|\{[^}]*\})\s*from\s*['"]([^'"]+)['"]/g;
 function deps(src){ const out=[]; for (const re of [staticRe, exportFromRe]) { re.lastIndex=0; let m; while((m=re.exec(src))) out.push(m[1]); } return out; }
 const rows=[];
 for (const v of fs.readdirSync(path.join(root,'ventures'))) {
