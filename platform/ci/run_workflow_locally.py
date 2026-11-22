@@ -1387,8 +1387,19 @@ def runner_files() -> dict[str, str]:
             _RUNNER_FILES[name] = path
         _RUNNER_FILES["RUNNER_TEMP"] = tmp
     files = {k: v for k, v in _RUNNER_FILES.items() if k not in os.environ}
+    # A CI runner owns its checkout; a cloud session shares platform/pages/dist
+    # with any other local build, and build.mjs refused the second one (exit
+    # 75, reported FAIL: doc friction 2026-11-21). Queue behind it instead
+    # (platform/pages/build-lock.mjs). An export already in this shell wins.
+    if "PAGES_BUILD_LOCK_WAIT" not in os.environ:
+        files["PAGES_BUILD_LOCK_WAIT"] = str(PAGES_BUILD_LOCK_WAIT_S)
     files["GIT_CONFIG_GLOBAL"] = isolated_git_global(tmp=_RUNNER_FILES["RUNNER_TEMP"])
     return files
+
+
+# A whole other site build (150-300 s) fits, leaving our own build room inside
+# the 900 s default --timeout per step.
+PAGES_BUILD_LOCK_WAIT_S = 480
 
 
 def global_git_config_paths(environ=os.environ) -> list[str]:

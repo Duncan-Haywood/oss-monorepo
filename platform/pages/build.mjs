@@ -184,7 +184,7 @@ import {
   siteStructuredData,
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
-import { acquireBuildLock } from './build-lock.mjs';
+import { acquireBuildLock, waitForBuildLock } from './build-lock.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const gzipAsync = promisify(zlib.gzip);
@@ -14024,9 +14024,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const argOut = process.argv.find((a) => a.startsWith('--out='))?.slice('--out='.length);
   const cliOutDir = argOut ? path.resolve(argOut) : path.join(REPO_ROOT, 'platform', 'pages', 'dist');
   // A second build into the same dir deletes the first one's pages (build-lock.mjs).
+  // PAGES_BUILD_LOCK_WAIT=<seconds> queues behind such a build instead.
   let releaseLock;
   try {
-    releaseLock = acquireBuildLock(cliOutDir);
+    const waitS = Number(process.env.PAGES_BUILD_LOCK_WAIT) || 0;
+    releaseLock = waitS > 0
+      ? await waitForBuildLock(cliOutDir, { waitMs: waitS * 1000, onWait: (m) => console.error(`build.mjs: ${m}`) })
+      : acquireBuildLock(cliOutDir);
   } catch (err) {
     if (err.code !== 'BUILD_LOCKED') throw err;
     console.error(`build.mjs: ${err.message}`);
