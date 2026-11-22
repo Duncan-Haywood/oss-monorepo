@@ -1399,9 +1399,9 @@ class FeederAssemblyGuideTest(unittest.TestCase):
     def test_design_passes_every_guide_check(self):
         rows, bad = self.G.joint_checks(self.p, self.parts)
         self.assertEqual(bad, [])
-        self.assertEqual(len(rows), 39)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
+        self.assertEqual(len(rows), 41)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
         # flight caps' M3, 34 until the driver carrier's M3s, 35 until the idler axles and the spool axle, 37 until
-        # the turntable bearing's two rings, 2026-11-21
+        # the turntable bearing's two rings, 2026-11-21; 39 until the levelling feet's blocks and jam nuts, 2026-11-22
         self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.access_problems(self.p, self.parts), [])
@@ -1532,8 +1532,8 @@ class SpannerTest(unittest.TestCase):
         self.assertEqual(self.cbad, [])
         self.assertEqual(self.fbad, [])
         self.assertEqual({r["joint"] for r in self.crows}, {"rod clamp ring", "yoke pivot", "drum axle"})
-        self.assertEqual(len(self.frows), 11)   # 7 until the idler axles and the take-up spool axle, 9 until the
-        # turntable bearing's rings, 2026-11-21
+        self.assertEqual(len(self.frows), 12)   # 7 until the idler axles and the take-up spool axle, 9 until the
+        # turntable bearing's rings, 2026-11-21; 11 until the levelling feet's jam nuts, 2026-11-22
         self.assertEqual(sum(r["holes"] for r in self.crows), 16)
 
     def test_drum_axle_nut_is_held_between_the_rods(self):
@@ -1644,6 +1644,71 @@ class BearingParamsTest(unittest.TestCase):
     def test_a_thin_bearing_fails(self):
         self.assertTrue(any("heads pass" in m for m in Feeder(bearing_h=8.0).check_bearing()))
         self.assertTrue(any("access hole" in m for m in Feeder(bearing_access_d=9.0).check_bearing()))
+
+
+class LevellingFootParamsTest(unittest.TestCase):
+    """2026-11-22: the levelling feet. A stud straight into a T-nut in the beam's bottom slot had 4 mm of travel and
+    bent in the design wind; a printed block with a captive nut low down gives the travel and shortens the stud."""
+
+    def test_design_passes(self):
+        p = Feeder()
+        self.assertEqual(p.check_levelling_foot(), [])
+        f = p.levelling_foot_design()
+        self.assertEqual((f["down_mm"], f["up_mm"]), (38.0, 50.0))
+        self.assertEqual(f["lever_mm"], 42.0)
+        self.assertGreater(f["margin"], 2.0)
+
+    def test_the_old_mount_did_not_work(self):
+        """The BOM's 155 mm stud ran 25 mm past the beam's face (the slot's floor is 8), had 4 mm of travel against
+        the 12 wanted either way, and its 142 mm of bare stud bent past yield in the design wind."""
+        o = Feeder().levelling_foot_design()["old"]
+        self.assertGreater(o["tip_past_face_mm"], 8.0)
+        self.assertLess(o["travel_mm"], 2 * Feeder().foot_adjust_mm)
+        self.assertGreater(o["stress_mpa"], Feeder().foot_stud_yield_mpa)
+
+    def test_each_check_fires(self):
+        self.assertTrue(any("drops only" in m for m in Feeder(foot_block_z=85.0).check_levelling_foot()))
+        self.assertTrue(any("rises only" in m for m in Feeder(foot_stud_len=120.0).check_levelling_foot()))
+        self.assertTrue(any("bends at" in m and "stud" in m for m in Feeder(foot_wind_share=1.0).check_levelling_foot()))
+        self.assertTrue(any("spanner" in m for m in Feeder(foot_block_z=40.0, foot_stud_len=60.0).check_levelling_foot()))
+        self.assertTrue(any("T-nut pulls" in m for m in Feeder(foot_tnut_pull_n=100.0).check_levelling_foot()))
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class LevellingFootCadTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import feeder as F, guide as G
+        cls.F, cls.G = F, G
+        cls.p = Feeder()
+        cls.parts = F.all_parts(cls.p)
+
+    def test_block_and_foot_clash_with_nothing(self):
+        for name in ("foot_block", "levelling_foot"):
+            a = next(pt for pt in self.parts if pt.name == name)
+            for s in a.placed():
+                for pt in self.parts:
+                    if pt is a:
+                        continue
+                    for o in pt.placed():
+                        x = s & o
+                        self.assertFalse(x and x.volume > 0.01, (name, pt.name))
+
+    def test_joints_measured_and_jam_nut_turns(self):
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.p, self.parts)[0]}
+        self.assertEqual(rows["levelling foot block to net beam"]["spare_mm"], 6.0)   # mid-way in the T-nut window
+        self.assertEqual(rows["levelling foot jam nut"]["stack"], "foot_block 5")
+        sp = {r["joint"]: r for r in self.G.spanner_checks(self.p, self.parts)[0]}
+        j = sp["levelling foot jam nut"]
+        self.assertEqual((j["spanner_mm"], j["holes"]), (10.0, 2))
+        self.assertGreaterEqual(j["nut_deg"], self.G.SWING_DEG)
+
+    def test_stud_tip_in_the_bore_and_pad_on_the_ground(self):
+        from otr_cad.package import ground_contacts
+        self.assertAlmostEqual(ground_contacts(self.parts, ("levelling_foot",))["levelling_foot"], 0.0, places=3)
+        tip = self.p.levelling_foot_design()["tip_z"]
+        self.assertLess(tip, self.p.rail_z)
+        self.assertGreater(tip, self.p.foot_block_z + self.p.foot_block_wall + 5.0 + 2.0)
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")

@@ -410,10 +410,11 @@ flagships:
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
       CAD work and every check: cad/README.md (2026-11-21: switches, post wedges,
       every fastener a joint, nut spanners, idler axles fixed and the spool axle as
-      joints). Turntable bearing's two rings, access holes and eight M5 screws as
-      joints 2026-11-21. Next: the levelling feet's jam nuts as joints. Firmware
-      survey tuning is settled on simulated data (firmware/esp32/README.md,
-      NEXT.md): next information there is a real wheel's tach log.
+      joints). Bearing rings 2026-11-21; levelling feet's blocks and jam nuts as
+      joints 2026-11-22 (every feeder nut a joint). Next: a deep socket on an
+      extension (cad/README.md, Spanners). Firmware survey tuning is settled on
+      simulated data (firmware/esp32/README.md, NEXT.md): next information there is
+      a real wheel's tach log.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
