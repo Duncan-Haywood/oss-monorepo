@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVM5Ct3exErvt9nBnL2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled revenue-products brief (ventures/prompt-1.md text)",
+  "input_sha256": "7adf69019c304afd4ea430263c55b2ce78912335599b926a95cf943c1e8dec8f",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T06:03:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18205",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "I ran a bare `route` first and drew process for the scheduled revenue brief, like many runs before; re-routing with --task picked ventures. A bare route whose draw disagrees with no --task cannot know better, but printing 'started by a message? pass --task' on every bare route would catch it. It is CODEOWNERS-gated, so a ventures run cannot ship it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Start here named ids-model-check, whose next: items need outside inputs (a person, a Tekla export). I did distribution work for the same flagship instead: three search guides, which xer-schedule-check already has and this tool lacked.",
+      "did": "3 how-to guides with engine-checked worked examples, plus a CSV boolean fix the guide work exposed",
+      "result": "merged; guides.test.mjs 6/6, venture suite 479/479"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Writing the Excel guide found a real bug: Excel/LibreOffice save a typed true to CSV as TRUE, --from-sheet passed it through and the IDS was INVALID (matched nothing); --fix does not repair it. Fixed in sheet.mjs rowsToIds for IFCBOOLEAN/IFCLOGICAL properties, with a warning. Verification: node --test '*.test.mjs' in ventures/ids-model-check 479 pass 0 fail; check_posts ok; main_health on main 311/311 before the change; first preflight caught a literal U+FEFF in guides.test.mjs (fixed to an escape), rerun below. flagships.yaml next: left unchanged since no next: item was landed.",
+  "corrections": [],
+  "redteam": null
+}

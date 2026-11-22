@@ -112,7 +112,7 @@ test("the fill guide's example: two typed values take the house from 3 to 5 of 7
   const html = page(GUIDES[2]);
   const todo = join(dir, "todo.csv"), filled = join(dir, "filled.ifc");
   cli("--fill", HOUSE, STARTER, "-o", join(dir, "first.ifc"), "--to-fill", todo);
-  const lines = readFileSync(todo, "utf8").replace(/^﻿/, "").trim().split(/\r?\n/);
+  const lines = readFileSync(todo, "utf8").replace(/^\uFEFF/, "").trim().split(/\r?\n/);
   assert.equal(lines.length, 3);
   assert.match(lines[1], /,W-02,Pset_WallCommon,LoadBearing,IFCBOOLEAN,/);
   assert.match(lines[2], /,001,\(attribute\),LongName,IFCLABEL,/);
