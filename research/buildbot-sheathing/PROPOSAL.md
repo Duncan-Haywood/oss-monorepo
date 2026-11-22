@@ -575,6 +575,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    The weakest bias rating rises from 0.213 to 0.530 N (G1) and 0.279 to 0.564 N (H1) (H268 held); no gate-passed
    press leaves 0.03 mm (H267 held); gate coverage at 0.4 N 100% and 99.3% (from 58% and 85%; H270 held), at 0.6 N
    63% and 84% (from 21% and 52%; H269 held). Next: a bias that drifts between calibration and press; dynamics.
+70. **A drifting bias** (done 2026-11-22, `experiments/m70_drift/`): with bias e_r at the calibration and e_r + d at
+   the press, the no-flip residual is J e_r + S d to 1.2e-14 mm on 8 new loads, seed 70 (H271 held), S the fixed-
+   calibration sensitivity, one matrix per pose (H272 held), 2.9 to 3.5 times J at the median. Drift of 0.1 N at
+   B = 0.4 N breaks 99 G1 and 32 H1 presses milestone 69's gate passed (H273 held); the drift gate
+   Y + B||J|| + delta||S|| <= 0.03 mm passes none over spec (H274 held), at coverage G1 78, 56, 14% and H1 99, 88, 25%
+   for delta 0.05, 0.1, 0.2 N; weakest drift rating 0.162 N (G1) and 0.189 N (H1) (H275 held). Next: the re-zero
+   interval from a sourced drift rate; a calibration pose chosen for S; dynamics.
 
 ## Target venue
 

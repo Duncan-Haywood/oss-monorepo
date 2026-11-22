@@ -899,6 +899,22 @@ is untested.
 
 ![Each pose's bias rating with one and two calibration poses, and gate coverage against the bias bound](experiments/m69_tworef/figure.png)
 
+**Milestone 70: what if the force sensor's bias drifts between calibration and press?** The certificate breaks
+unless it carries the drift. With bias e<sub>r</sub> at the calibration and e<sub>r</sub> + d at the press, the
+no-flip error is **exactly J e<sub>r</sub> + S d, to 1e-14 mm on 8 new held-out loads (seed 70; H271 held)**, where
+S is the press pose's sensitivity with the calibration fixed, again one matrix per pose (H272 held). The calibration
+cancels the steady part and none of the drift, and **S is 3 to 3.5 times larger than J** (median 0.149 against
+0.043 mm/N on the G1, 0.112 against 0.039 on the H1). So a drift of only 0.1 N at a 0.4 N bias bound breaks
+**99 G1 and 32 H1 presses that milestone 69's gate certified** (worst 0.040 mm; H273 held). Adding the drift term,
+Y + B||J|| + &delta;||S|| &le; 0.03 mm, restores the guarantee: **no gate-passed press over spec at any bias
+(0.3, 0.4 N) or drift (0.05 to 0.2 N) bound** (H274 held). Coverage at a 0.4 N bias: 78% (G1) and 99% (H1) with
+0.05 N drift, 56% and 88% with 0.1 N, 14% and 25% with 0.2 N. The weakest pose tolerates only **0.162 N (G1) and
+0.189 N (H1) of drift**, against 0.53 and 0.56 N of steady bias (H275 held). In practice: bound how far the sensor
+wanders between calibration and press, and re-zero or track the bias (for example with a running estimator such as
+arXiv:2403.01068's) often enough to keep that under about 0.05 N. One seed; statics; drift swept, not sourced.
+
+![Each pose's bias rating against its drift rating, and drift-gate coverage against the drift bound](experiments/m70_drift/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
