@@ -85,7 +85,7 @@ const SHOULD = new Set(["fresh", "selected", "moved", "nodef", "own2"]);
 for (const m of MODES) res.planted[m] = { files: 0, named: 0, skipExact: 0, keepAdds: 0, problems: 0, misses: [] };
 
 for (const f of files) {
-  const xml = readFileSync(f, "utf8").replace(/^﻿/, "");
+  const xml = readFileSync(f, "utf8").replace(/^\uFEFF/, "");
   if (!/<Project[\s>]/.test(xml.slice(0, 4000)) || !/<Tasks>/.test(xml)) continue;
   res.files++;
   let base;
