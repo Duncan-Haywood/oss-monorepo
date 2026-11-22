@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKkHTrompkaoty7e3rW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T08:09:21Z",
+  "ended": "2026-11-22T08:46:27Z",
+  "wall_minutes": 37.34,
+  "tokens_in": 12878709,
+  "tokens_out": 60690,
+  "cost_usd": 5.2365,
+  "tool_calls": 94,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18220",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first measurement run backgrounded with a bare '&' kept writing into the same eval .txt as a later run, which left mixed output; caught when grep reported a binary file, and fixed by deleting the file and rerunning once with no other writer."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with --make-room still refused at 2011 and 2058 of 2000 characters. The row had no parkable items left, so the new clause had to be cut by hand and the displaced 'plate or covering Width' item moved to NEXT.md by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief prefers one-click self-deploy and new ventures. I took the router's 'Start here' flagship item instead (ids-model-check is a browser/CLI tool with no deploy step).",
+      "did": "Deepened the model fill with door and window Qto_ quantities, measured against public exports.",
+      "result": "Landed: 380 offered, 377 exact, fill and IfcTester agree."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-ids-model-check-door-window-quantities.md",
+    "ventures/ids-model-check/eval/door-window-quantities-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Tests: run_venture_tests.py ids-model-check passed (490 tests, 2 skipped). venture-preflight ids-model-check: clean. run_workflow_locally.py --for-changes: 15/15 selected workflows passed; agent-cross-review jobs and the pages deploy/gate jobs were selected but not run outside PR CI. check_posts.py ok. Finding: ARCHICAD stores the filled opening's figures exactly (315/315 on 3 exports). Revit 2010, 2019 and 2022 each store different figures, so Revit is held back.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4fc4a09f-0d2d-5d53-8fc8-0cb545aac846",
+    "transcripts": 1,
+    "first": "2026-11-22T08:09:21Z",
+    "last": "2026-11-22T08:46:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 170,
+        "output": 60690,
+        "thinking": 11855,
+        "cache_read": 12693120,
+        "cache_write_5m": 0,
+        "cache_write_1h": 185419,
+        "api_equivalent_usd": 5.2365,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 170,
+      "output": 60690,
+      "thinking": 11855,
+      "cache_read": 12693120,
+      "cache_write_5m": 0,
+      "cache_write_1h": 185419,
+      "api_equivalent_usd": 5.2365,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 94,
+    "tools": {
+      "Bash": 90,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 37.34,
+      "active_minutes": 37.34,
+      "model_minutes": 11.57,
+      "tool_minutes": 25.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a BIM tools developer surveying exporter conventions across 10 public models, coding the opening reader, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 191.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
