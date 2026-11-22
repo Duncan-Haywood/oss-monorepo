@@ -197,18 +197,17 @@ flagships:
       rounds (README "A closure in the first week after a step": cost ~4/100,
       pooled); a closure 1-7 days before a step costs ~1/100 and the 2011-09-01
       alert was the holiday's zero (README "A closure in the week before a step"));
-      next a provider that documents its own changes. Search Console source,
-      --events and count Middle (pelt + NB) shipped 2026-11-21 (README "A middle
-      setting for over-dispersed counts": 20% falls 115/120 vs Quiet 38, 0.83
-      false/1,000 days): Middle as count default failed (alerts on growth); --wander
-      gated opt-in 2026-11-21 (README "A wandering level under Middle"); a calmer
-      gate 2026-11-21 decides on the days before the change (README "A calmer wander
-      gate": calm-site falls as Middle, 2% walk 12.50 to 5.42); next a live
-      property. joint drift (measured, not offered). Open: (0) drift model: t-walk
-      increments, biweight on fresh data, why it absorbs seat belts and quality
-      control 4, its AR(1) term; notes quote it. Curvature word ships under
-      --shape-word panel (README "A curvature word"): slope donors straight 73% vs
-      clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      next a provider that documents its own changes. Search Console and GA4
+      (2026-11-22, README "Google Analytics 4 as a source") sources, --events and
+      count Middle (pelt + NB) shipped 2026-11-21 (README "A middle setting for
+      over-dispersed counts": 20% falls 115/120 vs Quiet 38, 0.83 false/1,000 days):
+      Middle as count default failed (alerts on growth); --wander gated opt-in
+      2026-11-21 (README "A wandering level under Middle"); next a live property.
+      joint drift (measured, not offered). Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; notes quote it. Curvature word ships under --shape-word panel
+      (README "A curvature word"): slope donors straight 73% vs clean 37%, OR 4.74
+      vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,

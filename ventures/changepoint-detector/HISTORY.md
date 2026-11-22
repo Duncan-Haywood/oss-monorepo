@@ -20,3 +20,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) (w) watch (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget box and "Wandering level" (drift) shipped
 - (moved 2026-11-21) gated joint growth fit is the count Middle 2026-11-21 (README "The joint growth fit, gated": growing sites alerted 27/40 to 6/40)
 - (2026-11-21) Wander gate decided on the days before the newest change (README "A calmer wander gate", pre-registered: K1 fails 40 vs 37.5, K1' and K2-K5 pass): calm-site falls exactly as Middle, 2% walk 12.50 to 5.42 alerts per 1,000 days; --wander gated takes it.
+- (moved 2026-11-22) a calmer gate 2026-11-21 decides on the days before the change (README "A calmer wander gate": calm-site falls as Middle, 2% walk 12.50 to 5.42)

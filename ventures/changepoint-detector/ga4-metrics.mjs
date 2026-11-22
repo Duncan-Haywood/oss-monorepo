@@ -195,7 +195,7 @@ const splitCsv = (line) => {
  * A "Grand total" row is skipped. Returns { metrics, rows } oldest first, missing days filled with zeros.
  */
 export function fromExport(text) {
-  const lines = String(text).replace(/^﻿/, '').split(/\r?\n/);
+  const lines = String(text).replace(/^\uFEFF/, '').split(/\r?\n/);
   let start = null;
   for (const l of lines) { const m = /^#\s*Start date:\s*(\d{8})/i.exec(l); if (m) { start = isoOf(m[1]); break; } }
   let i = lines.findIndex((l) => !l.startsWith('#') && /^"?(date|nth day)"?\s*,/i.test(l.trim()));

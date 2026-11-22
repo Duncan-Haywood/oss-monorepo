@@ -71,13 +71,11 @@ your finished days into `data/gsc.csv` (clicks, impressions, CTR, position; `nod
 and watches clicks and impressions, so a lasting fall in search traffic reaches you within about a week, not at the
 end of the month. `data/gsc.csv` is cached, never committed.
 
-Google Analytics 4: in a Google Cloud project, enable the Google Analytics Data API and create a service account with
-a JSON key; in Google Analytics (Admin > Property access management) add the service account's email as a Viewer.
-Add the whole key file as the secret `GA4_SERVICE_ACCOUNT_JSON` and the numeric property ID (Admin > Property details)
-as the variable `GA4_PROPERTY`. With `METRIC_CSV` unset and no Stripe, Shopify or Search Console credentials, each run
-fetches your days into `data/ga4.csv` (sessions, active users, page views, key events; `node ga4-metrics.mjs --help`)
-and watches sessions, active users and key events, so a tracking tag that broke in a release, or a lasting fall in
-visits or sign-ups, reaches you within days. `data/ga4.csv` is cached, never committed.
+Google Analytics 4: enable the Google Analytics Data API in a Google Cloud project, create a service account with a
+JSON key and add its email as a Viewer of the property (Admin > Property access management). Add the key file as the
+secret `GA4_SERVICE_ACCOUNT_JSON` and the numeric property ID as the variable `GA4_PROPERTY`. With no other source
+set, each run fetches `data/ga4.csv` (`node ga4-metrics.mjs --help`) and watches sessions, users and key events.
+`data/ga4.csv` is cached, never committed.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood
