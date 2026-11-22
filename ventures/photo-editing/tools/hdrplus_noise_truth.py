@@ -100,6 +100,38 @@ def _cells(x: np.ndarray, k: int) -> np.ndarray:
     return x[:H, :W].reshape(H // k, k, W // k, k).transpose(0, 2, 1, 3).reshape(H // k, W // k, k * k)
 
 
+def site_fit(sa: np.ndarray, sb: np.ndarray):
+    """One CFA site's planes (reference ``sa``, merge ``sb``) fitted per ``CELL`` x ``CELL`` cell as
+    ``sa ~= (g0 + gu u + gv v) sb + o``: (fit, residual, ok, g0, the merge's gradient), each per cell as
+    (cells_y, cells_x, CELL * CELL) (``_cells``' layout; ``uncells`` puts one back on the site grid)."""
+
+    grad = (np.abs(np.roll(sb, -1, 1) - np.roll(sb, 1, 1)) + np.abs(np.roll(sb, -1, 0) - np.roll(sb, 1, 0)))
+    A = _cells(sa, CELL)
+    B = _cells(sb, CELL)
+    G = _cells(grad, CELL)
+    n = CELL * CELL
+    v, u = np.mgrid[0:CELL, 0:CELL].reshape(2, n) / CELL - 0.5
+    # a = (g0 + gu u + gv v) b + o per cell: lens shading changes across a cell, and a constant gain
+    # leaves that change times the scene's texture in the residual
+    X = np.stack([B, B * u, B * v, np.ones_like(B)], axis=-1)  # (cells_y, cells_x, n, 4)
+    XtX = np.einsum("ijnk,ijnl->ijkl", X, X)
+    Xty = np.einsum("ijnk,ijn->ijk", X, A)
+    ok = np.linalg.cond(XtX) < 1e12
+    XtX[~ok] = np.eye(4)
+    beta = np.linalg.solve(XtX, Xty[..., None])[..., 0]
+    fit = np.einsum("ijnk,ijk->ijn", X, beta)
+    ok &= beta[..., 0] > 0
+    res = (A - fit) * np.sqrt(n / (n - 4))  # the four fitted parameters' share of the variance
+    return fit, res, ok, beta[..., 0], G
+
+
+def uncells(x: np.ndarray, k: int = CELL) -> np.ndarray:
+    """``_cells``' inverse: (cells_y, cells_x, k * k) back to (cells_y * k, cells_x * k)."""
+
+    cy, cx = x.shape[:2]
+    return x.reshape(cy, cx, k, k).transpose(0, 2, 1, 3).reshape(cy * k, cx * k)
+
+
 def residual_sites(a: np.ndarray, b: np.ndarray):
     """Per CFA site (oy, ox): (fitted clean level, residual, median gain, the merge's local gradient), from
     ``a ~= (g0 + gu u + gv v) b + o`` per cell (``u``, ``v`` the place in the cell). The gradient (same-site neighbours either side, both axes) is of the merge only,
@@ -109,25 +141,7 @@ def residual_sites(a: np.ndarray, b: np.ndarray):
     out = {}
     for oy in (0, 1):
         for ox in (0, 1):
-            sb = b[oy::2, ox::2]
-            grad = (np.abs(np.roll(sb, -1, 1) - np.roll(sb, 1, 1)) + np.abs(np.roll(sb, -1, 0) - np.roll(sb, 1, 0)))
-            A = _cells(a[oy::2, ox::2], CELL)
-            B = _cells(sb, CELL)
-            G = _cells(grad, CELL)
-            n = CELL * CELL
-            v, u = np.mgrid[0:CELL, 0:CELL].reshape(2, n) / CELL - 0.5
-            # a = (g0 + gu u + gv v) b + o per cell: lens shading changes across a cell, and a constant gain
-            # leaves that change times the scene's texture in the residual
-            X = np.stack([B, B * u, B * v, np.ones_like(B)], axis=-1)  # (cells_y, cells_x, n, 4)
-            XtX = np.einsum("ijnk,ijnl->ijkl", X, X)
-            Xty = np.einsum("ijnk,ijn->ijk", X, A)
-            ok = np.linalg.cond(XtX) < 1e12
-            XtX[~ok] = np.eye(4)
-            beta = np.linalg.solve(XtX, Xty[..., None])[..., 0]
-            fit = np.einsum("ijnk,ijk->ijn", X, beta)
-            ok &= beta[..., 0] > 0
-            g = beta[..., 0]
-            res = (A - fit) * np.sqrt(n / (n - 4))  # the four fitted parameters' share of the variance
+            fit, res, ok, g, G = site_fit(a[oy::2, ox::2], b[oy::2, ox::2])
             out[(oy, ox)] = (fit[ok].ravel(), res[ok].ravel(), float(np.median(g[ok])), G[ok].ravel())
     return out
 
