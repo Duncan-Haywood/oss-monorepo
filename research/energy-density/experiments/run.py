@@ -26,9 +26,11 @@ THERMAL = [
 ]
 ICE = (334.0, C, 30 + C)  # latent heat kJ/kg (standard value, assumed), melt K, hot-day ambient K (assumed)
 
-# Rotor materials: (label, strength Pa, density kg/m3, mean atomic mass or None, source)
+# Rotor materials: (label, strength Pa, density kg/m3, mean atomic mass or None, shape factor K, source).
+# Fibres carry stress along one direction only, so by the virial theorem (2T = integral of tr(sigma) dV)
+# a fibre rotor of any shape holds at most K = 0.5; K = 1 needs an isotropic, biaxially stressed disc.
 ROTORS = [
-    ("T700S fibre alone, ideal disc (K=1)", 4.9e9, 1800.0, 12.011, 1.0,
+    ("T700S fibre alone, ideal fibre rotor (K=0.5)", 4.9e9, 1800.0, 12.011, 0.5,
      "4,900 MPa and 1.80 g/cm3, Toray T700S data sheet, checked 2026-10-19"),
     ("T700S/epoxy rim (K=0.5)", 2.86e9, 1560.0, None, 0.5,
      "2,860 MPa composite tensile at 60% fibre volume, Toray T700S data sheet (checked); 1,560 kg/m3 from 0.6*1.80 + 0.4*1.20, assumed resin density"),
@@ -112,12 +114,12 @@ def main():
     g_kg = rows["h2_o2"]["wh_kg_metal"]
     L.append(f"H2 alone: {g_kg:.0f} Wh/kg; gas at 700 bar, 288 K, {H2_700BAR_DENSITY} kg/m3: {g_kg * H2_700BAR_DENSITY / 1000:.0f} Wh/L of gas")
     for sf in (1.0, 2.25):
-        shell = sphere_shell_mass_per_volume(700e5 - P_ATM, 2.86e9, 1560.0, safety=sf)
+        shell = sphere_shell_mass_per_volume(700e5 - P_ATM, ROTORS[1][1], ROTORS[1][2], safety=sf, uniaxial=True)
         frac = H2_700BAR_DENSITY / (H2_700BAR_DENSITY + shell)
-        L.append(f"  ideal T700/epoxy sphere, safety factor {sf:4.2f}: shell {shell:6.1f} kg/m3, H2 {100 * frac:4.1f} wt%,"
+        L.append(f"  ideal T700/epoxy fibre vessel, safety factor {sf:4.2f}: shell {shell:6.1f} kg/m3, H2 {100 * frac:4.1f} wt%,"
                  f" {g_kg * frac:6.0f} Wh/kg of H2 + shell")
     L.append("  Safety factor 2.25 assumed (not checked). Real tanks are cylinders with liners, bosses and valves,"
-             " so they are heavier than the ideal sphere; the sphere is a ceiling.")
+             " so they are heavier than this ideal fibre vessel; it is a ceiling.")
     L.append("")
 
     L.append("G. Summary: ceilings in Wh/kg of active material (for the figure)")
@@ -131,7 +133,7 @@ def main():
         ("Lithium-oxygen (with O2)", rows["li_o2"]["wh_kg"], "electrochemical"),
         ("H2 + O2 (with O2)", rows["h2_o2"]["wh_kg"], "electrochemical"),
         ("H2 alone (Gibbs)", g_kg, "fuel"),
-        ("Flywheel, T700/epoxy rim", flywheel_wh_per_kg(2.86e9, 1560.0, 0.5), "mechanical"),
+        ("Flywheel, T700/epoxy rim", flywheel_wh_per_kg(*ROTORS[1][1:3], ROTORS[1][4]), "mechanical"),
         ("Flywheel, steel rim", flywheel_wh_per_kg(1.5e9, 7850.0, 0.5), "mechanical"),
         ("Pumped hydro, 300 m", gravity_wh_per_kg(300), "mechanical"),
         ("Sand 500 C, heat", sensible_heat(0.8, 20 + C, 500 + C), "heat"),

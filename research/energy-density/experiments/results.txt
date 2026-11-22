@@ -40,10 +40,10 @@ E. Mechanical stores
 Lifted mass (pumped hydro, blocks)  100 m:  0.272 Wh/kg,  0.272 kWh/m3 of water (6.1e-05 eV/atom)
 Lifted mass (pumped hydro, blocks)  300 m:  0.817 Wh/kg,  0.817 kWh/m3 of water (1.8e-04 eV/atom)
 Lifted mass (pumped hydro, blocks)  600 m:  1.634 Wh/kg,  1.634 kWh/m3 of water (3.7e-04 eV/atom)
-Flywheel at burst speed, T700S fibre alone, ideal disc (K=1):    756 Wh/kg of rotor, 0.339 eV/atom
+Flywheel at burst speed, T700S fibre alone, ideal fibre rotor (K=0.5):    378 Wh/kg of rotor, 0.169 eV/atom
 Flywheel at burst speed, T700S/epoxy rim (K=0.5):    255 Wh/kg of rotor
 Flywheel at burst speed, High-strength steel rim (K=0.5):     27 Wh/kg of rotor, 0.055 eV/atom
-  T700S fibre alone, ideal disc (K=1): 4,900 MPa and 1.80 g/cm3, Toray T700S data sheet, checked 2026-10-19
+  T700S fibre alone, ideal fibre rotor (K=0.5): 4,900 MPa and 1.80 g/cm3, Toray T700S data sheet, checked 2026-10-19
   T700S/epoxy rim (K=0.5): 2,860 MPa composite tensile at 60% fibre volume, Toray T700S data sheet (checked); 1,560 kg/m3 from 0.6*1.80 + 0.4*1.20, assumed resin density
   High-strength steel rim (K=0.5): 1.5 GPa and 7,850 kg/m3, assumed (not checked)
 Burst speed is the ceiling; a working flywheel runs below it with a safety factor, a hub, bearings and a containment housing, none counted here.
@@ -52,9 +52,9 @@ Compressed air, ideal gas, isothermal, 300 bar tank:  39.1 Wh/L of tank (heat fo
 
 F. Hydrogen at 700 bar (Gibbs free energy, i.e. a 100%-efficient fuel cell)
 H2 alone: 32678 Wh/kg; gas at 700 bar, 288 K, 40.2 kg/m3: 1314 Wh/L of gas
-  ideal T700/epoxy sphere, safety factor 1.00: shell   57.2 kg/m3, H2 41.3 wt%,  13488 Wh/kg of H2 + shell
-  ideal T700/epoxy sphere, safety factor 2.25: shell  128.7 kg/m3, H2 23.8 wt%,   7779 Wh/kg of H2 + shell
-  Safety factor 2.25 assumed (not checked). Real tanks are cylinders with liners, bosses and valves, so they are heavier than the ideal sphere; the sphere is a ceiling.
+  ideal T700/epoxy fibre vessel, safety factor 1.00: shell  114.4 kg/m3, H2 26.0 wt%,   8498 Wh/kg of H2 + shell
+  ideal T700/epoxy fibre vessel, safety factor 2.25: shell  257.4 kg/m3, H2 13.5 wt%,   4415 Wh/kg of H2 + shell
+  Safety factor 2.25 assumed (not checked). Real tanks are cylinders with liners, bosses and valves, so they are heavier than this ideal fibre vessel; it is a ceiling.
 
 G. Summary: ceilings in Wh/kg of active material (for the figure)
 H2 alone (Gibbs)                    32677.60  fuel
