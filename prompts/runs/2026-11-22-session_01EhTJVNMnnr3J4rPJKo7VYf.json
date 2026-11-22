@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVNMnnr3J4rPJKo7VYf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: ventures prompt (develop, deploy, market products; merge when done)",
+  "input_sha256": "0dec8dd47dbf6e0bcc3b41c6bd9d9cf552757e9902948d2f3a7c91e2bd8de0b2",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T02:04:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check flagship: P6 finish-date UDFs through Project Finish fields; Project Start/Finish fields into P6",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 18175,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "file": "ventures/xer-schedule-check/eval/p6xer-check.mjs",
+      "issue": "The 'with the type' UDF count mapped P6 FT_END_DATE to FT_START_DATE before comparing, so the 7,104 reported on 2026-11-21 overstated P6's own type by 182 (honest measure on main: 6,922). Mapping removed; now 7,104 is real."
+    }
+  ],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-p6-finish-date-udfs-survive-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/finish-udfs-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: run_venture_tests.py xer-schedule-check ok (334 tests); eval/finish-udfs.mjs 120/120 Project Start/Finish values read, written to XER and back in a same-kind field (main 0/120); CCA 182/182 finish-date values back as finish (main 0/182); eval/p6xer-check.mjs --xer on six public XERs unchanged apart from the type count; check_posts ok; venture-preflight run in background.",
+  "corrections": [],
+  "redteam": null
+}

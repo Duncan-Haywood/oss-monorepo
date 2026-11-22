@@ -586,10 +586,11 @@ project's updates for delay claims; and the review itself as a service.
   effort as manual tasks with their links in the notes; warnings for what
   Project schedules differently. `mspdi.mjs` reads task text fields back as
   activity codes. Activity UDFs (`udfFields`): integer and decimal UDFs in
-  Number1..20, cost UDFs in Cost1..10 (hundredths), date UDFs in Date1..10,
-  text UDFs in the Text fields codes leave free, each named after the UDF;
+  Number1..20, cost UDFs in Cost1..10 (hundredths), start-date UDFs in
+  Date1..10, finish-date UDFs in Finish1..10 (task and resource), text UDFs in the Text fields codes leave free, each named after the UDF;
   codes and text UDFs share the 29 Text fields by how many activities each
-  fills. `mspdi.mjs` reads Number, Cost and Date fields back as UDFs, so a
+  fills. `mspdi.mjs` reads Number, Cost, Date and Start fields back as UDFs
+  (Finish fields as finish-date UDFs), so a
   Project file's own Number fields feed the risk run's ranges too.
 - `cpm.mjs`: forward and backward passes on each activity's own calendar: FS,
   SS, FF and SF links with lags on the project's lag calendar; total float as
@@ -833,6 +834,18 @@ run as a formula in Excel or Sheets.
   kept), with no P6 import problem. 14 of 14 Groups on work resources in
   MPXJ's Project corpus come back. Before, the tree was dropped both ways
   with no warning.
+- **Start and finish custom fields** (`eval/finish-udfs-2026-11-22.md`,
+  2026-11-22): P6's finish-date UDFs go to Project's Finish1..10 fields (start
+  dates stay in Date1..10) and come back as finish-date UDFs, and Project's
+  own Start1..10 and Finish1..10 fields now come into P6 as start- and
+  finish-date UDFs. MPXJ's task-starts and task-finishes files, saved by
+  Project 2003 to 2019 (12 files, 120 values): 120 of 120 read with the right
+  kind, written to the XER, and back in a Project field of the same kind;
+  before, 0 of 120 were carried. CCA's 182 values in its two finish-date UDFs
+  return as finish-date UDFs, 182 of 182; before, all 182 came back as start
+  dates. CCA's numeric, cost and date UDFs now keep P6's own type on 7,104 of
+  13,174 values, measured against P6's type (the old check had mapped finish
+  to start first; on that honest measure main scored 6,922).
 - **Resource user-defined fields** (`eval/rsrc-udfs-2026-11-21.md`, 2026-11-21):
   resource UDFs go into Project's resource Text, Number, Cost and Date fields,
   renamed to each UDF's title, and come back from a Project file as P6
@@ -840,7 +853,8 @@ run as a formula in Excel or Sheets.
   same on the same resource: the 87 real text values on the public 24.12 file
   and 243 with planted cost, date and number UDFs. MPXJ 16.10 reads 330 of 330
   cells from the XML and from the XER, and 12 of 12 field names. A finish-date
-  UDF comes back as a start-date one (Project has one date kind). Before, all
+  UDF goes to a resource Finish field and comes back as a finish-date UDF
+  (2026-11-22, `eval/finish-udfs-2026-11-22.md`). Before, all
   87 real values were dropped.
 - **WBS user-defined fields** (`eval/wbs-udfs-2026-11-21.md`, 2026-11-21):
   WBS UDFs go into the task Number, Cost, Date and free Text fields of the

@@ -36,3 +36,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) unassigned resources 2026-11-21 (--all-resources, 17/17 notes back)
 - (moved 2026-11-22) resource tree as Group 2026-11-22 (502/502)
 - (moved 2026-11-22) work contours as P6 curves of Project's measured shape 2026-11-21 (19/19 within 0.035 h, eval/work-contours-2026-11-21.md)
+- (moved 2026-11-22) (1) CPM fourth pass shipped 2026-11-19 (rules 12-16: 19,820 of 19,822, late finish 19,822; eval/cpm-vs-p6-2026-11-19.md); (7) longest path and multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files)
+- (moved 2026-11-22) (9) look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel; eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed activities = P6's); milestone calendars shipped 2026-11-20 (milestones.mjs; eval/milestone-calendars-2026-11-20.md)
