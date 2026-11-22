@@ -21,7 +21,7 @@ import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
-import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
+import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -1020,6 +1020,16 @@ export function explainAreas(rows, tol = 0.02) {
       if (c.kind === "cross" && exact(W * H)) { c.reason = "own-profile"; continue; }
       if (c.kind === "side" && joinsOff(r, c, byId, exact)) { c.reason = "joins-off"; continue; }
       if (c.kind === "side" && facesAveraged(r, c, exact)) { c.reason = "faces-averaged"; continue; }
+      // ArchiCAD's slab GrossArea is its outline: the holes in the slab's own
+      // profile are added back ("Holes Surface Area"), where the cut is net of them
+      const holes = storedNamed(r, /^Holes Surface Area$/);
+      if (c.kind === "plan" && c.which === "gross" && holes > 0 && [c.computed, A.net, ...(A.faces?.gross || [])].some((x) => x != null && exact(x + holes))) { c.reason = "holes-added"; continue; }
+      // a covering drawn with ArchiCAD's wall tool stores the wall's plan:
+      // its reference length at the centre times its thickness
+      const Lc = storedNamed(r, /^Length of the Wall at the Center$/, "length"), T = storedNamed(r, /^Thickness$/, "length");
+      if (c.kind === "plan" && Lc > 0 && T > 0 && exact(Lc * T)) { c.reason = "centre-line"; continue; }
+      if (c.kind === "plan" && A.planes?.some((x) => exact(x))) { c.reason = "a-body-face"; continue; }
+      if (c.kind === "side" && A.curved) { c.reason = "curved"; continue; }
       c.reason = "unexplained";
     }
   }
@@ -1066,8 +1076,13 @@ function hostFigure(r, k, c, rows) {
   return hi > 1.02 * lo;
 }
 
-const storedNamed = (r, re) => { for (const [k, q] of Object.entries(r.stored)) if (q.kind === "area" && re.test(k)) return q.value; return null; };
+const storedNamed = (r, re, kind = "area") => { for (const [k, q] of Object.entries(r.stored)) if (q.kind === kind && re.test(k)) return q.value; return null; };
 function facesAveraged(r, c, exact) {
+  // the mean of the two faces as cut from the geometry: ArchiCAD's side area
+  // for a wall whose faces differ (schependomlaan's knee walls, whose two
+  // faces are trimmed under the roof at different heights)
+  const F = r.computed.areas.side?.faces?.[c.which];
+  if (F && F[0] != null && F[1] != null && Math.abs(F[0] - F[1]) > 0.02 * Math.max(F[0], F[1]) && exact((F[0] + F[1]) / 2)) return true;
   const out = storedNamed(r, /^Netto-Oberfl\u00e4chenbereich an der Au\u00dfenseite$/), inn = storedNamed(r, /^Netto-Oberfl\u00e4chenbereich an der Innenseite$/);
   if (out == null || inn == null || out === inn) return false;
   let mean = (out + inn) / 2;
@@ -1119,8 +1134,11 @@ export const AREA_REASON_TEXT = {
   "half-surface": "the stored cross-section area is half the total area of the member's faces: a surface figure (as some Revit exports write it), not its section",
   "own-profile": "the stored cross-section area is the member's own stored width x height; the piece is about as short as it is wide, so its axis cannot be read from the geometry and the cut went across another direction",
   "joins-off": "the stored side area is the mean of the wall's two faces with the strips covered by the walls joined to it taken off (a finishes figure, as ArchiCAD measures it)",
-  "faces-averaged": "the stored side area is the mean of the exporter's own outside and inside face areas, its inside face shortened by walls joined to it (a finishes figure)",
-  "centre-line": "the stored area is the element's stored centre-line length x its width (footprint) or height (side): a nominal figure that ignores angled or mitred ends",
+  "faces-averaged": "the stored side area is the mean of the wall's outside and inside face areas (the exporter's own figures, or the two faces cut from the geometry where they differ): a finishes figure",
+  "holes-added": "the stored gross area is the slab's outline: its net area with the holes in its own profile added back (ArchiCAD's Holes Surface Area)",
+  "a-body-face": "the stored area is one flat face of the element (a sill's top, a corbel's side), not the profile it was extruded from",
+  curved: "the wall is built on a curve: a plane cut gives a chord's elevation, not its curved face; the stored area is kept",
+  "centre-line": "the stored area is the element's stored centre-line length x its width (footprint) or height (side), or a covering drawn as a wall's centre length x thickness: a nominal figure that ignores angled or mitred ends",
   "other-width": "the wall is measured across another direction than its thinnest one (a short wall with angled ends): the stored side area is its stored volume / stored width",
   unexplained: "no known cause; check the element in a viewer",
 };
@@ -1275,6 +1293,9 @@ function computeAreas(type, solids, W, f) {
       // the same plane moved to each face: some tools measure a side there
       const a = cut(t.n, 1e-4), b = cut(t.n, 1 - 2e-4);
       out.side.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
+      // a wall on an arc has no middle plane: a plane cut gives a chord's
+      // elevation, not the curved face (skolebygg, eval/curved-and-faces-2026-11-22.md)
+      if (bendsInPlan(body, v, t.n)) out.side.curved = true;
     }
     // the plan at the wall's base: doors cut it, windows do not
     out.footprint = cut(v, 1e-4);
@@ -1299,6 +1320,10 @@ function computeAreas(type, solids, W, f) {
       // area is sometimes its top or bottom face
       const a = cut(n, 1e-4), b = cut(n, 1 - 2e-4);
       out.plan.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
+      // each plane's face area: ArchiCAD stores a sill's top or a corbel's
+      // side as the "area" of an element extruded another way
+      const P = planeAreas(body);
+      if (P) out.plan.planes = P.map((p) => p.area * f2);
     }
   }
   if (AREA_KINDS.cross.test(type)) {

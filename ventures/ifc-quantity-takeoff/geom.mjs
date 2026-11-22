@@ -361,6 +361,36 @@ function* faceNormals(s) {
 }
 
 /**
+ * Whether a wall's faces bend round in plan: its faces standing along `up`
+ * (leaving out those facing across the thickness direction `t`: its ends)
+ * face in `minDirs` directions or more, both senses of a direction counted
+ * once, and no one direction carries half their area. A straight wall has one
+ * direction carrying nearly all of it, an arched opening's small faces
+ * notwithstanding (schependomlaan's stud walls #79982 and #275217); a wall
+ * built on an arc has one direction per facet (skolebygg's quarter-arc walls,
+ * 90 or more, none over 2%).
+ */
+export function bendsInPlan(s, up, t, minDirs = 12) {
+  const dirs = [];
+  let total = 0;
+  const loops = [];
+  for (const tm of s.terms) loops.push(...tm.faces);
+  if (s.shells) for (const sh of s.shells) loops.push(...sh.loops);
+  for (const l of loops) {
+    if (l.length < 3) continue;
+    const a = newell(l);
+    const w = norm(a) / 2;
+    const n = w > 0 ? mulS(a, 0.5 / w) : null;
+    if (!n || Math.abs(dot(n, up)) > 1e-3 || Math.abs(dot(n, t)) < 1e-3) continue;
+    total += w;
+    const d = dirs.find((q) => Math.abs(dot(q.n, n)) > 1 - 1e-6);
+    if (d) d.w += w; else dirs.push({ n, w });
+  }
+  if (dirs.length < minDirs || !(total > 0)) return false;
+  return Math.max(...dirs.map((d) => d.w)) < 0.5 * total;
+}
+
+/**
  * Area of the section of a solid by the plane normal to n through the middle
  * of its extent along n (or at offset k when given). null when the solid has a
  * faceted part whose faces are not all known (see `shells`).
@@ -392,6 +422,21 @@ export function sectionArea(s, n, k = null) {
  * bound running against its face's outer bound comes off it.
  */
 export function surfaceArea(s) {
+  const P = planeAreas(s);
+  if (!P) return null;
+  let A = 0;
+  for (const p of P) A += p.area;
+  return A;
+}
+
+/**
+ * The solid's boundary faces summed plane by plane: [{n, area}], one entry
+ * per plane (both orientations of a plane share one), the area net of the
+ * inner bounds that run against their face. null on the same terms as
+ * surfaceArea. ArchiCAD stores some coverings' and walls' areas as one of
+ * these (a sill's top, a coping's underside: eval/curved-and-faces-2026-11-22.md).
+ */
+export function planeAreas(s) {
   if (s.mesh && !s.shells) return null;
   const loops = [];
   if (s.terms.length > 1) return null;
@@ -414,9 +459,9 @@ export function surfaceArea(s) {
     const v = planes.get(key);
     planes.set(key, v ? add(v, a) : a);
   }
-  let A = 0;
-  for (const v of planes.values()) A += norm(v);
-  return A;
+  const out = [];
+  for (const v of planes.values()) { const area = norm(v); if (area > 0) out.push({ n: mulS(v, 1 / area), area }); }
+  return out;
 }
 
 /**

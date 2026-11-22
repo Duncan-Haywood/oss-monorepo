@@ -241,6 +241,19 @@ this tool says which they are
   20,858 mm, digit for digit) on every piece; the bill of quantities uses their
   section instead
   ([eval/joins-and-host-figures-2026-11-20.md](eval/joins-and-host-figures-2026-11-20.md)).
+- **Holes added back, faces averaged, walls on an arc (2026-11-22).**
+  Unexplained stored areas fell from 117 to 14 on the eight public models.
+  ArchiCAD's slab GrossArea is the outline: its NetArea plus the file's own
+  "Holes Surface Area" (14 of 14 schependomlaan slabs, to the last digit).
+  Knee walls trimmed under a roof store the mean of their two faces as cut
+  from the geometry (12 walls); coverings drawn with ArchiCAD's wall tool store
+  centre length x thickness (20 pairs); a sill, three upstands and Mini
+  Project's four corbels store one flat face of the body. ARK_NUS's 10
+  remaining walls are built on a quarter circle and store their outer face,
+  (Length + Width/2 x pi/2) x Height, to 0.000%; the engine now recognises a
+  wall that bends in plan and says a plane cut cannot measure it. Only
+  `unexplained` pairs changed and every stored figure is still the one summed
+  ([eval/curved-and-faces-2026-11-22.md](eval/curved-and-faces-2026-11-22.md)).
 - **Cross-sections: half a surface, and footings cut along their run
   (2026-11-20).** Unexplained stored areas fell from 192 to 117, and
   cross-sections from 77 to 2. HHS architect's 58 Revit mullions store half

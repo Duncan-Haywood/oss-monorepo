@@ -1,0 +1,68 @@
+construction.ifc (IFC2X3, 0.7 s): median |rel| of agreeing pairs 1.3e-4; elements storing an area but faceted (not cut): 0
+  IfcColumn.CrossSectionArea: 257 / 257 agree
+  IfcWall.GrossSideArea: 11 / 36 agree; matches-stored-volume 6, split 17, repeated 2
+architect.ifc (IFC2X3, 5.9 s): median |rel| of agreeing pairs 9.1e-16; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossSideArea: 70 / 112 agree; split 5, matches-stored-volume 4, net-as-gross 33
+  IfcMember.CrossSectionArea: 1392 / 1450 agree; half-surface 58
+AC20-FZK-Haus.ifc (IFC4, 0.2 s): median |rel| of agreeing pairs 1.3e-16; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossFootprintArea: 13 / 13 agree
+  IfcWall.NetFootprintArea: 9 / 13 agree; gross-as-net 4
+  IfcWall.GrossSideArea: 11 / 13 agree; on-a-face 2
+  IfcWall.NetSideArea: 9 / 13 agree; on-a-face 3, joins-off 1
+  IfcBeam.CrossSectionArea: 1 / 1 agree
+  IfcSlab.GrossArea: 4 / 4 agree
+  IfcSlab.NetArea: 4 / 4 agree
+C20-Institute-Var-2.ifc (IFC4, 0.5 s): median |rel| of agreeing pairs 1.3e-16; elements storing an area but faceted (not cut): 0
+  IfcSlab.GrossArea: 20 / 26 agree; on-a-face 6
+  IfcSlab.NetArea: 20 / 26 agree; on-a-face 6
+  IfcWall.GrossFootprintArea: 121 / 121 agree
+  IfcWall.NetFootprintArea: 97 / 121 agree; gross-as-net 24
+  IfcWall.GrossSideArea: 86 / 121 agree; faces-averaged 8, on-a-face 4, joins-off 17, net-as-gross 6
+  IfcWall.NetSideArea: 79 / 121 agree; faces-averaged 10, on-a-face 13, joins-off 19
+  IfcColumn.CrossSectionArea: 0 / 2 agree; unexplained 2
+    #81382 IfcColumn CrossSectionArea computed 0.0314 stored 1.2566 (-97.5%) openings 0 Stütze-001
+    #81565 IfcColumn CrossSectionArea computed 0.0314 stored 1.2566 (-97.5%) openings 0 Stütze-001
+ISSUE_159_kleine_Wohnung_R22.ifc (IFC4, 3.9 s): median |rel| of agreeing pairs 1.5e-15; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossFootprintArea: 210 / 210 agree
+  IfcWall.GrossSideArea: 162 / 210 agree; matches-stored-volume 10, net-as-gross 34, on-a-face 4
+  IfcWall.NetSideArea: 204 / 210 agree; gross-as-net 2, on-a-face 4
+  IfcSlab.GrossArea: 50 / 53 agree; unit-slip 3
+  IfcSlab.NetArea: 53 / 53 agree
+ISSUE_021_Mini Project.ifc (IFC2X3, 4.3 s): median |rel| of agreeing pairs 0.0e+0; elements storing an area but faceted (not cut): 5
+  IfcMember.CrossSectionArea: 228 / 228 agree
+  IfcSlab.NetArea: 20 / 24 agree; a-body-face 4
+schependomlaan.ifc (IFC2X3, 2.7 s): median |rel| of agreeing pairs 4.3e-13; elements storing an area but faceted (not cut): 1
+  IfcWall.GrossFootprintArea: 671 / 927 agree; centre-line 256
+  IfcWall.NetFootprintArea: 617 / 927 agree; centre-line 256, gross-as-net 54
+  IfcWall.GrossSideArea: 749 / 927 agree; other-width 39, matches-stored-volume 98, centre-line 25, faces-averaged 12, on-a-face 1, unexplained 3
+  IfcWall.NetSideArea: 837 / 927 agree; other-width 39, matches-stored-volume 10, centre-line 25, faces-averaged 15, on-a-face 1
+  IfcBeam.CrossSectionArea: 122 / 127 agree; own-profile 5
+  IfcSlab.GrossArea: 213 / 275 agree; holes-added 14, zero 2, on-a-face 46
+  IfcSlab.NetArea: 221 / 275 agree; on-a-face 52, zero 2
+  IfcCovering.GrossArea: 533 / 728 agree; unexplained 3, centre-line 20, on-a-face 121, zero 46, a-body-face 4, unit-slip 1
+  IfcCovering.NetArea: 533 / 728 agree; unexplained 3, centre-line 20, on-a-face 121, zero 46, a-body-face 4, unit-slip 1
+    #44220 IfcCovering GrossArea computed 0.0101 stored 0.0611 (-83.4%) openings 0 afdekker
+    #44220 IfcCovering NetArea computed 0.0101 stored 0.0611 (-83.4%) openings 0 afdekker
+    #691798 IfcCovering GrossArea computed 0.0101 stored 0.1190 (-91.5%) openings 0 afdekker
+    #691798 IfcCovering NetArea computed 0.0101 stored 0.1190 (-91.5%) openings 0 afdekker
+    #739532 IfcCovering GrossArea computed 0.0101 stored 0.1950 (-94.8%) openings 0 afdekker
+    #739532 IfcCovering NetArea computed 0.0101 stored 0.1950 (-94.8%) openings 0 afdekker
+    #835340 IfcWall GrossSideArea computed 2.1016 stored 7.3296 (-71.3%) openings 0 HSB-element
+    #839455 IfcWall GrossSideArea computed 2.1016 stored 7.3296 (-71.3%) openings 0 HSB-element
+    #863768 IfcWall GrossSideArea computed 2.0480 stored 6.5641 (-68.8%) openings 0 HSB-element
+ISSUE_068_ARK_NUS_skolebygg.ifc (IFC2X3, 16.4 s): median |rel| of agreeing pairs 2.0e-15; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossFootprintArea: 1041 / 1041 agree
+  IfcWall.GrossSideArea: 683 / 1041 agree; net-as-gross 254, on-a-face 28, matches-stored-volume 10, unexplained 3, centre-line 50, other-width 3, curved 10
+  IfcSlab.GrossArea: 95 / 115 agree; unit-slip 20
+  IfcMember.CrossSectionArea: 18 / 687 agree; host-figure 111, scales-with-length 558
+    #556796 IfcWallStandardCase GrossSideArea computed 3.6592 stored 3.7474 (-2.4%) openings 1 Basic Wall:IVA 3.2 145mm 37dB EI60 (HN-95-NR):2235683
+    #1280178 IfcWallStandardCase GrossSideArea computed 16.0521 stored 15.0873 (6.4%) openings 1 Basic Wall:IVA 4.3 172mm 48dB (RN-120-NR):4410967
+    #1483180 IfcWallStandardCase GrossSideArea computed 14.4074 stored 9.6272 (49.7%) openings 3 Basic Wall:IVA 2.3T 134mm 34dB (R-95-NR):6783271
+TOTAL
+  CrossSectionArea: 2018 / 2752 agree; half-surface 58, unexplained 2, own-profile 5, host-figure 111, scales-with-length 558
+  GrossSideArea: 1772 / 2460 agree; matches-stored-volume 128, split 22, repeated 2, net-as-gross 327, on-a-face 39, faces-averaged 20, joins-off 17, other-width 42, centre-line 75, unexplained 6, curved 10
+  GrossFootprintArea: 2056 / 2312 agree; centre-line 256
+  NetFootprintArea: 723 / 1061 agree; gross-as-net 82, centre-line 256
+  NetSideArea: 1129 / 1271 agree; on-a-face 21, joins-off 20, faces-averaged 25, gross-as-net 2, other-width 39, matches-stored-volume 10, centre-line 25
+  GrossArea: 915 / 1201 agree; on-a-face 173, unit-slip 24, holes-added 14, unexplained 3, centre-line 20, zero 48, a-body-face 4
+  NetArea: 851 / 1110 agree; on-a-face 179, a-body-face 8, unexplained 3, centre-line 20, zero 48, unit-slip 1
