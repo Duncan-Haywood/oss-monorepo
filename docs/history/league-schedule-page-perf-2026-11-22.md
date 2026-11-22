@@ -70,7 +70,7 @@ opened or downloaded.
   the on-demand shape; a new test checks every name the script takes from an
   on-demand module is exported by it. 62/62 pass.
 - Full suite: `python3 platform/ci/run_venture_tests.py league-schedule-generator`
-  (result in the run record's `notes`).
+  -> ok, 953 tests in 224.2 s (site page checks ok).
 
 ## Not changed, ranked for the next run
 
