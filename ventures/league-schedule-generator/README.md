@@ -5717,6 +5717,14 @@ from the replay as unit cases in `swiss.test.mjs` (`dutchFloaters`), the second 
 exchange order. Brackets over 160 players keep stage A's floaters (one matching per player).
 Measurements: `eval/swiss-dutch-floaters.txt`.
 
+The cost, on the 440 simulated events (`eval/swiss-repeat-floats.mjs 40`,
+`eval/swiss-dutch-floaters-sim.txt` against `eval/swiss-exchange-sim.txt`, rule on): every event still
+pairs and no board breaks an absolute colour claim, but repeat downfloats rise 2,120 to 2,162,
+repeat upfloats 1,699 to 1,752 and strong-colour boards 6,454 to 6,590 (mild 8,222 to 8,163). That is
+the price of no longer letting a floater's partner and colours in the next bracket steer the choice,
+which the Dutch rules do not do; the real events, which is what the rules are judged on, all
+improved.
+
 ## Players told apart by "(id)" kept their own results (2026-11-21, later)
 
 The results box treats a bracket at the end of a line as a note (`Hawks 3 - 2 Owls (OT)`). But the
