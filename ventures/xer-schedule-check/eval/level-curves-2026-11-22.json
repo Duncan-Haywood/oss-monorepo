@@ -1,0 +1,254 @@
+[
+  {
+    "file": "sample.xer",
+    "curvedAssignments": 0
+  },
+  {
+    "file": "hotel-project.xer",
+    "curvedAssignments": 0
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "curvedAssignments": 0
+  },
+  {
+    "file": "example_xer_file.xer",
+    "curvedAssignments": 0
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "resources": [
+      "LAB GEN"
+    ],
+    "scale": 50,
+    "even": {
+      "levelledFinish": "2014-04-30 16:59",
+      "extensionDays": 260,
+      "delayed": 268,
+      "carried": 4521,
+      "left": 3,
+      "peakBefore": [
+        243.524
+      ],
+      "peakAfter": [
+        165.239
+      ],
+      "overHoursBefore": [
+        2035.2
+      ],
+      "selfCheckHours": 0,
+      "startsBeforeEarly": 0,
+      "fsBroken": 0,
+      "lowerBound": null,
+      "curves": null,
+      "ms": 6695
+    },
+    "curves": {
+      "levelledFinish": "2014-06-10 10:35",
+      "extensionDays": 293.3,
+      "delayed": 297,
+      "carried": 4866,
+      "left": 3,
+      "peakBefore": [
+        427.254
+      ],
+      "peakAfter": [
+        366.72
+      ],
+      "overHoursBefore": [
+        2029.6
+      ],
+      "selfCheckHours": 0,
+      "startsBeforeEarly": 0,
+      "fsBroken": 0,
+      "lowerBound": null,
+      "curves": {
+        "curved": 1,
+        "even": 0,
+        "missing": 0,
+        "byName": {
+          "PCO119": 1
+        }
+      },
+      "ms": 8913
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "resources": [
+      "LAB GEN"
+    ],
+    "scale": 100,
+    "even": {
+      "levelledFinish": "2013-09-02 11:00",
+      "extensionDays": 60.4,
+      "delayed": 126,
+      "carried": 2346,
+      "left": 1,
+      "peakBefore": [
+        243.524
+      ],
+      "peakAfter": [
+        227.385
+      ],
+      "overHoursBefore": [
+        1351.8
+      ],
+      "selfCheckHours": 0,
+      "startsBeforeEarly": 0,
+      "fsBroken": 0,
+      "lowerBound": null,
+      "curves": null,
+      "ms": 4682
+    },
+    "curves": {
+      "levelledFinish": "2013-08-28 16:48",
+      "extensionDays": 57,
+      "delayed": 97,
+      "carried": 1316,
+      "left": 1,
+      "peakBefore": [
+        427.254
+      ],
+      "peakAfter": [
+        353.829
+      ],
+      "overHoursBefore": [
+        1164.6
+      ],
+      "selfCheckHours": 0,
+      "startsBeforeEarly": 0,
+      "fsBroken": 0,
+      "lowerBound": null,
+      "curves": {
+        "curved": 1,
+        "even": 0,
+        "missing": 0,
+        "byName": {
+          "PCO119": 1
+        }
+      },
+      "ms": 5133
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "resources": [
+      "LAB GEN"
+    ],
+    "scale": 200,
+    "even": {
+      "levelledFinish": "2013-06-22 16:59",
+      "extensionDays": 0,
+      "delayed": 8,
+      "carried": 9,
+      "left": 0,
+      "peakBefore": [
+        243.524
+      ],
+      "peakAfter": [
+        198.929
+      ],
+      "overHoursBefore": [
+        855.7
+      ],
+      "selfCheckHours": 0,
+      "startsBeforeEarly": 0,
+      "fsBroken": 0,
+      "lowerBound": "2012-05-27 15:10",
+      "curves": null,
+      "ms": 2466
+    },
+    "curves": {
+      "levelledFinish": "2013-06-22 16:59",
+      "extensionDays": 0,
+      "delayed": 48,
+      "carried": 613,
+      "left": 1,
+      "peakBefore": [
+        427.254
+      ],
+      "peakAfter": [
+        353.829
+      ],
+      "overHoursBefore": [
+        630.4
+      ],
+      "selfCheckHours": 0,
+      "startsBeforeEarly": 0,
+      "fsBroken": 0,
+      "lowerBound": null,
+      "curves": {
+        "curved": 1,
+        "even": 0,
+        "missing": 0,
+        "byName": {
+          "PCO119": 1
+        }
+      },
+      "ms": 2367
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "resources": [
+      "LAB GEN"
+    ],
+    "scale": 400,
+    "even": {
+      "levelledFinish": "2013-06-22 16:59",
+      "extensionDays": 0,
+      "delayed": 0,
+      "carried": 0,
+      "left": 0,
+      "peakBefore": [
+        243.524
+      ],
+      "peakAfter": [
+        243.524
+      ],
+      "overHoursBefore": [
+        0
+      ],
+      "selfCheckHours": 0,
+      "startsBeforeEarly": 0,
+      "fsBroken": 0,
+      "lowerBound": "2012-01-31 11:05",
+      "curves": null,
+      "ms": 882
+    },
+    "curves": {
+      "levelledFinish": "2013-06-22 16:59",
+      "extensionDays": 0,
+      "delayed": 3,
+      "carried": 5,
+      "left": 0,
+      "peakBefore": [
+        427.254
+      ],
+      "peakAfter": [
+        399.961
+      ],
+      "overHoursBefore": [
+        88.8
+      ],
+      "selfCheckHours": 0,
+      "startsBeforeEarly": 0,
+      "fsBroken": 0,
+      "lowerBound": "2012-01-31 11:05",
+      "curves": {
+        "curved": 1,
+        "even": 0,
+        "missing": 0,
+        "byName": {
+          "PCO119": 1
+        }
+      },
+      "ms": 1522
+    }
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "curvedAssignments": 0
+  }
+]

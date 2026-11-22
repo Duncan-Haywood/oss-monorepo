@@ -15,9 +15,10 @@
 // activity IDs) and ranks them by how far they move the finish. With --report,
 // the written review carries the risk section and its corrections too (also
 // with --previous: the risk run is made on the current file).
-// node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json] [--project CODE]
+// node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--curves] [--csv levelled.csv] [--json] [--project CODE]
 // Resource levelling instead (level.mjs): the levelled finish, every activity
-// moved and the resource that moved it, peak use before and after.
+// moved and the resource that moved it, peak use before and after. --curves
+// levels each assignment on its P6 resource curve instead of an even spread.
 // node cli.mjs --windows u1.xer u2.xer u3.xer ... [--json] [--csv windows.csv] [--project CODE]
 // Windows analysis over a series of updates instead (windows.mjs): per window
 // between consecutive data dates, how far the forecast finish moved, the
@@ -342,10 +343,10 @@ if (args.includes("--float-paths")) {
 }
 if (args.includes("--level")) {
   const crew = Number(opt("--crew") || 1);
-  const r = level(xer, { projId, limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}) });
+  const r = level(xer, { projId, limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}), curves: args.includes("--curves") });
   if (args.includes("--csv")) writeFileSync(opt("--csv"), levelCsv(r));
   if (args.includes("--json")) { const { result, floors, placed, ignored, ...plain } = r; await emit(JSON.stringify(plain, null, 2) + "\n"); process.exit(0); }
-  console.log(`${r.project.code}: ${r.resources.length} resources levelled${crew !== 1 ? ` at ${crew}x the file's limits` : ""}${r.settings.withinFloat ? ", within float" : ""} (${r.ms} ms)`);
+  console.log(`${r.project.code}: ${r.resources.length} resources levelled${crew !== 1 ? ` at ${crew}x the file's limits` : ""}${r.settings.withinFloat ? ", within float" : ""}${r.curves ? `, ${r.curves.curved} assignment${r.curves.curved === 1 ? "" : "s"} on resource curves` : ""} (${r.ms} ms)`);
   for (const w of r.warnings) console.log(`NOTE: ${w}`);
   console.log(`Finish ${r.finish} -> levelled ${r.levelledFinish} (+${r.extensionDays} working days)${r.lowerBound ? `; no levelling can finish before ${r.lowerBound.date} (${r.lowerBound.resource} work at its limit)` : ""}`);
   console.log(`${r.activities.filter((a) => a.by.length).length} activities delayed for resources, ${r.activities.filter((a) => !a.by.length).length} carried by their logic, ${r.left.length} left over-allocated`);

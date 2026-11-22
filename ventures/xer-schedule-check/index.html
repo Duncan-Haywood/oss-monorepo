@@ -307,6 +307,7 @@
     <div class="row3">
       <div><label for="level-scale">Crew size (x the file's limits)</label><input type="number" id="level-scale" value="1" min="0.1" step="any"></div>
       <div><label for="level-float">Level within float only</label><select id="level-float"><option value="">As the file says</option><option value="Y">Yes</option><option value="N">No</option></select></div>
+      <div><label for="level-curves">Spread each assignment</label><select id="level-curves"><option value="">Evenly</option><option value="Y">On its P6 resource curve</option></select></div>
     </div>
     <button type="button" id="level-run">Level the resources</button>
     <p id="level-status" role="status" aria-live="polite"></p>
@@ -882,11 +883,11 @@
       const wf = $("#level-float").value;
       levelBusy = true; $("#level-run").disabled = true;
       try {
-        const r = await levelAsync(xer, { projId: last.project.id, limitScale: scale === 1 ? null : { "*": scale }, ...(wf ? { withinFloat: wf === "Y" } : {}) },
+        const r = await levelAsync(xer, { projId: last.project.id, limitScale: scale === 1 ? null : { "*": scale }, ...(wf ? { withinFloat: wf === "Y" } : {}), curves: $("#level-curves").value === "Y" },
           (p) => { st.textContent = `Levelling: ${p.placed} of ${p.total} activities placed (pass ${p.passes})...`; });
         lastLevel = r;
         renderLevel(r);
-        st.textContent = r.resources.length ? `Done: ${r.resources.length} resource${r.resources.length === 1 ? "" : "s"} levelled in ${(r.ms / 1000).toFixed(1)} s.` : `Nothing to level: no resource in this file has a positive maximum units per hour (${r.settings.skipped.noLimit} without one).`;
+        st.textContent = r.resources.length ? `Done: ${r.resources.length} resource${r.resources.length === 1 ? "" : "s"} levelled in ${(r.ms / 1000).toFixed(1)} s${r.curves ? `, ${r.curves.curved} assignment${r.curves.curved === 1 ? "" : "s"} on resource curves${r.curves.missing ? ` (${r.curves.missing} name a curve the file leaves out: spread evenly)` : ""}` : ""}.` : `Nothing to level: no resource in this file has a positive maximum units per hour (${r.settings.skipped.noLimit} without one).`;
         record("level_run");
       } catch (e) {
         st.textContent = `Could not level this file: ${e.message}`;

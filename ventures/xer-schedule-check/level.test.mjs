@@ -270,3 +270,65 @@ test("a priority_type named after an Object.prototype key ranks as Normal, not a
     assert.equal(cmp(r(odd), r("PT_Normal")), 0, odd);
   }
 });
+
+// ---- resource curves (opts.curves)
+const curveRow = (id, name, slices) => ({ curv_id: id, curv_name: name, default_flag: "N", pct_usage_0: 0, ...Object.fromEntries(slices.map((v, k) => [`pct_usage_${k + 1}`, v])) });
+const BACK = [...Array(10).fill(3.5), ...Array(10).fill(6.5)];
+function curvedXer(spec, curves) {
+  const x = xer(spec);
+  x.tables.RSRCCURVDATA = curves;
+  return x;
+}
+
+test("curves: a back-loaded crew leaves room early that its even average hid", () => {
+  // limit 2; A1 10 days at 1/h back loaded (0.7 then 1.3), A2 5 days at 1.2/h
+  const spec = { tasks: [task("1", 10), task("2", 5)], assigns: [{ ...use("1", "1", "R1", 1, 10), curv_id: "7" }, use("2", "2", "R1", 1.2, 5)], limits: { R1: 2 } };
+  const even = level(curvedXer(spec, [curveRow("7", "Back Loaded", BACK)]));
+  assert.equal(dates(even, "A2").levelledStart, "2025-12-15 08:00", "evenly 1 + 1.2 > 2: A2 waits the 10 days");
+  const r = level(curvedXer(spec, [curveRow("7", "Back Loaded", BACK)]), { curves: true });
+  assert.equal(r.activities.length, 0, "on the curve 0.7 + 1.2 fits the first 5 days");
+  assert.equal(r.levelledFinish, r.finish);
+  assert.equal(r.resources[0].before.peak, 1.9);
+  assert.equal(r.resources[0].activities, 2, "pieces count as one activity");
+  assert.deepEqual(r.curves, { curved: 1, even: 0, missing: 0, byName: { "Back Loaded": 1 } });
+  assert.equal(r.settings.curves, true);
+});
+
+test("curves: a peak over the limit that the even rate stays under is levelled", () => {
+  // limit 1.6; A1 back loaded at 1/h (1.3 in its second half), A2 0.5/h beside it
+  const spec = { tasks: [task("1", 10), task("2", 10)], assigns: [{ ...use("1", "1", "R1", 1, 10), curv_id: "7" }, use("2", "2", "R1", 0.5, 10)], limits: { R1: 1.6 } };
+  const cur = [curveRow("7", "Back Loaded", BACK)];
+  assert.equal(level(curvedXer(spec, cur)).activities.length, 0, "evenly 1.5 <= 1.6");
+  const r = level(curvedXer(spec, cur), { curves: true });
+  assert.equal(dates(r, "A2").levelledStart, "2025-12-15 08:00");
+  assert.equal(r.resources[0].before.peak, 1.8);
+  assert.equal(r.resources[0].after.peak, 1.3);
+  assert.equal(r.resources[0].selfCheckHours, 0);
+  // 10 days x 1 + 10 days x 0.5 = 120 unit-hours at 1.6/h: the bound is unchanged by the shape
+  assert.equal(r.lowerBound.date, level(curvedXer(spec, cur)).lowerBound.date);
+});
+
+test("curves: a missing curve and a linear one level evenly, and say so", () => {
+  const spec = { tasks: [task("1", 5), task("2", 3)], assigns: [{ ...use("1", "1", "R1", 1, 5), curv_id: "9" }, { ...use("2", "2", "R1", 1, 3), curv_id: "8" }] };
+  const plain = level(xer({ tasks: spec.tasks, assigns: [use("1", "1", "R1", 1, 5), use("2", "2", "R1", 1, 3)] }));
+  const r = level(curvedXer(spec, [curveRow("8", "Linear", Array(20).fill(5))]), { curves: true });
+  assert.deepEqual(r.activities, plain.activities);
+  assert.equal(r.curves.missing, 1);
+  assert.equal(r.curves.even, 1);
+  assert.ok(r.warnings.some((w) => /does not carry/.test(w)));
+  assert.equal(level(curvedXer(spec, [])).curves, null, "off by default");
+});
+
+test("curvePieces: units sum to rate x duration, short assignments included", () => {
+  const { curvePieces } = _internal;
+  const cal = { addWork: (s, m) => s + m };
+  for (const dur of [1, 7, 19, 20, 33, 480, 4801]) {
+    for (const sl of [BACK.map((v) => v / 100), Array(20).fill(0).map((_, k) => (k === 19 ? 1 : 0)), Array(20).fill(0.05)]) {
+      const p = curvePieces(cal, 0, dur, 2, sl);
+      const units = p.reduce((n, x) => n + x.rate * x.work, 0);
+      assert.ok(Math.abs(units - 2 * dur) < 1e-9, `dur ${dur}: ${units}`);
+      for (const x of p) assert.ok(x.e > x.s && x.work > 0);
+      for (let i = 1; i < p.length; i++) assert.ok(p[i].s >= p[i - 1].e, "pieces do not overlap");
+    }
+  }
+});

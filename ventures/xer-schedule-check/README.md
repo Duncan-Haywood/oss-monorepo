@@ -256,6 +256,22 @@ on each date), and a
 file still carries P6's default limit of 1 per hour on resources used far
 above it. Checked on the public files in eval/level-check-2026-11-19.md.
 
+**Levelling on resource curves** (2026-11-22, opt-in: `--level --curves`, the
+page's "Spread each assignment: on its P6 resource curve"): an assignment that
+names a P6 resource curve (Back Loaded, Bell Shaped, a file's own) uses its
+units at the curve's rate, not at its average. Each curved span is cut into
+the curve's twenty slices of working time on the activity's calendar, each
+levelled at rate x 20 x its share, with the units summing to the
+assignment's. A back-loaded crew then leaves room early that its average hid,
+and a peak above the limit that the average stays under is levelled. On the
+public CCA hospital file, where one levelled activity carries a custom
+late-bell curve at 134 units an hour on average (347 at its peak), the
+levelled finish at 100 times the file's limits comes 3.4 working days
+earlier on the curve and at 50 times 33 days later; planted on 30% of the
+assignments of every limited resource in three files, the self-check stays
+0 h and every link holds (eval/level-curves-2026-11-22.md). Even is the
+default because no public file shows whether P6's own leveller reads curves.
+
 **Expected finish dates** (2026-11-19, `cpm.mjs`, the "Expected finish dates
 setting durations" finding): when a project schedules with P6's "use expected
 end dates", an activity with an expected finish gets the remaining duration
@@ -681,7 +697,7 @@ node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register eve
 node cli.mjs schedule.xer --risk 1000 --ranges-udf auto   # ranges from the file's own UDFs (or "Opt Dur,-,Pess Dur")
 node cli.mjs schedule.xer --float-paths [CODE] [--paths 10] [--csv paths.csv] [--json]   # float paths to CODE (default: the finish)
 node cli.mjs schedule.xer --gantt [--baseline baseline.xer] [--html gantt.html] [--csv gantt.csv] [--level 2] [--critical] [--links] [--group-by "Responsibility,WBS" | --codes]   # Gantt chart
-node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
+node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--curves] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--json]   # time impact analysis
 node cli.mjs --windows jan.xer feb.xer mar.xer apr.xer [--json] [--csv windows.csv] [--project CODE]
