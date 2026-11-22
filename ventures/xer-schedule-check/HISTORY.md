@@ -35,3 +35,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) P6 resource curves as Project timephased work 2026-11-22 (curveRows; hospital file 33/33 within 0.0003 h a day, MPXJ 66/66; eval/curves-to-project-2026-11-22.md)
 - (moved 2026-11-22) unassigned resources 2026-11-21 (--all-resources, 17/17 notes back)
 - (moved 2026-11-22) resource tree as Group 2026-11-22 (502/502)
+- (moved 2026-11-22) work contours as P6 curves of Project's measured shape 2026-11-21 (19/19 within 0.035 h, eval/work-contours-2026-11-21.md)

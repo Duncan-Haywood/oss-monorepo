@@ -575,14 +575,13 @@ flagships:
       export (curved spread shipped, curves.mjs). (11) time impact analysis shipped
       2026-11-20 (tia.mjs, --tia, page; eval/tia-check-2026-11-20.md); next a real
       TIA exhibit. (8) MSPDI: resource calendars, Resume, splits read 2026-11-21
-      (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md); work contours as
-      P6 curves of Project's measured shape 2026-11-21 (19/19 within 0.035 h,
-      eval/work-contours-2026-11-21.md); P6 curves out as Project timephased work
-      2026-11-22 (eval/curves-to-project-2026-11-22.md); next a Project open of
-      those rows, a P6 import of a curve, timephased late dates. (12) Gantt chart
-      shipped 2026-11-20 (LOE and WBS summary dates = P6's on 305 of 305,
-      eval/gantt-check-2026-11-20.md). (13) XER to Project XML shipped 2026-11-21
-      (eval/msproject-check-2026-11-21.md); next a Project check. MSPDI to XER
+      (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md); P6 curves out as
+      Project timephased work 2026-11-22 (eval/curves-to-project-2026-11-22.md);
+      next a Project open of those rows, a P6 import of a curve, timephased late
+      dates. (12) Gantt chart shipped 2026-11-20 (LOE and WBS summary dates = P6's
+      on 305 of 305, eval/gantt-check-2026-11-20.md). (13) XER to Project XML
+      shipped 2026-11-21; late dates 19,822/19,822 2026-11-22
+      (eval/msproject-latedates-2026-11-22.md); next a Project check. MSPDI to XER
       shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md); deadlines in float and
       XER (eval/deadlines-2026-11-21.md). Expenses <-> cost resources and fixed
       costs 2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;
