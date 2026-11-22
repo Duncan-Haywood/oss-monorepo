@@ -2141,13 +2141,13 @@ def run_for_changes(args) -> int:
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
     print(f"{len(changed)} changed file(s) against {args.for_changes} select "
           f"{len(workflows)} workflow(s).")
+    selected, deferred = defer_heavy(selected, changed, args)
+    if deferred:
+        print(DEFER_NOTE.format(names=", ".join(deferred)), flush=True)
     hint = budget_hint(len(selected), getattr(args, "workflow_timeout", 0),
                        args.list)
     if hint:
         print(hint, flush=True)
-    selected, deferred = defer_heavy(selected, changed, args)
-    if deferred:
-        print(DEFER_NOTE.format(names=", ".join(deferred)), flush=True)
     cost = local_cost_hint([name for name, *_ in selected], args.list)
     if cost:
         print(cost, flush=True)
