@@ -19,7 +19,7 @@ const GUIDES = [
 const SAMPLE = here("samples/sample-office.ifc"), REV2 = here("samples/sample-office-rev2.ifc");
 const cli = (...args) => execFileSync(process.execPath, [here("cli.mjs"), ...args], { encoding: "utf8" });
 const csv = (text) => {
-  const rows = text.replace(/^﻿/, "").trim().split(/\r?\n/).map((l) => l.match(/("([^"]|"")*"|[^,]*)(,|$)/g).slice(0, -1).map((c) => c.replace(/,$/, "").replace(/^"(.*)"$/, "$1")));
+  const rows = text.replace(/^\uFEFF/, "").trim().split(/\r?\n/).map((l) => l.match(/("([^"]|"")*"|[^,]*)(,|$)/g).slice(0, -1).map((c) => c.replace(/,$/, "").replace(/^"(.*)"$/, "$1")));
   const [head, ...body] = rows;
   return body.map((r) => Object.fromEntries(head.map((h, i) => [h, r[i]])));
 };
