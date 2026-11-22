@@ -20,6 +20,9 @@ Usage (from ``ventures/photo-editing``, numpy and rawpy installed)::
         --bucket https://storage.googleapis.com/hdrplusdata/20171106
     PYTHONPATH=src python tools/hdrplus_joint_check.py score SCENES/*.npz > rows.jsonl
     python tools/hdrplus_joint_check.py judge rows.jsonl
+    # J2, the second draw:
+    python tools/hdrplus_joint_check.py draw --n 240 --seed 20261123 \
+        --exclude eval/hdrplus-joint-check-bursts-2026-11-22.txt > IDS2.txt
 """
 
 from __future__ import annotations
@@ -50,7 +53,24 @@ ARMS = (
     ("ship_pick", "ship", (0.3, 1.0), (1.2, 2.0)),
     ("true_shipped", "true", SHIP_C, SHIP_L),
     ("true_pick", "true", (0.2, 0.8), (0.8, 1.5)),
+    ("candidate_floor", "mpcws_floor", (0.3, 1.0), (1.0, 2.0)),
 )
+# J2's arm (committed before the second draw): `candidate`, except where the mpcws read collapses (under
+# COLLAPSE x the shipped read's sigma at 18% grey), where it is exactly `ship` (read and ramps)
+COLLAPSE = 0.25
+FLOOR = 0.5  # mpcws_floor: the mpcws read, or the shipped read where mpcws reads under FLOOR x its sigma at 18% grey
+
+
+def sigma18(model) -> float:
+    return float(max(model[0] * 0.18 + model[1], 0.0) ** 0.5)
+
+
+def floored(models: dict) -> tuple:
+    """The `mpcws` read, unless it collapses under ``FLOOR`` times the shipped read's sigma at 18% grey (added
+    2026-11-22 after the first draw: both J1 h4 bursts were frames where `mpcws` read ~0 noise)."""
+
+    m, s = tuple(models["mpcws"]), tuple(models["ship"])
+    return s if sigma18(m) < FLOOR * sigma18(s) else m
 
 
 # ---- draw ----
@@ -72,6 +92,8 @@ def list_bursts(root: str) -> list[str]:
 
 def draw(args) -> int:
     full, used = list_bursts(FULL), set(list_bursts(SUBSET))
+    for f in args.exclude or []:
+        used |= {x.strip() for x in Path(f).read_text().splitlines() if x.strip()}
     pool = [b for b in full if b not in used]
     pick = sorted(random.Random(args.seed).sample(pool, args.n))
     print(f"full set {len(full)}, subset {len(used)}, pool {len(pool)}, drawn {len(pick)} (seed {args.seed})",
@@ -99,12 +121,19 @@ def score_scene(path: Path) -> list[dict]:
     rows = [{**base, "arm": "D", "scores": sw.masked_scores(d, truth, keep)}]
     q = {}
     for read in {a[1] for a in ARMS}:
-        qb = xd.frame_measures(c, pat, b, d, noise=tuple(meta["models"][read]), blocks=True)["q_blocks"]
+        noise = floored(meta["models"]) if read == "mpcws_floor" else tuple(meta["models"][read])
+        qb = xd.frame_measures(c, pat, b, d, noise=noise, blocks=True)["q_blocks"]
         q[read] = xd.lift_near_detail(qb, K)
     for name, read, cr, lr in ARMS:
         out = xd.blend(b, d, q[read], cr[0], cr[1], luma_ramp=lr)
         rows.append({**base, "arm": name, "scores": sw.masked_scores(out, truth, keep)})
+    rows.append({**base, "arm": "fallback", "collapsed": collapsed(meta["models"]),
+                 "scores": rows[1 if collapsed(meta["models"]) else 2]["scores"]})
     return rows
+
+
+def collapsed(models: dict) -> bool:
+    return sigma18(models["mpcws"]) < COLLAPSE * sigma18(models["ship"])
 
 
 def score(paths) -> int:
@@ -118,13 +147,17 @@ def score(paths) -> int:
 
 # ---- judge ----
 
+JUDGED = [a[0] for a in ARMS if a[0] != "ship"] + ["fallback"]
+
 def judge_rows(rows: list[dict]) -> dict:
     """The committed rule (eval/hdrplus-joint-check-2026-11-22.md) on ``candidate`` against ``ship``."""
 
     t: dict = {}
-    sigma, model = {}, {}
+    sigma, model, collapsed_n = {}, {}, {}
     for r in rows:
         t.setdefault(r["burst"], {})[r["arm"]] = tuple(r["scores"])
+        if r["arm"] == "fallback":
+            collapsed_n[r["burst"]] = r["collapsed"]
         sigma[r["burst"]], model[r["burst"]] = r["true_sigma18"], r.get("model")
     bursts = sorted(t)
     s = np.array([sigma[b] for b in bursts])
@@ -137,10 +170,11 @@ def judge_rows(rows: list[dict]) -> dict:
     thirds = [s <= cut[0], (s > cut[0]) & (s <= cut[1]), s > cut[1]]
     sc, sl = gains("ship", "D")
     ship_lose = (sc < -0.1) | (sl < -0.1)
-    out: dict = {"bursts": len(bursts), "models": {}}
+    out: dict = {"bursts": len(bursts), "models": {}, "collapsed": sorted(b for b, v in collapsed_n.items() if v)}
+    judged = [a for a in JUDGED if all(a in t[b] for b in bursts)]
     for b in bursts:
         out["models"][model[b] or "?"] = out["models"].get(model[b] or "?", 0) + 1
-    for arm in [a[0] for a in ARMS if a[0] != "ship"]:
+    for arm in judged:
         gc, gl = gains(arm, "ship")
         ac, al = gains(arm, "D")
         lose = (ac < -0.1) | (al < -0.1)
@@ -167,9 +201,10 @@ def judge(args) -> int:
     rows = [json.loads(x) for x in args.rows.read_text().splitlines() if x.strip()]
     out = judge_rows(rows)
     print(f"{out['bursts']} bursts scored; models {out['models']}")
-    for arm in [a[0] for a in ARMS if a[0] != "ship"]:
+    print(f"mpcws read collapsed (fallback to ship) on {len(out['collapsed'])}: {out['collapsed']}")
+    for arm in [a for a in JUDGED if a in out]:
         r = out[arm]
-        tag = "COMMITTED" if arm == "candidate" else "reported"
+        tag = "COMMITTED" if arm in ("candidate", "fallback") else "reported"
         print(f"\n## {arm} over ship ({tag})")
         print(f"  means colour {r['colour']:+.4f} luma {r['luma']:+.4f} (medians {r['median_colour']:+.4f} / "
               f"{r['median_luma']:+.4f}); thirds luma/colour "
@@ -188,6 +223,7 @@ def main(argv=None) -> int:
     d = sub.add_parser("draw")
     d.add_argument("--n", type=int, default=240)
     d.add_argument("--seed", type=int, default=20261122)
+    d.add_argument("--exclude", nargs="*", help="files of burst ids already used (one per line)")
     s = sub.add_parser("score")
     s.add_argument("scenes", nargs="+")
     j = sub.add_parser("judge")
