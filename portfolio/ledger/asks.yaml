@@ -185,14 +185,14 @@ decisions:
   exposure: legal-person
   opened: "2026-08-19"
   action: >-
-    Decided 2026-10-31: a merchant of record. What is left is yours, in this
-    order: (1) approve the `prompts/goals.md` amendment PR that replaces
-    "Payments: never the owner's" with your 2026-10-31 decision (agents may
-    not edit that guardrail on their own); (2) pick the provider (Polar,
-    Lemon Squeezy or Paddle; `docs/reports/2026-10-31-payout-rail-next-steps.md`
-    compares them) and open the account yourself with 2FA on; (3) paste the
-    live checkout link into owner-only config (Cloudflare dashboard variable),
-    never into this repo or a session.
+    Provider chosen and account open: Paddle (owner, 2026-11-22: "i'm
+    already set up on paddle"). What is left is yours: (1) review and merge
+    the goals PR for the freemium SaaS model (PR #18323); (2) in Paddle,
+    create the products and prices (Grant Autopilot's plans first, then a
+    portfolio Pro), sandbox before live, 2FA on; (3) put the API key,
+    webhook secret and price ids only in the protected production deploy
+    (`docs/reports/2026-11-22-freemium-saas-plan.md`), never in this repo or
+    a session.
   unlocks:
     - >-
       The only thing that moves the revenue ceiling off $0. Every other item in

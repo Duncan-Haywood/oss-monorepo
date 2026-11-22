@@ -110,11 +110,34 @@ freemium product needs, each piece behind a small, swappable interface
 
 | Phase | Who | What |
 |---|---|---|
-| 0 | **owner** | Confirm FSL-1.1-MIT; accept the review gate on SaaS, billing and deploy paths; create the separate production Cloudflare account and a scoped token; open Paddle (sandbox first), Resend and an Anthropic organisation with workspace spend limits, all in the LLC's name; confirm the LLC's state for the legal pages. |
+| 0 | **owner** | Confirm FSL-1.1-MIT; accept the review gate on SaaS, billing and deploy paths; create the separate production Cloudflare account and a scoped token; in Paddle (account already open, 2026-11-22) create the products and prices, sandbox first; open Resend and an Anthropic organisation with workspace spend limits, all in the LLC's name; confirm the LLC's state for the legal pages. |
 | 1 | agents, owner reviews | Move Grant Autopilot into `ventures/grant-autopilot/` under FSL, with the pilot customer's name and private data removed and only test or made-up fixtures kept. Its production deploy moves to the private operations repo. Launch it as the first paid service. |
 | 2 | agents, owner reviews | Extract `platform/saas` from Grant Autopilot and stand up the shared accounts service. |
 | 3 | agents | Pro on three to five business tools; measure sign-ups and conversion. |
 | 4 | agents | Widen Pro in batches as the numbers justify; distribution work throughout. |
+
+## Which products go paid first
+
+Ranked for paid conversion: business buyers with budgets first, then
+competitors' list prices, liability, and how much is built. Rows and
+comparables (with sources and read dates) are in
+`portfolio/monetization/models.yaml`; the reasoning is in its README.
+
+| # | Product | Buyer | Comparables (read) | Liability | What Pro is |
+|---|---|---|---|---|---|
+| 1 | Grant Autopilot | nonprofits | not read yet | medium | its existing Starter / Standard / Pro plans ($5 / $20 / $100 a month), already on Paddle; launch with the pilot customer |
+| 2 | wall-framing-takeoff | framers, remodelers, owner-builders | Buildxact $149 to $399 a month, Autotakeoff from $49 a month (2026-11-02) | medium | branded bid package (built dark), saved projects, own lumber prices, team sharing; hypothesis $15 to $30 a month |
+| 3 | shift-roster-builder | small shops with staff | Homebase Essentials $24 a month per location; When I Work from $2.50 a user (2026-11-02) | medium | staff logins with their own shifts, swaps and reminders, branded staff pack; hypothesis $10 to $20 a month per location |
+| 4 | einvoice-preflight | accountants and bookkeepers | validation at about $4 per 1,000 documents on API marketplaces | medium | batch and API, scheduled checks, branded audit packs (built dark) |
+| 5 | shed-designer | shed builders | Etsy plan listings (to confirm) | low | branded build pack (built dark) |
+| later | ai-bookkeeper | small businesses | QuickBooks Online Simple Start $38 a month | high | only after measurements on real books |
+
+The smaller one-off packs (league-schedule-generator, changepoint-detector,
+quick-pick-survey) are built dark and join Pro without a price of their own.
+Every dark path today unlocks with a Lemon Squeezy-style licence key; Paddle
+has none, so each swaps `licence.mjs` for a signed-in Pro check once
+`platform/saas` exposes entitlements (phase 2). Until then those rows are
+`parked`, and Grant Autopilot goes first.
 
 ## Open decisions (owner)
 

@@ -26,6 +26,42 @@ request queue keeps routing runs to it. A run that takes it runs
 `monetization.py next`, lands that step, moves the row's `stage` and rewrites
 its `next` in the same PR.
 
+## Update 2026-11-22: freemium SaaS on Paddle
+
+The owner moved the portfolio to **freemium SaaS run by Maris Stella Labs
+LLC** ("i think moving mosty things into freemium saas is the move"), with the
+source public under FSL for new product code, and the merchant of record is
+**Paddle**, whose account is open ("i'm already set up on paddle"). The goals
+change and the full plan are in PR #18323:
+[`prompts/goals.md`](../../prompts/goals.md) ("The business model",
+"Operating hosted services") and
+[`docs/reports/2026-11-22-freemium-saas-plan.md`](../../docs/reports/2026-11-22-freemium-saas-plan.md).
+What changes here:
+
+- **Hosted subscriptions (row 8 below) are now the main model**, not ruled
+  out. Free stays free with no account; Pro adds depth around the tools; one
+  account and one subscription across the portfolio.
+- **Licence keys give way to accounts.** Paddle has no licence-key product,
+  so the dark paid paths (`licence.mjs` and `checkout.mjs` in each venture)
+  unlock through a signed-in Pro check against the shared accounts service
+  (`platform/saas`, extracted from Grant Autopilot, which already runs
+  Paddle billing). Those rows are `parked` until that endpoint exists.
+- **Ranking for paid conversion** (business buyers and budgets first, then
+  comparables, liability, what is built): Grant Autopilot (moving into
+  `ventures/` from the owner's private repo; a full SaaS with Paddle plans and
+  a pilot customer), wall-framing-takeoff, shift-roster-builder (re-opened:
+  hosting is allowed now), einvoice-preflight, shed-designer; ai-bookkeeper
+  stays later for its liability. The smaller one-off packs
+  (league-schedule-generator, changepoint-detector, quick-pick-survey) join
+  Pro without a price of their own.
+- **Traffic is still the ceiling** (next section; 902 human page loads from
+  2026-10-24 to 2026-11-19), so the first paid product is the one with a buyer
+  already, Grant Autopilot, and distribution work runs alongside.
+
+The sections below are the 2026-11-02 analysis, kept for its reasoning and
+comparables; where they say "one-click deploy only" or "hosted SaaS ruled
+out", this update replaces them.
+
 ## The owner's frame
 
 From [`prompts/goals.md`](../../prompts/goals.md): value for people first,
@@ -72,7 +108,7 @@ Two things follow:
 | 5 | **Grants for open-source and research work** (foundation and public open-source funds) | owner or an entity | low, but needs the owner's identity and applications | owner question 3 below |
 | 6 | Affiliate links on comparison pages | owner | medium: FTC disclosure, and it pays us to recommend the paid tools our pages compare against | not recommended |
 | 7 | Display ads on calculator pages | owner (ad account) | low legal, real product cost: slower pages, worse look, against the "serious looking" site direction; near-zero at this traffic | not recommended now |
-| 8 | Hosted SaaS subscriptions run by the owner | owner | high: the owner becomes operator and data holder, and per-user server cost breaks `PRODUCT_PLAYBOOK.md` §2 | ruled out under the current model |
+| 8 | Hosted SaaS subscriptions run by Maris Stella Labs LLC | the LLC, through Paddle | medium to high: the LLC is operator and data holder; handled by the "Operating hosted services" hard limit (legal pages, coded cost caps, data export and deletion, per-account scoping) | **the main model since 2026-11-22** (update above) |
 
 ## Product by product (detail and sources in `models.yaml`)
 
@@ -118,9 +154,10 @@ re-measure that revenue is $0").
 
 ## Open questions for the owner
 
-1. **Approve [PR #12243](https://github.com/Duncan-Haywood/oss-monorepo/pull/12243)**
-   and open the merchant-of-record account (Polar recommended). Until then
-   every paid path ships dark, which blocks no agent work.
+1. **Answered 2026-11-22:** the merchant of record is Paddle and the account
+   is open. What is left: merge PR #18323, then create the Paddle products
+   and prices (sandbox first) and set them only in the protected production
+   deploy (`portfolio/ledger/asks.yaml`, row `payout-rail`).
 2. **Paid priority lane on custom development?** Requests stay free and MIT;
    a buyer could pay to be built next. It earns from the people most likely
    to pay (businesses with a named job) but it is a promise with a deadline.

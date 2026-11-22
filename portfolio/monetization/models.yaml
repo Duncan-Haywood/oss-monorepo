@@ -6,9 +6,12 @@
 # The plan and its reasoning: README.md in this directory.
 #
 # Rules that bound every row (prompts/goals.md, "Hard limits"):
-# - never the owner's merchant key anywhere an agent can reach; the owner's
-#   own sites sell only through a hosted merchant-of-record checkout link set
-#   in owner-only config (decision 2026-10-31, PR #12243 pending approval);
+# - never the owner's merchant key anywhere an agent can reach. Since
+#   2026-11-22 the merchant of record is Paddle (the owner's account is open)
+#   and products are freemium SaaS run by Maris Stella Labs LLC
+#   (prompts/goals.md, "The business model"): Paddle keys and price ids live
+#   only in the protected production deploy, never in this repo
+#   (docs/reports/2026-11-22-freemium-saas-plan.md);
 # - charge for new depth, never paywall what a page already calls free;
 # - comparables are other vendors' list prices as read on `read`, not our
 #   sales; no row claims a sale, a user or a demand number it can't back.
@@ -25,24 +28,27 @@
 # parked: true when the row waits on something else (named in `next`); runs
 #   skip it until that lands.
 
-as_of: 2026-11-02
+as_of: 2026-11-22
 rail:
-  provider: undecided (Polar recommended; docs/reports/2026-10-31-payout-rail-next-steps.md)
-  rule_change_pr: https://github.com/Duncan-Haywood/oss-monorepo/pull/12243
-  stage: owner-gated
+  provider: Paddle (owner's account open, 2026-11-22; Paddle has no licence keys, so paid extras unlock through account entitlements in platform/saas, not licence.mjs)
+  rule_change_pr: https://github.com/Duncan-Haywood/oss-monorepo/pull/18323
+  stage: account-open
 
 products:
   - venture: wall-framing-takeoff
     buyer: small residential framers, remodelers and owner-builders who bid jobs by hand
     liability: medium
     model: >-
-      Free engine and pages stay free. Sell new depth made for a contractor's
-      paperwork: a branded bid package (company logo, terms, the takeoff,
-      cut list and schedule in one PDF) as a one-off purchase or a yearly
-      licence key, through the merchant of record's hosted checkout and its
-      licence-key validate call, so no server holds a secret.
-    first_offer: branded bid-package PDF export, licence key, yearly
-    price_hypothesis: "$49 to $99 a year (untested; well under the comparables' monthly price)"
+      Free engine and pages stay free with no account. Since 2026-11-22 the
+      paid side is part of the hosted Pro subscription (Paddle, shared
+      accounts in platform/saas): the branded bid package (company logo,
+      terms, the takeoff, cut list and schedule in one PDF), saved projects
+      across devices, the builder's own lumber prices and team sharing.
+      Ranked second for paid conversion in
+      docs/reports/2026-11-22-freemium-saas-plan.md: business buyers who
+      already pay $49 to $399 a month for takeoff software.
+    first_offer: Pro subscription; branded bid-package PDF first, then saved projects and own prices
+    price_hypothesis: "$15 to $30 a month or the yearly equivalent (untested; under Autotakeoff's $49 a month)"
     comparables:
       - what: Buildxact Entry / Pro / Teams
         price: $149 / $249 / $399 a month
@@ -54,15 +60,15 @@ products:
         read: 2026-11-02
     stage: built-dark
     next: >-
-      Built dark 2026-11-02 (bidpackage.mjs, licence.mjs, checkout.mjs; page
-      card "Branded bid package"). Owner step: create the hosted checkout
-      product at the merchant of record, put its public link in
-      checkout.mjs CHECKOUT_URL, and confirm the validate call against the
-      provider's live docs with a test key. Agent step after that: a
-      test-paid purchase end to end. Marketing page and a generated sample
-      package landed 2026-11-03 (branded-bid-package-for-framers.html,
-      sample-bid-package.html, build-sample-pack.mjs).
-    next_owner: true
+      The bid package is built dark (bidpackage.mjs; page card "Branded bid
+      package"; marketing page and sample landed 2026-11-03). Its unlock is
+      a Lemon Squeezy-style licence key (licence.mjs, checkout.mjs), which
+      Paddle does not offer, so it waits on the platform/saas entitlement
+      endpoint (plan phase 2). Then: swap licence.mjs for a signed-in Pro
+      check, keep the free path unchanged with no account, and run a
+      Paddle sandbox purchase end to end.
+    next_owner: false
+    parked: true
 
   - venture: league-schedule-generator
     buyer: volunteer league organisers, rec departments, club secretaries
@@ -112,16 +118,19 @@ products:
     buyer: small shops with one location and under about fifteen staff
     liability: medium
     model: >-
-      The market has a free tier (Homebase Basic) and cheap per-user plans,
-      so a hosted subscription would compete on price with funded vendors and
-      would carry per-user server cost, which PRODUCT_PLAYBOOK.md section 2
-      rules out. Keep it free and self-hostable; earn through donations and,
-      later, a one-off printable/branded template pack. Not a first product.
+      Re-opened 2026-11-22: hosting by Maris Stella Labs LLC is now the model
+      (prompts/goals.md), which removes the reason this row was parked
+      (per-user server cost). The free single-manager builder stays free with
+      no account. Pro adds what only a hosted service can: staff log in to
+      see their own shifts, swap requests, reminders, and the branded staff
+      pack. Priced per location, under Homebase Essentials. Competes with
+      funded vendors that have free tiers, so its edge is simplicity and
+      price. Ranked third in docs/reports/2026-11-22-freemium-saas-plan.md.
     first_offer: >-
-      Branded staff schedule pack (staffpack.mjs): the week on the shop's
-      letterhead, a wall grid and one page per person, no pay shown; behind
-      the same licence-key check, dark until CHECKOUT_URL is set.
-    price_hypothesis: "$10 to $25 one-off, under a month of Homebase Essentials; unvalidated"
+      Pro per location: staff logins with their own shifts, swap requests and
+      reminders, plus the branded staff schedule pack (staffpack.mjs, built
+      dark).
+    price_hypothesis: "$10 to $20 a month per location, under Homebase Essentials' $24; unvalidated"
     comparables:
       - what: Homebase Essentials / Plus / All-in-One (per location, annual)
         price: $24 / $56 / $96 a month; free Basic for one location, 10 staff
@@ -133,14 +142,14 @@ products:
         read: 2026-11-02
     stage: built-dark
     next: >-
-      Built 2026-11-02 and dark (staffpack.mjs, licence.mjs, checkout.mjs;
-      card hidden until CHECKOUT_URL is set). Owner: one merchant-of-record
-      product serves all three dark paid paths. Untested: a real checkout and
-      the pack in a browser print dialog. Marketing page with a generated
-      sample pack landed 2026-11-02 (staff-schedule-pack-for-small-businesses.html,
-      sample-staff-pack.html, build-sample-pack.mjs). Nothing agent-doable is
-      left until the link is set.
-    next_owner: true
+      The staff pack is built dark (staffpack.mjs; marketing page and sample
+      landed 2026-11-02). The hosted part (staff accounts, shifts, swaps,
+      reminders) is not built and needs the platform/saas accounts service
+      (plan phase 2). Then: build staff logins on it, scoped per location
+      with a cross-location access test, and swap licence.mjs for the Pro
+      check.
+    next_owner: false
+    parked: true
 
   - venture: shed-designer
     buyer: shed builders, kit sellers and handymen who give customers a plan and a materials list
