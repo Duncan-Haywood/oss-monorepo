@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First campaign aimed --target at ventures/changepoint-detector/ga4-metrics.mjs (landed on main today); its suite is the whole venture (node --test ventures/changepoint-detector/**/*.test.mjs) and the baseline timed out at 300 s, about 5 min lost. The file was also missing from `redteam.py targets`, a sign I skipped."
+    "First campaign aimed --target at ventures/changepoint-detector/ga4-metrics.mjs (landed on main today); its suite is the whole venture (node --test ventures/changepoint-detector/**/*.test.mjs) and the baseline timed out at 300 s, about 5 min lost. The file was also missing from `redteam.py targets`, a sign I skipped.",
+    "First CI push: ventures-tests changed-ventures red on test_repo_files.py: the new check called `git ls-files` directly instead of repo_files.ls_files (which adds untracked files locally). Fixed in the next commit; I had not run the unwired sweep locally before pushing."
   ],
   "integrity_issues": [],
   "doc_friction": [

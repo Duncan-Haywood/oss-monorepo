@@ -8,13 +8,15 @@ never noticed: on 2026-11-22 a red-team run found 45 tracked test files like
 this (platform/ci/test_main_health.py ran 7 of its 14 tests as a script) and
 moved each guard to the end.
 
-    python3 platform/ci/check_main_guard_last.py            # every tracked test file
+    python3 platform/ci/check_main_guard_last.py            # every tracked (and, locally, untracked) test file
     python3 platform/ci/check_main_guard_last.py a.py b.py  # just these
 """
 import ast
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from repo_files import ls_files  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 # Control plane (.github/CODEOWNERS): fixed in its own PR, owner approval. Listed
@@ -50,9 +52,7 @@ def late_tests(source):
 
 
 def tracked_tests(root=ROOT):
-    r = subprocess.run(["git", "ls-files", "-z", "*test_*.py", "*_test.py"],
-                       cwd=root, capture_output=True, text=True, check=True)
-    return [p for p in r.stdout.split("\0") if p]
+    return ls_files(root, "*test_*.py", "*_test.py")
 
 
 def problems(paths, root=ROOT):
