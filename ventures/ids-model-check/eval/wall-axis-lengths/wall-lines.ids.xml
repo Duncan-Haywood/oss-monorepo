@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Wall lengths and heights (geometry fill check)</title>
+    <description>The wall dimensions a framing or masonry takeoff reads from Qto_WallBaseQuantities. Written for eval/wall-axis-lengths-2026-11-21.md; MIT.</description>
+  </info>
+  <specifications>
+    <specification name="Walls carry length and height" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_WallBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Length</simpleValue></baseName></property>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_WallBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Height</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>

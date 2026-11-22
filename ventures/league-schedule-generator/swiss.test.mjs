@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { swissPairings, swissPairingsGreedy, swissStandings, colourClaim, floatHistory } from "./swiss.mjs";
+import { swissPairings, swissPairingsGreedy, swissStandings, colourClaim, floatHistory, exchangeFor } from "./swiss.mjs";
 import { validateSwiss } from "./calc.mjs";
 
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 2 ** 32; }; }
@@ -282,4 +282,24 @@ test("bracket: whole simulated events stay valid (no rematch, one bye each, abso
     const { states } = simulate((p, g, b) => bracket(p, g, b), n, rounds, seed);
     assert.equal(states.length, rounds);
   }
+});
+
+test("exchangeFor: FIDE C.04.3 4.3 exchange order (fewest moved, smallest BSN-sum difference, highest S1 BSN out)", () => {
+  // Six players in BSN order 1..6, S1 = {1, 2, 3}. Player 1 has met all of S2, so one exchange is
+  // needed. The smallest exchange swaps 3 and 4 (difference 1): S1 = {1, 2, 4}, S2 = {3, 5, 6},
+  // whose first transposition is 1-3, 2-5, 4-6 (the older boundary rule gave 1-3, 2-4, 5-6).
+  const met = new Set(["1|4", "1|5", "1|6"]);
+  const allowed = (x, y) => !met.has(`${x}|${y}`) && !met.has(`${y}|${x}`);
+  const ex = exchangeFor([1, 2, 3, 4, 5, 6], { allowed, qOf: () => 0, qMax: 1 });
+  assert.deepEqual(ex, { s1: [1, 2, 4], s2: [3, 5, 6] });
+  // (b): with 1-3 also met, 3<->4 cannot work and 2<->4 (difference 2) is next.
+  met.add("1|3");
+  assert.deepEqual(exchangeFor([1, 2, 3, 4, 5, 6], { allowed, qOf: () => 0, qMax: 1 }), { s1: [1, 3, 4], s2: [2, 5, 6] });
+  // (c): 1 and 2 have both met 5 and 6, so 3<->4 fails; 2<->4 and 3<->5 both work at difference 2,
+  // and the rule moves the higher S1 BSN, 3.
+  const met3 = new Set(["1|5", "1|6", "2|5", "2|6"]);
+  const allowed3 = (x, y) => !met3.has(`${x}|${y}`) && !met3.has(`${y}|${x}`);
+  assert.deepEqual(exchangeFor([1, 2, 3, 4, 5, 6], { allowed: allowed3, qOf: () => 0, qMax: 1 }), { s1: [1, 2, 5], s2: [3, 4, 6] });
+  // No exchange needed: null (the caller pairs S1 against S2 as before).
+  assert.equal(exchangeFor([1, 2, 3, 4], { allowed: () => true, qOf: () => 0, qMax: 1 }), null);
 });

@@ -1,0 +1,644 @@
+{
+ "construction.ifc": {
+  "walls": 48,
+  "straightAxis": 48,
+  "measured": 36,
+  "length": {
+   "stored": 36,
+   "within2": 35,
+   "axisWithin2": 35,
+   "causes": {
+    "stored side area / height agrees with the measured length": 1
+   }
+  },
+  "height": {
+   "stored": 36,
+   "within2": 36,
+   "tallestWithin2": 31,
+   "offered": 31,
+   "offeredWithin2": 31,
+   "causes": {}
+  },
+  "heightsOffered": 31,
+  "seconds": 0.715,
+  "misses": [
+   [
+    "Length",
+    16416,
+    "Basic Wall:STB 30.0:573662",
+    "2.700",
+    "2.900",
+    "stored side area / height agrees with the measured length"
+   ]
+  ]
+ },
+ "architect.ifc": {
+  "walls": 112,
+  "straightAxis": 112,
+  "measured": 112,
+  "length": {
+   "stored": 112,
+   "within2": 86,
+   "axisWithin2": 86,
+   "causes": {
+    "stored side area / height agrees with the measured length": 18,
+    "the difference is half or all of a joined wall's thickness": 4,
+    "unexplained": 4
+   }
+  },
+  "height": {
+   "stored": 112,
+   "within2": 112,
+   "tallestWithin2": 112,
+   "offered": 112,
+   "offeredWithin2": 112,
+   "causes": {}
+  },
+  "heightsOffered": 112,
+  "seconds": 6.999,
+  "misses": [
+   [
+    "Length",
+    34738,
+    "Basic Wall:MW 11.5:573605",
+    "6.218",
+    "6.363",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    34874,
+    "Basic Wall:MW 11.5:573608",
+    "6.218",
+    "6.363",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    60811,
+    "Basic Wall:MW 17.5:573700",
+    "2.080",
+    "2.255",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    61682,
+    "Basic Wall:MW 11.5:573718",
+    "3.307",
+    "3.482",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    61775,
+    "Basic Wall:MW 11.5:573720",
+    "3.307",
+    "3.482",
+    "the difference is half or all of a joined wall's thickness"
+   ],
+   [
+    "Length",
+    61725,
+    "Basic Wall:MW 11.5:573719",
+    "2.182",
+    "2.327",
+    "unexplained"
+   ],
+   [
+    "Length",
+    61639,
+    "Basic Wall:MW 17.5:573717",
+    "3.479",
+    "3.684",
+    "the difference is half or all of a joined wall's thickness"
+   ],
+   [
+    "Length",
+    89621,
+    "Basic Wall:MW 11.5:573742",
+    "1.735",
+    "1.850",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    89664,
+    "Basic Wall:MW 11.5:573743",
+    "1.707",
+    "1.650",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    89707,
+    "Basic Wall:MW 11.5:573744",
+    "1.592",
+    "1.650",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    90039,
+    "Basic Wall:MW 11.5:573754",
+    "2.242",
+    "2.300",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    90132,
+    "Basic Wall:MW 11.5:573756",
+    "2.242",
+    "2.300",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    90826,
+    "Basic Wall:WC Trennwand 5.0:573780",
+    "1.306",
+    "1.388",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    90912,
+    "Basic Wall:WC Trennwand 5.0:573782",
+    "1.306",
+    "1.388",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    141356,
+    "Basic Wall:MW 11.5:575889",
+    "1.558",
+    "1.500",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    158871,
+    "Basic Wall:MW 17.5:576037",
+    "1.350",
+    "1.525",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    158959,
+    "Basic Wall:MW 17.5:576039",
+    "1.350",
+    "1.525",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    184975,
+    "Basic Wall:WC Trennwand 5.0:577952",
+    "1.306",
+    "1.388",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    90869,
+    "Basic Wall:WC Trennwand 5.0:573781",
+    "3.600",
+    "3.715",
+    "unexplained"
+   ],
+   [
+    "Length",
+    187178,
+    "Basic Wall:WC Trennwand 5.0:578640",
+    "1.735",
+    "1.850",
+    "unexplained"
+   ],
+   [
+    "Length",
+    187135,
+    "Basic Wall:WC Trennwand 5.0:578639",
+    "1.735",
+    "1.850",
+    "unexplained"
+   ],
+   [
+    "Length",
+    89750,
+    "Basic Wall:MW 11.5:573745",
+    "2.382",
+    "2.497",
+    "the difference is half or all of a joined wall's thickness"
+   ],
+   [
+    "Length",
+    217635,
+    "Basic Wall:MW 11.5:580926",
+    "1.509",
+    "1.567",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    217592,
+    "Basic Wall:MW 11.5:580917",
+    "1.509",
+    "1.567",
+    "the difference is half or all of a joined wall's thickness"
+   ],
+   [
+    "Length",
+    224432,
+    "Basic Wall:MW 11.5:580928",
+    "2.057",
+    "2.000",
+    "stored side area / height agrees with the measured length"
+   ],
+   [
+    "Length",
+    224475,
+    "Basic Wall:MW 11.5:580929",
+    "1.409",
+    "1.467",
+    "stored side area / height agrees with the measured length"
+   ]
+  ]
+ },
+ "Schultz_Residence.ifc": {
+  "walls": 105,
+  "straightAxis": 105,
+  "measured": 101,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 91,
+  "seconds": 22.815,
+  "misses": []
+ },
+ "AC20-FZK-Haus.ifc": {
+  "walls": 13,
+  "straightAxis": 13,
+  "measured": 13,
+  "length": {
+   "stored": 13,
+   "within2": 13,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 13,
+   "within2": 11,
+   "tallestWithin2": 13,
+   "offered": 11,
+   "offeredWithin2": 11,
+   "causes": {
+    "stored is the clipped wall's tallest point": 2
+   }
+  },
+  "heightsOffered": 11,
+  "seconds": 0.17,
+  "misses": [
+   [
+    "Height",
+    60012,
+    "Wand-Ext-OG-1",
+    "3.500",
+    "3.387",
+    "3.387",
+    "stored is the clipped wall's tallest point"
+   ],
+   [
+    "Height",
+    67828,
+    "Wand-Ext-OG-3",
+    "3.500",
+    "3.387",
+    "3.387",
+    "stored is the clipped wall's tallest point"
+   ]
+  ]
+ },
+ "C20-Institute-Var-2.ifc": {
+  "walls": 121,
+  "straightAxis": 121,
+  "measured": 121,
+  "length": {
+   "stored": 121,
+   "within2": 121,
+   "axisWithin2": 39,
+   "causes": {}
+  },
+  "height": {
+   "stored": 121,
+   "within2": 114,
+   "tallestWithin2": 119,
+   "offered": 112,
+   "offeredWithin2": 112,
+   "causes": {
+    "stored is the clipped wall's tallest point": 5,
+    "unexplained": 2
+   }
+  },
+  "heightsOffered": 112,
+  "seconds": 0.64,
+  "misses": [
+   [
+    "Height",
+    227944,
+    "Wand-007",
+    "2.700",
+    "1.640",
+    "1.640",
+    "stored is the clipped wall's tallest point"
+   ],
+   [
+    "Height",
+    228278,
+    "Wand-010",
+    "2.700",
+    "1.334",
+    "1.334",
+    "stored is the clipped wall's tallest point"
+   ],
+   [
+    "Height",
+    228563,
+    "Wand-002",
+    "2.700",
+    "2.026",
+    "2.026",
+    "stored is the clipped wall's tallest point"
+   ],
+   [
+    "Height",
+    229235,
+    "Wand-003",
+    "2.700",
+    "1.985",
+    "2.026",
+    "unexplained"
+   ],
+   [
+    "Height",
+    229520,
+    "Wand-005",
+    "2.700",
+    "1.985",
+    "2.026",
+    "unexplained"
+   ],
+   [
+    "Height",
+    229966,
+    "Wand-001",
+    "2.700",
+    "1.640",
+    "1.640",
+    "stored is the clipped wall's tallest point"
+   ],
+   [
+    "Height",
+    230935,
+    "Wand-006",
+    "2.700",
+    "2.026",
+    "2.026",
+    "stored is the clipped wall's tallest point"
+   ]
+  ]
+ },
+ "ISSUE_159_kleine_Wohnung_R22.ifc": {
+  "walls": 211,
+  "straightAxis": 211,
+  "measured": 210,
+  "length": {
+   "stored": 210,
+   "within2": 210,
+   "axisWithin2": 210,
+   "causes": {}
+  },
+  "height": {
+   "stored": 210,
+   "within2": 210,
+   "tallestWithin2": 210,
+   "offered": 210,
+   "offeredWithin2": 210,
+   "causes": {}
+  },
+  "heightsOffered": 210,
+  "seconds": 4.785,
+  "misses": []
+ },
+ "FM_ARC_DigitalHub.ifc": {
+  "walls": 178,
+  "straightAxis": 178,
+  "measured": 178,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 178,
+  "seconds": 13.091,
+  "misses": []
+ },
+ "Office_A_20110811.ifc": {
+  "walls": 487,
+  "straightAxis": 487,
+  "measured": 487,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 487,
+  "seconds": 0.715,
+  "misses": []
+ },
+ "dental_clinic.ifc": {
+  "walls": 1080,
+  "straightAxis": 1078,
+  "measured": 1063,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 1063,
+  "seconds": 1.909,
+  "misses": []
+ },
+ "duplex.ifc": {
+  "walls": 57,
+  "straightAxis": 57,
+  "measured": 56,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 56,
+  "seconds": 0.433,
+  "misses": []
+ },
+ "ISSUE_126_model.ifc": {
+  "walls": 65,
+  "straightAxis": 65,
+  "measured": 57,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 57,
+  "seconds": 0.248,
+  "misses": []
+ },
+ "ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc": {
+  "walls": 336,
+  "straightAxis": 238,
+  "measured": 207,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 207,
+  "seconds": 6.54,
+  "misses": []
+ },
+ "S_Office_Integrated Design Archi.ifc": {
+  "walls": 226,
+  "straightAxis": 226,
+  "measured": 186,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 186,
+  "seconds": 13.346,
+  "misses": []
+ },
+ "advanced_model.ifc": {
+  "walls": 133,
+  "straightAxis": 133,
+  "measured": 128,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 128,
+  "seconds": 14.65,
+  "misses": []
+ },
+ "ISSUE_034_HouseZ.ifc": {
+  "walls": 140,
+  "straightAxis": 0,
+  "measured": 0,
+  "length": {
+   "stored": 0,
+   "within2": 0,
+   "axisWithin2": 0,
+   "causes": {}
+  },
+  "height": {
+   "stored": 0,
+   "within2": 0,
+   "tallestWithin2": 0,
+   "offered": 0,
+   "offeredWithin2": 0,
+   "causes": {}
+  },
+  "heightsOffered": 0,
+  "seconds": 0.605,
+  "misses": []
+ }
+}

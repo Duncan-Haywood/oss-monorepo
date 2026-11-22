@@ -51,7 +51,7 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - net: 3000 wide x 2470 mm tall between the poles
 - wind: 69 N on the net at 8 m/s (solidity 0.2, Cd 1.2); ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): 9 kg
 - made-part mass (estimate, excludes bought-in parts): 45.6 kg
-- assembly guide (guide/ASSEMBLY.md): 37 fastener stacks, part and BOM tally, step order, head access, extrusion end bores, spanners on 9 nut joints: pass
+- assembly guide (guide/ASSEMBLY.md): 39 fastener stacks, part and BOM tally, step order, head access, extrusion end bores, spanners on 11 nut joints: pass
 
 STATUS
 Design v0.1, not yet built, and the launcher head throws balls at 30+ m/s:

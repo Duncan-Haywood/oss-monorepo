@@ -8,6 +8,7 @@ import { ifcJsonSchemaId, looksLikeJson } from "./ifcjson.mjs";
 import { looksLikeIfcx } from "./ifcx.mjs";
 import { modelInventory } from "./inventory.mjs";
 import { fillModel, fillReport, toFillCsv, readValues } from "./model-fill.mjs";
+import { measureModel, geometryLookup } from "./geometry-quantities.mjs";
 
 const cache = {};
 async function json(name) {
@@ -65,7 +66,7 @@ async function loadSchemas(ids) {
 }
 
 self.onmessage = async (ev) => {
-  const { ids, ifc, auditOnly, inventory, fill, values, req } = ev.data;
+  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, req } = ev.data;
   // Echo the caller's request number (index.html drops stale replies).
   const postMessage = (m) => self.postMessage({ ...m, req });
   try {
@@ -107,7 +108,10 @@ self.onmessage = async (ev) => {
       // only; the standard templates give a value's type where the IDS
       // names none.
       const tpl = loaded && loaded[id] ? loaded : { ...(loaded || {}), [id]: await json("psets-" + id.toLowerCase() + ".json") };
-      const r = fillModel(ids, ifc, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets: tpl, values: values ? readValues(values) : [] });
+      // Qto_ quantities no set holds, measured from each element's body by
+      // ifc-quantity-takeoff (served beside this page; geometry-quantities.mjs).
+      const geometry = measure ? geometryLookup(await measureModel(ifc)) : undefined;
+      const r = fillModel(ids, ifc, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets: tpl, values: values ? readValues(values) : [], geometry });
       const { text, unfilled, writtenList, ...rest } = r;
       void writtenList;
       postMessage({ fill: { ...rest, text: r.written ? text : null, summary: fillReport(r), toFill: unfilled.length ? toFillCsv(unfilled) : null, unfilledCount: unfilled.length, seconds: (performance.now() - t0) / 1000 } });

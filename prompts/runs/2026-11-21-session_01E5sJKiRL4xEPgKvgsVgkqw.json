@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKiRL4xEPgKvgsVgkqw",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T20:18:23Z",
+  "ended": "2026-11-21T20:54:17Z",
+  "wall_minutes": 143.19,
+  "tokens_in": 11365121,
+  "tokens_out": 42943,
+  "cost_usd": 4.4186,
+  "tool_calls": 85,
+  "task": "Deepen (flagship 4) changepoint-detector: a wander gate that opens less on calm sites with slow falls (README 'A wandering level under Middle', Next)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18137",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "The first launch of the 63-minute round ran under run_in_background's default 30-minute limit and was killed before it wrote any output; rerun unchanged with timeout 7200000 (about 30 min lost). Several until-loop waiters were also killed at 30 min."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "'Long commands' says to start long jobs with run_in_background but not that such a command is killed after 30 minutes unless a timeout up to 7200000 ms is passed; a 63-min pre-registered round was lost to it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/middle-wander.prereg.md (last round's arms)",
+      "why": "Left the count default (D) out of the round's arms to save about an hour; it was reported only and decides no bar.",
+      "did": "Arms M, W, V only; said so in the prereg and README.",
+      "result": "Round fit in 63 min; no bar needed D."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-ask-whether-traffic-wandered-before-the-drop.md",
+    "ventures/changepoint-detector/README.md 'A calmer wander gate'"
+  ],
+  "goal": null,
+  "notes": "Probed 7 gate variants on probe seeds 9901-9916 (margins 2/3 log n, jump penalty log n, forced-jump test at 1 and 0.5 log n, gate decided before the newest change, split fit). Pre-registered the 'before' variant (wanderBefore 60) and committed before runs. Round on fresh seeds: K1 fails (40 vs 37.5), K1' (<= 2/3 of M, 50) and K2-K5 pass; on calm sites V = Middle exactly (V - M 0.00 days). Shipped per rule: --wander gated now decides before the newest change; COUNT_MIDDLE unchanged. Verification: node --test wander-gate.test.mjs 5/5; run_venture_tests.py changepoint-detector: ok, 1079 tests, 292 s; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "36cd7ddd-65e7-5218-a965-82d9fe8e43c9",
+    "transcripts": 1,
+    "first": "2026-11-21T20:18:23Z",
+    "last": "2026-11-21T22:41:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 154,
+        "output": 42943,
+        "thinking": 9960,
+        "cache_read": 11200084,
+        "cache_write_5m": 0,
+        "cache_write_1h": 164883,
+        "api_equivalent_usd": 4.4186,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 154,
+      "output": 42943,
+      "thinking": 9960,
+      "cache_read": 11200084,
+      "cache_write_5m": 0,
+      "cache_write_1h": 164883,
+      "api_equivalent_usd": 4.4186,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 76,
+      "TaskStop": 4,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 143.19,
+      "active_minutes": 143.19,
+      "model_minutes": 8.44,
+      "tool_minutes": 134.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician probing 7 gate variants, pre-registering and running a 3-arm simulation round, then shipping and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 226.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

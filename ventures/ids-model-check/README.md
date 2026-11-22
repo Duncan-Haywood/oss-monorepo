@@ -422,6 +422,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas and wall lengths and heights measured from the bodies
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -560,10 +561,9 @@ How it writes, so nothing else changes:
   that names the property accepts it, so filling one check cannot break
   another the element passes today (two specifications asking `EI30` and `EI60`
   of the same wall: neither is written, and the table says why).
-- A set name the element already holds as something other than a property set
-  is not written: IFC2X3 exports call their quantity set `BaseQuantities`, and
-  a property set of that name beside it would hide the quantities from
-  IfcTester, which reads one set per name.
+- A set name the element already holds as the other kind (a quantity set where
+  a property is asked, or the other way round) is not written beside it:
+  IfcTester reads one set per name, so the new set would hide the old one.
 - The filled file is read again and every written value is tested by every
   facet on that element that names it, before the download is offered.
 - An IDS with a specification that applies to every entity ("everything is
@@ -571,10 +571,92 @@ How it writes, so nothing else changes:
   relationships, and they fail it as the model's own sets do; the summary
   counts them apart so the before and after numbers can be compared.
 
-Not written: quantities (`Qto_` sets), attributes, classifications, materials
-and relationships (counted in the summary), a set or property the IDS names by a
-pattern, and two specifications asking different values for one property (the
-table says which). ifcXML, ifcJSON and IFC5 files are checked but not written.
+**Quantities (2026-11-21).** A failing `Qto_` requirement (or one naming a set
+the element already holds as an `IfcElementQuantity`) is written as a quantity,
+not a property: an `IfcQuantityLength`, `Area`, `Volume`, `Count`, `Weight` or
+`Time`, picked by the facet's data type (`IFCAREAMEASURE` is an area) or, with
+none, by the standard `Qto_` template's. It goes into the element's own
+quantity set of that name, edited or copied as property sets are, or a new
+`IfcElementQuantity` and relationship. Its value is the one the IDS fixes, one
+typed into the table, or, when the element already holds a quantity of the
+same name and kind in another quantity set, that one: IFC2X3 exports from
+Revit and ArchiCAD keep `NetSideArea`, `Width` or `OuterSurfaceArea` in a set
+called `BaseQuantities`, and an IDS written for IFC4 asks for the same number
+under `Qto_WallBaseQuantities`. The value is copied (converted through SI, so
+the units stay right), never computed; when two such sets disagree, nothing
+is copied. A data type that is not a quantity measure
+(`IFCPOSITIVELENGTHMEASURE`, which an `IfcQuantityLength` never holds) is
+refused with that reason.
+
+**Quantities measured from geometry (2026-11-21).** Revit and many other
+exports carry no quantity sets at all, so a `Qto_` requirement had nothing to
+copy and went to the table. Tick *Measure missing Qto_ volumes and areas from
+each element's geometry* on the page (or add `--from-geometry` to `--fill`) and
+quantities no set holds are measured from the element's own body by
+[IFC Quantity Takeoff](../ifc-quantity-takeoff/)'s engine
+(`geometry-quantities.mjs`):
+
+| Quantity | Elements | What is measured |
+| --- | --- | --- |
+| `GrossVolume`, `NetVolume` | any with a body | the body; net less its openings, only when every opening could be cut |
+| `GrossSideArea`, `NetSideArea` | walls | the wall's middle plane |
+| `GrossFootprintArea`, `NetFootprintArea` | walls | the plan at the wall's base |
+| `Width` | walls | the thickness |
+| `GrossArea`, `NetArea` | slabs, plates, coverings, roofs | the extruded profile |
+| `CrossSectionArea` | columns, beams, members, piles | the section at mid-length |
+| `Length` | walls (direction from a straight `Axis`, or from the body's side faces when there is none; extruded or brep bodies) | along that direction, on the plane halfway through the thickness, at the longest level |
+| `Height` | the same walls | the extrusion depth; none when a roof or slab clips the wall, and on a brep only when its top is level |
+
+**Wall Length and Height (2026-11-21).** The `Axis` curve's own length is not
+the wall's length: ARCHICAD draws it on the reference line, often a face, so
+FZK-Haus's 4.17 m wall has a 4.59 m axis. The axis gives the direction and
+the length is measured on the body's middle plane. On five models that store
+both (three Revit, two ARCHICAD), 465 of 492 lengths are within 2% (the axis
+curve's own length: 370), and 19 of the other 27 are stored lengths that
+disagree with the same exporter's side area and height. Heights are offered
+only where the extrusion depth and the clipped wall's tallest point agree
+(Revit stores one, ARCHICAD the other): 476 of 476 offered heights match.
+Filling walls' `Length` and `Height` on five models wrote 758 values, every
+one passing here and in IfcTester (`eval/wall-axis-lengths-2026-11-21.md`).
+
+**Brep walls and walls with no Axis (2026-11-21).** A faceted body is read
+through its closed shells (the takeoff's `asTerms`), and a wall with no
+`Axis` takes its direction from its side faces. Held out on the same 492
+walls, both give the axis reading's length on 492 of 492; read as fanned
+breps, the level-top rule offers 419 heights, all 419 within 2%. On the 15
+public models, 3,247 of 3,312 walls are now measured (2,955 before), and
+filling `Length` and `Height` on the seven models this reaches leaves 100
+walls failing instead of 305, all 3,478 written values passing here and in
+IfcTester (`eval/wall-brep-lengths-2026-11-21.md`).
+Other lengths and heights (beams, members, curved walls) are not measured. A value from the model's
+own quantity sets always wins over a measured one, and a measured value still
+has to pass every facet that names it. Values are written to six significant
+figures in the model's units. How close they come: on the two HHS Office
+exports that do store these quantities, 3,666 of 3,858 measured values are
+within 2% of the stored ones, and IFC Quantity Takeoff's own cause finder
+traces all but 2 of the other 192 to the stored figure (a split wall carrying
+the whole wall's value, a net volume stored as gross, half a member's surface
+stored as its cross-section). On Schultz Residence, a Revit export with no
+quantity sets, a cost-estimating IDS written for this check
+(`eval/qto-from-geometry/base-quantities.ids.xml`) went from 225 failing elements
+to 4 (`eval/qto-from-geometry-2026-11-21.md`).
+
+**Attributes (2026-11-21).** A failing attribute requirement (`Description`,
+`ObjectType`, `Tag`, `LongName`, a `PredefinedType` left `$`) is written into the
+element's own record when the attribute is unset (`$` or `''`): the value the
+IDS fixes, or one typed into the table, whose *PropertySet* column reads
+`(attribute)` for these rows. Enumerations take one of the type's own values
+(`partitioning` is written `.PARTITIONING.`, `BANANA` is refused with the list).
+An attribute that already holds a value is never overwritten, even a wrong one:
+that is a modelling decision. Numbers are written as given, because attribute
+values are compared in the model's own units, by this checker and IfcTester.
+A GlobalId, derived, list or object attribute, or one the IDS names by a
+pattern, is counted in the summary, not listed in the table.
+
+Not written: classifications, materials and relationships (counted in the
+summary), a set or property the IDS names by a pattern, and two specifications
+asking different values for one property (the table says which). ifcXML,
+ifcJSON and IFC5 files are checked but not written.
 
 How it was checked: on 4 real exports against 65 public IDS files and the 3
 starter files, every written value read back passes its facet, the lines that
@@ -1598,8 +1680,9 @@ faster than IfcTester; its point is needing no install.
 
 ## Limitations
 
-- The model fill (`--fill`, 2026-11-21) writes property values only, into STEP
-  files only, and decodes the file as one string (models up to about 500 MB).
+- The model fill (`--fill`, 2026-11-21) writes property values, quantities and
+  unset attributes only, into STEP files only, never computes a quantity from
+  geometry (`ifc-quantity-takeoff` does that; it is not wired in), and decodes the file as one string (models up to about 500 MB).
   It writes `IfcPropertySingleValue`s; a property the model holds as a list,
   bounded or enumerated value is replaced by a single value in the element's
   set. It has been run on four real exports, not yet on a BIM manager's own

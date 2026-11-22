@@ -1127,6 +1127,18 @@ class Feeder:
     cable_clip_dir_deg: float = 90.0  # head frame: the loop leaves the clip this way (90 = up, toward the ball path)
     cable_clamp_z: float = 420.0      # fixed clamp on the turntable axis, under the mast plate: the twist runs from here
     bearing_bore_d: float = 60.0      # lazy-susan bearing's open centre (assumption: read yours)
+    # The bearing's two rings (2026-11-21, `bearing_design`): two pressed-steel flanges stacked with the balls between,
+    # each flange `bearing_ring_t` thick, its race a band at `bearing_race_r`; each ring has four M5 holes on the bolt
+    # circle and one access hole on it, as a stacked lazy-susan has (all assumptions: read your bearing's drawing).
+    bearing_ring_t: float = 2.0       # flange thickness, mm
+    bearing_race_r: float = 70.5      # race band's centre radius, mm
+    bearing_race_w: float = 5.0       # race band's width, mm
+    bearing_race_gap: float = 0.5     # the race bands' halves stand this far apart (the balls, not drawn, fill it)
+    bearing_bolt_r: float = 60.0      # both rings' bolt circle (fixed ring at 0, 90, 180, 270 deg; turning at 45 + 90k)
+    bearing_access_d: float = 12.0    # access hole in each ring, and in the mast plate under the fixed ring's
+    bearing_access_turn_deg: float = 180.0   # turning ring's access hole, at azimuth 0: over a fixed-ring bolt
+    bearing_access_fixed_deg: float = 225.0  # fixed ring's (and the mast plate's) access hole: under a turning-ring bolt
+    bearing_screw_len: float = 16.0   # M5 button head + nyloc, both rings
     electronics_x: float = -600.0     # ESP32, ESCs and the servo's buck on the deck's M3 grid, behind the battery
     servo_supply_v: float = 6.0       # buck output for the shuttle servo (standard-size servos take 4.8 to 6.8 V)
     servo_stall_v: float = 5.0        # the voltage `servo_stall_nm` is quoted at
@@ -2128,6 +2140,7 @@ class Feeder:
         bad += self.check_launch()
         bad += self.check_azimuth()
         bad += self.check_home_switch()
+        bad += self.check_bearing()
         bad += self.check_az_stops()
         bad += self.check_cables()
         bad += self.check_deck_cables()
@@ -2415,6 +2428,53 @@ class Feeder:
             bad.append("home switch is taller than the bearing gap")
         if abs((self.home_sw_deg - 90.0 + 180) % 360 - 180) < 25:
             bad.append("home switch sits by the pinion")
+        return bad
+
+    # ---- turntable bearing's rings and screws (2026-11-21) ----------------------
+
+    def bearing_design(self) -> dict:
+        """The lazy-susan's two rings and their eight M5 screws. Both rings' screw heads sit in the gap between the
+        flanges: the fixed ring's screws go down through it and the mast plate (nyloc under the plate, head reached
+        through the turning ring's access hole), the turning ring's up through it and the turntable plate (head reached
+        from below through the mast plate's and the fixed ring's access holes, nyloc on the plate). The heads pass
+        each other as the turntable turns, so the gap must hold two heads."""
+        t, d = self.bearing_ring_t, 5
+        gap = self.bearing_h - 2 * t
+        head_k, head_d = 2.75, 9.5                          # ISO 7380 M5 button head, mm
+        nyloc, pitch = 5.0, 0.8                             # DIN 985 M5
+        grip = t + self.plate_t
+        past = self.bearing_screw_len - grip
+        need = nyloc + 2 * pitch
+        # the gap at the heads' radius: between the flanges, inside the race band
+        r_head_out = self.bearing_bolt_r + head_d / 2
+        r_race_in = self.bearing_race_r - self.bearing_race_w / 2
+        return {
+            "gap_mm": gap, "head_pass_mm": gap - 2 * head_k, "grip_mm": grip, "past_mm": past, "need_mm": need,
+            "head_to_race_mm": r_race_in - r_head_out,
+            "access_clear_mm": (self.bearing_access_d - head_d) / 2,
+            "access_to_race_mm": r_race_in - (self.bearing_bolt_r + self.bearing_access_d / 2),
+            "access_to_bore_mm": self.bearing_bolt_r - self.bearing_access_d / 2 - self.bearing_bore_d / 2,
+            "old_past_mm": 12.0 - grip, "old_nut_need_mm": 4.7 + 2 * pitch,   # the M5 x 12 + ISO 4032 nut it replaced
+            "tail_top_z": self.turntable_top + past,
+        }
+
+    def check_bearing(self) -> list[str]:
+        bad = []
+        b = self.bearing_design()
+        if b["head_pass_mm"] < 0.3:
+            bad.append(f"turntable bearing: the two rings' M5 heads pass {b['head_pass_mm']:.2f} mm apart in the "
+                       f"{b['gap_mm']:.1f} mm gap (0.3 needed)")
+        if b["past_mm"] < b["need_mm"]:
+            bad.append(f"turntable bearing: M5 x {self.bearing_screw_len:g} leaves {b['past_mm']:g} mm past the "
+                       f"{b['grip_mm']:g} mm stack, {b['need_mm']:g} needed for the nyloc and two threads")
+        if b["head_to_race_mm"] < 1.0:
+            bad.append("turntable bearing: the screw heads reach the race band")
+        if b["access_clear_mm"] < 0.5:
+            bad.append("turntable bearing: an M5 button head does not pass the access hole")
+        if b["access_to_race_mm"] < 1.0 or b["access_to_bore_mm"] < 1.0:
+            bad.append("turntable bearing: the access hole breaks into the race or the bore")
+        if self.bearing_race_r + self.bearing_race_w / 2 > self.bearing_d / 2 - 0.5:
+            bad.append("turntable bearing: the race band runs off the rings")
         return bad
 
     # ---- azimuth hard stops (2026-11-12) --------------------------------------

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKkKZcQ3ruJ8fnnt8cg",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T23:18:54Z",
+  "ended": "2026-11-21T23:22:27Z",
+  "wall_minutes": 3.71,
+  "tokens_in": 3529003,
+  "tokens_out": 15200,
+  "cost_usd": 1.7469,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18160",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "A buildable/next refusal listed a landed clause from the run's own NEW under 'Cut these before anyone's open items' with 'keep: (nothing; cut the clause)', so the run could not tell the clause was its own (PR #18147's record). Fixed in this PR."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Verify mode asks for a result on done items (P071), but the backlog lives under /prompts/, which CODEOWNERS gates, so a process run cannot record a verification in the same PR as its non-control-plane fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Verify mode would write P071's result to the backlog, which is owner-gated (CODEOWNERS /prompts/).",
+      "did": "Measured it anyway: 0 HISTORY-misfile reports in 21 Nov records from runs started after #18076 merged at 11:24Z, against 5 before. Wrote that in the post and PR body only.",
+      "result": "The fix stays in this PR, which reviewers can land without the owner. P071's result still needs writing to the backlog."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-the-clause-it-told-you-to-cut-was-yours.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog has owner rows only). Skipped venture-preflight friction: open PR #18093 already covers it. Backlog ids touched: none edited (P071 measured, not written). Checks: pytest test_flagship_field.py 108 passed (new test fails on old code); main_health.py 307/307 on main; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ec70043b-0f83-5772-8311-d7589c2786de",
+    "transcripts": 1,
+    "first": "2026-11-21T23:18:54Z",
+    "last": "2026-11-21T23:22:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 70,
+        "output": 15200,
+        "thinking": 3597,
+        "cache_read": 3434464,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94469,
+        "api_equivalent_usd": 1.7469,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 70,
+      "output": 15200,
+      "thinking": 3597,
+      "cache_read": 3434464,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94469,
+      "api_equivalent_usd": 1.7469,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.71,
+      "active_minutes": 3.71,
+      "model_minutes": 2.99,
+      "tool_minutes": 0.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "reproduce a CLI message bug, patch, test, short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 85.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

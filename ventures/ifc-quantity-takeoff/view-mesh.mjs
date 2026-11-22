@@ -150,6 +150,87 @@ function withHoles(loops) {
   return outers;
 }
 
+// How far (as a share of a loop's box diagonal) a simplified outline may
+// stray from the sampled one. 5e-4 leaves a round tube's circles at about 60
+// sides (from 360), the ring's area within about 0.1%, so the drawn solid
+// still encloses the computed volume inside the 0.5% the view's check
+// allows. Display only: quantities never come from these meshes.
+export const DISPLAY_TOLERANCE = 5e-4;
+// below this many points a loop is left as it is
+const THIN_MIN_POINTS = 24;
+// the simplified loops' total area must stay this close to the original's
+const THIN_MAX_AREA_CHANGE = 2e-3;
+
+// Douglas-Peucker on a closed 2D loop, split at its first point and the
+// point farthest from it; the loop's winding is kept
+function simplifyLoop(P, tol) {
+  const n = P.length;
+  let far = 0, fd = -1;
+  for (let i = 1; i < n; i++) { const d = Math.hypot(P[i][0] - P[0][0], P[i][1] - P[0][1]); if (d > fd) { fd = d; far = i; } }
+  const keep = new Uint8Array(n);
+  keep[0] = keep[far] = 1;
+  const stack = [[0, far], [far, n]];
+  while (stack.length) {
+    const [i, j] = stack.pop();
+    if (j - i < 2) continue;
+    const a = P[i], b = P[j % n];
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+    let best = -1, bd = -1;
+    for (let k = i + 1; k < j; k++) {
+      const p = P[k];
+      const d = L > 0 ? Math.abs(dx * (p[1] - a[1]) - dy * (p[0] - a[0])) / L : Math.hypot(p[0] - a[0], p[1] - a[1]);
+      if (d > bd) { bd = d; best = k; }
+    }
+    if (bd > tol) { keep[best] = 1; stack.push([i, best], [best, j]); }
+  }
+  const out = [];
+  for (let i = 0; i < n; i++) if (keep[i]) out.push(P[i]);
+  return out;
+}
+
+/**
+ * A profile's outline loops with fewer points for drawing, or null when
+ * nothing would change or the result is not safe to draw (the area moved
+ * more than THIN_MAX_AREA_CHANGE, or two edges now cross).
+ */
+export function thinLoops(loops, tolerance = DISPLAY_TOLERANCE) {
+  if (!loops.some((l) => l.length > THIN_MIN_POINTS)) return null;
+  let changed = false;
+  const out = loops.map((l) => {
+    if (l.length <= THIN_MIN_POINTS) return l;
+    const b = boxOf(l.map((p) => [p[0], p[1], 0]));
+    const s = simplifyLoop(l, tolerance * Math.hypot(b[3] - b[0], b[4] - b[1]));
+    if (s.length < 3 || s.length === l.length) return l;
+    changed = true;
+    // scaled about its centroid back to the loop's own area, as geom.mjs
+    // gives a sampled circle its area-preserving radius: an inscribed polygon
+    // is ~0.1% small, which on a thin tube's ring is several per cent of the
+    // wall (CHS walls of 1.4 mm on 85 mm in the Tekla Mini Project)
+    const a0 = area2(l), a1 = area2(s);
+    if (!(a0 / a1 > 0)) return s;
+    const k = Math.sqrt(a0 / a1);
+    let cx = 0, cy = 0;
+    for (let i = 0; i < s.length; i++) { const p = s[i], q = s[(i + 1) % s.length], c = p[0] * q[1] - q[0] * p[1]; cx += (p[0] + q[0]) * c; cy += (p[1] + q[1]) * c; }
+    cx /= 6 * a1; cy /= 6 * a1;
+    return s.map(([x, y]) => [cx + (x - cx) * k, cy + (y - cy) * k]);
+  });
+  if (!changed) return null;
+  const A0 = loops.reduce((t, l) => t + area2(l), 0), A1 = out.reduce((t, l) => t + area2(l), 0);
+  if (!(Math.abs(A1 - A0) <= THIN_MAX_AREA_CHANGE * Math.abs(A0))) return null;
+  // no two edges of the simplified outline may cross (DP can fold a loop
+  // onto itself or onto a neighbouring loop when they run close)
+  const E = [];
+  for (const l of out) for (let i = 0; i < l.length; i++) E.push([l[i], l[(i + 1) % l.length]]);
+  if (E.length > 4000) return null;
+  const eb = E.map(([a, b]) => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1])]);
+  for (let i = 0; i < E.length; i++) for (let j = i + 1; j < E.length; j++) {
+    const p = eb[i], q = eb[j];
+    if (p[0] > q[2] || q[0] > p[2] || p[1] > q[3] || q[1] > p[3]) continue;
+    if (segX(E[i][0], E[i][1], E[j][0], E[j][1])) return null;
+  }
+  return out;
+}
+
 /**
  * The boundary of a signed sum of prisms that all share one base plane and
  * one extrusion vector (a concave profile fanned into signed triangles, its
@@ -238,8 +319,26 @@ export function prismFamily(terms) {
   // caps: when the edges close into loops that all wind the same way (no
   // holes), each loop is one polygon; otherwise trapezoids of positive winding
   // between consecutive abscissae
-  const loops = edgeLoops(bound, key);
-  const polys = loops && withHoles(loops);
+  let loops = edgeLoops(bound, key);
+  // fewer outline points for display: geom.mjs samples arcs at 360 to the
+  // turn, which makes a round tube ~2,900 triangles; the loops' sides are
+  // rebuilt from the simplified points so sides and caps still meet
+  const thin = loops && thinLoops(loops);
+  const thinPolys = thin && withHoles(thin);
+  if (thinPolys) {
+    loops = thin;
+    faces.length = 0;
+    for (const l of loops) for (let i = 0; i < l.length; i++) {
+      const a = l[i], b = l[(i + 1) % l.length];
+      const A = to3(a[0], a[1]), B = to3(b[0], b[1]);
+      let quad = [A, B, [B[0] + v[0], B[1] + v[1], B[2] + v[2]], [A[0] + v[0], A[1] + v[1], A[2] + v[2]]];
+      const dx = b[0] - a[0], dy = b[1] - a[1];
+      const right = [dy * u[0] - dx * w[0], dy * u[1] - dx * w[1], dy * u[2] - dx * w[2]];
+      if (dot(newell(quad), right) < 0) quad = quad.reverse();
+      faces.push(quad);
+    }
+  }
+  const polys = thinPolys || (loops && withHoles(loops));
   if (polys) {
     for (const l of polys) {
       let bot = l.map(([x, y]) => to3(x, y));

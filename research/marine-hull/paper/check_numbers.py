@@ -235,6 +235,21 @@ CLAIMS = [
     ("results_nearfield_monohull_bands.txt", "8-1e+09 0.907"),
     ("results_nearfield_monohull_splice.txt", "row NF0 2.0 3.482 -4.12"),
     ("results_nearfield_monohull_splice.txt", "row NF 2.0 4.977 -5.77"),
+    # milestone 7zu: the long-wave residual and the Pinkster terms
+    ("results_nearfield_longwave.txt", "(1/2) we Bv k |z|^2 19.62 (ratio 1.014"),
+    ("results_nearfield_longwave.txt", "row NF0-P 2.573 -3.08"),
+    ("results_nearfield_longwave.txt", "row NF-P 3.930 -4.62"),
+    ("results_nearfield_longwave.txt", "row NF-PG 2.531 -3.04"),
+    ("results_nearfield_longwave.txt", "NF-PG 0.934"),
+    ("results_nearfield_longwave.txt", "NF-PG: rms 0.229"),
+    ("results_nearfield_longwave.txt", "I NF-PG vs NF-P -33.5%"),
+    # milestone 7zv: grid convergence of the X . grad p term
+    ("results_nearfield_convergence.txt", "16 -> 24 panels +2.36%, 30 -> 60 stations +0.44%"),
+    ("results_nearfield_convergence.txt", "P24 S30: GB+F 0.709 NF-P 1.094 NF0-P 0.765 NF-PG 0.723"),
+    ("results_nearfield_convergence.txt", "P16 S60: GB+F 0.703 NF-P 1.080 NF0-P 0.755 NF-PG 0.720"),
+    ("results_nearfield_convergence.txt", "S60 -0.008299 (-0.8%"),
+    ("results_nearfield_convergence_b24.txt", "row P24 S40 GB motion 2.855 N loss30W_share025 3.41%"),
+    ("results_nearfield_convergence_b24.txt", "row P24 S40 NF-PG motion 2.556 N loss30W_share025 3.06%"),
 
 ]
 

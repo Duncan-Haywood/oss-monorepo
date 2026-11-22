@@ -1,0 +1,5966 @@
+{
+ "AC20-FZK-Haus.ifc": {
+  "walls": 13,
+  "measured": {
+   "axis, extruded": 13,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 11,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 13,
+   "axisWithin2": 13,
+   "bodyWithin2": 13,
+   "bodyNone": 0,
+   "sameAsAxis": 13,
+   "heightSame": 13,
+   "heightBoth": 13
+  },
+  "facetedHeldOut": {
+   "stored": 13,
+   "none": 0,
+   "within2": 13,
+   "sameAsExtruded": 13,
+   "heightStored": 13,
+   "heightOffered": 9,
+   "heightWithin2": 9
+  },
+  "revit": {},
+  "seconds": 0.327,
+  "misses": []
+ },
+ "C20-Institute-Var-2.ifc": {
+  "walls": 121,
+  "measured": {
+   "axis, extruded": 121,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 112,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 121,
+   "axisWithin2": 121,
+   "bodyWithin2": 121,
+   "bodyNone": 0,
+   "sameAsAxis": 121,
+   "heightSame": 121,
+   "heightBoth": 121
+  },
+  "facetedHeldOut": {
+   "stored": 121,
+   "none": 0,
+   "within2": 121,
+   "sameAsExtruded": 121,
+   "heightStored": 121,
+   "heightOffered": 111,
+   "heightWithin2": 111
+  },
+  "revit": {},
+  "seconds": 0.902,
+  "misses": []
+ },
+ "FM_ARC_DigitalHub.ifc": {
+  "walls": 178,
+  "measured": {
+   "axis, extruded": 178,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 178,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {},
+  "seconds": 12.582,
+  "misses": []
+ },
+ "ISSUE_034_HouseZ.ifc": {
+  "walls": 140,
+  "measured": {
+   "axis, extruded": 0,
+   "axis, faceted": 0,
+   "body, extruded": 4,
+   "body, faceted": 130
+  },
+  "heightsOffered": {
+   "axis, extruded": 0,
+   "axis, faceted": 0,
+   "body, extruded": 4,
+   "body, faceted": 91
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {},
+  "seconds": 0.71,
+  "misses": []
+ },
+ "ISSUE_126_model.ifc": {
+  "walls": 65,
+  "measured": {
+   "axis, extruded": 57,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 57,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {},
+  "seconds": 0.316,
+  "misses": []
+ },
+ "ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc": {
+  "walls": 336,
+  "measured": {
+   "axis, extruded": 204,
+   "axis, faceted": 31,
+   "body, extruded": 89,
+   "body, faceted": 9
+  },
+  "heightsOffered": {
+   "axis, extruded": 204,
+   "axis, faceted": 17,
+   "body, extruded": 89,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {
+   "axis, faceted": {
+    "with": 31,
+    "within2": 4,
+    "joinGap": 4
+   },
+   "axis, extruded": {
+    "with": 204,
+    "within2": 117,
+    "joinGap": 48
+   },
+   "body, extruded": {
+    "with": 89,
+    "within2": 60,
+    "joinGap": 2
+   },
+   "body, faceted": {
+    "with": 9,
+    "within2": 1
+   }
+  },
+  "seconds": 5.539,
+  "misses": [
+   [
+    "Revit length",
+    "axis, faceted",
+    5221,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1559486",
+    "6.728",
+    "7.631"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    6253,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1559791",
+    "6.728",
+    "8.031"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    6633,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-800:1560718",
+    "6.276",
+    "7.757"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    6891,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-800:1560867",
+    "7.281",
+    "7.757"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    8434,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-250:1562868",
+    "8.078",
+    "8.303"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    8653,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1562870",
+    "6.728",
+    "7.631"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    8756,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-250:1562872",
+    "8.078",
+    "8.303"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    8947,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1562874",
+    "6.729",
+    "7.632"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    9956,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-250:1572029",
+    "8.078",
+    "8.303"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    10612,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1572031",
+    "6.728",
+    "7.640"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    10927,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-250:1572033",
+    "8.078",
+    "8.303"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    11115,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1572035",
+    "6.728",
+    "7.631"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    11818,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1572041",
+    "6.511",
+    "7.415"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    12204,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1572043",
+    "6.422",
+    "7.414"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    34845,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-400:1598707",
+    "7.189",
+    "6.989"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    35652,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-400:1598787",
+    "10.636",
+    "13.723"
+   ],
+   [
+    "Revit length",
+    "body, faceted",
+    36619,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-400:1598867",
+    "6.785",
+    "6.989"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    36735,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-1800:1599983",
+    "34.987",
+    "60.633"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    56016,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1631691",
+    "32.014",
+    "32.783"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    56391,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1631760",
+    "6.800",
+    "8.100"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    56811,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1631835",
+    "6.800",
+    "8.100"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    56943,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1635377",
+    "6.728",
+    "7.631"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    57084,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1635379",
+    "6.728",
+    "7.631"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    57488,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1635869",
+    "6.422",
+    "7.414"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    57776,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1694167",
+    "6.509",
+    "7.414"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    61300,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-800:1838999",
+    "12.787",
+    "17.412"
+   ],
+   [
+    "Revit length",
+    "body, faceted",
+    63040,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-800:1839704",
+    "13.393",
+    "17.412"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    63326,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1841152",
+    "0.815",
+    "1.868"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    69961,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1863074",
+    "3.700",
+    "3.810"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    80983,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1869440",
+    "32.011",
+    "32.781"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    81400,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1869446",
+    "0.812",
+    "1.865"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    82423,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1873872",
+    "13.934",
+    "14.627"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    137652,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:1977293",
+    "6.800",
+    "7.950"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    138027,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:1977499",
+    "9.275",
+    "10.558"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    138308,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:1977642",
+    "9.275",
+    "10.558"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    138516,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:1977959",
+    "6.800",
+    "7.950"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    138693,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-400:1978274",
+    "6.420",
+    "7.191"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    139113,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-400:1978511",
+    "6.419",
+    "7.191"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    139571,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-300:1980827",
+    "7.720",
+    "7.920"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    145078,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-300:1989540",
+    "0.764",
+    "0.563"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    146205,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:1991634",
+    "5.148",
+    "5.390"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    148665,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-1800:2061281",
+    "34.987",
+    "60.633"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    158068,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2183198",
+    "0.500",
+    "0.455"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    158686,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2183629",
+    "0.500",
+    "0.396"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    163366,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2200870",
+    "5.083",
+    "5.438"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    163496,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-MACONNERIE-200:2202029",
+    "5.616",
+    "6.152"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    163863,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2219418",
+    "3.330",
+    "3.580"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    164227,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2219781",
+    "3.350",
+    "3.600"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    164815,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2249516",
+    "0.500",
+    "0.455"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    165754,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2249532",
+    "5.083",
+    "5.438"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    165871,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-MACONNERIE-200:2249534",
+    "5.771",
+    "6.440"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    193872,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2380795",
+    "1.138",
+    "1.313"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    195081,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2380905",
+    "1.538",
+    "1.288"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    231582,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2402865",
+    "3.311",
+    "3.800"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    231815,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2402867",
+    "3.315",
+    "3.554"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    232133,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2402869",
+    "3.550",
+    "3.800"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    232254,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2402871",
+    "3.313",
+    "3.563"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    232369,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2402988",
+    "0.500",
+    "0.455"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    232486,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2402990",
+    "1.092",
+    "1.267"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    232604,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2402992",
+    "5.083",
+    "5.438"
+   ],
+   [
+    "Revit length",
+    "body, faceted",
+    233191,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-MACONNERIE-200:2402994",
+    "5.958",
+    "6.440"
+   ],
+   [
+    "Revit length",
+    "body, faceted",
+    235607,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2428514",
+    "8.037",
+    "9.098"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    236277,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2429771",
+    "3.300",
+    "3.557"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    236394,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2429773",
+    "3.300",
+    "3.555"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    237177,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2432930",
+    "3.356",
+    "3.824"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    237327,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2432940",
+    "3.356",
+    "3.824"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    237445,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2434721",
+    "15.020",
+    "21.839"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    237623,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2434727",
+    "10.031",
+    "12.724"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    241876,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2436802",
+    "5.083",
+    "5.438"
+   ],
+   [
+    "Revit length",
+    "body, faceted",
+    242463,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-MACONNERIE-200:2436804",
+    "5.958",
+    "6.440"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    245253,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2445192",
+    "0.500",
+    "0.455"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    247516,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2473852",
+    "5.393",
+    "5.658"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    247642,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2473862",
+    "5.393",
+    "5.658"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    248529,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2476021",
+    "5.083",
+    "5.438"
+   ],
+   [
+    "Revit length",
+    "body, faceted",
+    249057,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-MACONNERIE-200:2476023",
+    "5.649",
+    "6.245"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    249197,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2482055",
+    "3.313",
+    "3.803"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    249342,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2482057",
+    "1.474",
+    "1.224"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    250034,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2489038",
+    "3.311",
+    "3.799"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    250820,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2502301",
+    "5.593",
+    "5.758"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    250960,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2502527",
+    "5.593",
+    "5.758"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    251644,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2522310",
+    "0.500",
+    "0.455"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    252414,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2524510",
+    "3.302",
+    "3.552"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    258153,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-800:2540278",
+    "6.276",
+    "7.757"
+   ],
+   [
+    "Revit length",
+    "body, faceted",
+    260050,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-800:2540383",
+    "13.371",
+    "17.412"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    260624,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-800:2540761",
+    "7.282",
+    "7.757"
+   ],
+   [
+    "Revit length",
+    "body, faceted",
+    270736,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-800:2540763",
+    "12.953",
+    "17.412"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    271478,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-200:2565593",
+    "3.450",
+    "3.950"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    294226,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2684350",
+    "3.356",
+    "3.824"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    294360,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2684352",
+    "3.356",
+    "3.824"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    294474,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-500:2685061",
+    "0.500",
+    "0.455"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    299562,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-250:2855215",
+    "0.415",
+    "0.570"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    300559,
+    "Mur de base:IGC_MUR_Remplissage en maçonnerie temporaire - Ext. 300 mm:2886135",
+    "7.865",
+    "8.115"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    300643,
+    "Mur de base:IGC_MUR_Remplissage en maçonnerie temporaire - Ext. 400 mm:2886608",
+    "1.492",
+    "1.643"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    300794,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-350:2919387",
+    "3.302",
+    "3.380"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    306746,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-400:3016052",
+    "4.255",
+    "3.851"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    349478,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-400:3730532",
+    "2.976",
+    "3.867"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    350024,
+    "Mur de base:IGC_MUR_EGC-TUN-VOILE-400:3734902",
+    "2.576",
+    "3.867"
+   ]
+  ]
+ },
+ "ISSUE_159_kleine_Wohnung_R22.ifc": {
+  "walls": 211,
+  "measured": {
+   "axis, extruded": 210,
+   "axis, faceted": 1,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 210,
+   "axis, faceted": 1,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 210,
+   "axisWithin2": 210,
+   "bodyWithin2": 210,
+   "bodyNone": 0,
+   "sameAsAxis": 210,
+   "heightSame": 210,
+   "heightBoth": 210
+  },
+  "facetedHeldOut": {
+   "stored": 210,
+   "none": 0,
+   "within2": 210,
+   "sameAsExtruded": 210,
+   "heightStored": 210,
+   "heightOffered": 165,
+   "heightWithin2": 165
+  },
+  "revit": {},
+  "seconds": 5.039,
+  "misses": []
+ },
+ "Office_A_20110811.ifc": {
+  "walls": 487,
+  "measured": {
+   "axis, extruded": 487,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 487,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {
+   "axis, extruded": {
+    "with": 487,
+    "within2": 208,
+    "joinGap": 108
+   }
+  },
+  "seconds": 0.773,
+  "misses": [
+   [
+    "Revit length",
+    "axis, extruded",
+    206,
+    "Basic Wall:Interior - Plumbing (152mm Stud):225695",
+    "1.100",
+    "1.038"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    219,
+    "Basic Wall:Interior - Plumbing (152mm Stud):225782",
+    "2.105",
+    "2.167"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    226,
+    "Basic Wall:Interior - Furring (38 mm Stud):169413",
+    "4.442",
+    "4.636"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    248,
+    "Basic Wall:Interior - Partition (92mm Stud):142560",
+    "3.527",
+    "3.740"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    250,
+    "Basic Wall:Interior - Furring (38 mm Stud):149947",
+    "0.268",
+    "0.365"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    281,
+    "Basic Wall:Interior - Partition (92mm Stud):145477",
+    "6.045",
+    "6.258"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    287,
+    "Basic Wall:Interior - Partition (92mm Stud):150250",
+    "0.570",
+    "0.662"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    312,
+    "Basic Wall:Interior - Partition (92mm Stud):157794",
+    "3.933",
+    "4.146"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    315,
+    "Basic Wall:Interior - Furring (38 mm Stud):228497",
+    "0.284",
+    "0.462"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    317,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):165583",
+    "2.968",
+    "3.181"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    321,
+    "Basic Wall:Interior - Furring (38 mm Stud):161271",
+    "0.466",
+    "0.555"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    324,
+    "Basic Wall:Interior - Furring (38 mm Stud):153896",
+    "0.333",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    325,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):170242",
+    "2.968",
+    "3.181"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    328,
+    "Basic Wall:Interior - Furring (38 mm Stud):161109",
+    "0.146",
+    "0.270"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    329,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):175555",
+    "2.179",
+    "2.268"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    352,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):217351",
+    "2.540",
+    "2.699"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    357,
+    "Basic Wall:Interior - Furring (38 mm Stud):228693",
+    "0.306",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    358,
+    "Basic Wall:Interior - Furring (38 mm Stud):228680",
+    "0.142",
+    "0.266"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    362,
+    "Basic Wall:Interior - Partition (92mm Stud):155592",
+    "6.602",
+    "6.815"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    372,
+    "Basic Wall:Interior - Furring (38 mm Stud):157111",
+    "0.390",
+    "0.455"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    410,
+    "Basic Wall:Interior - Furring (38 mm Stud):228524",
+    "0.286",
+    "0.464"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    411,
+    "Basic Wall:Interior - Partition (92mm Stud):143195",
+    "3.527",
+    "3.740"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    427,
+    "Basic Wall:Interior - Furring (38 mm Stud):147514",
+    "0.444",
+    "0.533"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    438,
+    "Basic Wall:Interior - Partition (92mm Stud):247482",
+    "0.920",
+    "0.947"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    440,
+    "Basic Wall:Interior - Plumbing (152mm Stud):222097",
+    "0.915",
+    "0.977"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    447,
+    "Basic Wall:Interior - Partition (92mm Stud):157691",
+    "3.933",
+    "4.146"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    448,
+    "Basic Wall:Interior - Partition (92mm Stud):157846",
+    "3.933",
+    "4.146"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    449,
+    "Basic Wall:Interior - Partition (92mm Stud):153576",
+    "4.333",
+    "4.546"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    451,
+    "Basic Wall:Interior - Partition (92mm Stud):153629",
+    "4.333",
+    "4.546"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    452,
+    "Basic Wall:Interior - Partition (92mm Stud):153807",
+    "4.333",
+    "4.546"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    453,
+    "Basic Wall:Interior - Partition (92mm Stud):157495",
+    "3.593",
+    "3.682"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    559,
+    "Basic Wall:Interior - Furring (38 mm Stud):148403",
+    "0.444",
+    "0.479"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    560,
+    "Basic Wall:Interior - Furring (38 mm Stud):165246",
+    "0.419",
+    "0.508"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    561,
+    "Basic Wall:Interior - Furring (38 mm Stud):148264",
+    "0.390",
+    "0.479"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    562,
+    "Basic Wall:Interior - Furring (38 mm Stud):164875",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    563,
+    "Basic Wall:Interior - Furring (38 mm Stud):201364",
+    "0.306",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    564,
+    "Basic Wall:Interior - Furring (38 mm Stud):147340",
+    "0.370",
+    "0.459"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    565,
+    "Basic Wall:Interior - Furring (38 mm Stud):164967",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    566,
+    "Basic Wall:Interior - Furring (38 mm Stud):197500",
+    "0.306",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    567,
+    "Basic Wall:Interior - Furring (38 mm Stud):201273",
+    "0.923",
+    "1.047"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    568,
+    "Basic Wall:Interior - Furring (38 mm Stud):165207",
+    "0.380",
+    "0.504"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    571,
+    "Basic Wall:Interior - Furring (38 mm Stud):148430",
+    "0.286",
+    "0.464"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    572,
+    "Basic Wall:Interior - Furring (38 mm Stud):228679",
+    "0.360",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    573,
+    "Basic Wall:Interior - Furring (38 mm Stud):156703",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    575,
+    "Basic Wall:Interior - Furring (38 mm Stud):156447",
+    "0.933",
+    "1.111"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    576,
+    "Basic Wall:Interior - Furring (38 mm Stud):145945",
+    "0.323",
+    "0.447"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    582,
+    "Basic Wall:Interior - Furring (38 mm Stud):143640",
+    "0.388",
+    "0.512"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    583,
+    "Basic Wall:Interior - Furring (38 mm Stud):147934",
+    "0.310",
+    "0.488"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    586,
+    "Basic Wall:Interior - Furring (38 mm Stud):167793",
+    "0.277",
+    "0.455"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    588,
+    "Basic Wall:Interior - Furring (38 mm Stud):165107",
+    "0.935",
+    "1.059"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    589,
+    "Basic Wall:Interior - Furring (38 mm Stud):177440",
+    "0.358",
+    "0.393"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    592,
+    "Basic Wall:Interior - Furring (38 mm Stud):147718",
+    "0.360",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    593,
+    "Basic Wall:Interior - Furring (38 mm Stud):156420",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    595,
+    "Basic Wall:Interior - Furring (38 mm Stud):164673",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    597,
+    "Basic Wall:Interior - Furring (38 mm Stud):146667",
+    "0.370",
+    "0.459"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    599,
+    "Basic Wall:Interior - Furring (38 mm Stud):166057",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    600,
+    "Basic Wall:Interior - Furring (38 mm Stud):165917",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    601,
+    "Basic Wall:Interior - Furring (38 mm Stud):166094",
+    "0.920",
+    "1.098"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    604,
+    "Basic Wall:Interior - Furring (38 mm Stud):141787",
+    "0.360",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    605,
+    "Basic Wall:Interior - Furring (38 mm Stud):165139",
+    "0.280",
+    "0.458"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    606,
+    "Basic Wall:Interior - Furring (38 mm Stud):196949",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    608,
+    "Basic Wall:Interior - Furring (38 mm Stud):165016",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    609,
+    "Basic Wall:Interior - Furring (38 mm Stud):147272",
+    "0.424",
+    "0.459"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    611,
+    "Basic Wall:Interior - Furring (38 mm Stud):196315",
+    "0.266",
+    "0.444"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    612,
+    "Basic Wall:Interior - Furring (38 mm Stud):147075",
+    "0.390",
+    "0.479"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    613,
+    "Basic Wall:Interior - Furring (38 mm Stud):164051",
+    "0.881",
+    "1.059"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    614,
+    "Basic Wall:Interior - Furring (38 mm Stud):201180",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    616,
+    "Basic Wall:Interior - Furring (38 mm Stud):177502",
+    "0.304",
+    "0.393"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    617,
+    "Basic Wall:Interior - Furring (38 mm Stud):163070",
+    "0.341",
+    "0.376"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    618,
+    "Basic Wall:Interior - Furring (38 mm Stud):163459",
+    "0.146",
+    "0.265"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    619,
+    "Basic Wall:Interior - Furring (38 mm Stud):197417",
+    "0.360",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    620,
+    "Basic Wall:Interior - Furring (38 mm Stud):145783",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    621,
+    "Basic Wall:Interior - Furring (38 mm Stud):164725",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    623,
+    "Basic Wall:Interior - Furring (38 mm Stud):146816",
+    "0.444",
+    "0.479"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    624,
+    "Basic Wall:Interior - Furring (38 mm Stud):196865",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    625,
+    "Basic Wall:Interior - Furring (38 mm Stud):161433",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    626,
+    "Basic Wall:Interior - Furring (38 mm Stud):148188",
+    "0.444",
+    "0.479"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    627,
+    "Basic Wall:Interior - Furring (38 mm Stud):143744",
+    "0.334",
+    "0.512"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    629,
+    "Basic Wall:Interior - Furring (38 mm Stud):176518",
+    "0.159",
+    "0.248"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    630,
+    "Basic Wall:Interior - Furring (38 mm Stud):147875",
+    "0.364",
+    "0.488"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    631,
+    "Basic Wall:Interior - Furring (38 mm Stud):176282",
+    "0.534",
+    "0.569"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    634,
+    "Basic Wall:Interior - Furring (38 mm Stud):176347",
+    "0.480",
+    "0.569"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    635,
+    "Basic Wall:Interior - Furring (38 mm Stud):166846",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    638,
+    "Basic Wall:Interior - Furring (38 mm Stud):151519",
+    "0.686",
+    "0.775"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    640,
+    "Basic Wall:Interior - Furring (38 mm Stud):176162",
+    "0.440",
+    "0.529"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    641,
+    "Basic Wall:Interior - Furring (38 mm Stud):167863",
+    "0.257",
+    "0.292"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    643,
+    "Basic Wall:Interior - Furring (38 mm Stud):165861",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    644,
+    "Basic Wall:Interior - Furring (38 mm Stud):171836",
+    "0.303",
+    "0.338"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    645,
+    "Basic Wall:Interior - Furring (38 mm Stud):167481",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    646,
+    "Basic Wall:Interior - Furring (38 mm Stud):147759",
+    "0.306",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    647,
+    "Basic Wall:Interior - Furring (38 mm Stud):166214",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    648,
+    "Basic Wall:Interior - Furring (38 mm Stud):167089",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    649,
+    "Basic Wall:Interior - Furring (38 mm Stud):176020",
+    "0.269",
+    "0.304"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    650,
+    "Basic Wall:Interior - Furring (38 mm Stud):162873",
+    "0.393",
+    "0.482"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    651,
+    "Basic Wall:Interior - Furring (38 mm Stud):166481",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    652,
+    "Basic Wall:Interior - Furring (38 mm Stud):159797",
+    "0.406",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    653,
+    "Basic Wall:Interior - Furring (38 mm Stud):163628",
+    "0.240",
+    "0.275"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    654,
+    "Basic Wall:Interior - Furring (38 mm Stud):228420",
+    "0.306",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    655,
+    "Basic Wall:Interior - Furring (38 mm Stud):144643",
+    "0.498",
+    "0.533"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    658,
+    "Basic Wall:Interior - Furring (38 mm Stud):146611",
+    "0.424",
+    "0.459"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    659,
+    "Basic Wall:Interior - Furring (38 mm Stud):168019",
+    "0.203",
+    "0.292"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    661,
+    "Basic Wall:Interior - Furring (38 mm Stud):146422",
+    "0.318",
+    "0.442"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    662,
+    "Basic Wall:Interior - Furring (38 mm Stud):141969",
+    "0.340",
+    "0.464"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    666,
+    "Basic Wall:Interior - Furring (38 mm Stud):176717",
+    "0.337",
+    "0.426"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    668,
+    "Basic Wall:Interior - Furring (38 mm Stud):161257",
+    "0.340",
+    "0.464"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    669,
+    "Basic Wall:Interior - Furring (38 mm Stud):166261",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    671,
+    "Basic Wall:Interior - Furring (38 mm Stud):164367",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    673,
+    "Basic Wall:Interior - Furring (38 mm Stud):176049",
+    "0.446",
+    "0.535"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    674,
+    "Basic Wall:Interior - Furring (38 mm Stud):146882",
+    "0.390",
+    "0.479"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    675,
+    "Basic Wall:Interior - Furring (38 mm Stud):163394",
+    "0.200",
+    "0.265"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    676,
+    "Basic Wall:Interior - Furring (38 mm Stud):166611",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    677,
+    "Basic Wall:Interior - Furring (38 mm Stud):167770",
+    "0.382",
+    "0.417"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    678,
+    "Basic Wall:Interior - Furring (38 mm Stud):164594",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    680,
+    "Basic Wall:Interior - Furring (38 mm Stud):176463",
+    "0.213",
+    "0.248"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    681,
+    "Basic Wall:Interior - Furring (38 mm Stud):176640",
+    "0.337",
+    "0.426"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    687,
+    "Basic Wall:Interior - Furring (38 mm Stud):160970",
+    "0.440",
+    "0.475"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    688,
+    "Basic Wall:Interior - Furring (38 mm Stud):160237",
+    "0.428",
+    "0.552"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    691,
+    "Basic Wall:Interior - Furring (38 mm Stud):169023",
+    "0.305",
+    "0.340"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    696,
+    "Basic Wall:Interior - Furring (38 mm Stud):171915",
+    "0.249",
+    "0.338"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    697,
+    "Basic Wall:Interior - Furring (38 mm Stud):166424",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    698,
+    "Basic Wall:Interior - Furring (38 mm Stud):161518",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    701,
+    "Basic Wall:Interior - Furring (38 mm Stud):159731",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    702,
+    "Basic Wall:Interior - Furring (38 mm Stud):177322",
+    "0.655",
+    "0.744"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    710,
+    "Basic Wall:Interior - Furring (38 mm Stud):164205",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    712,
+    "Basic Wall:Interior - Furring (38 mm Stud):176134",
+    "0.654",
+    "0.689"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    713,
+    "Basic Wall:Interior - Furring (38 mm Stud):177838",
+    "0.341",
+    "0.430"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    714,
+    "Basic Wall:Interior - Furring (38 mm Stud):163986",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    716,
+    "Basic Wall:Interior - Furring (38 mm Stud):175903",
+    "0.534",
+    "0.569"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    721,
+    "Basic Wall:Interior - Furring (38 mm Stud):164825",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    723,
+    "Basic Wall:Interior - Furring (38 mm Stud):167168",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    726,
+    "Basic Wall:Interior - Furring (38 mm Stud):166880",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    729,
+    "Basic Wall:Interior - Furring (38 mm Stud):167204",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    730,
+    "Basic Wall:Interior - Furring (38 mm Stud):195995",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    731,
+    "Basic Wall:Interior - Furring (38 mm Stud):146462",
+    "0.380",
+    "0.469"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    732,
+    "Basic Wall:Interior - Furring (38 mm Stud):145544",
+    "0.335",
+    "0.459"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    736,
+    "Basic Wall:Interior - Furring (38 mm Stud):166664",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    737,
+    "Basic Wall:Interior - Furring (38 mm Stud):162236",
+    "0.517",
+    "0.552"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    739,
+    "Basic Wall:Interior - Furring (38 mm Stud):195996",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    741,
+    "Basic Wall:Interior - Furring (38 mm Stud):163148",
+    "0.287",
+    "0.376"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    742,
+    "Basic Wall:Interior - Furring (38 mm Stud):162797",
+    "0.447",
+    "0.482"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    743,
+    "Basic Wall:Interior - Furring (38 mm Stud):177804",
+    "0.341",
+    "0.430"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    744,
+    "Basic Wall:Interior - Furring (38 mm Stud):162402",
+    "0.703",
+    "0.738"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    747,
+    "Basic Wall:Interior - Furring (38 mm Stud):160819",
+    "0.286",
+    "0.464"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    750,
+    "Basic Wall:Interior - Furring (38 mm Stud):161088",
+    "0.338",
+    "0.462"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    751,
+    "Basic Wall:Interior - Furring (38 mm Stud):177266",
+    "0.709",
+    "0.744"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    752,
+    "Basic Wall:Interior - Furring (38 mm Stud):147007",
+    "0.444",
+    "0.479"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    754,
+    "Basic Wall:Interior - Furring (38 mm Stud):164437",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    755,
+    "Basic Wall:Interior - Furring (38 mm Stud):150920",
+    "0.428",
+    "0.552"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    757,
+    "Basic Wall:Interior - Furring (38 mm Stud):145701",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    758,
+    "Basic Wall:Interior - Furring (38 mm Stud):160553",
+    "0.269",
+    "0.447"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    759,
+    "Basic Wall:Interior - Furring (38 mm Stud):196226",
+    "0.320",
+    "0.444"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    760,
+    "Basic Wall:Interior - Furring (38 mm Stud):164277",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    761,
+    "Basic Wall:Interior - Furring (38 mm Stud):169054",
+    "0.861",
+    "0.980"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    763,
+    "Basic Wall:Interior - Furring (38 mm Stud):167039",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    767,
+    "Basic Wall:Interior - Furring (38 mm Stud):164543",
+    "0.346",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    768,
+    "Basic Wall:Interior - Furring (38 mm Stud):161638",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    771,
+    "Basic Wall:Interior - Furring (38 mm Stud):160728",
+    "0.340",
+    "0.464"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    773,
+    "Basic Wall:Interior - Furring (38 mm Stud):161823",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    777,
+    "Basic Wall:Interior - Furring (38 mm Stud):175925",
+    "0.140",
+    "0.229"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    778,
+    "Basic Wall:Interior - Furring (38 mm Stud):145596",
+    "0.281",
+    "0.459"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    779,
+    "Basic Wall:Interior - Furring (38 mm Stud):163691",
+    "0.186",
+    "0.275"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    782,
+    "Basic Wall:Interior - Furring (38 mm Stud):162127",
+    "0.517",
+    "0.552"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    783,
+    "Basic Wall:Interior - Furring (38 mm Stud):161624",
+    "0.935",
+    "1.059"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    786,
+    "Basic Wall:Interior - Furring (38 mm Stud):160998",
+    "0.306",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    788,
+    "Basic Wall:Interior - Furring (38 mm Stud):160510",
+    "0.323",
+    "0.447"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    789,
+    "Basic Wall:Interior - Furring (38 mm Stud):161859",
+    "0.292",
+    "0.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    792,
+    "Basic Wall:Interior - Furring (38 mm Stud):162484",
+    "0.703",
+    "0.738"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    817,
+    "Basic Wall:Interior - Furring (38 mm Stud):159878",
+    "0.100",
+    "0.135"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    818,
+    "Basic Wall:Interior - Furring (38 mm Stud):159936",
+    "0.100",
+    "0.135"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    862,
+    "Basic Wall:Interior - Partition (92mm Stud):169203",
+    "0.915",
+    "1.007"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    863,
+    "Basic Wall:Interior - Partition (92mm Stud):174901",
+    "0.915",
+    "0.942"
+   ]
+  ]
+ },
+ "S_Office_Integrated Design Archi.ifc": {
+  "walls": 226,
+  "measured": {
+   "axis, extruded": 186,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 186,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {},
+  "seconds": 11.342,
+  "misses": []
+ },
+ "Schultz_Residence.ifc": {
+  "walls": 105,
+  "measured": {
+   "axis, extruded": 100,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 90,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {},
+  "seconds": 21.931,
+  "misses": []
+ },
+ "advanced_model.ifc": {
+  "walls": 133,
+  "measured": {
+   "axis, extruded": 128,
+   "axis, faceted": 5,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 128,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {},
+  "seconds": 12.681,
+  "misses": []
+ },
+ "architect.ifc": {
+  "walls": 112,
+  "measured": {
+   "axis, extruded": 112,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 112,
+   "axis, faceted": 0,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 112,
+   "axisWithin2": 86,
+   "bodyWithin2": 86,
+   "bodyNone": 0,
+   "sameAsAxis": 112,
+   "heightSame": 112,
+   "heightBoth": 112
+  },
+  "facetedHeldOut": {
+   "stored": 112,
+   "none": 0,
+   "within2": 86,
+   "sameAsExtruded": 112,
+   "heightStored": 112,
+   "heightOffered": 110,
+   "heightWithin2": 110
+  },
+  "revit": {
+   "axis, extruded": {
+    "with": 112,
+    "within2": 86,
+    "joinGap": 17
+   }
+  },
+  "seconds": 7.064,
+  "misses": [
+   [
+    "Revit length",
+    "axis, extruded",
+    34738,
+    "Basic Wall:MW 11.5:573605",
+    "6.218",
+    "6.363"
+   ],
+   [
+    "held-out length",
+    34738,
+    "Basic Wall:MW 11.5:573605",
+    "6.218",
+    "6.218",
+    "6.363"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    34874,
+    "Basic Wall:MW 11.5:573608",
+    "6.218",
+    "6.363"
+   ],
+   [
+    "held-out length",
+    34874,
+    "Basic Wall:MW 11.5:573608",
+    "6.218",
+    "6.218",
+    "6.363"
+   ],
+   [
+    "held-out length",
+    60811,
+    "Basic Wall:MW 17.5:573700",
+    "2.080",
+    "2.080",
+    "2.255"
+   ],
+   [
+    "held-out length",
+    61682,
+    "Basic Wall:MW 11.5:573718",
+    "3.307",
+    "3.307",
+    "3.482"
+   ],
+   [
+    "held-out length",
+    61775,
+    "Basic Wall:MW 11.5:573720",
+    "3.307",
+    "3.307",
+    "3.482"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    61725,
+    "Basic Wall:MW 11.5:573719",
+    "2.182",
+    "2.327"
+   ],
+   [
+    "held-out length",
+    61725,
+    "Basic Wall:MW 11.5:573719",
+    "2.182",
+    "2.182",
+    "2.327"
+   ],
+   [
+    "held-out length",
+    61639,
+    "Basic Wall:MW 17.5:573717",
+    "3.479",
+    "3.479",
+    "3.684"
+   ],
+   [
+    "held-out length",
+    89621,
+    "Basic Wall:MW 11.5:573742",
+    "1.735",
+    "1.735",
+    "1.850"
+   ],
+   [
+    "held-out length",
+    89664,
+    "Basic Wall:MW 11.5:573743",
+    "1.707",
+    "1.707",
+    "1.650"
+   ],
+   [
+    "held-out length",
+    89707,
+    "Basic Wall:MW 11.5:573744",
+    "1.592",
+    "1.592",
+    "1.650"
+   ],
+   [
+    "held-out length",
+    90039,
+    "Basic Wall:MW 11.5:573754",
+    "2.242",
+    "2.242",
+    "2.300"
+   ],
+   [
+    "held-out length",
+    90132,
+    "Basic Wall:MW 11.5:573756",
+    "2.242",
+    "2.242",
+    "2.300"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    90826,
+    "Basic Wall:WC Trennwand 5.0:573780",
+    "1.306",
+    "1.388"
+   ],
+   [
+    "held-out length",
+    90826,
+    "Basic Wall:WC Trennwand 5.0:573780",
+    "1.306",
+    "1.306",
+    "1.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    90912,
+    "Basic Wall:WC Trennwand 5.0:573782",
+    "1.306",
+    "1.388"
+   ],
+   [
+    "held-out length",
+    90912,
+    "Basic Wall:WC Trennwand 5.0:573782",
+    "1.306",
+    "1.306",
+    "1.388"
+   ],
+   [
+    "held-out length",
+    141356,
+    "Basic Wall:MW 11.5:575889",
+    "1.558",
+    "1.558",
+    "1.500"
+   ],
+   [
+    "held-out length",
+    158871,
+    "Basic Wall:MW 17.5:576037",
+    "1.350",
+    "1.350",
+    "1.525"
+   ],
+   [
+    "held-out length",
+    158959,
+    "Basic Wall:MW 17.5:576039",
+    "1.350",
+    "1.350",
+    "1.525"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    184975,
+    "Basic Wall:WC Trennwand 5.0:577952",
+    "1.306",
+    "1.388"
+   ],
+   [
+    "held-out length",
+    184975,
+    "Basic Wall:WC Trennwand 5.0:577952",
+    "1.306",
+    "1.306",
+    "1.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    90869,
+    "Basic Wall:WC Trennwand 5.0:573781",
+    "3.600",
+    "3.715"
+   ],
+   [
+    "held-out length",
+    90869,
+    "Basic Wall:WC Trennwand 5.0:573781",
+    "3.600",
+    "3.600",
+    "3.715"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    187178,
+    "Basic Wall:WC Trennwand 5.0:578640",
+    "1.735",
+    "1.850"
+   ],
+   [
+    "held-out length",
+    187178,
+    "Basic Wall:WC Trennwand 5.0:578640",
+    "1.735",
+    "1.735",
+    "1.850"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    187135,
+    "Basic Wall:WC Trennwand 5.0:578639",
+    "1.735",
+    "1.850"
+   ],
+   [
+    "held-out length",
+    187135,
+    "Basic Wall:WC Trennwand 5.0:578639",
+    "1.735",
+    "1.735",
+    "1.850"
+   ],
+   [
+    "held-out length",
+    89750,
+    "Basic Wall:MW 11.5:573745",
+    "2.382",
+    "2.382",
+    "2.497"
+   ],
+   [
+    "held-out length",
+    217635,
+    "Basic Wall:MW 11.5:580926",
+    "1.509",
+    "1.509",
+    "1.567"
+   ],
+   [
+    "held-out length",
+    217592,
+    "Basic Wall:MW 11.5:580917",
+    "1.509",
+    "1.509",
+    "1.567"
+   ],
+   [
+    "held-out length",
+    224432,
+    "Basic Wall:MW 11.5:580928",
+    "2.057",
+    "2.057",
+    "2.000"
+   ],
+   [
+    "held-out length",
+    224475,
+    "Basic Wall:MW 11.5:580929",
+    "1.409",
+    "1.409",
+    "1.467"
+   ]
+  ]
+ },
+ "construction.ifc": {
+  "walls": 48,
+  "measured": {
+   "axis, extruded": 36,
+   "axis, faceted": 12,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 31,
+   "axis, faceted": 1,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 36,
+   "axisWithin2": 35,
+   "bodyWithin2": 35,
+   "bodyNone": 0,
+   "sameAsAxis": 36,
+   "heightSame": 36,
+   "heightBoth": 36
+  },
+  "facetedHeldOut": {
+   "stored": 36,
+   "none": 0,
+   "within2": 35,
+   "sameAsExtruded": 36,
+   "heightStored": 36,
+   "heightOffered": 24,
+   "heightWithin2": 24
+  },
+  "revit": {
+   "axis, extruded": {
+    "with": 36,
+    "within2": 35
+   },
+   "axis, faceted": {
+    "with": 12,
+    "within2": 12
+   }
+  },
+  "seconds": 0.777,
+  "misses": [
+   [
+    "Revit length",
+    "axis, extruded",
+    16416,
+    "Basic Wall:STB 30.0:573662",
+    "2.700",
+    "2.900"
+   ],
+   [
+    "held-out length",
+    16416,
+    "Basic Wall:STB 30.0:573662",
+    "2.700",
+    "2.700",
+    "2.900"
+   ]
+  ]
+ },
+ "dental_clinic.ifc": {
+  "walls": 1080,
+  "measured": {
+   "axis, extruded": 1063,
+   "axis, faceted": 12,
+   "body, extruded": 2,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 1063,
+   "axis, faceted": 2,
+   "body, extruded": 2,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {
+   "axis, extruded": {
+    "with": 1063,
+    "within2": 405,
+    "joinGap": 319
+   },
+   "axis, faceted": {
+    "with": 12,
+    "within2": 6,
+    "joinGap": 4
+   },
+   "body, extruded": {
+    "with": 2,
+    "within2": 0
+   }
+  },
+  "seconds": 1.589,
+  "misses": [
+   [
+    "Revit length",
+    "axis, extruded",
+    202,
+    "Basic Wall:Interior - Partition (92mm Stud):174960",
+    "7.163",
+    "7.323"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    217,
+    "Basic Wall:Interior - Partition (92mm Stud):381311",
+    "0.406",
+    "11.691"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    218,
+    "Basic Wall:Interior - Partition (92mm Stud):381589",
+    "0.611",
+    "11.691"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    284,
+    "Basic Wall:Interior - Partition (92mm Stud):175951",
+    "6.916",
+    "7.074"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    286,
+    "Basic Wall:Interior - Partition (92mm Stud):179860",
+    "7.569",
+    "7.764"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    349,
+    "Basic Wall:Interior - Partition (92mm Stud):151575",
+    "6.269",
+    "6.464"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    360,
+    "Basic Wall:Interior - Partition (92mm Stud):404985",
+    "4.243",
+    "4.438"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    373,
+    "Basic Wall:Interior - Furring (152 mm Stud):171798",
+    "4.684",
+    "4.844"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    376,
+    "Basic Wall:Interior - Partition (92mm Stud):172683",
+    "6.089",
+    "6.284"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    377,
+    "Basic Wall:Interior - Partition (92mm Stud):153789",
+    "3.710",
+    "3.794"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    381,
+    "Basic Wall:Interior - Partition (92mm Stud):158475",
+    "1.600",
+    "1.635"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    415,
+    "Basic Wall:Exterior - Insul Panel on Mtl. Stud:145802",
+    "3.373",
+    "3.483"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    416,
+    "Basic Wall:Interior - Partition (92mm Stud):155123",
+    "3.381",
+    "3.470"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    424,
+    "Basic Wall:Interior - Partition (92mm Stud):147026",
+    "2.024",
+    "2.220"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    427,
+    "Basic Wall:Interior - Partition (92mm Stud):165239",
+    "1.724",
+    "1.635"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    431,
+    "Basic Wall:Interior - Partition (92mm Stud):198725",
+    "3.601",
+    "3.741"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    433,
+    "Basic Wall:Exterior - Insul Panel on Mtl. Stud:267324",
+    "1.657",
+    "1.767"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    434,
+    "Basic Wall:Interior - Partition (92mm Stud):149814",
+    "1.730",
+    "1.784"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    467,
+    "Basic Wall:Interior - Partition (92mm Stud):314431",
+    "1.108",
+    "1.135"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    476,
+    "Basic Wall:Interior - Partition (92mm Stud):187711",
+    "3.394",
+    "3.589"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    481,
+    "Basic Wall:Interior - Partition (92mm Stud):185879",
+    "7.079",
+    "7.274"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    487,
+    "Basic Wall:Interior - Partition (92mm Stud):365229",
+    "3.516",
+    "3.605"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    508,
+    "Basic Wall:Interior - Partition (92mm Stud):160242",
+    "3.402",
+    "3.561"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    511,
+    "Basic Wall:Interior - Partition (92mm Stud):173576",
+    "2.626",
+    "2.715"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    517,
+    "Basic Wall:Interior - Partition (92mm Stud):189500",
+    "6.023",
+    "6.219"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    524,
+    "Basic Wall:Interior - Partition (92mm Stud):174245",
+    "5.729",
+    "5.925"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    526,
+    "Basic Wall:Interior - Partition (92mm Stud):189690",
+    "6.103",
+    "6.298"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    530,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):207426",
+    "2.729",
+    "2.924"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    532,
+    "Basic Wall:Exterior - Insul Panel on Mtl. Stud:293670",
+    "2.673",
+    "2.744"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    533,
+    "Basic Wall:Interior - Partition (92mm Stud):314357",
+    "1.108",
+    "1.135"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    537,
+    "Basic Wall:Interior - Furring (38 mm Stud):363700",
+    "1.351",
+    "1.476"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    569,
+    "Basic Wall:Interior - Partition (92mm Stud):155873",
+    "1.095",
+    "1.060"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    572,
+    "Basic Wall:Interior - Partition (92mm Stud):160527",
+    "3.196",
+    "3.355"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    573,
+    "Basic Wall:Interior - Partition (92mm Stud):167959",
+    "0.230",
+    "0.195"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    578,
+    "Basic Wall:Interior - Furring (38 mm Stud):188917",
+    "0.306",
+    "0.466"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    580,
+    "Basic Wall:Interior - Partition (92mm Stud):194918",
+    "0.404",
+    "0.439"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    581,
+    "Basic Wall:Interior - Partition (92mm Stud):194995",
+    "1.124",
+    "1.035"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    586,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):207318",
+    "2.729",
+    "2.924"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    592,
+    "Basic Wall:Interior - Partition (92mm Stud):152188",
+    "3.096",
+    "3.185"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    594,
+    "Basic Wall:Interior - Partition (92mm Stud):152889",
+    "1.693",
+    "1.782"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    600,
+    "Basic Wall:Interior - Partition (92mm Stud):214572",
+    "1.520",
+    "1.609"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    611,
+    "Basic Wall:Interior - Furring (38 mm Stud):352169",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    615,
+    "Basic Wall:Interior - Furring (38 mm Stud):358375",
+    "0.406",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    616,
+    "Basic Wall:Interior - Furring (38 mm Stud):358934",
+    "0.796",
+    "0.866"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    617,
+    "Basic Wall:Interior - Furring (38 mm Stud):362447",
+    "0.115",
+    "0.296"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    620,
+    "Basic Wall:Interior - Furring (38 mm Stud):365307",
+    "1.176",
+    "1.300"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    656,
+    "Basic Wall:Interior - Partition (92mm Stud):151435",
+    "1.720",
+    "1.685"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    660,
+    "Basic Wall:Interior - Partition (92mm Stud):159791",
+    "1.648",
+    "1.683"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    661,
+    "Basic Wall:Interior - Furring (152 mm Stud):159888",
+    "1.055",
+    "1.125"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    662,
+    "Basic Wall:Interior - Partition (92mm Stud):160155",
+    "8.703",
+    "8.899"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    663,
+    "Basic Wall:Interior - Partition (92mm Stud):162361",
+    "8.703",
+    "8.899"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    667,
+    "Basic Wall:Interior - Furring (38 mm Stud):171627",
+    "0.380",
+    "0.290"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    668,
+    "Basic Wall:Interior - Partition (92mm Stud):175856",
+    "0.264",
+    "0.175"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    669,
+    "Basic Wall:Interior - Furring (152 mm Stud):176335",
+    "0.842",
+    "0.966"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    672,
+    "Basic Wall:Interior - Furring (152 mm Stud):180035",
+    "5.528",
+    "5.746"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    673,
+    "Basic Wall:Interior - Partition (92mm Stud):180570",
+    "2.356",
+    "2.502"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    676,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):181598",
+    "2.729",
+    "2.924"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    680,
+    "Basic Wall:Interior - Partition (92mm Stud):187622",
+    "3.394",
+    "3.589"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    682,
+    "Basic Wall:Interior - Partition (92mm Stud):193547",
+    "3.325",
+    "3.520"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    687,
+    "Basic Wall:Interior - Partition (92mm Stud):205408",
+    "3.136",
+    "3.225"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    688,
+    "Basic Wall:Interior - Furring (38 mm Stud):206921",
+    "5.644",
+    "5.805"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    692,
+    "Basic Wall:Interior - Partition (92mm Stud):211192",
+    "3.276",
+    "3.365"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    693,
+    "Basic Wall:Interior - Partition (92mm Stud):214958",
+    "2.540",
+    "2.629"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    718,
+    "Basic Wall:Interior - Furring (38 mm Stud):357037",
+    "0.522",
+    "0.611"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    719,
+    "Basic Wall:Interior - Furring (38 mm Stud):363139",
+    "0.798",
+    "0.958"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    724,
+    "Basic Wall:Interior - Furring (38 mm Stud):368432",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    725,
+    "Basic Wall:Interior - Furring (38 mm Stud):370029",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    731,
+    "Basic Wall:Interior - Furring (38 mm Stud):387557",
+    "0.606",
+    "0.641"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    736,
+    "Basic Wall:Interior - Partition (92mm Stud):368550",
+    "2.001",
+    "2.090"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    784,
+    "Basic Wall:Interior - Partition (92mm Stud):146700",
+    "2.989",
+    "3.184"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    786,
+    "Basic Wall:Interior - Partition (92mm Stud):153012",
+    "0.375",
+    "0.410"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    790,
+    "Basic Wall:Interior - Partition (92mm Stud):159338",
+    "1.517",
+    "1.552"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    794,
+    "Basic Wall:Interior - Partition (92mm Stud):164042",
+    "3.819",
+    "4.015"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    802,
+    "Basic Wall:Interior - Partition (92mm Stud):176115",
+    "0.930",
+    "0.965"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    805,
+    "Basic Wall:Interior - Furring (38 mm Stud):178764",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    807,
+    "Basic Wall:Interior - Furring (152 mm Stud):184791",
+    "0.292",
+    "0.314"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    808,
+    "Basic Wall:Interior - Partition (92mm Stud):184898",
+    "0.504",
+    "0.650"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    811,
+    "Basic Wall:Interior - Partition (92mm Stud):186460",
+    "1.266",
+    "1.462"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    813,
+    "Basic Wall:Interior - Partition (92mm Stud):192933",
+    "3.325",
+    "3.520"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    814,
+    "Basic Wall:Interior - Partition (92mm Stud):193276",
+    "3.325",
+    "3.520"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    815,
+    "Basic Wall:Interior - Partition (92mm Stud):193766",
+    "3.325",
+    "3.520"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    822,
+    "Basic Wall:Interior - Partition (92mm Stud):205858",
+    "3.479",
+    "3.674"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    823,
+    "Basic Wall:Interior - Furring (38 mm Stud):206181",
+    "3.479",
+    "3.709"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    824,
+    "Basic Wall:Interior - Partition (92mm Stud):210761",
+    "3.653",
+    "3.849"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    826,
+    "Basic Wall:Interior - Plumbing (152mm Stud):218034",
+    "0.970",
+    "0.940"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    835,
+    "Basic Wall:Exterior - Insul Panel on Mtl. Stud:297616",
+    "5.327",
+    "6.804"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    839,
+    "Basic Wall:Interior - Furring (38 mm Stud):352095",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    840,
+    "Basic Wall:Interior - Furring (38 mm Stud):352549",
+    "0.282",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    845,
+    "Basic Wall:Interior - Furring (38 mm Stud):355969",
+    "0.290",
+    "0.414"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    846,
+    "Basic Wall:Interior - Furring (38 mm Stud):358187",
+    "0.464",
+    "0.534"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    851,
+    "Basic Wall:Interior - Furring (38 mm Stud):361552",
+    "0.236",
+    "0.325"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    852,
+    "Basic Wall:Interior - Furring (38 mm Stud):362162",
+    "1.966",
+    "2.055"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    855,
+    "Basic Wall:Interior - Furring (38 mm Stud):362669",
+    "2.002",
+    "2.091"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    856,
+    "Basic Wall:Interior - Furring (38 mm Stud):362804",
+    "1.132",
+    "1.221"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    859,
+    "Basic Wall:Interior - Furring (38 mm Stud):366008",
+    "4.466",
+    "4.590"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    860,
+    "Basic Wall:Interior - Furring (38 mm Stud):366367",
+    "0.299",
+    "0.423"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    861,
+    "Basic Wall:Interior - Furring (38 mm Stud):367159",
+    "2.242",
+    "2.331"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    864,
+    "Basic Wall:Exterior - Insul Panel on Mtl. Stud:381803",
+    "5.327",
+    "6.804"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    869,
+    "Basic Wall:Interior - Furring (38 mm Stud):390641",
+    "0.616",
+    "0.705"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    871,
+    "Basic Wall:Interior - Furring (38 mm Stud):399279",
+    "0.258",
+    "0.417"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    872,
+    "Basic Wall:Interior - Partition (92mm Stud):386438",
+    "2.096",
+    "2.185"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    927,
+    "Basic Wall:Interior - Furring (38 mm Stud):157409",
+    "3.672",
+    "5.145"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    930,
+    "Basic Wall:Interior - Furring (38 mm Stud):159409",
+    "0.256",
+    "0.269"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    939,
+    "Basic Wall:Interior - Furring (38 mm Stud):171555",
+    "4.684",
+    "4.844"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    941,
+    "Basic Wall:Interior - Partition (92mm Stud):172821",
+    "2.440",
+    "2.529"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    943,
+    "Basic Wall:Interior - Partition (92mm Stud):174172",
+    "3.153",
+    "3.224"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    945,
+    "Basic Wall:Interior - Partition (92mm Stud):178785",
+    "0.126",
+    "0.099"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    952,
+    "Basic Wall:Interior - Partition (92mm Stud):187465",
+    "0.328",
+    "0.523"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    954,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):190765",
+    "6.016",
+    "6.175"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    956,
+    "Basic Wall:Interior - Partition (92mm Stud):193487",
+    "3.325",
+    "3.520"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    957,
+    "Basic Wall:Interior - Partition (92mm Stud):193681",
+    "3.325",
+    "3.520"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    959,
+    "Basic Wall:Interior - Furring (38 mm Stud):197514",
+    "0.565",
+    "0.476"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    964,
+    "Basic Wall:Interior - Partition (92mm Stud):204593",
+    "3.376",
+    "3.465"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    970,
+    "Basic Wall:Interior - Plumbing (152mm Stud):218119",
+    "1.038",
+    "1.098"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    972,
+    "Basic Wall:Interior - Furring (38 mm Stud):220355",
+    "0.511",
+    "0.476"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    973,
+    "Basic Wall:Interior - Partition (92mm Stud):176488",
+    "2.336",
+    "2.425"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    975,
+    "Basic Wall:Interior - Partition (92mm Stud):160919",
+    "3.956",
+    "4.045"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    985,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):181343",
+    "2.853",
+    "2.924"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    991,
+    "Basic Wall:Interior - Partition (92mm Stud):193946",
+    "4.259",
+    "4.454"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    992,
+    "Basic Wall:Interior - Partition (92mm Stud):195311",
+    "1.174",
+    "1.148"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    995,
+    "Basic Wall:Interior - Partition (92mm Stud):212763",
+    "3.660",
+    "3.749"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1006,
+    "Basic Wall:Interior - Furring (38 mm Stud):352519",
+    "0.406",
+    "0.476"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1007,
+    "Basic Wall:Interior - Furring (38 mm Stud):352593",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1015,
+    "Basic Wall:Interior - Furring (38 mm Stud):353693",
+    "0.336",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1016,
+    "Basic Wall:Interior - Furring (38 mm Stud):353724",
+    "0.412",
+    "0.536"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1020,
+    "Basic Wall:Interior - Furring (38 mm Stud):354367",
+    "0.282",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1021,
+    "Basic Wall:Interior - Furring (38 mm Stud):354878",
+    "0.282",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1022,
+    "Basic Wall:Interior - Partition (92mm Stud):355187",
+    "0.969",
+    "1.023"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1026,
+    "Basic Wall:Interior - Furring (38 mm Stud):355910",
+    "0.522",
+    "0.646"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1027,
+    "Basic Wall:Interior - Furring (38 mm Stud):356169",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1029,
+    "Basic Wall:Interior - Furring (38 mm Stud):358225",
+    "0.282",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1033,
+    "Basic Wall:Interior - Furring (38 mm Stud):359079",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1035,
+    "Basic Wall:Interior - Partition (92mm Stud):359581",
+    "0.982",
+    "1.009"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1038,
+    "Basic Wall:Interior - Furring (38 mm Stud):360671",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1040,
+    "Basic Wall:Interior - Furring (38 mm Stud):361920",
+    "0.282",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1043,
+    "Basic Wall:Interior - Furring (38 mm Stud):363635",
+    "1.387",
+    "1.476"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1044,
+    "Basic Wall:Interior - Furring (38 mm Stud):364183",
+    "0.306",
+    "0.466"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1045,
+    "Basic Wall:Interior - Furring (38 mm Stud):364660",
+    "0.576",
+    "0.700"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1052,
+    "Basic Wall:Interior - Furring (38 mm Stud):366327",
+    "1.236",
+    "1.306"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1053,
+    "Basic Wall:Interior - Furring (38 mm Stud):366458",
+    "0.299",
+    "0.423"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1055,
+    "Basic Wall:Interior - Furring (38 mm Stud):366760",
+    "0.382",
+    "0.471"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1056,
+    "Basic Wall:Interior - Furring (38 mm Stud):366871",
+    "0.965",
+    "1.000"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1058,
+    "Basic Wall:Interior - Furring (38 mm Stud):367846",
+    "0.382",
+    "0.471"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1068,
+    "Basic Wall:Interior - Furring (38 mm Stud):385205",
+    "0.323",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1076,
+    "Basic Wall:Interior - Partition (92mm Stud):387897",
+    "0.222",
+    "0.195"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1080,
+    "Basic Wall:Interior - Partition (92mm Stud):388351",
+    "3.946",
+    "4.035"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1084,
+    "Basic Wall:Interior - Furring (38 mm Stud):390936",
+    "0.176",
+    "0.265"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1085,
+    "Basic Wall:Interior - Furring (38 mm Stud):392344",
+    "1.313",
+    "1.474"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1086,
+    "Basic Wall:Interior - Furring (38 mm Stud):393508",
+    "0.171",
+    "0.295"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1088,
+    "Basic Wall:Interior - Furring (38 mm Stud):393644",
+    "0.282",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1092,
+    "Basic Wall:Interior - Furring (38 mm Stud):395610",
+    "5.249",
+    "5.409"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1094,
+    "Basic Wall:Interior - Toilet Partition (25mm):411446",
+    "2.999",
+    "3.195"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1096,
+    "Basic Wall:Interior - Toilet Partition (25mm):413112",
+    "2.832",
+    "2.956"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1097,
+    "Basic Wall:Interior - Plumbing (152mm Stud):426449",
+    "0.618",
+    "0.645"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1163,
+    "Basic Wall:Interior - Partition (92mm Stud):146535",
+    "2.989",
+    "3.184"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1164,
+    "Basic Wall:Interior - Partition (92mm Stud):146611",
+    "2.989",
+    "3.184"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1165,
+    "Basic Wall:Interior - Partition (92mm Stud):148401",
+    "3.308",
+    "3.380"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1169,
+    "Basic Wall:Interior - Partition (92mm Stud):151971",
+    "1.966",
+    "2.038"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1170,
+    "Basic Wall:Interior - Partition (92mm Stud):152411",
+    "3.439",
+    "3.635"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1177,
+    "Basic Wall:Interior - Plumbing (152mm Stud):160049",
+    "1.594",
+    "1.718"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1179,
+    "Basic Wall:Interior - Partition (92mm Stud):161156",
+    "3.586",
+    "3.675"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1183,
+    "Basic Wall:Interior - Plumbing (152mm Stud):162997",
+    "2.632",
+    "2.756"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1185,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):164254",
+    "0.733",
+    "0.805"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1187,
+    "Basic Wall:Interior - Rated 1-HR (92mm Stud):164366",
+    "0.609",
+    "0.805"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1193,
+    "Basic Wall:Interior - Furring (38 mm Stud):168966",
+    "0.542",
+    "0.631"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1194,
+    "Basic Wall:Interior - Furring (152 mm Stud):170001",
+    "2.662",
+    "2.786"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1195,
+    "Basic Wall:Interior - Furring (152 mm Stud):170108",
+    "2.662",
+    "2.786"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1203,
+    "Basic Wall:Interior - Partition (92mm Stud):174331",
+    "3.029",
+    "3.224"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1204,
+    "Basic Wall:Interior - Partition (92mm Stud):177861",
+    "1.606",
+    "1.695"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1206,
+    "Basic Wall:Interior - Furring (38 mm Stud):178886",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1207,
+    "Basic Wall:Interior - Partition (92mm Stud):180081",
+    "3.736",
+    "3.882"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1208,
+    "Basic Wall:Interior - Partition (92mm Stud):180133",
+    "3.736",
+    "3.882"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1211,
+    "Basic Wall:Interior - Partition (92mm Stud):181483",
+    "2.729",
+    "2.924"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1212,
+    "Basic Wall:Interior - Partition (92mm Stud):181546",
+    "2.729",
+    "2.924"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1220,
+    "Basic Wall:Interior - Partition (92mm Stud):186699",
+    "3.242",
+    "3.437"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1221,
+    "Basic Wall:Interior - Furring (152 mm Stud):187569",
+    "2.028",
+    "2.174"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1224,
+    "Basic Wall:Interior - Partition (92mm Stud):189772",
+    "2.893",
+    "3.089"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1226,
+    "Basic Wall:Interior - Partition (92mm Stud):192010",
+    "3.359",
+    "3.554"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1227,
+    "Basic Wall:Interior - Partition (92mm Stud):192107",
+    "3.016",
+    "3.105"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1229,
+    "Basic Wall:Interior - Partition (92mm Stud):192662",
+    "3.016",
+    "3.105"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1230,
+    "Basic Wall:Interior - Partition (92mm Stud):192737",
+    "3.325",
+    "3.520"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1231,
+    "Basic Wall:Interior - Partition (92mm Stud):192805",
+    "3.325",
+    "3.520"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1234,
+    "Basic Wall:Interior - Partition (92mm Stud):195440",
+    "0.751",
+    "0.901"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1236,
+    "Basic Wall:Interior - Furring (38 mm Stud):197692",
+    "0.441",
+    "0.476"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1238,
+    "Basic Wall:Interior - Partition (92mm Stud):200839",
+    "0.369",
+    "0.280"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1239,
+    "Basic Wall:Interior - Partition (92mm Stud):201997",
+    "3.781",
+    "3.870"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1240,
+    "Basic Wall:Interior - Partition (92mm Stud):202103",
+    "3.781",
+    "3.870"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1241,
+    "Basic Wall:Interior - Partition (92mm Stud):206118",
+    "3.479",
+    "3.674"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1242,
+    "Basic Wall:Interior - Furring (152 mm Stud):206270",
+    "2.577",
+    "2.648"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1243,
+    "Basic Wall:Interior - Furring (38 mm Stud):206370",
+    "0.972",
+    "1.061"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1244,
+    "Basic Wall:Interior - Partition (92mm Stud):206466",
+    "0.430",
+    "0.563"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1245,
+    "Basic Wall:Interior - Partition (92mm Stud):206781",
+    "2.352",
+    "2.441"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1246,
+    "Basic Wall:Interior - Partition (92mm Stud):206989",
+    "2.352",
+    "2.441"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1247,
+    "Basic Wall:Interior - Partition (92mm Stud):207218",
+    "2.729",
+    "2.924"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1250,
+    "Basic Wall:Interior - Partition (92mm Stud):209003",
+    "2.246",
+    "2.335"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1252,
+    "Basic Wall:Interior - Furring (152 mm Stud):209687",
+    "2.672",
+    "2.796"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1253,
+    "Basic Wall:Interior - Furring (152 mm Stud):209762",
+    "2.672",
+    "2.796"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1256,
+    "Basic Wall:Interior - Partition (92mm Stud):210953",
+    "3.653",
+    "3.849"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1257,
+    "Basic Wall:Interior - Partition (92mm Stud):211628",
+    "3.276",
+    "3.365"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1266,
+    "Basic Wall:Interior - Partition (92mm Stud):217991",
+    "1.099",
+    "1.069"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1270,
+    "Basic Wall:Interior - Partition (92mm Stud):270507",
+    "0.982",
+    "1.009"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1280,
+    "Basic Wall:Interior - Furring (38 mm Stud):352744",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1282,
+    "Basic Wall:Interior - Furring (38 mm Stud):352932",
+    "0.109",
+    "0.233"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1285,
+    "Basic Wall:Interior - Furring (38 mm Stud):353642",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1286,
+    "Basic Wall:Interior - Furring (38 mm Stud):354284",
+    "0.566",
+    "0.655"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1287,
+    "Basic Wall:Interior - Furring (38 mm Stud):354322",
+    "0.190",
+    "0.225"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1291,
+    "Basic Wall:Interior - Furring (38 mm Stud):356128",
+    "0.282",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1294,
+    "Basic Wall:Interior - Furring (38 mm Stud):356984",
+    "0.282",
+    "0.406"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1296,
+    "Basic Wall:Interior - Furring (38 mm Stud):358815",
+    "0.282",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1299,
+    "Basic Wall:Interior - Furring (38 mm Stud):360853",
+    "0.406",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1300,
+    "Basic Wall:Interior - Furring (38 mm Stud):360864",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1308,
+    "Basic Wall:Interior - Furring (38 mm Stud):366694",
+    "0.382",
+    "0.471"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1310,
+    "Basic Wall:Exterior - Insul Panel on Mtl. Stud:376708",
+    "0.884",
+    "1.079"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1312,
+    "Basic Wall:Interior - Furring (38 mm Stud):379583",
+    "0.382",
+    "0.417"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1314,
+    "Basic Wall:Exterior - Insul Panel on Mtl. Stud:382036",
+    "1.027",
+    "1.089"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1317,
+    "Basic Wall:Interior - Furring (38 mm Stud):385726",
+    "0.323",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1325,
+    "Basic Wall:Interior - Partition (92mm Stud):390124",
+    "0.245",
+    "0.280"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1326,
+    "Basic Wall:Interior - Furring (38 mm Stud):390490",
+    "0.230",
+    "0.265"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1328,
+    "Basic Wall:Interior - Furring (38 mm Stud):390877",
+    "0.230",
+    "0.265"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1331,
+    "Basic Wall:Interior - Toilet Partition (25mm):409027",
+    "1.482",
+    "1.544"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1593,
+    "Basic Wall:Interior - Furring (152 mm Stud):146808",
+    "2.063",
+    "2.259"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1596,
+    "Basic Wall:Interior - Furring (152 mm Stud):160767",
+    "1.176",
+    "1.300"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1599,
+    "Basic Wall:Interior - Furring (38 mm Stud):163167",
+    "0.314",
+    "0.225"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1601,
+    "Basic Wall:Interior - Furring (38 mm Stud):163325",
+    "0.282",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1602,
+    "Basic Wall:Interior - Furring (38 mm Stud):163375",
+    "0.282",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1604,
+    "Basic Wall:Interior - Furring (38 mm Stud):166510",
+    "1.866",
+    "1.990"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1606,
+    "Basic Wall:Interior - Furring (38 mm Stud):169233",
+    "0.304",
+    "0.215"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1613,
+    "Basic Wall:Interior - Furring (38 mm Stud):176933",
+    "0.600",
+    "0.535"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1616,
+    "Basic Wall:Interior - Furring (38 mm Stud):177617",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1619,
+    "Basic Wall:Interior - Furring (152 mm Stud):179985",
+    "0.343",
+    "0.392"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1620,
+    "Basic Wall:Interior - Furring (38 mm Stud):180220",
+    "0.873",
+    "0.908"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1621,
+    "Basic Wall:Interior - Furring (38 mm Stud):180241",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1622,
+    "Basic Wall:Interior - Furring (38 mm Stud):180479",
+    "0.352",
+    "0.441"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1623,
+    "Basic Wall:Interior - Furring (152 mm Stud):181043",
+    "1.790",
+    "1.914"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1624,
+    "Basic Wall:Interior - Partition (92mm Stud):181696",
+    "0.343",
+    "0.476"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1626,
+    "Basic Wall:Interior - Furring (38 mm Stud):186087",
+    "0.353",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1627,
+    "Basic Wall:Interior - Furring (38 mm Stud):186112",
+    "0.502",
+    "0.591"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1628,
+    "Basic Wall:Interior - Furring (152 mm Stud):187521",
+    "0.343",
+    "0.392"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1629,
+    "Basic Wall:Interior - Furring (38 mm Stud):188118",
+    "0.353",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1631,
+    "Basic Wall:Interior - Furring (38 mm Stud):188205",
+    "0.353",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1632,
+    "Basic Wall:Interior - Furring (38 mm Stud):188319",
+    "0.352",
+    "0.441"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1633,
+    "Basic Wall:Interior - Furring (38 mm Stud):188686",
+    "0.353",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1634,
+    "Basic Wall:Interior - Furring (38 mm Stud):188717",
+    "0.702",
+    "0.791"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1635,
+    "Basic Wall:Interior - Furring (152 mm Stud):189364",
+    "0.343",
+    "0.392"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1641,
+    "Basic Wall:Interior - Furring (38 mm Stud):197593",
+    "0.387",
+    "0.476"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1651,
+    "Basic Wall:Interior - Furring (38 mm Stud):207143",
+    "0.323",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1655,
+    "Basic Wall:Interior - Partition (92mm Stud):211942",
+    "0.252",
+    "0.386"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1659,
+    "Basic Wall:Interior - Partition (92mm Stud):213164",
+    "0.230",
+    "0.257"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1660,
+    "Basic Wall:Interior - Partition (92mm Stud):213843",
+    "3.298",
+    "3.209"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1661,
+    "Basic Wall:Interior - Plumbing (152mm Stud):218394",
+    "1.565",
+    "1.689"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1662,
+    "Basic Wall:Interior - Plumbing (152mm Stud):218438",
+    "1.565",
+    "1.689"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1664,
+    "Basic Wall:Interior - Furring (38 mm Stud):220330",
+    "0.336",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1665,
+    "Basic Wall:Interior - Furring (152 mm Stud):231965",
+    "1.832",
+    "1.956"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1666,
+    "Basic Wall:Interior - Furring (38 mm Stud):251812",
+    "0.686",
+    "0.721"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1668,
+    "Basic Wall:Interior - Furring (38 mm Stud):251918",
+    "0.632",
+    "0.721"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1672,
+    "Basic Wall:Interior - Partition (92mm Stud):270462",
+    "0.982",
+    "1.009"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    1674,
+    "Basic Wall:Interior - Partition (92mm Stud):311808",
+    "4.792",
+    "6.792"
+   ],
+   [
+    "Revit length",
+    "body, extruded",
+    1675,
+    "Basic Wall:Interior - Partition (92mm Stud):312802",
+    "4.791",
+    "6.778"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1680,
+    "Basic Wall:Interior - Furring (38 mm Stud):347994",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1681,
+    "Basic Wall:Interior - Furring (38 mm Stud):348052",
+    "0.556",
+    "0.591"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1682,
+    "Basic Wall:Interior - Furring (38 mm Stud):348079",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1684,
+    "Basic Wall:Interior - Furring (38 mm Stud):348387",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1685,
+    "Basic Wall:Interior - Furring (38 mm Stud):348822",
+    "0.353",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1687,
+    "Basic Wall:Interior - Furring (38 mm Stud):348876",
+    "0.299",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1689,
+    "Basic Wall:Interior - Furring (38 mm Stud):349009",
+    "0.299",
+    "0.459"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1690,
+    "Basic Wall:Interior - Furring (38 mm Stud):351146",
+    "0.404",
+    "0.439"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1691,
+    "Basic Wall:Interior - Furring (38 mm Stud):352096",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1693,
+    "Basic Wall:Interior - Furring (38 mm Stud):352168",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1699,
+    "Basic Wall:Interior - Furring (38 mm Stud):356902",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1700,
+    "Basic Wall:Interior - Furring (38 mm Stud):356950",
+    "0.576",
+    "0.611"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1701,
+    "Basic Wall:Interior - Furring (38 mm Stud):357660",
+    "0.353",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1702,
+    "Basic Wall:Interior - Furring (38 mm Stud):357679",
+    "0.282",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1703,
+    "Basic Wall:Interior - Furring (38 mm Stud):357839",
+    "0.336",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1704,
+    "Basic Wall:Interior - Furring (38 mm Stud):357891",
+    "0.282",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1709,
+    "Basic Wall:Interior - Furring (38 mm Stud):360851",
+    "0.460",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1710,
+    "Basic Wall:Interior - Furring (38 mm Stud):360866",
+    "0.406",
+    "0.495"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1712,
+    "Basic Wall:Interior - Furring (38 mm Stud):361063",
+    "0.672",
+    "0.761"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1715,
+    "Basic Wall:Interior - Furring (38 mm Stud):361185",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1718,
+    "Basic Wall:Interior - Furring (38 mm Stud):361327",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1722,
+    "Basic Wall:Interior - Furring (38 mm Stud):362884",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1723,
+    "Basic Wall:Interior - Furring (38 mm Stud):363050",
+    "0.306",
+    "0.466"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1730,
+    "Basic Wall:Interior - Furring (38 mm Stud):365371",
+    "0.353",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1731,
+    "Basic Wall:Interior - Furring (38 mm Stud):365413",
+    "0.299",
+    "0.388"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1733,
+    "Basic Wall:Interior - Furring (38 mm Stud):365544",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1741,
+    "Basic Wall:Interior - Furring (38 mm Stud):366113",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1744,
+    "Basic Wall:Interior - Furring (38 mm Stud):367279",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1747,
+    "Basic Wall:Interior - Furring (38 mm Stud):367373",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1748,
+    "Basic Wall:Interior - Furring (38 mm Stud):367966",
+    "0.340",
+    "0.375"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1749,
+    "Basic Wall:Interior - Furring (38 mm Stud):367994",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1752,
+    "Basic Wall:Interior - Furring (38 mm Stud):368101",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1754,
+    "Basic Wall:Interior - Furring (38 mm Stud):368214",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1759,
+    "Basic Wall:Interior - Furring (38 mm Stud):384864",
+    "0.323",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1760,
+    "Basic Wall:Interior - Furring (38 mm Stud):385034",
+    "0.326",
+    "0.486"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1763,
+    "Basic Wall:Interior - Furring (38 mm Stud):385615",
+    "0.323",
+    "0.484"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1766,
+    "Basic Wall:Interior - Furring (38 mm Stud):385979",
+    "0.313",
+    "0.474"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1768,
+    "Basic Wall:Interior - Furring (38 mm Stud):386101",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1770,
+    "Basic Wall:Interior - Furring (38 mm Stud):386284",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1771,
+    "Basic Wall:Interior - Furring (38 mm Stud):387774",
+    "0.370",
+    "0.440"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1772,
+    "Basic Wall:Interior - Furring (38 mm Stud):388643",
+    "0.670",
+    "0.705"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1774,
+    "Basic Wall:Interior - Furring (38 mm Stud):388696",
+    "0.616",
+    "0.705"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1776,
+    "Basic Wall:Interior - Furring (38 mm Stud):389358",
+    "0.610",
+    "0.699"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1778,
+    "Basic Wall:Interior - Furring (38 mm Stud):389537",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1779,
+    "Basic Wall:Interior - Furring (38 mm Stud):389719",
+    "0.290",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1790,
+    "Basic Wall:Interior - Partition (92mm Stud):391258",
+    "0.504",
+    "0.415"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1793,
+    "Basic Wall:Interior - Furring (38 mm Stud):392246",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1796,
+    "Basic Wall:Interior - Furring (38 mm Stud):393263",
+    "0.506",
+    "0.541"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1797,
+    "Basic Wall:Interior - Furring (38 mm Stud):393287",
+    "0.289",
+    "0.449"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1799,
+    "Basic Wall:Interior - Furring (38 mm Stud):393862",
+    "0.816",
+    "0.851"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1800,
+    "Basic Wall:Interior - Furring (38 mm Stud):393892",
+    "0.282",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1801,
+    "Basic Wall:Interior - Furring (38 mm Stud):393950",
+    "0.336",
+    "0.371"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1802,
+    "Basic Wall:Interior - Furring (38 mm Stud):393970",
+    "0.722",
+    "0.811"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1803,
+    "Basic Wall:Interior - Furring (38 mm Stud):394048",
+    "0.370",
+    "0.405"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1804,
+    "Basic Wall:Interior - Furring (38 mm Stud):394119",
+    "0.316",
+    "0.405"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1807,
+    "Basic Wall:Interior - Furring (38 mm Stud):394233",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1810,
+    "Basic Wall:Interior - Furring (38 mm Stud):394351",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1813,
+    "Basic Wall:Interior - Furring (38 mm Stud):394452",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1815,
+    "Basic Wall:Interior - Furring (38 mm Stud):394533",
+    "0.461",
+    "0.621"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1817,
+    "Basic Wall:Interior - Furring (38 mm Stud):394672",
+    "0.289",
+    "0.450"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1819,
+    "Basic Wall:Interior - Furring (38 mm Stud):395014",
+    "0.255",
+    "0.415"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1821,
+    "Basic Wall:Interior - Furring (38 mm Stud):395153",
+    "1.896",
+    "1.985"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1822,
+    "Basic Wall:Interior - Furring (38 mm Stud):395226",
+    "1.356",
+    "1.391"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1823,
+    "Basic Wall:Interior - Furring (38 mm Stud):395240",
+    "0.255",
+    "0.415"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1825,
+    "Basic Wall:Interior - Furring (38 mm Stud):395332",
+    "0.532",
+    "0.621"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1826,
+    "Basic Wall:Interior - Furring (38 mm Stud):395438",
+    "0.625",
+    "0.660"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1827,
+    "Basic Wall:Interior - Furring (38 mm Stud):395460",
+    "0.255",
+    "0.415"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1829,
+    "Basic Wall:Interior - Furring (38 mm Stud):398670",
+    "0.142",
+    "0.261"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1830,
+    "Basic Wall:Interior - Furring (38 mm Stud):398821",
+    "1.250",
+    "1.374"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1832,
+    "Basic Wall:Interior - Toilet Partition (25mm):412921",
+    "1.470",
+    "1.574"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1833,
+    "Basic Wall:Interior - Plumbing (152mm Stud):439314",
+    "3.000",
+    "3.154"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1834,
+    "Basic Wall:Interior - Partition (92mm Stud):442141",
+    "0.640",
+    "0.732"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    1927,
+    "Basic Wall:Interior - Furring (38 mm Stud):396777",
+    "3.916",
+    "4.005"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1930,
+    "Basic Wall:Interior - Partition (92mm Stud):183428",
+    "1.285",
+    "1.260"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1936,
+    "Basic Wall:Interior - Furring (38 mm Stud):286193",
+    "0.258",
+    "0.382"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1943,
+    "Basic Wall:Interior - Partition (92mm Stud):359473",
+    "0.920",
+    "0.974"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1945,
+    "Basic Wall:Interior - Furring (38 mm Stud):364258",
+    "0.093",
+    "0.128"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1950,
+    "Basic Wall:Interior - Furring (38 mm Stud):377594",
+    "2.685",
+    "2.774"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1954,
+    "Basic Wall:Interior - Furring (38 mm Stud):396498",
+    "3.559",
+    "3.648"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1955,
+    "Basic Wall:Interior - Furring (38 mm Stud):398743",
+    "1.074",
+    "1.198"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1956,
+    "Basic Wall:Interior - Furring (38 mm Stud):398964",
+    "1.250",
+    "1.374"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1958,
+    "Basic Wall:Interior - Toilet Partition (25mm):411532",
+    "1.475",
+    "1.571"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1959,
+    "Basic Wall:Interior - Toilet Partition (25mm):412769",
+    "1.475",
+    "1.571"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    1960,
+    "Basic Wall:Interior - Toilet Partition (25mm):413182",
+    "1.525",
+    "1.629"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    2086,
+    "Basic Wall:Interior - Partition (92mm Stud):183511",
+    "0.227",
+    "0.315"
+   ]
+  ]
+ },
+ "duplex.ifc": {
+  "walls": 57,
+  "measured": {
+   "axis, extruded": 56,
+   "axis, faceted": 1,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heightsOffered": {
+   "axis, extruded": 56,
+   "axis, faceted": 1,
+   "body, extruded": 0,
+   "body, faceted": 0
+  },
+  "heldOut": {
+   "stored": 0,
+   "axisWithin2": 0,
+   "bodyWithin2": 0,
+   "bodyNone": 0,
+   "sameAsAxis": 0,
+   "heightSame": 0,
+   "heightBoth": 0
+  },
+  "facetedHeldOut": {
+   "stored": 0,
+   "none": 0,
+   "within2": 0,
+   "sameAsExtruded": 0,
+   "heightStored": 0,
+   "heightOffered": 0,
+   "heightWithin2": 0
+  },
+  "revit": {
+   "axis, extruded": {
+    "with": 56,
+    "within2": 25,
+    "joinGap": 11
+   },
+   "axis, faceted": {
+    "with": 1,
+    "within2": 0
+   }
+  },
+  "seconds": 0.329,
+  "misses": [
+   [
+    "Revit length",
+    "axis, extruded",
+    4131,
+    "Basic Wall:Interior - Partition (92mm Stud):138584",
+    "3.583",
+    "3.791"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    4553,
+    "Basic Wall:Interior - Partition (92mm Stud):139783",
+    "1.456",
+    "1.594"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    4598,
+    "Basic Wall:Interior - Partition (92mm Stud):139939",
+    "3.583",
+    "3.791"
+   ],
+   [
+    "Revit length",
+    "axis, faceted",
+    5399,
+    "Basic Wall:Party Wall - CMU Residential Unit Dimising Wall:143239",
+    "16.966",
+    "17.383"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    5859,
+    "Basic Wall:Interior - Partition (92mm Stud):144301",
+    "1.619",
+    "1.956"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    6036,
+    "Basic Wall:Interior - Partition (92mm Stud):144684",
+    "1.619",
+    "1.956"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    4508,
+    "Basic Wall:Interior - Partition (92mm Stud):139682",
+    "2.920",
+    "3.195"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    4219,
+    "Basic Wall:Interior - Partition (92mm Stud):139143",
+    "2.920",
+    "3.195"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    5642,
+    "Basic Wall:Interior - Partition (92mm Stud):143856",
+    "2.089",
+    "2.236"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    5903,
+    "Basic Wall:Interior - Partition (92mm Stud):144518",
+    "2.089",
+    "2.235"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    5731,
+    "Basic Wall:Interior - Partition (92mm Stud):143960",
+    "1.965",
+    "2.235"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    5992,
+    "Basic Wall:Interior - Partition (92mm Stud):144633",
+    "1.965",
+    "2.235"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    24596,
+    "Basic Wall:Interior - Furring (152 mm Stud):189074",
+    "4.353",
+    "4.485"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    24680,
+    "Basic Wall:Interior - Furring (152 mm Stud):189901",
+    "2.143",
+    "2.508"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    24723,
+    "Basic Wall:Interior - Partition (92mm Stud):190140",
+    "1.456",
+    "1.594"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    24768,
+    "Basic Wall:Interior - Furring (152 mm Stud):190774",
+    "2.295",
+    "2.508"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    24813,
+    "Basic Wall:Interior - Furring (152 mm Stud):190933",
+    "4.201",
+    "4.485"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    35199,
+    "Basic Wall:Interior - Partition (92mm Stud):203347",
+    "1.524",
+    "1.662"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    35357,
+    "Basic Wall:Interior - Partition (92mm Stud):203998",
+    "1.524",
+    "1.662"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    35452,
+    "Basic Wall:Interior - Partition (92mm Stud):204300",
+    "3.475",
+    "3.812"
+   ],
+   [
+    "Revit length",
+    "axis, extruded",
+    35497,
+    "Basic Wall:Interior - Partition (92mm Stud):204493",
+    "3.475",
+    "3.812"
+   ]
+  ]
+ }
+}

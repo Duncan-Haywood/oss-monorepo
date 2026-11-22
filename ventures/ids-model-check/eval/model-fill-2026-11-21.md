@@ -40,6 +40,10 @@ python3 eval/model_fill_summary.py OUT
 
 ## Result
 
+(Later the same day: the table stand-in returned `null` for numbers with no
+restriction, so this note's table-mode counts undercount numeric writes; the
+property results stand. See `model-fill-attributes-quantities-2026-11-21.md`.)
+
 This checker, on its own output (the fill re-reads the file it wrote and tests
 each written value with every facet on that element that names the property):
 

@@ -1,0 +1,772 @@
+{
+ "construction.ifc": {
+  "elements": 339,
+  "elementsWithGeometryQuantities": 339,
+  "offered": 1191,
+  "seconds": 1.003,
+  "stats": {
+   "IFCCOLUMN GrossVolume": {
+    "offered": 257,
+    "stored": 257,
+    "within2": 257,
+    "within5": 257,
+    "medianRatio": 1.0001
+   },
+   "IFCCOLUMN NetVolume": {
+    "offered": 257,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOLUMN CrossSectionArea": {
+    "offered": 257,
+    "stored": 257,
+    "within2": 257,
+    "within5": 257,
+    "medianRatio": 1.0001
+   },
+   "IFCWALL GrossVolume": {
+    "offered": 48,
+    "stored": 36,
+    "within2": 11,
+    "within5": 11,
+    "reasons": {
+     "own-dimensions": 4,
+     "split": 17,
+     "unexplained": 2,
+     "repeated": 2
+    },
+    "medianRatio": 0.3527
+   },
+   "IFCWALL NetVolume": {
+    "offered": 48,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL GrossSideArea": {
+    "offered": 48,
+    "stored": 36,
+    "within2": 11,
+    "within5": 11,
+    "reasons": {
+     "matches-stored-volume": 6,
+     "split": 17,
+     "repeated": 2
+    },
+    "medianRatio": 0.3527
+   },
+   "IFCWALL NetSideArea": {
+    "offered": 48,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL GrossFootprintArea": {
+    "offered": 48,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL NetFootprintArea": {
+    "offered": 48,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL Width": {
+    "offered": 48,
+    "stored": 36,
+    "within2": 36,
+    "within5": 36,
+    "medianRatio": 1
+   },
+   "IFCSLAB GrossVolume": {
+    "offered": 8,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB NetVolume": {
+    "offered": 8,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB GrossArea": {
+    "offered": 8,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB NetArea": {
+    "offered": 8,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSTAIRFLIGHT GrossVolume": {
+    "offered": 8,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSTAIRFLIGHT NetVolume": {
+    "offered": 8,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCRAILING GrossVolume": {
+    "offered": 14,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCRAILING NetVolume": {
+    "offered": 14,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSTAIR GrossVolume": {
+    "offered": 4,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSTAIR NetVolume": {
+    "offered": 4,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   }
+  }
+ },
+ "architect.ifc": {
+  "elements": 2527,
+  "elementsWithGeometryQuantities": 2527,
+  "offered": 8558,
+  "seconds": 7.92,
+  "stats": {
+   "IFCWALL GrossVolume": {
+    "offered": 112,
+    "stored": 112,
+    "within2": 70,
+    "within5": 70,
+    "reasons": {
+     "split": 8,
+     "net-as-gross": 33,
+     "own-dimensions": 1
+    },
+    "medianRatio": 1
+   },
+   "IFCWALL NetVolume": {
+    "offered": 112,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL GrossSideArea": {
+    "offered": 112,
+    "stored": 112,
+    "within2": 70,
+    "within5": 70,
+    "reasons": {
+     "split": 5,
+     "matches-stored-volume": 4,
+     "net-as-gross": 33
+    },
+    "medianRatio": 1
+   },
+   "IFCWALL NetSideArea": {
+    "offered": 112,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL GrossFootprintArea": {
+    "offered": 112,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL NetFootprintArea": {
+    "offered": 112,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL Width": {
+    "offered": 112,
+    "stored": 112,
+    "within2": 112,
+    "within5": 112,
+    "medianRatio": 1
+   },
+   "IFCDOOR GrossVolume": {
+    "offered": 133,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCDOOR NetVolume": {
+    "offered": 133,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCPLATE GrossVolume": {
+    "offered": 629,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCPLATE NetVolume": {
+    "offered": 629,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCPLATE GrossArea": {
+    "offered": 629,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCPLATE NetArea": {
+    "offered": 629,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCMEMBER GrossVolume": {
+    "offered": 1450,
+    "stored": 1450,
+    "within2": 1450,
+    "within5": 1450,
+    "medianRatio": 1
+   },
+   "IFCMEMBER NetVolume": {
+    "offered": 1450,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCMEMBER CrossSectionArea": {
+    "offered": 1450,
+    "stored": 1450,
+    "within2": 1392,
+    "within5": 1392,
+    "reasons": {
+     "half-surface": 58
+    },
+    "medianRatio": 1
+   },
+   "IFCBUILDINGELEMENTPROXY GrossVolume": {
+    "offered": 85,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBUILDINGELEMENTPROXY NetVolume": {
+    "offered": 85,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB GrossVolume": {
+    "offered": 75,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB NetVolume": {
+    "offered": 75,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB GrossArea": {
+    "offered": 75,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB NetArea": {
+    "offered": 75,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING GrossVolume": {
+    "offered": 43,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING NetVolume": {
+    "offered": 43,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING GrossArea": {
+    "offered": 43,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING NetArea": {
+    "offered": 43,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   }
+  }
+ },
+ "MEP.ifc": {
+  "elements": 3964,
+  "elementsWithGeometryQuantities": 3964,
+  "offered": 7928,
+  "seconds": 3.506,
+  "stats": {
+   "IFCFLOWTERMINAL GrossVolume": {
+    "offered": 725,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWTERMINAL NetVolume": {
+    "offered": 725,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBUILDINGELEMENTPROXY GrossVolume": {
+    "offered": 574,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBUILDINGELEMENTPROXY NetVolume": {
+    "offered": 574,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWSEGMENT GrossVolume": {
+    "offered": 1284,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWSEGMENT NetVolume": {
+    "offered": 1284,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWFITTING GrossVolume": {
+    "offered": 1381,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWFITTING NetVolume": {
+    "offered": 1381,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   }
+  }
+ },
+ "Schultz_Residence.ifc": {
+  "elements": 846,
+  "elementsWithGeometryQuantities": 846,
+  "offered": 2345,
+  "seconds": 24.19,
+  "stats": {
+   "IFCWALL GrossVolume": {
+    "offered": 105,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL NetVolume": {
+    "offered": 103,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL GrossSideArea": {
+    "offered": 101,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL NetSideArea": {
+    "offered": 101,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL GrossFootprintArea": {
+    "offered": 101,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL NetFootprintArea": {
+    "offered": 101,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL Width": {
+    "offered": 101,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWINDOW GrossVolume": {
+    "offered": 25,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWINDOW NetVolume": {
+    "offered": 25,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCDOOR GrossVolume": {
+    "offered": 17,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCDOOR NetVolume": {
+    "offered": 17,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB GrossVolume": {
+    "offered": 12,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB NetVolume": {
+    "offered": 12,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB GrossArea": {
+    "offered": 12,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB NetArea": {
+    "offered": 12,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCROOF GrossVolume": {
+    "offered": 2,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCROOF NetVolume": {
+    "offered": 2,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING GrossVolume": {
+    "offered": 7,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING NetVolume": {
+    "offered": 7,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING GrossArea": {
+    "offered": 6,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING NetArea": {
+    "offered": 6,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFURNISHINGELEMENT GrossVolume": {
+    "offered": 112,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFURNISHINGELEMENT NetVolume": {
+    "offered": 112,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSTAIR GrossVolume": {
+    "offered": 4,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSTAIR NetVolume": {
+    "offered": 4,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBUILDINGELEMENTPROXY GrossVolume": {
+    "offered": 146,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBUILDINGELEMENTPROXY NetVolume": {
+    "offered": 146,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBEAM GrossVolume": {
+    "offered": 83,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBEAM NetVolume": {
+    "offered": 83,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBEAM CrossSectionArea": {
+    "offered": 83,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOLUMN GrossVolume": {
+    "offered": 25,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOLUMN NetVolume": {
+    "offered": 25,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOLUMN CrossSectionArea": {
+    "offered": 25,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWTERMINAL GrossVolume": {
+    "offered": 40,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWTERMINAL NetVolume": {
+    "offered": 40,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFOOTING GrossVolume": {
+    "offered": 3,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFOOTING NetVolume": {
+    "offered": 3,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWSEGMENT GrossVolume": {
+    "offered": 3,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWSEGMENT NetVolume": {
+    "offered": 3,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWFITTING GrossVolume": {
+    "offered": 1,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFLOWFITTING NetVolume": {
+    "offered": 1,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSTAIRFLIGHT GrossVolume": {
+    "offered": 2,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSTAIRFLIGHT NetVolume": {
+    "offered": 2,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCMEMBER GrossVolume": {
+    "offered": 6,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCMEMBER NetVolume": {
+    "offered": 6,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCMEMBER CrossSectionArea": {
+    "offered": 6,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCRAILING GrossVolume": {
+    "offered": 253,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCRAILING NetVolume": {
+    "offered": 253,
+    "stored": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   }
+  }
+ }
+}

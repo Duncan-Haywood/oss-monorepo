@@ -8,7 +8,8 @@ For each filled file saved in OUT_DIR (and its .written.json list of the
 (element, set, property) values the fill wrote):
   - ifcopenshell opens it (a STEP syntax error or a bad reference would stop it);
   - IfcTester runs the same IDS on the original and the filled model, and for
-    every requirement that is a property facet naming one set and property, the
+    every requirement that is a property facet naming one set and property
+    (or an attribute facet naming one attribute), the
     written elements must fail it before (else the fill wrote what was not
     asked) and pass it after;
   - no element IfcTester passed before fails after (the fill took nothing away).
@@ -24,7 +25,7 @@ from pathlib import Path
 
 import ifcopenshell
 from ifctester import ids as idsmod
-from ifctester.facet import Property
+from ifctester.facet import Attribute, Property
 
 
 def failing(spec_file, model):
@@ -75,9 +76,12 @@ def main():
             bad += 1
             continue
         written = {}
+        kind_of = {}
         for w in meta["written"]:
             written.setdefault((w["pset"], w["prop"]), set()).add(w["id"])
+            kind_of[(w["pset"], w["prop"])] = w.get("kind", "property")
         checked = now_pass = was_failing = 0
+        by_kind = {}
         regress = 0
         added_failing = 0
         stuck = []
@@ -85,16 +89,23 @@ def main():
             new = fa - fb
             added_failing += sum(1 for x in new if x > top)
             regress += sum(1 for x in new if x <= top)
-            if not isinstance(r, Property) or not isinstance(r.propertySet, str) or not isinstance(r.baseName, str):
+            if isinstance(r, Property) and isinstance(r.propertySet, str) and isinstance(r.baseName, str):
+                key = (r.propertySet, r.baseName)
+            elif isinstance(r, Attribute) and isinstance(r.name, str):
+                key = ("(attribute)", r.name)
+            else:
                 continue
             if getattr(r, "cardinality", "required") != "required":
                 continue
-            ids = written.get((r.propertySet, r.baseName), set()) & app
+            ids = written.get(key, set()) & app
+            k = by_kind.setdefault(kind_of.get(key, "property"), [0, 0])
+            k[0] += len(ids)
+            k[1] += len(ids - fa)
             checked += len(ids)
             was_failing += len(ids & fb)
             now_pass += len(ids - fa)
             stuck += sorted(ids & fa)[:5]
-        row.update({"values_checked": checked, "failed_before": was_failing, "pass_after": now_pass, "newly_failing": regress, "added_records_failing": added_failing, "still_failing_sample": stuck[:10]})
+        row.update({"values_checked": checked, "failed_before": was_failing, "pass_after": now_pass, "newly_failing": regress, "added_records_failing": added_failing, "still_failing_sample": stuck[:10], "by_kind": by_kind})
         ok = checked == now_pass and regress == 0
         row["ok"] = ok
         bad += 0 if ok else 1

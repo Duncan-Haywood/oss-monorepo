@@ -2614,15 +2614,26 @@ export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
     // for the dash, "v"/"vs", "Hawks vs Owls 3-2", "Hawks beat Owls 3-2", "Owls lost to Hawks 2-3", "Hawks 3 Owls 2".
     let body = line.replace(/[\u2212\u2012\u2013\u2014]/g, "-").replace(/[.\s]+$/, "");
     let forfeitNote = false;
+    // A bracket at the end is a note ("(OT)") unless it is part of a name: "Alex (12)" is how two
+    // players called Alex are told apart (trfNames), and "Hawks (U12)" is a team. The line is read
+    // with the bracket kept first; only if a name then fails to match is the bracket taken as a note.
+    const splitScore = (text) => {
+      let m = text.match(/^(.*?)\s+(\d+)\s*(?:-|:|\s(?:v|vs|vs\.)\s)\s*(\d+)\s+(.*)$/i);
+      if (m) return [m[1], m[2], m[3], m[4]];
+      if ((m = text.match(/^(.*?)\s+(?:vs\.?|v|beat|beats|defeated|lost to|lose to|drew with|drew|tied)\s+(.*?)\s+(\d+)\s*[-:]\s*(\d+)$/i))) return [m[1], m[3], m[4], m[2]];
+      if ((m = text.match(/^(.*?)\s+(\d+)\s+(.*?)\s+(\d+)$/)) && teamIndex(teams, m[1]) >= 0 && teamIndex(teams, m[3]) >= 0) return [m[1], m[2], m[4], m[3]];
+      return null;
+    };
+    let parts = null;
     const note = body.match(/^(.*?)\s*\(([^()]*)\)$/);
-    if (note) { forfeitNote = /forfeit|walkover|w\/o/i.test(note[2]); body = note[1]; }
-    let ga, gb, nameA, nameB;
-    let m = body.match(/^(.*?)\s+(\d+)\s*(?:-|:|\s(?:v|vs|vs\.)\s)\s*(\d+)\s+(.*)$/i);
-    if (m) { [nameA, ga, gb, nameB] = [m[1], m[2], m[3], m[4]]; }
-    else if ((m = body.match(/^(.*?)\s+(?:vs\.?|v|beat|beats|defeated|lost to|lose to|drew with|drew|tied)\s+(.*?)\s+(\d+)\s*[-:]\s*(\d+)$/i))) { [nameA, nameB, ga, gb] = [m[1], m[2], m[3], m[4]]; }
-    else if ((m = body.match(/^(.*?)\s+(\d+)\s+(.*?)\s+(\d+)$/)) && teamIndex(teams, m[1]) >= 0 && teamIndex(teams, m[3]) >= 0) { [nameA, ga, nameB, gb] = [m[1], m[2], m[3], m[4]]; }
-    else m = null;
-    if (!m) { errors.push(`Result line ${i + 1}: write it like "Hawks 3 - 2 Owls" (or "Hawks w/o Owls" for a forfeit win).`); continue; }
+    if (note) {
+      const kept = splitScore(body);
+      if (kept && teamIndex(teams, kept[0]) >= 0 && teamIndex(teams, kept[3]) >= 0) parts = kept;
+      else { forfeitNote = /forfeit|walkover|w\/o/i.test(note[2]); body = note[1]; }
+    }
+    parts ??= splitScore(body);
+    if (!parts) { errors.push(`Result line ${i + 1}: write it like "Hawks 3 - 2 Owls" (or "Hawks w/o Owls" for a forfeit win).`); continue; }
+    const [nameA, ga, gb, nameB] = parts;
     const a = teamIndex(teams, nameA);
     const b = teamIndex(teams, nameB);
     if (a < 0 || b < 0) { errors.push(`Result line ${i + 1}: "${a < 0 ? nameA : nameB}" is not one of the teams.`); continue; }

@@ -192,7 +192,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Saint Joseph of Thessalonica, Theodore the Studite's hymn-writing brother.
 - The water turned to blood at the edge of the Nile, the first sign by the river in the morning and the magicians who did the same, seven days (Exodus 7:14-25; left by episode 160).
 - Aaron's staff that budded in the tent of meeting, twelve staffs with twelve names and the almonds in the morning, kept before the testimony (Numbers 17, with Hebrews 9:4; left by episode 160).
-- Aaron and Hur holding up Moses' hands at Rephidim until the going down of the sun, Joshua's first battle and the altar called the Lord is my banner (Exodus 17:8-16; left by episode 158).
 - Moses and Zipporah on the road back to Egypt and the lodging place, a hard passage told carefully in daylight, with the main readings named and none settled (Exodus 4:24-26; left by episodes 37, 157 and 158).
 - Miriam and Aaron and the cloud over the tent at Hazeroth, the meekest man on the face of the earth (Numbers 12; left by episode 141).
 - Othniel and Achsah and the upper and lower springs, Caleb's daughter who asked for water and the first judge of Israel (Joshua 15:13-19, Judges 1:11-15 and 3:7-11; left by episode 142).
@@ -212,11 +211,13 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Saul among the prophets at Naioth in Ramah, three lots of messengers and then the king himself (First Samuel 19:18-24; left by episode 151).
 - Absalom at the city gate and the long flight up the Mount of Olives, Ittai the Gittite who would not go home and Zadok who carried the ark back (Second Samuel 15; left by episode 152).
 - The two runners from the battle in the forest of Ephraim, Ahimaaz who outran the Cushite by the plain and would not tell the king the worst (Second Samuel 18:19-33; left by episode 152).
+- Bezalel and Oholiab, filled with the spirit of God for every craft, Hur's grandson who made the ark, and the people who brought so much that Moses had to tell them to stop (Exodus 31:1-11 and 35:30 to 36:7; left by episode 161).
+- Joshua at Shechem and the stone under the oak, choose this day whom you will serve, the old man who looked up the hill at Rephidim saying goodbye (Joshua 24; left by episode 161).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 160 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 160.
+Audio: 29 of 161 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 161.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
