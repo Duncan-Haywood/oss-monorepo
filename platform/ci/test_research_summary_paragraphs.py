@@ -127,7 +127,29 @@ class ShortLedeTest(unittest.TestCase):
 
     def test_first_clause_far_too_long_leaves_it_whole(self):
         lede = " ".join(["w"] * 30) + "; tail"
-        self.assertEqual(build.short_lede(lede, 10), lede)
+        self.assertEqual(build.short_lede(lede, 10), lede + ".")
+
+    def test_cut_keeps_the_closing_disclosure(self):
+        # research/homebot's header dropped "Simulated only, not yet built." (2026-11-22).
+        lede = "One two three; four five six; seven eight nine ten. Simulated only, not yet built."
+        self.assertEqual(build.short_lede(lede, 11),
+                         "One two three; four five six&hellip; Simulated only, not yet built.")
+        self.assertEqual(build.short_lede("A b c; d e f; g h i j; stylised, preliminary", 8),
+                         "A b c; d e f&hellip; Stylised, preliminary.")
+
+    def test_disclosure_after_a_parenthesised_sentence(self):
+        lede = "One two three; four five six (a sentence here.) Stylised, nothing built."
+        self.assertTrue(build.short_lede(lede, 9).endswith("&hellip; Stylised, nothing built."))
+
+    def test_a_tail_that_is_not_a_disclosure_is_cut(self):
+        lede = "One two three; four five six; seven eight nine ten eleven twelve."
+        self.assertEqual(build.short_lede(lede, 7), "One two three; four five six&hellip;")
+
+    def test_a_short_lede_ends_with_a_full_stop(self):
+        self.assertEqual(build.short_lede("Saves 28%", 10), "Saves 28%.")
+        self.assertEqual(build.short_lede("Does it? <em>No</em>", 10), "Does it? <em>No</em>.")
+        for done in ("Ends here.", "Is it?", "(see log)", "x &minus;"):
+            self.assertEqual(build.short_lede(done, 10), done)
 
 
 class LogFoldTest(unittest.TestCase):
