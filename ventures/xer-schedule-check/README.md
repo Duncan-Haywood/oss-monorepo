@@ -860,6 +860,16 @@ run as a formula in Excel or Sheets.
   dates. CCA's numeric, cost and date UDFs now keep P6's own type on 7,104 of
   13,174 values, measured against P6's type (the old check had mapped finish
   to start first; on that honest measure main scored 6,922).
+- **UDF types from the original XER** (`eval/udf-types-from-2026-11-22.md`,
+  2026-11-22): Project has one kind of Number field, so a P6 decimal UDF that
+  held only whole numbers came back as an integer one (P6 then refuses a 37.5
+  typed into it). Given the XER the Project file was made from
+  (`--to-p6 out.xer --types-from original.xer`, or the page's "original XER"
+  box), each UDF matched by title keeps its P6 type: decimal or integer,
+  start or finish date; an integer type is not taken where a value is no
+  longer whole. CCA's activity UDF values with P6's own type: 7,104 to
+  13,174 of 13,174 (six percent-complete and number fields, 6,070 values);
+  0 import problems on the six public files.
 - **Resource user-defined fields** (`eval/rsrc-udfs-2026-11-21.md`, 2026-11-21):
   resource UDFs go into Project's resource Text, Number, Cost and Date fields,
   renamed to each UDF's title, and come back from a Project file as P6
@@ -1078,7 +1088,7 @@ and `parseSchedule`, which picks the reader from the text);
 `node cli.mjs file.xer --to-project out.xml`); `eval/msproject-check.mjs` reads
 the result back and recomputes it, `eval/msproject-mpxj.py` compares MPXJ's
 reading of both files. `p6xer.mjs` writes Microsoft Project XML as a P6 XER
-(`p6XerText`; `node cli.mjs file.xml --to-p6 out.xer [--project-id CODE] [--deadlines]`);
+(`p6XerText`; `node cli.mjs file.xml --to-p6 out.xer [--project-id CODE] [--deadlines] [--types-from original.xer]`);
 `eval/p6xer-check.mjs` checks it on MSPDI files and on XERs sent through
 Project XML, `eval/p6xer-mpxj.py` compares MPXJ's reading of the XML and the XER.
 `samples/constraints-log.csv` is a constraints log for the example schedule

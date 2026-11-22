@@ -324,13 +324,13 @@ flagships:
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
       reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
       D780/D600: 6 of 11 losers are real over-reads on clean truths
-      (eval/near-clean-truth-noise-2026-11-19.md); a min-eigenvalue read failed its
-      pre-registered pick 2026-11-19: foliage fills the quietest direction too, and
-      the shipped read under-reads white-balanced noise (0.53x at SNR 12;
-      eval/noise-pca-min-eigen-2026-11-19.md); per-colour ratios + Chen's level
-      (mpcw) default on Bayer 2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0
-      new losers (eval/noise-pca-whitened-level-*); mpcws (held +0.31 dB) failed on
-      K-1 II not by a noisy truth: a green-pair truth read failed its validity tests
+      (eval/near-clean-truth-noise-2026-11-19.md); a lower-envelope line fit
+      (opt-in) rescued 3 of 6 K-1 II losers but failed h1 2026-11-22 (-0.2 dB luma
+      at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
+      whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
+      2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
+      (eval/noise-pca-whitened-level-*); mpcws (held +0.31 dB) failed on K-1 II not
+      by a noisy truth: a green-pair truth read failed its validity tests
       2026-11-22, and mpcws's own selection over-reads 2.3x there
       (eval/noise-pca-mpcws-noisy-truth-*); mpcw1 (select once at mpcw's level)
       failed its gates 2026-11-22: 1.48x mpcw on that tile, +0.01 of mpcws's +0.26
@@ -579,9 +579,9 @@ flagships:
       2,006/2,006 planted; eval/notebooks-2026-11-21.md). Finish-date UDFs <->
       Project Finish fields, Start/Finish fields read 2026-11-22
       (eval/finish-udfs-2026-11-22.md: 120/120 Project values, CCA 182/182); UDF
-      types from the original XER 2026-11-22 (--udf-types-from,
-      eval/udf-type-hints-2026-11-22.md: 42,847/42,847 with P6's type; text UDFs not
-      codes); next: an in-file marker Project keeps. More open items: NEXT.md.
+      types from the original XER 2026-11-22 (--types-from; CCA 13,174/13,174 typed,
+      was 7,104; eval/udf-types-from-2026-11-22.md); next: a P6 import of the
+      result. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

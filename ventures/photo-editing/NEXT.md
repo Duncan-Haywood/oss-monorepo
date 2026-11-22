@@ -26,8 +26,12 @@
   foliage rows) or another public sample set, when one is reachable. X-Trans has not been
   tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
-  [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows: try a
-  lower-envelope line fit over the bins, or cap each bin at the darker bins' line.
+  [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
+  (2026-11-22, eval/noise-envelope-fit-2026-11-22.md) A lower-envelope fit (drop bins over 1.5x the line,
+  opt-in `fit="envelope"`) rescued 3 of the 6 K-1 II textured-tile losers but failed h1 on both splits (-0.20 /
+  -0.18 dB luma at SNR 12 wb): under white balance honest bins are not on one line, and it lowers reads already
+  at 0.70 of truth. Next: the envelope on colour-whitened bins, or drop a bin only when its whiteness says
+  texture; both on a blind set (raw.pixls.us `first`, the D780/D600 foliage rows).
 
 ## From the float32 check (2026-11-17, eval/noise-aware-float32-2026-11-17.md)
 

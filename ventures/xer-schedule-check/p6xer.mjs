@@ -4,7 +4,7 @@
 // one without a P6 seat or a paid converter. Nothing is uploaded: this runs
 // in the browser tab (or the CLI).
 //
-// p6XerText(text, { projectId, activityIds }) -> { xer, text, bytes, encoding, counts, warnings }
+// p6XerText(text, { projectId, activityIds, deadlines, typesFrom }) -> { xer, text, bytes, encoding, counts, warnings }
 // (save `bytes`: Windows-1252, P6's code page, when the text fits it)
 //
 // mspdi.mjs already reads MSPDI into P6's tables for the checks (calendars,
@@ -54,6 +54,17 @@
 //   decimal, and a task Text field matching a text UDF is a text UDF again,
 //   not an activity code (eval/udf-type-hints-2026-11-22.md).
 //
+// - UDF types from the original XER (optional, { typesFrom: xer text or
+//   parsed XER }, CLI --types-from original.xer): Project has one kind of
+//   Number field, so a P6 decimal UDF that held only whole numbers (a
+//   "PERCENT COMPLETE" of 0, 50 and 100) would come back as an integer one,
+//   and P6 then refuses a 37.5 typed into it later. When the file came from
+//   an XER and that XER is to hand, each UDF whose title (and subject area)
+//   matches one in it takes its P6 type: integer or decimal for numbers, start
+//   or finish for dates (the eleventh finish-date UDF msproject.mjs had to put
+//   in a Date field). An integer type is not taken when a value is no longer
+//   whole; that is counted in the warnings (eval/udf-types-from-2026-11-22.md).
+//
 // - notes: a task's notes become its notebook entries (TASKMEMO), one per
 //   "[Topic]" section (the form msproject.mjs writes a P6 notebook in), else
 //   one under the topic "Notes"; a summary task's go on its WBS node
@@ -88,7 +99,7 @@
 // UDF (Project has one kind of date field, so a date comes back as a start
 // date UDF).
 
-import { parseMspdi, parseXml, durationHours, udfTypeHints, hintedUdfType } from "./mspdi.mjs";
+import { parseMspdi, parseXml, durationHours } from "./mspdi.mjs";
 import { xerText, xerBytes, parseXer } from "./xer.mjs";
 import { memoHtml } from "./notebook.mjs";
 import { contourCurveValues, contourName } from "./contours.mjs";
@@ -169,6 +180,35 @@ function weekHours(data) {
   return min / 60;
 }
 
+// UDF types from the original XER (see "UDF types from the original XER"
+// above). Titles match as msproject.mjs writes them: square brackets as round
+// ones, case and outer spaces ignored, within a subject area (TASK, PROJWBS,
+// RSRC). Only a number type for a number type and a date type for a date type.
+const NUM_TYPE = /^FT_(INT|FLOAT|FLOAT_2_DECIMALS)$/, DATE_TYPE = /^FT_(START|END)_DATE$/;
+export const udfTitleKey = (table, title) => `${table}|${String(title ?? "").replace(/\[/g, "(").replace(/\]/g, ")").replace(/\s+/g, " ").trim().toLowerCase()}`;
+export function udfTyper(typesFrom) {
+  const ref = typeof typesFrom === "string" ? parseXer(typesFrom) : typesFrom;
+  const known = new Map();
+  for (const u of ref?.tables?.UDFTYPE || []) {
+    const k = udfTitleKey(u.table_name, u.udf_type_label || u.udf_type_name);
+    if (!known.has(k)) known.set(k, u.logical_data_type);
+  }
+  const t = { ref: Boolean(ref), matched: 0, changed: 0, values: 0, notWhole: [], unmatched: 0 };
+  t.type = (table, title, type, rows) => {
+    if (!ref || type === "FT_TEXT" || type === "FT_MONEY") return type;
+    const r = known.get(udfTitleKey(table, title));
+    if (!r) { t.unmatched++; return type; }
+    if (!(NUM_TYPE.test(type) && NUM_TYPE.test(r)) && !(DATE_TYPE.test(type) && DATE_TYPE.test(r))) { t.unmatched++; return type; }
+    t.matched++;
+    if (r === type) return type;
+    if (r === "FT_INT" && !rows.every((x) => Number.isInteger(Number(x.udf_number)))) { t.notWhole.push(title); return type; }
+    t.changed++; t.values += rows.length;
+    return r;
+  };
+  t.note = () => `user-defined field types from the original XER: ${t.matched} field(s) matched by title${t.changed ? `, ${t.changed} given the original's type (${t.values} value(s); a decimal UDF holding whole numbers stays decimal, a finish-date UDF in a Date field stays a finish date)` : ", all already of the original's type"}${t.notWhole.length ? `; ${t.notWhole.length} kept decimal though integer in the original, as a value is no longer whole: ${t.notWhole.slice(0, 5).join(", ")}${t.notWhole.length > 5 ? ", ..." : ""}` : ""}${t.unmatched ? `; ${t.unmatched} number or date field(s) with no title of that kind in it keep the type read from Project` : ""}`;
+  return t;
+}
+
 // a Project deadline as P6 constraints (see "deadlines" above)
 const SECONDARY_OK = new Set(["CS_MSOA", "CS_MSOB", "CS_MEOA", "CS_ALAP"]);
 const NO_SECONDARY = new Set(["CS_MSO", "CS_MEO", "CS_MANDSTART", "CS_MANDFIN"]);
@@ -182,13 +222,11 @@ export function deadlineConstraint(r, dl) {
   return out;
 }
 
-export function p6XerText(text, { projectId = "", activityIds = "auto", deadlines: carryDeadlines = false, udfTypesFrom = "" } = {}) {
-  // udfTypesFrom: the original XER's text, when this Project XML came from a P6
-  // file, so its UDFs come back with P6's own types (see "custom fields")
-  const udfTypes = udfTypesFrom ? udfTypeHints(parseXer(udfTypesFrom).tables) : null;
-  const parsed = parseMspdi(text, { udfTypes });
+export function p6XerText(text, { projectId = "", activityIds = "auto", deadlines: carryDeadlines = false, typesFrom = null } = {}) {
+  const parsed = parseMspdi(text);
   const T = parsed.tables;
   const warnings = [...parsed.warnings];
+  const typer = udfTyper(typesFrom);
   const doc = parseXml(text.charCodeAt(0) === 0xfeff ? text.slice(1) : text);
   const proj = kid(doc, "Project");
   const taskNode = new Map(kids(kid(proj, "Tasks"), "Task").map((t) => [val(t, "UID"), t]));
@@ -653,7 +691,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     let label = clip("udf_type_label", u.udf_type_label || u.udf_type_name);
     if (seen.has(label.toLowerCase())) { udfDupLabels++; let k = 2; const cut = (x) => `${label.slice(0, MAX.udf_type_label - String(x).length - 3)} (${x})`; while (seen.has(cut(k).toLowerCase())) k++; label = cut(k); }
     seen.add(label.toLowerCase());
-    UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: u.table_name, udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: u.logical_data_type, super_flag: "N" }));
+    UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: u.table_name, udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: typer.type(u.table_name, u.udf_type_label || u.udf_type_name, u.logical_data_type, rows), super_flag: "N" }));
     for (const v of rows) UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf(wbs ? "WBS" : "TASK", v.fk_id), proj_id: P, udf_date: v.udf_date, udf_number: v.udf_number, udf_text: clip("udf_text", v.udf_text), udf_code_id: "" }));
     if (wbs) { wbsUdfFields++; wbsUdfValues += rows.length; }
   }
@@ -681,8 +719,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     let label = clip("udf_type_label", def.alias || def.name || fname);
     if (rsrcLabels.has(label.toLowerCase())) { udfDupLabels++; let k = 2; const cut = (x) => `${label.slice(0, MAX.udf_type_label - String(x).length - 3)} (${x})`; while (rsrcLabels.has(cut(k).toLowerCase())) k++; label = cut(k); }
     rsrcLabels.add(label.toLowerCase());
-    const guess = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "finish" ? "FT_END_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
-    const type = hintedUdfType(udfTypes, "RSRC", def.alias || def.name || fname, kind, guess, rows.map((r) => r.udf_number));
+    const type = typer.type("RSRC", def.alias || def.name || fname, kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "finish" ? "FT_END_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS", rows);
     UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: "RSRC", udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: type, super_flag: "N" }));
     rsrcUdfFields++;
     for (const r of rows) { UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf("RSRC", r.uid), proj_id: "", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: r.udf_text, udf_code_id: "" })); rsrcUdfValues++; }
@@ -736,6 +773,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   if (wbsUdfFields) warnings.push(`${wbsUdfValues} summary task custom field value(s) in ${wbsUdfFields} field(s) written as WBS user-defined fields${dateNote("PROJWBS")}`);
   if (rsrcUdfFields) warnings.push(`${rsrcUdfValues} resource custom field value(s) in ${rsrcUdfFields} field(s) written as resource user-defined fields${dateNote("RSRC")}`);
   if (rsrcUnread) warnings.push(`${rsrcUnread} resource custom field value(s) could not be read as a number or date and were left out`);
+  if (typer.ref) warnings.push(typer.note());
   if (udfDupLabels) warnings.push(`${udfDupLabels} repeated custom field title(s) given a (2), (3) suffix (P6 needs UDF titles unique)`);
   if (cut) warnings.push(`${cut} name(s) or code(s) cut to P6's field length`);
   if (elapsedLags) warnings.push(`${elapsedLags} elapsed lag(s) written in hours: P6 counts every lag on one calendar per project (successor's), so set the lag calendar to 24 hour in P6 if those links matter`);
@@ -757,7 +795,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   if (summaryCost) warnings.push(`${summaryCost} cost resource assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, rsrcGroups: hier.groups, parentResources: hier.parentsAdded, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, curves: RSRCCURVDATA.length, contoured, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
+  const counts = { activities: TASK.length, rsrcGroups: hier.groups, parentResources: hier.parentsAdded, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, curves: RSRCCURVDATA.length, contoured, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, ...(typer.ref ? { typesFromXer: { fields: typer.matched, changed: typer.changed, values: typer.values, notWhole: typer.notWhole.length, unmatched: typer.unmatched } } : {}), notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
   const out = xerText(xer);
   // saved in Windows-1252, as P6 writes and reads an XER, when every
   // character fits it (xer.mjs, xerBytes)

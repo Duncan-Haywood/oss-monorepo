@@ -20,7 +20,10 @@
 //   on the successor's calendar, smallest float, retained logic, no
 //   must-finish date) against the returned XER under its own options.
 //
-//   node eval/p6xer-check.mjs --mspdi <dir> --xer <dir> [--json out.json] [--show N] [--write dir]
+//   With --types-from-original the XER is written back with the original's
+//   UDF types (p6xer.mjs typesFrom, as `cli.mjs --types-from` does).
+//
+//   node eval/p6xer-check.mjs --mspdi <dir> --xer <dir> [--types-from-original] [--json out.json] [--show N] [--write dir]
 import { readFileSync, readdirSync, statSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, basename } from "node:path";
 import { parseXer, decodeXer, parseDate, num } from "../xer.mjs";
@@ -152,7 +155,7 @@ for (const f of list(opt("--xer"), /\.xer$/i)) {
   const t0 = Date.now();
   const X = parseXer(decodeXer(readFileSync(f)));
   const conv = mspdiText(X);
-  const r = p6XerText(conv.xml);
+  const r = p6XerText(conv.xml, args.includes("--types-from-original") ? { typesFrom: X } : {});
   const B = parseXer(r.text);
   const ms = Date.now() - t0;
   const problems = p6Problems(r.xer.tables);

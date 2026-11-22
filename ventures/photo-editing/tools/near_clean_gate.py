@@ -46,7 +46,11 @@ def arms(c, pat, b, d, model, ks, eigs=(), reads: dict | None = None) -> dict:
     cfa = 6 if len(pat) == 36 else 2
     ramp, luma = xd.RAMPS[cfa], xd.LUMA_RAMPS[cfa]
     out = {"D": d}
-    models = [("true", model), ("ship", xd.frame_noise(c, pat))] + [(e, xd.frame_noise(c, pat, eig=e)) for e in eigs]
+    def read(e):  # "mpcw" or "mpcw.envelope": an eigenvalue read, optionally with a line fit (noise_pca.FITS)
+        eig, _, fit = e.partition(".")
+        return xd.frame_noise(c, pat, eig=eig, fit=fit or "line")
+
+    models = [("true", model), ("ship", xd.frame_noise(c, pat))] + [(e, read(e)) for e in eigs]
     if reads is not None:
         for name, m in models[1:]:
             reads[name] = round(float(max(m[0] * 0.18 + m[1], 0.0) ** 0.5), 6)
@@ -67,7 +71,8 @@ def sweep(argv) -> int:
     ap.add_argument("--cards", help="tools/card_scenes.py output: skip repeat scenes")
     ap.add_argument("--ks", help="comma-separated k (default KS)")
     ap.add_argument("--no-raw-grain", action="store_true", help="skip truth_grain18 (two extra LibRaw passes a file)")
-    ap.add_argument("--eigs", default="", help="comma-separated further eigenvalue reads to score as arms (mp, mpc, mpcw, mpcws, mpcw1)")
+    ap.add_argument("--eigs", default="", help="comma-separated further eigenvalue reads to score as arms (mp, mpc, mpcw, mpcws, mpcw1; "
+                    "'mpcw.envelope' adds a line fit, noise_pca.FITS)")
     args = ap.parse_args(argv)
     eigs = tuple(e for e in args.eigs.split(",") if e)
     ks = tuple(float(x) for x in args.ks.split(",")) if args.ks else KS

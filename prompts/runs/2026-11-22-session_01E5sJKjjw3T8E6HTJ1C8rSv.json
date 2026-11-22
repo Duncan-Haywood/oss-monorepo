@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKjjw3T8E6HTJ1C8rSv",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T03:18:34Z",
+  "ended": "2026-11-22T03:48:16Z",
+  "wall_minutes": 30.01,
+  "tokens_in": 9253301,
+  "tokens_out": 43004,
+  "cost_usd": 3.8556,
+  "tool_calls": 77,
+  "task": "free-choice research draw: capture-sync step 6a (milestone 6), a joint lag-and-rate coarse sync search on step 4d's drifting twin sessions; also landed sibling PR #18164 (cell-fidelity 7y, all checks green) first",
+  "projects": [
+    "research/capture-sync"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18187",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "MS-SNSD clean_test now holds 1,100 files; noisetype.speech_blocks asserts 190",
+      "fix": "symlinked clnsp10-199 into a scratch root, as README step 3k says"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/capture-sync/README.md",
+      "issue": "the reproduce block's step 2a sparse-checkout recipe is the only place that limits clean_test to clnsp10-199; later steps say 'MS-SNSD as above', so a fresh clone of the whole clean_test fails speech_blocks' assert (190 files) until you find the step 3k note"
+    },
+    {
+      "file": "research/capture-sync/README.md",
+      "issue": "step 4d timing ('~50 min') and a one-session timing run alone both underestimate a 4-process run on a 4-core container; 6a's 43 s single session became about 2 h for 120 sessions with four workers"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-capture-sync-search-clock-rate-not-just-lag.md",
+    "research/capture-sync/LOG.md (step 6a plan and outcome)",
+    "research/capture-sync/README.md (step 6a section)"
+  ],
+  "goal": null,
+  "notes": "Plan and nine predictions committed and pushed before the run (commit fa9260935). 6a reproduces step 4d's fnc coarse failures and track out-of-sync means to the digit. rl1 (1 s sub-windows, rates -400..400 ppm step 5) fails 0% at 100 ppm and 3.5-4.0% at 300 ppm against 15-26% and 54-58% for 20 s GCC; track_rl cuts 300 ppm out-of-sync from 37.9/44.2% to 13.6/12.5%. 8 of 9 predictions held ((c) refuted at 3.5% vs <=3%). Local checks: 76 capture-sync tests pass, research/_homepage/build.py ok, research_live_links, check_md_links, check_posts, programme_check all ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "19587301-5e39-582f-bcb0-ea1d06b4845b",
+    "transcripts": 1,
+    "first": "2026-11-22T03:18:34Z",
+    "last": "2026-11-22T03:48:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 141,
+        "output": 43004,
+        "thinking": 10565,
+        "cache_read": 9106455,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146705,
+        "api_equivalent_usd": 3.8556,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 141,
+      "output": 43004,
+      "thinking": 10565,
+      "cache_read": 9106455,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146705,
+      "api_equivalent_usd": 3.8556,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 70,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__merge_pull_request": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.01,
+      "active_minutes": 30.01,
+      "model_minutes": 7.92,
+      "tool_minutes": 22.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a signal-processing researcher implementing and validating a delay-Doppler coarse search, rerunning a 120-session benchmark and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 259.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

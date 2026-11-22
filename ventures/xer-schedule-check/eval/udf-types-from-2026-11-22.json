@@ -1,0 +1,356 @@
+{
+  "mspdi": [],
+  "xer": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "version": "6.0",
+      "project": "CCA R03 dt 24Oct11SC",
+      "ms": 10979,
+      "bytes": 20686723,
+      "activities": 16146,
+      "idsBack": 16146,
+      "spans": 297,
+      "compared": 15849,
+      "allFields": 15849,
+      "fields": {
+        "name": 15849,
+        "status": 15849,
+        "remaining": 15849,
+        "actualStart": 15849,
+        "actualFinish": 15849,
+        "constraint": 15849,
+        "baseline": 15849,
+        "calendar": 15849
+      },
+      "links": 45483,
+      "linksKept": 45483,
+      "linksExtra": 0,
+      "codes": 255410,
+      "codesKept": 255410,
+      "wbsSame": 15849,
+      "problems": [],
+      "udfsAll": 41729,
+      "udfs": 13174,
+      "udfsKept": 13174,
+      "udfsTyped": 13174,
+      "udfsExtra": 0,
+      "udfMiss": [],
+      "udfTypeMiss": [],
+      "resources": 119,
+      "assignments": 36808,
+      "schedule": {
+        "open": 14270,
+        "same": 14266,
+        "miss": [
+          {
+            "code": "D03UR26001C0",
+            "ef": [
+              21957600,
+              21957600
+            ],
+            "lf": [
+              22150908,
+              22099128
+            ],
+            "tf": [
+              629.8,
+              629.8
+            ]
+          },
+          {
+            "code": "DP1CL26009C0",
+            "ef": [
+              21972000,
+              21972000
+            ],
+            "lf": [
+              22153500,
+              22153500
+            ],
+            "tf": [
+              360.2,
+              809
+            ]
+          },
+          {
+            "code": "DP1CL09201C0",
+            "ef": [
+              21971100,
+              21971100
+            ],
+            "lf": [
+              22055532,
+              22059900
+            ],
+            "tf": [
+              360.2,
+              377
+            ]
+          }
+        ]
+      },
+      "warnings": [
+        "206 manually scheduled task(s) do not move with their logic (switch them to auto scheduled before relying on the dates); each is read as start on or after its typed start: 426 T&C @ CUP; 427 T&C @ Car Park; 428 T&C @ Clinic Building; 429 T&C @ D&T Building; 430 T&C @ Gallery; 431 T&C @ Swing Wing; 432 T&C @ ICU; 433 T&C @ Patient Tower 10-16; 434 T&C @ Patient tower 17-20; 3491 CB-AF ; Ele(39,40)-CTU; 8914 IC-R8 ; Temporary Enclosure; 16775 CU-VO 002 ; Mold Resistant board for Partitions - CUP; ...",
+        "3 task(s) carry a deadline: as in Project, a deadline before a task's late finish sets its late finish, so its total float counts down to the deadline (negative once the task is forecast past it)",
+        "4 activities have actual dates after the status date 2011-09-30 00:00 (to 2012-08-11 08:36); the status date is kept as P6's data date, so P6's schedule log will list them: correct the actuals or the status date",
+        "activity IDs from the \"Activity ID\" text field on 16146 of 16146 activities",
+        "3 activity code type(s) written as parent.child paths rebuilt as P6 code hierarchies",
+        "33 assignment(s) with hand-edited timephased work (contour \"Contoured\") written with an even spread: P6 has no per-period edit an XER carries",
+        "13174 custom field value(s) in 17 field(s) written as activity user-defined fields (Finish fields as finish-date UDFs)",
+        "user-defined field types from the original XER: 17 field(s) matched by title, 6 given the original's type (6070 value(s); a decimal UDF holding whole numbers stays decimal, a finish-date UDF in a Date field stays a finish date)",
+        "3 deadline(s) not carried: P6 has no deadline field (turn on \"deadlines as finish-on-or-before\" (--deadlines) to write each as a finish-on-or-before constraint, which caps the late finish in P6 as the deadline caps total slack in Project)",
+        "104 resource(s) filed under parent resources from their Group (P6's resource hierarchy); 14 parent resource(s) added, named by the Group's steps"
+      ],
+      "bad": []
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "version": "7.0",
+      "project": "BEW3",
+      "ms": 508,
+      "bytes": 1047619,
+      "activities": 823,
+      "idsBack": 823,
+      "spans": 0,
+      "compared": 823,
+      "allFields": 823,
+      "fields": {
+        "name": 823,
+        "status": 823,
+        "remaining": 823,
+        "actualStart": 823,
+        "actualFinish": 823,
+        "constraint": 823,
+        "baseline": 823,
+        "calendar": 823
+      },
+      "links": 1094,
+      "linksKept": 1094,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "wbsSame": 823,
+      "problems": [],
+      "udfsAll": 1864,
+      "udfs": 823,
+      "udfsKept": 823,
+      "udfsTyped": 823,
+      "udfsExtra": 0,
+      "udfMiss": [],
+      "udfTypeMiss": [],
+      "resources": 336,
+      "assignments": 3519,
+      "schedule": {
+        "open": 823,
+        "same": 823,
+        "miss": []
+      },
+      "warnings": [
+        "activity IDs from the \"Activity ID\" text field on 823 of 823 activities",
+        "823 custom field value(s) in 1 field(s) written as activity user-defined fields",
+        "user-defined field types from the original XER: 1 field(s) matched by title, all already of the original's type",
+        "87 note section(s) written as notebook entries (86 on activities, 1 on the project node from the project's notes) under 1 notebook topic(s): Description",
+        "323 resource(s) filed under parent resources from their Group (P6's resource hierarchy); 13 parent resource(s) added, named by the Group's steps"
+      ],
+      "bad": []
+    },
+    {
+      "file": "example_xer_file.xer",
+      "version": "24.12",
+      "project": "DEMO-001",
+      "ms": 214,
+      "bytes": 495688,
+      "activities": 435,
+      "idsBack": 435,
+      "spans": 10,
+      "compared": 425,
+      "allFields": 425,
+      "fields": {
+        "name": 425,
+        "status": 425,
+        "remaining": 425,
+        "actualStart": 425,
+        "actualFinish": 425,
+        "constraint": 425,
+        "baseline": 425,
+        "calendar": 425
+      },
+      "links": 555,
+      "linksKept": 555,
+      "linksExtra": 0,
+      "codes": 436,
+      "codesKept": 436,
+      "wbsSame": 425,
+      "problems": [],
+      "udfsAll": 0,
+      "udfs": 0,
+      "udfsKept": 0,
+      "udfsTyped": 0,
+      "udfsExtra": 0,
+      "udfMiss": [],
+      "udfTypeMiss": [],
+      "resources": 29,
+      "assignments": 1677,
+      "schedule": {
+        "open": 404,
+        "same": 404,
+        "miss": []
+      },
+      "warnings": [
+        "2 manually scheduled task(s) do not move with their logic (switch them to auto scheduled before relying on the dates); each is read as start on or after its typed start: 186 Activity DEL-W-1070; 453 Activity DEL-W-1110",
+        "activity IDs from the \"Activity ID\" text field on 435 of 435 activities",
+        "87 resource custom field value(s) in 3 field(s) written as resource user-defined fields",
+        "user-defined field types from the original XER: 0 field(s) matched by title, all already of the original's type",
+        "1 note section(s) written as notebook entries (1 on activities) under 1 notebook topic(s): Anticipated Problems"
+      ],
+      "bad": []
+    },
+    {
+      "file": "hotel-project.xer",
+      "version": "6.0",
+      "project": "HBTF-2",
+      "ms": 1284,
+      "bytes": 2519813,
+      "activities": 4217,
+      "idsBack": 4217,
+      "spans": 0,
+      "compared": 4217,
+      "allFields": 4217,
+      "fields": {
+        "name": 4217,
+        "status": 4217,
+        "remaining": 4217,
+        "actualStart": 4217,
+        "actualFinish": 4217,
+        "constraint": 4217,
+        "baseline": 4217,
+        "calendar": 4217
+      },
+      "links": 7586,
+      "linksKept": 7586,
+      "linksExtra": 0,
+      "codes": 18020,
+      "codesKept": 18020,
+      "wbsSame": 4217,
+      "problems": [],
+      "udfsAll": 0,
+      "udfs": 0,
+      "udfsKept": 0,
+      "udfsTyped": 0,
+      "udfsExtra": 0,
+      "udfMiss": [],
+      "udfTypeMiss": [],
+      "resources": 11,
+      "assignments": 2278,
+      "schedule": {
+        "open": 4217,
+        "same": 4217,
+        "miss": []
+      },
+      "warnings": [
+        "activity IDs from the \"Activity ID\" text field on 4217 of 4217 activities",
+        "user-defined field types from the original XER: 0 field(s) matched by title, all already of the original's type",
+        "5 resource(s) filed under parent resources from their Group (P6's resource hierarchy); 5 parent resource(s) added, named by the Group's steps"
+      ],
+      "bad": []
+    },
+    {
+      "file": "sample.xer",
+      "version": "20.12",
+      "project": "Task SE",
+      "ms": 30,
+      "bytes": 22977,
+      "activities": 52,
+      "idsBack": 52,
+      "spans": 10,
+      "compared": 42,
+      "allFields": 42,
+      "fields": {
+        "name": 42,
+        "status": 42,
+        "remaining": 42,
+        "actualStart": 42,
+        "actualFinish": 42,
+        "constraint": 42,
+        "baseline": 42,
+        "calendar": 42
+      },
+      "links": 41,
+      "linksKept": 41,
+      "linksExtra": 0,
+      "codes": 0,
+      "codesKept": 0,
+      "wbsSame": 42,
+      "problems": [],
+      "udfsAll": 0,
+      "udfs": 0,
+      "udfsKept": 0,
+      "udfsTyped": 0,
+      "udfsExtra": 0,
+      "udfMiss": [],
+      "udfTypeMiss": [],
+      "resources": 0,
+      "assignments": 0,
+      "schedule": {
+        "open": 42,
+        "same": 42,
+        "miss": []
+      },
+      "warnings": [
+        "10 manually scheduled task(s) do not move with their logic (switch them to auto scheduled before relying on the dates); each is read as start on or after its typed start: 7 LOE1.1; 10 LOE1.2; 18 LOE2.1; 21 LOE2.2; 29 LOE3.1; 32 LOE3.2; 40 LOE4.1; 43 LOE4.2; 51 LOE5.1; 54 LOE5.2",
+        "activity IDs from the \"Activity ID\" text field on 52 of 52 activities",
+        "user-defined field types from the original XER: 0 field(s) matched by title, all already of the original's type"
+      ],
+      "bad": []
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "version": "5.0",
+      "project": "TERMINAL-2",
+      "ms": 51,
+      "bytes": 45538,
+      "activities": 66,
+      "idsBack": 66,
+      "spans": 0,
+      "compared": 66,
+      "allFields": 66,
+      "fields": {
+        "name": 66,
+        "status": 66,
+        "remaining": 66,
+        "actualStart": 66,
+        "actualFinish": 66,
+        "constraint": 66,
+        "baseline": 66,
+        "calendar": 66
+      },
+      "links": 84,
+      "linksKept": 84,
+      "linksExtra": 0,
+      "codes": 51,
+      "codesKept": 51,
+      "wbsSame": 66,
+      "problems": [],
+      "udfsAll": 0,
+      "udfs": 0,
+      "udfsKept": 0,
+      "udfsTyped": 0,
+      "udfsExtra": 0,
+      "udfMiss": [],
+      "udfTypeMiss": [],
+      "resources": 7,
+      "assignments": 62,
+      "schedule": {
+        "open": 66,
+        "same": 66,
+        "miss": []
+      },
+      "warnings": [
+        "activity IDs from the \"Activity ID\" text field on 66 of 66 activities",
+        "user-defined field types from the original XER: 0 field(s) matched by title, all already of the original's type",
+        "6 resource(s) filed under parent resources from their Group (P6's resource hierarchy); 1 parent resource(s) added, named by the Group's steps"
+      ],
+      "bad": []
+    }
+  ]
+}

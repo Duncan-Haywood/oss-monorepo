@@ -58,11 +58,12 @@
   directions); still open there: a P6-written XER with expenses, whether
   P6's import matches a cost category by name, expense accounts (acct_id).
   Number/Cost/Date fields as UDFs shipped 2026-11-21
-  (eval/p6xer-udfs-2026-11-21.md). The UDF type on a round trip: restored from the
-  original XER 2026-11-22 (`--udf-types-from`, eval/udf-type-hints-2026-11-22.md:
-  42,847 of 42,847 values with P6's type, text UDFs back as text UDFs, not
-  codes). Still open: an in-file marker that survives a save in Project, for
-  when the original is not to hand (needs a Project install to test). Finish-date UDFs and Project's Start/Finish fields
+  (eval/p6xer-udfs-2026-11-21.md). The UDF type on a round trip shipped
+  2026-11-22 as types from the original XER (--types-from; CCA 13,174 of
+  13,174 keep P6's type, eval/udf-types-from-2026-11-22.md). Still open
+  there: a Project file with no XER behind it keeps "whole numbers as
+  integer"; a marker inside the Project file needs a Project seat to check
+  that it survives a save. Finish-date UDFs and Project's Start/Finish fields
   shipped 2026-11-22 (eval/finish-udfs-2026-11-22.md); still open there: a
   switch to leave interim-plan Start/Finish fields out.
   Resource custom fields as RSRC UDFs shipped 2026-11-21
