@@ -172,3 +172,8 @@ test("the FAQPage JSON-LD on index matches visible copy exactly", () => {
 test("footer links the sibling tool car-lease-deal-checker", () => {
   assert.match(page("index.html"), /href="\.\.\/car-lease-deal-checker\/"/);
 });
+
+test("a blank MAGI or interest field stops the calculation instead of counting as zero (quality audit round 96)", () => {
+  const html = page("index.html");
+  assert.match(html, /els\.magi\.value\.trim\(\) === "" \|\| els\.interestPaid\.value\.trim\(\) === ""/);
+});

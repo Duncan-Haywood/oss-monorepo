@@ -147,3 +147,13 @@ test('an ineligible vehicle reports zero estimated savings, not a stale number',
   });
   assert.equal(result.estimatedSavings, 0);
 });
+
+test("a qualifying result reminds the filer the VIN must go on the return (quality audit round 96)", async () => {
+  const m = await import("./calc.mjs");
+  const criteria = Object.fromEntries(m.ELIGIBILITY_CRITERIA.map((x) => [x.key, true]));
+  const r = m.computeQualifiedVehicleInterestDeduction({ interestPaid: 3000, filingStatus: "single", magi: 80000, criteria, marginalRatePercent: 22 });
+  assert.ok(r.findings.some((f) => /VIN/.test(f.title)));
+  const none = m.computeQualifiedVehicleInterestDeduction({ interestPaid: 3000, filingStatus: "single", magi: 200000, criteria, marginalRatePercent: 22 });
+  assert.equal(none.deduction, 0);
+  assert.ok(!none.findings.some((f) => /VIN/.test(f.title)));
+});
