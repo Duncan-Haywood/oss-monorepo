@@ -1,0 +1,4443 @@
+{
+ "seed": 1,
+ "plants": 8,
+ "totals": {
+  "c1": [
+   244,
+   244
+  ],
+  "c2": [
+   48,
+   48
+  ],
+  "c3": [
+   48,
+   48
+  ],
+  "c4": [
+   48,
+   48
+  ],
+  "outcomes": 244,
+  "moved": 156,
+  "spread": 32
+ },
+ "files": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "project": "CCA R03 dt 24Oct11SC",
+   "pairs": 4751,
+   "c1": [
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    }
+   ],
+   "c2": [
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 0.9999999999999999
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    }
+   ],
+   "c3": [
+    {
+     "ok": true,
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    },
+    {
+     "ok": true,
+     "got": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59"
+    }
+   ],
+   "c4": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "seconds": 119.891
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "project": "BEW3",
+   "pairs": 22,
+   "c1": [
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    }
+   ],
+   "c2": [
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1.0000000000000002
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 0,
+     "want": 0,
+     "psum": 1
+    }
+   ],
+   "c3": [
+    {
+     "ok": true,
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00"
+    }
+   ],
+   "c4": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "seconds": 9.865
+  },
+  {
+   "file": "example_xer_file.xer",
+   "project": "DEMO-001",
+   "pairs": 243,
+   "c1": [
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-26 14:14",
+     "want": "2027-05-26 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-26 14:14",
+     "want": "2027-05-26 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-10 16:59",
+     "want": "2027-05-10 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-10 16:59",
+     "want": "2027-05-10 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-10 14:14",
+     "want": "2027-05-10 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-06-10 17:00",
+     "want": "2027-06-10 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-10 17:00",
+     "want": "2027-06-10 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-06-04 17:00",
+     "want": "2027-06-04 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-04 17:00",
+     "want": "2027-06-04 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-26 17:00",
+     "want": "2027-05-26 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-26 17:00",
+     "want": "2027-05-26 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-25 17:00",
+     "want": "2027-05-25 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-25 17:00",
+     "want": "2027-05-25 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-17 17:00",
+     "want": "2027-05-17 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-17 17:00",
+     "want": "2027-05-17 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-01 17:00",
+     "want": "2027-06-01 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-01 17:00",
+     "want": "2027-06-01 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-01 17:00",
+     "want": "2027-06-01 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-06-01 14:14",
+     "want": "2027-06-01 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-20 14:14",
+     "want": "2027-05-20 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-12 14:14",
+     "want": "2027-05-12 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-27 17:00",
+     "want": "2027-05-27 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-27 17:00",
+     "want": "2027-05-27 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-27 17:00",
+     "want": "2027-05-27 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-18 14:14",
+     "want": "2027-05-18 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-17 14:14",
+     "want": "2027-05-17 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-17 14:14",
+     "want": "2027-05-17 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-03 14:14",
+     "want": "2027-06-03 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-21 14:14",
+     "want": "2027-05-21 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-18 14:14",
+     "want": "2027-05-18 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-24 14:14",
+     "want": "2027-06-24 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-16 14:14",
+     "want": "2027-06-16 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-01 14:14",
+     "want": "2027-06-01 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-31 14:14",
+     "want": "2027-05-31 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-20 14:14",
+     "want": "2027-05-20 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-06-07 14:14",
+     "want": "2027-06-07 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-31 14:14",
+     "want": "2027-05-31 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2027-05-25 14:14",
+     "want": "2027-05-25 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-14 14:14",
+     "want": "2027-05-14 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-07 14:14",
+     "want": "2027-05-07 14:14"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59"
+    }
+   ],
+   "c2": [
+    {
+     "ok": true,
+     "got": 4.1,
+     "want": 4.1,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 22.4,
+     "want": 22.4,
+     "psum": 1.0000000000000002
+    },
+    {
+     "ok": true,
+     "got": 10.9,
+     "want": 10.9,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 10.7,
+     "want": 10.7,
+     "psum": 0.9999999999999999
+    },
+    {
+     "ok": true,
+     "got": 12.4,
+     "want": 12.4,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 10.1,
+     "want": 10.1,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 25.1,
+     "want": 25.1,
+     "psum": 0.9999999999999999
+    },
+    {
+     "ok": true,
+     "got": 8.2,
+     "want": 8.2,
+     "psum": 1
+    }
+   ],
+   "c3": [
+    {
+     "ok": true,
+     "got": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59"
+    },
+    {
+     "ok": true,
+     "got": "2027-06-10 17:00",
+     "want": "2027-06-10 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2027-05-26 17:00",
+     "want": "2027-05-26 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2027-05-20 14:14",
+     "want": "2027-05-20 14:14"
+    },
+    {
+     "ok": true,
+     "got": "2027-05-27 17:00",
+     "want": "2027-05-27 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2027-05-21 14:14",
+     "want": "2027-05-21 14:14"
+    },
+    {
+     "ok": true,
+     "got": "2027-06-16 14:14",
+     "want": "2027-06-16 14:14"
+    },
+    {
+     "ok": true,
+     "got": "2027-05-07 14:14",
+     "want": "2027-05-07 14:14"
+    }
+   ],
+   "c4": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "seconds": 2.098
+  },
+  {
+   "file": "hotel-project.xer",
+   "project": "HBTF-2",
+   "pairs": 1031,
+   "c1": [
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-09-14 16:00",
+     "want": "2014-09-14 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-09-10 16:00",
+     "want": "2014-09-10 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-09-09 16:00",
+     "want": "2014-09-09 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-21 16:00",
+     "want": "2014-08-21 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-18 16:00",
+     "want": "2014-08-18 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-17 16:00",
+     "want": "2014-08-17 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-13 16:00",
+     "want": "2014-08-13 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-12 16:00",
+     "want": "2014-08-12 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-07-28 16:00",
+     "want": "2014-07-28 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-07-27 16:00",
+     "want": "2014-07-27 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-19 16:00",
+     "want": "2014-08-19 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-16 16:00",
+     "want": "2014-08-16 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-13 16:00",
+     "want": "2014-08-13 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-09 16:00",
+     "want": "2014-08-09 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-05 16:00",
+     "want": "2014-08-05 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-03 16:00",
+     "want": "2014-08-03 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-24 16:00",
+     "want": "2014-08-24 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-16 16:00",
+     "want": "2014-08-16 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-11 16:00",
+     "want": "2014-08-11 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-03 16:00",
+     "want": "2014-08-03 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-09-10 16:00",
+     "want": "2014-09-10 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-28 16:00",
+     "want": "2014-08-28 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-18 16:00",
+     "want": "2014-08-18 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-05 16:00",
+     "want": "2014-08-05 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-09-16 16:00",
+     "want": "2014-09-16 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-25 16:00",
+     "want": "2014-08-25 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-14 16:00",
+     "want": "2014-08-14 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-07-26 16:00",
+     "want": "2014-07-26 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-09-03 16:00",
+     "want": "2014-09-03 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-23 16:00",
+     "want": "2014-08-23 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-23 16:00",
+     "want": "2014-08-23 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-19 16:00",
+     "want": "2014-08-19 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-07 16:00",
+     "want": "2014-08-07 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-07 16:00",
+     "want": "2014-08-07 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-09-03 16:00",
+     "want": "2014-09-03 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-24 16:00",
+     "want": "2014-08-24 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-21 16:00",
+     "want": "2014-08-21 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-08-11 16:00",
+     "want": "2014-08-11 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2014-08-06 16:00",
+     "want": "2014-08-06 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2014-07-24 16:00",
+     "want": "2014-07-24 16:00"
+    }
+   ],
+   "c2": [
+    {
+     "ok": true,
+     "got": 26.6,
+     "want": 26.6,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 5.7,
+     "want": 5.7,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 15.8,
+     "want": 15.8,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 17.7,
+     "want": 17.7,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 26.3,
+     "want": 26.3,
+     "psum": 1.0000000000000002
+    },
+    {
+     "ok": true,
+     "got": 12,
+     "want": 12,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 23.9,
+     "want": 23.9,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 23.8,
+     "want": 23.8,
+     "psum": 1
+    }
+   ],
+   "c3": [
+    {
+     "ok": true,
+     "got": "2014-08-17 16:00",
+     "want": "2014-08-17 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2014-07-27 16:00",
+     "want": "2014-07-27 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2014-08-13 16:00",
+     "want": "2014-08-13 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2014-08-11 16:00",
+     "want": "2014-08-11 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2014-08-18 16:00",
+     "want": "2014-08-18 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2014-07-26 16:00",
+     "want": "2014-07-26 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2014-08-23 16:00",
+     "want": "2014-08-23 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2014-09-03 16:00",
+     "want": "2014-09-03 16:00"
+    }
+   ],
+   "c4": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "seconds": 14.27
+  },
+  {
+   "file": "sample.xer",
+   "project": "Task SE",
+   "pairs": 15,
+   "c1": [
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-08 16:00",
+     "want": "2021-11-08 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-11-03 16:00",
+     "want": "2021-11-03 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-03 16:00",
+     "want": "2021-11-03 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-29 16:00",
+     "want": "2021-10-29 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-10 16:00",
+     "want": "2021-11-10 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-10-28 16:00",
+     "want": "2021-10-28 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-25 16:00",
+     "want": "2021-10-25 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-12 16:00",
+     "want": "2021-10-12 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-11 16:00",
+     "want": "2021-11-11 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-09 16:00",
+     "want": "2021-11-09 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-11-03 16:00",
+     "want": "2021-11-03 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-11-01 16:00",
+     "want": "2021-11-01 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-10-19 16:00",
+     "want": "2021-10-19 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-11 16:00",
+     "want": "2021-10-11 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-22 16:00",
+     "want": "2021-11-22 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-11-16 16:00",
+     "want": "2021-11-16 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-05 16:00",
+     "want": "2021-11-05 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-11-01 16:00",
+     "want": "2021-11-01 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-22 16:00",
+     "want": "2021-11-22 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-19 16:00",
+     "want": "2021-11-19 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-11-10 16:00",
+     "want": "2021-11-10 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-11-09 16:00",
+     "want": "2021-11-09 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-02 16:00",
+     "want": "2021-11-02 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-01 16:00",
+     "want": "2021-11-01 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-26 16:00",
+     "want": "2021-10-26 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-25 16:00",
+     "want": "2021-10-25 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-10-15 16:00",
+     "want": "2021-10-15 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-13 16:00",
+     "want": "2021-10-13 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-10-13 16:00",
+     "want": "2021-10-13 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-11 16:00",
+     "want": "2021-10-11 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-11-01 16:00",
+     "want": "2021-11-01 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-26 16:00",
+     "want": "2021-10-26 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-10-19 16:00",
+     "want": "2021-10-19 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2021-10-14 16:00",
+     "want": "2021-10-14 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-13 16:00",
+     "want": "2021-10-13 16:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2021-10-08 16:00",
+     "want": "2021-10-08 16:00"
+    }
+   ],
+   "c2": [
+    {
+     "ok": true,
+     "got": 18,
+     "want": 18,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 9.5,
+     "want": 9.5,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 13.2,
+     "want": 13.2,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 22.6,
+     "want": 22.6,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 28.8,
+     "want": 28.8,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 15.1,
+     "want": 15.1,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 3.3,
+     "want": 3.3,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 8,
+     "want": 8,
+     "psum": 1
+    }
+   ],
+   "c3": [
+    {
+     "ok": true,
+     "got": "2021-11-03 16:00",
+     "want": "2021-11-03 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2021-10-25 16:00",
+     "want": "2021-10-25 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2021-11-03 16:00",
+     "want": "2021-11-03 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2021-11-01 16:00",
+     "want": "2021-11-01 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2021-11-22 16:00",
+     "want": "2021-11-22 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2021-11-01 16:00",
+     "want": "2021-11-01 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2021-10-13 16:00",
+     "want": "2021-10-13 16:00"
+    },
+    {
+     "ok": true,
+     "got": "2021-10-26 16:00",
+     "want": "2021-10-26 16:00"
+    }
+   ],
+   "c4": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "seconds": 0.161
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "project": "TERMINAL-2",
+   "pairs": 34,
+   "c1": [
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-10 17:00",
+     "want": "2013-03-10 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-10 17:00",
+     "want": "2013-03-10 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-03 17:00",
+     "want": "2013-03-03 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-03 17:00",
+     "want": "2013-03-03 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-02 17:00",
+     "want": "2013-03-02 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-02 17:00",
+     "want": "2013-03-02 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-20 17:00",
+     "want": "2013-03-20 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-20 17:00",
+     "want": "2013-03-20 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-08 17:00",
+     "want": "2013-03-08 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-01 17:00",
+     "want": "2013-03-01 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-18 17:00",
+     "want": "2013-03-18 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-18 17:00",
+     "want": "2013-03-18 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-16 17:00",
+     "want": "2013-03-16 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-16 17:00",
+     "want": "2013-03-16 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-09 17:00",
+     "want": "2013-03-09 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-09 17:00",
+     "want": "2013-03-09 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-06 17:00",
+     "want": "2013-03-06 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-06 17:00",
+     "want": "2013-03-06 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-05 17:00",
+     "want": "2013-03-05 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-05 17:00",
+     "want": "2013-03-05 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-03 17:00",
+     "want": "2013-03-03 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-03 17:00",
+     "want": "2013-03-03 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-19 17:00",
+     "want": "2013-03-19 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-18 17:00",
+     "want": "2013-03-18 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-05 17:00",
+     "want": "2013-03-05 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-04 17:00",
+     "want": "2013-03-04 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-01 17:00",
+     "want": "2013-03-01 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-02-28 17:00",
+     "want": "2013-02-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-06 17:00",
+     "want": "2013-03-06 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-06 17:00",
+     "want": "2013-03-06 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-26 17:00",
+     "want": "2013-03-26 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B2"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-26 17:00",
+     "want": "2013-03-26 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-18 17:00",
+     "want": "2013-03-18 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-18 17:00",
+     "want": "2013-03-18 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-17 17:00",
+     "want": "2013-03-17 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-02-28 17:00",
+     "want": "2013-02-28 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-24 17:00",
+     "want": "2013-03-24 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B1"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-20 17:00",
+     "want": "2013-03-20 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "Happens"
+      }
+     ],
+     "got": "2013-03-11 17:00",
+     "want": "2013-03-11 17:00"
+    },
+    {
+     "ok": true,
+     "picks": [
+      {
+       "group": "G1",
+       "branch": "B0"
+      },
+      {
+       "group": "G2",
+       "branch": "none of these"
+      }
+     ],
+     "got": "2013-03-07 17:00",
+     "want": "2013-03-07 17:00"
+    }
+   ],
+   "c2": [
+    {
+     "ok": true,
+     "got": 5.7,
+     "want": 5.7,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 11.8,
+     "want": 11.8,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 14.6,
+     "want": 14.6,
+     "psum": 0.9999999999999999
+    },
+    {
+     "ok": true,
+     "got": 5.8,
+     "want": 5.8,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 10.3,
+     "want": 10.3,
+     "psum": 0.9999999999999999
+    },
+    {
+     "ok": true,
+     "got": 1,
+     "want": 1,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 22.3,
+     "want": 22.3,
+     "psum": 1
+    },
+    {
+     "ok": true,
+     "got": 13.4,
+     "want": 13.4,
+     "psum": 1
+    }
+   ],
+   "c3": [
+    {
+     "ok": true,
+     "got": "2013-03-03 17:00",
+     "want": "2013-03-03 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2013-03-08 17:00",
+     "want": "2013-03-08 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2013-03-09 17:00",
+     "want": "2013-03-09 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2013-03-05 17:00",
+     "want": "2013-03-05 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2013-03-19 17:00",
+     "want": "2013-03-19 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2013-03-26 17:00",
+     "want": "2013-03-26 17:00"
+    },
+    {
+     "ok": true,
+     "got": "2013-03-07 17:00",
+     "want": "2013-03-07 17:00"
+    }
+   ],
+   "c4": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "seconds": 0.179
+  }
+ ]
+}

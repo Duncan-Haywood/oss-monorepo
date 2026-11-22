@@ -609,7 +609,10 @@ Checked: `tia.test.mjs` (a 30% hold moves the expectation by exactly 30% of
 its days; the same ID on two branches; a link to a branch-only activity
 dropped; two groups multiply and the probabilities add to 1; over 100%
 refused; no branch columns leaves the result unchanged).
-`eval/tia-branches-check.mjs` on the six public files: RESULTS
+`eval/tia-branches-check.mjs` on the six public files, 48 planted fragnets
+with two branch groups each: every one of 244 outcomes finishes where a
+plain TIA of that outcome's rows does, the expectation equals the weighted
+sum 48 of 48, the single result is the most likely branches 48 of 48
 (eval/tia-branches-2026-11-22.md). Not yet run on a real job's fragnet with
 alternatives; a TIA exhibit with branches is the next thing to read.
 
