@@ -9518,3 +9518,42 @@ sign-ups stop" is most likely to already have.
 - **Not checked.** No Plausible account was used: the request and answer shapes follow Plausible's published Stats API
   v2 documentation, not a live call. Whether the Stats API needs a paid plan tier for a given account is Plausible's
   call; the tool names a 402 as that.
+
+## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
+
+Open item from "A step-robust omega": wander chosen by likelihood (`--model drift`'s default) lost two series the
+lag-difference estimate scored well, the 1983 seat-belt law (F1 0.824 to 0.621) and quality control 4 (0.936 to
+0.638). The guess written there was "omega chosen high on a seasonal or trending series". The rule, two mechanism
+lines and two lines on whether a pre-fit flag sees the cause are in the header of `eval/drift-ml-absorbs.mjs`, written
+after a probe of the q profile on seven series (nothing scored) and before the script first ran. Output:
+`eval/drift-ml-absorbs.out.txt`; test `drift-ml-absorbs.test.mjs` (on the committed `data/uk-driver-deaths.csv`,
+which is TCPD's `seatbelts`).
+
+- **Seat belts: not seasonality, the penalty arithmetic (M1 fails).** The lag variances rise to lag 7 and fall back by
+  lag 10, a yearly cycle, and ML chooses q = omega^2 / sigma^2 = 0.51. M1 said that taking off the 12 calendar-month
+  medians would bring the law back and halve q. It does neither: q falls to 0.29 (not under 0.255) and there is still
+  no cut. Read after the line failed, with q profiled for each fixed partition (post hoc): at the wander the data
+  supports, the law is a -3.4 sd jump on the raw series (-2.8 sd with the months taken off), and the cut at it saves
+  9.4 units of -2 log likelihood on the raw series and 7.2 on the deseasonalised one, against a penalty of
+  2 log 192 = 10.5. A monthly level that moves about half a noise sd every month absorbs a 3-sd step for less than one
+  change costs. The lag estimate found 1983-01 only because its q (0.245) is lower, which makes the walk stiffer;
+  it is not a better reading of the series' wander. So the loss is a real ambiguity at this penalty, not an estimator
+  bug; a penalty of 1.78 log n or less would cut at the law (not tried as a setting: one series).
+- **Quality control 4: the step is found, the loss is two extra cuts (M2 passes).** Its lag variances grow faster
+  than linearly in k (0.62, 0.97, 1.61, 2.57, 3.78: a smooth level with momentum, not a walk plus noise), so the lag
+  line's intercept falls below `driftNoise`'s 2% floor and sigma is the floor itself (0.079 against a lag-1 sd of
+  0.79). ML then chooses q = 91 and cuts 342 (the annotated step), 360 and 440; lag noise cuts 342 alone. The word
+  "absorbs" in the earlier section was wrong for this series.
+- **Can a flag see it before the fit? Partly (G1 passes, G2 fails).** Flags fixed beforehand: floored (the sigma is
+  the floor) and seasonal (the largest lag variance at an interior lag and the last under 0.75 of it). Of the 8 TCPD
+  series where ML loses more than 0.05 F1 to lag noise, 6 are flagged (G1, needs half): gdp_iran, gdp_japan, ozone,
+  quality control 4 and robocalls floored, seat belts seasonal; quality control 3 and homeruns are not. But the floor
+  is common: 21 of 38 series, where ML minus lag averages -0.005, and the 4 seasonal ones average +0.116 (Iceland
+  tourism +0.666). Flagged series as a whole average +0.015, so G2 (negative on flagged, not on the rest) fails, and
+  no note ships: on most floored series ML is as good or better (US population +0.274, bitcoin +0.126).
+- **What changed.** `driftNoise` now returns `flooredSigma` (true when the sigma is the 2% guard, not an estimate),
+  for callers and later checks; no default, output or score moves.
+- **Next.** A floored sigma means the walk-plus-noise model is the wrong shape for the series (a smooth level wants a
+  local linear trend, or `--drift-slope`); a trend-in-the-walk model tried on the 21 floored series, pre-registered.
+  For seat belts, report the best absorbed cut and its shortfall against the penalty ("1983-01 would save 9.4 of the
+  10.5 a change costs"), so a reader with a known date sees how close it came.

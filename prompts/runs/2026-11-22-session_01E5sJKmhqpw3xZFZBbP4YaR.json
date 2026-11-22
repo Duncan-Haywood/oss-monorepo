@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmhqpw3xZFZBbP4YaR",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T11:09:17Z",
+  "ended": "2026-11-22T11:16:20Z",
+  "wall_minutes": 7.22,
+  "tokens_in": 5838058,
+  "tokens_out": 26452,
+  "cost_usd": 2.5252,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18241",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_venture_tests.py --changed found no merge base in the shallow clone; reran with the 21 slugs named"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/header-crosslinks.test.mjs",
+      "issue": "The check counted only p.note with a ../slug/ link, so 18 pages stacking own-guide links under other classes (seo-link, tagline, docs) passed it. Extended in this PR."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to build the full site (3-20 min) before choosing; the polish_queue.py tool plus --only previews of the touched slugs were enough and took ~2 min. The prompt still does not mention polish_queue.py (owner-gated file)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the full-site build and the five-surface screenshot survey; picked from polish_queue.py's open items and measured with --only previews of main and the branch",
+      "did": "before/after --only builds of 21 pages, venture-fold at 360/390/1280, screenshots",
+      "result": "first field on screen at 390: 7 -> 18 of 21"
+    },
+    {
+      "file": "docs/reports/polish-2026-11-22-header-crosslinks.md",
+      "why": "Item 3 (shared related-links CSS) not done: per-page palettes render the card well, and a site-wide rule would fight them",
+      "did": "recorded the reasoning in the new report",
+      "result": "open for a later run if a card looks broken"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-the-guide-links-were-the-new-see-also-stack.md",
+    "docs/reports/polish-2026-11-22-related-links-cards.md"
+  ],
+  "goal": null,
+  "notes": "run_venture_tests.py on 21 slugs: 21 suites, 0 failed, site page checks ok. header-crosslinks.test.mjs 5/5 (new check failed on main with 18 pages). DIST=<after preview> venture-fold.mjs --check: pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b27a07a1-6e81-5c10-a629-4573c4ee00de",
+    "transcripts": 1,
+    "first": "2026-11-22T11:09:17Z",
+    "last": "2026-11-22T11:16:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 116,
+        "output": 26452,
+        "thinking": 3730,
+        "cache_read": 5731768,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106174,
+        "api_equivalent_usd": 2.5252,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 116,
+      "output": 26452,
+      "thinking": 3730,
+      "cache_read": 5731768,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106174,
+      "api_equivalent_usd": 2.5252,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 58,
+      "Read": 5,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.22,
+      "active_minutes": 7.22,
+      "model_minutes": 5.92,
+      "tool_minutes": 1.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a front-end dev moving notes on 21 pages, a check, measurement and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 118.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

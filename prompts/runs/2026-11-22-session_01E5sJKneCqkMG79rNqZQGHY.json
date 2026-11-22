@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKneCqkMG79rNqZQGHY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T11:19:04Z",
+  "ended": "2026-11-22T11:24:54Z",
+  "wall_minutes": 5.98,
+  "tokens_in": 3074919,
+  "tokens_out": 22879,
+  "cost_usd": 1.9219,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18243",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "First replacement text was refused at 2226 of 2000 characters even after parking; had to cut the landed clause to one short pointer. The tool's message was clear."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Pre-registered diagnosis that shipped no feature (M1 and G2 failed); the only code change is a flooredSigma field.",
+      "did": "Landed the negative result, the explanation and the test instead of a user-facing change.",
+      "result": "Open item (0) closed with the cause named for both series; next items written."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-changepoint-why-a-wandering-level-swallowed-the-seat-belt-law.md",
+    "ventures/changepoint-detector/README.md (Why the likelihood's wander absorbs a step)"
+  ],
+  "goal": null,
+  "notes": "Flagship 4 item (0). eval/drift-ml-absorbs.mjs on TCPD 38 series: M1 fail (deseasonalising does not restore the law; q 0.51->0.29), M2 pass (QC4 sigma floored, step at 342 found, extra cuts 360/440), G1 pass (6 of 8 losses flagged), G2 fail (floor fires on 21 of 38; flagged mean diff +0.015). Post hoc: seat-belt cut saves 9.4 of 10.5 penalty. Local tests: node --test drift-ml-absorbs.test.mjs drift-level.test.mjs pass 12/12; full venture suite via run_venture_tests.py (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4a9f55ea-2fa5-56ec-834e-88922e04fc9c",
+    "transcripts": 1,
+    "first": "2026-11-22T11:19:04Z",
+    "last": "2026-11-22T11:25:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 58,
+        "output": 22879,
+        "thinking": 5903,
+        "cache_read": 2965999,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108862,
+        "api_equivalent_usd": 1.9219,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 58,
+      "output": 22879,
+      "thinking": 5903,
+      "cache_read": 2965999,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108862,
+      "api_equivalent_usd": 1.9219,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.98,
+      "active_minutes": 5.98,
+      "model_minutes": 4.21,
+      "tool_minutes": 1.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician diagnosing two model losses, writing a pre-registered script, test and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 312.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

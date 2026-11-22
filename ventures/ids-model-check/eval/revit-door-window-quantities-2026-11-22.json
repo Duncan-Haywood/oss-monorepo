@@ -1,0 +1,213 @@
+{
+ "architect": {
+  "elements": 133,
+  "read": 133,
+  "q": {
+   "Width": {
+    "stored": 133,
+    "offered": 133,
+    "offeredNoStored": 0,
+    "within2": 129,
+    "exact": 129,
+    "misses": [
+     {
+      "id": 14843,
+      "cls": "IFCDOOR",
+      "name": "Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573587",
+      "set": "BaseQuantities",
+      "stored": 0.9339,
+      "offered": 0.885
+     },
+     {
+      "id": 60921,
+      "cls": "IFCDOOR",
+      "name": "Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573702",
+      "set": "BaseQuantities",
+      "stored": 0.9339,
+      "offered": 0.885
+     },
+     {
+      "id": 61420,
+      "cls": "IFCDOOR",
+      "name": "Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573712",
+      "set": "BaseQuantities",
+      "stored": 0.9339,
+      "offered": 0.885
+     },
+     {
+      "id": 89836,
+      "cls": "IFCDOOR",
+      "name": "Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573750",
+      "set": "BaseQuantities",
+      "stored": 0.9339,
+      "offered": 0.885
+     }
+    ],
+    "sets": {
+     "BaseQuantities": 133
+    }
+   },
+   "Height": {
+    "stored": 133,
+    "offered": 133,
+    "offeredNoStored": 0,
+    "within2": 133,
+    "exact": 129,
+    "misses": [
+     {
+      "id": 14843,
+      "cls": "IFCDOOR",
+      "name": "Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573587",
+      "set": "BaseQuantities",
+      "stored": 2.2845,
+      "offered": 2.26
+     },
+     {
+      "id": 60921,
+      "cls": "IFCDOOR",
+      "name": "Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573702",
+      "set": "BaseQuantities",
+      "stored": 2.2845,
+      "offered": 2.26
+     },
+     {
+      "id": 61420,
+      "cls": "IFCDOOR",
+      "name": "Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573712",
+      "set": "BaseQuantities",
+      "stored": 2.2845,
+      "offered": 2.26
+     },
+     {
+      "id": 89836,
+      "cls": "IFCDOOR",
+      "name": "Drehflügel 1-flg - Stahlzarge:88.5 x 2.26:88.5 x 2.26:573750",
+      "set": "BaseQuantities",
+      "stored": 2.2845,
+      "offered": 2.26
+     }
+    ],
+    "sets": {
+     "BaseQuantities": 133
+    }
+   },
+   "Area": {
+    "stored": 0,
+    "offered": 0,
+    "offeredNoStored": 0,
+    "within2": 0,
+    "exact": 0,
+    "misses": [],
+    "sets": {}
+   },
+   "Perimeter": {
+    "stored": 0,
+    "offered": 0,
+    "offeredNoStored": 0,
+    "within2": 0,
+    "exact": 0,
+    "misses": [],
+    "sets": {}
+   }
+  }
+ },
+ "ISSUE_159_kleine_Wohnung_R22": {
+  "elements": 99,
+  "read": 99,
+  "q": {
+   "Width": {
+    "stored": 99,
+    "offered": 99,
+    "offeredNoStored": 0,
+    "within2": 99,
+    "exact": 99,
+    "misses": [],
+    "sets": {
+     "Qto_WindowBaseQuantities": 52,
+     "Qto_DoorBaseQuantities": 47
+    }
+   },
+   "Height": {
+    "stored": 99,
+    "offered": 99,
+    "offeredNoStored": 0,
+    "within2": 99,
+    "exact": 99,
+    "misses": [],
+    "sets": {
+     "Qto_WindowBaseQuantities": 52,
+     "Qto_DoorBaseQuantities": 47
+    }
+   },
+   "Area": {
+    "stored": 99,
+    "offered": 99,
+    "offeredNoStored": 0,
+    "within2": 99,
+    "exact": 99,
+    "misses": [],
+    "sets": {
+     "Qto_WindowBaseQuantities": 52,
+     "Qto_DoorBaseQuantities": 47
+    }
+   },
+   "Perimeter": {
+    "stored": 0,
+    "offered": 0,
+    "offeredNoStored": 0,
+    "within2": 0,
+    "exact": 0,
+    "misses": [],
+    "sets": {}
+   }
+  }
+ },
+ "ISSUE_068_ARK_NUS_skolebygg": {
+  "elements": 576,
+  "read": 576,
+  "q": {
+   "Width": {
+    "stored": 568,
+    "offered": 568,
+    "offeredNoStored": 8,
+    "within2": 568,
+    "exact": 568,
+    "misses": [],
+    "sets": {
+     "BaseQuantities": 568
+    }
+   },
+   "Height": {
+    "stored": 568,
+    "offered": 568,
+    "offeredNoStored": 8,
+    "within2": 568,
+    "exact": 568,
+    "misses": [],
+    "sets": {
+     "BaseQuantities": 568
+    }
+   },
+   "Area": {
+    "stored": 576,
+    "offered": 0,
+    "offeredNoStored": 0,
+    "within2": 0,
+    "exact": 0,
+    "misses": [],
+    "sets": {
+     "BaseQuantities": 576
+    }
+   },
+   "Perimeter": {
+    "stored": 0,
+    "offered": 0,
+    "offeredNoStored": 0,
+    "within2": 0,
+    "exact": 0,
+    "misses": [],
+    "sets": {}
+   }
+  }
+ }
+}

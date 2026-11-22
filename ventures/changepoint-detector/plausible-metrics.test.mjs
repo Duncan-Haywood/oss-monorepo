@@ -83,7 +83,11 @@ test('sites, metrics, goal columns and the base address are read strictly', () =
   assert.equal(goalColumn('Signup'), 'goal_signup');
   assert.equal(goalColumn('Visit /thanks'), 'goal_visit_thanks');
   assert.equal(goalColumn('Outbound Link: Click'), 'goal_outbound_link_click');
-  assert.throws(() => goalColumn('///'), /no letters or digits/);
+  assert.throws(() => goalColumn('///'), /no Latin letters or digits/);
+  // Red team 2026-11-22: accents were split into an underscore (goal_re_servation).
+  assert.equal(goalColumn('Réservation'), 'goal_reservation');
+  assert.equal(goalColumn('Anmeldung bestätigt'), 'goal_anmeldung_bestatigt');
+  assert.throws(() => goalColumn('注册'), /no Latin letters or digits/);
   assert.equal(baseUrl({}), 'https://plausible.io');
   assert.equal(baseUrl({ PLAUSIBLE_URL: 'https://stats.example.com/' }), 'https://stats.example.com');
   assert.equal(baseUrl({ PLAUSIBLE_URL: 'https://example.com/plausible' }), 'https://example.com/plausible');

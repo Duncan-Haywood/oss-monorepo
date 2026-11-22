@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPkkTC8zHS5RnGk86d",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T11:06:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 12) ids-model-check: next item 'a Revit door rule' for door/window Qto_ fill",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18238",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ids-model-check `next:` sat at 1927/2000 characters with no parkable items, so recording one landed result took two tries at shortening the clause; `buildable:` also had only 5 characters spare, so the new buildable item (non-English Revit export) went to NEXT.md instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-revit-door-sizes-come-from-the-family-not-the-opening.md",
+    "ventures/ids-model-check/eval/revit-door-window-quantities-2026-11-22.md"
+  ],
+  "goal": "Fill missing Qto_DoorBaseQuantities/Qto_WindowBaseQuantities on Revit IFC exports with the figures Revit itself would write",
+  "notes": "Read the open-source Revit IFC exporter's Width/Height/Area/Perimeter calculators (behaviour only, no code copied): door/window Width and Height are the family's Width/Height parameters (instance before type), Area their product (IFC4 Qto_ sets), Perimeter the body outline. New revitSizeLines/addRevitSizeLines in geometry-quantities.mjs read those parameters back from the Revit dimension property sets. On three public Revit exports (2010, 2019, 2022): 796 of 800 stored widths and heights exact (4 HHS steel-frame doors store the frame's outer size), 99 of 99 IFC4 areas. Fill end to end with stored figures hidden: 563 values written, 559 within 2%; IfcTester 0.9.0 takes the written elements from fail to pass. Local checks: node --test geometry-quantities.test.mjs 28/28; run_venture_tests.py ids-model-check 492 tests ok; run_workflow_locally --for-changes and venture-preflight results in the PR.",
+  "corrections": [],
+  "redteam": null
+}

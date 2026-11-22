@@ -84,8 +84,8 @@ CHECKS = [
     ("p ≤ 0.0001, the permutation floor", "../paper/table7_stats.txt", r"identified total, above: J = [\d.]+ of 360, p = 0\.00005\nidentified total, below: J = [\d.]+ of 360, p = 0\.00005"),
     ("78.2→100 ms (p = 0.018)", "../paper/table7_stats.txt", r"identified total:     lag39 vs lag39c100: [^\n]*p = 0\.0177"),
     ("100→125 ms (p = 0.025)", "../paper/table7_stats.txt", r"identified total: lag39c100 vs lag39c125: [^\n]*p = 0\.025"),
-    ("125→150 ms (p = 0.10)", "../paper/table7_stats.txt", r"identified total: lag39c125 vs lag39c150: [^\n]*p = 0\.10"),
-    ("150→200 ms\n(p = 0.16)", "../paper/table7_stats.txt", r"identified total: lag39c150 vs lag39c200: [^\n]*p = 0\.15[5-9]"),
+    ("125→150 ms\n(p = 0.10)", "../paper/table7_stats.txt", r"identified total: lag39c125 vs lag39c150: [^\n]*p = 0\.10"),
+    ("150→200 ms (p = 0.16)", "../paper/table7_stats.txt", r"identified total: lag39c150 vs lag39c200: [^\n]*p = 0\.15[5-9]"),
     ("101 [79, 125] at 125 ms against 65 [49, 82]", "../paper/table7_stats.txt", r"lag39c125\): [^\n]*total 101 of 2304, 95% \[79, 125\]\n[^\n]*total 65 of 2304, 95% \[49, 82\]"),
     ("(p ≤ 0.0002), down to 121 crashes of 768", "../paper/table7_stats.txt", r"75 ms law: lag39c150 vs lag39c200: sums 269 vs 121;"),
     # section VII: why some tunes never settle (milestone 7ad)
@@ -127,6 +127,14 @@ CHECKS = [
     ("chosen angle of 33.9–35.3°", "m4_controllers/results.txt", r"indi   80 [^\n]*33\.9 \([\s\S]*geo    80 [^\n]*35\.3 \("),
     ("2 of 10 INDI seeds lose their advantage", "m5_rotorpy/results.txt", r"indi: stylised -4\.15 \(10/10\); torque -1\.92 \(8/10\)"),
     ("puts 36 of 36 designs within 0.10 s of their flown rise in all seven conditions", "m7ai_lag_model/verdicts.txt", r"AI4 [^\n]*held; fewest 36/36"),
+    # section VII and the abstract: 125 against 150 ms at ten seeds per geometry (m12c_ten_seeds_vii, 2026-11-22)
+    ("196 against 112 crashes of 3,840 (pooled Mann–Whitney p = 0.004)", "m12c_ten_seeds_vii/stats.txt", r"ident pooled MWU \(20 a side\): sums 196 vs 112; U = 303\.5 of 400, p = 0\.004"),
+    ("125 ms crashes more in 17 of\n20 (geometry, seed) pairs (exact Wilcoxon p = 0.00003)", "m12c_ten_seeds_vii/stats.txt", r"ident paired Wilcoxon \(20 pairs\): mean diff \+4\.20; 125 worse in 17, tied 2, better in 1; W\+ = 169\.0, p = 0\.00003"),
+    ("The four new seeds alone give 95 against 47", "m12c_ten_seeds_vii/stats.txt", r"ident new seeds only \(\[6, 7, 8, 9\], 8 a side\): sums 95 vs 47;"),
+    ("196 [156, 242] against 112 [89, 138] of 3,840", "m12c_ten_seeds_vii/stats.txt", r"lag39c125  ident: 196 of 3840, 95% \[156, 242\][\s\S]*lag39c150  ident: 112 of 3840, 95% \[89, 138\]"),
+    ("(462 against 695 of 1,280)", "m12c_ten_seeds_vii/stats.txt", r"slow  pooled MWU \(20 a side\): sums 695 vs 462;"),
+    ("(medians 2.08 against 1.68 s\nand 1.83 against 1.73 s)", "m12c_ten_seeds_vii/stats.txt", r"lag39c125  above: certified at all identified laws 10 of 10; rise90 \(36 ms, step\) median over seeds 1\.682 s[\s\S]*lag39c125  below: [^\n]*1\.730 s[\s\S]*lag39c150  above: [^\n]*2\.076 s[\s\S]*lag39c150  below: [^\n]*1\.827 s"),
+    ("crashes 1.75 times as often as a 3.8× one (p = 0.004)", "m12c_ten_seeds_vii/stats.txt", r"sums 196 vs 112; U = 303\.5 of 400, p = 0\.004"),
 ]
 # Table VI-1 at ten seeds: (arm, post hoc 8-seed paired J at 20 deg lever 0, dead of 640 at 45 deg lever 0, at 45 deg lever 2)
 ARMS = [("M=1.00", -0.0033, 19, 62), ("M=1.11", -0.0100, 6, 39), ("M=1.25", -0.0121, 1, 23), ("M=1.43", -0.0086, 1, 23), ("M=1.67", -0.0113, 0, 23)]

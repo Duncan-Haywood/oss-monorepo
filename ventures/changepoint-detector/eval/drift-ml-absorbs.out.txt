@@ -1,0 +1,55 @@
+M1 seatbelts: ML wander on the raw series and with calendar-month medians taken off
+  raw:          q 0.511  sigma 180.870  cuts []  flags {"floored":false,"seasonal":true,"peakLag":7}
+  deseasonal:   q 0.293  sigma 97.047  cuts []  flags {"floored":false,"seasonal":false,"peakLag":9}
+  M1 FAILS: cut near 169 false, q 0.293 vs half of raw 0.255
+
+M2 quality_control_4: sigma floored, step at 338-342 still cut
+  lag fit: sigma 0.079 (lag-1 sd 0.786), floored true; lag-noise cuts [342]
+  ML: q 90.987 cuts [342,360,440]
+  M2 PASSES
+
+Per series: flags, F1 with lag noise and with ML noise (margin 5)
+  bank                   n  581  floored                   lag  48 0.040  ML  63 0.031  diff -0.009
+  brent_spot             n  500                            lag   6 0.726  ML   4 0.773  diff +0.047
+  businv                 n  330                            lag  18 0.348  ML   3 0.559  diff +0.211
+  centralia              n   15                            lag   1 0.909  ML   3 1.000  diff +0.091
+  children_per_woman     n  301  floored                   lag  24 0.485  ML  19 0.571  diff +0.087
+  co2_canada             n  215  floored                   lag  25 0.542  ML  14 0.625  diff +0.083
+  construction           n  319          seasonal(peak 6)  lag   0 0.696  ML   0 0.696  diff +0.000
+  debt_ireland           n   21  floored                   lag   9 0.824  ML   9 0.824  diff +0.000
+  gdp_argentina          n   59  floored                   lag   4 0.720  ML   4 0.720  diff +0.000
+  gdp_croatia            n   24  floored                   lag  10 0.308  ML   6 0.444  diff +0.137
+  gdp_iran               n   58  floored                   lag   5 0.888  ML   9 0.655  diff -0.233
+  gdp_japan              n   58  floored                   lag   2 0.800  ML   4 0.571  diff -0.229
+  global_co2             n  104  floored                   lag   8 0.481  ML   7 0.523  diff +0.042
+  homeruns               n  118                            lag   7 0.723  ML   5 0.667  diff -0.057
+  jfk_passengers         n  468          seasonal(peak 7)  lag   0 0.723  ML   0 0.723  diff +0.000
+  lga_passengers         n  468                            lag   1 0.693  ML   1 0.693  diff +0.000
+  nile                   n  100                            lag   0 0.824  ML   1 1.000  diff +0.176
+  ozone                  n   54  floored                   lag   0 0.723  ML   4 0.560  diff -0.163
+  quality_control_1      n  313                            lag   0 0.667  ML   1 1.000  diff +0.333
+  quality_control_2      n  283                            lag   0 0.750  ML   1 1.000  diff +0.250
+  quality_control_3      n  366                            lag   4 0.571  ML   3 0.333  diff -0.238
+  quality_control_4      n  500  floored                   lag   1 0.936  ML   3 0.638  diff -0.298
+  quality_control_5      n  325                            lag   0 1.000  ML   0 1.000  diff +0.000
+  rail_lines             n   37  floored                   lag   5 0.800  ML   5 0.800  diff +0.000
+  seatbelts              n  192          seasonal(peak 7)  lag   1 0.824  ML   0 0.621  diff -0.203
+  shanghai_license       n  205                            lag  20 0.310  ML   6 0.416  diff +0.106
+  uk_coal_employ         n  105  floored                   lag   9 0.670  ML  11 0.749  diff +0.079
+  unemployment_nl        n  214  floored                   lag  12 0.817  ML   9 0.930  diff +0.114
+  us_population          n  816  floored                   lag   1 0.615  ML   0 0.889  diff +0.274
+  usd_isk                n  247  floored                   lag   6 0.780  ML  10 0.749  diff -0.031
+  well_log               n  675                            lag  20 0.785  ML  21 0.764  diff -0.021
+  bitcoin                n  774  floored                   lag 103 0.281  ML  52 0.407  diff +0.126
+  iceland_tourism        n  199          seasonal(peak 6)  lag   5 0.281  ML   0 0.947  diff +0.666
+  measles                n  991  floored                   lag  30 0.062  ML  39 0.049  diff -0.014
+  ratner_stock           n  600                            lag  46 0.291  ML  30 0.324  diff +0.033
+  robocalls              n   52  floored                   lag   3 0.966  ML   5 0.778  diff -0.188
+  scanline_126007        n  481  floored                   lag  28 0.581  ML  27 0.593  diff +0.011
+  scanline_42049         n  481  floored                   lag  69 0.478  ML  27 0.593  diff +0.115
+
+G1 PASSES: 6 of 8 ML losses (diff < -0.05) are flagged (gdp_iran*, gdp_japan*, homeruns, ozone*, quality_control_3, quality_control_4*, seatbelts*, robocalls*)
+G2 FAILS: mean ML minus lag F1 0.015 on 25 flagged, 0.072 on 13 unflagged
+  by flag: floored 21 series, mean diff -0.005; seasonal 4, mean diff 0.116
+
+Ships: nothing (G1 and G2 must both pass).

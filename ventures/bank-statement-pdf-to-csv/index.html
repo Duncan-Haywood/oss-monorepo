@@ -72,9 +72,9 @@
 
   <section class="card">
     <h2>1. Your statement</h2>
-    <p class="note">A PDF downloaded from your bank's website or app (it has selectable text), a scanned statement PDF, or a photo of the page. Or copy the table out of any PDF viewer and paste it below. Choose <strong>a year of monthly statements at once</strong> and they are put in date order, each proved on its own, and checked that every month opens where the one before closed, so a missing month shows up as a gap of exactly its amount.</p>
     <label for="file">Choose a statement PDF, or several months of one account</label>
-    <input type="file" id="file" multiple accept=".pdf,application/pdf,.txt,text/plain,.png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+    <input type="file" id="file" aria-describedby="file-note" multiple accept=".pdf,application/pdf,.txt,text/plain,.png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+    <p class="note file-note" id="file-note">A PDF downloaded from your bank's website or app (it has selectable text), a scanned statement PDF, or a photo of the page. Or copy the table out of any PDF viewer and paste it below. Choose <strong>a year of monthly statements at once</strong> and they are put in date order, each proved on its own, and checked that every month opens where the one before closed, so a missing month shows up as a gap of exactly its amount.</p>
     <label for="paste">…or paste the statement text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Beginning balance   $4,210.55&#10;01/02   ACH CREDIT STRIPE PAYOUT   1,420.00   5,630.55&#10;..."></textarea>
     <div class="grid">

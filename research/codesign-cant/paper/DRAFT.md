@@ -33,8 +33,9 @@ at the 20° limit they were tuned at. Finally, the motor lag: tuned at an unsour
 published identifications give. Retuning shows that
 how the lag is randomised in training matters more than its nominal value: drawing plants exactly
 across the identified range is the worst choice tested, and anchoring the draw at the slowest
-identified lag with a ceiling 3–4× higher cuts the identified-range crashes by four fifths or more
-against that draw (486 to 101 or 65 of 2,304), paid in rise time rather than crashes. That rise time can
+identified lag with a ceiling about 4× higher cuts the identified-range crashes by seven eighths
+against that draw (486 to 65 of 2,304), paid in rise time rather than crashes; at ten seeds a 3.2×
+ceiling still crashes 1.75 times as often as a 3.8× one (p = 0.004). That rise time can
 be computed before flying: a point mass of the outer loop with one lag taken from the linearised
 attitude loop puts 36 of 36 designs within 0.10 s of their flown rise in all seven conditions tested.
 
@@ -81,7 +82,7 @@ Contributions:
    integral-gain ceiling, cuts the divergences at PX4's 45° tilt limit from 31 to 1 of 640 for about 0.8%
    of held-out cost (section VI, ten seeds).
 4. A measured rule for the motor-lag randomisation range when only a published identification is known:
-   floor at the slowest identified lag, ceiling at 3–4× it; drawing plants exactly across the identified
+   floor at the slowest identified lag, ceiling at about 4× it; drawing plants exactly across the identified
    range is the worst choice tested (section VII).
 5. A rise-time rule for the resulting tunes that needs no flight: a point mass of the outer loop plus one
    first-order lag computed from the linearised attitude loop over the randomisation range (section VII).
@@ -464,9 +465,15 @@ ceiling separates the two: 39.1–150 ms crashes 65 times against 75–150 ms's 
 floor contributes nothing once the ceiling is high. Along the ceiling sweep at that floor (78.2, 100,
 125, 150, 200 ms) the identified total falls in both geometries (Jonckheere–Terpstra, one-sided,
 p ≤ 0.0001, the permutation floor), steeply at first and then slowly: pooled neighbours differ at
-78.2→100 ms (p = 0.018) and 100→125 ms (p = 0.025), not at 125→150 ms (p = 0.10) or 150→200 ms
-(p = 0.16). The total for each row has a stratified bootstrap interval in `table7_stats.txt`
-(e.g. 101 [79, 125] at 125 ms against 65 [49, 82] at 150 ms). At the 75 ms law, slower than either
+78.2→100 ms (p = 0.018) and 100→125 ms (p = 0.025). At six seeds they did not differ at 125→150 ms
+(p = 0.10) or 150→200 ms (p = 0.16). Ten seeds per geometry at 125 and 150 ms (milestone 12c,
+`m12c_ten_seeds_vii/stats.txt`; predictions committed before the run) separate the first pair:
+196 against 112 crashes of 3,840 (pooled Mann–Whitney p = 0.004), and 125 ms crashes more in 17 of
+20 (geometry, seed) pairs (exact Wilcoxon p = 0.00003). The four new seeds alone give 95 against 47.
+So robustness at the identified lags keeps coming up to 150 ms (3.8× the slowest identification);
+whether it still comes past 150 ms is open at six seeds. The total for each row has a stratified
+bootstrap interval in `table7_stats.txt` (e.g. 101 [79, 125] at 125 ms against 65 [49, 82] at
+150 ms; at ten seeds 196 [156, 242] against 112 [89, 138] of 3,840). At the 75 ms law, slower than either
 identification, every extra step of ceiling pays and every pooled neighbour pair is separated
 (p ≤ 0.0002), down to 121 crashes of 768 at 200 ms.
 
@@ -553,10 +560,12 @@ certificate-constrained gain tuner rather than a learned policy, with a range re
 identification.
 
 **For a builder.** Anchor the randomised lag at the slowest identified value for your motor class,
-not at a midpoint, and never draw faster plants than that. Set the ceiling at about 3–4× it:
-125 ms (3.2×) gives most of 150 ms's robustness at the identified lags with near-100 ms rise times;
-go to 150–200 ms only if the motors may be slower than identified, at up to about 0.7 s more rise
-time than the 125 ms tune. Run the position integrator only within about a quarter of a step of the set
+not at a midpoint, and never draw faster plants than that. Set the ceiling at about 4× it:
+at ten seeds per geometry, 150 ms (3.8×) crashes 43% less often than 125 ms (3.2×) at the identified
+lags. It also crashes a third less often at the 75 ms law (462 against 695 of 1,280). It costs
+0.39 s of rise time with the centre of pressure above and 0.10 s below (medians 2.08 against 1.68 s
+and 1.83 against 1.73 s). Choose 125 ms only when rise time matters more than those crashes, and
+200 ms when the motors may be slower than identified. Run the position integrator only within about a quarter of a step of the set
 point; with that, the 125 ms tune has no unsettled designs. Put a set-point step in the tuning
 objective: without one the tuner has no reason to rise fast. With a capped proportional term, compute
 the rise time before flying from k_p, k_d, k_i, A_P and the step size with the point mass above (within
@@ -590,7 +599,8 @@ randomisation range was swept, and its ceilings are brackets, not sourced values
 **Seeds and tests.** Milestones 1, 2 and 4 use ten seeds, with exact Wilcoxon tests and bootstrap intervals in
 sections IV and V (`m12_ten_seeds`), and so does section VI's Table VI-1 (`m12b_ten_seeds_vi`), whose ten seeds
 showed two unconstrained tunes diverging at their trained tilt limit that six had not. Milestones 7c, 7d, 7g and 7s–7ac use six per arm, below the proposal's ten for paper figures;
-section VII pools the two centre-of-pressure geometries to reach twelve. The five-seed reading of milestone 2
+section VII pools the two centre-of-pressure geometries to reach twelve, and its 125 and 150 ms rows have ten per
+geometry (`m12c_ten_seeds_vii`), which separated a pair six seeds had not (p = 0.10 to 0.004). The five-seed reading of milestone 2
 overstated cant's gain from the shared polytope (6.08° against 4.98° at ten seeds), a reminder that the six-seed
 sections may move too. Every result in sections
 VI and VII is scored on one held-out seed of 64 episodes per design.
@@ -614,17 +624,17 @@ attitude law we tried and survives a second simulator; pricing hover power chang
 not the angle. Its cost is a side force. Cancel the steady part with an integrator feed-forward, keep the
 tuner off the loop's stability boundary with an 11-state linear check at 0.8× the integral-gain ceiling,
 and score the tune at the tilt limit the autopilot will fly. When the motor lag is known only from a
-published identification, randomise it from the slowest identified value up to 3–4× it, integrate the
+published identification, randomise it from the slowest identified value up to about 4× it, integrate the
 position error only near the set point, and put a set-point step in the tuning objective; the rise time
 of the resulting tune then follows from its gains and a lag computed from the linearised loop, before
 it flies. The hardware check is next.
 
 ## Still to do before submission
 
-- Ten seeds for section VII and for milestones 7c, 7d and 7g of section VI (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
+- Ten seeds for the rest of section VII (125 and 150 ms have ten per geometry since 2026-11-22; 200 ms next, to test 150→200 ms) and for milestones 7c, 7d and 7g of section VI (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
-  set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; twelve seeds per geometry at 125 and 150 ms.
+  set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier.
 - LaTeX in the RA-L template, cut to 6 + 2 pages (the full draft is well over).
 - Sections IV–V: retune the top designs inside RotorPy to separate model mismatch from overfitting (milestone 5's limit).
 - Hardware check (milestone 8).
