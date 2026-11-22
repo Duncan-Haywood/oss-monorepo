@@ -8,7 +8,7 @@
 export const VERIFY = "your state labor agency's paid sick leave page and the statute itself (for example Cal. Lab. Code 246, N.Y. Lab. Law 196-b, RCW 49.46.210, 820 ILCS 192, C.R.S. 8-13.3, N.J.S.A. 34:11D, M.G.L. c.149 148C); the U.S. DOL state sick leave roundup";
 
 // per: hours worked per 1 hour accrued. use: annual use cap (hours). bal: balance (accrual) cap, null = none.
-// acc: annual accrual cap (hours) where the statute caps accrual separately from use (Maryland, Minnesota).
+// acc: annual accrual cap (hours) where the statute caps accrual separately from use (Maryland, Minnesota, Oregon).
 // carry: hours that carry into the next year, "bal" = up to the balance cap, "use" = up to the use cap.
 // size(n) returns { applies, paid, use } for an employer of n employees; default is all employers, paid, `use`.
 const ALL = () => ({ applies: true, paid: true });
@@ -24,7 +24,7 @@ export const STATES = {
     size: (n) => ({ applies: true, paid: n >= 11 }) },
   AZ: { name: "Arizona", per: 30, use: 40, bal: null, carry: "use", front: 40, note: "Fair Wages and Healthy Families Act. Use cap is 40 hours for employers with 15 or more employees and 24 hours for fewer.",
     size: (n) => ({ applies: true, paid: true, use: n >= 15 ? 40 : 24 }) },
-  OR: { name: "Oregon", per: 30, use: 40, bal: 80, carry: "bal", front: null, note: "Employers with 10 or more employees (6 or more in Portland) provide paid leave; smaller employers provide unpaid leave. Balance is capped at 80 hours.",
+  OR: { name: "Oregon", per: 30, acc: 40, use: 40, bal: 80, carry: "bal", front: null, note: "Employers with 10 or more employees (6 or more in Portland) provide paid leave; smaller employers provide unpaid leave. The employer may cap accrual at 40 hours a year, use at 40 and the balance at 80 hours (ORS 653.606).",
     size: (n) => ({ applies: true, paid: n >= 10 }) },
   MD: { name: "Maryland", per: 30, acc: 40, use: 64, bal: 64, carry: "bal", front: 40, note: "Employers with 15 or more employees provide paid leave; smaller employers provide unpaid leave. The employer may cap accrual at 40 hours a year, use at 64 hours a year and the balance at 64 hours (Md. Lab. & Empl. 3-1305).",
     size: (n) => ({ applies: true, paid: n >= 15 }) },
@@ -56,6 +56,7 @@ export function parse(input) {
   const hoursPerWeek = num("hoursPerWeek", "average paid hours per week for one employee", { min: 0.5, max: 80 });
   const wage = num("wage", "the average hourly wage in dollars", { min: 0.01, max: 1000 });
   const weeks = num("weeks", "weeks worked per year", { min: 1, max: 52 });
+  if (employees && covered > employees) errors.push(`Employees to cost (${covered}) cannot be more than the ${employees} employees at your business.`);
   return { errors, state, employees, covered, hoursPerWeek, wage, weeks };
 }
 
@@ -95,7 +96,7 @@ export function compute(input) {
   } else {
     findings.push({ severity: "high", title: `${s.name}: an employee working ${hrs(p.hoursPerWeek)} hours a week earns about ${hrs(annualAccrual)} hours of sick leave in ${p.weeks} weeks (1 hour per ${s.per} worked${s.acc != null ? `, accrual capped at ${s.acc} hours a year` : ""}${use != null ? (s.bal == null ? (s.acc != null ? `; use is limited to ${use} hours a year` : `, capped at ${use} hours a year`) : `; use is limited to ${use} hours a year and the balance to ${s.bal}`) : s.bal != null ? `; the balance is capped at ${s.bal}` : s.acc == null ? ", no annual accrual cap" : ""}).` });
     findings.push({ severity: "high", title: sz.paid ? `Cost of the leave if it is all used (${hrs(usableHours)} hours): ${money(annualCostEach)} per employee, ${money(annualCostEach * p.covered)} for ${p.covered} employee${p.covered === 1 ? "" : "s"} a year, plus the cover shifts.` : "At your size the state requires unpaid protected leave, so the accrual is a time-off right rather than a payroll cost. Paying it anyway is a retention choice." });
-    if (balCap != null) findings.push({ severity: "medium", title: `Balance cap ${balCap} hours: once an employee holds that much, accrual stops until they use some. Your largest balance liability is ${money(balCap * p.wage * p.covered)} for ${p.covered} employee${p.covered === 1 ? "" : "s"}.` });
+    if (balCap != null) findings.push({ severity: "medium", title: `Balance cap ${balCap} hours: once an employee holds that much, accrual stops until they use some. ${sz.paid ? `Your largest balance liability is ${money(balCap * p.wage * p.covered)} for ${p.covered} employee${p.covered === 1 ? "" : "s"}.` : "The leave is unpaid at your size, so the balance is protected time off, not a payroll liability."}` });
     if (frontHours != null && sz.paid) findings.push({ severity: "info", title: `Front-loading ${frontHours} hours on day one costs ${money(frontEach * p.covered)} for ${p.covered} and removes the tracking and carryover work, but an employee who leaves early has taken the hours up front. Compare with accruing ${hrs(annualAccrual)} hours.` });
     if (p.state === "CA") findings.push({ severity: "medium", title: "A single combined PTO bank counts as vested wages in California: unused hours are paid on separation. Separate sick leave does not have to be. The split matters to your balance sheet." });
     findings.push({ severity: "info", title: "Accrual starts on the first day of work and the employee can usually use it after a short waiting period (often 90 days, or sooner under some statutes). Retaliation for using it is unlawful everywhere on this list." });

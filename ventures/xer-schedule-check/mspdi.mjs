@@ -67,7 +67,7 @@ import { parseXer } from "./xer.mjs";
 import { parseNotes, memoHtml } from "./notebook.mjs";
 
 // Number1..20, Cost1..10, Date1..10, Start1..10, Finish1..10 (the same tables are in msproject.mjs)
-const UDF_FIELD_IDS = [
+export const UDF_FIELD_IDS = [
   ...["188743767", "188743768", "188743769", "188743770", "188743771", ...Array.from({ length: 15 }, (_, k) => String(188743982 + k))].map((id, k) => [id, "number", `Number${k + 1}`]),
   ...["188743786", "188743787", "188743788", ...Array.from({ length: 7 }, (_, k) => String(188743938 + k))].map((id, k) => [id, "cost", `Cost${k + 1}`]),
   ...Array.from({ length: 10 }, (_, k) => [String(188743945 + k), "date", `Date${k + 1}`]),
@@ -76,8 +76,8 @@ const UDF_FIELD_IDS = [
   ...[53, 56, 59, 62, 65, 283, 285, 287, 289, 291].map((i, k) => [String(188743680 + i), "finish", `Finish${k + 1}`]),
 ];
 // Outline Code1..10 (the same table is in msproject.mjs)
-const TASK_OUTLINE_IDS = Array.from({ length: 10 }, (_, k) => String(188744096 + 2 * k));
-const TASK_TEXT_IDS = ["188743731", "188743734", "188743737", "188743740", "188743743", "188743746", "188743747", "188743748", "188743749", "188743750",
+export const TASK_OUTLINE_IDS = Array.from({ length: 10 }, (_, k) => String(188744096 + 2 * k));
+export const TASK_TEXT_IDS = ["188743731", "188743734", "188743737", "188743740", "188743743", "188743746", "188743747", "188743748", "188743749", "188743750",
   ...Array.from({ length: 20 }, (_, k) => String(188743997 + k))];
 
 // ---------- a small XML reader (elements, text, CDATA, entities) ----------

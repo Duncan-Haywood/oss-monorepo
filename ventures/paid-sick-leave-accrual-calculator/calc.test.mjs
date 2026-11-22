@@ -1,8 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compute, parse, summaryText, SAMPLE, VERIFY, STATES, STATE_LIST } from "./calc.mjs";
+import { compute, parse, summaryText, SAMPLE, VERIFY, STATES, STATE_LIST, money, hrs } from "./calc.mjs";
 
-const run = (o) => compute({ ...SAMPLE, ...o });
+// Costing follows the headcount when a test changes only employees (covered may not exceed employees).
+const run = (o) => compute({ ...SAMPLE, ...(o.employees != null && o.covered == null && Number.isInteger(o.employees) && o.employees > 0 ? { covered: Math.min(o.employees, SAMPLE.covered) } : {}), ...o });
 
 test("sample: California part-timer accrues 1 hour per 30 worked, use capped at 40 a year, balance at 80", () => {
   const r = run({});
@@ -115,4 +116,53 @@ test("front-loading follows the size-dependent cap: Arizona under 15 is 24 hours
   assert.equal(run({ state: "AZ", employees: 20 }).frontHours, 40);
   assert.equal(run({ state: "MI", employees: 10 }).frontHours, 40);
   assert.equal(run({ state: "MI", employees: 11 }).frontHours, 72);
+});
+
+// Red-team 2026-11-22: boundaries the suite did not pin.
+test("Nevada accrues 1 hour per 52 worked (0.01923 an hour)", () => {
+  const r = run({ state: "NV", employees: 50, hoursPerWeek: 52, weeks: 30 });
+  assert.equal(r.annualAccrual, 30);
+  assert.equal(r.perPay.weekly, 1);
+});
+
+test("a one-person business is a valid employer size", () => {
+  const r = run({ state: "CA", employees: 1, covered: 1 });
+  assert.equal(r.errors.length, 0);
+  assert.ok(run({ employees: 0 }).errors.length);
+});
+
+test("money keeps the sign of a negative amount and hrs rounds to one decimal", () => {
+  assert.equal(money(-5), "-$5");
+  assert.equal(money(-1234), "-$1,234");
+  assert.equal(money(-0.4), "$0");
+  assert.equal(hrs(2), "2");
+  assert.equal(hrs(55.46), "55.5");
+});
+
+test("New York's statewide use cap always comes from the size rule", () => {
+  for (const n of [1, 4, 5, 99]) assert.equal(run({ state: "NY", employees: n }).use, 40);
+  assert.equal(run({ state: "NY", employees: 100 }).use, 56);
+});
+
+test("Oregon: the employer may cap accrual at 40 hours a year, balance at 80 (ORS 653.606)", () => {
+  const r = run({ state: "OR", employees: 12, hoursPerWeek: 40, weeks: 52 });
+  assert.equal(r.annualAccrual, 40); // 69.3 hours worked out, but accrual stops at 40
+  assert.equal(r.usableHours, 40);
+  assert.equal(r.balCap, 80);
+  assert.match(r.findings[0].title, /accrual capped at 40 hours a year/);
+});
+
+test("unpaid leave below the size threshold carries no dollar balance liability in any finding", () => {
+  for (const [state, employees] of [["MD", 12], ["OR", 9], ["MA", 10], ["NY", 4]]) {
+    const r = run({ state, employees, covered: Math.min(employees, 12) });
+    assert.equal(r.paid, false, state);
+    assert.equal(r.maxBalanceTotal, 0, state);
+    for (const f of r.findings) assert.doesNotMatch(f.title, /\$[1-9]/, `${state}: ${f.title}`);
+  }
+});
+
+test("you cannot cost more employees than the business has", () => {
+  const r = run({ employees: 3, covered: 50 });
+  assert.ok(r.errors.some((e) => /costed|employees/i.test(e)));
+  assert.equal(run({ employees: 12, covered: 12 }).errors.length, 0);
 });
