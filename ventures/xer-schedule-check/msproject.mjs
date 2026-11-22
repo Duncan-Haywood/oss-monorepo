@@ -355,7 +355,7 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   const outlineXml = (taskId) => ocf.fields.map((f) => (f.task.has(taskId) ? `<OutlineCode><FieldID>${f.fieldId}</FieldID><ValueID>${f.task.get(taskId).vid}</ValueID></OutlineCode>` : "")).join("");
 
   // tasks
-  const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject, notebookTasks: 0, notebookEntries: 0, notebookWbs: 0, notebookWbsEntries: 0, rsrcNotes: 0 };
+  const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject, notebookTasks: 0, notebookEntries: 0, notebookWbs: 0, notebookWbsEntries: 0, rsrcNotes: 0, rsrcGroups: 0 };
   let rsrcDependent = 0, expected = 0, secondaryDropped = 0, startMilestones = 0;
   const span = new Map(); // uid -> [start, finish] for summary roll-up
   const taskXml = new Map();
@@ -497,6 +497,22 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   // and fields on a Project -> XER -> Project trip (p6xer.mjs writes every
   // Project resource to RSRC, assigned or not).
   let unassigned = 0;
+  // P6's resource hierarchy (RSRC.parent_rsrc_id: a crew under a trade under
+  // "Labor") as Project's resource Group: the parents' resource IDs from the
+  // top down, joined by "/" ("LAB/CARP"), so Project can group and filter by
+  // it. Project has no resource outline, and the parents are seldom assigned
+  // (0 of 33 parent resources in the six public files), so without this the
+  // tree was lost. p6xer.mjs reads the path back into parent resources.
+  const rsrcById = new Map((T.RSRC || []).map((r) => [r.rsrc_id, r]));
+  const groupOf = (r) => {
+    const path = [];
+    const seen = new Set([r.rsrc_id]);
+    for (let p = rsrcById.get(r.parent_rsrc_id); p && !seen.has(p.rsrc_id); p = rsrcById.get(p.parent_rsrc_id)) {
+      seen.add(p.rsrc_id);
+      path.unshift(p.rsrc_short_name || p.rsrc_name || p.rsrc_id);
+    }
+    return path.join("/");
+  };
   for (const r of T.RSRC || []) {
     if (!usedRsrc.has(r.rsrc_id)) {
       if (!allResources || !r.rsrc_id) continue;
@@ -511,7 +527,9 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
     // CalendarUID and comes before ExtendedAttribute in Project's schema
     const rnote = memoText(r.rsrc_notes);
     if (rnote) counts.rsrcNotes++;
-    res.push({ id: r.rsrc_id, head: `<Resource><UID>${uid}</UID><ID>${uid}</ID><Name>${esc(nm(r.rsrc_name || r.rsrc_short_name || r.rsrc_id))}</Name><Type>${material ? 0 : 1}</Type><IsNull>0</IsNull><Initials>${esc(r.rsrc_short_name || "")}</Initials>${material ? `<MaterialLabel>${esc(r.unit_of_measure || "")}</MaterialLabel>` : ""}${cal ? `<CalendarUID>${cal}</CalendarUID>` : ""}${rnote ? `<Notes>${esc(rnote)}</Notes>` : ""}` });
+    const group = groupOf(r);
+    if (group) counts.rsrcGroups++;
+    res.push({ id: r.rsrc_id, head: `<Resource><UID>${uid}</UID><ID>${uid}</ID><Name>${esc(nm(r.rsrc_name || r.rsrc_short_name || r.rsrc_id))}</Name><Type>${material ? 0 : 1}</Type><IsNull>0</IsNull><Initials>${esc(r.rsrc_short_name || "")}</Initials>${material ? `<MaterialLabel>${esc(r.unit_of_measure || "")}</MaterialLabel>` : ""}${group ? `<Group>${esc(group)}</Group>` : ""}${cal ? `<CalendarUID>${cal}</CalendarUID>` : ""}${rnote ? `<Notes>${esc(rnote)}</Notes>` : ""}` });
   }
   // resource user-defined fields -> Project's resource custom fields, on the
   // resources written (each resource's ExtendedAttribute after its calendar)
@@ -680,6 +698,7 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   if (nWbsUdf) notCarried.push(`${nWbsUdf} WBS user-defined field value(s)${wbsUdf.offOutline ? ` (${wbsUdf.offOutline} on the project node or a WBS the file does not write)` : ""} with no room or no Project equivalent`);
   if (nRsrcUdf) notCarried.push(`${nRsrcUdf} resource user-defined field value(s) of ${rsrcUdf.droppedTypes} field(s) with no room or no Project equivalent`);
   if (counts.notebookEntries || counts.notebookWbsEntries) warnings.push(`${counts.notebookEntries + counts.notebookWbsEntries} notebook entr${counts.notebookEntries + counts.notebookWbsEntries === 1 ? "y" : "ies"} written into the notes of ${counts.notebookTasks} task(s)${counts.notebookWbs ? ` and ${counts.notebookWbs} summary task(s)` : ""}, each under its topic in brackets (plain text: P6's formatting is not kept)`);
+  if (counts.rsrcGroups) warnings.push(`${counts.rsrcGroups} resource(s) carry P6's resource hierarchy as their Group (parent resource IDs from the top, "/" between them)`);
   if (counts.rsrcNotes) warnings.push(`${counts.rsrcNotes} resource note(s) written as the resource's notes (plain text: P6's formatting is not kept)`);
   if (nProc) notCarried.push(`${nProc} step(s)`);
   if (notCarried.length) warnings.push(`not carried: ${notCarried.join(", ")}`);

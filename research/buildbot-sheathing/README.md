@@ -873,6 +873,19 @@ pose. One seed; statics.
 
 ![Measured through-calibration sensitivity against milestone 66's direct term, and the worst row against the aimed bias](experiments/m67_aimeddirect/figure.png)
 
+**Milestone 68: can a planner certify a press against a sensor bias of 0.3 to 1.0 N before making it?** Yes, from a
+table of one sensitivity per pose. Milestone 67's per-pose ||J|| was frozen and used as a gate after the planner:
+accept a press only if its flip budget plus B||J|| stays inside 0.03 mm in all four rows. On 12 new held-out loads
+(seed 68), under both the direct-aimed bias and the joint-margin bias, **no press the gate passed left 0.03 mm (0 of
+3,219; H261 held)**, and the table matched the sensitivity measured afresh on every new press to 4e-14 mm/N (H262
+held). Without the gate, the direct-aimed bias breaks 144 G1 and 68 H1 presses at 0.4 N (H265 held). **Coverage is
+the price: 64% of G1 and 90% of H1 cases at 0.3 N, 57% and 85% at 0.4 N, 21% and 52% at 0.6 N, 20% and 10% at
+1.0 N** (H263, H264 held). Checked after the run: against the direct-aimed bias the realised error equals the bound
+exactly, and the flip budget never decides a refusal, so the gate reduces to a **bias rating per pose**,
+0.03 mm / max||J||: 0.213 to 1.06 N on the G1 and 0.279 to 1.31 N on the H1. One seed; statics.
+
+![Gate coverage against the bias bound, and the worst row of gate-passed and refused presses under the direct-aimed bias](experiments/m68_jgate/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
