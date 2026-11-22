@@ -32,7 +32,8 @@
   "errors": [
     "First differential run disagreed on 272 of 5,079 cases. The generator was wrong for condition-sugar maps, and resolve.mjs missed legacy fallback for a non-object exports, CJS '#x' with no imports field, and a '' imports target. All fixed; 0 disagreements after.",
     "A mobile-width check found the new longer results-table text widened the page to 419 px; the table is now wrapped in a scroll box.",
-    "faq-visible check: the visible FAQ answer said '(section 3)' and the JSON-LD did not; made them match."
+    "faq-visible check: the visible FAQ answer said '(section 3)' and the JSON-LD did not; made them match.",
+    "run_workflow_locally --for-changes caught that cli.mjs read a '--conditions' value with argv[++i] and never checked it was given (test_check_trailing_flag_value). Fixed so a missing value exits 2; a test was added. CI's own run had not reached that step yet."
   ],
   "integrity_issues": [
     "Pre-existing wrong claim fixed: the tool and its docs said a bare-specifier exports target 're-exports another package, nothing to check', and engine.test.mjs asserted '../outside.js' is a literal target. Node 22 rejects both with ERR_INVALID_PACKAGE_TARGET (verified directly)."
@@ -49,7 +50,7 @@
     "docs/reports/2026-11-22-package-exports-resolver.md"
   ],
   "goal": null,
-  "notes": "Explore idea: differential-test a written-from-spec Node exports/imports resolver against Node 22 itself (import.meta.resolve needs no files on disk), then use it to deepen package-exports-drift-check. 0 disagreements in 5,079 (default seed) plus 85,386 (seeds 1-5 x 1,000 packages). The work exposed a wrong 'skipped (external)' classification and added wildcard reach, invalid-target and config-error checks, a resolve panel and a resolve CLI subcommand. Verification: run_venture_tests.py package-exports-drift-check, 92 tests ok plus site page checks ok; check_posts ok; Playwright on the page, no console errors.",
+  "notes": "Explore idea: differential-test a written-from-spec Node exports/imports resolver against Node 22 itself (import.meta.resolve needs no files on disk), then use it to deepen package-exports-drift-check. 0 disagreements in 5,079 (default seed) plus 85,386 (seeds 1-5 x 1,000 packages). The work exposed a wrong 'skipped (external)' classification and added wildcard reach, invalid-target and config-error checks, a resolve panel and a resolve CLI subcommand. Verification: run_venture_tests.py package-exports-drift-check, 92 tests ok plus site page checks ok; check_posts ok; Playwright on the page, no console errors. Local run_workflow_locally --for-changes: everything passed except that trailing-flag check, now fixed; the unrelated timber-sale-offer-checker baseline note was left alone.",
   "corrections": [],
   "redteam": null,
   "usage": {

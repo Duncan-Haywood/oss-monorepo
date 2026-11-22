@@ -35,7 +35,14 @@ function parseArgs(argv) {
     if (a === "--json") args.json = true;
     else if (a === "--require") args.require = true;
     else if (a.startsWith("--conditions=") || a.startsWith("-C=")) args.conditions.push(...a.slice(a.indexOf("=") + 1).split(",").filter(Boolean));
-    else if (a === "--conditions" || a === "-C") args.conditions.push(...String(argv[++i] ?? "").split(",").filter(Boolean));
+    else if (a === "--conditions" || a === "-C") {
+      const value = argv[i + 1];
+      if (value === undefined || value.startsWith("-")) args.missingValue = a;
+      else {
+        i++;
+        args.conditions.push(...value.split(",").filter(Boolean));
+      }
+    }
     else if (a === "--help" || a === "-h") args.help = true;
     else if (!args.sub && !a.startsWith("-")) args.sub = a;
     else if (a.startsWith("-")) args.unknown = a;
@@ -125,6 +132,10 @@ export async function run(
         "Exit 1 on any problem.",
       ].join("\n"),
     };
+  }
+
+  if (args.missingValue) {
+    return { exitCode: 2, output: `${args.missingValue} needs a value, e.g. ${args.missingValue} development,browser` };
   }
 
   if (args.sub !== "check" && args.sub !== "resolve") {

@@ -175,3 +175,14 @@ test("resolve: a resolved file that is not on disk exits 1", async () => {
   assert.equal(parsed.file, "./src/utils.js");
   assert.equal(parsed.exists, false);
 });
+
+test("resolve: a trailing --conditions with no value exits 2", async () => {
+  const { exitCode, output } = await run(["resolve", "lib", "--conditions"], { readFile: () => "{}" });
+  assert.equal(exitCode, 2);
+  assert.match(output, /--conditions needs a value/);
+  const spaced = await run(["resolve", "lib/f", "--conditions", "browser"], {
+    readFile: () => JSON.stringify({ name: "lib", exports: { "./f": { browser: "./b.js", default: "./d.js" } } }),
+    stat: async () => ({}),
+  });
+  assert.match(spaced.output, /->\s+\.\/b\.js/);
+});
