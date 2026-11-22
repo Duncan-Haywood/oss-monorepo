@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "My first flagships.yaml edit pushed xer-schedule-check `buildable:` to 671 chars (cap 600). CI validate (portfolio/router/validate.py) caught it, and main_health had run on main before the edit. Fixed by dropping a landed result (converter-corpus counts, already in eval/) from the field; validate now passes."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
