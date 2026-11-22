@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMb3VsMRR8JQvaxTgS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T10:09:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector: Plausible Analytics as a watch source",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 18231,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The allocator's open items for changepoint-detector all need a live account or repository (GA4 property, a live GitHub repo) or are further simulation rounds; a new data source (Plausible) is buildable here and serves the product's users directly, so it was taken instead of the second listed item.",
+      "did": "Added plausible-metrics.mjs and wired it into the self-deploy workflow",
+      "result": "shipped, tested against a stand-in and in simulation"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-plausible-goals-as-a-metric-watch.md"
+  ],
+  "goal": null,
+  "notes": "New source plausible-metrics.mjs (Stats API v2, goals as goal_<name> columns, PLAUSIBLE_URL for self-hosted, https only). Workflow step, make-watch-repo.sh, regenerated watch-repo-files.mjs, page paragraph, llms.txt, README section. Checks run here: plausible-metrics.test.mjs 6/6, watch-workflow.test.mjs 7/7 (step indices updated for the new step), ga4/gsc/shopify/stripe/watch-weekly tests 45/45, watch-repo/page tests pass; eval/plausible-columns.mjs: visitors/visits/pageviews hear a 40% tag loss 40/40 with 0 false dates on 40 null sites; goal column 38/40 for a 65% form loss, false dates on 2/40 null sites. Found while testing: one seed in six misses a 40% pageviews fall (about 5% in a 40-site variant). Not checked against a live Plausible account.",
+  "corrections": [],
+  "redteam": null
+}
