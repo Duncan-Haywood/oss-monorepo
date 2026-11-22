@@ -125,6 +125,26 @@ export function escapeChar(text) {
   return escape;
 }
 
+// A heredoc opener as BuildKit reads one: a word of a RUN, COPY or ADD
+// instruction shaped `<<NAME`, `<<-NAME`, `<<"NAME"` or `2<<NAME`. The lines
+// after it up to a line equal to NAME (leading tabs ignored for `<<-`) are
+// the heredoc's body. Same reading as docker-base-image-pin-check.
+const HEREDOC_INSTRUCTIONS = new Set(["RUN", "COPY", "ADD"]);
+const HEREDOC_WORD_RE = /^\d*<<(-?)(["']?)([^<"'\s]+)\2$/;
+
+/** The heredoc terminators one joined instruction opens, in order, as
+ * [{name, chomp}]. Empty for an instruction that opens none. */
+export function heredocTerminators(instruction) {
+  const words = String(instruction).trim().split(/\s+/);
+  if (!HEREDOC_INSTRUCTIONS.has((words[0] || "").toUpperCase())) return [];
+  const out = [];
+  for (const word of words.slice(1)) {
+    const m = HEREDOC_WORD_RE.exec(word);
+    if (m) out.push({ name: m[3], chomp: m[1] === "-" });
+  }
+  return out;
+}
+
 /**
  * Splits raw Dockerfile text into logical instructions, joining
  * backslash-continued physical lines into one, and dropping blank lines,
@@ -145,10 +165,25 @@ export function parseInstructions(text) {
   let building = false;
   let startLine = 0;
   let parts = [];
+  // Heredocs a just-read RUN/COPY/ADD opened, still waiting for their
+  // terminator line. A RUN heredoc's body is the script the RUN executes, so
+  // its lines join that RUN's args (red team 2026-11-22: `COPY . .` then
+  // `RUN <<EOF` / `npm ci` / `EOF` read as a RUN of "<<EOF" with no install,
+  // and the file passed clean). A COPY/ADD body is file content and is
+  // dropped, never read as instructions.
+  let heredocs = [];
+  let heredocOwner = null;
 
   for (let i = 0; i < raw.length; i += 1) {
     const line = raw[i];
     const lineNumber = i + 1;
+    if (heredocs.length) {
+      const pending = heredocs[0];
+      const candidate = pending.chomp ? line.replace(/^\t+/, "") : line;
+      if (candidate === pending.name) heredocs.shift();
+      else if (heredocOwner && heredocOwner.instruction === "RUN") heredocOwner.args += `; ${line.trim()}`;
+      continue;
+    }
     if (!building) {
       if (line.trim() === "" || /^\s*#/.test(line)) continue;
       building = true;
@@ -166,7 +201,9 @@ export function parseInstructions(text) {
       const joined = parts.join(" ").replace(/\s+/g, " ").trim();
       const match = /^(\S+)\s*([\s\S]*)$/.exec(joined);
       if (match) {
-        instructions.push({ lineNumber: startLine, instruction: match[1].toUpperCase(), args: match[2] });
+        heredocOwner = { lineNumber: startLine, instruction: match[1].toUpperCase(), args: match[2] };
+        instructions.push(heredocOwner);
+        heredocs = heredocTerminators(joined);
       }
       building = false;
       parts = [];

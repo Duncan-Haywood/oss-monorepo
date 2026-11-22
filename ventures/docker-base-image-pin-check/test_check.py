@@ -536,5 +536,39 @@ class RedTeam20261122(unittest.TestCase):
         self.assertEqual(dbc.escape_char("FROM x\n# escape=`\n"), "\\")
 
 
+class RedTeam20261122Heredoc(unittest.TestCase):
+    """A heredoc's body is not part of the Dockerfile's instructions."""
+
+    TEXT = "\n".join([
+        "FROM python:3.12@" + DIGEST + " AS build",
+        "COPY <<EOF /srv/Dockerfile",
+        "FROM alpine:latest",
+        "EOF",
+        "RUN <<-'SCRIPT' cat > /tmp/a <<\"INNER\"",
+        "\tFROM debian:12",
+        "\tSCRIPT",
+        "FROM ubuntu:latest",
+        "INNER",
+        "FROM node:20",
+    ])
+
+    def test_from_inside_a_heredoc_is_not_a_finding(self):
+        findings = dbc.scan_text(self.TEXT)
+        self.assertEqual(
+            [(f["line"], f["classification"]) for f in findings],
+            [(1, dbc.PINNED), (10, dbc.MUTABLE)],
+        )
+
+    def test_terminators(self):
+        self.assertEqual(dbc.heredoc_terminators("RUN <<EOF"), [("EOF", False)])
+        self.assertEqual(dbc.heredoc_terminators("run 2<<-\"X\" cat"), [("X", True)])
+        self.assertEqual(dbc.heredoc_terminators("RUN echo $((1<<2)) '<<EOF' <<< x"), [])
+        self.assertEqual(dbc.heredoc_terminators("ENV <<EOF"), [])
+
+    def test_shell_shift_does_not_swallow_the_next_from(self):
+        findings = dbc.scan_text("FROM a:1 AS one\nRUN echo $((1<<2))\nFROM b:2\n")
+        self.assertEqual([f["line"] for f in findings], [1, 3])
+
+
 if __name__ == "__main__":
     unittest.main()

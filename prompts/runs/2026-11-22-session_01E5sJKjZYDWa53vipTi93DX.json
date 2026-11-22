@@ -1,0 +1,433 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKjZYDWa53vipTi93DX",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T09:18:39Z",
+  "ended": "2026-11-22T09:20:55Z",
+  "wall_minutes": 9.95,
+  "tokens_in": 5444675,
+  "tokens_out": 35999,
+  "cost_usd": 2.6253,
+  "tool_calls": 59,
+  "task": "redteam: mutation campaigns on docker-base-image-pin-check/classify.mjs and subscription-price-impact/calc.mjs, then a hunt across the Dockerfile checkers",
+  "projects": [
+    "docker-base-image-pin-check",
+    "docker-cache-order-check",
+    "node-version-drift-check",
+    "subscription-price-impact",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18230",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 13 open entries, 12 of them control-plane edits already sitting in their own PRs waiting for owner approval; each run re-checks them all, which costs time and fixes nothing. The open list could mark entries with an open control-plane PR as 'waiting', not 'open'."
+    },
+    {
+      "file": "platform/ci/check_dockerfile_escape.py",
+      "issue": "Its CONTINUATION heuristic only matches a literal endsWith('\\\\') or /\\\\\\s*$/, so a joiner using endsWith(escape) (docker-base-image-pin-check, docker-build-secrets-check) is never scanned; the new heredoc lint inherits the blind spot."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open entries first; all 13 still reproduce but 12 are control-plane files (own PR, owner approval, most already open as PRs #14612, #15728, #15945 etc.) and the help-keeper one needs a new eval set.",
+      "did": "Checked each still reproduces on main and left them open; spent the run on new defects.",
+      "result": "3 real defects found and patched in product code instead of duplicating waiting control-plane PRs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-redteam-dockerfile-heredocs.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/check_dockerfile_heredoc.py (+ test_check_dockerfile_heredoc.py, run in CI by unwired_checks.py). First run caught node-version-drift-check (third defect). Catch rate 15/17 non-equivalent before, 17/17 after rerun. Verification: run_venture_tests.py docker-base-image-pin-check docker-cache-order-check node-version-drift-check -> 3 suites, 0 failed (147, 59, 56 tests); check_posts.py ok; each new test confirmed failing against main's code before the fix. docker-build-secrets-check deliberately left reading heredoc body lines: a literal token inside a RUN heredoc is still baked into a layer, so flagging it is right. unwired_checks.py: 279/279 pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/docker-base-image-pin-check/classify.mjs",
+        "test": "node --test ventures/docker-base-image-pin-check/**/*.test.mjs  (in .)",
+        "seed": 755732510,
+        "commit": "a2b5f00e6",
+        "sites": 119,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 26,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "const REGISTERED_DIGEST_HEX = { sha256: 64, sha512: 128 };",
+            "after": "const REGISTERED_DIGEST_HEX = { sha256: 64, sha512: 129 };",
+            "line_text": "const REGISTERED_DIGEST_HEX = { sha256: 64, sha512: 128 };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test pinned a valid sha512 digest; added \"a sha512 digest of exactly 128 hex characters is pinned\" in classify.test.mjs."
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 32,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "if (want === undefined) return true;",
+            "after": "if (want !== undefined) return true;",
+            "line_text": "  if (want === undefined) return true;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 98,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "after": "return { name: ref.slice(1, at), tag: null, digest: ref.slice(at + 1) };",
+            "line_text": "    return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 103,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "const prefix = ref.slice(0, lastSlash + 1);",
+            "after": "const prefix = ref.slice(0, lastSlash + 2);",
+            "line_text": "    const prefix = ref.slice(0, lastSlash + 1);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 164,
+            "col": 11,
+            "operator": "or-to-and",
+            "before": "if (!m || !KNOWN_DIRECTIVES.has(m[1].toLowerCase())) break;",
+            "after": "if (!m && !KNOWN_DIRECTIVES.has(m[1].toLowerCase())) break;",
+            "line_text": "    if (!m || !KNOWN_DIRECTIVES.has(m[1].toLowerCase())) break;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 165,
+            "col": 58,
+            "operator": "or-to-and",
+            "before": "if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "after": "if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" && m[2] === \"`\")) escape = m[2];",
+            "line_text": "    if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 184,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (buffer === null) {",
+            "after": "if (buffer !== null) {",
+            "line_text": "    if (buffer === null) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 193,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "buffer += trimmed.slice(0, -1) + \" \";",
+            "after": "buffer += trimmed.slice(1, -1) + \" \";",
+            "line_text": "      buffer += trimmed.slice(0, -1) + \" \";",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 199,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (buffer !== null) out.push([start, buffer]);",
+            "after": "if (buffer === null) out.push([start, buffer]);",
+            "line_text": "  if (buffer !== null) out.push([start, buffer]);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a FROM continuation running off the end of the file; added a test in classify.test.mjs."
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 234,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (at !== -1 && !afterAt.includes(\"$\") && digestIsValid(afterAt)) {",
+            "after": "if (at !== -2 && !afterAt.includes(\"$\") && digestIsValid(afterAt)) {",
+            "line_text": "      if (at !== -1 && !afterAt.includes(\"$\") && digestIsValid(afterAt)) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "at === -1 makes afterAt \"\", and digestIsValid(\"\") is false, so the && fails either way; at can never be -2."
+          }
+        ]
+      },
+      {
+        "target": "ventures/subscription-price-impact/calc.mjs",
+        "test": "node --test ventures/subscription-price-impact/**/*.test.mjs  (in .)",
+        "seed": 858921647,
+        "commit": "a2b5f00e6",
+        "sites": 41,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 5,
+            "col": 26,
+            "operator": "or-to-and",
+            "before": "if (value === undefined || value === null || String(value).trim() === '') throw new Error(`Enter ${name.toLowerCase()}`);",
+            "after": "if (value === undefined && value === null || String(value).trim() === '') throw new Error(`Enter ${name.toLowerCase()}`);",
+            "line_text": "  if (value === undefined || value === null || String(value).trim() === '') throw new Error(`Enter ${name.toLowerCase()}`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 7,
+            "col": 41,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isFinite(number) || number < 0) throw new Error(`${name} must be a non-negative number`);",
+            "after": "if (!Number.isFinite(number) || number <= 0) throw new Error(`${name} must be a non-negative number`);",
+            "line_text": "  if (!Number.isFinite(number) || number < 0) throw new Error(`${name} must be a non-negative number`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 7,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isFinite(number) || number < 0) throw new Error(`${name} must be a non-negative number`);",
+            "after": "if (!Number.isFinite(number) || number < 1) throw new Error(`${name} must be a non-negative number`);",
+            "line_text": "  if (!Number.isFinite(number) || number < 0) throw new Error(`${name} must be a non-negative number`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 33,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const breakEvenCustomers = currentRevenue === 0",
+            "after": "const breakEvenCustomers = currentRevenue === 1",
+            "line_text": "  const breakEvenCustomers = currentRevenue === 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 36,
+            "col": 27,
+            "operator": "max-to-min",
+            "before": "const maxLostCustomers = Math.max(0, customers - breakEvenCustomers);",
+            "after": "const maxLostCustomers = Math.min(0, customers - breakEvenCustomers);",
+            "line_text": "  const maxLostCustomers = Math.max(0, customers - breakEvenCustomers);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 37,
+            "col": 33,
+            "operator": "eq-flip",
+            "before": "const maxChurnRate = customers === 0 ? 0 : (maxLostCustomers / customers) * 100;",
+            "after": "const maxChurnRate = customers !== 0 ? 0 : (maxLostCustomers / customers) * 100;",
+            "line_text": "  const maxChurnRate = customers === 0 ? 0 : (maxLostCustomers / customers) * 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 39,
+            "col": 31,
+            "operator": "times-to-div",
+            "before": "const retained = customers * (1 - churn / 100);",
+            "after": "const retained = customers / (1 - churn / 100);",
+            "line_text": "    const retained = customers * (1 - churn / 100);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 39,
+            "col": 36,
+            "operator": "minus-to-plus",
+            "before": "const retained = customers * (1 - churn / 100);",
+            "after": "const retained = customers * (1 + churn / 100);",
+            "line_text": "    const retained = customers * (1 - churn / 100);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/docker-base-image-pin-check/classify.mjs",
+        "issue": "The body of a RUN/COPY/ADD heredoc was read as Dockerfile instructions, in both the page (classify.mjs) and the CLI (check.py): `COPY <<EOF /srv/Dockerfile` writing a nested `FROM alpine:latest` was reported as a mutable base image of the outer file (repro: scanText of the HEREDOC_FILE fixture gave 3 findings, now 2). Fixed with heredocTerminators/heredoc_terminators skipping each body to its terminator (<<-, quoted names, fd prefixes, several on one line).",
+        "patched": true
+      },
+      {
+        "file": "ventures/docker-cache-order-check/engine.mjs",
+        "issue": "`COPY . .` then `RUN <<EOF` / `npm ci` / `EOF` parsed as a RUN of \"<<EOF\" with no install, so the file passed clean while `RUN npm ci` on one line was flagged install-missing-manifest-copy. Fixed: a RUN heredoc's body joins that RUN's args; a COPY/ADD body is dropped, never read as instructions.",
+        "patched": true
+      },
+      {
+        "file": "ventures/node-version-drift-check/engine.mjs",
+        "issue": "Same heredoc class: a `FROM node:16` inside `COPY <<EOF` (a nested Dockerfile) was read as this Dockerfile's Node pin and reported as disagreeing with .nvmrc 22. Found by the new platform/ci/check_dockerfile_heredoc.py on its first run; fixed the same way.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1cd4f0d3-d3cf-5762-90c0-faeff731b4ac",
+    "transcripts": 1,
+    "first": "2026-11-22T09:18:39Z",
+    "last": "2026-11-22T09:28:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 107,
+        "output": 35999,
+        "thinking": 8932,
+        "cache_read": 5339954,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104614,
+        "api_equivalent_usd": 2.6253,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 107,
+      "output": 35999,
+      "thinking": 8932,
+      "cache_read": 5339954,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104614,
+      "api_equivalent_usd": 2.6253,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.95,
+      "active_minutes": 9.95,
+      "model_minutes": 6.59,
+      "tool_minutes": 3.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: read 4 Dockerfile scanners, reproduce, fix 2 ports + 2 tools with tests, write lint and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 228.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

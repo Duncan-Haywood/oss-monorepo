@@ -265,18 +265,54 @@ def escape_char(text):
     return escape
 
 
+# A heredoc opener as BuildKit reads one: a word of a RUN, COPY or ADD
+# instruction shaped `<<NAME`, `<<-NAME`, `<<"NAME"` or `2<<NAME`. The lines
+# after the instruction up to a line equal to NAME (leading tabs ignored for
+# `<<-`) are the heredoc's body, not instructions. Mirrors classify.mjs's
+# heredocTerminators.
+HEREDOC_INSTRUCTIONS = {"RUN", "COPY", "ADD"}
+HEREDOC_WORD_RE = re.compile(r"""^\d*<<(-?)(["']?)([^<"'\s]+)\2$""")
+
+
+def heredoc_terminators(instruction):
+    """The heredoc terminators one joined instruction opens, in order, as
+    (name, chomp) pairs. Empty for an instruction that opens none."""
+    words = instruction.split()
+    if not words or words[0].upper() not in HEREDOC_INSTRUCTIONS:
+        return []
+    out = []
+    for word in words[1:]:
+        m = HEREDOC_WORD_RE.match(word)
+        if m:
+            out.append((m.group(3), m.group(1) == "-"))
+    return out
+
+
+def _closes_heredoc(line, pending):
+    name, chomp = pending
+    candidate = line.lstrip("\t") if chomp else line
+    return candidate == name
+
+
 def logical_lines(text):
     """Join continued lines into one instruction, the way BuildKit reads
     them, and drop comment lines. The continuation character is a
     backslash unless an `# escape=` directive changes it. Returns
     (start_lineno, text) pairs. Comment and blank lines inside a
-    continuation are skipped, as BuildKit does. Mirrors classify.mjs's
+    continuation are skipped, as BuildKit does. The body of a `RUN <<EOF` /
+    `COPY <<EOF` heredoc is skipped: a `FROM` line written into a nested
+    Dockerfile is not an instruction of this one. Mirrors classify.mjs's
     logicalLines."""
     escape = escape_char(text)
     out = []
     buffer = None
     start = 0
+    heredocs = []
     for lineno, line in enumerate(text.splitlines(), start=1):
+        if heredocs:
+            if _closes_heredoc(line, heredocs[0]):
+                heredocs.pop(0)
+            continue
         stripped = line.strip()
         if buffer is None:
             if stripped.startswith("#"):
@@ -290,6 +326,7 @@ def logical_lines(text):
             buffer += trimmed[:-1] + " "
         else:
             out.append((start, buffer + line))
+            heredocs = heredoc_terminators(buffer + line)
             buffer = None
     if buffer is not None:
         out.append((start, buffer))

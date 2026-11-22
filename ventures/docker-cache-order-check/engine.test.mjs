@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   parseInstructions,
+  heredocTerminators,
   parseCopyArgs,
   isBroadCopy,
   scanText,
@@ -237,4 +238,34 @@ test("an escape=` directive stops a trailing backslash hiding the install step",
   assert.equal(escapeChar("# hello\n# escape=`\n"), "\\");
   assert.equal(escapeChar("# syntax=docker/dockerfile:1\r\n#  ESCAPE = `\r\n"), "`");
   assert.equal(escapeChar("FROM x\n# escape=`\n"), "\\");
+});
+
+// Red team 2026-11-22 (second run): a RUN heredoc's body is the script it
+// runs. `COPY . .` then `RUN <<EOF` / `npm ci` / `EOF` used to parse as a
+// RUN of "<<EOF" plus two stray instructions, so the install was never seen
+// and the file passed clean while a plain `RUN npm ci` was flagged.
+test("an install inside a RUN heredoc is read as that RUN's command", () => {
+  const plain = scanText("FROM node:20\nWORKDIR /app\nCOPY . .\nRUN npm ci\n");
+  const heredoc = scanText("FROM node:20\nWORKDIR /app\nCOPY . .\nRUN <<EOF\nset -e\nnpm ci\nEOF\n");
+  assert.equal(plain.length, 1);
+  assert.deepEqual(heredoc, plain);
+  const chomp = scanText("FROM node:20\r\nCOPY . .\r\nRUN <<-\"SH\"\r\n\tnpm ci\r\n\tSH\r\n");
+  assert.deepEqual(chomp.map((f) => [f.line, f.kind]), [[3, plain[0].kind]]);
+});
+
+test("a COPY heredoc's body is file content, not instructions", () => {
+  const text = [
+    "FROM node:20", "WORKDIR /app", "COPY package*.json ./", "RUN npm ci",
+    "COPY <<EOF /srv/Dockerfile", "FROM node:20", "COPY . .", "RUN npm install", "EOF",
+    "COPY . .",
+  ].join("\n");
+  assert.deepEqual(scanText(text), []);
+  assert.deepEqual(parseInstructions(text).map((x) => x.lineNumber), [1, 2, 3, 4, 5, 10]);
+});
+
+test("heredocTerminators reads only RUN, COPY and ADD openers", () => {
+  assert.deepEqual(heredocTerminators("RUN <<EOF"), [{ name: "EOF", chomp: false }]);
+  assert.deepEqual(heredocTerminators("ADD <<a /a 2<<-'b' /b"), [{ name: "a", chomp: false }, { name: "b", chomp: true }]);
+  assert.deepEqual(heredocTerminators("RUN echo $((1<<2)) '<<EOF' <<< x"), []);
+  assert.deepEqual(heredocTerminators("ENV X=<<EOF"), []);
 });

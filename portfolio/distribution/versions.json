@@ -66,16 +66,16 @@
       "hash": "sha256-00eca1c1004b28cdc22446e4c72ff5688cb1671dafbe00c3fb9d4d8ee2cb26fd"
     },
     "devsec-toolkit": {
-      "version": "0.1.13",
-      "hash": "sha256-107b99e2160a11a860fb3c7d6b8656c087c955a7c4d02e34418f7a8d31c302ec"
+      "version": "0.1.14",
+      "hash": "sha256-a3ac5e94ecb695a96be7b39ff3cdb4d2e2dd7be468574a2ac7a6417dddd9162c"
     },
     "docker-base-image-eol-check": {
       "version": "0.1.1",
       "hash": "sha256-41844bf50f883055af90ea33c60392da2b572605d511b7bbbbf1a0459570c122"
     },
     "docker-base-image-pin-check": {
-      "version": "0.1.4",
-      "hash": "sha256-e6f4ed348584919763dce10d6f0df4b5f323e1939926ccdb645d20e81efa9de8"
+      "version": "0.1.5",
+      "hash": "sha256-08cc9ef7a26bdac188aa65ceb6bdfd461c0daa3c93cb56bf9b3b5b74bde5c0e7"
     },
     "docker-build-secrets-check": {
       "version": "0.1.2",

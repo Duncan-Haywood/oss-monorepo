@@ -212,3 +212,23 @@ test("an escape=` directive stops a trailing backslash hiding the next FROM", ()
   assert.equal(d.length, 1);
   assert.match(d[0].message, /Node 20: Dockerfile/);
 });
+
+// Red-team 2026-11-22 (second run): a heredoc's body is not part of the
+// Dockerfile. A `FROM node:16` in a nested Dockerfile written by COPY <<EOF
+// used to be read as this file's Node pin, disagreeing with .nvmrc.
+test("a FROM inside a COPY or RUN heredoc is not this Dockerfile's pin", () => {
+  const text = [
+    "FROM node:22-slim AS build",
+    "COPY <<EOF /srv/legacy/Dockerfile",
+    "FROM node:16",
+    "EOF",
+    "RUN <<-'SH'",
+    "\tFROM node:18",
+    "\tSH",
+    "FROM node:22 AS run",
+  ].join("\n");
+  const r = analyze([{ path: ".nvmrc", text: "22" }, { path: "Dockerfile", text }], { today: "2026-01-01" });
+  assert.ok(!kinds(r).includes(K.MAJOR_DISAGREEMENT), JSON.stringify(r.findings));
+  const ref = analyze([{ path: ".nvmrc", text: "22" }, { path: "Dockerfile", text: "FROM node:22-slim\nFROM node:16\n" }], { today: "2026-01-01" });
+  assert.ok(kinds(ref).includes(K.MAJOR_DISAGREEMENT), "the same FROM outside a heredoc is a pin");
+});

@@ -23,6 +23,7 @@ import {
   summaryLine,
   parseArg,
   escapeChar,
+  heredocTerminators,
 } from "./classify.mjs";
 
 const DIGEST = "sha256:" + "a".repeat(64);
@@ -382,4 +383,57 @@ test("an escape=` directive stops a trailing backslash hiding the next FROM", ()
   writeFileSync(path.join(dir, "Dockerfile"), text);
   const py = JSON.parse(execFileSync("python3", [CLI, dir, "--format", "json"], { encoding: "utf8" }));
   assert.deepEqual(py.map((f) => [f.line, f.classification]), [[2, "pinned"], [4, "mutable"]]);
+});
+
+// Red team 2026-11-22 (second run): a heredoc's body is not part of the
+// Dockerfile's instructions. A RUN or COPY that writes a nested Dockerfile
+// with <<EOF used to have its `FROM alpine:latest` line reported as a
+// mutable base image of this file.
+const HEREDOC_FILE = [
+  "FROM python:3.12@" + DIGEST + " AS build",
+  "COPY <<EOF /srv/Dockerfile",
+  "FROM alpine:latest",
+  "EOF",
+  "RUN <<-'SCRIPT' cat > /tmp/a <<\"INNER\"",
+  "\tFROM debian:12",
+  "\tSCRIPT",
+  "FROM ubuntu:latest",
+  "INNER",
+  "FROM node:20",
+].join("\n");
+
+test("scanText skips FROM lines inside RUN/COPY heredocs, and reads the FROM after them", () => {
+  assert.deepEqual(
+    scanText(HEREDOC_FILE).map((f) => [f.line, f.classification, f.image]),
+    [[1, PINNED, "python:3.12"], [10, MUTABLE, "node"]],
+  );
+  const dir = mkdtempSync(path.join(tmpdir(), "dbc-heredoc-"));
+  writeFileSync(path.join(dir, "Dockerfile"), HEREDOC_FILE.replace(/\n/g, "\r\n"));
+  const py = JSON.parse(execFileSync("python3", [CLI, dir, "--format", "json"], { encoding: "utf8" }));
+  assert.deepEqual(py.map((f) => [f.line, f.classification]), [[1, PINNED], [10, MUTABLE]]);
+  assert.deepEqual(scanText(HEREDOC_FILE.replace(/\n/g, "\r\n")).map((f) => f.line), [1, 10]);
+});
+
+test("heredocTerminators reads only RUN, COPY and ADD openers", () => {
+  assert.deepEqual(heredocTerminators("RUN <<EOF"), [{ name: "EOF", chomp: false }]);
+  assert.deepEqual(heredocTerminators("run 2<<-\"X\" cat"), [{ name: "X", chomp: true }]);
+  assert.deepEqual(heredocTerminators("ADD <<a /a <<b /b"), [{ name: "a", chomp: false }, { name: "b", chomp: false }]);
+  assert.deepEqual(heredocTerminators("RUN echo $((1<<2)) '<<EOF' <<< x"), []);
+  assert.deepEqual(heredocTerminators("LABEL x=<<EOF"), []);
+  assert.deepEqual(heredocTerminators("ENV <<EOF"), []);
+});
+
+test("an unclosed shell shift does not swallow the next FROM", () => {
+  const text = "FROM a:1 AS one\nRUN echo $((1<<2))\nFROM b:2\n";
+  assert.deepEqual(scanText(text).map((f) => f.line), [1, 3]);
+});
+
+test("a sha512 digest of exactly 128 hex characters is pinned (mutation-found)", () => {
+  assert.equal(scanText("FROM nginx@sha512:" + "a".repeat(128))[0].classification, PINNED);
+  assert.equal(scanText("FROM nginx@sha512:" + "a".repeat(129))[0].classification, MUTABLE);
+});
+
+test("a FROM whose continuation runs off the end of the file is still read (mutation-found)", () => {
+  const f = scanText("FROM nginx:latest \\");
+  assert.deepEqual(f.map((x) => [x.line, x.classification]), [[1, MUTABLE]]);
 });
