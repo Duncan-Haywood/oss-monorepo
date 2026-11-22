@@ -18,9 +18,12 @@
   eval/noise-pca-mpcws-noisy-truth-2026-11-22.md) A green-pair truth reading, pre-registered as the noisy-truth
   judge, failed its validity tests (reads scene detail on small frames; 0.16x on one K-1 tile where the sites share
   noise), and the K-1 SNR 12 losers stay clean under either reading. On [372, 678] `mpcws` reads 2.3x truth grain +
-  added noise, `mpcw` 1.1x: the selection feeds on its own read. Next: `mpcws` selecting with `mpcw`'s level, one
-  pass, pre-registered against `mpcw` with "read ratio at most 1.3 on that tile" as a stated check; rerun on
-  raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) when it is reachable. X-Trans has not been
+  added noise, `mpcw` 1.1x: the selection feeds on its own read. (2026-11-22, eval/noise-pca-mpcw1-2026-11-22.md)
+  `mpcw1`, `mpcws` selecting once at `mpcw`'s level, failed its pre-registered gates (1.48x `mpcw` on that tile, bar
+  1.3; one more tune loser; held SNR 200 wb cell -0.05 dB) and kept +0.01 of `mpcws`'s +0.26 dB tune gain: gain and
+  over-read share one cause. This 53-file set is spent for selection tests (no split is blind to a whitened read
+  now). Next: `mpcws` and `mpcw1` as arms on a fresh blind set, raw.pixls.us's `first` set (the 6 named D780/D600
+  foliage rows) or another public sample set, when one is reachable. X-Trans has not been
   tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows: try a

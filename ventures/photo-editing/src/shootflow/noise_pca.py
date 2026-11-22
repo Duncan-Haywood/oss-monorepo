@@ -121,9 +121,15 @@ def _cov(p: np.ndarray, idx: np.ndarray) -> np.ndarray:
     return _cov_ref(p, idx) if out is None else out
 
 
-EIG_READS = ("chen", "mp", "mpc", "mpcw", "mpcws")
+EIG_READS = ("chen", "mp", "mpc", "mpcw", "mpcws", "mpcw1")
 # reads that also choose the weak-texture patch set (the others read only the set Chen's iteration keeps)
 SELECT_WITH = ("mpcws",)
+# reads that reselect once: Chen's iteration picks the set, the whitened read of it sets one more threshold
+# over the bin's patches, and the whitened read of that set is the answer (eval/noise-pca-mpcw1-2026-11-22.md:
+# ``mpcws`` without its feedback, a high read loosening its own threshold)
+RESELECT_ONCE = ("mpcw1",)
+# reads whose level is Chen's on the colour-whitened covariance
+_WHITENED = ("mpc", "mpcw", "mpcws", "mpcw1")
 
 
 def _mp_floor(n: int, dim: int) -> float:
@@ -143,7 +149,8 @@ def _eig_sigma2_idx(p: np.ndarray, idx: np.ndarray, eig: str = "chen", cols=None
     columns (``cols``: one index array per colour present), the colours' readings averaged by their share of
     the patch, so noise whose variance differs by colour (white balance) is read as the mixed mean, as
     ``"chen"`` reads it, instead of as its quietest colour. ``"mpcw"`` (2026-11-21): the colours' *ratios* from
-    those reads and the *level* from ``"chen"`` on the colour-whitened covariance (``_colour_whitening``). Below
+    those reads and the *level* from ``"chen"`` on the colour-whitened covariance (``_colour_whitening``);
+    ``"mpcws"`` and ``"mpcw1"`` read the same way and differ only in the patch set (``_weak_texture_idx``). Below
     4 x dim patches the floor is too loose to trust and ``"chen"`` is used."""
 
     if idx.size < p.shape[1] + 2:
@@ -152,7 +159,7 @@ def _eig_sigma2_idx(p: np.ndarray, idx: np.ndarray, eig: str = "chen", cols=None
     n, dim = int(idx.size), p.shape[1]
     if eig == "mp" and n >= 4 * dim:
         return float(max(np.linalg.eigvalsh(cov)[0], 0.0) / _mp_floor(n, dim))
-    if eig in ("mpc", "mpcw", "mpcws") and cols is not None and n >= 4 * dim:
+    if eig in _WHITENED and cols is not None and n >= 4 * dim:
         v = [max(float(np.linalg.eigvalsh(cov[np.ix_(ik, ik)])[0]), 0.0) / _mp_floor(n, ik.size) for ik in cols]
         if eig == "mpc":
             return float(sum(ik.size / dim * vk for ik, vk in zip(cols, v)))
@@ -296,6 +303,11 @@ def _weak_texture_idx(p: np.ndarray, idx: np.ndarray, g: np.ndarray, tr: float, 
         s2 = _eig_sigma2_idx(p, keep, sel, cols)
     if eig != "chen" and s2 == s2:
         s2 = _eig_sigma2_idx(p, keep, eig, cols)
+    if eig in RESELECT_ONCE and s2 == s2:  # one pass at the whitened level, never iterated on its own read
+        new = idx[gi < s2 * tr * q]
+        if new.size >= p.shape[1] + 2:
+            keep = new
+            s2 = _eig_sigma2_idx(p, keep, eig, cols)
     return s2, int(keep.size)
 
 
@@ -342,7 +354,7 @@ def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int 
     cols = None
     if eig not in EIG_READS:
         raise ValueError(f"unknown eig {eig!r} ({', '.join(EIG_READS)})")
-    if eig in ("mpc", "mpcw", "mpcws") and mosaic and pat is not None:  # every mosaic patch starts on the CFA's origin
+    if eig in _WHITENED and mosaic and pat is not None:  # every mosaic patch starts on the CFA's origin
         col = np.array([pat[(y % period) * period + (x % period)] for y in range(d) for x in range(d)])
         cols = [np.flatnonzero(col == k) for k in np.unique(col)]
     res: list = [None] * bins

@@ -1,0 +1,59 @@
+R: 536 new rows, 536 committed, 536 joined
+R  ship vs committed mpcw: 2128/2144 within 0.01 dB (0.9925); worst 0.320 dB
+R  mpcws vs committed mpcws: 2142/2144 within 0.01 dB (0.9991); worst 0.020 dB
+C: Pentax K-1 Mark II [372, 678], mpcw1 / ship sigma18
+   SNR    12 equal ship 0.0172 mpcw1 0.0192 mpcws 0.0329  ratio 1.12
+   SNR    12 wb    ship 0.0141 mpcw1 0.0135 mpcws 0.0400  ratio 0.96
+   SNR    25 equal ship 0.0146 mpcw1 0.0183 mpcws 0.0299  ratio 1.25
+   SNR    25 wb    ship 0.0126 mpcw1 0.0130 mpcws 0.0283  ratio 1.04
+   SNR    60 equal ship 0.0114 mpcw1 0.0118 mpcws 0.0340  ratio 1.03
+   SNR    60 wb    ship 0.0136 mpcw1 0.0201 mpcws 0.0312  ratio 1.48
+   SNR   200 equal ship 0.0210 mpcw1 0.0216 mpcws 0.0343  ratio 1.03
+   SNR   200 wb    ship 0.0207 mpcw1 0.0210 mpcws 0.0290  ratio 1.02
+C worst ratio 1.48: FAIL (at most 1.3)
+
+== pick (tune)
+162 rows (tune, clean truths)
+arm            luma   colour losers  worst
+ship+12     +0.6412  +0.3928      6  -0.81
+mpcw1+12    +0.6528  +0.3913      7  -0.83
+mpcws+12    +0.8555  +0.4343     10  -1.08
+   read / true sigma at 18% grey (median), by SNR and scenario:
+   SNR   200 equal ship 1.65  mpcw1 1.60  mpcws 1.51
+   SNR    60 equal ship 0.86  mpcw1 0.84  mpcws 0.91
+   SNR    25 equal ship 0.81  mpcw1 0.82  mpcws 0.83
+   SNR    12 equal ship 0.78  mpcw1 0.78  mpcws 0.79
+   SNR   200 wb    ship 1.29  mpcw1 1.25  mpcws 1.16
+   SNR    60 wb    ship 0.68  mpcw1 0.64  mpcws 0.89
+   SNR    25 wb    ship 0.60  mpcw1 0.58  mpcws 0.82
+   SNR    12 wb    ship 0.59  mpcw1 0.62  mpcws 0.78
+ship+12 mean luma + colour over D +1.0340; mpcw1 +1.0441, mpcws +1.2898
+pick: none: stop
+
+== test (held), reported only
+208 rows (held, clean truths)
+arm            luma   colour losers  worst
+ship+12     +1.0201  +0.6652      0  -0.01
+mpcw1+12    +1.0444  +0.6647      0  -0.01
+   read / true sigma at 18% grey (median), by SNR and scenario:
+   SNR   200 equal ship 1.12  mpcw1 1.13
+   SNR    60 equal ship 0.82  mpcw1 0.86
+   SNR    25 equal ship 0.79  mpcw1 0.80
+   SNR    12 equal ship 0.77  mpcw1 0.77
+   SNR   200 wb    ship 0.84  mpcw1 0.83
+   SNR    60 wb    ship 0.73  mpcw1 0.74
+   SNR    25 wb    ship 0.61  mpcw1 0.64
+   SNR    12 wb    ship 0.62  mpcw1 0.64
+   SNR    12 equal n=  36  mpcw1+12 - ship+12: luma -0.0025  colour -0.0050
+   SNR    12 wb    n=  36  mpcw1+12 - ship+12: luma +0.1067  colour +0.0203
+   SNR    25 equal n=  32  mpcw1+12 - ship+12: luma -0.0034  colour -0.0034
+   SNR    25 wb    n=  32  mpcw1+12 - ship+12: luma +0.0409  colour +0.0003
+   SNR    60 equal n=  30  mpcw1+12 - ship+12: luma -0.0183  colour -0.0150
+   SNR    60 wb    n=  30  mpcw1+12 - ship+12: luma +0.0307  colour +0.0020
+   SNR   200 equal n=   6  mpcw1+12 - ship+12: luma +0.0050  colour +0.0017
+   SNR   200 wb    n=   6  mpcw1+12 - ship+12: luma -0.0517  colour -0.0300
+means: luma +0.0242, colour -0.0005; worst cell -0.0517; losers 0 -> 0, new 0
+FAIL h1 means within 0.005 dB of ship, every cell within 0.02 dB
+PASS h2 no row newly loses > 0.1 dB to D, and no more losers
+PASS h3 white-balanced SNR 25 and 12 rows' luma gains at least +0.02 dB over ship (+0.0757, n=68)
+verdict: what ships stays

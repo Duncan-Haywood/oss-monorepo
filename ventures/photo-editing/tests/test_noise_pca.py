@@ -118,6 +118,26 @@ class NoisePcaTests(unittest.TestCase):
         self.assertLess(chen, 0.85)
         self.assertAlmostEqual(ws, 1.0, delta=0.06)
 
+    def test_mpcw1_reselects_once_at_the_whitened_level(self):
+        # eval/noise-pca-mpcw1-2026-11-22.md: ``mpcw1`` reads ``mpcw``'s level on the set one threshold at that
+        # level keeps, so on white-balanced noise it lands between ``mpcw`` (Chen's set) and ``mpcws`` (iterated
+        # on its own read), and never above the iterated read.
+        from shootflow.noise_pca import estimate_noise_pca, sigma18
+
+        np = self.np
+        h = w = 480
+        y, x = np.mgrid[:h, :w]
+        col = np.array(BAYER)[(y % 2) * 2 + (x % 2)]
+        gains = np.array([2.0, 1.0, 1.6])
+        g = gains[col]
+        lvl = np.tile(np.linspace(0.05, 0.6, w), (h, 1)) / g
+        shot, read = 0.8 * (0.18 / 25) ** 2 / 0.18, 0.2 * (0.18 / 25) ** 2
+        c = (lvl + self.rng.normal(size=lvl.shape) * np.sqrt(shot * lvl + read)) * g
+        true = (shot * gains.mean() * 0.18 + read * (gains**2).mean()) ** 0.5
+        w0, w1, ws = (sigma18(estimate_noise_pca(c, BAYER, eig=e)) / true for e in ("mpcw", "mpcw1", "mpcws"))
+        self.assertGreater(w1, w0 + 0.02)
+        self.assertLess(w1, ws)
+
     def test_smooth_field_reads_the_true_sigma(self):
         from shootflow.noise_pca import estimate_noise_pca
 
