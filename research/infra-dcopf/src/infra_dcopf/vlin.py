@@ -487,7 +487,7 @@ VBOX = 0.03
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
         record=False, warm=None, warm_check=False, merit_fn=None, enlarge=None, info=None,
         enlarge_once=False, enlarge_rel=False, trace=None, enlarge_skip=(),
-        enlarge_pre=False, kmargin=None, kinfo=None):
+        enlarge_pre=False, kmargin=None, kinfo=None, k_first="keep"):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg".
@@ -515,7 +515,11 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
     remainder r = AC loading - predicted loading and the halving count h0 at that round. From then on its row
     carries an extra margin min(cap, r 4^-(h - h0)) at h halvings: the second-order remainder of a step scales
     with the step squared, and every halving halves the boxes. A row armed again keeps the larger current value.
-    kinfo: a list that collects one record per round on which rule K armed a row."""
+    kinfo: a list that collects one record per round on which rule K armed a row.
+    k_first (LOG.md 2026-11-22, after rule K's case240 SAD loss): how rule K treats round 1, whose P step has
+    no box. "keep" (rule K as run), "skip" (rule K1: round 1 never arms a row) or "scale" (rule Kr: round 1's
+    remainder is divided by s^2, s = max over generators of |dP| / first P box, when s > 1, i.e. rescaled to
+    what a step at the first box would leave, since the remainder scales with the step squared)."""
     mf = merit_fn or merit
     halvings = 0
     lay = Layout(ppc)
@@ -584,8 +588,14 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
             pred = np.where(rated, pred_flow / np.where(rated, rate2, 1.0), np.inf)
             lm = (base_margin or {}).get("load", 0.0)
             hit = rated & (el > 1.0 + TOL["load"]) & (pred <= 1.0 - lm + 1e-9)
+            if it == 1 and k_first == "skip":
+                hit = np.zeros_like(hit)
             if hit.any():
                 r_new = el[hit] - pred[hit]
+                if it == 1 and k_first == "scale":
+                    s = float(np.max(np.abs(xp - lin["pg0"]) / p_first)) if len(xp) else 0.0
+                    if s > 1.0:
+                        r_new = r_new / s ** 2
                 cur_val = k_r[hit] * 4.0 ** -(halvings - k_h[hit])
                 take = r_new > cur_val
                 idx = np.flatnonzero(hit)[take]

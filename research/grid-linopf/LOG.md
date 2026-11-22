@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-22 · Rules K1 and Kr: rule K without the unboxed round 1's remainder (plan)
+- Plan, rules K1 (`k_first="skip"`) and Kr (`k_first="scale"`) and predictions F0 to F7: `research/infra-dcopf/LOG.md` (2026-11-22); script `research/infra-dcopf/experiments/run_kfirst.py`. Development and held-out, against the frozen repair and rule K.
+
 ## 2026-11-22 · Rule K: outcome. Not adopted: development 31 of 34 as frozen (gains case118 API at round 29, a stall since 2026-11-13; loses case240 SAD), held-out 10 of 19 as frozen, no overload stall finishes; held-out common finishers 8 of 10 sooner (median &minus;3.5 rounds, P = 0.039) at +0.47 cost points
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-22); numbers in `research/infra-dcopf/experiments/results_kmargin.txt`. K0, K1, K3, K5 held; K2, K4, K6 refuted; K7 (adoption) not met.
 - case240 SAD's loss: a margin armed on round 1's unboxed step stays at its cap through accepted rounds and empties every hard QP (30 elastic rounds; frozen is hard from round 3).
