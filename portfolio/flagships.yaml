@@ -574,21 +574,20 @@ flagships:
       eval/expenses-2026-11-21.md); next a P6-written XER with expenses, a P6 import
       (category by name?). Finish-date UDFs <-> Project Finish fields, Start/Finish
       fields read 2026-11-22 (eval/finish-udfs-2026-11-22.md: 120/120 Project
-      values, CCA 182/182); next: a P6 import of the result. Contractor's monthly
-      narrative 2026-11-22 (narrative.mjs, --narrative, page; causes as fill-ins;
-      eval/narrative-check-2026-11-22.md); next a real scheduler's read. Levelling
-      on P6 resource curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md);
-      next a P6-levelled file with a curve. Risk run levelled in every run
-      2026-11-22 (--levelled; crew-limit delay on common draws;
-      eval/risk-levelled-2026-11-22.md); next a commercial tool's levelled risk run
-      to compare. Probabilistic branches in the risk run 2026-11-22 (--branches,
-      page, review; eval/branches-2026-11-22.md: 113/113 planted); next a real
-      branch register; branches in TIA 2026-11-22 (tia.mjs Branch
+      values, CCA 182/182); next: a P6 import of the result. next a real scheduler's
+      read. Levelling on P6 resource curves 2026-11-22 (--curves,
+      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve. Risk
+      run levelled in every run 2026-11-22 (--levelled; crew-limit delay on common
+      draws; eval/risk-levelled-2026-11-22.md); next a commercial tool's levelled
+      risk run to compare. Probabilistic branches in the risk run 2026-11-22
+      (--branches, page, review; eval/branches-2026-11-22.md: 113/113 planted); next
+      a real branch register; branches in TIA 2026-11-22 (tia.mjs Branch
       group/Branch/Probability, every outcome scheduled,
       eval/tia-branches-2026-11-22.md), next a real TIA exhibit with alternatives.
       (15) Drag, joint acceleration 2026-11-22 (crash.mjs,
-      eval/crash-check-2026-11-22.md); next a commercial drag run, an oracle with
-      SS/FF links, real crash rates. More open items: NEXT.md.
+      eval/crash-check-2026-11-22.md); SS/FF/SF oracle 2026-11-22 (2 faults fixed,
+      eval/crash-oracle-links-2026-11-22.md); next a commercial drag run, real crash
+      rates. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

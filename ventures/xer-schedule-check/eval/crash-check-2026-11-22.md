@@ -111,9 +111,9 @@ one fresh schedule; its finish must equal the reported one. Results in
 - Real acceleration rates: the public files carry no crash costs, so the
   file runs use the default room and unit cost. A contractor's real rates
   would change which cut is cheapest.
-- The oracle covers finish-to-start networks on one calendar. SS/FF/SF links,
-  lags and mixed calendars are covered only by the replay check and the
-  hand cases in crash.test.mjs; a brute-force oracle with those link types
-  is open.
+- The oracle covers finish-to-start networks on one calendar. SS/FF/SF links
+  and lags: covered since 2026-11-22 by eval/crash-oracle-links.mjs
+  (eval/crash-oracle-links-2026-11-22.md; it found two faults, now fixed).
+  Mixed calendars are covered only by the replay check.
 - The greedy steps are scored at whole-day gains; the optimum over
   fractional shortenings on several calendars is not proven.

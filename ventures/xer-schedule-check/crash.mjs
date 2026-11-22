@@ -236,6 +236,18 @@ export function crashAnalysis(xer, { projId = null, targetDays = null, data = nu
     const S = (i) => 2 * i, Fn = (i) => 2 * i + 1, src = 2 * L.length, snk = src + 1;
     const edges = [];
     const startDriven = new Set(), finDriven = new Set();
+    const dd = cur.projects.get(p.id)?.dataDate;
+    const same = (cal, a, b) => a === b || (a < b ? cal.workBetween(a, b) : cal.workBetween(b, a)) === 0;
+    const onFloor = (t, end) => {
+      const r = cur.tasks.get(t.id);
+      if (!r || t.status !== "TK_NotStart" && end === "start") return false;
+      const at = end === "start" ? r.es : r.ef;
+      if (at === null || at === undefined) return false;
+      const dates = end === "start"
+        ? [dd, t.extES, ...t.cstr.filter((c) => c.type === "CS_MSOA").map((c) => c.date)]
+        : t.status === "TK_Complete" ? [] : t.cstr.filter((c) => c.type === "CS_MEOA").map((c) => c.date);
+      return dates.some((d) => d !== null && d !== undefined && same(t.cal, d, at));
+    };
     for (const id of L) {
       const t = model.tasks.get(id);
       for (const rel of t.preds) {
@@ -253,7 +265,16 @@ export function crashAnalysis(xer, { projId = null, targetDays = null, data = nu
       // forward: cost of shortening while there is room; low bound: the
       // refund for giving back time already bought (un-crashing)
       edges.push([S(i), Fn(i), s && left > 0 && !blocked.has(id) ? s.perMin : Infinity, giveBack && s && (used.get(id) || 0) > 0 ? s.perMin : 0]);
-      if (!startDriven.has(id)) edges.push(finDriven.has(id) ? [Fn(i), S(i), Infinity] : [src, S(i), Infinity]);
+      // a driven finish (FF/SF) pulls the start back to finish - duration,
+      // whether or not an FS/SS link also drives the start: shortening then
+      // moves the start later, not the finish earlier (eval/crash-oracle-links.mjs
+      // found both cases: a start held by its link and by the finish's SF)
+      if (finDriven.has(id)) edges.push([Fn(i), S(i), Infinity]);
+      // a start on its floor (the data date, a start-on-or-after date) cannot
+      // come earlier whatever its chains do
+      if ((!startDriven.has(id) && !finDriven.has(id)) || onFloor(t, "start")) edges.push([src, S(i), Infinity]);
+      // a finish held by a finish-on-or-after date does not move by shortening
+      if (onFloor(t, "finish")) edges.push([src, Fn(i), Infinity]);
       if (atFinish(id)) edges.push([Fn(i), snk, Infinity]);
     }
     // a refund bound needs the finish to lead on (a duration whose finish

@@ -5,6 +5,7 @@ import { crashAnalysis, crashText, crashCsv, crashTableHtml, parseCrashData, min
 import { dragAnalysis } from "./drag.mjs";
 import { oracleRun, oracleCase } from "./eval/crash-oracle.mjs";
 import { bridgeRun } from "./eval/crash-bridge.mjs";
+import { linkOracleRun, linkOracleCase } from "./eval/crash-oracle-links.mjs";
 
 // Mon-Fri 08:00-12:00, 13:00-17:00 (8 h/day), no holidays.
 const WEEK = "(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()())))";
@@ -93,6 +94,25 @@ test("bridge networks: giving back time already bought keeps every step at the o
   assert.equal(b.withGiveBack.optimalPoints, b.withGiveBack.points);
   assert.equal(b.withGiveBack.reachOk, 600);
   assert.ok(b.withGiveBack.stepsGivingBack > 0 && b.without.optimalPoints < b.without.points);
+});
+
+test("greedy cut against a brute-force oracle with SS, FF and SF links and lags", () => {
+  const o = linkOracleRun({ seeds: 300 });
+  // measured 2026-11-22 (eval/crash-oracle-links-2026-11-22.md): every step
+  // at the least cost of its gain, every run to the oracle's most
+  assert.equal(o.optimal, o.points);
+  assert.equal(o.reachOk, 300);
+  assert.equal(o.below, 0);
+  assert.ok(o.points > 400 && o.links.PR_SF > 0 && o.links.PR_FF > 0 && o.links.PR_SS > 0);
+  // seed 3: T1's start is pulled back from its FF-driven finish and also sits
+  // on the data date, so T0 alone wins nothing; T0 + T1 together win a day
+  const a = linkOracleCase({ d: [4, 6, 5, 3], room: [2, 1, 1, 0], cost: [4, 1, 4, 3], rels: [{ i: 0, j: 1, type: "PR_FF", lag: 2 }, { i: 0, j: 2, type: "PR_SS", lag: 0 }, { i: 1, j: 2, type: "PR_FF", lag: 0 }, { i: 0, j: 3, type: "PR_SS", lag: 1 }] });
+  assert.deepEqual(a.steps, ["T1+T0 8 h: 1 d for 5"]);
+  // T4's start is driven by T1 (FS) and its finish by T2's start (SF): the
+  // SF tie pulls the start back too, so the cut has to reach T0
+  const b = linkOracleCase({ d: [4, 4, 6, 3, 2, 4], room: [1, 2, 1, 0, 1, 0], cost: [4, 4, 3, 1, 1, 4], rels: [{ i: 0, j: 1, type: "PR_SF", lag: 0 }, { i: 0, j: 2, type: "PR_FS", lag: 0 }, { i: 1, j: 2, type: "PR_SS", lag: 2 }, { i: 0, j: 3, type: "PR_FS", lag: 1 }, { i: 2, j: 3, type: "PR_FF", lag: 0 }, { i: 1, j: 4, type: "PR_FS", lag: 0 }, { i: 2, j: 4, type: "PR_SF", lag: 2 }, { i: 3, j: 5, type: "PR_FF", lag: 0 }, { i: 4, j: 5, type: "PR_SS", lag: 2 }] });
+  assert.equal(b.reachOk, true);
+  assert.equal(b.optimal, b.points);
 });
 
 test("acceleration data: thousands commas and decimal commas read by shape; BOM header", () => {

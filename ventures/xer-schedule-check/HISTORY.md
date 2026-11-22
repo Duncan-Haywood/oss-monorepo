@@ -44,3 +44,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) interim plans named, --no-interim 2026-11-22 (eval/interim-plans-2026-11-22.md: 354/354 planted)
 - (moved 2026-11-22) late dates 19,822/19,822 2026-11-22 (eval/msproject-latedates-2026-11-22.md)
 - (moved 2026-11-22) P6 curves out as Project timephased work 2026-11-22 (eval/curves-to-project-2026-11-22.md)
+- (moved 2026-11-22) Contractor's monthly narrative 2026-11-22 (narrative.mjs, --narrative, page; causes as fill-ins; eval/narrative-check-2026-11-22.md)
