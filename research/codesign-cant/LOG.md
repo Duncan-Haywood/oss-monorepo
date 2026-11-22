@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-22 · Milestone 12c: section VII's knee (125 against 150 ms ceiling) at ten seeds per geometry (predictions written and committed before `experiments/m12c_ten_seeds_vii/run.py` was run in full; outcome below)
+
+- Why: the draft's "Still to do" asks for more seeds at 125 and 150 ms, and the log's last next step is ten seeds for section VII. Table VII-1's ceiling sweep at the 39.1 ms floor is the section's main result, and its one unresolved neighbour pair is 125 against 150 ms (identified total 101 against 65 of 2,304, pooled Mann-Whitney p = 0.10 at six seeds per geometry). Whether coverage past 3.2x the slowest identified lag still buys robustness decides the builder rule's "3-4x" range.
+- Plan (`experiments/m12c_ten_seeds_vii/run.py`; no change to any milestone's code): train seeds 6-9 of 7ac's 125 ms arm and 7aa's 150 ms arm, both geometries, both starts, through milestone 7ab's own `patch` and `train` (32 CMA-ES runs of 3,200 evaluations), then score all 40 designs (seeds 0-9) with 7z's held-out stress set and 7y's response tests (seed 9999, 64 episodes). Reproduction checks first. `experiments/m12c_ten_seeds_vii/stats.py` (stdlib) gives per design the identified total (diverged flights at lever 2, 45 deg, cap, summed over the 33, 36 and 39.1 ms laws, of 192), the 75 ms count, the certificate at the identified laws and the median 1 m-step rise at 36 ms; the pooled permutation Mann-Whitney U (20 a side, 20,000 permutations, as `paper/table7_stats.py`), the exact Wilcoxon signed-rank on the 20 (geometry, seed) pairs (both arms share CMA seeds and training episodes) and stratified bootstrap intervals of each total.
+- Looked at before writing these: only the stored seeds 0-5 and a smoke run (seeds 6-7, 64 evaluations, 8 test episodes on seed 4242, never 9999; not evidence).
+- Predictions (ten seeds per geometry):
+  - MC0 (check): retraining 7ac's 125 ms and 7aa's 150 ms above / seed 0 / start 0 gives their stored best training scores exactly, and the re-scored seeds 0-5 equal 7ac's stored stress numbers (every `dead_` and `J_` field) and rise times.
+  - MC1 (prior 65%): the knee is past 125 ms: pooled Mann-Whitney on the identified total, 125 against 150 ms, p < 0.05 with 125 ms crashing more.
+  - MC2 (prior 65%): paired the same way, the exact Wilcoxon on the 20 pairs gives p < 0.05, 125 ms worse.
+  - MC3 (prior 85%): at the 75 ms law, 125 ms crashes more than 150 ms, pooled Mann-Whitney p < 0.01.
+  - MC4 (prior 70%): the six-seed totals were not a fluke: each arm's ten-seed mean identified total per design lies inside its six-seed bootstrap interval divided by 12 (125 ms: 6.6-10.4; 150 ms: 4.1-6.8).
+  - MC5 (prior 75%): replication: seeds 6-9 alone give 125 ms a larger identified total than 150 ms (8 designs a side; no test threshold).
+  - MC6 (prior 80%): every one of the 40 designs is certified (margin rho < 1) at all three identified laws.
+  - MC7 (prior 60%): the price of coverage: the median 1 m-step rise time at 36 ms is larger at 150 than at 125 ms in both geometries (six seeds: 2.23 against 1.57 s above, 1.76 against 1.65 s below).
+- Reading fixed in advance: MC1 or MC2 held says the identified-range crash count still falls from 125 to 150 ms, so section VII's "not at 125→150 ms (p = 0.10)" is replaced, the knee is at or past 150 ms (3.8x the slowest identified lag) and the conclusion's "3-4x" becomes "about 4x". Both refuted says ten seeds per geometry cannot separate them: the knee sits at about 125 ms (3.2x) for the identified range, extra ceiling buys only slow-law robustness (MC3), and the rule reads "at least 3x". MC4 refuted for an arm says its Table VII-1 row moves and the table is regenerated at ten seeds for both rows. MC7 held adds the response price to the choice between them.
+- Analysis: as planned; anything else is post hoc and labelled so.
+
 ## 2026-11-21 · Milestone 12b: section VI's margin sweep (Table VI-1) at ten seeds (predictions written and committed before `experiments/m12b_ten_seeds_vi/run.py` was run in full; outcome below)
 
 - Why: the first item of the draft's "Still to do before submission" and the last log entry's first next step. Section VI's Table VI-1 (milestones 7b, 7e, 7f) rests on six seeds per arm and sign counts; the ten-seed rerun of milestones 1-2 withdrew one of section IV's readings (a shared polytope making cant worth more), so the six-seed sections may move too.
