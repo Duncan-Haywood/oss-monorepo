@@ -9,12 +9,16 @@
 // [--notes TEXT]: the written review (report.mjs) to print or save as a PDF.
 // node cli.mjs schedule.xer --risk [N] [--range 90,100,125] [--correlation 0.3]
 //   [--ranges ranges.csv] [--ranges-udf auto|"opt,likely,pess" [--udf-unit days|hours|pct]] [--risks register.csv] [--branches branches.csv] [--seed S] [--csv drivers.csv] [--json] [--project CODE]
+//   [--levelled [--crew 2] [--within-float] [--curves]]
 // Monte Carlo finish-date risk instead (risk.mjs): P10/P50/P80/P90, the chance
 // of the forecast and must-finish dates, criticality index per activity;
 // --risks adds risk register events (id, probability, min, likely, max days,
 // activity IDs) and ranks them by how far they move the finish; --branches adds
 // probabilistic branches (group, branch, probability, activity IDs: one branch
-// per group drawn each run, the others' work dropped). With --report,
+// per group drawn each run, the others' work dropped); --levelled levels every
+// run against the file's resource limits (level.mjs; 100 runs by default,
+// since each run is a whole levelling) and reports the time the crew limits
+// add, on the same draws. With --report,
 // the written review carries the risk section and its corrections too (also
 // with --previous: the risk run is made on the current file).
 // node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--curves] [--csv levelled.csv] [--json] [--project CODE]
@@ -191,7 +195,10 @@ if (!file) {
 }
 function runRisk(x, projId) {
   const nArg = opt("--risk");
-  const iterations = nArg && /^\d+$/.test(nArg) ? Number(nArg) : 500;
+  const levelled = args.includes("--levelled");
+  const iterations = nArg && /^\d+$/.test(nArg) ? Number(nArg) : levelled ? 100 : 500;
+  const crew = Number(opt("--crew") || 1);
+  const levelOpts = levelled ? { limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}), curves: args.includes("--curves") } : null;
   const [min, likely, max] = (opt("--range") || "90,100,125").split(",").map((v) => Number(v) / 100);
   let ranges, rangeSource;
   if (opt("--ranges-udf")) {
@@ -222,7 +229,7 @@ function runRisk(x, projId) {
     if (pb.over.length) console.error(`left out branch group(s) ${pb.over.join(", ")}: probabilities sum above 100%`);
     branches = pb.branches;
   }
-  return riskAnalysis(x, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, rangeSource, risks, branches, seed: Number(opt("--seed") || 1) });
+  return riskAnalysis(x, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, rangeSource, risks, branches, level: levelOpts, seed: Number(opt("--seed") || 1) });
 }
 // --no-interim / --skip-fields: Microsoft Project interim plans (Start/Finish
 // pairs) and named task fields left out of the user-defined fields (mspdi.mjs)
@@ -294,6 +301,12 @@ if (args.includes("--risk")) {
     console.log(`Without the ${r.risks.length} risk events: forecast met in ${Math.round(w.pDeterministic * 100)}%, P80 ${formatDate(p80(w).date)}; the events add ${(p80(r).days - p80(w).days).toFixed(1)} working days at P80 (mean ${w.eventDelay.mean} per run; no delay in ${Math.round(w.eventDelay.noDelay * 100)}% of runs)`);
     console.log("\nRisk events by expected finish shift (occurred share x shift when it occurs):");
     for (const k of r.risks) console.log(`  ${(k.occurred * 100).toFixed(0).padStart(3)}%  ${k.finishShift === null ? "    -" : ((k.finishShift >= 0 ? "+" : "") + k.finishShift.toFixed(1)).padStart(6)} days${k.finishShift !== null && !k.notNoise ? " (within noise +/-" + k.shiftNoise + ")" : ""}  ${k.id}  -> ${k.targets.join(", ")}`);
+  }
+  if (r.levelling) {
+    const L = r.levelling, p80 = (x) => x.percentiles.find((q) => q.p === 80);
+    console.log(`Resource-levelled runs (${L.resources} resources with limits${L.settings.limitScale ? `, limits x${L.settings.limitScale["*"]}` : ""}): levelled forecast ${formatDate(L.finish)}, met in ${Math.round(L.pLevelledFinish * 100)}%`);
+    console.log(`  Unlimited crews on the same draws: P80 ${formatDate(p80(L.unlevelled).date)}, CPM forecast met in ${Math.round(L.unlevelled.pDeterministic * 100)}%; the limits add ${(p80(r).days - p80(L.unlevelled).days).toFixed(1)} working days at P80 (mean ${L.resourceDelay.mean} per run, ${L.resourceDelay.min} to P80 ${L.resourceDelay.p80}; no delay in ${Math.round(L.resourceDelay.noDelay * 100)}% of runs)`);
+    console.log(`  Driving path through a resource wait in ${Math.round(L.resourceDriven * 100)}% of runs${L.pathCut ? `; a wait's blocker unnamed in ${Math.round(L.pathCut * 100)}%` : ""}; levelling self-check ${L.selfCheckMax} h over a limit`);
   }
   if (r.branches.length) {
     console.log("\nProbabilistic branches (drawn share; finish shift = mean finish when drawn minus when not, ~ within noise):");

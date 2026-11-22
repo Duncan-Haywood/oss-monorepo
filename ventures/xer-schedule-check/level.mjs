@@ -45,7 +45,7 @@
 // the assignment's. Whether P6's own leveller reads curves is not shown by
 // any public file (none carries a levelled curved assignment), so the even
 // spread stays the default (eval/level-curves-2026-11-22.md).
-import { buildModel, schedule } from "./cpm.mjs";
+import { buildModel, schedule, lagCalendar } from "./cpm.mjs";
 import { readCurves, isEven, SLICES } from "./curves.mjs";
 import { num, parseDate, formatDate } from "./xer.mjs";
 
@@ -178,6 +178,13 @@ export function* levelSteps(xer, opts = {}) {
   };
   const types = new Set(settings.types);
   const onlyRsrc = opts.resources ? new Set(opts.resources) : null;
+  // opts.durations: Map(task id -> remaining minutes) in place of the file's
+  // (risk.mjs's sampled durations, for a levelled risk run). An assignment
+  // that spanned the whole remaining duration stretches or shrinks with it
+  // at the same rate per hour (more days, more units: the crew is the same
+  // size, the work took longer); one shorter than the activity keeps its
+  // share of it. An activity drawn to 0 (a branch not taken) uses nothing.
+  const durs = opts.durations || null;
 
   // resources and their limits
   const rsrc = new Map();
@@ -214,6 +221,11 @@ export function* levelSteps(xer, opts = {}) {
     let rate = num(a.remain_qty_per_hr) ?? 0;
     let dur = rate > 0 && qty > 0 ? Math.round((qty / rate) * 60) : t.remain;
     if (rate <= 0 && qty > 0 && t.remain > 0) { rate = qty / (t.remain / 60); dur = t.remain; }
+    if (durs && durs.has(t.id)) {
+      const d = durs.get(t.id);
+      if (!(d > 0)) continue;
+      if (t.remain > 0) dur = Math.max(1, Math.round((dur * d) / t.remain));
+    }
     if (rate <= 0 || dur <= 0) continue;
     let slices = null;
     if (opts.curves && a.curv_id) {
@@ -233,7 +245,7 @@ export function* levelSteps(xer, opts = {}) {
     return curvePieces(t.cal, s, a.dur, a.rate, a.slices).map((p) => ({ rsrc: a.rsrc, task: t.id, curved: true, ...p }));
   });
 
-  const base = schedule(xer, { model });
+  const base = schedule(xer, { model, durations: durs });
   const baseFinish = base.projects.get(proj.id)?.finish ?? null;
   const cmp = priorityCmp(settings.priorityList);
   const floors = new Map();
@@ -258,7 +270,7 @@ export function* levelSteps(xer, opts = {}) {
   }
 
   const settled = () => {
-    fin = schedule(xer, { model, levelStart: floors });
+    fin = schedule(xer, { model, durations: durs, levelStart: floors });
     if (!candidates.some((id) => { const r = fin.tasks.get(id); return r && (r.remES ?? r.es) !== placed.get(id); }) || fullRounds >= 20) return true;
     fullRounds++;
     cur = fin;
@@ -374,10 +386,10 @@ export function* levelSteps(xer, opts = {}) {
         continue;
       }
     }
-    cur = schedule(xer, { model, levelStart: floors, forwardOnly: !fullRounds });
+    cur = schedule(xer, { model, durations: durs, levelStart: floors, forwardOnly: !fullRounds });
     if (passes > 20000) break;
   }
-  if (!fin) fin = schedule(xer, { model, levelStart: floors });
+  if (!fin) fin = schedule(xer, { model, durations: durs, levelStart: floors });
   const levelledFinish = fin.projects.get(proj.id)?.finish ?? null;
 
   const resources = [];
@@ -449,6 +461,9 @@ export function* levelSteps(xer, opts = {}) {
     floors,
     placed,
     ignored: ignore,
+    movedBy: by,
+    spansAt: (id, start) => spansOf(model.tasks.get(id), start),
+    usesOf: new Map([...assigns].map(([id, list]) => [id, new Set(list.map((a) => a.rsrc))])),
     result: fin,
     ms: Date.now() - t0,
   };
@@ -457,6 +472,65 @@ export function* levelSteps(xer, opts = {}) {
 export function level(xer, opts = {}) {
   const g = levelSteps(xer, opts);
   for (;;) { const r = g.next(); if (r.done) return r.value; }
+}
+
+// The driving path of a levelled schedule, first activity first. It follows
+// logic links as cpm.drivingPath does; where an activity has no driving
+// logic predecessor and starts on its levelling floor, it was held back for
+// a resource, and the path goes on through the activity sharing that
+// resource whose finish it waited for (finish to start with no working time
+// between, on the waiting activity's calendar). Returns { path, resourceLinks,
+// cut }: cut is true when a floored activity's blocker could not be named
+// (its floor came from a change in the resource's limit, not from another
+// activity's use ending), so the path stops there.
+export function levelledDrivingPath(lr, projId) {
+  const { model, tasks: res } = lr.result;
+  const p = lr.result.projects.get(projId);
+  if (!p || p.finish === null) return { path: [], resourceLinks: 0, cut: false };
+  const users = new Map(); // rsrc -> task ids
+  for (const [id, set] of lr.usesOf) for (const k of set) (users.get(k) || users.set(k, []).get(k)).push(id);
+  let last = null;
+  for (const t of model.tasks.values()) {
+    if (t.proj !== projId || t.span || t.status === "TK_Complete") continue;
+    const r = res.get(t.id);
+    if (r && r.ef === p.finish && (!last || t.succs.length === 0)) last = t;
+  }
+  const path = [], seen = new Set();
+  let cur = last, resourceLinks = 0, cut = false;
+  while (cur && !seen.has(cur.id)) {
+    path.push(cur.id);
+    seen.add(cur.id);
+    const r = res.get(cur.id);
+    let next = null;
+    for (const rel of cur.preds) {
+      const pr = model.tasks.get(rel.predId);
+      if (pr.span || pr.status === "TK_Complete") continue;
+      const pv = res.get(rel.predId);
+      if (!pv) continue;
+      const lc = lagCalendar(model, rel);
+      const from = rel.type === "PR_FS" || rel.type === "PR_FF" ? pv.ef : pv.remES ?? pv.es;
+      const target = rel.type === "PR_FS" || rel.type === "PR_SS" ? r.remES : r.ef;
+      if (cur.cal.workBetween(lc.addWork(from, rel.lag), target) === 0) { next = pr; break; }
+    }
+    const start = r.remES ?? r.es;
+    if (!next && lr.floors.has(cur.id) && lr.floors.get(cur.id) <= start && cur.cal.workBetween(lr.floors.get(cur.id), start) === 0) {
+      let best = null, bestEf = -Infinity;
+      for (const k of lr.movedBy.get(cur.id) || []) for (const id of users.get(k) || []) {
+        if (id === cur.id || seen.has(id)) continue;
+        const v = res.get(id);
+        if (!v) continue;
+        // when this resource's use by it ended (an assignment lag or a
+        // part-length assignment ends it before the activity's finish)
+        let end = -Infinity;
+        for (const sp of lr.spansAt(id, v.remES ?? v.es)) if (sp.rsrc === k && sp.e > end) end = sp.e;
+        if (end > start || cur.cal.workBetween(end, start) !== 0) continue;
+        if (end > bestEf || (end === bestEf && model.tasks.get(id).code < model.tasks.get(best).code)) { best = id; bestEf = end; }
+      }
+      if (best !== null) { next = model.tasks.get(best); resourceLinks++; } else cut = true;
+    }
+    cur = next;
+  }
+  return { path: path.reverse(), resourceLinks, cut };
 }
 
 // the same, giving the page's event loop a turn every ~50 ms
