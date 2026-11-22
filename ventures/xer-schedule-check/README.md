@@ -523,6 +523,47 @@ other activity named either way (eval/evm-series-check-2026-11-20.md).
 planned rate; `overruns` plants a cost factor), so the example series and
 generated series carry actuals.
 
+## Probabilistic branches in the risk run (2026-11-22)
+
+A risk register adds delay to work that will happen. Some uncertainty is about
+*which* work happens: an inspection passes, or rework and a re-test follow; a
+permit comes through, or the redesign path runs; a pile test is good, or the
+foundation is redesigned. Paid risk tools (Primavera Risk Analysis, Safran
+Risk) model these as probabilistic branches, and this one did not. The XER
+holds every path's activities in the network, so the single CPM date counts
+the work of all of them, which overstates the finish when rework is unlikely
+and hides how much the finish depends on one outcome.
+
+Now the risk run takes branches, one per line:
+`group, branch, probability[, activity ID ...]` (page: "Probabilistic
+branches" under the risk register; CLI: `--branches branches.csv`). Lines
+sharing a group are the alternatives at one point. In each run one branch per
+group is drawn and the activities of the others are dropped from that run
+(remaining duration 0, their logic kept, so the work after them waits only on
+the rest of its logic), as those tools treat a branch activity that does not
+exist in an iteration. A group's probabilities may sum to under 100%: the
+remainder is the case where none of the listed activities happen, so
+`Inspection, rework, 30%, A2010, A2020` alone is a complete branch. A group
+with work already started on one branch has taken it (kept in every run, and
+said so); started work on two branches leaves the group out. A risk event on
+dropped work adds nothing in that run. Branches draw from their own random
+stream, so adding them leaves every duration and event draw as it was.
+
+The result gives each branch's drawn share and its finish shift (the mean
+finish of the runs that took it minus the rest, ~ where within the noise of
+the run count), on the page, the CLI, the JSON and the written review's risk
+section. `risk.mjs`: `parseBranches(text)`, `riskAnalysis(xer, { branches })`,
+`branchRows(result)`.
+
+Checked: `risk.test.mjs` (a 30% rework branch moves the finish by exactly
+its 5 days and is drawn in 30% of 2,000 runs within 3.5 points; P50 and P80
+are the pass and rework finishes; the remainder; a started branch fixed; an
+event on dropped work; unchanged draws). `eval/branches-check.mjs` on the six
+public files, branches planted on each file's own driving path and every run's
+finish checked against cpm.mjs scheduled directly with the dropped activity at
+0 (eval/branches-2026-11-22.md). Not yet run on a real job's branch register
+(none is public).
+
 ## Monthly schedule narrative (2026-11-22)
 
 The contractor's side of the monthly update. Most contracts that call for a CPM schedule
@@ -562,7 +603,7 @@ button drifts. Search impressions not measured yet.
 | A look-ahead made by hand (a filtered P6 layout printed to PDF, or copied into Excel each week) | Works for whoever holds P6 or has the time to copy dates | The 1-6 week sheet straight from the XER, with what each activity waits on and the date it is due, open starts and out-of-sequence work named, printable and as CSV, with no P6 seat |
 | A constraints log in Excel, or a Last Planner board (sticky notes, or paid tools such as Touchplan or vPlanner) | Tracks what each task waits on, kept apart from the schedule; the paid boards need their own plan entered | The same spreadsheet merged with the P6 schedule: the date each row is needed by from the recomputed dates, late and overdue rows named, and how far the finish moves if the log holds, row by row, free and in the browser |
 | P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
-| Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
+| Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs and probabilistic branches (one path per group drawn each run, each branch's finish shift measured); no resource model |
 | A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
 | Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, cost resources and fixed costs as P6 expenses, deadlines as finish-on-or-before constraints on request (so P6's float counts down to them as Project's slack does), and a list of what is not carried (elapsed lags, splits) |

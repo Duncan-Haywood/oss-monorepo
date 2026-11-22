@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseXer } from "./xer.mjs";
 import { schedule } from "./cpm.mjs";
-import { riskAnalysis, riskAnalysisAsync, riskCsv, parseRanges, parseRisks, triangular, rng, phi } from "./risk.mjs";
+import { riskAnalysis, riskAnalysisAsync, riskCsv, parseRanges, parseRisks, parseBranches, triangular, rng, phi } from "./risk.mjs";
 
 // Mon-Fri, 08:00-12:00 and 13:00-17:00
 const WEEK = "(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()())))";
@@ -173,4 +173,74 @@ test("the no-event column's must-finish chance is a share of runs", () => {
   const r = riskAnalysis(x, { iterations: 300, seed: 2, range: { min: 1, likely: 1, max: 1 }, risks });
   assert.equal(r.withoutRisks.pMustFinish, 1);
   assert.equal(r.pMustFinish, 1);
+});
+
+// Inspection I (1 day) after S; 30% of the time rework R (4 days) and re-test
+// T (1 day) follow before hand-over H (1 day); otherwise H follows I directly.
+// The file holds R and T in the network, so CPM counts them every time.
+const inspection = (extra = {}) => project(
+  [task("1", "S", 0, { task_type: "TT_Mile" }), task("2", "I", 8), task("3", "R", 32, extra.R || {}), task("4", "T", 8), task("5", "H", 8)],
+  [link("1", "2", "1"), link("2", "3", "2"), link("3", "4", "3"), link("4", "5", "4"), link("5", "5", "2")],
+);
+const zeroRange = { min: 1, likely: 1, max: 1 };
+
+test("parseBranches: groups, percent and fraction, empty branch, bad lines, sums over 1", () => {
+  const { branches, bad, over } = parseBranches("group,branch,probability,activities\nInspection, rework, 30%, R, T\nInspection, pass, 0.7\nPermit;late;40;P1\nPermit;early;0.5;P2\nPermit;never;0.2\nShort,x\nBad,y,0,A\nInspection, rework, 10%, R");
+  assert.deepEqual(bad, [7, 8, 9]);
+  assert.deepEqual(over, ["Permit"]);
+  assert.equal(branches.length, 1);
+  assert.deepEqual(branches[0].branches.map((b) => [b.name, b.probability, b.codes]), [["rework", 0.3, ["R", "T"]], ["pass", 0.7, []]]);
+});
+
+test("a branch drawn 30% of runs: its work counts only in those runs, its shift is measured", () => {
+  const { branches } = parseBranches("Inspection, rework, 30%, R, T\nInspection, pass, 70%");
+  const det = riskAnalysis(inspection(), { iterations: 20, range: zeroRange });
+  assert.equal(det.project.finishDays, 7); // I + R + T + H: CPM counts the rework
+  const r = riskAnalysis(inspection(), { iterations: 2000, range: zeroRange, branches, seed: 3 });
+  const g = r.branches[0];
+  const rework = g.branches.find((b) => b.name === "rework"), pass = g.branches.find((b) => b.name === "pass");
+  assert.ok(Math.abs(rework.taken - 0.3) < 0.035, `rework taken ${rework.taken}`);
+  assert.ok(Math.abs(rework.taken + pass.taken - 1) < 1e-9);
+  assert.equal(g.none, null);
+  assert.equal(rework.finishShift, 5); // the rework adds R + T exactly
+  assert.equal(pass.finishShift, -5);
+  assert.ok(rework.notNoise);
+  // finish is 2 days (I, H) in ~70% of runs, 7 in ~30%
+  assert.equal(r.percentiles.find((q) => q.p === 50).days, 2);
+  assert.equal(r.percentiles.find((q) => q.p === 80).days, 7);
+  assert.ok(Math.abs(r.pDeterministic - 1) < 1e-9); // every run is at or before the CPM date
+  // dropped work is never on the driving path, kept work is in the share it is drawn
+  assert.ok(Math.abs(byCode(r, "R").criticality - rework.taken) < 1e-9);
+  assert.equal(byCode(r, "H").criticality, 1);
+  assert.ok(r.warnings.some((w) => /branch group/.test(w)));
+});
+
+test("probabilities under 1: the remainder drops every listed branch; branches leave duration draws alone", () => {
+  const { branches } = parseBranches("Inspection, rework, 25%, R, T");
+  const r = riskAnalysis(inspection(), { iterations: 1000, range: zeroRange, branches, seed: 8 });
+  const g = r.branches[0];
+  assert.ok(g.none && Math.abs(g.none.probability - 0.75) < 1e-9);
+  assert.ok(Math.abs(g.none.taken + g.branches[0].taken - 1) < 1e-9);
+  assert.equal(g.none.finishShift, -5);
+  // with a branch on activities that never matter, the duration draws (and so every finish) are unchanged
+  const plain = riskAnalysis(merge(), { iterations: 300, seed: 2 });
+  const off = riskAnalysis(merge(), { iterations: 300, seed: 2, branches: parseBranches("G, a, 50%, S").branches });
+  assert.deepEqual(off.percentiles, plain.percentiles);
+});
+
+test("started work fixes its branch; a risk on dropped work adds nothing; unknown IDs warned", () => {
+  const started = inspection({ R: { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", remain_drtn_hr_cnt: 16 } });
+  const { branches } = parseBranches("Inspection, rework, 10%, R, T\nInspection, pass, 90%, NOPE");
+  const r = riskAnalysis(started, { iterations: 200, range: zeroRange, branches, seed: 1 });
+  assert.equal(r.branches[0].fixed, "rework");
+  assert.equal(r.branches[0].branches[0].taken, 1);
+  assert.ok(r.warnings.some((w) => /no activity NOPE/.test(w)));
+  assert.ok(r.warnings.some((w) => /taken in every run/.test(w)));
+  // a sure 10-day event on R, which is dropped in every run where the pass branch is drawn
+  const { risks } = parseRisks("Late steel, 100%, 10, 10, 10, R");
+  const b = parseBranches("Inspection, rework, 50%, R, T\nInspection, pass, 50%").branches;
+  const e = riskAnalysis(inspection(), { iterations: 1000, range: zeroRange, branches: b, risks, seed: 6 });
+  const w = e.branches[0].branches.find((x) => x.name === "rework");
+  assert.equal(w.finishShift, 15); // R + T + the event's 10 days, only on the rework path
+  assert.ok(Math.abs(e.withoutRisks.eventDelay.mean - 10 * w.taken) < 0.05);
 });
