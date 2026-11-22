@@ -101,3 +101,25 @@ test('a path missing at a revision that exists still throws in a full clone', ()
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('a path missing at a revision the SHALLOW clone does carry still throws', () => {
+  const { root, shallow } = fixture();
+  try {
+    // The clone has HEAD, so the history is not what is missing: the path is
+    // wrong (a typo, a renamed product). Reporting that as "not in this clone,
+    // run git fetch --unshallow" is the lenient misread this module exists to
+    // prevent, and every web session runs shallow (red-team run 2026-11-22).
+    assert.throws(() => readHistoryBlob(shallow, 'HEAD', 'no-such-file.txt'), /does not exist|exists on disk|invalid object/i);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('a directory that is not a git work tree reads as shallow (history absent, not a defect)', () => {
+  const root = mkdtempSync(join(tmpdir(), 'history-blob-plain-'));
+  try {
+    assert.equal(isShallowClone(root), true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
