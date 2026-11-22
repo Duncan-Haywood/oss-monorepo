@@ -343,6 +343,34 @@ export const SITE_HEADER_CSS = `
 }
 @property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
 @keyframes pfs-fade-out{to{--pfs-fade:0px}}
+/* The head fade: 0 until the row is scrolled, so it only shows once a link is hidden off the left edge. */
+@property --pfs-fade-l{syntax:'<length>';inherits:false;initial-value:0px}
+@keyframes pfs-fade-head{from{--pfs-fade-l:0px}to{--pfs-fade-l:28px}}
+/* The two-row band above phone width: the section links get a row of their own, and below about 752px of bar (721px of
+   links plus a gutter) they used to wrap, leaving "About" alone on a third row. On 2026-11-22 that was every page at
+   721 to 752px and, since a tool page insets the bar by its own 16 to 32px gutter, 1,103 of 1,406 tool pages at 768px
+   (iPad portrait) and all of them at 744px (polish-2026-11-22-tablet-nav-row.md). Here the row stays one line and
+   scrolls, as on a phone. The fade starts at 0 and the scroll timeline drives it: a timeline on a row that does not
+   overflow is inactive, so a row that fits (most widths) draws no fade, and one that overflows fades its tail until
+   scrolled to the end. Browsers without scroll timelines keep the wrap, which is ugly but never hides a link.
+   The padding and matching negative margin on the block axis keep the links' focus ring inside the scroller's clip.
+   On this row and the phone's, the page's own tab starts centred (scroll-initial-target, no script): before, on a
+   phone, Updates, Ask, Get it built, Deploy your own and About were off-screen on their own pages, and at 744px About
+   sat under the fade. Browsers without the property start at the left, as before. */
+@keyframes pfs-fade-tail{from{--pfs-fade:28px}to{--pfs-fade:0px}}
+@supports (animation-timeline:scroll()){
+  @container pfs-head (max-width:959px){
+    .pfs-nav{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;
+      padding-block:4px;margin-block:-4px;--pfs-fade:0px;
+      -webkit-mask-image:linear-gradient(90deg,transparent,black var(--pfs-fade-l),black calc(100% - var(--pfs-fade)),transparent);
+              mask-image:linear-gradient(90deg,transparent,black var(--pfs-fade-l),black calc(100% - var(--pfs-fade)),transparent);
+      animation:pfs-fade-head linear both,pfs-fade-tail linear both;animation-timeline:scroll(self inline),scroll(self inline);
+      animation-range:0 40px,calc(100% - 40px) 100%}
+    .pfs-nav::-webkit-scrollbar{display:none}
+    [data-pfs-head] .pfs-nav a{flex:none;white-space:nowrap}
+    [data-pfs-head] .pfs-nav a[aria-current="page"]{scroll-initial-target:nearest;scroll-snap-align:center}
+  }
+}
 @media (max-width:720px){
   .pfs-bar{gap:6px 14px;padding:9px 16px}
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
@@ -351,10 +379,11 @@ export const SITE_HEADER_CSS = `
   .pfs-nav{order:3;flex-basis:100%;gap:2px 18px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
     scrollbar-width:none;margin-right:-16px;padding-right:28px;
     --pfs-fade:28px;
-    -webkit-mask-image:linear-gradient(90deg,black calc(100% - var(--pfs-fade)),transparent);
-            mask-image:linear-gradient(90deg,black calc(100% - var(--pfs-fade)),transparent)}
+    -webkit-mask-image:linear-gradient(90deg,transparent,black var(--pfs-fade-l),black calc(100% - var(--pfs-fade)),transparent);
+            mask-image:linear-gradient(90deg,transparent,black var(--pfs-fade-l),black calc(100% - var(--pfs-fade)),transparent)}
   @supports (animation-timeline:scroll()){
-    .pfs-nav{animation:pfs-fade-out linear both;animation-timeline:scroll(self inline);animation-range:calc(100% - 40px) 100%}
+    .pfs-nav{animation:pfs-fade-head linear both,pfs-fade-out linear both;animation-timeline:scroll(self inline),scroll(self inline);
+      animation-range:0 40px,calc(100% - 40px) 100%}
   }
   .pfs-nav::-webkit-scrollbar{display:none}
   [data-pfs-head] .pfs-nav a{flex:none;white-space:nowrap}
