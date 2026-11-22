@@ -46,14 +46,16 @@ no venture has a single measured visitor. That is not the brief. So:
 - **Build something with depth:** a real workflow, data, an algorithm, an
   integration, AI/ML that clearly helps, or a mobile or desktop app. Land a
   first working version in one run and deepen it over later runs.
-- **Finish ventures as one-click, self-deployed businesses.** The owner,
-  2026-10-15: "the model I'm thinking is fully developing one click deploy actual businesses with a web page with some inputs for credentials so people can spin up their own copies of the venture. then I'm not hosting and not liable. it's someone else. but still with a donate to the creator button."
-  A venture is done when a stranger can open its page, enter their own
-  credentials, click Deploy, and end up running their own copy in their
-  own accounts, with the "donate to the creator" link still in it. Credentials
-  go straight to the deployer's cloud or fork and never pass through anything
-  the owner runs (`prompts/goals.md`, Mission). Taking an existing venture
-  all the way there counts as much as anything new.
+- **Finish ventures as freemium products run by Maris Stella Labs LLC.** The
+  owner, 2026-11-22: "i think moving mosty things into freemium saas is the
+  move" (replacing the 2026-10-15 one-click self-deploy model;
+  `prompts/goals.md`, Mission). A venture is done when its free path works
+  with no account and its paid depth (Pro) is built on the shared accounts
+  and billing in `platform/saas`, inside coded cost caps, with the
+  "Operating hosted services" hard limit met. Self-deploy stays allowed but
+  optional. Which products go paid first, and why:
+  `docs/reports/2026-11-22-freemium-saas-plan.md` and
+  `portfolio/monetization/models.yaml`.
 - **Run the near-copy check before you pick a niche.** Count the name
   suffixes of the 15 newest ventures; if any suffix appears 3 or more times,
   or yours would be the fourth "<country/trade>-<same-shape>", build a

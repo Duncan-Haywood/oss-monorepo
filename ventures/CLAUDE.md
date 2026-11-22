@@ -10,14 +10,14 @@ free, with usage tracked and disclaimers in place. Features, fixes, landing
 pages, SEO, integrations (behind env vars), and VM-runnable apps beat ledger
 entries and analysis documents.
 
-**Self-deploy principle (owner, 2026-10-15).** The aim is not for us to host
-these apps. Each one is an MIT open-source business that anyone can one-click
-host in their own cloud: credentials go in, they click Deploy, OpenTofu does
-the rest, and nothing of ours runs in between. This is the business model
-(`../prompts/goals.md`, Mission) and the finish line for a venture
-(`../prompts/ventures/prompt-1.md`). Details, including how OpenTofu is set up and the Buy Me a
-Coffee exception: `../PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
-deploy it themselves".
+**Freemium, hosted by the LLC (owner, 2026-11-22).** Products are freemium
+SaaS run by Maris Stella Labs LLC: the free path works with no account, and
+Pro adds depth on the shared accounts and Paddle billing in `platform/saas`,
+inside coded cost caps (`../prompts/goals.md`, "The business model" and
+"Operating hosted services"). New product code is under FSL-1.1-MIT. This
+replaces the 2026-10-15 self-deploy principle, which stays allowed as an
+option (`../PRODUCT_PLAYBOOK.md` §2 and §6). Which products go paid first:
+`../docs/reports/2026-11-22-freemium-saas-plan.md`.
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
 candidates: give them a way to reach people (a GitHub Pages page, a package,

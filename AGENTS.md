@@ -67,7 +67,9 @@ Prefer products that:
 
 - Run on this environment (VM + GitHub + agents) without new spend
 - Deliver high value in a super-niche (especially: help users earn or save money)
-- Have low variable cost at launch (avoid per-user inference/API spikes)
+- Have capped variable cost: per-user inference or server cost is fine inside
+  Pro or a capped free tier (`prompts/goals.md`, "Operating hosted services"),
+  never uncapped
 - Can go live free and full-featured while usage is recorded
 - Need only an API key (or similar) to unlock — build the product, document the key
 
