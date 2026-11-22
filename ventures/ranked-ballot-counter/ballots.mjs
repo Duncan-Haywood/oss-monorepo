@@ -392,12 +392,17 @@ export function schulze(parsed) {
   for (let k = 0; k < n; k++) for (let i = 0; i < n; i++) if (i !== k) for (let j = 0; j < n; j++) {
     if (j !== i && j !== k) p[i][j] = Math.max(p[i][j], Math.min(p[i][k], p[k][j]));
   }
-  const wins = names.map((_, i) => names.reduce((s, _, j) => s + (i !== j && p[i][j] > p[j][i] ? 1 : 0), 0));
-  const order = [...Array(n).keys()].sort((a, b) => wins[b] - wins[a] || names[a].localeCompare(names[b]));
+  // Schulze (2011): x beats y when p[x][y] > p[y][x], a transitive relation.
+  // Rank by peeling off, each time, every remaining candidate no remaining
+  // candidate beats. Counting wins instead named one winner where the
+  // strongest paths tie (quality audit 2026-11-22).
   const ranking = [];
-  for (const c of order) {
-    const last = ranking[ranking.length - 1];
-    if (last && wins[last[0]] === wins[c]) last.push(c); else ranking.push([c]);
+  let left = [...Array(n).keys()];
+  while (left.length) {
+    const top = left.filter((x) => left.every((y) => y === x || p[x][y] >= p[y][x]));
+    const group = (top.length ? top : left).sort((a, b) => names[a].localeCompare(names[b]));
+    ranking.push(group);
+    left = left.filter((c) => !group.includes(c));
   }
   const winners = ranking.length ? ranking[0].map((c) => names[c]) : [];
   const cw = [...Array(n).keys()].find((i) => names.every((_, j) => i === j || d[i][j] > d[j][i]));

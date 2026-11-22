@@ -28,10 +28,13 @@ def schulze(cands, ballots):
         for i in range(n):
             for j in range(n):
                 if len({i, j, k}) == 3: p[i][j] = max(p[i][j], min(p[i][k], p[k][j]))
-    wins = [sum(1 for j in range(n) if p[i][j] > p[j][i]) for i in range(n)]
-    groups = {}
-    for i in range(n): groups.setdefault(wins[i], []).append(cands[i])
-    return [sorted(groups[w]) for w in sorted(groups, reverse=True)]
+    # Schulze (2011): rank by the strongest-path relation itself, peeling off
+    # the candidates no remaining candidate beats (not by counting wins).
+    out, left = [], list(range(n))
+    while left:
+        top = [x for x in left if all(y == x or p[x][y] >= p[y][x] for y in left)] or left
+        out.append(sorted(cands[x] for x in top)); left = [x for x in left if x not in top]
+    return out
 irv_same = irv_n = sch_same = 0
 for c in cases:
     bs = [b.split(" > ") for b in c["ballots"]]
