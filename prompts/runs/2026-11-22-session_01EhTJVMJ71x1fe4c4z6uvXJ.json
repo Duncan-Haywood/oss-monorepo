@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMJ71x1fe4c4z6uvXJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "d7bec6919984b528676088b27d8c972e864b1d8d446ce3c4680c8419c5bf9dbb",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T17:10:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship next: a demosaic dB sweep on the HDR+ bursts (real noise)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18283",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First sweep run was sequential (~80 s a burst); stopped after 3 rows and restarted as 4 shards, rows kept. A first version cut 480 x 480 tiles and got one tile a phone frame; replaced by a whole-frame read during the 4-burst pilot, before the pre-registration commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook refuses pgrep -f when the bracketed pattern's text also appears elsewhere in the same command line (e.g. a for-loop launching the script); the cloud-session note only mentions bracketing, not the split-into-two-calls requirement."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight runs site-wide page checks for a new or changed venture; this PR changes no page, product code or llms.txt-described behaviour (an eval tool, eval note, README section, test), so the 5+ minute preflight would check nothing this diff reaches.",
+      "did": "Skipped preflight; ran the venture's test suite and its lint (ruff) instead.",
+      "result": "see notes"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Product PRs default to updating llms.txt and a marketing page; no user-visible behaviour changed (the pre-registered default change failed its bar), so there is nothing new to state there.",
+      "did": "Left llms.txt and the page unchanged.",
+      "result": "no stale claim introduced"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Venture suite: photo-editing 1491 tests ok (216 s, 10 skipped) plus site page checks. Pre-registration committed in dfcd2deb1 before the 53 test bursts were scored. Result: 48 scored, 5 skipped (moving subjects masked >25%). mpcws+12 over ship+12 +0.134 dB luma, +0.039 colour; h1-h3 pass, h4 fails (2 bursts > 0.1 dB under), so defaults stay; the oracle loses as much on both. Profile path +0.164 luma / -0.125 colour vs frame read. Local checks: tests/test_hdrplus_demosaic_sweep.py, test_hdrplus_noise_truth.py, test_noise_pca.py 23 passed; ruff clean; mypy fails here on numpy stubs under python_version 3.10 before reaching src (environment, unchanged file set); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
