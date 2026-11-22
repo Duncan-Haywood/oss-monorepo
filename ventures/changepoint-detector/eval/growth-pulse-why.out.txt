@@ -1,0 +1,8 @@
+Largest |Z| over the checked year, unchanged shops: median 4.34, 90th 7.17, 99th 13.57
+R30: largest |Z| in the 8-week window: median 3.97; shops reaching 3 / 4 / 6: 118 / 71 / 20 of 150
+R90: largest |Z| in the 8-week window: median 6.47; shops reaching 3 / 4 / 6: 144 / 130 / 82 of 150
+Unchanged shops whose year-long largest |Z| reaches 3 / 4 / 6: 129 / 89 / 33 of 150
+online-retail-daily.csv, 52 weeks, c 6: no alert
+online-retail-daily.csv, 52 weeks, c 4: no alert
+online-retail-2009-daily.csv, 52 weeks, c 6: no alert
+online-retail-2009-daily.csv, 52 weeks, c 4: dated 2010-09-06, sent 2010-10-10 (|Z| 5.08, k 5)
