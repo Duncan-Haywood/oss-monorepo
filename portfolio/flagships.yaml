@@ -536,8 +536,10 @@ flagships:
       volume x density 2026-11-22, --densities, 1,152/1,152 Tekla weights,
       eval/member-weights-2026-11-22.md; next: a Revit/ARCHICAD export storing
       weights); footings by Tekla's convention 2026-11-22, 482/505,
-      eval/footing-quantities-2026-11-22.md; next: openings' Width/Height/Depth;
-      next: a BIM manager's filled table. HTML report
+      eval/footing-quantities-2026-11-22.md; openings' Width/Height/Depth/Area by
+      ARCHICAD's or Revit's convention 2026-11-22, 4,532/4,554,
+      eval/opening-quantities-2026-11-22.md; next: Revit brep openings, railings'
+      Length; next: a BIM manager's filled table. HTML report
       (eval/html-report-2026-11-21.md): next, a consultant's read. More open items:
       NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction

@@ -13,6 +13,10 @@ Free and open source (MIT). A static read of the files you give it, not a securi
 
 - `python3 check.py /etc/systemd/system/ --drop-in` scans units with their drop-ins merged and prints findings and a starter override; `--format json`, `--fail-on-risk` (exit 2 on medium or high), `--user-units`.
 
+## How it is checked
+
+- Values are read the way systemd 255 reads them (booleans like `y` and `t`, case-sensitive `strict`/`read-only`, ignored invalid assignments, a fatal `DynamicUser=` typo ending a drop-in). A differential test against `systemd-analyze security --offline` agrees on ten finding types across 19,082 held-out random unit trees, apart from deny lists of names systemd does not know.
+
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/systemd-unit-hardening-check): MIT licensed, Python stdlib only.

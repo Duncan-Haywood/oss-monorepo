@@ -1,0 +1,32 @@
+files (app, openings storing the set):
+  AC20-FZK-Haus.ifc: ARCHICAD-64 IFC2x3 add-on version: 4009 GER FULL, 16
+  ISSUE_005_haus.ifc: ARCHICAD-64 IFC2x3 add-on version: 4009 GER FULL, 16
+  C20-Institute-Var-2.ifc: ARCHICAD-64 IFC2x3 add-on version: 4009 GER FULL, 283
+  schependomlaan.ifc: ArchiCAD-64 IFC2x3 add-on version: 6000 NED FULL, 74
+  ISSUE_068_ARK_NUS_skolebygg.ifc: Autodesk Revit 2019 (ENG) Revit, 787
+  ISSUE_159_kleine_Wohnung_R22.ifc: Autodesk Revit 2022 (DEU) Revit, 66
+  architect.ifc: Autodesk Revit Architecture 2010 Revit, 208
+  construction.ifc: Autodesk Revit Architecture 2010 Revit, 9
+convention name: stored; offered, within 1% (worst), misses; held back
+archicad Area: 389; 389, 384 (0.571%), 5; 0
+archicad Depth: 389; 375, 375 (0.000%), 0; 14
+archicad Height: 389; 389, 388 (0.571%), 1; 0
+archicad Width: 389; 389, 385 (0.000%), 4; 0
+revit-2010 Area: 102; 102, 102 (0.013%), 0; 0
+revit-2010 Depth: 217; 217, 217 (0.000%), 0; 0
+revit-2010 Height: 115; 115, 115 (0.000%), 0; 0
+revit-2010 Width: 115; 115, 115 (0.000%), 0; 0
+revit-2019 Area: 9; 9, 3 (0.000%), 6; 0
+revit-2019 Depth: 766; 766, 766 (0.000%), 0; 0
+revit-2019 Height: 844; 844, 841 (0.000%), 3; 0
+revit-2019 Width: 844; 844, 841 (0.000%), 3; 0
+
+misses and held back by name, file and host:
+  14 held Depth schependomlaan.ifc host IFCBUILDINGELEMENTPROXY
+  6 miss Area ISSUE_068_ARK_NUS_skolebygg.ifc host IFCSLAB
+  4 miss Width schependomlaan.ifc host IFCBUILDINGELEMENTPROXY
+  4 miss Area schependomlaan.ifc host IFCBUILDINGELEMENTPROXY
+  3 miss Width ISSUE_068_ARK_NUS_skolebygg.ifc host IFCSLAB
+  3 miss Height ISSUE_068_ARK_NUS_skolebygg.ifc host IFCSLAB
+  1 miss Height schependomlaan.ifc host IFCWALLSTANDARDCASE
+  1 miss Area schependomlaan.ifc host IFCWALLSTANDARDCASE

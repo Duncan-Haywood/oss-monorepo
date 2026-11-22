@@ -1,0 +1,35 @@
+AC20-FZK-Haus.ifc: 64 written (64 from geometry) in 0.5 s; filled model passes every check: false, failing before 68, after 4; written values verified 64 of 64; left in the to-fill table 4
+  Width: 16 written, 16 of 16 stored rewritten, 16 within 1% (worst 0.000%)
+  Height: 16 written, 16 of 16 stored rewritten, 16 within 1% (worst 0.000%)
+  Depth: 16 written, 16 of 16 stored rewritten, 16 within 1% (worst 0.000%)
+  Area: 16 written, 16 of 16 stored rewritten, 16 within 1% (worst 0.000%)
+C20-Institute-Var-2.ifc: 1132 written (1132 from geometry) in 1.3 s; filled model passes every check: false, failing before 1148, after 16; written values verified 1132 of 1132; left in the to-fill table 16
+  Width: 283 written, 283 of 283 stored rewritten, 283 within 1% (worst 0.000%)
+  Height: 283 written, 283 of 283 stored rewritten, 283 within 1% (worst 0.000%)
+  Depth: 283 written, 283 of 283 stored rewritten, 283 within 1% (worst 0.000%)
+  Area: 283 written, 283 of 283 stored rewritten, 283 within 1% (worst 0.000%)
+schependomlaan.ifc: 282 written (282 from geometry) in 6.0 s; filled model passes every check: false, failing before 316, after 34; written values verified 282 of 282; left in the to-fill table 34
+  Width: 74 written, 74 of 74 stored rewritten, 70 within 1% (worst 409.450%)
+  Height: 74 written, 74 of 74 stored rewritten, 73 within 1% (worst 1.911%)
+  Depth: 60 written, 60 of 74 stored rewritten, 60 within 1% (worst 0.000%)
+  Area: 74 written, 74 of 74 stored rewritten, 69 within 1% (worst 204.726%)
+ISSUE_068_ARK_NUS_skolebygg.ifc: 3156 written (3156 from geometry) in 22.4 s; filled model passes every check: true, failing before 3156, after 0; written values verified 3156 of 3156; left in the to-fill table 0
+  Width: 789 written, 780 of 780 stored rewritten, 777 within 1% (worst 85.612%)
+  Height: 789 written, 780 of 780 stored rewritten, 777 within 1% (worst 89.796%)
+  Depth: 789 written, 700 of 700 stored rewritten, 700 within 1% (worst 0.000%)
+  Area: 789 written, 7 of 7 stored rewritten, 1 within 1% (worst 99.967%)
+ISSUE_159_kleine_Wohnung_R22.ifc: 264 written (264 from geometry) in 8.5 s; filled model passes every check: false, failing before 672, after 408; written values verified 264 of 264; left in the to-fill table 408
+  Width: 66 written, 64 of 64 stored rewritten, 64 within 1% (worst 0.000%)
+  Height: 66 written, 64 of 64 stored rewritten, 64 within 1% (worst 0.000%)
+  Depth: 66 written, 66 of 66 stored rewritten, 66 within 1% (worst 0.000%)
+  Area: 66 written, 2 of 2 stored rewritten, 2 within 1% (worst 0.000%)
+architect.ifc: 872 written (872 from geometry) in 16.6 s; filled model passes every check: true, failing before 872, after 0; written values verified 872 of 872; left in the to-fill table 0
+  Width: 218 written, 106 of 106 stored rewritten, 106 within 1% (worst 0.000%)
+  Height: 218 written, 106 of 106 stored rewritten, 106 within 1% (worst 0.000%)
+  Depth: 218 written, 208 of 208 stored rewritten, 208 within 1% (worst 0.000%)
+  Area: 218 written, 102 of 102 stored rewritten, 102 within 1% (worst 0.013%)
+construction.ifc: 36 written (36 from geometry) in 1.9 s; filled model passes every check: true, failing before 36, after 0; written values verified 36 of 36; left in the to-fill table 0
+  Width: 9 written, 9 of 9 stored rewritten, 9 within 1% (worst 0.000%)
+  Height: 9 written, 9 of 9 stored rewritten, 9 within 1% (worst 0.000%)
+  Depth: 9 written, 9 of 9 stored rewritten, 9 within 1% (worst 0.000%)
+  Area: 9 written, 0 of 0 stored rewritten, 0 within 1% (worst 0.000%)

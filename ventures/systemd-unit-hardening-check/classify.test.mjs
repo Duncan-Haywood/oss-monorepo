@@ -159,3 +159,52 @@ test("hasRisk is true for any high or medium finding, false for low only", () =>
   assert.equal(hasRisk([{ severity: "low" }, { severity: "medium" }]), true);
   assert.equal(hasRisk([{ severity: "low" }]), false);
 });
+
+// Found by eval/systemd-analyze-diff.mjs, which compares these findings with
+// systemd 255's own parser (systemd-analyze security --offline) on random units.
+const K = { PROTECT_SYSTEM_MISSING: "svc-protect-system-missing", PRIVATE_TMP_MISSING: "svc-private-tmp-missing",
+  NO_SYSCALL_FILTER: "svc-no-syscall-filter", NO_AF: "svc-no-address-family-restriction" };
+const svc = (body) => scanText("[Service]\nUser=app\nExecStart=/usr/bin/a\n" + body);
+const has = (f, t) => f.some((x) => x.type === t);
+
+test("booleans take systemd's y, t, n, f in any case", () => {
+  for (const v of ["y", "Y", "t", "T"]) assert.equal(has(svc(`NoNewPrivileges=${v}\n`), NO_NEW_PRIVILEGES), false, v);
+  for (const v of ["n", "F"]) assert.equal(has(svc(`NoNewPrivileges=yes\nNoNewPrivileges=${v}\n`), NO_NEW_PRIVILEGES), true, v);
+  assert.equal(has(svc("DynamicUser=y\n"), K.PRIVATE_TMP_MISSING), false);
+});
+
+test("a value systemd rejects is ignored and the earlier one stands; the finding says so", () => {
+  const f = svc("ProtectSystem=Strict\n");
+  const ps = f.find((x) => x.type === K.PROTECT_SYSTEM_MISSING);
+  assert.equal(ps.line, 4);
+  assert.match(ps.detail, /systemd ignores ProtectSystem=Strict/);
+  assert.equal(has(svc("ProtectHome=Read-Only\n"), PROTECT_HOME_MISSING), true);
+  assert.equal(has(svc("NoNewPrivileges=yes\nNoNewPrivileges=maybe\n"), NO_NEW_PRIVILEGES), false);
+  assert.equal(has(svc("NoNewPrivileges=yes\nNoNewPrivileges=\n"), NO_NEW_PRIVILEGES), false);
+  assert.equal(has(svc("ProtectSystem=strict\nProtectSystem=\n"), K.PROTECT_SYSTEM_MISSING), false);
+  const partial = svc("ProtectSystem=full\nProtectSystem=Strict\n").find((x) => x.type === PROTECT_SYSTEM_PARTIAL);
+  assert.match(partial.detail, /earlier ProtectSystem=full stands/);
+});
+
+test("[ Service ] with inner spaces is not the Service section", () => {
+  assert.equal(has(scanText("[Service]\nUser=app\n[ Service ]\nNoNewPrivileges=yes\n"), NO_NEW_PRIVILEGES), true);
+});
+
+test("an unparseable DynamicUser= stops systemd reading that drop-in", () => {
+  const f = scanFiles([
+    { name: "app.service", text: "[Service]\nUser=app\nExecStart=/usr/bin/a\n" },
+    { name: "app.service.d/10.conf", text: "[Service]\nDynamicUser=yes # throwaway user\nNoNewPrivileges=yes\n" },
+  ]);
+  assert.equal(has(f, NO_NEW_PRIVILEGES), true);
+});
+
+test("an empty deny list filters nothing; RestrictAddressFamilies=none restricts everything", () => {
+  assert.equal(has(svc("SystemCallFilter=~\n"), K.NO_SYSCALL_FILTER), true);
+  assert.equal(has(svc("SystemCallFilter=~@mount\nSystemCallFilter=@mount\n"), K.NO_SYSCALL_FILTER), true);
+  assert.equal(has(svc("SystemCallFilter=@system-service\nSystemCallFilter=~\n"), K.NO_SYSCALL_FILTER), false);
+  assert.equal(has(svc("RestrictAddressFamilies=~\n"), K.NO_AF), true);
+  assert.equal(has(svc("RestrictAddressFamilies=~\nRestrictAddressFamilies=AF_INET\n"), K.NO_AF), true);
+  assert.equal(has(svc("RestrictAddressFamilies=none\n"), K.NO_AF), false);
+  assert.equal(has(svc("RestrictAddressFamilies=~AF_UNIX\nRestrictAddressFamilies=none\n"), K.NO_AF), false);
+  assert.equal(has(svc("RestrictAddressFamilies=none\nRestrictAddressFamilies=~\n"), K.NO_AF), true);
+});

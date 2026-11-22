@@ -1,0 +1,448 @@
+{
+ "files": {
+  "AC20-FZK-Haus.ifc": {
+   "app": "ARCHICAD-64 IFC2x3 add-on version: 4009 GER FULL",
+   "openings": 16
+  },
+  "ISSUE_005_haus.ifc": {
+   "app": "ARCHICAD-64 IFC2x3 add-on version: 4009 GER FULL",
+   "openings": 16
+  },
+  "C20-Institute-Var-2.ifc": {
+   "app": "ARCHICAD-64 IFC2x3 add-on version: 4009 GER FULL",
+   "openings": 283
+  },
+  "schependomlaan.ifc": {
+   "app": "ArchiCAD-64 IFC2x3 add-on version: 6000 NED FULL",
+   "openings": 74
+  },
+  "ISSUE_068_ARK_NUS_skolebygg.ifc": {
+   "app": "Autodesk Revit 2019 (ENG) Revit",
+   "openings": 787
+  },
+  "ISSUE_159_kleine_Wohnung_R22.ifc": {
+   "app": "Autodesk Revit 2022 (DEU) Revit",
+   "openings": 66
+  },
+  "architect.ifc": {
+   "app": "Autodesk Revit Architecture 2010 Revit",
+   "openings": 208
+  },
+  "construction.ifc": {
+   "app": "Autodesk Revit Architecture 2010 Revit",
+   "openings": 9
+  }
+ },
+ "misses": [
+  {
+   "file": "schependomlaan.ifc",
+   "id": 829578,
+   "name": "merk D",
+   "host": "IFCWALLSTANDARDCASE",
+   "q": "Height",
+   "stored": 1.727,
+   "offered": 1.76
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 829578,
+   "name": "merk D",
+   "host": "IFCWALLSTANDARDCASE",
+   "q": "Area",
+   "stored": 1.58193,
+   "offered": 1.61216
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 876894,
+   "name": "merk J",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Width",
+   "stored": 0.30032,
+   "offered": 1.52997
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 876894,
+   "name": "merk J",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Area",
+   "stored": 0.79194,
+   "offered": 2.41324
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 878098,
+   "name": "merk Jsp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Width",
+   "stored": 0.30032,
+   "offered": 1.52997
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 878098,
+   "name": "merk Jsp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Area",
+   "stored": 0.79194,
+   "offered": 2.41324
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 879296,
+   "name": "merk J",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Width",
+   "stored": 0.30032,
+   "offered": 1.52997
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 879296,
+   "name": "merk J",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Area",
+   "stored": 0.79194,
+   "offered": 2.41324
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 880494,
+   "name": "merk Jsp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Width",
+   "stored": 0.30032,
+   "offered": 1.52997
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 880494,
+   "name": "merk Jsp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Area",
+   "stored": 0.79194,
+   "offered": 2.41324
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 68432,
+   "name": "Basic Roof:Tak betong 320 + 150:1704457:1",
+   "host": "IFCSLAB",
+   "q": "Area",
+   "stored": 240.35309,
+   "offered": 1.86527
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 68462,
+   "name": "Basic Roof:Tak betong 320 + 150:1704457:2",
+   "host": "IFCSLAB",
+   "q": "Area",
+   "stored": 240.35309,
+   "offered": 1.98459
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 68491,
+   "name": "Basic Roof:Tak betong 320 + 150:1704457:3",
+   "host": "IFCSLAB",
+   "q": "Area",
+   "stored": 240.35309,
+   "offered": 2.74134
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1293721,
+   "name": "Basic Roof:Tak betong 320 + 170:4447733:1",
+   "host": "IFCSLAB",
+   "q": "Area",
+   "stored": 1015.03679,
+   "offered": 1.22894
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1293751,
+   "name": "Basic Roof:Tak betong 320 + 170:4447733:2",
+   "host": "IFCSLAB",
+   "q": "Area",
+   "stored": 1015.03679,
+   "offered": 0.97807
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1293780,
+   "name": "Basic Roof:Tak betong 320 + 170:4447733:3",
+   "host": "IFCSLAB",
+   "q": "Area",
+   "stored": 1015.03679,
+   "offered": 0.33262
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1307383,
+   "name": "Basic Roof:Tak betong 200 + 80 påstøp + 70:4498860:1",
+   "host": "IFCSLAB",
+   "q": "Width",
+   "stored": 6.95,
+   "offered": 1
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1307383,
+   "name": "Basic Roof:Tak betong 200 + 80 påstøp + 70:4498860:1",
+   "host": "IFCSLAB",
+   "q": "Height",
+   "stored": 3.2,
+   "offered": 1.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1307561,
+   "name": "Basic Roof:Tak betong 200 + 80 påstøp + 70:4499006:1",
+   "host": "IFCSLAB",
+   "q": "Width",
+   "stored": 6.95,
+   "offered": 1
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1307561,
+   "name": "Basic Roof:Tak betong 200 + 80 påstøp + 70:4499006:1",
+   "host": "IFCSLAB",
+   "q": "Height",
+   "stored": 3.2,
+   "offered": 1
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1320103,
+   "name": "Basic Roof:Tak betong 200 + 80 påstøp + 70:4618009:1",
+   "host": "IFCSLAB",
+   "q": "Width",
+   "stored": 1.675,
+   "offered": 0.25
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1320103,
+   "name": "Basic Roof:Tak betong 200 + 80 påstøp + 70:4618009:1",
+   "host": "IFCSLAB",
+   "q": "Height",
+   "stored": 2.45,
+   "offered": 0.25
+  }
+ ],
+ "held": [
+  {
+   "file": "schependomlaan.ifc",
+   "id": 263955,
+   "name": "merk A3",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 270296,
+   "name": "merk A6",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 271934,
+   "name": "merk A5",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 311146,
+   "name": "merk A3sp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 315619,
+   "name": "merk A3",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 562189,
+   "name": "merk A3sp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 597503,
+   "name": "merk A3",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 753624,
+   "name": "merk A3sp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 820778,
+   "name": "merk A3sp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 822632,
+   "name": "merk A4",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 876894,
+   "name": "merk J",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 878098,
+   "name": "merk Jsp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 879296,
+   "name": "merk J",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "id": 880494,
+   "name": "merk Jsp",
+   "host": "IFCBUILDINGELEMENTPROXY",
+   "q": "Depth",
+   "stored": 0.114
+  }
+ ],
+ "total": {
+  "archicad Width": {
+   "stored": 389,
+   "offered": 389,
+   "within1": 385,
+   "misses": 4,
+   "held": 0,
+   "worst": 2.8520210082483288e-8
+  },
+  "archicad Height": {
+   "stored": 389,
+   "offered": 389,
+   "within1": 388,
+   "misses": 1,
+   "held": 0,
+   "worst": 0.005714285714285783
+  },
+  "archicad Depth": {
+   "stored": 389,
+   "offered": 375,
+   "within1": 375,
+   "misses": 0,
+   "held": 14,
+   "worst": 0
+  },
+  "archicad Area": {
+   "stored": 389,
+   "offered": 389,
+   "within1": 384,
+   "misses": 5,
+   "held": 0,
+   "worst": 0.005714285714285783
+  },
+  "revit-2019 Width": {
+   "stored": 844,
+   "offered": 844,
+   "within1": 841,
+   "misses": 3,
+   "held": 0,
+   "worst": 9.00390872971002e-14
+  },
+  "revit-2019 Height": {
+   "stored": 844,
+   "offered": 844,
+   "within1": 841,
+   "misses": 3,
+   "held": 0,
+   "worst": 2.930988785010413e-14
+  },
+  "revit-2019 Depth": {
+   "stored": 766,
+   "offered": 766,
+   "within1": 766,
+   "misses": 0,
+   "held": 0,
+   "worst": 0
+  },
+  "revit-2019 Area": {
+   "stored": 9,
+   "offered": 9,
+   "within1": 3,
+   "misses": 6,
+   "held": 0,
+   "worst": 1.5543122344752192e-15
+  },
+  "revit-2010 Width": {
+   "stored": 115,
+   "offered": 115,
+   "within1": 115,
+   "misses": 0,
+   "held": 0,
+   "worst": 8.104628079763643e-15
+  },
+  "revit-2010 Height": {
+   "stored": 115,
+   "offered": 115,
+   "within1": 115,
+   "misses": 0,
+   "held": 0,
+   "worst": 2.6645352591003757e-15
+  },
+  "revit-2010 Depth": {
+   "stored": 217,
+   "offered": 217,
+   "within1": 217,
+   "misses": 0,
+   "held": 0,
+   "worst": 0
+  },
+  "revit-2010 Area": {
+   "stored": 102,
+   "offered": 102,
+   "within1": 102,
+   "misses": 0,
+   "held": 0,
+   "worst": 0.00013372091331209646
+  }
+ }
+}
