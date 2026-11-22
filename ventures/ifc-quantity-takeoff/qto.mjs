@@ -428,6 +428,7 @@ export function takeoff(model, opts = {}) {
         const pid = sweptProfile(E, bodyRepresentation(E, refId(e.args[6])));
         if (pid != null) { const v = geo.sectionVariants(pid); if (v.length) row.computed.sectionVariants = v; }
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
+        try { const L = memberLength(e.type, row.computed.solids.body, f); if (L != null) row.computed.length = L; } catch { /* no length */ }
         row.computed.solids.each = null;
         // what the model view draws the element with (view-mesh.mjs); kept off the row's enumerable fields
         Object.defineProperty(row, "world", { value: worldOf(refId(e.args[5])), enumerable: false, writable: true });
@@ -449,6 +450,7 @@ export function takeoff(model, opts = {}) {
   }
   explainChecks(rows, tol);
   explainAreas(rows, tol);
+  checkLengths(rows, tol);
   assignEnvelope(rows, { roofs: opts.roofBlockers !== false });
   if (!opts.keepRoofFaces) for (const r of rows) delete r.roofFaces; // faces are only for the envelope test; rows stay small
   assignRailingSides(rows);
@@ -852,6 +854,41 @@ export function unitSlip(computed, stored, tol = 0.005) {
  * Sets reason on each disagreeing row.areaCheck entry, and trust = false where
  * the stored figure should not be summed (split, repeated, unit-slip).
  */
+/**
+ * Compares a member's stored Length with the length read off its body
+ * (row.lengthCheck). One cause is named: a stored Length that is the same on
+ * three or more members of one assembly whose bodies differ in length and
+ * are all shorter than it is the host's figure (Revit writes a curtain wall's
+ * length on every mullion, ARK_NUS_skolebygg's 20.858 m), so the BoQ sums the
+ * computed length instead.
+ */
+export function checkLengths(rows, tol = 0.02) {
+  const groups = new Map();
+  for (const r of rows) {
+    r.lengthCheck = null;
+    if (!LINEAR_CLASS.test(r.ifcType)) continue;
+    const s = storedLen(r, "length"), c = r.computed?.status === "ok" ? r.computed.length : null;
+    if (s == null || c == null) continue;
+    const diff = c - s;
+    r.lengthCheck = { computed: c, stored: s, diff, rel: s !== 0 ? diff / s : (c === 0 ? 0 : Infinity), agree: Math.abs(diff) <= tol * Math.abs(s) || Math.abs(diff) < 1e-4, reason: null };
+    if (r.lengthCheck.agree || r.assembly == null) continue;
+    const k = `${r.assembly}|${s}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r);
+  }
+  for (const g of groups.values()) {
+    if (g.length < 3) continue;
+    const cs = g.map((r) => r.lengthCheck.computed);
+    const lo = Math.min(...cs), hi = Math.max(...cs), s = g[0].lengthCheck.stored;
+    if (!(hi - lo > tol * hi) || !(hi < s * (1 - tol))) continue;
+    for (const r of g) { r.lengthCheck.reason = "host-figure"; r.lengthCheck.trust = false; }
+  }
+}
+
+export const LENGTH_REASON_TEXT = {
+  "host-figure": "the same stored length is written on several members of one assembly whose bodies are shorter and differ in length: the host's figure (a curtain wall's length on every mullion), so the BoQ uses the length read off the body",
+};
+
 export function explainAreas(rows, tol = 0.02) {
   const near = (a, b) => (b !== 0 ? Math.abs(a - b) / Math.abs(b) <= tol : Math.abs(a) < 1e-9);
   const groups = new Map();
@@ -1190,6 +1227,40 @@ function computeAreas(type, solids, W, f) {
 
 const extentOf = solidExtent;
 
+// ---- member length and steel weight -----------------------------------------
+//
+// Qto_BeamBaseQuantities, Qto_ColumnBaseQuantities and Qto_MemberBaseQuantities
+// define Length as "the total nominal length ... not taking into account any
+// cut-outs or other processing features": the body's extent along its
+// extrusion (a faceted member: along the end face normal it is longest in).
+// A model with no quantity set (many IFC exports, every hand-built one) would
+// otherwise price a per-metre or per-kg rate at 0.
+
+export const LINEAR_CLASS = /^IFC(COLUMN|BEAM|MEMBER|PILE)/;
+
+/** A linear member's length from its body, in metres; null when it has no axis to read. */
+export function memberLength(type, body, f) {
+  if (!LINEAR_CLASS.test(type) || !body || (body.mesh && !body.shells)) return null;
+  const n = body.axis ?? (body.terms.length ? null : prismAxis(body) ?? thinnestNormal(body, () => true, true)?.n);
+  if (!n) return null;
+  const [lo, hi] = extentOf(body, n);
+  return hi > lo ? (hi - lo) * f : null;
+}
+
+// Structural steel, EN 1991-1-1 Table A.4 and AISC's 490 lb/ft3: 7,850 kg/m3.
+// Applied only when the element's material names steel and nothing else
+// (a "Concrete / Steel" layer set or a steel-fibre concrete is not steel).
+export const STEEL_DENSITY = 7850;
+const STEEL_NAME = /\b(steel|stahl|staal|acier|acero|acciaio|stål|teräs|stal|metal\s*-\s*steel|s(?:185|235|275|355|420|450|460|690)(?:[a-z0-9+]*)|a(?:36|500|572|588|913|992)|q(?:235|345|355)[a-z]*|ss400|sm490)\b/i;
+const NOT_STEEL = /concrete|beton|béton|hormig|calcestruzzo|timber|wood|holz|hout|glulam|stainless|inox|edelstahl|rvs|alumin|fibre|fiber|faser|reinforc|rebar|bewehr|wapening|neoprene|rubber|elastomer|grout|mortar|paint|coating|insulat|isol/i;
+
+/** True when a material name reads as plain structural steel. */
+export function isSteel(material) {
+  if (!material) return false;
+  const parts = String(material).split(" / ").map((x) => x.trim()).filter(Boolean);
+  return parts.length > 0 && parts.every((p) => STEEL_NAME.test(p) && !NOT_STEEL.test(p));
+}
+
 /** Compares areas computed from geometry with the stored ones the rules name. */
 function checkAreas(row, tol) {
   const A = row.computed?.areas;
@@ -1252,10 +1323,22 @@ export function rowQuantities(r) {
     volumeSource: storedNet != null ? "stored" : comp != null ? "computed" : null,
     area,
     areaSource,
-    length: first(["length", "netlength", "grosslength"], "length"),
-    // a weight the exporter derived from a simplified section is scaled to the geometry
-    weight: (() => { const w = first(["netweight", "grossweight", "weight"], "weight"); return w != null && r.weightScale ? w * r.weightScale : w; })(),
+    ...lengthAndWeight(r, first, storedNet ?? comp, storedNet != null ? "stored" : comp != null ? "computed" : null),
   };
+}
+
+// Length: the stored figure, else the body's extent along its axis.
+// Weight: the stored figure (scaled when its section was simplified), else
+// the volume the line sums times steel's density when the material is steel.
+function lengthAndWeight(r, first, volume, volumeSource) {
+  let length = first(["length", "netlength", "grosslength"], "length"), lengthSource = length != null ? "stored" : null;
+  if (r.lengthCheck?.trust === false) length = null;
+  if (length == null && r.computed?.status === "ok" && r.computed.length != null) { length = r.computed.length; lengthSource = "computed"; }
+  let weight = first(["netweight", "grossweight", "weight"], "weight"), weightSource = weight != null ? "stored" : null;
+  // a weight the exporter derived from a simplified section is scaled to the geometry
+  if (weight != null && r.weightScale) weight *= r.weightScale;
+  if (weight == null && volume != null && isSteel(r.material)) { weight = volume * STEEL_DENSITY; weightSource = volumeSource === "stored" ? "density-stored-volume" : "density"; }
+  return { length, lengthSource, weight, weightSource };
 }
 
 /** The area a row's geometry gives for its class: a wall's net side area, a slab's net plan area. */
@@ -1283,14 +1366,14 @@ export function boq(rows, by = ["class", "type"], rule = null) {
     const key = by.map((k) => GROUP_KEYS[k](r));
     const k = JSON.stringify(key);
     let L = lines.get(k);
-    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0 }; lines.set(k, L); }
+    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, lengthComputed: 0, weightComputed: 0, lengthMissing: 0, weightMissing: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0 }; lines.set(k, L); }
     const q = measured ? applyRule(r, rowQuantities(r), rule) : rowQuantities(r);
     if (measured) { L.voidsLeft += q.voidsLeft; L.areaChange += q.areaChange; L.volumeChange += q.volumeChange; if (q.ruleNotes.length) L.ruleSkipped++; }
     L.count++;
     if (q.volume != null) { L.volume += q.volume; if (q.volumeSource === "stored") L.volumeStored++; else L.volumeComputed++; } else L.volumeMissing++;
     if (q.area != null) { L.area += q.area; if (q.areaSource === "computed") L.areaComputed++; }
-    if (q.length != null) L.length += q.length;
-    if (q.weight != null) L.weight += q.weight;
+    if (q.length != null) { L.length += q.length; if (q.lengthSource === "computed") L.lengthComputed++; } else if (LINEAR_CLASS.test(r.ifcType)) L.lengthMissing++;
+    if (q.weight != null) { L.weight += q.weight; if (q.weightSource !== "stored") L.weightComputed++; } else if (LINEAR_CLASS.test(r.ifcType)) L.weightMissing++;
     if ((r.check && ((r.check.gross && !r.check.gross.agree) || (r.check.net && !r.check.net.agree))) || Object.values(r.areaCheck || {}).some((c) => !c.agree)) L.disagree++;
   }
   return [...lines.values()].sort((a, b) => a.key.join("\u0000").localeCompare(b.key.join("\u0000")));
@@ -1307,7 +1390,7 @@ export const keyLabel = (k) => ({ uniformat: "Uniformat II element", uniformat2:
 
 export function boqCsv(lines, by, rates = {}, rule = null) {
   const measured = ruleActive(rule);
-  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount"];
+  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount", "Lengths computed here", "Weights from steel density (7850 kg/m3)", "Members with no length", "Members with no weight"];
   if (measured) head.push(`Voids not deducted (${ruleLabel(rule)})`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
@@ -1315,7 +1398,7 @@ export function boqCsv(lines, by, rates = {}, rule = null) {
     const rate = rates[k];
     let amount = null;
     if (rate && Number.isFinite(rate.rate)) amount = rate.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight }[rate.unit] ?? 0);
-    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount];
+    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount, L.lengthComputed, L.weightComputed, L.lengthMissing, L.weightMissing];
     if (measured) cells.push(L.voidsLeft, L.areaChange, L.volumeChange, L.ruleSkipped);
     out.push(cells.map(csvCell).join(","));
   }
@@ -1323,7 +1406,7 @@ export function boqCsv(lines, by, rates = {}, rule = null) {
 }
 
 export function rowsCsv(rows) {
-  const head = ["Entity", "GlobalId", "Class", "Name", "Type", "Storey", "Room", "Room from", "Material", "Classification", "Uniformat II", "Uniformat source", "Uniformat basis", "Assembly", "Part of", "Computed gross m3", "Computed net m3", "Openings", "Geometry status", "Stored GrossVolume m3", "Stored NetVolume m3", "Volume check", "Computed gross area m2", "Computed net area m2", "Area measured", "Area check", "Stored quantities"];
+  const head = ["Entity", "GlobalId", "Class", "Name", "Type", "Storey", "Room", "Room from", "Material", "Classification", "Uniformat II", "Uniformat source", "Uniformat basis", "Assembly", "Part of", "Computed gross m3", "Computed net m3", "Openings", "Geometry status", "Stored GrossVolume m3", "Stored NetVolume m3", "Volume check", "Computed gross area m2", "Computed net area m2", "Area measured", "Area check", "Stored quantities", "Computed length m", "Length check", "BoQ length m", "BoQ weight kg", "Weight from"];
   const out = [head.map(csvCell).join(",")];
   for (const r of rows) {
     const c = r.computed || {};
@@ -1332,9 +1415,17 @@ export function rowsCsv(rows) {
     const stored = Object.entries(r.stored).map(([k, q]) => `${k}=${Math.round(q.value * 1e6) / 1e6}`).join("; ");
     const A = c.areas && !c.areas.error && !c.areas.faceted ? (c.areas.side ? ["side", c.areas.side] : c.areas.plan ? ["plan", c.areas.plan] : c.areas.cross ? ["cross-section", c.areas.cross] : null) : null;
     const areaVerdict = Object.entries(r.areaCheck || {}).map(([k, a]) => a.agree ? `${k} agrees` : `${k} differs ${a.rel === Infinity ? "" : (a.rel * 100).toFixed(1) + "%"}${a.reason ? " (" + a.reason + ")" : ""}`).join("; ");
-    out.push([`#${r.id}`, r.globalId, r.ifcClass, r.name, r.type, r.storey, r.space, r.spaceFrom ?? "", r.material, r.classification, r.uniformat?.code ?? "", r.uniformat?.source ?? "", r.uniformat?.why ?? "", r.isAssembly ? "yes" : "", r.parent ? `#${r.parent}` : "", c.gross, c.net, c.openings, c.status === "ok" ? (c.net == null ? `net not computed: ${c.netReason}` : "ok") : c.status ? `${c.status}${c.reason ? ": " + c.reason : ""}` : "", g ? g.stored : null, n ? n.stored : null, verdict, A ? A[1].gross : null, A ? A[1].net : null, A ? A[0] : "", areaVerdict, stored].map(csvCell).join(","));
+    out.push([`#${r.id}`, r.globalId, r.ifcClass, r.name, r.type, r.storey, r.space, r.spaceFrom ?? "", r.material, r.classification, r.uniformat?.code ?? "", r.uniformat?.source ?? "", r.uniformat?.why ?? "", r.isAssembly ? "yes" : "", r.parent ? `#${r.parent}` : "", c.gross, c.net, c.openings, c.status === "ok" ? (c.net == null ? `net not computed: ${c.netReason}` : "ok") : c.status ? `${c.status}${c.reason ? ": " + c.reason : ""}` : "", g ? g.stored : null, n ? n.stored : null, verdict, A ? A[1].gross : null, A ? A[1].net : null, A ? A[0] : "", areaVerdict, stored, ...lengthCells(r)].map(csvCell).join(","));
   }
   return out.join("\r\n") + "\r\n";
+}
+
+// what the element CSV says about a row's length and weight
+function lengthCells(r) {
+  const lc = r.lengthCheck, q = rowQuantities(r);
+  const verdict = !lc ? "" : lc.agree ? "agrees" : `differs ${lc.rel === Infinity ? "" : (lc.rel * 100).toFixed(1) + "%"}${lc.reason ? " (" + lc.reason + ")" : ""}`;
+  const from = { stored: "stored quantity", density: "computed volume x 7850 kg/m3 (steel)", "density-stored-volume": "stored volume x 7850 kg/m3 (steel)" }[q.weightSource] ?? "";
+  return [r.computed?.length ?? null, verdict, q.length, q.weight, from];
 }
 
 /** Totals of the check across rows, for the page's summary and the eval. */

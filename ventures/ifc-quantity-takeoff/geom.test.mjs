@@ -89,3 +89,42 @@ test("every entity that can refer to itself (placement, curve, profile, mapped i
     ["boolean", () => g.item(8)],
   ]) assert.throws(read, (e) => e instanceof Unresolved, what);
 });
+
+// Branches the 2026-11-22 quality audit found untested (seeded mutants
+// survived): an ellipse's semi-axis ratio, a revolve axis that does not pass
+// through the origin, and the CENTI length prefix.
+test("audit 2026-11-22: ellipse profile, offset revolve axis and centimetre units", async () => {
+  const { parseStep } = await import("./step.mjs");
+  const { takeoff } = await import("./qto.mjs");
+  const file = (unit, body) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,${unit},.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#16=IFCDIRECTION((0.,0.,1.));
+#17=IFCDIRECTION((0.,1.,0.));
+${body}
+#22=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21));
+#23=IFCPRODUCTDEFINITIONSHAPE($,$,(#22));
+#24=IFCCOLUMN('1YvctVUKr0kugbFTf53O9A',$,'c',$,$,#12,#23,'C1');
+ENDSEC;END-ISO-10303-21;`;
+  const vol = (unit, body) => takeoff(parseStep(file(unit, body))).rows[0].computed.gross;
+  // ellipse, semi-axes 2 and 1, extruded 1: pi x 2 x 1
+  const ell = vol("$", "#20=IFCELLIPSEPROFILEDEF(.AREA.,'e',#13,2.,1.);\n#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,1.);");
+  assert.ok(Math.abs(ell - 2 * Math.PI) / (2 * Math.PI) < 1e-3, `ellipse ${ell}`);
+  // a 1 x 1 square centred 3 from the origin, revolved a full turn about the
+  // y axis moved to x = 1: radius 2, so 1 x 2 x 2 pi (about the origin: 6 pi)
+  const rev = vol("$", `#18=IFCCARTESIANPOINT((3.,0.));
+#19=IFCAXIS2PLACEMENT2D(#18,$);
+#20=IFCRECTANGLEPROFILEDEF(.AREA.,'r',#19,1.,1.);
+#25=IFCCARTESIANPOINT((1.,0.,0.));
+#26=IFCAXIS1PLACEMENT(#25,#17);
+#21=IFCREVOLVEDAREASOLID(#20,#11,#26,6.283185307179586);`);
+  assert.ok(Math.abs(rev - 4 * Math.PI) < 1e-6, `revolve ${rev}`);
+  // a 100 x 100 x 100 cm block is a cubic metre
+  const cm = vol(".CENTI.", "#20=IFCRECTANGLEPROFILEDEF(.AREA.,'r',#13,100.,100.);\n#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,100.);");
+  assert.ok(Math.abs(cm - 1) < 1e-9, `centimetre ${cm}`);
+});
