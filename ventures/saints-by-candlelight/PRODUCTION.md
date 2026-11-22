@@ -212,7 +212,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Bezalel and Oholiab, filled with the spirit of God for every craft, Hur's grandson who made the ark, and the people who brought so much that Moses had to tell them to stop (Exodus 31:1-11 and 35:30 to 36:7; left by episode 161).
 - Joshua at Shechem and the stone under the oak, choose this day whom you will serve, the old man who looked up the hill at Rephidim saying goodbye (Joshua 24; left by episode 161).
 - Elijah and Elisha and the cloak on the Jordan, the double portion and the chariot of fire, Elisha walking back alone (Second Kings 2:1-15; left by episode 162).
-- Moses and Aaron at the waters of Meribah, the rock struck twice, and the brothers who would not go into the land (Numbers 20:1-13, with Psalm 106:32-33; left by episode 163).
+- *(Drafting, 2026-11-22.)* Moses and Aaron at the waters of Meribah, the rock struck twice, and the brothers who would not go into the land (Numbers 20:1-13, with Psalm 106:32-33; left by episode 163).
 - Aaron on Mount Hor, the three who went up and the two who came down, the robes put on Eleazar and thirty days of weeping (Numbers 20:22-29 and 33:38-39; left by episode 163).
 - The bronze serpent on the pole, the people who looked and lived (Numbers 21:4-9, with Wisdom 16:5-7 and John 3:14-15; left by episode 163).
 
