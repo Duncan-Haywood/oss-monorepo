@@ -172,7 +172,7 @@ def panel_stats(j):
                 mn, se, n = survey.domain_mean(y, w, dom, s, p)
                 first = survey.domain_mean(j['first'].to_numpy(float), w, dom, s, p)[0]
                 age = np.average(j['age'].to_numpy(float)[dom], weights=w[dom]) if w[dom].sum() > 0 else np.nan
-                out[(pair, f'{gname} {c0}-{c1}')] = dict(m=mn, se=se, n=int(dom.sum()), first=first, age=age)
+                out[(pair, f'{gname} {c0}-{str(c1)[2:]}')] = dict(m=mn, se=se, n=int(dom.sum()), first=first, age=age)
     return out
 
 
