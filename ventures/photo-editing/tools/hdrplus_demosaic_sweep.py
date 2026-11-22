@@ -242,7 +242,6 @@ def summary(path: Path) -> int:
     allrows = [json.loads(x) for x in path.read_text().splitlines() if x.strip()]
     rows = [r for r in allrows if "cpsnr" in r]
     skips = [r for r in allrows if "skip" in r]
-    bursts = {r["burst"] for r in rows}
     print(f"{len(allrows)} rows: {len(rows)} bursts scored, {len(skips)} skipped")
     reasons: dict[str, int] = {}
     for r in skips:
@@ -254,7 +253,7 @@ def summary(path: Path) -> int:
         return 1
     k = f"+{K:g}"
     names = ["D", "true", "true" + k, "ship", "ship" + k] + [x for e in EIGS for x in (e, e + k)] + ["profile", "profile" + k]
-    print(f"\n## every arm over D (mean dB), losers (> 0.1 dB to D on luma or colour), worst")
+    print("\n## every arm over D (mean dB), losers (> 0.1 dB to D on luma or colour), worst")
     print(f"  {'arm':12s} {'luma':>8s} {'colour':>8s} {'losers':>6s} {'worst':>7s}")
     for a in names[1:]:
         dl, dc = _gain(rows, "l", a, "D"), _gain(rows, "c", a, "D")
