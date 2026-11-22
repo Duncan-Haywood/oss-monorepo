@@ -35,15 +35,15 @@ function deployerRepo(values, history) {
   const addRow = (i) => { git(dev, 'pull', '-q', '--rebase'); appendFileSync(join(dev, 'data/metric.csv'), row(i, values[i])); git(dev, 'commit', '-qam', `data ${day(i)}`); git(dev, 'push', '-q'); };
   return { dev, remote, workflow: join(dev, '.github/workflows/watch-metric.yml'), addRow };
 }
-// Step positions in a run's results: checkout, setup-node, cache, Stripe, Shopify and Search Console fetches, check, save.
-const CHECK = 6, SAVE = 7;
+// Step positions in a run's results: checkout, setup-node, cache, Stripe, Shopify, Search Console and Google Analytics fetches, check, save.
+const CHECK = 7, SAVE = 8;
 const stateOnRemote = (r) => { git(r.dev, 'pull', '-q', '--rebase'); return JSON.parse(readFileSync(join(r.dev, 'watch-state.json'), 'utf8')); };
 
 test('the workflow file has the steps the runner emulation expects', () => {
   const steps = parseSteps(readFileSync(new URL('./deploy/watch-metric.yml', import.meta.url), 'utf8'));
-  assert.deepEqual(steps.map((s) => s.uses || s.name), ['actions/checkout@v4', 'actions/setup-node@v4', 'actions/cache@v4', 'Fetch Stripe metrics', 'Fetch Shopify metrics', 'Fetch Search Console metrics', 'Check for a new change', 'Save what was reported']);
-  assert.equal(steps[7].if, 'always()');
-  assert.match(steps[6].run, /node watch\.mjs "\$METRIC_CSV" --state watch-state\.json/);
+  assert.deepEqual(steps.map((s) => s.uses || s.name), ['actions/checkout@v4', 'actions/setup-node@v4', 'actions/cache@v4', 'Fetch Stripe metrics', 'Fetch Shopify metrics', 'Fetch Search Console metrics', 'Fetch Google Analytics metrics', 'Check for a new change', 'Save what was reported']);
+  assert.equal(steps[SAVE].if, 'always()');
+  assert.match(steps[CHECK].run, /node watch\.mjs "\$METRIC_CSV" --state watch-state\.json/);
 });
 
 test('without a webhook: a baseline run, quiet days, one red run for the new level, then quiet again', () => {

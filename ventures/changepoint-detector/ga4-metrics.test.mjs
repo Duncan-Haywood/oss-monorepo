@@ -19,7 +19,12 @@ const KEY = { type: 'service_account', client_email: 'watch@demo-project.iam.gse
 const addDays = (day, k) => new Date(Date.parse(`${day}T00:00:00Z`) + k * 86400000).toISOString().slice(0, 10);
 const compact = (d) => d.replace(/-/g, '');
 const lcg = (seed) => { let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 4294967296; }; };
-const poisson = (u, lam) => { let k = 0, p = Math.exp(-lam), c = p; const x = u(); while (x > c) { k++; p *= lam / k; c += p; } return k; };
+// Poisson by inversion below 300; above, exp(-lam) underflows toward 0, so a rounded normal with the same mean and
+// variance stands in (page views run to ~1,500 a day here).
+const poisson = (u, lam) => {
+  if (lam > 300) return Math.max(0, Math.round(lam + Math.sqrt(lam) * Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u())));
+  let k = 0, p = Math.exp(-lam), c = p; const x = u(); while (x > c) { k++; p *= lam / k; c += p; } return k;
+};
 const quiet = () => {};
 
 // A property: ~600 sessions a day with a weekly cycle (weekends 60%), users ~0.8 of sessions, 2.5 views a session, 3%
@@ -207,6 +212,7 @@ test('a tag broken on half the pages and a sign-up form that stops working: the 
   const text = said.join('');
   assert.match(text, /sessions[\s\S]*2026-03-1[4-8]/);
   assert.match(text, /keyEvents[\s\S]*2026-01-(0[89]|1[0-6])/);
+  assert.equal((text.match(/Changes on record: 1\./g) ?? []).length, 3, 'one change per column, no false ones');
 });
 
 test('the self-deploy workflow fetches Analytics metrics, watches three columns, never commits the CSV', async () => {
