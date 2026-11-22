@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-22 · Milestone 6ae (H6 mechanism): does the headline H = 64 gain of keep 1/4 with a dense last sync survive four more seeds? Seeds 4 to 7 of unc and keep 1/4, pooled with 6y's and 6z's four (planned before running; outcome below)
+
+- Why: the paper draft written in this run (`paper/section_recipe.md`) leans on one cell, rand-k keep 1/4 with a dense last sync at H = 64: -0.0185 (se 0.0020) on the fresh batches, 4 of 4 seeds (6z). With four seeds an exact sign-flip test cannot go below P = 0.125, and 6ad showed that four seeds at H = 32 could be dominated by one or two seeds. Before the draft states the gain as the programme's result, the cell gets eight seeds.
+- Seen before registering (disclosed): `scale.jsonl` stores the fully compressed keep-1/4 runs and the uncompressed runs at H = 64 for seeds 4 and 5 on the standard batches. Their C = full - unc is +0.0108 and -0.0011, against -0.0090, -0.0160, -0.0185 and -0.0073 on seeds 0 to 3. With b near +0.005 the recipe's standard-batch T on seeds 4 and 5 would be near +0.006 and -0.006, so the new seeds are expected to be weaker than the old; the priors below include that.
+- Run (`experiments/gpt_scale/recipe_6ae.py`, written before the runs; `run()` is 6ad's with H = 64, which is 6z's apart from building the compressor inline): the size-2 setup of `scale.py` at H = 64 (60 syncs), seeds 4 to 7, unc first, then rand-k keep 1/4 forked before the last round into *clean* (the recipe) and *full*. 8 runs, 4 cores. Torch from PyPI (CUDA build, CPU only), as in 6ac and 6ad.
+- **H6ae-i** (prior 95%, check): unc and the full keep-1/4 arm reproduce `scale.jsonl` (H = 64) bit-exactly on the standard batches for seeds 4 and 5 (4 checks).
+- **H6ae-ii** (prior 40%): pooled over seeds 0 to 7, the recipe's fresh T is below zero by more than 2 se (paired by seed).
+- **H6ae-iii** (prior 25%): pooled over seeds 0 to 7, the exact two-sided sign-flip P of the fresh T is below 0.05.
+- **H6ae-iv** (prior 50%): the seeds 4 to 7 mean fresh T is within 2 se (combined) of the seeds 0 to 3 mean (-0.0185).
+- **H6ae-v** (prior 75%): b / omega (b = full - clean, standard batches) on seeds 4 to 7 lies in [0.0012, 0.0022] (6z: 0.0018; 6aa to 6ad at H = 32 and 64: 0.0011 to 0.0019).
+- Reported, no verdict: T, C and b on both batch sets for seeds 4 to 7, seeds 0 to 3 and pooled; the per-seed fresh T; the unc fresh loss per seed.
+- Reading: ii holding means the H = 64 gain is the paper's result as stated, with a smaller size if iv fails. ii failing with the pooled point estimate below zero means the draft states the gain as "at or below uncompressed, gain unresolved", as for H = 32. A pooled point estimate at or above zero means 6z's four seeds were a lucky draw, and the draft's claim narrows to "keep 1/4 with a dense last sync is never measurably worse than uncompressed".
+- Not tested: keep 1/8 or 1/2 at seeds 4 to 7, other H, other widths, a held-out split.
+
 ## 2026-11-19 · Milestone 6ad (H6 mechanism): does keep 1/4 with a dense last sync gain at H = 32? Seeds 4 to 7 of unc, keep 1/4 and keep 1/8, pooled with 6ac's four (planned before running; outcome below)
 
 - Why: 6ac's "Next" (1). Its omega-3 recipe ended -0.0059 (se 0.0082) against uncompressed on the fresh batches at H = 32: three seeds below zero by 0.010 to 0.019, seed 1 at +0.018. The spread was two to four times wider than at H = 16 or 64 and shared across omegas, which 6ac read as the uncompressed run's own draw on each seed. Four more seeds halve the variance of the mean if the spread is the same; keep 1/8 is added so the shared-seed reading can be tested on eight seeds with two compressed arms paired against one unc.
