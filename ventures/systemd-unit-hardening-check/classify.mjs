@@ -75,7 +75,7 @@ export function parseUnit(text, file) {
     const stripped = raw.trim();
     if (!stripped || "#;".includes(stripped[0])) continue;
     if (stripped.startsWith("[") && stripped.endsWith("]")) {
-      section = stripped.slice(1, -1).trim();
+      section = stripped.slice(1, -1); // systemd does not trim inside the brackets: "[ Service ]" is another section
       if (section === "Service" && serviceLine === null) serviceLine = start;
       continue;
     }
@@ -90,7 +90,12 @@ export function parseUnit(text, file) {
     if (logical.endsWith("\\")) logical = logical.slice(0, -1);
     const eq = logical.indexOf("=");
     if (eq < 0) continue;
-    entries.push({ file, line: start, section, key: logical.slice(0, eq).trim(), value: logical.slice(eq + 1).trim() });
+    const entry = { file, line: start, section, key: logical.slice(0, eq).trim(), value: logical.slice(eq + 1).trim() };
+    entries.push(entry);
+    // A DynamicUser= value that is not a boolean is a fatal error (systemd 255): in
+    // the unit file the unit does not load, and in a drop-in systemd stops reading
+    // that file here, so every line after it is lost.
+    if (section === "Service" && entry.key === "DynamicUser" && bool(entry.value) === undefined) break;
   }
   return { entries, serviceLine };
 }
@@ -111,7 +116,56 @@ function last(entries, key) {
   return eff[eff.length - 1];
 }
 
-const isTrue = (e) => e !== null && TRUE.has(e.value.toLowerCase());
+// systemd parses each assignment as it reads it and drops one it cannot parse
+// (with a warning), so the value before it stands. parse_boolean() takes these
+// words in any case; ProtectSystem= and ProtectHome= take a boolean or their own
+// words, which are case-sensitive ("Strict" is rejected). An empty value is not a
+// boolean either, so "NoNewPrivileges=" after "=yes" leaves it on.
+const BOOL_TRUE = new Set(["1", "yes", "y", "true", "t", "on"]);
+const BOOL_FALSE = new Set(["0", "no", "n", "false", "f", "off"]);
+const bool = (v) => (BOOL_TRUE.has(v.toLowerCase()) ? true : BOOL_FALSE.has(v.toLowerCase()) ? false : undefined);
+const boolOr = (...words) => (v) => { const b = bool(v); return b !== undefined ? (b ? "yes" : "no") : words.includes(v) ? v : undefined; };
+const protectSystem = boolOr("full", "strict");
+const protectHome = boolOr("read-only", "tmpfs");
+
+function setting(entries, key, parse) {
+  let entry = null, value = null, rejected = null;
+  for (const e of entries) {
+    if (e.key !== key) continue;
+    const v = parse(e.value);
+    if (v === undefined) { rejected = e; continue; }
+    entry = e; value = v; rejected = null;
+  }
+  return { key, entry, value, rejected };
+}
+const at = (s, anchor) => s.rejected ?? s.entry ?? anchor;
+const ignored = (s) => (s.rejected
+  ? ` systemd ignores ${s.key}=${s.rejected.value}: it is not a value systemd accepts${s.entry ? `, so the earlier ${s.key}=${s.entry.value} stands` : ""}.`
+  : "");
+
+// SystemCallFilter= and RestrictAddressFamilies= are lists, read as systemd 255's
+// parsers read them: an empty value frees the list; the first assignment after
+// that sets allow-list or deny-list ("~") mode, and a later one of the other
+// polarity removes its items. RestrictAddressFamilies=none also frees the list but
+// leaves allow-list mode on (nothing allowed). True when nothing is filtered: no
+// list and not "none", or a deny list left empty (a lone "~", or "~x" then "x").
+// Names systemd does not know are ignored by systemd and not checked here.
+function noFilter(entries, key) {
+  let items = null;
+  let allow = false;
+  for (const e of entries) {
+    if (e.key !== key) continue;
+    let v = e.value;
+    if (v === "") { items = null; allow = false; continue; }
+    if (key === "RestrictAddressFamilies" && v === "none") { items = null; allow = true; continue; }
+    const invert = v.startsWith("~");
+    if (invert) v = v.slice(1);
+    if (items === null) { items = new Set(); allow = !invert; }
+    const add = allow !== invert;
+    for (const w of v.split(/\s+/).filter(Boolean)) { if (add) items.add(w); else items.delete(w); }
+  }
+  return !allow && (items === null || items.size === 0);
+}
 
 function envAssignments(value) {
   const words = [];
@@ -181,7 +235,7 @@ function evaluate(unit, entries, anchor, hasMain, userUnits) {
   }
 
   const user = last(svc, "User");
-  const dynamic = isTrue(last(svc, "DynamicUser"));
+  const dynamic = setting(svc, "DynamicUser", bool).value === true;
   // A static user of the configured name wins over DynamicUser=yes (systemd.exec(5)),
   // and root always exists, so User=root runs as root either way.
   const asRoot = !userUnits && (user !== null ? user.value === "root" || user.value === "0" : !dynamic);
@@ -267,53 +321,54 @@ function evaluate(unit, entries, anchor, hasMain, userUnits) {
       unit));
   }
 
-  const nnp = last(svc, "NoNewPrivileges");
-  if (!isTrue(nnp) && !dynamic) {
-    out.push(finding(nnp ?? anchor, NO_NEW_PRIVILEGES,
-      "NoNewPrivileges= is not on, so a setuid binary (sudo, su, pkexec) run by this service can gain privileges it was never given.",
+  const nnp = setting(svc, "NoNewPrivileges", bool);
+  if (nnp.value !== true && !dynamic) {
+    out.push(finding(at(nnp, anchor), NO_NEW_PRIVILEGES,
+      "NoNewPrivileges= is not on, so a setuid binary (sudo, su, pkexec) run by this service can gain privileges it was never given." + ignored(nnp),
       "Add NoNewPrivileges=yes.",
       unit));
   }
 
-  const ps = last(svc, "ProtectSystem");
-  const psv = ps ? ps.value.toLowerCase() : "";
+  const ps = setting(svc, "ProtectSystem", protectSystem);
   if (!dynamic) {
-    if (ps === null || FALSE.has(psv)) {
-      out.push(finding(ps ?? anchor, PROTECT_SYSTEM_MISSING,
-        "ProtectSystem= is unset or off, so the service can write /usr, /boot and /etc (as root, it can replace system binaries).",
+    if (ps.value === null || ps.value === "no") {
+      out.push(finding(at(ps, anchor), PROTECT_SYSTEM_MISSING,
+        "ProtectSystem= is unset or off, so the service can write /usr, /boot and /etc (as root, it can replace system binaries)." + ignored(ps),
         "Add ProtectSystem=strict and list what it writes with ReadWritePaths= or StateDirectory=/LogsDirectory=.",
         unit));
-    } else if (TRUE.has(psv) || psv === "full") {
-      out.push(finding(ps, PROTECT_SYSTEM_PARTIAL,
-        `ProtectSystem=${ps.value} leaves most of the filesystem (including /var) writable.`,
+    } else if (ps.value === "yes" || ps.value === "full") {
+      out.push(finding(at(ps, anchor), PROTECT_SYSTEM_PARTIAL,
+        `ProtectSystem=${ps.entry.value} leaves most of the filesystem (including /var) writable.` + ignored(ps),
         "Use ProtectSystem=strict and list writable paths with ReadWritePaths= or StateDirectory=.",
         unit));
     }
 
-    const ph = last(svc, "ProtectHome");
-    if (ph === null || FALSE.has(ph.value.toLowerCase())) {
-      out.push(finding(ph ?? anchor, PROTECT_HOME_MISSING,
-        "ProtectHome= is unset or off, so the service can read every user's home directory (SSH keys, shell history, browser profiles).",
+    const ph = setting(svc, "ProtectHome", protectHome);
+    if (ph.value === null || ph.value === "no") {
+      out.push(finding(at(ph, anchor), PROTECT_HOME_MISSING,
+        "ProtectHome= is unset or off, so the service can read every user's home directory (SSH keys, shell history, browser profiles)." + ignored(ph),
         "Add ProtectHome=yes (or read-only if it must read a home directory).",
         unit));
     }
 
-    if (!isTrue(last(svc, "PrivateTmp"))) {
-      out.push(finding(last(svc, "PrivateTmp") ?? anchor, PRIVATE_TMP_MISSING,
-        "No PrivateTmp=yes, so the service shares /tmp with every other process, the usual home of symlink and file-planting attacks.",
+    const pt = setting(svc, "PrivateTmp", bool);
+    if (pt.value !== true) {
+      out.push(finding(at(pt, anchor), PRIVATE_TMP_MISSING,
+        "No PrivateTmp=yes, so the service shares /tmp with every other process, the usual home of symlink and file-planting attacks." + ignored(pt),
         "Add PrivateTmp=yes.",
         unit));
     }
   }
 
-  if (!isTrue(last(svc, "PrivateDevices"))) {
-    out.push(finding(last(svc, "PrivateDevices") ?? anchor, PRIVATE_DEVICES_MISSING,
-      "No PrivateDevices=yes, so the service sees every device node in /dev (disks, memory, input devices).",
+  const pd = setting(svc, "PrivateDevices", bool);
+  if (pd.value !== true) {
+    out.push(finding(at(pd, anchor), PRIVATE_DEVICES_MISSING,
+      "No PrivateDevices=yes, so the service sees every device node in /dev (disks, memory, input devices)." + ignored(pd),
       "Add PrivateDevices=yes unless it needs real hardware (a GPU, a serial port); then use DeviceAllow= for just that device.",
       unit));
   }
 
-  const missing = KERNEL_KEYS.filter((k) => !isTrue(last(svc, k)));
+  const missing = KERNEL_KEYS.filter((k) => setting(svc, k, bool).value !== true);
   if (missing.length) {
     out.push(finding(anchor, KERNEL_PROTECTION_MISSING,
       `${missing.map((k) => k + "=").join(", ")} not set, so the service can change kernel tunables, load modules, read the kernel log or rewrite cgroups if it has the privilege.`,
@@ -321,14 +376,14 @@ function evaluate(unit, entries, anchor, hasMain, userUnits) {
       unit));
   }
 
-  if (last(svc, "SystemCallFilter") === null) {
+  if (noFilter(svc, "SystemCallFilter")) {
     out.push(finding(anchor, NO_SYSCALL_FILTER,
       "No SystemCallFilter=, so every system call is available, including ones a normal service never makes (kexec, mount, reboot, raw I/O).",
       "Add SystemCallFilter=@system-service and SystemCallArchitectures=native; add SystemCallErrorNumber=EPERM to see what breaks without killing the service.",
       unit));
   }
 
-  if (last(svc, "RestrictAddressFamilies") === null) {
+  if (noFilter(svc, "RestrictAddressFamilies")) {
     out.push(finding(anchor, NO_ADDRESS_FAMILY_RESTRICTION,
       "No RestrictAddressFamilies=, so the service can open any socket type (raw packets, netlink, Bluetooth).",
       "Add RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 (just AF_UNIX for a service with no network).",

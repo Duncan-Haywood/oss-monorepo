@@ -66,5 +66,20 @@
  "[Service]\nExecStart=\"/tmp/x\" a\n",
  "[Service]\nExecStart=-//tmp/x\n",
  "[Service]\nReadWritePaths=-// /var\n",
- "[Service]\nReadWritePaths=\"/.\"\n"
+ "[Service]\nReadWritePaths=\"/.\"\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nNoNewPrivileges=y\nPrivateTmp=T\nPrivateDevices=t\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nNoNewPrivileges=yes\nNoNewPrivileges=n\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nProtectSystem=Strict\nProtectHome=Read-Only\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nProtectSystem=full\nProtectSystem=STRICT\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nNoNewPrivileges=yes\nNoNewPrivileges=maybe\nPrivateTmp=yes\nPrivateTmp=\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nProtectSystem=strict\nProtectSystem=\n",
+ "[Service]\nUser=app\n[ Service ]\nNoNewPrivileges=yes\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nDynamicUser=y\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nDynamicUser=yes # c\nNoNewPrivileges=yes\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nSystemCallFilter=~\nRestrictAddressFamilies=~\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nSystemCallFilter=~@mount\nSystemCallFilter=@mount\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nRestrictAddressFamilies=none\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nRestrictAddressFamilies=none\nRestrictAddressFamilies=~\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nRestrictAddressFamilies=~\nRestrictAddressFamilies=AF_INET\n",
+ "[Service]\nUser=app\nExecStart=/usr/bin/a\nRestrictAddressFamilies=~AF_UNIX\nRestrictAddressFamilies=none\n"
 ]
