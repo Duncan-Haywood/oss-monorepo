@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKjWmmKx3ZkAog5uS72",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T23:09:07Z",
+  "ended": "2026-11-22T00:08:36Z",
+  "wall_minutes": 59.65,
+  "tokens_in": 7564053,
+  "tokens_out": 37323,
+  "cost_usd": 3.3636,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18157",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "stats.py first draft used nested same-quote f-strings (Python 3.12+ only); rewritten before commit to keep the 3.11 parse check green",
+    "paper/check_numbers.py regexes for the new stats.txt blocks first missed the rest of the label line ([^\\n]* after the label); fixed, 129 of 129 pass"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/codesign-cant/experiments/m7f_sweep/run.py",
+      "issue": "each milestone's script is named run.py and imports milestone 6's run.py as `run`, so a new script cannot `import run` from another milestone without a module-name clash; importlib by path was needed"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-ten-seeds-drone-integral-gain-margin-still-0-8x.md",
+    "research/codesign-cant/LOG.md (milestone 12b entry)",
+    "research/codesign-cant/README.md (ten-seed section)"
+  ],
+  "goal": null,
+  "notes": "Research track, programme codesign-cant: section VI's Table VI-1 (milestones 7b/7e/7f) extended from six to ten seeds per arm (48 CMA-ES runs, 51 min on 4 cores), predictions MB0-MB7 committed first; reproduction checks exact; 7 of 8 held. MB2 refuted: two of four new unconstrained tunes diverge at the trained 20 deg limit, flipping the mean price; post hoc 8-seed price 0.012 (p=0.008). Paper draft section VI, abstract, contribution 3 and limitations rewritten; check_numbers 129/129; project tests 92 passed, 1 skipped; homepage build ok; check_posts ok; md links ok; py311 syntax ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b47097a7-ee32-533a-b95f-6b8b6499695c",
+    "transcripts": 1,
+    "first": "2026-11-21T23:09:07Z",
+    "last": "2026-11-22T00:08:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 122,
+        "output": 37323,
+        "thinking": 6918,
+        "cache_read": 7422412,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141519,
+        "api_equivalent_usd": 3.3636,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 122,
+      "output": 37323,
+      "thinking": 6918,
+      "cache_read": 7422412,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141519,
+      "api_equivalent_usd": 3.3636,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 58,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 59.65,
+      "active_minutes": 9.27,
+      "model_minutes": 6.52,
+      "tool_minutes": 2.75,
+      "waiting_on_human_minutes": 50.38,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "experiment design, 48-run rerun, statistics and paper section rewrite for a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 297.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

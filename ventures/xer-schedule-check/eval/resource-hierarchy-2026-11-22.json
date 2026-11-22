@@ -1,0 +1,141 @@
+{
+ "xer": [
+  {
+   "file": "CCA.xer",
+   "rsrc": 119,
+   "withParent": 117,
+   "default": {
+    "written": 105,
+    "grouped": 104,
+    "groupOk": 105,
+    "pathBack": 105,
+    "parentsAdded": 14,
+    "problems": 0
+   },
+   "all": {
+    "written": 119,
+    "grouped": 117,
+    "groupOk": 119,
+    "pathBack": 119,
+    "parentsAdded": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "Expressway.xer",
+   "rsrc": 336,
+   "withParent": 331,
+   "default": {
+    "written": 323,
+    "grouped": 323,
+    "groupOk": 323,
+    "pathBack": 323,
+    "parentsAdded": 13,
+    "problems": 0
+   },
+   "all": {
+    "written": 336,
+    "grouped": 331,
+    "groupOk": 336,
+    "pathBack": 336,
+    "parentsAdded": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "airport.xer",
+   "rsrc": 7,
+   "withParent": 6,
+   "default": {
+    "written": 6,
+    "grouped": 6,
+    "groupOk": 6,
+    "pathBack": 6,
+    "parentsAdded": 1,
+    "problems": 0
+   },
+   "all": {
+    "written": 7,
+    "grouped": 6,
+    "groupOk": 7,
+    "pathBack": 7,
+    "parentsAdded": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "example.xer",
+   "rsrc": 29,
+   "withParent": 0,
+   "default": {
+    "written": 29,
+    "grouped": 0,
+    "groupOk": 29,
+    "pathBack": 29,
+    "parentsAdded": 0,
+    "problems": 0
+   },
+   "all": {
+    "written": 29,
+    "grouped": 0,
+    "groupOk": 29,
+    "pathBack": 29,
+    "parentsAdded": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "hotel.xer",
+   "rsrc": 11,
+   "withParent": 7,
+   "default": {
+    "written": 6,
+    "grouped": 5,
+    "groupOk": 6,
+    "pathBack": 6,
+    "parentsAdded": 5,
+    "problems": 0
+   },
+   "all": {
+    "written": 11,
+    "grouped": 7,
+    "groupOk": 11,
+    "pathBack": 11,
+    "parentsAdded": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "sample.xer",
+   "rsrc": 0,
+   "withParent": 0,
+   "default": {
+    "written": 0,
+    "grouped": 0,
+    "groupOk": 0,
+    "pathBack": 0,
+    "parentsAdded": 0,
+    "problems": 0
+   },
+   "all": {
+    "written": 0,
+    "grouped": 0,
+    "groupOk": 0,
+    "pathBack": 0,
+    "parentsAdded": 0,
+    "problems": 0
+   }
+  }
+ ],
+ "mspdi": {
+  "files": 66,
+  "withGroups": 6,
+  "resources": 17,
+  "grouped": 14,
+  "groupBack": 14,
+  "parentsAdded": 13,
+  "extraResources": 13,
+  "problems": 0,
+  "failures": []
+ }
+}

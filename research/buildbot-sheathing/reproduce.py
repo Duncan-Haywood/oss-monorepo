@@ -129,6 +129,8 @@ EXPERIMENTS = {
                        90, []),
     "m67_aimeddirect": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m66_directterm/run.py (and so m65's to m38's), reads m50 and m52 results.json",
                         90, []),
+    "m68_jgate": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m67_aimeddirect/run.py (and so m66's to m38's), reads m67's results.json (the J table), m50 and m52 results.json",
+                  120, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

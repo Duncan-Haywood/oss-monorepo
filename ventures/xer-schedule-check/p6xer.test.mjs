@@ -38,7 +38,7 @@ test("every table carries P6's fields, whole-number ids that resolve, and passes
   assert.deepEqual(Object.keys(r.xer.tables), ["CURRTYPE", "FINTMPL", "OBS", "PROJECT", "CALENDAR", "SCHEDOPTIONS", "PROJWBS", "RSRC", "ACTVTYPE", "ACTVCODE", "TASK", "PROJCOST", "TASKPRED", "TASKACTV", "TASKRSRC"]);
   assert.match(r.text, /^ERMHDR\t20\.12\t/);
   assert.match(r.text, /%E\r\n$/);
-  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0, wbsUdfFields: 0, wbsUdfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0, expenses: 1, costTypes: 0, notebookTopics: 0, taskNotebooks: 0, wbsNotebooks: 0 });
+  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0, wbsUdfFields: 0, wbsUdfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0, rsrcGroups: 0, parentResources: 0, expenses: 1, costTypes: 0, notebookTopics: 0, taskNotebooks: 0, wbsNotebooks: 0 });
   assert.equal(r.encoding, "windows-1252");
   assert.equal(r.bytes.length, r.text.length);
 });

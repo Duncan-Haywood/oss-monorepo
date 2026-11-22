@@ -1,0 +1,77 @@
+Milestone 12b: Table VI-1 at ten seeds (centre of pressure above, integrator feed-forward; held-out 64 episodes, seed 9999).
+Paired: arm minus unconstrained held-out J per seed; mean [bootstrap 95%], exact two-sided Wilcoxon p, seeds better of 10; dead = diverged flights summed over seeds, of 640.
+
+check ok: 7f M=1.00 seed 0 start 0 best training score: got -1.691329911441704, want -1.691329911441704
+check ok: 7b unconstrained seed 0 design (max |dx|): got 0.0, want 0.0
+check ok: re-scored seeds 0-5 equal 7f's stored held-out numbers (mismatches): got 0, want 0
+
+[unconstrained] ceil 1.04, 1.00, 1.01, 1.05, 1.11, 0.88, 0.85, 1.07, 1.01, 0.87; ki/kp 4.42, 4.10, 3.74, 3.96, 4.00, 3.96, 4.72, 3.67, 4.08, 4.87; cant 33.2 deg; hover W 476
+  cap 20, lever 0: J -1.646; pos 0.115 m; dead 2 [0, 0, 0, 0, 0, 0, 1, 0, 0, 1]
+  cap 20, lever 1: J -1.815; pos 0.132 m; dead 5 [0, 0, 0, 0, 0, 0, 3, 0, 0, 2]
+  cap 20, lever 2: J -2.815; pos 0.236 m; dead 30 [1, 2, 4, 5, 2, 1, 8, 2, 0, 5]
+  cap 45, lever 0: J -3.537; pos 0.315 m; dead 31 [1, 1, 2, 1, 1, 7, 7, 1, 1, 9]
+  cap 45, lever 1: J -3.751; pos 0.333 m; dead 33 [0, 1, 4, 0, 0, 8, 10, 1, 1, 8]
+  cap 45, lever 2: J -6.650; pos 0.631 m; dead 83 [3, 5, 10, 10, 5, 12, 18, 5, 3, 12]
+
+[M=1.00] ceil 1.03, 1.02, 1.07, 1.05, 1.07, 1.00, 1.05, 1.14, 1.06, 1.01; ki/kp 4.32, 4.24, 3.87, 3.84, 3.87, 3.59, 4.23, 3.57, 4.22, 4.29; cant 33.0 deg; hover W 472
+  cap 20, lever 0: J -1.564; minus unconstrained +0.082 [-0.005, +0.209] p=0.695 better 5/10; pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.586; minus unconstrained +0.230 [-0.005, +0.556] p=0.695 better 5/10; pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.346; minus unconstrained +0.470 [+0.029, +1.017] p=0.064 better 8/10; pos 0.189 m; dead 20 [1, 1, 4, 4, 1, 1, 5, 2, 0, 1]
+  cap 45, lever 0: J -2.837; minus unconstrained +0.700 [-0.819, +2.192] p=0.375 better 7/10; pos 0.243 m; dead 19 [1, 0, 1, 2, 1, 4, 1, 7, 1, 1]
+  cap 45, lever 1: J -2.937; minus unconstrained +0.815 [-0.987, +2.571] p=0.432 better 6/10; pos 0.251 m; dead 20 [0, 0, 0, 4, 1, 4, 2, 7, 1, 1]
+  cap 45, lever 2: J -5.248; minus unconstrained +1.402 [-0.617, +3.324] p=0.160 better 7/10; pos 0.490 m; dead 62 [3, 3, 6, 9, 4, 7, 10, 12, 4, 4]
+
+[M=1.11] ceil 1.14, 1.12, 4.00, 1.12, 1.14, 1.12, 1.14, 1.11, 1.13, 1.13; ki/kp 4.14, 4.13, 0.03, 3.64, 4.31, 3.59, 3.50, 3.69, 4.42, 3.97; cant 32.1 deg; hover W 476
+  cap 20, lever 0: J -1.569; minus unconstrained +0.077 [-0.014, +0.206] p=1.000 better 5/10; pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.596; minus unconstrained +0.219 [-0.023, +0.555] p=0.922 better 4/10; pos 0.108 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.191; minus unconstrained +0.625 [+0.208, +1.123] p=0.037 better 7/10; pos 0.171 m; dead 15 [1, 1, 0, 4, 1, 2, 5, 0, 0, 1]
+  cap 45, lever 0: J -1.940; minus unconstrained +1.597 [+0.562, +2.759] p=0.020 better 8/10; pos 0.147 m; dead 6 [1, 0, 0, 1, 0, 1, 1, 1, 0, 1]
+  cap 45, lever 1: J -1.837; minus unconstrained +1.914 [+0.659, +3.342] p=0.027 better 7/10; pos 0.134 m; dead 4 [0, 0, 1, 0, 0, 1, 0, 0, 0, 2]
+  cap 45, lever 2: J -3.793; minus unconstrained +2.857 [+1.517, +4.322] p=0.002 better 10/10; pos 0.341 m; dead 39 [3, 3, 2, 7, 2, 5, 8, 2, 2, 5]
+
+[M=1.25] ceil 1.27, 1.28, 1.30, 1.28, 1.26, 1.30, 1.26, 1.31, 1.27, 1.26; ki/kp 3.84, 3.81, 3.30, 3.52, 3.93, 3.50, 3.41, 3.42, 4.05, 3.33; cant 31.1 deg; hover W 483
+  cap 20, lever 0: J -1.570; minus unconstrained +0.076 [-0.013, +0.207] p=0.432 better 2/10; pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.591; minus unconstrained +0.225 [-0.010, +0.553] p=0.492 better 3/10; pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.062; minus unconstrained +0.753 [+0.332, +1.239] p=0.004 better 9/10; pos 0.157 m; dead 11 [0, 1, 1, 1, 1, 0, 5, 1, 0, 1]
+  cap 45, lever 0: J -1.624; minus unconstrained +1.913 [+0.828, +3.151] p=0.002 better 10/10; pos 0.110 m; dead 1 [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+  cap 45, lever 1: J -1.581; minus unconstrained +2.171 [+0.776, +3.762] p=0.020 better 8/10; pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 45, lever 2: J -2.758; minus unconstrained +3.892 [+2.280, +5.654] p=0.002 better 10/10; pos 0.234 m; dead 23 [1, 2, 2, 4, 2, 1, 6, 2, 1, 2]
+
+[M=1.43] ceil 1.43, 1.53, 1.43, 1.44, 1.45, 1.48, 1.43, 1.43, 1.43, 1.43; ki/kp 3.10, 2.95, 2.87, 2.89, 3.33, 2.76, 2.71, 2.79, 3.48, 2.90; cant 33.1 deg; hover W 481
+  cap 20, lever 0: J -1.567; minus unconstrained +0.079 [-0.010, +0.209] p=0.492 better 3/10; pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.591; minus unconstrained +0.225 [-0.010, +0.553] p=0.432 better 2/10; pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -1.943; minus unconstrained +0.873 [+0.346, +1.523] p=0.004 better 9/10; pos 0.143 m; dead 7 [1, 0, 1, 1, 1, 0, 3, 0, 0, 0]
+  cap 45, lever 0: J -1.621; minus unconstrained +1.916 [+0.835, +3.153] p=0.002 better 10/10; pos 0.111 m; dead 1 [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+  cap 45, lever 1: J -1.580; minus unconstrained +2.172 [+0.779, +3.779] p=0.027 better 7/10; pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 45, lever 2: J -2.704; minus unconstrained +3.946 [+2.280, +5.767] p=0.002 better 10/10; pos 0.228 m; dead 23 [2, 2, 4, 3, 2, 0, 6, 1, 1, 2]
+
+[M=1.67] ceil 1.69, 1.70, 1.74, 1.72, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67; ki/kp 3.24, 2.81, 2.58, 2.64, 2.58, 2.35, 2.45, 2.48, 2.74, 2.51; cant 32.8 deg; hover W 484
+  cap 20, lever 0: J -1.570; minus unconstrained +0.076 [-0.014, +0.207] p=0.695 better 4/10; pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.595; minus unconstrained +0.221 [-0.015, +0.551] p=0.432 better 2/10; pos 0.108 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -1.926; minus unconstrained +0.889 [+0.392, +1.519] p=0.004 better 9/10; pos 0.142 m; dead 7 [0, 1, 1, 2, 0, 0, 3, 0, 0, 0]
+  cap 45, lever 0: J -1.562; minus unconstrained +1.975 [+0.826, +3.265] p=0.002 better 10/10; pos 0.103 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 45, lever 1: J -1.586; minus unconstrained +2.166 [+0.768, +3.757] p=0.020 better 8/10; pos 0.106 m; dead 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  cap 45, lever 2: J -2.729; minus unconstrained +3.921 [+2.310, +5.687] p=0.002 better 10/10; pos 0.231 m; dead 23 [1, 2, 2, 4, 2, 1, 6, 2, 1, 2]
+
+Table VI-1, seeds 0-5 (as published):
+| ki bound (x ceiling), 6 seeds | none | 1.0 | 0.9 | 0.8 | 0.7 | 0.6 |
+|---|---|---|---|---|---|---|
+| diverged, 45 deg, trained lever (of 384) | 13 | 9 | 3 | 0 | 0 | 0 |
+| diverged, 45 deg, twice the lever (of 384) | 45 | 32 | 22 | 12 | 13 | 12 |
+| held-out J - unconstrained, 20 deg, trained lever | +0.000 | -0.001 | -0.012 | -0.011 | -0.010 | -0.012 |
+
+Table VI-1, seeds 0-9:
+| ki bound (x ceiling), 10 seeds | none | 1.0 | 0.9 | 0.8 | 0.7 | 0.6 |
+|---|---|---|---|---|---|---|
+| diverged, 45 deg, trained lever (of 640) | 31 | 19 | 6 | 1 | 1 | 0 |
+| diverged, 45 deg, twice the lever (of 640) | 83 | 62 | 39 | 23 | 23 | 23 |
+| held-out J - unconstrained, 20 deg, trained lever | +0.000 | +0.082 | +0.077 | +0.076 | +0.079 | +0.076 |
+
+Post hoc: 20 deg, lever 0, arm minus unconstrained over the 8 seeds whose unconstrained design never diverged there (seeds [0, 1, 2, 3, 4, 5, 7, 8]):
+  [M=1.00] -0.0033 [-0.0091, +0.0030] p=0.5469 worse in 5 of 8; median of all ten -0.0024
+  [M=1.11] -0.0100 [-0.0250, +0.0005] p=0.1953 worse in 5 of 8; median of all ten -0.0019
+  [M=1.25] -0.0121 [-0.0157, -0.0080] p=0.0078 worse in 8 of 8; median of all ten -0.0114
+  [M=1.43] -0.0086 [-0.0137, -0.0041] p=0.0156 worse in 7 of 8; median of all ten -0.0052
+  [M=1.67] -0.0113 [-0.0196, -0.0037] p=0.0547 worse in 6 of 8; median of all ten -0.0069
+
+Verdicts: MB1 held; MB2 refuted; MB3 held; MB4 held; MB5 held; MB6 held; MB7 held

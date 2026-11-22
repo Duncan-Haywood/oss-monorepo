@@ -6,6 +6,17 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Ten seeds for the stability margin (2026-11-22): how much integral-gain margin should a drone tuner keep? Still 0.8× the linear ceiling, and without it a fifth of tunes crash at their own tilt limit
+
+**Question.** Section VI's Table VI-1 (milestones 7b, 7e, 7f) says a CMA-ES tuner with the side-force feed-forward should keep the attitude integral gain at 0.8× the 11-state linear model's ceiling. It rested on six seeds per arm. With seeds 6-9 added to all six arms (nothing else changed), exact Wilcoxon tests and bootstrap intervals, does it hold?
+
+**Headline ([`experiments/m12b_ten_seeds_vi/stats.txt`](experiments/m12b_ten_seeds_vi/stats.txt); 48 new CMA-ES runs, 51 min on 4 cores; 8 predictions committed to `LOG.md` before the run, 7 held; three reproduction checks exact; simulated).**
+
+- **The knee holds at 0.8×.** At PX4's default 45° tilt limit, held-out flights diverged (of 640) with no bound / 1.0× / 0.9× / 0.8× / 0.7× / 0.6× of the ceiling: **31 / 19 / 6 / 1 / 1 / 0**. From 0.8× down every arm beats the unconstrained tune in 10 of 10 seeds (Wilcoxon p = 0.002).
+- **New at ten seeds: unconstrained tunes crash at the limit they were trained at.** Two of the four new unconstrained designs each diverge on 1 of 64 flights at the 20° tilt limit and lever they were tuned for; seeds 0-5 never did. No constrained design diverges there (0 of 640 in all five arms). So the linear check is not only insurance against a looser autopilot setting.
+- **The margin's price is about 0.8% of held-out cost**, measured post hoc over the 8 seeds whose unconstrained tune stayed stable (0.012, 95% interval 0.008-0.016, worse in 8 of 8, p = 0.008). Over all ten seeds the two crashing tunes make the constrained arms cheaper on average, not significantly.
+- **The torque-authority floor is unchanged:** at twice the trained centre-of-pressure lever 23 of 640 flights diverge at 0.8×, 0.7× and 0.6× alike. No gain margin removes it (milestone 7g: thrust headroom does).
+
 ## Ten seeds (2026-11-21): does canting a quadrotor's motors still pay with ten seeds and proper tests? Yes, but the shared thrust budget does not make it pay more
 
 **Question.** Milestones 1 and 2 ran five seeds, so their paired results rested on sign counts with a floor of p = 0.06. With seeds 5-9 added (nothing else changed) and exact Wilcoxon tests and bootstrap intervals, which findings hold?
@@ -475,6 +486,8 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 - No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, LaTeX and the cut to length, hardware; sections I, II, VIII and IX were written out 2026-11-21) are listed at its end.
 
 ## Milestone 7f: how much stability margin should the tuner keep?
+
+> **Revised at ten seeds (2026-11-22, `experiments/m12b_ten_seeds_vi`).** At 45° the counts are 31 / 19 / 6 / 1 / 1 / 0 of 640 (no bound to 0.6×); two of ten unconstrained tunes diverge at the trained 20° limit, so the cost penalty is measured over the other 8 seeds (0.012 at 0.8×, p = 0.008); the lever-2 floor is 23 of 640 in all three arms from 0.8× down. The bullets below are the six-seed record.
 
 **Question.** Milestone 7e made CMA-ES keep the attitude integral gain at or below 0.8× its linear stability ceiling and found it cheap and protective. Is 0.8× the right number? We trained the same designs (centre of pressure above, 6 seeds × 2 starts × 3,200 evaluations) with the bound at 1.0×, 0.9×, 0.7× and 0.6× of the ceiling, and scored all seven arms on the same 64 held-out flights at 20° and 45° tilt-command limits and at 0, 1 and 2× the trained centre-of-pressure lever.
 

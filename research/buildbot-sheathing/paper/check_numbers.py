@@ -80,6 +80,8 @@ M66 = E + "m66_directterm/results.txt"
 M66D = E + "m66_directterm/diag.out"
 M67 = E + "m67_aimeddirect/results.txt"
 M67D = E + "m67_aimeddirect/diag.out"
+M68 = E + "m68_jgate/results.txt"
+M68D = E + "m68_jgate/diag.out"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -335,6 +337,17 @@ CHECKS = [
     (M67, "h1 | 0.30 | 304 | 302 | 99.34 | 30 | 0.0322 | 30 |", "30 of 302 H1 presses"),
     (M67D, "g1 | 117 | 0.213 |", "at least 0.213 N on the G1"),
     (M67D, "h1 | 152 | 0.279 |", "0.279 N on the H1"),
+    (M68, "h1 | 226 | 0 | 3.68e-14 | 3.68e-14", "every press to 4 &times; 10<sup>&minus;14</sup> mm/N"),
+    (M68, "H261 (every gate-passed press inside the spec, every B, both adversaries, both robots): 0 over spec -> held", "none of the 3,219 presses"),
+    (M68, "g1 | 1.0 | dir | 334 | 327 (97.90%) | 259 | 0.1412 | 68 | 20.36 | 0 | 0.0285 |", "(worst 0.0285 mm on the G1"),
+    (M68, "h1 | 0.4 | dir | 452 | 450 (99.56%) | 68 | 0.0430 | 382 | 84.51 | 0 | 0.0292 |", "0.0292 mm on the\nH1)"),
+    (M68, "g1 | 0.4 | dir | 334 | 334 (100.00%) | 144 |", "144 G1 and 68 H1 presses over at 0.4 N"),
+    (M68, "g1 | 0.3 | dir | 334 | 334 (100.00%) | 120 | 0.0424 | 214 | 64.07 |", "64.1%, 56.9%, 21.0% and 20.4% on the G1"),
+    (M68, "h1 | 1.0 | dir | 452 | 386 (85.40%) | 342 | 0.1074 | 44 | 9.73 |", "90.3%, 84.5%, 51.8% and 9.7% on the H1"),
+    (M68D, "g1 | 0.3 | dir | 334 | 0.0082 | 24 | 120 | 120 | 0", "at most 0.0082 mm"),
+    (M68D, "g1 | 1.0 | dir | 68 | 1.000, 1.000 |", "equals max<sub>k</sub>(Y<sub>k</sub> +"),
+    (M68D, "g1 | 15 | 0.213, 0.215, 0.225, 0.291, 0.294, 0.319, 0.487, 0.492, 0.504, 0.505, 0.532, 0.558, 1.053, 1.061, inf", "from 0.213 to 1.06 N on the G1"),
+    (M68D, "h1 | 19 | 0.279, 0.287, 0.395", "0.279 to 1.31 N on the H1"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

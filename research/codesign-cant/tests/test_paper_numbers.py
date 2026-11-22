@@ -103,3 +103,23 @@ def test_figure_iv_v_points_match_the_results_text():
         printed = re.search(rf"\n{law:<4}   80 [^\n]*\d \(([\d, ]+)\)  ", m4)[1]
         assert [round(a) for a in s["chosen"][name + "\n(m4, λ 0.3)"]] == [int(v) for v in printed.split(", ")]
     assert [round(a) for a in s["chosen"]["PID\n(m2, λ 1)"]] == [32, 32, 31, 28, 4]
+
+
+def test_table6_ten_seed_rows_follow_from_the_per_seed_runs():
+    """Table VI-1's ten-seed divergence rows (m12b_ten_seeds_vi/stats.txt) are the per-seed counts in its results.json,
+    and that file's seeds 0-5 are milestone 7f's stored designs and held-out numbers."""
+    import json
+    exp = os.path.join(HERE, "..", "experiments")
+    r = json.load(open(os.path.join(exp, "m12b_ten_seeds_vi", "results.json")))
+    f = {(x["label"], x["seed"]): x for x in json.load(open(os.path.join(exp, "m7f_sweep", "results.json")))["runs"]}
+    assert all(c["ok"] for c in r["checks"]) and len(r["checks"]) == 3
+    for x in r["runs"]:
+        if x["seed"] < 6:
+            assert x["x"] == f[(x["label"], x["seed"])]["x"] and x["dead_45_0"] == f[(x["label"], x["seed"])]["dead_45_0"]
+    dead = lambda k: [sum(x[k] for x in r["runs"] if x["label"] == a) for a in r["arms"]]
+    assert sorted({x["seed"] for x in r["runs"]}) == list(range(10))
+    assert dead("dead_20_0") == [2, 0, 0, 0, 0, 0]
+    assert dead("dead_45_0") == [31, 19, 6, 1, 1, 0]
+    assert dead("dead_45_2") == [83, 62, 39, 23, 23, 23]
+    txt = open(os.path.join(exp, "m12b_ten_seeds_vi", "stats.txt")).read()
+    assert "| diverged, 45 deg, trained lever (of 640) | 31 | 19 | 6 | 1 | 1 | 0 |" in txt
