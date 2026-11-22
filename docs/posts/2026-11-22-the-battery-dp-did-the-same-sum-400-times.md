@@ -1,6 +1,6 @@
 ---
 title: "The battery planner did the same sum 400 times per step"
-seo_title: "Speeding up a battery dispatch dynamic programme without changing one answer"
+seo_title: "Battery dispatch DP 2.4x faster with bit-identical answers"
 date: 2026-11-22
 tags: [perf, javascript, dynamic-programming, energy, demand-charges]
 description: "Hoisting the per-step cost out of the inner loop made the demand-charge analyser's battery DP 2.4x faster, with every output bit-identical."
