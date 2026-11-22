@@ -1,0 +1,649 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKkTjyhk1Rv8veo5pFU",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T05:18:19Z",
+  "ended": "2026-11-22T05:20:33Z",
+  "wall_minutes": 21.05,
+  "tokens_in": 8619002,
+  "tokens_out": 43905,
+  "cost_usd": 3.6122,
+  "tool_calls": 84,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18202",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Inserted escapeChar between parseInstructions' JSDoc and its function in docker-cache-order-check; moved it before committing.",
+    "First cache-order test assumed the same line numbers as the Linux fixture (off by one for the directive line); fixed.",
+    "New platform/ci check passed on an empty --root; test_checks_refuse_empty_root.py caught it in CI (changed-ventures); now exits 2.",
+    "Forgot the versions.json bump for three shipped tools; distribution-versions-ci caught it; ran versions.mjs --write."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but 12 of 13 open entries are control-plane fixes needing the owner's own PR approval or a measured redesign (help-keeper stem); the list never shrinks from a normal run, and reading it costs time every run. A 'needs owner' flag on such entries would let `redteam.py open` hide them."
+    },
+    {
+      "file": "platform/ci/test_checks_refuse_empty_root.py",
+      "issue": "The rule that every new platform/ci/check_*.py must exit nonzero on an empty --root is enforced only in CI; nothing in the check-writing guidance mentions it, so a new check learns it from a red changed-ventures job."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: left the 13 open entries unpatched. 12 are control-plane (own PR, owner approval) and help-keeper's stemmer needs a help-centre eval set the earlier run asked for.",
+      "did": "Spent the run on new targets and a class-wide fix instead.",
+      "result": "4 real defects found and patched, plus a new lint."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-a-windows-path-hid-the-next-line-from-four-dockerfile-checkers.md"
+  ],
+  "goal": null,
+  "notes": "Targets: docker-base-image-pin-check classify.mjs (12/12) and check.py (9/10), docker-build-secrets-check classify.mjs (7/10, one equivalent). Hunt found the # escape= directive ignored in 4 Dockerfile joiners (6 files) and an empty ARG default treated as no finding. Guard added: platform/ci/check_dockerfile_escape.py, which runs via unwired_checks on every venture PR. On main's pre-fix files it flags 6 of 6; on this branch it is clean. Verified: venture suites for all 4 ventures pass (CI changed-ventures: 6 suites ok), Python unittest for both CLIs, check_posts, versions.mjs --check. No agent doc: the lint docstring and this record carry what the next run needs.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/docker-base-image-pin-check/classify.mjs",
+        "test": "node --test ventures/docker-base-image-pin-check/**/*.test.mjs  (in .)",
+        "seed": 266284363,
+        "commit": "734c87b71",
+        "sites": 108,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 47,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "if (eq === -1) {",
+            "after": "if (eq === -2) {",
+            "line_text": "    if (eq === -1) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 65,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "const name = braced || bare;",
+            "after": "const name = braced && bare;",
+            "line_text": "    const name = braced || bare;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 68,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "if (op === \":-\") return isSet && value !== \"\" ? value : word;",
+            "after": "if (op === \":-\") return isSet || value !== \"\" ? value : word;",
+            "line_text": "    if (op === \":-\") return isSet && value !== \"\" ? value : word;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 98,
+            "col": 69,
+            "operator": "plus-to-minus",
+            "before": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "after": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at - 1) };",
+            "line_text": "    return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 101,
+            "col": 35,
+            "operator": "plus-to-minus",
+            "before": "const tail = ref.slice(lastSlash + 1);",
+            "after": "const tail = ref.slice(lastSlash - 1);",
+            "line_text": "  const tail = ref.slice(lastSlash + 1);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 103,
+            "col": 42,
+            "operator": "plus-to-minus",
+            "before": "const prefix = ref.slice(0, lastSlash + 1);",
+            "after": "const prefix = ref.slice(0, lastSlash - 1);",
+            "line_text": "    const prefix = ref.slice(0, lastSlash + 1);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 165,
+            "col": 16,
+            "operator": "plus-to-minus",
+            "before": "start = i + 1;",
+            "after": "start = i - 1;",
+            "line_text": "      start = i + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 167,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "} else if (stripped === \"\" || stripped.startsWith(\"#\")) {",
+            "after": "} else if (stripped === \"\" && stripped.startsWith(\"#\")) {",
+            "line_text": "    } else if (stripped === \"\" || stripped.startsWith(\"#\")) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 201,
+            "col": 15,
+            "operator": "true-to-false",
+            "before": "seenFrom = true;",
+            "after": "seenFrom = false;",
+            "line_text": "    seenFrom = true;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 220,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "if (classification !== PINNED && classification !== MUTABLE && classification !== UNRESOLVED) continue;",
+            "after": "if (classification !== PINNED || classification !== MUTABLE && classification !== UNRESOLVED) continue;",
+            "line_text": "    if (classification !== PINNED && classification !== MUTABLE && classification !== UNRESOLVED) continue;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 244,
+            "col": 51,
+            "operator": "or-to-and",
+            "before": "findings.push(...scanText(file.text, file.name || \"<Dockerfile>\", stats));",
+            "after": "findings.push(...scanText(file.text, file.name && \"<Dockerfile>\", stats));",
+            "line_text": "    findings.push(...scanText(file.text, file.name || \"<Dockerfile>\", stats));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 257,
+            "col": 75,
+            "operator": "plus-to-minus",
+            "before": "counts[finding.classification] = (counts[finding.classification] ?? 0) + 1;",
+            "after": "counts[finding.classification] = (counts[finding.classification] ?? 0) - 1;",
+            "line_text": "    counts[finding.classification] = (counts[finding.classification] ?? 0) + 1;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/docker-base-image-pin-check/check.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check  (in ventures/docker-base-image-pin-check)",
+        "seed": 312959622,
+        "commit": "7b7f9c48a",
+        "sites": 79,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 107,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "_REGISTERED_DIGEST_HEX = {\"sha256\": 64, \"sha512\": 128}",
+            "after": "_REGISTERED_DIGEST_HEX = {\"sha256\": 65, \"sha512\": 128}",
+            "line_text": "_REGISTERED_DIGEST_HEX = {\"sha256\": 64, \"sha512\": 128}",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 150,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "name = match.group(\"braced\") or match.group(\"bare\")",
+            "after": "name = match.group(\"braced\") and match.group(\"bare\")",
+            "line_text": "        name = match.group(\"braced\") or match.group(\"bare\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 154,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "word = match.group(\"word\") or \"\"",
+            "after": "word = match.group(\"word\") and \"\"",
+            "line_text": "        word = match.group(\"word\") or \"\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 159,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if op == \":+\":",
+            "after": "if op != \":+\":",
+            "line_text": "        if op == \":+\":",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 161,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if op == \"+\":",
+            "after": "if op != \"+\":",
+            "line_text": "        if op == \"+\":",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 218,
+            "col": 19,
+            "operator": "eq-flip",
+            "before": "if ref.lower() == \"scratch\":",
+            "after": "if ref.lower() != \"scratch\":",
+            "line_text": "    if ref.lower() == \"scratch\":",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 263,
+            "col": 34,
+            "operator": "eq-flip",
+            "before": "if match.group(1).lower() == \"escape\" and match.group(2) in (\"\\\\\", \"`\"):",
+            "after": "if match.group(1).lower() != \"escape\" and match.group(2) in (\"\\\\\", \"`\"):",
+            "line_text": "        if match.group(1).lower() == \"escape\" and match.group(2) in (\"\\\\\", \"`\"):",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 264,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "escape = match.group(2)",
+            "after": "escape = match.group(3)",
+            "line_text": "            escape = match.group(2)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 328,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "if \"@\" in original and \"$\" not in after_at and digest_is_valid(after_at):",
+            "after": "if \"@\" in original or \"$\" not in after_at and digest_is_valid(after_at):",
+            "line_text": "            if \"@\" in original and \"$\" not in after_at and digest_is_valid(after_at):",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test added: FROM node@${DIGEST} with no default stays unresolved (Python suite had no case)"
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/check.py",
+            "line": 346,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "if original != ref or missing:",
+            "after": "if original != ref and missing:",
+            "line_text": "        if original != ref or missing:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/docker-build-secrets-check/classify.mjs",
+        "test": "node --test ventures/docker-build-secrets-check/**/*.test.mjs  (in .)",
+        "seed": 294658867,
+        "commit": "7b7f9c48a",
+        "sites": 75,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 53,
+            "col": 21,
+            "operator": "ge-to-gt",
+            "before": "if (trimmed.length >= 2 && trimmed[0] === trimmed[trimmed.length - 1] && '\"\\''.includes(trimmed[0])) {",
+            "after": "if (trimmed.length > 2 && trimmed[0] === trimmed[trimmed.length - 1] && '\"\\''.includes(trimmed[0])) {",
+            "line_text": "  if (trimmed.length >= 2 && trimmed[0] === trimmed[trimmed.length - 1] && '\"\\''.includes(trimmed[0])) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test added: ARG API_KEY=\"\" is arg-declared (also a real defect, now patched)"
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 53,
+            "col": 72,
+            "operator": "and-to-or",
+            "before": "if (trimmed.length >= 2 && trimmed[0] === trimmed[trimmed.length - 1] && '\"\\''.includes(trimmed[0])) {",
+            "after": "if (trimmed.length >= 2 && trimmed[0] === trimmed[trimmed.length - 1] || '\"\\''.includes(trimmed[0])) {",
+            "line_text": "  if (trimmed.length >= 2 && trimmed[0] === trimmed[trimmed.length - 1] && '\"\\''.includes(trimmed[0])) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "tests added: unresolved variable digest (pin-check test_check.py) / unbalanced quote stays literal (build-secrets)"
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 70,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "after": "if (m[1].toLowerCase() === \"escape\" && (m[3] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "line_text": "    if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "m[3] is undefined, so an explicit `# escape=\\` no longer assigns; the escape is already a backslash by default, and BuildKit rejects a second escape directive, so no file reaches a different result."
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 70,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "after": "if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[3] === \"`\")) escape = m[2];",
+            "line_text": "    if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 70,
+            "col": 66,
+            "operator": "eq-flip",
+            "before": "if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "after": "if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] !== \"`\")) escape = m[2];",
+            "line_text": "    if (m[1].toLowerCase() === \"escape\" && (m[2] === \"\\\\\" || m[2] === \"`\")) escape = m[2];",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 92,
+            "col": 72,
+            "operator": "and-to-or",
+            "before": "while (parts[parts.length - 1].replace(/\\s+$/, \"\").endsWith(escape) && i + 1 < n) {",
+            "after": "while (parts[parts.length - 1].replace(/\\s+$/, \"\").endsWith(escape) || i + 1 < n) {",
+            "line_text": "    while (parts[parts.length - 1].replace(/\\s+$/, \"\").endsWith(escape) && i + 1 < n) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 93,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "parts[parts.length - 1] = parts[parts.length - 1].replace(/\\s+$/, \"\").slice(0, -1);",
+            "after": "parts[parts.length - 1] = parts[parts.length - 2].replace(/\\s+$/, \"\").slice(0, -1);",
+            "line_text": "      parts[parts.length - 1] = parts[parts.length - 1].replace(/\\s+$/, \"\").slice(0, -1);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 162,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const instruction = match[1].toUpperCase();",
+            "after": "const instruction = match[2].toUpperCase();",
+            "line_text": "    const instruction = match[1].toUpperCase();",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 249,
+            "col": 72,
+            "operator": "const-plus-one",
+            "before": "counts[finding.classification] = (counts[finding.classification] ?? 0) + 1;",
+            "after": "counts[finding.classification] = (counts[finding.classification] ?? 1) + 1;",
+            "line_text": "    counts[finding.classification] = (counts[finding.classification] ?? 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-build-secrets-check/classify.mjs",
+            "line": 249,
+            "col": 75,
+            "operator": "plus-to-minus",
+            "before": "counts[finding.classification] = (counts[finding.classification] ?? 0) + 1;",
+            "after": "counts[finding.classification] = (counts[finding.classification] ?? 0) - 1;",
+            "line_text": "    counts[finding.classification] = (counts[finding.classification] ?? 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/docker-base-image-pin-check/check.py",
+        "issue": "Ignored the `# escape=` parser directive: in a Windows Dockerfile (escape=`) a line ending in a backslash path (`WORKDIR C:\\app\\`) was joined onto the next, so the following `FROM mcr.microsoft.com/powershell:latest` was never reported (CLI and page, classify.mjs too). Repro: 4-line file in the RedTeam20261122 test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18202"
+      },
+      {
+        "file": "ventures/docker-build-secrets-check/check.py",
+        "issue": "Same escape-directive defect: `WORKDIR C:\\app\\` hid the next `ARG GITHUB_TOKEN` from both check.py and classify.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18202"
+      },
+      {
+        "file": "ventures/docker-cache-order-check/engine.mjs",
+        "issue": "Same escape-directive defect: `COPY . C:\\app\\` swallowed `RUN npm install`, so the check's core finding (install-missing-manifest-copy) disappeared on Windows Dockerfiles.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18202"
+      },
+      {
+        "file": "ventures/docker-build-secrets-check/check.py",
+        "issue": "`ARG API_KEY=` and `ARG API_KEY=\"\"` produced no finding, while bare `ARG API_KEY` is arg-declared; both invite the same --build-arg secret. Found while triaging the ge-to-gt mutant in stripQuotes. Both ports, README, CLI docstring and index.html updated.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18202"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3dcfa30b-3ddb-5585-ad2b-d03bb9d61f7e",
+    "transcripts": 1,
+    "first": "2026-11-22T05:18:19Z",
+    "last": "2026-11-22T05:39:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 159,
+        "output": 43905,
+        "thinking": 9334,
+        "cache_read": 8489395,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129448,
+        "api_equivalent_usd": 3.6122,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 159,
+      "output": 43905,
+      "thinking": 9334,
+      "cache_read": 8489395,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129448,
+      "api_equivalent_usd": 3.6122,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 75,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.05,
+      "active_minutes": 21.05,
+      "model_minutes": 7.93,
+      "tool_minutes": 13.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: reproduce and fix a parser bug in 4 tools x 2 ports, write tests, a lint and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 166.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
