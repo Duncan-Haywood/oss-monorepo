@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVQ2axKnqQMyiPZrFz5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (ventures prompt); routed to research",
+  "input_sha256": "e0035e967cd03ab3657e5411fe5d0d05c685fea89bcbe9cda78929103ba86dfa",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T12:03:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aerolog-scaling milestone 11 paper step: fold sections 6.5-6.15 into 6.5-6.9 on the corrected grid, Table A1 and Figure A3",
+  "projects": [
+    "aerolog-scaling"
+  ],
+  "pr": 18245,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/linefig.py",
+      "issue": "svg_bars always includes 0 on the value axis, so cost ratios near 1 draw as near-identical bars; plotted ratio minus one in per cent instead"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-drone-layer-planners-in-one-table.md"
+  ],
+  "goal": null,
+  "notes": "Paper rewrite, no new simulation. check_airspace_numbers.py 213/213 pass (120 claims dropped with the old wording, 84 added: 48 Table A1 cells + 36 text). Project tests 304 passed (python3.13 -m pytest tests, 46 s). research/_homepage/build.py ok; check_posts ok; check_md_links ok; research_live_links ok; cite_check: 3 ids ok* from earlier live lookups (doi host unreachable).",
+  "corrections": [],
+  "redteam": null
+}
