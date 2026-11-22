@@ -49,9 +49,15 @@
   (2026-11-22, eval/optical-black-floor-2026-11-22.md, `tools/optical_black_floor.py`) Measured, not shipped:
   through LibRaw only 8 of 57 public raws keep usable masked sensels (Canon, K-1 II, NX3000, Nexus 5X, E-P3).
   On those the frame line's read term is clamped to 0 on 4 and under half the masked sigma on 5; a floor would
-  raise sigma at 1% of white by 8% to 134% (K-1 II 2.34x, 29 DN masked). Next: the margins through shootflow's
-  own readers (SensorInfo, IAD1, `nef.masked_margins`: Nikon), then a score on a real low/high-ISO pair; and
-  masked sigma as the noisy-truth judge the K-1 II selection tests lacked.
+  raise sigma at 1% of white by 8% to 134% (K-1 II 2.34x, 29 DN masked). (2026-11-22,
+  eval/optical-black-shootflow-readers-2026-11-22.md) Through shootflow's own readers (`--reader shootflow`):
+  no new coverage, and a stricter masked-line test (0.1% black tolerance, quiet lines, black-0 files skipped)
+  takes both readers to the same **6 of 57** (E-P3 and NX3000 were not readings), agreeing within 2% in DN.
+  Develop's frame read on the whole ActiveArea vs the camera crop (`tools/frame_noise_crop_area.py`, 30 files)
+  moves less than a same-area control except on GF7, NX20 and A7M4 (deep-shadow sigma 1.37-1.49x). Next: a
+  score on a real low/high-ISO pair for the floor and the crop read; patch PCA's spread over 98% subsets of one
+  frame (the control moved over 5% on a third of files); CR2 white levels (shootflow 16383 vs LibRaw 13584 on
+  the 600D); masked sigma as the noisy-truth judge the K-1 II selection tests lacked.
 - (2026-11-17) Luma has its own ramp (eval/noise-aware-luma-ramp-2026-11-17.md). Open: does the guard's cap want
   re-tuning with the later luma ramp; an earlier colour ramp (0.2-1.5 / 0.2-2.0 gained 0.01-0.02 dB colour).
 - A real low- and high-ISO pair of one static scene, for this mode as for the X-Trans SNR 25 column.

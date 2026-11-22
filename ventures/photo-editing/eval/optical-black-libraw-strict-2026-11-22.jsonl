@@ -1,0 +1,57 @@
+{"file": "Sony DSLR-A500.arw", "skipped": "no masked margin (sensor 4288x2858, picture 4256x2858 at 0,0)"}
+{"file": "Sony ILCE-5000 (A5000).arw", "skipped": "no masked margin (sensor 5504x3656, picture 5472x3656 at 0,0)"}
+{"file": "Sony ILCE-7M3 (A7M3).arw", "skipped": "no masked margin (sensor 6048x4024, picture 6024x4024 at 0,0)"}
+{"file": "Sony ILCE-7M4 (A7M4).ARW", "skipped": "no masked margin (sensor 7168x5120, picture 7028x4688 at 0,0)"}
+{"file": "Sony NEX-5N.arw", "skipped": "no masked margin (sensor 4928x3276, picture 4920x3276 at 0,0)"}
+{"file": "Sony NEX-7.arw", "skipped": "no masked margin (sensor 6048x4024, picture 6024x4024 at 0,0)"}
+{"file": "Canon EOS 350D.CR2", "black": 256.75, "white": 4095.0, "ob_sensels": 78349, "sigma_ob_dn": 2.823, "sigma_ob": 0.0007355910043627351, "shot": 0.0, "read": 6.23599401753377e-06, "sigma_read_frame": 0.0024971972324055163, "ratio": 3.3948175244053105, "sigma_1pct_frame": 0.0024971972324055163, "sigma_1pct_floored": 0.0024971972324055163}
+{"file": "Canon EOS 600D.CR2", "black": 2048.5, "white": 13584.0, "ob_sensels": 691622, "sigma_ob_dn": 6.854, "sigma_ob": 0.0005941404818263004, "shot": 9.910917179043023e-05, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0009955358948346878, "sigma_1pct_floored": 0.0011593509520628734}
+{"file": "Canon EOS 70D.cr2", "black": 2048.0, "white": 15303.0, "ob_sensels": 393496, "sigma_ob_dn": 7.148, "sigma_ob": 0.0005393051718284549, "shot": 7.671390278978237e-05, "read": 7.396161761977929e-08, "sigma_read_frame": 0.0002719588528064113, "ratio": 0.5042763670972498, "sigma_1pct_frame": 0.0009171153937851021, "sigma_1pct_floored": 0.0010285859693087121}
+{"file": "Canon EOS 7D.cr2", "black": 2048.0, "white": 13584.0, "ob_sensels": 746713, "sigma_ob_dn": 4.896, "sigma_ob": 0.00042439018382161355, "shot": 4.695977684740605e-05, "read": 3.040295651210837e-07, "sigma_read_frame": 0.000551388760423246, "ratio": 1.299249561943248, "sigma_1pct_frame": 0.0008795608754345229, "sigma_1pct_floored": 0.0008795608754345229}
+{"file": "DJI Phantom 4 (1).dng", "skipped": "no masked margin (sensor 4000x3000, picture 4000x3000 at 0,0)"}
+{"file": "DJI Phantom 4 (2).dng", "skipped": "no masked margin (sensor 4000x3000, picture 4000x3000 at 0,0)"}
+{"file": "LG Nexus 5X.dng", "black": 51.75, "white": 1023.0, "ob_sensels": 54286, "sigma_ob_dn": 1.639, "sigma_ob": 0.0016878170672799068, "shot": 0.00023592359276845528, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0015359804450853379, "sigma_1pct_floored": 0.0022820960497502945}
+{"file": "Leica T (Typ 701).dng", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Leica X VARIO (Typ 107).dng", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Pentax QS1.dng", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "bigtiff.dng", "skipped": "LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'"}
+{"file": "bigtiff_be.dng", "skipped": "LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'"}
+{"file": "Issue 247-1.nef", "skipped": "LibRawIOError: b'Input/output error'"}
+{"file": "Issue 247-2.nef", "skipped": "LibRawIOError: b'Input/output error'"}
+{"file": "Issue 247-3.nef", "skipped": "LibRawIOError: b'Input/output error'"}
+{"file": "Issue 247-4.nef", "skipped": "LibRawIOError: b'Input/output error'"}
+{"file": "Nikon 800E.nef", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Nikon D300.nef", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Nikon D5100.nef", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Nikon D70.nef", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Nikon D810.nef", "skipped": "no masked margin (sensor 7380x4928, picture 7380x4928 at 0,0)"}
+{"file": "Nikon D90.nef", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "NikonD200.nef", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "OM System TG-7.ORF", "skipped": "no masked margin (sensor 4040x3016, picture 4014x3016 at 0,0)"}
+{"file": "OM Sytem OM-1.orf", "skipped": "no masked margin (sensor 5220x3912, picture 5220x3912 at 0,0)"}
+{"file": "Olympus C5050Z.orf", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Olympus C8080.orf", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Olympus E-M10.orf", "skipped": "no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)"}
+{"file": "Olympus E-M5.orf", "skipped": "no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)"}
+{"file": "Olympus E-PL7.orf", "skipped": "no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)"}
+{"file": "Olympus E-PM1.orf", "skipped": "no masked margin (sensor 4080x3040, picture 4056x3040 at 0,0)"}
+{"file": "Olympus E30.orf", "skipped": "no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)"}
+{"file": "Olympus E410.orf", "skipped": "no masked margin (sensor 3720x2800, picture 3720x2800 at 0,0)"}
+{"file": "Olympus E600.orf", "skipped": "no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)"}
+{"file": "Olympus PEN E-P3.orf", "black": 64.25, "white": 4095.0, "ob_sensels": 27288, "sigma_ob_dn": 0.0, "sigma_ob": 0.0, "shot": 0.0005082394229146725, "read": 1.753894484285113e-05, "sigma_read_frame": 0.004187952344863911, "ratio": null, "sigma_1pct_frame": 0.0047561895538338105, "sigma_1pct_floored": 0.0047561895538338105}
+{"file": "Olympus Pen E-PL1.orf", "skipped": "no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)"}
+{"file": "Olympus SP350.orf", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Olympus SP500UZ.orf", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Olympus TG-4.orf", "skipped": "no masked margin (sensor 4640x3472, picture 4624x3472 at 0,0)"}
+{"file": "Olympus TG-6.ORF", "skipped": "no masked margin (sensor 4040x3016, picture 4014x3016 at 0,0)"}
+{"file": "Olympus XZ1.orf", "skipped": "no masked margin (sensor 3680x2760, picture 3680x2760 at 0,0)"}
+{"file": "Pentax K-1 Mark II.pef", "black": 1024.0, "white": 16383.0, "ob_sensels": 73620, "sigma_ob_dn": 29.158, "sigma_ob": 0.001898410936951865, "shot": 8.040781903134903e-05, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0008967040706462139, "sigma_1pct_floored": 0.0020995338234598526}
+{"file": "Issue 419.rw2", "skipped": "LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'"}
+{"file": "Panasonic DMC-GF1.rw2", "skipped": "no masked margin (sensor 4060x3016, picture 4016x3016 at 0,0)"}
+{"file": "Panasonic DMC-GF3.rw2", "skipped": "no masked margin (sensor 4088x2688, picture 4016x2688 at 0,0)"}
+{"file": "Panasonic DMC-GF7.rw2", "skipped": "no masked margin (sensor 4816x3464, picture 4608x3464 at 0,0)"}
+{"file": "Panasonic Lumix DMC-LX7.rw2", "skipped": "no masked margin (sensor 3696x2752, picture 3664x2752 at 0,0)"}
+{"file": "Samsung EK-GN120 (Galaxy NX).srw", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Samsung NX1.srw", "skipped": "no masked margin (sensor 6496x4336, picture 6496x4336 at 0,0)"}
+{"file": "Samsung NX20.srw", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
+{"file": "Samsung NX3000.srw", "skipped": "black level 0: masked sensels are clipped at 0, their spread understates read noise"}
