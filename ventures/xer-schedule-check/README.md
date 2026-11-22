@@ -721,6 +721,33 @@ and reverse drag in practice (hotel-project HEPSS00010/20, -111 and -117 working
 19,822 activities take 105 reschedules, 11.7 s in Node. Not compared with a commercial drag
 calculation (none public for these files). Guide: `how-to-find-critical-path-drag-in-a-p6-schedule.html`.
 
+## Joint acceleration: the cheapest set to shorten together (2026-11-22)
+
+`crash.mjs`, `--crash [--crash-target 20] [--crash-data rates.csv] [--crash-max 0.25]`, and the
+page's **Find the cheapest acceleration** (under drag). Drag is one activity at a time, so where
+parallel chains of equal length run side by side it is 0 for each of them: terminal-building-airport
+has 33 longest-path activities and one with drag (1 day). Shortening several together still wins
+time, and which ones is a minimum cut: the cheapest set of activities that every driving chain into
+the finish passes through. Each step takes the driving network from this tool's P6 engine, builds an
+event graph on it (start and finish of each activity, FS/SS/FF/SF links between the ends they join),
+finds the minimum cut by max flow, shortens the cut together by the least working time that wins
+what the step can (up to a day), and reschedules to measure the gain. A cut may also give back time
+bought at an earlier step (Phillips and Dessouky's un-crashing). Rates CSV: `activity_id,
+max_shorten_days, cost_per_day`; without one each task may lose 25% of its remaining duration at 1
+per day, so the cost counts activity-days shortened. With `--drag-cost` it stops where a day costs
+more to win than a day of finish is worth. Milestones, mandatory constraints and expected-finish
+activities are never shortened.
+
+Checked (eval/crash-check-2026-11-22.md): against brute force over every whole-day combination on
+random finish-to-start networks, every step cost the least its gain can cost (14,212 step points in
+2,100 networks) and every run reached the most the oracle can win. On 3,000 bridge networks giving
+time back matters: without it 69 of 15,283 step points paid more than the optimum (up to 19%); with
+it none did. On the six public files with the default room and a 20-day target: terminal-building-
+airport 20 days (best single drag 1 day, up to 3 activities at once), hotel-project 13.75 (drag 1),
+Expressway 20 (drag 5; 23 parallel fabrication chains cut together), CCA 13 (drag 5.65); every
+reported finish matches a fresh schedule with the chosen shortenings. Not compared with a commercial
+crashing tool (none public for these files).
+
 ## XER to Excel workbook (2026-11-22)
 
 `excel.mjs`, `--excel out.xlsx [--raw]`, and the page's **Download for Excel (.xlsx)**: the XER as a
@@ -767,6 +794,7 @@ button drifts. Search impressions not measured yet.
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
 | Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, cost resources and fixed costs as P6 expenses, deadlines as finish-on-or-before constraints on request (so P6's float counts down to them as Project's slack does), and a list of what is not carried (elapsed lags, splits) |
 | Accelerating by hand: pick the longest critical activity, add overtime, reschedule in P6 and see; or a paid tool that computes drag (Spider Project) | Trial and error in a P6 seat; most crews shorten an activity that a parallel path then caps | Drag and drag cost for every longest-path activity and lag from the XER, free in the browser: how many days each one really holds the finish, what that costs per your daily rate, which parallel path takes over, and reverse drag flagged |
+| Crashing by hand: add overtime to the longest critical activity, reschedule, repeat; or the time-cost trade-off in a textbook spreadsheet that ignores P6 calendars and SS/FF links | Finds the obvious single activities; misses that parallel chains must be shortened together and pays twice for time a later step makes useless | The cheapest set to shorten together at each step from the XER, rescheduled on P6's own rules, with time bought earlier given back when it stops helping, priced from your rates and stopped where a day costs more than it saves |
 | A narrative written by hand each month from P6 layouts and last month's report | Whatever the scheduler copies across; slow, and easy to miss a change the owner's reviewer will find | The draft narrative from the two XERs: status, critical path, work done and missed, every change with a fill-in for its reason, float, next period, free and in the browser |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
@@ -1344,6 +1372,8 @@ Project XML, `eval/p6xer-mpxj.py` compares MPXJ's reading of the XML and the XER
 `eval/excel-check.py` reads it back with openpyxl against its own XER reader.
 `drag.mjs` computes critical path drag and drag cost (`dragAnalysis`; `node cli.mjs file.xer --drag [--drag-cost N]`);
 `eval/drag-check.mjs` runs it on the public files with a shorten-by-drag consistency check.
+`crash.mjs` finds the cheapest set of activities to shorten together, step by step (`crashAnalysis`; `node cli.mjs file.xer --crash [--crash-target D] [--crash-data rates.csv]`);
+`eval/crash-check.mjs` runs it on the public files with a replay check; `eval/crash-oracle.mjs` and `eval/crash-bridge.mjs` score it against brute force.
 `samples/constraints-log.csv` is a constraints log for the example schedule
 (the page's "Example log" button); `eval/constraints-check.mjs` plants logs on
 real files and checks the what-if against P6 start-on-or-after constraints.

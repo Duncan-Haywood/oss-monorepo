@@ -79,6 +79,13 @@
 // Critical path drag (drag.mjs): how much earlier the forecast finish would be
 // if each longest-path activity, and each lag between them, took no time,
 // and that time priced at a cost per calendar day of finish.
+// node cli.mjs schedule.xer --crash [--crash-target 20] [--crash-data rates.csv] [--crash-max 0.25] [--drag-cost 12500] [--csv steps.csv] [--max-runs 600] [--no-expected-finish] [--json] [--project CODE]
+// Joint acceleration (crash.mjs): the cheapest set of activities to shorten
+// together, step by step, to bring the finish in by --crash-target working
+// days (or as far as it goes). rates.csv: activity_id, max_shorten_days,
+// cost_per_day; without it each task may lose --crash-max of its remaining
+// duration at 1 per day. With --drag-cost it stops where a day costs more to
+// win than a day of finish is worth.
 // node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--no-expected-finish] [--json] [--project CODE]
 // Time impact analysis instead (tia.mjs): the fragnet (new activities with
 // durations, predecessors and successors; "+N" days on an existing one)
@@ -152,9 +159,10 @@ import { mspdiText, msprojectSummary } from "./msproject.mjs";
 import { p6XerText, p6xerSummary } from "./p6xer.mjs";
 import { xerToXlsx, xlsxSummary } from "./excel.mjs";
 import { dragAnalysis, dragText, dragCsv } from "./drag.mjs";
+import { crashAnalysis, crashText, crashCsv } from "./crash.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -331,6 +339,22 @@ if (args.includes("--tia")) {
   if (opt("--xer")) { writeFileSync(opt("--xer"), xerText(r.impactedXer)); console.error(`impacted schedule written to ${opt("--xer")}`); }
   const { impactedXer, ...plain } = r;
   await emit(args.includes("--json") ? JSON.stringify(plain, null, 2) + "\n" : timeImpactText(r));
+  process.exit(0);
+}
+if (args.includes("--crash")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const r = crashAnalysis(xer, {
+    projId: pid,
+    targetDays: opt("--crash-target") !== undefined ? Number(opt("--crash-target")) : null,
+    data: opt("--crash-data") ? readFileSync(opt("--crash-data"), "utf8") : null,
+    ...(opt("--crash-max") !== undefined ? { maxFraction: Number(opt("--crash-max")) } : {}),
+    costPerDay: opt("--drag-cost") !== undefined ? Number(opt("--drag-cost")) : null,
+    ...(opt("--max-runs") ? { maxRuns: Number(opt("--max-runs")) } : {}),
+    expectedFinish: !args.includes("--no-expected-finish"),
+  });
+  if (opt("--csv")) writeFileSync(opt("--csv"), crashCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : crashText(r));
   process.exit(0);
 }
 if (args.includes("--drag")) {
