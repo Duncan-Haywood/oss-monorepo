@@ -58,18 +58,18 @@
     <h2>Purchase and rehab</h2>
     <div class="grid">
       <div><label for="price">Purchase price, dollars</label><input type="text" id="price" inputmode="decimal" placeholder="150000" autocomplete="off"></div>
-      <div><label for="rehab">Rehab budget, dollars</label><input type="text" id="rehab" inputmode="decimal" placeholder="40000" autocomplete="off"></div>
+      <div><label for="rehab">Rehab budget, dollars</label><input type="text" id="rehab" inputmode="decimal" placeholder="0" autocomplete="off"></div>
       <div><label for="closingPct">Closing costs at purchase, percent of price</label><input type="text" id="closingPct" inputmode="decimal" placeholder="3" autocomplete="off"></div>
       <div><label for="holdMonths">Months from purchase to refinance</label><input type="text" id="holdMonths" inputmode="decimal" placeholder="6" autocomplete="off"></div>
-      <div><label for="carryMonthly">Monthly holding cost while rehabbing (taxes, insurance, utilities)</label><input type="text" id="carryMonthly" inputmode="decimal" placeholder="450" autocomplete="off"></div>
+      <div><label for="carryMonthly">Monthly holding cost while rehabbing (taxes, insurance, utilities)</label><input type="text" id="carryMonthly" inputmode="decimal" placeholder="0" autocomplete="off"></div>
     </div>
   </section>
 
   <section class="card">
     <h2>Hard-money or bridge loan (leave blank if you pay cash)</h2>
     <div class="grid">
-      <div><label for="hardPct">Loan on the purchase price, percent</label><input type="text" id="hardPct" inputmode="decimal" placeholder="85" autocomplete="off"></div>
-      <div><label for="hardRehabPct">Loan on the rehab, percent</label><input type="text" id="hardRehabPct" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="hardPct">Loan on the purchase price, percent</label><input type="text" id="hardPct" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="hardRehabPct">Loan on the rehab, percent</label><input type="text" id="hardRehabPct" inputmode="decimal" placeholder="0" autocomplete="off"></div>
       <div><label for="hardRate">Interest rate, percent (interest-only)</label><input type="text" id="hardRate" inputmode="decimal" placeholder="11" autocomplete="off"></div>
       <div><label for="points">Points, percent of the loan</label><input type="text" id="points" inputmode="decimal" placeholder="2" autocomplete="off"></div>
     </div>
@@ -83,7 +83,7 @@
       <div><label for="refiRate">Refinance interest rate, percent</label><input type="text" id="refiRate" inputmode="decimal" placeholder="7" autocomplete="off"></div>
       <div><label for="refiTerm">Refinance term, years</label><input type="text" id="refiTerm" inputmode="decimal" placeholder="30" autocomplete="off"></div>
       <div><label for="refiClosingPct">Refinance closing costs, percent of the loan</label><input type="text" id="refiClosingPct" inputmode="decimal" placeholder="2.5" autocomplete="off"></div>
-      <div><label for="targetDscr">Lender's minimum DSCR (0 to ignore)</label><input type="text" id="targetDscr" inputmode="decimal" placeholder="1.1" autocomplete="off"></div>
+      <div><label for="targetDscr">Lender's minimum DSCR (0 to ignore)</label><input type="text" id="targetDscr" inputmode="decimal" placeholder="0" autocomplete="off"></div>
     </div>
   </section>
 
@@ -93,12 +93,12 @@
       <div><label for="rent">Monthly rent after rehab</label><input type="text" id="rent" inputmode="decimal" placeholder="2100" autocomplete="off"></div>
       <div><label for="otherIncome">Other monthly income</label><input type="text" id="otherIncome" inputmode="decimal" placeholder="0" autocomplete="off"></div>
       <div><label for="vacancy">Vacancy, percent of rent</label><input type="text" id="vacancy" inputmode="decimal" placeholder="5" autocomplete="off"></div>
-      <div><label for="propertyTax">Yearly property tax, dollars</label><input type="text" id="propertyTax" inputmode="decimal" placeholder="2800" autocomplete="off"></div>
-      <div><label for="insurance">Yearly insurance, dollars</label><input type="text" id="insurance" inputmode="decimal" placeholder="1500" autocomplete="off"></div>
+      <div><label for="propertyTax">Yearly property tax, dollars</label><input type="text" id="propertyTax" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="insurance">Yearly insurance, dollars</label><input type="text" id="insurance" inputmode="decimal" placeholder="0" autocomplete="off"></div>
       <div><label for="hoa">Monthly HOA, dollars</label><input type="text" id="hoa" inputmode="decimal" placeholder="0" autocomplete="off"></div>
       <div><label for="utilities">Monthly utilities you pay, dollars</label><input type="text" id="utilities" inputmode="decimal" placeholder="0" autocomplete="off"></div>
-      <div><label for="management">Property management, percent of rent</label><input type="text" id="management" inputmode="decimal" placeholder="8" autocomplete="off"></div>
-      <div><label for="maintenance">Maintenance reserve, percent of rent</label><input type="text" id="maintenance" inputmode="decimal" placeholder="6" autocomplete="off"></div>
+      <div><label for="management">Property management, percent of rent</label><input type="text" id="management" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="maintenance">Maintenance reserve, percent of rent</label><input type="text" id="maintenance" inputmode="decimal" placeholder="5" autocomplete="off"></div>
     </div>
   </section>
 
@@ -107,6 +107,7 @@
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <p id="form-status" role="status" class="note">Enter the price, ARV and monthly rent, then click Calculate BRRRR.</p>
+    <p class="note">A blank field uses the value shown in grey. Enter your own property tax, insurance, management and rehab: left blank they count as zero. "Load an example" fills a complete invented deal.</p>
   </section>
 
   <section id="report" class="card" hidden>

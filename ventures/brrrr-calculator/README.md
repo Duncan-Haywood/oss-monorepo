@@ -22,6 +22,12 @@ rehab overrun moves that**, which used to take a spreadsheet you had to build an
 Not modelled: income tax, depreciation, lender seasoning rules, appraisal fees, lender cash-out limits, rent during rehab, rate
 changes before the refinance, lender-specific rules.
 
+**Known gaps** (quality audit 2026-11-22, [`portfolio/quality/audits/2026-11-22-brrrr-calculator.json`](../../portfolio/quality/audits/2026-11-22-brrrr-calculator.json)):
+the refinance is always sized on ARV. Many lenders cap a refinance within 6 to 12 months of purchase at the cost basis (price plus
+documented rehab) or require title seasoning before a cash-out, so with the default 6-month hold the tool shows the optimistic case.
+Hard-money interest is charged on the whole rehab amount from day one (real draws are paid in arrears), and the DSCR tile is NOI-based
+while the lender cap uses rent over PITIA.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
