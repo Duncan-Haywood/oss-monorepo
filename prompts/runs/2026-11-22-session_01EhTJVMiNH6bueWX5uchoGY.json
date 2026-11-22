@@ -1,0 +1,245 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMiNH6bueWX5uchoGY",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell ventures)",
+  "input_sha256": "16bbd11590c07f60b95d07b21dbe05d9f6edde59d7ed52f17ac695d0f7c23f49",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T10:56:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam: phone-repair-shop-profit-calculator (random draw) + hunt in changepoint-detector/plausible-metrics.mjs",
+  "projects": [
+    "phone-repair-shop-profit-calculator",
+    "shoe-repair-shop-profit-calculator",
+    "tailor-alterations-shop-profit-calculator",
+    "upholstery-shop-job-profit-calculator",
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18240",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "campaign --target ventures/changepoint-detector/plausible-metrics.mjs timed out at baseline (300 s): the venture's whole node --test suite is the guard, so it was read by hand instead and a random probe-limited draw was mutated",
+      "cost_minutes": 5
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "A --target whose suite_for is a whole large venture (changepoint-detector, >300 s) cannot be campaigned even when its own test file runs in 2 s; the prompt warns about this but redteam.py has no --suite override to aim at a single test file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: none of the 13 open entries fixed; 12 are control-plane files needing their own owner-approved PR and the help-keeper stemmer needs a help-center eval set first.",
+      "did": "Spent the run on new findings instead.",
+      "result": "4 real defects patched."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: no new CI lint added; the defect class (template calculators with a package line) has exactly four members and each now has a test.",
+      "did": "Fixed the class across all four siblings.",
+      "result": "Per-venture tests guard each copy."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-a-shop-that-sells-only-plans-was-told-it-loses-money.md"
+  ],
+  "goal": null,
+  "notes": "Catch rate 0.4 -> 1.0 on 10 mutants. Mutant at line 116 hand re-applied after the fix rewrote it (test 16 fails). Verification: run_venture_tests.py on 4 calculators all ok; changepoint plausible-metrics + watch-workflow 13/13; unwired_checks 278/279 before post title fix, check_posts ok after; failing-first confirmed by running the new tests against HEAD's calc.mjs (phone 2 fail, shoe 1, upholstery 1).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+        "test": "node --test ventures/phone-repair-shop-profit-calculator/**/*.test.mjs  (in .)",
+        "seed": 548089351,
+        "commit": "b7281fc31",
+        "sites": 202,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 7,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;",
+            "after": "const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 101;",
+            "line_text": "const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 34,
+            "col": 38,
+            "operator": "plus-to-minus",
+            "before": "if (v.scrQty + v.pcbQty + v.fullQty + v.careHolders < 1) return { error: \"Enter how many jobs you expect to sell this season, or plan customers.\" };",
+            "after": "if (v.scrQty + v.pcbQty + v.fullQty - v.careHolders < 1) return { error: \"Enter how many jobs you expect to sell this season, or plan customers.\" };",
+            "line_text": "  if (v.scrQty + v.pcbQty + v.fullQty + v.careHolders < 1) return { error: \"Enter how many jobs you expect to sell this season, or plan customers.\" };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "plan-only shop (care holders, no jobs) must be valid input: test 'a plan-only shop and a half-month season are valid input'"
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 37,
+            "col": 21,
+            "operator": "lt-to-le",
+            "before": "if (v.seasonMonths < 0.5 || v.seasonMonths > 12) return { error: \"Season length should be between 0.5 and 12 months.\" };",
+            "after": "if (v.seasonMonths <= 0.5 || v.seasonMonths > 12) return { error: \"Season length should be between 0.5 and 12 months.\" };",
+            "line_text": "  if (v.seasonMonths < 0.5 || v.seasonMonths > 12) return { error: \"Season length should be between 0.5 and 12 months.\" };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "seasonMonths 0.5 is the documented lower bound and must be accepted: same test"
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 50,
+            "col": 23,
+            "operator": "minus-to-plus",
+            "before": "const profit = price - cost;",
+            "after": "const profit = price + cost;",
+            "line_text": "  const profit = price - cost;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 74,
+            "col": 108,
+            "operator": "plus-to-minus",
+            "before": "return { machine: round2(machine), rent: round2(rent), other: round2(v.otherFixed), total: round2(machine + rent + v.otherFixed) };",
+            "after": "return { machine: round2(machine), rent: round2(rent), other: round2(v.otherFixed), total: round2(machine - rent + v.otherFixed) };",
+            "line_text": "  return { machine: round2(machine), rent: round2(rent), other: round2(v.otherFixed), total: round2(machine + rent + v.otherFixed) };",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 81,
+            "col": 59,
+            "operator": "plus-to-minus",
+            "before": "const revenue = lines.reduce((a, l) => a + l.revenue, 0) + care.revenue;",
+            "after": "const revenue = lines.reduce((a, l) => a + l.revenue, 0) - care.revenue;",
+            "line_text": "  const revenue = lines.reduce((a, l) => a + l.revenue, 0) + care.revenue;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "season revenue never checked against lines + care: test 'season revenue is the services' revenue plus the protection plans''"
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 116,
+            "col": 62,
+            "operator": "times-to-div",
+            "before": "const be = Math.ceil((res.fixed.total / res.contribution) * res.jobs);",
+            "after": "const be = Math.ceil((res.fixed.total / res.contribution) / res.jobs);",
+            "line_text": "    const be = Math.ceil((res.fixed.total / res.contribution) * res.jobs);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "break-even count was never asserted to a number; the line was rewritten by the real-defect fix (sales = jobs + plan customers), so rerun reports line changed: re-applied by hand ('* sales' -> '/ sales' on the new line) and the new break-even test fails on it [rerun: line changed; triage by hand]. Hand re-apply 2026-11-22: calc.test.mjs test 16 fails, 1 of 35."
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 122,
+            "col": 25,
+            "operator": "gt-to-ge",
+            "before": "if (res.utilizationPct > 100) advice.push(`The plan needs ${res.hours} bench hours against ${res.capacity} available (${res.utilizationPct}%). You cannot do this volume without more bench hours or a second technician.`);",
+            "after": "if (res.utilizationPct >= 100) advice.push(`The plan needs ${res.hours} bench hours against ${res.capacity} available (${res.utilizationPct}%). You cannot do this volume without more bench hours or a second technician.`);",
+            "line_text": "  if (res.utilizationPct > 100) advice.push(`The plan needs ${res.hours} bench hours against ${res.capacity} available (${res.utilizationPct}%). You cannot do this volume without more bench hours or a second technician.`);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "utilization exactly 100% must read as full, not over: test 'a bench at exactly 100% is full, not over'"
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 144,
+            "col": 57,
+            "operator": "and-to-or",
+            "before": "for (const k of SHARE_KEYS) if (input[k] !== undefined && input[k] !== \"\") p.set(k, String(input[k]).slice(0, 200));",
+            "after": "for (const k of SHARE_KEYS) if (input[k] !== undefined || input[k] !== \"\") p.set(k, String(input[k]).slice(0, 200));",
+            "line_text": "  for (const k of SHARE_KEYS) if (input[k] !== undefined && input[k] !== \"\") p.set(k, String(input[k]).slice(0, 200));",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "encodeShare wrote 'undefined' for unset keys under the mutant: test 'a share link leaves out fields that were never set'"
+          },
+          {
+            "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+            "line": 144,
+            "col": 69,
+            "operator": "neq-flip",
+            "before": "for (const k of SHARE_KEYS) if (input[k] !== undefined && input[k] !== \"\") p.set(k, String(input[k]).slice(0, 200));",
+            "after": "for (const k of SHARE_KEYS) if (input[k] !== undefined && input[k] === \"\") p.set(k, String(input[k]).slice(0, 200));",
+            "line_text": "  for (const k of SHARE_KEYS) if (input[k] !== undefined && input[k] !== \"\") p.set(k, String(input[k]).slice(0, 200));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+        "issue": "A shop that sells only protection plans (no jobs) with positive contribution and a loss was told 'the services do not cover their own labor and materials, so more volume makes it worse', and one in profit was told 'Break-even is about 0 paid jobs; you plan 0'. Break-even counted jobs only while the contribution included the plans. Repro: plan({...sampleInput(), scrQty:'0', pcbQty:'0', fullQty:'0', careHolders:'400', carePrice:'120'}). Fixed: break-even counts jobs plus plan customers.",
+        "patched": true
+      },
+      {
+        "file": "ventures/shoe-repair-shop-profit-calculator/calc.mjs",
+        "issue": "Same template defect as phone-repair (package customers left out of break-even). Also in ventures/tailor-alterations-shop-profit-calculator/calc.mjs (package customers) and ventures/upholstery-shop-job-profit-calculator/calc.mjs (trade accounts). Fixed in all three with a failing-first test each.",
+        "patched": true
+      },
+      {
+        "file": "ventures/phone-repair-shop-profit-calculator/calc.mjs",
+        "issue": "careLine charged the warranty redo rate in a plan visit's cost but not in its bench hours (serviceLine counts both), so utilization understated plan work. Fixed: hours x (1 + redoPct/100).",
+        "patched": true
+      },
+      {
+        "file": "ventures/changepoint-detector/plausible-metrics.mjs",
+        "issue": "goalColumn turned an accented goal name into a split slug: 'Réservation' -> goal_re_servation (NFKD leaves a combining mark that [^\\w] turned into '_'), and a non-Latin name failed with 'has no letters or digits', which is false. Fixed: combining marks dropped (goal_reservation), the error says Latin letters and how to alias the goal.",
+        "patched": true
+      }
+    ]
+  }
+}
