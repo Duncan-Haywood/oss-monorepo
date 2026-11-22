@@ -422,7 +422,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
-node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights, member lengths and surface areas, slab thickness and perimeter, door and window sizes and space floor areas, perimeters, heights and volumes measured from the bodies
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights, member lengths and surface areas, slab thickness and perimeter, door and window sizes and space floor areas, perimeters, heights and volumes measured from the bodies; --densities D.csv adds NetWeight/GrossWeight
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -634,6 +634,7 @@ quantities no set holds are measured from the element's own body by
 | `GrossArea`, `NetArea` | slabs, plates, coverings, roofs | the extruded profile |
 | `CrossSectionArea` | columns, beams, members, piles | the section at mid-length |
 | `OuterSurfaceArea`, `GrossSurfaceArea` | columns, beams, members, piles with square ends | side faces (the section's outline at mid-length x the length), and those plus both ends; by the authoring tool's convention (below) |
+| `NetWeight`, `GrossWeight` | any element with one material whose density is known | its stored net (gross) volume, else its body's, x the material's density: from your `--densities` table, else the model's `Pset_MaterialCommon` `MassDensity`, else what the model's own stored weights imply when they all agree (below) |
 | `Length` | walls (direction from a straight `Axis`, or from the body's side faces when there is none; extruded or brep bodies) | along that direction, on the plane halfway through the thickness, at the longest level |
 | `Height` | the same walls | the extrusion depth; when a roof or slab clips the wall, the figure its authoring tool's export stores (ARCHICAD: the highest point; Revit: the extrusion depth, so none on a Revit brep), none for other tools; on a brep with a level top, its extent |
 
@@ -712,6 +713,29 @@ Outer only where the ends are under 2% of the total; ARCHICAD and Revit tubes
 are held back. With the stored figures hidden the fill writes 4,041 values on
 seven public exports, and IfcTester takes exactly the written elements from
 fail to pass (`eval/member-surfaces-2026-11-22.md`).
+**Weights from a density (2026-11-22).** Steel is bought, lifted and
+transported by the tonne, so steel and precast IDS files ask for
+`NetWeight`. No body defines a weight: it is the volume times the
+material's density, and the density is not a constant. On the three public
+Tekla exports every one of the 1,152 stored weights is the element's stored
+volume times one density per material, to 0.5%, but the offices' catalogues
+differ: S235JR is 8,000 kg/m3 in Mini Project and 7,850 in M3D-CON-CD,
+concrete 2,450 or 2,400, timber 600. A tool that assumed the textbook
+figures (7,850 steel, 2,400 concrete, 500 timber) would have matched 152 of
+1,145. So the density comes from the `--densities` table you type once
+(`material,kg/m3` per line, or `"STEEL/S235JR=7850;CONCRETE/C30=2400"`; on
+the page, a box under the geometry checkbox), else the model's own
+`Pset_MaterialCommon` `MassDensity` (ARCHICAD writes 0 for every material it
+has none for; 0 is ignored), else the density the model's own stored weights
+imply, used only when every element of that material that stores a weight
+and its volume agrees within 0.5%, on two or more elements. Hiding the
+weights of half the elements (odd STEP ids) and learning from the other
+half predicts 562 of 562 within 0.5%. The volume is the element's stored
+`NetVolume` (`GrossVolume` for `GrossWeight`) when it has one, since that is
+what the exporter weighed, and its body's otherwise. A layered material gets
+no density unless the table names it as written. With the stored weights
+hidden and the densities typed as a table, the fill rewrites every stored
+`NetWeight` on the three exports within 0.5% (`eval/member-weights-2026-11-22.md`).
 **Slab thickness and perimeter (2026-11-22).** `Qto_SlabBaseQuantities`
 `Width` (the slab's thickness) and `Perimeter` (its outline) are measured too:
 the thickness is the body's depth along its extrusion, offered only when the

@@ -49,9 +49,16 @@
 //                            reading of the space's own solid, or its plan
 //                            outline and box (spaceQuantities below;
 //                            eval/space-quantities-2026-11-22.md)
+//   NetWeight, GrossWeight   any element with one material whose density the
+//                            user's table, the model's material properties or
+//                            the model's own stored weights give: its stored
+//                            (else measured) net or gross volume x that
+//                            density (weights.mjs; eval/member-weights-2026-11-22.md)
 // Other lengths and heights are not offered.
 //
 // Every value is in SI units (m, m2, m3), as the IDS standard reads values.
+
+import { memberWeights, addWeights, parseDensities } from "./weights.mjs";
 
 const WALL = /^IFCWALL/;
 const PLAN = /^IFC(SLAB|PLATE|COVERING|ROOF)/;
@@ -87,7 +94,7 @@ export const GEOMETRY_QUANTITIES = [
 ];
 
 // The IFC quantity class each kind is written as.
-export const KIND_CLASS = { volume: "IFCQUANTITYVOLUME", area: "IFCQUANTITYAREA", length: "IFCQUANTITYLENGTH" };
+export const KIND_CLASS = { volume: "IFCQUANTITYVOLUME", area: "IFCQUANTITYAREA", length: "IFCQUANTITYLENGTH", weight: "IFCQUANTITYWEIGHT" };
 
 const usable = (x) => typeof x === "number" && Number.isFinite(x) && x > 0;
 
@@ -1241,7 +1248,9 @@ export function geometryLookup(byId) {
  * Loads ifc-quantity-takeoff (the sibling folder, in the monorepo and on the
  * site alike, or the URL given) and measures the model. Node or a worker.
  * @param {string|Uint8Array} ifcText the .ifc file's text or bytes
- * @param {{dir?: string|URL}} opts dir: ifc-quantity-takeoff's folder
+ * @param {{dir?: string|URL, densities?: Map<string, number>|string, weights?: boolean}} opts
+ *   dir: ifc-quantity-takeoff's folder; densities: material -> kg/m3 (a Map,
+ *   or text for weights.mjs parseDensities); weights: false leaves weights out
  */
 export async function measureModel(ifcText, opts = {}) {
   const base = opts.dir ? new URL(String(opts.dir).replace(/\/?$/, "/"), import.meta.url) : new URL("../ifc-quantity-takeoff/", import.meta.url);
@@ -1255,5 +1264,8 @@ export async function measureModel(ifcText, opts = {}) {
   addSlabLines(model, rows, { solidExtent });
   addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms });
   addRevitSizeLines(model, rows, { readUnits });
-  return addSpaceQuantities(quantitiesFromRows(rows), model, rooms, rows);
+  const out = addSpaceQuantities(quantitiesFromRows(rows), model, rooms, rows);
+  if (opts.weights === false) return out;
+  const densities = opts.densities instanceof Map ? opts.densities : parseDensities(opts.densities || "");
+  return addWeights(out, memberWeights(model, rows, { densities }));
 }

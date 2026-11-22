@@ -1,0 +1,241 @@
+{
+ "files": {
+  "ISSUE_021_Mini Project.ifc": {
+   "stored": 1027,
+   "offered": 1027,
+   "within": 1027,
+   "heldOut": 512,
+   "heldOffered": 512,
+   "heldWithin": 512,
+   "standardOffered": 1020,
+   "standardWithin": 27,
+   "misses": [],
+   "materials": [
+    {
+     "material": "STEEL/S235JR",
+     "ratios": 178,
+     "agree": 178,
+     "density": 8000,
+     "min": 7999.999999977251,
+     "max": 8000.000000000045,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "CONCRETE/ISOLEX",
+     "ratios": 76,
+     "agree": 76,
+     "density": 2450,
+     "min": 2449.9999999999895,
+     "max": 2450.000000000005,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "CONCRETE/BETON",
+     "ratios": 348,
+     "agree": 348,
+     "density": 2450,
+     "min": 2449.9999999999914,
+     "max": 2450.000000004459,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "CONCRETE/SILEX",
+     "ratios": 27,
+     "agree": 27,
+     "density": 2450,
+     "min": 2449.999999999993,
+     "max": 2450.000000000005,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "MISCELLANEOUS/PVC",
+     "ratios": 7,
+     "agree": 7,
+     "density": 1300,
+     "min": 1299.999999999996,
+     "max": 1300.0000000000014,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "CONCRETE/PREDAL",
+     "ratios": 10,
+     "agree": 10,
+     "density": 2450,
+     "min": 2449.9999999999995,
+     "max": 2450,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "TIMBER/HOUT",
+     "ratios": 324,
+     "agree": 324,
+     "density": 600,
+     "min": 600,
+     "max": 600,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "CONCRETE/ISOBET",
+     "ratios": 12,
+     "agree": 12,
+     "density": 2450,
+     "min": 2449.9999999999995,
+     "max": 2450.000000000011,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "CONCRETE/GEWELF",
+     "ratios": 27,
+     "agree": 27,
+     "density": 2400,
+     "min": 2399.999999999993,
+     "max": 2400.0000000000077,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "CONCRETE/TT",
+     "ratios": 18,
+     "agree": 18,
+     "density": 2450,
+     "min": 2449.9999999999945,
+     "max": 2450.0000000000086,
+     "used": true,
+     "why": null
+    }
+   ],
+   "sources": {
+    "steel/s235jr": {
+     "density": 8000,
+     "from": "stored-weights"
+    },
+    "concrete/isolex": {
+     "density": 2450,
+     "from": "stored-weights"
+    },
+    "concrete/beton": {
+     "density": 2450,
+     "from": "stored-weights"
+    },
+    "concrete/silex": {
+     "density": 2450,
+     "from": "stored-weights"
+    },
+    "miscellaneous/pvc": {
+     "density": 1300,
+     "from": "stored-weights"
+    },
+    "concrete/predal": {
+     "density": 2450,
+     "from": "stored-weights"
+    },
+    "timber/hout": {
+     "density": 600,
+     "from": "stored-weights"
+    },
+    "concrete/isobet": {
+     "density": 2450,
+     "from": "stored-weights"
+    },
+    "concrete/gewelf": {
+     "density": 2400,
+     "from": "stored-weights"
+    },
+    "concrete/tt": {
+     "density": 2450,
+     "from": "stored-weights"
+    }
+   }
+  },
+  "ISSUE_102_M3D-CON-CD.ifc": {
+   "stored": 105,
+   "offered": 105,
+   "within": 105,
+   "heldOut": 44,
+   "heldOffered": 44,
+   "heldWithin": 44,
+   "standardOffered": 105,
+   "standardWithin": 105,
+   "misses": [],
+   "materials": [
+    {
+     "material": "CONCRETE/Concrete_Undefined",
+     "ratios": 49,
+     "agree": 49,
+     "density": 2400,
+     "min": 2399.9999999999873,
+     "max": 2400.000000000007,
+     "used": true,
+     "why": null
+    },
+    {
+     "material": "STEEL/S235JR",
+     "ratios": 56,
+     "agree": 56,
+     "density": 7850,
+     "min": 7849.99999999998,
+     "max": 7850.000000000017,
+     "used": true,
+     "why": null
+    }
+   ],
+   "sources": {
+    "steel/s235jr": {
+     "density": 7850,
+     "from": "stored-weights"
+    },
+    "concrete/concrete_undefined": {
+     "density": 2400,
+     "from": "stored-weights"
+    }
+   }
+  },
+  "ISSUE_102_M3D-CON.ifc": {
+   "stored": 20,
+   "offered": 20,
+   "within": 20,
+   "heldOut": 6,
+   "heldOffered": 6,
+   "heldWithin": 6,
+   "standardOffered": 20,
+   "standardWithin": 20,
+   "misses": [],
+   "materials": [
+    {
+     "material": "CONCRETE/Concrete_Undefined",
+     "ratios": 20,
+     "agree": 20,
+     "density": 2400,
+     "min": 2399.999999999994,
+     "max": 2400.0000000000064,
+     "used": true,
+     "why": null
+    }
+   ],
+   "sources": {
+    "concrete/concrete_undefined": {
+     "density": 2400,
+     "from": "stored-weights"
+    }
+   }
+  }
+ },
+ "total": {
+  "stored": 1152,
+  "offered": 1152,
+  "within": 1152,
+  "heldOut": 562,
+  "heldOffered": 562,
+  "heldWithin": 562,
+  "standardOffered": 1145,
+  "standardWithin": 152
+ }
+}
