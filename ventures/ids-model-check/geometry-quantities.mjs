@@ -54,6 +54,13 @@
 //                            smallest box and its faces' area, by Tekla's
 //                            convention; GrossSurfaceArea for any tool
 //                            (footingLines below; eval/footing-quantities-2026-11-22.md)
+//   Width, Height, Depth, Area
+//                            openings (IfcOpeningElement): the extruded
+//                            body's profile sides, its extrusion depth (Revit)
+//                            or the host wall's thickness (ARCHICAD), and the
+//                            profile's area (ARCHICAD), each by the authoring
+//                            tool's convention (openingElementLines below;
+//                            eval/opening-quantities-2026-11-22.md)
 //   NetWeight, GrossWeight   any element with one material whose density the
 //                            user's table, the model's material properties or
 //                            the model's own stored weights give: its stored
@@ -1172,6 +1179,156 @@ export function addOpeningLines(model, rows, { Geometry, readUnits, solidExtent,
   return n;
 }
 
+// ---- an opening element's width, height, depth and area -------------------
+//
+// Qto_OpeningElementBaseQuantities (BaseQuantities in IFC2x3 exports): Width,
+// Height and Depth of the void a wall or slab is cut by, and its Area (as an
+// elevation or plan sees it). A demolition or core-drilling estimate, a
+// fire-stopping schedule and a precast plant's recess list read them. Takeoff
+// rows hold no openings, so this reads the opening's own 'Body': one
+// IfcExtrudedAreaSolid (ARCHICAD writes two, mirrored through the wall's
+// middle, of the same profile). Measured on every public export that stores
+// the set (eval/opening-quantities-2026-11-22.md: 4 ARCHICAD files, 389
+// openings; 4 Revit files, 2010, 2019 and 2022, 1,070 openings):
+//   ARCHICAD  wall openings (a horizontal extrusion): Width the profile's
+//             side across the extrusion on the level, Height its upright
+//             side, Area the profile's area (a round window's polygon, not
+//             W x H), Depth the host wall's thickness (a round window's two
+//             extrusions run 0.485 and 0.415 m through a 0.30 m wall; the
+//             stored Depth is 0.30). Slab openings: none stored, none offered.
+//   Revit     Depth the extrusion depth (whatever it cuts: a window's 10 ft
+//             cutter stores 3.048 m). Width and Height are the profile's own
+//             sides, not upright or across: 2019 and 2022 write a wall
+//             opening's Width as the profile's x side (the exporter turns
+//             that side upright on purpose, ExtrusionExporter
+//             CreateRectangleProfileDefIfPossible, so 589 of ARK_NUS's 775
+//             store the window's height as Width) and a floor opening's as
+//             its y side; 2010 writes Width as the y side in both. Versions
+//             between (2011 to 2018, whose public exports store no set) are
+//             not offered. Area is the profile's area (HHS's 102 round
+//             shafts, 2010; 3 of 9 in 2019, whose other 6 store the whole
+//             roof's 240 or 1,015 m2 on each of its openings).
+//   others    no public export stores the set. Not offered.
+
+const OPENING_ELEMENT = /^IFCOPENING(ELEMENT|STANDARDCASE)$/;
+const UPRIGHT_TOL = 0.02; // a horizontal extrusion: within ~1 deg of level
+const LEVEL_TOL = 0.999; // a vertical extrusion: within ~2.5 deg of upright
+
+/** The convention of an opening's authoring tool: 'archicad', 'revit-2010', 'revit-2019' or null. */
+export function openingElementConvention(appName) {
+  if (/archicad|graphisoft/i.test(appName)) return "archicad";
+  const m = /revit\D*(\d{4})/i.exec(appName);
+  if (!m) return null;
+  const y = +m[1];
+  if (y <= 2010) return "revit-2010";
+  if (y >= 2019) return "revit-2019";
+  return null;
+}
+
+/**
+ * An opening element's offered quantities (SI) from its extrusions.
+ * @param {Array<{px: number, py: number, depth: number, along: number, area: number, across: number|null, up: number|null}>} items
+ *   each extrusion: its placed profile's x and y sides, depth, |extrusion . up|,
+ *   profile area, and (horizontal ones) its sides across the extrusion on the level and upright (all SI)
+ * @param {string|null} convention openingElementConvention
+ * @param {number|null} hostWidth the voided wall's thickness (SI), when known
+ * @returns {{width: number|null, height: number|null, depth: number|null, area: number|null}}
+ */
+export function openingElementLines(items, convention, hostWidth = null) {
+  const out = { width: null, height: null, depth: null, area: null };
+  if (!items.length || !convention) return out;
+  const a = items[0];
+  const same = (x, y) => Math.abs(x - y) <= 1e-6 * Math.max(Math.abs(x), Math.abs(y), 1e-9);
+  const horizontal = a.along < UPRIGHT_TOL, vertical = a.along > LEVEL_TOL;
+  if (convention === "archicad") {
+    // one extrusion, or mirrored ones of one profile, all level
+    if (!horizontal || !items.every((b) => b.along < UPRIGHT_TOL && same(b.px, a.px) && same(b.py, a.py) && same(b.area, a.area))) return out;
+    out.width = a.across; out.height = a.up; out.area = a.area > 0 ? a.area : null;
+    if (hostWidth > 0) out.depth = hostWidth;
+    return out;
+  }
+  if (items.length !== 1) return out;
+  out.depth = a.depth;
+  out.area = a.area > 0 ? a.area : null;
+  if (convention === "revit-2010") { out.width = a.py; out.height = a.px; }
+  else if (horizontal) { out.width = a.px; out.height = a.py; }
+  else if (vertical) { out.width = a.py; out.height = a.px; }
+  return out;
+}
+
+/**
+ * Adds each opening element's Qto_OpeningElementBaseQuantities (openingElementLines)
+ * to `out` (STEP id -> name -> {value, kind}). Returns how many openings got any.
+ */
+export function addOpeningElementQuantities(out, model, rows, { Geometry, readUnits, apply, mul }) {
+  const E = model.entities;
+  const ref = (v) => (v && typeof v === "object" && "ref" in v ? v.ref : null);
+  const str = (x) => (typeof x === "string" ? x : x?.value);
+  const host = new Map();
+  for (const e of E.values()) if (e.type === "IFCRELVOIDSELEMENT") host.set(ref(e.args[5]), ref(e.args[4]));
+  const rowOf = new Map(rows.map((r) => [r.id, r]));
+  const appName = (a) => (a && a.type === "IFCAPPLICATION" ? [a.args[2], a.args[3]].filter((x) => typeof x === "string").join(" ") : "");
+  const apps = [...E.values()].filter((x) => x.type === "IFCAPPLICATION");
+  const fileApp = new Set(apps.map((a) => openingElementConvention(appName(a)))).size === 1 && apps.length ? appName(apps[0]) : "";
+  let geo = null, U = null, n = 0;
+  for (const e of E.values()) {
+    if (!OPENING_ELEMENT.test(e.type)) continue;
+    try {
+      const oh = E.get(ref(e.args[1]));
+      const own = oh?.type === "IFCOWNERHISTORY" ? E.get(ref(oh.args[1])) : null;
+      const convention = openingElementConvention(own ? appName(own) : fileApp);
+      if (!convention) continue;
+      if (!geo) { U = readUnits(model); geo = new Geometry(model, { angle: U.PLANEANGLEUNIT }); }
+      const shape = E.get(ref(e.args[6]));
+      const reps = Array.isArray(shape?.args?.[2]) ? shape.args[2].map(ref) : [];
+      const rid = reps.find((id) => str(E.get(id)?.args?.[1]) === "Body");
+      if (rid == null) continue;
+      const W = geo.objectPlacement(ref(e.args[5]));
+      const f = U.LENGTHUNIT;
+      const items = [];
+      let plain = true;
+      for (const iid of E.get(rid).args[3] || []) {
+        const x = E.get(ref(iid));
+        if (x?.type !== "IFCEXTRUDEDAREASOLID") { plain = false; break; }
+        const m = mul(W, x.args[1] ? geo.placement(x.args[1]) : [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]);
+        const d0 = geo.dir(x.args[2], [0, 0, 1]);
+        const o3 = apply(m, [0, 0, 0]), e3 = apply(m, d0);
+        const dw = [e3[0] - o3[0], e3[1] - o3[1], e3[2] - o3[2]];
+        const L = Math.hypot(dw[0], dw[1], dw[2]);
+        // the depth along the direction, scaled as the takeoff does (geom.mjs prism: d x depth)
+        const depth = geo.num(x.args[3]) * Math.hypot(d0[0], d0[1], d0[2]) * f;
+        const du = dw.map((c) => c / L);
+        const loops = geo.profile(x.args[0]);
+        const pts2 = loops.flatMap((l) => l.pts);
+        const span = (v) => Math.max(...v) - Math.min(...v);
+        let area = 0;
+        for (const l of loops) { let s2 = 0; for (let i = 0; i < l.pts.length; i++) { const p = l.pts[i], q = l.pts[(i + 1) % l.pts.length]; s2 += p[0] * q[1] - q[0] * p[1]; } area += (l.s ?? 1) * Math.abs(s2) / 2; }
+        const it = { px: span(pts2.map((p) => p[0])) * f, py: span(pts2.map((p) => p[1])) * f, depth, along: Math.abs(du[2]), area: area * f * f, across: null, up: null };
+        if (it.along < UPRIGHT_TOL) {
+          const h = Math.hypot(du[0], du[1]);
+          const hz = [-du[1] / h, du[0] / h, 0];
+          const pts3 = pts2.map((p) => apply(m, [p[0], p[1], 0]));
+          it.across = span(pts3.map((p) => p[0] * hz[0] + p[1] * hz[1])) * f;
+          it.up = span(pts3.map((p) => p[2])) * f;
+        }
+        items.push(it);
+      }
+      if (!plain || !items.length) continue;
+      const hr = rowOf.get(host.get(e.id));
+      const hostWidth = hr && WALL.test(hr.ifcType) && hr.computed?.status === "ok" ? hr.computed.areas?.side?.width ?? null : null;
+      const q = openingElementLines(items, convention, hostWidth);
+      let m = null;
+      for (const [name, kind, v] of [["Width", "length", q.width], ["Height", "length", q.height], ["Depth", "length", q.depth], ["Area", "area", q.area]]) {
+        if (!usable(v)) continue;
+        if (!m) m = out.get(e.id) || new Map();
+        m.set(name, { value: v, kind });
+      }
+      if (m) { out.set(e.id, m); n++; }
+    } catch { /* an unread opening offers nothing */ }
+  }
+  return n;
+}
+
 // ---- a Revit door's or window's size, from the parameters it exports -------
 //
 // The Revit IFC exporter (github.com/Autodesk/revit-ifc, WidthCalculator,
@@ -1385,7 +1542,7 @@ export async function measureModel(ifcText, opts = {}) {
   const base = opts.dir ? new URL(String(opts.dir).replace(/\/?$/, "/"), import.meta.url) : new URL("../ifc-quantity-takeoff/", import.meta.url);
   const { parseStep } = await import(new URL("step.mjs", base).href);
   const { takeoff, readUnits } = await import(new URL("qto.mjs", base).href);
-  const { Geometry, polyPlanes, asTerms, solidExtent, sectionArea, mul, invert, transformSolid } = await import(new URL("geom.mjs", base).href);
+  const { Geometry, polyPlanes, asTerms, solidExtent, sectionArea, mul, invert, transformSolid, apply } = await import(new URL("geom.mjs", base).href);
   const model = parseStep(ifcText);
   const { rows, rooms } = takeoff(model);
   addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
@@ -1395,6 +1552,7 @@ export async function measureModel(ifcText, opts = {}) {
   addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms });
   addRevitSizeLines(model, rows, { readUnits });
   const out = addSpaceQuantities(quantitiesFromRows(rows), model, rooms, rows);
+  addOpeningElementQuantities(out, model, rows, { Geometry, readUnits, apply, mul });
   if (opts.weights === false) return out;
   const densities = opts.densities instanceof Map ? opts.densities : parseDensities(opts.densities || "");
   return addWeights(out, memberWeights(model, rows, { densities }));

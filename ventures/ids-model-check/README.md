@@ -750,6 +750,20 @@ parts it writes `CrossSectionArea` as Width x Width (held back) and
 Other tools get `GrossSurfaceArea` only. With the stored figures hidden the
 fill writes 505 values and IfcTester takes exactly those from fail to pass
 (`eval/footing-quantities-2026-11-22.md`).
+**Openings (2026-11-22).** `Qto_OpeningElementBaseQuantities` `Width`,
+`Height`, `Depth` and `Area` (what a demolition, core-drilling or
+fire-stopping schedule reads) are read from each `IfcOpeningElement`'s
+extruded body, by its authoring tool: ARCHICAD's `Width` across and `Height`
+upright, `Area` the profile's area and `Depth` the voided wall's thickness;
+Revit's `Depth` the extrusion depth and `Width`/`Height` the profile's own
+sides (2019 and later store a wall opening's upright x side as `Width`, as
+the exporter's source says it turns it; 2010 the y side); Revit 2011 to 2018
+and other tools none. On eight public ARCHICAD and Revit exports 4,532 of
+4,554 offered figures are within 1% of the stored ones, each of the other 22
+an exporter slip read by hand (a roof's area stored on its openings, a 0.30 m
+`Width` on a 1.53 m opening); with the stored figures hidden the fill writes
+5,806 values and IfcTester takes exactly those from fail to pass
+(`eval/opening-quantities-2026-11-22.md`).
 **Slab thickness and perimeter (2026-11-22).** `Qto_SlabBaseQuantities`
 `Width` (the slab's thickness) and `Perimeter` (its outline) are measured too:
 the thickness is the body's depth along its extrusion, offered only when the

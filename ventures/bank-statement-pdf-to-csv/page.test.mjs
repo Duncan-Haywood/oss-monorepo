@@ -19,13 +19,13 @@ test("inputs have labels and nothing in the page or the code can send the file a
   for (const id of ["file", "paste", "kind", "date-order", "year", "layout", "out-date", "decimal", "bf-format", "bf-acct", "bf-type", "bf-currency", "bf-routing", "bf-bid"]) assert.match(html, new RegExp(`<label for="${id}">`));
   const net = /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|navigator\.serviceWorker/;
   assert.doesNotMatch(html, net);
-  for (const f of ["calc.mjs", "bankfile.mjs", "pdf-text.mjs", "pdf-parser.mjs", "inflate-browser.mjs", "usage.mjs"]) assert.doesNotMatch(page(f), net, f);
+  for (const f of ["calc.mjs", "bankfile.mjs", "pdf-text.mjs", "pdf-parser.mjs", "inflate-browser.mjs", "usage.mjs", "xlsx.mjs"]) assert.doesNotMatch(page(f), net, f);
 });
 
 test("the module scripts import only local files", () => {
   const html = page("index.html");
   const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./bankfile.mjs", "./calc.mjs", "./inflate-browser.mjs", "./ocr.mjs", "./usage.mjs"]);
+  assert.deepEqual(imports.sort(), ["./bankfile.mjs", "./calc.mjs", "./inflate-browser.mjs", "./ocr.mjs", "./usage.mjs", "./xlsx.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 
@@ -51,7 +51,7 @@ test("robots and sitemap let crawlers find the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["statement_read", "scan_read", "example_loaded", "csv_downloaded", "statements_joined", "bank_file_downloaded"]) {
+  for (const e of ["statement_read", "scan_read", "example_loaded", "csv_downloaded", "xlsx_downloaded", "statements_joined", "bank_file_downloaded"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }

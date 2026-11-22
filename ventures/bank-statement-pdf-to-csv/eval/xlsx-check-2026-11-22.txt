@@ -1,0 +1,13 @@
+# node eval/xlsx-check.mjs OUT bank-statement-parsing-benchmark/datasets transtractor-lib/tests/fixtures (2026-11-22, LibreOffice 24.2.7.2)
+sample-bank: 9 rows, 3 sheets, 147 cells (33 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+sample-card: 7 rows, 3 sheets, 135 cells (27 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+sample-lost-row: 8 rows, 3 sheets, 145 cells (30 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: no, off by 600.00
+joined-two-months: 5 rows, 3 sheets, 135 cells (21 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+bsb-001-statement: 12 rows, 3 sheets, 173 cells (42 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+bsb-002-statement: 15 rows, 3 sheets, 231 cells (51 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+bsb-003-statement: 22 rows, 3 sheets, 300 cells (72 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+bsb-004-statement: 25 rows, 4 sheets, 341 cells (89 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+bsb-005-statement: 25 rows, 3 sheets, 303 cells (81 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+test1: 62 rows, 3 sheets, 685 cells (192 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+test1a: 62 rows, 3 sheets, 685 cells (192 formulas), 0 differ from LibreOffice's recalculation; workbook says adds up: yes
+total: 11 workbooks, 3280 cells, 830 formulas recalculated by LibreOffice, 0 differ
