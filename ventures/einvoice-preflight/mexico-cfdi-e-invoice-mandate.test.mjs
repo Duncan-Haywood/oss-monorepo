@@ -65,3 +65,13 @@ test("the waybill sample draws the five Carta Porte rules it plants", async () =
   assert.equal(r.meta.waybills, 1);
   assert.match(html, /id="cp-sample"/);
 });
+
+// 2026-11-22: cfdi.mjs and its SAT catalogues are about 340 kB compressed; a static import held every handler on the
+// page (and the RFC check) until they had arrived. It loads with import() on first use; the RFC check stays static.
+test("the CFDI checker loads on demand, not in the page's static imports", () => {
+  const mod = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  const statics = [...mod.matchAll(/import\s*\{[^}]*\}\s*from\s*"([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(statics, ["./mexico.mjs"]);
+  assert.match(mod, /import\("\.\/cfdi\.mjs"\)/);
+  assert.match(mod, /async function show\(text\)\{let checkCfdi;try\{\(\{checkCfdi\}=await loadCfdi\(\)\)/);
+});

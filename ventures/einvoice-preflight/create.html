@@ -147,8 +147,13 @@
 
   <script type="module">
     import { generateInvoice } from "./generate.mjs";
-    import { generateFacturX, FACTURX_PROFILES } from "./facturx-pdf.mjs";
-    import { parseInvoiceSource, preflightDocuments, buildJsonReport } from "./report.mjs";
+    // The Factur-X writer and the preflight (about 800 kB compressed together) load on first use: the form and its
+    // live totals need only generate.mjs. Any press, focus or key on the page starts the fetch.
+    let generateFacturX, FACTURX_PROFILES, preflightDocuments, buildJsonReport, heavyLoad = null;
+    const loadHeavy = () => (heavyLoad ||= Promise.all([import("./facturx-pdf.mjs"), import("./report.mjs")])
+      .then(([fx, rep]) => { ({ generateFacturX, FACTURX_PROFILES } = fx); ({ preflightDocuments, buildJsonReport } = rep); })
+      .catch((e) => { heavyLoad = null; throw e; }));
+    for (const t of ["pointerdown", "focusin", "keydown"]) document.addEventListener(t, () => loadHeavy().catch(() => {}), { once: true, passive: true });
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const $ = (id) => document.getElementById(id);
@@ -240,6 +245,10 @@
     $("generate").onclick = async () => {
       safe(() => recordUsage(usageStorage(), optedOut(), "einvoice_create_attempted"));
       const pdfWanted = $("format").value === "facturx";
+      try { await loadHeavy(); } catch {
+        $("result").innerHTML = `<p class="err">The PDF writer and preflight did not load. Check your connection and try again.</p>`;
+        return;
+      }
       if (pdfWanted && !Object.hasOwn(FACTURX_PROFILES, $("profile").value)) {
         $("result").innerHTML = `<p class="err"><b>Factur-X takes the XRechnung or EN 16931 profile.</b> Peppol BIS travels as XML over the Peppol network, not as a PDF: pick UBL or CII for it.</p>`;
         return;
