@@ -413,3 +413,18 @@ test("expenses become cost resource assignments and come back as the same expens
   const c1 = back.xer.tables.PROJCOST[0];
   assert.deepEqual([c1.vendor_name, c1.po_number, c1.target_qty, c1.qty_name, c1.cost_per_qty, c1.cost_descr], ["Acme Ready-Mix", "PO-17", "40", "m3", "300", 'Mix "C32/40", pumped']);
 });
+
+test("an expense accrual or code scope named after an Object.prototype key is the default, not a function in the XML", async () => {
+  const { p6XerText, p6Problems } = await import("./p6xer.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const T = x.tables;
+  const [a] = T.TASK.filter((t) => t.task_type !== "TT_WBS" && t.task_type !== "TT_LOE");
+  T.PROJCOST = [{ cost_item_id: "1", cost_type_id: "", proj_id: a.proj_id, task_id: a.task_id, cost_name: "Permit", act_cost: "0", remain_cost: "250", target_cost: "250", cost_per_qty: "250", target_qty: "1", cost_load_type: "constructor" }];
+  const conv = mspdiText(x);
+  assert.doesNotMatch(conv.xml, /native code|function /);
+  assert.match(conv.xml, /<Name>Permit<\/Name><Type>2<\/Type><IsNull>0<\/IsNull>(<Group><\/Group>)?<AccrueAt>3<\/AccrueAt>/);
+  // and back: AccrueAt "constructor" in an MSPDI file is prorated, as any unknown value
+  const back = p6XerText(conv.xml.replace("<AccrueAt>3</AccrueAt>", "<AccrueAt>constructor</AccrueAt>"));
+  assert.deepEqual(p6Problems(back.xer.tables), []);
+  assert.deepEqual(back.xer.tables.PROJCOST.map((c) => c.cost_load_type), ["CL_Uniform"]);
+});

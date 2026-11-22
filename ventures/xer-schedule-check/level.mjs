@@ -38,6 +38,8 @@ import { buildModel, schedule } from "./cpm.mjs";
 import { num, parseDate, formatDate } from "./xer.mjs";
 
 const PRIORITY = { PT_Top: 1, PT_High: 2, PT_Normal: 3, PT_Low: 4, PT_Lowest: 5 };
+// an unknown priority_type (own keys only: "constructor" is unknown too) ranks as Normal
+const prio = (v) => (Object.hasOwn(PRIORITY, v) ? PRIORITY[v] : 3);
 const EPS = 1e-9;
 
 function pickProject(model, projId) {
@@ -56,7 +58,7 @@ function priorityCmp(list) {
     for (const [field, dir] of keys) {
       const va = a.row[field], vb = b.row[field];
       let c;
-      if (field === "priority_type") c = (PRIORITY[va] ?? 3) - (PRIORITY[vb] ?? 3);
+      if (field === "priority_type") c = prio(va) - prio(vb);
       else {
         const na = Number(va), nb = Number(vb);
         c = va !== "" && vb !== "" && Number.isFinite(na) && Number.isFinite(nb) ? na - nb : String(va ?? "").localeCompare(String(vb ?? ""));
@@ -468,7 +470,7 @@ function capacityBound(cal, start, limits, work, factor = 1) {
 }
 
 // for the tests: the measures behind the resource table
-export const _internal = { Profile, overload, movedOver, capacityBound };
+export const _internal = { Profile, overload, movedOver, capacityBound, priorityCmp };
 
 const round3 = (x) => (Number.isFinite(x) ? Math.round(x * 1000) / 1000 : x);
 const rsrcCode = (rsrc, id) => rsrc.get(id)?.rsrc_short_name || id;

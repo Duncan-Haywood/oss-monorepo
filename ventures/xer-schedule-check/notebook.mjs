@@ -37,7 +37,9 @@ const entity = (s) => s.replace(/&(#x[0-9a-f]+|#\d+|[a-z][a-z0-9]*);/gi, (m, e) 
     const n = e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
     return Number.isFinite(n) && n > 0 && n < 0x110000 ? String.fromCodePoint(n === 160 ? 32 : n) : m;
   }
-  return NAMED[e.toLowerCase()] ?? m;
+  const k = e.toLowerCase();
+  // own keys only: "&constructor;" stays as written, not Object's source text
+  return Object.hasOwn(NAMED, k) ? NAMED[k] : m;
 });
 
 // A P6 notebook entry (HTML, or plain text as some exports hold) -> its text:

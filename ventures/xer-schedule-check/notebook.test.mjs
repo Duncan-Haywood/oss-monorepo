@@ -98,3 +98,9 @@ before digging]]></Notes></Task></Tasks></Project>`;
   assert.equal(out.xer.tables.WBSMEMO[0].wbs_id, "1"); // the project node
   assert.equal(out.counts.taskNotebooks, 1);
 });
+
+test("an entity named after an Object.prototype key is left as written, not decoded to a function", () => {
+  // a stranger's notebook text "&constructor;" used to come out as "function Object() { [native code] }"
+  assert.equal(memoText("a &constructor; b &toString; c &__proto__; d &amp; e"), "a &constructor; b &toString; c &__proto__; d & e");
+  assert.match(memoText("<p>x &constructor; y</p>"), /x &constructor; y/);
+});

@@ -525,7 +525,8 @@ export function parseMspdi(text) {
     if (ELAPSED_FORMATS.has(fmt)) { clndr = ensure24(); elapsed++; }
     else clndr = resourceCalendar(t, uid, clndr);
     const bl = kids(t, "Baseline").find((b) => val(b, "Number") === "0" || val(b, "Number") === "");
-    let cstr = CSTR[Number(val(t, "ConstraintType"))] || "";
+    const ct = Number(val(t, "ConstraintType"));
+    let cstr = (Object.hasOwn(CSTR, ct) && CSTR[ct]) || "";
     let cstrDate = cstr && cstr !== "CS_ALAP" ? date(val(t, "ConstraintDate")) : "";
     if (val(t, "Manual") === "1" && status === "TK_NotStart") {
       // Project keeps a manual task's start where it was typed but still
@@ -612,7 +613,8 @@ export function parseMspdi(text) {
       const p = byUid.get(pred);
       if (!s || !p) continue; // to an inactive, null, external or project-summary task
       if (s.summary || p.summary) { summaryLinks++; continue; }
-      const type = LINK[val(l, "Type") === "" ? 1 : Number(val(l, "Type"))] || "PR_FS";
+      const lt = val(l, "Type") === "" ? 1 : Number(val(l, "Type"));
+      const type = (Object.hasOwn(LINK, lt) && LINK[lt]) || "PR_FS";
       const fmt = Number(val(l, "LagFormat"));
       const linkLag = Number(val(l, "LinkLag") || 0);
       let lagH = linkLag / 600;

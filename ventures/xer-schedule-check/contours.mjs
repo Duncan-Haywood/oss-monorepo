@@ -37,7 +37,12 @@ export const PROJECT_CONTOURS = {
   7: { name: "Turtle", pct: [25, 50, 75, 100, 100, 100, 100, 75, 50, 25] },
 };
 
-const contour = (n) => PROJECT_CONTOURS[String(n).trim()] || null;
+// own keys only: a file's WorkContour "constructor" or "__proto__" is unknown,
+// not Object's own property (which has no pct and crashed the writer)
+const contour = (n) => {
+  const k = String(n).trim();
+  return Object.hasOwn(PROJECT_CONTOURS, k) ? PROJECT_CONTOURS[k] : null;
+};
 
 export function contourSlices(n) {
   const c = contour(n);

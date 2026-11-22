@@ -259,3 +259,14 @@ test("property: on random schedules with limits that change over time, the bound
     }
   }
 });
+
+test("a priority_type named after an Object.prototype key ranks as Normal, not as a tie with everything", () => {
+  const cmp = _internal.priorityCmp("priority_type,ASC");
+  const r = (p) => ({ row: { priority_type: p } });
+  // unknown values rank as PT_Normal (3): after PT_Top, before PT_Low
+  for (const odd of ["constructor", "toString", "__proto__", "valueOf"]) {
+    assert.ok(cmp(r("PT_Top"), r(odd)) < 0, odd);
+    assert.ok(cmp(r(odd), r("PT_Low")) < 0, odd);
+    assert.equal(cmp(r(odd), r("PT_Normal")), 0, odd);
+  }
+});
