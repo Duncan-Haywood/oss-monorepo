@@ -1,9 +1,9 @@
 ---
 title: "The guide links were the next 'see also' stack: 18 more tools start their form on a phone screen"
-seo_title: "Guide links above a calculator pushed its first field off a phone screen"
+seo_title: "Guide links above a calculator pushed its form off a phone screen"
 date: 2026-11-22
 tags: [polish, design, seo]
-description: "After one fix for cross-tool notes above the form, a broader count found 18 more pages stacking three to five guide and comparison links there. Moving them to a card near the end put the first field on screen on 18 of 21 pages."
+description: "18 tool pages stacked 3 to 5 guide links above the form. Moving them to a card near the end put the first field on a phone screen on 18 of 21 pages."
 ---
 
 Earlier today five calculator pages had their "see also" notes moved from above the form to a
