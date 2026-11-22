@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245a3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='19'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EQ%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Get A Bill Of Quantities From An IFC Model (Free, No Revit)</title>
+  <meta name="description" content="Take off counts, volumes, areas, lengths and steel weights from an IFC file in the browser, group and price them, with a worked example on a sample office.">
+  <meta property="og:title" content="How To Get A Bill Of Quantities From An IFC Model (Free, No Revit)">
+  <meta property="og:description" content="Take off counts, volumes, areas, lengths and steel weights from an IFC file in the browser, group and price them, with a worked example on a sample office.">
+  <link rel="canonical" href="./how-to-get-a-bill-of-quantities-from-an-ifc-model.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I get quantities from an IFC file without Revit?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. An IFC file holds the geometry and usually the stored quantities of every element, and a reader that understands IFC can group them into a bill of quantities. IFC Quantity Takeoff does it in the browser for free; paid estimating tools such as CostX, Cubit and Solibri read IFC too."}}, {"@type": "Question", "name": "Which quantities does it take off?", "acceptedAnswer": {"@type": "Answer", "text": "Count, volume in m3, area in m2, length in m and weight in kg for every physical element: walls, slabs, beams, columns, members, doors, windows, coverings, stairs, furniture and the rest. Volumes and the areas the quantity sets define are also computed from each element's geometry, openings taken out."}}, {"@type": "Question", "name": "What if the model was exported without base quantities?", "acceptedAnswer": {"@type": "Answer", "text": "The page computes each element's volume and its side, footprint, plan or cross-section area from the geometry, and a member's length and plain steel's weight from its body, so the lines are filled either way."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model is read by JavaScript in your browser tab, and the same code runs offline on the command line."}}]}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #245a3c; --code: #eeebe4; color-scheme: light dark; font-family: system-ui, sans-serif; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #8fd1a8; --code: #262b30; } }
+    body { margin: 0; background: var(--bg); color: var(--fg); }
+    main, footer { max-width: 760px; margin: 0 auto; padding: 0 18px; line-height: 1.58; }
+    main { padding-top: 28px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: var(--accent); }
+    code { background: var(--code); padding: 1px 4px; border-radius: 4px; font-size: .92em; overflow-wrap: anywhere; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .85rem; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2.5em; padding-bottom: 48px; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; IFC Quantity Takeoff</a></p>
+  <h1>How to get a bill of quantities from an IFC model</h1>
+  <p>An IFC file carries every element of a building model with its geometry, and usually with the quantities the authoring tool worked out (a wall's length, height, side area and volume in <code>Qto_WallBaseQuantities</code>, a beam's length and cross-section in <code>Qto_BeamBaseQuantities</code>). A bill of quantities from it is those figures grouped into lines: count, m3, m2, m and kg per class and type, per storey, per material or per elemental code. You do not need Revit, ArchiCAD or Tekla to get it: drop the <code>.ifc</code> on a free page that reads it in the browser and download the lines as CSV.</p>
+  <p><a class="cta" href="./">Open the free IFC takeoff</a> (or press <em>Try the sample model</em> on it)</p>
+  <h2>What you need</h2>
+  <ul>
+    <li><strong>The model</strong> as a STEP <code>.ifc</code> (IFC2X3, IFC4 or IFC4X3), exported from Revit, ArchiCAD, Tekla, Allplan, Vectorworks or any other tool. Export with base quantities switched on if you can; the page computes volumes and areas from the geometry either way.</li>
+    <li><strong>Your rates</strong>, if you want the lines priced. The page ships none.</li>
+  </ul>
+  <h2>Steps</h2>
+  <ol>
+    <li>Open the <a href="./">takeoff page</a> and choose the file under <em>IFC model (.ifc: IFC2X3, IFC4 or IFC4X3)</em>. It is read in the tab; nothing is uploaded.</li>
+    <li>Pick how the lines are grouped under <em>Group by</em>: class and type, storey, material, classification code, room, or Uniformat II element for an elemental estimate.</li>
+    <li>Decide how openings are treated under <em>Openings</em>: every opening deducted as modelled, or small voids left in up to a size you set, as many methods of measurement ask.</li>
+    <li>Type a rate and its unit (each, m3, m2, m or kg) on any line to price it, then press <em>Download bill of quantities (CSV)</em>. <em>Download every element (CSV)</em> gives one row per element with its stored and computed figures, for a spreadsheet or an audit trail.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>The page's sample is a small invented office: four wall pieces, a ground slab, a round concrete column and a steel IPE 200 beam. Grouped by class and type, its bill of quantities is:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Class</th><th>Type</th><th>Count</th><th>Volume m3</th><th>Area m2</th><th>Length m</th><th>Weight kg</th></tr></thead>
+    <tbody>
+      <tr><td>IfcBeam</td><td>(no type)</td><td class="n">1</td><td class="n">0.011394</td><td class="n">0</td><td class="n">4</td><td class="n">89.44</td></tr>
+      <tr><td>IfcColumn</td><td>(no type)</td><td class="n">1</td><td class="n">0.212058</td><td class="n">0</td><td class="n">3</td><td class="n">0</td></tr>
+      <tr><td>IfcSlab</td><td>(no type)</td><td class="n">1</td><td class="n">5</td><td class="n">20</td><td class="n">0</td><td class="n">0</td></tr>
+      <tr><td>IfcWall</td><td>Basic Wall 200</td><td class="n">4</td><td class="n">8.18</td><td class="n">40.9</td><td class="n">15</td><td class="n">0</td></tr>
+    </tbody>
+  </table></div>
+  <p>Three of those lines are not simply the model's stored quantities added up, and the CSV says which figure each line used:</p>
+  <ul>
+    <li><strong>The walls, 8.18 m3.</strong> Wall C is split by level into two pieces, and each piece stores the whole wall's 3.6 m3. Adding the stored figures would count 7.2 m3 for a wall whose two pieces measure 1.8 m3 each, so the line uses the volumes computed from the pieces' geometry for those two (2 of 4 stored, 2 computed): 2.58 + 2 + 1.8 + 1.8 = 8.18 m3.</li>
+    <li><strong>The column, 0.212058 m3.</strong> It stores no volume at all; the page computes it from its circular profile: pi x 0.15&sup2; x 3.</li>
+    <li><strong>The beam, 0.011394 m3 and 89.44 kg.</strong> It stores a NetVolume of 0.0142 m3, but also a Length of 4 m and a CrossSectionArea of 0.002848 m2, whose product is 0.011392 m3, the same as its geometry. The stored volume is the odd one out, so the line uses the geometry and weighs it at 7,850 kg/m3: 89.44 kg, where the stored volume would have given 111.47 kg, a quarter too much steel.</li>
+  </ul>
+  <p>Grouped by <code>storey,class</code> instead, Level 1 holds three wall pieces (6.38 m3) and Level 2 one (1.8 m3). Grouped by Uniformat II element, the slab lands in A1030 Slab on Grade by its geometry (nothing under it, nothing carrying it), the walls in B2010 Exterior Walls from the model's own classification, and the column and beam stop at B10 Superstructure, because nothing in the model says what they carry.</p>
+  <h2>On the command line</h2>
+  <p>The same code runs in Node 20 or later, for a folder of models or a script:</p>
+  <pre><code>node cli.mjs model.ifc                    # bill of quantities by class and type, CSV
+node cli.mjs model.ifc --by storey,class  # or by storey, material, classification, space, uniformat
+node cli.mjs model.ifc --rows rows.csv    # every element, stored and computed side by side</code></pre>
+  <p>The source and every measurement behind the numbers on this page are in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-quantity-takeoff">repository</a>.</p>
+  <h2>Questions</h2>
+  <h3>Can I get quantities from an IFC file without Revit?</h3>
+  <p>Yes. An IFC file holds the geometry and usually the stored quantities of every element, and a reader that understands IFC can group them into a bill of quantities. IFC Quantity Takeoff does it in the browser for free; paid estimating tools such as CostX, Cubit and Solibri read IFC too.</p>
+  <h3>Which quantities does it take off?</h3>
+  <p>Count, volume in m3, area in m2, length in m and weight in kg for every physical element: walls, slabs, beams, columns, members, doors, windows, coverings, stairs, furniture and the rest. Volumes and the areas the quantity sets define are also computed from each element's geometry, openings taken out.</p>
+  <h3>What if the model was exported without base quantities?</h3>
+  <p>The page computes each element's volume and its side, footprint, plan or cross-section area from the geometry, and a member's length and plain steel's weight from its body, so the lines are filled either way.</p>
+  <h3>Is my model uploaded?</h3>
+  <p>No. The model is read by JavaScript in your browser tab, and the same code runs offline on the command line.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-check-ifc-quantities-before-pricing.html">How to check the quantities stored in an IFC model before you price them</a></li>
+    <li><a href="./how-to-compare-two-ifc-revisions-for-a-change-order.html">How to compare two IFC revisions for a change order</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or design advice. The quantities are read and computed from the file you provide; they are not a measured survey or a cost estimate, and the quantity surveyor or estimator responsible checks them against the drawings and the method of measurement the contract names. The sample office is invented.</p>
+    <p><strong>Independent.</strong> IFC is a buildingSMART International standard; this tool is not affiliated with or endorsed by buildingSMART or any software vendor named here. Product names are trademarks of their owners.</p>
+    <p>Everything the tool does runs in your browser; your model is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

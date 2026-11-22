@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245a3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='19'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EQ%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Compare Two IFC Revisions For A Change Order (Free)</title>
+  <meta name="description" content="Find what changed between two issues of an IFC model in quantities and elements, priced with your rates, matching elements that got a new GlobalId on export.">
+  <meta property="og:title" content="How To Compare Two IFC Revisions For A Change Order (Free)">
+  <meta property="og:description" content="Find what changed between two issues of an IFC model in quantities and elements, priced with your rates, matching elements that got a new GlobalId on export.">
+  <link rel="canonical" href="./how-to-compare-two-ifc-revisions-for-a-change-order.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I compare two IFC files?", "acceptedAnswer": {"@type": "Answer", "text": "Take off the later revision and drop the earlier one under Compare with an earlier revision. You get the change on every bill-of-quantities line and a list of every element added, removed, changed, moved or resized, both as CSV."}}, {"@type": "Question", "name": "Why do unchanged elements show as added and removed?", "acceptedAnswer": {"@type": "Answer", "text": "Some exports give elements a new GlobalId each time. The comparison falls back to Revit's element id, stored in the Tag, and then to the same class, place and volume, so those elements are paired instead of being counted twice."}}, {"@type": "Question", "name": "Can it price a change order?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Type rates on the bill of quantities; the same rates price both revisions, and the change CSV carries the amount before, after and the difference. The rates are yours."}}, {"@type": "Question", "name": "Is either model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Both files are read in your browser tab."}}]}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #245a3c; --code: #eeebe4; color-scheme: light dark; font-family: system-ui, sans-serif; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #8fd1a8; --code: #262b30; } }
+    body { margin: 0; background: var(--bg); color: var(--fg); }
+    main, footer { max-width: 760px; margin: 0 auto; padding: 0 18px; line-height: 1.58; }
+    main { padding-top: 28px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: var(--accent); }
+    code { background: var(--code); padding: 1px 4px; border-radius: 4px; font-size: .92em; overflow-wrap: anywhere; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .85rem; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2.5em; padding-bottom: 48px; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; IFC Quantity Takeoff</a></p>
+  <h1>How to compare two IFC revisions for a change order</h1>
+  <p>When a new issue of a model arrives, the estimator's question is what changed in quantities, priced, and the coordinator's is which elements changed. Comparing two IFC files by GlobalId alone answers both badly: an export that renews an element's GlobalId makes it look removed and re-added, and a Revit wall exported as parts in one issue and whole in the next looks like a demolition. A useful comparison matches elements by GlobalId, then by Revit's element id in the Tag, then by place and volume, and then reports the change on every bill-of-quantities line.</p>
+  <p><a class="cta" href="./#compare">Open the free IFC takeoff</a> (or press <em>Compare two revisions of it</em> on it)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Open the <a href="./">takeoff page</a> and choose the <strong>later</strong> revision as the model.</li>
+    <li>Under <em>Compare with an earlier revision</em>, choose the earlier one in <em>Earlier revision (.ifc)</em>.</li>
+    <li>Type your rates on the bill of quantities if you want the change priced; the same rates price both revisions.</li>
+    <li>Press <em>Download the change in quantities (CSV)</em> for the change on every line (count, m3, m2, m, kg and amount, before and after), and <em>Download every changed element (CSV)</em> for each element added, removed, changed, moved or resized, with what changed.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>The page's sample office has a second revision. Between them, 7 elements become 7: 3 unchanged, 3 changed, 1 added, 1 removed, and 1 matched under a new GlobalId by its Tag. The change in quantities by class and type:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Class</th><th>Count</th><th>Volume m3</th><th>Area m2</th><th>Length m</th></tr></thead>
+    <tbody>
+      <tr><td>IfcColumn</td><td class="n">1 &rarr; 2</td><td class="n">+0.212058</td><td class="n">0</td><td class="n">+3</td></tr>
+      <tr><td>IfcSlab</td><td class="n">1 &rarr; 1</td><td class="n">+1</td><td class="n">0</td><td class="n">0</td></tr>
+      <tr><td>IfcWall, Basic Wall 200</td><td class="n">4 &rarr; 3</td><td class="n">&minus;2.084</td><td class="n">&minus;10.42</td><td class="n">&minus;4</td></tr>
+    </tbody>
+  </table></div>
+  <p>Behind those lines, element by element:</p>
+  <ul>
+    <li><strong>Wall A changed</strong>: volume &minus;0.084 m3 and side area &minus;0.42 m2 (its door opening widened from 1.0 to 1.2 m).</li>
+    <li><strong>Wall B removed</strong>: 2 m3, 10 m2, 4 m.</li>
+    <li><strong>The floor slab changed</strong>: 5 &times; 4 &times; 0.25 m to 5 &times; 4 &times; 0.3 m, +1 m3.</li>
+    <li><strong>The beam moved</strong> 1 m with the same quantities, so it changes no line.</li>
+    <li><strong>One column was added</strong>, and the existing column came back under a new GlobalId. Matched by its Tag, it is reported as the same element, not as one removed and two added.</li>
+  </ul>
+  <p>On five real Revit exports of one house, a GlobalId-only comparison listed 190 element records as added or removed that were the same element under a new GlobalId, or a host wall switched to its parts; this comparison pairs them. A model re-serialised with no edit gives 0 changes.</p>
+  <h2>On the command line</h2>
+  <pre><code>node cli.mjs new.ifc --compare old.ifc --changes changes.csv   # line changes to stdout, elements to changes.csv</code></pre>
+  <h2>Questions</h2>
+  <h3>How do I compare two IFC files?</h3>
+  <p>Take off the later revision and drop the earlier one under Compare with an earlier revision. You get the change on every bill-of-quantities line and a list of every element added, removed, changed, moved or resized, both as CSV.</p>
+  <h3>Why do unchanged elements show as added and removed?</h3>
+  <p>Some exports give elements a new GlobalId each time. The comparison falls back to Revit's element id, stored in the Tag, and then to the same class, place and volume, so those elements are paired instead of being counted twice.</p>
+  <h3>Can it price a change order?</h3>
+  <p>Yes. Type rates on the bill of quantities; the same rates price both revisions, and the change CSV carries the amount before, after and the difference. The rates are yours.</p>
+  <h3>Is either model uploaded?</h3>
+  <p>No. Both files are read in your browser tab.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-get-a-bill-of-quantities-from-an-ifc-model.html">How to get a bill of quantities from an IFC model</a></li>
+    <li><a href="./how-to-check-ifc-quantities-before-pricing.html">How to check the quantities stored in an IFC model before you price them</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or design advice. The quantities are read and computed from the file you provide; they are not a measured survey or a cost estimate, and the quantity surveyor or estimator responsible checks them against the drawings and the method of measurement the contract names. The sample office is invented.</p>
+    <p><strong>Independent.</strong> IFC is a buildingSMART International standard; this tool is not affiliated with or endorsed by buildingSMART or any software vendor named here. Product names are trademarks of their owners.</p>
+    <p>Everything the tool does runs in your browser; your model is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

@@ -619,9 +619,9 @@ flagships:
       Lake_Kegonsa_Home_2015.ifc pair).
     hosts: [https://github.com]
     next: >-
-      History and every measurement: ventures/ifc-quantity-takeoff/README.md and
-      eval/. its misses traced 2026-11-21: overlapping body items joined (a cabinet
-      had counted 1.8x its box), 9,310 of 9,312 now enclose the computed volume
+      History and every measurement: README and eval/; search guides 2026-11-22. its
+      misses traced 2026-11-21: overlapping body items joined (a cabinet had counted
+      1.8x its box), 9,310 of 9,312 now enclose the computed volume
       (eval/item-union-2026-11-21.md; next in NEXT.md). IFC4X3 bridges, rebar on
       arcs, grid placements, fixed-reference sweeps 2026-11-22
       (eval/linear-placement-*, eval/bsi-samples-*); next cant, a 2nd bridge

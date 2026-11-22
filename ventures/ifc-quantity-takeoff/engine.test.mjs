@@ -57,7 +57,8 @@ test("sample: the checks find the planted faults and name their causes", () => {
   }
   const beam = byName(res, "Beam IPE 200")[0];
   assert.equal(beam.check.net.agree, false);
-  assert.equal(beam.check.net.reason, "unexplained");
+  assert.equal(beam.check.net.reason, "own-dimensions");
+  assert.equal(beam.trustStored, false); // its own Length x CrossSectionArea (0.011392) agrees with the body
 });
 
 test("bill of quantities: split pieces are summed from geometry, not their repeated stored value", () => {
@@ -715,6 +716,29 @@ test("explanations: own dimensions are named only when the stored value is not t
   assert.equal(rows[0].check.gross.reason, "own-dimensions"); // 4 x 0.5 x 0.25 = 0.5, the computed figure
   assert.equal(rows[1].check.gross.reason, "unexplained");
   assert.equal(rows[1].trustStored, true);
+});
+
+test("explanations: a member's stored volume is checked against its own stored length x cross-section area", () => {
+  const q = (kind, value) => ({ kind, value });
+  const row = (stored, computed, extra = {}) => ({ tag: null, ifcClass: "IfcBeam", stored: { Length: q("length", 4), CrossSectionArea: q("area", 0.002848), ...extra }, computed: { gross: computed, net: computed, openings: 0 }, check: { net: { computed, stored, rel: (computed - stored) / stored, agree: false } } });
+  // 4 m x 0.002848 m2 = 0.011392 m3: the computed body agrees, the stored 0.0142 is the odd one out
+  const rows = [row(0.0142, 0.011394), row(0.0142, 0.009), row(0.0142, 0.011394, { CrossSectionArea: q("area", 0) })];
+  explainChecks(rows);
+  assert.equal(rows[0].check.net.reason, "own-dimensions");
+  assert.equal(rows[0].trustStored, false);
+  assert.equal(rows[1].check.net.reason, "unexplained"); // the body disagrees with the product too
+  assert.equal(rows[1].trustStored, true);
+  assert.equal(rows[2].check.net.reason, "unexplained"); // a zero section names nothing
+});
+
+test("the sample office's IPE 200: stored NetVolume contradicts its length x section, so the BoQ weighs the body", () => {
+  const res = takeoff(parseStep(sampleText()));
+  const beam = res.rows.find((r) => r.ifcClass === "IfcBeam");
+  assert.equal(beam.check.net.reason, "own-dimensions");
+  const line = boq(res.rows).find((l) => l.key[0] === "IfcBeam");
+  assert.ok(Math.abs(line.volume - 0.011394) < 1e-5, `BoQ volume ${line.volume}`);
+  assert.equal(line.volumeComputed, 1);
+  assert.ok(Math.abs(line.weight - 0.011394 * 7850) < 0.01, `BoQ weight ${line.weight}`); // 89.44 kg, not 111.47
 });
 
 test("areas: a wall whose opening cannot be read keeps its gross areas", () => {

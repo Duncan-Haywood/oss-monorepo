@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245a3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='19'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EQ%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Check The Quantities Stored In An IFC Model Before Pricing</title>
+  <meta name="description" content="Stored IFC volumes and areas are sometimes wrong. How to compare each with the geometry and name the cause, with a worked example and real figures.">
+  <meta property="og:title" content="How To Check The Quantities Stored In An IFC Model Before Pricing">
+  <meta property="og:description" content="Stored IFC volumes and areas are sometimes wrong. How to compare each with the geometry and name the cause, with a worked example and real figures.">
+  <link rel="canonical" href="./how-to-check-ifc-quantities-before-pricing.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I trust the quantities in an IFC export?", "acceptedAnswer": {"@type": "Answer", "text": "Mostly, but check them. On 8 public models the stored GrossVolume matched the geometry for 4,863 of 5,495 elements; most of the rest had a nameable fault, such as split-by-level pieces, net volumes written as gross, or volumes in the wrong unit."}}, {"@type": "Question", "name": "Why would a stored volume be wrong?", "acceptedAnswer": {"@type": "Answer", "text": "The exporter writes what the authoring tool reports, and tools differ: Revit writes a split wall's whole volume on every piece, some exports subtract openings from GrossVolume, some write litres under a cubic-metre unit, and Tekla works steel volumes out from a simplified section."}}, {"@type": "Question", "name": "What does the page do when the stored figure is wrong?", "acceptedAnswer": {"@type": "Answer", "text": "When the cause is known and the stored figure is the wrong one, the bill of quantities uses the volume computed from the geometry instead and says so in the CSV. Disagreements with no named cause are listed for you to judge."}}, {"@type": "Question", "name": "Is the 2% tolerance fixed?", "acceptedAnswer": {"@type": "Answer", "text": "No. On the command line --tolerance sets the relative difference that still counts as agreeing."}}]}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #245a3c; --code: #eeebe4; color-scheme: light dark; font-family: system-ui, sans-serif; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #8fd1a8; --code: #262b30; } }
+    body { margin: 0; background: var(--bg); color: var(--fg); }
+    main, footer { max-width: 760px; margin: 0 auto; padding: 0 18px; line-height: 1.58; }
+    main { padding-top: 28px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: var(--accent); }
+    code { background: var(--code); padding: 1px 4px; border-radius: 4px; font-size: .92em; overflow-wrap: anywhere; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .85rem; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2.5em; padding-bottom: 48px; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; IFC Quantity Takeoff</a></p>
+  <h1>How to check the quantities stored in an IFC model before you price them</h1>
+  <p>Authoring tools write quantities into an IFC export, and estimators price from them. Most are right, but not all: on 8 public models the stored GrossVolume agreed with the element's own geometry for 4,863 of 5,495 elements. The rest were not random noise. Most had a cause you can name and correct for: a wall split by level that writes the whole wall's volume on every piece, a GrossVolume that already has the openings taken out, a slab volume written 1,000 times too large, or a volume that contradicts the element's own stored length and section. Checking means recomputing each figure from the geometry, comparing, and reading why they differ before the figure reaches a rate.</p>
+  <p><a class="cta" href="./">Open the free IFC takeoff</a> (or press <em>Try the sample model</em> on it)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Open the <a href="./">takeoff page</a> and choose the <code>.ifc</code>. Every element's volume is computed from its body, with its openings cut exactly; the areas each quantity set defines are cut from the body by a plane (a wall's side on its middle plane, a slab's plan, a member's cross-section).</li>
+    <li>Read <em>Stored quantities against the geometry</em>. Each stored figure that differs from the computed one by more than 2% is listed with the likely cause.</li>
+    <li>Colour the 3D view by agreement under <em>Colour by</em> to see where the disagreements sit; click a row of the checks to show just those elements.</li>
+    <li>Use the bill of quantities as it comes: where the stored figure is known to be the wrong one, the line already uses the computed one, and its CSV counts how many figures on each line were stored and how many computed.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>The page's sample office stores four GrossVolumes and three NetVolumes. Two of each agree with the geometry. The three that do not:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Element</th><th>Stored</th><th>From the geometry</th><th>Cause named</th></tr></thead>
+    <tbody>
+      <tr><td>Wall C, Level 1 piece</td><td class="n">3.6 m3</td><td class="n">1.8 m3</td><td>Split by level: the piece stores the whole wall</td></tr>
+      <tr><td>Wall C, Level 2 piece</td><td class="n">3.6 m3</td><td class="n">1.8 m3</td><td>Split by level: the piece stores the whole wall</td></tr>
+      <tr><td>Beam IPE 200</td><td class="n">0.0142 m3</td><td class="n">0.011394 m3</td><td>Contradicts its own Length x CrossSectionArea (0.011392 m3)</td></tr>
+    </tbody>
+  </table></div>
+  <p>The two wall pieces share a Tag and a stored figure, and their computed volumes sum to it, which is what a split-by-level export looks like. The beam's stored length (4 m) and cross-section (0.002848 m2, the steel tables' 28.48 cm2) agree with each other and with its I-section geometry; only its stored volume does not. In each case the stored figure is the odd one out, so the bill of quantities uses the computed one, and the beam is weighed from its geometry: 89.44 kg, not the 111.47 kg its stored volume implies. The two pieces' stored GrossSideArea of 18 m2 each is flagged the same way (9 m2 each from the geometry).</p>
+  <h2>What it finds on real models</h2>
+  <p>On public models from Revit, ArchiCAD and Tekla (every figure, file and rerun command is in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-quantity-takeoff/eval">repository's eval folder</a>):</p>
+  <ul>
+    <li>327 GrossVolumes that already exclude the openings (net written as gross);</li>
+    <li>119 slab volumes in the wrong unit, 96 of them 1,000 times too large;</li>
+    <li>105 ArchiCAD walls and slabs whose geometry was exported with the openings already cut;</li>
+    <li>27 split-by-level wall pieces each storing the whole wall's volume;</li>
+    <li>120 Tekla steel NetVolumes taken from a section without root fillets, 2 to 11% low, so the weight is scaled from the geometry;</li>
+    <li>77 ArchiCAD windows and doors whose NetVolume leaves out the glass;</li>
+    <li>603 Revit mullions storing their whole curtain wall's length (5,480 m against 795 m measured).</li>
+  </ul>
+  <p>Where stored and computed agree, they usually agree to about 1e-15 relative: the disagreements are faults, not rounding.</p>
+  <h2>On the command line</h2>
+  <pre><code>node cli.mjs model.ifc --check          # summary: how many stored figures agree
+node cli.mjs model.ifc --rows rows.csv  # one row per element: stored, computed, and the check</code></pre>
+  <h2>Questions</h2>
+  <h3>Can I trust the quantities in an IFC export?</h3>
+  <p>Mostly, but check them. On 8 public models the stored GrossVolume matched the geometry for 4,863 of 5,495 elements; most of the rest had a nameable fault, such as split-by-level pieces, net volumes written as gross, or volumes in the wrong unit.</p>
+  <h3>Why would a stored volume be wrong?</h3>
+  <p>The exporter writes what the authoring tool reports, and tools differ: Revit writes a split wall's whole volume on every piece, some exports subtract openings from GrossVolume, some write litres under a cubic-metre unit, and Tekla works steel volumes out from a simplified section.</p>
+  <h3>What does the page do when the stored figure is wrong?</h3>
+  <p>When the cause is known and the stored figure is the wrong one, the bill of quantities uses the volume computed from the geometry instead and says so in the CSV. Disagreements with no named cause are listed for you to judge.</p>
+  <h3>Is the 2% tolerance fixed?</h3>
+  <p>No. On the command line --tolerance sets the relative difference that still counts as agreeing.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-get-a-bill-of-quantities-from-an-ifc-model.html">How to get a bill of quantities from an IFC model</a></li>
+    <li><a href="./how-to-compare-two-ifc-revisions-for-a-change-order.html">How to compare two IFC revisions for a change order</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or design advice. The quantities are read and computed from the file you provide; they are not a measured survey or a cost estimate, and the quantity surveyor or estimator responsible checks them against the drawings and the method of measurement the contract names. The sample office is invented.</p>
+    <p><strong>Independent.</strong> IFC is a buildingSMART International standard; this tool is not affiliated with or endorsed by buildingSMART or any software vendor named here. Product names are trademarks of their owners.</p>
+    <p>Everything the tool does runs in your browser; your model is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

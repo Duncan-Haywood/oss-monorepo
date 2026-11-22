@@ -677,8 +677,9 @@ function readStored(E, idx, id, units, row) {
  *   net-as-gross the stored GrossVolume equals the computed net: the exporter
  *                took the openings out of what it calls gross;
  *   own-dimensions the stored volume disagrees with the element's own stored
- *                Length x Height x Width, and the computed volume agrees with
- *                that product: the stored volume is the odd one out;
+ *                Length x Height x Width (or, for a member storing no Height
+ *                and Width, Length x CrossSectionArea), and the computed volume
+ *                agrees with that product: the stored volume is the odd one out;
  *   body-is-net  the geometry has the openings cut already and equals the
  *                stored NetVolume (bodyIsNet below);
  *   unit-slip    again, after the rest: a power of ten times the square-foot
@@ -724,7 +725,11 @@ export function explainChecks(rows, tol = 0.02) {
   const lhw = (r) => {
     const g = (n) => { for (const [k, q] of Object.entries(r.stored)) if (q.kind === "length" && k.toLowerCase() === n) return q.value; return null; };
     const L = g("length"), H = g("height"), W = g("width");
-    return L != null && H != null && W != null ? L * H * W : null;
+    if (L != null && H != null && W != null) return L * H * W;
+    // a member's stored Length x CrossSectionArea (Qto_BeamBaseQuantities,
+    // Qto_ColumnBaseQuantities, Qto_MemberBaseQuantities): a prism's volume
+    if (L != null) for (const [k, q] of Object.entries(r.stored)) if (q.kind === "area" && k.toLowerCase() === "crosssectionarea" && q.value > 0) return L * q.value;
+    return null;
   };
   for (const r of rows) {
     r.trustStored = true;
@@ -1125,7 +1130,7 @@ export const REASON_TEXT = {
   repeated: "the same stored volume is written on several pieces of one element, and the pieces in this file do not sum to it",
   "unit-slip": "the stored volume is the geometry's times a power of ten, the square-foot factor 10.7639, or both: written in the wrong unit",
   "net-as-gross": "the exporter's GrossVolume equals the volume with openings taken out (net)",
-  "own-dimensions": "the stored volume disagrees with the element's own stored length x height x width; the geometry agrees with them",
+  "own-dimensions": "the stored volume disagrees with the element's own stored length x height x width (a member's length x cross-section area); the geometry agrees with them",
   "not-stored": "the stored volume is 0 on an element with a body: a placeholder, not a measurement",
   "assembly-total": "the same stored volume is written on every piece of one assembly (a stair's stringers, flights and landings), and it is the whole assembly's: the pieces' geometry sums to it",
   "simplified-section": "the stored volume is computed from a simplified section (no fillet radii, or round tubes as polygons); the geometry follows the profile's own radii, and stored weights are scaled to it",

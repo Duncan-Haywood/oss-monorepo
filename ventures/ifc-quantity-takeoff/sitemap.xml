@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
+  <url><loc>./how-to-get-a-bill-of-quantities-from-an-ifc-model.html</loc></url>
+  <url><loc>./how-to-check-ifc-quantities-before-pricing.html</loc></url>
+  <url><loc>./how-to-compare-two-ifc-revisions-for-a-change-order.html</loc></url>
 </urlset>
