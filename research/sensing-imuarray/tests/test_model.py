@@ -63,3 +63,11 @@ def test_allan_fit_recovers_parameters():
     N, K = fit_allan(ms * dt, av)
     assert N == pytest.approx(g.N, rel=0.15)
     assert K == pytest.approx(g.K, rel=0.25)
+
+
+def test_units_needed_exact_tie_is_k_squared_at_every_horizon():
+    # Independent errors, equal improvement: n = k^2 ties exactly, whatever T
+    # (float ties at T = 10 and 100 s used to print 101).
+    better = better_grade(CHEAP, 10)
+    for T in (1, 10, 100, 1000):
+        assert units_needed(CHEAP, better, T, 0.0, 0.0) == 100
