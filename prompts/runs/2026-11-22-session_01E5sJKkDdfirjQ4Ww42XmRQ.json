@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKkDdfirjQ4Ww42XmRQ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T02:18:28Z",
+  "ended": "2026-11-22T02:24:42Z",
+  "wall_minutes": 6.37,
+  "tokens_in": 4814231,
+  "tokens_out": 31337,
+  "cost_usd": 2.5112,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18180",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/experiments/m3s_causal/results.json",
+      "issue": "Saved TUM solves store a solver sd for f only, so any update decision on cx, cy or distortion needs a scatter-only bar; the README had already flagged storing the full intrinsics covariance, still not done because the TUM host stays unreachable."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pytest over a whole project's tests/ fails collection without cv2 on the default interpreter; pyenv.py pytest numpy scipy matplotlib is not enough for sensing-selfcal (requirements.txt needed). Ran the m3u-m3y tests that do not need cv2."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/LOG.md (milestone 3y plan)",
+      "why": "Plan said k1 is not scored alone and named D200 instead; after scoring I added an unscored per-sequence offset/rms-z diagnostic to explain why 'never' wins for cx and D200.",
+      "did": "Labelled it 'added after scoring' in code and LOG.",
+      "result": "Showed the distortion bias is systematic across all sequences and references; reported as unscored."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-camera-self-calibration-distortion-bias.md",
+    "research/sensing-selfcal/LOG.md (3y plan and result)"
+  ],
+  "goal": null,
+  "notes": "Milestone 3y of sensing-selfcal, analysis of saved TUM solves only (TUM host unreachable). Checks run locally: tests m3u-m3y 16 passed; paper/check_numbers.py 377/377; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok. Three of seven predictions held.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3cf4bc07-a6be-5424-b15a-b7409378a6f7",
+    "transcripts": 1,
+    "first": "2026-11-22T02:18:28Z",
+    "last": "2026-11-22T02:24:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 90,
+        "output": 31337,
+        "thinking": 7719,
+        "cache_read": 4696026,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118115,
+        "api_equivalent_usd": 2.5112,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 90,
+      "output": 31337,
+      "thinking": 7719,
+      "cache_read": 4696026,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118115,
+      "api_equivalent_usd": 2.5112,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 42,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.37,
+      "active_minutes": 6.37,
+      "model_minutes": 5.17,
+      "tool_minutes": 1.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an analyst designing, pre-registering, coding and writing up one analysis-only calibration milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 238.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
