@@ -25,6 +25,19 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3y headline** (does the focal-length update rule carry over to the principal point and the lens distortion? the same
+eight rules on TUM's saved windows, scored in pixels, with an error bar from window scatter): **only for c<sub>y</sub>.** "Adopt unless
+within 0.5 sd" is minimax for c<sub>y</sub> against all three references (worst regret **2.04 px** at five windows, always-adopt 2.89) and is
+chosen in every leave-one-sequence-out fold, because the pools sit on the board (within 1.3 px per sequence). The **radial distortion**
+is biased: at 200 px from the centre every sequence, on both cameras, puts the displacement **0.6&ndash;1.7 px below every reference**
+(fr1's is 4.1 px), with a bar five times too narrow (rms z 5.5), with or without the causal prior. The Xtion's **c<sub>x</sub>** pools
+are 16 px from the board and TUM's value, and the references disagree by 12 px. So the best rule for both is to keep the held value
+("never" is minimax up to the grid's 10 px and 2 px edges). For a field robot: self-calibrate f and c<sub>y</sub>, hold c<sub>x</sub>
+and the distortion from a target calibration. The scatter-only bar reproduces 3w on f (gate(0.5), 0.38 against 0.42). Three of seven
+predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![median error left by never, always, the 2-sd gate, gate(0.5) and the blend against staleness of the held c_x, c_y and distortion at 200 px, five windows, causal prior](experiments/m3y_pp_dist/ppdist.png)
+
 **Milestone 3x headline** (is milestone 3w's update rule an artefact of scoring it on the data that picked it? leave-one-sequence-out
 on the three TUM sequences): **no; chosen without the held-out sequence, "adopt unless within 0.5 sd" is picked in all three folds**,
 including a fold that tunes it on the Kinect alone and scores it on the Xtion (worst regret **0.55** points against always-adopt's
@@ -1294,6 +1307,12 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3y: the update rule transfers to c<sub>y</sub>; the distortion at 200 px is biased 0.6&ndash;1.7 px low in every
+sequence and the Xtion's c<sub>x</sub> is unsettled, so those are held. Next: find where the distortion bias comes from (a radius
+sweep of D(r), and the feature radii the windows actually cover, since few tracked points near the corners would leave k<sub>2</sub>
+free to bend the curve); Section 4 of the paper updated with 3y; storing each window's full intrinsics covariance when the TUM host
+answers, so the bar is the solver's and not scatter alone; a real lens change when one is reachable.
 
 After the 2026-11-21 paper step: Section 4, the abstract, Recommendation 8, the limits and Section 10 of the draft now
 carry milestones 3u&ndash;3x (37 new number checks), and the letter gained three sentences and a recommendation
