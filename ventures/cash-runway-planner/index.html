@@ -106,9 +106,10 @@
     <p>It targets the deepest week of the negative run, not just the first week it turns negative &mdash;
       covering only the first week would leave you short again days later. Then it looks for one of two
       moves already on your one-off list: delaying the largest outgoing payment dated at or before the
-      shortfall starts, or pulling forward the soonest incoming payment dated after the low point. Each
+      low point, or pulling forward the soonest incoming payment dated after it. Each
       suggestion says plainly whether it &ldquo;closes the gap&rdquo; or only &ldquo;covers&rdquo; part of
-      it, based on whether its amount meets the deficit at the trough. If cash recovers and then runs short
+      it: a delay closes it only if its amount meets the deficit at the trough and it is dated no later
+      than the first negative week, since moving a payment cannot rescue the weeks before it. If cash recovers and then runs short
       again later in the window, that is a separate shortfall with its own low point, and gets its own
       suggestion &mdash; a payment already used to fix an earlier gap is not offered a second time.</p>
 
