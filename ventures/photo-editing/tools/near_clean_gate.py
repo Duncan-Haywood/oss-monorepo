@@ -67,7 +67,7 @@ def sweep(argv) -> int:
     ap.add_argument("--cards", help="tools/card_scenes.py output: skip repeat scenes")
     ap.add_argument("--ks", help="comma-separated k (default KS)")
     ap.add_argument("--no-raw-grain", action="store_true", help="skip truth_grain18 (two extra LibRaw passes a file)")
-    ap.add_argument("--eigs", default="", help="comma-separated further eigenvalue reads to score as arms (mp, mpc, mpcw, mpcws)")
+    ap.add_argument("--eigs", default="", help="comma-separated further eigenvalue reads to score as arms (mp, mpc, mpcw, mpcws, mpcw1)")
     args = ap.parse_args(argv)
     eigs = tuple(e for e in args.eigs.split(",") if e)
     ks = tuple(float(x) for x in args.ks.split(",")) if args.ks else KS
