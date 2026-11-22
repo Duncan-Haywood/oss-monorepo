@@ -207,3 +207,47 @@ def subwindow_delays(a, b, gamma, starts_s, sub_s, max_lag_s, centre_s, fs=FS):
         d, _ = gcc(a[i:i + m], b[i:i + m + 2 * G], gamma=gamma, fs=fs, max_lag_s=max_lag_s, centre_s=centre_s)
         out.append(d)
     return out
+
+
+def rate_lag_search(a, b, gamma=0.25, sub_s=1.0, max_lag_s=15.0, rates_ppm=None, fs=FS):
+    """Joint search over lag and clock rate (step 6a): delay of b behind a at the centre of a (s), the rate
+    (ppm) and the PSR of the summed curve.
+
+    A single long correlation assumes the delay is constant over the window; if b's clock runs eps slow the
+    delay moves by eps x the window length, and at 300 ppm over 20 s that is 6 ms, about 24 widths of a
+    4 kHz-band peak, so the peak smears (step 4d). Here a is cut into sub-windows of sub_s; each is correlated
+    (partially whitened GCC, `gamma`) against the whole of b on the common lag axis (lag 0: a[i] with b[i]).
+    For a candidate rate s the sub-window curves are summed after shifting sub-window k by s (t_k - t_c),
+    t_k its centre and t_c the centre of a, so a drifting delay adds up at one lag; the (lag, rate) of the
+    largest sum wins. With the rate fixed at 0 this is an incoherent sum of sub-window correlations.
+    Rates default to -400..400 ppm in 5 ppm steps (shift error at most 0.4 samples at 16 kHz over 19 s)."""
+    if rates_ppm is None:
+        rates_ppm = np.arange(-400.0, 400.0 + 1e-9, 5.0)
+    rates_ppm = np.asarray(rates_ppm, float)
+    a = np.asarray(a, float)
+    b = np.asarray(b, float)
+    m = int(round(sub_s * fs))
+    K = len(a) // m
+    L = int(round(max_lag_s * fs))
+    tc = len(a) / 2 / fs
+    tk = (np.arange(K) * m + m / 2) / fs - tc
+    smax = int(np.ceil(np.max(np.abs(rates_ppm)) * 1e-6 * np.max(np.abs(tk)) * fs)) + 1
+    W = L + smax  # each curve is kept over +-W so every shifted slice stays inside it
+    C = np.empty((K, 2 * W + 1), np.float32)
+    for k in range(K):
+        _, v = gcc_curve(a[k * m:(k + 1) * m], b, gamma=gamma, fs=fs, max_lag_s=W / fs, centre_s=k * m / fs)
+        C[k] = v
+    best = (-np.inf, 0, 0.0)
+    nL = 2 * L + 1
+    for s in rates_ppm:
+        sh = np.round(s * 1e-6 * tk * fs).astype(int)
+        acc = np.zeros(nL, np.float32)
+        for k in range(K):
+            acc += C[k, smax + sh[k]:smax + sh[k] + nL]
+        j = int(np.argmax(acc))
+        if acc[j] > best[0]:
+            best = (float(acc[j]), j, float(s), acc.copy())
+    _, j, s, acc = best
+    lags = np.arange(-L, L + 1)
+    _, d, psr = _peak(lags, acc.astype(float), fs)
+    return d, s, psr
