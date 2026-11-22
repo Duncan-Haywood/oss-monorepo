@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPAg67z4vjgbrmaTqE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T20:22:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7) photo-editing: mpcws on its own ramps vs what ships, fresh draw from the full 3,640-burst HDR+ set",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18303",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Parallel `score` runs piped through one xargs stdout interleaved JSON lines on draw 2; rescored into per-process files (J1's rows parsed cleanly)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The plain route drew the research track although the scheduled brief is a ventures brief; route --task was needed to follow the brief."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/photo-editing/eval/hdrplus-joint-check-2026-11-22.md",
+      "why": "After J1 failed, ran a second committed question (J2) on a second blind draw in the same run instead of stopping at J1's failure.",
+      "did": "Committed J2's arm, threshold and seed in a pushed commit before fetching the second draw.",
+      "result": "J2 also failed h4, and showed the zero-loser h4 is a bar the oracle fails too; the next question was reshaped accordingly."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-photo-editing-noise-read-two-blind-draws.md",
+    "ventures/photo-editing/eval/hdrplus-joint-check-2026-11-22.md"
+  ],
+  "goal": "Settle the committed next question for the noise-aware demosaic (read + ramps as one calibration) on blind real-noise data.",
+  "notes": "Pre-registered J1 (mpcws on its refit ramps vs ship) and committed it before fetching; 240 seeded bursts, 125 scored: +0.076/+0.084 dB colour/luma, h1-h3 pass, h4 fails on 2 (both collapsed mpcws reads, -1.72 and -0.17 dB). Committed J2 (collapse fallback to the shipped pair) before a second seeded draw of 240 (122 scored): +0.080/+0.123, h4 fails on 3 mild luma losses from the luma ramp; the oracle on its own ramps also fails h4 on 2 of them. Defaults stay. Local checks: tests/test_hdrplus_joint_check.py, test_hdrplus_ramp_fit.py, test_hdrplus_demosaic_sweep.py 11 passed (python3.13); check_posts ok; portfolio/router/validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

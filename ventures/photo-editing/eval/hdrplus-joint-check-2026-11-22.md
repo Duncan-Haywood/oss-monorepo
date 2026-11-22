@@ -44,7 +44,12 @@ bursts that fail h4 and whether the oracle loses on them too.
 
 ## Result
 
-(filled after scoring; see below)
+**Both committed questions fail h4, so `mpcw` and the shipped ramps stay.** J1 (`mpcws` on its refit ramps) lost
+over 0.1 dB on 2 of 125 fresh bursts, both frames where the `mpcws` read collapsed to zero; J2 (the same with a
+collapse fallback, committed after J1) lost on 3 of 122 more, all mild luma losses that the luma ramp causes. On
+both draws the pair gains about +0.08 dB colour and +0.08 to +0.12 dB luma on average, with 0 new losers to
+directional. On J2's draw the oracle on its own ramps fails h4 too (2 bursts), so a zero-loser bar over about 120
+bursts is one no read here has cleared on a blind set; see "Next".
 
 ### J1 on the first draw: `candidate` fails h4 on 2 bursts; both are frames where the `mpcws` read collapsed to zero
 
@@ -94,3 +99,48 @@ shipped read's (`COLLAPSE`), where it is exactly `ship` (read and ramps). The 0.
 (1.0, 2.0), collapse fallback to the shipped pair) as a named option and opens the drawn-noise check on Bayer files
 no ramp fit has used; it does not change the default (phones only). **A fail** keeps everything and the failing
 bursts say what the next read must handle.
+
+### J2 on the second draw: `fallback` fails h4 on 3 bursts, mild luma losses from the luma ramp; the oracle fails it too
+
+240 drawn: 122 scored; 96 skipped for a missing NoiseProfile, 10 for size mismatches, 12 over 25% masked. Models:
+Nexus 6P 51, Pixel XL 22, Nexus 6 17, angler 15, sailfish 7, marlin 6, bullhead 3, Pixel 1. The `mpcws` read
+collapsed on 1 scene (`0030_20151006_135654_478`), where `fallback` is `ship`. Every number:
+`hdrplus-joint-check-j2-2026-11-22.txt`.
+
+| test | reading | bar | |
+|---|---|---|---|
+| h1 means and thirds | colour **+0.080**, luma **+0.123**; thirds (luma/colour) +0.092/+0.061, +0.061/+0.049, +0.212/+0.128 | each at least -0.005; thirds at least -0.02 | pass |
+| h2 losers to `D` | 0 (what ships loses on 0) | no new, no more | pass |
+| h3 mean luma | **+0.123** | at least +0.02 | pass |
+| h4 bursts over 0.1 dB under `ship` | **3 of 122**: `0155_20160901_185114_261` (-0.10 luma), `0155_20160927_142033_473` (-0.18), `4KK2_20150818_173244_792` (-0.25) | none | **fail** |
+
+So by the rule nothing changes: **`mpcw` and the shipped ramps stay**, no option is added, and the drawn-noise
+check is not opened.
+
+**Readings after the verdict (they decide nothing).**
+
+- **The losses are the luma ramp's.** All three are luma; `mpcws` on the shipped ramps loses under 0.1 dB on all
+  three (-0.03, -0.00, -0.05 luma). Directional is worse still on two of them (-0.35 and -0.55 luma against the
+  candidate's -0.18 and -0.25); on the first it is -0.08 against -0.10. The candidate's luma ramp (1.0, 2.0) moves luma toward bilinear relative to the
+  shipped (0.8, 1.5), and on these frames it moves too far.
+- **The oracle fails h4 here too.** `true` on its own pick is over 0.1 dB under what ships on 2 of the 3
+  (`0155_20160901_185114_261` -0.11, `4KK2_20150818_173244_792` -0.16 luma). With about 120 bursts and per-burst
+  noise in the dB score near 0.1, "no burst over 0.1 dB worse" is a bar the most accurate read we have does not
+  pass on a blind set.
+- **The fallback did its job.** Collapse was rarer on this draw (1 scene) and cost nothing where it fired.
+- **Across both draws (247 bursts)** the pair gains on average about +0.08 dB colour and +0.10 luma over what
+  ships, with no new loser to directional; 5 bursts lose over 0.1 dB (worst -1.72, the collapsed-read frame J2's
+  fallback now handles; the rest -0.10 to -0.25).
+
+## Next
+
+- **Keep the luma ramp, change only the colour ramp and the read.** Every J2 loss came from the luma ramp, and
+  `mpcws` on the shipped ramps already gains luma (+0.074 and +0.111 on the two draws). The next blind question:
+  `mpcws` with colour ramp (0.3, 1.0), the shipped luma ramp (0.8, 1.5), and the collapse fallback, on a third
+  seeded draw (`--seed 20261124 --exclude` both burst lists).
+- **Set h4 against the oracle, committed before that draw**: a burst counts against a candidate only if it is
+  over 0.1 dB under what ships *and* the oracle on its own ramps is not (a loss the truth itself takes is the
+  score's noise or the scene's, not the read's). Keep the absolute h4 reported beside it.
+- **A floor for collapsed reads in what ships**: `frame_noise` reads under a quarter of the truth's sigma on 17 of
+  J1's 125 scenes, which turns the blend into plain directional there. The NEXT.md item "a noise floor for frames
+  with no smooth region" (the optical-black area, PR #18235's work) is the place.

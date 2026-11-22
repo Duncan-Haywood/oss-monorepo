@@ -33,9 +33,13 @@
   eval/hdrplus-ramp-fit-2026-11-22.md) Ramps refitted on the 48, scored on the 91 no-NoiseProfile bursts (79 scored,
   `m` = the tune median 0.1532): the `ship` pick (0.3, 1.0) / (1.2, 2.0) gains +0.10 / +0.10 dB but 6 bursts lose
   over 0.1 (h3) and 1 new loser to D (h4), so ramps stay. The oracle's losses to what ships go from 14 to 0 with each
-  arm on its own pick: ramps and read are one calibration. Next: `mpcws` on (0.3, 1.0) / (1.0, 2.0) against what
-  ships, committed first, on a seeded fresh draw from the full set (`prep --bucket
-  https://storage.googleapis.com/hdrplusdata/20171106`, 3,640 bursts), then a drawn-noise check before any default. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
+  arm on its own pick: ramps and read are one calibration. (2026-11-22,
+  eval/hdrplus-joint-check-2026-11-22.md) `mpcws` on (0.3, 1.0) / (1.0, 2.0) against what ships on two seeded fresh
+  draws from the full set (tools/hdrplus_joint_check.py): about +0.08 dB colour, +0.08 to +0.12 luma, 0 new losers
+  to D, but h4 fails on both (2 of 125: collapsed `mpcws` reads; 3 of 122 with a collapse fallback: mild luma
+  losses from the luma ramp, where the oracle also loses on 2). Next: `mpcws` with colour (0.3, 1.0), the shipped
+  luma ramp and the fallback, on a third draw (seed 20261124, `--exclude` both lists), h4 counted against the
+  oracle; then a drawn-noise check before any default. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
   been tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
@@ -58,6 +62,9 @@
   with the luma ramp (2026-11-17). What remains is
   evidence on real noise (the ISO pair below).
 - A noise floor for frames with no smooth region (the guard reads low there): the optical-black area.
+  (2026-11-22, eval/hdrplus-joint-check-2026-11-22.md) Measured on fresh HDR+ bursts: the shipped `frame_noise`
+  reads under a quarter of the truth's sigma at 18% grey on 17 of 125 scenes (`mpcws` on 11), which makes the
+  blend plain directional; a `mpcws` collapse cost -1.72 dB luma on one night frame.
   (2026-11-22, eval/optical-black-floor-2026-11-22.md, `tools/optical_black_floor.py`) Measured, not shipped:
   through LibRaw only 8 of 57 public raws keep usable masked sensels (Canon, K-1 II, NX3000, Nexus 5X, E-P3).
   On those the frame line's read term is clamped to 0 on 4 and under half the masked sigma on 5; a floor would
