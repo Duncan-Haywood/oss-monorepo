@@ -1,0 +1,56 @@
+# Milestone 25: the real villages refitted with scaled moments
+milestone 3 harness: grid 850 points, S = 75, seeds (0, 1), 200 datasets per process; moments ext8; confusion rows list the share choosing I/T/R
+grid simulated in 85 s
+scales (moments 1..8): sd-synth 0.0629 0.1351 0.0767 0.0339 0.2566 0.0730 0.0843 0.0816
+                       sd-data (real villages) 0.0683 0.1670 0.1006 0.0497 0.3311 0.0711 0.0890 0.1126
+
+## (a) real data
+identity: in-sample I qN=0.050 qP=0.3 Q=0.004219; T qN=0.075 qP=0.1 theta=0.60 Q=0.003449; R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25 Q=0.002471
+  LOO mean loss I 0.1742, T 0.1837, R 0.1906; lowest I; in-sample lowest R
+  I vs T: I lower in 0.753 of 2000 paired draws; mean diff -0.0095 [-0.0403, +0.0265]; T better in 19/43 villages
+  I vs R: I lower in 0.863 of 2000 paired draws; mean diff -0.0164 [-0.0408, +0.0217]; R better in 13/43 villages
+sd-data: in-sample I qN=0.050 qP=0.2 Q=0.4282; T qN=0.075 qP=0.1 theta=0.60 Q=0.2676; R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25 Q=0.1474
+  LOO mean loss I 8.4223, T 8.2088, R 8.2865; lowest T; in-sample lowest R
+  T vs I: T lower in 0.653 of 2000 paired draws; mean diff -0.2135 [-1.3574, +0.9212]; I better in 23/43 villages
+  T vs R: T lower in 0.635 of 2000 paired draws; mean diff -0.0778 [-0.6172, +0.5829]; R better in 19/43 villages
+sd-synth: in-sample I qN=0.050 qP=0.3 Q=0.6453; T qN=0.075 qP=0.1 theta=0.60 Q=0.3964; R qN=0.075 qP=0.2 gamma=0.10 delta=-0.25 Q=0.2234
+  LOO mean loss I 12.3715, T 13.0811, R 12.7960; lowest I; in-sample lowest R
+  I vs T: I lower in 0.684 of 2000 paired draws; mean diff -0.7096 [-4.4315, +1.5603]; T better in 20/43 villages
+  I vs R: I lower in 0.758 of 2000 paired draws; mean diff -0.4244 [-1.6535, +1.2440]; R better in 18/43 villages
+two-step: in-sample I qN=0.050 qP=0.2 Q=0.3764; T qN=0.075 qP=0.1 theta=0.60 Q=0.2576; R qN=0.100 qP=1.0 gamma=0.10 delta=-0.50 Q=0.2151
+  LOO mean loss I 7.8274, T 7.6674, R 7.6097; lowest R; in-sample lowest R
+  R vs I: R lower in 0.888 of 2000 paired draws; mean diff -0.2177 [-0.5946, +0.1418]; I better in 17/43 villages
+  R vs T: R lower in 0.598 of 2000 paired draws; mean diff -0.0577 [-0.9482, +0.8553]; T better in 16/43 villages
+
+## (b) recovery at the identity-fit processes (milestone 3's datasets)
+identity DGPs | identity loo      : I 0.585  T 0.820  R 0.555   lowest 0.555   confusion I->0.58/0.17/0.24; T->0.15/0.82/0.03; R->0.23/0.21/0.56
+identity DGPs | identity in-sample: I 0.270  T 0.485  R 0.995   lowest 0.270   confusion I->0.27/0.01/0.72; T->0.07/0.48/0.44; R->0.00/0.01/0.99
+identity DGPs | sd-data  loo      : I 0.690  T 0.815  R 0.790   lowest 0.690   confusion I->0.69/0.06/0.26; T->0.13/0.81/0.06; R->0.12/0.09/0.79
+identity DGPs | sd-data  in-sample: I 0.505  T 0.430  R 1.000   lowest 0.430   confusion I->0.51/0.00/0.49; T->0.10/0.43/0.47; R->0.00/0.00/1.00
+identity DGPs | sd-synth loo      : I 0.835  T 0.870  R 0.875   lowest 0.835   confusion I->0.83/0.07/0.10; T->0.10/0.87/0.03; R->0.05/0.07/0.88
+identity DGPs | sd-synth in-sample: I 0.775  T 0.435  R 1.000   lowest 0.435   confusion I->0.78/0.01/0.22; T->0.14/0.43/0.42; R->0.00/0.00/1.00
+elapsed 99 s
+
+## (c) recovery at the processes refitted under sd-data: I I qN=0.050 qP=0.2; T T qN=0.075 qP=0.1 theta=0.60; R R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25
+sd-data DGPs | identity loo      : I 0.610  T 0.775  R 0.540   lowest 0.540   confusion I->0.61/0.15/0.23; T->0.21/0.78/0.01; R->0.21/0.25/0.54
+sd-data DGPs | identity in-sample: I 0.080  T 0.470  R 0.995   lowest 0.080   confusion I->0.08/0.01/0.92; T->0.07/0.47/0.46; R->0.00/0.01/0.99
+sd-data DGPs | sd-data  loo      : I 0.660  T 0.800  R 0.770   lowest 0.660   confusion I->0.66/0.12/0.22; T->0.15/0.80/0.04; R->0.12/0.10/0.77
+sd-data DGPs | sd-data  in-sample: I 0.220  T 0.460  R 0.995   lowest 0.220   confusion I->0.22/0.01/0.78; T->0.12/0.46/0.42; R->0.00/0.01/0.99
+sd-data DGPs | sd-synth loo      : I 0.720  T 0.790  R 0.935   lowest 0.720   confusion I->0.72/0.10/0.18; T->0.15/0.79/0.06; R->0.01/0.05/0.94
+sd-data DGPs | sd-synth in-sample: I 0.440  T 0.450  R 0.995   lowest 0.440   confusion I->0.44/0.01/0.56; T->0.14/0.45/0.41; R->0.01/0.00/0.99
+
+## (d) real LOO loss differences against the synthetic spread (sd-data weights)
+  identity DGPs, process I: R-I real -0.1357 vs 5-95% -0.4275 to +0.6426 (share at or below real 0.160); T-I real -0.2135 vs 5-95% -0.0989 to +1.4433 (share at or below real 0.030)
+  identity DGPs, process T: R-I real -0.1357 vs 5-95% -0.5846 to +0.7162 (share at or below real 0.245); T-I real -0.2135 vs 5-95% -1.0997 to +0.2699 (share at or below real 0.745)
+  identity DGPs, process R: R-I real -0.1357 vs 5-95% -1.3880 to +0.5433 (share at or below real 0.770); T-I real -0.2135 vs 5-95% -0.6465 to +1.8791 (share at or below real 0.295)
+  sd-data DGPs, process I: R-I real -0.1357 vs 5-95% -0.3837 to +0.6774 (share at or below real 0.140); T-I real -0.2135 vs 5-95% -0.2885 to +1.5559 (share at or below real 0.085)
+  sd-data DGPs, process T: R-I real -0.1357 vs 5-95% -0.5071 to +0.6872 (share at or below real 0.215); T-I real -0.2135 vs 5-95% -1.0135 to +0.4598 (share at or below real 0.690)
+  sd-data DGPs, process R: R-I real -0.1357 vs 5-95% -1.2496 to +0.4956 (share at or below real 0.780); T-I real -0.2135 vs 5-95% -0.7565 to +1.9126 (share at or below real 0.255)
+
+## hypotheses
+H85 (sanity: milestone 3 real-data numbers, milestone 3 and 24 recovery): held
+H86 (sd-data recovery at identity processes >= 0.80): lowest 0.690 -> refuted
+H87 (real data decide under sd-data: best T lower in >= 0.95 of paired draws against each family): min share 0.635 -> refuted
+H88 (I still lowest real LOO loss under sd-data): best T -> refuted
+H89 (sd-data recovery at sd-data processes >= 0.80): lowest 0.660 -> refuted
+runtime 113 s
