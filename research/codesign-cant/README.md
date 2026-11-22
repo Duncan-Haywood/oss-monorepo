@@ -19,6 +19,16 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 - **Airmode is not a fix.** Letting the mixer shift the collective makes the margin-trained sets slightly worse (69 to 75 at 45°; 6 designs worse, none better, p = 0.03): at thrust-to-weight 2 the collective already sits mid-range. Airmode with 1.5× torque still cuts no set by half at 45°.
 - **The unconstrained tune crashes for a different reason (post hoc).** Its 45° deaths see the gust torque at a median 0.59 of the limit (margin sets: 0.87), and halving its position gains cuts them from 83 to 18. It asks for more torque than the thrust polytope gives, consistent with milestone 12b's finding that unconstrained tunes diverge even at the trained lever.
 - **For a builder:** if the frame's centre of pressure may sit twice as far from the centre of mass as designed, buy about 50% more roll/pitch authority than the hover thrust polytope gives. A different tune or airmode will not do it.
+## Ten seeds below the lag-range knee (2026-11-22): is a 100 ms motor-lag training ceiling enough for a drone tuner? No: it crashes 1.66 times as often as 125 ms, for 3-4% less mass
+
+**Question.** Ten seeds put the knee of section VII's ceiling sweep at about 150 ms (3.8× the slowest published identification, 39.1 ms): 125→150 ms separates, 150→200 ms does not. The row below, 100 ms (2.6×), was still at six seeds (191 against 101 crashes against 125 ms, p = 0.025). Does that step hold at ten seeds, and what does the cheaper ceiling save? Seeds 6-9 of the 100 ms arm were added in both centre-of-pressure geometries, nothing else changed, and the result was compared with the 125 ms arm's ten stored seeds.
+
+**Headline ([`experiments/m12e_ten_seeds_c100/stats.txt`](experiments/m12e_ten_seeds_c100/stats.txt); 16 new CMA-ES runs, 70 min on 4 cores; 9 predictions committed to `LOG.md` before the run, all held; reproduction checks exact ([`checks.txt`](experiments/m12e_ten_seeds_c100/checks.txt)); simulated).**
+
+- **The step holds.** Flights that diverge at twice the trained centre-of-pressure lever and the 45° tilt limit, summed over the 33, 36 and 39.1 ms laws: **326 against 196 of 3,840** (pooled Mann-Whitney p = 0.04). Paired by geometry and seed, 100 ms crashes more in 17 of 20 pairs (exact Wilcoxon p = 0.001). The four new seeds alone do not show it (135 against 95, p = 0.72): one 100 ms seed is among the best designs in either arm.
+- **At a 75 ms motor:** 893 against 695 of 1,280, worse in 18 of 20 pairs.
+- **What 100 ms saves:** 3-4% mass (median 1.42 against 1.48 kg above, 1.37 against 1.41 kg below) and 0.1-0.15 s of rise on a 1 m step (1.60 against 1.68 s, 1.58 against 1.73 s). All 20 designs pass the linear certificate at the identified lags.
+- **The knee at ten seeds:** 326 / 196 / 112 / 86 identified-lag crashes of 3,840 at 100 / 125 / 150 / 200 ms. The first two steps are separated, the last is not. **For a builder:** keep the training ceiling at about 4× the slowest identified lag; 2.6× is not enough.
 
 ## Ten seeds past the lag-range knee (2026-11-22): train a drone's motor lag to 200 ms instead of 150? Not for the measured lag, only for slower motors
 
