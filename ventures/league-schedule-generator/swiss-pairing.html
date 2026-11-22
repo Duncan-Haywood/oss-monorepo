@@ -8,7 +8,7 @@
   <meta property="og:title" content="Free Swiss pairing program in the browser (FIDE Dutch system)">
   <meta property="og:description" content="Pair each round, enter results board by board, print standings, and open or save TRF files from Swiss-Manager or Vega. Nothing to install, nothing uploaded.">
   <link rel="canonical" href="./swiss-pairing.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How close is it to Swiss-Manager?", "acceptedAnswer": {"@type": "Answer", "text": "Six real over-the-board events published on chess-results.com (among them the Aeroflot Open and the Prague festival) were replayed round by round through this pairer. Given the players who actually played each round, it produced exactly the arbiters' pairings in 51 of 54 rounds, and 99.2% of the boards from round 2 on. Four of the six events match in all nine rounds. Two of the three misses are round 1, which those arbiters paired on an earlier rating list than the file carries; the third (Graz, round 4) is a choice of which player drops a score group where every rule we model ties. The replay, its code and every number are in the source (eval/swiss-vs-published.mjs, eval/swiss-big-brackets.txt)."}}, {"@type": "Question", "name": "Which pairing rules does it follow?", "acceptedAnswer": {"@type": "Answer", "text": "FIDE's Dutch system (C.04.3): score groups paired from the top, players who cannot be paired in their group float down, the top half of each group meets the bottom half, no rematches, no board where both players are owed the same colour absolutely unless every round needs one, then strong and mild colour preferences, then players who floated last round or two rounds ago are not floated the same way again. The pairing bye goes to the lowest-ranked player who can take it, once per player. Every round is checked before it is shown: everyone placed once, no rematch, no second bye."}}, {"@type": "Question", "name": "Can I carry on an event from Swiss-Manager or Vega?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open the event's FIDE TRF file (TRF-16) and the players and results so far are read on your device. The page can also write a TRF of its own event for a rating officer or an endorsed program."}}, {"@type": "Question", "name": "What if a player is late, leaves or asks for a bye?", "acceptedAnswer": {"@type": "Answer", "text": "Add a line to the results box before pairing: Cy half bye for a requested half-point bye this round, Cy absent to sit out for nothing, Dee out for a withdrawal. A late joiner is added to the player list; they start on zero points."}}, {"@type": "Question", "name": "How are ties in the standings broken?", "acceptedAnswer": {"@type": "Answer", "text": "Points, then Buchholz (the sum of your opponents' scores), then Sonneborn-Berger (full score of each opponent you beat plus half of each you drew), then starting rank."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Names, ratings and results stay on the device that typed them, saved in its own storage so a closed tab does not lose the event."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How close is it to Swiss-Manager?", "acceptedAnswer": {"@type": "Answer", "text": "Six real over-the-board events published on chess-results.com (among them the Aeroflot Open and the Prague festival) were replayed round by round through this pairer. Given the players who actually played each round, it produced exactly the arbiters' pairings in 51 of 54 rounds, and 99.2% of the boards from round 2 on. Four of the six events match in all nine rounds. Two of the three misses are round 1, which those arbiters paired on an earlier rating list than the file carries; the third (Graz, round 4) was paired before one round-3 result was entered as it now stands: read that game as the draw the arbiters apparently had, and all 137 boards match. The replay, its code and every number are in the source (eval/swiss-vs-published.mjs, eval/swiss-big-brackets.txt)."}}, {"@type": "Question", "name": "Which pairing rules does it follow?", "acceptedAnswer": {"@type": "Answer", "text": "FIDE's Dutch system (C.04.3): score groups paired from the top, players who cannot be paired in their group float down, the top half of each group meets the bottom half, no rematches, no board where both players are owed the same colour absolutely unless every round needs one, then strong and mild colour preferences, then players who floated last round or two rounds ago are not floated the same way again. The pairing bye goes to the lowest-ranked player who can take it, once per player. Every round is checked before it is shown: everyone placed once, no rematch, no second bye."}}, {"@type": "Question", "name": "Can I carry on an event from Swiss-Manager or Vega?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open the event's FIDE TRF file (TRF-16) and the players and results so far are read on your device. The page can also write a TRF of its own event for a rating officer or an endorsed program."}}, {"@type": "Question", "name": "What if a player is late, leaves or asks for a bye?", "acceptedAnswer": {"@type": "Answer", "text": "Add a line to the results box before pairing: Cy half bye for a requested half-point bye this round, Cy absent to sit out for nothing, Dee out for a withdrawal. A late joiner is added to the player list; they start on zero points."}}, {"@type": "Question", "name": "How are ties in the standings broken?", "acceptedAnswer": {"@type": "Answer", "text": "Points, then Buchholz (the sum of your opponents' scores), then Sonneborn-Berger (full score of each opponent you beat plus half of each you drew), then starting rank."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Names, ratings and results stay on the device that typed them, saved in its own storage so a closed tab does not lose the event."}}]}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Swiss pairing program", "applicationCategory": "GameApplication", "operatingSystem": "Any (browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "url": "./swiss-pairing.html"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
@@ -89,6 +89,18 @@
     <button type="button" class="secondary" id="dl-txt">Download standings (text)</button>
   </section>
 
+  <section class="card" id="check">
+    <h2>Check a round an arbiter paired</h2>
+    <p class="note">Open a TRF that includes the round (from Swiss-Manager, Vega, chess-results or this page). The round is re-paired from the rounds before it by the Dutch rules and compared board by board. If they differ, each earlier result near the difference is read the other two ways in turn; when one of them gives the arbiter's boards exactly, the round was probably paired before that result was entered or corrected. Read on this device, never uploaded.</p>
+    <div class="row">
+      <div><label for="check-trf">TRF file</label><input type="file" id="check-trf" accept=".trf,.txt,text/plain"></div>
+      <div><label for="check-round">Round to check</label><select id="check-round" disabled></select></div>
+    </div>
+    <button type="button" id="check-go" disabled>Check round</button>
+    <p id="check-status" role="status" class="note"></p>
+    <div id="check-out"></div>
+  </section>
+
   <section class="guide">
     <h2>Why use it</h2>
     <p>Most clubs pair a Swiss with one of these. Each is good at something; this page is for the club night where the organiser has a phone, a list of names and twenty minutes.</p>
@@ -105,7 +117,7 @@
 
     <h2>Questions</h2>
     <h3>How close is it to Swiss-Manager?</h3>
-    <p>Six real over-the-board events published on chess-results.com (among them the Aeroflot Open and the Prague festival) were replayed round by round through this pairer. Given the players who actually played each round, it produced exactly the arbiters' pairings in <strong>51 of 54 rounds</strong>, and 99.2% of the boards from round 2 on. Four of the six events match in all nine rounds. Two of the three misses are round 1, which those arbiters paired on an earlier rating list than the file carries; the third (Graz, round 4) is a choice of which player drops a score group where every rule we model ties. The replay, its code and every number are in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator">source</a> (<code>eval/swiss-vs-published.mjs</code>, <code>eval/swiss-big-brackets.txt</code>).</p>
+    <p>Six real over-the-board events published on chess-results.com (among them the Aeroflot Open and the Prague festival) were replayed round by round through this pairer. Given the players who actually played each round, it produced exactly the arbiters' pairings in <strong>51 of 54 rounds</strong>, and 99.2% of the boards from round 2 on. Four of the six events match in all nine rounds. Two of the three misses are round 1, which those arbiters paired on an earlier rating list than the file carries; the third (Graz, round 4) was paired before one round-3 result was entered as it now stands: read that game as the draw the arbiters apparently had, and all 137 boards match. The replay, its code and every number are in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator">source</a> (<code>eval/swiss-vs-published.mjs</code>, <code>eval/swiss-big-brackets.txt</code>).</p>
 
     <h3>Which pairing rules does it follow?</h3>
     <p>FIDE's Dutch system (C.04.3): score groups paired from the top, players who cannot be paired in their group float down, the top half of each group meets the bottom half, no rematches, no board where both players are owed the same colour absolutely unless every round needs one, then strong and mild colour preferences, then players who floated last round or two rounds ago are not floated the same way again. The pairing bye goes to the lowest-ranked player who can take it, once per player. Every round is checked before it is shown: everyone placed once, no rematch, no second bye.</p>
@@ -123,7 +135,7 @@
 <footer>
   <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not FIDE-endorsed: for FIDE-rated or national-rated events use an endorsed pairing program and an arbiter's check. The example players are invented.</p>
   <p><strong>Independent.</strong> Not affiliated with FIDE, any federation, Swiss-Manager, Vega, lichess or chess-results.com; their names are used only to describe compatibility.</p>
-  <p>Everything runs in your browser; names, ratings and results are saved only on this device. Anonymous feature events (<code>swiss_page_paired</code>, <code>swiss_page_saved</code>, <code>swiss_page_trf_opened</code>, <code>swiss_page_trf_downloaded</code>, <code>swiss_page_example</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+  <p>Everything runs in your browser; names, ratings and results are saved only on this device. Anonymous feature events (<code>swiss_page_paired</code>, <code>swiss_page_saved</code>, <code>swiss_page_trf_opened</code>, <code>swiss_page_trf_downloaded</code>, <code>swiss_page_example</code>, <code>swiss_page_round_checked</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
   <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
   <p>Free and open source under an <a href="LICENSE">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
 </footer>
@@ -295,6 +307,70 @@
 
   for (const id of ["#players", "#results", "#total", "#name"]) $(id).addEventListener("change", () => { save(); showStandings(); });
   $("#seed").addEventListener("change", save);
+
+  const checkState = { text: null, trf: null };
+  let checkWorker = null;
+  $("#check-trf").addEventListener("change", async (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    const { parseTrf } = await import("./trf.mjs");
+    const text = await file.text();
+    const trf = parseTrf(text);
+    const rounds = Math.max(0, ...trf.players.map((p) => p.rounds.length));
+    const played = [];
+    for (let k = 2; k <= rounds; k++) if (trf.players.some((p) => p.rounds[k - 1] && p.rounds[k - 1].opponent != null)) played.push(k);
+    const sel = $("#check-round");
+    sel.innerHTML = played.map((k) => `<option value="${k}">Round ${k}</option>`).join("");
+    if (played.length) sel.value = String(played[played.length - 1]);
+    sel.disabled = $("#check-go").disabled = !played.length;
+    checkState.text = text; checkState.trf = trf;
+    $("#check-out").innerHTML = "";
+    $("#check-status").textContent = !trf.players.length ? "No player lines (001) found: is this a TRF file?"
+      : played.length ? `Read ${trf.players.length} players; rounds 2 to ${played[played.length - 1]} can be checked (round 1 depends only on the starting list).` : "This file has no games after round 1 to check.";
+  });
+  $("#check-go").addEventListener("click", () => {
+    if (!checkState.text) return;
+    const round = Number($("#check-round").value);
+    const trf = checkState.trf;
+    const name = new Map(trf.players.map((p) => [p.id, p.name]));
+    const who = (id) => `${esc(name.get(id) ?? id)} (${id})`;
+    $("#check-go").disabled = true;
+    $("#check-out").innerHTML = "";
+    $("#check-status").textContent = `Re-pairing round ${round}…`;
+    if (checkWorker) checkWorker.terminate();
+    checkWorker = new Worker("./round-check-worker.mjs", { type: "module" });
+    checkWorker.onmessage = (e) => {
+      const m = e.data;
+      if (m.progress) { $("#check-status").textContent = `Round ${round} differs; trying earlier results read another way: ${m.progress[0]} of up to ${m.progress[1]}…`; return; }
+      $("#check-go").disabled = false;
+      checkWorker.terminate(); checkWorker = null;
+      if (m.error || m.result.error) { $("#check-status").innerHTML = `<span class="err">${esc(m.error || m.result.error)}</span>`; return; }
+      const o = m.result;
+      record("swiss_page_round_checked");
+      const sc = new Map(o.scores || []);
+      const pts = (id) => (sc.has(id) ? ` [${sc.get(id)}]` : "");
+      const exact = o.matched === o.total && o.byeMatches;
+      let html = `<p><strong>Round ${o.round}: ${o.matched} of ${o.total} boards</strong> match a Dutch re-pairing from the rounds before it${o.matched ? ` (colours on ${o.sameColours} of ${o.matched} matching boards)` : ""}${o.byeMatches ? "" : `; the pairing bye differs (file: ${o.recordedBye == null ? "none" : who(o.recordedBye)}, re-pairing: ${o.bye == null ? "none" : who(o.bye)})`}.</p>`;
+      if (!exact) {
+        if (o.explanations.length) {
+          const x = o.explanations[0];
+          html += `<p><strong>Likely cause:</strong> read round ${x.round}'s ${who(x.white)} – ${who(x.black)} as <strong>${x.now}</strong> instead of ${x.was} and the re-pairing gives every board in the file. The round was probably paired before that result was entered or corrected; worth checking the scoresheet.</p>`;
+        } else {
+          html += `<p>No single earlier result read another way explains it (${o.tried} tried, games near the ${o.firstMiss}-point group). Other causes: a different starting list, a player entered absent or present by hand, an accelerated round, or a hand-made change.</p>`;
+        }
+        html += `<p class="note">First difference in the ${o.firstMiss}-point score group. Scores before the round in brackets.</p><div class="scroll"><table><thead><tr><th>In the file, not re-paired</th><th>Re-paired, not in the file</th></tr></thead><tbody>`;
+        const n = Math.max(o.missed.theirs.length, o.missed.ours.length);
+        for (let i = 0; i < n; i++) {
+          const a = o.missed.theirs[i], b = o.missed.ours[i];
+          html += `<tr><td>${a ? `${who(a[0])}${pts(a[0])} – ${who(a[1])}${pts(a[1])}` : ""}</td><td>${b ? `${who(b[0])}${pts(b[0])} – ${who(b[1])}${pts(b[1])}` : ""}</td></tr>`;
+        }
+        html += "</tbody></table></div>";
+      }
+      $("#check-out").innerHTML = html;
+      $("#check-status").textContent = exact ? "The file's round is the Dutch pairing this page makes." : "";
+    };
+    checkWorker.postMessage({ text: checkState.text, round });
+  });
 
   const optBtn = $("#optout");
   const showOpt = () => { optBtn.textContent = usageOptedOut() ? "Usage counting is off (turn it back on)" : "Turn usage counting off"; };

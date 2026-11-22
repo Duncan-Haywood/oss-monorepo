@@ -5948,3 +5948,48 @@ changes nothing anyone has seen. The replay's played condition is identical; the
 one Graz board of 5,083; simulated 101 to 301-player events give the same repeat-float counts; and on
 the same histories fed to both builds (`eval/swiss-stage-b-radix-diff.mjs`), 0 of 96 rounds differ in
 any board, including 301 players with 40% draws. A latent fault, now closed.
+
+## A result entered after the round was paired: Graz round 4, and "Check a round" (2026-11-22, later)
+
+Graz round 4 was the last later-round miss on the six chess-results events: at 2.5 points the
+arbiters floated 21 (rated 2430, tenth in the bracket) where the pairer floats 152, the bracket's last
+player, and the 2-point bracket below repeated it (they float 19, we float 274). Every criterion we
+model tied, so the earlier write-up left it as "something we do not see in the file".
+
+It is in the file, one round back. Read round 3's 21 v 89 (a 1-0 win for 21 in every TRF of the event)
+as a draw, and the replay gives **all 137 published boards of round 4 exactly**, colours included:
+21 then sits on 2 points, the 2.5 bracket is even and floats no one (152 meets 39 inside it, as
+published), and 21 meets 97 inside the 2-point group, which leaves 19 to float from it, as published.
+Round 5, paired on the file as it stands, matches exactly too, so the result read 1-0 again by then.
+The fixture's TRFs were all exported after the event (each a truncation of the final file), so they
+cannot show the result the arbiters had when they paired round 4; the simplest reading is a result
+entered as a draw (or not yet entered and taken as one) and corrected before round 5.
+
+How it was found: `node eval/swiss-result-flip.mjs <fixtures>` changes one earlier game's result at a
+time (each of the other two outcomes), re-pairs the round and keeps the changes that give the
+published round exactly (`eval/swiss-result-flip.txt`). On Graz round 4 it tries the 516 changes on
+games touching a player within half a point of the 2.5 group; 21 v 89 is the only exact one. The pairer
+itself is unchanged: the 51 of 54 rounds and 99.2% of later boards stand as measured on the file's
+results, and with that one game read as a draw the six events are exact in every round from 2 on.
+
+A second miss turned up on the way, of a kind the replay had hidden. `eval/swiss-vs-published.mjs`
+enters everyone without a published board as absent, the pairing-allocated bye included, so the bye
+was never compared. Checking each round from the file that records it, Budapest A round 8 gives the
+bye to 82 (1.5 points) where the pairer gives it to 90 (1 point, also never had a bye, the same
+seven games played), and three boards follow from that. The one single-result explanation is round 4's
+90 v 82 read as a 90 win instead of the draw every file shows: weaker evidence than Graz, since it
+moves only the bye. Open in NEXT.md.
+
+**On the page: "Check a round an arbiter paired"** (`round-check.mjs`, `round-check-worker.mjs`,
+`swiss-pairing.html`). Open a TRF that includes the round, pick it, and the page re-pairs it from the
+rounds before (Dutch rules, the replay above), says how many boards and colours match and whether the
+bye does, lists the differing boards highest score group first with each player's score, and, when
+they differ, searches single earlier results near the first difference (players on differing boards
+first, latest round first) and names the one that explains the round: "read round 3's Dehtiarov (21)
+– Dovgaliuk (89) as ½-½ instead of 1-0 and the re-pairing gives every board in the file". The search
+runs in a worker: on Graz round 4 (275 players) the page answers in about 13 s, on the 21st candidate.
+For an arbiter that is a second opinion on a round before it is published, and a pointer to the
+scoresheet when a result was keyed in wrong. Tests: `round-check.test.mjs` (clean rounds check clean,
+colours and bye compared, a corrected round-2 result named as the cause of round 3's difference).
+`eval/swiss-replay.mjs` now re-exports `replayRound` from `round-check.mjs`, so the eval scripts and
+the page share one replay.
