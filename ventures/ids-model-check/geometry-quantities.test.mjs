@@ -751,3 +751,56 @@ test("the fill writes a beam's surface areas from its I-section outline, and a r
   assert.ok(Math.abs(Number(c.value) - (Math.PI * 0.3 * 3 + 2 * Math.PI * 0.15 ** 2)) < 0.001);
   assert.equal(S("IFCCOLUMN", "Qto_ColumnBaseQuantities", "OuterSurfaceArea").writtenList.filter((x) => x.source === "geometry").length, 0);
 });
+
+// a box body as one positive convex piece: x in [0, a], y in [0, b], z in [0, c]
+function boxBody(a, b, c) {
+  const P = (x, y, z) => [x, y, z];
+  const v = [P(0, 0, 0), P(a, 0, 0), P(a, b, 0), P(0, b, 0), P(0, 0, c), P(a, 0, c), P(a, b, c), P(0, b, c)];
+  const f = (...i) => i.map((k) => v[k]);
+  return { terms: [{ s: 1, faces: [f(0, 3, 2, 1), f(4, 5, 6, 7), f(0, 1, 5, 4), f(1, 2, 6, 5), f(2, 3, 7, 6), f(3, 0, 4, 7)] }] };
+}
+const UPRIGHT = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]; // placement: body z is up
+const LYING = [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0]; // body x is up (world z = body x)
+
+test("a Tekla pad footing: Length is its depth, Width the side along its own y, the section volume / depth, the surfaces every face", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { footingLines } = await import("./geometry-quantities.mjs");
+  const { solidExtent } = await import(TAKEOFF.href);
+  // 11.9 (y) x 10.75 (z) in plan, 2.1 deep along x, x upright (M3D-CON's ZAP-E2a)
+  const row = { computed: { status: "ok", gross: 2.1 * 11.9 * 10.75, solids: { body: boxBody(2.1, 11.9, 10.75) } }, lengthUnit: 1, world: LYING };
+  const t = footingLines(row, solidExtent, "tekla");
+  assert.equal(t.pad, true);
+  const near = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, b);
+  assert.ok(near(t.length, 2.1) && near(t.width, 11.9) && near(t.height, 10.75));
+  assert.ok(near(t.cross, 127.925));
+  assert.ok(near(t.outer, 350.98) && near(t.gross, 350.98));
+  // another tool: only the total surface
+  const o = footingLines(row, solidExtent, null);
+  assert.deepEqual([o.length, o.width, o.height, o.cross, o.outer], [null, null, null, null, null]);
+  assert.ok(near(o.gross, 350.98));
+});
+
+test("a Tekla strip footing: Length the longest side, no cross section offered; a footing as long as wide offers no lengths", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { footingLines } = await import("./geometry-quantities.mjs");
+  const { solidExtent } = await import(TAKEOFF.href);
+  // 6 m along z, 0.65 thick along y, 1.2 deep along x (upright)
+  const strip = { computed: { status: "ok", gross: 6 * 0.65 * 1.2, solids: { body: boxBody(1.2, 0.65, 6) } }, lengthUnit: 1, world: UPRIGHT };
+  const t = footingLines(strip, solidExtent, "tekla");
+  assert.equal(t.pad, false);
+  assert.ok(Math.abs(t.length - 6) < 1e-9 && Math.abs(t.width - 0.65) < 1e-9 && Math.abs(t.height - 1.2) < 1e-9);
+  assert.equal(t.cross, null);
+  // a 2 x 2 x 2.02 block, upright side not the thinnest: neither a pad nor clearly long
+  const block = { computed: { status: "ok", gross: 8.08, solids: { body: boxBody(2, 2, 2.02) } }, lengthUnit: 1, world: UPRIGHT };
+  const b = footingLines(block, solidExtent, "tekla");
+  assert.equal(b.length, null);
+  assert.ok(b.gross > 0);
+});
+
+test("a footing's quantities reach the fill only for IFCFOOTING rows", async () => {
+  const rows = [
+    { id: 1, ifcType: "IFCFOOTING", computed: { status: "ok", gross: 1, net: 1, footing: { length: 1, width: 2, height: 3, cross: 6, outer: 22, gross: 22 } } },
+    { id: 2, ifcType: "IFCSLAB", computed: { status: "ok", gross: 1, footing: { length: 9 } } },
+  ];
+  const q = quantitiesFromRows(rows);
+  assert.deepEqual([...q.get(1).keys()].sort(), ["CrossSectionArea", "GrossSurfaceArea", "GrossVolume", "Height", "Length", "NetVolume", "OuterSurfaceArea", "Width"]);
+  assert.equal(q.get(2).get("Length"), undefined);
+});

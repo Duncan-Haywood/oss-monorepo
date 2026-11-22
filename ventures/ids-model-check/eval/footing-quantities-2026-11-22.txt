@@ -1,0 +1,28 @@
+files (footings): ISSUE_102_M3D-CON-CD.ifc (82), ISSUE_102_M3D-CON.ifc (6)
+tool kind name: stored; offered, within 1%, misses; held back
+Tekla other CrossSectionArea: 23; 0, 0, 0; 23
+Tekla other GrossSurfaceArea: 23; 23, 0, 23; 0
+Tekla other Height: 23; 23, 23, 0; 0
+Tekla other Length: 23; 23, 23, 0; 0
+Tekla other OuterSurfaceArea: 23; 23, 23, 0; 0
+Tekla other Width: 23; 23, 23, 0; 0
+Tekla pad CrossSectionArea: 65; 65, 65, 0; 0
+Tekla pad GrossSurfaceArea: 65; 65, 65, 0; 0
+Tekla pad Height: 65; 65, 65, 0; 0
+Tekla pad Length: 65; 65, 65, 0; 0
+Tekla pad OuterSurfaceArea: 65; 65, 65, 0; 0
+Tekla pad Width: 65; 65, 65, 0; 0
+
+misses and held back by name and profile:
+  6 miss GrossSurfaceArea 2000*3924
+  6 held CrossSectionArea 2000*3924
+  4 miss GrossSurfaceArea 650*5000
+  4 miss GrossSurfaceArea 500*250
+  4 miss GrossSurfaceArea 2150*1000
+  4 miss GrossSurfaceArea 400*2867
+  4 held CrossSectionArea 650*5000
+  4 held CrossSectionArea 500*250
+  4 held CrossSectionArea 2150*1000
+  4 held CrossSectionArea 400*2867
+  1 miss GrossSurfaceArea 3800*3824
+  1 held CrossSectionArea 3800*3824

@@ -1,0 +1,14 @@
+ISSUE_102_M3D-CON-CD.ifc: 469 written (469 from geometry) in 7.1 s; filled model passes every check: false, failing before 492, after 23; written values verified 469 of 469; left in the to-fill table 23
+  Length: 82 written, 82 of 82 stored rewritten, 82 within 1% (worst 0.016%)
+  Width: 82 written, 82 of 82 stored rewritten, 82 within 1% (worst 0.000%)
+  Height: 82 written, 82 of 82 stored rewritten, 82 within 1% (worst 0.085%)
+  CrossSectionArea: 59 written, 59 of 82 stored rewritten, 59 within 1% (worst 0.000%)
+  OuterSurfaceArea: 82 written, 82 of 82 stored rewritten, 82 within 1% (worst 0.000%)
+  GrossSurfaceArea: 82 written, 82 of 82 stored rewritten, 59 within 1% (worst 596.079%)
+ISSUE_102_M3D-CON.ifc: 36 written (36 from geometry) in 0.9 s; filled model passes every check: true, failing before 36, after 0; written values verified 36 of 36; left in the to-fill table 0
+  Length: 6 written, 6 of 6 stored rewritten, 6 within 1% (worst 0.000%)
+  Width: 6 written, 6 of 6 stored rewritten, 6 within 1% (worst 0.000%)
+  Height: 6 written, 6 of 6 stored rewritten, 6 within 1% (worst 0.000%)
+  CrossSectionArea: 6 written, 6 of 6 stored rewritten, 6 within 1% (worst 0.000%)
+  OuterSurfaceArea: 6 written, 6 of 6 stored rewritten, 6 within 1% (worst 0.000%)
+  GrossSurfaceArea: 6 written, 6 of 6 stored rewritten, 6 within 1% (worst 0.000%)
