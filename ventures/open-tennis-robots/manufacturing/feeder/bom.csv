@@ -10,6 +10,7 @@ drive_bracket,laser,2,aluminium 5052 5 mm,"Gearmotor (37 mm class, M3 on a 31 mm
 idler_bracket,laser,2,aluminium 5052 5 mm,"Fixed M8 axle: M8 x 65 hex bolt + nyloc nut (idler axle) from the inside face, clamped through the wheel's hub bearings. M5 into the side rail's T-slot."
 cheek_foot,print,4,PETG,"M4 heat-set inserts; bolts the cheek to the turntable plate, 4 walls, 40% infill."
 az_gear_sector,print,1,PETG,"Azimuth gear: module 1.5, 150 teeth on the full circle (pitch radius 112.5 mm), 80 deg cut. Bolts under the turntable plate (3 x M4 into heat-set inserts); meshes with the stepper's 15-tooth pinion. Print flat, 100% infill, 0.1 mm layers for the flanks; grease the teeth."
+foot_block,print,2,PETG,"Levelling foot block: two M5 x 12 up through its flange into T-nuts in the net beam's bottom slot; an M6 nut slides into the slot from the rear and the foot's stud screws up through it (the pad rises 50 mm or drops 38 mm from level), locked by a thin jam nut under the column. Print standing on the flange, 6 walls, 40% infill."
 pole_foot,print,2,PETG,Sockets a 25 mm vertical pole 40 mm deep at the beam's end; two M5 x 12 down its counterbores into T-nuts in the beam's top slot. 6 walls.
 pole_elbow,print,2,PETG,"Joins a vertical pole to the top pole; sockets 40 mm deep. 6 walls, 40% gyroid."
 camera_clamp,print,2,PETG,Clips the top pole and holds the 2020 stereo bar; add an M4 clamp screw each. 6 walls.
@@ -60,7 +61,7 @@ az_pinion,cots,1,"Spur pinion, module 1.5, 15 teeth, 20 deg, 5 mm bore, steel, s
 wheel,cots,4,"150 x 40 mm non-marking wheel, 40 mm hub: 6 mm D hub (drive) or two 608 bearings and a spacer tube in the hub, 8 mm bore (idler, as a scooter wheel's)",
 idler_axle_spacer,cots,4,"Steel bearing spacer, 8.2 x 12 x 2 mm (a 608's inner-race spacer): one between the idler bracket and the hub's inner race, one under the nyloc",
 gearmotor,cots,2,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder",
-levelling_foot,cots,2,"M6 levelling foot with a 40 mm rubber pad, 155 mm of stud, into an M6 slot-6 T-nut in the beam's bottom slot, with a jam nut (an M10 stud, as listed until 2026-11-20, cannot pass a slot-6 opening)",
+levelling_foot,cots,2,"M6 x 80 swivel levelling foot, 40 mm rubber pad about 25 mm tall, up into the captive nut of a printed foot block under the beam, with a thin jam nut (155 mm of stud into a T-nut, as listed until 2026-11-22: 4 mm of travel and a stud that bent in the design wind; cad/README.md, ""Levelling feet"")",
 battery,cots,1,"24 V (8S) LiFePO4 20 Ah with BMS, max 90 x 200 x 130 mm",
 elev_actuator,cots,1,"Linear actuator, 12-24 V, 150 mm stroke, 220 N class, clevis eyes for M6, retracted 246 mm hole to hole (drawn at 0 deg; posed per pose in the sweeps)",
 elev_actuator_rod,cots,1,"The elev_actuator's own rod (not bought separately), drawn at 0 deg",
@@ -138,7 +139,8 @@ M4 x 12 socket cap screw (stops),cots,4,M4 x 12 socket cap screw (stops),mast pl
 "M4 heat-set insert, 5.7 mm long (stops)",cots,4,"M4 heat-set insert, 5.7 mm long (stops)",azimuth stop blocks
 Contact adhesive (polyurethane to PETG),cots,1,Contact adhesive (polyurethane to PETG),stop pads to their blocks
 M8 x 65 hex bolt + nyloc nut (idler axle),cots,2,M8 x 65 hex bolt + nyloc nut (idler axle),"idler axles, fixed to the brackets (the wheels' hub bearings turn)"
-M6 T-nut (slot 6) + M6 jam nut (levelling foot),cots,2,M6 T-nut (slot 6) + M6 jam nut (levelling foot),beam ends
+M5 x 12 button head + T-nut (levelling feet),cots,4,M5 x 12 button head + T-nut (levelling feet),foot blocks up into the net beam's bottom slot
+M6 nut + M6 thin jam nut (levelling feet),cots,2,M6 nut + M6 thin jam nut (levelling feet),"captive in each foot block, and locking the foot's stud"
 M4 x 12 socket cap screw (feed),cots,8,M4 x 12 socket cap screw (feed),"feed floor and roof to the head plates (through the plates, into inserts)"
 "M4 heat-set insert, 5.7 mm long (feed)",cots,12,"M4 heat-set insert, 5.7 mm long (feed)","feed floor, roof and sleeve socket"
 M4 x 12 socket cap screw (spigot),cots,4,M4 x 12 socket cap screw (spigot),sleeve socket to the shelf
