@@ -182,7 +182,8 @@
    "what": "The Chernoff headline is unguarded: halving chern() leaves every test green, because the test only checks ratio < e^-C; no test pins a limiting value or results.txt",
    "where": "research/position-rent/tests/test_model.py:21",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   },
   {
    "severity": "medium",
@@ -196,21 +197,24 @@
    "what": "rents_iid and entropy_after compute log1p(exp(-x)) directly: entry_count(0.9, 1, 0.005) with the default nmax=400 and rents_iid(0.9, 330) raise OverflowError",
    "where": "research/position-rent/src/position_rent/model.py:51",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   },
   {
    "severity": "low",
    "what": "pair_premium's second-position rent is untested: returning the rent at position 1 instead of 2 survives (test only checks first > second)",
    "where": "research/position-rent/tests/test_model.py:37",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   },
   {
    "severity": "low",
    "what": "Setting cites 'Chen et al. and Dimitrov-Sami' for 'strategic delay does not pay' with no years or titles; Dimitrov & Sami 2008 is mainly about when non-myopic play does pay",
    "where": "research/position-rent/paper/whitepaper.md:4",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   },
   {
    "severity": "medium",
@@ -231,9 +235,10 @@
    "what": "Homepage summary says 'accuracy improves roughly as 1/b'; the paper's claim is that error falls roughly as 1/b",
    "where": "research/_homepage/projects.json:1",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"],
  "verdict": "A small, correct, reproducible note. Every number in the README and whitepaper reproduces byte for byte and matched my own independent recomputation (exact Fraction entropies, a separate LMSR simulation buying either outcome, a DP for accuracy): a=0.7 rents 0.0823/0.0694, order totals 0.4067, n* = 11 at b=0.25 and 41 at b=5, subsidy shares 71% to 98.5%, maker loss 0.3098 simulated vs 0.3095 exact. It misses the bar on verification (2 of 5 mutants survived, including a halved Chernoff constant behind a headline claim), craft (an OverflowError in the core rent function for accurate signals at the default settings) and, above all, fitness and domain: the central identity is the known log-score/chain-rule result from Hanson's LMSR work, the paper had no bibliography and an imprecise citation, the limit claims are numerical, and the entry analysis uses one unsourced parameter pair. A market-design referee would read it as a clean worked example, not a new result. Fixed in this session without changing scores: the overflow (stable softplus, new test), the citation and a related-work section, the pair_premium docstring, test counts, and a Known gaps line in the README."
 }

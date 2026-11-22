@@ -33,4 +33,4 @@ Result 1 is not new as an identity: the log scoring rule pays the reduction in l
 - Ostrovsky, M. (2012). Information aggregation in dynamic markets with strategic traders. *Econometrica* 80(6).
 
 ## Reproduce
-`PYTHONPATH=src python3 -m unittest discover -s tests` (9 tests) and `PYTHONPATH=src python3 experiments/run.py`.
+`PYTHONPATH=src python3 -m unittest discover -s tests` (11 tests) and `PYTHONPATH=src python3 experiments/run.py`.

@@ -6,7 +6,7 @@ Stdlib-only Python. In a sequential LMSR verification market where Bayesian veri
 
 ```bash
 cd research/position-rent
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, ~1 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, ~1 s
 PYTHONPATH=src python3 experiments/run.py                  # output in experiments/results.txt
 python3 experiments/figure.py                           # redraws experiments/entry_subsidy.svg from results.txt
 ```

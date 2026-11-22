@@ -198,7 +198,8 @@
    "what": "No test pins any headline closure value; 4 of 5 seeded mutants (unit counting, printed-part cost, MDF makers, cost percentiles) survive",
    "where": "research/selfrep-closure/tests/test_closure.py:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   },
   {
    "severity": "medium",
@@ -212,7 +213,8 @@
    "what": "README does not compare with RepRap's own published self-manufacturing share (~48% of parts excl. fasteners); the model gives 47% on that basis, an unused consistency check",
    "where": "research/selfrep-closure/README.md:34",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   },
   {
    "severity": "medium",
@@ -226,14 +228,16 @@
    "what": "'Mass and cost closure stay below 25% and 21%' while brass+casting cost closure is 21.1%",
    "where": "research/selfrep-closure/README.md:35",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   },
   {
    "severity": "low",
    "what": "README says 6 tests; 8 ran",
    "where": "research/selfrep-closure/README.md:17",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
   },
   {
    "severity": "low",
@@ -250,6 +254,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"],
  "verdict": "Every reported closure figure recomputes exactly from an independent script and the experiments reproduce byte-for-byte, and on a fastener-free basis the model's 47% printer-alone line share agrees with RepRap's own ~48% figure. But the mass and cost columns rest on assumed inputs that could have been sourced, the sensitivity bracket assumes independent per-line errors and so understates the uncertainty (a correlated 2x on printed-part cost triples printer-alone cost closure, 11% -> 34%), the tests pinned no headline value (4 of 5 seeded mutants survived), and the work is a correct count of one known BOM rather than a new result. Does not meet the bar: verification 1, claims 2, median 2."
 }

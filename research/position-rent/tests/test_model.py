@@ -36,6 +36,18 @@ class T(unittest.TestCase):
         f, s = pair_premium(0.8, 0.7)
         self.assertGreater(f, s)
 
+    def test_chernoff_value_and_rent_ratio_limit(self):
+        # quality round 91: halving chern() survived. -ln(2*sqrt(.9*.1)) = -ln 0.6 by hand.
+        self.assertAlmostEqual(chern(0.9), -math.log(0.6), 12)
+        r = rents_iid(0.7, 60, 1.0)
+        self.assertGreater(r[-1] / r[-2], 0.99 * math.exp(-chern(0.7)))
+
+    def test_pair_premium_second_seat_value(self):
+        # quality round 91: returning seat 1 instead of seat 2 survived.
+        # b*I(y; s_0.8 | s_0.7) = H(y|s_0.7) - H(y|s_0.7, s_0.8), by direct enumeration.
+        f, s = pair_premium(0.8, 0.7)
+        self.assertAlmostEqual(s, 0.1636617030259203, 10)
+
     def test_entry_and_liquidity(self):
         n = entry_count(0.7, 1.0, 0.005)
         self.assertGreaterEqual(rents_iid(0.7, n, 1.0)[-1], 0.005)
