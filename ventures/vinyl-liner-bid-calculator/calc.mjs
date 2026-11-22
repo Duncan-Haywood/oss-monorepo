@@ -151,6 +151,8 @@ export const JOB_PRESETS = Object.freeze([
 ]);
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
+  // Number('') is 0: a cleared field must not silently price as zero.
+  if (value === null || value === undefined || String(value).trim() === '') throw new Error(`${name} is required`);
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);
@@ -269,6 +271,27 @@ export function suggestedOrderSf(linerSf, wastePercent) {
   const liner = number(linerSf, 'Liner square feet');
   const waste = number(wastePercent, 'Waste percent');
   return liner * (1 + waste / 100);
+}
+
+/**
+ * The takeoff chain: water surface and perimeter feed walls and hopper,
+ * those feed liner sf, and liner sf with waste feeds order sf. `edited`
+ * maps a field the user typed over to its value; every step downstream
+ * of an edited field is rebuilt from that value, not from the geometry
+ * suggestion, so a measured liner area reaches the order and the price.
+ */
+export function takeoffChain({ lengthFeet, widthFeet, wallHeightFeet, shape, depth, stairs, pattern }, edited = {}) {
+  const pick = (id, suggested) => (Object.hasOwn(edited, id) && String(edited[id]).trim() !== ''
+    ? number(edited[id], id) : suggested);
+  const waterSurfaceSf = pick('waterSurfaceSf', suggestedWaterSurface(lengthFeet, widthFeet, shape));
+  const perimeterLf = pick('perimeterLf', suggestedPerimeter(lengthFeet, widthFeet, shape));
+  const wallSf = pick('wallSf', suggestedWallSf(perimeterLf, wallHeightFeet));
+  const hopperExtraSf = pick('hopperExtraSf', suggestedHopperExtraSf(waterSurfaceSf, depth));
+  const stairSf = pick('stairSf', suggestedStairSf(stairs));
+  const linerSf = pick('linerSf', suggestedLinerSf(waterSurfaceSf, wallSf, hopperExtraSf, stairSf));
+  const wastePercent = pick('wastePercent', suggestedWastePercent(pattern));
+  const orderSf = pick('orderSf', suggestedOrderSf(linerSf, wastePercent));
+  return { waterSurfaceSf, perimeterLf, wallSf, hopperExtraSf, stairSf, linerSf, wastePercent, orderSf };
 }
 
 /**

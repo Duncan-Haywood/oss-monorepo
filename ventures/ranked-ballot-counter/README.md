@@ -32,8 +32,11 @@ Three layouts, detected automatically:
 | One row per ballot | `Ana,Ben,Cy`, or columns headed `Rank 1`, `Rank 2` / `Choice [1st]` (read in rank order; other columns ignored) |
 | Grid (Google Forms multiple choice grid) | header `Vote [Ana],Vote [Ben]`, cells `1st choice` / `2` (equal numbers are a tie, blanks unranked) |
 
-Names match case-insensitively. Columns named `Timestamp`, `Email address`,
-`ID` and similar are never read as candidates.
+Names match case-insensitively. In the rank-column and grid layouts, columns
+named `Timestamp`, `Email address`, `ID` and similar are not read as
+candidates. A CSV whose headers are neither (say `Your 1st choice`) is read as
+one ballot per row with every column a candidate, timestamps included, and no
+warning yet (quality audit 2026-11-22): rename the headers `Rank 1`, `Rank 2`.
 
 ## Counting rules
 
@@ -77,7 +80,7 @@ Engine: `ballots.mjs` exports `analyze({ ballots, seats, seed })`,
 
 ## Verification
 
-Run here on 2026-11-14 (`node --test *.test.mjs`, 36 tests):
+Run here on 2026-11-22 (`node --test *.test.mjs`, 39 tests):
 
 - **Worked examples with answers that do not come from this engine.** The
   four-city profile (Wikipedia, "Instant-runoff voting" and "Condorcet
@@ -95,7 +98,12 @@ Run here on 2026-11-14 (`node --test *.test.mjs`, 36 tests):
 - **Independent recount.** `crosscheck/check.py` is a separately written
   Python IRV and Schulze. On 3,000 random elections from
   `crosscheck/gen.mjs` it agreed on all 1,909 IRV winners that needed no
-  tie-break and all 3,000 full Schulze rankings
+  tie-break and all 3,000 full Schulze rankings. Until 2026-11-22 both the
+  engine and this recount ranked Schulze by counting wins, so they agreed while
+  both named one winner where strongest paths tie; the [quality
+  audit](../../portfolio/quality/audits/2026-11-22-ranked-ballot-counter.json)
+  caught it with a third implementation, and both now rank by the strongest-path
+  relation itself
   (`node crosscheck/gen.mjs > /tmp/c.json && python3 crosscheck/check.py /tmp/c.json`).
   The first run found a real parsing bug (a file where most voters rank one
   candidate was read as CSV), fixed before merge.

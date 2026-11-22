@@ -29,7 +29,8 @@ Search page: [`how-much-to-charge-to-replace-a-pool-liner.html`](how-much-to-cha
 Small crews are shopped on a published “$2,999 for a 16×32” or “$8 / sf of
 water” special. That number counts water surface. It cannot see that a 16×32
 rectangle is 96 lineal feet of wall and about 961 square feet of liner on a
-512 sf floor, while an 18×36 oval with a hopper, wedding-cake stairs, and a
+512 sf floor (with the starting 22% hopper allowance, which really varies with
+deep-end depth), while an 18×36 oval with a hopper, wedding-cake stairs, and a
 patterned 27-mil sheet is a different order, a different stretch, and often a
 new bead track. Matching the water-surface special is how a sold hopper oval
 becomes a two-day loss after the first wrinkle in the deep end.
@@ -98,6 +99,12 @@ Events counted: `bid_calculated`, `preset_applied`, `proposed_price_compared`,
   conversions, and full equipment packages are not priced separately yet.
 - Mil and waste figures are starting points, not a mill quote.
 - No site plan, structural check, or inspector checklist.
+- Known gaps from the [2026-11-22 quality audit](../../portfolio/quality/audits/2026-11-22-vinyl-liner-bid-calculator.json):
+  the hopper extra is a flat 22% (spoon 6%) of water surface with no deep-end
+  depth input, where a floor model gives roughly 11–20% from 6.5 to 8 ft; there
+  is no water volume, refill or chemical line, and pump-down is a flat 2.5 h
+  whatever the pool's size; the starting rates ($/sf by mil, hours, track $/lf)
+  are uncited ballpark figures.
 
 ## Disclaimer
 

@@ -229,3 +229,19 @@ test("CSV report has the three tables and guards spreadsheet formulas", () => {
   assert.match(csv, /^Ballots ranking row over column/m);
   assert.doesNotMatch(csv, /(^|,)@cmd/m);
 });
+
+// Quality audit 2026-11-22 (portfolio/quality/audits/2026-11-22-ranked-ballot-counter.json).
+test("Schulze: tied strongest paths give tied winners, not a win count", () => {
+  // Head to head C0 beats C2 35-20, but C2 -> C1 -> C0 is min(40, 35) = 35,
+  // so p[C0][C2] = p[C2][C0] = 35 and Schulze (2011) names both.
+  const r = schulze(parseBallots(lines("20: C2 > C1", "15: C3 > C1 > C0", "20: C0 > C2 > C1 > C3")));
+  assert.deepEqual(r.winners, ["C0", "C2"]);
+  assert.deepEqual(r.ranking, [["C0", "C2"], ["C1"], ["C3"]]);
+});
+
+test("IRV: the live-ballot majority ends the count a round earlier than an all-ballot one", () => {
+  // A4 B3 C2: C's ballots exhaust, then A has 4 of 7 live (but not 5 of 9).
+  const r = irv(parseBallots(lines("4: A", "3: B", "2: C")));
+  assert.equal(r.winner, "A");
+  assert.equal(r.rounds.length, 2);
+});
