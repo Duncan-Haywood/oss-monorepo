@@ -1,0 +1,44 @@
+series                        n  cuts missed  closest  saving  penalty  shortfall  jump_sd  hit  chance  exact
+bank                         581    63      0      271   12.31    12.73       0.42   -150.8   no  0.000  yes
+brent_spot                   500     4     16      214   11.45    12.43       0.98      5.8   no  0.262  yes
+businv                       330     3      5      119   11.25    11.60       0.35    -12.8  yes  0.082  yes
+centralia                     15     3      0        7    0.31     5.42       5.11     -0.7   no  0.000  NO
+children_per_woman           301    19      0      190   10.73    11.41       0.68    -54.1   no  0.000  NO
+co2_canada                   215    14      2      167   10.48    10.74       0.26     38.1   no  0.128  yes
+construction                 319     0      5      191    6.20    11.53       5.33     -2.6  yes  0.142  yes
+debt_ireland                  21     9      0        -
+gdp_argentina                 59     4      1       37    7.63     8.16       0.53     16.6   no  0.244  yes
+gdp_croatia                   24     6      0        5    6.16     6.36       0.20     13.1   no  0.000  yes
+gdp_iran                      58     9      1       31    8.02     8.12       0.10     19.2  yes  0.344  yes
+gdp_japan                     58     4      0       25    8.04     8.12       0.08     24.3   no  0.000  yes
+global_co2                   104     7      2       79    8.85     9.29       0.44     48.6   no  0.141  yes
+homeruns                     118     5      4      114    9.11     9.54       0.44      5.9   no  0.370  yes
+jfk_passengers               468     0      5      296    7.96    12.30       4.34     -2.5  yes  0.084  yes
+lga_passengers               468     1     10      458    8.74    12.30       3.56      3.2   no  0.182  yes
+nile                         100     1      0       97    2.56     9.21       6.65     -1.1   no  0.000  NO
+ozone                         54     4      1       12    6.44     7.98       1.54     12.2  yes  0.275  yes
+quality_control_1            313     1      0       98    3.91    11.49       7.59      0.9   no  0.000  NO
+quality_control_2            283     1      0      101    4.07    11.29       7.22     -1.2   no  0.000  NO
+quality_control_3            366     3      3      257   10.79    11.81       1.01      3.9   no  0.037  yes
+quality_control_4            500     3      3      443   12.31    12.43       0.12     26.9   no  0.068  yes
+quality_control_5            325     0      0      309    1.86    11.57       9.71      0.5   no  0.000  NO
+rail_lines                    37     5      0       13    6.79     7.22       0.43     18.0   no  0.000  yes
+seatbelts                    192     0      4      168    9.15    10.51       1.36     -3.6  yes  0.180  yes
+shanghai_license             205     6      2      149    7.62    10.65       3.03      8.0   no  0.120  yes
+uk_coal_employ               105    11      2       20    7.80     9.31       1.50    -25.1   no  0.169  yes
+unemployment_nl              214     9      4      198   10.58    10.73       0.15    -35.3   no  0.197  yes
+us_population                816     0      2      487   10.06    13.41       3.35     71.3   no  0.016  yes
+usd_isk                      247    10      2       52   10.67    11.02       0.35     29.1   no  0.074  yes
+well_log                     675    21      4      643    7.80    13.03       5.23      1.5  yes  0.062  NO
+bitcoin                      774    52      3      671   13.22    13.30       0.08    141.2   no  0.050  yes
+iceland_tourism              199     0      1      161    8.59    10.59       2.00      3.8   no  0.056  yes
+measles                      991    39      1      368   13.68    13.80       0.12     44.7   no  0.013  yes
+ratner_stock                 600    30      0      104   11.12    12.79       1.68    -17.1   no  0.000  yes
+robocalls                     52     5      0       34    7.77     7.90       0.13     15.5   no  0.000  yes
+scanline_126007              481    27      8       25   11.25    12.35       1.10     38.2   no  0.176  yes
+scanline_42049               481    27      0      231   12.03    12.35       0.32    121.4   no  0.000  yes
+
+series with a closest call: 37 of 38
+C1 hit rate 7/37 = 0.189; chance 0.094; ratio 2.02 (needs >= 2): PASS
+C2 median shortfall: hits 1.54, non-hits 0.61 (needs hits below): FAIL
+C3 exact threshold: 30 of 37: FAIL

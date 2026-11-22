@@ -9557,3 +9557,47 @@ which is TCPD's `seatbelts`).
   local linear trend, or `--drift-slope`); a trend-in-the-walk model tried on the 21 floored series, pre-registered.
   For seat belts, report the best absorbed cut and its shortfall against the penalty ("1983-01 would save 9.4 of the
   10.5 a change costs"), so a reader with a known date sees how close it came.
+
+## The closest call: the cut the penalty refused, and by how much (2026-11-22, pre-registered; C1 passes, C2 and C3 fail, nothing printed)
+
+Open item from "Why the likelihood's wander absorbs a step": for seat belts, report the best absorbed cut and its
+shortfall against the penalty, so a reader sees how close the model came. `closestUncut(values, changepoints, fit)`
+in `drift-level.mjs` finds, over every single cut the fitted partition does not make, the one that lowers the
+-2 log likelihood most at the fit's own sigma and omega, with that saving, the shortfall (penalty minus saving) and
+the jump it would carry. The search is O(n): a forward pass of the local-level filter gives the cost of every
+prefix of a stretch, and a pass over the reversed stretch gives every suffix (a random walk plus noise with a
+diffuse start has the same likelihood read either way; `closest-uncut.test.mjs` checks it against
+`driftSegmentCost` over every split).
+
+On the committed seat-belt series (TCPD's `seatbelts`) the default fit, wander by likelihood, lists no jump, and the
+closest call is **1983-01, the month before the law took effect: a -3.6 noise-sd jump that would save 9.15 of the
+10.51 a change costs.** (The 9.4 quoted in the earlier section has q re-profiled for the cut; 9.15 holds the fit's
+q.) A refit at the same wander lists it at a penalty of 9.14 and not at 9.16.
+
+Whether that is worth printing beside "no jump stands out" was pre-registered in the header of
+`eval/closest-call.mjs` before it first ran, on the 38 TCPD series (31 shipped, 7 held out). A closest call is a
+**hit** when it lies within 5 of an annotated change no reported cut is within 5 of.
+
+- **C1, better than chance: passes, by a hair.** 7 hits in 37 series with a closest call (0.189), against a chance
+  rate of 0.094 (the share of searched positions that would be hits): 2.02 times, against a bar of 2.
+- **C2, the shortfall ranks it: fails, the wrong way round.** Median shortfall 1.54 for hits and 0.61 for misses.
+  Read after the line failed: the 16 series with a shortfall under 0.5 have 2 hits and a median of 8 cuts already;
+  the other 21 have 5 hits and a median of 3 cuts (6 have none). On a series the model already cuts often, there is
+  always another cut almost as good as the ones it made; a small shortfall says the model is cutting into noise,
+  not that a real change nearly made it.
+- **C3, the threshold is exact: fails, 30 of 37.** On 7 series a refit at the same wander with the penalty set
+  0.01 under the saving does not list the closest call: lowering the penalty that far lets a different set of cuts
+  win. Six of the seven have shortfalls of 5 to 10 (Centralia, Nile, quality control 1, 2 and 5, the well log);
+  the seventh is children per woman at 0.68.
+- **The first run used the wrong wander.** By a bug the script first called `driftLevel` with its own default, the
+  lag-difference wander, not the CLI's; that output is kept as `eval/closest-call-lags.out.txt` (`NOISE=lags`) and
+  is not the registered run. It reads the same way: C1 2.69 times chance, C2 fails (1.19 against 0.39), C3 35 of 36.
+
+By the rule written beforehand, C3's failure means no line ships: "would save 9.15 of 10.51" is true of this
+partition plus one cut, but a reader would take it as "a penalty under 9.15 lists it", and on one series in five
+that is false. Defaults, cuts and output are unchanged; `closestUncut` is exported for callers and later rounds.
+A reader with a date in mind already has the right tool: `--known-date` tests one named date with a calibrated p
+(README "A date you name").
+
+Next: if a closest-call line is tried again, state it as "added to these jumps" and pre-register the wording's
+reading, not the refit; a trend-in-the-walk model on the 21 floored series stays the drift model's first open item.
