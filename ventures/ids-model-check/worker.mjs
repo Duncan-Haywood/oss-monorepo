@@ -9,6 +9,7 @@ import { looksLikeIfcx } from "./ifcx.mjs";
 import { modelInventory } from "./inventory.mjs";
 import { fillModel, fillReport, toFillCsv, readValues } from "./model-fill.mjs";
 import { measureModel, geometryLookup } from "./geometry-quantities.mjs";
+import { toStep } from "./step-writer.mjs";
 
 const cache = {};
 async function json(name) {
@@ -66,7 +67,7 @@ async function loadSchemas(ids) {
 }
 
 self.onmessage = async (ev) => {
-  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, req } = ev.data;
+  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, req, asStep } = ev.data;
   // Echo the caller's request number (index.html drops stale replies).
   const postMessage = (m) => self.postMessage({ ...m, req });
   try {
@@ -83,6 +84,18 @@ self.onmessage = async (ev) => {
       inv.parseErrors = model.parseErrors.length;
       inv.seconds = (performance.now() - t0) / 1000;
       postMessage({ inventory: inv });
+      return;
+    }
+    // "Download as STEP (.ifc)": an ifcXML, ifcJSON or IFC5 model written
+    // as a .ifc file (step-writer.mjs).
+    if (asStep) {
+      const id = schemaOf(ifc);
+      if (!id) throw new Error("the model's schema is not IFC2X3, IFC4 or IFC4X3");
+      const schemas = await loadSchemas(id === ANY ? ALL : [id]);
+      const ifc5 = looksLikeIfcx(ifc instanceof Uint8Array ? new TextDecoder().decode(ifc.subarray(0, 16000)) : ifc);
+      const model = new Model(ifc, modelSchemas(id, schemas), ifc5 ? { psets: { IFC4X3: await json("psets-ifc4x3.json") } } : {});
+      const w = toStep(model, { name: asStep });
+      postMessage({ step: { text: w.text, entities: w.entities, notes: w.notes, format: model.format } });
       return;
     }
     if (auditOnly) {
@@ -104,14 +117,21 @@ self.onmessage = async (ev) => {
     const ifc5 = looksLikeIfcx(ifc instanceof Uint8Array ? new TextDecoder().decode(ifc.subarray(0, 16000)) : ifc);
     const psets = ifc5 && !(loaded && loaded.IFC4X3) ? { ...(loaded || {}), IFC4X3: await json("psets-ifc4x3.json") } : loaded;
     if (fill) {
-      // "Write the missing values into the model" (model-fill.mjs): STEP
-      // only; the standard templates give a value's type where the IDS
+      // "Write the missing values into the model" (model-fill.mjs): any
+      // format in, a .ifc out; the standard templates give a value's type where the IDS
       // names none.
       const tpl = loaded && loaded[id] ? loaded : { ...(loaded || {}), [id]: await json("psets-" + id.toLowerCase() + ".json") };
       // Qto_ quantities no set holds, measured from each element's body by
       // ifc-quantity-takeoff (served beside this page; geometry-quantities.mjs).
-      const geometry = measure ? geometryLookup(await measureModel(ifc)) : undefined;
-      const r = fillModel(ids, ifc, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets: tpl, values: values ? readValues(values) : [], geometry });
+      // An ifcXML, ifcJSON or IFC5 model is written as STEP here (fillModel
+      // would do it too) so the takeoff engine, which reads STEP, can measure it.
+      let src = ifc;
+      if (measure) {
+        const m = new Model(ifc, modelSchemas(id, schemas), { psets: tpl });
+        if (m.format !== "STEP") src = toStep(m).text;
+      }
+      const geometry = measure ? geometryLookup(await measureModel(src)) : undefined;
+      const r = fillModel(ids, src, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets: tpl, values: values ? readValues(values) : [], geometry });
       const { text, unfilled, writtenList, ...rest } = r;
       void writtenList;
       postMessage({ fill: { ...rest, text: r.written ? text : null, summary: fillReport(r), toFill: unfilled.length ? toFillCsv(unfilled) : null, unfilledCount: unfilled.length, seconds: (performance.now() - t0) / 1000 } });

@@ -189,7 +189,13 @@ export function parseIfcJson(text, schemas) {
       }
       if (ent) return { ref: entity(v, ent) };
       const def = definedName(t);
-      const raw = v.value !== undefined ? v.value : Object.keys(v).filter((k) => k !== "type").map((k) => v[k])[0];
+      // A list type written as named fields: IFC.JAVA writes an
+      // IfcCompoundPlaneAngleMeasure as {degrees, minutes, seconds,
+      // microSeconds}, which reads as the list in that order (STEP's
+      // (49,5,44,124)); the first field alone dropped the minutes and seconds
+      // (eval/to-step-2026-11-22.md).
+      const fields = Object.keys(v).filter((k) => k !== "type");
+      const raw = v.value !== undefined ? v.value : def && schema.prim(def) === "aggregate" && fields.length > 1 ? fields.map((k) => v[k]) : fields.map((k) => v[k])[0];
       if (def) {
         // A wrapper with no value around a string type: IFC.JAVA leaves an
         // empty string out ({"type": "IfcLabel"} for STEP's '').

@@ -30,10 +30,15 @@
 //                                              # write the property values the failing checks lack into a
 //                                              # copy of the model (model-fill.mjs): values the IDS fixes,
 //                                              # and values typed into the Value column of the to-fill table
-//                                              # (--to-fill writes it; --values reads it back). STEP only.
+//                                              # (--to-fill writes it; --values reads it back). Any model
+//                                              # format: ifcXML, ifcJSON and IFC5 are written as STEP first
 //                                              # Exit 0 when the filled model passes, 1 when it still fails
 //                                              # --from-geometry: Qto_ volumes, areas, wall lengths and heights no set holds, measured
 //                                              # from each element's body (needs ../ifc-quantity-takeoff)
+//   node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx|.ifczip -o OUT.ifc
+//                                              # the model written as a STEP .ifc file (step-writer.mjs),
+//                                              # for tools that read only .ifc; exit 1 when a value could
+//                                              # not be carried over exactly (listed on stderr)
 //   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
 //                                              # one specification per bSDD class from its property list
 //                                              # (bsdd-spec.mjs; goes on the network like --bsdd); stdout
@@ -44,6 +49,7 @@
 // Exit 0 when every specification passes, 1 when one fails, 2 on a usage or
 // read error. Nothing leaves the machine, except the facet uris --bsdd looks up.
 import { readFileSync, writeFileSync } from "node:fs";
+import { basename } from "node:path";
 import { check, resources, readModel } from "./node.mjs";
 import { textReport, auditReport } from "./report.mjs";
 import { parseIds } from "./ids.mjs";
@@ -62,6 +68,7 @@ import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2i
 import { diffIds, revisionImpact, revisionReport } from "./revision.mjs";
 import { parseModel } from "./node.mjs";
 import { fillModel, toFillCsv, readValues, fillReport } from "./model-fill.mjs";
+import { toStep } from "./step-writer.mjs";
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
@@ -105,7 +112,11 @@ if (flag("--from-bsdd") && files.length) {
   if (!opt("-o") && !opt("--to-fill")) { console.error("--fill needs -o OUT.ifc (the filled model) or --to-fill TODO.csv (the table to fill in)"); process.exit(2); }
   let r;
   try {
-    const model = await readModel(ifcPath);
+    const read = await readModel(ifcPath);
+    // An ifcXML, ifcJSON or IFC5 model is written as STEP first, so the
+    // takeoff engine (which reads STEP) can measure it too.
+    const parsed = parseModel(read.bytes);
+    const model = parsed.format === "STEP" ? read : { text: toStep(parsed, { name: basename(ifcPath).replace(/\.\w+$/, ".ifc") }).text };
     const values = opt("--values") ? readValues(readFileSync(opt("--values"), "utf8")) : [];
     // --from-geometry: Qto_ quantities no set holds, measured from each
     // element's body by ifc-quantity-takeoff (geometry-quantities.mjs)
@@ -120,6 +131,17 @@ if (flag("--from-bsdd") && files.length) {
   if (opt("-o")) writeFileSync(opt("-o"), r.text);
   if (opt("--to-fill")) writeFileSync(opt("--to-fill"), toFillCsv(r.unfilled));
   process.exitCode = r.after && r.after.pass ? 0 : 1;
+} else if (flag("--to-step") && files.length === 1) {
+  if (!opt("-o")) { console.error("--to-step needs -o OUT.ifc"); process.exit(2); }
+  let w, m;
+  try {
+    m = parseModel((await readModel(files[0])).bytes);
+    w = toStep(m, { name: basename(opt("-o")) });
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  writeFileSync(opt("-o"), w.text);
+  console.error(`wrote ${w.entities.toLocaleString("en-US")} entities from the ${m.format} model (${m.schemaRaw}) to ${opt("-o")}`);
+  for (const n of w.notes) console.error("  not carried over exactly: " + n);
+  process.exitCode = w.notes.length ? 1 : 0;
 } else if (flag("--fix") && files.length === 1) {
   // Exit 0 when the repaired file breaks ids.xsd nowhere, 1 when faults that
   // need a person remain (listed on stderr), 2 when the file is not XML.
@@ -216,7 +238,7 @@ if (flag("--from-bsdd") && files.length) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry]\n       node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx -o OUT.ifc");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
