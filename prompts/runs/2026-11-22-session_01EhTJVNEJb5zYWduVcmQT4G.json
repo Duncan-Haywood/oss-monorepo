@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVNEJb5zYWduVcmQT4G",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "4e2352a9fa2c31eb11584516c1d676ea6013fdf7b16d5bd1d9485d73e31d4c81",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T01:09:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New venture maintenance-planner: free browser CMMS (PM schedules, work orders, parts, compliance, censored Weibull reliability and age-replacement interval)",
+  "projects": [
+    "maintenance-planner"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18169",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 44,
+  "outcome": "success",
+  "errors": [
+    "First preflight: literal U+FEFF written into JS source by the Write tool where \\uFEFF was meant; caught by check_hidden_unicode."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent the run to open-tennis-robots for the fifth time in two days although its own note says four sessions left it for lack of a market path; the next buildable item (levelling feet's jam nuts as CAD joints) is far from the revenue brief."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Foreground sleep is blocked by a hook, so waiting on the 5+ minute preflight needs Monitor or run_in_background; the preflight note in prompts/ventures/prompt-2.md says run_in_background but a subshell '&' also works."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "'Deepen a flagship by default': the Start-here row (open-tennis-robots) is hardware CAD with no market path per four earlier runs, and the other deepen rows' open items mostly need real outside inputs. The brief also asks to start new ventures with real business potential.",
+      "did": "Started a new deep venture in an empty category (no CMMS in 1,427 ventures; paid incumbents UpKeep, MaintainX, Limble, Fiix), with an algorithmic differentiator verified against published and scipy values.",
+      "result": "Working first version landed with 44 tests; not yet seen by a real user."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-free-cmms-that-asks-whether-preventive-maintenance-helps.md",
+    "ventures/maintenance-planner/README.md"
+  ],
+  "goal": "Ship a new revenue-capable product with depth",
+  "notes": "Verification: node --test '*.test.mjs' in ventures/maintenance-planner: 44 pass, 0 fail. Weibull MLE on Lieblein-Zelen bearings 2.1021/81.878 vs published 2.102/81.88; censored fits vs scipy 1.17.1 within 1e-4 (eval/weibull-vs-scipy.py). Page driven in headless Chromium (example, generate WOs, close one, reload; 390 px width has no horizontal scroll; no console errors). venture-preflight: first run failed on 5 items (tree counts, catch-all section, alias order, CSV formula guard, literal BOM), second on a crawlable orphan (closed with a fleet-repair-or-replace-planner link + test); third run 'preflight clean for maintenance-planner'. Next for this venture: a real plant's exported history or meter log; a technician phone view and shared data file for a self-deployed multi-user edition; Reliability tab usage counter.",
+  "corrections": [],
+  "redteam": null
+}
