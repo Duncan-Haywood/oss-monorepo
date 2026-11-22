@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmbHwNTDTZ7ZE9sc1x",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T18:18:43Z",
+  "ended": "2026-11-22T18:23:41Z",
+  "wall_minutes": 5.55,
+  "tokens_in": 4063960,
+  "tokens_out": 17811,
+  "cost_usd": 1.8621,
+  "tool_calls": 46,
+  "task": "perf item 4: shed-designer page weight (the top entry in the league-schedule perf note's not-changed list)",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18292",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git checkout -b on an existing branch name (the harness had already created it) stopped a && chain, so the first edit script never ran",
+      "fix": "checked the current branch and reran the edit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/perf/module-exclusive.mjs",
+      "issue": "It takes only an HTML page, so splitting a single-entry page (shed-designer's app.mjs) needs a temporary probe page holding the entry's imports. An entry-module argument would save that step."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-one-import-line-pulled-a-search-engine-into-the-shed-designer.md",
+    "docs/history/shed-designer-page-perf-2026-11-22.md"
+  ],
+  "goal": "what visitors wait on: page weight",
+  "notes": "Metric: gzip bytes of the static module graph on ventures/shed-designer/index.html, from node platform/perf/module-exclusive.mjs. Before 384 kB/55 files (main 241225222); after 373 kB/55 files (-11 kB, -3%). designsearch.mjs (13.4 kB gz) is off the page; looksscore.mjs (2.6 kB gz) is on it. Same answers: looksOf over the 1,168 designs searchDesigns({}) evaluates, JSON cmp identical. Playwright old vs new: designsearch.mjs requested only on old; 11 card looks lines have the same SHA-1; no errors. designfacts+designsearch tests 25/25. Full suite: run_venture_tests.py shed-designer ok, 542 tests in 132.4 s (3 skipped: axe-core not installed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "097e9d3e-8fc5-55ab-9075-bee4552c1198",
+    "transcripts": 1,
+    "first": "2026-11-22T18:18:43Z",
+    "last": "2026-11-22T18:24:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 84,
+        "output": 17811,
+        "thinking": 2892,
+        "cache_read": 3975056,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88820,
+        "api_equivalent_usd": 1.8621,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 84,
+      "output": 17811,
+      "thinking": 2892,
+      "cache_read": 3975056,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88820,
+      "api_equivalent_usd": 1.8621,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 40,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.55,
+      "active_minutes": 5.55,
+      "model_minutes": 4.26,
+      "tool_minutes": 1.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "measure graph, refactor one function out, equivalence and browser checks, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 107.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

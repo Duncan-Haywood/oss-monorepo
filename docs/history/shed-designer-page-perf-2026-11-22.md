@@ -57,8 +57,8 @@ reached the search).
   and pins that they reach `looksscore.mjs` and not `designsearch.mjs`, and that
   `designsearch.mjs`'s `looksOf` is the same function. `designfacts` +
   `designsearch` tests 25/25.
-- Full suite: `python3 platform/ci/run_venture_tests.py shed-designer` (result
-  in the run record).
+- Full suite: `python3 platform/ci/run_venture_tests.py shed-designer` -> ok,
+  542 tests in 132.4 s (3 skipped: axe-core not installed here).
 
 ## Not changed, ranked for the next run
 
