@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, normalizeSales, normalizeStock, analyze, poCsv, summaryText, sampleSales, SAMPLE_STOCK, DEFAULTS } from "./calc.mjs";
+import { parseCsv, normalizeSales, normalizeStock, analyze, poCsv, summaryText, sampleSales, SAMPLE_STOCK, DEFAULTS, leadTimeQuantile } from "./calc.mjs";
 
 const D = 86400000;
 const asOf = Date.UTC(2026, 8, 28);
@@ -40,8 +40,8 @@ test("variable demand raises safety stock, and a higher service level raises it 
   const sales = [];
   for (let w = 0; w < 10; w++) sales.push({ t: asOf - w * 7 * D, sku: "V", name: "V", qty: w % 2 ? 2 : 20, price: 1 });
   const stock = [{ sku: "V", name: "", onHand: 500, incoming: 0, cost: null, price: null }];
-  const lo = analyze(sales, stock, { asOf, serviceLevel: 0.9 }).rows[0];
-  const hi = analyze(sales, stock, { asOf, serviceLevel: 0.99 }).rows[0];
+  const lo = analyze(sales, stock, { asOf, serviceLevel: 0.9, safetyMethod: "normal" }).rows[0];
+  const hi = analyze(sales, stock, { asOf, serviceLevel: 0.99, safetyMethod: "normal" }).rows[0];
   assert.ok(lo.safety > 0);
   assert.ok(hi.safety > lo.safety);
 });
@@ -203,4 +203,45 @@ test("the thin-history note counts SKUs under five units, not five", () => {
 test("text cells with a number in them do not vote on the decimal mark", async () => {
   const { detectDecimalComma } = await import("./calc.mjs");
   assert.equal(detectDecimalComma([["name", "price"], ["Tea 0,25", "1.50"], ["Box 0,5", ""]]), false);
+});
+
+test("lead-time quantile: the serviceLevel share of every run of lead days", () => {
+  // 10 days and a lead of 3 give 8 runs; the three that hold day 2 sum to 9, the other five to 0
+  const d = new Float64Array([0, 0, 9, 0, 0, 0, 0, 0, 0, 0]);
+  assert.equal(leadTimeQuantile(d, 3, 0.5), 0); // 5 of 8 runs are empty
+  assert.equal(leadTimeQuantile(d, 3, 0.9), 9);
+  assert.equal(leadTimeQuantile(new Float64Array([1, -4, 1, 1, 1, 1, 1]), 2, 1), 2); // returns count as zero
+  assert.equal(leadTimeQuantile(new Float64Array(5), 3, 0.95), null); // under two lead times of history
+});
+
+test("a SKU sold once a week takes its reorder point from lead-time demand; a daily seller keeps the weekly rule", () => {
+  const weekly = [];
+  for (let w = 0; w < 26; w++) weekly.push({ t: asOf - w * 7 * D, sku: "W", name: "W", qty: w === 3 ? 60 : 6, price: 1 });
+  const daily = [];
+  for (let d = 0; d < 182; d++) daily.push({ t: asOf - d * D, sku: "S", name: "S", qty: 1 + (d % 3), price: 1 });
+  const r = analyze([...weekly, ...daily], [], { asOf, leadDays: 14 });
+  const w = r.rows.find((x) => x.sku === "W"), sd = r.rows.find((x) => x.sku === "S");
+  assert.equal(w.safetyFrom, "lead-time");
+  assert.equal(sd.safetyFrom, "weekly");
+  // 14-day runs hold two weekly orders: 12 normally, 66 around the big week (14 of 169 runs);
+  // the 95% run is 66, so the reorder point covers the big order the normal curve smooths away.
+  assert.equal(w.reorderPoint, 66);
+  const n = analyze(weekly, [], { asOf, leadDays: 14, safetyMethod: "normal" }).rows[0];
+  assert.ok(n.reorderPoint < 66);
+});
+
+test("a big export (200,000 order lines) is analysed without overflowing the stack", () => {
+  const big = [];
+  for (let i = 0; i < 200000; i++) big.push({ t: asOf - (i % 365) * D, sku: "K" + (i % 500), name: "", qty: 1, price: 2 });
+  const r = analyze(big, [], { asOf });
+  assert.equal(r.summary.skus, 500);
+});
+
+test("a wholesale invoice export (StockCode, Description, InvoiceDate) is read", () => {
+  const t = parseCsv("Invoice,StockCode,Description,Quantity,InvoiceDate,Price,Customer ID,Country\n489434,85048,15CM CHRISTMAS GLASS BALL 20 LIGHTS,12,2009-12-01 07:45:00,6.95,13085,United Kingdom\nC489449,22087,PAPER BUNTING WHITE LACE,-12,2009-12-01 10:33:00,2.95,16321,Australia\n");
+  const n = normalizeSales(t);
+  assert.equal(n.error, undefined);
+  assert.equal(n.items.length, 2);
+  assert.deepEqual([n.items[0].sku, n.items[0].name, n.items[0].qty, n.items[0].price], ["85048", "15CM CHRISTMAS GLASS BALL 20 LIGHTS", 12, 6.95]);
+  assert.equal(n.items[1].qty, -12);
 });
