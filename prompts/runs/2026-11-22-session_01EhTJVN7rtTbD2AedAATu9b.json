@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVN7rtTbD2AedAATu9b",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T09:16:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture excel-model-audit (spreadsheet formula auditor)",
+  "projects": [
+    "excel-model-audit"
+  ],
+  "pr": 18227,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 44,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft flooded real files (12,208 high on a function test book; 18 false 'range stops' on rolling SUMs)",
+      "fix": "per-sheet/rule cap of 50, grouped typed-in errors, moving-window exemption"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Catch-all section cap (5) means every new venture must edit build.mjs CATEGORY_RULES; register-tool.mjs could suggest the section from VENTURE.yaml keywords."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-openpyxl-and-a-text-cell-that-starts-with-equals.md",
+    "ventures/excel-model-audit/eval/crosscheck-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Idea: Excel/xlsx model auditor (R1C1 signature inconsistency, typed-over formulas, short SUM ranges, Tarjan cycles, error-root tracing, numbers/formulas as text, typed constants). No venture read workbook formulas among 1,428; paid niche (model review add-ins). Zero-dependency reader cross-checked against openpyxl: 15,072/15,072 formulas on 4 public test books; the 5 diffs (text cells starting with '=') became a new rule. 44 tests, 3/3 seeded mutants caught, venture-preflight clean (full build + check.mjs). Not measured: precision on real human-built models (Enron/EUSES corpus; figshare 403 through proxy). Next: version diff between two workbooks; corpus precision.",
+  "corrections": [],
+  "redteam": null
+}

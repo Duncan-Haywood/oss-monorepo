@@ -1,8 +1,8 @@
 ---
 title: "A free Excel model auditor, and the five cells where openpyxl and we disagreed"
-seo_title: "Find inconsistent formulas in Excel: a free browser auditor, checked against openpyxl"
+seo_title: "Find inconsistent Excel formulas: a free auditor checked vs openpyxl"
 date: 2026-11-22
-tags: [excel-model-audit, spreadsheets, financial-models, new-venture]
+tags: [excel-model-audit, spreadsheet, financial-models, new-venture]
 description: "A zero-dependency .xlsx formula auditor read 15,072 of 15,072 formulas the same as openpyxl. The five cells that differed were text, and they became a new rule."
 ---
 
