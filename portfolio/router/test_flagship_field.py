@@ -650,6 +650,19 @@ def test_history_pieces_keep_dated_pieces_with_their_own_next_step():
     assert not any("Counts" in g or "Middle" in g or "Watch" in g for g in got)
 
 
+def test_history_pieces_keep_the_sentence_a_bare_next_names():
+    # ids-model-check 2026-11-22 (PR #18186's record): the open items after a
+    # bare "next:" carried a date inside brackets and moved to HISTORY.md
+    v = ("History: README. bSDD links 2026-11-19 (eval/b.md; 760 sets); next: a page "
+         "route for bSDD; a real table (dropdowns 2026-11-19, eval/d.md: 476 of 476); "
+         "a Revit export. Model fill 2026-11-21 (eval/m.md). Next: a filled table.")
+    got = [v[a:b] for a, b in ff.history_pieces(v)]
+    assert not any("page route" in g or "Revit" in g for g in got)
+    assert any(g.startswith("Model fill") for g in got)
+    out, moved = ff.archive_history(v, 0)
+    assert "next: a page route" in out and "next: ." not in out
+
+
 def test_archive_history_removes_cleanly_oldest_first():
     v = " ".join(ROW.split())
     out, moved = ff.archive_history(v, 0)
