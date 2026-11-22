@@ -40,5 +40,5 @@
 
 ## Pairing bye and the round checker (2026-11-22)
 
-- Budapest A round 8: the arbiters gave the pairing bye to 82 (1.5) where the pairer gives 90 (1.0; both no bye yet, seven games each). The only single-result explanation is round 4's 90 v 82 as 1-0 (every file shows a draw), which moves only the bye. Next: compare the bye on every round (eval/swiss-vs-published.mjs enters bye recipients absent, so it never did), and read the 2025 C.9 wording again for a tie-break that picks 82.
+- Budapest A round 8: the arbiters gave the pairing bye to 82 (1.5) where the pairer gives 90 (1.0; both no bye yet, seven games each). The only single-result explanation is round 4's 90 v 82 as 1-0 (every file shows a draw), which moves only the bye. ChessHouse round 8 too (82 of 84 from the round-9 file, first at 1 point; no single result explains it, eval/swiss-result-flip.txt). Next: compare the bye on every round (eval/swiss-vs-published.mjs enters bye recipients absent, so it never did), and read the 2025 C.9 wording again for a tie-break that picks 82.
 - Check a round on the page: a two-result search (pairs of changes) when no single one explains a round; today it says "no single earlier result explains it".

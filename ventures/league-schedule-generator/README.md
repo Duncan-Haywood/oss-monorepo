@@ -5970,7 +5970,8 @@ time (each of the other two outcomes), re-pairs the round and keeps the changes 
 published round exactly (`eval/swiss-result-flip.txt`). On Graz round 4 it tries the 516 changes on
 games touching a player within half a point of the 2.5 group; 21 v 89 is the only exact one. The pairer
 itself is unchanged: the 51 of 54 rounds and 99.2% of later boards stand as measured on the file's
-results, and with that one game read as a draw the six events are exact in every round from 2 on.
+results, and with that one game read as a draw the six events are exact in every round from 2 on
+(given, as that replay is, who played and who got the bye).
 
 A second miss turned up on the way, of a kind the replay had hidden. `eval/swiss-vs-published.mjs`
 enters everyone without a published board as absent, the pairing-allocated bye included, so the bye
@@ -5978,7 +5979,8 @@ was never compared. Checking each round from the file that records it, Budapest 
 bye to 82 (1.5 points) where the pairer gives it to 90 (1 point, also never had a bye, the same
 seven games played), and three boards follow from that. The one single-result explanation is round 4's
 90 v 82 read as a 90 win instead of the draw every file shows: weaker evidence than Graz, since it
-moves only the bye. Open in NEXT.md.
+moves only the bye. ChessHouse round 8 also differs this way (82 of 84 boards, first at
+1 point), and no single result change explains it (114 tried). Both are open in NEXT.md.
 
 **On the page: "Check a round an arbiter paired"** (`round-check.mjs`, `round-check-worker.mjs`,
 `swiss-pairing.html`). Open a TRF that includes the round, pick it, and the page re-pairs it from the

@@ -1,3 +1,7 @@
 # node eval/swiss-result-flip.mjs <fixtures> (2026-11-22): every chess-results round 2+ whose re-pairing misses, every single result change searched
 budapest_spring_festival_2026_group_a_2200 round 8: replay matches 46 of 49 boards; first miss at 2; tried 214 result changes (games touching a player within 0.5 of it) in 15 s
   EXACT: round 4 90-82 ½-½ read as 1-0
+international_chessopen_graz_2026_a round 4: replay matches 100 of 137 boards; first miss at 2.5; tried 516 result changes (games touching a player within 0.5 of it) in 812 s
+  EXACT: round 3 21-89 1-0 read as ½-½
+spring_2026_chesshouse round 8: replay matches 82 of 84 boards; first miss at 1; tried 114 result changes (games touching a player within 0.5 of it) in 59 s
+  no single result change gives the published boards
