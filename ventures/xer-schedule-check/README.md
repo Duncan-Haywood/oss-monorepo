@@ -14,19 +14,20 @@ baseline, resources, activity codes as named text columns, user-defined fields
 as named Number, Cost, Date and Text columns, resource user-defined fields as
 named resource columns, WBS user-defined fields as named columns on the summary
 tasks, activity and WBS notebooks as task notes under their topics, resource
-notes as resource notes, expenses as cost resources), checked on six public P6 files against this tool's own
+notes as resource notes, the resource hierarchy as each resource's Group,
+expenses as cost resources), checked on six public P6 files against this tool's own
 MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`,
 `eval/msproject-udfs-2026-11-21.md`, `eval/rsrc-udfs-2026-11-21.md`,
 `eval/wbs-udfs-2026-11-21.md`, `eval/notebooks-2026-11-21.md`,
 `eval/resource-notes-2026-11-21.md`,
-`eval/expenses-2026-11-21.md`).
+`eval/resource-hierarchy-2026-11-22.md`, `eval/expenses-2026-11-21.md`).
 And the other way: **Microsoft Project XML to a P6 XER** for P6's import, for
 a planner in Project who must submit a P6 file (WBS under a project node,
 activity IDs, calendars, logic, progress with Project's Resume as P6's
 suspend and resume, baseline, resources and assignments with cost, text
 columns as activity codes, Number, Cost and Date columns as named
 user-defined fields, task notes as notebook entries, resource notes as P6
-resource notes, cost resources and
+resource notes, resource Groups as P6's resource hierarchy, cost resources and
 fixed costs as P6 expenses, Project's scheduling options, saved in
 Windows-1252 as P6 reads an XER), checked on 143 Project files and the six
 P6 files sent through Project and back (`eval/p6xer-check-2026-11-21.md`,
@@ -781,6 +782,20 @@ run as a formula in Excel or Sheets.
   corpus (408 by default) and 17 of 17 resource notes (6 by default); on six
   public P6 files all 502 resources (33 unassigned) come back on the same
   resource ID, with no assignment changed and no P6 import problem.
+- **Resource hierarchy** (`eval/resource-hierarchy-2026-11-22.md`, 2026-11-22):
+  P6's resource tree (`RSRC.parent_rsrc_id`: a crew under a trade under
+  Labour) is written as each resource's Group in Project XML, the parents'
+  resource IDs from the top joined by "/" (`LAB/CARP`), and a Project
+  resource's Group is read back into parent resources (one labour resource
+  per step the file does not already hold; links that would loop are left
+  out and counted). On five public P6 files with resources, 461 of 502 sit
+  under a parent, up to three levels deep; every written resource's Group
+  matches its tree, and through Project XML and back every resource keeps its
+  parent path (469 of 469 by default, the 33 unassigned parents rebuilt from
+  the paths and named by their IDs; 502 of 502 with `--all-resources`, names
+  kept), with no P6 import problem. 14 of 14 Groups on work resources in
+  MPXJ's Project corpus come back. Before, the tree was dropped both ways
+  with no warning.
 - **Resource user-defined fields** (`eval/rsrc-udfs-2026-11-21.md`, 2026-11-21):
   resource UDFs go into Project's resource Text, Number, Cost and Date fields,
   renamed to each UDF's title, and come back from a Project file as P6

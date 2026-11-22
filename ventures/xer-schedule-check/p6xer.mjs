@@ -290,6 +290,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   let costRes = 0, costAssign = 0, dupRsrc = 0, summaryAssign = 0, summaryCost = 0, rsrcNotes = 0, costNotes = 0;
   const costRsrc = new Map(); // cost resource uid -> { name, group, accrue }
   const rsrcShort = new Set();
+  const rsrcGroup = new Map(); // rsrc_id -> the Project resource's Group
   const rsrcFieldVals = new Map(); // resource field id -> Map(rsrc uid -> value)
   for (const r of kids(kid(proj, "Resources"), "Resource")) {
     const uid = val(r, "UID");
@@ -315,11 +316,65 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     // notes, written as P6 Web writes rich text (notebook.mjs's memoHtml)
     const rnote = (val(r, "Notes") || "").trim();
     if (rnote) rsrcNotes++;
+    const group = (val(r, "Group") || "").trim();
+    if (group) rsrcGroup.set(idOf("RSRC", uid), group);
     RSRC.push(full("RSRC", {
       rsrc_id: idOf("RSRC", uid), clndr_id: projCal, rsrc_seq_num: String(RSRC.length + 1),
       rsrc_name: clip("rsrc_name", name), rsrc_short_name: short, rsrc_notes: rnote ? memoHtml(rnote) : "",
       email_addr: "", def_qty_per_hr: n2((Number(val(r, "MaxUnits")) || 1)), rsrc_type: rt,
     }, { cost_qty_type: "QT_Hour", active_flag: "Y", auto_compute_act_flag: "N", def_cost_qty_link_flag: "Y", ot_flag: "N", curr_id: "1", load_tasks_flag: "", level_flag: "Y" }));
+  }
+
+  // Project's resource Group as P6's resource hierarchy (parent_rsrc_id):
+  // a path of resource IDs from the top, "/" between them, as msproject.mjs
+  // writes P6's tree ("LAB/CARP"). Each step is the resource with that ID
+  // when the file has one, else a new labour resource of that ID and name
+  // (a Project file whose Group is a plain word, "Electrical", gets one
+  // parent of that name: P6 has no resource group field, and its hierarchy
+  // is where P6 users file resources by trade). A step already given a
+  // parent by its own Group keeps it; a link that would make a loop is not made.
+  const hier = { groups: 0, parentsAdded: 0, loops: 0 };
+  {
+    const byShort = new Map(RSRC.map((x) => [x.rsrc_short_name, x]));
+    const byId = new Map(RSRC.map((x) => [x.rsrc_id, x]));
+    const above = (x, target) => { // is `target` x or an ancestor of x?
+      const seen = new Set();
+      for (let p = x; p && !seen.has(p.rsrc_id); p = byId.get(p.parent_rsrc_id)) { if (p === target) return true; seen.add(p.rsrc_id); }
+      return false;
+    };
+    for (const [id, group] of rsrcGroup) {
+      const row = byId.get(id);
+      const steps = group.split("/").map((g) => g.trim()).filter(Boolean);
+      if (!row || !steps.length) continue;
+      hier.groups++;
+      let parent = null, path = "";
+      for (const step of steps) {
+        path += `/${step}`;
+        const short = clip("rsrc_short_name", step);
+        let node = byShort.get(short);
+        if (!node) {
+          node = full("RSRC", {
+            rsrc_id: idOf("RSRC", `group:${path}`), clndr_id: projCal, rsrc_seq_num: String(RSRC.length + 1),
+            rsrc_name: clip("rsrc_name", step), rsrc_short_name: short, rsrc_notes: "", email_addr: "", def_qty_per_hr: "1", rsrc_type: "RT_Labor",
+          }, { cost_qty_type: "QT_Hour", active_flag: "Y", auto_compute_act_flag: "N", def_cost_qty_link_flag: "Y", ot_flag: "N", curr_id: "1", load_tasks_flag: "", level_flag: "Y" });
+          RSRC.push(node); byShort.set(short, node); byId.set(node.rsrc_id, node); rsrcShort.add(short);
+          hier.parentsAdded++;
+        }
+        if (parent && !node.parent_rsrc_id && node !== parent) {
+          if (above(parent, node)) hier.loops++; else node.parent_rsrc_id = parent.rsrc_id;
+        }
+        parent = node;
+      }
+      if (parent && parent !== row && !row.parent_rsrc_id) {
+        if (above(parent, row)) hier.loops++; else row.parent_rsrc_id = parent.rsrc_id;
+      }
+    }
+    // parents before their children, as P6 lists the tree
+    const depth = (x) => { let d = 0; const seen = new Set(); for (let p = byId.get(x.parent_rsrc_id); p && !seen.has(p.rsrc_id); p = byId.get(p.parent_rsrc_id)) { seen.add(p.rsrc_id); d++; } return d; };
+    if (hier.groups) {
+      const order = RSRC.map((x, i) => [depth(x), i, x]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map((e) => e[2]);
+      RSRC.splice(0, RSRC.length, ...order);
+    }
   }
 
   // activities
@@ -650,12 +705,13 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   }
   if (costAssign || fixedCosts) warnings.push(`${costAssign + fixedCosts} expense(s) written (PROJCOST)${costAssign ? `: ${costAssign} assignment(s) of ${costRes} cost resource(s), named after the resource${COSTTYPE.length ? `, in ${COSTTYPE.length} cost categor${COSTTYPE.length === 1 ? "y" : "ies"} from the resources' Group` : ""}` : ""}${fixedCosts ? `${costAssign ? ";" : ":"} ${fixedCosts} task fixed cost(s) as "Fixed cost"` : ""}; budgeted cost is the baseline cost where the assignment has one`);
   else if (costRes) warnings.push(`${costRes} cost resource(s) with no assignment on an activity`);
+  if (hier.groups) warnings.push(`${hier.groups} resource(s) filed under parent resources from their Group (P6's resource hierarchy)${hier.parentsAdded ? `; ${hier.parentsAdded} parent resource(s) added, named by the Group's steps` : ""}${hier.loops ? `; ${hier.loops} link(s) left out that would have made a loop` : ""}`);
   if (rsrcNotes) warnings.push(`${rsrcNotes} resource note(s) written as the resource's notes (RSRC.rsrc_notes)`);
   if (costNotes) warnings.push(`${costNotes} cost resource note(s) not carried: cost resources become expenses in P6, which hold no notes`);
   if (summaryCost) warnings.push(`${summaryCost} cost resource assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
+  const counts = { activities: TASK.length, rsrcGroups: hier.groups, parentResources: hier.parentsAdded, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
   const out = xerText(xer);
   // saved in Windows-1252, as P6 writes and reads an XER, when every
   // character fits it (xer.mjs, xerBytes)
@@ -712,7 +768,17 @@ export function p6Problems(tables) {
   ref("CALENDAR", "proj_id", "PROJECT", true);
   ref("SCHEDOPTIONS", "proj_id", "PROJECT");
   ref("PROJWBS", "proj_id", "PROJECT"); ref("PROJWBS", "parent_wbs_id", "PROJWBS", true); ref("PROJWBS", "obs_id", "OBS");
-  ref("RSRC", "clndr_id", "CALENDAR"); ref("RSRC", "curr_id", "CURRTYPE");
+  ref("RSRC", "clndr_id", "CALENDAR"); ref("RSRC", "curr_id", "CURRTYPE"); ref("RSRC", "parent_rsrc_id", "RSRC", true);
+  {
+    const byId = new Map((tables.RSRC || []).map((r) => [r.rsrc_id, r]));
+    for (const r of tables.RSRC || []) {
+      const seen = new Set();
+      for (let p = r; p?.parent_rsrc_id; p = byId.get(p.parent_rsrc_id)) {
+        if (seen.has(p.rsrc_id)) { say(`RSRC ${r.rsrc_short_name}: resource hierarchy loops`); break; }
+        seen.add(p.rsrc_id);
+      }
+    }
+  }
   ref("ACTVTYPE", "proj_id", "PROJECT"); ref("ACTVCODE", "actv_code_type_id", "ACTVTYPE");
   ref("TASK", "proj_id", "PROJECT"); ref("TASK", "wbs_id", "PROJWBS"); ref("TASK", "clndr_id", "CALENDAR");
   ref("TASKPRED", "task_id", "TASK"); ref("TASKPRED", "pred_task_id", "TASK");
