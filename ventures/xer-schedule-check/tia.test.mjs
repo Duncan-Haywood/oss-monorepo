@@ -131,3 +131,70 @@ test("an expected finish date that absorbs the delay is named; off, the delay sh
   assert.equal(off.absorbed.length, 0);
   assert.ok(off.finish.delayDays > on.finish.delayDays);
 });
+
+// probabilistic branches (branchSetup, rowsForOutcome)
+const HB = "Activity ID,Name,Duration,Predecessors,Successors,Branch group,Branch,Probability\n";
+test("branches: each outcome is scheduled, and the expectation weighs them", () => {
+  // A1140 -> A1150 is on the driving path (see above): a 7-day hold moves the finish 7 days
+  const r = timeImpact(xer(), `${HB}F1,Hold,7,A1140,A1150,Hold,Happens,30%\n`);
+  const b = r.branches;
+  assert.equal(b.outcomes.length, 2);
+  const g = b.groups[0];
+  assert.deepEqual(g.branches.map((x) => [x.name, x.remainder, x.delayDays]), [["Happens", false, 7], ["none of these", true, 0]]);
+  assert.equal(g.mostLikely, "none of these");
+  // the single result takes the most likely branch: nothing inserted
+  assert.equal(r.finish.delayDays, 0);
+  assert.equal(r.fragnet.length, 0);
+  assert.equal(b.expectedDelayDays, 2.1);
+  assert.equal(b.p50DelayDays, 0);
+  assert.equal(b.p80DelayDays, 7);
+  assert.ok(Math.abs(b.chanceOfDelay - 0.3) < 1e-9);
+});
+
+test("branches: the same activity ID on two branches, and links to a branch not taken", () => {
+  const f = `${HB}F1,Review,5,A1140,A1150,Review,Pass,0.7\nF1,Review and resubmit,15,A1140,A1150,Review,Resubmit,0.3\nF2,Rework,4,F1,A1150,Review,Resubmit,\n`;
+  const r = timeImpact(xer(), f);
+  const out = new Map(r.branches.outcomes.map((o) => [o.picks[0].branch, o.delayDays]));
+  assert.equal(out.get("Pass"), 5);
+  assert.equal(out.get("Resubmit"), 19);
+  assert.equal(r.finish.delayDays, 5);
+  assert.deepEqual(r.fragnet.map((x) => [x.code, x.days]), [["F1", 5]]);
+  // each outcome equals the plain TIA of its own rows
+  const alone = timeImpact(xer(), `${H}F1,Review and resubmit,15,A1140,A1150\nF2,Rework,4,F1,A1150\n`);
+  assert.equal(alone.finish.delayDays, out.get("Resubmit"));
+  assert.equal(r.branches.expectedDelayDays, Math.round((0.7 * 5 + 0.3 * 19) * 10) / 10);
+});
+
+test("branches: a link from an always-in row to a branch-only activity is dropped when the branch is not taken", () => {
+  const f = `${HB}F1,Inspection,0,A1140,,,,\nF2,Rework,6,F1,A1150,Inspect,Fail,25%\n`;
+  const r = timeImpact(xer(), f);
+  const fail = r.branches.outcomes.find((o) => o.picks[0].branch === "Fail");
+  assert.equal(fail.delayDays, 6);
+  assert.ok(!r.warnings.some((w) => /F2 is not in project/.test(w)));
+});
+
+test("branches: two groups multiply, probabilities fill in, over 100% is refused", () => {
+  const f = `${HB}F1,Hold A,3,A1140,A1150,G1,Yes,50%\nF2,Hold B,2,A1140,A1150,G2,Short,\nF3,Hold B long,8,A1140,A1150,G2,Long,\n`;
+  const r = timeImpact(xer(), f);
+  assert.equal(r.branches.outcomes.length, 4);
+  const g2 = r.branches.groups.find((g) => g.group === "G2");
+  assert.deepEqual(g2.branches.map((x) => x.probability), [0.5, 0.5]);
+  assert.ok(r.warnings.some((w) => /equally likely/.test(w)));
+  const sum = r.branches.outcomes.reduce((a, o) => a + o.probability, 0);
+  assert.ok(Math.abs(sum - 1) < 1e-9);
+  // the two holds are in parallel on one link: the outcome is the longer
+  assert.equal(r.branches.maxDelayDays, 8);
+  assert.throws(() => timeImpact(xer(), `${HB}F1,A,3,A1140,A1150,G,X,80%\nF2,B,3,A1140,A1150,G,Y,40%\n`), /over 100%/);
+});
+
+test("branches: no branch columns leaves the result as it was", () => {
+  const r = timeImpact(xer(), EXAMPLE_FRAGNET);
+  assert.equal(r.branches, null);
+});
+
+test("branches appear in the text, CSV and exhibit", () => {
+  const r = timeImpact(xer(), `${HB}F1,Hold,7,A1140,A1150,Hold,Happens,30%\n`);
+  assert.match(timeImpactText(r), /Probabilistic branches \(2 outcomes/);
+  assert.match(timeImpactCsv(r), /^outcome,,Hold: Happens,/m);
+  assert.match(timeImpactHtml(r), /Probabilistic branches<\/h2>/);
+});

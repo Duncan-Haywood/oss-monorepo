@@ -63,6 +63,9 @@ const COLUMNS = {
   notBefore: /^(not before|start on or after|start no earlier than|event date|date|starts?)$/,
   event: /^(event|delay event|cause|issue)$/,
   calendar: /^(calendar|cal|clndr( id)?)$/,
+  group: /^(branch group|group|decision|outcome group|branch point)$/,
+  branch: /^(branch|outcome|alternative|branch name)$/,
+  probability: /^(probability|prob|chance|likelihood)/,
 };
 
 const r1 = (x) => Math.round(x * 10) / 10;
@@ -111,7 +114,16 @@ export function parseFragnet(text) {
     const notBefore = nb ? parseLogDate(nb) : null;
     if (nb && notBefore === null) warnings.push(`row ${row}: date "${nb}" does not read as a date; ignored`);
     for (const l of [...links(get(r, "preds")), ...links(get(r, "succs"))]) if (!["FS", "SS", "FF", "SF"].includes(l.type)) warnings.push(`row ${row}: link type ${l.type} read as FS`);
-    out.push({ row, code, name: get(r, "name"), days, extend, event: get(r, "event") || null, preds: links(get(r, "preds")), succs: links(get(r, "succs")), notBefore, calendar: get(r, "calendar") || null });
+    // probabilistic branches: rows sharing a group are alternatives, one of
+    // which happens (branchSetup)
+    const pc = get(r, "probability").replace(/\s+/g, "");
+    let probability = null;
+    if (pc !== "") {
+      probability = /%$/.test(pc) ? Number(pc.slice(0, -1)) / 100 : Number(pc);
+      if (Number.isFinite(probability) && probability > 1 && probability <= 100 && !/%$/.test(pc)) probability /= 100;
+      if (!(Number.isFinite(probability) && probability > 0 && probability <= 1)) { warnings.push(`row ${row}: probability "${get(r, "probability")}" is not between 0 and 100%; ignored`); probability = null; }
+    }
+    out.push({ row, code, name: get(r, "name"), days, extend, event: get(r, "event") || null, preds: links(get(r, "preds")), succs: links(get(r, "succs")), notBefore, calendar: get(r, "calendar") || null, group: get(r, "group") || null, branch: get(r, "branch") || null, probability });
   });
   return { rows: out, warnings };
 }
@@ -229,16 +241,96 @@ export function insertFragnet(xer, rows, { model, project }) {
   return { xer: { ...xer, tables: { ...xer.tables, TASK, TASKPRED } }, newIds, extended, extendedIds, warnings };
 }
 
+// Probabilistic branches in the fragnet. Rows with a branch group and a
+// branch name are alternatives: in each outcome exactly one branch of every
+// group happens (a submittal passes review, 70%, or comes back for
+// resubmittal, 30%). Rows of a branch share its probability (written on any
+// of them); a branch with none takes an equal share of what the group's given
+// probabilities leave; given probabilities under 100% leave the rest to "none
+// of these" (no row of the group happens). The same activity ID may be written
+// on two branches with different durations or logic (the review takes 5 days
+// or 15): only one is ever inserted.
+//
+// Returns { groups: [{ group, branches: [{ name, probability, rows, remainder }],
+//   mostLikely }], outcomes } or null when no row names a group.
+export const MAX_OUTCOMES = 512;
+export function branchSetup(rows, warnings = []) {
+  const groups = new Map();
+  for (const f of rows) {
+    if (f.skip) continue;
+    if (!f.group && f.branch) { warnings.push(`row ${f.row}: branch "${f.branch}" has no branch group, so the row is in every outcome`); continue; }
+    if (!f.group) continue;
+    if (!f.branch) { warnings.push(`row ${f.row}: branch group "${f.group}" with no branch name; the row is in every outcome`); f.group = null; continue; }
+    if (!groups.has(f.group)) groups.set(f.group, { group: f.group, branches: new Map() });
+    const g = groups.get(f.group);
+    if (!g.branches.has(f.branch)) g.branches.set(f.branch, { name: f.branch, probability: null, rows: [], remainder: false });
+    const b = g.branches.get(f.branch);
+    b.rows.push(f);
+    if (f.probability !== null) {
+      if (b.probability === null) b.probability = f.probability;
+      else if (Math.abs(b.probability - f.probability) > 1e-9) warnings.push(`row ${f.row}: branch "${f.branch}" of "${f.group}" was given ${r1(b.probability * 100)}% on an earlier row; that is kept`);
+    }
+  }
+  if (!groups.size) return null;
+  const out = [];
+  let outcomes = 1;
+  for (const g of groups.values()) {
+    const list = [...g.branches.values()];
+    const given = list.filter((b) => b.probability !== null).reduce((a, b) => a + b.probability, 0);
+    const missing = list.filter((b) => b.probability === null);
+    if (given > 1 + 1e-9) throw new Error(`branch group "${g.group}": the branches' probabilities add to ${r1(given * 100)}%, over 100%`);
+    if (missing.length) {
+      const each = (1 - given) / missing.length;
+      if (each <= 1e-9) throw new Error(`branch group "${g.group}": the given probabilities add to 100%, leaving nothing for ${missing.map((b) => `"${b.name}"`).join(", ")}`);
+      for (const b of missing) b.probability = each;
+      if (given > 0) warnings.push(`branch group "${g.group}": ${missing.map((b) => `"${b.name}"`).join(", ")} had no probability and ${missing.length === 1 ? "takes" : "share"} the ${r1((1 - given) * 100)}% the others leave`);
+      else if (list.length > 1) warnings.push(`branch group "${g.group}": no probabilities given, so its ${list.length} branches are equally likely`);
+    } else if (given < 1 - 1e-9) list.push({ name: "none of these", probability: 1 - given, rows: [], remainder: true });
+    if (list.length === 1) warnings.push(`branch group "${g.group}" has one branch at 100%: its rows are in every outcome`);
+    // the most likely branch (the first listed on a tie) is the one the
+    // deterministic analysis takes
+    const mostLikely = list.reduce((m, b) => (b.probability > m.probability + 1e-12 ? b : m), list[0]);
+    out.push({ group: g.group, branches: list, mostLikely: mostLikely.name });
+    outcomes *= list.length;
+  }
+  if (outcomes > MAX_OUTCOMES) throw new Error(`the branch groups make ${outcomes} outcomes, more than the ${MAX_OUTCOMES} the analysis schedules one by one; merge groups, or run the risk analysis's probabilistic branches instead`);
+  return { groups: out, outcomes };
+}
+
+// The fragnet rows of one outcome (picks: group -> branch name), copied, with
+// links to new activities that exist only on branches not taken dropped.
+// existingCodes: the activity IDs already in the schedule.
+export function rowsForOutcome(rows, picks, existingCodes) {
+  const kept = rows.filter((f) => !f.skip && (!f.group || picks.get(f.group) === f.branch));
+  const keptCodes = new Set(kept.map((f) => f.code));
+  const gone = new Set(rows.filter((f) => !f.skip && f.group && picks.get(f.group) !== f.branch && !keptCodes.has(f.code) && !existingCodes.has(f.code)).map((f) => f.code));
+  const live = (l) => !gone.has(l.code) && !(l.raw && gone.has(l.raw));
+  return kept.map((f) => ({ ...f, preds: f.preds.filter(live), succs: f.succs.filter(live) }));
+}
+
+// every outcome: one branch per group, with its probability
+function* outcomesOf(groups, i = 0, picks = [], prob = 1) {
+  if (i === groups.length) { yield { picks, probability: prob }; return; }
+  for (const b of groups[i].branches) yield* outcomesOf(groups, i + 1, [...picks, { group: groups[i].group, branch: b.name }], prob * b.probability);
+}
+
 export function timeImpact(xer, fragnet, { projId = null, expectedFinish = true } = {}) {
   // expectedFinish: false schedules both runs as if the project did not use
   // expected end dates (the what-if where no crew is assumed to speed up)
   const ex = expectedFinish === false ? { expectedFinish: false } : {};
-  const parsed = typeof fragnet === "string" ? parseFragnet(fragnet) : fragnet;
+  const parsed0 = typeof fragnet === "string" ? parseFragnet(fragnet) : fragnet;
   const model = buildModel(xer);
   const base = schedule(null, { model, ...ex });
   const p = pickProject(xer, model, projId);
   if (!p) throw new Error("no project in the file");
-  const warnings = [...parsed.warnings];
+  const warnings = [...parsed0.warnings];
+  // probabilistic branches: the deterministic analysis below takes the most
+  // likely branch of each group; every outcome is scheduled after it
+  const setup = branchSetup(parsed0.rows, warnings);
+  const existingCodes = new Set();
+  for (const t of model.tasks.values()) if (t.proj === p.id && t.code !== undefined) existingCodes.add(String(t.code));
+  const mainPicks = setup ? new Map(setup.groups.map((g) => [g.group, g.mostLikely])) : null;
+  const parsed = setup ? { ...parsed0, rows: rowsForOutcome(parsed0.rows, mainPicks, existingCodes) } : parsed0;
   const ins = insertFragnet(xer, parsed.rows, { model, project: p });
   warnings.push(...ins.warnings);
   const impModel = buildModel(ins.xer);
@@ -324,6 +416,54 @@ export function timeImpact(xer, fragnet, { projId = null, expectedFinish = true 
     }
   }
   const delayDays = wd(f0, f1) ?? 0;
+
+  // every outcome of the branches, scheduled as the events alone are
+  let branches = null;
+  if (setup) {
+    const outcomes = [];
+    for (const o of outcomesOf(setup.groups)) {
+      const picks = new Map(o.picks.map((x) => [x.group, x.branch]));
+      const rows = rowsForOutcome(parsed0.rows, picks, existingCodes);
+      const one = insertFragnet(xer, rows, { model, project: p });
+      const run = schedule(one.xer, { forwardOnly: true, ...ex });
+      const newIds = new Set(one.newIds.values());
+      const loop = run.loops.find((l) => l.some((id) => newIds.has(id) || one.extendedIds.includes(id)));
+      if (loop) throw new Error(`the fragnet makes a logic loop when ${o.picks.map((x) => `${x.group} is ${x.branch}`).join(" and ")}: ${loop.map((id) => one.xer.tables.TASK.find((r) => r.task_id === id)?.task_code ?? id).join(" > ")}`);
+      const fe = run.projects.get(p.id)?.finish ?? null;
+      outcomes.push({ picks: o.picks, probability: o.probability, finish: formatDate(fe), delayDays: wd(f0, fe) ?? 0 });
+    }
+    const expected = outcomes.reduce((a, o) => a + o.probability * o.delayDays, 0);
+    const dist = new Map();
+    for (const o of outcomes) dist.set(o.delayDays, (dist.get(o.delayDays) || 0) + o.probability);
+    let cum = 0;
+    const distribution = [...dist.entries()].sort((a, b) => a[0] - b[0]).map(([d, pr]) => ({ delayDays: d, probability: pr, cumulative: (cum += pr) }));
+    const q = (x) => distribution.find((d) => d.cumulative >= x - 1e-9)?.delayDays ?? null;
+    const groups = setup.groups.map((g) => ({
+      group: g.group,
+      mostLikely: g.mostLikely,
+      branches: g.branches.map((b) => {
+        const mine = outcomes.filter((o) => o.picks.some((x) => x.group === g.group && x.branch === b.name));
+        const pr = mine.reduce((a, o) => a + o.probability, 0);
+        // the expected delay given this branch happens
+        return { name: b.name, probability: b.probability, rows: b.rows.length, remainder: b.remainder, delayDays: pr > 0 ? r1(mine.reduce((a, o) => a + o.probability * o.delayDays, 0) / pr) : null };
+      }),
+    }));
+    for (const g of groups) { const ds = g.branches.map((b) => b.delayDays); g.swingDays = r1(Math.max(...ds) - Math.min(...ds)); }
+    outcomes.sort((a, b) => b.delayDays - a.delayDays || b.probability - a.probability);
+    branches = {
+      groups,
+      outcomes,
+      expectedDelayDays: r1(expected),
+      p50DelayDays: q(0.5),
+      p80DelayDays: q(0.8),
+      minDelayDays: distribution[0].delayDays,
+      maxDelayDays: distribution[distribution.length - 1].delayDays,
+      chanceOfDelay: outcomes.filter((o) => o.delayDays > 0).reduce((a, o) => a + o.probability, 0),
+      distribution,
+      // the deterministic result above is the most likely branch of each group
+      deterministicDelayDays: delayDays,
+    };
+  }
   const sumAlone = byEvent.reduce((s, e) => s + e.delayDays, 0);
   return {
     project: { id: p.id, code: p.code, dataDate: formatDate(p.dataDate) },
@@ -341,9 +481,25 @@ export function timeImpact(xer, fragnet, { projId = null, expectedFinish = true 
     // events alone add up to more than together when they share the path
     // (concurrent); to less when one only bites once another has used the float
     overlapDays: byEvent.length ? r1(sumAlone - delayDays) : null,
+    branches,
     warnings,
     impactedXer: ins.xer,
   };
+}
+
+const pct = (x) => `${r1(x * 100)}%`;
+const picksText = (picks) => picks.map((x) => `${x.group}: ${x.branch}`).join("; ");
+function branchLines(b) {
+  const L = [];
+  L.push(`Probabilistic branches (${b.outcomes.length} outcomes, each scheduled): expected delay ${b.expectedDelayDays} d, P50 ${b.p50DelayDays} d, P80 ${b.p80DelayDays} d, ${b.minDelayDays} to ${b.maxDelayDays} d; ${pct(b.chanceOfDelay)} chance the finish moves. The single result above takes the most likely branch of each group (${b.deterministicDelayDays} d).`);
+  for (const g of b.groups) {
+    L.push(`  ${g.group} (swing ${g.swingDays} d):`);
+    for (const x of g.branches) L.push(`    ${x.name}: ${pct(x.probability)}${x.remainder ? " (the rest)" : `, ${x.rows} row${x.rows === 1 ? "" : "s"}`}, expected delay if it happens ${x.delayDays} d${x.name === g.mostLikely ? " (most likely)" : ""}`);
+  }
+  L.push("  Outcomes, worst first:");
+  for (const o of b.outcomes.slice(0, 12)) L.push(`    ${o.delayDays} d, ${pct(o.probability)}: ${picksText(o.picks)} (finish ${o.finish})`);
+  if (b.outcomes.length > 12) L.push(`    and ${b.outcomes.length - 12} more in the CSV`);
+  return L;
 }
 
 export function timeImpactText(r, { limit = 15 } = {}) {
@@ -355,7 +511,8 @@ export function timeImpactText(r, { limit = 15 } = {}) {
     for (const e of r.byEvent) L.push(`  ${e.event}: ${e.delayDays} d (finish ${e.finish})`);
     L.push(`  alone they add to ${r1(r.byEvent.reduce((s, e) => s + e.delayDays, 0))} d, together ${r.finish.delayDays} d${r.overlapDays > 0 ? ` (${r.overlapDays} d overlap: concurrent on the path)` : ""}`);
   }
-  L.push("Fragnet:");
+  if (r.branches) for (const line of branchLines(r.branches)) L.push(line);
+  L.push(r.branches ? "Fragnet (most likely branch of each group):" : "Fragnet:");
   for (const f of r.fragnet) L.push(`  ${f.code} ${f.name} (${f.kind}, ${f.days} d): ${f.start} to ${f.finish}, float ${f.floatDays} d${f.driving ? ", drives the finish" : ""}`);
   if (r.milestonesMoved) {
     L.push(`Milestones moved (${r.milestonesMoved} of ${r.milestones.length}):`);
@@ -378,6 +535,12 @@ export function timeImpactCsv(r) {
   const out = [["section", "activity", "name", "before", "after", "change (working days)", "note"]];
   out.push(["finish", "", "project finish", r.finish.base, r.finish.impacted, r.finish.delayDays, ""]);
   for (const e of r.byEvent) out.push(["event alone", "", e.event, r.finish.base, e.finish, e.delayDays, ""]);
+  if (r.branches) {
+    const b = r.branches;
+    out.push(["branches", "", "expected delay over every outcome", r.finish.base, "", b.expectedDelayDays, `P50 ${b.p50DelayDays} d; P80 ${b.p80DelayDays} d; ${b.minDelayDays} to ${b.maxDelayDays} d; chance of delay ${pct(b.chanceOfDelay)}`]);
+    for (const g of b.groups) for (const x of g.branches) out.push(["branch", "", `${g.group}: ${x.name}`, "", "", x.delayDays, `probability ${pct(x.probability)}${x.name === g.mostLikely ? "; most likely, in the single result" : ""}; expected delay if it happens`]);
+    for (const o of b.outcomes) out.push(["outcome", "", picksText(o.picks), r.finish.base, o.finish, o.delayDays, `probability ${pct(o.probability)}`]);
+  }
   for (const f of r.fragnet) out.push(["fragnet", f.code, f.name, f.start, f.finish, f.days, `${f.kind}; float ${f.floatDays} d${f.driving ? "; drives the finish" : ""}`]);
   for (const m of r.milestones) out.push(["milestone", m.code, m.name, m.base, m.impacted, m.delayDays, ""]);
   for (const c of r.consumed) out.push(["float used", c.code, c.name, c.floatBefore, c.floatAfter, -c.usedDays, `start ${c.startBefore} -> ${c.startAfter}`]);
@@ -385,6 +548,13 @@ export function timeImpactCsv(r) {
 }
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+function branchHtml(b) {
+  return `<h2>Probabilistic branches</h2>
+<p>The fragnet has alternatives: in each outcome one branch of every group happens. All ${esc(b.outcomes.length)} outcomes were scheduled. <b>Expected delay ${esc(b.expectedDelayDays)} working days</b>; P50 ${esc(b.p50DelayDays)}, P80 ${esc(b.p80DelayDays)}, from ${esc(b.minDelayDays)} to ${esc(b.maxDelayDays)}; a ${esc(pct(b.chanceOfDelay))} chance the finish moves. The finish and milestones above take the most likely branch of each group (${esc(b.deterministicDelayDays)} days).</p>
+<table><thead><tr><th>Group</th><th>Branch</th><th class="n">Probability</th><th class="n">Expected delay if it happens (d)</th></tr></thead><tbody>${b.groups.map((g) => g.branches.map((x) => `<tr><td>${esc(g.group)}</td><td>${esc(x.name)}${x.name === g.mostLikely ? " (most likely)" : ""}</td><td class="n">${esc(pct(x.probability))}</td><td class="n">${esc(x.delayDays)}</td></tr>`).join("")).join("")}</tbody></table>
+<table><thead><tr><th>Outcome</th><th class="n">Probability</th><th>Finish</th><th class="n">Delay (d)</th></tr></thead><tbody>${b.outcomes.slice(0, 40).map((o) => `<tr><td>${esc(picksText(o.picks))}</td><td class="n">${esc(pct(o.probability))}</td><td>${esc(o.finish)}</td><td class="n">${esc(o.delayDays)}</td></tr>`).join("")}</tbody></table>${b.outcomes.length > 40 ? `<p class="note">${esc(b.outcomes.length - 40)} more outcomes in the CSV.</p>` : ""}`;
+}
 
 // A printable exhibit for a time extension request or its review.
 export function timeImpactHtml(r, meta = {}) {
@@ -398,7 +568,8 @@ export function timeImpactHtml(r, meta = {}) {
 <p class="big">Project finish ${esc(r.finish.base)} &rarr; <b>${esc(r.finish.impacted)}</b>: ${d > 0 ? `<b>${esc(d)} working days later</b>` : d < 0 ? `${esc(-d)} working days earlier` : "no change"}.</p>
 <p>Method: the fragnet below was inserted into the update in force when the event happened and the schedule recomputed with the file's own calendars, logic, constraints and scheduling options (AACE RP 52R-06, prospective time impact analysis; RP 29R-03 MIP 3.6). The impact is the difference in the project finish and in each milestone between the two runs, in working days of the project calendar.</p>
 ${r.byEvent.length ? `<h2>Each event alone</h2><table><thead><tr><th>Event</th><th>Finish</th><th class="n">Days</th></tr></thead><tbody>${r.byEvent.map((e) => row([e.event, e.finish, e.delayDays])).join("")}<tr><td>All together</td><td>${esc(r.finish.impacted)}</td><td class="n">${esc(d)}</td></tr></tbody></table><p class="note">${r.overlapDays > 0 ? `The events alone add up to ${esc(r1(r.byEvent.reduce((s, e) => s + e.delayDays, 0)))} days but ${esc(d)} together: ${esc(r.overlapDays)} days are concurrent (the events delay the same path at the same time).` : r.overlapDays < 0 ? `Together they delay more than alone: one event only reaches the finish once another has used the float.` : "The events' delays add up: no overlap."}</p>` : ""}
-<h2>Fragnet</h2><table><thead><tr><th>Activity</th><th>Name</th><th>Kind</th><th class="n">Days</th><th>Start</th><th>Finish</th><th class="n">Float (d)</th><th>Drives the finish</th></tr></thead><tbody>${r.fragnet.map((f) => `<tr><td>${esc(f.code)}</td><td>${esc(f.name)}</td><td>${esc(f.kind)}</td><td class="n">${esc(f.days)}</td><td>${esc(f.start)}</td><td>${esc(f.finish)}</td><td class="n">${esc(f.floatDays)}</td><td>${f.driving ? "yes" : ""}</td></tr>`).join("")}</tbody></table>
+${r.branches ? branchHtml(r.branches) : ""}
+<h2>Fragnet${r.branches ? " (most likely branch of each group)" : ""}</h2><table><thead><tr><th>Activity</th><th>Name</th><th>Kind</th><th class="n">Days</th><th>Start</th><th>Finish</th><th class="n">Float (d)</th><th>Drives the finish</th></tr></thead><tbody>${r.fragnet.map((f) => `<tr><td>${esc(f.code)}</td><td>${esc(f.name)}</td><td>${esc(f.kind)}</td><td class="n">${esc(f.days)}</td><td>${esc(f.start)}</td><td>${esc(f.finish)}</td><td class="n">${esc(f.floatDays)}</td><td>${f.driving ? "yes" : ""}</td></tr>`).join("")}</tbody></table>
 ${ms.length ? `<h2>Milestones moved</h2><table><thead><tr><th>Milestone</th><th>Name</th><th>Before</th><th>After</th><th class="n">Days</th></tr></thead><tbody>${ms.map((m) => row([m.code, m.name, m.base, m.impacted, m.delayDays])).join("")}</tbody></table>` : "<p>No milestone moved.</p>"}
 <h2>Float used</h2><p>${esc(r.summary.activitiesLessFloat)} activities gave up float; ${esc(r.summary.nowCritical)} became critical and ${esc(r.summary.nowNegative)} went negative.</p>
 ${r.consumed.length ? `<table><thead><tr><th>Activity</th><th>Name</th><th class="n">Float before (d)</th><th class="n">After (d)</th></tr></thead><tbody>${r.consumed.slice(0, 40).map((c) => `<tr><td>${esc(c.code)}</td><td>${esc(c.name)}</td><td class="n">${esc(c.floatBefore)}</td><td class="n">${esc(c.floatAfter)}</td></tr>`).join("")}</tbody></table>${r.consumed.length > 40 ? `<p class="note">${esc(r.consumed.length - 40)} more in the CSV.</p>` : ""}` : ""}
