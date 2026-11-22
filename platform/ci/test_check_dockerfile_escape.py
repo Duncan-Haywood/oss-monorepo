@@ -48,6 +48,10 @@ class Offenders(unittest.TestCase):
         }) as root:
             self.assertEqual(check.offenders(Path(root)), [])
 
+    def test_empty_root_is_not_a_pass(self):
+        with tree({"README.md": "x"}) as root:
+            self.assertEqual(check.main(["--root", root]), 2)
+
     def test_repository_is_clean(self):
         self.assertEqual(check.offenders(check.ROOT), [])
 

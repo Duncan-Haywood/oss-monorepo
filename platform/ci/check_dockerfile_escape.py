@@ -17,7 +17,7 @@ Dockerfile and tests for a trailing-backslash continuation, but never
 mentions the `escape` directive. It is a text heuristic: a file that
 handles the directive some other way can name it in a comment.
 
-    python3 platform/ci/check_dockerfile_escape.py [--root DIR]   # exit 1 on a hit
+    python3 platform/ci/check_dockerfile_escape.py [--root DIR]   # exit 1 on a hit, 2 if no files
 """
 import argparse
 import re
@@ -43,8 +43,11 @@ def is_test(path):
     return name.startswith("test_") or ".test." in name or name.endswith("_test.py")
 
 
-def offenders(root):
+def offenders(root, stats=None):
+    """Repo-relative paths of joiners that ignore the directive. When `stats`
+    is a dict, its "scanned" count is the number of source files read."""
     hits = []
+    scanned = 0
     base = Path(root) / "ventures"
     for path in sorted(base.rglob("*")):
         if path.suffix not in SUFFIXES or not path.is_file() or is_test(path):
@@ -55,11 +58,14 @@ def offenders(root):
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
+        scanned += 1
         if not MENTIONS_DOCKERFILE.search(text) or not CONTINUATION.search(text):
             continue
         if HANDLES_ESCAPE.search(text):
             continue
         hits.append(path.relative_to(root).as_posix())
+    if stats is not None:
+        stats["scanned"] = scanned
     return hits
 
 
@@ -67,7 +73,11 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--root", default=str(ROOT))
     args = ap.parse_args(argv)
-    hits = offenders(Path(args.root))
+    stats = {}
+    hits = offenders(Path(args.root), stats)
+    if not stats["scanned"]:
+        print(f"no source files under {args.root}/ventures: wrong --root? A scan of nothing is not a pass.")
+        return 2
     for hit in hits:
         print(f"{hit}: joins backslash-continued Dockerfile lines but never reads "
               "the `# escape=` directive (a Windows `C:\\app\\` line hides the next "
