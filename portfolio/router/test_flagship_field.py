@@ -749,6 +749,9 @@ def test_real_rows_move_no_open_work_to_history():
     "two courses 2026-11-20 (golf-courses.test.mjs)",
     "facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68 IDS 7.9 to 4.6 s)",
     "Americano scorer page 2026-11-19 (americano-night.html, night.mjs: live table)",
+    # a matched count is the evidence (PR #18170's record, xer-schedule-check)
+    "unassigned resources 2026-11-21 (--all-resources, 17/17 notes back)",
+    "resource tree as Group 2026-11-22 (502/502)",
 ])
 def test_is_result_finished_results(item):
     assert ff.is_result(item)
@@ -773,6 +776,8 @@ def test_is_result_finished_results(item):
     "cylinders read 2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as "
     "signed tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a union",
     "(4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round up`",
+    # a slash that is not a count over a total
+    "a P6 import 2026-11-22 (24/7 calendar)",
 ])
 def test_is_result_keeps_open_items_open(item):
     assert not ff.is_result(item)

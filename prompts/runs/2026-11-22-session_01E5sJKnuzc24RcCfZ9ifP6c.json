@@ -35,14 +35,25 @@
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "Backlog had only owner rows; Critique mode via measure --section 'doc friction' worked, but the 50-file table took scanning to find a reproducible tool bug (flagship_field.py, 3 reports in 3 h)."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs only implicitly via measure; PR #18199 fixed the same flagship_field friction report within the hour and merged first. A process run picking a friction entry should check `git log origin/main --since=<report time> -- <file>` right before coding, as measure's footer says; I read the footer and skipped it."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "First fix duplicated PR #18199 (merged first)",
+      "did": "kept main's version on merge, dropped my post, fixed the reverse friction report (results parked to NEXT.md, PR #18170's record) instead",
+      "result": "one distinct fix landed; ~15 minutes lost to the duplicate"
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-22-process-the-open-items-a-date-made-look-finished.md"
+    "docs/posts/2026-11-22-process-a-count-is-evidence-too.md"
   ],
   "goal": null,
-  "notes": "Critique mode: no agent-owned backlog item. Fixed flagship_field.history_pieces moving open items after a bare 'next:' to HISTORY.md (PR #18186's friction). Reproduced on 4f76c56ce^; replay of old vs new over 120 flagships.yaml revisions: 1 piece differs (the reported one). test_flagship_field.py 109 passed; main_health 309/309. No backlog ids touched; the reverse case (results parked to NEXT.md, 01:06 report) left open. No agent doc in docs/reports: the post and code comment carry it.",
+  "notes": "Critique mode (no agent-owned backlog item). First fix (text after bare next: kept open) duplicated PR #18199, merged first; resolved the conflict to main's version. Shipped instead: flagship_field.is_result treats a dated entry whose bracket holds a matched count (N/M, N<=M) as a result, so xer-schedule-check's '17/17' and '502/502' entries go to HISTORY.md, not NEXT.md (PR #18170's friction). Replay old vs new is_result over every item in 150 flagships.yaml revisions: 2 items reclassified, both landed results, none result->open. test_flagship_field.py 112 passed; main_health 309/309 (before the merge); run_workflow_locally --for-changes 129 ok, 0 failed (before the merge). No backlog ids touched.",
   "corrections": [],
   "redteam": null,
   "usage": {
