@@ -1,3 +1,7 @@
+---
+kind: analysis
+subjects: [ambient-fullinfo, ambient-crossfit, ambient-bandit, ambient-ips, ambient-capcv, ambient-dr, ambient-drablate, ambient-drclip, ambient-drrepeat, ambient-drvalid, ambient-exploreonly, ambient-labelmatch]
+---
 # The ambient-* MAP solver diverges in ten more projects
 
 Found by quality round 94 (2026-11-22), audit
