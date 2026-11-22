@@ -167,19 +167,54 @@ export function escapeChar(text) {
   return escape;
 }
 
+// A heredoc opener as BuildKit reads one: a word of a RUN, COPY or ADD
+// instruction shaped `<<NAME`, `<<-NAME`, `<<"NAME"` or `2<<NAME`. The lines
+// after the instruction up to a line equal to NAME (leading tabs ignored for
+// `<<-`) are the heredoc's body, not instructions. Mirrors check.py's
+// heredoc_terminators.
+const HEREDOC_INSTRUCTIONS = new Set(["RUN", "COPY", "ADD"]);
+const HEREDOC_WORD_RE = /^\d*<<(-?)(["']?)([^<"'\s]+)\2$/;
+
+/** The heredoc terminators one joined instruction opens, in order, as
+ * [{name, chomp}]. Empty for an instruction that opens none. */
+export function heredocTerminators(instruction) {
+  const words = instruction.trim().split(/\s+/);
+  if (!HEREDOC_INSTRUCTIONS.has((words[0] || "").toUpperCase())) return [];
+  const out = [];
+  for (const word of words.slice(1)) {
+    const m = HEREDOC_WORD_RE.exec(word);
+    if (m) out.push({ name: m[3], chomp: m[1] === "-" });
+  }
+  return out;
+}
+
+/** True when `line` closes the heredoc `pending` describes. */
+function closesHeredoc(line, pending) {
+  let candidate = line.replace(/\r$/, "");
+  if (pending.chomp) candidate = candidate.replace(/^\t+/, "");
+  return candidate === pending.name;
+}
+
 /** Join continued lines into one instruction, the way BuildKit reads them,
  * and drop comment lines. The continuation character is a backslash unless
  * an `# escape=` directive changes it. Returns [startLineNumber, text]
  * pairs. Comment and blank lines inside a continuation are skipped, as
- * BuildKit does. Mirrors check.py's logical_lines. */
+ * BuildKit does. The body of a `RUN <<EOF` / `COPY <<EOF` heredoc is
+ * skipped: a `FROM` line written into a nested Dockerfile is not an
+ * instruction of this one. Mirrors check.py's logical_lines. */
 export function logicalLines(text) {
   const escape = escapeChar(text);
   const out = [];
   let buffer = null;
   let start = 0;
+  let heredocs = [];
   const lines = text.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    if (heredocs.length) {
+      if (closesHeredoc(line, heredocs[0])) heredocs.shift();
+      continue;
+    }
     const stripped = line.trim();
     if (buffer === null) {
       if (stripped.startsWith("#")) continue;
@@ -193,6 +228,7 @@ export function logicalLines(text) {
       buffer += trimmed.slice(0, -1) + " ";
     } else {
       out.push([start, buffer + line]);
+      heredocs = heredocTerminators(buffer + line);
       buffer = null;
     }
   }

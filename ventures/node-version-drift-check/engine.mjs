@@ -290,14 +290,38 @@ function dockerEscape(text) {
   return escape;
 }
 
+// A heredoc opener as BuildKit reads one: a word of a RUN, COPY or ADD
+// shaped `<<NAME`, `<<-NAME`, `<<"NAME"` or `2<<NAME`. The lines up to a
+// line equal to NAME (leading tabs ignored for `<<-`) are its body, not
+// instructions, so a `FROM node:16` written into a nested Dockerfile by
+// `COPY <<EOF` is not this file's pin (red-team 2026-11-22, second run, same
+// fix as docker-base-image-pin-check).
+function heredocTerminators(instruction) {
+  const words = instruction.trim().split(/\s+/);
+  if (!/^(?:RUN|COPY|ADD)$/i.test(words[0] || "")) return [];
+  const out = [];
+  for (const word of words.slice(1)) {
+    const m = /^\d*<<(-?)(["']?)([^<"'\s]+)\2$/.exec(word);
+    if (m) out.push({ name: m[3], chomp: m[1] === "-" });
+  }
+  return out;
+}
+
 function dockerLogicalLines(text) {
   const out = [];
   let buf = "";
+  let heredocs = [];
   const trailing = dockerEscape(text) === "`" ? /`\s*$/ : /\\\s*$/;
   for (const raw of text.split(/\r?\n/)) {
+    if (heredocs.length) {
+      const candidate = heredocs[0].chomp ? raw.replace(/^\t+/, "") : raw;
+      if (candidate === heredocs[0].name) heredocs.shift();
+      continue;
+    }
     if (/^\s*#/.test(raw) && buf === "") continue;
     if (trailing.test(raw)) { buf += raw.replace(trailing, " "); continue; }
     out.push((buf + raw).trim());
+    heredocs = heredocTerminators(buf + raw);
     buf = "";
   }
   if (buf.trim()) out.push(buf.trim());
