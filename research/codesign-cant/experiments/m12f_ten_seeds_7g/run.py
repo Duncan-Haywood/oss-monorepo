@@ -1,4 +1,4 @@
-"""Milestone 12e: section VI's authority result (milestone 7g and its headroom follow-up) at ten seeds.
+"""Milestone 12f: section VI's authority result (milestone 7g and its headroom follow-up) at ten seeds.
 
 Milestone 7g re-flew six seeds of each integrator feed-forward set at twice the trained centre-of-pressure lever and found
 every divergence to be a tilt-over that an ideal mixer mostly removes and an ideal mixer with 25-50% more torque room removes
@@ -14,7 +14,7 @@ retrained (both starts) must give its stored design; the base counts of seeds 0-
 the above seeds 6-9 base counts must equal 12b's stored lever-2 counts.
 
 Scoring: 64 held-out episodes (seed 9999), lever 2, side force on, integrator feed-forward, tilt-command limits 20 and 45 deg,
-under 7g's probes and the headroom follow-up's in one table. Predictions ME0-ME8 in ../../LOG.md, committed before the full run.
+under 7g's probes and the headroom follow-up's in one table. Predictions MF0-MF8 in ../../LOG.md, committed before the full run.
 SMOKE=1: new seeds 6 and 7 only, 64 evaluations, 4 training episodes, scored on 8 episodes of seed 4242 (never 9999).
 """
 import importlib.util, json, os, sys, time, warnings

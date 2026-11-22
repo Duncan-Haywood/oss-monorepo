@@ -1,4 +1,4 @@
-"""Milestone 12e statistics (stdlib): the lever-2 authority probes at ten seeds per set.
+"""Milestone 12f statistics (stdlib): the lever-2 authority probes at ten seeds per set.
 
 Reads results.json from run.py. Per set (geometry x training arm), tilt-command limit and probe: diverged flights summed over
 the ten seeds (of 640) with the per-seed counts and a bootstrap 95% interval over seeds (20,000 resamples, seed 0); the
@@ -34,7 +34,7 @@ def main():
     R = json.load(open(os.path.join(HERE, "results.json")))
     rng = random.Random(0)
     ep = R["episodes"]
-    L = [f"Milestone 12e: lever {R['lever']:g}, {ep} held-out episodes (seed {R['test_seed']}), integrator feed-forward, side force on; ten seeds per set.",
+    L = [f"Milestone 12f: lever {R['lever']:g}, {ep} held-out episodes (seed {R['test_seed']}), integrator feed-forward, side force on; ten seeds per set.",
          "dead = diverged flights summed over designs [95% bootstrap interval over seeds]; per-seed counts in seed order 0-9;",
          "vs base = paired change per design, mean, exact Wilcoxon p, designs better/worse.", ""]
     out = {}
