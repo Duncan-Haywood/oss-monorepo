@@ -71,5 +71,60 @@ class PaperTables(unittest.TestCase):
         self.assertEqual([ins[s]["strict7e"] for s in t.SETS], [14, 18, 21, 21])
 
 
+class CorrectedTable(unittest.TestCase):
+    """Table 3: rebuilt from gate7x's and gate7y's fold rows, it must reproduce what 7w to 7y logged."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.C = t.corrected()
+        cls.F = t.corrected_folds()
+
+    def test_every_rule_covers_the_same_folds(self):
+        for c, _ in t.CONDS:
+            keys = {(f["set"], f["pool"]) for f in self.F[c]["theta"]}
+            self.assertEqual(len(keys), 20 if c == "four" else 10)
+            for r, _ in t.CRULES:
+                self.assertEqual({(f["set"], f["pool"]) for f in self.F[c][r]}, keys, (c, r))
+                self.assertEqual(len(self.F[c][r]), len(keys), (c, r))
+
+    def test_totals_match_logged(self):
+        T = self.C["total"]
+        want = {("four", "theta"): (19, 43.5), ("four", "thetaC"): (16, None), ("four", "thetaH"): (17, 46.75),
+                ("four", "thetaN"): (17, 45.375), ("four", "thetaD"): (17, 46.75), ("four", "oracle"): (19, 43.5),
+                ("f30", "thetaN"): (10, 10.0), ("f30", "oracle"): (10, 10.0), ("f10", "oracle"): (7, 32.1)}
+        for (c, r), (m, cyc) in want.items():
+            self.assertEqual(T[c][r]["met"], m, (c, r))
+            if cyc is not None:
+                self.assertAlmostEqual(T[c][r]["cycles"], cyc, places=1, msg=(c, r))
+
+    def test_six_set_pairs_match_stored_summaries(self):
+        # same folds, same bootstrap (B = 20000, seed 7101) as sets7p's set_boot, so the stored values recur exactly
+        y, x = t.load("gate7y")["six"]["pair"], t.load("gate7x")["six"]["pair"]
+        for rule, ref in (("thetaD", y["thetaD-theta"]), ("thetaP", y["thetaP-theta"]),
+                          ("thetaN", x["thetaN-theta"]), ("thetaH", x["thetaH-theta"])):
+            q = self.C["pair_six"][rule]
+            self.assertAlmostEqual(q["mean"], ref["mean"], places=9, msg=rule)
+            self.assertAlmostEqual(q["boot"][0], ref["boot"][0], places=9, msg=rule)
+            self.assertAlmostEqual(q["boot"][1], ref["boot"][1], places=9, msg=rule)
+            self.assertEqual((q["cheaper"], q["dearer"]), (ref["cheaper"], ref["dearer"]), rule)
+            self.assertAlmostEqual(q["sign_p"], ref["sign_p"], places=12, msg=rule)
+
+    def test_committed_pair_matches_7w(self):
+        ref = t.load("rule7w")["pair"]["thetaC-theta"]
+        q = self.C["pair_four"]["thetaC"]
+        self.assertAlmostEqual(q["mean"], ref["mean"], places=9)
+        self.assertEqual((q["cheaper"], q["dearer"]), (ref["cheaper"], ref["dearer"]))
+
+    def test_mean_difference_is_difference_of_means(self):
+        T = self.C["total"]["six"]
+        for r, q in self.C["pair_six"].items():
+            self.assertAlmostEqual(q["mean"], T[r]["cycles"] - T["theta"]["cycles"], places=9, msg=r)
+
+    def test_gates_collapse_to_two_decisions(self):
+        same = self.C["same"]
+        self.assertEqual((same["thetaP=thetaN"]["four"], same["thetaP=thetaN"]["f30"]), (20, 10))
+        self.assertEqual((same["thetaD=thetaH"]["four"], same["thetaD=thetaH"]["f30"]), (20, 10))
+
+
 if __name__ == "__main__":
     unittest.main()

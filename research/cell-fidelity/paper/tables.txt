@@ -1,4 +1,4 @@
-cell-fidelity paper tables: triage results 7c to 7h, regenerated from experiments/*/summary.json.
+cell-fidelity paper tables: triage results 7c to 7h and the corrected forecast 7w to 7y, regenerated from experiments/*/summary.json.
 
 Table 1. In-sample: 7c drift signal and the DFN cycles flag-and-extend saves against running all 104
 designs to cycle 50 (7d at t = 1.25; 7e mean over 21 targets t = 1.00 to 2.00, cell 000).
@@ -31,3 +31,42 @@ Pooled fresh-pool hit rate, frozen 7f threshold policies on 7g and 7h:
 Paired lopo5 folds, threshold (theta) minus uniform (U), DFN cycles per design:
   n = 20; mean -4.50 (set-clustered bootstrap -8.50 to +0.25); theta cheaper on 14, dearer on 4, tied on 2; exact sign test p = 0.0309
   both met 18, only theta met 1, only U met 1
+
+Table 3. The corrected ten-cycle forecast and its gates, out of batch (7w to 7y; lopo5, five folds per
+set): target met / folds, Wilson 95% on the committed sets, mean DFN cycles per design, and over the six
+set-conditions (committed + f = 30) the paired difference against theta with a set bootstrap and sign test.
+rule   what                              committed  Wilson 95%   cyc   f=30   cyc   f=10   cyc  six: rule - theta     set boot 95%  ch/de  sign p
+U      uniform run length (7h)               19/20   0.76-0.99  48.0  10/10  40.0   8/10  35.0              +1.17   -3.75 to +6.19 11/15    0.557
+theta  straight forecast + triage (7h)       19/20   0.76-0.99  43.5   9/10  45.5   7/10  32.8        (reference)
+thetaC corrected, no gate (7w)               16/20   0.58-0.92  44.9  10/10  10.0   6/10  15.8             -10.92  -24.33 to +1.83 11/7     0.481
+thetaH corrected, honest margin (7x)         17/20   0.64-0.95  46.8  10/10  10.0   6/10  19.8              -9.67  -24.00 to +4.08 10/8     0.815
+thetaN out-of-fold error gate (7x)           17/20   0.64-0.95  45.4  10/10  10.0   6/10  23.8             -10.58  -24.33 to +2.50 10/5     0.302
+thetaP plating-share gate (7y)               17/20   0.64-0.95  45.4  10/10  10.0   6/10  19.8             -10.58  -24.33 to +2.50 10/5     0.302
+thetaD drift-size gate (7y)                  17/20   0.64-0.95  46.8  10/10  10.0   6/10  20.5              -9.67  -24.00 to +4.08 10/8     0.815
+oracle post hoc per-set oracle (7y)          19/20   0.76-0.99  43.5  10/10  10.0   7/10  32.1             -11.83  -24.33 to +0.00 10/0     0.002
+
+Committed sets only, rule - theta (20 folds): mean, set bootstrap 95%, cheaper/dearer, sign p:
+  U        +4.50  (-0.25 to +8.50)  4/14  p = 0.031
+  thetaC   +1.38  (+0.00 to +4.12)  1/7  p = 0.070
+  thetaH   +3.25  (+0.25 to +6.25)  0/8  p = 0.008
+  thetaN   +1.88  (+0.00 to +5.25)  0/5  p = 0.062
+  thetaP   +1.88  (+0.00 to +5.25)  0/5  p = 0.062
+  thetaD   +3.25  (+0.25 to +6.25)  0/8  p = 0.008
+  oracle   +0.00  (+0.00 to +0.00)  0/0  p = 1.000
+
+Folds where two rules make the same decision (same cycles, same met flag), committed / f = 30 / f = 10:
+  thetaP=thetaN   20/20  10/10   7/10
+  thetaD=thetaH   20/20  10/10   8/10
+  thetaN=thetaH   17/20  10/10   7/10
+  thetaC=thetaH   17/20  10/10   9/10
+
+Per set: target met / 5 and mean DFN cycles per design; oracle = the rule 7y's hindsight pick chose.
+condition:set                      U       theta      thetaC      thetaN      thetaP      thetaD  oracle
+four:Chen2020              4/5  42.0   4/5  44.7   4/5  44.7   4/5  45.2   4/5  45.2   4/5  45.2   theta
+four:OKane2022             5/5  50.0   5/5  46.3   4/5  46.3   4/5  46.3   4/5  46.3   4/5  46.3   theta
+four:NCA_Kim2011           5/5  50.0   5/5  40.0   3/5  40.0   4/5  47.0   4/5  47.0   4/5  47.0   theta
+four:Ai2020                5/5  50.0   5/5  43.0   5/5  48.5   5/5  43.0   5/5  43.0   5/5  48.5   theta
+f30:Mohtat2020             5/5  40.0   5/5  47.5   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0  thetaH
+f30:Ecker2015              5/5  40.0   4/5  43.5   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0  thetaH
+f10:Mohtat2020             3/5  24.0   2/5  23.0   2/5  21.6   2/5  21.0   2/5  21.6   2/5  23.0  thetaH
+f10:Ecker2015              5/5  46.0   5/5  42.6   4/5  10.0   4/5  26.6   4/5  18.0   4/5  18.0   theta
