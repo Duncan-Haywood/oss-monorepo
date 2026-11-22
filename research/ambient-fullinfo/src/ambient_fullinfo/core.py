@@ -48,15 +48,35 @@ def fit_map(X, y, w0, prior_prec=1.0, sample_weight=None, iters=40):
     if len(y) == 0:
         return w0.copy(), np.eye(k) / prior_prec
     sw = np.ones(len(y)) if sample_weight is None else sample_weight
+
+    def objective(w):
+        # negative log posterior; logaddexp keeps it finite for large |X w|
+        z = X @ w
+        nll = np.sum(sw * (np.logaddexp(0.0, z) - y * z))
+        return nll + 0.5 * prior_prec * np.sum((w - w0) ** 2)
+
+    # Damped Newton: the objective is strictly convex, but full Newton steps from a
+    # poor start overshoot and diverge (quality round 94 found fits 450 to 360,000x
+    # above the minimum), so each step is halved until the objective decreases.
     w = w0.copy()
-    for _ in range(iters):
+    J = objective(w)
+    for _ in range(max(iters, 100)):
         p = sigmoid(X @ w)
         g = X.T @ (sw * (p - y)) + prior_prec * (w - w0)
         H = (X * (sw * p * (1 - p))[:, None]).T @ X + prior_prec * np.eye(k)
         step = np.linalg.solve(H, g)
-        w -= step
-        if np.max(np.abs(step)) < 1e-8:
+        t = 1.0
+        while True:
+            w_new = w - t * step
+            J_new = objective(w_new)
+            if J_new <= J - 1e-4 * t * (g @ step) or t < 1e-10:
+                break
+            t *= 0.5
+        w, J = w_new, J_new
+        if np.max(np.abs(t * step)) < 1e-8:
             break
+    p = sigmoid(X @ w)
+    H = (X * (sw * p * (1 - p))[:, None]).T @ X + prior_prec * np.eye(k)
     return w, np.linalg.inv(H)
 
 

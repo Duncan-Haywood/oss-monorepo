@@ -30,8 +30,9 @@ wins, and most sellers meet it for the first time on an invoice.
 ## Why the divisor is an input
 
 Because it is a contract term, not a constant. The published US domestic figure
-for the major parcel carriers has been 139, but negotiated accounts routinely
-carry 166, 194 or 250, and the divisor can differ between ground and air on the
+for UPS and FedEx account rates has been 139; UPS retail and USPS use 166, and
+USPS applies dimensional weight only to parcels over one cubic foot (1,728 in³),
+which this tool does not model. Negotiated accounts routinely carry 166, 194 or 250, and the divisor can differ between ground and air on the
 same account. A better divisor is often worth more to a light-goods shipper than
 a headline rate discount. `DEFAULT_DIVISOR` is a starting point the page lets you
 change; every output is recomputed from whatever is passed.

@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPuSqbVFrRSGRNqm6k",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue software; merge when done)",
+  "input_sha256": "b4e139341cc30db77aadefe2f1d6acdc8c06b760de564ce28b012ede901c39ab",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T14:11:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality round 94 (sample mode)",
+  "projects": [
+    "ventures/parcel-dim-weight-calculator",
+    "ventures/lawn-aeration-overseeding-bid-calculator",
+    "research/sensing-recon",
+    "research/ambient-fullinfo",
+    "platform/perf"
+  ],
+  "pr": 18259,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 25,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "fix and reaudit modes work per subject, so a fix to copied code (ambient-crossfit fit_map, 2026-11-17) never reached its 10 copies; the queue has no notion of 'same defect in sibling code'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says large defects go to a ROADMAP; I fixed the ambient-fullinfo solver and regenerated results in this PR instead, because a published headline finding was an optimizer artifact and leaving it up would keep a wrong research claim live.",
+      "did": "damped Newton, regenerated results.txt/utility.svg, rewrote results 1-2",
+      "result": "independent solver agrees on every checked fit; uninformed rows now equal informed within 0.1"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-quality-audit-round-94.md",
+    "docs/reports/2026-11-22-ambient-fit-map-divergence.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-22-e-01cc, round 94. Subjects: ventures/parcel-dim-weight-calculator, ventures/lawn-aeration-overseeding-bid-calculator, research/sensing-recon, research/ambient-fullinfo, platform/perf. Share meeting the bar: 0 of 5 (sampled total 36 of 385, Wilson 7%-13%). Seeded mutants caught pre-fix: 5 of 25. Fix PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/18259 (all fixes). Spot-checks rerun by the session: parcel 97x8x8 flag, lawn indep.py vs tool.mjs, sensing pose.py, ambient mapcheck.py (J 47679 vs 105 before, equal after), perf old vs new on shed-designer. Local checks: parcel node --test 59/59, lawn 24/24, perf 5/5 (tests moved to a separate .github-gated PR with the checklist line), sensing pytest 18/18, ambient pytest 8/8 (new stationarity test fails on old code), quality_audit validate 0 problems, check_posts ok. Follow-up: 10 ambient-* projects still use undamped fit_map (docs/reports/2026-11-22-ambient-fit-map-divergence.md).",
+  "corrections": [],
+  "redteam": null
+}

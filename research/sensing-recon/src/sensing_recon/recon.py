@@ -1,4 +1,4 @@
-"""Pinhole cameras on an orbit, noisy feature tracks, linear (DLT) triangulation, Chamfer score.
+"""Pinhole cameras on an orbit, noisy feature tracks, linear (DLT) triangulation, surface error.
 
 Units: the object has a mean radius of about 1, so errors are fractions of that radius.
 Camera poses and feature correspondences are given (no feature matching, no bundle adjustment).
@@ -130,18 +130,46 @@ def triangulate_all(cams, uvs, vis, min_angle_deg=2.0):
 
 
 def surface_error(recon):
-    """Distance of each reconstructed point to the true surface, to first order (radial offset).
+    """Radial offset |r - R(d)| of each reconstructed point from the true surface.
 
     Exact surface rather than a sampled reference cloud, so the score has no sampling floor.
+    This is not the Euclidean distance: to first order the distance is the radial offset
+    divided by the implicit function's gradient norm, which is above 1 on the bumps, so the
+    radial offset overstates the distance by about 8% on average for this object
+    (see test_radial_offset_bounds_euclidean_distance).
     """
     return np.abs(_implicit(recon, SURFACE))
 
 
-def run_trial(n_views, span_deg, sigma_px, seed, n_feat=800, pose_sigma_deg=0.0):
+def perturb_rotation(cam, w_rad, about_centre=False):
+    """Camera whose rotation is pre-multiplied by a small rotation with axis-angle vector w_rad.
+
+    about_centre=False keeps the translation t, as the original sweep D did. Because the camera
+    centre is -R^T t, that turns the whole camera about the world origin (the object centre):
+    the centre moves by about DIST * |w| and the object stays near the image centre, so it is a
+    position error along a sphere around the object, not an orientation error.
+    about_centre=True keeps the camera centre and changes only where it points (a true
+    orientation error: about F_PX * angle pixels of image shift).
+    """
+    w = np.asarray(w_rad, dtype=float)
+    th = np.linalg.norm(w)
+    K = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
+    if th < 1e-15:
+        dR = np.eye(3)
+    else:   # Rodrigues: an exact rotation (the earlier I + K + K^2/2 was orthogonal only to second order)
+        dR = np.eye(3) + np.sin(th) / th * K + (1 - np.cos(th)) / th ** 2 * K @ K
+    R = dR @ cam.R
+    if about_centre:
+        return Camera(R, -R @ cam.centre())
+    return Camera(R, cam.t)
+
+
+def run_trial(n_views, span_deg, sigma_px, seed, n_feat=800, pose_sigma_deg=0.0,
+              pose_about_centre=False):
     """One reconstruction. Returns mean and RMS surface error (object radii), completeness and point count.
 
-    completeness = reconstructed points / surface features. pose_sigma_deg perturbs each
-    camera's rotation (an error in the assumed pose).
+    completeness = reconstructed points / surface features. pose_sigma_deg draws a small rotation
+    per camera (degrees per axis); see perturb_rotation for what pose_about_centre changes.
     """
     rng = np.random.default_rng(1000 + seed)
     pts, nrm = make_object(n_feat, seed=seed)
@@ -153,9 +181,7 @@ def run_trial(n_views, span_deg, sigma_px, seed, n_feat=800, pose_sigma_deg=0.0)
         cams = []
         for c in true_cams:
             w = np.radians(rng.normal(0, pose_sigma_deg, 3))
-            K = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
-            R = (np.eye(3) + K + 0.5 * K @ K) @ c.R
-            cams.append(Camera(R, c.t))
+            cams.append(perturb_rotation(c, w, about_centre=pose_about_centre))
     rec, _ = triangulate_all(cams, uvs, vis)
     if len(rec) == 0:
         return {"mean_err": float("inf"), "rms_err": float("inf"), "completeness": 0.0, "n_points": 0}

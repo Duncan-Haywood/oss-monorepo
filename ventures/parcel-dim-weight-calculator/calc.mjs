@@ -26,8 +26,10 @@ export const DEFAULT_THRESHOLDS = {
   additionalHandlingLongestSide: 48,
   additionalHandlingSecondSide: 30,
   additionalHandlingGirth: 105,
-  // Large/oversize package.
+  // Large/oversize package: length plus girth over 130 in, or the longest side
+  // over 96 in, whichever comes first (UPS "Large Package", FedEx "Oversize").
   largePackageGirth: 130,
+  largePackageLongestSide: 96,
   maximumLongestSide: 108,
   maximumGirth: 165,
 };
@@ -114,11 +116,14 @@ export function calculateBillableWeight(input) {
       severity: 'blocking',
       text: `Longest side ${longestSide}″ or girth ${girth.toFixed(0)}″ exceeds the ground maximum (${thresholds.maximumLongestSide}″ / ${thresholds.maximumGirth}″). Most carriers will not accept this as a parcel at all — it moves as freight.`,
     });
-  } else if (girth > thresholds.largePackageGirth) {
+  } else if (girth > thresholds.largePackageGirth || longestSide > thresholds.largePackageLongestSide) {
+    const why = girth > thresholds.largePackageGirth
+      ? `Girth ${girth.toFixed(0)}″ is over ${thresholds.largePackageGirth}″`
+      : `Longest side ${longestSide}″ is over ${thresholds.largePackageLongestSide}″`;
     flags.push({
       id: 'large-package',
       severity: 'major',
-      text: `Girth ${girth.toFixed(0)}″ is over ${thresholds.largePackageGirth}″, so this bills as a large package: a flat surcharge plus a minimum billable weight that is usually well above the ${billableWeight} lb above.`,
+      text: `${why}, so this bills as a large package: a flat surcharge, and a minimum billable weight (90 lb on the UPS and FedEx published terms) that replaces the ${billableWeight} lb above whenever it is higher.`,
     });
   } else if (
     longestSide > thresholds.additionalHandlingLongestSide

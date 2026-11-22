@@ -139,3 +139,51 @@ test('a fractional package count is rejected — you cannot ship half a carton',
 test('values too large to compute safely throw instead of returning Infinity', () => {
   assert.throws(() => box({ length: 1e308, width: 1e308, height: 1e308 }), /too large/);
 });
+
+// Added in quality round 94 (2026-11-22): carrier rules the earlier tests did
+// not pin down, each one a seeded mutant that used to survive.
+
+test('a side over 96 inches is a large package even when length plus girth is under 130', () => {
+  // UPS Large Package / FedEx Oversize: length + girth over 130 in OR longest
+  // side over 96 in. 97 x 8 x 8 has length + girth 129, so only the length rule fires.
+  const result = calculateBillableWeight({ length: 97, width: 8, height: 8, weight: 20 });
+  assert.equal(result.girth, 129);
+  assert.equal(result.flags[0].id, 'large-package');
+  assert.match(result.flags[0].text, /Longest side 97″ is over 96″/);
+  assert.equal(calculateBillableWeight({ length: 96, width: 8, height: 8, weight: 20 }).flags[0].id, 'additional-handling');
+});
+
+test('the large-package text does not claim the minimum is above a billable weight that is already higher', () => {
+  const result = calculateBillableWeight({ length: 30, width: 30, height: 30, weight: 10 });
+  assert.equal(result.billableWeight, 195);
+  assert.equal(result.flags[0].id, 'large-package');
+  assert.ok(!/well above/.test(result.flags[0].text));
+  assert.match(result.flags[0].text, /90 lb/);
+});
+
+test('dimensions round to the nearest inch, not up: 12.4 is measured as 12', () => {
+  const result = calculateBillableWeight({ length: 12.4, width: 12.4, height: 12.4, weight: 1 });
+  assert.equal(result.cube, 1728);
+  assert.equal(result.billableWeight, 13);
+  // and a half inch rounds up, as the carriers' nearest-whole-inch rule does
+  assert.equal(calculateBillableWeight({ length: 12.5, width: 12.5, height: 12.5, weight: 1 }).cube, 2197);
+});
+
+test('surcharge thresholds are strictly "over": exactly 130 in length plus girth is not a large package', () => {
+  const result = calculateBillableWeight({ length: 50, width: 20, height: 20, weight: 30 });
+  assert.equal(result.girth, 130);
+  assert.equal(result.flags[0].id, 'additional-handling');
+});
+
+test('the second-longest side alone trips additional handling', () => {
+  // 32 x 31 x 1: longest 32 (under 48), length + girth 96 (under 105), second side 31 (over 30).
+  const result = calculateBillableWeight({ length: 32, width: 31, height: 1, weight: 5 });
+  assert.equal(result.girth, 96);
+  assert.equal(result.flags[0].id, 'additional-handling');
+});
+
+test('air weight is billed pounds minus the goods rounded up, so it is always whole', () => {
+  const result = box({ weight: 3.2 });
+  assert.equal(result.billableWeight, 14);
+  assert.equal(result.lever.airWeight, 10);
+});
