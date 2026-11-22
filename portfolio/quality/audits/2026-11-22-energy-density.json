@@ -1,0 +1,264 @@
+{
+ "date": "2026-11-22",
+ "subject": "research/energy-density",
+ "stratum": "research",
+ "seed": "2026-11-22-c-1f0f",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality round 92",
+ "status": "audited",
+ "professional": "an energy-storage materials scientist with a mechanics background (an electrochemist who also reviews flywheel and pressure-vessel bounds). First checks: do the n F E / sum M figures reproduce the literature, are the mechanical 'ideal' bounds the real physical limits for the stated materials, and is the compilation positioned against prior theoretical-density surveys",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the tests (14 passed) and run.py in a scratch copy: results.txt reproduces byte-for-byte. Wrote my own recomputation (/tmp/claude-0/q92-ed/recompute.py), with my own mass sums, NIST dfG for H2O, and numerical integration for exergy and compressed air. Every battery, H2, thermal, compressed-air and flow-battery figure matches: lead-acid 170.18, Zn-air 1,086.8, Li-S 2,566.97, Li-O2 3,458.41, Al-only 8,075.6, H2 32,675 vs 32,678, exergy 7.26/43.49/66.01, air 23.83/39.12, VRB 27.0. Two 'ideal' mechanical ceilings are wrong by a factor of 2. (1) The fibre-only flywheel uses K = 1, but the virial theorem bounds a uniaxial-stress (fibre) rotor at K = 0.5: 378 Wh/kg and 0.17 eV/atom, not 756 and 0.34, and that figure is in the headline. (2) The 700 bar sphere uses the isotropic 1.5 p rho / sigma with unidirectional composite strength. The netting/virial minimum is 3 p rho / sigma: 114.4 kg/m3, 26.0 wt% and 8,498 Wh/kg, not 57.2, 41.3% and 13,488. So 7 of 9 recomputation rows pass, and the 2 fails are both 2x overstatements of a stated physical limit.",
+  "completeness": "Every README result section A-F exists in results.txt and regenerates identically. figure.py regenerates ceilings.svg identically. README:39 says 14 tests, and 14 run. The limitations section is accurate about what is not modelled: volumetric ceilings beyond a few rows, costs, and practical ratios (deferred to energy-practical). No stubs or TODOs.",
+  "verification": "/usr/bin/python3.13 -m pytest -q tests: 14 passed in 0.04 s. Six seeded mutants via quality_mutate.py: the eV-per-atom count and the Zn atomic weight were caught (both on the battery cross-check path). The cold-store exergy inversion, compressed-air p-p0 term, sensible-exergy dead-state swap and dropped flywheel shape factor all survived (4 of 6). The thermal and mechanical tests assert only zeros at ambient, monotonicity and the K = 1 case, so most non-battery sections are unpinned.",
+  "craft": "Read model.py (219 lines), run.py, figure.py and test_model.py. Clean stdlib code, with a small formula parser that rejects bad input, documented functions and provenance strings on inputs. Defects: the stale ROTORS comment (run.py:29), and the T700/epoxy constants retyped at run.py:115 and 134 instead of read from ROTORS. `from .model import *` in __init__ is acceptable for a package this size.",
+  "claims": "Checked: the 'five published values within 0.3%' claim holds (+0.1/0.0/+0.1/-0.3/0.0%). The '<=1.65 eV per atom here' claim and the 20x = 6.5 x 3.1 decomposition hold. The input-provenance table marks checked and assumed values honestly. Fails: README:7 '756 Wh/kg for an ideal fibre disc' and README:18/51 'ideal carbon-fibre sphere as the lightest possible tank' at 41.3 wt% are 2x beyond the physical bound. The live page could not be loaded (proxy 000), so it is not scored.",
+  "fitness": "A researcher could reuse the couple table and functions; they are small, cited and reproducible. It is milestone 1 of a track, a compilation of textbook ceilings rather than a result. The nearest prior work, Zu and Li 2011 (EES 4, 2614: theoretical energy densities for 1,172 couples, same method) and cross-technology reviews such as Gur 2018, is not cited. The per-atom identity Wh/kg = 26,801 eV/atom / (g/mol) is a unit conversion, so the novelty is low and unpositioned. That is short of the research brief's publishable-programme bar, though a sound base for energy-practical once the mechanical bounds are fixed.",
+  "domain": "The electrochemistry (equilibrium voltage x n F over reactant mass, metal-only bases, half-delithiated LCO) and the thermal exergy follow standard practice. The mechanics departs from it. The flywheel shape factor and the pressure-vessel mass ignore that a fibre composite carries load in one direction, which is the first thing a composite-flywheel or COPV engineer checks (Genta 1985; netting analysis in filament-winding texts). The 1.229 V and 2.96 V voltages are left 'unchecked' although they follow from tabulated Gibbs energies."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Lead-acid theoretical specific energy, Pb + PbO2 + 2 H2SO4, n=2, 2.04 V",
+   "method": "n F E / sum M recomputed with CODATA F and IUPAC 2021 abridged weights typed by the auditor (own mass sums, not the package parser)",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "170 Wh/kg (PUBLISHED; National Academies table)",
+   "observed": "170.18 (package 170.18)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Zinc-air specific energy including O2, 1.65 V",
+   "method": "independent n F E / M; Li and Dai 2014 quote 1,086 Wh/kg including oxygen",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "1,086",
+   "observed": "1,086.8",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Li-S and Li-O2 (Li2O2) reactant-mass specific energies",
+   "method": "independent n F E / M; Zhou, Chen and Cui 2022 (2,567) and NASA TM-20205010120 (3,458)",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "2,567 and 3,458",
+   "observed": "2,566.97 and 3,458.41",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "H2 Gibbs specific energy, without using the package's 1.229 V input",
+   "method": "NIST-JANAF dfG(H2O, l) = -237.14 kJ/mol divided by 2.016 g/mol",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "32,675 Wh/kg",
+   "observed": "32,678 in results.txt (0.01% apart)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sensible-heat exergy for water 25-85 C, sand 20-500 C, solar salt 290-565 C (dead state 20 C)",
+   "method": "numerical integration of dQ (1 - T0/T) over 200,000 steps (textbook exergy definition, not the closed form in model.py)",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "7.26, 43.49, 66.01 Wh/kg",
+   "observed": "7.3, 43.5, 66.0 in results.txt",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Compressed-air isothermal work per litre of rigid tank at 200 and 300 bar",
+   "method": "numerical integration of (p V/V' - p0) dV' from V to pV/p0 for an ideal gas",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "23.83 and 39.12 Wh/L",
+   "observed": "23.8 and 39.1",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Ceiling for an 'ideal T700S fibre disc' flywheel, K = 1, 756 Wh/kg, 0.34 eV/atom (README headline)",
+   "method": "virial theorem for a rotor in steady rotation, 2T = integral of tr(sigma) dV; fibres carry uniaxial stress only, so tr(sigma) <= sigma_f and E/m <= sigma_f/(2 rho), K <= 0.5 (K = 1 is reachable only by an isotropic material in biaxial stress; Genta, Kinetic Energy Storage, 1985)",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "at most 378 Wh/kg, 0.17 eV/atom",
+   "observed": "756 Wh/kg, 0.339 eV/atom (run.py:31, K = 1.0)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'Ideal' T700/epoxy sphere for 700 bar H2: shell 57.2 kg/m3, H2 41.3 wt%, 13,488 Wh/kg",
+   "method": "pressure-vessel (virial) theorem, integral of tr(sigma) dV = 3 p V; a fibre composite loaded at its unidirectional strength 2.86 GPa carries one stress direction, so minimum mass = 3 p V rho / sigma (netting analysis), not the isotropic 1.5 p V rho / sigma",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "114.4 kg/m3, 26.0 wt%, 8,498 Wh/kg (SF 2.25: 257.4, 13.5%, 4,415)",
+   "observed": "57.2, 41.3%, 13,488 (SF 2.25: 128.7, 23.8%, 7,779)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Vanadium flow battery ceiling at 1.6 mol/L, 1.26 V, both tanks",
+   "method": "c F E / 2 by hand",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "27.0 Wh/L",
+   "observed": "27.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Reproduce steps: tests, run.py and figure.py regenerate the committed outputs",
+   "method": "ran in a scratch copy of the subject and diffed against the committed files",
+   "command": "cp -r research/energy-density /tmp/claude-0/q92-ed/copy && cd /tmp/claude-0/q92-ed/copy && PYTHONPATH=src python3 experiments/run.py && diff experiments/results.txt <committed>; python3 experiments/figure.py && diff experiments/ceilings.svg <committed>",
+   "expected": "identical results.txt and ceilings.svg",
+   "observed": "both identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "ran it",
+   "command": "/usr/bin/python3.13 -m pytest -q tests",
+   "expected": "14 tests pass (README:39)",
+   "observed": "14 passed in 0.04 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Do the tests constrain the thermal, cold-store, compressed-air and flywheel formulas?",
+   "method": "four seeded mutants in those functions",
+   "command": "python3 platform/ci/quality_mutate.py ... (see mutations)",
+   "expected": "each caught",
+   "observed": "0 of 4 caught; only the battery-path mutants (2 of 2) were caught",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline: five published theoretical values reproduced within 0.3%",
+   "method": "results.txt section B against PUBLISHED and the recomputation above",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "all within 0.3%",
+   "observed": "+0.1, 0.0, +0.1, -0.3, 0.0%",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline: no battery couple here exceeds 1.65 eV per reactant atom; 20-fold spread = factor ~7 x factor ~3",
+   "method": "ratios from results.txt: 1.480/0.227 = 6.5, 35.70/11.47 = 3.1, product 20.3 = 3458/170",
+   "command": "python3 -c 'print(1.480/0.227, 35.70/11.47, 3458.41/170.18)'",
+   "expected": "~7, ~3, ~20",
+   "observed": "6.52, 3.11, 20.3; max eV/atom 1.650 (Zn-air)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:18 'an ideal carbon-fibre sphere as the lightest possible tank' and README:7 '756 Wh/kg for an ideal fibre disc'",
+   "method": "against the virial-theorem bounds above",
+   "command": "python3 /tmp/claude-0/q92-ed/recompute.py",
+   "expected": "lightest possible fibre vessel 114 kg/m3; ideal fibre rotor 378 Wh/kg",
+   "observed": "57.2 kg/m3 and 756 Wh/kg stated as ideal",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited and novelty positioned",
+   "method": "README References and 'Builds on' against the literature: Zu and Li 2011 (Energy Environ. Sci. 4, 2614) computed theoretical specific energy and energy density for 1,172 electrochemical couples by the same n F E / sum M method; Gur 2018 (Energy Environ. Sci. 11, 2696) compares storage technologies' densities",
+   "command": "grep -n 'Zu\\|Gur\\|Gür' research/energy-density/README.md",
+   "expected": "nearest prior compilation cited, per-atom framing compared to it",
+   "observed": "no match; the README says it builds on 'standard thermodynamics, not any one paper'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page https://marisstella.app/research/energy-density/",
+   "method": "curl through the session proxy",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/energy-density/",
+   "expected": "200",
+   "observed": "000 (proxy refused); not verified, not counted as a defect",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/energy_density/model.py:184",
+   "change": "(t0 / t_melt_k - 1.0) -> (t_melt_k / t0 - 1.0)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/energy_density/model.py:208",
+   "change": "- (p_pa - p0) -> - 0.5 * (p_pa - p0)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/energy_density/model.py:178",
+   "change": "t0 * math.log(t_high_k / t_low_k) -> t_low_k * math.log(t_high_k / t_low_k)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/energy_density/model.py:196",
+   "change": "return shape_factor * strength_pa -> return strength_pa",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/energy_density/model.py:139",
+   "change": "return n * volts / count -> return n * volts / (count - 1)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/energy_density/model.py:32",
+   "change": "\"Zn\": 65.38 -> \"Zn\": 63.38",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The 'ideal T700S fibre disc' flywheel uses shape factor K = 1, which only an isotropic material in biaxial stress can approach. Fibres carry uniaxial stress, and the virial theorem (2T = integral of tr(sigma) dV) bounds a fibre rotor at K = 0.5. The headline ceiling, 756 Wh/kg and 0.34 eV/atom, is therefore twice the physical bound of 378 Wh/kg and 0.17 eV/atom, and it is the number the README headline quotes as the carbon-fibre maximum.",
+   "where": "research/energy-density/experiments/run.py:31",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18193"
+  },
+  {
+   "severity": "medium",
+   "what": "The 'ideal' sphere for 700 bar H2 applies the isotropic thin-sphere formula m/V = 1.5 p rho / sigma with the unidirectional composite strength (2.86 GPa). A fibre vessel's minimum mass is 3 p V rho / sigma (netting analysis or the pressure-vessel virial theorem), so the 'lightest possible tank' is 114.4 kg/m3, not 57.2, and H2 is 26.0 wt% (8,498 Wh/kg), not 41.3% (13,488). At SF 2.25 it is 13.5% (4,415), not 23.8% (7,779). The README states the wrong figures at lines 18 and 51.",
+   "where": "research/energy-density/src/energy_density/model.py:202",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18193"
+  },
+  {
+   "severity": "medium",
+   "what": "The tests pin only the battery path and some identities. The thermal exergy (dead-state temperature swapped for T_low), cold-store exergy (ratio inverted), compressed-air work (halved p-p0 term) and flywheel shape factor (dropped) can all be broken with every test still green. The tests check only zeros at ambient and the K = 1 case.",
+   "where": "research/energy-density/tests/test_model.py:56",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The nearest prior work is not cited. Zu and Li 2011 (Energy Environ. Sci. 4, 2614) computed theoretical specific energies for 1,172 couples by the same method, and cross-technology comparisons exist (e.g. Gur 2018, Energy Environ. Sci. 11, 2696). The README's 'not any one paper' and its per-atom framing are not positioned against them, so a reader cannot tell what is new, which looks like little beyond a reproduced compilation.",
+   "where": "research/energy-density/README.md:9",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18193"
+  },
+  {
+   "severity": "low",
+   "what": "The ROTORS comment lists five fields but the tuples carry six (the shape factor K is missing from the comment). The T700/epoxy constants 2.86e9 and 1560 are retyped at lines 115 and 134 rather than read from ROTORS, so an input change would leave sections F and G stale.",
+   "where": "research/energy-density/experiments/run.py:29",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18193"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18193"],
+ "verdict": "A small, clean, fully reproducible table of theoretical storage ceilings. Every battery, hydrogen-Gibbs, thermal-exergy, compressed-air and flow-battery number recomputes independently (7 of 9 rows pass). Two headline 'ideal' mechanical ceilings are double the physical limit because fibre composites are treated as isotropic: the fibre flywheel should be K <= 0.5 (378 Wh/kg, not 756) and the fibre sphere minimum mass is 3 p rho / sigma (26.0 wt% H2, not 41.3%). Four of six seeded mutants in the non-battery formulas survive the tests, and the nearest prior compilation (Zu and Li 2011) is not cited. It does not meet the bar: correctness, claims and verification are each 2, and the median is 2."
+}

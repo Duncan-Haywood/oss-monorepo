@@ -192,14 +192,19 @@ def gravity_wh_per_kg(height_m):
 
 def flywheel_wh_per_kg(strength_pa, density_kg_m3, shape_factor):
     """Kinetic energy per kg of rotor at the burst-limit speed: K sigma / rho.
-    K = 0.5 for a thin rim, 1.0 for an ideal constant-stress disc (the upper bound)."""
+    K = 0.5 for a thin rim and for any rotor whose material carries stress in one direction only
+    (fibres; virial theorem); 1.0 for an ideal isotropic constant-stress disc."""
     return shape_factor * strength_pa / density_kg_m3 / 3600.0
 
 
-def sphere_shell_mass_per_volume(gauge_pa, strength_pa, density_kg_m3, safety=1.0):
-    """Mass of a thin-walled spherical vessel per unit enclosed volume, kg/m^3:
-    wall t = p r / (2 sigma), so m / V = 3 p rho / (2 sigma) (times a safety factor)."""
-    return 1.5 * gauge_pa * density_kg_m3 * safety / strength_pa
+def sphere_shell_mass_per_volume(gauge_pa, strength_pa, density_kg_m3, safety=1.0, uniaxial=False):
+    """Minimum mass of a thin-walled pressure vessel per unit enclosed volume, kg/m^3.
+    Isotropic sphere: wall t = p r / (2 sigma), so m / V = 3 p rho / (2 sigma).
+    uniaxial=True is the bound for a material that carries load only along its fibres, with
+    sigma the fibre-direction strength: m / V = 3 p rho / sigma (netting analysis; the
+    pressure-vessel virial theorem), twice the isotropic figure. Times a safety factor."""
+    k = 3.0 if uniaxial else 1.5
+    return k * gauge_pa * density_kg_m3 * safety / strength_pa
 
 
 def isothermal_air_exergy_wh_per_l(p_pa, p0=P_ATM):

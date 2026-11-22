@@ -8,6 +8,7 @@
 export const VERIFY = "your state labor agency's paid sick leave page and the statute itself (for example Cal. Lab. Code 246, N.Y. Lab. Law 196-b, RCW 49.46.210, 820 ILCS 192, C.R.S. 8-13.3, N.J.S.A. 34:11D, M.G.L. c.149 148C); the U.S. DOL state sick leave roundup";
 
 // per: hours worked per 1 hour accrued. use: annual use cap (hours). bal: balance (accrual) cap, null = none.
+// acc: annual accrual cap (hours) where the statute caps accrual separately from use (Maryland, Minnesota).
 // carry: hours that carry into the next year, "bal" = up to the balance cap, "use" = up to the use cap.
 // size(n) returns { applies, paid, use } for an employer of n employees; default is all employers, paid, `use`.
 const ALL = () => ({ applies: true, paid: true });
@@ -25,9 +26,9 @@ export const STATES = {
     size: (n) => ({ applies: true, paid: true, use: n >= 15 ? 40 : 24 }) },
   OR: { name: "Oregon", per: 30, use: 40, bal: 80, carry: "bal", front: null, note: "Employers with 10 or more employees (6 or more in Portland) provide paid leave; smaller employers provide unpaid leave. Balance is capped at 80 hours.",
     size: (n) => ({ applies: true, paid: n >= 10 }) },
-  MD: { name: "Maryland", per: 30, use: 40, bal: 40, carry: "bal", front: 40, note: "Employers with 15 or more employees provide paid leave; smaller employers provide unpaid leave. Balance is capped at 40 hours.",
+  MD: { name: "Maryland", per: 30, acc: 40, use: 64, bal: 64, carry: "bal", front: 40, note: "Employers with 15 or more employees provide paid leave; smaller employers provide unpaid leave. The employer may cap accrual at 40 hours a year, use at 64 hours a year and the balance at 64 hours (Md. Lab. & Empl. 3-1305).",
     size: (n) => ({ applies: true, paid: n >= 15 }) },
-  MN: { name: "Minnesota", per: 30, use: 48, bal: 80, carry: "bal", front: 48, note: "Earned sick and safe time. Accrual is capped at 80 hours.", size: ALL },
+  MN: { name: "Minnesota", per: 30, acc: 48, use: null, bal: 80, carry: "bal", front: 48, note: "Earned sick and safe time. The employer may cap accrual at 48 hours a year and the balance at 80 hours (Minn. Stat. 181.9446).", size: ALL },
   MI: { name: "Michigan", per: 30, use: 72, bal: null, carry: "use", front: 72, note: "Earned Sick Time Act. Employers with 10 or fewer employees must provide 40 hours a year; 11 or more provide 72 hours.",
     size: (n) => ({ applies: true, paid: true, use: n >= 11 ? 72 : 40 }) },
   NM: { name: "New Mexico", per: 30, use: 64, bal: null, carry: "use", front: 64, note: "Healthy Workplaces Act.", size: ALL },
@@ -75,21 +76,25 @@ export function compute(input) {
   const use = sz.use ?? s.use; // annual use cap (null = no cap on use stated)
   const worked = p.hoursPerWeek * p.weeks;
   const raw = worked / s.per;
-  const annualAccrual = sz.applies ? (use != null && s.bal == null ? Math.min(raw, use) : raw) : 0;
+  const accCap = s.acc ?? (use != null && s.bal == null ? use : null); // annual accrual cap, if any
+  const annualAccrual = sz.applies ? (accCap != null ? Math.min(raw, accCap) : raw) : 0;
+  // Leave that can be used in a year: what accrues, but never more than the annual use cap.
+  const usableHours = use != null ? Math.min(annualAccrual, use) : annualAccrual;
   const balCap = s.bal;
   const topBalance = !sz.applies ? 0 : balCap != null ? balCap : s.carry === "use40" ? 40 + annualAccrual : (use ?? annualAccrual) + annualAccrual;
   const perPay = { weekly: p.hoursPerWeek / s.per, biweekly: (p.hoursPerWeek * 2) / s.per, monthly: (p.hoursPerWeek * 52 / 12) / s.per };
   const findings = [];
-  const annualCostEach = sz.paid ? annualAccrual * p.wage : 0;
+  const annualCostEach = sz.paid ? usableHours * p.wage : 0;
   const maxBalanceEach = sz.paid ? topBalance * p.wage : 0;
-  const frontHours = sz.applies && s.front ? Math.max(s.front, 0) : null;
+  // Front-loading covers the use cap that applies at this employer size (Arizona under 15: 24; Michigan 10 or fewer: 40).
+  const frontHours = sz.applies && s.front ? (sz.use ?? s.front) : null;
   const frontEach = frontHours != null && sz.paid ? frontHours * p.wage : null;
 
   if (!sz.applies) {
     findings.push({ severity: "info", title: `${s.name} state law does not reach an employer with ${p.employees} employees. Check city or county rules and any policy you promised in writing.` });
   } else {
-    findings.push({ severity: "high", title: `${s.name}: an employee working ${hrs(p.hoursPerWeek)} hours a week earns about ${hrs(annualAccrual)} hours of sick leave in ${p.weeks} weeks (1 hour per ${s.per} worked${use != null ? (s.bal == null ? `, capped at ${use} hours a year` : `; use is limited to ${use} hours a year and the balance to ${s.bal}`) : ", no annual accrual cap"}).` });
-    findings.push({ severity: "high", title: sz.paid ? `Cost of the leave if it is all used: ${money(annualCostEach)} per employee, ${money(annualCostEach * p.covered)} for ${p.covered} employee${p.covered === 1 ? "" : "s"} a year, plus the cover shifts.` : "At your size the state requires unpaid protected leave, so the accrual is a time-off right rather than a payroll cost. Paying it anyway is a retention choice." });
+    findings.push({ severity: "high", title: `${s.name}: an employee working ${hrs(p.hoursPerWeek)} hours a week earns about ${hrs(annualAccrual)} hours of sick leave in ${p.weeks} weeks (1 hour per ${s.per} worked${s.acc != null ? `, accrual capped at ${s.acc} hours a year` : ""}${use != null ? (s.bal == null ? (s.acc != null ? `; use is limited to ${use} hours a year` : `, capped at ${use} hours a year`) : `; use is limited to ${use} hours a year and the balance to ${s.bal}`) : s.bal != null ? `; the balance is capped at ${s.bal}` : s.acc == null ? ", no annual accrual cap" : ""}).` });
+    findings.push({ severity: "high", title: sz.paid ? `Cost of the leave if it is all used (${hrs(usableHours)} hours): ${money(annualCostEach)} per employee, ${money(annualCostEach * p.covered)} for ${p.covered} employee${p.covered === 1 ? "" : "s"} a year, plus the cover shifts.` : "At your size the state requires unpaid protected leave, so the accrual is a time-off right rather than a payroll cost. Paying it anyway is a retention choice." });
     if (balCap != null) findings.push({ severity: "medium", title: `Balance cap ${balCap} hours: once an employee holds that much, accrual stops until they use some. Your largest balance liability is ${money(balCap * p.wage * p.covered)} for ${p.covered} employee${p.covered === 1 ? "" : "s"}.` });
     if (frontHours != null && sz.paid) findings.push({ severity: "info", title: `Front-loading ${frontHours} hours on day one costs ${money(frontEach * p.covered)} for ${p.covered} and removes the tracking and carryover work, but an employee who leaves early has taken the hours up front. Compare with accruing ${hrs(annualAccrual)} hours.` });
     if (p.state === "CA") findings.push({ severity: "medium", title: "A single combined PTO bank counts as vested wages in California: unused hours are paid on separation. Separate sick leave does not have to be. The split matters to your balance sheet." });
@@ -97,7 +102,7 @@ export function compute(input) {
   }
   findings.push({ severity: "info", title: "Local ordinances (NYC, Chicago, Cook County, Seattle, Portland, Philadelphia, DC and others) can be richer than the state rule and are not modelled here." });
 
-  return { errors: [], input: p, state: s, applies: sz.applies, paid: sz.paid, use, balCap, annualAccrual, perPay, worked, annualCostEach, annualCostTotal: annualCostEach * p.covered, maxBalanceEach, maxBalanceTotal: maxBalanceEach * p.covered, frontHours, frontEach, frontTotal: frontEach == null ? null : frontEach * p.covered, findings };
+  return { errors: [], input: p, state: s, applies: sz.applies, paid: sz.paid, use, balCap, annualAccrual, usableHours, perPay, worked, annualCostEach, annualCostTotal: annualCostEach * p.covered, maxBalanceEach, maxBalanceTotal: maxBalanceEach * p.covered, frontHours, frontEach, frontTotal: frontEach == null ? null : frontEach * p.covered, findings };
 }
 
 export const SAMPLE = { state: "CA", employees: 12, covered: 12, hoursPerWeek: 32, weeks: 52, wage: 22 };

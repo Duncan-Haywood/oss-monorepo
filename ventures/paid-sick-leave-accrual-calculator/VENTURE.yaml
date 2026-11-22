@@ -1,6 +1,6 @@
 name: paid-sick-leave-accrual-calculator
 description: >-
-  Free browser tool for small employers, bookkeepers and HR generalists: pick a state (14 with statewide paid sick leave laws), headcount, hours and wage to get the accrual per pay period, annual use cap, balance cap, whether leave must be paid at your size, front-loading option and the dollar cost. Nothing is uploaded. Not legal advice.
+  Free browser tool for small employers, bookkeepers and HR generalists: pick a state (14 of the states with statewide paid sick leave laws; Connecticut, Rhode Island, Vermont, Maine, Alaska, Nebraska and DC are not modelled yet), headcount, hours and wage to get the accrual per pay period, annual use cap, balance cap, whether leave must be paid at your size, front-loading option and the dollar cost. Nothing is uploaded. Not legal advice.
 stage: prototype
 owner: duncan
 

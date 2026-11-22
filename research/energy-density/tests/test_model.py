@@ -73,6 +73,23 @@ def test_mechanical():
     t = p * r / (2 * s)
     direct = 4 * math.pi * r ** 2 * t * rho / (4 / 3 * math.pi * r ** 3)
     assert sphere_shell_mass_per_volume(p, s, rho) == pytest.approx(direct)
+    # fibre (netting) bound is twice the isotropic sphere (quality audit 2026-11-22)
+    assert sphere_shell_mass_per_volume(p, s, rho, uniaxial=True) == pytest.approx(2 * direct)
+
+
+def test_published_mechanical_ceilings():
+    """Pin the reported flywheel and 700 bar tank figures (quality audit 2026-11-22):
+    a fibre rotor is capped at K = 0.5, a fibre vessel at m/V = 3 p rho / sigma."""
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location(
+        "ed_run", pathlib.Path(__file__).resolve().parents[1] / "experiments" / "run.py")
+    run = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(run)
+    assert all(k <= 0.5 for (_, _, _, _, k, _) in run.ROTORS)
+    fibre = run.ROTORS[0]
+    assert flywheel_wh_per_kg(fibre[1], fibre[2], fibre[4]) == pytest.approx(378.1, abs=0.1)
+    shell = sphere_shell_mass_per_volume(700e5 - 101325.0, 2.86e9, 1560.0, uniaxial=True)
+    assert shell == pytest.approx(114.38, abs=0.01)
 
 
 def test_compressed_air():

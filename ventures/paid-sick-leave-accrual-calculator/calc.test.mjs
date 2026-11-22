@@ -10,7 +10,10 @@ test("sample: California part-timer accrues 1 hour per 30 worked, use capped at 
   assert.equal(r.use, 40);
   assert.ok(Math.abs(r.annualAccrual - 32 * 52 / 30) < 1e-9); // accrual is not capped; use is
   assert.equal(r.balCap, 80);
-  assert.ok(Math.abs(r.annualCostEach - (32 * 52 / 30) * 22) < 1e-6);
+  // 55.5 hours accrue but only 40 can be used in a year (Cal. Lab. Code 246(d)): $880, not $1,220.
+  assert.equal(r.usableHours, 40);
+  assert.equal(r.annualCostEach, 40 * 22);
+  assert.equal(r.annualCostTotal, 10560);
   assert.equal(r.maxBalanceTotal, 80 * 22 * 12);
 });
 
@@ -78,4 +81,38 @@ test("summary names the source to verify and says it is not legal advice", () =>
 
 test("California findings warn that combined PTO is vested wages", () => {
   assert.ok(run({}).findings.some((f) => /vested wages/.test(f.title)));
+});
+
+// Quality audit 2026-11-22 (portfolio/quality/audits/2026-11-22-paid-sick-leave-accrual-calculator.json).
+test("Maryland: accrual capped at 40 a year, use at 64, balance at 64 (Md. Lab. & Empl. 3-1305)", () => {
+  const r = run({ state: "MD", employees: 20, hoursPerWeek: 40, weeks: 52, wage: 20, covered: 1 });
+  assert.equal(r.annualAccrual, 40);
+  assert.equal(r.use, 64);
+  assert.equal(r.balCap, 64);
+  assert.equal(r.maxBalanceEach, 64 * 20);
+});
+
+test("Minnesota: accrual capped at 48 a year, balance at 80, no separate use cap (Minn. Stat. 181.9446)", () => {
+  const r = run({ state: "MN", hoursPerWeek: 40, weeks: 52 });
+  assert.equal(r.annualAccrual, 48);
+  assert.equal(r.use, null);
+  assert.equal(r.balCap, 80);
+});
+
+test("Illinois accrues 1 per 40 and Washington carries over 40 unused hours", () => {
+  assert.equal(run({ state: "IL", hoursPerWeek: 20, weeks: 52 }).annualAccrual, 26);
+  const wa = run({ state: "WA", hoursPerWeek: 40, weeks: 52, wage: 10, covered: 1 });
+  assert.equal(wa.maxBalanceEach, (40 + 52) * 10);
+});
+
+test("New York: 4 employees unpaid, 5 paid", () => {
+  assert.equal(run({ state: "NY", employees: 4 }).paid, false);
+  assert.equal(run({ state: "NY", employees: 5 }).paid, true);
+});
+
+test("front-loading follows the size-dependent cap: Arizona under 15 is 24 hours, Michigan 10 or fewer is 40", () => {
+  assert.equal(run({ state: "AZ", employees: 10 }).frontHours, 24);
+  assert.equal(run({ state: "AZ", employees: 20 }).frontHours, 40);
+  assert.equal(run({ state: "MI", employees: 10 }).frontHours, 40);
+  assert.equal(run({ state: "MI", employees: 11 }).frontHours, 72);
 });

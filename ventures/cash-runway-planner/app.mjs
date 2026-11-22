@@ -263,7 +263,13 @@ export function shortfallPlans(rows, { items = [], weeklyIncome = 0, weeklyCosts
     if (outflow) usedOutflow.add(outflow);
     if (inflow) usedInflow.add(inflow);
 
-    const withVerdict = (item) => item && { ...item, amount: Number(item.amount), week: Number(item.week), clears: Number(item.amount) >= deficit };
+    // A delay lifts only the weeks from its own week on, so it closes the gap
+    // only if it is large enough AND lands no later than the first negative
+    // week; one dated inside the run leaves the earlier weeks short (quality
+    // audit 2026-11-22). Pulling an inflow forward is pulled to before the run.
+    const firstWeek = rows[startIndex].week;
+    const withVerdict = (item) => item && { ...item, amount: Number(item.amount), week: Number(item.week),
+      clears: Number(item.amount) >= deficit && (item.kind === 'in' || Number(item.week) <= firstWeek) };
     return {
       week: rows[startIndex].week,
       troughWeek: trough.week,

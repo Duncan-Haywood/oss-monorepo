@@ -28,7 +28,7 @@ Naming the week cash runs out tells an owner they have a problem. It does not te
 > Moving **Quarterly tax** ($6,000.00, week 2) past week 5 closes the gap.
 > Collecting **Invoice 118** ($4,000.00, due week 6) before week 2 closes the gap.
 
-A payment that would only cover part of the gap is described as covering part of it. A payment that lands after the shortfall starts is not offered at all, because delaying it cannot rescue a week that has already gone negative.
+A payment that would only cover part of the gap is described as covering part of it. A payment that lands after the shortfall starts but at or before its lowest week is still offered, since delaying it lifts the trough, but it is never described as closing the gap: the weeks before it stay negative.
 
 ## Using it
 
