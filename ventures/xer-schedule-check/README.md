@@ -529,6 +529,48 @@ other activity named either way (eval/evm-series-check-2026-11-20.md).
 planned rate; `overruns` plants a cost factor), so the example series and
 generated series carry actuals.
 
+## Schedule health trend across updates (2026-11-22)
+
+A lender's monitor or an owner's scheduler reading a job month after month
+asks whether the schedule is getting better or worse, not only how far the
+finish moved. Paid schedule-analytics subscriptions sell that trend. `trend.mjs`
+(the page's windows section, under the windows; CLI `--trend u1.xer u2.xer
+...`) takes the same series of updates and gives, per update in data-date
+order: the 14 DCMA points (value, pass), the forecast finish and how far it
+moved, open activities, how many sit on zero or negative float and within 10
+working days of it, and **path kept**: of the previous update's driving-path
+activities still open, the share still on the driving path (a path that
+changes every month is one nobody can manage to). Then:
+
+- **BEI and missed tasks against the first update**, not each file's planned
+  dates. P6 resets an unstarted activity's planned dates to its early dates
+  at every schedule run, so overdue work that has not started never counts
+  as missed in a single file (quality audit 2026-11-19). Here an activity's
+  baseline finish is its finish in the first update (actual, or the
+  recomputed early finish); activities added later are counted apart.
+- **What newly fails each point** in each update, by activity: what got worse
+  this month.
+- **Float erosion**: every activity open at the end and seen in three or more
+  updates whose float fell, its float in each update, the loss per month
+  fitted across them, the months to zero at that rate, and where the float
+  went: its own forecast finish moving later, or its late finish moving
+  earlier. The second can happen with nothing late: work under way whose
+  successors are start-to-start has its late finish pulled in as its
+  remaining duration shrinks (P6's rule; on the public CCA hospital file 15
+  activities lose float that way in a series statused exactly as planned).
+
+How it was checked (`eval/trend-check.mjs`,
+`eval/trend-check-2026-11-22.md`): six public P6 files, each statused as
+planned four times 20 working days apart. On all six the trend reads 0 missed
+tasks and BEI 1.000 or more in every update, no finish movement and no
+activity eroding because its own finish slipped; the single-file BEI on the
+CCA file reads 0.662 on the original file for the reason above. With two
+5-day slips planted in the second window over three seeds, the driving-path
+slip is named as missed exactly in the updates where its baseline finish is
+due (15 of 15), and the off-path slip is listed in the erosion exactly when
+its float really fell over the series (9 of 9: it fell in 3, each by the 5
+days typed; in the other 6 an FF predecessor or a constraint held the finish).
+
 ## Probabilistic branches in the risk run (2026-11-22)
 
 A risk register adds delay to work that will happen. Some uncertainty is about
@@ -804,6 +846,7 @@ button drifts. Search impressions not measured yet.
 | Crashing by hand: add overtime to the longest critical activity, reschedule, repeat; or the time-cost trade-off in a textbook spreadsheet that ignores P6 calendars and SS/FF links | Finds the obvious single activities; misses that parallel chains must be shortened together and pays twice for time a later step makes useless | The cheapest set to shorten together at each step from the XER, rescheduled on P6's own rules, with time bought earlier given back when it stops helping, priced from your rates and stopped where a day costs more than it saves |
 | A narrative written by hand each month from P6 layouts and last month's report | Whatever the scheduler copies across; slow, and easy to miss a change the owner's reviewer will find | The draft narrative from the two XERs: status, critical path, work done and missed, every change with a fill-in for its reason, float, next period, free and in the browser |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
+| A schedule-quality trend from a paid analytics subscription, or a spreadsheet of each month's DCMA scores kept by hand | Per-update quality scores and float trends, per project or per seat, or whatever the scheduler copies across | The DCMA points, critical counts and driving-path churn for every update at once, BEI against the first update rather than the planned dates P6 resets, what newly fails each month by activity, and the activities losing float with months to zero, free in the browser |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
 | Open-source XER libraries and checkers (Python packages, local web apps) | A parser or a few checks; you install and run them | All 14 points plus a critical path test on a recomputed schedule, measured against P6's own numbers, in a page |
@@ -915,6 +958,10 @@ project's updates for delay claims; and the review itself as a service.
   and the drivers on it; totals on the last update's calendar. `status.mjs`
   statuses a file as planned to a new data date (optionally with planted
   slips), for the check below and the page's example series.
+- `trend.mjs`: schedule health across a series of updates: DCMA points per
+  update, critical and near-critical counts, driving path kept, BEI and
+  missed tasks against the first update, newly failing activities per point,
+  float erosion with months to zero and its cause.
 - `tia.mjs`: time impact analysis. `parseFragnet` reads the fragnet table
   (columns found by name; links as `A1030`, `A1030 SS`, `F1 FS+2`, lags in
   working days; an ID that itself ends in `-1` is taken whole when the file or
@@ -961,6 +1008,7 @@ node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--curves] [--csv 
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--json]   # time impact analysis
 node cli.mjs --windows jan.xer feb.xer mar.xer apr.xer [--json] [--csv windows.csv] [--project CODE]
+node cli.mjs --trend jan.xer feb.xer mar.xer apr.xer [--json] [--csv trend.csv] [--project CODE]   # schedule health trend
 ```
 
 When a file holds several projects, the comparison takes the project with the

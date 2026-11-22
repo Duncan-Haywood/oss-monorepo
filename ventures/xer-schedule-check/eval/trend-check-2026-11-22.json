@@ -1,0 +1,771 @@
+{
+  "S": 5,
+  "STEP_DAYS": 20,
+  "updates": 5,
+  "results": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "project": "CCA R03 dt 24Oct11SC",
+      "open": 14270,
+      "A": {
+        "missed": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "bei": [
+          1,
+          1,
+          1,
+          1,
+          1.001
+        ],
+        "singleFileBei": [
+          0.662,
+          0.872,
+          0.976,
+          1.03,
+          1.037
+        ],
+        "finishMoved": 0,
+        "eroding": 15,
+        "erosionCauses": {
+          "late finish earlier": 15
+        },
+        "finishSlipped": [],
+        "ok": true
+      },
+      "B": [
+        {
+          "seed": 1,
+          "slipPath": "T12CO04405C0",
+          "slipOff": "T13P222019C0",
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "offFloatFell": 0,
+          "offExpected": false,
+          "offListed": false,
+          "offRight": true,
+          "offFloat": null,
+          "offLoss": null,
+          "offLossIsS": false,
+          "offLossMatches": null,
+          "passedLast": 6,
+          "newlyFailingAtSlip": [
+            "High float: 5",
+            "Missed tasks: 180",
+            "Critical path test: 1",
+            "Lags edited after the last schedule run: 102"
+          ]
+        },
+        {
+          "seed": 2,
+          "slipPath": "T12CO04407C0",
+          "slipOff": "T13P222019C0",
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "offFloatFell": 0,
+          "offExpected": false,
+          "offListed": false,
+          "offRight": true,
+          "offFloat": null,
+          "offLoss": null,
+          "offLossIsS": false,
+          "offLossMatches": null,
+          "passedLast": 6,
+          "newlyFailingAtSlip": [
+            "High float: 5",
+            "Negative float: 53",
+            "Missed tasks: 180",
+            "Critical path test: 1",
+            "Out-of-sequence progress: 1",
+            "Lags edited after the last schedule run: 102"
+          ]
+        },
+        {
+          "seed": 3,
+          "slipPath": "T12CO04403C0",
+          "slipOff": "I07CO04415C0",
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "offFloatFell": 0,
+          "offExpected": false,
+          "offListed": false,
+          "offRight": true,
+          "offFloat": null,
+          "offLoss": null,
+          "offLossIsS": false,
+          "offLossMatches": null,
+          "passedLast": 6,
+          "newlyFailingAtSlip": [
+            "High float: 5",
+            "Negative float: 48",
+            "Missed tasks: 180",
+            "Critical path test: 1",
+            "Lags edited after the last schedule run: 102"
+          ]
+        }
+      ],
+      "seconds": 59.9
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "project": "BEW3",
+      "open": 823,
+      "A": {
+        "missed": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "bei": [
+          null,
+          1,
+          1,
+          1,
+          1
+        ],
+        "singleFileBei": [
+          null,
+          1,
+          1,
+          1,
+          1
+        ],
+        "finishMoved": 0,
+        "eroding": 0,
+        "erosionCauses": {},
+        "finishSlipped": [],
+        "ok": true
+      },
+      "B": [
+        {
+          "seed": 1,
+          "slipPath": "BEW/MO/NC/1030",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 8,
+          "newlyFailingAtSlip": [
+            "Missed tasks: 1"
+          ]
+        },
+        {
+          "seed": 2,
+          "slipPath": "BEW/MO/EF/1010",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": false,
+              "named": false
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 4,
+          "newlyFailingAtSlip": [
+            "Negative float: 28",
+            "Critical path test: 1"
+          ]
+        },
+        {
+          "seed": 3,
+          "slipPath": "BEW/MO/EF/1010",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": false,
+              "named": false
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 4,
+          "newlyFailingAtSlip": [
+            "Negative float: 28",
+            "Critical path test: 1"
+          ]
+        }
+      ],
+      "seconds": 5
+    },
+    {
+      "file": "example_xer_file.xer",
+      "project": "DEMO-001",
+      "open": 404,
+      "A": {
+        "missed": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "bei": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "singleFileBei": [
+          1,
+          1.017,
+          1,
+          1,
+          1
+        ],
+        "finishMoved": 0,
+        "eroding": 0,
+        "erosionCauses": {},
+        "finishSlipped": [],
+        "ok": true
+      },
+      "B": [
+        {
+          "seed": 1,
+          "slipPath": "A10390",
+          "slipOff": "A10590",
+          "path": [
+            {
+              "update": "u2",
+              "due": false,
+              "named": false
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "offFloatFell": 0,
+          "offExpected": false,
+          "offListed": false,
+          "offRight": true,
+          "offFloat": null,
+          "offLoss": null,
+          "offLossIsS": false,
+          "offLossMatches": null,
+          "passedLast": 9,
+          "newlyFailingAtSlip": []
+        },
+        {
+          "seed": 2,
+          "slipPath": "A10390",
+          "slipOff": "A15460",
+          "path": [
+            {
+              "update": "u2",
+              "due": false,
+              "named": false
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "offFloatFell": 0,
+          "offExpected": false,
+          "offListed": false,
+          "offRight": true,
+          "offFloat": null,
+          "offLoss": null,
+          "offLossIsS": false,
+          "offLossMatches": null,
+          "passedLast": 9,
+          "newlyFailingAtSlip": []
+        },
+        {
+          "seed": 3,
+          "slipPath": "A10390",
+          "slipOff": "A10590",
+          "path": [
+            {
+              "update": "u2",
+              "due": false,
+              "named": false
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "offFloatFell": 0,
+          "offExpected": false,
+          "offListed": false,
+          "offRight": true,
+          "offFloat": null,
+          "offLoss": null,
+          "offLossIsS": false,
+          "offLossMatches": null,
+          "passedLast": 9,
+          "newlyFailingAtSlip": []
+        }
+      ],
+      "seconds": 1.1
+    },
+    {
+      "file": "hotel-project.xer",
+      "project": "HBTF-2",
+      "open": 4217,
+      "A": {
+        "missed": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "bei": [
+          null,
+          null,
+          1,
+          1,
+          1
+        ],
+        "singleFileBei": [
+          null,
+          null,
+          1,
+          1,
+          1
+        ],
+        "finishMoved": 0,
+        "eroding": 4,
+        "erosionCauses": {
+          "late finish earlier": 4
+        },
+        "finishSlipped": [],
+        "ok": true
+      },
+      "B": [
+        {
+          "seed": 1,
+          "slipPath": null,
+          "slipOff": "HESDACI0010",
+          "offFloatFell": 5,
+          "offExpected": true,
+          "offListed": true,
+          "offRight": true,
+          "offFloat": [
+            77,
+            77,
+            72,
+            72,
+            72
+          ],
+          "offLoss": 5,
+          "offLossIsS": true,
+          "offLossMatches": true,
+          "passedLast": 9,
+          "newlyFailingAtSlip": [
+            "Lags edited after the last schedule run: 6"
+          ]
+        },
+        {
+          "seed": 2,
+          "slipPath": null,
+          "slipOff": "HESDACI0010",
+          "offFloatFell": 5,
+          "offExpected": true,
+          "offListed": true,
+          "offRight": true,
+          "offFloat": [
+            77,
+            77,
+            72,
+            72,
+            72
+          ],
+          "offLoss": 5,
+          "offLossIsS": true,
+          "offLossMatches": true,
+          "passedLast": 9,
+          "newlyFailingAtSlip": [
+            "Lags edited after the last schedule run: 6"
+          ]
+        },
+        {
+          "seed": 3,
+          "slipPath": null,
+          "slipOff": "HESDSCI0010",
+          "offFloatFell": 5,
+          "offExpected": true,
+          "offListed": true,
+          "offRight": true,
+          "offFloat": [
+            77,
+            77,
+            72,
+            72,
+            72
+          ],
+          "offLoss": 5,
+          "offLossIsS": true,
+          "offLossMatches": true,
+          "passedLast": 9,
+          "newlyFailingAtSlip": [
+            "Lags edited after the last schedule run: 6"
+          ]
+        }
+      ],
+      "seconds": 8.3
+    },
+    {
+      "file": "sample.xer",
+      "project": "Task SE",
+      "open": 42,
+      "A": {
+        "missed": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "bei": [
+          null,
+          1,
+          1,
+          1,
+          1
+        ],
+        "singleFileBei": [
+          null,
+          1,
+          1,
+          1,
+          1
+        ],
+        "finishMoved": 0,
+        "eroding": 0,
+        "erosionCauses": {},
+        "finishSlipped": [],
+        "ok": true
+      },
+      "B": [
+        {
+          "seed": 1,
+          "slipPath": "A2000",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 10,
+          "newlyFailingAtSlip": [
+            "Missed tasks: 1",
+            "Critical path test: 1",
+            "Out-of-sequence progress: 1",
+            "Lags edited after the last schedule run: 5"
+          ]
+        },
+        {
+          "seed": 2,
+          "slipPath": "A2000",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 10,
+          "newlyFailingAtSlip": [
+            "Missed tasks: 1",
+            "Critical path test: 1",
+            "Out-of-sequence progress: 1",
+            "Lags edited after the last schedule run: 5"
+          ]
+        },
+        {
+          "seed": 3,
+          "slipPath": "A2000",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 10,
+          "newlyFailingAtSlip": [
+            "Missed tasks: 1",
+            "Critical path test: 1",
+            "Out-of-sequence progress: 1",
+            "Lags edited after the last schedule run: 5"
+          ]
+        }
+      ],
+      "seconds": 0.1
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "project": "TERMINAL-2",
+      "open": 66,
+      "A": {
+        "missed": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "bei": [
+          null,
+          null,
+          1,
+          1,
+          1
+        ],
+        "singleFileBei": [
+          null,
+          null,
+          1,
+          1,
+          1
+        ],
+        "finishMoved": 0,
+        "eroding": 0,
+        "erosionCauses": {},
+        "finishSlipped": [],
+        "ok": true
+      },
+      "B": [
+        {
+          "seed": 1,
+          "slipPath": "BA-P1-10",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 8,
+          "newlyFailingAtSlip": [
+            "Negative float: 35",
+            "Missed tasks: 1",
+            "Out-of-sequence progress: 2"
+          ]
+        },
+        {
+          "seed": 2,
+          "slipPath": "BA-P2-10",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": false,
+              "named": false
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 8,
+          "newlyFailingAtSlip": [
+            "Negative float: 17",
+            "Critical path test: 1"
+          ]
+        },
+        {
+          "seed": 3,
+          "slipPath": "BA-P1-10",
+          "slipOff": null,
+          "path": [
+            {
+              "update": "u2",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u3",
+              "due": true,
+              "named": true
+            },
+            {
+              "update": "u4",
+              "due": true,
+              "named": true
+            }
+          ],
+          "pathRight": true,
+          "passedLast": 8,
+          "newlyFailingAtSlip": [
+            "Negative float: 35",
+            "Missed tasks: 1",
+            "Out-of-sequence progress: 2"
+          ]
+        }
+      ],
+      "seconds": 0.2
+    }
+  ]
+}

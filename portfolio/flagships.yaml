@@ -562,13 +562,14 @@ flagships:
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
-      (10) earned value shipped 2026-11-20 (evm.mjs; % complete = P6's actuals
-      2,020/2,020); next a real series, baseline export (curved spread shipped,
-      curves.mjs). (11) time impact analysis shipped 2026-11-20 (tia.mjs, --tia,
-      page; eval/tia-check-2026-11-20.md); next a real TIA exhibit. (8) MSPDI:
-      resource calendars, Resume, splits read 2026-11-21 (2,446 of 2,491 =
-      Project's, eval/split-tasks-2026-11-21.md); next a Project open of those rows,
-      a P6 import of a curve, timephased late dates. (13) XER to Project XML shipped
+      (10) earned value 2026-11-20 (evm.mjs); health trend across updates 2026-11-22
+      (trend.mjs, --trend; BEI vs first update, float erosion with cause;
+      eval/trend-check-2026-11-22.md); next a real update series for both. (11) time
+      impact analysis shipped 2026-11-20 (tia.mjs, --tia, page;
+      eval/tia-check-2026-11-20.md); next a real TIA exhibit. (8) MSPDI: resource
+      calendars, Resume, splits read 2026-11-21 (2,446 of 2,491 = Project's,
+      eval/split-tasks-2026-11-21.md); next a Project open of those rows, a P6
+      import of a curve, timephased late dates. (13) XER to Project XML shipped
       2026-11-21; next a Project check. Expenses <-> cost resources and fixed costs
       2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;
       eval/expenses-2026-11-21.md); next a P6-written XER with expenses, a P6 import
