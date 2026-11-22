@@ -74,7 +74,7 @@ saving is the discarded snapshot.
   check every name taken from it is exported, and pin the manifest gate with
   both fallbacks. 7/7 pass.
 - Full suite: `python3 platform/ci/run_venture_tests.py shed-designer` ->
-  SUITE_RESULT.
+  ok, 544 tests in 151.8 s (3 skipped: axe-core not installed); site page checks ok.
 
 ## Not changed, ranked for the next run
 

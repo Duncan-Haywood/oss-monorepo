@@ -1,6 +1,6 @@
 ---
 title: "The shed picture nobody saw: a 160 ms render thrown away on every load"
-seo_title: "Shed designer loads faster: a discarded WebGL thumbnail found by profiling"
+seo_title: "Shed designer loads faster: a discarded WebGL thumbnail removed"
 date: 2026-11-22
 tags: [performance, webgl, shed-designer, profiling]
 description: "A profile of the shed designer's page load found its largest single cost was a 3D thumbnail drawn and then replaced before anyone could see it."
