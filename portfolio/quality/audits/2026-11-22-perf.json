@@ -1,0 +1,239 @@
+{
+ "date": "2026-11-22",
+ "subject": "platform/perf",
+ "stratum": "platform",
+ "seed": "2026-11-22-e-01cc",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality round 94",
+ "status": "audited",
+ "professional": "a senior web performance engineer (owns JS budgets and code-splitting for a large site); first checks: does the import-graph walker see every edge the browser sees (minified imports, re-exports, src entry scripts, query strings), are byte counts what the wire carries, does 'exclusive' mean what a dominator/bundle analyzer would say, does it fail loudly when it cannot see a graph, and are the published numbers reproducible",
+ "scores": {
+  "correctness": 2,
+  "completeness": 2,
+  "verification": 0,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed with an independent walker that uses V8's own ES module parser (vm.SourceTextModule.dependencySpecifiers, scratch /tmp/claude-0/round94-perf/indep.mjs) instead of the tools' regexes. module-weight.mjs sweep: 1,398 of the 1,400 pages the parser finds a module graph on agree to the byte and file count; 2 (medical-courier-route-margin, pool-route-pricing) are missed entirely because their minified inline `import{...}from'./calc.mjs'` has no whitespace the regex requires (`import\\s+`, `\\s+from`). Over-200 kB count 6 = 6. module-exclusive.mjs: on the pre-change ai-bookkeeper tree (git archive 88031b4cb^) receipts 47,413 B (46k), payouts 17,331 (17k), annualized 9,511 (9k) exactly as the parser walk; total 406,176 B = 397 KiB, 53 files. Gzip cross-checked against GNU gzip -6 -n (a separate deflate implementation): within 0.7% per file. But module-exclusive.mjs only reads inline `<script type=\"module\">` bodies: on shed-designer (the write-up's next target, `<script type=\"module\" src=\"app.mjs\">`) it prints `total 0 kB gz 0 files` and exit 0, while the parser walk gives 393,127 B / 55 files; across all 1,406 venture pages the old tool printed zero for 19 and crashed on 1, with only 6 truly graph-less. Right where it sees the graph, silently wrong where it does not: 2.",
+  "completeness": "Claimed in the headers and docs/history/ai-bookkeeper-page-perf-2026-11-22.md: (1) sweep every ventures/*/index.html static graph, gzip total, largest first: works (1.8-2.1 s), misses 2 minified pages; (2) 'over 200 kB' count: works; (3) per-direct-import exclusive bytes 'for one page': works only for pages whose roots are inline imports, not for `src=` entry scripts (12 venture pages use one, shed-designer included) nor `?v=` import queries (readFileSync would throw); (4) the history doc's step 'run module-exclusive.mjs on it first' for shed-designer cannot be done with the tool as shipped. No README for platform/perf; the post points readers at the directory.",
+  "verification": "No tests of any kind for either script, and no workflow triggers on platform/perf/** (grep .github/workflows: none). Seeded with quality_mutate.py against the only available check (a smoke run of each script): threshold 200*1024 -> 2000*1024 survived, exclusive set inverted (!rest.has -> rest.has) survived. Score 0: nothing would catch a bug. After this audit's fix, platform/perf/perf.test.mjs (5 tests, `node --test platform/perf/perf.test.mjs` 5 pass) catches 4/4 seeded mutants, and 3 of its 5 tests fail on the pre-fix scripts; the score records the state before the fix.",
+  "craft": "Read both files whole (16 and 32 lines). Dependency-free and fast, but: dense one-line code (module-exclusive.mjs is 16 lines of statements joined by semicolons); the import regex is duplicated across the two files with drift (module-weight handles src= entries and strips ?query, module-exclusive does neither); regex scanning instead of a lexer (es-module-lexer, or vm.SourceTextModule as used here) so imports in strings/comments would count and minified/`export * as` forms do not; silent fallbacks: module-weight skips missing files and root-absolute `/x.mjs` imports (resolved against the filesystem root) without a word, module-exclusive reports 0 kB for a page it cannot read; 'kB' is KiB (/1024) unlabelled.",
+  "claims": "Checked against recomputation: post/history '397 kB across 53 files' pass (406,176 B); '72 kB' pass (74,255 B = 72.5 KiB); '48 modules instead of 53 and 225 kB less raw JavaScript' pass (static graph raw bytes 1,160,293 -> 934,978, exactly the run record's Playwright numbers); 'six load more than 200 kB' pass; table rows shed 384, league 258, babysitting 240, wall-framing 238, xer 224 pass on the parent tree (xer 229,074 B); 'about a third of a second' pass (74,255*8/1.6 Mbit = 0.37 s); '1,398 pages load ES modules' partial (1,400; the tool's own blind spot). The module-exclusive header's promise for 'one page' and the doc's next-step advice for shed-designer fail (0 kB). Threshold ~200 kB is uncited.",
+  "fitness": "The job: find which pages ship too much JS and which imports to defer. The sweep does the first well enough to have driven a real 72 kB saving on ai-bookkeeper. The second fails exactly where the next run needs it: the tool gives no answer on src-entry pages, and even after the fix it attributes bytes only to the page's direct imports, so for a single-entry app (shed-designer: one root, 384k, 'app.mjs' owns all) it cannot say which deeper import to split; a dominator-tree view is what that job needs.",
+  "domain": "Compared with what a senior perf engineer would use (es-module-lexer or bundler metafile parsing, webpack-bundle-analyzer / source-map-explorer dominator attribution, Chrome DevTools Coverage, and brotli sizes, which is what Cloudflare usually serves for JS). Per-file gzip-6 is a reasonable proxy and the 'exclusive = not reachable from the other roots' definition is right for direct imports, but: no dominator analysis below the roots, no parse/compile cost, no brotli, regex not lexer. A sound first approximation, not a method a practitioner would sign off as is."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "module-weight sweep: per-page gzip total and file count for every ventures/*/index.html",
+   "method": "independent walker with V8's ES module parser (vm.SourceTextModule.dependencySpecifiers), joined per page",
+   "command": "node --experimental-vm-modules /tmp/claude-0/round94-perf/indep.mjs sweep . ; node (module-weight.mjs with slice removed) . ; join",
+   "expected": "1,400 pages with a module graph, identical totals",
+   "observed": "1,398 identical to the byte; medical-courier-route-margin (4,244 B, 3 files) and pool-route-pricing (3,255 B, 3 files) missing: minified import{..}from'./x' not matched",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ai-bookkeeper exclusive bytes before the lazy-load change (receipts, payouts, annualized)",
+   "method": "V8-parser walk on git archive 88031b4cb^ of ventures/ai-bookkeeper",
+   "command": "node --experimental-vm-modules /tmp/claude-0/round94-perf/indep.mjs page ventures/ai-bookkeeper/index.html (in the old tree)",
+   "expected": "46k / 17k / 9k, total 397 kB 53 files (tool)",
+   "observed": "47,413 / 17,331 / 9,511 B (46/17/9 KiB); total 406,176 B = 397 KiB, 53 files",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "per-file gzip byte counts",
+   "method": "GNU gzip -6 -n (separate deflate implementation) vs node zlib.gzipSync",
+   "command": "gzip -6 -n -c receipts.mjs | wc -c, etc.",
+   "expected": "within ~1%",
+   "observed": "receipts 45,472 vs 45,757; payouts 17,324 vs 17,331; annualized 5,268 vs 5,283; penalty2210 4,207 vs 4,228 (max 0.6%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "module-exclusive on shed-designer (src= entry script)",
+   "method": "V8-parser walk",
+   "command": "node platform/perf/module-exclusive.mjs ventures/shed-designer/index.html",
+   "expected": "393,127 B, 55 files (parser)",
+   "observed": "total 0 kB gz 0 files, exit 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "module-exclusive on every venture page",
+   "method": "count pages printing zero or crashing vs pages the parser finds a graph on",
+   "command": "for h in ventures/*/index.html; do node <pre-fix module-exclusive.mjs> $h; done",
+   "expected": "zero only for the 6 of 1,406 pages without a module graph",
+   "observed": "19 print 'total 0 kB gz 0 files', 1 crashes: at least 14 wrong",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "planted fixture: minified import, export * as, ?v= query, src entry, shared module",
+   "method": "hand-built fixture with known answer (7 modules) and the V8 parser",
+   "command": "node module-weight.mjs <fixture>; node module-exclusive.mjs ventures/p/index.html",
+   "expected": "7 files; main.mjs exclusive = main,a,re,c,b",
+   "observed": "module-weight 4 files (misses a.mjs, c.mjs); module-exclusive sees only the inline d.mjs",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'48 modules instead of 53 and 225 kB less raw JavaScript'",
+   "method": "static-graph raw byte sum with the V8 parser on old and new index.html",
+   "command": "node --experimental-vm-modules /tmp/claude-0/round94-perf/raw.mjs <old|new>/ventures/ai-bookkeeper/index.html",
+   "expected": "53 1,160,293 -> 48 934,978",
+   "observed": "53 1160293; 48 934978",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'six load more than 200 kB gzip' and the history table (shed 384, league 258, babysitting 240, wall 238, xer 224)",
+   "method": "parser sweep on the current tree and the parent tree",
+   "command": "indep.mjs sweep; indep.mjs page on git archive 88031b4cb^",
+   "expected": "6 pages; values as in the table",
+   "observed": "6 over 204,800 B; xer 229,074 B = 224 KiB on the parent tree (234 now after #18253)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'1,398 pages load ES modules'",
+   "method": "parser sweep",
+   "command": "indep.mjs sweep . | wc -l",
+   "expected": "1,398",
+   "observed": "1,400 (the tool's minified-import blind spot)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'about a third of a second' for 72 kB gz at 1.6 Mbit/s",
+   "method": "arithmetic",
+   "command": "74255*8/1.6e6",
+   "expected": "~0.33 s",
+   "observed": "0.37 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "tests and CI for platform/perf",
+   "method": "glob + grep .github/workflows",
+   "command": "ls platform/perf; grep -rn platform/perf .github/workflows",
+   "expected": "a test file and a trigger",
+   "observed": "no tests, no trigger",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "history doc step 'run module-exclusive.mjs on [shed-designer] first'",
+   "method": "ran it",
+   "command": "node platform/perf/module-exclusive.mjs ventures/shed-designer/index.html",
+   "expected": "per-import exclusive table",
+   "observed": "0 kB; after the fix, one row '384k app.mjs' (single root, so still no split)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "module-weight.mjs:32",
+   "change": "r[0]>200*1024 -> r[0]>2000*1024",
+   "caught": false,
+   "test_cmd": "bash -c node module-weight.mjs ../.. >/dev/null"
+  },
+  {
+   "where": "module-exclusive.mjs:15",
+   "change": "filter(f=>!rest.has(f)) -> filter(f=>rest.has(f))",
+   "caught": false,
+   "test_cmd": "bash -c node module-exclusive.mjs ../../ventures/ai-bookkeeper/index.html >/dev/null"
+  },
+  {
+   "where": "module-weight.mjs:33",
+   "change": "r[0]>200*1024 -> r[0]>2000*1024 (after fix, new tests)",
+   "caught": true,
+   "test_cmd": "node --test perf.test.mjs"
+  },
+  {
+   "where": "module-exclusive.mjs:30",
+   "change": "filter(f=>!rest.has(f)) -> filter(f=>rest.has(f)) (after fix, new tests)",
+   "caught": true,
+   "test_cmd": "node --test perf.test.mjs"
+  },
+  {
+   "where": "module-weight.mjs:9",
+   "change": "import\\s*(?: -> import\\s+(?: (after fix, new tests)",
+   "caught": true,
+   "test_cmd": "node --test perf.test.mjs"
+  },
+  {
+   "where": "module-exclusive.mjs:12",
+   "change": "d.split(/[?#]/)[0] -> d (after fix, new tests)",
+   "caught": true,
+   "test_cmd": "node --test perf.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "module-exclusive.mjs reads only inline <script type=\"module\"> bodies: a page whose entry is <script type=\"module\" src=...> (shed-designer, the write-up's next target, and 12+ others) prints 'total 0 kB gz 0 files' with exit 0, a wrong number a perf run would act on; 19 of 1,406 pages printed zero and 1 crashed",
+   "where": "platform/perf/module-exclusive.mjs:10",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18259"
+  },
+  {
+   "severity": "medium",
+   "what": "Both import regexes require whitespace (import\\s+, \\s+from), so minified `import{a}from'./a.mjs'` is not an edge and `export * as ns from` is not matched: 2 of 1,400 pages (medical-courier-route-margin, pool-route-pricing) vanish from the sweep, and the post's 1,398 count is off by 2",
+   "where": "platform/perf/module-weight.mjs:8",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18259"
+  },
+  {
+   "severity": "medium",
+   "what": "No tests and no CI trigger for platform/perf: both seeded mutants (threshold, inverted exclusive set) survived",
+   "where": "platform/perf/module-weight.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "module-exclusive.mjs does not strip ?query/#hash from specifiers (module-weight does) and throws ENOENT on a missing file instead of reporting it",
+   "where": "platform/perf/module-exclusive.mjs:7",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18259"
+  },
+  {
+   "severity": "medium",
+   "what": "'Exclusive' is computed only for the page's direct imports; there is no dominator-tree attribution below the roots, so for a single-entry app (shed-designer: one root owns all 384 kB) the tool cannot say which deeper import to make dynamic",
+   "where": "platform/perf/module-exclusive.mjs:15",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Regex scanning instead of a lexer: an import-shaped line inside a template string or comment counts as an edge (missing targets are skipped silently in module-weight); root-absolute '/x.mjs' specifiers resolve against the filesystem root and are dropped without a warning",
+   "where": "platform/perf/module-weight.mjs:26",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Sizes are gzip -6 per file and labelled kB but computed as KiB; Cloudflare typically serves brotli for JS, and parse/compile cost is not measured; the ~200 kB threshold is uncited",
+   "where": "platform/perf/module-weight.mjs:4",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "No README for platform/perf; the post sends readers to the directory, and the regex is duplicated across the two scripts with drift (src= and ?query handled in one only)",
+   "where": "platform/perf/module-exclusive.mjs:6",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18259"],
+ "verdict": "platform/perf is two small, fast, dependency-free scripts that did real work: every number the 2026-11-22 ai-bookkeeper write-up and post cite (397 kB / 53 files, 46+17+9 kB exclusive, 53 -> 48 modules, 1,160,293 -> 934,978 raw bytes, six pages over 200 kB) reproduces against a walker built on V8's own module parser and against GNU gzip. But module-exclusive.mjs silently reports 0 kB for any page whose entry is a <script type=module src> tag, including shed-designer, the very page the write-up tells the next run to examine with it, and both regexes miss minified imports (2 of 1,400 pages). There were no tests and no CI trigger; both seeded mutants survived. A senior web performance engineer would want a lexer, dominator attribution below the page's roots, and brotli sizes. Correctness 2, verification 0: below the bar. This audit fixed defects 0, 1 and 3 in platform/perf (src= roots, ?query stripping, minified and `export * as` forms, a loud exit 1 when no graph is found) and added platform/perf/perf.test.mjs (5 tests; 3 fail on the pre-fix code; 4/4 seeded mutants caught); after the fix both scripts agree with the parser walk on all 1,400 pages. Scores are before the fix."
+}
