@@ -1703,6 +1703,16 @@ read that looked best on synthetic noise over-reads real noise. What ships reads
 (median 0.77), the safe side by design. Questions and bars were committed before the 57 were scored.
 `eval/hdrplus-noise-truth-2026-11-22.md`.
 
+**The demosaic on real noise (2026-11-22, later).** The same bursts as a dB test (`tools/hdrplus_demosaic_sweep.py`):
+the merge binned 4 x 4 as the clean scene, and at every site the reference's own residual from a sensel of that
+colour, carried to the scene's level, as the noise. On 48 bursts (5 skipped: over a quarter of the frame was a
+moving subject) what ships gains +0.56 dB luma and +0.26 colour over plain directional, no burst losing; the
+oracle model gains +0.75 / +0.24. `mpcws` gains +0.13 dB luma and +0.04 colour over what ships, growing with
+noise (+0.06, +0.12, +0.22 by thirds), and passed three of four pre-registered tests, but two bursts lose over
+0.1 dB to what ships, so the default stays `mpcw`. On both of those bursts the oracle loses by as much: the next
+question is the blend's ramps on real noise, not the read. The phones' own NoiseProfiles, as the developer uses
+them, gain luma (+0.16) but lose colour (-0.13) against the frame read. `eval/hdrplus-demosaic-sweep-2026-11-22.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
