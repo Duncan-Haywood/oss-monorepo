@@ -804,3 +804,71 @@ test("a footing's quantities reach the fill only for IFCFOOTING rows", async () 
   assert.deepEqual([...q.get(1).keys()].sort(), ["CrossSectionArea", "GrossSurfaceArea", "GrossVolume", "Height", "Length", "NetVolume", "OuterSurfaceArea", "Width"]);
   assert.equal(q.get(2).get("Length"), undefined);
 });
+
+// ---- opening elements (eval/opening-quantities-2026-11-22.md) ----
+
+test("an opening's convention: ARCHICAD; Revit 2010 and 2019 on; the Revit years between and other tools none", async () => {
+  const { openingElementConvention: c } = await import("./geometry-quantities.mjs");
+  assert.equal(c("ARCHICAD-64 IFC2x3 add-on version: 4009 GER FULL"), "archicad");
+  assert.equal(c("ArchiCAD-64 IFC2x3 add-on version: 6000 NED FULL"), "archicad");
+  assert.equal(c("Autodesk Revit Architecture 2010 Revit"), "revit-2010");
+  assert.equal(c("Autodesk Revit 2019 (ENG) Revit"), "revit-2019");
+  assert.equal(c("Autodesk Revit 2022 (DEU) Revit"), "revit-2019");
+  assert.equal(c("Autodesk Revit Architecture 2011"), null);
+  assert.equal(c("Autodesk Revit 2017 (FRA)"), null);
+  assert.equal(c("Tekla Structures"), null);
+});
+
+test("an opening's Width, Height, Depth and Area by its tool: ARCHICAD across, upright and the host's thickness; Revit the profile's sides and the extrusion", async () => {
+  const { openingElementLines: L } = await import("./geometry-quantities.mjs");
+  // ARCHICAD's door: two mirrored 0.24 m extrusions of a 0.885 x 2.01 profile through a 0.24 m wall
+  const door = { px: 0.885, py: 2.01, depth: 0.24, along: 0, area: 1.77885, across: 0.885, up: 2.01 };
+  assert.deepEqual(L([door, { ...door }], "archicad", 0.24), { width: 0.885, height: 2.01, depth: 0.24, area: 1.77885 });
+  // a round window's extrusions run 0.485 and 0.415 m; Depth is the wall's 0.30 m, not either
+  const round = { px: 1, py: 1, depth: 0.485, along: 0, area: 0.7851, across: 1, up: 1 };
+  assert.equal(L([round, { ...round, depth: 0.415 }], "archicad", 0.3).depth, 0.3);
+  // no host wall measured: no Depth; a slab opening (vertical): nothing
+  assert.equal(L([door], "archicad", null).depth, null);
+  assert.deepEqual(L([{ ...door, along: 1, across: null, up: null }], "archicad", 0.24), { width: null, height: null, depth: null, area: null });
+  // two extrusions of different profiles: nothing
+  assert.equal(L([door, { ...door, px: 1.2 }], "archicad", 0.24).width, null);
+  // Revit 2019+: a wall opening's Width is the profile's x side (upright on purpose), a floor opening's its y side
+  const win = { px: 3.02, py: 1.22, depth: 3.048, along: 0, area: 3.6844, across: 1.22, up: 3.02 };
+  assert.deepEqual(L([win], "revit-2019"), { width: 3.02, height: 1.22, depth: 3.048, area: 3.6844 });
+  const shaft = { px: 2.15, py: 1, depth: 0.2, along: 1, area: 2.15, across: null, up: null };
+  assert.deepEqual(L([shaft], "revit-2019"), { width: 1, height: 2.15, depth: 0.2, area: 2.15 });
+  // Revit 2010: Width the y side in both
+  assert.deepEqual(L([win], "revit-2010"), { width: 1.22, height: 3.02, depth: 3.048, area: 3.6844 });
+  // Revit with two extrusions, or an unknown tool: nothing
+  assert.deepEqual(L([win, win], "revit-2019"), { width: null, height: null, depth: null, area: null });
+  assert.deepEqual(L([win], null), { width: null, height: null, depth: null, area: null });
+});
+
+test("the fill writes a Revit opening's four quantities from its extrusion, and none for an unknown tool's", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const model = (app) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCORGANIZATION($,'Autodesk',$,$,$);#2=IFCAPPLICATION(#1,'2022','${app}','Revit');
+#3=IFCPERSON($,$,$,$,$,$,$,$);#4=IFCPERSONANDORGANIZATION(#3,#1,$);#5=IFCOWNERHISTORY(#4,#2,$,.ADDED.,$,$,$,0);
+#10=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);#11=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);#12=IFCUNITASSIGNMENT((#10,#11));
+#20=IFCCARTESIANPOINT((0.,0.,0.));#21=IFCDIRECTION((0.,0.,1.));#22=IFCDIRECTION((1.,0.,0.));#23=IFCAXIS2PLACEMENT3D(#20,$,$);
+#24=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-5,#23,$);
+#30=IFCPROJECT('0p000000000000000000aa',#5,'P',$,$,$,$,(#24),#12);
+#40=IFCLOCALPLACEMENT($,#23);
+#41=IFCDIRECTION((0.,1.,0.));#42=IFCAXIS2PLACEMENT3D(#20,#41,#21);
+#43=IFCCARTESIANPOINT((0.,0.));#44=IFCAXIS2PLACEMENT2D(#43,$);
+#45=IFCRECTANGLEPROFILEDEF(.AREA.,$,#44,3020.,1220.);
+#46=IFCEXTRUDEDAREASOLID(#45,#42,#21,3048.);
+#47=IFCSHAPEREPRESENTATION(#24,'Body','SweptSolid',(#46));#48=IFCPRODUCTDEFINITIONSHAPE($,$,(#47));
+#50=IFCOPENINGELEMENT('0o000000000000000000aa',#5,'V25',$,$,#40,#48,$,.OPENING.);
+ENDSEC;END-ISO-10303-21;`;
+  const IDS = ids(["Width", "Height", "Depth"].map((n) => spec("IFCOPENINGELEMENT", prop("Qto_OpeningElementBaseQuantities", n, "IFCLENGTHMEASURE"))).join("") + spec("IFCOPENINGELEMENT", prop("Qto_OpeningElementBaseQuantities", "Area", "IFCAREAMEASURE")));
+  const text = model("Autodesk Revit 2022 (DEU)");
+  const geometry = geometryLookup(await measureModel(text, { weights: false }));
+  const r = fillModel(IDS, text, { ...resources(), geometry, random });
+  const got = Object.fromEntries(r.writtenList.map((w) => [w.prop, +Number(w.value).toFixed(4)]));
+  // lengths in the model's millimetres, the area in m2
+  assert.deepEqual(got, { Width: 3020, Height: 1220, Depth: 3048, Area: 3.6844 });
+  assert.equal(r.after.pass, true);
+  const other = model("Some Exporter 2022");
+  const g2 = geometryLookup(await measureModel(other, { weights: false }));
+  assert.equal(fillModel(IDS, other, { ...resources(), geometry: g2, random }).written, 0);
+});
