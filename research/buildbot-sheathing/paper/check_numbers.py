@@ -83,6 +83,7 @@ M67D = E + "m67_aimeddirect/diag.out"
 M68 = E + "m68_jgate/results.txt"
 M68D = E + "m68_jgate/diag.out"
 M69 = E + "m69_tworef/results.txt"
+M70 = E + "m70_drift/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -357,6 +358,12 @@ CHECKS = [
     (M69, "h1 | 0.4 | two | 300 | 298 (99.33%) | 0 | 0.0213 | 298 | 99.33 | 0 |", "99.7%, 99.3%, 83.7% and 19.0% on the H1"),
     (M69, "h1 | 1.0 | one | 300 | 258 (86.00%) | 228 | 0.1074 | 30 | 10.00 | 0 |", "(from 90.7%, 85.0%, 52.0% and 10.0%)"),
     (M69, "H267 (the gate on the two-pose table keeps every passed press inside the spec, every B, both robots): 0 over spec -> held", "No press the\ngate passes leaves 0.03 mm"),
+    (M70, "H271 (superposition: every planned press's no-flip rows equal J e_r + S d to 1e-6 mm, both robots): largest difference 1.22e-14 -> held", "to 1.2 &times; 10<sup>&minus;14</sup> mm on every planned press"),
+    (M70, "g1 | 113 | 15 | 2.63e-14 | 0.1486 | 0.1855 | 0.0426 | 0.162", "median max<sub>k</sub>||S<sub>k</sub>|| 0.149 mm/N on the G1"),
+    (M70, "h1 | 150 | 19 | 3.13e-14 | 0.1117 | 0.1591 | 0.0387 | 0.189", "0.189 N (H1)"),
+    (M70, "g1 | 0.4 | 0.10 | 226 | 225 | 99 | 0.0404 | 225 | 99 | 0.0404 | 126 | 55.75 | 0 |", "passes 99 G1 and 32 H1 presses"),
+    (M70, "h1 | 0.4 | 0.10 | 300 | 297 | 32 | 0.0309 | 297 | 32 | 0.0309 | 265 | 88.33 | 0 |", "88.3% and 25.3% on the H1"),
+    (M70, "H274 (the drift gate keeps every passed press inside the spec, every B, delta, both robots): 0 over -> held", "passes none over spec at B = 0.3 and"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

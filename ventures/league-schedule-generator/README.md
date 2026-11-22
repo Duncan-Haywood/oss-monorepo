@@ -5908,3 +5908,43 @@ changed; `eval/swiss-bracketed-names.txt`): ChessHouse later-round recall **0.52
 rounds 1 to 5, rounds read 7 to 9. All six chess-results events: **89.3% to 94.8%** of published
 later-round boards, exact rounds 15 to 19 of 54. Every other event's numbers are unchanged. The
 `open` condition (the pairer chooses who sits out) moves from 69.5% to 75.0% on the same events.
+
+## A Swiss pairing page of its own (2026-11-22, later)
+
+`swiss-pairing.html` and `swiss-page.mjs`. The Swiss pairer had been one card among a dozen on the
+season page, reached from a how-to page that told visitors to look for it. A club organiser running
+a Swiss on a phone now gets one page: players one per line, strongest first or `Name, rating`
+(sorted by rating, unrated after in typed order: `parsePlayerLines`); **Pair next round**; a result
+select per board (1-0, draw, 0-1, a forfeit either way) and **Save results**, which writes the round
+as result lines into the results box (`roundResultLines`, read back by `parseSwissResults`); then
+standings with Buchholz and Sonneborn-Berger, and the next round. The round in progress and the
+event are kept in the device's storage, so a closed tab or a reload resumes mid-round. TRF files open
+(carry on a Swiss-Manager or Vega event) and download; pairings print as a wall sheet with blank
+result boxes. Usage events: `swiss_page_paired`, `swiss_page_saved`, `swiss_page_trf_opened`,
+`swiss_page_trf_downloaded`, `swiss_page_example` (local only, as everywhere on the site).
+
+Why someone would use it rather than what they have: Swiss-Manager and Vega are paid desktop
+programs (Swiss-Manager Windows-only); JaVaFo and bbpPairings are free but command-line engines that
+read and write TRF by hand; lichess and chess.com pair only games played on their sites. This is free,
+runs in any browser, and its accuracy against the endorsed programs is measured: on the six
+chess-results events, given who actually played each round, 51 of 54 rounds identical and 99.2% of
+boards from round 2 on (`eval/swiss-big-brackets.txt`). The page states that figure, says it is not
+FIDE-endorsed, and names the endorsed programs for rated events. `swiss-page.test.mjs` (6 tests): the
+rating sort, results written and read back as the same games and scores, a 15-player five-round event
+with no rematch or second bye, a TRF written from the page's results that reads back and pairs on, and
+the page's links, disclaimer and the accuracy figure checked against the replay file. Driven in
+Chromium at 390 px: example, pair, save (refused with boards missing), pair round 2, reload resumes
+round 2; no horizontal scroll, no console errors.
+
+## Stage B digits sized per criterion too (2026-11-22, later)
+
+The fault `lexRadix` fixed in the floater choice ("Big brackets kept the two-rounds-ago float
+rule") was also in stage B (`bracketMate`): one radix of paired/2 + 1 for all seven colour-and-float
+criteria kept all seven only up to 66 paired players, six to about 138, five to about 198, four to
+about 498, then three, so C.15 to C.17 were silently ignored in a big open's brackets. Stage B now
+sizes each digit with `lexRadix` over the bracket's paired players (in a homogeneous bracket the
+float digits touch no one and take base 1). Measured honestly (`eval/swiss-stage-b-radix.txt`): it
+changes nothing anyone has seen. The replay's played condition is identical; the open condition moves
+one Graz board of 5,083; simulated 101 to 301-player events give the same repeat-float counts; and on
+the same histories fed to both builds (`eval/swiss-stage-b-radix-diff.mjs`), 0 of 96 rounds differ in
+any board, including 301 players with 40% draws. A latent fault, now closed.

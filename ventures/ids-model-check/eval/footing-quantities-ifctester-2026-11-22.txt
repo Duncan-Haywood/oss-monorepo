@@ -1,0 +1,2 @@
+{"file": "footing__ISSUE_102_M3D-CON-CD__fill.ifc", "opened": true, "values_checked": 469, "failed_before": 469, "pass_after": 469, "newly_failing": 0, "added_records_failing": 0, "still_failing_sample": [], "by_kind": {"quantity": [469, 469]}, "ok": true}
+{"file": "footing__ISSUE_102_M3D-CON__fill.ifc", "opened": true, "values_checked": 36, "failed_before": 36, "pass_after": 36, "newly_failing": 0, "added_records_failing": 0, "still_failing_sample": [], "by_kind": {"quantity": [36, 36]}, "ok": true}

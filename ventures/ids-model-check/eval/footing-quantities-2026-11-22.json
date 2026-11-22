@@ -1,0 +1,717 @@
+{
+ "files": {
+  "ISSUE_102_M3D-CON-CD.ifc": 82,
+  "ISSUE_102_M3D-CON.ifc": 6
+ },
+ "misses": [
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 33928,
+   "name": "EST-E2",
+   "profile": "650*5000",
+   "q": "GrossSurfaceArea",
+   "stored": 31.54,
+   "offered": 69.20039,
+   "dims": [
+    6.308,
+    5,
+    0.65
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 33988,
+   "name": "EST-E2",
+   "profile": "650*5000",
+   "q": "GrossSurfaceArea",
+   "stored": 30.45,
+   "offered": 66.66769,
+   "dims": [
+    6.09,
+    5,
+    0.65
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34038,
+   "name": "EST-E2",
+   "profile": "500*250",
+   "q": "GrossSurfaceArea",
+   "stored": 0.25,
+   "offered": 1.73611,
+   "dims": [
+    1,
+    0.5,
+    0.25
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34107,
+   "name": "EST-E2",
+   "profile": "2150*1000",
+   "q": "GrossSurfaceArea",
+   "stored": 3,
+   "offered": 19.74812,
+   "dims": [
+    3,
+    2.15,
+    1
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34151,
+   "name": "EST-E2",
+   "profile": "2150*1000",
+   "q": "GrossSurfaceArea",
+   "stored": 3,
+   "offered": 19.6774,
+   "dims": [
+    3,
+    2.15,
+    1
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34194,
+   "name": "EST-E2",
+   "profile": "400*2867",
+   "q": "GrossSurfaceArea",
+   "stored": 10.17666,
+   "offered": 16.42495,
+   "dims": [
+    3.55,
+    2.8667,
+    0.4
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34221,
+   "name": "EST-E2",
+   "profile": "400*2867",
+   "q": "GrossSurfaceArea",
+   "stored": 10.17666,
+   "offered": 16.42495,
+   "dims": [
+    3.55,
+    2.8667,
+    0.4
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34251,
+   "name": "EST-E2",
+   "profile": "500*250",
+   "q": "GrossSurfaceArea",
+   "stored": 0.2525,
+   "offered": 1.7576,
+   "dims": [
+    1.01,
+    0.5,
+    0.25
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142169,
+   "name": "DIN-P7",
+   "profile": "2000*3924",
+   "q": "GrossSurfaceArea",
+   "stored": 56.36921,
+   "offered": 116.62388,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142229,
+   "name": "DIN-P6",
+   "profile": "2000*3924",
+   "q": "GrossSurfaceArea",
+   "stored": 56.36921,
+   "offered": 116.62388,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142268,
+   "name": "DIN-P5",
+   "profile": "2000*3924",
+   "q": "GrossSurfaceArea",
+   "stored": 56.36921,
+   "offered": 116.62388,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142307,
+   "name": "DIN-P3",
+   "profile": "2000*3924",
+   "q": "GrossSurfaceArea",
+   "stored": 56.36921,
+   "offered": 116.62388,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142346,
+   "name": "DIN-P2",
+   "profile": "2000*3924",
+   "q": "GrossSurfaceArea",
+   "stored": 56.36921,
+   "offered": 116.62388,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494498,
+   "name": "EST-E1",
+   "profile": "650*5000",
+   "q": "GrossSurfaceArea",
+   "stored": 31.54,
+   "offered": 69.20039,
+   "dims": [
+    6.308,
+    5,
+    0.65
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494507,
+   "name": "EST-E1",
+   "profile": "650*5000",
+   "q": "GrossSurfaceArea",
+   "stored": 30.45,
+   "offered": 66.66769,
+   "dims": [
+    6.09,
+    5,
+    0.65
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494533,
+   "name": "EST-E1",
+   "profile": "500*250",
+   "q": "GrossSurfaceArea",
+   "stored": 0.2525,
+   "offered": 1.7576,
+   "dims": [
+    1.01,
+    0.5,
+    0.25
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494549,
+   "name": "EST-E1",
+   "profile": "2150*1000",
+   "q": "GrossSurfaceArea",
+   "stored": 3,
+   "offered": 19.6774,
+   "dims": [
+    3,
+    2.15,
+    1
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494558,
+   "name": "EST-E1",
+   "profile": "2150*1000",
+   "q": "GrossSurfaceArea",
+   "stored": 3,
+   "offered": 19.74812,
+   "dims": [
+    3,
+    2.15,
+    1
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494567,
+   "name": "EST-E1",
+   "profile": "400*2867",
+   "q": "GrossSurfaceArea",
+   "stored": 10.17666,
+   "offered": 16.42495,
+   "dims": [
+    3.55,
+    2.8667,
+    0.4
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494575,
+   "name": "EST-E1",
+   "profile": "400*2867",
+   "q": "GrossSurfaceArea",
+   "stored": 10.17666,
+   "offered": 16.42495,
+   "dims": [
+    3.55,
+    2.8667,
+    0.4
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494602,
+   "name": "EST-E1",
+   "profile": "500*250",
+   "q": "GrossSurfaceArea",
+   "stored": 0.25,
+   "offered": 1.73611,
+   "dims": [
+    1,
+    0.5,
+    0.25
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 499629,
+   "name": "DIN-P4",
+   "profile": "3800*3824",
+   "q": "GrossSurfaceArea",
+   "stored": 54.92737,
+   "offered": 179.68496,
+   "dims": [
+    14.3599,
+    3.8212,
+    3.8
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 500874,
+   "name": "DIN-P1",
+   "profile": "2000*3924",
+   "q": "GrossSurfaceArea",
+   "stored": 56.36921,
+   "offered": 116.62388,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  }
+ ],
+ "held": [
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 33928,
+   "name": "EST-E2",
+   "profile": "650*5000",
+   "q": "CrossSectionArea",
+   "stored": 0.4225,
+   "dims": [
+    6.308,
+    5,
+    0.65
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 33988,
+   "name": "EST-E2",
+   "profile": "650*5000",
+   "q": "CrossSectionArea",
+   "stored": 0.4225,
+   "dims": [
+    6.09,
+    5,
+    0.65
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34038,
+   "name": "EST-E2",
+   "profile": "500*250",
+   "q": "CrossSectionArea",
+   "stored": 0.25,
+   "dims": [
+    1,
+    0.5,
+    0.25
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34107,
+   "name": "EST-E2",
+   "profile": "2150*1000",
+   "q": "CrossSectionArea",
+   "stored": 4.6225,
+   "dims": [
+    3,
+    2.15,
+    1
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34151,
+   "name": "EST-E2",
+   "profile": "2150*1000",
+   "q": "CrossSectionArea",
+   "stored": 4.6225,
+   "dims": [
+    3,
+    2.15,
+    1
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34194,
+   "name": "EST-E2",
+   "profile": "400*2867",
+   "q": "CrossSectionArea",
+   "stored": 0.16,
+   "dims": [
+    3.55,
+    2.8667,
+    0.4
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34221,
+   "name": "EST-E2",
+   "profile": "400*2867",
+   "q": "CrossSectionArea",
+   "stored": 0.16,
+   "dims": [
+    3.55,
+    2.8667,
+    0.4
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 34251,
+   "name": "EST-E2",
+   "profile": "500*250",
+   "q": "CrossSectionArea",
+   "stored": 0.25,
+   "dims": [
+    1.01,
+    0.5,
+    0.25
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142169,
+   "name": "DIN-P7",
+   "profile": "2000*3924",
+   "q": "CrossSectionArea",
+   "stored": 4,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142229,
+   "name": "DIN-P6",
+   "profile": "2000*3924",
+   "q": "CrossSectionArea",
+   "stored": 4,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142268,
+   "name": "DIN-P5",
+   "profile": "2000*3924",
+   "q": "CrossSectionArea",
+   "stored": 4,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142307,
+   "name": "DIN-P3",
+   "profile": "2000*3924",
+   "q": "CrossSectionArea",
+   "stored": 4,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 142346,
+   "name": "DIN-P2",
+   "profile": "2000*3924",
+   "q": "CrossSectionArea",
+   "stored": 4,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494498,
+   "name": "EST-E1",
+   "profile": "650*5000",
+   "q": "CrossSectionArea",
+   "stored": 0.4225,
+   "dims": [
+    6.308,
+    5,
+    0.65
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494507,
+   "name": "EST-E1",
+   "profile": "650*5000",
+   "q": "CrossSectionArea",
+   "stored": 0.4225,
+   "dims": [
+    6.09,
+    5,
+    0.65
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494533,
+   "name": "EST-E1",
+   "profile": "500*250",
+   "q": "CrossSectionArea",
+   "stored": 0.25,
+   "dims": [
+    1.01,
+    0.5,
+    0.25
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494549,
+   "name": "EST-E1",
+   "profile": "2150*1000",
+   "q": "CrossSectionArea",
+   "stored": 4.6225,
+   "dims": [
+    3,
+    2.15,
+    1
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494558,
+   "name": "EST-E1",
+   "profile": "2150*1000",
+   "q": "CrossSectionArea",
+   "stored": 4.6225,
+   "dims": [
+    3,
+    2.15,
+    1
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494567,
+   "name": "EST-E1",
+   "profile": "400*2867",
+   "q": "CrossSectionArea",
+   "stored": 0.16,
+   "dims": [
+    3.55,
+    2.8667,
+    0.4
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494575,
+   "name": "EST-E1",
+   "profile": "400*2867",
+   "q": "CrossSectionArea",
+   "stored": 0.16,
+   "dims": [
+    3.55,
+    2.8667,
+    0.4
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 494602,
+   "name": "EST-E1",
+   "profile": "500*250",
+   "q": "CrossSectionArea",
+   "stored": 0.25,
+   "dims": [
+    1,
+    0.5,
+    0.25
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 499629,
+   "name": "DIN-P4",
+   "profile": "3800*3824",
+   "q": "CrossSectionArea",
+   "stored": 14.44,
+   "dims": [
+    14.3599,
+    3.8212,
+    3.8
+   ]
+  },
+  {
+   "file": "ISSUE_102_M3D-CON-CD.ifc",
+   "id": 500874,
+   "name": "DIN-P1",
+   "profile": "2000*3924",
+   "q": "CrossSectionArea",
+   "stored": 4,
+   "dims": [
+    14.3644,
+    3.9242,
+    2
+   ]
+  }
+ ],
+ "total": {
+  "Tekla pad Length": {
+   "stored": 65,
+   "offered": 65,
+   "within1": 65,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla pad Width": {
+   "stored": 65,
+   "offered": 65,
+   "within1": 65,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla pad Height": {
+   "stored": 65,
+   "offered": 65,
+   "within1": 65,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla pad CrossSectionArea": {
+   "stored": 65,
+   "offered": 65,
+   "within1": 65,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla pad OuterSurfaceArea": {
+   "stored": 65,
+   "offered": 65,
+   "within1": 65,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla pad GrossSurfaceArea": {
+   "stored": 65,
+   "offered": 65,
+   "within1": 65,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla other Length": {
+   "stored": 23,
+   "offered": 23,
+   "within1": 23,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla other Width": {
+   "stored": 23,
+   "offered": 23,
+   "within1": 23,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla other Height": {
+   "stored": 23,
+   "offered": 23,
+   "within1": 23,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla other CrossSectionArea": {
+   "stored": 23,
+   "offered": 0,
+   "within1": 0,
+   "misses": 0,
+   "held": 23
+  },
+  "Tekla other OuterSurfaceArea": {
+   "stored": 23,
+   "offered": 23,
+   "within1": 23,
+   "misses": 0,
+   "held": 0
+  },
+  "Tekla other GrossSurfaceArea": {
+   "stored": 23,
+   "offered": 23,
+   "within1": 0,
+   "misses": 23,
+   "held": 0
+  }
+ }
+}

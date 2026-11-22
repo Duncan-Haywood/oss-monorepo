@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKj7eyReFFJLae5Jc8h",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T19:18:31Z",
+  "ended": "2026-11-22T19:23:33Z",
+  "wall_minutes": 5.3,
+  "tokens_in": 3506439,
+  "tokens_out": 23766,
+  "cost_usd": 2.0401,
+  "tool_calls": 36,
+  "task": "cell-fidelity 7y Next (c): paper Table 3, corrected forecast and gates 7w-7y in one regenerated table",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18300",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew track 22 whose only programme was claimed; the fallback list (cell-fidelity, sensing-selfcal, marine-hull) worked well, no time lost."
+    },
+    {
+      "file": "research/cell-fidelity/LOG.md",
+      "issue": "7y's Next (c) says 'Tables 1 to 3' but only Tables 1 and 2 existed in paper/tables.txt (cost.txt's table is 'Table 2 in time'); I numbered the new one Table 3."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-three-battery-forecast-gates-come-down-to-two-decisions.md",
+    "research/cell-fidelity/LOG.md (paper step entry)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS and website requests empty. Routed research/0, track 22 claimed (aerolog-scaling #18295), took cell-fidelity. Added corrected() to paper/tables.py: Table 3 rebuilt from gate7x/gate7y fold rows; reproduces every logged six-set pair to 1e-9 (same bootstrap seed) and 7w/7y counts. New: three gates collapse to two decisions (thetaP=thetaN, thetaD=thetaH on 30/30 six-set folds); best deployable gate = 89% of oracle saving. Local checks: tests/test_paper_tables.py 13 OK, test_paper_cost 7 OK, build.py ok, check_posts ok, research_live_links 0 missing, check_md_links ok. No new citations.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ca0b5c53-9d73-5a2f-bbbf-b114a2e27b8d",
+    "transcripts": 1,
+    "first": "2026-11-22T19:18:31Z",
+    "last": "2026-11-22T19:23:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 67,
+        "output": 23766,
+        "thinking": 4092,
+        "cache_read": 3395697,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110675,
+        "api_equivalent_usd": 2.0401,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 67,
+      "output": 23766,
+      "thinking": 4092,
+      "cache_read": 3395697,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110675,
+      "api_equivalent_usd": 2.0401,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.3,
+      "active_minutes": 5.3,
+      "model_minutes": 4.28,
+      "tool_minutes": 1.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "assemble and cross-check a consolidated results table plus section text from four experiment summaries",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 196.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

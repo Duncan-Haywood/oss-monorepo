@@ -598,7 +598,6 @@ function bracketMate(ctx) {
     }
     // Stage B: hold the best colour-and-float value, fix partners in Dutch order.
     const P = new Set(paired);
-    const R = paired.length / 2 + 1;
     const B = paired.length + 1;
     const crit = (x, y) => {
       const c = clash(x, y);
@@ -617,10 +616,6 @@ function bracketMate(ctx) {
     // (unit U) outweighs all those bonuses together, and colours and floats (unit B x U) outweigh both.
     const DO = 8;
     const U = (paired.length / 2) * DO + 1;
-    let nCrit = 7;
-    while (nCrit > 1 && R ** nCrit * B * U > 2 ** 50) nCrit--;
-    const qMax = R ** nCrit;
-    const qOf = (x, y) => crit(x, y).slice(0, nCrit).reduce((s, b, k) => s + b * R ** (nCrit - 1 - k), 0);
     const fixPair = (x, y) => {
       out[vertexOf.get(x)] = vertexOf.get(y); out[vertexOf.get(y)] = vertexOf.get(x);
       P.delete(x); P.delete(y); left.delete(x); left.delete(y);
@@ -630,6 +625,13 @@ function bracketMate(ctx) {
     // that board is taken without a new matching (round 1 of a big field needs only one).
     let cur = null;
     const allowed = (x, y) => !met2(x, y) && (allowAbs || clash(x, y) !== 3);
+    // Colour-and-float digits sized per criterion (lexRadix): a criterion's digit needs only as many
+    // values as boards it can touch. One radix of paired/2 + 1 for all seven (the rule before
+    // 2026-11-22) kept all seven only to 66 paired players, five at 140, four at 200 and three
+    // from about 500, so C.15-C.17 (repeat floats) were silently ignored in a big open's brackets;
+    // in a homogeneous bracket the float digits touch no one and take base 1.
+    const { q: qOf0, qM: qMax } = lexRadix(order.filter((x) => P.has(x)), paired.length / 2, B * U, { allowed, crit });
+    const qOf = (x, y) => qOf0(crit(x, y));
     // bip: when set, only boards between bip.a (S1 after an exchange) and bip.b (S2) are allowed.
     let bip = null;
     const crossOk = (x, y) => !bip || (bip.a.has(x) && bip.b.has(y)) || (bip.a.has(y) && bip.b.has(x));
