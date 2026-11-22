@@ -21,7 +21,7 @@ wins, and most sellers meet it for the first time on an invoice.
   footprint allows it, the packed height that reaches it on the carton you
   already have. When no achievable height gets there, it says so rather than
   suggesting you pack a mug flat.
-- **Girth and surcharge banding**: additional handling, large package, and over
+- **Length-plus-girth and surcharge banding**: additional handling, large package, and over
   the carrier maximum, from dimensions alone. No dollar figures — those are rate
   card terms that would go stale here.
 - **Carrier dimension rounding**, applied before the multiplication rather than

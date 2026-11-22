@@ -80,3 +80,42 @@ test("tax is rounded down, and the marginal rate is a percentage", () => {
   assert.equal(compute({ price: 300000, buyer: "main", nonResident: "no" }).marginal, 5);
   assert.equal(compute({ price: 1000000, buyer: "main", nonResident: "no" }).marginal, 10);
 });
+
+// Red team 2026-11-22: guards for mutants that escaped the suite above.
+test("band rows stop exactly at each band edge", () => {
+  const r = compute({ price: 1000000, buyer: "main", nonResident: "no" });
+  assert.deepEqual(r.rows.map((x) => [x.from, x.to]), [[0, 125000], [125000, 250000], [250000, 925000], [925000, 1000000]]);
+  assert.equal(sdlt(925019.5, "main", false).tax, 36251); // 36,251.95 down: an overlapping pound at 5% would tip it to 36,252
+});
+
+test("small positive amounts in the summary never carry a minus sign", () => {
+  const t = summaryText(compute({ price: 125010, buyer: "main", nonResident: "no" }));
+  assert.ok(t.includes("GBP 125,000 to GBP 125,010 at 2%: GBP 0.20"), t);
+  assert.ok(!t.includes("-GBP"), t);
+});
+
+test("nonResident accepts true, 'yes' and 'true', and nothing else", () => {
+  for (const v of [true, "yes", "true"]) assert.equal(parse({ price: 1, buyer: "main", nonResident: v }).nonResident, true, String(v));
+  for (const v of [false, "no", "false", undefined, ""]) assert.equal(parse({ price: 1, buyer: "main", nonResident: v }).nonResident, false, String(v));
+});
+
+test("first-time buyer saving shows from the first pound above 300,000", () => {
+  const saves = (price) => compute({ price, buyer: "ftb", nonResident: "no" }).findings.some((f) => f.title.startsWith("First-time buyer relief saves you"));
+  assert.equal(saves(300000), false);
+  assert.equal(saves(300001), true);
+});
+
+test("summary lists the first-time buyer price only when relief is possible", () => {
+  assert.match(summaryText(compute({ price: 400000, buyer: "main", nonResident: "no" })), /Same price as a first-time buyer: GBP 5,000/);
+  assert.doesNotMatch(summaryText(compute({ price: 600000, buyer: "main", nonResident: "no" })), /Same price as a first-time buyer/);
+});
+
+// Real defect 2026-11-22: the non-resident finding quoted 2% of the price in pence (GBP 5,001.98 at 250,099) while the bill, rounded down to whole pounds, rose by GBP 5,002.
+test("non-resident surcharge finding quotes the same whole-pound difference as the bill", () => {
+  for (const buyer of ["main", "ftb", "additional"]) for (const price of [250099, 300000.5, 39999, 450000, 600000]) {
+    const yes = compute({ price, buyer, nonResident: "yes" });
+    const no = compute({ price, buyer, nonResident: "no" });
+    const f = yes.findings.find((x) => x.title.startsWith("The 2% non-UK resident surcharge adds"));
+    assert.ok(f.title.includes(`adds GBP ${(yes.tax - no.tax).toLocaleString("en-GB")} to the bill`), `${buyer} ${price}: ${f.title}`);
+  }
+});
