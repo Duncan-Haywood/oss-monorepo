@@ -176,3 +176,15 @@ what it does and does not show are in the venture README, "Scanned statements
 and photos". A first run had a generator bug (overdrawn balances drawn without
 the minus), which made one UK statement unreadable; fixed before the committed
 run.
+
+## Round 4: the Excel workbook's formulas (2026-11-22)
+
+`xlsx-check.mjs <out> [pdf folders]` writes each statement's workbook without
+cached formula values, has LibreOffice (`soffice`, 7.2 or newer) recalculate
+and export every sheet to CSV, and compares every cell with the values this
+tool computed. Run on the three examples, a joined two-month run, the five
+benchmark PDFs and the two transtractor fixtures: 11 workbooks, 3,280 cells,
+830 formulas, 0 differ (`xlsx-check-2026-11-22.txt`). Run soffice with a
+UTF-8 locale (the script sets one): without it, sheets whose names hold a
+non-ASCII character (the Hong Kong account titles' em dash) were reported as
+written but never appeared on disk.

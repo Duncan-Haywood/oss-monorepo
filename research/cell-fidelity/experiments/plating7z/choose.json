@@ -1,0 +1,27 @@
+{
+ "results": {
+  "Marquis2019@2x*3": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.004696174829418836
+  },
+  "Marquis2019@2x*10": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.015132994693836409
+  },
+  "Marquis2019@2x*30": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.04162774884565469
+  },
+  "Marquis2019@2x*100": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.10739409829866103
+  }
+ },
+ "kept": {
+  "Marquis2019@2x": 30.0
+ }
+}

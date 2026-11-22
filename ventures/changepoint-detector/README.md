@@ -9636,3 +9636,41 @@ with momentum this model does not fit either; three of them are among the losses
 mean gain is +0.063 with 10 wins and 4 losses. That routing rule (trend walk when the drift sigma floors and the
 trend sigma does not) was chosen on these series and needs fresh labelled series to test; it is the next item, with
 a smaller S2 cell (power at fast slope turns is the model's known weak spot).
+
+## The trend-walk route on fresh series: NBER turning points (2026-11-22, pre-registered; N1, N2 and N3 fail, nothing ships)
+
+Open item from "Jumps on a smooth trend": the routing rule read after that run (use the trend walk when the drift
+model's sigma floors and the trend walk's does not) was chosen on TCPD's floored series and needed fresh labelled
+series. Outside TCPD the repository had no labelled series the rule reaches: the documented-event series probed first
+(strucchange's GermanM1 with the 1990 monetary union, BostonHomicide with Operation Ceasefire, Grossarl's regimes,
+TSA's airmiles with September 2001, Seatbelts' front and van series) all keep their drift sigma off the floor, so the
+rule would not route one of them. The series it does route are smooth US aggregates, and those have an outside,
+dated label set: the NBER business-cycle peaks and troughs.
+
+Rules, series and labels are in the header of `eval/trend-walk-nber.mjs`, committed before the script first ran (the
+only thing looked at beforehand was the two pre-fit flags). Seven series chosen a priori as activity measures NBER
+dates: macrodata's real GDP, consumption, investment, disposable income and unemployment rate (1959Q1-2009Q3, new
+`data/us-macro-quarterly.csv`), R's quarterly real GDP 1950-2000 and FRED's median unemployment duration (monthly
+1967-2015). All seven are routed by the rule. Labels: each recession's peak (the month before its first month) and
+trough, from `data/nber-recessions.csv` (R package tis, `nberDates()`), TCPD's F1 with margin 5. Output:
+`eval/trend-walk-nber.out.txt`; test `trend-walk-nber.test.mjs` (0.2 s).
+
+- **N1, the route gains at least +0.03 F1: fails, the wrong way.** Mean F1 0.329 for the shipped drift model,
+  0.222 routed (-0.107).
+- **N2, more wins than losses: fails**, 2 wins (consumption +0.140, R's GDP +0.028, the latter with no cuts from
+  either worth counting), 5 losses (unemployment rate -0.340, investment -0.269, disposable income -0.267, macrodata
+  GDP -0.029, unemployment duration -0.013).
+- **N3, pooled recall at least the shipped model's: fails**, 16 of 110 turning points within 5 of a routed cut,
+  29 of 110 for the shipped model.
+
+Read after the run (post hoc, not a result): the trend walk chooses a slope wander of 0.44 to 0.84 noise variances
+(qz) on these series, so the slope turns freely and a recession is absorbed as a slope move rather than cut; it makes
+1 or 2 cuts on each quarterly series. That is the weak spot the simulation's S2 cell found (power 38% when the slope
+turns fast). The shipped model's cuts land on the sharp moves, unemployment's 1975, 1980-82 and 2008-09 rises above
+all. Neither model is built for turning points, and both make cuts no recession explains (GDP's late-1990s run-up),
+so these labels score the two models on the changes these series are known to have, not on jumps alone.
+
+By the rule written beforehand nothing changes: `--model drift` stays the default for drifting series and
+`trendWalkChanges` stays an export. The routing rule is retired: it was a post hoc reading on 17 TCPD series and
+loses on the first fresh set it reaches. Next for the drift model: if the trend walk is tried again, cap its slope
+wander (a stiff slope, qz well under 0.1, chosen in simulation before any real series) so a turn costs a cut.
