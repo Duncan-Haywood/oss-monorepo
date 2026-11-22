@@ -1,0 +1,265 @@
+{
+ "date": "2026-11-22",
+ "subject": "research/society-lanes",
+ "stratum": "research",
+ "seed": "2026-11-22-c-1f0f",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality round 92",
+ "status": "audited",
+ "professional": "a pedestrian-dynamics researcher who calibrates crowd models on the Juelich (FZJ) corridor experiments, with a social-robot-navigation reviewer beside them; first checks: is 'own right' really right (frame handedness, both in the lab files and the ETH/UCY homographies), do the per-run shares and lane orders recompute from the trajectories, are the model implementations (ORCA, power law, social-force parameters) faithful to the papers, is the twin calibrated on the fundamental diagram rather than on one speed, and are cross-model agreements independent",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Seven recomputations against sources the author did not write, all in /tmp/claude-0/q92-sl/scripts/, all pass. (1) Milestone 7 passing side: my own numpy pairwise implementation (closest approach over shared frames, ETH obsmat columns per the dataset README) on the OpenTraj files at the pinned commit gives ETH 269/182/0, Hotel 204/68/0, Zara01 133/59/0, Zara02 201/98/0, Zurich 473/723 = 0.654, Nicosia 334/491 = 0.680, identical to m7_wild_sides_results.txt; re-running the shipped script in a scratch copy reproduces the results file byte for byte (diff empty, 23 s). (2) The handedness behind 'Nicosia kept right' (if the image order were (col,row) the Zara share would flip to 0.32, keep-left): back-projecting every track point with H^-1, the (row,col) order the code assumes keeps 100%/100%/99.8% of Hotel/Zara01/Zara02 points inside the 576x720 image against 83%/83%/87% for (col,row), and on ETH's obstacle map.png puts 0.0% of points on obstacle pixels against 1.4% (map obstacle share 1.8%); Zara02's H.txt projects 99.6% of points off-image, confirming the README's H-old.txt choice. (3) HERMES milestone 1, independent numpy on OpenTraj's copy of the FZJ trajectories: bo-360-090-090 214 walkers, share right 1.000, lane order 0.9963, median speed 1.252 m/s; bot-360-120-120 (OpenTraj's file = the 'v2' row) 221, 0.543, 0.6807, 0.907: identical to m1_hermes_sides_runs.csv. Pooled free 1016/1084 = 0.9373 from the per-run CSV. (4) ORCA: brute-force truncated velocity obstacle from van den Berg et al. 2011's definition (min over t in [0, tau] of |w t - p| < R, nearest exit point by bisection on 72,000 directions), expected v_i' = v_i + u/2, matches orca.orca_velocities within 2.6e-7 to 6.9e-6 on three pairs. (5) Power law: my own energy E = k/tau^2 exp(-tau/tau0) with tau solved from |x + v tau| = R (Karamouzas et al. 2014), central finite-difference gradient, against plaw.forces on 18 interacting random pairs: max relative error 5.4e-9. (6) JuPedSim 1.4.2 SocialForceModel defaults read from the installed package (agent_scale 2000, force_distance 0.08, body_force 120000, friction 240000, reaction 0.5, mass 80) equal Helbing, Farkas and Vicsek 2000's published values as the README states. (7) Re-ran the 20 scoring seeds of one milestone 3 cell (bo-360-050-050, N 30, beta 0.1): share 0.9512 sd 0.1063, lane 0.9413, speed 1.287, density 0.432, identical to m3_sf_twin_runs.csv row 2. Not recomputed: the FZJ archive itself (proxy 403), so 22 of 24 HERMES runs and all of BaSiGo milestone 2, and the long simulation milestones 4 to 6 beyond one cell. Capped at 3 for that coverage, not for any wrong number.",
+  "completeness": "Every milestone the README lists (1, 2, 3, 4a-d, 5a-b, 6a-i, 7) has its script, results text, runs CSV and figure on disk: all 101 experiments/ paths named in README.md and LOG.md exist. m3_figure.py and m6a_figure.py in a scratch copy reproduce their SVGs byte for byte; m7 reproduces its results file. The programme's open items (SARL proper, real HERMES geometry, the yield rule on new data, a two-parameter recalibration) are listed under Next steps, not claimed. The FZJ-dependent milestones could not be rerun here (proxy 403), and the live page could not be loaded (proxy 403).",
+  "verification": "`/usr/bin/python3.13 -m pytest -q tests` with jupedsim 1.4.2, numba and numpy installed: 96 passed in 11.9 s (without them, 88 passed and 8 skipped in 7.3 s). Eight mutants with platform/ci/quality_mutate.py: 5 caught (power-law force sign, yield-rule threshold, oncoming-lateral-gap filter, the homography handedness test, the lanes right_offset sign), 3 survived: the lane-order formula squared -> absolute value (lanes.py:78, the statistic behind every lane claim; tests check only the 0 and 1 extremes), the encounter 'strictly inside the shared window' condition (encounters.py:111), and ORCA's already-colliding branch using tau instead of dt (orca.py:206). No test checks any experiment script's output against its committed results file, so the headline numbers are guarded only by re-running the scripts.",
+  "craft": "Read lanes.py, encounters.py, plaw.py (forces, contact), orca.py (_agent_line, orca_velocities), sftwin.py (bias_weight, steer_targets, simulate signature), m1/m3/m7 experiment scripts and the main tests. Stdlib-only measurement modules, clear docstrings stating frames and sources, every constant traced to a paper or UMANS file, deterministic seeds, data pinned by commit and sha256. Weaknesses: experiment scripts are large top-level programmes with report formatting interleaved with analysis; two right_offset functions with different frame conventions (lanes.py:54, sftwin.py:126); figure scripts depend on research/_shared via path so they fail when the project is copied alone (m6g_figure.py: No module named 'linefig').",
+  "claims": "Checked against files: milestone 1 headline 93.7% (1,016 of 1,084; [0.865, 0.993]), lane order 0.91 to 1.00, null 0.25 to 0.52 (m1_hermes_sides_results.txt); BaSiGo 2,001 of 2,165 = 0.924 and 1,212 of 1,218 = 0.995 (m2 results lines 24, 29); street 65%/68% and the HERMES method check 0.935/0.526 (m7, recomputed); twin beta = 0.1 loss 43 and held-out 0.78 vs 0.54 (m3 results; pooled sim recomputes to 0.778 unweighted vs 0.781 reported, observed 1038/1917 = 0.541); milestone 6a tau 1.00 [1.00, 1.00] in the 9 close-pass cells (m6a_h5_results.txt lines 89-99). Limitations are candid (frame assumption, assumed geometry, post-hoc yield rule, order not randomised). Not backed or stale: README.md:317 'No robots yet. Robots enter at milestone 5' after eleven robot milestones; README.md:313 gives the social-force twin's dense-run speed miss as 0.19 to 0.41 m/s, which is the beta = 0 calibration, while at the fitted beta it was scored at 1.10 to 1.24 m/s against 0.28 to 0.33 (m3_sf_twin_results.txt free-run rows; disclosed for the power law in the next bullet, not for social force); 'a passing policy picked to minimise close passes carries over between simulators' (README.md:25) does not say the three families share the same steering stage and robot code.",
+  "fitness": "Job: a pedestrian-dynamics or social-navigation researcher wants to build on the measurement (keep-right share and its collapse under lateral goals, in two lab experiments and four street scenes) and on the five-family twin comparison. They get pinned public data, stdlib measurement code that recomputes exactly, five model families with faithful implementations (ORCA and power law verified against their definitions here), registered predictions per milestone, and honest negative results (H3 refuted in all families, the twins' density pricing wrong until 6h). Nearest prior work: Zhang et al. 2012 (the HERMES lanes, no per-walker side share), Kretz et al. 2006 and Moussaid et al. 2009 (side preference in avoidance), Feliciani and Nishinari 2016 (lane order), Helbing and Molnar 1995 (asymmetric social force for a side preference), and on the robot side Chen et al. 2019 and Mavrogiannis et al. 2023. Not cited: the human-robot passing-convention literature (Pacchierotti, Christensen and Jensfelt 2006 on passing distance and side; Kirby, Simmons and Forlizzi 2009, COMPANION, robots passing on the right as a social rule), which is the closest prior work for the robot half. New and sound as far as I can tell: the per-walker side share and its collapse under assigned exits in HERMES and BaSiGo, the street-scene keep-right comparison, and the finding that five crowd families fitted on free-choice runs all over-trust the convention on held-out assigned-exit runs. The robot results are simulation-only, from twins whose calibration the project itself later found wrong (6g, 6h), and the cross-family agreement shares one steering layer, so they are leads for a paper, not results.",
+  "domain": "Against pedestrian-dynamics practice (calibrate on the fundamental diagram and on the real geometry; validate speed-density before behaviour), milestones 3 to 6f depart: walker count was calibrated to one median speed at beta = 0 and then used at the fitted beta, where the dense crowds walked 4 times too fast; the HERMES corridor length and entrance geometry are assumed. The project found and documented this itself (6g: twins reach the real speed at about half the real density; 6h recalibrates two of four families on the transit-density curve), which is what a careful researcher does, but the robot milestones 5 and 6a-6f predate the fix. The measurement side meets practice: per-walker classification, permutation null for lane order, two-stage cluster bootstrap over runs, block bootstrap over time for street scenes, sensitivity to thresholds. A senior reviewer would sign off on milestones 1, 2 and 7 as a short paper and on the five-family over-trust result with the calibration caveat."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Milestone 7 passing-side counts per scene and pooled shares",
+   "method": "own numpy re-implementation of the encounter definition on OpenTraj files at the pinned commit (ETH obsmat columns per the dataset README)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/q92-sl/scripts/enc.py",
+   "expected": "ETH 269/182, Hotel 204/68, Zara01 133/59, Zara02 201/98; Zurich 0.654, Nicosia 0.680 (m7_wild_sides_results.txt)",
+   "observed": "ETH 269/182/0, Hotel 204/68/0, Zara01 133/59/0, Zara02 201/98/0; Zurich 473/723 0.654, Nicosia 334/491 0.680",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Image-coordinate order of the ETH/UCY homographies (decides whether Nicosia kept right or left)",
+   "method": "back-project all track points with H^-1 under (row,col) and (col,row); share inside the image; ETH obstacle map.png hit rate",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/q92-sl/scripts/hand.py; /usr/bin/python3.13 /tmp/claude-0/q92-sl/scripts/ethmap.py",
+   "expected": "(row,col) order, as encounters.world_handedness assumes; Zara02 H-old.txt, not H.txt",
+   "observed": "(row,col): 100/100/99.8% inside for Hotel/Zara01/Zara02 vs 83/83/87% for (col,row); ETH obstacle hits 0.0% vs 1.4%; Zara02 H.txt puts 99.6% off-image",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "HERMES per-run share on own right, lane order and median speed",
+   "method": "own numpy implementation on OpenTraj's copy of the FZJ trajectories (z up, right-handed frame)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/q92-sl/scripts/hermes.py HERMES_Corridor-2D_bo-360-090-090.txt 3.6 (and bot-360-120-120)",
+   "expected": "bo-360-090-090: 214, 1.000, 0.9963, 1.252; bot-360-120-120v2: 221, 0.543, 0.6807, 0.907 (m1_hermes_sides_runs.csv)",
+   "observed": "214, 1.000, 0.9963, 1.252; 221, 0.543, 0.6807, 0.907",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ORCA half-plane velocity for a two-agent encounter",
+   "method": "brute-force truncated velocity obstacle from van den Berg et al. 2011's definition, v_i' = v_i + u/2",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/q92-sl/scripts/orca2.py",
+   "expected": "e.g. pair at (3, 0.1), v = +-1.3: v_i' = (1.27905, -0.16368)",
+   "observed": "orca.py (1.27905, -0.16368); max |diff| over 3 pairs 6.9e-6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Power-law interaction force",
+   "method": "own energy from Karamouzas, Skinner and Guy 2014 (tau from |x + v tau| = R), central finite-difference gradient",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/q92-sl/scripts/models.py",
+   "expected": "plaw.forces = -grad E",
+   "observed": "max relative error 5.4e-9 over 18 interacting random pairs",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Social-force parameters",
+   "method": "Helbing, Farkas and Vicsek 2000 (Nature 407:487) published values vs the installed JuPedSim 1.4.2 defaults",
+   "command": "/usr/bin/python3.13 -c 'import jupedsim, inspect; print(inspect.signature(jupedsim.SocialForceModelAgentParameters))'",
+   "expected": "A 2000 N, B 0.08 m, k 1.2e5, kappa 2.4e5, tau 0.5 s, m 80 kg",
+   "observed": "agent_scale 2000, force_distance 0.08, body_force 120000, friction 240000, reaction_time 0.5, mass 80",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "One milestone 3 twin cell re-simulated",
+   "method": "re-run sftwin.simulate for the 20 scoring seeds",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/q92-sl/scripts/sfrep.py",
+   "expected": "share 0.9512 sd 0.1063, lane 0.9413, speed 1.287, density 0.432 (m3_sf_twin_runs.csv row 2)",
+   "observed": "0.9512, 0.1063, 0.9413, 1.287, 0.432 (4.9 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "m7 script reproduces its committed results",
+   "method": "run in a scratch copy with a scratch cache, diff",
+   "command": "SOCIETY_LANES_CACHE=/tmp/claude-0/q92-sl/cache python3 experiments/m7_wild_sides.py; diff",
+   "expected": "no diff",
+   "observed": "no diff, 23 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Figures reproduce and every named file exists",
+   "method": "m3_figure, m6a_figure, m6g_figure in a scratch copy, cmp; check all experiments/ paths named in README and LOG",
+   "command": "python3 experiments/m3_figure.py && cmp ...",
+   "expected": "identical SVGs; no missing paths",
+   "observed": "m3, m6a SVGs identical; m6g_figure fails outside the repo (imports research/_shared linefig); 0 of 101 paths missing",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run with and without the optional simulators",
+   "command": "/usr/bin/python3.13 -m pytest -q tests",
+   "expected": "all pass",
+   "observed": "96 passed in 11.9 s (88 passed, 8 skipped without jupedsim/numba)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutants in core logic",
+   "method": "platform/ci/quality_mutate.py, 8 mutants",
+   "command": "python3 platform/ci/quality_mutate.py <file> --old ... --new ... -- /usr/bin/python3.13 -m pytest -q -x tests",
+   "expected": "all caught",
+   "observed": "5 of 8 caught; lane-order formula, encounter window and ORCA colliding branch survive",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline numbers in README match results files",
+   "method": "read m1, m2, m3, m6a results text against README paragraphs",
+   "command": "grep -n 'Pooled' experiments/m2_basigo_sides_results.txt; sed -n 87,99p experiments/m6a_h5_results.txt",
+   "expected": "0.937 [0.865, 0.993]; 2001/2165 0.924; 1212/1218 0.995; loss 43 at beta 0.1; tau 1.00 [1.00, 1.00]",
+   "observed": "all as stated",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Social-force twin speed miss in dense runs",
+   "method": "README.md:313 against m3_sf_twin_results.txt",
+   "command": "sed -n 8,40p experiments/m3_sf_twin_results.txt",
+   "expected": "miss stated for the setting that was scored",
+   "observed": "README gives the beta = 0 calibration miss (0.19 to 0.41 m/s); at the fitted beta the BaSiGo free runs ran at 1.10 to 1.24 m/s against 0.28 to 0.33",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Limitations section current",
+   "method": "read README.md:306-317",
+   "command": "sed -n 317p README.md",
+   "expected": "no stale statements",
+   "observed": "'No robots yet. Robots enter at milestone 5' after milestones 5a to 6i",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Citations are real and say what they are cited for",
+   "method": "cite_check.json identifiers against known bibliographic records",
+   "command": "cat cite_check.json",
+   "expected": "titles and claims match",
+   "observed": "Zhang et al. 2012 P02002 (HERMES ordering, stable separated vs dynamic multi-lanes), Karamouzas et al. 2014 PRL 113:238701 (k 1.5, tau0 3 s), Helbing et al. 2000 Nature 35035023, van den Berg et al. 2011 STAR 70, Xu et al. 2021 TR-C 103464, Pellegrini et al. 2009 ICCV and Lerner et al. 2007 (ETH, UCY) all correct",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited for the robot half",
+   "method": "literature: Pacchierotti et al. 2006 (RO-MAN, passing distance and side); Kirby et al. 2009 COMPANION (passing on the right)",
+   "command": "grep -n -i 'kirby\\|pacchierotti' README.md PROPOSAL.md",
+   "expected": "cited and positioned",
+   "observed": "no match",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "encounters.py:111",
+   "change": "if not (first[key] < t < last[key]): -> if not (first[key] <= t <= last[key]):",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "lanes.py:78",
+   "change": "num += n * ((p - m) / n) ** 2 -> num += n * abs((p - m) / n)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "plaw.py:102",
+   "change": "(2.0 / tau + 1.0 / tau0) / (aa * tau * tau) -> (2.0 / tau - 1.0 / tau0) / (aa * tau * tau)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "orca.py:206",
+   "change": "ux, uy = ux_ * (R / dt - wl), uy_ * (R / dt - wl) -> ux, uy = ux_ * (R / tau - wl), uy_ * (R / tau - wl)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "sftwin.py:93",
+   "change": "return np.where(has_goal & (r < 0), 0.0, w) -> return np.where(has_goal & (r < -0.5), 0.0, w)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "sftwin.py:118",
+   "change": "oncoming = (opp & (dx > 0) & (dx <= LOOK_AHEAD) & (dy < LATERAL_GAP)).any(axis=1) -> oncoming = (opp & (dx > 0) & (dx <= LOOK_AHEAD)).any(axis=1)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "encounters.py:44",
+   "change": "return 1 if det < 0 else -1 -> return 1 if det > 0 else -1",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "lanes.py:57",
+   "change": "return (x - half) / half if direction > 0 else (half - x) / half -> return (half - x) / half if direction > 0 else (x - half) / half",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Core statistics are under-tested: replacing the squared lane-order term with an absolute value (the statistic behind every lane claim), relaxing the encounter 'strictly inside the shared window' rule, and changing ORCA's already-colliding branch from dt to tau all leave the 96 tests green; lane_order_frame is tested only at the 0 and 1 extremes, and no test compares any experiment script's output with its committed results file.",
+   "where": "research/society-lanes/lanes.py:78",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Milestone 3 calibrates walker count to median speed at beta = 0 and then scores and fits at beta = 0.1, where lanes let the crowd walk near free speed: the BaSiGo free runs were scored at 1.10 to 1.24 m/s against 0.28 to 0.33 observed. The README's limitation gives only the beta = 0 miss (0.19 to 0.41 m/s). The robot milestones 5a to 6f use these crowds; 6g and 6h later found and partly fixed the calibration.",
+   "where": "research/society-lanes/experiments/m3_sf_twin.py:172",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "The claim that a close-pass policy ranking 'carries over between simulators' rests on three families that share one steering stage (sftwin.steer_targets, side bias and robot lane lines) and differ only in the operational layer; with four policies whose close-pass order is close to forced by geometry (opposite-side robots meet people head-on), tau = 1.00 is weak evidence of transfer, and the shared layer is not named as a limit.",
+   "where": "research/society-lanes/README.md:25",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18193"
+  },
+  {
+   "severity": "low",
+   "what": "The human-robot passing-convention literature, the nearest prior work for the robot half (Pacchierotti, Christensen and Jensfelt 2006; Kirby, Simmons and Forlizzi 2009, COMPANION, passing on the right), is not cited; the proposal says robot-navigation work only scores the robot's own success.",
+   "where": "research/society-lanes/PROPOSAL.md:16",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Limitations still say 'No robots yet. Robots enter at milestone 5' after milestones 5a to 6i shipped robot results; and README.md:313 reports the beta = 0 speed miss rather than the scored one.",
+   "where": "research/society-lanes/README.md:317",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18193"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18193"],
+ "verdict": "A substantial, honest research programme whose numbers recompute: my own implementations reproduce milestone 7's passing-side counts exactly, two HERMES runs' share, lane order and speed exactly, ORCA against a brute-force velocity obstacle to 1e-6, the power-law force against a finite-difference gradient to 1e-8, and a milestone 3 twin cell exactly; the ETH/UCY homography handedness that decides whether Nicosia kept right is independently confirmed by projecting tracks back into the image and onto ETH's obstacle map. Registered predictions, negative results and limitations are reported candidly. It does not meet the bar on verification (2): 3 of 8 seeded mutants survive, including the lane-order formula, and no test pins any headline. As research, milestones 1, 2 and 7 and the five-family over-trust finding are publishable-grade with stated limits; the robot results rest on twins calibrated at beta = 0 (dense crowds 4 times too fast at the scored setting), share one steering layer, and miss the human-robot passing-convention literature, so they are leads rather than findings."
+}
