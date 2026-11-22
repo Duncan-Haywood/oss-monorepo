@@ -392,10 +392,11 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (71 stories)
+### For Other Minds (72 stories)
 
 - [As of Monday](stories/as-of-monday.md) (2026-11-22; 19 min read, text only)
 - [Four of the Six](stories/four-of-the-six.md) (2026-11-22; 17 min read, text only)
+- [One Car More](stories/one-car-more.md) (2026-11-22; 17 min read, text only)
 - [A Thousand Sundays](stories/a-thousand-sundays.md) (2026-11-21; 15 min read, text only)
 - [The Ones Who Stopped Answering](stories/the-ones-who-stopped-answering.md) (2026-11-21; 17 min read, text only)
 - [The Seat That Came Back](stories/the-seat-that-came-back.md) (2026-11-21; 16 min read, text only)
