@@ -2,7 +2,8 @@
 
 Run: python3 paper/airspace_figures.py   (stdlib only)
 Writes paper/figures/figA1_band_count.svg (median losses of separation against band count, 11ai post hoc)
-and paper/figures/figA2_error_ladder.svg (the sourced per-drone error terms of 11ak to 11an, as bars).
+paper/figures/figA2_error_ladder.svg (the sourced per-drone error terms of 11ak to 11an, as bars) and
+paper/figures/figA3_rule_costs.svg (Table A1's cheap planners against the aware search, 16 operators, 11aw and 11ay).
 """
 import pathlib, re, sys
 
@@ -36,6 +37,32 @@ def grab(fname, pattern):
     return float(m.group(1))
 
 
+RULES = [("blind plan (no offsets)", "exact_rules_results.txt", "blind"),
+         ("band sort of the blind plan", "exact_rules_results.txt", "sort"),
+         ("greedy insertion", "exact_rules_results.txt", "goff"),
+         ("band sort + one descent", "exact_rules_results.txt", "sdesc"),
+         ("greedy insertion + one descent", "exact_rules_results.txt", "gdesc"),
+         ("1 random start per spacing", "exact_rules_results.txt", "rand_1"),
+         ("leak budget, 1 spacing x 50 starts", "budget_cv_results.txt", "B(LOLO)"),
+         ("leak budget, 3 spacings x 50 starts", "budget_cv_results.txt", "N(LOLO)"),
+         ("10 random starts per spacing", "exact_rules_results.txt", "rand_10"),
+         ("50 random starts per spacing", "exact_rules_results.txt", "rand_50")]
+
+
+def rule_median(fname, key, m, s):
+    """Median ratio to the aware plan for one rule and cell, from the block of exact_rules or budget_cv."""
+    text = (EXP / fname).read_text()
+    if fname.startswith("exact_rules"):
+        block = text.split(f"## M = {m} ")[1].split("## M =")[0]
+        block = block.split(f"  s = {s} (")[1].split("  s = ")[0]
+    else:
+        block = text.split(f"## M = {m}, s = {s}.0 ")[1].split("## M =")[0]
+    m_ = re.search(r"^\s*" + re.escape(key) + r"\s+(?:median\s+)?([\d.]+)", block, re.M)
+    if not m_:
+        raise SystemExit(f"{key} not found for M = {m}, s = {s} in {fname}")
+    return float(m_.group(1))
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     series = [s for s in band_curves(12)] + [s for s in band_curves(16) if "sigma 1 m" in s[0]]
@@ -60,6 +87,11 @@ def main():
     write_bars(OUT, "figA2_error_ladder.svg", "Sourced altitude-error terms (sd or RMS, m)",
                "Each sourced vertical error term of milestones 11ak to 11an, in metres", "metres",
                cats, [("sd / RMS (m)", vals)], ref=1.0, fmt="{:.2f}")
+    series = [(f"16 operators, s = {s}", [round(100 * (rule_median(f, k, 16, s) - 1), 2) for _, f, k in RULES]) for s in (1, 2)]
+    write_bars(OUT, "figA3_rule_costs.svg", "Cheap planners against the offset-aware search (16 operators)",
+               "Median extra cost of each cheap planning rule over the offset-aware search, in per cent, at the "
+               "measured speed offset (s = 1) and twice it (s = 2)", "median extra cost over the aware search, % (96 layout-draws)",
+               [r[0] for r in RULES], series, fmt="{:.2f}")
 
 
 if __name__ == "__main__":
