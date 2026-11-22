@@ -90,7 +90,10 @@ calendar or absorbed by an expected finish the tool names;
 `eval/tia-check-2026-11-20.md`). Where the event can go more than one way, branch
 groups with probabilities in the fragnet give the expected delay, P50 and P80
 over every outcome, each scheduled exactly (2026-11-22, "Probabilistic
-branches in the time impact analysis" below).
+branches in the time impact analysis" below). On an update where every activity is
+already finished (added work after the scope is done), the delay is measured
+from the last actual finish, else the data date, and a note says so
+(2026-11-22; it used to read "no change").
 
 **Microsoft Project files too** (2026-11-19, `mspdi.mjs`): open a schedule
 saved from Microsoft Project as XML (File, Save As, XML Format; also written
