@@ -1,0 +1,7 @@
+40 simulated sites with the two faults, 40 without; 242 days each; every column watched as name:poisson.
+
+column        heard   false dates (faulted sites)   null sites with any false date (false dates)
+visitors      40/40      0                           0/40 (0)
+visits        40/40      0                           0/40 (0)
+pageviews     40/40      0                           0/40 (0)
+goal_signup   38/40      4                           2/40 (3)

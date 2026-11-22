@@ -15,11 +15,11 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
-printf '# Stripe, Shopify, Search Console and Analytics metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\n' > "$DEST/.gitignore"
+printf '# Stripe, Shopify, Search Console, Analytics and Plausible metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\n' > "$DEST/.gitignore"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch
 
@@ -85,6 +85,13 @@ JSON key and add its email as a Viewer of the property (Admin > Property access 
 secret `GA4_SERVICE_ACCOUNT_JSON` and the numeric property ID as the variable `GA4_PROPERTY`. With no other source
 set, each run fetches `data/ga4.csv` (`node ga4-metrics.mjs --help`) and watches sessions, users and key events.
 `data/ga4.csv` is cached, never committed.
+
+Plausible Analytics: make a Stats API key (Account settings > API keys) and add it as the secret
+`PLAUSIBLE_API_KEY`, and your site's domain as the variable `PLAUSIBLE_SITE`. To hear when a sign-up or purchase
+stops arriving, set the variable `PLAUSIBLE_OPTIONS` to `--goal Signup` (repeat `--goal` for up to five goals, named
+as in Site settings > Goals). For a self-hosted Plausible add the variable `PLAUSIBLE_URL` (its https address). With
+no other source set, each run fetches `data/plausible.csv` (`node plausible-metrics.mjs --help`) and watches
+visitors, page views and each goal. `data/plausible.csv` is cached, never committed.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood

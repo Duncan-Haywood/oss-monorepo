@@ -35,13 +35,13 @@ function deployerRepo(values, history) {
   const addRow = (i) => { git(dev, 'pull', '-q', '--rebase'); appendFileSync(join(dev, 'data/metric.csv'), row(i, values[i])); git(dev, 'commit', '-qam', `data ${day(i)}`); git(dev, 'push', '-q'); };
   return { dev, remote, workflow: join(dev, '.github/workflows/watch-metric.yml'), addRow };
 }
-// Step positions in a run's results: checkout, setup-node, cache, Stripe, Shopify, Search Console and Google Analytics fetches, check, save.
-const CHECK = 7, SAVE = 8;
+// Step positions in a run's results: checkout, setup-node, cache, Stripe, Shopify, Search Console, Google Analytics and Plausible fetches, check, save.
+const CHECK = 8, SAVE = 9;
 const stateOnRemote = (r) => { git(r.dev, 'pull', '-q', '--rebase'); return JSON.parse(readFileSync(join(r.dev, 'watch-state.json'), 'utf8')); };
 
 test('the workflow file has the steps the runner emulation expects', () => {
   const steps = parseSteps(readFileSync(new URL('./deploy/watch-metric.yml', import.meta.url), 'utf8'));
-  assert.deepEqual(steps.map((s) => s.uses || s.name), ['actions/checkout@v4', 'actions/setup-node@v4', 'actions/cache@v4', 'Fetch Stripe metrics', 'Fetch Shopify metrics', 'Fetch Search Console metrics', 'Fetch Google Analytics metrics', 'Check for a new change', 'Save what was reported']);
+  assert.deepEqual(steps.map((s) => s.uses || s.name), ['actions/checkout@v4', 'actions/setup-node@v4', 'actions/cache@v4', 'Fetch Stripe metrics', 'Fetch Shopify metrics', 'Fetch Search Console metrics', 'Fetch Google Analytics metrics', 'Fetch Plausible metrics', 'Check for a new change', 'Save what was reported']);
   assert.equal(steps[SAVE].if, 'always()');
   assert.match(steps[CHECK].run, /node watch\.mjs "\$METRIC_CSV" --state watch-state\.json/);
 });
@@ -137,7 +137,7 @@ test('an unset METRIC_CSV fails the first step with the instruction, and saves n
   const run = runWorkflow({ workflow: r.workflow, remote: r.remote });
   assert.equal(run.ok, false);
   assert.equal(run.steps[CHECK].code, 2);
-  assert.match(run.steps[CHECK].stdout, /Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON or GA4_SERVICE_ACCOUNT_JSON secret/);
+  assert.match(run.steps[CHECK].stdout, /Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON or PLAUSIBLE_API_KEY secret/);
   assert.equal(run.steps[SAVE].code, 0);
 });
 

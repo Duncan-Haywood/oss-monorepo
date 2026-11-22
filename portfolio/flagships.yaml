@@ -190,11 +190,10 @@ flagships:
       tried on a live empty repository) (real shop, README "A real shop's daily
       series": weekly line ships; revenue deaf at Quiet: shut-Saturday drop heard it
       both years, failed sim power (README "A shop shut one weekday"); a ramp sim
-      failed (README "round 3"); rounds 4-5 2026-11-21: Christmas closure no effect,
-      calm noise quietest; round 6 2026-11-21: no slow-climb check passes, weekly
-      drift beside daily lifts x1.9 57 to 82 but late (README "round 6"); round 7
-      2026-11-22: on fresh shops weekly drift beside daily hears x1.9 by 8 weeks 92
-      to 131 of 150, --weekly ships (README "Round 7"), in Actions as
+      failed (README "round 3"); round 6 2026-11-21: no slow-climb check passes,
+      weekly drift beside daily lifts x1.9 57 to 82 but late (README "round 6");
+      round 7 2026-11-22: on fresh shops weekly drift beside daily hears x1.9 by 8
+      weeks 92 to 131 of 150, --weekly ships (README "Round 7"), in Actions as
       WATCH_WEEKLY=on 2026-11-22; a growth-pulse check failed (README "Round 8":
       robust z uncalibrated); --closed ships; a recent-days fill failed 2 rounds
       (README "A closure in the first week after a step": cost ~4/100, pooled); a
@@ -204,12 +203,12 @@ flagships:
       README "Google Analytics 4 as a source") sources, --events and count Middle
       (pelt + NB) shipped 2026-11-21 (README "A middle setting for over-dispersed
       counts": 20% falls 115/120 vs Quiet 38, 0.83 false/1,000 days): Middle as
-      count default failed (alerts on growth); next a live property. joint drift
-      (measured, not offered). Open: (0) drift model: t-walk increments, biweight on
-      fresh data, why it absorbs seat belts and quality control 4, its AR(1) term;
-      notes quote it. Curvature word ships under --shape-word panel (README "A
-      curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37.
-      More open items: NEXT.md.
+      count default failed (alerts on growth); next a live property; Plausible
+      2026-11-22, next a live site. joint drift (measured, not offered). Open: (0)
+      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
+      belts and quality control 4, its AR(1) term; notes quote it. Curvature word
+      ships under --shape-word panel (README "A curvature word"): slope donors
+      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
