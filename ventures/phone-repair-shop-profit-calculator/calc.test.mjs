@@ -112,3 +112,48 @@ test("warranty redo rate raises cost and bench hours, and zero redo removes it",
   assert.ok(serviceLine({ ...v, redoPct: 10 }, SERVICES[0]).hours > none.hours);
   assert.ok(readInput({ ...sampleInput(), redoPct: "150" }).error);
 });
+
+// Red team 2026-11-22: a shop selling only plan customers was told its services "do not cover their own labor" and that
+// break-even was "0 paid jobs", because break-even counted jobs and left the plan customers out.
+test("break-even counts plan customers as paid sales, and a plan customers-only shop is not told it loses money per job", () => {
+  const only = { ...sampleInput(), scrQty: "0", pcbQty: "0", fullQty: "0", careHolders: "400", carePrice: "2000", careScrVisits: "1" };
+  const loss = plan({ ...only, rentPerMonth: "999999" });
+  assert.ok(loss.season.contribution > 0 && loss.season.profit < 0);
+  assert.doesNotMatch(loss.advice.join(" "), /do not cover their own labor/);
+  assert.match(loss.advice.join(" "), /need about \d+ paid jobs and plan customers at this mix to break even, against the 400 you entered/);
+  const free = plan({ ...only, machineCost: "0", rentPerMonth: "0", otherFixed: "0" });
+  assert.match(free.advice.join(" "), /Break-even is about 0 paid jobs and plan customers at this mix; you plan 400, a cushion of 400\./);
+  const r = plan(sampleInput());
+  const sales = r.season.jobs + r.season.care.customers;
+  const be = Math.ceil((r.season.fixed.total / r.season.contribution) * sales);
+  assert.ok(r.advice.includes(`Break-even is about ${be} paid jobs and plan customers at this mix; you plan ${sales}, a cushion of ${Math.max(0, sales - be)}.`));
+  assert.match(plan({ ...sampleInput(), careHolders: "0" }).advice.join(" "), /Break-even is about \d+ paid jobs at this mix/);
+});
+
+// Red team 2026-11-22: tests for mutants that escaped the suite.
+test("a plan-only shop and a half-month season are valid input", () => {
+  assert.equal(readInput({ ...sampleInput(), scrQty: "0", pcbQty: "0", fullQty: "0", careHolders: "1" }).error, undefined);
+  assert.equal(readInput({ ...sampleInput(), seasonMonths: "0.5" }).error, undefined);
+});
+
+test("season revenue is the services' revenue plus the protection plans'", () => {
+  const r = seasonResult(base());
+  assert.equal(r.revenue, Math.round((r.lines.reduce((a, l) => a + l.revenue, 0) + r.care.revenue) * 100) / 100);
+  assert.ok(r.care.revenue > 0);
+});
+
+test("a plan's warranty redos take bench hours, as they take parts", () => {
+  const v = { ...base(), careHolders: 100, careScrVisits: 2 };
+  assert.equal(careLine({ ...v, redoPct: 0 }).hours, 100);
+  assert.ok(Math.abs(careLine({ ...v, redoPct: 10 }).hours - 110) < 1e-9);
+});
+
+test("a bench at exactly 100% is full, not over", () => {
+  const r = plan({ ...sampleInput(), scrQty: "1043", pcbQty: "0", fullQty: "0", careHolders: "0", scrMin: "60", redoPct: "0", benchHrsPerWeek: "20" });
+  assert.equal(r.season.utilizationPct, 100);
+  assert.doesNotMatch(r.advice.join(" "), /second technician/);
+});
+
+test("a share link leaves out fields that were never set", () => {
+  assert.equal(encodeShare({ scrQty: "5" }), "scrQty=5");
+});

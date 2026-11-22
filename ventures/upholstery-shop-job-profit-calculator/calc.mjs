@@ -107,14 +107,17 @@ export function plan(input) {
   for (const l of active) {
     if (l.price < l.targetPrice) advice.push(`${l.label} at ${usd(l.price)} earns ${l.marginPct}% after labor and materials. For a ${v.targetMarginPct}% margin it would need ${usd(l.targetPrice)}.`);
   }
+  // Break-even counts every paid sale at this mix: the jobs and the trade accounts, who also carry fixed cost. A shop that sells
+  // only trade accounts has no jobs, and must not be told its services lose money when they earn.
+  const sales = res.jobs + res.trade.customers;
+  const unit = res.trade.customers > 0 ? "paid jobs and trade accounts" : "paid jobs";
   if (res.profit < 0) {
-    const perJob = res.jobs > 0 ? res.contribution / res.jobs : 0;
-    advice.push(res.contribution > 0 && perJob > 0
-      ? `You lose ${usd(-res.profit)} at this volume. Fixed costs of ${usd(res.fixed.total)} need about ${Math.ceil(res.fixed.total / res.contribution * res.jobs)} paid jobs at this mix to break even, against the ${res.jobs} you entered.`
+    advice.push(res.contribution > 0 && sales > 0
+      ? `You lose ${usd(-res.profit)} at this volume. Fixed costs of ${usd(res.fixed.total)} need about ${Math.ceil(res.fixed.total / res.contribution * sales)} ${unit} at this mix to break even, against the ${sales} you entered.`
       : `You lose ${usd(-res.profit)}: the services do not cover their own labor and materials, so more volume makes it worse. Raise a price first.`);
   } else if (res.contribution > 0) {
-    const be = Math.ceil((res.fixed.total / res.contribution) * res.jobs);
-    advice.push(`Break-even is about ${be} paid jobs at this mix; you plan ${res.jobs}, a cushion of ${Math.max(0, res.jobs - be)}.`);
+    const be = Math.ceil((res.fixed.total / res.contribution) * sales);
+    advice.push(`Break-even is about ${be} ${unit} at this mix; you plan ${sales}, a cushion of ${Math.max(0, sales - be)}.`);
   }
   if (v.tradeAccounts > 0) {
     advice.push(`Trade blocks: ${v.tradeAccounts} accounts at ${usd(v.tradeBlockPrice)} come to ${usd(res.trade.revenue)}. If each block is ${v.tradeSeatJobs} seat jobs, a block earns ${usd(res.trade.perJob)} a job against a seat job that costs you ${usd(res.lines[0].cost)}. ${v.tradeSeatJobs > res.trade.breakEvenJobs ? `It loses money beyond ${res.trade.breakEvenJobs} jobs in a block.` : `It stays profitable up to ${res.trade.breakEvenJobs} jobs in a block.`}`);

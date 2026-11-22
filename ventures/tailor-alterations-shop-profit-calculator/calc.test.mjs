@@ -103,3 +103,20 @@ test("csv has a header and one row per volume", () => {
   assert.equal(lines.length, 6);
   assert.match(lines[0], /^volume_pct,/);
 });
+
+// Red team 2026-11-22: a shop selling only package customers was told its services "do not cover their own labor" and that
+// break-even was "0 paid jobs", because break-even counted jobs and left the package customers out.
+test("break-even counts package customers as paid sales, and a package customers-only shop is not told it loses money per job", () => {
+  const only = { ...sampleInput(), waxQty: "0", stdQty: "0", fullQty: "0", passHolders: "400", passPrice: "2000", passWaxVisits: "1" };
+  const loss = plan({ ...only, rentPerMonth: "999999" });
+  assert.ok(loss.season.contribution > 0 && loss.season.profit < 0);
+  assert.doesNotMatch(loss.advice.join(" "), /do not cover their own labor/);
+  assert.match(loss.advice.join(" "), /need about \d+ paid jobs and package customers at this mix to break even, against the 400 you entered/);
+  const free = plan({ ...only, machineCost: "0", rentPerMonth: "0", otherFixed: "0" });
+  assert.match(free.advice.join(" "), /Break-even is about 0 paid jobs and package customers at this mix; you plan 400, a cushion of 400\./);
+  const r = plan(sampleInput());
+  const sales = r.season.jobs + r.season.pass.customers;
+  const be = Math.ceil((r.season.fixed.total / r.season.contribution) * sales);
+  assert.ok(r.advice.includes(`Break-even is about ${be} paid jobs and package customers at this mix; you plan ${sales}, a cushion of ${Math.max(0, sales - be)}.`));
+  assert.match(plan({ ...sampleInput(), passHolders: "0" }).advice.join(" "), /Break-even is about \d+ paid jobs at this mix/);
+});
