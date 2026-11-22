@@ -1,0 +1,18 @@
+# Excel Model Audit: find inconsistent formulas, typed-over values and error sources in an Excel workbook
+
+> Free formula auditor for .xlsx and .xlsm files. Lists copied formulas that point at a different cell from their neighbours (with the formula the neighbours imply), numbers typed over formulas, SUM ranges that stop next to a number, circular references across sheets and named ranges, the cells where #REF! and #DIV/0! start, numbers and formulas stored as text, constants typed into formulas, hidden sheets and external links. Runs in the browser; the file is never uploaded. Also a Node command-line tool for a folder of workbooks.
+
+Free and open source (MIT). Results are mechanical checks of the file provided, not accounting, audit or financial advice; a clean result is not a statement that a model is correct.
+
+## Pages
+
+- [The tool](https://marisstella.app/excel-model-audit/): drop in a workbook, get the findings, a per-sheet count of distinct formulas, a formula map and a CSV.
+- [How to find inconsistent formulas in Excel](https://marisstella.app/excel-model-audit/find-inconsistent-formulas-in-excel.html): a worked example on a 12-month plan, R1C1 explained, and when to use Excel's own tools or a paid auditor instead.
+
+## What it does not check
+
+Whether the logic, assumptions or inputs are right; what OFFSET and INDIRECT point at; VBA, Power Query, pivot tables, charts. Old .xls and .ods files are not read.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/excel-model-audit): MIT licensed. `node cli.mjs model.xlsx --csv findings.csv`.

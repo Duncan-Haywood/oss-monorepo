@@ -2191,6 +2191,9 @@ const CATEGORY_RULES = [
       // applies bank receipts to open invoices, the receivables side of the
       // same reconciliation job as `payment-reconciliation-workbench`.
       || slug === 'cash-application-matcher'
+      // `excel-model-audit` joined 2026-11-22 on its first commit: it checks the finance team's own spreadsheet models
+      // (budgets, forecasts, plans) for broken formulas before they are signed off, the same back-office review job.
+      || slug === 'excel-model-audit'
       // `nacha-file-validator` joined 2026-10-04 on its first commit: it checks the ACH payment file a bookkeeper
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.

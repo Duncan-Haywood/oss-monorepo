@@ -1,0 +1,30 @@
+name: excel-model-audit
+description: >-
+  Free browser and command-line auditor for Excel workbooks (.xlsx, .xlsm). It finds copied formulas
+  that point at a different cell from their neighbours (and shows the formula the neighbours imply),
+  numbers typed over formulas, SUM ranges that stop next to a number, circular references across sheets
+  and named ranges, the cells where #REF! and #DIV/0! start, numbers and formulas stored as text, typed
+  constants in formulas, hidden sheets and links to other files. The file is unzipped and read locally
+  and never uploaded; no dependency.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-22 in an explore-track session. No venture in the portfolio reads a workbook's
+# formulas (1,428 checked by name and README search). Paid tools sell this job to financial
+# modellers, auditors and FP&A teams (PerfectXL, Operis OAK, Arixcel, Spreadsheet Professional;
+# named here only to place the niche). Excel's own error checking marks some faults one cell at a
+# time and never traces an error to its source or lists typed-over formulas.
+# First visitor: an analyst or finance lead asked to sign off a model they did not build, or a
+# founder checking a plan before it goes to investors; search phrases like "find inconsistent
+# formulas excel", "excel formula auditing tool", "find hardcoded values in excel formulas",
+# "trace #REF error source". Volume not measured with an external tool.
+#
+# Deterministic and local: no upload, no account, zero cost per user.
+#
+# Path to revenue (payment rails stay off): free browser tool as the lead magnet; a paid version, if
+# usage appears, is a batch audit of a folder of workbooks with a change log between versions (which
+# formulas changed between v3 and v4 of a model), or a fixed-fee model review done by a person with
+# this report as the first pass. None built.
+#
+# Liability: mechanical checks on the user's own file, no warranty, "a clean result is not a
+# statement that a workbook is correct", Microsoft named nominatively only.

@@ -426,6 +426,7 @@ ventures/ev-charger-bid-calculator/usage.mjs
 ventures/ev-charging-site-roi-calculator/usage.mjs
 ventures/event-rental-inventory-payback-calculator/usage.mjs
 ventures/event-seating-chart-optimizer/usage.mjs
+ventures/excel-model-audit/usage.mjs
 ventures/excess-business-loss-calculator/usage.mjs
 ventures/exempt-salary-threshold-checker/usage.mjs
 ventures/exemption-certificate-audit-check/usage.mjs
