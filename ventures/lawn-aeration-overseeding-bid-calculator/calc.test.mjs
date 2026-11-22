@@ -102,3 +102,30 @@ test("exports, state round trip", () => {
   assert.equal(money(-1234.4), "-$1,234");
   assert.equal(cents(1.5), "$1.50");
 });
+
+// Added by quality round 94: these three mutants survived the suite above.
+test("a losing job sets nothing aside for tax, so take-home equals the loss", () => {
+  const r = solve({ ...sampleInput(), price: 200, minFee: 0 });
+  assert.ok(r.profit < 0);
+  assert.equal(r.setAside, 0);
+  near(r.takeHome, r.profit);
+  const w = solve(sampleInput());
+  near(w.setAside, w.profit * 0.25);
+});
+
+test("compare: Job B's own round-trip miles are used, not Job A's", () => {
+  const c = compareJobs(sampleInput(), { ...sampleJob(), miles: 130 });
+  assert.ok(c.ok);
+  near(c.b.truckWear, 0.35 * 130);
+  near(c.b.truckFuel, (130 / 13) * 3.7);
+  near(c.a.truckWear, 0.35 * 30);
+});
+
+test("the seed-and-fertilizer share note appears when materials pass 40% of cost", () => {
+  const heavy = solve({ ...sampleInput(), seedRate: 10, seedPrice: 6 });
+  const share = (heavy.seedCost + heavy.fertCost) / heavy.costs;
+  assert.ok(share > 0.4, `share ${share}`);
+  assert.ok(heavy.notes.some((n) => /Seed and fertilizer are \d+% of the job's cost/.test(n)));
+  const light = solve({ ...sampleInput(), seedRate: 1 });
+  assert.ok(!light.notes.some((n) => /Seed and fertilizer are/.test(n)));
+});
