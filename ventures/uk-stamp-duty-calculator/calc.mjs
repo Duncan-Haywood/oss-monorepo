@@ -87,8 +87,18 @@ export function compute(input) {
   if (buyer === "additional" && price >= ADDITIONAL_MIN_PRICE) findings.push({ severity: "high", title: `The 5% additional dwelling surcharge adds ${money(addl.tax - std.tax)} over the same purchase as a main home. It applies to the whole price, starting from the first pound.` });
   if (buyer === "main") findings.push({ severity: "info", title: `If you already own another property that you are not replacing, you may owe the 5% additional dwelling rate instead: ${money(addl.tax)} on this price.` });
   if (nonResident) findings.push({ severity: "medium", title: `The 2% non-UK resident surcharge adds ${money(price * SURCHARGE_NON_RESIDENT)} to the bill. Residence is decided by days spent in the UK in the 12 months before purchase; check the test on GOV.UK.` });
-  const nextEdge = BANDS.map((b) => b.to).concat(FTB_CAP).filter((e) => Number.isFinite(e) && e > price).sort((a, b) => a - b)[0];
-  if (nextEdge && nextEdge - price <= 25000) findings.push({ severity: "info", title: `You are ${money(nextEdge - price)} below ${money(nextEdge)}, where the rate on the next slice of price steps up. A price drop of that size would save you up to ${money(main.tax - sdlt(nextEdge - 1, buyer, nonResident).tax)} only if it does not change which band applies.` });
+  // The next band edge in the table this buyer is actually taxed on: first-time buyers with relief step at 300,000 and lose relief above 500,000.
+  const ftbRelief = buyer === "ftb" && main.relief === true;
+  const edges = ftbRelief ? FTB_BANDS.map((b) => b.to) : BANDS.map((b) => b.to);
+  const nextEdge = edges.filter((e) => Number.isFinite(e) && e > price).sort((a, b) => a - b)[0];
+  if (nextEdge && nextEdge - price <= 25000) {
+    const atEdge = sdlt(nextEdge, buyer, nonResident).tax;
+    const nextRate = r2((sdlt(nextEdge + 1000, buyer, nonResident).tax - atEdge) / 10);
+    const loseRelief = ftbRelief && nextEdge === FTB_CAP;
+    findings.push({ severity: "info", title: loseRelief
+      ? `You are ${money(nextEdge - price)} below ${money(nextEdge)}. Up to that price first-time buyer relief applies (tax there: ${money(atEdge)}); one pound more and relief is lost entirely, so the tax jumps to ${money(sdlt(nextEdge + 1, buyer, nonResident).tax)}.`
+      : `You are ${money(nextEdge - price)} below ${money(nextEdge)}. Price above that is taxed at ${nextRate}% instead of ${marginal}%; at exactly ${money(nextEdge)} the tax would be ${money(atEdge)}, ${money(atEdge - main.tax)} more than now.` });
+  }
   findings.push({ severity: "info", title: `Your marginal rate at this price is ${marginal}%: each extra GBP 1,000 on the price adds ${money(marginalStep)} of tax.` });
   findings.push({ severity: "info", title: "Not modelled: Scotland (LBTT) and Wales (LTT), companies and trusts as buyers, leasehold rent, mixed-use or commercial land, linked transactions, shared ownership and anything announced after this was written." });
 
