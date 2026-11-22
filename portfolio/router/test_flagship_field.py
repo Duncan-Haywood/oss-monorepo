@@ -650,6 +650,18 @@ def test_history_pieces_keep_dated_pieces_with_their_own_next_step():
     assert not any("Counts" in g or "Middle" in g or "Watch" in g for g in got)
 
 
+def test_history_pieces_never_take_the_open_list_after_a_marker():
+    # ids-model-check 2026-11-22 (PR #18186): the items right after "next:"
+    # carried a date inside a bracket and moved to HISTORY.md whole, leaving
+    # "next:" dangling; and photo-editing's "dE 16, unsettled" (PR #18173)
+    v = ("History: README. Sets 2026-11-19 (eval/sets.md); next: a page route for bSDD; "
+         "Excel typing into the download (dropdowns 2026-11-19, eval/d.md: 0 of 476). "
+         "IIQ 2026-11-18 = LibRaw; IQ4 matrix dE 16, unsettled (eval/iiq-*). "
+         "Fill 2026-11-21 (eval/fill.md). Next: a BIM manager's table.")
+    got = [v[a:b] for a, b in ff.history_pieces(v)]
+    assert got == ["Fill 2026-11-21 (eval/fill.md)"]
+
+
 def test_archive_history_removes_cleanly_oldest_first():
     v = " ".join(ROW.split())
     out, moved = ff.archive_history(v, 0)
@@ -720,6 +732,8 @@ def test_real_rows_move_no_open_work_to_history():
             piece = v[a:b]
             assert ff.DATE.search(piece) and not ff.OPENISH.search(piece), (e["venture"], piece)
             assert a < ff.open_start(v) or a < [m.start() for m in ff.OPEN_MARK.finditer(v)][-1]
+            assert ff._aside(piece) or not any(
+                v[:a].rstrip().endswith(m.group()) for m in ff.OPEN_MARK.finditer(v)), (e["venture"], piece)
 
 
 # --- an undated result a park picks goes to HISTORY.md, not NEXT.md ---------
