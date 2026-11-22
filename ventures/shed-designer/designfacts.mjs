@@ -14,7 +14,7 @@ import { costBreakdown } from './costs.mjs';
 import { structuralChecks } from './checks.mjs';
 import { productById } from './products.mjs';
 import { storageOf } from './storage.mjs';
-import { looksOf } from './designsearch.mjs';
+import { looksOf } from './looksscore.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 
 const SIDING_NAME = {
@@ -78,7 +78,7 @@ export function designFacts(input, opts = {}) {
     breakdown,
     // The full breakdown, for a cost change against another design (costs.mjs costDelta).
     costs,
-    // The design search's looks score, term by term (designsearch.mjs looksOf).
+    // The design search's looks score, term by term (looksscore.mjs looksOf, re-exported by designsearch.mjs).
     looks: looksOf(shed),
     footprint: `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}`,
     footprintSqFt: est.footprintSqFt,

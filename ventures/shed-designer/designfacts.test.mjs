@@ -68,3 +68,22 @@ test('the facts carry the looks score term by term and the full cost breakdown, 
   assert.ok(Math.abs(d.reduce((t, x) => t + x.delta, 0) - (b.total - a.total)) < 0.5 * (d.length + 1));
   assert.ok(deltaPhrase(d).length > 0);
 });
+
+test('the ready-design cards score looks without loading the design search engine', async () => {
+  // designfacts.mjs is on the editor page (through picker.mjs); designsearch.mjs
+  // is about 40 kB that only the gallery build and the search need.
+  const fs = await import('node:fs');
+  const seen = new Set();
+  const walk = (f) => {
+    if (seen.has(f)) return;
+    seen.add(f);
+    const src = fs.readFileSync(new URL(f, import.meta.url), 'utf8');
+    for (const m of src.matchAll(/^\s*(?:import|export)\s[^'"]*?from\s*'\.\/([^']+)'/gm)) walk(m[1]);
+  };
+  walk('designfacts.mjs');
+  assert.ok(seen.has('looksscore.mjs'));
+  assert.ok(!seen.has('designsearch.mjs'), [...seen].join(', '));
+  const search = await import('./designsearch.mjs');
+  const own = await import('./looksscore.mjs');
+  assert.equal(search.looksOf, own.looksOf, 'designsearch.mjs re-exports the same function');
+});
