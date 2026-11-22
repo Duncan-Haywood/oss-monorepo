@@ -30,7 +30,9 @@ export function readXer(text) {
     if (raw.startsWith("%T\t")) { table = raw.slice(3).trim(); tables[table] = tables[table] || []; fields = []; }
     else if (raw.startsWith("%F\t")) fields = raw.slice(3).split("\t");
     else if (raw.startsWith("%R\t") && table) {
-      const v = raw.slice(3).split("\t"), row = {};
+      const v = raw.slice(3).split("\t");
+      /** @type {Record<string, string>} */
+      const row = {};
       fields.forEach((f, i) => { row[f] = v[i] ?? ""; });
       tables[table].push(row);
     }
@@ -376,6 +378,7 @@ export function matchSections(sections, activities, pins = {}) {
  * @returns {Record<string, string>}
  */
 export function parsePins(s) {
+  /** @type {Record<string, string>} */
   const out = {};
   for (const part of String(s || "").split(/[,;\n]+/)) {
     const m = /^\s*([\d .]+?)\s*[=:]\s*(\S.*?)\s*$/.exec(part);
