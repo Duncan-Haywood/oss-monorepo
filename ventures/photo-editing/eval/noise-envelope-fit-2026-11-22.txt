@@ -1,0 +1,70 @@
+== tools/near_clean_gate.py whitened --split tune --eigs mpcw.envelope
+162 rows (tune, clean truths)
+arm            luma   colour losers  worst
+ship+12     +0.6417  +0.3931      6  -0.81
+mpcw.envelope+12  +0.5874  +0.3734      3  -0.81
+   read / true sigma at 18% grey (median), by SNR and scenario:
+   SNR   200 equal ship 1.65  mpcw.envelope 1.64
+   SNR    60 equal ship 0.86  mpcw.envelope 0.84
+   SNR    25 equal ship 0.81  mpcw.envelope 0.80
+   SNR    12 equal ship 0.78  mpcw.envelope 0.75
+   SNR   200 wb    ship 1.29  mpcw.envelope 1.28
+   SNR    60 wb    ship 0.68  mpcw.envelope 0.53
+   SNR    25 wb    ship 0.60  mpcw.envelope 0.54
+   SNR    12 wb    ship 0.59  mpcw.envelope 0.56
+ship+12 mean luma + colour over D +1.0348; mpcw.envelope +0.9608
+pick: none: stop
+
+== tools/near_clean_gate.py whitened --split held --eig mpcw.envelope
+208 rows (held, clean truths)
+arm            luma   colour losers  worst
+ship+12     +1.0200  +0.6651      0  -0.01
+mpcw.envelope+12  +0.9512  +0.6238      0  -0.01
+   read / true sigma at 18% grey (median), by SNR and scenario:
+   SNR   200 equal ship 1.12  mpcw.envelope 0.88
+   SNR    60 equal ship 0.82  mpcw.envelope 0.78
+   SNR    25 equal ship 0.79  mpcw.envelope 0.78
+   SNR    12 equal ship 0.77  mpcw.envelope 0.76
+   SNR   200 wb    ship 0.84  mpcw.envelope 0.70
+   SNR    60 wb    ship 0.73  mpcw.envelope 0.65
+   SNR    25 wb    ship 0.61  mpcw.envelope 0.59
+   SNR    12 wb    ship 0.62  mpcw.envelope 0.60
+   SNR    12 equal n=  36  mpcw.envelope+12 - ship+12: luma -0.0083  colour -0.0061
+   SNR    12 wb    n=  36  mpcw.envelope+12 - ship+12: luma -0.1756  colour -0.1053
+   SNR    25 equal n=  32  mpcw.envelope+12 - ship+12: luma -0.0097  colour -0.0069
+   SNR    25 wb    n=  32  mpcw.envelope+12 - ship+12: luma -0.0513  colour -0.0303
+   SNR    60 equal n=  30  mpcw.envelope+12 - ship+12: luma -0.0220  colour -0.0123
+   SNR    60 wb    n=  30  mpcw.envelope+12 - ship+12: luma -0.1450  colour -0.0870
+   SNR   200 equal n=   6  mpcw.envelope+12 - ship+12: luma -0.0033  colour -0.0017
+   SNR   200 wb    n=   6  mpcw.envelope+12 - ship+12: luma -0.1217  colour -0.0667
+means: luma -0.0689, colour -0.0413; worst cell -0.1756; losers 0 -> 0, new 0
+FAIL h1 means within 0.005 dB of ship, every cell within 0.02 dB
+PASS h2 no row newly loses > 0.1 dB to D, and no more losers
+FAIL h3 white-balanced SNR 25 and 12 rows' luma gains at least +0.02 dB over ship (-0.1171, n=68)
+verdict: what ships stays
+
+== R, T, and H on tune (the same arithmetic as whitened's test, run on the tune split)
+R: 53 files, 536 rows; ship vs 2026-11-22 ship: 1066/1072 scores within 0.01 dB (99.44%)
+T: held: envelope sigma18 differs from ship's by over 1% on 139/288 rows (135 of them lower)
+T: tune: envelope sigma18 differs from ship's by over 1% on 154/248 rows (151 of them lower)
+   tune SNR    12 equal n= 30 luma +0.0023 colour +0.0050
+   tune SNR    12 wb    n= 30 luma -0.2037 colour -0.0990
+   tune SNR    25 equal n= 29 luma -0.0090 colour +0.0072
+   tune SNR    25 wb    n= 29 luma -0.0383 colour -0.0003
+   tune SNR    60 equal n= 20 luma -0.0120 colour -0.0040
+   tune SNR    60 wb    n= 20 luma -0.0555 colour -0.0245
+   tune SNR   200 equal n=  2 luma -0.0100 colour +0.0000
+   tune SNR   200 wb    n=  2 luma -0.0050 colour +0.0000
+   loser Pentax K-1 Mark II.pef [0, 0] SNR 25 equal: ship -0.59, envelope +0.00
+   loser Pentax K-1 Mark II.pef [0, 0] SNR 25 wb: ship -0.43, envelope +0.00
+   loser Pentax K-1 Mark II.pef [0, 0] SNR 12 equal: ship -0.20, envelope -0.12
+   loser Pentax K-1 Mark II.pef [0, 1362] SNR 25 equal: ship -0.81, envelope -0.81
+   loser Pentax K-1 Mark II.pef [0, 1362] SNR 25 wb: ship -0.70, envelope +0.02
+   loser Pentax K-1 Mark II.pef [0, 1362] SNR 12 equal: ship -0.29, envelope -0.29
+tune means: luma -0.0543, colour -0.0197; worst cell -0.2037; losers 6 -> 3, new 0
+FAIL tune h1
+PASS tune h2
+
+== after the verdict: envelope / ship sigma18 and envelope / true, by scenario (all rows, both splits)
+   equal n=268: changed >1% 0.46; median env/ship 0.999; median ship/true 0.88, env/true 0.81
+   wb    n=268: changed >1% 0.63; median env/ship 0.938; median ship/true 0.70, env/true 0.65
