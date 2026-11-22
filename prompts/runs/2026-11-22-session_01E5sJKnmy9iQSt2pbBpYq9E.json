@@ -26,12 +26,14 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "venture-preflight first run failed: unresolved conflict markers in ventures/xer-schedule-check/llms.txt, already on main (not from this run); resolved keeping both sides"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -45,7 +47,7 @@
     "ventures/xer-schedule-check/eval/msproject-latedates-2026-11-22.md"
   ],
   "goal": null,
-  "notes": "Traced the last 4 of 19,822: P6 (cpm.mjs bwRsrcRemain) rolls a started zero-duration activity's late start up from an assignment still running restart->reend; Project has no such rule (2 roots in CCA, 2 predecessors). Also found the reference stale on external late finishes written as deadlines (5 more). Reference fixed; converter warns (counts.rsrcRollUp). msproject-check on six public files: schedule 19,822/19,822 under Project's rules, 6,971 under P6's options. Local: run_venture_tests xer-schedule-check ok (324 tests); check_posts ok; portfolio/router/validate.py ok; venture-preflight run (see PR).",
+  "notes": "Traced the last 4 of 19,822: P6 (cpm.mjs bwRsrcRemain) rolls a started zero-duration activity's late start up from an assignment still running restart->reend; Project has no such rule (2 roots in CCA, 2 predecessors). Also found the reference stale on external late finishes written as deadlines (5 more). Reference fixed; converter warns (counts.rsrcRollUp). msproject-check on six public files: schedule 19,822/19,822 under Project's rules, 6,971 under P6's options. Local: run_venture_tests xer-schedule-check ok (324 tests); check_posts ok; portfolio/router/validate.py ok; venture-preflight clean (second run; the first failed on conflict markers in llms.txt already on main from another merge, resolved here keeping both sides).",
   "corrections": [],
   "redteam": null,
   "usage": {
