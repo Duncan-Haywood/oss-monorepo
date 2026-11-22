@@ -8,6 +8,7 @@
 // K = 0 is the file as exported (the old replay). Prints board recall per K, all rounds and 2+.
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { parseTrf } from "../trf.mjs";
 import { pairRound } from "./swiss-replay.mjs";
 
@@ -48,7 +49,7 @@ export function reseed(trf, rating) {
 }
 
 const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dir = process.argv[2];
   const Ks = process.argv.slice(3).map(Number);
   for (const K of Ks.length ? Ks : [0, 10, 15, 20, 25, 30]) {
