@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMY6PXH2z8x9hk7db8",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products ...)",
+  "input_sha256": "cf702c1288ebc08221b484466e56ee76bf97346b7ff328733a76e94716f94e54",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T04:05:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: P6 text UDFs back as text UDFs (not activity codes) on the P6 -> Project XML -> P6 round trip, given the original XER",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18189",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Did not run portfolio/router/claim_check.py after opening the claim PR; a parallel session (PR #18190) built and landed the number/date half of the same item first, costing a rework of this branch."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions were routed to the same flagship item (xer-schedule-check, the decimal-type hint) within minutes; my claim PR #18189 was opened before #18190's, but claim_check was not run by me before building, and the other session landed first. Run claim_check.py right after claiming."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The next: item asked for a hint that survives a save in Microsoft Project; with no Project install no in-file marker can be verified, so the hint is the original XER the user already holds.",
+      "did": "original XER as the type source; on finding PR #18190 had landed the same idea for number/date types minutes earlier, rebased onto its typesFrom API and kept only what it lacked: text UDFs",
+      "result": "42,847 of 42,847 UDF values back with P6's type (13,997 with #18190 alone, 7,927 with no XER); 28,850 text values no longer codes; MPXJ agrees on 26 of 26 fields"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-p6-text-udfs-back-from-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/udf-type-hints-2026-11-22.md"
+  ],
+  "goal": "flagship 13 (xer-schedule-check) next item: the decimal-type hint",
+  "notes": "Checks run here: node --test in ventures/xer-schedule-check (338 tests ok, after merging main); node eval/udf-type-hints.mjs on the six public XERs (42,847/42,847 typed with the XER, 7,927 without; real codes 273,917 both ways; 0 p6Problems); MPXJ 16.10 eval/p6xer-udfs-mpxj.py --text on CCA and Expressway (26/26 fields same data type, 42,847 values); check_posts.py ok; portfolio/router/validate.py ok; venture-preflight.mjs clean (before the main merge); CI green on the first push. Merge with main: PR #18190 had landed typesFrom for number/date types; my duplicate numeric hint code was dropped and the text-UDF part rebuilt on its API (parseMspdi { textUdf }, udfTyper().textUdf). A measurement artifact in my own eval script (a CCA UDF title contains '|') was found and fixed before reporting.",
+  "corrections": [],
+  "redteam": null
+}

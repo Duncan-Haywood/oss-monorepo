@@ -60,7 +60,8 @@
   Number/Cost/Date fields as UDFs shipped 2026-11-21
   (eval/p6xer-udfs-2026-11-21.md). The UDF type on a round trip shipped
   2026-11-22 as types from the original XER (--types-from; CCA 13,174 of
-  13,174 keep P6's type, eval/udf-types-from-2026-11-22.md). Still open
+  13,174 keep P6's type, eval/udf-types-from-2026-11-22.md); text UDFs back
+  as text UDFs, not codes, 2026-11-22 (28,850 values, eval/udf-type-hints-2026-11-22.md). Still open
   there: a Project file with no XER behind it keeps "whole numbers as
   integer"; a marker inside the Project file needs a Project seat to check
   that it survives a save. Finish-date UDFs and Project's Start/Finish fields

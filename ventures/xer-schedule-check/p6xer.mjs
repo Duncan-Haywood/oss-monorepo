@@ -59,6 +59,10 @@
 //   or finish for dates (the eleventh finish-date UDF msproject.mjs had to put
 //   in a Date field). An integer type is not taken when a value is no longer
 //   whole; that is counted in the warnings (eval/udf-types-from-2026-11-22.md).
+//   Text UDFs too: msproject.mjs writes a text UDF to a Text field, which
+//   would come back as an activity code; a task Text field titled as one of
+//   the original's text UDFs (and not as one of its code types) is read as a
+//   text UDF again (eval/udf-type-hints-2026-11-22.md).
 //
 // - notes: a task's notes become its notebook entries (TASKMEMO), one per
 //   "[Topic]" section (the form msproject.mjs writes a P6 notebook in), else
@@ -188,7 +192,14 @@ export function udfTyper(typesFrom) {
     const k = udfTitleKey(u.table_name, u.udf_type_label || u.udf_type_name);
     if (!known.has(k)) known.set(k, u.logical_data_type);
   }
-  const t = { ref: Boolean(ref), matched: 0, changed: 0, values: 0, notWhole: [], unmatched: 0 };
+  // text UDFs, by title as msproject.mjs writes it as a field Alias (cut to 50
+  // characters, " (UDF id)" after a repeated title); a title that is also a
+  // code type's is left to be read as a code
+  const short = (x) => String(x ?? "").replace(/\[/g, "(").replace(/\]/g, ")").replace(/\s+/g, " ").trim().replace(/ \(UDF \d+\)$/, "").slice(0, 50).toLowerCase();
+  const codeTypes = new Set((ref?.tables?.ACTVTYPE || []).map((c) => short(c.actv_code_type)));
+  const textTitles = new Set((ref?.tables?.UDFTYPE || []).filter((u) => u.table_name === "TASK" && u.logical_data_type === "FT_TEXT").map((u) => short(u.udf_type_label || u.udf_type_name)).filter((x) => x && !codeTypes.has(x)));
+  const t = { ref: Boolean(ref), matched: 0, changed: 0, values: 0, notWhole: [], unmatched: 0, textFields: [] };
+  t.textUdf = textTitles.size ? (title) => { const hit = textTitles.has(short(title)); if (hit) t.textFields.push(title); return hit; } : undefined;
   t.type = (table, title, type, rows) => {
     if (!ref || type === "FT_TEXT" || type === "FT_MONEY") return type;
     const r = known.get(udfTitleKey(table, title));
@@ -200,7 +211,7 @@ export function udfTyper(typesFrom) {
     t.changed++; t.values += rows.length;
     return r;
   };
-  t.note = () => `user-defined field types from the original XER: ${t.matched} field(s) matched by title${t.changed ? `, ${t.changed} given the original's type (${t.values} value(s); a decimal UDF holding whole numbers stays decimal, a finish-date UDF in a Date field stays a finish date)` : ", all already of the original's type"}${t.notWhole.length ? `; ${t.notWhole.length} kept decimal though integer in the original, as a value is no longer whole: ${t.notWhole.slice(0, 5).join(", ")}${t.notWhole.length > 5 ? ", ..." : ""}` : ""}${t.unmatched ? `; ${t.unmatched} number or date field(s) with no title of that kind in it keep the type read from Project` : ""}`;
+  t.note = () => `user-defined field types from the original XER: ${t.matched} field(s) matched by title${t.changed ? `, ${t.changed} given the original's type (${t.values} value(s); a decimal UDF holding whole numbers stays decimal, a finish-date UDF in a Date field stays a finish date)` : ", all already of the original's type"}${t.notWhole.length ? `; ${t.notWhole.length} kept decimal though integer in the original, as a value is no longer whole: ${t.notWhole.slice(0, 5).join(", ")}${t.notWhole.length > 5 ? ", ..." : ""}` : ""}${t.unmatched ? `; ${t.unmatched} number or date field(s) with no title of that kind in it keep the type read from Project` : ""}${t.textFields.length ? `; ${t.textFields.length} text field(s) read as text UDFs, as in the original, not as activity codes` : ""}`;
   return t;
 }
 
@@ -218,10 +229,10 @@ export function deadlineConstraint(r, dl) {
 }
 
 export function p6XerText(text, { projectId = "", activityIds = "auto", deadlines: carryDeadlines = false, typesFrom = null } = {}) {
-  const parsed = parseMspdi(text);
+  const typer = udfTyper(typesFrom);
+  const parsed = parseMspdi(text, { textUdf: typer.textUdf });
   const T = parsed.tables;
   const warnings = [...parsed.warnings];
-  const typer = udfTyper(typesFrom);
   const doc = parseXml(text.charCodeAt(0) === 0xfeff ? text.slice(1) : text);
   const proj = kid(doc, "Project");
   const taskNode = new Map(kids(kid(proj, "Tasks"), "Task").map((t) => [val(t, "UID"), t]));
@@ -790,7 +801,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   if (summaryCost) warnings.push(`${summaryCost} cost resource assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, rsrcGroups: hier.groups, parentResources: hier.parentsAdded, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, curves: RSRCCURVDATA.length, contoured, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, ...(typer.ref ? { typesFromXer: { fields: typer.matched, changed: typer.changed, values: typer.values, notWhole: typer.notWhole.length, unmatched: typer.unmatched } } : {}), notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
+  const counts = { activities: TASK.length, rsrcGroups: hier.groups, parentResources: hier.parentsAdded, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, curves: RSRCCURVDATA.length, contoured, codeTypes: ACTVTYPE.length, udfFields: taskUdfTypes, udfValues: taskUdfValues, wbsUdfFields, wbsUdfValues, rsrcUdfFields, rsrcUdfValues, expenses: PROJCOST.length, costTypes: COSTTYPE.length, ...(typer.ref ? { typesFromXer: { fields: typer.matched, changed: typer.changed, values: typer.values, notWhole: typer.notWhole.length, unmatched: typer.unmatched, textFields: typer.textFields.length } } : {}), notebookTopics: MEMOTYPE.length, taskNotebooks: TASKMEMO.length, wbsNotebooks: WBSMEMO.length };
   const out = xerText(xer);
   // saved in Windows-1252, as P6 writes and reads an XER, when every
   // character fits it (xer.mjs, xerBytes)

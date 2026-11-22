@@ -45,7 +45,7 @@ test("decimal UDFs holding whole numbers come back decimal with the original XER
     assert.equal(after.get("Rate (hr)"), "FT_FLOAT_2_DECIMALS"); // brackets written as round ones still match
     assert.equal(typesOf(r.text, "RSRC").get("Crew rate"), "FT_FLOAT_2_DECIMALS");
     assert.deepEqual(p6Problems(parseXer(r.text).tables), []);
-    assert.deepEqual({ ...r.counts.typesFromXer, values: r.counts.typesFromXer.values > 0 }, { fields: 5, changed: 4, values: true, notWhole: 0, unmatched: 0 });
+    assert.deepEqual({ ...r.counts.typesFromXer, values: r.counts.typesFromXer.values > 0 }, { fields: 5, changed: 4, values: true, notWhole: 0, unmatched: 0, textFields: 0 });
     assert.ok(r.warnings.some((w) => /types from the original XER: 5 field\(s\) matched by title, 4 given the original's type/.test(w)));
   }
 });
