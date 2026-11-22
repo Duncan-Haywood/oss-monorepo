@@ -88,3 +88,14 @@ export const SAMPLE_TEXT = [
     "END OF SECTION 09 91 23",
   ], "INTERIOR PAINTING 099123 - 1"),
 ].join("\f");
+
+/** A made-up schedule for the sample book (an Excel export saved as CSV), for the page's "Try a sample" button and the tests. */
+export const SAMPLE_SCHEDULE_CSV = [
+  "Activity ID,Activity Name,Start,Finish",
+  "A1000,Submit shop drawings - misc metals,2026-03-02,2026-03-20",
+  "A1010,Install misc metal embeds and lintels,2026-05-04,2026-05-15",
+  "A1020,Steel stair and handrails L1-L2,2026-06-01,2026-06-12",
+  "A2010,Paint walls L1 (prime and first coat),2026-08-03,2026-08-21",
+  "A2000,Hang doors and install door hardware L1,2026-09-07,2026-09-18",
+  "M9000,Substantial completion,2026-10-30,2026-10-30",
+].join("\n");

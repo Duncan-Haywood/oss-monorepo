@@ -12,7 +12,7 @@ test("index page carries the disclaimer and says nothing is uploaded", () => {
 });
 
 test("the page and the modules it loads never send the book anywhere", () => {
-  for (const f of ["index.html", "engine.mjs", "worker.mjs", "pdf-text.mjs", "pdf-parser.mjs", "inflate-browser.mjs", "usage.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/, f);
+  for (const f of ["index.html", "engine.mjs", "worker.mjs", "pdf-text.mjs", "pdf-parser.mjs", "inflate-browser.mjs", "usage.mjs", "schedule.mjs", "sample.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/, f);
 });
 
 test("every id the script reads exists in the markup", () => {

@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmV4dYN1FG6cWe4FEi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T21:09:39Z",
+  "ended": "2026-11-22T21:33:46Z",
+  "wall_minutes": 24.39,
+  "tokens_in": 10322300,
+  "tokens_out": 73453,
+  "cost_usd": 5.0031,
+  "tool_calls": 73,
+  "task": "Deepen (flagship 12) ids-model-check: railings' Qto_RailingBaseQuantities Length from geometry",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18312",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first top-surface rule kept every upward face within 3 cm of the top and read 12.27 m for a stored 11.03 (the posts' tops)",
+      "fix": "kept only upward faces nothing lies above"
+    },
+    {
+      "what": "a test claimed overlapping coplanar top-rail shells make the readings disagree; they do not (both read the union wrongly)",
+      "fix": "replaced with a tapered rail that genuinely disagrees; documented the overlap case as not handled"
+    },
+    {
+      "what": "first draft of the write-up said the 16 'no rail on top' railings were swept round bars",
+      "fix": "checked their body item types: only upright extrusions (posts/balusters); wording corrected before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "a --replace that kept the row 4 characters over the cap refused after parking everything it could; a slightly shorter text then parked a landed footing result to NEXT.md, so it took two tries"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here said take the third open item no PR names; I counted buildable items in the row (Revit brep openings, railings' Length, the rest need a person or a specific public export) and took railings' Length, the only one with no existing code",
+      "did": "railing Length",
+      "result": "landed: 29/29 offered within 0.05%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-ids-model-check-railing-lengths.md",
+    "ventures/ids-model-check/eval/railing-lengths-2026-11-22.md"
+  ],
+  "goal": "flagship depth: model fill measures another Qto_ set",
+  "notes": "Checks run here: python3 platform/ci/run_venture_tests.py ids-model-check: ok (516 tests, 2 skipped); node --test railings.test.mjs geometry-quantities.test.mjs: 47 pass; eval/railing-lengths.mjs on the two public exports storing a railing Length: 54 stored, 29 offered, 29 within 0.05%; fill end to end with lengths hidden: 29 written, 29 match, IfcTester 0.9.0 takes exactly those from fail to pass; python3 platform/ci/check_posts.py ok; portfolio/router/validate.py ok. venture-preflight run in background (result in PR summary). No agent doc in docs/reports/: the eval file and NEXT.md carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "83243dae-a485-5549-b9fd-78760586eeb3",
+    "transcripts": 1,
+    "first": "2026-11-22T21:09:39Z",
+    "last": "2026-11-22T21:34:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 135,
+        "output": 73453,
+        "thinking": 23531,
+        "cache_read": 10133818,
+        "cache_write_5m": 0,
+        "cache_write_1h": 188347,
+        "api_equivalent_usd": 5.0031,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 135,
+      "output": 73453,
+      "thinking": 23531,
+      "cache_read": 10133818,
+      "cache_write_5m": 0,
+      "cache_write_1h": 188347,
+      "api_equivalent_usd": 5.0031,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 68,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.39,
+      "active_minutes": 24.39,
+      "model_minutes": 12.95,
+      "tool_minutes": 11.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a BIM developer designing, coding and validating a geometry heuristic against two public exports plus IfcTester, ~1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 199.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

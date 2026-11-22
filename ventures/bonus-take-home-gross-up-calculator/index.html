@@ -63,13 +63,14 @@
       <div class="grid">
         <div><label for="bonus">Gross bonus ($)</label><input id="bonus" type="number" step="any" value="0"></div>
         <div><label for="ytdWages">Wages already paid this year, before the bonus ($)</label><input id="ytdWages" type="number" step="any" value="0"></div>
+        <div><label for="ytdSupplemental">Bonuses and other supplemental pay already paid this year ($)</label><input id="ytdSupplemental" type="number" step="any" value="0"></div>
         <div><label for="k401Pct">Share of the bonus you put in a 401(k) (%)</label><input id="k401Pct" type="number" step="any" value="0"></div>
       </div>
     </section>
     <section class="card" aria-labelledby="h-1">
       <h2 id="h-1">2. Withholding on the bonus</h2>
       <div class="grid">
-        <div><label for="fedWithholdPct">Federal withholding rate on the bonus (%; 22 is the flat supplemental rate)</label><input id="fedWithholdPct" type="number" step="any" value="0"></div>
+        <div><label for="fedWithholdPct">Federal withholding rate on the bonus (%; 22 is the flat supplemental rate; supplemental pay over $1,000,000 for the year is always withheld at 37%, which the tool applies)</label><input id="fedWithholdPct" type="number" step="any" value="0"></div>
         <div><label for="stateWithholdPct">State and local withholding rate on the bonus (%)</label><input id="stateWithholdPct" type="number" step="any" value="0"></div>
       </div>
     </section>
@@ -135,16 +136,22 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
-    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); if (Number.isFinite(n)) o[k] = n; else { o[k] = DEFAULTS[k]; $(k).value = DEFAULTS[k]; } } return o; };
+    // A blank or unreadable box stops the run with its name; it is never replaced by the example value.
+    const opts = () => { const o = {}, bad = []; for (const k of KEYS) { const n = num($(k).value); if (Number.isFinite(n)) o[k] = n; else bad.push(k); } o.bad = bad; return o; };
+    const labelOf = (k) => document.querySelector(`label[for="${k}"]`).textContent;
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
     function run() {
       const o = opts();
+      if (o.bad.length) { $("result").innerHTML = `<div class="finding"><span class="pill">Check inputs</span> Enter a number in: ${o.bad.map(labelOf).join("; ")}.</div>`; $("out").hidden = false; return; }
       if (!(o.bonus > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter the gross bonus.</div>'; $("out").hidden = false; return; }
       const a = analyze(o), b = a.b;
       let h = "";
-      h += `<div class="finding"><h3>You take home ${money(b.net)} of a ${money(b.gross)} bonus (${pct(b.keptRate, 0)})</h3><p class="stats">Withheld: federal <strong>${money(b.fedW)}</strong>, state <strong>${money(b.stateW)}</strong>, Social Security <strong>${money(b.ss)}</strong>, Medicare <strong>${money(b.medicare)}</strong>${b.addl > 0 ? ", Additional Medicare <strong>" + money(b.addl) + "</strong>" : ""}${b.deferred > 0 ? ". " + money(b.deferred) + " goes to your 401(k)" : ""}.${b.ssWages < b.gross ? " Social Security stops once your wages pass the base, so only " + money(b.ssWages) + " of the bonus is charged." : ""}</p></div>`;
+      h += `<div class="finding"><h3>You take home ${money(b.net)} of a ${money(b.gross)} bonus (${pct(b.keptRate, 0)})</h3><p class="stats">Withheld: federal <strong>${money(b.fedW)}</strong>${b.mandatoryWages > 0 ? " (" + money(b.mandatoryWages) + " of it past $1,000,000 of supplemental pay for the year, withheld at the mandatory 37%)" : ""}, state <strong>${money(b.stateW)}</strong>, Social Security <strong>${money(b.ss)}</strong>, Medicare <strong>${money(b.medicare)}</strong>${b.addl > 0 ? ", Additional Medicare <strong>" + money(b.addl) + "</strong>" : ""}${b.deferred > 0 ? ". " + money(b.deferred) + " goes to your 401(k)" : ""}.${b.ssWages < b.gross ? " Social Security stops once your wages pass the base, so only " + money(b.ssWages) + " of the bonus is charged." : ""}</p></div>`;
       h += `<div class="finding"><h3>${b.settlement >= 0 ? "About " + money(b.settlement) + " of this comes back at filing" : "You may owe about " + money(-b.settlement) + " more at filing"}</h3><p>Withholding is a prepayment. At your real federal bracket (${o.fedMarginalPct}%) and state rate (${o.stateMarginalPct}%) the bonus owes ${money(b.fedTrue + b.stateTrue)} in income tax against ${money(b.fedW + b.stateW)} withheld. After every tax the bonus is worth <strong>${money(b.afterTaxValue)}</strong> to you (${pct(b.afterTaxRate, 0)}).</p></div>`;
+      if (a.grossUpImpossible) {
+        h += `<div class="finding"><span class="pill">Check inputs</span> No gross bonus leaves ${money(o.targetNet)} in the paycheck with these rates: the 401(k) share or the withholding rates take all of it.</div>`;
+      }
       if (a.grossUp) {
         const g = a.grossUp;
         h += `<div class="finding"><h3>To leave ${money(o.targetNet)} in the paycheck, pay a gross bonus of ${money(g.gross)}</h3><p>That is ${(g.gross / o.targetNet).toFixed(2)} times the net. The employer's total cost with its matching Social Security and Medicare is <strong>${money(g.employerCost)}</strong>. Gross-ups are themselves taxable pay, which is why the number is larger than a simple 1 + rate.</p></div>`;

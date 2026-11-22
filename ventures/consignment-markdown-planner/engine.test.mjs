@@ -97,3 +97,31 @@ test("bad options throw a readable message", () => {
 test("money formats", () => {
   assert.equal(money(-3.456), "-$3.46");
 });
+
+// Quality audit 2026-11-22 (portfolio/quality/audits/2026-11-22-consignment-markdown-planner.json):
+// the slow-season scale, the take-it boundary and fractional weeks had no test.
+test("fractional weeks are refused with a readable message", () => {
+  assert.throws(() => plan({ items: [] }, { weeks: 2.5 }), /whole number/);
+});
+
+test("slow season scales the sell rate on the chosen schedule", () => {
+  const item = { name: "a", price: 100, rate: 0.08, share: 0.4, shelf: 0.6, weeks: null };
+  const opts = { ...O, slow: 60 };
+  const a = analyzeItem(item, opts);
+  assert.ok(a.slow.net < a.plan.net, `${a.slow.net} vs ${a.plan.net}`);
+  assert.ok(Math.abs(a.slow.net - evaluate(item, a.discounts, opts, 0.6).net) < 1e-9);
+  assert.ok(Math.abs(analyzeItem(item, { ...O, slow: 100 }).slow.net - a.plan.net) < 1e-9);
+});
+
+test("an item exactly at break-even is taken", () => {
+  // No shelf cost and no handling: the best net is exactly 0 for a zero-share item.
+  const a = analyzeItem({ name: "z", price: 50, rate: 0.1, share: 0, shelf: 0, weeks: null }, { ...O, handling: 0 });
+  assert.equal(a.plan.net, 0);
+  assert.equal(a.accept, true);
+});
+
+test("the weekly sell cap binds", () => {
+  const item = { name: "c", price: 100, rate: 0.9, share: 0.4, shelf: 0, weeks: null };
+  assert.equal(sellChance(item, 40, O), 0.95);
+  assert.ok(Math.abs(sellChance(item, 0, O) - 0.9) < 1e-12);
+});

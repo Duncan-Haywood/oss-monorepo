@@ -1,0 +1,2 @@
+ISSUE_068_ARK_NUS_skolebygg | Railings carry a length | 46 applicable | 0 pass before | 21 pass after
+ISSUE_159_kleine_Wohnung_R22 | Railings carry a length | 8 applicable | 0 pass before | 8 pass after

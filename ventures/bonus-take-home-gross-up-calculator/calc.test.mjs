@@ -96,3 +96,40 @@ test("bad input never produces NaN", () => {
   const b = bonusBreakdown(NaN, { ...DEFAULTS, ytdWages: NaN, fedWithholdPct: -5 });
   for (const v of Object.values(b)) assert.ok(Number.isFinite(v));
 });
+
+// Quality audit 2026-11-22 (portfolio/quality/audits/2026-11-22-bonus-take-home-gross-up-calculator.json):
+// Pub 15 section 7 requires 37% on supplemental wages over $1M for the year, and a gross-up with
+// no answer used to print 6.43e64 as a dollar amount.
+test("supplemental pay over $1M is withheld at the mandatory 37%", () => {
+  const o = { ...DEFAULTS, ytdWages: 0 };
+  near(bonusBreakdown(1500000, o).fedW, 1000000 * 0.22 + 500000 * 0.37, 0.001);
+  near(bonusBreakdown(1500000, o).mandatoryWages, 500000, 0.001);
+  // $800k of bonuses already paid: only $200k of a $500k bonus is under the line.
+  near(bonusBreakdown(500000, { ...o, ytdSupplemental: 800000 }).fedW, 200000 * 0.22 + 300000 * 0.37, 0.001);
+  // Under the line nothing changes.
+  near(bonusBreakdown(10000, o).fedW, 2200, 0.001);
+  // The gross-up honours it: $1M net at YTD $200k of regular wages. No Social Security is left,
+  // so net = g(1 - .0145 - .009 - .05 - .37) + 1M x (.37 - .22) and g = 850,000 / 0.5565.
+  const g = grossUp(1000000, { ...DEFAULTS, ytdWages: 200000 });
+  near(g, 850000 / 0.5565, 0.02);
+  // With $200k of bonuses already paid the 37% line is $800k into this one: 880,000 / 0.5565.
+  near(grossUp(1000000, { ...DEFAULTS, ytdWages: 200000, ytdSupplemental: 200000 }), 880000 / 0.5565, 0.02);
+  near(bonusBreakdown(g, { ...DEFAULTS, ytdWages: 200000 }).net, 1000000, 0.02);
+});
+
+test("a gross-up with no answer returns null, not a huge number", () => {
+  assert.equal(grossUp(10000, { ...DEFAULTS, k401Pct: 100 }), null);
+  // 100% withheld under $1M and still over 100% past it (37% federal + 70% state).
+  assert.equal(grossUp(10000, { ...DEFAULTS, fedWithholdPct: 30, stateWithholdPct: 70 }), null);
+  const a = analyze({ ...DEFAULTS, k401Pct: 100 });
+  assert.equal(a.grossUp, null);
+  assert.equal(a.grossUpImpossible, true);
+  assert.equal(analyze(DEFAULTS).grossUpImpossible, false);
+});
+
+test("afterTaxValue counts Additional Medicare", () => {
+  // $10k bonus at YTD $195k: $5k above the threshold, 0.9% of it = $45.
+  const b = bonusBreakdown(10000, { ...DEFAULTS, ytdWages: 195000 });
+  near(b.addl, 45, 0.001);
+  near(b.afterTaxValue, 10000 - b.ss - b.medicare - 45 - 2400 - 500, 0.001);
+});
