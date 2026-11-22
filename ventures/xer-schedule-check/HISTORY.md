@@ -31,3 +31,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) outline codes 2026-11-21 (eval/msproject-outline-2026-11-21.md)
 - (moved 2026-11-21) P6 resource curves 2026-11-21 (curves.mjs, eval/resource-curves-2026-11-21.md)
 - (moved 2026-11-22) fifth pass 2026-11-19 (rule 17, unspent FS/FF lag of a finished node: its late dates 1,529 of 1,534)
+- (moved 2026-11-21) resource notes 2026-11-21 (241/241 planted; eval/resource-notes-2026-11-21.md)

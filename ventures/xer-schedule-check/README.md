@@ -436,6 +436,19 @@ file); they are spread evenly and the notes say so. No public XER carries
 P6's own timephased spread of a curved assignment, so the slice reading
 (MPXJ's, and the one P6's shipped curves fit) is not checked against P6's
 numbers (eval/resource-curves-2026-11-21.md).
+**Microsoft Project work contours** (2026-11-21, `contours.mjs`): a Project
+XML converted to an XER (`--to-p6`, the page's P6 button) now carries each
+contoured assignment (back loaded, front loaded, double peak, early peak,
+late peak, bell, turtle) as a P6 resource curve with Project's own shape,
+named "MS Project Back Loaded" and so on, instead of an even spread. The
+shapes were measured from Project's timephased work: ten equal segments of
+the span at fixed percentages of the peak units (back loaded 10 15 25 50 50
+75 75 100 100 100), with the span stretched to work / (units x mean). On all
+19 contoured assignments in MPXJ's corpus the spread matches Project's to
+0.035 h; P6's curves of the same names (what MPXJ reads a contour as) miss
+by up to 15.8 h, an even spread by 31 h. MPXJ reads the written curves back
+as the same shapes (eval/work-contours-2026-11-21.md).
+
 `--hours` (page: *in labour hours*) reads labour hours even when cost is
 loaded, which gives the manpower curve where a file's curves sit on hours.
 `--even-spread` turns the curves off. A second, independent implementation

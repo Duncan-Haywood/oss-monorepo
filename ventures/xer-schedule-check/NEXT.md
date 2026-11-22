@@ -93,3 +93,4 @@
   contours are not P6's 3.5/6.5 steps, so a faithful route is timephased work
   rows) and Project's contours back to RSRCCURVDATA; what curve id 9, named
   in three files and exported in none, is.
+- (2026-11-22) unassigned resources 2026-11-21 (--all-resources, 17/17 notes back)
