@@ -116,13 +116,15 @@ def fn_coarse(e0, e1):
     return d
 
 
-def run_track(e0, e1, d_coarse, t_eval):
-    """Prediction at each time in t_eval (s), causal, and the final slope (s/s)."""
+def run_track(e0, e1, d_coarse, t_eval, init_slope=None):
+    """Prediction at each time in t_eval (s), causal, and the final slope (s/s). With init_slope (s/s, step 6a)
+    the prediction before the window history yields a line is d_coarse + init_slope (t - COARSE_S / 2) instead
+    of the held d_coarse; nothing else changes (None reproduces step 4d)."""
     ts, ds, ps = [], [], []
     n, g = int(WIN * FS), int(SEARCH * FS)
     pred = np.empty(len(t_eval))
     cur, slope = d_coarse, np.nan
-    line = None
+    line = None if init_slope is None else (lambda x: d_coarse + init_slope * (x - COARSE_S / 2))
     k = 0
     t = T0 - WIN
     end = len(e0) / FS
