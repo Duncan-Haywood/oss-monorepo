@@ -2690,6 +2690,62 @@ class PostPrecheck(unittest.TestCase):
         pick.assert_called_once()
 
 
+class DeferHeavyOnProse(unittest.TestCase):
+    """A prose-only diff leaves the measured-heavy workflows to the PR's CI."""
+
+    SEL = [("portfolio-pages.yml", {}, {"test"}), ("portfolio-validate.yml", {}, {"v"}),
+           ("pages.yml", {}, {"b"})]
+
+    def args(self, **kw):
+        base = dict(full=False, only=None, list=False)
+        base.update(kw)
+        return argparse.Namespace(**base)
+
+    def test_prose_diff_defers_the_heavy_two(self):
+        kept, deferred = runner.defer_heavy(self.SEL, ["docs/posts/p.md", "x/notes.txt"], self.args())
+        self.assertEqual([s[0] for s in kept], ["pages.yml"])
+        self.assertEqual(deferred, ["portfolio-pages.yml", "portfolio-validate.yml"])
+
+    def test_code_full_only_or_listing_keeps_everything(self):
+        for changed, kw in ((["docs/posts/p.md", "platform/pages/build.mjs"], {}),
+                            (["docs/posts/p.md"], {"full": True}),
+                            (["docs/posts/p.md"], {"only": "portfolio-pages"}),
+                            (["docs/posts/p.md"], {"list": True}),
+                            ([], {})):
+            kept, deferred = runner.defer_heavy(self.SEL, changed, self.args(**kw))
+            self.assertEqual((kept, deferred), (self.SEL, []), (changed, kw))
+
+    def _sweep(self, selected, run_rc=0, **kw):
+        args = argparse.Namespace(for_changes="origin/main", list=False, workflow_timeout=0,
+                                  no_post_check=True, no_browser_sweeps=True,
+                                  no_research_tests=True, full=False, only=None, **kw)
+        out = io.StringIO()
+        with mock.patch.object(runner, "changed_paths", return_value=["docs/posts/p.md"]), \
+             mock.patch.object(runner, "pick_workflows", return_value=(selected, [])), \
+             mock.patch.object(runner, "uncommitted_note", return_value=None), \
+             mock.patch.object(runner, "_run_selected", return_value=run_rc) as run, \
+             contextlib.redirect_stdout(out):
+            code = runner.run_for_changes(args)
+        return code, out.getvalue(), run
+
+    def test_a_clean_deferred_sweep_is_no_verdict_and_says_why(self):
+        code, out, run = self._sweep(self.SEL)
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertEqual([s[0] for s in run.call_args[0][1]], ["pages.yml"])
+        self.assertIn("deferred to the pull request's CI", out)
+        self.assertIn("--full", out)
+
+    def test_a_failure_stays_a_failure(self):
+        code, _, _ = self._sweep(self.SEL, run_rc=1)
+        self.assertEqual(code, 1)
+
+    def test_only_heavy_selected_runs_nothing_and_is_no_verdict(self):
+        code, out, run = self._sweep(self.SEL[:2])
+        self.assertEqual(code, runner.NO_VERDICT)
+        run.assert_not_called()
+        self.assertNotIn("Nothing was selected", out)
+
+
 class BrowserSweepPrecheck(unittest.TestCase):
     """A venture page the diff touches is swept in a browser before the workflows."""
 
