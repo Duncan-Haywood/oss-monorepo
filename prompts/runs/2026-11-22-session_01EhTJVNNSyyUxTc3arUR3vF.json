@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVNNSyyUxTc3arUR3vF",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T17:04:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: brute-force oracle for joint acceleration (crash.mjs) with SS/FF/SF links and lags",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 18281,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "its suggested --history text began with an open item ('a P6 import of the result.') from the previous clause, and moving the narrative result also dropped its open 'next a real scheduler's read'; re-parked by hand in NEXT.md"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "left `model` null: the session's harness forbids model identifiers in pushed artifacts"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-a-brute-force-oracle-found-two-holes-in-our-crashing-cut.md",
+    "ventures/xer-schedule-check/eval/crash-oracle-links-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Allocator row 8 (xer-schedule-check), item 'an oracle with SS/FF links'. New eval/crash-oracle-links.mjs (independent forward pass, all four link types, whole-day lags and leads). Found 2 faults in crash.mjs's event graph (start on data date pulled back from FF-driven finish; FS-driven start with SF/FF-driven finish lacked the pull-back edge). Before fix: 268 of 5,000 networks stopped short or overpaid (worst +150%). After: 12,791/12,791 step points at optimum, 5,000/5,000 reach. FS oracle 1000x9: 5,318/5,318; bridge 3000: unchanged; six public XERs: identical gains/costs/steps/runs, replay matches. Local: run_venture_tests.py xer-schedule-check ok (408 tests); check_posts ok; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}
