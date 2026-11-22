@@ -17,7 +17,7 @@ def test_zero_price_reproduces_energy_store_cop():
 
 
 def test_hx_cost_is_hand_checkable():
-    # 100 EUR/kW x 5 kW = 500 EUR; annuity(4%, 35 y) = 0.0527 plus FOM 1.075 % -> about 0.0634/y; over 10,000 kWh
+    # 100 EUR/kW x 5 kW = 500 EUR; annuity(4%, 35 y) = 0.0536 plus FOM 1.075 % -> about 0.0643/y; over 10,000 kWh
     ann = 0.04 / (1 - 1.04 ** -35) + SD["FOM"] / 100
     assert abs(hx_cost(100.0) - 500 * ann / 1e4) < 1e-9
     assert 0.003 < hx_cost(100.0) < 0.0035
@@ -42,3 +42,14 @@ def test_dearer_exchanger_lowers_the_flip_multiplier():
 
 def test_2018_weekly_is_negative_even_for_a_free_exchanger():
     assert breakeven_hx(2018, "house", WEEKLY, mode="cop_hdd", t_sink=45.0) < 0
+
+
+def test_inherited_store_rule_is_disclosed():
+    # 2026-11-22 quality audit: the break-evens use energy-store-cop's pinned "first-charge" store
+    # rule, corrected upstream on 2026-11-18. While the pin stands the README must say so.
+    import inspect
+    from pathlib import Path
+    import energy_store_cop.model as cop
+    if 'accounting="first-charge"' in inspect.getsource(cop.diff):
+        readme = (Path(__file__).resolve().parents[1] / "README.md").read_text()
+        assert "Known gap" in readme and "steady" in readme

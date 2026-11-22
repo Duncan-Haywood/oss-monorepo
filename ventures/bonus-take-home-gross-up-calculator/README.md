@@ -27,7 +27,9 @@ checked against the forward calculation in the tests.
 
 ## Limits
 
-Defaults are placeholders. The aggregate withholding method, W-4 effects, state-specific
+Supplemental pay past $1,000,000 for the calendar year is withheld at the mandatory 37%
+(IRS Publication 15, section 7); enter bonuses already paid this year so the tool knows where
+that line falls. Defaults are placeholders. The aggregate withholding method, W-4 effects, state-specific
 supplemental rules, local taxes, credits and phase-outs, and 401(k) limits are not modelled.
 It is not tax or payroll advice.
 

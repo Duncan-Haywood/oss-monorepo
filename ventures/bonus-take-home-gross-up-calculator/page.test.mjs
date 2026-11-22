@@ -47,3 +47,11 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+// Quality audit 2026-11-22: a cleared box used to run silently at the example value.
+test("a blank box is reported, never refilled with the example value", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const opts = html.match(/const opts = .*$/m)[0];
+  assert.ok(!/DEFAULTS\[k\]/.test(opts), opts);
+  assert.match(html, /if \(o\.bad\.length\)/);
+});
