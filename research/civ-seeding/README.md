@@ -1249,9 +1249,34 @@ dataset's own 43 villages. Plan and five hypotheses logged before the run.
 - For seeding nothing changes: the advice of milestones 4 to 23 holds under all three families, which
   is the reason it matters that the data cannot choose.
 
+## Milestone 26: does the share of adopting neighbours split a threshold from reinforcement? (`experiments/m26_share/`)
+
+Milestone 24's awareness question ("have you heard of the product?") identified the information and
+reinforcement models but not a fractional threshold: 22% of threshold datasets were called
+reinforcement, because take-up among the aware rises with the *count* of adopting neighbours under both.
+A threshold acts on the *share*. This run bins take-up among aware non-leaders by the share of their
+neighbours who adopted (0, under 0.4, 0.4 to 0.6, 0.6 and up; edges fixed before the run) and repeats
+milestone 3's harness (reproducing milestones 3, 24 and 25 exactly) under three weightings, including
+milestone 25's scale taken from each dataset's own villages. Plan and five hypotheses logged before the run; all five held.
+
+| design (leave one village out, I / T / R&delta;) | identity weights | data's own scale, 43 villages | data's own scale, 20 villages |
+|---|---|---|---|
+| cross-section only (milestone 3) | 58.5 / 82.0 / 55.5% | 69.0 / 81.5 / 79.0% | 58.0 / 69.5 / 60.0% |
+| + awareness, take-up by count (milestone 24) | 91.0 / 73.5 / 91.5% | 92.5 / 83.0 / 98.5% | 78.0 / 60.5 / 86.5% |
+| + awareness, take-up by share | 90.0 / 100 / 85.0% | 94.5 / 100 / 99.0% | 79.5 / 99.0 / 85.0% |
+| + both | 96.5 / 100 / 92.0% | **96.5 / 100 / 99.0%** | **85.5 / 99.0 / 89.5%** |
+
+- **The threshold's fingerprint is large.** Among aware households with at least 60% of neighbours
+  adopting, 78% have adopted under the threshold model against 26 to 27% under the other two.
+- **Binned by share, awareness identifies all three models on the data's own scale**: 96.5% or more at
+  43 villages, 85.5% at 20, where milestone 24's count bins gave 64% at 20 with a borrowed scale.
+- **The caveat is the model's.** The threshold here is deterministic and the same for every household, so
+  everyone aware past it adopts; a noisy or heterogeneous threshold would blur that bin. The real BCDJ
+  survey has no awareness question: this is a design result for a new study, not a verdict on the 43 villages.
+
 ## Next steps
 
-Milestone 25 finds the real villages' preferred model changes with the weighting (information, threshold, reinforcement, information under four weightings, none decisive) and that a scale taken from the data recovers less than milestone 24's synthetic one. Next: a village random effect in the processes (milestone 3b) so synthetic villages vary as much as the real ones; awareness under the data's own scale; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
+Milestone 26 finds take-up among the aware binned by the *share* of adopting neighbours identifies all three models (96.5% or more, data's own scale, 43 villages; 85.5% at 20), against a deterministic threshold. Next: a noisy, per-household threshold as a fourth process, to see how fast that power fades; the share moments without awareness, which the real data contain, as a real-data check. Earlier: Milestone 25 finds the real villages' preferred model changes with the weighting (information, threshold, reinforcement, information under four weightings, none decisive) and that a scale taken from the data recovers less than milestone 24's synthetic one. Next: a village random effect in the processes (milestone 3b) so synthetic villages vary as much as the real ones; awareness under the data's own scale; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
 11 adopters per unit &kappa;) and that the costly swaps crowd seeds together rather than pick weaker
 ones. Next: which refitted processes set the worst case between &kappa; = 0.1 and 0.25 (the harness's
 per-draw arg-max family and its parameters) and whether coverage loss predicts regret there; the
