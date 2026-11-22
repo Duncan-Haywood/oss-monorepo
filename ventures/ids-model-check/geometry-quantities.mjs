@@ -66,11 +66,14 @@
 //                            the model's own stored weights give: its stored
 //                            (else measured) net or gross volume x that
 //                            density (weights.mjs; eval/member-weights-2026-11-22.md)
+//   Length                   railings: the path's length along the top rail
+//                            (railings.mjs railingLength; eval/railing-lengths-2026-11-22.md)
 // Other lengths and heights are not offered.
 //
 // Every value is in SI units (m, m2, m3), as the IDS standard reads values.
 
 import { memberWeights, addWeights, parseDensities } from "./weights.mjs";
+import { addRailingLines } from "./railings.mjs";
 
 const WALL = /^IFCWALL/;
 const PLAN = /^IFC(SLAB|PLATE|COVERING|ROOF)/;
@@ -79,6 +82,7 @@ const SLAB = /^IFCSLAB/;
 const LINEAR = /^IFC(WALL|COLUMN|BEAM|MEMBER|PILE)/; // Length: walls and linear members
 const OPENING = /^IFC(DOOR|WINDOW)/;
 const FOOTING = /^IFCFOOTING/;
+const RAILING = /^IFCRAILING/;
 const LINES = new Set(["Length", "Height"]); // read from computed.lines, not the sections
 const SURFACES = new Set(["OuterSurfaceArea", "GrossSurfaceArea"]); // computed.surface, faceted bodies too
 
@@ -110,6 +114,7 @@ export const GEOMETRY_QUANTITIES = [
   ["CrossSectionArea", "area", FOOTING, (r) => r.computed.footing?.cross],
   ["OuterSurfaceArea", "area", FOOTING, (r) => r.computed.footing?.outer],
   ["GrossSurfaceArea", "area", FOOTING, (r) => r.computed.footing?.gross],
+  ["Length", "length", RAILING, (r) => r.computed.railing?.length],
 ];
 
 // The IFC quantity class each kind is written as.
@@ -1549,6 +1554,7 @@ export async function measureModel(ifcText, opts = {}) {
   addMemberLines(model, rows, { solidExtent });
   addSlabLines(model, rows, { solidExtent });
   addFootingLines(model, rows, { solidExtent });
+  addRailingLines(rows);
   addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms });
   addRevitSizeLines(model, rows, { readUnits });
   const out = addSpaceQuantities(quantitiesFromRows(rows), model, rooms, rows);

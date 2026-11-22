@@ -764,6 +764,27 @@ an exporter slip read by hand (a roof's area stored on its openings, a 0.30 m
 `Width` on a 1.53 m opening); with the stored figures hidden the fill writes
 5,806 values and IfcTester takes exactly those from fail to pass
 (`eval/opening-quantities-2026-11-22.md`).
+**Railings' Length (2026-11-22).** `Qto_RailingBaseQuantities` `Length`
+(what a balustrade or handrail quote is priced by, per metre) is read from the
+railing's body (`railings.mjs`). Revit stores the length of the railing's
+path: a U-shaped balcony rail whose top rail's middle line runs 2.539 +
+5.948 + 2.539 m stores 11.03 m. The body is posts, balusters, panels and rails
+with no path in it, so the path is read off the top rail: the upward faces
+nothing else lies above, joined into runs; each run long and thin enough to be
+a rail is read as a strip (a mitred strip of width w along a polyline of
+length L has area L w and outline 2 L + 2 w) and as a sweep (its volume over
+its cross-section), and the two must agree within 1%. Separate runs add up; a
+lower rail beside a counted one is not counted twice. On the two public
+exports that store the figure (Revit 2019 and 2022; 54 railings) 29 are
+offered and all 29 are within 0.05% of the stored length; 25 are held back (16
+whose body is only upright extrusions, posts or balusters with no rail in it,
+and 9 whose two readings disagree: tessellated round handrails, a cut through
+a corner, lower rails whose section could not be cut). With
+the stored lengths hidden the fill writes the 29 and IfcTester takes exactly
+those from fail to pass. ARCHICAD stores no Qto_ railing length, but its own
+`Länge (A)` on FZK-Haus's two railings (2.00 and 4.29 m) is what the reading
+gives; on eleven public models that store no railing length, 131 of 419
+railings would be filled (`eval/railing-lengths-2026-11-22.md`).
 **Slab thickness and perimeter (2026-11-22).** `Qto_SlabBaseQuantities`
 `Width` (the slab's thickness) and `Perimeter` (its outline) are measured too:
 the thickness is the body's depth along its extrusion, offered only when the
