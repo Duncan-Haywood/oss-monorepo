@@ -163,3 +163,10 @@ test("the incomplete verdict has a style of its own", () => {
   // a third kind of recommendation rather than an unanswered row.
   assert.match(page("index.html"), /\.verdict\.incomplete \{/);
 });
+
+// maintenance-planner pairs with this page: the assets this planner says to
+// keep go on a preventive schedule there, and its reliability tab reads the
+// same breakdown history. One hop both ways (siblings-budget.json is 0).
+test("index links one hop to the maintenance-planner sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/maintenance-planner\/"/);
+});
