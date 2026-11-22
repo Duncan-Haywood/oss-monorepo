@@ -58,7 +58,8 @@ test("links to Mexico and the hub and the sitemap entry is its own url block", (
 });
 
 test("the NF-e file check is on the page and its sample draws exactly the three planted findings", async () => {
-  assert.match(html, /import\{checkNfe\}from"\.\/nfe\.mjs"/);
+  assert.match(html, /import\("\.\/nfe\.mjs"\)/);
+  assert.match(html, /\(\{checkNfe\}=a\)/);
   assert.match(html, /id="nfe-file"/);
   const { checkNfe } = await import("./nfe.mjs");
   const sample = html.match(/const SAMPLE=`([\s\S]*?)`;/)[1];
@@ -66,7 +67,8 @@ test("the NF-e file check is on the page and its sample draws exactly the three 
 });
 
 test("the national NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
-  assert.match(html, /import\{checkNfse\}from"\.\/nfse\.mjs"/);
+  assert.match(html, /import\("\.\/nfse\.mjs"\)/);
+  assert.match(html, /\(\{checkNfse\}=b\)/);
   assert.match(html, /id="nfse-file"/);
   const { checkNfse } = await import("./nfse.mjs");
   const sample = html.match(/const SAMPLE_NFSE=`([\s\S]*?)`;/)[1];
@@ -75,7 +77,8 @@ test("the national NFS-e check is on the page and its sample draws exactly the t
 });
 
 test("the ABRASF municipal NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
-  assert.match(html, /import\{checkAbrasf\}from"\.\/abrasf\.mjs"/);
+  assert.match(html, /import\("\.\/abrasf\.mjs"\)/);
+  assert.match(html, /\(\{checkAbrasf\}=d\)/);
   assert.match(html, /id="abrasf-file"/);
   const { checkAbrasf } = await import("./abrasf.mjs");
   const sample = html.match(/const SAMPLE_ABRASF=`([\s\S]*?)`;/)[1];
@@ -84,9 +87,20 @@ test("the ABRASF municipal NFS-e check is on the page and its sample draws exact
 });
 
 test("the DSF municipal NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
-  assert.match(html, /import\{checkDsf\}from"\.\/dsf\.mjs"/);
+  assert.match(html, /import\("\.\/dsf\.mjs"\)/);
+  assert.match(html, /\(\{checkDsf\}=e\)/);
   assert.match(html, /id="dsf-file"/);
   const { checkDsf } = await import("./dsf.mjs");
   const sample = html.match(/const SAMPLE_DSF=`([\s\S]*?)`;/)[1];
   assert.deepEqual(checkDsf(sample).findings.map((f) => f.rule).sort(), ["DSF-010", "DSF-011", "DSF-020"]);
+});
+
+// 2026-11-22: the five format checkers are about 230 kB compressed; a static import held every handler on the page
+// (and the CNPJ/CPF check) until they had all arrived. They load with import() on first use; the ID check stays static.
+test("the heavy checkers load on demand, not in the page's static imports", () => {
+  const mod = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  const statics = [...mod.matchAll(/import\s*\{[^}]*\}\s*from\s*"([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(statics, ["./brazil.mjs"]);
+  for (const f of ["nfe", "nfse", "nfe-event", "abrasf", "dsf"]) assert.match(mod, new RegExp(`import\\("\\./${f}\\.mjs"\\)`), f);
+  for (const fn of ["show", "showE", "showS", "showA", "showD"]) assert.match(mod, new RegExp(`async function ${fn}\\([^)]*\\)\\{if\\(!await ready\\(`), fn);
 });
