@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVKtGmrb1t46WAauoxJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt-1 text)",
+  "input_sha256": "dd742258ea88dae8e8c9695677f3733efc1ace4919c159995a5179f64f7b8d14",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T21:15:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "submittal-register README Next item 3: submittal schedule (submit-by dates) from a P6 XER or activity CSV",
+  "projects": [
+    "ventures/submittal-register"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18309",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/submittal-register/README.md",
+      "issue": "Next item 1 (score a real SectionFormat project manual) still blocked: every public-agency spec PDF host found by search refused the proxy (403 on CONNECT), as the 2026-11-19 run also found"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row was open-tennis-robots (next CAD item: draw bolt tails past nuts on an unbuilt machine, no market path; seven earlier sessions left the row for the same reason). Took a non-flagship with a paid analogue (spec-to-submittal tools sold inside construction platforms) whose README named a buildable next item.",
+      "did": "Built submit-by dates from a P6 schedule for submittal-register, scored on four public XERs",
+      "result": "Shipped; 58 of 80 held-out section-to-activity pairs right"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-submittal-due-dates-from-a-p6-schedule.md",
+    "ventures/submittal-register/eval/schedule-match-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test engine/page/schedule tests 31+2 pass; run_venture_tests.py submittal-register pass; check_posts ok; venture-preflight first run failed three repo checks (literal U+FEFF, Feb-30 date check, unbounded date regex), fixed and rerun. Playwright: sample book + sample schedule dated 18/18; UFGS 21-section book + hotel XER dated 483/495 in the page, CSV download named *-submittal-schedule.csv, no console errors, no horizontal scroll at 390 px. Match accuracy judged by one reader (the agent).",
+  "corrections": [],
+  "redteam": null
+}
