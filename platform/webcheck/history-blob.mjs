@@ -47,6 +47,19 @@ export function isShallowClone(repo) {
   }
 }
 
+/** True when `rev` names a commit this clone has. */
+function hasCommit(repo, rev) {
+  try {
+    execFileSync('git', ['cat-file', '-e', `${rev}^{commit}`], {
+      cwd: repo,
+      stdio: ['ignore', 'ignore', 'ignore'],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Read `<rev>:<path>` out of git history.
  *
@@ -55,8 +68,9 @@ export function isShallowClone(repo) {
  * @returns {{ ok: false, reason: string }}
  *   when the object is absent *and* the clone is shallow, so the absence is the
  *   clone's rather than the repository's. `reason` names the remedy.
- * @throws when the object is absent in a full clone, or git fails for any other
- *   reason -- both are real failures the caller must not swallow.
+ * @throws when the object is absent in a full clone, when the clone carries `rev`
+ *   but not `path`, or git fails for any other
+ *   reason -- all real failures the caller must not swallow.
  */
 export function readHistoryBlob(repo, rev, path) {
   try {
@@ -70,6 +84,10 @@ export function readHistoryBlob(repo, rev, path) {
     };
   } catch (err) {
     if (!isShallowClone(repo)) throw err;
+    // Shallow is not enough on its own: when the clone does carry `rev`, the
+    // history is present and the failure is the path (or git itself), which is
+    // real. Only an absent commit is the clone's fault.
+    if (hasCommit(repo, rev)) throw err;
     return {
       ok: false,
       reason:
