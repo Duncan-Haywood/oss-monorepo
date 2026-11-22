@@ -473,10 +473,36 @@ What it found:
 | The other 12 joints | pass | a bare socket and ratchet, no bar, at every hole; the narrowest arcs are the elevation pin's thin nut 60, the turntable bearing's fixed-ring nuts 95 and the yoke pivot 100 degrees |
 
 So no nut needed an extension: wherever a socket goes on at all, it goes on
-with the ratchet straight on it. How the socket gets to the nut (in between
-parts, then along the axis) is not tried, and inside the drum that means
-feeding the ratchet in between two rods and sliding the socket on along the
-axle; tests `SocketTest`. Nobody has built one.
+with the ratchet straight on it; tests `SocketTest`. Nobody has built one.
+
+#### The socket's way onto the nut (2026-11-22, `guide.socket_path`, `socket_swept`)
+
+The table above puts the tool on the nut; it did not ask how it got there. Now
+the check also moves it in, in two straight moves from wholly outside the work
+(the bounding box of what is on the machine when the step comes). The last
+move is along the bolt's axis: the socket's mouth starts past the bolt's end
+(the tail and the nut, plus 2 mm) and slides down onto the nut, ratchet and
+hand on it. Before that the tool either comes straight down the axis
+("axis") or slides in sideways along its handle, head first, from outside
+("sideways"; the hand trails, as when you push a ratchet into a gap). The
+tool is round pieces on the axis and boxes along the handle, so each move's
+sweep is exact (a cylinder or box made longer, a cylinder drawn out sideways
+into a slot), not sampled, and a thin plate or rod cannot slip between two
+samples. Handle angles are tried from inside the free arcs of 15 degrees or
+more first.
+
+| Nut | Way on |
+| --- | --- |
+| Drum axle nyloc, inside the drum | sideways, both ends: the ratchet's 34 mm head goes in between two rods (the cover and hatch close the drum's ends, so the axis is blocked). Heads up to 52 mm pass; 54 does not (test `test_a_head_wider_than_the_gap_between_rods_has_no_way_in`). The swing on the nut is the tighter limit: a 44 mm head's 26 mm handle already leaves 5 degrees, short of 15 |
+| Rod clamp rings, yoke pivot, home switch bracket, both elevation eyes, the turntable bearing's fixed-ring nuts | sideways |
+| Head pivot, deck cable saddle, idler axles, spool axle, driver carrier, levelling foot jam nuts, the turning ring's nuts | straight down the axis |
+| Lift flight caps' M3 nyloc | no socket fits (above): held with the spanner |
+
+So every nut a socket fits on, at every hole, has a straight way on.
+Not modelled: curved paths (a "none" would mean no straight way, not no way),
+the bolt's tail (not drawn; taken to go up the bore), the socket held by its
+own on the nut while the ratchet is fitted, and the hand as anything but a
+box.
 
 ### Idler axles fixed, and the spool axle (2026-11-21, `feeder.IDLER_AXLE_*`, `idler_axle_spacer`, `guide.Joint.far_last`)
 

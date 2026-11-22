@@ -1673,6 +1673,38 @@ class SocketTest(unittest.TestCase):
             rows = self.G.socket_checks(self.cp, self.cparts)
         self.assertLess(rows[0]["arc_deg"], self.G.RATCHET_SWING)
 
+    # 2026-11-22: how the socket gets there, in two straight moves from outside the work.
+    def test_every_socket_nut_has_a_straight_way_on(self):
+        for r in [*self.crows.values(), *self.frows.values()]:
+            if r["ext_mm"] is not None:
+                self.assertIn(r["path"], ("axis", "sideways"), r["joint"])
+                self.assertEqual(r["path_holes"], r["holes"], r["joint"])
+
+    def test_drum_axle_socket_goes_in_sideways_between_the_rods(self):
+        """Along the axle the drum's cover is in the way; the ratchet's head goes in between two rods."""
+        self.assertEqual(self.crows["drum axle"]["path"], "sideways")
+
+    def test_a_head_wider_than_the_gap_between_rods_has_no_way_in(self):
+        """A 54 mm ratchet head still sits inside the cage on the nut, but cannot pass between the rods to get there
+        (52 mm passes)."""
+        j = next(x for x in self.G.joints(self.cp) if x.name == "drum axle")
+        with unittest.mock.patch.dict(self.G.RATCHET, {8: (54.0, 18.0, 200.0)}), \
+                unittest.mock.patch.object(self.G, "joints", lambda p, j=j: [j]):
+            rows = self.G.socket_checks(self.cp, self.cparts)
+        self.assertIsNotNone(rows[0]["ext_mm"])
+        self.assertEqual(rows[0]["path"], "")
+
+    def test_sweeps_are_the_tool_made_longer(self):
+        G = self.G
+        base = G.socket_swept(8, 50.0).bounding_box()
+        up = G.socket_swept(8, 50.0, start=10.0, lift=100.0).bounding_box()
+        side = G.socket_swept(8, 50.0, slide=200.0).bounding_box()
+        self.assertAlmostEqual(up.min.Z, base.min.Z + 10.0, places=3)
+        self.assertAlmostEqual(up.max.Z, base.max.Z + 110.0, places=3)
+        self.assertAlmostEqual(side.max.X, base.max.X + 200.0, places=3)
+        self.assertAlmostEqual(side.min.X, base.min.X, places=3)
+        self.assertAlmostEqual(G.socket_solid(8, 50.0).volume, G.socket_swept(8, 50.0).volume, places=3)
+
 
 class BearingParamsTest(unittest.TestCase):
     """2026-11-21: the turntable bearing's rings. Both rings' M5 heads sit in the gap between the flanges and pass
