@@ -13,7 +13,7 @@
  * Dates are YYYY-MM-DD strings (calendar dates; times dropped).
  */
 
-const day = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || "").trim()); return m ? `${m[1]}-${m[2]}-${m[3]}` : ""; };
+const day = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})(?!\d)/.exec(String(s || "").trim()); return m ? `${m[1]}-${m[2]}-${m[3]}` : ""; };
 
 /**
  * Activities from a P6 XER export: the TASK table, WBS names from PROJWBS.
@@ -64,14 +64,15 @@ function csvLine(line) {
 export function parseDate(s) {
   s = String(s || "").trim().replace(/\s+\d{1,2}:\d{2}.*$/, "").replace(/\s*A$/, "");
   let m;
-  if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s))) return iso(+m[1], +m[2], +m[3]);
+  if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/.exec(s))) return iso(+m[1], +m[2], +m[3]);
   if ((m = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/.exec(s))) return iso(year(+m[3]), +m[1], +m[2]);
   const MON = "jan feb mar apr may jun jul aug sep oct nov dec".split(" ");
   if ((m = /^(\d{1,2})[- ]([A-Za-z]{3})[a-z]*[- ,]+(\d{2,4})$/.exec(s))) { const mo = MON.indexOf(m[2].toLowerCase()) + 1; if (mo) return iso(year(+m[3]), mo, +m[1]); }
   return "";
 }
 const year = (y) => (y < 100 ? 2000 + y : y);
-const iso = (y, m, d) => (m >= 1 && m <= 12 && d >= 1 && d <= 31 ? `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}` : "");
+// Round-trips the date, so 2026-02-30 is refused rather than rolled into March.
+const iso = (y, m, d) => (m >= 1 && m <= 12 && new Date(Date.UTC(y, m - 1, d)).getUTCDate() === d ? `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}` : "");
 
 /**
  * Activities from a CSV (a P6 or Microsoft Project export to Excel saved as
@@ -81,7 +82,7 @@ const iso = (y, m, d) => (m >= 1 && m <= 12 && d >= 1 && d <= 31 ? `${y}-${Strin
  * @returns {{ activities: Activity[], dataDate: string, project: string }}
  */
 export function readActivityCsv(text) {
-  const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = text.replace(/^\ufeff/, "").split(/\r?\n/).filter((l) => l.trim());
   if (!lines.length) return { activities: [], dataDate: "", project: "" };
   const head = csvLine(lines[0]).map((h) => h.trim().toLowerCase());
   const col = (...re) => head.findIndex((h) => re.some((r) => r.test(h)));
@@ -103,7 +104,7 @@ export function readActivityCsv(text) {
 
 /** XER if it looks like one, else CSV. */
 export function readSchedule(text) {
-  return /^ERMHDR/.test(text.replace(/^﻿/, "")) || /^%T\t/m.test(text) ? readXer(text) : readActivityCsv(text);
+  return /^ERMHDR/.test(text.replace(/^\ufeff/, "")) || /^%T\t/m.test(text) ? readXer(text) : readActivityCsv(text);
 }
 
 // ------------------------------------------------------------ matching
@@ -510,7 +511,7 @@ export function scheduleCsv(sched) {
   const rows = [SCHEDULE_COLUMNS];
   const sorted = [...sched.rows].sort((a, b) => (a.submitBy || "9999") < (b.submitBy || "9999") ? -1 : (a.submitBy || "9999") > (b.submitBy || "9999") ? 1 : a.id < b.id ? -1 : 1);
   for (const r of sorted) rows.push([r.id, r.section, r.sectionTitle, r.type, r.sd, r.phase, r.label, r.description, r.approval, (r.flags || []).join(" "), r.filePage ?? r.page, r.submitBy, r.needBy, r.activityCode, r.activityName, r.match, sched.reviewDays + (sched.working ? " working" : ""), sched.cycles, r.leadDays || "", r.late ? "yes" : "", "", "", "", ""]);
-  return "﻿" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+  return "\ufeff" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
 }
 
 /** Plain-text summary for the CLI. */

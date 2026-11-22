@@ -122,9 +122,11 @@ test("working-day arithmetic skips weekends", () => {
 });
 
 test("CSV schedules: header aliases and date shapes", () => {
-  const s = readActivityCsv("﻿Activity ID,Activity Name,Start,Finish\nA1,\"Doors, frames and hardware\",15-Jun-26 08:00,26-Jun-26\nA2,Paint,7/6/2026,7/17/2026\nA3,No date,,\n");
+  const s = readActivityCsv("\ufeffActivity ID,Activity Name,Start,Finish\nA1,\"Doors, frames and hardware\",15-Jun-26 08:00,26-Jun-26\nA2,Paint,7/6/2026,7/17/2026\nA3,No date,,\n");
   assert.deepEqual(s.activities.map((a) => [a.code, a.name, a.start]), [["A1", "Doors, frames and hardware", "2026-06-15"], ["A2", "Paint", "2026-07-06"]]);
   assert.equal(parseDate("2026-06-15 A"), "2026-06-15");
+  assert.equal(parseDate("2026-02-30"), "");
+  assert.equal(parseDate("2025-03-091"), "");
   assert.throws(() => readActivityCsv("foo,bar\n1,2\n"), /name column and a start column/);
 });
 
