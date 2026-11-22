@@ -1,0 +1,20 @@
+# Maintenance Planner
+
+> Free browser CMMS for small plants, workshops, facilities and fleets: preventive maintenance by calendar, meter or whichever comes first (fixed or floating schedules), work orders with checklists and parts, spare-part reorder points with safety stock, PM compliance by the 10% rule, a 12-week labour forecast, and a censored Weibull fit of each asset's failures that says whether scheduled replacement helps and at what age. No account, no per-user fee; data stays in the browser and in exported files.
+
+Free and open source (MIT). Not engineering or safety advice; equipment makers' instructions and statutory inspections come first.
+
+## Pages
+
+- [The tool](https://marisstella.app/maintenance-planner/): assets, PM plans, work orders, parts, reliability; JSON and CSV export.
+
+## What it computes
+
+- Due dates with month-end clamping, meter usage rates by least squares, whichever-first triggers, lead windows.
+- Weibull maximum likelihood with right-censoring and a 90% likelihood-ratio interval on the shape; checked against the published bearing-data fit and scipy.
+- Barlow-Proschan age-replacement interval from planned and failure costs.
+- Command line: `node cli.mjs maintenance-data.json [--today YYYY-MM-DD] [--csv | --json]`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/maintenance-planner): MIT licensed.

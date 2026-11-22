@@ -730,6 +730,9 @@ const CATEGORY_RULES = [
       /-keeper$/.test(slug)
       || ['cancel-flow', 'churn-radar', 'cron-heartbeat', 'dunning-engine', 'feedback-board', 'form-inbox',
         'mrr-pulse', 'rev-rec', 'self-hosted-saas-stack', 'support-desk', 'trial-converter', 'webhook-relay'].includes(slug)
+      // `maintenance-planner` joined 2026-11-22 on its first commit: a CMMS (PM schedules, work orders, parts) whose
+      // data the maintenance team keeps in its own browser and files, the same own-your-data business app as the ones above.
+      || slug === 'maintenance-planner'
       // `monastery-site` joined 2026-11-03 on its first commit: a website builder whose output a monastery or convent hosts
       // on its own account, the same you-own-the-copy posture as the apps above.
       || slug === 'monastery-site'

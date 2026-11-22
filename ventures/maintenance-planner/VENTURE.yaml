@@ -1,0 +1,56 @@
+name: maintenance-planner
+description: >-
+  Free browser CMMS for small plants, workshops, facilities and fleets: preventive maintenance by calendar, meter or whichever comes first,
+  work orders, spare-part reorder points, PM compliance, a 12-week labour forecast, and a censored Weibull reading of each asset's failures
+  with a cost-optimal replacement age. No account, no per-user fee; data stays in the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-22 in a ventures session. Nothing in ventures/ schedules preventive maintenance or tracks work orders:
+# fleet-repair-or-replace-planner and landlord-repair-or-replace-planner are one-off keep-or-replace decisions, spc-control-charts and
+# survival-analysis are statistics tools with no maintenance workflow, hvac-maintenance-contract-calculator prices a contract.
+# Paid incumbents: UpKeep (YC W17), MaintainX, Limble, Fiix, eMaint: per-user monthly subscriptions. Free: spreadsheets, self-hosted
+# open-source CMMS servers that need installing.
+#
+# First visitor: maintenance leads and owner-operators at small plants (food, packaging, machining), facility managers for schools,
+# churches and property portfolios, small fleet managers, searching "free CMMS", "free preventive maintenance software",
+# "PM schedule spreadsheet", "maintenance work order template". Volume not measured.
+#
+# Liability boundary: schedules, records and statistics; the maintenance lead decides; not engineering or safety advice; statutory
+# inspections and makers' instructions come first; the page states the renewal assumption and what is not modelled.
+#
+# Path to revenue (payment rails stay off): free tool and lead magnet. Paid paths needing the owner: a self-deployed multi-user edition
+# (shared data file on the deployer's own storage, technician phone view) sold as setup and support; a reliability review service
+# that reads a plant's exported history; a hosted edition through the owner's merchant-of-record checkout.
+
+hypotheses:
+  - claim: >-
+      Maintenance leads at small sites who keep PMs in a spreadsheet will enter their own equipment and plans (not just the example)
+      and come back to close work orders, because a free CMMS with no per-user fee removes the reason they never bought one;
+      measured as the share of browsers with plan_saved that later record work_order_closed.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      The reliability tab's "does scheduled replacement help" reading is the differentiator that paid CMMS dashboards lack;
+      measured as the share of sessions with failures recorded that open the Reliability tab (counter to add when a reading exists).
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://marisstella.app/maintenance-planner/
+  analytics: null
