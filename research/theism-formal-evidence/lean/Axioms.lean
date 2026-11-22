@@ -104,3 +104,9 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.AndersonK.eucl_none_sep_iff
 #print axioms TheismFormal.AndersonK.eucl_essential_iff
 #print axioms TheismFormal.AndersonK.back_symm
+#print axioms TheismFormal.AndersonK.SAT.witness
+#print axioms TheismFormal.AndersonK.SAT.sep_of_sat
+#print axioms TheismFormal.AndersonK.SAT.sat_of_sep
+#print axioms TheismFormal.AndersonK.SAT.sat_iff
+#print axioms TheismFormal.AndersonK.SAT.need_succ
+#print axioms TheismFormal.AndersonK.SAT.sep_of_not_succ
