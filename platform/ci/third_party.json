@@ -189,6 +189,15 @@
       "license": "MIT",
       "source": "https://github.com/LiaungYip/arcflash (PyPI arcflash-calc 0.1.0: arcflash/ieee_1584/{tables,cubicle,equations,calculation}.py), ported to JavaScript",
       "notice": "inline"
+    },
+    {
+      "name": "identify 2.6.20 file-type tags and pre-commit 4.7.0 schema constants",
+      "paths": [
+        "ventures/pre-commit-config-check/tables.mjs"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/pre-commit/identify (ALL_TAGS) and https://github.com/pre-commit/pre-commit (clientlib.py, all_languages.py), generated from the installed packages",
+      "notice": "inline"
     }
   ],
   "not_third_party": [

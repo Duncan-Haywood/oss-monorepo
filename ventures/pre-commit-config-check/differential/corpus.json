@@ -1,0 +1,421 @@
+{
+ "fetched": "2026-11-22",
+ "source": "https://raw.githubusercontent.com/<repo>/HEAD/.pre-commit-config.yaml",
+ "note": "Files are not committed (they belong to their projects); fetch-corpus.sh refetches them. HEAD moves, so a later fetch may differ from these hashes.",
+ "files": [
+  {
+   "repo": "Lightning-AI/pytorch-lightning",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "6cd70e3d6c4a295c6b2f65941611b73bd421e342ba3da5c2b04a8b870c11af5d",
+   "bytes": 3577
+  },
+  {
+   "repo": "OctoPrint/OctoPrint",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "2deddb74932cf3bb84d8ef769e0f95f6e066b8e00c66f98eac64d286002cc0c7",
+   "bytes": 2811
+  },
+  {
+   "repo": "PyCQA/bandit",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "e19016df3b822a3701a244b321db67363021a9d1a189acf0f7fcdb4f3e7d780e",
+   "bytes": 879
+  },
+  {
+   "repo": "PyCQA/flake8",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "54cacd4a08fb88e9063283e6d415fe4385769beea804f1a45a486a1986541e34",
+   "bytes": 1193
+  },
+  {
+   "repo": "Textualize/rich",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "1101cfeb5124349202d7c11a7dd156557b9b16c64a6e7964a80319aa2482dd5d",
+   "bytes": 1324
+  },
+  {
+   "repo": "Textualize/textual",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "96be67497b7df728ac7f10b7fd41ff3571b9d8333aa074296ed9e3b7f9583475",
+   "bytes": 1846
+  },
+  {
+   "repo": "aio-libs/aiohttp",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "419d6f4b077a4fa5946cd8049aa8844dda23b0702f5d6879b80e9b1a07d8249e",
+   "bytes": 3079
+  },
+  {
+   "repo": "antonbabenko/pre-commit-terraform",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "b5a4dab194fcba8226b2d35a2c51d4370547c98fe5e4316c982927acbf0a235e",
+   "bytes": 5075
+  },
+  {
+   "repo": "apache/airflow",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "62cee41dd4b81be64b0a3cf94591259a83dcb71c7fcd06ec661ce7512e9ba1e2",
+   "bytes": 90540
+  },
+  {
+   "repo": "apache/arrow",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "a1313ce0f2d95f6b52a6437dbe165fcc9ee1cf5ab395abd38268776fc67f5d9f",
+   "bytes": 9951
+  },
+  {
+   "repo": "apache/beam",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "2ee0fef1030710f701958e6edbe93b97d2a8b7502b92404b1b40b93a2fdb6229",
+   "bytes": 2063
+  },
+  {
+   "repo": "apache/superset",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "7cd14d8df1f3b8827368c42bc0f92601991b360928cbed39f638f1c11b164f7d",
+   "bytes": 9424
+  },
+  {
+   "repo": "asottile/pyupgrade",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "b7c8d0cb5fee12c06f592db31dcb2b7edc3add24013fdd08bf08715a21bc4056",
+   "bytes": 1135
+  },
+  {
+   "repo": "astral-sh/ruff",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "1cee36e266f0edbfde7fa51755be073a61c3d5288ce60a2d1600249fb0d7dce5",
+   "bytes": 6348
+  },
+  {
+   "repo": "aws/aws-cli",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "ae16db92974044bed08c60f969de37a6f10e1c9466c694f6e25eacecd2eb74bc",
+   "bytes": 968
+  },
+  {
+   "repo": "bokeh/bokeh",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "0cbc5a7af2c624b10c75233c94c8765c597fcb536be424582b6c15190b3491ae",
+   "bytes": 1576
+  },
+  {
+   "repo": "boto/boto3",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "63068824631b5e630c036981469db7a64c53936b93f30085a62a79f538403873",
+   "bytes": 512
+  },
+  {
+   "repo": "celery/celery",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "3cc8a8bab2cd301ed2babaa7675152dbc64c9c638a8b7e83e9ce7882f87b09f6",
+   "bytes": 1124
+  },
+  {
+   "repo": "dask/dask",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "e267b163bcf5e808d91d42ddbfc55ea2f1ca7d0742186c545fd441e1e18e7296",
+   "bytes": 1446
+  },
+  {
+   "repo": "django/django",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "e7b56bf6817ebc377ee7be264cc057d5ecabc4dc2868107c561b38c484412472",
+   "bytes": 797
+  },
+  {
+   "repo": "fastapi/fastapi",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "de88bdef476c0a165153249049dd0066241db1a21ce616260a4a1ba366cdfd7d",
+   "bytes": 3657
+  },
+  {
+   "repo": "frappe/frappe",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "30038a780610a2bf24be61bc34d93396b15f9e952c50bb2c746a73074e4932ba",
+   "bytes": 2829
+  },
+  {
+   "repo": "freqtrade/freqtrade",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "1c82a0b3da47a34f0b2f503c8a746601307045fe25b921095768e60c4570b586",
+   "bytes": 2046
+  },
+  {
+   "repo": "getsentry/sentry",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "81f9606a5f00d7a725682ff89d81d001595e98e2e01289194fe05d9edb938adb",
+   "bytes": 6734
+  },
+  {
+   "repo": "google/jax",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "d50dd091dec5217c8769634867e483e21e7e4ee0089ccc50d313ccecd7ddd99c",
+   "bytes": 2360
+  },
+  {
+   "repo": "googleapis/google-cloud-python",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "76bc7bdd7a6ef5a2da2d5eae2d6a0c18685810b7ede7934c0a89e7b4029312ec",
+   "bytes": 1214
+  },
+  {
+   "repo": "great-expectations/great_expectations",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "5d55e1a55b20b09bd07879008825e7bf6dbdd21b91fca81ab94eaab431f0fb98",
+   "bytes": 1881
+  },
+  {
+   "repo": "home-assistant/core",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "4c3617de833c9cc4bfec3575e0264284cbe28085b50dde1888b53fa85c03caf8",
+   "bytes": 4197
+  },
+  {
+   "repo": "huggingface/datasets",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "f4ca11843f7b82619b44a0567c62699ba1ae2d43b860605edce62c0853b16e31",
+   "bytes": 258
+  },
+  {
+   "repo": "ipython/ipython",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "73f9d1018dfe40d8f619fe643b27a0339e9d35e3e50f92bf14975cca3519f689",
+   "bytes": 548
+  },
+  {
+   "repo": "jax-ml/jax",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "d50dd091dec5217c8769634867e483e21e7e4ee0089ccc50d313ccecd7ddd99c",
+   "bytes": 2360
+  },
+  {
+   "repo": "jazzband/pip-tools",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "74adcfd4b38c4b960066e50d21fbfc5f5417cf075a84bc83eed5e7d843227797",
+   "bytes": 6246
+  },
+  {
+   "repo": "jupyter/notebook",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "7c4d0c1110f0d4b727507e7ca543490c0c8f6bf749555818911d9ba44b7cb190",
+   "bytes": 2570
+  },
+  {
+   "repo": "jupyterlab/jupyterlab",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "157f1583fc42d012ec97a5ba9c6ce714eb53c1714f40eb19578319f528426760",
+   "bytes": 2754
+  },
+  {
+   "repo": "keras-team/keras",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "7deb444325215aae016501853e43436fd27dee2e07ec19ea246d2568657539c1",
+   "bytes": 891
+  },
+  {
+   "repo": "langchain-ai/langchain",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "9836d4928d1c589efa89343147da52657dc4a76dc63e9a05d0609586294ecd86",
+   "bytes": 10380
+  },
+  {
+   "repo": "matplotlib/matplotlib",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "8e84f843ac5bf7feed57a6898e2db54f5f81fef947ff3d9e3b791e0cf7b7b1f6",
+   "bytes": 5306
+  },
+  {
+   "repo": "mlflow/mlflow",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "e4334ebba3240c398391e014069d1785cffbef52647191ff42e9bbcb94e4faf1",
+   "bytes": 9880
+  },
+  {
+   "repo": "open-mmlab/mmdetection",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "46afbf9158c333a9adf52a4eb1912b05acc9ee919697a872cc76408daea5b063",
+   "bytes": 1452
+  },
+  {
+   "repo": "optuna/optuna",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "1493eb64ba99e51eed29fa33593e7beb2e9b4387bc6e9685264ddd251b71a94f",
+   "bytes": 1223
+  },
+  {
+   "repo": "pallets/click",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "32f781c5f5555301804f5d42916c7d8afb62871ca362b93dbe80033eb5e78dc4",
+   "bytes": 925
+  },
+  {
+   "repo": "pallets/flask",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "f9d1956bed8163679b550fa8b93e0da170c19c2111266795cd250487b102933f",
+   "bytes": 844
+  },
+  {
+   "repo": "pandas-dev/pandas",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "b441c056d15b3e73065a3f23a699ad74a676a34174b2f52810249678676ed1cf",
+   "bytes": 12913
+  },
+  {
+   "repo": "pdm-project/pdm",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "86746df740689ffad2a907a5ff592f0927d95a64b8fd94a293a65dcb689ea6d4",
+   "bytes": 670
+  },
+  {
+   "repo": "pre-commit-ci/pre-commit-ci-config",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "7f9da85639f8789638d130863eeb203a60fd06d5802c5423c1e6e6c7adedc416",
+   "bytes": 1183
+  },
+  {
+   "repo": "pre-commit/pre-commit-hooks",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "b7c8d0cb5fee12c06f592db31dcb2b7edc3add24013fdd08bf08715a21bc4056",
+   "bytes": 1135
+  },
+  {
+   "repo": "pre-commit/pre-commit",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "05124b1ff17d36731c1d56c425bb3eb6adbe83dc2b15ffe4fc13b580f68486f9",
+   "bytes": 1260
+  },
+  {
+   "repo": "psf/black",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "c6810812e42c036367c907151bf115f95ed6e77d6903a6c1aa07bd6d985ca1be",
+   "bytes": 1407
+  },
+  {
+   "repo": "psf/requests",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "faac4f81c69a666fb78d19636c7b474a8fc5205898bd43153ff944d1d2bb9bc9",
+   "bytes": 484
+  },
+  {
+   "repo": "pybind/pybind11",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "4e473517d68a07a8ecbe683d168b70f63ab5cf50411fb585a33d55a9a6762427",
+   "bytes": 3912
+  },
+  {
+   "repo": "pydantic/pydantic",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "0bd09b6842a14472160e03a90266324186432b19f9ecb59a96667b512c4a1507",
+   "bytes": 1688
+  },
+  {
+   "repo": "pydata/xarray",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "f967a644c7953eb32e07f5e92ad0d55caeb5be3660f9465eb64b69086369abbc",
+   "bytes": 4259
+  },
+  {
+   "repo": "pyodide/pyodide",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "a30b341dde4f2b6c2463ce36cbafa0f1d882ccc755e21525bb36e325f036feaf",
+   "bytes": 3451
+  },
+  {
+   "repo": "pypa/pip",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "1594cfc40eeab328940c8727305afde451dce947cce20bdeedcd44ccb2bffdb2",
+   "bytes": 2200
+  },
+  {
+   "repo": "pypa/setuptools",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "676162a1c05fce85fda65597cc35fcd786b4e92153a8de9a217939b960034356",
+   "bytes": 157
+  },
+  {
+   "repo": "pytest-dev/pytest",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "e01b08114c27b20f5998e76294aea199a5680fdda1416192e659e6cd089c3bdb",
+   "bytes": 4994
+  },
+  {
+   "repo": "python-pillow/Pillow",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "19d6ae25724f011abf165a386c2ed319840b8ca5b56c37841e3822ab0ffa51b0",
+   "bytes": 2634
+  },
+  {
+   "repo": "python-poetry/poetry",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "939c9eb8efe52a98428891218c64f66eb06e8af91cd913bb54b653614dcb2caa",
+   "bytes": 1160
+  },
+  {
+   "repo": "python/cpython",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "2895715cce5cd4e060660449e7ed552276a37e47f8fc6b7caca80488b6544ea1",
+   "bytes": 5690
+  },
+  {
+   "repo": "python/mypy",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "eab2c4794326bcb198958b1df20a06f629fa4709fc1dde712c2a442569e81b95",
+   "bytes": 2564
+  },
+  {
+   "repo": "ray-project/ray",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "07148384edbd5ad3b84c4700444a551177b95012bf74390e622936b7fc18b8fd",
+   "bytes": 12074
+  },
+  {
+   "repo": "saltstack/salt",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "9e94344ff07035436ec41b643be0b443541bfb4e23eefc9999f6e530a59a88d6",
+   "bytes": 112957
+  },
+  {
+   "repo": "scikit-learn/scikit-learn",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "3d6fba40968e0895bbbfe8a7286d687c1b1550c0142c44315eea8a642003bdf6",
+   "bytes": 2378
+  },
+  {
+   "repo": "sqlalchemy/sqlalchemy",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "2a5147bf1ccd5de77012e32ee793af4e6b0167aad49d8a167d3432adc46f806d",
+   "bytes": 1126
+  },
+  {
+   "repo": "streamlit/streamlit",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "2138c761942a741aa737886cbb202d8f02967ce48893df6c0c78993d00753bce",
+   "bytes": 9321
+  },
+  {
+   "repo": "tiangolo/sqlmodel",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "984cdad51bba7e567f002b16c74c960506bdf362503c650d08df2fcf9f270c67",
+   "bytes": 2283
+  },
+  {
+   "repo": "tox-dev/tox",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "1da941b03d2c7227de356bd1ddae6bce6329615f6c085afa829ebc400ce1849b",
+   "bytes": 3686
+  },
+  {
+   "repo": "urllib3/urllib3",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "4a6e0e2c5b60a6f929ee98de6944835e12196b2e7b92eadce138fbff9609d89a",
+   "bytes": 1824
+  },
+  {
+   "repo": "wagtail/wagtail",
+   "path": ".pre-commit-config.yaml",
+   "sha256": "4e1b5bdf678263b7e4c126717dbc208b11d39bd647f2d37fb39c75f4dbbe68b5",
+   "bytes": 1918
+  }
+ ]
+}

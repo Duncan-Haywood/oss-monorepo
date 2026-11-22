@@ -32,3 +32,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("links the pre-commit config sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/pre-commit-config-check\/"/);
+});

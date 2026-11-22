@@ -1,0 +1,24 @@
+# Pre-commit Config Check
+
+> Paste a .pre-commit-config.yaml and see every error pre-commit would stop on, in pre-commit 4.7.0's own words with line numbers and fixes, plus mistakes pre-commit accepts silently (unknown hook keys, duplicate YAML keys, glued args items). Free, runs in the browser or as a zero-dependency Node CLI; nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the text pasted in, not legal, tax, financial or professional advice. Not affiliated with the pre-commit or prek projects.
+
+## What it checks
+
+- pre-commit's schema: required keys, types, allowed languages and stage names, identify type tags, meta and local hooks, minimum_pre_commit_version, root and repo keys, mutable rev warnings.
+- YAML 1.1 typing traps: unquoted numbers in args, float revs (6.0), dates, yes/no booleans.
+- files/exclude as Python regular expressions (not globs, and not JavaScript regex).
+- Beyond pre-commit: hook keys it ignores silently, prek-only keys, duplicate keys, args items holding two arguments, tag versus commit-SHA revs, manual-only hooks.
+
+## Agreement with pre-commit
+
+Measured 2026-11-22: same verdict, first error and warnings as pre-commit 4.7.0 on 69 public configs and 5,175 single-edit variants; regex verdicts match CPython 3.11 on 199,999 of 200,000 generated patterns.
+
+## Pages
+
+- [The tool](https://marisstella.app/pre-commit-config-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pre-commit-config-check): MIT licensed.

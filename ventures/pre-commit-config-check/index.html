@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2314532d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pre-commit Config Check — Validate .pre-commit-config.yaml in Your Browser</title>
+  <meta name="description" content="Paste your .pre-commit-config.yaml and see every error pre-commit would stop on, with its exact message, plus the mistakes it accepts silently: YAML numbers in args, glob patterns in files:, ignored hook keys. Free, runs in your browser.">
+  <meta property="og:title" content="Why does pre-commit reject my config?">
+  <meta property="og:description" content="pre-commit stops at the first error. This lists all of them, in pre-commit's own words, and explains the YAML and regex traps behind each one.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pre-commit Config Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Validates a .pre-commit-config.yaml the way pre-commit 4.7.0 does, listing every error rather than the first, and flags mistakes pre-commit accepts silently. Runs in the browser or as a zero-dependency CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does pre-commit say \"Expected string got int\"?","acceptedAnswer":{"@type":"Answer","text":"pre-commit reads its config with PyYAML, which follows YAML 1.1. An unquoted 100 in args: [--line-length, 100] is an integer, an unquoted 6.0 in rev: is a float, and 2024-01-01 is a date. args, rev and language_version must be strings, so quote the value: '100', '6.0'."}},{"@type":"Question","name":"Can I use a glob like *.py in files: or exclude:?","acceptedAnswer":{"@type":"Answer","text":"No. files and exclude are Python regular expressions. Unquoted, *.py is not even valid YAML (a leading * starts an alias); quoted, it is not a valid regex (nothing to repeat). Write \\.py$ for files ending in .py and ^docs/ for a folder."}},{"@type":"Question","name":"Does pre-commit warn about a misspelled hook key?","acceptedAnswer":{"@type":"Answer","text":"No. pre-commit warns about unknown keys at the top level and on a repo, but an unknown key inside a hook is ignored without a word. This tool lists them and suggests the key you probably meant."}},{"@type":"Question","name":"What does the mutable reference warning mean?","acceptedAnswer":{"@type":"Answer","text":"A rev: like main or stable names a branch or moving tag. pre-commit installs it once and never updates it, so different machines can run different code. Pin a release tag or a commit SHA; pre-commit autoupdate --freeze writes SHAs."}},{"@type":"Question","name":"Is my config uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The check runs in this browser and makes no network calls. It reads only the text you paste; it does not install hooks or contact GitHub."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f5f2; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #173a2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #173a2a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d6ddd5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #173a2a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; min-height: 260px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3a6; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17603f; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3ebe4; color: #173a2a; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; table-layout: fixed; }
+    th:nth-child(1), td:nth-child(1) { width: 2.6em; }
+    th:nth-child(2), td:nth-child(2) { width: 6.5em; }
+    td { overflow-wrap: anywhere; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6ebe5; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.error { background: #fde8e8; color: #9a1c1c; }
+    .pill.warning { background: #fdf1e0; color: #92400e; }
+    .pill.info { background: #e3eef6; color: #173a4a; }
+    .src { font-size: .75rem; color: #55606f; }
+    pre { background: #f6f8f6; padding: 12px; border-radius: 8px; font-size: .85rem; line-height: 1.5; overflow-x: auto; margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .fix { margin: 4px 0 0; color: #173a2a; }
+    .error-text { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d6ddd5; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRE-COMMIT CONFIG CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Why does pre-commit reject my config?</h1>
+    <p><code>pre-commit</code> stops at the first problem in <code>.pre-commit-config.yaml</code> and prints a chain of <code>==&gt; At key:</code> lines. Fix it, run again, hit the next one. Paste the file here and see <strong>every</strong> error at once, each in pre-commit's own words with the line it is on and a plain fix. It also shows what pre-commit accepts without a word: a misspelled hook key it ignores, a duplicate key whose first value is thrown away, and an <code>args</code> item that is really two arguments.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and the tool makes no network calls of its own.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Paste your .pre-commit-config.yaml</h2>
+    <label for="config">.pre-commit-config.yaml</label>
+    <textarea id="config" spellcheck="false" placeholder="repos:&#10;  - repo: https://github.com/psf/black&#10;    rev: 24.1.0&#10;    hooks:&#10;      - id: black"></textarea>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a config, then click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Line</th><th>Level</th><th>What is wrong and how to fix it</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <h3>What pre-commit itself prints</h3>
+    <p class="note">pre-commit stops at its first error. This is that error, in its format:</p>
+    <pre id="first"></pre>
+  </section>
+
+  <section class="card">
+    <h2>How close is this to pre-commit?</h2>
+    <p>The rules are pre-commit 4.7.0's own schema (its <code>clientlib.py</code> and the <code>cfgv</code> validators), checked in the same order with the same messages. Two pieces pre-commit gets from Python are rebuilt here: a YAML reader that types values the way PyYAML does, and a checker for Python's regular-expression syntax, which differs from the browser's.</p>
+    <p>Each piece was compared with the real thing (counts from the run of 2026-11-22, scripts in the repository):</p>
+    <ul>
+      <li><strong>Whole configs:</strong> the <code>.pre-commit-config.yaml</code> of 69 public projects, plus 5,175 single-edit variants of them. Accept or reject, the first error with its full context chain, and every warning pre-commit logs agreed on all 5,244 files.</li>
+      <li><strong>YAML:</strong> the same 69 files plus 45 hand-written edge cases loaded identically to PyYAML 6.0.4.</li>
+      <li><strong>Regex:</strong> 199,999 of 200,000 generated patterns got the same verdict as CPython 3.11's <code>re.compile</code>. The one miss used <code>\N{name}</code>, whose character table is not bundled.</li>
+    </ul>
+    <p class="note">The variants were generated from a list of mistakes written for this tool, so they test the traps it was built for, not every possible config. Findings marked "beyond pre-commit" are this tool's opinion, not pre-commit's behaviour.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same code, zero dependencies:</p>
+    <pre><code>node cli.mjs                          # ./.pre-commit-config.yaml
+node cli.mjs path/to/config.yaml      # a specific file
+node cli.mjs --format json            # machine-readable
+node cli.mjs --strict                 # exit 1 on warnings too
+node cli.mjs --pre-commit-version 3.8.0   # judge minimum_pre_commit_version against your version</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and the four modules beside it (<a href="check.mjs" rel="noopener">check.mjs</a>, <a href="yaml11.mjs" rel="noopener">yaml11.mjs</a>, <a href="pyregex.mjs" rel="noopener">pyregex.mjs</a>, <a href="tables.mjs" rel="noopener">tables.mjs</a>) from the repository. Node 18 or newer, nothing to install. If you already have pre-commit installed, <code>pre-commit validate-config</code> gives you its first error; this gives you all of them and the silent ones.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does pre-commit say "Expected string got int"?</h3>
+    <p>pre-commit reads its config with PyYAML, which follows YAML 1.1. An unquoted <code>100</code> in <code>args: [--line-length, 100]</code> is an integer, an unquoted <code>6.0</code> in <code>rev:</code> is a float, and <code>2024-01-01</code> is a date. <code>args</code>, <code>rev</code> and <code>language_version</code> must be strings, so quote the value: <code>'100'</code>, <code>'6.0'</code>.</p>
+    <h3>Can I use a glob like <code>*.py</code> in <code>files:</code> or <code>exclude:</code>?</h3>
+    <p>No. <code>files</code> and <code>exclude</code> are Python regular expressions. Unquoted, <code>*.py</code> is not even valid YAML (a leading <code>*</code> starts an alias); quoted, it is not a valid regex (nothing to repeat). Write <code>\.py$</code> for files ending in .py and <code>^docs/</code> for a folder.</p>
+    <h3>Does pre-commit warn about a misspelled hook key?</h3>
+    <p>No. pre-commit warns about unknown keys at the top level and on a repo, but an unknown key inside a hook is ignored without a word. This tool lists them and suggests the key you probably meant.</p>
+    <h3>What does the mutable reference warning mean?</h3>
+    <p>A <code>rev:</code> like <code>main</code> or <code>stable</code> names a branch or moving tag. pre-commit installs it once and never updates it, so different machines can run different code. Pin a release tag or a commit SHA; <code>pre-commit autoupdate --freeze</code> writes SHAs.</p>
+    <h3>Is my config uploaded?</h3>
+    <p>No. The check runs in this browser and makes no network calls. It reads only the text you paste; it does not install hooks or contact GitHub.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit or a guarantee that your hooks run or that your code is safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including against the version of pre-commit you run. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> from the repository and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Not affiliated with or endorsed by the pre-commit or prek projects. pre-commit and identify are MIT-licensed projects by Anthony Sottile and contributors; this tool re-expresses pre-commit's published validation rules and bundles identify's list of file-type tags.</p>
+    <p>Other checks for the files around your hooks: <a href="../dependabot-config-check/">Dependabot Config Check</a> finds manifests Dependabot never updates, and <a href="../pinned-actions-check/">Pinned Actions Check</a> flags GitHub Actions referenced by a mutable tag instead of a commit SHA.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { checkConfigText, formatLikePreCommit, summarize } from "./check.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const els = { config: $("#config"), status: $("#status"), report: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"), first: $("#first") };
+
+    const EXAMPLE_CONFIG = `repos:
+  - repo: https://github.com/psf/black
+    rev: stable
+    hooks:
+      - id: black
+        args: [--line-length, 100]
+        language_version: 3.11
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        args: ["--max-line-length 100"]
+        exclude: "*.ipynb"
+        exclude_type: [jupyter]
+        stages: [commit]
+`;
+
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function run() {
+      if (!els.config.value.trim()) { els.status.innerHTML = '<span class="error-text">Paste a .pre-commit-config.yaml first.</span>'; return; }
+      const r = checkConfigText(els.config.value);
+      const s = summarize(r);
+      els.verdict.className = "verdict" + (r.ok ? "" : " risk");
+      els.verdict.textContent = (r.ok ? "pre-commit accepts this file. " : "pre-commit rejects this file. ") + `${s.errors} error(s), ${s.warnings} warning(s), ${s.info} note(s).`;
+      const sorted = [...r.findings].sort((a, b) => (a.line ?? 0) - (b.line ?? 0) || a.seq - b.seq);
+      els.rows.innerHTML = sorted.length ? sorted.map((f) => `<tr><td>${f.line ?? ""}</td><td><span class="pill ${f.level}">${f.level}</span><br><span class="src">${f.source === "pre-commit" ? "pre-commit" : "beyond pre-commit"}</span></td><td><code>${esc(f.rule)}</code> ${esc(f.message)}${f.detail ? `<br><span class="src">Python says: ${esc(f.detail)}</span>` : ""}${f.fix ? `<p class="fix">Fix: ${esc(f.fix)}</p>` : ""}</td></tr>`).join("") : '<tr><td colspan="3">Nothing to report.</td></tr>';
+      els.first.textContent = r.firstError ? formatLikePreCommit(r.firstError) : "(no error: pre-commit accepts the file)";
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+    }
+
+    $("#check").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => {
+      els.config.value = EXAMPLE_CONFIG; run(); record("example_loaded");
+      els.status.textContent = "Worked example: an unquoted 100 and 3.11 that YAML turns into numbers, a glob in exclude:, a branch name as rev:, a misspelled hook key pre-commit ignores, a glued args item and an old stage name.";
+    });
+    $("#clear").addEventListener("click", () => { els.config.value = ""; els.report.hidden = true; els.status.textContent = "Paste a config, then click Check."; });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const b = $("#optout"); b.textContent = "Usage counting is off"; b.disabled = true; }
+  </script>
+</body>
+</html>
