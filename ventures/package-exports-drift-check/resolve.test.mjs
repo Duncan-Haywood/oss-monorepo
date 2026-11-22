@@ -104,3 +104,13 @@ test("trace and warnings explain the decision", () => {
   assert.equal(w.file, "./src//x.js");
   assert.match(w.warnings[0], /DEP0166/);
 });
+
+// Red team 2026-11-22: mutants that escaped.
+test("patternKeyCompare: a key without * loses to a pattern of the same base", () => {
+  assert.equal(patternKeyCompare("./ab", "./a*"), 1);
+});
+
+test("an encoded node_modules segment (%44 for D) is refused in a target and in the * part", () => {
+  assert.equal(file(resolveExports({ ".": "./node_mo%44ules/x.js" }, ".")), "ERR_INVALID_PACKAGE_TARGET");
+  assert.equal(file(resolveExports({ "./*": "./dist/*.js" }, "./node_mo%44ules/x")), "ERR_INVALID_MODULE_SPECIFIER");
+});

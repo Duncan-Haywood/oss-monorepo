@@ -193,8 +193,10 @@ export async function run(
   for (const entry of literal) {
     if (targetExists.has(entry.target)) continue;
     try {
-      await stat(path.join(baseDir, entry.target));
-      targetExists.set(entry.target, true);
+      // A directory is not a target: Node refuses to import one
+      // (ERR_UNSUPPORTED_DIR_IMPORT).
+      const s = await stat(path.join(baseDir, entry.target));
+      targetExists.set(entry.target, !(typeof s?.isDirectory === "function" && s.isDirectory()));
     } catch {
       targetExists.set(entry.target, false);
     }

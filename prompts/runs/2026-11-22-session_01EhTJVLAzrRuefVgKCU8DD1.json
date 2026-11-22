@@ -1,0 +1,351 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVLAzrRuefVgKCU8DD1",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products)",
+  "input_sha256": "180ecdfefaa12275ae73d59afa1209522e705da82874916854ba46dd0921db32",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T11:59:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam: package-exports-drift-check engine.mjs + resolve.mjs",
+  "projects": [
+    "package-exports-drift-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18247",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 13 open entries are control-plane edits (prompts/, .github/workflows) needing their own owner-approved PRs, or the help-keeper stemmer, which an earlier run deliberately held back pending a help-centre eval set; none was fixable in this product PR.",
+      "did": "left them open and spent the run on the target",
+      "result": "3 real defects fixed in the target"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: the defects are specific to this product's Node semantics, so the guard is regression tests in its suite (run by ventures-tests.yml), not a new repo-wide lint",
+      "did": "7 tests in the venture suite",
+      "result": "all 6 escaped mutants caught_after_fix"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-a-folder-is-not-an-export-target.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: engine.mjs 7/10, resolve.mjs 5/8 caught (12/18 = 0.667); after fix 18/18. Suite 93 -> 100 tests, 1.5 s. Real defects reproduced against node v22.23.5 in a scratch package before fixing.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/package-exports-drift-check/engine.mjs",
+        "test": "node --test ventures/package-exports-drift-check/**/*.test.mjs  (in .)",
+        "seed": 115443271,
+        "commit": "ff9c6ce68",
+        "sites": 58,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 33,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (value === null || value === undefined) return; // explicit \"not exported\" -- not a file target",
+            "after": "if (value !== null || value === undefined) return; // explicit \"not exported\" -- not a file target",
+            "line_text": "  if (value === null || value === undefined) return; // explicit \"not exported\" -- not a file target",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 56,
+            "col": 39,
+            "operator": "or-to-and",
+            "before": "if (typeof exportsField === \"string\" || Array.isArray(exportsField)) {",
+            "after": "if (typeof exportsField === \"string\" && Array.isArray(exportsField)) {",
+            "line_text": "  if (typeof exportsField === \"string\" || Array.isArray(exportsField)) {",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 62,
+            "col": 41,
+            "operator": "and-to-or",
+            "before": "const isSubpathMap = keys.length > 0 && keys.every((k) => k.startsWith(\".\"));",
+            "after": "const isSubpathMap = keys.length > 0 || keys.every((k) => k.startsWith(\".\"));",
+            "line_text": "    const isSubpathMap = keys.length > 0 && keys.every((k) => k.startsWith(\".\"));",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 92,
+            "col": 78,
+            "operator": "eq-flip",
+            "before": "const pattern = entry.subpath.includes(\"*\") && entry.subpath.indexOf(\"*\") === entry.subpath.lastIndexOf(\"*\");",
+            "after": "const pattern = entry.subpath.includes(\"*\") && entry.subpath.indexOf(\"*\") !== entry.subpath.lastIndexOf(\"*\");",
+            "line_text": "    const pattern = entry.subpath.includes(\"*\") && entry.subpath.indexOf(\"*\") === entry.subpath.lastIndexOf(\"*\");",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 105,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if (target.startsWith(\"../\") || target === \"..\") return `points outside the package; Node only allows targets inside it, starting with \"./\"`;",
+            "after": "if (target.startsWith(\"../\") && target === \"..\") return `points outside the package; Node only allows targets inside it, starting with \"./\"`;",
+            "line_text": "    if (target.startsWith(\"../\") || target === \"..\") return `points outside the package; Node only allows targets inside it, starting with \"./\"`;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "'..' alone vs '../x': new engine test checks both get the outside-the-package reason"
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 124,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "const re = new RegExp(\"^\" + parts[0] + parts.slice(1).map((p, i) => (i === 0 ? \"(.+)\" : \"\\\\1\") + p).join(\"\") + \"$\");",
+            "after": "const re = new RegExp(\"^\" + parts[0] + parts.slice(2).map((p, i) => (i === 0 ? \"(.+)\" : \"\\\\1\") + p).join(\"\") + \"$\");",
+            "line_text": "    const re = new RegExp(\"^\" + parts[0] + parts.slice(1).map((p, i) => (i === 0 ? \"(.+)\" : \"\\\\1\") + p).join(\"\") + \"$\");",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 141,
+            "col": 42,
+            "operator": "eq-flip",
+            "before": "if (exportsField && typeof exportsField === \"object\" && !Array.isArray(exportsField)) {",
+            "after": "if (exportsField && typeof exportsField !== \"object\" && !Array.isArray(exportsField)) {",
+            "line_text": "  if (exportsField && typeof exportsField === \"object\" && !Array.isArray(exportsField)) {",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 152,
+            "col": 53,
+            "operator": "lt-to-le",
+            "before": "if (/^(0|[1-9][0-9]*)$/.test(k) && Number(k) < 4294967295) errors.push(`numeric key \"${k}\" under ${where}: Node throws ERR_INVALID_PACKAGE_CONFIG when it reaches it`);",
+            "after": "if (/^(0|[1-9][0-9]*)$/.test(k) && Number(k) <= 4294967295) errors.push(`numeric key \"${k}\" under ${where}: Node throws ERR_INVALID_PACKAGE_CONFIG when it reaches it`);",
+            "line_text": "        if (/^(0|[1-9][0-9]*)$/.test(k) && Number(k) < 4294967295) errors.push(`numeric key \"${k}\" under ${where}: Node throws ERR_INVALID_PACKAGE_CONFIG when it reaches it`);",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Node isArrayIndex stops below 0xFFFFFFFF; boundary test added"
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 152,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "if (/^(0|[1-9][0-9]*)$/.test(k) && Number(k) < 4294967295) errors.push(`numeric key \"${k}\" under ${where}: Node throws ERR_INVALID_PACKAGE_CONFIG when it reaches it`);",
+            "after": "if (/^(0|[1-9][0-9]*)$/.test(k) && Number(k) < 4294967296) errors.push(`numeric key \"${k}\" under ${where}: Node throws ERR_INVALID_PACKAGE_CONFIG when it reaches it`);",
+            "line_text": "        if (/^(0|[1-9][0-9]*)$/.test(k) && Number(k) < 4294967295) errors.push(`numeric key \"${k}\" under ${where}: Node throws ERR_INVALID_PACKAGE_CONFIG when it reaches it`);",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same boundary test"
+          },
+          {
+            "file": "ventures/package-exports-drift-check/engine.mjs",
+            "line": 204,
+            "col": 40,
+            "operator": "plus-to-minus",
+            "before": "const checked = report.matched.length + (wildcardCount - unmatchedWildcardCount);",
+            "after": "const checked = report.matched.length - (wildcardCount - unmatchedWildcardCount);",
+            "line_text": "  const checked = report.matched.length + (wildcardCount - unmatchedWildcardCount);",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/package-exports-drift-check/resolve.mjs",
+        "test": "node --test ventures/package-exports-drift-check/**/*.test.mjs  (in .)",
+        "seed": 849930069,
+        "commit": "ff9c6ce68",
+        "sites": 155,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/package-exports-drift-check/resolve.mjs",
+            "line": 16,
+            "col": 134,
+            "operator": "const-plus-one",
+            "before": "const INVALID_SEGMENT = /(^|\\\\|\\/)((\\.|%2e)(\\.|%2e)?|(n|%6e|%4e)(o|%6f|%4f)(d|%64|%44)(e|%65|%45)(_|%5f)(m|%6d|%4d)(o|%6f|%4f)(d|%64|%44)(u|%75|%55)(l|%6c|%4c)(e|%65|%45)(s|%73|%53))?(\\\\|\\/|$)/i;",
+            "after": "const INVALID_SEGMENT = /(^|\\\\|\\/)((\\.|%2e)(\\.|%2e)?|(n|%6e|%4e)(o|%6f|%4f)(d|%64|%44)(e|%65|%45)(_|%5f)(m|%6d|%4d)(o|%6f|%4f)(d|%64|%45)(u|%75|%55)(l|%6c|%4c)(e|%65|%45)(s|%73|%53))?(\\\\|\\/|$)/i;",
+            "line_text": "const INVALID_SEGMENT = /(^|\\\\|\\/)((\\.|%2e)(\\.|%2e)?|(n|%6e|%4e)(o|%6f|%4f)(d|%64|%44)(e|%65|%45)(_|%5f)(m|%6d|%4d)(o|%6f|%4f)(d|%64|%44)(u|%75|%55)(l|%6c|%4c)(e|%65|%45)(s|%73|%53))?(\\\\|\\/|$)/i;",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "upper-case %44 in node_modules inside the * part: resolve test added"
+          },
+          {
+            "file": "ventures/package-exports-drift-check/resolve.mjs",
+            "line": 19,
+            "col": 132,
+            "operator": "const-plus-one",
+            "before": "const FATAL_SEGMENT = /(^|\\\\|\\/)((\\.|%2e)(\\.|%2e)?|(n|%6e|%4e)(o|%6f|%4f)(d|%64|%44)(e|%65|%45)(_|%5f)(m|%6d|%4d)(o|%6f|%4f)(d|%64|%44)(u|%75|%55)(l|%6c|%4c)(e|%65|%45)(s|%73|%53))(\\\\|\\/|$)/i;",
+            "after": "const FATAL_SEGMENT = /(^|\\\\|\\/)((\\.|%2e)(\\.|%2e)?|(n|%6e|%4e)(o|%6f|%4f)(d|%64|%44)(e|%65|%45)(_|%5f)(m|%6d|%4d)(o|%6f|%4f)(d|%64|%45)(u|%75|%55)(l|%6c|%4c)(e|%65|%45)(s|%73|%53))(\\\\|\\/|$)/i;",
+            "line_text": "const FATAL_SEGMENT = /(^|\\\\|\\/)((\\.|%2e)(\\.|%2e)?|(n|%6e|%4e)(o|%6f|%4f)(d|%64|%44)(e|%65|%45)(_|%5f)(m|%6d|%4d)(o|%6f|%4f)(d|%64|%44)(u|%75|%55)(l|%6c|%4c)(e|%65|%45)(s|%73|%53))(\\\\|\\/|$)/i;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same in a target: resolve test added"
+          },
+          {
+            "file": "ventures/package-exports-drift-check/resolve.mjs",
+            "line": 61,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "if (ai === -1) return 1;",
+            "after": "if (ai === -2) return 1;",
+            "line_text": "  if (ai === -1) return 1;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "exported patternKeyCompare with a star-less key of equal base: direct test added"
+          },
+          {
+            "file": "ventures/package-exports-drift-check/resolve.mjs",
+            "line": 78,
+            "col": 82,
+            "operator": "plus-to-minus",
+            "before": "const specifier = pattern ? target.replace(/\\*/g, () => subpath) : target + subpath;",
+            "after": "const specifier = pattern ? target.replace(/\\*/g, () => subpath) : target - subpath;",
+            "line_text": "        const specifier = pattern ? target.replace(/\\*/g, () => subpath) : target + subpath;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/resolve.mjs",
+            "line": 169,
+            "col": 122,
+            "operator": "eq-flip",
+            "before": "if (name.length >= key.length && name.endsWith(trailer) && patternKeyCompare(best, key) === 1 && key.lastIndexOf(\"*\") === star) {",
+            "after": "if (name.length >= key.length && name.endsWith(trailer) && patternKeyCompare(best, key) === 1 && key.lastIndexOf(\"*\") !== star) {",
+            "line_text": "    if (name.length >= key.length && name.endsWith(trailer) && patternKeyCompare(best, key) === 1 && key.lastIndexOf(\"*\") === star) {",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/resolve.mjs",
+            "line": 184,
+            "col": 19,
+            "operator": "neq-flip",
+            "before": "else if (sugar !== cur) {",
+            "after": "else if (sugar === cur) {",
+            "line_text": "    else if (sugar !== cur) {",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/resolve.mjs",
+            "line": 267,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (name === \"#\" || name.startsWith(\"#/\") || name.endsWith(\"/\")) {",
+            "after": "if (name === \"#\" || name.startsWith(\"#/\") && name.endsWith(\"/\")) {",
+            "line_text": "    if (name === \"#\" || name.startsWith(\"#/\") || name.endsWith(\"/\")) {",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/package-exports-drift-check/resolve.mjs",
+            "line": 274,
+            "col": 67,
+            "operator": "true-to-false",
+            "before": "const r = resolveTarget(importsField[name], \"\", name, false, true, false, ctx, \"value\");",
+            "after": "const r = resolveTarget(importsField[name], \"\", name, false, false, false, ctx, \"value\");",
+            "line_text": "      const r = resolveTarget(importsField[name], \"\", name, false, true, false, ctx, \"value\");",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/package-exports-drift-check/cli.mjs",
+        "issue": "A directory passed stat() as an existing export target, so a '.' target naming a folder exited 0 though Node 22 refuses it (ERR_UNSUPPORTED_DIR_IMPORT). Fixed: a directory reads missing; real-filesystem test added.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18247"
+      },
+      {
+        "file": "ventures/package-exports-drift-check/engine.mjs",
+        "issue": "A folder-mapping key ('./lib/': './lib/', removed in Node 17) was classified literal: the CLI passed it (folder exists) and the page called it a missing file, while every import through it fails with ERR_PACKAGE_PATH_NOT_EXPORTED (checked on node v22.23.5). Fixed: reported invalid with the './lib/*' replacement.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18247"
+      },
+      {
+        "file": "ventures/package-exports-drift-check/engine.mjs",
+        "issue": "checkWildcards counted a file as reached when the * part held a node_modules/./.. segment, which Node refuses (ERR_INVALID_MODULE_SPECIFIER, checked on node v22.23.5); matters on the page, where a pasted listing can include bundled node_modules. Fixed with a test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18247"
+      }
+    ]
+  }
+}

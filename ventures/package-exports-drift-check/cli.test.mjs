@@ -186,3 +186,27 @@ test("resolve: a trailing --conditions with no value exits 2", async () => {
   });
   assert.match(spaced.output, /->\s+\.\/b\.js/);
 });
+
+// Red team 2026-11-22: a directory passed `stat`, so a folder-mapping key
+// ("./lib/": "./lib/", removed in Node 17) and a "." target naming a folder
+// both read as "exists" and the check exited 0, while Node 22 refuses every
+// import through them (ERR_PACKAGE_PATH_NOT_EXPORTED and
+// ERR_UNSUPPORTED_DIR_IMPORT).
+test("run: a directory is not an export target, on a real filesystem", async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "exports-drift-"));
+  try {
+    await fs.mkdir(path.join(dir, "lib"));
+    await fs.mkdir(path.join(dir, "dist"));
+    await fs.writeFile(path.join(dir, "lib", "a.js"), "export default 1;");
+    await fs.writeFile(path.join(dir, "package.json"), JSON.stringify({ exports: { ".": "./dist", "./lib/": "./lib/" } }));
+    const { exitCode, output } = await run(["check", path.join(dir, "package.json"), "--json"]);
+    const parsed = JSON.parse(output);
+    assert.equal(exitCode, 1);
+    assert.deepEqual(parsed.matched, []);
+    assert.deepEqual(parsed.missing.map((e) => e.target), ["./dist"]);
+    assert.deepEqual(parsed.invalid.map((e) => e.subpath), ["./lib/"]);
+    assert.match(parsed.invalid[0].reason, /Node 17/);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
