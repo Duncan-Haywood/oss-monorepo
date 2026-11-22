@@ -988,6 +988,32 @@ class StartHereTests(unittest.TestCase):
         # One free row: every session gets it.
         self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
 
+    def test_sessions_on_the_same_row_take_different_item_ranks(self):
+        # #18131/#18132, 2026-11-21: two sessions 7 s apart drew one row and
+        # both took its first item. The item rank hashes separately from the row.
+        from allocate import ITEM_SPREAD, item_rank, item_rank_note
+        self.assertEqual(item_rank(None), 1)
+        self.assertIn("first open item", item_rank_note(None))
+        ranks = [item_rank(f"session_{n}") for n in range(300)]
+        self.assertEqual(set(ranks), set(range(1, ITEM_SPREAD + 1)))
+        self.assertEqual(item_rank("abc"), item_rank("abc"))
+        # Of sessions sharing a row, about a third (not all) share an item rank.
+        queue = [{"venture": f"v{i}", "flagship": True, "task": "Deepen (flagship): x"}
+                 for i in range(6)]
+        by_row: dict = {}
+        for n in range(300):
+            by_row.setdefault(start_here(queue, {}, session=f"session_{n}"), []).append(
+                item_rank(f"session_{n}"))
+        same = total = 0
+        for rs in by_row.values():
+            for i in range(len(rs)):
+                for j in range(i + 1, len(rs)):
+                    total += 1
+                    same += rs[i] == rs[j]
+        self.assertLess(same / total, 0.45)
+        self.assertIn("not the first", item_rank_note(next(
+            f"s{n}" for n in range(50) if item_rank(f"s{n}") > 1)))
+
 
 class DateGateTests(unittest.TestCase):
     """A `buildable:` item dated after today is not buildable yet (2026-11-18:
