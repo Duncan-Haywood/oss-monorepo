@@ -1,0 +1,28 @@
+AC20-FZK-Haus.ifc: 46 members; length stored 1, computed 46, both 1 (agree 1), new 45, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Solid 45; Radial Gradient Fill 1515460218 1
+C20-Institute-Var-2.ifc: 2 members; length stored 2, computed 2, both 2 (agree 2), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Stahlbeton 2747937872 2
+FM_ARC_DigitalHub.ifc: 156 members; length stored 0, computed 156, both 0 (agree 0), new 156, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: 60 x 120 54; STB 250 x 400 32; STB 250 x 250 30; STB 250 x 500 14; Standard 100-30-25 14; Metall - Edelstahl gebürstet 8
+ISSUE_005_haus.ifc: 46 members; length stored 1, computed 46, both 1 (agree 1), new 45, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Solid 45; Radial Gradient Fill 1515460218 1
+ISSUE_021_Mini Project.ifc: 2203 members; length stored 2203, computed 2203, both 2203 (agree 2138), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 2203; steel 177, stored+computed 177 (agree 174), new 0
+  materials: CONCRETE/FAKTOR 1160; CONCRETE/BETON 339; TIMBER/HOUT 324; STEEL/S235JR 177; CONCRETE/ISOLEX 76; CONCRETE/SILEX 27
+  length off (no cause) #4318 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  length off (no cause) #4345 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  length off (no cause) #4359 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  length off (no cause) #4370 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  length off (no cause) #4378 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  weight off #4428 IfcBeam OPLASSTUK (STEEL/S235JR): stored 12.72 computed 13.03
+  weight off #4748 IfcBeam LIGGER (STEEL/S235JR): stored 251.48 computed 259.58
+  weight off #5035 IfcBeam LIGGER (STEEL/S235JR): stored 246.42 computed 254.36
+ISSUE_034_HouseZ.ifc: 19 members; length stored 0, computed 19, both 0 (agree 0), new 19, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: (none) 19
+ISSUE_044_test_IFCCOMPOSITEPROFILEDEF.ifc: 0 members; length stored 0, computed 0, both 0 (agree 0), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+ISSUE_068_ARK_NUS_skolebygg.ifc: 925 members; length stored 727, computed 925, both 727 (agree 39), new 198, none 0; host-figure 603 (stored sum 5479.9 m, body sum 794.6 m); weight stored 0; steel 1, stored+computed 0 (agree 0), new 1
+  materials: RAL 9004 829; Wood - Dimensional lumber 38; NO_Tømmer 33; Trapp Vange 23; Metal - Steel - 345 MPa 1; Metal - Steel - 345 MPa / Brannisolering 1
+  length off (no cause) #893590 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928053: stored 0.5500 computed 0.4500
+  length off (no cause) #893689 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928054: stored 0.5500 computed 0.4500
+  length off (no cause) #893755 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928055: stored 0.5500 computed 1.2500
+  length off (no cause) #893827 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928056: stored 0.5500 computed 1.2500
+  length off (no cause) #894129 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928181: stored 0.5500 computed 0.4500
