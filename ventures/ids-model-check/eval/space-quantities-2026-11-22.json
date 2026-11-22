@@ -1,0 +1,867 @@
+{
+ "models": {
+  "ISSUE_068_ARK_NUS_skolebygg.ifc": {
+   "spaces": 307,
+   "written": 2238,
+   "fromGeometry": 2238,
+   "verifiedPass": 2238,
+   "unfilled": 218,
+   "seconds": 26.581,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 306,
+     "cmp": 306,
+     "within2": 304,
+     "misses": [
+      {
+       "id": 16527,
+       "stored": 50.0322,
+       "written": 30.2012,
+       "ratio": 0.6036
+      },
+      {
+       "id": 43208,
+       "stored": 18.7,
+       "written": 4.4,
+       "ratio": 0.2353
+      }
+     ]
+    },
+    "NetFloorArea": {
+     "written": 306,
+     "cmp": 306,
+     "within2": 304,
+     "misses": [
+      {
+       "id": 16527,
+       "stored": 50.0322,
+       "written": 30.2012,
+       "ratio": 0.6036
+      },
+      {
+       "id": 43208,
+       "stored": 18.7,
+       "written": 4.4,
+       "ratio": 0.2353
+      }
+     ]
+    },
+    "GrossPerimeter": {
+     "written": 306,
+     "cmp": 246,
+     "within2": 243,
+     "misses": [
+      {
+       "id": 6367,
+       "stored": 35.394,
+       "written": 42.254,
+       "ratio": 1.1938
+      },
+      {
+       "id": 7306,
+       "stored": 35.419,
+       "written": 42.279,
+       "ratio": 1.1937
+      },
+      {
+       "id": 35607,
+       "stored": 128.3579,
+       "written": 135.8977,
+       "ratio": 1.0587
+      }
+     ]
+    },
+    "Height": {
+     "written": 227,
+     "cmp": 227,
+     "within2": 226,
+     "misses": [
+      {
+       "id": 31188,
+       "stored": 2.4384,
+       "written": 1.67,
+       "ratio": 0.6849
+      }
+     ]
+    },
+    "FinishCeilingHeight": {
+     "written": 280,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 280,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 227,
+     "cmp": 227,
+     "within2": 0,
+     "misses": [
+      {
+       "id": 5159,
+       "stored": 283288.1009,
+       "written": 281.4294,
+       "ratio": 0.001
+      },
+      {
+       "id": 9635,
+       "stored": 53934.082,
+       "written": 53.0859,
+       "ratio": 0.001
+      },
+      {
+       "id": 16180,
+       "stored": 647109.9293,
+       "written": 639.4005,
+       "ratio": 0.001
+      },
+      {
+       "id": 16527,
+       "stored": 121998.5818,
+       "written": 73.6425,
+       "ratio": 0.0006
+      },
+      {
+       "id": 26254,
+       "stored": 18853.9059,
+       "written": 18.557,
+       "ratio": 0.001
+      },
+      {
+       "id": 26789,
+       "stored": 101006.0611,
+       "written": 99.8429,
+       "ratio": 0.001
+      },
+      {
+       "id": 31188,
+       "stored": 385356.0781,
+       "written": 263.9209,
+       "ratio": 0.0007
+      },
+      {
+       "id": 41105,
+       "stored": 46559.384,
+       "written": 45.2851,
+       "ratio": 0.001
+      },
+      {
+       "id": 41247,
+       "stored": 55106.0161,
+       "written": 53.5978,
+       "ratio": 0.001
+      }
+     ],
+     "unitSlip": 218
+    },
+    "NetVolume": {
+     "written": 306,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "schependomlaan.ifc": {
+   "spaces": 100,
+   "written": 512,
+   "fromGeometry": 512,
+   "verifiedPass": 512,
+   "unfilled": 288,
+   "seconds": 5.31,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 100,
+     "cmp": 100,
+     "within2": 100,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 100,
+     "cmp": 100,
+     "within2": 100,
+     "misses": []
+    },
+    "Height": {
+     "written": 100,
+     "cmp": 100,
+     "within2": 100,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 100,
+     "cmp": 100,
+     "within2": 100,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 100,
+     "cmp": 100,
+     "within2": 100,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    }
+   }
+  },
+  "C20-Institute-Var-2.ifc": {
+   "spaces": 82,
+   "written": 562,
+   "fromGeometry": 562,
+   "verifiedPass": 562,
+   "unfilled": 94,
+   "seconds": 1.054,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 82,
+     "cmp": 82,
+     "within2": 82,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 82,
+     "cmp": 82,
+     "within2": 82,
+     "misses": []
+    },
+    "Height": {
+     "written": 79,
+     "cmp": 79,
+     "within2": 79,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 79,
+     "cmp": 79,
+     "within2": 79,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 79,
+     "cmp": 79,
+     "within2": 79,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 79,
+     "cmp": 79,
+     "within2": 79,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 82,
+     "cmp": 82,
+     "within2": 82,
+     "misses": []
+    }
+   }
+  },
+  "ISSUE_159_kleine_Wohnung_R22.ifc": {
+   "spaces": 28,
+   "written": 224,
+   "fromGeometry": 224,
+   "verifiedPass": 224,
+   "unfilled": 0,
+   "seconds": 6.75,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 28,
+     "cmp": 28,
+     "within2": 28,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 28,
+     "cmp": 28,
+     "within2": 28,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 28,
+     "cmp": 28,
+     "within2": 28,
+     "misses": []
+    },
+    "Height": {
+     "written": 28,
+     "cmp": 28,
+     "within2": 28,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 28,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 28,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 28,
+     "cmp": 28,
+     "within2": 28,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 28,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "AC20-FZK-Haus.ifc": {
+   "spaces": 7,
+   "written": 45,
+   "fromGeometry": 45,
+   "verifiedPass": 45,
+   "unfilled": 11,
+   "seconds": 0.297,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 7,
+     "cmp": 7,
+     "within2": 7,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 7,
+     "cmp": 7,
+     "within2": 7,
+     "misses": []
+    },
+    "Height": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 7,
+     "cmp": 7,
+     "within2": 7,
+     "misses": []
+    }
+   }
+  },
+  "ISSUE_005_haus.ifc": {
+   "spaces": 7,
+   "written": 45,
+   "fromGeometry": 45,
+   "verifiedPass": 45,
+   "unfilled": 11,
+   "seconds": 0.287,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 7,
+     "cmp": 7,
+     "within2": 7,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 7,
+     "cmp": 7,
+     "within2": 7,
+     "misses": []
+    },
+    "Height": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 6,
+     "cmp": 6,
+     "within2": 6,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 7,
+     "cmp": 7,
+     "within2": 7,
+     "misses": []
+    }
+   }
+  },
+  "ISSUE_034_HouseZ.ifc": {
+   "spaces": 5,
+   "written": 35,
+   "fromGeometry": 35,
+   "verifiedPass": 35,
+   "unfilled": 5,
+   "seconds": 0.87,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 5,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 5,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "written": 5,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 5,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 5,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 5,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 5,
+     "cmp": 5,
+     "within2": 0,
+     "misses": [],
+     "unitSlip": 5
+    }
+   }
+  },
+  "dental_clinic.ifc": {
+   "spaces": 269,
+   "written": 2136,
+   "fromGeometry": 2136,
+   "verifiedPass": 2136,
+   "unfilled": 16,
+   "seconds": 2.735,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 269,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 269,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 269,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "written": 261,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 269,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 269,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 261,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 269,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "Office_A_20110811.ifc": {
+   "spaces": 99,
+   "written": 598,
+   "fromGeometry": 598,
+   "verifiedPass": 598,
+   "unfilled": 194,
+   "seconds": 0.817,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 99,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 99,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 99,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "written": 2,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 99,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 99,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 2,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 99,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "duplex.ifc": {
+   "spaces": 21,
+   "written": 120,
+   "fromGeometry": 120,
+   "verifiedPass": 120,
+   "unfilled": 48,
+   "seconds": 0.49,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 21,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 21,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 21,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "written": 1,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 17,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 17,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 1,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 21,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "FM_ARC_DigitalHub.ifc": {
+   "spaces": 64,
+   "written": 412,
+   "fromGeometry": 412,
+   "verifiedPass": 412,
+   "unfilled": 100,
+   "seconds": 14.662,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 64,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 64,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 64,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "written": 17,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 61,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 61,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 17,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 64,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "example.ifc": {
+   "spaces": 1,
+   "written": 4,
+   "fromGeometry": 4,
+   "verifiedPass": 4,
+   "unfilled": 4,
+   "seconds": 0.36,
+   "byName": {
+    "GrossFloorArea": {
+     "written": 1,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetFloorArea": {
+     "written": 1,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossPerimeter": {
+     "written": 1,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "FinishCeilingHeight": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossCeilingArea": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "GrossVolume": {
+     "written": 0,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "NetVolume": {
+     "written": 1,
+     "cmp": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  }
+ },
+ "total": {
+  "GrossFloorArea": {
+   "written": 989,
+   "cmp": 530,
+   "within2": 528,
+   "unitSlip": 0,
+   "misses": 2
+  },
+  "NetFloorArea": {
+   "written": 788,
+   "cmp": 334,
+   "within2": 332,
+   "unitSlip": 0,
+   "misses": 2
+  },
+  "GrossPerimeter": {
+   "written": 989,
+   "cmp": 470,
+   "within2": 467,
+   "unitSlip": 0,
+   "misses": 3
+  },
+  "Height": {
+   "written": 732,
+   "cmp": 446,
+   "within2": 445,
+   "unitSlip": 0,
+   "misses": 1
+  },
+  "FinishCeilingHeight": {
+   "written": 950,
+   "cmp": 191,
+   "within2": 191,
+   "unitSlip": 0,
+   "misses": 0
+  },
+  "GrossCeilingArea": {
+   "written": 950,
+   "cmp": 191,
+   "within2": 191,
+   "unitSlip": 0,
+   "misses": 0
+  },
+  "GrossVolume": {
+   "written": 638,
+   "cmp": 352,
+   "within2": 125,
+   "unitSlip": 218,
+   "misses": 9
+  },
+  "NetVolume": {
+   "written": 895,
+   "cmp": 107,
+   "within2": 102,
+   "unitSlip": 5,
+   "misses": 0
+  }
+ }
+}
