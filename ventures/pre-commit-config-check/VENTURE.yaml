@@ -1,0 +1,52 @@
+name: pre-commit-config-check
+description: "Free, read-only checker for .pre-commit-config.yaml: every error pre-commit 4.7.0 would stop on, in its own words with line numbers and fixes (YAML 1.1 number and date traps, Python-regex files/exclude, stage and language names, identify type tags), plus mistakes pre-commit accepts silently (unknown hook keys, duplicate keys, glued args items, prek-only keys). Browser page and zero-dependency Node CLI."
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-11-22 with `python3 portfolio/pipeline/duplicate_check.py
+# "pre-commit-config.yaml checker: mutable rev, deprecated stage names, files
+# regex written as glob, local hooks missing keys"` -- top score 0.16
+# (zoho-crm-import-csv-check), far below the 0.45 bar. No venture read
+# .pre-commit-config.yaml before; the nearest are the GitHub Actions and
+# Dependabot config checkers.
+#
+# Shape rationale: a CLI plus browser port sharing one module, like
+# dependabot-config-check. The depth is in matching pre-commit exactly:
+# a PyYAML-typed YAML reader and a CPython-regex syntax checker, each
+# differential-tested against the real Python code (differential/README.md).
+#
+# Where the first visitor comes from: people pasting pre-commit's error text
+# ("Expected string got int", "is not a valid python regex", "appears to be a
+# mutable reference") into a search engine. Search volume not measured.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high. Read-only text check, no network calls, says pre-commit itself is the
+# authority.
+hypotheses:
+  - claim: A developer whose pre-commit run fails on a config error will fix every error in one pass from this list instead of one per run.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Teams will run `cli.mjs --strict` in CI to catch hook keys pre-commit silently ignores.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a config where its verdict differs from `pre-commit validate-config` on the version it names, and the differential tests cannot be brought back to full agreement.
+
+links:
+  production: https://marisstella.app/pre-commit-config-check/
+  analytics: null

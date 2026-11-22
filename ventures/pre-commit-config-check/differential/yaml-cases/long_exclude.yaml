@@ -1,0 +1,6 @@
+exclude: >
+  (?x)^(
+    a|
+    b
+  )$
+files: ^src/

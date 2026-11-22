@@ -284,3 +284,18 @@ entries:
         with openpyxl on 15,072 of 15,072 formulas in 4 public test books.
         Not yet measured on real human-built models. Post, llms.txt, guide.
     mrr_end: 0
+  - venture: pre-commit-config-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/pre-commit-config-check,
+        a browser page and zero-dependency Node CLI that lists every error
+        pre-commit 4.7.0 would stop on in .pre-commit-config.yaml (its own
+        messages and context chain), plus keys it ignores silently, duplicate
+        keys, glued args items and prek-only keys. Carries a PyYAML-typed
+        YAML reader and a CPython-regex syntax checker. Agreed with
+        pre-commit's loader on 5,244 of 5,244 configs (69 public + 5,175
+        single-edit variants); regex verdicts match CPython 3.11 on 199,999
+        of 200,000 generated patterns. Post, llms.txt.
+    mrr_end: 0

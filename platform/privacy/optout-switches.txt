@@ -886,6 +886,7 @@ ventures/powder-coating-job-price-calculator/usage.mjs
 ventures/ppf-ceramic-coating-price-calculator/usage.mjs
 ventures/ppp-pricing-table-generator/usage.mjs
 ventures/pql-radar/usage.mjs
+ventures/pre-commit-config-check/usage.mjs
 ventures/pressure-washing-bid-calculator/usage.mjs
 ventures/price-drop-watcher/usage.mjs
 ventures/price-elasticity-estimator/usage.mjs

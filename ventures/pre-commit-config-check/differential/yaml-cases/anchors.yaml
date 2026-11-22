@@ -1,0 +1,8 @@
+base: &b
+  x: 1
+  y: [1, 2]
+other:
+  <<: *b
+  y: 3
+list: &l [a, b]
+again: *l

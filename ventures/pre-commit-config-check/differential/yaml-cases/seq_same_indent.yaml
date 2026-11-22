@@ -1,0 +1,6 @@
+repos:
+- repo: x
+  hooks:
+  - id: a
+  - id: b
+- repo: y
