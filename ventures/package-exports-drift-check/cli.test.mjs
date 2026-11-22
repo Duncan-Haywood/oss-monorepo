@@ -64,7 +64,7 @@ test("run: a missing target exits 1 and names the subpath and path", async () =>
   assert.match(output, /dist\/feature\.js/);
 });
 
-test("run: --json emits a machine-readable report, including wildcard/external skips", async () => {
+test("run: --json reports wildcard reach and a bare-specifier target Node refuses", async () => {
   const { exitCode, output } = await run(["check", "--json"], {
     readFile: () => JSON.stringify({
       exports: {
@@ -74,13 +74,23 @@ test("run: --json emits a machine-readable report, including wildcard/external s
       },
     }),
     stat: async () => ({}),
+    readdir: async (p) =>
+      String(p).endsWith("features")
+        ? [{ name: "a.js", isDirectory: () => false }]
+        : String(p).endsWith("dist")
+          ? [{ name: "features", isDirectory: () => true }, { name: "index.js", isDirectory: () => false }]
+          : [{ name: "dist", isDirectory: () => true }],
   });
-  assert.equal(exitCode, 0);
+  // "other-pkg/compat" is ERR_INVALID_PACKAGE_TARGET in Node: "exports"
+  // cannot point at another package.
+  assert.equal(exitCode, 1);
   const parsed = JSON.parse(output);
   assert.equal(parsed.missing.length, 0);
   assert.equal(parsed.matched.length, 1);
-  assert.equal(parsed.wildcardSkipped.length, 1);
-  assert.equal(parsed.externalSkipped.length, 1);
+  assert.equal(parsed.wildcards.length, 1);
+  assert.equal(parsed.wildcards[0].reachedCount, 1);
+  assert.deepEqual(parsed.wildcards[0].examples, [{ file: "dist/features/a.js", subpath: "./features/a" }]);
+  assert.deepEqual(parsed.invalid.map((e) => e.target), ["other-pkg/compat"]);
 });
 
 test("run: package.json path resolves targets relative to its own directory, on a real filesystem", async () => {
@@ -112,4 +122,67 @@ test("run: duplicate target across two conditions is checked once and reported o
   const parsed = JSON.parse(output);
   assert.equal(parsed.missing.length, 2); // once per condition entry, same target
   assert.deepEqual(parsed.missing.map((m) => m.target), ["./dist/index.js", "./dist/index.js"]);
+});
+
+test("run: a wildcard target that reaches no file exits 1", async () => {
+  const { exitCode, output } = await run(["check"], {
+    readFile: () => JSON.stringify({ exports: { "./icons/*": "./dist/icons/*.svg" } }),
+    stat: async () => ({}),
+    readdir: async () => [{ name: "README.md", isDirectory: () => false }],
+  });
+  assert.equal(exitCode, 1);
+  assert.match(output, /NO FILE\s+\.\/icons\/\*/);
+});
+
+test("run: a map mixing \".\" and condition keys is a config error", async () => {
+  const { exitCode, output } = await run(["check"], {
+    readFile: () => JSON.stringify({ exports: { ".": "./a.js", import: "./b.js" } }),
+    stat: async () => ({}),
+  });
+  assert.equal(exitCode, 1);
+  assert.match(output, /CONFIG .*ERR_INVALID_PACKAGE_CONFIG/);
+});
+
+test("resolve: names the file, the key and the condition", async () => {
+  const pkg = { name: "lib", exports: { "./feature": { browser: "./b.js", import: "./esm/f.js", require: "./cjs/f.js" } } };
+  const io = { readFile: () => JSON.stringify(pkg), stat: async () => ({}) };
+  let { exitCode, output } = await run(["resolve", "lib/feature"], io);
+  assert.equal(exitCode, 0);
+  assert.match(output, /lib\/feature\s+->\s+\.\/esm\/f\.js/);
+  assert.match(output, /condition "import" applies/);
+  ({ output } = await run(["resolve", "lib/feature", "--require"], io));
+  assert.match(output, /->\s+\.\/cjs\/f\.js/);
+  ({ output } = await run(["resolve", "lib/feature", "--conditions=browser"], io));
+  assert.match(output, /->\s+\.\/b\.js/);
+});
+
+test("resolve: an unexported subpath exits 1 with Node's error code", async () => {
+  const { exitCode, output } = await run(["resolve", "lib/internal"], {
+    readFile: () => JSON.stringify({ name: "lib", exports: { ".": "./i.js" } }),
+    stat: async () => ({}),
+  });
+  assert.equal(exitCode, 1);
+  assert.match(output, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
+});
+
+test("resolve: a resolved file that is not on disk exits 1", async () => {
+  const { exitCode, output } = await run(["resolve", "#utils", "--json"], {
+    readFile: () => JSON.stringify({ name: "lib", imports: { "#utils": "./src/utils.js" } }),
+    stat: async () => { throw new Error("ENOENT"); },
+  });
+  assert.equal(exitCode, 1);
+  const parsed = JSON.parse(output);
+  assert.equal(parsed.file, "./src/utils.js");
+  assert.equal(parsed.exists, false);
+});
+
+test("resolve: a trailing --conditions with no value exits 2", async () => {
+  const { exitCode, output } = await run(["resolve", "lib", "--conditions"], { readFile: () => "{}" });
+  assert.equal(exitCode, 2);
+  assert.match(output, /--conditions needs a value/);
+  const spaced = await run(["resolve", "lib/f", "--conditions", "browser"], {
+    readFile: () => JSON.stringify({ name: "lib", exports: { "./f": { browser: "./b.js", default: "./d.js" } } }),
+    stat: async () => ({}),
+  });
+  assert.match(spaced.output, /->\s+\.\/b\.js/);
 });

@@ -6,7 +6,10 @@
 //
 // This is a publish-safety check, not a bundler: it never runs the package,
 // never resolves imports, and never reads a file's contents -- only whether
-// each literal path the "exports" map names actually exists.
+// each literal path the "exports" map names actually exists. Which file a
+// given import reaches is resolve.mjs's job, checked against Node itself.
+
+import { resolveExports } from "./resolve.mjs";
 
 /**
  * Parses package.json text. Throws a short, human-readable Error on invalid
@@ -69,23 +72,90 @@ export function extractExportEntries(exportsField) {
 
 /**
  * Splits flattened entries into three groups:
- *   literal  -- a relative file path ("./..." or "../...") with no glob --
- *               the only group whose existence this tool can check.
- *   wildcard -- contains "*" (e.g. "./features/*"); resolving one requires
- *               matching real files against a pattern, out of scope for v0.
- *   external -- does not start with "." at all (a bare specifier re-exporting
- *               another package's subpath) -- nothing on disk to check.
+ *   literal  -- a "./" target that names one file. A target with "*" under
+ *               a key without "*" is literal too: Node reads the "*" as part
+ *               of the file name. So is a target without "*" under a
+ *               pattern key, which sends every match to that one file.
+ *   wildcard -- a "*" target under a "*" key ("./features/*": "./src/*.js"),
+ *               checked by checkWildcards against the file listing.
+ *   invalid  -- a target Node refuses with ERR_INVALID_PACKAGE_TARGET: one
+ *               that does not start with "./" ("dist/index.js", a bare
+ *               package name, "../x", "/abs", a URL) or that contains a ".",
+ *               ".." or "node_modules" segment. "exports" cannot re-export
+ *               another package; only "imports" can.
  */
 export function classifyExportEntries(entries) {
   const literal = [];
   const wildcard = [];
-  const external = [];
+  const invalid = [];
   for (const entry of entries) {
-    if (entry.target.includes("*")) wildcard.push(entry);
-    else if (entry.target.startsWith(".")) literal.push(entry);
-    else external.push(entry);
+    const pattern = entry.subpath.includes("*") && entry.subpath.indexOf("*") === entry.subpath.lastIndexOf("*");
+    const probe = pattern
+      ? resolveExports({ [entry.subpath]: entry.target }, entry.subpath.replace("*", "x"), { conditions: [] })
+      : resolveExports({ ".": entry.target }, ".", { conditions: [] });
+    if (!probe.ok && probe.code === "ERR_INVALID_PACKAGE_TARGET") invalid.push({ ...entry, reason: invalidReason(entry.target) });
+    else if (pattern && entry.target.includes("*")) wildcard.push(entry);
+    else literal.push(entry);
   }
-  return { literal, wildcard, external };
+  return { literal, wildcard, invalid };
+}
+
+function invalidReason(target) {
+  if (!target.startsWith("./")) {
+    if (target.startsWith("../") || target === "..") return `points outside the package; Node only allows targets inside it, starting with "./"`;
+    if (target.startsWith("/")) return `is an absolute path; "exports" targets must start with "./"`;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(target)) return `is a URL; "exports" targets must start with "./"`;
+    return `does not start with "./"; Node does not read it as a file, and "exports" cannot point at another package (only "imports" can)`;
+  }
+  return `contains a ".", ".." or "node_modules" path segment, which Node refuses`;
+}
+
+/**
+ * For each wildcard entry, the listed files its target pattern can reach.
+ * Every "*" in a target is replaced by the same non-empty text, as Node
+ * does. An entry that reaches no listed file is the wildcard form of a
+ * missing target: every import through it fails.
+ */
+export function checkWildcards(wildcard, fileSet) {
+  const files = [...fileSet];
+  return wildcard.map((entry) => {
+    const t = normalizePath(entry.target);
+    const parts = t.split("*").map((p) => p.replace(/[.+?^${}()|[\]\\]/g, "\\$&"));
+    const re = new RegExp("^" + parts[0] + parts.slice(1).map((p, i) => (i === 0 ? "(.+)" : "\\1") + p).join("") + "$");
+    const reached = files.filter((f) => re.test(f)).sort();
+    return {
+      ...entry,
+      reached,
+      examples: reached.slice(0, 3).map((f) => ({ file: f, subpath: entry.subpath.replace("*", () => re.exec(f)[1]) })),
+    };
+  });
+}
+
+/**
+ * Problems Node reports for the "exports" map as a whole, before any target
+ * is looked at: a map that mixes "." keys with condition keys
+ * (ERR_INVALID_PACKAGE_CONFIG on every import) and numeric condition keys.
+ */
+export function exportsConfigErrors(exportsField) {
+  const errors = [];
+  if (exportsField && typeof exportsField === "object" && !Array.isArray(exportsField)) {
+    const keys = Object.keys(exportsField);
+    const dot = keys.filter((k) => k.startsWith("."));
+    if (dot.length && dot.length !== keys.length) {
+      errors.push(`"exports" mixes subpath keys (${dot.slice(0, 3).map((k) => JSON.stringify(k)).join(", ")}) with condition keys (${keys.filter((k) => !k.startsWith(".")).slice(0, 3).map((k) => JSON.stringify(k)).join(", ")}): Node throws ERR_INVALID_PACKAGE_CONFIG for every import of this package`);
+    }
+  }
+  const walk = (v, where) => {
+    if (Array.isArray(v)) v.forEach((x) => walk(x, where));
+    else if (v && typeof v === "object") {
+      for (const [k, x] of Object.entries(v)) {
+        if (/^(0|[1-9][0-9]*)$/.test(k) && Number(k) < 4294967295) errors.push(`numeric key "${k}" under ${where}: Node throws ERR_INVALID_PACKAGE_CONFIG when it reaches it`);
+        walk(x, k.startsWith(".") ? JSON.stringify(k) : where);
+      }
+    }
+  };
+  walk(exportsField, '"exports"');
+  return errors;
 }
 
 /** Strips one leading "./" so a target and a listed file compare equal regardless of which form either was written in. */
@@ -125,20 +195,20 @@ export function diffExports({ literal, fileExists }) {
   return { missing, matched };
 }
 
-export function summarize(report, { wildcardCount = 0, externalCount = 0 } = {}) {
-  const skippedNote = wildcardCount > 0 || externalCount > 0
-    ? ` (${wildcardCount ? `${wildcardCount} wildcard` : ""}${wildcardCount && externalCount ? ", " : ""}${externalCount ? `${externalCount} external` : ""} entr${wildcardCount + externalCount === 1 ? "y" : "ies"} not checked)`
-    : "";
-  if (report.missing.length === 0) {
+export function summarize(report, { wildcardCount = 0, invalidCount = 0, unmatchedWildcardCount = 0, configErrorCount = 0 } = {}) {
+  const problems = [];
+  if (configErrorCount) problems.push(`${configErrorCount} map-level error(s) Node rejects`);
+  if (report.missing.length) problems.push(`${report.missing.length} export target(s) named in package.json do not exist`);
+  if (invalidCount) problems.push(`${invalidCount} target(s) Node refuses as invalid`);
+  if (unmatchedWildcardCount) problems.push(`${unmatchedWildcardCount} wildcard target(s) match no listed file`);
+  const checked = report.matched.length + (wildcardCount - unmatchedWildcardCount);
+  if (problems.length === 0) {
     return {
       status: "ok",
-      text: report.matched.length > 0
-        ? `${report.matched.length} export target(s) exist -- nothing missing.${skippedNote}`
-        : `No checkable literal export targets found.${skippedNote}`,
+      text: checked > 0
+        ? `${report.matched.length} export target(s) exist${wildcardCount ? ` and ${wildcardCount} wildcard target(s) each reach at least one file` : ""} -- nothing missing.`
+        : `No checkable export targets found.`,
     };
   }
-  return {
-    status: "missing",
-    text: `${report.missing.length} export target(s) named in package.json do not exist.${skippedNote}`,
-  };
+  return { status: "missing", text: problems.join("; ") + "." };
 }

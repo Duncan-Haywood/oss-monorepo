@@ -59,9 +59,10 @@
       publish &mdash; and flattens every subpath, every nested condition
       (<code>import</code>/<code>require</code>/<code>types</code>/...),
       and every fallback array in the <code>exports</code> map, then
-      reports each literal target that is missing from that listing. A
-      wildcard target or a bare-specifier re-export is reported as
-      <strong>not checked</strong>, never as passing or failing. Because it
+      reports each literal target that is missing from that listing, each
+      wildcard target that reaches no listed file, and each target Node
+      refuses outright (no leading <code>./</code>, or a <code>..</code>
+      segment). Because it
       needs nothing installed or published, it works on a
       <code>package.json</code> you are still editing, against a
       <em>hypothetical</em> file listing of what a build would produce

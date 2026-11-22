@@ -1,5 +1,5 @@
 name: package-exports-drift-check
-description: 'Free, zero-network, zero-dependency CLI + browser tool that flattens a package.json ''exports'' map (every subpath, every nested condition -- import/require/types/... -- and every fallback array) and checks that each literal file target actually exists, naming every one that is missing -- the cause of Node''s ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module errors that only show up after a stranger runs npm install, never on the maintainer''s own machine where the build has usually already run. A deterministic existence check, not a bundler, resolver, or publish tool.'
+description: 'Free, zero-network, zero-dependency CLI + browser tool for a package.json ''exports'' map: flattens every subpath, nested condition and fallback array, names every literal target that is missing from the files you publish, every wildcard target that reaches no file, and every target Node refuses (no leading ./, another package''s name, a .. segment: ERR_INVALID_PACKAGE_TARGET). Its resolver names the file an import or require of a subpath or #import reaches under any conditions, using Node 22''s algorithm, differential-tested against Node itself. Not a bundler or publish tool.'
 stage: prototype
 
 owner: duncan

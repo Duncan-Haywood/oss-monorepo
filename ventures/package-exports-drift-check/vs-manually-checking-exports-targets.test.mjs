@@ -49,10 +49,10 @@ test('the worked example matches the engine on the exact map and file listing de
   }));
   const entries = extractExportEntries(pkg.exports);
   assert.equal(entries.length, 11);
-  const { literal, wildcard, external } = classifyExportEntries(entries);
+  const { literal, wildcard, invalid } = classifyExportEntries(entries);
   assert.equal(literal.length, 11);
   assert.equal(wildcard.length, 0);
-  assert.equal(external.length, 0);
+  assert.equal(invalid.length, 0);
 
   const fileSet = parseFileList([
     'package.json', 'README.md',
@@ -67,7 +67,7 @@ test('the worked example matches the engine on the exact map and file listing de
   assert.equal(report.missing.length, 1);
   assert.equal(report.missing[0].target, './cjs/modal.js');
 
-  const { status, text } = summarize(report, { wildcardCount: 0, externalCount: 0 });
+  const { status, text } = summarize(report, { wildcardCount: 0, invalidCount: 0 });
   assert.equal(status, 'missing');
   assert.match(text, /1 export target\(s\) named in package\.json do not exist/);
 
