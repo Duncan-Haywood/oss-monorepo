@@ -525,6 +525,27 @@ def test_e30_sat_encoding_matches_exhaustive_search():
     assert e30.check_witness(R2, 0, 1, *e30.separable_sat(R2, 0, 1, solver=e30.dpll))
 
 
+def test_e31_lean_enc_matches_encode_and_non_successors_separable():
+    """E31 (e): the clauses Lean's `Enc` admits equal E30's `encode` on every relation up to 3
+    worlds; every non-successor is separable (`sep_of_not_succ`); and the `need_succ` frame is
+    separable with an unsatisfiable encoding."""
+    e31 = _load("e31_sat_lean")
+    e30 = e31.e30
+    import itertools as it
+    for n in range(1, 4):
+        for bits in it.product(range(1 << n), repeat=n):
+            R = {t: [x for x in range(n) if bits[t] >> x & 1] for t in range(n)}
+            for w in range(n):
+                for v in range(n):
+                    if v in R[w]:
+                        assert set(e31.encode_named(R, w, v)) == e31.lean_clauses(R, w, v)
+                    else:
+                        assert e30.separable_brute(R, n, w, v)
+    d = {0: [], 1: [1]}
+    assert e30.separable_brute(d, 2, 0, 1)
+    assert e30.separable_sat(d, 0, 1, solver=e30.dpll) is None
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

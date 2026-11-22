@@ -90,7 +90,10 @@ calendar or absorbed by an expected finish the tool names;
 `eval/tia-check-2026-11-20.md`). Where the event can go more than one way, branch
 groups with probabilities in the fragnet give the expected delay, P50 and P80
 over every outcome, each scheduled exactly (2026-11-22, "Probabilistic
-branches in the time impact analysis" below).
+branches in the time impact analysis" below). On an update where every activity is
+already finished (added work after the scope is done), the delay is measured
+from the last actual finish, else the data date, and a note says so
+(2026-11-22; it used to read "no change").
 
 **Microsoft Project files too** (2026-11-19, `mspdi.mjs`): open a schedule
 saved from Microsoft Project as XML (File, Save As, XML Format; also written
@@ -639,6 +642,30 @@ identity pair reports nothing; eval/narrative-check-2026-11-22.md). Not yet read
 scheduler or owner's reviewer; the hotel file had no driving work due in the window, so its
 3 runs plant nothing. Guide: `how-to-write-a-monthly-construction-schedule-narrative.html`.
 
+## XER to Excel workbook (2026-11-22)
+
+`excel.mjs`, `--excel out.xlsx [--raw]`, and the page's **Download for Excel (.xlsx)**: the XER as a
+workbook with every P6 internal id resolved (activity IDs, WBS paths, calendar, resource and code
+names). Sheets: Read me; Activities (WBS path, type, status, calendar, original and remaining
+duration and total and free float in days of each activity's own calendar, start/finish, actual,
+early, late and planned dates as Excel dates, constraints, predecessors and successors as
+`A1010 FS+2d`, the recomputed dates and float beside P6's with Float Agrees, one column per activity
+code type and per activity UDF); Relationships (lag in days and hours); WBS; Resources; Assignments
+(units and cost: budgeted, actual, remaining, at completion); Expenses; Calendars; Activity codes.
+`--raw` adds every XER table as it is, one sheet each. Header rows frozen, filters on. No
+dependencies: a small zip writer (deflate through the platform's `CompressionStream`, stored where
+none) and inline-string cells; the same input gives the same bytes.
+
+Checked (eval/excel-check-2026-11-22.md): `eval/excel-check.py`, a separate Python reader sharing no
+code with the tool, parses each of the six public XERs itself and reads the workbook with openpyxl:
+6,239,763 of 6,239,763 values equal on 21,758 activities and 56,666 relationships (stored dates to
+the minute, durations and float to 0.005 day, codes, UDFs, links, assignments, and every raw
+table cell). The Float Agrees column says yes on 14,268 of 14,270 open activities of the
+16,000-activity hospital file (the 2 behind the lag lengthened after P6's last run, as in
+eval/cpm-vs-p6-2026-11-19.md) and on all open activities with stored float in the other five.
+Not yet opened in desktop Excel itself (none here); openpyxl reads it with no warning. Guide:
+`how-to-convert-an-xer-file-to-excel.html`.
+
 ## Guides (2026-11-21)
 
 Four search-landing guides, linked from the tool page, `sitemap.xml` and `llms.txt`:
@@ -652,6 +679,7 @@ button drifts. Search impressions not measured yet.
 
 | Today's option | What it does | What this does better |
 |---|---|---|
+| Opening the XER in Excel as text, or P6's own Export to Excel | The text shows P6's tables stacked one after another, linked by internal numbers; P6's export needs a P6 seat | An .xlsx with one sheet per table and every id turned into the name P6 shows, durations and float in days, real dates, logic as `A1010 FS+2d`, codes and UDFs as columns, and the recomputed float beside P6's, free and in the browser |
 | A look-ahead made by hand (a filtered P6 layout printed to PDF, or copied into Excel each week) | Works for whoever holds P6 or has the time to copy dates | The 1-6 week sheet straight from the XER, with what each activity waits on and the date it is due, open starts and out-of-sequence work named, printable and as CSV, with no P6 seat |
 | A constraints log in Excel, or a Last Planner board (sticky notes, or paid tools such as Touchplan or vPlanner) | Tracks what each task waits on, kept apart from the schedule; the paid boards need their own plan entered | The same spreadsheet merged with the P6 schedule: the date each row is needed by from the recomputed dates, late and overdue rows named, and how far the finish moves if the log holds, row by row, free and in the browser |
 | P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
@@ -1232,6 +1260,8 @@ reading of both files. `p6xer.mjs` writes Microsoft Project XML as a P6 XER
 (`p6XerText`; `node cli.mjs file.xml --to-p6 out.xer [--project-id CODE] [--deadlines] [--types-from original.xer]`);
 `eval/p6xer-check.mjs` checks it on MSPDI files and on XERs sent through
 Project XML, `eval/p6xer-mpxj.py` compares MPXJ's reading of the XML and the XER.
+`excel.mjs` writes an XER as an Excel workbook (`xerToXlsx`; `node cli.mjs file.xer --excel out.xlsx [--raw]`);
+`eval/excel-check.py` reads it back with openpyxl against its own XER reader.
 `samples/constraints-log.csv` is a constraints log for the example schedule
 (the page's "Example log" button); `eval/constraints-check.mjs` plants logs on
 real files and checks the what-if against P6 start-on-or-after constraints.

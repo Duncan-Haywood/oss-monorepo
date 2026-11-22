@@ -410,8 +410,10 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
                       + G.hatch_screw_problems(p, parts))
     spanner_rows, spanner_bad = G.spanner_checks(p, parts)
     guide_bad += spanner_bad
+    socket_rows = G.socket_checks(p, parts)
     rules = rules + guide_bad
-    G.write(out, p, parts, bom_rows, joint_rows, guide_bad, drawings, spanner_rows=spanner_rows)
+    G.write(out, p, parts, bom_rows, joint_rows, guide_bad, drawings, spanner_rows=spanner_rows,
+            socket_rows=socket_rows)
 
     write_csv("laser_parts.csv", laser_rows)
     write_csv("print_parts.csv", print_rows)

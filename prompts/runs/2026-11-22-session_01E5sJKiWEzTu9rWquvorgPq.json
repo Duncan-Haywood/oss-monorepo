@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKiWEzTu9rWquvorgPq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T13:10:21Z",
+  "ended": "2026-11-22T13:19:49Z",
+  "wall_minutes": 13.71,
+  "tokens_in": 6028741,
+  "tokens_out": 25752,
+  "cost_usd": 2.6225,
+  "tool_calls": 52,
+  "task": "open-tennis-robots flagship: a deep socket on an extension (cad/README.md, Spanners)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18255",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Inserted SocketTest in the middle of SpannerTest, which captured SpannerTest's later methods (4 failures on the first run); moved it after the class.",
+    "First README/post draft said a wider hand closes the drum-axle window; probing showed the hand is outside the rod cage and the ratchet's own handle is what the rods stop. Corrected before commit and the test now widens the handle."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "cad test classes take ~2.5 min each to build parts; '-k' runs of test_cad.py outlast the 120 s foreground timeout, so start them in the background from the outset."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-tennis-robots-deep-socket-on-the-nuts.md",
+    "ventures/open-tennis-robots/cad/README.md (A deep socket on an extension)"
+  ],
+  "goal": "Deepen flagship open-tennis-robots: the last open buildable CAD item.",
+  "notes": "guide.socket_checks: deep socket + 0-250 mm bars + ratchet + hand along each nut's axis at every hole when its step comes; bolt tail must fit the socket bore. 15 nut joints: 12 take a bare socket+ratchet, drum axle nut turns with a ratchet between rods (15 deg, marginal), flight-cap M3 nyloc takes no socket, levelling jam nut needs a deep socket (26.8 mm tail). No nut needs an extension. Report only (not a pass/fail). Packages regenerated. Verification: tests/test_cad.py SocketTest + SpannerTest (see PR), validate.py, check_posts.py.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bae25318-4391-58e3-8bde-80ef543e6600",
+    "transcripts": 1,
+    "first": "2026-11-22T13:10:21Z",
+    "last": "2026-11-22T13:24:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 110,
+        "output": 25752,
+        "thinking": 5360,
+        "cache_read": 5913084,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115547,
+        "api_equivalent_usd": 2.6225,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 110,
+      "output": 25752,
+      "thinking": 5360,
+      "cache_read": 5913084,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115547,
+      "api_equivalent_usd": 2.6225,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.71,
+      "active_minutes": 10.49,
+      "model_minutes": 5.29,
+      "tool_minutes": 5.21,
+      "waiting_on_human_minutes": 3.22,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a mechanical designer scripting a socket-access check over 15 joints in CAD, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 228.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -538,15 +538,12 @@
     import { reconcile } from "./reconcile.mjs";
     import { cashBasis } from "./cashbasis.mjs";
     import { compareProfit, precedingPeriod } from "./compare.mjs";
-    import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
     import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
     import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
     import { estimatedTax } from "./estimatedtax.mjs";
-    import { annualizedInstallments } from "./annualized.mjs";
     import { scorpFromBooks } from "./scorp.mjs";
     import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, presetDiscountWarning, stateHistoryPresets, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
-    import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
     import { renderStatement } from "./statement.mjs";
     import { reminders } from "./collections.mjs";
@@ -556,6 +553,12 @@
     import { liveFileSupported, pickNewFile, pickExistingFile, readBooksFromHandle, ensureWritable, createLiveWriter, serializeBooks, rememberHandle, recallHandle, forgetHandle } from "./livefile.mjs";
 
     const $ = (sel) => document.querySelector(sel);
+    // Loaded on first use: receipts (with its OCR clean-up), payout reports and
+    // the annualized-installment worksheet are 72 kB gzip that most visits never
+    // touch, so the first render does not wait for them. The service worker
+    // still caches them for offline use.
+    let receiptsMod = null;
+    const loadReceipts = () => import("./receipts.mjs").then((m) => (receiptsMod = m));
     const STORE = "ai-bookkeeper-books", AI_STORE = "ai-bookkeeper-ai";
     const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } for (const k of kids) e.append(k); return e; };
     const load = () => { try { const s = localStorage.getItem(STORE); return s ? JSON.parse(s) : null; } catch { return null; } };
@@ -714,6 +717,8 @@
 
     function renderReceipts() {
       if (!(books.receipts ?? []).length && !$("#receipts-text").value.trim()) { $("#receipts").replaceChildren(); return; }
+      if (!receiptsMod) { loadReceipts().then(renderReceipts, (e) => { $("#receipts-status").textContent = e.message; }); return; }
+      const { receiptReport, planReceiptSplit, splitFromReceipt, taxOnReceipts } = receiptsMod;
       const min = parseCents($("#receipts-min").value || "75");
       const rep = receiptReport(books, { minCents: Number.isFinite(min) && min > 0 ? min : 7500, from: $("#from").value || null, to: $("#to").value || null });
       const out = [el("p", { class: "note", text: `${rep.receipts} receipt${rep.receipts === 1 ? "" : "s"} on file: ${rep.matched.length} matched, ${rep.unmatched.length} without a bank line. ${fmt(rep.coveredCents)} of ${fmt(rep.spendCents)} spending is covered by a receipt.` })];
@@ -925,6 +930,7 @@
       const f = $("#po-file").files[0];
       const text = f ? await f.text() : $("#po-paste").value;
       if (!text.trim()) throw new Error("Choose the payout report file or paste its CSV.");
+      const { planPayouts, readPayoutReport } = await import("./payouts.mjs");
       return planPayouts(books, readPayoutReport(text));
     }
     function showPayouts(plan, posted = null) {
@@ -946,6 +952,7 @@
     $("#po-post").addEventListener("click", async () => {
       try {
         const plan = await payoutPlan();
+        const { applyPayouts, planPayouts, readPayoutReport } = await import("./payouts.mjs");
         const r = applyPayouts(books, plan);
         if (r.posted) { books = categorize(r.books, opts()); record("payouts_posted"); render(); }
         showPayouts(planPayouts(books, readPayoutReport(($("#po-file").files[0] ? await $("#po-file").files[0].text() : $("#po-paste").value))), r.posted);
@@ -1087,7 +1094,7 @@
 
     function dollars(sel) { const v = $(sel).value.replace(/[$,\s]/g, ""); if (!v) return undefined; const n = Number(v); if (!Number.isFinite(n)) throw new Error("Use plain numbers in the dollar boxes."); return Math.round(n * 100); }
     function estOpts() { return { year: deductYear(), monthsElapsed: parseInt($("#est-months").value, 10) || 12, /* zero-default: 0 months elapsed has nothing to annualize */ filing: $("#est-filing").value, wages: dollars("#est-wages"), otherIncome: dollars("#est-other"), withholding: dollars("#est-withheld"), paid: dollars("#est-paid"), priorYearTax: dollars("#est-prior"), priorAgi: dollars("#est-prior-agi"), healthInsurance: dollars("#est-health"), retirement: dollars("#est-retire"), children: parseInt($("#est-children").value, 10) || 0, otherDependents: parseInt($("#est-other-deps").value, 10) || 0, over65: parseInt($("#est-over65").value, 10) || 0, blind: parseInt($("#est-blind").value, 10) || 0, eitcChildren: $("#est-eitc").value.trim() === "" ? undefined : parseInt($("#est-eitc").value, 10) || 0, eitcTable: true, stateRate: $("#est-state-rate").value.trim() === "" ? undefined : (parseFloat($("#est-state-rate").value) || 0) / 100, stateDeduction: dollars("#est-state-ded"), stateWithheld: dollars("#est-state-wh"), service: $("#est-service").checked, businessWages: dollars("#est-bizwages"), asOf: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) }; }
-    $("#est-annual").addEventListener("click", () => {
+    $("#est-annual").addEventListener("click", async () => {
       try {
         const o = estOpts(); delete o.paid; delete o.monthsElapsed;
         const datedList = (sel, what) => $(sel).value.split(/[;\n]+|,(?=\s*\d{4}-)/).map((x) => x.trim()).filter(Boolean).map((x) => {
@@ -1098,6 +1105,7 @@
         o.payments = [...datedList("#est-dated", "estimate"), ...datedList("#est-with-return", "return payment").map((p) => ({ ...p, withReturn: true }))];
         const wd = datedList("#est-withheld-dated", "withholding");
         if (wd.length) o.withheld = wd;
+        const { annualizedInstallments } = await import("./annualized.mjs");
         const r = annualizedInstallments(books, o);
         record("tax_annualized");
         $("#annual").replaceChildren(table(["Period", "Due", "Profit to date", "Required this date", "Regular method", "Saved"], r.rows.map((x, i) => [x.period, x.due, fmt(x.profitToDate), fmt(x.cumulativeRequired), fmt(x.regularCumulative), fmt(r.saved[i])])), el("p", { class: "note", text: r.penalty.exempt ? "Underpayment penalty: none (tax after withholding is under $1,000)." : `Underpayment penalty (Form 2210, through April 15, from the payments counted above): regular method ${fmt(r.penalty.regular)}, annualized method ${fmt(r.penalty.annualized)}${r.penalty.boxD ? `; with withholding on its actual dates (box D): ${fmt(r.penalty.boxD.regular)} and ${fmt(r.penalty.boxD.annualized)}` : ""}.` }), ...r.warnings.map((w) => el("p", { class: "note", text: w })));
@@ -1372,7 +1380,8 @@
       try { const cents = parseCents($("#budget-amount").value || "0"); if (cents === null || Number.isNaN(cents)) throw new Error("Enter an amount such as 200.00."); books = setBudget(books, $("#budget-account").value, cents); record("budget_set"); render(); $("#budget-status").textContent = cents ? `Budget set: ${fmt(cents)} a month.` : "Budget removed."; }
       catch (e) { $("#budget-status").textContent = e.message; }
     });
-    $("#receipts-read").addEventListener("click", () => {
+    $("#receipts-read").addEventListener("click", async () => {
+      const { addReceipts } = receiptsMod ?? await loadReceipts();
       const r = addReceipts(books, $("#receipts-text").value);
       books = r.books; record("receipts_read"); render();
       $("#receipts-status").textContent = `Read ${r.added.length}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read${r.skipped.length ? ` (${r.skipped.map((x) => `"${x.text.slice(0, 24)}": ${x.notes.join(", ")}`).join("; ")})` : ""}.`;

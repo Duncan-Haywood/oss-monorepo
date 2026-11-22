@@ -16,6 +16,7 @@ const GUIDES = [
   "how-to-convert-a-p6-xer-file-to-microsoft-project.html",
   "how-to-review-a-contractors-p6-schedule-update.html",
   "how-to-write-a-monthly-construction-schedule-narrative.html",
+  "how-to-convert-an-xer-file-to-excel.html",
 ];
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
@@ -49,7 +50,7 @@ test("each guide: canonical, title and description lengths, FAQ markup equals th
 
 test("the buttons the guides name exist on the tool page", () => {
   const index = page("index.html");
-  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too"]) {
+  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)"]) {
     assert.ok(index.includes(label), label);
   }
 });

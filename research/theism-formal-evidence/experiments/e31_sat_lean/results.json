@@ -1,0 +1,37 @@
+{
+ "by_size": [
+  {
+   "worlds": 1,
+   "relations": 2,
+   "pairs_wRv": 1,
+   "mismatches": 0
+  },
+  {
+   "worlds": 2,
+   "relations": 16,
+   "pairs_wRv": 32,
+   "mismatches": 0
+  },
+  {
+   "worlds": 3,
+   "relations": 512,
+   "pairs_wRv": 2304,
+   "mismatches": 0
+  },
+  {
+   "worlds": 4,
+   "relations": 65536,
+   "pairs_wRv": 524288,
+   "mismatches": 0
+  }
+ ],
+ "relations": 66066,
+ "pairs": 526625,
+ "mismatches": 0,
+ "duplicate_clauses_in_encode": 526625,
+ "non_successor_pairs_up_to_3": 2337,
+ "separable_non_successor": 2337,
+ "separable_non_successor_unsat": 1018,
+ "d_frame_separable": true,
+ "d_frame_sat": false
+}

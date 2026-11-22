@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Convert A Primavera P6 XER File To Excel</title>
+  <meta name="description" content="Convert a P6 .xer schedule to an Excel workbook free in your browser: activities with WBS, dates, float, codes and logic, plus resources and costs.">
+  <meta property="og:title" content="How To Convert A Primavera P6 XER File To Excel">
+  <meta property="og:description" content="XER to .xlsx, free and private: every activity, link, resource and cost with names instead of P6 ids.">
+  <link rel="canonical" href="./how-to-convert-an-xer-file-to-excel.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can Excel open an XER file directly?","acceptedAnswer":{"@type":"Answer","text":"It opens as text, but not usefully: an XER holds a dozen or more P6 tables one after another, each row tagged %R, and every link between them is an internal number (a predecessor is task_id 4177, not activity A1010). Convert it to a workbook first, with each table on its own sheet and the numbers replaced by names."}},{"@type":"Question","name":"Why are durations and float in days and not hours?","acceptedAnswer":{"@type":"Answer","text":"P6 stores every duration, lag and float in hours. The workbook divides by the hours per day of each activity's own calendar, as P6 shows them by default, so a 10-hour-a-day calendar's 50 hours read as 5 days. The Relationships sheet keeps each lag in hours too."}},{"@type":"Question","name":"What are the Recomputed columns?","acceptedAnswer":{"@type":"Answer","text":"The tool runs its own critical path from the logic, calendars, constraints and progress in the file and writes those dates beside the ones P6 stored. Float Agrees says whether P6's stored total float matches. A no usually means a duration, lag or link was edited after P6 last scheduled the file."}},{"@type":"Question","name":"Is the file uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The workbook is written in your browser tab and saved straight to your computer. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to convert a Primavera P6 XER file to Excel</h1>
+  <p>To read a Primavera P6 schedule in Excel, convert the .xer to an .xlsx workbook in which every P6 internal id is replaced by what P6 shows: activity IDs, WBS paths, calendar, resource and code names. The free tool here does it in your browser: one row per activity with its dates, durations and float in days, constraints, predecessors and successors, activity codes and user-defined fields as columns, and sheets for relationships, WBS, resources, assignments, expenses, calendars and code values. Dates are real Excel dates, so sorting, filters and pivot tables work.</p>
+  <p><a class="cta" href="./">Open the free schedule check</a> (open the XER, then press Download for Excel (.xlsx))</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>In P6, export the project as XER (File, Export, Primavera PM XER), or use the file you were sent.</li>
+    <li>Open it on the <a href="./">tool page</a>. If the file holds several projects, pick one in the project list.</li>
+    <li>Press <b>Download for Excel (.xlsx)</b>. Tick the box below it to add every XER table as it is, one sheet each, under P6's own field names.</li>
+    <li>Open the file in Excel, LibreOffice Calc or Google Sheets. Each sheet's header row is frozen and has filters on.</li>
+  </ol>
+
+  <h2>What is in the workbook</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Sheet</th><th>One row per</th><th>Columns</th></tr></thead>
+    <tbody>
+      <tr><td>Activities</td><td>Activity</td><td>Project, WBS code path and name, activity ID and name, type, status, calendar, original and remaining duration (days), % complete, start and finish, actual, early, late and planned dates, total and free float (days), longest path, primary and secondary constraints, predecessors and successors written as <code>A1010 FS+2d</code>, the recomputed dates and float with a Float Agrees column, one column per activity code type, one per activity user-defined field</td></tr>
+      <tr><td>Relationships</td><td>Link</td><td>Predecessor and successor ID and name, type, lag in days and hours, project and status of each end</td></tr>
+      <tr><td>WBS</td><td>WBS element</td><td>Code path, name, parent, level, number of activities</td></tr>
+      <tr><td>Resources</td><td>Resource</td><td>Resource ID, name, labour, nonlabour or material, parent resource, calendar, units per hour, unit of measure</td></tr>
+      <tr><td>Assignments</td><td>Resource on an activity</td><td>Budgeted, actual, remaining and at-completion units and cost, dates, resource curve</td></tr>
+      <tr><td>Expenses</td><td>Expense item</td><td>Activity, item, cost category, budgeted, actual, remaining and at-completion cost, accrual</td></tr>
+      <tr><td>Calendars</td><td>Calendar</td><td>Name, global, project or resource, hours per day and week, default, activities on it</td></tr>
+      <tr><td>Activity codes</td><td>Code value</td><td>Code type, value, description, parent value, activities holding it</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>How it was tested</h2>
+  <p>On six public P6 files exported from P6 versions 5.0 to 24.12 (21,758 activities, 56,666 relationships), a separate reader written in Python, sharing no code with the tool, parsed each XER on its own and opened each workbook with openpyxl. It compared every activity's ID, name, status, eight stored dates, durations, float, activity code values and user-defined field values, every relationship and resource assignment, and every value of every raw table: 6,239,763 of 6,239,763 values were equal. Details are in the project's <code>eval/</code> notes.</p>
+
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>Days follow each activity's calendar.</b> P6 can be set to show days on a fixed hours-per-day instead; the hours are in the XER sheets if you need them.</li>
+    <li><b>Start and Finish</b> are the actual dates once the activity has started, else the early dates, as in P6's Start and Finish columns.</li>
+    <li><b>Long text</b> over Excel's 32,767-character cell limit (a notebook pasted into a field) is cut, and the tool says how many cells were.</li>
+  </ul>
+  <p>For Microsoft Project, the same page writes Microsoft Project XML instead (<a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">how that conversion works</a>).</p>
+  <h2>Questions</h2>
+  <h3>Can Excel open an XER file directly?</h3>
+  <p>It opens as text, but not usefully: an XER holds a dozen or more P6 tables one after another, each row tagged %R, and every link between them is an internal number (a predecessor is task_id 4177, not activity A1010). Convert it to a workbook first, with each table on its own sheet and the numbers replaced by names.</p>
+  <h3>Why are durations and float in days and not hours?</h3>
+  <p>P6 stores every duration, lag and float in hours. The workbook divides by the hours per day of each activity's own calendar, as P6 shows them by default, so a 10-hour-a-day calendar's 50 hours read as 5 days. The Relationships sheet keeps each lag in hours too.</p>
+  <h3>What are the Recomputed columns?</h3>
+  <p>The tool runs its own critical path from the logic, calendars, constraints and progress in the file and writes those dates beside the ones P6 stored. Float Agrees says whether P6's stored total float matches. A no usually means a duration, lag or link was edited after P6 last scheduled the file.</p>
+  <h3>Is the file uploaded?</h3>
+  <p>No. The workbook is written in your browser tab and saved straight to your computer. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

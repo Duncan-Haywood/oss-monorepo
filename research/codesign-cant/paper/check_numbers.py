@@ -134,6 +134,12 @@ CHECKS = [
     ("196 [156, 242] against 112 [89, 138] of 3,840", "m12c_ten_seeds_vii/stats.txt", r"lag39c125  ident: 196 of 3840, 95% \[156, 242\][\s\S]*lag39c150  ident: 112 of 3840, 95% \[89, 138\]"),
     ("(462 against 695 of 1,280)", "m12c_ten_seeds_vii/stats.txt", r"slow  pooled MWU \(20 a side\): sums 695 vs 462;"),
     ("(medians 2.08 against 1.68 s\nand 1.83 against 1.73 s)", "m12c_ten_seeds_vii/stats.txt", r"lag39c125  above: certified at all identified laws 10 of 10; rise90 \(36 ms, step\) median over seeds 1\.682 s[\s\S]*lag39c125  below: [^\n]*1\.730 s[\s\S]*lag39c150  above: [^\n]*2\.076 s[\s\S]*lag39c150  below: [^\n]*1\.827 s"),
+    # section VII: 150 against 200 ms at ten seeds per geometry (m12d_ten_seeds_c200, 2026-11-22)
+    ("next pair: 112 against 86 crashes of 3,840 (pooled Mann–Whitney p = 0.08)", "m12d_ten_seeds_c200/stats.txt", r"ident pooled MWU \(20 a side\): sums 112 vs 86; U = 260\.5 of 400, p = 0\.08"),
+    ("only 13 of 20 pairs, ties 4 (exact Wilcoxon p = 0.07)", "m12d_ten_seeds_c200/stats.txt", r"ident paired Wilcoxon \(20 pairs\): mean diff \+1\.30; 150 worse in 13, tied 4, better in 3; W\+ = 103\.0, p = 0\.06"),
+    ("there in 20 of 20 pairs (217 against 462 of 1,280)", "m12d_ten_seeds_c200/stats.txt", r"slow  pooled MWU \(20 a side\): sums 462 vs 217;[\s\S]*slow  paired Wilcoxon \(20 pairs\): mean diff \+12\.25; 150 worse in 20"),
+    ("(86 against 112 of 3,840, p = 0.08)", "m12d_ten_seeds_c200/stats.txt", r"sums 112 vs 86; U = 260\.5 of 400, p = 0\.08"),
+    ("for 4–7% more mass and 0.13–0.44 s more rise", "m12d_ten_seeds_c200/stats.txt", r"lag39c150  above: [^\n]*2\.076 s[^\n]*1\.465 kg[\s\S]*lag39c150  below: [^\n]*1\.827 s[^\n]*1\.432 kg[\s\S]*lag39c200  above: [^\n]*2\.205 s[^\n]*1\.574 kg[\s\S]*lag39c200  below: [^\n]*2\.271 s[^\n]*1\.492 kg"),
     ("crashes 1.75 times as often as a 3.8× one (p = 0.004)", "m12c_ten_seeds_vii/stats.txt", r"sums 196 vs 112; U = 303\.5 of 400, p = 0\.004"),
 ]
 # Table VI-1 at ten seeds: (arm, post hoc 8-seed paired J at 20 deg lever 0, dead of 640 at 45 deg lever 0, at 45 deg lever 2)
