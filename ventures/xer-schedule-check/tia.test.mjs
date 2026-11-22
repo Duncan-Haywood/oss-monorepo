@@ -198,3 +198,50 @@ test("branches appear in the text, CSV and exhibit", () => {
   assert.match(timeImpactCsv(r), /^outcome,,Hold: Happens,/m);
   assert.match(timeImpactHtml(r), /Probabilistic branches<\/h2>/);
 });
+
+// red team 2026-11-22: guards for mutants that escaped this suite
+test("a fragnet lag on a 24-hour lag calendar is written as 24 hours a day", () => {
+  const x = parseXer(EXAMPLE_XER.replace("\tFT_FF\trcal_Predecessor\t", "\tFT_FF\trcal_24Hour\t"));
+  const r = timeImpact(x, `${H}F1,Hold,3,A1140 FS+2,A1150\n`);
+  const f1 = r.impactedXer.tables.TASK.find((t) => t.task_code === "F1");
+  const link = r.impactedXer.tables.TASKPRED.find((l) => l.task_id === f1.task_id);
+  assert.equal(link.lag_hr_cnt, "48");
+  // on the default (predecessor) calendar the same lag is 2 x 8 hours
+  const d = timeImpact(xer(), `${H}F1,Hold,3,A1140 FS+2,A1150\n`);
+  const df1 = d.impactedXer.tables.TASK.find((t) => t.task_code === "F1");
+  assert.equal(d.impactedXer.tables.TASKPRED.find((l) => l.task_id === df1.task_id).lag_hr_cnt, "16");
+});
+
+test("branches: the same probability written on two rows of a branch gives no warning; a different one does", () => {
+  const same = timeImpact(xer(), `${HB}F1,Hold,3,A1140,A1150,G,Yes,40%\nF2,Rework,2,F1,A1150,G,Yes,40%\n`);
+  assert.ok(!same.warnings.some((w) => /on an earlier row/.test(w)));
+  const diff = timeImpact(xer(), `${HB}F1,Hold,3,A1140,A1150,G,Yes,40%\nF2,Rework,2,F1,A1150,G,Yes,60%\n`);
+  assert.ok(diff.warnings.some((w) => /was given 40% on an earlier row/.test(w)));
+});
+
+test("the exhibit counts the rows it leaves to the CSV", () => {
+  const r = timeImpact(xer(), `${HB}F1,Hold,7,A1140,A1150,Hold,Happens,30%\n`);
+  const c = { code: "X", name: "x", floatBefore: 5, floatAfter: 1, usedDays: 4 };
+  const consumed = Array.from({ length: 45 }, () => ({ ...c }));
+  const outcomes = Array.from({ length: 43 }, () => ({ ...r.branches.outcomes[0] }));
+  const html = timeImpactHtml({ ...r, consumed, branches: { ...r.branches, outcomes } });
+  assert.match(html, />5 more in the CSV\./);
+  assert.match(html, />3 more outcomes in the CSV\./);
+});
+
+test("an update with every activity finished measures added work from its last actual finish", () => {
+  const x = xer();
+  for (const t of x.tables.TASK) { t.status_code = "TK_Complete"; t.remain_drtn_hr_cnt = "0"; t.act_start_date ||= "2026-03-02 07:00"; t.act_end_date ||= "2026-04-03 15:30"; }
+  const r = timeImpact(x, `${H}F1,Added scope,10,,\n`);
+  // it used to print "Finish:  -> 2026-04-17 15:30: no change"
+  assert.equal(r.finish.base, "2026-04-03 15:30");
+  assert.equal(r.finish.delayDays, 10);
+  assert.ok(r.warnings.some((w) => /every activity of the update is finished/.test(w)));
+  // with no actual finish it falls back to the data date (here the plan start)
+  for (const t of x.tables.TASK) t.act_end_date = "";
+  for (const p of x.tables.PROJECT) p.last_recalc_date = "";
+  const n = timeImpact(x, `${H}F1,Added scope,10,,\n`);
+  assert.equal(n.finish.base, "2026-03-02 07:00");
+  assert.equal(n.finish.delayDays, 10);
+  assert.ok(n.warnings.some((w) => /measured from its data date/.test(w)));
+});

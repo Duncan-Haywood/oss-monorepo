@@ -342,7 +342,17 @@ export function timeImpact(xer, fragnet, { projId = null, expectedFinish = true 
   }
   const pcal = p.cal;
   const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined ? null : r1((b >= a ? pcal.workBetween(a, b) : -pcal.workBetween(b, a)) / 60 / (pcal.hoursPerDay || 8)));
-  const f0 = base.projects.get(p.id)?.finish ?? null;
+  let f0 = base.projects.get(p.id)?.finish ?? null;
+  if (f0 === null) {
+    // every activity of the update is finished, so the schedule has no
+    // early finish of its own: measure from its last actual finish (what P6
+    // shows as the finish of a completed project), else the data date, so
+    // added work does not read as "no change"
+    let last = null;
+    for (const t of model.tasks.values()) if (t.proj === p.id && Number.isFinite(t.actEnd)) last = last === null ? t.actEnd : Math.max(last, t.actEnd);
+    f0 = last ?? p.dataDate ?? null;
+    if (f0 !== null) warnings.push(`every activity of the update is finished, so the delay is measured from its ${last !== null ? "last actual finish" : "data date"}, ${formatDate(f0)}`);
+  }
   const f1 = imp.projects.get(p.id)?.finish ?? null;
   const days = (t, h) => (Number.isFinite(h) ? r1(h / (t.cal.hoursPerDay || 8)) : null);
 
