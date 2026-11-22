@@ -1,6 +1,6 @@
 # Discussion: what a modelling engineer can adopt, and what it costs in wall time
 
-Draft discussion section of the `cell-fidelity` paper (follows `paper/results.md`, sections 4.1 to 4.8).
+Draft discussion section of the `cell-fidelity` paper (follows `paper/results.md`, sections 4.1 to 4.9).
 Produced with AI assistance (Claude). Numbers come from `paper/tables.json` (results) and
 `paper/cost.json` (this section's time accounting); one command each regenerates them and the figures:
 
@@ -151,10 +151,14 @@ work. Two consequences for a reader:
   outcome picks the straight forecast on all four committed sets. So the correction's value is confined to the
   tuned plating cells, and no training-pool signal in this programme states that condition in advance:
   `NCA_Kim2011` has one-directional drift (0.23) and plating-dominated loss and still misses one held-out pool.
+- Table 3 (section 4.7) puts 7w to 7y side by side. Fold for fold the plating gate repeats 7x's error gate on
+  all 30 six-set folds and the drift gate repeats the ungated honest rule, so three gates amount to two
+  decisions, and the best of them reaches 89% of the hindsight oracle's six-set saving while meeting two
+  fewer committed folds than triage alone.
 
 ## 5.4 Limitations and next steps
 
-Every limitation of section 4.8 carries over. Specific to this section: the fixed cost is measured on two
+Every limitation of section 4.9 carries over. Specific to this section: the fixed cost is measured on two
 runners that are not the x-resolved child the triage was scored with (that child was only ever run to
 cycle 100, so its own fixed cost cannot be separated from these logs), and the wall times come from a
 shared container. The cheapest test of the continuation assumption is to rerun a handful of 7h designs

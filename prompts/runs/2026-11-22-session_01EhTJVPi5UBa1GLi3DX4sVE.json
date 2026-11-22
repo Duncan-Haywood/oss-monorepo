@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPi5UBa1GLi3DX4sVE",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue software; merge when done)",
+  "input_sha256": "b4e139341cc30db77aadefe2f1d6acdc8c06b760de564ce28b012ede901c39ab",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T19:36:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "buildbot-sheathing milestone 70: a force-sensor bias that drifts between calibration and press",
+  "projects": [
+    "buildbot-sheathing"
+  ],
+  "pr": 18288,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run-time estimate off by more than 2x (planned ~40 min from a 2-pose timing run, took 5,279 s)",
+      "fix": "none needed: finished within the 2 h job limit; resume file was ready"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "plain python3 lacks numpy; pyenv.py returned /usr/bin/python3.13, which needed `pip install mujoco scipy matplotlib` for this project (fast, about a minute)"
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "arxiv.org does not resolve in this session, so the new citation arXiv:2403.01068 could not be live-checked; its title is from a web search result pointing at that id, and no author name is given"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "scheduled task prompt",
+      "why": "the stored prompt asks for revenue-generating products, but the repository's router (prompt.md -> promptctl route) drew the research track for this run; followed the router, which is how the owner allocates runs across tracks",
+      "did": "advanced research/buildbot-sheathing",
+      "result": "one programme step merged with a post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-sheathing-robot-force-sensor-drift.md"
+  ],
+  "goal": "advance the drawn programme (track 20, buildbot-sheathing) by its LOG 'Next' step",
+  "notes": "Milestone 70 (experiments/m70_drift/): H271-H275 registered in LOG.md and pushed before the run (commit on PR #18288). All five held: residual = J e_r + S d to 1.2e-14 mm; S per pose to 3.1e-14 mm/N; drift 0.1 N at B 0.4 N breaks 99 G1 / 32 H1 presses milestone 69's gate passed; drift gate passes 0 over spec; weakest drift rating 0.162 / 0.189 N. A timing run (N=1, 2 poses, different LHS draw) was made before registration; only its run time was read. Local checks: paper/check_numbers.py 478 of 478 ok; research/_homepage/build.py ok; check_md_links ok; research_live_links 0 updates; check_posts ok. No library code changed, so project tests not re-run.",
+  "corrections": [],
+  "redteam": null
+}

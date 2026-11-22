@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d5a3f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='white'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Swiss Pairing Program Online: FIDE Dutch System, TRF In and Out</title>
+  <meta name="description" content="Pair a chess club's Swiss tournament from your phone: Dutch-system pairings, results per board, standings with Buchholz, and FIDE TRF files in and out. Free, no install.">
+  <meta property="og:title" content="Free Swiss pairing program in the browser (FIDE Dutch system)">
+  <meta property="og:description" content="Pair each round, enter results board by board, print standings, and open or save TRF files from Swiss-Manager or Vega. Nothing to install, nothing uploaded.">
+  <link rel="canonical" href="./swiss-pairing.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How close is it to Swiss-Manager?", "acceptedAnswer": {"@type": "Answer", "text": "Six real over-the-board events published on chess-results.com (among them the Aeroflot Open and the Prague festival) were replayed round by round through this pairer. Given the players who actually played each round, it produced exactly the arbiters' pairings in 51 of 54 rounds, and 99.2% of the boards from round 2 on. Four of the six events match in all nine rounds. Two of the three misses are round 1, which those arbiters paired on an earlier rating list than the file carries; the third (Graz, round 4) is a choice of which player drops a score group where every rule we model ties. The replay, its code and every number are in the source (eval/swiss-vs-published.mjs, eval/swiss-big-brackets.txt)."}}, {"@type": "Question", "name": "Which pairing rules does it follow?", "acceptedAnswer": {"@type": "Answer", "text": "FIDE's Dutch system (C.04.3): score groups paired from the top, players who cannot be paired in their group float down, the top half of each group meets the bottom half, no rematches, no board where both players are owed the same colour absolutely unless every round needs one, then strong and mild colour preferences, then players who floated last round or two rounds ago are not floated the same way again. The pairing bye goes to the lowest-ranked player who can take it, once per player. Every round is checked before it is shown: everyone placed once, no rematch, no second bye."}}, {"@type": "Question", "name": "Can I carry on an event from Swiss-Manager or Vega?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open the event's FIDE TRF file (TRF-16) and the players and results so far are read on your device. The page can also write a TRF of its own event for a rating officer or an endorsed program."}}, {"@type": "Question", "name": "What if a player is late, leaves or asks for a bye?", "acceptedAnswer": {"@type": "Answer", "text": "Add a line to the results box before pairing: Cy half bye for a requested half-point bye this round, Cy absent to sit out for nothing, Dee out for a withdrawal. A late joiner is added to the player list; they start on zero points."}}, {"@type": "Question", "name": "How are ties in the standings broken?", "acceptedAnswer": {"@type": "Answer", "text": "Points, then Buchholz (the sum of your opponents' scores), then Sonneborn-Berger (full score of each opponent you beat plus half of each you drew), then starting rank."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Names, ratings and results stay on the device that typed them, saved in its own storage so a closed tab does not lose the event."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Swiss pairing program", "applicationCategory": "GameApplication", "operatingSystem": "Any (browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "url": "./swiss-pairing.html"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; line-height: 1.5; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.035em; line-height: 1.08; margin-bottom: .3em; }
+    h2 { font-size: 1.2rem; margin-top: 1.6em; }
+    h3 { font-size: 1rem; margin: .2em 0 .4em; }
+    a { color: #1d5a3f; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    label.inline { display: inline; font-weight: 400; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; font: 15px/1.4 ui-monospace, monospace; padding: 8px; border: 1px solid #b9c2b6; border-radius: 8px; }
+    input, select { font: inherit; padding: 7px 8px; border: 1px solid #b9c2b6; border-radius: 8px; background: #fff; max-width: 100%; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+    .row > div { flex: 1 1 260px; min-width: 0; }
+    button { font: inherit; font-weight: 650; padding: 10px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #fff; cursor: pointer; margin: 8px 8px 0 0; }
+    button.secondary { background: #e4e9e2; color: #1d2330; }
+    .note { color: #4a5148; font-size: .92rem; }
+    .err { color: #9b2c1f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; vertical-align: middle; }
+    td select { width: 100%; min-width: 5.5em; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+    @media print {
+      header, footer, .guide, #setup, button, select, .note, #round-status { display: none !important; }
+      .card { border: 0; padding: 0; }
+      .print-result { display: inline !important; }
+    }
+    .print-result { display: none; }
+  </style>
+</head>
+<body>
+<header><p><a href="./">&larr; League schedule generator</a></p></header>
+<main>
+  <h1>Free Swiss pairing program, in your browser</h1>
+  <p>Pair a chess club's Swiss tournament from a phone or laptop: FIDE Dutch-system pairings round by round, results entered board by board, standings with Buchholz and Sonneborn-Berger, and FIDE TRF files in and out. Nothing to install and nothing uploaded. Also works for draughts, Scrabble, go, card and board-game clubs that play Swiss.</p>
+
+  <section class="card" id="setup">
+    <div class="row">
+      <div>
+        <label for="players">Players: one per line, strongest first, or with a rating (<code>Ana Petrova, 1874</code>)</label>
+        <textarea id="players" placeholder="Ana Petrova, 1874&#10;Ben Okafor, 1720&#10;Cy Lindqvist, 1655&#10;Dee Moreau"></textarea>
+      </div>
+      <div>
+        <label for="results">Results so far (filled in as you save each round; editable)</label>
+        <textarea id="results" placeholder="# Round 1&#10;Ana Petrova 1 - 0 Cy Lindqvist&#10;Ben Okafor 1 - 1 Dee Moreau&#10;Eve bye"></textarea>
+        <p class="note">Other lines it reads: <code>Ben forfeits to Ana</code>, <code>Cy half bye</code> (asked for, written before pairing the round), <code>Cy absent</code>, <code>Dee out</code> (left the event).</p>
+      </div>
+    </div>
+    <div class="row">
+      <div><label for="total">Rounds in the event</label><input type="number" id="total" min="1" max="30" placeholder="auto"></div>
+      <div><label for="name">Event name (for the TRF and the printout)</label><input type="text" id="name" placeholder="Club Swiss"></div>
+    </div>
+    <p class="note"><input type="checkbox" id="seed" checked> <label class="inline" for="seed">Order each score group by starting rank, as the Dutch rules do (untick to order by Buchholz, then Sonneborn-Berger)</label></p>
+    <p class="note"><label class="inline" for="trf">Carry on an event from Swiss-Manager, Vega or another program: open its FIDE TRF file (read on this device, never uploaded).</label> <input type="file" id="trf" accept=".trf,.txt,text/plain"></p>
+    <button type="button" id="pair">Pair next round</button>
+    <button type="button" class="secondary" id="example">Load a 12-player example</button>
+    <button type="button" class="secondary" id="reset">New event</button>
+    <p id="setup-status" role="status" class="note"></p>
+  </section>
+
+  <section class="card" id="round" hidden>
+    <h2 id="round-title">Round</h2>
+    <p id="round-status" role="status" class="note"></p>
+    <div class="scroll"><table id="boards"><thead><tr><th>Board</th><th>White</th><th>Black</th><th>Result</th></tr></thead><tbody></tbody></table></div>
+    <p id="bye-line" class="note"></p>
+    <button type="button" id="save">Save results</button>
+    <button type="button" class="secondary" id="print">Print pairings</button>
+    <button type="button" class="secondary" id="copy">Copy pairings</button>
+    <p id="save-status" role="status" class="note"></p>
+  </section>
+
+  <section class="card" id="table-card" hidden>
+    <h2 id="table-title">Standings</h2>
+    <div class="scroll"><table id="standings"><thead><tr><th>#</th><th>Player</th><th>Points</th><th>Buchholz</th><th>SB</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="dl-trf">Download TRF</button>
+    <button type="button" class="secondary" id="dl-txt">Download standings (text)</button>
+  </section>
+
+  <section class="guide">
+    <h2>Why use it</h2>
+    <p>Most clubs pair a Swiss with one of these. Each is good at something; this page is for the club night where the organiser has a phone, a list of names and twenty minutes.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Option</th><th>What it costs</th><th>Where it runs</th><th>Trade-off</th></tr></thead>
+      <tbody>
+        <tr><td>Swiss-Manager</td><td>Paid licence</td><td>Windows</td><td>FIDE-endorsed and feature-complete; needs a Windows laptop and a licence</td></tr>
+        <tr><td>Vega</td><td>Paid licence</td><td>Windows, Linux, macOS</td><td>FIDE-endorsed; a desktop program to install</td></tr>
+        <tr><td>JaVaFo, bbpPairings</td><td>Free</td><td>Command line</td><td>FIDE-endorsed engines; you write and read TRF files by hand</td></tr>
+        <tr><td>Online servers (lichess, chess.com)</td><td>Free</td><td>Their site</td><td>For games played on that site, not a club's boards</td></tr>
+        <tr><td>This page</td><td>Free, MIT licensed</td><td>Any browser, offline once open</td><td>Not FIDE-endorsed: for club and casual events, not rated ones</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Questions</h2>
+    <h3>How close is it to Swiss-Manager?</h3>
+    <p>Six real over-the-board events published on chess-results.com (among them the Aeroflot Open and the Prague festival) were replayed round by round through this pairer. Given the players who actually played each round, it produced exactly the arbiters' pairings in <strong>51 of 54 rounds</strong>, and 99.2% of the boards from round 2 on. Four of the six events match in all nine rounds. Two of the three misses are round 1, which those arbiters paired on an earlier rating list than the file carries; the third (Graz, round 4) is a choice of which player drops a score group where every rule we model ties. The replay, its code and every number are in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator">source</a> (<code>eval/swiss-vs-published.mjs</code>, <code>eval/swiss-big-brackets.txt</code>).</p>
+
+    <h3>Which pairing rules does it follow?</h3>
+    <p>FIDE's Dutch system (C.04.3): score groups paired from the top, players who cannot be paired in their group float down, the top half of each group meets the bottom half, no rematches, no board where both players are owed the same colour absolutely unless every round needs one, then strong and mild colour preferences, then players who floated last round or two rounds ago are not floated the same way again. The pairing bye goes to the lowest-ranked player who can take it, once per player. Every round is checked before it is shown: everyone placed once, no rematch, no second bye.</p>
+    <h3>Can I carry on an event from Swiss-Manager or Vega?</h3>
+    <p>Yes. Open the event's FIDE TRF file (TRF-16) and the players and results so far are read on your device. The page can also write a TRF of its own event for a rating officer or an endorsed program.</p>
+    <h3>What if a player is late, leaves or asks for a bye?</h3>
+    <p>Add a line to the results box before pairing: <code>Cy half bye</code> for a requested half-point bye this round, <code>Cy absent</code> to sit out for nothing, <code>Dee out</code> for a withdrawal. A late joiner is added to the player list; they start on zero points.</p>
+    <h3>How are ties in the standings broken?</h3>
+    <p>Points, then Buchholz (the sum of your opponents' scores), then Sonneborn-Berger (full score of each opponent you beat plus half of each you drew), then starting rank.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Names, ratings and results stay on the device that typed them, saved in its own storage so a closed tab does not lose the event.</p>
+    <p>More: <a href="./how-to-run-a-swiss-tournament.html">how to run a Swiss tournament</a> (a worked six-player example), <a href="./chess-club-round-robin-schedule.html">chess club round robin</a>, <a href="./">season schedules with venues and dates</a>.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not FIDE-endorsed: for FIDE-rated or national-rated events use an endorsed pairing program and an arbiter's check. The example players are invented.</p>
+  <p><strong>Independent.</strong> Not affiliated with FIDE, any federation, Swiss-Manager, Vega, lichess or chess-results.com; their names are used only to describe compatibility.</p>
+  <p>Everything runs in your browser; names, ratings and results are saved only on this device. Anonymous feature events (<code>swiss_page_paired</code>, <code>swiss_page_saved</code>, <code>swiss_page_trf_opened</code>, <code>swiss_page_trf_downloaded</code>, <code>swiss_page_example</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free and open source under an <a href="LICENSE">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+<script type="module">
+  import { parsePlayerLines, roundResultLines, pairNext, standingsNow, RESULTS } from "./swiss-page.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const $ = (s) => document.querySelector(s);
+  const KEY = "league-schedule-generator-swiss-page";
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  let pending = null; // { players, round, roundNumber, results: [] }
+
+  const state = () => ({ players: $("#players").value, results: $("#results").value, total: $("#total").value, name: $("#name").value, seed: $("#seed").checked, pending });
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state())); } catch { /* storage blocked: the event lives in this tab */ } };
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; } };
+
+  function download(name, text) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+    a.download = name;
+    document.body.append(a);
+    a.click();
+    a.remove();
+  }
+
+  function players() {
+    const p = parsePlayerLines($("#players").value);
+    if (p.errors.length) { $("#setup-status").innerHTML = `<span class="err">${esc(p.errors.join(" "))}</span>`; return null; }
+    return p.players;
+  }
+
+  function showStandings() {
+    const ps = parsePlayerLines($("#players").value).players;
+    if (ps.length < 2) { $("#table-card").hidden = true; return; }
+    const t = standingsNow(ps, $("#results").value);
+    if (t.error) { $("#table-card").hidden = true; return; }
+    $("#table-card").hidden = false;
+    $("#table-title").textContent = t.rounds ? `Standings after round ${t.rounds}` : "Starting list";
+    $("#standings tbody").innerHTML = t.rows.map((r) => `<tr><td>${r.rank}</td><td>${esc(r.name)}</td><td>${r.score}</td><td>${r.buchholz}</td><td>${r.sonnebornBerger}</td></tr>`).join("");
+  }
+
+  function pairingText() {
+    if (!pending) return "";
+    const { players: ps, round, roundNumber } = pending;
+    const lines = [`${$("#name").value || "Swiss event"}, round ${roundNumber}`];
+    round.pairs.forEach((p, k) => lines.push(`Board ${k + 1}: ${ps[p.white]} (white) - ${ps[p.black]} (black)`));
+    if (round.bye !== null) lines.push(`Bye: ${ps[round.bye]}`);
+    return lines.join("\n");
+  }
+
+  function showRound(notes = []) {
+    if (!pending) { $("#round").hidden = true; return; }
+    const { players: ps, round, roundNumber, totalRounds } = pending;
+    $("#round").hidden = false;
+    $("#round-title").textContent = `Round ${roundNumber}${totalRounds ? ` of ${totalRounds}` : ""}`;
+    const opts = RESULTS.map(([v, label]) => `<option value="${v}">${esc(label)}</option>`).join("");
+    $("#boards tbody").innerHTML = round.pairs.map((p, k) => `<tr><td>${k + 1}</td><td>${esc(ps[p.white])}</td><td>${esc(ps[p.black])}</td><td><select data-board="${k}" aria-label="Board ${k + 1} result">${opts}</select><span class="print-result">______</span></td></tr>`).join("");
+    for (const sel of document.querySelectorAll("#boards select")) {
+      sel.value = pending.results[Number(sel.dataset.board)] ?? "";
+      sel.addEventListener("change", () => { pending.results[Number(sel.dataset.board)] = sel.value; save(); });
+    }
+    $("#bye-line").textContent = round.bye !== null ? `Bye (one point): ${ps[round.bye]}` : "";
+    $("#round-status").textContent = (notes.length ? notes.join(" ") + " " : "") + "The pairing passed the check: everyone placed once, no rematch, no second bye.";
+    $("#save-status").textContent = "";
+  }
+
+  $("#pair").addEventListener("click", () => {
+    const ps = players();
+    if (!ps) return;
+    if (pending && pending.results.some(Boolean) && !confirm("This round has results that are not saved. Pair again and lose them?")) return;
+    $("#setup-status").textContent = "Pairing...";
+    setTimeout(() => {
+      const out = pairNext(ps, $("#results").value, { seedOrder: $("#seed").checked, totalRounds: Number($("#total").value) || null });
+      if (out.error) { $("#setup-status").innerHTML = `<span class="err">${esc(out.error)}</span>`; return; }
+      pending = { players: ps, round: { pairs: out.round.pairs, bye: out.round.bye }, roundNumber: out.roundNumber, totalRounds: out.totalRounds, results: [] };
+      $("#setup-status").textContent = `Round ${out.roundNumber} paired for ${ps.length - out.parsed.withdrawn.length - out.parsed.absent.length} players.`;
+      showRound(out.notes);
+      save();
+      record("swiss_page_paired");
+      $("#round").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }, 10);
+  });
+
+  $("#save").addEventListener("click", () => {
+    if (!pending) return;
+    const { text, missing } = roundResultLines(pending.players, pending.round, pending.results, pending.roundNumber);
+    if (missing.length) { $("#save-status").innerHTML = `<span class="err">Board${missing.length === 1 ? "" : "s"} ${missing.join(", ")} still ${missing.length === 1 ? "has" : "have"} no result.</span>`; return; }
+    const prev = $("#results").value.trim();
+    $("#results").value = (prev ? prev + "\n" : "") + text;
+    const n = pending.roundNumber;
+    pending = null;
+    showRound();
+    showStandings();
+    save();
+    record("swiss_page_saved");
+    $("#setup-status").textContent = `Round ${n} saved. Press Pair next round when the room is ready.`;
+    $("#table-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  });
+
+  $("#print").addEventListener("click", () => window.print());
+  $("#copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(pairingText()); $("#save-status").textContent = "Pairings copied."; }
+    catch { $("#save-status").textContent = "Copy is blocked here; select the table instead."; }
+  });
+
+  $("#trf").addEventListener("change", async (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    const { parseTrf, trfToResults } = await import("./trf.mjs");
+    const trf = parseTrf(await file.text());
+    if (!trf.players.length) { $("#setup-status").innerHTML = '<span class="err">No player lines (001) found: is this a TRF file?</span>'; return; }
+    const box = trfToResults(trf);
+    $("#players").value = box.players.join("\n");
+    $("#results").value = box.results;
+    $("#seed").checked = true;
+    if (box.totalRounds) $("#total").value = box.totalRounds;
+    $("#name").value = trf.name || file.name.replace(/\.[^.]+$/, "");
+    pending = null;
+    showRound();
+    showStandings();
+    save();
+    const problems = trf.errors.concat(box.errors);
+    $("#setup-status").textContent = `Read ${trf.players.length} players and ${box.rounds} round${box.rounds === 1 ? "" : "s"} from ${file.name}.${problems.length ? " " + problems.join(" ") : " Press Pair next round."}`;
+    record("swiss_page_trf_opened");
+  });
+
+  $("#dl-trf").addEventListener("click", async () => {
+    const ps = players();
+    if (!ps) return;
+    const [{ swissToTrf }, { parseSwissResults, swissRounds }, { swissStandings }] = await Promise.all([import("./trf.mjs"), import("./calc.mjs"), import("./swiss.mjs")]);
+    const parsed = parseSwissResults($("#results").value, ps);
+    if (parsed.errors.length) { $("#setup-status").innerHTML = `<span class="err">${esc(parsed.errors.join(" "))}</span>`; return; }
+    const name = $("#name").value || "Swiss event";
+    download(`${name.replace(/[^\w-]+/g, "-").toLowerCase() || "swiss-event"}.trf`, swissToTrf(ps, parsed, { name, totalRounds: Number($("#total").value) || swissRounds(ps.length), standings: swissStandings(ps, parsed.games, parsed.byes, { extra: parsed.extra }) }));
+    record("swiss_page_trf_downloaded");
+  });
+
+  $("#dl-txt").addEventListener("click", () => {
+    const ps = parsePlayerLines($("#players").value).players;
+    const t = standingsNow(ps, $("#results").value);
+    if (t.error) return;
+    download("swiss-standings.txt", [`${$("#name").value || "Swiss event"}: standings after round ${t.rounds}`, ...t.rows.map((r) => `${r.rank}. ${r.name}  ${r.score} pts  Buchholz ${r.buchholz}  SB ${r.sonnebornBerger}`)].join("\n"));
+  });
+
+  $("#example").addEventListener("click", () => {
+    if (($("#players").value.trim() || $("#results").value.trim()) && !confirm("Replace the current event with the example?")) return;
+    const names = ["Ana Petrova", "Ben Okafor", "Cy Lindqvist", "Dee Moreau", "Eli Novak", "Fay Duarte", "Gus Hale", "Hal Brenner", "Ivy Tanaka", "Jo Mensah", "Kai Ortega", "Lou Varga"];
+    $("#players").value = names.map((n, i) => `${n}, ${1950 - i * 41}`).join("\n");
+    $("#results").value = "";
+    $("#total").value = 5;
+    $("#name").value = "Thursday club Swiss";
+    pending = null;
+    showRound();
+    showStandings();
+    save();
+    record("swiss_page_example");
+    $("#setup-status").textContent = "Example loaded (invented players). Press Pair next round.";
+  });
+
+  $("#reset").addEventListener("click", () => {
+    if (!confirm("Clear the players, results and current round?")) return;
+    for (const id of ["#players", "#results", "#total", "#name"]) $(id).value = "";
+    pending = null;
+    showRound();
+    showStandings();
+    save();
+    $("#setup-status").textContent = "";
+  });
+
+  for (const id of ["#players", "#results", "#total", "#name"]) $(id).addEventListener("change", () => { save(); showStandings(); });
+  $("#seed").addEventListener("change", save);
+
+  const optBtn = $("#optout");
+  const showOpt = () => { optBtn.textContent = usageOptedOut() ? "Usage counting is off (turn it back on)" : "Turn usage counting off"; };
+  optBtn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); showOpt(); });
+  showOpt();
+
+  const saved = load();
+  if (saved) {
+    $("#players").value = saved.players || "";
+    $("#results").value = saved.results || "";
+    $("#total").value = saved.total || "";
+    $("#name").value = saved.name || "";
+    $("#seed").checked = saved.seed !== false;
+    pending = saved.pending || null;
+    showRound();
+    showStandings();
+    if (pending) $("#setup-status").textContent = `Round ${pending.roundNumber} is in progress: enter results below.`;
+  }
+</script>
+</body>
+</html>

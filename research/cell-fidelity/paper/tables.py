@@ -1,4 +1,4 @@
-"""Tables and interval statistics for the paper's results section (triage, milestones 7c to 7h).
+"""Tables and interval statistics for the paper's results section (triage 7c to 7h; corrected forecast 7v to 7y).
 
 Stdlib only, no simulation: every number is read from a committed `experiments/*/summary.json`.
 One command regenerates everything the results section quotes:
@@ -12,6 +12,12 @@ hypothesis is tested here):
   three policies of a set share one fresh pool and are not independent;
 - the paired per-fold cycle difference, threshold rule against uniform, on 7h's 20 lopo5 folds, with
   an exact sign test and a set-clustered bootstrap interval.
+
+Table 3 (added after 7y had reported; descriptive, no new hypothesis): the corrected ten-cycle forecast
+and the gates that decide when to use it (7w, 7x, 7y), on the four committed sets and 7v's tuned cells at
+f = 10 and f = 30, rebuilt from the fold rows in gate7x's and gate7y's summaries, with Wilson intervals,
+the six-set paired difference against theta (sign test, the same set bootstrap as sets7p), a per-set
+view, and 7y's post-hoc per-set oracle.
 """
 import json
 import math
@@ -156,7 +162,7 @@ def paired_lopo5(L, a="theta", b="U"):
 
 
 def fmt(table, ins, pool, pair):
-    o = ["cell-fidelity paper tables: triage results 7c to 7h, regenerated from experiments/*/summary.json.",
+    o = ["cell-fidelity paper tables: triage results 7c to 7h and the corrected forecast 7w to 7y, regenerated from experiments/*/summary.json.",
          "",
          "Table 1. In-sample: 7c drift signal and the DFN cycles flag-and-extend saves against running all 104",
          "designs to cycle 50 (7d at t = 1.25; 7e mean over 21 targets t = 1.00 to 2.00, cell 000).",
@@ -191,16 +197,121 @@ def fmt(table, ins, pool, pair):
     return "\n".join(o) + "\n"
 
 
+# ---------- Table 3: the corrected forecast and its gates (7w to 7y) ----------
+
+CONDS = (("four", "committed sets (20 folds)"), ("f30", "tuned f = 30 (10)"), ("f10", "tuned f = 10 (10)"))
+CRULES = (("U", "uniform run length (7h)"), ("theta", "straight forecast + triage (7h)"),
+          ("thetaC", "corrected, no gate (7w)"), ("thetaH", "corrected, honest margin (7x)"),
+          ("thetaN", "out-of-fold error gate (7x)"), ("thetaP", "plating-share gate (7y)"),
+          ("thetaD", "drift-size gate (7y)"), ("oracle", "post hoc per-set oracle (7y)"))
+
+
+def corrected_folds():
+    """{cond: {rule: [fold rows]}}; thetaC from gate7x (its replay of 7w/7v), the rest from gate7y."""
+    x, y = load("gate7x"), load("gate7y")
+    F = {}
+    for c, _ in CONDS:
+        F[c] = {r: y[c]["folds"][r] for r in ("theta", "U", "thetaH", "thetaN", "thetaP", "thetaD")}
+        F[c]["thetaC"] = x[c]["folds"]["thetaC"]
+        pick = y["oracle"][c]  # per set: the rule (theta or thetaH) with the better held-out outcome
+        F[c]["oracle"] = [f for f in F[c]["theta"] if pick[f["set"]] == "theta"] + \
+                         [f for f in F[c]["thetaH"] if pick[f["set"]] == "thetaH"]
+    return F
+
+
+def paired(fa, fb):
+    """Per fold (set, pool): cycles of rule a minus rule b, with both met flags (sets7p's `paired`)."""
+    A = {(r["set"], r["pool"]): r for r in fa}
+    Bm = {(r["set"], r["pool"]): r for r in fb}
+    assert set(A) == set(Bm), "rules cover different folds"
+    return [dict(set=k[0], pool=k[1], d=A[k]["cycles"] - Bm[k]["cycles"], met_a=bool(A[k]["met"]),
+                 met_b=bool(Bm[k]["met"])) for k in sorted(A)]
+
+
+def pair_stats(fa, fb):
+    pr = paired(fa, fb)
+    pos, neg, p = sign_test([r["d"] for r in pr])
+    mean = lambda xs: sum(r["d"] for r in xs) / len(xs)
+    return dict(n=len(pr), mean=mean(pr), boot=cluster_boot(pr, lambda r: r["set"], mean),
+                cheaper=neg, dearer=pos, sign_p=p)
+
+
+def agg(fs):
+    k, n = sum(bool(f["met"]) for f in fs), len(fs)
+    return dict(met=k, n=n, wilson=wilson(k, n), cycles=sum(f["cycles"] for f in fs) / n)
+
+
+def corrected():
+    F = corrected_folds()
+    tot = {c: {r: agg(F[c][r]) for r, _ in CRULES} for c, _ in CONDS}
+    six = {r: F["four"][r] + F["f30"][r] for r, _ in CRULES}
+    tot["six"] = {r: agg(six[r]) for r, _ in CRULES}
+    pair6 = {r: pair_stats(six[r], six["theta"]) for r, _ in CRULES if r != "theta"}
+    pair4 = {r: pair_stats(F["four"][r], F["four"]["theta"]) for r, _ in CRULES if r != "theta"}
+    per = {}
+    for c, _ in CONDS:
+        for st in dict.fromkeys(f["set"] for f in F[c]["theta"]):
+            per[f"{c}:{st}"] = {r: agg([f for f in F[c][r] if f["set"] == st]) for r, _ in CRULES}
+    same = {}  # folds (of 40) where two rules stop at the same cycles with the same met flag
+    for a, b in (("thetaP", "thetaN"), ("thetaD", "thetaH"), ("thetaN", "thetaH"), ("thetaC", "thetaH")):
+        same[f"{a}={b}"] = {c: sum(1 for r in paired(F[c][a], F[c][b]) if r["d"] == 0 and r["met_a"] == r["met_b"])
+                            for c, _ in CONDS}
+    return dict(total=tot, pair_six=pair6, pair_four=pair4, per=per, same=same, oracle=load("gate7y")["oracle"])
+
+
+def fmt_corrected(C):
+    o = ["",
+         "Table 3. The corrected ten-cycle forecast and its gates, out of batch (7w to 7y; lopo5, five folds per",
+         "set): target met / folds, Wilson 95% on the committed sets, mean DFN cycles per design, and over the six",
+         "set-conditions (committed + f = 30) the paired difference against theta with a set bootstrap and sign test.",
+         f"{'rule':6s} {'what':33s} {'committed':>9s} {'Wilson 95%':>11s} {'cyc':>5s} {'f=30':>6s} {'cyc':>5s} "
+         f"{'f=10':>6s} {'cyc':>5s}  {'six: rule - theta':>17s} {'set boot 95%':>16s} {'ch/de':>6s} {'sign p':>7s}"]
+    T = C["total"]
+    for r, what in CRULES:
+        a, b, c = T["four"][r], T["f30"][r], T["f10"][r]
+        w = f"{a['wilson'][0]:.2f}-{a['wilson'][1]:.2f}"
+        if r == "theta":
+            tail = f"{'(reference)':>17s}"
+        else:
+            q = C["pair_six"][r]
+            tail = (f"{q['mean']:+17.2f} {q['boot'][0]:+7.2f} to {q['boot'][1]:+5.2f} "
+                    f"{q['cheaper']:>2d}/{q['dearer']:<3d} {q['sign_p']:7.3f}")
+        o.append(f"{r:6s} {what:33s} {a['met']:6d}/{a['n']:<2d} {w:>11s} {a['cycles']:5.1f} {b['met']:3d}/{b['n']:<2d} "
+                 f"{b['cycles']:5.1f} {c['met']:3d}/{c['n']:<2d} {c['cycles']:5.1f}  {tail}")
+    o += ["",
+          "Committed sets only, rule - theta (20 folds): mean, set bootstrap 95%, cheaper/dearer, sign p:"]
+    for r, _ in CRULES:
+        if r == "theta":
+            continue
+        q = C["pair_four"][r]
+        o.append(f"  {r:7s} {q['mean']:+6.2f}  ({q['boot'][0]:+.2f} to {q['boot'][1]:+.2f})  "
+                 f"{q['cheaper']}/{q['dearer']}  p = {q['sign_p']:.3f}")
+    o += ["", "Folds where two rules make the same decision (same cycles, same met flag), committed / f = 30 / f = 10:"]
+    for k, v in C["same"].items():
+        o.append(f"  {k:15s} {v['four']:2d}/20  {v['f30']:2d}/10  {v['f10']:2d}/10")
+    o += ["",
+          "Per set: target met / 5 and mean DFN cycles per design; oracle = the rule 7y's hindsight pick chose.",
+          f"{'condition:set':24s}" + "".join(f"{r:>12s}" for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD"))
+          + f"{'oracle':>8s}"]
+    for key, row in C["per"].items():
+        c, st = key.split(":")
+        cells = "".join(f"{row[r]['met']:>4d}/5 {row[r]['cycles']:5.1f}"
+                        for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD"))
+        o.append(f"{key:24s}{cells}{C['oracle'][c][st]:>8s}")
+    return "\n".join(o) + "\n"
+
+
 def main():
     L = looks()
     table = summarise(L)
     ins = in_sample()
     pool = pooled_fresh(L)
     pair = paired_lopo5(L)
-    txt = fmt(table, ins, pool, pair)
+    corr = corrected()
+    txt = fmt(table, ins, pool, pair) + fmt_corrected(corr)
     (HERE / "tables.txt").write_text(txt)
     (HERE / "tables.json").write_text(json.dumps(dict(in_sample=ins, out_of_batch=table, pooled_fresh=pool,
-                                                      paired_lopo5=pair), indent=1, default=list) + "\n")
+                                                      paired_lopo5=pair, corrected=corr), indent=1, default=list) + "\n")
     print(txt, end="")
 
 

@@ -907,6 +907,17 @@ gate passes leaves 0.03 mm under either reference set, and gate coverage of the 
 0.6 and 1.0 N becomes 100%, 100%, 63.4% and 32.4% on the G1 (from 64.6%, 57.6%, 20.7% and 20.2% on the same loads)
 and 99.7%, 99.3%, 83.7% and 19.0% on the H1 (from 90.7%, 85.0%, 52.0% and 10.0%). With two references the chain
 alone leaves no press over spec at 0.3 or 0.4 N on either robot.
+The identity assumes the bias holds still between the calibration and the press. If it drifts by d (milestone 70, a
+fourteenth held-out set of 8 loads, seed 70), the no-flip rows are J e<sub>r</sub> + S d, with S the press pose's
+sensitivity under a fixed calibration, to 1.2 &times; 10<sup>&minus;14</sup> mm on every planned press, and S too is
+one matrix per pose (spread 3.1 &times; 10<sup>&minus;14</sup> mm/N). The calibration removes none of the drift, and S
+is the larger term: median max<sub>k</sub>||S<sub>k</sub>|| 0.149 mm/N on the G1 and 0.112 mm/N on the H1, against
+0.043 and 0.039 for J. With the joint worst case aimed at each press (bias along J, drift along S), milestone 69's
+gate passes 99 G1 and 32 H1 presses that leave 0.03 mm at B = 0.4 N and &delta; = 0.1 N (worst 0.0404 mm), while the
+gate Y<sub>k</sub> + B||J<sub>k</sub>|| + &delta;||S<sub>k</sub>|| &le; 0.03 mm passes none over spec at B = 0.3 and
+0.4 N and &delta; = 0.05, 0.1 and 0.2 N. Its coverage at B = 0.4 N is 77.9%, 55.8% and 14.2% on the G1 and 99.0%,
+88.3% and 25.3% on the H1 at the three drift bounds, and the weakest per-pose drift rating is 0.162 N (G1) and
+0.189 N (H1).
 
 ### 5.12 What the remedies cost (milestone 13)
 

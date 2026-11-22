@@ -1,0 +1,85 @@
+# Milestone 11bb: second fresh-layout test of U3 and U2 against W (fresh_tail2.py's docstring). 24 layouts, 192 draws; frozen budget p_N = 0.02716; seed clashes with the old and first-fresh layouts: 0
+
+## M = 12, s = 1.0 (48 draws)
+  B      median 1.0000  p90 1.0851  mean 1.0208  max 1.1551  effort 50.0 descents  (within 1%: 34 of 48)
+  N      median 1.0000  p90 1.0046  mean 1.0022  max 1.0311  effort 150.0 descents  (within 1%: 45 of 48)
+  W      median 1.0000  p90 1.0028  mean 1.0008  max 1.0129  effort 250.0 descents  (within 1%: 47 of 48)
+  U2     median 1.0000  p90 1.0037  mean 1.0014  max 1.0292  effort 200.0 descents  (within 1%: 46 of 48)
+  U3     median 1.0000  p90 1.0037  mean 1.0014  max 1.0292  effort 250.0 descents  (within 1%: 46 of 48)
+  oracle median 1.0000  p90 1.0028  mean 1.0008  max 1.0129  effort 600.0 descents  (within 1%: 47 of 48)
+  N tail draws (cost > 1.05): 0
+
+## M = 12, s = 2.0 (48 draws)
+  B      median 1.0000  p90 1.1592  mean 1.0481  max 1.3262  effort 50.0 descents  (within 1%: 31 of 48)
+  N      median 1.0000  p90 1.0077  mean 1.0090  max 1.1099  effort 150.0 descents  (within 1%: 43 of 48)
+  W      median 1.0000  p90 1.0014  mean 1.0013  max 1.0278  effort 250.0 descents  (within 1%: 46 of 48)
+  U2     median 1.0000  p90 1.0050  mean 1.0036  max 1.1099  effort 200.0 descents  (within 1%: 45 of 48)
+  U3     median 1.0000  p90 1.0000  mean 1.0028  max 1.1099  effort 250.0 descents  (within 1%: 46 of 48)
+  oracle median 1.0000  p90 1.0000  mean 1.0006  max 1.0154  effort 600.0 descents  (within 1%: 47 of 48)
+  N tail draws (cost > 1.05): 4
+    layout 1236: N 1.0989, W 1.0186, U2 1.0186, U3 1.0000; k_B 3, best 6 (above); leak 1:0 / 2:0 / 3:3.6e-06 / 4:0.027 / 5:0.058 / 6:0.083 / 7:0.14
+    layout 1237: N 1.1020, W 1.0000, U2 1.0000, U3 1.0000; k_B 3, best 5 (above); leak 1:0 / 2:0 / 3:5.9e-07 / 4:0.036 / 5:0.049 / 6:0.045 / 7:0.16
+    layout 1241: N 1.0939, W 1.0278, U2 1.0278, U3 1.0154; k_B 3, best 6 (above); leak 1:0 / 2:0 / 3:1.9e-06 / 4:0.031 / 5:0.053 / 6:0.049 / 7:0.22
+    layout 1246: N 1.1099, W 1.0000, U2 1.1099, U3 1.1099; k_B 5, best 3 (below); leak 1:0 / 2:0 / 3:6.3e-08 / 4:0.11 / 5:0.0052 / 6:0.12 / 7:0.42
+
+## M = 16, s = 1.0 (48 draws)
+  B      median 1.0160  p90 1.0635  mean 1.0253  max 1.0980  effort 50.0 descents  (within 1%: 19 of 48)
+  N      median 1.0026  p90 1.0284  mean 1.0088  max 1.0440  effort 150.0 descents  (within 1%: 34 of 48)
+  W      median 1.0001  p90 1.0150  mean 1.0042  max 1.0326  effort 250.0 descents  (within 1%: 40 of 48)
+  U2     median 1.0001  p90 1.0150  mean 1.0042  max 1.0326  effort 200.0 descents  (within 1%: 40 of 48)
+  U3     median 1.0001  p90 1.0150  mean 1.0042  max 1.0326  effort 250.0 descents  (within 1%: 40 of 48)
+  oracle median 1.0001  p90 1.0150  mean 1.0042  max 1.0326  effort 600.0 descents  (within 1%: 40 of 48)
+  N tail draws (cost > 1.05): 0
+
+## M = 16, s = 2.0 (48 draws)
+  B      median 1.0000  p90 1.0723  mean 1.0214  max 1.1407  effort 50.0 descents  (within 1%: 32 of 48)
+  N      median 1.0000  p90 1.0327  mean 1.0073  max 1.0754  effort 150.0 descents  (within 1%: 40 of 48)
+  W      median 1.0000  p90 1.0079  mean 1.0028  max 1.0377  effort 250.0 descents  (within 1%: 44 of 48)
+  U2     median 1.0000  p90 1.0079  mean 1.0028  max 1.0377  effort 200.0 descents  (within 1%: 44 of 48)
+  U3     median 1.0000  p90 1.0044  mean 1.0017  max 1.0377  effort 250.0 descents  (within 1%: 46 of 48)
+  oracle median 1.0000  p90 1.0044  mean 1.0017  max 1.0377  effort 600.0 descents  (within 1%: 46 of 48)
+  N tail draws (cost > 1.05): 2
+    layout 1638: N 1.0577, W 1.0153, U2 1.0153, U3 1.0000; k_B 3, best 6 (above); leak 1:0 / 2:0 / 3:9.4e-07 / 4:0.029 / 5:0.14 / 6:0.11 / 7:0.17
+    layout 1640: N 1.0754, W 1.0287, U2 1.0287, U3 1.0000; k_B 3, best 6 (above); leak 1:0 / 2:0 / 3:4.4e-07 / 4:0.039 / 5:0.12 / 6:0.23 / 7:0.35
+
+  N tail draws pooled: 6, best band count above k_B in 5
+
+# Without a prediction: pooled 48 fresh layouts (11ba + 11bb), 384 draws
+## M = 12, s = 1.0
+  B      median 1.0020  p90 1.0810  mean 1.0256  max 1.2499  effort 50.0 descents  (within 1%: 59 of 96)
+  N      median 1.0000  p90 1.0235  mean 1.0062  max 1.0844  effort 150.0 descents  (within 1%: 81 of 96)
+  W      median 1.0000  p90 1.0067  mean 1.0021  max 1.0269  effort 250.0 descents  (within 1%: 89 of 96)
+  U2     median 1.0000  p90 1.0078  mean 1.0025  max 1.0292  effort 200.0 descents  (within 1%: 88 of 96)
+  U3     median 1.0000  p90 1.0078  mean 1.0025  max 1.0292  effort 250.0 descents  (within 1%: 88 of 96)
+  oracle median 1.0000  p90 1.0067  mean 1.0021  max 1.0269  effort 600.0 descents  (within 1%: 89 of 96)
+## M = 12, s = 2.0
+  B      median 1.0000  p90 1.1600  mean 1.0475  max 1.3262  effort 50.0 descents  (within 1%: 59 of 96)
+  N      median 1.0000  p90 1.0617  mean 1.0143  max 1.2602  effort 150.0 descents  (within 1%: 80 of 96)
+  W      median 1.0000  p90 1.0053  mean 1.0034  max 1.1105  effort 250.0 descents  (within 1%: 90 of 96)
+  U2     median 1.0000  p90 1.0057  mean 1.0055  max 1.1105  effort 200.0 descents  (within 1%: 88 of 96)
+  U3     median 1.0000  p90 1.0016  mean 1.0032  max 1.1099  effort 250.0 descents  (within 1%: 92 of 96)
+  oracle median 1.0000  p90 1.0000  mean 1.0009  max 1.0489  effort 600.0 descents  (within 1%: 94 of 96)
+## M = 16, s = 1.0
+  B      median 1.0106  p90 1.0681  mean 1.0242  max 1.1306  effort 50.0 descents  (within 1%: 47 of 96)
+  N      median 1.0008  p90 1.0251  mean 1.0073  max 1.0726  effort 150.0 descents  (within 1%: 75 of 96)
+  W      median 1.0000  p90 1.0109  mean 1.0034  max 1.0326  effort 250.0 descents  (within 1%: 84 of 96)
+  U2     median 1.0000  p90 1.0109  mean 1.0034  max 1.0326  effort 200.0 descents  (within 1%: 84 of 96)
+  U3     median 1.0000  p90 1.0109  mean 1.0034  max 1.0326  effort 250.0 descents  (within 1%: 84 of 96)
+  oracle median 1.0000  p90 1.0109  mean 1.0034  max 1.0326  effort 600.0 descents  (within 1%: 84 of 96)
+## M = 16, s = 2.0
+  B      median 1.0000  p90 1.1028  mean 1.0261  max 1.1999  effort 50.0 descents  (within 1%: 65 of 96)
+  N      median 1.0000  p90 1.0401  mean 1.0091  max 1.0959  effort 150.0 descents  (within 1%: 80 of 96)
+  W      median 1.0000  p90 1.0087  mean 1.0031  max 1.0684  effort 250.0 descents  (within 1%: 88 of 96)
+  U2     median 1.0000  p90 1.0087  mean 1.0031  max 1.0684  effort 200.0 descents  (within 1%: 88 of 96)
+  U3     median 1.0000  p90 1.0027  mean 1.0012  max 1.0377  effort 250.0 descents  (within 1%: 93 of 96)
+  oracle median 1.0000  p90 1.0027  mean 1.0012  max 1.0377  effort 600.0 descents  (within 1%: 93 of 96)
+
+  CPU per layout (analysis): median 8.5 s
+# G1 -> refuted
+# G2 -> held
+# G3 -> held
+# G4 -> refuted
+# G5 -> held
+# G6 -> held
+# G7 -> held
+# G8 -> held

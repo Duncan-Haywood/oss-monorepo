@@ -1,0 +1,51 @@
+tune 48 bursts scored, held 79 scored
+
+## ship: shipped ramps colour (0.4, 1.2) luma (0.8, 1.5)
+  tune, top 8 by colour + luma gain over the shipped ramps (dB):
+    colour (0.3, 1.0) luma (1.2, 2.0): sum +0.2211 (colour +0.1060, luma +0.1151)
+    colour (0.4, 1.0) luma (1.2, 2.0): sum +0.2102 (colour +0.0950, luma +0.1151)
+    colour (0.3, 1.0) luma (1.0, 2.0): sum +0.2078 (colour +0.0995, luma +0.1084)
+    colour (0.4, 1.2) luma (1.0, 3.0): sum +0.2061 (colour +0.0847, luma +0.1214)
+    colour (0.4, 1.2) luma (1.0, 2.5): sum +0.2047 (colour +0.0804, luma +0.1243)
+    colour (0.4, 1.2) luma (1.2, 2.5): sum +0.2038 (colour +0.0820, luma +0.1218)
+    colour (0.3, 1.2) luma (1.2, 2.0): sum +0.2008 (colour +0.0856, luma +0.1151)
+    colour (0.4, 1.0) luma (1.0, 2.0): sum +0.1969 (colour +0.0886, luma +0.1084)
+  tune, shipped ramps over D: colour +0.2570 luma +0.5576
+  held, pick over the shipped ramps: colour +0.1035 luma +0.0956; thirds (luma/colour) +0.098/+0.097  +0.084/+0.082  +0.104/+0.131
+    bursts > 0.1 dB under the shipped ramps: 6; new losers to D: 1 (shipped ramps lose to D on 2); median luma +0.0380, worst -0.619
+  R1: h1 PASS, h2 PASS, h3 FAIL, h4 FAIL
+  R3 held-chosen best: colour (0.3, 1.0) luma (1.2, 2.0): colour +0.1035 luma +0.0956
+
+## mpcws: shipped ramps colour (0.4, 1.2) luma (0.8, 1.5)
+  tune, top 8 by colour + luma gain over the shipped ramps (dB):
+    colour (0.3, 1.0) luma (1.0, 2.0): sum +0.1071 (colour +0.0801, luma +0.0271)
+    colour (0.3, 1.0) luma (0.8, 2.0): sum +0.1055 (colour +0.0779, luma +0.0275)
+    colour (0.3, 1.0) luma (1.2, 2.0): sum +0.0967 (colour +0.0779, luma +0.0188)
+    colour (0.2, 0.8) luma (0.8, 1.5): sum +0.0945 (colour +0.0945, luma +0.0000)
+    colour (0.4, 1.0) luma (1.0, 2.0): sum +0.0915 (colour +0.0644, luma +0.0271)
+    colour (0.3, 0.8) luma (0.8, 1.5): sum +0.0912 (colour +0.0912, luma +0.0000)
+    colour (0.4, 1.0) luma (0.8, 2.0): sum +0.0898 (colour +0.0623, luma +0.0275)
+    colour (0.4, 0.8) luma (0.8, 1.5): sum +0.0854 (colour +0.0854, luma +0.0000)
+  tune, shipped ramps over D: colour +0.2957 luma +0.6917
+  held, pick over the shipped ramps: colour +0.0859 luma +0.0470; thirds (luma/colour) +0.029/+0.083  +0.020/+0.051  +0.093/+0.124
+    bursts > 0.1 dB under the shipped ramps: 2; new losers to D: 0 (shipped ramps lose to D on 0); median luma +0.0000, worst -0.177
+  R3 held-chosen best: colour (0.3, 1.0) luma (1.0, 2.0): colour +0.0859 luma +0.0470
+
+## true: shipped ramps colour (0.4, 1.2) luma (0.8, 1.5)
+  tune, top 8 by colour + luma gain over the shipped ramps (dB):
+    colour (0.2, 0.8) luma (0.8, 1.5): sum +0.1606 (colour +0.1606, luma +0.0000)
+    colour (0.3, 0.8) luma (0.8, 1.5): sum +0.1456 (colour +0.1456, luma +0.0000)
+    colour (0.4, 0.8) luma (0.8, 1.5): sum +0.1184 (colour +0.1184, luma +0.0000)
+    colour (0.2, 1.0) luma (0.8, 1.5): sum +0.1126 (colour +0.1126, luma +0.0000)
+    colour (0.3, 1.0) luma (0.8, 1.5): sum +0.0880 (colour +0.0880, luma +0.0000)
+    colour (0.3, 1.0) luma (0.6, 1.5): sum +0.0844 (colour +0.0851, luma -0.0007)
+    colour (0.3, 1.0) luma (0.8, 1.2): sum +0.0771 (colour +0.0822, luma -0.0051)
+    colour (0.3, 1.0) luma (0.8, 2.0): sum +0.0704 (colour +0.0861, luma -0.0158)
+  tune, shipped ramps over D: colour +0.2443 luma +0.7509
+  held, pick over the shipped ramps: colour +0.1627 luma +0.0000; thirds (luma/colour) +0.000/+0.169  +0.000/+0.111  +0.000/+0.208
+    bursts > 0.1 dB under the shipped ramps: 0; new losers to D: 0 (shipped ramps lose to D on 0); median luma +0.0000, worst +0.000
+  R3 held-chosen best: colour (0.2, 0.8) luma (0.8, 1.5): colour +0.1627 luma +0.0000
+
+## R2: held bursts where true is > 0.1 dB under ship: shipped ramps 14, each arm's pick 0 (tune, shipped ramps: 9)
+  mpcws over ship, shipped ramps: colour +0.0474 luma +0.1048, bursts > 0.1 dB under: 2
+  mpcws over ship, own picks: colour +0.0299 luma +0.0562, bursts > 0.1 dB under: 4

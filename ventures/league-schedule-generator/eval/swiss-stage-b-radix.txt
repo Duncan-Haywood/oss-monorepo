@@ -1,0 +1,26 @@
+# Stage B (bracketMate) digits sized by lexRadix, 2026-11-22. Old = swiss.mjs at main before this change.
+# Before: one radix of paired/2 + 1 for all seven colour-and-float criteria under 2^50 kept 7 to 66 paired players,
+# 6 to ~138, 5 to ~198, 4 to ~498, then 3 (C.15-C.17 silently dropped). After: each digit sized by the players it can touch.
+
+## node eval/swiss-big-field-floats.mjs 10 <old swiss.mjs> swiss.mjs
+Repeat floats per event, 10 seeds per size, bracket pairing, repeat-float rule on.
+players rounds  build                    failed  down1/ev   up1/ev  down2/ev   up2/ev floats/ev    ms/rd
+    101      9  old/swiss.mjs                 0     2.60     0.50     2.00     0.10    74.60       64
+    101      9  swiss.mjs                     0     2.60     0.50     2.00     0.10    74.60       61
+    151      9  old/swiss.mjs                 0     1.60     0.50     0.30     0.00    70.20      188
+    151      9  swiss.mjs                     0     1.60     0.50     0.30     0.00    70.20      175
+    201      9  old/swiss.mjs                 0     0.90     0.10     0.70     0.00    71.80      471
+    201      9  swiss.mjs                     0     0.90     0.10     0.70     0.00    71.80      459
+    301      9  old/swiss.mjs                 0     0.80     0.00     0.30     0.00    75.00     1507
+    301      9  swiss.mjs                     0     0.80     0.00     0.30     0.00    75.00     1490
+
+## node eval/swiss-stage-b-radix-diff.mjs <old swiss.mjs> N 7 8 (draw half-width 0.2), and 301 6 4 0.4
+141 players x 7 rounds x 8 seeds: rounds 3+ compared 40, boards differ 0, colours only 0
+201 players x 7 rounds x 8 seeds: rounds 3+ compared 40, boards differ 0, colours only 0
+301 players x 6 rounds x 4 seeds: rounds 3+ compared 16, boards differ 0, colours only 0
+
+## node eval/swiss-vs-published.mjs <fixtures> --pairing bracket (gbtami/swisspairing 193ad99)
+played condition: identical before and after (ALL chess-results 51 of 54 rounds exact, 4892/5083 boards).
+open condition: Graz 775 -> 774 of 1210 boards (one board; ALL 3699 -> 3698 of 5083).
+
+Verdict: a latent fault. No measured field triggers it; the fix keeps the rule in force for brackets the replay and sims never reach.

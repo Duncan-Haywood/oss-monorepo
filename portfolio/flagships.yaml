@@ -307,9 +307,8 @@ flagships:
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
       the old one lost 1-39 of (eval/shadow-lift-banding-*). HDR+ bursts
       (storage.googleapis.com/hdrplusdata; tools/hdrplus_noise_truth.py):
-      tools/hdrplus_demosaic_sweep.py; next a q-ramp fit by burst. X-Trans lift
-      settled off. DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      tools/hdrplus_ramp_fit.py prep --bucket (3,640 bursts). X-Trans lift settled
+      off. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
@@ -332,10 +331,11 @@ flagships:
       whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
       2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
       (eval/noise-pca-whitened-level-*); gain and over-read share a cause, so this
-      set is spent (eval/noise-pca-mpcw1-*); HDR+ dB sweep 2026-11-22 (48 bursts,
-      real noise): mpcws +0.13 dB luma over mpcw but 2 bursts lose >0.1, default
-      stays; the oracle loses on both (eval/hdrplus-demosaic-sweep-*); next the
-      blend's q ramps on real noise, then mpcws again. More open items: NEXT.md.
+      set is spent (eval/noise-pca-mpcw1-*); the oracle loses on both
+      (eval/hdrplus-demosaic-sweep-*); q ramps refit 2026-11-22
+      (eval/hdrplus-ramp-fit-*): ship's pick fails h3/h4 on 79 fresh bursts, ramps
+      stay; on own ramps the oracle's 14 losses go to 0; next mpcws on its ramps,
+      fresh draw from the full 3,640-burst set. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -400,9 +400,9 @@ flagships:
       next: a real league's season. Box leagues 2026-11-21 (boxleague.mjs); next: a
       real club's month. Practice slots on shared fields 2026-11-21 (practice.mjs:
       95 of 95 CP-SAT optima, eval/practice-exact.txt); next: a real league's fields
-      and teams. Swiss: 47/48 real later rounds exact, both round-1 misses a
-      provisional list (eval/swiss-round1-ranking.txt); left Graz r4. More open
-      items: NEXT.md.
+      and teams. Swiss page 2026-11-22 (swiss-pairing.html, 51/54 real rounds
+      exact); next: a real club's event on it; left Graz r4. More open items:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
@@ -517,10 +517,8 @@ flagships:
       of 198 match authors' links, 2 author slips; looked up live 2026-11-19,
       eval/bsdd-suggest-live-2026-11-19.md: 617 of 617 resolve, 77 names bSDD lacks
       skipped, eval/bsdd-template-sweep.mjs checks all 760 sets; open bSDD items in
-      NEXT.md). Model fill 2026-11-21 (model-fill.mjs, cli --fill, page panel:
-      IDS-fixed and table-typed property values into a copy of the .ifc;
-      eval/model-fill-2026-11-21.md); attributes and Qto_ quantities 2026-11-21
-      (copied from BaseQuantities, or measured from geometry with --from-geometry:
+      NEXT.md). attributes and Qto_ quantities 2026-11-21 (copied from
+      BaseQuantities, or measured from geometry with --from-geometry:
       eval/qto-from-geometry-2026-11-21.md; wall Length/Height from axis + body
       2026-11-21, 465/492 stored lengths, eval/wall-axis-lengths-2026-11-21.md; brep
       and no-Axis walls too, 3,247 of 3,312 walls,
@@ -535,7 +533,9 @@ flagships:
       Revit Perimeter, an ARCHICAD or Revit tube's figure; NetWeight/GrossWeight as
       volume x density 2026-11-22, --densities, 1,152/1,152 Tekla weights,
       eval/member-weights-2026-11-22.md; next: a Revit/ARCHICAD export storing
-      weights); next: a BIM manager's filled table. HTML report
+      weights); footings by Tekla's convention 2026-11-22, 482/505,
+      eval/footing-quantities-2026-11-22.md; next: openings' Width/Height/Depth;
+      next: a BIM manager's filled table. HTML report
       (eval/html-report-2026-11-21.md): next, a consultant's read. More open items:
       NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction

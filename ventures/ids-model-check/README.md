@@ -736,6 +736,20 @@ what the exporter weighed, and its body's otherwise. A layered material gets
 no density unless the table names it as written. With the stored weights
 hidden and the densities typed as a table, the fill rewrites every stored
 `NetWeight` on the three exports within 0.5% (`eval/member-weights-2026-11-22.md`).
+**Footings (2026-11-22).** A foundation estimate is priced off
+`Qto_FootingBaseQuantities`: `Length`, `Width`, `Height`, `CrossSectionArea`
+and the surface areas (formwork). The only public exports storing the set
+are Tekla's (88 footings in M3D-CON and M3D-CON-CD), and Tekla measures the
+part, not the plan: a pad's `Length` is its depth and `Width`/`Height` its plan
+sides, a strip's `Length` the longest side of its smallest box; `Width` is the
+side along the part's own y axis; the surfaces are every face's area. Those
+are now read from the body: 482 of 505 offered figures within 1% (all within
+0.09%). The other 23 are Tekla's own slips, checked on every one: on non-pad
+parts it writes `CrossSectionArea` as Width x Width (held back) and
+`GrossSurfaceArea` as Length x Height (the faces' total is offered instead).
+Other tools get `GrossSurfaceArea` only. With the stored figures hidden the
+fill writes 505 values and IfcTester takes exactly those from fail to pass
+(`eval/footing-quantities-2026-11-22.md`).
 **Slab thickness and perimeter (2026-11-22).** `Qto_SlabBaseQuantities`
 `Width` (the slab's thickness) and `Perimeter` (its outline) are measured too:
 the thickness is the body's depth along its extrusion, offered only when the
