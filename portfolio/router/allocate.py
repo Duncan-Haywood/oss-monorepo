@@ -1314,6 +1314,39 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     return free[int(hashlib.sha256(session.encode()).hexdigest(), 16) % len(free)]
 
 
+# The row pick spreads sessions over rows, but two sessions that land on the
+# same row in the same minute both took its first open item: 16 run records
+# on 2026-11-19..22 report a same-item duplicate (PRs #18099/#18100,
+# #18131/#18132, #18152/#18153, #18189/#18190 among them), and claim_check
+# sees the other session only after both drafts are open. Rows' items are
+# prose, mixed with sources and results ("Homebase stays account-gated"), so
+# a parser cannot hand out an item safely; a rank can. Each session takes the
+# 1st, 2nd or 3rd item no open PR names, by a hash independent of the row
+# pick, which cuts a same-row collision to about a third. Rows list "most
+# valuable first", so the cost is sometimes the second-best item, against a
+# whole duplicate run.
+ITEM_SPREAD = 3
+
+
+def item_rank(session: Optional[str], spread: int = ITEM_SPREAD) -> int:
+    """1-based rank of the open item this session should take in its row: 1
+    without a session id, else one of 1..`spread` by a hash of the id."""
+    if not session or spread <= 1:
+        return 1
+    return int(hashlib.sha256(f"{session}:item".encode()).hexdigest(), 16) % spread + 1
+
+
+def item_rank_note(session: Optional[str]) -> str:
+    """The Start here clause naming which open item this session takes."""
+    k = item_rank(session)
+    if k == 1:
+        return "take the first open item no open PR title names"
+    nth = {2: "second", 3: "third"}.get(k, f"#{k}")
+    return (f"take the {nth} open item no open PR title names, not the first (by this "
+            f"session's id, so a session that drew this row in the same minute likely "
+            "takes another), unless fewer are buildable here")
+
+
 def least_claimed(queue: list[dict], claims: Optional[dict[str, list]],
                   now: Optional[datetime] = None, session: Optional[str] = None,
                   spread: int = START_SPREAD) -> Optional[tuple[int, str, int, float]]:
@@ -1722,7 +1755,7 @@ def print_table(ventures: list[Venture], queue: list[dict],
             "prints its full `next:` and probes the hosts it needs; a BUILDABLE HERE note says what a session can do with "
             "no outside input; if every item needs a key, account, person or blocked host, add "
             "`inputs_only:` to its portfolio/flagships.yaml row in your PR and take the next "
-            "row, so later runs are not sent there). Open your draft PR with the slug in its title "
+            f"row, so later runs are not sent there). Item: {item_rank_note(sid)}. Open your draft PR with the slug in its title "
             "before you read further: that title is the claim the next session's table reads. Then run "
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
@@ -1755,7 +1788,7 @@ def print_table(ventures: list[Venture], queue: list[dict],
                 f"{CLAIM_FRESH_HOURS} h, so this is "
                 + ("one of the least contested (picked by this session's id): " if sid else "the least contested: ")
                 + f"its newest is #{num}, {age:.0f} h old. A claim covers one item, not the row: "
-                f"take a `buildable:`/`next:` item that no open {name} PR title names "
+                f"of its `buildable:`/`next:` items, {item_rank_note(sid)} "
                 f"(`allocate.py --venture {name}`), and check it with "
                 f"`python3 portfolio/router/claim_check.py {name} --item \"<item>\"`."
             )
