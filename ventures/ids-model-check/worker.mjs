@@ -67,7 +67,7 @@ async function loadSchemas(ids) {
 }
 
 self.onmessage = async (ev) => {
-  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, req, asStep } = ev.data;
+  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, densities, req, asStep } = ev.data;
   // Echo the caller's request number (index.html drops stale replies).
   const postMessage = (m) => self.postMessage({ ...m, req });
   try {
@@ -130,7 +130,7 @@ self.onmessage = async (ev) => {
         const m = new Model(ifc, modelSchemas(id, schemas), { psets: tpl });
         if (m.format !== "STEP") src = toStep(m).text;
       }
-      const geometry = measure ? geometryLookup(await measureModel(src)) : undefined;
+      const geometry = measure ? geometryLookup(await measureModel(src, { densities })) : undefined;
       const r = fillModel(ids, src, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets: tpl, values: values ? readValues(values) : [], geometry });
       const { text, unfilled, writtenList, ...rest } = r;
       void writtenList;

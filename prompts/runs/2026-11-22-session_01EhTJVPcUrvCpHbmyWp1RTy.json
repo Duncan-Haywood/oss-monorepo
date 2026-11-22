@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPcUrvCpHbmyWp1RTy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T17:07:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check: Qto_ NetWeight/GrossWeight from volume x a per-model material density (table, model MassDensity, or the model's own stored weights)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": 18282,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Router sent the session to xer-schedule-check; claim_check showed PR #18281 had claimed the same item (crash oracle with SS/FF links) 7 s earlier, so I yielded to ids-model-check as claim_check suggested.",
+      "did": "took the ids-model-check member-weights item parked in NEXT.md",
+      "result": "landed weights with 1,152/1,152 stored Tekla weights explained"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-steel-has-two-densities-in-two-tekla-models.md",
+    "ventures/ids-model-check/eval/member-weights-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Verified locally: node --test in ventures/ids-model-check: 502 pass, 0 fail (5 new in weights.test.mjs). eval/member-weights.mjs on 28 public engine_web-ifc models: 1,152 stored weights on 3 Tekla exports, all = stored volume x one density per material (S235JR 8,000 in Mini Project vs 7,850 in M3D-CON-CD); half held out 562/562 within 0.5%; textbook table 152/1,145. Fill end to end with weights hidden and densities typed: 1,146/1,146 NetWeights rewritten within 0.5%. check_posts ok; validate.py ok; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

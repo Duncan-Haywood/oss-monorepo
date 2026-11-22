@@ -1,0 +1,18 @@
+ISSUE_021_Mini Project.ifc: 1027 stored weights; all learned: 1027 offered, 1027 within 0.5%; held out 512: 512 offered, 512 within; a standard table: 1020 offered, 27 within
+  STEEL/S235JR: 178 ratio(s), density 8000 kg/m3
+  CONCRETE/ISOLEX: 76 ratio(s), density 2450 kg/m3
+  CONCRETE/BETON: 348 ratio(s), density 2450 kg/m3
+  CONCRETE/SILEX: 27 ratio(s), density 2450 kg/m3
+  MISCELLANEOUS/PVC: 7 ratio(s), density 1300 kg/m3
+  CONCRETE/PREDAL: 10 ratio(s), density 2450 kg/m3
+  TIMBER/HOUT: 324 ratio(s), density 600 kg/m3
+  CONCRETE/ISOBET: 12 ratio(s), density 2450 kg/m3
+  CONCRETE/GEWELF: 27 ratio(s), density 2400 kg/m3
+  CONCRETE/TT: 18 ratio(s), density 2450 kg/m3
+ISSUE_102_M3D-CON-CD.ifc: 105 stored weights; all learned: 105 offered, 105 within 0.5%; held out 44: 44 offered, 44 within; a standard table: 105 offered, 105 within
+  CONCRETE/Concrete_Undefined: 49 ratio(s), density 2400 kg/m3
+  STEEL/S235JR: 56 ratio(s), density 7850 kg/m3
+ISSUE_102_M3D-CON.ifc: 20 stored weights; all learned: 20 offered, 20 within 0.5%; held out 6: 6 offered, 6 within; a standard table: 20 offered, 20 within
+  CONCRETE/Concrete_Undefined: 20 ratio(s), density 2400 kg/m3
+
+total: 1152 stored; 1152 offered, 1152 within 0.5%; held out 562: 562 offered, 562 within; standard table 1145 offered, 152 within
