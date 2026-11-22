@@ -1,0 +1,92 @@
+advanced-geometric-shape/basin-advanced-brep/basin-advanced-brep.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 0, box 1
+advanced-geometric-shape/basin-faceted-brep/basin-faceted-brep.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+advanced-geometric-shape/basin-tessellation/basin-tessellation.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+advanced-geometric-shape/bath-csg-solid/bath-csg-solid.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+advanced-geometric-shape/cube-advanced-brep/cube-advanced-brep.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+alignment-geometries-and-linear-positioning/fixed-reference-swept-area-solid/fixed-reference-swept-area-solid.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 0, box 0
+alignment-geometries-and-linear-positioning/linear-placement-of-signal/linear-placement-of-signal.ifc: 2 of 2 read; vs IfcOpenShell 2 compared, volume 0, box 0
+alignment-geometries-and-linear-positioning/sectioned-solid-horizontal/sectioned-solid-horizontal.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 0, box 1
+alignment-geometries-and-linear-positioning/segmented-reference-curve/segmented-reference-curve.ifc: 0 of 0 read; vs IfcOpenShell 0 compared, volume 0, box 0
+basic-geometric-shape/brep-model/brep-model.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+basic-geometric-shape/csg-primitive/csg-primitive.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+basic-geometric-shape/extruded-solid/extruded-solid.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+basic-geometric-shape/surface-model/surface-model.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+basic-geometric-shape/triangulated-item/triangulated-item.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+building-elements/beam-extruded-solid/beam-extruded-solid.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1; length 1.000 m
+building-elements/beam-parametric-cross-section/beam-parametric-cross-section.ifc: 18 of 18 read; vs IfcOpenShell 18 compared, volume 18, box 18; length 45.000 m; weight 1041.81 kg
+building-elements/beam-revolved-solid/beam-revolved-solid.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 0
+building-elements/beam-varying-cardinal-points/beam-varying-cardinal-points.ifc: 4 of 4 read; vs IfcOpenShell 4 compared, volume 4, box 4; length 4.000 m
+building-elements/beam-varying-extrusion-paths/beam-varying-extrusion-paths.ifc: 2 of 2 read; vs IfcOpenShell 2 compared, volume 2, box 1; length 1.000 m
+building-elements/beam-varying-profiles/beam-varying-profiles.ifc: 2 of 2 read; vs IfcOpenShell 2 compared, volume 2, box 2; length 2.000 m
+building-elements/column-extruded-solid/column-extruded-solid.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1; length 2.000 m
+building-elements/reinforcing-assembly/reinforcing-assembly.ifc: 35 of 35 read; vs IfcOpenShell 35 compared, volume 35, box 1; length 44.045 m; weight 34.66 kg
+building-elements/reinforcing-stirrup/reinforcing-stirrup.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 0; length 1.148 m; weight 1.02 kg
+building-elements/slab-extrusion/slab-extruded-solid.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+building-elements/slab-openings/slab-openings.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+building-elements/wall-extrusion/wall-extruded-solid.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+construction-scheduling/construction-scheduling-task/construction-scheduling-task.ifc: 5 of 5 read; vs IfcOpenShell 5 compared, volume 5, box 5
+mapped-geometric-shape/mapped-shape-with-multiple-items/mapped-shape-with-multiple-items.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+mapped-geometric-shape/mapped-shape-with-transformation/mapped-shape-with-transformation.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+mapped-geometric-shape/mapped-shape-without-transformation/mapped-shape-without-transformation.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+placements-and-gis-referencing/geographic-referencing-gk/geographic-referencing-gk.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+placements-and-gis-referencing/geographic-referencing-rigid-operation/geographic-referencing-rigid-operation.ifc: 1 of 2 read; vs IfcOpenShell 1 compared, volume 1, box 1
+placements-and-gis-referencing/geographic-referencing-utm/geographic-referencing-utm.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+placements-and-gis-referencing/grid-placement/grid-placement.ifc: 35 of 35 read; vs IfcOpenShell 10 compared, volume 10, box 10; length 210.000 m
+structural-analysis-model/structural-curve-member/structural-curve-member.ifc: 0 of 0 read; vs IfcOpenShell 0 compared, volume 0, box 0
+tessellated-shape/beam-curved-i-shape-tessellated/beam-curved-i-shape-tessellated.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1; length 7.351 m; weight 1357.36 kg
+tessellated-shape/beam-straight-i-shape-tessellated/beam-straight-i-shape-tessellated.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1; length 1.000 m
+tessellated-shape/column-straight-rectangle-tessellation/column-straight-rectangle-tessellation.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1; length 3.048 m
+tessellated-shape/polygonal-face-tessellation/polygonal-face-tessellation.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+tessellated-shape/slab-tessellated-unique-vertices/slab-tessellated-unique-vertices.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+tessellated-shape-with-style/tessellation-with-blob-texture/tessellation-with-blob-texture.ifc: 0 of 0 read; vs IfcOpenShell 0 compared, volume 0, box 0
+tessellated-shape-with-style/tessellation-with-image-texture/tessellation-with-image-texture.ifc: 0 of 0 read; vs IfcOpenShell 0 compared, volume 0, box 0
+tessellated-shape-with-style/tessellation-with-individual-colors/tessellation-with-individual-colors.ifc: 1 of 1 read; vs IfcOpenShell 1 compared, volume 1, box 1
+tessellated-shape-with-style/tessellation-with-pixel-texture/tessellation-with-pixel-texture.ifc: 0 of 0 read; vs IfcOpenShell 0 compared, volume 0, box 0
+trimmed-curve-parameters/curve-parameters-in-degrees/curve-parameters-in-degrees.ifc: 3 of 3 read; vs IfcOpenShell 3 compared, volume 3, box 3; length 6.000 m
+trimmed-curve-parameters/curve-parameters-in-radians/curve-parameters-in-radians.ifc: 3 of 3 read; vs IfcOpenShell 3 compared, volume 3, box 3; length 6.000 m
+
+46 files, 140 of 141 elements read; not read: {"no body":1}
+vs IfcOpenShell: 115 elements both read; volume within 1%: 110; world box within 2 mm: 75
+disagreements:
+  advanced-geometric-shape/basin-advanced-brep/basin-advanced-brep.ifc #213 IfcSanitaryTerminal: volume 0.002044 vs 0.005536 m3 (-63.075%), box off by 0.01 mm
+  alignment-geometries-and-linear-positioning/fixed-reference-swept-area-solid/fixed-reference-swept-area-solid.ifc #107 IfcBuiltElement: volume 2699.994390 vs 8550.606335 m3 (-68.423%), box off by 300000.00 mm
+  alignment-geometries-and-linear-positioning/linear-placement-of-signal/linear-placement-of-signal.ifc #3020 IfcSignal: volume 0.101096 vs 1347.664388 m3 (-99.992%), box off by Infinity mm
+  alignment-geometries-and-linear-positioning/linear-placement-of-signal/linear-placement-of-signal.ifc #3031 IfcSignal: volume 0.101096 vs 1622.339681 m3 (-99.994%), box off by Infinity mm
+  alignment-geometries-and-linear-positioning/sectioned-solid-horizontal/sectioned-solid-horizontal.ifc #107 IfcBuiltElement: volume 2699.991521 vs 4500.608371 m3 (-40.008%), box off by 0.03 mm
+  building-elements/beam-revolved-solid/beam-revolved-solid.ifc #70 IfcBeam: volume 0.172125 vs 0.172121 m3 (0.002%), box off by Infinity mm
+  building-elements/beam-varying-extrusion-paths/beam-varying-extrusion-paths.ifc #227 IfcBeam: volume 0.002924 vs 0.002924 m3 (0.009%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #248 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #261 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #272 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #283 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #294 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #305 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #316 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #327 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #338 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #349 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #360 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #371 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #382 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #393 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #404 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #415 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #426 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #437 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #448 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #459 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #470 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #481 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #492 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #503 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #514 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #525 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #536 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #547 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #558 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #569 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #580 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #591 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #602 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-assembly/reinforcing-assembly.ifc #613 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm
+  building-elements/reinforcing-stirrup/reinforcing-stirrup.ifc #221 IfcReinforcingBar: volume 0.000130 vs 0.000130 m3 (0.014%), box off by Infinity mm

@@ -451,8 +451,8 @@ polygonal-bounded half-space clips; boolean difference, union and intersection;
 mapped items with uniform and non-uniform scale; faceted breps (with voids),
 closed shell and face-based surface models, polygonal and triangulated face
 sets; advanced breps whose faces lie on planes and cylinders (edges on lines,
-circles, ellipses and B-spline curves); swept disks (Pappus); revolved areas
-(Pappus); blocks, cylinders, cones and spheres.
+circles, ellipses and B-spline curves); swept disks (Pappus; directrices of polylines, composite curves and indexed curves with arcs);
+revolved areas (Pappus); blocks, cylinders, cones and spheres.
 
 **How:** every solid becomes a signed sum of convex polyhedra. A concave
 outline is fanned into signed triangles, voids enter with a minus sign, a half
@@ -505,9 +505,25 @@ boxes matching IfcOpenShell's to 5.7e-14 m (median). 12 diaphragms whose
 second section sits 0.20 m past the end of their directrix are lofted on
 along the end tangent and carry a note saying so; IfcOpenShell stops them at
 the end. ([eval/linear-placement-2026-11-22.md](eval/linear-placement-2026-11-22.md).)
+Kerbs, barriers and ditches swept as an `IfcFixedReferenceSweptAreaSolid`
+along those curves are sliced the same way, the profile square to the 3D
+tangent with its x axis held toward FixedReference (2026-11-22).
 Not read yet: cant (`IfcSegmentedReferenceCurve`), spirals other than the
 clothoid, `IfcPolynomialCurve` and offset curves as directrices; the
 element on such a placement is "not read", and the rest of the file is.
+
+**Reinforcing bars and grid placements (2026-11-22).** A bar swept as a disk
+along an `IfcIndexedPolyCurve` of line and arc segments (how bars, stirrups
+and links are written) is read with its bends as true arcs, and its cut length
+is the directrix's: the BoQ gets a length and, for a bar whose material does
+not name GFRP, basalt, stainless or the like, a mass at 7,850 kg/m3, so rebar
+can be priced per tonne. On buildingSMART's `reinforcing-stirrup` sample the
+bar reads 1.148 m against the 1,150 mm BarLength its type states, and 1.02 kg
+(a 12 mm bar's 0.888 kg/m). Columns placed on a structural grid
+(`IfcGridPlacement`: the crossing of two grid axes, with offsets, in the
+grid's own placement; IFC2X3/IFC4 and IFC4X3 forms) are placed there; before,
+each was "not read". Checked on all 46 of buildingSMART's IFC4.3.x sample
+models ([eval/bsi-samples-2026-11-22.md](eval/bsi-samples-2026-11-22.md)).
 
 **Not read:** an advanced brep face that wraps all the way round a closed
 surface (a band or cap on a surface of revolution), a curved face other than a

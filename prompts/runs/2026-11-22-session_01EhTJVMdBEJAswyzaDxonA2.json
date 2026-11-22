@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMdBEJAswyzaDxonA2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T08:10:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff: buildingSMART IFC4.3 sample models (rebar on arc directrices, IfcGridPlacement, IfcFixedReferenceSweptAreaSolid)",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": 18218,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "IfcOpenShell 0.9 hung on fixed-reference-swept-area-solid.ifc with one process for the whole folder",
+      "fix": "eval/bsi-samples-ifcopenshell.py runs each file in its own process with a 60 s limit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "NEXT.md still listed IfcLinearPlacement as open after #18213 landed it; harmless, but the landed-item check does not look at NEXT.md"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-buildingsmart-samples-rebar-and-grid-columns.md",
+    "ventures/ifc-quantity-takeoff/eval/bsi-samples-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Takeoff over buildingSMART IFC4.3.x-sample-models (46 files): 79 -> 140 of 141 elements read. Vs IfcOpenShell 0.9: 110 of 115 volumes within 1%, all 5 misses traced to IfcOpenShell (advanced-brep basin vs its faceted/tessellated twins; ignored StartParam/EndParam; open-shell lofts; signal volumes larger than their box). Tests: node --test *.test.mjs 188/188 (rebar-grid.test.mjs new, 5). check_posts, check_md_links, validate.py ok. venture-preflight rerun after fixing a dead link.",
+  "corrections": [],
+  "redteam": null
+}
