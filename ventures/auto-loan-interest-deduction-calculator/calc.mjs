@@ -206,6 +206,14 @@ export function computeQualifiedVehicleInterestDeduction({
     });
   }
 
+  if (deduction > 0) {
+    findings.push({
+      severity: 'medium',
+      title: "Put the vehicle's VIN on your return",
+      detail: "The deduction is allowed only if you report the vehicle identification number (VIN) of the vehicle on your return for the year you claim it (Schedule 1-A). Keep the lender's interest statement and the purchase contract with your records.",
+    });
+  }
+
   findings.push({
     severity: 'info',
     title: 'Federal income tax only',

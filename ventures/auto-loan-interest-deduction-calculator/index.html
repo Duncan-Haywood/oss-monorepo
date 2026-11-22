@@ -249,6 +249,12 @@
     }
 
     function runCalculate() {
+      // Quality audit 2026-11-22 (round 96): a blank MAGI used to count as $0 and showed the full deduction.
+      if (els.magi.value.trim() === "" || els.interestPaid.value.trim() === "") {
+        els.status.textContent = "Enter your MAGI and the interest you paid first.";
+        els.report.hidden = true;
+        return;
+      }
       const filingStatus = els.filingStatus.value;
       const magi = Number(els.magi.value) || 0;
       const result = computeQualifiedVehicleInterestDeduction({

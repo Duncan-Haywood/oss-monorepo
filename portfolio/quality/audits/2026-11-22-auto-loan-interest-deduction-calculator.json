@@ -1,0 +1,263 @@
+{
+ "date": "2026-11-22",
+ "subject": "ventures/auto-loan-interest-deduction-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-22-g-f685",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an enrolled agent or CPA preparing individual 1040s with Schedule 1-A. First checks: the 163(h)(4) cap and the $200-per-$1,000-or-portion phase-out at $100k/$200k, MFS and joint treatment, every eligibility element (new, US final assembly, first lien, personal use, after 2024-12-31, vehicle type/GVWR), the VIN-on-return requirement, and what counts as qualified interest on a mixed or refinanced loan",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The shipped calc.mjs was run on 8 probe cases (probe.mjs in the session scratchpad), and the page was driven in headless Chrome over CDP (cdp.mjs). Five outputs were recomputed by hand from IRC 163(h)(4): a $10,000 per-return cap, reduced by $200 per $1,000 or portion of MAGI over $100,000, or $200,000 joint. Joint at $212,500 with $8,000 interest gives 7,400 and 1,628 at 22%. Single at $123,456.78 gives 5,200, with the fractional excess rounded up. MFS at $120,000 gives 6,000. HoH at exactly $100,000 has no reduction. Joint at $249,001 gives 0. The page's worked example ($3,400, $748) and the MFS guide's 6,000/12,000/2,000 example also check by hand. All pass. One input-handling failure: a blank MAGI is read as $0, and the page shows the full deduction with a message that the income is under the phase-out threshold. Caveat: the statute and regulations could not be opened this session (uscode.house.gov, law.cornell.edu, govinfo.gov and federalregister.gov all refused). Thresholds, rounding up, MFS at $100,000 and the per-return cap rest on the auditor's knowledge of the enacted text plus WebSearch summaries of T.D. 10054. Arithmetic right on every hand case, one silent-default trap: 3.",
+  "completeness": "Exercised the features the README and page claim to be done: filing status (all four), MAGI, marginal rate, interest, the 8 checkboxes (a test zeroes each one alone and names it), the phase-out and joint/MFS findings, the savings estimate, Load example, Clear, and the opt-out of usage counting (present). The page loaded in headless Chrome from a local server with no exceptions. Load example renders '$3,400 — roughly $748'. Both subpages link back and to each other. served-copy.mjs reports a clean llms.txt, sitemap and canonicals; the source llms.txt has github.io URLs, which the deploy rewrites (source-only, not filed). No TODOs or stubs. Refinancing is honestly listed as not modelled. Everything claimed works: 3.",
+  "verification": "`node --test '*.test.mjs'` in the subject root gives 41/41 pass. Six mutants were seeded with platform/ci/quality_mutate.py. All five in calc.mjs were caught: ceil to floor, the joint threshold, the cap dropped from min(), the `excess <= 0` boundary, and the cappedByPhaseOut comparison. The tests pin the $100,001/$100,999/$101,001 rounding edges and both zero crossings. One survived: index.html ignoring the MAGI input (magi = 0), because there is no DOM-level test of the wiring. Core logic is well pinned: 3.",
+  "craft": "Read calc.mjs (223 lines), calc.test.mjs, page.test.mjs and index.html. calc.mjs is a small pure module with named constants and an explicit criteria table. Defects: index.html hand-copies the 8 checklist labels instead of rendering them from ELIGIBILITY_CRITERIA, so the page and the module can drift. num() silently turns any non-numeric or negative value into 0, and the page relies on it, so a blank field becomes a confident answer. An unknown filingStatus falls through to the single threshold. Findings HTML is built with innerHTML, but only from module strings and formatted numbers, so it is not an injection risk. A reviewer would accept it with those comments: 3.",
+  "claims": "Backed: cap, thresholds, rounding up, zero crossings at $150k/$250k, the joint shared cap, MFS eligible at single thresholds, the senior and tips/overtime MFS exclusions (as I understand 151(d)(5) and 224/225), the 2025 bracket table, disclaimer, no-warranty and privacy (page.test.mjs, no network code). Not backed: the lede says 'This checks every condition', but the VIN-on-the-return requirement and the public-roads/2-wheel vehicle elements are missing. The page cites only the 2026-01-02 proposed regulations while dated 2026-09-24, after the final regulations (T.D. 10054, 2026-09-08). The comparative superlatives ('most calculators get wrong', 'missed most often') have no source. A user acting on 'checks every condition' could file without the VIN: 2.",
+  "fitness": "Walked an enrolled agent's 1040 job: one client, a new US-assembled truck, a 1098-VLI showing $6,200 interest, MAGI $118k, single. The tool gives the right capped amount (cap $10,000 - 18 x $200 = $6,400, so all $6,200 is deductible) fast. In the first hour the EA would hit: no VIN capture or reminder for Schedule 1-A; no help splitting qualified from non-qualified interest on a loan that rolled in negative equity or add-ons; refinanced loans not modelled; no MAGI worksheet (AGI plus the 911/931/933 add-backs); no tax-year input, so a 2029 loan or a 2024-originated loan relies on a checkbox; no note that it is available without itemizing. Fine for a consumer estimate, short of preparer use: 2.",
+  "domain": "Compared against IRC 163(h)(4) as enacted and T.D. 10054 as summarised by practitioners. Cap, phase-out formula, rounding, joint and MFS treatment and the core exclusions (lease, fleet/commercial, salvage/scrap, first lien, after 2024-12-31, new, US final assembly, GVWR under 14,000 lbs) match. Departures: the VIN requirement is omitted, the final regulations' allocation rules for mixed loans and the refinancing rule are not reflected, the vehicle definition misses the public-roads and 2-wheel elements, and the code comment calls the deduction above-the-line (my understanding is that it is below AGI and open to non-itemizers; stated with some uncertainty). Unsure: whether loans from related parties are excluded by the statute or the regs. I could not verify it this session, so it is not filed. A senior preparer would accept the arithmetic but not the eligibility test as complete: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Joint return, MAGI $212,500, $8,000 interest, 22% rate",
+   "method": "IRC 163(h)(4) as added by P.L. 119-21 sec. 70203: $10,000 per-return cap; reduced (not below zero) by $200 for each $1,000 or portion of MAGI over $100,000 ($200,000 joint). uscode.house.gov, law.cornell.edu, govinfo.gov and federalregister.gov were all unreachable this session (proxy CONNECT 403 / DNS refused), so the statute wording is from the auditor's recollection of the enacted text, cross-checked by WebSearch summaries of T.D. 10054 (final regs, 2026-09-08) that describe rounding the excess up per $1,000. Hand: excess 12,500 -> 13 units (portion counts) x $200 = $2,600; cap 7,400; min(8,000, 7,400) = 7,400; x 0.22 = 1,628",
+   "command": "node -e \"import('./calc.mjs').then(m=>{const c=Object.fromEntries(m.ELIGIBILITY_CRITERIA.map(x=>[x.key,true]));const r=m.computeQualifiedVehicleInterestDeduction({interestPaid:8000,filingStatus:'joint',magi:212500,criteria:c,marginalRatePercent:22});console.log(r.deduction,r.estimatedSavings)})\"",
+   "expected": "7400 1628",
+   "observed": "7400 1628 (also on the page in headless Chrome: 'Estimated deduction: $7,400 — roughly $1,628')",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Single, MAGI $123,456.78, $12,000 interest (cents in MAGI, interest above cap)",
+   "method": "IRC 163(h)(4) as added by P.L. 119-21 sec. 70203: $10,000 per-return cap; reduced (not below zero) by $200 for each $1,000 or portion of MAGI over $100,000 ($200,000 joint). uscode.house.gov, law.cornell.edu, govinfo.gov and federalregister.gov were all unreachable this session (proxy CONNECT 403 / DNS refused), so the statute wording is from the auditor's recollection of the enacted text, cross-checked by WebSearch summaries of T.D. 10054 (final regs, 2026-09-08) that describe rounding the excess up per $1,000. Hand: excess 23,456.78 -> 24 units x $200 = $4,800; cap 5,200; min(12,000, 5,200) = 5,200",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/probe.mjs $PWD/calc.mjs (case 1)",
+   "expected": "5200",
+   "observed": "5200",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "MFS, MAGI $120,000, $9,000 interest: MFS not excluded, single-filer threshold, own $10,000 cap",
+   "method": "IRC 163(h)(4) as added by P.L. 119-21 sec. 70203: $10,000 per-return cap; reduced (not below zero) by $200 for each $1,000 or portion of MAGI over $100,000 ($200,000 joint). uscode.house.gov, law.cornell.edu, govinfo.gov and federalregister.gov were all unreachable this session (proxy CONNECT 403 / DNS refused), so the statute wording is from the auditor's recollection of the enacted text, cross-checked by WebSearch summaries of T.D. 10054 (final regs, 2026-09-08) that describe rounding the excess up per $1,000; the statute names only the joint-return threshold, so MFS falls in the $100,000 bucket and the cap is per return; T.D. 10054 summaries (taxgirl.com, portebrown.com, sw-cpas.com via WebSearch) say the cap is per return and MFS uses $100,000. Hand: excess 20,000 -> $4,000; cap 6,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/probe.mjs $PWD/calc.mjs (case 3)",
+   "expected": "6000 and an MFS-eligible finding",
+   "observed": "6000; finding 'MFS is eligible here'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Boundaries: HoH at exactly $100,000; joint at $249,001",
+   "method": "IRC 163(h)(4) as added by P.L. 119-21 sec. 70203: $10,000 per-return cap; reduced (not below zero) by $200 for each $1,000 or portion of MAGI over $100,000 ($200,000 joint). uscode.house.gov, law.cornell.edu, govinfo.gov and federalregister.gov were all unreachable this session (proxy CONNECT 403 / DNS refused), so the statute wording is from the auditor's recollection of the enacted text, cross-checked by WebSearch summaries of T.D. 10054 (final regs, 2026-09-08) that describe rounding the excess up per $1,000. Hand: excess 0 -> no reduction (7,000 of 7,000); excess 49,001 -> 50 units -> $10,000 -> $0",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/probe.mjs $PWD/calc.mjs (cases 4 and 6)",
+   "expected": "7000; 0 with 'Fully phased out'",
+   "observed": "7000; 0 with 'Fully phased out at this income'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Page worked example (Load an example) and MFS guide-page example ($120k each MFS = $12,000 combined vs $2,000 joint at $240k)",
+   "method": "Hand arithmetic from the same statute: 3,400 x 22% = 748; MFS 10,000-4,000=6,000 x2; joint 10,000-8,000=2,000; 2,000/12,000 = one sixth",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/cdp.mjs (headless Chrome, page served by python3 -m http.server 8765 in the subject dir)",
+   "expected": "$3,400 / $748; guide figures 6,000, 12,000, 2,000, 'a sixth'",
+   "observed": "'Estimated deduction: $3,400 — roughly $748'; guide figures match by hand and page.test.mjs:138 asserts them against calc.mjs",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Blank MAGI field",
+   "method": "Expected behaviour of a tax estimator: a missing required input should be refused or flagged, not read as $0",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/cdp.mjs (blank MAGI, interest 9000, single)",
+   "expected": "an error or prompt to enter MAGI",
+   "observed": "'Estimated deduction: $9,000 — roughly $1,980' with finding '$9,000 ... is under both the $10,000 cap and the phase-out threshold'",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "VIN reporting requirement (no deduction unless the VIN is included on the return, Schedule 1-A)",
+   "method": "IRC 163(h)(4) VIN requirement as recalled; WebSearch summaries (TurboTax, H&R Block, Kiplinger) say the VIN is entered on Schedule 1-A every year the deduction is claimed",
+   "command": "grep -n -i 'vin' ventures/auto-loan-interest-deduction-calculator/*.html ventures/auto-loan-interest-deduction-calculator/calc.mjs ventures/auto-loan-interest-deduction-calculator/README.md ventures/auto-loan-interest-deduction-calculator/llms.txt",
+   "expected": "a checklist item or note that the VIN must be reported",
+   "observed": "VIN mentioned only as a way to check final assembly (index.html:127, 159); never as a return requirement",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Mixed loans (negative equity, add-ons) and refinancing",
+   "method": "T.D. 10054 summaries via WebSearch (liskow.com, portebrown.com): interest on negative-equity/non-qualifying portions is allocated out pro rata; refinanced qualifying debt counts up to the balance at refinancing",
+   "command": "grep -n -i 'negative equity\\|allocat\\|refinanc' ventures/auto-loan-interest-deduction-calculator/index.html ventures/auto-loan-interest-deduction-calculator/calc.mjs",
+   "expected": "guidance on allocating interest, or an input for it",
+   "observed": "no allocation guidance; refinancing listed as not modelled (index.html:163) and the input asks for 'qualified interest' (index.html:108) without saying what makes it qualified",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Source and currency of the rules",
+   "method": "WebSearch: final regulations T.D. 10054 published 2026-09-08 (Federal Register doc 2026-18219), effective 2026-11-09",
+   "command": "grep -n 'proposed\\|As of' ventures/auto-loan-interest-deduction-calculator/index.html ventures/auto-loan-interest-deduction-calculator/llms.txt",
+   "expected": "cites the final regulations, since the page is dated after them",
+   "observed": "'Treasury's proposed regulations of 2026-01-02. As of 2026-09-24.' (index.html:60-61, llms.txt:9)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'This checks every condition' / '8-item checklist'",
+   "method": "compare against the statutory conditions above (VIN, public-roads and 2-wheel vehicle definition, allocation)",
+   "command": "sed -n 52,61p ventures/auto-loan-interest-deduction-calculator/index.html",
+   "expected": "every condition the statute and regs impose",
+   "observed": "VIN requirement and the manufactured-for-public-roads element absent",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, not-advice, privacy, nothing uploaded",
+   "method": "page.test.mjs assertions plus reading the footer; no fetch/XHR in index.html or calc.mjs",
+   "command": "node --test '*.test.mjs' (page.test.mjs:7,15)",
+   "expected": "present",
+   "observed": "present on index and both subpages; usage counted in localStorage only (usage.mjs)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "2025 bracket table",
+   "method": "Rev. Proc. 2024-40 2025 brackets (single 11,925/48,475/103,350/197,300/250,525/626,350; MFJ double up to 32%, 751,600 top), unchanged by OBBBA as I understand it",
+   "command": "sed -n 176,186p ventures/auto-loan-interest-deduction-calculator/index.html",
+   "expected": "those figures",
+   "observed": "matches",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run it",
+   "command": "node --test '*.test.mjs' (in subject root)",
+   "expected": "green",
+   "observed": "tests 41, pass 41, fail 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served copy has no placeholder/retired origin",
+   "method": "platform/pages/served-copy.mjs",
+   "command": "node platform/pages/served-copy.mjs auto-loan-interest-deduction-calculator",
+   "expected": "clean",
+   "observed": "no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:119",
+   "change": "Math.ceil(excess / 1000) -> Math.floor(excess / 1000)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:56",
+   "change": "PHASEOUT_THRESHOLD_JOINT = 200000 -> PHASEOUT_THRESHOLD_JOINT = 150000",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:183",
+   "change": "const deduction = Math.min(interest, cap); -> const deduction = Math.min(interest, QPVLI_CAP);",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:118",
+   "change": "if (excess <= 0) return 0; -> if (excess < 1000) return 0;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:167",
+   "change": "const cappedByPhaseOut = cap < QPVLI_CAP; -> const cappedByPhaseOut = cap <= QPVLI_CAP;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "index.html:253",
+   "change": "magi = Number(els.magi.value) || 0; -> magi = 0;",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The VIN reporting requirement (no deduction unless the vehicle's VIN is on the return, Schedule 1-A) appears nowhere: not in the 8-item checklist, the findings, the FAQ or the README. The page says it 'checks every condition'. A filer who relies on it can omit the VIN and lose the deduction.",
+   "where": "ventures/auto-loan-interest-deduction-calculator/calc.mjs:68",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"
+  },
+  {
+   "severity": "medium",
+   "what": "A blank MAGI field is read as $0, and the tool reports the full deduction with an info finding that the interest is 'under ... the phase-out threshold'. A blank interest field likewise gives a silent $0. Confirmed in headless Chrome: blank MAGI with $9,000 interest gives a $9,000 deduction.",
+   "where": "ventures/auto-loan-interest-deduction-calculator/index.html:253",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"
+  },
+  {
+   "severity": "medium",
+   "what": "Cites only 'Treasury's proposed regulations of 2026-01-02. As of 2026-09-24', but the final regulations (T.D. 10054, 26 CFR 1.163-16) were published 2026-09-08 and take effect 2026-11-09 (per WebSearch summaries; I could not open the Federal Register itself). The interest input gives no guidance on the regs' pro-rata allocation of interest on mixed loans (negative equity, non-qualifying add-ons) or on refinanced debt, which counts up to the balance at refinancing. So 'qualified interest paid' is left to the user.",
+   "where": "ventures/auto-loan-interest-deduction-calculator/index.html:60",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Unbacked comparative claims: 'the married-filing-separately rule most calculators get wrong' (og:description), 'most people assume works the opposite way', and 'Final assembly location' as the condition 'missed most often'. No file or survey backs them.",
+   "where": "ventures/auto-loan-interest-deduction-calculator/index.html:9",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "The vehicle checklist leaves out the statutory elements 'manufactured primarily for use on public streets, roads, and highways' and 'at least 2 wheels' (which exclude ATVs and golf carts). The RV/camper sentence is asserted without a cited source; I am not certain how the final regs treat campers.",
+   "where": "ventures/auto-loan-interest-deduction-calculator/calc.mjs:95",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The header comment calls this an 'above-the-line' deduction. As I understand 163(h)(4) and the 63(b)/(d) amendments, it is claimed on Schedule 1-A below AGI and is available to non-itemizers, so it does not reduce AGI. Some practitioner summaries also say 'above the line' loosely; I am not fully certain. The page itself makes no claim either way and never tells the user that it is available without itemizing.",
+   "where": "ventures/auto-loan-interest-deduction-calculator/calc.mjs:8",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Nothing tests the page wiring: a mutant that ignores the MAGI input (magi = 0) leaves all 41 tests green. page.test.mjs only checks static text and the presence of elements.",
+   "where": "ventures/auto-loan-interest-deduction-calculator/page.test.mjs:36",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "An unknown filingStatus silently falls back to the $100,000 threshold, and a non-numeric MAGI (e.g. '1,200,000') becomes 0 through num(). Neither is validated.",
+   "where": "ventures/auto-loan-interest-deduction-calculator/calc.mjs:103",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "The lender statement is called 'Form 1098, where applicable'. The lender information return for this deduction is Form 1098-VLI (sec. 6050AA; a draft form is on irs.gov per WebSearch).",
+   "where": "ventures/auto-loan-interest-deduction-calculator/index.html:114",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"],
+ "verdict": "The arithmetic is right. Five hand recomputations from 163(h)(4) match the shipped code and the live page: the $10,000 per-return cap, the $200 per $1,000-or-portion phase-out over $100k/$200k, MFS at the single threshold, and joint sharing one cap. The tests catch every seeded bug in calc.mjs (5/5). It misses the bar on claims (2). The page says it 'checks every condition' but never mentions that the VIN must be reported on Schedule 1-A. It cites only the January 2026 proposed regulations, although the final regulations (T.D. 10054) came out in September 2026. A blank MAGI silently yields the full deduction. For a preparer it also lacks mixed-loan interest allocation and refinancing (fitness 2, domain 2). Small fixes: add a VIN checklist item or note, refuse a blank MAGI, update the citation. Allocation and refinancing are larger. Statute text could not be fetched this session; see the method notes in checks."
+}

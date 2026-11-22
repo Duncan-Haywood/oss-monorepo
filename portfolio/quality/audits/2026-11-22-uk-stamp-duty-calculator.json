@@ -1,0 +1,268 @@
+{
+ "date": "2026-11-22",
+ "subject": "ventures/uk-stamp-duty-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-22-g-f685",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a UK conveyancing solicitor who files SDLT returns for residential completions in England. First checks: the five residential bands from 1 April 2025, first-time buyer relief to 300k/500k and its loss above 500k, the higher rates for additional dwellings at +5 points from 31 Oct 2024 and the GBP 40,000 floor, the 2% non-resident surcharge stacking, and that Scotland (LBTT) and Wales (LTT) are excluded rather than mis-calculated",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Ran the shipped compute()/sdlt() on 13 probe cases plus 3 one-liners (command in checks) and recomputed each by hand against the HMRC rates from 1 April 2025 (bands, FTB relief Sch 6ZA, higher rates Sch 4ZA at +5 from 31 Oct 2024 with the GBP 40,000 floor, non-resident Sch 9A +2). gov.uk refused through the proxy, so the rates are the published HMRC figures as stated, not a fresh fetch. Every headline tax figure is right: 295k main 4,750; 450k FTB 7,500; 350k additional 25,000; 1.6m main 105,750; 600k additional non-resident 62,000; 500k FTB non-resident 20,000; 39,999 additional pays no 5% and 40,000 pays 2,000; 925k 36,250; 1.5m 93,750; whole pounds rounded down. But a finding shown on the result is wrong on a common price range: within GBP 25,000 below an edge it reports a negative 'saving' (-GBP 199 at 240k, -GBP 749 at 910k) and names thresholds from the wrong table (GBP 500,000 for a main-home buyer, GBP 250,000 for a first-time buyer). A wrong number a user sees cannot be outweighed: 2. Unsure: whether the Sch 9A surcharge has its own GBP 40,000 floor (the tool charges 2% below it).",
+  "completeness": "Every feature the page, README and llms.txt claim was exercised through compute(): band-by-band breakdown, FTB relief and the 500k cliff with its warning, additional rate with the 40k floor, non-resident surcharge, the side-by-side of all three statuses, effective and marginal rate, completion checklist (14-day return, 3-year refund on replacing a main home), summary text naming the sources and disclaimer. page.test.mjs (run, green) checks the input ids, the local-only imports and the usage events. The page was not loaded in a browser this session. No stubs or TODOs: 3.",
+  "verification": "`node --test '*.test.mjs'` in the subject root: 22/22 pass (the README's repo-root command also gives 22/22). Seven non-equivalent mutants via platform/ci/quality_mutate.py: the three on tax constants and thresholds are caught (10% band rate, FTB cap <= -> <, 40k floor >= -> >); four survive: rounding floor -> round (the only rounding test, 250001.5, cannot tell them apart), marginal / 10 -> / 100, the edge window 25000 -> 2500, and dropping FTB_CAP from the edge list. No test reads a finding's figure, which is how a negative saving shipped: 2.",
+  "craft": "Read calc.mjs (110 lines), calc.test.mjs, page.test.mjs and index.html. A pure, dependency-free module with one slice() routine shared by all buyer types and surcharges added as rate points, which is the right model. Defects: the band-edge finding (calc.mjs:90-91) builds edges from a hard-coded mix of tables and subtracts in the wrong direction; the money() one-liner is hard to read; parse() gives the wrong reason for '1,200'. A senior JS reviewer would accept it after the edge fix: 3.",
+  "claims": "No-warranty, not-tax-advice, privacy and the from-memory caveat are on the page and asserted by page.test.mjs; every result names GOV.UK and Finance Act 2003 Sch 4ZA to verify. Scotland LBTT and Wales LTT are explicitly excluded (page 'Not decided', FAQ, every result's findings), not claimed. The five FAQ answers match the HMRC rules. Served llms.txt/sitemap/canonicals are clean (served-copy.mjs). Gaps: the title claims 2026/27 rates with no file backing a check, and the FTB answer omits the joint-buyer and main-residence conditions. Minor, all else backed: 3.",
+  "fitness": "Walked a buyer's job: enter price and status, get the bill for the completion statement, compare statuses. For a single UK-resident or non-resident buyer of one residential property in England this works, and the side-by-side answers 'what does a second home cost me'. A conveyancing solicitor would use it as a quick cross-check but not for: joint buyers with mixed status, companies (17% flat rate over 500k), mixed-use, linked transactions, leases (NPV of rent) and shared ownership, all honestly listed as not modelled. For the stated user, within the stated limits: 3.",
+  "domain": "Compared with SDLT practice as a conveyancer applies it: bands, FTB relief and its total loss above 500k, higher rates as +5 points on every band from the first pound with the 40k floor, the non-resident +2 stacking on FTB and higher rates, rounding down, the 14-day return and the 3-year replacement-of-main-residence refund are all right. Departures: no mention of the joint-purchaser rules for FTB relief and higher rates, nor the non-resident surcharge refund; the band-edge advice is wrong (filed under correctness). Within its stated limits a practitioner would sign off the method: 3."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Main home, GBP 295,000",
+   "method": "HMRC SDLT residential rates for England and NI from 1 April 2025 (GOV.UK 'Stamp Duty Land Tax: residential property rates', FA 2003 s55): 0% to 125k, 2% to 250k, 5% to 925k, 10% to 1.5m, 12% above. www.gov.uk refused through the proxy this session (CONNECT 403), so the bands are the published HMRC rates as stated by the auditor, not a fresh fetch; by hand 125k*0 + 125k*2% + 45k*5% = 0 + 2,500 + 2,250",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (case 1)",
+   "expected": "4,750",
+   "observed": "tax 4750, effective 1.61%, marginal 5%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "First-time buyer, GBP 450,000",
+   "method": "FA 2003 Sch 6ZA as from 1 April 2025 (GOV.UK 'Stamp Duty Land Tax: buying your first home'): 0% to 300k, 5% 300k-500k, no relief above 500k; gov.uk 403 this session; by hand 300k*0 + 150k*5%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (case 2)",
+   "expected": "7,500",
+   "observed": "tax 7500",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Additional dwelling, GBP 350,000 (bands +5 points)",
+   "method": "FA 2003 Sch 4ZA higher rates for additional dwellings, +5 points from 31 Oct 2024 (Autumn Budget 2024), not applied when chargeable consideration is under GBP 40,000; gov.uk 403 this session; by hand 125k*5% + 125k*7% + 100k*10% = 6,250 + 8,750 + 10,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (case 3)",
+   "expected": "25,000",
+   "observed": "tax 25000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Main home, GBP 1,600,000 (all five bands)",
+   "method": "HMRC SDLT residential rates for England and NI from 1 April 2025 (GOV.UK 'Stamp Duty Land Tax: residential property rates', FA 2003 s55): 0% to 125k, 2% to 250k, 5% to 925k, 10% to 1.5m, 12% above. www.gov.uk refused through the proxy this session (CONNECT 403), so the bands are the published HMRC rates as stated by the auditor, not a fresh fetch; by hand 2,500 + 675k*5% + 575k*10% + 100k*12% = 2,500 + 33,750 + 57,500 + 12,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (case 4)",
+   "expected": "105,750",
+   "observed": "tax 105750",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Additional dwelling, non-UK resident, GBP 600,000 (bands +7 points)",
+   "method": "FA 2003 Sch 4ZA higher rates for additional dwellings, +5 points from 31 Oct 2024 (Autumn Budget 2024), not applied when chargeable consideration is under GBP 40,000; gov.uk 403 this session; FA 2003 Sch 9A non-resident surcharge, +2 points from 1 April 2021, stacks on FTB and higher rates; gov.uk 403 this session. Unsure whether Sch 9A has its own GBP 40,000 floor: the auditor believes it does not, but could not confirm; by hand 125k*7% + 125k*9% + 350k*12% = 8,750 + 11,250 + 42,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (case 5)",
+   "expected": "62,000",
+   "observed": "tax 62000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "First-time buyer, non-UK resident, GBP 500,000 (relief kept, +2 points)",
+   "method": "FA 2003 Sch 6ZA as from 1 April 2025 (GOV.UK 'Stamp Duty Land Tax: buying your first home'): 0% to 300k, 5% 300k-500k, no relief above 500k; gov.uk 403 this session; FA 2003 Sch 9A non-resident surcharge, +2 points from 1 April 2021, stacks on FTB and higher rates; gov.uk 403 this session. Unsure whether Sch 9A has its own GBP 40,000 floor: the auditor believes it does not, but could not confirm; by hand 300k*2% + 200k*7% = 6,000 + 14,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (case 6)",
+   "expected": "20,000",
+   "observed": "tax 20000; marginal shown as 507% (the 500k relief cliff, arithmetically right)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "GBP 40,000 floor for the additional-dwelling rate",
+   "method": "FA 2003 Sch 4ZA higher rates for additional dwellings, +5 points from 31 Oct 2024 (Autumn Budget 2024), not applied when chargeable consideration is under GBP 40,000; gov.uk 403 this session",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (cases 7, 8)",
+   "expected": "39,999 additional: no 5% (non-resident 2% only = 799); 40,000 additional: 2,000",
+   "observed": "39,999 additional NR tax 799 with an info line that the 5% is not charged; 40,000 additional tax 2000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Band tops at GBP 925,000 and GBP 1,500,000",
+   "method": "HMRC SDLT residential rates for England and NI from 1 April 2025 (GOV.UK 'Stamp Duty Land Tax: residential property rates', FA 2003 s55): 0% to 125k, 2% to 250k, 5% to 925k, 10% to 1.5m, 12% above. www.gov.uk refused through the proxy this session (CONNECT 403), so the bands are the published HMRC rates as stated by the auditor, not a fresh fetch; by hand 2,500 + 33,750 = 36,250; + 57,500 = 93,750",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (cases 9, 10)",
+   "expected": "36,250 and 93,750",
+   "observed": "36250 and 93750",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Band-edge finding for prices within GBP 25,000 below an edge",
+   "method": "Arithmetic plus the band tables above: for a price below an edge, paying less cannot save a negative amount, and GBP 500,000 is a rate edge only for a first-time buyer (Sch 6ZA); GBP 250,000 is not an edge for a first-time buyer",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs (cases 11-13) and node -e compute({price:490000,buyer:'main'}) / compute({price:240000,buyer:'ftb'})",
+   "expected": "no saving line, or a non-negative figure, and only edges of the bands that apply",
+   "observed": "240,000 main: 'save you up to -GBP 199'; 490,000 FTB: '-GBP 499'; 910,000 main: '-GBP 749'; 490,000 main: told the rate steps up at GBP 500,000 (not an edge on standard rates); 240,000 FTB: told the rate steps up at GBP 250,000 (FTB rate is 0% there)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tax rounded down to whole pounds",
+   "method": "HMRC SDLT calculators and returns state tax in whole pounds, rounded down (practice; the auditor did not re-read a statutory rounding rule this session)",
+   "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.sdlt(250025,'main',false).tax))\" (in subject root)",
+   "expected": "2,501 (2,501.25 rounded down)",
+   "observed": "2501",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Scotland LBTT and Wales LTT excluded, not claimed",
+   "method": "read index.html:97, :111-112, calc.mjs:89 and README",
+   "command": "grep -n 'LBTT' ventures/uk-stamp-duty-calculator/index.html ventures/uk-stamp-duty-calculator/calc.mjs",
+   "expected": "excluded explicitly",
+   "observed": "excluded on the page (Not decided, FAQ), in every result's findings and in the header comment; title says England and NI",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ rates, FTB cliff, 40k floor and 2% surcharge text",
+   "method": "HMRC SDLT residential rates for England and NI from 1 April 2025 (GOV.UK 'Stamp Duty Land Tax: residential property rates', FA 2003 s55): 0% to 125k, 2% to 250k, 5% to 925k, 10% to 1.5m, 12% above. www.gov.uk refused through the proxy this session (CONNECT 403), so the bands are the published HMRC rates as stated by the auditor, not a fresh fetch; FA 2003 Sch 6ZA as from 1 April 2025 (GOV.UK 'Stamp Duty Land Tax: buying your first home'): 0% to 300k, 5% 300k-500k, no relief above 500k; gov.uk 403 this session; FA 2003 Sch 4ZA higher rates for additional dwellings, +5 points from 31 Oct 2024 (Autumn Budget 2024), not applied when chargeable consideration is under GBP 40,000; gov.uk 403 this session",
+   "command": "sed -n 103,114p ventures/uk-stamp-duty-calculator/index.html",
+   "expected": "matches HMRC rules",
+   "observed": "all five FAQ answers match; FTB conditions (every joint buyer a first-time buyer, intends to live there) and the joint-buyer rule for higher rates are not stated",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Title '2025/26 and 2026/27'",
+   "method": "no file in the subject records a check of 2026/27 rates; the code header says written from memory without network access",
+   "command": "sed -n 6p ventures/uk-stamp-duty-calculator/index.html",
+   "expected": "a claim backed by a dated check",
+   "observed": "2026/27 asserted without a backing file (the auditor knows of no change to residential bands for April 2026 but could not verify on gov.uk)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served copy of llms.txt, sitemap, robots and canonicals",
+   "method": "build rewrite of base URLs (platform/ci/build_pages_site.py)",
+   "command": "node platform/pages/served-copy.mjs uk-stamp-duty-calculator",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left (marisstella.app itself: proxy 403)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Claimed features via compute(): band breakdown, FTB relief, additional rate, non-resident surcharge, side-by-side buyer statuses, effective and marginal rate, completion checklist, summary text with source",
+   "method": "ran compute() on 13 cases; page.test.mjs for the page wiring",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/09472801-dac5-5788-bd01-66e3be7ccff1/scratchpad/sd/probe.mjs $PWD/calc.mjs",
+   "expected": "every claimed output present",
+   "observed": "all present; summary names VERIFY sources and the disclaimer (test). The page itself was not loaded in a browser this session",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run in subject root, and the README's repo-root command",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "22/22 pass in 0.12 s (README command from repo root: 22/22)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutations in calc.mjs",
+   "method": "platform/ci/quality_mutate.py, 7 non-equivalent mutants",
+   "command": "python3 platform/ci/quality_mutate.py ventures/uk-stamp-duty-calculator/calc.mjs --old ... --new ... -- node --test '*.test.mjs'",
+   "expected": "every mutant caught",
+   "observed": "3 of 7 caught (band rate, FTB cap, 40k floor); rounding floor->round, marginal /10->/100, edge window, and dropping FTB_CAP from the edge list all survive",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:62",
+   "change": "buyer === \"additional\" && price >= ADDITIONAL_MIN_PRICE -> price > ADDITIONAL_MIN_PRICE",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:61",
+   "change": "if (price <= FTB_CAP) -> if (price < FTB_CAP)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:14",
+   "change": "10% band rate 0.1 -> 0.09",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:52",
+   "change": "Math.floor(r2(total) + 1e-9) -> Math.round(r2(total))",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:79",
+   "change": "r2(marginalStep / 10) -> r2(marginalStep / 100)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:91",
+   "change": "nextEdge - price <= 25000 -> <= 2500",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:90",
+   "change": "BANDS.map((b) => b.to).concat(FTB_CAP) -> BANDS.map((b) => b.to)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The band-edge finding is wrong for every price within GBP 25,000 below an edge: it says a price drop 'would save you up to -GBP 199' (240k main), '-GBP 499' (490k FTB), '-GBP 749' (910k main), because it subtracts the tax at nextEdge-1 (higher) from the tax at the price. The edge list also mixes tables: a main-home or additional buyer at 475k-500k is told the rate steps up at GBP 500,000 (not an edge on standard rates), and a first-time buyer at 225k-250k is told it steps up at GBP 250,000 (FTB rate is 0% there). A buyer could negotiate around a threshold that does not exist.",
+   "where": "ventures/uk-stamp-duty-calculator/calc.mjs:90",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"
+  },
+  {
+   "severity": "medium",
+   "what": "Only the tax constants are pinned. The whole-pound rounding rule (the 250001.5 test cannot tell floor from round), the marginal-rate figure and every finding's arithmetic are untested: 4 of 7 seeded mutants survive, and nothing asserts that no finding shows a negative amount, which let the high defect above ship.",
+   "where": "ventures/uk-stamp-duty-calculator/calc.test.mjs:46",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"
+  },
+  {
+   "severity": "low",
+   "what": "First-time buyer relief conditions are not stated: every joint purchaser must be a first-time buyer (anywhere in the world) and intend to occupy it as their main residence. Nor is the higher-rates rule that one joint buyer owning a dwelling anywhere makes the purchase a higher-rates transaction, or the non-resident surcharge refund if the buyer becomes UK resident within the following year. A user with a non-FTB co-buyer picks 'first-time buyer' and understates the bill.",
+   "where": "ventures/uk-stamp-duty-calculator/index.html:106",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The page title claims the rates for 2025/26 and 2026/27, but no file records a check of 2026/27 rates; the module says it was written from memory without network access.",
+   "where": "ventures/uk-stamp-duty-calculator/index.html:6",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "A price typed as '1,200' (e.g. pasted from a listing) is rejected with 'Enter the purchase price as more than zero.', which is the wrong reason. The number input usually blocks commas in the browser, so low.",
+   "where": "ventures/uk-stamp-duty-calculator/calc.mjs:32",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"],
+ "verdict": "The tax itself is right: 13 outputs recomputed by hand against the HMRC rates from 1 April 2025 all match, including FTB relief and its 500k cliff, the +5 higher rates with the GBP 40,000 floor, the +2 non-resident surcharge stacking on both, and rounding down to the pound; Scotland and Wales are excluded, not claimed. But the band-edge finding shown on the result is wrong for any price within GBP 25,000 below an edge: it prints a negative 'saving' (-GBP 199 at 240k main) and names thresholds from the wrong table (500k for a main-home buyer, 250k for a first-time buyer). Tests pass 22/22 but pin only the constants: 4 of 7 seeded mutants survive, including the rounding rule and the findings. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 3, fitness 3, domain 3. Finished, does not meet the bar (correctness and verification). Both gaps are small fixes: edges from the bands actually applied, a non-negative figure, and tests on the findings and rounding. gov.uk could not be fetched this session, so the rates rest on the published HMRC figures as stated."
+}

@@ -1,0 +1,56 @@
+{
+ "date": "2026-11-22",
+ "session": "https://claude.ai/code/session_01EhTJVP4xYVFLtCCM4uBV4X",
+ "track": "quality",
+ "prompt_version": 0,
+ "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done",
+ "input_sha256": "707354335feaaa1513c3d3d4087906d147e8cd9ba6f5f2f912d2453fc6665198",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-22T16:42:29Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "quality audit round 96 (sample mode)",
+ "projects": [
+  "ventures/auto-loan-interest-deduction-calculator",
+  "ventures/uk-stamp-duty-calculator",
+  "research/ambient-exploreonly",
+  "research/garment-comfortcost"
+ ],
+ "pr": 18275,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 6,
+ "outcome": "success",
+ "errors": [
+  {
+   "what": "proxy 403 for api.crossref.org, gov.uk, uscode/cornell/govinfo/federalregister",
+   "effect": "citations added from memory are marked unverified; auto-loan final-regulation citation left open rather than written unverified"
+  }
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "portfolio/quality/README.md",
+   "issue": "fix_prs/mark-fixed for one subject never reaches copied code; round 94 flagged it and round 96's random draw hit a copy whose headline the bug reversed. A per-pattern queue row (grep + test) would carry such fixes across copies."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-22-quality-audit-round-96.md"
+ ],
+ "goal": null,
+ "notes": "mode sample, seed 2026-11-22-g-f685, round 96. Subjects: ventures/auto-loan-interest-deduction-calculator, ventures/uk-stamp-duty-calculator, research/ambient-exploreonly, research/garment-comfortcost. Meeting bar: 0 of 4 (sampled total 36 of 389, Wilson 7-12%). Seeded bugs caught 12 of 24. Fix PR: #18275 (all fixes in the round PR): stamp-duty negative band-edge savings (high) + tests; auto-loan blank-MAGI full deduction + VIN finding; ambient-exploreonly undamped fit_map diverged (high) -> damped solver, results regenerated, headline reversed to a negative result, README/index/homepage corrected; garment-comfortcost cost-chain test + 3 README overclaims narrowed. Spot-checks rerun by me: stamp duty 240k main -> '-GBP 199' and 600k addl NR -> 62000; auto-loan joint 212.5k/8k -> 7400/1628; ambient mapcheck J 47679 vs 105.01; garment cost mutants now caught. Local CI: run_workflow_locally --for-changes 15/15 workflows passed (uses: steps not run).",
+ "corrections": [],
+ "redteam": null
+}

@@ -32,8 +32,9 @@ was fixed on 2026-11-22 (PR #18259).
 - research/ambient-drclip/src/ambient_drclip/core.py
 - research/ambient-drrepeat/src/ambient_drrepeat/core.py
 - research/ambient-drvalid/src/ambient_drvalid/core.py
-- research/ambient-exploreonly/src/ambient_exploreonly/core.py
 - research/ambient-labelmatch/src/ambient_labelmatch/core.py
+
+Fixed since: `ambient-exploreonly` (quality round 96, PR #18275). Its headline reversed: the explore-only fit had looked like a fix for the uninformed-prior failure, and with a converged solver the plain refit beats it at every epsilon. The uninformed-prior failure that the IPS/DR chain set out to repair may itself be this solver bug, so `ambient-labelmatch`, whose rows the chain reuses, is the copy to fix next.
 
 Re-list them with:
 `for f in $(grep -rl "def fit_map" research --include=*.py); do grep -q "w -= step" $f && echo $f; done`

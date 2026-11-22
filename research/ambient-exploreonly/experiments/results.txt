@@ -3,25 +3,25 @@ oracle weights [score, keyword, others, intercept] = [1.998, 2.263, -0.019, -6.0
 
 A. Offline: fits on the history of the deployed (biased-refit) learner
 prior          eps             fit       utility/h   dist to oracle        intercept  labels
-uninformed   0.002          biased   1.59 +-  5.70  178.93 +- 46.21 -167.01 +- 46.64     814
-uninformed   0.002    explore_only   7.53 +-  2.87    3.05 +-  0.39   -3.99 +-  0.29      70
-uninformed   0.002 explore_matched   7.72 +-  2.99    3.05 +-  0.34   -3.98 +-  0.25      70
-uninformed   0.002  random_matched  12.15 +-  0.75    1.21 +-  0.39   -5.22 +-  0.35     814
+uninformed   0.002          biased  10.63 +-  0.77    2.68 +-  0.21   -3.63 +-  0.19    1685
+uninformed   0.002    explore_only   4.11 +-  0.38    3.40 +-  0.20   -4.04 +-  0.30      68
+uninformed   0.002 explore_matched   7.74 +-  2.71    3.10 +-  0.28   -4.06 +-  0.25      68
+uninformed   0.002  random_matched  12.51 +-  0.64    0.79 +-  0.23   -5.52 +-  0.25    1685
 uninformed   0.002            full  12.72 +-  0.58    0.15 +-  0.05   -5.99 +-  0.09   36000
-uninformed   0.005          biased  -0.15 +-  6.29  260.74 +- 63.32 -235.30 +- 63.24     932
-uninformed   0.005    explore_only   9.61 +-  1.87    2.29 +-  0.38   -4.44 +-  0.26     177
-uninformed   0.005 explore_matched   3.18 +- 31.55    4.97 +- 11.66   -5.44 +-  4.34     177
-uninformed   0.005  random_matched  12.18 +-  0.75    1.08 +-  0.31   -5.30 +-  0.34     932
+uninformed   0.005          biased  10.85 +-  0.79    2.56 +-  0.21   -3.74 +-  0.19    1757
+uninformed   0.005    explore_only   5.13 +-  2.25    2.96 +-  0.32   -4.41 +-  0.24     173
+uninformed   0.005 explore_matched   9.91 +-  1.99    2.40 +-  0.35   -4.41 +-  0.26     173
+uninformed   0.005  random_matched  12.48 +-  0.58    0.79 +-  0.25   -5.52 +-  0.24    1757
 uninformed   0.005            full  12.72 +-  0.58    0.15 +-  0.05   -5.99 +-  0.09   36000
-uninformed   0.020          biased -13.08 +-  8.66  658.15 +- 58.98 -537.32 +- 62.02    2691
-uninformed   0.020    explore_only  11.99 +-  0.93    1.33 +-  0.36   -5.19 +-  0.25     680
-uninformed   0.020 explore_matched  12.08 +-  0.68    1.47 +-  0.33   -5.03 +-  0.33     680
-uninformed   0.020  random_matched  12.52 +-  0.65    0.65 +-  0.24   -5.66 +-  0.22    2691
+uninformed   0.020          biased  11.44 +-  0.78    2.16 +-  0.18   -4.09 +-  0.16    2174
+uninformed   0.020    explore_only   8.13 +-  2.46    2.12 +-  0.53   -4.99 +-  0.27     689
+uninformed   0.020 explore_matched  11.97 +-  0.71    1.31 +-  0.32   -5.11 +-  0.29     689
+uninformed   0.020  random_matched  12.47 +-  0.64    0.73 +-  0.25   -5.58 +-  0.23    2174
 uninformed   0.020            full  12.72 +-  0.58    0.15 +-  0.05   -5.99 +-  0.09   36000
-uninformed   0.050          biased -71.85 +- 70.87 2064.29 +- 1509.96 -996.89 +- 402.01    6430
-uninformed   0.050    explore_only  12.25 +-  0.73    0.88 +-  0.41   -5.53 +-  0.22    1555
-uninformed   0.050 explore_matched   4.24 +- 36.02  27.46 +- 116.28  -14.98 +- 41.22    1555
-uninformed   0.050  random_matched  12.63 +-  0.63    0.38 +-  0.16   -5.87 +-  0.19    6430
+uninformed   0.050          biased  11.95 +-  0.69    1.68 +-  0.16   -4.51 +-  0.14    3094
+uninformed   0.050    explore_only  10.77 +-  2.08    1.37 +-  0.58   -5.38 +-  0.26    1726
+uninformed   0.050 explore_matched  12.53 +-  0.57    0.74 +-  0.22   -5.52 +-  0.20    1726
+uninformed   0.050  random_matched  12.52 +-  0.67    0.60 +-  0.21   -5.71 +-  0.22    3094
 uninformed   0.050            full  12.72 +-  0.58    0.15 +-  0.05   -5.99 +-  0.09   36000
 informed     0.002          biased  10.62 +-  0.77    2.67 +-  0.22   -3.65 +-  0.19    1688
 informed     0.002    explore_only   6.03 +-  2.25    3.12 +-  0.19   -4.14 +-  0.30      68
@@ -47,13 +47,13 @@ informed     0.050            full  12.72 +-  0.58    0.15 +-  0.05   -5.99 +-  
 B. Online: the learner refits on 'biased' (all spoken windows) or 'explore_only' (coin-only windows)
 utility/h and dismissals/h over hours 20-100 of one 100 h stream; 'final' = final weights scored with no exploration on held-out streams
 prior          eps       learner      online u/h       dismiss/h       final u/h
-uninformed   0.002        biased  -1.74 +-  2.06   5.52 +-  1.66   1.59 +-  5.70
+uninformed   0.002        biased   9.65 +-  0.88   9.85 +-  0.65  10.63 +-  0.77
 uninformed   0.002  explore_only   6.23 +-  2.82   3.12 +-  2.15   7.36 +-  2.77
-uninformed   0.005        biased  -2.04 +-  1.19   5.85 +-  1.07  -0.15 +-  6.29
+uninformed   0.005        biased   8.48 +-  0.88  10.62 +-  0.64  10.85 +-  0.79
 uninformed   0.005  explore_only   6.49 +-  1.45   3.72 +-  1.04   9.47 +-  1.76
-uninformed   0.020        biased -23.27 +-  3.06  23.98 +-  2.35 -13.08 +-  8.66
+uninformed   0.020        biased   2.65 +-  0.88  14.81 +-  0.64  11.44 +-  0.78
 uninformed   0.020  explore_only   2.30 +-  1.25  10.42 +-  1.71  11.72 +-  1.05
-uninformed   0.050        biased -70.10 +- 31.28  63.67 +- 28.33 -71.85 +- 70.87
+uninformed   0.050        biased  -9.82 +-  1.01  24.11 +-  0.55  11.95 +-  0.69
 uninformed   0.050  explore_only  -9.98 +-  1.15  20.68 +-  1.16  12.18 +-  0.86
 informed     0.002        biased   9.65 +-  0.89   9.84 +-  0.63  10.62 +-  0.77
 informed     0.002  explore_only   5.52 +-  3.30   5.93 +-  5.61   6.97 +-  3.80

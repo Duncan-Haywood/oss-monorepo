@@ -53,3 +53,11 @@ def test_budget_search_matches_brute_force_and_is_monotone():
                      if not ("thin" in s and "thick" in s) and M.added_retail(s) <= bud + 1e-12), default=0.0)
         assert abs(b - max(brute, 0.0)) < 1e-9 and c <= bud + 1e-9 and b >= prev
         prev = b
+
+
+def test_added_retail_pins_the_reported_cost_chain():
+    # Quality audit 2026-11-22 (round 96): removing the 25% overhead or the retail multiplier left every test green.
+    # IR treatment on the trench: 12 USD/m2 premium x 3.73375 m2 x 1.25 overhead x 2.2 x 2.2 = 271.07; replica (no multipliers, no overhead): 44.80.
+    assert abs(M.added_retail(("ir_transparent",)) - 12 * 3.73375 * 1.25 * 2.2 * 2.2) < 0.01
+    assert abs(M.added_retail(("ir_transparent",)) - 271.07) < 0.01
+    assert abs(CostModel(replica(TRENCH), S, PREM).added_retail(("ir_transparent",)) - 44.80) < 0.01
