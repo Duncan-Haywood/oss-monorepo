@@ -308,4 +308,18 @@ and 30 degrees (a 12-point ring's step) to be turned. A hex head turned with a s
 | yoke pivot | 8 mm x 40 mm shoulder bolt (ISO 7379, M6 thread) + M6 nyloc nut | 11 | 10 mm, 130 long | 2 | 90 | - | head (key) or nut | pass |
 | drum axle | M8 x 30 hex bolt + M8 nyloc nut | 11 | 13 mm, 200 long | 2 | 15 | 330 | head | pass |
 
+## A deep socket on an extension
+
+The other way onto each nut: a deep socket along the bolt's axis, so the bolt's tail runs up inside
+it, on the shortest bar of a set (0, 50, 75, 100, 150, 250 mm) that clears the work, with a ratchet on the bar's end and the hand on the ratchet's handle as on a spanner.
+Sizes are typical of 1/4" drive deep sockets (3/8" for 13 mm), assumed. "Arc" is the widest clear arc of the handle at the worst hole; 15 degrees turns the nut. A report, not a
+check: the steps ask for the spanners above. How the socket gets to the nut (in between parts, then
+along the axis) is not tried.
+
+| Joint | Socket | Tail past the nut (mm) | Bar (mm) | Arc (deg) | Socket turns it |
+| --- | --- | --- | --- | --- | --- |
+| rod clamp ring | 7 mm deep | 3 | 0 | 195 | yes |
+| yoke pivot | 10 mm deep | - | 0 | 100 | yes |
+| drum axle | 13 mm deep | 3 | 0 | 15 | yes |
+
 Result when this package was built: all pass.
