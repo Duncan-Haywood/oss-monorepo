@@ -1,0 +1,6 @@
+n=1101 origin distance: median 2.722e-12 p95 3.036e-08 max 1.115e-07 m; horizontal max 1.115e-07; vertical max 5.869e-12; within 1 mm 1101; heading difference max 1.207e-06 deg; 3D x-axis difference max 8.538e-07 deg
+  195047 0.0000 m (h 0.0000, v 0.0000) 192475 53.25
+  179182 0.0000 m (h 0.0000, v 0.0000) 159884 53.25
+  185000 0.0000 m (h 0.0000, v 0.0000) 159884 53.25
+  182777 0.0000 m (h 0.0000, v 0.0000) 159884 53.0
+  181105 0.0000 m (h 0.0000, v 0.0000) 159884 53.0

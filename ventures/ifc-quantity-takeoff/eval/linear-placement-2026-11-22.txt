@@ -1,0 +1,9 @@
+== Viadotto Acerno.ifc (IFC4X3_ADD2)
+  #159751 horizontal (4 line, 4 clothoid, 2 circle; 503.900 m to the last joint): worst joint gap 6.63e-9 m, turn 1.57e-8 deg
+  #159884 vertical (4 line, 2 circle; 503.929 m to the last joint): worst joint gap 2.33e-6 m, turn 3.98e-15 deg; vertical end vs EndPoint 1.24e-13 m
+  #192342 horizontal (4 line, 4 clothoid, 2 circle; 503.617 m to the last joint): worst joint gap 1.06e-3 m, turn 3.81e-3 deg
+  #192475 vertical (4 line, 2 circle; 503.646 m to the last joint): worst joint gap 3.51e-2 m, turn 3.98e-15 deg; vertical end vs EndPoint 4.00e-13 m
+  #252938 horizontal (4 line, 4 clothoid, 2 circle; 517.875 m to the last joint): worst joint gap 3.14e-1 m, turn 3.91e-1 deg
+  #253071 vertical (2 line; 517.892 m to the last joint): worst joint gap 4.55e-13 m, turn 9.94e-17 deg; vertical end vs EndPoint 4.55e-13 m
+  all 38 continuous joints: worst gap 3.14e-1 m, worst turn 3.91e-1 deg
+  IfcLinearPlacement: 1101 placed, 0 not

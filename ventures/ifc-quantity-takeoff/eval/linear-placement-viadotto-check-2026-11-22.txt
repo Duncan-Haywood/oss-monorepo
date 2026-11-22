@@ -1,0 +1,5 @@
+Viadotto Acerno.ifc: IFC4X3_ADD2, 6448 elements, 5.2 s
+  volume computed for 5810; geometry not read for 638; no body for 0; net not computed for 0
+  stored GrossVolume: 0 of 0 agree; stored NetVolume: 0 of 0 agree
+  stored areas (side, footprint, plan, cross-section): 0 of 0 agree with the section cut from the geometry
+  638 x body IFCSECTIONEDSOLIDHORIZONTAL

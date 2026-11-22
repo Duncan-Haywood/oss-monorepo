@@ -23,6 +23,8 @@
 // Pure functions over a parsed STEP model (step.mjs). Lengths stay in the
 // model's own length unit; the caller converts.
 
+import { AlignmentReader, AlignmentError } from "./alignment.mjs";
+
 const EPS_REL = 1e-9;
 const ARC_SEGS = 360;
 // polygon side counts tried for an exporter's faceted circles (sectionVariants);
@@ -558,13 +560,31 @@ export class Geometry {
     return fromAxes(mulS(x, s1), mulS(y, s2), mulS(z, s3), o);
   }
 
-  /** IfcLocalPlacement chain -> matrix to world */
+  /**
+   * IfcLinearPlacement (IFC4X3): a station on an alignment curve
+   * (alignment.mjs), in the coordinates of PlacementRelTo. When the curve
+   * cannot be read, the exporter's cached CartesianPosition stands in.
+   */
+  linearPlacement(e) {
+    this.alignments ??= new AlignmentReader(this);
+    try {
+      return this.alignments.axis2Linear(e.args[1]);
+    } catch (err) {
+      if (!(err instanceof AlignmentError)) throw err;
+      if (e.args[2]) return this.placement(e.args[2]);
+      throw new Unresolved(err.message);
+    }
+  }
+
+  /** IfcLocalPlacement (and IfcLinearPlacement) chain -> matrix to world */
   objectPlacement(ref, depth = 0) {
     const e = this.get(ref);
     if (!e) return IDENTITY;
     if (depth > 100) throw new Unresolved("placement loop");
-    if (e.type !== "IFCLOCALPLACEMENT") throw new Unresolved(`object placement ${e.type}`);
-    const rel = this.placement(e.args[1]);
+    let rel;
+    if (e.type === "IFCLINEARPLACEMENT") rel = this.linearPlacement(e);
+    else if (e.type !== "IFCLOCALPLACEMENT") throw new Unresolved(`object placement ${e.type}`);
+    else rel = this.placement(e.args[1]);
     return e.args[0] ? mul(this.objectPlacement(e.args[0], depth + 1), rel) : rel;
   }
 

@@ -30,6 +30,8 @@ const NOT_ELEMENTS = new Set([
   "IFCSTRUCTURALSURFACEMEMBER", "IFCSTRUCTURALPOINTCONNECTION", "IFCSTRUCTURALCURVECONNECTION", "IFCSTRUCTURALSURFACECONNECTION",
   "IFCSTRUCTURALPOINTACTION", "IFCSTRUCTURALCURVEACTION", "IFCSTRUCTURALSURFACEACTION", "IFCSTRUCTURALPOINTREACTION",
   "IFCGEOGRAPHICELEMENT", "IFCCIVILELEMENT", "IFCREFERENT", "IFCLINEARPOSITIONINGELEMENT", "IFCSPACEBOUNDARY",
+  // IFC4X3 alignment layouts: reference lines a part is placed on, nothing to build
+  "IFCALIGNMENTSEGMENT", "IFCALIGNMENTHORIZONTAL", "IFCALIGNMENTVERTICAL", "IFCALIGNMENTCANT", "IFCLINEARELEMENT",
 ]);
 
 const SI_PREFIX = { EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6, KILO: 1e3, HECTO: 1e2, DECA: 1e1, DECI: 1e-1, CENTI: 1e-2, MILLI: 1e-3, MICRO: 1e-6, NANO: 1e-9, PICO: 1e-12 };
@@ -420,7 +422,15 @@ export function takeoff(model, opts = {}) {
 
     readStored(E, idx, id, units, row);
 
-    if (opts.geometry !== false) {
+    // a placement this reader cannot place (an alignment curve alignment.mjs
+    // does not draw) leaves that element unread, not the whole file
+    let placeError = null;
+    if (opts.geometry !== false && e.args[5]) {
+      try { worldOf(refId(e.args[5])); } catch (err) { if (!(err instanceof Unresolved)) throw err; placeError = err.message; }
+    }
+    if (opts.geometry !== false && placeError) {
+      row.computed = { status: "not read", reason: `placement: ${placeError}` };
+    } else if (opts.geometry !== false) {
       row.computed = computeVolume(e, idx, E, geo, bodyOf, worldOf, f);
       if (row.computed.status === "ok") {
         // a body swept from one parametric profile: the simplified sections an
