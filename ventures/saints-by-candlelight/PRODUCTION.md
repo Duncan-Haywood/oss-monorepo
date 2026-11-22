@@ -213,7 +213,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Joshua at Shechem and the stone under the oak, choose this day whom you will serve, the old man who looked up the hill at Rephidim saying goodbye (Joshua 24; left by episode 161).
 - Elijah and Elisha and the cloak on the Jordan, the double portion and the chariot of fire, Elisha walking back alone (Second Kings 2:1-15; left by episode 162).
 - Miriam at the sea and the women with tambourines, the girl from the reeds grown up into a prophetess who led the song on the far shore (Exodus 2:1-10 and 15:19-21, with Micah 6:4; left by episode 164).
-- Aaron on Mount Hor, the three who went up and the two who came down, the robes put on Eleazar and thirty days of weeping (Numbers 20:22-29 and 33:38-39; left by episode 163).
+- Aaron on Mount Hor, the three who went up and the two who came down, the robes put on Eleazar and thirty days of weeping (Numbers 20:22-29 and 33:38-39; left by episode 163). *(Drafting, 2026-11-22.)*
 - The bronze serpent on the pole, the people who looked and lived (Numbers 21:4-9, with Wisdom 16:5-7 and John 3:14-15; left by episode 163).
 
 ## Audio status
