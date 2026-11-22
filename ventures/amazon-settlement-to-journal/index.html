@@ -74,9 +74,9 @@
 
   <section class="card">
     <h2>1. Your settlement report</h2>
-    <p class="note">The tab-delimited <code>.txt</code> from Reports &gt; Payments &gt; All Statements &gt; Download Flat File V2 (a comma-separated version works too). More than one settlement per file is fine.</p>
     <label for="file">Choose a settlement report</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">The tab-delimited <code>.txt</code> from Reports &gt; Payments &gt; All Statements &gt; Download Flat File V2 (a comma-separated version works too). More than one settlement per file is fine.</p>
     <label for="paste">…or paste the report text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="settlement-id&#9;settlement-start-date&#9;settlement-end-date&#9;deposit-date&#9;total-amount&#9;currency&#9;transaction-type ..."></textarea>
     <div class="grid">

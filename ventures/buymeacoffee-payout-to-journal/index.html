@@ -68,15 +68,15 @@
     <h1>Turn a Buy Me a Coffee transactions export into a Xero or QuickBooks journal</h1>
     <p class="lede">Paste or drop your <strong>transactions CSV</strong> from Buy Me a Coffee (Dashboard &gt; Transactions &gt; Download CSV).</p>
     <details class="hero-more"><summary>What it books and checks</summary><p>Every transaction is <strong>booked to its own income account — donations, memberships, shop orders or commissions — with the fee (Given minus Received) booked separately</strong>, the rows are <strong>added up and checked against the deposit you type in from PayPal, Stripe or your bank</strong>, and the result is written as a <strong>balanced journal to a Buy Me a Coffee clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p></details>
-    <p class="note">The file is read in this browser tab and never leaves your device. Only dates, types, and the Given and Received amounts are used. Independent of Buy Me a Coffee, Xero and Intuit. The export layout and the importer layouts are read from memory of public help documents; no real Buy Me a Coffee export and no live Xero or QuickBooks import was available when this was written. If your file is refused, the findings say which column was missing.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Only dates, types, and the Given and Received amounts are used. Independent of Buy Me a Coffee, Xero and Intuit. The export layout and the importer layouts are read from memory of public help documents; no real Buy Me a Coffee export and no live Xero or QuickBooks import was available when this was written.</p>
   </header>
 <main>
 
   <section class="card">
     <h2>1. Your Buy Me a Coffee transactions</h2>
-    <p class="note">The transactions CSV from Buy Me a Coffee (Dashboard &gt; Transactions). Columns are matched by name (DateTime, Item, Received, Given, Currency, TransactionType). Buy Me a Coffee pays out through PayPal or Stripe, so type the total you received there in the box below to prove the rows add up.</p>
     <label for="file">Choose a Buy Me a Coffee transactions file</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">The transactions CSV from Buy Me a Coffee (Dashboard &gt; Transactions). Columns are matched by name (DateTime, Item, Received, Given, Currency, TransactionType). Buy Me a Coffee pays out through PayPal or Stripe, so type the total you received there in the box below to prove the rows add up. If your file is refused, the findings say which column was missing.</p>
     <label for="paste">…or paste the report text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="DateTime (UTC),From,Message,Item,Received,Given,Currency,TransactionType,TransactionId,Reference ..."></textarea>
     <div class="grid">

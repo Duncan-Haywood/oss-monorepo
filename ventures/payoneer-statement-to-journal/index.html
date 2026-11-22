@@ -68,15 +68,15 @@
     <h1>Turn a Payoneer currency statement into a Xero or QuickBooks journal</h1>
     <p class="lede">Paste or drop the <strong>statement CSV for one Payoneer currency balance</strong>.</p>
     <details class="hero-more"><summary>What it books and checks</summary><p>Every row is <strong>valued in the currency your books are kept in</strong> at the rates you type, the balance is tracked at <strong>average cost</strong>, and money received, sent, spent on the card, fees and conversions go to their own accounts with the <strong>realised exchange gain or loss on its own line</strong>.</p><p>The <strong>running balance is proved row by row</strong>, and the result is a <strong>balanced journal per month</strong> for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV, plus a workings CSV your accountant can audit.</p></details>
-    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Payoneer, Xero and Intuit. The statement layout and the importer layouts are read from memory of public help documents; no real Payoneer statement and no live Xero or QuickBooks import was available when this was written. If your file is refused, the findings say which column was missing.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Payoneer, Xero and Intuit. The statement layout and the importer layouts are read from memory of public help documents; no real Payoneer statement and no live Xero or QuickBooks import was available when this was written.</p>
   </header>
 <main>
 
   <section class="card">
     <h2>1. Your Payoneer statement</h2>
-    <p class="note">Payoneer &gt; Activity (or Reports) &gt; pick the currency balance &gt; export the transaction history as CSV. One currency balance at a time. Columns are matched by name (Transaction Date, Transaction ID, Description, Credit and Debit or a single Amount, Currency, Balance, Status).</p>
     <label for="file">Choose a Payoneer transaction-history file</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">Payoneer &gt; Activity (or Reports) &gt; pick the currency balance &gt; export the transaction history as CSV. One currency balance at a time. Columns are matched by name (Transaction Date, Transaction ID, Description, Credit and Debit or a single Amount, Currency, Balance, Status). If your file is refused, the findings say which column was missing.</p>
     <label for="paste">…or paste the statement text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Transaction Date,Transaction ID,Description,Credit,Debit,Currency,Exchange Rate,Balance,Status&#10;2026-09-10,tx-1001,Payment from Amazon Services - Europe,1000.00,,EUR,,3000.00,Completed"></textarea>
     <div class="grid">

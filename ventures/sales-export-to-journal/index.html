@@ -74,9 +74,9 @@
 
   <section class="card">
     <h2>1. Your export</h2>
-    <p class="note">Columns are matched by name. If you are not sure what to download, each single-platform tool linked at the bottom says where the report lives.</p>
     <label for="file">Choose an export file</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">Columns are matched by name. If you are not sure what to download, each single-platform tool linked at the bottom says where the report lives.</p>
     <label for="paste">…or paste the report text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Paste any of the seventeen exports here ..."></textarea>
     <div class="grid">

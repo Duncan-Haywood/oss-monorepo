@@ -74,9 +74,9 @@
 
   <section class="card">
     <h2>1. Your payroll register</h2>
-    <p class="note">One row per employee per pay date. Several pay dates in one file are fine: each becomes its own journal (or one per month, below).</p>
     <label for="file">Choose a payroll register</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">One row per employee per pay date. Several pay dates in one file are fine: each becomes its own journal (or one per month, below).</p>
     <label for="paste">…or paste the register text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Pay Date,Employee,Gross Pay,Federal Income Tax,Social Security,Medicare,State Income Tax,401(k),Health Insurance,Net Pay,Employer Social Security,Employer Medicare,FUTA,SUTA"></textarea>
     <div class="grid">

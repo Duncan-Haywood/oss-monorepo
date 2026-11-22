@@ -68,15 +68,15 @@
     <h1>Turn a Revolut currency statement into a Xero or QuickBooks journal</h1>
     <p class="lede">Paste or drop the <strong>statement CSV for one Revolut currency balance</strong>.</p>
     <details class="hero-more"><summary>What it books and checks</summary><p>Every row is <strong>valued in the currency your books are kept in</strong> at the rates you type, the balance is tracked at <strong>average cost</strong>, and money received, sent, spent on the card, fees and conversions go to their own accounts with the <strong>realised exchange gain or loss on its own line</strong>.</p><p>The <strong>running balance is proved row by row</strong>, and the result is a <strong>balanced journal per month</strong> for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV, plus a workings CSV your accountant can audit.</p></details>
-    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Revolut, Xero and Intuit. The statement layout and the importer layouts are read from memory of public help documents; no real Revolut statement and no live Xero or QuickBooks import was available when this was written. If your file is refused, the findings say which column was missing.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Revolut, Xero and Intuit. The statement layout and the importer layouts are read from memory of public help documents; no real Revolut statement and no live Xero or QuickBooks import was available when this was written.</p>
   </header>
 <main>
 
   <section class="card">
     <h2>1. Your Revolut statement</h2>
-    <p class="note">Revolut Business &gt; Accounts &gt; the currency account &gt; Statement &gt; Excel/CSV. One currency account at a time. Columns are matched by name (Date completed (UTC), Type, Description, Payment currency, Amount, Total amount, Exchange rate, Fee, Balance).</p>
     <label for="file">Choose a Revolut statement file</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">Revolut Business &gt; Accounts &gt; the currency account &gt; Statement &gt; Excel/CSV. One currency account at a time. Columns are matched by name (Date completed (UTC), Type, Description, Payment currency, Amount, Total amount, Exchange rate, Fee, Balance). If your file is refused, the findings say which column was missing.</p>
     <label for="paste">…or paste the statement text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Date started (UTC),Date completed (UTC),ID,Type,Description,Reference,Payer,Card number,Card label,Card state,Orig currency,Orig amount,Payment currency,Amount,Total amount,Exchange rate,Fee,Fee currency,Balance,Account ..."></textarea>
     <div class="grid">
