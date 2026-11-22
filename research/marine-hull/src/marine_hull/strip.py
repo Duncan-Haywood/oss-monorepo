@@ -334,6 +334,7 @@ class WigleyStrip:
                  no_added_mass_coupling=False):
         self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
         self.zeta_v = zeta_v          # equivalent linear viscous damping in heave and pitch, fraction of critical
+        self.relative_damping = False  # 7zw: True puts the viscous force on the relative vertical velocity
         # milestone 7zf: drop the heave-pitch cross-coupling added mass (A35 = A53 = 0, bow-down convention) in the
         # motion equations, keeping the cross-coupling damping and restoring; 7ze's rule from the Kashiwagi tank data
         self.no_added_mass_coupling = no_added_mass_coupling
@@ -453,6 +454,22 @@ class WigleyStrip:
         m12 = -h12
         m21 = -h21
         m22 = -we * we * self.iyy - h22 + 1j * we * self.bv55
+        if getattr(self, "relative_damping", False) and (self.bv33 or self.bv55):
+            # milestone 7zw: the viscous force acts on the relative vertical velocity Vz of the GB integrand,
+            # Vz_i = i omega zs_i - (i we z + i we x_i theta - U theta), projected on heave and pitch with the
+            # waterplane weights c_i: V3 = sum c Vz / sum c, V5 = sum c x Vz / sum c x^2. F3v = Bv33 V3, M5v = Bv55 V5.
+            sc = sum(ci * dx for ci in c)
+            scx = sum(ci * x * dx for ci, x in zip(c, self.x))
+            scxx = sum(ci * x * x * dx for ci, x in zip(c, self.x))
+            w3 = sum(ci * 1j * omega * smith * cmath.exp(1j * k * x) * dx for ci, x in zip(c, self.x)) / sc
+            w5 = sum(ci * x * 1j * omega * smith * cmath.exp(1j * k * x) * dx for ci, x in zip(c, self.x)) / scxx
+            # theta coefficients of V3 and z coefficient of V5 (the z coefficient of V3 and theta of V5 are the
+            # absolute form's -i we, already on the left side above)
+            m12 += self.bv33 * (1j * we * scx / sc - ut)
+            m21 += self.bv55 * 1j * we * scx / scxx
+            m22 += -self.bv55 * ut * scx / scxx
+            f1 = f1 + self.bv33 * w3
+            f2 = f2 + self.bv55 * w5
         det = m11 * m22 - m12 * m21
         z = (f1 * m22 - m12 * f2) / det
         th = (m11 * f2 - m21 * f1) / det
@@ -511,6 +528,7 @@ class ModifiedWigleyStrip(WigleyStrip):
         self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
         self.alpha = alpha        # milestone 7zk: 1 Kashiwagi / Journee Wigley I and II, 0 Journee Wigley III and IV
         self.zeta_v = zeta_v
+        self.relative_damping = False  # 7zw, as WigleyStrip
         self.no_added_mass_coupling = no_added_mass_coupling
         dx = length / n_stations
         self.dx = dx
