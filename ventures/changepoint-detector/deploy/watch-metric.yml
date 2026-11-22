@@ -31,6 +31,12 @@
 #                               per finished day; search-console-metrics.mjs) and, with METRIC_CSV unset and no Stripe or
 #                               Shopify credentials, watches clicks and impressions as counts.
 #   variable GSC_OPTIONS        optional, e.g. "--type discover"
+#   secret   GA4_SERVICE_ACCOUNT_JSON  optional: a Google service account's JSON key, added in Google Analytics as a
+#                               Viewer of your GA4 property. With the variable GA4_PROPERTY (the numeric property ID)
+#                               each run writes data/ga4.csv (date,sessions,activeUsers,screenPageViews,keyEvents per
+#                               day; ga4-metrics.mjs) and, with METRIC_CSV unset and no Stripe, Shopify or Search
+#                               Console credentials, watches sessions, active users and key events as counts.
+#   variable GA4_OPTIONS        optional, e.g. "--lag 2" or "--metrics sessions,keyEvents,totalRevenue"
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric
 on:
@@ -48,13 +54,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # Keeps data/stripe.csv, data/shopify.csv and data/gsc.csv between runs, so a run fetches a few days, not all 400.
+      # Keeps data/stripe.csv, data/shopify.csv, data/gsc.csv and data/ga4.csv between runs, so a run fetches a few days, not all 400.
       - uses: actions/cache@v4
         with:
           path: |
             data/stripe.csv*
             data/shopify.csv
             data/gsc.csv
+            data/ga4.csv
           key: metrics-${{ github.run_id }}
           restore-keys: metrics-
       - name: Fetch Stripe metrics
@@ -87,6 +94,17 @@ jobs:
           if [ -z "$GSC_SITE" ]; then echo "Set the GSC_SITE variable (sc-domain:example.com or https://www.example.com/)."; exit 2; fi
           # word-splitting of GSC_OPTIONS is intended
           node search-console-metrics.mjs --site "$GSC_SITE" --out data/gsc.csv $GSC_OPTIONS
+      - name: Fetch Google Analytics metrics
+        env:
+          GA4_SERVICE_ACCOUNT_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}
+          GA4_PROPERTY: ${{ vars.GA4_PROPERTY }}
+          GA4_OPTIONS: ${{ vars.GA4_OPTIONS }}
+        run: |
+          set -u
+          if [ -z "$GA4_SERVICE_ACCOUNT_JSON" ]; then exit 0; fi
+          if [ -z "$GA4_PROPERTY" ]; then echo "Set the GA4_PROPERTY variable (the numeric ID in Admin > Property details)."; exit 2; fi
+          # word-splitting of GA4_OPTIONS is intended
+          node ga4-metrics.mjs --property "$GA4_PROPERTY" --out data/ga4.csv $GA4_OPTIONS
       - name: Check for a new change
         env:
           METRIC_CSV: ${{ vars.METRIC_CSV }}
@@ -103,8 +121,11 @@ jobs:
           elif [ -z "$METRIC_CSV" ] && [ -f data/gsc.csv ]; then
             METRIC_CSV=data/gsc.csv
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns clicks:poisson,impressions:poisson"
+          elif [ -z "$METRIC_CSV" ] && [ -f data/ga4.csv ]; then
+            METRIC_CSV=data/ga4.csv
+            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson"
           fi
-          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN or GSC_SERVICE_ACCOUNT_JSON secret (see the top of this file)."; exit 2; fi
+          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON or GA4_SERVICE_ACCOUNT_JSON secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
           # word-splitting of WATCH_OPTIONS is intended

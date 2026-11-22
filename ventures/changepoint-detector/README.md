@@ -37,6 +37,7 @@ row below. Every flag's measurements are in the README section named after it.
 | Tell me when a daily metric shifts, from now on | `watch.mjs daily.csv --state s.json` (see "Watching a growing series"); pick a setting with `--suggest --alerts-per 1/month` |
 | ...from Stripe or Shopify | `stripe-metrics.mjs` or `shopify-metrics.mjs`, then the watch with `--columns` |
 | ...from Google Search Console (clicks, impressions) | `search-console-metrics.mjs` (API, or the UI's Dates.csv export), then `--columns clicks:poisson,impressions:poisson` |
+| ...from Google Analytics 4 (sessions, users, key events) | `ga4-metrics.mjs` (Data API, or a report's CSV download), then `--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson` |
 | Did the change fall inside a Google update, a release or a price change? | `--events updates.csv` (start[,end],label per line) |
 | ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
 | ...for a level that wanders all the time | `watch.mjs --detector drift` |
@@ -108,6 +109,11 @@ where it departs from the paper.
   watches it when the secret `GSC_SERVICE_ACCOUNT_JSON` and variable `GSC_SITE` are set. `node cli.mjs data/gsc.csv
   --column clicks --model poisson --period 7 --events updates.csv` says which changes fall inside the dates you list.
   README "Google Search Console as a source".
+- **Watch your Google Analytics 4 property** (2026-11-22): `GA4_SERVICE_ACCOUNT_JSON="$(cat key.json)" node ga4-metrics.mjs --property 123456789 --out data/ga4.csv`
+  writes sessions, active users, page views and key events per day from your own GA4 property (`--metrics` names
+  others, e.g. `totalRevenue`; with no API set-up, `--from-export report.csv` converts a report's CSV download); the
+  self-deploy workflow fetches and watches it when the secret `GA4_SERVICE_ACCOUNT_JSON` and variable `GA4_PROPERTY`
+  are set. README "Google Analytics 4 as a source".
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
@@ -558,6 +564,13 @@ Free and open source (MIT, see `LICENSE`). Optional support:
   matching to the eye. `search-console-metrics.mjs` plus the watch sends one message when clicks or impressions move
   to a new level, from the site owner's own GitHub account, and `--events` dates the change with a range and says
   how often a change that wide would land in one of the listed windows by chance (see "Google Search Console as a
+  source").
+- **Google Analytics 4's own insights and custom alerts:** GA4 can email an "insight" when a metric crosses a
+  threshold you set or when its model flags an anomalous day; a threshold has to be guessed and re-guessed as the
+  site grows, and anomaly cards flag single days, not a level that moved and stayed. Paid monitors (Databox, Klipfolio
+  and the like) put dashboards and the same threshold alerts on their servers. `ga4-metrics.mjs` plus the watch sends
+  one message when sessions, users or key events move to a new level, from the site owner's own GitHub account, free:
+  the usual catch is a tag lost in a release or a form that stopped sending its event (see "Google Analytics 4 as a
   source").
 
 
@@ -3704,6 +3717,60 @@ every 10% one, whatever the traffic. The page's Eager setting for counts (`--det
 the busier sites), because the Poisson cost takes the extra-Poisson day-to-day swings for changes. Neither is the
 setting a site owner wants for 10-20% falls. Since 2026-11-21 the middle setting for counts is (next section): it
 hears most 20% falls with under one false alert per 1,000 days.
+
+## Google Analytics 4 as a source (2026-11-22)
+
+Search Console says how many people Google sent; most sites also run Google Analytics 4, which counts every visit
+and the actions that matter (sign-ups, purchases, leads: GA4's "key events"). The costly failures there are quiet: a
+release that drops the tag from some templates, a consent banner change, a form whose submit event stops firing. The
+dashboard keeps drawing a line, lower, and nobody looks until the month's report. `ga4-metrics.mjs` turns the
+deployer's own GA4 property into the daily CSV the watch and the CLI read.
+
+The source:
+
+- **API:** `properties/{id}:runReport` on `https://analyticsdata.googleapis.com/v1beta` with dimension `date` and up to
+  ten metrics (default `sessions,activeUsers,screenPageViews,keyEvents`; `--metrics` takes any Data API names, e.g.
+  `totalRevenue`, `newUsers`, `customEvent:...`), authorised by a **service account** the site owner creates in their
+  own Google Cloud project and adds as a Viewer of the property. The RS256 assertion is signed by the same code as
+  the Search Console source (`serviceAccountAssertion`, now taking the scope), with scope `analytics.readonly`.
+  `GA4_ACCESS_TOKEN` takes a ready token instead. `GA4_API_BASE` and `GA4_TOKEN_URL` take loopback addresses only;
+- **days in the property's own zone:** the range ends at `"1daysAgo"` (`--lag N` for `NdaysAgo`), which the Data API
+  reads in the property's reporting time zone, so no zone has to be configured. GA4 has no "incomplete day" flag like
+  Search Console's; `--lag 2` leaves yesterday out on a busy property where it is still being processed, and the
+  last 4 days are fetched again on every run (`--refetch`) so late processing is picked up;
+- metric columns are matched by the names in `metricHeaders`, not by position; the answer is paged by the rows
+  actually returned until `rowCount`; a day with no row is written as zeros, but a run of empty days at the very end
+  waits for a later run (it cannot be told from days not yet processed);
+- when the answer says the report was **thresholded** (Google signals withholds small counts) or **sampled**, the run
+  says so, since withheld days can read as a fall;
+- 401, 403 (with the fix: add the service account as a Viewer, enable the Data API), 400 (check `--metrics`) and a
+  refused key are answered in words; a `G-...` measurement ID given as the property is named as the wrong ID;
+- **no API at all:** `--from-export report.csv` converts a report's Share > Download file > CSV: `#` comment lines,
+  then a table whose first column is `Date` (YYYYMMDD) or `Nth day` (counted from the `# Start date:` line), a
+  `Grand total` row skipped, quoted thousands read, later tables ignored. UI titles map to the API names (Active
+  users to `activeUsers`, Views to `screenPageViews`, Key events or Conversions to `keyEvents`), so a watch set up on
+  an export keeps working when the API takes over. The export layout was written from Google's documented
+  download format and checked on hand-made files, not a real download.
+
+`deploy/watch-metric.yml` runs it when the secret `GA4_SERVICE_ACCOUNT_JSON` is set (property ID in the variable
+`GA4_PROPERTY`, options in `GA4_OPTIONS`), caches `data/ga4.csv`, and with `METRIC_CSV` unset and no Stripe, Shopify
+or Search Console credentials watches `--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson`.
+`make-watch-repo.sh` and the watch page's no-terminal zip copy the script and ignore the CSV.
+
+**Checked** (`ga4-metrics.test.mjs`, 8 tests): against a stand-in for both Google endpoints with the documented
+shapes. The stand-in verifies the JWT's signature and refuses an unknown key (`invalid_grant`), reads `NdaysAgo` against
+its own "today", answers metrics in reverse order (columns must be matched by header name) and caps pages at 50 rows
+(119 days arrive in 3 pages at offsets 0, 50, 100); a missing day is written as zeros; a second run two days later
+asks only from 4 days before the end and keeps the earlier lines byte for byte; `--metrics sessions,totalRevenue
+--lag 2` writes decimals, ends two days back and warns about thresholding; 403, 400 and a refused key name their
+fix. A simulated property (600 sessions a day, weekends 60%, 243 days) whose sessions fall to 55% on 2026-03-16 and
+whose key events fall to 40% on 2026-01-12: the watch's first check records exactly one change per column, dated
+2026-03-14 (sessions, active users) and 2026-01-11 (key events), and none elsewhere. That is the whole history read
+once, not a day-by-day replay; the day-by-day delays measured for Search Console's clicks ("How fast the watch hears
+a fall", above) are the closest guide for counts this size. The made repository's workflow, run under
+`deploy/run-workflow.mjs`, fetches 480 days, watches the three columns, commits the state, never the CSV, and never
+prints the key. **Not checked against a live property**: no session holds a key; a deployer's first run is that
+check.
 
 ## A middle setting for over-dispersed counts (2026-11-21, pre-registered; ships)
 

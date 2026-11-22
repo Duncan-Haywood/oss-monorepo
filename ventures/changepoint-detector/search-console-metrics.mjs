@@ -77,16 +77,16 @@ export function pacificToday(nowMs) {
 const b64url = (buf) => Buffer.from(buf).toString('base64').replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
 
 /** The signed JWT a service account trades for an access token (RFC 7523; Google's server-to-server OAuth flow). */
-export function serviceAccountAssertion(key, { nowSec, tokenUrl = TOKEN_URL }) {
-  if (!key || typeof key.client_email !== 'string' || typeof key.private_key !== 'string') throw new Error('GSC_SERVICE_ACCOUNT_JSON is not a service account key (it needs client_email and private_key).');
+export function serviceAccountAssertion(key, { nowSec, tokenUrl = TOKEN_URL, scope = SCOPE, envName = 'GSC_SERVICE_ACCOUNT_JSON' }) {
+  if (!key || typeof key.client_email !== 'string' || typeof key.private_key !== 'string') throw new Error(`${envName} is not a service account key (it needs client_email and private_key).`);
   const head = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT', ...(key.private_key_id ? { kid: key.private_key_id } : {}) }));
-  const claims = b64url(JSON.stringify({ iss: key.client_email, scope: SCOPE, aud: tokenUrl, iat: nowSec, exp: nowSec + 3600 }));
+  const claims = b64url(JSON.stringify({ iss: key.client_email, scope, aud: tokenUrl, iat: nowSec, exp: nowSec + 3600 }));
   const signer = createSign('RSA-SHA256');
   signer.update(`${head}.${claims}`);
   return `${head}.${claims}.${b64url(signer.sign(key.private_key))}`;
 }
 
-async function retrying(fetchImpl, sleep, url, init) {
+export async function retrying(fetchImpl, sleep, url, init) {
   for (let attempt = 0; ; attempt++) {
     const r = await fetchImpl(url, init);
     if ((r.status === 429 || r.status >= 500) && attempt < 5) { await sleep(1000 * 2 ** attempt); continue; }
