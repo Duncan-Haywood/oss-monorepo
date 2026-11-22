@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKiVnDmpCzNpBRFrUFQ",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T10:18:31Z",
+  "ended": "2026-11-22T10:24:58Z",
+  "wall_minutes": 6.7,
+  "tokens_in": 3372229,
+  "tokens_out": 33171,
+  "cost_usd": 2.1996,
+  "tool_calls": 35,
+  "task": "Saints by Candlelight episode 163 (aarons-staff-that-budded-in-the-tent-of-meeting)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18237",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The 'Next up' list carried 'Joshua and the walls of Jericho' (added by episode 162) though episode 47 already told Joshua 2 to 6 including the fall of Jericho; I lost a few minutes before grepping episodes/. Removed the line; the list should be checked against episodes/ by content, not only by slug."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "'Elijah and Elisha and the cloak on the Jordan' overlaps the wind-down of episode 12, which tells 2 Kings 2 briefly; left in place since a full episode is still new, but a later run should know."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-saints-by-candlelight-aarons-staff-that-budded.md"
+  ],
+  "goal": null,
+  "notes": "Creative track. Project: saints-by-candlelight, piece: episode 163, aarons-staff-that-budded-in-the-tent-of-meeting (Numbers 16-18, 6,631 words, text only: audio folders 581 MB > 400 MB cap). Picked saints-by-candlelight as longest without a new piece (#18203). Checks: node generate.mjs --check-script ok; node --test 0 failures; generated pages rebuilt. Adversarial reread fixed two details (tent door curtain is woven blue/purple/scarlet, not goat hair; ripe almonds have split husks) and set Isaiah 11:1 to the Douay wording. No agent doc: nothing the next run needs beyond the list fix and this record.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6bbffe53-c87b-5111-938e-5acd990d728f",
+    "transcripts": 1,
+    "first": "2026-11-22T10:18:31Z",
+    "last": "2026-11-22T10:25:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 66,
+        "output": 33171,
+        "thinking": 11242,
+        "cache_read": 3261715,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110448,
+        "api_equivalent_usd": 2.1996,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 66,
+      "output": 33171,
+      "thinking": 11242,
+      "cache_read": 3261715,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110448,
+      "api_equivalent_usd": 2.1996,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.7,
+      "active_minutes": 6.7,
+      "model_minutes": 6.32,
+      "tool_minutes": 0.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a careful writer drafting and checking a 6,600-word scripture retelling with sources",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 272.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
