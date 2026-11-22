@@ -4,7 +4,11 @@
 // one without a P6 seat or a paid converter. Nothing is uploaded: this runs
 // in the browser tab (or the CLI).
 //
-// p6XerText(text, { projectId, activityIds, deadlines, typesFrom }) -> { xer, text, bytes, encoding, counts, warnings }
+// p6XerText(text, { projectId, activityIds, deadlines, typesFrom, interim, skipFields }) -> { xer, text, bytes, encoding, counts, warnings }
+//   interim: "skip" leaves out Start/Finish pairs that look like a Project
+//   interim plan (mspdi.mjs interimPairs; CLI --no-interim), skipFields the
+//   task fields named (CLI --skip-fields Start1,Finish1); both keep "keep"/[]
+//   by default, and an interim-looking pair is named in the warnings either way.
 // (save `bytes`: Windows-1252, P6's code page, when the text fits it)
 //
 // mspdi.mjs already reads MSPDI into P6's tables for the checks (calendars,
@@ -228,9 +232,9 @@ export function deadlineConstraint(r, dl) {
   return out;
 }
 
-export function p6XerText(text, { projectId = "", activityIds = "auto", deadlines: carryDeadlines = false, typesFrom = null } = {}) {
+export function p6XerText(text, { projectId = "", activityIds = "auto", deadlines: carryDeadlines = false, typesFrom = null, interim = "keep", skipFields = [] } = {}) {
   const typer = udfTyper(typesFrom);
-  const parsed = parseMspdi(text, { textUdf: typer.textUdf });
+  const parsed = parseMspdi(text, { textUdf: typer.textUdf, interim, skipFields });
   const T = parsed.tables;
   const warnings = [...parsed.warnings];
   const doc = parseXml(text.charCodeAt(0) === 0xfeff ? text.slice(1) : text);

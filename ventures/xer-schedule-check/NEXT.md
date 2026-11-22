@@ -65,8 +65,11 @@
   there: a Project file with no XER behind it keeps "whole numbers as
   integer"; a marker inside the Project file needs a Project seat to check
   that it survives a save. Finish-date UDFs and Project's Start/Finish fields
-  shipped 2026-11-22 (eval/finish-udfs-2026-11-22.md); still open there: a
-  switch to leave interim-plan Start/Finish fields out.
+  shipped 2026-11-22 (eval/finish-udfs-2026-11-22.md); interim plans in
+  those fields named, and left out with --no-interim, 2026-11-22
+  (eval/interim-plans-2026-11-22.md: 354/354 planted, 0 false alarms on 143
+  files). Still open there: a real Project file with Set Baseline > Interim
+  plan run, to see what Project writes for the fields' definitions.
   Resource custom fields as RSRC UDFs shipped 2026-11-21
   (eval/rsrc-udfs-2026-11-21.md).
 - (2026-11-21) constraints log's "past late start" now says whether a row moves anything (eval/constraints-slack-2026-11-20.md: 65/65)
