@@ -305,11 +305,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
-      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend: sweep the
-      metadata-extractor-images raws
-      (eval/near-clean-gate-xtrans-tune-2026-11-19.md) with --clean-truths; X-Trans
-      lift settled off. DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise read: the
+      metadata-extractor-images set is spent for selection tests
+      (eval/noise-pca-mpcw1-2026-11-22.md); X-Trans lift settled off. DNG 1.7.1.0
+      spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
@@ -334,8 +333,11 @@ flagships:
       new losers (eval/noise-pca-whitened-level-*); mpcws (held +0.31 dB) failed on
       K-1 II not by a noisy truth: a green-pair truth read failed its validity tests
       2026-11-22, and mpcws's own selection over-reads 2.3x there
-      (eval/noise-pca-mpcws-noisy-truth-*); next mpcws selecting with mpcw's level,
-      pre-registered. More open items: NEXT.md.
+      (eval/noise-pca-mpcws-noisy-truth-*); mpcw1 (select once at mpcw's level)
+      failed its gates 2026-11-22: 1.48x mpcw on that tile, +0.01 of mpcws's +0.26
+      dB; gain and over-read share a cause, so this set is spent
+      (eval/noise-pca-mpcw1-*); next both on a fresh blind set. More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

@@ -1687,7 +1687,11 @@ pre-registered as the judge, failed its own validity tests (it reads scene detai
 2.6 times the raw read there against 1.1 on full-size frames), and even taken at face value it keeps every K-1 II
 SNR 12 row clean, where `mpcws` still loses. On the tile where it loses alone, `mpcws` reads 0.028 to 0.040 against
 0.013 to 0.014 for `mpcw`, more than the truth's grain and the added noise together: its patch selection, driven by
-its own higher read, keeps texture. `eval/noise-pca-mpcws-noisy-truth-2026-11-22.md`.
+its own higher read, keeps texture. `eval/noise-pca-mpcws-noisy-truth-2026-11-22.md`. Cutting that feedback (`eig="mpcw1"`: one
+reselection at `mpcw`'s level, never iterated) failed its pre-registered gates the same day: it still read 1.48 times
+`mpcw` on that tile (bar 1.3), added one losing row on tune and lost 0.05 dB in the six-row SNR 200 white-balanced
+cell held out, while keeping only +0.01 dB of `mpcws`'s +0.26 dB tune gain. The gain and the over-read share one
+cause. `mpcw` stays the default. `eval/noise-pca-mpcw1-2026-11-22.md`.
 
 ## A directional demosaic for Bayer files (2026-11-15)
 
