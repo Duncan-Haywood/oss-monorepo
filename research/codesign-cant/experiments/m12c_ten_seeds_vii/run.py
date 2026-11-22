@@ -100,9 +100,9 @@ if __name__ == "__main__":
     if not SMOKE:
         rref = {(r["set"], r["geom"], r["seed"], r["law_name"], r["test"]): r for r in old["resp"] if r["set"] in CEILS}
         rr = Y.rnd(resp)
-        bad = [(r["set"], r["seed"]) for r in rr if r["seed"] in OLD_SEEDS
-               and r["rise"] != rref[(r["set"], r["geom"], r["seed"], r["law_name"], r["test"])]["rise"]]
-        checks.append(("re-scored seeds 0-5 equal 7ac's stored rise times (mismatches)", len(bad), 0, not bad))
+        bad = [(r["set"], r["seed"], r["test"]) for r in rr if r["seed"] in OLD_SEEDS
+               and r != rref[(r["set"], r["geom"], r["seed"], r["law_name"], r["test"])]]
+        checks.append(("re-scored seeds 0-5 equal 7ac's stored response records, every test (mismatches)", len(bad), 0, not bad))
     sfx = "_smoke" if SMOKE else ""
     json.dump(dict(laws=U.LAWS, keys=U.KEYS, budget=R.BUDGET, test_ep=M7.TEST_EP, test_seed=M7.TEST_SEED, ceils=CEILS,
                    new_seeds=list(NEW_SEEDS),
