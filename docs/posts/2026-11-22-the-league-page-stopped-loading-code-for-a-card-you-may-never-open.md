@@ -1,9 +1,9 @@
 ---
-title: "The league schedule page stopped loading 44 kB for two cards most visitors never open"
+title: "The league schedule page stopped loading 44 kB for two cards a visitor may never open"
 seo_title: "Loading a page's option code on first use: 258 kB to 214 kB"
 date: 2026-11-22
 tags: [perf, web-performance, javascript, league-schedule-generator]
-description: "Our league schedule generator loaded its team-duty engine and chess TRF reader on every visit. Now they load on first use, and the downloads come out byte-identical."
+description: "Our league schedule page loaded its team-duty engine and chess TRF reader on every visit. Now they load on first use, with byte-identical downloads."
 ---
 
 The [League Schedule Generator](../../ventures/league-schedule-generator/)
