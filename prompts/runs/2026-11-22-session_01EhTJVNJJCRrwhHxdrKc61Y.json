@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVNJJCRrwhHxdrKc61Y",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine)",
+  "input_sha256": "11e3b35e49613a6364c0c8156c62feb36e116801279806d7c7661dd70db1a697",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T00:08:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check (flagship 13): P6 resource hierarchy (RSRC.parent_rsrc_id) as Microsoft Project resource Group in the XER->Project XML converter, and Group back into parent resources in Project XML->XER",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18163",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "I ran a bare `promptctl.py route` first and drew process, then read prompt.md's --task line and re-routed to ventures; about 10 minutes went on a process critique (allocate.py spread, flagship_field.py history routing) before the re-route. The routine's stored prompt could pass --track ventures itself, as earlier records also say."
+    },
+    {
+      "file": "ventures/xer-schedule-check/eval/all-resources-2026-11-21.md",
+      "issue": "The six public XERs and MPXJ's corpus are fetched again each session (raw.githubusercontent.com at the listed commits; a sparse blob:none clone of mpxj junit/data took ~20 s). A one-line fetch script next to the evals would save every xer-schedule-check run the URL assembly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "Routed to process by a bare route call; prompt.md says to route with --task, which picks ventures for this brief. Switched tracks after a short critique pass and filed nothing on the process track.",
+      "did": "re-routed with --task",
+      "result": "one ventures PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-p6-resource-tree-in-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/resource-hierarchy-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Process critique side-finding, not filed (prompts/ is CODEOWNERS-gated): the six Start-here rows got an even 15-23 ventures run records each over 2026-11-20/21 (prompts/runs, projects field), so the 'changepoint-detector 31 records' friction is not a spread fault. flagship_field is_result still classes photo-editing's open 'an iXU180 dark frame or Capture One export to say if IIQ S offset tables apply' as a result because of '5.2%' in its bracket (park_candidates over every main row, 2026-11-22). Verification: node --test via run_venture_tests.py xer-schedule-check, 315 tests ok after the change; resource-hierarchy.test.mjs 5 tests; check_posts ok; eval/resource-hierarchy-check.mjs on six public XERs and MPXJ @ 8c7f83c: 469/469 default, 502/502 allResources, 14/14 MPXJ Groups, 0 p6Problems. venture-preflight.mjs xer-schedule-check: clean.",
+  "corrections": [],
+  "redteam": null
+}
