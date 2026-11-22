@@ -470,12 +470,16 @@ p ≤ 0.0001, the permutation floor), steeply at first and then slowly: pooled n
 `m12c_ten_seeds_vii/stats.txt`; predictions committed before the run) separate the first pair:
 196 against 112 crashes of 3,840 (pooled Mann–Whitney p = 0.004), and 125 ms crashes more in 17 of
 20 (geometry, seed) pairs (exact Wilcoxon p = 0.00003). The four new seeds alone give 95 against 47.
-So robustness at the identified lags keeps coming up to 150 ms (3.8× the slowest identification);
-whether it still comes past 150 ms is open at six seeds. The total for each row has a stratified
+So robustness at the identified lags keeps coming up to 150 ms (3.8× the slowest identification).
+Ten seeds per geometry at 200 ms (milestone 12d, `m12d_ten_seeds_c200/stats.txt`) do not separate the
+next pair: 112 against 86 crashes of 3,840 (pooled Mann–Whitney p = 0.08), and 150 ms crashes more in
+only 13 of 20 pairs, ties 4 (exact Wilcoxon p = 0.07). On the identified range the knee is at about
+150 ms; any gain past it is under a quarter and not detected at ten seeds. The total for each row has a stratified
 bootstrap interval in `table7_stats.txt` (e.g. 101 [79, 125] at 125 ms against 65 [49, 82] at
 150 ms; at ten seeds 196 [156, 242] against 112 [89, 138] of 3,840). At the 75 ms law, slower than either
 identification, every extra step of ceiling pays and every pooled neighbour pair is separated
-(p ≤ 0.0002), down to 121 crashes of 768 at 200 ms.
+(p ≤ 0.0002), down to 121 crashes of 768 at 200 ms; at ten seeds 200 ms crashes less than 150 ms
+there in 20 of 20 pairs (217 against 462 of 1,280).
 
 **The price is response, not crashes.** Coverage costs nothing inside the identified range up to
 200 ms (row 39.1–200 is the most robust in the table). It is paid in rise time, mass and a slower final
@@ -565,7 +569,9 @@ at ten seeds per geometry, 150 ms (3.8×) crashes 43% less often than 125 ms (3.
 lags. It also crashes a third less often at the 75 ms law (462 against 695 of 1,280). It costs
 0.39 s of rise time with the centre of pressure above and 0.10 s below (medians 2.08 against 1.68 s
 and 1.83 against 1.73 s). Choose 125 ms only when rise time matters more than those crashes, and
-200 ms when the motors may be slower than identified. Run the position integrator only within about a quarter of a step of the set
+200 ms (5.1×) when the motors may be slower than identified: at ten seeds it does not
+detectably cut the crashes at the identified lags (86 against 112 of 3,840, p = 0.08) but halves them
+at a 75 ms motor (217 against 462 of 1,280), for 4–7% more mass and 0.13–0.44 s more rise. Run the position integrator only within about a quarter of a step of the set
 point; with that, the 125 ms tune has no unsettled designs. Put a set-point step in the tuning
 objective: without one the tuner has no reason to rise fast. With a capped proportional term, compute
 the rise time before flying from k_p, k_d, k_i, A_P and the step size with the point mass above (within
@@ -631,7 +637,7 @@ it flies. The hardware check is next.
 
 ## Still to do before submission
 
-- Ten seeds for the rest of section VII (125 and 150 ms have ten per geometry since 2026-11-22; 200 ms next, to test 150→200 ms) and for milestones 7c, 7d and 7g of section VI (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
+- Ten seeds for the rest of section VII (125, 150 and 200 ms have ten per geometry since 2026-11-22; 150→200 ms is not separated at the identified lags, p = 0.08; 100 ms next) and for milestones 7c, 7d and 7g of section VI (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
   set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier.
