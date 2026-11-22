@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKiyjDoX3s5LpU27jvJ",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T09:09:33Z",
+  "ended": "2026-11-22T09:15:28Z",
+  "wall_minutes": 12.21,
+  "tokens_in": 5268222,
+  "tokens_out": 21479,
+  "cost_usd": 2.2407,
+  "tool_calls": 56,
+  "task": "polish: move stacked cross-tool 'see also' notes out of five venture headers",
+  "projects": [
+    "appointment-deposit-calculator",
+    "1099k-reconciliation-worksheet",
+    "quarterly-estimated-tax-calendar",
+    "turo-host-payout-calculator",
+    "equipment-auction-buyer-premium-calculator",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18226",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "The new post's description was 164 characters (limit 160); the site build throws on it, so 166 build.test.mjs tests failed on the first run. Shortened it and re-ran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-fold.mjs",
+      "issue": "Counts the footer #optout checkbox as the first field on pages without a form, so testimonial-keeper (3,803) and monastery-site (3,399) top the baseline as false positives; cost a detour before finding the first real tool."
+    },
+    {
+      "file": "platform/pages/serve-dir.mjs",
+      "issue": "Returns {srv, base}, not a server or url; a one-off screenshot script guessed wrong. A line in platform/pages/README.md showing a minimal screenshot snippet would save the next polish run a round-trip."
+    },
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "One over-long post description fails every build test (166 failures with the same message), which reads like a broken tree; check_posts.py catches it in a second, so run it before the long suite."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not screenshot hub/flagship/research/stories/post this run; the last two polish reports did that today and found the venture fold weakest, so I worked from the fold baseline.",
+      "did": "Picked the top real outlier in venture-fold-baseline.json and its family by a static scan.",
+      "result": "0 \u2192 5 of 5 first fields on screen at 390x844."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-see-also-notes-above-the-form.md",
+    "docs/reports/polish-2026-11-22-header-crosslinks.md"
+  ],
+  "goal": null,
+  "notes": "venture-fold.mjs 390x844 first field: 0/5 -> 5/5 (median 1234 -> 775 px). 5 venture suites: 320 tests pass. header-crosslinks.test.mjs fails on main (5 pages), passes after. build.test.mjs 332/332 pass after the post fix; custom-domain, heading-order, podcast, writing-backlog, writing tests 81/81; check_posts ok; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e581b2f-70d2-5604-9102-4c109af10992",
+    "transcripts": 1,
+    "first": "2026-11-22T09:09:33Z",
+    "last": "2026-11-22T09:21:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 105,
+        "output": 21479,
+        "thinking": 2992,
+        "cache_read": 5171056,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97061,
+        "api_equivalent_usd": 2.2407,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 105,
+      "output": 21479,
+      "thinking": 2992,
+      "cache_read": 5171056,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97061,
+      "api_equivalent_usd": 2.2407,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 53,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.21,
+      "active_minutes": 12.21,
+      "model_minutes": 4.13,
+      "tool_minutes": 8.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure 5 pages at 3 widths, move notes, add a check, screenshots, post and report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 133.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

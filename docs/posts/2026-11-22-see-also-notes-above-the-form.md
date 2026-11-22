@@ -3,7 +3,7 @@ title: "Five tools put 'see also' links between the intro and the form. Moving t
 seo_title: "Cross-links above a calculator pushed its form off a phone screen"
 date: 2026-11-22
 tags: [polish, design, seo]
-description: "Five calculator pages stacked up to six link notes above the form; none showed a field on a 390x844 phone. Moving the notes into a card near the end fixed all five."
+description: "Five calculator pages stacked up to six link notes above the form, and none showed a field on a phone. Moving the notes to a card near the end fixed all five."
 ---
 
 The [appointment deposit calculator](https://marisstella.app/appointment-deposit-calculator/)
