@@ -910,6 +910,78 @@ test("explanations: a stored window volume equal to the body less its glass pane
   assert.equal(odd.check.net.reason, "unexplained");
 });
 
+// A door with side lights: the 1000 x 100 x 1000 frame block, a leaf pane
+// (900 x 20 x 900) at y = 200 and a side light (200 x 20 x 900) in another
+// plane, at y = -200. ArchiCAD's "D2R 2zl 18" doors store the body less the
+// side lights' glass only. A second door has two panes in one plane (x = -300
+// and x = +300, both at y = 200): a stored figure leaving out just one of them
+// is not a plane's glass, and stays unexplained.
+const sideLightFile = (stored1, stored2) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#14=IFCCARTESIANPOINT((0.,200.,0.));
+#15=IFCAXIS2PLACEMENT3D(#14,$,$);
+#16=IFCDIRECTION((0.,0.,1.));
+#17=IFCCARTESIANPOINT((0.,-200.,0.));
+#18=IFCAXIS2PLACEMENT3D(#17,$,$);
+#20=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,1000.,100.);
+#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,1000.);
+#22=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,900.,20.);
+#23=IFCEXTRUDEDAREASOLID(#22,#15,#16,900.);
+#24=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,200.,20.);
+#25=IFCEXTRUDEDAREASOLID(#24,#18,#16,900.);
+#35=IFCSURFACESTYLERENDERING(#30,0.49,$,$,$,$,$,$,.NOTDEFINED.);
+#30=IFCCOLOURRGB($,0.9,0.9,0.9);
+#36=IFCSURFACESTYLE('Glas - algemeen',.BOTH.,(#35));
+#37=IFCPRESENTATIONSTYLEASSIGNMENT((#36));
+#38=IFCSTYLEDITEM(#23,(#37),$);
+#39=IFCSTYLEDITEM(#25,(#37),$);
+#40=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21,#23,#25));
+#41=IFCPRODUCTDEFINITIONSHAPE($,$,(#40));
+#42=IFCDOOR('1YvctVUKr0kugbFTf53S9A',$,'D2R 2zl',$,$,#12,#41,$,1000.,1000.);
+#43=IFCQUANTITYVOLUME('Net Volume',$,$,${stored1});
+#44=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53S9A',$,'ArchiCADQuantities',$,$,(#43));
+#45=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53S9A',$,$,$,(#42),#44);
+#50=IFCCARTESIANPOINT((-300.,200.,0.));
+#51=IFCAXIS2PLACEMENT3D(#50,$,$);
+#52=IFCCARTESIANPOINT((300.,200.,0.));
+#53=IFCAXIS2PLACEMENT3D(#52,$,$);
+#54=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,400.,20.);
+#55=IFCEXTRUDEDAREASOLID(#54,#51,#16,900.);
+#56=IFCEXTRUDEDAREASOLID(#24,#53,#16,900.);
+#57=IFCSTYLEDITEM(#55,(#37),$);
+#58=IFCSTYLEDITEM(#56,(#37),$);
+#59=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21,#55,#56));
+#60=IFCPRODUCTDEFINITIONSHAPE($,$,(#59));
+#61=IFCDOOR('1YvctVUKr0kugbFTf53S9B',$,'one plane',$,$,#12,#60,$,1000.,1000.);
+#62=IFCQUANTITYVOLUME('Net Volume',$,$,${stored2});
+#63=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53S9B',$,'ArchiCADQuantities',$,$,(#62));
+#64=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53S9B',$,$,$,(#61),#63);
+ENDSEC;END-ISO-10303-21;`;
+
+test("explanations: a stored door volume equal to the body less one plane's panes (its side lights) is glazing-left-out", () => {
+  const frame = 0.1, leaf = 0.9 * 0.02 * 0.9, side = 0.2 * 0.02 * 0.9, big = 0.4 * 0.02 * 0.9; // m3
+  const [d, one] = takeoff(parseStep(sideLightFile(frame + leaf, frame + big))).rows;
+  close(d.computed.gross, frame + leaf + side);
+  assert.equal(d.computed.glazingPlanes.length, 2);
+  assert.equal(d.check.net.reason, "glazing-left-out");
+  close(d.check.net.glassLeftOut.volume, side);
+  assert.equal(d.check.net.glassLeftOut.pieces, 1);
+  assert.equal(rowQuantities(d).volume, d.computed.gross); // the BoQ sums every pane
+  // two panes in one plane: one plane, so leaving out the smaller pane alone is no cause
+  assert.equal(one.computed.glazingPlanes, undefined);
+  assert.equal(one.check.net.reason, "unexplained");
+  // the whole-glass rule still comes first
+  const all = takeoff(parseStep(sideLightFile(frame, frame))).rows[0];
+  assert.equal(all.check.net.reason, "glazing-left-out");
+  assert.equal(all.check.net.glassLeftOut, undefined);
+});
+
 // A body of several items is their union: an IFC shape representation's items
 // together make the element's shape, and where two run into each other (a
 // cabinet's carcass and its doors, a door leaf set 10 mm into each post) the

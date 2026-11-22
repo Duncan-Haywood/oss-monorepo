@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVL2GFG9j7aJ79LUUT2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T08:04:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff: the 6 unexplained NetVolumes (flagship 14, buildable item 2)",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": 18217,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "buildable: cap of 600 chars left 19 spare, so updating an item to name what remains had to be trimmed to a bare pointer."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-archicad-doors-with-side-lights-count-half-their-glass.md",
+    "ventures/ifc-quantity-takeoff/eval/side-lights-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Unexplained stored NetVolumes on the 13 public models 6 to 2: four ArchiCAD 'D2R 2zl 18' doors store the body less the side lights' glass only (4/4 within 0.02%); glazingLeftOut now groups panes by plane and tries body less one plane. Old vs new code on the same 13 files: only those 4 lines change. The 2 zinc copings stay unexplained (stored section 410.611 mm2 vs exported profile 396.336 mm2; variants ruled out listed in the eval note). Local: run_venture_tests.py ifc-quantity-takeoff ok (184 tests); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

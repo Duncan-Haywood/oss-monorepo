@@ -181,6 +181,12 @@ this tool says which they are
   wool excluded). The BoQ sums the whole body: windows 8.46 to 10.26 m3,
   doors 15.55 to 16.39 m3 on that model
   ([eval/glazing-left-out-2026-11-21.md](eval/glazing-left-out-2026-11-21.md)).
+  Then 6 to 2 (2026-11-22): the four "D2R 2zl 18" doors with two side
+  lights store the body less the side lights' glass only, the leaf's glass
+  counted (4 of 4 to 0.02%). The rule groups panes by the plane they sit in
+  and tries the body less one plane's glass, never every subset. The 2 left
+  are zinc copings whose stored section is 3.6% over the profile exported
+  ([eval/side-lights-2026-11-22.md](eval/side-lights-2026-11-22.md)).
 - **Areas on the same models.** 6,509 of 7,883 stored areas agree with the
   section cut from the geometry (82.6%), all 1,667 wall GrossFootprintAreas
   among them; where they agree the median difference is 1e-15 relative or less
