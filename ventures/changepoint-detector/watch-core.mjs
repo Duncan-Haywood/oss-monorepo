@@ -394,10 +394,12 @@ export function advance(state, changes, n, labels, opts = {}) {
 
 const fmt = (v) => (Math.abs(v) >= 100 ? String(Math.round(v * 10) / 10) : String(Number(v.toPrecision(3))));
 
-export function alertText(res, { column = 'the series', model = 'mean' } = {}) {
+export function alertText(res, { column = 'the series', model = 'mean', weekly = false } = {}) {
   const lines = [];
+  // A weekly watch (--weekly) runs beside a daily one and may post to the same chat, so its message says so: the week's
+  // Monday, and weeks since, not points (README "The weekly watch in GitHub Actions").
   for (const a of res.alerts) {
-    let what = `${column} changed from ${a.label}`;
+    let what = weekly ? `${column} (weekly total) changed from the week of ${a.label}` : `${column} changed from ${a.label}`;
     if (a.meanBefore !== undefined) {
       const dir = a.shift > 0 ? 'up' : 'down';
       what += `: ${model === 'poisson' ? 'rate' : 'level'} ${dir} from ${fmt(a.meanBefore)} to ${fmt(a.meanAfter)}`;
@@ -405,7 +407,7 @@ export function alertText(res, { column = 'the series', model = 'mean' } = {}) {
       if (a.sdBefore !== undefined && model === 'meanvar') what += `, sd ${fmt(a.sdBefore)} to ${fmt(a.sdAfter)}`;
     }
     if (a.probability !== undefined) what += `, Bayesian probability ${Math.round(a.probability * 100)}%`;
-    what += `; ${a.pointsAfter} points since${a.late ? ' (dated well back: it took more data to show)' : ''}.`;
+    what += `; ${a.pointsAfter} ${weekly ? (a.pointsAfter === 1 ? 'whole week' : 'whole weeks') : 'points'} since${a.late ? ' (dated well back: it took more data to show)' : ''}.`;
     lines.push(what);
   }
   return lines.join('\n');

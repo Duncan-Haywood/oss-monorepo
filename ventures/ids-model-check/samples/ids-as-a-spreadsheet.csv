@@ -1,0 +1,9 @@
+spec,section,facet,name,ifcVersion,entity,propertySet,property,dataType,value,cardinality
+,info,title,,,,,,,Door and wall data,
+1,specification,,Doors carry a fire rating,IFC4,,,,,,required
+1,applicability,entity,,,IFCDOOR,,,,,
+1,requirements,property,,,,Pset_DoorCommon,FireRating,IFCLABEL,,
+2,specification,,External walls say whether they carry load,IFC4,,,,,,required
+2,applicability,entity,,,IFCWALL,,,,,
+2,applicability,property,,,,Pset_WallCommon,IsExternal,IFCBOOLEAN,TRUE,
+2,requirements,property,,,,Pset_WallCommon,LoadBearing,IFCBOOLEAN,,
