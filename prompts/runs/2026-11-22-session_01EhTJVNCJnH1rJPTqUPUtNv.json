@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVNCJnH1rJPTqUPUtNv",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T13:14:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 13) xer-schedule-check: XER to Excel workbook",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": 18253,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/NEXT.md",
+      "issue": "Most open items for this flagship need a P6 seat or real customer files; the buildable: field lists eval scripts, not product gaps, so a run has to look for its own product item"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The allocator pointed at xer-schedule-check, whose listed open items nearly all need real outside inputs (a P6 seat, a real TIA exhibit, a real series). Took a new buildable item instead: XER to Excel, a common need that the venture lacked.",
+      "did": "Built excel.mjs, CLI --excel, page button, guide, post; added it as item (14) in next:",
+      "result": "6,239,763 of 6,239,763 values equal under an independent openpyxl reader on six public P6 files; page download verified in Chromium"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-p6-xer-to-excel-without-p6.md",
+    "ventures/xer-schedule-check/eval/excel-check-2026-11-22.md"
+  ],
+  "goal": "Give people without a P6 seat the XER as a filterable Excel workbook (a common ask; search volume not measured), checked by an independent reader",
+  "notes": "Verification: node --test excel.test.mjs guides.test.mjs page.test.mjs (18 pass); run_venture_tests.py xer-schedule-check ok (386 tests); eval/excel-check.py on six public XERs all equal; Playwright: example + hotel XER loaded on index.html, Download for Excel saved a 29-sheet workbook openpyxl reads, no console errors; check_posts ok; validate.py ok. Not done: opening in desktop Excel (none here).",
+  "corrections": [],
+  "redteam": null
+}
