@@ -65,9 +65,9 @@
 
   <section class="card">
     <h2>1. Your Etsy statement</h2>
-    <p class="note">The CSV from Finances &gt; Payment account, or a monthly statement. Several months in one file are fine: each month becomes its own journal.</p>
     <label for="file">Choose an Etsy statement</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">The CSV from Finances &gt; Payment account, or a monthly statement. Several months in one file are fine: each month becomes its own journal.</p>
     <label for="paste">…or paste the statement text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Date,Type,Title,Info,Currency,Amount,Fees &amp; Taxes,Net,Tax Details ..."></textarea>
     <div class="grid">

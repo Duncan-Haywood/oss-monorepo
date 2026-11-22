@@ -74,9 +74,9 @@
 
   <section class="card">
     <h2>1. Your eBay report</h2>
-    <p class="note">The Transaction report CSV from Seller Hub (Payments &gt; Reports &gt; Downloads). The few lines above the header are skipped. More than one payout per file is fine.</p>
     <label for="file">Choose an eBay report</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">The Transaction report CSV from Seller Hub (Payments &gt; Reports &gt; Downloads). The few lines above the header are skipped. More than one payout per file is fine.</p>
     <label for="paste">…or paste the report text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Transaction creation date,Type,Order number,...,Net amount,...,Payout ID ..."></textarea>
     <div class="grid">

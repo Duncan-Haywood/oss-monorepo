@@ -75,9 +75,9 @@
 
   <section class="card">
     <h2>1. Your Lemon Squeezy report</h2>
-    <p class="note">The earnings CSV from Lemon Squeezy (Orders or Payouts) or the CSV behind a payout. Columns are matched by name; if a payout ID column is present each payout is checked on its own, otherwise type the deposit below. More than one payout per file is fine.</p>
     <label for="file">Choose a Lemon Squeezy report</label>
-    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <input type="file" id="file" aria-describedby="file-note" accept=".txt,.csv,.tsv,text/plain">
+    <p class="note file-note" id="file-note">The earnings CSV from Lemon Squeezy (Orders or Payouts) or the CSV behind a payout. Columns are matched by name; if a payout ID column is present each payout is checked on its own, otherwise type the deposit below. More than one payout per file is fine.</p>
     <label for="paste">…or paste the report text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Order ID,Date,Subtotal,Tax,Fee,Net,Payout ID ..."></textarea>
     <div class="grid">
