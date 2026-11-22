@@ -81,8 +81,8 @@ class ParseArg(unittest.TestCase):
 
     def test_empty_default_is_not_none(self):
         # `ARG FOO=` explicitly assigns an empty string -- distinct from
-        # `ARG FOO` (no `=` at all), even though both currently produce no
-        # finding (an empty value has nothing to leak).
+        # `ARG FOO` (no `=` at all) at parse time; for a secret-looking name
+        # both are an arg-declared finding (see RedTeam20261122).
         name, default = dbs.parse_arg("FOO=")
         self.assertEqual(name, "FOO")
         self.assertEqual(default, "")
@@ -319,6 +319,17 @@ class RedTeam20261122(unittest.TestCase):
         )
         findings = dbs.scan_text(text)
         self.assertEqual([(f["line"], f["name"]) for f in findings], [(4, "GITHUB_TOKEN")])
+
+    def test_empty_arg_default_is_declared_like_a_bare_arg(self):
+        # Mutation-found: `ARG API_KEY=` and `=""` produced no finding at all,
+        # though they invite the same --build-arg secret as `ARG API_KEY`.
+        for line in ("ARG API_KEY", "ARG API_KEY=", 'ARG API_KEY=""', "ARG API_KEY=''"):
+            findings = dbs.scan_text("FROM x\n" + line + "\n")
+            self.assertEqual([f["classification"] for f in findings], [dbs.ARG_DECLARED], line)
+
+    def test_unbalanced_quote_is_kept_as_a_literal(self):
+        findings = dbs.scan_text('FROM x\nENV API_KEY="a\n')
+        self.assertEqual([f["classification"] for f in findings], [dbs.ENV_SECRET])
 
     def test_directive_only_counts_at_the_top(self):
         self.assertEqual(dbs.escape_char("# hello\n# escape=`\n"), "\\")

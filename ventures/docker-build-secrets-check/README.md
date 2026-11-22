@@ -34,7 +34,7 @@ instruction deletes the file it came from.
 - **arg-literal** -- an `ARG` instruction whose name looks like a secret and
   carries a literal default value in the Dockerfile itself.
 - **arg-declared** -- an `ARG` instruction whose name looks like a secret
-  with no default value. Advisory only: nothing is committed to the
+  with no default value, or an empty one (`ARG TOKEN=`). Advisory only: nothing is committed to the
   Dockerfile, but the instruction invites a `--build-arg` secret that
   BuildKit still records for the build unless mounted as a build secret.
 - **sensitive-copy** -- a `COPY` or `ADD` instruction naming a well-known

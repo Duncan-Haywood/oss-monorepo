@@ -519,6 +519,15 @@ class RedTeam20261122(unittest.TestCase):
         findings = dbc.scan_text("# escape=`\nFROM `\n  node:18 AS build\nFROM build\n")
         self.assertEqual([(f["line"], f["tag"]) for f in findings], [(2, "18")])
 
+    def test_variable_digest_with_no_default_stays_unresolved(self):
+        # Mutation-found: with `and` turned into `or` an `@` alone made an
+        # unresolved FROM read as pinned, and no Python test noticed.
+        for ref in ("node@${DIGEST}", "${IMG}@sha256:" + "a" * 12):
+            findings = dbc.scan_text("FROM " + ref + "\n")
+            self.assertEqual(findings[0]["classification"], dbc.UNRESOLVED, ref)
+        pinned = dbc.scan_text("FROM ${IMG}@" + DIGEST + "\n")
+        self.assertEqual(pinned[0]["classification"], dbc.PINNED)
+
     def test_directive_only_counts_at_the_top(self):
         # After a comment that is not a directive, BuildKit stops looking,
         # so the backslash stays the escape character.

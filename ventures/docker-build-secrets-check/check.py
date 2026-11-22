@@ -56,8 +56,9 @@ of any kind.
                          and which carries a literal default value in the
                          Dockerfile itself.
   - `arg-declared`    -- an ARG instruction whose name looks like a secret
-                         with no default value. Advisory only: nothing is
-                         committed to the Dockerfile, but the instruction
+                         with no default value, or an empty one. Advisory
+                         only: nothing is committed to the Dockerfile, but
+                         the instruction
                          invites a `--build-arg` secret that BuildKit still
                          records unless passed as `--mount=type=secret`.
   - `sensitive-copy`  -- a COPY or ADD instruction naming a well-known
@@ -305,7 +306,10 @@ def scan_text(text, filename="<Dockerfile>"):
                         f"secret instead: RUN --mount=type=secret,id={name.lower()} ..."
                     ),
                 })
-            elif default is None:
+            else:
+                # A bare `ARG TOKEN` and an empty `ARG TOKEN=` (or `=""`) both
+                # invite the same --build-arg secret (red-team 2026-11-22: the
+                # empty form used to produce nothing).
                 findings.append({
                     "file": filename,
                     "line": lineno,

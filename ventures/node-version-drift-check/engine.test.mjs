@@ -202,3 +202,13 @@ test("numeric parts with a leading zero are rejected, as node-semver rejects the
   assert.ok(parseRange("^20.0.0"));
   assert.deepEqual(kinds(analyze([pkg(">=018")], { today: TODAY })), [K.UNREADABLE]);
 });
+
+// Red-team 2026-11-22: under `# escape=`` a trailing backslash path is not a
+// continuation, so it must not glue the next FROM onto the line before it.
+test("an escape=` directive stops a trailing backslash hiding the next FROM", () => {
+  const text = "# escape=`\nFROM busybox AS tools\nWORKDIR C:\\app\\\nFROM node:20-slim\n";
+  const r = analyze([{ path: ".nvmrc", text: "22" }, { path: "Dockerfile", text }], { today: "2026-01-01" });
+  const d = r.findings.filter((f) => f.kind === K.MAJOR_DISAGREEMENT);
+  assert.equal(d.length, 1);
+  assert.match(d[0].message, /Node 20: Dockerfile/);
+});

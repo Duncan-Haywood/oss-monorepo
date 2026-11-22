@@ -232,3 +232,12 @@ test("an escape=` directive stops a trailing backslash hiding the next ARG", () 
   const py = JSON.parse(execFileSync("python3", [CLI, dir, "--format", "json"], { encoding: "utf8" }));
   assert.deepEqual(py.map((f) => [f.line, f.classification]), [[4, ARG_DECLARED]]);
 });
+
+// Red-team 2026-11-22, mutation-found: `ARG API_KEY=` and `=""` produced no
+// finding, though they invite the same --build-arg secret as a bare ARG.
+test("an empty ARG default is arg-declared like a bare ARG; an unbalanced quote stays literal", () => {
+  for (const line of ["ARG API_KEY", "ARG API_KEY=", 'ARG API_KEY=""', "ARG API_KEY=''"]) {
+    assert.deepEqual(scanText(`FROM x\n${line}\n`).map((f) => f.classification), [ARG_DECLARED], line);
+  }
+  assert.deepEqual(scanText('FROM x\nENV API_KEY="a\n').map((f) => f.classification), [ENV_SECRET]);
+});

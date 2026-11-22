@@ -276,12 +276,27 @@ function parseToolVersions(text) {
   return null;
 }
 
+// A `# escape=` parser directive at the top of a Dockerfile (Windows files
+// use escape=`) changes the continuation character; under it a line ending
+// in a backslash path is not continued (red-team 2026-11-22, same fix as
+// docker-base-image-pin-check). Directives count only before anything else.
+function dockerEscape(text) {
+  let escape = "\\";
+  for (const line of text.split(/\r?\n/)) {
+    const m = /^#\s*([a-zA-Z][a-zA-Z0-9]*)\s*=\s*(.+?)\s*$/.exec(line.trim());
+    if (!m || !["syntax", "escape", "check"].includes(m[1].toLowerCase())) break;
+    if (m[1].toLowerCase() === "escape" && (m[2] === "\\" || m[2] === "`")) escape = m[2];
+  }
+  return escape;
+}
+
 function dockerLogicalLines(text) {
   const out = [];
   let buf = "";
+  const trailing = dockerEscape(text) === "`" ? /`\s*$/ : /\\\s*$/;
   for (const raw of text.split(/\r?\n/)) {
     if (/^\s*#/.test(raw) && buf === "") continue;
-    if (/\\\s*$/.test(raw)) { buf += raw.replace(/\\\s*$/, " "); continue; }
+    if (trailing.test(raw)) { buf += raw.replace(trailing, " "); continue; }
     out.push((buf + raw).trim());
     buf = "";
   }

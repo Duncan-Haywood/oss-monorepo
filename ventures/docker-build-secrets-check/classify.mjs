@@ -194,7 +194,8 @@ export function scanText(text, filename = "<Dockerfile>") {
             "Remove the default and pass the value with a BuildKit build " +
             `secret instead: RUN --mount=type=secret,id=${name.toLowerCase()} ...`,
         });
-      } else if (defaultValue === null) {
+      } else {
+        // Bare or empty default: both invite the same --build-arg secret.
         findings.push({
           file: filename,
           line: lineno,
