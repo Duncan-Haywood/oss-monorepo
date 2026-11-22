@@ -15,7 +15,8 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 
 **No warranty.** Free and as-is; arithmetic on figures you type, not tax or
-financial advice. It does not model sales tax, insurance, testing and labelling
+financial advice. It does not model fixed per-order fees, a wholesale platform's
+commission (enter the net you receive), sales tax, insurance, testing and labelling
 rules, shipping, returns, breakage or unsold stock. Unverified against a real
 maker's books: tested on hand-calculated examples.
 
