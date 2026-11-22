@@ -1,0 +1,470 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKkSjTMmQxXxvjhyQk3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T23:18:40Z",
+  "ended": "2026-11-22T23:20:59Z",
+  "wall_minutes": 5.1,
+  "tokens_in": 2449951,
+  "tokens_out": 15021,
+  "cost_usd": 1.3842,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18328",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 13 entries, every one control plane or a redesign; a red-team run cannot act on any of them, so the list costs reading time each run. It could filter or flag control-plane entries."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard; the defect (a finding's wording disagreeing with the code's own threshold) has no cheap repo-wide lint.",
+      "did": "Added targeted tests only; noted here instead of a new check.",
+      "result": "Gaps and defect guarded in their suites; no class-level guard added."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 entries all control plane or a redesign.",
+      "did": "Fixed none; seeded two campaigns instead.",
+      "result": "No open entry changed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-redteam-stamp-duty-gbp-0-surcharge.md"
+  ],
+  "goal": null,
+  "notes": "Two campaigns: uk-stamp-duty-calculator/calc.mjs (12 mutants, 7 caught, 1 equivalent, 4 gaps) and platform/distribution/citation.mjs (10, 9 caught, 1 gap). rerun: all 5 gaps caught_after_fix true. Suites: stamp duty 35/35 pass, citation 11/11 pass. Real defect: main-home finding below GBP 40,000 quoted a 5% rate that never applies; fixed with test.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-stamp-duty-calculator/calc.mjs",
+        "test": "node --test ventures/uk-stamp-duty-calculator/**/*.test.mjs  (in .)",
+        "seed": 568059266,
+        "commit": "f3e0b04d9",
+        "sites": 121,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 12,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "{ from: 125000, to: 250000, rate: 0.02 },",
+            "after": "{ from: 125000, to: 250001, rate: 0.02 },",
+            "line_text": "  { from: 125000, to: 250000, rate: 0.02 },",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 18,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "{ from: 0, to: 300000, rate: 0 },",
+            "after": "{ from: 0, to: 300000, rate: 1 },",
+            "line_text": "  { from: 0, to: 300000, rate: 0 },",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 27,
+            "col": 80,
+            "operator": "plus-to-minus",
+            "before": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "after": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" - Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "line_text": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 27,
+            "col": 232,
+            "operator": "plus-to-minus",
+            "before": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "after": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m - \"0\"));",
+            "line_text": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 34,
+            "col": 48,
+            "operator": "or-to-and",
+            "before": "if (i.price === undefined || i.price === null || i.price === \"\" || !Number.isFinite(price) || price <= 0) errors.push(\"Enter the purchase price as more than zero.\");",
+            "after": "if (i.price === undefined || i.price === null && i.price === \"\" || !Number.isFinite(price) || price <= 0) errors.push(\"Enter the purchase price as more than zero.\");",
+            "line_text": "  if (i.price === undefined || i.price === null || i.price === \"\" || !Number.isFinite(price) || price <= 0) errors.push(\"Enter the purchase price as more than zero.\");",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "With && the null clause can only be true for null, and Number(null) is 0, which price <= 0 already rejects; undefined and '' are still caught by their own clauses (undefined->NaN, ''->0)."
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 34,
+            "col": 102,
+            "operator": "le-to-lt",
+            "before": "if (i.price === undefined || i.price === null || i.price === \"\" || !Number.isFinite(price) || price <= 0) errors.push(\"Enter the purchase price as more than zero.\");",
+            "after": "if (i.price === undefined || i.price === null || i.price === \"\" || !Number.isFinite(price) || price < 0) errors.push(\"Enter the purchase price as more than zero.\");",
+            "line_text": "  if (i.price === undefined || i.price === null || i.price === \"\" || !Number.isFinite(price) || price <= 0) errors.push(\"Enter the purchase price as more than zero.\");",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "price 0 passed parse with < 0; effective then divides by zero. Test: a price of zero is rejected."
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 48,
+            "col": 23,
+            "operator": "times-to-div",
+            "before": "const tax = amount * rate;",
+            "after": "const tax = amount / rate;",
+            "line_text": "    const tax = amount * rate;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 61,
+            "col": 56,
+            "operator": "true-to-false",
+            "before": "if (price <= FTB_CAP) { bands = FTB_BANDS; relief = true; } else relief = false;",
+            "after": "if (price <= FTB_CAP) { bands = FTB_BANDS; relief = false; } else relief = false;",
+            "line_text": "    if (price <= FTB_CAP) { bands = FTB_BANDS; relief = true; } else relief = false;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 86,
+            "col": 29,
+            "operator": "and-to-or",
+            "before": "if (buyer === \"additional\" && price < ADDITIONAL_MIN_PRICE) findings.push({ severity: \"info\", title: `The 5% higher rate for additional dwellings only applies to purchases of ${money(ADDITIONAL_MIN_PRICE)} or more, so none is charged here.` });",
+            "after": "if (buyer === \"additional\" || price < ADDITIONAL_MIN_PRICE) findings.push({ severity: \"info\", title: `The 5% higher rate for additional dwellings only applies to purchases of ${money(ADDITIONAL_MIN_PRICE)} or more, so none is charged here.` });",
+            "line_text": "  if (buyer === \"additional\" && price < ADDITIONAL_MIN_PRICE) findings.push({ severity: \"info\", title: `The 5% higher rate for additional dwellings only applies to purchases of ${money(ADDITIONAL_MIN_PRICE)} or more, so none is charged here.` });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "|| showed the below-40,000 additional-rate note to main and ftb buyers. Test: the below-40,000 note shows only for an additional property."
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 93,
+            "col": 63,
+            "operator": "gt-to-ge",
+            "before": "const nextEdge = edges.filter((e) => Number.isFinite(e) && e > price).sort((a, b) => a - b)[0];",
+            "after": "const nextEdge = edges.filter((e) => Number.isFinite(e) && e >= price).sort((a, b) => a - b)[0];",
+            "line_text": "  const nextEdge = edges.filter((e) => Number.isFinite(e) && e > price).sort((a, b) => a - b)[0];",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ">= made a price exactly on a band edge read 'You are GBP 0 below' it. Test: a price exactly on a band edge."
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 111,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "export const SAMPLE = { price: 450000, buyer: \"main\", nonResident: \"no\" };",
+            "after": "export const SAMPLE = { price: 450001, buyer: \"main\", nonResident: \"no\" };",
+            "line_text": "export const SAMPLE = { price: 450000, buyer: \"main\", nonResident: \"no\" };",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "SAMPLE.price+1 kept the same whole-pound tax and effective rate, so the sample test passed. Test pins SAMPLE and r.price."
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 117,
+            "col": 15,
+            "operator": "neq-flip",
+            "before": "if (r.ftbTax !== null) L.push(`Same price as a first-time buyer: ${money(r.ftbTax)}`);",
+            "after": "if (r.ftbTax === null) L.push(`Same price as a first-time buyer: ${money(r.ftbTax)}`);",
+            "line_text": "  if (r.ftbTax !== null) L.push(`Same price as a first-time buyer: ${money(r.ftbTax)}`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/distribution/citation.mjs",
+        "test": "node --test platform/distribution/citation.test.mjs  (in .)",
+        "seed": 856303284,
+        "commit": "f3e0b04d9",
+        "sites": 27,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 28,
+            "col": 18,
+            "operator": "gt-to-ge",
+            "before": "return t.length > 200 ? `${t.slice(0, 197)}...` : t;",
+            "after": "return t.length >= 200 ? `${t.slice(0, 197)}...` : t;",
+            "line_text": "  return t.length > 200 ? `${t.slice(0, 197)}...` : t;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 32,
+            "col": 78,
+            "operator": "or-to-and",
+            "before": "const bibEscape = (s) => s.replace(/[\\\\~^]|[&%$#_{}]/g, (c) => BIB_SPECIAL[c] || `\\\\${c}`);",
+            "after": "const bibEscape = (s) => s.replace(/[\\\\~^]|[&%$#_{}]/g, (c) => BIB_SPECIAL[c] && `\\\\${c}`);",
+            "line_text": "const bibEscape = (s) => s.replace(/[\\\\~^]|[&%$#_{}]/g, (c) => BIB_SPECIAL[c] || `\\\\${c}`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 65,
+            "col": 2,
+            "operator": "minus-to-plus",
+            "before": "- open research",
+            "after": "+ open research",
+            "line_text": "  - open research",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 66,
+            "col": 2,
+            "operator": "minus-to-plus",
+            "before": "- AI-assisted",
+            "after": "+ AI-assisted",
+            "line_text": "  - AI-assisted",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 68,
+            "col": 2,
+            "operator": "minus-to-plus",
+            "before": "- calculators",
+            "after": "+ calculators",
+            "line_text": "  - calculators",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 78,
+            "col": 58,
+            "operator": "true-to-false",
+            "before": "for (const e of (await fs.readdir(dir, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {",
+            "after": "for (const e of (await fs.readdir(dir, { withFileTypes: false })).sort((a, b) => a.name.localeCompare(b.name))) {",
+            "line_text": "  for (const e of (await fs.readdir(dir, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 79,
+            "col": 25,
+            "operator": "or-to-and",
+            "before": "if (!e.isDirectory() || e.name.startsWith('_') || e.name.startsWith('.')) continue;",
+            "after": "if (!e.isDirectory() && e.name.startsWith('_') || e.name.startsWith('.')) continue;",
+            "line_text": "    if (!e.isDirectory() || e.name.startsWith('_') || e.name.startsWith('.')) continue;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 92,
+            "col": 54,
+            "operator": "false-to-true",
+            "before": "export async function run({ root = REPO_ROOT, write = false, check = false, log = console.log } = {}) {",
+            "after": "export async function run({ root = REPO_ROOT, write = true, check = false, log = console.log } = {}) {",
+            "line_text": "export async function run({ root = REPO_ROOT, write = false, check = false, log = console.log } = {}) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 115,
+            "col": 28,
+            "operator": "and-to-or",
+            "before": "if (a.includes('--check') && r.stale.length) process.exit(1);",
+            "after": "if (a.includes('--check') || r.stale.length) process.exit(1);",
+            "line_text": "  if (a.includes('--check') && r.stale.length) process.exit(1);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "|| made a plain dry run exit 1 whenever files were stale; the only CLI test ran on the real repo, which CI keeps current. Added --root so a test runs the CLI on a stale fixture."
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 115,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "if (a.includes('--check') && r.stale.length) process.exit(1);",
+            "after": "if (a.includes('--check') && r.stale.length) process.exit(2);",
+            "line_text": "  if (a.includes('--check') && r.stale.length) process.exit(1);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+        "issue": "Below GBP 40,000 a main-home buyer was told they 'may owe the 5% additional dwelling rate instead: GBP 0 on this price', a surcharge the calculator itself never charges below ADDITIONAL_MIN_PRICE. Repro: compute({price:30000,buyer:'main'}). Fixed: the finding says the rate does not apply below GBP 40,000; test 'main-home buyers below 40,000 are told the additional rate does not apply'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18328"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3ec2f1e4-6ce4-5384-aae4-ebded02db202",
+    "transcripts": 1,
+    "first": "2026-11-22T23:18:40Z",
+    "last": "2026-11-22T23:23:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 61,
+        "output": 15021,
+        "thinking": 4393,
+        "cache_read": 2373789,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76101,
+        "api_equivalent_usd": 1.3842,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 61,
+      "output": 15021,
+      "thinking": 4393,
+      "cache_read": 2373789,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76101,
+      "api_equivalent_usd": 1.3842,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.1,
+      "active_minutes": 5.1,
+      "model_minutes": 2.87,
+      "tool_minutes": 2.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
