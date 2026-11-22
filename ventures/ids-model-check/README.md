@@ -999,6 +999,22 @@ template's column order, which broke ids.xsd on one public set (property
 before attribute); every spreadsheet path now writes ids.xsd's order. Details:
 `eval/excel2ids-sidebyside-2026-11-19.md`.
 
+### Search guides and CSV booleans (2026-11-22)
+
+Three how-to pages for the searches a BIM coordinator types, each with a worked
+example on the sample house whose every number `guides.test.mjs` recomputes:
+[checking a model against an IDS](how-to-check-an-ifc-model-against-an-ids-file.html)
+(3 of 7 starter specifications pass), [writing an IDS in Excel or as a
+CSV](how-to-write-an-ids-file-in-excel.html) (`samples/ids-as-a-spreadsheet.csv`)
+and [filling missing property values](how-to-add-missing-property-values-to-an-ifc-model.html)
+(two typed values: 3 to 5 of 7, three lines of the file changed). Writing the
+second found a real gap: Excel and LibreOffice save a typed `true` to CSV as
+`TRUE`, which `--from-sheet` passed through, so the IDS was INVALID and `--fix`
+did not repair it. The reader now lower-cases `TRUE`/`FALSE` (and `one of:`
+lists of them) on an `IFCBOOLEAN` or `IFCLOGICAL` property and warns with the
+row number; text properties keep their case (`sheet.test.mjs`). The `.xlsx`
+reader already did this for boolean cells.
+
 ### An IDS as a spreadsheet and back (2026-11-19)
 
 Requirements are often agreed in a table first and typed into an IDS by hand.

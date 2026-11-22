@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Write An IDS File In Excel Or As A CSV</title>
+  <meta name="description" content="Write a buildingSMART IDS file from a spreadsheet: one row per facet, the columns to fill, the TRUE/FALSE trap, and a worked example you can download.">
+  <meta property="og:title" content="How To Write An IDS File In Excel Or As A CSV">
+  <meta property="og:description" content="Write a buildingSMART IDS file from a spreadsheet: one row per facet, the columns to fill, the TRUE/FALSE trap, and a worked example you can download.">
+  <link rel="canonical" href="./how-to-write-an-ids-file-in-excel.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I write an IDS file without XML?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Fill a spreadsheet with one row per facet and the free checker writes the IDS XML for you, then audits it against the IDS rules and the IFC schema."}}, {"@type": "Question", "name": "Why does my IDS match no elements?", "acceptedAnswer": {"@type": "Answer", "text": "The most common reasons are a boolean saved as TRUE instead of true, a class name for the wrong IFC version, and a property set name that differs from the export by one character. Audit the IDS first: it reports the first two."}}, {"@type": "Question", "name": "Can I turn an existing IDS back into a spreadsheet?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Audit it on the checker and choose Download as a spreadsheet (.xlsx) or (.csv), or run node cli.mjs --to-sheet spec.ids -o spec.xlsx."}}, {"@type": "Question", "name": "Does it work with LibreOffice and Google Sheets?", "acceptedAnswer": {"@type": "Answer", "text": "Any tool that saves .xlsx or .csv can be used: the reader takes the cells, not the program that wrote them."}}]}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --code: #eeebe4; color-scheme: light dark; font-family: system-ui, sans-serif; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --code: #262b30; } }
+    body { margin: 0; background: var(--bg); color: var(--fg); }
+    main, footer { max-width: 760px; margin: 0 auto; padding: 0 18px; line-height: 1.58; }
+    main { padding-top: 28px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: var(--accent); }
+    code { background: var(--code); padding: 1px 4px; border-radius: 4px; font-size: .92em; overflow-wrap: anywhere; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .85rem; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2.5em; padding-bottom: 48px; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; IDS Model Check</a></p>
+  <h1>How to write an IDS file in Excel or as a CSV</h1>
+  <p>Most information requirements start life in a spreadsheet: a row per element type, a column per property. An IDS file holds the same thing as XML. The free checker turns a spreadsheet with one row per <em>facet</em> into a valid IDS 1.0 file, audits it, and turns any IDS back into the same spreadsheet for review. You can also drop the spreadsheet straight on the checker in place of an <code>.ids</code>.</p>
+  <p><a class="cta" href="./samples/ids-as-a-spreadsheet.csv">Download the example spreadsheet</a> (open it in Excel or LibreOffice)</p>
+  <h2>The layout: one row per facet</h2>
+  <p>Each specification is a <code>specification</code> row (its name, IFC version and whether it is required, optional or prohibited), then <code>applicability</code> rows saying which elements it covers, then <code>requirements</code> rows saying what they must have. The <code>spec</code> column ties the rows together. The example has two specifications:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>spec</th><th>section</th><th>facet</th><th>name / entity</th><th>propertySet</th><th>property</th><th>dataType</th><th>value</th></tr></thead>
+    <tbody>
+      <tr><td></td><td>info</td><td>title</td><td></td><td></td><td></td><td></td><td>Door and wall data</td></tr>
+      <tr><td>1</td><td>specification</td><td></td><td>Doors carry a fire rating</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>1</td><td>applicability</td><td>entity</td><td>IFCDOOR</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>1</td><td>requirements</td><td>property</td><td></td><td>Pset_DoorCommon</td><td>FireRating</td><td>IFCLABEL</td><td></td></tr>
+      <tr><td>2</td><td>specification</td><td></td><td>External walls say whether they carry load</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>2</td><td>applicability</td><td>entity</td><td>IFCWALL</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>2</td><td>applicability</td><td>property</td><td></td><td>Pset_WallCommon</td><td>IsExternal</td><td>IFCBOOLEAN</td><td>TRUE</td></tr>
+      <tr><td>2</td><td>requirements</td><td>property</td><td></td><td>Pset_WallCommon</td><td>LoadBearing</td><td>IFCBOOLEAN</td><td></td></tr>
+    </tbody>
+  </table></div>
+  <p>A value cell can hold a restriction instead of a single value: <code>one of: EI30 | EI60</code>, <code>pattern: [A-Z]{2}-\d{3}</code>, <code>&gt;= 2.4</code> or <code>max length: 20</code>. Facets other than property take their own columns: <code>attribute</code>, <code>system</code> for classification, <code>relation</code> for part-of.</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Start from the example, or from an IDS you already have: on the checker, <em>Audit the IDS only</em> and then <em>Download as a spreadsheet (.xlsx)</em> gives the same layout with drop-down lists of classes and property sets.</li>
+    <li>Fill the rows. Property set and property names must match the IFC standard or your project's own sets exactly; the <a href="./editor.html">IDS editor</a> lists each class's standard sets if you are unsure.</li>
+    <li>Drop the saved <code>.xlsx</code> or <code>.csv</code> on the checker's IDS box, or run <code>node cli.mjs --from-sheet sheet.csv -o requirements.ids</code>. Every row the reader cannot use is reported with its row number.</li>
+    <li>Press <em>Audit the IDS only</em>, then check a model with it.</li>
+  </ol>
+  <h2>The TRUE/FALSE trap</h2>
+  <p>IDS writes booleans in lower case, <code>true</code> or <code>false</code>. Excel and LibreOffice turn a typed <code>true</code> into a boolean cell and save it to CSV as <code>TRUE</code>, which matches no element: an IDS written that way says the external-wall specification applies to nothing. The reader lower-cases <code>TRUE</code> and <code>FALSE</code> on a boolean-typed property and prints a warning naming the row, so the example's row 8 comes out as <code>true</code>. Text properties keep their case.</p>
+  <p>Checked against the sample house, the example IDS passes 0 of 2: the door D-01 has no <code>Pset_DoorCommon</code>, and of the two external walls, W-01 says it is load-bearing and W-02 does not say.</p>
+  <h2>Already using the Excel2IDS template?</h2>
+  <p>buildingSMART-community's Excel2IDS template (asset categories in columns, an X where a category needs a requirement) is a different layout. Drop the filled workbook on the checker as it is: it is read without the Windows tool, and the page lists every cell where that tool would write a different IDS.</p>
+  <h2>Questions</h2>
+  <h3>Can I write an IDS file without XML?</h3>
+  <p>Yes. Fill a spreadsheet with one row per facet and the free checker writes the IDS XML for you, then audits it against the IDS rules and the IFC schema.</p>
+  <h3>Why does my IDS match no elements?</h3>
+  <p>The most common reasons are a boolean saved as TRUE instead of true, a class name for the wrong IFC version, and a property set name that differs from the export by one character. Audit the IDS first: it reports the first two.</p>
+  <h3>Can I turn an existing IDS back into a spreadsheet?</h3>
+  <p>Yes. Audit it on the checker and choose Download as a spreadsheet (.xlsx) or (.csv), or run node cli.mjs --to-sheet spec.ids -o spec.xlsx.</p>
+  <h3>Does it work with LibreOffice and Google Sheets?</h3>
+  <p>Any tool that saves .xlsx or .csv can be used: the reader takes the cells, not the program that wrote them.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-check-an-ifc-model-against-an-ids-file.html">How to check an IFC model against an IDS file</a></li>
+    <li><a href="./how-to-add-missing-property-values-to-an-ifc-model.html">How to add missing property values to an IFC model</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or design advice; a passing check means the model meets the IDS as this software reads it, and the BIM manager, architect or engineer responsible for the model decides. The sample house is invented.</p>
+    <p><strong>Independent.</strong> IDS and IFC are buildingSMART International standards; this tool is not affiliated with or endorsed by buildingSMART, Microsoft or any software vendor named here. Product names are trademarks of their owners.</p>
+    <p>Everything the tool does runs in your browser; your model and IDS are never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

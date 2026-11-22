@@ -173,3 +173,21 @@ test("applicability facets are written in ids.xsd's order, whatever the row orde
   assert.deepEqual(order, ["entity", "classification", "attribute", "property", "material"]);
   assert.deepEqual(structureIssues(parseXml(text, { spans: true }), text), []);
 });
+
+test("a CSV's TRUE/FALSE on a boolean property is written lower case, with a warning; text values keep their case", () => {
+  const rows = [
+    ["spec", "section", "facet", "name", "ifcVersion", "entity", "propertySet", "property", "dataType", "value"],
+    ["", "info", "title", "", "", "", "", "", "", "T"],
+    ["1", "specification", "", "S", "IFC4", "", "", "", "", ""],
+    ["1", "applicability", "entity", "", "", "IFCWALL", "", "", "", ""],
+    ["1", "applicability", "property", "", "", "", "Pset_WallCommon", "IsExternal", "IFCBOOLEAN", "TRUE"],
+    ["1", "requirements", "property", "", "", "", "Pset_WallCommon", "LoadBearing", "IFCBOOLEAN", "one of: TRUE | FALSE"],
+    ["1", "requirements", "property", "", "", "", "Pset_WallCommon", "Reference", "IFCIDENTIFIER", "TRUE"],
+  ];
+  const r = rowsToIds(rows);
+  assert.deepEqual(r.errors, []);
+  assert.match(r.text, /<simpleValue>true<\/simpleValue>/);
+  assert.match(r.text, /<xs:enumeration value="true"\/><xs:enumeration value="false"\/>/);
+  assert.match(r.text, /Reference<\/simpleValue><\/baseName><value><simpleValue>TRUE<\/simpleValue>/);
+  assert.equal(r.warnings.filter((w) => /IDS booleans are lower case/.test(w.message)).length, 2);
+});

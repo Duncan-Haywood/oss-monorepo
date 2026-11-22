@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Check An IFC Model Against An IDS File (Free, In The Browser)</title>
+  <meta name="description" content="Check an IFC model against a buildingSMART IDS file step by step: what an IDS asks, how to read pass, fail and invalid, and a worked example on a sample house.">
+  <meta property="og:title" content="How To Check An IFC Model Against An IDS File (Free, In The Browser)">
+  <meta property="og:description" content="Check an IFC model against a buildingSMART IDS file step by step: what an IDS asks, how to read pass, fail and invalid, and a worked example on a sample house.">
+  <link rel="canonical" href="./how-to-check-an-ifc-model-against-an-ids-file.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is there a free IDS checker?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. IDS Model Check is free and MIT licensed and runs in the browser or as a Node command line. IfcTester, part of the open-source IfcOpenShell project, is a free Python alternative."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the model and the IDS in your browser tab; there is no server that receives them and no account."}}, {"@type": "Question", "name": "What does INVALID mean in the report?", "acceptedAnswer": {"@type": "Answer", "text": "The specification itself breaks the IDS rules, for example a class that does not exist in the model's IFC version or a value of the wrong type, so it was not checked. Fix the IDS and run the check again."}}, {"@type": "Question", "name": "Which IFC versions can be checked?", "acceptedAnswer": {"@type": "Answer", "text": "IFC2X3, IFC4 and IFC4X3 models, as STEP .ifc, ifcXML, .ifczip, ifcJSON or IFC5 alpha .ifcx files."}}]}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --code: #eeebe4; color-scheme: light dark; font-family: system-ui, sans-serif; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --code: #262b30; } }
+    body { margin: 0; background: var(--bg); color: var(--fg); }
+    main, footer { max-width: 760px; margin: 0 auto; padding: 0 18px; line-height: 1.58; }
+    main { padding-top: 28px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: var(--accent); }
+    code { background: var(--code); padding: 1px 4px; border-radius: 4px; font-size: .92em; overflow-wrap: anywhere; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .85rem; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2.5em; padding-bottom: 48px; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; IDS Model Check</a></p>
+  <h1>How to check an IFC model against an IDS file</h1>
+  <p>An IDS (Information Delivery Specification) file is buildingSMART's machine-readable list of what a model must contain: which elements need which properties, classifications, materials and places in the building. Checking a model against one means finding, for every specification, the elements it applies to and testing each requirement on each element. You can do that with a free checker in your browser: drop the <code>.ifc</code> and the <code>.ids</code> on the page and read the failing elements, with nothing uploaded.</p>
+  <p><a class="cta" href="./#run">Open the free IDS checker</a> (or press <em>Try a tiny sample</em> on it)</p>
+  <h2>What you need</h2>
+  <ul>
+    <li><strong>The model</strong> as IFC: a STEP <code>.ifc</code> exported from Revit, ArchiCAD, Tekla or any other authoring tool, an <code>.ifcxml</code>, an <code>.ifczip</code>, ifcJSON or an IFC5 <code>.ifcx</code>. IFC2X3, IFC4 and IFC4X3 are read.</li>
+    <li><strong>The IDS</strong>, usually from the client's information requirements (EIR) or the BIM execution plan. No IDS yet? The page's <em>use the starter IDS</em> button loads seven common coordination requirements, and <a href="./how-to-write-an-ids-file-in-excel.html">you can write one in a spreadsheet</a>.</li>
+  </ul>
+  <h2>Steps</h2>
+  <ol>
+    <li>Open the <a href="./">checker</a> and drop the model on the left box and the IDS on the right one.</li>
+    <li>Press <em>Audit the IDS only</em> first if the IDS is new to you. It finds mistakes in the IDS itself (a class name that does not exist, a boolean written <code>TRUE</code>, a number with a decimal comma) that would otherwise make every element fail. A specification with such a mistake is reported <strong>INVALID</strong>, not failed.</li>
+    <li>Press <em>Check the model</em>. Each specification shows how many elements it applies to, how many pass, and every failing element with its class, name, GlobalId and the reason.</li>
+    <li>Send the result back: <em>Download BCF issues</em> gives an issue per failing element in BCF 2.1, the issue format BIM coordination tools open at the element; <em>Download report (HTML)</em> is a single file to email; CSV and JSON are for spreadsheets and scripts.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>The checker's built-in sample is a one-storey house with three walls, a door, a window, a space and a kitchen unit exported as a proxy. Checked against the starter IDS it passes <strong>3 of 7 specifications</strong>:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Specification</th><th>Result</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Walls say whether they are external</td><td>Pass, 3 of 3</td><td></td></tr>
+      <tr><td>Walls say whether they are load-bearing</td><td>Fail, 2 of 3</td><td>Wall W-02's <code>Pset_WallCommon</code> has no <code>LoadBearing</code></td></tr>
+      <tr><td>Walls have a material</td><td>Fail, 2 of 3</td><td>Partition P-01 has no material</td></tr>
+      <tr><td>Doors and windows are named</td><td>Pass, 2 of 2</td><td></td></tr>
+      <tr><td>Doors and windows sit on a storey</td><td>Pass, 2 of 2</td><td></td></tr>
+      <tr><td>Spaces have a name and a long name (optional)</td><td>Fail, 0 of 1</td><td>Space 001 has no <code>LongName</code></td></tr>
+      <tr><td>No building element proxies (prohibited)</td><td>Fail</td><td>"Kitchen unit" is an <code>IFCBUILDINGELEMENTPROXY</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>The same check runs on the command line, which is how a team puts it in CI so every export is checked:</p>
+  <pre>node cli.mjs samples/tiny-house.ifc samples/coordination-basics.ids.xml --bcf issues.bcfzip</pre>
+  <p>It exits 1 when a specification fails. On GitHub, one Action step checks every model against every IDS on each push and writes the failures as annotations.</p>
+  <h2>Reading the result</h2>
+  <ul>
+    <li><strong>Required</strong> specifications fail when any element they apply to misses a requirement. <strong>Optional</strong> ones report the same way, but the IDS author has said the elements may be missing. <strong>Prohibited</strong> ones fail when any element matches at all.</li>
+    <li><strong>Applies to 0 elements</strong> is not a pass to celebrate: often the class is wrong for the schema (<code>IFCWALLSTANDARDCASE</code> in an IFC4X3 model) or the applicability asks for a property value no element has. The report names subclasses an entity facet leaves out.</li>
+    <li><strong>"has no property set"</strong> and <strong>"has no property"</strong> usually mean the export did not map the parameter. Fix the export mapping, or <a href="./how-to-add-missing-property-values-to-an-ifc-model.html">write the missing values into a copy of the model</a>.</li>
+  </ul>
+  <h2>How far to trust it</h2>
+  <p>The checker scores all 334 of buildingSMART's official IDS test cases right, and gives the same results as IfcTester, the open-source checker from IfcOpenShell, on real models element by element, apart from a few documented cases where it follows the XML Schema standard instead. The figures and every difference are in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ids-model-check">source repository</a>.</p>
+  <h2>Questions</h2>
+  <h3>Is there a free IDS checker?</h3>
+  <p>Yes. IDS Model Check is free and MIT licensed and runs in the browser or as a Node command line. IfcTester, part of the open-source IfcOpenShell project, is a free Python alternative.</p>
+  <h3>Is my model uploaded?</h3>
+  <p>No. The page reads the model and the IDS in your browser tab; there is no server that receives them and no account.</p>
+  <h3>What does INVALID mean in the report?</h3>
+  <p>The specification itself breaks the IDS rules, for example a class that does not exist in the model's IFC version or a value of the wrong type, so it was not checked. Fix the IDS and run the check again.</p>
+  <h3>Which IFC versions can be checked?</h3>
+  <p>IFC2X3, IFC4 and IFC4X3 models, as STEP .ifc, ifcXML, .ifczip, ifcJSON or IFC5 alpha .ifcx files.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-write-an-ids-file-in-excel.html">How to write an IDS file in Excel or as a CSV</a></li>
+    <li><a href="./how-to-add-missing-property-values-to-an-ifc-model.html">How to add missing property values to an IFC model</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or design advice; a passing check means the model meets the IDS as this software reads it, and the BIM manager, architect or engineer responsible for the model decides. The sample house is invented.</p>
+    <p><strong>Independent.</strong> IDS and IFC are buildingSMART International standards; this tool is not affiliated with or endorsed by buildingSMART, Microsoft or any software vendor named here. Product names are trademarks of their owners.</p>
+    <p>Everything the tool does runs in your browser; your model and IDS are never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
