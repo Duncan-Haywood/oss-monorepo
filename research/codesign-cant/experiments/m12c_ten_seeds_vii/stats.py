@@ -111,11 +111,11 @@ def main():
     for key in ("ident", "slow"):
         x, y = col(D, A125, key), col(D, A150, key)
         u, p = mwu_perm(x, y, rng)
-        L.append(f"  {key:5s} pooled MWU (20 a side): sums {sum(x)} vs {sum(y)}; U = {u:.1f} of {len(x) * len(y)}, p = {p:.5f}")
+        L.append(f"  {key:5s} pooled MWU ({len(x)} a side): sums {sum(x)} vs {sum(y)}; U = {u:.1f} of {len(x) * len(y)}, p = {p:.5f}")
         J[f"mwu_{key}"] = dict(u=u, p=p, sx=sum(x), sy=sum(y))
         d = [a - b for a, b in zip(x, y)]
         pw, wp = wilcoxon(d)
-        L.append(f"  {key:5s} paired Wilcoxon (20 pairs): mean diff {statistics.mean(d):+.2f}; 125 worse in {sum(v > 0 for v in d)}, "
+        L.append(f"  {key:5s} paired Wilcoxon ({len(d)} pairs): mean diff {statistics.mean(d):+.2f}; 125 worse in {sum(v > 0 for v in d)}, "
                  f"tied {sum(v == 0 for v in d)}, better in {sum(v < 0 for v in d)}; W+ = {wp:.1f}, p = {pw:.5f}")
         J[f"wilcoxon_{key}"] = dict(p=pw, wplus=wp, mean=statistics.mean(d), worse=sum(v > 0 for v in d), tied=sum(v == 0 for v in d))
         if key == "ident":
