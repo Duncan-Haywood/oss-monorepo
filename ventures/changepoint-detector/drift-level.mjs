@@ -443,6 +443,48 @@ export function driftLevelPath(values, changepoints, { sigma, omega, slope = 0 }
   return Array.from(out, (v, t) => v + slope * t);
 }
 
+// The closest call: of every single cut the partition does not make, the one that would lower the
+// -2 log likelihood the most, and by how much against the penalty a change costs (README "The closest
+// call"). For each stretch [a, b) of the fitted partition the cost of y[a..t) for every t is one
+// forward pass of the local-level filter and the cost of y[t..b) one backward pass (the random walk
+// plus noise with a diffuse start has the same likelihood read in either direction; a test checks it
+// against driftSegmentCost), so the whole search is O(n). Gaussian cost and one global scale only (the
+// shipped default); null otherwise. Held at the fit's own sigma and omega: with the wander chosen by
+// likelihood, a lower penalty may also move omega, so `saving` is the penalty under which this cut
+// would be worth adding to these cuts at the same wander. It is not the penalty at which a refit
+// lists it: lowering the penalty lets other sets of cuts in, and on 7 of 37 TCPD series the refit at
+// saving - 0.01 does not contain it (eval/closest-call.out.txt, line C3). That check, pre-registered
+// with two others, failed, so no output prints this; it is here for callers and later rounds.
+export function closestUncut(values, changepoints, { sigma, omega, penalty, minSegment = 2, slope = 0 } = {}) {
+  if (!(sigma > 0) || omega == null || !(penalty >= 0)) return null;
+  const x = Array.from(values, (v, t) => (Number(v) - slope * t) / sigma), n = x.length;
+  const q = (omega * omega) / (sigma * sigma);
+  const { K, F, logF } = gains(n, q);
+  const prefix = (y) => {
+    const c = new Float64Array(y.length + 1); // c[m] = cost of y[0..m)
+    let a = y[0];
+    for (let j = 1; j < y.length; j++) { const v = y[j] - a; c[j + 1] = c[j] + logF[j] + (v * v) / F[j]; a += K[j] * v; }
+    return c;
+  };
+  const bounds = [0, ...changepoints, n];
+  let best = null;
+  for (let s = 0; s + 1 < bounds.length; s++) {
+    const a = bounds[s], b = bounds[s + 1], m = b - a;
+    if (m < 2 * minSegment) continue;
+    const seg = x.slice(a, b);
+    const fwd = prefix(seg), bwd = prefix(seg.slice().reverse());
+    const whole = fwd[m];
+    for (let k = minSegment; k <= m - minSegment; k++) {
+      const saving = whole - fwd[k] - bwd[m - k];
+      if (!best || saving > best.saving) best = { index: a + k, saving };
+    }
+  }
+  if (!best) return null;
+  const lv = driftLevelPath(values, [...changepoints, best.index].sort((p, r) => p - r), { sigma, omega, slope });
+  const jump = lv[best.index] - lv[best.index - 1] - slope;
+  return { index: best.index, saving: best.saving, penalty, shortfall: penalty - best.saving, jump, jumpSd: jump / sigma };
+}
+
 // One call for the CLI and tests: changes with the level before and after each, in sigma units too.
 export function driftLevel(values, opts = {}) {
   const r = driftLevelChanges(values, opts);
