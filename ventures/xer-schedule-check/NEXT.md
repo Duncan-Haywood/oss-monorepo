@@ -4,6 +4,7 @@
 
 ## Parked from flagships.yaml `next:`
 
+- (2026-11-22) Monthly narrative (narrative.mjs): next a real scheduler's read of one written from their own update
 - (2026-11-19) next: a P6-levelled XER to compare dates with, levelling in the written review (the risk run levels every run since 2026-11-22, eval/risk-levelled-2026-11-22.md)
 - (2026-11-19) (8) MSPDI: next a real construction .xml (task splits read 2026-11-21, eval/split-tasks-2026-11-21.md; next one with splits from a real job)
 - (2026-11-19) next a second P6 file using them, a risk-page switch to sample them

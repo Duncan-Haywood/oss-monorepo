@@ -748,6 +748,13 @@ Expressway 20 (drag 5; 23 parallel fabrication chains cut together), CCA 13 (dra
 reported finish matches a fresh schedule with the chosen shortenings. Not compared with a commercial
 crashing tool (none public for these files).
 
+SS, FF and SF links (eval/crash-oracle-links-2026-11-22.md): the same brute force on 5,000 random
+networks with every P6 relationship type and whole-day lags and leads found two faults, both fixed:
+a start pulled back from an FF-driven finish that also sits on the data date, and a start driven by
+a link while its finish is driven by an SF tie. Before, 268 networks stopped short or overpaid (up
+to 150%); now all 12,791 step points are at the optimum and every run reaches the oracle's most.
+The six public files' results are unchanged.
+
 ## XER to Excel workbook (2026-11-22)
 
 `excel.mjs`, `--excel out.xlsx [--raw]`, and the page's **Download for Excel (.xlsx)**: the XER as a
@@ -1373,7 +1380,7 @@ Project XML, `eval/p6xer-mpxj.py` compares MPXJ's reading of the XML and the XER
 `drag.mjs` computes critical path drag and drag cost (`dragAnalysis`; `node cli.mjs file.xer --drag [--drag-cost N]`);
 `eval/drag-check.mjs` runs it on the public files with a shorten-by-drag consistency check.
 `crash.mjs` finds the cheapest set of activities to shorten together, step by step (`crashAnalysis`; `node cli.mjs file.xer --crash [--crash-target D] [--crash-data rates.csv]`);
-`eval/crash-check.mjs` runs it on the public files with a replay check; `eval/crash-oracle.mjs` and `eval/crash-bridge.mjs` score it against brute force.
+`eval/crash-check.mjs` runs it on the public files with a replay check; `eval/crash-oracle.mjs`, `eval/crash-oracle-links.mjs` (SS/FF/SF links and lags) and `eval/crash-bridge.mjs` score it against brute force.
 `samples/constraints-log.csv` is a constraints log for the example schedule
 (the page's "Example log" button); `eval/constraints-check.mjs` plants logs on
 real files and checks the what-if against P6 start-on-or-after constraints.
