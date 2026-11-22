@@ -80,3 +80,14 @@ test('the shipped default values are the worked example the copy describes', () 
     assert.match(html, new RegExp(`id="${id}"[^>]*value="${value}"`), `#${id} must ship value="${value}"`);
   }
 });
+
+test('166 is described as the published USPS / UPS retail divisor, with the USPS one-cubic-foot limit disclosed', () => {
+  // Quality round 94: the copy called 166 a negotiated figure only, and a USPS
+  // shipper entering 166 for a parcel under 1,728 in³ would be shown a
+  // dimensional charge USPS does not apply.
+  for (const file of ['index.html', 'how-dimensional-weight-is-billed.html', 'README.md']) {
+    const text = readFileSync(new URL(`./${file}`, import.meta.url), 'utf8');
+    assert.match(text, /USPS use 166/, file);
+    assert.match(text, /one cubic foot/, file);
+  }
+});
