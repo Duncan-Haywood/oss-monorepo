@@ -222,8 +222,11 @@ test("the to-fill table reads back through Excel's separators and the formula gu
   assert.throws(() => readValues("a,b\r\n1,2\r\n"), /GlobalId, PropertySet, Property and Value/);
 });
 
-test("ifcXML is refused: only STEP is written", () => {
-  assert.throws(() => fill(ids(spec("IFCWALL", prop("P", "N", "IFCLABEL", simple("x")))), `<?xml version="1.0"?><ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/final"></ifcXML>`), /only STEP/);
+test("an ifcXML model is written as STEP first and filled (2026-11-22, step-writer.mjs)", () => {
+  const r = fill(ids(spec("IFCWALL", prop("P", "N", "IFCLABEL", simple("x")))), `<?xml version="1.0"?><ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/final"></ifcXML>`);
+  assert.equal(r.convertedFrom, "ifcXML");
+  assert.match(r.text, /^ISO-10303-21;/);
+  assert.match(fillReport(r), /ifcXML model was written as STEP/);
 });
 
 test("records are found past comments and strings that look like records", () => {

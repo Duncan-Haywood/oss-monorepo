@@ -517,11 +517,40 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 
 No API key, account or server is involved, so there is nothing to configure.
 
+### ifcXML, ifcJSON and IFC5 models written as a STEP .ifc (2026-11-22)
+
+Most BIM tools open only STEP `.ifc` files, and the model fill below edits a
+STEP file's text, so a model that arrived as ifcXML, ifcJSON or IFC5 could be
+checked but not filled or passed on. `step-writer.mjs` writes any model the
+checker reads as a STEP file: every entity, argument for argument, in the
+schema's attribute order. On the page, a non-STEP model gets *Download as
+.ifc*; on the command line, `node cli.mjs --to-step model.ifcxml -o
+model.ifc`. The fill now takes any of these formats: the model is written as
+STEP first and that copy is filled, so the download is a `.ifc`.
+
+Numbers are written as INTEGER or REAL by the schema (the XML and JSON forms do
+not keep `1` and `1.` apart); binary values get STEP's leading digit; nothing is
+made up for a required attribute the source left out (written `$`, and listed).
+
+Checked on 187 public files (eval/to-step-2026-11-22.md, `eval/to-step-twins.mjs`):
+43 ifcXML, 97 ifcJSON and 47 IFC5 models, 78,343 entities. Every written file
+reads back to the same entities (78,343 of 78,343), with the same IDS results
+on the 3 starter and 65 public IDS files (12,716 of 12,716 checks).
+IfcOpenShell opens all 187 written files; where it finds a schema issue that
+the exporter's own STEP twin does not have, the cause is in the source file (an
+ifcJSON converter that drops `IfcFaceOuterBound.Orientation`, a property set
+written with no properties). Filling the 43 ifcXML models against the 65
+public IDS writes the same 351 values, GlobalId for GlobalId, as filling their
+STEP twins (2,795 of 2,795 fills, `eval/to-step-fill.mjs`). The comparison
+found one reader fault, now fixed: ifcJSON compound angles (an IfcSite's
+latitude) kept only their degrees.
+
 ### Writing what the IDS asks into the model (2026-11-21)
 
 A check tells you what is missing; the fix usually means going back to the
 authoring tool, mapping a parameter and exporting again. For property values
-the page can now do it in place. After a failing check on a STEP model, the
+the page can now do it in place. After a failing check (on a STEP model, or
+since 2026-11-22 an ifcXML, ifcJSON or IFC5 one, written as STEP first), the
 *Write the missing values into the model* panel (or `node cli.mjs --fill
 model.ifc spec.ids -o filled.ifc`, `model-fill.mjs`) writes into a copy of the
 `.ifc`:
