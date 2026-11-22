@@ -41,6 +41,25 @@ class T(unittest.TestCase):
         self.assertLess(s["mass"][0], s["mass"][2])
         self.assertTrue(s["mass"][0] < c["mass"] < s["mass"][2] * 1.5)
 
+    def test_headline_numbers(self):
+        # Pins the README / results.txt headline values so a change to quantities, makers or
+        # assumed costs cannot pass silently (quality audit 2026-11-22, defect 1).
+        c, tot = closure("lm8uu", SHOPS["printer"])
+        self.assertEqual((tot["lines"], tot["units"]), (51, 468))
+        self.assertAlmostEqual(c["lines"], 18 / 51)
+        self.assertAlmostEqual(c["units"], 44 / 468)
+        self.assertAlmostEqual(c["cost"], 0.114, places=3)
+        c, _ = closure("lm8uu", SHOPS["printer+cnc+laser"])
+        self.assertAlmostEqual(c["lines"], 22 / 51)
+        self.assertAlmostEqual(c["units"], 197 / 468)
+        self.assertAlmostEqual(c["mass"], 0.224, places=3)
+        self.assertAlmostEqual(c["cost"], 0.159, places=3)
+        c, _ = closure("brass", SHOPS["printer+cnc+laser+casting"])
+        self.assertAlmostEqual(c["lines"], 23 / 51)
+        self.assertAlmostEqual(c["cost"], 0.211, places=3)
+        s = sensitivity("lm8uu", SHOPS["printer"])
+        self.assertEqual([round(100 * x) for x in s["cost"]], [9, 11, 15])
+
 
 if __name__ == "__main__":
     unittest.main()

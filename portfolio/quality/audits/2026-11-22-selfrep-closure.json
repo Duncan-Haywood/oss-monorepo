@@ -1,0 +1,255 @@
+{
+ "date": "2026-11-22",
+ "subject": "research/selfrep-closure",
+ "stratum": "research",
+ "seed": "2026-11-22-b-8102",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a referee for a manufacturing-systems / self-replicating-systems venue (closure engineering in the Freitas and Gilbreath NASA 1980/82 and Freitas & Merkle 2004 sense, RepRap literature); first checks: is the BOM faithful to the source, do the closure ratios recompute, does the line/part-count figure agree with RepRap's own published self-manufacturing share, are mass and cost inputs sourced, does the uncertainty analysis cover the errors that matter, and is anything new beyond counting one BOM",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `python3 experiments/run.py` (0.6 s): results.txt byte-identical to the committed copy; `python3 experiments/figure.py`: SVG byte-identical. Independent script /tmp/claude-0/sc/recompute.py (no import of the package; own closure loop, own sensitivity with seed 12345, 4000 draws, base-2 log-uniform factors) reproduces every line/unit/mass/cost figure for both variants and all three shops (35.3/9.4/17.3/11.4; 43.1/42.1/22.4/15.9; brass+casting 45.1/44.2/24.1/21.1) and the 5-95% brackets within 1 point (printer cost [8.7-14.9] vs [9-15]; brass casting cost [16.1-27.4] vs [16-27]). External anchors: with the 13 fastener lines excluded the printer makes 18/38 = 47.4% of lines, consistent with the ~48% of parts excluding fasteners the RepRap project quotes for Darwin/Mendel (Wikipedia 'RepRap'); assumed steel-rod masses agree with geometry x 7.85 g/cm3 (ISO 898-1 M8 stress area 36.6 mm2; 8 mm smooth rod) within 7% on all 7 rod lines. The BOM itself could not be checked against the wiki (reprap.org and web.archive.org refused by the proxy). Arithmetic is right given its inputs; held at 3 because the inputs that set mass and cost closure are assumed.",
+  "completeness": "README deliverables: 51-line BOM with two bearing variants (present, bom.py), three seed shops (present), closure by lines/units/mass/cost (works), sensitivity bracket (works), vitamin and feedstock lists (in results.txt), figure (regenerates identically), reproduce commands (work, standard library only). No stubs/TODOs. Against the PROJECTS.md:189 milestone spec, 'a graph of parts, materials and processes' is a flat list and 'a source for each figure' is unmet for masses and costs (disclosed as an owner step). Live page could not be loaded (proxy 403 on marisstella.app).",
+  "verification": "`cd research/selfrep-closure && python3 -m unittest discover -s tests -v`: Ran 8 tests, OK, 0.02 s. No test pinned any headline number. Five mutants via platform/ci/quality_mutate.py: caught 1 (brass bushing needs cast+cnc -> cast only); survived 4: units counted as 1 per line (closure.py:28), printed-part cost 0.5 -> 5.0 (bom.py:33, moves every cost figure), MDF plate made by the printer (bom.py:65, moves the printer-alone headline), cost percentiles replaced by constants (closure.py:48). test_figure only checks the SVG against the committed results.txt, never that results.txt matches the code.",
+  "craft": "Read src/selfrep_closure/bom.py (74 lines), closure.py (56), experiments/run.py, figure.py, tests/test_closure.py, test_figure.py. Small, stdlib, seeded, data and reasons together in Part.why. Defects: makers tuple means 'any one suffices', so the one part needing two processes is special-cased by name prefix in makeable (closure.py:14-15); dense one-line multi-statement style; mass/cost default via `mass or {...}` treats an empty dict as absent; quantile by index truncation; `import math` inside a function.",
+  "claims": "Checked the README table, bullets, research/README.md bullet and projects.json summary against results.txt: every percentage backed. Disclosures are strong (masses/costs assumed, process assignments judgement, fastener box sizes, one product only). Gaps: 'Mass and cost closure stay below 25% and 21%' while brass+casting cost is 21.1%; README '6 tests' (8 ran); the robustness claim 'across the sensitivity range at most 30%' rests on an independent-per-line scaling that averages errors away: scaling all printed-part costs jointly by 2 moves printer-alone cost closure from 11.4% to 34.1% (recompute.py), so the bracket understates the uncertainty a reader takes from it.",
+  "fitness": "Nearest prior work: RepRap's own self-manufacturing share (Jones et al., Robotica 2011; Sells, Bath PhD thesis 'Towards a self-manufacturing rapid prototyping machine', 2009: ~48% of Darwin parts excl. fasteners, 94% target), closure engineering (Freitas & Gilbreath, NASA CP-2255, 1982; Freitas & Merkle 2004 KSRM), cyclic fabrication systems (Moses, Yamaguchi & Chirikjian 2014), Ellery (2016) on closure for lunar self-replication. The result (one BOM counted by process) is a correct, reusable bookkeeping baseline that about 20 later selfrep-* projects build on, but it is not new, does not report the comparison with RepRap's own figure, and is not a PhD-level programme (absent from research/PROGRAMMES.md). A researcher can reuse the BOM; the assumed inputs propagate downstream.",
+  "domain": "Against closure-engineering practice (closure by parts, mass, energy and information, Freitas & Gilbreath 1982): parts and mass closure are computed; energy and information closure are absent; cost closure counts the value of imported feedstock (filament, aluminium) inside makeable parts as closed, so it is not a value-added closure; masses that are derivable (rods from geometry, NEMA17 from datasheets ~280-350 g, printed parts from STL volumes) are left as placeholders; process assignments (router-cut GT2 pulleys, router-cut aluminium washers replacing steel ones) are optimistic and disclosed; the uncertainty analysis ignores correlated error. A referee would accept the counting and ask for sourced inputs and a correlated sensitivity."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Line/unit/mass/cost closure, 3 shops x 2 bearing variants",
+   "method": "own closure loop over a hand-keyed BOM table, no package import",
+   "command": "python3 /tmp/claude-0/sc/recompute.py",
+   "expected": "35.3/9.4/17.3/11.4; 43.1/42.1/22.4/15.9; brass+casting 45.1/44.2/24.1/21.1 (results.txt)",
+   "observed": "identical to one decimal",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "5-95% sensitivity brackets",
+   "method": "own Monte Carlo, seed 12345, 4000 draws, 2**U(-1,1) factors",
+   "command": "python3 /tmp/claude-0/sc/recompute.py",
+   "expected": "printer cost [9-15], +cnc mass [18-28], brass casting cost [16-27]",
+   "observed": "[8.7-14.9], [17.9-28.0], [16.1-27.4]",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Printer-alone line share excluding fasteners vs RepRap's published share",
+   "method": "RepRap project figure ~48% of parts excl. fasteners (Darwin/Mendel), via Wikipedia 'RepRap' and Sells (2009)",
+   "command": "python3 /tmp/claude-0/sc/recompute.py",
+   "expected": "~48%",
+   "observed": "18/38 = 47.4%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Assumed masses of 7 steel rod lines",
+   "method": "length x area x 7.85 g/cm3; M8 stress area 36.6 mm2 (ISO 898-1), 8 mm round",
+   "command": "python3 /tmp/claude-0/sc/recompute.py",
+   "expected": "106/84/126/60/138/160/166 g",
+   "observed": "assumed 110/90/130/65/140/160/165 (within 7%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments/run.py and figure.py reproduce committed outputs",
+   "method": "re-run and diff",
+   "command": "cd research/selfrep-closure && python3 experiments/run.py && python3 experiments/figure.py && git diff --stat experiments",
+   "expected": "identical",
+   "observed": "results.txt and closure_by_shop.svg byte-identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "BOM fidelity to the RepRap wiki (oldid 181926)",
+   "method": "fetch source page",
+   "command": "curl 'https://reprap.org/w/index.php?title=Prusa_Mendel_(iteration_2)&oldid=181926&action=raw'",
+   "expected": "51 lines, 18 printed (44 units)",
+   "observed": "proxy 403 (reprap.org, web.archive.org); printed count 44 checked by hand from bom.py only",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/selfrep-closure && python3 -m unittest discover -s tests -v",
+   "expected": "pass",
+   "observed": "Ran 8 tests, OK, 0.02 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Do tests pin any headline value",
+   "method": "5 seeded mutants",
+   "command": "python3 platform/ci/quality_mutate.py ... -- python3 -m unittest discover -s tests",
+   "expected": "most caught",
+   "observed": "1 of 5 caught",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Mass and cost closure stay below 25% and 21%'",
+   "method": "compare with results.txt",
+   "command": "grep -n 'brass' -A4 research/selfrep-closure/experiments/results.txt",
+   "expected": "all cost closures < 21%",
+   "observed": "brass+casting cost 21.1%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README test count",
+   "method": "count tests run",
+   "command": "cd research/selfrep-closure && python3 -m unittest discover -s tests -v",
+   "expected": "6 tests (README)",
+   "observed": "8 tests",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Robustness: 'across the sensitivity range at most 30%'",
+   "method": "correlated scaling of all printed-part costs by 0.5x/2x",
+   "command": "python3 /tmp/claude-0/sc/recompute.py",
+   "expected": "printer cost closure stays near [9-15]",
+   "observed": "6.1% / 34.1%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "research/README.md bullet and projects.json summary numbers",
+   "method": "line-by-line against results.txt",
+   "command": "grep -n selfrep-closure research/README.md; projects.json entry",
+   "expected": "backed",
+   "observed": "35%/43%/22%/16%/45%/24% all backed; 'Stylised' disclosure names assumed inputs",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Novelty against prior work",
+   "method": "literature: Jones et al. 2011, Sells 2009, Freitas & Gilbreath 1982, Moses et al. 2014, Ellery 2016",
+   "command": "WebSearch 'RepRap Mendel percentage of its own parts'",
+   "expected": "a new result",
+   "observed": "bookkeeping of one known BOM; no comparison with RepRap's own figure in the README",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Cost closure definition",
+   "method": "closure engineering (value-added vs material)",
+   "command": "read bom.py:33 (_p cost includes filament)",
+   "expected": "imported feedstock value excluded from closed cost",
+   "observed": "makeable part's full cost counted as closed",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/selfrep_closure/closure.py:15",
+   "change": "return {\"cast\", \"cnc\"} <= processes -> return {\"cast\"} <= processes",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_closure/closure.py:28",
+   "change": "(\"units\", p.qty) -> (\"units\", 1)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_closure/bom.py:33",
+   "change": "\"printed\", 25.0, 0.5, -> \"printed\", 25.0, 5.0,",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_closure/closure.py:48",
+   "change": "cost percentiles -> constant (0, 0, 1)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_closure/bom.py:65",
+   "change": "MDF plate makers (cnc, laser) -> (cnc, laser, fdm)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Sensitivity bracket scales every part line independently, so errors average out over the 18 printed lines; a joint 2x on printed-part cost moves printer-alone cost closure 11.4% -> 34.1%, far outside the reported [9-15]%, and the README's 'at most 30%' robustness reading rests on it",
+   "where": "research/selfrep-closure/src/selfrep_closure/closure.py:36",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins any headline closure value; 4 of 5 seeded mutants (unit counting, printed-part cost, MDF makers, cost percentiles) survive",
+   "where": "research/selfrep-closure/tests/test_closure.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Masses and costs left as placeholders though derivable (rod masses match geometry x density within 7%, motor datasheets, printed-part STL volumes, dated quotes); the PROJECTS.md milestone asked for a source for each figure",
+   "where": "research/selfrep-closure/src/selfrep_closure/bom.py:7",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README does not compare with RepRap's own published self-manufacturing share (~48% of parts excl. fasteners); the model gives 47% on that basis, an unused consistency check",
+   "where": "research/selfrep-closure/README.md:34",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Closure-engineering prior work (Freitas & Gilbreath 1982 parts/mass/energy/information closure; Moses, Yamaguchi & Chirikjian 2014; Ellery 2016) not engaged; result is bookkeeping of one BOM, not novel and not a programme",
+   "where": "research/selfrep-closure/README.md:5",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'Mass and cost closure stay below 25% and 21%' while brass+casting cost closure is 21.1%",
+   "where": "research/selfrep-closure/README.md:35",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README says 6 tests; 8 ran",
+   "where": "research/selfrep-closure/README.md:17",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "makers tuple means 'any one suffices', so the one two-process part is special-cased by name prefix in makeable(); milestone asked for a parts/materials/processes graph, implemented as a flat list",
+   "where": "research/selfrep-closure/src/selfrep_closure/closure.py:14",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Cost closure counts the value of imported feedstock (filament, aluminium, MDF) inside makeable parts as closed, overstating value-added closure",
+   "where": "research/selfrep-closure/src/selfrep_closure/bom.py:33",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Every reported closure figure recomputes exactly from an independent script and the experiments reproduce byte-for-byte, and on a fastener-free basis the model's 47% printer-alone line share agrees with RepRap's own ~48% figure. But the mass and cost columns rest on assumed inputs that could have been sourced, the sensitivity bracket assumes independent per-line errors and so understates the uncertainty (a correlated 2x on printed-part cost triples printer-alone cost closure, 11% -> 34%), the tests pinned no headline value (4 of 5 seeded mutants survived), and the work is a correct count of one known BOM rather than a new result. Does not meet the bar: verification 1, claims 2, median 2."
+}
