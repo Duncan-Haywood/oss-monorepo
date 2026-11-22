@@ -52,11 +52,19 @@ class T(unittest.TestCase):
 
     def test_f_star_minimises_cost(self):
         c2 = chi2(Q, P)
-        args = (c2, .05, 12, 10000, 1.0, 20.0, 0.05)
+        # h=1, c=0.5 puts f* (about 0.15) inside (0, 1), so the test checks the
+        # formula, not the min(1, .) cap (quality audit 2026-11-22).
+        args = (c2, .05, 12, 10000, 1.0, 1.0, 0.5)
         fs = f_star(*args)
         grid = [i / 1000 for i in range(1, 1001)]
         best = min(grid, key=lambda f: total_cost(f, *args))
+        self.assertLess(fs, 0.9)
         self.assertAlmostEqual(fs, best, delta=0.002)
+
+    def test_savings_curve_counts_undetected_runs_as_censored(self):
+        # p*s*E[min(T, N)]: T=10, and an undetected run (None) cheats all N=100.
+        self.assertAlmostEqual(savings_curve([10, None], 0.5, 1.0, 100, 1000), 0.5 * (10 + 100) / 2)
+        self.assertAlmostEqual(savings_curve([10, 400], 0.25, 2.0, 100, 1000), 0.25 * 2.0 * (10 + 100) / 2)
 
 
 if __name__ == "__main__":
