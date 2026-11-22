@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPEAvhVpWwEKsZ7iRY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T20:05:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "bank-statement-pdf-to-csv: Excel workbook that checks itself",
+  "projects": [
+    "bank-statement-pdf-to-csv"
+  ],
+  "pr": 18304,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "The first workbook wrote every formula cell as the number 0.01 (the money branch was checked before the formula branch)",
+      "fixed": "Caught by the LibreOffice recalculation check before the commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "record takes no --outcome/--pr/--notes flags; the fields have to be edited by hand in the JSON afterwards"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row was open-tennis-robots (CAD for an unbuilt machine; earlier runs judged it has no market path) and the reachable flagship rows ask mostly for outside inputs. Took bank-statement-pdf-to-csv instead: a market with proven paying customers (per-page converters), and no output for its top search phrase, 'bank statement to Excel'.",
+      "did": "Built xlsx.mjs (Excel output with live balance-check formulas) and an eval that has LibreOffice recalculate the workbook",
+      "result": "Shipped; 830 formulas on 11 workbooks recalculated by LibreOffice, 0 of 3,280 cells differ"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-a-bank-statement-spreadsheet-that-checks-itself.md"
+  ],
+  "goal": null,
+  "notes": "Tests: node --test ventures/bank-statement-pdf-to-csv/*.test.mjs: 107 pass, 0 fail. eval/xlsx-check-2026-11-22.txt: 11 workbooks, 3,280 cells, 830 formulas, 0 differ from LibreOffice 24.2's recalculation. Blanking one amount and recalculating showed 'off by 86.19' from that row onwards. openpyxl reads the shipped files with the Summary verdict intact. The page was driven in headless Chromium: two downloads, 0 external requests, no page errors. Not tested in Microsoft Excel or Google Sheets.",
+  "corrections": [],
+  "redteam": null
+}
