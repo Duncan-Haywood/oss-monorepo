@@ -122,18 +122,30 @@ export function energyDP(load, on, price, h, capF, capP, bat, stepsPerKw = 10) {
   for (let i = 0; i <= N; i++) V[i] = ((N - i) * dE / eta) * minPrice; // refill to full at the cheapest price
   const choice = new Int16Array(n * (N + 1));
   let next = new Float64Array(N + 1);
+  // The grid draw and the interval's cost depend only on the step k = j - i,
+  // not on i, so they are computed once per interval (k = -down..up, stored at
+  // k + down) and the inner loop is a min-plus scan. Same arithmetic, same
+  // order and the same tie-break as computing them per (i, j) (2026-11-22, perf).
+  const gStep = new Float64Array(up + down + 1);
+  for (let k = -down; k <= up; k++) {
+    const d = k * dE;
+    gStep[k + down] = d > 0 ? d / eta / h : (d * eta) / h;
+  }
+  const w = new Float64Array(up + down + 1);
   for (let t = n - 1; t >= 0; t--) {
     const cap = on[t] ? Math.min(capF, capP) : capF;
     const l = load[t], pr = price[t];
+    for (let k = 0; k <= up + down; k++) {
+      const g = l + gStep[k];
+      if (g < -1e-9) { w[k] = Infinity; continue; } // no export
+      const ex = g > cap ? g - cap : 0;
+      w[k] = g * h * pr + ex * PENALTY;
+    }
     for (let i = 0; i <= N; i++) {
       let bestV = Infinity, bestJ = i;
       const jlo = Math.max(0, i - down), jhi = Math.min(N, i + up);
-      for (let j = jlo; j <= jhi; j++) {
-        const d = (j - i) * dE;
-        const g = l + (d > 0 ? d / eta / h : (d * eta) / h);
-        if (g < -1e-9) continue; // no export
-        const ex = g > cap ? g - cap : 0;
-        const v = g * h * pr + ex * PENALTY + V[j];
+      for (let j = jlo, k = jlo - i + down; j <= jhi; j++, k++) {
+        const v = w[k] + V[j];
         if (v < bestV) { bestV = v; bestJ = j; }
       }
       next[i] = bestV;
