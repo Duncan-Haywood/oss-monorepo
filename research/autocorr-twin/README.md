@@ -6,8 +6,8 @@ Pure Python, no dependencies. A twin is often run once for a long time and summa
 
 ```bash
 cd research/autocorr-twin
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~3 s
-PYTHONPATH=src python3 experiments/run.py                 # ~2 min; output in experiments/results.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 12 tests, a few seconds
+PYTHONPATH=src python3 experiments/run.py                 # about 1 min; output in experiments/results.txt
 ```
 
 **Builds on.** The digital-twin simulation-fidelity and field-robot direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and the lab-workcell twins of the HIRO Group (<https://hiro-group.ronc.one/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The method is classical simulation output analysis: batch means (Schmeiser 1982; Law & Kelton 2000) and the M/M/1 waiting-time asymptotics of Daley (1968) and Whitt (1989). Companion to `queue-twin` (wrong service law) and `twin-evaluation` (twin as control variate) in this repository.
