@@ -26,3 +26,5 @@ ISSUE_068_ARK_NUS_skolebygg.ifc: 925 members; length stored 727, computed 925, b
   length off (no cause) #893755 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928055: stored 0.5500 computed 1.2500
   length off (no cause) #893827 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928056: stored 0.5500 computed 1.2500
   length off (no cause) #894129 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928181: stored 0.5500 computed 0.4500
+ISSUE_098_R8_F1_MAB_AR_M3_XX_XXX_MO_7000.ifc: 1209 members; length stored 0, computed 1209, both 0 (agree 0), new 1209, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Alluminio 1048; <Unnamed> 154; carter nero 7
