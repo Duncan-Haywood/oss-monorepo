@@ -9427,3 +9427,51 @@ weekly line, no `weekly-state.json`). One seeded series: it shows the wiring wor
 the rates are round 7's.
 
 Not done: a live repository on GitHub (the four-link set-up is still untried there), and a deployer's real export.
+
+## Round 8: a pulse-in-growth check for x1.3 climbs (2026-11-22, pre-registered; P1 and P3 fail, nothing ships)
+
+Round 7's weekly watch beside the daily one (**Q+DW**) heard 87 of 150 x1.3 climbs by 8 weeks. Its "Next" asked for a
+pulse-in-growth test: a slow climb is a few weeks of raised weekly growth, so watch the growth itself. Round 8 tested
+one such check, **P**, as a third arm.
+
+**Pre-registered** (`eval/growth-pulse.prereg.md`, committed in b0e52f8ba before the script existed;
+`eval/growth-pulse-sim.mjs`, output `eval/growth-pulse-sim.out.txt`, 4 min on 4 cores). P works on log weekly totals.
+At the end of each week from week 24 it takes, for each window of 2 to 8 weeks, the window's summed growth with
+two-week ends, `(y_T + y_{T-1})/2 - (y_{T-k} + y_{T-k-1})/2`, and scores it as a robust z (median and MAD) against the
+same quantity over the shop's own earlier weeks; it alerts on the largest |z| at or above `c`, at most once in 8 weeks.
+`c` was set on 150 separate unchanged shops (seed 20261126) as the smallest value on a grid whose false alerts stay at
+or under 0.10 per 100 days: **c = 6**, the top of the grid. The test shops are round 7's generator with a fresh seed
+(20261127).
+
+| | Q+DW (round 7, shipped) | Q+DW+P |
+|---|---|---|
+| unchanged shops: false alerts per 100 days | 1.055 | 1.131 |
+| x1.3 climbs heard by 8 weeks (of 150) | 89 | 92 |
+| x1.9 climbs heard by 8 weeks (of 150) | 130 | 135 |
+| P alone: x1.3 / x1.9 heard | | 11 / 45 |
+
+| bar | result |
+|---|---|
+| P1: on x1.3, Q+DW+P at least Q+DW + 15 | 92 against 104: **fails** |
+| P2: false alerts at most Q+DW's + 0.15 per 100 days | 1.131 against 1.205: passes |
+| P3: P1's gain at least 5 in each noise half | +2 and +1: **fails** |
+
+**Why it fails** (after the fact, `eval/growth-pulse-why.mjs`, output `eval/growth-pulse-why.out.txt`; not
+pre-registered). The robust z is not a z. On unchanged shops the largest |z| over a year has a median of 4.34 and a
+99th percentile of 13.6, because the history it is scored against is short (8 to 30 overlapping windows) and its MAD
+swings with it. A x1.3 climb's largest |z| inside its own 8-week window has a median of 3.97: below what an unchanged
+shop reaches in a year. No `c` separates them; 33 of 150 unchanged shops reach 6, while 20 of 150 x1.3 climbs do. P
+also dates a step weeks early, because the longest window that still contains it scores highest
+(`growth-pulse.test.mjs`). On the real UCI shop P at `c` 6 sends nothing in either file; at `c` 4 it hears the 2010
+build-up, dated 2010-09-06 and sent 2010-10-10, eight days before DW's (sent 2010-10-18).
+
+**Also shown:** round 7's shipped result replicates on fresh shops from the same generator: Q+DW hears 130 of 150 x1.9
+climbs by 8 weeks (round 7: 131), at 1.055 false alerts per 100 days (round 7: 1.071).
+
+**What ships.** Nothing in the watch changes. The script, its output and `growth-pulse.test.mjs` (the verdict, the
+seed match with round 7, P on a clean step) stay as the record.
+
+Next (most useful first): if a growth check is tried again, score it against a noise model rather than its own short
+history (the drift detector's level noise, or a per-shop bootstrap of the weeks before), so its false-alert rate is
+set rather than measured after; and read how far x1.3 over 4 to 8 weeks is from the information limit at these shops' weekly noise
+(roughly 0.07 to 0.17 in the log, a back-of-envelope figure, not measured; the half of the shops with `s` of 0.30 or more may simply be past it).
