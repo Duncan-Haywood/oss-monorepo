@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKnQrQmeFQRH7tnEdsd",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T01:18:03Z",
+  "ended": "2026-11-22T01:35:56Z",
+  "wall_minutes": 128.51,
+  "tokens_in": 7522515,
+  "tokens_out": 37989,
+  "cost_usd": 4.2293,
+  "tool_calls": 63,
+  "task": "research/buildbot-sheathing milestone 69: does a second calibration pose raise the weakest pose's bias rating?",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18172",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run-time estimate for m69 was ~20 min from m67's 499 s; the run took 7,055 s on 4 processes, close to the 2 h job limit",
+      "fix": "resume file was in place; no restart was needed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pytest numpy scipy mujoco returned /usr/bin/python3.13 without matplotlib; figure.py needed a separate pip install (about a minute)"
+    },
+    {
+      "file": "research/buildbot-sheathing/experiments (import chain)",
+      "issue": "importing m68's run.py executes the m38..m67 chain at import time and takes about 85 s before any task starts, so even a plan-only check costs 1.5 min"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (m68 'Next')",
+      "why": "m68 proposed asking which joints set the weakest poses' ||J||; the residual's form (press minus reference) made the reference choice the direct lever, and it could be planned exactly offline",
+      "did": "tested a second calibration pose, chosen from the m67 table, against the single reference on held-out loads",
+      "result": "all five registered hypotheses held; the weakest rating more than doubled"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-sheathing-robot-second-calibration-pose.md",
+    "research/buildbot-sheathing/LOG.md (milestone 69 entries)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS and website requests empty; routed research (draw), pick_track drew buildbot-sheathing. Registered H266-H270 in commit 5efe0ba67 before the run. Results: H266 re-referencing equals J67(p)-J67(r) to 4.3e-14 mm/N; weakest rating 0.213->0.530 N (G1), 0.279->0.564 N (H1); 0 gate-passed presses over 0.03 mm; gate coverage 0.4 N 100%/99.3% (from 57.6%/85.0%), 0.6 N 63.4%/83.7% (from 20.7%/52.0%). Checks run locally: project pytest 222 passed 4 skipped; paper/check_numbers.py 472/472; research/_homepage/build.py ok; check_md_links ok; check_posts ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e9fcf42b-2150-5b06-92ad-d433c04f46c5",
+    "transcripts": 1,
+    "first": "2026-11-22T01:18:03Z",
+    "last": "2026-11-22T03:26:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 124,
+        "output": 37989,
+        "thinking": 8658,
+        "cache_read": 7270523,
+        "cache_write_5m": 0,
+        "cache_write_1h": 251868,
+        "api_equivalent_usd": 4.2293,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 124,
+      "output": 37989,
+      "thinking": 8658,
+      "cache_read": 7270523,
+      "cache_write_5m": 0,
+      "cache_write_1h": 251868,
+      "api_equivalent_usd": 4.2293,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 57,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 128.51,
+      "active_minutes": 26.22,
+      "model_minutes": 6.79,
+      "tool_minutes": 19.43,
+      "waiting_on_human_minutes": 102.3,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher planning, coding and running a registered two-arm simulation study plus the write-up, about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 378.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

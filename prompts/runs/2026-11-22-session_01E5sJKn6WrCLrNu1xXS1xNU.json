@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKn6WrCLrNu1xXS1xNU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T03:18:41Z",
+  "ended": "2026-11-22T03:35:45Z",
+  "wall_minutes": 17.29,
+  "tokens_in": 8926703,
+  "tokens_out": 48339,
+  "cost_usd": 3.9262,
+  "tool_calls": 75,
+  "task": "ids-model-check flagship: Qto_ Length for columns, beams, members and piles from geometry in the model fill",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18186",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First IfcTester pass crashed: IfcTester 0.9.0 reads quantity.declaration, which IfcOpenShell 0.9.0.post1's entity_instance lacks; eval/member_lengths_ifctester.py patches the accessor."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/geometry-quantities.mjs",
+      "issue": "Its comment said no public model stores a beam's or member's Qto_ Length to check against; the venture's own corpus stores 5,079 of them (grep found them in a minute). Corrected in this PR."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with make-room moved open bSDD items ('a page route for bSDD...; a BIM manager's real table...') to HISTORY.md as if finished and left a dangling 'next:' in the row; I moved them to NEXT.md and fixed the row by hand. It should park open items to NEXT.md, not HISTORY.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-ids-model-check-member-lengths-from-geometry.md",
+    "ventures/ids-model-check/eval/member-lengths-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Measured the stored lengths first (10 public exports, 5,079 stored), then chose the rule: square ends offer the extent, cut ends only ARCHICAD's volume/section, bodies no longer than wide held back. 3,227 of 3,233 within 2% (676 ARK_NUS repeated figures set aside). Fill with lengths hidden on 5 models: 3,262 written, 3,189/3,194 match, IfcTester 3,262 fail->pass. run_venture_tests.py ids-model-check: 471 tests ok. venture-preflight.mjs ids-model-check: clean. No agent doc in docs/reports: the eval file and NEXT.md carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fd84da02-7b58-56e8-ad58-fe8e3d603c6b",
+    "transcripts": 1,
+    "first": "2026-11-22T03:18:41Z",
+    "last": "2026-11-22T03:35:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 133,
+        "output": 48339,
+        "thinking": 11599,
+        "cache_read": 8776106,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150464,
+        "api_equivalent_usd": 3.9262,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 133,
+      "output": 48339,
+      "thinking": 11599,
+      "cache_read": 8776106,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150464,
+      "api_equivalent_usd": 3.9262,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 71,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.29,
+      "active_minutes": 17.29,
+      "model_minutes": 8.35,
+      "tool_minutes": 8.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a BIM developer measuring member lengths on 10 models, writing the rule, tests, eval and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 254.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

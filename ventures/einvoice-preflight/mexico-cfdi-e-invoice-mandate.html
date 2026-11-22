@@ -88,12 +88,14 @@
 </footer>
 <script type="module">
 import{checkRfc}from"./mexico.mjs";
-import{checkCfdi}from"./cfdi.mjs";
+// The CFDI checker (about 340 kB compressed with its SAT catalogues) loads on first use, so the page and its RFC check are live at once.
+let cfdiLoad=null;const loadCfdi=()=>(cfdiLoad||=import("./cfdi.mjs").catch(e=>{cfdiLoad=null;throw e}));
+for(const t of["pointerdown","focusin","keydown"])document.addEventListener(t,()=>loadCfdi().catch(()=>{}),{once:true,passive:true});
 const $=i=>document.getElementById(i);
 const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 function r(){const v=$("rfc").value;if(!v.trim()){$("rfc-out").innerHTML="";return}const x=checkRfc(v);$("rfc-out").innerHTML=x.ok?'<span class="good">'+(x.kind==="generic"?"Generic RFC (public or foreigner).":"Shape, date and check digit are consistent ("+(x.kind==="company"?"company":"person")+").")+"</span>":x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
 $("rfc").addEventListener("input",r);
-function show(text){const x=checkCfdi(text),m=x.meta||{};const head=m.version?`CFDI ${esc(m.version)}, type ${esc(m.tipo||"?")}, ${esc(m.moneda||"?")}, ${m.lines||0} line(s), ${m.payments?`${m.payments} payment(s) covering ${m.documents} document(s), `:""}${m.payrolls?`${m.payrolls} payroll complement(s), `:""}${m.exports?`an export complement with ${m.goods||0} Mercancia(s), `:""}${m.waybills?`a Carta Porte waybill (${(m.modes||[]).join(", ")||"no transport"}, ${m.locations||0} location(s)), `:""}${m.stamped?"stamped":"not stamped"}.`:"";$("cfdi-out").innerHTML=(head?`<p>${head}</p>`:"")+(x.findings.length?`<ul>${x.findings.map(f=>`<li><span class="bad">${esc(f.rule)}</span> ${esc(f.message)} <em>${esc(f.fix)}</em></li>`).join("")}</ul>`:'<p class="good">No findings from these checks. Not an acceptance by a PAC or SAT.</p>')+(x.skipped.length?`<p class="fine">Skipped: ${x.skipped.map(esc).join(" ")}</p>`:"")}
+async function show(text){let checkCfdi;try{({checkCfdi}=await loadCfdi())}catch{$("cfdi-out").innerHTML='<p class="bad">The checker did not load. Check your connection and try again.</p>';return}const x=checkCfdi(text),m=x.meta||{};const head=m.version?`CFDI ${esc(m.version)}, type ${esc(m.tipo||"?")}, ${esc(m.moneda||"?")}, ${m.lines||0} line(s), ${m.payments?`${m.payments} payment(s) covering ${m.documents} document(s), `:""}${m.payrolls?`${m.payrolls} payroll complement(s), `:""}${m.exports?`an export complement with ${m.goods||0} Mercancia(s), `:""}${m.waybills?`a Carta Porte waybill (${(m.modes||[]).join(", ")||"no transport"}, ${m.locations||0} location(s)), `:""}${m.stamped?"stamped":"not stamped"}.`:"";$("cfdi-out").innerHTML=(head?`<p>${head}</p>`:"")+(x.findings.length?`<ul>${x.findings.map(f=>`<li><span class="bad">${esc(f.rule)}</span> ${esc(f.message)} <em>${esc(f.fix)}</em></li>`).join("")}</ul>`:'<p class="good">No findings from these checks. Not an acceptance by a PAC or SAT.</p>')+(x.skipped.length?`<p class="fine">Skipped: ${x.skipped.map(esc).join(" ")}</p>`:"")}
 $("cfdi-file").addEventListener("change",async e=>{const f=e.target.files[0];if(f)show(await f.text())});
 $("cfdi-sample").addEventListener("click",()=>show(SAMPLE));
 $("pago-sample").addEventListener("click",()=>show(PAGO_SAMPLE));

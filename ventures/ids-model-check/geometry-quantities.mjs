@@ -21,15 +21,20 @@
 //                            side faces; the body extruded or faceted
 //                            (wallLines below; eval/wall-axis-lengths-2026-11-21.md,
 //                            eval/wall-brep-lengths-2026-11-21.md)
-// Other lengths and heights are not offered: a beam's or member's Qto_ Length
-// is a nominal figure its cut-backs make ambiguous, and no public model here
-// stores one to check against.
+//   Length                   columns, beams, members, piles: the body's length
+//                            along its extrusion (memberLength below), when
+//                            the body is longer than its section is wide; with
+//                            square ends only, or cut ends by the authoring
+//                            tool's convention (ARCHICAD: volume / section)
+//                            (eval/member-lengths-2026-11-22.md)
+// Other lengths and heights are not offered.
 //
 // Every value is in SI units (m, m2, m3), as the IDS standard reads values.
 
 const WALL = /^IFCWALL/;
 const PLAN = /^IFC(SLAB|PLATE|COVERING|ROOF)/;
 const CROSS = /^IFC(COLUMN|BEAM|MEMBER|PILE)/;
+const LINEAR = /^IFC(WALL|COLUMN|BEAM|MEMBER|PILE)/; // Length: walls and linear members
 const LINES = new Set(["Length", "Height"]); // read from computed.lines, not the sections
 
 // [quantity name, quantity kind, class test or null for any, reader(row) -> number|null]
@@ -44,7 +49,7 @@ export const GEOMETRY_QUANTITIES = [
   ["GrossArea", "area", PLAN, (r) => r.computed.areas?.plan?.gross],
   ["NetArea", "area", PLAN, (r) => r.computed.areas?.plan?.net],
   ["CrossSectionArea", "area", CROSS, (r) => r.computed.areas?.cross?.gross],
-  ["Length", "length", WALL, (r) => r.computed.lines?.length],
+  ["Length", "length", LINEAR, (r) => r.computed.lines?.length],
   ["Height", "length", WALL, (r) => r.computed.lines?.height],
 ];
 
@@ -310,13 +315,18 @@ export function offeredHeight(w, clipped, convention) {
 
 /** The convention of the application an element's owner history names (or the file's only application), or null. */
 export function heightConvention(model, e, cache = new Map()) {
+  return toolConvention(model, e, HEIGHT_CONVENTIONS, cache);
+}
+
+/** The convention `table` gives the application an element's owner history names (or the file's only application), or null. */
+export function toolConvention(model, e, table, cache = new Map()) {
   const E = model.entities;
   const appName = (a) => {
     if (!a || a.type !== "IFCAPPLICATION") return "";
     const dev = E.get(a.args[0]?.ref);
     return [a.args[2], a.args[3], dev?.args?.[1]].filter((x) => typeof x === "string").join(" ");
   };
-  const ofApp = (a) => { const t = appName(a); for (const [re, c] of HEIGHT_CONVENTIONS) if (re.test(t)) return c; return null; };
+  const ofApp = (a) => { const t = appName(a); for (const [re, c] of table) if (re.test(t)) return c; return null; };
   const oh = E.get(e?.args?.[1]?.ref);
   const own = oh && oh.type === "IFCOWNERHISTORY" ? E.get(oh.args[1]?.ref) : null;
   if (own) return ofApp(own);
@@ -373,6 +383,97 @@ export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asT
   return n;
 }
 
+// ---- a column's, beam's or member's length, from its body -------------------
+//
+// Qto_BeamBaseQuantities, Qto_ColumnBaseQuantities, Qto_MemberBaseQuantities
+// and Qto_PileBaseQuantities define Length as "the total nominal length" of
+// the element, along its axis. The takeoff already knows the axis (the
+// extrusion direction, or a faceted body's prism axis: computed.areas.cross.n)
+// and the section across it at mid-length. Two readings of the length follow:
+// the body's extent along the axis, and its volume over that section, which
+// for a prism cut by planes is the length of the line through the section's
+// centroid. With square ends they are one figure, and every authoring tool's
+// stored Length on the public models is that figure. With cut ends (a mitre,
+// a sloped cut, a fitting) they part, and the tools part with them: ARCHICAD
+// stores volume / section (16 of 17 on schependomlaan), Tekla neither in most
+// of its faceted cuts, Revit no cut member here at all. So a cut member's
+// Length is offered only by its tool's convention (eval/member-lengths-2026-11-22.md).
+//
+// A body no longer along its axis than it is wide across it is not taken for
+// a linear member: Tekla exports plates as IfcBeam ('PL6*60', its stored
+// Length the plate's own 0.132 m, its extrusion the 0.060 m width), ARCHICAD
+// a strip footing as a 0.5 m deep beam.
+
+const LENGTH_CONVENTIONS = [
+  [/archicad|graphisoft/i, "centroid"],
+];
+
+const SQUARE_TOL = 0.005;
+
+/** The body's largest extent across direction n (12 directions in the plane normal to n), in body units. */
+export function widthAcross(body, n, solidExtent) {
+  const a = Math.abs(n[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+  // u = a x n normalised, w = n x u
+  let u = [a[1] * n[2] - a[2] * n[1], a[2] * n[0] - a[0] * n[2], a[0] * n[1] - a[1] * n[0]];
+  const L = Math.hypot(...u);
+  u = u.map((x) => x / L);
+  const w = [n[1] * u[2] - n[2] * u[1], n[2] * u[0] - n[0] * u[2], n[0] * u[1] - n[1] * u[0]];
+  let D = 0;
+  for (let i = 0; i < 12; i++) {
+    const t = (i * Math.PI) / 12, c = Math.cos(t), s = Math.sin(t);
+    const d = [c * u[0] + s * w[0], c * u[1] + s * w[1], c * u[2] + s * w[2]];
+    const [lo, hi] = solidExtent(body, d);
+    if (hi - lo > D) D = hi - lo;
+  }
+  return D;
+}
+
+/**
+ * A linear member's two length readings (SI) and which one is offered.
+ * @param {{computed: object, lengthUnit?: number}} row a takeoff row with computed.areas.cross
+ * @param {Function} solidExtent geom.mjs
+ * @param {string|null} convention the authoring tool's, for cut ends ('centroid' or 'extent')
+ * @returns {{length: number|null, extent: number, centroid: number, width: number, square: boolean, lengthFrom: string|null} | null}
+ */
+export function memberLength(row, solidExtent, convention = null) {
+  const c = row.computed?.areas?.cross, body = row.computed?.solids?.body;
+  if (!c?.n || !body || !(c.gross > 0) || !(row.computed.gross > 0)) return null;
+  const f = row.lengthUnit ?? 1;
+  const [lo, hi] = solidExtent(body, c.n);
+  const extent = (hi - lo) * f;
+  const centroid = row.computed.gross / c.gross;
+  const width = widthAcross(body, c.n, solidExtent) * f;
+  if (!(extent > 0) || !(width > 0)) return null;
+  const square = Math.abs(extent - centroid) <= SQUARE_TOL * extent;
+  let length = null, lengthFrom = null;
+  if (extent <= width) lengthFrom = null; // a plate or a footing, not a linear member
+  else if (square) { length = extent; lengthFrom = "square"; }
+  else if (convention === "centroid") { length = centroid; lengthFrom = "centroid"; }
+  else if (convention === "extent") { length = extent; lengthFrom = "extent"; }
+  return { length, extent, centroid, width, square, lengthFrom };
+}
+
+/**
+ * Adds computed.lines = {length} (SI) to each column, beam, member and pile
+ * row memberLength offers one for. Returns how many.
+ */
+export function addMemberLines(model, rows, { solidExtent }) {
+  const apps = new Map();
+  let n = 0;
+  for (const r of rows) {
+    if (!CROSS.test(r.ifcType) || !r.computed || r.computed.status !== "ok") continue;
+    let m;
+    try {
+      m = memberLength(r, solidExtent, null);
+      if (m && !m.square && m.extent > m.width) m = memberLength(r, solidExtent, toolConvention(model, model.entities.get(r.id), LENGTH_CONVENTIONS, apps));
+    } catch { m = null; }
+    if (!m || m.length == null) continue;
+    r.computed.lines = { length: m.length, height: null, lengthFrom: m.lengthFrom, extent: m.extent, centroid: m.centroid, width: m.width };
+    n++;
+  }
+  return n;
+}
+
 /**
  * The model fill's opts.geometry: (element, quantity name, quantity class)
  * -> SI value or undefined.
@@ -395,9 +496,10 @@ export async function measureModel(ifcText, opts = {}) {
   const base = opts.dir ? new URL(String(opts.dir).replace(/\/?$/, "/"), import.meta.url) : new URL("../ifc-quantity-takeoff/", import.meta.url);
   const { parseStep } = await import(new URL("step.mjs", base).href);
   const { takeoff, readUnits } = await import(new URL("qto.mjs", base).href);
-  const { Geometry, polyPlanes, asTerms } = await import(new URL("geom.mjs", base).href);
+  const { Geometry, polyPlanes, asTerms, solidExtent } = await import(new URL("geom.mjs", base).href);
   const model = parseStep(ifcText);
   const { rows } = takeoff(model);
   addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
+  addMemberLines(model, rows, { solidExtent });
   return quantitiesFromRows(rows);
 }

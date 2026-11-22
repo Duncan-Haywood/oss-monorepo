@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Linear members carry a length (geometry fill check)</title>
+    <description>Columns, beams, members and piles carry Qto_ Length, as a steel or timber takeoff reads it. Written for eval/member-lengths-2026-11-22.md; MIT.</description>
+  </info>
+  <specifications>
+    <specification name="Columns carry a length" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCCOLUMN"/><xs:enumeration value="IFCCOLUMNSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_ColumnBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Length</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Beams carry a length" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCBEAM"/><xs:enumeration value="IFCBEAMSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_BeamBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Length</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Members carry a length" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCMEMBER"/><xs:enumeration value="IFCMEMBERSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_MemberBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Length</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Piles carry a length" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCPILE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_PileBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Length</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>

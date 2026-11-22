@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMh5PGUC6BqV5jUF4A",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating software; merge when done)",
+  "input_sha256": "790785e5a9783ff3da4db908cb1c87e966d64cb67a7c1e9f61d64459fbbc1020",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T03:07:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: benchmark dxf-nesting against the ESICUP strip-packing records (sparrow) and add a seeded order search",
+  "projects": [
+    "ventures/dxf-nesting"
+  ],
+  "pr": 18183,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/dxf-nesting/eval/esicup-strip-2026-11-22.md",
+      "why": "pre-registration said the dev set picks the setting; only one setting (100) was run on dev for time, and the page default is 60 not 100 to keep the worked example near 3 s",
+      "did": "evaluated held-out at 100, shipped 60 as page default",
+      "result": "held-out +0.029 at 100; 60 not separately measured on the benchmark"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-our-dxf-nester-against-the-state-of-the-art.md",
+    "ventures/dxf-nesting/eval/esicup-strip-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Idea: measure a product claim against a public research benchmark instead of trusting it. dxf-nesting said commercial nesters fit 'a few percent' more; on the 13 classic ESICUP instances (held out, pre-registered) our strips were 24% longer than sparrow's records (ratio 0.807). A seeded order search (searchIters; page default 60) raised the held-out ratio to 0.836 (+0.029, bar 0.01), dev 0.848 -> 0.867, none worse, 46/46 nests pass verify. Exact collision-test speedup (~2x, identical nests). Page, FAQ, llms.txt and README now state the measured gap. CLI check line fixed: 'closest' printed the pair gap as if it were the edge distance. Verification: node --test ventures/dxf-nesting/*.test.mjs 46/46 pass; check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

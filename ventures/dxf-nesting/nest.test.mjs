@@ -167,3 +167,27 @@ test("bad inputs are refused with a reason", () => {
   assert.equal(runJob([{ name: "x", part: rect(1, 1), qty: 0 }], { sheetW: 10, sheetH: 10 }).ok, false);
   assert.ok(partRings(rect(1, 1), 0.01).length === 1);
 });
+
+test("the order search repeats, never ends worse than no search, and still passes the check", () => {
+  const r = rng(7);
+  const items = [];
+  for (let k = 0; k < 5; k++) {
+    const n = 4 + Math.floor(r() * 5), pts = [];
+    const R = 30 + r() * 60;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2, rad = R * (0.4 + 0.6 * r());
+      pts.push([rad * Math.cos(a), rad * Math.sin(a)]);
+    }
+    items.push({ name: "P" + k, part: finishPart({ outer: polyEdges(pts), holes: [], marks: [] }, 0.05), qty: 3 + Math.floor(r() * 5) });
+  }
+  // a long strip: one sheet, so the score is its used length
+  const opts = { sheetW: 3000, sheetH: 300, gap: 2, res: 2, tol: 0.05, maxSheets: 1 };
+  const base = runJob(items, { ...opts, searchIters: 0 });
+  const a = runJob(items, { ...opts, searchIters: 40 });
+  const b = runJob(items, { ...opts, searchIters: 40 });
+  assert.equal(a.result.searched, 40);
+  assert.ok(a.check.ok, a.check.problems.join("\n"));
+  assert.deepEqual(a.result.sheets, b.result.sheets);
+  assert.equal(a.result.sheets.length, 1);
+  assert.ok(a.result.sheets[0].usedLength <= base.result.sheets[0].usedLength);
+});

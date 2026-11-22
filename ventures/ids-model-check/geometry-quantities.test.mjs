@@ -244,3 +244,37 @@ ENDSEC;END-ISO-10303-21;`);
   assert.equal(heightConvention(m, E.get(23)), null);
   assert.equal(heightConvention(m, E.get(24)), null); // no owner history, and the file names three tools
 });
+
+test("a linear member's Length: square ends give the body's length; cut ends only by the authoring tool's convention; plates none", async () => {
+  const { memberLength } = await import("./geometry-quantities.mjs");
+  // a box of half-sizes h, axis along x; its extent along d
+  const ext = (b, d) => { const e = Math.abs(d[0]) * b.h[0] + Math.abs(d[1]) * b.h[1] + Math.abs(d[2]) * b.h[2]; return [-e, e]; };
+  const row = (h, volume, section) => ({ computed: { status: "ok", gross: volume, solids: { body: { h } }, areas: { cross: { n: [1, 0, 0], gross: section } } }, lengthUnit: 1 });
+  // 4 m long, 0.2 x 0.1 section: volume / section = 4
+  const sq = memberLength(row([2, 0.1, 0.05], 0.08, 0.02), ext);
+  assert.equal(sq.square, true);
+  assert.equal(sq.length, 4);
+  assert.equal(sq.lengthFrom, "square");
+  // a mitred end: extent 4, volume / section 3.9 -- held back unless the tool says which
+  const cut = row([2, 0.1, 0.05], 0.078, 0.02);
+  assert.equal(memberLength(cut, ext).length, null);
+  assert.ok(Math.abs(memberLength(cut, ext, "centroid").length - 3.9) < 1e-9);
+  assert.equal(memberLength(cut, ext, "extent").length, 4);
+  // a plate exported as a beam: 0.06 along its extrusion, 0.14 across
+  const plate = memberLength(row([0.03, 0.07, 0.003], 0.06 * 0.14 * 0.006, 0.14 * 0.006), ext);
+  assert.equal(plate.square, true);
+  assert.equal(plate.length, null);
+});
+
+test("the fill writes a column's and a beam's Length from the body's length along its extrusion", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  // the column stores no quantities; the beam's stored Length taken out
+  const text = readFileSync(SAMPLE, "utf8").replace("(#611,#612,#613)", "(#612,#613)");
+  const geometry = geometryLookup(await measureModel(text));
+  const L = (cls, set) => fillModel(ids(spec(cls, prop(set, "Length", "IFCLENGTHMEASURE"))), text, { ...resources(), random, geometry });
+  const col = L("IFCCOLUMN", "Qto_ColumnBaseQuantities");
+  assert.deepEqual(col.writtenList.filter((w) => w.source === "geometry").map((w) => [w.id, w.value]), [[500, "3000."]]);
+  assert.equal(col.verified.pass, col.written);
+  const beam = L("IFCBEAM", "Qto_BeamBaseQuantities");
+  assert.deepEqual(beam.writtenList.filter((w) => w.source === "geometry").map((w) => [w.id, w.value]), [[600, "4000."]]);
+  assert.equal(beam.verified.pass, beam.written);
+});

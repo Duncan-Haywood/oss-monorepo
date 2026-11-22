@@ -422,7 +422,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
-node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas and wall lengths and heights measured from the bodies
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights and member lengths measured from the bodies
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -668,7 +668,20 @@ highest point is also found at a mitred end's corner now (C20's Wand-003:
 2.0257 m, as stored; 1.985 before). Revit's own constraint set was tried as a
 reference and dropped: walls whose top is attached to a roof match it 0 of 67
 times (`eval/wall-cut-top-heights-2026-11-22.md`).
-Other lengths and heights (beams, members, curved walls) are not measured. A value from the model's
+**Columns', beams', members' and piles' Length (2026-11-22).** A linear
+member's `Qto_` Length is now measured too: the body's length along its
+extrusion (or a faceted body's prism axis). With square ends that is one
+figure every exporter agrees on; with cut ends (a mitre, a fitting) the body's
+extent and its volume over its section part, and the exporters part with them,
+so a cut member gets a Length only from ARCHICAD (volume over section, 16 of 17
+on schependomlaan). A body shorter along its axis than it is wide across it (a
+plate exported as a beam, a strip footing) gets none. On 10 public exports
+with 5,079 stored lengths, 3,227 of the 3,233 offered on elements whose stored
+figure is not one value repeated across pieces of different length are within
+2%. With the stored lengths hidden, the fill wrote 3,262 lengths on five of
+them and 3,189 of the 3,194 with a stored figure match it; IfcTester takes the
+same 3,262 elements from fail to pass (`eval/member-lengths-2026-11-22.md`).
+Curved walls' lengths and other heights are not measured. A value from the model's
 own quantity sets always wins over a measured one, and a measured value still
 has to pass every facet that names it. Values are written to six significant
 figures in the model's units. How close they come: on the two HHS Office

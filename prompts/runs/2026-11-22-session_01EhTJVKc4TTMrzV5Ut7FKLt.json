@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVKc4TTMrzV5Ut7FKLt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T03:15:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9) league-schedule-generator: Swiss downfloater choice (the C.8 look-ahead item in NEXT.md)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18182",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/NEXT.md",
+      "issue": "The item was framed as 'C.8 look-ahead'; a per-bracket diagnostic showed the floater misses came from three other causes (next-bracket colours counted, wrong remainder, coarse floater order), and 25 of 27 remaining misses are stage B. Framing items by a measured first-difference would have saved the guess."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-swiss-pairing-who-floats-down.md"
+  ],
+  "goal": null,
+  "notes": "Replay (eval/swiss-vs-published.mjs, gbtami/swisspairing 193ad99, played): chess-results 4,694 -> 4,742 of 5,083 boards, later rounds 94.8% -> 95.9%, exact rounds 19 -> 25 of 54; lichess 640 -> 667; open condition 3,564 -> 3,593. New eval/swiss-miss-brackets.mjs: floater-first misses 12 -> 2 of differing rounds. swiss.test.mjs + trf.test.mjs pass locally; full venture suite and eval/swiss-repeat-floats.mjs 40 run before merge (see PR).",
+  "corrections": [],
+  "redteam": null
+}

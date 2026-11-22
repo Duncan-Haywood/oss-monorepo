@@ -15,6 +15,7 @@
  * guessed at. The package asks for no permissions and bundles no remote code.
  */
 import fs from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
@@ -66,9 +67,25 @@ export function rewritePage(html) {
   return skip ? { skip } : { html: out, scripts };
 }
 
-/** Local files the page's scripts import, transitively; { skip } on a package or escape. */
+/**
+ * A file's text, or null when it cannot be read. Synchronous on purpose: the
+ * catalogue-wide `plan()`s here and in desktop.mjs, ios.mjs and android.mjs read
+ * ~6,000 small files one venture at a time, and `fs.promises` spent more in
+ * thread-pool round trips than in the reads (1.1 s of 2.4 s idle; see
+ * docs/history/ci-perf-2026-11-22-store-packager-sync-reads.md).
+ */
+export function readText(file) {
+  try { return readFileSync(file, 'utf8'); } catch { return null; }
+}
+
+/**
+ * Local files the page's scripts import, transitively; { skip } on a package or
+ * escape. `bodies` maps each file to the text already read, so the caller need
+ * not read it again.
+ */
 export async function importedFiles(dir, sources) {
   const seen = new Set();
+  const bodies = {};
   const queue = [];
   const enqueue = (src, fromRel) => {
     for (const spec of importsOf(src)) {
@@ -84,13 +101,14 @@ export async function importedFiles(dir, sources) {
     const rel = queue.pop();
     if (seen.has(rel)) continue;
     seen.add(rel);
-    const src = await fs.readFile(path.join(dir, rel), 'utf8').catch(() => null);
+    const src = readText(path.join(dir, rel));
     if (src === null) return { skip: `missing ${rel}` };
     if (NETWORK_RE.test(src)) return { skip: `${rel} reaches the network` };
+    bodies[rel] = src;
     const r = enqueue(src, rel);
     if (r) return { skip: r };
   }
-  return { files: [...seen].sort() };
+  return { files: [...seen].sort(), bodies };
 }
 
 export const BACKGROUND = `chrome.action.onClicked.addListener(() => {
@@ -102,30 +120,32 @@ const ICON_SIZES = [16, 48, 128];
 
 /** One extension as { name, version, files: {path: string|Buffer} } or { skip }. */
 export async function buildExtension({ slug, dir, version = VERSION }) {
-  const html = await fs.readFile(path.join(dir, 'index.html'), 'utf8').catch(() => null);
+  const html = readText(path.join(dir, 'index.html'));
   if (html === null) return { skip: 'no index.html' };
   const meta = readMeta(html);
   if (!meta) return { skip: 'no title or description' };
-  const license = await fs.readFile(path.join(dir, 'LICENSE'), 'utf8').catch(() => null);
+  const license = readText(path.join(dir, 'LICENSE'));
   if (license === null || !/MIT License/i.test(license)) return { skip: 'no MIT LICENSE' };
   const page = rewritePage(html);
   if (page.skip) return { skip: page.skip };
   const localSrc = [...html.matchAll(SCRIPT_RE)].map((m) => /\bsrc\s*=\s*["']([^"']+)["']/i.exec(m[1])?.[1]).filter(Boolean);
   const sources = Object.values(page.scripts);
+  const srcBodies = {};
   for (const s of localSrc) {
     if (!s.startsWith('./') && !/^[\w-]+\.m?js$/.test(s)) return { skip: `script src ${s}` };
     const rel = s.replace(/^\.\//, '');
-    const body = await fs.readFile(path.join(dir, rel), 'utf8').catch(() => null);
+    const body = readText(path.join(dir, rel));
     if (body === null) return { skip: `missing ${rel}` };
     if (NETWORK_RE.test(body)) return { skip: `${rel} reaches the network` };
+    srcBodies[rel] = body;
     sources.push(body);
   }
   const imp = await importedFiles(dir, sources);
   if (imp.skip) return { skip: imp.skip };
   const files = { 'index.html': page.html };
   for (const [f, s] of Object.entries(page.scripts)) files[f] = s;
-  for (const s of localSrc) { const rel = s.replace(/^\.\//, ''); files[rel] = await fs.readFile(path.join(dir, rel), 'utf8'); }
-  for (const rel of imp.files) files[rel] = await fs.readFile(path.join(dir, rel), 'utf8');
+  for (const s of localSrc) { const rel = s.replace(/^\.\//, ''); files[rel] = srcBodies[rel]; }
+  for (const rel of imp.files) files[rel] = imp.bodies[rel];
   files['background.js'] = BACKGROUND;
   files.LICENSE = license;
   const name = extensionName(meta.title);
@@ -192,7 +212,7 @@ export async function discover(root = REPO_ROOT) {
   const dir = path.join(root, 'ventures');
   const out = [];
   for (const e of await fs.readdir(dir, { withFileTypes: true })) {
-    if (e.isDirectory() && await fs.stat(path.join(dir, e.name, 'index.html')).then(() => true, () => false)) out.push(e.name);
+    if (e.isDirectory() && existsSync(path.join(dir, e.name, 'index.html'))) out.push(e.name);
   }
   return out.sort();
 }

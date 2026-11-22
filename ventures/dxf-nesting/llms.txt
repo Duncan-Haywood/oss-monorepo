@@ -2,7 +2,7 @@
 
 > Free true-shape nesting of DXF parts on rectangular sheets, in the browser: load DXF files, set quantities, sheet size, gap and edge margin, and get nested sheets as R12 DXF with utilisation, cut length and pierce counts. Parts go inside the holes of other parts. Every gap is checked independently after nesting. Nothing is uploaded.
 
-Free and open source (MIT). For laser, plasma, waterjet and CNC router shops quoting or cutting small batches. A greedy grid nester, not an optimiser: commercial nesters with search usually fit a few percent more. Not engineering advice; check every nest in your CAM before cutting.
+Free and open source (MIT). For laser, plasma, waterjet and CNC router shops quoting or cutting small batches. A grid nester with a short seeded search, not an optimiser: on the 13 classic ESICUP strip-packing benchmarks its layouts are about 20% longer than the best published ones (README, "How it was checked"). Not engineering advice; check every nest in your CAM before cutting.
 
 ## Pages
 

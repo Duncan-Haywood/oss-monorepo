@@ -10,7 +10,7 @@
   <meta property="og:type" content="website">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "DXF Nesting", "applicationCategory": "DesignApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free true-shape nesting of DXF parts on rectangular sheets for laser, plasma, waterjet and CNC router shops. Reads LINE, ARC, CIRCLE, polylines with bulges, ELLIPSE, SPLINE and blocks; writes the nested sheets as R12 DXF; checks every gap independently."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I nest DXF parts for free?", "acceptedAnswer": {"@type": "Answer", "text": "Open this page, drop in one or more ASCII DXF files, give each part a quantity, enter the sheet size, the gap between parts and the edge margin, and press Nest. You get each sheet as a picture and as a DXF file for your CAM, with utilisation, cut length and pierces per sheet. Nothing is uploaded."}}, {"@type": "Question", "name": "Will it put small parts inside the holes of big ones?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Holes in a part stay free, so washers, slugs and small brackets are placed inside large cut-outs when they fit with the gap you set."}}, {"@type": "Question", "name": "How is the gap between parts guaranteed?", "acceptedAnswer": {"@type": "Answer", "text": "Parts are placed on a fine grid that always covers the whole shape, and each placed part reserves extra cells for the gap plus the arc flattening error. After nesting, a separate check measures the distance between every pair of placed outlines from their edges and reports any pair closer than the gap."}}, {"@type": "Question", "name": "Is it as good as SigmaNEST, ProNest or Deepnest?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not quite. It is a greedy placement on a grid, so a commercial true-shape nester with search will often fit a few percent more parts per sheet. It is free, instant, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use."}}, {"@type": "Question", "name": "Which DXF entities are read?", "acceptedAnswer": {"@type": "Answer", "text": "LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF."}}, {"@type": "Question", "name": "Are my drawings uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The files are read and nested in your browser tab and never leave your computer."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I nest DXF parts for free?", "acceptedAnswer": {"@type": "Answer", "text": "Open this page, drop in one or more ASCII DXF files, give each part a quantity, enter the sheet size, the gap between parts and the edge margin, and press Nest. You get each sheet as a picture and as a DXF file for your CAM, with utilisation, cut length and pierces per sheet. Nothing is uploaded."}}, {"@type": "Question", "name": "Will it put small parts inside the holes of big ones?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Holes in a part stay free, so washers, slugs and small brackets are placed inside large cut-outs when they fit with the gap you set."}}, {"@type": "Question", "name": "How is the gap between parts guaranteed?", "acceptedAnswer": {"@type": "Answer", "text": "Parts are placed on a fine grid that always covers the whole shape, and each placed part reserves extra cells for the gap plus the arc flattening error. After nesting, a separate check measures the distance between every pair of placed outlines from their edges and reports any pair closer than the gap."}}, {"@type": "Question", "name": "Is it as good as SigmaNEST, ProNest or Deepnest?", "acceptedAnswer": {"@type": "Answer", "text": "No. On 13 standard nesting benchmarks its layouts come out about 20% longer than the best published ones (24% with the search off), and the gap is widest on interlocking, concave parts; a commercial true-shape nester with a long search gets closer to those. It is free, quick, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use."}}, {"@type": "Question", "name": "Which DXF entities are read?", "acceptedAnswer": {"@type": "Answer", "text": "LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF."}}, {"@type": "Question", "name": "Are my drawings uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The files are read and nested in your browser tab and never leave your computer."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f2f5f9; }
     body { max-width: 1100px; margin: auto; padding: 24px; }
@@ -83,6 +83,12 @@
         </select></div>
       <div><label for="res">Grid cell (blank = automatic)</label><input type="number" id="res" min="0" step="any" placeholder="auto"></div>
       <div><label for="maxSheets">Most sheets to use</label><input type="number" id="maxSheets" min="1" step="1" value="50"></div>
+      <div><label for="search">Search for a shorter nest</label>
+        <select id="search">
+          <option value="0">Off (fastest)</option>
+          <option value="60" selected>60 more orders</option>
+          <option value="300">300 more orders (slower)</option>
+        </select></div>
     </div>
     <p><button type="button" id="nest">Nest</button></p>
     <p id="status" role="status" aria-live="polite"></p>
@@ -110,8 +116,8 @@
   <section class="card" id="limits">
     <h2>What it does and does not do</h2>
     <p><strong>Does:</strong> true-shape nesting of closed outlines with their holes on rectangular sheets, parts inside holes, rotation in steps you choose, a minimum gap and edge margin, several sheets, the remnant left at the far end, an independent gap check, DXF out on separate cut and mark layers, utilisation, cut length and pierce counts, and the area bound (no nester can use fewer sheets than the parts' area divided by a sheet's usable area).</p>
-    <p><strong>Not modelled:</strong> common-line cutting, lead-ins and lead-outs, kerf compensation (your CAM does that; set the gap at least to the kerf plus what your material needs), cut order and heat, micro-joints and tabs, grain beyond 0/180° turns, remnant and non-rectangular sheets, mirroring parts, nesting the same job across different sheet sizes. Placement is greedy on a grid, so commercial nesters with search usually fit a few percent more; treat the sheet count as a cautious estimate.</p>
-    <p><strong>When to use something else:</strong> production runs where a few percent of material is worth a licence (SigmaNEST, ProNest, Lantek, your machine's own software), or when you need lead-ins and cut order in the same step.</p>
+    <p><strong>Not modelled:</strong> common-line cutting, lead-ins and lead-outs, kerf compensation (your CAM does that; set the gap at least to the kerf plus what your material needs), cut order and heat, micro-joints and tabs, grain beyond 0/180° turns, remnant and non-rectangular sheets, mirroring parts, nesting the same job across different sheet sizes. Placement is greedy on a grid with a short search: on 13 standard benchmarks its layouts are about 20% longer than the best published ones, so treat the sheet count as a cautious estimate.</p>
+    <p><strong>When to use something else:</strong> production runs where the material a stronger nester saves is worth a licence (SigmaNEST, ProNest, Lantek, your machine's own software), or when you need lead-ins and cut order in the same step.</p>
   </section>
 
   <section class="card">
@@ -123,7 +129,7 @@
     <h3>How is the gap between parts guaranteed?</h3>
     <p>Parts are placed on a fine grid that always covers the whole shape, and each placed part reserves extra cells for the gap plus the arc flattening error. After nesting, a separate check measures the distance between every pair of placed outlines from their edges and reports any pair closer than the gap.</p>
     <h3>Is it as good as SigmaNEST, ProNest or Deepnest?</h3>
-    <p>Usually not quite. It is a greedy placement on a grid, so a commercial true-shape nester with search will often fit a few percent more parts per sheet. It is free, instant, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use.</p>
+    <p>No. On 13 standard nesting benchmarks its layouts come out about 20% longer than the best published ones (24% with the search off), and the gap is widest on interlocking, concave parts; a commercial true-shape nester with a long search gets closer to those. It is free, quick, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use.</p>
     <h3>Which DXF entities are read?</h3>
     <p>LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF.</p>
     <h3>Are my drawings uploaded?</h3>
@@ -148,7 +154,7 @@
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const n = (x, d = 1) => Number(x).toLocaleString("en-US", { maximumFractionDigits: d });
-  const keys = ["sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "skipLayers", "defaultQty"];
+  const keys = ["sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "search", "skipLayers", "defaultQty"];
   let items = [], units = "unitless", insunits = 0, job = null;
 
   function thumb(part) {
@@ -217,6 +223,7 @@
         job = runJob(items, {
           sheetW: +$("#sheetW").value, sheetH: +$("#sheetH").value, gap: +$("#gap").value || 0, margin: +$("#margin").value || 0,
           rotations: rotationsOf($("#rotations").value), res: res > 0 ? res : undefined, maxSheets: Math.max(1, Math.floor(+$("#maxSheets").value || 50)),
+          searchIters: Math.max(0, Math.floor(+$("#search").value || 0)),
         });
         if (!job.ok) { $("#status").textContent = job.error; $("#report").hidden = true; return; }
         show();
@@ -228,7 +235,7 @@
 
   function show() {
     const r = job.report, u = units !== "unitless" ? " " + units : "";
-    $("#summary").innerHTML = `<strong>${r.totalParts} parts on ${r.totalSheets} sheet${r.totalSheets === 1 ? "" : "s"}</strong> (the area bound says no nester can use fewer than ${r.sheetLowerBound}). Parts are ${n(r.utilisation * 100)}% of the sheets bought. Cut length ${n(r.cutLength)}${u}, ${r.pierces} pierces. Grid ${job.result.res}${u}, ${job.result.ordersTried} orders tried in ${n(job.result.ms / 1000, 1)} s.`;
+    $("#summary").innerHTML = `<strong>${r.totalParts} parts on ${r.totalSheets} sheet${r.totalSheets === 1 ? "" : "s"}</strong> (the area bound says no nester can use fewer than ${r.sheetLowerBound}). Parts are ${n(r.utilisation * 100)}% of the sheets bought. Cut length ${n(r.cutLength)}${u}, ${r.pierces} pierces. Grid ${job.result.res}${u}, ${job.result.ordersTried} orders tried${job.result.searched ? ` (${job.result.searched} by the search)` : ""} in ${n(job.result.ms / 1000, 1)} s.`;
     $("#checkLine").innerHTML = job.check.ok
       ? `<span class="ok">Checked: every pair of parts is at least ${job.result.gap}${u} apart and every part at least ${job.result.margin}${u} from the edge.</span>`
       : `<span class="bad">Check failed (please report this): ${esc(job.check.problems.slice(0, 5).join(" "))}</span>`;
