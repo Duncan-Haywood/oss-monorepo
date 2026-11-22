@@ -1,0 +1,55 @@
+
+architect.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+Revit Perimeter | 75 | 75 | 75 | 0 | 0 (0) | 0 | 0
+Revit Width | 75 | 75 | 75 | 0 | 0 (0) | 0 | 0
+
+construction.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+Revit Perimeter | 8 | 8 | 8 | 0 | 0 (0) | 0 | 0
+Revit Width | 8 | 8 | 8 | 0 | 0 (0) | 0 | 0
+
+Schultz_Residence.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+
+AC20-FZK-Haus.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+ARCHICAD Perimeter | 4 | 4 | 4 | 0 | 0 (0) | 0 | 0
+ARCHICAD Width | 4 | 4 | 4 | 0 | 0 (0) | 0 | 0
+
+C20-Institute-Var-2.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+ARCHICAD Perimeter | 26 | 5 | 5 | 0 | 0 (0) | 21 | 0
+ARCHICAD Width | 26 | 5 | 5 | 0 | 0 (0) | 21 (21) | 0
+
+ISSUE_068_ARK_NUS_skolebygg.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+Revit Perimeter | 118 | 115 | 100 | 13 | 0 (0) | 3 | 0
+  miss #1166069 Floor:Betongdekke 350 + avretting 15:3761485: stored 125.3426, offered 106.5108
+  miss #1185916 Floor:Betongdekke 400 + 80 påstøp + 10 avretting:3939993: stored 66.3421, offered 62.9521
+Revit Width | 100 | 100 | 100 | 0 | 0 (0) | 0 | 0
+
+ISSUE_159_kleine_Wohnung_R22.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+Revit Perimeter | 53 | 53 | 53 | 0 | 0 (0) | 0 | 0
+Revit Width | 50 | 50 | 50 | 0 | 0 (0) | 0 | 0
+
+schependomlaan.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+ARCHICAD Perimeter | 278 | 130 | 130 | 0 | 0 (0) | 148 | 0
+ARCHICAD Width | 275 | 130 | 130 | 0 | 0 (0) | 145 (137) | 0
+
+ISSUE_021_Mini Project.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+Tekla Width | 24 | 24 | 24 | 0 | 0 (0) | 0 | 0
+
+ISSUE_102_M3D-CON-CD.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+
+ISSUE_102_M3D-CON.ifc
+tool quantity | stored | offered | within 2% | repeated stored figure | held back (held-back reading right) | faceted, not offered (thickness right) | no reading
+Tekla Width | 55 | 0 | 0 | 0 | 0 (0) | 55 | 0
+
+all Width: 617 stored; 396 offered, 396 within 2%, 0 a repeated stored figure; 0 held back (reading right on 0); 221 faceted (thickness right on 158); 0 no reading
+
+all Perimeter: 562 stored; 390 offered, 375 within 2%, 13 a repeated stored figure; 0 held back (reading right on 0); 172 faceted; 0 no reading

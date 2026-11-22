@@ -28,3 +28,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) editor's Write as a pattern exact 2026-11-20 (eval/date-pattern-exact-2026-11-20.md: 0 of 310 verdicts unlike the range, old 50)
 - (moved 2026-11-21) systems 2026-11-21 (eval/ifcx-systems-*: 9/9 members, 15/15 port pairs)
 - (moved 2026-11-21) IDS revision diff 2026-11-20 (revision.mjs, revision.html, cli --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185 of 233 changes graded asks more/less, model impact by GlobalId), pattern inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md: 3,540 of 3,540 public pairs, examples verified)
+- (moved 2026-11-22) ifcXML/ifcJSON/IFC5 to STEP 2026-11-22 (step-writer.mjs, cli --to-step; fill takes all; eval/to-step-2026-11-22.md)

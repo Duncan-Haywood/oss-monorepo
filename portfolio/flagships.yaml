@@ -533,13 +533,13 @@ flagships:
       column/beam/member Length 2026-11-22, 3,227/3,233,
       eval/member-lengths-2026-11-22.md; Tekla's cut members by a face-flush box
       2026-11-22, 147 more, 147 within 0.1%, eval/tekla-cut-members-2026-11-22.md;
-      next: bent parts); ifcXML/ifcJSON/IFC5 to STEP 2026-11-22 (step-writer.mjs,
-      cli --to-step; fill takes all; eval/to-step-2026-11-22.md); next: a BIM
-      manager's filled table. HTML report (eval/html-report-2026-11-21.md): next, a
-      consultant's read. ifcJSON read 2026-11-21 (ifcjson.mjs,
-      eval/ifcjson-twins-2026-11-21.md: 97 twins, starter verdicts 291 of 291; with
-      65 public IDS 6,552 of 6,596, the rest converter omissions). More open items:
-      NEXT.md.
+      slab Width/Perimeter 2026-11-22, 396/396 and 375/377,
+      eval/slab-width-perimeter-2026-11-22.md; next: a public export storing Qto_
+      plate or covering Width); next: a BIM manager's filled table. HTML report
+      (eval/html-report-2026-11-21.md): next, a consultant's read. ifcJSON read
+      2026-11-21 (ifcjson.mjs, eval/ifcjson-twins-2026-11-21.md: 97 twins, starter
+      verdicts 291 of 291; with 65 public IDS 6,552 of 6,596, the rest converter
+      omissions). More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

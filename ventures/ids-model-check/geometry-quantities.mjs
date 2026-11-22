@@ -28,6 +28,9 @@
 //                            tool's convention (ARCHICAD: volume / section;
 //                            Tekla: the extent along its smallest box)
 //                            (eval/member-lengths-2026-11-22.md)
+//   Width, Perimeter         slabs: the thickness across the extruded profile,
+//                            and the profile's outline at mid-thickness
+//                            (slabLines below; eval/slab-width-perimeter-2026-11-22.md)
 // Other lengths and heights are not offered.
 //
 // Every value is in SI units (m, m2, m3), as the IDS standard reads values.
@@ -35,6 +38,7 @@
 const WALL = /^IFCWALL/;
 const PLAN = /^IFC(SLAB|PLATE|COVERING|ROOF)/;
 const CROSS = /^IFC(COLUMN|BEAM|MEMBER|PILE)/;
+const SLAB = /^IFCSLAB/;
 const LINEAR = /^IFC(WALL|COLUMN|BEAM|MEMBER|PILE)/; // Length: walls and linear members
 const LINES = new Set(["Length", "Height"]); // read from computed.lines, not the sections
 
@@ -47,6 +51,8 @@ export const GEOMETRY_QUANTITIES = [
   ["GrossFootprintArea", "area", WALL, (r) => r.computed.areas?.footprint?.gross],
   ["NetFootprintArea", "area", WALL, (r) => r.computed.areas?.footprint?.net],
   ["Width", "length", WALL, (r) => r.computed.areas?.side?.width],
+  ["Width", "length", SLAB, (r) => r.computed.slab?.width],
+  ["Perimeter", "length", SLAB, (r) => r.computed.slab?.perimeter],
   ["GrossArea", "area", PLAN, (r) => r.computed.areas?.plan?.gross],
   ["NetArea", "area", PLAN, (r) => r.computed.areas?.plan?.net],
   ["CrossSectionArea", "area", CROSS, (r) => r.computed.areas?.cross?.gross],
@@ -594,6 +600,178 @@ export function addMemberLines(model, rows, { solidExtent }) {
   return n;
 }
 
+// ---- a slab's thickness and perimeter ---------------------------------------
+//
+// Qto_SlabBaseQuantities: Width is "the total thickness of the slab",
+// Perimeter "the perimeter of the slab's extruded profile". The thickness is
+// the body's extent along the direction its plan area is cut across (the
+// extrusion); the perimeter is the outline of that cut at mid-thickness. The
+// takeoff holds a body as a signed sum of convex pieces (a notch is a negative
+// piece), so each piece's section is a convex polygon, and the outline is
+// where the pieces' signed edges do not cancel: along each line, an edge
+// counts +1 or -1 by the side its piece lies on and its sign, and only the
+// stretches whose count is not zero are outline. A faceted body (no convex
+// pieces) gives no perimeter.
+//
+// What the exporters store (eval/slab-width-perimeter-2026-11-22.md, eleven
+// public exports):
+//   - Width: on an extruded body the extrusion's depth is the stored figure
+//     259 of 259 times (Revit, ARCHICAD and Tekla). A faceted body's thinnest
+//     extent is right 158 of 221 (Tekla's '533*193' grout strips store the
+//     profile's 0.533 m, ARCHICAD's sloped 'sporenkap' a vertical 0.195 m),
+//     so a faceted slab is offered no Width.
+//   - Perimeter, a slab no opening cuts: the outline, every tool.
+//   - With openings, ARCHICAD adds the openings' outlines (the net section's
+//     outline, 7 of 7) and Revit mostly does not (the gross outline, 40 of
+//     42; two ARK_NUS floors store the net one, nothing in the file tells
+//     them apart). Other tools' figure is not known, so none is offered.
+
+const SLAB_CONVENTIONS = [
+  [/archicad|graphisoft/i, "net"],
+  [/revit/i, "gross"],
+];
+
+const v3 = {
+  dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+  cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+  unit: (a) => { const l = Math.hypot(a[0], a[1], a[2]); return l > 0 ? [a[0] / l, a[1] / l, a[2] / l] : null; },
+};
+
+/** The convex polygon (in-plane u, v coordinates, counter-clockwise about n) the plane n.x = k cuts from a convex polyhedron, or null. */
+export function convexSection(faces, n, k, u, v) {
+  let scale = 0;
+  for (const f of faces) for (const p of f) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
+  const eps = 1e-9 * (scale + Math.abs(k) + 1), tol = eps * 10;
+  const pts = [];
+  const add = (p) => {
+    const q = [v3.dot(p, u), v3.dot(p, v)];
+    if (!pts.some((r) => Math.abs(r[0] - q[0]) <= tol && Math.abs(r[1] - q[1]) <= tol)) pts.push(q);
+  };
+  let above = false, below = false;
+  for (const f of faces) {
+    for (let i = 0; i < f.length; i++) {
+      const a = f[i], b = f[(i + 1) % f.length];
+      const da = v3.dot(n, a) - k, db = v3.dot(n, b) - k;
+      if (da > eps) above = true; else if (da < -eps) below = true;
+      if (Math.abs(da) <= eps) add(a);
+      else if ((da < -eps && db > eps) || (da > eps && db < -eps)) {
+        const t = da / (da - db);
+        add([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
+      }
+    }
+  }
+  if (!above || !below || pts.length < 3) return null;
+  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length, cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+  pts.sort((p, q) => Math.atan2(p[1] - cy, p[0] - cx) - Math.atan2(q[1] - cy, q[0] - cx));
+  return pts;
+}
+
+/**
+ * Outline length of the section of a solid (signed convex terms) by the plane
+ * n.x = k, in body units; null for a faceted body or an empty section.
+ */
+export function sectionPerimeter(s, n0, k) {
+  if (!s || s.mesh || s.shells?.length || !s.terms?.length) return null;
+  const n = v3.unit(n0);
+  if (!n) return null;
+  const u = v3.unit(Math.abs(n[0]) < 0.9 ? v3.cross(n, [1, 0, 0]) : v3.cross(n, [0, 1, 0]));
+  const v = v3.cross(n, u);
+  const edges = [];
+  let span = 0;
+  for (const t of s.terms) {
+    const P = convexSection(t.faces, n, k, u, v);
+    if (!P) continue;
+    for (let i = 0; i < P.length; i++) {
+      const a = P[i], b = P[(i + 1) % P.length];
+      edges.push([a, b, t.s]);
+      span = Math.max(span, Math.abs(a[0]), Math.abs(a[1]));
+    }
+  }
+  if (!edges.length) return null;
+  const tol = 1e-6 * (span + 1);
+  // edges grouped by the line they lie on; each kept as an interval along
+  // the line's own direction, +-1 by which way it runs and its piece's sign
+  const lines = [];
+  for (const [a, b, sg] of edges) {
+    let dx = b[0] - a[0], dy = b[1] - a[1];
+    const L = Math.hypot(dx, dy);
+    if (L <= tol) continue;
+    dx /= L; dy /= L;
+    if (dx < -1e-9 || (Math.abs(dx) <= 1e-9 && dy < 0)) { dx = -dx; dy = -dy; }
+    const off = -dy * a[0] + dx * a[1];
+    let g = null;
+    for (const x of lines) {
+      if (Math.abs(x.off - off) > tol) continue;
+      // both ends on the line, not just a near-equal direction
+      if (Math.abs(-x.dy * a[0] + x.dx * a[1] - x.off) <= tol && Math.abs(-x.dy * b[0] + x.dx * b[1] - x.off) <= tol) { g = x; break; }
+    }
+    if (!g) lines.push((g = { dx, dy, off, iv: [] }));
+    const p = g.dx * a[0] + g.dy * a[1], q = g.dx * b[0] + g.dy * b[1];
+    g.iv.push([Math.min(p, q), Math.max(p, q), q > p ? sg : -sg]);
+  }
+  let per = 0;
+  for (const g of lines) {
+    const ev = [];
+    for (const [lo, hi, w] of g.iv) ev.push([lo, w], [hi, -w]);
+    ev.sort((x, y) => x[0] - y[0]);
+    let w = 0, last = null;
+    for (const [x, d] of ev) {
+      if (last != null && Math.abs(w) > 0.5) per += x - last;
+      w += d;
+      last = x;
+    }
+  }
+  return per;
+}
+
+/**
+ * A slab's thickness and outline readings (SI) and which are offered.
+ * @param {{computed: object, lengthUnit?: number}} row a takeoff row with computed.areas.plan
+ * @param {Function} solidExtent geom.mjs
+ * @param {string|null} convention the authoring tool's outline with openings ('net', 'gross' or null)
+ * @returns {{width: number|null, perimeter: number|null, thickness: number, extruded: boolean, gross: number|null, net: number|null, openings: boolean} | null}
+ */
+export function slabLines(row, solidExtent, convention = null) {
+  const P = row.computed?.areas?.plan, body = row.computed?.solids?.body;
+  if (!P?.n || !body) return null;
+  const f = row.lengthUnit ?? 1;
+  const [lo, hi] = solidExtent(body, P.n);
+  if (!(hi > lo)) return null;
+  const thickness = (hi - lo) * f;
+  const k = lo + (hi - lo) * 0.5 + (hi - lo) * 1e-7;
+  const g = sectionPerimeter(body, P.n, k);
+  const net = row.computed.solids.net;
+  const hasNet = !!net && net !== body;
+  const nt = hasNet ? sectionPerimeter(net, P.n, k) : g;
+  const gross = g == null ? null : g * f, netP = nt == null ? null : nt * f;
+  // openings that change the outline (an opening wholly above or below the
+  // middle, or none at all, leaves it as it is)
+  const openings = hasNet && (gross == null || netP == null || Math.abs(netP - gross) > 1e-6 * gross);
+  let perimeter = null;
+  if (!openings || convention === "gross") perimeter = gross;
+  else if (convention === "net") perimeter = netP;
+  const extruded = !!body.axis && !body.shells?.length;
+  return { width: extruded ? thickness : null, perimeter, thickness, extruded, gross, net: netP, openings };
+}
+
+/**
+ * Adds computed.slab = {width, perimeter} (SI) to each slab row whose plan
+ * cut is known. Returns how many rows got one.
+ */
+export function addSlabLines(model, rows, { solidExtent }) {
+  const apps = new Map();
+  let n = 0;
+  for (const r of rows) {
+    if (!SLAB.test(r.ifcType) || !r.computed || r.computed.status !== "ok") continue;
+    let m;
+    try { m = slabLines(r, solidExtent, toolConvention(model, model.entities.get(r.id), SLAB_CONVENTIONS, apps)); } catch { m = null; }
+    if (!m) continue;
+    r.computed.slab = m;
+    n++;
+  }
+  return n;
+}
+
 /**
  * The model fill's opts.geometry: (element, quantity name, quantity class)
  * -> SI value or undefined.
@@ -621,5 +799,6 @@ export async function measureModel(ifcText, opts = {}) {
   const { rows } = takeoff(model);
   addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
   addMemberLines(model, rows, { solidExtent });
+  addSlabLines(model, rows, { solidExtent });
   return quantitiesFromRows(rows);
 }

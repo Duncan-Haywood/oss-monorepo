@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Slabs carry a thickness and a perimeter (geometry fill check)</title>
+    <description>Slabs carry Qto_SlabBaseQuantities Width and Perimeter, as a formwork or edge-detail takeoff reads them. Written for eval/slab-width-perimeter-2026-11-22.md; MIT.</description>
+  </info>
+  <specifications>
+    <specification name="Slabs carry a thickness" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCSLAB"/><xs:enumeration value="IFCSLABSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_SlabBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Width</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+    <specification name="Slabs carry a perimeter" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCSLAB"/><xs:enumeration value="IFCSLABSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_SlabBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Perimeter</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>

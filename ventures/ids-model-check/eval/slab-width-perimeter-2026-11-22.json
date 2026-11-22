@@ -1,0 +1,240 @@
+{
+ "architect.ifc": {
+  "Revit Width": {
+   "stored": 75,
+   "offered": 75,
+   "within2": 75,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  },
+  "Revit Perimeter": {
+   "stored": 75,
+   "offered": 75,
+   "within2": 75,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  }
+ },
+ "construction.ifc": {
+  "Revit Width": {
+   "stored": 8,
+   "offered": 8,
+   "within2": 8,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  },
+  "Revit Perimeter": {
+   "stored": 8,
+   "offered": 8,
+   "within2": 8,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  }
+ },
+ "Schultz_Residence.ifc": {},
+ "AC20-FZK-Haus.ifc": {
+  "ARCHICAD Width": {
+   "stored": 4,
+   "offered": 4,
+   "within2": 4,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  },
+  "ARCHICAD Perimeter": {
+   "stored": 4,
+   "offered": 4,
+   "within2": 4,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  }
+ },
+ "C20-Institute-Var-2.ifc": {
+  "ARCHICAD Width": {
+   "stored": 26,
+   "offered": 5,
+   "within2": 5,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 21,
+   "noReading": 0,
+   "facetedRight": 21
+  },
+  "ARCHICAD Perimeter": {
+   "stored": 26,
+   "offered": 5,
+   "within2": 5,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 21,
+   "noReading": 0
+  }
+ },
+ "ISSUE_068_ARK_NUS_skolebygg.ifc": {
+  "Revit Width": {
+   "stored": 100,
+   "offered": 100,
+   "within2": 100,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  },
+  "Revit Perimeter": {
+   "stored": 118,
+   "offered": 115,
+   "within2": 100,
+   "repeated": 13,
+   "misses": [
+    {
+     "id": 1166069,
+     "name": "Floor:Betongdekke 350 + avretting 15:3761485",
+     "stored": 125.3426,
+     "offered": 106.5108,
+     "faceted": false
+    },
+    {
+     "id": 1185916,
+     "name": "Floor:Betongdekke 400 + 80 påstøp + 10 avretting:3939993",
+     "stored": 66.3421,
+     "offered": 62.9521,
+     "faceted": false
+    }
+   ],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 3,
+   "noReading": 0
+  }
+ },
+ "ISSUE_159_kleine_Wohnung_R22.ifc": {
+  "Revit Width": {
+   "stored": 50,
+   "offered": 50,
+   "within2": 50,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  },
+  "Revit Perimeter": {
+   "stored": 53,
+   "offered": 53,
+   "within2": 53,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  }
+ },
+ "schependomlaan.ifc": {
+  "ARCHICAD Width": {
+   "stored": 275,
+   "offered": 130,
+   "within2": 130,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 145,
+   "noReading": 0,
+   "facetedRight": 137
+  },
+  "ARCHICAD Perimeter": {
+   "stored": 278,
+   "offered": 130,
+   "within2": 130,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 148,
+   "noReading": 0
+  }
+ },
+ "ISSUE_021_Mini Project.ifc": {
+  "Tekla Width": {
+   "stored": 24,
+   "offered": 24,
+   "within2": 24,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 0,
+   "noReading": 0
+  }
+ },
+ "ISSUE_102_M3D-CON-CD.ifc": {},
+ "ISSUE_102_M3D-CON.ifc": {
+  "Tekla Width": {
+   "stored": 55,
+   "offered": 0,
+   "within2": 0,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 55,
+   "noReading": 0
+  }
+ },
+ "total": {
+  "Width": {
+   "stored": 617,
+   "offered": 396,
+   "within2": 396,
+   "repeated": 0,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 221,
+   "noReading": 0,
+   "facetedRight": 158
+  },
+  "Perimeter": {
+   "stored": 562,
+   "offered": 390,
+   "within2": 375,
+   "repeated": 13,
+   "misses": [],
+   "held": 0,
+   "heldRight": 0,
+   "faceted": 172,
+   "noReading": 0
+  }
+ }
+}
