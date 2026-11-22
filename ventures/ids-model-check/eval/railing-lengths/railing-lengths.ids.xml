@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Railings carry a length (geometry fill check)</title>
+    <description>Railings carry Qto_RailingBaseQuantities Length, as a balustrade or handrail takeoff reads it. Written for eval/railing-lengths-2026-11-22.md; MIT.</description>
+  </info>
+  <specifications>
+    <specification name="Railings carry a length" ifcVersion="IFC2X3 IFC4">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCRAILING</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_RailingBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Length</simpleValue></baseName></property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>
