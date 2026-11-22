@@ -25,6 +25,7 @@
 // are reported, not written.
 import { Model, checkIds, parseIds, psetRecord, psetInfo, psetSources, applies, PropertyFacet, QUANTITY_MEASURE } from "./ids.mjs";
 import { rowsToCsv, csvToRows } from "./sheet.mjs";
+import { toStep } from "./step-writer.mjs";
 
 const B64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$";
 
@@ -443,11 +444,22 @@ export function planFill(idsText, model, opts = {}) {
 // random, geometry}) -> {text, written, sets: {edited, copied, added}, unfilled,
 // notWritten, verified, before, after}.
 export function fillModel(idsText, ifc, opts = {}) {
-  const text = ifc instanceof Uint8Array ? new TextDecoder().decode(ifc) : ifc;
+  let text = ifc instanceof Uint8Array ? new TextDecoder().decode(ifc) : ifc;
   // opts.model: the same text already parsed (eval sweeps check one model
   // against many IDS files).
-  const model = opts.model || new Model(text, opts.schemas, { psets: opts.psets });
-  if (model.format !== "STEP") throw new Error(`only STEP (.ifc) models are written; this one is ${model.format}`);
+  let model = opts.model || new Model(text, opts.schemas, { psets: opts.psets });
+  // An ifcXML, ifcJSON or IFC5 model is written as STEP first
+  // (step-writer.mjs; eval/to-step-2026-11-22.md: 0 of 5,134 ifcXML twin
+  // entities read back differently) and that file is filled: the filled
+  // model is a .ifc whatever came in.
+  let convertedFrom = null, conversionNotes = [];
+  if (model.format !== "STEP") {
+    convertedFrom = model.format;
+    const w = toStep(model, { name: opts.name });
+    text = w.text;
+    conversionNotes = w.notes;
+    model = new Model(text, opts.schemas, { psets: opts.psets });
+  }
   model.measureUnits = opts.measureUnits || null;
   const ids = typeof idsText === "string" ? parseIds(idsText) : idsText;
   const plan = planFill(ids, model, opts);
@@ -662,6 +674,8 @@ export function fillModel(idsText, ifc, opts = {}) {
   }
   return {
     text: out,
+    convertedFrom,
+    conversionNotes,
     written: writtenRows.length,
     writtenList: writtenRows,
     elements: new Set(writtenRows.map((w) => w.id)).size,
@@ -727,6 +741,7 @@ export function fillReport(r) {
   out.push(`property and quantity sets: ${r.sets.edited} edited, ${r.sets.copied} copied for the elements that differ, ${r.sets.added} added; ${r.editedRecords} record(s) changed, ${r.added} added, every other line as it was`);
   if (r.verified) out.push(`read back: ${n(r.verified.pass)} of ${n(r.verified.values)} written value(s) now pass the facet that failed${r.verified.parseErrors ? `; ${r.verified.parseErrors} read error(s)` : ""}`);
   if (r.after) out.push(`failing elements: ${n(r.before.failing)} before, ${n(r.after.failing)} after${r.after.addedRecords ? ` (${n(r.after.addedRecords)} of them the new property sets and relationships themselves, checked by a specification that applies to every entity, as the model's own are)` : ""}`);
+  if (r.convertedFrom) out.push(`the ${r.convertedFrom} model was written as STEP (.ifc) first and that copy filled${r.conversionNotes && r.conversionNotes.length ? `; ${r.conversionNotes.length} value(s) could not be carried over exactly: ${r.conversionNotes.slice(0, 3).join("; ")}` : ""}`);
   const kinds = Object.entries(r.notWritten);
   if (kinds.length) out.push(`not written (not property, quantity or attribute values): ${kinds.map(([k, v]) => `${n(v)} ${k}`).join(", ")}`);
   if (r.unfilled.length) {

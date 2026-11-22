@@ -523,18 +523,19 @@ flagships:
       page route for bSDD if its API ever allows CORS; a BIM manager's real table or
       filled Excel2IDS workbook via --from-sheet; Excel itself typing into the
       download (dropdown lists in it 2026-11-19, eval/sheet-dropdowns-2026-11-19.md:
-      0 strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS
-      author on \s; next: a client's real stage-to-stage IDS pair; a Revit/ARCHICAD
-      IFC4X3 export to confirm. Model fill 2026-11-21 (model-fill.mjs, cli --fill,
-      page panel: IDS-fixed and table-typed property values into a copy of the .ifc;
-      eval/model-fill-2026-11-21.md); attributes and Qto_ quantities 2026-11-21
-      (copied from BaseQuantities, or measured from geometry with --from-geometry:
-      eval/qto-from-geometry-2026-11-21.md; wall Length/Height from axis + body
-      2026-11-21, 465/492 stored lengths, eval/wall-axis-lengths-2026-11-21.md; brep
-      and no-Axis walls too, 3,247 of 3,312 walls,
-      eval/wall-brep-lengths-2026-11-21.md; clipped walls' Height by authoring tool
-      2026-11-22, 16/16 stored, eval/wall-cut-top-heights-2026-11-22.md); next: an
-      ifcXML writer, a BIM manager's filled table. HTML report
+      0 strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); a
+      Revit/ARCHICAD IFC4X3 export to confirm. Model fill 2026-11-21
+      (model-fill.mjs, cli --fill, page panel: IDS-fixed and table-typed property
+      values into a copy of the .ifc; eval/model-fill-2026-11-21.md); attributes and
+      Qto_ quantities 2026-11-21 (copied from BaseQuantities, or measured from
+      geometry with --from-geometry: eval/qto-from-geometry-2026-11-21.md; wall
+      Length/Height from axis + body 2026-11-21, 465/492 stored lengths,
+      eval/wall-axis-lengths-2026-11-21.md; brep and no-Axis walls too, 3,247 of
+      3,312 walls, eval/wall-brep-lengths-2026-11-21.md; clipped walls' Height by
+      authoring tool 2026-11-22, 16/16 stored,
+      eval/wall-cut-top-heights-2026-11-22.md); ifcXML/ifcJSON/IFC5 to STEP
+      2026-11-22 (step-writer.mjs, cli --to-step; fill takes all;
+      eval/to-step-2026-11-22.md); next: a BIM manager's filled table. HTML report
       (eval/html-report-2026-11-21.md): next, a consultant's read. ifcJSON read
       2026-11-21 (ifcjson.mjs, eval/ifcjson-twins-2026-11-21.md: 97 twins, starter
       verdicts 291 of 291; with 65 public IDS 6,552 of 6,596, the rest converter

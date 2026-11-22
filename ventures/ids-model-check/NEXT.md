@@ -36,3 +36,5 @@
 - (2026-11-21) next: a BIM manager's read of its wording
 - (2026-11-21) next: an authoring tool's own ifcJSON. IFC5 .ifcx read 2026-11-21 (ifcx.mjs, cli --layer; eval/ifcx-twins-2026-11-21.md: 8 twins, class 12,115 of 12,116, partOf 1,646 of 1,648, 47 of 47 files)
 - (2026-11-21) next: a real tool's .ifcx
+- (2026-11-22) next: a client's real stage-to-stage IDS pair
+- (2026-11-22) an RVB/ILS author on \s
