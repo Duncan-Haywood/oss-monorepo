@@ -268,7 +268,7 @@ public CCA hospital file, where one levelled activity carries a custom
 late-bell curve at 134 units an hour on average (347 at its peak), the
 levelled finish at 100 times the file's limits comes 3.4 working days
 earlier on the curve and at 50 times 33 days later; planted on 30% of the
-assignments of every limited resource in three files, the self-check stays
+assignments of every limited resource in four files, the self-check stays
 0 h and every link holds (eval/level-curves-2026-11-22.md). Even is the
 default because no public file shows whether P6's own leveller reads curves.
 
