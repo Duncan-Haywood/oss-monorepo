@@ -625,7 +625,7 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   for (const c of expenses) {
     const ename = (c.cost_name || "").trim() || "Expense";
     const group = costCat.get(c.cost_type_id) || "";
-    const accrue = ACCRUE[c.cost_load_type] || 3;
+    const accrue = own(ACCRUE, c.cost_load_type, 3);
     const key = `${ename}\u0000${group}\u0000${accrue}`;
     let r = costRes.get(key);
     if (!r) {
@@ -795,7 +795,7 @@ export function activityCodeFields(T, taskRow, codeNames = false, { room = TASK_
   const ORDER = { AS_Global: 0, AS_EPS: 1, AS_Project: 2 };
   // Project formulas name fields in brackets, so a field name holds none
   const nameOf = (id) => nm(typeRows.get(id)?.actv_code_type || `code type ${id}`).replace(/\[/g, "(").replace(/\]/g, ")").trim() || `code type ${id}`;
-  const types = [...byType.keys()].map((id) => ({ id, n: byType.get(id).size, scope: ORDER[typeRows.get(id)?.actv_code_type_scope] ?? 3, seq: num(typeRows.get(id)?.seq_num) ?? 0 }));
+  const types = [...byType.keys()].map((id) => ({ id, n: byType.get(id).size, scope: own(ORDER, typeRows.get(id)?.actv_code_type_scope, 3), seq: num(typeRows.get(id)?.seq_num) ?? 0 }));
   types.sort((a, b) => a.scope - b.scope || a.seq - b.seq || nameOf(a.id).localeCompare(nameOf(b.id)) || (a.id < b.id ? -1 : 1));
   let kept = types;
   let dropped = 0, droppedTypes = 0;
@@ -872,7 +872,7 @@ export function outlineCodeFields(T, taskRow, { room = TASK_OUTLINE_IDS.length, 
   }
   const ORDER = { AS_Global: 0, AS_EPS: 1, AS_Project: 2 };
   const nameOf = (id) => nm(typeRows.get(id)?.actv_code_type || `code type ${id}`).replace(/\[/g, "(").replace(/\]/g, ")").trim() || `code type ${id}`;
-  const types = [...byType.keys()].map((id) => ({ id, n: byType.get(id).size, scope: ORDER[typeRows.get(id)?.actv_code_type_scope] ?? 3, seq: num(typeRows.get(id)?.seq_num) ?? 0 }));
+  const types = [...byType.keys()].map((id) => ({ id, n: byType.get(id).size, scope: own(ORDER, typeRows.get(id)?.actv_code_type_scope, 3), seq: num(typeRows.get(id)?.seq_num) ?? 0 }));
   types.sort((a, b) => a.scope - b.scope || a.seq - b.seq || nameOf(a.id).localeCompare(nameOf(b.id)) || (a.id < b.id ? -1 : 1));
   const rank = [...types].sort((a, b) => b.n - a.n || types.indexOf(a) - types.indexOf(b));
   const keep = new Set(rank.slice(0, room).map((t) => t.id));

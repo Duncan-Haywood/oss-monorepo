@@ -475,3 +475,13 @@ test("work contours come back: Project -> XER -> Project keeps the contour and P
   // schema order: WorkContour after Work, rows last
   assert.match(back.xml, /<\/Work><WorkContour>6<\/WorkContour><Baseline>[\s\S]*?<\/Baseline><TimephasedData><Type>1<\/Type>/);
 });
+
+test("a WorkContour of 'constructor' or '__proto__' converts as flat, not a crash", () => {
+  for (const odd of ["constructor", "__proto__", "toString"]) {
+    const text = XML().replace("<Work>PT120H0M0S</Work><Cost>180000</Cost>", `<Work>PT120H0M0S</Work><Cost>180000</Cost><WorkContour>${odd}</WorkContour>`);
+    const r = p6XerText(text);
+    assert.deepEqual(p6Problems(r.xer.tables), [], odd);
+    assert.equal((r.xer.tables.RSRCCURVDATA || []).length, 0, odd);
+    assert.ok(r.xer.tables.TASKRSRC.every((a) => a.curv_id === ""), odd);
+  }
+});

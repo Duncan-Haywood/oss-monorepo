@@ -430,3 +430,18 @@ test("a started activity with no remaining duration but a running assignment is 
   const flat = { ...edited, tables: { ...edited.tables, TASKRSRC: edited.tables.TASKRSRC.map((r) => (r.taskrsrc_id === a.taskrsrc_id ? { ...r, reend_date: r.restart_date } : r)) } };
   assert.equal(mspdiText(flat).counts.rsrcRollUp, 0);
 });
+
+test("an expense accrual or code scope named after an Object.prototype key is the default, not a function in the XML", async () => {
+  const { p6XerText, p6Problems } = await import("./p6xer.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const T = x.tables;
+  const [a] = T.TASK.filter((t) => t.task_type !== "TT_WBS" && t.task_type !== "TT_LOE");
+  T.PROJCOST = [{ cost_item_id: "1", cost_type_id: "", proj_id: a.proj_id, task_id: a.task_id, cost_name: "Permit", act_cost: "0", remain_cost: "250", target_cost: "250", cost_per_qty: "250", target_qty: "1", cost_load_type: "constructor" }];
+  const conv = mspdiText(x);
+  assert.doesNotMatch(conv.xml, /native code|function /);
+  assert.match(conv.xml, /<Name>Permit<\/Name><Type>2<\/Type><IsNull>0<\/IsNull>(<Group><\/Group>)?<AccrueAt>3<\/AccrueAt>/);
+  // and back: AccrueAt "constructor" in an MSPDI file is prorated, as any unknown value
+  const back = p6XerText(conv.xml.replace("<AccrueAt>3</AccrueAt>", "<AccrueAt>constructor</AccrueAt>"));
+  assert.deepEqual(p6Problems(back.xer.tables), []);
+  assert.deepEqual(back.xer.tables.PROJCOST.map((c) => c.cost_load_type), ["CL_Uniform"]);
+});

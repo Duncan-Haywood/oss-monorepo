@@ -506,7 +506,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
       // P6's budgeted cost is units x price: one unit at the whole cost, or
       // the quantity the notes carry
       target_qty: qty ? meta.qty : "1", cost_per_qty: qty ? String(Math.round((budget / qty) * 10000) / 10000) : n2(budget),
-      qty_name: clip("qty_name", meta.unit), cost_load_type: LOAD[res.accrue] || "CL_Uniform",
+      qty_name: clip("qty_name", meta.unit), cost_load_type: Object.hasOwn(LOAD, res.accrue) ? LOAD[res.accrue] : "CL_Uniform",
       cost_descr: meta.descr.join("\n").trim().replace(/\r?\n/g, " "),
     }, { auto_compute_act_flag: "N" }));
   }
@@ -523,7 +523,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     const act = r.status_code === "TK_Complete" ? fc : acc === "1" ? (r.status_code === "TK_Active" ? fc : 0) : acc === "2" ? 0 : Math.round(fc * pct) / 100;
     PROJCOST.push(full("PROJCOST", {
       cost_item_id: String(PROJCOST.length + 1), cost_type_id: "", proj_id: P, task_id: idOf("TASK", r.task_id), cost_name: "Fixed cost",
-      act_cost: n2(act), remain_cost: n2(fc - act), target_cost: n2(fc), target_qty: "1", cost_per_qty: n2(fc), cost_load_type: LOAD[acc] || "CL_Uniform",
+      act_cost: n2(act), remain_cost: n2(fc - act), target_cost: n2(fc), target_qty: "1", cost_per_qty: n2(fc), cost_load_type: Object.hasOwn(LOAD, acc) ? LOAD[acc] : "CL_Uniform",
     }, { auto_compute_act_flag: "N" }));
   }
 

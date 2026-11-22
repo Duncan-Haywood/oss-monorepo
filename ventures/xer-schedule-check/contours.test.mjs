@@ -55,3 +55,25 @@ test("a written curve reads back through curves.mjs as the same shape", () => {
   const want = contourSlices(3);
   for (let k = 0; k < 20; k++) assert.ok(Math.abs(c.slices[k] - want[k]) < 1e-6, k);
 });
+
+test("every contour's percentages are Project's measured shape (eval/work-contours-2026-11-21.json)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const m = JSON.parse(readFileSync(new URL("./eval/work-contours-2026-11-21.json", import.meta.url), "utf8"));
+  const seen = new Set();
+  for (const a of m.assignments) {
+    const c = PROJECT_CONTOURS[a.wc];
+    assert.equal(c.name, a.contour, `${a.file} ${a.uid}`);
+    a.shape.forEach((v, k) => { if (v !== null) assert.ok(Math.abs(c.pct[k] - v) < 0.5, `${a.contour} segment ${k}: table ${c.pct[k]}, measured ${v}`); });
+    seen.add(String(a.wc));
+  }
+  assert.deepEqual([...seen].sort(), Object.keys(PROJECT_CONTOURS), "the measurement covers all seven contours");
+});
+
+test("a WorkContour named after an Object.prototype key is unknown, not a crash", () => {
+  for (const odd of ["constructor", "toString", "__proto__", "hasOwnProperty", "valueOf"]) {
+    assert.equal(contourName(odd), null, odd);
+    assert.equal(contourSlices(odd), null, odd);
+    assert.equal(contourCurveValues(odd), null, odd);
+    assert.equal(contourSpanFactor(odd), 1, odd);
+  }
+});

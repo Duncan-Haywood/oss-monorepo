@@ -42,7 +42,8 @@ export function codeTypes(xer, projId) {
     if (projId && scope === "AS_EPS" && !assigned.get(t.actv_code_type_id)) continue;
     out.push({ id: t.actv_code_type_id, name: t.actv_code_type || t.actv_code_type_id, scope: scope.replace(/^AS_/, ""), seq: num(t.seq_num), values: values.get(t.actv_code_type_id) || 0, hierarchical: !!parents.get(t.actv_code_type_id), assigned: assigned.get(t.actv_code_type_id) || 0 });
   }
-  out.sort((a, b) => (SCOPE_ORDER["AS_" + a.scope] ?? 3) - (SCOPE_ORDER["AS_" + b.scope] ?? 3) || a.seq - b.seq || a.name.localeCompare(b.name) || (a.id < b.id ? -1 : 1));
+  const rank = (s) => (Object.hasOwn(SCOPE_ORDER, "AS_" + s) ? SCOPE_ORDER["AS_" + s] : 3);
+  out.sort((a, b) => rank(a.scope) - rank(b.scope) || a.seq - b.seq || a.name.localeCompare(b.name) || (a.id < b.id ? -1 : 1));
   return out;
 }
 

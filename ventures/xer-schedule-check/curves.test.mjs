@@ -140,3 +140,11 @@ test("XER -> Project: a P6 curve as contoured timephased work; started, even and
   const { parseMspdi } = await import("./mspdi.mjs");
   assert.ok(!parseMspdi(r.xml).warnings.some((w) => /split/.test(w)));
 });
+
+test("curveRows: an empty or reversed span gives no rows, with or without a calendar", async () => {
+  const { curveRows } = await import("./curves.mjs");
+  const s = parseDate("2025-12-01 08:00");
+  assert.deepEqual(curveRows(cal, s, s, 8, BACK), []);
+  assert.deepEqual(curveRows(cal, s + 600, s, 8, BACK), []);
+  assert.deepEqual(curveRows(null, s, s + 600, 8, BACK), []);
+});
