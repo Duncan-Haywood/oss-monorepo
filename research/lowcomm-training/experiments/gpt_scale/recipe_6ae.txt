@@ -1,0 +1,28 @@
+H6ae-i reproduction on the standard batches against scale.jsonl (H = 64, seeds 4 and 5)
+  unc clean_std seed 4: 1.6091926023 vs 1.6091926023 (+0.0e+00)  torch 2.15.0+cu132
+  unc clean_std seed 5: 1.5855159163 vs 1.5855159163 (+0.0e+00)  torch 2.15.0+cu132
+  rk4 full_std seed 4: 1.6200108752 vs 1.6200108752 (+0.0e+00)  torch 2.15.0+cu132
+  rk4 full_std seed 5: 1.5843980834 vs 1.5843980834 (+0.0e+00)  torch 2.15.0+cu132
+H6ae-i (bit-exact, 4 checks): held
+
+seeds 4-7, rk4 omega 3, n 4, paired by seed against unc:
+  std: T -0.0072 (0.0033)  C -0.0006 (0.0041)  b +0.0066 (0.0012)  b/omega 0.0022
+  fresh: T -0.0084 (0.0031) sign-flip P 0.250  C -0.0028 (0.0036)  below zero 3 of 4
+  fresh T per seed 4:+0.0008 5:-0.0123 6:-0.0114 7:-0.0106
+
+seeds 0-3 (6y, 6z), rk4 omega 3, n 4, paired by seed against unc:
+  std: T -0.0180 (0.0020)  C -0.0127 (0.0027)  b +0.0053 (0.0008)  b/omega 0.0018
+  fresh: T -0.0185 (0.0020) sign-flip P 0.125  C -0.0138 (0.0018)  below zero 4 of 4
+  fresh T per seed 0:-0.0232 1:-0.0207 2:-0.0150 3:-0.0151
+
+pooled 0-7, rk4 omega 3, n 8, paired by seed against unc:
+  std: T -0.0126 (0.0027)  C -0.0066 (0.0032)  b +0.0060 (0.0007)  b/omega 0.0020
+  fresh: T -0.0134 (0.0026) sign-flip P 0.016  C -0.0083 (0.0028)  below zero 7 of 8
+  fresh T per seed 0:-0.0232 1:-0.0207 2:-0.0150 3:-0.0151 4:+0.0008 5:-0.0123 6:-0.0114 7:-0.0106
+
+unc fresh loss per seed 0:1.6363 1:1.6356 2:1.6350 3:1.6290 4:1.6371 5:1.6204 6:1.6462 7:1.6421
+
+H6ae-ii  (pooled recipe below unc on fresh by > 2 se): held (-0.0134, -5.2 se)
+H6ae-iii (pooled exact sign-flip P < 0.05): held (P 0.016)
+H6ae-iv  (seeds 4-7 fresh T within 2 se of seeds 0-3): refuted (new -0.0084 against old -0.0185, difference +0.0101, +2.7 se)
+H6ae-v   (b / omega on seeds 4-7 in [0.0012, 0.0022]): refuted (0.0022)

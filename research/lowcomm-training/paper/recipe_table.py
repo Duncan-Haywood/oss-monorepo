@@ -1,7 +1,7 @@
 """Regenerate the tables of `section_recipe.md` from the stored result files (stdlib only).
 
 The "recipe": rand-k (or shaped Gaussian) compression on every sync but the last, the last
-sync sent dense. Milestones 6y to 6ad stored, per (noise, H, seed), the recipe's final loss
+sync sent dense. Milestones 6y to 6ae stored, per (noise, H, seed), the recipe's final loss
 (`clean`), the fully compressed run's (`full`) and the uncompressed reference (`unc`), on the
 standard validation batches (`std`) and on 64 fresh validation batches (`fresh`).
 
@@ -58,7 +58,9 @@ def collect():
         elif r["arm"] == "recipe":  # rand-k keep 1/8 with a dense last sync, H = 64
             arms.setdefault((64, "rk8", 7), {}).setdefault(r["seed"], {}).update(
                 clean_std=r["std"], clean_fresh=r["fresh"])
-    for name in ("recipe_6z", "recipe_6aa", "recipe_6ab", "recipe_6ac", "recipe_6ad"):
+    for name in ("recipe_6z", "recipe_6aa", "recipe_6ab", "recipe_6ac", "recipe_6ad", "recipe_6ae"):
+        if not os.path.exists(os.path.join(GS, name + ".jsonl")):
+            continue
         for r in load(name):
             H, s = r["H"], r["seed"]
             if r["noise"] == "unc":

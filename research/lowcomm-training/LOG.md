@@ -16,6 +16,25 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Reading: ii holding means the H = 64 gain is the paper's result as stated, with a smaller size if iv fails. ii failing with the pooled point estimate below zero means the draft states the gain as "at or below uncompressed, gain unresolved", as for H = 32. A pooled point estimate at or above zero means 6z's four seeds were a lucky draw, and the draft's claim narrows to "keep 1/4 with a dense last sync is never measurably worse than uncompressed".
 - Not tested: keep 1/8 or 1/2 at seeds 4 to 7, other H, other widths, a held-out split.
 
+### Outcome of 6ae (`experiments/gpt_scale/recipe_6ae.py`, `recipe_6ae.txt`, `recipe_6ae.jsonl`, `run_recipe6ae.out`; 8 runs, 17 to 18 min each, 4 cores in parallel, torch 2.15.0+cu132 on CPU)
+- Ran as planned; no code changed after the first run started. The report was written with the plan and run once on the finished file.
+- **H6ae-i held**: unc and the full keep-1/4 arm reproduce `scale.jsonl` (H = 64) bit-exactly for seeds 4 and 5 (4 checks; the stored runs were made with 2.15.0+cpu).
+- Paired by seed against unc at H = 64, rand-k keep 1/4 (omega 3) with a dense last sync (nats, seed mean, se; P is the exact sign-flip P of the fresh T):
+
+  | seeds | T (std) | C (std) | b (std) | b / omega | T (fresh) | P | below zero | C (fresh) |
+  |---|---|---|---|---|---|---|---|---|
+  | 4-7 (new) | -0.0072 (0.0033) | -0.0006 (0.0041) | +0.0066 (0.0012) | 0.0022 | -0.0084 (0.0031) | 0.250 | 3 of 4 | -0.0028 (0.0036) |
+  | 0-3 (6y, 6z) | -0.0180 (0.0020) | -0.0127 (0.0027) | +0.0053 (0.0008) | 0.0018 | -0.0185 (0.0020) | 0.125 | 4 of 4 | -0.0138 (0.0018) |
+  | 0-7 pooled | -0.0126 (0.0027) | -0.0066 (0.0032) | +0.0060 (0.0007) | 0.0020 | **-0.0134 (0.0026)** | **0.016** | 7 of 8 | -0.0083 (0.0028) |
+
+- Fresh T per seed, 4 to 7: +0.0008, -0.0123, -0.0114, -0.0106 (0 to 3: -0.0232, -0.0207, -0.0150, -0.0151).
+- **H6ae-ii held** (-0.0134, 5.2 se): over eight seeds the recipe ends below uncompressed training on the fresh batches. **H6ae-iii held** (P 0.016): the first cell of the programme's recipe results whose exact permutation test is below 0.05.
+- **H6ae-iv refuted** (+0.0101, 2.7 se): the new seeds' gain is about half the old seeds'. As the disclosed `scale.jsonl` figures warned, seed 4's fully compressed run is unusually poor (C std +0.011), and its recipe ties uncompressed (+0.0008).
+- **H6ae-v refuted**, at the edge: b / omega on seeds 4 to 7 is 0.00221, just above the registered 0.0022; pooled over eight seeds it is 0.0020, at the top of the 0.0013 to 0.0019 seen at H = 64 so far.
+- **Reading** (the plan's fixed reading for ii holding with iv failing): the H = 64 gain is real and is the paper's result, at the smaller size: keep 1/4 with a dense last sync ends 0.013 nats (se 0.003) below uncompressed training on fresh batches. 6z's -0.0185 was a favourable four-seed draw. The fully compressed run is also below uncompressed by 0.008 (2.9 se, reported, no verdict registered), consistent with 6n to 6r's "free up to omega 7" rather than a gain.
+- Limits: eight seeds at one H and one omega; one width; fresh batches are new draws from the validation text, not a held-out split; outer step not tuned for the recipe.
+- Next: (1) the paper section (`paper/section_recipe.md`) now carries this cell at eight seeds; the other H = 64 cells (keep 1/2, 1/8) have four, so a reader comparing omegas at H = 64 should treat their gaps as four-seed figures; (2) a held-out split carved from the training text; (3) the recipe at the 0.41M-parameter size.
+
 ## 2026-11-19 · Milestone 6ad (H6 mechanism): does keep 1/4 with a dense last sync gain at H = 32? Seeds 4 to 7 of unc, keep 1/4 and keep 1/8, pooled with 6ac's four (planned before running; outcome below)
 
 - Why: 6ac's "Next" (1). Its omega-3 recipe ended -0.0059 (se 0.0082) against uncompressed on the fresh batches at H = 32: three seeds below zero by 0.010 to 0.019, seed 1 at +0.018. The spread was two to four times wider than at H = 16 or 64 and shared across omegas, which 6ac read as the uncompressed run's own draw on each seed. Four more seeds halve the variance of the mean if the spread is the same; keep 1/8 is added so the shared-seed reading can be tested on eight seeds with two compressed arms paired against one unc.
