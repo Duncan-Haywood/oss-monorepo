@@ -1,0 +1,1 @@
+{"case": "case30_ieee", "kind": "typ", "ac": 8208.515098992517, "secs": 0.13872241973876953, "statuses": ["not clean/hard", "not clean/hard", "not clean/hard", "not clean/hard", "not clean/hard", "clean/hard"], "clean_at": 6, "clean_cost": 8214.841700774006, "kinfo": [{"it": 1, "halvings": 0, "armed": 1, "set": 1, "r_max": 0.057571889835366985, "n_active": 1}]}

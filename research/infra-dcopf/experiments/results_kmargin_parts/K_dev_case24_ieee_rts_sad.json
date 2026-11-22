@@ -1,0 +1,1 @@
+{"case": "case24_ieee_rts", "kind": "sad", "ac": 76917.970261333, "secs": 0.10311102867126465, "statuses": ["not clean/hard", "not clean/hard", "clean/hard"], "clean_at": 3, "clean_cost": 77326.09850753176, "kinfo": [{"it": 1, "halvings": 0, "armed": 1, "set": 1, "r_max": 0.2896918680523036, "n_active": 1}]}
