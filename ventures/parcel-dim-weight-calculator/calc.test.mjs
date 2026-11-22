@@ -57,9 +57,9 @@ test('longest and second-longest side do not depend on which field a side was ty
   assert.equal(a.girth, b.girth);
 });
 
-test('girth is the longest side plus twice each of the other two', () => {
+test('length plus girth is the longest side plus twice each of the other two', () => {
   const result = calculateBillableWeight({ length: 20, width: 10, height: 8, weight: 30 });
-  assert.equal(result.girth, 20 + 2 * (10 + 8));
+  assert.equal(result.lengthPlusGirth, 20 + 2 * (10 + 8));
 });
 
 test('total billable weight multiplies the per-package round-up, never the shared cube', () => {
@@ -79,7 +79,7 @@ test('additional handling fires on any one of longest side, second side, or girt
   const secondSide = calculateBillableWeight({ length: 40, width: 32, height: 6, weight: 40 });
   assert.equal(secondSide.flags[0].id, 'additional-handling');
   const byGirth = calculateBillableWeight({ length: 40, width: 20, height: 15, weight: 90 });
-  assert.equal(byGirth.girth > DEFAULT_THRESHOLDS.additionalHandlingGirth, true);
+  assert.equal(byGirth.lengthPlusGirth > DEFAULT_THRESHOLDS.additionalHandlingGirth, true);
   assert.equal(byGirth.flags[0].id, 'additional-handling');
 });
 
@@ -87,7 +87,7 @@ test('a large package outranks additional handling rather than reporting both', 
   // 60 + 2*(30+25) = 170 girth would trip every additional-handling rule too;
   // a visitor needs the one that actually prices, not a list.
   const result = calculateBillableWeight({ length: 50, width: 22, height: 20, weight: 70 });
-  assert.equal(result.girth, 50 + 2 * (22 + 20));
+  assert.equal(result.lengthPlusGirth, 50 + 2 * (22 + 20));
   assert.equal(result.flags.length, 1);
   assert.equal(result.flags[0].id, 'large-package');
 });
@@ -147,7 +147,7 @@ test('a side over 96 inches is a large package even when length plus girth is un
   // UPS Large Package / FedEx Oversize: length + girth over 130 in OR longest
   // side over 96 in. 97 x 8 x 8 has length + girth 129, so only the length rule fires.
   const result = calculateBillableWeight({ length: 97, width: 8, height: 8, weight: 20 });
-  assert.equal(result.girth, 129);
+  assert.equal(result.lengthPlusGirth, 129);
   assert.equal(result.flags[0].id, 'large-package');
   assert.match(result.flags[0].text, /Longest side 97″ is over 96″/);
   assert.equal(calculateBillableWeight({ length: 96, width: 8, height: 8, weight: 20 }).flags[0].id, 'additional-handling');
@@ -171,14 +171,14 @@ test('dimensions round to the nearest inch, not up: 12.4 is measured as 12', () 
 
 test('surcharge thresholds are strictly "over": exactly 130 in length plus girth is not a large package', () => {
   const result = calculateBillableWeight({ length: 50, width: 20, height: 20, weight: 30 });
-  assert.equal(result.girth, 130);
+  assert.equal(result.lengthPlusGirth, 130);
   assert.equal(result.flags[0].id, 'additional-handling');
 });
 
 test('the second-longest side alone trips additional handling', () => {
   // 32 x 31 x 1: longest 32 (under 48), length + girth 96 (under 105), second side 31 (over 30).
   const result = calculateBillableWeight({ length: 32, width: 31, height: 1, weight: 5 });
-  assert.equal(result.girth, 96);
+  assert.equal(result.lengthPlusGirth, 96);
   assert.equal(result.flags[0].id, 'additional-handling');
 });
 
@@ -186,4 +186,48 @@ test('air weight is billed pounds minus the goods rounded up, so it is always wh
   const result = box({ weight: 3.2 });
   assert.equal(result.billableWeight, 14);
   assert.equal(result.lever.airWeight, 10);
+});
+
+// Red team 2026-11-22: guards for mutants that escaped the suite above.
+test('the ground maximum is strictly "over": 108 in longest side and 165 in length plus girth still ship as parcels', () => {
+  const id = (l, w, h) => calculateBillableWeight({ length: l, width: w, height: h, weight: 100 }).flags[0]?.id;
+  assert.equal(id(108, 5, 5), 'large-package');
+  assert.equal(id(109, 5, 5), 'over-maximum');
+  assert.equal(id(60, 27, 25.5), 'over-maximum'); // 25.5 measures as 26: 60 + 2 x (27 + 26) = 166
+  assert.equal(id(60, 27, 25), 'large-package'); // 60 + 2 x (27 + 25) = 164
+  assert.equal(id(61, 26, 26), 'large-package'); // exactly 165
+});
+
+test('the lever gives the height change itself, in both directions', () => {
+  const reduce = box();
+  assert.ok(Math.abs(reduce.lever.heightReduction - (10 - 556 / 192)) < 1e-9);
+  const headroom = box({ height: 4, weight: 20 });
+  assert.ok(Math.abs(headroom.lever.heightHeadroom - (20 * 139 / 192 - 4)) < 1e-9);
+});
+
+test('a break-even height too large to represent is reported as none, not Infinity', () => {
+  const result = calculateBillableWeight({ length: 10, width: 10, height: 10, weight: 1e300, divisor: 1e300 });
+  assert.equal(result.lever.targetHeight, null);
+  assert.equal(result.lever.heightHeadroom, null);
+});
+
+test('roundedDimensions is set when any one side was rounded', () => {
+  assert.equal(box({ length: 16.4 }).roundedDimensions, true);
+  assert.equal(box({ width: 12.4 }).roundedDimensions, true);
+  assert.equal(box({ height: 10.4 }).roundedDimensions, true);
+  assert.equal(box().roundedDimensions, false);
+  assert.equal(box({ width: 12.4, roundDimensions: false }).roundedDimensions, false);
+});
+
+// Real defect 2026-11-22: the page called L + 2(W + H) "girth". UPS and FedEx define girth as 2 x width + 2 x height
+// (the strap around the two shorter sides) and write the 105/130/165 in limits as "length plus girth", so a shipper who
+// measured the strap-around girth read a number that disagreed with the page.
+test('girth is the strap around the two shorter sides; the thresholds use length plus girth', () => {
+  const result = calculateBillableWeight({ length: 20, width: 10, height: 8, weight: 30 });
+  assert.equal(result.girth, 2 * (10 + 8));
+  assert.equal(result.lengthPlusGirth, 20 + 2 * (10 + 8));
+  const large = calculateBillableWeight({ length: 50, width: 22, height: 20, weight: 30 });
+  assert.match(large.flags[0].text, /^Length plus girth 134″ is over 130″/);
+  const over = calculateBillableWeight({ length: 60, width: 27, height: 26, weight: 30 });
+  assert.match(over.flags[0].text, /length plus girth 166″ exceeds/);
 });
