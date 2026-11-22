@@ -8,7 +8,7 @@ const sitemap = fs.readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8
 
 test('carries the no-warranty disclaimer', () => {
   assert.match(html, /<strong>No warranty\.<\/strong>/);
-  assert.match(html, /not legal, tax, financial, engineering, or fire-safety advice/i);
+  assert.match(html, /not legal, tax, financial, or engineering advice/i);
 });
 
 test('states it is not affiliated with ServiceTitan', () => {

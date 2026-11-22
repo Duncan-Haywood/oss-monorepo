@@ -8,7 +8,7 @@ def games():
             "one whale n=8": [0.1] * 7 + [3.0],
             "dust n=10": [0.02] * 9 + [1.0]}
 
-print("E1 exact per-player sampling std (m=100 marginal evals/player): permutation vs size-stratified, and ratio of variances")
+print("E1 exact per-player sampling std (m=96 marginal evals/player for n=8, 100 for n=10): permutation vs size-stratified, and ratio of variances")
 for name, w in games().items():
     phi = exact_shapley(w)
     m = 100 - 100 % len(w)

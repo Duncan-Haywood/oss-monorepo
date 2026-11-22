@@ -1,7 +1,7 @@
 name: driving-instructor-lesson-pricing-calculator
 description: >-
   Free browser calculator for independent driving instructors: profit per
-  lesson, break-even price, the price that reaches a take-home target and the
+  lesson, break-even price, the price that reaches a pre-tax profit target and the
   cost of a block-booking discount, after fuel, car wear, fixed car costs,
   unpaid gaps and cancellations. Copies a plain-text summary. Nothing leaves
   the browser.

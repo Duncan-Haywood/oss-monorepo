@@ -312,3 +312,16 @@ test('index links one hop to the auto-repair-effective-labor-rate sibling', () =
 test('index links one hop to the handyman-minimum-job-calculator sibling', () => {
   assert.match(markup, /href="\.\.\/handyman-minimum-job-calculator\//);
 });
+
+test("the margin-vs-markup hint does the arithmetic right (quality round 95)", () => {
+  const html = page("index.html");
+  // 10% mark-up on $10,000 of cost: price $11,000, profit $1,000, margin 1,000/11,000 = 9.1%.
+  assert.doesNotMatch(html, /mark-up on \$10,000 of cost is \$909/);
+  assert.match(html, /\$1,000 of profit on an \$11,000 price, only a 9\.1% margin/);
+});
+
+test('the page shows the material markup the bill rate assumes', () => {
+  const html = page('index.html');
+  assert.match(html, /id="materialMarkup"/);
+  assert.match(html, /el\('materialMarkup'\)\.textContent/);
+});

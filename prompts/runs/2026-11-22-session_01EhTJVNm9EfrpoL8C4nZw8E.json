@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-22",
+ "session": "https://claude.ai/code/session_01EhTJVNm9EfrpoL8C4nZw8E",
+ "track": "quality",
+ "prompt_version": 0,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-22T16:06:16Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "quality round 95 (sample mode), seed 2026-11-22-f-329c",
+ "projects": [
+  "ventures/driving-instructor-lesson-pricing-calculator",
+  "ventures/shop-rate-calculator",
+  "research/swe-warmstart",
+  "research/shapley-sampling"
+ ],
+ "pr": 18274,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 6,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "portfolio/quality/README.md",
+   "issue": "Parallel auditors share one scratchpad; two wrote indep.py and one overwrote the other's. Suggest telling auditors to prefix scratch files with the subject slug."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-22-quality-audit-round-95.md"
+ ],
+ "goal": null,
+ "notes": "Seed 2026-11-22-f-329c, round 95, mode sample. Subjects: ventures/driving-instructor-lesson-pricing-calculator, ventures/shop-rate-calculator, research/swe-warmstart, research/shapley-sampling (no flagship or platform drawn: all audited within window). Share meeting the bar: 0 of 4 (cumulative sampled 36 of 389, Wilson 7%-12%). Claims=2 in all four is the binding gate; correctness 3 in all four. Seeded mutations caught 9 of 21. Spot-checks run by coordinator: driving price 35.10 = (30000+4600)/1058+2.4 and SE-adjusted 39.77; shop rate 53.76/21.25%/74.07 and 0.67% net with materials at cost (python); swe-warmstart independent replay 24/33/42 and the 1,000-history interval -1.3..+33.0; shapley exact_shapley([0.3,1.1]) vs hand formula. Coordinator corrected the shapley auditor's 2.95x per-evaluation ratio to ~3.1x (5.89/1.875) in the audit file. Fix PR: #18274 (same PR) - shop-rate high defect fixed by showing the material markup the bill rate assumes (playwright: $74.07 | $596,436 | cost + 37.8%), $909 markup example, copied disclaimer, stale README; driving-instructor take-home->pre-tax wording + profit-per-diary-hour test; swe-warmstart README seed-artefact correction + citations; shapley-sampling claim qualifiers, E1 header, prior-work section, 2 antithetic tests. Local checks: node --test in both ventures (34/34, 107/107), unittest shapley-sampling OK, research homepage build ok, check_md_links ok, check_posts ok, quality_audit validate 0 problems.",
+ "corrections": [],
+ "redteam": null
+}

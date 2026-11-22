@@ -99,3 +99,9 @@ test("page links the tutor hourly rate calculator", () => {
 test("page links the private pilot training cost calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/private-pilot-training-cost-calculator\/"/);
 });
+
+test("the target is described as pre-tax profit, not take-home (quality round 95)", () => {
+  for (const name of ["index.html", "llms.txt", "README.md", "VENTURE.yaml"]) {
+    assert.doesNotMatch(page(name), /take-home target/i, name);
+  }
+});

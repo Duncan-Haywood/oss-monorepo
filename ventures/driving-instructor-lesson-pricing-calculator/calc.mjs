@@ -15,7 +15,7 @@
  * does not give tax advice. It applies the numbers typed in to one year.
  *
  *   priceLessons(inputs)       -- profit, profit per diary hour, the minimum
- *                                 price that reaches a take-home target, and
+ *                                 price that reaches a pre-tax profit target, and
  *                                 the effect of a block-booking discount.
  *   formatPricingSummary(r)    -- the same result as plain text.
  */

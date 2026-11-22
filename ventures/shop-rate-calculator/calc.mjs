@@ -224,6 +224,12 @@ export function calculateShopRate(input = {}) {
   const marginDivisor = 1 - targetMargin / 100;
   const billRatePerHour = loadedHourWithOverhead / marginDivisor;
 
+  // Overhead is spread over labour AND materials, so the bill rate reaches the
+  // target margin only if materials and subs are billed with the same load:
+  // cost x (1 + overhead) / (1 - margin). Labour at the bill rate plus
+  // materials at this markup is exactly `revenueNeeded`.
+  const materialMarkupAssumed = ((1 + overheadRate / 100) / marginDivisor - 1) * 100;
+
   const annualCostTotal = annualDirectCost + annualOverhead;
   const revenueNeeded = annualCostTotal / marginDivisor;
   const profitAtTarget = revenueNeeded - annualCostTotal;
@@ -261,6 +267,7 @@ export function calculateShopRate(input = {}) {
     breakEvenRatePerHour: loadedHourWithOverhead,
     revenueNeeded,
     profitAtTarget,
+    materialMarkupAssumed,
     carry,
     carryWarnings: carryWarnings(carry),
     notes: notes({ utilization, burdenRate, overheadRate, targetMargin }),

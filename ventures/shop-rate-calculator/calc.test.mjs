@@ -350,3 +350,15 @@ test('the comparison never changes the rates the bid calculators are handed', ()
   assert.deepEqual(with_.notes, without.notes);
   assert.deepEqual(with_.carryWarnings, without.carryWarnings);
 });
+
+test('labor at the bill rate plus materials at the assumed markup is exactly the revenue needed (quality round 95)', () => {
+  const r = calculateShopRate(BASE);
+  // Shipped example: (1 + 21.25%) / 0.88 - 1 = 37.8%.
+  near(r.materialMarkupAssumed, ((1 + r.overheadRate / 100) / 0.88 - 1) * 100, 1e-9);
+  near(r.materialMarkupAssumed, 37.79, 0.01);
+  const laborRevenue = r.billRatePerHour * r.billableHoursPerYear * r.fieldCrewCount;
+  const materials = r.annualDirectCost - r.annualDirectLabor;
+  near(laborRevenue + materials * (1 + r.materialMarkupAssumed / 100), r.revenueNeeded, 0.01);
+  // Billing materials at cost misses the target by the materials' share of overhead and profit.
+  assert.ok(laborRevenue + materials < r.revenueNeeded - 1000);
+});
