@@ -62,7 +62,7 @@ export function careLine(v) {
   const revenue = v.careHolders * v.carePrice;
   const cost = v.careHolders * v.careScrVisits * scr.cost;
   return {
-    customers: v.careHolders, revenue: round2(revenue), cost: round2(cost), contribution: round2(revenue - cost), hours: (v.careHolders * v.careScrVisits * v.scrMin) / 60,
+    customers: v.careHolders, revenue: round2(revenue), cost: round2(cost), contribution: round2(revenue - cost), hours: (v.careHolders * v.careScrVisits * v.scrMin * (1 + v.redoPct / 100)) / 60, // a plan visit is redone under warranty as often as a paid one, as its cost already counts
     perVisit: v.careScrVisits > 0 ? round2(v.carePrice / v.careScrVisits) : 0,
     breakEvenVisits: scr.cost > 0 ? round1(v.carePrice / scr.cost) : 0,
   };
@@ -107,14 +107,17 @@ export function plan(input) {
   for (const l of active) {
     if (l.price < l.targetPrice) advice.push(`${l.label} at ${usd(l.price)} earns ${l.marginPct}% after labor and materials. For a ${v.targetMarginPct}% margin it would need ${usd(l.targetPrice)}.`);
   }
+  // Break-even counts every paid sale at this mix: the jobs and the plan customers, who also carry fixed cost. A shop that sells
+  // only plan customers has no jobs, and must not be told its services lose money when they earn.
+  const sales = res.jobs + res.care.customers;
+  const unit = res.care.customers > 0 ? "paid jobs and plan customers" : "paid jobs";
   if (res.profit < 0) {
-    const perJob = res.jobs > 0 ? res.contribution / res.jobs : 0;
-    advice.push(res.contribution > 0 && perJob > 0
-      ? `You lose ${usd(-res.profit)} at this volume. Fixed costs of ${usd(res.fixed.total)} need about ${Math.ceil(res.fixed.total / res.contribution * res.jobs)} paid jobs at this mix to break even, against the ${res.jobs} you entered.`
+    advice.push(res.contribution > 0 && sales > 0
+      ? `You lose ${usd(-res.profit)} at this volume. Fixed costs of ${usd(res.fixed.total)} need about ${Math.ceil(res.fixed.total / res.contribution * sales)} ${unit} at this mix to break even, against the ${sales} you entered.`
       : `You lose ${usd(-res.profit)}: the services do not cover their own labor and materials, so more volume makes it worse. Raise a price first.`);
   } else if (res.contribution > 0) {
-    const be = Math.ceil((res.fixed.total / res.contribution) * res.jobs);
-    advice.push(`Break-even is about ${be} paid jobs at this mix; you plan ${res.jobs}, a cushion of ${Math.max(0, res.jobs - be)}.`);
+    const be = Math.ceil((res.fixed.total / res.contribution) * sales);
+    advice.push(`Break-even is about ${be} ${unit} at this mix; you plan ${sales}, a cushion of ${Math.max(0, sales - be)}.`);
   }
   if (v.careHolders > 0) {
     advice.push(`Protection plans: ${v.careHolders} customers at ${usd(v.carePrice)} come to ${usd(res.care.revenue)}. If each visits ${v.careScrVisits} times, a package earns ${usd(res.care.perVisit)} a visit against a visit that costs you ${usd(res.lines[0].cost)}. ${v.careScrVisits > res.care.breakEvenVisits ? `It loses money beyond ${res.care.breakEvenVisits} visits.` : `It stays profitable up to ${res.care.breakEvenVisits} visits.`}`);

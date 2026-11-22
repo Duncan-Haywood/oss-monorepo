@@ -68,8 +68,10 @@ export function parseMetrics(s) {
 
 /** A goal's column name: goal_ and its name in lower case, letters and digits joined by underscores. */
 export function goalColumn(name) {
-  const slug = String(name).toLowerCase().normalize('NFKD').replace(/[^\w]+/g, '_').replace(/^_+|_+$/g, '');
-  if (!slug) throw new Error(`--goal "${name}" has no letters or digits to name its column.`);
+  // Fold accents into their base letter (Réservation -> reservation): NFKD splits é into e and a combining mark, which
+  // must be dropped, not turned into an underscore. Columns stay ASCII, so a name in another script needs a Latin alias.
+  const slug = String(name).toLowerCase().normalize('NFKD').replace(/\p{M}+/gu, '').replace(/[^\w]+/g, '_').replace(/^_+|_+$/g, '');
+  if (!slug) throw new Error(`--goal "${name}" has no Latin letters or digits to name its column: add a goal with a Latin name in Plausible (Site settings > Goals) and give that.`);
   return `goal_${slug}`;
 }
 
