@@ -235,3 +235,30 @@ test('default 12 × 16 patio lands in a range a contractor recognises', () => {
   assert.equal(result.totalHours.toFixed(1), '20.9');
   assert.equal(result.breakEvenPrice.toFixed(2), '3417.26');
 });
+
+test('a blank field is an error, not a zero (quality audit 2026-11-22, defect 0)', () => {
+  // A cleared box, or '1,200' sanitized to '' by a number input, used to
+  // price silently: a blank wage dropped all labor ($3,096.92 instead of
+  // $4,381.10) and a blank margin priced at cost.
+  for (const field of ['hourlyWage', 'paverCostPerSf', 'gravelCostPerCuYd', 'overheadRate', 'targetMargin', 'burdenRate']) {
+    assert.throws(() => calculateBid(patio({ [field]: '' })), /is blank/, field);
+    assert.throws(() => calculateBid(patio({ [field]: '  ' })), /is blank/, field);
+  }
+  // Optional fields keep their documented blank meaning.
+  assert.equal(calculateBid(patio({ proposedPrice: '' })).proposed, null);
+  assert.equal(calculateBid(patio({ edgeLf: '' })).edgeLf, 56);
+  assert.ok(Math.abs(calculateBid(patio({ excavationHours: '' })).excavationHours - 5.5556 / 2) < 1e-3);
+});
+
+test('the driveway FAQ ratio matches the engine (quality audit 2026-11-22, defect 2)', async () => {
+  const fs = await import('node:fs');
+  const html = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const patioBid = calculateBid(patio());
+  const drivewayBid = calculateBid(patio({ baseDepthIn: 10 }));
+  const stone = drivewayBid.baseCuYd / patioBid.baseCuYd - 1;
+  const dig = drivewayBid.excavationCuYd / patioBid.excavationCuYd - 1;
+  assert.equal(Math.round(stone * 3), 2); // two-thirds more base stone
+  assert.equal(Math.round(dig * 100), 43); // about 43% more dug and hauled
+  assert.doesNotMatch(html, /hauls off roughly two-thirds more material/);
+  assert.equal((html.match(/digs out and hauls off about 43% more/g) || []).length, 2);
+});

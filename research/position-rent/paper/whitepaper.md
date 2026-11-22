@@ -1,7 +1,7 @@
 # Position rent: what a sequential LMSR verification market pays each seat
 
 ## Setting
-A binary claim `y` (training run correct or not, uniform prior) is priced by an LMSR with liquidity `b`. Verifier `k` holds a signal `s_k` equal to `y` with probability `a_k`, conditionally independent given `y`, trades once in arrival order, and moves the price to its Bayesian posterior. This is the myopic-truthful benchmark (for conditionally independent signals, Chen et al. and Dimitrov–Sami show strategic delay does not pay; we do not address complements, see `verifier-complements`).
+A binary claim `y` (training run correct or not, uniform prior) is priced by an LMSR with liquidity `b`. Verifier `k` holds a signal `s_k` equal to `y` with probability `a_k`, conditionally independent given `y`, trades once in arrival order, and moves the price to its Bayesian posterior. This is the myopic-truthful benchmark (for conditionally independent signals, Chen et al. 2010 show truthful betting is a perfect Bayesian equilibrium of the LMSR game; Dimitrov & Sami 2008 study when non-myopic play does pay, e.g. with repeated trading; we do not address complements, see `verifier-complements`).
 
 ## Result 1: rent is conditional mutual information
 Trader `k`'s realised profit is `b[ln p_k(y) − ln p_{k−1}(y)]`. Taking expectations, `E ln p_k(y) = −H(y | s_≤k)`, so
@@ -20,5 +20,17 @@ With entry cost `c` per verifier, seats fill until `b·rent_n(1) < c`. At a=0.7,
 ## Limitations
 Myopic Bayesian traders, symmetric independent signals, one trade each, no fees or slippage, entry cost paid up front. Monotonicity of rents and the limiting ratio are numerical, not proved. Complementary or correlated signals, strategic delay and repeated trading can change the ordering of rents.
 
+## Related work
+Result 1 is not new as an identity: the log scoring rule pays the reduction in log loss, so a sequence of LMSR trades pays each trader the information its report adds and the maker's subsidy is the total information aggregated, bounded by `b ln N` (Hanson 2003; Hanson 2007; the log score's link to expected information goes back to Good 1952 and Bernardo 1979). What this note adds is the per-seat accounting (the chain rule read as rents), the numerical position profile and the entry-cost calculation. The equilibrium question (when truthful, immediate trading is a perfect Bayesian equilibrium under conditionally independent signals, and when bluffing or delay pays) is Chen et al. 2010 and Dimitrov & Sami 2008; aggregation with strategic traders, Ostrovsky 2012. The Chernoff exponent is the standard Bayes-error rate for repeated binary tests (Cover & Thomas, ch. 11).
+
+- Bernardo, J. M. (1979). Expected information as expected utility. *Annals of Statistics* 7(3).
+- Chen, Y., Dimitrov, S., Sami, R., Reeves, D., Pennock, D., Hanson, R., Fortnow, L., Gonen, R. (2010). Gaming prediction markets: equilibrium strategies with a market maker. *Algorithmica* 58(4).
+- Cover, T. M., Thomas, J. A. (2006). *Elements of Information Theory*, 2nd ed., Wiley.
+- Dimitrov, S., Sami, R. (2008). Non-myopic strategies in prediction markets. *ACM EC 2008*.
+- Good, I. J. (1952). Rational decisions. *JRSS B* 14(1).
+- Hanson, R. (2003). Combinatorial information market design. *Information Systems Frontiers* 5(1).
+- Hanson, R. (2007). Logarithmic market scoring rules for modular combinatorial information aggregation. *Journal of Prediction Markets* 1(1).
+- Ostrovsky, M. (2012). Information aggregation in dynamic markets with strategic traders. *Econometrica* 80(6).
+
 ## Reproduce
-`PYTHONPATH=src python3 -m unittest discover -s tests` (8 tests) and `PYTHONPATH=src python3 experiments/run.py`.
+`PYTHONPATH=src python3 -m unittest discover -s tests` (9 tests) and `PYTHONPATH=src python3 experiments/run.py`.

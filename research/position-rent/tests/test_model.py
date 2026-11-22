@@ -44,6 +44,13 @@ class T(unittest.TestCase):
         self.assertGreaterEqual(entry_count(0.7, b * 1.0001, 0.005), 11)
         self.assertLess(entry_count(0.7, b * 0.999, 0.005), 11)
 
+    def test_high_accuracy_no_overflow(self):
+        # (2j-k)*lambda exceeds 709 for a=0.9 past ~323 traders; entry_count's default nmax=400 used to raise OverflowError
+        r = rents_iid(0.9, 400)
+        self.assertTrue(all(x >= 0 and math.isfinite(x) for x in r))
+        self.assertGreater(entry_count(0.9, 1.0, 0.005), 0)
+        self.assertAlmostEqual(sum(rents([0.999] * 3)), math.log(2) - entropy_after([0.999] * 3), 12)
+
     def test_accuracy(self):
         self.assertAlmostEqual(accuracy(0.7, 1), 0.7)
         self.assertAlmostEqual(accuracy(0.7, 2), 0.49 + 0.5 * 0.42, 12)
