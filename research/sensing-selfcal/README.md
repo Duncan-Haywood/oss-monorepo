@@ -25,6 +25,19 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3z headline** (is the natural-feature windows' "distortion bias" a real error in where a ray lands, or the focal length and
+the distortion trading off? a radius sweep of the projected radius P(r) against the distortion term, with the solver's 5&times;5 covariance):
+**on the Kinect, mostly a model-term artefact; on the Xtion, a focal-length error.** At the median the Kinect windows put a ray within
+**1 px of the board out to 250 px** from the centre (and within 0.7 px of TUM's calibration out to 300 px), though their distortion term
+alone is 1.4 px low there. On the Xtion P(r)/r is a near-constant **+2.4&ndash;2.8%**: the rays land too far out because f is long, not
+because of the lens. Per window, focal scatter still moves a ray 2&ndash;3 px at 200 px, and the solver's own bar is **about nine times too
+narrow at every radius** (rms z 9.3&ndash;9.6). Side finding: the board's two-term fr1 model folds back at **381 px**, inside the 416 px
+corner, so it is no reference at the edge. For practitioners: score self-calibration by where rays land, not by k<sub>1</sub>, k<sub>2</sub>;
+check a reference distortion for monotonicity before using it at the image edge. Three of seven predictions held; analysis of saved solves
+only. [Log](LOG.md).
+
+![median signed projected-radius error P(r) and distortion-term error against image radius, three TUM sequences, causal-prior windows against the board](experiments/m3z_radial/radial.png)
+
 **Milestone 3y headline** (does the focal-length update rule carry over to the principal point and the lens distortion? the same
 eight rules on TUM's saved windows, scored in pixels, with an error bar from window scatter): **only for c<sub>y</sub>.** "Adopt unless
 within 0.5 sd" is minimax for c<sub>y</sub> against all three references (worst regret **2.04 px** at five windows, always-adopt 2.89) and is
@@ -1307,6 +1320,11 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3z: the Kinect windows' distortion bias cancels against f at the median (P within 1 px of the board to 250 px), the Xtion's
+is a focal-length error, and the solver's bar is nine times too narrow at every radius. Next: Section 4 of the paper updated with 3y and 3z
+(score by P(r), not k<sub>1</sub>; the folded fr1 board); an update rule scored on P(r) at the radii a robot uses; the feature radii the
+windows cover, when the TUM host answers; a real lens change when one is reachable.
 
 After milestone 3y: the update rule transfers to c<sub>y</sub>; the distortion at 200 px is biased 0.6&ndash;1.7 px low in every
 sequence and the Xtion's c<sub>x</sub> is unsettled, so those are held. Next: find where the distortion bias comes from (a radius
