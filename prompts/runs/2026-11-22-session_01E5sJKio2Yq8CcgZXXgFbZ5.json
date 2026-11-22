@@ -1,0 +1,290 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKio2Yq8CcgZXXgFbZ5",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T12:18:31Z",
+  "ended": "2026-11-22T12:20:32Z",
+  "wall_minutes": 5.89,
+  "tokens_in": 3319914,
+  "tokens_out": 16486,
+  "cost_usd": 1.6466,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18251",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20` did not list ventures/xer-schedule-check/tia.mjs (it samples ~20 files), so it cannot check a chosen --target's suite time; timed `node --test tia.test.mjs` by hand instead (0.2 s)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 13 open defects but one are control-plane (workflows, prompts/) needing their own owner-approved PR, and the remaining one (help-keeper stem) needs a help-centre eval set the prompt entry itself says is missing.",
+      "did": "Left them open and spent the run on the campaign, the hunt and the fix; no 4b automation guard either, since the defect (a null base finish) is specific to one function and now has its own test.",
+      "result": "one real defect fixed and three gaps closed in one PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-a-finished-schedule-said-no-change.md"
+  ],
+  "goal": null,
+  "notes": "Target chosen as the file changed on main today (#18242). Local verification: python3 platform/ci/run_venture_tests.py xer-schedule-check -> ok, 379 tests, 2.1 s. New test for the real defect fails on the old tia.mjs (checked with git stash).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/tia.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 349665889,
+        "commit": "f73122e15",
+        "sites": 383,
+        "baseline_seconds": 3.2,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 185,
+            "col": 51,
+            "operator": "or-to-and",
+            "before": "else if (f.days > 0 && (t.type === \"TT_Mile\" || t.type === \"TT_FinMile\")) { warnings.push(`row ${f.row}: ${f.code} is a milestone, which has no duration, so the ${f.days} days were not added; insert a new fragnet activity before it instead`); }",
+            "after": "else if (f.days > 0 && (t.type === \"TT_Mile\" && t.type === \"TT_FinMile\")) { warnings.push(`row ${f.row}: ${f.code} is a milestone, which has no duration, so the ${f.days} days were not added; insert a new fragnet activity before it instead`); }",
+            "line_text": "      else if (f.days > 0 && (t.type === \"TT_Mile\" || t.type === \"TT_FinMile\")) { warnings.push(`row ${f.row}: ${f.code} is a milestone, which has no duration, so the ${f.days} days were not added; insert a new fragnet activity before it instead`); }",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 222,
+            "col": 101,
+            "operator": "const-plus-one",
+            "before": "const cal = lc === \"rcal_Successor\" ? calFor(succCode) : lc === \"rcal_24Hour\" ? { hoursPerDay: 24 } : lc === \"rcal_ProjDefault\" ? p.cal : calFor(predCode);",
+            "after": "const cal = lc === \"rcal_Successor\" ? calFor(succCode) : lc === \"rcal_24Hour\" ? { hoursPerDay: 25 } : lc === \"rcal_ProjDefault\" ? p.cal : calFor(predCode);",
+            "line_text": "      const cal = lc === \"rcal_Successor\" ? calFor(succCode) : lc === \"rcal_24Hour\" ? { hoursPerDay: 24 } : lc === \"rcal_ProjDefault\" ? p.cal : calFor(predCode);",
+            "caught": false,
+            "seconds": 3.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: a fragnet lag on a rcal_24Hour lag calendar is written as days x 24 h"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 271,
+            "col": 38,
+            "operator": "minus-to-plus",
+            "before": "else if (Math.abs(b.probability - f.probability) > 1e-9) warnings.push(`row ${f.row}: branch \"${f.branch}\" of \"${f.group}\" was given ${r1(b.probability * 100)}% on an earlier row; that is kept`);",
+            "after": "else if (Math.abs(b.probability + f.probability) > 1e-9) warnings.push(`row ${f.row}: branch \"${f.branch}\" of \"${f.group}\" was given ${r1(b.probability * 100)}% on an earlier row; that is kept`);",
+            "line_text": "      else if (Math.abs(b.probability - f.probability) > 1e-9) warnings.push(`row ${f.row}: branch \"${f.branch}\" of \"${f.group}\" was given ${r1(b.probability * 100)}% on an earlier row; that is kept`);",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: the same probability on two rows of one branch gives no 'earlier row' warning"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 284,
+            "col": 15,
+            "operator": "le-to-lt",
+            "before": "if (each <= 1e-9) throw new Error(`branch group \"${g.group}\": the given probabilities add to 100%, leaving nothing for ${missing.map((b) => `\"${b.name}\"`).join(\", \")}`);",
+            "after": "if (each < 1e-9) throw new Error(`branch group \"${g.group}\": the given probabilities add to 100%, leaving nothing for ${missing.map((b) => `\"${b.name}\"`).join(\", \")}`);",
+            "line_text": "      if (each <= 1e-9) throw new Error(`branch group \"${g.group}\": the given probabilities add to 100%, leaving nothing for ${missing.map((b) => `\"${b.name}\"`).join(\", \")}`);",
+            "caught": false,
+            "seconds": 3.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "each = (1 - given) / k is exactly 1e-9 for no probability a user can type (given is n/100 or a typed decimal; 1 - given is a multiple of 2^-53 near 1e-9 only by coincidence of rounding); given = 100% gives 0, which both operators refuse"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 344,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined ? null : r1((b >= a ? pcal.workBetween(a, b) : -pcal.workBetween(b, a)) / 60 / (pcal.hoursPerDay || 8)));",
+            "after": "const wd = (a, b) => (a === null && b === null || a === undefined || b === undefined ? null : r1((b >= a ? pcal.workBetween(a, b) : -pcal.workBetween(b, a)) / 60 / (pcal.hoursPerDay || 8)));",
+            "line_text": "  const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined ? null : r1((b >= a ? pcal.workBetween(a, b) : -pcal.workBetween(b, a)) / 60 / (pcal.hoursPerDay || 8)));",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "after this run's fix f0 falls back to the last actual finish, then the data date (parseXer always supplies one: ERMHDR date or plan start), and the impacted finish is null only when the base is; so wd never sees exactly one null. Before the fix the one-null case was reachable and was the real defect below"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 344,
+            "col": 102,
+            "operator": "ge-to-gt",
+            "before": "const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined ? null : r1((b >= a ? pcal.workBetween(a, b) : -pcal.workBetween(b, a)) / 60 / (pcal.hoursPerDay || 8)));",
+            "after": "const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined ? null : r1((b > a ? pcal.workBetween(a, b) : -pcal.workBetween(b, a)) / 60 / (pcal.hoursPerDay || 8)));",
+            "line_text": "  const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined ? null : r1((b >= a ? pcal.workBetween(a, b) : -pcal.workBetween(b, a)) / 60 / (pcal.hoursPerDay || 8)));",
+            "caught": true,
+            "seconds": 3.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 377,
+            "col": 15,
+            "operator": "neq-flip",
+            "before": "if (t.proj !== p.id || t.span || t.status === \"TK_Complete\") continue;",
+            "after": "if (t.proj === p.id || t.span || t.status === \"TK_Complete\") continue;",
+            "line_text": "    if (t.proj !== p.id || t.span || t.status === \"TK_Complete\") continue;",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 435,
+            "col": 80,
+            "operator": "const-plus-one",
+            "before": "const expected = outcomes.reduce((a, o) => a + o.probability * o.delayDays, 0);",
+            "after": "const expected = outcomes.reduce((a, o) => a + o.probability * o.delayDays, 1);",
+            "line_text": "    const expected = outcomes.reduce((a, o) => a + o.probability * o.delayDays, 0);",
+            "caught": true,
+            "seconds": 2.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 445,
+            "col": 84,
+            "operator": "and-to-or",
+            "before": "const mine = outcomes.filter((o) => o.picks.some((x) => x.group === g.group && x.branch === b.name));",
+            "after": "const mine = outcomes.filter((o) => o.picks.some((x) => x.group === g.group || x.branch === b.name));",
+            "line_text": "        const mine = outcomes.filter((o) => o.picks.some((x) => x.group === g.group && x.branch === b.name));",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 575,
+            "col": 424,
+            "operator": "const-plus-one",
+            "before": "${r.consumed.length ? `<table><thead><tr><th>Activity</th><th>Name</th><th class=\"n\">Float before (d)</th><th class=\"n\">After (d)</th></tr></thead><tbody>${r.consumed.slice(0, 40).map((c) => `<tr><td>${esc(c.code)}</td><td>${esc(c.name)}</td><td class=\"n\">${esc(c.floatBefore)}</td><td class=\"n\">${esc(c.floatAfter)}</td></tr>`).join(\"\")}</tbody></table>${r.consumed.length > 40 ? `<p class=\"note\">${esc(r.consumed.length - 40)} more in the CSV.</p>` : \"\"}` : \"\"}",
+            "after": "${r.consumed.length ? `<table><thead><tr><th>Activity</th><th>Name</th><th class=\"n\">Float before (d)</th><th class=\"n\">After (d)</th></tr></thead><tbody>${r.consumed.slice(0, 40).map((c) => `<tr><td>${esc(c.code)}</td><td>${esc(c.name)}</td><td class=\"n\">${esc(c.floatBefore)}</td><td class=\"n\">${esc(c.floatAfter)}</td></tr>`).join(\"\")}</tbody></table>${r.consumed.length > 40 ? `<p class=\"note\">${esc(r.consumed.length - 41)} more in the CSV.</p>` : \"\"}` : \"\"}",
+            "line_text": "${r.consumed.length ? `<table><thead><tr><th>Activity</th><th>Name</th><th class=\"n\">Float before (d)</th><th class=\"n\">After (d)</th></tr></thead><tbody>${r.consumed.slice(0, 40).map((c) => `<tr><td>${esc(c.code)}</td><td>${esc(c.name)}</td><td class=\"n\">${esc(c.floatBefore)}</td><td class=\"n\">${esc(c.floatAfter)}</td></tr>`).join(\"\")}</tbody></table>${r.consumed.length > 40 ? `<p class=\"note\">${esc(r.consumed.length - 40)} more in the CSV.</p>` : \"\"}` : \"\"}",
+            "caught": false,
+            "seconds": 2.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: the exhibit says '5 more in the CSV' for 45 consumed rows; also covers the twin '3 more outcomes' line at 556"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/tia.mjs",
+        "issue": "timeImpact on an update where every activity is finished took the base finish as null, so wd(null, f1) ?? 0 reported added work as 'Finish:  -> 2026-04-17 15:30: no change' (delay 0, blank base). Fixed: the base finish falls back to the project's last actual finish, then its data date, with a warning; failing-first test added.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "10d980f6-31c0-53f6-bb4d-6785638dbb55",
+    "transcripts": 1,
+    "first": "2026-11-22T12:18:31Z",
+    "last": "2026-11-22T12:24:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 78,
+        "output": 16486,
+        "thinking": 4301,
+        "cache_read": 3236169,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83667,
+        "api_equivalent_usd": 1.6466,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 78,
+      "output": 16486,
+      "thinking": 4301,
+      "cache_read": 3236169,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83667,
+      "api_equivalent_usd": 1.6466,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 38,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.89,
+      "active_minutes": 5.89,
+      "model_minutes": 3.26,
+      "tool_minutes": 2.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation campaign triage, four tests, one fix and a post by a senior JS engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 182.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

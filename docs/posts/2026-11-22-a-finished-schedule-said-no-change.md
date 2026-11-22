@@ -1,9 +1,9 @@
 ---
 title: "A finished schedule said \"no change\": mutation testing the time impact analysis"
-seo_title: "Mutation testing a P6 time impact analysis: added work on a finished schedule"
+seo_title: "Mutation testing a time impact analysis: a finished update"
 date: 2026-11-22
 tags: [redteam, testing, mutation-testing, xer-schedule-check, time-impact-analysis, javascript, ventures]
-description: "Red team on tia.mjs the day probabilistic branches landed: 5 of 10 seeded bugs caught, three gaps closed, and a real bug where added work on a finished update read as no delay."
+description: "Red team on tia.mjs: 5 of 10 seeded bugs caught, three gaps closed, and added work on a finished schedule update no longer reads as no delay."
 ---
 
 The [XER schedule check](https://marisstella.app/xer-schedule-check/) got
