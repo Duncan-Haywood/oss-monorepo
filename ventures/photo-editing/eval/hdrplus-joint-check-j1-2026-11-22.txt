@@ -1,0 +1,32 @@
+125 bursts scored; models {'sailfish': 11, 'Nexus 6P': 54, 'marlin': 8, 'Pixel XL': 15, 'Pixel': 1, 'angler': 20, 'Nexus 6': 14, 'bullhead': 1, 'Nexus 5X': 1}
+mpcws read collapsed (fallback to ship) on 0: []
+
+## candidate over ship (COMMITTED)
+  means colour +0.0763 luma +0.0842 (medians +0.0240 / +0.0300); thirds luma/colour +0.093/+0.070  +0.067/+0.048  +0.092/+0.110
+  bursts > 0.1 dB under ship: 2 (worst -1.723) ['0543_20150918_202017_556', '4KK2_20150910_145202_958']
+  losers to D: 0 (new 0; ship loses on 3)
+  h1 PASS, h2 PASS, h3 PASS, h4 FAIL
+
+## mpcws_shipped over ship (reported)
+  means colour +0.0273 luma +0.0737 (medians +0.0010 / +0.0300); thirds luma/colour +0.092/+0.027  +0.064/+0.019  +0.065/+0.036
+  bursts > 0.1 dB under ship: 3 (worst -1.723) ['0009_20160712_112308_570', '0543_20150918_202017_556', '4KK2_20150910_145202_958']
+  losers to D: 0 (new 0; ship loses on 3)
+  h1 PASS, h2 PASS, h3 PASS, h4 FAIL
+
+## ship_pick over ship (reported)
+  means colour +0.0645 luma +0.0566 (medians +0.0310 / +0.0220); thirds luma/colour +0.083/+0.070  +0.036/+0.039  +0.050/+0.084
+  bursts > 0.1 dB under ship: 10 (worst -0.722) ['0009_20160703_170758_133', '0009_20160712_112308_570', '0030_20151111_114544_073', '0030_20151217_151026_587', '0043_20160927_220211_412', '0155_20160730_145721_923', '0155_20161002_142748_614', '0382_20150913_114822_649', '1125_20151227_114543_554', '1125_20151229_175611_751']
+  losers to D: 6 (new 4; ship loses on 3)
+  h1 PASS, h2 FAIL, h3 PASS, h4 FAIL
+
+## true_shipped over ship (reported)
+  means colour -0.0008 luma +0.1447 (medians -0.0070 / +0.0550); thirds luma/colour +0.110/-0.008  +0.103/-0.001  +0.220/+0.006
+  bursts > 0.1 dB under ship: 14 (worst -0.313) ['0037_20160717_143741_296', '0037_20160719_125227_729', '0043_20161007_103059_231', '0132_20161016_151410_501', '0155_20160816_120617_549', '0155_20160817_141742_989', '0382_20150924_090045_020', '0543_20150918_202017_556', '0919_20150905_182209_361', '0919_20150905_182233_099', '0919_20150906_192838_665', '0919_20150910_145645_717', '33TJ_20150820_180403_156', '4KK2_20150829_152712_990']
+  losers to D: 1 (new 1; ship loses on 3)
+  h1 PASS, h2 FAIL, h3 PASS, h4 FAIL
+
+## true_pick over ship (reported)
+  means colour +0.1128 luma +0.1447 (medians +0.0390 / +0.0550); thirds luma/colour +0.110/+0.084  +0.103/+0.068  +0.220/+0.186
+  bursts > 0.1 dB under ship: 0 (worst -0.051) []
+  losers to D: 0 (new 0; ship loses on 3)
+  h1 PASS, h2 PASS, h3 PASS, h4 PASS

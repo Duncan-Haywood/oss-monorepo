@@ -334,8 +334,10 @@ flagships:
       set is spent (eval/noise-pca-mpcw1-*); the oracle loses on both
       (eval/hdrplus-demosaic-sweep-*); q ramps refit 2026-11-22
       (eval/hdrplus-ramp-fit-*): ship's pick fails h3/h4 on 79 fresh bursts, ramps
-      stay; on own ramps the oracle's 14 losses go to 0; next mpcws on its ramps,
-      fresh draw from the full 3,640-burst set. More open items: NEXT.md.
+      stay; on own ramps the oracle's 14 losses go to 0; mpcws on its ramps on 2
+      fresh draws (eval/hdrplus-joint-check-*): +0.08 dB, h4 fails (collapsed reads;
+      luma ramp); next mpcws, colour ramp only, h4 vs the oracle. More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
