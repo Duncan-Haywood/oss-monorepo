@@ -1568,6 +1568,7 @@ class SpannerTest(unittest.TestCase):
             rows, bad = self._drum_axle()
         self.assertTrue(bad and "neither the head" in bad[0], bad)
 
+
     def test_driver_carrier_screws_reach_their_nuts(self):
         """The carrier's M3 x 16 left 1 mm under the deck for a 2.4 mm nut and two threads (found 2026-11-21)."""
         rows = {r["joint"]: r for r in self.G.joint_checks(self.fp, self.fparts)[0]}
@@ -1621,6 +1622,56 @@ class SpannerTest(unittest.TestCase):
         self.assertEqual(self.G.longest_run([True, False, False, True, True]), 15)
         self.assertEqual(self.G.longest_run([True] * 4), 360)
         self.assertEqual(self.G.longest_run([False] * 4), 0)
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class SocketTest(unittest.TestCase):
+    """2026-11-22: a deep socket on an extension, along each nut's bolt, with a ratchet and the hand on its end."""
+
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import collector as C, feeder as F, guide as G
+        cls.G = G
+        cls.cp, cls.fp = Collector(), Feeder()
+        cls.cparts, cls.fparts = C.all_parts(cls.cp), F.all_parts(cls.fp)
+        cls.crows = {r["joint"]: r for r in G.socket_checks(cls.cp, cls.cparts)}
+        cls.frows = {r["joint"]: r for r in G.socket_checks(cls.fp, cls.fparts)}
+
+    def test_same_nuts_as_the_spanner_table(self):
+        self.assertEqual(set(self.crows), {"rod clamp ring", "yoke pivot", "drum axle"})
+        self.assertEqual(len(self.frows), 12)
+
+    def test_drum_axle_nut_turns_with_a_ratchet_between_the_rods(self):
+        """No bar: the socket's 63 mm puts the ratchet's head inside the cage, its handle out through one gap, which
+        swings just the ratchet's 15 degrees (a spanner's 30 does not fit)."""
+        r = self.crows["drum axle"]
+        self.assertEqual(r["ext_mm"], 0.0)
+        self.assertEqual(r["arc_deg"], self.G.RATCHET_SWING)
+        self.assertTrue(r["turns"])
+
+    def test_flight_cap_nut_takes_no_socket(self):
+        r = self.frows["lift flight cap through its cleat"]
+        self.assertIsNone(r["ext_mm"])
+        self.assertIn("no bar", r["why"])
+
+    def test_jam_nut_tail_needs_a_deep_socket(self):
+        r = self.frows["levelling foot jam nut"]
+        self.assertGreater(r["tail_mm"], 20.0)       # a shallow socket's bore is under 10 mm
+        self.assertTrue(r["turns"])
+        with unittest.mock.patch.dict(self.G.SOCKET_BORE, {6: 10.0}):
+            import dataclasses
+            j = next(x for x in self.G.joints(self.fp) if x.name == "levelling foot jam nut")
+            with unittest.mock.patch.object(self.G, "joints", lambda p, j=j: [j]):
+                rows = self.G.socket_checks(self.fp, self.fparts)
+        self.assertIsNone(rows[0]["ext_mm"])
+        self.assertIn("past the nut", rows[0]["why"])
+
+    def test_a_wider_handle_cannot_swing_between_the_rods(self):
+        j = next(x for x in self.G.joints(self.cp) if x.name == "drum axle")
+        with unittest.mock.patch.dict(self.G.RATCHET, {8: (50.0, 18.0, 200.0)}), \
+                unittest.mock.patch.object(self.G, "joints", lambda p, j=j: [j]):   # a 30 mm handle, not 20
+            rows = self.G.socket_checks(self.cp, self.cparts)
+        self.assertLess(rows[0]["arc_deg"], self.G.RATCHET_SWING)
 
 
 class BearingParamsTest(unittest.TestCase):

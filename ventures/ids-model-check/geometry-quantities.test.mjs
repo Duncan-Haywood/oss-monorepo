@@ -4,7 +4,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { resources, check } from "./node.mjs";
 import { fillModel, fillReport } from "./model-fill.mjs";
 import { Model } from "./ids.mjs";
-import { quantitiesFromRows, geometryLookup, measureModel } from "./geometry-quantities.mjs";
+import { quantitiesFromRows, geometryLookup, measureModel, spaceLines } from "./geometry-quantities.mjs";
 
 const SAMPLE = new URL("../ifc-quantity-takeoff/samples/sample-office.ifc", import.meta.url);
 const have = existsSync(SAMPLE);
@@ -583,4 +583,79 @@ test("the fill writes a Revit door's Width, Height and Area from its type's Dime
   assert.equal(Number(w.Width), 915);
   assert.equal(Number(w.Height), 2134);
   assert.ok(Math.abs(Number(w.Area) - 0.915 * 2.134) < 1e-6);
+});
+
+// ---- spaces: Qto_SpaceBaseQuantities from the room's own solid -------------
+
+test("a room's reading maps onto Qto_SpaceBaseQuantities by its shape and authoring tool", () => {
+  const box = { computed: { floorArea: 12, perimeter: 14, height: 2.7, volume: 32.4 }, from: "body" };
+  const names = (m) => [...m.keys()].sort();
+  // A constant-height room with a body: every name but NetFloorArea (that one is Revit's only).
+  assert.deepEqual(names(spaceLines(box)), ["FinishCeilingHeight", "GrossCeilingArea", "GrossFloorArea", "GrossPerimeter", "GrossVolume", "Height", "NetVolume"]);
+  assert.equal(spaceLines(box, { tool: "revit" }).get("NetFloorArea").value, 12);
+  // Its top is a ceiling's underside: the stored Height is the nominal one above it, so neither it nor GrossVolume.
+  const under = spaceLines(box, { ceilingAtTop: true });
+  assert.equal(under.has("Height"), false);
+  assert.equal(under.has("GrossVolume"), false);
+  assert.equal(under.get("FinishCeilingHeight").value, 2.7);
+  // Under a sloped roof (volume short of floor x height): no heights, ceiling area or gross volume.
+  const sloped = spaceLines({ computed: { floorArea: 12, perimeter: 14, height: 4, volume: 30 }, from: "body" });
+  assert.deepEqual(names(sloped), ["GrossFloorArea", "GrossPerimeter", "NetVolume"]);
+  // Drawn only as an outline and a box: no volumes (the box's prism can hold more than the room).
+  assert.deepEqual(names(spaceLines({ ...box, from: "footprint" })), ["FinishCeilingHeight", "GrossCeilingArea", "GrossFloorArea", "GrossPerimeter", "Height"]);
+  // A faceted room whose section is not known: volume only.
+  assert.deepEqual(names(spaceLines({ computed: { floorArea: null, perimeter: null, height: 2.7, volume: 32.4 }, from: "body" })), ["NetVolume"]);
+  assert.equal(spaceLines({ computed: null, from: "body" }).size, 0);
+});
+
+// The sample office plus a 4 x 3 x 2.7 m room with no quantity set (as rooms.test.mjs in ifc-quantity-takeoff).
+const withRoom = (extra = []) => readFileSync(SAMPLE, "latin1").replace("ENDSEC;\nEND-ISO", [
+  "#2000=IFCSPACE('0rM0000000000000000001',$,'101','',$,#2001,#2002,'Office',.ELEMENT.,.INTERNAL.,$);",
+  "#2001=IFCLOCALPLACEMENT(#51,#21);",
+  "#2002=IFCPRODUCTDEFINITIONSHAPE($,$,(#2003));",
+  "#2003=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#2004));",
+  "#2004=IFCEXTRUDEDAREASOLID(#2005,#21,#23,2700.);",
+  "#2005=IFCRECTANGLEPROFILEDEF(.AREA.,$,#2006,4000.,3000.);",
+  "#2006=IFCAXIS2PLACEMENT2D(#2007,$);",
+  "#2007=IFCCARTESIANPOINT((2500.,1600.));",
+  "#2010=IFCRELAGGREGATES('0rM0000000000000000002',$,$,$,#50,(#2000));",
+  ...extra,
+].join("\n") + "\nENDSEC;\nEND-ISO");
+const SPACE_IDS = (names) => ids(names.map(([n, dt]) => spec("IFCSPACE", prop("Qto_SpaceBaseQuantities", n, dt))).join(""));
+const ALL_SPACE = [["GrossFloorArea", "IFCAREAMEASURE"], ["NetFloorArea", "IFCAREAMEASURE"], ["GrossPerimeter", "IFCLENGTHMEASURE"], ["Height", "IFCLENGTHMEASURE"], ["FinishCeilingHeight", "IFCLENGTHMEASURE"], ["GrossCeilingArea", "IFCAREAMEASURE"], ["GrossVolume", "IFCVOLUMEMEASURE"], ["NetVolume", "IFCVOLUMEMEASURE"], ["NetPerimeter", "IFCLENGTHMEASURE"]];
+
+test("the fill writes a room's floor area, perimeter, heights and volumes from its solid, in the file's units", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const text = withRoom();
+  const geometry = geometryLookup(await measureModel(text));
+  const r = fillModel(SPACE_IDS(ALL_SPACE), text, { ...resources(), random, geometry });
+  const got = Object.fromEntries(r.writtenList.filter((w) => w.id === 2000).map((w) => [w.prop, w.value]));
+  // Lengths in the file's millimetres; areas and volumes in its square and cubic metres.
+  assert.deepEqual(got, { GrossFloorArea: "12.", GrossPerimeter: "14000.", Height: "2700.", FinishCeilingHeight: "2700.", GrossCeilingArea: "12.", GrossVolume: "32.4", NetVolume: "32.4" });
+  // NetFloorArea (no Revit) and NetPerimeter (doors come off) are left to the table.
+  assert.deepEqual(r.unfilled.filter((u) => u.id === 2000).map((u) => u.prop ?? u.name).sort(), ["NetFloorArea", "NetPerimeter"]);
+  assert.equal(r.verified.pass, r.written);
+});
+
+test("a Revit room gets its net floor area, and one whose top is a ceiling's underside no Height", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const revit = ["#2090=IFCAPPLICATION(#2091,'2022','Autodesk Revit 2022 (ENU)','Revit');", "#2091=IFCORGANIZATION($,'Autodesk',$,$,$);"];
+  // A 4 x 3 m ceiling board, 20 mm thick, its underside at 2.7 m over the room.
+  const ceiling = [
+    "#2100=IFCCOVERING('0rM0000000000000000009',$,'Ceiling',$,$,#2101,#2102,$,.CEILING.);",
+    "#2101=IFCLOCALPLACEMENT(#51,#2105);",
+    "#2105=IFCAXIS2PLACEMENT3D(#2106,$,$);",
+    "#2106=IFCCARTESIANPOINT((0.,0.,2700.));",
+    "#2102=IFCPRODUCTDEFINITIONSHAPE($,$,(#2103));",
+    "#2103=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#2104));",
+    "#2104=IFCEXTRUDEDAREASOLID(#2005,#21,#23,20.);",
+    "#2107=IFCRELCONTAINEDINSPATIALSTRUCTURE('0rM000000000000000000A',$,$,$,(#2100),#50);",
+  ];
+  const plain = geometryLookup(await measureModel(withRoom(revit)));
+  assert.equal(plain({ id: 2000 }, "NetFloorArea", "IFCQUANTITYAREA"), 12);
+  assert.equal(plain({ id: 2000 }, "Height", "IFCQUANTITYLENGTH"), 2.7);
+  const lowered = geometryLookup(await measureModel(withRoom([...revit, ...ceiling])));
+  assert.equal(lowered({ id: 2000 }, "Height", "IFCQUANTITYLENGTH"), undefined);
+  assert.equal(lowered({ id: 2000 }, "GrossVolume", "IFCQUANTITYVOLUME"), undefined);
+  assert.equal(lowered({ id: 2000 }, "FinishCeilingHeight", "IFCQUANTITYLENGTH"), 2.7);
+  // Asked as the wrong kind: nothing.
+  assert.equal(plain({ id: 2000 }, "GrossFloorArea", "IFCQUANTITYLENGTH"), undefined);
 });

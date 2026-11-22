@@ -16,6 +16,7 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
+import { barShape, readBarProps, toMm, massPerMetre } from "./rebar.mjs";
 import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
@@ -317,6 +318,23 @@ function readProps(E, ids, out) {
   }
 }
 
+/**
+ * A reinforcing bar's own schedule figures (rebar.mjs readBarProps) from its
+ * property sets and its type's, with the nominal diameter in mm (the
+ * properties', else the bar's or its type's NominalDiameter attribute), the
+ * grade (else the SteelGrade attribute) and the file's bar length in metres.
+ */
+function barPropsOf(E, idx, e, te, f) {
+  const p = readBarProps(E, [...(idx.psets.get(e.id) || []), ...(te ? (te.args[5] || []).map(refId) : [])]);
+  const attrD = numOf(e.args[9]) ?? (te?.type === "IFCREINFORCINGBARTYPE" ? numOf(te.args[10]) : null);
+  p.diameterMm = toMm(p.diameter, f) ?? toMm(attrD, f);
+  if (p.grade == null && typeof e.args[8] === "string" && e.args[8].trim()) p.grade = e.args[8].trim();
+  if (p.shape == null && te?.type === "IFCREINFORCINGBARTYPE" && typeof te.args[14] === "string" && te.args[14].trim()) p.shape = te.args[14].trim();
+  const attrL = numOf(e.args[11]) ?? (te?.type === "IFCREINFORCINGBARTYPE" ? numOf(te.args[12]) : null);
+  p.lengthM = p.length != null ? p.length * f : attrL != null ? attrL * f : null;
+  return p;
+}
+
 /** Chooses the body representation of a product shape: 'Body', else the first solid-looking one. */
 function bodyRepresentation(E, shapeId) {
   const shape = E.get(shapeId);
@@ -477,6 +495,12 @@ export function takeoff(model, opts = {}) {
         if (pid != null) { const v = geo.sectionVariants(pid); if (v.length) row.computed.sectionVariants = v; }
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
         try { const L = memberLength(e.type, row.computed.solids.body, f); if (L != null) row.computed.length = L; } catch { /* no length */ }
+        // a reinforcing bar's shapes and the author's schedule figures (rebar.mjs)
+        if (REBAR_CLASS.test(e.type) && row.computed.solids.body?.bars?.length) {
+          row.barProps = barPropsOf(E, idx, e, te, f);
+          const nominal = row.barProps.diameterMm ? row.barProps.diameterMm / 1000 : null;
+          try { row.bars = row.computed.solids.body.bars.map((b) => barShape(b, f, nominal)); } catch { row.bars = null; }
+        }
         row.computed.solids.each = null;
         // what the model view draws the element with (view-mesh.mjs); kept off the row's enumerable fields
         Object.defineProperty(row, "world", { value: worldOf(refId(e.args[5])), enumerable: false, writable: true });
@@ -1408,6 +1432,10 @@ function lengthAndWeight(r, first, volume, volumeSource) {
   // a reinforcing bar is steel unless its material names something else
   // (GFRP, basalt, stainless): "ReinforcingSteel" reads as not-steel to
   // isSteel, which guards against reinforced concrete
+  // a bar whose path was read: its centreline length times the nominal
+  // size's mass per metre, not its drawn disk (Tekla draws a 10 mm bar
+  // 10.625 mm across, its ribs, which weighs 13% more)
+  if (weight == null && REBAR_CLASS.test(r.ifcType ?? "") && r.bars?.length && r.barProps?.diameterMm && !NOT_REBAR_STEEL.test(r.material ?? "")) { weight = r.bars.reduce((t, b) => t + b.length, 0) * massPerMetre(r.barProps.diameterMm); weightSource = "nominal-size"; }
   if (weight == null && volume != null && REBAR_CLASS.test(r.ifcType ?? "") && !NOT_REBAR_STEEL.test(r.material ?? "")) { weight = volume * STEEL_DENSITY; weightSource = volumeSource === "stored" ? "density-stored-volume" : "density"; }
   if (weight == null && volume != null && isSteel(r.material)) { weight = volume * STEEL_DENSITY; weightSource = volumeSource === "stored" ? "density-stored-volume" : "density"; }
   return { length, lengthSource, weight, weightSource };

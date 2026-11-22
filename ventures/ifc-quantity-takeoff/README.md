@@ -337,6 +337,45 @@ wall in 989 rooms (1,330 deductions named by boundaries, 1,419 by geometry).
 `node cli.mjs model.ifc --rooms rooms.csv`; page section "Rooms" (click a room
 to show its elements; CSV download).
 
+## Bar schedule
+
+`rebar.mjs`; [eval/rebar-schedule-2026-11-22.md](eval/rebar-schedule-2026-11-22.md).
+Rebar is ordered by bar mark, not by class and type, so every reinforcing bar
+the model draws as a swept disk (or a round extrusion) goes into a bar bending
+schedule: one line per member, bar mark, size, shape and cut length, with:
+
+- **Number of bars**: each swept disk is a bar, so a Tekla bar group of 16
+  mapped copies counts 16.
+- **Cut length**: along the bar's centreline, bends included (the steel cut
+  and bent; Tekla's weights use it).
+- **Shape and leg dimensions**: the path is read as legs and bends (true
+  arcs, or Allplan's bends drawn as eight facets, whose radius is the circle
+  through their vertices). Each leg is measured out to out with the nominal
+  size: straight run plus (r + d/2) tan(theta/2) at a bend up to 90 degrees,
+  r + d/2 past it. A BS 8666 shape code only where read with certainty (00,
+  11, 21); otherwise straight, L, U, Z (cranked), closed link or n bends.
+- **Mass**: cut length times the nominal size's mass per metre
+  (pi d^2/4 x 7,850 kg/m3). The nominal size is the file's own property
+  (Tekla DIAMETER_NOMINAL, Size, Allplan Bewehrungsdurchmesser), else the
+  IFC attribute. Tekla draws a 10 mm bar 10.625 mm across, which weighed
+  as a disk would be 13% heavy; the BoQ's bar weights use this rule too.
+- **The file's own figures beside ours**: mark, grade, shape code, bars in
+  the group, length and group weight (Tekla Rebar_properties, Tekla
+  Reinforcement - Bending List, Allplan_ReinforcingBar, the ISO/BS/DIN
+  bending property sets). Bars with no mark get A01, A02... per distinct bar,
+  marked as assigned. Notes: a bend tighter than BS 8666's minimum scheduling
+  radius, a bend drawn as a sharp corner, a bar drawn at another size than
+  its nominal one, and bar elements that could not be read.
+
+On 12 public exports (Tekla, Allplan, Revit, FreeCAD, buildingSMART), 265 of
+310 bar elements are read (main read 35, buildingSMART's two samples; every
+Tekla, Allplan and Revit bar has a StartParam and EndParam, which it
+refused). Against the authors' own figures: bars per Tekla group 32 of 32,
+per Allplan position 24 of 24, Tekla group weight within 1% 32 of 32,
+Allplan mass per metre 20 of 20, bending diameter 13 of 13, length 37 of 37,
+leg dimensions within 2 mm 30 of 33 (the misses are hook legs, measured
+differently). CLI `--rebar bars.csv`; page section "Bar schedule".
+
 ## Uniformat II elements
 
 Group by `uniformat` (level 3, e.g. `B2010 Exterior Walls`), `uniformat2`

@@ -32,6 +32,13 @@
 ## buildingSMART IFC4.3 samples (landed 2026-11-22, eval/bsi-samples-2026-11-22.md)
 
 - Cant: `segmented-reference-curve` is buildingSMART's own IfcSegmentedReferenceCurve sample (an alignment with cant, no element on it). Read it in alignment.mjs and check its stations against IfcOpenShell, then place parts on it.
-- A rebar schedule: the BoQ groups bars by type today; estimators order by bar mark, diameter and shape code (BS 8666 / ACI 315), with a cut length per bar. The type's NominalDiameter and BarLength, the bar's role and the directrix's bends give all of it.
 - Swept disks have no faces: the model view does not draw a bar and its world box is empty. A tube mesh for display (keeping the exact pi r^2 L volume).
 - `IfcGridPlacement` offsets are read as offset curves to the left of each axis's direction (IfcOffsetCurve2D's sense); IfcOpenShell 0.9 builds no grid-placed element to check against. Find a public model with offset grid placements.
+
+## Bar schedule (landed 2026-11-22, eval/rebar-schedule-2026-11-22.md)
+
+- Hook legs as their own column, the way BS 8666 and Tekla give them (Tekla's stirrup F203_2: E = 64 mm, the straight part past the 135-degree bend; Revit's ISO shapes measure A another way): the 3 of 33 leg dimensions that miss.
+- More BS 8666 shape codes than 00, 11 and 21 (links, cranks, hooks), each checked against a public bar the file codes; ACI 315 bend types for US models.
+- Bars drawn as meshes or breps (paireks/T-Rex's 44 Grasshopper bars, the Norwegian Tekla detail's brep): fit a centreline to the surface.
+- Tekla's DIM_L is the legs summed and rounded down to 10 mm: offer it as a second length column for Tekla projects that order by it.
+- A real estimator's or bending shop's reading of the bar schedule CSV (needs a person).

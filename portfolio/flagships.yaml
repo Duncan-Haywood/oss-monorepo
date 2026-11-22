@@ -411,10 +411,10 @@ flagships:
       CAD work and every check: cad/README.md (2026-11-21: switches, post wedges,
       every fastener a joint, nut spanners, idler axles fixed and the spool axle as
       joints). Bearing rings 2026-11-21; levelling feet's blocks and jam nuts as
-      joints 2026-11-22 (every feeder nut a joint). Next: a deep socket on an
-      extension (cad/README.md, Spanners). Firmware survey tuning is settled on
-      simulated data (firmware/esp32/README.md, NEXT.md): next information there is
-      a real wheel's tach log.
+      joints 2026-11-22 (every feeder nut a joint). Deep sockets tried 2026-11-22
+      (cad/README.md). Next: the socket's path onto the nut, in then along the axis.
+      Firmware survey tuning is settled on simulated data (firmware/esp32/README.md,
+      NEXT.md): next information there is a real wheel's tach log.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -535,10 +535,9 @@ flagships:
       eval/member-lengths-2026-11-22.md; Tekla's cut members by a face-flush box
       2026-11-22, 147 more, 147 within 0.1%, eval/tekla-cut-members-2026-11-22.md;
       slab Width/Perimeter 2026-11-22, 396/396, 375/377; door/window sizes
-      2026-11-22, ARCHICAD 377/380 and Revit 796/800 exact,
-      eval/door-window-quantities-2026-11-22.md,
-      eval/revit-door-window-quantities-2026-11-22.md; next: a Revit Perimeter);
-      next: a BIM manager's filled table. HTML report
+      2026-11-22, ARCHICAD 377/380, Revit 796/800; space Qto_ 2026-11-22, 528/530
+      floor areas, 445/446 heights, eval/space-quantities-2026-11-22.md; next: a
+      Revit Perimeter); next: a BIM manager's filled table. HTML report
       (eval/html-report-2026-11-21.md): next, a consultant's read. ifcJSON read
       2026-11-21 (ifcjson.mjs, eval/ifcjson-twins-2026-11-21.md: 97 twins, starter
       verdicts 291 of 291; with 65 public IDS 6,552 of 6,596, the rest converter
@@ -580,18 +579,18 @@ flagships:
       cent, MPXJ agrees; eval/expenses-2026-11-21.md); next a P6-written XER with
       expenses, a P6 import (category by name?). Finish-date UDFs <-> Project Finish
       fields, Start/Finish fields read 2026-11-22 (eval/finish-udfs-2026-11-22.md:
-      120/120 Project values, CCA 182/182); interim plans named, --no-interim
-      2026-11-22 (eval/interim-plans-2026-11-22.md: 354/354 planted); next: a P6
-      import of the result. Contractor's monthly narrative 2026-11-22
-      (narrative.mjs, --narrative, page; causes as fill-ins;
-      eval/narrative-check-2026-11-22.md); next a real scheduler's read. Levelling
-      on P6 resource curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md);
-      next a P6-levelled file with a curve. Probabilistic branches in the risk run
-      2026-11-22 (--branches, page, review; eval/branches-2026-11-22.md: 113/113
-      planted); next a real branch register; branches in TIA 2026-11-22 (tia.mjs
-      Branch group/Branch/Probability, every outcome scheduled,
-      eval/tia-branches-2026-11-22.md), next a real TIA exhibit with alternatives.
-      More open items: NEXT.md.
+      120/120 Project values, CCA 182/182); next: a P6 import of the result.
+      Contractor's monthly narrative 2026-11-22 (narrative.mjs, --narrative, page;
+      causes as fill-ins; eval/narrative-check-2026-11-22.md); next a real
+      scheduler's read. Levelling on P6 resource curves 2026-11-22 (--curves,
+      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve.
+      Probabilistic branches in the risk run 2026-11-22 (--branches, page, review;
+      eval/branches-2026-11-22.md: 113/113 planted); next a real branch register;
+      branches in TIA 2026-11-22 (tia.mjs Branch group/Branch/Probability, every
+      outcome scheduled, eval/tia-branches-2026-11-22.md), next a real TIA exhibit
+      with alternatives. (14) XER to Excel 2026-11-22 (excel.mjs, --excel, page,
+      guide; eval/excel-check-2026-11-22.md: 6,239,763/6,239,763 values equal by
+      openpyxl); next an open in desktop Excel. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -623,16 +622,17 @@ flagships:
       had counted 1.8x its box), 9,310 of 9,312 now enclose the computed volume
       (eval/item-union-2026-11-21.md; next in NEXT.md). IFC4X3 bridges, rebar on
       arcs, grid placements, fixed-reference sweeps 2026-11-22
-      (eval/linear-placement-*, eval/bsi-samples-*); next cant, a 2nd bridge, a
-      rebar schedule by mark and shape code (NEXT.md). Room schedule 2026-11-21
-      (eval/rooms-2026-11-21.md); next: HouseZ's 3 openings 0.51 m under their
-      room's floor, dental_clinic's 17 ROOF windows (NEXT.md). Next, most valuable
-      first: (1) the covering up-cut rule tested on a second model, the joins rule
-      on an ArchiCAD export with partitions on both faces; (2) method of
-      measurement: small voids left in shipped 2026-11-20 (measure.mjs, page and cli
-      --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
-      eval/measure-rules-2026-11-20.md) frames split B1010/B1020/A1010 by the deck
-      they carry 2026-11-20 (level 3 19,767 to 22,546 elements;
+      (eval/linear-placement-*, eval/bsi-samples-*); next cant, a 2nd bridge
+      (NEXT.md). Bar schedule 2026-11-22 (rebar.mjs, --rebar; eval/rebar-schedule-*:
+      265 of 310 real bars read, Tekla counts 32/32, weights 32/32); next hook legs
+      (NEXT.md). Room schedule 2026-11-21 (eval/rooms-2026-11-21.md); next: HouseZ's
+      3 openings 0.51 m under their room's floor, dental_clinic's 17 ROOF windows
+      (NEXT.md). Next, most valuable first: (1) the covering up-cut rule tested on a
+      second model, the joins rule on an ArchiCAD export with partitions on both
+      faces; (2) method of measurement: small voids left in shipped 2026-11-20
+      (measure.mjs, page and cli --voids-up-to; 1,099 of 1,136 opening cuts = stored
+      WxH; eval/measure-rules-2026-11-20.md) frames split B1010/B1020/A1010 by the
+      deck they carry 2026-11-20 (level 3 19,767 to 22,546 elements;
       eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun shades or
       roofs by name and roof by geometry 2026-11-20 (slabRole, findRoofDecks: 600
       B1010 slabs to 270 floors, 251 finishes, 18 more roofs; 142 frame members to
