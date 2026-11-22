@@ -157,14 +157,16 @@
    "what": "The trips-needed warning compares completed trips needed with trips booked: at $1,400 a trip the target needs 77.1 completed trips (96.4 bookings at 20% weather) against 72 completed / 90 booked, yet no warning shows because 77.1 < 90; at $800 it reports 292 completed trips 'more than the 90 you expect to book' when 365 bookings are needed.",
    "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:71",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "medium",
    "what": "The target is labelled 'Profit you want to take home per year' but is treated as pre-tax business profit; income and self-employment tax are not mentioned (the Not-decided list names only sales or occupancy tax), so a captain entering a real take-home figure under-prices.",
    "where": "ventures/fishing-charter-trip-pricing-calculator/index.html:69",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "medium",
@@ -178,28 +180,32 @@
    "what": "No passenger cap or warning: 12 anglers gives a per-angler quote though an uninspected passenger vessel run under an OUPV (six-pack) licence may carry at most 6 passengers for hire (46 U.S.C. 2101).",
    "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:35",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "medium",
    "what": "Three of five seeded mutants survive: the weather-effect baseline, the target-miss finding condition and the 15% weather threshold are untested, so the findings a captain reads can break with every test green.",
    "where": "ventures/fishing-charter-trip-pricing-calculator/calc.test.mjs:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "low",
    "what": "Anglers and current price silently drop typed text ('4 anglers', 'eight hundred' become blank with no error) and accept fractional anglers, unlike every other field.",
    "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:35",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "low",
    "what": "The fuel finding says each $1/gal 'changes the cost of a trip by' $86.60; the cost changes by $84.00 (gallons per trip) and $86.60 is the price change after the card-fee gross-up.",
    "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:77",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "low",
@@ -213,9 +219,10 @@
    "what": "SAMPLE carries fuelSurchargeFrom, an input nothing reads or shows (dead field).",
    "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:7",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
  "verdict": "A small, honest cost-plus calculator whose core numbers are right: target price $1,457.96, break-even $885.22, weather effect $174.68, fuel swing $86.60 and the -$5,952 annual result at $800 all match a hand build-up, and the page works in a browser with the disclaimer and local-only usage counting it describes. It does not meet the bar. The trips-needed warning compares completed trips with booked trips, so it is silent at $1,400 when the target is missed. The 'take home' target is really pre-tax. Three of five seeded mutants in the findings logic survive. A captain's real job, a half-day and full-day rate card sharing one boat's fixed costs within the six-passenger limit, is not modelled. Fixing calc.mjs:71 (compare with completed trips, report bookings), relabelling the target as pre-tax profit, adding a six-passenger warning and testing the findings would lift claims and verification to 3."
 }

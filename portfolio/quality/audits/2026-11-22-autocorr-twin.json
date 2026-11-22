@@ -197,7 +197,8 @@
    "what": "The batch-means interval, the paper's remedy, is effectively untested: dividing its half-width by sqrt(L) instead of sqrt(b) and changing t(29) from 2.045 to 1.96 both leave all 10 tests green; test_cis only asserts h < 0.01 on an alternating series.",
    "where": "research/autocorr-twin/tests/test_model.py:47",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "medium",
@@ -225,7 +226,8 @@
    "what": "README says 8 tests; the suite runs 10 (test_figure.py added later). Runtime '~2 min' is 66 s.",
    "where": "research/autocorr-twin/README.md:9",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "low",
@@ -242,6 +244,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
  "verdict": "A small, correct and honestly labelled reproduction of classical simulation output analysis. The run reproduces byte for byte. Every number I recomputed matches: the AR(1) variance from the closed form, ESS and coverage, the t table, the run lengths, and the M/M/1 asymptotic variance, which a regenerative estimator confirms to within 1.3%, far tighter than the subject's own check. An independent re-simulation of the SLA case agrees within 2 SE. It misses the bar on verification: the batch-means interval, the remedy the paper recommends, can have its half-width or t quantile broken with every test still green. Fitness and domain are 2 because nothing goes beyond Whitt (1989) and Law & Kelton ch. 9. No modern estimator (OBM, spectral, Skart, ASAP3, MSER) or batch-size rule is compared, so it is a sound teaching baseline, not PhD-level research."
 }

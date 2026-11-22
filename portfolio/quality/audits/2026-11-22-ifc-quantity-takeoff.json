@@ -227,14 +227,16 @@
    "what": "Page FAQ and its JSON-LD still say 9,184 of 9,314 drawn elements enclose the computed volume; README and eval/item-union-2026-11-21.md give 9,310 of 9,312 after the union fix.",
    "where": "ventures/ifc-quantity-takeoff/index.html:220",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "low",
    "what": "README attributes 4,863 of 5,495 GrossVolume agreements to '13 public models' while the same README (line 129), the page and llms.txt say 8 models that store volumes.",
    "where": "ventures/ifc-quantity-takeoff/README.md:146",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "low",
@@ -251,6 +253,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
  "verdict": "Every one of ten outputs recomputed on auditor-written IFC files matches by hand. They cover I, hollow-circle, ellipse and arbitrary profiles, an oblique extrusion, a recess opening with and without a void threshold, a revolved solid, a scaled mapped item and imperial units. The tool does what its README says from the command line, carries the disclaimer, and states honestly that no quantity surveyor has reviewed it. It misses the bar on verification: three of six seeded bugs in core geometry and units survive the 172 tests (ellipse axis ratio, revolved-axis offset, CENTI prefix). For an estimator the main gap is steel: member length and mass come only from stored quantities, so an unquantified frame prices at 0 per m or kg with no note. The page also carries one stale figure (9,184 of 9,314)."
 }

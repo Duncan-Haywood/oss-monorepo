@@ -235,14 +235,16 @@
    "what": "pattern.html says 'no rib at the hem or cuffs' next to a rib checkbox that drafts 6 cm hem and cuff bands.",
    "where": "ventures/clothing-design-studio/pattern.html:45",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "low",
    "what": "Five SEO landing pages (clothing-minimum-order-quantity, for-independent-clothing-designers, how-much-does-it-cost-to-make-a-t-shirt, import-duty-on-clothing, sunglasses-profit-margin) carry the disclaimer but no usage tracking.",
    "where": "ventures/clothing-design-studio/how-much-does-it-cost-to-make-a-t-shirt.html:1",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
   },
   {
    "severity": "low",
@@ -252,6 +254,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
  "verdict": "A broad, honest studio whose arithmetic is right: every recomputed costing, fabric, shrinkage, size-run and run-cost number matches by hand, the sleeve cap walks to the armhole plus its 1 cm ease, and allowances sit where they should. 734 tests pass and five of eight seeded bugs are caught. It does not meet the bar because the pattern maker, the piece a technical designer checks first, contradicts the studio's own tech-pack spec: the tee sleeve is 22 cm in every size, and shoulder and neck width fall outside the spec's tolerance in 5 of 6 sizes. The root cause is that the same dimensions are typed separately in pattern.mjs, spec.mjs, tryon.mjs and marker.mjs. On top of that the grade is proportional (armhole and shoulder grow about twice standard increments), there is no neckband piece, and one test locks in the ungraded sleeve. Disclaimers are everywhere, and the unchecked ratios and the from-memory duty rates are disclosed."
 }
