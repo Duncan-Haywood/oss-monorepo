@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>As of Monday</title>
+      <link>https://example.invalid/hearth-and-horizon/as-of-monday.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/as-of-monday.html</guid>
+      <pubDate>Sun, 22 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish answering agent tells people Mass times from a copy of the website it refreshes once a week. The summer timetable goes up on a Friday evening, and by Saturday three people are standing at a locked church. A story about how long a copy may be trusted, the old copy that said when it would stop being true, and a number that was a decision nobody wrote down. Setting: The parish of Holy Cross and Saint Teilo (invented), three churches in north Pembrokeshire, Wales, Friday 31 May to Saturday 8 June 2052. Read the full text at https://example.invalid/hearth-and-horizon/as-of-monday.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish answering agent tells people Mass times from a copy of the website it refreshes once a week. The summer timetable goes up on a Friday evening, and by Saturday three people are standing at a locked church. A story about how long a copy may be trusted, the old copy that said when it would stop being true, and a number that was a decision nobody wrote down.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>A Thousand Sundays</title>
       <link>https://example.invalid/hearth-and-horizon/a-thousand-sundays.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/a-thousand-sundays.html</guid>

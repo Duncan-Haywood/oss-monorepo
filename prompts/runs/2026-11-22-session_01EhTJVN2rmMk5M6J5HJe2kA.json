@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVN2rmMk5M6J5HJe2kA",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue software; merge when done)",
+  "input_sha256": "b4e139341cc30db77aadefe2f1d6acdc8c06b760de564ce28b012ede901c39ab",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T12:03:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New For Other Minds story: As of Monday (time-to-live, stale cache)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 18246,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled prompt asks for revenue software; the router drew the creative track (weight 0.1) and the master prompt says to follow the route, so the run followed it.",
+      "did": "creative track",
+      "result": "one finished story + post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-for-other-minds-as-of-monday.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, shelf for-other-minds (drawn by creative_due.py: 50%). Piece: as-of-monday (stale cache / TTL), text only (audio 581 MB of 400 MB cap). Claimed by BIBLE Drafting commit + draft PR before writing; searched PRs for 'Leidenfrost', 'hot pan', cache: none. Checks: weekdays for 2052 dates computed (31 May Fri, 1 Jun Sat, 8 Jun Sat, 15 Jan Mon, 9 Apr Tue, 5 Jun Wed), Easter 2052 21 Apr (Palm Sunday 14 Apr); all story counts re-added against the note (27 = 5+6+9+7; 19 text = 6+8+5; 3 web = 0+1+2; 31 = 9+22). Added a new For Other Minds proposal (Pareto front, 'Four of the six'). node --test in ventures/hearth-and-horizon: 20 pass, 0 fail; check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}
