@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmCKKNQc5ydmpBT72s",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T10:18:43Z",
+  "ended": "2026-11-22T10:24:56Z",
+  "wall_minutes": 20.74,
+  "tokens_in": 10178070,
+  "tokens_out": 58150,
+  "cost_usd": 4.5481,
+  "tool_calls": 81,
+  "task": "photo-editing (flagship 7, allocate.py Start here row 3): NEXT.md optical-black item 1, the masked margins through shootflow's own readers",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18235",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First batch runs used `python3`, which lacks numpy here; pyenv.py had printed /usr/bin/python3.13 \u2014 reran with it.",
+    "First file list came from `ls` over several directories, so headers and subdirectory names became bogus file rows; rebuilt it with find.",
+    "One rerun used relative paths from another cwd (FileNotFoundError on all 57); rebuilt with absolute paths."
+  ],
+  "integrity_issues": [
+    "The morning's eval/optical-black-floor-2026-11-22.md overstated coverage (8 of 57): its 0.5%-of-white black tolerance admitted dim picture lines and it did not skip black-level-0 files. Corrected in place with a dated note; the true count is 6 of 57, and the E-P3 and NX3000 rows were not readings."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/optical-black-floor-2026-11-22.md",
+      "issue": "Its Next item 1 predicted shootflow's readers 'should cover the Nikon bodies LibRaw trims'; they set ActiveArea to the full sensor (ORF/RW2/ARW/SRW/PEF) or find padding/black-0 columns (NEF), so the prediction was untested and wrong."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds an interpreter; it worked, but bare `python3` then still lacks numpy, which is easy to forget in xargs pipelines \u2014 worth saying 'use $PY everywhere after'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Says to rewrite the venture's `next:` in portfolio/flagships.yaml when landing an item; this item lived in NEXT.md (never in `next:`, which is at 1967 of 2000 chars).",
+      "did": "Updated the NEXT.md item with the result and next steps instead; left flagships.yaml untouched.",
+      "result": "No cap pressure; the next run finds the result where the item was."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-the-dark-edge-was-mostly-dim-picture.md",
+    "ventures/photo-editing/eval/optical-black-shootflow-readers-2026-11-22.md"
+  ],
+  "goal": "Deepen flagship photo-editing: measure the optical-black noise floor through shootflow's own readers.",
+  "notes": "Readers add no coverage: with a strict masked-line test LibRaw and shootflow read the same 6 of 57 bodies within 2% in DN. Frame noise on whole ActiveArea vs crop vs a same-area inset control (30 files): border moves the model less than the control except GF7, NX20, A7M4 (1.37-1.49x deep-shadow sigma). Control shows patch PCA moves >5% on a third of files when ~2% of picture is removed. Local checks: tests/test_optical_black_floor.py + tests/test_frame_noise_crop_area.py 9 passed; check_posts ok; run_venture_tests.py photo-editing: ok, 1490 tests (its bare python3 has no numpy, so numpy tests skip there; the new ones pass under /usr/bin/python3.13 with numpy); venture-preflight.mjs photo-editing: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f28fa3c6-2add-5bbe-a15e-10af90cab259",
+    "transcripts": 1,
+    "first": "2026-11-22T10:18:43Z",
+    "last": "2026-11-22T10:39:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 146,
+        "output": 58150,
+        "thinking": 14621,
+        "cache_read": 10004984,
+        "cache_write_5m": 0,
+        "cache_write_1h": 172940,
+        "api_equivalent_usd": 4.5481,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 146,
+      "output": 58150,
+      "thinking": 14621,
+      "cache_read": 10004984,
+      "cache_write_5m": 0,
+      "cache_write_1h": 172940,
+      "api_equivalent_usd": 4.5481,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 77,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.74,
+      "active_minutes": 20.74,
+      "model_minutes": 10.35,
+      "tool_minutes": 10.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an imaging engineer re-reading 57 raws through two readers, diagnosing the masked-line test, adding a control and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 131.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
