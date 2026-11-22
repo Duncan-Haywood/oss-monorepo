@@ -865,6 +865,16 @@ run as a formula in Excel or Sheets.
   dates. CCA's numeric, cost and date UDFs now keep P6's own type on 7,104 of
   13,174 values, measured against P6's type (the old check had mapped finish
   to start first; on that honest measure main scored 6,922).
+- **Interim plans named, and left out on request**
+  (`eval/interim-plans-2026-11-22.md`, 2026-11-22): Project's Set Baseline >
+  Interim plan stores its copy in a Start/Finish pair, which the line above
+  would carry into P6 as two date UDFs. A pair with no alias, on the same
+  tasks, start never after finish, is now named in the warnings, and
+  `--no-interim` (the page's "leave out interim plans") drops it;
+  `--skip-fields Start1,Finish1` drops any named field. 354 of 354 planted
+  plans on MPXJ's Project files named and dropped with every other UDF value
+  unchanged; 0 named on the 143 files as saved. A planner's own unaliased
+  pair looks the same, so the default still keeps it.
 - **UDF types from the original XER** (`eval/udf-types-from-2026-11-22.md`,
   2026-11-22): Project has one kind of Number field, so a P6 decimal UDF that
   held only whole numbers came back as an integer one (P6 then refuses a 37.5

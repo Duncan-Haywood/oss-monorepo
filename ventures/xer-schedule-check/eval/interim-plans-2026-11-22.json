@@ -1,0 +1,77 @@
+{
+  "files": 143,
+  "read": 143,
+  "asIs": {
+    "filesNamed": 0,
+    "pairs": 0,
+    "named": []
+  },
+  "planted": {
+    "fresh": {
+      "files": 90,
+      "named": 90,
+      "skipExact": 90,
+      "keepAdds": 90,
+      "problems": 0,
+      "misses": []
+    },
+    "selected": {
+      "files": 84,
+      "named": 84,
+      "skipExact": 84,
+      "keepAdds": 84,
+      "problems": 0,
+      "misses": [],
+      "oneTask": 6
+    },
+    "moved": {
+      "files": 90,
+      "named": 90,
+      "skipExact": 90,
+      "keepAdds": 90,
+      "problems": 0,
+      "misses": []
+    },
+    "nodef": {
+      "files": 90,
+      "named": 90,
+      "skipExact": 90,
+      "keepAdds": 90,
+      "problems": 0,
+      "misses": []
+    },
+    "aliased": {
+      "files": 90,
+      "named": 0,
+      "skipExact": 0,
+      "keepAdds": 0,
+      "problems": 0,
+      "misses": []
+    },
+    "startonly": {
+      "files": 90,
+      "named": 0,
+      "skipExact": 0,
+      "keepAdds": 0,
+      "problems": 0,
+      "misses": []
+    },
+    "reversed": {
+      "files": 90,
+      "named": 0,
+      "skipExact": 0,
+      "keepAdds": 0,
+      "problems": 0,
+      "misses": []
+    },
+    "own2": {
+      "files": 90,
+      "named": 90,
+      "skipExact": 0,
+      "keepAdds": 0,
+      "problems": 0,
+      "misses": []
+    }
+  },
+  "skipped": []
+}

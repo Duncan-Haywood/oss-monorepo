@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKnd9qKUW7gQ5AHb1Mw",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T07:18:21Z",
+  "ended": "2026-11-22T07:30:07Z",
+  "wall_minutes": 12.14,
+  "tokens_in": 6936171,
+  "tokens_out": 39363,
+  "cost_usd": 3.2843,
+  "tool_calls": 65,
+  "task": "xer-schedule-check (flagship 13): name Project interim plans in Start/Finish pairs and leave them out on request (--no-interim, --skip-fields)",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18215",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval/interim-plans.mjs first planted field definitions as a second <ExtendedAttributes> block in files that write an empty <ExtendedAttributes/>, so 37 of 90 aliased plants looked unaliased",
+      "fix": "the plant fills the self-closing element; aliased then named 0 of 90"
+    },
+    {
+      "what": "git ls-tree -l on a blob:none partial clone fetched blobs one by one and hung past the timeout",
+      "fix": "stopped it; sparse checkout of junit/data/**/*.xml (148 files, 17 MB) in one go"
+    },
+    {
+      "what": "a literal U+FEFF in eval/interim-plans.mjs (the BOM-strip regex) failed check_hidden_unicode in the preflight",
+      "fix": "written as \\uFEFF; preflight clean"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named open-tennis-robots' 'levelling feet's jam nuts' item; PR #18214 had claimed it one minute earlier, so claim_check.py told this session to yield after it had already pushed a claim commit and opened #18215 under that title. The two sessions opened within the same minute, the race the text warns about; the cost was a retitled PR."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots' buildable: lists only the jam-nut item as buildable CAD; once #18214 lands, the row may have nothing buildable left, and the next run should refresh buildable: or add inputs_only:"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here item (open-tennis-robots jam nuts) already claimed by #18214 a minute earlier, and it was the row's only buildable item",
+      "did": "took the next reachable Deepen row with no open PR (xer-schedule-check) and an item from its NEXT.md that needed no P6 or Project seat",
+      "result": "shipped: interim-plan detection plus --no-interim/--skip-fields, measured on MPXJ's 143 Project files"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-project-interim-plans-on-the-way-to-p6.md",
+    "ventures/xer-schedule-check/eval/interim-plans-2026-11-22.md"
+  ],
+  "goal": "deepen a flagship",
+  "notes": "Local checks: run_venture_tests.py xer-schedule-check ok (355 tests, site page checks ok); node --test interim.test.mjs 6/6; eval/finish-udfs.mjs unchanged 120/120; eval/interim-plans.mjs: 0 named on 143 files as saved, 354/354 planted named and dropped exactly, 0 p6Problems; check_posts.py ok; validate.py ok. No public Project file with a real interim plan was found, so every positive is planted (said in the eval and the post). venture-preflight.mjs xer-schedule-check: first run failed check_hidden_unicode (a literal U+FEFF in eval/interim-plans.mjs's BOM regex), fixed as an escape; rerun 'preflight clean for xer-schedule-check'. run_workflow_locally --for-changes was stopped mid pages.yml when that fix edited the tree; CI ran the same workflows on the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "61ae0af6-a00d-5f23-b6d7-96bd5491880e",
+    "transcripts": 1,
+    "first": "2026-11-22T07:18:21Z",
+    "last": "2026-11-22T07:30:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 116,
+        "output": 39363,
+        "thinking": 7053,
+        "cache_read": 6793829,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142226,
+        "api_equivalent_usd": 3.2843,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 116,
+      "output": 39363,
+      "thinking": 7053,
+      "cache_read": 6793829,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142226,
+      "api_equivalent_usd": 3.2843,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.14,
+      "active_minutes": 12.14,
+      "model_minutes": 7.54,
+      "tool_minutes": 4.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a scheduling-tools developer: detector, options through reader/converter/CLI/page, eval harness over 143 files, tests, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 182.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

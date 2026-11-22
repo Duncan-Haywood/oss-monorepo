@@ -49,6 +49,7 @@ def steps(p: Feeder) -> list[Step]:
     flights = lift["flights"]
     clips = len(p.lift_clip_z())
     ties = p.deck_cable_ties()
+    lf = p.levelling_foot_design()
     hangers = len(p.trough_hanger_y)
     st = [
         Step("Prepare the printed parts and the test print", ["lift_bearing_fit_ring"], [
@@ -77,11 +78,16 @@ def steps(p: Feeder) -> list[Step]:
              "screw is tight. While the mast rails are loose, drill 5.5 mm down through each one at the four mast "
              "posts' core bores (step 5) and push the eight M5 x 50 up through from below: their heads bear on the "
              "bottom slot's lips.", new_subassembly=True),
-        Step("Levelling feet", ["levelling_foot"],
-             [("M6 T-nut (slot 6) + M6 jam nut (levelling foot)", 2)], "13 mm spanner",
-             f"Slide an M6 T-nut into the net beam's bottom slot {p.foot_half_y:g} mm either side of the middle and "
-             "screw a foot's stud up into each. Set them to take the beam's ends just off the ground once the "
-             "wheels carry the rest, then lock each with its jam nut.", reach=1.0),
+        Step("Levelling feet", ["foot_block", "levelling_foot"],
+             [("M5 x 12 button head + T-nut (levelling feet)", 4), ("M6 nut + M6 thin jam nut (levelling feet)", 2)],
+             "3 mm hex key, 10 mm spanner",
+             f"Slide two M5 T-nuts into the net beam's bottom slot at each end, {p.foot_half_y:g} mm either side of the "
+             f"middle, {2 * p.foot_screw_dy:g} mm apart, and screw a foot block up to them (two M5 x 12 up through its "
+             "flange), its nut slot facing the rear. Slide an M6 nut into each block's slot, run the jam nut onto the "
+             "foot's stud and screw the stud up through the captive nut. Set the feet to take the beam's ends just "
+             "off the ground once the wheels carry the rest, then hold the pad and run the jam nut up tight under "
+             f"the block with the 10 mm spanner. Each pad rises {lf['up_mm']:.0f} mm or drops {lf['down_mm']:.0f} mm "
+             "from level ground.", reach=1.0),
         Step("Drive and idler wheels", ["drive_bracket", "idler_bracket", "gearmotor", "wheel", "idler_axle_spacer"],
              [("M5 x 12 button head", 8), ("M5 T-nut (slot 6)", 8), ("M3 x 8 screw", 12),
               (F.idler_axle_spec(), 2)],
@@ -491,6 +497,15 @@ def joints(p: Feeder) -> list[Joint]:
               (F.CARRIER_XY[0] + F.CARRIER_HOLES[0][0], F.CARRIER_XY[1] + F.CARRIER_HOLES[0][1], 0.0), "z",
               p.rail_top + p.plate_t + F.CARRIER_STANDOFF + F.CARRIER[2], -1, 1.7, 2.75, nut_h=M3_NUT_H, access=True,
               holes=tuple((F.CARRIER_XY[0] + hx, F.CARRIER_XY[1] + hy, 0.0) for hx, hy in F.CARRIER_HOLES[1:])),
+        # the levelling feet (2026-11-22): the block's flange into the beam's bottom slot, and the jam nut, whose
+        # "head" is the captive nut on the block's bottom wall (the stud is drawn with the foot, so it is the bolt)
+        Joint("levelling foot block to net beam", "M5 x 12 button head + T-nut (levelling feet)", 12, 5, "tnut",
+              (-10.0, p.foot_half_y + p.foot_screw_dy, 0.0), "z", p.rail_z - p.foot_flange_t, 1, 2.75, 4.75,
+              "net_beam", access=True, holes=((-10.0, p.foot_half_y - p.foot_screw_dy, 0.0),), mirror_y=True),
+        Joint("levelling foot jam nut", "M6 nut + M6 thin jam nut (levelling feet)",
+              p.foot_block_z + p.foot_block_wall - p.foot_pad_h, 6, "nut", (-10.0, p.foot_half_y, 0.0), "z",
+              p.foot_block_z + p.foot_block_wall, -1, 3.3, 5.0, nut_h=p.levelling_foot_design()["jam_h_mm"], bolt="levelling_foot",
+              mirror_y=True),
         # the turntable bearing's rings (2026-11-21): heads in the gap between the rings, nylocs outside
         Joint("bearing fixed ring to the mast plate", F.BEARING_SCREW, p.bearing_screw_len, 5, "nut",
               (*F.bearing_holes(p, False)[0], 0.0), "z", p.mast_top_z + p.plate_t + p.bearing_ring_t, -1, 2.75, 4.75,

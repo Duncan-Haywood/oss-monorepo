@@ -903,6 +903,25 @@ class Feeder:
     drag_coeff: float = 1.2
     design_wind: float = 8.0      # m/s steady (Beaufort 5)
     foot_half_y: float = 1450.0
+    # Levelling feet (2026-11-22, `levelling_foot_design`, `check_levelling_foot`; feeder `foot_block`). Until then the
+    # BOM had an M6 foot with 155 mm of stud screwed straight up into a T-nut in the beam's bottom slot: the stud's tip
+    # can only sit between catching the T-nut and the slot's floor (guide.TNUT, 4 mm of travel), the listed stud would
+    # have run 25 mm past the slot's floor, and 130 mm of bare M6 stood as a cantilever under the wind's side load.
+    # Now a printed block bolts under the beam with two M5 and holds a captive M6 nut low down; the stud travels in
+    # the block's bore above it and a thin jam nut locks it under the block.
+    foot_pad_h: float = 25.0          # swivel pad's height, ground to the stud's root (assumed, typical 40 mm pad)
+    foot_stud_len: float = 80.0       # stud from the pad's root (a stock M6 x 80 foot)
+    foot_block_z: float = 55.0        # block's bottom face over the ground
+    foot_block_wall: float = 5.0      # block under the captive nut: the jam nut clamps it
+    foot_flange_t: float = 6.0        # block's flange under the beam, the M5 x 12's grip
+    foot_screw_dy: float = 30.0       # each M5 along the beam from the stud
+    foot_adjust_mm: float = 12.0      # the feet must reach this far up or down from level ground (assumed: a court's
+    #                                   fall and crown over the 2.9 m between them, and the tyres' squash)
+    foot_wind_share: float = 0.5      # share of the design wind one foot's pad may take sideways: the wheels are not
+    #                                   braked, so the two feet may take it all (assumed, conservative)
+    foot_stud_yield_mpa: float = 320.0   # class 4.8 zinc-plated steel, a typical foot's stud (assumed: read yours)
+    foot_stud_margin: float = 2.0     # yield over the stud's bending stress at the design wind
+    foot_tnut_pull_n: float = 500.0   # allowed pull on one M5 slot-6 T-nut (assumed, conservative: read the sheet)
 
     # Feed: balls queue in a column that drops into the pocket of a sliding
     # shuttle between the head plates; the shuttle carries one ball forward to
@@ -2141,6 +2160,7 @@ class Feeder:
         bad += self.check_azimuth()
         bad += self.check_home_switch()
         bad += self.check_bearing()
+        bad += self.check_levelling_foot()
         bad += self.check_az_stops()
         bad += self.check_cables()
         bad += self.check_deck_cables()
@@ -2475,6 +2495,63 @@ class Feeder:
             bad.append("turntable bearing: the access hole breaks into the race or the bore")
         if self.bearing_race_r + self.bearing_race_w / 2 > self.bearing_d / 2 - 0.5:
             bad.append("turntable bearing: the race band runs off the rings")
+        return bad
+
+    # ---- levelling feet (2026-11-22) -------------------------------------------
+
+    def levelling_foot_design(self) -> dict:
+        """The two levelling feet under the net beam's ends, old mount against new. A swivel pad's ball does not take a
+        moment, so the bare stud between the pad and what holds it is a cantilever loaded by the pad's side force."""
+        d3 = 4.773                                            # M6 coarse minor diameter (ISO 724), mm
+        z_sec = math.pi * d3 ** 3 / 32                        # its section modulus, mm^3
+        pitch, nut_h, jam_h = 1.0, 5.0, 3.2                   # ISO 4032 M6 nut, ISO 4035 thin (jam) nut
+        side_n = self.wind_force_n * self.foot_wind_share
+        tip = self.foot_pad_h + self.foot_stud_len            # the stud's tip over the ground, pad on level ground
+        # old: the stud straight into a T-nut in the beam's bottom slot (the BOM's 155 mm stud, until 2026-11-22)
+        TNUT = (4.0, 8.0)                                     # guide.TNUT (that module needs build123d)
+        old_lever = self.rail_z - self.foot_pad_h + self.foot_adjust_mm
+        old = {"travel_mm": TNUT[1] - TNUT[0], "tip_past_face_mm": self.foot_pad_h + 155.0 - self.rail_z,
+               "lever_mm": old_lever, "stress_mpa": side_n * old_lever / z_sec}
+        # new: the captive nut sits on the block's bottom wall; the stud may rise to the beam's face
+        nut_top = self.foot_block_z + self.foot_block_wall + nut_h
+        down = tip - (nut_top + 2 * pitch)                    # pad can drop this far and the nut still holds
+        up = self.rail_z - tip                                # pad can rise this far before the tip meets the beam
+        lever = self.foot_block_z - self.foot_pad_h + self.foot_adjust_mm   # ground fallen away: the longest
+        bare_min = self.foot_block_z - jam_h - (self.foot_pad_h + self.foot_adjust_mm)   # ground risen: the least
+        col_h = self.rail_z - self.foot_flange_t - self.foot_block_z
+        z_col = (24.0 * 20.0 ** 3 / 12 - math.pi * 6.6 ** 4 / 64) / 10.0   # 20 (x) by 24 mm column less its bore
+        m_root = side_n * (self.rail_z - self.foot_flange_t - self.foot_pad_h + self.foot_adjust_mm)
+        # the flange tips about its edge (10 mm off the screws' line, the beam's face is 20 wide): the two screws pull
+        tnut_n = m_root / 10.0 / 2
+        stress = side_n * lever / z_sec
+        return {"side_n": side_n, "tip_z": tip, "down_mm": down, "up_mm": up, "lever_mm": lever,
+                "bare_min_mm": bare_min, "jam_h_mm": jam_h, "stress_mpa": stress,
+                "margin": self.foot_stud_yield_mpa / stress, "column_h_mm": col_h,
+                "column_mpa": m_root / z_col, "tnut_pull_n": tnut_n, "old": old,
+                "old_margin": self.foot_stud_yield_mpa / old["stress_mpa"]}
+
+    def check_levelling_foot(self) -> list[str]:
+        bad = []
+        f = self.levelling_foot_design()
+        a = self.foot_adjust_mm
+        if f["down_mm"] < a:
+            bad.append(f"levelling foot: the pad drops only {f['down_mm']:.1f} mm before the stud leaves the captive "
+                       f"nut's threads ({a:g} needed)")
+        if f["up_mm"] < a:
+            bad.append(f"levelling foot: the pad rises only {f['up_mm']:.1f} mm before the stud meets the beam ({a:g} "
+                       f"needed)")
+        if f["bare_min_mm"] < f["jam_h_mm"] + 2.0:
+            bad.append("levelling foot: no room for a spanner on the jam nut over the pad at its highest")
+        if f["margin"] < self.foot_stud_margin:
+            bad.append(f"levelling foot: the M6 stud bends at {f['stress_mpa']:.0f} MPa over {f['lever_mm']:.0f} mm at "
+                       f"the design wind, {f['margin']:.2f}x its yield ({self.foot_stud_margin:g} wanted)")
+        if f["column_mpa"] > 10.0:
+            bad.append(f"levelling foot: the printed block's column bends at {f['column_mpa']:.1f} MPa (10 allowed)")
+        if f["tnut_pull_n"] > self.foot_tnut_pull_n:
+            bad.append(f"levelling foot: each M5 T-nut pulls {f['tnut_pull_n']:.0f} N ({self.foot_tnut_pull_n:g} "
+                       f"allowed)")
+        if f["column_h_mm"] < self.foot_block_wall + 10.0:
+            bad.append("levelling foot: the block is too short for its captive nut")
         return bad
 
     # ---- azimuth hard stops (2026-11-12) --------------------------------------

@@ -58,15 +58,17 @@ Tap both core bores of each end of the side rails and mast rails M5, at least 15
 
 | Part | Qty | File or what to buy |
 | --- | --- | --- |
-| levelling_foot | 2 | M6 levelling foot with a 40 mm rubber pad, 155 mm of stud, into an M6 slot-6 T-nut in the beam's bottom slot, with a jam nut (an M10 stud, as listed until 2026-11-20, cannot pass a slot-6 opening) |
+| foot_block | 2 | print/foot_block.stl |
+| levelling_foot | 2 | M6 x 80 swivel levelling foot, 40 mm rubber pad about 25 mm tall, up into the captive nut of a printed foot block under the beam, with a thin jam nut (155 mm of stud into a T-nut, as listed until 2026-11-22: 4 mm of travel and a stud that bent in the design wind; cad/README.md, "Levelling feet") |
 
 | Fastener or part | Qty |
 | --- | --- |
-| M6 T-nut (slot 6) + M6 jam nut (levelling foot) | 2 |
+| M5 x 12 button head + T-nut (levelling feet) | 4 |
+| M6 nut + M6 thin jam nut (levelling feet) | 2 |
 
-Tools: 13 mm spanner.
+Tools: 3 mm hex key, 10 mm spanner.
 
-Slide an M6 T-nut into the net beam's bottom slot 1450 mm either side of the middle and screw a foot's stud up into each. Set them to take the beam's ends just off the ground once the wheels carry the rest, then lock each with its jam nut.
+Slide two M5 T-nuts into the net beam's bottom slot at each end, 1450 mm either side of the middle, 60 mm apart, and screw a foot block up to them (two M5 x 12 up through its flange), its nut slot facing the rear. Slide an M6 nut into each block's slot, run the jam nut onto the foot's stud and screw the stud up through the captive nut. Set the feet to take the beam's ends just off the ground once the wheels carry the rest, then hold the pad and run the jam nut up tight under the block with the 10 mm spanner. Each pad rises 50 mm or drops 38 mm from level ground.
 
 ### 4. Drive and idler wheels
 
@@ -633,6 +635,8 @@ Each length is measured from the head's face through the parts the model puts un
 | idler axle | M8 x 65 hex bolt + nyloc nut (idler axle) | idler_bracket 5 + idler_axle_spacer 2 + wheel 40 + idler_axle_spacer 2 | 49 | 65 | 16 | needs 10.5 mm past the stack for the nyloc and two threads | pass |
 | take-up spool axle | M4 x 40 socket cap screw + nyloc nut (spring axle) | take_up_spring_bracket 6 + take_up_spool 16.7 + take_up_spring_bracket 6 (+ 1 open) | 29.7 | 40 | 10.3 | needs 6.4 mm past the stack for the nyloc and two threads | pass |
 | driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | stepper_driver_carrier 10 + base_deck 5 | 15 | 20 | 5 | needs 3.4 mm past the stack for the nut and two threads | pass |
+| levelling foot block to net beam | M5 x 12 button head + T-nut (levelling feet) | foot_block 6 | 6 | 12 | 6 | 4 to 8 mm past the extrusion's face: catches the T-nut, short of the slot floor | pass |
+| levelling foot jam nut | M6 nut + M6 thin jam nut (levelling feet) | foot_block 5 | 5 | 35 | 30 | needs 5.2 mm past the stack for the nut and two threads | pass |
 | bearing fixed ring to the mast plate | M5 x 16 button head + nyloc nut (turntable bearing) | turntable_bearing 2 + mast_plate 5 | 7 | 16 | 9 | needs 6.6 mm past the stack for the nyloc and two threads | pass |
 | turntable plate to the bearing's turning ring | M5 x 16 button head + nyloc nut (turntable bearing) | turntable_bearing_ring 2 + turntable_plate 5 | 7 | 16 | 9 | needs 6.6 mm past the stack for the nyloc and two threads | pass |
 
@@ -666,6 +670,7 @@ and 30 degrees (a 12-point ring's step) to be turned. A hex head turned with a s
 | idler axle | M8 x 65 hex bolt + nyloc nut (idler axle) | 4 | 13 mm, 165 long | 2 | 360 | 225 | head or nut | pass |
 | take-up spool axle | M4 x 40 socket cap screw + nyloc nut (spring axle) | 16 | 7 mm, 100 long | 1 | 110 | - | head (key) or nut | pass |
 | driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | 14 | 5.5 mm, 85 long | 4 | 205 | - | head (key) or nut | pass |
+| levelling foot jam nut | M6 nut + M6 thin jam nut (levelling feet) | 3 | 10 mm, 130 long | 2 | 360 | - | head (key) or nut | pass |
 | bearing fixed ring to the mast plate | M5 x 16 button head + nyloc nut (turntable bearing) | 7 | 8 mm, 110 long | 4 | 95 | - | head (key) or nut | pass |
 | turntable plate to the bearing's turning ring | M5 x 16 button head + nyloc nut (turntable bearing) | 8 | 8 mm, 110 long | 4 | 305 | - | head (key) or nut | pass |
 
