@@ -23,6 +23,7 @@
  * and tells the owner to run it in the Simulator before submitting.
  */
 import fs from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { toolUrl, BASE_URL } from './bluesky.mjs';
@@ -239,7 +240,7 @@ const ICON_CONTENTS = `${JSON.stringify({
 export async function buildIos({ slug, dir, baseUrl = BASE_URL }) {
   const ext = await buildExtension({ slug, dir });
   if (ext.skip) return { skip: ext.skip };
-  const html = await fs.readFile(path.join(dir, 'index.html'), 'utf8');
+  const html = readFileSync(path.join(dir, 'index.html'), 'utf8');
   const title = /<title>([^<]*)<\/title>/i.exec(html)?.[1] ?? slug;
   const description = /<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i.exec(html)?.[1] ?? '';
   const name = storeName(title);
@@ -304,7 +305,7 @@ export async function discover(root = REPO_ROOT) {
   const dir = path.join(root, 'ventures');
   const out = [];
   for (const e of await fs.readdir(dir, { withFileTypes: true })) {
-    if (e.isDirectory() && await fs.stat(path.join(dir, e.name, 'index.html')).then(() => true, () => false)) out.push(e.name);
+    if (e.isDirectory() && existsSync(path.join(dir, e.name, 'index.html'))) out.push(e.name);
   }
   return out.sort();
 }

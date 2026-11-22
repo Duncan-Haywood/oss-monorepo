@@ -25,6 +25,7 @@
  * (network calls, remote files, inline handlers) is skipped here.
  */
 import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readMeta, toolUrl, BASE_URL, PUBLISHER } from './bluesky.mjs';
@@ -463,7 +464,7 @@ export async function discover(root = REPO_ROOT) {
   const dir = path.join(root, 'ventures');
   const out = [];
   for (const e of await fs.readdir(dir, { withFileTypes: true })) {
-    if (e.isDirectory() && await fs.stat(path.join(dir, e.name, 'index.html')).then(() => true, () => false)) out.push(e.name);
+    if (e.isDirectory() && existsSync(path.join(dir, e.name, 'index.html'))) out.push(e.name);
   }
   return out.sort();
 }

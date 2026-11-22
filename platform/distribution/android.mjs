@@ -16,11 +16,12 @@
  * collects nothing and asks for no Android permissions beyond the network.
  */
 import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readMeta, toolUrl, BASE_URL, PUBLISHER } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
-import { extensionName } from './webext.mjs';
+import { extensionName, readText } from './webext.mjs';
 import { renderIcon, THEME_COLOR } from '../pages/offline.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -52,11 +53,11 @@ export function shortDescription(text) {
 
 /** One Android package as { name, packageId, files } or { skip }. */
 export async function buildAndroid({ slug, dir, baseUrl = BASE_URL }) {
-  const html = await fs.readFile(path.join(dir, 'index.html'), 'utf8').catch(() => null);
+  const html = readText(path.join(dir, 'index.html'));
   if (html === null) return { skip: 'no index.html' };
   const meta = readMeta(html);
   if (!meta) return { skip: 'no title or description' };
-  const license = await fs.readFile(path.join(dir, 'LICENSE'), 'utf8').catch(() => null);
+  const license = readText(path.join(dir, 'LICENSE'));
   if (license === null || !/MIT License/i.test(license)) return { skip: 'no MIT LICENSE' };
   if (/(?:src|href)\s*=\s*["'](?:https?:)?\/\//i.test(html.replace(/<a\b[^>]*>/gi, ''))) return { skip: 'loads a file from another origin' };
   const name = appName(meta.title);
@@ -110,7 +111,7 @@ export async function discover(root = REPO_ROOT) {
   const dir = path.join(root, 'ventures');
   const out = [];
   for (const e of await fs.readdir(dir, { withFileTypes: true })) {
-    if (e.isDirectory() && await fs.stat(path.join(dir, e.name, 'index.html')).then(() => true, () => false)) out.push(e.name);
+    if (e.isDirectory() && existsSync(path.join(dir, e.name, 'index.html'))) out.push(e.name);
   }
   return out.sort();
 }
