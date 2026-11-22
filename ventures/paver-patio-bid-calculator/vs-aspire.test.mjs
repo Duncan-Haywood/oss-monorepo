@@ -23,8 +23,8 @@ test('no unverifiable price is claimed for Aspire', () => {
   // repo use (see irrigation-install-bid-calculator/vs-aspire.html and
   // snow-removal-bid-calculator/vs-aspire.html). Only well-documented,
   // non-numeric identity facts (founding year, founders, headquarters city,
-  // the ServiceTitan acquisition, product category, and the fact that plans
-  // are revenue-tiered rather than one flat price) are stated; no dollar
+  // the ServiceTitan acquisition, product category, and that no price is
+  // published) are stated; no dollar
   // figure for Aspire appears anywhere on the page.
   assert.doesNotMatch(html, /\$\d/);
 });
@@ -79,4 +79,11 @@ test('has no external script or stylesheet resources, and no fetch/network calls
       `unexpected external reference: ${href}`,
     );
   }
+});
+
+test('no unbacked revenue-tier pricing claim for Aspire (quality audit 2026-11-22, defect 3)', () => {
+  // The pricing page was never reached (see above) and an earlier audit found
+  // youraspire.com/pricing 404 with no revenue-tier wording on the site, so
+  // the page must not say plans are tiered or scaled by annual revenue.
+  assert.doesNotMatch(html, /revenue/i);
 });

@@ -66,6 +66,10 @@ export const JOB_PRESETS = Object.freeze([
 ]);
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
+  // A cleared box (or '1,200', which a number input sanitizes to '') must
+  // not price as zero: Number('') is 0, so a blank wage silently dropped
+  // all labor from the bid.
+  if (typeof value === 'string' && value.trim() === '') throw new Error(`${name} is blank`);
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);

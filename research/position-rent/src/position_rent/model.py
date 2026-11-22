@@ -16,6 +16,11 @@ __all__ = ["entropy_after", "rents", "rents_iid", "chern", "accuracy", "entry_co
            "simulate_lmsr", "pair_premium", "order_shares"]
 
 
+def _nlsig(x):
+    """-ln sigmoid(x) = ln(1 + e^-x), stable for large |x| (math.exp overflows past ~709)."""
+    return max(-x, 0.0) + math.log1p(math.exp(-abs(x)))
+
+
 def _post(prior_logit, s, a):
     lam = math.log(a / (1 - a))
     return prior_logit + (lam if s else -lam)
@@ -30,7 +35,7 @@ def entropy_after(accs):
         for si, a in zip(s, accs):
             pr *= a if si else 1 - a
             L = _post(L, si, a)
-        H += pr * math.log1p(math.exp(-L))      # -ln sigmoid(L)
+        H += pr * _nlsig(L)                     # -ln sigmoid(L)
     return H
 
 
@@ -48,7 +53,7 @@ def rents_iid(a, n, b=1.0):
         H = 0.0
         for j in range(k + 1):
             pr = math.comb(k, j) * a ** j * (1 - a) ** (k - j)
-            H += pr * math.log1p(math.exp(-(2 * j - k) * lam))
+            H += pr * _nlsig((2 * j - k) * lam)
         Hs.append(H)
     return [b * (Hs[k] - Hs[k + 1]) for k in range(n)]
 
@@ -109,7 +114,7 @@ def simulate_lmsr(accs, b, trials, seed=0):
 
 
 def pair_premium(a1, a2, b=1.0):
-    """Rent of trader 1 (accuracy a1) when first vs second behind a2; and the two orderings' totals (equal)."""
+    """Rent of trader 1 (accuracy a1) when it trades first vs second behind a2."""
     first = rents([a1, a2], b)[0]
     second = rents([a2, a1], b)[1]
     return first, second

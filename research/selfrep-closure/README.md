@@ -14,7 +14,7 @@ First milestone of the self-replicating manufacturing track (`PROJECTS.md`, trac
 ## Reproduce
 ```bash
 cd research/selfrep-closure
-python3 -m unittest discover -s tests -v     # 6 tests, standard library only
+python3 -m unittest discover -s tests -v     # 9 tests, standard library only
 python3 experiments/run.py                   # writes experiments/results.txt
 ```
 
@@ -32,8 +32,9 @@ Mass and cost columns are **assumed** inputs (see Limitations); the bracket is t
 - The printer alone makes the 18 printed lines: 18 of 51 lines, 35.3%.
 - Adding the router and laser cutter makes the MDF bed plate, the two pulleys and the M8/M3 washers (assumptions below). The jump in units (9% to 42%) is mostly the 150 washers, which are box sizes, so treat the unit figure with caution.
 - Casting adds nothing with LM8UU bearings: nothing else in this list is castable under the model. It matters only if the shop swaps to brass bushings, then adding about 2 points of lines and 5 of cost.
-- Mass and cost closure stay below 25% and 21% even for the largest shop, across the sensitivity range at most 30%. The vitamins that dominate are the motors, electronics, rods, bearings and fasteners (full list in `results.txt`).
+- Mass and cost closure reach at most 24% and 21% even for the largest shop, and at most 30% across the independent-scaling sensitivity range (a correlated error is wider: see Known gaps). The vitamins that dominate are the motors, electronics, rods, bearings and fasteners (full list in `results.txt`).
 - Under these assumptions no seed shop approaches full closure; the RepRap's well-known dependence on bought rods, motors and electronics shows up as expected.
+- Cross-check against the RepRap project's own figure: with the 13 fastener lines left out, the printer alone makes 18 of 38 lines (47%), close to the roughly 48% of parts excluding fasteners that the RepRap project quotes for its Darwin and Mendel machines (as summarised in Wikipedia's "RepRap" article, <https://en.wikipedia.org/wiki/RepRap>). The two counts are not defined identically, so this is a consistency check, not a validation.
 
 ## Limitations
 - **Masses and costs are assumed placeholders** written for this project, not sourced figures. The wiki page has no masses or prices. No price claim is made; the cost column only tests how closure responds to plausible scaling. Owner step below.
@@ -42,6 +43,9 @@ Mass and cost columns are **assumed** inputs (see Limitations); the bracket is t
 - The list is the wiki's, which is incomplete (no power supply, wiring, endstop switches are inferred from the three endstop holders, heated bed omitted as optional).
 - Only the printer is decomposed. The router, laser cutter and casting setup have no bills of materials here, so this is closure of **one product** by shops of several machines, not closure of the shop itself.
 - Static counts: no time, growth or cost of building the extra machines (later milestones).
+
+## Known gaps
+- From the quality audit [`portfolio/quality/audits/2026-11-22-selfrep-closure.json`](../../portfolio/quality/audits/2026-11-22-selfrep-closure.json): the sensitivity bracket scales each part line independently, so errors average out across the 18 printed lines; scaling all printed-part costs together by 2x moves printer-alone cost closure from 11% to 34%, far outside the reported [9-15]. Masses that can be computed (steel rods from geometry and density, motors from datasheets, printed parts from STL volumes) are still labelled placeholders, and cost closure counts the imported filament and aluminium inside makeable parts as closed. Closure-engineering prior work (Freitas and Gilbreath 1982; Moses, Yamaguchi and Chirikjian 2014; Ellery 2016) is not engaged.
 
 ## Next steps
 `selfrep-nextmachine`: pick which machine to add next for the most closure per dollar, checked against exhaustive search on this model; then give the added machines their own bills of materials.
