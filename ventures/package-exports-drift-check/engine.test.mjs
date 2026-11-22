@@ -8,6 +8,8 @@ import {
   parseFileList,
   diffExports,
   summarize,
+  checkWildcards,
+  exportsConfigErrors,
 } from "./engine.mjs";
 
 test("parsePackageJson: parses valid JSON", () => {
@@ -80,22 +82,47 @@ test("extractExportEntries: deeply nested subpath + condition", () => {
   assert.equal(nodeImport.condition, "node > import");
 });
 
-test("classifyExportEntries: splits literal, wildcard, external", () => {
+test("classifyExportEntries: splits literal, wildcard, invalid", () => {
   const entries = extractExportEntries({
     ".": "./index.js",
     "./features/*": "./src/features/*.js",
     "./polyfill": "some-other-package/polyfill",
   });
-  const { literal, wildcard, external } = classifyExportEntries(entries);
+  const { literal, wildcard, invalid } = classifyExportEntries(entries);
   assert.deepEqual(literal.map((e) => e.target), ["./index.js"]);
   assert.deepEqual(wildcard.map((e) => e.target), ["./src/features/*.js"]);
-  assert.deepEqual(external.map((e) => e.target), ["some-other-package/polyfill"]);
+  // Node: ERR_INVALID_PACKAGE_TARGET, "targets must start with "./"".
+  assert.deepEqual(invalid.map((e) => e.target), ["some-other-package/polyfill"]);
+  assert.match(invalid[0].reason, /only "imports" can/);
 });
 
-test("classifyExportEntries: ../ target is literal, not external", () => {
-  const entries = [{ subpath: ".", condition: null, target: "../outside.js" }];
-  const { literal } = classifyExportEntries(entries);
+test("classifyExportEntries: targets Node refuses are invalid, not literal", () => {
+  for (const target of ["../outside.js", "dist/index.js", "/abs/index.js", "./dist/../index.js", "./node_modules/x/index.js", "https://example.com/x.js"]) {
+    const { literal, invalid } = classifyExportEntries([{ subpath: ".", condition: null, target }]);
+    assert.equal(literal.length, 0, target);
+    assert.equal(invalid.length, 1, target);
+  }
+});
+
+test("classifyExportEntries: a * target under an exact key is a literal file name", () => {
+  const { literal, wildcard } = classifyExportEntries([{ subpath: "./all", condition: null, target: "./dist/*.js" }]);
   assert.equal(literal.length, 1);
+  assert.equal(wildcard.length, 0);
+});
+
+test("checkWildcards: every * takes the same non-empty text", () => {
+  const files = new Set(["src/a/a.js", "src/a/b.js", "src/c.js", "src/.js"]);
+  const [w] = checkWildcards([{ subpath: "./*", condition: null, target: "./src/*/*.js" }], files);
+  assert.deepEqual(w.reached, ["src/a/a.js"]);
+  assert.deepEqual(w.examples, [{ file: "src/a/a.js", subpath: "./a" }]);
+  const [v] = checkWildcards([{ subpath: "./x/*", condition: null, target: "./src/*.js" }], files);
+  assert.deepEqual(v.reached, ["src/a/a.js", "src/a/b.js", "src/c.js"]);
+});
+
+test("exportsConfigErrors: mixed keys and numeric condition keys", () => {
+  assert.equal(exportsConfigErrors({ ".": "./a.js", "./b": "./b.js" }).length, 0);
+  assert.match(exportsConfigErrors({ ".": "./a.js", import: "./b.js" })[0], /ERR_INVALID_PACKAGE_CONFIG/);
+  assert.match(exportsConfigErrors({ ".": { 0: "./a.js", default: "./b.js" } })[0], /numeric key "0"/);
 });
 
 test("normalizePath: strips one leading ./ and normalizes backslashes", () => {
@@ -147,7 +174,14 @@ test("summarize: missing status names the count", () => {
   assert.match(text, /2 export target\(s\)/);
 });
 
-test("summarize: notes skipped wildcard/external entries", () => {
-  const { text } = summarize({ missing: [], matched: [{}] }, { wildcardCount: 1, externalCount: 2 });
-  assert.match(text, /1 wildcard, 2 external entries not checked/);
+test("summarize: lists every kind of problem", () => {
+  const { status, text } = summarize({ missing: [{}], matched: [{}] }, { wildcardCount: 2, invalidCount: 1, unmatchedWildcardCount: 1, configErrorCount: 1 });
+  assert.equal(status, "missing");
+  assert.match(text, /1 map-level error.*1 export target.*1 target\(s\) Node refuses.*1 wildcard target\(s\) match no listed file/);
+});
+
+test("summarize: wildcards that reach files count as checked", () => {
+  const { status, text } = summarize({ missing: [], matched: [] }, { wildcardCount: 1 });
+  assert.equal(status, "ok");
+  assert.match(text, /1 wildcard target\(s\) each reach at least one file/);
 });

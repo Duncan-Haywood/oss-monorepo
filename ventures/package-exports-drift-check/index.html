@@ -11,7 +11,7 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"package.json Exports Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Flattens a package.json \"exports\" map (subpaths, nested conditions, fallback arrays) and checks that every literal file target actually exists, naming every target that points at a file that is missing -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module errors right after a stranger's npm install. Runs entirely in the browser or as a zero-dependency Node CLI usable as a pre-publish CI gate."}
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a bad exports target only show up after publish?","acceptedAnswer":{"@type":"Answer","text":"On the maintainer's own machine the build has usually already run, so the file the exports map names is sitting right there and everything works. The gap is between what's on disk right now and what actually ends up in the published tarball — a rename during a refactor, a build script that changed its output directory, or an npm publish run before the build step finished, and the first person to find out is a stranger running npm install, not the maintainer."}},{"@type":"Question","name":"What is ERR_PACKAGE_PATH_NOT_EXPORTED?","acceptedAnswer":{"@type":"Answer","text":"Node's own error when code tries to import a subpath that either isn't listed in the package's exports map at all, or is listed but the file it points to isn't there. It replaced Node's older, more forgiving file resolution, so a package.json that shipped exports without checking every target actually exists is exactly the failure mode this tool looks for."}},{"@type":"Question","name":"Is this a bundler or a publish tool?","acceptedAnswer":{"@type":"Answer","text":"No. It never runs your package, never resolves an import graph, and never reads a file's contents — it only checks whether each literal path the exports map names exists. Wildcard subpaths (\"./features/*\") and bare-specifier re-exports of another package are listed as not checked, not as passing or failing."}},{"@type":"Question","name":"Is my package.json uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a bad exports target only show up after publish?","acceptedAnswer":{"@type":"Answer","text":"On the maintainer's own machine the build has usually already run, so the file the exports map names is sitting right there and everything works. The gap is between what's on disk right now and what actually ends up in the published tarball — a rename during a refactor, a build script that changed its output directory, or an npm publish run before the build step finished, and the first person to find out is a stranger running npm install, not the maintainer."}},{"@type":"Question","name":"What is ERR_PACKAGE_PATH_NOT_EXPORTED?","acceptedAnswer":{"@type":"Answer","text":"Node's own error when code tries to import a subpath that either isn't listed in the package's exports map at all, or is listed but the file it points to isn't there. It replaced Node's older, more forgiving file resolution, so a package.json that shipped exports without checking every target actually exists is exactly the failure mode this tool looks for."}},{"@type":"Question","name":"Is this a bundler or a publish tool?","acceptedAnswer":{"@type":"Answer","text":"No. It never runs your package and never reads a file's contents. It checks that every path the exports map names exists, that every wildcard target reaches at least one file, and that Node accepts each target at all. Its resolver answers which file one import reaches, using Node 22's own algorithm, and was checked against Node on more than 85,000 generated cases with no disagreement. It does not follow imports from file to file."}},{"@type":"Question","name":"Can \"exports\" point at another package?","acceptedAnswer":{"@type":"Answer","text":"No. Every \"exports\" target must start with ./; \"dist/index.js\", \"other-pkg/sub\", \"../shared.js\" and \"./dist/../x.js\" all make Node throw ERR_INVALID_PACKAGE_TARGET. Only \"imports\" (the #name map) may name another package."}},{"@type":"Question","name":"Is my package.json uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -36,6 +36,11 @@
     pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
     code { overflow-wrap: anywhere; word-break: break-word; }
     .error { color: #9a3412; font-weight: 600; }
+    input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    ol.trace { font-size: .9rem; padding-left: 22px; overflow-wrap: anywhere; }
+    #results-table td { overflow-wrap: anywhere; }
+    .table-wrap { overflow-x: auto; }
+    @media (max-width: 520px) { body { padding: 16px; } }
     .ok { color: #14532d; font-weight: 600; }
     .changed { color: #7f1d1d; font-weight: 700; }
     footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
@@ -46,7 +51,7 @@
     <p class="note">PACKAGE.JSON EXPORTS DRIFT CHECK · RUNS IN YOUR BROWSER</p>
     <h1>Does your package.json "exports" map point at files that actually exist?</h1>
     <p>Paste your <code>package.json</code> and a listing of the files you actually publish (<code>npm pack --dry-run</code>, <code>git ls-files</code>, or a plain <code>find . -type f</code>) and see every literal target in the <code>exports</code> map — across every subpath, every condition (<code>import</code>/<code>require</code>/<code>types</code>/...), every fallback array — that doesn't exist. That's the difference between a package that works on the maintainer's own machine and one that throws <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code> or <code>Cannot find module</code> the moment a stranger runs <code>npm install</code>.</p>
-    <p class="note">Nothing is uploaded. Both text boxes are parsed in this browser and never leave your device. This checks existence, not behaviour: it never runs your code, resolves an import graph, or reads a file's contents.</p>
+    <p class="note">Nothing is uploaded. Both text boxes are parsed in this browser and never leave your device. It never runs your code or reads a file's contents.</p>
   </header>
 <main>
 
@@ -73,10 +78,33 @@
   <section class="card" id="report-card" hidden aria-live="polite">
     <h2>2. What's missing</h2>
     <p id="summary"></p>
-    <table id="results-table" hidden>
+    <div class="table-wrap"><table id="results-table" hidden>
       <thead><tr><th>Subpath</th><th>Condition</th><th>Target</th><th>Status</th></tr></thead>
       <tbody id="results-rows"></tbody>
-    </table>
+    </table></div>
+  </section>
+
+  <section class="card" id="resolve-card">
+    <h2>3. Which file does an import reach?</h2>
+    <p>Type what a user would write: the package's name with a subpath (<code>my-lib/feature</code>), a subpath (<code>./feature</code>) or an internal <code>#import</code>. It follows Node 22's resolution algorithm through the <code>package.json</code> above and shows the key, condition and fallback that decided it.</p>
+    <div class="grid">
+      <div>
+        <label for="spec-input">Specifier</label>
+        <input id="spec-input" type="text" spellcheck="false" autocomplete="off" placeholder="my-lib/feature">
+      </div>
+      <div>
+        <label for="mode-input">Loaded with</label>
+        <select id="mode-input">
+          <option value="import">import (ESM)</option>
+          <option value="require">require() (CommonJS)</option>
+        </select>
+        <label for="cond-input">Extra conditions (as with <code>--conditions</code>, comma-separated)</label>
+        <input id="cond-input" type="text" spellcheck="false" autocomplete="off" placeholder="development, browser">
+      </div>
+    </div>
+    <p><button type="button" id="resolve">Resolve</button></p>
+    <div id="resolve-out" aria-live="polite"></div>
+    <p class="note">Bundlers add their own conditions (<code>browser</code>, <code>module</code>, <code>development</code>), so type them in to see what a bundler picks. The resolver matched Node 22 on every one of more than 85,000 generated cases: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/package-exports-drift-check/resolve.diff.test.mjs" rel="noopener">the test that compares them</a>.</p>
   </section>
 
   <section class="card">
@@ -84,8 +112,9 @@
     <p>Same logic, zero dependencies, one file — reads only local files, no network call:</p>
     <pre class="cmd">node cli.mjs check                          # ./package.json
 node cli.mjs check path/to/package.json
-node cli.mjs check --json                    # machine-readable</pre>
-    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. Run it <strong>after your build step and before <code>npm publish</code></strong> — it checks what's on disk right now, so running it before the build has produced anything will read every export as missing. Exits 1 if any literal export target is missing, so it works as the last gate before a publish that would have broken.</p>
+node cli.mjs check --json                    # machine-readable
+node cli.mjs resolve my-lib/feature --require --conditions=development</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. Run it <strong>after your build step and before <code>npm publish</code></strong> — it checks what's on disk right now, so running it before the build has produced anything will read every export as missing. Exits 1 if any target is missing, invalid or reaches no file, so it works as the last gate before a publish that would have broken.</p>
   </section>
 
   <section class="card">
@@ -94,8 +123,9 @@ node cli.mjs check --json                    # machine-readable</pre>
       <thead><tr><th>Shape</th><th>Handling</th></tr></thead>
       <tbody>
         <tr><td>A literal path (<code>"./dist/index.js"</code>), at any subpath, any nesting of conditions, any position in a fallback array</td><td>Checked — reported <span class="pill missing">missing</span> if it doesn't exist</td></tr>
-        <tr><td>A wildcard target (<code>"./features/*"</code>)</td><td><span class="pill skipped">skipped</span> — resolving one needs matching real files against a pattern, out of scope for v0</td></tr>
-        <tr><td>A bare specifier (<code>"other-package/subpath"</code>)</td><td><span class="pill skipped">skipped</span> — re-exports another package, nothing on disk to check</td></tr>
+        <tr><td>A wildcard target (<code>"./features/*": "./src/features/*.js"</code>)</td><td>Matched against the file listing, every <code>*</code> filled with the same text as Node fills it; <span class="pill missing">no file</span> if it reaches none, so every import through it fails</td></tr>
+        <tr><td>A target Node refuses: no leading <code>./</code> (<code>"dist/index.js"</code>, <code>"other-package/subpath"</code>), <code>"../x.js"</code>, an absolute path or URL, or a <code>.</code>, <code>..</code> or <code>node_modules</code> segment</td><td><span class="pill missing">invalid</span> — Node throws <code>ERR_INVALID_PACKAGE_TARGET</code> on import</td></tr>
+        <tr><td>A map mixing <code>"."</code> keys with condition keys, or a numeric condition key</td><td><span class="pill missing">config</span> — Node throws <code>ERR_INVALID_PACKAGE_CONFIG</code></td></tr>
         <tr><td><code>null</code> (explicitly blocked subpath)</td><td>Not a file target, ignored entirely — this is intentional, correct package.json</td></tr>
       </tbody>
     </table>
@@ -109,7 +139,9 @@ node cli.mjs check --json                    # machine-readable</pre>
     <h3>What is <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code>?</h3>
     <p>Node's own error when code tries to import a subpath that either isn't listed in the package's exports map at all, or is listed but the file it points to isn't there. It replaced Node's older, more forgiving file resolution, so a package.json that shipped exports without checking every target actually exists is exactly the failure mode this tool looks for.</p>
     <h3>Is this a bundler or a publish tool?</h3>
-    <p>No. It never runs your package, never resolves an import graph, and never reads a file's contents — it only checks whether each literal path the exports map names exists. Wildcard subpaths (<code>"./features/*"</code>) and bare-specifier re-exports of another package are listed as not checked, not as passing or failing.</p>
+    <p>No. It never runs your package and never reads a file's contents. It checks that every path the exports map names exists, that every wildcard target reaches at least one file, and that Node accepts each target at all. Its resolver answers which file one import reaches, using Node 22's own algorithm, and was checked against Node on more than 85,000 generated cases with no disagreement. It does not follow imports from file to file.</p>
+    <h3>Can "exports" point at another package?</h3>
+    <p>No. Every <code>"exports"</code> target must start with <code>./</code>; <code>"dist/index.js"</code>, <code>"other-pkg/sub"</code>, <code>"../shared.js"</code> and <code>"./dist/../x.js"</code> all make Node throw <code>ERR_INVALID_PACKAGE_TARGET</code>. Only <code>"imports"</code> (the <code>#name</code> map) may name another package.</p>
     <h3>Is my package.json uploaded anywhere?</h3>
     <p>No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
   </section>
@@ -118,14 +150,15 @@ node cli.mjs check --json                    # machine-readable</pre>
 <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace a qualified professional or actually running <code>npm publish --dry-run</code> and testing the tarball yourself. It reports whether a literal path named in "exports" exists on disk against the file list you provided — nothing more, and it is not a guarantee that your package will install or import cleanly. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
-    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>resolve_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Also worth a pass on the same repo: <a href="../env-example-drift-check/">.env.example Drift Check</a> and <a href="../structured-data-drift-check/">Structured Data Drift Check</a> ask the same "does the doc still match the code" question about a different pair of files, with the same deterministic, no-upload shape. <a href="../node-version-drift-check/">Node Version Drift Check</a> does the same for the Node.js versions declared in <code>engines.node</code>, <code>.nvmrc</code>, the Dockerfile and CI.</p>
     <p class="support">Free and open source. If this saved you a broken publish, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parsePackageJson, extractExportEntries, classifyExportEntries, normalizePath, parseFileList, diffExports, summarize } from "./engine.mjs";
+    import { parsePackageJson, extractExportEntries, classifyExportEntries, checkWildcards, exportsConfigErrors, normalizePath, parseFileList, diffExports, summarize } from "./engine.mjs";
+    import { resolveSpecifier } from "./resolve.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -157,25 +190,35 @@ node cli.mjs check --json                    # machine-readable</pre>
       els.status.textContent = "";
 
       const entries = extractExportEntries(pkg.exports);
-      const { literal, wildcard, external } = classifyExportEntries(entries);
+      const configErrors = exportsConfigErrors(pkg.exports);
+      const { literal, wildcard, invalid } = classifyExportEntries(entries);
       const fileSet = parseFileList(filesText);
       const report = diffExports({ literal, fileExists: (t) => fileSet.has(normalizePath(t)) });
-      const { status, text } = summarize(report, { wildcardCount: wildcard.length, externalCount: external.length });
+      const wildcards = checkWildcards(wildcard, fileSet);
+      const unmatched = wildcards.filter((w) => w.reached.length === 0);
+      const { status, text } = summarize(report, {
+        wildcardCount: wildcards.length, invalidCount: invalid.length,
+        unmatchedWildcardCount: unmatched.length, configErrorCount: configErrors.length,
+      });
       els.summary.innerHTML = status === "ok"
         ? `<span class="ok">${escapeHtml(text)}</span>`
         : `<span class="changed">${escapeHtml(text)}</span>`;
 
       const rows = [
-        ...report.missing.map((e) => ({ ...e, kind: "missing" })),
-        ...wildcard.map((e) => ({ ...e, kind: "skipped (wildcard)" })),
-        ...external.map((e) => ({ ...e, kind: "skipped (external)" })),
+        ...configErrors.map((msg) => ({ subpath: "(whole map)", condition: null, target: msg, kind: "config", bad: true })),
+        ...report.missing.map((e) => ({ ...e, kind: "missing", bad: true })),
+        ...invalid.map((e) => ({ ...e, target: `${e.target} — ${e.reason}`, kind: "invalid", bad: true })),
+        ...unmatched.map((e) => ({ ...e, target: `${e.target} — matches no listed file`, kind: "no file", bad: true })),
+        ...wildcards.filter((w) => w.reached.length).map((w) => ({
+          ...w, target: `${w.target} — reaches ${w.reached.length} file(s), e.g. ${w.examples[0].subpath} → ./${w.examples[0].file}`, kind: "ok (wildcard)",
+        })),
       ];
       els.table.hidden = rows.length === 0;
       els.rows.innerHTML = rows.map((r) => `<tr>
         <td><code>${escapeHtml(r.subpath)}</code></td>
         <td>${escapeHtml(r.condition || "—")}</td>
         <td><code>${escapeHtml(r.target)}</code></td>
-        <td><span class="pill ${r.kind.startsWith("missing") ? "missing" : "skipped"}">${escapeHtml(r.kind)}</span></td>
+        <td><span class="pill ${r.bad ? "missing" : "skipped"}">${escapeHtml(r.kind)}</span></td>
       </tr>`).join("");
 
       els.reportCard.hidden = false;
@@ -185,24 +228,64 @@ node cli.mjs check --json                    # machine-readable</pre>
 
     $("#check").addEventListener("click", renderReport);
 
+    function renderResolve() {
+      const out = $("#resolve-out");
+      let pkg;
+      try {
+        pkg = parsePackageJson(els.pkgInput.value);
+      } catch (err) {
+        out.innerHTML = `<p class="error">Paste a package.json in section 1 first (${escapeHtml(err.message)}).</p>`;
+        return;
+      }
+      const spec = $("#spec-input").value.trim();
+      if (!spec) {
+        out.innerHTML = `<p class="error">Type a specifier, e.g. <code>${escapeHtml(pkg.name ? pkg.name + "/feature" : "./feature")}</code>.</p>`;
+        return;
+      }
+      const extra = $("#cond-input").value.split(",").map((c) => c.trim()).filter(Boolean);
+      const r = resolveSpecifier(pkg, spec, { mode: $("#mode-input").value, extraConditions: extra });
+      const fileSet = parseFileList(els.filesInput.value);
+      let head;
+      if (r.ok && r.external) head = `<p class="ok"><code>${escapeHtml(spec)}</code> → another package: <code>${escapeHtml(r.external)}</code></p>`;
+      else if (r.ok) {
+        const listed = fileSet.size ? (fileSet.has(normalizePath(r.file)) ? ` <span class="ok">(in your file listing)</span>` : ` <span class="changed">(not in your file listing: this import fails after install)</span>`) : "";
+        head = `<p class="ok"><code>${escapeHtml(spec)}</code> → <code>${escapeHtml(r.file)}</code>${listed}</p>`;
+      } else head = `<p class="changed"><code>${escapeHtml(spec)}</code> → <code>${escapeHtml(r.code)}</code>: ${escapeHtml(r.message)}</p>`;
+      out.innerHTML = head +
+        `<p class="note">Conditions: ${r.conditions.map((c) => `<code>${escapeHtml(c)}</code>`).join(", ")}, <code>default</code></p>` +
+        (r.trace.length ? `<ol class="trace">${r.trace.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ol>` : "") +
+        r.warnings.map((w) => `<p class="note">Warning: ${escapeHtml(w)}</p>`).join("");
+      record("resolve_run");
+    }
+    $("#resolve").addEventListener("click", renderResolve);
+    $("#spec-input").addEventListener("keydown", (e) => { if (e.key === "Enter") renderResolve(); });
+
     const EXAMPLE_PKG = JSON.stringify({
       name: "example-lib",
       version: "1.2.0",
       exports: {
-        ".": { import: "./esm/index.js", require: "./cjs/index.js", types: "./types/index.d.ts" },
+        ".": { types: "./types/index.d.ts", import: "./esm/index.js", require: "./cjs/index.js" },
         "./feature": "./cjs/feature.js",
+        "./icons/*": "./dist/icons/*.svg",
+        "./utils/*": "./esm/utils/*.js",
+        "./legacy": "lib/legacy.js",
       },
     }, null, 2);
     const EXAMPLE_FILES = `package.json
 README.md
 esm/index.js
 cjs/index.js
-types/index.d.ts`;
+types/index.d.ts
+esm/utils/format.js
+esm/utils/parse.js
+lib/legacy.js`;
 
     $("#load-example").addEventListener("click", () => {
       els.pkgInput.value = EXAMPLE_PKG;
       els.filesInput.value = EXAMPLE_FILES;
+      $("#spec-input").value = "example-lib/utils/format";
       renderReport();
+      renderResolve();
       record("example_loaded");
     });
 

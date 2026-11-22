@@ -59,8 +59,8 @@
     <thead><tr><th>Shape</th><th>Handling</th></tr></thead>
     <tbody>
       <tr><td>A literal path, any subpath, any condition nesting, any position in a fallback array</td><td>Checked against the file listing / filesystem</td></tr>
-      <tr><td>A wildcard target (<code>./features/*</code>)</td><td>Skipped — needs pattern matching against real files, out of scope for v0</td></tr>
-      <tr><td>A bare specifier re-exporting another package</td><td>Skipped — nothing on disk to check</td></tr>
+      <tr><td>A wildcard target (<code>./features/*</code>)</td><td>Matched against the files; reported if it reaches none</td></tr>
+      <tr><td>A target without a leading <code>./</code> (<code>dist/index.js</code>, another package's name), or with a <code>..</code> segment</td><td>Reported as invalid: Node throws <code>ERR_INVALID_PACKAGE_TARGET</code>. "exports" cannot point at another package</td></tr>
       <tr><td><code>main</code> / <code>module</code> / <code>types</code> top-level fields</td><td>Not read at all in v0 — see the FAQ below</td></tr>
     </tbody>
   </table>
