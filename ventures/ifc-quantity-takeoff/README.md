@@ -153,6 +153,17 @@ this tool says which they are
   with the raw output beside it (rerun 2026-11-20: 58 Revit members whose
   faceted faces were written reversed now agree,
   [eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).
+- **Member length and steel weight (2026-11-22).** On 30 public models,
+  4,952 of 10,035 columns, beams, members and piles store no Length, so a
+  per-metre rate priced them at 0. 4,948 now get the body's extent along
+  its extrusion. Where a Length is stored, the body agrees with 4,153 of
+  5,083 within 2% (all 1,649 in HHS Office). 603 ARK_NUS_skolebygg mullions
+  store their curtain wall's length instead of their own: 5,480 m against
+  794.6 m of actual mullion. That is named host-figure, and the BoQ sums the
+  body. Plain-steel members with no stored weight get volume x 7,850 kg/m3
+  (512 members). Where a steel exporter stores a weight, that figure agrees
+  with it for 230 of 233
+  ([eval/member-length-weight-2026-11-22.md](eval/member-length-weight-2026-11-22.md)).
 - **Why NetVolumes miss (2026-11-21).** Unexplained NetVolumes fell from 233
   to 83 of 6,405: 120 Tekla steel parts store volume (and weight) from the
   section without its root fillets or with round tubes as 8- or 16-sided

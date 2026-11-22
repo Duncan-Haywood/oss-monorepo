@@ -1,0 +1,72 @@
+AC20-FZK-Haus.ifc: 46 members; length stored 1, computed 46, both 1 (agree 1), new 45, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Solid 45; Radial Gradient Fill 1515460218 1
+C20-Institute-Var-2.ifc: 2 members; length stored 2, computed 2, both 2 (agree 2), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Stahlbeton 2747937872 2
+FM_ARC_DigitalHub.ifc: 156 members; length stored 0, computed 156, both 0 (agree 0), new 156, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: 60 x 120 54; STB 250 x 400 32; STB 250 x 250 30; STB 250 x 500 14; Standard 100-30-25 14; Metall - Edelstahl gebürstet 8
+ISSUE_005_haus.ifc: 46 members; length stored 1, computed 46, both 1 (agree 1), new 45, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Solid 45; Radial Gradient Fill 1515460218 1
+ISSUE_021_Mini Project.ifc: 2203 members; length stored 2203, computed 2203, both 2203 (agree 2138), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 2203; steel 177, stored+computed 177 (agree 174), new 0
+  materials: CONCRETE/FAKTOR 1160; CONCRETE/BETON 339; TIMBER/HOUT 324; STEEL/S235JR 177; CONCRETE/ISOLEX 76; CONCRETE/SILEX 27
+  length off (no cause) #4318 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  length off (no cause) #4345 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  length off (no cause) #4359 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  length off (no cause) #4370 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  length off (no cause) #4378 IfcBeam INGIETSTUKONDERDEEL: stored 0.1321 computed 0.0600
+  weight off #4428 IfcBeam OPLASSTUK (STEEL/S235JR): stored 12.72 computed 13.03
+  weight off #4748 IfcBeam LIGGER (STEEL/S235JR): stored 251.48 computed 259.58
+  weight off #5035 IfcBeam LIGGER (STEEL/S235JR): stored 246.42 computed 254.36
+ISSUE_034_HouseZ.ifc: 19 members; length stored 0, computed 19, both 0 (agree 0), new 19, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: (none) 19
+ISSUE_044_test_IFCCOMPOSITEPROFILEDEF.ifc: 0 members; length stored 0, computed 0, both 0 (agree 0), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+ISSUE_068_ARK_NUS_skolebygg.ifc: 925 members; length stored 727, computed 925, both 727 (agree 39), new 198, none 0; host-figure 603 (stored sum 5479.9 m, body sum 794.6 m); weight stored 0; steel 1, stored+computed 0 (agree 0), new 1
+  materials: RAL 9004 829; Wood - Dimensional lumber 38; NO_Tømmer 33; Trapp Vange 23; Metal - Steel - 345 MPa 1; Metal - Steel - 345 MPa / Brannisolering 1
+  length off (no cause) #893590 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928053: stored 0.5500 computed 0.4500
+  length off (no cause) #893689 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928054: stored 0.5500 computed 0.4500
+  length off (no cause) #893755 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928055: stored 0.5500 computed 1.2500
+  length off (no cause) #893827 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928056: stored 0.5500 computed 1.2500
+  length off (no cause) #894129 IfcMember Rectangular Mullion:50x120 Glassfasade 1-5:2928181: stored 0.5500 computed 0.4500
+ISSUE_098_R8_F1_MAB_AR_M3_XX_XXX_MO_7000.ifc: 1209 members; length stored 0, computed 1209, both 0 (agree 0), new 1209, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Alluminio 1048; <Unnamed> 154; carter nero 7
+ISSUE_102_M3D-CON-CD.ifc: 342 members; length stored 342, computed 342, both 342 (agree 202), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 342; steel 56, stored+computed 56 (agree 56), new 0
+  materials: CONCRETE/fc 350 170; CONCRETE/fc 280 68; STEEL/S235JR 56; CONCRETE/Concrete_Undefined 48
+  length off (no cause) #37076 IfcBeam DIA-P4: stored 2.1976 computed 1.8598
+  length off (no cause) #37158 IfcBeam DIA-P4: stored 2.1975 computed 1.8597
+  length off (no cause) #37171 IfcBeam DIA-P4: stored 2.1975 computed 1.8597
+  length off (no cause) #37206 IfcBeam DIA-P4: stored 2.1975 computed 1.8597
+  length off (no cause) #37221 IfcBeam DIA-P4: stored 2.1976 computed 1.8598
+ISSUE_102_M3D-CON.ifc: 31 members; length stored 31, computed 31, both 31 (agree 16), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 31; steel 0, stored+computed 0 (agree 0), new 0
+  materials: CONCRETE/280 15; CONCRETE/Concrete_Undefined 12; CONCRETE/350 4
+  length off (no cause) #105838 IfcBeam DIA-2: stored 2.4767 computed 2.5622
+  length off (no cause) #105940 IfcBeam DIA-2: stored 2.4579 computed 2.5397
+  length off (no cause) #106030 IfcBeam DIA-2: stored 2.4766 computed 2.5626
+  length off (no cause) #106086 IfcBeam DIA-2: stored 2.4773 computed 2.5629
+  length off (no cause) #106146 IfcBeam DIA-2: stored 2.4578 computed 2.5410
+ISSUE_126_model.ifc: 14 members; length stored 0, computed 14, both 0 (agree 0), new 14, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 1, stored+computed 0 (agree 0), new 1
+  materials: Wall - 2c Face Brick 8; Drop Beam 3; Cabinetwork - Laminate 1; Post 1; Steel - Structural 1
+ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc: 419 members; length stored 0, computed 417, both 0 (agree 0), new 417, none 2; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: EGCT_Béton coulé sur place 394; 00_SGP_Béton Coulé sur place 8; 00_SGP_Béton Barretes 6; Béton - Béton coulé sur place 5; 00_SGP_Béton Coulé sur place / 00_SGP_Béton Barretes 3; 00_SGP_Béton Barretes / 00_SGP_Béton Coulé sur place 3
+ISSUE_159_kleine_Wohnung_R22.ifc: 0 members; length stored 0, computed 0, both 0 (agree 0), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+ISSUE_171_IfcSurfaceCurveSweptAreaSolid.ifc: 0 members; length stored 0, computed 0, both 0 (agree 0), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+IfcOpenHouse_IFC4.ifc: 20 members; length stored 0, computed 20, both 0 (agree 0), new 20, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: (none) 20
+KIT-Simple-Road-Test-Web-IFC4x3_RC2.ifc: 0 members; length stored 0, computed 0, both 0 (agree 0), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+Office_A_20110811.ifc: 8 members; length stored 0, computed 8, both 0 (agree 0), new 8, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: (none) 8
+S_Office_Integrated Design Archi.ifc: 306 members; length stored 0, computed 306, both 0 (agree 0), new 306, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 306, stored+computed 0 (agree 0), new 306
+  materials: Steel - Structural 306
+Sample_entities.ifc: 0 members; length stored 0, computed 0, both 0 (agree 0), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+file:///home/user/oss-monorepo/ventures/ifc-quantity-takeoff/geom.mjs:566
+    if (e.type !== "IFCLOCALPLACEMENT") throw new Unresolved(`object placement ${e.type}`);
+                                              ^
+
+Unresolved [Error]: object placement IFCLINEARPLACEMENT
+    at Geometry.objectPlacement (file:///home/user/oss-monorepo/ventures/ifc-quantity-takeoff/geom.mjs:566:47)
+    at worldOf (file:///home/user/oss-monorepo/ventures/ifc-quantity-takeoff/qto.mjs:360:61)
+    at takeoff (file:///home/user/oss-monorepo/ventures/ifc-quantity-takeoff/qto.mjs:434:54)
+    at file:///home/user/oss-monorepo/ventures/ifc-quantity-takeoff/eval/member-length-weight.mjs:27:15
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.23.5

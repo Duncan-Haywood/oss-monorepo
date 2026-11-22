@@ -79,7 +79,7 @@ test("CSV: rates multiply out, and spreadsheet formulas in names are neutralised
   const k = JSON.stringify(["IfcSlab"]);
   const csv = boqCsv(lines, ["class"], { [k]: { rate: 150, unit: "m3" } });
   const row = csv.split("\r\n").find((l) => l.startsWith("IfcSlab"));
-  assert.match(row, /,150,m3,750$/);
+  assert.match(row, /,150,m3,750,0,0,0,0$/);
   const res = sample();
   res.rows[0].name = "=HYPERLINK(\"x\")";
   assert.match(rowsCsv(res.rows), /"'=HYPERLINK\(""x""\)"/);
@@ -979,4 +979,64 @@ test("an element contained in a room takes the storey above the room, and keeps 
   assert.equal(r.space, "01056 Meeting room"); // number and name, so two rooms both called "Office" stay apart
   assert.equal(r.spaceFrom, "contained");
   assert.equal(before.space, null);
+});
+
+// Steel length and weight from geometry (quality audit 2026-11-22): a beam
+// with no quantity set prices per m and per kg from its body, a concrete one
+// gets its length but no weight, and a stored figure still wins.
+const bareBeams = `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#16=IFCDIRECTION((0.,0.,1.));
+#20=IFCRECTANGLEPROFILEDEF(.AREA.,'100x200',#13,100.,200.);
+#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,6000.);
+#22=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21));
+#23=IFCPRODUCTDEFINITIONSHAPE($,$,(#22));
+#24=IFCBEAM('1YvctVUKr0kugbFTf53O9A',$,'steel',$,$,#12,#23,'B1');
+#31=IFCEXTRUDEDAREASOLID(#20,#11,#16,4000.);
+#32=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#31));
+#33=IFCPRODUCTDEFINITIONSHAPE($,$,(#32));
+#34=IFCBEAM('1YvctVUKr0kugbFTf53O9B',$,'concrete',$,$,#12,#33,'B2');
+#41=IFCEXTRUDEDAREASOLID(#20,#11,#16,3000.);
+#42=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#41));
+#43=IFCPRODUCTDEFINITIONSHAPE($,$,(#42));
+#44=IFCCOLUMN('1YvctVUKr0kugbFTf53O9C',$,'stored',$,$,#12,#43,'C1');
+#45=IFCQUANTITYLENGTH('Length',$,$,2950.);
+#46=IFCQUANTITYWEIGHT('NetWeight',$,$,470.);
+#47=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53O9C',$,'BaseQuantities',$,$,(#45,#46));
+#48=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53O9C',$,$,$,(#44),#47);
+#60=IFCMATERIAL('S355JR');
+#61=IFCRELASSOCIATESMATERIAL('4YvctVUKr0kugbFTf53O9A',$,$,$,(#24,#44),#60);
+#62=IFCMATERIAL('Concrete C30/37');
+#63=IFCRELASSOCIATESMATERIAL('4YvctVUKr0kugbFTf53O9B',$,$,$,(#34),#62);
+ENDSEC;END-ISO-10303-21;`;
+
+test("steel: a member with no quantity set gets its length from the body and its weight from steel's density", async () => {
+  const { isSteel, STEEL_DENSITY } = await import("./qto.mjs");
+  const res = takeoff(parseStep(bareBeams));
+  const [S, C, K] = res.rows;
+  close(S.computed.length, 6);
+  const qs = rowQuantities(S);
+  close(qs.length, 6); assert.equal(qs.lengthSource, "computed");
+  close(qs.weight, 0.1 * 0.2 * 6 * STEEL_DENSITY); assert.equal(qs.weightSource, "density");
+  const qc = rowQuantities(C);
+  close(qc.length, 4); assert.equal(qc.weight, null);
+  const qk = rowQuantities(K);
+  assert.equal(qk.lengthSource, "stored"); close(qk.length, 2.95); close(qk.weight, 470); assert.equal(qk.weightSource, "stored");
+  const lines = boq(res.rows, ["class", "material"]);
+  const steel = lines.find((l) => l.key[0] === "IfcBeam" && l.key[1] === "S355JR");
+  assert.equal(steel.lengthComputed, 1); assert.equal(steel.weightComputed, 1); assert.equal(steel.weightMissing, 0);
+  const conc = lines.find((l) => l.key[1] === "Concrete C30/37");
+  assert.equal(conc.lengthMissing, 0); assert.equal(conc.weightMissing, 1);
+  // a per-kg rate now prices the bare steel beam
+  const csv = boqCsv(lines, ["class", "material"], { [JSON.stringify(steel.key)]: { rate: 2, unit: "kg" } });
+  const row = csv.split("\r\n").find((l) => l.includes("S355JR") && l.startsWith("IfcBeam"));
+  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0$/);
+  for (const m of ["Steel", "STEEL/S235JR", "Stahl S235", "ASTM A992", "Structural Steel - S275", "05 Staal_bordes_hoeklijnen"]) assert.ok(isSteel(m), m);
+  for (const m of [null, "Concrete / Steel", "STEEL/NEOPRENE", "Stainless steel", "Steel fibre concrete", "Timber", "Aluminium"]) assert.ok(!isSteel(m), String(m));
 });

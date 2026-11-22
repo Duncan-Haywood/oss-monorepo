@@ -1,0 +1,27 @@
+Viadotto Acerno.ifc: not read (object placement IFCLINEARPLACEMENT)
+advanced_model.ifc: 1585 members; length stored 0, computed 1585, both 0 (agree 0), new 1585, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Metall - Lack - Grau 1450; Stahlbeton - Fertigbeton 131;  <Unnamed> 4
+dental_clinic.ifc: 534 members; length stored 0, computed 534, both 0 (agree 0), new 534, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Metal - Aluminium 522; (none) 12
+duplex.ifc: 12 members; length stored 0, computed 12, both 0 (agree 0), new 12, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 8, stored+computed 0 (agree 0), new 8
+  materials: Metal - Steel - 345 MPa 8; (none) 4
+example.ifc: 85 members; length stored 0, computed 85, both 0 (agree 0), new 85, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 73, stored+computed 0 (agree 0), new 73
+  materials: Metal - Steel - 345 MPa 73; Concrete, Cast-in-Place gray 12
+ifcbridge-model01.ifc: 15 members; length stored 0, computed 13, both 0 (agree 0), new 13, none 2; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Stahlbeton - Ortbeton 15
+schependomlaan.ifc: 206 members; length stored 127, computed 206, both 127 (agree 105), new 79, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 120, stored+computed 0 (agree 0), new 120
+  materials: 02 Beton gewapend - ihw 82; 05 Staal - RAL 7016 58; 033 - constructief staal 56; 05 Staal_bordes_hoeklijnen 6; 02 Beton gewapend - prefab 4
+  length off (no cause) #3776 IfcBeam fund_strook: stored 1.2062 computed 1.3985
+  length off (no cause) #3946 IfcBeam fund_opstort: stored 0.8351 computed 0.8973
+  length off (no cause) #4112 IfcBeam fund_opstort: stored 0.7055 computed 0.7389
+  length off (no cause) #7939 IfcBeam fund_strook: stored 0.2811 computed 0.5000
+  length off (no cause) #8123 IfcBeam fund_opstort: stored 0.3500 computed 0.6600
+(rerun after the underscore fix in isSteel; was steel 114)
+tested_sample_project.ifc: 31 members; length stored 0, computed 31, both 0 (agree 0), new 31, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials:  <Unnamed> 31
+construction.ifc: 257 members; length stored 257, computed 257, both 257 (agree 257), new 0, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Stahlbeton - Fertigbeton 257
+architect.ifc: 1450 members; length stored 1392, computed 1450, both 1392 (agree 1392), new 58, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 0, stored+computed 0 (agree 0), new 0
+  materials: Metall - Lack - Grau 1450
+Schultz_Residence.ifc: 114 members; length stored 0, computed 114, both 0 (agree 0), new 114, none 0; host-figure 0 (stored sum 0.0 m, body sum 0.0 m); weight stored 0; steel 3, stored+computed 0 (agree 0), new 3
+  materials: Wood - Dimensional Lumber 77; Softwood, Lumber 21; Wood 13; Metal - Steel - ASTM A36 2; Metal - Steel - ASTM A992 1

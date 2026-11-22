@@ -27,3 +27,4 @@ more share the factor). skolebygg's slab volume in the BoQ: 134,776 m3 to
 - (moved 2026-11-21) 3D model view 2026-11-21 (viewer.mjs, view-mesh.mjs; eval/model-view-2026-11-21.md)
 - (moved 2026-11-21) Uniformat II grouping shipped 2026-11-20 (uniformat.mjs, --by uniformat; rules vs authors' codes 482 of 588 at level 3, held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope from geometry shipped 2026-11-20 (envelope.mjs: unflagged walls placed by rays, 268 coded; uniform flags set aside; flag vs geometry 3,534 of 4,564; eval/envelope-2026-11-20.md),
 - (moved 2026-11-21) net wall finish per room 2026-11-21 (doors, windows, curtain walls off by IfcRelSpaceBoundary, else geometry held out 791/857 same rooms; stored WxH not Revit's room-height boundary strips; eval/net-wall-finish-2026-11-21.md)
+- (moved 2026-11-22) openings cut at the room's floor and ceiling 2026-11-21 (eval/opening-height-cut-2026-11-21.md: 151 deductions, 47.2 m2)
