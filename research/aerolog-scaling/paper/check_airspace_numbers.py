@@ -289,6 +289,21 @@ CHECKS = [
     ('fresh_tail_posthoc_results.txt', 'U3  median 1.0000  p90 1.0079', '1.0016 and 1.0079 on the old layouts'),
     ('fresh_tail_posthoc_results.txt', 'M = 16, s = 2.0: N tail draws with best above k_B 6, below 0', '15 of 16 on the fresh ones'),
     ('fresh_tail_posthoc_results.txt', 'M = 12, s = 2.0: N tail draws with best above k_B 5, below 1', '15 of 16 on the fresh ones'),
+    # 11bb second fresh set
+    ('fresh_tail2_results.txt', 'U3     median 1.0000  p90 1.0000', 'p90 **1.0000 and 1.0044**'),
+    ('fresh_tail2_results.txt', 'U3     median 1.0000  p90 1.0044', 'p90 **1.0000 and 1.0044**'),
+    ('fresh_tail2_results.txt', 'W      median 1.0000  p90 1.0014', "five-spacing search's 1.0014 and 1.0079"),
+    ('fresh_tail2_results.txt', 'W      median 1.0000  p90 1.0079', "five-spacing search's 1.0014 and 1.0079"),
+    ('fresh_tail2_results.txt', 'U3     median 1.0000  p90 1.0037', 'p90 1.0037 against 1.0028'),
+    ('fresh_tail2_results.txt', 'W      median 1.0000  p90 1.0028', 'p90 1.0037 against 1.0028'),
+    ('fresh_tail2_results.txt', 'U3     median 1.0000  p90 1.0000  mean 1.0028  max 1.1099', 'worst draw of **1.1099** against 1.0278'),
+    ('fresh_tail2_results.txt', 'W      median 1.0000  p90 1.0014  mean 1.0013  max 1.0278', 'worst draw of **1.1099** against 1.0278'),
+    ('fresh_tail2_results.txt', 'layout 1246: N 1.1099, W 1.0000, U2 1.1099, U3 1.1099; k_B 5, best 3 (below)', 'whose best band count is two below'),
+    ('fresh_tail2_results.txt', 'N tail draws pooled: 6, best band count above k_B in 5', 'of six above 1.05'),
+    ('fresh_tail2_results.txt', 'seed clashes with the old and first-fresh layouts: 0', '24 fresh layouts (11bb, 192 draws'),
+    ('fresh_tail2_results.txt', '# G1 -> refuted', '11bb six of eight'),
+    ('fresh_tail2_results.txt', '# G4 -> refuted', '11bb six of eight'),
+    ('fresh_tail2_posthoc_results.txt', 'S6  median 1.0000  p90 1.0015  max 1.0489', 'worst draw 1.0489'),
 ]
 
 

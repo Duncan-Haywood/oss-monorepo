@@ -1,0 +1,55 @@
+# Milestone 11bb post hoc (not pre-registered): W, U3 and their union S6; frozen p_N = 0.02716
+
+## old (11ax, 48 layouts), 384 draws
+  M = 12, s = 1.0
+    W   median 1.0000  p90 1.0081  max 1.0242  effort 250.0 descents
+    U3  median 1.0000  p90 1.0085  max 1.0242  effort 250.0 descents
+    S6  median 1.0000  p90 1.0081  max 1.0242  effort 300.0 descents
+  M = 12, s = 2.0
+    W   median 1.0000  p90 1.0112  max 1.0434  effort 250.0 descents
+    U3  median 1.0000  p90 1.0016  max 1.0211  effort 250.0 descents
+    S6  median 1.0000  p90 1.0016  max 1.0211  effort 300.0 descents
+  M = 16, s = 1.0
+    W   median 1.0000  p90 1.0124  max 1.0371  effort 250.0 descents
+    U3  median 1.0000  p90 1.0124  max 1.0371  effort 250.0 descents
+    S6  median 1.0000  p90 1.0124  max 1.0371  effort 300.0 descents
+  M = 16, s = 2.0
+    W   median 1.0000  p90 1.0267  max 1.0635  effort 250.0 descents
+    U3  median 1.0000  p90 1.0079  max 1.0271  effort 250.0 descents
+    S6  median 1.0000  p90 1.0079  max 1.0271  effort 300.0 descents
+
+## first fresh (11ba, 24 layouts), 192 draws
+  M = 12, s = 1.0
+    W   median 1.0000  p90 1.0137  max 1.0269  effort 250.0 descents
+    U3  median 1.0000  p90 1.0137  max 1.0269  effort 250.0 descents
+    S6  median 1.0000  p90 1.0137  max 1.0269  effort 300.0 descents
+  M = 12, s = 2.0
+    W   median 1.0000  p90 1.0065  max 1.1105  effort 250.0 descents
+    U3  median 1.0000  p90 1.0028  max 1.0999  effort 250.0 descents
+    S6  median 1.0000  p90 1.0015  max 1.0489  effort 300.0 descents
+  M = 16, s = 1.0
+    W   median 1.0000  p90 1.0080  max 1.0255  effort 250.0 descents
+    U3  median 1.0000  p90 1.0080  max 1.0255  effort 250.0 descents
+    S6  median 1.0000  p90 1.0080  max 1.0255  effort 300.0 descents
+  M = 16, s = 2.0
+    W   median 1.0000  p90 1.0085  max 1.0684  effort 250.0 descents
+    U3  median 1.0000  p90 1.0004  max 1.0120  effort 250.0 descents
+    S6  median 1.0000  p90 1.0004  max 1.0120  effort 300.0 descents
+
+## second fresh (11bb, 24 layouts), 192 draws
+  M = 12, s = 1.0
+    W   median 1.0000  p90 1.0028  max 1.0129  effort 250.0 descents
+    U3  median 1.0000  p90 1.0037  max 1.0292  effort 250.0 descents
+    S6  median 1.0000  p90 1.0028  max 1.0129  effort 300.0 descents
+  M = 12, s = 2.0
+    W   median 1.0000  p90 1.0014  max 1.0278  effort 250.0 descents
+    U3  median 1.0000  p90 1.0000  max 1.1099  effort 250.0 descents
+    S6  median 1.0000  p90 1.0000  max 1.0154  effort 300.0 descents
+  M = 16, s = 1.0
+    W   median 1.0001  p90 1.0150  max 1.0326  effort 250.0 descents
+    U3  median 1.0001  p90 1.0150  max 1.0326  effort 250.0 descents
+    S6  median 1.0001  p90 1.0150  max 1.0326  effort 300.0 descents
+  M = 16, s = 2.0
+    W   median 1.0000  p90 1.0079  max 1.0377  effort 250.0 descents
+    U3  median 1.0000  p90 1.0044  max 1.0377  effort 250.0 descents
+    S6  median 1.0000  p90 1.0044  max 1.0377  effort 300.0 descents
