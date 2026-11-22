@@ -127,11 +127,11 @@ export function parseCsv(text) {
   return rows.filter((r) => r.some((c) => c.trim() !== ""));
 }
 
-export function assetsFromCsv(data, text) {
-  const rows = parseCsv(text.replace(/^﻿/, ""));
+export function importAssetsCsv(data, text) {
+  const rows = parseCsv(text.replace(/^\uFEFF/, ""));
   if (!rows.length) return { added: 0, problems: ["empty file"] };
   const head = rows[0].map((h) => h.trim().toLowerCase().replace(/[^a-z]/g, ""));
-  const col = (names) => head.findIndex((h) => names.includes(h));
+  const col = (names) => names.map((nm) => head.indexOf(nm)).find((i) => i >= 0) ?? -1;
   const ci = { name: col(["name", "asset", "assetname", "equipment"]), location: col(["location", "site", "area"]), category: col(["category", "type", "class"]), inService: col(["inservice", "installed", "installdate", "commissioned"]), meterUnit: col(["meterunit", "meter", "units"]), criticality: col(["criticality", "priority"]) };
   if (ci.name < 0) return { added: 0, problems: ["no name column (name, asset or equipment)"] };
   const problems = [];

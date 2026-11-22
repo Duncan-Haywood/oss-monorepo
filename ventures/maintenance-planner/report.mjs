@@ -52,7 +52,7 @@ export function toCsv(rows, cols) {
   const esc = (v) => {
     const s = v === null || v === undefined ? "" : String(v);
     // a leading = + - @ would run as a formula in a spreadsheet
-    const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s) ? `'${s}` : s;
+    const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s;
     return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
   };
   return [cols.map((c) => esc(c.label)).join(","), ...rows.map((r) => cols.map((c) => esc(typeof c.get === "function" ? c.get(r) : r[c.key])).join(","))].join("\r\n") + "\r\n";

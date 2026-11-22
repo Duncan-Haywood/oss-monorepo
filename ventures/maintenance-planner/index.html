@@ -232,7 +232,7 @@
 </footer>
 <script type="module">
   import { parseDay, fmtDay, meterRate } from "./schedule.mjs";
-  import { emptyData, normalize, newId, completeWorkOrder, generateDueWorkOrders, assetsFromCsv } from "./store.mjs";
+  import { emptyData, normalize, newId, completeWorkOrder, generateDueWorkOrders, importAssetsCsv } from "./store.mjs";
   import { summarize, toCsv, PLAN_COLUMNS } from "./report.mjs";
   import { exampleData } from "./example.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -333,7 +333,7 @@
   $("#assetCsv").addEventListener("change", async (e) => {
     const f = e.target.files[0];
     if (!f) return;
-    const r = assetsFromCsv(data, await f.text());
+    const r = importAssetsCsv(data, await f.text());
     persist(); render();
     say(`Added ${r.added} asset${r.added === 1 ? "" : "s"} from ${f.name}.${r.problems.length ? ` ${r.problems.slice(0, 5).join("; ")}` : ""}`);
     record("assets_imported");

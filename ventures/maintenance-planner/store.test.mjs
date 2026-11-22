@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { normalize, completeWorkOrder, generateDueWorkOrders, assetsFromCsv, emptyData, parseCsv } from "./store.mjs";
+import { normalize, completeWorkOrder, generateDueWorkOrders, importAssetsCsv, emptyData, parseCsv } from "./store.mjs";
 import { partStatus } from "./parts.mjs";
 import { summarize, toCsv, PLAN_COLUMNS } from "./report.mjs";
 import { exampleData } from "./example.mjs";
@@ -77,7 +77,7 @@ test("parts: reorder point from monthly usage, lead time and service level", () 
 
 test("asset CSV import reads quoted cells and flags bad dates", () => {
   const data = emptyData();
-  const r = assetsFromCsv(data, '﻿Equipment,Location,Installed,Meter\r\n"Boiler, main",Plant,2019-05-01,hours\r\nFan,Roof,05/01/2019,\r\n,Nowhere,,\r\n');
+  const r = importAssetsCsv(data, '\uFEFFEquipment,Location,Installed,Meter\r\n"Boiler, main",Plant,2019-05-01,hours\r\nFan,Roof,05/01/2019,\r\n,Nowhere,,\r\n');
   assert.equal(r.added, 2);
   assert.equal(data.assets[0].name, "Boiler, main");
   assert.equal(data.assets[0].meterUnit, "hours");
