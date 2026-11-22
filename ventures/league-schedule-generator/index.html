@@ -429,8 +429,6 @@
   <script type="module">
     import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, playBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolPlayoffSeeds, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
-    import { parseTrf, trfToResults, swissToTrf } from "./trf.mjs";
-    import { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } from "./divisions.mjs";
     import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
@@ -448,6 +446,11 @@
     let last = null;
     const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const later = (fn) => setTimeout(fn, 0);
+    // Loaded on first use, not with the page: divisions.mjs (team duties and team sheets, 139 kB, 40 kB gzip)
+    // and trf.mjs (the Swiss TRF file reader and writer) serve one card each, so the first screen does not wait for them.
+    const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
+    const divisionsModule = onDemand(() => import("./divisions.mjs"));
+    const trfModule = onDemand(() => import("./trf.mjs"));
 
     function setFields(f) {
       $("#teams").value = f.teams;
@@ -977,7 +980,7 @@
     }
     // Team duties and team sheets: the one-division schedule in the multi-division shape (singleAsDivisions),
     // so the page uses the same rota and sheet code as multi-division-league-schedule.html.
-    function teamDuties() {
+    function teamDuties({ singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties }) {
       if (!last) return null;
       const shaped = singleAsDivisions(last.s);
       const pd = parseDivisionDuties($("#duties").value);
@@ -987,8 +990,10 @@
       const errors = validateDivisionDuties(shaped, pd.duties, result);
       return { shaped, duties: result, errors };
     }
-    function showDutyLine() {
-      const td = teamDuties();
+    async function showDutyLine() {
+      // No duty lines (blank or whitespace only) parse to no duties and no errors: same empty line, without loading divisions.mjs.
+      if (!last || !$("#duties").value.trim()) { $("#dl-duties").hidden = true; $("#duty-line").textContent = ""; return; }
+      const td = teamDuties(await divisionsModule());
       $("#dl-duties").hidden = !td?.duties;
       if (!td) { $("#duty-line").textContent = ""; return; }
       if (td.errors.length) { $("#duty-line").textContent = "Duties: " + td.errors.join(" "); return; }
@@ -997,15 +1002,19 @@
       $("#duty-line").textContent = `Duties: ${td.duties.rows.length} slots filled, ${t.length ? Math.min(...t) + " to " + Math.max(...t) : 0} per team` + (td.duties.unfilled.length ? `; ${td.duties.unfilled.length} slot(s) with no team free (marked "find a volunteer").` : ".");
     }
     $("#duties").addEventListener("input", showDutyLine);
-    $("#dl-team-sheets").addEventListener("click", () => {
-      const td = teamDuties();
+    $("#dl-team-sheets").addEventListener("click", async () => {
+      const divisions = await divisionsModule();
+      const { divisionsTeamSheetsHtml } = divisions;
+      const td = teamDuties(divisions);
       if (!td) { status.textContent = "Make a schedule first."; return; }
       if (td.errors.length) { $("#duty-line").textContent = "Not downloaded. Duties: " + td.errors.join(" "); return; }
       download("team-sheets.html", divisionsTeamSheetsHtml(td.shaped, { title: $("#sheetTitle").value || "Team sheets", contact: $("#sheetContact").value, duties: td.duties }), "text/html");
       record("team_sheets_downloaded");
     });
-    $("#dl-duties").addEventListener("click", () => {
-      const td = teamDuties();
+    $("#dl-duties").addEventListener("click", async () => {
+      const divisions = await divisionsModule();
+      const { divisionsDutiesText } = divisions;
+      const td = teamDuties(divisions);
       if (!td?.duties || td.errors.length) return;
       download("team-duties.txt", divisionsDutiesText(td.duties), "text/plain");
       record("duties_downloaded");
@@ -1112,6 +1121,7 @@
       const file = ev.target.files && ev.target.files[0];
       const msg = $("#swiss-trf-msg");
       if (!file) return;
+      const { parseTrf, trfToResults } = await trfModule();
       const trf = parseTrf(await file.text());
       if (!trf.players.length) { msg.textContent = "No player lines (001) found: is this a TRF file?"; return; }
       const box = trfToResults(trf);
@@ -1124,7 +1134,8 @@
       msg.textContent = `Read ${trf.players.length} players and ${box.rounds} round${box.rounds === 1 ? "" : "s"}${box.totalRounds ? ` of ${box.totalRounds}` : ""} from ${file.name}.${problems.length ? " " + problems.join(" ") : " Press Pair next round."}`;
       record("swiss_trf_opened");
     });
-    $("#dl-swiss-trf").addEventListener("click", () => {
+    $("#dl-swiss-trf").addEventListener("click", async () => {
+      const { swissToTrf } = await trfModule();
       const players = parseTeams($("#teams").value).teams;
       const parsed = parseSwissResults($("#swiss-results").value, players);
       if (parsed.errors.length) { $("#swiss-status").textContent = parsed.errors.join(" "); return; }
