@@ -33,12 +33,18 @@ file:
 | sample (20.12) | 100 | equal; 30 / 30 | x1, x2, x4 | 154.5 / 157.1 / 159.1 / 160.4 | equal (no resources) | 0 | 0 | 0 | 0 h | < 0.1 s |
 | terminal (5.0) | 100 | equal; 46 / 46 | x1, x2, x4 | 314.2 / 320.3 / 324 / 327.1 | equal (no limits) | 0 | 0 | 0 | 0 h | 0.1 s |
 | Expressway (7.0) | 40 | equal; 25 / 25 | x4 | 1,343.5 / 1,379.3 / 1,399.2 / 1,406.2 | 6,154.7 / 6,351.7 / 7,699.3 / 11,359.6 | 5,886 (4,061, 6,274) | 90% | 17.5% | 0 h | 187 s |
-HOTEL_ROW
+| hotel (6.0) | 40 | equal; 496 / 496 | x4 | 702 / 719.2 / 729.8 / 732.9 | 982.6 / 995.7 / 1,005.3 / 1,011.3 | 277.4 (250.6, 285.6) | 100% | 0 | 0 h | 550 s |
 
 **Reading.**
 
 - The identity holds exactly on every file run: the levelling path and the
   resource-aware driving path add nothing when nothing is over a limit.
+- The identity check found one bug before this landed: on hotel the first
+  run gave equal percentiles but 0 of 498 equal criticality indices. The
+  levelled path was walked on level.mjs's full run, whose backward pass moves
+  as-late-as-possible work and cut the walk to 1 activity (79 in the plain
+  run). It now walks a forward-only run with the levelling floors, as the
+  plain run does: 496 of 496 equal.
 - No run finished earlier levelled than unlevelled, and no run's levelling
   left a placed activity over a limit.
 - **example**: its 26 labour resources sit at P6's default limit of 1 per hour
@@ -46,6 +52,10 @@ HOTEL_ROW
   P80 and in every run; doubling every crew still costs 27 days a run; at x4
   the delay is gone in 94% of runs. One levelled date at x2 (240.2 days)
   would not say how close x2 is to x1 under uncertainty.
+- **hotel**: three labour and equipment resources at limits of 1 to 1.5 per
+  hour, used at up to 10.5 at once. Even with crews four times the file's
+  limits, the limits add 251 to 286 working days in every run (P80 729.8 ->
+  1,005.3 days), and every run's driving path passes through a crew wait.
 - **Expressway**: every labour resource at the default limit of 1, used at up
   to 43 at once; even at x4 the levelled runs reach 17 to 31 years. That is the
   file's limits, not the method (`eval/level-check-2026-11-19.md`), and the
@@ -58,4 +68,4 @@ HOTEL_ROW
 **Not checked.** No public file carries a commercial tool's levelled risk run
 (Primavera Risk Analysis, Safran), so the levelled percentiles are not compared
 with one. Each run costs one levelling: about 50 ms on the example file, 4.7 s
-on Expressway at x4.
+on Expressway and 14 s on hotel at x4.

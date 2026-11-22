@@ -617,7 +617,9 @@ the levelled forecast at x2 is still 27 days later than at x4: the limits
 matter far more than one levelled date at x1 suggests. `risk-levelled.test.mjs`
 (drawn durations stretch assignments; a dropped activity uses no crew; the
 path crosses the wait; x1e6 identity; the crew of one adds the shorter
-activity in every run). Not yet compared with a commercial tool's levelled
+activity in every run). On the hotel file at four times its limits the
+limits add 251 to 286 working days to every run (P80 729.8 -> 1,005.3 days).
+Not yet compared with a commercial tool's levelled
 risk run (no public file carries one).
 
 ## Probabilistic branches in the time impact analysis (2026-11-22)

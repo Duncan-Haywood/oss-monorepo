@@ -65,6 +65,11 @@ is the kind of answer a single levelled date cannot give. With crews of 1 per
 hour on a file that uses up to 11 at once, the first thing to fix is the
 limits in the file, and the page warns about exactly that.
 
+A public hotel project file shows a larger effect. Three of its resources
+have limits of 1 to 1.5 per hour but are used at up to 10.5 at once. Even with
+every crew four times the file's limit, the limits added 251 to 286 working
+days to every one of 40 runs, moving the P80 from 729.8 to 1,005.3 days.
+
 ## How it was checked
 
 - With every limit raised a million-fold, the levelled run equals the plain
@@ -73,6 +78,11 @@ limits in the file, and the page warns about exactly that.
   over a limit.
 - At the file's own limits, no run's levelling leaves a placed activity over a
   limit, and no run finishes earlier levelled than unlevelled.
+- The identity check caught one bug before release. On the hotel file the
+  percentiles matched but no criticality index did, because the levelled
+  driving path was walked on a schedule whose backward pass had moved
+  as-late-as-possible work. The path is now walked on the same forward-only
+  run as the plain path, and all 496 indices match.
 - Small hand-built schedules check the details: a sampled duration stretches
   the assignment, an activity a branch drops uses no crew, and the path
   crosses a crew wait.
