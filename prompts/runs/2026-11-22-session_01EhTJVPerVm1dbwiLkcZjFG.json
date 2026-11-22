@@ -47,7 +47,7 @@
       "file": "prompts/ventures/prompt-1.md",
       "why": "venture-preflight not run: the change is an eval tool, a note, README/NEXT text and a test, no page or user-facing surface changed",
       "did": "ran the venture's test suite instead",
-      "result": "see notes"
+      "result": "1495 tests pass"
     },
     {
       "file": "eval/hdrplus-ramp-fit-2026-11-22.md",
@@ -61,7 +61,7 @@
     "ventures/photo-editing/eval/hdrplus-ramp-fit-2026-11-22.md"
   ],
   "goal": null,
-  "notes": "Committed questions before held-out scoring (commit on the PR branch). 48 tune / 79 of 91 held-out HDR+ bursts scored. R1 (ship-arm refit) h1,h2 pass, h3 (6 bursts >0.1 dB worse) and h4 (1 new loser) fail: ramps stay. R2: oracle's losses to what ships 14 -> 0 with each arm on own tune pick. Full HDR+ set (3,640 bursts) found listable from this session; prep --bucket added. Tests: tests/test_hdrplus_ramp_fit.py 4 pass; venture suite result below.",
+  "notes": "Committed questions before held-out scoring (commit on the PR branch). 48 tune / 79 of 91 held-out HDR+ bursts scored. R1 (ship-arm refit) h1,h2 pass, h3 (6 bursts >0.1 dB worse) and h4 (1 new loser) fail: ramps stay. R2: oracle's losses to what ships 14 -> 0 with each arm on own tune pick. Full HDR+ set (3,640 bursts) found listable from this session; prep --bucket added. Tests: tests/test_hdrplus_ramp_fit.py 4 pass; run_venture_tests.py photo-editing: ok, 1495 tests, 10 skipped, 88 s; site page checks ok.",
   "corrections": [],
   "redteam": null
 }
