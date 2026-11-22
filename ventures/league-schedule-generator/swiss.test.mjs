@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { swissPairings, swissPairingsGreedy, swissStandings, colourClaim, floatHistory, exchangeFor, dutchFloaters } from "./swiss.mjs";
+import { swissPairings, swissPairingsGreedy, swissStandings, colourClaim, floatHistory, exchangeFor, dutchFloaters, mdpFloaters } from "./swiss.mjs";
 import { validateSwiss } from "./calc.mjs";
 
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 2 ** 32; }; }
@@ -301,7 +301,7 @@ test("exchangeFor: FIDE C.04.3 4.3 exchange order (fewest moved, smallest BSN-su
   const allowed3 = (x, y) => !met3.has(`${x}|${y}`) && !met3.has(`${y}|${x}`);
   assert.deepEqual(exchangeFor([1, 2, 3, 4, 5, 6], { allowed: allowed3, qOf: () => 0, qMax: 1 }), { s1: [1, 2, 5], s2: [3, 4, 6] });
   // No exchange needed: null (the caller pairs S1 against S2 as before).
-  assert.equal(exchangeFor([1, 2, 3, 4], { allowed: () => true, qOf: () => 0, qMax: 1 }), null);
+  assert.deepEqual(exchangeFor([1, 2, 3, 4], { allowed: () => true, qOf: () => 0, qMax: 1 }), { s1: [1, 2], s2: [3, 4], none: true });
 });
 
 // Colour criteria as bracketMate's stage B builds them: [absolute, strong, mild, down1, up1, down2, up2].
@@ -333,4 +333,18 @@ test("dutchFloaters: an exchange is tried in article 4.3 order before an S1 play
   // 13-25 (12 floats); S2' = {12, 17, 25} in order gives 6-12 first, as published.
   const ctx = floatCtx({ wants: { 6: "W", 12: "W", 13: "B", 17: "W", 25: "W" }, met: [[6, 13]], downLast: [25] });
   assert.deepEqual(dutchFloaters([6, 12, 13, 25], [17], { ...ctx, order: [6, 12, 13, 17, 25] }), [17]);
+});
+
+test("mdpFloaters: the MDP takes the earliest resident first, even when that changes who floats (Budapest A 2026 round 8)", () => {
+  // MDP 25 and residents 1, 2, 9 are due black; 4, 18, 22 white. 1 has met 18 and 22, 9 has met 18.
+  // Stage A's floater was 9 (1-4, 25-18); the Dutch order pairs 25-4 first, so 1 floats.
+  const due = new Map([[25, "B"], [1, "B"], [2, "B"], [9, "B"], [4, "W"], [18, "W"], [22, "W"]]);
+  const met = new Set(["1-18", "1-22", "9-18"]);
+  const allowed = (x, y) => !met.has(`${Math.min(x, y)}-${Math.max(x, y)}`);
+  const crit = (x, y) => [0, 0, due.get(x) === due.get(y) ? 1 : 0, 0, 0, 0, 0];
+  const opts = { allowed, crit, fa: () => null, order: [25, 1, 2, 4, 9, 18, 22] };
+  assert.deepEqual(mdpFloaters([25], [1, 2, 4, 9, 18, 22], 1, opts), [1]);
+  // Without the rematches the MDP still takes 4, and the remainder's own order decides later.
+  met.clear();
+  assert.equal(mdpFloaters([25], [1, 2, 4, 9, 18, 22], 1, opts).length, 1);
 });
