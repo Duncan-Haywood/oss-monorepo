@@ -11,15 +11,17 @@
 // (not across a whole file) because every one of these call shapes fits on
 // one line in real code, and line-by-line keeps the match trivially
 // explainable and the false-positive rate near zero.
+// The quoted forms take any name a .env loader accepts as a key (`my-key`,
+// `APP.NAME`); `process.env.FOO` can only spell a JS identifier.
 const LANGUAGE_PATTERNS = [
   { language: "JavaScript / TypeScript", example: "process.env.FOO", regex: /process\.env\.([A-Za-z_][A-Za-z0-9_]*)/g },
-  { language: "JavaScript / TypeScript", example: 'process.env["FOO"]', regex: /process\.env\[\s*["']([A-Za-z_][A-Za-z0-9_]*)["']\s*\]/g },
-  { language: "Python", example: 'os.getenv("FOO")', regex: /os\.getenv\(\s*["']([A-Za-z_][A-Za-z0-9_]*)["']/g },
-  { language: "Python", example: 'os.environ["FOO"]', regex: /os\.environ\[\s*["']([A-Za-z_][A-Za-z0-9_]*)["']\s*\]/g },
-  { language: "Python", example: 'os.environ.get("FOO")', regex: /os\.environ\.get\(\s*["']([A-Za-z_][A-Za-z0-9_]*)["']/g },
-  { language: "Ruby", example: 'ENV["FOO"]', regex: /ENV\[\s*["']([A-Za-z_][A-Za-z0-9_]*)["']\s*\]/g },
-  { language: "Ruby", example: 'ENV.fetch("FOO")', regex: /ENV\.fetch\(\s*["']([A-Za-z_][A-Za-z0-9_]*)["']/g },
-  { language: "Java", example: 'System.getenv("FOO")', regex: /System\.getenv\(\s*"([A-Za-z_][A-Za-z0-9_]*)"\s*\)/g },
+  { language: "JavaScript / TypeScript", example: 'process.env["FOO"]', regex: /process\.env\[\s*["']([A-Za-z0-9_][A-Za-z0-9_.-]*)["']\s*\]/g },
+  { language: "Python", example: 'os.getenv("FOO")', regex: /os\.getenv\(\s*["']([A-Za-z0-9_][A-Za-z0-9_.-]*)["']/g },
+  { language: "Python", example: 'os.environ["FOO"]', regex: /os\.environ\[\s*["']([A-Za-z0-9_][A-Za-z0-9_.-]*)["']\s*\]/g },
+  { language: "Python", example: 'os.environ.get("FOO")', regex: /os\.environ\.get\(\s*["']([A-Za-z0-9_][A-Za-z0-9_.-]*)["']/g },
+  { language: "Ruby", example: 'ENV["FOO"]', regex: /ENV\[\s*["']([A-Za-z0-9_][A-Za-z0-9_.-]*)["']\s*\]/g },
+  { language: "Ruby", example: 'ENV.fetch("FOO")', regex: /ENV\.fetch\(\s*["']([A-Za-z0-9_][A-Za-z0-9_.-]*)["']/g },
+  { language: "Java", example: 'System.getenv("FOO")', regex: /System\.getenv\(\s*"([A-Za-z0-9_][A-Za-z0-9_.-]*)"\s*\)/g },
 ];
 
 // One row per language for the docs table -- collapsed from LANGUAGE_PATTERNS
@@ -29,23 +31,54 @@ export const CHECKED_LANGUAGES = [...new Set(LANGUAGE_PATTERNS.map((p) => p.lang
   examples: LANGUAGE_PATTERNS.filter((p) => p.language === language).map((p) => p.example).join(", "),
 }));
 
-const DECLARATION = /^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/;
+// Key characters: letters, digits, `_`, `.` and `-`. Node's util.parseEnv,
+// npm dotenv 16/17 and python-dotenv 1.0 all accept `APP.NAME`, `my-key` and
+// `9LIVES` as keys (measured, see eval/README.md), so a stricter
+// shell-identifier rule would report such a declared name as missing a
+// declaration it has.
+const DECLARATION = /^(?:export\s+)?([A-Za-z0-9_.-]+)\s*=[ \t]*/;
+const QUOTES = new Set(['"', "'", "`"]);
+
+// Index of the first `quote` at or after `from` that is not directly preceded
+// by a backslash, or -1.
+function closingQuote(text, quote, from) {
+  for (let i = from; i < text.length; i++) {
+    if (text[i] === quote && text[i - 1] !== "\\") return i;
+  }
+  return -1;
+}
 
 /**
  * Parses an .env.example-style file into a Map of declared variable name ->
  * { line }. Blank lines and lines starting with `#` (after trimming) are
  * skipped; an optional leading `export ` is tolerated. The *value* after `=`
  * is never read or returned.
+ *
+ * A value that opens with `"`, `'` or a backtick and closes on a later line
+ * (a PEM key, a JSON blob) is one value, as dotenv and python-dotenv read it:
+ * a `NAME=` line inside it is not a declaration. An opening quote that never
+ * closes leaves the value on its own line. Lines end at `\n`, `\r\n` or a
+ * lone `\r`.
  */
 export function parseExampleFile(text) {
   const declared = new Map();
-  const lines = String(text ?? "").split(/\r?\n/);
-  lines.forEach((raw, i) => {
-    const line = raw.trim();
-    if (!line || line.startsWith("#")) return;
+  const lines = String(text ?? "").split(/\r\n|\r|\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line || line.startsWith("#")) continue;
     const match = DECLARATION.exec(line);
-    if (match && !declared.has(match[1])) declared.set(match[1], { line: i + 1 });
-  });
+    if (!match) continue;
+    if (!declared.has(match[1])) declared.set(match[1], { line: i + 1 });
+    const rest = line.slice(match[0].length);
+    if (!QUOTES.has(rest[0]) || closingQuote(rest, rest[0], 1) !== -1) continue;
+    // The quote stays open past this line: skip to the line that closes it.
+    for (let j = i + 1; j < lines.length; j++) {
+      if (closingQuote(lines[j], rest[0], 0) !== -1) {
+        i = j;
+        break;
+      }
+    }
+  }
   return declared;
 }
 
