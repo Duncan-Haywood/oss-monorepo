@@ -1221,9 +1221,37 @@ grid points, its three fitted processes, the same 200 synthetic datasets each), 
 - For seeding this changes nothing (milestones 4 to 23: the advice barely depends on the model); it
   says what an evaluator can learn and what to put in the end-line survey.
 
+## Milestone 25: do the real villages choose a model once the moments are scaled? (`experiments/m25_scaled/`)
+
+Milestone 24 found that dividing each moment by its spread across synthetic villages lifts the
+cross-section's leave-one-village-out recovery from a lowest 55.5% to 83.5%. Two questions it left: can
+a study get that scale from its own data, and does milestone 2's real-data verdict (the information
+model predicts held-out villages best) survive it? Milestone 3's harness runs unchanged (it
+reproduces milestones 3 and 24 exactly); the new weighting divides each moment by its SD across the
+dataset's own 43 villages. Plan and five hypotheses logged before the run.
+
+| weighting | real data: lowest held-out loss | share of bootstrap draws it wins against the runner-up | recovery I / T / R&delta;, identity-fit processes | at the processes refitted under this weighting |
+|---|---|---|---|---|
+| identity (milestone 3) | information | 0.75 | 58.5 / 82.0 / 55.5% | |
+| SD of the data's own villages | **threshold** | 0.64 | 69.0 / 81.5 / 79.0% | 66.0 / 80.0 / 77.0% |
+| SD of synthetic villages (milestone 24) | information | 0.76 | 83.5 / 87.0 / 87.5% | 72.0 / 79.0 / 93.5% |
+| two-step, one matrix at the I fit (reported) | **reinforcement** | 0.60 | | |
+
+- **The verdict is the weighting's.** Four defensible weightings pick all three families between them,
+  and none wins by more than 0.89 of paired bootstrap draws against any rival. Milestone 2's
+  "information model best" holds only under the identity and synthetic-scale weights.
+- **A study cannot borrow milestone 24's gain.** The real villages vary more than any fitted process
+  makes them (SD of moment 5 0.33 against 0.26), and the data's own scale recovers every model in
+  only 66 to 69% of datasets, against 83.5% with the synthetic scale.
+- **The real data look less like the information model's own draws** (reported): under the data's
+  scale their threshold-minus-information loss difference is lower than in 97% of that model's
+  datasets, but typical of both complex models.
+- For seeding nothing changes: the advice of milestones 4 to 23 holds under all three families, which
+  is the reason it matters that the data cannot choose.
+
 ## Next steps
 
-Milestone 24 finds an awareness question separates the simple model from reinforcement and that SD scaling of the moments matters more than either new measurement. Next: refit the real villages under SD or two-step weights and redo milestone 2's out-of-sample comparison; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
+Milestone 25 finds the real villages' preferred model changes with the weighting (information, threshold, reinforcement, information under four weightings, none decisive) and that a scale taken from the data recovers less than milestone 24's synthetic one. Next: a village random effect in the processes (milestone 3b) so synthetic villages vary as much as the real ones; awareness under the data's own scale; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
 11 adopters per unit &kappa;) and that the costly swaps crowd seeds together rather than pick weaker
 ones. Next: which refitted processes set the worst case between &kappa; = 0.1 and 0.25 (the harness's
 per-draw arg-max family and its parameters) and whether coverage loss predicts regret there; the
