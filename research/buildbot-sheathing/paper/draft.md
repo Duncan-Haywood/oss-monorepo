@@ -896,6 +896,17 @@ four bounds. Against the direct-aimed bias the realised worst row equals max<sub
 B||J<sub>k</sub>||) on every gate-passed press, so the gate is exact rather than conservative for that adversary, and
 the flip budget (at most 0.0082 mm, and zero on the H1) decides no refusal: the gate is a per-pose bias rating,
 0.03 mm / max<sub>k</sub>||J<sub>k</sub>||, from 0.213 to 1.06 N on the G1 and 0.279 to 1.31 N on the H1.
+The weakest ratings belong to poses far in height from the one calibration pose, and a second calibration pose
+lifts them (milestone 69, a thirteenth held-out set of 8 loads, seed 69). Since the compensated residual is the press
+pose's error minus the reference pose's, J under any reference r is J(p) &minus; J(r) from milestone 67's table; on
+the new loads the measured J equals that difference on every press to 4 &times; 10<sup>&minus;14</sup> mm/N, under
+the original reference and under the new ones. Chosen from the table before the run, the reference pair that
+maximises the weakest rating (G1 at 0.6 and 1.0 m grip height, H1 at 0.8 and 1.4 m, each pose compensated against
+the nearer) raises that rating from 0.213 to 0.530 N on the G1 and from 0.279 to 0.564 N on the H1. No press the
+gate passes leaves 0.03 mm under either reference set, and gate coverage of the balance-envelope cases at 0.3, 0.4,
+0.6 and 1.0 N becomes 100%, 100%, 63.4% and 32.4% on the G1 (from 64.6%, 57.6%, 20.7% and 20.2% on the same loads)
+and 99.7%, 99.3%, 83.7% and 19.0% on the H1 (from 90.7%, 85.0%, 52.0% and 10.0%). With two references the chain
+alone leaves no press over spec at 0.3 or 0.4 N on either robot.
 
 ### 5.12 What the remedies cost (milestone 13)
 

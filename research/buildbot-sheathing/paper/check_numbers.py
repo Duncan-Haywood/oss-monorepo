@@ -82,6 +82,7 @@ M67 = E + "m67_aimeddirect/results.txt"
 M67D = E + "m67_aimeddirect/diag.out"
 M68 = E + "m68_jgate/results.txt"
 M68D = E + "m68_jgate/diag.out"
+M69 = E + "m69_tworef/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -348,6 +349,14 @@ CHECKS = [
     (M68D, "g1 | 1.0 | dir | 68 | 1.000, 1.000 |", "equals max<sub>k</sub>(Y<sub>k</sub> +"),
     (M68D, "g1 | 15 | 0.213, 0.215, 0.225, 0.291, 0.294, 0.319, 0.487, 0.492, 0.504, 0.505, 0.532, 0.558, 1.053, 1.061, inf", "from 0.213 to 1.06 N on the G1"),
     (M68D, "h1 | 19 | 0.279, 0.287, 0.395", "0.279 to 1.31 N on the H1"),
+    (M69, "H266 (re-referencing subtracts: every fresh J equals J67(p) - J67(r) to 1e-6 mm/N, both arms, both robots): largest difference 4.32e-14 -> held", "on every press to 4 &times; 10<sup>&minus;14</sup> mm/N, under"),
+    (M69, "g1 | two | 108 | 4.06e-14 | 0.530 | 15", "from 0.213 to 0.530 N on the G1"),
+    (M69, "h1 | two | 150 | 4.32e-14 | 0.564 | 19", "from 0.279 to 0.564 N on the H1"),
+    (M69, "g1 | 0.6 | two | 216 | 213 (98.61%) | 76 | 0.0340 | 137 | 63.43 | 0 |", "100%, 100%, 63.4% and 32.4% on the G1"),
+    (M69, "g1 | 0.3 | one | 198 | 198 (100.00%) | 70 | 0.0424 | 128 | 64.65 | 0 |", "(from 64.6%, 57.6%, 20.7% and 20.2% on the same loads)"),
+    (M69, "h1 | 0.4 | two | 300 | 298 (99.33%) | 0 | 0.0213 | 298 | 99.33 | 0 |", "99.7%, 99.3%, 83.7% and 19.0% on the H1"),
+    (M69, "h1 | 1.0 | one | 300 | 258 (86.00%) | 228 | 0.1074 | 30 | 10.00 | 0 |", "(from 90.7%, 85.0%, 52.0% and 10.0%)"),
+    (M69, "H267 (the gate on the two-pose table keeps every passed press inside the spec, every B, both robots): 0 over spec -> held", "No press the\ngate passes leaves 0.03 mm"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

@@ -569,6 +569,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    bound is exact against the direct-aimed bias and the flip budget never binds, so the gate is a per-pose bias rating
    (G1 0.213 to 1.06 N, H1 0.279 to 1.31 N). Next: what sets the weakest poses' ratings, and can a second calibration
    pose raise them; dynamics.
+69. **Two calibration poses** (done 2026-11-22, `experiments/m69_tworef/`): the compensated residual is the press
+   pose's error minus the reference's, so J re-references by subtraction (H266 held to 4e-14 mm/N on 8 new loads,
+   seed 69) and milestone 67's table picks the best reference pair offline (G1 0.6 m and 1.0 m, H1 0.8 m and 1.4 m).
+   The weakest bias rating rises from 0.213 to 0.530 N (G1) and 0.279 to 0.564 N (H1) (H268 held); no gate-passed
+   press leaves 0.03 mm (H267 held); gate coverage at 0.4 N 100% and 99.3% (from 58% and 85%; H270 held), at 0.6 N
+   63% and 84% (from 21% and 52%; H269 held). Next: a bias that drifts between calibration and press; dynamics.
 
 ## Target venue
 
