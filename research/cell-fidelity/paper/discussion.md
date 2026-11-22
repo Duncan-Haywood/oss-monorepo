@@ -141,6 +141,17 @@ work. Two consequences for a reader:
   separate such a set from a plating cell, so the condition for correcting has to come from mechanism
   (how far one reaction dominates the early lithium loss), not from the training errors alone.
 
+- Milestone 7y tries the two signals that were left: a mechanism gate (correct only where plating is at least 90%
+  of the lithium lost over cycles 2 to 10) and a drift-size gate (correct only where the training designs' median
+  |m &minus; 1| is at least 0.10), both fixed before they were scored. Neither separates the sets. Plating is 99.1 to
+  99.9% of the early loss on every design of `Chen2020`, `OKane2022` and `NCA_Kim2011`, so the plating gate repeats
+  7x's choice (17 of 20 at 45.4 cycles). The committed sets drift per design as far as the plating cells (median
+  |m &minus; 1| 0.12 to 0.26, against 0.19 and 0.42 at f = 30), only in both directions, so the drift gate is on almost
+  everywhere and costs +3.25 cycles per design against triage alone. A per-set oracle that knows the held-out
+  outcome picks the straight forecast on all four committed sets. So the correction's value is confined to the
+  tuned plating cells, and no training-pool signal in this programme states that condition in advance:
+  `NCA_Kim2011` has one-directional drift (0.23) and plating-dominated loss and still misses one held-out pool.
+
 ## 5.4 Limitations and next steps
 
 Every limitation of section 4.8 carries over. Specific to this section: the fixed cost is measured on two
