@@ -872,3 +872,71 @@ ENDSEC;END-ISO-10303-21;`;
   const g2 = geometryLookup(await measureModel(other, { weights: false }));
   assert.equal(fillModel(IDS, other, { ...resources(), geometry: g2, random }).written, 0);
 });
+
+test("a Revit wall opening that is not one extrusion is read from its faces: through the host, Width upright (2019 on), Area the largest face square to it", async () => {
+  const { openingBodyLines: L } = await import("./geometry-quantities.mjs");
+  // kleine_Wohnung's stepped window cut (m): 1.65 x 2.35 through 0.24 m of masonry, 1.59 x 2.15 through 0.26 m more
+  const boxes = [[[-3.025, -2.785], [1.979, 3.629], [503.0, 505.35]], [[-3.285, -3.025], [2.009, 3.599], [503.17, 505.32]]];
+  const planes = [
+    { n: [1, 0, 0], area: 1.65 * 2.35 }, { n: [-1, 0, 0], area: 1.65 * 2.35 - 1.59 * 2.15 }, { n: [-1, 0, 0], area: 1.59 * 2.15 },
+    { n: [0, 1, 0], area: 0.24 * 2.35 }, { n: [0, -1, 0], area: 0.24 * 2.35 }, { n: [0, 1, 0], area: 0.26 * 2.15 }, { n: [0, -1, 0], area: 0.26 * 2.15 },
+    { n: [0, 0, 1], area: 0.24 * 1.65 }, { n: [0, 0, -1], area: 0.24 * 1.65 }, { n: [0, 0, 1], area: 0.26 * 1.59 }, { n: [0, 0, -1], area: 0.26 * 1.59 },
+  ];
+  const extent = (n) => {
+    const i = n.findIndex((c) => Math.abs(c) > 0.5);
+    return Math.max(...boxes.map((b) => b[i][1])) - Math.min(...boxes.map((b) => b[i][0]));
+  };
+  const r = L(planes, extent, [1, 0, 0], "revit-2019");
+  const round = (o) => Object.fromEntries(Object.entries(o).filter(([k]) => k !== "through").map(([k, v]) => [k, +v.toFixed(4)]));
+  // the window is 1.65 wide and 2.35 high; Revit 2019 on writes the upright side as Width
+  assert.deepEqual(round(r), { width: 2.35, height: 1.65, depth: 0.5, area: 3.8775 });
+  // Revit 2010: Width across
+  assert.deepEqual(round(L(planes, extent, [1, 0, 0], "revit-2010")), { width: 1.65, height: 2.35, depth: 0.5, area: 3.8775 });
+  // a host slightly off the opening's axes still picks the nearer candidate
+  assert.equal(+L(planes, extent, [0.999, 0.04, 0], "revit-2019").depth.toFixed(4), 0.5);
+  // a skewed face (square to neither horizontal axis): no through direction; another tool or no host: nothing
+  const none = { width: null, height: null, depth: null, area: null, through: null };
+  assert.deepEqual(L([...planes, { n: [0.6, 0.48, 0.64], area: 0.1 }], extent, [1, 0, 0], "revit-2019"), none);
+  assert.deepEqual(L(planes, extent, [1, 0, 0], "archicad"), none);
+  assert.deepEqual(L(planes, extent, null, "revit-2019"), none);
+});
+
+test("the fill writes a Revit brep opening's quantities through a turned wall's thickness, not along the wall", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  // a 4 m wall placed along world y (its local x), 240 mm thick across world x;
+  // a faceted box opening in world axes, 600 mm through x, 1 m along y, 1.2 m high
+  const P = [[-300, 1000, 800], [300, 1000, 800], [300, 2000, 800], [-300, 2000, 800], [-300, 1000, 2000], [300, 1000, 2000], [300, 2000, 2000], [-300, 2000, 2000]];
+  const F = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]];
+  const pts = P.map((p, i) => `#${100 + i}=IFCCARTESIANPOINT((${p.map((c) => c.toFixed(1)).join(",")}));`).join("");
+  const faces = F.map((f, i) => `#${120 + i * 3}=IFCPOLYLOOP((${f.map((j) => `#${100 + j}`).join(",")}));#${121 + i * 3}=IFCFACEOUTERBOUND(#${120 + i * 3},.T.);#${122 + i * 3}=IFCFACE((#${121 + i * 3}));`).join("");
+  const model = (app) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCORGANIZATION($,'Autodesk',$,$,$);#2=IFCAPPLICATION(#1,'2022','${app}','Revit');
+#3=IFCPERSON($,$,$,$,$,$,$,$);#4=IFCPERSONANDORGANIZATION(#3,#1,$);#5=IFCOWNERHISTORY(#4,#2,$,.ADDED.,$,$,$,0);
+#10=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);#11=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);#12=IFCUNITASSIGNMENT((#10,#11));
+#20=IFCCARTESIANPOINT((0.,0.,0.));#21=IFCDIRECTION((0.,0.,1.));#22=IFCDIRECTION((0.,1.,0.));#23=IFCAXIS2PLACEMENT3D(#20,$,$);
+#24=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-5,#23,$);
+#30=IFCPROJECT('0p000000000000000000aa',#5,'P',$,$,$,$,(#24),#12);
+#40=IFCLOCALPLACEMENT($,#23);
+#41=IFCAXIS2PLACEMENT3D(#20,#21,#22);#42=IFCLOCALPLACEMENT($,#41);
+#50=IFCCARTESIANPOINT((2000.,0.));#51=IFCAXIS2PLACEMENT2D(#50,$);#52=IFCRECTANGLEPROFILEDEF(.AREA.,$,#51,4000.,240.);
+#53=IFCEXTRUDEDAREASOLID(#52,#23,#21,2500.);#54=IFCSHAPEREPRESENTATION(#24,'Body','SweptSolid',(#53));
+#55=IFCCARTESIANPOINT((0.,0.));#56=IFCCARTESIANPOINT((4000.,0.));#57=IFCPOLYLINE((#55,#56));#58=IFCSHAPEREPRESENTATION(#24,'Axis','Curve2D',(#57));
+#59=IFCPRODUCTDEFINITIONSHAPE($,$,(#58,#54));
+#60=IFCWALL('0w000000000000000000aa',#5,'W',$,$,#42,#59,$,.STANDARD.);
+${pts}${faces}
+#140=IFCCLOSEDSHELL((${F.map((_, i) => `#${122 + i * 3}`).join(",")}));#141=IFCFACETEDBREP(#140);
+#142=IFCSHAPEREPRESENTATION(#24,'Body','Brep',(#141));#143=IFCPRODUCTDEFINITIONSHAPE($,$,(#142));
+#150=IFCOPENINGELEMENT('0o000000000000000000aa',#5,'V',$,$,#40,#143,$,.OPENING.);
+#151=IFCRELVOIDSELEMENT('0r000000000000000000aa',#5,$,$,#60,#150);
+ENDSEC;END-ISO-10303-21;`;
+  const IDS = ids(["Width", "Height", "Depth"].map((n) => spec("IFCOPENINGELEMENT", prop("Qto_OpeningElementBaseQuantities", n, "IFCLENGTHMEASURE"))).join("") + spec("IFCOPENINGELEMENT", prop("Qto_OpeningElementBaseQuantities", "Area", "IFCAREAMEASURE")));
+  const text = model("Autodesk Revit 2022 (DEU)");
+  const geometry = geometryLookup(await measureModel(text, { weights: false }));
+  const r = fillModel(IDS, text, { ...resources(), geometry, random });
+  const got = Object.fromEntries(r.writtenList.map((w) => [w.prop, +Number(w.value).toFixed(4)]));
+  // Width the upright 1.2 m, Height the 1 m across, Depth the 0.6 m through the wall (not the 1 m along it)
+  assert.deepEqual(got, { Width: 1200, Height: 1000, Depth: 600, Area: 1.2 });
+  assert.equal(r.after.pass, true);
+  // Revit 2011 to 2018 and other tools: nothing
+  const old = model("Autodesk Revit 2015");
+  assert.equal(fillModel(IDS, old, { ...resources(), geometry: geometryLookup(await measureModel(old, { weights: false })), random }).written, 0);
+});

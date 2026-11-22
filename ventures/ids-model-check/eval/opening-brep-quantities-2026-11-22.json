@@ -1,0 +1,2661 @@
+{
+ "files": {
+  "ISSUE_159_kleine_Wohnung_R22.ifc": {
+   "convention": "revit-2019",
+   "wallOpenings": 151,
+   "brep": 102
+  },
+  "ISSUE_068_ARK_NUS_skolebygg.ifc": {
+   "convention": "revit-2019",
+   "wallOpenings": 778,
+   "brep": 0
+  }
+ },
+ "stored": {
+  "Width": {
+   "stored": 824,
+   "offered": 824,
+   "within1": 662,
+   "misses": 162
+  },
+  "Height": {
+   "stored": 824,
+   "offered": 824,
+   "within1": 662,
+   "misses": 162
+  },
+  "Depth": {
+   "stored": 738,
+   "offered": 738,
+   "within1": 738,
+   "misses": 0
+  },
+  "Area": {
+   "stored": 1,
+   "offered": 1,
+   "within1": 1,
+   "misses": 0
+  }
+ },
+ "pairs": {
+  "ISSUE_159_kleine_Wohnung_R22.ifc": {
+   "as read": 49
+  },
+  "ISSUE_068_ARK_NUS_skolebygg.ifc": {
+   "as read": 613,
+   "swapped (Width across)": 162
+  }
+ },
+ "brep": {
+  "beside": {
+   "openings": 52,
+   "offered": 52,
+   "widthIsWindowHeight": 52,
+   "heightIsWindowWidth": 52,
+   "areaIsWxH": 52
+  },
+  "depth 0.500 m": 40,
+  "depth 0.620 m": 62,
+  "fills": {
+   "openings": 50,
+   "offered": 50,
+   "widthIsWindowHeight": 50,
+   "heightIsWindowWidth": 50,
+   "areaIsWxH": 50
+  }
+ },
+ "misses": [
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 43899,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.245,
+   "read": 3
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 43899,
+   "part": "stored",
+   "q": "Height",
+   "stored": 3,
+   "read": 1.245
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 43927,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 43927,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 43954,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.34,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 43954,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.34
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 43981,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 43981,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44008,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.3409,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44008,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.3409
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44035,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 2.19
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44035,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.19,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44062,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.3378,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44062,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.3378
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44089,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.2602,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44089,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 1.2602
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44116,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.38,
+   "read": 2.19
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44116,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.19,
+   "read": 1.38
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44143,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.73,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44143,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.73
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44170,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44170,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44197,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.116,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44197,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.116
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44224,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.116,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44224,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.116
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44251,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.106,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44251,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.106
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44278,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.3258,
+   "read": 2.26
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 44278,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.26,
+   "read": 0.3258
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 52021,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.2735,
+   "read": 2.43
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 52021,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.43,
+   "read": 0.2735
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 52052,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.473,
+   "read": 2.43
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 52052,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.43,
+   "read": 0.473
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 52496,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.473,
+   "read": 2.43
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 52496,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.43,
+   "read": 0.473
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 52527,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.2735,
+   "read": 2.43
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 52527,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.43,
+   "read": 0.2735
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53044,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.2837,
+   "read": 2.26
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53044,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.26,
+   "read": 0.2837
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53392,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53392,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53420,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.213,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53420,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 1.213
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53447,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.106,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53447,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.106
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53610,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.8563,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53610,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 0.8563
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53638,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.106,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 53638,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 0.106
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54567,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.334,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54567,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.334
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54595,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.3383,
+   "read": 2.195
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54595,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.195,
+   "read": 1.3383
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54622,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.351,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54622,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.351
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54649,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.603,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54649,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.603
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54676,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54676,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54703,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.3497,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54703,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.3497
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54730,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.386,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54730,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.386
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54757,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.386,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54757,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.386
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54784,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.1463,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54784,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.1463
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54811,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.116,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 54811,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.116
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143286,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.226,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143286,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 1.226
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143314,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.338,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143314,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.338
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143341,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.116,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143341,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.116
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143509,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.8563,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143509,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 0.8563
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143537,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.116,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143537,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 0.116
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143855,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143855,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143883,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.74,
+   "read": 2.19
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143883,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.19,
+   "read": 0.74
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143910,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.343,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143910,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.343
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143937,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.343,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143937,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 0.343
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143964,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.343,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143964,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.343
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143991,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.7432,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 143991,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.7432
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144018,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.7095,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144018,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.7095
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144045,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.4017,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144045,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.4017
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144072,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.1015,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144072,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.1015
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144099,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.1177,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144099,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.1177
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144362,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.6338,
+   "read": 1.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144362,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.6,
+   "read": 0.6338
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144390,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.427,
+   "read": 1.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144390,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.6,
+   "read": 0.427
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144417,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 1.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144417,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.6,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144586,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.336,
+   "read": 1.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144586,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.6,
+   "read": 0.336
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144614,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.1015,
+   "read": 1.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 144614,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.6,
+   "read": 1.1015
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 230844,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.134,
+   "read": 2.1
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 230844,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.1,
+   "read": 0.134
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 231206,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.51,
+   "read": 2.1
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 231206,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.1,
+   "read": 1.51
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 349787,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.228,
+   "read": 2.8
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 349787,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.8,
+   "read": 0.228
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 358964,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.228,
+   "read": 2.8
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 358964,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.8,
+   "read": 0.228
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 426800,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.121,
+   "read": 2.66
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 426800,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.66,
+   "read": 0.121
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 544696,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 544696,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.42,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 556498,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.134,
+   "read": 2.2434
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 556498,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2434,
+   "read": 0.134
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 556816,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.2969,
+   "read": 2.2434
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 556816,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2434,
+   "read": 1.2969
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 627312,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 627312,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 627584,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 627584,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 627943,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 627943,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 628204,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 628204,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 628438,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.02,
+   "read": 2.215
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 628438,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.215,
+   "read": 3.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 628469,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 628469,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 628747,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 628747,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629047,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629047,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629279,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629279,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629463,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629463,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629815,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629815,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629846,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 629846,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 632543,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 632543,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 632781,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 632781,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 0.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 632812,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 632812,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 633080,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 633080,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 0.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 633316,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 633316,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 633347,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 633347,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 0.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 633583,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 633583,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 638037,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 638037,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 638275,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 638275,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 638544,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 638544,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 638575,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 638575,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 639095,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 639095,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 639545,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 639545,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 639576,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.32,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 639576,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.32
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 640180,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.02,
+   "read": 2.215
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 640180,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.215,
+   "read": 3.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 640530,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.02,
+   "read": 2.215
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 640530,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.215,
+   "read": 3.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 640807,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 640807,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 640838,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 640838,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641076,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641076,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641260,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641260,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641444,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641444,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641475,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641475,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641746,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.32,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 641746,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.32
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 642006,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 642006,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 642544,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.32,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 642544,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.32
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 642783,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.02,
+   "read": 2.215
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 642783,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.215,
+   "read": 3.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 642814,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.02,
+   "read": 2.215
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 642814,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.215,
+   "read": 3.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 643053,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 643053,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 643084,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 643084,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 643320,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 643320,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 643504,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 643504,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 649844,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 649844,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 650057,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 650057,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 650287,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 650287,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 650500,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 650500,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 650737,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.12,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 650737,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 2.12
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 651357,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 651357,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 651622,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 651622,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 651653,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 651653,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 651919,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.32,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 651919,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.32
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 652156,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.12,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 652156,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 2.12
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 652187,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.12,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 652187,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 2.12
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 652464,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.92,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 652464,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 1.92
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 885753,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 885753,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 891599,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.6,
+   "read": 1.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 891599,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.6,
+   "read": 0.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 893151,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.386,
+   "read": 2.21
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 893151,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.21,
+   "read": 0.386
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 893179,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.0287,
+   "read": 2.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 893179,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.2,
+   "read": 1.0287
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 924313,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 924313,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 924344,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.42,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 924344,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1184877,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.121,
+   "read": 0.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1184877,
+   "part": "stored",
+   "q": "Height",
+   "stored": 0.6,
+   "read": 0.121
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1184908,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.121,
+   "read": 0.6
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1184908,
+   "part": "stored",
+   "q": "Height",
+   "stored": 0.6,
+   "read": 0.121
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1204878,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.196,
+   "read": 2.5
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1204878,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.5,
+   "read": 0.196
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1206610,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.8,
+   "read": 2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1206610,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2,
+   "read": 0.8
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1246745,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.12,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1246745,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 2.12
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1247023,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.12,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1247023,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 2.12
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1247290,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.92,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1247290,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 1.92
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1247740,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.42,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1247740,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 1.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1247771,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.12,
+   "read": 1.62
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1247771,
+   "part": "stored",
+   "q": "Height",
+   "stored": 1.62,
+   "read": 2.12
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1320415,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.2,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1320415,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 0.2
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1364399,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.6891,
+   "read": 2.999
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1364399,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.999,
+   "read": 2.6891
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1375215,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1375215,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.42,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1375246,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1375246,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.42,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1375478,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.42
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1375478,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.42,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1380147,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.444,
+   "read": 2.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1380147,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.02,
+   "read": 3.444
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1388830,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.32,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1388830,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.32
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1399745,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.02,
+   "read": 2.215
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1399745,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.215,
+   "read": 3.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1399776,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.82,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1399776,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.82
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401041,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.02,
+   "read": 2.215
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401041,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.215,
+   "read": 3.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401224,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.72,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401224,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.72
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401255,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.32,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401255,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.32
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401491,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.72,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401491,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.72
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401673,
+   "part": "stored",
+   "q": "Width",
+   "stored": 2.32,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401673,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 2.32
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401704,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.02,
+   "read": 2.215
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1401704,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.215,
+   "read": 3.02
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1402122,
+   "part": "stored",
+   "q": "Width",
+   "stored": 3.52,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1402122,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 3.52
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1402153,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.22,
+   "read": 2.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1402153,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.22,
+   "read": 1.22
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1459415,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.2735,
+   "read": 2.43
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1459415,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.43,
+   "read": 0.2735
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1520392,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.11,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1520392,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 1.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1520420,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.01,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1520420,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 1.01
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1578001,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.01,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1578001,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 1.01
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1578569,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.81,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1578569,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 0.81
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1579046,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.81,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1579046,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 0.81
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1579426,
+   "part": "stored",
+   "q": "Width",
+   "stored": 0.81,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1579426,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 0.81
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1580085,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.01,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1580085,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 1.01
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1580623,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.01,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1580623,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 1.01
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1580930,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.01,
+   "read": 2.11
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1580930,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.11,
+   "read": 1.01
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1581152,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.01,
+   "read": 2.1
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1581152,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.1,
+   "read": 1.01
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1581902,
+   "part": "stored",
+   "q": "Width",
+   "stored": 1.445,
+   "read": 2.1175
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "id": 1581902,
+   "part": "stored",
+   "q": "Height",
+   "stored": 2.1175,
+   "read": 1.445
+  }
+ ]
+}

@@ -1261,11 +1261,73 @@ export function openingElementLines(items, convention, hostWidth = null) {
   return out;
 }
 
+// ---- a Revit wall opening whose body is not one extrusion -----------------
+//
+// Revit 2022 writes some wall openings as an IfcAdvancedBrep (102 of 168 in
+// kleine_Wohnung: a window's cut through an ETICS wall, 1.65 x 2.35 m through
+// the masonry and a stepped 1.59 x 2.15 m through the insulation; its twin in
+// the separate insulation wall) and stores no quantities on them, where its
+// extrusion openings store all four. Read the body's faces instead
+// (eval/opening-brep-quantities-2026-11-22.md):
+//   through   a horizontal face normal t such that every face is parallel or
+//             square to it (a box, a stepped box, a round cut); of the two a
+//             box offers, the one closest to the host wall's thickness
+//             direction. A sloped or skewed face: nothing offered.
+//   Width/Height  the body's upright extent and its extent across t on the
+//             level, assigned as the same Revit version's extrusion
+//             openings assign them (2019 on: Width upright; 2010: across).
+//   Depth     the extent along t (Revit's Depth is its cutter's length).
+//   Area      the largest face square to t (a stepped cut's outer section, a
+//             plain cut's profile).
+// The same reading on the extrusion openings that store the set gives the
+// stored figures (the eval's first table), and on the brep windows' cuts
+// gives each window's own Revit Width and Height (its second).
+
+const PARALLEL = 1 - 1e-6, SQUARE = 1e-6;
+
+/**
+ * A wall opening's quantities (SI) read from its body's planes.
+ * @param {Array<{n: number[], area: number}>} planes the body's planes (planeAreas), world axes, model units
+ * @param {(n: number[]) => number} extent the body's extent along a unit vector, model units
+ * @param {number[]|null} hostNormal the host wall's thickness direction (horizontal unit vector)
+ * @param {string|null} convention openingElementConvention ('revit-2019' or 'revit-2010'; others offer nothing)
+ * @param {number} f the length unit in metres
+ * @returns {{width: number|null, height: number|null, depth: number|null, area: number|null, through: number[]|null}}
+ */
+export function openingBodyLines(planes, extent, hostNormal, convention, f = 1) {
+  const out = { width: null, height: null, depth: null, area: null, through: null };
+  if (!planes?.length || !hostNormal || !/^revit-/.test(convention || "")) return out;
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cands = [];
+  for (const { n } of planes) {
+    if (Math.abs(n[2]) > SQUARE) continue;
+    const h = Math.hypot(n[0], n[1]);
+    const t = [n[0] / h, n[1] / h, 0];
+    if (cands.some((c) => Math.abs(dot(c, t)) > PARALLEL)) continue;
+    if (planes.every((p) => { const c = Math.abs(dot(p.n, t)); return c > PARALLEL || c < SQUARE; })) cands.push(t);
+  }
+  if (!cands.length) return out;
+  const t = cands.reduce((a, b) => (Math.abs(dot(b, hostNormal)) > Math.abs(dot(a, hostNormal)) + 1e-9 ? b : a));
+  const across = [-t[1], t[0], 0];
+  const up = extent([0, 0, 1]) * f, side = extent(across) * f, depth = extent(t) * f;
+  let area = 0;
+  for (const p of planes) if (Math.abs(dot(p.n, t)) > PARALLEL) area = Math.max(area, p.area);
+  area *= f * f;
+  // a face square to t can be no larger than the body's section box
+  if (!(area > 0) || area > up * side * (1 + 1e-6)) area = null;
+  out.through = t;
+  out.depth = depth;
+  out.area = area;
+  if (convention === "revit-2010") { out.width = side; out.height = up; }
+  else { out.width = up; out.height = side; }
+  return out;
+}
+
 /**
  * Adds each opening element's Qto_OpeningElementBaseQuantities (openingElementLines)
  * to `out` (STEP id -> name -> {value, kind}). Returns how many openings got any.
  */
-export function addOpeningElementQuantities(out, model, rows, { Geometry, readUnits, apply, mul }) {
+export function addOpeningElementQuantities(out, model, rows, { Geometry, readUnits, apply, mul, transformSolid = null, planeAreas = null, solidExtent = null, thinnestNormal = null }) {
   const E = model.entities;
   const ref = (v) => (v && typeof v === "object" && "ref" in v ? v.ref : null);
   const str = (x) => (typeof x === "string" ? x : x?.value);
@@ -1318,20 +1380,63 @@ export function addOpeningElementQuantities(out, model, rows, { Geometry, readUn
         }
         items.push(it);
       }
-      if (!plain || !items.length) continue;
       const hr = rowOf.get(host.get(e.id));
+      if (!plain && /^revit-/.test(convention) && transformSolid && planeAreas && solidExtent && thinnestNormal) {
+        // a Revit wall opening written as a brep (openingBodyLines)
+        const hn = hr && WALL.test(hr.ifcType) ? hostThickness(model, geo, E.get(host.get(e.id)), hr, { thinnestNormal, apply }) : null;
+        if (!hn) continue;
+        const body = transformSolid(geo.representation(rid), W);
+        const planes = planeAreas(body);
+        if (!planes || !body.shells) continue;
+        const q = openingBodyLines(planes, (v) => { const [lo, hi] = solidExtent(body, v); return hi - lo; }, hn, convention, f);
+        setOpeningLines(out, e.id, q) && n++;
+        continue;
+      }
+      if (!plain || !items.length) continue;
       const hostWidth = hr && WALL.test(hr.ifcType) && hr.computed?.status === "ok" ? hr.computed.areas?.side?.width ?? null : null;
       const q = openingElementLines(items, convention, hostWidth);
-      let m = null;
-      for (const [name, kind, v] of [["Width", "length", q.width], ["Height", "length", q.height], ["Depth", "length", q.depth], ["Area", "area", q.area]]) {
-        if (!usable(v)) continue;
-        if (!m) m = out.get(e.id) || new Map();
-        m.set(name, { value: v, kind });
-      }
-      if (m) { out.set(e.id, m); n++; }
+      if (setOpeningLines(out, e.id, q)) n++;
     } catch { /* an unread opening offers nothing */ }
   }
   return n;
+}
+
+/**
+ * A wall's thickness direction in world axes: square to its straight 'Axis'
+ * on the level, or, with none, the horizontal normal its body is thinnest
+ * across (wrong on a stub shorter than it is thick, which the axis avoids:
+ * ARK_NUS's 0.33 m long, 0.41 m thick pieces). null when neither reads.
+ */
+export function hostThickness(model, geo, wall, row, { thinnestNormal, apply }) {
+  let local = null;
+  const ax = straightAxis(model, geo, wall);
+  if (ax) local = [-ax[1], ax[0], 0];
+  else {
+    const body = row?.computed?.solids?.body;
+    const tn = body ? thinnestNormal(body, (v) => Math.abs(v[2]) < UPRIGHT_TOL) : null;
+    local = tn?.n ?? null;
+  }
+  if (!local) return null;
+  // the axis and the body are in the wall's own placement's axes
+  return worldDir(apply, geo.objectPlacement(wall.args[5]?.ref), local);
+}
+
+/** A direction under a placement matrix, as a unit vector. */
+export function worldDir(apply, m, d) {
+  const o = apply(m, [0, 0, 0]), e = apply(m, d);
+  const v = [e[0] - o[0], e[1] - o[1], e[2] - o[2]], L = Math.hypot(v[0], v[1], v[2]);
+  return L > 0 ? v.map((c) => c / L) : null;
+}
+
+function setOpeningLines(out, id, q) {
+  let m = null;
+  for (const [name, kind, v] of [["Width", "length", q.width], ["Height", "length", q.height], ["Depth", "length", q.depth], ["Area", "area", q.area]]) {
+    if (!usable(v)) continue;
+    if (!m) m = out.get(id) || new Map();
+    m.set(name, { value: v, kind });
+  }
+  if (m) out.set(id, m);
+  return !!m;
 }
 
 // ---- a Revit door's or window's size, from the parameters it exports -------
@@ -1547,7 +1652,7 @@ export async function measureModel(ifcText, opts = {}) {
   const base = opts.dir ? new URL(String(opts.dir).replace(/\/?$/, "/"), import.meta.url) : new URL("../ifc-quantity-takeoff/", import.meta.url);
   const { parseStep } = await import(new URL("step.mjs", base).href);
   const { takeoff, readUnits } = await import(new URL("qto.mjs", base).href);
-  const { Geometry, polyPlanes, asTerms, solidExtent, sectionArea, mul, invert, transformSolid, apply } = await import(new URL("geom.mjs", base).href);
+  const { Geometry, polyPlanes, asTerms, solidExtent, sectionArea, mul, invert, transformSolid, apply, planeAreas, thinnestNormal } = await import(new URL("geom.mjs", base).href);
   const model = parseStep(ifcText);
   const { rows, rooms } = takeoff(model);
   addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
@@ -1558,7 +1663,7 @@ export async function measureModel(ifcText, opts = {}) {
   addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms });
   addRevitSizeLines(model, rows, { readUnits });
   const out = addSpaceQuantities(quantitiesFromRows(rows), model, rooms, rows);
-  addOpeningElementQuantities(out, model, rows, { Geometry, readUnits, apply, mul });
+  addOpeningElementQuantities(out, model, rows, { Geometry, readUnits, apply, mul, transformSolid, planeAreas, solidExtent, thinnestNormal });
   if (opts.weights === false) return out;
   const densities = opts.densities instanceof Map ? opts.densities : parseDensities(opts.densities || "");
   return addWeights(out, memberWeights(model, rows, { densities }));

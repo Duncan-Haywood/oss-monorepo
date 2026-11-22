@@ -33,3 +33,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) door/window sizes 2026-11-22, ARCHICAD 377/380, Revit 796/800
 - (moved 2026-11-22) Editor repair on open, bare \w/\s, subclass boxes 2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*, eval/deprecated-subclasses-*)
 - (moved 2026-11-22) Model fill 2026-11-21 (model-fill.mjs, cli --fill, page panel: IDS-fixed and table-typed property values into a copy of the .ifc; eval/model-fill-2026-11-21.md)
+- (moved 2026-11-22) railing Length 2026-11-22 (29/29 within 0.05%, eval/railing-lengths-2026-11-22.md)

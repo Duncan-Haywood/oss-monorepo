@@ -1,0 +1,5 @@
+ISSUE_159_kleine_Wohnung_R22.ifc: 672 written (672 from geometry) in 7.0 s; filled model passes every check: true, failing before 672, after 0; written values verified 672 of 672; left in the to-fill table 0
+  Width: 168 written, 64 of 64 stored rewritten, 64 within 1% (worst 0.000%)
+  Height: 168 written, 64 of 64 stored rewritten, 64 within 1% (worst 0.000%)
+  Depth: 168 written, 66 of 66 stored rewritten, 66 within 1% (worst 0.000%)
+  Area: 168 written, 2 of 2 stored rewritten, 2 within 1% (worst 0.000%)
