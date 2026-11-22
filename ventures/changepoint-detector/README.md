@@ -9475,3 +9475,46 @@ Next (most useful first): if a growth check is tried again, score it against a n
 history (the drift detector's level noise, or a per-shop bootstrap of the weeks before), so its false-alert rate is
 set rather than measured after; and read how far x1.3 over 4 to 8 weeks is from the information limit at these shops' weekly noise
 (roughly 0.07 to 0.17 in the log, a back-of-envelope figure, not measured; the half of the shops with `s` of 0.30 or more may simply be past it).
+
+## Plausible Analytics as a source (2026-11-22)
+
+Plausible is the analytics many small sites and indie products pick instead of Google Analytics: no cookies, one
+script, a dashboard and a Stats API key in a few clicks, and no Google Cloud project or service account. It was the
+obvious missing source beside Stripe, Shopify, Search Console and GA4, and the one a person who wants "tell me when
+sign-ups stop" is most likely to already have.
+
+- **What it does.** `plausible-metrics.mjs` asks the Stats API v2 (`POST /api/v2/query`, dimension `time:day`) for
+  visitors, visits and page views per day (`--metrics` takes others: events, bounce_rate, visit_duration,
+  views_per_visit, scroll_depth, time_on_page), and for each `--goal <name>` (up to five) the same query filtered to
+  that goal with the metric `events`, written as a column `goal_<name>` of daily conversions. A goal is where the
+  quiet failures show: a form that stops sending its goal while traffic looks fine. An existing CSV is extended, the
+  last `--refetch` days (default 2) asked again; `--imports` counts history imported into Plausible from Google
+  Analytics or a CSV, for a longer baseline than the site has had Plausible; `PLAUSIBLE_URL` points it at a
+  self-hosted Plausible (https only, since the key is sent there; a loopback http address for tests).
+- **Empty days are real zeros.** GA4's tool waits on a run of empty days at the end, because Google may still be
+  processing them. Plausible counts live, so a day with no row is written as zeros right to yesterday: a tag that fell
+  off every page is a zero the watch should see. A fetch where every day is empty, or a goal with no conversion in 28
+  days, prints a note naming the likely cause (the site's name in Plausible, the goal's name).
+- **In the workflow.** Secret `PLAUSIBLE_API_KEY`, variable `PLAUSIBLE_SITE`, optional `PLAUSIBLE_OPTIONS`
+  (`--goal Signup --goal "Visit /thanks"`, read as a shell reads it, so a quoted name with a space stays one goal) and
+  `PLAUSIBLE_URL`. With `METRIC_CSV` unset and no other source, the watch follows visitors, page views and every
+  `goal_` column the fetch wrote, as counts; `WATCH_WEEKLY=on` adds weekly visitors. The CSV is cached, never committed;
+  the no-terminal set-up on the watch page and `make-watch-repo.sh` both carry the new module.
+- **Which columns by default** (`eval/plausible-columns.mjs`, 40 simulated sites with faults and 40 without, 242 days
+  each, about 400 visitors a weekday with weekends at half, 2% signing up; a fault is heard when the watch dates it
+  within 7 days). A tag lost from 40% of pages: heard in visitors on 40 of 40, visits 40, page views 40. A form losing
+  65% of its sign-ups (about 8 a day to 3): heard in the goal column on 38 of 40. On the 40 sites with no fault,
+  visitors, visits and page views sent no false date at all; the goal column sent 3 false dates on 2 sites, and 4 more
+  on the faulted sites. Visits add nothing visitors do not hear, so they are fetched but not watched by default.
+  In a variant with one more random draw per day the counts moved by one or two (page views 38 of 40, visits 39): treat
+  them as rates of about 95-100%, not exact.
+- **How it was checked** (`plausible-metrics.test.mjs`, 6 tests, a stand-in for the Stats API v2 that leaves out
+  days with nothing to count, as Plausible does, and pages at 50 rows): the request body (site_id, metrics,
+  date_range, time:day, goal filter, include.imports), paging, zero-filled days, goal columns matched to the right
+  goal, the refetch keeping earlier rows byte for byte, the errors (refused key 401, unknown site and unknown goal 400,
+  no Stats API on the plan 402, no key, a goal named twice, a sixth goal), the watch hearing a lost tag and a broken
+  form on one seeded site, and the whole self-deploy workflow (`deploy/run-workflow.mjs`) fetching 480 days with two
+  goals, watching four columns, never printing the key and never committing the CSV.
+- **Not checked.** No Plausible account was used: the request and answer shapes follow Plausible's published Stats API
+  v2 documentation, not a live call. Whether the Stats API needs a paid plan tier for a given account is Plausible's
+  call; the tool names a 402 as that.
