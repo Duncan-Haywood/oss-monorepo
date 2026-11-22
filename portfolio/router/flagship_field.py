@@ -589,8 +589,10 @@ DATE = re.compile(r"\b20\d\d-\d\d-\d\d\b")
 # cell, real orders", "(w) watch ... next: its four links tried", inside
 # brackets so not an open marker) moved to HISTORY.md as finished work. A
 # result kept in the row costs a few characters; open work filed as history
-# is lost from the open list.
-OPENISH = re.compile(r"\b(?:open|next|wanted|needs?|miss(?:es|ing)?|not (?:yet|done)|to do|todo)\b",
+# is lost from the open list. "unsettled", "unresolved", "pending": PR
+# #18173 moved "IQ4 matrix vs LibRaw's dE 16, unsettled" to HISTORY.md.
+OPENISH = re.compile(r"\b(?:open|next|wanted|needs?|miss(?:es|ing)?|not (?:yet|done)|to do|todo"
+                     r"|unsettled|unresolved|pending)\b",
                      re.I)
 # Abbreviations whose ". " does not end a sentence.
 _ABBREV = re.compile(r"(?:\b(?:e\.g|i\.e|vs|etc|cf|approx|no|v\d+)|\.\.)$", re.I)
@@ -657,7 +659,16 @@ def history_pieces(value: str, keep: tuple[str, ...] = ()) -> list[tuple[int, in
         piece = v[start:end].strip()
         if not piece or start < first_sentence or start >= last_mark:
             continue
+        # The piece right after "next: " is the open list itself. Why:
+        # on 2026-11-22 (PR #18186) ids-model-check's "next: a page route for
+        # bSDD ...; a BIM manager's real table ...; ... (dropdown lists in it
+        # 2026-11-19, ...)" carried a date in a bracket, so it moved to
+        # HISTORY.md whole and left "next:" dangling in the row. A single
+        # bracketed aside there ("Next, most valuable first: (audit 2026-11-16:
+        # 26 of 27)") is a note on the list, not an item, and may still move.
         if any(ms <= start < me for ms, me in marks):
+            continue
+        if any(start == me for _, me in marks) and not _aside(piece):
             continue
         if not DATE.search(piece) or OPENISH.search(piece):
             continue
@@ -668,6 +679,18 @@ def history_pieces(value: str, keep: tuple[str, ...] = ()) -> list[tuple[int, in
             continue
         out.append((start, start + len(piece)))
     return out
+
+
+def _aside(piece: str) -> bool:
+    """True when `piece` is one bracketed span, "(...)", and nothing else."""
+    if not (piece.startswith("(") and piece.endswith(")")):
+        return False
+    depth = 0
+    for i, ch in enumerate(piece):
+        depth += (ch == "(") - (ch == ")")
+        if depth == 0 and i < len(piece) - 1:
+            return False
+    return depth == 0
 
 
 def remove_span(value: str, start: int, end: int) -> str:
