@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPPZVbWRPBghGfseyY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine; full text in prompts/ventures/prompt-1.md)",
+  "input_sha256": "ddb67bc196b004fd8d4e7672eb7b87da01cf8c833e8f0f33e58ecd8b11084b11",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T02:12:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector: Google Analytics 4 source",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18176",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "the test's Poisson sampler underflowed (exp(-1500)=0) and spun forever; node --test printed nothing until killed, so it read as a hang of the code under test",
+    "venture-preflight caught a literal U+FEFF inside a regex and a generated watch-repo-files.mjs line past check_third_party's 5,000-character bundle threshold"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "I ran a bare `route` first and drew process for the scheduled revenue brief, like several runs before (see measure 'Doc friction'); re-routing with --task picked ventures. The routine's stored prompt could pass --task itself."
+    },
+    {
+      "file": "ventures/changepoint-detector/deploy/build-watch-repo-files.mjs",
+      "issue": "it writes the made repository's README as one JSON string on one line; that line is now 4,897 of the 5,000 characters check_third_party.py reads as a bundle, so the next source added will fail the check unless the generator splits the string."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here pointed at changepoint-detector's next:, whose top items need a live repo or a live property; took a product slice instead: a fourth data source (GA4) for the paid-alternative-replacing watch",
+      "did": "ga4-metrics.mjs + workflow wiring + docs + post",
+      "result": "landed with tests and a clean preflight"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-changepoint-a-free-watch-for-google-analytics-4.md"
+  ],
+  "goal": "deepen flagship 4 (changepoint-detector) toward a self-deployed metric-watch business",
+  "notes": "Verified locally: run_venture_tests.py changepoint-detector ok (1087 tests, 343.6 s) before the last doc commit; after it ga4-metrics, watch-repo, watch-workflow, watch-modules-closed 21/21; venture-preflight clean; check_posts ok; check_hidden_unicode and check_third_party ok. Not checked against a live GA4 property (no key).",
+  "corrections": [],
+  "redteam": null
+}
