@@ -49,6 +49,19 @@ honoured for what systemd.exec(5) says it implies (`NoNewPrivileges=`,
 not reported missing beside it. A drop-in with no unit beside it is checked only
 for what it sets. "Missing" findings point at the unit's `[Service]` line.
 
+Values are parsed the way systemd 255 parses them. A boolean is any of `1`, `yes`,
+`y`, `true`, `t`, `on` (or the `0`/`no`/`n`/`false`/`f`/`off` set), in any case.
+`ProtectSystem=` and `ProtectHome=` also take their own words, which are
+case-sensitive: systemd rejects `ProtectSystem=Strict` and `ProtectHome=Read-Only`.
+An assignment systemd cannot parse (including an empty one, and a trailing
+`# comment`, which is part of the value) is ignored with a warning and the earlier
+value stands; the finding then points at the ignored line and says so. A
+`DynamicUser=` value that is not a boolean is a fatal error: the unit does not load,
+and in a drop-in systemd stops reading that file at that line. `[ Service ]` (spaces
+inside the brackets) is a different section. In `SystemCallFilter=` and
+`RestrictAddressFamilies=` a lone `~` is an empty deny list, which filters nothing,
+and `RestrictAddressFamilies=none` allows no families.
+
 **What it is not:** a security audit, or `systemd-analyze security` (which scores
 a unit loaded on a running machine with its own weights; this tool does not
 reproduce that score). It never runs `systemctl`, does not read
@@ -101,7 +114,7 @@ CLI records nothing.
 
 ```sh
 python3 -m unittest test_check -v
-node --test classify.test.mjs page.test.mjs usage.test.mjs parity-fuzz.test.mjs
+node --test classify.test.mjs page.test.mjs usage.test.mjs parity-fuzz.test.mjs systemd-analyze.test.mjs
 ```
 
 `classify.test.mjs` includes a parity test that runs `check.py` over
@@ -111,6 +124,26 @@ unit) and asserts the browser port produces identical findings and drop-ins.
 keys and odd spellings, with a fixed seed.
 The guide's worked example is checked against the CLI's real output in
 `page.test.mjs`.
+
+**Against systemd itself.** [`eval/systemd-analyze-diff.mjs`](eval/systemd-analyze-diff.mjs)
+builds seeded random unit trees (a unit plus up to three drop-ins, odd boolean
+spellings, invalid and empty values, wrong-case keys and sections, CRLF,
+continuations) and runs each through `systemd-analyze security --offline=yes
+--json=short`, which loads the files with systemd's real parser. Ten finding types
+map onto its tests (root user, `NoNewPrivileges=`, `ProtectSystem=` missing and
+partial, `ProtectHome=`, `PrivateTmp=`, `PrivateDevices=`, kernel protection,
+`SystemCallFilter=`, `RestrictAddressFamilies=`). Run here on 2026-11-22 with
+systemd 255.4 (Ubuntu): before the fixes above, 1,455 of 3,797 loadable trees
+(seed 101) disagreed on at least one finding; after them, on held-out seeds
+101 to 105, 63 of 19,082 trees disagree, every one only in a
+`SystemCallFilter=` or `RestrictAddressFamilies=` deny list made of names systemd
+does not know (it drops unknown names; this tool does not check them). Trees
+systemd refuses to load (a fatal parse error) are skipped. `systemd-analyze.test.mjs`
+runs 400 trees on a fixed seed and skips when systemd-analyze 250+ is absent.
+
+```sh
+node eval/systemd-analyze-diff.mjs --seed 101 --count 4000
+```
 
 ## Status
 

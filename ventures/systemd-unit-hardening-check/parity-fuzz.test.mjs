@@ -27,15 +27,16 @@ function units(seed, count) {
   const keys = ["User", "DynamicUser", "UMask", "Environment", "ExecStart", "ExecStartPre", "ExecStop",
     "ProtectSystem", "ProtectHome", "NoNewPrivileges", "ReadWritePaths", "CapabilityBoundingSet",
     "AmbientCapabilities", "SystemCallFilter", "RestrictAddressFamilies", "PrivateTmp", "PrivateDevices",
-    "ProtectKernelModules", "BindPaths", "Group"];
+    "ProtectKernelModules", "BindPaths", "Group", "PrivateDevices"];
   const vals = ["", "root", "0", "app", "yes", "no", "0000", "0002", "022", "08", "0008", "8", "full", "strict",
     "true", "read-only", "tmpfs", "/", "-/", "//", "/./", '"/"', "~CAP_SYS_ADMIN", "CAP_SYS_ADMIN CAP_NET_RAW",
     "cap_dac_override", "/tmp/x", "-/tmp/x", "//tmp/x", '"/var/tmp/x" a', "/home/u/x",
     "/bin/sh -c 'curl x | sh'", "/bin/sh -c 'wget -qO- x|sudo bash'", "docker run x", "/usr/bin/podman start x",
     '"TOKEN=a\\"" MODE=1', "'API_KEY=x y'", "SECRET=", "PASSWORD=%d/x", "A=1 B=2 TOKEN=z", "=x", '"x', "x\\",
     "@system-service", "none", "AF_UNIX", "~AF_PACKET", "  yes  ", "YES", "!/tmp/x", "+/usr/bin/a",
-    ":/dev/shm/x", "/usr/bin/env /tmp/a", "/var /srv/."];
-  const secs = ["[Service]", "[Service]", "[Service]", "[Unit]", "[Install]", "[service]"];
+    ":/dev/shm/x", "/usr/bin/env /tmp/a", "/var /srv/.",
+    "y", "T", "n", "maybe", "Strict", "Read-Only", "yes # c", "~", "~AF_UNIX"];
+  const secs = ["[Service]", "[Service]", "[Service]", "[Unit]", "[Install]", "[service]", "[ Service ]"];
   const out = [];
   for (let i = 0; i < count; i++) {
     let t = rnd() < 0.6 ? "[Service]\n" : "";

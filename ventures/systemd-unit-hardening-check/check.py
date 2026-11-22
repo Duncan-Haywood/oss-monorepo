@@ -160,7 +160,7 @@ def parse_unit(text, file):
         if not stripped or stripped[0] in "#;":
             continue
         if stripped.startswith("[") and stripped.endswith("]"):
-            section = stripped[1:-1].strip()
+            section = stripped[1:-1]  # systemd does not trim inside the brackets
             if section == "Service" and service_line is None:
                 service_line = start
             continue
@@ -176,8 +176,14 @@ def parse_unit(text, file):
         if "=" not in logical:
             continue
         key, value = logical.split("=", 1)
-        entries.append({"file": file, "line": start, "section": section,
-                        "key": key.strip(), "value": value.strip()})
+        entry = {"file": file, "line": start, "section": section,
+                 "key": key.strip(), "value": value.strip()}
+        entries.append(entry)
+        # A DynamicUser= value that is not a boolean is a fatal error (systemd 255):
+        # in the unit file the unit does not load, and in a drop-in systemd stops
+        # reading that file here, so every line after it is lost.
+        if section == "Service" and entry["key"] == "DynamicUser" and _bool(entry["value"]) is _INVALID:
+            break
     return entries, service_line
 
 
@@ -201,8 +207,92 @@ def _last(entries, key):
     return eff[-1]
 
 
-def _is_true(entry):
-    return entry is not None and entry["value"].lower() in TRUE
+# systemd parses each assignment as it reads it and drops one it cannot parse
+# (with a warning), so the value before it stands. parse_boolean() takes these
+# words in any case; ProtectSystem= and ProtectHome= take a boolean or their own
+# words, which are case-sensitive ("Strict" is rejected). An empty value is not a
+# boolean either, so "NoNewPrivileges=" after "=yes" leaves it on.
+BOOL_TRUE = frozenset(("1", "yes", "y", "true", "t", "on"))
+BOOL_FALSE = frozenset(("0", "no", "n", "false", "f", "off"))
+_INVALID = object()
+
+
+def _bool(v):
+    low = v.lower()
+    return True if low in BOOL_TRUE else False if low in BOOL_FALSE else _INVALID
+
+
+def _bool_or(*words):
+    def parse(v):
+        b = _bool(v)
+        if b is not _INVALID:
+            return "yes" if b else "no"
+        return v if v in words else _INVALID
+    return parse
+
+
+_protect_system = _bool_or("full", "strict")
+_protect_home = _bool_or("read-only", "tmpfs")
+
+
+def _setting(entries, key, parse):
+    """The last assignment of `key` systemd accepts, and a later one it rejected."""
+    s = {"key": key, "entry": None, "value": None, "rejected": None}
+    for e in entries:
+        if e["key"] != key:
+            continue
+        v = parse(e["value"])
+        if v is _INVALID:
+            s["rejected"] = e
+            continue
+        s.update(entry=e, value=v, rejected=None)
+    return s
+
+
+def _at(s, anchor):
+    return s["rejected"] or s["entry"] or anchor
+
+
+def _ignored(s):
+    if not s["rejected"]:
+        return ""
+    tail = f", so the earlier {s['key']}={s['entry']['value']} stands" if s["entry"] else ""
+    return f" systemd ignores {s['key']}={s['rejected']['value']}: it is not a value systemd accepts{tail}."
+
+
+def _no_filter(entries, key):
+    """SystemCallFilter=/RestrictAddressFamilies= are lists, read as systemd 255's
+    parsers read them: an empty value frees the list; the first assignment after
+    that sets allow-list or deny-list ("~") mode, and a later one of the other
+    polarity removes its items. RestrictAddressFamilies=none also frees the list
+    but leaves allow-list mode on (nothing allowed). True when nothing is
+    filtered: no list and not "none", or a deny list left empty (a lone "~", or
+    "~x" then "x"). Names systemd does not know are ignored by systemd and not
+    checked here."""
+    items = None
+    allow = False
+    for e in entries:
+        if e["key"] != key:
+            continue
+        v = e["value"]
+        if v == "":
+            items, allow = None, False
+            continue
+        if key == "RestrictAddressFamilies" and v == "none":
+            items, allow = None, True
+            continue
+        invert = v.startswith("~")
+        if invert:
+            v = v[1:]
+        if items is None:
+            items, allow = set(), not invert
+        add = allow != invert
+        for w in v.split():
+            if add:
+                items.add(w)
+            else:
+                items.discard(w)
+    return not allow and not items
 
 
 def _env_assignments(value):
@@ -303,7 +393,7 @@ def evaluate(unit, entries, anchor, has_main, user_units=False):
                                 unit))
 
     user = _last(svc, "User")
-    dynamic = _is_true(_last(svc, "DynamicUser"))
+    dynamic = _setting(svc, "DynamicUser", _bool)["value"] is True
     # A static user of the configured name wins over DynamicUser=yes (systemd.exec(5)),
     # and root always exists, so User=root runs as root either way.
     as_root = not user_units and (user["value"] in ("root", "0") if user is not None else not dynamic)
@@ -384,60 +474,61 @@ def evaluate(unit, entries, anchor, has_main, user_units=False):
                             "Set DynamicUser=yes (systemd allocates a throwaway user and implies ProtectSystem=strict), or create a system user and set User=<name>. If it needs a low port, add AmbientCapabilities=CAP_NET_BIND_SERVICE.",
                             unit))
 
-    nnp = _last(svc, "NoNewPrivileges")
-    if not _is_true(nnp) and not dynamic:
-        out.append(_finding(nnp or anchor, NO_NEW_PRIVILEGES,
-                            "NoNewPrivileges= is not on, so a setuid binary (sudo, su, pkexec) run by this service can gain privileges it was never given.",
+    nnp = _setting(svc, "NoNewPrivileges", _bool)
+    if nnp["value"] is not True and not dynamic:
+        out.append(_finding(_at(nnp, anchor), NO_NEW_PRIVILEGES,
+                            "NoNewPrivileges= is not on, so a setuid binary (sudo, su, pkexec) run by this service can gain privileges it was never given." + _ignored(nnp),
                             "Add NoNewPrivileges=yes.",
                             unit))
 
-    ps = _last(svc, "ProtectSystem")
-    psv = ps["value"].lower() if ps else ""
+    ps = _setting(svc, "ProtectSystem", _protect_system)
     if not dynamic:
-        if ps is None or psv in FALSE:
-            out.append(_finding(ps or anchor, PROTECT_SYSTEM_MISSING,
-                                "ProtectSystem= is unset or off, so the service can write /usr, /boot and /etc (as root, it can replace system binaries).",
+        if ps["value"] in (None, "no"):
+            out.append(_finding(_at(ps, anchor), PROTECT_SYSTEM_MISSING,
+                                "ProtectSystem= is unset or off, so the service can write /usr, /boot and /etc (as root, it can replace system binaries)." + _ignored(ps),
                                 "Add ProtectSystem=strict and list what it writes with ReadWritePaths= or StateDirectory=/LogsDirectory=.",
                                 unit))
-        elif psv in TRUE or psv == "full":
-            out.append(_finding(ps, PROTECT_SYSTEM_PARTIAL,
-                                f"ProtectSystem={ps['value']} leaves most of the filesystem (including /var) writable.",
+        elif ps["value"] in ("yes", "full"):
+            out.append(_finding(_at(ps, anchor), PROTECT_SYSTEM_PARTIAL,
+                                f"ProtectSystem={ps['entry']['value']} leaves most of the filesystem (including /var) writable." + _ignored(ps),
                                 "Use ProtectSystem=strict and list writable paths with ReadWritePaths= or StateDirectory=.",
                                 unit))
 
-        ph = _last(svc, "ProtectHome")
-        if ph is None or ph["value"].lower() in FALSE:
-            out.append(_finding(ph or anchor, PROTECT_HOME_MISSING,
-                                "ProtectHome= is unset or off, so the service can read every user's home directory (SSH keys, shell history, browser profiles).",
+        ph = _setting(svc, "ProtectHome", _protect_home)
+        if ph["value"] in (None, "no"):
+            out.append(_finding(_at(ph, anchor), PROTECT_HOME_MISSING,
+                                "ProtectHome= is unset or off, so the service can read every user's home directory (SSH keys, shell history, browser profiles)." + _ignored(ph),
                                 "Add ProtectHome=yes (or read-only if it must read a home directory).",
                                 unit))
 
-        if not _is_true(_last(svc, "PrivateTmp")):
-            out.append(_finding(_last(svc, "PrivateTmp") or anchor, PRIVATE_TMP_MISSING,
-                                "No PrivateTmp=yes, so the service shares /tmp with every other process, the usual home of symlink and file-planting attacks.",
+        pt = _setting(svc, "PrivateTmp", _bool)
+        if pt["value"] is not True:
+            out.append(_finding(_at(pt, anchor), PRIVATE_TMP_MISSING,
+                                "No PrivateTmp=yes, so the service shares /tmp with every other process, the usual home of symlink and file-planting attacks." + _ignored(pt),
                                 "Add PrivateTmp=yes.",
                                 unit))
 
-    if not _is_true(_last(svc, "PrivateDevices")):
-        out.append(_finding(_last(svc, "PrivateDevices") or anchor, PRIVATE_DEVICES_MISSING,
-                            "No PrivateDevices=yes, so the service sees every device node in /dev (disks, memory, input devices).",
+    pd = _setting(svc, "PrivateDevices", _bool)
+    if pd["value"] is not True:
+        out.append(_finding(_at(pd, anchor), PRIVATE_DEVICES_MISSING,
+                            "No PrivateDevices=yes, so the service sees every device node in /dev (disks, memory, input devices)." + _ignored(pd),
                             "Add PrivateDevices=yes unless it needs real hardware (a GPU, a serial port); then use DeviceAllow= for just that device.",
                             unit))
 
-    missing = [k for k in KERNEL_KEYS if not _is_true(_last(svc, k))]
+    missing = [k for k in KERNEL_KEYS if _setting(svc, k, _bool)["value"] is not True]
     if missing:
         out.append(_finding(anchor, KERNEL_PROTECTION_MISSING,
                             f"{', '.join(k + '=' for k in missing)} not set, so the service can change kernel tunables, load modules, read the kernel log or rewrite cgroups if it has the privilege.",
                             "Add " + " ".join(k + "=yes" for k in missing) + ".",
                             unit))
 
-    if _last(svc, "SystemCallFilter") is None:
+    if _no_filter(svc, "SystemCallFilter"):
         out.append(_finding(anchor, NO_SYSCALL_FILTER,
                             "No SystemCallFilter=, so every system call is available, including ones a normal service never makes (kexec, mount, reboot, raw I/O).",
                             "Add SystemCallFilter=@system-service and SystemCallArchitectures=native; add SystemCallErrorNumber=EPERM to see what breaks without killing the service.",
                             unit))
 
-    if _last(svc, "RestrictAddressFamilies") is None:
+    if _no_filter(svc, "RestrictAddressFamilies"):
         out.append(_finding(anchor, NO_ADDRESS_FAMILY_RESTRICTION,
                             "No RestrictAddressFamilies=, so the service can open any socket type (raw packets, netlink, Bluetooth).",
                             "Add RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 (just AF_UNIX for a service with no network).",
