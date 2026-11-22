@@ -62,5 +62,40 @@ class T(unittest.TestCase):
         self.assertLess(gaps["ladder"], gaps["raw"] / 2)
 
 
+    # Quality round 98 (portfolio/quality/audits/2026-11-22-holdout-market.json).
+    def test_ladder_gate_refuses_gains_under_one_rung(self):
+        _, _, hold = setup(2)
+        theta = [0.05] * 10
+        L = log_loss(theta, *hold)
+        for eta in (0.013, 0.017, 0.019, 0.023, 0.029, 0.031, 0.037):
+            r = round(L / eta) * eta
+            if r < L:  # L sits just above a rung: publish one rung higher so pub - L is in (eta/2, eta)
+                break
+        m = Market([0.0] * 10, hold, mode="ladder", eta=eta)
+        m.pub = r + eta
+        self.assertGreater(m.pub - L, eta / 2)
+        self.assertLess(m.pub - L, eta)
+        self.assertEqual(m.submit(theta), 0.0)  # without the gate it would be paid one rung
+        self.assertEqual(m.accepted, 0)
+        m.pub = r + 2 * eta  # now the gain clears the gate and is paid on the grid
+        self.assertAlmostEqual(m.submit(theta), 2 * eta, places=12)
+
+    def test_splitting_overshoot_counterexample(self):
+        """Splitting is NOT bounded by one rung when the loss dips along the path (whitepaper result 2)."""
+        seed, d = 5, 5
+        rng = random.Random(seed)
+        ts = [rng.gauss(0, 1) for _ in range(d)]
+        hold = make_data(ts, 50, rng)
+        X, y = make_data(ts, 15, rng)
+        t1 = sgd([0.0] * d, X, y, lr=0.5, epochs=20, rng=rng)
+        one = Market([0.0] * d, hold, mode="ladder", eta=0.02)
+        one.submit(t1)
+        many = Market([0.0] * d, hold, mode="ladder", eta=0.02)
+        for i in range(40):
+            many.submit([v * (i + 1) / 40 for v in t1])
+        self.assertEqual(one.paid, 0.0)
+        self.assertAlmostEqual(many.paid, 0.26, places=9)
+
+
 if __name__ == "__main__":
     unittest.main()

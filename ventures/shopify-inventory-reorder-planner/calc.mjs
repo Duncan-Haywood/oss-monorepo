@@ -8,14 +8,14 @@
 // no real Shopify export was available when this was written. Pure functions,
 // no DOM, no network.
 
-export const DEFAULTS = { leadDays: 21, cycleDays: 30, serviceLevel: 0.95, overstockDays: 120, deadDays: 90 };
+export const DEFAULTS = { leadDays: 21, cycleDays: 30, serviceLevel: 0.95, overstockDays: 120, deadDays: 90, safetyMethod: "auto" };
 const Z = { 0.9: 1.2816, 0.95: 1.6449, 0.98: 2.0537, 0.99: 2.3263 };
 const DAY = 86400000;
 
 const ALIASES = {
-  date: ["created at", "created_at", "order date", "date", "paid at", "processed at"],
-  sku: ["lineitem sku", "line item sku", "sku", "variant sku"],
-  name: ["lineitem name", "line item name", "product title", "title", "item", "product", "name"],
+  date: ["created at", "created_at", "order date", "date", "paid at", "processed at", "invoicedate", "invoice date"],
+  sku: ["lineitem sku", "line item sku", "sku", "variant sku", "stockcode", "stock code", "item code", "product code"],
+  name: ["lineitem name", "line item name", "product title", "title", "item", "product", "name", "description"],
   qty: ["lineitem quantity", "line item quantity", "quantity", "qty", "units", "net quantity", "quantity ordered"],
   price: ["lineitem price", "line item price", "price", "unit price", "item price"],
   cancelled: ["cancelled at", "canceled at"],
@@ -195,12 +195,31 @@ export function normalizeStock(table, { decimalComma = false } = {}) {
 
 const key = (s) => norm(s);
 
+// The serviceLevel quantile of the SKU's own demand over every run of `lead` consecutive days in
+// the window (days with returns count as zero). null when the window holds fewer than two lead times.
+export function leadTimeQuantile(daily, lead, level) {
+  const L = Math.max(1, Math.round(lead)), n = daily.length - L + 1;
+  if (n < L + 1) return null;
+  const sums = new Float64Array(n);
+  let run = 0;
+  for (let i = 0; i < daily.length; i++) {
+    run += Math.max(0, daily[i]);
+    if (i >= L) run -= Math.max(0, daily[i - L]);
+    if (i >= L - 1) sums[i - L + 1] = run;
+  }
+  sums.sort();
+  return sums[Math.min(n - 1, Math.max(0, Math.ceil(level * n) - 1))];
+}
+
 export function analyze(sales, stock = [], opts = {}) {
   const o = { ...DEFAULTS, ...opts };
   const z = Object.hasOwn(Z, o.serviceLevel) ? Z[o.serviceLevel] : Z[0.95];
   if (!sales.length) return { invalid: "No sales to analyze." };
   if (!(o.leadDays > 0) || o.cycleDays < 0) return { invalid: "Lead time must be above zero days and the order cycle cannot be negative." };
-  const first = Math.min(...sales.map((s) => s.t)), lastSale = Math.max(...sales.map((s) => s.t));
+  // A loop, not Math.min(...spread): spreading a big export's order lines overflows the call stack
+  // (found 2026-11-22 replaying 1,067,371 real lines; V8 throws past roughly 120,000 arguments).
+  let first = Infinity, lastSale = -Infinity;
+  for (const s of sales) { if (s.t < first) first = s.t; if (s.t > lastSale) lastSale = s.t; }
   const asOf = o.asOf ?? lastSale;
   const windowDays = Math.max(7, Math.floor((asOf - first) / DAY) + 1);
   const weeks = Math.max(1, Math.floor(windowDays / 7));
@@ -208,7 +227,8 @@ export function analyze(sales, stock = [], opts = {}) {
   const useTrend = windowDays >= 56;
 
   const skus = new Map();
-  const get = (sku, name) => { const k = key(sku); if (!skus.has(k)) skus.set(k, { sku, name: name || sku, units: 0, revenue: 0, priced: 0, recent: 0, lastSold: null, weekly: new Array(weeks).fill(0) }); return skus.get(k); };
+  const empirical = o.safetyMethod === "ltd" || o.safetyMethod === "auto";
+  const get = (sku, name) => { const k = key(sku); if (!skus.has(k)) skus.set(k, { sku, name: name || sku, units: 0, revenue: 0, priced: 0, recent: 0, lastSold: null, weekly: new Array(weeks).fill(0), daily: empirical ? new Float64Array(windowDays) : null }); return skus.get(k); };
   for (const s of sales) {
     const d = get(s.sku, s.name);
     d.units += s.qty;
@@ -219,6 +239,7 @@ export function analyze(sales, stock = [], opts = {}) {
     // 2026-11-19: piling them into the oldest week gave steady demand safety stock it does not need).
     const wk = Math.floor((asOf - s.t) / (7 * DAY));
     if (wk >= 0 && wk < weeks) d.weekly[wk] += s.qty;
+    if (d.daily) { const dy = Math.floor((asOf - s.t) / DAY); if (dy >= 0 && dy < windowDays) d.daily[dy] += s.qty; }
   }
   // Shopify's inventory export has one row per variant per location, so rows for one SKU are added up
   // (red team 2026-11-19: keeping the last row read 40 in the warehouse plus 5 in the shop as 5 on hand).
@@ -245,7 +266,15 @@ export function analyze(sales, stock = [], opts = {}) {
     const mean = sum(d.weekly) / weeks;
     const sd = weeks > 1 ? Math.sqrt(sum(d.weekly.map((w) => (w - mean) ** 2)) / (weeks - 1)) : 0;
     const sdDaily = sd / Math.sqrt(7);
-    const safety = z * sdDaily * Math.sqrt(o.leadDays);
+    let safety = z * sdDaily * Math.sqrt(o.leadDays), safetyFrom = "weekly";
+    // Lumpy and intermittent sellers (selling on fewer than 1 in 1.32 days, Syntetos-Boylan's cut-off)
+    // take the reorder point from their own lead-time demand: replayed on a real store's year
+    // (eval/backtest-2026-11-22.md) it ran out in fewer lead times for less stock than the
+    // weekly-variation rule, whose normal curve misses big orders. Steady sellers keep the weekly rule.
+    const sellDays = d.daily ? d.daily.reduce((n, x) => n + (x > 0 ? 1 : 0), 0) : 0;
+    const lumpy = o.safetyMethod === "ltd" || (o.safetyMethod === "auto" && sellDays > 0 && windowDays / sellDays >= 1.32);
+    const ltd = d.daily && lumpy ? leadTimeQuantile(d.daily, o.leadDays, o.serviceLevel) : null;
+    if (ltd !== null) { safety = Math.max(0, ltd - velocity * o.leadDays); safetyFrom = "lead-time"; }
     const reorderPoint = velocity * o.leadDays + safety;
     const price = d.priced > 0 ? d.revenue / d.priced : st && st.price !== null ? st.price : null;
     const cost = st ? st.cost : null;
@@ -267,7 +296,7 @@ export function analyze(sales, stock = [], opts = {}) {
     const needUnits = velocity * o.overstockDays;
     const excess = (status === "overstock" || status === "dead" || status === "slow") && onHand > 0 ? (status === "overstock" ? Math.max(0, onHand - needUnits) : onHand) : 0;
     rows.push({
-      sku: d.sku, name: d.name, units: d.units, revenue: r2(d.revenue), velocity, recentVelocity: recent, trend, safety: Math.ceil(safety), reorderPoint: Math.ceil(reorderPoint),
+      sku: d.sku, name: d.name, units: d.units, revenue: r2(d.revenue), velocity, recentVelocity: recent, trend, safety: Math.ceil(safety), safetyFrom, reorderPoint: Math.ceil(reorderPoint),
       onHand, incoming, cover, daysSinceSale, status, orderQty, orderCost: cost !== null ? r2(orderQty * cost) : null, cost, price, atRisk, excessUnits: Math.round(excess), excessCash: cost !== null ? r2(excess * cost) : null,
       stockoutDate: cover !== null && Number.isFinite(cover) ? dateStr(asOf + cover * DAY) : null,
     });

@@ -1723,6 +1723,15 @@ it is; the oracle on its own ramps gains +0.18 colour and +0.22 luma over what s
 `mpcws` on its fitted ramps, tested on a fresh draw from the full 3,640-burst HDR+ set.
 `eval/hdrplus-ramp-fit-2026-11-22.md`.
 
+**Three blind draws of the better read (2026-11-22, evening).** `tools/hdrplus_joint_check.py` puts `mpcws` on
+fresh seeded draws from the full HDR+ set, the rule committed before each draw. Over 384 scored bursts it gains
+about +0.07 to +0.08 dB colour and +0.10 luma over what ships with no new loser to directional, but every draw
+has had 2 to 3 bursts over 0.1 dB worse, so nothing has shipped. The third draw (137 bursts) kept the shipped luma
+ramp and counted a loss only where the true noise level does not lose too; it still failed on 2, both frames
+where the read finds almost no shot noise and lands at a third to a half of the truth. A fallback to what ships
+when the read is under 0.6x the shipped read's level is committed for a fourth draw.
+`eval/hdrplus-joint-check-2026-11-22.md`, `eval/hdrplus-joint-check-j3-2026-11-22.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

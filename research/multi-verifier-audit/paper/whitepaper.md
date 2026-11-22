@@ -29,12 +29,17 @@ verifiers has eigenvalue `-∂g_i/∂θ_j > 0` (0.034 for m=2, 0.023 for m=3, sp
 det > 0, m=1 is the conservative centre of `audit-dynamics`. So the symmetric point is a saddle: it repels along
 "who audits" directions.
 
-**4. Hedge dynamics concentrate the audit burden but keep detection.** From perturbed starts, m=3 ends with verifiers
-(0.106, 0, 0.106) and m=5 with (0.072, 0, 0.072, 0, 0.072) — exactly the symmetric equilibrium of a smaller committee
-(2 or 3 auditors, the rest free-ride at y=0) — and time-averaged detection is 0.2003 vs q*=0.2. For m≥3 per-round
-detection stays near q* (collapse below q*/2 in 0.3–1.6% of rounds, versus 48–55% for m=1,2 whose dynamics still
-cycle). So a larger committee damps the cycling seen in `audit-dynamics` but by making some members permanent free-riders.
-Snapshot columns for m=1,2 are mid-cycle values. Tiny-asymmetry starts can end with a single auditor (y≈0.21, checked once, slow drift).
+**4. Hedge dynamics concentrate the audit burden on one verifier; detection cycles. (Corrected, quality round 98.)**
+The original version of this result said m=3 ends with verifiers (0.106, 0, 0.106) and m=5 with (0.072, 0, 0.072, 0,
+0.072), a committee of 2 or 3 that keeps per-round detection near q* (collapse below q*/2 in 0.3–1.6% of rounds) and so
+damps the cycling of `audit-dynamics`. That was an artefact of the start: `experiments/run.py` gives verifiers 0, 2 (and 4)
+exactly the same starting audit rate, full-information Hedge is deterministic, and the tie never breaks. Nudging one
+starting rate by 0.1% sends m=3 to (0, 0, 0.256), a single auditor (`tests/test_multi.py`,
+`test_hedge_untied_start_ends_with_one_auditor`); an independent audit found every one of 16 random starts ends with one
+auditor and detection below q*/2 in 4–44% of rounds, and the m=3 case below q*/2 in 48% of rounds over 200,000 steps
+(`portfolio/quality/audits/2026-11-22-multi-verifier-audit.json`). Result 3 predicts this: a committee of two is itself a
+saddle. What survives: Hedge drives most verifiers to free-ride at y=0; it does not damp the cycling. The table printed
+by `run.py` section 2 still uses the tied start and should be read as that special case.
 
 **5. Bandit feedback needs exploration.** With importance-weighted updates and steps `η0/√t` (η0=0.3, T=2e5, 3 seeds),
 the learners with no exploration floor are absorbed at "nobody cheats, nobody audits" for m=2,4 (avg q 0.039, 0.000) and
@@ -44,9 +49,10 @@ participants learn from their own realised outcomes should therefore *mandate a 
 e.g. random spot-checks, so that the "honest world" is not absorbing.
 
 ## Design implications
-Prefer a small committee with committed rotation (or randomly assigned auditors) over an open crowd whose audit effort
-is left to emerge; under open participation expect a few de facto auditors. Split rewards dilute incentives and raise
-equilibrium cheating slightly; a bounty per auditor restores it but leaks budget. Include an exogenous audit floor.
+Prefer assigned auditors with committed rotation (or randomly assigned auditors) over an open crowd whose audit effort
+is left to emerge; under open participation expect one de facto auditor and detection that still cycles (result 4,
+corrected). Split rewards dilute incentives and raise equilibrium cheating slightly; a bounty per auditor reduces the
+rise (x* 0.083 to 0.089 at m=64, against 0.096 under split rewards) but does not remove it, and leaks budget. Include an exogenous audit floor.
 
 ## Limitations
 Symmetric verifiers with equal costs; full-information Hedge in the stability analysis; linearisation in logit
@@ -57,3 +63,7 @@ at η=0.02 from a handful of starts and a partition of who audits is not charact
 ## References
 Diekmann, *Volunteer's dilemma* (J. Conflict Resolution 1985); Bailey & Piliouras (EC 2018); Auer et al., *The
 nonstochastic multiarmed bandit problem* (SICOMP 2002); Daskalakis et al., *Training GANs with Optimism* (ICLR 2018).
+Not yet engaged (flagged in quality round 98, citations from an auditor's memory, to check): multi-inspector inspection
+games (Avenhaus, von Stengel and Zamir 2002); the verifier's dilemma (Luu et al., CCS 2015); Truebit (Teutsch and
+Reitwiessner 2017), whose forced errors are an audit floor; Kleinberg, Piliouras and Tardos (STOC 2009) on
+multiplicative weights and mixed equilibria.

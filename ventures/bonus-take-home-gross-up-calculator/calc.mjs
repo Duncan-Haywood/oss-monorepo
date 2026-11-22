@@ -6,6 +6,7 @@
 export const DEFAULTS = {
   bonus: 10000,
   ytdWages: 90000,
+  ytdSupplemental: 0,
   fedWithholdPct: 22,
   fedMarginalPct: 24,
   stateWithholdPct: 5,
@@ -18,6 +19,11 @@ export const DEFAULTS = {
   addlMedicareRatePct: 0.9,
   targetNet: 10000,
 };
+
+// IRS Publication 15, section 7: supplemental wages over $1,000,000 in the calendar year must
+// have federal income tax withheld at the highest rate (37%), whatever method or W-4 applies.
+export const MANDATORY_SUPP_THRESHOLD = 1000000;
+export const MANDATORY_SUPP_PCT = 37;
 
 export function num(v) {
   if (typeof v === "number") return v;
@@ -57,7 +63,10 @@ export function bonusBreakdown(gross, o) {
   const deferred = Math.min(g, (g * Math.min(100, nz(o.k401Pct))) / 100);
   const taxable = g - deferred; // a 401(k) deferral lowers income tax but not FICA
   const p = payrollTaxes(g, o);
-  const fedW = (taxable * nz(o.fedWithholdPct)) / 100;
+  // The part of this bonus that takes supplemental pay for the year past $1M is withheld at 37%.
+  const underMillion = Math.max(0, Math.min(taxable, MANDATORY_SUPP_THRESHOLD - nz(o.ytdSupplemental)));
+  const mandatoryWages = taxable - underMillion;
+  const fedW = (underMillion * nz(o.fedWithholdPct) + mandatoryWages * MANDATORY_SUPP_PCT) / 100;
   const stateW = (taxable * nz(o.stateWithholdPct)) / 100;
   const net = g - deferred - p.ss - p.medicare - p.addl - fedW - stateW;
   const fedTrue = (taxable * nz(o.fedMarginalPct)) / 100;
@@ -67,7 +76,7 @@ export function bonusBreakdown(gross, o) {
   const afterTaxValue = g - p.ss - p.medicare - p.addl - fedTrue - stateTrue; // 401(k) money counted as yours
   const employerFica = (p.ssWages * nz(o.ssRatePct)) / 100 + p.medicare;
   return {
-    gross: g, deferred, taxable, ...p, fedW, stateW, net,
+    gross: g, deferred, taxable, ...p, mandatoryWages, fedW, stateW, net,
     withheldTotal: g - deferred - net,
     withheldRate: g > 0 ? (g - deferred - net) / g : 0,
     keptRate: g > 0 ? net / g : 0,
@@ -77,14 +86,16 @@ export function bonusBreakdown(gross, o) {
   };
 }
 
-// The gross bonus that leaves `target` in the paycheck. Take-home rises with gross at a
-// positive rate everywhere, so bisection is exact to the cent.
+// The gross bonus that leaves `target` in the paycheck, or null when none does (a 100% 401(k)
+// deferral, or withholding rates that add up to 100% or more). Otherwise take-home rises with
+// gross, so bisection is exact to the cent.
 export function grossUp(target, o) {
   const t = nz(target);
   if (t === 0) return 0;
   let lo = t;
   let hi = t * 4 + 1;
   for (let i = 0; i < 200 && bonusBreakdown(hi, o).net < t; i++) hi *= 2;
+  if (!(bonusBreakdown(hi, o).net >= t) || !Number.isFinite(hi)) return null;
   for (let i = 0; i < 100; i++) {
     const mid = (lo + hi) / 2;
     if (bonusBreakdown(mid, o).net < t) lo = mid;
@@ -111,7 +122,8 @@ export function sizeTable(o, factors = [0.5, 1, 1.5, 2]) {
 
 export function analyze(o) {
   const b = bonusBreakdown(o.bonus, o);
-  const need = nz(o.targetNet) > 0 ? grossUp(o.targetNet, o) : null;
+  const asked = nz(o.targetNet) > 0;
+  const need = asked ? grossUp(o.targetNet, o) : null;
   const gu = need === null ? null : { gross: need, ...bonusBreakdown(need, o) };
-  return { b, grossUp: gu, deferrals: deferralTable(o), sizes: sizeTable(o) };
+  return { b, grossUp: gu, grossUpImpossible: asked && need === null, deferrals: deferralTable(o), sizes: sizeTable(o) };
 }

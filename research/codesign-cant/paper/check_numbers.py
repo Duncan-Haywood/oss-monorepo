@@ -6,7 +6,7 @@ file no longer matches (an experiment was re-run and the number moved). Run from
     python3 paper/check_numbers.py
 Stdlib only.
 """
-import os, re, sys
+import json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.join(HERE, "..", "experiments")
@@ -205,16 +205,18 @@ def main():
         for rx, txt in ((rf"  \[{re.escape(lab)}\] {dj:+.4f} ", sweep), (rf"cap 45, lever 0: [^\n]*dead {d45} ", block), (rf"cap 45, lever 2: [^\n]*dead {d45l2} ", block)):
             if not re.search(rx, txt):
                 bad.append(f"m12b_ten_seeds_vi/stats.txt [{lab}] no longer matches {rx!r}")
-    m7g = open(os.path.join(EXP, "m7g_lever2", "results.txt")).read()
-    base45, ideal45, room45, peaks = 0, 0, 0, []
-    for lab in ("M=1.25", "M=1.43", "M=1.67"):
-        line = re.search(rf"\[above, {re.escape(lab)}\](?:\n[^\n]*)*?\n  cap 45: dead base (\d+); dead85 \d+; ideal mixer (\d+); ideal mixer, 2x torque (\d+)[^\n]*\n[^\n]*peak D ([\d.]+) S 0\.50", m7g)
-        if not line:
-            bad.append(f"m7g_lever2/results.txt: no cap-45 rows for [above, {lab}]"); continue
-        base45 += int(line[1]); ideal45 += int(line[2]); room45 += int(line[3]); peaks.append(line[4])
-    if (base45, ideal45, room45) != (37, 8, 0) or not all(p in ("0.87", "0.88") for p in peaks):
-        bad.append(f"m7g_lever2 pooled cap-45 counts {base45}/{ideal45}/{room45}, peaks {peaks}; draft quotes 37/8/0 and 0.87-0.88")
-    for q in ("from 37 to\n8", "0.87–0.88", "against 0.50 in the survivors"):
+    st = json.load(open(os.path.join(EXP, "m12f_ten_seeds_7g", "stats.json")))   # milestone 7g's probes at ten seeds
+    m45, b45, u45 = st["above|margin sets|45"], st["below|M=1.25|45"], st["below|unconstrained|45"]
+    got = (m45["base"]["total"], m45["ideal mixer"]["total"], m45["ideal mixer, 1.25x torque"]["total"], m45["airmode"]["total"],
+           round(m45["diag"]["peak_D"], 2), round(m45["diag"]["peak_S"], 2), m45["ideal mixer"]["better"], m45["ideal mixer"]["worse"],
+           m45["airmode"]["worse"], m45["airmode"]["better"], round(m45["airmode"]["p"], 2), m45["ideal mixer"]["p"] < 1e-5,
+           all(st[k]["ideal mixer, 1.5x torque"]["total"] == 0 for k in st),
+           sorted({b45["ideal mixer, 1.25x torque"]["total"], u45["ideal mixer, 1.25x torque"]["total"],
+                   st["below|M=1.25|20"]["ideal mixer, 1.25x torque"]["total"], st["below|unconstrained|20"]["ideal mixer, 1.25x torque"]["total"]}))
+    if got != (69, 13, 0, 75, 0.87, 0.5, 29, 0, 6, 0, 0.03, True, True, [8, 9]):
+        bad.append(f"m12f_ten_seeds_7g/stats.json section VI authority numbers {got} differ from the draft's")
+    for q in ("from 69 to\n13 of 1,920", "median 0.87", "against 0.50 in the survivors", "29 of 30 designs better", "keep 8–9 of 640 at 1.25×",
+              "(69 to 75; 6 designs worse, none better, p = 0.03)"):
         if q not in draft:
             bad.append(f"DRAFT.md no longer quotes {q!r}")
     row = "| held-out J − unconstrained, 20°, trained lever (8 seeds) | 0 | " + " | ".join(f"{a[1]:.3f}".replace("-", "−") for a in ARMS) + " |"

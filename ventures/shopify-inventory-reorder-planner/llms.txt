@@ -2,12 +2,20 @@
 
 > Free reorder planner for Shopify and other small online stores: load an orders export and a stock export and see each SKU's reorder point, how many to order, revenue at risk from stock-outs and cash tied up in overstock. Runs in your browser, files are never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free and open source (MIT). Results are estimates from the files supplied, not legal, tax, financial or professional advice.
+
+## What it does
+
+- Reads Shopify's Orders export, or any CSV with a date, a SKU (or product name) and a quantity, including invoice-style exports (`StockCode`, `Description`, `InvoiceDate`). Large exports (a million lines) are fine.
+- Reorder point = velocity x lead time + safety stock. Safety stock is chosen per SKU: lumpy or intermittent sellers (selling on fewer than about 3 days in 4) take the service-level quantile of their own demand over every lead-time-long run in the file; steady sellers use z x weekly standard deviation scaled to the lead time.
+- Measured on a real store (UCI Online Retail II, 1,067,371 order lines, 3,078 SKUs, a year held out, 14-day lead time, 95% setting): the per-SKU rule kept the shelf stocked through 80.7% of lead times vs 77.5% for the weekly-only rule, with 3.5% less stock. Neither reaches the promised 95% on that lumpy, wholesale-heavy store.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/shopify-inventory-reorder-planner/)
+- [The tool](https://marisstella.app/shopify-inventory-reorder-planner/)
+- [How the reorder rule was measured](https://marisstella.app/shopify-inventory-reorder-planner/#backtest)
 
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shopify-inventory-reorder-planner): MIT licensed.
+- [Replay write-up](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/shopify-inventory-reorder-planner/eval/backtest-2026-11-22.md)

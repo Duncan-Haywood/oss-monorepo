@@ -1,0 +1,2 @@
+ISSUE_159_kleine_Wohnung_R22.ifc: 8 Lengths written from geometry (8 in all), verified 8 of 8 pass; 8 had a stored Length: 8 within 2%; 0 left to the to-fill table; 6.463 s
+ISSUE_068_ARK_NUS_skolebygg.ifc: 21 Lengths written from geometry (21 in all), verified 21 of 21 pass; 21 had a stored Length: 21 within 2%; 25 left to the to-fill table; 26.223 s

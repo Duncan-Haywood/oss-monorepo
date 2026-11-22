@@ -1,0 +1,65 @@
+137 bursts scored; models {'sailfish': 13, 'Nexus 6P': 45, 'Pixel XL': 31, 'marlin': 11, 'angler': 22, 'Nexus 6': 10, 'bullhead': 3, 'Nexus 5X': 2}
+mpcws read collapsed (fallback to ship) on 4: ['0037_20160719_130322_588', '0043_20161006_163112_976', '0155_20161002_144146_474', '5066_20160413_174938_105']
+
+## candidate over ship (COMMITTED)
+  means colour +0.0812 luma +0.1108 (medians +0.0360 / +0.0440); thirds luma/colour +0.088/+0.068  +0.063/+0.038  +0.180/+0.137
+  bursts > 0.1 dB under ship: 4 (worst -0.154) ['0127_20161018_114314_888', '0155_20161002_144146_474', '1125_20151229_140530_483', '5066_20160413_174938_105']
+  of those, where the oracle (true_pick) does not also lose: ['0127_20161018_114314_888', '0155_20161002_144146_474', '1125_20151229_140530_483', '5066_20160413_174938_105']
+  losers to D: 1 (new 1; ship loses on 2)
+  h1 PASS, h2 FAIL, h3 PASS, h4 FAIL, h4o FAIL
+
+## mpcws_shipped over ship (reported)
+  means colour +0.0344 luma +0.1011 (medians +0.0050 / +0.0370); thirds luma/colour +0.077/+0.025  +0.058/+0.013  +0.168/+0.064
+  bursts > 0.1 dB under ship: 6 (worst -0.184) ['0030_20151007_174433_246', '0043_20160921_140452_075', '0047_20160609_125554_160', '0155_20161002_144146_474', '1125_20151201_121436_471', '5066_20160413_174938_105']
+  of those, where the oracle (true_pick) does not also lose: ['0030_20151007_174433_246', '0043_20160921_140452_075', '0047_20160609_125554_160', '0155_20161002_144146_474', '1125_20151201_121436_471', '5066_20160413_174938_105']
+  losers to D: 0 (new 0; ship loses on 2)
+  h1 PASS, h2 PASS, h3 PASS, h4 FAIL, h4o FAIL
+
+## ship_pick over ship (reported)
+  means colour +0.0631 luma +0.0656 (medians +0.0270 / +0.0280); thirds luma/colour +0.069/+0.062  +0.047/+0.036  +0.080/+0.091
+  bursts > 0.1 dB under ship: 7 (worst -0.462) ['0037_20160717_142030_445', '0037_20160719_130322_588', '0155_20160821_143956_034', '0382_20150919_113453_008', '1125_20151229_140530_483', '4KK2_20150818_121109_368', '4KK2_20150829_170525_488']
+  of those, where the oracle (true_pick) does not also lose: ['0037_20160717_142030_445', '0037_20160719_130322_588', '0155_20160821_143956_034', '0382_20150919_113453_008', '1125_20151229_140530_483', '4KK2_20150818_121109_368', '4KK2_20150829_170525_488']
+  losers to D: 5 (new 3; ship loses on 2)
+  h1 PASS, h2 FAIL, h3 PASS, h4 FAIL, h4o FAIL
+
+## true_shipped over ship (reported)
+  means colour +0.0044 luma +0.1443 (medians -0.0020 / +0.0480); thirds luma/colour +0.117/-0.004  +0.088/+0.000  +0.226/+0.017
+  bursts > 0.1 dB under ship: 10 (worst -0.321) ['0030_20151008_091558_025', '0043_20160921_140452_075', '0043_20160928_202305_927', '0043_20161020_122534_746', '0047_20160609_125554_160', '0382_20150916_195309_747', '0919_20150906_192946_673', '1125_20151215_132924_684', '4KK2_20150822_142952_148', 'bee7_20150829_151740_448']
+  of those, where the oracle (true_pick) does not also lose: ['0043_20160921_140452_075', '0043_20160928_202305_927', '0043_20161020_122534_746', '0047_20160609_125554_160', '0382_20150916_195309_747', '0919_20150906_192946_673', '1125_20151215_132924_684', '4KK2_20150822_142952_148', 'bee7_20150829_151740_448']
+  losers to D: 0 (new 0; ship loses on 2)
+  h1 PASS, h2 PASS, h3 PASS, h4 FAIL, h4o FAIL
+
+## true_pick over ship (reported)
+  means colour +0.1053 luma +0.1443 (medians +0.0510 / +0.0480); thirds luma/colour +0.117/+0.084  +0.088/+0.055  +0.226/+0.176
+  bursts > 0.1 dB under ship: 1 (worst -0.140) ['0030_20151008_091558_025']
+  of those, where the oracle (true_pick) does not also lose: []
+  losers to D: 0 (new 0; ship loses on 2)
+  h1 PASS, h2 PASS, h3 PASS, h4 FAIL, h4o PASS
+
+## candidate_floor over ship (reported)
+  means colour +0.0790 luma +0.1083 (medians +0.0310 / +0.0400); thirds luma/colour +0.090/+0.066  +0.063/+0.038  +0.171/+0.132
+  bursts > 0.1 dB under ship: 3 (worst -0.279) ['0037_20160719_130322_588', '0127_20161018_114314_888', '1125_20151229_140530_483']
+  of those, where the oracle (true_pick) does not also lose: ['0037_20160719_130322_588', '0127_20161018_114314_888', '1125_20151229_140530_483']
+  losers to D: 3 (new 2; ship loses on 2)
+  h1 PASS, h2 FAIL, h3 PASS, h4 FAIL, h4o FAIL
+
+## colour_only over ship (reported)
+  means colour +0.0692 luma +0.1011 (medians +0.0240 / +0.0370); thirds luma/colour +0.077/+0.055  +0.058/+0.029  +0.168/+0.122
+  bursts > 0.1 dB under ship: 4 (worst -0.136) ['0030_20151007_174433_246', '0155_20161002_144146_474', '1125_20151201_121436_471', '5066_20160413_174938_105']
+  of those, where the oracle (true_pick) does not also lose: ['0030_20151007_174433_246', '0155_20161002_144146_474', '1125_20151201_121436_471', '5066_20160413_174938_105']
+  losers to D: 0 (new 0; ship loses on 2)
+  h1 PASS, h2 PASS, h3 PASS, h4 FAIL, h4o FAIL
+
+## fallback over ship (COMMITTED)
+  means colour +0.0801 luma +0.1114 (medians +0.0330 / +0.0430); thirds luma/colour +0.091/+0.068  +0.063/+0.038  +0.179/+0.133
+  bursts > 0.1 dB under ship: 2 (worst -0.154) ['0127_20161018_114314_888', '1125_20151229_140530_483']
+  of those, where the oracle (true_pick) does not also lose: ['0127_20161018_114314_888', '1125_20151229_140530_483']
+  losers to D: 2 (new 1; ship loses on 2)
+  h1 PASS, h2 FAIL, h3 PASS, h4 FAIL, h4o FAIL
+
+## j3 over ship (COMMITTED)
+  means colour +0.0682 luma +0.1018 (medians +0.0240 / +0.0360); thirds luma/colour +0.080/+0.056  +0.058/+0.029  +0.167/+0.119
+  bursts > 0.1 dB under ship: 2 (worst -0.136) ['0030_20151007_174433_246', '1125_20151201_121436_471']
+  of those, where the oracle (true_pick) does not also lose: ['0030_20151007_174433_246', '1125_20151201_121436_471']
+  losers to D: 1 (new 0; ship loses on 2)
+  h1 PASS, h2 PASS, h3 PASS, h4 FAIL, h4o FAIL

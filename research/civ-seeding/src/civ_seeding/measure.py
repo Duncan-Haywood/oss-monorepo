@@ -112,3 +112,22 @@ def misreport(aware, rng, miss: float, false: float):
     one says yes with prob false."""
     r = rng.random(aware.shape)
     return np.where(aware, r >= miss, r < false)
+
+
+SHARE_BINS = ((0.0, 0.0), (1e-12, 0.4 - 1e-12), (0.4, 0.6 - 1e-12), (0.6, 1.0))
+
+
+def moments_aware_share(v: bcdj.Village, Y, aware) -> np.ndarray:
+    """Milestone 26. S x 4: take-up among aware non-leaders by the *share* of their neighbours
+    that adopted: 0, (0, 0.4), [0.4, 0.6), [0.6, 1]. A fractional threshold acts on the share,
+    reinforcement on the count, so at a given count the two predict different gradients in the
+    share. Bin edges span the grid's thresholds (0.4 to 0.75), fixed before the run. Households
+    with no neighbours fall in the zero bin."""
+    nl = (~v.leader)[:, None]
+    aw = aware.astype(bool) & nl
+    sh = (v.A @ Y) / np.maximum(v.deg, 1)[:, None]
+    out = np.zeros((Y.shape[1], len(SHARE_BINS)))
+    for c, (lo, hi) in enumerate(SHARE_BINS):
+        m = aw & (sh >= lo) & (sh <= hi)
+        out[:, c] = _rate((m * Y).sum(0), m.sum(0))
+    return out

@@ -1,0 +1,290 @@
+{
+ "date": "2026-11-22",
+ "subject": "ventures/pipedrive-import-csv-check",
+ "stratum": "venture",
+ "seed": "2026-11-22-i-b012",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a RevOps / CRM administrator who migrates customers into Pipedrive with the spreadsheet importer. First checks: the mandatory fields per item (person name, organization name, deal linked to a person or organization), the 50 MB / 50,000-row caps, deal status and currency format, date layout, and whether the tool reads an ordinary people or deals file as the right kind",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the shipped validate()/repair() on 11 probe files (scratchpad probe.mjs, cases in checks) and compared with Pipedrive's import help as quoted by WebSearch (support.pipedrive.com itself would not resolve from this session, so no direct page load). Right: 50 MB cap, currency symbols rejected, mixed DMY/MDY and impossible dates, case-insensitive duplicate emails, scientific-notation phones, repair is formatting only. Wrong: a deals file with no Person or Organization gets no error although Pipedrive's mandatory-fields article says such deals are skipped; the row limit is 100,000 against the documented 50,000; 'Name,Organization' people files and 'Title,Organization,Status' deal files are auto-detected as organizations, producing false warnings and skipping the status check; Pipedrive-export style 'Person - Name' headings give a false 'No Name column' error. 5 of 9 correctness checks pass: 2.",
+  "completeness": "Every check the README lists fires on a probe file, the three samples load, repair lists each change with its line, findings CSV and NOT_CHECKED travel with the result (tests). Page wiring checked by page.test.mjs; page not loaded in a browser. No stubs or TODOs: 3.",
+  "verification": "`node --test '*.test.mjs'` in the subject root: 31/31 pass (includes a seeded fuzz of repair idempotence). 8 mutants via quality_mutate.py: 3 caught, 5 survive (probability boundary, ROW_LIMIT, duplicate-deal key, plain-number regex accepting commas, DMY/MDY labels). The tests encode the author's rules, so the wrong row limit and the missing deal-link rule could not be caught: 2.",
+  "craft": "Read calc.mjs (535 lines), calc.test.mjs, repair-fuzz.test.mjs, usage.mjs and index.html. Pure, dependency-free, a real CSV parser with line tracking, header resolution by exact/spelling/alias/edit distance. Defects: chooseKind's ordered keyword lists are brittle (no 'title'/'status' deal signal, 'organization' is an org signal even beside 'name' in a people file); the alias tables silently map 'Organization' to 'Name' in org kind; very long single-line statements. A senior JS reviewer would accept it with the detection fix: 3.",
+  "claims": "Disclaimer (no warranty, not advice, not affiliated, nominative trademark), from-memory caveat, privacy text and local-only usage counting with opt-out and DNT/GPC are present and tested; served llms.txt/sitemap clean (served-copy.mjs). But the rules list states 'a deal needs a title' (Pipedrive: a linked person or organization) and the warning text 'about 100,000' rows (Pipedrive: 50,000); '0.6 is read as 0.6 percent' is unhedged and unsourced. The from-memory hedge discloses but does not back them: 2.",
+  "fitness": "Walked a migration: paste a deals export with Title, Value, Currency, Status, Stage. The tool catches the spreadsheet damage (symbols, sci notation, bad dates, status words) well. But a deals file without a person/org column is passed clean and then skipped by Pipedrive, a file between 50,000 and 100,000 rows is passed, and a plain people file with an Organization column is misread unless the user changes the dropdown. A CRM admin would hit at least one of these in the first hour: 2.",
+  "domain": "Compared with Pipedrive's import help (mandatory fields, limits, skip-file reasons) as quoted by search: status Open/Won/Lost, ISO currency, integer IDs, date-format choice at mapping and the skip-file behaviour are in line; departures are the deal-link mandatory rule, the 50,000-row cap, ID severity, and no recognition of Pipedrive's own '<Item> - <Field>' column names. Two core rules wrong: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Deals file with Title, Value, Currency, Status and no Person or Organization column",
+   "method": "Pipedrive Knowledge Base 'Importing: mandatory fields' (support.pipedrive.com/de/article/importing-mandatory-fields, hc/en/articles/360013870858) as quoted by WebSearch 2026-11-22: leads, deals and projects must be linked to another item; a deal needs at least one deal field plus a person name or an organization name; people need a name, organizations a name. An older article says 'Any deal field' only. Direct fetch blocked (support.pipedrive.com not resolvable from this session)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2c0f9144-d354-56e9-8372-00defbd4a7d0/scratchpad/pd/probe.mjs $PWD/ventures/pipedrive-import-csv-check/calc.mjs (case 1)",
+   "expected": "an error per row (or a header-level error): every deal would be skipped for lacking a linked person or organization",
+   "observed": "no error, no warning; only 'No Pipeline or Stage column' and '2 currencies' notes. The page rule reads 'a deal needs a title'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "60,000-row people file",
+   "method": "Pipedrive Knowledge Base 'Importing data into Pipedrive with spreadsheets' (support.pipedrive.com/en/article/importing-data-into-pipedrive-with-spreadsheets), as quoted by WebSearch on 2026-11-22: XLS/XLSX/CSV, 'the maximum file size is 50MB, with a limit of 50,000 rows per spreadsheet'. WebFetch of support.pipedrive.com failed (host not in the session's allowed network), so the text is the search engine's quotation, not a direct page load",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2c0f9144-d354-56e9-8372-00defbd4a7d0/scratchpad/pd/probe.mjs $PWD/ventures/pipedrive-import-csv-check/calc.mjs (case 2)",
+   "expected": "a row-limit warning (over 50,000)",
+   "observed": "no row-limit finding; ROW_LIMIT = 100000 (calc.mjs:34)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "File size cap",
+   "method": "Pipedrive Knowledge Base 'Importing data into Pipedrive with spreadsheets' (support.pipedrive.com/en/article/importing-data-into-pipedrive-with-spreadsheets), as quoted by WebSearch on 2026-11-22: XLS/XLSX/CSV, 'the maximum file size is 50MB, with a limit of 50,000 rows per spreadsheet'. WebFetch of support.pipedrive.com failed (host not in the session's allowed network), so the text is the search engine's quotation, not a direct page load",
+   "command": "grep -n FILE_LIMIT ventures/pipedrive-import-csv-check/calc.mjs",
+   "expected": "50 MB",
+   "observed": "FILE_LIMIT = 50 * 1024 * 1024 (calc.mjs:35)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Currency written as a symbol or word",
+   "method": "Pipedrive skip-file article as quoted by WebSearch 2026-11-22: 'USD and EUR would be correct but $ and EUR-sign would not be'",
+   "command": "node -e validate on the shipped sampleBrokenFile() plus node /tmp/claude-0/-home-user-oss-monorepo/2c0f9144-d354-56e9-8372-00defbd4a7d0/scratchpad/pd/probe.mjs $PWD/ventures/pipedrive-import-csv-check/calc.mjs (case 6b)",
+   "expected": "error on 'US dollars' and on '$'-style codes",
+   "observed": "'Currency \"US dollars\" is not a 3-letter code' error; lower-case usd noted and capitalised by repair",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Non-integer ID values",
+   "method": "Pipedrive 'Importing: errors and skip files' as quoted by WebSearch: an ID field 'can only be an integer'",
+   "command": "read calc.mjs:381 and ran validate on 'Name,ID\\nA,12a'",
+   "expected": "flag a non-integer ID",
+   "observed": "warning 'ID \"12a\" is not a whole number' (severity warning, where Pipedrive skips the row)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "People file 'Name,Organization' (the README's own example headings), kind auto-detected",
+   "method": "Pipedrive mandatory-fields article: a person row needs Name; Organization is a person field (the org link). Hand reasoning on chooseKind (calc.mjs:139-141)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2c0f9144-d354-56e9-8372-00defbd4a7d0/scratchpad/pd/probe.mjs $PWD/ventures/pipedrive-import-csv-check/calc.mjs (case 8)",
+   "expected": "read as a people file, no findings",
+   "observed": "read as an organizations file; warning 'Field \"Name\" appears in two columns' (Organization aliased to Name). Same for a deals file 'Title,Organization,Status' (case 7): read as organizations, 'Closed Won' status never checked, every deal flagged as a duplicate organization",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Mixed day-first and month-first dates; impossible date",
+   "method": "Calendar arithmetic by hand: 25/03/2026 can only be DMY, 03/25/2026 only MDY, 2026-02-30 does not exist; Pipedrive skip-file article lists invalid date format as a skip reason",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2c0f9144-d354-56e9-8372-00defbd4a7d0/scratchpad/pd/probe.mjs $PWD/ventures/pipedrive-import-csv-check/calc.mjs (case 4)",
+   "expected": "mixed-order error, invalid-date error, 04/03/2026 counted ambiguous",
+   "observed": "'Expected close date mixes day-first and month-first dates' error at line 2; '2026-02-30 is not a real calendar date' error",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Duplicate email differing only in case; Excel scientific notation in phone",
+   "method": "Hand reasoning: email local parts are treated case-insensitively by CRMs in practice; 4.41175E+11 has lost digits",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2c0f9144-d354-56e9-8372-00defbd4a7d0/scratchpad/pd/probe.mjs $PWD/ventures/pipedrive-import-csv-check/calc.mjs (cases 5, 6)",
+   "expected": "one duplicate finding naming 3 lines; error on both sci-notation phones",
+   "observed": "'Email a@x.com appears 3 times'; both phones flagged as scientific notation errors",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Exported-style headings 'Person - Name, Person - Email, Organization - Name'",
+   "method": "Pipedrive's own exports and sample spreadsheets label columns '<Item> - <Field>' (auditor's knowledge of Pipedrive exports; not confirmed this session because support.pipedrive.com was unreachable)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2c0f9144-d354-56e9-8372-00defbd4a7d0/scratchpad/pd/probe.mjs $PWD/ventures/pipedrive-import-csv-check/calc.mjs (case 9)",
+   "expected": "recognised as Name / Email / Organization",
+   "observed": "error 'No Name column' and two 'matches no standard person field' notes: a false error on a re-imported Pipedrive export",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, independence, trademark, from-memory caveat",
+   "method": "read index.html:62, :102, :151-152",
+   "command": "grep -n -i 'warranty\\|affiliated\\|from memory' ventures/pipedrive-import-csv-check/index.html",
+   "expected": "present",
+   "observed": "no-warranty, not-advice, not affiliated with Pipedrive, nominative trademark and from-memory caveats all present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Rule text 'a deal needs a title' and 'about 100,000' row limit",
+   "method": "Pipedrive Knowledge Base 'Importing: mandatory fields' (support.pipedrive.com/de/article/importing-mandatory-fields, hc/en/articles/360013870858) as quoted by WebSearch 2026-11-22: leads, deals and projects must be linked to another item; a deal needs at least one deal field plus a person name or an organization name; people need a name, organizations a name. An older article says 'Any deal field' only. Direct fetch blocked (support.pipedrive.com not resolvable from this session); Pipedrive Knowledge Base 'Importing data into Pipedrive with spreadsheets' (support.pipedrive.com/en/article/importing-data-into-pipedrive-with-spreadsheets), as quoted by WebSearch on 2026-11-22: XLS/XLSX/CSV, 'the maximum file size is 50MB, with a limit of 50,000 rows per spreadsheet'. WebFetch of support.pipedrive.com failed (host not in the session's allowed network), so the text is the search engine's quotation, not a direct page load",
+   "command": "sed -n 104p ventures/pipedrive-import-csv-check/index.html; grep -n ROW_LIMIT ventures/pipedrive-import-csv-check/calc.mjs",
+   "expected": "deal needs a linked person or organization; 50,000 rows",
+   "observed": "both stated wrongly (hedged as from memory)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Pipedrive reads 0.6 as 0.6 percent'",
+   "method": "no Pipedrive source found by search this session; no file backs it",
+   "command": "grep -n '0.6 percent' ventures/pipedrive-import-csv-check/index.html ventures/pipedrive-import-csv-check/README.md",
+   "expected": "a cited source or a hedge",
+   "observed": "asserted on the page rules list and README without a hedge or source",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Usage tracking and privacy",
+   "method": "read usage.mjs, index.html:154-162, usage.test.mjs",
+   "command": "node --test usage.test.mjs page.test.mjs (in subject root)",
+   "expected": "local-only counters, opt-out, DNT/GPC honoured, no network",
+   "observed": "three events counted in localStorage only, opt-out stored separately, DNT/GPC honoured; tests green",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt, sitemap, robots, canonicals",
+   "method": "build rewrite of base URLs (platform/ci/build_pages_site.py)",
+   "command": "node platform/pages/served-copy.mjs pipedrive-import-csv-check",
+   "expected": "no placeholder or retired origin",
+   "observed": "none left (source llms.txt points at github.io, rewritten at deploy)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Claimed checks and safe fixes exercised",
+   "method": "ran validate on 11 probe files and repair on a semicolon file with mailto:, upper-case email, apostrophe phone, stray spaces and a blank row",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2c0f9144-d354-56e9-8372-00defbd4a7d0/scratchpad/pd/probe.mjs $PWD/ventures/pipedrive-import-csv-check/calc.mjs",
+   "expected": "every README check present; repair formatting only",
+   "observed": "all listed checks fire; repair output 'Name,Email,Phone\\r\\nMaya,maya@x.com,0117' with 4 listed changes and no content edits. Page not loaded in a browser this session",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run in subject root",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "31/31 pass in 0.23 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutations",
+   "method": "platform/ci/quality_mutate.py, 8 mutants",
+   "command": "python3 platform/ci/quality_mutate.py ventures/pipedrive-import-csv-check/calc.mjs --old ... --new ... -- node --test calc.test.mjs page.test.mjs usage.test.mjs",
+   "expected": "core mutants caught",
+   "observed": "3 of 8 caught (mixed-date error, open-deal won time, title length); 5 survive: probability <= 1 -> < 1, ROW_LIMIT x10, deal duplicate key without organization, value regex accepting thousands commas, DMY/MDY labels swapped",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:370",
+   "change": "n > 0 && n <= 1 && !/%/.test(v) -> n > 0 && n < 1 && !/%/.test(v)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:410",
+   "change": "if (rec.dmy.length && rec.mdy.length) add(\"error\" -> ... && rec.n > 99) add(\"error\"",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:34",
+   "change": "ROW_LIMIT = 100000 -> 1000000",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:337",
+   "change": "duplicate-deal key title|org|value -> title|value",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:377",
+   "change": "value regex /^-?\\d+(\\.\\d+)?$/ -> /^-?[\\d,]+(\\.\\d+)?$/ (accepts 12,000)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:222",
+   "change": "kind: asMdy ? \"mdy\" : \"dmy\" -> asMdy ? \"dmy\" : \"mdy\" (mixed-order finding names the wrong lines as day-first)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:390",
+   "change": "st === \"open\" -> st === \"lost\" for the won-time check",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:21",
+   "change": "Title max length 255 -> 25",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Deals are not checked for a linked Person or Organization. Pipedrive's mandatory-fields article says a deal row needs a person name or an organization name, or it lands in the skip file; the tool requires only Title (REQUIRED.deals = ['title']), gives a deals file with neither column a clean result, and the page tells users 'a deal needs a title'.",
+   "where": "ventures/pipedrive-import-csv-check/calc.mjs:31",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
+  },
+  {
+   "severity": "high",
+   "what": "Auto-detection misreads common files. 'Name,Organization' (a people file, the README's own example headings) is read as organizations with a false 'Name appears in two columns' warning; 'Title,Organization,Status' deals are read as organizations, so 'Closed Won' is never checked and every deal is flagged as a duplicate organization. chooseKind tests deal headings first, then people headings without 'name'/'organization', then treats 'organization' or 'name' as an organizations file, and never treats 'title' or 'status' as a deal signal. The kind dropdown defaults to auto.",
+   "where": "ventures/pipedrive-import-csv-check/calc.mjs:139",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
+  },
+  {
+   "severity": "medium",
+   "what": "Row limit is 100,000; Pipedrive's import help states 50,000 rows per spreadsheet. A 60,000-row file gets no warning. The warning text also says 'about 100,000'.",
+   "where": "ventures/pipedrive-import-csv-check/calc.mjs:34",
+   "category": "source-data",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
+  },
+  {
+   "severity": "medium",
+   "what": "Headings in Pipedrive's own '<Item> - <Field>' export style ('Person - Name', 'Deal - Title', 'Organization - Name') are not recognised: a re-imported Pipedrive export gets a false 'No Name column' error. Unconfirmed against the live importer (support site unreachable this session).",
+   "where": "ventures/pipedrive-import-csv-check/calc.mjs:161",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "5 of 8 seeded mutants survive: the probability-fraction boundary, the row limit constant (the only test passes rowLimit:1), the duplicate-deal key, the plain-number regex and the DMY/MDY labelling are unpinned. No test covers kind auto-detection of a people file with an Organization column, or a deal with no person/organization.",
+   "where": "ventures/pipedrive-import-csv-check/calc.test.mjs:88",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Non-integer ID is a warning, but Pipedrive's skip-file help says such rows are skipped; it should be an error.",
+   "where": "ventures/pipedrive-import-csv-check/calc.mjs:381",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"
+  },
+  {
+   "severity": "low",
+   "what": "'Pipedrive reads 0.6 as 0.6 percent' is stated without a hedge or source on the page and README; no Pipedrive document found backs it.",
+   "where": "ventures/pipedrive-import-csv-check/index.html:108",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18317"],
+ "verdict": "A careful spreadsheet-damage checker that gets the generic faults right (currency symbols, Excel scientific notation, mixed day/month dates, impossible dates, duplicate emails, formatting-only repair) but misses Pipedrive's own rules where they matter: deals without a linked Person or Organization, which Pipedrive's mandatory-fields help says are skipped, pass clean; the row cap is 100,000 against the documented 50,000; and auto-detection reads an ordinary 'Name,Organization' people file, or a 'Title,Organization,Status' deals file, as organizations, with false warnings and the status check skipped. 31/31 tests pass but 5 of 8 seeded mutants survive. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished, does not meet the bar. Pipedrive's help site could not be fetched directly from this session; the rules are as quoted by web search."
+}

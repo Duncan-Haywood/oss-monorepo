@@ -222,7 +222,7 @@
     {
      "slug": "multi-verifier-audit",
      "title": "Many verifiers, one solver: the volunteer's dilemma in refereed verification",
-     "summary": "Closed-form m-verifier audit equilibrium (detection pinned at s/(s+S), redundancy bounded by ln(1/(1-q))/q, cheating rising with m under split rewards), a saddle-point stability result, Hedge dynamics that concentrate audit burden on a subset, and bandit learners that need an exploration floor. Stylised."
+     "summary": "Closed-form m-verifier audit equilibrium (detection pinned at s/(s+S), redundancy bounded by ln(1/(1-q))/q, cheating rising with m under split rewards), a saddle-point stability result, Hedge dynamics that leave one de facto auditor with detection still cycling (corrected: an earlier committee result came from a tied start), and bandit learners that need an exploration floor. Stylised."
     },
     {
      "slug": "spot-check-slashing",
@@ -2304,7 +2304,7 @@
     {
      "slug": "simdesign-robustmove",
      "title": "Does the optimality-criteria move limit decide whether a robust topology optimisation survives its beta steps?",
-     "summary": "Diagnoses two unexplained poor runs from <code>simdesign-robustmesh</code>. The robust eroded / blueprint / dilated half-MBB design is rerun at move limits 0.2, 0.1 and 0.05 over nine mesh-and-radius cases (27 deterministic runs). At 0.2, the value every earlier project used, five of nine blueprint compliances are more than 1.5&times; the best (e.g. 742 against about 200 on 60&times;20); at 0.1 and 0.05 none are. The failing runs show worst-case compliance jumping up to 400&times; in one iteration after &beta; reaches 32&ndash;64. The mechanism (a thin member breaking when the eroded field sharpens) is a hypothesis, not tested. Stylised: 2D, dimensionless, one problem."
+     "summary": "Diagnoses two unexplained poor runs from <code>simdesign-robustmesh</code>. The robust eroded / blueprint / dilated half-MBB design is rerun at move limits 0.2, 0.1 and 0.05 over nine mesh-and-radius cases (27 deterministic runs). At 0.2, the value every earlier project used, five of nine blueprint compliances are more than 1.5&times; the best (e.g. 742 against about 200 on 60&times;20); at 0.1 and 0.05 none are. A 2026-11-22 audit found 0.2 is not a cliff: at 60&times;20, r = 3, moves 0.18 and 0.21 pass while 0.15 and 0.19 fail, and one iteration more or fewer per &beta; step flips the 0.2 run, so from about 0.15 up the outcome depends on the trajectory; every run at 0.12 or below passed. The failing runs show worst-case compliance jumping up to 400&times; in one iteration after &beta; reaches 32&ndash;64. The mechanism (a thin member breaking when the eroded field sharpens) is a hypothesis, not tested. Stylised: 2D, dimensionless, one problem."
     },
     {
      "slug": "simdesign-robustadapt",

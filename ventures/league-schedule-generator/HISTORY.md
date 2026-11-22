@@ -14,3 +14,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) Cards and suspensions 2026-11-21 (discipline.mjs: yellow accumulation, reds, bans served on played fixtures only; next: a real league's cards)
 - (moved 2026-11-21) referee crews 2026-11-20 (tournament-referees.mjs: clubs, hours, caps, ejection chain; CP-SAT check, eval/referee-exact.txt)
 - (moved 2026-11-21) alternating A/B weeks 2026-11-21 (eval/practice-exact.txt)
+- (moved 2026-11-22) 3-game nights (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits

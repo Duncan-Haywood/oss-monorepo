@@ -2,6 +2,8 @@
 
 Track 16 (energy), next step 2 of [`energy-store-cop`](../energy-store-cop) ("add the heat exchanger cost to the store and see whether 2015 to 2017 survive"). The earlier comparisons cost the sand store without any equipment to take heat out of the sand. No sourced price for a sand-to-water exchanger exists in the cost table, so rather than invent one this project sweeps the price and reports the **break-even exchanger price** per price year. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
+**Known gap (inherited, found by the [2026-11-22 quality audit](../../portfolio/quality/audits/2026-11-22-energy-store-hx.json)):** every number below prices the store through `energy-store-cop`'s `diff`, which pins `accounting="first-charge"`, the store rule [`energy-thermal-cost`](../energy-thermal-cost) corrected on 2026-11-18 (see `energy-store-cop`'s own Known gap). Rerun with the corrected `"steady"` rule and nothing else changed, the break-even exchanger prices at a 45 °C sink rise to **541, 563, 610, 203 and 490 EUR/kW** for weekly cycling 2015 to 2019 (published: 211, 241, 274, −242, 123) and **889 to 1,212** for daily cycling (published: 460 to 901). The headline "2018 never wins, even with a free exchanger" does not hold under the corrected rule. Rerunning the project with `"steady"` and rewriting the headline is the next step; until then read the figures below as too pessimistic for the store.
+
 **Live page:** https://marisstella.app/research/energy-store-hx/
 
 ## Headline (German day-ahead prices and weather 2015 to 2019, house scale, 10,000 kWh of heat a year, 45 °C sink)
@@ -27,7 +29,7 @@ What this says: whether weekly cycling survives depends on a number nobody here 
 | Input | Value | Source |
 |---|---|---|
 | Everything in `energy-store-cop` | see its README | prices OPSD/ENTSO-E (CC BY 4.0), ERA5 via Open-Meteo, Staffell et al. (2012), PyPSA technology-data |
-| Exchanger lifetime and FOM | 35 years, 1.075 %/y | borrowed from the table's `Sand-charger` row (Viswanathan et al. 2022); the committed `params.csv` has no discharger rows |
+| Exchanger lifetime and FOM | 35 years, 1.075 %/y | borrowed from the table's `Sand-charger` row (Viswanathan et al. 2022); the committed `params.csv` has no discharger rows. The upstream `Sand-discharger` row, whose investment is the 725 EUR/kW anchor, has FOM 0.2688 %/y; on that alone the break-evens would be about 14 % higher (2026-11-22 audit) |
 | Upper anchor | 725 EUR/kW | PyPSA technology-data master, `Sand-discharger` investment 725,191.7 EUR/MW (2025 EUR, Georgiou 2018). It is a heat-to-electricity block, not an exchanger; I fetched it on 2026-10-23 |
 | **Not from a source** | exchanger price per kW (**swept 0 to 200, break-even solved**); peak discharge = annual heat / 2000 h (swept 2000, 1000, 500 h) | choices of this project; I found no sourced sand-to-water exchanger price (a web search for the Danish Energy Agency's district-heating substation figure did not surface one) |
 
@@ -49,6 +51,7 @@ python -m pytest tests                                # 6 tests
 - All limitations of `energy-store-cop` stand: five weighted cities, a degree-hour demand proxy, a fixed sink, wholesale prices without levies, five price years.
 
 ## Next steps
+0. Make the store accounting a parameter of `energy_store_cop.diff`, rerun with `accounting="steady"` and rewrite the headline (Known gap above).
 1. Source a sand-to-water exchanger price (a catalogue or a quote) and place it on the break-even axis.
 2. Model the sand-side discharge limit (heat transfer from packed sand) to set the exchanger size and the delivery rate.
 3. The heating curve and back-up heater from `energy-store-cop` step 1.

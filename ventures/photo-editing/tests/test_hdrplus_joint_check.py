@@ -41,7 +41,7 @@ class JudgeTest(unittest.TestCase):
         import hdrplus_joint_check as j
 
         r = j.judge_rows(_rows())["candidate"]
-        self.assertEqual(r["tests"], {"h1": True, "h2": True, "h3": True, "h4": True})
+        self.assertEqual(r["tests"], {"h1": True, "h2": True, "h3": True, "h4": True, "h4o": True})
         self.assertAlmostEqual(r["luma"], 0.05, places=6)
 
     def test_one_bad_burst_fails_h4_only_when_mean_holds(self):
@@ -51,6 +51,21 @@ class JudgeTest(unittest.TestCase):
         self.assertFalse(r["tests"]["h4"])
         self.assertEqual(r["worse_bursts"], ["b3"])
         self.assertTrue(r["tests"]["h3"])
+
+    def test_h4o_forgives_a_loss_the_oracle_takes_too(self):
+        import hdrplus_joint_check as j
+
+        rows = _rows(n=30, gain=0.1, bad=("b3", "b5"))
+        for row in rows:  # the oracle on its own ramps is 0.3 dB under ship on b3's luma, not on b5
+            if row["burst"] == "b3" and row["arm"] == j.ORACLE:
+                row["scores"] = [40.0, 49.7]
+        r = j.judge_rows(rows)["candidate"]
+        self.assertEqual(r["worse_bursts"], ["b3", "b5"])
+        self.assertEqual(r["worse_not_oracle"], ["b5"])
+        self.assertFalse(r["tests"]["h4o"])
+        r = j.judge_rows([x for x in rows if x["burst"] != "b5"])["candidate"]
+        self.assertFalse(r["tests"]["h4"])
+        self.assertTrue(r["tests"]["h4o"])
 
     def test_small_gain_fails_h3(self):
         import hdrplus_joint_check as j

@@ -35,6 +35,15 @@ class T(unittest.TestCase):
         b = run_move(24, 8, 2.0, 0.05, **KW)
         self.assertNotEqual(a["c_b"], b["c_b"])
 
+    def test_pinned_small_run(self):
+        # 2026-11-22 quality audit: changing the evaluation penalty (3.0) or returning the eroded
+        # value as c_b left every test green. Pin one small run's three compliances (values from
+        # this code on 2026-11-22; the 60x20 rows were checked against an independent Q4 solver).
+        a = run_move(24, 8, 2.0, 0.1, **KW)
+        self.assertAlmostEqual(a["c_e"], 6038.986682138484, places=6)
+        self.assertAlmostEqual(a["c_b"], 780.5471740538965, places=6)
+        self.assertAlmostEqual(a["c_d"], 236.41598482658148, places=6)
+
 
 if __name__ == "__main__":
     unittest.main()

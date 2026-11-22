@@ -61,3 +61,33 @@ def test_misreport_rates():
     r = ms.misreport(aware, rng, 0.15, 0.05)
     assert abs(1 - r[:10000].mean() - 0.15) < 0.01
     assert abs(r[10000:].mean() - 0.05) < 0.01
+
+
+def test_share_bins_partition_and_hand_count(setup):
+    # milestone 26: every aware non-leader falls in exactly one share bin, and the rates match
+    # a direct count on one simulation
+    V, beta = setup
+    v = V[3]
+    Y, inf, _ = ms.simulate_tracked(v, beta, 0.075, 0.2, 5, np.random.default_rng(4), theta=0.6)
+    out = ms.moments_aware_share(v, Y, inf)
+    assert out.shape == (5, 4)
+    sh = (v.A @ Y) / np.maximum(v.deg, 1)[:, None]
+    aw = inf & (~v.leader)[:, None]
+    hits = sum(((sh >= lo) & (sh <= hi)).astype(int) for lo, hi in ms.SHARE_BINS)
+    assert (hits[aw] == 1).all()
+    s = 0
+    col = aw[:, s]
+    m = col & (sh[:, s] >= 0.6)
+    if m.sum():
+        assert abs(out[s, 3] - Y[m, s].mean()) < 1e-12
+
+
+def test_threshold_takes_up_above_theta(setup):
+    # under a threshold of 0.6 an aware non-leader whose adopting share reached 0.6 by the
+    # last period's start adopted; at the survey the [0.6, 1] bin's take-up is high
+    V, beta = setup
+    v = V[3]
+    Y, inf, _ = ms.simulate_tracked(v, beta, 0.075, 0.2, 200, np.random.default_rng(5), theta=0.6)
+    out = ms.moments_aware_share(v, Y, inf)
+    hi = out[:, 3][out[:, 3] > 0]
+    assert hi.size == 0 or hi.mean() > out[:, 0].mean()

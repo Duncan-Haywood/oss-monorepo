@@ -23,6 +23,9 @@ Usage (from ``ventures/photo-editing``, numpy and rawpy installed)::
     # J2, the second draw:
     python tools/hdrplus_joint_check.py draw --n 240 --seed 20261123 \
         --exclude eval/hdrplus-joint-check-bursts-2026-11-22.txt > IDS2.txt
+    # J3, the third draw (arm `j3`: colour ramp (0.3, 1.0), shipped luma ramp, collapse fallback; h4o):
+    python tools/hdrplus_joint_check.py draw --n 240 --seed 20261124 \
+        --exclude eval/hdrplus-joint-check-bursts-2026-11-22.txt eval/hdrplus-joint-check-bursts2-2026-11-22.txt > IDS3.txt
 """
 
 from __future__ import annotations
@@ -54,6 +57,8 @@ ARMS = (
     ("true_shipped", "true", SHIP_C, SHIP_L),
     ("true_pick", "true", (0.2, 0.8), (0.8, 1.5)),
     ("candidate_floor", "mpcws_floor", (0.3, 1.0), (1.0, 2.0)),
+    # J3 (committed 2026-11-22 before the third draw): the candidate's colour ramp, the shipped luma ramp
+    ("colour_only", "mpcws", (0.3, 1.0), SHIP_L),
 )
 # J2's arm (committed before the second draw): `candidate`, except where the mpcws read collapses (under
 # COLLAPSE x the shipped read's sigma at 18% grey), where it is exactly `ship` (read and ramps)
@@ -127,8 +132,11 @@ def score_scene(path: Path) -> list[dict]:
     for name, read, cr, lr in ARMS:
         out = xd.blend(b, d, q[read], cr[0], cr[1], luma_ramp=lr)
         rows.append({**base, "arm": name, "scores": sw.masked_scores(out, truth, keep)})
-    rows.append({**base, "arm": "fallback", "collapsed": collapsed(meta["models"]),
-                 "scores": rows[1 if collapsed(meta["models"]) else 2]["scores"]})
+    by = {r["arm"]: r["scores"] for r in rows}
+    col = collapsed(meta["models"])
+    rows.append({**base, "arm": "fallback", "collapsed": col, "scores": by["ship" if col else "candidate"]})
+    # J3's committed arm: `colour_only`, or exactly `ship` where the mpcws read collapses
+    rows.append({**base, "arm": "j3", "collapsed": col, "scores": by["ship" if col else "colour_only"]})
     return rows
 
 
@@ -147,7 +155,8 @@ def score(paths) -> int:
 
 # ---- judge ----
 
-JUDGED = [a[0] for a in ARMS if a[0] != "ship"] + ["fallback"]
+JUDGED = [a[0] for a in ARMS if a[0] != "ship"] + ["fallback", "j3"]
+ORACLE = "true_pick"  # J3's h4o: a burst counts only if this arm is not also over 0.1 dB under ship
 
 def judge_rows(rows: list[dict]) -> dict:
     """The committed rule (eval/hdrplus-joint-check-2026-11-22.md) on ``candidate`` against ``ship``."""
@@ -169,6 +178,11 @@ def judge_rows(rows: list[dict]) -> dict:
     cut = np.quantile(s, [1 / 3, 2 / 3])
     thirds = [s <= cut[0], (s > cut[0]) & (s <= cut[1]), s > cut[1]]
     sc, sl = gains("ship", "D")
+    if all(ORACLE in t[b] for b in bursts):
+        oc, ol = gains(ORACLE, "ship")
+        oracle_worse = (oc < -0.1) | (ol < -0.1)
+    else:
+        oracle_worse = np.zeros(len(bursts), bool)
     ship_lose = (sc < -0.1) | (sl < -0.1)
     out: dict = {"bursts": len(bursts), "models": {}, "collapsed": sorted(b for b, v in collapsed_n.items() if v)}
     judged = [a for a in JUDGED if all(a in t[b] for b in bursts)]
@@ -192,7 +206,10 @@ def judge_rows(rows: list[dict]) -> dict:
             "h2": bool(res["new_losers_to_D"] == 0 and res["losers_to_D"] <= res["ship_losers_to_D"]),
             "h3": bool(gl.mean() >= 0.02),
             "h4": bool(res["worse"] == 0),
+            # J3 (committed before the third draw): h4 counted only where the oracle on its ramps does not also lose
+            "h4o": bool(int((worse & ~oracle_worse).sum()) == 0),
         }
+        res["worse_not_oracle"] = [b for b, w, o in zip(bursts, worse, oracle_worse) if w and not o]
         out[arm] = res
     return out
 
@@ -204,12 +221,13 @@ def judge(args) -> int:
     print(f"mpcws read collapsed (fallback to ship) on {len(out['collapsed'])}: {out['collapsed']}")
     for arm in [a for a in JUDGED if a in out]:
         r = out[arm]
-        tag = "COMMITTED" if arm in ("candidate", "fallback") else "reported"
+        tag = "COMMITTED" if arm in ("candidate", "fallback", "j3") else "reported"
         print(f"\n## {arm} over ship ({tag})")
         print(f"  means colour {r['colour']:+.4f} luma {r['luma']:+.4f} (medians {r['median_colour']:+.4f} / "
               f"{r['median_luma']:+.4f}); thirds luma/colour "
               + "  ".join(f"{a:+.3f}/{b:+.3f}" for a, b in r["thirds_luma_colour"]))
         print(f"  bursts > 0.1 dB under ship: {r['worse']} (worst {r['worst']:+.3f}) {r['worse_bursts']}")
+        print(f"  of those, where the oracle ({ORACLE}) does not also lose: {r['worse_not_oracle']}")
         print(f"  losers to D: {r['losers_to_D']} (new {r['new_losers_to_D']}; ship loses on {r['ship_losers_to_D']})")
         print("  " + ", ".join(f"{k} {'PASS' if v else 'FAIL'}" for k, v in r["tests"].items()))
     if args.json:

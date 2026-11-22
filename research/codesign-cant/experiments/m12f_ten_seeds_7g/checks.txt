@@ -1,0 +1,4 @@
+CHECK ok   7e below seed 0 start 0 best training score: got -1.4852685352768793, want -1.4852685352768793
+CHECK ok   7b below seed 0 design (max |dx|): got 0.0, want 0.0
+CHECK ok   base per-episode deaths of seeds 0-5 equal 7g's stored (mismatching designs): got 0, want 0
+CHECK ok   above seeds 6-9 base deaths equal 12b's stored lever-2 counts (mismatching designs): got 0, want 0
