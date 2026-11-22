@@ -1,0 +1,50 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 70: a bias that drifts between calibration and press, held-out section Q (8 loads, seed 70; milestone 69's two-pose references; calibration bias B along J, drift delta along S, joint worst row, both signs; milestone 65's chain sized to B + delta; spec 0.03 mm per row)
+
+## A. The uncompensated sensitivity S: robot | presses with S | poses | max spread of S over loads mm/N | median max_k ||S_k|| mm/N | largest max_k ||S_k|| | median max_k ||J_k|| | weakest drift rating 0.03/max||S|| N
+  g1 | 113 | 15 | 2.63e-14 | 0.1486 | 0.1855 | 0.0426 | 0.162
+  h1 | 150 | 19 | 3.13e-14 | 0.1117 | 0.1591 | 0.0387 | 0.189
+
+## B. Superposition: robot | planned presses | max |s0 - (J e_r + S d)| mm over the four rows
+  g1 | 1349 | 1.05e-14
+  h1 | 1769 | 1.22e-14
+
+## C. By robot, B and delta: robot | B N | delta N | balance-envelope cases | planned | over spec | worst mm | old gate passed | old gate passed over spec | old worst passed mm | drift gate passed | drift gate coverage % | drift gate passed over spec | drift worst passed mm
+  g1 | 0.3 | 0.05 | 226 | 226 | 0 | 0.0258 | 226 | 0 | 0.0258 | 226 | 100.00 | 0 | 0.0258
+  g1 | 0.3 | 0.10 | 226 | 225 | 35 | 0.0347 | 225 | 35 | 0.0347 | 175 | 77.43 | 0 | 0.0293
+  g1 | 0.3 | 0.20 | 226 | 225 | 193 | 0.0532 | 225 | 193 | 0.0532 | 32 | 14.16 | 0 | 0.0281
+  g1 | 0.4 | 0.05 | 226 | 224 | 34 | 0.0315 | 224 | 34 | 0.0315 | 176 | 77.88 | 0 | 0.0282
+  g1 | 0.4 | 0.10 | 226 | 225 | 99 | 0.0404 | 225 | 99 | 0.0404 | 126 | 55.75 | 0 | 0.0298
+  g1 | 0.4 | 0.20 | 226 | 224 | 192 | 0.0585 | 224 | 192 | 0.0585 | 32 | 14.16 | 0 | 0.0281
+  h1 | 0.3 | 0.05 | 300 | 298 | 0 | 0.0208 | 298 | 0 | 0.0208 | 298 | 99.33 | 0 | 0.0208
+  h1 | 0.3 | 0.10 | 300 | 297 | 0 | 0.0263 | 297 | 0 | 0.0263 | 297 | 99.00 | 0 | 0.0263
+  h1 | 0.3 | 0.20 | 300 | 296 | 168 | 0.0422 | 296 | 168 | 0.0422 | 128 | 42.67 | 0 | 0.0293
+  h1 | 0.4 | 0.05 | 300 | 297 | 0 | 0.0261 | 297 | 0 | 0.0261 | 297 | 99.00 | 0 | 0.0261
+  h1 | 0.4 | 0.10 | 300 | 297 | 32 | 0.0309 | 297 | 32 | 0.0309 | 265 | 88.33 | 0 | 0.0297
+  h1 | 0.4 | 0.20 | 300 | 284 | 208 | 0.0456 | 284 | 208 | 0.0456 | 76 | 25.33 | 0 | 0.0296
+
+## D. Drift-gate-passed presses over spec: 0
+
+## E. Hypotheses (registered in LOG.md before this run)
+H271 (superposition: every planned press's no-flip rows equal J e_r + S d to 1e-6 mm, both robots): largest difference 1.22e-14 -> held
+H272 (S is a property of the pose: spread over loads at most 1e-6 mm/N): 3.13e-14 -> held
+H273 (drift breaks the drift-blind gate: at B 0.4 N, delta 0.1 N at least one old-gate-passed press over spec on each robot): G1 99, H1 32 -> held
+H274 (the drift gate keeps every passed press inside the spec, every B, delta, both robots): 0 over -> held
+H275 (drift is costlier than bias: weakest drift rating 0.03/max||S|| under 0.2 N on both robots): G1 0.162, H1 0.189 -> held
+
+(run time 5279 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)
