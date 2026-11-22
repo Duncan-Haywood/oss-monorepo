@@ -1,0 +1,258 @@
+{
+ "date": "2026-11-22",
+ "subject": "ventures/ifc-quantity-takeoff",
+ "stratum": "flagship",
+ "seed": "2026-11-22-30b4",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior quantity surveyor / cost estimator who prices from BIM models (CostX/Solibri ITO user); first checks: are volumes and areas right for real IFC profile and solid types, are units converted right, are openings deducted correctly and per a method of measurement, are steel members measured by length and mass, and does every BoQ line say where its figures came from",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Ten outputs recomputed from IFC4 ADD2 TC1 entity definitions, geometry formulas and the ArcelorMittal steel table, on IFC files the auditor wrote by hand (/tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc, hand2.ifc, feet.ifc), not the author's sample. All ten pass: HEA 200 IfcIShapeProfileDef (200x190, tw 6.5, tf 10, r 18) x 3 m: 2*200*10 + 170*6.5 + (4-pi)*18^2 = 5,383.1 mm2 = 53.83 cm2 (table value 53.83), volume 0.016149 m3, tool 0.01615 m3 and section 0.005383 m2. CHS 168.3x5 (IfcCircleHollowProfileDef r 84.15, t 5) x 3 m: pi*(84.15^2-79.15^2)*3000 = 0.0076956 m3, tool 0.007695. Oblique extrusion 4x3 m, depth 250 along (0,0.6,0.8): 12*0.25*0.8 = 2.4 m3, tool 2.4, plan 12 m2. L-shaped IfcArbitraryClosedProfileDef polyline (1000x200 + 200x600) x 2 m: 0.64 m3, tool 0.64, section 0.32. Wall 5x0.3x3 with a 1x0.15x2 m RECESS opening: gross 4.5, net 4.2, tool 4.5/4.2; --voids-up-to 2.5,0.5 adds 0.3 back (4.5), --voids-up-to 1,0.1 deducts (4.2). IfcRevolvedAreaSolid 100x200 rectangle at R 500, full turn: Pappus 2*pi*500*20000 mm3 = 0.0628319 m3, tool 0.062832, and the same with the axis moved to x=-500 and the profile at 0. IfcMappedItem with IfcCartesianTransformationOperator3D scale 2 on a 0.5 m cube: 1.0 m3, tool 1. IfcEllipseProfileDef semi-axes 2.0/0.5 m x 0.2 m: pi*2*0.5*0.2 = 0.628319, tool 0.628319. Units: FOOT/SQUARE FOOT/CUBIC FOOT IfcConversionBasedUnit wall 10x1x10 ft: 100 ft3 = 2.831685 m3, 100 ft2 = 9.290304 m2, 10 ft = 3.048 m, stored and computed both. Not 4: checked against formulas and tables only, not against a second takeoff tool by this auditor (the author's eval does compare 767 breps with IfcOpenShell, eval/advanced-breps-2026-11-20.md).",
+  "completeness": "Claimed features run end to end from the CLI: BoQ by class/type/uniformat (sample-office: B2010 4 walls 8.18 m3, A1030 slab 5 m3), element rows CSV with stored vs computed and verdict, --check summary (sample: GrossVolume 2 of 4 agree, split pieces named), void thresholds including a partial-depth recess, unit repair path (feet units read exactly), revision compare (sample rev2: 3 unchanged, 3 changed, 1 added, 1 removed, 1 matched by Tag; wall volume change -2.084 = -0.084 wider door - 2.0 deleted wall). No TODO/FIXME in the modules. Not checked by this auditor: the browser page and 3D viewer (no Playwright in the container; page.test.mjs checks the page's text and imports only), the room schedule (sample has no IfcSpace), and the 13 public models (not committed; eval/*.txt are their recorded outputs). Lengths and weights come only from stored quantity sets (stated on the page FAQ), so a member with no Qto has 0 m and 0 kg.",
+  "verification": "`cd ventures/ifc-quantity-takeoff && node --test '*.test.mjs'`: 172 tests, 172 pass, 1.8 s. Six mutants with platform/ci/quality_mutate.py: three caught (hollow-circle wall thickness halved; NetVolume/GrossVolume preference swapped; stored Length dropped from the BoQ), three survived: IfcEllipseProfileDef semi-axis ratio inverted (geom.mjs:759; any ellipse other than a circle changes area), IfcRevolvedAreaSolid axis offset ignored (geom.mjs:942; wrong for any revolved solid whose axis is not at the profile origin), SI prefix CENTI 1e-2 -> 1e-3 (qto.mjs:35; a centimetre model would be 10x off). 50% survival in core geometry and units, so the suite would miss real bugs in less-used profile types and unit prefixes; the README's own seeded faults (half-space side, unit-slip rule, mesh cut, brep void) cover the common paths.",
+  "craft": "Read geom.mjs (2,013 lines: profile switch 736-830, extrusion 851-870, revolved 932-946), qto.mjs (1,367 lines: units 35-100, rowQuantities/boq 1232-1300), cli.mjs, the head of index.html and page.test.mjs. Zero dependencies, a hand-written STEP parser, exact convex-piece geometry with signed terms, Unresolved errors instead of guesses for unsupported shapes (sloped flanges, extrusion in the profile plane), comments that cite the eval behind each rule. Defects: very large modules (geom.mjs 2,013 lines, qto.mjs 1,367), one-liners of ~1,000 characters (index.html:627 BoQ notes), and a revolved solid carries no box, so a revolved element's Uniformat basis reads 'geometry not read' although its volume was computed (uniformat.mjs:284).",
+  "claims": "Backed: IPE/HEA root-radius areas (recomputed), units repair (feet recomputed; eval/units-repair-2026-11-20.md), 4,863 of 5,495 GrossVolumes and per-model causes (eval/stored-vs-computed-2026-11-21.txt lists per model and element), the void rule (recomputed), 'claims no standard's rules', 'has not been reviewed by' a QS (README 'Spec sources'), no-warranty disclaimer on the page (index.html:244), README and llms.txt; usage counting via usage.mjs with an opt-out. served-copy.mjs: no placeholder or retired origin in llms.txt, sitemap, robots, canonicals. Gaps (low, understatements or inconsistencies, not overclaims): the page FAQ and its JSON-LD (index.html:13, 220) still say 9,184 of 9,314 drawn elements enclose the volume, while README:83 and eval/item-union-2026-11-21.md give 9,310 of 9,312 after the union fix; README:146 says 'On 13 public models' for the same 4,863 of 5,495 that README:129, index.html and llms.txt attribute to 8 models that store volumes.",
+  "fitness": "Job walked: an estimator receives an IFC4 model, wants concrete m3 by element, wall areas net of openings, a Uniformat elemental summary priced with their rates, and the change since the last issue. Each of those runs (CLI here; page by its tests) with figures recomputed from geometry and stored figures flagged when wrong. Hit within the first hour on a steel-framed job: beams and columns without a stored Qto show 0 m and 0 kg on their BoQ line, a per-kg or per-m rate prices them at 0, and the notes column says nothing about missing length or weight (it does say 'no volume'); the extrusion depth and section area are known, so length is derivable and mass needs only a density. With that stated limit it is usable for model-quantity extraction and checking.",
+  "domain": "Compared with practice in RICS NRM2 / CESMM-style measurement and with model-based takeoff tools (CostX, Solibri ITO): net volumes with openings deducted, a per-section void threshold (the tool rightly claims no standard's values; NRM2 thresholds vary by work section, e.g. 1.00 m2 for many finishes), gross vs net side and footprint areas per the buildingSMART Qto_ definitions, Uniformat II per NISTIR 6389, and the stored-vs-computed check (a step senior estimators do by spot sampling, done here for every element). Departures: steel is measured by mass in NRM2 and here mass comes only from stored weights; member length is not derived from geometry; an unexplained stored NetVolume that disagrees with the geometry (my test: -9.1%) is still the figure the BoQ sums, flagged only as '1 disagree'; girthed, extra-over and built-in-member rules are left to the user (stated)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "HEA 200 column, IfcIShapeProfileDef with root radius 18, 3 m",
+   "method": "ArcelorMittal section table HEA 200 A = 53.83 cm2; hand 2*b*tf + (h-2tf)*tw + (4-pi)r^2",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows.csv",
+   "expected": "section 0.005383 m2, volume 0.016149 m3",
+   "observed": "0.005383 m2, 0.01615 m3",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "CHS 168.3x5, IfcCircleHollowProfileDef, 3 m",
+   "method": "pi*(R^2-(R-t)^2)*L",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows.csv",
+   "expected": "0.0076956 m3",
+   "observed": "0.007695 m3",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Oblique IfcExtrudedAreaSolid, 4x3 m rectangle, depth 250 mm along (0,0.6,0.8)",
+   "method": "IFC4 ExtrudedDirection/Depth: V = A*Depth*|dz|",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows.csv",
+   "expected": "2.4 m3, plan 12 m2",
+   "observed": "2.4 m3, 12 m2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "L-shaped IfcArbitraryClosedProfileDef polyline, 2 m",
+   "method": "shoelace area 0.32 m2 x 2",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows.csv",
+   "expected": "0.64 m3",
+   "observed": "0.64 m3",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Wall 5x0.3x3 m with a 1x0.15x2 m RECESS opening, with and without a void threshold",
+   "method": "hand: 4.5 - 0.3; threshold 2.5 m2/0.5 m3 leaves it in",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows.csv && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --by class --voids-up-to 2.5,0.5",
+   "expected": "gross 4.5, net 4.2; 4.5 with the threshold",
+   "observed": "4.5 / 4.2; 4.5 with 0.3 added back",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "IfcRevolvedAreaSolid, 100x200 mm rectangle at radius 500, full turn; again with the axis offset to x=-500",
+   "method": "Pappus: 2*pi*R*A",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand2.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows2.csv",
+   "expected": "0.0628319 m3 both",
+   "observed": "0.062832 both",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "IfcMappedItem with IfcCartesianTransformationOperator3D Scale 2 on a 0.5 m cube",
+   "method": "V*s^3",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows.csv",
+   "expected": "1.0 m3",
+   "observed": "1 m3",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "IfcEllipseProfileDef semi-axes 2000/500 mm, extruded 200",
+   "method": "pi*a*b*h",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand2.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows2.csv",
+   "expected": "0.628319 m3, 3.141593 m2",
+   "observed": "0.628319 m3, 3.141593 m2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FOOT / SQUARE FOOT / CUBIC FOOT IfcConversionBasedUnit wall 10x1x10 ft with stored GrossVolume 100, GrossSideArea 100, Length 10",
+   "method": "exact factors 0.3048 m, 0.09290304 m2, 0.028316846592 m3",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/feet.ifc --by class --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/feet.csv",
+   "expected": "2.831685 m3, 9.290304 m2, 3.048 m",
+   "observed": "2.831685 m3 stored and computed, side 9.290304, length 3.048",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Stored NetVolume 10% over the geometry, no named cause",
+   "method": "estimator practice: an unexplained disagreement should not silently carry the stored figure",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/feet.ifc --by class --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/feet.csv && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/feet.ifc --check",
+   "expected": "flagged, and computed or both shown",
+   "observed": "'net differs -9.1%' on the row, '1 disagree' on the line, but the BoQ volume sums the stored 3.114853 m3",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Steel members with no stored Qto priced per kg / m",
+   "method": "NRM2 measures structural steel by mass; extrusion depth gives length",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --rows /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/rows.csv && node cli.mjs /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/ifc/hand.ifc --by class",
+   "expected": "length and mass from geometry, or a note that they are missing",
+   "observed": "IfcColumn line: Length 0, Weight 0, notes only '2 volumes computed' (index.html:627 has no missing-length/weight note)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/ifc-quantity-takeoff && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "172/172 pass, 1.8 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Revision compare on the sample's second issue",
+   "method": "README 'Revisions': wider door -0.084 m3, wall deleted, column re-exported under a new GlobalId, column added",
+   "command": "cd ventures/ifc-quantity-takeoff && node cli.mjs samples/sample-office-rev2.ifc --compare samples/sample-office.ifc --by class",
+   "expected": "1 added, 1 removed, 1 matched by Tag; walls -2.084 m3",
+   "observed": "1 added, 1 removed, 1 by Tag, 1 moved, 1 reshaped; IfcWall -2.084 m3",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Drawn-solid volume agreement on the page vs README",
+   "method": "compare index.html with README:83 and eval/item-union-2026-11-21.md",
+   "command": "grep -n -o '9,184 of 9,314' ventures/ifc-quantity-takeoff/index.html; grep -n '9,310 of 9,312' ventures/ifc-quantity-takeoff/README.md",
+   "expected": "same figure",
+   "observed": "page 9,184 of 9,314 (pre-fix), README 9,310 of 9,312",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, served URLs, usage counting",
+   "method": "read index.html:244, README Disclaimer, llms.txt 'Limits and disclaimer'; served-copy",
+   "command": "node platform/pages/served-copy.mjs ifc-quantity-takeoff",
+   "expected": "disclaimer present; no placeholder origins",
+   "observed": "present in all three; 'no placeholder or retired origin left'",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "geom.mjs:942",
+   "change": "const rel = [cx - p[0], cy - p[1], -p[2]]; -> const rel = [cx, cy, -p[2]];",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "geom.mjs:759",
+   "change": "const b = n(4) / n(3); -> const b = n(3) / n(4);",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "geom.mjs:757",
+   "change": "{ s: -1, pts: circle(n(3) - n(4)) } -> { s: -1, pts: circle(n(3) - n(4) / 2) }",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "qto.mjs:35",
+   "change": "CENTI: 1e-2 -> CENTI: 1e-3",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "qto.mjs:1236",
+   "change": "first([\"netvolume\"], \"volume\") ?? first([\"grossvolume\", \"volume\"], \"volume\") -> first([\"grossvolume\", \"volume\"], \"volume\") ?? first([\"netvolume\"], \"volume\")",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "qto.mjs:1255",
+   "change": "length: first([\"length\", \"netlength\", \"grosslength\"], \"length\"), -> length: first([\"netlength\", \"grosslength\"], \"length\"),",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Three core mutants survive the 172 tests: an inverted IfcEllipseProfileDef semi-axis ratio, a revolved solid's axis offset ignored, and the CENTI SI prefix at 1e-3. No test uses an ellipse other than a circle, a revolved solid with an offset axis, or a centimetre length unit.",
+   "where": "ventures/ifc-quantity-takeoff/geom.mjs:759",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Member length and steel mass come only from stored quantity sets: a beam or column with no Qto shows 0 m and 0 kg on its BoQ line, a per-m or per-kg rate prices it at 0, and the line notes flag 'no volume' but never missing length or weight, though extrusion depth and section are known.",
+   "where": "ventures/ifc-quantity-takeoff/qto.mjs:1255",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "An unexplained stored NetVolume that disagrees with the geometry (test: -9.1%) is still the figure the BoQ sums; only a '1 disagree' note marks it.",
+   "where": "ventures/ifc-quantity-takeoff/qto.mjs:1236",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Page FAQ and its JSON-LD still say 9,184 of 9,314 drawn elements enclose the computed volume; README and eval/item-union-2026-11-21.md give 9,310 of 9,312 after the union fix.",
+   "where": "ventures/ifc-quantity-takeoff/index.html:220",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "low",
+   "what": "README attributes 4,863 of 5,495 GrossVolume agreements to '13 public models' while the same README (line 129), the page and llms.txt say 8 models that store volumes.",
+   "where": "ventures/ifc-quantity-takeoff/README.md:146",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "low",
+   "what": "A revolved solid carries no bounding box, so a revolved element's Uniformat basis says 'geometry not read' although its volume was computed, and box-based rules (what a member carries, room placement) skip it.",
+   "where": "ventures/ifc-quantity-takeoff/uniformat.mjs:284",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Very large modules (geom.mjs 2,013 lines, qto.mjs 1,367) and ~1,000-character one-liners (BoQ notes) are hard to review.",
+   "where": "ventures/ifc-quantity-takeoff/index.html:627",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
+ "verdict": "Every one of ten outputs recomputed on auditor-written IFC files matches by hand. They cover I, hollow-circle, ellipse and arbitrary profiles, an oblique extrusion, a recess opening with and without a void threshold, a revolved solid, a scaled mapped item and imperial units. The tool does what its README says from the command line, carries the disclaimer, and states honestly that no quantity surveyor has reviewed it. It misses the bar on verification: three of six seeded bugs in core geometry and units survive the 172 tests (ellipse axis ratio, revolved-axis offset, CENTI prefix). For an estimator the main gap is steel: member length and mass come only from stored quantities, so an unquantified frame prices at 0 per m or kg with no note. The page also carries one stale figure (9,184 of 9,314)."
+}

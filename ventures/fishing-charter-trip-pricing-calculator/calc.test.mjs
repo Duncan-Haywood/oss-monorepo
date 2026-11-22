@@ -39,7 +39,7 @@ test("fuel swing is gallons per trip over the fee factor", () => {
 test("trips needed at the current price can exceed what is booked", () => {
   const r = compute(raw({ currentPrice: "700" }));
   assert.ok(r.current.tripsForTarget > 90 * 0.8);
-  assert.ok(r.findings.some((f) => /completed trips to hit/.test(f.title)));
+  assert.ok(r.findings.some((f) => /completed trips .*to hit/.test(f.title)));
   assert.equal(compute(raw({ currentPrice: "100" })).current.tripsForTarget, null);
 });
 
@@ -69,4 +69,49 @@ test("dollars, summary and csv render", () => {
   assert.equal(dollars(1234.5), "$1,234.50");
   assert.match(summaryText(r), /Break-even price: \$/);
   assert.equal(sweepCsv(r).split("\n").length, 6);
+});
+
+// Quality audit 2026-11-22 (portfolio/quality/audits/2026-11-22-fishing-charter-trip-pricing-calculator.json).
+test("trips-needed warning compares completed with completed, not with booked", () => {
+  // $1,400: contribution 1400*0.97-567 = 791; (21000+40000)/791 = 77.1 completed trips,
+  // more than the 72 completed of 90 booked, though fewer than 90.
+  const r = compute(raw({ currentPrice: "1400" }));
+  assert.ok(Math.abs(r.current.tripsForTarget - 61000 / 791) < 1e-9);
+  const f = r.findings.find((x) => /completed trips .*to hit/.test(x.title));
+  assert.ok(f, "warning fires at 77.1 needed vs 72 completed");
+  assert.match(f.title, /about 78 completed trips \(about 97 bookings at 20% weather loss\)/);
+  assert.match(f.title, /more than the 72 completed from the 90/);
+  // $1,500 is above the target price, so no warning.
+  assert.ok(!compute(raw({ currentPrice: "1500" })).findings.some((x) => /to hit your target/.test(x.title)));
+});
+
+test("weather finding is the target price minus the no-cancellation price", () => {
+  // (567 + 61000/72)/0.97 - (567 + 61000/90)/0.97 = 174.68
+  const r = compute(raw());
+  const f = r.findings.find((x) => /Weather cancellations/.test(x.title));
+  assert.match(f.title, /add \$174\.68 to every trip/);
+  assert.ok(!compute(raw({ cancelPct: "10" })).findings.some((x) => /Weather cancellations/.test(x.title)));
+  assert.ok(compute(raw({ cancelPct: "15" })).findings.some((x) => /Weather cancellations/.test(x.title)));
+});
+
+test("a price between break-even and target is a medium miss, not a loss", () => {
+  const r = compute(raw({ currentPrice: "1000" }));
+  assert.equal(r.findings[0].severity, "medium");
+  assert.match(r.findings[0].title, /against your \$40,000\.00 target/);
+  assert.ok(!compute(raw({ currentPrice: "1500" })).findings.some((x) => /against your/.test(x.title)));
+});
+
+test("more than six anglers warns about the six-pack passenger limit", () => {
+  assert.ok(compute(raw({ anglers: "12" })).findings.some((x) => /at most 6 passengers/.test(x.title)));
+  assert.ok(!compute(raw({ anglers: "6" })).findings.some((x) => /at most 6 passengers/.test(x.title)));
+});
+
+test("typed text in the optional fields is an error, not silently skipped", () => {
+  assert.ok(compute(raw({ anglers: "four" })).errors.some((e) => /Anglers/.test(e)));
+  assert.ok(compute(raw({ currentPrice: "about 800" })).errors.some((e) => /Current price/.test(e)));
+});
+
+test("fuel finding says price, and names the cost it grosses up", () => {
+  const f = compute(raw()).findings.find((x) => /per gallon/.test(x.title));
+  assert.match(f.title, /price you need per trip by about \$86\.60 \(\$84\.00 of cost/);
 });

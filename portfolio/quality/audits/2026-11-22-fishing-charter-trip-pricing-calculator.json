@@ -1,0 +1,228 @@
+{
+ "date": "2026-11-22",
+ "subject": "ventures/fishing-charter-trip-pricing-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-22-30b4",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an owner-operator charter captain (USCG OUPV / six-pack or Master licence) who sets next season's half-day and full-day rate card; first checks: is the break-even right once weather days are counted, does the 'take home' figure mean after tax, can it split fixed costs across half-day and full-day trips, does it stop a per-angler quote above six passengers on an uninspected boat, and does the trips-needed warning compare like with like",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed by hand in Python from a cost-plus charter pricing build-up written without the author's tests (fuel = hours x gph x $/gal; variable = fuel + deckhand + bait; fixed spread over completed trips = booked x (1 - cancel); gross-up for card fee by dividing by 1 - fee), then compared with the shipped calc.mjs via /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/re.mjs. Sample (6 h, 14 gph, $4.25, $150 deckhand, $60 bait, $21,000 fixed, 90 booked, 20% weather, 3% fee, $40,000 target): fuel 357.00, variable 567.00, completed 72, target price 1,457.96, break-even 885.22, per angler (4) 364.49: all match. Weather add (price at 72 completed minus price at 90) 174.68: matches. Fuel swing 84 gal / 0.97 = 86.60: matches. At $800 now: annual result -5,952.00: matches. One logic error: the trips-needed warning compares completed trips needed with trips booked (calc.mjs:71). At $1,400 now it needs 77.1 completed trips (96.4 bookings at 20% weather) against 72 completed / 90 booked, so the target is missed but the warning is suppressed because 77.1 < 90; at $800 it says '292 completed trips ... more than the 90 you expect to book' when the bookings needed are 365. Core prices right; one finding wrong.",
+  "completeness": "Claimed features checked end to end in Chromium (Playwright over a local http server, /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/pw.cjs): Load an example -> 'Price for your target: $1,457.96 a trip. Break-even: $885.22', 5 volume-sweep rows, 5 findings, zero console errors; blank trip length -> named error and report hidden; usage counter wrote {\"example_loaded\":1} to localStorage; summary text and CSV builders run in tests. Break-even, target price, per-angler price, current-price check, weather effect and fuel effect all present as the README says. No stubs or TODOs. Leftover: SAMPLE.fuelSurchargeFrom (calc.mjs:7) is an input that nothing reads or shows.",
+  "verification": "`cd ventures/fishing-charter-trip-pricing-calculator && node --test '*.test.mjs'`: 21 tests, 21 pass, 0.12 s; the README's repo-root command also passes 21/21. Five mutants via platform/ci/quality_mutate.py: two caught (fee gross-up divide -> multiply; annual result over booked instead of completed trips), three survived: the weather-effect baseline (priceFor over booked -> completed, so the finding reports $0.00), the target-miss finding inverted (gap < 0 -> gap > 0), and the 15% weather threshold moved to 50%. The findings a captain reads are untested apart from the high loss finding and the trips-needed text.",
+  "craft": "Read calc.mjs (101 lines), index.html, usage.mjs and the three test files. Pure functions, no dependencies, a guarded localStorage counter with a persistent opt-out, escaped HTML in findings, labelled inputs. Defects: anglers and current price silently drop typed text ('4 anglers', 'eight hundred' -> NaN -> treated as blank, no error, calc.mjs:35-36) while every other field reports it; fractional anglers (2.5) accepted; dollars() is a dense IIFE one-liner (calc.mjs:17); an unused SAMPLE key (calc.mjs:7).",
+  "claims": "Backed: no-warranty and not-advice disclaimer in the footer (index.html:115) and README; 'nothing is sent' backed by page.test.mjs:264 (no fetch/XHR/beacon) and the module-import test; usage tracking described accurately (four local-only events, DNT/GPC respected, opt-out button, usage.mjs); the stated pricing rule (index.html:94) is exactly what calc.mjs computes; 'does not know what other captains charge' is honest. served-copy.mjs reports no stale origin in llms.txt/sitemap/robots/canonicals after the deploy rewrite. Not backed: the target field is labelled 'Profit you want to take home per year' (index.html:69) and README says it 'pays you', but the maths treats it as pre-tax business profit; self-employment and income tax are not mentioned anywhere (the 'Not decided' list names only sales or occupancy tax), so a captain entering a true take-home figure under-prices by the tax on it. The fuel finding says each $1/gal 'changes the cost of a trip by' 86.60 when the cost changes by 84.00 and 86.60 is the price change (calc.mjs:77).",
+  "fitness": "Job walked: a captain setting next season's half-day and full-day rates (VENTURE.yaml names this as the first visitor). The tool prices one trip type at a time and spreads all yearly fixed costs over that type's bookings, so running it once for 50 half-days and once for 40 full-days charges the full $21,000 to each, over-pricing both; there is no way to split fixed costs across a mix, which is the core of a rate card. Maintenance is only a yearly fixed figure, so engine-hour wear (service intervals, repower reserve) does not scale with trip length or count. Usable for a single-product captain as a sanity check on break-even; a multi-trip-type rate card needs hand allocation first.",
+  "domain": "Compared with standard owner-operator cost-plus pricing (variable cost per trip + fixed costs over realised trips + owner draw, grossed up for card fees) the method is sound and the weather effect is modelled correctly. Departures a captain would hit: no passenger cap; USCG rules (46 U.S.C. 2101, 'uninspected passenger vessel', and the OUPV six-pack licence) limit an uninspected boat to six passengers for hire, but 12 anglers yields a $121.50 per-angler quote with no warning; no mixed trip types sharing fixed costs; maintenance and engine reserve not per engine hour; card fee has no per-transaction part (e.g. 2.9% + $0.30); retained weather deposits not modelled though the finding recommends a deposit policy; income/self-employment tax on the owner's draw not mentioned."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Target price, break-even and per-angler price on the sample season",
+   "method": "hand cost-plus build-up in Python: (567 + 61000/72)/0.97, (567 + 21000/72)/0.97, /4",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/re.mjs",
+   "expected": "1,457.96 / 885.22 / 364.49",
+   "observed": "1457.96 / 885.22 / 364.49",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Weather cancellations' effect on each trip run (20% of 90)",
+   "method": "hand: price at 72 completed minus price at 90 completed",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/re.mjs",
+   "expected": "174.68",
+   "observed": "$174.68",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Annual result at the current $800 flat rate",
+   "method": "hand: (800 x 0.97 - 567) x 72 - 21000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/re.mjs",
+   "expected": "-5,952.00, high finding with break-even 885.22",
+   "observed": "lose $5,952.00 over 72 completed trips. Break-even is $885.22",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fuel sensitivity per $1.00/gal",
+   "method": "hand: 6 h x 14 gph = 84 gal; price change 84/0.97",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/re.mjs",
+   "expected": "cost +84.00, price +86.60",
+   "observed": "86.60, worded as 'cost of a trip'",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Trips-needed warning at $1,400 now (target missed)",
+   "method": "hand: 61000 / (1400 x 0.97 - 567) = 77.1 completed = 96.4 bookings, vs 72 completed / 90 booked",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/re.mjs",
+   "expected": "warning: about 97 bookings needed, more than 90",
+   "observed": "no trips-needed warning (77.1 completed compared with 90 booked)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Per-angler quote for 12 anglers on a six-pack boat",
+   "method": "46 U.S.C. 2101 uninspected passenger vessel / OUPV licence: at most 6 passengers for hire",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/re.mjs",
+   "expected": "a warning that more than 6 needs an inspected vessel / Master licence",
+   "observed": "$121.50 per angler, no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "Typed text in anglers and current price",
+   "method": "input '4 anglers' and 'eight hundred'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/re.mjs",
+   "expected": "a named error like the other fields",
+   "observed": "errors [], perAngler null, current null (silently skipped)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Browser page: example, findings, sweep, validation, usage counter",
+   "method": "Playwright (Chromium) over a local http server",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/fc/pw.cjs",
+   "expected": "price shown, 5 sweep rows, errors named, no console errors",
+   "observed": "$1,457.96 / $885.22, 5 rows, 5 findings, blank hours named, usage {example_loaded:1}, no errors",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and no-network claim",
+   "method": "read index.html footer and page.test.mjs",
+   "command": "grep -n 'No warranty\\|fetch' ventures/fishing-charter-trip-pricing-calculator/index.html ventures/fishing-charter-trip-pricing-calculator/page.test.mjs",
+   "expected": "disclaimer present; network APIs asserted absent",
+   "observed": "index.html:115 disclaimer; page.test.mjs:264 asserts no fetch/XHR/beacon",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Profit you want to take home' vs pre-tax maths",
+   "method": "read index.html label and Not-decided list; calc.mjs priceFor",
+   "command": "grep -n -i 'take home\\|tax' ventures/fishing-charter-trip-pricing-calculator/index.html",
+   "expected": "target stated as pre-tax, or income tax listed as not decided",
+   "observed": "label says take home (index.html:69); only sales/occupancy tax mentioned (index.html:95)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt and sitemap URLs as served",
+   "method": "deploy rewrite simulation",
+   "command": "node platform/pages/served-copy.mjs fishing-charter-trip-pricing-calculator",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/fishing-charter-trip-pricing-calculator && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "21/21 pass, 0.12 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Half-day and full-day rate card sharing one boat's fixed costs",
+   "method": "walk the first visitor's job from VENTURE.yaml",
+   "command": "read index.html inputs and calc.mjs priceFor",
+   "expected": "fixed costs split across trip types",
+   "observed": "one trip type per run; each run carries all yearly fixed costs",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {"where": "calc.mjs:43", "change": "price: netNeeded / (1 - p.feePct / 100) -> price: netNeeded * (1 + p.feePct / 100)", "caught": true, "test_cmd": "node --test *.test.mjs"},
+  {"where": "calc.mjs:74", "change": "const noWx = priceFor(p, p.booked, p.target).price; -> const noWx = priceFor(p, completed, p.target).price;", "caught": false, "test_cmd": "node --test *.test.mjs"},
+  {"where": "calc.mjs:69", "change": "else if (current && current.gap < 0) -> else if (current && current.gap > 0)", "caught": false, "test_cmd": "node --test *.test.mjs"},
+  {"where": "calc.mjs:61", "change": "const profitYear = contribution * completed - p.fixedYear; -> const profitYear = contribution * p.booked - p.fixedYear;", "caught": true, "test_cmd": "node --test *.test.mjs"},
+  {"where": "calc.mjs:73", "change": "if (p.cancelPct >= 15) { -> if (p.cancelPct >= 50) {", "caught": false, "test_cmd": "node --test *.test.mjs"}
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The trips-needed warning compares completed trips needed with trips booked: at $1,400 a trip the target needs 77.1 completed trips (96.4 bookings at 20% weather) against 72 completed / 90 booked, yet no warning shows because 77.1 < 90; at $800 it reports 292 completed trips 'more than the 90 you expect to book' when 365 bookings are needed.",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:71",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "medium",
+   "what": "The target is labelled 'Profit you want to take home per year' but is treated as pre-tax business profit; income and self-employment tax are not mentioned (the Not-decided list names only sales or occupancy tax), so a captain entering a real take-home figure under-prices.",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/index.html:69",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "medium",
+   "what": "One trip type per run with all yearly fixed costs: a half-day plus full-day rate card (the first visitor's job in VENTURE.yaml) double-counts fixed costs unless the captain splits them by hand.",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:40",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No passenger cap or warning: 12 anglers gives a per-angler quote though an uninspected passenger vessel run under an OUPV (six-pack) licence may carry at most 6 passengers for hire (46 U.S.C. 2101).",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:35",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "medium",
+   "what": "Three of five seeded mutants survive: the weather-effect baseline, the target-miss finding condition and the 15% weather threshold are untested, so the findings a captain reads can break with every test green.",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "low",
+   "what": "Anglers and current price silently drop typed text ('4 anglers', 'eight hundred' become blank with no error) and accept fractional anglers, unlike every other field.",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:35",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "low",
+   "what": "The fuel finding says each $1/gal 'changes the cost of a trip by' $86.60; the cost changes by $84.00 (gallons per trip) and $86.60 is the price change after the card-fee gross-up.",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:77",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "low",
+   "what": "Maintenance and engine reserve only as a yearly fixed figure (no per-engine-hour cost); card fee has no per-transaction part; retained weather deposits not modelled.",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:41",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "SAMPLE carries fuelSurchargeFrom, an input nothing reads or shows (dead field).",
+   "where": "ventures/fishing-charter-trip-pricing-calculator/calc.mjs:7",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
+ "verdict": "A small, honest cost-plus calculator whose core numbers are right: target price $1,457.96, break-even $885.22, weather effect $174.68, fuel swing $86.60 and the -$5,952 annual result at $800 all match a hand build-up, and the page works in a browser with the disclaimer and local-only usage counting it describes. It does not meet the bar. The trips-needed warning compares completed trips with booked trips, so it is silent at $1,400 when the target is missed. The 'take home' target is really pre-tax. Three of five seeded mutants in the findings logic survive. A captain's real job, a half-day and full-day rate card sharing one boat's fixed costs within the six-passenger limit, is not modelled. Fixing calc.mjs:71 (compare with completed trips, report bookings), relabelling the target as pre-tax profit, adding a six-passenger warning and testing the findings would lift claims and verification to 3."
+}

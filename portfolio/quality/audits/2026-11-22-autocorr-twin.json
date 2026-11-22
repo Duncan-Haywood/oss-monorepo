@@ -1,0 +1,249 @@
+{
+ "date": "2026-11-22",
+ "subject": "research/autocorr-twin",
+ "stratum": "research",
+ "seed": "2026-11-22-30b4",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a time-series statistician / simulation output analyst (the Law & Kelton, Whitt, Schmeiser school); first checks: is the M/M/1 asymptotic variance right, is the AR(1) variance exact, are the t quantiles right, is batch-size choice justified, is warm-up handled, and is anything here not already in Whitt (1989) or Law & Kelton ch. 9",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (66 s): output byte-identical to the committed experiments/results.txt. Independent recomputations (scripts in /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/act, none imports the subject): (1) AR(1) n*Var(mean)/s2 from the closed form (1+phi)/(1-phi) - 2phi(1-phi^n)/(n(1-phi)^2) gives 2.996/18.820/179.201 at phi=0.5/0.9/0.99, n=1000, ESS 333.8/53.1/5.6, known-variance naive coverage 0.743/0.349/0.116 via statistics.NormalDist: all match. (2) M/M/1 wait moments from the textbook law (atom 1-rho at 0, else Exp(1-rho)): mean 1/2.333/9, Var 3/10.111/99: match. (3) The Daley/Whitt asymptotic variance, checked by a regenerative estimator (cycles at zero wait, 2e7-6e7 jobs), a different method from the subject's batch means: 28.91 (formula 29.0, rel SE 0.9%), 331.1 (335.6, 1.1%), 35,613 (35,901, 3.1%); the formula holds to within noise, much tighter than the subject's own 100-batch check (17-24% high). (4) t(0.975) quantiles from my own Simpson-integrated t CDF: 2.776/2.262/2.093/2.045/2.010/1.984, all match T975. (5) Run lengths 1152/713/470 and 11,141/23,678/170,268: match. (6) Independent re-simulation of the rho=0.9 SLA case (own Lindley code, seed 2026): naive certifies 28.2% (reported 26.0%), batch 6.1% (4.8%), coverage naive 8.0% / batch 80.5% (8.8% / 82.5%), all within ~2 SE. Not 4: section 2 compares naive on the un-burned prefix with batch means on the burned suffix (run.py:48-49), and the paper's own formula check is weak.",
+  "completeness": "README promises: tests (ran, 10 pass in 1.7 s), experiments/run.py reproducing every paper number (ran, identical, 66 s vs '~2 min'), figure from results.txt (test_figure checks the committed SVG matches a regeneration: pass). Every number in README, paper and projects.json summary traced to results.txt. No stubs or TODOs. Stale: README says 8 tests, there are 10. Live page could not be loaded (proxy returned no connection, curl code 000).",
+  "verification": "`cd research/autocorr-twin && env PYTHONPATH=src python3 -m unittest discover -s tests`: Ran 10 tests, OK, 1.7 s. Six mutants via platform/ci/quality_mutate.py: caught 4 (asym-var exponent 4->3, AR(1) innovation sqrt(1-phi^2)->sqrt(1-phi), Lindley arrival rate rho->1/rho, run_length z^2->z); survived 2, both in the batch-means repair that is the paper's remedy: batch_ci half-width divides by sqrt(L) instead of sqrt(b) (model.py:107), and T975[29] 2.045->1.96 (model.py:11). test_cis only asserts h < 0.01 on an alternating 0/1 series, so the interval's width is never checked against a known value; no test checks batch-means coverage.",
+  "craft": "Read src/autocorr_twin/model.py (107 lines), experiments/run.py, experiments/figure.py, tests/test_model.py, tests/test_figure.py. Pure stdlib, small seeded functions with docstrings that state formulas and sources. Defects: batch_ci silently drops the last n mod b samples and raises a bare KeyError for any b whose b-1 is not a key of the hard-coded T975 table (model.py:102-107); no input validation (phi>=1, rho>=1 give division errors or nonsense); `from autocorr_twin import *` in run.py and tests; run_length returns a float that run.py truncates with int() (23,677 vs the printed 23,678).",
+  "claims": "Checked each README/paper/summary number against results.txt: n*Var 18.82 vs 19.15, ESS 334/53/6, naive coverage 76/34/10%, inflation 9.7/33/363x, M/M/1 coverage 53/26/9%, half-width ratio 14x (2.521/0.185 = 13.6), SLA 26.0% vs 4.8%, run lengths 470 and 170,268, batch 94.7/93.7/94.2/82.5%, 0.535 at phi=0.99: all backed. 'Stylised' disclosure says what is not sourced and why; the M/M/1 formula is honestly labelled cited, not derived; the paper says the method is classical and lists missing estimators in Limitations. Gaps: README '8 tests' (10 run); paper item 5 calls the run-length check 'variance within ~3%' but the comparison ignores the t/z and c4 factors (expected mean half-width if the formula were exact is ~0.241, observed 0.236); 'Builds on' names two university groups whose work is not used (disclaimed).",
+  "fitness": "Nearest prior work: Whitt (1989) 'Planning queueing simulations' gives exactly this M/M/1 run-length planning from the asymptotic variance; Law & Kelton (2000) ch. 9 demonstrate naive-interval and batch-means coverage on M/M/1 delays at rho=0.9; Schmeiser (1982) the batch-count trade-off; modern practice is overlapping batch means (Meketon & Schmeiser 1984), spectral/Skart/N-Skart and ASAP3 sequential procedures (Steiger, Lada, Tafazzoli & Wilson), MSER warm-up deletion (White 1997), and in MCMC the sqrt(n) batch rule and ESS (Flegal & Jones 2010). Every result here is a correct reproduction of known material, not new; none of the modern estimators is compared. A researcher could use it as a clean, reproducible teaching baseline, but it does not advance a question and is not a PhD-level programme (not in research/PROGRAMMES.md).",
+  "domain": "Against Law & Kelton ch. 9 and Alexopoulos & Seila (1998) practice: the variance formulas, Lindley recursion, stationary AR(1) start and t quantiles are textbook-correct. Departures a simulation analyst would flag: fixed b=30 with no batch-size selection or test of batch-mean independence (von Neumann / lag-1 test), so the phi=0.99 and rho=0.9 failures are shown but no rule to avoid them is given; warm-up is a fixed 1000-2000 jobs, no MSER or truncation method; no comparison with OBM, spectral or standardized-time-series estimators; the SLA rule uses a two-sided 95% half-width as a one-sided bound (a 97.5% upper bound), not stated."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "AR(1) n*Var(mean)/s2 at n=1000, phi=0.5/0.9/0.99",
+   "method": "closed-form geometric sum (1+phi)/(1-phi) - 2phi(1-phi^n)/(n(1-phi)^2), Bartlett limit (1+phi)/(1-phi)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/act/recompute.py",
+   "expected": "2.996 / 18.820 / 179.201",
+   "observed": "2.996 / 18.820 / 179.201 (results.txt)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ESS and known-variance naive coverage at n=1000",
+   "method": "n / inflation; 2*Phi(1.96/sqrt(infl))-1 with statistics.NormalDist",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/act/recompute.py",
+   "expected": "ESS 333.8/53.1/5.6; coverage 0.743/0.349/0.116",
+   "observed": "ESS 334/53/6; 0.743/0.349/0.116",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "M/M/1 waiting-time asymptotic variance rho(2+5rho-4rho^2+rho^3)/(1-rho)^4",
+   "method": "regenerative estimator over zero-wait cycles (Crane & Iglehart), 2e7/4e7/6e7 jobs, independent of batch means",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/act/regen.py 0.5 20000000 7 (and 0.7 40000000 8, 0.9 60000000 9)",
+   "expected": "29.0 / 335.6 / 35,901",
+   "observed": "28.91 (SE 0.9%) / 331.1 (SE 1.1%) / 35,613 (SE 3.1%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "M/M/1 wait mean and variance",
+   "method": "textbook law: P(W=0)=1-rho, else Exp(1-rho); E[W^2]=2rho/(1-rho)^2",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/act/recompute.py",
+   "expected": "1/3, 2.333/10.111, 9/99",
+   "observed": "1.000/3.000, 2.333/10.111, 9.000/99.000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Student-t 0.975 quantiles in T975",
+   "method": "own t CDF by Simpson integration of the t density plus bisection",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/act/recompute.py",
+   "expected": "2.776, 2.262, 2.093, 2.045, 2.010, 1.984",
+   "observed": "same table in model.py:11",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "False SLA certification and coverage at rho=0.9, n=1e4 after 1000 burn",
+   "method": "independent re-simulation, own Lindley code and seed 2026, 1000 runs",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/act/cert.py",
+   "expected": "naive 26.0%, batch 4.8%; coverage 8.8% / 82.5% (reported)",
+   "observed": "naive 28.2%, batch 6.1%; coverage 8.0% / 80.5% (within ~2 SE)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Run lengths for a 10% half-width",
+   "method": "n = z^2 sigma^2 / h^2 (Whitt 1989), recomputed by hand",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a8fec2a0-187e-5564-ad4f-f522fdb134ed/scratchpad/act/recompute.py",
+   "expected": "1152/713/470 iid; 11,141/23,678/170,268 exact",
+   "observed": "same in results.txt section 4",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments/run.py reproduces results.txt",
+   "method": "re-run and diff",
+   "command": "cd research/autocorr-twin && PYTHONPATH=src python3 experiments/run.py > out.txt; diff out.txt experiments/results.txt",
+   "expected": "identical",
+   "observed": "identical, 66 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/autocorr-twin && env PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "pass",
+   "observed": "Ran 10 tests, OK, 1.7 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README test count",
+   "method": "count test methods run",
+   "command": "grep -n '8 tests' research/autocorr-twin/README.md",
+   "expected": "10 tests",
+   "observed": "README.md:9 says 8 tests",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Paper item 5: run-length check 'half-width within 1.3%, variance within ~3%'",
+   "method": "expected mean batch half-width if formula exact = 0.233 x 2.045/1.96 x c4(30)",
+   "command": "python3 -c (c4 via lgamma)",
+   "expected": "0.241 (so 0.236 implies variance ~4% low)",
+   "observed": "paper compares 0.236 with 0.233 directly",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline numbers in README and projects.json summary trace to results.txt",
+   "method": "line-by-line comparison",
+   "command": "read README.md, paper/whitepaper.md, research/_homepage/projects.json entry vs experiments/results.txt",
+   "expected": "every number backed",
+   "observed": "all backed (14x = 2.521/0.185 = 13.6)",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Novelty against nearest prior work",
+   "method": "Whitt 1989; Law & Kelton 2000 ch. 9; Schmeiser 1982; Steiger & Wilson / Tafazzoli & Wilson (ASAP3, Skart); Flegal & Jones 2010",
+   "command": "read paper/whitepaper.md Results, Limitations, References",
+   "expected": "a result beyond the textbook or a comparison with modern estimators",
+   "observed": "correct reproduction of known results; no OBM/spectral/Skart/MSER baseline",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Section 2 compares naive and batch intervals on the same data",
+   "method": "read run.py",
+   "command": "sed -n 46,58p research/autocorr-twin/experiments/run.py",
+   "expected": "both on the same burned series",
+   "observed": "naive on full[:n] (empty start), batch on full[burn:]",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/autocorr_twin/model.py:107",
+   "change": "return m, T975[b - 1] * sd / math.sqrt(b) -> return m, T975[b - 1] * sd / math.sqrt(L)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/autocorr_twin/model.py:11",
+   "change": "T975[29] 2.045 -> 1.96",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/autocorr_twin/model.py:83",
+   "change": "/ (1.0 - rho) ** 4 -> / (1.0 - rho) ** 3",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/autocorr_twin/model.py:52",
+   "change": "innov = sd * math.sqrt(1.0 - phi * phi) -> innov = sd * math.sqrt(1.0 - phi)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/autocorr_twin/model.py:68",
+   "change": "rng.expovariate(rho) -> rng.expovariate(1.0 / rho)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/autocorr_twin/model.py:46",
+   "change": "return z * z * asym_var / ... -> return z * asym_var / ...",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The batch-means interval, the paper's remedy, is effectively untested: dividing its half-width by sqrt(L) instead of sqrt(b) and changing t(29) from 2.045 to 1.96 both leave all 10 tests green; test_cis only asserts h < 0.01 on an alternating series.",
+   "where": "research/autocorr-twin/tests/test_model.py:47",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "medium",
+   "what": "No new result: Whitt (1989) already plans M/M/1 run lengths from this asymptotic variance and Law & Kelton ch. 9 show the same naive and batch-means coverage failures; no comparison with overlapping batch means, spectral, Skart/N-Skart, ASAP3 or a batch-size rule (sqrt(n), Flegal & Jones 2010), and no MSER warm-up. Below the research/CLAUDE.md PhD bar and not part of a programme.",
+   "where": "research/autocorr-twin/paper/whitepaper.md:20",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Section 2 computes the naive interval on the un-burned prefix full[:n] and the batch interval on the burned suffix full[burn:], so the two coverages are on different data (initial bias is small here, but the comparison is confounded).",
+   "where": "research/autocorr-twin/experiments/run.py:48",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Formula check uses 100 batch means (14% SE) and all three estimates land 5-24% high; a regenerative estimator confirms the Daley formula to within 1.3%. The paper's 'tighter test' (item 5) compares mean half-width 0.236 to 0.233 ignoring the t/z and c4 factors (expected 0.241 if exact).",
+   "where": "research/autocorr-twin/paper/whitepaper.md:17",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README says 8 tests; the suite runs 10 (test_figure.py added later). Runtime '~2 min' is 66 s.",
+   "where": "research/autocorr-twin/README.md:9",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"
+  },
+  {
+   "severity": "low",
+   "what": "batch_ci silently drops the last n mod b observations and raises a bare KeyError for any batch count whose df is not in the hard-coded T975 table; no validation of phi or rho in [0,1).",
+   "where": "research/autocorr-twin/src/autocorr_twin/model.py:104",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "The SLA certification rule uses the two-sided 95% half-width as a one-sided upper bound (97.5% one-sided) without saying so.",
+   "where": "research/autocorr-twin/experiments/run.py:64",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
+ "verdict": "A small, correct and honestly labelled reproduction of classical simulation output analysis. The run reproduces byte for byte. Every number I recomputed matches: the AR(1) variance from the closed form, ESS and coverage, the t table, the run lengths, and the M/M/1 asymptotic variance, which a regenerative estimator confirms to within 1.3%, far tighter than the subject's own check. An independent re-simulation of the SLA case agrees within 2 SE. It misses the bar on verification: the batch-means interval, the remedy the paper recommends, can have its half-width or t quantile broken with every test still green. Fitness and domain are 2 because nothing goes beyond Whitt (1989) and Law & Kelton ch. 9. No modern estimator (OBM, spectral, Skart, ASAP3, MSER) or batch-size rule is compared, so it is a sound teaching baseline, not PhD-level research."
+}

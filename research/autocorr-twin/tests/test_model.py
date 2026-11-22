@@ -44,6 +44,22 @@ class M(unittest.TestCase):
         v = sum((x - m) ** 2 for x in bm) / (b - 1) * L
         self.assertAlmostEqual(v, mm1_asym_var(0.5), delta=0.2 * mm1_asym_var(0.5))
 
+    def test_batch_ci_hand_value(self):
+        # Quality audit 2026-11-22: a sqrt(L) divisor and T975[29] = 1.96 both survived test_cis.
+        # 30 batches of 4 draws, batch i all equal to i: batch means 0..29, mean 14.5,
+        # sample sd sqrt(30*31/12) = 8.80341, half-width 2.045 * 8.80341 / sqrt(30) = 3.28688.
+        xs = [float(i) for i in range(30) for _ in range(4)]
+        m, h = batch_ci(xs, 30)
+        self.assertAlmostEqual(m, 14.5)
+        self.assertAlmostEqual(h, 2.045 * math.sqrt(77.5) / math.sqrt(30), places=9)
+        self.assertAlmostEqual(h, 3.28688, places=4)
+
+    def test_t975_table(self):
+        # two-sided 95% Student-t quantiles (any standard t table, e.g. Law & Kelton Table T.1)
+        ref = {4: 2.776, 9: 2.262, 19: 2.093, 29: 2.045, 49: 2.010, 99: 1.984}
+        for df, t in ref.items():
+            self.assertAlmostEqual(T975[df], t, places=3)
+
     def test_cis(self):
         xs = [float(i % 2) for i in range(3000)]
         m, h = batch_ci(xs, 30)

@@ -143,7 +143,7 @@ this tool says which they are
   slab, a round column (pi x 0.15^2 x 3 m3) and an IPE 200 beam. `engine.test.mjs`
   checks each against the arithmetic, and the IPE 200 section against the steel
   tables (28.48 cm2; root radii included as (4 - pi) r^2).
-- **Real models.** On 13 public models (Revit, ArchiCAD, Tekla and others), the
+- **Real models.** On the 8 public models that store volumes (Revit, ArchiCAD, Tekla and others), the
   computed volume agrees with the stored GrossVolume for 4,863 of 5,495
   elements and with NetVolume for 6,172 of 6,405; where they agree, the median
   difference is 8e-16. Every disagreement is classified in

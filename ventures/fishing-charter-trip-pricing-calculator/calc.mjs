@@ -4,7 +4,7 @@
 export const SAMPLE = {
   hours: "6", gph: "14", fuelPrice: "4.25", deckhand: "150", bait: "60",
   fixedYear: "21000", booked: "90", cancelPct: "20", feePct: "3", target: "40000",
-  anglers: "4", currentPrice: "800", fuelSurchargeFrom: "",
+  anglers: "4", currentPrice: "800",
 };
 
 const num = (v) => {
@@ -32,8 +32,10 @@ export function parse(raw) {
   for (const [n, v] of [["Deckhand pay", deckhand], ["Bait and supplies", bait]]) if (!(v >= 0)) errors.push(`${n} must be 0 or more.`);
   if (!(cancelPct >= 0 && cancelPct < 100)) errors.push("Weather cancellations must be from 0 to under 100 percent.");
   if (!(feePct >= 0 && feePct < 50)) errors.push("Card fee must be from 0 to under 50 percent.");
-  if (anglers !== anglers ? false : !(anglers >= 1)) errors.push("Anglers per trip must be 1 or more.");
-  if (currentPrice !== currentPrice ? false : !(currentPrice >= 0)) errors.push("Current price must be 0 or more.");
+  // Blank skips these two optional fields; anything typed must be a number.
+  const typed = (v) => String(v ?? "").trim() !== "";
+  if (typed(raw.anglers) && !(anglers >= 1)) errors.push("Anglers per trip must be a number, 1 or more (or leave it blank).");
+  if (typed(raw.currentPrice) && !(currentPrice >= 0)) errors.push("Current price must be a number, 0 or more (or leave it blank).");
   return { errors, hours, gph, fuelPrice, deckhand, bait, fixedYear, booked, cancelPct, feePct, target, anglers, currentPrice };
 }
 
@@ -68,13 +70,18 @@ export function compute(raw) {
     findings.push({ severity: "high", title: `At ${dollars(p.currentPrice)} a trip you lose ${dollars(-current.profitYear)} over ${completed.toFixed(0)} completed trips. Break-even is ${dollars(breakEven.price)}.` });
   else if (current && current.gap < 0)
     findings.push({ severity: "medium", title: `${dollars(p.currentPrice)} a trip clears costs but earns ${dollars(current.profitYear)} against your ${dollars(p.target)} target. Price for the target is ${dollars(need.price)}.` });
-  if (current && current.tripsForTarget && current.tripsForTarget > p.booked)
-    findings.push({ severity: "medium", title: `At the current price you would need about ${Math.ceil(current.tripsForTarget)} completed trips to hit your target, more than the ${p.booked} you expect to book.` });
+  // Compare completed trips with completed trips: the booked count includes the ones weather takes.
+  if (current && current.tripsForTarget && current.tripsForTarget > completed) {
+    const bookingsNeeded = current.tripsForTarget / (1 - p.cancelPct / 100);
+    findings.push({ severity: "medium", title: `At the current price you would need about ${Math.ceil(current.tripsForTarget)} completed trips (about ${Math.ceil(bookingsNeeded)} bookings at ${p.cancelPct}% weather loss) to hit your target, more than the ${completed.toFixed(0)} completed from the ${p.booked} you expect to book.` });
+  }
+  if (hasAnglers && p.anglers > 6)
+    findings.push({ severity: "medium", title: `${p.anglers} anglers is more than 6. An uninspected passenger vessel (a "six-pack" boat) may carry at most 6 passengers for hire (46 U.S.C. 2101); more needs an inspected vessel with a Certificate of Inspection.` });
   if (p.cancelPct >= 15) {
     const noWx = priceFor(p, p.booked, p.target).price;
     findings.push({ severity: "medium", title: `Weather cancellations of ${p.cancelPct}% add ${dollars(need.price - noWx)} to every trip you do run, because fixed costs spread over fewer trips. A deposit or a reschedule policy protects that.` });
   }
-  findings.push({ severity: "info", title: `Each $1.00 per gallon move in fuel changes the cost of a trip by about ${dollars(fuelSwing)} at your fee rate. A fuel surcharge clause covers it.` });
+  findings.push({ severity: "info", title: `Each $1.00 per gallon move in fuel changes the price you need per trip by about ${dollars(fuelSwing)} (${dollars(p.hours * p.gph)} of cost, grossed up for the card fee). A fuel surcharge clause covers it.` });
   findings.push({ severity: "info", title: `Price for your target: ${dollars(need.price)} a trip${hasAnglers ? ` (${dollars(perAngler)} per angler for ${p.anglers})` : ""}. Costs per completed trip: ${dollars(need.variable)} variable plus ${dollars(fixedPerTrip)} fixed.` });
   const sweep = [0.5, 0.75, 1, 1.25, 1.5].map((f) => {
     const booked = Math.round(p.booked * f);

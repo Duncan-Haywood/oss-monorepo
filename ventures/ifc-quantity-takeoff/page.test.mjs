@@ -106,3 +106,15 @@ test("the model view's worker exists, is browser-safe and falls back to the page
   assert.match(html, /typeof Worker === "undefined"/);
   assert.match(html, /drawn on the page instead/);
 });
+
+test("the drawn-volume agreement figure on the page and llms.txt matches the README", () => {
+  // Quality audit 2026-11-22: the page and llms.txt kept "9,184 of 9,314" after the README moved on.
+  const readme = page("README.md").replace(/\s+/g, " ");
+  const m = readme.match(/enclose the computed volume within 0\.5% for ([\d,]+ of [\d,]+) elements/);
+  assert.ok(m, "README states the figure");
+  for (const f of ["index.html", "llms.txt"]) {
+    const found = [...page(f).matchAll(/([\d,]+ of [\d,]+) elements drawn from their solids enclose|enclose the computed volume within 0\.5% for ([\d,]+ of [\d,]+)/g)].map((x) => x[1] || x[2]);
+    assert.ok(found.length > 0, `${f} states the figure`);
+    for (const v of found) assert.equal(v, m[1], f);
+  }
+});

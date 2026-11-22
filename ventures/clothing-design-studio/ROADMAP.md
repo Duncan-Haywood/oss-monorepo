@@ -19,6 +19,14 @@ many-session project. Each milestone below lands as a working slice.
 - Sunglasses designer (second interview): stock frame styles, 52□18-145 sizing with range checks, logos on temple, lens, case and cloth, landed cost, quote request with EN ISO 12312-1 and FDA drop-ball asks.
 - Wardrobe planner (second interview): capsule from age band, fit, style, climate, season, occasions and quality tier; outfit count by a stated colour rule; in-house vs partner-brand pieces; first drop within a budget, most-worn pieces first.
 
+## Known gaps (quality audit 2026-11-22, [audit](../../portfolio/quality/audits/2026-11-22-clothing-design-studio.json))
+
+- **Pattern and spec sheet disagree on shoulder and neck.** The drafted shoulder (2 x sx) is 40.0/43.8/47.4/51.0/54.6/58.2 cm XS to XXL against the spec's 39.4/42.6/45.9/49.2/52.5/55.8 (tolerance 0.8), and the neck width grades 15.1 to 22.3 against a spec that holds 18 in every size (tolerance 0.5). The figures are typed separately in `pattern.mjs`, `marker.mjs`, `tryon.mjs` and `spec.mjs`; one source should feed all four. The sleeve length now grades the same way in the pattern and the spec (fixed in the audit's round).
+- **Grading increments look about twice the menswear chart's** (armhole depth +1.88 cm, half shoulder +1.8 cm, half neck +0.72 cm per 8 cm chest step); check against a published grade rule before a factory uses them.
+- **No neckband piece** for the tee, long sleeve and crewneck.
+- **Drape settling:** an M tee at the graded 21 cm sleeve, lowered to 18 degrees against a 3 cm soft side, leaves 6 of 836 vertices moving (the "settled" threshold is 0.5%); at 22 cm it settles. `drape-soft-torso.test.mjs` pins 22 cm until this is fixed.
+- Untested branches: seeded changes to the neck ratio (`pattern.mjs`), the size-run boundary (`fit.mjs:138`) and the run-cost fabric factor (`runcost.mjs:26`) left every test green.
+
 ## Next
 
 - 2026-11-19: relative colour edits (`shade.mjs`): "make it darker", "a bit lighter", "tone it down", "warmer ink", "lighten the halo", "a darker green" move the garment colour or the named artwork's ink in CIELAB (lightness, vividness, warmth); a catalogue colour within CIEDE2000 8 of the target is used by name, otherwise a custom colour with the nearest stock colour and a lab-dip note; a move the screen cannot show is refused. Held-out set written before the code: 13 of 14 first run, 14 of 14 after one gamut-clipping bug fix; dev 15 of 15; main before 2 and 3 (eval/shade-edits-2026-11-19.md). Next: the supplier sheet's own stock colours as the palette; "darker / lighter" variants on the panel; real recorded designer feedback.
