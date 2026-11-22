@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmRUqGAA9u1yybdc4o",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T23:09:37Z",
+  "ended": "2026-11-22T23:30:13Z",
+  "wall_minutes": 20.99,
+  "tokens_in": 19931369,
+  "tokens_out": 125712,
+  "cost_usd": 8.4652,
+  "tool_calls": 112,
+  "task": "Explore: pre-commit-config-check, a pre-commit config validator matched to pre-commit itself",
+  "projects": [
+    "pre-commit-config-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18330",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 32,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the unknown-hook-key rule called prek keys (priority, env) in Airflow, Ruff and tox typos",
+      "fix": "Installed prek 0.5.11, probed each key with prek validate-config, added a prek-key info rule"
+    },
+    {
+      "what": "Two test expectations of mine were wrong (line number; schema-order first error); a third assumed pre-commit logs the mutable-rev warning before a hooks error",
+      "fix": "Checked each against real pre-commit output, corrected the tests; checker was right"
+    },
+    {
+      "what": "A seeded mutant of the YAML float regex survived the first test suite",
+      "fix": "Added 08 and 1e+5 (strings in PyYAML) to the typing test; mutant now caught"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "While drafting differential/README.md I wrote a breakdown of mutant outcomes (2,733 accepted, 27 YAML errors) without having computed it",
+      "fix": "Caught before commit; recomputed with pre-commit's loader (2,760 accepted; 2,314 rejected, 223 as YAML errors; 101 crashes) and replaced it"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "quality_mutate.py runs the test command inside the venture dir; the playbook example implies a repo-root path, and the first three tries failed with 'baseline failed' (the tool's hint explained it)"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A backgrounded subshell `(python3 -m http.server &)` in a Bash call was refused by the removal safety check although nothing was deleted; use run_in_background instead"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-pre-commit-config-every-error-at-once.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: validate .pre-commit-config.yaml exactly as pre-commit 4.7.0 does, in the browser, by re-expressing clientlib.py/cfgv in schema order and carrying a PyYAML-typed YAML reader and a CPython 3.11 regex syntax checker; then list beyond-pre-commit findings (ignored hook keys, duplicate keys, glued args, prek keys). Differential results 2026-11-22: config verdict, first-error chain and warnings agree with pre-commit's loader on 5,244/5,244 files (69 public configs + 5,175 single-edit mutants); YAML 114/114 identical to PyYAML 6.0.4; regex verdicts 199,999/200,000 vs CPython 3.11.18. In the 69 public configs: 328 of 448 revs are tags not SHAs; 3 projects use prek-only keys. Local checks: run_venture_tests (31 + 23 tests), quality_mutate 3/3 caught, Chromium render at 390px, check_third_party, register-tool, venture-preflight.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6b3a45cf-d3cc-5026-90eb-aa4fde17a500",
+    "transcripts": 1,
+    "first": "2026-11-22T23:09:37Z",
+    "last": "2026-11-22T23:30:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 106,
+        "input": 205,
+        "output": 125712,
+        "thinking": 28227,
+        "cache_read": 19679376,
+        "cache_write_5m": 0,
+        "cache_write_1h": 251788,
+        "api_equivalent_usd": 8.4652,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 106,
+      "input": 205,
+      "output": 125712,
+      "thinking": 28227,
+      "cache_read": 19679376,
+      "cache_write_5m": 0,
+      "cache_write_1h": 251788,
+      "api_equivalent_usd": 8.4652,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 112,
+    "tools": {
+      "Bash": 99,
+      "Write": 9,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.99,
+      "active_minutes": 20.99,
+      "model_minutes": 19.21,
+      "tool_minutes": 1.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "estimate: a developer writing a PyYAML-compatible reader, a CPython regex validator and pre-commit schema port with differential harnesses, page and CLI",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 283.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
