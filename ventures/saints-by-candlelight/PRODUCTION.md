@@ -195,7 +195,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Moses and Zipporah on the road back to Egypt and the lodging place, a hard passage told carefully in daylight, with the main readings named and none settled (Exodus 4:24-26; left by episodes 37, 157 and 158).
 - Miriam and Aaron and the cloud over the tent at Hazeroth, the meekest man on the face of the earth (Numbers 12; left by episode 141).
 - Othniel and Achsah and the upper and lower springs, Caleb's daughter who asked for water and the first judge of Israel (Joshua 15:13-19, Judges 1:11-15 and 3:7-11; left by episode 142).
-- Joshua and the twelve stones at Gilgal and the commander of the Lord's army before Jericho (Joshua 3-5; left by episode 143).
 - Shimei and the stones on the road from Jerusalem, and David who would not let Abishai take his head, then forgave him at the Jordan (Second Samuel 16:5-14 and 19:16-23; left by episode 147).
 - David and the Song of the Bow, the lament for Saul and Jonathan, swifter than eagles and stronger than lions (Second Samuel 1; left by episode 147).
 - David at the gate of Gath, the first time he fled to Achish and let his spittle run down his beard (First Samuel 21:10-15, with Psalm 34's title; left by episode 148).
@@ -213,11 +212,13 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - The two runners from the battle in the forest of Ephraim, Ahimaaz who outran the Cushite by the plain and would not tell the king the worst (Second Samuel 18:19-33; left by episode 152).
 - Bezalel and Oholiab, filled with the spirit of God for every craft, Hur's grandson who made the ark, and the people who brought so much that Moses had to tell them to stop (Exodus 31:1-11 and 35:30 to 36:7; left by episode 161).
 - Joshua at Shechem and the stone under the oak, choose this day whom you will serve, the old man who looked up the hill at Rephidim saying goodbye (Joshua 24; left by episode 161).
+- Joshua and the walls of Jericho, seven days round the city with the ark and the rams' horns, and the scarlet cord kept (Joshua 6, with Hebrews 11:30-31; left by episode 162).
+- Elijah and Elisha and the cloak on the Jordan, the double portion and the chariot of fire, Elisha walking back alone (Second Kings 2:1-15; left by episode 162).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 161 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 161.
+Audio: 29 of 162 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 162.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
