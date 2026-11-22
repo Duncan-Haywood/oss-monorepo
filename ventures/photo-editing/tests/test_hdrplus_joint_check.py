@@ -73,6 +73,14 @@ class JudgeTest(unittest.TestCase):
                      "arm": "candidate", "scores": [40.0, 49.8]})
         self.assertFalse(j.judge_rows(rows)["candidate"]["tests"]["h2"])
 
+    def test_collapse_rule(self):
+        import hdrplus_joint_check as j
+
+        ship = (1e-4, 1e-6)
+        self.assertTrue(j.collapsed({"ship": ship, "mpcws": (7.5e-13, 0.0)}))
+        self.assertFalse(j.collapsed({"ship": ship, "mpcws": (0.5e-4, 0.5e-6)}))
+        self.assertFalse(j.collapsed({"ship": (0.0, 0.0), "mpcws": (0.0, 0.0)}))  # both zero: nothing to fall back to
+
 
 if __name__ == "__main__":
     unittest.main()
