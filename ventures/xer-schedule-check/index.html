@@ -255,6 +255,19 @@
     </p>
     <p class="note" id="drag-status"></p>
     <div id="drag-out" class="tablewrap"></div>
+    <h3 style="margin-top:18px" id="crash">Shorten several at once: the cheapest way to bring the finish in</h3>
+    <p class="note">Where parallel chains of equal length run side by side, drag is 0 for each of them, but shortening them together still wins time. This finds, step by step, the cheapest set of activities that every driving chain into the finish passes through, shortens them together and reschedules to measure what it won, giving back time bought earlier when a later step makes it useless. Paste what each activity can lose and what a day of acceleration costs (overtime, a second crew); without it each task may lose a quarter of its remaining duration at 1 per day, so the cost counts activity-days shortened. With a cost per day of finish above, it stops where a day costs more to win than it is worth.</p>
+    <p class="row">
+      <label for="crash-target">Bring the finish in by (working days, optional)</label> <input id="crash-target" type="number" min="0" step="1" style="width:6em">
+      <label for="crash-max">Default room (% of remaining)</label> <input id="crash-max" type="number" min="0" max="100" step="5" value="25" style="width:5em">
+    </p>
+    <p><label for="crash-data">Acceleration data (optional CSV: activity_id, max_shorten_days, cost_per_day)</label><br><textarea id="crash-data" rows="3" style="width:100%;max-width:40em" placeholder="activity_id,max_shorten_days,cost_per_day&#10;A1010,3,1800&#10;A1020,2,2500"></textarea></p>
+    <p class="row">
+      <button type="button" id="crash-run" class="secondary">Find the cheapest acceleration</button>
+      <button type="button" id="crash-csv" class="secondary" hidden>Download steps (CSV)</button>
+    </p>
+    <p class="note" id="crash-status"></p>
+    <div id="crash-out" class="tablewrap"></div>
     <h2 style="margin-top:22px">Look-ahead for the site meeting</h2>
     <p class="note">The next few weeks of work from the recomputed dates, grouped by WBS, a bar for each working day on the activity's own calendar, and a make-ready check from the logic: <b>ready</b> (every predecessor that gates the start has finished or started), <b>waits</b> on work in the look-ahead (named, with its date), waits on work outside it, or <b>no predecessor</b> (an open start). Crews, materials and permits are not in the file: they are the meeting's to check.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end">
@@ -460,7 +473,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>drag_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>drag_run</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -477,6 +490,7 @@
     import { mspdiText, msprojectSummary } from "./msproject.mjs";
     import { xerToXlsx, xlsxSummary } from "./excel.mjs";
     import { dragAnalysis, dragCsv, dragTableHtml } from "./drag.mjs";
+    import { crashAnalysis, crashCsv, crashTableHtml } from "./crash.mjs";
     import { p6XerText, p6xerSummary } from "./p6xer.mjs";
     import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
     import { riskAnalysisAsync, riskCsv, parseRanges, parseRisks, parseBranches, branchRows } from "./risk.mjs";
@@ -536,7 +550,7 @@
       $("#fp-out").innerHTML = ""; $("#fp-status").textContent = ""; $("#fp-csv").hidden = true; lastFp = null;
       $("#cs-out").innerHTML = ""; $("#cs-status").textContent = ""; $("#cs-csv").hidden = true; lastCs = null;
       $("#mc-out").innerHTML = ""; $("#mc-status").textContent = ""; $("#mc-csv").hidden = true; lastMc = null;
-      $("#tia-out").innerHTML = ""; $("#tia-status").textContent = ""; $("#drag-out").innerHTML = ""; $("#drag-status").textContent = ""; $("#drag-csv").hidden = true; lastDrag = null; for (const b of ["#tia-print", "#tia-csv", "#tia-xer"]) $(b).hidden = true; lastTia = null;
+      $("#tia-out").innerHTML = ""; $("#tia-status").textContent = ""; $("#drag-out").innerHTML = ""; $("#drag-status").textContent = ""; $("#drag-csv").hidden = true; lastDrag = null; $("#crash-out").innerHTML = ""; $("#crash-status").textContent = ""; $("#crash-csv").hidden = true; lastCrash = null; for (const b of ["#tia-print", "#tia-csv", "#tia-xer"]) $(b).hidden = true; lastTia = null;
       $("#gantt-out").innerHTML = ""; $("#gantt-status").textContent = ""; $("#gantt-print").hidden = $("#gantt-csv").hidden = true; lastGantt = null;
       fillGroupBy();
       $("#ev-out").innerHTML = ""; $("#ev-status").textContent = ""; $("#ev-csv").hidden = true; $("#ev-curve").hidden = true; lastEv = null;
@@ -744,6 +758,25 @@
       }, 20);
     });
     $("#drag-csv").addEventListener("click", () => { if (!lastDrag) return; save(new Blob([dragCsv(lastDrag)], { type: "text/csv" }), `${fileName}-critical-path-drag.csv`); record("findings_downloaded"); });
+    let lastCrash = null;
+    $("#crash-run").addEventListener("click", () => {
+      const st = $("#crash-status");
+      if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
+      st.textContent = "Finding the cheapest cut and rescheduling, step by step...";
+      setTimeout(() => {
+        try {
+          const tg = $("#crash-target").value, c = $("#drag-cost").value, data = $("#crash-data").value.trim(), mx = $("#crash-max").value;
+          const r = crashAnalysis(xer, { projId: last.project.id, targetDays: tg === "" ? null : Number(tg), costPerDay: c === "" ? null : Number(c), data: data || null, maxFraction: mx === "" ? 0.25 : Number(mx) / 100, maxRuns: 400 });
+          lastCrash = r;
+          const most = r.steps.reduce((m, s) => Math.max(m, s.activities.length), 0);
+          st.innerHTML = `Forecast finish ${esc(r.finishBefore)} &rarr; <b>${esc(r.finishAfter)}</b>: <b>${esc(r.gainedDays)}</b> working days won in ${esc(r.steps.length)} steps for ${esc(r.totalCost.toLocaleString("en-US"))}${r.defaults ? " activity-days" : ""}, ${esc(r.activities.length)} activities shortened${most > 1 ? `, up to ${esc(most)} at once` : ""}. Stopped: ${esc(r.stoppedBecause)}. (${esc(r.runs)} reschedules, ${esc(r.ms)} ms)`;
+          $("#crash-out").innerHTML = crashTableHtml(r) + (r.warnings.length ? `<p class="note">${r.warnings.slice(0, 6).map(esc).join("<br>")}</p>` : "");
+          $("#crash-csv").hidden = !r.steps.length;
+          record("crash_run");
+        } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#crash-out").innerHTML = ""; }
+      }, 20);
+    });
+    $("#crash-csv").addEventListener("click", () => { if (!lastCrash) return; save(new Blob([crashCsv(lastCrash)], { type: "text/csv" }), `${fileName}-acceleration-steps.csv`); record("findings_downloaded"); });
     let lastMc = null;
     $("#mc-run").addEventListener("click", () => {
       if (!xer || !last) return;

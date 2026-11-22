@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmvfkd5CaBHRf4AFKf",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T16:18:06Z",
+  "ended": "2026-11-22T16:33:55Z",
+  "wall_minutes": 16.11,
+  "tokens_in": 9620373,
+  "tokens_out": 67239,
+  "cost_usd": 4.5863,
+  "tool_calls": 73,
+  "task": "xer-schedule-check flagship 13, item (15): joint acceleration (crashing) after critical path drag",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18278",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First oracle run reported 49 misses at room 0-4; they were the oracle's own fault (a 2-day activity allowed to lose 4 days). Fixed by capping its room at the duration.",
+    "First corpus run threw 'lower bounds cannot be met' on hotel-project: a shortened activity whose finish drives nothing in the network got a refund bound. Fixed by bounding only durations whose finish leads on, with a no-give-back fallback.",
+    "First venture-preflight failed 3 repository checks on the new files: file:// entry guards in two eval scripts, a literal U+FEFF in crash.mjs's BOM strip, and a comma-stripping number parse. Fixed; a test for the comma fix then found that the rates CSV split on commas inside a semicolon file, also fixed (delimiter from the header)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "When a --replace would pass the 2000-character cap it suggested a --history clause that began mid-item ('a P6 import of the result. Contractor's monthly narrative ...'), which would have moved an open next-step to HISTORY.md; shortening my own text was the safe fix."
+    },
+    {
+      "file": "ventures/xer-schedule-check/floatpaths.mjs",
+      "issue": "longestPath compares ef timestamps with the project finish exactly, so a zero-duration activity finishing at 08:00 next day and a chain finishing 17:00 the day before are not both 'on the finish'; crash.mjs works around it with working-time equality. drag.mjs likely has the same gap (not changed here)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-crash-a-p6-schedule-cheapest-acceleration.md",
+    "ventures/xer-schedule-check/eval/crash-check-2026-11-22.md"
+  ],
+  "goal": "Deepen flagship xer-schedule-check: joint acceleration across parallel critical chains",
+  "notes": "crash.mjs: greedy min-cut time-cost trade-off on the P6 engine's driving network (event graph S/F per activity, FS/SS/FF/SF edges), Phillips-Dessouky give-back via lower-bound max flow, gains measured by rescheduling, calendar-staircase retries at 2-5 steps. Brute-force oracle: 14,212/14,212 step points optimal on 2,100 random FS networks; bridge networks 15,283/15,283 with give-back vs 15,214 without (worst +19%). Six public XERs, 20-day target, default 25% room: terminal 20 d (drag 1), hotel 13.75 (drag 1), Expressway 20 (drag 5; 23-activity cuts), CCA 13 (drag 5.65), sample 20, example 3.32; all replays match. Local verification: run_venture_tests.py xer-schedule-check ok (406 tests); check_posts ok; Playwright page check at 390 px: no console errors, no horizontal scroll; venture-preflight: see PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f11270e5-aa40-5dae-8f3a-fecfd76c6455",
+    "transcripts": 1,
+    "first": "2026-11-22T16:18:06Z",
+    "last": "2026-11-22T16:34:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 127,
+        "output": 67239,
+        "thinking": 16281,
+        "cache_read": 9451406,
+        "cache_write_5m": 0,
+        "cache_write_1h": 168840,
+        "api_equivalent_usd": 4.5863,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 127,
+      "output": 67239,
+      "thinking": 16281,
+      "cache_read": 9451406,
+      "cache_write_5m": 0,
+      "cache_write_1h": 168840,
+      "api_equivalent_usd": 4.5863,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.11,
+      "active_minutes": 16.11,
+      "model_minutes": 11.62,
+      "tool_minutes": 4.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior scheduler/developer: min-cut crashing with un-crashing on a P6 engine, oracle tests, page, eval and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 523.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
