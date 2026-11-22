@@ -1,0 +1,244 @@
+{
+ "date": "2026-11-22",
+ "subject": "research/position-rent",
+ "stratum": "research",
+ "seed": "2026-11-22-b-8102",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a referee for a market-design / economics-and-computation venue (EC, WINE, or a journal such as Games and Economic Behavior) who works on scoring-rule markets; first checks: is the LMSR accounting right (sign of the maker's loss, b ln 2 bound), is Result 1 new or the known log-score/information identity, is the prior work on strategic play in LMSR (Hanson; Chen et al. 2010; Dimitrov & Sami 2008; Ostrovsky 2012) cited correctly, are the monotonicity and Chernoff claims proved or only numerical, and do the entry-cost numbers depend on unsourced parameters",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` and diffed with experiments/results.txt: identical (1.4 s). Independent recomputation in /tmp/claude-0/pr_check.py (does not import the package): conditional entropies from the exact joint distribution p(y, s_<=k) with Fraction probabilities and posterior entropies in probability space (no logits, no log1p), a binomial version in log space for large k, majority accuracy by a DP over correct signals, and a separate LMSR simulation that trades in probability space and buys whichever outcome is underpriced (the package only ever moves q1). Matches: a=0.7 rents 0.0823, 0.0694, rent_10 0.0250, and rent_1 = ln2 - H_b(0.7) = 0.0823 in closed form; best-first [0.3681, 0.0302, 0.0068, 0.0017], worst-first [0.005, 0.0199, 0.0783, 0.3034], both 0.4067; pair 0.1927 / 0.1637; n* = 4, 11, 18, 25, 32, 41 for b = 0.1..5 with expected loss 0.0264..3.4138 and shares 71.0% (b=0.25) to 98.5% (b=5) of b ln 2; break-even b 0.109 (n=5), 4.814 (n=41); accuracies 0.784, 0.9218, 0.9825, 0.9964; error 0.0175 at b=1, 0.0036 at b=5; ratio at k=29 0.905 vs e^-C 0.9165, still rising and below at k=300 (0.915). My simulation (seed 11, 200,000 trials) gives rents [0.0834, 0.0702, 0.059, 0.0518, 0.0455] and maker loss 0.3098 vs exact 0.3095. One real bug outside the reported numbers: rents_iid and entropy_after compute log1p(exp(-x)) directly, so rents_iid(0.9, 330) and entry_count(0.9, 1, 0.005) (default nmax=400) raise OverflowError. Every published figure is right; 3, not 4, because of that crash and because the limit claims are numerical only.",
+  "completeness": "Everything the README lists runs end to end: 8 unit tests pass in 0.57 s; run.py reproduces results.txt byte for byte; figure.py run in a scratch copy reproduces entry_subsidy.svg byte for byte (cmp). The whitepaper's four results each correspond to a block of results.txt. The live page https://marisstella.app/research/position-rent/ could not be loaded (curl returned no response through the proxy); the homepage summary in research/_homepage/projects.json matches the numbers, except it says 'accuracy improves roughly as 1/b' where the paper says error falls as 1/b. order_shares is exported but never used or tested.",
+  "verification": "`cd research/position-rent && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 8 tests OK, 0.57 s. Five mutants with platform/ci/quality_mutate.py: caught 3 (binomial exponent (2j-k) -> (2j-k+1); maker-payout branch q[0] -> q[1]; entry threshold c -> 0.9c); survived 2: halving the Chernoff information in chern() (the README's 'ratio approaching e^-C' headline: the test only checks ratio < e^-C, which a larger e^-C still passes) and pair_premium returning the rent at position 1 instead of 2 (the test only checks first > second). Tests are relational (orderings, sums, enumeration vs binomial) with one closed-form anchor; nothing pins results.txt or a limiting value, so a wrong constant in the headline would not be caught.",
+  "craft": "Read src/position_rent/model.py (124 lines), __init__.py, tests/test_model.py, experiments/run.py, experiments/figure.py. Small, stdlib-only, docstrings state the maths. Defects: unstable log1p(exp(-x)) in two core functions crashes for accurate signals at the default nmax (model.py:30, :51); order_shares is dead code with an unused local `hi` (model.py:118-119); pair_premium's docstring promises 'the two orderings' totals' it does not return (model.py:112); the cost lambda is rebuilt inside every simulated trial (model.py:93); `from .model import *` as the package's whole API.",
+  "claims": "Checked against files: every number in the README and whitepaper (recomputed above, all match); '8 tests, ~1 s' (8, 0.57 s); 'checked against an explicit cost-function simulation to 3 decimals' (maker loss 0.3094 vs 0.3095; individual rents differ by up to 0.0004, so roughly); 'ratio approaching e^-C from below' is stated as numerical in the paper's Limitations, though the README states it as a fact; the 71-98% subsidy share (71.0%, 98.5%). Weak: the paper presents Result 1 as a result without saying it is the standard log-score/chain-rule identity (Hanson 2003), had no bibliography at all, and cited 'Chen et al. and Dimitrov-Sami' for 'strategic delay does not pay' without years or titles, where Dimitrov & Sami 2008 is mostly about when non-myopic play does pay. The numbers are all backed, so 3; the framing gap is a defect.",
+  "fitness": "Job: a researcher designing a subsidised verification market wants to know what each verifier seat is worth and what subsidy buys how many verifiers. The code gives exact rents for any accuracy vector and an entry calculation, which is reusable. But the central identity (expected LMSR profit = conditional mutual information, total = I(y; s) <= b ln 2) is a textbook consequence of the log score and the chain rule, known since Hanson's LMSR papers and the log-score/information literature (Good 1952; Bernardo 1979); the position profile and Chernoff decay are numerical, with no proof; the entry analysis uses one illustrative a=0.7 and c=0.005 with no sweep over c and no sourced verifier costs. Nearest prior work: Hanson 2003/2007 (LMSR, subsidy bound, pay-for-information), Chen et al. 2010 Algorithmica (truthful equilibrium under conditional independence, incentive to trade early), Ostrovsky 2012. As a new result it would not pass a main-track referee; as a worked teaching note with clean code it is sound.",
+  "domain": "Against the scoring-rule-market literature: the LMSR mechanics are right (price sigma((q1-q0)/b), maker worst case b ln 2, maker loss sign checked by my own simulation), and the myopic-Bayesian benchmark is the standard one. Departures a referee would flag first: no positioning against the known identity, the strategic-play citations were imprecise, monotonicity and the e^-C limit are only checked numerically (the polynomial correction is asserted, not derived), entry is ex-ante with no signal-dependent participation, and the 'verifiers race for position' policy remark rests on the myopic model it says it does not address."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "rent_1, rent_2, rent_10 for a=0.7 iid traders",
+   "method": "own exact joint-distribution entropies with Fractions (no logits), plus closed form rent_1 = ln2 - H_b(0.7)",
+   "command": "python3 -I /tmp/claude-0/pr_check.py",
+   "expected": "0.0823, 0.0694, 0.0250 (results.txt block 1)",
+   "observed": "0.0823, 0.0694, 0.025; closed form 0.0823",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "order redistribution: best-first and worst-first rents for [0.9,0.7,0.6,0.55] and the equal total",
+   "method": "own brute-force conditional mutual information, chain rule",
+   "command": "python3 -I /tmp/claude-0/pr_check.py",
+   "expected": "[0.3681,0.0302,0.0068,0.0017] / [0.005,0.0199,0.0783,0.3034], total 0.4067",
+   "observed": "identical to 4 decimals, total 0.4067 both",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "entry counts n* and expected subsidy share for a=0.7, c=0.005, b=0.1..5",
+   "method": "own log-space binomial rents and threshold rule",
+   "command": "python3 -I /tmp/claude-0/pr_check.py",
+   "expected": "n*=4,11,18,25,32,41; loss 0.1231 at b=0.25 (71%), 3.4138 at b=5 (98.5%)",
+   "observed": "n*=4,11,18,25,32,41; 0.1231 (0.710), 3.4138 (0.985)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "majority accuracy and the 1/b error claim",
+   "method": "own DP over number of correct signals",
+   "command": "python3 -I /tmp/claude-0/pr_check.py",
+   "expected": "0.784, 0.9218, 0.9825, 0.9964; error 0.0175 (b=1), 0.0036 (b=5)",
+   "observed": "0.784, 0.9218, 0.9825, 0.9964; 0.0175, 0.0036",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "explicit LMSR maker loss equals the sum of rents (a=0.7, n=5)",
+   "method": "own LMSR simulation in probability space buying either outcome, seed 11, 200,000 trials",
+   "command": "python3 -I /tmp/claude-0/pr_check.py",
+   "expected": "maker loss 0.3095 (exact)",
+   "observed": "0.3098; rents [0.0834,0.0702,0.059,0.0518,0.0455]",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "successive-rent ratio approaches e^-C from below (a=0.7)",
+   "method": "own rents to k=300, Chernoff information -ln(2 sqrt(a(1-a))) from Cover & Thomas ch. 11",
+   "command": "python3 -I /tmp/claude-0/pr_check.py",
+   "expected": "0.905 at k=29, below and rising toward 0.9165",
+   "observed": "0.905, 0.9125, 0.9144, 0.915 at k=29,100,200,299",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "core functions at high accuracy",
+   "method": "call entry_count with the default nmax for a=0.9",
+   "command": "PYTHONPATH=src python3 -c 'from position_rent import *; print(entry_count(0.9,1,0.005))'",
+   "expected": "a finite seat count",
+   "observed": "OverflowError: math range error (also rents_iid(0.9, 330))",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce committed results and figure",
+   "method": "rerun and diff/cmp",
+   "command": "PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt; python3 experiments/figure.py (scratch copy) && cmp",
+   "expected": "no diff",
+   "observed": "results.txt identical; entry_subsidy.svg identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run the README command",
+   "command": "PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "8 tests OK",
+   "observed": "Ran 8 tests in 0.571s, OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'checked against an explicit cost-function simulation to 3 decimals'",
+   "method": "compare results.txt block 2",
+   "command": "cat experiments/results.txt",
+   "expected": "agreement to 0.001",
+   "observed": "maker loss 0.3094 vs 0.3095; per-seat rents differ by up to 0.0004",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Result 1 framed with prior work and citations",
+   "method": "read paper/whitepaper.md against Hanson 2003/2007, Chen et al. 2010, Dimitrov & Sami 2008",
+   "command": "grep -n 'Hanson\\|Chen\\|Dimitrov' paper/whitepaper.md",
+   "expected": "bibliography and statement that the identity is known",
+   "observed": "no bibliography; Result 1 presented as a result; 'Chen et al. and Dimitrov-Sami show strategic delay does not pay' without years, and imprecise for Dimitrov & Sami",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "homepage summary wording of the 1/b result",
+   "method": "read research/_homepage/projects.json entry vs whitepaper Result 4",
+   "command": "python3 -c (print projects.json summary for position-rent)",
+   "expected": "error falls roughly as 1/b",
+   "observed": "'accuracy improves roughly as 1/b'",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "novelty against nearest prior work",
+   "method": "literature from memory: Hanson 2003 (Inf. Syst. Frontiers 5(1)), Hanson 2007 (J. Prediction Markets 1(1)), Chen et al. 2010 (Algorithmica 58), Ostrovsky 2012 (Econometrica 80(6)); not re-checked online",
+   "command": "n/a (reading)",
+   "expected": "a result not implied by the log score and the chain rule",
+   "observed": "Result 1 is the known identity; Results 2-4 are numerical illustrations on unsourced parameters",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/position_rent/model.py:58",
+   "change": "chern: -ln(2 sqrt(a(1-a))) -> the same / 2",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/position_rent/model.py:114",
+   "change": "pair_premium second = rents([a2, a1], b)[1] -> [0]",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/position_rent/model.py:107",
+   "change": "maker payout (q[1] if y else q[0]) -> (q[1] if y else q[1])",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/position_rent/model.py:75",
+   "change": "entry_count if x < c -> if x < 0.9 * c",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/position_rent/model.py:51",
+   "change": "rents_iid exponent (2*j - k) -> (2*j - k + 1)",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The Chernoff headline is unguarded: halving chern() leaves every test green, because the test only checks ratio < e^-C; no test pins a limiting value or results.txt",
+   "where": "research/position-rent/tests/test_model.py:21",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
+  },
+  {
+   "severity": "medium",
+   "what": "Result 1 (expected LMSR profit = conditional mutual information, total <= b ln 2) is the standard log-score/chain-rule identity (Hanson 2003/2007) but was presented as a result with no bibliography and no statement of what is new",
+   "where": "research/position-rent/paper/whitepaper.md:6",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "rents_iid and entropy_after compute log1p(exp(-x)) directly: entry_count(0.9, 1, 0.005) with the default nmax=400 and rents_iid(0.9, 330) raise OverflowError",
+   "where": "research/position-rent/src/position_rent/model.py:51",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
+  },
+  {
+   "severity": "low",
+   "what": "pair_premium's second-position rent is untested: returning the rent at position 1 instead of 2 survives (test only checks first > second)",
+   "where": "research/position-rent/tests/test_model.py:37",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
+  },
+  {
+   "severity": "low",
+   "what": "Setting cites 'Chen et al. and Dimitrov-Sami' for 'strategic delay does not pay' with no years or titles; Dimitrov & Sami 2008 is mainly about when non-myopic play does pay",
+   "where": "research/position-rent/paper/whitepaper.md:4",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
+  },
+  {
+   "severity": "medium",
+   "what": "Entry-cost results rest on one illustrative a=0.7 and c=0.005 with no source and no sweep over c; monotonicity and the e^-C limit are numerical only (the 'polynomial correction' is asserted)",
+   "where": "research/position-rent/paper/whitepaper.md:19",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "order_shares is dead, untested code with an unused local `hi`; pair_premium's docstring promised totals it does not return",
+   "where": "research/position-rent/src/position_rent/model.py:118",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Homepage summary says 'accuracy improves roughly as 1/b'; the paper's claim is that error falls roughly as 1/b",
+   "where": "research/_homepage/projects.json:1",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18168"],
+ "verdict": "A small, correct, reproducible note. Every number in the README and whitepaper reproduces byte for byte and matched my own independent recomputation (exact Fraction entropies, a separate LMSR simulation buying either outcome, a DP for accuracy): a=0.7 rents 0.0823/0.0694, order totals 0.4067, n* = 11 at b=0.25 and 41 at b=5, subsidy shares 71% to 98.5%, maker loss 0.3098 simulated vs 0.3095 exact. It misses the bar on verification (2 of 5 mutants survived, including a halved Chernoff constant behind a headline claim), craft (an OverflowError in the core rent function for accurate signals at the default settings) and, above all, fitness and domain: the central identity is the known log-score/chain-rule result from Hanson's LMSR work, the paper had no bibliography and an imprecise citation, the limit claims are numerical, and the entry analysis uses one unsourced parameter pair. A market-design referee would read it as a clean worked example, not a new result. Fixed in this session without changing scores: the overflow (stable softplus, new test), the citation and a related-work section, the pair_premium docstring, test counts, and a Known gaps line in the README."
+}

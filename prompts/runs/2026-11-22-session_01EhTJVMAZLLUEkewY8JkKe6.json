@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMAZLLUEkewY8JkKe6",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products); merge when done",
+  "input_sha256": "08886939e25fb8f1628b1992f5c838d70b318a02cd55703d1338188ea0273720",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T01:05:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality round 91 (sample mode)",
+  "projects": [
+    "ventures/brrrr-calculator",
+    "ventures/paver-patio-bid-calculator",
+    "research/position-rent",
+    "research/selfrep-closure"
+  ],
+  "pr": 18168,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/position-rent/README.md",
+      "issue": "`python3 -m unittest discover -s tests` from the project root fails with ModuleNotFoundError unless PYTHONPATH=src is set; the README's command sets it, but a bare run looks like a red suite."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-quality-audit-round-91.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample (quality_audit.py mode). Seed 2026-11-22-b-8102, round 91. Subjects: ventures/brrrr-calculator, ventures/paver-patio-bid-calculator, research/position-rent, research/selfrep-closure (no flagship or platform drawn: all audited within their windows). Share meeting the bar this round: 0 of 4; cumulative sampled 36 of 372 (Wilson 7% to 13%). Seeded mutants caught 12 of 22. Spot-checks rerun by the lead session: brrrr payment 1247.44 (amortisation formula), paver price 5534.74 = 4317.10/0.78, position-rent second seat 0.1636617 by direct entropy enumeration, selfrep brass+casting 45.1/44.2/24.1/21.1 via an independent script. Fix PR: #18168 (this PR) - brrrr defects 0,1; paver 0,2,3; position-rent 0,2,3,4,7 (two new tests catch both surviving mutants, verified with quality_mutate.py); selfrep 1,3,5,6. Tests after fixes: brrrr 30/30, paver 139/139, position-rent 11 OK, selfrep 9 OK; quality_audit.py validate 606 files 0 problems; check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

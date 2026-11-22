@@ -6,8 +6,10 @@ Stdlib-only Python. In a sequential LMSR verification market where Bayesian veri
 
 ```bash
 cd research/position-rent
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~1 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, ~1 s
 PYTHONPATH=src python3 experiments/run.py                  # output in experiments/results.txt
 python3 experiments/figure.py                           # redraws experiments/entry_subsidy.svg from results.txt
 ```
 Binary state, symmetric signals, one trade each, myopic-Bayesian traders (no strategic delay); MIT.
+
+**Known gaps** ([quality audit, 2026-11-22](../../portfolio/quality/audits/2026-11-22-position-rent.json)): Result 1 is the standard log-score/chain-rule identity (expected LMSR payment = information gained; Hanson 2003), not a new theorem, and the paper is not yet positioned against that literature beyond the references now listed; monotonicity and the Chernoff limit are numerical only, and no test would notice a wrong Chernoff constant; every input (a=0.7, c=0.005) is illustrative, with no sweep over `c`.

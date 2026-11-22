@@ -95,3 +95,48 @@ test("earned value: a back-loaded assignment plans 35% at mid-point, not 50%; th
   // the forecast of the unstarted remaining follows the curve: the curve's month ends close on BAC
   assert.equal(back.curve.at(-1).forecast, 1000);
 });
+
+test("curveRows: rows at midnights and slice ends, summing to the amount, day by day as spreadCurve", async () => {
+  const { curveRows, matchContour } = await import("./curves.mjs");
+  const { contourSlices } = await import("./contours.mjs");
+  const s = parseDate("2025-12-01 08:00"), e = parseDate("2025-12-12 17:00");
+  const rows = curveRows(cal, s, e, 80, BACK);
+  assert.equal(rows[0].start, s);
+  assert.equal(rows[rows.length - 1].finish, e);
+  for (let i = 1; i < rows.length; i++) assert.equal(rows[i].start, rows[i - 1].finish, "consecutive");
+  assert.ok(Math.abs(rows.reduce((a, r) => a + r.work, 0) - 80) < 1e-9);
+  assert.ok(rows.filter((r) => r.work === 0).length >= 2, "the weekend has rows with no work");
+  const want = daily(cal, s, e, 80, BACK).m;
+  const got = new Map();
+  for (const r of rows) if (r.work) { const d = Math.floor(r.start / 1440); got.set(d, (got.get(d) || 0) + r.work); }
+  for (const [d, v] of want) assert.ok(Math.abs(got.get(d) - v) < 1e-9, `day ${d}`);
+  assert.equal(matchContour(contourSlices(3), contourSlices), 3);
+  assert.equal(matchContour(BACK, contourSlices), 0, "P6's Back Loaded is not Project's");
+});
+
+test("XER -> Project: a P6 curve as contoured timephased work; started, even and missing curves stay flat", async () => {
+  const { mspdiText } = await import("./msproject.mjs");
+  const { EXAMPLE_XER } = await import("./example.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const curveRow = (id, name, v) => ({ curv_id: id, curv_name: name, default_flag: "N", ...Object.fromEntries([0, ...v].map((p, i) => [`pct_usage_${i}`, String(p)])) });
+  // a curve with a hole: its zero slices must not read back as a split
+  const holed = [...Array(5).fill(10), ...Array(10).fill(0), ...Array(5).fill(10)];
+  x.tables.RSRCCURVDATA = [curveRow("90", "Back Loaded", [...Array(10).fill(3.5), ...Array(10).fill(6.5)]), curveRow("91", "Holed", holed), curveRow("92", "Linear", Array(20).fill(5))];
+  // the unstarted assignments with work left get the shaped curves, the rest
+  // (started or with nothing left) the even and the missing ones and Back Loaded
+  let open = 0, other = 0;
+  for (const a of x.tables.TASKRSRC) {
+    if (!(Number(a.act_reg_qty) > 0) && Number(a.remain_qty) > 0) a.curv_id = ["90", "91"][open++ % 2];
+    else a.curv_id = ["92", "99", "90"][other++ % 3];
+  }
+  const r = mspdiText(x);
+  const curvedAsg = x.tables.TASKRSRC.filter((a) => ["90", "91"].includes(a.curv_id) && !(Number(a.act_reg_qty) > 0) && Number(a.remain_qty) > 0);
+  assert.equal(r.counts.curved, curvedAsg.length);
+  assert.ok(r.counts.curved > 0);
+  assert.equal((r.xml.match(/<WorkContour>8<\/WorkContour>/g) || []).length, curvedAsg.length);
+  assert.equal((r.xml.match(/<WorkContour>/g) || []).length, curvedAsg.length, "even and missing curves write no contour");
+  assert.match(r.warnings.join("\n"), /name a resource curve the file does not carry/);
+  assert.doesNotMatch(r.xml, /<TimephasedData>(?:(?!<\/TimephasedData>).)*<Value>PT0H0M0S<\/Value>/, "no zero rows: Project reads those as splits");
+  const { parseMspdi } = await import("./mspdi.mjs");
+  assert.ok(!parseMspdi(r.xml).warnings.some((w) => /split/.test(w)));
+});

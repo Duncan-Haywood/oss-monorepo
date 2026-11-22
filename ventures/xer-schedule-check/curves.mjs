@@ -101,3 +101,57 @@ export function curvePartBefore(cal, s, e, amount, slices, cut) {
   if (cut >= e) return amount;
   return spreadCurve(cal, s, e, amount, slices, () => {}, cut);
 }
+
+// The rows of a curved spread, for Microsoft Project's timephased work
+// (MSPDI Assignment/TimephasedData, msproject.mjs). Project stores an
+// assignment's spread as consecutive rows of elapsed time, each holding the
+// work done in it (rows over time with no work hold none). The rows here are
+// cut at midnights and at the twenty slice boundaries (in working time,
+// rounded to the minute), so the work inside a row falls at one rate over
+// its working time, as Project spreads a row; their work sums to `amount`
+// exactly. Returns [{ start, finish, work }] in minutes; work is 0 on a row
+// with no working time.
+export function curveRows(cal, s, e, amount, slices) {
+  if (!Number.isFinite(s) || !Number.isFinite(e) || !(e > s) || !cal) return [];
+  const total = cal.workBetween(s, e);
+  if (!(total > 0)) return [{ start: s, finish: e, work: amount || 0 }];
+  const seg = total / SLICES;
+  const cuts = new Set([s, e]);
+  for (let d = Math.floor(s / DAY) + 1; d * DAY < e; d++) cuts.add(d * DAY);
+  for (let k = 1; k < SLICES; k++) {
+    const t = Math.round(cal.addWork(s, k * seg));
+    if (t > s && t < e) cuts.add(t);
+  }
+  const at = [...cuts].sort((a, b) => a - b);
+  // the share of the working time [w0, w1) from the start
+  const share = (w0, w1) => {
+    let v = 0;
+    let k = Math.min(SLICES - 1, Math.floor(w0 / seg));
+    while (w0 < w1 - 1e-9 && k < SLICES) {
+      const end = Math.min(w1, (k + 1) * seg);
+      v += slices[k] * ((end - w0) / seg);
+      w0 = end;
+      k++;
+    }
+    return v;
+  };
+  const rows = [];
+  let worked = 0;
+  for (let i = 0; i + 1 < at.length; i++) {
+    const w = cal.workBetween(at[i], at[i + 1]);
+    rows.push({ start: at[i], finish: at[i + 1], work: w > 0 ? (amount || 0) * share(worked, worked + w) : 0 });
+    worked += w;
+  }
+  return rows;
+}
+
+// which Microsoft Project work contour (1-7) a curve is, or 0: a curve
+// written from one (p6xer.mjs's "MS Project <contour>" curves) goes back as
+// that contour, so a Project -> XER -> Project trip keeps it
+export function matchContour(slices, contourSlices) {
+  for (let n = 1; n <= 7; n++) {
+    const c = contourSlices(n);
+    if (c && c.every((v, k) => Math.abs(v - slices[k]) < 5e-6)) return n;
+  }
+  return 0;
+}
