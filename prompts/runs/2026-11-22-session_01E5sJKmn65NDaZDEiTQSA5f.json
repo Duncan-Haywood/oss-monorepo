@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmn65NDaZDEiTQSA5f",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T14:18:34Z",
+  "ended": "2026-11-22T14:24:50Z",
+  "wall_minutes": 6.4,
+  "tokens_in": 3062014,
+  "tokens_out": 30817,
+  "cost_usd": 1.9986,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18264",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The 'Doctrine and honesty rules' do not mention Levitical purity law; a first draft put Aaron, the high priest, at Miriam's graveside, which Leviticus 21:10-11 forbids. A one-line check ('priests and the dead: Lev 21') would catch it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`gh api ... --jq` with no matching items prints nothing, which looks the same as an auth failure; I had to rerun without --jq to confirm the search worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-saints-by-candlelight-the-waters-of-meribah.md"
+  ],
+  "goal": null,
+  "notes": "Project: Saints by Candlelight (drawn by creative_due.py). Piece: episode 164, moses-and-aaron-at-the-waters-of-meribah, 6,654 words, text only (audio folders 581 MB > 400 MB cap). Claimed the list entry in a first commit and draft PR before drafting. Checks run here: node generate.mjs --check-script (ok), node --test in the venture (19/19 pass), run_venture_tests.py saints-by-candlelight (1 suite, 0 failed), check_posts.py (ok). No new agent doc: nothing the next run needs beyond the DONE.md entry and the new sequel line.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "422e56be-a9ba-564b-a551-172e879b236a",
+    "transcripts": 1,
+    "first": "2026-11-22T14:18:34Z",
+    "last": "2026-11-22T14:24:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 66,
+        "output": 30817,
+        "thinking": 8898,
+        "cache_read": 2963281,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98667,
+        "api_equivalent_usd": 1.9986,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 66,
+      "output": 30817,
+      "thinking": 8898,
+      "cache_read": 2963281,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98667,
+      "api_equivalent_usd": 1.9986,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "Write": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.4,
+      "active_minutes": 6.4,
+      "model_minutes": 5.76,
+      "tool_minutes": 0.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researched 6,600-word scripture retelling with source checks, at about 1,100 finished words an hour",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 300.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
