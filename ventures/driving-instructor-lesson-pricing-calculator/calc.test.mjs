@@ -93,3 +93,10 @@ test("the summary carries the figures and the disclaimer", () => {
 function round(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
+
+test("profit per diary hour divides annual profit by booked hours including unpaid gaps", () => {
+  // 1,150 slots x (60 + 15) min / 60 = 1,437.5 diary hours; 45,760.80 / 1,437.5 = 31.83
+  const r = priceLessons(base);
+  assert.equal(r.diaryHoursPerYear, 1437.5);
+  assert.equal(r.profitPerDiaryHour, 31.83);
+});

@@ -1,0 +1,48 @@
+152 bursts, 57 scored, 95 skipped
+
+## read / truth sigma at the plane's p50 level: median [p10, p90], max; bursts over 1.3, over 1.0
+  pca_chen     0.870 [0.729, 1.056], max 1.323; >1.3: 1, >1.0: 14 of 57
+  frame_chen   0.696 [0.583, 0.845], max 1.058; >1.3: 0, >1.0: 2 of 57
+  pca_mpcw     0.960 [0.811, 1.154], max 1.437; >1.3: 2, >1.0: 21 of 57
+  frame_mpcw   0.768 [0.649, 0.923], max 1.149; >1.3: 0, >1.0: 2 of 57
+  pca_mpcws    1.157 [1.034, 1.320], max 1.589; >1.3: 7, >1.0: 52 of 57
+  frame_mpcws  0.926 [0.827, 1.056], max 1.271; >1.3: 0, >1.0: 15 of 57
+  pca_mpcw1    1.033 [0.868, 1.234], max 1.557; >1.3: 2, >1.0: 37 of 57
+  frame_mpcw1  0.826 [0.694, 0.987], max 1.245; >1.3: 0, >1.0: 4 of 57
+  profile      1.108 [0.900, 1.288], max 1.919; >1.3: 5, >1.0: 46 of 57
+
+## read / truth sigma at the plane's p90 level: median [p10, p90], max; bursts over 1.3, over 1.0
+  pca_chen     0.956 [0.689, 1.107], max 1.347; >1.3: 1, >1.0: 20 of 57
+  frame_chen   0.765 [0.551, 0.886], max 1.077; >1.3: 0, >1.0: 1 of 57
+  pca_mpcw     1.070 [0.740, 1.199], max 1.397; >1.3: 1, >1.0: 34 of 57
+  frame_mpcw   0.856 [0.592, 0.959], max 1.118; >1.3: 0, >1.0: 2 of 57
+  pca_mpcws    1.198 [1.005, 1.356], max 1.523; >1.3: 21, >1.0: 51 of 57
+  frame_mpcws  0.958 [0.804, 1.085], max 1.218; >1.3: 0, >1.0: 26 of 57
+  pca_mpcw1    1.117 [0.763, 1.276], max 1.443; >1.3: 2, >1.0: 41 of 57
+  frame_mpcw1  0.893 [0.610, 1.021], max 1.155; >1.3: 0, >1.0: 11 of 57
+  profile      1.091 [0.903, 1.255], max 1.847; >1.3: 4, >1.0: 46 of 57
+
+## read / truth sigma at the plane's 18% grey: median [p10, p90], max; bursts over 1.3, over 1.0
+  pca_chen     0.947 [0.671, 1.103], max 1.332; >1.3: 1, >1.0: 18 of 57
+  frame_chen   0.758 [0.537, 0.883], max 1.066; >1.3: 0, >1.0: 1 of 57
+  pca_mpcw     1.059 [0.711, 1.184], max 1.382; >1.3: 1, >1.0: 33 of 57
+  frame_mpcw   0.847 [0.569, 0.947], max 1.106; >1.3: 0, >1.0: 1 of 57
+  pca_mpcws    1.201 [1.041, 1.356], max 1.673; >1.3: 15, >1.0: 52 of 57
+  frame_mpcws  0.961 [0.833, 1.084], max 1.339; >1.3: 1, >1.0: 24 of 57
+  pca_mpcw1    1.116 [0.704, 1.261], max 1.428; >1.3: 1, >1.0: 41 of 57
+  frame_mpcw1  0.893 [0.563, 1.009], max 1.142; >1.3: 0, >1.0: 7 of 57
+  profile      1.092 [0.907, 1.256], max 1.861; >1.3: 5, >1.0: 47 of 57
+
+## median |log(read / truth)| at the p50 level (closer to 0 is closer to the truth)
+  pca_chen     0.147
+  frame_chen   0.363
+  pca_mpcw     0.095
+  frame_mpcw   0.264
+  pca_mpcws    0.148
+  frame_mpcws  0.101
+  pca_mpcw1    0.086
+  frame_mpcw1  0.193
+  profile      0.138
+
+m (merge's remaining noise fraction): median 0.153 [0.053, 0.447]
+truth line fit, worst colour's relative RMS: median 0.086, max 1.711

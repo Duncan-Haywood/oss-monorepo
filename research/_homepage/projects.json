@@ -495,7 +495,7 @@
     {
      "slug": "shapley-sampling",
      "title": "How should Shapley payments be sampled and audited?",
-     "summary": "In a saturating contribution game v(S)=1&minus;exp(&minus;&Sigma;w<sub>i</sub>) every estimator variance is exact. Permutation sampling always pays out exactly v(N) but is noisy; size-stratified sampling has 6&ndash;8&times; lower variance (exactly zero for equal contributors) yet misses the pot by up to 7% in a run; reversing each permutation cuts RMSE 1.6&times; at no cost; Hoeffding sample counts are 4&ndash;5&times; larger than needed, and stratification finds the top-3 payees with about 4&times; fewer samples. Stylised, n&le;10."
+     "summary": "In a saturating contribution game v(S)=1&minus;exp(&minus;&Sigma;w<sub>i</sub>) every estimator variance is exact. Permutation sampling always pays out exactly v(N) but is noisy; size-stratified sampling has 6&ndash;8&times; lower variance per marginal evaluation (about 3&times; per value-function evaluation; exactly zero for equal contributors) yet misses the pot by up to 7% in a run; reversing each permutation cuts RMSE 1.6&times; at no cost; Hoeffding sample counts are at least 4&ndash;5&times; larger than needed, and stratification finds the top-3 payees with about 4&times; fewer samples. Stylised, n&le;10."
     },
     {
      "slug": "contest-precision",

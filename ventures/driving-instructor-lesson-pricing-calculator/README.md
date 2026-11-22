@@ -2,7 +2,7 @@
 
 A free browser calculator for independent driving instructors (ADIs and
 behind-the-wheel or driver-ed instructors who own their car): profit per
-lesson, break-even price, the price that reaches a take-home target, and the
+lesson, break-even price, the price that reaches a pre-tax profit target, and the
 effect of a block-booking discount, after fuel, wear, fixed car costs,
 unpaid gaps and cancellations. Entirely client-side; nothing is uploaded.
 

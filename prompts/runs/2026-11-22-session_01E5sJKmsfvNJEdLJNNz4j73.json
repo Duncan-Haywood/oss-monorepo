@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmsfvNJEdLJNNz4j73",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T16:26:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: league-schedule-generator index.html loads divisions.mjs and trf.mjs on first use",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18280",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First Playwright check script failed: ESM import of 'playwright' needs createRequire in this container; then my script left the start date and weekday empty so no schedule built (my script's bug, not the page's)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are still owner-gated; the 'skip to 2 to 4' note held again, fourth run in a row reporting it."
+    },
+    {
+      "file": "platform/ci/venture_suite_times.json",
+      "issue": "Taken 2026-11-17; many suites were optimised since, so its ranking is stale for choosing a target. suite_file_times.py on one suite was the useful reading."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Item 4 (page weight) taken over 2-3 because the backlog was owner-gated and sales-agent, the one untouched CI suite I timed, had no file above 0.9 s.",
+      "did": "Lazy-loaded two option-path modules on the league page.",
+      "result": "Eager graph 258 -> 214 kB gzip with byte-identical downloads."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-the-league-page-stopped-loading-code-for-a-card-you-may-never-open.md",
+    "docs/history/league-schedule-page-perf-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Metric: gzip bytes of the static ES-module graph of ventures/league-schedule-generator/index.html, from `node platform/perf/module-exclusive.mjs ventures/league-schedule-generator/index.html` (first line). Before (390031e73, via git stash): 258 kB gz, 18 files. After: 214 kB gz, 16 files (-44 kB, -17%). divisions.mjs 139,137 B raw / 40,791 B gz; trf.mjs 9,945 B raw / 3,839 B gz. Verification: Playwright (chromium, local static server) ran identical steps on old and new page; old fetched both modules on load, new fetched neither on load or after build, divisions.mjs after typing a duty line, trf.mjs after opening a TRF file; duty line, error line, blank-box state and TRF message identical; team-sheets.html (7,572 B), team-duties.txt (407 B), swiss-event.trf (699 B) byte-identical by cmp; no console/page errors. page.test.mjs 62/62. check_posts.py ok. sales-agent per-file timing: 9.2 s over 45 files, max 0.9 s (no change warranted). Full suite: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok, 953 tests, 224.2 s, plus site page checks ok.",
+  "corrections": [],
+  "redteam": null
+}

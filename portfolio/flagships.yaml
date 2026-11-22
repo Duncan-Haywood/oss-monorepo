@@ -297,7 +297,7 @@ flagships:
       INFO and write role: cells in import-deputy-staff.mjs (time off landed
       2026-11-19, README "Deputy time off"). Homebase stays account-gated.
   - venture: photo-editing
-    hosts: [https://raw.pixls.us/, https://github.com/]
+    hosts: [https://raw.pixls.us/, https://github.com/, https://storage.googleapis.com/]
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
@@ -306,10 +306,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
-      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise read: the
-      metadata-extractor-images set is spent for selection tests
-      (eval/noise-pca-mpcw1-2026-11-22.md); X-Trans lift settled off. DNG 1.7.1.0
-      spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). HDR+ bursts
+      (storage.googleapis.com/hdrplusdata; tools/hdrplus_noise_truth.py): real-noise
+      truth, next a dB sweep (eval/hdrplus-noise-truth-*). X-Trans lift settled off.
+      DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
@@ -334,11 +334,11 @@ flagships:
       (eval/noise-pca-whitened-level-*); mpcws (held +0.31 dB) failed on K-1 II not
       by a noisy truth: a green-pair truth read failed its validity tests
       2026-11-22, and mpcws's own selection over-reads 2.3x there
-      (eval/noise-pca-mpcws-noisy-truth-*); mpcw1 (select once at mpcw's level)
-      failed its gates 2026-11-22: 1.48x mpcw on that tile, +0.01 of mpcws's +0.26
-      dB; gain and over-read share a cause, so this set is spent
-      (eval/noise-pca-mpcw1-*); next both on a fresh blind set. More open items:
-      NEXT.md.
+      (eval/noise-pca-mpcws-noisy-truth-*); gain and over-read share a cause, so
+      this set is spent (eval/noise-pca-mpcw1-*); on real noise (57 HDR+ bursts,
+      truth = frame minus burst merge, 2026-11-22) mpcws reads 1.16x truth, mpcw
+      0.96, mpcw1 1.03 (eval/hdrplus-noise-truth-*); next a dB sweep there. More
+      open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -611,10 +611,10 @@ flagships:
       the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
       covering areas, 43 wall sides, C20's 2 columns); 2 zinc copings' NetVolumes
       (eval/side-lights-2026-11-22.md); turned-face figure in
-      ifcopenshell-volumes.py --breps (eval/pole-faces-2026-11-22.md); more revision
-      series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
-      Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
-      Lake_Kegonsa_Home_2015.ifc pair).
+      ifcopenshell-volumes.py --breps (eval/pole-faces-2026-11-22.md); revision
+      series: Kegonsa's 7 exports done, replaced-in-place 2026-11-22
+      (eval/replaced-in-place-2026-11-22.md); Lake Mills has no series; next a
+      public non-Revit series.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

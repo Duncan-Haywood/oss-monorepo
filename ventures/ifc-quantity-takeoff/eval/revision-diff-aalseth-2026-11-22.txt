@@ -1,0 +1,66 @@
+1-7766411.ifc: IFC2X3, 1547 elements (150 without a box)
+2-b39c362.ifc: IFC2X3, 1023 elements (32 without a box)
+3-f1be1d3.ifc: IFC2X3, 1065 elements (29 without a box)
+4-70e393f.ifc: IFC2X3, 1092 elements (33 without a box)
+5-7257e4c.ifc: IFC2X3, 1236 elements (155 without a box)
+
+1-7766411.ifc -> 2-b39c362.ifc
+  elements 1547 -> 1023; matched 983 (GlobalId 977, Tag 6, geometry 0); unchanged 960, changed 23; added 3, removed 555; merged 0, split 9; replaced in place 0
+  a GlobalId-only comparison: 46 added, 570 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"attribute: storey":16,"quantity: volume":7,"quantity: area":6,"quantity: weight":6,"reshaped":6}
+  new GlobalId: {"tag: IfcDoor":4,"tag: IfcWall":1,"tag: IfcWindow":1}
+  split: 1 -> 5  IfcSlab Floor:TJI FLOOR - 11 7/8" w/ gyp crete:1061484  volume 30.6818 -> 30.6818 m3
+  split: 1 -> 4  IfcSlab Basic Roof:ROOF OVER LR:1113949  volume 5.5449 -> 5.5449 m3
+  split: 1 -> 5  IfcSlab Floor:TJI FLOOR - 11 7/8" w/ gyp crete:1118466  volume 17.3486 -> 17.3486 m3
+  split: 1 -> 4  IfcSlab Floor:TJI FLOOR - 11 7/8":1120694  volume 2.7261 -> 2.7261 m3
+  split: 1 -> 5  IfcWall Basic Wall:SHEAR WALL:1191104  volume 2.0233 -> 2.0315 m3
+  split: 1 -> 3  IfcWallStandardCase Basic Wall:BASEMENT FURRING:1581414  volume 1.6831 -> 1.6739 m3
+  split: 1 -> 5  IfcSlab Basic Roof:FRONT CANOPY:1618875  volume 5.8534 -> 5.8534 m3
+  split: 1 -> 3  IfcWall Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2323244  volume 0.4872 -> 0.4883 m3
+  split: 1 -> 3  IfcWallStandardCase Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2574872  volume 0.5045 -> 0.4964 m3
+  added: {"IfcWall":3}
+  removed: {"IfcBuildingElementProxy":419,"IfcMember":48,"IfcWallStandardCase":29,"IfcPlate":21,"IfcFurnishingElement":12,"IfcSlab":10,"IfcFlowTerminal":8,"IfcDoor":3,"IfcCovering":2,"IfcDistributionControlelement":1,"IfcColumn":1,"IfcBeam":1}
+
+2-b39c362.ifc -> 3-f1be1d3.ifc
+  elements 1023 -> 1065; matched 981 (GlobalId 975, Tag 6, geometry 0); unchanged 962, changed 19; added 75, removed 5; merged 9, split 0; replaced in place 0
+  a GlobalId-only comparison: 90 added, 48 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"moved":7,"quantity: volume":12,"reshaped":10,"quantity: area":1,"quantity: length":6,"attribute: name":2}
+  new GlobalId: {"tag: IfcDoor":4,"tag: IfcWall":1,"tag: IfcWindow":1}
+  merged: 5 -> 1  IfcSlab Floor:TJI FLOOR - 11 7/8" w/ gyp crete:1061484  volume 30.6818 -> 30.6818 m3
+  merged: 4 -> 1  IfcSlab Basic Roof:ROOF OVER LR:1113949  volume 5.5449 -> 5.5449 m3
+  merged: 5 -> 1  IfcSlab Floor:TJI FLOOR - 11 7/8" w/ gyp crete:1118466  volume 17.3486 -> 17.3486 m3
+  merged: 4 -> 1  IfcSlab Floor:TJI FLOOR - 11 7/8":1120694  volume 2.7261 -> 2.7261 m3
+  merged: 5 -> 1  IfcWall Basic Wall:SHEAR WALL:1191104  volume 2.0315 -> 2.0233 m3
+  merged: 3 -> 1  IfcWallStandardCase Basic Wall:BASEMENT FURRING:1581414  volume 1.6739 -> 1.6831 m3
+  merged: 5 -> 1  IfcSlab Basic Roof:FRONT CANOPY:1618875  volume 5.8534 -> 5.8534 m3
+  merged: 3 -> 1  IfcWall Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2323244  volume 0.4883 -> 0.4872 m3
+  merged: 3 -> 1  IfcWallStandardCase Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2574872  volume 0.4964 -> 0.5045 m3
+  added: {"IfcBuildingElementProxy":70,"IfcMember":2,"IfcBeam":2,"IfcWallStandardCase":1}
+  removed: {"IfcWall":3,"IfcMember":2}
+  commonest moves (dx, dy, dz m): {"0.00, 0.00, -0.02":6,"0.15, -0.01, 0.20":1}
+
+3-f1be1d3.ifc -> 4-70e393f.ifc
+  elements 1065 -> 1092; matched 1055 (GlobalId 1049, Tag 6, geometry 0); unchanged 1052, changed 3; added 3, removed 2; merged 0, split 8; replaced in place 0
+  a GlobalId-only comparison: 43 added, 16 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":3}
+  new GlobalId: {"tag: IfcDoor":4,"tag: IfcWall":1,"tag: IfcWindow":1}
+  split: 1 -> 5  IfcSlab Floor:TJI FLOOR - 11 7/8" w/ gyp crete:1061484  volume 30.6818 -> 30.6818 m3
+  split: 1 -> 4  IfcSlab Basic Roof:ROOF OVER LR:1113949  volume 5.5449 -> 5.5449 m3
+  split: 1 -> 5  IfcSlab Floor:TJI FLOOR - 11 7/8" w/ gyp crete:1118466  volume 17.3486 -> 17.3486 m3
+  split: 1 -> 4  IfcSlab Floor:TJI FLOOR - 11 7/8":1120694  volume 2.7261 -> 2.7261 m3
+  split: 1 -> 5  IfcWall Basic Wall:SHEAR WALL:1191104  volume 2.0233 -> 2.0320 m3
+  split: 1 -> 5  IfcSlab Basic Roof:FRONT CANOPY:1618875  volume 5.8534 -> 5.8534 m3
+  split: 1 -> 3  IfcWall Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2323244  volume 0.4872 -> 0.4883 m3
+  split: 1 -> 3  IfcWallStandardCase Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2574872  volume 0.5045 -> 0.4964 m3
+  added: {"IfcWall":3}
+  removed: {"IfcWallStandardCase":1,"IfcBeam":1}
+
+4-70e393f.ifc -> 5-7257e4c.ifc
+  elements 1092 -> 1236; matched 1075 (GlobalId 1065, Tag 8, geometry 2); unchanged 799, changed 277; added 160, removed 16; merged 0, split 0; replaced in place 1
+  a GlobalId-only comparison: 171 added, 27 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":190,"quantity: area":24,"reshaped":178,"quantity: length":31,"moved":51,"attribute: material":29,"attribute: name":9,"attribute: type":4,"attribute: storey":20,"attribute: class":1,"quantity: weight":1}
+  new GlobalId: {"tag: IfcDoor":4,"tag: IfcWindow":3,"geometry: IfcWall":1,"geometry: IfcFlowFitting":1,"tag: IfcWall":1}
+  replaced in place: IfcFlowSegment (BASEMENT) Round Duct:EXPOSED SPIRAL DUCT, box resized, volume 0.2594 -> 0.2581 m3
+  added: {"IfcBuildingElementProxy":122,"IfcSlab":10,"IfcMember":5,"IfcFlowSegment":5,"IfcRailing":5,"IfcBeam":4,"IfcWall":4,"IfcFlowFitting":4,"IfcWallStandardCase":1}
+  removed: {"IfcFlowSegment":6,"IfcFlowFitting":5,"IfcBeam":2,"IfcWall":2,"IfcMember":1}
+  commonest moves (dx, dy, dz m): {"0.16, -0.01, 0.00":18,"0.00, 0.01, 0.00":11,"-0.00, -0.02, 0.00":5,"-0.00, -0.01, 0.00":4,"0.00, 0.00, 0.05":4,"0.00, 0.02, 0.00":2}
