@@ -462,8 +462,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (87 stories)
+### Little Lamps (88 stories)
 
+- [Simeon and Anna and the Baby in the Temple](stories/simeon-and-anna-and-the-baby-in-the-temple.md) (2026-11-22; 12 min read, text only)
 - [Timothy and the Letters from Paul](stories/timothy-and-the-letters-from-paul.md) (2026-11-21; 13 min read, text only)
 - [Agnes and the Two White Lambs](stories/agnes-and-the-two-white-lambs.md) (2026-11-20; 11 min read, text only)
 - [Raymond of Penyafort and the Cloak on the Sea](stories/raymond-of-penyafort-and-the-cloak-on-the-sea.md) (2026-11-20; 11 min read, text only)
