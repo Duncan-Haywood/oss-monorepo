@@ -79,6 +79,19 @@ if __name__ == "__main__":
     V["MB6"] = min(c2) >= 10 and max(c2) <= 1.5 * min(c2)
     s = out["M=1.25"]["45_0"]["diff"]
     V["MB7"] = s["mean"] > 0 and s["p"] < 0.05
+    # post hoc (written after the results above were read): the 20 deg, lever 0 price without the seeds whose unconstrained
+    # design diverged at that condition
+    calm = [s_ for s_ in range(10) if runs("unconstrained")[s_]["dead_20_0"] == 0]
+    L.append(f"Post hoc: 20 deg, lever 0, arm minus unconstrained over the {len(calm)} seeds whose unconstrained design never diverged there "
+             f"(seeds {calm}):")
+    out["posthoc_20_0_calm"] = {}
+    for arm in ARMS[1:]:
+        d = [runs(arm)[s_]["J_20_0"] - base[s_]["J_20_0"] for s_ in calm]
+        st = T.stat(d, rng, better="pos")
+        out["posthoc_20_0_calm"][arm] = st
+        L.append(f"  [{arm}] {st['mean']:+.4f} [{st['lo']:+.4f}, {st['hi']:+.4f}] p={st['p']:.4f} worse in {len(d) - st['count']} of {len(d)}; "
+                 f"median of all ten {statistics.median(runs(arm)[s_]['J_20_0'] - base[s_]['J_20_0'] for s_ in range(10)):+.4f}")
+    L.append("")
     L.append("Verdicts: " + "; ".join(f"{k} {'held' if v else 'refuted'}" for k, v in V.items()))
     open(os.path.join(HERE, "stats.txt"), "w").write("\n".join(L) + "\n")
     json.dump(dict(arms=out, verdicts=V), open(os.path.join(HERE, "stats.json"), "w"), indent=1)
