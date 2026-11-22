@@ -5693,7 +5693,9 @@ Replayed (`node eval/swiss-vs-published.mjs <fixtures> --pairing bracket`, condi
 
 Prague now matches the published pairings in all nine rounds; five of the six events match every
 later round. The 440 simulated events (`eval/swiss-repeat-floats.mjs 40`,
-`eval/swiss-big-brackets-sim.txt`): SIMLINE
+`eval/swiss-big-brackets-sim.txt`): every
+total is identical to before (repeat downfloats 2,137, upfloats 1,749, strong 6,591, mild 8,186), since
+no simulated bracket reached the size where digits were dropped.
 
 **Graz round 4 is left, and may not be the rules.** At 2.5 points (42 players, MDP 112 takes 3),
 the arbiters floated 21 (rated 2430, tenth in the bracket); the pairer floats 152, the bracket's
