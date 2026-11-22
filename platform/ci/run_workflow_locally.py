@@ -39,9 +39,10 @@ its log path and a `wait_for.py` line (exit 3); `--foreground` stays attached.
 A sweep exits 0 when every selected workflow passed, 1 when a step failed
 (or the checkout moved, or nothing was selected), and 5 (NO_VERDICT) when
 nothing failed but a workflow ran out of budget or stopped after a skipped
-step: not a pass, and not a failure either. On a prose-only (.md/.txt) diff
-it leaves portfolio-pages and portfolio-validate (~13 min here, ~4 on CI) to
-the pull request's CI and exits 5; `--full` runs them (when CI is starved).
+step: not a pass, and not a failure either. On a content-only diff (nothing
+under platform/, portfolio/, .github/ or prompts/ but run records) it leaves
+portfolio-pages and portfolio-validate (~13 min here, ~4 on CI) to the pull
+request's CI and exits 5; `--full` runs them (when CI is starved).
 
 `--for-changes` and `--tree` ask different questions and the difference
 matters. The first is "is my diff sound?" and on a clean checkout it
@@ -2160,7 +2161,7 @@ def run_for_changes(args) -> int:
         rc = _run_selected(args, selected, held, changed=changed)
     if deferred and not args.list:
         print(f"  Not a clean sweep: {', '.join(deferred)} deferred to the pull "
-              "request's CI (prose-only diff). Its green check runs are their "
+              "request's CI (content-only diff). Its green check runs are their "
               "verdict; if CI is starved, re-run with --full.", flush=True)
         if rc == 0:
             rc = NO_VERDICT
@@ -2359,14 +2360,41 @@ def local_cost_hint(names, listing: bool) -> str | None:
 # with --only, or by name) runs them, which is the route when CI is starved.
 DEFER_MIN_S = 200
 PROSE_SUFFIXES = (".md", ".txt")
-DEFER_NOTE = ("  prose-only diff: deferring {names} to the pull request's CI "
+# Widened 2026-11-22 from prose-only (.md/.txt) to content-only. The prose
+# rule missed nearly every diff it was written for: a Hearth & Horizon story
+# ships its page, feeds and sitemap (.html/.xml) beside the .md, and a
+# research milestone ships .py/.json/.png, so both still ran the 13-minute
+# sweep (PRs 18277, 18228, 18270, 18248: four doc-friction reports on
+# 2026-11-22, two after the prose rule landed). Replayed on the 166 merges
+# to main from 2026-11-21 to 2026-11-22: prose-only matched none of them
+# (every PR carries its .json run record), content-only matches 135. What the heavy two spend
+# their time on is testing the site builder and the repo's checkers, code
+# that lives under the prefixes below; a diff that touches none of it
+# changes their inputs, not their code, and CI reads those inputs on its own
+# runners in ~4 min. Run records (prompts/runs/) are content too: every run
+# adds one; so is portfolio/flagships.yaml, which venture runs edit to move a
+# flagship's next item (neither heavy workflow's path filter names it).
+TOOLING_PREFIXES = ("platform/", "portfolio/", ".github/", "prompts/",
+                    "research/_homepage/", "research/_shared/")
+CONTENT_PREFIXES = ("prompts/runs/", "portfolio/flagships.yaml")
+DEFER_NOTE = ("  content-only diff (no platform/, portfolio/, .github/ or prompts/ "
+              "code): deferring {names} to the pull request's CI "
               "(~4-5 min there, ~13 min here); --full runs them here.")
 
 
+def is_content(path: str) -> bool:
+    """True for a path whose change cannot alter the code the heavy workflows test."""
+    if path.startswith(CONTENT_PREFIXES):
+        return True
+    if "/" not in path:  # root files: package.json, configs, CLAUDE.md
+        return path.endswith(PROSE_SUFFIXES)
+    return not path.startswith(TOOLING_PREFIXES)
+
+
 def defer_heavy(selected, changed, args):
-    """(selected without the heavy workflows, their names) for a prose-only diff."""
+    """(selected without the heavy workflows, their names) for a content-only diff."""
     if (getattr(args, "full", False) or getattr(args, "only", None) or args.list
-            or not changed or not all(p.endswith(PROSE_SUFFIXES) for p in changed)):
+            or not changed or not all(is_content(p) for p in changed)):
         return selected, []
     heavy = [s for s in selected if MEASURED_LOCAL_S.get(s[0], 0) >= DEFER_MIN_S]
     if not heavy:
@@ -2932,7 +2960,8 @@ def _main(argv=None) -> int:
                          "fails check_post_frontmatter (by default the sweep "
                          "stops first; see POST_PRECHECK_STOP)")
     ap.add_argument("--full", action="store_true",
-                    help="with --for-changes on a prose-only (.md/.txt) diff: "
+                    help="with --for-changes on a content-only diff (no "
+                         "platform/, portfolio/, .github/ or prompts/ code): "
                          "run the heavy workflows too (portfolio-pages, "
                          "portfolio-validate) instead of deferring them to "
                          "the PR's CI; use it when CI is starved")
