@@ -245,7 +245,7 @@ def arm_tables(designs, B):
 
 def analyse(dst, quiet=False):
     A158 = _load(EXP / "tool_build" / "analyse.py", "vdse_m162_m158")
-    m141, swc, rand, sign, boot, lb, tau_b = A158.m141, A158.swc, A158.rand, A158.sign, A158.boot, A158.lb, m141.tau_b
+    m141, swc, rand, sign, boot, lb = A158.m141, A158.swc, A158.rand, A158.sign, A158.boot, A158.lb
     B = b_rows()
     rs = rows()
     designs = complete(rs)

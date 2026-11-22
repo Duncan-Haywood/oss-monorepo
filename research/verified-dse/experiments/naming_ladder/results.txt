@@ -1,0 +1,42 @@
+# Milestone 162: the ladder's edge under three namings of the same mapped netlists (flow run)
+
+Yosys 0.71 (mlbh), OpenROAD 26Q3 (p9p4), ss_100C_1v60, 40% utilisation; Y = build B's rows (rc_corner nominal), C = canonical renaming, R = random renaming, A3 = geometric mean of the three; tie-break seed m162; theta = 3
+analysed designs (longest complete prefix of ORDER): 13 of 27: rng8l, csum8, clamp6r, dot6r, div10l, csum3, clamp3l, dot4r, csum6, gtc8l, gtc12r, clamp2r, div12l
+control 1 (rung 1 and mapped rung equal build B's row): 1336 of 1336 points
+control 2 (Yosys's own netlist re-run reproduces build B's row, all fields): 26 of 26 points
+
+design | clock | ratio | random Y | SWC Y | d Y | d C | d R | d A3 | tau-b Y-C | same best Y-C | A3 regret of Y's best
+rng8l | tight | 12.41 | 7.45 | 0.00 | -7.45 | -8.44 | -5.73 | -7.82 | 0.675 | True | 0.00
+csum8 | tight | 5.13 | 3.23 | 0.00 | -3.23 | -4.17 | -2.28 | -3.50 | 0.888 | True | 0.00
+clamp6r | relaxed | 5.73 | 7.27 | 0.00 | -7.27 | -5.09 | -7.07 | -6.65 | 0.907 | True | 0.00
+dot6r | relaxed | 4.31 | 4.47 | 4.35 | -0.12 | -1.18 | -0.01 | -0.58 | 0.761 | False | 0.00
+div10l | relaxed | 8.81 | 24.64 | 0.00 | -24.64 | -20.57 | -25.64 | -24.04 | 0.736 | True | 0.00
+csum3 | relaxed | 4.90 | 3.99 | 4.10 | +0.11 | +5.89 | +3.07 | +3.21 | 0.766 | False | 0.00
+clamp3l | relaxed | 11.36 | 8.36 | 0.00 | -8.36 | -4.27 | -7.10 | -7.31 | 0.740 | True | 0.00
+dot4r | tight | 3.99 | 1.19 | 0.00 | -1.19 | -5.96 | -3.37 | -3.76 | 0.829 | True | 0.00
+csum6 | relaxed | 4.62 | 4.75 | 13.61 | +8.86 | +10.79 | +9.30 | +10.64 | 0.845 | True | 0.00
+gtc8l | tight | 6.25 | 10.08 | 0.00 | -10.08 | -10.04 | -11.56 | -9.90 | 0.769 | False | 0.00
+gtc12r | relaxed | 3.84 | 2.64 | 2.83 | +0.19 | +1.08 | -0.36 | -0.89 | 0.788 | False | 0.16
+clamp2r | tight | 4.67 | 5.13 | 6.23 | +1.09 | +0.47 | +1.95 | +0.89 | 0.849 | True | 0.00
+div12l | tight | 8.69 | 5.24 | 0.00 | -5.24 | +0.59 | -3.60 | -2.98 | 0.766 | False | 3.46
+
+## Predictions
+
+(1) PRIMARY: mean d(A3) -4.05 points, interval -8.94 to -0.21: held
+(2) mean d(A3) - d(Y) +0.36, interval -0.44 to +1.12 (needed |mean| < 1.5): held
+(3) SWC better than random on: Y 9, C 8, R 10 of 13 (needed >= 8.7 each): refuted
+(4) mean |d(C) - d(Y)| 2.55 points, interval 1.51 to 3.62 (needed > 1.0): held
+(5) routed-best the same under C and Y on 8 of 13 (needed < 6.5): refuted
+(6) median tau-b Y against C 0.769 (range 0.675 to 0.907; needed < 0.9): held
+(7) mean A3 regret of Y's routed-best 0.28% (median 0.00%, max 3.46%; needed > 1%): refuted
+
+## Reported, not predicted
+
+Y: mean regret SWC 2.39% / random 6.80%; mean d -4.41; SWC better/worse/tied (9, 4, 0), sign p = 0.266846
+C: mean regret SWC 2.72% / random 5.86%; mean d -3.15; SWC better/worse/tied (8, 5, 0), sign p = 0.581055
+R: mean regret SWC 2.93% / random 6.96%; mean d -4.03; SWC better/worse/tied (10, 3, 0), sign p = 0.092285
+A3: mean regret SWC 2.54% / random 6.59%; mean d -4.05; SWC better/worse/tied (10, 3, 0), sign p = 0.092285
+median tau-b Y-R 0.785, C-R 0.780
+mean |d(R) - d(C)| 2.40; mean |d(R) - d(Y)| 1.18; mean d(R) - d(C) -0.88
+per-point routed spread over three namings, ln(max/min): median 0.0363, mean 0.0422, max 0.1971 (n 1336)
+C or R runs failed where build B's row is ok: 3

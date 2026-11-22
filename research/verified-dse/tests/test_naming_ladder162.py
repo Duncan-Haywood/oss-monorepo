@@ -49,3 +49,5 @@ def test_committed_table_controls_and_predictions():
     c2, n2 = res["c2"]
     assert n1 > 0 and c1 == n1
     assert n2 > 0 and c2 == n2
+    assert len(res["designs"]) == 13
+    assert res["held"] == [True, True, False, True, False, True, False]
