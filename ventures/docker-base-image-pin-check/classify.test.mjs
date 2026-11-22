@@ -22,6 +22,7 @@ import {
   classificationCounts,
   summaryLine,
   parseArg,
+  escapeChar,
 } from "./classify.mjs";
 
 const DIGEST = "sha256:" + "a".repeat(64);
@@ -360,4 +361,25 @@ test("parseArg strips double quotes as well as single (red-team 2026-11-20)", ()
     const [f] = scanText(`ARG BASE=${q}node@${DIGEST}${q}\nFROM \${BASE}\n`, "Dockerfile");
     assert.equal(f.classification, "pinned");
   }
+});
+
+// Red-team 2026-11-22, real defect: under `# escape=`` (Windows Dockerfiles)
+// a trailing backslash, as in `WORKDIR C:\app\`, is not a continuation. The
+// scan glued the next FROM onto the WORKDIR and never reported its tag.
+test("an escape=` directive stops a trailing backslash hiding the next FROM", () => {
+  const text = `# escape=\`\nFROM mcr.microsoft.com/windows/servercore@${DIGEST}\nWORKDIR C:\\app\\\nFROM mcr.microsoft.com/powershell:latest\n`;
+  assert.deepEqual(
+    scanText(text, "Dockerfile").map((f) => [f.line, f.classification]),
+    [[2, "pinned"], [4, "mutable"]],
+  );
+  const tick = scanText("# escape=`\r\nFROM `\r\n  node:18 AS build\r\nFROM build\r\n", "Dockerfile");
+  assert.deepEqual(tick.map((f) => [f.line, f.tag]), [[2, "18"]]);
+  assert.equal(escapeChar("# hello\n# escape=`\n"), "\\");
+  assert.equal(escapeChar("# syntax=docker/dockerfile:1\n#  ESCAPE = `\n"), "`");
+  assert.equal(escapeChar("FROM x\n# escape=`\n"), "\\");
+  // The CLI reads the same file the same way.
+  const dir = mkdtempSync(path.join(tmpdir(), "dbc-escape-"));
+  writeFileSync(path.join(dir, "Dockerfile"), text);
+  const py = JSON.parse(execFileSync("python3", [CLI, dir, "--format", "json"], { encoding: "utf8" }));
+  assert.deepEqual(py.map((f) => [f.line, f.classification]), [[2, "pinned"], [4, "mutable"]]);
 });

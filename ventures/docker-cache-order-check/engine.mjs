@@ -106,6 +106,25 @@ export const FINDING_KINDS = Object.freeze({
 // security scanner that might report both a hard risk and a soft note.
 export const RISK_KINDS = new Set(Object.values(FINDING_KINDS));
 
+const DIRECTIVE_RE = /^#\s*([a-zA-Z][a-zA-Z0-9]*)\s*=\s*(.+?)\s*$/;
+const KNOWN_DIRECTIVES = new Set(["syntax", "escape", "check"]);
+
+/** The line-continuation character a `# escape=` parser directive sets, or
+ * a backslash. BuildKit reads directives only at the very top of the file,
+ * before any blank line, comment or instruction, and an unknown directive
+ * ends the run. Windows Dockerfiles set escape=` so `COPY . C:\app\` is not
+ * continued onto the next line (red-team 2026-11-22: treating it as one hid
+ * the install step this check exists to see). */
+export function escapeChar(text) {
+  let escape = "\\";
+  for (const line of String(text).split(/\r\n|\r|\n/)) {
+    const m = DIRECTIVE_RE.exec(line.trim());
+    if (!m || !KNOWN_DIRECTIVES.has(m[1].toLowerCase())) break;
+    if (m[1].toLowerCase() === "escape" && (m[2] === "\\" || m[2] === "`")) escape = m[2];
+  }
+  return escape;
+}
+
 /**
  * Splits raw Dockerfile text into logical instructions, joining
  * backslash-continued physical lines into one, and dropping blank lines,
@@ -121,6 +140,7 @@ export const RISK_KINDS = new Set(Object.values(FINDING_KINDS));
  */
 export function parseInstructions(text) {
   const raw = String(text).split(/\r\n|\r|\n/);
+  const trailing = escapeChar(text) === "`" ? /`\s*$/ : /\\\s*$/;
   const instructions = [];
   let building = false;
   let startLine = 0;
@@ -140,8 +160,8 @@ export function parseInstructions(text) {
       // that stopped here would silently truncate the instruction.
       continue;
     }
-    const continues = /\\\s*$/.test(line);
-    parts.push(line.replace(/\\\s*$/, ""));
+    const continues = trailing.test(line);
+    parts.push(line.replace(trailing, ""));
     if (!continues) {
       const joined = parts.join(" ").replace(/\s+/g, " ").trim();
       const match = /^(\S+)\s*([\s\S]*)$/.exec(joined);

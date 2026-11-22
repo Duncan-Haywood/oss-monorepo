@@ -495,5 +495,46 @@ class RedTeam20261119(unittest.TestCase):
             self.assertIn("node:18", out)
 
 
+class RedTeam20261122(unittest.TestCase):
+    """Red-team 2026-11-22, real defect: a Windows Dockerfile sets
+    `# escape=`` so `WORKDIR C:\\app\\` ends a line without continuing it.
+    The scanner treated the backslash as a continuation, glued the next
+    FROM onto the WORKDIR and never reported its mutable tag."""
+
+    WINDOWS = (
+        "# escape=`\n"
+        "FROM mcr.microsoft.com/windows/servercore@" + DIGEST + "\n"
+        "WORKDIR C:\\app\\\n"
+        "FROM mcr.microsoft.com/powershell:latest\n"
+    )
+
+    def test_escape_directive_backslash_is_not_a_continuation(self):
+        findings = dbc.scan_text(self.WINDOWS)
+        self.assertEqual(
+            [(f["line"], f["classification"]) for f in findings],
+            [(2, "pinned"), (4, "mutable")],
+        )
+
+    def test_backtick_continues_a_from_under_escape_backtick(self):
+        findings = dbc.scan_text("# escape=`\nFROM `\n  node:18 AS build\nFROM build\n")
+        self.assertEqual([(f["line"], f["tag"]) for f in findings], [(2, "18")])
+
+    def test_variable_digest_with_no_default_stays_unresolved(self):
+        # Mutation-found: with `and` turned into `or` an `@` alone made an
+        # unresolved FROM read as pinned, and no Python test noticed.
+        for ref in ("node@${DIGEST}", "${IMG}@sha256:" + "a" * 12):
+            findings = dbc.scan_text("FROM " + ref + "\n")
+            self.assertEqual(findings[0]["classification"], dbc.UNRESOLVED, ref)
+        pinned = dbc.scan_text("FROM ${IMG}@" + DIGEST + "\n")
+        self.assertEqual(pinned[0]["classification"], dbc.PINNED)
+
+    def test_directive_only_counts_at_the_top(self):
+        # After a comment that is not a directive, BuildKit stops looking,
+        # so the backslash stays the escape character.
+        self.assertEqual(dbc.escape_char("# hello\n# escape=`\n"), "\\")
+        self.assertEqual(dbc.escape_char("# syntax=docker/dockerfile:1\n#  ESCAPE = `\n"), "`")
+        self.assertEqual(dbc.escape_char("FROM x\n# escape=`\n"), "\\")
+
+
 if __name__ == "__main__":
     unittest.main()
