@@ -1,0 +1,114 @@
+
+== Infrastructure-Consultancies-in-Norway_3d-details-property-mapper_ifc-files_input_SNACKS_Detalj_Overgangsplate.ifc: 0 of 1 bar elements read (not read: {"ok":1}); 0 bars in 0 lines, 0.00 kg
+
+== JakkeLab_Study_IFCjs_test-ifc-files-main_Structures_simple_rebar.ifc: 11 of 11 bar elements read; 11 bars in 3 lines, 7.77 kg
+  Default | A01 | 8 mm x 3 | 1322 mm | closed link, 5 bends | file Stirrup - T1 | length 1322 (legs 1378) vs 1320 mm = cut; dims 81/272/336/271/336/81 vs A=114 B=272 C=336 D=271 E=336 !
+  Default | A02 | 8 mm x 4 | 1006 mm | U (21) | file Standard - 2 | length 1006 (legs 1060) vs 1010 mm = cut; dims 350/360/350 vs B=360
+  Default | A03 | 12 mm x 4 | 1300 mm | 2 bends | file Rebar Shape 4 | length 1300 (legs 1292) vs 1300 mm = cut; dims 100/842/350 vs A=114 B=842 !
+
+== MaLabTHU_bim-r-platform_static_data_rebar.ifc: 1 of 1 bar elements read; 1 bars in 1 lines, 3.48 kg
+  标高 1 | A01 | 12.7 mm x 1 | 3500 mm | straight (00) | file M_00 | length 3500 (legs 3500) vs 3500 mm = legs to 10 mm; dims 3500 vs B=3500
+
+== OlegMoshkovich_SimpleSiteModels_KranfundamentTest.ifc: 48 of 48 bar elements read; 259 bars in 7 lines, 2257.00 kg
+  position 1: 47 bars here vs 47 in the file
+  position 2: 47 bars here vs 47 in the file
+  position 3: 42 bars here vs 42 in the file
+  position 4: 43 bars here vs 43 in the file
+  position 5: 32 bars here vs 32 in the file
+  position 6: 16 bars here vs 16 in the file
+  position 7: 32 bars here vs 32 in the file
+  Geschoss | 1 | 14 mm x 47 | 9492 mm | closed link, 4 bends | file B3 | inside diameter 56.0/56.0/56.0/56.0 vs 56 mm = diameter
+  Geschoss | 2 | 14 mm x 47 | 9464 mm | closed link, 4 bends | file B3 | inside diameter 56.0/56.0/56.0/56.0 vs 56 mm = diameter
+  Geschoss | 3 | 14 mm x 42 | 7340 mm | U (21) | file A1 |  | a bend drawn as a sharp corner: its radius is not in the file
+  Geschoss | 4 | 14 mm x 43 | 7340 mm | U (21) | file A1 |  | a bend drawn as a sharp corner: its radius is not in the file
+  Geschoss | 5 | 14 mm x 32 | 4442 mm | U (21) | file A1 |  | a bend drawn as a sharp corner: its radius is not in the file
+  Geschoss | 6 | 14 mm x 16 | 3752 mm | U (21) | file A1 |  | a bend drawn as a sharp corner: its radius is not in the file
+  Geschoss | 7 | 16 mm x 32 | 3607 mm | closed link, 4 bends | file B4 | inside diameter 64.0/64.0/64.0/64.0 vs 64 mm = diameter
+
+== OpeningDesign_FreeMVD_Mirror_selfMadeRebars.ifc: 0 of 0 bar elements read; 0 bars in 0 lines, 0.00 kg
+
+== agustdiez_tekla-structures-hyt_docs_ref_Ejemplo_Hormigon_areas_SIM25031-A06-CIV-3D-3006-CROMATOGRAFO.ifc: 28 of 28 bar elements read; 109 bars in 16 lines, 216.69 kg
+  Z3 | 11 | 10 mm x 16 | 2481 mm | 3 bends | file F110 | count 16 vs 16; mass 24.47 vs 24.49 kg | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 12 | 10 mm x 2 | 3350 mm | straight (00) | file F101 | count 2 vs 2; mass 4.13 vs 4.13 kg; length 3350 (legs 3350) vs 3350 mm = legs to 10 mm; dims 3350 vs A=3350 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 21 | 10 mm x 16 | 4802 mm | L (11) | file F102 | count 16 vs 16; mass 47.37 vs 47.40 kg; length 4802 (legs 4840) vs 4840 mm = legs to 10 mm; dims 190/4650 vs A=4650 B=190 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 22 | 10 mm x 36 | 2534 mm | U (21) | file F105 | count 36 vs 36; mass 56.24 vs 56.28 kg; length 2534 (legs 2610) vs 2610 mm = legs to 10 mm; dims 190/2229/190 vs A=190 B=2230 C=190 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 23 | 10 mm x 16 | 4824 mm | 2 bends | file F109 | count 16 vs 16; mass 47.59 vs 47.62 kg | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 31 | 10 mm x 4 | 2840 mm | U (21) | file F105 | count 4 vs 4; mass 7.00 vs 7.01 kg; length 2840 (legs 2906) vs 2900 mm = legs to 10 mm; dims 328/2249/328 vs A=328 B=2250 C=328 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 32 | 10 mm x 2 | 2800 mm | U (21) | file F105 | count 2 vs 2; mass 3.45 vs 3.46 kg; length 2800 (legs 2866) vs 2860 mm = legs to 10 mm; dims 308/2249/308 vs A=308 B=2250 C=308 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 33 | 10 mm x 2 | 2740 mm | U (21) | file F105 | count 2 vs 2; mass 3.38 vs 3.38 kg; length 2740 (legs 2806) vs 2800 mm = legs to 10 mm; dims 278/2249/278 vs A=278 B=2250 C=278 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 34 | 10 mm x 2 | 2680 mm | U (21) | file F105 | count 2 vs 2; mass 3.30 vs 3.31 kg; length 2680 (legs 2746) vs 2740 mm = legs to 10 mm; dims 248/2249/248 vs A=248 B=2250 C=248 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 35 | 10 mm x 2 | 2620 mm | U (21) | file F105 | count 2 vs 2; mass 3.23 vs 3.23 kg; length 2620 (legs 2686) vs 2680 mm = legs to 10 mm; dims 218/2249/218 vs A=218 B=2250 C=218 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 36 | 10 mm x 2 | 2560 mm | U (21) | file F105 | count 2 vs 2; mass 3.16 vs 3.16 kg; length 2560 (legs 2626) vs 2620 mm = legs to 10 mm; dims 188/2249/188 vs A=188 B=2250 C=188 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 37 | 10 mm x 2 | 2500 mm | U (21) | file F105 | count 2 vs 2; mass 3.08 vs 3.08 kg; length 2500 (legs 2566) vs 2560 mm = legs to 10 mm; dims 158/2249/158 vs A=158 B=2250 C=158 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 38 | 10 mm x 2 | 2440 mm | U (21) | file F105 | count 2 vs 2; mass 3.01 vs 3.01 kg; length 2440 (legs 2506) vs 2500 mm = legs to 10 mm; dims 128/2249/128 vs A=128 B=2250 C=128 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 39 | 10 mm x 2 | 2380 mm | U (21) | file F105 | count 2 vs 2; mass 2.94 vs 2.94 kg; length 2380 (legs 2446) vs 2440 mm = legs to 10 mm; dims 98/2249/98 vs A=98 B=2250 C=98 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 41 | 10 mm x 2 | 2314 mm | U (21) | file F105 | count 2 vs 2; mass 2.85 vs 2.86 kg; length 2314 (legs 2380) vs 2380 mm = legs to 10 mm; dims 65/2249/65 vs A=65 B=2250 C=65 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z3 | 42 | 10 mm x 1 | 2400 mm | U (21) | file F105 | count 1 vs 1; mass 1.48 vs 1.48 kg; length 2400 (legs 2466) vs 2460 mm = legs to 10 mm; dims 108/2249/108 vs A=108 B=2250 C=108 | drawn 10.6 mm across; mass from the 10 mm nominal size
+
+== agustdiez_tekla-structures-hyt_docs_ref_Ejemplo_Hormigon_areas_SIM25031-A06-CIV-3D-3010-MURO-CORTAFUEGO.ifc: 69 of 69 bar elements read; 318 bars in 16 lines, 503.34 kg
+  PL0 | 15 | 16 mm x 18 | 228 mm | L (11) | file F102 | count 18 vs 18; mass 6.48 vs 6.47 kg; length 228 (legs 256) vs 250 mm = legs to 10 mm; dims 208/48 vs A=208 B=48 | bend tighter than BS 8666's minimum 32 mm inside radius for a 16 mm bar
+  V2 | 14 | 10 mm x 69 | 4111 mm | U (21) | file F105 | count 69 vs 69; mass 174.89 vs 175.02 kg; length 4111 (legs 4170) vs 4170 mm = legs to 10 mm; dims 75/4019/75 vs A=75 B=4020 C=75 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 19 | 10 mm x 54 | 3061 mm | U (21) | file F105 | count 54 vs 54; mass 101.91 vs 101.99 kg; length 3061 (legs 3120) vs 3120 mm = legs to 10 mm; dims 75/2969/75 vs A=75 B=2970 C=75 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 21 | 8 mm x 27 | 1533 mm | closed link, 7 bends | file Unknown | count 27 vs 27; mass 16.33 vs 16.35 kg | drawn 8.6 mm across; mass from the 8 mm nominal size
+  V2 | 33 | 10 mm x 16 | 636 mm | straight (00) | file F101 | count 16 vs 16; mass 6.28 vs 6.28 kg; length 636 (legs 636) vs 630 mm = legs to 10 mm; dims 636 vs A=636 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 110 | 10 mm x 15 | 4020 mm | straight (00) | file F101 | count 15 vs 15; mass 37.18 vs 37.21 kg; length 4020 (legs 4020) vs 4020 mm = legs to 10 mm; dims 4020 vs A=4020 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 111 | 10 mm x 2 | 2181 mm | straight (00) | file F101 | count 2 vs 2; mass 2.69 vs 2.69 kg; length 2181 (legs 2181) vs 2180 mm = legs to 10 mm; dims 2181 vs A=2181 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 112 | 10 mm x 2 | 528 mm | straight (00) | file F101 | count 2 vs 2; mass 0.65 vs 0.65 kg; length 528 (legs 528) vs 520 mm = legs to 10 mm; dims 528 vs A=527 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 113 | 10 mm x 2 | 762 mm | straight (00) | file F101 | count 2 vs 2; mass 0.94 vs 0.94 kg; length 762 (legs 762) vs 760 mm = legs to 10 mm; dims 762 vs A=762 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 210 | 10 mm x 23 | 4048 mm | 2 bends | file 5_3 | count 23 vs 23; mass 57.40 vs 57.45 kg; dims 869/2942/263 vs A=263 B=2942 C=868 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 211 | 10 mm x 23 | 4015 mm | 2 bends | file 56 | count 23 vs 23; mass 56.94 vs 56.98 kg; dims 853/2924/263 vs A=853 B=2924 C=263 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 212 | 10 mm x 8 | 2573 mm | L (11) | file F104 | count 8 vs 8; mass 12.69 vs 12.70 kg; length 2573 (legs 2593) vs 2590 mm = legs to 10 mm; dims 2330/263 vs A=2330 B=263 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 213 | 10 mm x 4 | 1204 mm | 1 bend of 44 degrees | file F103 | count 4 vs 4; mass 2.97 vs 2.97 kg; length 1204 (legs 1209) vs 1200 mm = legs to 10 mm; dims 853/356 vs A=853 B=356 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  V2 | 214 | 10 mm x 4 | 1240 mm | 1 bend of 46 degrees | file F103 | count 4 vs 4; mass 3.06 vs 3.06 kg; length 1240 (legs 1245) vs 1240 mm = legs to 10 mm; dims 869/376 vs A=868 B=376 | drawn 10.6 mm across; mass from the 10 mm nominal size
+  Z2 | 25 | 8 mm x 9 | 1694 mm | closed link, 5 bends | file F203_2 | count 9 vs 9; mass 6.02 vs 6.02 kg; length 1694 (legs 1734) vs 1680 mm = cut; dims 88/249/529/249/529/88 vs A=250 B=530 C=250 D=530 E=64 ! | drawn 8.6 mm across; mass from the 8 mm nominal size
+  Z2 | 32 | 10 mm x 42 | 653 mm | Z (cranked) | file F105 | count 42 vs 42; mass 16.92 vs 16.93 kg; length 653 (legs 704) vs 700 mm = legs to 10 mm; dims 200/454/50 vs A=200 B=455 C=50 | drawn 10.6 mm across; mass from the 10 mm nominal size
+
+== berndhahnebach_rebar2_example_03_crane_foundation.ifc: 16 of 16 bar elements read; 130 bars in 6 lines, 465.87 kg
+  position 1: 70 bars here vs 70 in the file
+  position 2: 14 bars here vs 14 in the file
+  position 3: 14 bars here vs 14 in the file
+  position 4: 8 bars here vs 8 in the file
+  position 5: 16 bars here vs 16 in the file
+  position 6: 8 bars here vs 8 in the file
+  Geschoss | 1 | 12 mm x 70 | 2460 mm | U (21) | file X1 | inside diameter 72.0/72.0 vs 36 mm = as radius
+  Geschoss | 2 | 18 mm x 14 | 4255 mm | L (11) | file X1 | inside diameter 108.0 vs 54 mm = as radius | bend tighter than BS 8666's minimum 63 mm inside radius for a 18 mm bar
+  Geschoss | 3 | 12 mm x 14 | 5620 mm | L (11) | file X1 | inside diameter 72.0 vs 36 mm = as radius
+  Geschoss | 4 | 18 mm x 8 | 4189 mm | closed link, 4 bends | file X1 | inside diameter 108.0/108.0/108.0/108.0 vs 54 mm = as radius | bend tighter than BS 8666's minimum 63 mm inside radius for a 18 mm bar
+  Geschoss | 5 | 10 mm x 16 | 2635 mm | closed link, 5 bends | file X1 | inside diameter 60.0/60.0/60.0/60.0/60.0 vs 30 mm = as radius
+  Geschoss | 6 | 14 mm x 8 | 3230 mm | U (21) | file X1 | inside diameter 84.0/84.0 vs 42 mm = as radius
+
+== berndhahnebach_rebar2_example_04_vat.ifc: 25 of 25 bar elements read; 219 bars in 7 lines, 212.36 kg
+  position 1: 25 bars here vs 25 in the file
+  position 2: 16 bars here vs 16 in the file
+  position 3: 82 bars here vs 82 in the file
+  position 4: 40 bars here vs 40 in the file
+  position 5: 20 bars here vs 20 in the file
+  position 6: 20 bars here vs 20 in the file
+  position 7: 16 bars here vs 16 in the file
+  EG00 | 1 | 10 mm x 25 | 2214 mm | closed link, 5 bends | file B1 | inside diameter 40.0/40.0/40.0/40.0/40.0 vs 20 mm = as radius
+  EG00 | 2 | 12 mm x 16 | 4050 mm | U (21) | file X1 | inside diameter 48.0/48.0 vs 24 mm = as radius
+  EG00 | 3 | 10 mm x 82 | 979 mm | L (11) | file X1 | inside diameter 40.0 vs 20 mm = as radius
+  EG00 | 4 | 10 mm x 40 | 2100 mm | straight (00) | file A1 | 
+  EG00 | 5 | 10 mm x 20 | 699 mm | straight (00) | file A1 | 
+  EG00 | 6 | 10 mm x 20 | 474 mm | L (11) | file X1 | inside diameter 40.0 vs 20 mm = as radius
+  EG00 | 7 | 10 mm x 16 | 500 mm | straight (00) | file A1 | 
+
+== paireks_T-Rex_TestsInsideGrasshopper_IFCAndDotbimTests_IFCFiles_RebarGroups.ifc: 0 of 44 bar elements read (not read: {"no body":44}); 0 bars in 0 lines, 0.00 kg
+
+== pragmaticBIM_pragmaticBIM-reference_media_attachments_structural-reinforcing-bar.ifc: 32 of 32 bar elements read; 32 bars in 4 lines, 118.19 kg
+  position 1: 8 bars here vs 8 in the file
+  position 2: 8 bars here vs 8 in the file
+  position 3: 8 bars here vs 8 in the file
+  position 4: 8 bars here vs 8 in the file
+  EG | 1 | 16 mm x 8 | 2340 mm | straight (00) | file - | length 2340 (legs 2340) vs 2340 mm = legs to 10 mm | drawn 32 mm across; mass from the 16 mm nominal size
+  EG | 2 | 16 mm x 8 | 2340 mm | straight (00) | file - | length 2340 (legs 2340) vs 2340 mm = legs to 10 mm | drawn 32 mm across; mass from the 16 mm nominal size
+  EG | 3 | 16 mm x 8 | 2340 mm | straight (00) | file - | length 2340 (legs 2340) vs 2340 mm = legs to 10 mm | drawn 32 mm across; mass from the 16 mm nominal size
+  EG | 4 | 16 mm x 8 | 2340 mm | straight (00) | file - | length 2340 (legs 2340) vs 2340 mm = legs to 10 mm | drawn 32 mm across; mass from the 16 mm nominal size
+
+== reinforcing-assembly.ifc: 34 of 34 bar elements read; 34 bars in 1 lines, 34.66 kg
+  IfcBuilding | A01 | 12 mm x 34 | 1148 mm | closed link, 6 bends | file - | length 1148 (legs 1344) vs 1150 mm = cut
+
+== reinforcing-stirrup.ifc: 1 of 1 bar elements read; 1 bars in 1 lines, 1.02 kg
+  IfcBuilding | A01 | 12 mm x 1 | 1148 mm | closed link, 6 bends | file - | length 1148 (legs 1344) vs 1150 mm = cut
+
+13 files: 265 of 310 bar elements read, 62 schedule lines; agree with the file: bars in the group 32 of 32, bars in the position 24 of 24, mass 32 of 32, mass per metre 20 of 20, bending diameter 13 of 13, length 37 of 37, leg dimensions 30 of 33

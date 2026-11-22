@@ -422,7 +422,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
-node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights, member lengths and slab thickness and perimeter measured from the bodies
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights, member lengths, slab thickness and perimeter, door and window sizes and space floor areas, perimeters, heights and volumes measured from the bodies
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -724,6 +724,30 @@ are offered, all within 2% of the stored figures and 377 to the last digit;
 with the stored figures hidden the fill writes 1,824 values, 1,520 of 1,520
 with a stored figure match, and IfcTester takes exactly the written elements
 from fail to pass (`eval/door-window-quantities-2026-11-22.md`).
+**Spaces' floor area, perimeter, heights and volume (2026-11-22).**
+`Qto_SpaceBaseQuantities` on an `IfcSpace` come from IFC Quantity Takeoff's
+room reading of the space's own solid (or, for a room drawn only as a plan
+outline and a box, that outline through the box): the floor area and outline
+cut 1 cm above its lowest point, its height and its volume. Each name is
+offered only where the exporters' figures and the solid's agree:
+
+| Quantity | Offered on | Held out against stored figures (8 public exports) |
+| --- | --- | --- |
+| `GrossFloorArea`, `GrossPerimeter` | every space read | 528 of 530, 467 of 470 within 2% |
+| `NetFloorArea` | Revit exports (a Revit room already stops at columns and finishes; ARCHICAD takes a per-room reduction off, 0.97 on the FZK-Haus) | 332 of 334 |
+| `Height` | a constant-height space (the solid holds its floor area times its height, as the `Qto_` definition asks) whose top is not a ceiling's underside | 445 of 446 |
+| `FinishCeilingHeight`, `GrossCeilingArea` | a constant-height space | 191 of 191, 191 of 191 |
+| `GrossVolume` | where `Height` is, with a body | 125 of 352, and 218 more the stored figure exactly 1,000 times the solid (ARK_NUS writes litres under cubic metres) |
+| `NetVolume` | a space with a body | 102 of 107; the other 5 HouseZ's mm3 under m3 |
+
+The ceiling rule comes from ARK_NUS: a Revit room stops at a lowered ceiling
+while the Height it stores is the nominal one above (2.9 m over a 2.64 m
+solid); a ceiling covering whose underside sits at the room's top within 3 cm
+catches 29 of its 30 misses. `NetPerimeter` is not offered (the definition
+takes door openings off), nor wall areas, which no exporter's figure here
+matches. With the stored figures hidden, the fill writes 6,931 values on the 12
+public exports with spaces and every one passes the fill's re-read
+(`eval/space-quantities-2026-11-22.md`).
 Curved walls' lengths and other heights are not measured. A value from the model's
 own quantity sets always wins over a measured one, and a measured value still
 has to pass every facet that names it. Values are written to six significant

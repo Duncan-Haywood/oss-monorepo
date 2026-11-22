@@ -37,6 +37,12 @@
 //                            section and bounding perimeter; ARCHICAD exports
 //                            only, the one tool whose convention is known
 //                            (openingLines below; eval/door-window-quantities-2026-11-22.md)
+//   GrossFloorArea, GrossPerimeter, Height, FinishCeilingHeight,
+//   GrossCeilingArea, GrossVolume, NetVolume, NetFloorArea
+//                            spaces (IfcSpace): ifc-quantity-takeoff's room
+//                            reading of the space's own solid, or its plan
+//                            outline and box (spaceQuantities below;
+//                            eval/space-quantities-2026-11-22.md)
 // Other lengths and heights are not offered.
 //
 // Every value is in SI units (m, m2, m3), as the IDS standard reads values.
@@ -988,6 +994,93 @@ export function addRevitSizeLines(model, rows, { readUnits }) {
   return n;
 }
 
+// ---- a space's quantities, from ifc-quantity-takeoff's room reading --------
+//
+// takeoff() already measures every IfcSpace (rooms.mjs roomGeometry): the
+// floor area and perimeter cut 1 cm above the solid's lowest point, its
+// height lowest to highest, its volume. Which Qto_SpaceBaseQuantities names
+// those stand for, measured against 1,000+ stored figures in 8 public
+// exports (eval/space-quantities-2026-11-22.md):
+//   GrossFloorArea, GrossPerimeter  every space read (530 of 532, 466 of 468)
+//   NetFloorArea      Revit only: a Revit room already stops at columns and
+//                     finishes, so its net area is the solid's (332 of 334);
+//                     ARCHICAD takes a per-room reduction off (0.97 on the
+//                     FZK-Haus) the solid does not show
+//   Height            only a constant-height space (the solid holds its floor
+//                     area times its height: the Qto_ definition gives Height
+//                     "only if the space has a constant height") whose top is
+//                     not a ceiling's underside: a Revit room stops at a
+//                     lowered ceiling while its stored Height is the nominal
+//                     one above it (29 of ARK_NUS's 30 misses)
+//   FinishCeilingHeight, GrossCeilingArea
+//                     a constant-height space: its top is the finished
+//                     ceiling, its area the floor's (191 of 191, 196 of 196)
+//   NetVolume         a space with a body (one drawn only as an outline and a
+//                     box holds more than a room under a sloped roof)
+//   GrossVolume       where Height is offered, with a body: exporters store
+//                     the floor area times the nominal height (ARCHICAD under
+//                     a sloped roof, about twice the solid; Revit over a
+//                     lowered ceiling), which only then is the solid's
+// Not offered: NetPerimeter (the definition takes door openings off),
+// NetCeilingArea, Gross/NetWallArea (exporters' figures agree with nothing
+// measured here), FinishFloorHeight.
+
+const SPACE_CONVENTIONS = [[/revit/i, "revit"]];
+
+/** A ceiling covering's underside at the top of a room, overlapping its plan (boxes in m). */
+function ceilingAtTop(room, ceilings, tol = 0.03) {
+  const b = room.box;
+  return ceilings.some((q) => Math.min(b[3], q[3]) - Math.max(b[0], q[0]) > 0.05 && Math.min(b[4], q[4]) - Math.max(b[1], q[1]) > 0.05 && Math.abs(q[2] - b[5]) <= tol);
+}
+
+/**
+ * The Qto_SpaceBaseQuantities one room's reading gives.
+ * @param {{computed: object|null, from: string, box?: number[]}} room a takeoff() room
+ * @param {{tool?: string|null, ceilingAtTop?: boolean}} [ctx]
+ * @returns {Map<string, {value: number, kind: string}>}
+ */
+export function spaceLines(room, ctx = {}) {
+  const m = new Map();
+  const c = room.computed;
+  if (!c) return m;
+  const put = (name, kind, v) => { if (usable(v)) m.set(name, { value: v, kind }); };
+  const constant = usable(c.floorArea) && usable(c.height) && Math.abs(c.volume - c.floorArea * c.height) <= 0.02 * c.volume;
+  put("GrossFloorArea", "area", c.floorArea);
+  if (ctx.tool === "revit") put("NetFloorArea", "area", c.floorArea);
+  put("GrossPerimeter", "length", c.perimeter);
+  if (constant) {
+    if (!ctx.ceilingAtTop) put("Height", "length", c.height);
+    put("FinishCeilingHeight", "length", c.height);
+    put("GrossCeilingArea", "area", c.floorArea);
+  }
+  if (room.from === "body") {
+    if (constant && !ctx.ceilingAtTop) put("GrossVolume", "volume", c.volume);
+    put("NetVolume", "volume", c.volume);
+  }
+  return m;
+}
+
+/**
+ * Adds each measured room's quantities to `out` (STEP id -> name -> value).
+ * @param {object} model parseStep's model (for each space's authoring tool)
+ * @param {Array} rooms takeoff().rooms
+ * @param {Array} rows takeoff().rows (for the ceilings)
+ */
+export function addSpaceQuantities(out, model, rooms, rows) {
+  const ceilings = rows.filter((r) => /^IFCCOVERING/.test(r.ifcType) && r.predefinedType === "CEILING" && Array.isArray(r.box)).map((r) => r.box);
+  const apps = new Map();
+  for (const room of rooms || []) {
+    if (!room.computed) continue;
+    const ctx = {
+      tool: toolConvention(model, model.entities.get(room.id), SPACE_CONVENTIONS, apps),
+      ceilingAtTop: Array.isArray(room.box) && ceilingAtTop(room, ceilings),
+    };
+    const m = spaceLines(room, ctx);
+    if (m.size) out.set(room.id, m);
+  }
+  return out;
+}
+
 /**
  * The model fill's opts.geometry: (element, quantity name, quantity class)
  * -> SI value or undefined.
@@ -1012,11 +1105,11 @@ export async function measureModel(ifcText, opts = {}) {
   const { takeoff, readUnits } = await import(new URL("qto.mjs", base).href);
   const { Geometry, polyPlanes, asTerms, solidExtent, sectionArea, mul, invert, transformSolid } = await import(new URL("geom.mjs", base).href);
   const model = parseStep(ifcText);
-  const { rows } = takeoff(model);
+  const { rows, rooms } = takeoff(model);
   addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
   addMemberLines(model, rows, { solidExtent });
   addSlabLines(model, rows, { solidExtent });
   addOpeningLines(model, rows, { Geometry, readUnits, solidExtent, sectionArea, mul, invert, transformSolid, asTerms });
   addRevitSizeLines(model, rows, { readUnits });
-  return quantitiesFromRows(rows);
+  return addSpaceQuantities(quantitiesFromRows(rows), model, rooms, rows);
 }

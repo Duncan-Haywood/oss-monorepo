@@ -441,10 +441,42 @@ The levelling feet's jam nuts joined on 2026-11-22 ("Levelling feet", below),
 so every feeder nut is in the table now. The turntable
 bearing's eight M5 screws joined on 2026-11-21 ("Turntable bearing's two rings",
 below). The idler axles and the spool axle joined on
-2026-11-21 (next section). A deep socket
-on an extension, which goes in along the axis, is not tried; the bolt's tail past
-the nut is not drawn, so a ring end is assumed to slide over it. The hand is a
-box. Nobody has built one.
+2026-11-21 (next section). A deep socket on an extension was tried on
+2026-11-22 (next). The bolt's tail past the nut is not drawn, so a ring end is
+assumed to slide over it. The hand is a box. Nobody has built one.
+
+#### A deep socket on an extension (2026-11-22, `guide.socket_checks`, `socket_solid`)
+
+The other way onto a nut: a deep socket goes on along the bolt's axis, the
+bolt's tail runs up inside it, and a ratchet on the end of an extension bar
+turns it from outside the work. For each nut in the spanner table, at every
+hole when its step comes, the check puts a deep socket on the nut, tries the
+bars of a set in turn (0, 50, 75, 100, 150 and 250 mm), and on the shortest bar
+whose socket and bar miss the work (they are round, so a hit is a hit at every
+angle) swings a ratchet and the hand round the bolt 5 degrees at a time. The
+tail past the nut (the bolt's length less the grip and the nut) must fit in the
+socket's bore. Sizes are typical 1/4" drive deep sockets (3/8" for the 13 mm),
+assumed: outside 10 to 18.5 mm, 50 mm long (63 for 13 mm), 38 mm of bore (48);
+bars 10 mm (14); a ratchet head 25 mm across and 14 thick on a 140 mm handle
+(34, 18 and 200). 15 degrees of handle swing turns a nut (a 72-tooth ratchet's
+5 and the hand's play, assumed). The guide prints the table ("A deep socket on
+an extension"); it is a report, not a pass or fail, because the steps ask for
+the spanners.
+
+What it found:
+
+| Nut | Spanner (above) | Deep socket |
+| --- | --- | --- |
+| Drum axle nyloc, inside the drum | held only: a 200 mm spanner in a gap between rods, 15 degrees at the worst hole, short of a ring's 30 | turns it with no bar: the 63 mm socket puts the ratchet's head inside the cage and its 20 mm wide handle out through one gap, which gives exactly the 15 degrees a ratchet needs, at every one of the 18 gaps (the hand, 165 mm out, is outside the cage; the rods stop the handle). Marginal: a ratchet whose handle is 30 mm wide instead of 20 does not fit (test `test_a_wider_handle_cannot_swing_between_the_rods`), and the window is sampled at 5 degrees. The step still turns the head outside the arm, which swings 330 degrees |
+| Flight caps' M3 nyloc on the cleat's back | held, 15 degrees | none: no bar up to 250 mm clears the work. The nut is held with the spanner, as the step says |
+| Levelling foot jam nut | turns all the way round | 26.8 mm of stud past the nut, so a deep socket is needed (a shallow one's bore is under 10 mm); with it, all the way round |
+| The other 12 joints | pass | a bare socket and ratchet, no bar, at every hole; the narrowest arcs are the elevation pin's thin nut 60, the turntable bearing's fixed-ring nuts 95 and the yoke pivot 100 degrees |
+
+So no nut needed an extension: wherever a socket goes on at all, it goes on
+with the ratchet straight on it. How the socket gets to the nut (in between
+parts, then along the axis) is not tried, and inside the drum that means
+feeding the ratchet in between two rods and sliding the socket on along the
+axle; tests `SocketTest`. Nobody has built one.
 
 ### Idler axles fixed, and the spool axle (2026-11-21, `feeder.IDLER_AXLE_*`, `idler_axle_spacer`, `guide.Joint.far_last`)
 

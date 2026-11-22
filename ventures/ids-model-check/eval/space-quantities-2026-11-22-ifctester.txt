@@ -1,0 +1,96 @@
+AC20-FZK-Haus | Spaces carry a gross floor area | 7 applicable | 0 pass before | 7 pass after
+AC20-FZK-Haus | Spaces carry a net floor area | 7 applicable | 0 pass before | 0 pass after
+AC20-FZK-Haus | Spaces carry a gross perimeter | 7 applicable | 0 pass before | 7 pass after
+AC20-FZK-Haus | Spaces carry a height | 7 applicable | 0 pass before | 6 pass after
+AC20-FZK-Haus | Spaces carry a finished ceiling height | 7 applicable | 0 pass before | 6 pass after
+AC20-FZK-Haus | Spaces carry a gross ceiling area | 7 applicable | 0 pass before | 6 pass after
+AC20-FZK-Haus | Spaces carry a gross volume | 7 applicable | 0 pass before | 6 pass after
+AC20-FZK-Haus | Spaces carry a net volume | 7 applicable | 0 pass before | 7 pass after
+C20-Institute-Var-2 | Spaces carry a gross floor area | 82 applicable | 0 pass before | 82 pass after
+C20-Institute-Var-2 | Spaces carry a net floor area | 82 applicable | 0 pass before | 0 pass after
+C20-Institute-Var-2 | Spaces carry a gross perimeter | 82 applicable | 0 pass before | 82 pass after
+C20-Institute-Var-2 | Spaces carry a height | 82 applicable | 0 pass before | 79 pass after
+C20-Institute-Var-2 | Spaces carry a finished ceiling height | 82 applicable | 0 pass before | 79 pass after
+C20-Institute-Var-2 | Spaces carry a gross ceiling area | 82 applicable | 0 pass before | 79 pass after
+C20-Institute-Var-2 | Spaces carry a gross volume | 82 applicable | 0 pass before | 79 pass after
+C20-Institute-Var-2 | Spaces carry a net volume | 82 applicable | 0 pass before | 82 pass after
+FM_ARC_DigitalHub | Spaces carry a gross floor area | 64 applicable | 0 pass before | 64 pass after
+FM_ARC_DigitalHub | Spaces carry a net floor area | 64 applicable | 0 pass before | 64 pass after
+FM_ARC_DigitalHub | Spaces carry a gross perimeter | 64 applicable | 0 pass before | 64 pass after
+FM_ARC_DigitalHub | Spaces carry a height | 64 applicable | 0 pass before | 17 pass after
+FM_ARC_DigitalHub | Spaces carry a finished ceiling height | 64 applicable | 0 pass before | 61 pass after
+FM_ARC_DigitalHub | Spaces carry a gross ceiling area | 64 applicable | 0 pass before | 61 pass after
+FM_ARC_DigitalHub | Spaces carry a gross volume | 64 applicable | 0 pass before | 17 pass after
+FM_ARC_DigitalHub | Spaces carry a net volume | 64 applicable | 0 pass before | 64 pass after
+ISSUE_005_haus | Spaces carry a gross floor area | 7 applicable | 0 pass before | 7 pass after
+ISSUE_005_haus | Spaces carry a net floor area | 7 applicable | 0 pass before | 0 pass after
+ISSUE_005_haus | Spaces carry a gross perimeter | 7 applicable | 0 pass before | 7 pass after
+ISSUE_005_haus | Spaces carry a height | 7 applicable | 0 pass before | 6 pass after
+ISSUE_005_haus | Spaces carry a finished ceiling height | 7 applicable | 0 pass before | 6 pass after
+ISSUE_005_haus | Spaces carry a gross ceiling area | 7 applicable | 0 pass before | 6 pass after
+ISSUE_005_haus | Spaces carry a gross volume | 7 applicable | 0 pass before | 6 pass after
+ISSUE_005_haus | Spaces carry a net volume | 7 applicable | 0 pass before | 7 pass after
+ISSUE_034_HouseZ | Spaces carry a gross floor area | 5 applicable | 0 pass before | 5 pass after
+ISSUE_034_HouseZ | Spaces carry a net floor area | 5 applicable | 0 pass before | 0 pass after
+ISSUE_034_HouseZ | Spaces carry a gross perimeter | 5 applicable | 0 pass before | 5 pass after
+ISSUE_034_HouseZ | Spaces carry a height | 5 applicable | 0 pass before | 5 pass after
+ISSUE_034_HouseZ | Spaces carry a finished ceiling height | 5 applicable | 0 pass before | 5 pass after
+ISSUE_034_HouseZ | Spaces carry a gross ceiling area | 5 applicable | 0 pass before | 5 pass after
+ISSUE_034_HouseZ | Spaces carry a gross volume | 5 applicable | 0 pass before | 5 pass after
+ISSUE_034_HouseZ | Spaces carry a net volume | 5 applicable | 0 pass before | 5 pass after
+ISSUE_068_ARK_NUS_skolebygg | Spaces carry a gross floor area | 307 applicable | 0 pass before | 306 pass after
+ISSUE_068_ARK_NUS_skolebygg | Spaces carry a net floor area | 307 applicable | 0 pass before | 306 pass after
+ISSUE_068_ARK_NUS_skolebygg | Spaces carry a gross perimeter | 307 applicable | 0 pass before | 306 pass after
+ISSUE_068_ARK_NUS_skolebygg | Spaces carry a height | 307 applicable | 0 pass before | 227 pass after
+ISSUE_068_ARK_NUS_skolebygg | Spaces carry a finished ceiling height | 307 applicable | 0 pass before | 280 pass after
+ISSUE_068_ARK_NUS_skolebygg | Spaces carry a gross ceiling area | 307 applicable | 0 pass before | 280 pass after
+ISSUE_068_ARK_NUS_skolebygg | Spaces carry a gross volume | 307 applicable | 0 pass before | 227 pass after
+ISSUE_068_ARK_NUS_skolebygg | Spaces carry a net volume | 307 applicable | 0 pass before | 306 pass after
+ISSUE_159_kleine_Wohnung_R22 | Spaces carry a gross floor area | 28 applicable | 0 pass before | 28 pass after
+ISSUE_159_kleine_Wohnung_R22 | Spaces carry a net floor area | 28 applicable | 0 pass before | 28 pass after
+ISSUE_159_kleine_Wohnung_R22 | Spaces carry a gross perimeter | 28 applicable | 0 pass before | 28 pass after
+ISSUE_159_kleine_Wohnung_R22 | Spaces carry a height | 28 applicable | 0 pass before | 28 pass after
+ISSUE_159_kleine_Wohnung_R22 | Spaces carry a finished ceiling height | 28 applicable | 0 pass before | 28 pass after
+ISSUE_159_kleine_Wohnung_R22 | Spaces carry a gross ceiling area | 28 applicable | 0 pass before | 28 pass after
+ISSUE_159_kleine_Wohnung_R22 | Spaces carry a gross volume | 28 applicable | 0 pass before | 28 pass after
+ISSUE_159_kleine_Wohnung_R22 | Spaces carry a net volume | 28 applicable | 0 pass before | 28 pass after
+Office_A_20110811 | Spaces carry a gross floor area | 99 applicable | 0 pass before | 99 pass after
+Office_A_20110811 | Spaces carry a net floor area | 99 applicable | 0 pass before | 99 pass after
+Office_A_20110811 | Spaces carry a gross perimeter | 99 applicable | 0 pass before | 99 pass after
+Office_A_20110811 | Spaces carry a height | 99 applicable | 0 pass before | 2 pass after
+Office_A_20110811 | Spaces carry a finished ceiling height | 99 applicable | 0 pass before | 99 pass after
+Office_A_20110811 | Spaces carry a gross ceiling area | 99 applicable | 0 pass before | 99 pass after
+Office_A_20110811 | Spaces carry a gross volume | 99 applicable | 0 pass before | 2 pass after
+Office_A_20110811 | Spaces carry a net volume | 99 applicable | 0 pass before | 99 pass after
+dental_clinic | Spaces carry a gross floor area | 269 applicable | 0 pass before | 269 pass after
+dental_clinic | Spaces carry a net floor area | 269 applicable | 0 pass before | 269 pass after
+dental_clinic | Spaces carry a gross perimeter | 269 applicable | 0 pass before | 269 pass after
+dental_clinic | Spaces carry a height | 269 applicable | 0 pass before | 261 pass after
+dental_clinic | Spaces carry a finished ceiling height | 269 applicable | 0 pass before | 269 pass after
+dental_clinic | Spaces carry a gross ceiling area | 269 applicable | 0 pass before | 269 pass after
+dental_clinic | Spaces carry a gross volume | 269 applicable | 0 pass before | 261 pass after
+dental_clinic | Spaces carry a net volume | 269 applicable | 0 pass before | 269 pass after
+duplex | Spaces carry a gross floor area | 21 applicable | 0 pass before | 21 pass after
+duplex | Spaces carry a net floor area | 21 applicable | 0 pass before | 21 pass after
+duplex | Spaces carry a gross perimeter | 21 applicable | 0 pass before | 21 pass after
+duplex | Spaces carry a height | 21 applicable | 0 pass before | 1 pass after
+duplex | Spaces carry a finished ceiling height | 21 applicable | 0 pass before | 17 pass after
+duplex | Spaces carry a gross ceiling area | 21 applicable | 0 pass before | 17 pass after
+duplex | Spaces carry a gross volume | 21 applicable | 0 pass before | 1 pass after
+duplex | Spaces carry a net volume | 21 applicable | 0 pass before | 21 pass after
+example | Spaces carry a gross floor area | 1 applicable | 0 pass before | 1 pass after
+example | Spaces carry a net floor area | 1 applicable | 0 pass before | 1 pass after
+example | Spaces carry a gross perimeter | 1 applicable | 0 pass before | 1 pass after
+example | Spaces carry a height | 1 applicable | 0 pass before | 0 pass after
+example | Spaces carry a finished ceiling height | 1 applicable | 0 pass before | 0 pass after
+example | Spaces carry a gross ceiling area | 1 applicable | 0 pass before | 0 pass after
+example | Spaces carry a gross volume | 1 applicable | 0 pass before | 0 pass after
+example | Spaces carry a net volume | 1 applicable | 0 pass before | 1 pass after
+schependomlaan | Spaces carry a gross floor area | 100 applicable | 0 pass before | 100 pass after
+schependomlaan | Spaces carry a net floor area | 100 applicable | 0 pass before | 0 pass after
+schependomlaan | Spaces carry a gross perimeter | 100 applicable | 0 pass before | 100 pass after
+schependomlaan | Spaces carry a height | 100 applicable | 0 pass before | 100 pass after
+schependomlaan | Spaces carry a finished ceiling height | 100 applicable | 0 pass before | 100 pass after
+schependomlaan | Spaces carry a gross ceiling area | 100 applicable | 0 pass before | 100 pass after
+schependomlaan | Spaces carry a gross volume | 100 applicable | 0 pass before | 6 pass after
+schependomlaan | Spaces carry a net volume | 100 applicable | 0 pass before | 6 pass after

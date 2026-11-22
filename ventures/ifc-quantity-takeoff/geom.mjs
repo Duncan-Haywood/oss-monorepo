@@ -234,6 +234,13 @@ function transformSolid(s, m) {
   const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes, shells);
   if (s.axis) { out.axis = unit(applyDir(m, s.axis)); out.axisWeight = (s.axisWeight ?? 0) * Math.abs(det(m)); }
   if (s.sweepLength != null) out.sweepLength = s.sweepLength * Math.cbrt(Math.abs(det(m)));
+  if (s.bars) {
+    const k = Math.cbrt(Math.abs(det(m)));
+    const lin = [m[0], m[1], m[2], 0, m[4], m[5], m[6], 0, m[8], m[9], m[10], 0];
+    out.bars = s.bars.map((b) => ({ radius: b.radius * k, segs: b.segs.map((g) => g.kind === "arc"
+      ? { ...g, a: apply(m, g.a), b: apply(m, g.b), c: apply(m, g.c), r: g.r * k, n: mulS(unit(apply(lin, g.n)) ?? g.n, det(m) < 0 ? -1 : 1), length: g.length * k }
+      : { ...g, a: apply(m, g.a), b: apply(m, g.b), length: g.length * k }) }));
+  }
   return out;
 }
 
@@ -959,6 +966,15 @@ export class Geometry {
         // the profile plane's normal: a member's cross-section is cut normal to it
         out.axis = unit([m[2], m[6], m[10]]);
         out.axisWeight = Math.abs(solidVolume(out));
+        // a round bar drawn as an extruded circle (Allplan's straight bars in
+        // pragmaticBIM's sample): a straight path for the bar schedule
+        const prof = this.get(a[0]);
+        const round = prof?.type === "IFCCIRCLEPROFILEDEF" ? this.num(prof.args[3]) : roundLoop(loops);
+        if (round > 0) {
+          const p0 = apply(m, [0, 0, 0]), p1 = apply(m, mulS(d, depthV));
+          out.sweepLength = depthV;
+          out.bars = [{ radius: round, segs: [{ kind: "line", a: p0, b: p1, length: norm(sub(p1, p0)), span: 1 }] }];
+        }
         return out;
       }
       case "IFCBOOLEANCLIPPINGRESULT":
@@ -1039,12 +1055,15 @@ export class Geometry {
       }
       case "IFCSWEPTDISKSOLID":
       case "IFCSWEPTDISKSOLIDPOLYGONAL": {
-        if (a[3] != null || a[4] != null) throw new Unresolved("swept disk with trimmed directrix");
         const r = this.num(a[1]), ri = this.num(a[2]) ?? 0;
-        const len = this.curveLength3(a[0]);
+        const path = this.path3(a[0]);
+        const segs = trimPath(path, this.num(a[3]), this.num(a[4]));
+        const len = segs.reduce((s, g) => s + g.length, 0);
         const out = solid([], Math.PI * (r * r - ri * ri) * len);
         // the directrix's length: a reinforcing bar's cut length (qto memberLength)
         out.sweepLength = len;
+        // the bar's path and radius, for the bar schedule (rebar.mjs)
+        out.bars = [{ radius: r, segs }];
         return out;
       }
       case "IFCREVOLVEDAREASOLID": {
@@ -1545,8 +1564,111 @@ export class Geometry {
     return faces;
   }
 
+  /**
+   * A directrix in 3D as straight and circular pieces: {kind: "line", a, b,
+   * length} and {kind: "arc", a, b, c (centre), r, angle (radians), n (the
+   * axis the arc turns about, right hand), length}, end to end, with span,
+   * the sum of the pieces' parameter ranges (a line's in its own parameter,
+   * an arc's in the file's plane angle unit) that a swept disk's StartParam
+   * and EndParam are read against. Reads polylines, indexed poly curves
+   * (line and arc segments), lines and circles trimmed by parameter or by
+   * point, and composite curves of those.
+   */
+  path3(ref, depth = 0) {
+    const e = this.get(ref);
+    if (depth > 20) throw new Unresolved("directrix nesting");
+    const a = e.args;
+    const line = (p, q, span = 1) => ({ kind: "line", a: p, b: q, length: norm(sub(q, p)), span });
+    const arcOf = (p, q, r) => {
+      // circle through three points, from p through q to r
+      const u = sub(q, p), v = sub(r, p);
+      const w = cross(u, v), ww = dot(w, w);
+      if (!(ww > 1e-24 * dot(u, u) * dot(v, v))) return [line(p, q), line(q, r)];
+      const c = add(p, mulS(add(mulS(cross(w, u), dot(v, v)), mulS(cross(v, w), dot(u, u))), 1 / (2 * ww)));
+      const rad = norm(sub(p, c));
+      const n = unit(w);
+      const ang = (x) => { const d = sub(x, c); const e1 = unit(sub(p, c)), e2 = cross(n, e1); let t = Math.atan2(dot(d, e2), dot(d, e1)); if (t < 0) t += 2 * Math.PI; return t; };
+      const angle = ang(r);
+      return [{ kind: "arc", a: p, b: r, c, r: rad, angle, n, length: rad * angle, span: 1 }];
+    };
+    switch (e.type) {
+      case "IFCPOLYLINE": {
+        const P = a[0].map((p) => this.point(p));
+        const segs = [];
+        for (let i = 1; i < P.length; i++) if (norm(sub(P[i], P[i - 1])) > 0) segs.push(line(P[i - 1], P[i]));
+        return { segs, span: segs.length };
+      }
+      case "IFCINDEXEDPOLYCURVE": {
+        const pl = this.get(a[0]);
+        const P = pl.args[0].map((c) => [this.num(c[0]), this.num(c[1]), this.num(c[2]) ?? 0]);
+        const segs = [];
+        if (!a[1]) { for (let i = 1; i < P.length; i++) segs.push(line(P[i - 1], P[i])); return { segs, span: segs.length }; }
+        for (const seg of a[1]) {
+          const idx = (seg.value || []).map((i) => this.num(i) - 1);
+          if (idx.some((i) => !P[i])) throw new Unresolved("indexed directrix point out of range");
+          if (seg.typed === "IFCLINEINDEX") for (let i = 1; i < idx.length; i++) segs.push(line(P[idx[i - 1]], P[idx[i]]));
+          else if (seg.typed === "IFCARCINDEX") segs.push(...arcOf(P[idx[0]], P[idx[1]], P[idx[2]]));
+          else throw new Unresolved(`directrix segment ${seg.typed}`);
+        }
+        return { segs, span: segs.length };
+      }
+      case "IFCCOMPOSITECURVE": {
+        const segs = [];
+        let span = 0;
+        for (const sref of a[0]) {
+          const s = this.get(sref);
+          const part = this.path3(s.args[2], depth + 1);
+          span += part.span;
+          if (s.args[1] === false) segs.push(...part.segs.slice().reverse().map(reverseSeg));
+          else segs.push(...part.segs);
+        }
+        return { segs, span };
+      }
+      case "IFCTRIMMEDCURVE": {
+        const basis = this.get(a[0]);
+        const master = a[4] && a[4].enum;
+        const p1 = this.trimValue(a[1], "point"), p2 = this.trimValue(a[2], "point");
+        const t1 = this.trimValue(a[1], "param"), t2 = this.trimValue(a[2], "param");
+        const useCart = p1 && p2 && (master !== "PARAMETER" || t1 == null || t2 == null);
+        const sense = a[3] !== false;
+        if (basis.type === "IFCLINE") {
+          const o = this.point(basis.args[0]);
+          const v = this.get(basis.args[1]);
+          const d = this.dir(v.args[0], [1, 0, 0]);
+          const mag = this.num(v.args[1]) ?? 1;
+          const at = (t) => add(o, mulS(d, mag * t));
+          if (useCart) { const sp = t1 != null && t2 != null ? Math.abs(t2 - t1) : norm(sub(p2, p1)) / (mag || 1); return { segs: [line(p1, p2, sp)], span: sp }; }
+          if (t1 == null || t2 == null) throw new Unresolved("line trimmed by nothing usable");
+          return { segs: [line(at(t1), at(t2), Math.abs(t2 - t1))], span: Math.abs(t2 - t1) };
+        }
+        if (basis.type === "IFCCIRCLE") {
+          const m = this.placement(basis.args[0]);
+          const c = [m[3], m[7], m[11]], x = [m[0], m[4], m[8]], y = [m[1], m[5], m[9]], z = [m[2], m[6], m[10]];
+          const r = this.num(basis.args[1]);
+          const angOf = (p) => Math.atan2(dot(sub(p, c), y), dot(sub(p, c), x));
+          let a0, a1;
+          if (useCart) { a0 = angOf(p1); a1 = angOf(p2); } else if (t1 != null && t2 != null) { a0 = t1 * this.angle; a1 = t2 * this.angle; } else throw new Unresolved("arc trimmed by nothing usable");
+          let sweep = sense ? a1 - a0 : a0 - a1;
+          while (sweep <= 1e-12) sweep += 2 * Math.PI;
+          while (sweep > 2 * Math.PI + 1e-12) sweep -= 2 * Math.PI;
+          const at = (t) => add(c, add(mulS(x, r * Math.cos(t)), mulS(y, r * Math.sin(t))));
+          // its parameter range is the angle it sweeps, in the file's unit
+          // (Revit trims 270 to 90 degrees: 180 of them)
+          const seg = { kind: "arc", a: at(a0), b: at(sense ? a0 + sweep : a0 - sweep), c, r, angle: sweep, n: sense ? z : mulS(z, -1), length: r * sweep, span: sweep / this.angle };
+          return { segs: [seg], span: seg.span };
+        }
+        throw new Unresolved(`directrix trimmed ${basis.type}`);
+      }
+      default:
+        throw new Unresolved(`directrix ${e.type}`);
+    }
+  }
+
   curveLength3(ref) {
     const e = this.get(ref);
+    // in 3D: a trimmed line or circle out of the xy plane (Tekla's bars run
+    // down z) has no length in the plane curve() draws
+    if (e.type === "IFCCOMPOSITECURVE" || (e.type === "IFCTRIMMEDCURVE" && /^IFC(LINE|CIRCLE)$/.test(this.get(e.args[0])?.type))) return this.path3(ref).segs.reduce((s, g) => s + g.length, 0);
     if (e.type === "IFCPOLYLINE") {
       const pts = e.args[0].map((p) => this.point(p));
       let L = 0;
@@ -1597,8 +1719,10 @@ export class Geometry {
     let axis = null, axisWeight = -1;
     let joined = 0, unjoined = 0;
     let sweepLength = 0;
+    let bars = [];
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
+      if (s.bars) bars.push(...s.bars);
       sweepLength = sweepLength != null && s.sweepLength != null ? sweepLength + s.sweepLength : null;
       // the body is the union of its items: where two overlap (a cabinet's
       // carcass and doors drawn as solids that run into each other, a door
@@ -1617,8 +1741,75 @@ export class Geometry {
     const out = solid(guard(terms), mesh, notes, shells);
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
     if (sweepLength) out.sweepLength = sweepLength;
+    if (bars.length) out.bars = bars;
     return out;
   }
+}
+
+/**
+ * A swept disk's directrix between its StartParam and EndParam (path3's
+ * pieces, each with its parameter range). Read as the whole directrix: no
+ * parameters, 0 to the whole range (Tekla), and 0 to 1 on a directrix of more
+ * than one piece (Allplan writes 0 to 1 on every bar, a normalised range: a
+ * bar cut to its first facet would be no bar). Otherwise cut at the
+ * parameters; an EndParam past the parameter range but within the curve's
+ * length is read as a length along it (Revit writes 3500 on a 6,096 mm line
+ * whose bar is 3,500 mm long).
+ */
+export function trimPath(path, t0, t1) {
+  const { segs, span } = path;
+  const tol = 1e-6 * Math.max(1, span);
+  const lo = t0 ?? 0, hi = t1 ?? span;
+  if (Math.abs(lo) <= tol && (Math.abs(hi - span) <= tol || (hi === 1 && segs.length > 1))) return segs;
+  if (!(hi > lo)) throw new Unresolved("swept disk with trimmed directrix");
+  const total = segs.reduce((s, g) => s + g.length, 0);
+  let measure;
+  if (hi <= span + tol) measure = (g) => g.span ?? 1;
+  else if (hi <= total * (1 + 1e-6)) measure = (g) => g.length;
+  else throw new Unresolved("swept disk with trimmed directrix");
+  const out = [];
+  let at = 0;
+  for (const g of segs) {
+    const m = measure(g), a = at, b = at + m;
+    at = b;
+    if (b <= lo + tol || a >= hi - tol || !(m > 0)) continue;
+    const f0 = Math.max(0, (lo - a) / m), f1 = Math.min(1, (hi - a) / m);
+    out.push(f0 <= 1e-12 && f1 >= 1 - 1e-12 ? g : cutSeg(g, f0, f1));
+  }
+  if (!out.length) throw new Unresolved("swept disk with trimmed directrix");
+  return out;
+}
+
+/** The part of a directrix piece from fraction f0 to f1 of it. */
+function cutSeg(g, f0, f1) {
+  if (g.kind === "line") {
+    const d = sub(g.b, g.a);
+    return { ...g, a: add(g.a, mulS(d, f0)), b: add(g.a, mulS(d, f1)), length: g.length * (f1 - f0), span: (g.span ?? 1) * (f1 - f0) };
+  }
+  const u = sub(g.a, g.c), v = cross(g.n, u);
+  const at = (t) => add(g.c, add(mulS(u, Math.cos(t)), mulS(v, Math.sin(t))));
+  return { ...g, a: at(g.angle * f0), b: at(g.angle * f1), angle: g.angle * (f1 - f0), length: g.length * (f1 - f0), span: (g.span ?? 1) * (f1 - f0) };
+}
+
+/**
+ * The radius of a profile that is one round loop: a circle, or a polygon of
+ * 12 or more vertices all within 1% of one distance from their centre (a
+ * circle written as a polyline). Null otherwise.
+ */
+export function roundLoop(loops) {
+  if (loops.length !== 1 || loops[0].s < 0) return null;
+  let pts = loops[0].pts;
+  if (pts.length > 1 && pts[0][0] === pts[pts.length - 1][0] && pts[0][1] === pts[pts.length - 1][1]) pts = pts.slice(0, -1);
+  if (pts.length < 12) return null;
+  const cx = pts.reduce((t, p) => t + p[0], 0) / pts.length, cy = pts.reduce((t, p) => t + p[1], 0) / pts.length;
+  const rs = pts.map((p) => Math.hypot(p[0] - cx, p[1] - cy));
+  const mean = rs.reduce((t, r) => t + r, 0) / rs.length;
+  return mean > 0 && rs.every((r) => Math.abs(r - mean) <= 0.01 * mean) ? mean : null;
+}
+
+/** A directrix piece run the other way. */
+function reverseSeg(g) {
+  return g.kind === "arc" ? { ...g, a: g.b, b: g.a, n: mulS(g.n, -1) } : { ...g, a: g.b, b: g.a };
 }
 
 // terms a union adds for the part two term lists share

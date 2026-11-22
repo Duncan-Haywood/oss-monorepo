@@ -88,6 +88,13 @@
 // the P6 code tree and descriptions; --all-resources writes every resource in
 // the file, not only those the project's activities use); the lines it prints
 // name what Project will schedule differently.
+// node cli.mjs schedule.xer --excel schedule.xlsx [--raw] [--project CODE] [--json]
+// Writes the XER as an Excel workbook (excel.mjs): activities with WBS path,
+// dates, durations and float in days, constraints, predecessors and
+// successors, one column per activity code type and activity UDF, the
+// recomputed dates beside P6's; and relationships, WBS, resources,
+// assignments, expenses, calendars and activity codes with every internal id
+// resolved to its name. --raw adds every XER table as it is, one sheet each.
 // node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--deadlines] [--types-from original.xer] [--no-interim] [--skip-fields Start1,Finish1] [--json]
 // (--no-interim leaves out Start/Finish pairs that look like a Project interim
 // plan, which otherwise become date UDFs; --skip-fields names task Number,
@@ -135,9 +142,10 @@ import { earnedValueSeries, earnedValueSeriesText, earnedValueSeriesCsv } from "
 import { gantt, ganttText, ganttCsv, ganttHtml, codeTypes } from "./gantt.mjs";
 import { mspdiText, msprojectSummary } from "./msproject.mjs";
 import { p6XerText, p6xerSummary } from "./p6xer.mjs";
+import { xerToXlsx, xlsxSummary } from "./excel.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -252,6 +260,14 @@ if (args.includes("--to-p6")) {
   writeFileSync(opt("--to-p6"), r.bytes);
   if (args.includes("--json")) { const { xer: _x, text: _t, bytes: _b, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
   await emit(`${r.project.id}: ${p6xerSummary(r)} to ${opt("--to-p6")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);
+  process.exit(0);
+}
+if (args.includes("--excel")) {
+  if (xer.format === "mspdi") { console.error("--excel: takes a P6 XER (this file is Microsoft Project XML, which Project itself exports to Excel)"); process.exit(2); }
+  const r = await xerToXlsx(xer, { projId, raw: args.includes("--raw") });
+  writeFileSync(opt("--excel"), r.bytes);
+  if (args.includes("--json")) { await emit(JSON.stringify({ summary: r.summary, warnings: r.warnings }, null, 2) + "\n"); process.exit(0); }
+  await emit(`${xlsxSummary(r.summary)} to ${opt("--excel")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);
   process.exit(0);
 }
 if (args.includes("--to-project")) {
