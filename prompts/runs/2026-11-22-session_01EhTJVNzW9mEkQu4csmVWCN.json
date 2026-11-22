@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVNzW9mEkQu4csmVWCN",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled routine: ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "f63d0b9a93afb5bfaac4fc6c1ae26484d62822949d5d598d03719adde0d4e086",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T13:17:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 14 ifc-quantity-takeoff: a bar bending schedule by mark, size, shape and cut length from the bars' own geometry, checked against Tekla/Allplan/Revit's own figures",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": 18252,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'take the second open item no open PR title names' is ambiguous when the next: field mixes landed history, sub-items inside parentheses and NEXT.md pointers; picked the rebar schedule item named in next: and NEXT.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-a-bar-schedule-from-the-bars-themselves.md",
+    "ventures/ifc-quantity-takeoff/eval/rebar-schedule-2026-11-22.md"
+  ],
+  "goal": "ship a product feature estimators use (rebar is ordered by bar mark) on the router's flagship pick",
+  "notes": "Router: ventures/2, flagship row 9 ifc-quantity-takeoff. Landed rebar.mjs (barShape, readBarProps, rebarSchedule, rebarCsv), geom.mjs path3 (3D directrices) and trimPath (Tekla whole-range, Allplan 0..1, Revit degree ranges and length trims), round extrusions as bars, nominal-size bar mass in the BoQ, CLI --rebar, page section 'Bar schedule' with CSV and usage events rebar_downloaded/rebar_line_shown. Eval on 12 public exports found by GitHub code search (scratch, not committed): bar elements read 35 -> 265 of 310; Tekla group counts 32/32, Allplan position counts 24/24, Tekla group weight within 1% 32/32, Allplan kg/m 20/20, bending diameter 13/13, length 37/37, leg dims within 2 mm 30/33 (misses are hook legs). buildingSMART samples unchanged (140 of 141 read, same rebar weights). Verification: run_venture_tests.py ifc-quantity-takeoff ok (201 tests + site page checks); check_posts ok; validate.py ok; Playwright load of a Tekla export renders the section with no console errors; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

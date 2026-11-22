@@ -623,16 +623,17 @@ flagships:
       had counted 1.8x its box), 9,310 of 9,312 now enclose the computed volume
       (eval/item-union-2026-11-21.md; next in NEXT.md). IFC4X3 bridges, rebar on
       arcs, grid placements, fixed-reference sweeps 2026-11-22
-      (eval/linear-placement-*, eval/bsi-samples-*); next cant, a 2nd bridge, a
-      rebar schedule by mark and shape code (NEXT.md). Room schedule 2026-11-21
-      (eval/rooms-2026-11-21.md); next: HouseZ's 3 openings 0.51 m under their
-      room's floor, dental_clinic's 17 ROOF windows (NEXT.md). Next, most valuable
-      first: (1) the covering up-cut rule tested on a second model, the joins rule
-      on an ArchiCAD export with partitions on both faces; (2) method of
-      measurement: small voids left in shipped 2026-11-20 (measure.mjs, page and cli
-      --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
-      eval/measure-rules-2026-11-20.md) frames split B1010/B1020/A1010 by the deck
-      they carry 2026-11-20 (level 3 19,767 to 22,546 elements;
+      (eval/linear-placement-*, eval/bsi-samples-*); next cant, a 2nd bridge
+      (NEXT.md). Bar schedule 2026-11-22 (rebar.mjs, --rebar; eval/rebar-schedule-*:
+      265 of 310 real bars read, Tekla counts 32/32, weights 32/32); next hook legs
+      (NEXT.md). Room schedule 2026-11-21 (eval/rooms-2026-11-21.md); next: HouseZ's
+      3 openings 0.51 m under their room's floor, dental_clinic's 17 ROOF windows
+      (NEXT.md). Next, most valuable first: (1) the covering up-cut rule tested on a
+      second model, the joins rule on an ArchiCAD export with partitions on both
+      faces; (2) method of measurement: small voids left in shipped 2026-11-20
+      (measure.mjs, page and cli --voids-up-to; 1,099 of 1,136 opening cuts = stored
+      WxH; eval/measure-rules-2026-11-20.md) frames split B1010/B1020/A1010 by the
+      deck they carry 2026-11-20 (level 3 19,767 to 22,546 elements;
       eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun shades or
       roofs by name and roof by geometry 2026-11-20 (slabRole, findRoofDecks: 600
       B1010 slabs to 270 floors, 251 finishes, 18 more roofs; 142 frame members to
