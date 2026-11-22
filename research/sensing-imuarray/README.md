@@ -14,17 +14,17 @@ One axis. Each unit's rate error is white noise (density `N`, deg/√s) plus a b
 pip install numpy matplotlib pytest
 cd research/sensing-imuarray
 PYTHONPATH=src python -m pytest -q tests   # 8 tests
-python experiments/run.py                  # writes experiments/results.txt and imuarray.png (~1 min)
+python experiments/run.py                  # writes experiments/results.txt and imuarray.png (~5 s)
 ```
 
 ## Results (from `experiments/results.txt`)
 - **Allan fit.** One simulated cheap unit (400,000 s) gives `N` = 0.00500 (true 0.005) and `K` = 8.47e-5 (true 8.66e-5).
-- **Monte Carlo agrees with the formula** (k = 4, T = 200 s, 4,000 trials): fused/better RMS ratio within 0.03 of the formula in all nine cases, e.g. n = 16, ρ = 0.1: 1.602 vs 1.581.
-- **Independent errors: price ratio must beat `k²`.** For k = 3 the tie needs 9 units, for k = 10 it needs 100–101 (equal improvement on both terms makes this independent of `T`). A price ratio below that and the better unit wins.
-- **Shared errors set a floor `σ√ρ`.** With k = 10, `ρ` = 0.001/0.003 needs 111–112/143 units, and `ρ` ≥ 0.01 = `1/k²` can never tie; for k = 3, `ρ` = 0.1 needs 81 units and 0.1111 is the limit.
+- **Monte Carlo agrees with the formula** (k = 4, T = 200 s, 4,000 trials): fused/better RMS ratio within 0.05 of the formula in all nine cases (largest gap 0.046 at n = 4, ρ = 0.02: 2.013 vs 2.059), e.g. n = 16, ρ = 0.1: 1.602 vs 1.581.
+- **Independent errors: price ratio must beat `k²`.** For k = 3 the tie needs 9 units, for k = 10 it needs 100 (equal improvement on both terms makes this independent of `T`). A price ratio below that and the better unit wins.
+- **Shared errors set a floor `σ√ρ`.** With k = 10, `ρ` = 0.001/0.003 needs 111/143 units, and `ρ` ≥ 0.01 = `1/k²` can never tie; for k = 3, `ρ` = 0.1 needs 81 units and 0.1111 is the limit.
 - **Shared drift on the bias walk only (`ρ_b` = 0.3, white independent):** the array ties at short horizons (k = 10: 101 units at 1 s, 142 at 10 s) and cannot tie at all from 100 s on, because the bias term dominates there.
 - **Unequal improvement (10× lower ARW, only 3× lower rate walk, independent errors):** tying needs 100 units at 1 s, 17 at 100 s and 10 at 300 s and beyond. With `ρ` = 0.05 it needs 90 at 100 s, 16 at an hour, and never at short horizons.
-- Break-even in `ρ` (T = 100 s, k = 3): 0.052 at price ratio 16, 0.082 at 32, 0.102 at 100; for k = 10 no `ρ` rescues price ratios up to 100, and 300 tolerates `ρ` = 0.0067.
+- Break-even in `ρ` (T = 100 s, k = 3): 0.052 at price ratio 16, 0.082 at 32, 0.102 at 100; for k = 10 no `ρ` rescues price ratios below 100, a ratio of exactly 100 ties only at `ρ` = 0, and 300 tolerates `ρ` = 0.0067.
 
 ![RMS angle error of the array relative to the better unit](experiments/imuarray.png)
 
@@ -37,6 +37,12 @@ Variance formulas, fusion limits, the `k²` rule, infeasibility above `1/k²`, b
 - Equal-weight fusion only; "equal cost" ignores the board, power, mounting and calibration cost of an array.
 - Single axis, gyro only; no attitude filter, no accelerometers or aiding.
 - The "better" grade's noise ratio and the price ratio are free parameters, not data.
+
+## Known gaps (quality audit, 2026-11-22)
+- Prior work on gyro arrays is not yet engaged: Bayard and Ploen (2003, combining inexpensive gyros), Chang, Xue et al. (2008, IEEE TIM, Kalman fusion of uncorrelated MEMS gyros) and Skog et al. (2016, IEEE TSP, inertial sensor arrays and their Cramér–Rao bound). The `k²` and `1/k²` results are the variance of an equicorrelated mean; the contribution, if any, is the equal-cost framing, which needs real prices and measured `ρ` to be more than an illustration.
+- Bias instability is left out, and it dominates MEMS gyros between roughly 10 and 1000 s, where sections C and F draw their horizon-dependent conclusions.
+- `units_needed` returns `None` both for "no array ties" and for "more than `nmax` units"; section F at T = 1 s, `ρ` = 0.01 prints "none" where about 98,000 units would tie.
+- Audit: [`portfolio/quality/audits/2026-11-22-sensing-imuarray.json`](../../portfolio/quality/audits/2026-11-22-sensing-imuarray.json).
 
 ## Next steps
 Measure `ρ` from real logs of several units on one board (owner step), then replace the free parameter. Add flicker noise and a temperature-drift model, then `sensing-vio` (milestone 2).

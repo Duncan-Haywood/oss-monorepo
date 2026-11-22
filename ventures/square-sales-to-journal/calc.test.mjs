@@ -117,3 +117,43 @@ test("an empty file and a non-Square file are errors, not crashes", () => {
   assert.equal(validate("").findings[0].severity, "error");
   assert.match(validate("a,b\n1,2\n").findings[0].title, /does not look like a Square/);
 });
+
+// Hand-written exports (not built with buildReport), checked against double-entry by hand.
+const HEAD = "Date,Gross Sales,Discounts,Net Sales,Gift Card Sales,Tax,Tip,Partial Refunds,Total Collected,Card,Cash,Square Gift Card,Other Tender,Fees,Net Total,Payment ID,Deposit ID,Transaction Status";
+const line = (j, cat) => j.lines.filter((l) => l.category === cat).reduce((a, l) => a + l.debit - l.credit, 0);
+
+test("cash and Square gift card tenders stay out of Square clearing and the deposit total", () => {
+  const csv = [HEAD,
+    "2026-10-03,30.00,0.00,30.00,0.00,2.40,0.00,0.00,32.40,32.40,0.00,0.00,0.00,-1.13,31.27,P1,D200,Complete",
+    "2026-10-04,10.00,0.00,10.00,0.00,0.80,0.00,0.00,10.80,0.00,10.80,0.00,0.00,0.00,10.80,P2,,Complete",
+    "2026-10-05,20.00,0.00,20.00,0.00,1.60,0.00,0.00,21.60,0.00,0.00,21.60,0.00,0.00,21.60,P3,,Complete"].join("\n");
+  const r = validate(csv);
+  const j = r.journals[0];
+  assert.equal(line(j, "cash"), 1080);          // Dr Cash on Hand 10.80
+  assert.equal(line(j, "giftredeemed"), 2160);  // Dr Gift Cards Outstanding 21.60
+  assert.equal(line(j, "clearing"), 3127);      // Dr Square Clearing = the card deposit
+  assert.equal(r.deposits.find((d) => d.id === "D200").net, 3127);
+  assert.equal(j.lines.reduce((a, l) => a + l.debit - l.credit, 0), 0);
+  assert.equal(j.lines.filter((l) => l.category === "uncategorised").length, 0);
+});
+
+test("an export with Net Total but no Fees column books the fee from Net Total, with no false error", () => {
+  const csv = ["Date,Gross Sales,Tax,Total Collected,Net Total,Deposit ID",
+    "2026-09-02,20.00,1.65,21.65,20.92,D1",
+    "2026-09-03,20.00,1.65,21.65,20.92,D1"].join("\n");
+  const r = validate(csv);
+  const j = r.journals[0];
+  assert.equal(line(j, "fees"), 146);
+  assert.equal(line(j, "clearing"), 4184);
+  assert.equal(r.findings.filter((f) => f.severity === "error").length, 0);
+});
+
+test("when Collected + Fees disagrees with Net Total, the journal follows Net Total as the message says", () => {
+  const csv = ["Date,Gross Sales,Total Collected,Fees,Net Total,Deposit ID",
+    "2026-09-02,20.00,20.00,-0.88,19.00,D1"].join("\n");
+  const r = validate(csv);
+  assert.ok(r.findings.some((f) => f.severity === "error" && /does not equal Net Total/.test(f.title)));
+  const j = r.journals[0];
+  assert.equal(line(j, "fees"), 100);
+  assert.equal(line(j, "clearing"), 1900);
+});

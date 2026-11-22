@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-22",
+ "session": "https://claude.ai/code/session_01EhTJVMdhUbxJDLJtD5Vphn",
+ "track": "quality",
+ "prompt_version": 0,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-22T23:09:25Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "quality round 99 (sample mode)",
+ "projects": [
+  "ventures/bookkeeping-client-fee-calculator",
+  "ventures/square-sales-to-journal",
+  "research/sensing-imuarray",
+  "research/chip-mac-lanes"
+ ],
+ "pr": 18324,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 7,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "issue": "bare python3 numpy is broken in this image; /usr/bin/python3.13 had pytest+numpy, auditors found it by trial"
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-22-quality-audit-round-99.md"
+ ],
+ "goal": null,
+ "notes": "Seed 2026-11-22-j-58a2, round 99. Subjects: ventures/bookkeeping-client-fee-calculator (meets bar), ventures/square-sales-to-journal, research/sensing-imuarray, research/chip-mac-lanes. Share meeting the bar: 1 of 4; sampled overall 37/405 (Wilson 7%-12%). Seeded mutations caught 10 of 21. Fix PR: #18324 (same PR): square-sales-to-journal now books Cash/Square Gift Card/Other Tender out of Square Clearing (high defect), fee follows Net Total, false FAQ/clearing claims rewritten; bookkeeping fractional payroll/sales-tax inputs + software-buffer note; sensing-imuarray float-tie fix (k=10 ties at 100 not 101), MC gap/runtime claims corrected; chip-mac-lanes headline cell-count pin test (catches the MUX mutation), confound disclosed, docstrings/numpy dep. Spot-checked one recomputation per auditor myself (commands in the post). Local checks: node --test on both ventures (31, 33 pass), run_venture_tests ok, sensing-imuarray pytest 9 pass (new test fails on old code), chip-mac-lanes pytest 5 pass (yosys/iverilog installed via apt), research homepage build ok, check_md_links ok, check_posts ok, quality_audit validate 639 files 0 problems.",
+ "corrections": [],
+ "redteam": null
+}

@@ -31,9 +31,15 @@ All 40 designs (20 values of P at each of 2 values of F) matched the NumPy refer
 
 - **The earlier P = 4, 8, 16 numbers reproduce exactly** (188680 and 217548 at F = 16; 372045 and 360932 at F = 32), a cross-check on the copied code.
 - **F = 32 optimum is not further out.** P = 17 to 20 all have the same cycle count as P = 16 (52) and every one has more cells (smallest is P = 20 with 11251 against 6941), so they are worse. This follows from H = 16: with 16 hidden neurons, P > 16 cannot cut cycles.
-- **Non-powers of two never win.** The best non-power-of-two is P = 6 at F = 16 (272160, 44% behind the best) and P = 20 at F = 32 (585052, 62% behind). P = 6 is the cheapest design that reaches 3 hidden groups, but it sits above P = 4 and P = 8 on both sides.
+- **Non-powers of two never win.** The best non-power-of-two is P = 6 at F = 16 (272160, 44% behind the best) and P = 20 at F = 32 (585052, 62% behind). P = 6 is the cheapest design that reaches 3 hidden groups, but it sits above P = 4 and P = 8 on both sides. Caveat: at H = 16 the powers of two are exactly the divisors of 16, so this sweep cannot tell "power of two" from "divides H" (no idle lanes in the last group); an H of 12 or 24 would separate them.
 - **Cell count is far from monotone in P.** At F = 32, P = 12 has 7072 cells and P = 13 has 14697; P = 15 has 16679 against 6941 for P = 16. Possible cause, not tested here: the neuron index `grp*P + j` in the generated RTL becomes a general multiplier unless P is a power of two. Isolating that (for example by rewriting the index as an addition) is a next step; it is a property of this generator, not of MAC engines in general.
 - Most of the hand-picked sweep in `chip-systolic-hidewide` was therefore already at the optimum of this design family at H = 16; the exhaustive sweep adds the evidence rather than a new winner.
+
+## Known gaps (quality audit, 2026-11-22)
+- No test vector saturates an output (raw outputs span about -5..+3 against the [-8, 7] clamp), so the bit-for-bit RTL check does not cover the clamp logic.
+- Unused lanes in the last group still multiply by ROM weights read at a truncated index; outputs are unaffected but absolute cell counts are inflated by roughly a quarter (an equivalent rewrite where idle lanes add 0 keeps the same winners).
+- Prior design-space-exploration work (Zhang et al., FPGA 2015, on unroll factors; Timeloop; SCALE-Sim) is not compared against; the result is an increment on `chip-systolic-hidewide`.
+- Audit: [`portfolio/quality/audits/2026-11-22-chip-mac-lanes.json`](../../portfolio/quality/audits/2026-11-22-chip-mac-lanes.json).
 
 ## Limitations
 - One network family, one seed, H = 16 only, 4-bit weights, weights baked in as ROM functions.

@@ -1,6 +1,6 @@
 """(Copied via chip-systolic-hidewide from research/chip-accel, same author, MIT.) Generate Verilog for the P-lane MAC accelerator with the quantised weights baked in as ROM functions.
 
-Schedule: layer L has fan-in 8; neurons are processed P at a time. Each group takes 8 MAC cycles plus 1
+Schedule: layer 0 has fan-in F, layer 1 has fan-in H; neurons are processed P at a time. Each group takes fan-in MAC cycles plus 1
 write-back cycle; one extra cycle moves layer-0 outputs to the input register. Total cycles from `start` to `done` are given by `cycles()` and checked against the RTL.
 """
 from .model import NOUT
@@ -12,7 +12,7 @@ def widths(f):
 
 
 def cycles(p, f=8, h=16):
-    """Cycles from the start pulse to done: 1 load + per layer ceil(N/P) groups of (8 MAC + 1 write-back) + 1 transfer."""
+    """Cycles from the start pulse to done: 1 load + per layer ceil(N/P) groups of (fan-in MAC + 1 write-back) + 1 transfer."""
     return 2 + sum(-(-n // p) * (fan + 1) for n, fan in ((h, f), (NOUT, h)))
 
 

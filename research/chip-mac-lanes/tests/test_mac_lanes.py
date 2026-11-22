@@ -31,6 +31,13 @@ class T(unittest.TestCase):
         cells = [flow.score(q, p)["cells"] for p in (2, 4, 8)]
         self.assertEqual(cells, sorted(cells))
 
+    def test_headline_cells_match_committed_results(self):
+        # Pins the generator + Yosys flow to results.txt (run.py's data: 400 samples, seed 0, WB = 4).
+        # Any change to the gate list, the RTL template or the quantiser shows up here.
+        x, y = model.make_data(0, 400, 16)
+        q = model.quantise(model.train_float(x, y), x, 4)
+        self.assertEqual(flow.score(q, 8)["cells"], 3560)
+
 
 if __name__ == "__main__":
     unittest.main()

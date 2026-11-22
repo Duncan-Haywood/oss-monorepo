@@ -6,7 +6,11 @@ Fees equals Net Total), books gross sales, discounts, sales tax and tips (as lia
 income), gift card sales, refunds and Square processing fees separately instead of the net deposit,
 writes one journal per calendar month balanced to a Square clearing account, totals each Deposit ID
 so it can be matched to the bank feed, and can prove a month against a Net Total typed in from
-Square. Money no column explains is journalled to an uncategorised account rather than dropped. The
+Square. Cash, Square gift card and other-tender payments (the Cash, Square Gift Card and Other Tender
+columns) are debited to Cash on Hand, Gift Cards Outstanding and Other Tender Clearing, so Square
+clearing and the Deposit ID totals hold only what Square deposits. Partial refunds are booked as one
+amount: the sales tax inside a refund is not split out of Sales Tax Payable (Square's export does not
+separate it), so adjust the payable by hand. Money no column explains is journalled to an uncategorised account rather than dropped. The
 file is read locally and never uploaded.
 
 **Live tool:** https://marisstella.app/square-sales-to-journal/

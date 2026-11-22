@@ -65,7 +65,7 @@ p("\n## D. Largest common rho at which c = n cheap units still tie (T = 100 s)")
 for k in (3, 10):
     b = better_grade(CHEAP, k)
     cs = [c for c in (2, 4, 9, 16, 32, 100, 300, 1000) if c > 1]
-    p(f"k = {k}: " + "; ".join(f"c={c}: " + ("<0 (loses even at rho=0)" if breakeven_rho(CHEAP, b, c, 100) < 0 else f"{breakeven_rho(CHEAP, b, c, 100):.4f}") for c in cs))
+    p(f"k = {k}: " + "; ".join(f"c={c}: " + ("<0 (loses even at rho=0)" if breakeven_rho(CHEAP, b, c, 100) < -1e-12 else f"{max(0.0, breakeven_rho(CHEAP, b, c, 100)):.4f}") for c in cs))
 
 # E. Monte Carlo check
 p("\n## E. Monte Carlo check of the closed form (k = 4, T = 200 s, dt = 1 s, 4,000 trials, rho_w = rho_b = rho)")

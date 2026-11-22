@@ -16,8 +16,8 @@ T (s) | rho=0 | rho=0.001 | rho=0.003 | rho=0.01 | rho=0.03 | rho=0.1
 
 k = 10 (better unit 10x lower noise; independent-error tie needs n = k^2 = 100; rho floor 1/k^2 = 0.0100)
 T (s) | rho=0 | rho=0.001 | rho=0.003 | rho=0.01 | rho=0.03 | rho=0.1
-   10 | 101 | 112 | 143 | none | none | none
-  100 | 101 | 112 | 143 | none | none | none
+   10 | 100 | 111 | 143 | none | none | none
+  100 | 100 | 111 | 143 | none | none | none
  1000 | 100 | 111 | 143 | none | none | none
  3600 | 100 | 111 | 143 | none | none | none
 
@@ -27,7 +27,7 @@ k = 10: T=1: 101; T=10: 142; T=100: none; T=300: none; T=1000: none; T=3600: non
 
 ## D. Largest common rho at which c = n cheap units still tie (T = 100 s)
 k = 3: c=2: <0 (loses even at rho=0); c=4: <0 (loses even at rho=0); c=9: 0.0000; c=16: 0.0519; c=32: 0.0824; c=100: 0.1021; c=300: 0.1081; c=1000: 0.1102
-k = 10: c=2: <0 (loses even at rho=0); c=4: <0 (loses even at rho=0); c=9: <0 (loses even at rho=0); c=16: <0 (loses even at rho=0); c=32: <0 (loses even at rho=0); c=100: <0 (loses even at rho=0); c=300: 0.0067; c=1000: 0.0090
+k = 10: c=2: <0 (loses even at rho=0); c=4: <0 (loses even at rho=0); c=9: <0 (loses even at rho=0); c=16: <0 (loses even at rho=0); c=32: <0 (loses even at rho=0); c=100: 0.0000; c=300: 0.0067; c=1000: 0.0090
 
 ## E. Monte Carlo check of the closed form (k = 4, T = 200 s, dt = 1 s, 4,000 trials, rho_w = rho_b = rho)
 n | rho | MC fused/better RMS | formula | MC single/better RMS | formula

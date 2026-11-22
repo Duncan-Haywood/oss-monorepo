@@ -24,6 +24,9 @@ export const CATEGORIES = {
   tips: { label: "Tips collected (liability)", account: "Tips Payable" },
   refunds: { label: "Refunds", account: "Square Refunds" },
   fees: { label: "Square processing fees", account: "Square Fees" },
+  cash: { label: "Cash tendered (not in any Square deposit)", account: "Cash on Hand" },
+  giftredeemed: { label: "Square gift cards redeemed (reduces the liability)", account: "Gift Cards Outstanding" },
+  othertender: { label: "Other tenders (cheques, external card terminals)", account: "Other Tender Clearing" },
   uncategorised: { label: "Collected money no rule explains", account: "Square Uncategorised" },
   clearing: { label: "Square clearing (pending deposit)", account: "Square Clearing" },
 };
@@ -118,7 +121,7 @@ const COLUMNS = {
   date: ["date"], gross: ["gross-sales"], discounts: ["discounts"], service: ["service-charges"], net: ["net-sales"],
   giftcards: ["gift-card-sales"], tax: ["tax"], tip: ["tip"], refunds: ["partial-refunds", "refunds"],
   collected: ["total-collected"], fees: ["fees"], netTotal: ["net-total"], txn: ["transaction-id"], payment: ["payment-id"],
-  deposit: ["deposit-id"], status: ["transaction-status"], desc: ["description", "details"], tz: ["time-zone"],
+  deposit: ["deposit-id"], cash: ["cash"], gcTender: ["square-gift-card"], otherTender: ["other-tender"], status: ["transaction-status"], desc: ["description", "details"], tz: ["time-zone"],
 };
 
 // Rows are grouped by calendar month. The period's Net Total can be checked against a figure
@@ -153,7 +156,7 @@ export function parsePayouts(text, opts = {}) {
     if (!date) { add("error", `Date "${get(cells, "date")}" not understood`, "The row is left out, so its month will not add up.", i + 1); continue; }
     const f = {};
     let bad = false;
-    for (const k of ["gross", "discounts", "service", "net", "giftcards", "tax", "tip", "refunds", "collected", "fees", "netTotal"]) {
+    for (const k of ["gross", "discounts", "service", "net", "giftcards", "tax", "tip", "refunds", "collected", "fees", "netTotal", "cash", "gcTender", "otherTender"]) {
       const v = parseMoney(get(cells, k));
       if (Number.isNaN(v)) { add("error", "An amount is not a number", `"${get(cells, k)}" in ${k} on ${label} was left out with its row.`, i + 1); bad = true; break; }
       f[k] = v;
@@ -162,23 +165,32 @@ export function parsePayouts(text, opts = {}) {
     const status = get(cells, "status").toLowerCase();
     if (status && !/^(complete|completed|paid|success|succeeded|)$/.test(status) && !/refund/.test(status)) { skipped++; add("warning", `Row with status "${get(cells, "status")}" skipped`, `${label} is not a completed payment, so no money moved; it is not journalled.`, i + 1); continue; }
     if (f.collected === null && f.netTotal === null) { add("warning", "Row has no total", `${label} was skipped.`, i + 1); continue; }
-    const fees = f.fees ?? 0;
-    const collected = f.collected ?? (f.netTotal - fees);
-    const netTotal = f.netTotal ?? (collected + fees);
-    if (collected + fees !== netTotal) add("error", `Total Collected plus Fees does not equal Net Total on ${label}`, `${money(collected)} + ${money(fees)} = ${money(collected + fees)}, but the row says ${money(netTotal)}. The journal uses the Net Total; check the file was not edited.`, i + 1);
+    // A file with Net Total but no Fees column still has a fee: Net Total less Total Collected.
+    const collected = f.collected ?? (f.netTotal - (f.fees ?? 0));
+    const netTotal = f.netTotal ?? (collected + (f.fees ?? 0));
+    const fees = f.fees ?? (netTotal - collected);
+    if (f.fees !== null && f.netTotal !== null && f.collected !== null && collected + fees !== netTotal) add("error", `Total Collected plus Fees does not equal Net Total on ${label}`, `${money(collected)} + ${money(fees)} = ${money(collected + fees)}, but the row says ${money(netTotal)}. The journal uses the Net Total; check the file was not edited.`, i + 1);
     const g = f.gross ?? 0, disc = f.discounts ?? 0, svc = f.service ?? 0, gc = f.giftcards ?? 0, tax = f.tax ?? 0, tip = f.tip ?? 0, ref = f.refunds ?? 0;
     // Discounts and refunds print as negatives on most exports; either sign is read as a reduction.
     const parts = { sales: g, discounts: -Math.abs(disc), service: svc, giftcards: gc, tax, tips: tip, refunds: -Math.abs(ref) };
     const explained = Object.values(parts).reduce((a, v) => a + v, 0);
     parts.uncategorised = collected - explained;
-    parts.fees = fees;
+    // The journal follows Net Total (as the mismatch message says): the fee is what Net Total
+    // leaves after Total Collected.
+    parts.fees = netTotal - collected;
+    // Non-card tenders never reach a Square deposit: cash goes to the till, a Square gift card
+    // redemption reduces the gift card liability, other tenders are settled elsewhere. Booking them
+    // as debits here leaves Square Clearing equal to what Square actually deposits.
+    const cash = f.cash ?? 0, gcRedeemed = f.gcTender ?? 0, other = f.otherTender ?? 0;
+    parts.cash = -cash; parts.giftredeemed = -gcRedeemed; parts.othertender = -other;
+    const nonCard = cash + gcRedeemed + other;
     const ym = date.slice(0, 7);
     if (!byId.has(ym)) byId.set(ym, { id: ym, effective: null, stated: null, currency: "USD", rows: [] });
     const s = byId.get(ym);
     if (!s.effective || date > s.effective) s.effective = date;
     const dep = get(cells, "deposit");
-    s.rows.push({ line: i + 1, label, created: date, parts, net: netTotal, deposit: dep });
-    if (dep) { const e = deps.get(dep) || { id: dep, net: 0, rows: 0, first: date, last: date }; e.net += netTotal; e.rows++; if (date < e.first) e.first = date; if (date > e.last) e.last = date; deps.set(dep, e); }
+    s.rows.push({ line: i + 1, label, created: date, parts, net: netTotal, deposited: netTotal - nonCard, deposit: dep });
+    if (dep) { const e = deps.get(dep) || { id: dep, net: 0, rows: 0, first: date, last: date }; e.net += netTotal - nonCard; e.rows++; if (date < e.first) e.first = date; if (date > e.last) e.last = date; deps.set(dep, e); }
     rows++;
   }
   const payouts = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));

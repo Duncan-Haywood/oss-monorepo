@@ -40,7 +40,7 @@ def better_grade(cheap, k):
 
 def units_needed(cheap, better, T, rho_w, rho_b, nmax=100000):
     """Smallest n whose fused angle variance is <= the better unit's; None if no n."""
-    target = angle_var(better, T)
+    target = angle_var(better, T) * (1 + 1e-12)  # tolerate float ties at exact break-even
     floor = (cheap.N ** 2 * T * rho_w + cheap.K ** 2 * T ** 3 / 3.0 * rho_b)
     if floor >= target:
         return None
