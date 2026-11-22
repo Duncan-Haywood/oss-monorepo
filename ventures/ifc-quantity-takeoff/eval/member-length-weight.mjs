@@ -24,7 +24,8 @@ const storedOf = (r, kind, names) => { for (const n of names) for (const [k, q] 
 const agree = (c, s) => Math.abs(c - s) <= 0.02 * Math.abs(s) || Math.abs(c - s) < 1e-4;
 const results = [];
 for (const file of files) {
-  const res = takeoff(parseStep(readFileSync(file)));
+  let res;
+  try { res = takeoff(parseStep(readFileSync(file))); } catch (err) { console.log(`${basename(file)}: not read (${err.message})`); continue; }
   const o = { model: basename(file), members: 0, lenStored: 0, lenComputed: 0, lenBoth: 0, lenAgree: 0, lenNew: 0, lenNone: 0, hostFigure: 0, boqStoredLen: 0, boqLen: 0, wStored: 0, steel: 0, steelBothW: 0, steelAgree: 0, wNew: 0, materials: {}, lenOff: [], wOff: [] };
   for (const r of res.rows) {
     if (!LINEAR_CLASS.test(r.ifcType) || r.isAssembly) continue;

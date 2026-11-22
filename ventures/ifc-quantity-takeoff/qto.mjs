@@ -1257,7 +1257,7 @@ const NOT_STEEL = /concrete|beton|béton|hormig|calcestruzzo|timber|wood|holz|ho
 /** True when a material name reads as plain structural steel. */
 export function isSteel(material) {
   if (!material) return false;
-  const parts = String(material).split(" / ").map((x) => x.trim()).filter(Boolean);
+  const parts = String(material).split(" / ").map((x) => x.replace(/_/g, " ").trim()).filter(Boolean);
   return parts.length > 0 && parts.every((p) => STEEL_NAME.test(p) && !NOT_STEEL.test(p));
 }
 
