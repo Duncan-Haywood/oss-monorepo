@@ -414,6 +414,23 @@ test("expenses become cost resource assignments and come back as the same expens
   assert.deepEqual([c1.vendor_name, c1.po_number, c1.target_qty, c1.qty_name, c1.cost_per_qty, c1.cost_descr], ["Acme Ready-Mix", "PO-17", "40", "m3", "300", 'Mix "C32/40", pumped']);
 });
 
+test("a started activity with no remaining duration but a running assignment is named (P6 rolls its late start up, Project does not)", () => {
+  assert.equal(mspdiText(xer).counts.rsrcRollUp, 0);
+  assert.ok(!mspdiText(xer).warnings.some((w) => /no remaining duration/.test(w)));
+  const a = xer.tables.TASKRSRC[0];
+  const t = xer.tables.TASK.find((r) => r.task_id === a.task_id);
+  const edited = { ...xer, tables: { ...xer.tables,
+    TASK: xer.tables.TASK.map((r) => (r === t ? { ...r, status_code: "TK_Active", act_start_date: "2026-03-30 07:00", remain_drtn_hr_cnt: "0" } : r)),
+    TASKRSRC: xer.tables.TASKRSRC.map((r) => (r === a ? { ...r, restart_date: "2026-04-06 07:00", reend_date: "2026-04-08 15:00" } : r)) } };
+  const r = mspdiText(edited);
+  assert.equal(r.counts.rsrcRollUp, 1);
+  const w = r.warnings.find((x) => /no remaining duration/.test(x));
+  assert.ok(w && w.includes(t.task_code), w);
+  // and an assignment that ends where it restarts is not
+  const flat = { ...edited, tables: { ...edited.tables, TASKRSRC: edited.tables.TASKRSRC.map((r) => (r.taskrsrc_id === a.taskrsrc_id ? { ...r, reend_date: r.restart_date } : r)) } };
+  assert.equal(mspdiText(flat).counts.rsrcRollUp, 0);
+});
+
 test("an expense accrual or code scope named after an Object.prototype key is the default, not a function in the XML", async () => {
   const { p6XerText, p6Problems } = await import("./p6xer.mjs");
   const x = parseXer(EXAMPLE_XER);

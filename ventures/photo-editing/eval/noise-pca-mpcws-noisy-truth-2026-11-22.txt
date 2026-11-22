@@ -1,0 +1,7 @@
+   K-1 II [372, 678]: gg18 0.001761 raw_grain18 0.011263 ratio 0.16
+   K-1 II [0, 0]: gg18 0.013009 raw_grain18 0.007044 ratio 1.85
+   K-1 II [0, 1362]: gg18 0.013859 raw_grain18 0.006561 ratio 2.11
+   other tiles: n=62, median gg/grain 2.11 (quartiles 1.42 to 3.88); textured n=5, median 5.44
+FAIL P1 every K-1 Mark II tile reads gg18 >= 1.5 x raw_grain18
+FAIL P2 other tiles' median ratio in 0.67-1.5, textured tiles' at most 1.5
+verdict: reading only: clean_enough unchanged

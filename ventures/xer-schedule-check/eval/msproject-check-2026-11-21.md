@@ -47,7 +47,11 @@ is out of sequence on more than 2,000 links; only their late dates differ (early
 finish agrees on all 14,270). Two guesses were tested and ruled out: the Resume
 date the writer adds (clearing it changes nothing) and the at-completion duration
 of in-progress work (putting P6's planned duration back changes nothing). They
-are left open.
+are left open. *Traced 2026-11-22* (`eval/msproject-latedates-2026-11-22.md`):
+a P6 rule Project does not have (a zero-duration activity's late start rolled
+up from an assignment still running); with it off under Project's rules the
+schedule is the same on 19,822 of 19,822, and the converter now names such
+activities.
 
 **Under P6's own options the dates move**, which is what someone opening the file
 in Project should expect: early finish stays put on 12,169 of 19,822 activities,

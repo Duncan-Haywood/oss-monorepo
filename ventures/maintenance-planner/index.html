@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e3b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free Maintenance Planner (CMMS): PM Schedules, Work Orders, Spare Parts</title>
+  <meta name="description" content="Free CMMS in your browser: preventive maintenance by calendar or run hours, work orders, spare parts reorder points, PM compliance and failure analysis. No sign-up, no per-user fee.">
+  <meta property="og:title" content="Free maintenance planner: PM schedules, work orders and failure analysis">
+  <meta property="og:description" content="Preventive maintenance by date or meter, work orders, parts with reorder points, PM compliance and a Weibull reading of each asset's failures. Runs in the browser, no per-user fee.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Maintenance Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free, open-source CMMS for small plants, workshops and facilities: preventive maintenance by calendar, meter or whichever comes first, work orders, spare parts with safety-stock reorder points, PM compliance, MTBF and MTTR, and a censored Weibull fit that says whether an asset's failures rise with age."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is there a free CMMS with no per-user fee?", "acceptedAnswer": {"@type": "Answer", "text": "This one. It runs in your browser with no account: add assets, preventive maintenance plans and spare parts, open and close work orders, and export everything as a JSON or CSV file. There is no user limit because there is no server; the data stays on your computer until you export it."}}, {"@type": "Question", "name": "How do I schedule maintenance by run hours and by date at the same time?", "acceptedAnswer": {"@type": "Answer", "text": "Give the plan both a calendar interval and a meter interval. The planner fits a usage rate to the asset's meter readings, projects the day the meter reaches the next service, and makes the plan due on whichever comes first."}}, {"@type": "Question", "name": "What is the difference between a fixed and a floating schedule?", "acceptedAnswer": {"@type": "Answer", "text": "A fixed schedule keeps its dates from the start date whatever day the job was done, which suits inspections due on set dates. A floating schedule counts the next interval from the day the job was last completed, which suits wear items."}}, {"@type": "Question", "name": "How is PM compliance worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Each completed preventive job counts as on time when it was done no later than its due date plus 10% of the interval (or 10% of the meter interval). Occurrences that came due and were never done count as missed. Compliance is on-time jobs over all jobs."}}, {"@type": "Question", "name": "Does preventive replacement help every machine?", "acceptedAnswer": {"@type": "Answer", "text": "No. Replacing on a schedule only prevents failures that rise with age. The Reliability section fits a Weibull distribution to each asset's times between failures, counting the time since the last failure as still running, and reports whether the shape is clearly above 1 (wear-out), clearly below 1 (early-life failures) or cannot be told from random. With planned and failure costs it also gives the replacement age with the lowest cost per day."}}, {"@type": "Question", "name": "Where is my data stored?", "acceptedAnswer": {"@type": "Answer", "text": "In this browser's local storage on your computer, and in the files you export. Nothing is uploaded. Clearing the browser's site data deletes it, so export a copy regularly."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18231c; background: #f2f6f3; }
+    body { max-width: 1150px; margin: auto; padding: 24px 16px; }
+    a { color: #1f5f8b; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #1d3b27; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3b27; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a50; }
+    .card { background: #fff; border: 1px solid #d3e0d7; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #0b3a1a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; font-size: .92rem; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid #aec3b4; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 4.2em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 12px; }
+    button { border: 0; border-radius: 8px; padding: 9px 14px; background: #285e3b; color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; font-size: .92rem; }
+    button.secondary { background: #e2ece5; color: #1d3b27; }
+    button.small { padding: 5px 9px; margin: 2px 4px 2px 0; font-size: .82rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 7px; border-bottom: 1px solid #e4ece6; vertical-align: top; }
+    th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a50; }
+    .scroll { overflow-x: auto; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .tile { background: #f6faf7; border: 1px solid #d3e0d7; border-radius: 10px; padding: 10px 12px; }
+    .tile b { display: block; font-size: 1.6rem; color: #1d3b27; }
+    .overdue, .short { color: #9a2d12; font-weight: 700; }
+    .due, .reorder { color: #8a5a00; font-weight: 700; }
+    .ok { color: #1c6b2f; }
+    nav.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+    nav.tabs button { margin: 0; }
+    nav.tabs button[aria-selected="true"] { background: #1d3b27; color: #fff; }
+    nav.tabs button[aria-selected="false"] { background: #e2ece5; color: #1d3b27; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e0d7; padding-top: 16px; }
+    #status { min-height: 1.4em; font-weight: 600; }
+    details summary { cursor: pointer; font-weight: 600; }
+    @media print { header, nav.tabs, .noprint, footer, #faq, #limits { display: none !important; } .card { box-shadow: none; border: 0; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MAINTENANCE PLANNER · FREE CMMS · PLANTS, WORKSHOPS, FACILITIES, FLEETS · RUNS IN YOUR BROWSER</p>
+    <h1>Keep preventive maintenance on time, without a per-user fee</h1>
+    <p>List your equipment, set each preventive job to repeat <strong>by date, by run hours or whichever comes first</strong>, and this page tells you what is overdue, makes the work orders, keeps spare parts above their reorder point and scores your PM compliance. Its reliability section reads each machine's breakdown history and says <strong>whether scheduled replacement would actually help</strong>, and at what age.</p>
+    <p class="note">For maintenance leads at small plants, food and packaging lines, workshops, schools and property portfolios who track PMs in a spreadsheet or pay per technician for a CMMS. Data stays in this browser; export it as a file. See <a href="#limits">what it does not do</a>.</p>
+  </header>
+<main>
+  <section class="card noprint">
+    <div class="grid">
+      <div><label for="today">Plan as of</label><input type="date" id="today"></div>
+      <div><label for="importFile">Open a saved data file (.json)</label><input type="file" id="importFile" accept=".json,application/json"></div>
+      <div><label for="assetCsv">Add assets from a CSV</label><input type="file" id="assetCsv" accept=".csv,text/csv"></div>
+    </div>
+    <p>
+      <button type="button" class="secondary" id="loadExample">Load the example plant</button>
+      <button type="button" id="exportJson">Save data file (.json)</button>
+      <button type="button" class="secondary" id="exportCsv">PM status (.csv)</button>
+      <button type="button" class="secondary" id="clearAll">Clear everything</button>
+    </p>
+    <p id="status" role="status" aria-live="polite"></p>
+    <p class="note">CSV columns read: name (or asset, equipment), location, category, inService (YYYY-MM-DD), meterUnit, criticality.</p>
+  </section>
+
+  <nav class="tabs" aria-label="Sections">
+    <button type="button" data-tab="dash" aria-selected="true">Dashboard</button>
+    <button type="button" data-tab="wo" aria-selected="false">Work orders</button>
+    <button type="button" data-tab="plans" aria-selected="false">PM plans</button>
+    <button type="button" data-tab="assets" aria-selected="false">Assets &amp; meters</button>
+    <button type="button" data-tab="parts" aria-selected="false">Spare parts</button>
+    <button type="button" data-tab="rel" aria-selected="false">Reliability</button>
+  </nav>
+
+  <section class="card" data-panel="dash">
+    <h2>Dashboard</h2>
+    <div class="tiles" id="tiles"></div>
+    <h3>Overdue and due soon</h3>
+    <div class="scroll"><table><thead><tr><th>Status</th><th>Due</th><th>Asset</th><th>Task</th><th>By</th><th>Meter</th><th>Compliance</th></tr></thead><tbody id="dueRows"></tbody></table></div>
+    <p class="noprint"><button type="button" id="makeWos">Open work orders for everything due</button></p>
+    <h3>Preventive workload, next 12 weeks</h3>
+    <p class="note">Estimated hours per ISO week from each plan's labour estimate; meter-driven jobs projected from each asset's usage rate.</p>
+    <div class="scroll"><table><thead><tr><th>Week</th><th>Jobs</th><th>Hours</th><th>By trade</th></tr></thead><tbody id="loadRows"></tbody></table></div>
+  </section>
+
+  <section class="card" data-panel="wo" hidden>
+    <h2>Work orders</h2>
+    <div class="scroll"><table><thead><tr><th>No.</th><th>Asset</th><th>Task</th><th>Type</th><th>Due</th><th>Priority</th><th>Est. h</th><th class="noprint">Close out</th></tr></thead><tbody id="woRows"></tbody></table></div>
+    <p class="noprint"><button type="button" class="secondary" id="printWos">Print open work orders</button></p>
+    <details class="noprint" id="closeBox" hidden open>
+      <summary>Close out <span id="closeWhich"></span></summary>
+      <div class="grid">
+        <div><label for="closeDate">Completed on</label><input type="date" id="closeDate"></div>
+        <div><label for="closeMeter">Meter reading (optional)</label><input type="number" id="closeMeter" step="any"></div>
+        <div><label for="closeLabour">Labour hours</label><input type="number" id="closeLabour" step="0.25" min="0"></div>
+        <div><label for="closeDown">Downtime hours</label><input type="number" id="closeDown" step="0.25" min="0"></div>
+      </div>
+      <button type="button" id="closeSave">Mark done</button>
+    </details>
+    <details class="noprint">
+      <summary>New work order (breakdown or one-off job)</summary>
+      <div class="grid">
+        <div><label for="woAsset">Asset</label><select id="woAsset"></select></div>
+        <div><label for="woTitle">What is wrong / what to do</label><input type="text" id="woTitle"></div>
+        <div><label for="woType">Type</label><select id="woType"><option value="CM">Corrective (repair)</option><option value="PM">Preventive</option><option value="INS">Inspection</option></select></div>
+        <div><label for="woPriority">Priority</label><select id="woPriority"><option>normal</option><option>high</option><option>urgent</option><option>low</option></select></div>
+        <div><label for="woDue">Due</label><input type="date" id="woDue"></div>
+        <div><label for="woHours">Estimated hours</label><input type="number" id="woHours" step="0.25" min="0"></div>
+        <div><label for="woFailure">Was it a failure?</label><select id="woFailure"><option value="no">No</option><option value="yes">Yes: the asset broke down</option></select></div>
+        <div><label for="woFailedOn">Failed on</label><input type="date" id="woFailedOn"></div>
+        <div><label for="woCode">Failure cause code (e.g. bearing)</label><input type="text" id="woCode"></div>
+      </div>
+      <button type="button" id="woAdd">Add work order</button>
+    </details>
+  </section>
+
+  <section class="card" data-panel="plans" hidden>
+    <h2>Preventive maintenance plans</h2>
+    <div class="scroll"><table><thead><tr><th>Asset</th><th>Task</th><th>Every</th><th>Mode</th><th>Last done</th><th>Next due</th><th>Compliance</th><th class="noprint"></th></tr></thead><tbody id="planRows"></tbody></table></div>
+    <details class="noprint">
+      <summary>New PM plan</summary>
+      <div class="grid">
+        <div><label for="plAsset">Asset</label><select id="plAsset"></select></div>
+        <div><label for="plTitle">Task</label><input type="text" id="plTitle" placeholder="e.g. Change oil and filter"></div>
+        <div><label for="plStart">First due</label><input type="date" id="plStart"></div>
+        <div><label for="plN">Every (number)</label><input type="number" id="plN" min="0" step="1" value="3"></div>
+        <div><label for="plUnit">Calendar unit</label><select id="plUnit"><option value="">no calendar trigger</option><option value="day">days</option><option value="week">weeks</option><option value="month" selected>months</option><option value="year">years</option></select></div>
+        <div><label for="plMeter">And/or every (meter units)</label><input type="number" id="plMeter" min="0" step="any" placeholder="e.g. 500"></div>
+        <div><label for="plMode">Schedule</label><select id="plMode"><option value="floating">Floating: from last completion</option><option value="fixed">Fixed: keep the dates</option></select></div>
+        <div><label for="plHours">Labour hours</label><input type="number" id="plHours" min="0" step="0.25" value="1"></div>
+        <div><label for="plTrade">Trade</label><input type="text" id="plTrade" placeholder="mechanical, electrical, HVAC"></div>
+      </div>
+      <label for="plSteps">Checklist, one step per line</label><textarea id="plSteps"></textarea>
+      <button type="button" id="plAdd">Add plan</button>
+    </details>
+  </section>
+
+  <section class="card" data-panel="assets" hidden>
+    <h2>Assets and meter readings</h2>
+    <div class="scroll"><table><thead><tr><th>Asset</th><th>Location</th><th>Category</th><th>In service</th><th>Meter</th><th>Usage / day</th><th>Criticality</th></tr></thead><tbody id="assetRows"></tbody></table></div>
+    <details class="noprint">
+      <summary>Log a meter reading</summary>
+      <div class="grid">
+        <div><label for="rdAsset">Asset</label><select id="rdAsset"></select></div>
+        <div><label for="rdDate">Date</label><input type="date" id="rdDate"></div>
+        <div><label for="rdValue">Reading</label><input type="number" id="rdValue" step="any"></div>
+      </div>
+      <button type="button" id="rdAdd">Save reading</button>
+    </details>
+    <details class="noprint">
+      <summary>New asset</summary>
+      <div class="grid">
+        <div><label for="asName">Name</label><input type="text" id="asName"></div>
+        <div><label for="asLocation">Location</label><input type="text" id="asLocation"></div>
+        <div><label for="asCategory">Category</label><input type="text" id="asCategory"></div>
+        <div><label for="asInService">In service since</label><input type="date" id="asInService"></div>
+        <div><label for="asMeter">Meter unit (blank if none)</label><input type="text" id="asMeter" placeholder="hours, cycles, km"></div>
+        <div><label for="asCrit">Criticality</label><select id="asCrit"><option>high</option><option selected>medium</option><option>low</option></select></div>
+        <div><label for="asPlanned">Cost of a planned replacement</label><input type="number" id="asPlanned" min="0" step="any"></div>
+        <div><label for="asFailure">Cost of a failure (repair + lost output)</label><input type="number" id="asFailure" min="0" step="any"></div>
+      </div>
+      <button type="button" id="asAdd">Add asset</button>
+    </details>
+  </section>
+
+  <section class="card" data-panel="parts" hidden>
+    <h2>Spare parts</h2>
+    <p class="note">Reorder point = expected use over the lead time plus safety stock for the service level, from the last 12 months of completed work orders. Parts on open work orders are counted as already claimed.</p>
+    <div class="scroll"><table><thead><tr><th>Part</th><th>On hand</th><th>Claimed</th><th>Used / month</th><th>Reorder at</th><th>Status</th><th>Order</th><th>Stock value</th></tr></thead><tbody id="partRows"></tbody></table></div>
+    <details class="noprint">
+      <summary>New part</summary>
+      <div class="grid">
+        <div><label for="ptName">Name</label><input type="text" id="ptName"></div>
+        <div><label for="ptOnHand">On hand</label><input type="number" id="ptOnHand" min="0" step="1" value="0"></div>
+        <div><label for="ptCost">Unit cost</label><input type="number" id="ptCost" min="0" step="any"></div>
+        <div><label for="ptLead">Lead time (days)</label><input type="number" id="ptLead" min="0" step="1" value="7"></div>
+        <div><label for="ptLevel">Service level</label><select id="ptLevel"><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+        <div><label for="ptMin">Minimum to keep</label><input type="number" id="ptMin" min="0" step="1" value="0"></div>
+      </div>
+      <button type="button" id="ptAdd">Add part</button>
+    </details>
+  </section>
+
+  <section class="card" data-panel="rel" hidden>
+    <h2>Reliability: should you replace on a schedule?</h2>
+    <p class="note">Times between failures come from work orders marked as failures (operating hours when the asset has a meter, days otherwise). The time since the last failure counts as survived, not as a failure. The Weibull shape says whether failures rise with age; the interval shown is a 90% likelihood-ratio interval, so with few failures it is wide on purpose.</p>
+    <div id="relCards"></div>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Is there a free CMMS with no per-user fee?</h3>
+    <p>This one. It runs in your browser with no account: add assets, preventive maintenance plans and spare parts, open and close work orders, and export everything as a JSON or CSV file. There is no user limit because there is no server; the data stays on your computer until you export it.</p>
+    <h3>How do I schedule maintenance by run hours and by date at the same time?</h3>
+    <p>Give the plan both a calendar interval and a meter interval. The planner fits a usage rate to the asset's meter readings, projects the day the meter reaches the next service, and makes the plan due on whichever comes first.</p>
+    <h3>What is the difference between a fixed and a floating schedule?</h3>
+    <p>A fixed schedule keeps its dates from the start date whatever day the job was done, which suits inspections due on set dates. A floating schedule counts the next interval from the day the job was last completed, which suits wear items.</p>
+    <h3>How is PM compliance worked out?</h3>
+    <p>Each completed preventive job counts as on time when it was done no later than its due date plus 10% of the interval (or 10% of the meter interval). Occurrences that came due and were never done count as missed. Compliance is on-time jobs over all jobs.</p>
+    <h3>Does preventive replacement help every machine?</h3>
+    <p>No. Replacing on a schedule only prevents failures that rise with age. The Reliability section fits a Weibull distribution to each asset's times between failures, counting the time since the last failure as still running, and reports whether the shape is clearly above 1 (wear-out), clearly below 1 (early-life failures) or cannot be told from random. With planned and failure costs it also gives the replacement age with the lowest cost per day.</p>
+    <h3>Where is my data stored?</h3>
+    <p>In this browser's local storage on your computer, and in the files you export. Nothing is uploaded. Clearing the browser's site data deletes it, so export a copy regularly.</p>
+  </section>
+
+  <section class="card" id="limits">
+    <h2>Not modelled, and how it compares</h2>
+    <ul>
+      <li><strong>One person, one browser.</strong> There is no shared login, mobile technician app, purchase orders or approvals. Paid CMMS products such as UpKeep, MaintainX, Limble and Fiix do those, typically priced per user per month. Share the data file, or run the command-line version on a shared drive.</li>
+      <li><strong>Usage rates are straight lines</strong> fitted to recent meter readings; a machine whose duty changes will be projected on its old rate until new readings arrive.</li>
+      <li><strong>Reliability assumes each repair restores the asset to as good as new</strong> for the cause counted (the renewal assumption behind a Weibull fit of times between failures). Pooling different causes can mislead; give failures a cause code and read each cause once it repeats.</li>
+      <li><strong>The replacement age</strong> is the classic age-replacement policy (replace at age T or on failure). It ignores inspection, condition monitoring and opportunistic replacement.</li>
+      <li>Statutory inspections (pressure vessels, lifts, fire systems) follow the law and the inspector, not this page.</li>
+    </ul>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, safety or financial advice, and it does not replace a qualified professional or the equipment maker's instructions. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser. Your data is kept in this browser's local storage and in files you save, and is never uploaded. We count anonymous events in local storage (which features get used, nothing about who used them). <button type="button" class="secondary small" id="optout">Turn off usage counting</button></p>
+  <p>Related free tools: <a href="../fleet-repair-or-replace-planner/">fleet repair-or-replace planner</a>, <a href="../spc-control-charts/">SPC control charts</a>, <a href="../survival-analysis/">survival analysis</a>. MIT licensed: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/maintenance-planner">source code</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Support the creator</a>.</p>
+</footer>
+<script type="module">
+  import { parseDay, fmtDay, meterRate } from "./schedule.mjs";
+  import { emptyData, normalize, newId, completeWorkOrder, generateDueWorkOrders, importAssetsCsv } from "./store.mjs";
+  import { summarize, toCsv, PLAN_COLUMNS } from "./report.mjs";
+  import { exampleData } from "./example.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const n = (x, d = 1) => (x === null || x === undefined || !Number.isFinite(Number(x)) ? "–" : Number(x).toLocaleString("en-US", { maximumFractionDigits: d }));
+  const KEY = "maintenance-planner-data";
+  let data = emptyData();
+  let closing = null;
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) data = normalize(JSON.parse(raw)).data;
+    } catch { data = emptyData(); }
+  }
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(data)); }
+    catch { $("#status").textContent = "This browser would not save the data (private window or storage full): save a data file before you leave."; }
+  }
+  const todayNum = () => parseDay($("#today").value) ?? Math.floor(Date.now() / 86400000);
+  const assetName = (id) => data.assets.find((a) => a.id === id)?.name ?? id;
+  const openWo = (planId) => data.workOrders.find((w) => w.planId === planId && w.status !== "done")?.id ?? null;
+  const say = (t) => { $("#status").textContent = t; };
+
+  function assetOptions() {
+    const o = data.assets.map((a) => `<option value="${esc(a.id)}">${esc(a.name)}</option>`).join("");
+    for (const id of ["#woAsset", "#plAsset", "#rdAsset"]) $(id).innerHTML = o;
+  }
+
+  function render() {
+    const today = todayNum();
+    const s = summarize(data, today);
+    const c = s.counts;
+    $("#tiles").innerHTML = [["Overdue PMs", c.overdue, c.overdue ? "overdue" : "ok"], ["Due soon", c.due, c.due ? "due" : "ok"], ["Open work orders", c.openWorkOrders, ""], ["Backlog hours", c.backlogHours, ""], ["Parts to order", c.partsToOrder, c.partsToOrder ? "reorder" : "ok"], ["PM compliance", s.compliancePct === null ? "–" : s.compliancePct + "%", ""]]
+      .map(([k, v, cl]) => `<div class="tile"><b class="${cl}">${esc(v)}</b>${esc(k)}</div>`).join("");
+    const dueish = s.plans.filter((p) => p.status === "overdue" || p.status === "due");
+    $("#dueRows").innerHTML = dueish.length ? dueish.map((p) => `<tr><td class="${p.status}">${p.status}${p.daysLeft < 0 ? ` (${-p.daysLeft} d)` : ""}</td><td>${esc(p.due ?? "now")}</td><td>${esc(p.asset)}</td><td>${esc(p.title)}${openWo(p.id) ? ` <span class="note">(${esc(openWo(p.id))} open)</span>` : ""}</td><td>${esc(p.dueBy ?? "meter")}</td><td>${p.meterDue !== null ? `${n(p.meterNow, 0)} / ${n(p.meterDue, 0)}` : ""}</td><td>${p.compliance.pct === null ? "–" : p.compliance.pct + "%"}</td></tr>`).join("") : `<tr><td colspan="7">Nothing overdue or due within its lead window.</td></tr>`;
+    $("#loadRows").innerHTML = s.workload.map((w) => `<tr><td>${esc(w.week)}</td><td>${w.jobs}</td><td>${n(w.total, 2)}</td><td>${esc(Object.entries(w.byTrade).map(([k, v]) => `${k} ${n(v, 2)}`).join(", "))}</td></tr>`).join("") || `<tr><td colspan="4">No preventive jobs in the next 12 weeks.</td></tr>`;
+    const open = data.workOrders.filter((w) => w.status !== "done").sort((a, b) => String(a.due || "9").localeCompare(String(b.due || "9")));
+    $("#woRows").innerHTML = open.length ? open.map((w) => `<tr><td>${esc(w.id)}</td><td>${esc(assetName(w.assetId))}</td><td>${esc(w.title)}${(w.steps || []).length ? `<ul>${w.steps.map((st) => `<li>${esc(st.text)}</li>`).join("")}</ul>` : ""}${(w.parts || []).length ? `<div class="note">Parts: ${esc(w.parts.map((p) => `${p.qty} × ${data.parts.find((x) => x.id === p.partId)?.name ?? p.partId}`).join(", "))}</div>` : ""}</td><td>${esc(w.type)}${w.failure ? " (failure)" : ""}</td><td>${esc(w.due ?? "")}</td><td>${esc(w.priority ?? "")}</td><td>${n(w.estHours)}</td><td class="noprint"><button type="button" class="small" data-close="${esc(w.id)}">Close out</button></td></tr>`).join("") : `<tr><td colspan="8">No open work orders.</td></tr>`;
+    const byPlan = new Map(s.plans.map((p) => [p.id, p]));
+    $("#planRows").innerHTML = data.plans.map((p) => { const st = byPlan.get(p.id) || {}; const every = [p.every ? `${p.every.n} ${p.every.unit}${p.every.n === 1 ? "" : "s"}` : "", p.meter ? `${n(p.meter.every, 0)} ${data.assets.find((a) => a.id === p.assetId)?.meterUnit || "meter"}` : ""].filter(Boolean).join(" or "); return `<tr><td>${esc(assetName(p.assetId))}</td><td>${esc(p.title)}</td><td>${esc(every)}</td><td>${esc(p.mode)}</td><td>${esc(st.lastDone ?? "never")}</td><td class="${st.status ?? ""}">${esc(st.due ?? "–")}</td><td>${st.compliance?.pct === null || st.compliance === undefined ? "–" : `${st.compliance.pct}% (${st.compliance.onTime}/${st.compliance.total})`}</td><td class="noprint"><button type="button" class="small secondary" data-delplan="${esc(p.id)}">Remove</button></td></tr>`; }).join("") || `<tr><td colspan="8">No plans yet.</td></tr>`;
+    $("#assetRows").innerHTML = data.assets.map((a) => { const r = meterRate(a.readings || [], today); return `<tr><td>${esc(a.name)}</td><td>${esc(a.location)}</td><td>${esc(a.category)}</td><td>${esc(a.inService)}</td><td>${r ? `${n(r.last.value, 0)} ${esc(a.meterUnit)} on ${fmtDay(r.last.day)}` : esc(a.meterUnit || "–")}</td><td>${r && r.rate !== null ? n(r.rate, 1) : "–"}</td><td>${esc(a.criticality)}</td></tr>`; }).join("") || `<tr><td colspan="7">No assets yet. Add one below, import a CSV, or load the example plant.</td></tr>`;
+    $("#partRows").innerHTML = s.parts.map((p) => `<tr><td>${esc(p.name)}</td><td>${n(p.onHand, 0)}</td><td>${n(p.reserved, 0)}</td><td>${n(p.perMonth, 2)}</td><td>${n(p.reorderPoint, 0)}</td><td class="${p.status}">${p.status}</td><td>${p.suggestOrder ? n(p.suggestOrder, 0) : ""}</td><td>${n(p.stockValue, 2)}</td></tr>`).join("") || `<tr><td colspan="8">No parts yet.</td></tr>`;
+    $("#relCards").innerHTML = s.reliability.filter((r) => r.failures).map((r) => relCard(r)).join("") || "<p>No failures recorded yet. Mark breakdown work orders as failures and give them a cause code.</p>";
+    assetOptions();
+  }
+
+  function relCard(r) {
+    const unit = r.unit;
+    const line = (x, label) => {
+      const f = x.fit;
+      const rep = x.replacement;
+      return `<h3>${esc(label)}</h3><p>${x.failures} failure${x.failures === 1 ? "" : "s"}; MTBF ${n(x.mtbf, 0)} ${esc(unit)}; MTTR ${x.mttr === null ? "–" : n(x.mttr) + " h"}${x.availability !== null && x.mode === null ? `; availability ${n(x.availability * 100, 2)}%` : ""}.${f ? ` Weibull shape ${n(f.shape, 2)} (90%: ${n(f.shapeCI[0], 2)} to ${n(f.shapeCI[1], 2)}), scale ${n(f.scale, 0)} ${esc(unit)}.` : ""}</p><p><strong>${esc(x.reading.pattern)}.</strong> ${esc(x.reading.advice)}</p>${rep ? (rep.optimal ? `<p>Replacing at <strong>${n(rep.optimal, 0)} ${esc(unit)}</strong> (or on failure) costs about ${n(rep.saving * 100, 0)}% less per ${unit === "days" ? "day" : esc(unit.replace(/s$/, ""))} than running to failure; ${n(rep.reliabilityAtT * 100, 0)}% of units would reach that age without failing.</p>` : `<p class="note">${esc(rep.reason)}</p>`) : (f && x.mode === null ? `<p class="note">Add a planned-replacement cost and a failure cost to this asset to get a replacement age.</p>` : "")}`;
+    };
+    return `<div class="card">${line(r, r.asset)}${r.modes.map((m) => line(m, `${r.asset}: cause "${m.mode}"`)).join("")}</div>`;
+  }
+
+  // tabs
+  document.querySelector("nav.tabs").addEventListener("click", (e) => {
+    const t = e.target.dataset && e.target.dataset.tab;
+    if (!t) return;
+    for (const b of document.querySelectorAll("nav.tabs button")) b.setAttribute("aria-selected", String(b.dataset.tab === t));
+    for (const p of document.querySelectorAll("[data-panel]")) p.hidden = p.dataset.panel !== t;
+  });
+
+  $("#today").addEventListener("change", render);
+  $("#loadExample").addEventListener("click", () => {
+    if (data.assets.length && !confirm("Replace the data in this browser with the example plant? Save a data file first if you want to keep it.")) return;
+    data = exampleData(todayNum()); persist(); render(); say("Example plant loaded: invented assets and history, dated from today."); record("example_loaded");
+  });
+  $("#clearAll").addEventListener("click", () => {
+    if (!confirm("Delete all assets, plans, work orders and parts from this browser?")) return;
+    data = emptyData(); persist(); render(); say("Cleared.");
+  });
+  function save(text, name, type) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type }));
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  $("#exportJson").addEventListener("click", () => { save(JSON.stringify(data, null, 1), `maintenance-data-${fmtDay(todayNum())}.json`, "application/json"); record("data_saved"); });
+  $("#exportCsv").addEventListener("click", () => { save(toCsv(summarize(data, todayNum()).plans, PLAN_COLUMNS), `pm-status-${fmtDay(todayNum())}.csv`, "text/csv"); record("csv_saved"); });
+  $("#importFile").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    try {
+      const r = normalize(JSON.parse(await f.text()));
+      data = r.data; persist(); render();
+      say(`Opened ${f.name}: ${data.assets.length} assets, ${data.plans.length} plans, ${data.workOrders.length} work orders.${r.problems.length ? ` Skipped: ${r.problems.slice(0, 5).join("; ")}` : ""}`);
+      record("data_opened");
+    } catch (err) { say(`Could not open ${f.name}: ${err.message}`); }
+    e.target.value = "";
+  });
+  $("#assetCsv").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = importAssetsCsv(data, await f.text());
+    persist(); render();
+    say(`Added ${r.added} asset${r.added === 1 ? "" : "s"} from ${f.name}.${r.problems.length ? ` ${r.problems.slice(0, 5).join("; ")}` : ""}`);
+    record("assets_imported");
+    e.target.value = "";
+  });
+  $("#makeWos").addEventListener("click", () => {
+    const made = generateDueWorkOrders(data, todayNum());
+    persist(); render();
+    say(made.length ? `Opened ${made.length} work order${made.length === 1 ? "" : "s"}: ${made.map((w) => w.id).join(", ")}.` : "Every due plan already has an open work order.");
+    if (made.length) record("work_orders_generated");
+  });
+  $("#printWos").addEventListener("click", () => { for (const p of document.querySelectorAll("[data-panel]")) p.hidden = p.dataset.panel !== "wo"; window.print(); });
+  $("#woRows").addEventListener("click", (e) => {
+    const id = e.target.dataset && e.target.dataset.close;
+    if (!id) return;
+    closing = id;
+    const w = data.workOrders.find((x) => x.id === id);
+    $("#closeWhich").textContent = `${id}: ${w.title}`;
+    $("#closeDate").value = fmtDay(todayNum());
+    $("#closeLabour").value = w.estHours ?? "";
+    $("#closeMeter").value = ""; $("#closeDown").value = "";
+    $("#closeBox").hidden = false;
+    $("#closeBox").scrollIntoView({ block: "nearest" });
+  });
+  $("#closeSave").addEventListener("click", () => {
+    if (!closing) return;
+    try {
+      completeWorkOrder(data, closing, { date: $("#closeDate").value, meter: $("#closeMeter").value, labourHours: $("#closeLabour").value === "" ? null : $("#closeLabour").value, downtimeHours: $("#closeDown").value === "" ? null : $("#closeDown").value });
+      persist(); say(`${closing} done.`); closing = null; $("#closeBox").hidden = true; render(); record("work_order_closed");
+    } catch (err) { say(err.message); }
+  });
+  $("#woAdd").addEventListener("click", () => {
+    if (!data.assets.length) return say("Add an asset first.");
+    const title = $("#woTitle").value.trim();
+    if (!title) return say("Say what the work order is for.");
+    const failure = $("#woFailure").value === "yes";
+    data.workOrders.push({ id: newId(data, "WO"), assetId: $("#woAsset").value, type: $("#woType").value, title, status: "open", priority: $("#woPriority").value, created: fmtDay(todayNum()), due: $("#woDue").value || null, estHours: Number($("#woHours").value) || 0, failure, failedOn: failure ? ($("#woFailedOn").value || fmtDay(todayNum())) : undefined, failureCode: $("#woCode").value.trim() || undefined, parts: [] });
+    persist(); render(); say("Work order added."); $("#woTitle").value = ""; record("work_order_added");
+  });
+  $("#plAdd").addEventListener("click", () => {
+    if (!data.assets.length) return say("Add an asset first.");
+    const title = $("#plTitle").value.trim();
+    const unit = $("#plUnit").value, nn = Math.floor(Number($("#plN").value));
+    const meter = Number($("#plMeter").value);
+    if (!title) return say("Name the task.");
+    if (!(unit && nn > 0) && !(meter > 0)) return say("Give the plan a calendar interval, a meter interval or both.");
+    const start = $("#plStart").value || fmtDay(todayNum());
+    data.plans.push({ id: newId(data, "P"), assetId: $("#plAsset").value, title, start, every: unit && nn > 0 ? { n: nn, unit } : null, meter: meter > 0 ? { every: meter } : null, mode: $("#plMode").value, hours: Number($("#plHours").value) || 0, trade: $("#plTrade").value.trim() || "general", steps: $("#plSteps").value.split("\n").map((x) => x.trim()).filter(Boolean), parts: [], completions: [] });
+    persist(); render(); say("Plan added."); $("#plTitle").value = ""; $("#plSteps").value = ""; record("plan_saved");
+  });
+  $("#planRows").addEventListener("click", (e) => {
+    const id = e.target.dataset && e.target.dataset.delplan;
+    if (!id || !confirm("Remove this plan? Its completed work orders stay.")) return;
+    data.plans = data.plans.filter((p) => p.id !== id); persist(); render();
+  });
+  $("#rdAdd").addEventListener("click", () => {
+    const a = data.assets.find((x) => x.id === $("#rdAsset").value);
+    const v = Number($("#rdValue").value), d = $("#rdDate").value || fmtDay(todayNum());
+    if (!a || !Number.isFinite(v) || $("#rdValue").value === "") return say("Pick an asset and enter a reading.");
+    a.readings = a.readings || []; a.readings.push({ date: d, value: v });
+    persist(); render(); say(`Reading saved for ${a.name}.`); $("#rdValue").value = ""; record("reading_saved");
+  });
+  $("#asAdd").addEventListener("click", () => {
+    const name = $("#asName").value.trim();
+    if (!name) return say("Name the asset.");
+    const planned = Number($("#asPlanned").value), failure = Number($("#asFailure").value);
+    data.assets.push({ id: newId(data, "A"), name, location: $("#asLocation").value.trim(), category: $("#asCategory").value.trim(), inService: $("#asInService").value || "", meterUnit: $("#asMeter").value.trim(), criticality: $("#asCrit").value, readings: [], costs: planned > 0 && failure > 0 ? { planned, failure } : undefined });
+    persist(); render(); say(`${name} added.`); $("#asName").value = ""; record("asset_added");
+  });
+  $("#ptAdd").addEventListener("click", () => {
+    const name = $("#ptName").value.trim();
+    if (!name) return say("Name the part.");
+    data.parts.push({ id: newId(data, "S"), name, onHand: Number($("#ptOnHand").value) || 0, unitCost: Number($("#ptCost").value) || 0, leadDays: Number($("#ptLead").value) || 0, serviceLevel: Number($("#ptLevel").value), minQty: Number($("#ptMin").value) || 0 });
+    persist(); render(); say(`${name} added.`); $("#ptName").value = ""; record("part_added");
+  });
+
+  $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+  if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+
+  $("#today").value = fmtDay(Math.floor(Date.now() / 86400000));
+  load();
+  render();
+  if (!data.assets.length) say("Start by adding an asset, importing a CSV of your equipment, or loading the example plant.");
+</script>
+</body>
+</html>

@@ -94,6 +94,7 @@ def raw_grain(path: str, spots, size: int = 480, seed: int = 1) -> dict:
     finally:
         vis[:] = orig
     t = float(np.std(((b1 - b0) / norm * 0.8)[:, :, 1])) / TRANSFER_SIGMA
+    added = (np.round(noisy) - orig.astype(np.float64)) / (wl - blk)  # the white noise as LibRaw saw it
     r = (orig.astype(np.float64) - blk) / (wl - blk)
     green = np.zeros(r.shape, dtype=bool)
     for i in range(2):
@@ -107,12 +108,71 @@ def raw_grain(path: str, spots, size: int = 480, seed: int = 1) -> dict:
     m = (y > 0.02) & (y < 0.9) & np.isfinite(x)
     g = float(np.sum(x[m] * y[m]) / np.sum(x[m] * x[m]))
     level = 0.18 / g
-    out = {}
+    sites = [(i, j) for i in range(2) for j in range(2) if col[i, j] == 1]
+    out, gg = {}, {}
     for ty, tx in spots:
         sub = r[ty * 4 : (ty + size) * 4, tx * 4 : (tx + size) * 4]  # tiles start on even rows/columns: same phase
         shot, read = estimate_noise_pca(sub, pat)
         out[(ty, tx)] = round(t * float(np.sqrt(max(shot * level + read, 0.0))), 6)
-    return {"t": round(t, 4), "g": round(g, 4), "tiles": out}
+        noise = added[ty * 4 : (ty + size) * 4, tx * 4 : (tx + size) * 4]
+        gg[(ty, tx)] = green_pair18(sub, noise, sites, level, t * TRANSFER_SIGMA)
+    return {"t": round(t, 4), "g": round(g, 4), "tiles": out, "gg": gg}
+
+
+def _site_bins(a: np.ndarray, sites) -> tuple[np.ndarray, np.ndarray]:
+    """Each green site's sensels averaged over the truth's 4 x 4 blocks (2 x 2 of that site's plane)."""
+
+    planes = []
+    for i, j in sites:
+        p = a[i::2, j::2]
+        h, w = (p.shape[0] // 2) * 2, (p.shape[1] // 2) * 2
+        planes.append(p[:h, :w].reshape(h // 2, 2, w // 2, 2).mean(axis=(1, 3)))
+    h, w = min(planes[0].shape[0], planes[1].shape[0]), min(planes[0].shape[1], planes[1].shape[1])
+    return planes[0][:h, :w], planes[1][:h, :w]
+
+
+def green_pair18(sub: np.ndarray, noise: np.ndarray, sites, level: float, white_in_truth: float,
+                 nbins: int = 16) -> float | None:
+    """The truth's grain at 18% grey from the difference of the two green sites, each binned over the truth's
+    4 x 4 blocks (eval/noise-pca-mpcws-noisy-truth-2026-11-22.md). The scene cancels to within the sites'
+    one-sensel diagonal offset; noise correlated over a few sensels survives the binning as it does in the
+    truth. Per brightness bin, (1.4826 x MAD)^2 of the difference about its median; variance = a x level + b
+    fitted (weighted by count) and read at ``level`` (the raw level the truth maps to 18% grey). ``noise`` is
+    the white noise added to measure the truth's transfer and ``white_in_truth`` that noise's sigma in the
+    truth: their ratio to the same difference taken of ``noise`` puts the reading in truth units. ``None``
+    without two green sites or too few usable bins."""
+
+    if len(sites) != 2:
+        return None
+    a1, a2 = _site_bins(sub, sites)
+    d, lv = (a1 - a2).ravel(), ((a1 + a2) / 2).ravel()
+    n1, n2 = _site_bins(noise, sites)
+    dn = float(np.std(n1 - n2))
+    if dn <= 0:
+        return None
+    m = (lv > 0.002) & (lv < 0.9) & np.isfinite(d)
+    if m.sum() < 400:
+        return None
+    d, lv = d[m], lv[m]
+    edges = np.unique(np.quantile(lv, np.linspace(0, 1, nbins + 1)))
+    xs, ys, ws = [], [], []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        k = (lv >= lo) & (lv <= hi)
+        if k.sum() < 50:
+            continue
+        dk = d[k]
+        xs.append(float(np.mean(lv[k])))
+        ys.append((1.4826 * float(np.median(np.abs(dk - np.median(dk))))) ** 2)
+        ws.append(float(k.sum()))
+    if len(xs) < 2:
+        return None
+    x, y, w = np.array(xs), np.array(ys), np.array(ws)
+    A = np.stack([x, np.ones_like(x)], axis=1) * np.sqrt(w)[:, None]
+    (sa, sb), *_ = np.linalg.lstsq(A, y * np.sqrt(w), rcond=None)
+    if sa < 0:  # no shot slope to read: the level-free spread
+        sa, sb = 0.0, float(np.sum(w * y) / np.sum(w))
+    v = max(sa * level + sb, 0.0)
+    return round(white_in_truth / dn * float(np.sqrt(v)), 6)
 
 
 def main(argv=None) -> int:
@@ -139,7 +199,8 @@ def main(argv=None) -> int:
             ts, tr = frame_noise(chk.mosaic(truth, pat), pat)
             rows.append({"file": name, "tile": [ty, tx], **ex,
                          "truth_sigma18": round(float((ts * 0.18 + tr) ** 0.5), 6),
-                         "raw_grain18": rg.get("tiles", {}).get((ty, tx)), "t": rg.get("t"), "g": rg.get("g")})
+                         "raw_grain18": rg.get("tiles", {}).get((ty, tx)), "gg18": rg.get("gg", {}).get((ty, tx)),
+                         "t": rg.get("t"), "g": rg.get("g")})
             if args.png:
                 from PIL import Image
 

@@ -134,16 +134,21 @@ for (const f of files) {
       if (t.proj_id !== pid) return t;
       let u = t.task_type === "TT_Mile" && hasPred.has(t.task_id) ? { ...t, task_type: "TT_FinMile" } : t;
       // external dates as written: early start as start-no-earlier-than; the
-      // late finish becomes a deadline, which the MSPDI reader does not model
+      // late finish becomes a deadline, which the MSPDI reader keeps as
+      // deadline_date and cpm.mjs applies as a late finish cap
       if (u.external_early_start_date || u.external_late_end_date) {
         u = { ...u, external_early_start_date: "", external_late_end_date: "" };
+        if (t.external_late_end_date && t.status_code !== "TK_Complete") u = { ...u, deadline_date: t.external_late_end_date };
         if (t.external_early_start_date && !t.cstr_type && t.status_code === "TK_NotStart") u = { ...u, cstr_type: "CS_MSOA", cstr_date: t.external_early_start_date };
       }
       return u;
     }),
     // links to level of effort and WBS summary activities go into notes
     TASKPRED: (xer.tables.TASKPRED || []).filter((r) => !(spanIds.has(r.task_id) || spanIds.has(r.pred_task_id))) } };
-  const rA = schedule(asProject), rP6 = schedule(xer), rB = schedule(back);
+  // P6 rolls a started, zero-duration activity's assignment late dates up to
+  // it (cpm.mjs bwRsrcRemain); Project keeps an assignment inside its task's
+  // dates, so that rule is off under Project's (the converter warns of it)
+  const rA = schedule(asProject, { variant: { bwRsrcRemain: false } }), rP6 = schedule(xer), rB = schedule(back);
   const cmp = (rX) => {
     let m = 0, k = 0, e = 0;
     for (const [uid, t] of orig) {

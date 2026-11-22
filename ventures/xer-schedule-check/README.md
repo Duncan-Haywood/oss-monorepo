@@ -716,7 +716,7 @@ run as a formula in Excel or Sheets.
   Project XML and back: every activity ID returns (21,739 of 21,739), 21,422 of
   21,422 activities intact with the same WBS path, 54,843 of 54,843 links,
   276,042 of 276,042 code assignments (hierarchies rebuilt), the schedule
-  under Project's rules the same on 19,818 of 19,822. Not imported into P6
+  under Project's rules the same on 19,822 of 19,822 (`eval/msproject-latedates-2026-11-22.md`). Not imported into P6
   itself: no P6 seat here.
 - **Project custom fields to P6 UDFs** (`eval/p6xer-udfs-2026-11-21.md`):
   every Number1..20, Cost1..10 and Date1..10 field in MPXJ's Project 2003 to
@@ -731,8 +731,11 @@ run as a formula in Excel or Sheets.
   21,422 activities intact (name, status, remaining duration, actual dates,
   constraint, baseline, calendar day by day), 54,843 of 54,843 links kept and
   the 1,810 level-of-effort links found in their notes; recomputed under
-  Project's rules the schedule is the same on 19,818 of 19,822 open activities
-  (4 in-progress CCA activities differ in late dates only, unexplained). MPXJ
+  Project's rules the schedule is the same on 19,822 of 19,822 open activities
+  (`eval/msproject-latedates-2026-11-22.md`: the last 4 were a P6 rule Project
+  lacks: a started activity with no remaining duration whose labour row still
+  runs gets its late start rolled up from the assignment; the converter names
+  such activities, 2 in CCA). MPXJ
   16.10 reads the same name, dates, durations, progress, constraint, calendar,
   predecessors and assignment hours and cost from the XER and the XML on every
   activity but one (an external date written as a constraint on purpose). Not

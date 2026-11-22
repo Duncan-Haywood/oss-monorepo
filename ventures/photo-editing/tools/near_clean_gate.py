@@ -147,22 +147,38 @@ def clean_enough(row: dict) -> bool:
     ``snr``. The truth's noise is ``truth_grain18`` (read from the raw, ``tools/truth_noise_check.py``) when the
     row has it, else ``truth_sigma18`` (``frame_noise`` on the clean mosaic, which reads texture as grain: on
     eval/near-clean-truth-noise-2026-11-19.md's D780 foliage 6 to 12 times the raw's grain). Rows with neither
-    count as clean."""
+    count as clean. A row joined with ``truth_gg18`` (``whitened --gg``, the green-pair reading of
+    eval/noise-pca-mpcws-noisy-truth-2026-11-22.md) takes the larger of it and ``truth_grain18``."""
 
     t = row.get("truth_grain18")
     if t is None:
         t = row.get("truth_sigma18")
+    elif row.get("truth_gg18") is not None:
+        t = max(t, row["truth_gg18"])
     return t is None or t <= 0 or 0.18 / t >= row["snr"]
 
 
-def load(paths, split: str | None = None, clean_truths: bool = False) -> list[dict]:
+def gg_of(path: str) -> dict:
+    """``tools/truth_noise_check.py`` output as ``{(file, (ty, tx)): gg18}``."""
+
+    out = {}
+    for line in open(path):
+        r = json.loads(line)
+        out[(r["file"], tuple(r["tile"]))] = r.get("gg18")
+    return out
+
+
+def load(paths, split: str | None = None, clean_truths: bool = False, gg: dict | None = None) -> list[dict]:
     """Scored rows from sweep output; ``split`` keeps only rows whose body ``split_of`` put there;
-    ``clean_truths`` drops rows whose truth is noisier than the noise added (``clean_enough``)."""
+    ``clean_truths`` drops rows whose truth is noisier than the noise added (``clean_enough``); ``gg``
+    (``gg_of``) joins ``truth_gg18`` by file and tile first."""
 
     rows = []
     for p in paths:
         for line in open(p):
             r = json.loads(line)
+            if gg is not None and "tile" in r:
+                r["truth_gg18"] = gg.get((r["file"], tuple(r["tile"])))
             if "cpsnr" in r and (split is None or r.get("split") == split) and (not clean_truths or clean_enough(r)):
                 rows.append(r)
     return rows
@@ -341,10 +357,12 @@ def whitened(argv) -> int:
     ap.add_argument("--eigs", default="mpcw,mpcws", help="the pick's candidates (tune)")
     ap.add_argument("--eig", help="the picked read (held)")
     ap.add_argument("--k", type=float, default=12.0)
+    ap.add_argument("--base", default="ship", help="the read to beat (2026-11-22: mpcw, what ships since 2026-11-21)")
+    ap.add_argument("--gg", help="truth_noise_check.py output: join truth_gg18 into clean_enough")
     args = ap.parse_args(argv)
-    rows = load(args.rows, args.split, clean_truths=True)
+    rows = load(args.rows, args.split, clean_truths=True, gg=gg_of(args.gg) if args.gg else None)
     k = f"{args.k:g}"
-    ship = "ship+" + k
+    ship = f"{args.base}+{k}"
     print(f"{len(rows)} rows ({args.split}, clean truths)")
 
     def both(arm):
@@ -362,7 +380,7 @@ def whitened(argv) -> int:
     if args.split == "tune":
         cands = args.eigs.split(",")
         table_arms(rows, [ship] + [f"{e}+{k}" for e in cands])
-        ratio_table(["ship"] + cands)
+        ratio_table([args.base] + cands)
         base_l, base_s = len(losers(rows, ship)), both(ship)
         ok = [(both(f"{e}+{k}"), e) for e in cands if len(losers(rows, f"{e}+{k}")) <= base_l and both(f"{e}+{k}") > base_s]
         print(f"ship+{k} mean luma + colour over D {base_s:+.4f}; " + ", ".join(f"{e} {both(f'{e}+{k}'):+.4f}" for e in cands))
@@ -370,7 +388,7 @@ def whitened(argv) -> int:
         return 0
     cand = f"{args.eig}+{k}"
     table_arms(rows, [ship, cand])
-    ratio_table(["ship", args.eig])
+    ratio_table([args.base, args.eig])
     dl, dc = g(rows, "l", cand, ship), g(rows, "c", cand, ship)
     cells = defaultdict(list)
     for i, r in enumerate(rows):
@@ -402,9 +420,38 @@ def whitened(argv) -> int:
     return 0
 
 
+def noisytruth(argv) -> int:
+    """eval/noise-pca-mpcws-noisy-truth-2026-11-22.md's validity tests of the green-pair reading: P1, each K-1
+    Mark II tile's ``gg18`` at least 1.5 x ``raw_grain18``; P2, on the other tiles the median ratio in 0.67 to
+    1.5, and at most 1.5 on textured tiles (``truth_sigma18 / raw_grain18`` at least 3)."""
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("gg", help="tools/truth_noise_check.py output")
+    args = ap.parse_args(argv)
+    rows = [json.loads(line) for line in open(args.gg)]
+    rows = [r for r in rows if r.get("gg18") is not None and r.get("raw_grain18")]
+    k1 = [r for r in rows if r["file"].startswith("Pentax K-1 Mark II")]
+    rest = [r for r in rows if not r["file"].startswith("Pentax K-1 Mark II")]
+    for r in k1:
+        print(f"   K-1 II {r['tile']}: gg18 {r['gg18']:.6f} raw_grain18 {r['raw_grain18']:.6f} "
+              f"ratio {r['gg18'] / r['raw_grain18']:.2f}")
+    ratio = np.array([r["gg18"] / r["raw_grain18"] for r in rest])
+    tex = np.array([r["gg18"] / r["raw_grain18"] for r in rest if r["truth_sigma18"] / r["raw_grain18"] >= 3])
+    print(f"   other tiles: n={len(ratio)}, median gg/grain {np.median(ratio):.2f} "
+          f"(quartiles {np.quantile(ratio, 0.25):.2f} to {np.quantile(ratio, 0.75):.2f}); "
+          f"textured n={len(tex)}, median {np.median(tex) if len(tex) else float('nan'):.2f}")
+    p1 = len(k1) == 3 and all(r["gg18"] >= 1.5 * r["raw_grain18"] for r in k1)
+    p2 = bool(len(ratio)) and 0.67 <= float(np.median(ratio)) <= 1.5 and (not len(tex) or float(np.median(tex)) <= 1.5)
+    print(("PASS " if p1 else "FAIL ") + "P1 every K-1 Mark II tile reads gg18 >= 1.5 x raw_grain18")
+    print(("PASS " if p2 else "FAIL ") + "P2 other tiles' median ratio in 0.67-1.5, textured tiles' at most 1.5")
+    print("verdict:", "use truth_gg18 in clean_enough (whitened --gg)" if p1 and p2 else "reading only: clean_enough unchanged")
+    return 0
+
+
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
-    cmd = {"sweep": sweep, "tune": tune, "rule": rule, "pick": pick, "compare": compare, "whitened": whitened}.get(argv[0] if argv else "")
+    cmd = {"sweep": sweep, "tune": tune, "rule": rule, "pick": pick, "compare": compare, "whitened": whitened,
+           "noisytruth": noisytruth}.get(argv[0] if argv else "")
     if cmd is None:
         print(__doc__)
         return 2

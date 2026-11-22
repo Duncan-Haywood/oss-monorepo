@@ -35,6 +35,10 @@
     {
       "what": "appended failing tests to the venture suite while the first campaign was still running; the campaign runs the whole venture suite, so mutants could have read as caught",
       "fix": "deleted the record, stashed the changes and reran both campaigns with the same seeds on a clean tree; results were identical"
+    },
+    {
+      "what": "PR CI conflict-markers red: main carried unresolved markers in ventures/xer-schedule-check/llms.txt from #18170",
+      "fix": "#18169 had already fixed main; merged origin/main and resolved an additive test-file conflict in msproject.test.mjs (kept both tests); suite 333/333"
     }
   ],
   "integrity_issues": [],
@@ -56,7 +60,7 @@
     "docs/posts/2026-11-22-redteam-a-schedule-field-named-constructor.md"
   ],
   "goal": null,
-  "notes": "Guard added: ventures/xer-schedule-check/own-keys.test.mjs (every UPPER_TABLE[expr] read in shipped modules must use own()/Object.hasOwn or be on a commented internal-keys allowlist). First run flagged 4 more lookups (actvcodes SCOPE_ORDER, mspdi CSTR/LINK); safe in practice but converted so the guard has no exceptions. A repo-wide version of the scan finds ~2,618 reads in 846 venture files, mostly internal keys: too noisy for one lint; a per-venture test is the shape to copy. Verification: node --test 'ventures/xer-schedule-check/**/*.test.mjs' 332/332 (323 before); check_posts.py ok.",
+  "notes": "Guard added: ventures/xer-schedule-check/own-keys.test.mjs (every UPPER_TABLE[expr] read in shipped modules must use own()/Object.hasOwn or be on a commented internal-keys allowlist). First run flagged 4 more lookups (actvcodes SCOPE_ORDER, mspdi CSTR/LINK); safe in practice but converted so the guard has no exceptions. A repo-wide version of the scan finds ~2,618 reads in 846 venture files, mostly internal keys: too noisy for one lint; a per-venture test is the shape to copy. Verification: node --test 'ventures/xer-schedule-check/**/*.test.mjs' 332/332 (323 before); check_posts.py ok. After merging main (#18169, #18171): 333/333. Local run_workflow_locally --for-changes: ventures-tests 5/5 steps ok, pages build ok; stopped during the site-builder tests (unaffected) to merge main; CI reruns them.",
   "corrections": [],
   "redteam": {
     "campaigns": [
