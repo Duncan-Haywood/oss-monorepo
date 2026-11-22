@@ -106,7 +106,7 @@ export function learnedDensities(rows, { tol = DENSITY_TOL, min = MIN_AGREEING }
     const ok = ratios.length >= min && agree === ratios.length;
     // Rounded to 0.1 kg/m3: the stored figures carry no finer density.
     if (ok) densities.set(k, Math.round(d * 10) / 10);
-    materials.push({ material, ratios: ratios.length, agree, density: Math.round(d * 10) / 10, min: Math.min(...ratios), max: Math.max(...ratios), used: ok, why: ok ? null : ratios.length < min ? `only ${ratios.length} element(s) store a weight and its volume` : `${ratios.length - agree} of ${ratios.length} ratios are more than ${tol * 100}% from the median` });
+    materials.push({ material, ratios: ratios.length, agree, density: Math.round(d * 10) / 10, min: Math.min(...ratios), max: Math.max(...ratios), used: ok, why: ok ? null : ratios.length < min ? `only ${ratios.length} element(s) store a weight and its volume` : `${ratios.length - agree} of ${ratios.length} ratios are more than ${+(tol * 100).toFixed(2)}% from the median` });
   }
   return { densities, materials };
 }
