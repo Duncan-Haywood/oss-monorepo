@@ -145,7 +145,7 @@ test("the tax estimate card exists, its ids are labelled, and estimatedTax is im
   for (const id of ["est-filing", "est-months", "est-wages", "est-other", "est-withheld", "est-paid", "est-prior", "est-prior-agi", "est-health", "est-retire", "est-children", "est-other-deps", "est-over65", "est-blind", "est-eitc", "est-bizwages", "est-state-rate", "est-state-ded", "est-state-wh"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<(input|select) id="${id}"`), id);
   assert.match(script(), /import \{ estimatedTax \} from "\.\/estimatedtax\.mjs"/);
   assert.match(html, /A worksheet, not tax advice/);
-  assert.match(script(), /import \{ annualizedInstallments \} from "\.\/annualized\.mjs"/);
+  assert.match(script(), /const \{ annualizedInstallments \} = await import\("\.\/annualized\.mjs"\)/);
   assert.match(html, /id="est-annual"/);
   assert.match(html, /id="annual"/);
   for (const id of ["scorp-salary", "scorp-cost"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<input id="${id}"`), id);
@@ -214,4 +214,12 @@ test("every guide page in this folder is linked from the #guides section, and th
   assert.deepEqual([...linked].filter((f) => !guides.includes(f)), [], "#guides links a page that does not exist");
   const header = html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)[1];
   assert.ok((header.match(/<a\s/g) || []).length <= 8, "header links");
+});
+
+test("receipts, payouts and the annualized worksheet load on first use, not with the page", () => {
+  // 72 kB gzip the first render would otherwise wait for (docs/history/ai-bookkeeper-page-perf-2026-11-22.md).
+  for (const f of ["receipts", "payouts", "annualized"]) {
+    assert.doesNotMatch(script(), new RegExp(`from "\\./${f}\\.mjs"`), `${f}.mjs is a static import again`);
+    assert.match(script(), new RegExp(`import\\("\\./${f}\\.mjs"\\)`), `${f}.mjs is never loaded`);
+  }
 });
