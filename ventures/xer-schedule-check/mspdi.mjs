@@ -10,7 +10,16 @@
 //   text user-defined field instead of an activity code. p6xer.mjs passes one
 //   from the original XER ({ typesFrom }), so a P6 text UDF sent through
 //   Project comes back as a text UDF (eval/udf-type-hints-2026-11-22.md).
-// parseSchedule(text) -> parseMspdi for XML, else parseXer
+//   interim (optional): "keep" (default) or "skip". Project's interim plans
+//   (Project > Set Baseline > Interim plan) copy each task's Start and Finish
+//   into a Start1..10 / Finish1..10 pair. A pair that looks like one (no alias
+//   on either field, both set on the same tasks, start never after finish:
+//   interimPairs below) is named in a warning; "skip" leaves it out of the
+//   user-defined fields, so an XER for P6 does not carry it as date UDFs.
+//   skipFields (optional): field names ("Start1", "Finish1", "Number3") to
+//   leave out whatever they hold (CLI --skip-fields).
+// parseSchedule(text, opts) -> parseMspdi(text, opts) for XML, else parseXer
+// interimPairs(text or parsed project node) -> [{ k, start, finish, tasks, sameSpan }]
 //
 // How Microsoft Project's terms land in P6's:
 // - activity ID (task_code) is the task's Unique ID, which Project never
@@ -306,7 +315,8 @@ const crossCalendars = (cals) => combineCalendars(cals, crossPeriods);
 
 // ---------- the project ----------
 
-export function parseMspdi(text, { textUdf } = {}) {
+export function parseMspdi(text, { textUdf, interim = "keep", skipFields = [] } = {}) {
+  if (interim !== "keep" && interim !== "skip") throw new Error(`interim must be "keep" or "skip", not ${JSON.stringify(interim)}`);
   if (typeof text !== "string") throw new TypeError("parseMspdi expects text");
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
   const doc = parseXml(text);
@@ -603,11 +613,22 @@ export function parseMspdi(text, { textUdf } = {}) {
   const codes = oc.ACTVTYPE.length || textCodes.ACTVTYPE
     ? { ACTVTYPE: [...oc.ACTVTYPE, ...(textCodes.ACTVTYPE || [])].map((r, k) => ({ ...r, seq_num: String(k + 1) })), ACTVCODE: [...oc.ACTVCODE, ...(textCodes.ACTVCODE || [])], TASKACTV: [...oc.TASKACTV, ...(textCodes.TASKACTV || [])] }
     : {};
-  const udfs = readUdfFields(proj, taskNodes, new Set(TASK.map((r) => r.task_id)));
+  // interim plans in Start/Finish pairs, and fields the caller leaves out
+  const pairs = interimPairs(proj);
+  const skip = new Set(skipFields.map((f) => String(f).trim().toLowerCase()).filter(Boolean));
+  const known = new Set(UDF_FIELD_IDS.map(([, , n]) => n.toLowerCase()));
+  const unknown = [...skip].filter((f) => !known.has(f));
+  if (unknown.length) warnings.push(`--skip-fields: ${unknown.join(", ")} not a Number, Cost, Date, Start or Finish field name (Number1..20, Cost1..10, Date1..10, Start1..10, Finish1..10); ignored`);
+  if (pairs.length) {
+    const names = pairs.map((p) => `Start${p.k}/Finish${p.k} (${p.tasks} task(s), ${p.sameSpan} with the task's own start-to-finish span)`).join("; ");
+    if (interim === "skip") { for (const p of pairs) { skip.add(`start${p.k}`); skip.add(`finish${p.k}`); } warnings.push(`interim plan(s) left out (--no-interim): ${names}`); }
+    else warnings.push(`${pairs.length} Start/Finish pair(s) look like a Project interim plan (Set Baseline > Interim plan; no alias, set on the same tasks, start never after finish): ${names}. They are read as date user-defined fields; leave them out with --no-interim (on the page, "leave out interim plans"), or give the fields an alias in Project if they are your own`);
+  }
+  const udfs = readUdfFields(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), "TASK", skip);
   // task Text fields the original XER names as text UDFs (textUdf)
   if (textCodes.UDFTYPE) { udfs.UDFTYPE = [...(udfs.UDFTYPE || []), ...textCodes.UDFTYPE]; udfs.UDFVALUE = [...(udfs.UDFVALUE || []), ...textCodes.UDFVALUE]; }
   // the same fields on summary tasks -> WBS user-defined fields (with text)
-  const wbsUdfs = readUdfFields(proj, taskNodes, new Set(PROJWBS.map((w) => w.wbs_id)), "PROJWBS");
+  const wbsUdfs = readUdfFields(proj, taskNodes, new Set(PROJWBS.map((w) => w.wbs_id)), "PROJWBS", skip);
   if (wbsUdfs.UDFTYPE) { udfs.UDFTYPE = [...(udfs.UDFTYPE || []), ...wbsUdfs.UDFTYPE]; udfs.UDFVALUE = [...(udfs.UDFVALUE || []), ...wbsUdfs.UDFVALUE]; }
 
   // relationships, after every task is known
@@ -823,12 +844,12 @@ function readOutlineCodes(proj, taskNodes, taskIds, warnings) {
 // ids) the same fields and the Text fields (not the Activity ID one, which
 // holds the WBS code) -> WBS user-defined fields: msproject.mjs writes WBS
 // UDFs onto the summary tasks.
-function readUdfFields(proj, taskNodes, taskIds, table = "TASK") {
+function readUdfFields(proj, taskNodes, taskIds, table = "TASK", skip = new Set()) {
   const defs = new Map();
   for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) defs.set(val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") });
   const wbs = table === "PROJWBS";
   const fieldList = wbs ? [...UDF_FIELD_IDS, ...TASK_TEXT_IDS.filter((id) => !/^activity id$/i.test(defs.get(id)?.alias || "")).map((id) => [id, "text", `Text${TASK_TEXT_IDS.indexOf(id) + 1}`])] : UDF_FIELD_IDS;
-  const known = new Set(fieldList.map(([id]) => id));
+  const known = new Set(fieldList.filter(([, kind, name]) => kind === "text" || !skip.has(name.toLowerCase())).map(([id]) => id));
   const fields = new Map(); // field id -> Map(task uid -> value)
   for (const t of taskNodes) {
     const uid = val(t, "UID");
@@ -862,10 +883,56 @@ function readUdfFields(proj, taskNodes, taskIds, table = "TASK") {
   return UDFTYPE.length ? { UDFTYPE, UDFVALUE } : {};
 }
 
+// Start k / Finish k pairs that look like a Project interim plan. Set
+// Baseline > Interim plan copies Start and Finish (or a baseline's, or another
+// pair's) into Start1..10 / Finish1..10 on every task, or on the selected
+// ones, and gives the fields no alias. So a pair is named when neither field
+// has an alias, it is set on at least two tasks, at least 90% of the tasks
+// holding either field hold both, and the start is never after the finish.
+// sameSpan counts the tasks whose pair spans exactly the task's own Start to
+// Finish (true of a fresh copy; less so once the schedule has moved). A
+// planner's own unnamed "Start1 = permit start, Finish1 = permit finish" pair
+// passes the same test: the warning says so, and nothing is dropped unless
+// the caller asks (interim: "skip").
+const START_IDS = UDF_FIELD_IDS.filter(([, , n]) => /^Start\d/.test(n)).map(([id]) => id);
+const FINISH_IDS = UDF_FIELD_IDS.filter(([, , n]) => /^Finish\d/.test(n)).map(([id]) => id);
+export function interimPairs(input) {
+  const proj = typeof input === "string" ? kid(parseXml(input.charCodeAt(0) === 0xfeff ? input.slice(1) : input), "Project") : input;
+  if (!proj) return [];
+  const alias = new Map();
+  for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) alias.set(val(d, "FieldID"), val(d, "Alias"));
+  const out = [];
+  const tasks = kids(kid(proj, "Tasks"), "Task").map((t) => {
+    const ea = new Map();
+    for (const e of kids(t, "ExtendedAttribute")) { const v = val(e, "Value"); if (v) ea.set(val(e, "FieldID"), v); }
+    return { start: date(val(t, "Start")), finish: date(val(t, "Finish")), ea };
+  });
+  for (let k = 0; k < 10; k++) {
+    const sid = START_IDS[k], fid = FINISH_IDS[k];
+    if (alias.get(sid) || alias.get(fid)) continue;
+    let either = 0, both = 0, ordered = true, sameSpan = 0;
+    for (const t of tasks) {
+      const a = date(t.ea.get(sid)), b = date(t.ea.get(fid));
+      if (!a && !b) continue;
+      either++;
+      if (!a || !b) continue;
+      both++;
+      if (a > b) ordered = false;
+      if (t.start && t.finish && a === t.start && b === t.finish) sameSpan++;
+      else if (t.start && t.finish) {
+        const span = (x, y) => Date.parse(`${y.replace(" ", "T")}Z`) - Date.parse(`${x.replace(" ", "T")}Z`);
+        if (span(a, b) === span(t.start, t.finish)) sameSpan++;
+      }
+    }
+    if (both >= 2 && both >= 0.9 * either && ordered) out.push({ k: k + 1, start: `Start${k + 1}`, finish: `Finish${k + 1}`, tasks: both, sameSpan });
+  }
+  return out;
+}
+
 // An XML file (after a BOM and white space) is MSPDI; anything else is read as XER.
 export function isXml(text) {
   return /^\uFEFF?\s*</.test(text);
 }
-export function parseSchedule(text) {
-  return isXml(text) ? parseMspdi(text) : parseXer(text);
+export function parseSchedule(text, opts = {}) {
+  return isXml(text) ? parseMspdi(text, opts) : parseXer(text);
 }

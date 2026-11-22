@@ -86,7 +86,10 @@
 // the P6 code tree and descriptions; --all-resources writes every resource in
 // the file, not only those the project's activities use); the lines it prints
 // name what Project will schedule differently.
-// node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--deadlines] [--types-from original.xer] [--json]
+// node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--deadlines] [--types-from original.xer] [--no-interim] [--skip-fields Start1,Finish1] [--json]
+// (--no-interim leaves out Start/Finish pairs that look like a Project interim
+// plan, which otherwise become date UDFs; --skip-fields names task Number,
+// Cost, Date, Start or Finish fields to leave out; both work on any .xml read)
 // Converts Microsoft Project XML to a Primavera P6 XER instead (p6xer.mjs),
 // for P6's import: summary tasks as the WBS, activity IDs from a text field
 // named "Activity ID" (else A + row ID x 10; --row-ids always), calendars, deadlines as
@@ -125,7 +128,7 @@ import { mspdiText, msprojectSummary } from "./msproject.mjs";
 import { p6XerText, p6xerSummary } from "./p6xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -197,7 +200,10 @@ function runRisk(x, projId) {
   }
   return riskAnalysis(x, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, rangeSource, risks, seed: Number(opt("--seed") || 1) });
 }
-const xer = parseSchedule(decodeXer(readFileSync(file)));
+// --no-interim / --skip-fields: Microsoft Project interim plans (Start/Finish
+// pairs) and named task fields left out of the user-defined fields (mspdi.mjs)
+const fieldOpts = { interim: args.includes("--no-interim") ? "skip" : "keep", skipFields: (opt("--skip-fields") || "").split(",").map((f) => f.trim()).filter(Boolean) };
+const xer = parseSchedule(decodeXer(readFileSync(file)), fieldOpts);
 const projectFor = (x) => {
   const code = args[args.indexOf("--project") + 1];
   const id = (x.tables.PROJECT || []).find((p) => p.proj_short_name === code)?.proj_id ?? null;
@@ -218,7 +224,7 @@ if (args.includes("--previous")) {
 const projId = args.includes("--project") ? projectFor(xer) : null;
 if (args.includes("--to-p6")) {
   if (xer.format !== "mspdi") { console.error("--to-p6: this file is already an XER (it takes Microsoft Project XML)"); process.exit(2); }
-  const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto", deadlines: args.includes("--deadlines"), typesFrom: opt("--types-from") ? decodeXer(readFileSync(opt("--types-from"))) : null });
+  const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto", deadlines: args.includes("--deadlines"), typesFrom: opt("--types-from") ? decodeXer(readFileSync(opt("--types-from"))) : null, ...fieldOpts });
   writeFileSync(opt("--to-p6"), r.bytes);
   if (args.includes("--json")) { const { xer: _x, text: _t, bytes: _b, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
   await emit(`${r.project.id}: ${p6xerSummary(r)} to ${opt("--to-p6")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);
