@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKnuzc24RcCfZ9ifP6c",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T05:18:27Z",
+  "ended": "2026-11-22T05:22:15Z",
+  "wall_minutes": 3.92,
+  "tokens_in": 2363983,
+  "tokens_out": 12323,
+  "cost_usd": 1.2574,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18201",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog had only owner rows; Critique mode via measure --section 'doc friction' worked, but the 50-file table took scanning to find a reproducible tool bug (flagship_field.py, 3 reports in 3 h)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-process-the-open-items-a-date-made-look-finished.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode: no agent-owned backlog item. Fixed flagship_field.history_pieces moving open items after a bare 'next:' to HISTORY.md (PR #18186's friction). Reproduced on 4f76c56ce^; replay of old vs new over 120 flagships.yaml revisions: 1 piece differs (the reported one). test_flagship_field.py 109 passed; main_health 309/309. No backlog ids touched; the reverse case (results parked to NEXT.md, 01:06 report) left open. No agent doc in docs/reports: the post and code comment carry it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2eb211e1-f25c-5f7f-a81f-80fe58e62a49",
+    "transcripts": 1,
+    "first": "2026-11-22T05:18:27Z",
+    "last": "2026-11-22T05:22:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 29,
+        "input": 57,
+        "output": 12323,
+        "thinking": 2676,
+        "cache_read": 2294966,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68960,
+        "api_equivalent_usd": 1.2574,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 57,
+      "output": 12323,
+      "thinking": 2676,
+      "cache_read": 2294966,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68960,
+      "api_equivalent_usd": 1.2574,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 27,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.92,
+      "active_minutes": 3.92,
+      "model_minutes": 2.39,
+      "tool_minutes": 1.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "reproduce heuristic bug, fix, replay over history, test, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 159.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
