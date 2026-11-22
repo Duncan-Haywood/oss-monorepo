@@ -18,9 +18,9 @@
 //  4. `verify` re-checks the result without the raster: it measures the
 //     distance between every pair of placed outlines from their edges.
 //
-// The grid makes this a greedy heuristic, not an optimum: a commercial nester
-// with true-shape (no-fit polygon) placement and local search will often fit
-// a few percent more. The point of the guarantee in (2) is that whatever it
+// The grid makes this a greedy heuristic, not an optimum: on the classic
+// ESICUP strip benchmarks its strips are about 20% longer than the best
+// published ones (eval/esicup-strip-2026-11-22.md). The point of the guarantee in (2) is that whatever it
 // produces can be cut as drawn.
 
 import { partRings, bboxOf, transformEdges, rotation, flattenLoop, pointInRing } from "./geom.mjs";
@@ -154,15 +154,19 @@ class Sheet {
   find(mask, best) {
     const { GW, GH, prevOcc, nextFree } = this;
     const { w, h, spans } = mask;
-    let found = null;
+    let found = null, lastDy = 0;
     for (let y = 0; y + h <= GH; y++) {
       let x = 0;
       for (;;) {
         if (x + w > GW) break;
         const ext = Math.max(this.extent, x + w);
         if (best && (ext > best[0] || (ext === best[0] && x + w >= best[1]))) break;
+        // Test the mask row that blocked last first: a neighbouring part
+        // usually blocks the next candidate at the same height too.
         let hit = false;
-        for (let dy = 0; dy < h && !hit; dy++) {
+        for (let q = -1; q < h && !hit; q++) {
+          const dy = q < 0 ? lastDy : q;
+          if (q === lastDy) continue;
           const row = y + dy;
           for (const [a, b] of spans[dy]) {
             const p = prevOcc[row * GW + x + b - 1];
@@ -170,6 +174,7 @@ class Sheet {
               const nx = nextFree[row * (GW + 1) + p] - a;
               x = Math.max(x + 1, nx);
               hit = true;
+              lastDy = dy;
               break;
             }
           }
@@ -210,11 +215,11 @@ function lcg(seed) {
 /**
  * Nest parts on sheets.
  * parts: [{ id, name, qty, part }] where `part` comes from geom.finishPart.
- * opts: { sheetW, sheetH, gap, margin, res, tol, rotations: [deg], maxSheets, orders, timeLimitMs }
+ * opts: { sheetW, sheetH, gap, margin, res, tol, rotations: [deg], maxSheets, orders, searchIters, timeLimitMs }
  */
 export function nest(items, opts) {
   const o = {
-    gap: 0, margin: 0, tol: 0.01, rotations: [0, 90, 180, 270], maxSheets: 50, orders: 4, timeLimitMs: 20000,
+    gap: 0, margin: 0, tol: 0.01, rotations: [0, 90, 180, 270], maxSheets: 50, orders: 4, searchIters: 0, timeLimitMs: 20000,
     ...opts,
   };
   const { sheetW, sheetH, gap, margin, tol } = o;
@@ -263,12 +268,37 @@ export function nest(items, opts) {
     orders.push(ord);
   }
 
-  let bestRun = null, tried = 0;
+  let bestRun = null, bestOrd = null, tried = 0;
+  const env = { GW, GH, lo, hi, maxSheets: o.maxSheets };
   for (const ord of orders) {
     if (tried > 0 && Date.now() - t0 > o.timeLimitMs) break;
     tried++;
-    const run = runOrder(ord, shapes, { GW, GH, lo, hi, maxSheets: o.maxSheets });
-    if (!bestRun || better(run, bestRun)) bestRun = run;
+    const run = runOrder(ord, shapes, env, bestRun);
+    if (run && (!bestRun || better(run, bestRun))) { bestRun = run; bestOrd = ord; }
+  }
+  // Order search: mutate the best order (swap two copies of different parts,
+  // or move one earlier) and keep the change when the nest is no worse. A
+  // fixed number of tries from a fixed seed, so the answer is repeatable; the
+  // time limit only cuts it short on a slow machine.
+  const srnd = lcg(777);
+  let searched = 0;
+  for (let it = 0; it < o.searchIters && bestOrd.length > 1; it++) {
+    if (Date.now() - t0 > o.timeLimitMs) break;
+    const ord = bestOrd.slice();
+    const n = ord.length;
+    let moved = false;
+    for (let tries = 0; tries < 8 && !moved; tries++) {
+      const i = Math.floor(srnd() * n), j = Math.floor(srnd() * n);
+      if (i === j || ord[i].si === ord[j].si) continue;
+      if (srnd() < 0.5) [ord[i], ord[j]] = [ord[j], ord[i]];
+      else { const a = Math.min(i, j), b = Math.max(i, j); const [x] = ord.splice(b, 1); ord.splice(a, 0, x); }
+      moved = true;
+    }
+    if (!moved) break;
+    searched++;
+    tried++;
+    const run = runOrder(ord, shapes, env, bestRun);
+    if (run && !better(bestRun, run)) { bestRun = run; bestOrd = ord; }
   }
   const sheets = bestRun.sheets.map((s) => ({
     placements: s.placements.map((p) => {
@@ -297,6 +327,7 @@ export function nest(items, opts) {
     margin,
     tol,
     ordersTried: tried,
+    searched,
     ms: Date.now() - t0,
     sheets,
     unplaced: Object.values(unplaced),
@@ -310,9 +341,15 @@ function better(a, b) {
   return la < lb;
 }
 
-function runOrder(order, shapes, { GW, GH, lo, hi, maxSheets }) {
+// With `bound` (a complete run with nothing unplaced), give up and return
+// null as soon as this run can no longer beat it: sheets and the last sheet's
+// used length only grow as parts are added.
+function runOrder(order, shapes, { GW, GH, lo, hi, maxSheets }, bound = null) {
   const sheets = [], unplaced = [];
+  const prune = bound && bound.unplaced.length === 0;
+  const bSheets = prune ? bound.sheets.length : 0, bExt = prune && bSheets ? bound.sheets[bSheets - 1].extent : 0;
   for (const { si, c } of order) {
+    if (prune && (unplaced.length > 0 || sheets.length > bSheets || (sheets.length === bSheets && sheets[bSheets - 1].extent > bExt))) return null;
     const sh = shapes[si];
     if (!sh.fits) { unplaced.push({ si, c }); continue; }
     let done = false;

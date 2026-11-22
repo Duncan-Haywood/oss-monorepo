@@ -1,0 +1,259 @@
+{
+ "dev": [
+  {
+   "name": "gardeyn0",
+   "parts": 50,
+   "record_density": 0.8995,
+   "density_search0": 0.7745,
+   "ratio_search0": 0.861,
+   "density_search100": 0.7924,
+   "ratio_search100": 0.881,
+   "ms_search100": 22403,
+   "check": true
+  },
+  {
+   "name": "gardeyn1",
+   "parts": 50,
+   "record_density": 0.9023,
+   "density_search0": 0.7636,
+   "ratio_search0": 0.8463,
+   "density_search100": 0.7766,
+   "ratio_search100": 0.8607,
+   "ms_search100": 6898,
+   "check": true
+  },
+  {
+   "name": "gardeyn2",
+   "parts": 50,
+   "record_density": 0.8972,
+   "density_search0": 0.796,
+   "ratio_search0": 0.8872,
+   "density_search100": 0.8041,
+   "ratio_search100": 0.8963,
+   "ms_search100": 47227,
+   "check": true
+  },
+  {
+   "name": "gardeyn3",
+   "parts": 100,
+   "record_density": 0.8868,
+   "density_search0": 0.8004,
+   "ratio_search0": 0.9025,
+   "density_search100": 0.8047,
+   "ratio_search100": 0.9074,
+   "ms_search100": 60828,
+   "check": true
+  },
+  {
+   "name": "gardeyn4",
+   "parts": 80,
+   "record_density": 0.8007,
+   "density_search0": 0.5417,
+   "ratio_search0": 0.6765,
+   "density_search100": 0.5868,
+   "ratio_search100": 0.7329,
+   "ms_search100": 83751,
+   "check": true
+  },
+  {
+   "name": "gardeyn5",
+   "parts": 80,
+   "record_density": 0.7088,
+   "density_search0": 0.5154,
+   "ratio_search0": 0.7272,
+   "density_search100": 0.556,
+   "ratio_search100": 0.7845,
+   "ms_search100": 80065,
+   "check": true
+  },
+  {
+   "name": "gardeyn6",
+   "parts": 161,
+   "record_density": 0.9284,
+   "density_search0": 0.8633,
+   "ratio_search0": 0.9299,
+   "density_search100": 0.8678,
+   "ratio_search100": 0.9348,
+   "ms_search100": 91027,
+   "check": true
+  },
+  {
+   "name": "gardeyn7",
+   "parts": 160,
+   "record_density": 0.8701,
+   "density_search0": 0.7692,
+   "ratio_search0": 0.8839,
+   "density_search100": 0.7859,
+   "ratio_search100": 0.9031,
+   "ms_search100": 56897,
+   "check": true
+  },
+  {
+   "name": "gardeyn8",
+   "parts": 112,
+   "record_density": 0.9099,
+   "density_search0": 0.7866,
+   "ratio_search0": 0.8644,
+   "density_search100": 0.7967,
+   "ratio_search100": 0.8756,
+   "ms_search100": 34030,
+   "check": true
+  },
+  {
+   "name": "gardeyn9",
+   "parts": 47,
+   "record_density": 0.8673,
+   "density_search0": 0.7775,
+   "ratio_search0": 0.8965,
+   "density_search100": 0.7775,
+   "ratio_search100": 0.8965,
+   "ms_search100": 6481,
+   "check": true
+  }
+ ],
+ "held_out": [
+  {
+   "name": "albano",
+   "parts": 24,
+   "record_density": 0.8982,
+   "density_search0": 0.7579,
+   "ratio_search0": 0.8438,
+   "density_search100": 0.801,
+   "ratio_search100": 0.8918,
+   "ms_search100": 4431,
+   "check": true
+  },
+  {
+   "name": "blaz1",
+   "parts": 28,
+   "record_density": 0.8622,
+   "density_search0": 0.6791,
+   "ratio_search0": 0.7876,
+   "density_search100": 0.7141,
+   "ratio_search100": 0.8283,
+   "ms_search100": 6569,
+   "check": true
+  },
+  {
+   "name": "dagli",
+   "parts": 30,
+   "record_density": 0.9017,
+   "density_search0": 0.7553,
+   "ratio_search0": 0.8376,
+   "density_search100": 0.7635,
+   "ratio_search100": 0.8467,
+   "ms_search100": 3965,
+   "check": true
+  },
+  {
+   "name": "fu",
+   "parts": 12,
+   "record_density": 0.9239,
+   "density_search0": 0.7844,
+   "ratio_search0": 0.8489,
+   "density_search100": 0.7844,
+   "ratio_search100": 0.8489,
+   "ms_search100": 3010,
+   "check": true
+  },
+  {
+   "name": "jakobs1",
+   "parts": 25,
+   "record_density": 0.8924,
+   "density_search0": 0.7334,
+   "ratio_search0": 0.8218,
+   "density_search100": 0.7703,
+   "ratio_search100": 0.8631,
+   "ms_search100": 907,
+   "check": true
+  },
+  {
+   "name": "jakobs2",
+   "parts": 25,
+   "record_density": 0.8772,
+   "density_search0": 0.6411,
+   "ratio_search0": 0.7308,
+   "density_search100": 0.6563,
+   "ratio_search100": 0.7482,
+   "ms_search100": 1217,
+   "check": true
+  },
+  {
+   "name": "mao",
+   "parts": 20,
+   "record_density": 0.8687,
+   "density_search0": 0.7317,
+   "ratio_search0": 0.8423,
+   "density_search100": 0.7317,
+   "ratio_search100": 0.8423,
+   "ms_search100": 2285,
+   "check": true
+  },
+  {
+   "name": "marques",
+   "parts": 24,
+   "record_density": 0.9201,
+   "density_search0": 0.7843,
+   "ratio_search0": 0.8524,
+   "density_search100": 0.8131,
+   "ratio_search100": 0.8837,
+   "ms_search100": 2846,
+   "check": true
+  },
+  {
+   "name": "shapes0",
+   "parts": 43,
+   "record_density": 0.7,
+   "density_search0": 0.5305,
+   "ratio_search0": 0.7578,
+   "density_search100": 0.5609,
+   "ratio_search100": 0.8013,
+   "ms_search100": 4635,
+   "check": true
+  },
+  {
+   "name": "shapes1",
+   "parts": 43,
+   "record_density": 0.7672,
+   "density_search0": 0.5603,
+   "ratio_search0": 0.7303,
+   "density_search100": 0.6111,
+   "ratio_search100": 0.7965,
+   "ms_search100": 4201,
+   "check": true
+  },
+  {
+   "name": "shirts",
+   "parts": 99,
+   "record_density": 0.9092,
+   "density_search0": 0.7776,
+   "ratio_search0": 0.8553,
+   "density_search100": 0.7913,
+   "ratio_search100": 0.8704,
+   "ms_search100": 6136,
+   "check": true
+  },
+  {
+   "name": "swim",
+   "parts": 48,
+   "record_density": 0.7983,
+   "density_search0": 0.5765,
+   "ratio_search0": 0.7222,
+   "density_search100": 0.6123,
+   "ratio_search100": 0.7671,
+   "ms_search100": 4072,
+   "check": true
+  },
+  {
+   "name": "trousers",
+   "parts": 64,
+   "record_density": 0.9261,
+   "density_search0": 0.7954,
+   "ratio_search0": 0.8589,
+   "density_search100": 0.8133,
+   "ratio_search100": 0.8781,
+   "ms_search100": 9351,
+   "check": true
+  }
+ ]
+}
