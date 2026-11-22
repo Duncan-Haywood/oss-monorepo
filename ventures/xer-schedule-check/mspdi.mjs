@@ -62,11 +62,14 @@
 import { parseXer } from "./xer.mjs";
 import { parseNotes, memoHtml } from "./notebook.mjs";
 
-// Number1..20, Date1..10, Cost1..10 (the same tables are in msproject.mjs)
+// Number1..20, Cost1..10, Date1..10, Start1..10, Finish1..10 (the same tables are in msproject.mjs)
 const UDF_FIELD_IDS = [
   ...["188743767", "188743768", "188743769", "188743770", "188743771", ...Array.from({ length: 15 }, (_, k) => String(188743982 + k))].map((id, k) => [id, "number", `Number${k + 1}`]),
   ...["188743786", "188743787", "188743788", ...Array.from({ length: 7 }, (_, k) => String(188743938 + k))].map((id, k) => [id, "cost", `Cost${k + 1}`]),
   ...Array.from({ length: 10 }, (_, k) => [String(188743945 + k), "date", `Date${k + 1}`]),
+  // Start1..10 and Finish1..10 (msproject.mjs writes finish-date UDFs to the Finish ones)
+  ...[52, 55, 58, 61, 64, 282, 284, 286, 288, 290].map((i, k) => [String(188743680 + i), "date", `Start${k + 1}`]),
+  ...[53, 56, 59, 62, 65, 283, 285, 287, 289, 291].map((i, k) => [String(188743680 + i), "finish", `Finish${k + 1}`]),
 ];
 // Outline Code1..10 (the same table is in msproject.mjs)
 const TASK_OUTLINE_IDS = Array.from({ length: 10 }, (_, k) => String(188744096 + 2 * k));
@@ -831,7 +834,7 @@ function readUdfFields(proj, taskNodes, taskIds, table = "TASK") {
     const rows = [];
     for (const [uid, v] of vals) {
       if (kind === "text") { rows.push({ uid, udf_date: "", udf_number: "", udf_text: v }); continue; }
-      if (kind === "date") { const d = date(v); if (d) rows.push({ uid, udf_date: d, udf_number: "" }); continue; }
+      if (kind === "date" || kind === "finish") { const d = date(v); if (d) rows.push({ uid, udf_date: d, udf_number: "" }); continue; }
       const n = Number(v);
       if (!Number.isFinite(n)) continue;
       rows.push({ uid, udf_date: "", udf_number: String(kind === "cost" ? n / 100 : n) });
@@ -839,7 +842,7 @@ function readUdfFields(proj, taskNodes, taskIds, table = "TASK") {
     if (!rows.length) continue;
     const def = defs.get(id) || {};
     const typeId = `mspdi-${wbs ? "wbs-" : ""}${name.toLowerCase()}`;
-    const type = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
+    const type = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "finish" ? "FT_END_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
     UDFTYPE.push({ udf_type_id: typeId, table_name: table, udf_type_name: `user_${wbs ? "wbs_" : ""}${name.toLowerCase()}`, udf_type_label: def.alias || def.name || name, logical_data_type: type });
     for (const r of rows) UDFVALUE.push({ udf_type_id: typeId, fk_id: r.uid, proj_id: "1", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: r.udf_text || "", udf_code_id: "" });
   }

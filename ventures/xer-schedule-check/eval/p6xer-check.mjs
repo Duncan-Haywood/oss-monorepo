@@ -192,8 +192,10 @@ for (const f of list(opt("--xer"), /\.xer$/i)) {
   const numericIds = new Set((conv.udfFields?.fields || []).filter((f) => f.kind !== "text").map((f) => f.typeId));
   const udfA = udfSet(X.tables, (id) => P6code.get(id), (u) => numericIds.has(u.udf_type_id));
   const udfB = udfSet(B.tables, (id) => codeOfB.get(id));
-  const backType = (t) => (t === "FT_END_DATE" ? "FT_START_DATE" : t);
-  const udfTA = new Set([...udfSet(X.tables, (id) => P6code.get(id), (u) => numericIds.has(u.udf_type_id), true)].map((k) => k.replace(/\|([A-Z_0-9]+)$/, (m, t) => `|${backType(t)}`)));
+  // P6's own type, finish-date UDFs included (they come back through Project's
+  // Finish fields since eval/finish-udfs-2026-11-22.md; until then this
+  // mapped FT_END_DATE to FT_START_DATE before comparing)
+  const udfTA = udfSet(X.tables, (id) => P6code.get(id), (u) => numericIds.has(u.udf_type_id), true);
   const udfTB = udfSet(B.tables, (id) => codeOfB.get(id), undefined, true);
   const allA = udfSet(X.tables, (id) => P6code.get(id));
   const wbsSame = pairs.filter(([a, b]) => wbsPath(X.tables, a.wbs_id) === wbsPath(B.tables, b.wbs_id)).length;

@@ -215,13 +215,13 @@ test("activity UDFs become named Number, Cost, Date and Text fields and read bac
   assert.match(r.xml, /<FieldID>188743767<\/FieldID><FieldName>Number1<\/FieldName><Alias>Optimistic<\/Alias>/);
   assert.match(r.xml, /<FieldID>188743768<\/FieldID><FieldName>Number2<\/FieldName><Alias>Crew size<\/Alias>/);
   assert.match(r.xml, /<FieldID>188743786<\/FieldID><FieldName>Cost1<\/FieldName><Alias>Claimed<\/Alias>/);
-  assert.match(r.xml, /<FieldID>188743945<\/FieldID><FieldName>Date1<\/FieldName><Alias>Access \(date\)<\/Alias>/);
+  assert.match(r.xml, /<FieldID>188743733<\/FieldID><FieldName>Finish1<\/FieldName><Alias>Access \(date\)<\/Alias>/);
   // no activity codes, so the text UDF takes Text2
   assert.match(r.xml, /<FieldID>188743734<\/FieldID><FieldName>Text2<\/FieldName><Alias>Change Order #<\/Alias>/);
   const uid0 = r.taskUid.get(x.tables.TASK[0].task_id);
   assert.equal(extAttr(r.xml, uid0, "188743767"), "8.25");
   assert.equal(extAttr(r.xml, uid0, "188743786"), "123456"); // hundredths, as MPXJ writes a cost field
-  assert.equal(extAttr(r.xml, uid0, "188743945"), "2026-05-01T17:00:00");
+  assert.equal(extAttr(r.xml, uid0, "188743733"), "2026-05-01T17:00:00");
   assert.equal(extAttr(r.xml, uid0, "188743768"), null);
   // the indicator has no Project field; the resource UDF is not an activity's
   assert.ok(r.warnings.some((w) => /indicator or code user-defined field\(s\) have no Project field.*Traffic light \(FT_STATICTYPE\)/.test(w)));
@@ -232,6 +232,7 @@ test("activity UDFs become named Number, Cost, Date and Text fields and read bac
   assert.equal(types.get("Optimistic").logical_data_type, "FT_FLOAT_2_DECIMALS");
   assert.equal(types.get("Crew size").logical_data_type, "FT_INT");
   assert.equal(types.get("Claimed").logical_data_type, "FT_MONEY");
+  assert.equal(types.get("Access (date)").logical_data_type, "FT_END_DATE");
   const valOf = (label, taskId) => back.tables.UDFVALUE.find((v) => v.udf_type_id === types.get(label).udf_type_id && v.fk_id === String(r.taskUid.get(taskId)));
   x.tables.TASK.forEach((t, i) => {
     assert.equal(Number(valOf("Optimistic", t.task_id).udf_number), 8.25 * (i + 1));
@@ -240,6 +241,32 @@ test("activity UDFs become named Number, Cost, Date and Text fields and read bac
   });
   // the text UDF reads back as a text field (an activity code)
   assert.deepEqual(back.tables.ACTVTYPE.map((t) => t.actv_code_type), ["Change Order #"]);
+});
+
+test("start- and finish-date UDFs keep their kind through Project's Date and Finish fields; past ten Finish fields they spill into free Date fields", async () => {
+  const { p6XerText, p6Problems } = await import("./p6xer.mjs");
+  const x = withUdfs([
+    { label: "Access", type: "FT_START_DATE", pick: (i) => `2026-04-0${(i % 9) + 1} 08:00` },
+    ...Array.from({ length: 11 }, (_, k) => ({ label: `Due ${k + 1}`, type: "FT_END_DATE", pick: (i) => (k === 10 && i > 0 ? null : `2026-06-1${i % 9} 17:00`) })),
+  ]);
+  const r = mspdiText(x);
+  const f = new Map(r.udfFields.fields.map((u) => [u.alias, u.fieldName]));
+  assert.equal(f.get("Access"), "Date1");
+  assert.deepEqual(Array.from({ length: 10 }, (_, k) => f.get(`Due ${k + 1}`)), Array.from({ length: 10 }, (_, k) => `Finish${k + 1}`));
+  // the least-filled finish UDF spills into the next free Date field
+  assert.equal(f.get("Due 11"), "Date2");
+  assert.ok(r.warnings.some((w) => /1 finish-date user-defined field\(s\) are past Project's ten Finish fields.*Due 11/.test(w)));
+  assert.match(r.xml, /<FieldID>188743971<\/FieldID><FieldName>Finish10<\/FieldName><Alias>Due 10<\/Alias>/);
+  const back = parseMspdi(r.xml);
+  const kind = new Map(back.tables.UDFTYPE.map((u) => [u.udf_type_label, u.logical_data_type]));
+  assert.equal(kind.get("Access"), "FT_START_DATE");
+  for (let k = 1; k <= 10; k++) assert.equal(kind.get(`Due ${k}`), "FT_END_DATE");
+  assert.equal(kind.get("Due 11"), "FT_START_DATE");
+  const xer = p6XerText(r.xml);
+  const B = parseXer(xer.text).tables;
+  assert.deepEqual(p6Problems(B), []);
+  assert.equal(B.UDFTYPE.filter((u) => u.logical_data_type === "FT_END_DATE").length, 10);
+  assert.ok(xer.warnings.some((w) => /Date and Start fields as start-date UDFs, Finish fields as finish-date UDFs/.test(w)));
 });
 
 test("text UDFs and code types share the 29 text fields by how many activities each fills", () => {
@@ -281,7 +308,7 @@ test("UDF ranges round-trip: Project Number fields feed the risk run as P6 UDFs 
   for (const [c, v] of before.ranges) assert.deepEqual(after.ranges.get(code.get(c)), v);
 });
 
-test("resource UDFs become named resource Text, Number, Cost and Date fields", () => {
+test("resource UDFs become named resource Text, Number, Cost, Date and Finish fields", async () => {
   const x = parseXer(EXAMPLE_XER);
   const T = x.tables;
   const [r1, r2] = T.RSRC;
@@ -291,28 +318,37 @@ test("resource UDFs become named resource Text, Number, Cost and Date fields", (
     { udf_type_id: "72", table_name: "RSRC", udf_type_name: "user_field_72", udf_type_label: "Crew size", logical_data_type: "FT_INT" },
     { udf_type_id: "73", table_name: "RSRC", udf_type_name: "user_field_73", udf_type_label: "Induction", logical_data_type: "FT_START_DATE" },
     { udf_type_id: "74", table_name: "RSRC", udf_type_name: "user_field_74", udf_type_label: "Light", logical_data_type: "FT_STATICTYPE" },
+    { udf_type_id: "75", table_name: "RSRC", udf_type_name: "user_field_75", udf_type_label: "Demob", logical_data_type: "FT_END_DATE" },
   ];
   const v = (id, fk, o) => ({ udf_type_id: id, fk_id: fk, proj_id: "", udf_date: "", udf_number: "", udf_text: "", udf_code_id: "", ...o });
   T.UDFVALUE = [
     v("70", r1.rsrc_id, { udf_text: "40" }), v("70", r2.rsrc_id, { udf_text: "Full time" }),
     v("71", r1.rsrc_id, { udf_number: "412.5" }), v("72", r2.rsrc_id, { udf_number: "3" }),
     v("73", r1.rsrc_id, { udf_date: "2026-03-02 08:00" }), v("74", r1.rsrc_id, {}),
-    v("70", "no-such-resource", { udf_text: "x" }),
+    v("70", "no-such-resource", { udf_text: "x" }), v("75", r2.rsrc_id, { udf_date: "2026-09-30 17:00" }),
   ];
   const r = mspdiText(x);
-  assert.equal(r.counts.rsrcUdfFields, 4);
-  assert.equal(r.counts.rsrcUdfValues, 5);
+  assert.equal(r.counts.rsrcUdfFields, 5);
+  assert.equal(r.counts.rsrcUdfValues, 6);
   assert.equal(r.counts.udfFields, 0);
   // PjField ids of ResourceField TEXT1, NUMBER1, COST1, DATE1 (MPXJ 16.10)
   assert.match(r.xml, /<FieldID>205520904<\/FieldID><FieldName>Text1<\/FieldName><Alias>Capacity<\/Alias>/);
   assert.match(r.xml, /<FieldID>205521008<\/FieldID><FieldName>Number1<\/FieldName><Alias>Crew size<\/Alias>/);
   assert.match(r.xml, /<FieldID>205521019<\/FieldID><FieldName>Cost1<\/FieldName><Alias>Day rate<\/Alias>/);
   assert.match(r.xml, /<FieldID>205521069<\/FieldID><FieldName>Date1<\/FieldName><Alias>Induction<\/Alias>/);
+  // ResourceField FINISH1 (MPPResourceField index 107)
+  assert.match(r.xml, /<FieldID>205521003<\/FieldID><FieldName>Finish1<\/FieldName><Alias>Demob<\/Alias>/);
   const res = parseXml(r.xml).children.find((c) => c.name === "Project").children.find((c) => c.name === "Resources").children;
   const ext = (k) => Object.fromEntries(res[k].children.filter((c) => c.name === "ExtendedAttribute").map((e) => [e.children[0].text, e.children[1].text]));
   assert.deepEqual(ext(0), { 205520904: "40", 205521019: "41250", 205521069: "2026-03-02T08:00:00" });
-  assert.deepEqual(ext(1), { 205520904: "Full time", 205521008: "3" });
+  assert.deepEqual(ext(1), { 205520904: "Full time", 205521008: "3", 205521003: "2026-09-30T17:00:00" });
   assert.ok(r.warnings.some((w) => /indicator or code resource user-defined field\(s\).*Light/.test(w)));
+  // and back to P6 with each date UDF's kind
+  const { p6XerText } = await import("./p6xer.mjs");
+  const B = parseXer(p6XerText(r.xml).text).tables;
+  const kind = new Map(B.UDFTYPE.filter((u) => u.table_name === "RSRC").map((u) => [u.udf_type_label, u.logical_data_type]));
+  assert.equal(kind.get("Induction"), "FT_START_DATE");
+  assert.equal(kind.get("Demob"), "FT_END_DATE");
 });
 
 test("WBS UDFs go onto the summary tasks, sharing a same-titled activity UDF's field, and come back as WBS UDFs", async () => {
@@ -348,12 +384,12 @@ test("WBS UDFs go onto the summary tasks, sharing a same-titled activity UDF's f
   assert.equal(r.counts.wbsUdfValues, 5);
   // the WBS "package" shares the activity "Package" field (Number1), so only
   // three new fields are declared; text starts at Text2 (Text1 is the ID)
-  assert.deepEqual(r.wbsUdfFields.fields.map((f) => [f.alias, f.fieldName, !!f.shared]), [["Package", "Number1", true], ["Budget", "Cost1", false], ["Handover", "Date1", false], ["Cost code", "Text2", false]]);
+  assert.deepEqual(r.wbsUdfFields.fields.map((f) => [f.alias, f.fieldName, !!f.shared]), [["Package", "Number1", true], ["Budget", "Cost1", false], ["Handover", "Finish1", false], ["Cost code", "Text2", false]]);
   assert.equal((r.xml.match(/<FieldName>Number1<\/FieldName>/g) || []).length, 1);
   const tasks = parseXml(r.xml).children.find((c) => c.name === "Project").children.find((c) => c.name === "Tasks").children;
   const byName = (n) => tasks.find((t) => t.children.find((c) => c.name === "Name")?.text === n);
   const ext = (t) => Object.fromEntries(t.children.filter((c) => c.name === "ExtendedAttribute").map((e) => [e.children[0].text, e.children[1].text]));
-  assert.deepEqual(ext(byName("Area A")), { 188743731: "A", 188743734: "CC-01", 188743786: "-125050", 188743945: "2027-02-01T17:00:00" });
+  assert.deepEqual(ext(byName("Area A")), { 188743731: "A", 188743734: "CC-01", 188743786: "-125050", 188743733: "2027-02-01T17:00:00" });
   assert.deepEqual(ext(byName("Level 1")), { 188743731: "A1", 188743734: "CC-02", 188743767: "3" });
   assert.ok(r.warnings.some((w) => /indicator or code WBS user-defined field\(s\).*Light/.test(w)));
   assert.ok(r.warnings.some((w) => /2 WBS user-defined field value\(s\) \(1 on the project node/.test(w)));
@@ -369,7 +405,7 @@ test("WBS UDFs go onto the summary tasks, sharing a same-titled activity UDF's f
     ["PROJWBS", "Budget", "FT_MONEY", "Area A", "-1250.5"],
     ["PROJWBS", "Cost code", "FT_TEXT", "Area A", "CC-01"],
     ["PROJWBS", "Cost code", "FT_TEXT", "Level 1", "CC-02"],
-    ["PROJWBS", "Handover", "FT_START_DATE", "Area A", "2027-02-01 17:00"],
+    ["PROJWBS", "Handover", "FT_END_DATE", "Area A", "2027-02-01 17:00"],
     ["PROJWBS", "Package", "FT_INT", "Level 1", "3"],
     ["TASK", "Package", "FT_INT", "activity", "7"],
   ]);

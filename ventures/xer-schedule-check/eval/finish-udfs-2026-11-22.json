@@ -1,0 +1,146 @@
+{
+ "mspdi": [
+  {
+   "file": "task-starts/task-starts-project2003-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-starts/task-starts-project2007-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-starts/task-starts-project2010-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-starts/task-starts-project2013-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-starts/task-starts-project2016-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-starts/task-starts-project2019-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-finishes/task-finishes-project2003-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-finishes/task-finishes-project2007-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-finishes/task-finishes-project2010-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-finishes/task-finishes-project2013-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-finishes/task-finishes-project2016-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  },
+  {
+   "file": "task-finishes/task-finishes-project2019-mspdi.xml",
+   "values": 10,
+   "nameMatchesField": 10,
+   "read": 10,
+   "xer": 10,
+   "back": 10,
+   "backSameKindField": 10,
+   "problems": []
+  }
+ ],
+ "xer": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "dateValues": 182,
+   "start": 0,
+   "finish": 182,
+   "back": 182,
+   "backStart": 0,
+   "backFinish": 182,
+   "sameDateWrongKind": 0
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "dateValues": 0,
+   "start": 0,
+   "finish": 0,
+   "back": 0,
+   "backStart": 0,
+   "backFinish": 0,
+   "sameDateWrongKind": 0
+  }
+ ]
+}

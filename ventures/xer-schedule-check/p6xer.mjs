@@ -87,7 +87,7 @@ import { parseMspdi, parseXml, durationHours } from "./mspdi.mjs";
 import { xerText, xerBytes } from "./xer.mjs";
 import { memoHtml } from "./notebook.mjs";
 import { contourCurveValues, contourName } from "./contours.mjs";
-import { RSRC_TEXT_IDS, RSRC_NUMBER_IDS, RSRC_COST_IDS, RSRC_DATE_IDS } from "./msproject.mjs";
+import { RSRC_TEXT_IDS, RSRC_NUMBER_IDS, RSRC_COST_IDS, RSRC_DATE_IDS, RSRC_START_IDS, RSRC_FINISH_IDS } from "./msproject.mjs";
 
 // Project's resource custom fields, by PjField id -> [kind, field name]
 const RSRC_FIELDS = new Map([
@@ -95,6 +95,8 @@ const RSRC_FIELDS = new Map([
   ...RSRC_NUMBER_IDS.map((id, k) => [id, ["number", `Number${k + 1}`]]),
   ...RSRC_COST_IDS.map((id, k) => [id, ["cost", `Cost${k + 1}`]]),
   ...RSRC_DATE_IDS.map((id, k) => [id, ["date", `Date${k + 1}`]]),
+  ...RSRC_START_IDS.map((id, k) => [id, ["date", `Start${k + 1}`]]),
+  ...RSRC_FINISH_IDS.map((id, k) => [id, ["finish", `Finish${k + 1}`]]),
 ]);
 const isoToXer = (s) => { const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(s || ""); return m ? `${m[1]} ${m[2]}` : ""; };
 
@@ -660,7 +662,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     const rows = [];
     for (const [uid, v] of vals) {
       if (kind === "text") { const x = v.trim() ? v : ""; if (x) rows.push({ uid, udf_text: clip("udf_text", x), udf_number: "", udf_date: "" }); continue; }
-      if (kind === "date") { const d = isoToXer(v); if (d) rows.push({ uid, udf_text: "", udf_number: "", udf_date: d }); else rsrcUnread++; continue; }
+      if (kind === "date" || kind === "finish") { const d = isoToXer(v); if (d) rows.push({ uid, udf_text: "", udf_number: "", udf_date: d }); else rsrcUnread++; continue; }
       const n = Number(v);
       if (!Number.isFinite(n) || v.trim() === "") { rsrcUnread++; continue; }
       rows.push({ uid, udf_text: "", udf_date: "", udf_number: String(kind === "cost" ? n / 100 : n) });
@@ -671,7 +673,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     let label = clip("udf_type_label", def.alias || def.name || fname);
     if (rsrcLabels.has(label.toLowerCase())) { udfDupLabels++; let k = 2; const cut = (x) => `${label.slice(0, MAX.udf_type_label - String(x).length - 3)} (${x})`; while (rsrcLabels.has(cut(k).toLowerCase())) k++; label = cut(k); }
     rsrcLabels.add(label.toLowerCase());
-    const type = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
+    const type = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "finish" ? "FT_END_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
     UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: "RSRC", udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: type, super_flag: "N" }));
     rsrcUdfFields++;
     for (const r of rows) { UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf("RSRC", r.uid), proj_id: "", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: r.udf_text, udf_code_id: "" })); rsrcUdfValues++; }
@@ -716,10 +718,14 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   if (contoured) warnings.push(`${contoured} contoured assignment(s) written with a resource curve of Project's shape (${[...curveOf.keys()].map((w) => `MS Project ${contourName(w)}`).join(", ")}): P6 spreads their units and cost as Project spreads the work`);
   if (handContoured) warnings.push(`${handContoured} assignment(s) with hand-edited timephased work (contour "Contoured") written with an even spread: P6 has no per-period edit an XER carries`);
   if (summaryAssign) warnings.push(`${summaryAssign} assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no resources`);
+  const dateNote = (tab) => {
+    const st = UDFTYPE.some((u) => u.table_name === tab && u.logical_data_type === "FT_START_DATE"), fi = UDFTYPE.some((u) => u.table_name === tab && u.logical_data_type === "FT_END_DATE");
+    return st && fi ? " (Date and Start fields as start-date UDFs, Finish fields as finish-date UDFs)" : st ? " (dates as start-date UDFs)" : fi ? " (Finish fields as finish-date UDFs)" : "";
+  };
   const taskUdfTypes = UDFTYPE.length - rsrcUdfFields - wbsUdfFields, taskUdfValues = UDFVALUE.length - rsrcUdfValues - wbsUdfValues;
-  if (taskUdfTypes) warnings.push(`${taskUdfValues} custom field value(s) in ${taskUdfTypes} field(s) written as activity user-defined fields${UDFTYPE.some((u) => u.table_name === "TASK" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
-  if (wbsUdfFields) warnings.push(`${wbsUdfValues} summary task custom field value(s) in ${wbsUdfFields} field(s) written as WBS user-defined fields${UDFTYPE.some((u) => u.table_name === "PROJWBS" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
-  if (rsrcUdfFields) warnings.push(`${rsrcUdfValues} resource custom field value(s) in ${rsrcUdfFields} field(s) written as resource user-defined fields${UDFTYPE.some((u) => u.table_name === "RSRC" && u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
+  if (taskUdfTypes) warnings.push(`${taskUdfValues} custom field value(s) in ${taskUdfTypes} field(s) written as activity user-defined fields${dateNote("TASK")}`);
+  if (wbsUdfFields) warnings.push(`${wbsUdfValues} summary task custom field value(s) in ${wbsUdfFields} field(s) written as WBS user-defined fields${dateNote("PROJWBS")}`);
+  if (rsrcUdfFields) warnings.push(`${rsrcUdfValues} resource custom field value(s) in ${rsrcUdfFields} field(s) written as resource user-defined fields${dateNote("RSRC")}`);
   if (rsrcUnread) warnings.push(`${rsrcUnread} resource custom field value(s) could not be read as a number or date and were left out`);
   if (udfDupLabels) warnings.push(`${udfDupLabels} repeated custom field title(s) given a (2), (3) suffix (P6 needs UDF titles unique)`);
   if (cut) warnings.push(`${cut} name(s) or code(s) cut to P6's field length`);
