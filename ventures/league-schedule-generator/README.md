@@ -5864,6 +5864,33 @@ the price of no longer letting a floater's partner and colours in the next brack
 which the Dutch rules do not do; the real events, which is what the rules are judged on, all
 improved.
 
+## Round 1 was paired on an earlier list (2026-11-22, later)
+
+The last two round-1 misses on the chess-results events (Budapest B 0.45, Graz 0.03 of boards) were
+not the pairing rules. Round 1 of a Dutch Swiss is fixed by the ranking alone: S1 meets S2 board by
+board. So the published round 1 spells out the order the arbiters ranked the bottom half in, and
+`eval/swiss-round1-ranking.mjs` reads it back: it takes the longest increasing run of S2 pairing
+numbers down the boards, calls everyone else moved, and puts each moved player in the slot their
+published board gives them. Then it replays every round of the event on that order.
+
+| Event | Moved in round 1 | Round 1 | Rounds 2-9 |
+|---|---|---|---|
+| Budapest B | 83 (no FIDE rating in the file, ranked last) paired as if ranked before 60 (1837) | 0.45 to exact | exact on the file's order; 4 of 8 miss on round 1's |
+| Graz A | 167 (2135) before 142 (2190); 232 (2043) before 166; 213 (2078) before 169; 273 and 275 (about 1950, at the end of the file) before 209 and 222 | 0.03 to exact | 7 of 8 exact on the file's order (round 4 is the miss below); none exact on round 1's |
+| Aeroflot, Budapest A, Prague, Chesshouse | none | exact | exact |
+
+So both events were paired in round 1 on a provisional list (late entries, a national rating for an
+unrated player, ratings changed after the draw) and from round 2 on the list the TRF carries, which is
+the re-sorted one. Neither order explains all nine rounds; the two together do, apart from Graz round
+4. The TRF has no field for the list a round was paired on, so the replay cannot know it; the page
+itself pairs round 1 on the list the organiser types, which is the right input. Nothing in the pairer
+changes. Measured: `eval/swiss-round1-ranking.txt` (54 rounds: 51 exact on the file's order, 41 on
+round 1's; round 1 alone, 6 of 6 exact on the inferred order).
+
+What is left on these six events is one round: Graz round 4, where the published pairing floats 21
+(2.5 points, rated 2430) out of the 2.5 bracket and the pairer floats 152 (ranked lower, the usual
+Dutch choice). That needs a reason we have not found in the file.
+
 ## Players told apart by "(id)" kept their own results (2026-11-21, later)
 
 The results box treats a bracket at the end of a line as a note (`Hawks 3 - 2 Owls (OT)`). But the

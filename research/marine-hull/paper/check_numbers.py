@@ -250,6 +250,13 @@ CLAIMS = [
     ("results_nearfield_convergence.txt", "S60 -0.008299 (-0.8%"),
     ("results_nearfield_convergence_b24.txt", "row P24 S40 GB motion 2.855 N loss30W_share025 3.41%"),
     ("results_nearfield_convergence_b24.txt", "row P24 S40 NF-PG motion 2.556 N loss30W_share025 3.06%"),
+    # milestone 7zw: viscous damping on the relative heave velocity
+    ("results_relative_damping.txt", "relative: best zeta3 0.0875 (edge False), SSE 0.5148"),
+    ("results_relative_damping.txt", "hold-out strip+refl area 1.138 of the measured mean"),
+    ("results_relative_damping.txt", "I GB -0.5%; I NF-PG +0.6%; III GB -0.4%; III NF-PG -0.1%"),
+    ("results_relative_damping.txt", "row rel GB 2.866 -3.42"),
+    ("results_relative_damping.txt", "row rel NF-PG 2.754 -3.29"),
+    ("results_relative_damping.txt", "abs 0.0375: 25.503, -20.526; rel 0.0375: 2.013, 0.112"),
 
 ]
 
