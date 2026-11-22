@@ -89,6 +89,11 @@ export function parseLevels(value) {
   return levels;
 }
 
+function wholeWeeks(w) {
+  if (!Number.isInteger(w)) throw new Error(`weeks on floor must be a whole number from 1 to ${MAX_WEEKS}`);
+  return w;
+}
+
 function readOptions(opts = {}) {
   const n = (v, d, lo, hi, what) => {
     const x = v === undefined || v === "" ? d : Number(v);
@@ -96,7 +101,7 @@ function readOptions(opts = {}) {
     return x;
   };
   return {
-    weeks: n(opts.weeks, 12, 1, MAX_WEEKS, "weeks on floor"),
+    weeks: wholeWeeks(n(opts.weeks, 12, 1, MAX_WEEKS, "weeks on floor")),
     lift: n(opts.lift, 0.35, 0, 5, "lift per 10% off"),
     cap: n(opts.cap, 95, 1, 100, "weekly sell cap %") / 100,
     handling: n(opts.handling, 2, 0, 1000, "handling cost per item"),
