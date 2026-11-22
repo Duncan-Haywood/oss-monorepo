@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPXCd1Ft2VoZfJGef8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T07:06:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing (flagship 7): NEXT.md item 'a noise floor for frames with no smooth region: the optical-black area', measured",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18212",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "I ran a bare `route` first, as many earlier runs did, and drew process for the scheduled revenue brief; re-routing with --task (as prompt.md says) picked ventures. Fixing it (e.g. route refusing to draw without --task or an explicit --no-task) touches /prompts/, which CODEOWNERS gates, so a run cannot land it alongside product work."
+    },
+    {
+      "file": "ventures/photo-editing/NEXT.md",
+      "issue": "The optical-black item did not say that LibRaw trims the masked margins of every Sony, Nikon and Panasonic file in the public sample set; only 8 of 57 files keep a usable margin through it. Now recorded there."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "Bare route drew process; prompt.md says to route with --task, which names ventures for this brief. Followed the --task route.",
+      "did": "re-routed with --task and ran ventures/1",
+      "result": "a measured photo-editing result landed"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The start-here row's (photo-editing) listed buildable items need raw.pixls.us (refused) or are spent; took a parked NEXT.md item buildable from the reachable GitHub sample set instead of leaving the row.",
+      "did": "optical-black read-noise measurement on metadata-extractor-images",
+      "result": "8 of 57 usable; frame read term 0 on 4 of 8; floor not shipped (unscored)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-photo-editing-optical-black-read-noise.md",
+    "ventures/photo-editing/eval/optical-black-floor-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Process backlog had only owner/blocked rows; main_health 311/311 green at start. Photo-editing: tools/optical_black_floor.py + 5 tests (PYTHONPATH=src python3.13 -m pytest tests/test_optical_black_floor.py: 5 passed); eval/optical-black-floor-2026-11-22.{md,jsonl,txt}; NEXT.md item updated; check_posts ok on the new post. The floor is measured, not wired into develop: no evaluation here can score it (synthetic tiles have no masked area).",
+  "corrections": [],
+  "redteam": null
+}

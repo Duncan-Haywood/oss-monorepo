@@ -1,0 +1,57 @@
+{"file": "Sony DSLR-A500.arw", "skipped": "no masked margin (sensor 4288x2858, picture 4256x2858 at 0,0)"}
+{"file": "Sony ILCE-5000 (A5000).arw", "skipped": "no masked margin (sensor 5504x3656, picture 5472x3656 at 0,0)"}
+{"file": "Sony ILCE-7M3 (A7M3).arw", "skipped": "no masked margin (sensor 6048x4024, picture 6024x4024 at 0,0)"}
+{"file": "Sony ILCE-7M4 (A7M4).ARW", "skipped": "no masked margin (sensor 7168x5120, picture 7028x4688 at 0,0)"}
+{"file": "Sony NEX-5N.arw", "skipped": "no masked margin (sensor 4928x3276, picture 4920x3276 at 0,0)"}
+{"file": "Sony NEX-7.arw", "skipped": "no masked margin (sensor 6048x4024, picture 6024x4024 at 0,0)"}
+{"file": "Canon EOS 350D.CR2", "black": 256.75, "white": 4095.0, "ob_sensels": 78349, "sigma_ob_dn": 2.823, "sigma_ob": 0.0007355910043627351, "shot": 0.0, "read": 6.23599401753377e-06, "sigma_read_frame": 0.0024971972324055163, "ratio": 3.3948175244053105, "sigma_1pct_frame": 0.0024971972324055163, "sigma_1pct_floored": 0.0024971972324055163}
+{"file": "Canon EOS 600D.CR2", "black": 2048.5, "white": 13584.0, "ob_sensels": 691622, "sigma_ob_dn": 6.854, "sigma_ob": 0.0005941404818263004, "shot": 9.910917179043023e-05, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0009955358948346878, "sigma_1pct_floored": 0.0011593509520628734}
+{"file": "Canon EOS 70D.cr2", "black": 2048.0, "white": 15303.0, "ob_sensels": 398302, "sigma_ob_dn": 7.54, "sigma_ob": 0.0005688090384364841, "shot": 7.671390278978237e-05, "read": 7.396161761977929e-08, "sigma_read_frame": 0.0002719588528064113, "ratio": 0.47811978085643503, "sigma_1pct_frame": 0.0009171153937851021, "sigma_1pct_floored": 0.0010443575777026092}
+{"file": "Canon EOS 7D.cr2", "black": 2048.0, "white": 13584.0, "ob_sensels": 746713, "sigma_ob_dn": 4.896, "sigma_ob": 0.00042439018382161355, "shot": 4.695977684740605e-05, "read": 3.040295651210837e-07, "sigma_read_frame": 0.000551388760423246, "ratio": 1.299249561943248, "sigma_1pct_frame": 0.0008795608754345229, "sigma_1pct_floored": 0.0008795608754345229}
+{"file": "DJI Phantom 4 (1).dng", "skipped": "no masked margin (sensor 4000x3000, picture 4000x3000 at 0,0)"}
+{"file": "DJI Phantom 4 (2).dng", "skipped": "no masked margin (sensor 4000x3000, picture 4000x3000 at 0,0)"}
+{"file": "LG Nexus 5X.dng", "black": 51.75, "white": 1023.0, "ob_sensels": 108573, "sigma_ob_dn": 1.754, "sigma_ob": 0.001806145476478692, "shot": 0.00023592359276845528, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0015359804450853379, "sigma_1pct_floored": 0.002370948630799283}
+{"file": "Leica T (Typ 701).dng", "skipped": "no masked margin (sensor 4944x3278, picture 4944x3278 at 0,0)"}
+{"file": "Leica X VARIO (Typ 107).dng", "skipped": "no masked margin (sensor 4944x3274, picture 4944x3274 at 0,0)"}
+{"file": "Pentax QS1.dng", "black": 0.0, "white": 4062.0, "ob_sensels": 8329, "sigma_ob_dn": 0.356, "sigma_ob": 8.763765408354468e-05, "shot": 3.895399896043673e-05, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0006241313880941795, "sigma_1pct_floored": 0.0006302541931773515}
+{"file": "bigtiff.dng", "skipped": "LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'"}
+{"file": "bigtiff_be.dng", "skipped": "LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'"}
+{"file": "Issue 247-1.nef", "skipped": "LibRawIOError: b'Input/output error'"}
+{"file": "Issue 247-2.nef", "skipped": "LibRawIOError: b'Input/output error'"}
+{"file": "Issue 247-3.nef", "skipped": "LibRawIOError: b'Input/output error'"}
+{"file": "Issue 247-4.nef", "skipped": "LibRawIOError: b'Input/output error'"}
+{"file": "Nikon 800E.nef", "skipped": "no masked margin (sensor 7424x4924, picture 7378x4924 at 0,0)"}
+{"file": "Nikon D300.nef", "skipped": "no masked margin (sensor 4352x2868, picture 4320x2868 at 0,0)"}
+{"file": "Nikon D5100.nef", "skipped": "no masked margin (sensor 4992x3280, picture 4948x3280 at 0,0)"}
+{"file": "Nikon D70.nef", "skipped": "no masked margin (sensor 3040x2014, picture 3039x2014 at 0,0)"}
+{"file": "Nikon D810.nef", "skipped": "no masked margin (sensor 7380x4928, picture 7380x4928 at 0,0)"}
+{"file": "Nikon D90.nef", "skipped": "no masked margin (sensor 4352x2868, picture 4310x2868 at 0,0)"}
+{"file": "NikonD200.nef", "skipped": "no masked margin (sensor 3904x2616, picture 3899x2616 at 2,0)"}
+{"file": "OM System TG-7.ORF", "skipped": "no masked margin (sensor 4040x3016, picture 4014x3016 at 0,0)"}
+{"file": "OM Sytem OM-1.orf", "skipped": "no masked margin (sensor 5220x3912, picture 5220x3912 at 0,0)"}
+{"file": "Olympus C5050Z.orf", "skipped": "no masked margin (sensor 2576x1926, picture 2576x1926 at 0,0)"}
+{"file": "Olympus C8080.orf", "skipped": "no masked margin (sensor 3280x2454, picture 3280x2454 at 0,0)"}
+{"file": "Olympus E-M10.orf", "skipped": "no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)"}
+{"file": "Olympus E-M5.orf", "skipped": "no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)"}
+{"file": "Olympus E-PL7.orf", "skipped": "no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)"}
+{"file": "Olympus E-PM1.orf", "skipped": "no masked margin (sensor 4080x3040, picture 4056x3040 at 0,0)"}
+{"file": "Olympus E30.orf", "skipped": "no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)"}
+{"file": "Olympus E410.orf", "skipped": "no masked margin (sensor 3720x2800, picture 3720x2800 at 0,0)"}
+{"file": "Olympus E600.orf", "skipped": "no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)"}
+{"file": "Olympus PEN E-P3.orf", "black": 64.25, "white": 4095.0, "ob_sensels": 29618, "sigma_ob_dn": 2.858, "sigma_ob": 0.0007090744129232381, "shot": 0.0005082394229146725, "read": 1.753894484285113e-05, "sigma_read_frame": 0.004187952344863911, "ratio": 5.906224041562312, "sigma_1pct_frame": 0.0047561895538338105, "sigma_1pct_floored": 0.0047561895538338105}
+{"file": "Olympus Pen E-PL1.orf", "skipped": "no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)"}
+{"file": "Olympus SP350.orf", "skipped": "no masked margin (sensor 3280x2454, picture 3280x2454 at 0,0)"}
+{"file": "Olympus SP500UZ.orf", "skipped": "no masked margin (sensor 2832x2118, picture 2832x2118 at 0,0)"}
+{"file": "Olympus TG-4.orf", "skipped": "no masked margin (sensor 4640x3472, picture 4624x3472 at 0,0)"}
+{"file": "Olympus TG-6.ORF", "skipped": "no masked margin (sensor 4040x3016, picture 4014x3016 at 0,0)"}
+{"file": "Olympus XZ1.orf", "skipped": "no masked margin (sensor 3680x2760, picture 3680x2760 at 0,0)"}
+{"file": "Pentax K-1 Mark II.pef", "black": 1024.0, "white": 16383.0, "ob_sensels": 73620, "sigma_ob_dn": 29.158, "sigma_ob": 0.001898410936951865, "shot": 8.040781903134903e-05, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0008967040706462139, "sigma_1pct_floored": 0.0020995338234598526}
+{"file": "Issue 419.rw2", "skipped": "LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'"}
+{"file": "Panasonic DMC-GF1.rw2", "skipped": "no masked margin (sensor 4060x3016, picture 4016x3016 at 0,0)"}
+{"file": "Panasonic DMC-GF3.rw2", "skipped": "no masked margin (sensor 4088x2688, picture 4016x2688 at 0,0)"}
+{"file": "Panasonic DMC-GF7.rw2", "skipped": "no masked margin (sensor 4816x3464, picture 4608x3464 at 0,0)"}
+{"file": "Panasonic Lumix DMC-LX7.rw2", "skipped": "no masked margin (sensor 3696x2752, picture 3664x2752 at 0,0)"}
+{"file": "Samsung EK-GN120 (Galaxy NX).srw", "skipped": "no masked margin (sensor 5546x3714, picture 5536x3696 at 0,0)"}
+{"file": "Samsung NX1.srw", "skipped": "no masked margin (sensor 6496x4336, picture 6496x4336 at 0,0)"}
+{"file": "Samsung NX20.srw", "black": 0.0, "white": 4095.0, "ob_sensels": 132695, "sigma_ob_dn": 0.098, "sigma_ob": 2.404976867768722e-05, "shot": 2.02673195044669e-05, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0004501923978086136, "sigma_1pct_floored": 0.00045083432258216465}
+{"file": "Samsung NX3000.srw", "black": 0.0, "white": 4095.0, "ob_sensels": 213954, "sigma_ob_dn": 1.662, "sigma_ob": 0.00040592467073124897, "shot": 0.00010134145414080282, "read": 0.0, "sigma_read_frame": 0.0, "ratio": 0.0, "sigma_1pct_frame": 0.0010066849265823088, "sigma_1pct_floored": 0.001085444323637238}
