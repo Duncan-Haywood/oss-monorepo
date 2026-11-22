@@ -82,3 +82,8 @@ test('index links one hop to the invoice-payment-terms-calculator sibling', () =
   );
   assert.match(siblingHtml, /invoice payment terms calculator/i);
 });
+
+test("index links the Excel model audit for forecasts kept in a spreadsheet", () => {
+  const html = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/excel-model-audit\/"/);
+});

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231f5f3f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3Efx%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Excel Model Audit — Find Inconsistent Formulas, Free</title>
+  <meta name="description" content="Free Excel formula auditing tool: finds copied formulas that point at the wrong cell, numbers typed over formulas, SUM ranges that stop short, circular references, where #REF! and #DIV/0! start, and numbers stored as text. Runs in your browser.">
+  <meta property="og:title" content="Excel Model Audit — free formula checker that runs in your browser">
+  <meta property="og:description" content="Drop in an .xlsx and get every inconsistent formula, overwritten formula, short SUM range and circular reference, with the formula the neighbours imply. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Excel Model Audit", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool that audits Excel workbooks for inconsistent copied formulas, numbers typed over formulas, SUM ranges that stop short, circular references, error sources, #REF!, numbers and formulas stored as text, typed constants, hidden content and external links."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find inconsistent formulas in Excel?", "acceptedAnswer": {"@type": "Answer", "text": "Excel marks some with a green triangle, one cell at a time. This tool reads every formula in R1C1 form, the form in which a formula and its copies are identical, and lists each cell whose formula differs from the matching formulas either side of it, with the formula those neighbours imply for that cell."}}, {"@type": "Question", "name": "What is a hard-coded number overwriting a formula?", "acceptedAnswer": {"@type": "Answer", "text": "A cell in a row or column of copied formulas where someone typed a value instead, often to force a total. It looks right on the day and stops updating when the inputs change. The tool lists every typed number whose neighbours share a formula, with the formula it would hold if copied along."}}, {"@type": "Question", "name": "How do I find where a #REF! or #DIV/0! error starts?", "acceptedAnswer": {"@type": "Answer", "text": "An error spreads to every cell that reads it, so a sheet can show hundreds. The tool follows each error cell's references and lists only the cells where the error starts: those whose own inputs are not errors."}}, {"@type": "Question", "name": "Can it find circular references across sheets?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It builds the dependency graph of every formula, including references through named ranges and other sheets, and lists each loop with the cells in it. It also says when iterative calculation is switched on, which hides Excel's own circular-reference warning."}}, {"@type": "Question", "name": "Is my spreadsheet uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The .xlsx file is unzipped and read in your browser tab; a test in the code checks that the page makes no network calls. Financial models are confidential, so that matters."}}, {"@type": "Question", "name": "Does a clean result mean my model is right?", "acceptedAnswer": {"@type": "Answer", "text": "No. It finds mechanical faults: formulas that break a pattern, values typed over formulas, ranges that stop short, loops and errors. It cannot know whether your logic, assumptions or inputs are right. A model review still needs a person who understands the business."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18221d; background: #f1f4f2; }
+    body { max-width: 1060px; margin: auto; padding: 28px; }
+    a { color: #1f5f3f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #173f2c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #173f2c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a52; }
+    .card { background: #fff; border: 1px solid #d6e0da; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #173f2c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=file], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8c2b4; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    #drop { border: 2px dashed #a8c2b4; border-radius: 12px; padding: 18px; text-align: center; color: #4a5a52; margin-top: 8px; }
+    #drop.over { background: #e7f2ec; border-color: #1f5f3f; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f3f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3eee8; color: #173f2c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6ece8; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a52; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .finding { border-bottom: 1px solid #e6ece8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .finding p { margin: 4px 0; }
+    code, .formula { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    .formula { background: #f4f7f5; border-radius: 6px; padding: 4px 8px; display: block; }
+    .formula.expected { background: #e7f2ec; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaf0; color: #24425e; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .stat { background: #f4f7f5; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+    .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 8px 0; }
+    .filters label { display: flex; align-items: center; gap: 6px; font-weight: 500; margin: 0; }
+    .legend span { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: middle; margin: 0 4px 0 10px; }
+    canvas { image-rendering: pixelated; border: 1px solid #d6e0da; max-width: 100%; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0da; padding-top: 16px; }
+    @media (max-width: 600px) { body { padding: 16px; } .card { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EXCEL MODEL AUDIT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Find the formula that breaks the pattern</h1>
+    <p>Drop in an Excel workbook (<strong>.xlsx</strong> or <strong>.xlsm</strong>) and get every <strong>copied formula that points at a different cell from its neighbours</strong>, every <strong>number typed over a formula</strong>, every <strong>SUM that stops a row short</strong>, every <strong>circular reference</strong> (across sheets and named ranges), the cells where <strong>#REF! and #DIV/0! start</strong>, <strong>numbers and formulas stored as text</strong>, constants typed into formulas, hidden sheets and links to other files. For each broken pattern it shows <strong>the formula the neighbours imply</strong>.</p>
+    <p class="note">Built for anyone who has to sign off a spreadsheet they did not build: finance teams, analysts, auditors, lenders and founders checking a model before it goes to investors. The file is unzipped and read in this browser tab and never leaves your device. Independent of Microsoft and every product named.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your workbook</h2>
+    <label for="file">Choose an .xlsx or .xlsm file</label>
+    <input type="file" id="file" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12">
+    <div id="drop">…or drop it here</div>
+    <p>
+      <button type="button" id="load-example">Audit the worked example</button>
+      <button type="button" class="secondary" id="download-example">Download the example workbook</button>
+    </p>
+    <p class="note" id="form-status">Old binary .xls files and .ods files are not read: open them in Excel or LibreOffice and save as .xlsx first.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="stats" id="stats"></div>
+    <div class="scroll"><table id="sheet-table"><thead><tr><th>Sheet</th><th class="n">Formulas</th><th class="n">Distinct</th><th class="n">Typed numbers</th><th class="n">Errors</th><th class="n">Flags</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">"Distinct" counts formulas that are not copies of another: a 12-month plan with 3,000 formulas may have 40 distinct ones, and those 40 are what a reviewer has to read.</p>
+    <div class="filters">
+      <label for="f-high"><input type="checkbox" id="f-high" checked> High</label>
+      <label for="f-medium"><input type="checkbox" id="f-medium" checked> Medium</label>
+      <label for="f-info"><input type="checkbox" id="f-info"> Info</label>
+      <label for="f-sheet">Sheet <select id="f-sheet"><option value="">All sheets</option></select></label>
+    </div>
+    <div id="findings"></div>
+    <p><button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    <h3>Formula map</h3>
+    <p class="note">One square per cell of the used range. <span class="legend"><span style="background:#1f5f3f"></span>formula that starts a pattern <span style="background:#9cc9b0"></span>copy of the formula to its left or above <span style="background:#6b8fb5"></span>typed number <span style="background:#d9dedb"></span>text <span style="background:#e04f2c"></span>flagged (high or medium) <span style="background:#7d2a8c"></span>error value</span></p>
+    <label for="map-sheet">Sheet</label>
+    <select id="map-sheet"></select>
+    <p class="note" id="map-note"></p>
+    <div class="scroll"><canvas id="map" width="10" height="10" role="img" aria-label="Formula map of the chosen sheet"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>What it checks, and the rule behind each</h2>
+    <ul>
+      <li><strong>Inconsistent formula</strong> (high when it does the same operation with a different reference): the cells either side share one formula in R1C1 form and this one does not, or it ends a run of copies doing the same operation on different cells. Excel's own rule "Formulas inconsistent with other formulas in the region", applied to every cell at once.</li>
+      <li><strong>Number typed over a formula</strong> (high): a typed number whose neighbours share a formula.</li>
+      <li><strong>Range stops next to a number</strong> (medium): SUM, AVERAGE, COUNT, MIN, MAX, PRODUCT, SUBTOTAL or MEDIAN over a single row or column with a number just beyond either end. Excel's rule "Formulas that omit cells in a region". Subtotals, year headers (1900 to 2100) above a range and moving windows copied down are not flagged.</li>
+      <li><strong>Circular reference</strong> (high): loops in the dependency graph of every formula, across sheets, three-dimensional references and named ranges (Tarjan's strongly connected components).</li>
+      <li><strong>Where an error starts</strong> (high): error cells whose own inputs are not errors, so 300 #DIV/0! cells show as the one that causes them. Errors pasted as values are listed apart.</li>
+      <li><strong>#REF! in a formula or a named range, and references to a sheet that does not exist</strong> (high).</li>
+      <li><strong>Formulas pointing at empty cells</strong> (medium): Excel's rule "Formulas referring to empty cells", single-cell references only.</li>
+      <li><strong>Numbers stored as text</strong> (medium when a formula reads them) and <strong>formulas stored as text</strong> (medium).</li>
+      <li><strong>Constants typed into formulas</strong> (info, grouped by value) and <strong>formulas with numbers only</strong> (medium), per the FAST Standard and the ICAEW Financial Modelling Code: an assumption belongs in its own labelled input cell. Settings of a function, like the 2 in ROUND(x, 2) or the column number in VLOOKUP, are not counted.</li>
+      <li><strong>Also listed:</strong> OFFSET, INDIRECT and other volatile functions, links to other workbooks, hidden and very hidden sheets, numbers in hidden rows and columns, named ranges no formula uses, formulas over 250 characters or nested more than 6 deep, iterative calculation on, manual calculation, VBA present.</li>
+      <li><strong>Not checked:</strong> whether the logic, assumptions or inputs are right; what OFFSET and INDIRECT point at; VBA, Power Query, pivot tables, charts, conditional formatting and data validation; values Excel would calculate now (the audit reads the values saved in the file). Old .xls and .ods files are not read.</li>
+    </ul>
+    <p class="note">How it was checked: on four public test workbooks it reads 15,072 of 15,072 formulas the same as openpyxl, an independent Python reader. The 5 cells where they differ are text cells that start with "=", which openpyxl takes for formulas. The method and results are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/excel-model-audit/eval">eval folder</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find inconsistent formulas in Excel?</h3>
+    <p>Excel marks some with a green triangle, one cell at a time. This tool reads every formula in R1C1 form, the form in which a formula and its copies are identical, and lists each cell whose formula differs from the matching formulas either side of it, with the formula those neighbours imply for that cell.</p>
+    <h3>What is a hard-coded number overwriting a formula?</h3>
+    <p>A cell in a row or column of copied formulas where someone typed a value instead, often to force a total. It looks right on the day and stops updating when the inputs change. The tool lists every typed number whose neighbours share a formula, with the formula it would hold if copied along.</p>
+    <h3>How do I find where a #REF! or #DIV/0! error starts?</h3>
+    <p>An error spreads to every cell that reads it, so a sheet can show hundreds. The tool follows each error cell's references and lists only the cells where the error starts: those whose own inputs are not errors.</p>
+    <h3>Can it find circular references across sheets?</h3>
+    <p>Yes. It builds the dependency graph of every formula, including references through named ranges and other sheets, and lists each loop with the cells in it. It also says when iterative calculation is switched on, which hides Excel's own circular-reference warning.</p>
+    <h3>Is my spreadsheet uploaded?</h3>
+    <p>No. The .xlsx file is unzipped and read in your browser tab; a test in the code checks that the page makes no network calls. Financial models are confidential, so that matters.</p>
+    <h3>Does a clean result mean my model is right?</h3>
+    <p>No. It finds mechanical faults: formulas that break a pattern, values typed over formulas, ranges that stop short, loops and errors. It cannot know whether your logic, assumptions or inputs are right. A model review still needs a person who understands the business.</p>
+    <p>More: <a href="find-inconsistent-formulas-in-excel.html">a worked guide to finding inconsistent formulas and typed-over values in a financial model</a>, and the same checks as a <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/excel-model-audit#command-line">command-line tool</a> for a folder of workbooks.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not accounting, audit, financial, investment or engineering advice, and it does not replace a qualified reviewer of your model. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and a clean result is not a statement that a workbook is correct. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Microsoft.</strong> Excel is a trademark of Microsoft Corporation, named here only to say which files the tool reads. Not affiliated with, endorsed by or sponsored by Microsoft or any product named.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you open is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>workbook_audited</code>, <code>example_loaded</code>, <code>findings_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: <a href="../fuzzy-dedupe/">fuzzy dedupe</a> finds near-duplicate rows in a list, the <a href="../cash-runway-planner/">cash runway planner</a> builds a runway forecast, the <a href="../demand-forecast-backtester/">demand forecast backtester</a> scores a forecast against what happened, and the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> checks a CSV before import.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { auditBytes, findingsCsv } from "./audit.mjs";
+    import { exampleWorkbook } from "./example.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const COLORS = { F: "#1f5f3f", f: "#9cc9b0", n: "#6b8fb5", t: "#d9dedb", "!": "#e04f2c", e: "#7d2a8c" };
+    let result = null, fileName = "workbook";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function renderFindings() {
+      if (!result) return;
+      const show = { high: $("#f-high").checked, medium: $("#f-medium").checked, info: $("#f-info").checked };
+      const sheet = $("#f-sheet").value;
+      const list = result.findings.filter((f) => show[f.severity] && (!sheet || f.sheet === sheet));
+      $("#findings").innerHTML = list.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${f.sheet ? `${esc(f.sheet)}${f.cell ? "!" + esc(f.cell) : ""}: ` : ""}${esc(f.title)}</h3>${f.formula ? `<span class="formula">=${esc(f.formula)}</span>` : ""}${f.expected ? `<span class="formula expected">Neighbours imply: =${esc(f.expected)}</span>` : ""}<p>${esc(f.detail)}</p></div>`).join("") || "<p>Nothing at the chosen levels.</p>";
+    }
+
+    function drawMap() {
+      if (!result) return;
+      const name = $("#map-sheet").value;
+      const m = result.map(name, { maxRows: 400, maxCols: 120 });
+      const canvas = $("#map"), ctx = canvas.getContext("2d");
+      const cols = m.rows.length ? m.rows[0].length : 0, size = cols > 60 ? 6 : 10;
+      canvas.width = Math.max(10, cols * size); canvas.height = Math.max(10, m.rows.length * size);
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      m.rows.forEach((line, y) => { [...line].forEach((ch, x) => { if (COLORS[ch]) { ctx.fillStyle = COLORS[ch]; ctx.fillRect(x * size, y * size, size - 1, size - 1); } }); });
+      $("#map-note").textContent = m.rows.length ? `Top-left cell is ${m.colName ? m.colName(m.c0) : ""}${m.r0}.${m.truncated ? " The sheet is larger than 400 rows by 120 columns; the map shows the top-left part." : ""}` : "This sheet is empty.";
+    }
+
+    async function run(bytes, name) {
+      status.textContent = "Reading…";
+      try { result = await auditBytes(bytes); }
+      catch (e) { status.textContent = e.message; report.hidden = true; return false; }
+      fileName = name.replace(/\.[^.]+$/, "");
+      const s = result.summary;
+      $("#stats").innerHTML = [["High", s.high], ["Medium", s.medium], ["Info", s.info], ["Formulas", s.formulas], ["Distinct formulas", s.distinct], ["Sheets", s.sheets]].map(([k, v]) => `<div class="stat"><b>${v.toLocaleString()}</b>${k}</div>`).join("");
+      const flags = (n) => result.findings.filter((f) => f.sheet === n && f.severity !== "info").length;
+      $("#sheet-table tbody").innerHTML = result.sheets.map((x) => `<tr><td>${esc(x.name)}${x.state !== "visible" ? ` <span class="note">(${esc(x.state)})</span>` : ""}</td><td class="n">${x.formulas}</td><td class="n">${x.distinct}</td><td class="n">${x.numbers}</td><td class="n">${x.errors}</td><td class="n">${flags(x.name)}</td></tr>`).join("");
+      const opts = result.sheets.filter((x) => x.kind === "worksheet").map((x) => `<option value="${esc(x.name)}">${esc(x.name)}</option>`).join("");
+      $("#f-sheet").innerHTML = `<option value="">All sheets</option>${opts}`;
+      $("#map-sheet").innerHTML = opts;
+      const busiest = [...result.sheets].sort((a, b) => flags(b.name) - flags(a.name) || b.formulas - a.formulas)[0];
+      if (busiest) $("#map-sheet").value = busiest.name;
+      renderFindings(); drawMap();
+      report.hidden = false;
+      status.textContent = `${name}: ${s.high} high, ${s.medium} medium, ${s.info} info across ${s.formulas.toLocaleString()} formulas.`;
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    async function openFile(f) { if (f && (await run(new Uint8Array(await f.arrayBuffer()), f.name))) record("workbook_audited"); }
+    $("#file").addEventListener("change", () => openFile($("#file").files[0]));
+    const drop = $("#drop");
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+    drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); openFile(e.dataTransfer.files[0]); });
+    $("#load-example").addEventListener("click", async () => { if (await run(exampleWorkbook(), "example-12-month-plan.xlsx")) { record("example_loaded"); status.textContent += " Worked example: a made-up 12-month plan with faults planted."; } });
+    $("#download-example").addEventListener("click", () => download("example-12-month-plan.xlsx", exampleWorkbook(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+    for (const id of ["#f-high", "#f-medium", "#f-info", "#f-sheet"]) $(id).addEventListener("change", renderFindings);
+    $("#map-sheet").addEventListener("change", drawMap);
+    $("#download-csv").addEventListener("click", () => { if (!result) return; record("findings_downloaded"); download(`${fileName}-audit.csv`, findingsCsv(result), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -269,3 +269,18 @@ entries:
         confidence; 0 of 50 unrelated pairs rated high. Not yet run on real
         film subtitles. Post, llms.txt, guide page.
     mrr_end: 0
+  - venture: excel-model-audit
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/excel-model-audit, a
+        zero-dependency browser page and Node CLI that audits .xlsx/.xlsm
+        formulas: inconsistent copies by R1C1 signature (with the formula
+        the neighbours imply), typed-over formulas, short SUM ranges,
+        circular references (Tarjan, across sheets and names), error
+        sources, #REF!, numbers and formulas stored as text, typed
+        constants, hidden content, external links. 44 tests; reader agrees
+        with openpyxl on 15,072 of 15,072 formulas in 4 public test books.
+        Not yet measured on real human-built models. Post, llms.txt, guide.
+    mrr_end: 0

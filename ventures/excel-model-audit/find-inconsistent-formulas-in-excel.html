@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231f5f3f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3Efx%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Find Inconsistent Formulas in Excel (Worked Example)</title>
+  <meta name="description" content="How to find copied formulas that point at the wrong cell, numbers typed over formulas and SUM ranges that stop short in an Excel model, with a worked 12-month plan and a free checker that runs in your browser.">
+  <meta property="og:title" content="How to find inconsistent formulas in an Excel model">
+  <meta property="og:description" content="R1C1 explained, a worked 12-month plan with seven planted faults, and what Excel's own tools catch and miss.">
+  <link rel="canonical" href="./find-inconsistent-formulas-in-excel.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Find inconsistent formulas in an Excel model", "step": [{"@type": "HowToStep", "text": "Save the workbook as .xlsx or .xlsm."}, {"@type": "HowToStep", "text": "Open the free Excel Model Audit page and choose the file; it is read in the browser and not uploaded."}, {"@type": "HowToStep", "text": "Work through the high findings first: each inconsistent formula shows the formula its neighbours imply."}, {"@type": "HowToStep", "text": "Fix or confirm each one in Excel, save, and audit again until only findings you have confirmed remain."}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #18221d; background: #f1f4f2; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #1f5f3f; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: #173f2c; }
+    h2 { font-size: 1.2rem; color: #173f2c; margin-top: 30px; }
+    p, li { line-height: 1.6; }
+    code { font: 14px ui-monospace, Menlo, monospace; background: #e7eee9; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #d6e0da; vertical-align: top; }
+    .scroll { overflow-x: auto; }
+    .cta { display: inline-block; background: #1f5f3f; color: #fff; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { font-size: .85rem; color: #4a5a52; border-top: 1px solid #d6e0da; margin-top: 34px; padding-top: 14px; }
+    @media (max-width: 600px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Excel Model Audit</a> · guide</p>
+  <h1>How to find inconsistent formulas in an Excel model</h1>
+  <p>You have been sent a model: twelve months across, thirty rows down, three tabs. Somebody wants a sign-off by Friday. Raymond Panko's reviews of spreadsheet error research sort the errors found into mechanical slips (typing and pointing), logic errors and omissions. The mechanical ones are the kind a program can find: a reference dragged one cell too far, a number typed over a formula to make a total agree, a SUM that stops a row short after a row was inserted. Each looks exactly like its correct neighbours until you click on it.</p>
+  <p><a class="cta" href="./">Check a workbook now (free, nothing uploaded)</a></p>
+
+  <h2>Why R1C1 makes this findable</h2>
+  <p>In the usual A1 view, <code>=C4*C5</code> in column C and <code>=D4*D5</code> in column D look like different formulas. In R1C1 form, which Excel can show under <em>File → Options → Formulas</em>, both are <code>=R[-2]C*R[-1]C</code>: "two rows up times one row up, same column". A copied formula has the same R1C1 text in every cell it was copied to. So the job is to find the cell whose R1C1 text differs from the cells around it. Excel's own green triangle ("inconsistent formula") uses the same idea, one cell at a time, and only for the rule set its error checking has switched on.</p>
+
+  <h2>A worked example</h2>
+  <p>The tool's example workbook is a made-up 12-month plan: customers growing 4% a month at 49 per customer, a variable cost per customer, fixed costs, interest on the cash balance and a cash line. Seven faults are planted in it. The audit returns these (you can <a href="./">run it yourself</a> and download the same file):</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Cell</th><th>What it found</th><th>The formula the neighbours imply</th></tr></thead>
+    <tbody>
+      <tr><td>Plan!H5</td><td>July revenue is <code>=G4*Inputs!$B$5</code>: June's customers. Same operation as its neighbours, different cell.</td><td><code>=H4*Inputs!$B$5</code></td></tr>
+      <tr><td>Plan!J6</td><td>September variable cost is the typed number 8200 between two copies of a formula.</td><td><code>=J4*Inputs!$B$6</code></td></tr>
+      <tr><td>Plan!M7</td><td>December fixed cost points at <code>Inputs!$B$9</code>, an empty cell, so it counts as 0.</td><td><code>=Inputs!$B$7</code></td></tr>
+      <tr><td>Plan!E9</td><td>April interest reads this month's cash, which includes this month's interest: a circular reference through E9, E10 and E12.</td><td><code>=D12*Inputs!$B$8/12</code></td></tr>
+      <tr><td>Plan!L4</td><td>November growth has <code>0.04</code> typed in instead of the input cell. Same result today; wrong the day the input changes.</td><td><code>=K4*(1+Inputs!$B$4)</code></td></tr>
+      <tr><td>Plan!N5</td><td>The year's revenue is <code>=SUM(B5:L5)</code>, stopping one column short of December in M5.</td><td>(the range should reach M5)</td></tr>
+      <tr><td>Plan!M14</td><td>The <code>#DIV/0!</code> starts here, from the empty fixed cost above.</td><td></td></tr>
+      <tr><td>Inputs!B6</td><td>The cost per customer, "18", is stored as text. Multiplication converts it; a SUM would skip it.</td><td></td></tr>
+    </tbody>
+  </table></div>
+  <p>Seven planted faults, ten findings at high or medium: M7 shows twice (a pattern break and an empty reference) and so does E9 (a pattern break and the loop). It also counts 108 formulas of which 17 are distinct. Those 17 are what a reviewer actually has to read; the other 91 are copies, and the audit checks that each copy really is one.</p>
+
+  <h2>What Excel's own tools do</h2>
+  <ul>
+    <li><strong>Error checking</strong> (Formulas → Error Checking) walks the green triangles one at a time. It covers inconsistent formulas, formulas that omit adjacent cells, numbers stored as text and references to empty cells, each a setting that can be switched off.</li>
+    <li><strong>Trace Precedents / Dependents</strong> draws arrows for one cell. Good for a question about one number, slow for a whole model.</li>
+    <li><strong>Go To Special → Constants</strong> selects every typed value, which is a quick way to see plugs by eye in a small sheet.</li>
+    <li><strong>Inquire</strong> (in some Microsoft 365 editions) compares two workbooks and reports on one.</li>
+  </ul>
+  <p>None of them traces an error to the cell where it starts, lists typed-over formulas in one pass, or shows the formula a broken cell should have. Those are what this tool adds. Paid add-ins for professional model reviewers go further: version comparison, sign-off workflows, team licences. When a model carries a lending or investment decision, use one of them, or a person who reviews models for a living. This free tool does the first pass.</p>
+
+  <h2>What to do with the findings</h2>
+  <ol>
+    <li>Start with <strong>high</strong>: inconsistent copies, typed-over formulas, loops, error sources, #REF!. Each one either is a bug or needs a one-line note saying why it differs.</li>
+    <li>Then <strong>medium</strong>: short ranges, empty references, text numbers. Most are real; some are layout (a label row with a number in it).</li>
+    <li>Then skim <strong>info</strong>: typed constants and volatile functions. Moving a constant into a labelled input cell is cheap and makes the next review faster.</li>
+    <li>Save and audit again. The command-line version (<code>node cli.mjs model.xlsx --csv findings.csv</code>) exits non-zero when a high finding remains, so it can run over a shared folder before a model is sent out.</li>
+  </ol>
+  <p><a class="cta" href="./">Audit a workbook</a></p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool and guide are provided free and as-is, without warranty of any kind, express or implied. They are not accounting, audit, financial, investment or engineering advice, and they do not replace a qualified reviewer of your model. <strong>You are responsible for reviewing and verifying the output before relying on it</strong>, and a clean result is not a statement that a workbook is correct. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Not affiliated with Microsoft.</strong> Excel is a trademark of Microsoft Corporation, named only to say which files and features are meant. Source on the field study: R. R. Panko, "What we know about spreadsheet errors", Journal of End User Computing (1998, revised 2008).</p>
+  <p>Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
