@@ -86,8 +86,8 @@
       "hash": "sha256-eca442d6d536ff1fa1020fdd2b8a54551b3702b7408b153d71ce8e198c6a1d91"
     },
     "env-example-drift-check": {
-      "version": "0.1.4",
-      "hash": "sha256-c2783f17807c80bf47dd4ba301def88f8230e0c21fabb0d27f3baac2d12c1e24"
+      "version": "0.1.5",
+      "hash": "sha256-90f18b200507e4af4750fc15436997513090793639e0246d9e487a82802077d7"
     },
     "flaky-test-finder": {
       "version": "0.1.3",

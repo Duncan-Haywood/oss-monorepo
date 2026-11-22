@@ -71,7 +71,7 @@ More, including wiring this into CI as a gate:
 
 | Language | Patterns matched |
 |---|---|
-| JavaScript / TypeScript | `process.env.FOO`, `process.env["FOO"]` |
+| JavaScript / TypeScript | `process.env.FOO`, `process.env["FOO"]` (the quoted forms also take `my-key`, `APP.NAME`) |
 | Python | `os.getenv("FOO")`, `os.environ["FOO"]`, `os.environ.get("FOO")` |
 | Ruby | `ENV["FOO"]`, `ENV.fetch("FOO")` |
 | Java | `System.getenv("FOO")` |
@@ -79,6 +79,25 @@ More, including wiring this into CI as a gate:
 Matched one line at a time, name only — never a value. Shell scripts,
 YAML/Compose files, and dynamically-built config reads are out of scope
 for v0.
+
+## How the example file is read
+
+Declared names follow what the common `.env` loaders do, measured against
+four of them (Node 22's `util.parseEnv`, npm `dotenv` 16.4.7 and 17.2.3,
+`python-dotenv` 1.0.1) in [`eval/`](eval/README.md):
+
+- A key is letters, digits, `_`, `.` and `-` (`APP.NAME`, `my-key` and
+  `9LIVES` all count), optionally after `export `.
+- A value that opens a `"`, `'` or backtick quote and closes it on a later
+  line (a PEM key, a JSON blob) is one value. A `NAME=` line inside it is
+  not a declaration, so it can neither hide a missing variable nor show up
+  as unused. A quote that never closes stays on its own line.
+- `#` lines are comments; lines end at `\n`, `\r\n` or a lone `\r`.
+- `NAME: value` (only npm `dotenv` reads it) and a bare `NAME` with no `=`
+  (only `python-dotenv` reads it) are not declarations.
+
+On 5,000 held-out seeded files, the names declared agree with the
+loaders' majority on 99.75% of keys (76.44% before this rule set).
 
 ## Disclaimers
 
@@ -103,7 +122,7 @@ nothing and makes no network call.
 ## Development
 
 ```sh
-node --test engine.test.mjs cli.test.mjs page.test.mjs
+node --test engine.test.mjs parse.diff.test.mjs cli.test.mjs page.test.mjs
 ```
 
 ## Status
