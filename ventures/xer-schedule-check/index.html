@@ -293,6 +293,9 @@
     <label for="risk-register">Risk register (optional): one event per line, <code>ID, probability, optimistic, most likely, pessimistic days, activity ID[, activity ID ...]</code></label>
     <textarea id="risk-register" rows="3" placeholder="R1 ground conditions, 30%, 5, 10, 20, A1020, A1030"></textarea>
     <p class="note">When an event occurs in a run, its drawn delay is added to every activity it names. Each run is also scheduled without the events, so the result shows how much contingency the register itself asks for, and ranks the events by how far they move the finish.</p>
+    <label for="risk-branches">Probabilistic branches (optional): one branch per line, <code>group, branch, probability[, activity ID ...]</code></label>
+    <textarea id="risk-branches" rows="3" placeholder="Inspection, rework, 30%, A2010, A2020&#10;Inspection, pass, 70%"></textarea>
+    <p class="note">For a point where the work takes one of several paths (an inspection passes or needs rework, a permit comes through or the redesign runs). The file holds every path's activities, so the forecast finish counts all of them; each run draws one branch per group and drops the work of the others. Probabilities under 100% leave a remainder in which none of the listed activities happen. A branch with work already started is taken in every run.</p>
     <button type="button" id="risk-run">Run the risk analysis</button>
     <p id="risk-status" role="status" aria-live="polite"></p>
     <div id="risk-out" hidden>
@@ -304,6 +307,11 @@
         <p id="risk-events-sum"></p>
         <p class="note">Occurred: the share of runs in which the event happened. Finish shift: the mean finish of those runs minus the mean of the runs without it, in working days; marked ~ where it is within the noise of this many runs. Ranked by occurred share times shift.</p>
         <div class="tablewrap"><table id="risk-ev"><thead><tr><th>Event</th><th>Activities</th><th class="n">Probability</th><th class="n">Occurred</th><th class="n">Finish shift</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div id="risk-branch-out" hidden>
+        <h3>Probabilistic branches</h3>
+        <p class="note">Drawn in: the share of runs that took the branch. Finish shift: the mean finish of those runs minus the mean of the others, in working days; marked ~ where it is within the noise of this many runs.</p>
+        <div class="tablewrap"><table id="risk-br"><thead><tr><th>Group</th><th>Branch</th><th>Activities</th><th class="n">Probability</th><th class="n">Drawn in</th><th class="n">Finish shift</th></tr></thead><tbody></tbody></table></div>
       </div>
       <h3>What drives the finish</h3>
       <p class="note">Criticality: the share of runs in which the activity was on the driving path. Sensitivity: the correlation between its sampled duration and the project finish (blank where it cannot be told apart from chance at this many runs). * marks the forecast's own driving path.</p>
@@ -442,7 +450,7 @@
     import { mspdiText, msprojectSummary } from "./msproject.mjs";
     import { p6XerText, p6xerSummary } from "./p6xer.mjs";
     import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
-    import { riskAnalysisAsync, riskCsv, parseRanges, parseRisks } from "./risk.mjs";
+    import { riskAnalysisAsync, riskCsv, parseRanges, parseRisks, parseBranches, branchRows } from "./risk.mjs";
     import { udfFields, guessRangeFields, rangesFromUdf, udfRangeNote } from "./udf-ranges.mjs";
     import { formatDate } from "./xer.mjs";
     import { levelAsync, levelCsv } from "./level.mjs";
@@ -835,6 +843,7 @@
       if (!(range.min > 0 && range.min <= range.likely && range.likely <= range.max)) { st.textContent = "The percentages must run optimistic <= most likely <= pessimistic, above 0."; return; }
       const pr = parseRanges($("#risk-ranges").value);
       const pk = parseRisks($("#risk-register").value);
+      const pb = parseBranches($("#risk-branches").value);
       let ranges = pr.ranges, rangeSource = null;
       if (!$("#udf-wrap").hidden && $("#udf-min").value && $("#udf-max").value) {
         try {
@@ -845,12 +854,12 @@
       }
       riskBusy = true; $("#risk-run").disabled = true;
       try {
-        const r = await riskAnalysisAsync(xer, { projId: last.project.id, iterations: Math.min(5000, Math.max(50, Number($("#risk-runs").value) || 500)), range, correlation: Number($("#risk-corr").value) || 0, ranges, rangeSource, risks: pk.risks },
+        const r = await riskAnalysisAsync(xer, { projId: last.project.id, iterations: Math.min(5000, Math.max(50, Number($("#risk-runs").value) || 500)), range, correlation: Number($("#risk-corr").value) || 0, ranges, rangeSource, risks: pk.risks, branches: pb.branches },
           (done, of) => { st.textContent = `Running: ${done} of ${of}...`; });
         lastRisk = r;
         renderRisk(r);
         updateReview();
-        st.textContent = `Done: ${r.iterations} runs over ${r.varied} activities.${pr.bad.length ? ` Skipped range line${pr.bad.length === 1 ? "" : "s"} ${pr.bad.join(", ")} (need ID, optimistic, most likely, pessimistic).` : ""}${pk.bad.length ? ` Skipped risk line${pk.bad.length === 1 ? "" : "s"} ${pk.bad.join(", ")} (need ID, probability, optimistic, most likely, pessimistic days, activity IDs).` : ""}`;
+        st.textContent = `Done: ${r.iterations} runs over ${r.varied} activities.${pr.bad.length ? ` Skipped range line${pr.bad.length === 1 ? "" : "s"} ${pr.bad.join(", ")} (need ID, optimistic, most likely, pessimistic).` : ""}${pk.bad.length ? ` Skipped risk line${pk.bad.length === 1 ? "" : "s"} ${pk.bad.join(", ")} (need ID, probability, optimistic, most likely, pessimistic days, activity IDs).` : ""}${pb.bad.length ? ` Skipped branch line${pb.bad.length === 1 ? "" : "s"} ${pb.bad.join(", ")} (need group, branch, probability, activity IDs; each branch once per group).` : ""}${pb.over.length ? ` Left out branch group${pb.over.length === 1 ? "" : "s"} ${pb.over.join(", ")}: probabilities add up to more than 100%.` : ""}`;
         record("risk_run");
       } catch (e) {
         st.textContent = `Could not run the risk analysis: ${e.message}`;
@@ -884,6 +893,9 @@
         $("#risk-events-sum").textContent = `Without the events: forecast met in ${pc(w.pDeterministic)} of runs, P80 ${formatDate(w80.date).slice(0, 10)}. The events add ${(q(80).days - w80.days).toFixed(1)} working days at P80 (${w.eventDelay.mean} on average; no delay in ${pc(w.eventDelay.noDelay)} of runs).`;
         $("#risk-ev tbody").innerHTML = r.risks.map((k) => `<tr><td>${esc(k.id)}</td><td>${esc(k.targets.join(", "))}</td><td class="n">${pc(k.probability)}</td><td class="n">${pc(k.occurred)}</td><td class="n">${k.finishShift === null ? "" : `${k.notNoise ? "" : "~"}${k.finishShift >= 0 ? "+" : ""}${k.finishShift.toFixed(1)}`}</td></tr>`).join("");
       }
+      const br = branchRows(r);
+      $("#risk-branch-out").hidden = !br.length;
+      $("#risk-br tbody").innerHTML = br.map((row) => `<tr>${row.map((c, i) => `<td${i >= 3 ? ' class="n"' : ""}>${esc(c)}</td>`).join("")}</tr>`).join("");
       $("#risk-out").hidden = false;
     }
     $("#risk-download").addEventListener("click", () => { if (!lastRisk) return; save(new Blob([riskCsv(lastRisk)], { type: "text/csv" }), `${fileName}-risk-drivers.csv`); record("findings_downloaded"); });

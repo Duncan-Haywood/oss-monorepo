@@ -1,0 +1,229 @@
+{
+  "seed": 1,
+  "runs": 120,
+  "picks": 4,
+  "files": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "activities": 16146,
+      "drivingNotStarted": 15,
+      "picks": [
+        "T16P106101C0",
+        "T16CO04403C0",
+        "T16P109501C0",
+        "BAFTS01801G0"
+      ],
+      "checks": 18,
+      "failures": [],
+      "shifts": [
+        {
+          "code": "T16P106101C0",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "T16CO04403C0",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "T16P109501C0",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "BAFTS01801G0",
+          "finishShiftDays": 5.6,
+          "dropFinishMinutesEarlier": 9011
+        }
+      ],
+      "idle": "MGNSO00104M0",
+      "seconds": 244.7
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "activities": 823,
+      "drivingNotStarted": 5,
+      "picks": [
+        "BEW/PR/FC/1040",
+        "BEW/MO/NC/1000",
+        "BEW/MO/EF/1010",
+        "BEW/CL/GEN/1010"
+      ],
+      "checks": 18,
+      "failures": [],
+      "shifts": [
+        {
+          "code": "BEW/PR/FC/1040",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "BEW/MO/NC/1000",
+          "finishShiftDays": 5,
+          "dropFinishMinutesEarlier": 7200
+        },
+        {
+          "code": "BEW/MO/EF/1010",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "BEW/CL/GEN/1010",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        }
+      ],
+      "idle": "BEW/GEN/MS/0010",
+      "seconds": 7.9
+    },
+    {
+      "file": "example_xer_file.xer",
+      "activities": 435,
+      "drivingNotStarted": 12,
+      "picks": [
+        "A10740.11",
+        "A10390",
+        "A10740",
+        "A12930"
+      ],
+      "checks": 20,
+      "failures": [],
+      "shifts": [
+        {
+          "code": "A10740.11",
+          "finishShiftDays": 1,
+          "dropFinishMinutesEarlier": 1440
+        },
+        {
+          "code": "A10390",
+          "finishShiftDays": 3.3,
+          "dropFinishMinutesEarlier": 4473
+        },
+        {
+          "code": "A10740",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "A12930",
+          "finishShiftDays": 3,
+          "dropFinishMinutesEarlier": 4319
+        }
+      ],
+      "idle": "A10430.0",
+      "seconds": 1.9
+    },
+    {
+      "file": "hotel-project.xer",
+      "activities": 4236,
+      "drivingNotStarted": 79,
+      "picks": [
+        "HCSW6FZ2070",
+        "H0000",
+        "HCSW3FZ2080",
+        "HCFWAFAZ010"
+      ],
+      "checks": 18,
+      "failures": [],
+      "shifts": [
+        {
+          "code": "HCSW6FZ2070",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "H0000",
+          "finishShiftDays": 1,
+          "dropFinishMinutesEarlier": 1440
+        },
+        {
+          "code": "HCSW3FZ2080",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "HCFWAFAZ010",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        }
+      ],
+      "idle": "HCEWAFZ1000",
+      "seconds": 32.2
+    },
+    {
+      "file": "sample.xer",
+      "activities": 52,
+      "drivingNotStarted": 30,
+      "picks": [
+        "A4000",
+        "A1000",
+        "A3030",
+        "A5050"
+      ],
+      "checks": 21,
+      "failures": [],
+      "shifts": [
+        {
+          "code": "A4000",
+          "finishShiftDays": 5,
+          "dropFinishMinutesEarlier": 10080
+        },
+        {
+          "code": "A1000",
+          "finishShiftDays": 5,
+          "dropFinishMinutesEarlier": 10080
+        },
+        {
+          "code": "A3030",
+          "finishShiftDays": 5,
+          "dropFinishMinutesEarlier": 10080
+        },
+        {
+          "code": "A5050",
+          "finishShiftDays": 5,
+          "dropFinishMinutesEarlier": 9120
+        }
+      ],
+      "idle": "EM01",
+      "seconds": 0.3
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "activities": 66,
+      "drivingNotStarted": 16,
+      "picks": [
+        "BA-P4-110",
+        "BA-P1-10",
+        "BA-P4-70",
+        "BA-P4-170"
+      ],
+      "checks": 18,
+      "failures": [],
+      "shifts": [
+        {
+          "code": "BA-P4-110",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "BA-P1-10",
+          "finishShiftDays": 1,
+          "dropFinishMinutesEarlier": 1440
+        },
+        {
+          "code": "BA-P4-70",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        },
+        {
+          "code": "BA-P4-170",
+          "finishShiftDays": 0,
+          "dropFinishMinutesEarlier": 0
+        }
+      ],
+      "idle": "A1010",
+      "seconds": 0.5
+    }
+  ]
+}

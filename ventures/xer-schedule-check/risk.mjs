@@ -10,6 +10,7 @@
 //   activities: [{ code, name, criticality, sensitivity (null below noiseFloor), deterministicCritical }],
 //   risks: [{ id, probability, impact, targets, occurred, finishShift, shiftNoise, ... }] (risk register),
 //   withoutRisks: { percentiles, pDeterministic, pMustFinish } | null,
+//   branches: [{ id, branches: [{ name, probability, codes, taken, finishShift, shiftNoise, notNoise }], none, fixed }],
 //   warnings: [...],
 // }
 //
@@ -46,8 +47,22 @@
 // contingency the register itself asks for, free of sampling noise between
 // separate runs (common random numbers). Each event is ranked by its finish
 // shift: the mean finish of runs where it occurred minus the mean of runs
-// where it did not. Resource limits and probabilistic branches are not
-// modelled.
+// where it did not. Resource limits are not modelled.
+//
+// Probabilistic branches (`branches`): a point where the work takes one of
+// several paths, each with a probability (an inspection passes, or 30% of
+// the time the rework A2010 and re-test A2020 follow; a permit comes through,
+// or the redesign path runs). The XER holds every path's activities in the
+// network, so the single CPM date counts the work of all of them. In each run
+// one branch per group is drawn; the activities of the branches not drawn are
+// dropped from that run (remaining duration 0, their logic kept, so work
+// after them waits only on the rest of its logic), as Primavera Risk Analysis
+// and Safran Risk do with branch activities that "do not exist" in an
+// iteration. Probabilities in a group may sum to under 1: the remainder is
+// the case where none of the listed branches' activities happen. A group with
+// work already started on one branch has taken it: that branch is kept in
+// every run. Branches draw from their own random stream, so adding them
+// leaves every duration and event draw as it was.
 
 import { schedule, buildModel, drivingPath } from "./cpm.mjs";
 
@@ -150,6 +165,37 @@ export function parseRisks(text) {
   return { risks, bad };
 }
 
+// One branch per line: "group, branch, probability[, activity ID ...]".
+// Lines sharing a group are the alternatives at one point; probability as
+// 0.3 or 30%. A branch may list no activity (the path that adds no work).
+// A header line and blank lines are skipped; bad lines are returned by
+// number, and a group whose probabilities sum above 1 by name.
+export function parseBranches(text) {
+  const groups = new Map();
+  const bad = [];
+  for (const [i, raw] of String(text || "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const cells = line.split(/[,;\t]/).map((c) => c.trim().replace(/^"|"$/g, ""));
+    const pc = (cells[2] || "").replace(/\s+/g, "");
+    let prob = /%$/.test(pc) ? Number(pc.slice(0, -1)) / 100 : Number(pc);
+    if (!(cells.length >= 3 && cells[0] && cells[1] && pc !== "" && Number.isFinite(prob))) { if (i > 0) bad.push(i + 1); continue; }
+    if (prob > 1 && prob <= 100 && !/%$/.test(pc)) prob /= 100;
+    if (!(prob > 0 && prob <= 1)) { bad.push(i + 1); continue; }
+    if (!groups.has(cells[0])) groups.set(cells[0], { id: cells[0], branches: [] });
+    const g = groups.get(cells[0]);
+    if (g.branches.some((b) => b.name === cells[1])) { bad.push(i + 1); continue; }
+    g.branches.push({ name: cells[1], probability: prob, codes: [...new Set(cells.slice(3).filter(Boolean))] });
+  }
+  const over = [];
+  const out = [];
+  for (const g of groups.values()) {
+    const sum = g.branches.reduce((a, b) => a + b.probability, 0);
+    if (sum > 1 + 1e-9) over.push(g.id); else out.push(g);
+  }
+  return { branches: out, bad, over };
+}
+
 const quantile = (sorted, q) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.ceil(q * sorted.length) - 1))];
 
 // A generator: yields after each run ({ done, of }), returns the result, so
@@ -212,6 +258,28 @@ export function* riskSteps(xer, opts = {}) {
     if (targets.some((t) => t.proj !== pid)) warnings.push(`risk ${rk.id}: names activities of another project in the file; they delay this one only through links`);
     events.push({ rk, targets, hits: 0, sumHit: 0, sumMiss: 0, sumImpact: 0 });
   }
+  // probabilistic branches: resolve activity IDs; a started branch is taken
+  const groups = [];
+  const START = (t) => t.status === "TK_Active" || t.status === "TK_Complete";
+  for (const g of opts.branches || []) {
+    const missing = [];
+    const bs = g.branches.map((b) => {
+      const tasks = [];
+      for (const code of b.codes) { const t = byCode.get(code); if (!t) missing.push(code); else if (!tasks.includes(t)) tasks.push(t); }
+      return { ...b, tasks, taken: 0, sumY: 0 };
+    });
+    if (missing.length) warnings.push(`branch group ${g.id}: no activity ${missing.join(", ")}`);
+    const started = bs.filter((b) => b.tasks.some(START));
+    if (started.length > 1) { warnings.push(`branch group ${g.id} left out: work has started on more than one of its branches (${started.map((b) => b.name).join(", ")})`); continue; }
+    const all = new Set(bs.flatMap((b) => b.tasks));
+    if (!all.size) { warnings.push(`branch group ${g.id} left out: it names no activity in the file`); continue; }
+    if ([...all].some((t) => t.proj !== pid)) warnings.push(`branch group ${g.id}: names activities of another project in the file; they move this one only through links`);
+    const fixed = started.length ? started[0].name : null;
+    if (fixed) warnings.push(`branch group ${g.id}: work has started on branch ${fixed}, so it is taken in every run`);
+    const sum = bs.reduce((a, b) => a + b.probability, 0);
+    groups.push({ id: g.id, bs, all: [...all], fixed, none: Math.max(0, 1 - sum), noneTaken: 0, noneSumY: 0 });
+  }
+  if (groups.length) warnings.push(`${groups.length} branch group(s): the forecast finish counts the work of every branch, the runs only the branch drawn in each`);
   const unknown = [...overrides.keys()].filter((k) => !used.has(k));
   if (unknown.length) warnings.push(`${unknown.length} range line(s) name no open activity: ${unknown.slice(0, 5).join(", ")}${unknown.length > 5 ? ", ..." : ""}`);
   if (inconsistent.length) warnings.push(`${inconsistent.length} activity range(s) left on the default range because 0 <= optimistic <= most likely <= pessimistic fails (a point is negative or out of order)${overrides.size && [...overrides.values()].some((o) => o.likely == null) ? " (most likely = the file's remaining duration)" : ""}: ${inconsistent.slice(0, 5).join(", ")}${inconsistent.length > 5 ? ", ..." : ""}`);
@@ -230,6 +298,10 @@ export function* riskSteps(xer, opts = {}) {
   // events draw from their own stream, so adding a register leaves every
   // duration draw (and the run without it) exactly as it was
   const erand = rng((seed ^ 0x9e3779b9) >>> 0);
+  const brand = rng((seed ^ 0x85ebca6b) >>> 0);
+  const varyIds = new Set(vary.map((v) => v.t.id));
+  const dropped = new Set();
+  const chosen = new Array(groups.length);
   const durations = new Map();
   const us = new Float64Array(n);
   const sr = Math.sqrt(rho), se = Math.sqrt(1 - rho);
@@ -241,6 +313,18 @@ export function* riskSteps(xer, opts = {}) {
       const v = vary[i];
       durations.set(v.t.id, Math.round(triangular(u, v.a, v.c, v.b)));
     }
+    // one branch per group; the work of the others is dropped from this run
+    dropped.clear();
+    groups.forEach((g, k) => {
+      const u = brand();
+      let pick = -1;
+      if (g.fixed) pick = g.bs.findIndex((b) => b.name === g.fixed);
+      else { let acc = 0; for (let j = 0; j < g.bs.length; j++) { acc += g.bs[j].probability; if (u < acc) { pick = j; break; } } }
+      chosen[k] = pick;
+      const keep = pick >= 0 ? new Set(g.bs[pick].tasks) : new Set();
+      for (const t of g.all) if (!keep.has(t) && t.status !== "TK_Complete") dropped.add(t.id);
+    });
+    for (const id of dropped) durations.set(id, 0);
     let anyHit = false;
     const hit = events.map((e) => {
       if (erand() >= e.rk.probability) { erand(); return null; }
@@ -252,7 +336,7 @@ export function* riskSteps(xer, opts = {}) {
       f0 = schedule(xer, { model, forwardOnly: true, durations }).projects.get(pid).finish;
       events.forEach((e, k) => {
         if (hit[k] === null) return;
-        for (const t of e.targets) evDur.set(t.id, (evDur.get(t.id) ?? durations.get(t.id) ?? t.remain) + Math.round(hit[k] * (t.cal.hoursPerDay || 8) * 60));
+        for (const t of e.targets) if (!dropped.has(t.id)) evDur.set(t.id, (evDur.get(t.id) ?? durations.get(t.id) ?? t.remain) + Math.round(hit[k] * (t.cal.hoursPerDay || 8) * 60));
       });
     }
     const r = schedule(xer, { model, forwardOnly: true, durations: evDur.size ? new Map([...durations, ...evDur]) : durations });
@@ -264,7 +348,9 @@ export function* riskSteps(xer, opts = {}) {
     events.forEach((e, k) => { if (hit[k] !== null) { e.hits++; e.sumHit += y; e.sumImpact += hit[k]; } else e.sumMiss += y; });
     evDays[it] = plain ? y - dayOf(plain[it]) : 0;
     for (let i = 0; i < n; i++) { sumU[i] += us[i]; sumUU[i] += us[i] * us[i]; sumUY[i] += us[i] * y; }
-    for (const id of drivingPath(r, pid)) onPath.set(id, (onPath.get(id) || 0) + 1);
+    for (const id of drivingPath(r, pid)) if (!dropped.has(id)) onPath.set(id, (onPath.get(id) || 0) + 1);
+    groups.forEach((g, k) => { if (chosen[k] >= 0) { g.bs[chosen[k]].taken++; g.bs[chosen[k]].sumY += y; } else { g.noneTaken++; g.noneSumY += y; } });
+    for (const id of dropped) if (!varyIds.has(id)) durations.delete(id);
     yield { done: it + 1, of: iterations };
   }
 
@@ -322,6 +408,20 @@ export function* riskSteps(xer, opts = {}) {
       notNoise: shift !== null && Math.abs(shift) > 2 * se,
     };
   }).sort((a, b) => (b.finishShift ?? -Infinity) * (b.occurred || 1) - (a.finishShift ?? -Infinity) * (a.occurred || 1));
+  // each branch's finish shift: mean finish when drawn minus when another
+  // path was, with the same noise band as the events
+  const shiftOf = (n, sum, totalN, totalSum) => {
+    const m = totalN - n;
+    if (!n || !m) return { finishShift: null, shiftNoise: null, notNoise: false };
+    const sh = sum / n - (totalSum - sum) / m, se = sdY * Math.sqrt(1 / n + 1 / m);
+    return { finishShift: round1(sh), shiftNoise: round1(2 * se), notNoise: Math.abs(sh) > 2 * se };
+  };
+  const sumDays = days.reduce((a, b) => a + b, 0);
+  const branches = groups.map((g) => ({
+    id: g.id, fixed: g.fixed,
+    branches: g.bs.map((b) => ({ name: b.name, probability: b.probability, codes: b.tasks.map((t) => t.code), taken: Math.round((b.taken / iterations) * 1000) / 1000, ...shiftOf(b.taken, b.sumY, iterations, sumDays) })),
+    none: g.none > 1e-9 && !g.fixed ? { probability: Math.round(g.none * 1000) / 1000, taken: Math.round((g.noneTaken / iterations) * 1000) / 1000, ...shiftOf(g.noneTaken, g.noneSumY, iterations, sumDays) } : null,
+  }));
   let withoutRisks = null;
   if (plain) {
     const s0 = Array.from(plain).sort((a, b) => a - b);
@@ -348,6 +448,7 @@ export function* riskSteps(xer, opts = {}) {
     activities,
     risks,
     withoutRisks,
+    branches,
     warnings,
   };
 }
@@ -363,6 +464,19 @@ export function riskCsv(r) {
   const rows = [["activity_id", "name", "criticality_index", "sensitivity", "on_forecast_driving_path"]];
   for (const a of r.activities) rows.push([a.code, a.name, a.criticality, a.sensitivity ?? "", a.deterministicCritical ? "yes" : "no"]);
   return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
+}
+
+// one row per branch (and the "none of these" remainder) for tables:
+// [group, branch, activities, probability, drawn, finish shift text]
+export function branchRows(r) {
+  const shift = (b) => b.finishShift === null ? "n/a" : `${b.notNoise ? "" : "~"}${b.finishShift >= 0 ? "+" : ""}${b.finishShift.toFixed(1)}`;
+  const pc = (x) => `${Math.round(x * 100)}%`;
+  const rows = [];
+  for (const g of r.branches || []) {
+    for (const b of g.branches) rows.push([g.id, b.name + (g.fixed === b.name ? " (started)" : ""), b.codes.join(", ") || "(no work)", pc(b.probability), pc(b.taken), shift(b)]);
+    if (g.none) rows.push([g.id, "none of the above", "(no work)", pc(g.none.probability), pc(g.none.taken), shift(g.none)]);
+  }
+  return rows;
 }
 
 export function riskAnalysis(xer, opts = {}) {

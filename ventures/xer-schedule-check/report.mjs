@@ -32,6 +32,7 @@
 // the document alone is the complete list, with no CSV to send alongside.
 
 import { formatDate } from "./xer.mjs";
+import { branchRows } from "./risk.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const RANK = { high: 0, medium: 1, low: 2 };
@@ -218,8 +219,9 @@ function riskSection(r, limit) {
   const assumptions = [
     `${r.iterations} runs (seed ${r.seed}) over ${r.varied} open activities, each remaining duration drawn from a triangular range: ${r.overrides ? `${r.overrides} activity ranges ${r.rangeSource ? `from the schedule itself or the reviewer (${r.rangeSource})` : "supplied by the reviewer"}, ${rangeText(r)} on the rest` : rangeText(r)}.`,
     r.correlation ? `A shared factor correlates the draws (${r.correlation}), for causes such as weather or productivity that move many activities together.` : "The draws are independent; a cause that moves many activities together (weather, productivity) would widen the spread.",
+    r.branches?.length ? `${r.branches.length} probabilistic branch group${r.branches.length === 1 ? "" : "s"} (below): each run takes one branch per group and drops the others' work, which the forecast finish counts in full.` : null,
     r.risks.length ? `${r.risks.length} risk register event${r.risks.length === 1 ? "" : "s"} added (below); every run is also scheduled without them on the same draws.` : "No risk register events were added.",
-  ];
+  ].filter(Boolean);
   const rows = r.percentiles.map((q) => {
     const row = [`P${q.p}`, day(q.date), `${q.overDeterministic >= 0 ? "+" : ""}${q.overDeterministic}`];
     if (w) { const o = w.percentiles.find((x) => x.p === q.p); row.push(day(o.date), `${(q.days - o.days).toFixed(1)}`); }
@@ -228,15 +230,17 @@ function riskSection(r, limit) {
   const head = ["Confidence", "Finish", "Working days after the forecast"].concat(w ? ["Finish without the events", "Events add (days)"] : []);
   const chance = `The forecast finish ${day(r.project.finish)} was met in ${pct(r.pDeterministic)} of runs${r.pMustFinish !== null ? `; the must-finish date ${day(r.project.mustFinish)} in ${pct(r.pMustFinish)}` : ""}${w ? ` (without the events: ${pct(w.pDeterministic)}${w.pMustFinish !== null ? ` and ${pct(w.pMustFinish)}` : ""})` : ""}.`;
   const ev = r.risks.length ? `<h3>Risk events, ranked by how far they move the finish</h3>${table(["Event", "Activities", "Probability", "Occurred", "Finish shift (working days)"], r.risks.map((k) => [k.id, k.targets.join(", "), pct(k.probability), pct(k.occurred), k.finishShift === null ? "n/a" : `${k.finishShift >= 0 ? "+" : ""}${k.finishShift.toFixed(1)}${k.notNoise ? "" : ` (within noise, +/-${k.shiftNoise})`}`]))}` : "";
+  const br = r.branches?.length ? `<h3>Probabilistic branches</h3>${table(["Group", "Branch", "Activities", "Probability", "Drawn in", "Finish shift (working days; ~ within noise)"], branchRows(r))}` : "";
   const drivers = table(["Activity", "Name", "Drives the finish in", "Sensitivity", "On the forecast's driving path"], r.activities.slice(0, Math.min(limit, 20)).map((x) => [x.code, x.name, pct(x.criticality), x.sensitivity === null ? "" : x.sensitivity.toFixed(2), x.deterministicCritical ? "yes" : "no"]));
   return `<h2>Finish date risk</h2>
 <p>${assumptions.map(esc).join(" ")}</p>
 ${table(head, rows)}
 <p>${esc(chance)}</p>
 ${ev}
+${br}
 ${drivers ? `<h3>Activities that most often drive the finish</h3>${drivers}` : ""}
 ${r.warnings.length ? `<p class="small"><strong>Read with care:</strong> ${r.warnings.map(esc).join(" ")}</p>` : ""}
-<p class="small">The ranges are inputs to this analysis, not data from the file; the result is only as good as they are. Resource limits and probabilistic branches are not modelled.</p>`;
+<p class="small">The ranges are inputs to this analysis, not data from the file; the result is only as good as they are. Resource limits are not modelled.</p>`;
 }
 
 function windowsSection(w, limit) {

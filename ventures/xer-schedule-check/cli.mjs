@@ -8,11 +8,13 @@
 // Either form takes --report review.html [--to NAME] [--from NAME] [--ref TEXT]
 // [--notes TEXT]: the written review (report.mjs) to print or save as a PDF.
 // node cli.mjs schedule.xer --risk [N] [--range 90,100,125] [--correlation 0.3]
-//   [--ranges ranges.csv] [--ranges-udf auto|"opt,likely,pess" [--udf-unit days|hours|pct]] [--risks register.csv] [--seed S] [--csv drivers.csv] [--json] [--project CODE]
+//   [--ranges ranges.csv] [--ranges-udf auto|"opt,likely,pess" [--udf-unit days|hours|pct]] [--risks register.csv] [--branches branches.csv] [--seed S] [--csv drivers.csv] [--json] [--project CODE]
 // Monte Carlo finish-date risk instead (risk.mjs): P10/P50/P80/P90, the chance
 // of the forecast and must-finish dates, criticality index per activity;
 // --risks adds risk register events (id, probability, min, likely, max days,
-// activity IDs) and ranks them by how far they move the finish. With --report,
+// activity IDs) and ranks them by how far they move the finish; --branches adds
+// probabilistic branches (group, branch, probability, activity IDs: one branch
+// per group drawn each run, the others' work dropped). With --report,
 // the written review carries the risk section and its corrections too (also
 // with --previous: the risk run is made on the current file).
 // node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--curves] [--csv levelled.csv] [--json] [--project CODE]
@@ -116,7 +118,7 @@ import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
 import { narrative, narrativeText, narrativeHtml } from "./narrative.mjs";
 import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
-import { riskAnalysis, riskCsv, parseRanges, parseRisks } from "./risk.mjs";
+import { riskAnalysis, riskCsv, parseRanges, parseRisks, parseBranches, branchRows } from "./risk.mjs";
 import { rangesFromUdf, udfFields, udfSpec, udfRangeNote } from "./udf-ranges.mjs";
 import { formatDate } from "./xer.mjs";
 import { level, levelCsv } from "./level.mjs";
@@ -135,7 +137,7 @@ import { mspdiText, msprojectSummary } from "./msproject.mjs";
 import { p6XerText, p6xerSummary } from "./p6xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -205,7 +207,14 @@ function runRisk(x, projId) {
     if (pk.bad.length) console.error(`skipped risk lines ${pk.bad.join(", ")} (need id,probability,min,likely,max,activity ID[,activity ID...], probability above 0, min <= likely <= max days)`);
     risks = pk.risks;
   }
-  return riskAnalysis(x, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, rangeSource, risks, seed: Number(opt("--seed") || 1) });
+  let branches;
+  if (opt("--branches")) {
+    const pb = parseBranches(readFileSync(opt("--branches"), "utf8"));
+    if (pb.bad.length) console.error(`skipped branch lines ${pb.bad.join(", ")} (need group,branch,probability[,activity ID...], probability above 0, each branch named once per group)`);
+    if (pb.over.length) console.error(`left out branch group(s) ${pb.over.join(", ")}: probabilities sum above 100%`);
+    branches = pb.branches;
+  }
+  return riskAnalysis(x, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, rangeSource, risks, branches, seed: Number(opt("--seed") || 1) });
 }
 // --no-interim / --skip-fields: Microsoft Project interim plans (Start/Finish
 // pairs) and named task fields left out of the user-defined fields (mspdi.mjs)
@@ -269,6 +278,10 @@ if (args.includes("--risk")) {
     console.log(`Without the ${r.risks.length} risk events: forecast met in ${Math.round(w.pDeterministic * 100)}%, P80 ${formatDate(p80(w).date)}; the events add ${(p80(r).days - p80(w).days).toFixed(1)} working days at P80 (mean ${w.eventDelay.mean} per run; no delay in ${Math.round(w.eventDelay.noDelay * 100)}% of runs)`);
     console.log("\nRisk events by expected finish shift (occurred share x shift when it occurs):");
     for (const k of r.risks) console.log(`  ${(k.occurred * 100).toFixed(0).padStart(3)}%  ${k.finishShift === null ? "    -" : ((k.finishShift >= 0 ? "+" : "") + k.finishShift.toFixed(1)).padStart(6)} days${k.finishShift !== null && !k.notNoise ? " (within noise +/-" + k.shiftNoise + ")" : ""}  ${k.id}  -> ${k.targets.join(", ")}`);
+  }
+  if (r.branches.length) {
+    console.log("\nProbabilistic branches (drawn share; finish shift = mean finish when drawn minus when not, ~ within noise):");
+    for (const [g, b, codes, p, taken, sh] of branchRows(r)) console.log(`  ${g} / ${b}: p ${p}, drawn ${taken}, ${sh} days  (${codes})`);
   }
   console.log("\nMost often on the driving path (criticality index; sensitivity = correlation of duration with finish):");
   for (const a of r.activities.slice(0, 15)) console.log(`  ${(a.criticality * 100).toFixed(0).padStart(3)}%  ${a.sensitivity === null ? "   -  " : a.sensitivity.toFixed(2).padStart(6)}  ${a.deterministicCritical ? "*" : " "} ${a.code}  ${a.name}`);
