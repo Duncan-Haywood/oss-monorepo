@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Find Critical Path Drag In A P6 Schedule</title>
+  <meta name="description" content="Find which critical activity is worth accelerating: critical path drag and drag cost for every longest-path activity in a P6 XER, free in your browser.">
+  <meta property="og:title" content="How To Find Critical Path Drag In A P6 Schedule">
+  <meta property="og:description" content="Drag says how many days each critical activity really holds the finish back, and what those days cost. P6 does not compute it.">
+  <link rel="canonical" href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is critical path drag?","acceptedAnswer":{"@type":"Answer","text":"The amount of time one activity on the critical path adds to the project's duration: how much earlier the finish would be if that activity took no time. Stephen Devaux defined it in Total Project Control (1999). It is never more than the activity's remaining duration, and it is less when a parallel path with only a little float takes over once the activity is shortened."}},{"@type":"Question","name":"Why not just shorten the activity with the longest duration?","acceptedAnswer":{"@type":"Answer","text":"Because duration is not what you win. Every critical activity has the same total float, and a 30-day activity running beside a path with 4 days of float can only ever bring the finish in by 4 days. Drag says what each one is really worth before you pay for overtime or a second crew."}},{"@type":"Question","name":"Does Primavera P6 calculate drag?","acceptedAnswer":{"@type":"Answer","text":"No. P6 shows total float, free float and the longest path, and Microsoft Project shows slack; neither computes drag. You can find it by hand by setting one activity's remaining duration to zero, scheduling, noting the finish and undoing it, once per critical activity. This tool does exactly that for every activity on the longest path, on its own copy of the schedule."}},{"@type":"Question","name":"What is reverse drag?","acceptedAnswer":{"@type":"Answer","text":"An activity that the critical path enters at its finish (a finish-to-finish link from its predecessor) and leaves at its start (a start-to-start link to its successor). Shortening it moves its start later, which pushes the successor, so the finish moves later. It is a sign the logic should be looked at, and the tool flags it."}},{"@type":"Question","name":"Is the file uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule is read and rescheduled in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to find critical path drag in a P6 schedule</h1>
+  <p>When a job is late and the owner asks what it would take to recover, total float is no help: every critical activity has the same float. Critical path drag answers the question directly. An activity's drag is how much earlier the project would finish if that activity took no time, everything else unchanged, so it is the most that accelerating it can ever win. Drag cost puts a price on it: drag in calendar days times what a day of finish costs you (liquidated damages, extended site overheads, or the value of opening earlier). Primavera P6 and Microsoft Project do not compute drag; the free tool here does, from the XER, in your browser.</p>
+  <p><a class="cta" href="./#drag">Open the free schedule check</a> (open the XER, then press Find critical path drag)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the current update from P6 as XER (File, Export, Primavera PM XER), or use the file you were sent. A Microsoft Project XML file works too.</li>
+    <li>Open it on the <a href="./">tool page</a>. If the file holds several projects, pick one.</li>
+    <li>Under <b>Critical path drag</b>, type what a calendar day of finish costs if you want drag cost, and press <b>Find critical path drag</b>.</li>
+    <li>Read the table from the top: the activities with the most drag are where acceleration pays. Download the CSV for the full list, with lags.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>On the built-in example (an invented office fit-out; press Load an example schedule), the forecast finish is 2026-07-27. Seven activities with work left are on the longest path, and five of them hold the finish back:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Activity</th><th>Remaining (d)</th><th>Drag (d)</th><th>Drag cost at $2,500/day</th></tr></thead>
+    <tbody>
+      <tr><td>A1140 Ceiling grid and tile</td><td>10</td><td>10</td><td>$35,000</td></tr>
+      <tr><td>A1150 Paint</td><td>8</td><td>8</td><td>$30,000</td></tr>
+      <tr><td>A1160 Flooring</td><td>7</td><td>7</td><td>$27,500</td></tr>
+      <tr><td>A1180 Furniture install (by owner)</td><td>5</td><td>5</td><td>$15,875</td></tr>
+      <tr><td>A1110 Inspection: in-wall rough-in</td><td>1</td><td>1</td><td>$7,500</td></tr>
+      <tr><td>A1120 Board and tape, level 1</td><td>8</td><td>0</td><td>$0</td></tr>
+      <tr><td>A1130 Board and tape, level 2</td><td>8</td><td>0</td><td>$0</td></tr>
+    </tbody>
+  </table></div>
+  <p>The two board-and-tape activities are on the longest path but have no drag: they run side by side for the same length, so shortening either alone leaves the other holding the finish. That is the trap drag shows and float hides. The 80-hour lag between flooring and furniture has 6 days of drag of its own. Costs are per calendar day, so 10 working days of drag across two weekends is 14 calendar days, $35,000.</p>
+  <h2>How it is worked out</h2>
+  <p>For each activity with work left on the longest path (every chain of driving links into the activities that set the forecast finish), the tool sets its remaining duration to zero, reschedules the whole project with the same engine it uses for everything else (calendars, lags, SS/FF/SF links, constraints, progress and retained logic), and measures the change in the finish on the project calendar. It does the same for each lag between them. It then finds the least shortening that wins the whole drag, because on real calendars the gain can come in steps: in one public file an activity with 14.7 hours of drag wins only 8 hours when shortened by 14.7 hours, and all of it from 22.8 hours.</p>
+  <h2>How it was tested</h2>
+  <p>On 200 random networks (2,477 activities), the drag equals an independent longest-path calculation that shares no code with the scheduling engine, for every activity. On six public P6 files, shortening each activity by exactly its drag brings the finish in by exactly that much in 47 of 50 cases; the three others are explained (an expected finish date that overrides a shorter duration, an activity on a different calendar from the project, and a stepped gain). Details are in the project's <code>eval/</code> notes.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>Drag is one activity at a time.</b> Shortening two activities does not always win the sum of their drags: once one is shortened, a parallel path may take over.</li>
+    <li><b>An expected finish wins.</b> If the project uses expected finish dates, a shorter duration does not count until the expected finish moves; the tool says so on that row.</li>
+    <li><b>Drag cost is not an acceleration quote.</b> It is what that activity's hold on the finish costs you. Compare it with what the overtime or extra crew would cost.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is critical path drag?</h3>
+  <p>The amount of time one activity on the critical path adds to the project's duration: how much earlier the finish would be if that activity took no time. Stephen Devaux defined it in Total Project Control (1999). It is never more than the activity's remaining duration, and it is less when a parallel path with only a little float takes over once the activity is shortened.</p>
+  <h3>Why not just shorten the activity with the longest duration?</h3>
+  <p>Because duration is not what you win. Every critical activity has the same total float, and a 30-day activity running beside a path with 4 days of float can only ever bring the finish in by 4 days. Drag says what each one is really worth before you pay for overtime or a second crew.</p>
+  <h3>Does Primavera P6 calculate drag?</h3>
+  <p>No. P6 shows total float, free float and the longest path, and Microsoft Project shows slack; neither computes drag. You can find it by hand by setting one activity's remaining duration to zero, scheduling, noting the finish and undoing it, once per critical activity. This tool does exactly that for every activity on the longest path, on its own copy of the schedule.</p>
+  <h3>What is reverse drag?</h3>
+  <p>An activity that the critical path enters at its finish (a finish-to-finish link from its predecessor) and leaves at its start (a start-to-start link to its successor). Shortening it moves its start later, which pushes the successor, so the finish moves later. It is a sign the logic should be looked at, and the tool flags it.</p>
+  <h3>Is the file uploaded?</h3>
+  <p>No. The schedule is read and rescheduled in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

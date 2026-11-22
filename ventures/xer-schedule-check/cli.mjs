@@ -75,6 +75,10 @@
 // percent complete, front-loaded progress, overruns). Planned and remaining
 // work follow each assignment's P6 resource curve (curves.mjs; --even-spread
 // spreads evenly); --hours reads labour hours even when cost is loaded.
+// node cli.mjs schedule.xer --drag [--drag-cost 12500] [--csv drag.csv] [--max-runs 800] [--no-expected-finish] [--json] [--project CODE]
+// Critical path drag (drag.mjs): how much earlier the forecast finish would be
+// if each longest-path activity, and each lag between them, took no time,
+// and that time priced at a cost per calendar day of finish.
 // node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--no-expected-finish] [--json] [--project CODE]
 // Time impact analysis instead (tia.mjs): the fragnet (new activities with
 // durations, predecessors and successors; "+N" days on an existing one)
@@ -147,9 +151,10 @@ import { gantt, ganttText, ganttCsv, ganttHtml, codeTypes } from "./gantt.mjs";
 import { mspdiText, msprojectSummary } from "./msproject.mjs";
 import { p6XerText, p6xerSummary } from "./p6xer.mjs";
 import { xerToXlsx, xlsxSummary } from "./excel.mjs";
+import { dragAnalysis, dragText, dragCsv } from "./drag.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -326,6 +331,15 @@ if (args.includes("--tia")) {
   if (opt("--xer")) { writeFileSync(opt("--xer"), xerText(r.impactedXer)); console.error(`impacted schedule written to ${opt("--xer")}`); }
   const { impactedXer, ...plain } = r;
   await emit(args.includes("--json") ? JSON.stringify(plain, null, 2) + "\n" : timeImpactText(r));
+  process.exit(0);
+}
+if (args.includes("--drag")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const cost = opt("--drag-cost") !== undefined ? Number(opt("--drag-cost")) : null;
+  const r = dragAnalysis(xer, { projId: pid, costPerDay: cost, ...(opt("--max-runs") ? { maxRuns: Number(opt("--max-runs")) } : {}), expectedFinish: !args.includes("--no-expected-finish") });
+  if (opt("--csv")) writeFileSync(opt("--csv"), dragCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : dragText(r));
   process.exit(0);
 }
 if (args.includes("--gantt")) {
