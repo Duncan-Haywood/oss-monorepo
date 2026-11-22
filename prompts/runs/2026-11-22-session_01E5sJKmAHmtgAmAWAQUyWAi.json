@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKmAHmtgAmAWAQUyWAi",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T08:18:25Z",
+  "ended": "2026-11-22T11:07:52Z",
+  "wall_minutes": 171.15,
+  "tokens_in": 12037479,
+  "tokens_out": 48228,
+  "cost_usd": 5.629,
+  "tool_calls": 89,
+  "task": "research draw: codesign-cant programme, next milestone (ten seeds for section VII's 125 vs 150 ms knee, from the draft's Still-to-do list)",
+  "projects": [
+    "codesign-cant"
+  ],
+  "pr": 18221,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "first full run.py launch stopped at the 2 h background-job limit with 33 of 34 CMA-ES runs cached; relaunched and resumed from the cache",
+    "second launch crashed after scoring with KeyError 'rise' (my response check assumed every test had a rise field; wind tests do not) before saving results; fixed and re-scored (10 min, training cached)",
+    "in-run response reproduction check printed FAIL (27 mismatches); all 27 are records holding NaN (NaN != NaN for fresh objects); verify.py re-checks NaN-aware: 0 of 216 differ",
+    "first stats.py was not importable for testing (loaded results.json at import); guarded under __main__"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says long runs go in run_in_background but not that the background limit is 2 h hard; a 34-job, ~2 h 10 min CMA-ES sweep needs a per-job cache to survive it (this programme's train() has one, which saved the run)"
+    },
+    {
+      "file": "research/codesign-cant/experiments (m7*/run.py chain)",
+      "issue": "multiprocessing Pool cannot pickle functions from a module loaded by spec_from_file_location under a different name (m7ab); needs module-level wrapper functions in __main__, as m7ac does but does not say"
+    },
+    {
+      "file": "research/codesign-cant/tests/test_paper_numbers.py",
+      "issue": "test_figures_vii_points_are_table7_rows needs matplotlib, which pyenv.py pytest numpy does not pull; install it or the suite shows a failure unrelated to the change"
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/cloud-session.md (background job limit note: do not restart a job that already had the longest timeout)",
+      "why": "the job was stopped by wall-clock, not stuck; the training cache made a restart a resumption of one remaining job, not a repeat",
+      "did": "relaunched run.py, which loaded 33 cached runs and trained the last one",
+      "result": "finished in about 20 min more; results reproduce the stored seeds exactly"
+    },
+    {
+      "file": "research/codesign-cant/paper/DRAFT.md (Still to do: twelve seeds per geometry at 125 and 150 ms)",
+      "why": "ten seeds is the programme's paper standard (m12, m12b) and fit one session's compute; twelve would have added ~1 h",
+      "did": "ten seeds per geometry (20 pooled)",
+      "result": "the pair separated at p = 0.004, so twelve were not needed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-six-seeds-hid-the-drone-motor-lag-knee.md",
+    "research/codesign-cant/LOG.md (milestone 12c entry)",
+    "research/codesign-cant/README.md (ten-seed lag-knee section)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew research; pick_track drew codesign-cant (claim clear). Milestone 12c: seeds 6-9 of 125 ms (7ac) and 150 ms (7aa) lag-ceiling arms, both geometries. Predictions MC0-MC7 committed (41a4d5005) before the full run; all held. Identified-lag crashes 196 vs 112 of 3840, MWU p=0.004, paired Wilcoxon p=0.00003; 75 ms law 695 vs 462; rise 2.08/1.83 vs 1.68/1.73 s. Draft builder rule 3-4x -> about 4x. Checks: paper/check_numbers.py 136/136 ok; project pytest full suite 95 passed, 1 skipped (165 s); research/_homepage/build.py ok; check_md_links ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d91abe48-b926-5e58-9864-a50986945819",
+    "transcripts": 1,
+    "first": "2026-11-22T08:18:25Z",
+    "last": "2026-11-22T11:09:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 179,
+        "output": 48228,
+        "thinking": 10653,
+        "cache_read": 11748040,
+        "cache_write_5m": 0,
+        "cache_write_1h": 289260,
+        "api_equivalent_usd": 5.629,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 179,
+      "output": 48228,
+      "thinking": 10653,
+      "cache_read": 11748040,
+      "cache_write_5m": 0,
+      "cache_write_1h": 289260,
+      "api_equivalent_usd": 5.629,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 81,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 171.15,
+      "active_minutes": 19.92,
+      "model_minutes": 10.52,
+      "tool_minutes": 9.4,
+      "waiting_on_human_minutes": 151.23,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a research engineer scripting a seed extension on an existing pipeline, babysitting ~2.5 h of compute, running the stats and revising the paper section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 177.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
