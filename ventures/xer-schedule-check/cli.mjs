@@ -89,9 +89,7 @@
 // Converts Microsoft Project XML to a Primavera P6 XER instead (p6xer.mjs),
 // for P6's import: summary tasks as the WBS, activity IDs from a text field
 // named "Activity ID" (else A + row ID x 10; --row-ids always), calendars, deadlines as
-// finish-on-or-before constraints with --deadlines, with --udf-types-from the
-// UDF types of the XER the Project file was made from (decimal stays decimal,
-// text UDFs come back as text UDFs, not activity codes),
+// finish-on-or-before constraints with --deadlines,
 // links, constraints, progress, baseline, resources and assignments, text
 // fields as activity codes, and Project's scheduling options; the lines it
 // prints name what is not carried.

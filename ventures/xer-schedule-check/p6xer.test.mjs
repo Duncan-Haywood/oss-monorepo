@@ -486,7 +486,7 @@ test("a WorkContour of 'constructor' or '__proto__' converts as flat, not a cras
   }
 });
 
-test("with the original XER as a hint, decimal UDFs stay decimal and text UDFs come back as UDFs, not codes", () => {
+test("with the original XER (typesFrom), text UDFs come back as text UDFs, not activity codes, beside the number types", () => {
   const X = parseXer(EXAMPLE_XER);
   const T = X.tables;
   const [r1] = T.RSRC;
@@ -520,23 +520,18 @@ test("with the original XER as a hint, decimal UDFs stay decimal and text UDFs c
   assert.deepEqual(typeOf(n), { "Percent (claimed)": "FT_INT", Crew: "FT_INT", Factor: "FT_INT" });
   assert.ok((n.ACTVTYPE || []).some((t) => t.actv_code_type === "Remark"));
   // hint: P6's own types, the text UDF as a text UDF
-  const r = p6XerText(xml, { udfTypesFrom: original });
+  const r = p6XerText(xml, { typesFrom: original });
   assert.deepEqual(p6Problems(r.xer.tables), []);
   const B = parseXer(r.text).tables;
   assert.deepEqual(typeOf(B), { "Percent (claimed)": "FT_FLOAT_2_DECIMALS", Crew: "FT_INT", Remark: "FT_TEXT", Factor: "FT_FLOAT" });
   assert.ok(!(B.ACTVTYPE || []).some((t) => t.actv_code_type === "Remark"));
+  assert.equal(r.counts.typesFromXer.textFields, 1);
+  assert.ok(r.warnings.some((w) => /1 text field\(s\) read as text UDFs/.test(w)));
+  // a text UDF titled as one of the original's code types stays a code
+  const both = parseXer(original);
+  both.tables.ACTVTYPE = [...(both.tables.ACTVTYPE || []), { ...(both.tables.ACTVTYPE || [{}])[0], actv_code_type_id: "999", actv_code_type: "Remark" }];
+  const c = parseXer(p6XerText(xml, { typesFrom: both }).text).tables;
+  assert.ok((c.ACTVTYPE || []).some((t) => t.actv_code_type === "Remark"));
   assert.deepEqual(read(B), read(T).map((x) => x.replace("[claimed]", "(claimed)")).sort());
 });
 
-test("a hint is ignored where it does not fit the values: an integer hint over decimals, a date hint on a number", () => {
-  const X = parseXer(EXAMPLE_XER);
-  const T = X.tables;
-  T.UDFTYPE = [{ udf_type_id: "80", table_name: "TASK", udf_type_name: "user_field_80", udf_type_label: "Ratio", logical_data_type: "FT_FLOAT_2_DECIMALS" }];
-  T.UDFVALUE = T.TASK.slice(0, 2).map((t, i) => ({ udf_type_id: "80", fk_id: t.task_id, proj_id: t.proj_id, udf_date: "", udf_number: String(1.5 + i), udf_text: "", udf_code_id: "" }));
-  const xml = mspdiText(X).xml;
-  const hint = (type) => xerText({ ...X, tables: { ...T, UDFTYPE: [{ ...T.UDFTYPE[0], logical_data_type: type }] } });
-  const typeOf = (opts) => parseXer(p6XerText(xml, opts).text).tables.UDFTYPE[0].logical_data_type;
-  assert.equal(typeOf({ udfTypesFrom: hint("FT_INT") }), "FT_FLOAT_2_DECIMALS");
-  assert.equal(typeOf({ udfTypesFrom: hint("FT_START_DATE") }), "FT_FLOAT_2_DECIMALS");
-  assert.equal(typeOf({ udfTypesFrom: hint("FT_FLOAT") }), "FT_FLOAT");
-});

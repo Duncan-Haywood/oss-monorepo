@@ -1,5 +1,5 @@
 // UDF types on the P6 -> Project XML -> P6 round trip, with and without the
-// original XER as a type hint (p6XerText's udfTypesFrom, CLI --udf-types-from).
+// original XER as a type hint (p6XerText's typesFrom, CLI --types-from; text UDFs read as text UDFs since this run).
 // eval/udf-type-hints-2026-11-22.md says what it found.
 //
 // node eval/udf-type-hints.mjs <XER files or a dir> [--json out.json]
@@ -60,7 +60,7 @@ for (const f of files) {
   const codesA = codes(X.tables, (id) => P6code.get(id));
   const row = { file: basename(f), version: X.version, udfValues: A.size, carried: want.size, byType: {} };
   for (const t of want.values()) row.byType[t] = (row.byType[t] || 0) + 1;
-  for (const [name, opts] of [["noHint", {}], ["hint", { udfTypesFrom: text }]]) {
+  for (const [name, opts] of [["noHint", {}], ["hint", { typesFrom: text }]]) {
     const r = p6XerText(conv.xml, opts);
     const B = parseXer(r.text);
     const codeOf = new Map(B.tables.TASK.map((t) => [t.task_id, t.task_code]));

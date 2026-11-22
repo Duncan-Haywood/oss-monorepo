@@ -1,4 +1,4 @@
-# UDF types on the round trip P6 → Project XML → P6, 2026-11-22
+# Text UDFs on the round trip P6 → Project XML → P6, 2026-11-22
 
 **Question.** A P6 file sent to a Microsoft Project user and back (XER →
 Project XML with `msproject.mjs`, → XER with `p6xer.mjs`) returned every
@@ -12,33 +12,24 @@ one Number type and its Text fields read back as activity codes, so:
   Expressway values), so in P6 a free-text column such as "change id" or
   "EAM Contact Person" turned into a code dictionary.
 
-`NEXT.md` asked for "a hint that survives a save in Project". Nothing in a
-Project custom field's definition says integer vs decimal or text-UDF vs
-code, and with no Project seat here there is no way to test which extra
-marker a save in Project would keep. But the person who sends a P6 file
-through Project and back almost always still has the original XER. So the
-hint is that file: `p6XerText(xml, { udfTypesFrom: <original XER> })`, CLI
-`--udf-types-from original.xer`, and a file box on the page.
+PR #18190 (`eval/udf-types-from-2026-11-22.md`, landed minutes before this
+one) fixed the first: given the original XER (`typesFrom`, CLI
+`--types-from`, a file box on the page), number and date UDFs take their P6
+type back by title. This run started on the same item in parallel. It is
+rebased onto #18190's API and adds the second fix, text UDFs.
 
 ## What changed
 
-- `mspdi.mjs`: `udfTypeHints(tables)` maps (subject area, UDF title) to P6's
-  type from an XER; `parseMspdi(text, { udfTypes })` uses it. Titles are
-  matched as `msproject.mjs` writes them (Alias with `[ ]` made `( )`, cut to
-  50 characters, a repeated title's ` (UDF n)` removed, case ignored); a
-  title two UDFs share with different types is not used.
-  - Number fields take the hinted integer or decimal type, but integer only
-    if every value is a whole number; date fields the hinted start or finish
-    subtype (covers finish-date UDFs that spilled into Date fields past
-    Finish10). A hint of another kind (a date hint on a number field) is
-    ignored.
-  - A task Text field whose title is a text UDF in the hint is read as a text
-    UDF (all values kept, even when every value differs, where the code
-    reading skips the field), not as an activity code. Real activity codes
-    are untouched.
-- `p6xer.mjs`: `udfTypesFrom` option; resource UDF fields take the hint the
-  same way. `cli.mjs`: `--udf-types-from`. `index.html`: an optional "original
-  XER" file box under the Project → P6 button, read in the tab.
+- `mspdi.mjs`: `parseMspdi(text, { textUdf })`. `textUdf(title)` true means
+  a task Text field is read as a text UDF (`FT_TEXT`, every value kept, even
+  when every value differs, where the code reading skips the field), not as
+  an activity code.
+- `p6xer.mjs`: `udfTyper(typesFrom)` now also builds that predicate from the
+  original's activity text UDFs. Titles are matched as `msproject.mjs` writes
+  them: `[ ]` made `( )`, cut to 50 characters, a repeated title's
+  ` (UDF n)` removed, case ignored. A title that is also one of the
+  original's activity code types is left as a code. The warning and
+  `counts.typesFromXer.textFields` say how many fields were read this way.
 
 ## Data
 
@@ -53,7 +44,7 @@ none; they were run to see that nothing else changes.
 (this tool's reader; values matched by activity ID, title and value, then
 P6's type compared):
 
-| | no hint (main) | with the original XER |
+| | no XER | with the original XER (this run) |
 |---|---|---|
 | CCA values Project carried (numeric, cost, date, text) | 40,983 | 40,983 |
 | ... back as UDFs | 13,174 | **40,983** |
@@ -65,7 +56,9 @@ P6's type compared):
 | Extra UDF values | 0 | 0 |
 | P6 import problems (`p6Problems`) | 0 | 0 |
 
-Total: **42,847 of 42,847** values back with P6's own type, against 7,927.
+Total: **42,847 of 42,847** values back with P6's own type, against 7,927
+with no XER and 13,997 with #18190's number and date types alone (the 28,850
+text values were still codes).
 By type in CCA: 10,621 decimal, 2,371 integer, 182 finish date, 27,809 text.
 The real code count is the same both ways; the 3,541 not back are the code
 types `msproject.mjs` has no Text field left for (known, `NEXT.md`). With the
@@ -89,17 +82,18 @@ matched by title, MPXJ's own data type per field):
 `eval/udf-type-hints-mpxj-hinted-2026-11-22.json`; the 746 are the unwritten
 CCA text values above.)
 
-Unit tests: `p6xer.test.mjs` ("with the original XER as a hint ...": a
-decimal UDF of whole numbers, an integer one, a text UDF with a `[ ]` title,
-a decimal resource UDF; "a hint is ignored where it does not fit ...": an
-integer hint over decimals and a date hint on a number field keep the guess).
+Unit tests: `p6xer.test.mjs` ("with the original XER (typesFrom), text UDFs
+come back as text UDFs ..."): a text UDF next to decimal, integer and
+resource UDFs, the warning and count, and a text UDF titled as a code type
+staying a code. `udf-types-from.test.mjs` (#18190's) now also expects
+`textFields: 0` where there is no text UDF.
 
 ## Limits
 
 - The hint needs the original XER. A Project file with no P6 origin has no
   types to restore, and gets the guesses as before.
 - Matching is by title: a UDF renamed in Project (its Alias changed) loses
-  its hint and falls back to the guess.
+  its hint and falls back to the guess (a text UDF then reads as a code).
 - Not imported into P6 itself (no seat); the types are P6's own
   `logical_data_type` values, read back here and by MPXJ.
 - Still open: an in-file marker that survives a save in Project, for when
