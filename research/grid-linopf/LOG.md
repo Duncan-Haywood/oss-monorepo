@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-22 · Rules K1 and Kr: outcome. K1 (round 1 never arms) loses no development finisher, 32 of 34 (case240 SAD back, case118 API kept); held-out 10 of 19 as frozen, 8 of 10 common finishers sooner at +0.65 cost points; Kr 31 of 34 and 10 of 19. F7 not met, the frozen repair stays
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-22); numbers in `research/infra-dcopf/experiments/results_kfirst.txt`. F0 to F4 held for K1, F6 refuted; for Kr F2 refuted.
+- No K variant finishes a held-out overload stall; the case1354_pegase cases end 1 to 2 overloads short. Next: a post-feasibility cost phase scored from frozen and K1 starts.
+
 ## 2026-11-22 · Rules K1 and Kr: rule K without the unboxed round 1's remainder (plan)
 - Plan, rules K1 (`k_first="skip"`) and Kr (`k_first="scale"`) and predictions F0 to F7: `research/infra-dcopf/LOG.md` (2026-11-22); script `research/infra-dcopf/experiments/run_kfirst.py`. Development and held-out, against the frozen repair and rule K.
 

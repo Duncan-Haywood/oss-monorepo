@@ -306,8 +306,8 @@ Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens`
 - **DC dispatch under AC.** The DC generator set-points are fixed in an AC power flow with the external grid as slack; we count buses outside their voltage limits, branches above their loading limit, and the cost of the resulting dispatch (slack included) with the same cost function (`gen_cost`, checked to match pandapower's `res_cost` to 1e-6).
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
-## Checks (`tests/`, 92)
-- `tests/test_kmargin.py` (3): rule K's per-end margin moves only the thermal row it names, by its share of the rating; `kmargin=None` is the frozen repair and `check(ends=True)`'s per-end loadings peak at its `max_load`; on case30 API the rule arms only on rounds whose trial overloads a branch.
+## Checks (`tests/`, 93)
+- `tests/test_kmargin.py` (4): rule K's per-end margin moves only the thermal row it names, by its share of the rating; `kmargin=None` is the frozen repair and `check(ends=True)`'s per-end loadings peak at its `max_load`; on case30 API the rule arms only on rounds whose trial overloads a branch.
 - `tests/test_summerit.py` (4): rule S's merit equals the frozen one with a single overload, counts every overload otherwise, can accept a step the frozen merit rejects, and `check` reports a summed excess at least the worst one.
 - `tests/test_converge.py` (4): the traced repair reproduces `vlin.slp`'s history on case14 API, halving a step quarters the linearisation remainder (second order), broken rows are flagged on the side they break, and misses are classed elastic, curvature or other.
 - `tests/test_lpac.py` (4, 8 cases): LPAC's branch coefficients with the exact trigonometric terms reproduce PYPOWER's flows at the AC optimum on case14 TYP, case30 API and case118 SAD and with a 5-degree phase shifter added; LPAC-C solves case14 TYP and API and case30 SAD inside its voltage bands with positive losses and a cost within 5 % of the AC optimum; SCS and Clarabel agree on its objective to 1e-5.
@@ -433,6 +433,18 @@ The repair aims every thermal row 0.1 % inside its rating, but the case1888 API 
 - **Not adopted.** The pre-registered rule needed no development loss and a held-out net gain; neither happened. A 0.02 cap (sensitivity arm) is worse: 30 of 34 and 9 of 19.
 - **Why it loses case240 SAD.** Six rows arm on round 1, which has no P box, so their margins start at the cap; the margin shrinks only when the box halves, so through accepted steps it stays, and every hard QP from round 1 to 30 is empty. A remainder measured on the unboxed step is the wrong size for the boxed steps after it.
 - **What it shows.** The finishes it brings sooner are dearer, because the margin holds flows further inside their ratings than the AC optimum does. That is the case for a cost phase after the first clean point, and for scaling the learned margin by the actual step rather than by halvings.
+
+## Rule K without round 1 (rules K1 and Kr, added 2026-11-22, `experiments/run_kfirst.py`, `results_kfirst.txt`)
+Rule K's one development loss came from rows armed on the unboxed round 1. Two variants, fixed and logged before they ran: **K1** never arms on round 1; **Kr** arms on round 1 with the remainder divided by the square of the step's size in first-box units. Everything else is rule K (cap 0.05); 15 of 15 cases where rule K never armed on round 1 reproduce its run exactly.
+
+| | finishers: frozen / K / **K1** / Kr | where K1 and frozen both finish |
+|---|---|---|
+| development, 34 cases, 30 rounds | 31 / 31 / **32** / 31 | K1 gains case118 API (round 28, +0.65 %), regains case240 SAD (round 20, +0.38 %, as frozen), loses none; cost +0.03 points on average |
+| held-out, 19 cases, 20 rounds | 10 / 10 / **10** / 10 | 8 of 10 sooner, 1 later (median &minus;3 rounds, sign test P = 0.039), cost **+0.65 points** on average |
+
+- **The mechanism is confirmed.** Dropping round-1 arming alone turns rule K's development record into a strict improvement on the frozen repair. Rescaling (Kr) also fixes case240 SAD but loses case118 API.
+- **Not adopted.** The pre-registered test also needs a held-out net gain; none of the five overload stalls finishes (case1354_pegase ends 1 to 2 overloads short, at 108 to 117 %), so the frozen repair stays.
+- **What it shows.** Held out, a learned per-row margin buys speed, not finishes, and pays for it in cost. That makes a cost phase after the first clean point the next test, scored from both the frozen and the K1 runs.
 
 ## Next steps
 1. Published binding ratings done on 23 PGLib-OPF cases, and an AC-informed linearisation on them (sections above): successive linearisation clears 7 of 11 API cases where `corrected_dc` clears 1. SAD held-out test done (C-ang clean on 7 of 11, same rules). Voltage schedule not from the AC optimum done (clean on 2 of 11 API and SAD at 1.0 pu; section above). Voltage setpoints as decision variables done (with interior margins, 28 of 34 fully clean with the reactive stage; tuned on these cases). Analytic sensitivities done (19 and 29 of 34; the QP is the bottleneck). Next: a sparse or screened QP and a post-feasibility cost phase; Next, as milestones of the programme [`grid-linopf`](../grid-linopf/PROPOSAL.md): the frozen J-m on held-out (larger) PGLib cases; LPAC and optimised-linearisation baselines; an exact loss/congestion decomposition of the API LMPs from the AC duals.
