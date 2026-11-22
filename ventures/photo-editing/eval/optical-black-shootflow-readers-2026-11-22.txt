@@ -1,0 +1,131 @@
+# --reader shootflow (strict black test, quiet lines)
+6 raws read, 51 skipped
+frame read term clamped to 0: 4 of 6
+sqrt(read_frame) / sigma_ob: median 0.00, under 0.5: 4, under 0.8: 5, 0.8-1.25: 0, over 1.25: 1
+sigma at 1% of white, floored / frame: median 1.16, raised over 10%: 5
+
+| file | OB sigma (DN) | OB sigma x1000 | frame read sigma x1000 | ratio | 1% sigma lift |
+|---|---:|---:|---:|---:|---:|
+| Canon EOS 600D.CR2 | 6.86 | 0.479 | 0.000 | 0.00 | 1.14x |
+| Canon EOS 7D.cr2 | 4.90 | 0.463 | 0.000 | 0.00 | 1.17x |
+| LG Nexus 5X.dng | 1.64 | 1.688 | 0.000 | 0.00 | 1.50x |
+| Pentax K-1 Mark II.pef | 28.64 | 1.865 | 0.000 | 0.00 | 2.23x |
+| Canon EOS 70D.cr2 | 7.15 | 0.499 | 0.264 | 0.53 | 1.11x |
+| Canon EOS 350D.CR2 | 2.83 | 0.739 | 2.463 | 3.33 | 1.00x |
+skipped Sony DSLR-A500.arw: no masked margin (sensor 4288x2858, picture 4288x2858 at 0,0)
+skipped Sony ILCE-5000 (A5000).arw: no masked margin (sensor 5504x3656, picture 5504x3656 at 0,0)
+skipped Sony ILCE-7M3 (A7M3).arw: no masked margin (sensor 6048x4024, picture 6000x4000 at 12,12)
+skipped Sony ILCE-7M4 (A7M4).ARW: no masked margin (sensor 7168x5120, picture 7008x4672 at 12,8)
+skipped Sony NEX-5N.arw: no masked margin (sensor 4928x3276, picture 4928x3276 at 0,0)
+skipped Sony NEX-7.arw: no masked margin (sensor 6048x4024, picture 6048x4024 at 0,0)
+skipped DJI Phantom 4 (1).dng: no masked margin (sensor 4000x3000, picture 3992x2992 at 4,4)
+skipped DJI Phantom 4 (2).dng: no masked margin (sensor 4000x3000, picture 3992x2992 at 4,4)
+skipped Leica T (Typ 701).dng: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Leica X VARIO (Typ 107).dng: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Pentax QS1.dng: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped bigtiff.dng: DevelopError: not a classic TIFF/DNG file (magic 43)
+skipped bigtiff_be.dng: DevelopError: not a classic TIFF/DNG file (magic 43)
+skipped Issue 247-1.nef: DevelopError: not a TIFF/DNG file (no II/MM byte-order mark)
+skipped Issue 247-2.nef: DevelopError: not a TIFF/DNG file (no II/MM byte-order mark)
+skipped Issue 247-3.nef: DevelopError: not a TIFF/DNG file (no II/MM byte-order mark)
+skipped Issue 247-4.nef: DevelopError: not a TIFF/DNG file (no II/MM byte-order mark)
+skipped Nikon 800E.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Nikon D300.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Nikon D5100.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Nikon D70.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Nikon D810.nef: no masked margin (sensor 7380x4928, picture 7380x4928 at 0,0)
+skipped Nikon D90.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped NikonD200.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped OM System TG-7.ORF: no masked margin (sensor 4040x3016, picture 4000x3000 at 8,8)
+skipped OM Sytem OM-1.orf: no masked margin (sensor 5220x3912, picture 5184x3888 at 12,12)
+skipped Olympus C5050Z.orf: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Olympus C8080.orf: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Olympus E-M10.orf: no masked margin (sensor 4640x3472, picture 4608x3456 at 8,8)
+skipped Olympus E-M5.orf: no masked margin (sensor 4640x3472, picture 4608x3456 at 8,8)
+skipped Olympus E-PL7.orf: no masked margin (sensor 4640x3472, picture 4608x3456 at 8,8)
+skipped Olympus E-PM1.orf: no masked margin (sensor 4080x3040, picture 4032x3024 at 8,8)
+skipped Olympus E30.orf: no masked margin (sensor 4100x3084, picture 4032x3024 at 30,26)
+skipped Olympus E410.orf: no masked margin (sensor 3720x2800, picture 3648x2736 at 48,30)
+skipped Olympus E600.orf: no masked margin (sensor 4100x3084, picture 4032x3024 at 30,30)
+skipped Olympus PEN E-P3.orf: masked margin reads 0.00 DN, too quiet to be read noise
+skipped Olympus Pen E-PL1.orf: no masked margin (sensor 4100x3084, picture 4032x3024 at 28,28)
+skipped Olympus SP350.orf: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Olympus SP500UZ.orf: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Olympus TG-4.orf: no masked margin (sensor 4640x3472, picture 4608x3456 at 8,8)
+skipped Olympus TG-6.ORF: no masked margin (sensor 4040x3016, picture 4000x3000 at 8,8)
+skipped Olympus XZ1.orf: no masked margin (sensor 3680x2760, picture 3648x2736 at 8,8)
+skipped Issue 419.rw2: DevelopError: IFD offset 24576 is outside the file
+skipped Panasonic DMC-GF1.rw2: no masked margin (sensor 4060x3016, picture 4000x3000 at 8,4)
+skipped Panasonic DMC-GF3.rw2: no masked margin (sensor 4088x2688, picture 4000x2672 at 8,4)
+skipped Panasonic DMC-GF7.rw2: no masked margin (sensor 4816x3464, picture 4592x3448 at 8,8)
+skipped Panasonic Lumix DMC-LX7.rw2: no masked margin (sensor 3696x2752, picture 3648x2736 at 8,8)
+skipped Samsung EK-GN120 (Galaxy NX).srw: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Samsung NX1.srw: no masked margin (sensor 6496x4336, picture 6480x4320 at 0,0)
+skipped Samsung NX20.srw: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Samsung NX3000.srw: black level 0: masked sensels are clipped at 0, their spread understates read noise
+
+# LibRaw, same tests
+6 raws read, 51 skipped
+frame read term clamped to 0: 3 of 6
+sqrt(read_frame) / sigma_ob: median 0.25, under 0.5: 3, under 0.8: 4, 0.8-1.25: 0, over 1.25: 2
+sigma at 1% of white, floored / frame: median 1.14, raised over 10%: 4
+
+| file | OB sigma (DN) | OB sigma x1000 | frame read sigma x1000 | ratio | 1% sigma lift |
+|---|---:|---:|---:|---:|---:|
+| Canon EOS 600D.CR2 | 6.85 | 0.594 | 0.000 | 0.00 | 1.16x |
+| LG Nexus 5X.dng | 1.64 | 1.688 | 0.000 | 0.00 | 1.49x |
+| Pentax K-1 Mark II.pef | 29.16 | 1.898 | 0.000 | 0.00 | 2.34x |
+| Canon EOS 70D.cr2 | 7.15 | 0.539 | 0.272 | 0.50 | 1.12x |
+| Canon EOS 7D.cr2 | 4.90 | 0.424 | 0.551 | 1.30 | 1.00x |
+| Canon EOS 350D.CR2 | 2.82 | 0.736 | 2.497 | 3.39 | 1.00x |
+skipped Sony DSLR-A500.arw: no masked margin (sensor 4288x2858, picture 4256x2858 at 0,0)
+skipped Sony ILCE-5000 (A5000).arw: no masked margin (sensor 5504x3656, picture 5472x3656 at 0,0)
+skipped Sony ILCE-7M3 (A7M3).arw: no masked margin (sensor 6048x4024, picture 6024x4024 at 0,0)
+skipped Sony ILCE-7M4 (A7M4).ARW: no masked margin (sensor 7168x5120, picture 7028x4688 at 0,0)
+skipped Sony NEX-5N.arw: no masked margin (sensor 4928x3276, picture 4920x3276 at 0,0)
+skipped Sony NEX-7.arw: no masked margin (sensor 6048x4024, picture 6024x4024 at 0,0)
+skipped DJI Phantom 4 (1).dng: no masked margin (sensor 4000x3000, picture 4000x3000 at 0,0)
+skipped DJI Phantom 4 (2).dng: no masked margin (sensor 4000x3000, picture 4000x3000 at 0,0)
+skipped Leica T (Typ 701).dng: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Leica X VARIO (Typ 107).dng: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Pentax QS1.dng: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped bigtiff.dng: LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'
+skipped bigtiff_be.dng: LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'
+skipped Issue 247-1.nef: LibRawIOError: b'Input/output error'
+skipped Issue 247-2.nef: LibRawIOError: b'Input/output error'
+skipped Issue 247-3.nef: LibRawIOError: b'Input/output error'
+skipped Issue 247-4.nef: LibRawIOError: b'Input/output error'
+skipped Nikon 800E.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Nikon D300.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Nikon D5100.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Nikon D70.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Nikon D810.nef: no masked margin (sensor 7380x4928, picture 7380x4928 at 0,0)
+skipped Nikon D90.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped NikonD200.nef: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped OM System TG-7.ORF: no masked margin (sensor 4040x3016, picture 4014x3016 at 0,0)
+skipped OM Sytem OM-1.orf: no masked margin (sensor 5220x3912, picture 5220x3912 at 0,0)
+skipped Olympus C5050Z.orf: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Olympus C8080.orf: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Olympus E-M10.orf: no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)
+skipped Olympus E-M5.orf: no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)
+skipped Olympus E-PL7.orf: no masked margin (sensor 4640x3472, picture 4640x3472 at 0,0)
+skipped Olympus E-PM1.orf: no masked margin (sensor 4080x3040, picture 4056x3040 at 0,0)
+skipped Olympus E30.orf: no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)
+skipped Olympus E410.orf: no masked margin (sensor 3720x2800, picture 3720x2800 at 0,0)
+skipped Olympus E600.orf: no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)
+skipped Olympus PEN E-P3.orf: masked margin reads 0.00 DN, too quiet to be read noise
+skipped Olympus Pen E-PL1.orf: no masked margin (sensor 4100x3084, picture 4096x3084 at 0,0)
+skipped Olympus SP350.orf: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Olympus SP500UZ.orf: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Olympus TG-4.orf: no masked margin (sensor 4640x3472, picture 4624x3472 at 0,0)
+skipped Olympus TG-6.ORF: no masked margin (sensor 4040x3016, picture 4014x3016 at 0,0)
+skipped Olympus XZ1.orf: no masked margin (sensor 3680x2760, picture 3680x2760 at 0,0)
+skipped Issue 419.rw2: LibRawFileUnsupportedError: b'Unsupported file format or not RAW file'
+skipped Panasonic DMC-GF1.rw2: no masked margin (sensor 4060x3016, picture 4016x3016 at 0,0)
+skipped Panasonic DMC-GF3.rw2: no masked margin (sensor 4088x2688, picture 4016x2688 at 0,0)
+skipped Panasonic DMC-GF7.rw2: no masked margin (sensor 4816x3464, picture 4608x3464 at 0,0)
+skipped Panasonic Lumix DMC-LX7.rw2: no masked margin (sensor 3696x2752, picture 3664x2752 at 0,0)
+skipped Samsung EK-GN120 (Galaxy NX).srw: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Samsung NX1.srw: no masked margin (sensor 6496x4336, picture 6496x4336 at 0,0)
+skipped Samsung NX20.srw: black level 0: masked sensels are clipped at 0, their spread understates read noise
+skipped Samsung NX3000.srw: black level 0: masked sensels are clipped at 0, their spread understates read noise

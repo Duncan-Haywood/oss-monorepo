@@ -5,6 +5,12 @@ there): the optical-black area." Before building a floor into `--noise-from-fram
 it rests on: how many real raws keep masked sensels a reader can use, and whether the frame's own read term
 actually falls short of what those sensels show.
 
+> **Correction (same day, eval/optical-black-shootflow-readers-2026-11-22.md):** the masked-line test here was too
+> loose. Its 0.5%-of-white black tolerance let dim picture lines in, and it did not skip black-level-0 files,
+> whose masked sensels are clipped. With a 0.1% tolerance, a quiet-line test and that skip, **6 of 57** read, not 8.
+> The E-P3 row (a near-constant fill plus dim lines) and the NX3000 row (black 0) are not read-noise readings, and
+> the 70D reads 7.15 DN, not 7.54. The conclusions below hold on the 6.
+
 ## Method
 
 `tools/optical_black_floor.py` (tests: `tests/test_optical_black_floor.py`, 5). Every raw in the public
