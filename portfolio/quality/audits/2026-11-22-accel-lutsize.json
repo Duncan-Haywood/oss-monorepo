@@ -1,0 +1,235 @@
+{
+ "date": "2026-11-22",
+ "subject": "research/accel-lutsize",
+ "stratum": "research",
+ "seed": "2026-11-22-d-6938",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a computer-architecture researcher who builds energy models of DNN accelerators (Eyeriss / Timeloop-Accelergy / CACTI style); first checks: do the energies and the break-even recompute from the stated constants, is the memory-size law anchored on data or assumed, does the verdict survive the accuracy tolerance and the dataflow assumption, and is the result compared with EIE-style codebook accelerators and published sub-8 KB SRAM/register-file energies",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the tests and experiments/run.py in a scratch copy (research/accel-lut, accel-horowitzcheck, accel-lutsize copied side by side, /usr/bin/python3.13 with numpy 2.5.3): results.txt and results.json are byte-identical to the committed ones. Independent re-derivation in the scratchpad (lutsize_check.py, which does not import the project; constants typed from Horowitz 2014 Fig. 1.1.9: 10 pJ per 64-bit at 8 KB, 8-bit multiply 0.2 pJ) over accel-lut's results.json: dense int8 MAC 3.486 nJ at alpha 0 and 1.810 at 0.5, dense share8 9.310 / 3.220 / 2.016 / 0.944 at alpha 0 / 0.2 / 0.3 / 0.5, pruned MAC 1.474 / 0.507, pruned share4 3.343 / 1.133 / 0.715 / 0.345: every README table cell matches to 2 decimals. Continuous (bisection) break-even alpha 0.2592 dense and 0.2790 pruned against the README's 0.26 and 0.28 (0.005 grid); ratios at alpha 0.5 0.521 and 0.680 (README 0.52, 0.68). Analytic 64xN layer: ratio 0.98 at N=256 alpha 0.2 and 0.90 at N=32 alpha 0.4, so 'N >= 256 at 0.2, N >= 32 at 0.4' holds. With 0.16 pJ/bit flat the MAC is 3.559 nJ, accel-lut's 3.56. Horowitz log-log slope 8 to 32 KB = ln2/ln4 = 0.500 (8 KB to 1 MB is 0.475). Replacing the 0.075 pJ 24-bit add with a Horowitz linear interpolation (0.0767) leaves the break-even unchanged (both engines do n adds). The arithmetic and implementation are right for the stated model.",
+  "completeness": "Everything in Reproduce runs except the figure: 7 unit tests pass (0.000 s), run.py reproduces results.txt and results.json byte for byte in 0.2 s. figure.py could not be re-run (matplotlib not installed in this container); experiments/ratio.png is present (845x520 PNG) and figure.py reads only results.json, which reproduces. The research/README.md homepage entry matches the README numbers; the live page returned a proxy 403. Next steps (measure sub-8 KB arrays in Sky130/IHP; re-cost accel-lutwide, accel-lutft) are listed as not done, not claimed. Note: run.py writes results.json/results.txt into the tree, so reproducing in place overwrites the committed files.",
+  "verification": "`cd research/accel-lutsize && /usr/bin/python3.13 -m unittest discover -s tests -v`: 7 tests OK. Five mutants via platform/ci/quality_mutate.py: caught 1 (size-law exponent halved, cost.py:26); survived 4: pricing the table as fan_in*K entries instead of K (cost.py:47, which on my re-derivation removes the flip entirely: no break-even in 0..1 for dense share8 or pruned share4), pricing the MAC activation buffer at n*abits (cost.py:37), dropping the sparse column index from the table engine (cost.py:43; no test uses sparse=True), and inverting the break-even comparison in run.py:76 (run.py's selection, tolerance filter and break-even search have no tests at all). The two alpha-0 tests compare against accel-lut only at alpha 0, where every array size is irrelevant, so the size-dependent pricing that is the whole contribution is guarded by one slope test and one inequality.",
+  "craft": "Read src/accel_lutsize/cost.py (52 lines), tests/test_cost.py (47), experiments/run.py (123), experiments/figure.py (23). Small, stdlib, readable, reuses accel-lut's and accel-horowitzcheck's constants rather than copying them (good). Defects: sys.path inserts into two sibling projects (cost.py:14-15) rather than a declared dependency; json.load(open(...)) and open(...).write without closing (run.py:35, :61, :120-122); crossover(layer_n=None) has an unused parameter (run.py:50); report() shadows the imported-module name L with a list (run.py:83); run.py writes its outputs over the committed files with no --out option. None affects the numbers.",
+  "claims": "Backed by files: every number in the README table, break-even, alpha-0.5 ratios, the reproduction check (3.49 vs 3.56) and the analytic-layer statement (recomputed above); the floor variant equals the flat model (results.txt: 2.67 and 2.27 at every alpha); '7 tests'. Limitations are candid (conditional headline, cache vs ROM/flip-flops, no leakage or wiring). Not backed: the headline says accel-lut found the table engine 'about 2.7 times the energy ... because it charged every array a flat 0.16 pJ/bit' and that size pricing 'flips that verdict' (README.md:3, project.json lede/summary). accel-lut's own README reports a near tie in its favourable case (dense share8 3.51 nJ vs int8 3.56 nJ at a 0.04 pJ/bit table read; pruned share4 1.55 vs 1.51) and the 2.7x only for the pessimistic 0.16 case. On my arithmetic accel-lut's 0.04 pJ/bit table corresponds to alpha = ln(0.256)/ln(32/8192) = 0.25 for the 32-byte table, i.e. almost exactly this project's break-even: the project re-parametrises accel-lut's existing sweep rather than overturning a clear negative. 'Horowitz ... has no point below 8 KB' is true of that figure, but the README frames it as if no sub-8 KB data exist (see domain).",
+  "fitness": "Job: an accelerator researcher wants to know whether codebook/product-table inference beats an int8 MAC engine at keyword-spotting scale, and to reuse the cost model. They get a clean, reproducible one-parameter sweep and a break-even exponent, which is a useful framing. They cannot rely on the verdict: it rests on (a) an alpha nobody has pinned below 8 KB, although CACTI (open source) and published accelerator hierarchies give sub-8 KB points; (b) the 2-point tolerance: at the near-lossless share16 (0.4-point drop) the dense break-even moves from 0.26 to 0.40, and pruned share8 (0.4 points) to 0.49 (my bisection), which is not reported; (c) one 32-byte table rebuilt per input: holding all 64 tables as one 2 KB array (mutant cost.py:47) removes the flip. Nearest prior work: Han et al. 'EIE' (ISCA 2016), a weight-sharing codebook accelerator priced with CACTI SRAM energies; Chen et al. 'Eyeriss' (ISCA 2016) and Sze et al. (Proc. IEEE 2017) normalised hierarchy (0.5 KB register file 1x vs ~100 KB buffer 6x, a log-log slope of about 0.33, above the 0.26-0.28 break-even; cited from memory, not re-checked here); product-table / LUT inference such as LUT-NN (Tang et al. 2023). None is cited. The result is a modest, sound extension of accel-lut, not a new finding a reader could build a paper on.",
+  "domain": "Against accelerator energy-modelling practice (CACTI or memory-compiler numbers per array size and word width, per-access rather than per-bit read energy, accumulator/register traffic, leakage), the model departs in ways it partly states: per-bit read energy scaled by a power of array size is a reasonable first-order device and sweeping it is the right move when a figure is unknown (research/CLAUDE.md 'When nothing exists, sweep'), but research/CLAUDE.md also says 'where a number can be produced by running real code, run it', and CACTI can produce sub-8 KB SRAM energies in this container. Per-bit pricing of 1- to 3-bit index reads assumes perfect packing; real SRAM reads a word per access, which penalises narrow reads (not stated). Output accumulator read-modify-writes are omitted for both engines (does not move the break-even, does change the ratios). The PhD bar in research/CLAUDE.md is not met: this is a correct sensitivity analysis whose deciding parameter was left unmeasured."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Per-design energies (nJ/inference) at alpha 0, 0.2, 0.3, 0.5, dense and 75% pruned",
+   "method": "own re-implementation from the README formula and Horowitz (2014) Fig. 1.1.9 constants, no project import",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_check.py research/accel-lut/experiments/results.json",
+   "expected": "MAC 3.49/1.81, share8 9.31/3.22/2.02/0.94; pruned MAC 1.47/0.51, share4 3.34/1.13/0.72/0.34 (README.md:28-31)",
+   "observed": "3.486/1.810, 9.310/3.220/2.016/0.944; 1.474/0.507, 3.343/1.133/0.715/0.345",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even exponent, cheapest in-tolerance table vs int8 MAC",
+   "method": "continuous bisection on alpha in own script (project uses a 0.005 grid)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_check.py research/accel-lut/experiments/results.json",
+   "expected": "0.26 dense, 0.28 pruned (README.md:34)",
+   "observed": "0.2592 dense (share8), 0.2790 pruned (share4)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Table/MAC ratio at alpha 0.5",
+   "method": "own script",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_check.py research/accel-lut/experiments/results.json",
+   "expected": "0.52 dense, 0.68 pruned",
+   "observed": "0.521, 0.680",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Analytic dense 64xN, K=16 crossover",
+   "method": "own script",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_check.py research/accel-lut/experiments/results.json",
+   "expected": "table wins at N >= 256 at alpha 0.2, N >= 32 at alpha 0.4 (README.md:36)",
+   "observed": "N=128 1.09, N=256 0.98 at 0.2; N=16 1.29, N=32 0.90 at 0.4",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Horowitz slope 8 to 32 KB used as alpha = 0.5",
+   "method": "log-log slope of 10 pJ (8 KB) and 20 pJ (32 KB), Horowitz 2014 Fig. 1.1.9",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_check.py research/accel-lut/experiments/results.json",
+   "expected": "0.5",
+   "observed": "0.500 (8 KB to 1 MB: 0.475)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Reproduction of accel-lut's MAC at a flat 0.16 pJ/bit",
+   "method": "own script with flat 0.16",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_check.py research/accel-lut/experiments/results.json",
+   "expected": "3.56 dense, 1.51 pruned (accel-lut README)",
+   "observed": "3.559, 1.507",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces committed results",
+   "method": "run in scratch copy, diff",
+   "command": "cd <scratch>/research/accel-lutsize && /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt <repo>/research/accel-lutsize/experiments/results.txt",
+   "expected": "no diff (txt and json)",
+   "observed": "no diff in either",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure.py redraws ratio.png",
+   "method": "run in scratch copy",
+   "command": "/usr/bin/python3.13 experiments/figure.py",
+   "expected": "ratio.png written",
+   "observed": "ModuleNotFoundError: matplotlib (not installed here); committed PNG present, inputs reproduce",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Unit tests",
+   "method": "run",
+   "command": "/usr/bin/python3.13 -m unittest discover -s tests -v",
+   "expected": "7 tests pass",
+   "observed": "7 OK, 0.000 s (needs numpy via the accel-lut import; bare python3 fails)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'accel-lut found ... about 2.7 times the energy ... flips that verdict'",
+   "method": "compare with research/accel-lut/README.md results",
+   "command": "grep -n 'near tie' research/accel-lut/README.md",
+   "expected": "accel-lut's verdict was a 2.7x loss",
+   "observed": "accel-lut reports a near tie at its favourable 0.04 pJ/bit table read (3.51 vs 3.56; 1.55 vs 1.51); 2.7x is its pessimistic case only; 0.04 pJ/bit equals alpha 0.25 for the 32-byte table, the break-even",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Floor variant equals the flat model",
+   "method": "read results.txt; floor math",
+   "command": "grep -A6 'floor' research/accel-lutsize/experiments/results.txt",
+   "expected": "ratio constant in alpha, equal to alpha 0",
+   "observed": "2.67 dense and 2.27 pruned at every alpha",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Break-even robust to the accuracy tolerance",
+   "method": "own bisection per K",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_check.py research/accel-lut/experiments/results.json",
+   "expected": "break-even near 0.26-0.28 for near-lossless designs too",
+   "observed": "dense share16 (0.4-pt drop) 0.40, share32 0.73; pruned share8 (0.4 pt) 0.49, share16 none in 0..1; not reported in README",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Verdict robust to the table-storage assumption",
+   "method": "own script with all fan_in tables priced as one fan_in*K*16-bit array",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_alltables.py research/accel-lut/experiments/results.json",
+   "expected": "flip survives",
+   "observed": "no break-even for dense share8 or pruned share4; ratio at alpha 0.5 1.78 and 1.66. Per-input rebuild of one 32-byte table is accel-lut's dataflow, so the project is consistent, but the dependence is not stated",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Sub-8 KB energy data exist to anchor alpha",
+   "method": "literature: Eyeriss (Chen et al. ISCA 2016) / Sze et al. Proc. IEEE 2017 normalised RF 0.5 KB 1x vs buffer ~100 KB 6x; CACTI",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/8306f0fd-c968-539e-b9ee-e65b62b706c7/scratchpad/lutsize_check.py research/accel-lut/experiments/results.json",
+   "expected": "no source below 8 KB (README.md:3)",
+   "observed": "Eyeriss hierarchy slope ln6/ln216 = 0.333 (from memory, not re-checked); CACTI models small SRAMs; neither used",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/accel_lutsize/cost.py:26",
+   "change": "f = (size_bytes / KB8) ** alpha -> f = (size_bytes / KB8) ** (alpha / 2)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/accel_lutsize/cost.py:47",
+   "change": "e_t = e_bit(k * L.PROD_BITS, alpha, floor) -> e_t = e_bit(fan_in * k * L.PROD_BITS, alpha, floor)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/accel_lutsize/cost.py:37",
+   "change": "e_a = e_bit(fan_in * abits, alpha, floor) -> e_a = e_bit(n * abits, alpha, floor)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/accel_lutsize/cost.py:43",
+   "change": "idx = math.ceil(math.log2(fan_in)) if sparse else 0 -> idx = 0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:76",
+   "change": "if best <= mean -> if best >= mean",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline misstates the predecessor: it says accel-lut found the table engine at about 2.7x the MAC's energy and that size pricing 'flips that verdict', but accel-lut reported a near tie in its favourable case (3.51 vs 3.56 nJ dense, 1.55 vs 1.51 pruned at 0.04 pJ/bit) and 2.7x only at its pessimistic 0.16 pJ/bit. accel-lut's 0.04 pJ/bit equals alpha 0.25 for the 32-byte table, essentially this project's break-even, so the result re-parametrises an existing sweep rather than flipping a clear negative. Same wording in project.json lede and summary and in research/README.md:869.",
+   "where": "research/accel-lutsize/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18234"
+  },
+  {
+   "severity": "medium",
+   "what": "The deciding parameter (alpha below 8 KB) is swept although sources exist: CACTI (open source, runnable here) models small SRAMs, and the Eyeriss / Sze et al. hierarchy (0.5 KB RF 1x vs ~100 KB buffer 6x, slope about 0.33) is a standard published anchor; neither is used or cited, nor is EIE (Han et al. ISCA 2016), the nearest codebook accelerator. research/CLAUDE.md asks to run the number when code can produce it.",
+   "where": "research/accel-lutsize/README.md:12",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Break-even is reported only for the cheapest design inside a 2-point tolerance, which picks share8/share4 at a 1.6-point drop; at near-lossless designs (0.4-point drop) the break-even moves to 0.40 dense and 0.49 pruned, and the dependence on holding one 32-byte table at a time (pricing all 64 tables as one array removes the flip) is not stated.",
+   "where": "research/accel-lutsize/experiments/run.py:16",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Size-dependent pricing, the contribution, is barely tested: 4 of 5 seeded mutants survive (table priced as fan_in*K entries, activation buffer size, sparse column index dropped, break-even comparison inverted); no test uses sparse=True and nothing tests run.py's selection, tolerance filter or break-even, or checks results.txt.",
+   "where": "research/accel-lutsize/tests/test_cost.py:42",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Read energy is charged per bit, so 1- to 3-bit index reads and 16-bit table reads scale linearly with width; SRAM reads cost per word access, which penalises narrow reads unless packed. Not stated in Limitations.",
+   "where": "research/accel-lutsize/src/accel_lutsize/cost.py:23",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Code craft: sys.path inserts into sibling projects instead of a declared dependency; files opened without closing; unused crossover(layer_n) parameter; report() shadows module name L; run.py overwrites the committed results with no output option.",
+   "where": "research/accel-lutsize/experiments/run.py:50",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18234"],
+ "verdict": "A small, correct sensitivity analysis: every number in the README recomputes from an independent re-implementation of the stated model with Horowitz's constants (energies to 2 decimals, break-even 0.2592/0.2790 by bisection vs 0.26/0.28, ratios 0.521/0.680, the analytic crossovers, the 3.56 reproduction), and run.py reproduces results.txt and results.json byte for byte. It does not meet the bar. Verification is 2 (4 of 5 seeded mutants survive, including one that alone removes the flip); claims is 2 because the headline says accel-lut found a 2.7x loss that size pricing flips, when accel-lut's favourable case was already a near tie at a table cost equivalent to alpha 0.25, i.e. this project's break-even; and as research the deciding exponent is swept although CACTI and the Eyeriss hierarchy give sub-8 KB anchors, the break-even moves to 0.40-0.49 for near-lossless designs, and EIE, the nearest prior work, is not cited. An accelerator-modelling reviewer would read it as a useful note, not a finding."
+}
