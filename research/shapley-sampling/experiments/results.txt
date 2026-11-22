@@ -1,4 +1,4 @@
-E1 exact per-player sampling std (m=100 marginal evals/player): permutation vs size-stratified, and ratio of variances
+E1 exact per-player sampling std (m=96 marginal evals/player for n=8, 100 for n=10): permutation vs size-stratified, and ratio of variances
  equal n=8      total phi=0.9592 rmse perm=0.01033 strat=0.00000 var ratio perm/strat=inf (strat exact)
  spread n=8     total phi=0.9965 rmse perm=0.01831 strat=0.00754 var ratio perm/strat=5.89
  one whale n=8  total phi=0.9753 rmse perm=0.00677 strat=0.00234 var ratio perm/strat=8.38

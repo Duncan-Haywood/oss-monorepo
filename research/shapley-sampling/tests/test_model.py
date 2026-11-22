@@ -14,6 +14,19 @@ class T(unittest.TestCase):
         p = exact_shapley([0.6, 0.6, 0.3])
         self.assertAlmostEqual(p[0], p[1], 12)
 
+    def test_antithetic_pair_is_exact_for_two_players(self):
+        # n=2 has two orders, a permutation and its reverse; one antithetic pair
+        # visits both, so it returns the exact Shapley values whatever the draw.
+        w = [0.3, 1.1]
+        for seed in range(5):
+            e = sample_perm_antithetic(w, 2, random.Random(seed))
+            for a, b in zip(e, exact_shapley(w)):
+                self.assertAlmostEqual(a, b, 12)
+
+    def test_antithetic_sampling_is_efficient_every_run(self):
+        e = sample_perm_antithetic(W, 8, random.Random(1))
+        self.assertAlmostEqual(sum(e), value(W, range(len(W))), 12)
+
     def test_permutation_sampling_is_efficient_every_run(self):
         e = sample_perm(W, 7, random.Random(1))
         self.assertAlmostEqual(sum(e), value(W, range(len(W))), 12)
