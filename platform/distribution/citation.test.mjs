@@ -84,3 +84,17 @@ test('CLI: --check exits 1 on stale files and 0 once current (entrypoint guard r
   assert.match(r.stdout, /citation files are current|stale:/);
   assert.equal(r.status, /stale:/.test(r.stdout) ? 1 : 0);
 });
+
+// Red team 2026-11-22: `--check || stale` (exit 1 on a dry run) escaped, because only the real repo, usually current, was run.
+test('CLI: a dry run exits 0 even when files are stale; only --check fails', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const script = path.join(import.meta.dirname, 'citation.mjs');
+  const root = await fixture();
+  const dry = spawnSync(process.execPath, [script, '--root', root], { encoding: 'utf8' });
+  assert.match(dry.stdout, /DRY RUN: 2 research projects\. Stale on disk: CITATION\.cff/);
+  assert.equal(dry.status, 0, dry.stderr);
+  const check = spawnSync(process.execPath, [script, '--check', '--root', root], { encoding: 'utf8' });
+  assert.equal(check.status, 1);
+  spawnSync(process.execPath, [script, '--write', '--root', root], { encoding: 'utf8' });
+  assert.equal(spawnSync(process.execPath, [script, '--check', '--root', root], { encoding: 'utf8' }).status, 0);
+});

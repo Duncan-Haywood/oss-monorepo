@@ -119,3 +119,37 @@ test("non-resident surcharge finding quotes the same whole-pound difference as t
     assert.ok(f.title.includes(`adds GBP ${(yes.tax - no.tax).toLocaleString("en-GB")} to the bill`), `${buyer} ${price}: ${f.title}`);
   }
 });
+
+// Red team 2026-11-22 (second campaign): guards for five more escaped mutants, and one real defect.
+test("a price of zero is rejected, not divided by", () => {
+  assert.ok(compute({ ...SAMPLE, price: 0 }).errors.length);
+  assert.ok(compute({ ...SAMPLE, price: "0" }).errors.length);
+});
+
+test("the worked example on the page is a 450,000 main-home purchase", () => {
+  assert.deepEqual(SAMPLE, { price: 450000, buyer: "main", nonResident: "no" });
+  assert.equal(run({}).price, 450000);
+});
+
+test("the below-40,000 note shows only for an additional property", () => {
+  const note = (buyer) => compute({ price: 30000, buyer, nonResident: "no" }).findings.some((f) => f.title.startsWith("The 5% higher rate for additional dwellings only applies"));
+  assert.equal(note("additional"), true);
+  assert.equal(note("main"), false);
+  assert.equal(note("ftb"), false);
+});
+
+test("a price exactly on a band edge is not 'GBP 0 below' that edge", () => {
+  for (const price of [125000, 250000, 925000, 1500000]) {
+    const r = compute({ price, buyer: "main", nonResident: "no" });
+    assert.ok(!r.findings.some((f) => f.title.startsWith("You are GBP 0 below")), `${price}`);
+  }
+  assert.ok(!compute({ price: 300000, buyer: "ftb", nonResident: "no" }).findings.some((f) => /^You are GBP 0 below/.test(f.title)));
+});
+
+// Real defect 2026-11-22: below GBP 40,000 a main-home buyer was told they "may owe the 5% additional dwelling rate instead: GBP 0", a surcharge the calculator itself never charges there.
+test("main-home buyers below 40,000 are told the additional rate does not apply", () => {
+  const titles = compute({ price: 30000, buyer: "main", nonResident: "no" }).findings.map((f) => f.title);
+  assert.ok(!titles.some((t) => t.includes("may owe the 5% additional dwelling rate")), titles.join("\n"));
+  assert.ok(titles.some((t) => t.includes("does not apply below GBP 40,000")), titles.join("\n"));
+  assert.ok(compute({ price: 40000, buyer: "main", nonResident: "no" }).findings.some((f) => f.title.includes("may owe the 5% additional dwelling rate instead: GBP 2,000")));
+});

@@ -85,7 +85,9 @@ export function compute(input) {
   if (buyer === "ftb" && main.relief === true && price > 300000) findings.push({ severity: "medium", title: `First-time buyer relief saves you ${money(std.tax - main.tax)} compared with standard rates on this price. It is lost entirely if the price goes above ${money(FTB_CAP)}.` });
   if (buyer === "additional" && price < ADDITIONAL_MIN_PRICE) findings.push({ severity: "info", title: `The 5% higher rate for additional dwellings only applies to purchases of ${money(ADDITIONAL_MIN_PRICE)} or more, so none is charged here.` });
   if (buyer === "additional" && price >= ADDITIONAL_MIN_PRICE) findings.push({ severity: "high", title: `The 5% additional dwelling surcharge adds ${money(addl.tax - std.tax)} over the same purchase as a main home. It applies to the whole price, starting from the first pound.` });
-  if (buyer === "main") findings.push({ severity: "info", title: `If you already own another property that you are not replacing, you may owe the 5% additional dwelling rate instead: ${money(addl.tax)} on this price.` });
+  if (buyer === "main") findings.push({ severity: "info", title: price >= ADDITIONAL_MIN_PRICE
+    ? `If you already own another property that you are not replacing, you may owe the 5% additional dwelling rate instead: ${money(addl.tax)} on this price.`
+    : `Even if you already own another property, the 5% additional dwelling rate does not apply below ${money(ADDITIONAL_MIN_PRICE)}, so the tax would be the same.` });
   if (nonResident) findings.push({ severity: "medium", title: `The 2% non-UK resident surcharge adds ${money(main.tax - sdlt(price, buyer, false).tax)} to the bill. Residence is decided by days spent in the UK in the 12 months before purchase; check the test on GOV.UK.` });
   // The next band edge in the table this buyer is actually taxed on: first-time buyers with relief step at 300,000 and lose relief above 500,000.
   const ftbRelief = buyer === "ftb" && main.relief === true;

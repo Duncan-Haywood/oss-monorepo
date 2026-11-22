@@ -4,6 +4,7 @@
  *   node platform/distribution/citation.mjs            # dry run: prints counts and a sample
  *   node platform/distribution/citation.mjs --write    # writes CITATION.cff and research/CITATIONS.bib
  *   node platform/distribution/citation.mjs --check    # exit 1 if the committed files are stale
+ *   add --root <dir> to read and write another tree instead of this repository
  *
  * Needs no account or secret. The owner step is switching this repository on at
  * zenodo.org (GitHub integration); every GitHub release (releases.mjs makes one
@@ -111,6 +112,9 @@ export async function run({ root = REPO_ROOT, write = false, check = false, log 
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const a = process.argv.slice(2);
-  const r = await run({ write: a.includes('--write'), check: a.includes('--check') });
+  // --root <dir> points the CLI at another tree (tests use a temporary fixture).
+  const at = a.indexOf('--root');
+  const root = at >= 0 && a[at + 1] ? path.resolve(a[at + 1]) : REPO_ROOT;
+  const r = await run({ root, write: a.includes('--write'), check: a.includes('--check') });
   if (a.includes('--check') && r.stale.length) process.exit(1);
 }
