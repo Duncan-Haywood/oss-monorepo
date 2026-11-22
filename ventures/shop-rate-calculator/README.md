@@ -59,6 +59,16 @@ sensitive number is the **billable share**: ten points of utilization moves the
 required rate further than the entire target margin does. That is the argument
 for measuring it, and it is why the notes call it out below 60%.
 
+**The material markup the rate assumes.** Overhead is spread over labor and
+materials (`overheadRate` is on direct cost), so the bill rate earns the target
+margin only if materials and subs are billed with the same load:
+cost × (1 + overhead) ÷ (1 − margin). The result shows that markup
+(`materialMarkupAssumed`; 37.8% on the shipped example). Labor at the bill rate
+plus materials at that markup is exactly "Revenue you need"; a time-and-materials
+shop billing materials at cost would net well under its target (0.7% instead of
+12% on the example). Added after quality round 95
+([audit](../../portfolio/quality/audits/2026-11-22-shop-rate-calculator.json)).
+
 ## Against what you charge today
 
 The arithmetic above runs forwards — your year, then the rate it needs. Most

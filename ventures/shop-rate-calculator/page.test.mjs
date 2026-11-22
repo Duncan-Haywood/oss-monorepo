@@ -319,3 +319,9 @@ test("the margin-vs-markup hint does the arithmetic right (quality round 95)", (
   assert.doesNotMatch(html, /mark-up on \$10,000 of cost is \$909/);
   assert.match(html, /\$1,000 of profit on an \$11,000 price, only a 9\.1% margin/);
 });
+
+test('the page shows the material markup the bill rate assumes', () => {
+  const html = page('index.html');
+  assert.match(html, /id="materialMarkup"/);
+  assert.match(html, /el\('materialMarkup'\)\.textContent/);
+});

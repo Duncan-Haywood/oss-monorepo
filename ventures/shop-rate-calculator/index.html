@@ -158,7 +158,9 @@
           <dt>Overhead</dt><dd id="annualOverhead"></dd>
           <dt>Revenue you need</dt><dd id="revenueNeeded"></dd>
           <dt>Profit left over</dt><dd id="profitAtTarget"></dd>
+          <dt>Materials and subs billed at</dt><dd id="materialMarkup"></dd>
         </dl>
+        <p class="hint" id="materialMarkupHint">Your overhead is spread over labor <em>and</em> materials, so this rate reaches your margin only if materials and subs are also billed at cost plus the mark-up above. Billing them at cost leaves that share of overhead and profit unpaid; carry the rates into a bid calculator, which applies them to both.</p>
 
         <div id="comparison" class="compare" hidden>
           <h3>Against what you charge today</h3>
@@ -428,6 +430,7 @@
       el('annualDirectCost').textContent = money(result.annualDirectCost);
       el('annualOverhead').textContent = money(result.annualOverhead);
       el('revenueNeeded').textContent = money(result.revenueNeeded);
+      el('materialMarkup').textContent = 'cost + ' + result.materialMarkupAssumed.toFixed(1) + '%';
       el('profitAtTarget').textContent = money(result.profitAtTarget);
 
       renderComparison(result.comparison);
