@@ -606,7 +606,9 @@ with every limit x1e6 the levelled run equals the plain run exactly, on every
 percentile and every activity's criticality index, on all public files run;
 at the file's own limits no run's levelling leaves a placed activity over a
 limit (self-check 0 h in every run), no run finishes earlier levelled than
-unlevelled, and no wait's blocker went unnamed. On the 24.12 example file (26
+unlevelled; a wait's blocker went unnamed only on Expressway (17.5% of runs at
+x4, where up to 409 activities a run stay over-allocated past the 30-year
+horizon). On the 24.12 example file (26
 labour resources at P6's default limit of 1 per hour): the limits add 29.8
 working days at P80 (225.3 -> 255.1 days from the data date) and 28.4 on
 average per run; doubling every crew still costs 27.1 days a run, and only at
