@@ -30,6 +30,8 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 6a (2026-11-22): can the coarse step survive clock drift? Yes, by searching clock rate as well as lag.** Step 4d found that a 20 s GCC coarse step fails on drifting clocks because the delay moves during the window. A joint lag-and-rate search ([`sync.rate_lag_search`](src/capture_sync/sync.py): 1 s sub-windows of one recording, each correlated against the other, summed along every clock rate from -400 to 400 ppm in 5 ppm steps, the delay-Doppler search of radar and GNSS acquisition) was run on step 4d's 120 sessions with the same seeds. Share of -10 dB sessions whose coarse offset is more than a 30 fps frame off: **at 300 ppm 3.5-4.0% against 54-58% for the 20 s GCC; at 100 ppm 0% against 15-26%; at 17 ppm 2.5-4.0% against 1.5-3.0%** (the wider search costs one point where there is no drift to find). Summing the same sub-windows at rate 0 does not help (56.5-61% at 300 ppm), so the gain comes from the rate search. Started from it, step 4d's window tracker is out of sync **12.5-13.6% of the session at 300 ppm instead of 37.9-44.2%** and 7.1-7.3% at 100 ppm instead of 16.8-22.7%. 8 of 9 pre-registered predictions held ([details](#step-6a-a-coarse-step-that-searches-clock-rate-as-well-as-lag-experimentstrackerratelagpy)).
+
 **Step 4d (2026-11-21): does the sensor-network field's open tracker keep a drifting pair of recorders in sync better than GCC? No, because its coarse step fails; and clock drift breaks any long coarse correlation.** `paderwasn`'s online pipeline (plain-correlation coarse sync, then online weighted average coherence drift, WACD; Gburrek et al. 2022), ported to [`src/capture_sync/wacd.py`](src/capture_sync/wacd.py), was run against envelope-normalised GCC trackers on 120 twin sessions with device clocks 17 ppm (the real phones' rate), 100 or 300 ppm apart and ten real noise types at -10 dB. Mean share of the session more than a 30 fps frame off: **paderwasn 23.5-34% at 17 ppm, 57-58% at 100 ppm, 84-85% at 300 ppm, against 1.5-3% for a GCC coarse step held, 15-26% for GCC plus WACD and 38-44% for a GCC window tracker at 300 ppm**. Its plain coarse correlation is off by a frame in 23.5-34% of noisy sessions against 1.5-3% for GCC, and WACD's rate estimate then runs away (median error 8-177 ppm, against 0.02-0.66 ppm with no noise). Post hoc, with the drift switched off on the same sessions, GCC's 20 s coarse step fails in 0% of 300 ppm sessions instead of 54%: a 300 ppm clock moves the delay 6 ms in 20 s and smears the correlation peak. At phone-level drift, re-estimating every 5 s did worse than holding a good first estimate (6.3-8.0% against 1.5-3.0%) ([details](#step-4d-paderwasns-online-tracker-on-drifting-sessions-experimentsbaselinestrackerpy)).
 
 **Step 4c (2026-11-21): does the literature's multi-recording consistency step rescue the baselines when four devices record the same scene? No, and it barely helps GCC.** Kammerl et al. (2014) make many recordings' pairwise offsets agree before placing them. With four devices, all six pairs estimated by each of seven methods and the offsets placed by a confidence spanning tree or by closure-trimmed least squares (75,600 pair windows), envelope-normalised GCC's summed -10 dB failure falls only from 0.88 to 0.70-0.80 (1.08 to 0.87-1.02 in the wetter room), plain GCC's rises, and no baseline improves (Haitsma-Kalker 4.3, the rest 6.9-9.2). Pair failures come together: all four devices hear the same speech, so when one pair fails another of the anchor's fails 2.3-2.4x as often as chance for normalised GCC, and the baselines fail 68-91% of pairs, leaving no correct majority. The ground-truth-free closure flag keeps 90% of devices but lets 1.9-3.2% wrong through ([details](#step-4c-four-devices-and-kammerl-et-als-consistency-step-experimentsbaselinesconsistencypy)).
@@ -173,6 +175,9 @@ python experiments/baselines/consistency_why.py /tmp/windows_4c.npz   # post hoc
 # step 4d: paderwasn's online tracker (ported to src/capture_sync/wacd.py) against windowed GCC on drifting sessions
 OMP_NUM_THREADS=1 python experiments/baselines/tracker.py collect ~/ms-snsd /tmp/rows_4d.json --procs 4   # ~50 min
 python experiments/baselines/tracker.py score /tmp/rows_4d.json && python experiments/baselines/tracker_figure.py
+# step 6a: the joint lag-and-rate coarse search on step 4d's sessions (same seeds; ~2 h on 4 cores)
+OMP_NUM_THREADS=1 python experiments/tracker/ratelag.py collect ~/ms-snsd /tmp/rows_6a.json --procs 4
+python experiments/tracker/ratelag.py score /tmp/rows_6a.json && python experiments/tracker/ratelag_figure.py
 # step 4b: the same baselines at 2, 4 and 8 s windows
 OMP_NUM_THREADS=1 python experiments/baselines/winlength.py collect ~/ms-snsd /tmp/windows_4b.npz --procs 4   # ~70 min
 python experiments/baselines/winlength.py score /tmp/windows_4b.npz && python experiments/baselines/winlength_figure.py
@@ -444,6 +449,40 @@ AUROC of -10 against 0 dB windows (`snr_hat` / `ms`): white 1.00 / 1.00, AirCond
 Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 types failed (2 of 9; above `snr_hat` for 7 of 9); (c) site calibration at -10 dB for 9 of 10 types failed (4 and 4); (d) the oracle ceiling held, mostly by accepting nothing; (e) `ms` beats `snr_hat` under T3 failed (a tie); (f) the level does not fix a change of kind held; (g) leave-one-out under 8 of 10 held; (h) T0 held; (i) `ctx` between the two held for 5 of 9.
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
+
+## Step 6a: a coarse step that searches clock rate as well as lag (`experiments/tracker/ratelag.py`)
+
+The plan and predictions were pushed before the run ([`LOG.md`](LOG.md), 2026-11-22). Step 4d's 120 sessions (two rooms, three clock offsets, ten speech blocks, two reps, none and ten noise types at -10 dB) were replayed with the same seeds, so `fnc` and `track` reproduce step 4d's numbers to the digit. Every coarse step sees the first 20 s of both envelope-normalised recordings and searches +-15 s.
+
+| coarse step | what it does |
+|---|---|
+| `fnc` | step 4d's envelope-normalised GCC (gamma 0.25) of the whole 20 s |
+| `inc1` | device 0's 20 s cut into 1 s sub-windows, each correlated against device 1's 20 s on a common lag axis, the curves summed at rate 0 (ablation) |
+| `rl1` | the same curves summed along every clock rate from -400 to 400 ppm in 5 ppm steps (sub-window k shifted by rate x its time from the centre); the (lag, rate) of the largest sum |
+| `rl2` | `rl1` with 2 s sub-windows |
+
+Coarse step more than a frame off, mean over the ten noise types at -10 dB ([`ratelag_results.txt`](experiments/tracker/ratelag_results.txt)):
+
+| room, clock offset | `fnc` | `inc1` | `rl1` | `rl2` | `rl1` minus `fnc` (95% session bootstrap) | `track` | `track_rl` |
+|---|---|---|---|---|---|---|---|
+| 200 ms, 17 ppm | 3.0% | 2.5% | 4.0% | 4.0% | +1.0 (+0.0 to +2.5) | 8.0% | 8.9% |
+| 200 ms, 100 ppm | 15.0% | 17.0% | 0.0% | 1.5% | -15.0 (-24.0 to -7.5) | 16.8% | 7.3% |
+| 200 ms, 300 ppm | 54.0% | 56.5% | 3.5% | 6.0% | -50.5 (-56.0 to -45.0) | 37.9% | 13.6% |
+| 800 ms, 17 ppm | 1.5% | 1.0% | 2.5% | 1.5% | +1.0 (+0.0 to +2.5) | 6.3% | 7.0% |
+| 800 ms, 100 ppm | 25.5% | 25.5% | 0.0% | 1.0% | -25.5 (-37.5 to -15.0) | 22.7% | 7.1% |
+| 800 ms, 300 ppm | 58.0% | 61.0% | 4.0% | 6.5% | -54.0 (-60.5 to -46.0) | 44.2% | 12.5% |
+
+`track` and `track_rl` are the share of the session out of sync for step 4d's window tracker started from `fnc` and from `rl1` (with `rl1`'s rate as its line until its window history gives one).
+
+![Coarse-step failure share by clock offset](experiments/tracker/ratelag_coarse.png)
+
+- **The rate search is what works.** Summing the 1 s curves at rate 0 (`inc1`) fails as often as the 20 s window (56.5-61% at 300 ppm), as it should: it is nearly the same correlation (exactly the same with no whitening). Shifting them along the right rate removes the smear: at 300 ppm with white noise, 0% fail against 60%.
+- **The remaining failures are wrong peaks, not small errors.** All 28 of `rl1`'s failed coarse steps at -10 dB are 1.9-9.3 s off; babble at 300 ppm carries the most (10% and 25%), where another talker in the noise offers a peak of its own.
+- **The rate comes for free, to the grid.** Where the offset is right, `rl1`'s median rate error is 0-5 ppm (17 ppm falls between grid points, 2-3 ppm; 100 ppm on the grid, 0; 300 ppm, 5 ppm, one step). 2 s sub-windows smear inside themselves and do slightly worse at 300 ppm (+2.5 points in both rooms, intervals above zero).
+- **The tracker is now the weak part.** With a good start, `track_rl` is still out of sync 12.5-13.6% of a 300 ppm session, three times its coarse step's failure share, and at 17 ppm 7.0-8.9% against the held offset's 1.5-3.0% (step 4d's finding, unchanged). Its re-estimation, a median-PSR vote over 2 s windows, is what loses: the next step for milestone 6.
+- **Cost:** 161 rates x 20 sub-windows over +-15 s is about 1.4 s for one 20 s pair on one core in numpy.
+- Predictions: 8 of 9 held. (c) missed narrowly: 3.5% in the 200 ms room at 300 ppm against at most 3%. (d) held at its edge (+1.0 point at 17 ppm).
+- Limits: the twin only (statistical rooms, MS-SNSD speech and noise, independent noise per device); one pair; drift is a constant rate (no temperature wander); 100 and 300 ppm are sweep values with no source; a 5 ppm rate grid over +-400 ppm, so a faster clock offset needs a wider grid (cost grows linearly with it).
 
 ## Step 4d: paderwasn's online tracker on drifting sessions (`experiments/baselines/tracker.py`)
 
@@ -826,6 +865,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 - Real repeating sounds (step 3l: a mix of shared and independent noise is benign except for them), where step 3f's looped door recordings gave several equal peaks; envelope-normalised GCC (step 3h, the default since step 3i found a kurtosis switch adds nothing) checked on step 3f's shared noise (the real-phone check is step 3j); a switch on a noise-only feature, for the babble windows where the two estimators fail apart; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - After step 3k (DRR and a white floor cannot make the twin a level predictor; a gate set in the twin holds on the phones about as well as one set on them): give the twin each phone's measured microphone response (out-of-band share and tilt, `twinband.py`) and test it the same way; set a gate in the twin on speech-like noise, the class every gate still misses; and check a twin-set gate on a second real dataset.
 - Baselines on equal windows, after step 4a (five feature, fingerprint and landmark baselines all lose to envelope-normalised GCC on 2 s windows): the same baselines on the real phones (4 and 8 s windows done in step 4b, the multi-recording consistency step in step 4c), `paderwasn`'s online tracker, and a consistency step for rigs whose devices differ in SNR, where one quiet device could carry the others.
+- Milestone 6, after step 6a (a joint lag-and-rate coarse step fails in 0-4% of drifting -10 dB sessions instead of 15-58%): a window tracker whose re-estimation does not lose to holding the first estimate (it is out of sync 12.5-13.6% of a 300 ppm session from a 3.5-4% coarse failure, and 7-9% at 17 ppm against 1.5-3% held): gate re-estimates on agreement with the line, or re-run the rate search on a sliding 20 s window; then the same tracker on LibriWASN's real phones.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 
 ## Owner steps
