@@ -1,0 +1,153 @@
+{
+ "date": "2026-11-22",
+ "mode": "hinted",
+ "pairs": [
+  {
+   "before": "CCA_R03_dt_24Oct11SC.xer",
+   "after": "CCA_R03_dt_24Oct11SC-hinted.xer",
+   "values": 41729,
+   "kept": 40983,
+   "extra": 0,
+   "miss": [
+    [
+     "CAFCI09201R02",
+     "name",
+     "CAFEI09201R02",
+     null
+    ],
+    [
+     "CAFCI09201R02",
+     "Y_id",
+     "PCO1196710",
+     null
+    ],
+    [
+     "CAFCI09201R02",
+     "YC_id",
+     "CAFCI09201R02",
+     null
+    ]
+   ],
+   "types": {
+    "user_number8": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "user_integer1": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "user_integer2": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "Actual Cost": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "user_number7": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "No.of Wor Days": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "Duration|Differe": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "RENZ % COMPLETE": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "PERCENT COMPLETE": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "July2011 Target% Complete": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "Claimed This Month": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "N_%": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "P_811": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "P_711": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "U%": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "user_end_date3": [
+     "DATE",
+     "DATE"
+    ],
+    "user_end_date4": [
+     "DATE",
+     "DATE"
+    ],
+    "Change Order #": [
+     "STRING",
+     "STRING"
+    ],
+    "NEW ACTIVITY ID": [
+     "STRING",
+     "STRING"
+    ],
+    "change id": [
+     "STRING",
+     "STRING"
+    ],
+    "IDDD": [
+     "STRING",
+     "STRING"
+    ],
+    "DIVISION FOR ACTIVITY ID": [
+     "STRING",
+     "STRING"
+    ]
+   },
+   "fieldsSameType": 22,
+   "valuesSameType": 40983
+  },
+  {
+   "before": "Expressway_Project.xer",
+   "after": "Expressway_Project-hinted.xer",
+   "values": 1864,
+   "kept": 1864,
+   "extra": 0,
+   "miss": [],
+   "types": {
+    "DIFF": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "user_text1": [
+     "STRING",
+     "STRING"
+    ],
+    "MSP Activity ID": [
+     "STRING",
+     "STRING"
+    ],
+    "EAM Contact Person": [
+     "STRING",
+     "STRING"
+    ]
+   },
+   "fieldsSameType": 4,
+   "valuesSameType": 1864
+  }
+ ]
+}

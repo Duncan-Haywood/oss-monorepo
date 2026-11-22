@@ -1,0 +1,140 @@
+{
+ "date": "2026-11-22",
+ "mode": "plain",
+ "pairs": [
+  {
+   "before": "CCA_R03_dt_24Oct11SC.xer",
+   "after": "CCA_R03_dt_24Oct11SC-plain.xer",
+   "values": 41729,
+   "kept": 13174,
+   "extra": 0,
+   "miss": [
+    [
+     "MGNMI00101M0",
+     "NEW ACTIVITY ID",
+     1526.0,
+     null
+    ],
+    [
+     "MGNMI00101M0",
+     "change id",
+     "CGNAF00101M0",
+     null
+    ],
+    [
+     "MGNMI00103M0",
+     "NEW ACTIVITY ID",
+     1526.0,
+     null
+    ]
+   ],
+   "types": {
+    "user_number8": [
+     "NUMERIC",
+     "INTEGER"
+    ],
+    "user_integer1": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "user_integer2": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "Actual Cost": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "user_number7": [
+     "NUMERIC",
+     "INTEGER"
+    ],
+    "No.of Wor Days": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "Duration|Differe": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "RENZ % COMPLETE": [
+     "NUMERIC",
+     "INTEGER"
+    ],
+    "PERCENT COMPLETE": [
+     "NUMERIC",
+     "INTEGER"
+    ],
+    "July2011 Target% Complete": [
+     "NUMERIC",
+     "INTEGER"
+    ],
+    "Claimed This Month": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "N_%": [
+     "INTEGER",
+     "INTEGER"
+    ],
+    "P_811": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "P_711": [
+     "NUMERIC",
+     "NUMERIC"
+    ],
+    "U%": [
+     "NUMERIC",
+     "INTEGER"
+    ],
+    "user_end_date3": [
+     "DATE",
+     "DATE"
+    ],
+    "user_end_date4": [
+     "DATE",
+     "DATE"
+    ]
+   },
+   "fieldsSameType": 11,
+   "valuesSameType": 7104
+  },
+  {
+   "before": "Expressway_Project.xer",
+   "after": "Expressway_Project-plain.xer",
+   "values": 1864,
+   "kept": 823,
+   "extra": 0,
+   "miss": [
+    [
+     "BEW/GEN/MS/0010",
+     "MSP Activity ID",
+     3.0,
+     null
+    ],
+    [
+     "BEW/GEN/MS/0010",
+     "EAM Contact Person",
+     "1 days",
+     null
+    ],
+    [
+     "BEW/MO/SS/1000",
+     "MSP Activity ID",
+     4716.0,
+     null
+    ]
+   ],
+   "types": {
+    "DIFF": [
+     "INTEGER",
+     "INTEGER"
+    ]
+   },
+   "fieldsSameType": 1,
+   "valuesSameType": 823
+  }
+ ]
+}

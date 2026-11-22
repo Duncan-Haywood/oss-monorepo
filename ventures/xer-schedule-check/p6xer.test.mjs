@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseXer } from "./xer.mjs";
+import { parseXer, xerText } from "./xer.mjs";
 import { parseMspdi } from "./mspdi.mjs";
 import { schedule } from "./cpm.mjs";
 import { mspdiText } from "./msproject.mjs";
@@ -523,3 +523,53 @@ test("p6Problems follows a WBS chain 1000 levels deep to the project node", () =
   const chain = Array.from({ length: 1000 }, (_, k) => ({ ...node, wbs_id: String(5000 + k), parent_wbs_id: k ? String(4999 + k) : node.wbs_id, proj_node_flag: "N" }));
   assert.deepEqual(p6Problems({ ...T, PROJWBS: [...T.PROJWBS, ...chain] }).filter((p) => /does not reach/.test(p)), []);
 });
+
+test("with the original XER (typesFrom), text UDFs come back as text UDFs, not activity codes, beside the number types", () => {
+  const X = parseXer(EXAMPLE_XER);
+  const T = X.tables;
+  const [r1] = T.RSRC;
+  T.UDFTYPE = [
+    { udf_type_id: "70", table_name: "TASK", udf_type_name: "user_field_70", udf_type_label: "Percent [claimed]", logical_data_type: "FT_FLOAT_2_DECIMALS" },
+    { udf_type_id: "71", table_name: "TASK", udf_type_name: "user_field_71", udf_type_label: "Crew", logical_data_type: "FT_INT" },
+    { udf_type_id: "72", table_name: "TASK", udf_type_name: "user_field_72", udf_type_label: "Remark", logical_data_type: "FT_TEXT" },
+    { udf_type_id: "73", table_name: "RSRC", udf_type_name: "user_field_73", udf_type_label: "Factor", logical_data_type: "FT_FLOAT" },
+  ];
+  const v = (id, fk, o, proj) => ({ udf_type_id: id, fk_id: fk, proj_id: proj, udf_date: "", udf_number: "", udf_text: "", udf_code_id: "", ...o });
+  T.UDFVALUE = [
+    ...T.TASK.slice(0, 3).flatMap((t, i) => [
+      v("70", t.task_id, { udf_number: String(25 * (i + 1)) }, t.proj_id), // whole numbers in a decimal UDF
+      v("71", t.task_id, { udf_number: String(i + 2) }, t.proj_id),
+      v("72", t.task_id, { udf_text: i ? "Wait for RFI 12" : "Night work" }, t.proj_id),
+    ]),
+    v("73", r1.rsrc_id, { udf_number: "2" }, ""),
+  ];
+  const original = xerText(X);
+  const xml = mspdiText(X).xml;
+  const read = (T) => {
+    const code = new Map(T.TASK.map((t) => [t.task_id, t.task_code]));
+    const label = new Map(T.UDFTYPE.map((u) => [u.udf_type_id, `${u.udf_type_label}:${u.logical_data_type}`]));
+    const short = new Map(T.RSRC.map((x) => [x.rsrc_id, x.rsrc_short_name]));
+    const area = new Map(T.UDFTYPE.map((u) => [u.udf_type_id, u.table_name]));
+    return T.UDFVALUE.map((x) => `${(area.get(x.udf_type_id) === "RSRC" ? short : code).get(x.fk_id)} ${label.get(x.udf_type_id)} ${x.udf_text || Number(x.udf_number)}`).sort();
+  };
+  const typeOf = (T) => Object.fromEntries(T.UDFTYPE.map((u) => [u.udf_type_label, u.logical_data_type]));
+  // no hint: types guessed from the values, the text UDF read as an activity code
+  const n = parseXer(p6XerText(xml).text).tables;
+  assert.deepEqual(typeOf(n), { "Percent (claimed)": "FT_INT", Crew: "FT_INT", Factor: "FT_INT" });
+  assert.ok((n.ACTVTYPE || []).some((t) => t.actv_code_type === "Remark"));
+  // hint: P6's own types, the text UDF as a text UDF
+  const r = p6XerText(xml, { typesFrom: original });
+  assert.deepEqual(p6Problems(r.xer.tables), []);
+  const B = parseXer(r.text).tables;
+  assert.deepEqual(typeOf(B), { "Percent (claimed)": "FT_FLOAT_2_DECIMALS", Crew: "FT_INT", Remark: "FT_TEXT", Factor: "FT_FLOAT" });
+  assert.ok(!(B.ACTVTYPE || []).some((t) => t.actv_code_type === "Remark"));
+  assert.equal(r.counts.typesFromXer.textFields, 1);
+  assert.ok(r.warnings.some((w) => /1 text field\(s\) read as text UDFs/.test(w)));
+  // a text UDF titled as one of the original's code types stays a code
+  const both = parseXer(original);
+  both.tables.ACTVTYPE = [...(both.tables.ACTVTYPE || []), { ...(both.tables.ACTVTYPE || [{}])[0], actv_code_type_id: "999", actv_code_type: "Remark" }];
+  const c = parseXer(p6XerText(xml, { typesFrom: both }).text).tables;
+  assert.ok((c.ACTVTYPE || []).some((t) => t.actv_code_type === "Remark"));
+  assert.deepEqual(read(B), read(T).map((x) => x.replace("[claimed]", "(claimed)")).sort());
+});
+

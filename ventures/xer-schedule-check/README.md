@@ -31,7 +31,10 @@ resource notes, resource Groups as P6's resource hierarchy, cost resources and
 fixed costs as P6 expenses, Project's scheduling options, saved in
 Windows-1252 as P6 reads an XER), checked on 143 Project files and the six
 P6 files sent through Project and back (`eval/p6xer-check-2026-11-21.md`,
-`eval/p6xer-udfs-2026-11-21.md`, `eval/expenses-2026-11-21.md`).
+`eval/p6xer-udfs-2026-11-21.md`, `eval/expenses-2026-11-21.md`). Give it the
+original XER too and a P6 file's user-defined fields come back with their own
+types, text UDFs as text UDFs rather than codes
+(`eval/udf-types-from-2026-11-22.md`, `eval/udf-type-hints-2026-11-22.md`).
 
 **Live tool:** https://marisstella.app/xer-schedule-check/
 
@@ -856,6 +859,15 @@ run as a formula in Excel or Sheets.
   longer whole. CCA's activity UDF values with P6's own type: 7,104 to
   13,174 of 13,174 (six percent-complete and number fields, 6,070 values);
   0 import problems on the six public files.
+  Text UDFs too (`eval/udf-type-hints-2026-11-22.md`, 2026-11-22): Project
+  holds them in Text fields, which came back as activity codes; with the
+  original XER a task Text field titled as one of its text UDFs (and not as
+  one of its code types) comes back as a text UDF. CCA and Expressway through
+  Project XML and back: 28,850 text UDF values no longer become codes, so
+  42,847 of 42,847 carried UDF values return as UDFs with P6's own type
+  (13,997 with the number types alone, 7,927 with neither); real code
+  assignments unchanged (273,917); 0 import problems. MPXJ reads the same
+  42,847 values with the same data type on 26 of 26 fields.
 - **Resource user-defined fields** (`eval/rsrc-udfs-2026-11-21.md`, 2026-11-21):
   resource UDFs go into Project's resource Text, Number, Cost and Date fields,
   renamed to each UDF's title, and come back from a Project file as P6

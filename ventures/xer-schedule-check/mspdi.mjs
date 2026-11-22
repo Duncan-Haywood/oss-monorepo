@@ -5,7 +5,11 @@
 // TASKPRED, SCHEDOPTIONS), so every check, the CPM engine, the comparison,
 // the risk run and levelling work on Microsoft Project schedules unchanged.
 //
-// parseMspdi(text) -> { version, exportDate, tables, warnings, format: "mspdi" }
+// parseMspdi(text, { textUdf }) -> { version, exportDate, tables, warnings, format: "mspdi" }
+//   textUdf (optional): (title) => true for a task Text field to read as a
+//   text user-defined field instead of an activity code. p6xer.mjs passes one
+//   from the original XER ({ typesFrom }), so a P6 text UDF sent through
+//   Project comes back as a text UDF (eval/udf-type-hints-2026-11-22.md).
 // parseSchedule(text) -> parseMspdi for XML, else parseXer
 //
 // How Microsoft Project's terms land in P6's:
@@ -302,7 +306,7 @@ const crossCalendars = (cals) => combineCalendars(cals, crossPeriods);
 
 // ---------- the project ----------
 
-export function parseMspdi(text) {
+export function parseMspdi(text, { textUdf } = {}) {
   if (typeof text !== "string") throw new TypeError("parseMspdi expects text");
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
   const doc = parseXml(text);
@@ -593,13 +597,15 @@ export function parseMspdi(text) {
     PROJECT[0].last_recalc_date = PROJECT[0].plan_start_date = first;
     warnings.push(`no status date in the file (Project, Status Date): ${first || "no date"}, the ${first && first < start ? "earliest task start" : "project start"}, is used as the data date, so any progress recorded is not checked against it`);
   }
-  const textCodes = readTextCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings);
+  const textCodes = readTextCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings, textUdf);
   const oc = readOutlineCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings);
   // outline codes first (they hold the most assigned types when msproject.mjs wrote them)
   const codes = oc.ACTVTYPE.length || textCodes.ACTVTYPE
     ? { ACTVTYPE: [...oc.ACTVTYPE, ...(textCodes.ACTVTYPE || [])].map((r, k) => ({ ...r, seq_num: String(k + 1) })), ACTVCODE: [...oc.ACTVCODE, ...(textCodes.ACTVCODE || [])], TASKACTV: [...oc.TASKACTV, ...(textCodes.TASKACTV || [])] }
     : {};
   const udfs = readUdfFields(proj, taskNodes, new Set(TASK.map((r) => r.task_id)));
+  // task Text fields the original XER names as text UDFs (textUdf)
+  if (textCodes.UDFTYPE) { udfs.UDFTYPE = [...(udfs.UDFTYPE || []), ...textCodes.UDFTYPE]; udfs.UDFVALUE = [...(udfs.UDFVALUE || []), ...textCodes.UDFVALUE]; }
   // the same fields on summary tasks -> WBS user-defined fields (with text)
   const wbsUdfs = readUdfFields(proj, taskNodes, new Set(PROJWBS.map((w) => w.wbs_id)), "PROJWBS");
   if (wbsUdfs.UDFTYPE) { udfs.UDFTYPE = [...(udfs.UDFTYPE || []), ...wbsUdfs.UDFTYPE]; udfs.UDFVALUE = [...(udfs.UDFVALUE || []), ...wbsUdfs.UDFVALUE]; }
@@ -678,7 +684,7 @@ export function parseMspdi(text) {
 // code C and description Civil when no code in the field carries two
 // different descriptions (msproject.mjs writes that form with codeNames, and
 // a value with no description as the bare code).
-function readTextCodes(proj, taskNodes, taskIds, warnings) {
+function readTextCodes(proj, taskNodes, taskIds, warnings, textUdf) {
   const defs = new Map();
   for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) defs.set(val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") });
   const fields = new Map(); // field id -> Map(task uid -> value)
@@ -693,6 +699,7 @@ function readTextCodes(proj, taskNodes, taskIds, warnings) {
     }
   }
   const ACTVTYPE = [], ACTVCODE = [], TASKACTV = [];
+  const UDFTYPE = [], UDFVALUE = [];
   const skipped = [];
   for (const id of TASK_TEXT_IDS) {
     const vals = fields.get(id);
@@ -700,6 +707,12 @@ function readTextCodes(proj, taskNodes, taskIds, warnings) {
     const def = defs.get(id) || {};
     const label = def.alias || def.name || `Text${TASK_TEXT_IDS.indexOf(id) + 1}`;
     if (def.alias === "Activity ID") continue;
+    if (textUdf?.(label)) {
+      const typeId = `mspdi-text${TASK_TEXT_IDS.indexOf(id) + 1}`;
+      UDFTYPE.push({ udf_type_id: typeId, table_name: "TASK", udf_type_name: `user_text${TASK_TEXT_IDS.indexOf(id) + 1}`, udf_type_label: label, logical_data_type: "FT_TEXT" });
+      for (const [uid, v] of vals) UDFVALUE.push({ udf_type_id: typeId, fk_id: uid, proj_id: "1", udf_date: "", udf_number: "", udf_text: v, udf_code_id: "" });
+      continue;
+    }
     const distinct = new Set(vals.values());
     if (vals.size > 20 && distinct.size === vals.size) { skipped.push(label); continue; }
     // "code - description" when the split is consistent for the whole field
@@ -730,7 +743,7 @@ function readTextCodes(proj, taskNodes, taskIds, warnings) {
     for (const [uid, v] of vals) TASKACTV.push({ task_id: uid, actv_code_type_id: typeId, actv_code_id: codeId.get(v), proj_id: "1" });
   }
   if (skipped.length) warnings.push(`text field(s) with a different value on every task are not read as activity codes: ${skipped.join(", ")}`);
-  return ACTVTYPE.length ? { ACTVTYPE, ACTVCODE, TASKACTV } : {};
+  return { ...(ACTVTYPE.length ? { ACTVTYPE, ACTVCODE, TASKACTV } : {}), ...(UDFTYPE.length ? { UDFTYPE, UDFVALUE } : {}) };
 }
 
 // Task Outline Code1..10 -> activity code tables, with the hierarchy and
