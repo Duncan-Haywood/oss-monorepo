@@ -8,6 +8,11 @@ import lanes as L  # noqa: E402
 
 
 class TestLanes(unittest.TestCase):
+    def test_lane_order_mixed_bin(self):
+        # Quality audit 2026-11-22: two walkers one way and one the other in a
+        # single bin give ((2 - 1) / 3)^2 = 1/9; an |.| instead of a square gives 1/3.
+        self.assertAlmostEqual(L.lane_order_frame([(10, 1), (20, 1), (25, -1)]), 1 / 9)
+
     def test_right_offset_sign(self):
         # heading +y, right is +x; heading -y, right is -x (z-up right-handed frame)
         self.assertAlmostEqual(L.right_offset(270, 1, 360), 0.5)
