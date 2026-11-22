@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPtQpn6gdezsKWBLcZ",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "Scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue software); merge when done.",
+  "input_sha256": "9d8981f52f82c23333e29036bd2d15df65f86cd7d398c1d41f5c16940a646585",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T09:04:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon story from the BIBLE proposal 'The wind that pushes sideways' (Ekman drift)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 18224,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/subjects.txt",
+      "issue": "overlap.mjs --unused reported only 3 of 43 hearth-and-horizon candidates left; added Mpemba, Zipf and Rayleigh scattering (each checked unused)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (du total 581 MB > 400 MB), so the story landed text only and the podcast option was skipped, as the prompt directs.",
+      "did": "text-only story, pages, feeds",
+      "result": "story live on next Pages build without audio"
+    },
+    {
+      "file": "prompts/runs (model field)",
+      "why": "Left `model` null: the session's harness asks that no model identifier be written into pushed artifacts beyond the commit trailer it supplies."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-the-wind-that-pushes-sideways.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf). Piece: the-wind-that-pushes-sideways, Porto do Seixo (invented), Barbanza, Galicia, 15-16 July 2056 (weekdays checked: Sat/Sun). Text only. Model worked before drafting and re-read against the note: wind N 10 m/s, leeway 1.5% = 0.15 m/s, wind current 0.15 m/s; fallback downwind drift 0.30 m/s S vs Ekman 45 deg current turn giving 0.277 m/s at 202.5 deg (two points); band misses by 445 m at 20:20 and 890 m at 21:30; found 21:58 at 2.79 km; sunset 22:12 CEST computed (NOAA approximation). Re-read caught 3 slips (21:30 distance 2.58 -> 2.33 km, fan offset 'slightly north' -> northwest, find point 'west of the band' wording) and one history imprecision (Nansen -> Bjerknes -> Ekman). BIBLE: proposal done (moved to DONE.md), timeline row, new Leidenfrost proposal; 3 subjects added. node --test in ventures/hearth-and-horizon: 20/20 pass; run_workflow_locally --for-changes run (see PR body).",
+  "corrections": [],
+  "redteam": null
+}
