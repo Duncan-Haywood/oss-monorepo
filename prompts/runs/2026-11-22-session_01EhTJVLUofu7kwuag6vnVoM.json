@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVLUofu7kwuag6vnVoM",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (routed by promptctl route)",
+  "input_sha256": "7f52272f4c4ec4ad90483eab2c61a079aac08395561ba7036915dd2de33bd1de",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T21:00:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18310",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Scheduled brief asks for revenue product work; plain route drew process. Followed the router as prompt.md says."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "No per-file filter (--file); reading one cluster's full reports meant grepping prompts/runs/*.json by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "No agent-owned backlog item open and prompts/ is CODEOWNERS-gated, so no backlog row edited; Critique mode with a fix in ungated platform/ci.",
+      "did": "Widened run_workflow_locally deferral from prose-only to content-only",
+      "result": "PR 18310"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-a-rule-that-matched-none-of-166-merges.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode. friction_rank --live --ungated --days 2 ranked run_workflow_locally.py first (6 sessions). PR 18272's prose-only deferral matched 0 of 166 first-parent merges since 2026-11-21 (every PR has a .json run record; stories ship .html/.xml; research ships .py/.json). Content-only rule (no platform/, portfolio/, .github/, prompts/ except runs, research/_homepage|_shared, non-prose root files; flagships.yaml is content) matches 135/166. Checks: test_run_workflow_locally 265 OK (2 new); main_health 313/313 before change; check_post_frontmatter ok. No backlog ids touched (gated).",
+  "corrections": [],
+  "redteam": null
+}
