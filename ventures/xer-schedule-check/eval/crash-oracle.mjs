@@ -4,6 +4,7 @@
 // compares the greedy cut's cumulative cost at each gain with the least
 // cost of that gain.
 //   node eval/crash-oracle.mjs [seeds] [nMax] [roomMax] [density]
+import { pathToFileURL } from "node:url";
 import { parseXer } from "../xer.mjs";
 import { crashAnalysis } from "../crash.mjs";
 
@@ -91,7 +92,7 @@ export function oracleRun({ seeds = 300, nMin = 4, nMax = 7, dMax = 6, roomMax =
   return { givenBack, points, optimal, worst: Math.round(worst * 1000) / 1000, reach, reachOk, misses };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [seeds = 300, nMax = 7, roomMax = 2, density = 1.6] = process.argv.slice(2).map(Number);
   const o = oracleRun({ seeds, nMax, roomMax, density });
   console.log(JSON.stringify({ ...o, misses: o.misses.slice(0, 20), missCount: o.misses.length }));

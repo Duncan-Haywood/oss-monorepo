@@ -29,11 +29,12 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 6,
+  "tests_added": 7,
   "outcome": "success",
   "errors": [
     "First oracle run reported 49 misses at room 0-4; they were the oracle's own fault (a 2-day activity allowed to lose 4 days). Fixed by capping its room at the duration.",
-    "First corpus run threw 'lower bounds cannot be met' on hotel-project: a shortened activity whose finish drives nothing in the network got a refund bound. Fixed by bounding only durations whose finish leads on, with a no-give-back fallback."
+    "First corpus run threw 'lower bounds cannot be met' on hotel-project: a shortened activity whose finish drives nothing in the network got a refund bound. Fixed by bounding only durations whose finish leads on, with a no-give-back fallback.",
+    "First venture-preflight failed 3 repository checks on the new files: file:// entry guards in two eval scripts, a literal U+FEFF in crash.mjs's BOM strip, and a comma-stripping number parse. Fixed; a test for the comma fix then found that the rates CSV split on commas inside a semicolon file, also fixed (delimiter from the header)."
   ],
   "integrity_issues": [],
   "doc_friction": [

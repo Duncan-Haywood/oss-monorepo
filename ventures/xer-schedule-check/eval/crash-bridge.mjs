@@ -4,6 +4,7 @@
 // Random durations, rooms and costs; the greedy cut with and without giving
 // back time, against brute force over every whole-day combination.
 //   node eval/crash-bridge.mjs [cases]
+import { pathToFileURL } from "node:url";
 import { oracleCase } from "./crash-oracle.mjs";
 
 export function bridgeRun(cases = 2000) {
@@ -27,4 +28,4 @@ export function bridgeRun(cases = 2000) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) console.log(JSON.stringify(bridgeRun(Number(process.argv[2]) || 2000), null, 1));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) console.log(JSON.stringify(bridgeRun(Number(process.argv[2]) || 2000), null, 1));

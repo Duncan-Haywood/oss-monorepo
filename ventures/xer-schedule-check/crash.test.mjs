@@ -94,3 +94,9 @@ test("bridge networks: giving back time already bought keeps every step at the o
   assert.equal(b.withGiveBack.reachOk, 600);
   assert.ok(b.withGiveBack.stepsGivingBack > 0 && b.without.optimalPoints < b.without.points);
 });
+
+test("acceleration data: thousands commas and decimal commas read by shape; BOM header", () => {
+  const m = parseCrashData("\uFEFFactivity_id;max_shorten_days;cost_per_day\nA;2,5;1,800\nB;1;$12,500.50\n");
+  assert.deepEqual(m.get("A"), { roomDays: 2.5, costPerDay: 1800 });
+  assert.deepEqual(m.get("B"), { roomDays: 1, costPerDay: 12500.5 });
+});

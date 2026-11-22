@@ -132,15 +132,27 @@ export function minCut(n, edges, s, t) {
 // days on the activity's calendar), cost_per_day. Header names are matched
 // loosely; either number may be blank.
 export function parseCrashData(text) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   if (!lines.length) return new Map();
-  const split = (l) => { const out = []; let cur = "", q = false; for (let i = 0; i < l.length; i++) { const c = l[i]; if (q) { if (c === '"' && l[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; } else if (c === '"') q = true; else if (c === "," || c === "\t" || c === ";") { out.push(cur); cur = ""; } else cur += c; } out.push(cur); return out.map((s) => s.trim()); };
+  // one delimiter for the file, from the header: tab, then semicolon (a
+  // decimal-comma locale's export), then comma
+  const delim = lines[0].includes("\t") ? "\t" : lines[0].includes(";") ? ";" : ",";
+  const split = (l) => { const out = []; let cur = "", q = false; for (let i = 0; i < l.length; i++) { const c = l[i]; if (q) { if (c === '"' && l[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; } else if (c === '"') q = true; else if (c === delim) { out.push(cur); cur = ""; } else cur += c; } out.push(cur); return out.map((s) => s.trim()); };
   const head = split(lines[0]).map((h) => h.toLowerCase());
   const col = (re) => head.findIndex((h) => re.test(h));
   let ci = col(/activity|code|task|^id$/), ri = col(/max|room|shorten|crash/), ki = col(/cost/);
   let body = lines.slice(1);
   if (ci < 0) { ci = 0; ri = 1; ki = 2; body = lines; }
-  const num = (s) => { if (s === undefined || s === "") return null; const v = Number(String(s).replace(/[$,\s]/g, "")); return Number.isFinite(v) && v >= 0 ? v : null; };
+  // a comma is read by shape: 1,800 or 12,500.50 groups thousands; 2,5 is
+  // a decimal comma (2.5), never 25
+  const num = (s) => {
+    if (s === undefined || s === "") return null;
+    let t = String(s).replace(/[$\s]/g, "");
+    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) t = t.split(",").join("");
+    else if (/^\d+,\d+$/.test(t)) t = t.replace(",", ".");
+    const v = Number(t);
+    return Number.isFinite(v) && v >= 0 ? v : null;
+  };
   const m = new Map();
   for (const l of body) {
     const c = split(l);
