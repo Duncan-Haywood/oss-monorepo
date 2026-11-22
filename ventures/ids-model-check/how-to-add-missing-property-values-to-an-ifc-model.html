@@ -60,7 +60,7 @@ node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv</pre>
     <li>Write classifications or materials. Those are listed, because which classification code or material is right is a design decision.</li>
     <li>Fix the source. The authoring model still lacks the values, so the next export will too; send the to-fill table to whoever owns the export mapping.</li>
   </ul>
-  <p>Quantities are a special case: a missing <code>Qto_</code> quantity the element already holds in another set (an IFC2X3 export's <code>BaseQuantities</code>) is copied, and with <em>Measure missing Qto_ volumes, areas and lengths from each element's geometry</em> ticked, missing volumes, areas and lengths (a slab's thickness and perimeter among them) are measured from the element's geometry.</p>
+  <p>Quantities are a special case: a missing <code>Qto_</code> quantity the element already holds in another set (an IFC2X3 export's <code>BaseQuantities</code>) is copied, and with <em>Measure missing Qto_ volumes, areas and lengths from each element's geometry</em> ticked, missing volumes, areas and lengths (a slab's thickness and perimeter among them) are measured from the element's geometry. A door's or window's width, height, area and perimeter are read from the opening it fills, in ARCHICAD exports, where that is exactly what ARCHICAD stores; Revit's exports store different figures from version to version, so those stay in the to-fill table.</p>
   <h2>Questions</h2>
   <h3>Can I edit IFC properties without Revit or ArchiCAD?</h3>
   <p>Yes, for missing values. The free checker writes property, quantity and attribute values into a copy of the IFC file in your browser, checked against the IDS before and after they are written.</p>

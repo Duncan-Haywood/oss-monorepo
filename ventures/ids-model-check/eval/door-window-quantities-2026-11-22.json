@@ -1,0 +1,536 @@
+{
+ "models": {
+  "architect": {
+   "tool": "Revit",
+   "elements": 133,
+   "body": 133,
+   "attrs": 99,
+   "attr": {
+    "Width": {
+     "stored": 133,
+     "within2": 129
+    },
+    "Height": {
+     "stored": 133,
+     "within2": 133
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 133,
+     "offered": 0,
+     "within2": 0,
+     "misses": [],
+     "read": 99,
+     "readWithin2": 95,
+     "readExact": 95
+    },
+    "Height": {
+     "stored": 133,
+     "offered": 0,
+     "within2": 0,
+     "misses": [],
+     "read": 99,
+     "readWithin2": 99,
+     "readExact": 95
+    },
+    "Area": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Perimeter": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "AC20-FZK-Haus": {
+   "tool": "ARCHICAD",
+   "elements": 16,
+   "body": 16,
+   "attrs": 16,
+   "attr": {
+    "Width": {
+     "stored": 16,
+     "within2": 16
+    },
+    "Height": {
+     "stored": 16,
+     "within2": 16
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 16,
+     "offered": 16,
+     "within2": 16,
+     "misses": [],
+     "read": 16,
+     "readWithin2": 16,
+     "readExact": 16,
+     "exact": 16
+    },
+    "Height": {
+     "stored": 16,
+     "offered": 16,
+     "within2": 16,
+     "misses": [],
+     "read": 16,
+     "readWithin2": 16,
+     "readExact": 16,
+     "exact": 16
+    },
+    "Area": {
+     "stored": 16,
+     "offered": 16,
+     "within2": 16,
+     "misses": [],
+     "read": 16,
+     "readWithin2": 16,
+     "readExact": 16,
+     "exact": 16
+    },
+    "Perimeter": {
+     "stored": 16,
+     "offered": 16,
+     "within2": 16,
+     "misses": [],
+     "read": 16,
+     "readWithin2": 16,
+     "readExact": 16,
+     "exact": 16
+    }
+   }
+  },
+  "C20-Institute-Var-2": {
+   "tool": "ARCHICAD",
+   "elements": 283,
+   "body": 283,
+   "attrs": 283,
+   "attr": {
+    "Width": {
+     "stored": 283,
+     "within2": 283
+    },
+    "Height": {
+     "stored": 283,
+     "within2": 283
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 283,
+     "offered": 283,
+     "within2": 283,
+     "misses": [],
+     "read": 283,
+     "readWithin2": 283,
+     "readExact": 283,
+     "exact": 283
+    },
+    "Height": {
+     "stored": 283,
+     "offered": 283,
+     "within2": 283,
+     "misses": [],
+     "read": 283,
+     "readWithin2": 283,
+     "readExact": 283,
+     "exact": 283
+    },
+    "Area": {
+     "stored": 283,
+     "offered": 283,
+     "within2": 283,
+     "misses": [],
+     "read": 283,
+     "readWithin2": 283,
+     "readExact": 283,
+     "exact": 283
+    },
+    "Perimeter": {
+     "stored": 283,
+     "offered": 283,
+     "within2": 283,
+     "misses": [],
+     "read": 283,
+     "readWithin2": 283,
+     "readExact": 283,
+     "exact": 283
+    }
+   }
+  },
+  "ISSUE_005_haus": {
+   "tool": "ARCHICAD",
+   "elements": 16,
+   "body": 16,
+   "attrs": 16,
+   "attr": {
+    "Width": {
+     "stored": 16,
+     "within2": 16
+    },
+    "Height": {
+     "stored": 16,
+     "within2": 16
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 16,
+     "offered": 16,
+     "within2": 16,
+     "misses": [],
+     "read": 16,
+     "readWithin2": 16,
+     "readExact": 16,
+     "exact": 16
+    },
+    "Height": {
+     "stored": 16,
+     "offered": 16,
+     "within2": 16,
+     "misses": [],
+     "read": 16,
+     "readWithin2": 16,
+     "readExact": 16,
+     "exact": 16
+    },
+    "Area": {
+     "stored": 16,
+     "offered": 16,
+     "within2": 16,
+     "misses": [],
+     "read": 16,
+     "readWithin2": 16,
+     "readExact": 16,
+     "exact": 16
+    },
+    "Perimeter": {
+     "stored": 16,
+     "offered": 16,
+     "within2": 16,
+     "misses": [],
+     "read": 16,
+     "readWithin2": 16,
+     "readExact": 16,
+     "exact": 16
+    }
+   }
+  },
+  "ISSUE_068_ARK_NUS_skolebygg": {
+   "tool": "Revit",
+   "elements": 576,
+   "body": 576,
+   "attrs": 537,
+   "attr": {
+    "Width": {
+     "stored": 568,
+     "within2": 229
+    },
+    "Height": {
+     "stored": 568,
+     "within2": 548
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 568,
+     "offered": 0,
+     "within2": 0,
+     "misses": [],
+     "read": 537,
+     "readWithin2": 211,
+     "readExact": 9
+    },
+    "Height": {
+     "stored": 568,
+     "offered": 0,
+     "within2": 0,
+     "misses": [],
+     "read": 537,
+     "readWithin2": 519,
+     "readExact": 9
+    },
+    "Area": {
+     "stored": 576,
+     "offered": 0,
+     "within2": 0,
+     "misses": [],
+     "read": 537
+    },
+    "Perimeter": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "ISSUE_159_kleine_Wohnung_R22": {
+   "tool": "Revit",
+   "elements": 99,
+   "body": 99,
+   "attrs": 97,
+   "attr": {
+    "Width": {
+     "stored": 99,
+     "within2": 97
+    },
+    "Height": {
+     "stored": 99,
+     "within2": 50
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 99,
+     "offered": 0,
+     "within2": 0,
+     "misses": [],
+     "read": 97,
+     "readWithin2": 97,
+     "readExact": 97
+    },
+    "Height": {
+     "stored": 99,
+     "offered": 0,
+     "within2": 0,
+     "misses": [],
+     "read": 97,
+     "readWithin2": 50,
+     "readExact": 50
+    },
+    "Area": {
+     "stored": 99,
+     "offered": 0,
+     "within2": 0,
+     "misses": [],
+     "read": 97,
+     "readWithin2": 31,
+     "readExact": 31
+    },
+    "Perimeter": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "schependomlaan": {
+   "tool": "ARCHICAD",
+   "elements": 464,
+   "body": 456,
+   "attrs": 74,
+   "attr": {
+    "Width": {
+     "stored": 169,
+     "within2": 91
+    },
+    "Height": {
+     "stored": 169,
+     "within2": 91
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 169,
+     "offered": 65,
+     "within2": 65,
+     "misses": [],
+     "read": 74,
+     "readWithin2": 70,
+     "readExact": 70,
+     "exact": 65
+    },
+    "Height": {
+     "stored": 169,
+     "offered": 65,
+     "within2": 65,
+     "misses": [],
+     "read": 74,
+     "readWithin2": 74,
+     "readExact": 70,
+     "exact": 62
+    },
+    "Area": {
+     "stored": 462,
+     "offered": 65,
+     "within2": 65,
+     "misses": [],
+     "read": 74,
+     "readWithin2": 70,
+     "readExact": 66,
+     "exact": 62
+    },
+    "Perimeter": {
+     "stored": 462,
+     "offered": 65,
+     "within2": 65,
+     "misses": [],
+     "read": 74,
+     "readWithin2": 70,
+     "readExact": 66,
+     "exact": 62
+    }
+   }
+  },
+  "ISSUE_126_model": {
+   "tool": "ARCHICAD",
+   "elements": 29,
+   "body": 29,
+   "attrs": 29,
+   "attr": {
+    "Width": {
+     "stored": 0,
+     "within2": 0
+    },
+    "Height": {
+     "stored": 0,
+     "within2": 0
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Area": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Perimeter": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "S_Office_Integrated Design Archi": {
+   "tool": "ARCHICAD",
+   "elements": 65,
+   "body": 59,
+   "attrs": 59,
+   "attr": {
+    "Width": {
+     "stored": 0,
+     "within2": 0
+    },
+    "Height": {
+     "stored": 0,
+     "within2": 0
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Area": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Perimeter": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  },
+  "ISSUE_098_R8_F1_MAB_AR_M3_XX_XXX_MO_7000": {
+   "tool": "Revit",
+   "elements": 2657,
+   "body": 2657,
+   "attrs": 2542,
+   "attr": {
+    "Width": {
+     "stored": 0,
+     "within2": 0
+    },
+    "Height": {
+     "stored": 0,
+     "within2": 0
+    }
+   },
+   "q": {
+    "Width": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Height": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Area": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    },
+    "Perimeter": {
+     "stored": 0,
+     "offered": 0,
+     "within2": 0,
+     "misses": []
+    }
+   }
+  }
+ },
+ "total": {
+  "Width": {
+   "stored": 1284,
+   "offered": 380,
+   "within2": 380,
+   "exact": 380
+  },
+  "Height": {
+   "stored": 1284,
+   "offered": 380,
+   "within2": 380,
+   "exact": 377
+  },
+  "Area": {
+   "stored": 1452,
+   "offered": 380,
+   "within2": 380,
+   "exact": 377
+  },
+  "Perimeter": {
+   "stored": 777,
+   "offered": 380,
+   "within2": 380,
+   "exact": 377
+  }
+ }
+}
