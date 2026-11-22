@@ -484,6 +484,31 @@ cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids
 need no special case.
 
+**Bridges, roads and rail (IFC4X3 alignments, `alignment.mjs`).** Parts placed
+by station along an alignment (`IfcLinearPlacement`: distance along, lateral,
+vertical and longitudinal offsets) are placed on the alignment's own curves:
+an `IfcGradientCurve` (a horizontal of lines, circular arcs and clothoids, with
+a vertical profile laid over it), a bare horizontal `IfcCompositeCurve`, or an
+`IfcPolyline`. Offsets are measured in the frame the IFC 4.3 text gives
+`IfcPointByDistanceExpression`: lateral level to the left, vertical square to
+the tangent in its vertical plane, longitudinal as a straight step along the
+tangent. Decks, girders, diaphragms, pavement courses and kerbs swept as an
+`IfcSectionedSolidHorizontal` are lofted between their cross-sections (each
+square to the tangent at its station, its points moving linearly between
+stations, sliced every 0.25 degrees of turn), so a curved deck follows its arc
+and a crossfall that turns over is measured exactly. On Viadotto Acerno (a
+33 MB public IFC4X3 bridge, 6,448 parts), which did not read at all before
+2026-11-22: all 1,101 linear placements land within 1.1e-7 m of IfcOpenShell
+0.8's, and all 638 lofted solids are within 0.003% of an independent integral
+of their sections (area times the centroid's path, Pappus), with their world
+boxes matching IfcOpenShell's to 5.7e-14 m (median). 12 diaphragms whose
+second section sits 0.20 m past the end of their directrix are lofted on
+along the end tangent and carry a note saying so; IfcOpenShell stops them at
+the end. ([eval/linear-placement-2026-11-22.md](eval/linear-placement-2026-11-22.md).)
+Not read yet: cant (`IfcSegmentedReferenceCurve`), spirals other than the
+clothoid, `IfcPolynomialCurve` and offset curves as directrices; the
+element on such a placement is "not read", and the rest of the file is.
+
 **Not read:** an advanced brep face that wraps all the way round a closed
 surface (a band or cap on a surface of revolution), a curved face other than a
 cylinder's with a hole in it, a face whose boundary lies more than 1e-3 of its
