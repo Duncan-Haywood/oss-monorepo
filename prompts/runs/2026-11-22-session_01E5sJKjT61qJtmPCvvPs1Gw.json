@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKjT61qJtmPCvvPs1Gw",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T00:09:20Z",
+  "ended": "2026-11-22T00:18:30Z",
+  "wall_minutes": 9.37,
+  "tokens_in": 4465259,
+  "tokens_out": 29245,
+  "cost_usd": 2.4657,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18164",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/experiments/bend7t/results.txt",
+      "issue": "its 'med m' column is the median of m, and I pre-registered a gate on median |m - 1| reading it as if it were that; the plan's disclosed expectation was wrong (recorded in the 7y outcome). A column of median |m - 1| beside median m would prevent this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/LOG.md",
+      "why": "pick_track's CHAIN note suggested a paper section might serve better than another sub-step; the discussion section already covered 7k to 7x, and 7x's own Next (a) was a pre-registrable experiment that closes the gate question, so I ran it as 7y and added its paper bullet in the same PR",
+      "did": "milestone 7y experiment plus paper section 5.3 bullet",
+      "result": "closed the gate question (oracle bound) and kept the paper current"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-no-gate-can-say-when-to-correct-a-battery-fade-forecast.md",
+    "research/cell-fidelity/LOG.md (7y plan and outcome)",
+    "research/cell-fidelity/paper/discussion.md (5.3)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7y: plating-share and drift-size gates for the corrected ten-cycle forecast, pre-registered (plan committed first). H349, H352 supported; H351 refuted; H350, H353 inconclusive. Post hoc per-set oracle picks the straight forecast on all four committed sets (19/20 at 43.5). Local checks: tests/test_gate7y.py 8 OK, test_gate7x OK, research/_homepage/build.py ok, check_md_links ok, check_posts ok, programme_check ok, py311 syntax ok. Control replay of 7x folds: 0 mismatches.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b944e0a5-1fd2-5784-accb-1c5328a4158c",
+    "transcripts": 1,
+    "first": "2026-11-22T00:09:20Z",
+    "last": "2026-11-22T00:18:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 80,
+        "output": 29245,
+        "thinking": 6835,
+        "cache_read": 4338579,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126600,
+        "api_equivalent_usd": 2.4657,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 80,
+      "output": 29245,
+      "thinking": 6835,
+      "cache_read": 4338579,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126600,
+      "api_equivalent_usd": 2.4657,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.37,
+      "active_minutes": 9.37,
+      "model_minutes": 5.35,
+      "tool_minutes": 4.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a battery-modelling researcher designing, coding and writing up a pre-registered out-of-fold gate study on existing benches",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 243.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

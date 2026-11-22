@@ -1,0 +1,96 @@
+cell-fidelity milestone 7y: a plating-share gate (gP) and a drift-size gate (gD) for 7c's corrected forecast.
+gP: median phi10 of the training rows >= 0.9; gD: median |m - 1| of the training rows >= 0.1.
+thetaX = 7x's thetaH (out-of-fold corrected E10, nested margin) where gate X is on, 7h's theta where off.
+four = committed sets (lopo5 over 5zk 5zy 5zz 7g 7h); f30 / f10 = tuned plating cells (7p's pools).
+Cycles are DFN cycles per design; negative differences mean the first rule is cheaper. No new simulation.
+
+control four: theta/U/thetaH/thetaN vs 7x's folds (cycles + met mismatches) = 0.00e+00
+control f10: theta/U/thetaH/thetaN vs 7x's folds (cycles + met mismatches) = 0.00e+00
+control f30: theta/U/thetaH/thetaN vs 7x's folds (cycles + met mismatches) = 0.00e+00
+
+---- four ----
+set           phi10 all    min |m-1| all  gates N P D (per fold)  phi10 / |m-1| training medians per fold
+Chen2020          0.999  0.997     0.126  nyyyy yyyyy yyyyy  0.999/0.127 0.999/0.123 0.999/0.127 0.999/0.123 0.999/0.124
+OKane2022         0.999  0.997     0.136  yyyyy yyyyy yyyyy  0.999/0.137 0.999/0.135 0.999/0.137 0.999/0.136 0.999/0.130
+NCA_Kim2011       0.994  0.991     0.259  yyyyy yyyyy yyyyy  0.994/0.259 0.995/0.252 0.994/0.247 0.994/0.275 0.994/0.259
+Ai2020            0.029  0.029     0.116  nnnnn nnnnn yyyny  0.029/0.135 0.029/0.112 0.029/0.135 0.029/0.088 0.029/0.101
+set                  theta            U       thetaH       thetaN       thetaP       thetaD
+Chen2020         4/5  44.7    4/5  42.0    4/5  45.2    4/5  45.2    4/5  45.2    4/5  45.2
+OKane2022        5/5  46.3    5/5  50.0    4/5  46.3    4/5  46.3    4/5  46.3    4/5  46.3
+NCA_Kim2011      5/5  40.0    5/5  50.0    4/5  47.0    4/5  47.0    4/5  47.0    4/5  47.0
+Ai2020           5/5  43.0    5/5  50.0    5/5  48.5    5/5  43.0    5/5  43.0    5/5  48.5
+all            19/20  43.5  19/20  48.0  17/20  46.8  17/20  45.4  17/20  45.4  17/20  46.8
+pair                mean        set boot 95%  cheaper  dearer  sign p
+thetaD-theta       +3.25    +0.25 to +6.25        0       8   0.008
+thetaD-U           -1.25    -3.33 to +1.63        8       4   0.388
+thetaD-thetaN      +1.38    +0.00 to +4.12        0       3   0.250
+thetaP-theta       +1.88    +0.00 to +5.25        0       5   0.062
+thetaP-U           -2.62    -6.00 to +1.46       10       4   0.180
+theta-U            -4.50    -8.50 to +0.25       14       4   0.031
+sensitivity of gD's threshold: thetaD0.05 17/20 46.8 gates Chen20 yyyyy,OKane2 yyyyy,NCA_Ki yyyyy,Ai2020 yyyyy; thetaD0.15 18/20 45.2 gates Chen20 nnnnn,OKane2 nnnnn,NCA_Ki yyyyy,Ai2020 nnnnn
+thetaD policies: Chen202 5zk 50>=0.019 0.074/0.077; Chen202 5zy 50>=0.014 0.077/0.097; Chen202 5zz 50>=0.014 0.051/0.064; Chen202 7g 50>=0.014 0.053/0.066; Chen202 7h 50>=0.025 0.084/0.056 MISS; OKane20 5zk 50>=0.031 0.051/0.064; OKane20 5zy 50>=0.031 0.053/0.067; OKane20 5zz 50>=0.013 0.040/0.050; OKane20 7g 50>=0.013 0.050/0.063; OKane20 7h 50>=0.031 0.070/0.068 MISS; NCA_Kim 5zk 50>=0.221 0.043/0.032 MISS; NCA_Kim 5zy 50>=0.049 0.020/0.025; NCA_Kim 5zz 50>=0.049 0.025/0.031; NCA_Kim 7g 50>=0.049 0.029/0.036; NCA_Kim 7h 50>=0.049 0.020/0.025; Ai2020 5zk 50>=0.035 0.014/0.017; Ai2020 5zy 50>=0.031 0.038/0.047; Ai2020 5zz 50>=0.031 0.046/0.058; Ai2020 7g 50>=0.041 0.038/0.048; Ai2020 7h 50>=0.031 0.039/0.049
+
+---- f10 ----
+set           phi10 all    min |m-1| all  gates N P D (per fold)  phi10 / |m-1| training medians per fold
+Mohtat2020        0.997  0.994     0.061  ynyyy yyyyy nnnnn  0.997/0.061 0.997/0.061 0.997/0.061 0.997/0.063 0.997/0.058
+Ecker2015         0.999  0.998     0.135  nyynn yyyyy yyyyy  0.999/0.135 0.999/0.141 0.999/0.136 0.999/0.122 0.999/0.119
+set                  theta            U       thetaH       thetaN       thetaP       thetaD
+Mohtat2020       2/5  23.0    3/5  24.0    2/5  21.6    2/5  21.0    2/5  21.6    2/5  23.0
+Ecker2015        5/5  42.6    5/5  46.0    4/5  18.0    4/5  26.6    4/5  18.0    4/5  18.0
+all             7/10  32.8   8/10  35.0   6/10  19.8   6/10  23.8   6/10  19.8   6/10  20.5
+pair                mean        set boot 95%  cheaper  dearer  sign p
+thetaD-theta      -12.30   -24.60 to +0.00        4       0   0.125
+thetaD-U          -14.50   -28.00 to -1.00        5       0   0.062
+thetaD-thetaN      -3.30    -8.60 to +2.00        2       1   1.000
+thetaP-theta      -12.99   -24.60 to -1.38        5       1   0.219
+thetaP-U          -15.19   -28.00 to -2.38        6       1   0.125
+theta-U            -2.20    -3.40 to -1.00        3       2   1.000
+sensitivity of gD's threshold: thetaD0.05 6/10 19.8 gates Mohtat yyyyy,Ecker2 yyyyy; thetaD0.15 7/10 32.8 gates Mohtat nnnnn,Ecker2 nnnnn
+thetaD policies: Mohtat2 p1 20>=0.001 0.079/0.106; Mohtat2 p2 15>=inf 0.093/0.081 MISS; Mohtat2 p3 20>=0.001 0.088/0.080 MISS; Mohtat2 p4 50>=0.002 0.094/0.093 MISS; Mohtat2 p5 20>=0.001 0.079/0.090; Ecker20 p1 15>=inf 0.155/0.196; Ecker20 p2 15>=inf 0.108/0.190; Ecker20 p3 15>=inf 0.154/0.136 MISS; Ecker20 p4 50>=0.003 0.212/0.265; Ecker20 p5 15>=inf 0.136/0.206
+
+---- f30 ----
+set           phi10 all    min |m-1| all  gates N P D (per fold)  phi10 / |m-1| training medians per fold
+Mohtat2020        0.999  0.998     0.194  yyyyy yyyyy yyyyy  0.999/0.188 0.999/0.204 0.999/0.188 0.999/0.194 0.999/0.204
+Ecker2015         1.000  0.999     0.415  yyyyy yyyyy yyyyy  1.000/0.415 1.000/0.423 1.000/0.418 1.000/0.402 1.000/0.390
+set                  theta            U       thetaH       thetaN       thetaP       thetaD
+Mohtat2020       5/5  47.5    5/5  40.0    5/5  10.0    5/5  10.0    5/5  10.0    5/5  10.0
+Ecker2015        4/5  43.5    5/5  40.0    5/5  10.0    5/5  10.0    5/5  10.0    5/5  10.0
+all             9/10  45.5  10/10  40.0  10/10  10.0  10/10  10.0  10/10  10.0  10/10  10.0
+pair                mean        set boot 95%  cheaper  dearer  sign p
+thetaD-theta      -35.50   -37.50 to -33.50       10       0   0.002
+thetaD-U          -30.00   -30.00 to -30.00       10       0   0.002
+thetaD-thetaN      +0.00    +0.00 to +0.00        0       0   1.000
+thetaP-theta      -35.50   -37.50 to -33.50       10       0   0.002
+thetaP-U          -30.00   -30.00 to -30.00       10       0   0.002
+theta-U            +5.50    +3.50 to +7.50        1       7   0.070
+sensitivity of gD's threshold: thetaD0.05 10/10 10.0 gates Mohtat yyyyy,Ecker2 yyyyy; thetaD0.15 10/10 10.0 gates Mohtat yyyyy,Ecker2 yyyyy
+thetaD policies: Mohtat2 p1 15>=inf 0.072/0.097; Mohtat2 p2 15>=inf 0.066/0.103; Mohtat2 p3 15>=inf 0.098/0.115; Mohtat2 p4 15>=inf 0.096/0.105; Mohtat2 p5 15>=inf 0.043/0.099; Ecker20 p1 15>=inf 0.168/0.202; Ecker20 p2 15>=inf 0.069/0.210; Ecker20 p3 15>=inf 0.142/0.255; Ecker20 p4 15>=inf 0.227/0.239; Ecker20 p5 15>=inf 0.149/0.196
+
+---- six set-conditions (four + f30, 30 folds) ----
+  theta 28/30 44.2  U 29/30 45.3  thetaH 27/30 34.5  thetaN 27/30 33.6  thetaP 27/30 33.6  thetaD 27/30 34.5  thetaD0.05 27/30 34.5  thetaD0.15 28/30 33.5
+thetaD-theta       -9.67   -24.00 to +4.08       10       8   0.815
+thetaD-U          -10.83   -21.11 to -0.67       18       4   0.004
+thetaD-thetaN      +0.92    +0.00 to +2.75        0       3   0.250
+thetaP-theta      -10.58   -24.33 to +2.50       10       5   0.302
+thetaP-U          -11.75   -21.78 to -1.83       20       4   0.002
+theta-U            -1.17    -6.19 to +3.75       15      11   0.557
+
+POST HOC (not in the plan): directional drift |median(m) - 1| of the training rows per fold, and a per-set
+oracle that picks thetaH or theta for the whole set by its held-out outcome (fewer misses, then fewer cycles).
+  four Chen2020     dir 0.070 0.070 0.054 0.065 0.081   oracle picks theta (4/5 44.7)
+  four OKane2022    dir 0.006 0.022 0.022 0.089 0.008   oracle picks theta (5/5 46.3)
+  four NCA_Kim2011  dir 0.233 0.233 0.225 0.248 0.252   oracle picks theta (5/5 40.0)
+  four Ai2020       dir 0.035 0.028 0.019 0.020 0.044   oracle picks theta (5/5 43.0)
+  f10  Mohtat2020   dir 0.008 0.002 0.004 0.004 0.007   oracle picks thetaH (2/5 21.6)
+  f10  Ecker2015    dir 0.059 0.096 0.083 0.059 0.096   oracle picks theta (5/5 42.6)
+  f30  Mohtat2020   dir 0.188 0.204 0.188 0.194 0.204   oracle picks thetaH (5/5 10.0)
+  f30  Ecker2015    dir 0.415 0.423 0.418 0.402 0.390   oracle picks thetaH (5/5 10.0)
+  oracle four: 19/20 43.5 cycles per design
+  oracle f10: 7/10 32.1 cycles per design
+  oracle f30: 10/10 10.0 cycles per design
+
+H349 (gP on in every fold of >= 3 of the 4 committed sets): supported
+H350 (thetaD meets >= 18 of 20 folds on the four sets): inconclusive
+H351 (four sets, 20-fold mean of thetaD - theta <= 0): refuted
+H352 (f = 30, 10-fold mean of thetaD - U <= -25): supported
+H353 (six-set bootstrap 95% interval of thetaD - theta below zero): inconclusive
