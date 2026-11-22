@@ -1,0 +1,45 @@
+# Milestone 11ba post hoc (not pre-registered): side of the tail and one-sided searches; frozen p_N = 0.02716
+
+## old (11ax, 48 layouts), 384 draws
+  M = 12, s = 1.0: N tail draws with best above k_B 2, below 0
+    N   median 1.0000  p90 1.0152  max 1.0600  effort 150.0 descents
+    W   median 1.0000  p90 1.0081  max 1.0242  effort 250.0 descents
+    U2  median 1.0000  p90 1.0085  max 1.0242  effort 200.0 descents
+    U3  median 1.0000  p90 1.0085  max 1.0242  effort 250.0 descents
+  M = 12, s = 2.0: N tail draws with best above k_B 8, below 0
+    N   median 1.0000  p90 1.0404  max 1.1581  effort 150.0 descents
+    W   median 1.0000  p90 1.0112  max 1.0434  effort 250.0 descents
+    U2  median 1.0000  p90 1.0112  max 1.0434  effort 200.0 descents
+    U3  median 1.0000  p90 1.0016  max 1.0211  effort 250.0 descents
+  M = 16, s = 1.0: N tail draws with best above k_B 5, below 0
+    N   median 1.0018  p90 1.0314  max 1.0987  effort 150.0 descents
+    W   median 1.0000  p90 1.0124  max 1.0371  effort 250.0 descents
+    U2  median 1.0000  p90 1.0124  max 1.0371  effort 200.0 descents
+    U3  median 1.0000  p90 1.0124  max 1.0371  effort 250.0 descents
+  M = 16, s = 2.0: N tail draws with best above k_B 11, below 0
+    N   median 1.0000  p90 1.0522  max 1.1130  effort 150.0 descents
+    W   median 1.0000  p90 1.0267  max 1.0635  effort 250.0 descents
+    U2  median 1.0000  p90 1.0267  max 1.0635  effort 200.0 descents
+    U3  median 1.0000  p90 1.0079  max 1.0271  effort 250.0 descents
+
+## fresh (11ba, 24 layouts), 192 draws
+  M = 12, s = 1.0: N tail draws with best above k_B 3, below 0
+    N   median 1.0000  p90 1.0297  max 1.0844  effort 150.0 descents
+    W   median 1.0000  p90 1.0137  max 1.0269  effort 250.0 descents
+    U2  median 1.0000  p90 1.0137  max 1.0269  effort 200.0 descents
+    U3  median 1.0000  p90 1.0137  max 1.0269  effort 250.0 descents
+  M = 12, s = 2.0: N tail draws with best above k_B 5, below 1
+    N   median 1.0000  p90 1.0747  max 1.2602  effort 150.0 descents
+    W   median 1.0000  p90 1.0065  max 1.1105  effort 250.0 descents
+    U2  median 1.0000  p90 1.0097  max 1.1105  effort 200.0 descents
+    U3  median 1.0000  p90 1.0028  max 1.0999  effort 250.0 descents
+  M = 16, s = 1.0: N tail draws with best above k_B 1, below 0
+    N   median 1.0001  p90 1.0220  max 1.0726  effort 150.0 descents
+    W   median 1.0000  p90 1.0080  max 1.0255  effort 250.0 descents
+    U2  median 1.0000  p90 1.0080  max 1.0255  effort 200.0 descents
+    U3  median 1.0000  p90 1.0080  max 1.0255  effort 250.0 descents
+  M = 16, s = 2.0: N tail draws with best above k_B 6, below 0
+    N   median 1.0000  p90 1.0559  max 1.0959  effort 150.0 descents
+    W   median 1.0000  p90 1.0085  max 1.0684  effort 250.0 descents
+    U2  median 1.0000  p90 1.0085  max 1.0684  effort 200.0 descents
+    U3  median 1.0000  p90 1.0004  max 1.0120  effort 250.0 descents

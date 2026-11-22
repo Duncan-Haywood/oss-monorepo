@@ -1,0 +1,71 @@
+# Milestone 11ba: fresh-layout test of W and C(q) (fresh_tail.py's docstring). 24 fresh layouts, 192 draws; frozen budget p_N = 0.02716 (all 384 old draws); seed clashes with the old layouts: 0
+
+## M = 12, s = 1.0 (48 draws)
+  B          median 1.0087  p90 1.0741  mean 1.0305  max 1.2499  effort 50.0 descents  (within 1%: 25 of 48)
+  N          median 1.0000  p90 1.0297  mean 1.0102  max 1.0844  effort 150.0 descents  (within 1%: 36 of 48)
+  W          median 1.0000  p90 1.0137  mean 1.0034  max 1.0269  effort 250.0 descents  (within 1%: 42 of 48)
+  C(0.0001)  median 1.0000  p90 1.0297  mean 1.0101  max 1.0844  effort 156.2 descents  (within 1%: 36 of 48)
+  C(0.00135) median 1.0000  p90 1.0297  mean 1.0101  max 1.0844  effort 152.1 descents  (within 1%: 36 of 48)
+  C(0.01)    median 1.0000  p90 1.0297  mean 1.0102  max 1.0844  effort 150.0 descents  (within 1%: 36 of 48)
+  oracle     median 1.0000  p90 1.0137  mean 1.0034  max 1.0269  effort 600.0 descents  (within 1%: 42 of 48)
+  frozen-budget B agrees with the aware band count in 24 of 48 draws
+  N tail draws (cost > 1.05): 3
+    layout 1224: N 1.0690, W 1.0058, C 1.0690; k_B 4, k_q 4, best 6 (|best - k_B| = 2); leak 1:0 / 2:0 / 3:0 / 4:4.8e-05 / 5:0.054 / 6:0.07 / 7:0.15
+    layout 1224: N 1.0844, W 1.0017, C 1.0844; k_B 4, k_q 4, best 6 (|best - k_B| = 2); leak 1:0 / 2:0 / 3:0 / 4:0.00013 / 5:0.16 / 6:0.13 / 7:0.16
+    layout 1224: N 1.0807, W 1.0000, C 1.0807; k_B 4, k_q 4, best 6 (|best - k_B| = 2); leak 1:0 / 2:0 / 3:0 / 4:0.00012 / 5:0.051 / 6:0.066 / 7:0.2
+
+## M = 12, s = 2.0 (48 draws)
+  B          median 1.0000  p90 1.1555  mean 1.0470  max 1.2839  effort 50.0 descents  (within 1%: 28 of 48)
+  N          median 1.0000  p90 1.0747  mean 1.0196  max 1.2602  effort 150.0 descents  (within 1%: 37 of 48)
+  W          median 1.0000  p90 1.0065  mean 1.0054  max 1.1105  effort 250.0 descents  (within 1%: 44 of 48)
+  C(0.0001)  median 1.0000  p90 1.0566  mean 1.0173  max 1.2602  effort 154.2 descents  (within 1%: 38 of 48)
+  C(0.00135) median 1.0000  p90 1.0566  mean 1.0173  max 1.2602  effort 154.2 descents  (within 1%: 38 of 48)
+  C(0.01)    median 1.0000  p90 1.0566  mean 1.0175  max 1.2602  effort 151.0 descents  (within 1%: 38 of 48)
+  oracle     median 1.0000  p90 1.0012  mean 1.0013  max 1.0489  effort 600.0 descents  (within 1%: 47 of 48)
+  frozen-budget B agrees with the aware band count in 28 of 48 draws
+  N tail draws (cost > 1.05): 6
+    layout 1224: N 1.2602, W 1.1105, C 1.2602; k_B 3, k_q 3, best 6 (|best - k_B| = 3); leak 1:0 / 2:0 / 3:2.1e-08 / 4:0.066 / 5:0.085 / 6:0.087 / 7:0.16
+    layout 1224: N 1.0752, W 1.0657, C 1.0752; k_B 3, k_q 3, best 6 (|best - k_B| = 3); leak 1:0 / 2:0 / 3:4.5e-06 / 4:0.03 / 5:0.091 / 6:0.17 / 7:0.23
+    layout 1226: N 1.1249, W 1.0027, C 1.1249; k_B 3, k_q 3, best 6 (|best - k_B| = 3); leak 1:0 / 2:0 / 3:8.7e-08 / 4:0.042 / 5:0.072 / 6:0.12 / 7:0.14
+    layout 1227: N 1.1217, W 1.0000, C 1.1217; k_B 3, k_q 3, best 5 (|best - k_B| = 2); leak 1:0 / 2:0 / 3:1.8e-06 / 4:0.057 / 5:0.06 / 6:0.086 / 7:0.15
+    layout 1230: N 1.0745, W 1.0000, C 1.0745; k_B 3, k_q 3, best 5 (|best - k_B| = 2); leak 1:0 / 2:0 / 3:1.6e-06 / 4:0.038 / 5:0.053 / 6:0.043 / 7:0.15
+    layout 1235: N 1.0999, W 1.0000, C 1.0000; k_B 5, k_q 3, best 3 (|best - k_B| = 2); leak 1:0 / 2:0 / 3:1.8e-08 / 4:0.13 / 5:0.022 / 6:0.082 / 7:0.17
+
+## M = 16, s = 1.0 (48 draws)
+  B          median 1.0069  p90 1.0727  mean 1.0230  max 1.1306  effort 50.0 descents  (within 1%: 28 of 48)
+  N          median 1.0001  p90 1.0220  mean 1.0058  max 1.0726  effort 150.0 descents  (within 1%: 41 of 48)
+  W          median 1.0000  p90 1.0080  mean 1.0025  max 1.0255  effort 250.0 descents  (within 1%: 44 of 48)
+  C(0.0001)  median 1.0001  p90 1.0220  mean 1.0058  max 1.0726  effort 153.1 descents  (within 1%: 41 of 48)
+  C(0.00135) median 1.0001  p90 1.0220  mean 1.0058  max 1.0726  effort 152.1 descents  (within 1%: 41 of 48)
+  C(0.01)    median 1.0001  p90 1.0220  mean 1.0058  max 1.0726  effort 151.0 descents  (within 1%: 41 of 48)
+  oracle     median 1.0000  p90 1.0080  mean 1.0025  max 1.0255  effort 600.0 descents  (within 1%: 44 of 48)
+  frozen-budget B agrees with the aware band count in 23 of 48 draws
+  N tail draws (cost > 1.05): 1
+    layout 1629: N 1.0726, W 1.0100, C 1.0726; k_B 4, k_q 4, best 6 (|best - k_B| = 2); leak 1:0 / 2:0 / 3:0 / 4:4.5e-05 / 5:0.037 / 6:0.049 / 7:0.1
+
+## M = 16, s = 2.0 (48 draws)
+  B          median 1.0000  p90 1.1166  mean 1.0309  max 1.1999  effort 50.0 descents  (within 1%: 33 of 48)
+  N          median 1.0000  p90 1.0559  mean 1.0108  max 1.0959  effort 150.0 descents  (within 1%: 40 of 48)
+  W          median 1.0000  p90 1.0085  mean 1.0035  max 1.0684  effort 250.0 descents  (within 1%: 44 of 48)
+  C(0.0001)  median 1.0000  p90 1.0559  mean 1.0108  max 1.0959  effort 151.0 descents  (within 1%: 40 of 48)
+  C(0.00135) median 1.0000  p90 1.0559  mean 1.0108  max 1.0959  effort 151.0 descents  (within 1%: 40 of 48)
+  C(0.01)    median 1.0000  p90 1.0559  mean 1.0108  max 1.0959  effort 151.0 descents  (within 1%: 40 of 48)
+  oracle     median 1.0000  p90 1.0004  mean 1.0006  max 1.0120  effort 600.0 descents  (within 1%: 47 of 48)
+  frozen-budget B agrees with the aware band count in 31 of 48 draws
+  N tail draws (cost > 1.05): 6
+    layout 1629: N 1.0782, W 1.0684, C 1.0782; k_B 3, k_q 3, best 6 (|best - k_B| = 3); leak 1:0 / 2:0 / 3:1.9e-06 / 4:0.035 / 5:0.16 / 6:0.3 / 7:0.28
+    layout 1629: N 1.0691, W 1.0505, C 1.0691; k_B 3, k_q 3, best 6 (|best - k_B| = 3); leak 1:0 / 2:0 / 3:5.8e-06 / 4:0.16 / 5:0.12 / 6:0.23 / 7:0.44
+    layout 1631: N 1.0719, W 1.0094, C 1.0719; k_B 3, k_q 3, best 6 (|best - k_B| = 3); leak 1:0 / 2:0 / 3:1.5e-06 / 4:0.049 / 5:0.084 / 6:0.11 / 7:0.29
+    layout 1632: N 1.0619, W 0.9990, C 1.0619; k_B 3, k_q 3, best 5 (|best - k_B| = 2); leak 1:0 / 2:0 / 3:4.8e-06 / 4:0.04 / 5:0.073 / 6:0.051 / 7:0.2
+    layout 1633: N 1.0959, W 1.0116, C 1.0959; k_B 3, k_q 3, best 6 (|best - k_B| = 3); leak 1:0 / 2:0 / 3:1e-07 / 4:0.046 / 5:0.068 / 6:0.074 / 7:0.1
+    layout 1634: N 1.0534, W 1.0192, C 1.0534; k_B 3, k_q 3, best 6 (|best - k_B| = 3); leak 1:0 / 2:0 / 3:3e-07 / 4:0.086 / 5:0.064 / 6:0.047 / 7:0.2
+
+  CPU per layout (analysis): median 9.5 s
+# F1 -> held
+# F2 -> held
+# F3 -> held
+# F4 -> held
+# F5 -> refuted
+# F6 -> held
+# F7 -> held
+# F8 -> held
