@@ -34,6 +34,19 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Do older Catholic mothers forget a Catholic upbringing? Not after 60: their own re-interviews show no drift, and the fall sits at 25-44 (milestone 5b, 2026-11-22)
+
+The step before found that, for US-born mothers born 1937-49, the share who say they were raised Catholic is 3.4-3.5
+points lower at 45+ than at 25-44, about as much as their current Catholic share falls, so their fall did not look like
+leaving. Their own answers in the GSS 2006-10 panels, asked again two and four years later at ages 57-73, do not drift
+down: **+0.16 points a year [-0.15, +0.46]** (297 mothers). Four predictions were committed first; 2 of 4 are supported
+(one only just) and the two that said the panel would show the same fall are refuted. At the panel's own ages the
+cross-section agrees: within each birth year the raised-Catholic share is flat at 57-77 (-0.07 a year [-0.41, +0.27]).
+The fall is at 25-44 in the 1977-94 surveys (-0.36 a year, noisy), so mortality and late-life nonresponse are not
+needed to explain it. Panel women born 1950-71, seen at about 48, do drift down by 0.31 points a year [0.01, 0.61],
+enough over the 12 years between the bands to give the whole fall; that comparison is post hoc. Code
+`experiments/m5r_old_cohort_panel/run.py`, tables `t49`, `t50`, details in `LOG.md`.
+
 ## Do American Catholic mothers leave the Church after their children grow up? Some do, mostly those born after 1950 (milestone 5b, 2026-11-21)
 
 The previous step found that, compared within 10-year birth-cohort windows, US-born mothers' current Catholic share is

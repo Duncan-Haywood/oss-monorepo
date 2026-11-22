@@ -1,0 +1,25 @@
+table,group,years,quantity,est,lo,hi,se
+band,"mothers 1937-49, own weights",1977-2024 all modes,D_R (points),3.5007,0.7734,6.2306,1.3507
+band,"mothers 1937-49, own weights",1977-2024 all modes,age difference (years),-20.8717,-21.2000,-20.5546,0.1667
+band,"mothers 1937-49, own weights",1977-2024 all modes,rate D_R / age difference,-0.1677,-0.3000,-0.0374,0.0648
+band,"mothers 1937-49, child weights",1977-2024 all modes,D_R (points),3.3999,0.1996,6.5639,1.6182
+band,"mothers 1937-49, child weights",1977-2024 all modes,age difference (years),-20.4196,-20.7869,-20.0718,0.1860
+band,"mothers 1937-49, child weights",1977-2024 all modes,rate D_R / age difference,-0.1665,-0.3242,-0.0097,0.0793
+slope,mothers 1937-49,1977-2024 all modes,ages 25-44,-0.3566,-0.9244,0.1649,0.2789
+slope,mothers 1937-49,1977-2024 all modes,ages 45-56,0.2363,-0.2942,0.8085,0.2850
+slope,mothers 1937-49,1977-2024 all modes,ages 57-77,-0.0505,-0.3633,0.2360,0.1527
+slope,mothers 1937-49,1977-2024 all modes,ages 25+,-0.0629,-0.1484,0.0247,0.0450
+slope,women 1937-49,1977-2024 all modes,ages 57-77,-0.0345,-0.3313,0.2323,0.1432
+slope,all adults 1937-49,1977-2024 all modes,ages 57-77,0.0679,-0.1632,0.2965,0.1160
+band,"mothers 1937-49, own weights",1977-2018,D_R (points),3.6663,0.9154,6.4446,1.3717
+band,"mothers 1937-49, own weights",1977-2018,age difference (years),-18.7420,-18.9916,-18.4540,0.1398
+band,"mothers 1937-49, own weights",1977-2018,rate D_R / age difference,-0.1956,-0.3448,-0.0484,0.0733
+band,"mothers 1937-49, child weights",1977-2018,D_R (points),3.3913,0.1381,6.6124,1.6300
+band,"mothers 1937-49, child weights",1977-2018,age difference (years),-18.5126,-18.8142,-18.1814,0.1616
+band,"mothers 1937-49, child weights",1977-2018,rate D_R / age difference,-0.1832,-0.3597,-0.0075,0.0881
+slope,mothers 1937-49,1977-2018,ages 25-44,-0.3566,-0.9244,0.1649,0.2789
+slope,mothers 1937-49,1977-2018,ages 45-56,0.2363,-0.2942,0.8085,0.2850
+slope,mothers 1937-49,1977-2018,ages 57-77,-0.0654,-0.4087,0.2647,0.1726
+slope,mothers 1937-49,1977-2018,ages 25+,-0.0785,-0.1832,0.0191,0.0523
+slope,women 1937-49,1977-2018,ages 57-77,-0.0256,-0.3084,0.2711,0.1607
+slope,all adults 1937-49,1977-2018,ages 57-77,-0.0344,-0.2705,0.2196,0.1286

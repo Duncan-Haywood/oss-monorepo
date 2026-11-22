@@ -2,6 +2,53 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-22 · Milestone 5b, seventeenth GSS-only step: the oldest mothers' own panel re-reports do not drift down at 57-73, and their cross-section fall in "raised Catholic" sits at 25-44, where no panel sees them
+
+Run: `experiments/m5r_old_cohort_panel/run.py` (output `results.txt`, tables `t49`, `t50`; cross-sections: 500-draw
+stratified PSU bootstrap over the whole file, seed 1; panels: design-based intervals as m5p). Data from
+`data/download_gssr.sh` (checksums passed). **Order of events:** the script with P1-P4 was committed (268de0953) and
+pushed before any run. One 2-draw smoke run, stdout discarded and its CSVs deleted unread, failed on a key-label bug
+(cohort labels printed as `1937-1949` but looked up as `1937-49`); fixed (68f2bb671) without changing any estimand, a
+second 2-draw smoke run (exit code only, outputs deleted), then the full run, once, unchanged.
+Consistency check: the band D_R for mothers 1937-49 is +3.50 (own) and +3.40 (child weights), 1977-2024, the values
+m5q's t47 implies (D_P - D_S: 3.97 - 0.47 and 3.73 - 0.33).
+
+Question. m5q found the mothers born 1937-49 report a Catholic upbringing 3.4-3.5 points less often at 45+ than at
+25-44 (about -0.17 points per year of age), so their current-Catholic fall nets to almost zero switching. Is that the
+same women re-reporting their upbringing (reporting drift) or a change in who is left to interview (composition)? The
+2006-10 panels re-asked `relig16` of people born 1937-49 at ages 57-73 (wave-1 mean age 64).
+
+- **P1 refuted.** Panel, US-born mothers 1937-49, wave 1 to 3: **+0.155 points per year [-0.146, +0.457]** (n 297);
+  women +0.195 [-0.093, +0.484], all adults +0.066 [-0.111, +0.243]; wave 1 to 2 also positive and noisier. At these ages
+  the same women do not drop a Catholic upbringing when asked again.
+- **P2 supported, only just.** Band rate (own weights, 1977-2024) minus panel rate: **-0.323 [-0.650, +0.004]** points per
+  year (MDD 0.47). Child weights -0.322 [-0.661, +0.017]. In person only (1977-2018, not the pre-registered pair) the
+  interval excludes zero: -0.351 [-0.685, -0.017].
+- **P3 refuted.** Panel / band rate = **-0.93**: the panel drift has the wrong sign to account for any of the fall.
+- **P4 supported, low power.** At the panel's own ages the cross-section agrees with it: within-cohort slope at 57-77,
+  mothers 1937-49, 1977-2018, **-0.065 [-0.409, +0.265]**, minus panel = -0.221 [-0.674, +0.232] (MDD 0.65); women and all
+  adults 1937-49 the same (-0.026 and -0.034 per year at 57-77).
+- **Where the fall is (reported without a prediction).** Within-cohort slopes for mothers 1937-49 by age segment: 25-44
+  **-0.357 [-0.924, +0.165]**, 45-56 +0.236 [-0.294, +0.808], 57-77 -0.065. All ages 25+: -0.079 [-0.183, +0.019], half the
+  band rate, because the band contrast weights each cohort's few early 25-44 interviews (1977-88 for cohorts 1937-44)
+  equally with its many 45+ ones. The fall is at young ages and early survey years; from 45 on these cohorts' raised-
+  Catholic share is flat in both sources.
+- **Contrast (post hoc reading).** Panel women born 1950-71 (wave-1 mean age 48) do drift down: **-0.308 [-0.608, -0.007]**
+  per year (mothers -0.278 [-0.611, +0.055]), and the difference from the 1937-49 women is +0.50 [+0.09, +0.92]. Re-reporting
+  drift appears in mid-life and not after 60.
+- **Implication.** For the 1937-49 mothers, composition at old ages (mortality, late-life nonresponse) is not needed:
+  at 57-77 neither the cross-section nor the panel shows a fall. The 3.4-point D_R comes from the step between the
+  25-44 interviews (1977-94) and the 45-56 ones, an age range and era no GSS panel covers. A mid-life reporting drift of
+  the size younger panel women show (-0.3 a year) over the roughly 12 years between the two bands' means would give
+  about 3.7 points, so the m5q reading (their current-Catholic fall moves with reported upbringing, so it is not
+  evidence of leaving) remains the simplest one, but it now rests on other cohorts' drift, not their own.
+- **Limits.** Age and survey year are not separated; a period change in the 1977-94 surveys (sampling frame, question
+  context) would look the same as a mid-life drift. The panel cells are small (297 mothers 1937-49). The segment split
+  and the 1950-71 contrast were not predicted.
+- **Next.** Separate mid-life drift from a 1977-94 period effect: compare the within-cohort R16 slope at 25-44 for
+  cohorts observed at those ages in different eras (1937-49 in 1977-94, 1950-71 in 1977-2015), and the 2016-20 panel's
+  re-asked items for a period check if any proxy exists; then H5, or milestone 2.
+
 ## 2026-11-21 · Milestone 5b, sixteenth GSS-only step: m5o's switching difference survives single-year cohort standardisation (+3.1 of +3.7), but in the cohorts that carry most of the weight it moves with reported upbringing
 
 Run: `experiments/m5q_cohort_std_switching/run.py` (output `results.txt`, tables `t47`, `t48`; 500-draw stratified PSU
