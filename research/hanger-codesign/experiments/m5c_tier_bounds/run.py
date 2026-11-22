@@ -144,6 +144,8 @@ def flat(c):
     """Counts as one flat {name: number} for the G9 comparison."""
     out = {}
     for k, v in c.items():
+        if k == "sv_runs":
+            continue
         if isinstance(v, dict):
             out.update({f"{k}[{f}]": x for f, x in v.items() if not isinstance(x, float)})
         elif isinstance(v, int) and not isinstance(v, bool):
@@ -181,6 +183,12 @@ def main():
         out.append(f"{k} {fx[k]} | {fxx.get(k)}")
     for f in (T13, T23, CAL):
         out.append(f"mean SV(1) runs [{f}] {c['sv_runs'][f]:.2f} | {cx['sv_runs'][f]:.2f}")
+    for f in (T13, T23, CAL):  # post hoc reporting (added after the first run): bound sizes by family
+        G, Gx = [q for q in Q if q["fam"] == f], [q for q in Qx if q["fam"] == f]
+        md = lambda H, k: statistics.median(q[k] for q in H)
+        out.append(f"median [{f}] K* {md(G, 'Kstar'):.3f} | {md(Gx, 'Kstar'):.3f}; R(K3) {md(G, 'R_K3'):.4f} | "
+                   f"{md(Gx, 'R_K3'):.4f}; R(K_loo) {md(G, 'R_loo'):.4f} | {md(Gx, 'R_loo'):.4f}; "
+                   f"max R(K_loo) {max(q['R_loo'] for q in G):.4f}; margin_t {md(G, 'margin_t'):.4f}; osc {md(G, 'osc'):.4f}")
     out.append("instances with regret > 0: " + "; ".join(f"{a} {b} {r:.4f}" for a, b, r in c["regret_pos"]))
     out += ["", "4. predictions",
             f"G1 theorems in all 45: {hv(c['theorems'] and cx['theorems'])}",
