@@ -329,3 +329,26 @@ test('a description that is markup renders as the characters typed', () => {
   assert.equal(escapeText('<img src=x onerror=alert(1)>'), '&lt;img src=x onerror=alert(1)&gt;');
   assert.equal(escapeText(`Tax & "fees" 'now'`), 'Tax &amp; &quot;fees&quot; &#39;now&#39;');
 });
+
+test('a delay dated after the first negative week never "closes the gap" (quality audit 2026-11-22)', () => {
+  // Week 2 is already short before the tax bill lands in week 3, so moving the
+  // bill lifts weeks 3-6 but leaves week 2 at -500.
+  const base = { cash: 1000, weeklyIncome: 1000, collectionWeeks: 0, weeklyCosts: 1000, weeks: 8 };
+  const items = [
+    { name: 'Supplier', amount: 1500, week: 2, kind: 'out' },
+    { name: 'Tax', amount: 3000, week: 3, kind: 'out' },
+    { name: 'Refund', amount: 1000, week: 3, kind: 'in' },
+    { name: 'Contract', amount: 5000, week: 7, kind: 'in' },
+  ];
+  const rows = forecast({ ...base, items });
+  assert.deepEqual(rows.map((row) => row.balance), [1000, -500, -2500, -2500, -2500, -2500, 2500, 2500]);
+  const plan = shortfallPlan(rows, { items, weeklyIncome: 1000, weeklyCosts: 1000 });
+  assert.equal(plan.delay.name, 'Tax');
+  assert.equal(plan.delay.clears, false);
+  // Applying the move confirms it: week 2 is still negative.
+  const moved = items.map((item) => item.name === 'Tax' ? { ...item, week: 7 } : item);
+  assert.ok(forecast({ ...base, items: moved })[1].balance < 0);
+  // Pulling the week-7 contract forward to before week 2 does close it.
+  assert.equal(plan.pullForward.name, 'Contract');
+  assert.equal(plan.pullForward.clears, true);
+});
