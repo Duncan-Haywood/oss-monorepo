@@ -1,0 +1,11 @@
+Milestone 12c reproduction checks, re-read from results.json with NaN-aware equality (writes checks.txt).
+
+in-run check ok   aware lag39c125 above seed 0 start 0 best training score: got -2.0159090980808627, want -2.0159090980808627
+in-run check ok   aware lag39c150 above seed 0 start 0 best training score: got -2.140672761236194, want -2.140672761236194
+in-run check ok   re-scored seeds 0-5 equal 7ac's stored stress numbers (mismatches): got 0, want 0
+in-run check FAIL re-scored seeds 0-5 equal 7ac's stored response records, every test (mismatches): got 27, want 0
+
+NaN-aware: stress records of seeds 0-5 differing from 7ac's in a dead_ or J_ field: 0 of 192
+NaN-aware: response records of seeds 0-5 differing from 7ac's in any field: 0 of 216
+response records of seeds 0-5 holding a NaN (unsettled episodes): 27
+MC0 held
