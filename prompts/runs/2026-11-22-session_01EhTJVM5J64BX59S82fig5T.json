@@ -25,11 +25,16 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "changed-ventures failed check_third_party.py: regenerated watch-repo-files.mjs README line 5,757 chars read as a bundle",
+      "fix": "build-watch-repo-files.mjs now writes each text file one string per line; check_third_party and unwired_checks (277/277) pass locally"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
