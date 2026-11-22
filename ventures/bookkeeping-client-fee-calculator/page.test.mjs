@@ -93,3 +93,24 @@ test("index links to sibling tools", async () => {
     assert.ok(idx.includes(`href="../${s}/"`), s);
   }
 });
+
+test("monthly-count inputs accept fractions (biweekly payroll, quarterly filings)", async () => {
+  const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  for (const id of ["payroll", "salestax"]) {
+    const tag = html.match(new RegExp(`<input[^>]*id="${id}"[^>]*>`))[0];
+    assert.match(tag, /step="any"/, `${id} must allow fractional monthly counts`);
+  }
+  // The engine prices fractions: 2.17 runs and 0.33 filings change the minutes.
+  const base = price({ payrollRuns: 1, salesTaxFilings: 1 });
+  const frac = price({ payrollRuns: 2.17, salesTaxFilings: 0.33 });
+  assert.equal(Math.round(frac.minutes - base.minutes), Math.round(1.17 * 25 - 0.67 * 45));
+});
+
+test("software note says the buffer applies to software in the recommended fee", async () => {
+  const { INPUT_NOTES } = await import("./engine.mjs");
+  const note = INPUT_NOTES.find((n) => n.what === "Software").detail;
+  assert.match(note, /buffer to the whole minimum, software included/);
+  // and the engine does that: $918 = (580 min at $75 + $40) x 1.2
+  const r = price({});
+  assert.equal(Math.round(r.recommended * 100), Math.round(r.minimum * 1.2 * 100));
+});

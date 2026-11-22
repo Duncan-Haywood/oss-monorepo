@@ -40,7 +40,7 @@ export const INPUT_NOTES = [
   { what: "Monthly transactions", detail: "Bank and card lines you categorize each month. Minutes per transaction depend on how clean the books are: you set clean, average and messy." },
   { what: "Accounts, payroll runs, AR/AP items, sales-tax filings", detail: "Each has its own minutes per unit (reconciliation per account, per payroll run, per invoice or bill, per filing). Defaults are placeholders; replace them with your own timed numbers." },
   { what: "Monthly review and client contact", detail: "A fixed block of minutes for the close, questions and the monthly call, whatever the volume." },
-  { what: "Software", detail: "Monthly software and tool cost you carry for this client. It is added to the fee after your hours, not marked up." },
+  { what: "Software", detail: "Monthly software and tool cost you carry for this client. It is added to the minimum fee after your hours, not marked up; the recommended fee applies your buffer to the whole minimum, software included." },
   { what: "Target hourly rate", detail: "What an hour of your bookkeeping time should earn. The minimum fee is hours x this rate plus software." },
   { what: "Recommended fee", detail: "The minimum plus your buffer percent, for scope creep and the months that run long." },
   { what: "Walk-away price", detail: "Hours x a floor rate (a percent of your target) plus software. Below it, the client costs you more than the work is worth to you." },
