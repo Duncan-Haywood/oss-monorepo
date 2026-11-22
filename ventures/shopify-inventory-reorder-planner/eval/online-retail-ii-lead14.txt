@@ -1,0 +1,43 @@
+read 1067371 rows, 1061278 product lines, 5070 SKUs, 739 days in 7.0 s
+# node eval/backtest.mjs orii.csv --lead 14 --cycle 28 --window 365 (holdout 2010-12-11 to 2011-12-09, 13 plans)
+# fill = units sold / units demanded; CSL = share of lead times with no lost sale (what the service level setting promises); stock = mean on-hand at average selling price
+method  target  class         SKUs   fill   CSL  lead-times  stock (GBP)  mean SKU fill
+normal   90.0%  all           3078   91.2  73.7       16125    1,374,193   88.2
+normal   90.0%  erratic         25   97.8  86.4         214       65,679   97.4
+normal   90.0%  intermittent   319   78.8  76.3        1453       20,413   82.9
+normal   90.0%  lumpy         2711   90.8  73.2       14397    1,286,763   89.0
+normal   95.0%  all           3078   92.6  77.5       16221    1,515,221   89.7
+normal   95.0%  erratic         25   98.5  92.1         215       71,051   98.1
+normal   95.0%  intermittent   319   80.9  78.7        1495       22,583   84.4
+normal   95.0%  lumpy         2711   92.1  77.2       14448    1,420,070   90.4
+normal   98.0%  all           3078   93.6  79.8       16280    1,676,258   90.9
+normal   98.0%  erratic         25   99.0  93.9         213       78,153   98.7
+normal   98.0%  intermittent   319   82.4  79.7        1501       25,039   85.9
+normal   98.0%  lumpy         2711   93.2  79.6       14498    1,571,309   91.6
+normal   99.0%  all           3078   94.2  81.3       16317    1,783,521   91.7
+normal   99.0%  erratic         25   99.2  94.8         210       82,225   98.9
+normal   99.0%  intermittent   319   83.3  81.3        1501       26,717   86.9
+normal   99.0%  lumpy         2711   93.9  81.1       14539    1,672,684   92.3
+auto     90.0%  all           3078   90.3  74.3       17174    1,190,136   85.7
+auto     90.0%  erratic         25   98.0  87.0         216       65,809   97.4
+auto     90.0%  intermittent   319   76.4  74.4        1432       15,884   79.5
+auto     90.0%  lumpy         2711   89.7  74.1       15463    1,107,791   86.6
+auto     95.0%  all           3078   92.8  80.7       17487    1,462,822   89.4
+auto     95.0%  erratic         25   98.6  91.4         221       72,461   98.5
+auto     95.0%  intermittent   319   80.2  78.4        1442       19,293   83.5
+auto     95.0%  lumpy         2711   92.5  80.8       15755    1,370,296   90.3
+auto     98.0%  all           3078   94.8  86.0       17495    2,027,869   92.8
+auto     98.0%  erratic         25   99.1  96.0         225       81,197   99.1
+auto     98.0%  intermittent   319   84.2  82.8        1515       24,553   86.8
+auto     98.0%  lumpy         2711   94.6  86.2       15686    1,921,074   93.6
+auto     99.0%  all           3078   95.4  86.9       17256    2,172,098   93.4
+auto     99.0%  erratic         25   99.3  96.4         224       85,110   99.3
+auto     99.0%  intermittent   319   85.1  83.2        1512       26,169   87.8
+auto     99.0%  lumpy         2711   95.2  87.1       15452    2,059,712   94.2
+
+# paired bootstrap over SKUs, auto minus normal, 2,000 resamples: mean [2.5%, 97.5%]
+target  CSL (pts)              fill (pts)             stock (%)
+ 90.0%    0.6 [-0.1, 1.4]       -1.0 [-1.2, -0.7]     -13.4 [-15.3, -11.7]   
+ 95.0%    3.2 [2.5, 3.9]         0.3 [0.1, 0.5]        -3.5 [-5.7, -1.5]     
+ 98.0%    6.2 [5.5, 6.9]         1.3 [1.1, 1.5]        21.0 [18.6, 23.5]     
+ 99.0%    5.6 [5.0, 6.3]         1.2 [1.1, 1.4]        21.8 [19.7, 24.2]     

@@ -13,7 +13,6 @@ ventures/poshmark-sales-report-analyzer/calc.mjs
 ventures/rent-roll-delinquency-analyzer/calc.mjs
 ventures/reseller-books/engines/poshmark.mjs
 ventures/shift-roster-builder/calc.mjs
-ventures/shopify-inventory-reorder-planner/calc.mjs
 ventures/subscription-audit-from-statement/calc.mjs
 ventures/turo-earnings-report-analyzer/calc.mjs
 ventures/youtube-revenue-rpm-analyzer/calc.mjs
