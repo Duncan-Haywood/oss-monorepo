@@ -65,10 +65,6 @@ class AuditorTests(unittest.TestCase):
         self.assertAlmostEqual(min_stake(1, 0.5, 0.1, kappa=0.0), 4.0, places=6)  # lone cheater always coincides
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class PartialCopyTests(unittest.TestCase):
     def test_partial_copy_closed_form_matches_brute_force(self):
         from vtm.coalition import min_stake_partial, stake_closed_partial
@@ -94,3 +90,7 @@ class ReplicationCostTests(unittest.TestCase):
         spec.loader.exec_module(rc)
         self.assertEqual(rc.breakeven(0.9, 1.0)[0], float("inf"))
         self.assertGreater(rc.breakeven(0.9, 0.2)[0], 16.0)
+
+
+if __name__ == "__main__":
+    unittest.main()

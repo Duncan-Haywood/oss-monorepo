@@ -52,10 +52,6 @@ class T(unittest.TestCase):
         self.assertGreaterEqual(f["force"], 0.00595 * model.G / 1.0 - 1e-9)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Convergence(unittest.TestCase):
     def test_time_converges_with_node_count(self):
         # (robofab-rampopt) with gravity and a joint speed cap there is no closed form, so check that the
@@ -66,3 +62,7 @@ class Convergence(unittest.TestCase):
         self.assertTrue(all(x > 0 for x in d), T)
         self.assertLess(d[1], d[0])
         self.assertLess(d[2], d[1])
+
+
+if __name__ == "__main__":
+    unittest.main()

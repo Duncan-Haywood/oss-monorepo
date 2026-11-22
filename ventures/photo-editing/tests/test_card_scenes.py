@@ -78,10 +78,6 @@ class CardScenesTest(unittest.TestCase):
         Path(f.name).unlink()
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 @unittest.skipUnless(HAS_NUMPY, "numpy")
 class CardFloorRankTest(unittest.TestCase):
     def test_second_lowest_scene_on_cards_of_three_or_more(self):

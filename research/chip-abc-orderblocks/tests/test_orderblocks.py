@@ -62,10 +62,6 @@ class ExplicitFlowTest(unittest.TestCase):
             self.assertNotEqual(explicit.score(p, "add16", "dch_map", True), explicit.score(p, "add16", "dch_map", False))
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class MixedTest(unittest.TestCase):
     def test_mixed_default_reproduces_generator(self):
         from chip_abc_orderblocks import gens
@@ -88,3 +84,7 @@ class MixedTest(unittest.TestCase):
             sig = trace.signatures(p, "add16")
             adds = sum(int(n) for k, n in sig[4][0] if k.startswith(("$add", "$alu")))
             self.assertEqual(adds, 9)
+
+
+if __name__ == "__main__":
+    unittest.main()

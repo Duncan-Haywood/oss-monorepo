@@ -286,10 +286,6 @@ class TailFold(unittest.TestCase):
         self.assertTrue((d.cls_unfolded == "demolition").any())
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 @unittest.skipIf(transfer is None, "needs pandas and lightgbm")
 class MinSupport(unittest.TestCase):
     """Session 81: classes with fewer than k source training rows fold into 'other'."""
@@ -413,3 +409,7 @@ class CensoredPseudo(unittest.TestCase):
             self.assertTrue(all((x == 1).all() for x in w.values()))
             self.assertEqual(rounds.rounds(fc, "seattle", 2024, v, 1)["rounds"],
                              rounds.rounds(fc, "seattle", 2024, base, 1)["rounds"], v)
+
+
+if __name__ == "__main__":
+    unittest.main()

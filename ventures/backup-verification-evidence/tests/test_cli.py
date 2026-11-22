@@ -235,10 +235,6 @@ class CheckCommandTests(unittest.TestCase):
             self.assertEqual(ctx.exception.code, 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 import gzip  # noqa: E402
 import io  # noqa: E402
 import tarfile  # noqa: E402
@@ -428,3 +424,7 @@ class RecordIntegrityTests(unittest.TestCase):
                     ]
                 )
             self.assertNotIn("integrity", json.loads(output.read_text())["artifact"])
+
+
+if __name__ == "__main__":
+    unittest.main()

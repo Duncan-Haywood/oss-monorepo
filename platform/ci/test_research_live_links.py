@@ -102,10 +102,6 @@ class Topics(unittest.TestCase):
         self.assertNotIn("Chip & loops", changed)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Projects(unittest.TestCase):
     DATA = {"themes": [{"projects": [
         {"slug": "zeta", "lede": "last."}, {"slug": "old", "lede": ""}, {"slug": "alpha", "lede": "first."}]}]}
@@ -123,3 +119,7 @@ class Projects(unittest.TestCase):
         self.assertIn("research/beta", twice)
         self.assertNotIn("research/alpha", twice)
         self.assertEqual(twice.count("projects:start"), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

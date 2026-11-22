@@ -194,10 +194,6 @@ class MainExitCodes(unittest.TestCase):
             os.chdir(cwd)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class PercentScaling(unittest.TestCase):
     """A percent field whose calculator divides by 100 before the guard."""
 
@@ -311,3 +307,7 @@ class ReachableModules(unittest.TestCase):
         d = self._dir({"a.mjs": "export const f = 1;"})
         found = reachable_modules('import "./gone.mjs"; import "./a.mjs";', d)
         self.assertEqual({p.name for p in found}, {"a.mjs"})
+
+
+if __name__ == "__main__":
+    unittest.main()

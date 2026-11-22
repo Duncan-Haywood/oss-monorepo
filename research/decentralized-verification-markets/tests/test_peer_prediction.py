@@ -93,10 +93,6 @@ class TestCorrelatedAgreement(unittest.TestCase):
             self.assertAlmostEqual(entry, 0.0, delta=0.08)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestMultiTaskCorrelatedAgreement(unittest.TestCase):
     def setUp(self):
         from verification_markets.peer_prediction import ca_score_matrix, multi_task_ca_payment
@@ -144,3 +140,7 @@ class TestMultiTaskCorrelatedAgreement(unittest.TestCase):
                     break
             total += self.pay(const, peer, b, p, q, s)
         self.assertLess(abs(total / n), 0.03)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -135,10 +135,6 @@ class EngineChoiceTests(unittest.TestCase):
         self.assertEqual(report.engine, "python")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 @unittest.skipUnless(HAVE_NUMPY, "numpy not installed")
 class BandedThreadsTests(unittest.TestCase):
     """Demosaic and encode run in bands on a thread pool (``raw_develop_np._run_bands``): the band height and the
@@ -273,3 +269,7 @@ class UnpackBitsTests(unittest.TestCase):
             slow = rd.parse_raw(blob).values
         self.assertEqual(fast.tobytes(), slow.tobytes())
         self.assertEqual(list(fast), sensor)
+
+
+if __name__ == "__main__":
+    unittest.main()

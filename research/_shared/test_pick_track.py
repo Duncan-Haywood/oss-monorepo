@@ -425,7 +425,6 @@ class FocusTest(unittest.TestCase):
         self.assertEqual(set(firsts), {p[0] for p in progs})
 
 
-
 class SessionDrawTest(unittest.TestCase):
     def test_same_draw_until_new(self):
         first = pick_track.session_draw(new=True)
@@ -576,10 +575,6 @@ class ProgrammeLabelTest(unittest.TestCase):
         self.assertIn("https://example.invalid/", got)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class LandFirstTest(unittest.TestCase):
     """research prompt step 2: runs read 100+ open PR titles by hand to find the research ones."""
 
@@ -655,7 +650,6 @@ class LandFirstTest(unittest.TestCase):
         prs = [self.pr(i, f"research/p{i}: s", "2026-11-01T00:00:00Z") for i in range(12)]
         lines = self._lines(prs, show=3)
         self.assertTrue(any("and 9 more" in l for l in lines))
-
 
 
 class StaleHostsTest(unittest.TestCase):
@@ -786,3 +780,7 @@ class ChainLineTest(unittest.TestCase):
                 + self.LOG.split("\n", 1)[1])
         line = pick_track.chain_line("x", text=text)
         self.assertIn("1 entry since the last paper step, \"2026-11-13 · Paper: Section 6.1, validity\"", line)
+
+
+if __name__ == "__main__":
+    unittest.main()

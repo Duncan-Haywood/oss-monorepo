@@ -547,10 +547,6 @@ class Restart(unittest.TestCase):
             self.assertIsNone(boot_time(os.path.join(d, "missing")))
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Gone(unittest.TestCase):
     """--gone NAME: wait on a job by name without matching wait_for or its shell
     (friction 2026-11-18: `pgrep -f '[b]owling...'` in a line naming the script matched itself)."""
@@ -598,3 +594,7 @@ class Gone(unittest.TestCase):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as e:
             main(["--gone", " ", "--timeout", "0"])
         self.assertEqual(e.exception.code, 2)
+
+
+if __name__ == "__main__":
+    unittest.main()

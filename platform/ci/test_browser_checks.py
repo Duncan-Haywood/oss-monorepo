@@ -641,10 +641,6 @@ class DiscoverModules(unittest.TestCase):
         self.assertIn(os.path.join(bc.PAGES, "node_modules"), roots)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class OnlyFilter(unittest.TestCase):
     """`--only`, and the two guarantees that keep it from hiding a non-run.
 
@@ -754,3 +750,7 @@ class OnlyFilter(unittest.TestCase):
         """`journey` ignores the filter, so this combination must not look scoped."""
         _, text, _ = self._run(["--checks", "journey", "--only", "ebay-fee-calculator"])
         self.assertIn("ignores --only", text)
+
+
+if __name__ == "__main__":
+    unittest.main()

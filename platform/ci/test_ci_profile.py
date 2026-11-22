@@ -164,10 +164,6 @@ class Main(unittest.TestCase):
         self.assertIn("HTTP 403", err.getvalue())
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 def test_http_api_retries_truncated_body():
     import http.client
     import io
@@ -192,3 +188,7 @@ def test_http_api_retries_truncated_body():
 
     assert ci_profile.http_api(opener=opener)("x") == {"ok": 1}
     assert len(calls) == 3
+
+
+if __name__ == "__main__":
+    unittest.main()

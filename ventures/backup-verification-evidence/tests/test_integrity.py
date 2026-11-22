@@ -369,10 +369,6 @@ class UnsupportedAndEdgeCaseTests(ArtifactFixtureCase):
         self.assertEqual(result["result"], INCONCLUSIVE)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class CompressedOpaquePayloadTests(ArtifactFixtureCase):
     """A clean wrapper must not be reported as a clean payload.
 
@@ -422,3 +418,7 @@ class CompressedOpaquePayloadTests(ArtifactFixtureCase):
         # wrapper genuinely is the whole claim and `intact` stays correct.
         result = inspect_artifact(self.write("notes.txt.gz", gzip.compress(b"log line\n" * 500)))
         self.assertEqual(result["result"], INTACT)
+
+
+if __name__ == "__main__":
+    unittest.main()

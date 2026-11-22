@@ -344,10 +344,6 @@ class Snapshot(unittest.TestCase):
         self.assertEqual(live, [])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class OneOriginPerGate(unittest.TestCase):
     """Cases carried over from #1776's `check_one_origin_per_gate`, which was a
     second implementation of the same invariant; the two were consolidated into
@@ -737,3 +733,7 @@ class PagesBranchRendering(unittest.TestCase):
         # Pinning a value that moves on every merge would make --check cry wolf.
         snapshot = ps.load_snapshot()
         self.assertNotIn("pages_branch", snapshot)
+
+
+if __name__ == "__main__":
+    unittest.main()

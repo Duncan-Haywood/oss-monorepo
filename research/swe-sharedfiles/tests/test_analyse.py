@@ -30,10 +30,6 @@ class T(unittest.TestCase):
         self.assertEqual(share(self.rows, P), 0.5)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class GitReplay(unittest.TestCase):
     def test_conflict_and_clean(self):
         import subprocess, tempfile, os
@@ -55,3 +51,7 @@ class GitReplay(unittest.TestCase):
             # pairs (a,b) clean, (b,c) clean (c's line-1 edit and b's line-3 edit are apart), (a,c) conflict
             tot, bad, sh = replay_conflict_rate([(1, a), (2, b), (3, c)], 10, d)
             self.assertEqual((tot, bad), (3, 1))
+
+
+if __name__ == "__main__":
+    unittest.main()

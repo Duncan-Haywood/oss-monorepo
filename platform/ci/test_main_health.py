@@ -63,10 +63,6 @@ class UnitTestJobs(unittest.TestCase):
         self.assertFalse(mh.is_skip(0, "Ran 3 tests OK"))
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class PendingRecords(unittest.TestCase):
     """The session's own unfilled run record is PEND, not a red check (2026-11-15)."""
     NAME = "prompts/promptctl.py"
@@ -102,3 +98,90 @@ class PendingRecords(unittest.TestCase):
             self.skipTest("no origin/main in this clone")
         self.assertTrue(mh.on_main("platform/ci/main_health.py"))
         self.assertFalse(mh.on_main("prompts/runs/no-such-record.json"))
+
+
+class RunCapturesBothStreams(unittest.TestCase):
+    def test_output_joins_stdout_and_stderr(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            script = Path(d) / "check_two_streams.py"
+            script.write_text("import sys\nprint('to-out')\nprint('to-err', file=sys.stderr)\n"
+                              "sys.exit(3)\n")
+            name, rc, text = mh.run(script)
+        self.assertEqual((name, rc), ("check_two_streams.py", 3))
+        self.assertIn("to-out", text)
+        self.assertIn("to-err", text)
+
+
+class MainVerdict(unittest.TestCase):
+    """main() end to end on a fake platform/ci: which lines are red, the exit code and
+    the summary. Before 2026-11-22 nothing called main(), so a flipped `rc != 0` in its
+    red filter let 6 of 8 seeded faults through."""
+
+    def setUp(self):
+        import io
+        import tempfile
+        from contextlib import redirect_stdout
+        from unittest import mock
+        import unwired_checks
+        self.redirect, self.mock, self.io = redirect_stdout, mock, io
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        here = root / "platform" / "ci"
+        here.mkdir(parents=True)
+        for n in ("check_good.py", "check_bad.py", "check_pages_links.py", "test_x.py"):
+            (here / n).write_text("")
+        self.suite = root / "portfolio" / "test_p.py"
+        patches = [mock.patch.object(mh, "HERE", here), mock.patch.object(mh, "ROOT", root),
+                   mock.patch.object(unwired_checks, "unwired_portfolio_tests",
+                                     lambda: [self.suite]),
+                   mock.patch.object(unwired_checks, "run_suite", self.fake_suite)]
+        for p in patches:
+            p.start()
+            self.addCleanup(p.stop)
+        self.red = {"check_bad.py"}
+        self.ran = []
+
+    def fake_run(self, path, *args, timeout=None):
+        name = mh.label(path)
+        self.ran.append(name)
+        return name, (1 if name in self.red else 0), f"{name} said {'no' if name in self.red else 'yes'}"
+
+    def fake_suite(self, path, timeout=None):
+        return self.fake_run(path)
+
+    def main(self, *argv):
+        out = self.io.StringIO()
+        with self.mock.patch.object(mh, "run", self.fake_run), self.redirect(out):
+            rc = mh.main(list(argv))
+        return rc, out.getvalue()
+
+    def test_one_red_check_fails_the_run_and_only_it_is_listed(self):
+        rc, out = self.main()
+        self.assertEqual(rc, 1)
+        self.assertIn("FAIL check_bad.py (exit 1)\ncheck_bad.py said no", out)
+        self.assertNotIn("check_good.py (exit", out)
+        self.assertNotIn("check_pages_links.py", out)  # needs a built site
+        self.assertIn("platform/pages/propose_seo_titles.py", self.ran)  # EXTRA, repo-relative
+        self.assertIn("6/7 checks pass (5 checks, 1 platform/ci test files, "
+                      "1 portfolio test files no PR workflow runs)", out)
+        self.assertTrue(out.rstrip().endswith("DONE"))
+
+    def test_all_green_exits_0(self):
+        self.red = set()
+        rc, out = self.main("--checks-only")
+        self.assertEqual(rc, 0)
+        self.assertNotIn("(exit", out)
+        self.assertNotIn("test_x.py", self.ran)
+        self.assertIn("5/5 checks pass\nDONE", out)
+
+    def test_help_names_the_script(self):
+        out = self.io.StringIO()
+        with self.redirect(out), self.assertRaises(SystemExit):
+            mh.main(["--help"])
+        self.assertIn(mh.__doc__.splitlines()[0], " ".join(out.getvalue().split()))
+
+
+if __name__ == "__main__":
+    unittest.main()

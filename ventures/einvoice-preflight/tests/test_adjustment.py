@@ -200,10 +200,6 @@ class AdjustmentInvoiceIntegrationTest(unittest.TestCase):
             self.assertNotIn("N/A", report)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class NegativeInvoiceSigns(unittest.TestCase):
     """OpenPeppol's PINT A-NZ negative invoice (eval/phive-corpus.mjs, 2026-11-11)."""
 
@@ -222,3 +218,7 @@ class NegativeInvoiceSigns(unittest.TestCase):
         line = {"quantity": -4, "unit_price": 400, "price_base_quantity": 2,
                 "adjustments": [{"kind": "charge", "amount": -200}, {"kind": "allowance", "amount": -100}]}
         self.assertEqual(expected_line_net(line), Decimal("-900.00"))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -546,10 +546,6 @@ class BuildInputPatternsNonDictTest(unittest.TestCase):
                 os.unlink(f.name)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 def pages_run(conclusion="success", sha="e" * 40, branch_name="gh-pages",
               status="completed", path="dynamic/pages/pages-build-deployment",
               run_id=34012041708):
@@ -1107,3 +1103,7 @@ class RecordReading(unittest.TestCase):
         """
         with open(ps.INFRA_STATE, encoding="utf-8") as fh:
             self.assertIn(f"  {ps.ORIGIN_READING}:\n", fh.read())
+
+
+if __name__ == "__main__":
+    unittest.main()

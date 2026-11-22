@@ -204,10 +204,6 @@ class MeansInvoiceIntegrationTest(unittest.TestCase):
             self.assertNotIn("DE89370400440532013000", report)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class XRechnungSuiteMeansTests(unittest.TestCase):
     """Found by running the KoSIT XRechnung test suite."""
 
@@ -217,3 +213,7 @@ class XRechnungSuiteMeansTests(unittest.TestCase):
         self.assertFalse(looks_like_known_means("71"))
         for means in ("49", "59"):
             self.assertEqual(inspect_payment_means(_invoice({"means": means})), [], means)
+
+
+if __name__ == "__main__":
+    unittest.main()

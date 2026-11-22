@@ -47,8 +47,6 @@ class T(unittest.TestCase):
         self.assertEqual(set(r["coverage_by_month"]), {"a", "b"})
 
 
-
-
 class TestDequantised(unittest.TestCase):
     def test_ties_broken_and_qhat_can_narrow(self):
         # 100 same-day permits with a loose interval [0, 10]: plain scores tie at -0... qhat <= 0
@@ -114,10 +112,6 @@ class TestMondrian(unittest.TestCase):
         self.assertLessEqual(sum(hi[i] - lo[i] for i in g1) / len(g1), 20.0 + 2 * max(pq, 0) + 1e-9)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestNonemptyInterval(unittest.TestCase):
     def test_plain_interval_inverts_and_clipped_does_not(self):
         import conformal as c
@@ -131,3 +125,7 @@ class TestNonemptyInterval(unittest.TestCase):
     def test_positive_qhat_matches_plain(self):
         import conformal as c
         self.assertEqual(c.cqr_interval_nonempty([1.0, 0.0], [4.0, 2.0], 2.0), c.cqr_interval([1.0, 0.0], [4.0, 2.0], 2.0))
+
+
+if __name__ == "__main__":
+    unittest.main()

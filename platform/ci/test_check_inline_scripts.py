@@ -61,10 +61,6 @@ class InlineScripts(unittest.TestCase):
             self.assertEqual(len(c.syntax_error("1", False, tempfile.gettempdir())), 140)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Screen(unittest.TestCase):
     def test_screen_returns_only_failing_indices(self):
         import check_inline_scripts as c
@@ -77,3 +73,7 @@ class Screen(unittest.TestCase):
         fake = mock.Mock(returncode=1, stdout="[]")
         with mock.patch.object(c.subprocess, "run", return_value=fake):
             self.assertEqual(c.screen([("a", False), ("b", False)]), [0, 1])
+
+
+if __name__ == "__main__":
+    unittest.main()

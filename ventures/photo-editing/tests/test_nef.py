@@ -395,9 +395,6 @@ class VisibleAreaTests(unittest.TestCase):
         self.assertEqual(raw.ifd.entries[rd.TAG_ACTIVE_AREA], (0, 2, H, W - 5))
         self.assertTrue(any("7 edge columns hold no picture" in n for n in raw.notes), raw.notes)
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 # --------------------------------------------------------------------------
 # Coolpix NRW layouts (real files against LibRaw: eval/nikon-nrw-reader-2026-11-18.md)
@@ -550,3 +547,7 @@ def _mn_with(blob: bytes) -> rd.Ifd:
     mn = rd.Ifd(byte_order="<")
     mn.entries = {0x0014: tuple(blob)}
     return mn
+
+
+if __name__ == "__main__":
+    unittest.main()
