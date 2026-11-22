@@ -1,0 +1,592 @@
+[
+ {
+  "file": "construction.ifc",
+  "schema": "IFC2X3",
+  "seconds": 1.05,
+  "summary": {
+   "elements": 339,
+   "computed": 339,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 293,
+   "grossAgree": 268,
+   "netPairs": 0,
+   "netAgree": 0,
+   "netNotComputed": 0,
+   "areaPairs": 293,
+   "areaAgree": 268,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 268,
+    "own-dimensions": 4,
+    "split": 17,
+    "unexplained": 2,
+    "repeated": 2
+   },
+   "net": {
+    "agree": 0
+   }
+  },
+  "otherByClass": {
+   "IfcWallStandardCase gross": 2
+  },
+  "others": [
+   {
+    "id": 1405,
+    "ifcClass": "IfcWallStandardCase",
+    "name": "Basic Wall:STB 20.0:573323",
+    "which": "gross",
+    "computed": 2.656546045240838,
+    "stored": 5.251996045248708,
+    "rel": -0.49418354043809315,
+    "openings": 0,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 4407,
+    "ifcClass": "IfcWallStandardCase",
+    "name": "Basic Wall:STB 30.0:573387",
+    "which": "gross",
+    "computed": 8.25907499934296,
+    "stored": 16.84135638474044,
+    "rel": -0.5095956162517696,
+    "openings": 0,
+    "faceted": false,
+    "notes": []
+   }
+  ]
+ },
+ {
+  "file": "architect.ifc",
+  "schema": "IFC2X3",
+  "seconds": 8.818,
+  "summary": {
+   "elements": 2527,
+   "computed": 2527,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 1562,
+   "grossAgree": 1520,
+   "netPairs": 0,
+   "netAgree": 0,
+   "netNotComputed": 0,
+   "areaPairs": 1562,
+   "areaAgree": 1462,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 1520,
+    "split": 8,
+    "net-as-gross": 33,
+    "own-dimensions": 1
+   },
+   "net": {
+    "agree": 0
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ },
+ {
+  "file": "AC20-FZK-Haus.ifc",
+  "schema": "IFC4",
+  "seconds": 0.266,
+  "summary": {
+   "elements": 82,
+   "computed": 82,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 18,
+   "grossAgree": 18,
+   "netPairs": 18,
+   "netAgree": 18,
+   "netNotComputed": 0,
+   "areaPairs": 61,
+   "areaAgree": 51,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 18
+   },
+   "net": {
+    "agree": 18
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ },
+ {
+  "file": "C20-Institute-Var-2.ifc",
+  "schema": "IFC4",
+  "seconds": 0.914,
+  "summary": {
+   "elements": 701,
+   "computed": 697,
+   "notRead": 4,
+   "noBody": 0,
+   "grossPairs": 149,
+   "grossAgree": 149,
+   "netPairs": 149,
+   "netAgree": 149,
+   "netNotComputed": 0,
+   "areaPairs": 538,
+   "areaAgree": 423,
+   "reasons": {
+    "open shell": 4
+   }
+  },
+  "classes": {
+   "gross": {
+    "agree": 149
+   },
+   "net": {
+    "agree": 149
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ },
+ {
+  "file": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "schema": "IFC4",
+  "seconds": 6.506,
+  "summary": {
+   "elements": 425,
+   "computed": 419,
+   "notRead": 6,
+   "noBody": 0,
+   "grossPairs": 260,
+   "grossAgree": 209,
+   "netPairs": 265,
+   "netAgree": 265,
+   "netNotComputed": 0,
+   "areaPairs": 736,
+   "areaAgree": 679,
+   "reasons": {
+    "face round a closed IFCSURFACEOFREVOLUTION": 6
+   }
+  },
+  "classes": {
+   "gross": {
+    "agree": 209,
+    "own-dimensions": 7,
+    "net-as-gross": 34,
+    "unexplained": 7,
+    "unit-slip": 3
+   },
+   "net": {
+    "agree": 265
+   }
+  },
+  "otherByClass": {
+   "IfcWall gross": 7
+  },
+  "others": [
+   {
+    "id": 78918,
+    "ifcClass": "IfcWall",
+    "name": "Basiswand:Ziegel 0.24 m:339626",
+    "which": "gross",
+    "computed": 14.16487246512821,
+    "stored": 11.4858724651282,
+    "rel": 0.23324305647077453,
+    "openings": 4,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 79070,
+    "ifcClass": "IfcWall",
+    "name": "Basiswand:Ziegel 0.24 m:339628",
+    "which": "gross",
+    "computed": 3.781739129141589,
+    "stored": 4.05084874178671,
+    "rel": -0.0664328958692307,
+    "openings": 1,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 83292,
+    "ifcClass": "IfcWall",
+    "name": "Basiswand:173_A_NT_WDVS_0160_TYP01_1S_EPS_0160:339644",
+    "which": "gross",
+    "computed": 2.330423040351964,
+    "stored": 2.20390647147166,
+    "rel": 0.05740559797704244,
+    "openings": 1,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 87331,
+    "ifcClass": "IfcWall",
+    "name": "Basiswand:Ziegel 0.24 m:339757",
+    "which": "gross",
+    "computed": 13.024072555442395,
+    "stored": 9.31180546102917,
+    "rel": 0.3986624409143244,
+    "openings": 4,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 92201,
+    "ifcClass": "IfcWall",
+    "name": "Basiswand:173_A_NT_WDVS_0160_TYP01_1S_EPS_0160:339777",
+    "which": "gross",
+    "computed": 8.432087604814882,
+    "stored": 8.63809756574375,
+    "rel": -0.023848996768205767,
+    "openings": 4,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 95188,
+    "ifcClass": "IfcWall",
+    "name": "Basiswand:Ziegel 0.24 m:339934",
+    "which": "gross",
+    "computed": 14.164872465128404,
+    "stored": 11.4858724651282,
+    "rel": 0.23324305647079138,
+    "openings": 4,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 98786,
+    "ifcClass": "IfcWall",
+    "name": "Basiswand:173_A_NT_WDVS_0160_TYP01_1S_EPS_0160:339950",
+    "which": "gross",
+    "computed": 2.3304230403519055,
+    "stored": 2.20390647147162,
+    "rel": 0.057405597977035025,
+    "openings": 1,
+    "faceted": false,
+    "notes": []
+   }
+  ]
+ },
+ {
+  "file": "ISSUE_021_Mini Project.ifc",
+  "schema": "IFC2X3",
+  "seconds": 5.697,
+  "summary": {
+   "elements": 2636,
+   "computed": 2636,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 637,
+   "grossAgree": 615,
+   "netPairs": 2636,
+   "netAgree": 2516,
+   "netNotComputed": 0,
+   "areaPairs": 252,
+   "areaAgree": 248,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 615,
+    "simplified-section": 22
+   },
+   "net": {
+    "agree": 2516,
+    "simplified-section": 120
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ },
+ {
+  "file": "schependomlaan.ifc",
+  "schema": "IFC2X3",
+  "seconds": 5.878,
+  "summary": {
+   "elements": 3573,
+   "computed": 3551,
+   "notRead": 18,
+   "noBody": 4,
+   "grossPairs": 1345,
+   "grossAgree": 1240,
+   "netPairs": 3274,
+   "netAgree": 3184,
+   "netNotComputed": 0,
+   "areaPairs": 5841,
+   "areaAgree": 4496,
+   "reasons": {
+    "open shell": 18
+   }
+  },
+  "classes": {
+   "gross": {
+    "agree": 1240,
+    "body-is-net": 105
+   },
+   "net": {
+    "agree": 3184,
+    "glazing-left-out": 81,
+    "not-stored": 7,
+    "unexplained": 2
+   }
+  },
+  "otherByClass": {
+   "IfcCovering net": 2
+  },
+  "others": [
+   {
+    "id": 740000,
+    "ifcClass": "IfcCovering",
+    "name": "zinkwerk",
+    "which": "net",
+    "computed": 0.003792900930671953,
+    "stored": 0.00392954532428,
+    "rel": -0.0347735888841247,
+    "openings": 0,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 740117,
+    "ifcClass": "IfcCovering",
+    "name": "zinkwerk",
+    "which": "net",
+    "computed": 0.002413664170096718,
+    "stored": 0.00250061969119,
+    "rel": -0.034773588882642835,
+    "openings": 0,
+    "faceted": false,
+    "notes": []
+   }
+  ]
+ },
+ {
+  "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "schema": "IFC2X3",
+  "seconds": 22.796,
+  "summary": {
+   "elements": 4459,
+   "computed": 4459,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 1231,
+   "grossAgree": 844,
+   "netPairs": 63,
+   "netAgree": 40,
+   "netNotComputed": 0,
+   "areaPairs": 2884,
+   "areaAgree": 1837,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 844,
+    "net-as-gross": 260,
+    "unit-slip": 116,
+    "own-dimensions": 8,
+    "unexplained": 3
+   },
+   "net": {
+    "agree": 40,
+    "assembly-total": 23
+   }
+  },
+  "otherByClass": {
+   "IfcWallStandardCase gross": 1,
+   "IfcSlab gross": 2
+  },
+  "others": [
+   {
+    "id": 1167770,
+    "ifcClass": "IfcWallStandardCase",
+    "name": "Basic Wall:IVA 4.3 172mm 34dB (RN-120-NR):3846919",
+    "which": "gross",
+    "computed": 0.46089120000034844,
+    "stored": 0.470481920000345,
+    "rel": -0.020384885353276747,
+    "openings": 0,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 1186582,
+    "ifcClass": "IfcSlab",
+    "name": "Floor:Betongdekke 250 m fall:3949707",
+    "which": "gross",
+    "computed": 5.292362567677673,
+    "stored": 5618.50019022391,
+    "rel": -0.9990580470964678,
+    "openings": 0,
+    "faceted": false,
+    "notes": []
+   },
+   {
+    "id": 1483037,
+    "ifcClass": "IfcSlab",
+    "name": "Floor:Betongdekke 250 m fall:6762872",
+    "which": "gross",
+    "computed": 0.7758361872394224,
+    "stored": 802.352614352693,
+    "rel": -0.9990330483463741,
+    "openings": 0,
+    "faceted": false,
+    "notes": []
+   }
+  ]
+ },
+ {
+  "file": "S_Office_Integrated Design Archi.ifc",
+  "schema": "IFC2X3",
+  "seconds": 21.843,
+  "summary": {
+   "elements": 3462,
+   "computed": 3105,
+   "notRead": 302,
+   "noBody": 55,
+   "grossPairs": 0,
+   "grossAgree": 0,
+   "netPairs": 0,
+   "netAgree": 0,
+   "netNotComputed": 0,
+   "areaPairs": 0,
+   "areaAgree": 0,
+   "reasons": {
+    "open shell": 291,
+    "more than 20000 pieces": 5,
+    "difference with a faceted solid": 6
+   }
+  },
+  "classes": {
+   "gross": {
+    "agree": 0
+   },
+   "net": {
+    "agree": 0
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "schema": "IFC2X3",
+  "seconds": 2.565,
+  "summary": {
+   "elements": 2586,
+   "computed": 2586,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 0,
+   "grossAgree": 0,
+   "netPairs": 0,
+   "netAgree": 0,
+   "netNotComputed": 0,
+   "areaPairs": 0,
+   "areaAgree": 0,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 0
+   },
+   "net": {
+    "agree": 0
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ },
+ {
+  "file": "Office_A_20110811.ifc",
+  "schema": "IFC2X3",
+  "seconds": 0.855,
+  "summary": {
+   "elements": 803,
+   "computed": 803,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 0,
+   "grossAgree": 0,
+   "netPairs": 0,
+   "netAgree": 0,
+   "netNotComputed": 0,
+   "areaPairs": 0,
+   "areaAgree": 0,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 0
+   },
+   "net": {
+    "agree": 0
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ },
+ {
+  "file": "duplex.ifc",
+  "schema": "IFC2X3",
+  "seconds": 0.512,
+  "summary": {
+   "elements": 215,
+   "computed": 215,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 0,
+   "grossAgree": 0,
+   "netPairs": 0,
+   "netAgree": 0,
+   "netNotComputed": 0,
+   "areaPairs": 0,
+   "areaAgree": 0,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 0
+   },
+   "net": {
+    "agree": 0
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ },
+ {
+  "file": "ISSUE_034_HouseZ.ifc",
+  "schema": "IFC2X3",
+  "seconds": 0.949,
+  "summary": {
+   "elements": 228,
+   "computed": 228,
+   "notRead": 0,
+   "noBody": 0,
+   "grossPairs": 0,
+   "grossAgree": 0,
+   "netPairs": 0,
+   "netAgree": 0,
+   "netNotComputed": 0,
+   "areaPairs": 0,
+   "areaAgree": 0,
+   "reasons": {}
+  },
+  "classes": {
+   "gross": {
+    "agree": 0
+   },
+   "net": {
+    "agree": 0
+   }
+  },
+  "otherByClass": {},
+  "others": []
+ }
+]
