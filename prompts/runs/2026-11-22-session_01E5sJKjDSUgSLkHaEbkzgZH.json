@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKjDSUgSLkHaEbkzgZH",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T15:09:37Z",
+  "ended": "2026-11-22T15:19:14Z",
+  "wall_minutes": 9.97,
+  "tokens_in": 5592059,
+  "tokens_out": 36866,
+  "cost_usd": 2.6426,
+  "tool_calls": 61,
+  "task": "explore: four-loader differential test of env-example-drift-check's .env.example parser",
+  "projects": [
+    "ventures/env-example-drift-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18269",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 18,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first python-dotenv harness sed edit silently failed to apply, so one comparison run used the old output shape (all-zero agreement); caught by inspecting output and rewritten",
+      "impact": "a few minutes"
+    },
+    {
+      "what": "a widening regex edit also widened process.env.FOO to accept dots (would read FOO.trim); caught by review and pinned with a test",
+      "impact": "none after fix"
+    },
+    {
+      "what": "distribution-versions-ci check failed on the PR: portfolio/distribution/versions.json was stale after changing shipped venture files (0.1.4 -> 0.1.5); fixed with versions.mjs --write",
+      "impact": "one CI round"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/env-example-drift-check/llms.txt",
+      "issue": "still links duncan-haywood.github.io URLs (1,283 llms.txt files across ventures do), though CLAUDE.md says the catalogue is served at marisstella.app; left alone as out of scope for this run"
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "says run_venture_tests.py --changed is the CI pass for a venture change, but a change to shipped venture files also needs node platform/distribution/versions.mjs --write; only run_workflow_locally --for-changes or CI caught it"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-22-four-env-loaders-one-example-file.md",
+    "ventures/env-example-drift-check/eval/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: differential-test env-example-drift-check's parseExampleFile against four real .env loaders (Node 22.23.5 util.parseEnv, npm dotenv 16.4.7 and 17.2.3, python-dotenv 1.0.1), scoring each key against the 3-of-4 loader majority (2-2 splits unscored). Dev seeds 1-2000; held-out seeds 50001-55000 fixed in advance and run once: agreement 76.44% -> 99.75% (phantom 1,375 -> 4, missed 3,246 -> 44). Fixes: multi-line quoted values (\", ', backtick) swallow inner NAME= lines; keys [A-Za-z0-9_.-]+; quoted reference forms take the same names; lone \\r ends a line; escaped quotes don't close. Side finding: Node util.parseEnv('A= \\nB=1\\n') returns {A:'B=1'} (drops B), unlike the other three. Local checks: run_venture_tests env-example-drift-check ok 82 tests; check_posts ok; run_workflow_locally --for-changes pages.yml 6/6 run steps passed, ventures-tests detached and awaited before merge. Next: the same oracle for dotenv-exposure-check's parseEnvLines. run_workflow_locally --for-changes: 10/11 workflows passed; distribution-versions-ci failed on stale versions.json, fixed in the final commit; agent-cross-review and deploy jobs not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f98eb354-ab2a-5842-8e4b-ac7a41f77157",
+    "transcripts": 1,
+    "first": "2026-11-22T15:09:37Z",
+    "last": "2026-11-22T15:19:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 115,
+        "output": 36866,
+        "thinking": 9225,
+        "cache_read": 5491124,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100820,
+        "api_equivalent_usd": 2.6426,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 115,
+      "output": 36866,
+      "thinking": 9225,
+      "cache_read": 5491124,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100820,
+      "api_equivalent_usd": 2.6426,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 57,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.97,
+      "active_minutes": 9.97,
+      "model_minutes": 7.05,
+      "tool_minutes": 2.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: fetch 3 loaders, write generator/scorer, rewrite parser, tests, docs, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 227.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
