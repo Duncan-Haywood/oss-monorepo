@@ -1,0 +1,17 @@
+tool name: stored; offered, within 2%, mm2-as-m2 slip, other misses; held back (side right, total right); no square-ended straight reading
+ARCHICAD GrossSurfaceArea: 146; 114, 114, 0, 0; 0 (0, 0); 32
+ARCHICAD OuterSurfaceArea: 146; 114, 106, 0, 8; 0 (0, 0); 32
+Revit GrossSurfaceArea: 18; 0, 0, 0, 0; 2 (0, 0); 16
+Revit OuterSurfaceArea: 18; 2, 0, 2, 0; 0 (0, 0); 16
+Tekla GrossSurfaceArea: 296; 296, 284, 0, 12; 0 (0, 0); 0
+Tekla OuterSurfaceArea: 2576; 1428, 1373, 0, 55; 0 (0, 0); 1148
+
+misses by file and part name:
+  16 ISSUE_021_Mini Project.ifc Tekla OuterSurfaceArea TRIMEXSTIFT
+  16 ISSUE_021_Mini Project.ifc Tekla OuterSurfaceArea TRIMEX_ROND
+  12 ISSUE_021_Mini Project.ifc Tekla OuterSurfaceArea BALK
+  12 ISSUE_102_M3D-CON-CD.ifc Tekla GrossSurfaceArea PLT-E
+  8 ISSUE_021_Mini Project.ifc Tekla OuterSurfaceArea TRIME
+  8 schependomlaan.ifc ARCHICAD OuterSurfaceArea stripstaal
+  2 ISSUE_021_Mini Project.ifc Tekla OuterSurfaceArea KOKER
+  1 ISSUE_021_Mini Project.ifc Tekla OuterSurfaceArea OPLASSTUK

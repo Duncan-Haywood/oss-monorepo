@@ -422,7 +422,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
-node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights, member lengths, slab thickness and perimeter, door and window sizes and space floor areas, perimeters, heights and volumes measured from the bodies
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas, wall lengths and heights, member lengths and surface areas, slab thickness and perimeter, door and window sizes and space floor areas, perimeters, heights and volumes measured from the bodies
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -633,6 +633,7 @@ quantities no set holds are measured from the element's own body by
 | `Width` | walls | the thickness |
 | `GrossArea`, `NetArea` | slabs, plates, coverings, roofs | the extruded profile |
 | `CrossSectionArea` | columns, beams, members, piles | the section at mid-length |
+| `OuterSurfaceArea`, `GrossSurfaceArea` | columns, beams, members, piles with square ends | side faces (the section's outline at mid-length x the length), and those plus both ends; by the authoring tool's convention (below) |
 | `Length` | walls (direction from a straight `Axis`, or from the body's side faces when there is none; extruded or brep bodies) | along that direction, on the plane halfway through the thickness, at the longest level |
 | `Height` | the same walls | the extrusion depth; when a roof or slab clips the wall, the figure its authoring tool's export stores (ARCHICAD: the highest point; Revit: the extrusion depth, so none on a Revit brep), none for other tools; on a brep with a level top, its extent |
 
@@ -692,6 +693,25 @@ offset bend). On the three public Tekla exports that is 147 more lengths, all
 With the stored lengths hidden the fill writes 1,386, 190 and 25 lengths on
 them, all matching, and IfcTester passes the same elements
 (`eval/tekla-cut-members-2026-11-22.md`).
+**Members' surface areas (2026-11-22).** Coating, galvanising and fire
+protection are priced per square metre of steel, so steel and precast IDS
+files ask for `OuterSurfaceArea` (the side faces, no ends, by the `Qto_`
+definition) and `GrossSurfaceArea` (side faces and both ends). On straight
+members with square ends both are now measured: the section's outline at
+mid-length times the length (an IPE 200 reads 0.768 m2/m, the section
+tables' figure), or on a faceted body the faces square to its axis when what
+is left is two end caps. The exporters disagree with each other and with the
+definition, so each figure is the authoring tool's: ARCHICAD stores the side
+faces as Outer and adds the ends for Gross (114 of 114 Gross, 106 of 114
+Outer within 2%; the 8 others are one flat-strip part); Tekla stores the side
+faces and ends under both names (1,373 of 1,428 Outer, 284 of 296 Gross), and
+on a tube only its outside faces (Mini Project's lifting eyes: the bore was
+doubling the figure); Revit stores the side faces under both names in mm2
+under an m2 unit (ARK_NUS), so it gets Outer only. Other tools get Gross, and
+Outer only where the ends are under 2% of the total; ARCHICAD and Revit tubes
+are held back. With the stored figures hidden the fill writes 4,041 values on
+seven public exports, and IfcTester takes exactly the written elements from
+fail to pass (`eval/member-surfaces-2026-11-22.md`).
 **Slab thickness and perimeter (2026-11-22).** `Qto_SlabBaseQuantities`
 `Width` (the slab's thickness) and `Perimeter` (its outline) are measured too:
 the thickness is the body's depth along its extrusion, offered only when the
