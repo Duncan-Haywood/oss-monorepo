@@ -23,7 +23,7 @@
 // Pure functions over a parsed STEP model (step.mjs). Lengths stay in the
 // model's own length unit; the caller converts.
 
-import { AlignmentReader, AlignmentError, sectionedSolidHorizontal } from "./alignment.mjs";
+import { AlignmentReader, AlignmentError, sectionedSolidHorizontal, fixedReferenceSweep } from "./alignment.mjs";
 
 const EPS_REL = 1e-9;
 const ARC_SEGS = 360;
@@ -49,6 +49,21 @@ export const IDENTITY = Object.freeze([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]);
 
 /** Matrix from three column axes and an origin. */
 const fromAxes = (x, y, z, o) => [x[0], y[0], z[0], o[0], x[1], y[1], z[1], o[1], x[2], y[2], z[2], o[2]];
+
+/**
+ * Length of the circular arc from p through q to r, in 3D. The inscribed
+ * angle at q subtends the chord pr; the arc through q spans 2pi minus twice
+ * it. Three points in a line are read as the straight run p-q-r.
+ */
+export function arcLength3(p, q, r) {
+  const u = sub(p, q), v = sub(r, q);
+  const nu = norm(u), nv = norm(v), chord = norm(sub(r, p));
+  const sinQ = norm(cross(u, v)) / (nu * nv || 1);
+  if (!(nu > 0 && nv > 0) || sinQ < 1e-12) return nu + nv;
+  const R = chord / (2 * sinQ);
+  const Q = Math.acos(Math.max(-1, Math.min(1, dot(u, v) / (nu * nv))));
+  return R * (2 * Math.PI - 2 * Q);
+}
 
 export function apply(m, p) {
   return [
@@ -218,6 +233,7 @@ function transformSolid(s, m) {
   const shells = s.shells ? s.shells.map((sh) => ({ s: sh.s, loops: transformPoly(sh.loops, m) })) : null;
   const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes, shells);
   if (s.axis) { out.axis = unit(applyDir(m, s.axis)); out.axisWeight = (s.axisWeight ?? 0) * Math.abs(det(m)); }
+  if (s.sweepLength != null) out.sweepLength = s.sweepLength * Math.cbrt(Math.abs(det(m)));
   return out;
 }
 
@@ -583,9 +599,66 @@ export class Geometry {
     if (depth > 100) throw new Unresolved("placement loop");
     let rel;
     if (e.type === "IFCLINEARPLACEMENT") rel = this.linearPlacement(e);
+    else if (e.type === "IFCGRIDPLACEMENT") return this.gridPlacement(e, depth);
     else if (e.type !== "IFCLOCALPLACEMENT") throw new Unresolved(`object placement ${e.type}`);
     else rel = this.placement(e.args[1]);
     return e.args[0] ? mul(this.objectPlacement(e.args[0], depth + 1), rel) : rel;
+  }
+
+  /** The IfcGrid an IfcGridAxis belongs to (UAxes, VAxes or WAxes). */
+  gridOf(axisId) {
+    if (!this.axisGrid) {
+      this.axisGrid = new Map();
+      for (const [, g] of this.e) if (g.type === "IFCGRID") for (const k of [7, 8, 9]) for (const r of g.args[k] || []) this.axisGrid.set(r.ref ?? r, g);
+    }
+    return this.axisGrid.get(axisId) ?? null;
+  }
+
+  /**
+   * IfcVirtualGridIntersection -> a point in the grid's coordinates: the
+   * crossing of the two axes' curves, each moved sideways by its offset
+   * (OffsetDistances[0] to the first axis, [1] to the second; positive to
+   * the left of the axis's direction, as IfcOffsetCurve2D), raised by [2].
+   */
+  gridIntersection(ref) {
+    const v = this.get(ref);
+    const [a1, a2] = (v.args[0] || []).map((r) => this.get(r));
+    if (!a1 || !a2) throw new Unresolved("grid intersection without two axes");
+    const off = (v.args[1] || []).map((x) => this.num(x) ?? 0);
+    const line = (ax, d) => {
+      const pts = this.curve(ax.args[1]);
+      if (pts.length < 2) throw new Unresolved("grid axis with no curve");
+      let p = pts[0], q = pts[pts.length - 1];
+      if (ax.args[2] === false) [p, q] = [q, p];
+      const t = [q[0] - p[0], q[1] - p[1]], L = Math.hypot(t[0], t[1]);
+      if (!(L > 0)) throw new Unresolved("grid axis of zero length");
+      const n = [-t[1] / L, t[0] / L];
+      return { p: [p[0] + n[0] * d, p[1] + n[1] * d], t };
+    };
+    const A = line(a1, off[0] ?? 0), B = line(a2, off[1] ?? 0);
+    const den = A.t[0] * B.t[1] - A.t[1] * B.t[0];
+    if (Math.abs(den) < 1e-12 * Math.hypot(...A.t) * Math.hypot(...B.t)) throw new Unresolved("grid axes are parallel");
+    const s = ((B.p[0] - A.p[0]) * B.t[1] - (B.p[1] - A.p[1]) * B.t[0]) / den;
+    return { pt: [A.p[0] + A.t[0] * s, A.p[1] + A.t[1] * s, off[2] ?? 0], axis1: A.t, grid: this.gridOf(a1.id) };
+  }
+
+  /**
+   * IfcGridPlacement: the origin at a virtual grid intersection, in the
+   * grid's own placement; x toward PlacementRefDirection (a second
+   * intersection or a direction), else along the first axis; z up.
+   * IFC2X3/IFC4 write (Location, RefDirection); IFC4X3 puts PlacementRelTo first.
+   */
+  gridPlacement(e, depth) {
+    const a = e.args.length >= 3 ? e.args : [null, ...e.args];
+    const loc = this.gridIntersection(a[1]);
+    let x = loc.axis1;
+    const rd = a[2] != null ? this.get(a[2]) : null;
+    if (rd?.type === "IFCVIRTUALGRIDINTERSECTION") { const t = this.gridIntersection(a[2]).pt; x = [t[0] - loc.pt[0], t[1] - loc.pt[1]]; }
+    else if (rd?.type === "IFCDIRECTION") { const d = this.dir(a[2], [1, 0, 0]); x = [d[0], d[1]]; }
+    const xx = unit([x[0], x[1], 0]) ?? [1, 0, 0];
+    const rel = fromAxes(xx, [-xx[1], xx[0], 0], [0, 0, 1], loc.pt);
+    const frame = a[0] ?? loc.grid?.args[5];
+    return frame ? mul(this.objectPlacement(frame, depth + 1), rel) : rel;
   }
 
   // ---- curves to 2D point loops --------------------------------------------
@@ -915,6 +988,18 @@ export class Geometry {
         }
         return orientedShells(loft.parts, loft.notes);
       }
+      case "IFCFIXEDREFERENCESWEPTAREASOLID": {
+        // a profile swept along a curve with its x axis held toward one
+        // direction (IFC4X3 kerbs, barriers and ditches along a gradient curve)
+        this.alignments ??= new AlignmentReader(this);
+        let sweep;
+        try { sweep = fixedReferenceSweep(this.alignments, e, (r) => this.profile(r)); } catch (err) {
+          if (err instanceof AlignmentError) throw new Unresolved(err.message);
+          throw err;
+        }
+        const out = orientedShells(sweep.parts, sweep.notes);
+        return a[1] ? transformSolid(out, this.placement(a[1])) : out;
+      }
       case "IFCMAPPEDITEM": {
         const map = this.get(a[0]);
         const origin = map.args[0] ? (this.get(map.args[0]).type.startsWith("IFCAXIS2PLACEMENT") ? this.placement(map.args[0]) : this.operator(map.args[0])) : IDENTITY;
@@ -957,7 +1042,10 @@ export class Geometry {
         if (a[3] != null || a[4] != null) throw new Unresolved("swept disk with trimmed directrix");
         const r = this.num(a[1]), ri = this.num(a[2]) ?? 0;
         const len = this.curveLength3(a[0]);
-        return solid([], Math.PI * (r * r - ri * ri) * len);
+        const out = solid([], Math.PI * (r * r - ri * ri) * len);
+        // the directrix's length: a reinforcing bar's cut length (qto memberLength)
+        out.sweepLength = len;
+        return out;
       }
       case "IFCREVOLVEDAREASOLID": {
         // Pappus: area x path of the centroid
@@ -1441,9 +1529,21 @@ export class Geometry {
     if (e.type === "IFCINDEXEDPOLYCURVE") {
       const pl = this.get(e.args[0]);
       const pts = pl.args[0].map((c) => [this.num(c[0]), this.num(c[1]), this.num(c[2]) ?? 0]);
-      if (e.args[1]) throw new Unresolved("indexed directrix with segments");
       let L = 0;
-      for (let i = 1; i < pts.length; i++) L += norm(sub(pts[i], pts[i - 1]));
+      if (!e.args[1]) {
+        for (let i = 1; i < pts.length; i++) L += norm(sub(pts[i], pts[i - 1]));
+        return L;
+      }
+      // segments: IfcLineIndex runs point to point, IfcArcIndex is the
+      // circular arc from its first point through its second to its third
+      // (a reinforcing bar's bends, buildingSMART reinforcing-stirrup)
+      for (const seg of e.args[1]) {
+        const idx = (seg.value || []).map((i) => this.num(i) - 1);
+        if (idx.some((i) => !pts[i])) throw new Unresolved("indexed directrix point out of range");
+        if (seg.typed === "IFCLINEINDEX") for (let i = 1; i < idx.length; i++) L += norm(sub(pts[idx[i]], pts[idx[i - 1]]));
+        else if (seg.typed === "IFCARCINDEX") L += arcLength3(pts[idx[0]], pts[idx[1]], pts[idx[2]]);
+        else throw new Unresolved(`directrix segment ${seg.typed}`);
+      }
       return L;
     }
     if (e.type === "IFCCOMPOSITECURVE") {
@@ -1469,8 +1569,10 @@ export class Geometry {
     const notes = [];
     let axis = null, axisWeight = -1;
     let joined = 0, unjoined = 0;
+    let sweepLength = 0;
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
+      sweepLength = sweepLength != null && s.sweepLength != null ? sweepLength + s.sweepLength : null;
       // the body is the union of its items: where two overlap (a cabinet's
       // carcass and doors drawn as solids that run into each other, a door
       // leaf set into its frame) the shared part counts once, A + B - (A n B)
@@ -1487,6 +1589,7 @@ export class Geometry {
     if (unjoined) notes.push(`${unjoined} body item${unjoined > 1 ? "s" : ""} too detailed to join: any overlap with the others is counted twice`);
     const out = solid(guard(terms), mesh, notes, shells);
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
+    if (sweepLength) out.sweepLength = sweepLength;
     return out;
   }
 }

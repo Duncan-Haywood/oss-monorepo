@@ -332,7 +332,7 @@ export function isElement(e) {
 }
 
 /** Pretty class name: IFCWALLSTANDARDCASE -> IfcWallStandardCase (by a word list). */
-const WORDS = ["Standard", "Case", "Elemented", "Element", "Proxy", "Building", "Covering", "Curtain", "Wall", "Slab", "Beam", "Column", "Member", "Plate", "Door", "Window", "Roof", "Stair", "Flight", "Ramp", "Railing", "Footing", "Pile", "Furnishing", "Furniture", "Flow", "Segment", "Fitting", "Terminal", "Pipe", "Duct", "Cable", "Carrier", "Distribution", "Energy", "Conversion", "Device", "Controller", "Moving", "Transport", "Chimney", "Shading", "Reinforcing", "Bar", "Mesh", "Tendon", "Anchor", "Mechanical", "Fastener", "Discrete", "Accessory", "System", "Furnishing", "Geographic", "Air", "Sanitary", "Light", "Fixture", "Outlet", "Space", "Heater", "Valve", "Pump", "Tank", "Fire", "Suppression", "Electric", "Appliance", "Junction", "Box", "Unitary", "Equipment", "Coil", "Damper", "Fan", "Filter", "Chiller", "Boiler", "Port", "Course", "Pavement", "Kerb", "Earthworks", "Fill", "Cut", "Sign", "Signal", "Rail", "Track", "Deep", "Foundation", "Bearing", "Part", "Surface", "Feature", "Sensor", "Alarm", "Actuator", "Protective", "Switching", "Audio", "Visual", "Communications", "Lamp", "Motor", "Connection", "Storage", "Treatment", "Interceptor", "Waste", "Stack", "Hood", "Burner", "Evaporator", "Condenser", "Humidifier", "Cooling", "Tower", "Compressor", "Engine", "Generator", "Transformer", "Tube", "Bundle", "Radiator", "Recovery", "Heat", "Exchanger", "Medical", "Solar", "Panel", "Spaceheater", "Vibration", "Isolator", "Impact", "Protection", "Sound", "Mobile", "Telecom", "Plant", "Building"];
+const WORDS = ["Standard", "Case", "Elemented", "Element", "Proxy", "Building", "Covering", "Curtain", "Wall", "Slab", "Beam", "Column", "Member", "Plate", "Door", "Window", "Roof", "Stair", "Flight", "Ramp", "Railing", "Footing", "Pile", "Furnishing", "Furniture", "Flow", "Segment", "Fitting", "Terminal", "Pipe", "Duct", "Cable", "Carrier", "Distribution", "Energy", "Conversion", "Device", "Controller", "Moving", "Transport", "Chimney", "Shading", "Reinforcing", "Bar", "Mesh", "Tendon", "Anchor", "Mechanical", "Fastener", "Discrete", "Accessory", "System", "Furnishing", "Geographic", "Air", "Sanitary", "Light", "Fixture", "Outlet", "Space", "Heater", "Valve", "Pump", "Tank", "Fire", "Suppression", "Electric", "Appliance", "Junction", "Box", "Unitary", "Equipment", "Coil", "Damper", "Fan", "Filter", "Chiller", "Boiler", "Port", "Course", "Pavement", "Kerb", "Earthworks", "Fill", "Cut", "Sign", "Signal", "Rail", "Track", "Deep", "Foundation", "Bearing", "Part", "Surface", "Feature", "Sensor", "Alarm", "Actuator", "Protective", "Switching", "Audio", "Visual", "Communications", "Lamp", "Motor", "Connection", "Storage", "Treatment", "Interceptor", "Waste", "Stack", "Hood", "Burner", "Evaporator", "Condenser", "Humidifier", "Cooling", "Tower", "Compressor", "Engine", "Generator", "Transformer", "Tube", "Bundle", "Radiator", "Recovery", "Heat", "Exchanger", "Medical", "Solar", "Panel", "Spaceheater", "Vibration", "Isolator", "Impact", "Protection", "Sound", "Mobile", "Telecom", "Plant", "Building", "Built", "Facility", "Geotechnical", "Stratum", "Assembly", "Mooring", "Marine", "Navigation", "Transportation", "Vehicle", "Conveyor", "Liquid", "Terminal", "Borehole", "Geomodel", "Slice"];
 export function prettyClass(t) {
   if (!t.startsWith("IFC")) return t;
   let s = t.slice(3).toLowerCase();
@@ -1247,9 +1247,13 @@ const extentOf = solidExtent;
 // otherwise price a per-metre or per-kg rate at 0.
 
 export const LINEAR_CLASS = /^IFC(COLUMN|BEAM|MEMBER|PILE)/;
+export const REBAR_CLASS = /^IFC(REINFORCINGBAR|TENDON)$/;
 
 /** A linear member's length from its body, in metres; null when it has no axis to read. */
 export function memberLength(type, body, f) {
+  // a reinforcing bar (or tendon) swept as a disk: its cut length is the
+  // directrix's, bends included (buildingSMART reinforcing-stirrup)
+  if (REBAR_CLASS.test(type)) return body?.sweepLength != null ? body.sweepLength * f : null;
   if (!LINEAR_CLASS.test(type) || !body || (body.mesh && !body.shells)) return null;
   const n = body.axis ?? (body.terms.length ? null : prismAxis(body) ?? thinnestNormal(body, () => true, true)?.n);
   if (!n) return null;
@@ -1263,6 +1267,8 @@ export function memberLength(type, body, f) {
 export const STEEL_DENSITY = 7850;
 const STEEL_NAME = /\b(steel|stahl|staal|acier|acero|acciaio|stål|teräs|stal|metal\s*-\s*steel|s(?:185|235|275|355|420|450|460|690)(?:[a-z0-9+]*)|a(?:36|500|572|588|913|992)|q(?:235|345|355)[a-z]*|ss400|sm490)\b/i;
 const NOT_STEEL = /concrete|beton|béton|hormig|calcestruzzo|timber|wood|holz|hout|glulam|stainless|inox|edelstahl|rvs|alumin|fibre|fiber|faser|reinforc|rebar|bewehr|wapening|neoprene|rubber|elastomer|grout|mortar|paint|coating|insulat|isol/i;
+
+const NOT_REBAR_STEEL = /gfrp|frp|glass|basalt|carbon|aramid|fibre|fiber|faser|stainless|inox|edelstahl|rvs|alumin|timber|wood/i;
 
 /** True when a material name reads as plain structural steel. */
 export function isSteel(material) {
@@ -1347,6 +1353,10 @@ function lengthAndWeight(r, first, volume, volumeSource) {
   let weight = first(["netweight", "grossweight", "weight"], "weight"), weightSource = weight != null ? "stored" : null;
   // a weight the exporter derived from a simplified section is scaled to the geometry
   if (weight != null && r.weightScale) weight *= r.weightScale;
+  // a reinforcing bar is steel unless its material names something else
+  // (GFRP, basalt, stainless): "ReinforcingSteel" reads as not-steel to
+  // isSteel, which guards against reinforced concrete
+  if (weight == null && volume != null && REBAR_CLASS.test(r.ifcType ?? "") && !NOT_REBAR_STEEL.test(r.material ?? "")) { weight = volume * STEEL_DENSITY; weightSource = volumeSource === "stored" ? "density-stored-volume" : "density"; }
   if (weight == null && volume != null && isSteel(r.material)) { weight = volume * STEEL_DENSITY; weightSource = volumeSource === "stored" ? "density-stored-volume" : "density"; }
   return { length, lengthSource, weight, weightSource };
 }

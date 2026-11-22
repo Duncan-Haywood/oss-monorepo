@@ -29,3 +29,4 @@ more share the factor). skolebygg's slab volume in the BoQ: 134,776 m3 to
 - (moved 2026-11-21) net wall finish per room 2026-11-21 (doors, windows, curtain walls off by IfcRelSpaceBoundary, else geometry held out 791/857 same rooms; stored WxH not Revit's room-height boundary strips; eval/net-wall-finish-2026-11-21.md)
 - (moved 2026-11-22) openings cut at the room's floor and ceiling 2026-11-21 (eval/opening-height-cut-2026-11-21.md: 151 deductions, 47.2 m2)
 - (moved 2026-11-22) Storeys, sections, worker, thinned outlines 2026-11-21 (eval/storeys-and-*, eval/*-worker-*, eval/display-thinning-*: Mini Project 1.82M to 416k triangles)
+- (moved 2026-11-22) Member length, steel weight 2026-11-22 (eval/member-length-weight-*)
