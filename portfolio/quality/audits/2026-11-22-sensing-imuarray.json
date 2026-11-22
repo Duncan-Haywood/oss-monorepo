@@ -168,14 +168,16 @@
    "what": "units_needed compares floats at exact ties with no tolerance, so integer break-evens print one high (k=10: 101 not 100 at rho=0, 112 not 111 at rho=0.001, T=10/100 s) and the README reports them as '100-101' and '111-112', contradicting its own 'independent of T'. A relative tolerance (target * (1 + 1e-12)) gives the exact 100/111 and keeps all 8 tests green.",
    "where": "research/sensing-imuarray/src/sensing_imuarray/model.py:43",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18324"
   },
   {
    "severity": "medium",
    "what": "README says the Monte Carlo is within 0.03 of the formula in all nine cases; results.txt shows 2.013 vs 2.059 (gap 0.046) at n=4, rho=0.02.",
    "where": "research/sensing-imuarray/README.md:22",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18324"
   },
   {
    "severity": "medium",
@@ -210,16 +212,18 @@
    "what": "README 'for k = 10 no rho rescues price ratios up to 100' and results.txt '<0 (loses even at rho=0)' at c=100: the exact break-even is rho=0 (a tie); float gives -2.2e-18.",
    "where": "research/sensing-imuarray/README.md:25",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18324"
   },
   {
    "severity": "low",
    "what": "README says run.py takes ~1 min; it takes about 5 s.",
    "where": "research/sensing-imuarray/README.md:15",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18324"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18324"],
  "verdict": "A small, honest, reproducible stylised model: results.txt reruns byte-identical, and an exact-arithmetic recomputation confirms the k^2 rule, the 1/k^2 infeasibility, the break-even rho and the Monte Carlo formula column. The wrong cells are float-tie artefacts (101/112 instead of 100/111, '<0' instead of 0) and one iteration-cap 'none' (97,922), which the README partly repeats, and the 'within 0.03' Monte Carlo claim is false (0.046). Two of four mutants survive (dt scaling, floor check). For an inertial navigation researcher the method is right for the two terms it models but omits bias instability where its horizon conclusions live, and it cites none of the gyro-array literature it sits inside. Finished, not at the bar (claims 2, verification 2, median 2)."
 }
