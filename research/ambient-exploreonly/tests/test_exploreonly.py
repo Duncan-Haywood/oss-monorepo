@@ -42,3 +42,25 @@ def test_online_explore_only_uses_fewer_labels_and_never_exceeds_spoken_utility_
     util, dismissed, wf = run_online(w, d, np.random.default_rng(11), eps=0.05, learner="explore_only")
     assert np.all(np.isfinite(wf)) and util.max() <= w.benefit and dismissed.sum() >= 0
     assert fit_map(d["X"][:0], d["need"][:0].astype(float), PRIOR_W)[0].shape == PRIOR_W.shape
+
+
+def test_biased_fit_from_the_uninformed_prior_is_stationary():
+    # Quality round 96: undamped Newton diverged on the deployed learner's history from the uninformed
+    # prior (objective 450 to 3,700x the minimum), and results 1-3 of the README rested on that failure.
+    import ambient_exploreonly.core as C
+    from ambient_exploreonly.core import sigmoid
+    wd = World(); d = simulate(wd, 20, np.random.default_rng(1000))
+    calls = []; orig = C.fit_map
+    def wrap(X, y, w0, prior_prec=1.0, sample_weight=None, iters=40):
+        calls.append((X, y, w0, prior_prec)); return orig(X, y, w0, prior_prec, sample_weight, iters)
+    C.fit_map = wrap
+    try:
+        fits, _ = run_logged(wd, d, np.random.default_rng(0), eps=0.002, hours=(20,))
+    finally:
+        C.fit_map = orig
+    X, y, w0, prec = calls[-5]                       # the deployed learner's fit at hour 20
+    w = fits[20]["biased"]
+    J = lambda v: np.sum(np.logaddexp(0, X @ v) - y * (X @ v)) + prec / 2 * np.sum((v - w0) ** 2)
+    g = X.T @ (sigmoid(X @ w) - y) + prec * (w - w0)
+    assert J(w) <= J(w0)
+    assert np.max(np.abs(g)) < 1e-6

@@ -197,14 +197,16 @@
    "what": "The VIN reporting requirement (no deduction unless the vehicle's VIN is on the return, Schedule 1-A) appears nowhere: not in the 8-item checklist, the findings, the FAQ or the README. The page says it 'checks every condition'. A filer who relies on it can omit the VIN and lose the deduction.",
    "where": "ventures/auto-loan-interest-deduction-calculator/calc.mjs:68",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"
   },
   {
    "severity": "medium",
    "what": "A blank MAGI field is read as $0, and the tool reports the full deduction with an info finding that the interest is 'under ... the phase-out threshold'. A blank interest field likewise gives a silent $0. Confirmed in headless Chrome: blank MAGI with $9,000 interest gives a $9,000 deduction.",
    "where": "ventures/auto-loan-interest-deduction-calculator/index.html:253",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"
   },
   {
    "severity": "medium",
@@ -256,6 +258,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"],
  "verdict": "The arithmetic is right. Five hand recomputations from 163(h)(4) match the shipped code and the live page: the $10,000 per-return cap, the $200 per $1,000-or-portion phase-out over $100k/$200k, MFS at the single threshold, and joint sharing one cap. The tests catch every seeded bug in calc.mjs (5/5). It misses the bar on claims (2). The page says it 'checks every condition' but never mentions that the VIN must be reported on Schedule 1-A. It cites only the January 2026 proposed regulations, although the final regulations (T.D. 10054) came out in September 2026. A blank MAGI silently yields the full deduction. For a preparer it also lacks mixed-loan interest allocation and refinancing (fitness 2, domain 2). Small fixes: add a VIN checklist item or note, refuse a blank MAGI, update the citation. Allocation and refinancing are larger. Statute text could not be fetched this session; see the method notes in checks."
 }

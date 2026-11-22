@@ -230,14 +230,16 @@
    "what": "The band-edge finding is wrong for every price within GBP 25,000 below an edge: it says a price drop 'would save you up to -GBP 199' (240k main), '-GBP 499' (490k FTB), '-GBP 749' (910k main), because it subtracts the tax at nextEdge-1 (higher) from the tax at the price. The edge list also mixes tables: a main-home or additional buyer at 475k-500k is told the rate steps up at GBP 500,000 (not an edge on standard rates), and a first-time buyer at 225k-250k is told it steps up at GBP 250,000 (FTB rate is 0% there). A buyer could negotiate around a threshold that does not exist.",
    "where": "ventures/uk-stamp-duty-calculator/calc.mjs:90",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"
   },
   {
    "severity": "medium",
    "what": "Only the tax constants are pinned. The whole-pound rounding rule (the 250001.5 test cannot tell floor from round), the marginal-rate figure and every finding's arithmetic are untested: 4 of 7 seeded mutants survive, and nothing asserts that no finding shows a negative amount, which let the high defect above ship.",
    "where": "ventures/uk-stamp-duty-calculator/calc.test.mjs:46",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"
   },
   {
    "severity": "low",
@@ -261,6 +263,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18275"],
  "verdict": "The tax itself is right: 13 outputs recomputed by hand against the HMRC rates from 1 April 2025 all match, including FTB relief and its 500k cliff, the +5 higher rates with the GBP 40,000 floor, the +2 non-resident surcharge stacking on both, and rounding down to the pound; Scotland and Wales are excluded, not claimed. But the band-edge finding shown on the result is wrong for any price within GBP 25,000 below an edge: it prints a negative 'saving' (-GBP 199 at 240k main) and names thresholds from the wrong table (500k for a main-home buyer, 250k for a first-time buyer). Tests pass 22/22 but pin only the constants: 4 of 7 seeded mutants survive, including the rounding rule and the findings. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 3, fitness 3, domain 3. Finished, does not meet the bar (correctness and verification). Both gaps are small fixes: edges from the bands actually applied, a non-negative figure, and tests on the findings and rounding. gov.uk could not be fetched this session, so the rates rest on the published HMRC figures as stated."
 }
