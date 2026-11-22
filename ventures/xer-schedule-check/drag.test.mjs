@@ -101,3 +101,10 @@ test("a finished schedule has no drag to measure", () => {
   const t = { ...task("A", 0), status_code: "TK_Complete", act_start_date: "2025-11-03 08:00", act_end_date: "2025-11-04 17:00" };
   assert.throws(() => dragAnalysis(project([t], [])), /no forecast finish|complete/);
 });
+
+test("CSV: a name that starts like a formula is defused; negative drag stays a number", () => {
+  const x = project([{ ...task("P", 80), task_name: "=HYPERLINK(1)" }, task("X", 48), task("S", 80)], [link("X", "P", "PR_FF"), link("S", "X", "PR_SS")]);
+  const csv = dragCsv(dragAnalysis(x));
+  assert.match(csv, /,'=HYPERLINK\(1\),/);
+  assert.match(csv, /\r\nactivity,X,Activity X,,,,6,,[^,]*,-6,-48,/);
+});

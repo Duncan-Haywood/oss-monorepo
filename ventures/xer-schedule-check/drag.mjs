@@ -194,7 +194,13 @@ export function dragText(r, { limit = 20 } = {}) {
   return out.join("\n") + "\n";
 }
 
-const csvCell = (v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+// spreadsheet formula guard: a name starting =, +, -, @, tab or CR is
+// prefixed with an apostrophe (a negative number is left as a number)
+const csvCell = (v) => {
+  let s = v === null || v === undefined ? "" : String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
 export function dragCsv(r) {
   const rows = [["kind", "activity_id", "name", "predecessor", "successor", "relationship", "remaining_days", "lag_hours", "total_float_hours", "drag_working_days", "drag_hours", "drag_calendar_days", "drag_cost", "shorten_for_hours", "finish_if_zero", "notes"]];
   for (const a of r.activities) rows.push(["activity", a.code, a.name, "", "", "", a.remainingDays, "", a.totalFloat, a.drag.days, a.drag.hours, a.drag.calendarDays, a.drag.cost ?? "", a.shortenForHours ?? "", a.finishIfZero, a.notes.join("; ")]);
