@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Add Missing Property Values To An IFC Model</title>
+  <meta name="description" content="Fill the properties an IDS check says are missing straight into a copy of the IFC file: a to-fill table, typed values checked before they are written.">
+  <meta property="og:title" content="How To Add Missing Property Values To An IFC Model">
+  <meta property="og:description" content="Fill the properties an IDS check says are missing straight into a copy of the IFC file: a to-fill table, typed values checked before they are written.">
+  <link rel="canonical" href="./how-to-add-missing-property-values-to-an-ifc-model.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I edit IFC properties without Revit or ArchiCAD?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, for missing values. The free checker writes property, quantity and attribute values into a copy of the IFC file in your browser, checked against the IDS before and after they are written."}}, {"@type": "Question", "name": "Does it change anything else in the file?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every line it does not need to change stays byte for byte as it was, so a diff of the two files shows only the written values."}}, {"@type": "Question", "name": "What if my model is ifcXML or IFC5?", "acceptedAnswer": {"@type": "Answer", "text": "It is written as a STEP .ifc first and that copy is filled, so the download is a .ifc file."}}, {"@type": "Question", "name": "Is the model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Reading, checking and writing all happen in your browser tab."}}]}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --code: #eeebe4; color-scheme: light dark; font-family: system-ui, sans-serif; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --code: #262b30; } }
+    body { margin: 0; background: var(--bg); color: var(--fg); }
+    main, footer { max-width: 760px; margin: 0 auto; padding: 0 18px; line-height: 1.58; }
+    main { padding-top: 28px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: var(--accent); }
+    code { background: var(--code); padding: 1px 4px; border-radius: 4px; font-size: .92em; overflow-wrap: anywhere; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .85rem; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2.5em; padding-bottom: 48px; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; IDS Model Check</a></p>
+  <h1>How to add missing property values to an IFC model</h1>
+  <p>When an IDS check fails because the export left out a property, the lasting fix is in the authoring tool's export mapping. But the model is often due today, the authoring file belongs to someone else, or the value was never in it. The free checker can write the missing values into a copy of the <code>.ifc</code>: the ones the IDS fixes by itself, and the ones you type into a table. Every value is checked against the IDS before it is written, and every other line of the file stays as it was.</p>
+  <p><a class="cta" href="./#run">Open the free checker</a> (check a model, then scroll to <em>Write the missing values into the model</em>)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Check the model against the IDS. When a property, quantity or attribute requirement fails, the result ends with a panel, <em>Write the missing values into the model</em>.</li>
+    <li>Values the IDS fixes (a requirement that allows one value only) are written for you. For the rest, press <em>Download the to-fill table (CSV)</em>: a row per missing value with the element's GlobalId, class, name, property set, property, data type and the values the IDS allows.</li>
+    <li>Type each value in the <em>Value</em> column in Excel, LibreOffice or a text editor. A <code>*</code> as the GlobalId gives every listed element that value.</li>
+    <li>Choose the filled table on the page and press <em>Download the filled model</em>. The copy is checked against the IDS again before you download it.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>The sample house fails three specifications of the starter IDS on values: wall W-02 has no <code>LoadBearing</code>, space 001 has no <code>LongName</code>, and partition P-01 has no material. The to-fill table lists the first two (materials are listed by the check, not written):</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Name</th><th>PropertySet</th><th>Property</th><th>DataType</th><th>Value (typed)</th></tr></thead>
+    <tbody>
+      <tr><td>W-02</td><td>Pset_WallCommon</td><td>LoadBearing</td><td>IFCBOOLEAN</td><td>true</td></tr>
+      <tr><td>001</td><td>(attribute)</td><td>LongName</td><td>IFCLABEL</td><td>Living room</td></tr>
+    </tbody>
+  </table></div>
+  <p>With those two values typed, the filled copy passes <strong>5 of 7</strong> specifications instead of 3, and both written values pass the requirement that failed. The change to the file is three lines: the space's <code>LongName</code> set in place, the wall's existing <code>Pset_WallCommon</code> given one more property, and that property added as a new line at the end. The same on the command line:</p>
+  <pre>node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv</pre>
+  <h2>What it will not do</h2>
+  <ul>
+    <li>Overwrite an attribute that already holds a value, or invent a value: anything the IDS does not fix and you did not type stays listed for a person.</li>
+    <li>Write classifications or materials. Those are listed, because which classification code or material is right is a design decision.</li>
+    <li>Fix the source. The authoring model still lacks the values, so the next export will too; send the to-fill table to whoever owns the export mapping.</li>
+  </ul>
+  <p>Quantities are a special case: a missing <code>Qto_</code> quantity the element already holds in another set (an IFC2X3 export's <code>BaseQuantities</code>) is copied, and with <em>Measure missing Qto_ volumes, areas and lengths from each element's geometry</em> ticked, missing volumes, areas and lengths are measured from the element's geometry.</p>
+  <h2>Questions</h2>
+  <h3>Can I edit IFC properties without Revit or ArchiCAD?</h3>
+  <p>Yes, for missing values. The free checker writes property, quantity and attribute values into a copy of the IFC file in your browser, checked against the IDS before and after they are written.</p>
+  <h3>Does it change anything else in the file?</h3>
+  <p>No. Every line it does not need to change stays byte for byte as it was, so a diff of the two files shows only the written values.</p>
+  <h3>What if my model is ifcXML or IFC5?</h3>
+  <p>It is written as a STEP .ifc first and that copy is filled, so the download is a .ifc file.</p>
+  <h3>Is the model uploaded?</h3>
+  <p>No. Reading, checking and writing all happen in your browser tab.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-check-an-ifc-model-against-an-ids-file.html">How to check an IFC model against an IDS file</a></li>
+    <li><a href="./how-to-write-an-ids-file-in-excel.html">How to write an IDS file in Excel or as a CSV</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or design advice; a passing check means the model meets the IDS as this software reads it, and the BIM manager, architect or engineer responsible for the model decides. The sample house is invented.</p>
+    <p><strong>Independent.</strong> IDS and IFC are buildingSMART International standards; this tool is not affiliated with or endorsed by buildingSMART, Microsoft or any software vendor named here. Product names are trademarks of their owners.</p>
+    <p>Everything the tool does runs in your browser; your model and IDS are never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

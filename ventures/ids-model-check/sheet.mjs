@@ -367,9 +367,20 @@ export function rowsToIds(rows) {
       if (a === "cardinality" && ["required", "optional", "prohibited"].includes(val.trim().toLowerCase())) val = val.trim().toLowerCase();
       attrs += ` ${a}="${escAttr(val)}"`;
     }
+    // A CSV saved by Excel or LibreOffice writes a typed true as TRUE, which
+    // matches no IDS boolean (they are lower case); on a boolean-typed
+    // property the case is fixed, with a warning, as the .xlsx reader does.
+    const boolValue = kind === "property" && /^IFC(BOOLEAN|LOGICAL)$/i.test(get("dataType").trim());
     const part = (el, col) => {
-      const c = get(col);
+      let c = get(col);
       if (c === "") return "";
+      if (boolValue && col === "value") {
+        const lower = c.replace(/\b(TRUE|FALSE)\b/gi, (w) => w.toLowerCase());
+        if (lower !== c && /^\s*(?:one of:\s*)?(?:true|false)(?:\s*\|\s*(?:true|false))*\s*$/i.test(c)) {
+          warnings.push({ row: rn, message: `value "${c}" written "${lower}": IDS booleans are lower case, and a spreadsheet saved as CSV writes TRUE and FALSE` });
+          c = lower;
+        }
+      }
       const x = cellXml(c);
       if (x.error) { errors.push({ row: rn, message: `${col}: ${x.error}` }); return ""; }
       return `<${el}>${x.xml}</${el}>`;

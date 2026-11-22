@@ -3,4 +3,7 @@
   <url><loc>./index.html</loc></url>
   <url><loc>./editor.html</loc></url>
   <url><loc>./revision.html</loc></url>
+  <url><loc>./how-to-check-an-ifc-model-against-an-ids-file.html</loc></url>
+  <url><loc>./how-to-write-an-ids-file-in-excel.html</loc></url>
+  <url><loc>./how-to-add-missing-property-values-to-an-ifc-model.html</loc></url>
 </urlset>
