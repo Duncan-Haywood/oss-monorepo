@@ -244,11 +244,35 @@ def remediation_command(name, tag):
     return f"docker buildx imagetools inspect {ref}"
 
 
+_DIRECTIVE_RE = re.compile(r"^#\s*([a-zA-Z][a-zA-Z0-9]*)\s*=\s*(.+?)\s*$")
+_KNOWN_DIRECTIVES = {"syntax", "escape", "check"}
+
+
+def escape_char(text):
+    """The line-continuation character a `# escape=` parser directive sets,
+    or a backslash. BuildKit reads directives only at the very top of the
+    file, before any blank line, comment or instruction, and an unknown
+    directive ends the run. Windows Dockerfiles set escape=` so a path
+    like `C:\\app\\` at the end of a line is not a continuation.
+    Mirrors classify.mjs's escapeChar."""
+    escape = "\\"
+    for line in text.splitlines():
+        match = _DIRECTIVE_RE.match(line.strip())
+        if not match or match.group(1).lower() not in _KNOWN_DIRECTIVES:
+            break
+        if match.group(1).lower() == "escape" and match.group(2) in ("\\", "`"):
+            escape = match.group(2)
+    return escape
+
+
 def logical_lines(text):
-    """Join backslash-continued lines into one instruction, the way BuildKit
-    reads them, and drop comment lines. Returns (start_lineno, text) pairs.
-    Comment and blank lines inside a continuation are skipped, as BuildKit
-    does. Mirrors classify.mjs's logicalLines."""
+    """Join continued lines into one instruction, the way BuildKit reads
+    them, and drop comment lines. The continuation character is a
+    backslash unless an `# escape=` directive changes it. Returns
+    (start_lineno, text) pairs. Comment and blank lines inside a
+    continuation are skipped, as BuildKit does. Mirrors classify.mjs's
+    logicalLines."""
+    escape = escape_char(text)
     out = []
     buffer = None
     start = 0
@@ -262,7 +286,7 @@ def logical_lines(text):
         elif not stripped or stripped.startswith("#"):
             continue
         trimmed = line.rstrip()
-        if trimmed.endswith("\\"):
+        if trimmed.endswith(escape):
             buffer += trimmed[:-1] + " "
         else:
             out.append((start, buffer + line))

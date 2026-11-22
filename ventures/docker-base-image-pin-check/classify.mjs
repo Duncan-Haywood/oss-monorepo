@@ -148,11 +148,32 @@ export function remediationCommand(name, tag) {
   return `docker buildx imagetools inspect ${ref}`;
 }
 
-/** Join backslash-continued lines into one instruction, the way BuildKit
- * reads them, and drop comment lines. Returns [startLineNumber, text] pairs.
- * Comment and blank lines inside a continuation are skipped, as BuildKit does.
- * Mirrors check.py's logical_lines. */
+const DIRECTIVE_RE = /^#\s*([a-zA-Z][a-zA-Z0-9]*)\s*=\s*(.+?)\s*$/;
+const KNOWN_DIRECTIVES = new Set(["syntax", "escape", "check"]);
+
+/** The line-continuation character a `# escape=` parser directive sets, or
+ * a backslash. BuildKit reads directives only at the very top of the file,
+ * before any blank line, comment or instruction, and an unknown directive
+ * ends the run. Windows Dockerfiles set escape=` so a path like `C:\app\`
+ * at the end of a line is not a continuation. Mirrors check.py's
+ * escape_char. */
+export function escapeChar(text) {
+  let escape = "\\";
+  for (const line of text.split(/\r\n|\r|\n/)) {
+    const m = DIRECTIVE_RE.exec(line.trim());
+    if (!m || !KNOWN_DIRECTIVES.has(m[1].toLowerCase())) break;
+    if (m[1].toLowerCase() === "escape" && (m[2] === "\\" || m[2] === "`")) escape = m[2];
+  }
+  return escape;
+}
+
+/** Join continued lines into one instruction, the way BuildKit reads them,
+ * and drop comment lines. The continuation character is a backslash unless
+ * an `# escape=` directive changes it. Returns [startLineNumber, text]
+ * pairs. Comment and blank lines inside a continuation are skipped, as
+ * BuildKit does. Mirrors check.py's logical_lines. */
 export function logicalLines(text) {
+  const escape = escapeChar(text);
   const out = [];
   let buffer = null;
   let start = 0;
@@ -168,7 +189,7 @@ export function logicalLines(text) {
       continue;
     }
     const trimmed = line.trimEnd();
-    if (trimmed.endsWith("\\")) {
+    if (trimmed.endsWith(escape)) {
       buffer += trimmed.slice(0, -1) + " ";
     } else {
       out.push([start, buffer + line]);
