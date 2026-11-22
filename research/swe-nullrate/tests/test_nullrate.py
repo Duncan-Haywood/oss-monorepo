@@ -43,6 +43,15 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(s["precision"], 0.5)
         self.assertAlmostEqual(s["recall"], 0.5)
 
+    def test_run_reproduces_results_file(self):
+        # Quality audit 2026-11-22: mutants in run.py's headline counts survived because
+        # nothing compared its output with the committed results.txt.
+        import subprocess
+        out = subprocess.run([sys.executable, str(HERE / "experiments" / "run.py")],
+                             capture_output=True, text=True, check=True).stdout
+        self.assertEqual(out, (HERE / "experiments" / "results.txt").read_text())
+        self.assertIn("negative or mixed 23/39 = 59.0%", out)
+
 
 if __name__ == "__main__":
     unittest.main()
