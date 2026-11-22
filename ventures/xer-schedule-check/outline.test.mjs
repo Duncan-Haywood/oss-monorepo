@@ -133,6 +133,8 @@ test("Project XML to XER keeps the outline code's tree", () => {
   const byName = new Map(y.ACTVCODE.map((c) => [chain(y, c.actv_code_id), c]));
   assert.deepEqual([...byName.keys()].sort(), ["A", "A>001", "B", "B>001", "UNUSED"]);
   assert.equal(byName.get("B>001").actv_code_name, "Room 1 east");
+  // the code length P6 shows is the longest value's (UNUSED), not the shortest
+  assert.equal(y.ACTVTYPE[0].actv_short_len, "6");
   assert.ok(back.warnings.some((w) => /keep the hierarchy of their outline code/.test(w)));
   const n = (p) => y.TASKACTV.filter((a) => chain(y, a.actv_code_id) === p).length;
   assert.equal(n("A>001") + n("B>001") + n("A"), x.tables.TASK.length);

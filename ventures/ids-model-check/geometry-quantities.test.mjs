@@ -278,3 +278,38 @@ test("the fill writes a column's and a beam's Length from the body's length alon
   assert.deepEqual(beam.writtenList.filter((w) => w.source === "geometry").map((w) => [w.id, w.value]), [[600, "4000."]]);
   assert.equal(beam.verified.pass, beam.written);
 });
+
+test("a member's Length is offered only for a row the takeoff measured ok", async () => {
+  const { addMemberLines } = await import("./geometry-quantities.mjs");
+  const ext = (b, d) => { const e = Math.abs(d[0]) * b.h[0] + Math.abs(d[1]) * b.h[1] + Math.abs(d[2]) * b.h[2]; return [-e, e]; };
+  const row = (status) => ({ id: 1, ifcType: "IFCBEAM", computed: { status, gross: 0.08, solids: { body: { h: [2, 0.1, 0.05] } }, areas: { cross: { n: [1, 0, 0], gross: 0.02 } } }, lengthUnit: 1 });
+  const model = { entities: new Map() };
+  const ok = row("ok"), bad = row("error");
+  assert.equal(addMemberLines(model, [ok, bad], { solidExtent: ext }), 1);
+  assert.equal(ok.computed.lines.length, 4);
+  assert.equal(bad.computed.lines, undefined);
+});
+
+test("a skew member's width is measured square to its axis, not along it", async () => {
+  const { widthAcross } = await import("./geometry-quantities.mjs");
+  // a 10 m round bar of radius 0.1 along a sloped, skew axis: its ends' rims
+  const n0 = [1, 2, 3], L = Math.hypot(...n0), n = n0.map((x) => x / L);
+  const a = [0, 0, 1], u0 = [a[1] * n[2] - a[2] * n[1], a[2] * n[0] - a[0] * n[2], a[0] * n[1] - a[1] * n[0]];
+  const uL = Math.hypot(...u0), u = u0.map((x) => x / uL);
+  const w = [n[1] * u[2] - n[2] * u[1], n[2] * u[0] - n[0] * u[2], n[0] * u[1] - n[1] * u[0]];
+  const pts = [];
+  for (const t of [0, 10]) for (let k = 0; k < 720; k++) {
+    const c = Math.cos(k * Math.PI / 360), s = Math.sin(k * Math.PI / 360);
+    pts.push([0, 1, 2].map((i) => t * n[i] + 0.1 * (c * u[i] + s * w[i])));
+  }
+  const ext = (_b, d) => { const v = pts.map((p) => p[0] * d[0] + p[1] * d[1] + p[2] * d[2]); return [Math.min(...v), Math.max(...v)]; };
+  const D = widthAcross(null, n, ext);
+  assert.ok(Math.abs(D - 0.2) < 1e-3, D);
+});
+
+test("a wall running along y is read like one along x", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { prism, polyPlanes } = await import(TAKEOFF.href);
+  const body = { terms: [{ s: 1, faces: prism([[0, 0], [0.2, 0], [0.2, 5], [0, 5]], [0, 0, 3]) }], mesh: 0, shells: [] };
+  const w = wallLines(body, [0, 1], polyPlanes);
+  assert.ok(w && Math.abs(w.length - 5) < 1e-9 && Math.abs(w.height - 3) < 1e-9, JSON.stringify(w));
+});
