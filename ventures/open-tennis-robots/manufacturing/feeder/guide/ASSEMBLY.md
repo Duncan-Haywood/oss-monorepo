@@ -679,22 +679,24 @@ and 30 degrees (a 12-point ring's step) to be turned. A hex head turned with a s
 The other way onto each nut: a deep socket along the bolt's axis, so the bolt's tail runs up inside
 it, on the shortest bar of a set (0, 50, 75, 100, 150, 250 mm) that clears the work, with a ratchet on the bar's end and the hand on the ratchet's handle as on a spanner.
 Sizes are typical of 1/4" drive deep sockets (3/8" for 13 mm), assumed. "Arc" is the widest clear arc of the handle at the worst hole; 15 degrees turns the nut. A report, not a
-check: the steps ask for the spanners above. How the socket gets to the nut (in between parts, then
-along the axis) is not tried.
+check: the steps ask for the spanners above. "Way on" is how the tool gets to the nut in two
+straight moves from wholly outside the work: straight down the bolt's axis ("axis"), or in sideways
+along the handle, head first, then down the axis ("sideways"), the socket's mouth starting past the
+bolt's end; "none" means no straight way at some hole (a curved one may still exist).
 
-| Joint | Socket | Tail past the nut (mm) | Bar (mm) | Arc (deg) | Socket turns it |
-| --- | --- | --- | --- | --- | --- |
-| home switch bracket | 5.5 mm deep | 2.1 | 0 | 145 | yes |
-| head pivot | 13 mm deep | 7 | 0 | 275 | yes |
-| elevation pin (rod eye) through the guard plate | 8 mm deep | - | 0 | 60 | yes |
-| elevation anchor (anchor eye) through the cheek's tab | 8 mm deep | - | 0 | 105 | yes |
-| lift flight cap through its cleat | 5.5 mm deep | 1.5 | - | 0 | no: no bar up to 250 mm clears the work at every hole |
-| deck cable saddle | 8 mm deep | 4.5 | 0 | 360 | yes |
-| idler axle | 13 mm deep | 8 | 0 | 360 | yes |
-| take-up spool axle | 7 mm deep | 5.3 | 0 | 190 | yes |
-| driver carrier to deck | 5.5 mm deep | 2.6 | 0 | 330 | yes |
-| levelling foot jam nut | 10 mm deep | 26.8 | 0 | 360 | yes |
-| bearing fixed ring to the mast plate | 8 mm deep | 4 | 0 | 95 | yes |
-| turntable plate to the bearing's turning ring | 8 mm deep | 4 | 0 | 360 | yes |
+| Joint | Socket | Tail past the nut (mm) | Bar (mm) | Arc (deg) | Way on | Socket turns it |
+| --- | --- | --- | --- | --- | --- | --- |
+| home switch bracket | 5.5 mm deep | 2.1 | 0 | 145 | sideways | yes |
+| head pivot | 13 mm deep | 7 | 0 | 275 | axis | yes |
+| elevation pin (rod eye) through the guard plate | 8 mm deep | - | 0 | 60 | sideways | yes |
+| elevation anchor (anchor eye) through the cheek's tab | 8 mm deep | - | 0 | 105 | sideways | yes |
+| lift flight cap through its cleat | 5.5 mm deep | 1.5 | - | 0 | - | no: no bar up to 250 mm clears the work at every hole |
+| deck cable saddle | 8 mm deep | 4.5 | 0 | 360 | axis | yes |
+| idler axle | 13 mm deep | 8 | 0 | 360 | axis | yes |
+| take-up spool axle | 7 mm deep | 5.3 | 0 | 190 | axis | yes |
+| driver carrier to deck | 5.5 mm deep | 2.6 | 0 | 330 | axis | yes |
+| levelling foot jam nut | 10 mm deep | 26.8 | 0 | 360 | axis | yes |
+| bearing fixed ring to the mast plate | 8 mm deep | 4 | 0 | 95 | sideways | yes |
+| turntable plate to the bearing's turning ring | 8 mm deep | 4 | 0 | 360 | axis | yes |
 
 Result when this package was built: all pass.

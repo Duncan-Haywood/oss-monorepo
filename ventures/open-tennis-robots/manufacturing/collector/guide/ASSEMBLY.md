@@ -313,13 +313,15 @@ and 30 degrees (a 12-point ring's step) to be turned. A hex head turned with a s
 The other way onto each nut: a deep socket along the bolt's axis, so the bolt's tail runs up inside
 it, on the shortest bar of a set (0, 50, 75, 100, 150, 250 mm) that clears the work, with a ratchet on the bar's end and the hand on the ratchet's handle as on a spanner.
 Sizes are typical of 1/4" drive deep sockets (3/8" for 13 mm), assumed. "Arc" is the widest clear arc of the handle at the worst hole; 15 degrees turns the nut. A report, not a
-check: the steps ask for the spanners above. How the socket gets to the nut (in between parts, then
-along the axis) is not tried.
+check: the steps ask for the spanners above. "Way on" is how the tool gets to the nut in two
+straight moves from wholly outside the work: straight down the bolt's axis ("axis"), or in sideways
+along the handle, head first, then down the axis ("sideways"), the socket's mouth starting past the
+bolt's end; "none" means no straight way at some hole (a curved one may still exist).
 
-| Joint | Socket | Tail past the nut (mm) | Bar (mm) | Arc (deg) | Socket turns it |
-| --- | --- | --- | --- | --- | --- |
-| rod clamp ring | 7 mm deep | 3 | 0 | 195 | yes |
-| yoke pivot | 10 mm deep | - | 0 | 100 | yes |
-| drum axle | 13 mm deep | 3 | 0 | 15 | yes |
+| Joint | Socket | Tail past the nut (mm) | Bar (mm) | Arc (deg) | Way on | Socket turns it |
+| --- | --- | --- | --- | --- | --- | --- |
+| rod clamp ring | 7 mm deep | 3 | 0 | 195 | sideways | yes |
+| yoke pivot | 10 mm deep | - | 0 | 100 | sideways | yes |
+| drum axle | 13 mm deep | 3 | 0 | 15 | sideways | yes |
 
 Result when this package was built: all pass.
