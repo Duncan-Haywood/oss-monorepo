@@ -48,6 +48,11 @@
 //   same task fields on summary tasks (Text fields too, but not the Activity
 //   ID one) become WBS UDFs (table PROJWBS) on the WBS nodes they turn into,
 //   so the WBS UDFs msproject.mjs writes onto summary tasks come back.
+//   Project keeps no integer/decimal or text-UDF/code distinction, so with
+//   { udfTypesFrom: <the original XER's text> } (CLI --udf-types-from) a
+//   field titled as one of that file's UDFs takes its type: decimal stays
+//   decimal, and a task Text field matching a text UDF is a text UDF again,
+//   not an activity code (eval/udf-type-hints-2026-11-22.md).
 //
 // - notes: a task's notes become its notebook entries (TASKMEMO), one per
 //   "[Topic]" section (the form msproject.mjs writes a P6 notebook in), else
@@ -83,8 +88,8 @@
 // UDF (Project has one kind of date field, so a date comes back as a start
 // date UDF).
 
-import { parseMspdi, parseXml, durationHours } from "./mspdi.mjs";
-import { xerText, xerBytes } from "./xer.mjs";
+import { parseMspdi, parseXml, durationHours, udfTypeHints, hintedUdfType } from "./mspdi.mjs";
+import { xerText, xerBytes, parseXer } from "./xer.mjs";
 import { memoHtml } from "./notebook.mjs";
 import { contourCurveValues, contourName } from "./contours.mjs";
 import { RSRC_TEXT_IDS, RSRC_NUMBER_IDS, RSRC_COST_IDS, RSRC_DATE_IDS, RSRC_START_IDS, RSRC_FINISH_IDS } from "./msproject.mjs";
@@ -177,8 +182,11 @@ export function deadlineConstraint(r, dl) {
   return out;
 }
 
-export function p6XerText(text, { projectId = "", activityIds = "auto", deadlines: carryDeadlines = false } = {}) {
-  const parsed = parseMspdi(text);
+export function p6XerText(text, { projectId = "", activityIds = "auto", deadlines: carryDeadlines = false, udfTypesFrom = "" } = {}) {
+  // udfTypesFrom: the original XER's text, when this Project XML came from a P6
+  // file, so its UDFs come back with P6's own types (see "custom fields")
+  const udfTypes = udfTypesFrom ? udfTypeHints(parseXer(udfTypesFrom).tables) : null;
+  const parsed = parseMspdi(text, { udfTypes });
   const T = parsed.tables;
   const warnings = [...parsed.warnings];
   const doc = parseXml(text.charCodeAt(0) === 0xfeff ? text.slice(1) : text);
@@ -673,7 +681,8 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     let label = clip("udf_type_label", def.alias || def.name || fname);
     if (rsrcLabels.has(label.toLowerCase())) { udfDupLabels++; let k = 2; const cut = (x) => `${label.slice(0, MAX.udf_type_label - String(x).length - 3)} (${x})`; while (rsrcLabels.has(cut(k).toLowerCase())) k++; label = cut(k); }
     rsrcLabels.add(label.toLowerCase());
-    const type = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "finish" ? "FT_END_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
+    const guess = kind === "text" ? "FT_TEXT" : kind === "date" ? "FT_START_DATE" : kind === "finish" ? "FT_END_DATE" : kind === "cost" ? "FT_MONEY" : rows.every((r) => Number.isInteger(Number(r.udf_number))) ? "FT_INT" : "FT_FLOAT_2_DECIMALS";
+    const type = hintedUdfType(udfTypes, "RSRC", def.alias || def.name || fname, kind, guess, rows.map((r) => r.udf_number));
     UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: "RSRC", udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: type, super_flag: "N" }));
     rsrcUdfFields++;
     for (const r of rows) { UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf("RSRC", r.uid), proj_id: "", udf_date: r.udf_date, udf_number: r.udf_number, udf_text: r.udf_text, udf_code_id: "" })); rsrcUdfValues++; }

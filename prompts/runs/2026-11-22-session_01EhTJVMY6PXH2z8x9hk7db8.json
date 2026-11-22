@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMY6PXH2z8x9hk7db8",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products ...)",
+  "input_sha256": "cf702c1288ebc08221b484466e56ee76bf97346b7ff328733a76e94716f94e54",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T04:05:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: restore P6 UDF types (decimal vs integer, text UDF vs code) on the P6 -> Project XML -> P6 round trip from the original XER",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18189",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The next: item asked for a hint that survives a save in Microsoft Project; with no Project install there is no way to verify any in-file marker survives, so the hint is the original XER the user already holds, which is testable here.",
+      "did": "udfTypesFrom / --udf-types-from / page file box",
+      "result": "42,847 of 42,847 UDF values back with P6's own type (7,927 without), text UDFs no longer turned into codes; MPXJ agrees on 26 of 26 fields. The in-file marker stays open in NEXT.md."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-p6-udf-types-through-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/udf-type-hints-2026-11-22.md"
+  ],
+  "goal": "flagship 13 (xer-schedule-check) next item: the decimal-type hint",
+  "notes": "Checks run here: node --test (run_venture_tests.py xer-schedule-check: 336 tests ok); node eval/udf-type-hints.mjs on the six public XERs; MPXJ 16.10 (eval/p6xer-udfs-mpxj.py --text) on CCA and Expressway, hinted and plain; check_posts.py ok; portfolio/router/validate.py ok; venture-preflight.mjs (see PR). Found and fixed a measurement artifact in my own script: a CCA UDF title contains '|', so keys are joined with a control character.",
+  "corrections": [],
+  "redteam": null
+}

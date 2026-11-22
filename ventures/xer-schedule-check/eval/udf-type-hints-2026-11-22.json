@@ -1,0 +1,189 @@
+{
+ "date": "2026-11-22",
+ "rows": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "version": "6.0",
+   "udfValues": 41729,
+   "carried": 40983,
+   "byType": {
+    "FT_FLOAT_2_DECIMALS": 10621,
+    "FT_END_DATE": 182,
+    "FT_INT": 2371,
+    "FT_TEXT": 27809
+   },
+   "noHint": {
+    "back": 13174,
+    "typed": 7104,
+    "extra": 0,
+    "wrongType": {
+     "FT_FLOAT_2_DECIMALS -> FT_INT": 6070
+    },
+    "codesBack": 255410,
+    "realCodes": 258951,
+    "codeTypesWritten": 29,
+    "udfAsCodes": 27809,
+    "problems": 0
+   },
+   "hint": {
+    "back": 40983,
+    "typed": 40983,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 255410,
+    "realCodes": 258951,
+    "codeTypesWritten": 24,
+    "udfAsCodes": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "version": "7.0",
+   "udfValues": 1864,
+   "carried": 1864,
+   "byType": {
+    "FT_TEXT": 1041,
+    "FT_INT": 823
+   },
+   "noHint": {
+    "back": 823,
+    "typed": 823,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 0,
+    "realCodes": 0,
+    "codeTypesWritten": 3,
+    "udfAsCodes": 1041,
+    "problems": 0
+   },
+   "hint": {
+    "back": 1864,
+    "typed": 1864,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 0,
+    "realCodes": 0,
+    "codeTypesWritten": 0,
+    "udfAsCodes": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "example_xer_file.xer",
+   "version": "24.12",
+   "udfValues": 0,
+   "carried": 0,
+   "byType": {},
+   "noHint": {
+    "back": 0,
+    "typed": 0,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 436,
+    "realCodes": 436,
+    "codeTypesWritten": 3,
+    "udfAsCodes": 0,
+    "problems": 0
+   },
+   "hint": {
+    "back": 0,
+    "typed": 0,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 436,
+    "realCodes": 436,
+    "codeTypesWritten": 3,
+    "udfAsCodes": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "hotel-project.xer",
+   "version": "6.0",
+   "udfValues": 0,
+   "carried": 0,
+   "byType": {},
+   "noHint": {
+    "back": 0,
+    "typed": 0,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 18020,
+    "realCodes": 18020,
+    "codeTypesWritten": 5,
+    "udfAsCodes": 0,
+    "problems": 0
+   },
+   "hint": {
+    "back": 0,
+    "typed": 0,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 18020,
+    "realCodes": 18020,
+    "codeTypesWritten": 5,
+    "udfAsCodes": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "sample.xer",
+   "version": "20.12",
+   "udfValues": 0,
+   "carried": 0,
+   "byType": {},
+   "noHint": {
+    "back": 0,
+    "typed": 0,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 0,
+    "realCodes": 0,
+    "codeTypesWritten": 0,
+    "udfAsCodes": 0,
+    "problems": 0
+   },
+   "hint": {
+    "back": 0,
+    "typed": 0,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 0,
+    "realCodes": 0,
+    "codeTypesWritten": 0,
+    "udfAsCodes": 0,
+    "problems": 0
+   }
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "version": "5.0",
+   "udfValues": 0,
+   "carried": 0,
+   "byType": {},
+   "noHint": {
+    "back": 0,
+    "typed": 0,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 51,
+    "realCodes": 51,
+    "codeTypesWritten": 1,
+    "udfAsCodes": 0,
+    "problems": 0
+   },
+   "hint": {
+    "back": 0,
+    "typed": 0,
+    "extra": 0,
+    "wrongType": {},
+    "codesBack": 51,
+    "realCodes": 51,
+    "codeTypesWritten": 1,
+    "udfAsCodes": 0,
+    "problems": 0
+   }
+  }
+ ]
+}

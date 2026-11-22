@@ -578,8 +578,10 @@ flagships:
       (category by name?). Notebooks <-> task notes 2026-11-21 (88/88 real,
       2,006/2,006 planted; eval/notebooks-2026-11-21.md). Finish-date UDFs <->
       Project Finish fields, Start/Finish fields read 2026-11-22
-      (eval/finish-udfs-2026-11-22.md: 120/120 Project values, CCA 182/182); next:
-      decimal-type hint. More open items: NEXT.md.
+      (eval/finish-udfs-2026-11-22.md: 120/120 Project values, CCA 182/182); UDF
+      types from the original XER 2026-11-22 (--udf-types-from,
+      eval/udf-type-hints-2026-11-22.md: 42,847/42,847 with P6's type; text UDFs not
+      codes); next: an in-file marker Project keeps. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

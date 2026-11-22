@@ -85,11 +85,13 @@
 // the P6 code tree and descriptions; --all-resources writes every resource in
 // the file, not only those the project's activities use); the lines it prints
 // name what Project will schedule differently.
-// node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--deadlines] [--json]
+// node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--deadlines] [--udf-types-from original.xer] [--json]
 // Converts Microsoft Project XML to a Primavera P6 XER instead (p6xer.mjs),
 // for P6's import: summary tasks as the WBS, activity IDs from a text field
 // named "Activity ID" (else A + row ID x 10; --row-ids always), calendars, deadlines as
-// finish-on-or-before constraints with --deadlines,
+// finish-on-or-before constraints with --deadlines, with --udf-types-from the
+// UDF types of the XER the Project file was made from (decimal stays decimal,
+// text UDFs come back as text UDFs, not activity codes),
 // links, constraints, progress, baseline, resources and assignments, text
 // fields as activity codes, and Project's scheduling options; the lines it
 // prints name what is not carried.
@@ -124,7 +126,7 @@ import { mspdiText, msprojectSummary } from "./msproject.mjs";
 import { p6XerText, p6xerSummary } from "./p6xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--udf-types-from"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -217,7 +219,7 @@ if (args.includes("--previous")) {
 const projId = args.includes("--project") ? projectFor(xer) : null;
 if (args.includes("--to-p6")) {
   if (xer.format !== "mspdi") { console.error("--to-p6: this file is already an XER (it takes Microsoft Project XML)"); process.exit(2); }
-  const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto", deadlines: args.includes("--deadlines") });
+  const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto", deadlines: args.includes("--deadlines"), udfTypesFrom: opt("--udf-types-from") ? decodeXer(readFileSync(opt("--udf-types-from"))) : "" });
   writeFileSync(opt("--to-p6"), r.bytes);
   if (args.includes("--json")) { const { xer: _x, text: _t, bytes: _b, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
   await emit(`${r.project.id}: ${p6xerSummary(r)} to ${opt("--to-p6")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);
