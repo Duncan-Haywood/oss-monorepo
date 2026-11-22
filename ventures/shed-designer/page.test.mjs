@@ -35,3 +35,25 @@ test('the ready-design strip holds its height until app.mjs fills it', () => {
   assert.match(html, /<section id="starts"[^>]*>[\s\S]*?<ul class="pick-list"[^>]*><\/ul>/, 'the strip still ships empty inside #starts');
   assert.match(app, /picker = mountPicker\(/, 'app.mjs still fills the strip at module top level, before DOMContentLoaded');
 });
+
+test('the build steps module loads on demand, after the first frame', () => {
+  // docs/history/shed-designer-page-perf-2026-11-22.md: 19 kB gzip off the critical path.
+  assert.doesNotMatch(app, /^import [^;]*from '\.\/instructions\.mjs';/m, 'instructions.mjs is not a static import');
+  assert.match(app, /import\('\.\/instructions\.mjs'\)/);
+  assert.match(app, /renderBuild\(shed, est, turn\)/, 'renderBuild runs inside renderLate, with its turn');
+  assert.match(app, /await buildReady; download\(/, 'the Markdown download waits for the current steps');
+});
+
+test('every name app.mjs takes from instructions.mjs is exported by it', async () => {
+  const mod = await import('./instructions.mjs');
+  const names = app.match(/then\(\(\{ ([\w, ]+) \}\) => \{\n\s*if \(turn !== lateTurn\)/)[1].split(', ');
+  for (const n of names) assert.equal(typeof mod[n], 'function', n);
+});
+
+test('the strip draws no live thumbnail before the stored pictures list settles', () => {
+  // docs/history/shed-designer-page-perf-2026-11-22.md: one wasted ~160 ms snapshot per load.
+  const picker = readFileSync(new URL('./picker.mjs', import.meta.url), 'utf8');
+  assert.match(picker, /function queueShots\(\) \{\n\s*clearTimeout\(shotTimer\);\n\s*if \(!manifestSettled\) return;/);
+  assert.match(picker, /manifestSettled = true;\n\s*if \(!m\?\.designs\) return queueShots\(\);/, 'no manifest: draw live, as before');
+  assert.match(picker, /\.catch\(\(\) => \{ manifestSettled = true; queueShots\(\); \}\)/, 'failed fetch: draw live, as before');
+});
