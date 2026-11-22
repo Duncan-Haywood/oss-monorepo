@@ -712,10 +712,14 @@ opening each door or window fills, taken into the element's own placement:
 its width and height, its section across the wall (a round window's pi/4 m2)
 and its bounding rectangle's perimeter. That is what ARCHICAD stores, on 315 of
 315 elements of three exports to the last digit, so ARCHICAD exports get them.
-Revit's three public exports each store something different (2010 the
-`OverallWidth`/`OverallHeight` attributes, 2019 neither, 2022 a door's leaf
-height under its frame), so Revit and other tools get none rather than a
-figure that is wrong for one of them. On four ARCHICAD exports 380 elements
+Revit exports get theirs from the family's own `Width` and `Height`
+parameters, which is what the open-source Revit IFC exporter reads, and which
+the export carries as properties (`Dimensions(Type)`, `Bemaßungen`,
+`PSet_Revit_Dimensions`, ...; the instance's before the type's): on Revit
+2010, 2019 and 2022 exports 796 of 800 stored widths and heights match to the
+last digit, the other 4 a 2010 steel frame's outer size; `Area` as W x H in
+IFC4 files, 99 of 99; no Perimeter (Revit's is the body's outline)
+(`eval/revit-door-window-quantities-2026-11-22.md`). Other tools get none. On four ARCHICAD exports 380 elements
 are offered, all within 2% of the stored figures and 377 to the last digit;
 with the stored figures hidden the fill writes 1,824 values, 1,520 of 1,520
 with a stored figure match, and IfcTester takes exactly the written elements

@@ -1,0 +1,12 @@
+ISSUE_159_kleine_Wohnung_R22 | Doors carry a width | 47 applicable | 0 pass before | 47 pass after
+ISSUE_159_kleine_Wohnung_R22 | Doors carry a height | 47 applicable | 0 pass before | 47 pass after
+ISSUE_159_kleine_Wohnung_R22 | Doors carry an area | 47 applicable | 0 pass before | 47 pass after
+ISSUE_159_kleine_Wohnung_R22 | Doors carry a perimeter | 47 applicable | 0 pass before | 0 pass after
+ISSUE_159_kleine_Wohnung_R22 | Windows carry a width | 52 applicable | 0 pass before | 52 pass after
+ISSUE_159_kleine_Wohnung_R22 | Windows carry a height | 52 applicable | 0 pass before | 52 pass after
+ISSUE_159_kleine_Wohnung_R22 | Windows carry an area | 52 applicable | 0 pass before | 52 pass after
+ISSUE_159_kleine_Wohnung_R22 | Windows carry a perimeter | 52 applicable | 0 pass before | 0 pass after
+architect | Doors carry a width | 133 applicable | 0 pass before | 133 pass after
+architect | Doors carry a height | 133 applicable | 0 pass before | 133 pass after
+architect | Doors carry an area | 133 applicable | 0 pass before | 0 pass after
+architect | Doors carry a perimeter | 133 applicable | 0 pass before | 0 pass after
