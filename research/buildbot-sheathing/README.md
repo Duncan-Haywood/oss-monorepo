@@ -886,6 +886,19 @@ exactly, and the flip budget never decides a refusal, so the gate reduces to a *
 
 ![Gate coverage against the bias bound, and the worst row of gate-passed and refused presses under the direct-aimed bias](experiments/m68_jgate/figure.png)
 
+**Milestone 69: does a second calibration pose raise the weakest pose's bias rating?** Yes, by more than double. The
+compensated error is the press pose's error minus the calibration pose's, so the sensitivity under any calibration
+pose is a subtraction of milestone 67's table, **exact to 4e-14 mm/N on 8 new held-out loads (seed 69; H266 held)**.
+From that table alone, before the run, the best pair of calibration poses was chosen (G1 at 0.6 m and 1.0 m grip
+height, H1 at 0.8 m and 1.4 m), each pose compensated against the nearer one. Measured afresh, **the weakest bias
+rating rises from 0.213 to 0.530 N on the G1 and from 0.279 to 0.564 N on the H1** (H268 held), no press the gate
+passed left 0.03 mm (H267 held), and gate coverage is **100% (G1) and 99.3% (H1) at 0.4 N, from 58% and 85%**
+(H270 held), and 63% and 84% at 0.6 N, from 21% and 52% (H269 held). Up to 0.4 N, with two calibration poses, the
+planner's chain leaves no press over spec at all. One seed; statics; a bias that drifts between calibration and press
+is untested.
+
+![Each pose's bias rating with one and two calibration poses, and gate coverage against the bias bound](experiments/m69_tworef/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

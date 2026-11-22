@@ -1,0 +1,57 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 69: one calibration pose against two, held-out section P (8 loads, seed 69; milestone 65's chain sized to B; direct-aimed bias of each arm, both signs; gate on each arm's frozen table; spec 0.03 mm per row)
+
+## A. The plan (from milestone 67's table alone, before the run): robot | reference set | weakest rating, r0 alone N | weakest rating, two poses N
+  g1 | [[0.6, 0.0], [1.0, 0.15]] | 0.213 | 0.530
+  h1 | [[0.8, 0.0], [1.4, 0.0]] | 0.279 | 0.564
+
+## B. Does re-referencing subtract? robot | arm | presses with a fresh J | max |J_fresh - (J67(p) - J67(r))| mm/N | weakest rating from the fresh J N | poses rated (fresh)
+  g1 | one | 99 | 2.76e-14 | 0.213 | 15
+  g1 | two | 108 | 4.06e-14 | 0.530 | 15
+  h1 | one | 150 | 4.31e-14 | 0.279 | 19
+  h1 | two | 150 | 4.32e-14 | 0.564 | 19
+
+## C. By robot, B and arm: robot | B N | arm | balance-envelope cases | chain planned | chain over spec | chain worst mm | gate passed | gate coverage % | gate passed over spec | worst gate-passed row mm | fallback to m63 direction
+  g1 | 0.3 | one | 198 | 198 (100.00%) | 70 | 0.0424 | 128 | 64.65 | 0 | 0.0282 | 28
+  g1 | 0.3 | two | 216 | 216 (100.00%) | 0 | 0.0170 | 216 | 100.00 | 0 | 0.0170 | 27
+  g1 | 0.4 | one | 198 | 198 (100.00%) | 84 | 0.0565 | 114 | 57.58 | 0 | 0.0247 | 28
+  g1 | 0.4 | two | 216 | 216 (100.00%) | 0 | 0.0227 | 216 | 100.00 | 0 | 0.0227 | 27
+  g1 | 0.6 | one | 198 | 195 (98.48%) | 154 | 0.0847 | 41 | 20.71 | 0 | 0.0171 | 28
+  g1 | 0.6 | two | 216 | 213 (98.61%) | 76 | 0.0340 | 137 | 63.43 | 0 | 0.0258 | 27
+  g1 | 1.0 | one | 198 | 190 (95.96%) | 150 | 0.1412 | 40 | 20.20 | 0 | 0.0285 | 28
+  g1 | 1.0 | two | 216 | 209 (96.76%) | 139 | 0.0580 | 70 | 32.41 | 0 | 0.0290 | 27
+  h1 | 0.3 | one | 300 | 299 (99.67%) | 27 | 0.0322 | 272 | 90.67 | 0 | 0.0228 | 10
+  h1 | 0.3 | two | 300 | 299 (99.67%) | 0 | 0.0160 | 299 | 99.67 | 0 | 0.0160 | 18
+  h1 | 0.4 | one | 300 | 298 (99.33%) | 43 | 0.0430 | 255 | 85.00 | 0 | 0.0292 | 10
+  h1 | 0.4 | two | 300 | 298 (99.33%) | 0 | 0.0213 | 298 | 99.33 | 0 | 0.0213 | 18
+  h1 | 0.6 | one | 300 | 284 (94.67%) | 128 | 0.0645 | 156 | 52.00 | 0 | 0.0286 | 10
+  h1 | 0.6 | two | 300 | 283 (94.33%) | 32 | 0.0319 | 251 | 83.67 | 0 | 0.0299 | 18
+  h1 | 1.0 | one | 300 | 258 (86.00%) | 228 | 0.1074 | 30 | 10.00 | 0 | 0.0229 | 10
+  h1 | 1.0 | two | 300 | 208 (69.33%) | 151 | 0.0532 | 57 | 19.00 | 0 | 0.0249 | 18
+
+## D. Gate-passed presses over spec (first 30, worst first): robot | B | arm | sign | pose | H N | phi deg | worst mm | flips
+  (total: 0)
+
+## E. Hypotheses (registered in LOG.md before this run)
+H266 (re-referencing subtracts: every fresh J equals J67(p) - J67(r) to 1e-6 mm/N, both arms, both robots): largest difference 4.32e-14 -> held
+H267 (the gate on the two-pose table keeps every passed press inside the spec, every B, both robots): 0 over spec -> held
+H268 (the weakest rating from the fresh two-pose J is at least 0.5 N on both robots): G1 0.530, H1 0.564 -> held
+H269 (gate coverage at 0.6 N: two poses at least double r0's on the G1 and at least 1.5 times on the H1): G1 20.71% -> 63.43%, H1 52.00% -> 83.67% -> held
+H270 (gate coverage at 0.4 N with two poses at least 90% on both robots): G1 100.00%, H1 99.33% -> held
+
+(run time 7055 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)
