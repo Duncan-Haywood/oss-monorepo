@@ -763,7 +763,19 @@ and other tools none. On eight public ARCHICAD and Revit exports 4,532 of
 an exporter slip read by hand (a roof's area stored on its openings, a 0.30 m
 `Width` on a 1.53 m opening); with the stored figures hidden the fill writes
 5,806 values and IfcTester takes exactly those from fail to pass
-(`eval/opening-quantities-2026-11-22.md`).
+(`eval/opening-quantities-2026-11-22.md`). A Revit wall opening written as a
+brep (Revit 2022 writes 102 of kleine_Wohnung's 168 window cuts that way, a
+stepped box through masonry and insulation, and stores nothing on them) is
+read from its faces: the through direction is a horizontal face normal every
+face is parallel or square to, nearest the host wall's thickness; `Width` its
+upright extent (as the same version's extrusions store it), `Height` across,
+`Depth` the run through, `Area` the largest face square to it. On the 824
+Revit wall openings that do store the set the same reading gives every
+stored `Depth` and every `Width`/`Height` pair (162 ARK_NUS pairs in the
+other order); on the 102 breps `Width` and `Height` equal the window's own
+Revit height and width, 102 of 102. kleine_Wohnung's fill goes from 264 to
+672 written values and the filled model passes; IfcTester agrees on all 672
+(`eval/opening-brep-quantities-2026-11-22.md`).
 **Railings' Length (2026-11-22).** `Qto_RailingBaseQuantities` `Length`
 (what a balustrade or handrail quote is priced by, per metre) is read from the
 railing's body (`railings.mjs`). Revit stores the length of the railing's

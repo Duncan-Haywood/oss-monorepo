@@ -1,0 +1,22 @@
+files:
+  ISSUE_159_kleine_Wohnung_R22.ifc: {"convention":"revit-2019","wallOpenings":151,"brep":102}
+  ISSUE_068_ARK_NUS_skolebygg.ifc: {"convention":"revit-2019","wallOpenings":778,"brep":0}
+
+1. face reading on Revit 2019-on wall openings storing the set (stored; read; within 1%; misses):
+  Width: 824; 824; 662; 162
+  Height: 824; 824; 662; 162
+  Depth: 738; 738; 738; 0
+  Area: 1; 1; 1; 0
+  Width and Height together, by file:
+    ISSUE_159_kleine_Wohnung_R22.ifc: {"as read":49}
+    ISSUE_068_ARK_NUS_skolebygg.ifc: {"as read":613,"swapped (Width across)":162}
+
+2. brep openings, offered by measureModel, against the window's own Revit size (within 0.1%):
+  beside: {"openings":52,"offered":52,"widthIsWindowHeight":52,"heightIsWindowWidth":52,"areaIsWxH":52}
+  depth 0.500 m: 40
+  depth 0.620 m: 62
+  fills: {"openings":50,"offered":50,"widthIsWindowHeight":50,"heightIsWindowWidth":50,"areaIsWxH":50}
+
+misses by part, figure and file:
+  162 stored Width ISSUE_068_ARK_NUS_skolebygg.ifc
+  162 stored Height ISSUE_068_ARK_NUS_skolebygg.ifc

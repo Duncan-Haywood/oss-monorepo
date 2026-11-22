@@ -1,0 +1,1 @@
+{"file": "opening__ISSUE_159_kleine_Wohnung_R22__fill.ifc", "opened": true, "values_checked": 672, "failed_before": 672, "pass_after": 672, "newly_failing": 0, "added_records_failing": 0, "still_failing_sample": [], "by_kind": {"quantity": [672, 672]}, "ok": true}
