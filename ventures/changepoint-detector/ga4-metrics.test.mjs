@@ -199,6 +199,7 @@ test('a report download converts: Date or Nth day, comment lines, a grand total,
   assert.throws(() => fromExport('Page path,Views\n/a,5\n'), /no table with a Date or Nth day/);
   assert.throws(() => fromExport('Date,Sessions\n20260601,5\n20260601,6\n'), /twice.*comparison/);
   assert.throws(() => fromExport('Date,Sessions\n2026-06-01,5\n'), /not YYYYMMDD/);
+  assert.throws(() => fromExport('Date,Sessions,Total revenue\n20260601,5,1,200\n'), /4 fields for 3 columns.*unquoted thousands/);
 });
 
 test('a tag broken on half the pages and a sign-up form that stops working: the watch hears both', async () => {

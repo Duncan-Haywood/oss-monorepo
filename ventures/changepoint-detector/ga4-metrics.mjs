@@ -165,7 +165,7 @@ export const toCsv = (rows, metrics) => [header(metrics), ...rows.map((r) => [r.
 export function readExisting(text, metrics) {
   const lines = String(text).split(/\r?\n/).filter((l) => l.trim());
   if (!lines.length || lines[0].trim() !== header(metrics)) return null;
-  return lines.slice(1).map((l) => { const f = l.split(','); return { date: f[0], values: Object.fromEntries(metrics.map((m, i) => [m, Number(f[i + 1]) || 0])) }; })
+  return lines.slice(1).map((l) => { const f = splitCsvLine(l); return { date: f[0], values: Object.fromEntries(metrics.map((m, i) => [m, Number(f[i + 1]) || 0])) }; })
     .filter((r) => /^\d{4}-\d{2}-\d{2}$/.test(r.date));
 }
 
@@ -177,7 +177,8 @@ const TITLES = {
   'total revenue': 'totalRevenue', 'engaged sessions': 'engagedSessions', purchases: 'ecommercePurchases', transactions: 'transactions',
 };
 const camel = (t) => t.toLowerCase().replace(/[^a-z0-9]+(.)?/g, (_, c) => (c ? c.toUpperCase() : '')).replace(/^[^a-z]+/, '');
-const splitCsv = (line) => {
+/** One CSV line split on commas outside double quotes ("" inside quotes is a quote). */
+export function splitCsvLine(line) {
   const out = []; let cur = '', q = false;
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
@@ -186,7 +187,7 @@ const splitCsv = (line) => {
   }
   out.push(cur);
   return out.map((s) => s.trim());
-};
+}
 
 /**
  * A GA4 report's CSV download: "#" comment lines (one of them "# Start date: YYYYMMDD"), then a table whose first column
@@ -200,7 +201,7 @@ export function fromExport(text) {
   for (const l of lines) { const m = /^#\s*Start date:\s*(\d{8})/i.exec(l); if (m) { start = isoOf(m[1]); break; } }
   let i = lines.findIndex((l) => !l.startsWith('#') && /^"?(date|nth day)"?\s*,/i.test(l.trim()));
   if (i < 0) throw new Error('the export has no table with a Date or Nth day first column (in the report, pick Date as the dimension, or export the over-time chart).');
-  const head = splitCsv(lines[i]);
+  const head = splitCsvLine(lines[i]);
   const nth = /^nth day$/i.test(head[0]);
   if (nth && !start) throw new Error('the export counts days ("Nth day") but has no "# Start date:" line to count from.');
   const metrics = head.slice(1).map((h) => TITLES[h.toLowerCase()] ?? camel(h));
@@ -211,8 +212,9 @@ export function fromExport(text) {
     const l = lines[i];
     if (!l.trim()) { if (rows.length) break; continue; }
     if (l.startsWith('#')) continue;
-    const f = splitCsv(l);
+    const f = splitCsvLine(l);
     if (/total/i.test(f[0])) continue;
+    if (f.length !== head.length) throw new Error(`export line ${i + 1}: ${f.length} fields for ${head.length} columns (an unquoted thousands comma such as 1,200 splits a number; export again, or quote it).`);
     let date;
     if (nth) { if (!/^\d{1,5}$/.test(f[0])) throw new Error(`export line ${i + 1}: "${f[0]}" is not a day number.`); date = addDays(start, Number(f[0])); }
     else { if (!/^\d{8}$/.test(f[0])) throw new Error(`export line ${i + 1}: the date "${f[0]}" is not YYYYMMDD.`); date = isoOf(f[0]); }

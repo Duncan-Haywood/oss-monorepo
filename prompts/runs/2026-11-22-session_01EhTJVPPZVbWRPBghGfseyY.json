@@ -25,13 +25,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
   "errors": [
     "the test's Poisson sampler underflowed (exp(-1500)=0) and spun forever; node --test printed nothing until killed, so it read as a hang of the code under test",
-    "venture-preflight caught a literal U+FEFF inside a regex and a generated watch-repo-files.mjs line past check_third_party's 5,000-character bundle threshold"
+    "venture-preflight caught a literal U+FEFF inside a regex and a generated watch-repo-files.mjs line past check_third_party's 5,000-character bundle threshold",
+    "CI changed-ventures: test_csv_thousands_split flagged ga4-metrics.mjs (comma .split plus thousands strip); the export parser was already quote-aware, now named function splitCsvLine, used for every row, and a row whose field count differs from the header is refused (unquoted 1,200)"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -56,7 +57,7 @@
     "docs/posts/2026-11-22-changepoint-a-free-watch-for-google-analytics-4.md"
   ],
   "goal": "deepen flagship 4 (changepoint-detector) toward a self-deployed metric-watch business",
-  "notes": "Verified locally: run_venture_tests.py changepoint-detector ok (1087 tests, 343.6 s) before the last doc commit; after it ga4-metrics, watch-repo, watch-workflow, watch-modules-closed 21/21; venture-preflight clean; check_posts ok; check_hidden_unicode and check_third_party ok. Not checked against a live GA4 property (no key).",
+  "notes": "Verified locally: run_venture_tests.py changepoint-detector ok (1087 tests, 343.6 s) before the last doc commit; after it ga4-metrics, watch-repo, watch-workflow, watch-modules-closed 21/21; venture-preflight clean; check_posts ok; check_hidden_unicode and check_third_party ok. Not checked against a live GA4 property (no key). After the CI fix: unwired_checks.py 273/273, ga4-metrics 8/8, test_csv_thousands_split OK.",
   "corrections": [],
   "redteam": null
 }
