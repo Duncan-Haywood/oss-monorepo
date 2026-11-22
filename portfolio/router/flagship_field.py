@@ -128,6 +128,12 @@ fragment. And an edit a few characters over the cap parked whatever tail
 item freed enough, however big (#17900): an implicit park that would move
 more than IMPLICIT_PARK_FREE characters or five times the overrun refuses and
 names the NEW budget; `--make-room` still parks on request.
+
+On 2026-11-22 the refusal's ready `--history` flags misfired the same way
+(two xer-schedule-check records): one offered a `; ` item whose first
+sentence was an open step, another a result whose "; next ..." step it would
+orphan. `history_candidates` now judges each sentence of an item and skips a
+result an open step follows (`item_results`, `leads_open`).
 """
 from __future__ import annotations
 
@@ -758,7 +764,7 @@ RESULTISH = re.compile(
 STILL_OPEN = re.compile(
     r"\b(?:open|next|wanted|wants?|needs?|needed|try|test it|re-?run|retest|re-test"
     r"|to do|todo|not (?:yet|done)|should|could|would|whether|unknown|unclear|tbd|when"
-    r"|left|remaining|miss(?:es|ing)?|a real|tail|refresh)\b|\?", re.I)
+    r"|left|remaining|miss(?:es|ing)?|a real|tail|refresh|to say|say if)\b|\?", re.I)
 
 
 # A landed entry's usual shape: a label, the day it landed, then its evidence in
@@ -786,7 +792,7 @@ EVIDENCE = re.compile(r"\beval/|\b[\w*.-]+\.(?:mjs|js|ts|py|txt|md|json|csv|html
 # DATED_EVIDENCE shape makes one a result. Why: on 2026-11-20 an implicit park
 # filed ifc-quantity-takeoff's open item (4) in HISTORY.md as a result (PR
 # #17963's record); 7 of the 13 numbered items on main then read as results.
-NUMBERED = re.compile(r"^\(\d+[a-z]?\)\s")
+NUMBERED = re.compile(r"^\((?:\d+[a-z]?|[a-z]{1,3})\)\s")  # "(4)", "(4b)", "(fv)"
 SHIPPED_WORD = re.compile(r"\b(?:ships|shipped|landed)\b", re.I)
 
 
@@ -859,6 +865,67 @@ def make_room(value: str, keep: tuple[str, ...] = (),
                      + history_hint(value, len(value) - FLAGSHIP_NEXT_MAX, keep))
 
 
+# Why sentences and leads_open (2026-11-22, two xer-schedule-check records,
+# 16:33 and 17:04): a `; ` item can hold an open sentence and a dated result
+# ("next: a P6 import of the result. Contractor's monthly narrative
+# 2026-11-22 (...)"), and the hint offered the whole item, so the open step
+# would have gone to HISTORY.md; and a result whose open step follows it
+# ("X shipped 2026-11-20 (...); next a real series") was offered alone, so
+# moving it left "next a real series" with no subject. On main that day 9 of
+# 17 candidates had one of the two shapes. A candidate that opens with a
+# list label ("(15) Drag ...") is not offered either: moving it drops the
+# label its area's open steps hang from.
+FOLLOWS_OPEN = re.compile(r"[;,.:]?\s*(?:then\s+)?(?:next|open|needs?|wanted|but)\b", re.I)
+
+
+def sentences(item: str) -> list[str]:
+    """`item` cut at ". " outside brackets (not after an abbreviation)."""
+    out, depth, start = [], 0, 0
+    for i, ch in enumerate(item):
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth = max(0, depth - 1)
+        elif (depth == 0 and ch == "." and item[i + 1:i + 2] == " "
+              and not _ABBREV.search(item[:i])):
+            out.append(item[start:i + 1])
+            start = i + 2
+    out.append(item[start:])
+    return [p for p in (x.strip() for x in out) if p]
+
+
+def _bare(c: str, first: str = "") -> str:
+    marks = list(OPEN_MARK.finditer(c))
+    if marks:  # "Next: A passed" -> "A passed": the marker stays in the row
+        c = c[marks[-1].end():]
+    if first and c.startswith(first + ". "):
+        c = c[len(first) + 2:]
+    return c.strip(" ;").rstrip(".")
+
+
+def item_results(item: str, first: str = "") -> list[str]:
+    """The sentences of one `; ` item that read as results: its first as
+    before, any later one only when dated (an undated sentence cut from its
+    item, "Regen (cad/README.md): scope the bus on a 20% slow-down", is as
+    often open work as a result)."""
+    item = item.strip()
+    if first and item.startswith(first + ". "):
+        item = item[len(first) + 2:]
+    out = []
+    for i, part in enumerate(sentences(item)):
+        c = _bare(part)
+        if (i == 0 or DATE.search(c)) and is_result(c):
+            out.append(c)
+    return out
+
+
+def leads_open(v: str, c: str) -> bool:
+    """True when the text right after `c` in `v` is an open step about it
+    ("; next ...", ". Open: ..."), which moving `c` would orphan."""
+    i = v.find(c)
+    return i >= 0 and bool(FOLLOWS_OPEN.match(v, i + len(c)))
+
+
 def history_candidates(value: str, keep: tuple[str, ...] = ()) -> list[str]:
     """Items of `value` that read as finished work, longest first: whole
     landed clauses (`landed_clauses` with nothing to keep) and `; ` items
@@ -867,21 +934,15 @@ def history_candidates(value: str, keep: tuple[str, ...] = ()) -> list[str]:
     --history; the run decides."""
     v = " ".join(value.split())
     first = v.split(". ", 1)[0]
-
-    def bare(c: str) -> str:
-        marks = list(OPEN_MARK.finditer(c))
-        if marks:  # "Next: A passed" -> "A passed": the marker stays in the row
-            c = c[marks[-1].end():]
-        if c.startswith(first + ". "):
-            c = c[len(first) + 2:]
-        return c.strip(" ;").rstrip(".")
+    bare = lambda c: _bare(c, first)  # noqa: E731
 
     seen, out = set(), []
     pool = [bare(c) for c, k in landed_clauses(v) if k == ""] + [
-        c for c in map(bare, split_items(v)) if is_result(c)]
+        c for item in split_items(v) for c in item_results(item, first)]
     for c in pool:
         if (not c or c in seen or c in first or PARK_POINTER in c
-                or not _balanced(c) or holds_new(c, keep)):
+                or not _balanced(c) or holds_new(c, keep) or leads_open(v, c)
+                or NUMBERED.match(c)):  # "(15) Drag ..." heads an area of the open list
             continue
         seen.add(c)
         out.append(c)

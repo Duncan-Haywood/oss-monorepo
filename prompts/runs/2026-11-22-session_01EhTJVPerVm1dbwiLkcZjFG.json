@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVPerVm1dbwiLkcZjFG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production",
+  "input_sha256": "d5feb2a7af47facfb2e3a484826e8906b2901a5de41cdbfec10e702844764aaf",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T19:28:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7) photo-editing: the blend's q ramps on real HDR+ noise",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18296",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first prep launch for the held-out parts omitted --m-default, so 9+10 held bursts were skipped as no-NoiseProfile",
+      "fix": "killed and relaunched with --m-default 0.1532 before any scoring"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/NEXT.md",
+      "issue": "said the 91 no-NoiseProfile bursts would need m = 1/N; the tune median was used instead and disclosed"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight not run: the change is an eval tool, a note, README/NEXT text and a test, no page or user-facing surface changed",
+      "did": "ran the venture's test suite instead",
+      "result": "1495 tests pass"
+    },
+    {
+      "file": "eval/hdrplus-ramp-fit-2026-11-22.md",
+      "why": "grid widened (q_high 6, 8) after a one-burst smoke test of the fit picked an edge, before any set was scored; disclosed in the note",
+      "did": "widened grid and committed before scoring",
+      "result": "no final pick on the q_high edge; ship's luma q_low pick sits on the q_low edge, disclosed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-photo-editing-ramps-tuned-to-a-wrong-read.md",
+    "ventures/photo-editing/eval/hdrplus-ramp-fit-2026-11-22.md"
+  ],
+  "goal": null,
+  "notes": "Committed questions before held-out scoring (commit on the PR branch). 48 tune / 79 of 91 held-out HDR+ bursts scored. R1 (ship-arm refit) h1,h2 pass, h3 (6 bursts >0.1 dB worse) and h4 (1 new loser) fail: ramps stay. R2: oracle's losses to what ships 14 -> 0 with each arm on own tune pick. Full HDR+ set (3,640 bursts) found listable from this session; prep --bucket added. Tests: tests/test_hdrplus_ramp_fit.py 4 pass; run_venture_tests.py photo-editing: ok, 1495 tests, 10 skipped, 88 s; site page checks ok.",
+  "corrections": [],
+  "redteam": null
+}

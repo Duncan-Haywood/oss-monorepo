@@ -25,7 +25,7 @@ export const DEFAULT_THRESHOLDS = {
   // Additional handling, whichever comes first.
   additionalHandlingLongestSide: 48,
   additionalHandlingSecondSide: 30,
-  additionalHandlingGirth: 105,
+  additionalHandlingGirth: 105, // length plus girth, like the other *Girth limits
   // Large/oversize package: length plus girth over 130 in, or the longest side
   // over 96 in, whichever comes first (UPS "Large Package", FedEx "Oversize").
   largePackageGirth: 130,
@@ -104,21 +104,23 @@ export function calculateBillableWeight(input) {
   const billedOn = dimWeight > actualWeight ? 'dimensional' : 'actual';
   const billableWeight = billableFrom(actualWeight, dimWeight);
 
-  // Girth is the strap-around measurement every parcel surcharge table is
-  // written in: the longest side plus twice each of the other two.
-  const girth = longestSide + 2 * (secondSide + shortestSide);
+  // Girth is the strap around the two shorter sides (2 x width + 2 x height
+  // on the carriers' definition). Parcel surcharge tables are written in
+  // length plus girth: the longest side plus that strap.
+  const girth = 2 * (secondSide + shortestSide);
+  const lengthPlusGirth = longestSide + girth;
 
   const thresholds = { ...DEFAULT_THRESHOLDS, ...(input.thresholds ?? {}) };
   const flags = [];
-  if (longestSide > thresholds.maximumLongestSide || girth > thresholds.maximumGirth) {
+  if (longestSide > thresholds.maximumLongestSide || lengthPlusGirth > thresholds.maximumGirth) {
     flags.push({
       id: 'over-maximum',
       severity: 'blocking',
-      text: `Longest side ${longestSide}″ or girth ${girth.toFixed(0)}″ exceeds the ground maximum (${thresholds.maximumLongestSide}″ / ${thresholds.maximumGirth}″). Most carriers will not accept this as a parcel at all — it moves as freight.`,
+      text: `Longest side ${longestSide}″ or length plus girth ${lengthPlusGirth.toFixed(0)}″ exceeds the ground maximum (${thresholds.maximumLongestSide}″ / ${thresholds.maximumGirth}″). Most carriers will not accept this as a parcel at all — it moves as freight.`,
     });
-  } else if (girth > thresholds.largePackageGirth || longestSide > thresholds.largePackageLongestSide) {
-    const why = girth > thresholds.largePackageGirth
-      ? `Girth ${girth.toFixed(0)}″ is over ${thresholds.largePackageGirth}″`
+  } else if (lengthPlusGirth > thresholds.largePackageGirth || longestSide > thresholds.largePackageLongestSide) {
+    const why = lengthPlusGirth > thresholds.largePackageGirth
+      ? `Length plus girth ${lengthPlusGirth.toFixed(0)}″ is over ${thresholds.largePackageGirth}″`
       : `Longest side ${longestSide}″ is over ${thresholds.largePackageLongestSide}″`;
     flags.push({
       id: 'large-package',
@@ -128,12 +130,12 @@ export function calculateBillableWeight(input) {
   } else if (
     longestSide > thresholds.additionalHandlingLongestSide
     || secondSide > thresholds.additionalHandlingSecondSide
-    || girth > thresholds.additionalHandlingGirth
+    || lengthPlusGirth > thresholds.additionalHandlingGirth
   ) {
     flags.push({
       id: 'additional-handling',
       severity: 'minor',
-      text: `This trips additional handling on dimensions (longest side ${longestSide}″, second ${secondSide}″, girth ${girth.toFixed(0)}″). The surcharge is charged per package on top of the rate for ${billableWeight} lb.`,
+      text: `This trips additional handling on dimensions (longest side ${longestSide}″, second ${secondSide}″, length plus girth ${lengthPlusGirth.toFixed(0)}″). The surcharge is charged per package on top of the rate for ${billableWeight} lb.`,
     });
   }
 
@@ -184,6 +186,7 @@ export function calculateBillableWeight(input) {
     secondSide,
     shortestSide,
     girth,
+    lengthPlusGirth,
     flags,
     lever,
   };

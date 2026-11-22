@@ -354,3 +354,18 @@ test('every link in the dark footer band takes the band link colour, at AA on th
   const [hi, lo] = [lum(band[1]), lum(band[2])].sort((a, b) => b - a);
   assert.ok((hi + 0.05) / (lo + 0.05) >= 4.5, `band link ${band[1]} on ${band[2]} is under 4.5:1`);
 });
+
+test('the section links stay on one scrolling row between phone and desktop widths', () => {
+  // At 721 to ~780px the links wrapped and "About" sat alone on a third row: every page at
+  // 721 to 752px, 1,103 of 1,406 tool pages at 768px (polish-2026-11-22-tablet-nav-row.md).
+  const band = SITE_HEADER_CSS.match(/@supports \(animation-timeline:scroll\(\)\)\{\s*@container pfs-head \(max-width:959px\)\{([\s\S]*?)\n  \}\n\}/);
+  assert.ok(band, 'the two-row band has its own scrolling-row rule');
+  assert.match(band[1], /\.pfs-nav\{[^}]*flex-wrap:nowrap;overflow-x:auto/);
+  // The tail fade starts at 0, so a row that fits (an inactive scroll timeline) is not faded.
+  assert.match(band[1], /--pfs-fade:0px/);
+  assert.match(SITE_HEADER_CSS, /@keyframes pfs-fade-tail\{from\{--pfs-fade:28px\}to\{--pfs-fade:0px\}\}/);
+  // The page's own tab starts in view rather than off the right edge.
+  assert.match(band[1], /a\[aria-current="page"\]\{scroll-initial-target:nearest;scroll-snap-align:center\}/);
+  // The head fade is 0 until scrolled, in every browser.
+  assert.match(SITE_HEADER_CSS, /@property --pfs-fade-l\{syntax:'<length>';inherits:false;initial-value:0px\}/);
+});

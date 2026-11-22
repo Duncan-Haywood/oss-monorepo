@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKivCu3qriy3yTLBkKQ",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T18:18:41Z",
+  "ended": "2026-11-22T18:40:44Z",
+  "wall_minutes": 22.25,
+  "tokens_in": 8917354,
+  "tokens_out": 39440,
+  "cost_usd": 3.5868,
+  "tool_calls": 96,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18294",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "The look-before-you-choose step screenshots at phone and desktop widths only; the tablet band (721-959px), where 1,103 of 1,406 tool pages had a wrapped header at 768px, is never looked at. Suggest adding 768 to the widths."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "The suggested background build command `node build.mjs > build.log 2>&1; echo DONE >> build.log` in run_in_background: wrapping it in a subshell with a trailing & made the harness report it complete at once while the build kept running; wait_for.py still worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-22-*.md",
+      "why": "Today's polish runs had a queue of per-page fold tweaks; measuring the shared header across widths turned up a site-wide defect (header wraps at tablet width) that affects every page, which the prompt ranks above single-page fixes.",
+      "did": "Fixed the shared header CSS instead of the next fold item; listed the fold items in the new report's next steps.",
+      "result": "one CSS change fixes 1,103+ tool pages at 768px and every page at 721-752px; tests 1929/1929."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-the-tablet-width-our-header-forgot.md",
+    "docs/reports/polish-2026-11-22-tablet-nav-row.md"
+  ],
+  "goal": null,
+  "notes": "Measured with Playwright over all 1,406 venture pages at 744/768/820px on the full build. Before: nav wraps on 1,406/1,103/0. After (--only preview, Chromium 157): bar 82px site / 88px tool at 721-768px vs 117/123 before; 390px and 1024px+ unchanged. node --test 'platform/pages/*.test.mjs': 1929 pass, 0 fail. site-nav.test.mjs 25/25 including the new test. check.mjs on main's full build: publishable, no dead links. check_posts.py ok. Safari/Firefox not tested.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b8adb4a7-7133-5c02-9599-30d21dfe2052",
+    "transcripts": 1,
+    "first": "2026-11-22T18:18:41Z",
+    "last": "2026-11-22T18:40:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 157,
+        "output": 39440,
+        "thinking": 12729,
+        "cache_read": 8787212,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129985,
+        "api_equivalent_usd": 3.5868,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 157,
+      "output": 39440,
+      "thinking": 12729,
+      "cache_read": 8787212,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129985,
+      "api_equivalent_usd": 3.5868,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 75,
+      "Read": 18,
+      "ToolSearch": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.25,
+      "active_minutes": 22.25,
+      "model_minutes": 7.14,
+      "tool_minutes": 15.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: find a cross-width header defect, measure 1,400 pages, CSS fix with progressive enhancement, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 111.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

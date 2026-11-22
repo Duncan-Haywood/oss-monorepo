@@ -9601,3 +9601,38 @@ A reader with a date in mind already has the right tool: `--known-date` tests on
 
 Next: if a closest-call line is tried again, state it as "added to these jumps" and pre-register the wording's
 reading, not the refit; a trend-in-the-walk model on the 21 floored series stays the drift model's first open item.
+
+## Jumps on a smooth trend: a slope that wanders, on the floored series (2026-11-22, pre-registered; S1, T2, T3, T4 pass, S2 and T1 fail, nothing ships in the CLI)
+
+Open item from "The closest call": a floored sigma (21 of 38 TCPD series) says the random-walk level is the wrong
+shape, since the lag variances grow faster than linearly. `drift-trend.mjs` is the smooth-trend model instead: between
+changes the level moves by a slope and the slope wanders (`y = mu + e`, `mu' = mu + b`, `b' = b + z`, Durbin and
+Koopman section 3.2.1; the Hodrick-Prescott filter is its smoother), and a change restarts both level and slope.
+sigma and the slope's wander zeta come from lag-k second differences, whose variance is `6 sigma^2 + zeta^2 k(2k^2+1)/3`
+under the model; zeta is then chosen by likelihood with the changes, as the CLI's drift default does for omega.
+Exact optimal partitioning, O(n^2), penalty 3 log n. Tests: `drift-trend.test.mjs` (partition cost equals the sum
+of segment costs; a line plus noise costs the same as the noise alone; no false cuts on smooth series).
+
+Rules in the header of `eval/trend-walk-floored.mjs`, written before it first ran; output
+`eval/trend-walk-floored.out.txt` (fetch TCPD with `sh eval/tcpd-fetch.sh`, 9 s). Comparator: the shipped
+`--model drift` default (wander by likelihood).
+
+- **S1, no false cuts on smooth series: passes.** 0.005 false cuts a series at both slope wanders (zeta 0.02 and
+  0.1, n 200); the shipped drift model makes 0.14 and 3.1 on the same series.
+- **S2, power for a 4-sigma step: fails.** Found 92% at zeta 0.02 (bar 70%) but 38% at zeta 0.1 (bar 50%;
+  shipped drift 53%, with its 3 false cuts a series). A slope that turns fast can bend round a step.
+- **T1, floored series gain at least +0.03 F1: fails by 0.002.** 21 floored series, F1 0.605 to 0.633 (+0.028).
+- **T2, more wins than losses: passes**, 10 to 8, 3 ties. Large wins: gdp_iran +0.319 (9 cuts to 2),
+  quality_control_4 +0.298, gdp_croatia +0.222, scanline_126007 +0.181, gdp_argentina +0.169, bitcoin +0.166,
+  debt_ireland +0.156, usd_isk +0.152. Large losses: us_population -0.274 (0 cuts to 1), rail_lines -0.185,
+  co2_canada -0.168, ozone -0.160, unemployment_nl -0.159, robocalls -0.141, global_co2 -0.123.
+- **T3, held-out floored series not worse: passes**, 5 series, +0.060.
+- **T4, quality control 4: passes**, one cut at 342 (the annotated step) where the drift model cut 342, 360 and 440.
+
+By the rule written beforehand nothing changes in the CLI or page; `trendWalkChanges` is exported for callers and
+later rounds. Read after the run (post hoc, not a result): on 4 of the floored series (bank, global_co2, ozone,
+rail_lines) the second-difference fit floors sigma too and zeta runs to the grid's edge, so these series are walks
+with momentum this model does not fit either; three of them are among the losses. On the other 17 floored series the
+mean gain is +0.063 with 10 wins and 4 losses. That routing rule (trend walk when the drift sigma floors and the
+trend sigma does not) was chosen on these series and needs fresh labelled series to test; it is the next item, with
+a smaller S2 cell (power at fast slope turns is the model's known weak spot).

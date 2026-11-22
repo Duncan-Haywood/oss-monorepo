@@ -87,7 +87,7 @@
         <dt>Dimensional weight</dt><dd id="dimWeight">13.81 lb</dd>
         <dt>Actual weight</dt><dd id="actualWeight">4 lb</dd>
         <dt>Cube</dt><dd id="cube">1,920 in³</dd>
-        <dt>Girth (L + 2×(W+H))</dt><dd id="girth">60″</dd>
+        <dt>Length + girth (L + 2×(W+H))</dt><dd id="girth">60″</dd>
         <dt id="totalLabel">Total, 1 package</dt><dd id="total">14 lb</dd>
       </dl>
       <p class="notice">A planning estimate, not a quote. Divisors, rounding rules, surcharge thresholds and minimum billable weights are contract terms that differ by carrier, service and account. Verify against your own rate agreement before you price a listing.</p>
@@ -118,7 +118,7 @@
       <p>Usually yes, and the checkbox is on by default. Carriers measure each side and round it to a whole inch before multiplying, so a carton measuring twelve and a half inches on every side is cubed as thirteen. Rounding after the multiplication instead of before gives a different and smaller answer, which is how an estimate and an invoice end up disagreeing. Turn it off if your service prices on exact measurements.</p>
 
       <h3>What are the girth and surcharge warnings?</h3>
-      <p>Girth is the strap-around measurement that parcel surcharge tables are written in: the longest side plus twice each of the other two. Above certain lengths and girths a package stops being ordinary and picks up additional handling, then a large package surcharge, then refusal as a parcel altogether. The page flags which band the carton falls in from its dimensions alone. It deliberately does not quote a dollar figure, because those amounts are rate card terms that change and would go stale here.</p>
+      <p>Girth is the strap-around measurement of the two shorter sides: twice the width plus twice the height. Parcel surcharge tables are written in length plus girth, the longest side plus that strap. Above certain lengths and lengths plus girth a package stops being ordinary and picks up additional handling, then a large package surcharge, then refusal as a parcel altogether. The page flags which band the carton falls in from its dimensions alone. It deliberately does not quote a dollar figure, because those amounts are rate card terms that change and would go stale here.</p>
 
       <h3>Does this work for several packages at once?</h3>
       <p>Yes, for identical ones. Each package is rated on its own and rounded up on its own, so the total is the per package billable weight times the count. That matters more than it sounds: adding the cubes together and dividing once would quietly lose the round up on every package, which is exactly the sort of small error that makes an estimate disagree with an invoice. If your cartons differ, run each configuration separately.</p>
@@ -191,7 +191,7 @@
         el('dimWeight').textContent = `${result.dimWeight.toFixed(2)} lb`;
         el('actualWeight').textContent = lb(result.actualWeight);
         el('cube').textContent = `${Math.round(result.cube).toLocaleString('en-US')} in³`;
-        el('girth').textContent = `${result.girth.toFixed(0)}″`;
+        el('girth').textContent = `${result.lengthPlusGirth.toFixed(0)}″`;
         el('totalLabel').textContent = `Total, ${result.packages} package${result.packages === 1 ? '' : 's'}`;
         el('total').textContent = lb(result.totalBillableWeight);
         try { localStorage.setItem(storageKey, JSON.stringify(currentInputs())); } catch {}
@@ -221,7 +221,7 @@
       if (!update(false)) return;
       const text = [
         `Billable weight: ${el('billable').textContent} per package (${el('totalLabel').textContent.toLowerCase()}: ${el('total').textContent})`,
-        `Dimensional: ${el('dimWeight').textContent} · Actual: ${el('actualWeight').textContent} · Cube: ${el('cube').textContent} · Girth: ${el('girth').textContent}`,
+        `Dimensional: ${el('dimWeight').textContent} · Actual: ${el('actualWeight').textContent} · Cube: ${el('cube').textContent} · Length + girth: ${el('girth').textContent}`,
         ...leverLines(),
         el('flag').textContent,
         'Planning estimate only; verify against your carrier agreement.',
