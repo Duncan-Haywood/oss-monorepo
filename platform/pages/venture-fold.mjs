@@ -41,6 +41,12 @@ import { FOLD, PEEK_PX, parseWidths } from './fold.mjs';
 
 export const CARD_SELECTOR = 'main .card';
 export const FIELD_SELECTOR = 'main input:not([type=hidden]), main select, main textarea';
+// Chrome that is not the tool's form: many venture pages put their <footer>
+// (with the "Don't count my usage" #optout checkbox) inside <main>, so on a
+// page with no form of its own that checkbox was its "first field", and two
+// product pages topped the baseline at 3,400 to 3,800 px
+// (polish-2026-11-22-header-crosslinks.md, item 1).
+export const FIELD_EXCLUDE = 'footer, #optout';
 
 export const BASELINE_PATH = fileURLToPath(new URL('./venture-fold-baseline.json', import.meta.url));
 // Fonts and wrapping move a field by a line or two between machines; a hero
@@ -150,21 +156,22 @@ async function main() {
           rows.push({ slug, card: null, field: null, error: 'did not load' });
           continue;
         }
-        const r = await page.evaluate(([cardSel, fieldSel]) => {
+        const r = await page.evaluate(([cardSel, fieldSel, exclude]) => {
           const top = (el) => (el ? Math.round(el.getBoundingClientRect().top + scrollY) : null);
           const visible = (el) => {
             const b = el.getBoundingClientRect();
             return b.width > 0 && b.height > 0;
           };
-          const field = [...document.querySelectorAll(fieldSel)].find(visible)
+          const own = (el) => !el.closest(exclude);
+          const field = [...document.querySelectorAll(fieldSel)].find((el) => own(el) && visible(el))
             // a file input styled away still has its label; take the label's top then
-            || [...document.querySelectorAll('main label[for]')].find(visible);
+            || [...document.querySelectorAll('main label[for]')].find((el) => own(el) && visible(el));
           return {
             card: top(document.querySelector(cardSel)),
             field: top(field),
             sideways: document.documentElement.scrollWidth > innerWidth + 1,
           };
-        }, [CARD_SELECTOR, FIELD_SELECTOR]);
+        }, [CARD_SELECTOR, FIELD_SELECTOR, FIELD_EXCLUDE]);
         rows.push({ slug, ...r });
       }
       await context.close();

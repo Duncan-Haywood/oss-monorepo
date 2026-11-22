@@ -1,7 +1,7 @@
 // Unit tests for venture-fold.mjs's pure helpers (the browser part is not run in CI).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BASELINE_PATH, belowFold, compareBaseline, median, summarise } from './venture-fold.mjs';
+import { BASELINE_PATH, FIELD_EXCLUDE, belowFold, compareBaseline, median, summarise } from './venture-fold.mjs';
 
 test('median ignores nulls and averages the middle pair', () => {
   assert.equal(median([3, null, 1, 2]), 2);
@@ -62,4 +62,12 @@ test('the committed baseline is for the 390x844 screen and lists only past-the-f
     assert.ok(Number.isFinite(top) && top > 844 - 16, `${slug}: ${top}`);
     assert.ok(fs.existsSync(new URL(`../../ventures/${slug}/index.html`, import.meta.url)), `${slug} is a venture`);
   }
+});
+
+test('the footer and its usage opt-out are not a page\'s first field', () => {
+  // 2026-11-22: testimonial-keeper and monastery-site keep <footer> inside
+  // <main>, so the #optout checkbox read as their first field at 3,400-3,800 px.
+  const parts = FIELD_EXCLUDE.split(',').map((s) => s.trim());
+  assert.ok(parts.includes('footer'));
+  assert.ok(parts.includes('#optout'));
 });
