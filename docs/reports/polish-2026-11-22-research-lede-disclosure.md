@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, aeo, research]
+topics: [design, seo, research-integrity]
 date: 2026-11-22
 ---
 # Polish 2026-11-22: research page ledes keep their closing disclosure

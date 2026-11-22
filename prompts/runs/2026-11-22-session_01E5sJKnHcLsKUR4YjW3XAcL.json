@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKnHcLsKUR4YjW3XAcL",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-22T14:27:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Polish: research project page header ledes that a 90-word cut stripped of their closing disclosure",
+  "projects": [
+    "research/_homepage"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18265",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "Six research page headers (homebot, osrobot-pairprice, qual-correction, hanger-insert, simdesign-buckleguard, codesign-sar) displayed results without their 'simulated/stylised, not built' disclosure because of the 2026-11-18 lede cut; fixed in this PR."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to check `polish_queue.py` without a path; it is platform/ci/polish_queue.py, not platform/pages/ (cost one failed call)."
+    },
+    {
+      "file": "platform/ci/test_research_summary_paragraphs.py",
+      "issue": "`python3 -m unittest platform/ci/<file>.py` from the repo root fails ('platform' shadows the stdlib module); run it from platform/ci by module name."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/polish_queue.py",
+      "why": "The last 13 polish reports all worked venture-page folds; the prompt's 'look before you choose' survey found a research-page honesty defect, which outranks another fold item.",
+      "did": "Fixed research header ledes instead of a queued item; recorded the queue items as carried over in the new report.",
+      "result": "6 headers regained their disclosure, 56 got a full stop; venture queue unchanged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-the-cut-that-dropped-not-yet-built.md",
+    "docs/reports/polish-2026-11-22-research-lede-disclosure.md"
+  ],
+  "goal": null,
+  "notes": "Before/after on 1,080 headers: cut-and-dropped-disclosure 6 -> 0; bare endings 56 -> 0. research/_homepage/build.py prints ok; all platform/ci/test_research_*.py pass; check_md_links ok.",
+  "corrections": [],
+  "redteam": null
+}
