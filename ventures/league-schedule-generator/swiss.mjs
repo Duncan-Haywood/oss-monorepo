@@ -210,7 +210,7 @@ export function floatHistory(players, games, byes = [], byeRounds = null, { game
 export function swissPairings(players, games, byes = [], withdrawn = [], {
   lookahead = true, repeatFloats = true, byeRounds = null,
   extra = null, extraRounds = [], gameRounds = null, byeBlocked = [], unplayed = null, absent = [], groupOrder = "buchholz",
-  dutchOrder = "lex", pairing = "bracket", exchange = "dutch",
+  dutchOrder = "lex", pairing = "bracket", exchange = "dutch", mdpFirst = true, transpose = true,
 } = {}) {
   const gone = new Set([...withdrawn, ...absent]);
   const n = players.length - gone.size;
@@ -318,7 +318,7 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
   // would leave no rematch-free round after it, the whole-round matching below pairs instead.
   let method = "matching";
   if (pairing === "bracket") {
-    mate = bracketMate({ v, size, odd, byeVertex, order, vertexOf, groups, half, claim, met, info, noBye, floatAgo, repeatFloats, unplayed, dutchOrder, exchange });
+    mate = bracketMate({ v, size, odd, byeVertex, order, vertexOf, groups, half, claim, met, info, noBye, floatAgo, repeatFloats, unplayed, dutchOrder, exchange, mdpFirst, transpose });
     if (mate && lookahead && !nextRoundPossible(mate)) mate = null;
     if (mate) method = "bracket";
   }
@@ -423,6 +423,8 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
 function bracketMate(ctx) {
   const { v, size, odd, byeVertex, order, vertexOf, groups, half, claim, met, info, noBye, floatAgo, repeatFloats, unplayed } = ctx;
   const dutchExchange = ctx.exchange !== "boundary";
+  const mdpFirst = ctx.mdpFirst !== false;
+  const transpose = ctx.transpose !== false;
   const out = new Array(size).fill(-1);
   const left = new Set(order);
   const met2 = (x, y) => met.has(`${x}|${y}`);
@@ -669,8 +671,31 @@ function bracketMate(ctx) {
       }
       return true;
     };
-    const pm = M.filter((x) => P.has(x));
-    const pr = residents.filter((x) => P.has(x));
+    let pm = M.filter((x) => P.has(x));
+    let pr = residents.filter((x) => P.has(x));
+    // MDPs first, as the Dutch rules generate candidates: an MDP takes the earliest resident that
+    // keeps the best colour-and-float value even when that changes WHICH residents float down
+    // (stage A fixed the resident downfloaters before any MDP was placed). Each MDP is placed on
+    // a matching over the paired players plus stage A's resident downfloaters, with one "float"
+    // slot per downfloater that any resident may take; the new downfloaters are kept only if stage
+    // A, with them barred from the bracket, reaches the same C.4-C.7 value (2026-11-22).
+    const fr0 = last ? [] : floaters.filter((x) => posR.has(x) && mA[idx.get(x)] !== bv);
+    if (mdpFirst && fr0.length && pm.length) {
+      const F2 = mdpFloaters(pm, residents.filter((x) => P.has(x) || fr0.includes(x)), fr0.length, { allowed, crit, fa, order });
+      if (F2 && !F2.every((x) => fr0.includes(x))) {
+        const vs = order.filter((x) => left.has(x));
+        const base = stageA(allowAbs, vs);
+        const alt = stageA(allowAbs, vs, new Set(F2));
+        if (base && alt && topOf(alt, vs, allowAbs) === topOf(base, vs, allowAbs)) {
+          const out2 = new Set(F2);
+          for (const x of fr0) if (!out2.has(x)) { P.add(x); floaters.splice(floaters.indexOf(x), 1); }
+          for (const x of F2) if (!fr0.includes(x)) { P.delete(x); floaters.push(x); }
+          cur = null;
+          pm = M.filter((x) => P.has(x));
+          pr = residents.filter((x) => P.has(x));
+        }
+      }
+    }
     if (!fixFrom(pm, pr)) return null;
     let rem = residents.filter((x) => P.has(x));
     // Who floats out of the remainder. Stage A picked downfloaters with a coarse order; the rules
@@ -697,7 +722,8 @@ function bracketMate(ctx) {
       }
     }
     const h = Math.floor(rem.length / 2);
-    const ex = dutchExchange ? exchangeFor(rem, { allowed, qOf, qMax }) : null;
+    let ex = dutchExchange ? exchangeFor(rem, { allowed, qOf, qMax }) : null;
+    if (ex?.none && !transpose) ex = null;
     if (ex) {
       cur = null;
       bip = { a: new Set(ex.s1), b: new Set(ex.s2) };
@@ -826,6 +852,66 @@ export function dutchFloaters(rem, fr, { allowed, crit, fa, order }, budget = 40
 }
 
 /**
+ * Resident downfloaters of a heterogeneous bracket when its MDPs are paired first, in Dutch
+ * order (C.04.3: candidates are generated MDP by MDP, each taking the earliest resident that
+ * still reaches the best colour-and-float value, before the remainder is looked at). `mdps` are
+ * the MDPs paired in the bracket and `res` the residents that are paired or float down (in the
+ * pairer's order); `nf` of the residents float. Each MDP in turn is fixed to its best-ranked
+ * partner on one matching over the players left plus `nf` float seats only residents may take
+ * (a seat costs the repeat-downfloat criteria, as in dutchFloaters). Returns the residents left
+ * on float seats once every MDP is placed, or null.
+ */
+export function mdpFloaters(mdps, res, nf, { allowed, crit, fa, order }) {
+  const inU = new Set([...mdps, ...res]);
+  const U = order.filter((x) => inU.has(x));
+  const isM = new Set(mdps);
+  const boards = (U.length + nf) / 2;
+  const R2 = boards + 1;
+  const RB = U.length + 2;
+  let nc = 7;
+  while (nc > 1 && R2 ** nc * RB * (U.length + 1) > 2 ** 50) nc--;
+  const qM = R2 ** nc;
+  const q = (k) => k.slice(0, nc).reduce((s, b, j) => s + b * R2 ** (nc - 1 - j), 0);
+  const qFloat = (x) => q([0, 0, 0, fa(x, 1) === "down" ? 1 : 0, 0, fa(x, 2) === "down" ? 1 : 0, 0]);
+  const solve = (list, s = null, rank = null) => {
+    const n = list.length;
+    const edges = [];
+    for (let a = 0; a < n; a++) {
+      const x = list[a];
+      for (let b = a + 1; b < n; b++) {
+        const y = list[b];
+        if (!allowed(x, y)) continue;
+        let w = (qM - q(crit(x, y))) * RB + 1;
+        if (x === s) w += RB - 1 - rank.get(y);
+        else if (y === s) w += RB - 1 - rank.get(x);
+        edges.push([a, b, w]);
+      }
+      if (!isM.has(x)) for (let d = 0; d < nf; d++) edges.push([a, n + d, (qM - qFloat(x)) * RB + 1]);
+    }
+    const m = maxWeightMatching(n + nf, edges, { maxCardinality: true });
+    return m.every((z) => z >= 0) ? m : null;
+  };
+  const rest = new Set(U);
+  for (const s of mdps) {
+    if (!rest.has(s)) continue;
+    const list = U.filter((x) => rest.has(x));
+    const rank = new Map();
+    let r = 0;
+    for (const t of list) if (t !== s && !isM.has(t)) rank.set(t, r++);
+    for (const t of list) if (t !== s && isM.has(t)) rank.set(t, r++);
+    const m = solve(list, s, rank);
+    if (!m) return null;
+    const z = m[list.indexOf(s)];
+    if (z >= list.length) return null;
+    rest.delete(s); rest.delete(list[z]);
+  }
+  const list = U.filter((x) => rest.has(x));
+  const m = solve(list);
+  if (!m) return null;
+  return list.filter((x, a) => m[a] >= list.length);
+}
+
+/**
  * FIDE C.04.3 article 4.3, exchanges in a homogeneous bracket or remainder. `rem` is in BSN order
  * (BSN = index + 1), S1 its top half. Every candidate pairs S1 with S2 after some exchange, so the
  * best colour-and-float value over all candidates is the best over all perfect matchings of `rem`.
@@ -857,7 +943,10 @@ export function exchangeFor(rem, { allowed, qOf, qMax }, budget = 4000) {
     const b = m[a];
     if (b > a) { best += qOf(rem[a], rem[b]); if (b < h) j++; }
   }
-  if (j === 0) return null;
+  // No exchange needed: S1 still takes its partners from S2 only (a transposition), never from
+  // S1 (2026-11-22: an S1-S1 board reached the same value and let S1's first player take an
+  // earlier S2 partner than any transposition gives).
+  if (j === 0) return { s1: rem.slice(0, h), s2: rem.slice(h), none: true };
   const choose = (k, r) => { let c = 1; for (let i = 0; i < r; i++) c = (c * (k - i)) / (i + 1); return c; };
   if (choose(h, j) ** 2 > budget) return null;
   const subsets = (lo, hi, r) => {

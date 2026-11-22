@@ -9,6 +9,7 @@
 //
 //   node eval/swiss-vs-published.mjs <fixtures-dir> [--json rows.jsonl] [--order legacy|lex|lex2]
 //                                    [--pairing matching|bracket] [--exchange dutch|boundary]
+//                                    [--no-mdp-first] [--no-transpose] (the 2026-11-22 changes off)
 //
 // Two conditions per round:
 //   open   - the pre-round state as the file gives it; everyone not withdrawn is paired.
@@ -34,7 +35,7 @@ const pairingAt = args.indexOf("--pairing");
 const pairing = pairingAt >= 0 ? args[pairingAt + 1] : undefined;
 const exchangeAt = args.indexOf("--exchange");
 const exchange = exchangeAt >= 0 ? args[exchangeAt + 1] : undefined;
-const pairOpts = { ...(dutchOrder ? { dutchOrder } : {}), ...(pairing ? { pairing } : {}), ...(exchange ? { exchange } : {}) };
+const pairOpts = { ...(args.includes("--no-mdp-first") ? { mdpFirst: false } : {}), ...(args.includes("--no-transpose") ? { transpose: false } : {}), ...(dutchOrder ? { dutchOrder } : {}), ...(pairing ? { pairing } : {}), ...(exchange ? { exchange } : {}) };
 if (!dir || !existsSync(dir)) {
   console.error("usage: node eval/swiss-vs-published.mjs <swisspairing>/benchmarks/fixtures [--json out.jsonl]");
   process.exit(2);

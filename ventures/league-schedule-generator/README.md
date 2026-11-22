@@ -754,7 +754,7 @@ MIT licence, see `LICENSE`.
 
 **Play-off race.** With results typed and a play-off size set, the page lists who has clinched a place, who is out, and how many more points clinch it for everyone still alive. With 12 or fewer games left it works through every win/draw/loss outcome (`playoffRace` in `calc.mjs`, cross-checked against brute force in the tests); with more it uses safe bounds that never call a team clinched or out wrongly. Ranked on points only, with ties on points counted against the team, so goal difference can only help a team shown as alive.
 
-**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Since 2026-11-21 (later) score brackets are paired one at a time from the top, as the Dutch system does: see "Bracket-by-bracket Dutch pairing" below. Not FIDE-endorsed pairing: it follows the Dutch system's procedure closely but not exactly; replayed against six real events it reproduces 95.9% of the published later-round boards (59.5% for the whole-round matching it replaced; 94.8% before the 2026-11-22 Dutch-order downfloaters, eval/swiss-dutch-floaters.txt), so use an arbiter-approved program for rated events.
+**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Since 2026-11-21 (later) score brackets are paired one at a time from the top, as the Dutch system does: see "Bracket-by-bracket Dutch pairing" below. Not FIDE-endorsed pairing: it follows the Dutch system's procedure closely but not exactly; replayed against six real events it reproduces 99.1% of the published later-round boards and 46 of the 48 later rounds exactly (59.5% for the whole-round matching it replaced; 95.9% before the 2026-11-22 S1-against-S2 transpositions, eval/swiss-stage-b.txt; see "Inside a bracket: S1 meets S2" below), so use an arbiter-approved program for rated events.
 
 **Calendar for multi-division leagues (2026-10-29).** `multi-division-league-schedule.html` gains "Download calendar (.ics)", and `divisionsIcs(schedule, { division, team, stamp, minutes })` in `divisions.mjs` writes one event per match for the whole league, one division or one team (summary, court and venue, division and round, official if assigned; floating local times, 60-minute games unless `minutes` is set). Test: every match appears once, per-division and per-team counts match, UIDs are unique, no line is over 75 bytes, and a 90-minute game ends where it should (`divisions.test.mjs`).
 
@@ -5665,6 +5665,62 @@ later-round recall 89.1% to 89.3%, no round worse (Budapest B round 7 74% to 84%
 of the remaining gap is elsewhere (NEXT.md). FIDE's colour-criteria order (C.12 before C.13) was
 also tried and changed no board. Measurements: `eval/swiss-exchange-order.md`.
 
+
+## Inside a bracket: S1 meets S2, and MDPs choose first (2026-11-22)
+
+After the Dutch-order downfloaters (below), 25 of the 27 missed later rounds on the six
+chess-results events first differed only in **who meets whom** inside a bracket that already
+floated the right players (`eval/swiss-miss-brackets.mjs`). A new dump,
+`node eval/swiss-bracket-dump.mjs <fixtures> <event> <round> [score]`, prints one bracket's players
+with their colour history and last two floats beside our boards and the published ones. Reading
+the smallest two brackets by hand found two causes, both now fixed in `bracketMate`:
+
+1. **S1 could take a partner no transposition gives.** In a homogeneous bracket or remainder that
+   needs no exchange, the Dutch candidates are transpositions of S2: every board is S1 against S2.
+   `exchangeFor` returned nothing when no exchange was needed, so the S1 players then took their
+   partners with S1-S1 and S2-S2 boards allowed, and an S1 player could take an earlier S2 player
+   whenever some such matching reached the same colour value. Budapest B round 7, 1.5 points:
+   S1 = {57, 63, 66}, S2 = {67, 70, 83} after 71 floats; 63 (absolute white) has met 70.
+   The published round is the first transposition with one mild clash, 57-70, 63-67, 66-83; the
+   pairer gave 57 its first S2 player, 67, and reached one mild clash only through the S1-S1
+   board 63-66. `exchangeFor` now returns S1 and S2 unchanged in that case, and partners are
+   taken from S2 only. This was nearly the whole gap.
+2. **The MDPs were placed after the resident floaters were fixed.** The rules generate candidates
+   MDP by MDP: an MDP takes the earliest resident that still reaches the best value, and who floats
+   out of the remainder follows from that. Stage A had already chosen the resident floaters, so an
+   MDP could not take a resident whose pairing would make someone else float. Budapest A round 8,
+   5 points: MDP 25 and residents 1, 2, 9 are due black, 4, 18, 22 white; 1 has met 18 and 22.
+   Published: 25-4, so 1 floats. The pairer had floated 9, so 1 needed 4 and 25 took 18.
+   `mdpFloaters` now places each MDP on a matching over the paired players plus the resident
+   floaters, with one float seat per floater that any resident may take (priced by its
+   repeat-downfloat criteria, as in `dutchFloaters`). The new floaters are kept only if stage A,
+   with them barred from the bracket, reaches the same C.4 to C.7 value.
+
+Replayed (`node eval/swiss-vs-published.mjs <fixtures> --pairing bracket`, condition `played`;
+`--no-transpose` and `--no-mdp-first` switch each change off, and both off reproduce the earlier
+4,742 exactly):
+
+| | chess-results boards | later rounds | exact rounds | lichess boards |
+|---|---|---|---|---|
+| before (eval/swiss-dutch-floaters.txt) | 4,742 / 5,083 | 95.9% | 25 / 54 | 667 / 1,182 |
+| 2. MDPs first only | 4,746 | 95.9% | 25 | 669 |
+| 1. S1 against S2 only | 4,886 | 99.0% | 49 | 687 |
+| both (shipped) | **4,890** | **99.1%** | **50** | **689** |
+
+Aeroflot, Budapest A and ChessHouse now match the published pairings in all nine rounds, and
+Budapest B and Prague in every later round except Prague round 5 (1 board). The diagnostic after the change
+(`eval/swiss-miss-brackets.txt`): 2 of 48 later rounds differ, and in both the first difference is
+who floats (Graz round 4 at 2.5, Prague round 5 at 1); no round differs only in who meets whom.
+What is left on chess-results is those two rounds and round 1 of Budapest B and Graz (0.45 and 0.03:
+the first round's order, not the pairing rules). The lichess events (bbpPairings, with acceleration
+and late joiners) stay at 64% of later boards. Measurements: `eval/swiss-stage-b.txt`.
+
+On the 440 simulated events (`eval/swiss-repeat-floats.mjs 40`, `eval/swiss-stage-b-sim.txt`
+against `eval/swiss-dutch-floaters-sim.txt`, rule on): every event still pairs, absolute colour
+clashes 0, repeat downfloats 2,162 to 2,137, repeat upfloats 1,752 to 1,749, floats 12,423 to
+12,374, strong-colour boards 6,590 to 6,591, mild 8,163 to 8,186. Tests: `exchangeFor` returns
+S1/S2 when no exchange is needed, and `mdpFloaters` floats 1 in the Budapest A bracket
+(`swiss.test.mjs`).
 
 ## Who floats down, chosen in Dutch order (2026-11-22)
 
