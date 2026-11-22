@@ -97,6 +97,12 @@
 // links, constraints, progress, baseline, resources and assignments, text
 // fields as activity codes, and Project's scheduling options; the lines it
 // prints name what is not carried.
+// With --previous, --narrative FILE [--weeks N] [--by NAME] [--to NAME] [--ref TEXT]
+// also writes the contractor's monthly schedule narrative (narrative.mjs):
+// status, critical path, work done, planned work missed, every change with a
+// marked fill-in for its reason, float, the next N weeks (default 4) and the
+// delays; .html gives a printable page, any other name plain text.
+//
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -108,6 +114,7 @@ import { decodeXer } from "./xer.mjs";
 import { parseSchedule } from "./mspdi.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
+import { narrative, narrativeText, narrativeHtml } from "./narrative.mjs";
 import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
 import { riskAnalysis, riskCsv, parseRanges, parseRisks } from "./risk.mjs";
 import { rangesFromUdf, udfFields, udfSpec, udfRangeNote } from "./udf-ranges.mjs";
@@ -128,7 +135,7 @@ import { mspdiText, msprojectSummary } from "./msproject.mjs";
 import { p6XerText, p6xerSummary } from "./p6xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -218,6 +225,14 @@ if (args.includes("--previous")) {
   const rep = compare(prev, xer, cur ? { ...ids, curProjId: cur.project.id } : ids);
   writeReview(cur, rep, cur && args.includes("--risk") ? runRisk(xer, cur.project.id) : null);
   if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], compareCsv(rep));
+  if (opt("--narrative")) {
+    const out = opt("--narrative");
+    const wk = opt("--weeks");
+    const la = lookahead(xer, { weeks: wk && /^\d+$/.test(wk) ? Number(wk) : 4, projId: ids.curProjId ?? null });
+    const nar = narrative(rep, { lookahead: la });
+    writeFileSync(out, /\.html?$/i.test(out) ? narrativeHtml(nar, { by: opt("--by"), to: opt("--to"), ref: opt("--ref") }) : narrativeText(nar));
+    console.error(`schedule narrative written to ${out}: ${nar.fillIns} fill-ins left for causes and reasons`);
+  }
   await emit(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : compareText(rep));
   process.exit(0);
 }

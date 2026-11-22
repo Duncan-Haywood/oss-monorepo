@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01EhTJVMz9JEUR3AGNmpcmJz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (owner's standing ventures brief)",
+  "input_sha256": "dc863d996529215194f3f7e08c0ff10d37c02074faf430854d83d999c5ff8542",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T08:56:11Z",
+  "ended": "2026-11-22T09:05:17Z",
+  "wall_minutes": 9.34,
+  "tokens_in": 9128790,
+  "tokens_out": 43748,
+  "cost_usd": 4.1809,
+  "tool_calls": 66,
+  "task": "xer-schedule-check: contractor's monthly schedule narrative drafted from two P6 updates",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18225",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "guide quoted 'seven activities' missed after the narrative merged a start-and-finish pair into one line; guides.test caught it",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here pointed at open-tennis-robots whose one buildable item is 'a deep socket on an extension' in CAD; five sessions in two days already left the row for the same reason (no market path), and the row's buildable text still invites it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py (Start here: open-tennis-robots)",
+      "why": "The brief asks for revenue-generating products; the row's only buildable item is a CAD spanner detail with no user or market effect, as five earlier runs also judged.",
+      "did": "Took xer-schedule-check (flagship 13), the buildable row with the clearest paid comparables (Acumen Fuse, SmartPM, consultants), and built the contractor's side of the monthly update.",
+      "result": "Landed narrative.mjs, page section, CLI flag, guide page and an 18-run eval on six public files; 365 venture tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-p6-monthly-schedule-narrative-draft.md",
+    "ventures/xer-schedule-check/eval/narrative-check-2026-11-22.md",
+    "ventures/xer-schedule-check/how-to-write-a-monthly-construction-schedule-narrative.html"
+  ],
+  "goal": "Add a contractor-side deliverable (the monthly schedule narrative most specs require) to the flagship with the clearest paid market among the buildable rows",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py xer-schedule-check -> ok (365 tests); node eval/narrative-check.mjs on the six corpus-fetch XERs -> 18 of 18 runs pass (12 planted slips, 15 planted lags, all named with fill-ins); Playwright on the page: example pair -> Download narrative (text/HTML) works, no console errors; check_posts ok; validate.py ok. venture-preflight run in background (see PR). Narrative never invents causes: every cause/reason is a [FILL IN] marker, counted and highlighted. Not yet read by a real scheduler.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8205d750-7391-5a8e-b624-513a8454ae0e",
+    "transcripts": 1,
+    "first": "2026-11-22T08:56:11Z",
+    "last": "2026-11-22T09:05:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 115,
+        "output": 43748,
+        "thinking": 6774,
+        "cache_read": 8938966,
+        "cache_write_5m": 0,
+        "cache_write_1h": 189709,
+        "api_equivalent_usd": 4.1809,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 115,
+      "output": 43748,
+      "thinking": 6774,
+      "cache_read": 8938966,
+      "cache_write_5m": 0,
+      "cache_write_1h": 189709,
+      "api_equivalent_usd": 4.1809,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 60,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.34,
+      "active_minutes": 9.34,
+      "model_minutes": 6.61,
+      "tool_minutes": 2.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior scheduler/developer building the narrative generator, eval on six files, guide and page section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 239.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

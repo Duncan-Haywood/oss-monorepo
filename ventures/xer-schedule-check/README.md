@@ -523,6 +523,29 @@ other activity named either way (eval/evm-series-check-2026-11-20.md).
 planned rate; `overruns` plants a cost factor), so the example series and
 generated series carry actuals.
 
+## Monthly schedule narrative (2026-11-22)
+
+The contractor's side of the monthly update. Most contracts that call for a CPM schedule
+also call for a written narrative with each update (USACE UFGS 01 32 01.00 10's narrative
+report, many state DOT and private specifications), and schedulers build it by hand from P6
+layouts. `narrative.mjs` drafts it from last month's and this month's file, in eight
+sections: status against the must-finish date with the half-step split, the critical path
+and what joined or left it, work started and finished, work forecast and not done, every
+change to durations, logic, lags, constraints, calendars and activities, float used, the
+next N weeks' work (a look-ahead, 4 by default), and edited or future actual dates. Every
+date, activity and day count comes from the files; every cause and reason is a highlighted
+`[FILL IN: ...]`, never a guess, because a narrative is a contract document. Page:
+"Contractor's monthly schedule narrative" under the comparison (print, HTML, text). CLI:
+`node cli.mjs current.xer --previous previous.xer --narrative narrative.html` (or `.txt`).
+`compare()` now also returns `finish.vsMustFinish` and `prevVsMustFinish` (working days
+past the must-finish date). Checked: `narrative.test.mjs`; `eval/narrative-check.mjs` on the
+six public files, each statused 20 working days on with a planted slip on driving work and
+a planted lag on an unstarted driving link (18 runs: every slip under planned work missed and
+every lag under changes, each with a fill-in; one line per change the comparison found;
+identity pair reports nothing; eval/narrative-check-2026-11-22.md). Not yet read by a real
+scheduler or owner's reviewer; the hotel file had no driving work due in the window, so its
+3 runs plant nothing. Guide: `how-to-write-a-monthly-construction-schedule-narrative.html`.
+
 ## Guides (2026-11-21)
 
 Four search-landing guides, linked from the tool page, `sitemap.xml` and `llms.txt`:
@@ -543,6 +566,7 @@ button drifts. Search impressions not measured yet.
 | A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
 | Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, cost resources and fixed costs as P6 expenses, deadlines as finish-on-or-before constraints on request (so P6's float counts down to them as Project's slack does), and a list of what is not carried (elapsed lags, splits) |
+| A narrative written by hand each month from P6 layouts and last month's report | Whatever the scheduler copies across; slow, and easy to miss a change the owner's reviewer will find | The draft narrative from the two XERs: status, critical path, work done and missed, every change with a fill-in for its reason, float, next period, free and in the browser |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |

@@ -38,3 +38,6 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) work contours as P6 curves of Project's measured shape 2026-11-21 (19/19 within 0.035 h, eval/work-contours-2026-11-21.md)
 - (moved 2026-11-22) (1) CPM fourth pass shipped 2026-11-19 (rules 12-16: 19,820 of 19,822, late finish 19,822; eval/cpm-vs-p6-2026-11-19.md); (7) longest path and multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files)
 - (moved 2026-11-22) (9) look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel; eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed activities = P6's); milestone calendars shipped 2026-11-20 (milestones.mjs; eval/milestone-calendars-2026-11-20.md)
+- (moved 2026-11-22) (12) Gantt chart shipped 2026-11-20 (LOE and WBS summary dates = P6's on 305 of 305, eval/gantt-check-2026-11-20.md)
+- (moved 2026-11-22) MSPDI to XER shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md); deadlines in float and XER (eval/deadlines-2026-11-21.md)
+- (moved 2026-11-22) Notebooks <-> task notes 2026-11-21 (88/88 real, 2,006/2,006 planted; eval/notebooks-2026-11-21.md)
