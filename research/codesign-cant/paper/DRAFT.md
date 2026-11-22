@@ -25,9 +25,10 @@ simulator (RotorPy, arm-level ρ 0.94–1.00). The cost is a side force, sin α/
 per unit roll torque, which on a rigid frame hurts position hold on one horizontal axis and helps
 the other. A feed-forward from the attitude integrator cancels it, but CMA-ES tunes that loop onto
 its linear stability boundary, where it survives only because a 20° tilt-command limit contains
-the instability; at PX4's default 45° limit such designs diverge on 13 of 384 held-out flights. An
-11-state linear test added as a training constraint at 0.8× the integral-gain ceiling removes
-those divergences for about 0.7% of held-out cost. Finally, the motor lag: tuned at an unsourced
+the instability; at PX4's default 45° limit such designs diverge on 31 of 640 held-out flights (ten
+seeds). An 11-state linear test added as a training constraint at 0.8× the integral-gain ceiling
+leaves 1 of 640 for about 0.8% of held-out cost, and two of the ten unconstrained tunes diverge even
+at the 20° limit they were tuned at. Finally, the motor lag: tuned at an unsourced
 15 ms, no design is certified, and nearly every stress flight diverges, at the 33–39 ms two
 published identifications give. Retuning shows that
 how the lag is randomised in training matters more than its nominal value: drawing plants exactly
@@ -77,8 +78,8 @@ Contributions:
    angle; the ranking survives an independent simulator, RotorPy [folk2023] (section IV, V).
 3. A linear stability test for the side-force feed-forward, built by stepping the simulator's own update,
    which is necessary but not sufficient, and which, used as a training constraint at 0.8× the
-   integral-gain ceiling, removes the divergences at PX4's 45° tilt limit for about 0.7% of held-out cost
-   (section VI).
+   integral-gain ceiling, cuts the divergences at PX4's 45° tilt limit from 31 to 1 of 640 for about 0.8%
+   of held-out cost (section VI, ten seeds).
 4. A measured rule for the motor-lag randomisation range when only a published identification is known:
    floor at the slowest identified lag, ceiling at 3–4× it; drawing plants exactly across the identified
    range is the worst choice tested (section VII).
@@ -350,31 +351,40 @@ This matters for deployment because 20° is not a typical setting. PX4's maximum
 and acceleration modes, `MPC_TILTMAX_AIR`, defaults to 45° with a floor of 20° [px4tilt], and
 ArduPilot's `ANGLE_MAX` defaults to 30° [ardupilotangle]. At 45°, the designs CMA-ES tuned onto
 the ceiling diverge on 13 of 384 held-out flights and their position error rises from 0.105 m to
-0.257 m (`m7e_margin/tilt.txt`). A design that looks safe in a simulator with a tight tilt limit
+0.257 m (`m7e_margin/tilt.txt`, six seeds; 31 of 640 at ten, Table VI-1). A design that looks safe in a simulator with a tight tilt limit
 inherits a failure mode at a stock autopilot setting.
 
 **The certificate as a training constraint, and how much margin.** We reject any CMA-ES candidate
 whose linear model is unstable at a plant corner at k_i·M, for margins M from 1.0 to 1.67 (the
-rejected candidate is not simulated; milestones 7e and 7f, six seeds each, 3,200 evaluations).
-The optimiser sits on whatever bound it is given (ceiling multiples 1.26–1.30 at M = 1.25), so the
-margin is the design parameter. Table VI-1 gives the held-out result at PX4's default 45° limit
-and at twice the trained centre-of-pressure lever, outside training (`m7f_sweep/results.txt`).
+rejected candidate is not simulated; milestones 7e and 7f at seeds 0–5, milestone 12b at 6–9, ten
+seeds per arm, 3,200 evaluations). The optimiser sits on whatever bound it is given (ceiling
+multiples 1.26–1.31 at M = 1.25, in 10 of 10 seeds), so the margin is the design parameter. Table
+VI-1 gives the held-out result at the trained 20° limit, at PX4's default 45° limit and at twice the
+trained centre-of-pressure lever, outside training (`m12b_ten_seeds_vi/stats.txt`).
 
 | ki bound (× ceiling) | none | 1.0 | 0.9 | 0.8 | 0.7 | 0.6 |
 |---|---|---|---|---|---|---|
-| diverged of 384, 45°, trained lever | 13 | 9 | 3 | 0 | 0 | 0 |
-| diverged of 384, 45°, twice the lever | 45 | 32 | 22 | 12 | 13 | 12 |
-| held-out J − unconstrained, 20°, trained lever | 0 | −0.001 | −0.012 | −0.011 | −0.010 | −0.012 |
+| diverged of 640, 20°, trained lever | 2 | 0 | 0 | 0 | 0 | 0 |
+| diverged of 640, 45°, trained lever | 31 | 19 | 6 | 1 | 1 | 0 |
+| diverged of 640, 45°, twice the lever | 83 | 62 | 39 | 23 | 23 | 23 |
+| held-out J − unconstrained, 20°, trained lever (8 seeds) | 0 | −0.003 | −0.010 | −0.012 | −0.009 | −0.011 |
 
-Robustness has a knee at 0.8× and costs the same from 0.9× down to 0.6×, about 0.011 in J (0.7%)
-with position error 0.105 m in every arm: the other gains take up the integral gain's slack.
-Requiring only stability at every corner (M = 1.0) removes a third of the 45° divergences, not all
-of them. Training stays cheap: 10–15% of candidates are rejected and wall time is no worse than
+Robustness has a knee at 0.8×: at 45° the arms at 0.8× and tighter beat the unconstrained designs
+in 10 of 10 seeds (Wilcoxon p = 0.002, mean held-out J +1.9 to +2.0), while 0.9× still diverges on
+6 of 640. Below 0.8× nothing improves further. The cost row is post hoc: it pairs each arm with
+the unconstrained designs over the eight seeds whose unconstrained tune never diverged at the
+trained condition. There 0.8× costs 0.012 in J (0.8%; 95% interval 0.008–0.016, worse in 8 of 8,
+p = 0.008), with position error 0.105 m in every arm: the other gains take up the integral gain's
+slack. Over all ten seeds the constrained arms are cheaper on average (+0.076 to +0.082, p ≥ 0.43),
+because two of the ten unconstrained tunes (seeds 6 and 9) each diverge on one of 64 flights at the
+20° limit they were trained at; the six seeds of milestones 7b–7f had shown none. The linear check
+is therefore not only insurance against a looser tilt limit. Requiring only stability at every
+corner (M = 1.0) removes about two fifths of the 45° divergences (31 to 19), not all of them. Training stays cheap: 10–15% of candidates are rejected and wall time is no worse than
 unconstrained, since a rejected candidate costs one eigenvalue check of an 11×11 matrix at eight
 corners instead of a 16-episode rollout.
 
-**What it does not fix.** At twice the trained lever a floor of 12–13 divergences in 384 remains at
-every bound from 0.8× down (Table VI-1, second row). No ki margin moves it, so it is not an
+**What it does not fix.** At twice the trained lever a floor of 23 divergences in 640 remains at
+every bound from 0.8× down (Table VI-1, third row). No ki margin moves it, so it is not an
 integral-gain effect. Milestone 7g traced it to torque authority (`m7g_lever2/results.txt`): every
 one of these flights tips past 60° rather than drifting, the gust torque peaks at a median 0.87–0.88
 of the plant's torque limit in the dying flights at 45° against 0.50 in the survivors, and an ideal
@@ -578,7 +588,8 @@ each propeller by momentum-theory exponents. The motor lag is the only uncertain
 randomisation range was swept, and its ceilings are brackets, not sourced values.
 
 **Seeds and tests.** Milestones 1, 2 and 4 use ten seeds, with exact Wilcoxon tests and bootstrap intervals in
-sections IV and V (`m12_ten_seeds`). Milestones 6–7ac use six per arm, below the proposal's ten for paper figures;
+sections IV and V (`m12_ten_seeds`), and so does section VI's Table VI-1 (`m12b_ten_seeds_vi`), whose ten seeds
+showed two unconstrained tunes diverging at their trained tilt limit that six had not. Milestones 7c, 7d, 7g and 7s–7ac use six per arm, below the proposal's ten for paper figures;
 section VII pools the two centre-of-pressure geometries to reach twelve. The five-seed reading of milestone 2
 overstated cant's gain from the shared polytope (6.08° against 4.98° at ten seeds), a reminder that the six-seed
 sections may move too. Every result in sections
@@ -590,7 +601,7 @@ within episode noise. The 135 ms lag of milestone 7ag was fitted post hoc; miles
 replaced it with an identified and then a computed lag, scored against rise times already published.
 
 **The certificate.** The stability test checks the eight corners of the plant box, a sampled test
-[bartlett1988]. It is necessary, not sufficient (section VI), and the 12–13 divergences in 384 at twice
+[bartlett1988]. It is necessary, not sufficient (section VI), and the 23 divergences in 640 at twice
 the trained lever are a torque-authority limit no gain margin removes.
 
 **No hardware.** Milestone 8, an owner step (printed motor mounts at 0° and at the co-designed angle, a load
@@ -610,7 +621,7 @@ it flies. The hardware check is next.
 
 ## Still to do before submission
 
-- Ten seeds for sections VI–VII (milestones 1, 2, 4 and 5 have ten, with Wilcoxon tests and bootstrap intervals, since 2026-11-21).
+- Ten seeds for section VII and for milestones 7c, 7d and 7g of section VI (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
   set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; twelve seeds per geometry at 125 and 150 ms.

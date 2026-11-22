@@ -65,10 +65,15 @@ CHECKS = [
     ("(median RMS 0.110 m)", "m7d_clip/diag.txt", r"\[1\.25x\]\n  clip   20 deg,  6 s: dead \[0, 0, 0, 0, 0, 0\] \(total 0\); pos 0\.110; att 8\.73"),
     ("against 3.63°", "m7d_clip/diag.txt", r"\[0\.8x\]\n  clip   20 deg,  6 s: dead \[0, 0, 0, 0, 0, 0\] \(total 0\); pos 0\.103; att 3\.63"),
     ("from 0.105 m to\n0.257 m", "m7e_margin/tilt.txt", r"tilt cap   45 deg, lever 0, above unconstrained: diverged  13 of 384 \[[^\]]*\]; pos 0\.257 m"),
-    ("ceiling multiples 1.26–1.30", "m7e_margin/results.txt", r"ceil 1\.27, 1\.28, 1\.30, 1\.28, 1\.26, 1\.30"),
-    # section VI: table VI-1 (milestone 7f), one check per arm
-    ("| 13 | 9 | 3 | 0 | 0 | 0 |", "m7f_sweep/results.txt", r"\[unconstrained\][^\n]*(?:\n[^\n]*)*?cap 45, lever 0: [^\n]*dead 13 "),
-    ("| 45 | 32 | 22 | 12 | 13 | 12 |", "m7f_sweep/results.txt", r"\[unconstrained\][^\n]*(?:\n[^\n]*)*?cap 45, lever 2: [^\n]*dead 45 "),
+    # section VI: table VI-1 at ten seeds (milestone 12b; milestones 7b, 7e, 7f at seeds 0-5), one check per arm below
+    ("| 2 | 0 | 0 | 0 | 0 | 0 |", "m12b_ten_seeds_vi/stats.txt", r"\[unconstrained\][^\n]*\n  cap 20, lever 0: [^\n]*dead 2 "),
+    ("| 31 | 19 | 6 | 1 | 1 | 0 |", "m12b_ten_seeds_vi/stats.txt", r"\[unconstrained\][^\n]*(?:\n[^\n]*)*?cap 45, lever 0: [^\n]*dead 31 "),
+    ("| 83 | 62 | 39 | 23 | 23 | 23 |", "m12b_ten_seeds_vi/stats.txt", r"\[unconstrained\][^\n]*(?:\n[^\n]*)*?cap 45, lever 2: [^\n]*dead 83 "),
+    ("ceiling\nmultiples 1.26–1.31 at M = 1.25, in 10 of 10 seeds", "m12b_ten_seeds_vi/stats.txt", r"\[M=1\.25\] ceil 1\.27, 1\.28, 1\.30, 1\.28, 1\.26, 1\.30, 1\.26, 1\.31, 1\.27, 1\.26;"),
+    ("(Wilcoxon p = 0.002, mean held-out J +1.9 to +2.0)", "m12b_ten_seeds_vi/stats.txt", r"\[M=1\.25\][^\n]*(?:\n[^\n]*)*?cap 45, lever 0: J [^;]*; minus unconstrained \+1\.913 [^\n]*p=0\.002 better 10/10[\s\S]*\[M=1\.67\][^\n]*(?:\n[^\n]*)*?cap 45, lever 0: J [^;]*; minus unconstrained \+1\.975 [^\n]*p=0\.002 better 10/10"),
+    ("(0.8%; 95% interval 0.008–0.016, worse in 8 of 8,\np = 0.008)", "m12b_ten_seeds_vi/stats.txt", r"  \[M=1\.25\] -0\.0121 \[-0\.0157, -0\.0080\] p=0\.0078 worse in 8 of 8"),
+    ("(+0.076 to +0.082, p ≥ 0.43)", "m12b_ten_seeds_vi/stats.txt", r"\[M=1\.00\][^\n]*(?:\n[^\n]*)*?cap 20, lever 0: J [^;]*; minus unconstrained \+0\.082 [^\n]*p=0\.695"),
+    ("31 of 640 held-out flights (ten\nseeds)", "m12b_ten_seeds_vi/stats.txt", r"\| diverged, 45 deg, trained lever \(of 640\) \| 31 \| 19 \| 6 \| 1 \| 1 \| 0 \|"),
     # section VII: the lag law and the sourced lag (milestones 7s, 7t)
     ("at most 1 of 72", "m7s_lag/verdicts.txt", r"aware src_li \[src_li\]: [^\n]*30 ms, b 0 0, 30 ms, b 1\.5 0, 30 ms, b 3 1\n"),
     ("374 and 376 of 384", "m7t_lag_src/verdicts.txt", r"T2 held: [^\n]*aware above 63 vs 374; aware below 82 vs 376"),
@@ -123,7 +128,8 @@ CHECKS = [
     ("2 of 10 INDI seeds lose their advantage", "m5_rotorpy/results.txt", r"indi: stylised -4\.15 \(10/10\); torque -1\.92 \(8/10\)"),
     ("puts 36 of 36 designs within 0.10 s of their flown rise in all seven conditions", "m7ai_lag_model/verdicts.txt", r"AI4 [^\n]*held; fewest 36/36"),
 ]
-ARMS = [("M=1.00", -0.001, 9, 32), ("M=1.11", -0.012, 3, 22), ("M=1.25", -0.011, 0, 12), ("M=1.43", -0.010, 0, 13), ("M=1.67", -0.012, 0, 12)]
+# Table VI-1 at ten seeds: (arm, post hoc 8-seed paired J at 20 deg lever 0, dead of 640 at 45 deg lever 0, at 45 deg lever 2)
+ARMS = [("M=1.00", -0.0033, 19, 62), ("M=1.11", -0.0100, 6, 39), ("M=1.25", -0.0121, 1, 23), ("M=1.43", -0.0086, 1, 23), ("M=1.67", -0.0113, 0, 23)]
 
 
 # section VII: table VII-1 is generated from the results files by table7() and must appear in DRAFT.md verbatim.
@@ -179,12 +185,12 @@ def main():
             bad.append(f"DRAFT.md no longer quotes {quote!r}")
         if not re.search(rx, open(os.path.join(EXP, path)).read()):
             bad.append(f"{path} no longer matches {rx!r} (quoted as {quote!r})")
-    sweep = open(os.path.join(EXP, "m7f_sweep", "results.txt")).read()
+    sweep = open(os.path.join(EXP, "m12b_ten_seeds_vi", "stats.txt")).read()
     for lab, dj, d45, d45l2 in ARMS:
-        block = sweep.split(f"[{lab}]")[1].split("\n\n")[0]
-        for rx in (rf"cap 20, lever 0: J [^;]*; minus unconstrained {dj:+.3f} ", rf"cap 45, lever 0: [^\n]*dead {d45} ", rf"cap 45, lever 2: [^\n]*dead {d45l2} "):
-            if not re.search(rx, block):
-                bad.append(f"m7f_sweep/results.txt [{lab}] no longer matches {rx!r}")
+        block = sweep.split(f"[{lab}] ceil")[1].split("\n\n")[0]
+        for rx, txt in ((rf"  \[{re.escape(lab)}\] {dj:+.4f} ", sweep), (rf"cap 45, lever 0: [^\n]*dead {d45} ", block), (rf"cap 45, lever 2: [^\n]*dead {d45l2} ", block)):
+            if not re.search(rx, txt):
+                bad.append(f"m12b_ten_seeds_vi/stats.txt [{lab}] no longer matches {rx!r}")
     m7g = open(os.path.join(EXP, "m7g_lever2", "results.txt")).read()
     base45, ideal45, room45, peaks = 0, 0, 0, []
     for lab in ("M=1.25", "M=1.43", "M=1.67"):
@@ -197,7 +203,7 @@ def main():
     for q in ("from 37 to\n8", "0.87–0.88", "against 0.50 in the survivors"):
         if q not in draft:
             bad.append(f"DRAFT.md no longer quotes {q!r}")
-    row = "| held-out J − unconstrained, 20°, trained lever | 0 | " + " | ".join(f"{a[1]:.3f}".replace("-", "−") for a in ARMS) + " |"
+    row = "| held-out J − unconstrained, 20°, trained lever (8 seeds) | 0 | " + " | ".join(f"{a[1]:.3f}".replace("-", "−") for a in ARMS) + " |"
     if row not in draft:
         bad.append(f"DRAFT.md table row differs from results: expected {row!r}")
     for r in table7():
