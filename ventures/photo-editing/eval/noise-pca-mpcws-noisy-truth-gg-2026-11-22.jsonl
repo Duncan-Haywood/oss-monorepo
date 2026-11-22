@@ -1,0 +1,67 @@
+{"file": "Canon EOS 350D.CR2", "tile": [48, 192], "iso": 400, "exposure": 0.003125, "truth_sigma18": 0.003095, "raw_grain18": 0.002043, "gg18": 0.00327, "t": 0.5998, "g": 1.7262, "spread": 1.0}
+{"file": "Canon EOS 600D.CR2", "tile": [192, 408], "iso": 200, "exposure": 0.008, "truth_sigma18": 0.004962, "raw_grain18": 0.002006, "gg18": 0.004369, "t": 0.7633, "g": 2.2607, "spread": 1.0}
+{"file": "Canon EOS 7D.cr2", "tile": [192, 408], "iso": 160, "exposure": 0.003125, "truth_sigma18": 0.001474, "raw_grain18": 0.000714, "gg18": 0.007577, "t": 0.949, "g": 0.9303, "spread": 1.0}
+{"file": "Canon EOS 70D.cr2", "tile": [216, 444], "iso": 200, "exposure": 0.2, "truth_sigma18": 0.002092, "raw_grain18": 0.002108, "gg18": 0.003571, "t": 1.0397, "g": 3.1086, "spread": 1.0}
+{"file": "DJI Phantom 4 (1).dng", "tile": [132, 258], "iso": 100, "exposure": 0.002141, "truth_sigma18": 0.001208, "raw_grain18": 0.001293, "gg18": 0.00248, "t": 0.3008, "g": 0.8029, "spread": 1.0}
+{"file": "FujiFilm FinePix S5500.raf", "tile": [0, 72], "iso": null, "exposure": null, "truth_sigma18": 0.001634, "raw_grain18": 0.002523, "gg18": 0.008673, "t": 0.6146, "g": 1.5944, "spread": 1.0}
+{"file": "DJI Phantom 4 (2).dng", "tile": [132, 258], "iso": 100, "exposure": 0.001457, "truth_sigma18": 0.001105, "raw_grain18": 0.001141, "gg18": 0.002006, "t": 0.3011, "g": 0.8004, "spread": 1.0}
+{"file": "FujiFilm EX-2.raf", "tile": [168, 372], "iso": null, "exposure": null, "truth_sigma18": 0.000982, "raw_grain18": null, "gg18": null, "t": null, "g": null, "spread": 1.0}
+{"file": "Fujifilm X-E1.raf", "tile": [168, 378], "iso": null, "exposure": null, "truth_sigma18": 0.005835, "raw_grain18": null, "gg18": null, "t": null, "g": null, "spread": 1.0}
+{"file": "LG Nexus 5X.dng", "tile": [138, 264], "iso": null, "exposure": null, "truth_sigma18": 0.002552, "raw_grain18": 0.002534, "gg18": 0.003653, "t": 0.5858, "g": 1.5973, "spread": 1.0}
+{"file": "Leica X VARIO (Typ 107).dng", "tile": [168, 378], "iso": 1000, "exposure": 0.0125, "truth_sigma18": 0.008718, "raw_grain18": 0.002255, "gg18": 0.012257, "t": 0.5089, "g": 1.1888, "spread": 1.0}
+{"file": "Leica T (Typ 701).dng", "tile": [168, 378], "iso": 200, "exposure": 0.00625, "truth_sigma18": 0.000701, "raw_grain18": 0.00118, "gg18": 0.002146, "t": 0.2778, "g": 0.8, "spread": 1.0}
+{"file": "Nikon D300.nef", "tile": [114, 300], "iso": 200, "exposure": 0.008, "truth_sigma18": 0.003903, "raw_grain18": 0.001937, "gg18": 0.005975, "t": 1.5854, "g": 4.7291, "spread": 1.0}
+{"file": "Nikon D70.nef", "tile": [6, 138], "iso": null, "exposure": 0.00015625, "truth_sigma18": 0.000872, "raw_grain18": 0.000971, "gg18": 0.003566, "t": 0.2799, "g": 0.8, "spread": 1.0}
+{"file": "Nikon D5100.nef", "tile": [168, 378], "iso": 200, "exposure": 0.00625, "truth_sigma18": 0.000731, "raw_grain18": 0.001475, "gg18": 0.002625, "t": 0.6459, "g": 1.908, "spread": 1.0}
+{"file": "Nikon D90.nef", "tile": [114, 294], "iso": 250, "exposure": 0.07692307692307693, "truth_sigma18": 0.003547, "raw_grain18": 0.002292, "gg18": 0.005165, "t": 1.6103, "g": 4.8066, "spread": 1.0}
+{"file": "Nikon 800E.nef", "tile": [372, 678], "iso": 400, "exposure": 0.0015625, "truth_sigma18": 0.002002, "raw_grain18": 0.002051, "gg18": 0.003571, "t": 0.9857, "g": 2.9117, "spread": 1.07}
+{"file": "Nikon 800E.nef", "tile": [0, 0], "iso": 400, "exposure": 0.0015625, "truth_sigma18": 0.001925, "raw_grain18": 0.002293, "gg18": 0.002193, "t": 0.9857, "g": 2.9117, "spread": 1.07}
+{"file": "Nikon 800E.nef", "tile": [0, 1362], "iso": 400, "exposure": 0.0015625, "truth_sigma18": 0.001869, "raw_grain18": 0.001811, "gg18": 0.002308, "t": 0.9857, "g": 2.9117, "spread": 1.07}
+{"file": "NikonD200.nef", "tile": [84, 246], "iso": 200, "exposure": 0.004, "truth_sigma18": 0.002423, "raw_grain18": 0.002224, "gg18": 0.002339, "t": 0.99, "g": 2.9167, "spread": 1.0}
+{"file": "Olympus C5050Z.orf", "tile": [0, 78], "iso": null, "exposure": null, "truth_sigma18": 0.002484, "raw_grain18": 0.002916, "gg18": 0.005313, "t": 0.8501, "g": 2.4017, "spread": 1.0}
+{"file": "OM System TG-7.ORF", "tile": [132, 258], "iso": null, "exposure": null, "truth_sigma18": 0.002336, "raw_grain18": 0.003729, "gg18": 0.005763, "t": 1.1324, "g": 2.8621, "spread": 1.0}
+{"file": "Nikon D810.nef", "tile": [372, 678], "iso": 100, "exposure": 0.00125, "truth_sigma18": 0.000993, "raw_grain18": 0.000459, "gg18": 0.002922, "t": 0.271, "g": 0.8, "spread": 2.71}
+{"file": "Nikon D810.nef", "tile": [0, 0], "iso": 100, "exposure": 0.00125, "truth_sigma18": 0.000366, "raw_grain18": 0.000605, "gg18": 0.000929, "t": 0.271, "g": 0.8, "spread": 2.71}
+{"file": "Nikon D810.nef", "tile": [0, 1362], "iso": 100, "exposure": 0.00125, "truth_sigma18": 0.00061, "raw_grain18": 0.000569, "gg18": 0.000681, "t": 0.271, "g": 0.8, "spread": 2.71}
+{"file": "Olympus C8080.orf", "tile": [66, 168], "iso": null, "exposure": null, "truth_sigma18": 0.001018, "raw_grain18": 0.001158, "gg18": 0.002759, "t": 0.2894, "g": 0.8, "spread": 1.0}
+{"file": "OM Sytem OM-1.orf", "tile": [246, 408], "iso": null, "exposure": null, "truth_sigma18": 0.001217, "raw_grain18": 0.001365, "gg18": 0.004901, "t": 0.3058, "g": 0.8001, "spread": 1.0}
+{"file": "Olympus E-M10.orf", "tile": [192, 336], "iso": null, "exposure": null, "truth_sigma18": 0.001348, "raw_grain18": 0.001092, "gg18": 0.006507, "t": 0.7471, "g": 2.2126, "spread": 1.0}
+{"file": "Olympus E-M5.orf", "tile": [192, 336], "iso": null, "exposure": null, "truth_sigma18": 0.001464, "raw_grain18": 0.001083, "gg18": 0.003363, "t": 1.1826, "g": 3.5303, "spread": 1.0}
+{"file": "Olympus E-PM1.orf", "tile": [138, 264], "iso": null, "exposure": null, "truth_sigma18": 0.00122, "raw_grain18": 0.000684, "gg18": 0.00412, "t": 0.5225, "g": 1.5975, "spread": 1.0}
+{"file": "Olympus E-PL7.orf", "tile": [192, 336], "iso": null, "exposure": null, "truth_sigma18": 0.002088, "raw_grain18": 0.000835, "gg18": 0.005403, "t": 0.586, "g": 1.7179, "spread": 1.0}
+{"file": "Olympus E30.orf", "tile": [144, 270], "iso": null, "exposure": null, "truth_sigma18": 0.001855, "raw_grain18": 0.002279, "gg18": 0.005406, "t": 1.249, "g": 3.6191, "spread": 1.0}
+{"file": "Olympus E410.orf", "tile": [108, 222], "iso": null, "exposure": null, "truth_sigma18": 0.001671, "raw_grain18": 0.001451, "gg18": 0.004101, "t": 0.4414, "g": 0.9997, "spread": 1.0}
+{"file": "Olympus E600.orf", "tile": [144, 270], "iso": null, "exposure": null, "truth_sigma18": 0.000679, "raw_grain18": 0.001359, "gg18": 0.001648, "t": 0.4031, "g": 1.1681, "spread": 1.0}
+{"file": "Olympus PEN E-P3.orf", "tile": [138, 264], "iso": null, "exposure": null, "truth_sigma18": 0.002688, "raw_grain18": 0.006565, "gg18": 0.009415, "t": 0.8819, "g": 2.245, "spread": 1.0}
+{"file": "Olympus SP350.orf", "tile": [66, 168], "iso": null, "exposure": null, "truth_sigma18": 0.001641, "raw_grain18": 0.002083, "gg18": 0.00295, "t": 0.3024, "g": 0.8385, "spread": 1.0}
+{"file": "Olympus SP500UZ.orf", "tile": [24, 114], "iso": null, "exposure": null, "truth_sigma18": 0.001464, "raw_grain18": 0.002146, "gg18": 0.004005, "t": 0.4057, "g": 1.1333, "spread": 1.0}
+{"file": "Olympus Pen E-PL1.orf", "tile": [144, 270], "iso": null, "exposure": null, "truth_sigma18": 0.001028, "raw_grain18": 0.001238, "gg18": 0.003928, "t": 0.5405, "g": 1.5876, "spread": 1.0}
+{"file": "Olympus TG-6.ORF", "tile": [132, 258], "iso": null, "exposure": null, "truth_sigma18": 0.003891, "raw_grain18": 0.004673, "gg18": 0.00304, "t": 1.2379, "g": 2.8046, "spread": 1.0}
+{"file": "Olympus TG-4.orf", "tile": [192, 336], "iso": null, "exposure": null, "truth_sigma18": 0.010535, "raw_grain18": 0.026314, "gg18": 0.055957, "t": 0.6995, "g": 0.7976, "spread": 1.0}
+{"file": "Olympus XZ1.orf", "tile": [102, 216], "iso": null, "exposure": null, "truth_sigma18": 0.00227, "raw_grain18": 0.002279, "gg18": 0.011809, "t": 0.7638, "g": 0.8416, "spread": 1.0}
+{"file": "Panasonic DMC-GF1.rw2", "tile": [132, 258], "iso": null, "exposure": null, "truth_sigma18": 0.008455, "raw_grain18": 0.00199, "gg18": 0.010359, "t": 0.6793, "g": 1.864, "spread": 1.0}
+{"file": "Panasonic Lumix DMC-LX7.rw2", "tile": [102, 216], "iso": null, "exposure": null, "truth_sigma18": 0.004477, "raw_grain18": 0.009815, "gg18": 0.051123, "t": 0.3381, "g": 0.8178, "spread": 1.0}
+{"file": "Panasonic DMC-GF3.rw2", "tile": [96, 258], "iso": null, "exposure": null, "truth_sigma18": 0.001387, "raw_grain18": 0.001604, "gg18": 0.003315, "t": 0.4118, "g": 1.1212, "spread": 1.0}
+{"file": "Panasonic DMC-GF7.rw2", "tile": [192, 336], "iso": null, "exposure": null, "truth_sigma18": 0.007996, "raw_grain18": 0.00629, "gg18": 0.041853, "t": 0.4211, "g": 0.8058, "spread": 1.0}
+{"file": "Pentax QS1.dng", "tile": [132, 258], "iso": 100, "exposure": 0.004, "truth_sigma18": 0.007394, "raw_grain18": 0.001194, "gg18": 0.008784, "t": 0.5385, "g": 1.496, "spread": 1.0}
+{"file": "Pentax K-1 Mark II.pef", "tile": [372, 678], "iso": null, "exposure": null, "truth_sigma18": 0.012965, "raw_grain18": 0.011263, "gg18": 0.001761, "t": 11.1486, "g": 33.0978, "spread": 2.15}
+{"file": "Pentax K-1 Mark II.pef", "tile": [0, 0], "iso": null, "exposure": null, "truth_sigma18": 0.027889, "raw_grain18": 0.007044, "gg18": 0.013009, "t": 11.1486, "g": 33.0978, "spread": 2.15}
+{"file": "Pentax K-1 Mark II.pef", "tile": [0, 1362], "iso": null, "exposure": null, "truth_sigma18": 0.022732, "raw_grain18": 0.006561, "gg18": 0.013859, "t": 11.1486, "g": 33.0978, "spread": 2.15}
+{"file": "Samsung EK-GN120 (Galaxy NX).srw", "tile": [222, 450], "iso": null, "exposure": null, "truth_sigma18": 0.003477, "raw_grain18": 0.001425, "gg18": 0.006823, "t": 0.5331, "g": 1.4044, "spread": 1.0}
+{"file": "Samsung NX20.srw", "tile": [216, 450], "iso": null, "exposure": null, "truth_sigma18": 0.001939, "raw_grain18": 0.001307, "gg18": 0.002789, "t": 0.6018, "g": 1.6541, "spread": 1.0}
+{"file": "Sony DSLR-A500.arw", "tile": [114, 288], "iso": null, "exposure": null, "truth_sigma18": 0.001466, "raw_grain18": 0.001566, "gg18": 0.006183, "t": 0.7413, "g": 2.2217, "spread": 1.0}
+{"file": "Samsung NX1.srw", "tile": [300, 570], "iso": null, "exposure": null, "truth_sigma18": 0.001507, "raw_grain18": 0.001335, "gg18": 0.003684, "t": 0.6689, "g": 2.0122, "spread": 1.75}
+{"file": "Samsung NX1.srw", "tile": [0, 0], "iso": null, "exposure": null, "truth_sigma18": 0.00111, "raw_grain18": 0.000814, "gg18": 0.002239, "t": 0.6689, "g": 2.0122, "spread": 1.75}
+{"file": "Samsung NX1.srw", "tile": [0, 1140], "iso": null, "exposure": null, "truth_sigma18": 0.000859, "raw_grain18": 0.000627, "gg18": 0.001315, "t": 0.6689, "g": 2.0122, "spread": 1.75}
+{"file": "Samsung NX3000.srw", "tile": [210, 438], "iso": null, "exposure": null, "truth_sigma18": 0.003538, "raw_grain18": 0.001537, "gg18": 0.006271, "t": 0.8428, "g": 2.3492, "spread": 1.0}
+{"file": "Sony ILCE-5000 (A5000).arw", "tile": [216, 444], "iso": null, "exposure": null, "truth_sigma18": 0.005693, "raw_grain18": 0.001361, "gg18": 0.008935, "t": 0.7934, "g": 2.3182, "spread": 1.0}
+{"file": "Sony NEX-5N.arw", "tile": [168, 372], "iso": null, "exposure": null, "truth_sigma18": 0.020989, "raw_grain18": 0.003639, "gg18": 0.0158, "t": 1.4735, "g": 4.1346, "spread": 1.0}
+{"file": "Sony ILCE-7M3 (A7M3).arw", "tile": [258, 510], "iso": null, "exposure": null, "truth_sigma18": 0.005466, "raw_grain18": 0.007304, "gg18": 0.007417, "t": 1.993, "g": 5.4236, "spread": 1.69}
+{"file": "Sony ILCE-7M3 (A7M3).arw", "tile": [0, 0], "iso": null, "exposure": null, "truth_sigma18": 0.003263, "raw_grain18": 0.007664, "gg18": 0.007897, "t": 1.993, "g": 5.4236, "spread": 1.69}
+{"file": "Sony ILCE-7M3 (A7M3).arw", "tile": [0, 1026], "iso": null, "exposure": null, "truth_sigma18": 0.005519, "raw_grain18": 0.007411, "gg18": 0.007234, "t": 1.993, "g": 5.4236, "spread": 1.69}
+{"file": "Sony ILCE-7M4 (A7M4).ARW", "tile": [342, 636], "iso": null, "exposure": null, "truth_sigma18": 0.00183, "raw_grain18": 0.001108, "gg18": 0.000594, "t": 1.2954, "g": 3.876, "spread": 1.82}
+{"file": "Sony ILCE-7M4 (A7M4).ARW", "tile": [0, 0], "iso": null, "exposure": null, "truth_sigma18": 0.001039, "raw_grain18": 0.001132, "gg18": 0.001176, "t": 1.2954, "g": 3.876, "spread": 1.82}
+{"file": "Sony ILCE-7M4 (A7M4).ARW", "tile": [0, 1272], "iso": null, "exposure": null, "truth_sigma18": 0.001006, "raw_grain18": 0.001139, "gg18": 0.001197, "t": 1.2954, "g": 3.876, "spread": 1.82}
+{"file": "Sony NEX-7.arw", "tile": [258, 510], "iso": null, "exposure": null, "truth_sigma18": 0.004102, "raw_grain18": 0.004664, "gg18": 0.005661, "t": 1.4629, "g": 4.0522, "spread": 1.45}
+{"file": "Sony NEX-7.arw", "tile": [0, 0], "iso": null, "exposure": null, "truth_sigma18": 0.003711, "raw_grain18": 0.005587, "gg18": 0.006041, "t": 1.4629, "g": 4.0522, "spread": 1.45}
+{"file": "Sony NEX-7.arw", "tile": [0, 1026], "iso": null, "exposure": null, "truth_sigma18": 0.002834, "raw_grain18": 0.005706, "gg18": 0.005632, "t": 1.4629, "g": 4.0522, "spread": 1.45}
