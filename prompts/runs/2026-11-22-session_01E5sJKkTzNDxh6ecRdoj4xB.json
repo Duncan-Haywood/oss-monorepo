@@ -1,0 +1,277 @@
+{
+  "date": "2026-11-22",
+  "session": "https://claude.ai/code/session_01E5sJKkTzNDxh6ecRdoj4xB",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-22T03:18:54Z",
+  "ended": "2026-11-22T03:19:23Z",
+  "wall_minutes": 13.3,
+  "tokens_in": 4571513,
+  "tokens_out": 25143,
+  "cost_usd": 2.0702,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18188",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First campaign aimed --target at ventures/changepoint-detector/ga4-metrics.mjs (landed on main today); its suite is the whole venture (node --test ventures/changepoint-detector/**/*.test.mjs) and the baseline timed out at 300 s, about 5 min lost. The file was also missing from `redteam.py targets`, a sign I skipped."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Says to check a --target with `targets --probe 20` first; a newly landed file did not appear in `targets` at all and there is no --test override to run just its own test file, so a fresh venture file whose venture suite is slow cannot be campaigned. Worth a --suite flag in redteam.py (control plane)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix the open list first; 11 of 12 open entries are control-plane edits (.github/ or prompts/) needing their own owner-approved PR, and the 12th (help-keeper stem) needs a help-center eval set first.",
+      "did": "Left them open, spent the run on a fresh campaign and the class fix it led to.",
+      "result": "One real defect class found and fixed across 44 files with a lint."
+    },
+    {
+      "file": "platform/ci/check_main_guard_last.py",
+      "why": "prompts/test_promptctl.py has the same defect but is control plane.",
+      "did": "Listed it in KNOWN; the lint test fails once it is fixed.",
+      "result": "Lint starts green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-22-tests-below-the-main-guard.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/check_main_guard_last.py (+test), picked up by unwired_checks in ventures-tests; first run: 44 offenders on main, 0 after. Verification: python -m unittest on all 13 touched platform/ci suites + new test OK (e.g. test_main_health 18, test_check_storage_guard 46, test_run_venture_tests 49); script-mode counts before/after 7->9, 12->14, 13->16, 19->31, 27->46; pytest on the touched venture/research test files gives identical results before and after the move in every dir (errors there are environment: uninstalled packages, missing yosys); moves checked as pure by sorted non-blank lines.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/main_health.py",
+        "test": "/usr/local/bin/python3 -m unittest test_main_health  (in platform/ci)",
+        "seed": 885625053,
+        "commit": "2a5d14131",
+        "sites": 66,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/main_health.py",
+            "line": 75,
+            "col": 39,
+            "operator": "eq-flip",
+            "before": "return Path(path).parent.resolve() == HERE and Path(path).name.startswith(\"test_\")",
+            "after": "return Path(path).parent.resolve() != HERE and Path(path).name.startswith(\"test_\")",
+            "line_text": "    return Path(path).parent.resolve() == HERE and Path(path).name.startswith(\"test_\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/main_health.py",
+            "line": 91,
+            "col": 52,
+            "operator": "plus-to-minus",
+            "before": "return label(path), r.returncode, (r.stdout + r.stderr).strip()",
+            "after": "return label(path), r.returncode, (r.stdout - r.stderr).strip()",
+            "line_text": "        return label(path), r.returncode, (r.stdout + r.stderr).strip()",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() and run() had no test; MainVerdict / RunCapturesBothStreams in test_main_health.py now run them on a fake platform/ci."
+          },
+          {
+            "file": "platform/ci/main_health.py",
+            "line": 145,
+            "col": 62,
+            "operator": "true-to-false",
+            "before": "print(f\"{status(rc)} {name} (solo re-run)\", flush=True)",
+            "after": "print(f\"{status(rc)} {name} (solo re-run)\", flush=False)",
+            "line_text": "            print(f\"{status(rc)} {name} (solo re-run)\", flush=True)",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "flush=True vs False on a print to stdout: same text, only when it reaches a pipe changes; the final DONE print still flushes, so wait_for.py sees the same log at exit."
+          },
+          {
+            "file": "platform/ci/main_health.py",
+            "line": 152,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() and run() had no test; MainVerdict / RunCapturesBothStreams in test_main_health.py now run them on a fake platform/ci."
+          },
+          {
+            "file": "platform/ci/main_health.py",
+            "line": 160,
+            "col": 17,
+            "operator": "div-to-times",
+            "before": "+ [(ROOT / p, *a) for p, *a in EXTRA]",
+            "after": "+ [(ROOT * p, *a) for p, *a in EXTRA]",
+            "line_text": "        + [(ROOT / p, *a) for p, *a in EXTRA]",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() and run() had no test; MainVerdict / RunCapturesBothStreams in test_main_health.py now run them on a fake platform/ci."
+          },
+          {
+            "file": "platform/ci/main_health.py",
+            "line": 195,
+            "col": 38,
+            "operator": "neq-flip",
+            "before": "bad = [r for r in results if r[1] != 0 and not pending[r[0]]]",
+            "after": "bad = [r for r in results if r[1] == 0 and not pending[r[0]]]",
+            "line_text": "    bad = [r for r in results if r[1] != 0 and not pending[r[0]]]",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() and run() had no test; MainVerdict / RunCapturesBothStreams in test_main_health.py now run them on a fake platform/ci."
+          },
+          {
+            "file": "platform/ci/main_health.py",
+            "line": 195,
+            "col": 61,
+            "operator": "const-plus-one",
+            "before": "bad = [r for r in results if r[1] != 0 and not pending[r[0]]]",
+            "after": "bad = [r for r in results if r[1] != 0 and not pending[r[1]]]",
+            "line_text": "    bad = [r for r in results if r[1] != 0 and not pending[r[0]]]",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() and run() had no test; MainVerdict / RunCapturesBothStreams in test_main_health.py now run them on a fake platform/ci."
+          },
+          {
+            "file": "platform/ci/main_health.py",
+            "line": 205,
+            "col": 13,
+            "operator": "plus-to-minus",
+            "before": "+ (f\", {len(suites)} portfolio test files no PR workflow runs\" if suites else \"\")",
+            "after": "- (f\", {len(suites)} portfolio test files no PR workflow runs\" if suites else \"\")",
+            "line_text": "             + (f\", {len(suites)} portfolio test files no PR workflow runs\" if suites else \"\")",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() and run() had no test; MainVerdict / RunCapturesBothStreams in test_main_health.py now run them on a fake platform/ci."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/test_main_health.py (+43 more test files)",
+        "issue": "Test classes/functions defined after `if __name__ == \"__main__\": unittest.main()`, so `python3 test_x.py` ran only part of the file and printed OK (test_main_health 7/14, test_check_storage_guard 27/46). Guard moved to the end in 44 files; lint platform/ci/check_main_guard_last.py added.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18188"
+      },
+      {
+        "file": "prompts/test_promptctl.py",
+        "issue": "Same defect: MeasureToleratesFreeTextEntriesTest and LastChangeIndexTest sit below the __main__ guard (line 689). Fix: move the guard block to the end of the file and delete prompts/test_promptctl.py from KNOWN in platform/ci/check_main_guard_last.py (test_repository_is_clean_apart_from_known then passes). Control plane: own PR, owner approval.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b4e65d8d-40a3-5a66-bd83-7071548497e0",
+    "transcripts": 1,
+    "first": "2026-11-22T03:18:54Z",
+    "last": "2026-11-22T03:32:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 103,
+        "output": 25143,
+        "thinking": 5037,
+        "cache_read": 4487737,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83673,
+        "api_equivalent_usd": 2.0702,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 103,
+      "output": 25143,
+      "thinking": 5037,
+      "cache_read": 4487737,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83673,
+      "api_equivalent_usd": 2.0702,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 50,
+      "Write": 3,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.3,
+      "active_minutes": 13.3,
+      "model_minutes": 4.85,
+      "tool_minutes": 8.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, tests for main(), repo-wide AST scan, 44-file move with verification, lint, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 193.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
