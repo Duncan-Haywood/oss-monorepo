@@ -912,3 +912,31 @@ export function fillClosed(values, labels, closed, { period = null, round = fals
   }
   return { values: out, filled };
 }
+
+/**
+ * `--weekly`: daily rows summed into whole Monday-to-Sunday weeks, each labelled by its Monday (README "Round 7: the
+ * weekly drift watch beside the daily watch"). Labels must start with a date (YYYY-MM-DD); days missing from the
+ * export count as zero (a shop that leaves shut days out). Only weeks wholly inside the export's first and last day are
+ * kept, so a partial first week and the current, unfinished week are left out until they are whole, and a week's total
+ * never changes from one run to the next. Returns { values, labels, weeks, from, to }.
+ */
+export function weeklyTotals(values, labels) {
+  const DAY = 864e5;
+  const t = labels.map((l) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(l).trim());
+    const ms = m ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : NaN;
+    if (!Number.isFinite(ms)) throw new Error(`--weekly needs dated rows (YYYY-MM-DD); "${l}" is not one.`);
+    return ms / DAY;
+  });
+  for (let i = 1; i < t.length; i++) if (!(t[i] > t[i - 1])) throw new Error(`--weekly needs one row per day in date order; ${labels[i]} follows ${labels[i - 1]}.`);
+  if (!t.length) return { values: [], labels: [], weeks: 0, from: null, to: null };
+  const monday = (d) => d - ((new Date(d * DAY).getUTCDay() + 6) % 7);
+  const first = t[0], last = t[t.length - 1];
+  let m0 = monday(first);
+  if (m0 < first) m0 += 7;
+  const sums = new Map();
+  t.forEach((d, i) => { const m = monday(d); if (m >= m0 && m + 6 <= last) sums.set(m, (sums.get(m) ?? 0) + (Number.isFinite(values[i]) ? values[i] : 0)); });
+  const out = [], lab = [];
+  for (let m = m0; m + 6 <= last; m += 7) { out.push(Math.round((sums.get(m) ?? 0) * 1e6) / 1e6); lab.push(new Date(m * DAY).toISOString().slice(0, 10)); }
+  return { values: out, labels: lab, weeks: out.length, from: lab[0] ?? null, to: lab.length ? new Date((m0 + 7 * out.length - 1) * DAY).toISOString().slice(0, 10) : null };
+}

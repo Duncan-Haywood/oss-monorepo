@@ -41,6 +41,7 @@ row below. Every flag's measurements are in the README section named after it.
 | Did the change fall inside a Google update, a release or a price change? | `--events updates.csv` (start[,end],label per line) |
 | ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
 | ...for a level that wanders all the time | `watch.mjs --detector drift` |
+| ...and a slow climb over weeks (a season building) | a second watch on weekly totals beside the daily one: `watch.mjs daily.csv --weekly --detector drift --state weekly.json` (see "Round 7: the weekly drift watch beside the daily watch") |
 | ...counts whose level wanders (traffic, orders) | the count Middle plus `--wander gated` (see "A wandering level under Middle" and "A calmer wander gate") |
 
 `node cli.mjs --help` and `node watch.mjs --help` list every flag.
@@ -9329,3 +9330,70 @@ nothing on a flat series or a clean five-week x1.9 climb, and fires within a wee
 Next (most useful first): a pre-registered round on fresh shops with the weekly drift watch beside the daily watch as
 the arm and bars on x1.9 catches by 8 weeks; a test for a pulse in growth (an epidemic-change statistic on weekly
 growth) in place of `slopeBreaks` for S; why Q's false alerts rise on calmer noise (the level wobble's share).
+
+## Round 7: the weekly drift watch beside the daily watch, on fresh shops of a different make (2026-11-22, pre-registered; K1-K3 pass, `--weekly` ships)
+
+Round 6 saw, on its own shops and after the fact, that the drift watch on weekly totals (**DW**) run beside the daily
+watch (**Q**) heard many more x1.9 climbs. That was a reading, not a test. Round 7 tests it on shops nobody had run.
+
+**Pre-registered** (`eval/weekly-beside.prereg.md`, committed in b96bda767 before the script existed;
+`eval/weekly-beside-sim.mjs`, output `eval/weekly-beside-sim.out.txt`, seed 20261124, 4 min on 4 cores). The shops are
+of a different make from rounds 3 to 6, so a pass does not rest on one generator: a base level from 500 to 50,000 a
+day, weekday factors drawn per shop (`exp(0.25 N(0,1))`), one weekday shut every week in half the shops (any day, not
+only Saturday), day noise from a **Student t with 5 degrees of freedom** (heavier tails than before) at a scale drawn
+from 0.15 to 0.45, the same AR(0.5) level wobble and five one-day closures. 150 unchanged shops, 150 climbs to x1.3 and
+150 to x1.9, each linear in the log over 28 to 56 days from day 200 to 300. Both arms are exactly as shipped and as
+round 6 ran them; nothing was tuned. Caught by 8 weeks: an alert dated from 7 days before the climb to its end and sent
+within 56 days of its first day.
+
+| | Q (daily alone) | Q + DW (daily and weekly) |
+|---|---|---|
+| unchanged shops: false alerts per 100 days | 0.936 | 1.071 |
+| x1.9 climbs heard by 8 weeks (of 150) | 92 | **131** |
+| ... noise scale below 0.30 / 0.30 or more | 47 of 76 / 45 of 74 | 73 / 58 |
+| ... a weekday shut / open every day | 36 of 68 / 56 of 82 | 59 / 72 |
+| x1.3 climbs heard by 8 weeks (of 150) | 65 | 87 |
+| median days from the climb's first day to the first alert that hears it, x1.9 | 21 | 27 |
+
+| bar | result |
+|---|---|
+| K1: on x1.9, Q + DW by 8 weeks at least Q + 15 | 131 against 107: **passes** |
+| K2: false alerts at most Q's + 0.15 per 100 days | 1.071 against 1.086: **passes** (0.135 more, about half an alert a year) |
+| K3: K1's gain at least 5 in each half of the noise scale | +26 and +13: **passes** |
+
+What it shows:
+
+- **The weekly watch's gain replicates on shops of another make**, and is larger with a shut weekday (+23 of 68 against
+  +16 of 82): the daily watch handles a shut day through `--period 7`, while a weekly total does not see it at all.
+- **It is late, as round 6 said.** The extra catches come weeks in: the median first alert among climbs heard moves from
+  21 to 27 days because the climbs only DW hears are heard weeks into the climb. This is a check for the
+  season building, not for a broken checkout.
+- **Q is louder on these shops than on round 6's** (0.94 false alerts per 100 days, against 0.25 to 0.64): heavier
+  tails and uneven weekday patterns cost the daily watch false alerts. DW adds little to that.
+
+**On the real UCI Online Retail shop** (descriptive, read after the bars, nothing decided by it): DW on weekly revenue
+alerts once in 2011, on the autumn build-up dated week of 2011-09-12 and sent 2011-10-10, where the daily watch on
+revenue (the same `replayWatch` setting as Q) sends nothing after 2011-08-16 (that alert is dated 2011-04-18); in the 2009-10 file DW dates the build-up to
+the week of 2010-09-20, sent 2010-10-18, five weeks before the daily watch's 2010-11-26. It also alerts on 2010-02-01
+(sent 2010-03-22) in that file, which no one has labelled.
+
+**What ships.** `watch.mjs --weekly` sums the daily rows into whole Monday-to-Sunday weeks, labelled by their Monday,
+before watching (`weeklyTotals` in `watch-core.mjs`): days missing from the export count as zero, a partial first week
+and the unfinished current week are left out, so a week's total never changes between runs. Run it as a second watch
+with its own state beside the daily one:
+
+```
+node watch.mjs daily.csv --state daily.json --period 7                 # the daily watch, as before
+node watch.mjs daily.csv --state weekly.json --weekly --detector drift  # the weekly watch beside it
+```
+
+It works with `--columns` and `--closed` (closed days are filled first, then summed). The text output starts with a
+`Weekly:` line naming the whole weeks watched; `--json` carries `weekly: { weeks, from, to }`.
+
+**Checked:** `watch-weekly.test.mjs` (7 tests): Monday-to-Sunday weeks and partial weeks left out; missing days count
+zero; whole weeks never change as days are added; undated rows refused; the CLI with one column, `--json` and
+`--columns`; the committed round-7 verdict; the real shop's readings above.
+
+Next (most useful first): the weekly watch on a deployer's real export, and in the GitHub Actions watch (a second step
+with `--weekly`); a pulse-in-growth test (an epidemic-change statistic on weekly growth) to hear x1.3 climbs; why Q's
+false alerts rise on uneven weekday patterns.
