@@ -23,7 +23,7 @@
 
 ## From quality audit round 87 (2026-11-19, `portfolio/quality/audits/2026-11-19-league-schedule-generator-r87.json`)
 
-- (done 2026-11-23) `calc.mjs` split into 15 feature modules, `calc.mjs` re-exports them (README "One file became fifteen"). Left: `schedule.mjs` is 1,969 lines and `divisions.mjs` 2,212; the multi-division page no longer loads the carry-over search (done 2026-11-23, later: `fields.mjs`, 217 to 75 kB gzip, eval/page-weight.txt); and `index.html` could import the feature modules directly.
+- (done 2026-11-23) `calc.mjs` split into 15 feature modules, `calc.mjs` re-exports them (README "One file became fifteen"). Left: `schedule.mjs` is 1,969 lines and `divisions.mjs` 2,212; the multi-division page no longer loads the carry-over search (done 2026-11-23, later: `fields.mjs`, 217 to 75 kB gzip, eval/page-weight.txt); and (done 2026-11-23, latest) `index.html` imports the feature modules directly and loads the carry-over search and night designs on demand, 226 to 110 kB gzip (README "The main page loads half the code").
 - (2026-11-20) also by a base round fixed by multiplier 37 (eval/whist-involution.c, 11 s; 69 too)
 - (2026-11-20) 52, near-whist 58 by starter + table matching (eval/whist-starter.c)
 - (2026-11-20) Americano/Mexicano scorer page 2026-11-19 (americano-night.html, night.mjs: live table, sit-out credit; eval/sit-out-credit.txt)

@@ -1,0 +1,12 @@
+on load: 26 modules
+ok   on load, none of carryover.mjs, nights.mjs, orient.mjs, session-designs.mjs, odd-designs.mjs fetched
+example season: 20 table rows; status: Sample league: invented teams, not a real league.
+ok   the example season builds
+ok   plain example season: still none fetched (none)
+carry-over season: "Carry-over: 42 (lower is fairer; 24 is the floor for this many games, but no 6-team round robi"
+ok   carry-over season shows its carry-over line
+ok   carry-over season: search loaded on demand (carryover.mjs, nights.mjs, orient.mjs, session-designs.mjs, odd-designs.mjs)
+doubleheader season: "2 games a night: 5 round(s) are played over 3 night(s), each team's games back to back where th"
+ok   doubleheader season builds
+ok   no page errors ()
+all ok
