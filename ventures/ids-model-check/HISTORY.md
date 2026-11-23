@@ -35,3 +35,7 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) Model fill 2026-11-21 (model-fill.mjs, cli --fill, page panel: IDS-fixed and table-typed property values into a copy of the .ifc; eval/model-fill-2026-11-21.md)
 - (moved 2026-11-22) railing Length 2026-11-22 (29/29 within 0.05%, eval/railing-lengths-2026-11-22.md)
 - (moved 2026-11-23) COBie 2.4 workbook and QC 2026-11-23 (cobie.mjs, cobie.html, --cobie, --cobie-qc; eval/cobie-2026-11-23.md: 791/869 doors and windows get the file's own rooms from geometry)
+- (moved 2026-11-23, restored 2026-11-23: PR #18366 dropped these from `next:` without filing them) column/beam/member Length 2026-11-22, 3,227/3,233, eval/member-lengths-2026-11-22.md
+- (moved 2026-11-23, restored) slab Width/Perimeter 2026-11-22, 396/396, 375/377 (eval/slab-width-perimeter-2026-11-22.md)
+- (moved 2026-11-23, restored) space Qto_ 2026-11-22, eval/space-quantities-2026-11-22.md
+- (moved 2026-11-23, restored) HTML report 2026-11-21, eval/html-report-2026-11-21.md
