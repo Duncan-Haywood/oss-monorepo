@@ -52,3 +52,7 @@ test('guide: worked-example arithmetic matches the engine', async () => {
   const html = await read('fix-subtitles-out-of-sync.html');
   assert.match(html, /00:46:57,313/);
 });
+
+test('index links its sibling Silence Cutter (crawlable one-hop link)', async () => {
+  assert.match(await read('index.html'), /href="\.\.\/silence-cutter\/"/);
+});

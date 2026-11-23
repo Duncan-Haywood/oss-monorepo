@@ -1098,6 +1098,7 @@ ventures/siding-bid-calculator/usage.mjs
 ventures/sign-keeper/usage.mjs
 ventures/sign-language-interpreter-rate-calculator/usage.mjs
 ventures/sign-shop-job-pricing-calculator/usage.mjs
+ventures/silence-cutter/usage.mjs
 ventures/sitemap-lastmod-freshness-check/usage.mjs
 ventures/ski-snowboard-tune-shop-profit-calculator/usage.mjs
 ventures/skill-manifest-check/usage.mjs

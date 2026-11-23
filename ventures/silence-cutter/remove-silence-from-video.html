@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23243b6b'/%3E%3Cpath%20d='M5%2016h4l2-7%203%2014%202-10%202%203h3M24%2010v12M28%2010v12'%20stroke='%23fff'%20stroke-width='2.2'%20fill='none'%20stroke-linecap='round'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Remove Silence from a Video Automatically (Resolve, Premiere, Final Cut)</title>
+  <meta name="description" content="Three ways to cut the pauses out of a talking-head video or podcast: by hand, with your editor's tools, or by importing an EDL or XML cut list. Settings that keep words intact.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How to remove silence from a video automatically">
+  <meta property="og:description" content="Cut the dead air from a talking-head video in DaVinci Resolve, Premiere Pro or Final Cut Pro with an imported cut list, and the settings that keep the start of each word.">
+  <link rel="canonical" href="./remove-silence-from-video.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Remove silence from a video automatically and edit the result in DaVinci Resolve, Premiere Pro or Final Cut Pro","step":[{"@type":"HowToStep","name":"Analyse the recording","text":"Open Silence Cutter and drop the video. It decodes the audio in the browser and marks every pause of at least 0.5 s."},{"@type":"HowToStep","name":"Check the edit","text":"Press Play the edit and listen to a minute in the middle. If word starts sound clipped, raise Keep before speech; if the pacing feels breathless, set Leave of each pause to 0.15 s."},{"@type":"HowToStep","name":"Export the timeline","text":"Pick the frame rate of your footage and download the EDL for DaVinci Resolve, the FCPXML for Final Cut Pro, or the XML for Premiere Pro."},{"@type":"HowToStep","name":"Import into your editor","text":"Import the file with the original video in the same folder. The editor builds a timeline of the kept parts, each one still a normal clip you can trim."}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What minimum pause length should I use?","acceptedAnswer":{"@type":"Answer","text":"0.5 s is a good start for a talking-head video: it removes the dead air between sentences and leaves the short breaths inside them. Tutorials and lectures often go to 0.35 s for a tighter pace; interviews and podcasts read more naturally at 0.7 to 1 s, or with a short part of each pause left in."}},{"@type":"Question","name":"Why import a cut list instead of rendering the cut video?","acceptedAnswer":{"@type":"Answer","text":"A rendered file is final: a cut you disagree with means doing it again. An imported EDL or XML gives you a timeline of ordinary clips from your original footage, so you can drag one edge to restore a word, add B-roll over a jump cut, and grade and export once at full quality."}},{"@type":"Question","name":"Do the frame rates have to match?","acceptedAnswer":{"@type":"Answer","text":"Yes. Choose the frame rate of your footage before you export. Cut points are rounded to whole frames at that rate, and an EDL read at the wrong rate drifts by a little more at every cut."}}]}</script>
+  <style>
+    :root { font:16px system-ui,sans-serif; color:#16213a; background:#f2f4fa; }
+    body { max-width:820px; margin:auto; padding:28px 16px; }
+    h1 { font-size:clamp(1.6rem,4.4vw,2.3rem); line-height:1.12; color:#243b6b; }
+    h2 { font-size:1.2rem; color:#243b6b; margin-top:28px; }
+    p, li { line-height:1.6; }
+    code, pre { font:13px ui-monospace,monospace; }
+    pre { background:#e8ecf6; padding:10px; border-radius:8px; overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.92rem; }
+    .table-wrap { overflow-x:auto; }
+    th, td { text-align:left; padding:6px 8px; border-bottom:1px solid #d6dbea; vertical-align:top; }
+    .cta { display:inline-block; background:#243b6b; color:#fff; padding:10px 14px; border-radius:8px; text-decoration:none; font-weight:700; }
+    footer { margin-top:32px; border-top:1px solid #d6dbea; padding-top:16px; font-size:.86rem; color:#56607a; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Silence Cutter</a> › guide</p>
+  <h1>How to remove silence from a video automatically</h1>
+  <p>A ten-minute talking-head recording usually holds one to two minutes of pauses: the breath before a sentence, the moment spent finding the next point, the gap after a stumble. Cutting them by hand means scrubbing the waveform and making a blade cut on each side of every pause, often 100 or more for a ten-minute video. There are three ways to avoid that.</p>
+
+  <h2>1. Cut by hand on the waveform</h2>
+  <p>Zoom into the audio track, find each flat stretch, blade both ends and ripple-delete. It gives full control and is fine for a two-minute clip. For anything longer it is the slowest option by far, and it is the work the other two methods automate.</p>
+
+  <h2>2. Your editor's built-in tools</h2>
+  <p>Some editors and subscription apps now detect silence for you. They work well inside their own app; check which version or plan includes it. If your editor has none, or you want the same settings across several apps, use a cut list.</p>
+
+  <h2>3. Import a cut list (works in Resolve, Premiere and Final Cut)</h2>
+  <p>Every major editor can import a timeline from a file. <a href="./">Silence Cutter</a> finds the pauses in your browser, with nothing uploaded, and writes that file:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Editor</th><th>File</th><th>How to import</th></tr>
+    <tr><td>DaVinci Resolve</td><td>EDL or FCPXML</td><td>File › Import › Timeline, then point it at the folder holding the original video.</td></tr>
+    <tr><td>Premiere Pro</td><td>XML (Final Cut 7 format) or EDL</td><td>File › Import, choose the .xml. A new sequence appears in the project.</td></tr>
+    <tr><td>Final Cut Pro</td><td>FCPXML</td><td>File › Import › XML. Relink the clip if Final Cut asks for it.</td></tr>
+    <tr><td>Avid Media Composer</td><td>EDL</td><td>Import through EDL Manager against the source clip.</td></tr>
+    <tr><td>No editor (ffmpeg)</td><td>Command</td><td>Copy the ffmpeg command from the page; it renders the cut file directly.</td></tr>
+  </table></div>
+  <p><a class="cta" href="./">Open Silence Cutter</a></p>
+
+  <h2>Settings that keep words intact</h2>
+  <ul>
+    <li><strong>Shortest pause to cut, 0.5 s.</strong> Shorter than about 0.3 s and you start cutting the natural gaps inside sentences, which sounds rushed.</li>
+    <li><strong>Keep before speech, 0.12 s; keep after, 0.18 s.</strong> Words start sharply and fade out slowly, so more is kept after speech than before it. Raise "before" if starts sound clipped.</li>
+    <li><strong>Leave of each pause, 0 to 0.2 s.</strong> Leaving a short beat keeps an interview from sounding breathless.</li>
+    <li><strong>Threshold: leave it on auto.</strong> It is set from your recording's own noise floor and voice level, so a quiet lapel mic and a loud USB mic both work without tuning.</li>
+  </ul>
+
+  <h2>Worked example</h2>
+  <p>A 60-second test clip at 30 fps (the public test recording from the Silero VAD project, laid over colour bars) loses seven pauses: 4.8 seconds, 8%. The first two events of the EDL read:</p>
+  <pre>001  AX       AA/V  C        00:00:00:00 00:00:02:09 00:00:00:00 00:00:02:09
+002  AX       AA/V  C        00:00:02:17 00:00:07:01 00:00:02:09 00:00:06:23</pre>
+  <p>Source 00:00:02:09 to 00:00:02:17 (8 frames) was a pause, so the second event starts on the record side where the first ended. The ffmpeg render of the same cut list came out at 55.27 s, the length of the kept frames.</p>
+
+  <h2>Questions</h2>
+  <h3>What minimum pause length should I use?</h3>
+  <p>0.5 s is a good start for a talking-head video: it removes the dead air between sentences and leaves the short breaths inside them. Tutorials and lectures often go to 0.35 s for a tighter pace; interviews and podcasts read more naturally at 0.7 to 1 s, or with a short part of each pause left in.</p>
+  <h3>Why import a cut list instead of rendering the cut video?</h3>
+  <p>A rendered file is final: a cut you disagree with means doing it again. An imported EDL or XML gives you a timeline of ordinary clips from your original footage, so you can drag one edge to restore a word, add B-roll over a jump cut, and grade and export once at full quality.</p>
+  <h3>Do the frame rates have to match?</h3>
+  <p>Yes. Choose the frame rate of your footage before you export. Cut points are rounded to whole frames at that rate, and an EDL read at the wrong rate drifts by a little more at every cut.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. They are not legal or professional advice and do not replace a qualified editor. The tool suggests cuts from the loudness of the audio and can remove a quiet word or keep a noise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p>Editor names are trademarks of their owners, named only to say which files they import. Not affiliated with, endorsed by, or sponsored by any of them.</p>
+  <p class="support">Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
