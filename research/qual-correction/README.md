@@ -12,7 +12,7 @@ estimate is **+3.6 points, the wrong sign, and "significant" in 80% of studies**
 inference (PPI; Angelopoulos et al. 2023) corrects both from a random sample of 200 hand-coded
 answers per group. The bias goes to ~0, coverage is 95–98%, and the interval is 23–26% narrower
 than using the hand-coded answers alone. **The correction does not always help.** Below about 80%
-coder accuracy, the PPI interval is *wider* than the human-only one. Produced with AI assistance
+coder accuracy (for this 30% code with symmetric errors; about 91% for a 10% code and 95% for a 5% code), the PPI interval is *wider* than the human-only one. Produced with AI assistance
 (Claude). Every result is from simulated coders with known error rates, not from a real LLM or a
 real corpus.
 
@@ -103,7 +103,7 @@ accurate.
 | 800 | −0.040 | 0.000 | 0.064 | −0.000 | 0.979 | 0.052 | 0.73 | 1,214 |
 
 The naive interval is narrow (0.024) and always wrong. A big corpus makes it confidently wrong,
-not right. PPI with 200 hand-coded answers matches a 374-answer human-only study. As the
+not right. PPI with 200 hand-coded answers matches a human-only study of about 365 answers (from the mean widths, 200 × (0.127/0.094)²; the table's 374 is the mean of per-study ratios, which Jensen's inequality pushes up, and the same holds for the other effective-n entries). As the
 hand-coded share grows, PPI coverage rises above 95% because its variance formula treats the
 corpus as a sample from a larger population, so it is conservative for the corpus share.
 
@@ -136,7 +136,7 @@ error comes from the coder, not from the people.
 
 ![95% interval width of human-only and PPI estimates against coder accuracy](experiments/ci_width_vs_accuracy.svg)
 
-PPI stays valid at every accuracy, but it only saves effort above roughly 80%. Below that, the
+PPI stays valid at every accuracy, but here it only saves effort above roughly 80%. The break-even depends on the code's prevalence: with symmetric errors, 200 hand-coded items and 5,000 answers it is about 76% at a 50% code, 79% at 30%, 84% at 20%, 91% at 10% and 95% at 5% (closed form, quality audit 2026-11-23). Below that, the
 human-minus-LLM correction is noisier than the human codes themselves, and the plain human-only
 estimate is better. (Power-tuned PPI, "PPI++", Angelopoulos et al. 2024, down-weights a poor coder
 automatically. It is not implemented here.) At 98% accuracy with symmetric errors, even the naive

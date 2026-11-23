@@ -1384,7 +1384,7 @@ alpha reliability. Check each before citing it.
    prediction-powered estimates of a code's prevalence and of a group gap, against simulated
    coders with known error. An 89%-accurate coder is confidently wrong; with differential error
    the naive gap has the wrong sign; PPI with 200 hand-coded items fixes both, and stops paying
-   below about 80% coder accuracy.
+   below about 80% coder accuracy for a 30% code (about 91% for a 10% code).
 2. `qual-real`: the same pipeline on a public, hand-coded corpus (open-ended survey answers or
    annotated reviews with a licence that allows it), with a model behind `ANTHROPIC_API_KEY` and a
    deterministic stub. Without a key, label any session-agent coding as such.
