@@ -9700,6 +9700,67 @@ Search Console, GA4, Plausible, PostHog and Umami.
   `values` lists zero days or leaves them out (the tool takes either), and whether a 480-day first fetch is accepted in
   one call.
 
+## Matomo as a source (2026-11-23; pre-registered, the middle setting ships as its default)
+
+Matomo is the analytics people host themselves when they don't want Google Analytics. It is used where the data must
+stay in the owner's hands (public bodies, EU businesses minding the GDPR, privacy-minded shops), and it is also sold
+as Matomo Cloud. The watch had no Matomo source, so a Matomo user had to export a CSV by hand.
+
+- **What it does.** `matomo-metrics.mjs` calls Matomo's Reporting API with `period=day` and `date=A,B`:
+  `VisitsSummary.get` (visits, `nb_uniq_visitors`), `Actions.get` (page views), `Goals.get` with `idGoal` for each
+  `--goal <id>` (conversions, column `goal_<id>`, up to eight) and `Events.getAction` (`flat=1`, `filter_limit=-1`)
+  for each `--event <action>` (column `event_<action>`, up to eight). It first calls `SitesManager.getSiteFromId`,
+  which checks the token and the site and returns the site's time zone. Matomo counts days in that zone, so the tool
+  works out "yesterday" there too, including Matomo's fixed offsets such as `UTC+5.5`. Every call is a POST to
+  `<MATOMO_URL>/index.php` with the token in the form body. Matomo 5 makes secure-only tokens by default, and those
+  work only in a POST body; a token kept out of the URL also stays out of server access logs. Matomo reports errors
+  as HTTP 200 with `{ result: "error", message }`, so the tool reads the body as well as the status. Long ranges are
+  fetched 180 days at a time, so a server that archives on demand is never asked for years at once. An existing CSV
+  is extended, and its last `--refetch` days (default 2) are fetched again. The default lag of 1 day leaves room for
+  Matomo's archiving cron.
+- **In the workflow.** Secret `MATOMO_TOKEN`, variables `MATOMO_URL` (https), `MATOMO_SITE` and optional
+  `MATOMO_OPTIONS` (`--goal 2 --event "Sign up"`). With `METRIC_CSV` unset and no other source set, the watch follows
+  visits, page views and every goal and event column with the middle setting (below). Unique visitors are written but
+  not watched by default, because Matomo can turn that count off; the tool prints a note when it is missing.
+  `WATCH_WEEKLY=on` adds weekly visits. The CSV is cached, never committed. The no-terminal set-up on the watch page
+  and `make-watch-repo.sh` both carry the module.
+- **Which setting, pre-registered** (rule in the header of `eval/matomo-columns.mjs`, committed before it ran; fresh
+  seeds, 4001-4040 faulted and 5001-5040 with no fault; output `eval/matomo-columns.out.txt`, about 1 min). Matomo's
+  visits behave like Mixpanel's first-event uniques: a visit counts if it touches any tracked page, so when the
+  tracking code drops off part of the site, visits fall less than page views. The simulated sites had about 300 visits
+  a weekday, weekends at half or 40%, page views per visit Poisson(2.5) and a goal converting 3% of visits. Faults:
+  page views thinned to 60% or 50% on 2026-03-16, and the goal falling to 35% on 2026-01-12. The middle setting would
+  ship if, at both weekend depths, (V1) it heard visits on at least 36 of 40 at share 0.5, (V2) it heard page views
+  and the goal no less often than the count default minus 2 in each cell, and (V3) its false dates on no-fault sites
+  were at most the default's plus 2.
+
+| arm | visits heard (share 0.6 / 0.5, weekends 0.5) | same, weekends 0.4 | page views, goal heard (worst cell) | false dates, no fault (0.5 / 0.4) | verdict |
+|---|---|---|---|---|---|
+| count default | 0 / 2 | 0 / 1 | 35, 36 | 5 / 1 | V1 fails |
+| middle (`pelt`, NB, `--trend gated`) | 40 / 40 | 35 / 40 | 40, 39 | 2 / 3 | **passes V1-V3** |
+
+  So the Matomo workflow's default `WATCH_OPTIONS` is the middle setting. The weakest cell is visits at share 0.6 with
+  40% weekends, heard on 35 of 40; page views hear the same fault on 40. A finding for the Umami source: its simulation
+  thinned visitors by the share directly, so it never tested this effect. Umami's `visitors` is a session count too and
+  probably falls less than page views in the same way (open item).
+- **How it was checked** (`matomo-metrics.test.mjs`, 6 tests). The tests run against a stand-in for the Reporting API
+  that reads the POST form (module, method, format, idSite, period, date, idGoal, flat, filter_limit, token_auth). It
+  answers each day as a row or `[]`, and errors as HTTP 200 with Matomo's own messages. Covered:
+  - the request: always a POST, nothing in the URL, 180-day windows;
+  - the site's time zone setting "yesterday" (Pacific/Auckland);
+  - zero-filled empty days, the goal and event columns, a refetch that keeps earlier rows byte for byte;
+  - the notes (no unique-visitor count, an empty site, a goal that never converts, a misspelled event action);
+  - the errors (refused token, unknown site, wrong address, a login page instead of JSON, an answer by month,
+    duplicate or too many goals);
+  - the watch hearing dropped tracking and a lost goal;
+  - the whole self-deploy workflow (`deploy/run-workflow.mjs`) fetching 480 days, watching four columns, never
+    printing the token and never committing the CSV.
+- **Not checked.** No Matomo server was used. The method names, parameters and answer shapes are written from
+  Matomo's Reporting API documentation as recalled, not read in this session or taken from a live answer. A live
+  instance would first settle: whether `Events.getAction` with `flat=1` labels rows by the bare action, whether a
+  480-day first fetch in 180-day windows archives in time on a busy server with browser archiving off, and how Matomo
+  Cloud's rate limits treat 4 to 6 calls a run.
+
 ## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
 
 Open item from "A step-robust omega": wander chosen by likelihood (`--model drift`'s default) lost two series the

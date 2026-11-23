@@ -53,3 +53,4 @@
 - (2026-11-21) next per-group floors named by a person (needs a set with metric names), SMD 10-min: no rescue, delay 4h to 1h (Round 19)
 - (2026-11-22) --wander gated opt-in 2026-11-21 (README "A wandering level under Middle")
 - (2026-11-23) turn option dropped (README "Iran's dated cycle": random-cut level)
+- (2026-11-23) next a provider that documents its own changes --events and count Middle (pelt + NB) shipped 2026-11-21 (README "A middle setting for over-dispersed counts": 20% falls 115/120 vs Quiet 38, 0.83 false/1,000 days): Middle as count default failed (alerts on growth)
