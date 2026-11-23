@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnGYqnUQW5HLVQbM1e",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T20:10:57Z",
+  "ended": "2026-11-23T20:33:57Z",
+  "wall_minutes": 59.18,
+  "tokens_in": 24089872,
+  "tokens_out": 134515,
+  "cost_usd": 9.4904,
+  "tool_calls": 125,
+  "task": "Explore: dockerignore-explainer, a .dockerignore checker whose engine ports BuildKit's context filter and is checked against BuildKit's own Go code",
+  "projects": [
+    "ventures/dockerignore-explainer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18477",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 31,
+  "outcome": "success",
+  "errors": [
+    "Local CI round 1: sibling-links gate failed (new tool had no sibling linking to it); fixed with links from gitignore-explainer and docker-build-secrets-check.",
+    "Local CI round 2: check_trailing_flag_value (CLI flag with no value), portfolio-pages built-artifact check (.go/.mod/.sum in the venture's oracle/ folder had no served type; added to NON_WEB_EXTENSIONS), check_hidden_unicode (raw U+FEFF written by the file tool where an escape was meant), check_csv_formula_guard (plain negative numbers). All fixed.",
+    "I ran `git checkout origin/main -- .` then `git checkout HEAD -- .` while trying to compare against main, which left 47 of main's newer files untracked in the tree; verified each existed on origin/main and removed them. No commit was affected."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "NON_WEB_EXTENSIONS is the only way to keep non-web files of a venture (here a Go test oracle) out of the published site, and the failure surfaces only in portfolio-pages' built-artifact check, ~10 minutes into run_workflow_locally. A per-venture skip (e.g. a folder named oracle/ or eval/) or a note in AGENTS.md would save the round trip."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Without --foreground the first run handed itself off after 100 s and any edit voided it; I edited fixes while it ran and had to start over. CLAUDE.md's verify step could say to pass --foreground under run_in_background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/pages/finding-heading.test.mjs",
+      "why": "The ratchet asks new pages to draw findings as h3; this page's findings sit under an <h3>Findings</h3>, the case the file says to list.",
+      "did": "Added dockerignore-explainer to KNOWN_H4.",
+      "result": "test passes; heading order is h2 > h3 > h4 on the rendered page"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-dockerignore-is-not-gitignore.md",
+    "ventures/dockerignore-explainer/README.md",
+    "ventures/dockerignore-explainer/why-dockerignore-pattern-does-not-match-subfolders.html"
+  ],
+  "goal": "Ship a developer tool whose answers are checked against the real implementation, not reasoned out.",
+  "notes": "Explore idea: dockerignore-explainer. Docker has no check-ignore; the engine (matcher.mjs) ports moby/patternmatcher v0.6.1 (ReadAll, New, MatchesUsingParentResults, compile) and tonistiigi/fsutil's filtered walk, with a Go-regexp-to-JS translator. oracle/main.go runs the real Go code over temp dirs; oracle-fixture.json replays 5,000 seeded cases in every test run (2,980 exclude something, 392 make BuildKit refuse the file): 0 disagreements; 25,000 more on seeds 7/99/12345 before recording: 0 disagreements (go1.25.0). Oracle-confirmed traps the tool reports: *.log is root-only; '**/*.md' + '!docs' leaves docs/*.md out ('!docs/**' works); [!a] is not negation; [^x] matches '/'; indented '#' is a pattern; one bad line fails every build. Plus COPY/ADD/RUN --mount bind sources excluded, secrets/.git/node_modules sent, and a fix re-run against the list (example: 12 fixed, 0 unfixed, 0 side effects). Upstream licences kept in THIRD_PARTY_NOTICES.md + licenses/. Verification: venture tests 31/31; unwired_checks 279/279; run_workflow_locally --for-changes origin/main --foreground at 75f280e52: exit 0, 17 workflows, 155 run: steps passed (portfolio-validate 100/100, portfolio-pages 12/12, ventures-tests 5/5, pages 6/6, sibling-links 2/2, others all passed); secret-reading and write steps were held, as the tool does by default. Page checked in Chromium at 1200 and 390 px: no console errors, no horizontal scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9776b3b6-f727-584f-9ec5-37da98b6dd4b",
+    "transcripts": 1,
+    "first": "2026-11-23T20:10:57Z",
+    "last": "2026-11-23T21:10:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 119,
+        "input": 231,
+        "output": 134515,
+        "thinking": 38025,
+        "cache_read": 23835631,
+        "cache_write_5m": 0,
+        "cache_write_1h": 254010,
+        "api_equivalent_usd": 9.4904,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 119,
+      "input": 231,
+      "output": 134515,
+      "thinking": 38025,
+      "cache_read": 23835631,
+      "cache_write_5m": 0,
+      "cache_write_1h": 254010,
+      "api_equivalent_usd": 9.4904,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 125,
+    "tools": {
+      "Bash": 111,
+      "Write": 8,
+      "ToolSearch": 2,
+      "Edit": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 59.18,
+      "active_minutes": 59.18,
+      "model_minutes": 22.4,
+      "tool_minutes": 36.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior engineer: read patternmatcher/fsutil/filepath sources, port and Go-oracle harness (~10h), findings + Dockerfile reader + fix check (~6h), page, guide, CLI, tests, docs (~8h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 252.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

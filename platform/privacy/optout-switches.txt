@@ -332,6 +332,7 @@ ventures/docker-base-image-pin-check/usage.mjs
 ventures/docker-build-secrets-check/usage.mjs
 ventures/docker-cache-order-check/usage.mjs
 ventures/docker-compose-security-check/usage.mjs
+ventures/dockerignore-explainer/usage.mjs
 ventures/dog-boarding-daycare-pricing/usage.mjs
 ventures/dog-grooming-day-planner/usage.mjs
 ventures/dog-grooming-price-calculator/usage.mjs

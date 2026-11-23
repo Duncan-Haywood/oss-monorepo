@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d5c8a'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why a .dockerignore Pattern Does Not Match in Subfolders</title>
+  <meta name="description" content="*.log in .dockerignore does not exclude logs/app.log, !docs does not re-include docs/README.md, and [!a] is not a negation. Five Docker build context traps, each checked against BuildKit's own code, with the line that fixes it.">
+  <meta property="og:title" content="Why a .dockerignore pattern does not match in subfolders">
+  <meta property="og:description" content="Five .dockerignore traps checked against BuildKit's own code, and the line that fixes each.">
+  <link rel="canonical" href="./why-dockerignore-pattern-does-not-match-subfolders.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why a .dockerignore pattern does not match in subfolders", "author": {"@type": "Organization", "name": "marisstella.app"}, "datePublished": "2026-11-23"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why doesn't *.log in .dockerignore match logs/app.log?", "acceptedAnswer": {"@type": "Answer", "text": "A .dockerignore pattern is matched against the whole path from the root of the build context. *.log can only match a name with no slash in it, so it matches app.log at the top and nothing deeper. Write **/*.log. The same goes for node_modules, __pycache__ and .DS_Store: use **/node_modules and so on."}}, {"@type": "Question", "name": "Why does a pattern with a slash work differently in .gitignore?", "acceptedAnswer": {"@type": "Answer", "text": "Git anchors a pattern to its folder only when it contains a slash, and otherwise matches it at any depth. Docker anchors every pattern to the context root. So the one-word patterns copied from a .gitignore are the ones that silently stop working."}}, {"@type": "Question", "name": "How do I re-include one folder after excluding a file type everywhere?", "acceptedAnswer": {"@type": "Answer", "text": "Write the exception for the folder's contents, as in **/*.md followed by !docs/**. A bare !docs does nothing for files that the earlier line matched directly, because BuildKit carries a folder's exception down only when the folder itself was excluded."}}, {"@type": "Question", "name": "Why is [!a] not working in my .dockerignore?", "acceptedAnswer": {"@type": "Answer", "text": "Docker's patterns use Go's syntax, where a class is negated with ^. [!a] means the character ! or a. Use [^a], and remember that in Docker a negated class can match a slash too."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #15222e; background: #f2f6f9; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    a { color: #1d5c8a; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: #123a57; }
+    h2 { color: #123a57; margin-top: 30px; font-size: 1.25rem; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    code { font: .92em ui-monospace, Menlo, Consolas, monospace; background: #e4edf3; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #13283a; color: #eef6ff; padding: 14px; border-radius: 10px; overflow-x: auto; font: 14px ui-monospace, Menlo, Consolas, monospace; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5e1ea; vertical-align: top; }
+    .scroll { overflow-x: auto; }
+    .note, footer { font-size: .86rem; color: #4a5a68; }
+    footer { margin-top: 30px; border-top: 1px solid #d5e1ea; padding-top: 16px; }
+  </style>
+</head>
+<body>
+<header>
+  <p class="note"><a href="./">.dockerignore Explainer</a> · Guide</p>
+  <h1>Why a .dockerignore pattern does not match in subfolders</h1>
+  <p>Most <code>.dockerignore</code> files start life as a copy of a <code>.gitignore</code>, and they look alike. They are read by different code with different rules. Each example below shows what BuildKit, the builder behind <code>docker build</code> since Docker Engine 23, actually sends. Every one was run through BuildKit's own matching code (moby/patternmatcher v0.6.1 and tonistiigi/fsutil), not guessed.</p>
+</header>
+<main>
+  <h2>1. Patterns start at the context root</h2>
+  <pre>*.log</pre>
+  <div class="scroll"><table><thead><tr><th>Path</th><th>Sent?</th></tr></thead><tbody>
+    <tr><td><code>a.log</code></td><td>no</td></tr>
+    <tr><td><code>logs/b.log</code></td><td><strong>yes</strong></td></tr>
+  </tbody></table></div>
+  <p>Docker matches each pattern against the whole path, from the top of the context. <code>*</code> never crosses a <code>/</code>, so <code>*.log</code> matches only names at the top. Git matches a slash-free pattern at every depth, which is why the same line works there. The fix is <code>**/*.log</code>. The same applies to <code>node_modules</code> in a monorepo: <code>packages/web/node_modules</code> is sent unless you write <code>**/node_modules</code>.</p>
+
+  <h2>2. <code>!folder</code> does not reach files matched directly</h2>
+  <pre>**/*.md
+!docs</pre>
+  <div class="scroll"><table><thead><tr><th>Path</th><th>Sent?</th></tr></thead><tbody>
+    <tr><td><code>x.md</code></td><td>no</td></tr>
+    <tr><td><code>docs/README.md</code></td><td><strong>no</strong></td></tr>
+    <tr><td><code>docs/a.txt</code></td><td>yes</td></tr>
+  </tbody></table></div>
+  <p>BuildKit walks the folders and remembers, for each line, whether it matched a folder above the current path. An exception line inherited from a parent counts only if the line was actually checked at the parent. It is checked there only when the parent was excluded at that point. <code>docs</code> itself was never excluded, so <code>!docs</code> was skipped there. <code>**/*.md</code> then matches <code>docs/README.md</code> directly and nothing undoes it. Write <code>!docs/**</code>, which matches the files themselves, and all three answers come out as you meant.</p>
+  <p>The reverse case works: <code>*</code> followed by <code>!src</code> sends everything under <code>src/</code>, because <code>src</code> was excluded by <code>*</code> first.</p>
+
+  <h2>3. <code>[!a]</code> is not a negation, and <code>[^a]</code> matches <code>/</code></h2>
+  <pre>[!a]</pre>
+  <p>This excludes files named <code>!</code> and <code>a</code>, and keeps <code>b</code>. Go negates a class with <code>^</code>. Docker also turns each pattern into a regular expression. There a negated class is any character but the listed ones, slashes included, so <code>a[^x]b</code> excludes <code>a/b</code> and everything inside it.</p>
+
+  <h2>4. Comments only in the first column</h2>
+  <pre>  # not a comment
+node_modules # deps</pre>
+  <p>Both lines are patterns. The first is trimmed to <code># not a comment</code> and matches a file of that name. The second looks for a path literally called <code>node_modules # deps</code>, so <code>node_modules/</code> is sent in full. A comment is a line whose first character is <code>#</code>.</p>
+
+  <h2>5. One bad line fails every build</h2>
+  <pre>node_modules
+!node_modules/keep
+[</pre>
+  <p>An unclosed <code>[</code> or a lone <code>!</code> makes BuildKit refuse the whole file (<code>invalid excludepatterns: syntax error in pattern</code>). Some lines pass the first syntax check and fail only when a path reaches them, for example a backslash before most letters, which Go's regular expressions reject.</p>
+
+  <h2>Check your own file</h2>
+  <p>The <a href="./">.dockerignore explainer</a> runs the same code in your browser. Give it your <code>.dockerignore</code>, a file list and your Dockerfile. It names the line behind every path, flags COPY sources that would fail and secrets still sent, and writes a fix it re-checks against your files.</p>
+
+  <section id="faq">
+    <h2>Questions</h2>
+    <h3>Why doesn't *.log in .dockerignore match logs/app.log?</h3>
+    <p>A .dockerignore pattern is matched against the whole path from the root of the build context. *.log can only match a name with no slash in it, so it matches app.log at the top and nothing deeper. Write **/*.log. The same goes for node_modules, __pycache__ and .DS_Store: use **/node_modules and so on.</p>
+    <h3>Why does a pattern with a slash work differently in .gitignore?</h3>
+    <p>Git anchors a pattern to its folder only when it contains a slash, and otherwise matches it at any depth. Docker anchors every pattern to the context root. So the one-word patterns copied from a .gitignore are the ones that silently stop working.</p>
+    <h3>How do I re-include one folder after excluding a file type everywhere?</h3>
+    <p>Write the exception for the folder's contents, as in **/*.md followed by !docs/**. A bare !docs does nothing for files that the earlier line matched directly, because BuildKit carries a folder's exception down only when the folder itself was excluded.</p>
+    <h3>Why is [!a] not working in my .dockerignore?</h3>
+    <p>Docker's patterns use Go's syntax, where a class is negated with ^. [!a] means the character ! or a. Use [^a], and remember that in Docker a negated class can match a slash too.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. It is not legal, security or professional advice. The examples were produced by running BuildKit's own matching code; your Docker version is the final word. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Independent.</strong> Not affiliated with or endorsed by Docker, Inc., the Moby project or any other vendor. Docker is a trademark of Docker, Inc.</p>
+  <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>
