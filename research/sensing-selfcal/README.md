@@ -1342,6 +1342,12 @@ python3 paper/check_short.py               # seconds; every number in the letter
 
 ## Next steps
 
+After the 2026-11-23 paper step: Section 4, the abstract, Recommendation 9, the limits and Section 10 of the draft now carry
+milestones 3y&ndash;3zb (38 new number checks, 415 of 415 pass), and the letter gained four sentences and a recommendation
+(about 6.5 pages by its rule of thumb). Next: a bias-corrected D<sub>200</sub> before any distortion gate; the feature radii the
+windows cover, when the TUM host answers; the image edge against a reference that does not fold there; a real lens change when
+one is reachable; typesetting the letter in the IEEE class.
+
 After milestone 3zb: a wrong held distortion (another real calibration, or k<sub>1</sub>, k<sub>2</sub> off by up to 50%) costs at most
 1.5 px inside 250 px, under the 2.1 px of adopting the windows' f and distortion together, so update f and keep the held distortion. Next: Section 4 of the paper updated with
 3y&ndash;3zb (score by P(r); update f, hold the distortion, robust to a held distortion off by 50%; the folded fr1 board); a bias-corrected

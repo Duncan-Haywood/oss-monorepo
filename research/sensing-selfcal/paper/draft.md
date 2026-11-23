@@ -49,7 +49,9 @@ camera's own earlier windows cuts what is left (2.88% to 2.32%), and five such w
 reach 1.17% with a nearly honest bar. Flooring the pool's between-window spread at the camera's own past
 scatter makes that bar honest, but too wide for a 2-sd change test to see a stale focal length below about
 8.5%; the rule that serves a robot is asymmetric, "adopt the pool unless it lies within half its sd of the held
-value", and it is chosen the same way when one sequence is left out.
+value", and it is chosen the same way when one sequence is left out. Scored by where rays land inside 250 px, it
+should move f and keep a target-calibrated distortion: adopting the windows' distortion too gains nothing even when
+the held distortion is off by 50%.
 
 ## 1. Introduction
 
@@ -244,6 +246,40 @@ against 0.73), and on fr1/desk the 2-sd gate does better (1.09). Against TUM's a
 five-window folds do not agree on a rule, so the positive recommendation carries its reference with it. The firm
 result is the negative one: out of sample, the symmetric 2-sd change test is beaten in 36 of 36 model &times; window
 count &times; reference cells.
+
+**Beyond the focal length: the principal point, the distortion and where rays land (milestones 3y&ndash;3zb,
+pre-registered).** The same eight rules, on the same blocks, with a pool whose bar comes from scatter alone (the
+saved solves carry a solver sd for f only), keep the f answer (gate(0.5) is minimax, worst regret 0.38 points) and
+carry it over to c<sub>y</sub> (gate(0.5) minimax, worst regret 2.04 px), whose pools sit within 1.3 px of the board.
+They do not carry it over to c<sub>x</sub> or the distortion. For c<sub>x</sub> the minimax rule is never to adopt
+(2.86 px against always-adopt's 7.14): the Xtion's pools sit 16.8 px from the board, and the three references
+disagree among themselves by 12 px. For the radial displacement 200 px from the centre, D<sub>200</sub>, never is
+again minimax (0.92 px against 1.08), because every sequence on both cameras puts it 0.6&ndash;1.7 px below every
+reference (milestone 3y). A robot does not use D<sub>200</sub>, though: it uses where a ray lands. Scored as the
+projected radius P(r) against a reference, the Kinect's windows put a ray within 1 px of the board out to 250 px at
+the median, because their longer f and smaller distortion cancel; on the Xtion the rays land 2.4&ndash;2.8% too far
+out, a focal-length error, not a distortion one (milestone 3z). The cancellation is a median property only: across
+windows f and D<sub>200</sub> do not trade (Spearman +0.28), and the solver's own covariance is about nine times too
+narrow at every radius (rms z of P(200) 9.4, of D<sub>200</sub> 10.8), so the history floor stays necessary. The
+board's fr1 model (k<sub>2</sub> &lt; 0) folds back at 381 px, inside the image corner, so a two-term reference must
+be checked for monotonicity before it is used near the edge; the P(r) scores stop at 250 px for that reason.
+Milestone 3za then asked whether a robot that adopts its windows' f should adopt their distortion with it, scoring
+five rules by rms P over 50&ndash;250 px. Adopting f alone behind the half-sd gate stays minimax (worst regret
+0.48 px, against 0.63 for the joint gate and 14.24 for never), but adopting both always gives 2.09 px at zero
+staleness against 1.94 for f alone, the winner flips by sequence (f-only minus joint at zero staleness: +0.76 px on
+fr1/desk, &minus;0.85 on fr1/xyz) and across the 36 model &times; window count &times; reference cells a joint rule is
+minimax in 23. The choice between the two is worth under about 1 px; whether to update f at all is worth about
+14 px at 10% staleness, and adopting the windows' model beats keeping a held f stale by 1.5% or more. Last, milestone 3zb asked
+whether a held distortion that is itself wrong changes this, using another real calibration of the same camera as
+the held distortion and a sweep of the board's k<sub>1</sub>, k<sub>2</sub> scaled by up to &plusmn;50%. Inside
+250 px the held distortion from another reference, with the right f, leaves 0.21&ndash;0.46 px rms, and even a 50%
+error leaves 1.51 px, less than the 2.09 px left by adopting the windows' f and distortion together; on the sweep the
+joint gate beats the f-only gate at one grid point (&epsilon; = &minus;30%). The f-only gate's worst regret with
+the TUM distortion held against the board as truth is 0.57 px (0.48 with the board's own). A second gate on
+D<sub>200</sub> is not usable as specified: the windows' low bias makes it fire in 30 of 31 blocks even when the
+held distortion is the truth, and its worst regret is then 1.02 px against the f-only gate's 0.48. Which of the joint and f-only
+gates wins depends on which reference is called the truth, not on which distortion is held. One of the five
+3zb predictions held, as did three of seven in 3y, three of seven in 3z and one of six in 3za.
 
 ## 5. An accept/reject test on disjoint view sets
 
@@ -552,6 +588,12 @@ solves.
    within half its sd of it; below five, move to the pool by the positive-part empirical-Bayes weight. State the
    reference the rule was tuned against: against the board it survives leaving a sequence or a camera out, against
    the other two references the choice is not stable.
+9. **Self-calibrate f and c<sub>y</sub>; hold c<sub>x</sub> and the distortion, and score by where rays land.** On
+   TUM the half-sd gate is minimax for c<sub>y</sub> as for f, while natural-feature windows bias the distortion low
+   in every sequence and leave the Xtion's c<sub>x</sub> unsettled, so a robot should keep those from a target
+   calibration. Adopting the windows' distortion with their f is worth under about 1 px either way inside 250 px, and a
+   held distortion off by 50% still beats it; score updates by the projected radius P(r), not by k<sub>1</sub> or
+   D<sub>200</sub>, and check a reference distortion for monotonicity before using it near the image edge.
 
 ## 9. Limitations
 
@@ -561,7 +603,7 @@ and the intervals are too narrow, and a 99th percentile from 180 statistics rest
 them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
 splits, not the reuse of views; a second pool of 13 views per TUM unit (milestone 4p) shows the in-sample false alarms understate the fresh-view rate (1.40% against 0.35%), but both pools come from one session. The focal and principal-point changes are exact model transforms; the swaps (here and between the
 two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are tested only on
-short windows of three TUM RGB-D sequences (Section 4). Those windows come from one recording order per camera and one session on the Xtion, the rotation rates come from motion capture rather than an onboard gyro, the Xtion's +2.8% focal bias is unexplained, and milestones 3s–3x re-used saved solves (43 windows; overlapping blocks are not independent tests). Staleness in milestones 3v–3x is a shifted held value, not a real lens change (a refocus would also move k<sub>1</sub> and the principal point), and the leave-one-out check of the update rule has three folds, two of them on one camera. The renders leave out the bend, the clipboard and background clutter, vignetting and the
+short windows of three TUM RGB-D sequences (Section 4). Those windows come from one recording order per camera and one session on the Xtion, the rotation rates come from motion capture rather than an onboard gyro, the Xtion's +2.8% focal bias is unexplained, and milestones 3s–3x re-used saved solves (43 windows; overlapping blocks are not independent tests). Staleness in milestones 3v–3x is a shifted held value, not a real lens change (a refocus would also move k<sub>1</sub> and the principal point), and the leave-one-out check of the update rule has three folds, two of them on one camera. In milestones 3y&ndash;3zb the pools' bars come from scatter alone, P(r) ignores the principal point and tangential terms and stops at 250 px (the board's fr1 model folds at 381 px), the feature radii the windows cover are unmeasured (the TUM frames were unreachable from these sessions), and a "wrong" held distortion is another real calibration or a scaled one, not a measured lens change. The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
 were found after a pre-registered prediction failed and are labelled so in the log.
 
@@ -582,6 +624,10 @@ were found after a pre-registered prediction failed and are labelled so in the l
   and an asymmetric update rule chosen out of sample beats both always adopting and a 2-sd change test. Still needed:
   a real lens change (a refocus or zoom, the owner-captured set of milestone 6) to score the rule on, more sequences
   per camera so that leaving one out is a real test, and the rule's choice against a reference that is not the board.
+- Done on TUM for the other intrinsics (milestones 3y&ndash;3zb, Section 4): the update rule carries to c<sub>y</sub>,
+  not to c<sub>x</sub> or the distortion, and scored by P(r) a held distortion beats adopting the windows' even when
+  it is off by 50%. Still needed: a bias-corrected D<sub>200</sub> before any distortion gate, the feature radii the
+  windows cover, the image edge against a reference that does not fold there, and a real lens change.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
   Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set
