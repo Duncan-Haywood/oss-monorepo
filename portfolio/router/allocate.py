@@ -1339,12 +1339,78 @@ def item_rank(session: Optional[str], spread: int = ITEM_SPREAD) -> int:
 def item_rank_note(session: Optional[str]) -> str:
     """The Start here clause naming which open item this session takes."""
     k = item_rank(session)
+    where = ("in the numbered `items:` list `allocate.py --venture <slug>` prints, "
+             "skipping entries that report a result, need outside input or an open PR "
+             "title names")
     if k == 1:
-        return "take the first open item no open PR title names"
+        return f"take the first open item {where}"
     nth = {2: "second", 3: "third"}.get(k, f"#{k}")
-    return (f"take the {nth} open item no open PR title names, not the first (by this "
+    return (f"take the {nth} open item {where}, not the first (by this "
             f"session's id, so a session that drew this row in the same minute likely "
             "takes another), unless fewer are buildable here")
+
+
+# Why a numbered list: "take the third open item" could not be applied to a
+# row whose `buildable:`/`next:` is one run-on paragraph of results, nested
+# parentheses and items; seven run records on 2026-11-22..23 said so
+# (ids-model-check, ifc-quantity-takeoff, changepoint-detector, photo-editing),
+# and one asked which of the two fields counts. The split below is a
+# heuristic, not a parser: its value is that every session reads the same
+# numbering, so two sessions on one row given ranks 2 and 3 land apart.
+# `buildable:` clauses come first (what a cloud session can do now), then
+# each phrase in `next:` that a "next"/"open:" marker introduces.
+_ITEM_MARK = re.compile(r"(?<![\w-])(?:next:?|open:)(?!-)(?!\s+items)(?: CAD:)?\s+", re.I)
+
+
+def _top_level_clauses(text: str) -> list[str]:
+    """`text` cut at ';' and at '. ' before a capital, outside brackets."""
+    out, depth, start = [], 0, 0
+    for i, ch in enumerate(text):
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth = max(0, depth - 1)
+        elif depth == 0 and (ch == ";" or (ch == "." and text[i + 1:i + 2] == " "
+                                           and text[i + 2:i + 3].isupper())):
+            out.append(text[start:i])
+            start = i + 1
+    out.append(text[start:])
+    return [c.strip(" .") for c in out if c.strip(" .")]
+
+
+def _marked_end(text: str, start: int) -> int:
+    """End of the phrase from `start`: the first ';' or '. ' at its own
+    bracket depth, or a bracket closing one opened before it."""
+    depth = 0
+    for i in range(start, len(text)):
+        ch = text[i]
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            if depth == 0:
+                return i
+            depth -= 1
+        elif depth == 0 and (ch == ";" or (ch == "." and text[i + 1:i + 2] in (" ", ""))):
+            return i
+    return len(text)
+
+
+def open_items(buildable: Optional[str], next_text: Optional[str],
+               width: int = 150) -> list[tuple[str, str]]:
+    """[(field, item)] numbered in the order Start here's item rank counts."""
+    found = [("buildable", c) for c in _top_level_clauses(buildable or "")]
+    text = next_text or ""
+    for m in _ITEM_MARK.finditer(text):
+        body = text[m.end():_marked_end(text, m.end())].strip(" ,:")
+        if len(body) >= 6 and not re.match(r"(?:items )?(?:in )?NEXT\.md\b", body, re.I):
+            found.append(("next", body))
+    out, seen = [], set()
+    for field, body in found:
+        short = body if len(body) <= width else body[:width - 1].rstrip() + "\u2026"
+        if short not in seen:
+            seen.add(short)
+            out.append((field, short))
+    return out
 
 
 def least_claimed(queue: list[dict], claims: Optional[dict[str, list]],
@@ -1623,6 +1689,12 @@ def venture_report(name: str, ventures: list[Venture],
         lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
                      "so replace the item you land rather than appending)")
         lines.append(v.flagship_next or "(none written)")
+        items = open_items(v.flagship_buildable, v.flagship_next)
+        if items:
+            lines.append("items: (numbered from the two fields above for Start here's item "
+                         "rank; a heuristic split, so skip entries that report a result or "
+                         "need outside input)")
+            lines.extend(f"  {i}. [{field}] {body}" for i, (field, body) in enumerate(items, 1))
     else:
         lines.append("task: " + next_task(v))
     if v.flagship and left is not None:
