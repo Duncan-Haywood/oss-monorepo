@@ -25,7 +25,7 @@ D_LEVELS = {"low": (0.05, 0.01), "base": (0.10, 0.03), "high": (0.20, 0.05)}   #
 FLOW_NOISE = 0.005                         # sd of the inflow meter, share of mean inflow (assumed)
 CONDITIONS = [("base", 0.05, 5), ("base", 0.25, 5), ("base", 1.0, 5), ("low", 0.25, 5), ("high", 0.25, 5), ("base", 0.25, 15)]   # (demand error, pressure sensor sd in m, sensors)
 COVER_M = 0.5                              # a leak is "covered" if its noise-free 2% response at some sensor exceeds this many metres
-MODES = ["pressure", "flow-adjusted"]
+MODES = ["pressure", "flow-adjusted", "flow-balance"]   # flow-balance: inflow residual alone, no pressure
 DETS = ["MA3", "CUSUM", "PELT"]
 log = lambda *a: print(*a, file=sys.stderr, flush=True)
 
@@ -42,7 +42,11 @@ def _job(a):
 
 
 def run_all(jobs, pool):
-    return {k: (p, l, d) for k, p, l, d in pool.imap_unordered(_job, jobs, chunksize=4)}
+    """(pressures, leak flow, inflow). The inflow meter reads junction demand plus the leak:
+    WNTR's junction `demand` excludes `leak_demand`, and before the round 105 quality audit
+    (portfolio/quality/audits/2026-11-23-infra-waterloss.json) the meter was given demand alone,
+    so it could not see the leak."""
+    return {k: (p, l, d + l) for k, p, l, d in pool.imap_unordered(_job, jobs, chunksize=4)}
 
 
 def pick_sensors(delta, k):
@@ -61,6 +65,8 @@ def statistic(p, dem, nom_p, nom_dem, mode, sd_p, rng):
     r = p + rng.normal(0, sd_p, p.shape) - nom_p                                  # pressure residual, m
     f = dem * (1 + rng.normal(0, FLOW_NOISE, dem.shape)) - nom_dem               # inflow residual, m3/s
     tr = slice(0, TRAIN)
+    if mode == "flow-balance":
+        return (f - f[tr].mean()) / (f[tr].std() + 1e-9)
     if mode == "flow-adjusted":
         A = np.column_stack([np.ones(TRAIN), f[tr]])
         coef = np.linalg.lstsq(A, r[tr], rcond=None)[0]
