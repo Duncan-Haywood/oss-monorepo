@@ -97,6 +97,10 @@ const r1 = (x) => Math.round(x * 10) / 10;
 function parseLink(tok) {
   const s = tok.trim();
   if (!s) return null;
+  // "A1030 FS 2": a lag with no sign after the link type (with no type, a
+  // trailing number stays part of the ID: A10390 1)
+  const u = /^(.+?)\s*[:\s]\s*(FS|SS|FF|SF)\s+(\d+(?:\.\d+)?)\s*d?$/i.exec(s);
+  if (u) return { code: u[1].trim(), type: u[2].toUpperCase(), lagDays: Number(u[3]), raw: s };
   const m = /^(.+?)(?:\s*[:\s]\s*(FS|SS|FF|SF))?\s*(?:([+-])\s*(\d+(?:\.\d+)?)\s*d?)?$/i.exec(s);
   if (!m) return { code: s, type: "FS", lagDays: 0, raw: s };
   const lag = m[4] ? Number(m[4]) * (m[3] === "-" ? -1 : 1) : 0;
@@ -105,7 +109,9 @@ function parseLink(tok) {
   // fragnet has an activity of that ID
   return { code: m[1].trim(), type: (m[2] || "FS").toUpperCase(), lagDays: lag, raw: s };
 }
-const links = (cell) => String(cell || "").split(/[;|]/).map(parseLink).filter(Boolean);
+// separated by ";", "|" or "," (P6 and MS Project export predecessor lists
+// with commas, quoted in a CSV cell)
+const links = (cell) => String(cell || "").split(/[;|,]/).map(parseLink).filter(Boolean);
 
 export function parseFragnet(text) {
   const rows = splitRows(text);
@@ -131,7 +137,10 @@ export function parseFragnet(text) {
     if (!code) { warnings.push(`row ${row}: no activity ID, skipped`); return; }
     const d = get(r, "days");
     const extend = /^\+/.test(d);
-    const days = d === "" ? 0 : Number(d.replace(/^\+/, "").replace(/\s*d(ays?)?$/i, ""));
+    // a plain decimal number of days only: Number() would read "0x10" as 16,
+    // "1e3" as 1000 and a bare "+" as 0
+    const dn = d.replace(/^\+/, "").replace(/\s*d(ays?)?$/i, "");
+    const days = d === "" ? 0 : /^\d+(\.\d+)?$|^\.\d+$/.test(dn) ? Number(dn) : NaN;
     if (!Number.isFinite(days) || days < 0) { warnings.push(`row ${row}: duration "${d}" is not a number of working days, skipped`); return; }
     const nb = get(r, "notBefore");
     const notBefore = nb ? parseLogDate(nb) : null;
