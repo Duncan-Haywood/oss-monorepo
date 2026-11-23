@@ -176,14 +176,16 @@
    "what": "fit_map is undamped Newton with no line search; it diverges from the uninformed prior start and on large-weight IPS fits (9 of 24 hour-100 fits checked: objective 450x to 380,000x the true minimum, ||w-w0|| 163 to 30,622 against a bound of 35-117). The online learner acts on these weights, so the logged history is distorted too. Same bug as ambient-fullinfo (fixed there by PR #18259) and ambient-bandit.",
    "where": "research/ambient-ips/src/ambient_ips/ips.py:56",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "high",
    "what": "Result 1 ('IPS did not fix the uninformed-prior failure', stds 35-44), the informed eps=0.002 IPS row (6.74 +- 14.03) and 'IPS with memory is the worst row' in result 4 are optimizer artifacts: converged, uninformed rows equal informed rows, IPS stds are 1.0-3.7, and IPS with memory is -0.18 +- 2.16. The homepage summary repeats the uninformed-prior claim.",
    "where": "research/ambient-ips/README.md:50",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "medium",
@@ -197,14 +199,16 @@
    "what": "Nearest prior work not cited and novelty not positioned: importance-weighted active learning (Beygelzimer, Dasgupta and Langford 2009) is the same query-with-known-probability, weight-by-1/p design; off-policy learning from logged bandit feedback (Strehl et al. 2010; Bottou et al. 2013; Swaminathan and Joachims 2015) and truncated IS (Ionides 2008) already establish the variance problem the README rediscovers.",
    "where": "research/ambient-ips/README.md:11",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "low",
    "what": "The hedged guess 'the selection bias matters little with these features' is contradicted by the follow-up ambient-fullinfo (biased fit loses 1.3-2.1 utility/h) and the README does not point to it.",
    "where": "research/ambient-ips/README.md:52",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "low",
@@ -214,6 +218,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"],
  "verdict": "A tidy, reproducible stylised study (run.py regenerates results.txt exactly; the oracle weights and 12.7/h oracle utility match a closed-form Bayes computation; the IPS construction with logged propensities is textbook-correct) whose headline negative result is a solver bug. fit_map is undamped Newton copied from ambient-bandit; an independent line-searched solver shows 9 of 24 hour-100 fits are non-converged, including every uninformed unweighted fit. Rerun with a converged solver, the 'uninformed-prior failure' that IPS 'did not fix' does not exist (uninformed rows equal informed rows), IPS variance falls from std 35-44 to 1-4, and the drift 'worst row' (IPS with memory, -7.79) becomes -0.18. What survives (constant-eps exploration costs more than it teaches; IPS is noisier at small eps and helps model quality only at eps = 0.02) is the known IPS bias-variance trade-off, uncited against IWAL and the logged-bandit literature. 4 of 4 seeded mutants survived the 5 tests. Does not meet the bar; porting ambient-fullinfo's damped-Newton fit_map (PR #18259), adding a stationarity test, regenerating results.txt and rewriting results 1 and 4 would lift correctness and claims."
 }

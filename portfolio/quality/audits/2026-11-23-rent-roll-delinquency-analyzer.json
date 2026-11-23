@@ -158,21 +158,24 @@
    "what": "Negative amounts (credits, concessions, reversals) are made positive with Math.abs, so a -$100 credit is reported as $100 owed and a late charge.",
    "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:168",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "high",
    "what": "Payment-only rows (separate payment lines, the shape of most tenant-ledger exports) are not applied to any charge: collected stays $0, the charge stays unpaid and aged, and the payment shows as an 'overpayment'. The code comment says such rows 'still count as collected'; they do not. No warning is shown.",
    "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:210",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "medium",
    "what": "Unit alias list puts 'property' and 'address' before 'tenant', so a file with Property and Tenant columns (no Unit) merges every tenant of a building into one row.",
    "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:15",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "medium",
@@ -193,7 +196,8 @@
    "what": "Aging bucket upper bound and the habitual-late 50% boundary are untested: seeded mutants (<= to <, >= to >) survive; the first drops charges exactly 30/60/90 days past due from the aging table.",
    "where": "ventures/rent-roll-delinquency-analyzer/calc.test.mjs:39",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "low",
@@ -207,7 +211,8 @@
    "what": "Page says one row per charge 'works best' rather than stating that split charge/payment ledgers give wrong collected and owed figures.",
    "where": "ventures/rent-roll-delinquency-analyzer/index.html:120",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "low",
@@ -217,6 +222,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"],
  "verdict": "A tidy, private, browser-only delinquency report whose arithmetic is right on the input shape it asks for: a hand-built ledger and the page's worked example both match to the cent (owed 8,475; buckets 4,175/2,575/1,725; 12 late charges, $600 bound), the page loads with no errors or external requests, and the disclaimer and caveats are in place. It does not meet the bar. Real ledger exports break it quietly: a credit row is sign-flipped into money owed (calc.mjs:168), separate payment rows are booked as overpayments with 0% collected, a Property+Tenant file merges tenants, and late-fee rows are treated as rent. Two of four seeded mutants survive, including the 30/60/90 bucket boundary. Treating negative amounts as credits, applying payment-only rows to the unit's oldest open charge, reordering the unit aliases, and adding boundary tests would lift correctness and verification to 3."
 }

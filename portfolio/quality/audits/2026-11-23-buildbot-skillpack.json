@@ -176,21 +176,24 @@
    "what": "Headline 'mixing the two plants did not help' is not a finding about mixing: same seeds draw the same 300 candidates and min(A,B) is almost always the B rate, so the mixed search picks the B-only winners (mixed skill = buildbot-skills B_random seed 3 exactly; mixed seed 2 = the 'B' file). The 3.6-point gap is between two B_random seeds. Undisclosed in README, project.json summary and lede.",
    "where": "research/buildbot-skillpack/experiments/run.py:34",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "medium",
    "what": "Reproduction test is red: it redraws a different 200-episode set (draw_world n=200 is not a prefix of n=1000) and allows 0.08; cohold-follow-A gives 0.740 vs 0.823.",
    "where": "research/buildbot-skillpack/tests/test_pack.py:71",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "medium",
    "what": "No test checks a stored claim at its stored seed and n; a changed test_seed and a disabled nail-claim drift check both leave the suite green.",
    "where": "research/buildbot-skillpack/src/buildbot_skillpack/evalpack.py:9",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "medium",
@@ -204,7 +207,8 @@
    "what": "Nearest prior work not cited: domain randomisation (Tobin 2017, Peng 2018), worst-case ensemble training (EPOpt, Rajeswaran 2017), model cards (Mitchell 2019) / LeRobot hub, pHRI impedance co-manipulation.",
    "where": "research/buildbot-skillpack/README.md:3",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "medium",
@@ -218,7 +222,8 @@
    "what": "Test named test_stiffer_gain_than_the_hand_set_one_changes_the_answer tests zero gains against the hand-set ones.",
    "where": "research/buildbot-skillpack/tests/test_pack.py:49",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
   },
   {
    "severity": "low",
@@ -228,6 +233,6 @@
    "origin": "claims"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"],
  "verdict": "A small, honest, reproducible packaging of the buildbot follow and nailing skills whose numbers check out: an independent RK4 rod integrator agrees with plant A on all 1,000 episodes for two skills, an independent Monte Carlo gives the nail budget 0.9515 vs 0.9513, MuJoCo plant C agrees with numpy plant B on 198-199 of 200 paired episodes once horizons match, and every file re-scores to its claim at its stored seed. It does not meet the bar. The headline research finding is an artefact: the 'mixed' skill is exactly buildbot-skills' B_random seed 3 and mixed seed 2 is exactly the published 'B' skill, because the same seeds draw the same candidates and the worse-of-two score is the B score, so 'mixing did not help' compares two B-only seeds. The shipped reproduction test is red, six of seven seeded mutants survive, the scored horizon depends on batch composition (inherited from buildbot-skills), and the closest prior work (domain randomisation, EPOpt, model cards) is uncited. Rewriting the headline as 'the worst-of-two objective reduces to B-only training here', making the test re-score at stored n with tol 0, and citing prior work would lift claims and verification to 3; the result still would not be new."
 }
