@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVM4KnsPrHe23zHw7CN",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; research track routed)",
+  "input_sha256": "7d8c629e882ba79b5f155eb3b42e1f4f985e477b4ce15583246d10e0d84d4c38",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T11:11:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/civ-seeding milestone 29: homophily (network-correlated latent propensity, no adoption influence) as a fifth family against I/T/R/H on the 43 BCDJ villages",
+  "projects": [
+    "research/civ-seeding"
+  ],
+  "pr": 18408,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first unit test assumed sigma=0 reproduces the information model draw-for-draw; the latent field consumes RNG draws, so the test now compares take-up statistically",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "cite_check could not reach doi.org/crossref for the one new DOI (McPherson et al. 2001, 10.1146/annurev.soc.27.1.415); left unverified by lookup, checked against known bibliographic record"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-homophily-without-contagion-fits-village-adoption-better.md"
+  ],
+  "goal": "advance an open research programme (pick_track draw: track 24, civ-seeding)",
+  "notes": "Plan + H105-H109 pushed before the run (commit on PR 18408). Run 572 s, 4 cores, OMP_NUM_THREADS=1. H105 held (m28 reproduced exactly), H106 held (L profile 10.0/20.8/29.5/27.9 vs real 10.9/19.0/28.8/29.1), H107 held (L LOO 11.86 vs 13.13-14.61; min paired share 0.957 vs H), H108 inconclusive (75.5%), H109 refuted (lowest I/T/R/H recovery 77.0 -> 65.0). L fit at grid edges rho=8, delta=-0.5 (disclosed). Grid range chosen from a disclosed 9-point pilot without fitting. Checks: civ-seeding tests 112 passed; build.py ok; research_live_links ok; check_md_links ok; check_posts ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null
+}
