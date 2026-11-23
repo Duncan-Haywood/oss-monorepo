@@ -1,6 +1,6 @@
 name: xer-schedule-check
 description: >-
-  Free browser tool that reads a Primavera P6 XER export, recomputes the
+  Free browser tool that reads a Primavera P6 XER export (or P6 XML), recomputes the
   critical path with P6's calendar, relationship, constraint and progress
   rules (matching P6's stored dates on 91.5% of 19,822 activities in six
   public files), and runs the DCMA 14-point schedule assessment with every

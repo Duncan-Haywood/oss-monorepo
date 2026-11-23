@@ -61,13 +61,13 @@
 <body>
   <main>
   <h1>XER Schedule Check: the DCMA 14-point assessment of a P6 schedule</h1>
-  <p>Open a <strong>Primavera P6 .xer export</strong> or a <strong>Microsoft Project schedule saved as XML</strong> and get the DCMA 14-point assessment with <strong>every activity behind each failing point</strong>, a critical path recomputed from the logic, the critical path test, and the faults the 14 points miss (logic loops, out-of-sequence progress, open finishes, expected finish dates that hide delay, float that no longer matches the logic). Everything runs in your browser: the schedule is never uploaded.</p>
+  <p>Open a <strong>Primavera P6 .xer export</strong>, a <strong>P6 XML file</strong> (P6 EPPM, Primavera Cloud) or a <strong>Microsoft Project schedule saved as XML</strong> and get the DCMA 14-point assessment with <strong>every activity behind each failing point</strong>, a critical path recomputed from the logic, the critical path test, and the faults the 14 points miss (logic loops, out-of-sequence progress, open finishes, expected finish dates that hide delay, float that no longer matches the logic). Everything runs in your browser: the schedule is never uploaded.</p>
   <p class="cta-row"><a class="cta" href="#in">Check a schedule</a> <a class="cta ghost" href="#how">How it was checked against P6</a></p>
   <p class="note">For owners' reps and claims consultants reviewing a contractor's update, schedulers checking their own before submission, and subcontractors handed a schedule they have no P6 licence to open.</p>
 
   <section class="card" aria-labelledby="in">
     <h2 id="in">Your schedule</h2>
-    <label for="file">P6 XER file (.xer) or Microsoft Project XML (.xml)</label>
+    <label for="file">P6 XER file (.xer), P6 XML (.xml) or Microsoft Project XML (.xml)</label>
     <input type="file" id="file" accept=".xer,.xml,text/plain,text/xml,application/xml">
     <div class="drop" id="drop">or drop a .xer or .xml file here</div>
     <div id="proj-wrap" hidden>
@@ -75,7 +75,7 @@
       <select id="proj"></select>
     </div>
     <button type="button" id="load-example" class="secondary">Load an example schedule</button>
-    <p id="form-status" role="status" aria-live="polite">Choose an XER file exported from P6 (File, Export, Primavera PM XER) or a Microsoft Project file saved as XML (File, Save As, XML Format).</p>
+    <p id="form-status" role="status" aria-live="polite">Choose an XER file exported from P6 (File, Export, Primavera PM XER), a P6 XML file (P6's Primavera PM XML export, P6 EPPM or Primavera Cloud) or a Microsoft Project file saved as XML (File, Save As, XML Format).</p>
     <div id="xlsx-wrap" hidden>
       <h3 id="to-excel">Open this P6 schedule in Excel</h3>
       <p class="note">Writes the XER as an Excel workbook in this tab, every internal id replaced by what P6 shows: one row per activity with its WBS path, type, status, calendar, durations and float in days of its own calendar, the start, finish, actual, early, late and planned dates as real Excel dates (sort and filter work), constraints, every predecessor and successor ("A1010 FS+2d"), one column per activity code type and per activity user-defined field, and this tool's recomputed dates and float beside P6's with a Float Agrees column. Further sheets list the relationships, WBS, resources, resource assignments with units and cost, expenses, calendars and activity code values. Header rows are frozen with filters on. On six public P6 files (21,758 activities), a separate reader found every one of 6,239,763 values checked equal to the XER's.</p>
@@ -91,6 +91,12 @@
       <p><input type="checkbox" id="conv-all-resources"> <label for="conv-all-resources">write every resource in the file, not only those this project's activities use (keeps an unassigned crane or crew, with its notes and calendar, on the resource sheet)</label></p>
       <button type="button" id="conv-xml">Download for Microsoft Project (.xml)</button>
       <div id="conv-out"></div>
+    </div>
+    <div id="pmxml-wrap" hidden>
+      <h3 id="to-xer">Convert this P6 XML file to an XER</h3>
+      <p class="note">P6 EPPM, Primavera Cloud and P6 Professional's XML export write P6 XML; many reviewers, claims tools and older P6 installs want an XER. This writes the same schedule as an XER in this tab, nothing uploaded: projects, WBS, activities with their IDs, types, durations, progress, constraints and stored dates, relationships and lags, every calendar with its work week and holidays, scheduling options, resources, rates and assignments, activity codes, user-defined fields and activity notebooks. On six public P6 files written as P6 XML, every activity, calendar, WBS path and all 56,666 relationships read the same as from the original XER, and this tool's schedule from the XML equals the one from the XER on 21,441 of 21,441 activities. P6 XML does not store total float, so the XER's float columns are left for P6 to fill at its first schedule run.</p>
+      <button type="button" id="pmxml-xer">Download as P6 XER (.xer)</button>
+      <div id="pmxml-out"></div>
     </div>
     <div id="p6-wrap" hidden>
       <h3 id="to-p6">Send this Microsoft Project schedule as a P6 XER</h3>
@@ -513,6 +519,7 @@
       <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
       <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
       <li><a href="./how-to-find-redundant-logic-in-a-p6-schedule.html">How to find redundant logic in a P6 schedule</a></li>
+      <li><a href="./how-to-convert-p6-xml-to-xer.html">How to convert a P6 XML file to XER</a></li>
       <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
       <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
       <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
@@ -550,6 +557,7 @@
     import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
     import { collapsedAsBuilt, collapsedCsv, collapsedTableHtml, EXAMPLE_DELAYS } from "./collapse.mjs";
     import { xerText, xerBytes } from "./xer.mjs";
+    import { pmxmlToXer } from "./pmxml.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
     import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
     import { trend, trendCsv } from "./trend.mjs";
@@ -625,6 +633,8 @@
       $("#conv-wrap").hidden = !xer || xer.format === "mspdi";
       $("#xlsx-wrap").hidden = !xer || xer.format === "mspdi";
       $("#p6-wrap").hidden = !xer || xer.format !== "mspdi";
+      $("#pmxml-wrap").hidden = !xer || xer.format !== "pmxml";
+      $("#pmxml-out").innerHTML = "";
       $("#p6-out").innerHTML = "";
       $("#conv-out").innerHTML = "";
       try {
@@ -646,7 +656,7 @@
         xer = parseSchedule(text);
         loadedText = text;
       } catch (e) {
-        status.textContent = `This does not look like an XER or Microsoft Project XML file: ${e.message}`;
+        status.textContent = `This does not look like an XER, P6 XML or Microsoft Project XML file: ${e.message}`;
         report.hidden = true;
         return false;
       }
@@ -696,6 +706,18 @@
         record("converted_to_p6");
       } catch (e) {
         $("#p6-out").innerHTML = `<p class="note">Could not convert this file: ${esc(e.message)}</p>`;
+      }
+    });
+    $("#pmxml-xer").addEventListener("click", () => {
+      if (!xer || xer.format !== "pmxml") return;
+      try {
+        const r = pmxmlToXer(xer);
+        save(new Blob([r.bytes], { type: "text/plain" }), `${fileName}.xer`);
+        const T = xer.tables;
+        $("#pmxml-out").innerHTML = `<p class="note">${esc((T.PROJECT || []).length)} project(s), ${esc((T.TASK || []).length)} activities, ${esc((T.TASKPRED || []).length)} relationships, ${esc((T.CALENDAR || []).length)} calendars and ${esc((T.TASKRSRC || []).length)} resource assignments written${r.unmapped ? `; ${esc(r.unmapped)} characters do not fit Windows-1252, so the file is UTF-8` : ""}.</p>${xer.warnings.length ? `<div class="warnbox"><ul>${xer.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : ""}`;
+        record("converted_to_xer");
+      } catch (e) {
+        $("#pmxml-out").innerHTML = `<p class="note">Could not convert this file: ${esc(e.message)}</p>`;
       }
     });
     $("#xlsx-download").addEventListener("click", async () => {
@@ -836,7 +858,7 @@
       const f = e.target.files[0];
       if (!f) { apabBase = null; return; }
       try { apabBase = parseSchedule(decodeXer(new Uint8Array(await f.arrayBuffer()))); $("#apab-status").textContent = `Baseline ${f.name} read.`; }
-      catch (err) { apabBase = null; $("#apab-status").textContent = `This does not look like an XER or Microsoft Project XML file: ${err.message}`; }
+      catch (err) { apabBase = null; $("#apab-status").textContent = `This does not look like an XER, P6 XML or Microsoft Project XML file: ${err.message}`; }
     });
     $("#apab-run").addEventListener("click", async () => {
       const st = $("#apab-status");
@@ -902,7 +924,8 @@
     $("#red-xer").addEventListener("click", async () => {
       if (!lastRed || !loadedText) return;
       const { dropLinksText } = await redModule();
-      const { text, removed } = dropLinksText(loadedText, lastRed.redundant.filter((x) => x.sure).map((x) => x.id));
+      const sure = lastRed.redundant.filter((x) => x.sure).map((x) => x.id);
+      const { text, removed } = xer.format === "pmxml" ? pmxmlToXer(xer, { dropLinks: sure }) : dropLinksText(loadedText, sure);
       save(new Blob([xerBytes(text).bytes], { type: "text/plain" }), `${fileName}-without-redundant-logic.xer`);
       $("#red-status").textContent += ` Saved the file less ${removed} sure redundant relationship${removed === 1 ? "" : "s"}.`;
       record("findings_downloaded");
@@ -1367,7 +1390,7 @@
       const f = e.target.files[0];
       if (!f) return;
       $("#cmp-status").textContent = `Reading ${f.name}...`;
-      try { prevXer = parseSchedule(decodeXer(new Uint8Array(await f.arrayBuffer()))); } catch (err) { $("#cmp-status").textContent = `This does not look like an XER or Microsoft Project XML file: ${err.message}`; return; }
+      try { prevXer = parseSchedule(decodeXer(new Uint8Array(await f.arrayBuffer()))); } catch (err) { $("#cmp-status").textContent = `This does not look like an XER, P6 XML or Microsoft Project XML file: ${err.message}`; return; }
       if (runCompare()) record("updates_compared");
     });
     $("#load-example-pair").addEventListener("click", () => {

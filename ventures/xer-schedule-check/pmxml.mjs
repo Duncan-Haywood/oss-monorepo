@@ -20,6 +20,7 @@
 // baseline projects (<BaselineProject>), named in the warnings.
 
 import { parseXml } from "./mspdi.mjs";
+import { xerText, xerBytes } from "./xer.mjs";
 
 const kid = (node, name) => node && node.children.find((c) => c.name === name);
 const kids = (node, name) => (node ? node.children.filter((c) => c.name === name) : []);
@@ -69,6 +70,9 @@ const UDF_TYPE = {
   "Start Date": "FT_START_DATE", "Finish Date": "FT_END_DATE", Indicator: "FT_STATICTYPE", Code: "FT_STATICTYPE",
 };
 const UDF_TABLE = { Activity: "TASK", WBS: "PROJWBS", Resource: "RSRC", Project: "PROJECT", "Resource Assignment": "TASKRSRC", Relationship: "TASKPRED" };
+const WBS_STATUS = { Active: "WS_Open", Inactive: "WS_Closed", "What-If": "WS_Whatif", Planned: "WS_Planned" };
+// a lookup that ignores Object.prototype names a file could hold ("constructor")
+const own = (table, key, dflt = "") => (Object.hasOwn(table, key) ? table[key] : dflt);
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // ---------- calendars ----------
@@ -120,7 +124,7 @@ function calendarRow(c, projId) {
     clndr_name: val(c, "Name"),
     proj_id: projId || val(c, "ProjectObjectId"),
     base_clndr_id: val(c, "BaseCalendarObjectId"),
-    clndr_type: CAL_TYPE[val(c, "Type")] || "",
+    clndr_type: own(CAL_TYPE, val(c, "Type"), ""),
     day_hr_cnt: n(val(c, "HoursPerDay")),
     week_hr_cnt: n(val(c, "HoursPerWeek")),
     month_hr_cnt: n(val(c, "HoursPerMonth")),
@@ -154,7 +158,7 @@ export function parsePmxml(text) {
   for (const r of kids(api, "Resource")) {
     T.RSRC.push({
       rsrc_id: val(r, "ObjectId"), parent_rsrc_id: val(r, "ParentObjectId"), clndr_id: val(r, "CalendarObjectId"),
-      rsrc_short_name: val(r, "Id"), rsrc_name: val(r, "Name"), rsrc_type: RSRC_TYPE[val(r, "ResourceType")] || "RT_Labor",
+      rsrc_short_name: val(r, "Id"), rsrc_name: val(r, "Name"), rsrc_type: own(RSRC_TYPE, val(r, "ResourceType"), "RT_Labor"),
       active_flag: yn(val(r, "IsActive")), def_qty_per_hr: n(val(r, "DefaultUnitsPerTime")),
       unit_id: val(r, "UnitOfMeasureObjectId"), rsrc_seq_num: val(r, "SequenceNumber"),
       employee_code: val(r, "EmployeeId"), rsrc_title_name: val(r, "Title"), rsrc_notes: val(r, "ResourceNotes"),
@@ -171,13 +175,13 @@ export function parsePmxml(text) {
       T.ACTVTYPE.push({
         actv_code_type_id: val(t, "ObjectId"), actv_code_type: val(t, "Name"), seq_num: val(t, "SequenceNumber"),
         actv_short_len: val(t, "Length"), proj_id: projId || val(t, "ProjectObjectId"),
-        actv_code_type_scope: SCOPE[val(t, "Scope")] || (projId ? "AS_Project" : "AS_Global"),
+        actv_code_type_scope: own(SCOPE, val(t, "Scope"), (projId ? "AS_Project" : "AS_Global")),
       });
     }
     for (const c of kids(node, "ActivityCode")) {
       T.ACTVCODE.push({
         actv_code_id: val(c, "ObjectId"), parent_actv_code_id: val(c, "ParentObjectId"), actv_code_type_id: val(c, "CodeTypeObjectId"),
-        actv_code_name: val(c, "Description"), short_name: val(c, "CodeValue"), seq_num: val(c, "SequenceNumber"), color: val(c, "Color"),
+        actv_code_name: val(c, "Description"), short_name: val(c, "CodeValue"), seq_num: val(c, "SequenceNumber"), color: val(c, "Color").replace(/^#/, ""),
       });
     }
   };
@@ -187,8 +191,8 @@ export function parsePmxml(text) {
     const id = val(u, "ObjectId"), dt = val(u, "DataType");
     udfKinds.set(id, dt);
     T.UDFTYPE.push({
-      udf_type_id: id, table_name: UDF_TABLE[val(u, "SubjectArea")] || val(u, "SubjectArea"),
-      udf_type_name: val(u, "Title"), udf_type_label: val(u, "Title"), logical_data_type: UDF_TYPE[dt] || "FT_TEXT",
+      udf_type_id: id, table_name: own(UDF_TABLE, val(u, "SubjectArea"), val(u, "SubjectArea")),
+      udf_type_name: val(u, "Title"), udf_type_label: val(u, "Title"), logical_data_type: own(UDF_TYPE, dt, "FT_TEXT"),
     });
   }
   for (const t of kids(api, "NotebookTopic")) {
@@ -210,7 +214,7 @@ export function parsePmxml(text) {
       if (!kind && !udfKinds.has(type)) {
         // a value whose type the file does not list: guess the type from the value
         udfKinds.set(type, row.udf_date ? "Start Date" : row.udf_number !== "" ? "Double" : "Text");
-        T.UDFTYPE.push({ udf_type_id: type, table_name: table, udf_type_name: `UDF ${type}`, udf_type_label: `UDF ${type}`, logical_data_type: UDF_TYPE[udfKinds.get(type)] });
+        T.UDFTYPE.push({ udf_type_id: type, table_name: table, udf_type_name: `UDF ${type}`, udf_type_label: `UDF ${type}`, logical_data_type: own(UDF_TYPE, udfKinds.get(type)) });
       }
       T.UDFVALUE.push(row);
     }
@@ -222,22 +226,26 @@ export function parsePmxml(text) {
   const baselines = kids(api, "BaselineProject");
   if (baselines.length) warnings.push(`${baselines.length} baseline ${baselines.length === 1 ? "project is" : "projects are"} in the file and ${baselines.length === 1 ? "was" : "were"} not read; open the baseline as its own file to compare`);
   let pred = 0;
+  // XER ids are whole numbers: the project nodes (which P6 XML has no object
+  // for) and links with no ObjectId get numbers past every id in the file
+  let nextId = 1;
+  for (const m of text.matchAll(/<ObjectId>(\d+)<\/ObjectId>/g)) if (+m[1] >= nextId) nextId = +m[1] + 1;
   for (const p of projects) {
     const pid = val(p, "ObjectId");
     const so = kid(p, "ScheduleOptions");
     // scheduling options sit in <ScheduleOptions>; older exports put them on the project
     const opt = (k) => (so && kid(so, k) ? val(so, k) : val(p, k));
-    const node = `p${pid}`;
+    const node = String(nextId++);
     const oos = opt("OutOfSequenceScheduleType");
     T.PROJECT.push({
       proj_id: pid, proj_short_name: val(p, "Id"), clndr_id: val(p, "ActivityDefaultCalendarObjectId"),
       last_recalc_date: pmDate(val(p, "DataDate")), plan_start_date: pmDate(val(p, "PlannedStartDate")),
       plan_end_date: pmDate(val(p, "MustFinishByDate")), scd_end_date: pmDate(val(p, "ScheduledFinishDate")),
       critical_drtn_hr_cnt: n(opt("CriticalActivityFloatThreshold") || val(p, "CriticalActivityFloatLimit")),
-      critical_path_type: CRIT_PATH[opt("CriticalActivityPathType")] || "",
-      def_task_type: TASK_TYPE[val(p, "ActivityDefaultActivityType")] || "",
-      def_duration_type: DURATION_TYPE[val(p, "ActivityDefaultDurationType")] || "",
-      def_complete_pct_type: PCT_TYPE[val(p, "ActivityDefaultPercentCompleteType")] || "",
+      critical_path_type: own(CRIT_PATH, opt("CriticalActivityPathType"), ""),
+      def_task_type: own(TASK_TYPE, val(p, "ActivityDefaultActivityType"), ""),
+      def_duration_type: own(DURATION_TYPE, val(p, "ActivityDefaultDurationType"), ""),
+      def_complete_pct_type: own(PCT_TYPE, val(p, "ActivityDefaultPercentCompleteType"), ""),
       fy_start_month_num: val(p, "FiscalYearStartMonth"), guid: val(p, "GUID"),
       sum_base_proj_id: val(p, "CurrentBaselineProjectObjectId"),
       task_code_prefix: val(p, "ActivityIdPrefix"), task_code_base: val(p, "ActivityIdSuffix"), task_code_step: val(p, "ActivityIdIncrement"),
@@ -251,7 +259,7 @@ export function parsePmxml(text) {
       sched_retained_logic: oos ? (oos === "Retained Logic" ? "Y" : "N") : "",
       sched_progress_override: oos ? (oos === "Progress Override" ? "Y" : "N") : "",
       sched_float_type: floatType(opt("ComputeTotalFloatType")),
-      sched_calendar_on_relationship_lag: LAG_CAL[opt("RelationshipLagCalendar")] || "",
+      sched_calendar_on_relationship_lag: own(LAG_CAL, opt("RelationshipLagCalendar"), ""),
       sched_use_expect_end_flag: yn(opt("UseExpectedFinishDates")),
       sched_use_project_end_date_for_float: yn(opt("CalculateFloatBasedOnFinishDate")),
       level_all_rsrc_flag: yn(opt("LevelAllResources")), level_within_float_flag: yn(opt("LevelWithinFloat")),
@@ -272,7 +280,7 @@ export function parsePmxml(text) {
         wbs_id: val(w, "ObjectId"), proj_id: pid, seq_num: val(w, "SequenceNumber"), proj_node_flag: "N",
         wbs_short_name: val(w, "Code"), wbs_name: val(w, "Name"),
         parent_wbs_id: parent && wbsIds.has(parent) ? parent : node,
-        status_code: { Active: "WS_Open", Inactive: "WS_Closed", "What-If": "WS_Whatif", Planned: "WS_Planned" }[val(w, "Status")] || "WS_Open",
+        status_code: own(WBS_STATUS, val(w, "Status"), "WS_Open"),
         guid: val(w, "GUID"), est_wt: n(val(w, "EstimatedWeight")),
       });
       udfValues(w, "PROJWBS", val(w, "ObjectId"), pid);
@@ -290,10 +298,10 @@ export function parsePmxml(text) {
         task_id: id, proj_id: pid, wbs_id: wbs && wbsIds.has(wbs) ? wbs : node, clndr_id: val(a, "CalendarObjectId"),
         phys_complete_pct: pct(val(a, "PhysicalPercentComplete")),
         auto_compute_act_flag: yn(val(a, "AutoComputeActuals")),
-        complete_pct_type: PCT_TYPE[val(a, "PercentCompleteType")] || "",
-        task_type: TASK_TYPE[val(a, "Type")] || "TT_Task",
-        duration_type: DURATION_TYPE[val(a, "DurationType")] || "",
-        status_code: STATUS[val(a, "Status")] || "TK_NotStart",
+        complete_pct_type: own(PCT_TYPE, val(a, "PercentCompleteType"), ""),
+        task_type: own(TASK_TYPE, val(a, "Type"), "TT_Task"),
+        duration_type: own(DURATION_TYPE, val(a, "DurationType"), ""),
+        status_code: own(STATUS, val(a, "Status"), "TK_NotStart"),
         task_code: val(a, "Id"), task_name: val(a, "Name"),
         rsrc_id: val(a, "PrimaryResourceObjectId"),
         total_float_hr_cnt: n(val(a, "TotalFloat")), free_float_hr_cnt: n(val(a, "FreeFloat")),
@@ -309,12 +317,12 @@ export function parsePmxml(text) {
         restart_date: res, reend_date: ree,
         target_start_date: pmDate(val(a, "PlannedStartDate")), target_end_date: pmDate(val(a, "PlannedFinishDate")),
         rem_late_start_date: rls, rem_late_end_date: rle,
-        cstr_type: CONSTRAINT[val(a, "PrimaryConstraintType")] || "",
-        priority_type: PRIORITY[val(a, "LevelingPriority")] || "",
+        cstr_type: own(CONSTRAINT, val(a, "PrimaryConstraintType"), ""),
+        priority_type: own(PRIORITY, val(a, "LevelingPriority"), ""),
         suspend_date: pmDate(val(a, "SuspendDate")), resume_date: pmDate(val(a, "ResumeDate")),
         float_path: val(a, "FloatPath"), float_path_order: val(a, "FloatPathOrder"),
         guid: val(a, "GUID"),
-        cstr_date2: pmDate(val(a, "SecondaryConstraintDate")), cstr_type2: CONSTRAINT[val(a, "SecondaryConstraintType")] || "",
+        cstr_date2: pmDate(val(a, "SecondaryConstraintDate")), cstr_type2: own(CONSTRAINT, val(a, "SecondaryConstraintType"), ""),
         driving_path_flag: yn(val(a, "IsLongestPath")) || "N",
         external_early_start_date: pmDate(val(a, "ExternalEarlyStartDate")), external_late_end_date: pmDate(val(a, "ExternalLateFinishDate")),
         est_wt: n(val(a, "EstimatedWeight")),
@@ -327,9 +335,9 @@ export function parsePmxml(text) {
     for (const r of kids(p, "Relationship")) {
       pred++;
       T.TASKPRED.push({
-        task_pred_id: val(r, "ObjectId") || `r${pred}`, task_id: val(r, "SuccessorActivityObjectId"), pred_task_id: val(r, "PredecessorActivityObjectId"),
+        task_pred_id: val(r, "ObjectId") || String(nextId++), task_id: val(r, "SuccessorActivityObjectId"), pred_task_id: val(r, "PredecessorActivityObjectId"),
         proj_id: val(r, "SuccessorProjectObjectId") || pid, pred_proj_id: val(r, "PredecessorProjectObjectId") || pid,
-        pred_type: LINK[val(r, "Type")] || "PR_FS", lag_hr_cnt: n(val(r, "Lag")) || "0", comments: val(r, "Comments"),
+        pred_type: own(LINK, val(r, "Type"), "PR_FS"), lag_hr_cnt: n(val(r, "Lag")) || "0", comments: val(r, "Comments"),
       });
     }
 
@@ -345,7 +353,7 @@ export function parsePmxml(text) {
         act_reg_cost: n(val(r, "ActualRegularCost")), act_ot_cost: n(val(r, "ActualOvertimeCost")),
         target_cost: n(val(r, "PlannedCost")), remain_cost: n(val(r, "RemainingCost")),
         cost_per_qty: n(val(r, "PricePerUnit")), rate_type: val(r, "RateType"),
-        rsrc_type: RSRC_TYPE[val(r, "ResourceType")] || "",
+        rsrc_type: own(RSRC_TYPE, val(r, "ResourceType"), ""),
         act_start_date: pmDate(val(r, "ActualStartDate")), act_end_date: pmDate(val(r, "ActualFinishDate")),
         restart_date: pmDate(val(r, "RemainingStartDate")), reend_date: pmDate(val(r, "RemainingFinishDate")),
         target_start_date: pmDate(val(r, "PlannedStartDate")), target_end_date: pmDate(val(r, "PlannedFinishDate")),
@@ -364,4 +372,17 @@ export function parsePmxml(text) {
   const noFloat = T.TASK.length && !T.TASK.some((t) => t.total_float_hr_cnt !== "");
   if (noFloat) warnings.push("P6 XML stores no total float, so the stored-float check has nothing to compare (float is recomputed from the logic)");
   return { version: ver ? ver[1] : null, exportDate: null, currency: null, tables, warnings, format: "pmxml" };
+}
+
+// The P6 XML file as an XER for P6 Professional's import (File, Import,
+// Primavera PM (XER)) or any XER reader: the tables above, written by xerText,
+// in Windows-1252 when the text fits it. `dropLinks` (task_pred_ids) leaves
+// those relationships out (the redundant-logic cleaned file).
+export function pmxmlToXer(xer, { dropLinks = [] } = {}) {
+  const drop = new Set(dropLinks.map(String));
+  const tables = { ...xer.tables };
+  let removed = 0;
+  if (drop.size && tables.TASKPRED) tables.TASKPRED = tables.TASKPRED.filter((r) => (drop.has(r.task_pred_id) ? (removed++, false) : true));
+  const text = xerText({ version: xer.version, exportDate: new Date().toISOString().slice(0, 10), tables });
+  return { text, ...xerBytes(text), removed };
 }

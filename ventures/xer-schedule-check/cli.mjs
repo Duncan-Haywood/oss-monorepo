@@ -2,7 +2,10 @@
 // node cli.mjs schedule.xer [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]
 // Prints the DCMA 14-point assessment of a Primavera P6 XER file. Any
 // schedule argument can also be a Microsoft Project XML (MSPDI) file
-// (mspdi.mjs): File, Save As, XML Format in Microsoft Project.
+// (mspdi.mjs): File, Save As, XML Format in Microsoft Project; or a P6 XML
+// file (pmxml.mjs): P6's File, Export, Primavera PM (XML), P6 EPPM or Primavera Cloud.
+// node cli.mjs schedule.xml --to-xer schedule.xer
+// A P6 XML file written back as an XER for P6's import or any XER reader.
 // node cli.mjs current.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 // Compares two updates of the same project instead (compare.mjs).
 // Either form takes --report review.html [--to NAME] [--from NAME] [--ref TEXT]
@@ -165,6 +168,7 @@ import { windows, windowsText, windowsCsv } from "./windows.mjs";
 import { trend, trendText, trendCsv } from "./trend.mjs";
 import { decodeXer } from "./xer.mjs";
 import { parseSchedule } from "./mspdi.mjs";
+import { pmxmlToXer } from "./pmxml.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
 import { narrative, narrativeText, narrativeHtml } from "./narrative.mjs";
@@ -196,7 +200,7 @@ import { redundantLogic, redundantText, redundantCsv, dropLinksText } from "./re
 import { xerBytes } from "./xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max", "--cleaned"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max", "--cleaned", "--to-xer"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -317,6 +321,14 @@ if (args.includes("--previous")) {
   process.exit(0);
 }
 const projId = args.includes("--project") ? projectFor(xer) : null;
+if (args.includes("--to-xer")) {
+  if (xer.format !== "pmxml") { console.error(`--to-xer: takes a P6 XML file (this one is ${xer.format === "mspdi" ? "Microsoft Project XML: use --to-p6" : "already an XER"})`); process.exit(2); }
+  const r = pmxmlToXer(xer);
+  writeFileSync(opt("--to-xer"), r.bytes);
+  const T = xer.tables;
+  await emit(`${opt("--to-xer")}: ${(T.PROJECT || []).length} project(s), ${(T.TASK || []).length} activities, ${(T.TASKPRED || []).length} relationships, ${(T.CALENDAR || []).length} calendars, ${(T.TASKRSRC || []).length} resource assignments (${r.encoding}${r.unmapped ? `, ${r.unmapped} characters outside Windows-1252` : ""})\n${xer.warnings.map((w) => `- ${w}\n`).join("")}`);
+  process.exit(0);
+}
 if (args.includes("--to-p6")) {
   if (xer.format !== "mspdi") { console.error("--to-p6: this file is already an XER (it takes Microsoft Project XML)"); process.exit(2); }
   const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto", deadlines: args.includes("--deadlines"), typesFrom: opt("--types-from") ? decodeXer(readFileSync(opt("--types-from"))) : null, ...fieldOpts });
@@ -437,7 +449,7 @@ if (args.includes("--redundant")) {
   if (opt("--cleaned")) {
     if (xer.format === "mspdi") { console.error("--cleaned writes XER files only; this is a Microsoft Project file"); process.exit(2); }
     const ids = r.redundant.filter((x) => x.sure || args.includes("--include-check")).map((x) => x.id);
-    const { text, removed } = dropLinksText(decodeXer(readFileSync(file)), ids);
+    const { text, removed } = xer.format === "pmxml" ? pmxmlToXer(xer, { dropLinks: ids }) : dropLinksText(decodeXer(readFileSync(file)), ids);
     writeFileSync(opt("--cleaned"), xerBytes(text).bytes);
     console.error(`${opt("--cleaned")}: the file less ${removed} redundant relationship${removed === 1 ? "" : "s"}`);
   }

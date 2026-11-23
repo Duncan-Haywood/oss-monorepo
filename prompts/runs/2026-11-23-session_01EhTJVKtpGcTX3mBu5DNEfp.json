@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKtpGcTX3mBu5DNEfp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T19:15:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 13) xer-schedule-check: read P6 XML (PMXML) and convert it to XER",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18465",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "xer-schedule-check's buildable list is all re-runs of evals that already shipped; allocate.py's numbered item 3 pointed at a landed result. A buildable list of new capabilities would save the next run the search."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "allocate.py's item 3 for xer-schedule-check (relationship dates) already landed 2026-11-20 and re-running its eval would re-verify unchanged work; every other buildable item was also re-verification. Took a new capability instead: the P6 XML format, which the tool did not read (grep: no PMXML/APIBusinessObjects anywhere) and which P6 EPPM and Primavera Cloud export by default.",
+      "did": "built pmxml.mjs, page and CLI conversion, evals, guide and post",
+      "result": "21,441/21,441 activities schedule the same from the XML as from the XER; MPXJ reads the converted XERs as the originals on 239,338/239,338 fields"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-p6-xml-to-xer-in-the-browser-checked-against-mpxj.md",
+    "ventures/xer-schedule-check/eval/pmxml-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "Verification run here: python3 platform/ci/run_venture_tests.py xer-schedule-check -> ok (479 tests incl. 8 new in pmxml.test.mjs); node eval/pmxml-check.mjs on the six public XERs vs MPXJ-written P6 XML -> activities/calendars/WBS 21,758/21,758, links 56,666/56,666, schedule 21,441/21,441, round trip 21,441/21,441; python eval/pmxml-xer-mpxj.py -> 239,338/239,338 fields; eval/pmxml-p6-dates.mjs on a P6-written public file (EC00850) -> 32/32 open activities equal P6's stored ES/EF/LF. MPXJ check found one real reader bug (activity code colour '#0000FF'), fixed. check_posts ok; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}
