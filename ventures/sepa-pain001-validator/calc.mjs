@@ -42,7 +42,7 @@ export const VERSIONS = {
   "pain.001.001.03": { family: "CT", bic: "BIC", wrapDate: false, label: "Customer credit transfer initiation (SEPA SCT)" },
   "pain.001.001.09": { family: "CT", bic: "BICFI", wrapDate: true, label: "Customer credit transfer initiation (SEPA SCT)" },
   "pain.008.001.02": { family: "DD", bic: "BIC", wrapDate: false, label: "Customer direct debit initiation (SEPA SDD)" },
-  "pain.008.001.08": { family: "DD", bic: "BICFI", wrapDate: true, label: "Customer direct debit initiation (SEPA SDD)" },
+  "pain.008.001.08": { family: "DD", bic: "BICFI", wrapDate: false, label: "Customer direct debit initiation (SEPA SDD)" },
 };
 
 // element name -> maximum length. Max35Text / Max70Text / Max140Text from the ISO 20022 schema.
@@ -463,7 +463,7 @@ export function validate(text, opts = {}) {
     } else if (/^pain\.00[18]\./.test(version)) {
       const last = parseInt(version.slice(-2), 10);
       const family = version.startsWith("pain.001") ? "CT" : "DD";
-      vinfo = { family, bic: last >= 8 ? "BICFI" : "BIC", wrapDate: last >= 8, label: "unsupported version", approx: true };
+      vinfo = { family, bic: last >= 8 ? "BICFI" : "BIC", wrapDate: family === "CT" && last >= 8, label: "unsupported version", approx: true };
       add("warning", "NS-VERSION", root, `${version} is not one of the four versions checked in detail`, "This tool checks pain.001.001.03, pain.001.001.09, pain.008.001.02 and pain.008.001.08. The generic checks (totals, IBAN, BIC, characters, dates) still ran, using the closest rules.", "Ask your bank which version it accepts; .03 and .09 are the usual ones.");
     } else {
       add("error", "NS-NOT-INITIATION", root, `${version} is not a payment initiation message`, "This tool validates customer credit transfer initiations (pain.001) and direct debit initiations (pain.008). A status report (pain.002) or statement (camt.*) is a different message.", "Open the file you send to the bank, not the one it sends back.");
@@ -598,7 +598,7 @@ export function validate(text, opts = {}) {
         if (dtChild) { dateStr = txt(dtChild); dnode = dtChild; }
         else if (!vinfo.approx) add("error", "DATE-WRAP", dateNode, `In ${version} the date goes inside <Dt>`, `${dateName} is a choice of <Dt> or <DtTm> in this version, so a bare date is invalid.`, `Write <${dateName}><Dt>${dateStr}</Dt></${dateName}>.`);
       } else if (dtChild) {
-        add("error", "DATE-WRAP", dtChild, `In ${version} the date goes directly in <${dateName}>`, "This older version has no <Dt> wrapper.", `Write <${dateName}>YYYY-MM-DD</${dateName}>.`);
+        add("error", "DATE-WRAP", dtChild, `In ${version} the date goes directly in <${dateName}>`, !CT ? `In ${version} ReqdColltnDt is a plain ISODate; only pain.001.001.09 and later wrap the execution date in <Dt>.` : "This older version has no <Dt> wrapper.", `Write <${dateName}>YYYY-MM-DD</${dateName}>.`);
         dateStr = txt(dtChild); dnode = dtChild;
       }
       const d = parseIsoDate(dateStr);
@@ -829,8 +829,10 @@ export function repair(text) {
   for (const node of walk(body)) {
     if (!node.leaf || node.selfClosing || node.contentEnd === null) continue;
     const isOthrId = node.name === "Id" && node.parent && node.parent.name === "Othr";
-    if (TEXT_MAX[node.name] === undefined && !isOthrId) continue;
-    if (node.name === "Id" && !isOthrId) continue;
+    // Identifiers (MsgId, PmtInfId, InstrId, EndToEndId, MndtId, Othr/Id) are never rewritten: a changed
+    // MndtId or creditor id no longer matches the signed mandate. Their bad characters stay reported.
+    if (ID_FIELDS.has(node.name) || isOthrId || node.name === "Id") continue;
+    if (TEXT_MAX[node.name] === undefined) continue;
     if (!disallowedChars(node.text).length) continue;
     const fixed = transliterate(node.text);
     edits.push({ start: node.contentStart, end: node.contentEnd, value: escapeXml(fixed), raw: true });

@@ -39,10 +39,10 @@
   ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-23-quality-audit-round-102.md"
+    "docs/posts/2026-11-23-quality-audit-round-103.md"
   ],
   "goal": null,
-  "notes": "Mode sample, seed 2026-11-23-c-efea, round 102. Subjects: ventures/tax-season-client-picker, ventures/route-account-pruner, research/ambient-hlrtlevel, research/simdesign-meshmargin. 0 of 4 at the bar (sampled 37 of 417, Wilson 6-12%). Seeded mutations caught 8 of 25. Spot-checks I reran: tax picker indep.py fixture (net 3555, 41 h) and $1,200 parse; route pruner indep.py sample totals (197.47/1476.62/10/5) and Driving-minutes swap; meshmargin conv.py centroid 99.9->132.8 vs vertex 139.0->143.7 MPa; hlrtlevel indep.py CP intervals, E[p]=0.5125, null-fit diffs <=4e-8. Fixes in this PR (#18385): route-account-pruner defects 0,1,2,3,4,7; tax-season-client-picker 0,1,2,3,7; meshmargin README 1,2; hlrtlevel README 4. Verification: node --test in both ventures 35/35 and 36/36 pass, run_venture_tests ok, mutants net*inc and tie-break reversal now caught, quality_audit validate 651/0, check_posts ok. Open high: meshmargin centroid-read verdicts (needs a rerun).",
+  "notes": "Mode sample, seed 2026-11-23-c-efea, round 103 (post renamed: a parallel session also used 102). Subjects: ventures/tax-season-client-picker, ventures/route-account-pruner, research/ambient-hlrtlevel, research/simdesign-meshmargin. 0 of 4 at the bar (sampled 38 of 421 after merging main, Wilson 7-12%). Seeded mutations caught 8 of 25. Spot-checks I reran: tax picker indep.py fixture (net 3555, 41 h) and $1,200 parse; route pruner indep.py sample totals (197.47/1476.62/10/5) and Driving-minutes swap; meshmargin conv.py centroid 99.9->132.8 vs vertex 139.0->143.7 MPa; hlrtlevel indep.py CP intervals, E[p]=0.5125, null-fit diffs <=4e-8. Fixes in this PR (#18385): route-account-pruner defects 0,1,2,3,4,7; tax-season-client-picker 0,1,2,3,7; meshmargin README 1,2; hlrtlevel README 4. Verification: node --test in both ventures 35/35 and 37/37 pass, run_venture_tests ok, mutants net*inc and tie-break reversal now caught, quality_audit validate 651/0, check_posts ok. Open high: meshmargin centroid-read verdicts (needs a rerun).",
   "corrections": [],
   "redteam": null,
   "usage": {

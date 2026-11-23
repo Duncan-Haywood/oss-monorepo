@@ -668,6 +668,40 @@ Guide (2026-11-23): `how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-sch
 its worked example (500 runs, seed 1, the page's defaults) is checked against the engine in
 `guides.test.mjs`.
 
+## Delay by party: sole and concurrent delay in the time impact analysis (2026-11-23)
+
+Most claims carry delays from both sides at once: an owner's change while the
+contractor's crew is short. Each side asks how much of the delay would have
+happened anyway had the other caused nothing. A fragnet row can now name a
+`Party` (also read: Responsible, Caused by). Each party's rows are scheduled
+alone and every row but that party's. A party's **sole delay** is the total
+minus the run without it (the but-for answer); what is left is
+**concurrent**: days either side's rows cause by themselves. The parts add to
+the total by construction; negative concurrent days mean the delays compound
+(one bites only once another has used the float). Rows with no party form
+their own group, `(no party)`, with a warning. When a party runs alone, links
+to another party's new activities are dropped, as for each event alone.
+
+On the built-in example (`EXAMPLE_PARTY_FRAGNET`, page button "Example with
+owner and contractor delays"): CO-03 (owner) alone 3 d, the contractor's
+short-crewed level 1 rough-in alone 8 d, both 8 d: owner sole 0, contractor
+sole 5, concurrent 3.
+
+Surfaces: page table "Delay by party" (event `tia_party_split`), printable
+exhibit, CSV rows (`party alone`, `without party`, `sole delay`,
+`concurrent delay`), text, `--json` (`byParty`, `apportionment`). Guide:
+`how-to-split-concurrent-delay-between-owner-and-contractor.html`.
+
+Checked: `tia.test.mjs` (example split, series not concurrent, one party
+owns all, unassigned rows grouped, cross-party links dropped) and
+`eval/tia-party-check.mjs` on the six public files
+(eval/tia-party-check-2026-11-23.md): series on the driving path 19/19 with 0
+concurrent; owner lengthening an activity while the contractor adds a
+parallel copy with extra days 31/31 against the split one-activity runs
+predict; one party 30/30. Not yet run on a real claim's fragnet with parties;
+whether the contract gives time, money or neither for concurrent days is not
+modelled.
+
 ## Probabilistic branches in the time impact analysis (2026-11-22)
 
 A fragnet is written as if the delay event will go one way. Often it will
@@ -959,7 +993,7 @@ button drifts. Search impressions not measured yet.
 | A constraints log in Excel, or a Last Planner board (sticky notes, or paid tools such as Touchplan or vPlanner) | Tracks what each task waits on, kept apart from the schedule; the paid boards need their own plan entered | The same spreadsheet merged with the P6 schedule: the date each row is needed by from the recomputed dates, late and overdue rows named, and how far the finish moves if the log holds, row by row, free and in the browser |
 | P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs and probabilistic branches (one path per group drawn each run, each branch's finish shift measured); no resource model |
-| A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
+| A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, each party's sole and concurrent delay, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
 | Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, cost resources and fixed costs as P6 expenses, deadlines as finish-on-or-before constraints on request (so P6's float counts down to them as Project's slack does), and a list of what is not carried (elapsed lags, splits) |
 | Accelerating by hand: pick the longest critical activity, add overtime, reschedule in P6 and see; or a paid tool that computes drag (Spider Project) | Trial and error in a P6 seat; most crews shorten an activity that a parallel path then caps | Drag and drag cost for every longest-path activity and lag from the XER, free in the browser: how many days each one really holds the finish, what that costs per your daily rate, which parallel path takes over, and reverse drag flagged |

@@ -103,7 +103,7 @@
   <section class="card">
     <h2>The model, and what it leaves out</h2>
     <ul>
-      <li><strong>Versions:</strong> pain.001.001.03 and .09 (credit transfer) and pain.008.001.02 and .08 (direct debit), detected from the namespace. Element names that differ between versions (BIC and BICFI, a bare date and a Dt wrapper) are checked against the declared version.</li>
+      <li><strong>Versions:</strong> pain.001.001.03 and .09 (credit transfer) and pain.008.001.02 and .08 (direct debit), detected from the namespace. Element names that differ between versions (BIC and BICFI; a Dt wrapper on the pain.001.001.09 execution date, a bare date everywhere else) are checked against the declared version.</li>
       <li><strong>Totals:</strong> every amount is read as an exact decimal and summed as integers, then compared with NbOfTxs and CtrlSum in the group header and in each payment block. No floating point is used.</li>
       <li><strong>IBAN:</strong> structure, the length for its country and the mod-97 check digits. <strong>BIC:</strong> 8 or 11 characters of the right shape. A well-formed IBAN is not proof the account exists.</li>
       <li><strong>Dates:</strong> a requested date in the past, on a Saturday or Sunday, or on a TARGET2 closing day (1 January, Good Friday, Easter Monday, 1 May, 25 and 26 December) is flagged with the next TARGET day.</li>

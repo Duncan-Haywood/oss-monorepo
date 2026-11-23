@@ -4,7 +4,7 @@ Follow-up to `selfrep-wearout` in the self-replicating manufacturing track (`PRO
 
 **Live page:** https://marisstella.app/research/selfrep-extinction-kits/
 
-**Companion to `research/selfrep-extinction`**, written in parallel by another run: that project solves a chain on fleet size alone (births min(n/W, B/V)) and compares mean extinction times with the `selfrep-wearout` simulator. This one tracks the kit stock and idle/building machines, so it can also give the probability of early extinction and the first-generation bound; the two use different chains and I did not reconcile their numbers.
+**Companion to `research/selfrep-extinction`**, written in parallel by another run: that project solves a chain on fleet size alone (births min(n/W, B/V)) and compares mean extinction times with the `selfrep-wearout` simulator. This one tracks the kit stock and idle/building machines, so it can also give the probability of early extinction and the first-generation bound; the two use different chains and I did not reconcile their numbers; `research/selfrep-reconcile` does.
 
 **Builds on.** `research/selfrep-wearout` (the observation: a lone seed printer often dies out although the fluid model predicts a stable fleet) and, through `research/selfrep-growth` and `research/selfrep-closure`, the work per copy W = 50.0 h and vitamins per copy V = 170.3 (assumed currency units; imported by relative path). Behind them: the RepRap project (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>) and the question of von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. Absorption probabilities and expected absorption times of a continuous-time Markov chain are textbook material (any text on Markov chains); no paper's result is reproduced and I cite none for the method. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
@@ -37,12 +37,19 @@ python3 experiments/run.py                   # about 1 minute; writes experiment
 - Chain truncation (maximum fleet 30, 12 kits) is checked against larger truncations only in the cases shown.
 - All inputs are assumed (see `selfrep-growth`); nothing says anything about a real printer. Simulated only.
 
+## Known gaps (quality audit, 2026-11-23)
+
+From [the round 102 audit](../../portfolio/quality/audits/2026-11-23-selfrep-extinction-kits.json):
+
+- The simulator's lognormal build times and Weibull lives have no test that checks their means equal W and L, so a sign or Gamma-factor slip in `des.py` leaves the tests green. A test now pins the closed-form bound.
+- The safe threshold of 6 machines is not varied. The audit's own sweep gave 0.185 to 0.198 for thresholds 3 to 15, so the result looks robust, but no committed experiment shows that.
+
 ## Next steps
-Add recycling and build failure to the chain (a larger state, same method); give the seed fleet n0 > 1 and check it against the chain; find which Markov assumption drives the longer extinction times of the regular/lognormal shop; derive a quasi-stationary approximation and compare it with the exact mean times.
+Add recycling and build failure to the chain (a larger state, same method); find which Markov assumption drives the longer extinction times of the regular/lognormal shop. Seed fleets n0 > 1 and a quasi-stationary approximation are done in `research/selfrep-extinction-qsd`. Cite and compare against the establishment-probability literature (Kendall 1948; Nåsell 2001; Haccou, Jagers and Vatutin 2005) and vary the safe threshold of 6 (quality audit 2026-11-23).
 
 ## Owner steps
 - Measure real time to failure for a printer's wear parts and real print and assembly times, and replace the assumed L and W (see `selfrep-wearout`, `selfrep-growth`).
 - Replace assumed vitamin costs with dated quotes (source and date for every price), as for `selfrep-closure`.
 
 ## Outside dependencies (vitamins)
-Python standard library only, plus the sibling `selfrep-growth` and `selfrep-closure` source trees (relative paths). The vitamins of the printers it describes are those of `selfrep-closure`.
+Python standard library only, plus the sibling `selfrep-growth` and `selfrep-closure` source trees (relative paths), and `research/_shared` for the figure only. The vitamins of the printers it describes are those of `selfrep-closure`.
