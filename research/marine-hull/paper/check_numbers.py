@@ -270,6 +270,12 @@ CLAIMS = [
     ("results_velocity_split.txt", "  1.00     3D  -0.04023   0.00000  -0.01949"),
     ("results_velocity_split.txt", "over 3D: NF-PG 0.892, NC 0.137"),
     ("results_velocity_split.txt", "over 3D: NF-PG 1.043, NC 0.315"),
+    # milestone 7zz: sectional diffraction with the incident surge velocity on the longitudinal normal
+    ("results_sectional_diffraction.txt", "restrained lambda/L 1 ID: 3D -0.39907, def 0.23353"),
+    ("results_sectional_diffraction.txt", "restrained lambda/L 1 ID: 3D -0.41652, def 0.24685"),
+    ("results_sectional_diffraction.txt", "over 3D: def 0.406, rv 0.406, sd 0.411, sdx 0.895"),
+    ("results_sectional_diffraction.txt", "over 3D: def 0.332, rv 0.332, sd 0.339, sdx 0.732"),
+    ("results_sectional_diffraction.txt", "D5 free sdx long-wave under 20% of def: T 4.093, M 3.869 -> refuted"),
 
 ]
 

@@ -60,3 +60,13 @@ test('the inset rule outweighs the band row reset and tapers to nothing at deskt
   assert.ok(css.indexOf('.pf-chrome-top .pfs-bar{padding:12px 0}') < css.indexOf(rule), 'comes after the reset it overrides');
   assert.ok(css.indexOf('.pf-chrome-top .pfs-crumbs{padding:0 0 10px}') < css.indexOf(rule));
 });
+
+test('on a phone the band rows use the site header rhythm, not the desktop padding', () => {
+  const css = renderChromeStyle();
+  const phone = '@media (max-width:720px){.pf-chrome-top .pfs-bar{padding:9px 0}.pf-chrome-top .pfs-crumbs{padding:0 0 9px}}';
+  assert.ok(css.includes(phone));
+  assert.ok(css.indexOf('.pf-chrome-top .pfs-bar{padding:12px 0}') < css.indexOf(phone), 'comes after the desktop rule it overrides');
+  // The inset rule sets the side padding with a more specific selector, so the
+  // phone rule's shorthand cannot zero it.
+  assert.ok(css.indexOf('.pf-chrome-top[data-pfs-inset] :is(.pfs-bar,.pfs-crumbs)') > 0);
+});

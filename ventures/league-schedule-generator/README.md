@@ -6042,3 +6042,24 @@ result; for the last round, a lone null seat) and lets the pairer choose: **21 o
 rounds and **18 of 18** lichess rounds give the same player the bye. The three misses: Graz r1 (the
 provisional list above), Budapest A r8 (82 at 1.5 where the pairer gives 90 at 1.0) and ChessHouse r8
 (160 where the pairer gives 128). The last two are still open (NEXT.md).
+
+## The pairing bye, priced inside its own bracket (2026-11-23, later)
+
+ChessHouse round 8 was one of the two byes the pairer still gave to someone other than the arbiters
+(160 in the file, 128 from the pairer). It was not a late result: forcing the bye off 128 gave all 84
+boards and the arbiters' bye. The cause was the bye's own weight. In the last bracket, stage A charges
+a bye for how far its player sits from the bottom, so the lowest-ranked player takes it when everything
+else is equal, as FIDE's Dutch order does. That distance was counted against the whole field (170
+players), so the charge for giving it to 128, five places up a seven-player bracket, was 29 against
+Dutch-order costs of 0 to 700 for the boards it freed. It now counts places from the bottom of the
+bracket, on the same 0 to 1000 scale. In that bracket every pairing that keeps the halves intact
+gives 128 a strong colour clash, so an exchange is needed; the arbiters swapped the lower S1 player
+(153 for 158), which leaves 160 the bye, and the pairer now does the same.
+
+Measured (eval/swiss-bye-bracket.txt): byes **40 of 42** (was 39), exact bye-condition rounds 25 (was
+24), played-condition boards unchanged (51 of 54 chess-results rounds exact, 4,892 boards). One open-
+condition round (Budapest B r4, which seats four players the arbiters left out) loses its bye; with the
+real field it stays exact. The last chess-results bye miss besides Graz r1's provisional list is
+Budapest A r8, where one result read differently explains it and no bye rule can (82 has 1.5 points to
+90's 1.0 on the file). Test: `swiss.test.mjs`, "the pairing bye in the last bracket", an 11-player
+event of the same shape that the old weight fails.
