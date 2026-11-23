@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVLdGuEgBcUY7tUaZog",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "e02737a67e91be4acf350a18c63c3a73f1d1aacc0ed6fc88c98781f318a98bcc",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T02:03:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: guides for time impact analysis and Monte Carlo schedule risk (shipped features with no marketing page)",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18347",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The first route call drew process for a scheduled ventures brief because --task was not passed; the route section says to pass it, but a scheduled run reads 'Route' and runs the plain command first. Re-ran with --task (as earlier records also report)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named photo-editing, whose buildable items are noise-tuning sweeps earlier sessions judged spent and whose raw.pixls.us host was refused again. Took xer-schedule-check (flagship 13, no open PR) and spent the run on distribution for two shipped-but-unmarketed features instead of another engine micro-slice.",
+      "did": "two guide pages + tests + post on xer-schedule-check",
+      "result": "merged; 431 venture tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-why-your-p6-finish-date-is-met-two-percent-of-the-time.md"
+  ],
+  "goal": "Distribution for a deep flagship: two high-intent search pages (time impact analysis, Monte Carlo schedule risk) for features already shipped and tested, each worked example pinned to engine output by guides.test.mjs.",
+  "notes": "Checks run locally: node --test guides.test.mjs (11/11), run_venture_tests.py xer-schedule-check (431 tests ok, site page checks ok), venture-preflight.mjs xer-schedule-check (see PR), check_posts.py ok, main_health.py 313/313 at start. Every number on both guides is asserted against cli.mjs --tia / --risk 500 (seed 1) on the built-in example. flagships.yaml next: unchanged (marketing pages, not a milestone item).",
+  "corrections": [],
+  "redteam": null
+}
