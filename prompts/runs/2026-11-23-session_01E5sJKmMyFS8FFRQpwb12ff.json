@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKmMyFS8FFRQpwb12ff",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T17:18:55Z",
+  "ended": "2026-11-23T17:27:10Z",
+  "wall_minutes": 8.43,
+  "tokens_in": 5116188,
+  "tokens_out": 29107,
+  "cost_usd": 2.3984,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18455",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "First draft of placeholderNumber read 'blank = revenue change x 4' as 4 (burn multiple 225,000 in the saas-efficiency example); caught by inspecting all form examples, fixed and pinned by a test.",
+    "First draft offered kebab-case raw ids (pre-money) alongside camelCase keys; restricted to identifiers."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Every session lands its own work' says merge it yourself, but platform/agents/ (the MCP server, a natural explore target) is a CODEOWNERS control-plane path that waits for the owner; I found this only after building, when checking CODEOWNERS before the PR. The explore prompt could name the control-plane paths up front."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Self-merge step skipped: the change is under /platform/agents/ in .github/CODEOWNERS, which the control-plane rule holds for owner approval; the post describes the code so it stays in the same PR rather than landing ahead of it.",
+      "did": "Opened PR #18455 ready for review, verified locally, left the merge to the owner and sent a notification.",
+      "result": "PR open, awaiting owner approval; unlanded_work.py will list it until then."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-the-page-form-was-the-sample-all-along.md",
+    "platform/agents/README.md (A first call that is known to work)"
+  ],
+  "goal": null,
+  "notes": "Idea: give the MCP tools server's describe_tool a verified first call from each tool's page form (values, selected options, example placeholders) when the engine ships no sample. Coverage 797 -> 904 of 1,416 (56.3% -> 63.8%); all 107 new examples rerun via call(). Tests: node --test platform/agents/tools.test.mjs platform/agents/example_coverage.test.mjs -> 26 pass 0 fail.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "44e56c1d-16b7-5355-8d8e-27087d7d3c5e",
+    "transcripts": 1,
+    "first": "2026-11-23T17:18:55Z",
+    "last": "2026-11-23T17:27:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 103,
+        "output": 29107,
+        "thinking": 6857,
+        "cache_read": 5014465,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101620,
+        "api_equivalent_usd": 2.3984,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 103,
+      "output": 29107,
+      "thinking": 6857,
+      "cache_read": 5014465,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101620,
+      "api_equivalent_usd": 2.3984,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 2,
+      "mcp__monorepo-projects-tools__search_tools": 1,
+      "mcp__monorepo-projects-tools__describe_tool": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.43,
+      "active_minutes": 8.43,
+      "model_minutes": 5.38,
+      "tool_minutes": 3.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
