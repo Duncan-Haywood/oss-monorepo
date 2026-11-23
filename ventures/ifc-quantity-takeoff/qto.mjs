@@ -1334,15 +1334,30 @@ function computeAreas(type, solids, W, f) {
         // face x width, so a body whose faces were not all read as standing
         // (skolebygg's triangulated breps #1455746 and #1457200, whose
         // triangles lean off the vertical) is left unmeasured
+        // A wall whose section changes up its height (skolebygg's #1455746
+        // and #1457200: 0.1 m thick under a 0.75 m recess, 0.423 m above)
+        // fails that, so it passes instead when the two faces enclose the
+        // body's volume by the divergence theorem in plan (`swept`), which
+        // holds for any section when the other faces are level or radial
+        // (eval/triangulated-arc-breps-2026-11-23.md)
         const g = curvedFaces(body, v), nt = net ? curvedFaces(net, v) : null;
         const V = Math.abs(solidVolume(body));
-        if (g && V > 0 && Math.abs(((g.outer + g.inner) / 2) * (g.rOuter - g.rInner) - V) <= 0.02 * V) {
+        const mean = g ? (g.outer + g.inner) / 2 : 0;
+        const oneSection = g && V > 0 && Math.abs(mean * (g.rOuter - g.rInner) - V) <= 0.02 * V;
+        // only a body with no cutters among its terms: a cutter's faces off
+        // the remaining material are not its surface (ISSUE_129's 180-degree
+        // #36735 and #148665, 258 terms, read cutter faces 6-9 m inside the
+        // wall as its inner face), and neither face nor ray test sees past them
+        const cutters = body.terms.some((t) => t.s < 0) || (body.shells || []).some((sh) => sh.s < 0);
+        const stepped = !oneSection && !cutters && g && V > 0 && Math.abs(g.swept - V) <= 0.02 * V;
+        if (oneSection || stepped) {
           out.side.chord = { gross: out.side.gross, net: out.side.net };
           out.side.faces = { gross: [g.outer * f2, g.inner * f2], net: nt ? [nt.outer * f2, nt.inner * f2] : [null, null] };
-          out.side.gross = ((g.outer + g.inner) / 2) * f2;
+          out.side.gross = mean * f2;
           out.side.net = nt ? ((nt.outer + nt.inner) / 2) * f2 : null;
           out.side.width = (g.rOuter - g.rInner) * f;
           out.side.radius = { outer: g.rOuter * f, inner: g.rInner * f };
+          if (stepped) out.side.stepped = true;
         }
       }
     }

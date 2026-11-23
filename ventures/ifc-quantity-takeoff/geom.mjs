@@ -400,10 +400,70 @@ export function bendsInPlan(s, up, t, minDirs = 12) {
  * (least squares, weighted by area); a facet whose normal points away from
  * it is on the outer face, towards it the inner, and one at more than 25
  * degrees to the radius (an end, a reveal) on neither. rOuter and rInner are
- * the faces' area-weighted distances from the centre. null when fewer than
- * `minDirs` facets stand on either face or the normals do not meet (a wall
- * that is straight after all).
+ * the faces' area-weighted distances from the centre. A facet counts as
+ * standing when it leans up to 2 degrees off `up` (triangles of a curved face
+ * whose corners sit at different angles and heights). `swept` is the volume
+ * the two faces enclose by the divergence theorem in plan (half the sum of
+ * each facet's plan area times its distance from the centre, the inner face
+ * negative): the body's volume when every face it has besides these two is
+ * level or lies along a radius, whatever its section does up the wall (a
+ * stepped or recessed wall included). A facet facing the centre or away
+ * with more of the body beyond it (a duct's inside) is on neither face: its
+ * area is `hidden`, though it still counts in `swept`. null when fewer than `minDirs` facets
+ * stand on either face or the normals do not meet (a wall that is straight
+ * after all).
  */
+const LEAN = Math.sin((2 * Math.PI) / 180);
+
+/**
+ * Whether the ray from p along n's plan direction (n less its part along u)
+ * passes through more of the solid: some distance ahead where the faces it
+ * crosses do not cancel (an entry into a convex piece and the exit from its
+ * neighbour through a shared face do; so do a face and a hole bound in it).
+ * Terms count with their sign, shells with theirs.
+ */
+function rayHitsBody(s, p, n, u) {
+  const d = unit(sub(n, mulS(u, dot(n, u))));
+  if (!d) return false;
+  let scale = 0;
+  for (const q of solidPoints(s)) scale = Math.max(scale, Math.abs(q[0] - p[0]), Math.abs(q[1] - p[1]), Math.abs(q[2] - p[2]));
+  // a facet of a non-planar loop (a quad on a curved face) has its centre a
+  // hair off its neighbours: crossings nearer than 1e-3 of the body's size
+  // are the facet's own surface
+  const eps = 1e-3 * (scale || 1);
+  const hits = [];
+  const test = (sg, l) => {
+    if (l.length < 3) return;
+    const a = newell(l), na = unit(a);
+    if (!na) return;
+    const dn = dot(na, d);
+    if (Math.abs(dn) < 1e-9) return;
+    const t = dot(na, sub(l[0], p)) / dn;
+    if (!(t > eps)) return;
+    const x = add(p, mulS(d, t));
+    // point in polygon, projected on the plane's dominant axes
+    const k = Math.abs(na[0]) > Math.abs(na[1]) ? (Math.abs(na[0]) > Math.abs(na[2]) ? 0 : 2) : Math.abs(na[1]) > Math.abs(na[2]) ? 1 : 2;
+    const i = (k + 1) % 3, j = (k + 2) % 3;
+    let inside = false;
+    for (let m = 0, w = l.length - 1; m < l.length; w = m++) {
+      const A = l[m], B = l[w];
+      if ((A[j] > x[j]) !== (B[j] > x[j]) && x[i] < ((B[i] - A[i]) * (x[j] - A[j])) / (B[j] - A[j]) + A[i]) inside = !inside;
+    }
+    if (!inside) return;
+    hits.push([t, sg * Math.sign(dn)]);
+  };
+  for (const t of s.terms) for (const f of t.faces) test(t.s, f);
+  if (s.shells) for (const sh of s.shells) for (const l of sh.loops) test(sh.s, l);
+  // crossings at one distance (within 1e-6 of the body's size) are summed
+  hits.sort((a, b) => a[0] - b[0]);
+  for (let i = 0; i < hits.length;) {
+    let v = 0, j = i;
+    while (j < hits.length && hits[j][0] - hits[i][0] <= 1e-6 * (scale || 1)) v += hits[j++][1];
+    if (v !== 0) return true;
+    i = j;
+  }
+  return false;
+}
 export function curvedFaces(s, up, minDirs = 6) {
   if (s.mesh && !s.shells) return null;
   const u = unit(up);
@@ -418,7 +478,10 @@ export function curvedFaces(s, up, minDirs = 6) {
     if (l.length < 3) continue;
     const a = mulS(newell(l), 0.5 * sg);
     const n = unit(a);
-    if (!n || Math.abs(dot(n, u)) > 1e-3) continue;
+    // standing, or leaning a little: a curved face triangulated between
+    // vertices at different heights and angles (skolebygg's breps #1455746,
+    // #1457200) has triangles 0.001-0.01 off the vertical
+    if (!n || Math.abs(dot(n, u)) > LEAN) continue;
     const i = Math.abs(n[0]) > 1e-9 ? 0 : Math.abs(n[1]) > 1e-9 ? 1 : 2;
     const c = n[i] < 0 ? mulS(n, -1) : n;
     const r = (x, q) => Math.round(x / q);
@@ -477,14 +540,32 @@ export function curvedFaces(s, up, minDirs = 6) {
   let C = fit(P);
   if (!C) return null;
   for (let i = 0; i < 3; i++) C = fit(P.filter((f) => Math.abs(facing(f, C)[0]) > cosMax)) ?? C;
-  let outer = 0, inner = 0, ro = 0, ri = 0, no = 0, ni = 0;
+  let outer = 0, inner = 0, ro = 0, ri = 0, no = 0, ni = 0, swept = 0, hidden = 0;
+  const F = [];
+  let dMax = -Infinity, dMin = Infinity;
   for (const f of P) {
     const [c, dist] = facing(f, C);
-    if (c > cosMax) { outer += f.area; ro += f.area * dist; no++; }
-    else if (c < -cosMax) { inner += f.area; ri += f.area * dist; ni++; }
+    if (Math.abs(c) <= cosMax) continue;
+    F.push({ f, c, dist });
+    if (c > 0) dMax = Math.max(dMax, dist); else dMin = Math.min(dMin, dist);
+  }
+  // a facet facing out with more of the body beyond it is not the wall's
+  // face but a channel's or a recess's inside (skolebygg's #1455746: a vent
+  // duct 0.25 x 0.75 m along the foot of the wall). Only facets short of the
+  // outermost (or past the innermost) are cast, to keep this cheap.
+  const tol = 1e-3 * Math.max(Math.abs(dMax), Math.abs(dMin), 1e-12);
+  for (const { f, c, dist } of F) {
+    // the facet's area seen from the centre (its plan component), for `swept`:
+    // every facet facing the centre or away counts there, hidden ones too
+    const ap = f.area * Math.sqrt(Math.max(0, 1 - dot(f.n, u) ** 2));
+    swept += (c > 0 ? 1 : -1) * ap * dist;
+    const inside = c > 0 ? dist < dMax - tol : dist > dMin + tol;
+    if (inside && rayHitsBody(s, f.p, f.n, u)) { hidden += f.area; continue; }
+    if (c > 0) { outer += f.area; ro += f.area * dist; no++; }
+    else { inner += f.area; ri += f.area * dist; ni++; }
   }
   if (no < minDirs || ni < minDirs || !(outer > 0) || !(inner > 0)) return null;
-  return { outer, inner, rOuter: ro / outer, rInner: ri / inner, centre: C };
+  return { outer, inner, rOuter: ro / outer, rInner: ri / inner, centre: C, swept: swept / 2, hidden };
 }
 
 /**

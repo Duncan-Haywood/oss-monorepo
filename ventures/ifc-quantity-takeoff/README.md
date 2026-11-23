@@ -249,6 +249,18 @@ this tool says which they are
   20,858 mm, digit for digit) on every piece; the bill of quantities uses their
   section instead
   ([eval/joins-and-host-figures-2026-11-20.md](eval/joins-and-host-figures-2026-11-20.md)).
+- **Curved walls as triangulated breps, and a duct inside one (2026-11-23).**
+  Faceted brep walls on an arc are now measured too. Facets leaning up to 2
+  degrees count as standing, and a facet with more of the wall beyond it (a
+  ray test) lines a channel, so it is on neither face. ARK_NUS's two refused
+  walls have a 0.25 x 0.75 m ventilation duct along their foot. They now read
+  14.336 / 11.699 m2 against 14.333 / 11.699 from their own axis circle, and
+  0.4225 m wide against a stored 0.423. They pass a second volume check, the
+  divergence theorem in plan, which holds for a wall of any section. Eight
+  tunnel walls in ISSUE_129 pass the original check. On four public models
+  65 of 134 flagged walls are measured (55 before), and none of the earlier 55
+  moved; the bill gains 265 m2 of side area on the ten that store nothing
+  ([eval/triangulated-arc-breps-2026-11-23.md](eval/triangulated-arc-breps-2026-11-23.md)).
 - **A curved wall's side area, measured on its facets (2026-11-23).** A wall
   built on an arc is now measured on its own facets: its outer and inner
   faces, their mean as its side area (the centre line's, for a wall of one
@@ -648,8 +660,11 @@ primitive, is not cut: it keeps the stored area. A faceted shell of more than
 4,000 tetrahedra has no openings taken out ("net not computed"). A faceted covering is cut
 normal to its up direction, a rule fitted on one model.
 A curved wall's side area is the mean of its two curved faces summed from its
-facets, when mean x width matches its volume within 2%. A wall that fails
-that check (a triangulated brep whose triangles lean off the vertical) keeps a
+facets, when mean x width matches its volume within 2%, or (for a body with
+no cutter terms) when its faces enclose its volume by the divergence theorem
+in plan, which allows a stepped section or a duct. Facets lining a channel
+inside the wall are left off both faces. A wall that fails both checks (a CSG
+body with cutters whose section changes, ISSUE_129's two 1.8 m walls) keeps a
 plane cut, a chord's elevation, unless it stores a figure.
 
 ## Run it
