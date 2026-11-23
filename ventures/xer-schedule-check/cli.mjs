@@ -102,7 +102,8 @@
 // Time impact analysis instead (tia.mjs): the fragnet (new activities with
 // durations, predecessors and successors; "+N" days on an existing one)
 // inserted into the update and the schedule recomputed: the finish and every
-// milestone moved, float used, each event alone; --xer writes the impacted
+// milestone moved, float used, each event alone, and with a Party column each
+// party alone and without it (sole and concurrent delay); --xer writes the impacted
 // schedule for import into P6.
 // node cli.mjs final.xer --collapse delays.csv [--csv collapse.csv] [--xer collapsed.xer] [--as-built-xer model.xer] [--json] [--project CODE]
 // node cli.mjs final.xer --as-built   (no delay list: the as-built model and its gaps)

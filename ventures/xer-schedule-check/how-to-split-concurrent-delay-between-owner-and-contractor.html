@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Split Concurrent Delay Between Owner And Contractor</title>
+  <meta name="description" content="Add a party column to a P6 delay fragnet and get each party's sole delay and the concurrent days from the schedule's own logic. Free, in your browser.">
+  <meta property="og:title" content="How To Split Concurrent Delay Between Owner And Contractor">
+  <meta property="og:description" content="Run each party's delay events alone and without them, and read the sole and concurrent days off a P6 schedule.">
+  <link rel="canonical" href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is concurrent delay?","acceptedAnswer":{"@type":"Answer","text":"Two or more delays, each of which would have delayed the finish on its own, running over the same time on paths that reach the finish. Taking either one away does not bring the finish back, because the other still holds it. Here the days that stay when any one party's delays are taken out are the concurrent days."}},{"@type":"Question","name":"What is a party's sole delay?","acceptedAnswer":{"@type":"Answer","text":"The delay that goes away only when that party's fragnet rows are taken out: the total delay minus the delay of a run with every other party's rows in and that party's out. It is the delay no other party's events would have caused anyway."}},{"@type":"Question","name":"Why run each party alone and also without it?","acceptedAnswer":{"@type":"Answer","text":"Alone answers how far that party's events would have moved the finish by themselves. Without answers how far the finish would have moved anyway, had that party caused nothing. The second is the but-for question a claim turns on, and the difference between the two is where concurrency shows."}},{"@type":"Question","name":"Can the parts come out negative?","acceptedAnswer":{"@type":"Answer","text":"The concurrent figure can, when one party's delay only reaches the finish after another's has used up the float in between. The two together then cost more than their sole parts add up to, and the tool says so instead of hiding the days."}},{"@type":"Question","name":"Does it decide who gets time or money?","acceptedAnswer":{"@type":"Answer","text":"No. It splits the modelled delay by the schedule's logic. Whether concurrent delay earns time, money, both or neither is set by the contract and the law that governs it, and is for the parties, an expert or a tribunal."}},{"@type":"Question","name":"Is the schedule uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The XER and the fragnet are read and rescheduled in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to split concurrent delay between owner and contractor</h1>
+  <p>Most delay claims are not one event. The owner changed a drawing while the contractor's crew was short; the city was slow with an inspection while a supplier was late. Both sides then argue about the same days, and the question is always the same: how much of the delay would have happened anyway, had one side caused nothing? A time impact analysis already models each event in the schedule. Name the party responsible for each fragnet row and the tool runs every party's rows alone and every row but that party's, and splits the finish delay into each party's sole delay and the days that are concurrent.</p>
+  <p><a class="cta" href="./#tia">Open the free schedule check</a> (open the update, then go to Time impact analysis)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export from P6, as XER, the last accepted update before the events, and open it on the <a href="./">tool page</a>.</li>
+    <li>Write the fragnet as for any <a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">time impact analysis</a>: one row per new activity, or an existing activity ID with <code>+10</code> to make it longer. Add a <code>Party</code> column (<code>Responsible</code> or <code>Caused by</code> also read) and write who is responsible for each row: <code>Owner</code>, <code>Contractor</code>, a subcontractor's name, any label you use.</li>
+    <li>Press <b>Run time impact analysis</b>. The <b>Delay by party</b> table lists each party with its rows alone, the run without it, its sole delay, and the concurrent days, adding up to the whole delay.</li>
+    <li>Download the <b>Printable exhibit (HTML)</b> and the CSV; both carry the split. The <b>Impacted schedule (XER)</b> imports into P6 to confirm the dates.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>On the built-in example (an invented office fit-out with its data date on 2026-04-06; press Load an example schedule, then Example with owner and contractor delays), two events run side by side into the same in-wall inspection. The owner's change CO-03 adds 17 working days of redesign and re-approval before the level 2 MEP rough-in can start. The contractor's level 1 rough-in crew is short, so that rough-in takes 20 working days longer.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Run</th><th>Last activity finishes</th><th>Working days later</th></tr></thead>
+    <tbody>
+      <tr><td>The update as submitted</td><td>2026-07-27</td><td></td></tr>
+      <tr><td>Owner's rows alone</td><td>2026-07-30</td><td>3</td></tr>
+      <tr><td>Contractor's rows alone</td><td>2026-08-06</td><td>8</td></tr>
+      <tr><td>Both</td><td>2026-08-06</td><td>8</td></tr>
+    </tbody>
+  </table></div>
+  <p>Without the owner's rows the finish still moves 8 working days, so the owner's sole delay is 0. Without the contractor's rows it moves 3, so the contractor's sole delay is 5. The other 3 days stay whichever party's rows are taken out: both rough-ins hold the inspection over the same days, and those 3 are concurrent. 0 + 5 + 3 = 8, the whole delay.</p>
+  <h2>Reading the split</h2>
+  <ul>
+    <li><b>Sole delay</b> is the but-for answer for that party: the days that disappear only if its events had not happened.</li>
+    <li><b>Concurrent days</b> are delay either party would have caused alone. Contracts often treat them differently from sole delay; how is a contract question the tool does not answer.</li>
+    <li><b>Negative concurrent days</b> mean the parties' delays compound: one only reaches the finish after another has used the float in between, so taking either away removes more than its share.</li>
+    <li>Rows with no party are grouped as <code>(no party)</code>, and the tool says how many there are, so an unassigned event is not silently counted for anyone.</li>
+    <li>When a party's run leaves out another party's rows, links to that party's new activities are dropped: the contractor's rework that follows an owner's hold cannot wait for a hold that is not in the run.</li>
+  </ul>
+  <h2>How it was tested</h2>
+  <p>No public job publishes a fragnet with its parties, so two-party fragnets were planted in six public P6 files (versions 5.0 to 24.12, up to 16,000 activities) where the right split follows from the logic. Two activities in series on the driving path, the owner lengthening the first and the contractor the second, gave no concurrent days and each party its own delay as sole delay 19 of 19 times. An owner lengthening an activity while the contractor added a parallel activity with the same logic, the same work plus its own days, gave the split that lengthening the one activity predicts (total from the larger delay, concurrent from the smaller) 31 of 31 times. A fragnet naming one party gave that party the whole delay 30 of 30 times. The full results are in the project's eval folder.</p>
+  <h2>Questions</h2>
+  <h3>What is concurrent delay?</h3>
+  <p>Two or more delays, each of which would have delayed the finish on its own, running over the same time on paths that reach the finish. Taking either one away does not bring the finish back, because the other still holds it. Here the days that stay when any one party's delays are taken out are the concurrent days.</p>
+  <h3>What is a party's sole delay?</h3>
+  <p>The delay that goes away only when that party's fragnet rows are taken out: the total delay minus the delay of a run with every other party's rows in and that party's out. It is the delay no other party's events would have caused anyway.</p>
+  <h3>Why run each party alone and also without it?</h3>
+  <p>Alone answers how far that party's events would have moved the finish by themselves. Without answers how far the finish would have moved anyway, had that party caused nothing. The second is the but-for question a claim turns on, and the difference between the two is where concurrency shows.</p>
+  <h3>Can the parts come out negative?</h3>
+  <p>The concurrent figure can, when one party's delay only reaches the finish after another's has used up the float in between. The two together then cost more than their sole parts add up to, and the tool says so instead of hiding the days.</p>
+  <h3>Does it decide who gets time or money?</h3>
+  <p>No. It splits the modelled delay by the schedule's logic. Whether concurrent delay earns time, money, both or neither is set by the contract and the law that governs it, and is for the parties, an expert or a tribunal.</p>
+  <h3>Is the schedule uploaded?</h3>
+  <p>No. The XER and the fragnet are read and rescheduled in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+    <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+    <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project and its delay events are invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
