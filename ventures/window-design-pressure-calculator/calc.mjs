@@ -57,7 +57,9 @@ const DEG = Math.PI / 180;
 const num = (v) => {
   if (v === null || v === undefined) return NaN;
   const s = String(v).trim();
-  return s === "" ? NaN : Number(s);
+  // Plain decimals only: Number() also takes "Infinity", "0x8C" and "0b1", which a
+  // typed field or shared link should not turn into a wind speed or a dimension.
+  return /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s) ? Number(s) : NaN;
 };
 const r1 = (v) => Math.round(v * 10) / 10;
 const r2 = (v) => Math.round(v * 100) / 100;
@@ -137,13 +139,18 @@ export function debrisRegion(V, coastal) {
 export function parseOpenings(text) {
   const openings = [];
   const problems = [];
+  let first = true;
   String(text || "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
     const f = line.split(/\t|,/).map((s) => s.trim());
     const w = num(f[1]);
     const h = num(f[2]);
-    if (i === 0 && !Number.isFinite(w) && /width|label|mark/i.test(line)) return;
+    // A header is the first content line (after blanks and # comments) whose
+    // width and height are both text, e.g. "Mark, Width, Height" or "Opening, W, H".
+    const header = first && !Number.isFinite(w) && !Number.isFinite(h) && /[a-z]/i.test(f[1] || "") && /[a-z]/i.test(f[2] || "");
+    first = false;
+    if (header) return;
     if (!(w > 0) || !(h > 0)) {
       problems.push(`line ${i + 1}: "${line}" needs a label, a width and a height in inches`);
       return;

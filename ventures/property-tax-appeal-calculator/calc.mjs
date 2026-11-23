@@ -30,7 +30,7 @@ const num = (v) => {
   if (v === null || v === undefined || v === "") return NaN;
   if (typeof v === "number") return v;
   const s = String(v).trim().replace(/[$,\s]/g, "");
-  return s === "" ? NaN : Number(s);
+  return /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s) ? Number(s) : NaN; // plain decimals: not "Infinity" or "0x10" (red team 2026-11-23)
 };
 const has = (v) => Number.isFinite(v);
 export const round2 = (n) => Math.round(n * 100) / 100;

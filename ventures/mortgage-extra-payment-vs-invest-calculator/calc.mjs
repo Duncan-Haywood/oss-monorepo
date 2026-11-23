@@ -28,7 +28,7 @@ export const DEFAULTS = {
 export function num(v) {
   if (typeof v === "number") return v;
   const s = String(v ?? "").replace(/[$,%\s]/g, "");
-  return s === "" ? NaN : Number(s);
+  return /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s) ? Number(s) : NaN; // plain decimals: not "Infinity" or "0x10" (red team 2026-11-23)
 }
 export function money(x) {
   if (!Number.isFinite(x)) return "n/a";

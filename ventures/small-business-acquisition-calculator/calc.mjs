@@ -25,7 +25,7 @@ export const FIELDS = [
 const num = (v) => {
   if (typeof v === "number") return v;
   const s = String(v ?? "").replace(/[$,%\s,]/g, "");
-  return s === "" ? NaN : Number(s);
+  return /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s) ? Number(s) : NaN; // plain decimals: not "Infinity" or "0x10" (red team 2026-11-23)
 };
 export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(x)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 export const pct = (x) => (Math.round(x * 10) / 10).toFixed(1) + "%";

@@ -158,3 +158,33 @@ test("sample result, factor rows and CSV", () => {
   const evil = reportCsv(analyze({ ...sampleInput(), openings: "=HYPERLINK(1), 36, 36, 4" }));
   assert.match(evil, /\n'=HYPERLINK\(1\)/);
 });
+
+test("red team 2026-11-23: a header row after the sample's # comment line is still skipped", () => {
+  // The page says "A header row and lines starting with # are skipped", and its
+  // sample opens with a # line, so a user who keeps it and pastes a schedule
+  // with a title row got "needs a label, a width and a height".
+  for (const text of ["# c\nMark, Width, Height\nA, 36, 60, 5", "\nOpening\tW\tH\nA\t36\t60\t5", "Opening, W, H\nA, 36, 60, 5"]) {
+    const { openings, problems } = parseOpenings(text);
+    assert.deepEqual(problems, [], text);
+    assert.equal(openings.length, 1);
+  }
+  // Only the first content line can be a header: a later text row is an error.
+  assert.match(parseOpenings("A, 36, 60\nB, wide, tall").problems[0], /line 2/);
+});
+
+test("red team 2026-11-23: non-decimal text is not a number (Infinity, hex)", () => {
+  assert.match(analyze({ leastDim: "Infinity" }).error, /least horizontal dimension/);
+  assert.match(analyze({ V: "0x8C" }).error, /wind speed/);
+  assert.match(analyze({ h: "Infinity" }).error, /mean roof height/);
+  assert.match(analyze({ openings: "A, 0x24, 60" }).error, /width and a height/);
+  assert.equal(analyze({ V: "1.4e2" }).V, 140, "scientific notation is still a decimal");
+});
+
+test("red team 2026-11-23: boundary messages (V = 130 inland, h = 15, H = 0)", () => {
+  assert.match(debrisRegion(130, false).why, /130-139 mph but the site is not within 1 mile/);
+  assert.match(debrisRegion(129.9, false).why, /under 130/);
+  const f15 = analyze({ ...sampleInput(), h: "15" }).findings;
+  assert.ok(!f15.some((f) => /Kh taken at 15 ft/.test(f.title)), "h = 15 ft is on the table");
+  assert.ok(analyze({ ...sampleInput(), h: "14" }).findings.some((f) => /Kh taken at 15 ft/.test(f.title)));
+  assert.equal(kzt({ shape: "ridge", H: 0, Lh: 100, x: 0, side: "upwind", z: 20, exposure: "C" }).invalid, true);
+});
