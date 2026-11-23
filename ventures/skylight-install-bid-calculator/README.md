@@ -153,3 +153,12 @@ to. The link is built in the browser and copied by you; the save is
 bid calculator here. Its field list is passed in from the page rather than kept
 in the module, so a field added to the form is saved and shareable without
 touching it; `page.test.mjs` fails if the two ever drift apart.
+
+## Known gaps (round 105 quality audit)
+
+From [`portfolio/quality/audits/2026-11-23-skylight-install-bid-calculator.json`](../../portfolio/quality/audits/2026-11-23-skylight-install-bid-calculator.json):
+
+- A cleared numeric field counts as 0 (`calc.mjs`, `Number('')`), so a blank wage prices labour at $0 instead of raising an error.
+- A tubular sun tunnel on a new cut-in carries the generic framing hours and a drywall shaft charge, which overprices it; tubes fit between rafters and are their own shaft.
+- Four of six seeded bugs in `calc.mjs` survived the tests (story hours not scaled by units, paint per unit, laminated glass once per job, the losing-bid flag against price).
+- No pitch input, though one preset says "steep asphalt"; no crew-size, permit or disposal line.

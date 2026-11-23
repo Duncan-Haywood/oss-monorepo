@@ -1,0 +1,1152 @@
+{
+ "seed": 1,
+ "plants": 20,
+ "totals": {
+  "series": [
+   19,
+   19
+  ],
+  "parallel": [
+   31,
+   31
+  ],
+  "ordered": [
+   26,
+   26
+  ],
+  "sensitive": 31
+ },
+ "files": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "project": "CCA R03 dt 24Oct11SC",
+   "open": 14270,
+   "series": [
+    {
+     "a": "T16TS01808C0",
+     "b": "T16TS01813C0",
+     "da": 6,
+     "db": 5,
+     "flipped": true,
+     "want": [
+      6,
+      5
+     ],
+     "got": [
+      6,
+      5,
+      6,
+      5
+     ],
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "parallel": [
+    {
+     "x": "T16P109901C0",
+     "a": 9,
+     "b": 13,
+     "flipped": false,
+     "want": {
+      "total": 13,
+      "e1": 10,
+      "e2": 3,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 13
+     },
+     "got": {
+      "total": 13,
+      "e1": 10,
+      "e2": 3,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 13
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "T16TS01813C0",
+     "a": 28,
+     "b": 6,
+     "flipped": true,
+     "want": {
+      "total": 29,
+      "e1": 29,
+      "e2": 0,
+      "e1NewestFirst": 23,
+      "e2NewestFirst": 6
+     },
+     "got": {
+      "total": 29,
+      "e1": 29,
+      "e2": 0,
+      "e1NewestFirst": 23,
+      "e2NewestFirst": 6
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "T16P109601C0",
+     "a": 26,
+     "b": 8,
+     "flipped": false,
+     "want": {
+      "total": 27,
+      "e1": 27,
+      "e2": 0,
+      "e1NewestFirst": 18,
+      "e2NewestFirst": 9
+     },
+     "got": {
+      "total": 27,
+      "e1": 27,
+      "e2": 0,
+      "e1NewestFirst": 18,
+      "e2NewestFirst": 9
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "T16TS01808C0",
+     "a": 4,
+     "b": 17,
+     "flipped": false,
+     "want": {
+      "total": 17,
+      "e1": 5,
+      "e2": 12,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 17
+     },
+     "got": {
+      "total": 17,
+      "e1": 5,
+      "e2": 12,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 17
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "T16P122011C0",
+     "a": 18,
+     "b": 18,
+     "flipped": false,
+     "want": {
+      "total": 18,
+      "e1": 18,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 18
+     },
+     "got": {
+      "total": 18,
+      "e1": 18,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 18
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "T16P101005C0",
+     "a": 28,
+     "b": 13,
+     "flipped": false,
+     "want": {
+      "total": 29,
+      "e1": 29,
+      "e2": 0,
+      "e1NewestFirst": 16,
+      "e2NewestFirst": 13
+     },
+     "got": {
+      "total": 29,
+      "e1": 29,
+      "e2": 0,
+      "e1NewestFirst": 16,
+      "e2NewestFirst": 13
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "seconds": 54.254
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "project": "BEW3",
+   "open": 823,
+   "series": [],
+   "parallel": [
+    {
+     "x": "BEW/MO/NC/1000",
+     "a": 22,
+     "b": 16,
+     "flipped": false,
+     "want": {
+      "total": 22,
+      "e1": 22,
+      "e2": 0,
+      "e1NewestFirst": 6,
+      "e2NewestFirst": 16
+     },
+     "got": {
+      "total": 22,
+      "e1": 22,
+      "e2": 0,
+      "e1NewestFirst": 6,
+      "e2NewestFirst": 16
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "seconds": 0.808
+  },
+  {
+   "file": "example_xer_file.xer",
+   "project": "DEMO-001",
+   "open": 404,
+   "series": [
+    {
+     "a": "A10710",
+     "b": "A10740",
+     "da": 26,
+     "db": 23,
+     "flipped": true,
+     "want": [
+      26,
+      22
+     ],
+     "got": [
+      26,
+      22,
+      26,
+      22
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A10390-1",
+     "b": "A10400",
+     "da": 3,
+     "db": 1,
+     "flipped": true,
+     "want": [
+      3,
+      1
+     ],
+     "got": [
+      3,
+      1,
+      3,
+      1
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A10740.11",
+     "b": "A10760",
+     "da": 9,
+     "db": 27,
+     "flipped": false,
+     "want": [
+      9,
+      27
+     ],
+     "got": [
+      9,
+      27,
+      9,
+      27
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A10390",
+     "b": "A10390-1",
+     "da": 29,
+     "db": 22,
+     "flipped": true,
+     "want": [
+      29,
+      22
+     ],
+     "got": [
+      29,
+      22,
+      29,
+      22
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A10700",
+     "b": "A10710",
+     "da": 4,
+     "db": 9,
+     "flipped": false,
+     "want": [
+      4,
+      9
+     ],
+     "got": [
+      4,
+      9,
+      4,
+      9
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A10780",
+     "b": "A12930",
+     "da": 5,
+     "db": 23,
+     "flipped": true,
+     "want": [
+      5,
+      23
+     ],
+     "got": [
+      5,
+      23,
+      5,
+      23
+     ],
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "parallel": [
+    {
+     "x": "A10700",
+     "a": 27,
+     "b": 22,
+     "flipped": false,
+     "want": {
+      "total": 27,
+      "e1": 27,
+      "e2": 0,
+      "e1NewestFirst": 5,
+      "e2NewestFirst": 22
+     },
+     "got": {
+      "total": 27,
+      "e1": 27,
+      "e2": 0,
+      "e1NewestFirst": 5,
+      "e2NewestFirst": 22
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A10390-1",
+     "a": 28,
+     "b": 23,
+     "flipped": false,
+     "want": {
+      "total": 28,
+      "e1": 28,
+      "e2": 0,
+      "e1NewestFirst": 5,
+      "e2NewestFirst": 23
+     },
+     "got": {
+      "total": 28,
+      "e1": 28,
+      "e2": 0,
+      "e1NewestFirst": 5,
+      "e2NewestFirst": 23
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A10710",
+     "a": 30,
+     "b": 16,
+     "flipped": true,
+     "want": {
+      "total": 30,
+      "e1": 30,
+      "e2": 0,
+      "e1NewestFirst": 14,
+      "e2NewestFirst": 16
+     },
+     "got": {
+      "total": 30,
+      "e1": 30,
+      "e2": 0,
+      "e1NewestFirst": 14,
+      "e2NewestFirst": 16
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A10390",
+     "a": 21,
+     "b": 27,
+     "flipped": true,
+     "want": {
+      "total": 27,
+      "e1": 21,
+      "e2": 6,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 27
+     },
+     "got": {
+      "total": 27,
+      "e1": 21,
+      "e2": 6,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 27
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A10780",
+     "a": 20,
+     "b": 20,
+     "flipped": true,
+     "want": {
+      "total": 20,
+      "e1": 20,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 20
+     },
+     "got": {
+      "total": 20,
+      "e1": 20,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 20
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "seconds": 1.59
+  },
+  {
+   "file": "hotel-project.xer",
+   "project": "HBTF-2",
+   "open": 4217,
+   "series": [],
+   "parallel": [],
+   "seconds": 0.212
+  },
+  {
+   "file": "sample.xer",
+   "project": "Task SE",
+   "open": 42,
+   "series": [
+    {
+     "a": "A3000",
+     "b": "A3010",
+     "da": 27,
+     "db": 21,
+     "flipped": false,
+     "want": [
+      27,
+      21
+     ],
+     "got": [
+      27,
+      21,
+      27,
+      21
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A1000",
+     "b": "A1010",
+     "da": 9,
+     "db": 25,
+     "flipped": true,
+     "want": [
+      9,
+      25
+     ],
+     "got": [
+      9,
+      25,
+      9,
+      25
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A2000",
+     "b": "A2010",
+     "da": 7,
+     "db": 16,
+     "flipped": true,
+     "want": [
+      7,
+      16
+     ],
+     "got": [
+      7,
+      16,
+      7,
+      16
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A5000",
+     "b": "A5010",
+     "da": 15,
+     "db": 25,
+     "flipped": true,
+     "want": [
+      15,
+      25
+     ],
+     "got": [
+      15,
+      25,
+      15,
+      25
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "A4000",
+     "b": "A4010",
+     "da": 28,
+     "db": 4,
+     "flipped": true,
+     "want": [
+      28,
+      4
+     ],
+     "got": [
+      28,
+      4,
+      28,
+      4
+     ],
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "parallel": [
+    {
+     "x": "A5010",
+     "a": 24,
+     "b": 26,
+     "flipped": true,
+     "want": {
+      "total": 26,
+      "e1": 24,
+      "e2": 2,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 26
+     },
+     "got": {
+      "total": 26,
+      "e1": 24,
+      "e2": 2,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 26
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A1030",
+     "a": 13,
+     "b": 23,
+     "flipped": true,
+     "want": {
+      "total": 23,
+      "e1": 13,
+      "e2": 10,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 23
+     },
+     "got": {
+      "total": 23,
+      "e1": 13,
+      "e2": 10,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 23
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A2010",
+     "a": 18,
+     "b": 1,
+     "flipped": false,
+     "want": {
+      "total": 18,
+      "e1": 18,
+      "e2": 0,
+      "e1NewestFirst": 17,
+      "e2NewestFirst": 1
+     },
+     "got": {
+      "total": 18,
+      "e1": 18,
+      "e2": 0,
+      "e1NewestFirst": 17,
+      "e2NewestFirst": 1
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A4030",
+     "a": 5,
+     "b": 12,
+     "flipped": false,
+     "want": {
+      "total": 12,
+      "e1": 5,
+      "e2": 7,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 12
+     },
+     "got": {
+      "total": 12,
+      "e1": 5,
+      "e2": 7,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 12
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A1010",
+     "a": 11,
+     "b": 22,
+     "flipped": true,
+     "want": {
+      "total": 22,
+      "e1": 11,
+      "e2": 11,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 22
+     },
+     "got": {
+      "total": 22,
+      "e1": 11,
+      "e2": 11,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 22
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A3010",
+     "a": 28,
+     "b": 14,
+     "flipped": false,
+     "want": {
+      "total": 28,
+      "e1": 28,
+      "e2": 0,
+      "e1NewestFirst": 14,
+      "e2NewestFirst": 14
+     },
+     "got": {
+      "total": 28,
+      "e1": 28,
+      "e2": 0,
+      "e1NewestFirst": 14,
+      "e2NewestFirst": 14
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A2030",
+     "a": 27,
+     "b": 11,
+     "flipped": true,
+     "want": {
+      "total": 27,
+      "e1": 27,
+      "e2": 0,
+      "e1NewestFirst": 16,
+      "e2NewestFirst": 11
+     },
+     "got": {
+      "total": 27,
+      "e1": 27,
+      "e2": 0,
+      "e1NewestFirst": 16,
+      "e2NewestFirst": 11
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A3030",
+     "a": 4,
+     "b": 19,
+     "flipped": true,
+     "want": {
+      "total": 19,
+      "e1": 4,
+      "e2": 15,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 19
+     },
+     "got": {
+      "total": 19,
+      "e1": 4,
+      "e2": 15,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 19
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A5030",
+     "a": 29,
+     "b": 29,
+     "flipped": false,
+     "want": {
+      "total": 29,
+      "e1": 29,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 29
+     },
+     "got": {
+      "total": 29,
+      "e1": 29,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 29
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "A4010",
+     "a": 5,
+     "b": 5,
+     "flipped": false,
+     "want": {
+      "total": 5,
+      "e1": 5,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 5
+     },
+     "got": {
+      "total": 5,
+      "e1": 5,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 5
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "seconds": 0.156
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "project": "TERMINAL-2",
+   "open": 66,
+   "series": [
+    {
+     "a": "BA-P4-160",
+     "b": "BA-P4-170",
+     "da": 8,
+     "db": 11,
+     "flipped": true,
+     "want": [
+      8,
+      11
+     ],
+     "got": [
+      8,
+      11,
+      8,
+      11
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "BA-P4-50",
+     "b": "BA-P4-60",
+     "da": 15,
+     "db": 16,
+     "flipped": true,
+     "want": [
+      15,
+      16
+     ],
+     "got": [
+      15,
+      16,
+      15,
+      16
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "BA-P4-60",
+     "b": "BA-P4-70",
+     "da": 27,
+     "db": 13,
+     "flipped": false,
+     "want": [
+      27,
+      13
+     ],
+     "got": [
+      27,
+      13,
+      27,
+      13
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "BA-P4-130",
+     "b": "BA-P4-140",
+     "da": 5,
+     "db": 6,
+     "flipped": true,
+     "want": [
+      5,
+      6
+     ],
+     "got": [
+      5,
+      6,
+      5,
+      6
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "BA-P4-30",
+     "b": "BA-P4-40",
+     "da": 27,
+     "db": 18,
+     "flipped": false,
+     "want": [
+      27,
+      18
+     ],
+     "got": [
+      27,
+      18,
+      27,
+      18
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "BA-P4-100",
+     "b": "BA-P4-130",
+     "da": 24,
+     "db": 30,
+     "flipped": true,
+     "want": [
+      24,
+      30
+     ],
+     "got": [
+      24,
+      30,
+      24,
+      30
+     ],
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "a": "BA-P4-40",
+     "b": "BA-P4-50",
+     "da": 8,
+     "db": 19,
+     "flipped": false,
+     "want": [
+      8,
+      19
+     ],
+     "got": [
+      8,
+      19,
+      8,
+      19
+     ],
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "parallel": [
+    {
+     "x": "BA-P4-160",
+     "a": 23,
+     "b": 19,
+     "flipped": true,
+     "want": {
+      "total": 23,
+      "e1": 23,
+      "e2": 0,
+      "e1NewestFirst": 4,
+      "e2NewestFirst": 19
+     },
+     "got": {
+      "total": 23,
+      "e1": 23,
+      "e2": 0,
+      "e1NewestFirst": 4,
+      "e2NewestFirst": 19
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "BA-P4-50",
+     "a": 5,
+     "b": 5,
+     "flipped": true,
+     "want": {
+      "total": 5,
+      "e1": 5,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 5
+     },
+     "got": {
+      "total": 5,
+      "e1": 5,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 5
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "BA-P4-170",
+     "a": 3,
+     "b": 10,
+     "flipped": false,
+     "want": {
+      "total": 10,
+      "e1": 3,
+      "e2": 7,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 10
+     },
+     "got": {
+      "total": 10,
+      "e1": 3,
+      "e2": 7,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 10
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "BA-P4-80",
+     "a": 12,
+     "b": 28,
+     "flipped": true,
+     "want": {
+      "total": 28,
+      "e1": 12,
+      "e2": 16,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 28
+     },
+     "got": {
+      "total": 28,
+      "e1": 12,
+      "e2": 16,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 28
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "BA-P4-130",
+     "a": 10,
+     "b": 11,
+     "flipped": true,
+     "want": {
+      "total": 11,
+      "e1": 10,
+      "e2": 1,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 11
+     },
+     "got": {
+      "total": 11,
+      "e1": 10,
+      "e2": 1,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 11
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "BA-P4-60",
+     "a": 1,
+     "b": 1,
+     "flipped": false,
+     "want": {
+      "total": 1,
+      "e1": 1,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 1
+     },
+     "got": {
+      "total": 1,
+      "e1": 1,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 1
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "BA-P2-10",
+     "a": 24,
+     "b": 19,
+     "flipped": false,
+     "want": {
+      "total": 24,
+      "e1": 24,
+      "e2": 0,
+      "e1NewestFirst": 5,
+      "e2NewestFirst": 19
+     },
+     "got": {
+      "total": 24,
+      "e1": 24,
+      "e2": 0,
+      "e1NewestFirst": 5,
+      "e2NewestFirst": 19
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "BA-P4-40",
+     "a": 13,
+     "b": 14,
+     "flipped": false,
+     "want": {
+      "total": 14,
+      "e1": 13,
+      "e2": 1,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 14
+     },
+     "got": {
+      "total": 14,
+      "e1": 13,
+      "e2": 1,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 14
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    },
+    {
+     "x": "BA-P4-10",
+     "a": 8,
+     "b": 8,
+     "flipped": false,
+     "want": {
+      "total": 8,
+      "e1": 8,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 8
+     },
+     "got": {
+      "total": 8,
+      "e1": 8,
+      "e2": 0,
+      "e1NewestFirst": 0,
+      "e2NewestFirst": 8
+     },
+     "sensitive": true,
+     "ordered": true,
+     "ok": true
+    }
+   ],
+   "seconds": 0.23
+  }
+ ]
+}

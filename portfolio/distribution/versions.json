@@ -22,8 +22,8 @@
       "hash": "sha256-1bb36ac56f5f893de7de29b71ded3363d1c3baac00dd9f9e7f83a8625eb1e1e7"
     },
     "actions-permissions-check": {
-      "version": "0.1.1",
-      "hash": "sha256-966605fe7b56e43f8fa310cc857177b385dd117008da8f401c669bb5a6a87942"
+      "version": "0.1.2",
+      "hash": "sha256-6f57325237364a506287a14b0e15e386f221230cf9893acdae81d66409fcea77"
     },
     "actions-runtime-deprecation-check": {
       "version": "0.1.1",
@@ -66,8 +66,8 @@
       "hash": "sha256-00eca1c1004b28cdc22446e4c72ff5688cb1671dafbe00c3fb9d4d8ee2cb26fd"
     },
     "devsec-toolkit": {
-      "version": "0.1.14",
-      "hash": "sha256-a3ac5e94ecb695a96be7b39ff3cdb4d2e2dd7be468574a2ac7a6417dddd9162c"
+      "version": "0.1.15",
+      "hash": "sha256-f7c7281ecd9a2050323c88c530962fcac8bb95edf160b6e9eb67c0bf3cf9bfef"
     },
     "docker-base-image-eol-check": {
       "version": "0.1.1",

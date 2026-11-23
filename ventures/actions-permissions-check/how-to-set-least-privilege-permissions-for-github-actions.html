@@ -62,7 +62,7 @@ jobs:
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status if any workflow or job has no explicit permissions grant, or grants <code>write-all</code> — wire it into your own CI to block a newly-added unscoped workflow before it merges.</p>
   <h2>What this does not tell you</h2>
-  <p>This tool cannot see your repository's or organization's actual default token setting — there is no public API for it — so an "unspecified" finding means the <em>file</em> doesn't say, not that your account is definitely misconfigured. And it never judges whether the scopes a workflow does declare are the minimum a job needs; deciding that is still yours to do.</p>
+  <p>This tool cannot see your repository's or organization's actual default token setting — GitHub reports that setting only through an authenticated REST endpoint (<code>GET /repos/{owner}/{repo}/actions/permissions/workflow</code>), which this tool never calls — so an "unspecified" finding means the <em>file</em> doesn't say, not that your account is definitely misconfigured. And it never judges whether the scopes a workflow does declare are the minimum a job needs; deciding that is still yours to do.</p>
   
 </main>
 <footer>

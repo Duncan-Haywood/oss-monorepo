@@ -586,8 +586,9 @@ flagships:
       with its GAO assessment. (17) Collapsed as-built, as-planned vs as-built
       2026-11-23 (collapse.mjs, asplanned.mjs; eval/asplanned-check-2026-11-23.md);
       next a real baseline + final update with a claim's delay list. (18) TIA by
-      party 2026-11-23 (eval/tia-party-check-2026-11-23.md); next a real claim's
-      parties. More: NEXT.md.
+      party, events step by step in date order and newest first 2026-11-23
+      (eval/tia-party-check-2026-11-23.md, eval/tia-steps-check-2026-11-23.md); next
+      a real claim's parties and dated event list. More: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

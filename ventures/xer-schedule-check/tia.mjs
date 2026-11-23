@@ -45,7 +45,14 @@
 //
 // timeImpact(xer, fragnet, { projId, expectedFinish }) -> { project, finish: { base,
 //   impacted, delayDays }, milestones, fragnet, consumed, drivingPath,
-//   fragnetOnPath, byEvent, byParty, apportionment, warnings, impactedXer }
+//   fragnetOnPath, byEvent, byStep, orderSensitive, byParty, apportionment,
+//   warnings, impactedXer }
+//
+// byStep (when the fragnet has more than one event): the events in date
+// order, each step { step, event, date, finish, cumulativeDays, stepDays (what
+// this event adds on top of the ones before it), newestFirstDays (its days
+// when the events go in newest first), aloneDays }. The steps add up to the
+// total by construction.
 //
 // byParty (when the fragnet names a party): per party { party, rows,
 // aloneDays (its rows alone), withoutDays (every other row), soleDays (total
@@ -450,6 +457,47 @@ export function timeImpact(xer, fragnet, { projId = null, expectedFinish = true 
   }
   const delayDays = wd(f0, f1) ?? 0;
 
+  // the events inserted one at a time in the order they happened (the
+  // earliest "not before" date among an event's rows; undated events keep
+  // their place in the fragnet), each step scheduled with every event before
+  // it: a step's days are what that event adds on top of the earlier ones,
+  // so the steps add up to the total. Stepwise attribution depends on the
+  // order (an event that uses up float leaves the next one to hit the
+  // finish), so the same steps are also run newest first and each event's
+  // days in that order are reported beside them.
+  const NO_EVENT = "(no event)";
+  const evOf = (f) => f.event || NO_EVENT;
+  const stepEvents = [...new Set(parsed.rows.filter((f) => !f.skip).map(evOf))];
+  const byStep = [];
+  if (stepEvents.length > 1) {
+    const info = stepEvents.map((e, i) => {
+      const dates = parsed.rows.filter((f) => !f.skip && evOf(f) === e && Number.isFinite(f.notBefore)).map((f) => f.notBefore);
+      return { event: e, index: i, date: dates.length ? Math.min(...dates) : null };
+    });
+    // dated events by date; an undated one keeps its fragnet place relative
+    // to the dated events before it (sorted after the latest of them)
+    let carry = -Infinity;
+    for (const x of info) { if (x.date !== null) carry = Math.max(carry, x.date); x.key = x.date ?? carry; }
+    const order = [...info].sort((a, b) => a.key - b.key || a.index - b.index);
+    const cumulative = (list) => {
+      const out = [];
+      let prev = 0;
+      for (let k = 0; k < list.length; k++) {
+        const set = new Set(list.slice(0, k + 1).map((x) => x.event));
+        const o = k === list.length - 1 ? { finish: f1, delayDays } : runSubset((f) => set.has(evOf(f)));
+        out.push({ event: list[k].event, finish: o.finish, cumulativeDays: o.delayDays, stepDays: r1(o.delayDays - prev) });
+        prev = o.delayDays;
+      }
+      return out;
+    };
+    const fwd = cumulative(order);
+    const rev = new Map(cumulative([...order].reverse()).map((x) => [x.event, x.stepDays]));
+    const alone = new Map(byEvent.map((x) => [x.event, x.delayDays]));
+    fwd.forEach((x, k) => byStep.push({ step: k + 1, event: x.event, date: order[k].date === null ? null : formatDate(order[k].date).slice(0, 10), finish: formatDate(x.finish), cumulativeDays: x.cumulativeDays, stepDays: x.stepDays, newestFirstDays: rev.get(x.event), aloneDays: alone.get(x.event) ?? null }));
+    if (stepEvents.includes(NO_EVENT)) warnings.push(`${parsed.rows.filter((f) => !f.skip && !f.event).length} fragnet row(s) name no event; in the step-by-step insertion they are one step, "${NO_EVENT}"`);
+  }
+  const orderSensitive = byStep.some((x) => Math.abs((x.newestFirstDays ?? x.stepDays) - x.stepDays) > 0.05);
+
   // each party alone and every row but that party's
   const NO_PARTY = "(no party)";
   const partyOf = (f) => f.party || NO_PARTY;
@@ -539,6 +587,9 @@ export function timeImpact(xer, fragnet, { projId = null, expectedFinish = true 
     drivingPath: pathIds.map((id) => impModel.tasks.get(id)?.code ?? id),
     fragnetOnPath: pathIds.filter((id) => fragIds.has(id)).map((id) => impModel.tasks.get(id)?.code ?? id),
     byEvent,
+    byStep,
+    // true when inserting the events newest first gives any event other days
+    orderSensitive,
     byParty,
     apportionment,
     // events alone add up to more than together when they share the path
@@ -574,6 +625,11 @@ export function timeImpactText(r, { limit = 15 } = {}) {
     for (const e of r.byEvent) L.push(`  ${e.event}: ${e.delayDays} d (finish ${e.finish})`);
     L.push(`  alone they add to ${r1(r.byEvent.reduce((s, e) => s + e.delayDays, 0))} d, together ${r.finish.delayDays} d${r.overlapDays > 0 ? ` (${r.overlapDays} d overlap: concurrent on the path)` : ""}`);
   }
+  if (r.byStep?.length) {
+    L.push("Step by step, in the order the events happened (each on top of the ones before it):");
+    for (const x of r.byStep) L.push(`  ${x.step}. ${x.event}${x.date ? ` (${x.date})` : ""}: +${x.stepDays} d, ${x.cumulativeDays} d so far (finish ${x.finish}); newest first +${x.newestFirstDays} d${x.aloneDays !== null ? `, alone ${x.aloneDays} d` : ""}`);
+    L.push(`  the steps add to ${r1(r.byStep.reduce((s, x) => s + x.stepDays, 0))} d${r.orderSensitive ? "; the split depends on the order: newest first gives some events other days" : "; newest first gives every event the same days"}`);
+  }
   if (r.apportionment) {
     L.push("By party (each run alone, and with every other row):");
     for (const x of r.byParty) L.push(`  ${x.party} (${x.rows} row${x.rows === 1 ? "" : "s"}): alone ${x.aloneDays} d; without it ${x.withoutDays} d; sole ${x.soleDays} d`);
@@ -603,6 +659,7 @@ export function timeImpactCsv(r) {
   const out = [["section", "activity", "name", "before", "after", "change (working days)", "note"]];
   out.push(["finish", "", "project finish", r.finish.base, r.finish.impacted, r.finish.delayDays, ""]);
   for (const e of r.byEvent) out.push(["event alone", "", e.event, r.finish.base, e.finish, e.delayDays, ""]);
+  for (const x of r.byStep || []) out.push(["step", x.step, x.event, x.date, x.finish, x.stepDays, `${x.cumulativeDays} d so far; newest first ${x.newestFirstDays} d${x.aloneDays !== null ? `; alone ${x.aloneDays} d` : ""}`]);
   for (const x of r.byParty) {
     out.push(["party alone", "", x.party, r.finish.base, x.aloneFinish, x.aloneDays, `${x.rows} row(s)`]);
     out.push(["without party", "", x.party, r.finish.base, x.withoutFinish, x.withoutDays, "every other row"]);
@@ -630,6 +687,16 @@ function branchHtml(b) {
 <table><thead><tr><th>Outcome</th><th class="n">Probability</th><th>Finish</th><th class="n">Delay (d)</th></tr></thead><tbody>${b.outcomes.slice(0, 40).map((o) => `<tr><td>${esc(picksText(o.picks))}</td><td class="n">${esc(pct(o.probability))}</td><td>${esc(o.finish)}</td><td class="n">${esc(o.delayDays)}</td></tr>`).join("")}</tbody></table>${b.outcomes.length > 40 ? `<p class="note">${esc(b.outcomes.length - 40)} more outcomes in the CSV.</p>` : ""}`;
 }
 
+// The events inserted in date order, each on top of the ones before it
+// (shared with the page, index.html).
+export function stepsHtml(r, { h = "h2" } = {}) {
+  const sum = r1(r.byStep.reduce((s, x) => s + x.stepDays, 0));
+  return `<${h}>Step by step, in the order the events happened</${h}>
+<p>The events were inserted one at a time in date order (the earliest "not before" date of each event's rows; undated events keep their place in the fragnet), and the schedule recomputed after each. A step's days are what that event adds on top of the ones before it, so the steps add up to the total. The same steps run newest first show how much the split depends on the order.</p>
+<div class="tablewrap"><table><thead><tr><th class="n">Step</th><th>Event</th><th>Date</th><th>Finish</th><th class="n">Adds (d)</th><th class="n">So far (d)</th><th class="n">Newest first (d)</th><th class="n">Alone (d)</th></tr></thead><tbody>${r.byStep.map((x) => `<tr><td class="n">${esc(x.step)}</td><td>${esc(x.event)}</td><td>${esc(x.date ?? "")}</td><td>${esc(x.finish)}</td><td class="n">${esc(x.stepDays)}</td><td class="n">${esc(x.cumulativeDays)}</td><td class="n">${esc(x.newestFirstDays)}</td><td class="n">${esc(x.aloneDays ?? "")}</td></tr>`).join("")}<tr><td></td><td><b>Total</b></td><td></td><td>${esc(r.finish.impacted)}</td><td class="n"><b>${esc(sum)}</b></td><td></td><td></td><td></td></tr></tbody></table></div>
+<p class="note">${r.orderSensitive ? "The split depends on the order: inserted newest first, some events get other days. An event that uses up float leaves the next one to reach the finish; a stepwise split credits whichever comes later. Say which order the analysis uses and why." : "Inserted newest first, every event gets the same days: the split does not depend on the order."}</p>`;
+}
+
 // The delay split by party: each party alone, the run without it, the sole
 // part and the concurrent rest (shared with the page, index.html).
 export function partyHtml(r, { h = "h2" } = {}) {
@@ -652,6 +719,7 @@ export function timeImpactHtml(r, meta = {}) {
 <p class="big">Project finish ${esc(r.finish.base)} &rarr; <b>${esc(r.finish.impacted)}</b>: ${d > 0 ? `<b>${esc(d)} working days later</b>` : d < 0 ? `${esc(-d)} working days earlier` : "no change"}.</p>
 <p>Method: the fragnet below was inserted into the update in force when the event happened and the schedule recomputed with the file's own calendars, logic, constraints and scheduling options (AACE RP 52R-06, prospective time impact analysis; RP 29R-03 MIP 3.6). The impact is the difference in the project finish and in each milestone between the two runs, in working days of the project calendar.</p>
 ${r.byEvent.length ? `<h2>Each event alone</h2><table><thead><tr><th>Event</th><th>Finish</th><th class="n">Days</th></tr></thead><tbody>${r.byEvent.map((e) => row([e.event, e.finish, e.delayDays])).join("")}<tr><td>All together</td><td>${esc(r.finish.impacted)}</td><td class="n">${esc(d)}</td></tr></tbody></table><p class="note">${r.overlapDays > 0 ? `The events alone add up to ${esc(r1(r.byEvent.reduce((s, e) => s + e.delayDays, 0)))} days but ${esc(d)} together: ${esc(r.overlapDays)} days are concurrent (the events delay the same path at the same time).` : r.overlapDays < 0 ? `Together they delay more than alone: one event only reaches the finish once another has used the float.` : "The events' delays add up: no overlap."}</p>` : ""}
+${r.byStep?.length ? stepsHtml(r) : ""}
 ${r.apportionment ? partyHtml(r) : ""}
 ${r.branches ? branchHtml(r.branches) : ""}
 <h2>Fragnet${r.branches ? " (most likely branch of each group)" : ""}</h2><table><thead><tr><th>Activity</th><th>Name</th><th>Kind</th><th class="n">Days</th><th>Start</th><th>Finish</th><th class="n">Float (d)</th><th>Drives the finish</th></tr></thead><tbody>${r.fragnet.map((f) => `<tr><td>${esc(f.code)}</td><td>${esc(f.name)}</td><td>${esc(f.kind)}</td><td class="n">${esc(f.days)}</td><td>${esc(f.start)}</td><td>${esc(f.finish)}</td><td class="n">${esc(f.floatDays)}</td><td>${f.driving ? "yes" : ""}</td></tr>`).join("")}</tbody></table>

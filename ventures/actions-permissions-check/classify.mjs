@@ -19,8 +19,17 @@ export const RISK_CLASSIFICATIONS = new Set([WRITE_ALL, UNSPECIFIED]);
 // _TOP_JOBS_RE / _JOB_NAME_RE / _PERMISSIONS_KEY_RE exactly.
 const TOP_PERMISSIONS_RE = /^permissions:\s*(.*?)\s*(?:#.*)?$/;
 const TOP_JOBS_RE = /^jobs:\s*(?:#.*)?$/;
-const JOB_NAME_RE = /^([A-Za-z0-9_.-]+):\s*(?:#.*)?$/;
+// A job id may be quoted (`"deploy":` or `'deploy':`); YAML gives the same key.
+const JOB_NAME_RE = /^(?:"([A-Za-z0-9_.-]+)"|'([A-Za-z0-9_.-]+)'|([A-Za-z0-9_.-]+)):\s*(?:#.*)?$/;
 const PERMISSIONS_KEY_RE = /^(\s+)permissions:\s*(.*?)\s*(?:#.*)?$/;
+
+/** YAML `"write-all"`, `'write-all'` and `write-all` are the same string. */
+function unquote(value) {
+  if (value.length >= 2 && value[0] === value[value.length - 1] && (value[0] === '"' || value[0] === "'")) {
+    return value.slice(1, -1).trim();
+  }
+  return value;
+}
 
 function lineIndent(line) {
   return line.length - line.replace(/^ +/, "").length;
@@ -30,7 +39,7 @@ function lineIndent(line) {
  * {classification, detail}. */
 function classifyPermissionsValue(lines, keyIdx, keyIndent) {
   const match = /^\s*permissions:\s*(.*?)\s*(?:#.*)?$/.exec(lines[keyIdx]);
-  const inline = match ? match[1].trim() : "";
+  const inline = match ? unquote(match[1].trim()) : "";
 
   if (inline) {
     if (inline === WRITE_ALL) return { classification: WRITE_ALL, detail: "write-all" };
@@ -89,7 +98,7 @@ function findJobs(lines, jobsIdx) {
     if (jobIndent === null) jobIndent = indent;
     if (indent === jobIndent) {
       const match = JOB_NAME_RE.exec(stripped);
-      if (match) jobs.push({ id: match[1], start: i, end: n });
+      if (match) jobs.push({ id: match[1] || match[2] || match[3], start: i, end: n });
     }
     i += 1;
   }
@@ -99,19 +108,25 @@ function findJobs(lines, jobsIdx) {
   return { jobIndent, jobs };
 }
 
-/** The shallowest-indented `permissions:` line within [start, end) --
- * `permissions` is only a valid job-level key in the workflow schema, never
- * a step input, so the shallowest match within a job's own body is its
- * job-level grant. Returns {idx, indent} or null. */
+/** The job's own `permissions:` key: a `permissions:` line at the job's
+ * direct-child indent (the indent of the first key in the job body, which
+ * starts at `start`). A deeper `permissions:` line is something else -- a
+ * `strategy.matrix` key or an action's `with:` input -- and is not the job's
+ * grant (round 105 audit). Returns {idx, indent} or null. */
 function findJobPermissions(lines, start, end) {
-  let best = null;
+  let childIndent = null;
+  for (let idx = start; idx < end; idx++) {
+    const stripped = lines[idx].trim();
+    if (!stripped || stripped.startsWith("#")) continue;
+    childIndent = lineIndent(lines[idx]);
+    break;
+  }
+  if (childIndent === null) return null;
   for (let idx = start; idx < end; idx++) {
     const match = PERMISSIONS_KEY_RE.exec(lines[idx]);
-    if (!match) continue;
-    const indent = match[1].length;
-    if (best === null || indent < best.indent) best = { idx, indent };
+    if (match && match[1].length === childIndent) return { idx, indent: childIndent };
   }
-  return best;
+  return null;
 }
 
 /** Scan one workflow file's text. Returns a list of finding objects, in the

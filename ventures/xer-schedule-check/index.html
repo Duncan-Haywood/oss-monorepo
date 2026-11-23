@@ -515,7 +515,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>tia_stepwise</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -769,7 +769,7 @@
       const text = $("#tia-frag").value.trim();
       if (!text) { st.textContent = "Write or paste a fragnet first, or press Example fragnet."; return; }
       try {
-        const { timeImpact, partyHtml } = await tiaModule();
+        const { timeImpact, partyHtml, stepsHtml } = await tiaModule();
         const r = timeImpact(xer, text, { projId: last.project.id, expectedFinish: !$("#tia-noexp").checked });
         lastTia = r;
         const d = r.finish.delayDays;
@@ -783,8 +783,10 @@
         const ct = r.consumed.length ? `<h3>Float given up</h3><div class="tablewrap"><table><thead><tr><th>Activity</th><th>Name</th><th class="n">Before (d)</th><th class="n">After (d)</th></tr></thead><tbody>${r.consumed.slice(0, 30).map((c) => `<tr><td>${esc(c.code)}</td><td>${esc(c.name)}</td><td class="n">${esc(c.floatBefore)}</td><td class="n">${esc(c.floatAfter)}</td></tr>`).join("")}</tbody></table></div>${r.consumed.length > 30 ? `<p class="note">${esc(r.consumed.length - 30)} more in the CSV.</p>` : ""}` : "";
         const wn = r.warnings.length ? `<p class="note">${r.warnings.map(esc).join("<br>")}</p>` : "";
         const pa = r.apportionment ? partyHtml(r, { h: "h3" }) : "";
-        $("#tia-out").innerHTML = wn + br + ev + pa + fr + mt + ct;
+        const sp = r.byStep.length ? stepsHtml(r, { h: "h3" }) : "";
+        $("#tia-out").innerHTML = wn + br + ev + sp + pa + fr + mt + ct;
         if (r.apportionment) record("tia_party_split");
+        if (r.byStep.length) record("tia_stepwise");
         for (const b of ["#tia-print", "#tia-csv", "#tia-xer"]) $(b).hidden = false;
         record("tia_run");
       } catch (e) {

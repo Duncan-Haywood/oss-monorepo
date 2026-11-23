@@ -1,0 +1,254 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/infra-waterloss",
+ "stratum": "research",
+ "seed": "2026-11-23-e-2a41",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior water-utility engineer and water-loss researcher (AWWA M36 water audits, IWA water balance, UARL/ILI, minimum-night-flow and pressure-residual leak detection, BattLeDIM-style benchmarks). First checks: is the leak model physical (orifice/FAVAD), does the simulated inflow meter see the leak the way a real source/DMA meter does, is there a flow-balance (MNF) baseline, are the false-alarm budgets honest, and how big is the 'small' leak in water-audit terms",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran it. Installed wntr 1.5.0 (plus six, which wntr 1.5.0 imports but does not declare), numpy 2.4.6, ruptures 1.1.10 in a scratch venv. Full experiments/run.py rerun in a scratch copy took 823 s on 4 cores; results.txt reproduces line for line except one: the 13th greedy sensor is 219, not 217 (a near-tie), which changes one C6 row (pressure CUSUM, 15 sensors: 2% all-leak 0.05 vs 0.03, covered 0.08 vs 0.00); all C1-C5 cells, coverage shares (0.51/0.46/0.34/0.28/0.07) and realised-flow table identical. Independent recomputations: (1) PELT against the ruptures library (Pelt, l2 cost, min_size=1, jump=1) on 40 random step series x 4 penalties: 160/160 identical changepoint sets. (2) WNTR's leak flow against the orifice law Q = Cd A sqrt(2 g h) computed by hand from the area net.py sets: 0.014021 vs 0.014023 m3/s at hour 100 (0.02%), and the nominal mean demand 690.63 L/s matches EPANET's own solver (EpanetSimulator) to 0.0001 L/s, pressures within 0.0004 m. (3) CUSUM and 3-h moving average against Page (1954) loops written by hand: 200/200 and 200/200 first-alarm agreement. (4) Binomial error claims: sqrt(0.05*0.95/120)=0.020 (README '+-2 points') and 2*sqrt(0.25/60)=0.13 (README '0.12'): pass. But a physics check fails: the 'inflow meter' (net.py:64, run.py:62) is the sum of junction demands, which in WNTR excludes leak_demand; with a 2% leak the series is bit-identical to the leak-free one (max |diff| = 0.0). A real source/DMA inflow meter reads demand + leak. So every 'flow-adjusted' row, including the headline best detector, models a meter that cannot see the leak. Primitives are right; the scenario the headline numbers describe is mis-modelled, hence 2.",
+  "completeness": "Every README item runs end to end: 6 tests pass (README says 6), run.py writes results.txt (823 s vs 'about 20 min'), figure.py exists, sensors/coverage/realised-flow/C1-C6 tables all present. The milestone's actual target (BattLeDIM L-Town and its competition metrics) is not done, and this is disclosed prominently with the 403 reason; Next steps list it. No stubs; one dead branch (run.py:148 'if dl == \"high\" and False'). Live page not loaded (not scored).",
+  "verification": "python -m pytest -q tests: 6 passed in 4.0 s. Tests cover the primitives well (PELT vs an unpruned DP, CUSUM delay arithmetic, MA window, orifice law, seeded demand perturbation). Four mutants via quality_mutate.py: 1 caught (Cd 0.75 -> 0.6 in the area formula), 3 survived: flipping the score sign in run.py:71 (the detector would look for pressure rises), dropping PELT's 'mean is higher' condition in detect.py:58, and removing the sqrt(1-rho^2) scaling of the AR(1) demand error in net.py:34 (system demand error ~2.3x the stated sd). Nothing in experiments/run.py (statistic, calibrate, pick_sensors, analyse, coverage) is tested, and that is where every headline number is produced.",
+  "craft": "Read net.py (65 lines), detect.py (61), run.py (206), tests/test_waterloss.py (78). Compact and readable, seeded, cached hydraulics. Defects: the inflow meter excludes the leak (net.py:64) with no comment; dead branch run.py:148; fa_test counts only the 0.25% runs (run.py:110) though the README describes it as the pre-leak rate of 'the test runs'; analyse() returns a positional 5-tuple read back by index; sensor greedy has an unbroken near-tie, so the 15-sensor set differs across environments (217 vs 219) while the README calls results deterministic; wntr pinned only as 'wntr' though the code depends on WNTRSimulator's leak model and library path layout of 1.5.",
+  "claims": "Checked 12 claims against results.txt and my rerun. Pass: headline 100%/85%/8% covered and 3%/38% all-leak (C2 flow-adjusted CUSUM); 0.92/0.85/0.08 by demand error; 0.69/0.85/0.46 by sensor noise; 0.31->0.85 and 0.08->0.23 flow adjustment; 1.00->0.85 and 0.62->0.31 at 15 sensors; PELT never beats CUSUM at 2%; beta 40-190; fa_cal 1-5%; 6 tests. Fail/partial: README:17 says flow adjustment strips 'some of a large leak' - false, the regressor contains no leak signal at all; README:14 'realised flows ... match to two decimals' - 3.93 vs 4 and 1.98 vs 2 do not; README:36 'all-leak detection is at most 8 % at 1 %' - the maximum across rows is 0.05 (8% is the covered figure); README:33 'deterministic' - one row differs on a rerun; README:35 frames 28% coverage as a property of 'a few sensors', but my recomputation from the cached responses shows 28.3% is the ceiling with every junction instrumented, so 15 sensors cannot do better at 0.5 m (which also explains C6's unchanged 28%). Limits, assumed inputs and AI assistance are disclosed well.",
+  "fitness": "A researcher can build on it, and two did: infra-leakpdd (Next-steps item 4) and the water-leaks programme on real BattLeDIM data, which later ran the minimum-night-flow baseline this project lacks. As a result it is a toy: Net3 textbook network, simulated leaks, assumed demand error, one detection pipeline, no BattLeDIM comparison. Nearest prior work: BattLeDIM (Vrachimis et al. 2022) entries such as LILA (Daniel et al.) and the dual-model approach, and the long pressure-residual / CUSUM literature (e.g. Misiunas et al. 2005; Romano, Kapelan and Savic 2014; Jung and Lansey 2015 on nonlinear Kalman + statistical process control); the finding that demand uncertainty dominates detectability is known there. The flow channel is mis-modelled, so the cross-detector comparison omits the utility's first tool. Not new, and not at the PhD/publishable bar on its own; as a disclosed milestone stand-in it is honest.",
+  "domain": "Compared with AWWA M36 (4th ed.) / IWA water-balance practice and the leak-detection literature. (1) No flow-balance or minimum-night-flow baseline, which is the first thing a water-loss engineer uses; and the simulated inflow meter excludes leakage. My flow-balance CUSUM on the subject's own cached hydraulics (inflow = demand + leak, 0.5% meter noise, same 5% calibration on the 120 leak-free weeks) finds ALL leak locations at 0.98 (4%) and 0.53 (2%) at low demand error, against the best pressure row's 0.60 and 0.37; at base error it does worse (0.18 vs 0.38). So 'coverage sets the limit' holds only because the flow channel was left out. (2) Leak size in audit terms: Net3 has 65.7 km of mains at mean pressure 42.1 m, so the mains term of UARL = 18 Lm P L/day is 49.8 m3/d; the '1 %' leak is 597 m3/d (12x that) and even 0.25% (149 m3/d) is a reportable-burst flow, not background leakage, so 'small leaks are not found' means 'mid-sized bursts are not found by pressure alone'. ILI/UARL/CARL are not computed anywhere (not claimed either). (3) Leak exponent fixed at 0.5 (orifice); FAVAD (May 1994; Lambert 2001) gives N1 of 0.5-1.5 for real networks, unswept. (4) Demand-driven customers and no DMA structure, both disclosed. The pressure-residual / calibrated-CUSUM method itself is standard and correctly implemented."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "PELT changepoints equal an independent implementation",
+   "method": "ruptures 1.1.10 Pelt(model='l2', min_size=1, jump=1).predict(pen=beta) (Truong, Oudre, Vayatis), 40 random step series x beta in {5,20,60,150}",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/chk/c2.py research/infra-waterloss/src",
+   "expected": "160/160 identical",
+   "observed": "160/160 identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Simulated leak flow follows the orifice law with the area net.py sets (2% leak at junction 167, P96 = 47.0 m)",
+   "method": "Hand computation Q = Cd A sqrt(2 g h), Cd 0.75, A = 0.02*Qmean/(0.75 sqrt(2 g P96)) = 6.065e-4 m2, h = simulated pressure",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/chk/c1.py research/infra-waterloss/src",
+   "expected": "0.014021 m3/s at hour 100",
+   "observed": "0.014023 m3/s (WNTR)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Net3 nominal mean total demand 691 L/s and pressures",
+   "method": "EPANET 2.2 solver via wntr.sim.EpanetSimulator (independent of the WNTRSimulator the subject uses)",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/chk/c1.py research/infra-waterloss/src",
+   "expected": "691 L/s",
+   "observed": "690.628 L/s both solvers; max pressure difference 0.00038 m",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "CUSUM and 3-h moving-average first alarms",
+   "method": "Page (1954) one-sided CUSUM S_t = max(0, S_{t-1}+z_t-k), alarm S_t>h, and trailing 3-sample mean, written by hand; 200 random series each",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/chk/c2.py research/infra-waterloss/src",
+   "expected": "200/200 agreement each",
+   "observed": "200/200 and 200/200",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Simulated inflow meter sees the leak (a real source meter reads demand + leak)",
+   "method": "Physics / AWWA M36 water balance: system input = authorised consumption + losses; compare net.py's 'dem' with and without a 2% leak",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/chk/c1.py research/infra-waterloss/src",
+   "expected": "inflow rises by the leak flow, ~0.0138 m3/s",
+   "observed": "max |dem_leak - dem_noleak| over hours 96-168 = 0.0 (leak_demand excluded)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Reproduce experiments/results.txt",
+   "method": "Full rerun of experiments/run.py in a scratch copy with a fresh cache",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/wl && WATERLOSS_CACHE=/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/cache PYTHONPATH=src /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python experiments/run.py; diff experiments/results.txt research/infra-waterloss/experiments/results.txt",
+   "expected": "identical (README: deterministic)",
+   "observed": "identical except the 13th sensor (219 vs 217) and one C6 row (pressure CUSUM 2%: 0.05/0.08 vs 0.03/0.00); headline C2 row identical",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Flow-balance baseline on the subject's own hydraulics",
+   "method": "Auditor's CUSUM (k 0.5) on standardised inflow residual (demand + leak, 0.5% meter noise), threshold calibrated to <=5% of the 120 leak-free weeks, same scoring",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/chk/c3.py research/infra-waterloss/src /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/cache",
+   "expected": "no prior figure; compare with best pressure row (C4 low error, all leaks: 0.37 at 2%, 0.60 at 4%)",
+   "observed": "low error: 0.53 at 2%, 0.98 at 4%; base: 0.08, 0.18; high: 0.07, 0.08",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Leak size relative to UARL (AWWA M36 / IWA, Lambert 1999)",
+   "method": "UARL = (18 Lm + 0.8 Nc + 25 Lp) P L/day; mains term only from Net3 pipe lengths (65.7 km) and EPANET mean pressure (42.1 m)",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -I -c \"import wntr,os; ...sum(pipe lengths), EpanetSimulator mean pressure\"",
+   "expected": "README's 'small' leaks small relative to UARL",
+   "observed": "mains UARL 49.8 m3/d; 1% leak 597 m3/d, 0.25% 149 m3/d: burst-scale, not background",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:17 flow adjustment strips 'some of a large leak'",
+   "method": "Inspect regressor: inflow residual built from junction demand only",
+   "command": "grep -n 'f = dem' research/infra-waterloss/experiments/run.py; c1.py",
+   "expected": "leak present in regressor",
+   "observed": "leak absent (diff 0.0)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:36 all-leak detection at most 8% at 1% leak (C2)",
+   "method": "Max over the six C2 rows, column 1% all leaks, results.txt",
+   "command": "sed -n '/== C2/,/== C3/p' research/infra-waterloss/experiments/results.txt",
+   "expected": "0.08",
+   "observed": "max 0.05 (0.08 is the covered figure)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:35 5 sensors cover only 28% of leak locations (few sensors see little)",
+   "method": "Recompute coverage at 0.5 m with every junction as a sensor, from the cached noise-free 2% leak responses",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/chk/c3.py research/infra-waterloss/src /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/cache",
+   "expected": "higher with more sensors",
+   "observed": "0.283 even with all 92 junctions: 28% is the network ceiling, not a few-sensor limit",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline and results numbers (12 cells: 100/85/8, 3/38, 0.92/0.85/0.08, 0.69/0.85/0.46, 1.00->0.85, 0.62->0.31, beta 40-190, PELT never beats CUSUM at 2%)",
+   "method": "Read each against results.txt and the rerun",
+   "command": "diff of rerun; manual table read",
+   "expected": "as README",
+   "observed": "all match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:14 realised leak flows match requested 'to two decimals'",
+   "method": "results.txt section B",
+   "command": "sed -n '/== B/,/^$/p' research/infra-waterloss/experiments/results.txt",
+   "expected": "0.25 0.50 1.00 2.00 4.00",
+   "observed": "0.25 0.50 0.99 1.98 3.93",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "pytest",
+   "command": "cd research/infra-waterloss && /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -m pytest -q -p no:cacheprovider tests",
+   "expected": "6 passed",
+   "observed": "6 passed, 2 warnings in 4.0 s",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "experiments/run.py:71",
+   "change": "z = -r.mean(axis=1) -> z = r.mean(axis=1)",
+   "caught": false,
+   "test_cmd": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/infra_waterloss/net.py:59",
+   "change": "area = q / (0.75 * np.sqrt -> area = q / (0.6 * np.sqrt",
+   "caught": true,
+   "test_cmd": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/infra_waterloss/detect.py:58",
+   "change": "cps[-1] >= start - every and x[cps[-1]:].mean() > x[: cps[-1]].mean() -> cps[-1] >= start - every",
+   "caught": false,
+   "test_cmd": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/infra_waterloss/net.py:34",
+   "change": "rng.normal(0.0, sigma_sys * np.sqrt(1 - rho ** 2)) -> rng.normal(0.0, sigma_sys)",
+   "caught": false,
+   "test_cmd": "/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/venv/bin/python -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "where": "research/infra-waterloss/src/infra_waterloss/net.py:64",
+   "category": "logic-error",
+   "origin": "implementation",
+   "what": "The 'inflow meter' is the sum of junction demands, which in WNTR excludes leak_demand: with a 2% leak it is bit-identical to the leak-free series. A real source/DMA meter reads demand + leak. Every 'flow-adjusted' row (including the headline best detector, flow-adjusted CUSUM) models a meter blind to the leak, and README:17's claim that the regression strips 'some of a large leak' is false. Fix: dem + leak (and re-run).",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "high",
+   "where": "research/infra-waterloss/README.md:7",
+   "category": "research-design",
+   "origin": "design",
+   "what": "No flow-balance / minimum-night-flow baseline, the first tool of water-loss practice (AWWA M36, IWA). The headline 'demand error and sensor coverage set the limit, not the detector' depends on it: a flow-balance CUSUM on the subject's own cached hydraulics finds all leak locations at 0.98 (4%) and 0.53 (2%) at low demand error vs the best pressure row's 0.60 and 0.37, so coverage is not the limit when the inflow channel is modelled.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "medium",
+   "where": "research/infra-waterloss/experiments/run.py:59",
+   "category": "untested-core",
+   "origin": "tests",
+   "what": "statistic(), calibrate(), pick_sensors() and analyse() produce every reported number and have no tests: flipping the score sign (run.py:71) survives the suite, as do dropping PELT's 'mean higher' condition (detect.py:58) and mis-scaling the AR(1) demand error (net.py:34)."
+  },
+  {
+   "severity": "medium",
+   "where": "research/infra-waterloss/README.md:35",
+   "category": "overclaim",
+   "origin": "claims",
+   "what": "Frames 28% coverage as 'five sensors see little of the network ... invisible to a few sensors'; with every junction instrumented coverage at 0.5 m is still 28.3%, so it is a network property (tank/pump-held pressure), not a sensor-count one. Also why C6 (15 sensors) reports the same 28%.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "medium",
+   "where": "research/infra-waterloss/README.md:36",
+   "category": "overclaim",
+   "origin": "claims",
+   "what": "'Small leaks are not found': the '1 %' leak is 7 L/s = 597 m3/d, 12x the mains term of UARL for Net3 (18 x 65.7 km x 42.1 m = 49.8 m3/d); even 0.25% is burst-scale. Also 'all-leak detection is at most 8 % at 1 %' - the C2 maximum is 0.05.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "low",
+   "where": "research/infra-waterloss/src/infra_waterloss/net.py:59",
+   "category": "scope-gap",
+   "origin": "spec",
+   "what": "Leak exponent fixed at 0.5 (orifice); FAVAD (May 1994, Lambert 2001) leakage exponents of 0.5-1.5 in real networks are neither swept nor mentioned."
+  },
+  {
+   "severity": "low",
+   "where": "research/infra-waterloss/README.md:33",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "what": "Results called 'deterministic', but the greedy sensor pick has a near-tie: a clean rerun (wntr 1.5.0, numpy 2.4.6) picks sensor 219 not 217 and one C6 row changes (pressure CUSUM 2%: 0.05/0.08 vs 0.03/0.00). README:14 'match to two decimals' (3.93 vs 4) also loose.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "low",
+   "where": "research/infra-waterloss/experiments/run.py:148",
+   "category": "code-craft",
+   "origin": "implementation",
+   "what": "Dead branch 'if dl == \"high\" and False'; fa_test counts only the 0.25% runs (run.py:110) though described as the pre-leak rate of the test runs."
+  },
+  {
+   "severity": "low",
+   "where": "research/infra-waterloss/pyproject.toml:6",
+   "category": "repo-hygiene",
+   "origin": "build",
+   "what": "wntr unpinned although code depends on 1.5 internals (library path, WNTRSimulator leak model); wntr 1.5.0 also needs six, undeclared, so 'pip install pytest numpy wntr' can fail to import."
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"],
+ "verdict": "A small, honest, reproducible milestone stand-in: WNTR on Net3 with simulated orifice leaks, calibrated MA/CUSUM/PELT detectors at a 5% false-alarm budget. The primitives are right (PELT = ruptures 160/160, orifice law to 0.02%, EPANET demand to 0.0001 L/s, CUSUM/MA by hand 200/200) and a full 14-minute rerun reproduces results.txt except one 15-sensor row. But a water-loss engineer would stop at the flow channel: the simulated inflow meter excludes the leak (net.py:64), so every 'flow-adjusted' row models a meter no utility has, and with no flow-balance/MNF baseline the headline 'coverage and demand error set the limit' is an artefact - a flow CUSUM on the same hydraulics finds 98% of all 4% leaks at low demand error. The 28% coverage is a network ceiling, not a few-sensor limit, and the 'small' leaks are burst-sized against UARL. Tests miss every mutant in the experiment code. Below the bar on correctness, claims and verification."
+}
