@@ -2,6 +2,42 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-23 · Milestone 6af (H6 mechanism): does the H = 64 gain of keep 1/4 with a dense last sync hold on a test split carved from the training text, which no decision has seen? Eight seeds, unc and keep 1/4 retrained on the first 80% (planned before running; outcome below)
+
+- Why: the paper section's (`paper/section_recipe.md`) first-listed limit, and 6ae's "Next" (2). Every recipe figure so far is scored on the validation text: the 16 standard batches, on which the recipe was found and omega 3 chosen, and 6y's 64 fresh batches, which are new windows of the same 111k characters. A reviewer can fairly read the -0.0134 as partly selected on that text. Carving a test split from the training text gives batches nothing in the programme was trained or chosen on. Scoring training-text batches too tests the one mechanism the section names as not contradicted: outer-step noise acting as a regulariser.
+- Run (`experiments/gpt_scale/heldout_6af.py`, written before the runs; run and scoring code are 6ae's apart from the split and two extra batch sets): the size-2 setup of `scale.py` at H = 64 (60 syncs), seeds 0 to 7, but trained on the first 8/9 of the training ids (80% of the text, 892,314 characters); the last 1/9 (111,540) is the test split. Each run is scored on 64 test batches (draw seed 4242), 64 batches of its own training text (seed 2424), and the standard and fresh validation batches. unc, then rand-k keep 1/4 forked before the last round into *clean* (the recipe) and *full*. 16 runs, 4 cores, about 75 minutes. No run reproduces a stored one (the training text differs), so there is no bit-exact check this time.
+- Disclosed: with 11% less training text the model sees each character about 18 times instead of 16, so overfitting, and any regulariser effect, may be somewhat larger than in 6ae.
+- **H6af-i** (prior 60%): pooled over eight seeds, the recipe's test T (clean - unc, paired by seed) is below zero by more than 2 se.
+- **H6af-ii** (prior 45%): the exact two-sided sign-flip P of the test T is below 0.05.
+- **H6af-iii** (prior 65%): the test T is within 2 se (combined) of 6ae's pooled fresh T, -0.0134 (se 0.0026).
+- **H6af-iv** (prior 45%, the regulariser reading): T(test) - T(train), paired by seed, is below zero by more than 2 se: the recipe helps more on unseen text than on the text it trained on, so it narrows the generalisation gap.
+- **H6af-v** (prior 65%): b / omega on the test batches (b = full - clean) lies in [0.0012, 0.0024] (H = 64 so far: 0.0013 to 0.0022).
+- **H6af-vi** (prior 55%): per-seed T on the test batches and on the fresh validation batches correlate with Pearson r above 0.5.
+- Reported, no verdict: T, C and b on all four batch sets, per-seed T, the generalisation gap (test - train) of unc and the recipe, and the weight norm.
+- Reading: i holding means the H = 64 gain is not an artefact of the validation text, and the section can drop that limit. i failing with the point estimate below zero means the claim weakens to "at or below uncompressed" for unseen text. A test T at or above zero means the validation-text figures were partly selection and the section's headline must be withdrawn to "free". iv holding makes regularisation the leading mechanism and points the next step at measuring it (for example, the recipe against uncompressed with dropout or weight decay); iv failing with i holding rules the simple regulariser reading out, since the gain would then be on the training text too.
+- Not tested: other omegas or H on the carved split, the full-text runs on the new split (they trained on it), other widths.
+
+### Outcome of 6af (`experiments/gpt_scale/heldout_6af.py`, `heldout_6af.txt`, `heldout_6af.jsonl`, `run_heldout6af.out`; 16 runs, 17 to 18 min each, 4 cores in parallel, torch 2.15.0+cu132 on CPU)
+- Ran as planned; no code changed after the first run started. The report was run on two seeds part-way (no verdicts printed, nothing acted on) and once on the finished file.
+- Paired by seed against unc at H = 64, rand-k keep 1/4 (omega 3) with a dense last sync, trained on the first 80% of the text (nats, seed mean, se; P exact sign-flip):
+
+  | batches | T (recipe - unc) | P | below zero | C (full - unc) | b / omega |
+  |---|---|---|---|---|---|
+  | **test** (carved from training text, unseen) | **-0.0109 (0.0035)** | **0.031** | 7 of 8 | -0.0058 (0.0032) | 0.0017 |
+  | fresh validation | -0.0070 (0.0083) | 0.422 | 5 of 8 | -0.0030 (0.0074) | 0.0013 |
+  | standard validation | -0.0073 (0.0084) | 0.422 | 5 of 8 | -0.0033 (0.0075) | 0.0013 |
+  | own training text | -0.0177 (0.0024) | 0.008 | 8 of 8 | -0.0122 (0.0024) | 0.0018 |
+
+- Test T per seed, 0 to 7: +0.0092, -0.0061, -0.0122, -0.0128, -0.0197, -0.0203, -0.0184, -0.0071.
+- **H6af-i held** (-0.0109, 3.2 se) and **H6af-ii held** (P 0.031): on text no decision in the programme has seen, the recipe ends below uncompressed training.
+- **H6af-iii held** (difference +0.0025, 0.6 se): the size matches 6ae's -0.0134 on the full-text runs.
+- **H6af-iv refuted, in the opposite direction** (T(test) - T(train) = +0.0068, se 0.0014, +5.0 se): the recipe gains more on the text it trained on than on unseen text. The generalisation gap (test - train) is +0.161 for unc and +0.168 for the recipe, so the recipe slightly *widens* it. The gain is lower training loss that mostly carries over, not regularisation.
+- **H6af-v held** (0.0017). **H6af-vi held** (r +0.91): seeds that gain on the test split gain on the fresh validation batches too.
+- Exploratory, not registered: removing the 80% to 90% slice raised unc's validation loss from about 1.63 (6y, full text, fresh batches) to 1.83, while the test split, carved from that slice, scores 1.57. The validation text (the last 10%) is evidently close to the slice before it, so the full-text runs' validation scores were partly measuring text adjacent to training text. On the reduced runs the validation text is further out of distribution, and there the recipe's T is noisier (se 0.008) and smaller (-0.007, 5 of 8 seeds). Whether the gain shrinks with distance from the training distribution is a lead, not a result.
+- **Reading** (the plan's fixed readings): i holding means the H = 64 gain is not an artefact of the validation text; the section drops that limit. iv refuted the simple regulariser reading: the recipe is an optimisation effect, the compressed trajectory reaches lower training loss. That is the opposite of the candidate the paper section named, and it narrows the mechanism question to why rand-k noise in the outer step speeds up optimisation on long inner loops.
+- Limits: eight seeds at one H and omega; one width; 11% less training text than every other milestone; the test split is one contiguous slice of one corpus.
+- Next: (1) a training-loss trace through the run (per-round train loss of unc and the recipe) to see when the optimisation gain appears; (2) the recipe with the outer lr raised slightly instead of noise (does the noise act like a larger outer step?); (3) the recipe at the 0.41M-parameter size.
+
 ## 2026-11-22 · Milestone 6ae (H6 mechanism): does the headline H = 64 gain of keep 1/4 with a dense last sync survive four more seeds? Seeds 4 to 7 of unc and keep 1/4, pooled with 6y's and 6z's four (planned before running; outcome below)
 
 - Why: the paper draft written in this run (`paper/section_recipe.md`) leans on one cell, rand-k keep 1/4 with a dense last sync at H = 64: -0.0185 (se 0.0020) on the fresh batches, 4 of 4 seeds (6z). With four seeds an exact sign-flip test cannot go below P = 0.125, and 6ad showed that four seeds at H = 32 could be dominated by one or two seeds. Before the draft states the gain as the programme's result, the cell gets eight seeds.

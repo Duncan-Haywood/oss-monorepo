@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnLxkgKAsD94E3jRTY",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T16:18:40Z",
+  "ended": "2026-11-23T17:37:21Z",
+  "wall_minutes": 78.85,
+  "tokens_in": 5223751,
+  "tokens_out": 25498,
+  "cost_usd": 2.3831,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18447",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Several 540 s foreground waits were needed during a 75-minute job. The background-wait notification works, but the Stop hook fires on untracked partial result files while the job runs, which pushes toward committing partial output or toward foreground polling."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to run pyenv.py for torch. A plain venv plus pip install torch==2.15.0 from PyPI took under 10 minutes here, which was faster than the 25 to 35 minutes the docs warn about."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Used a scratch venv with torch from PyPI instead of pyenv.py, to match the torch build (2.15.0+cu132 on CPU) that 6ac to 6ae used.",
+      "did": "python3 -m venv plus pip install torch==2.15.0",
+      "result": "torch was ready in under 10 minutes and the runs completed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-diloco-compression-gain-held-out-split-not-regulariser-lowcomm.md",
+    "research/lowcomm-training/paper/section_recipe.md (item 9)"
+  ],
+  "goal": null,
+  "notes": "Milestone 6af: the H = 64 keep-1/4 dense-last-sync gain is -0.0109 (se 0.0035, P 0.031) on a test split carved from the training text. It is larger on training text (-0.0177), so the registered regulariser test was refuted by 5 se. Checks: 13 tests passed; build.py ok; check_posts ok; check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ce77eb54-3952-5b40-b009-a70ce1872d0d",
+    "transcripts": 1,
+    "first": "2026-11-23T16:18:40Z",
+    "last": "2026-11-23T17:37:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 100,
+        "output": 25498,
+        "thinking": 3811,
+        "cache_read": 5117499,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106152,
+        "api_equivalent_usd": 2.3831,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 100,
+      "output": 25498,
+      "thinking": 3811,
+      "cache_read": 5117499,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106152,
+      "api_equivalent_usd": 2.3831,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 47,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 78.85,
+      "active_minutes": 78.84,
+      "model_minutes": 5.78,
+      "tool_minutes": 73.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "design, 16 CPU runs supervision, analysis and write-up of one pre-registered experiment",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 335.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

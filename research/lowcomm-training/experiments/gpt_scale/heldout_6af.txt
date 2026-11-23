@@ -1,0 +1,22 @@
+paired seeds: [0, 1, 2, 3, 4, 5, 6, 7]; train chars 892314, test chars 111540
+
+Paired by seed against unc, rand-k keep 1/4 (omega 3) at H = 64 (nats, seed mean (se); P exact sign-flip):
+  test : T -0.0109 (0.0035) P 0.031 below zero 7 of 8 | C -0.0058 (0.0032) | b +0.0051 (0.0004) b/omega 0.0017
+         T per seed 0:+0.0092 1:-0.0061 2:-0.0122 3:-0.0128 4:-0.0197 5:-0.0203 6:-0.0184 7:-0.0071
+  fresh: T -0.0070 (0.0083) P 0.422 below zero 5 of 8 | C -0.0030 (0.0074) | b +0.0040 (0.0011) b/omega 0.0013
+         T per seed 0:+0.0352 1:+0.0100 2:-0.0189 3:-0.0137 4:-0.0397 5:-0.0279 6:-0.0050 7:+0.0043
+  std  : T -0.0073 (0.0084) P 0.422 below zero 5 of 8 | C -0.0033 (0.0075) | b +0.0040 (0.0014) b/omega 0.0013
+         T per seed 0:+0.0295 1:+0.0125 2:-0.0246 3:-0.0058 4:-0.0417 5:-0.0310 6:+0.0038 7:-0.0010
+  train: T -0.0177 (0.0024) P 0.008 below zero 8 of 8 | C -0.0122 (0.0024) | b +0.0055 (0.0001) b/omega 0.0018
+         T per seed 0:-0.0035 1:-0.0142 2:-0.0228 3:-0.0174 4:-0.0212 5:-0.0233 6:-0.0236 7:-0.0157
+
+generalisation gap (test - train): unc +0.1612 (0.0019), recipe +0.1680 (0.0025)
+unc loss per seed (test / train): 0:1.5557/1.3943 1:1.5623/1.3980 2:1.5743/1.4155 3:1.5668/1.4108 4:1.5631/1.4066 5:1.5664/1.3965 6:1.5721/1.4167 7:1.5728/1.4057
+theta2 mean: unc 11407, recipe 14994
+
+H6af-i   (test T below zero by > 2 se): held (-0.0109, -3.2 se)
+H6af-ii  (test T exact sign-flip P < 0.05): held (P 0.031)
+H6af-iii (test T within 2 se of 6ae's fresh -0.0134): held (difference +0.0025, +0.6 se)
+H6af-iv  (regulariser: T(test) - T(train) below zero by > 2 se): refuted (+0.0068 (0.0014), +5.0 se)
+H6af-v   (b / omega on test in [0.0012, 0.0024]): held (0.0017)
+H6af-vi  (per-seed T on test and on fresh correlate, r > 0.5): held (r +0.91, n 8)
