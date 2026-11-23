@@ -1346,6 +1346,10 @@ class DevelopSettings:
     # X-Trans tiles, so it is the default since then (eval/noise-fallback-real-2026-11-17.md: every sample raw
     # that develops takes it). False keeps the old fallback to directional.
     noise_from_frame: bool = True
+    # Which frame read the noise-aware blend uses when it reads one (``xtrans_demosaic.NOISE_READS``): "ship"
+    # (default) or "mpcws" (opt-in since 2026-11-23, Bayer only, with its own colour ramp and a collapse fallback;
+    # eval/hdrplus-joint-check-j4-2026-11-23.md).
+    noise_read: str = "ship"
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
     lens_db: "LensDb | None" = None
@@ -2075,13 +2079,18 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
     demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes, half=settings.half)
-    noise = None
+    noise: "list[tuple[float, float]] | str | None" = None
     if demosaic == "noise-aware":
         noise = noise_profile_planes(ifd, ifd0)
         if noise is None and settings.noise_from_frame:
             # No NoiseProfile, and asked to read one from the frame (``xtrans_demosaic.frame_noise``,
             # eval/noise-aware-estimated-2026-11-17.md); ``_directional`` does it on the white-balanced plane.
             notes.append("no NoiseProfile in the file: noise-aware demosaic used a noise model read from the frame")
+            if settings.noise_read != "ship":
+                if pat is not None and len(pat) == 4:
+                    noise = settings.noise_read
+                else:
+                    notes.append(f"--noise-read {settings.noise_read} is tested on Bayer only: used the shipped read")
         elif noise is None:
             notes.append(
                 "noise-aware demosaic with no NoiseProfile and --no-noise-from-frame: used the directional one"

@@ -41,8 +41,12 @@
   luma ramp and the fallback, on a third draw (seed 20261124, `--exclude` both lists), h4 counted against the
   oracle; then a drawn-noise check before any default. (2026-11-22, eval/hdrplus-joint-check-j3-2026-11-22.md) J3 ran
   that: 137 scored, +0.068 colour / +0.102 luma, h1-h3 pass, h4o fails on 2 luma losses where the read partly
-  collapses (shot slope ~0, 0.34-0.58x truth, above the 0.25 line). Next J4: the same with `COLLAPSE` 0.6, seed
-  20261125, all three lists excluded. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
+  collapses (shot slope ~0, 0.34-0.58x truth, above the 0.25 line). (2026-11-23,
+  eval/hdrplus-joint-check-j4-2026-11-23.md) J4, the same with `COLLAPSE` 0.6 on a fourth draw: 111 scored, +0.079
+  colour / +0.121 luma, 0 bursts 0.1 dB worse, every test passes, so `--noise-read mpcws` ships opt-in. On this
+  draw the 0.6 line fell back on 3 frames where the shipped read over-read (2.2-6.6x the truth's slope) and `mpcws`
+  was right. Next: a drawn-noise check on Bayer camera raws with the option against `ship`; a collapse test on
+  `mpcws`'s own shot slope, committed before a fifth draw. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
   been tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.

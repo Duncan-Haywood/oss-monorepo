@@ -360,6 +360,41 @@ class NoiseFromFrameFlagTests(unittest.TestCase):
         self.assertTrue(DevelopSettings().noise_from_frame)
 
 
+class NoiseReadTests(unittest.TestCase):
+    """``--noise-read mpcws`` (opt-in, 2026-11-23, eval/hdrplus-joint-check-j4-2026-11-23.md): Bayer only, its own
+    colour ramp, and exactly the shipped read where the ``mpcws`` read collapses."""
+
+    def test_flag_and_setting_default_ship(self):
+        from shootflow.cli import _build_parser
+        from shootflow.raw_develop import DevelopSettings
+
+        p = _build_parser()
+        self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o"]).noise_read, "ship")
+        self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o", "--noise-read", "mpcws"]).noise_read, "mpcws")
+        self.assertEqual(DevelopSettings().noise_read, "ship")
+
+    @unittest.skipUnless(has_numpy(), "numpy not installed")
+    def test_read_rules(self):
+        from unittest import mock
+
+        from shootflow import xtrans_demosaic as xd
+
+        reads = {None: (1e-4, 1e-6), "mpcws": (1.2e-4, 1e-6)}
+
+        def fake(c, pat, eig=None):
+            return reads[eig]
+
+        with mock.patch.object(xd, "frame_noise", side_effect=fake):
+            self.assertEqual(xd.frame_noise_read(None, (0, 1, 1, 2), "ship"), (reads[None], None, False))
+            self.assertEqual(xd.frame_noise_read(None, (0, 1, 1, 2), "mpcws"),
+                             (reads["mpcws"], xd.MPCWS_COLOUR_RAMP, False))
+            self.assertEqual(xd.frame_noise_read(None, XE1_PATTERN, "mpcws"), (reads[None], None, False))
+            reads["mpcws"] = (0.3e-4, 0.3e-6)  # sigma about 0.55x the shipped read's: under the 0.6 line
+            self.assertEqual(xd.frame_noise_read(None, (0, 1, 1, 2), "mpcws"), (reads[None], None, True))
+            with self.assertRaises(ValueError):
+                xd.frame_noise_read(None, (0, 1, 1, 2), "chen")
+
+
 class DevelopNoiseAwareTests(unittest.TestCase):
     """``--demosaic noise-aware`` in the developer: the DNG's NoiseProfile drives it; without one a model read from
     the frame (``frame_noise``, the default), or with ``noise_from_frame=False`` the directional demosaic."""
@@ -436,6 +471,12 @@ class DevelopNoiseAwareTests(unittest.TestCase):
         self.assertEqual(frep.demosaic, "directional")
         self.assertTrue(any("NoiseProfile" in n and "--no-noise-from-frame" in n for n in frep.notes), frep.notes)
         self.assertEqual(list(fpx), list(dpx2))
+        # --noise-read mpcws (opt-in): a developed image, the default bytes unchanged
+        _, _, mpx, mrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_read="mpcws")
+        self.assertEqual(mrep.demosaic, "noise-aware")
+        self.assertEqual(len(mpx), len(epx))
+        _, _, spx, _ = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_read="ship")
+        self.assertEqual(list(spx), list(epx))
         _, _, _, hfrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", half=True)
         self.assertEqual(hfrep.demosaic, "noise-aware")
         # A file with a profile ignores the flag either way: the profile drives the blend.

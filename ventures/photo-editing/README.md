@@ -1732,6 +1732,15 @@ where the read finds almost no shot noise and lands at a third to a half of the 
 when the read is under 0.6x the shipped read's level is committed for a fourth draw.
 `eval/hdrplus-joint-check-2026-11-22.md`, `eval/hdrplus-joint-check-j3-2026-11-22.md`.
 
+**The fourth draw passes: `--noise-read mpcws` (2026-11-23, opt-in).** On 111 fresh bursts the read with that
+fallback gains +0.08 dB colour and +0.12 luma over what ships. No burst is 0.1 dB worse and there is no new loser
+to directional, so it passes every committed test and ships as an option:
+`shootflow develop --demosaic noise-aware --noise-read mpcws` on Bayer raws with no NoiseProfile. The default stays
+`ship`, with the same bytes, until a check on camera raws: every burst so far is a Google phone. One finding for
+the next step: on this draw the 0.6 line fell back on 3 frames where the read was right and the shipped read was
+the one over-reading (2.2 to 6.6x the true shot slope), so the next fallback test should look at the read's own
+slope. `eval/hdrplus-joint-check-j4-2026-11-23.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
