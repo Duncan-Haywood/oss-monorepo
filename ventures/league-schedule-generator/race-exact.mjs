@@ -33,6 +33,19 @@ export function monotone(outcomes) {
 }
 
 /**
+ * How many of the teams in doubt (state 2) can reach `T` when `supply` points are all there is to share:
+ * the count of the smallest shortfalls whose sum fits. An upper bound, since no game hands out more.
+ */
+export function supplyReach(p, supply, state, n, T) {
+  const needs = [];
+  for (let t = 0; t < n; t++) if (state[t] === 2) needs.push(T - p[t]);
+  needs.sort((x, y) => x - y);
+  let reach = 0;
+  for (const d of needs) { if (d > supply) break; supply -= d; reach++; }
+  return reach;
+}
+
+/**
  * Most (`maximise`) or fewest teams among `pts` (indices other than `skip`) that can end with at least `T`
  * points, given `games` ([a, b] still to play, none involving `skip`) and the point `outcomes`.
  * Returns { value, proved, nodes }. When `proved` is false the search ran out of budget and `value` is
@@ -44,6 +57,7 @@ export function extremeCount(pts, games, T, { maximise, outcomes, skip = -1, bud
   const n = pts.length;
   const top = Math.max(...outcomes.flat());
   const bot = Math.min(...outcomes.flat());
+  const pair = Math.max(...outcomes.map(([x, y]) => x + y));
   let nodes = 0;
   // a decision question starts just short of its answer, so the search prunes everything that cannot reach it
   let incumbent = stopAt == null ? (maximise ? -1 : Infinity) : (maximise ? stopAt - 1 : stopAt + 1);
@@ -86,6 +100,10 @@ export function extremeCount(pts, games, T, { maximise, outcomes, skip = -1, bud
     if (maximise) {
       if (over + doubt <= incumbent) return;
       if (live.length === 0) { incumbent = Math.max(incumbent, over); return; }
+      // supply cut (2026-11-23, as in canStopAt): every live game is between two teams in doubt and hands
+      // them at most `pair` points between them, so at most as many reach T as the smallest shortfalls
+      // that supply covers
+      if (supplyReach(p, live.length * pair, state, n, T) + over <= incumbent) return;
     } else {
       // forced games: every result takes one of the two over the line
       const used = new Uint8Array(n);
@@ -228,12 +246,7 @@ export function canStopAt(pts, remaining, i, e, k, outcomes, { budget = RACE_NOD
       // `top` from a game against i, so at most as many reach T as the smallest needs that supply covers
       let supply = 0;
       for (const [a, b] of live) supply += a === i || b === i ? top : pair;
-      const needs = [];
-      for (let t = 0; t < n; t++) if (state[t] === 2) needs.push(T - p[t]);
-      needs.sort((x, y) => x - y);
-      let reach = 0;
-      for (const d of needs) { if (d > supply) break; supply -= d; reach++; }
-      if (over + reach < k) return;
+      if (over + supplyReach(p, supply, state, n, T) < k) return;
       let pick = 0, bestKey = Infinity;
       for (let g = 0; g < live.length; g++) {
         const [a, b] = live[g];

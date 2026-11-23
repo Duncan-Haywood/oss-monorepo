@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { roundRobin, playoffRace, mulberry32 } from "./calc.mjs";
-import { extremeCount, monotone } from "./race-exact.mjs";
+import { extremeCount, monotone, supplyReach, RACE_NODE_BUDGET } from "./race-exact.mjs";
 
 function league(rnd, maxLeft) {
   const int = (lo, hi) => lo + Math.floor(rnd() * (hi - lo + 1));
@@ -88,4 +88,29 @@ test("two chasers who still meet twice cannot both pass the leader: bounds said 
   assert.equal(a(exact).status, "clinched");
   assert.equal(a(exact).worstRank, 2);
   assert.ok(exact.proved);
+});
+
+test("supplyReach counts the smallest shortfalls the points left can cover", () => {
+  // needs 4, 4, 7 (teams on 66, 66, 63 chasing 70); team 3 is settled (state 1) and does not count
+  const p = [0, 66, 66, 63, 80];
+  const state = [0, 2, 2, 2, 1];
+  assert.equal(supplyReach(p, 7, state, 5, 70), 1);
+  assert.equal(supplyReach(p, 8, state, 5, 70), 2);
+  assert.equal(supplyReach(p, 15, state, 5, 70), 3);
+  assert.equal(supplyReach(p, 0, state, 5, 70), 0);
+});
+
+test("the supply cut proves a twelve-team chase inside the default budget (2026-11-23)", () => {
+  // A leader on 70; twelve chasers on 63, each with four games left, all against each other (24 games,
+  // 72 points at most). Each needs 7, so at most 10 by supply; the true answer is 9. Without the cut the
+  // search took 379,540 nodes (past the 20,000 budget, so the page fell back to bounds); with it, 6,907.
+  const O = [[3, 0], [1, 1], [0, 3]];
+  const k = 12;
+  const p = [70, ...Array(k).fill(63)];
+  const games = [];
+  for (let a = 1; a <= k; a++) { games.push([a, (a % k) + 1]); games.push([a, ((a + 1) % k) + 1]); }
+  const r = extremeCount(p, games, 70, { maximise: true, outcomes: O, skip: 0 });
+  assert.ok(r.proved);
+  assert.equal(r.value, 9);
+  assert.ok(r.nodes < RACE_NODE_BUDGET);
 });

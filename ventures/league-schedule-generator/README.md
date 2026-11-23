@@ -6348,3 +6348,38 @@ Checked:
 - Not checked: published "magic numbers" from a league or broadcaster, and head-to-head or goal
   difference inside the number (it counts a points tie against the team by design).
 
+
+## The supply cut in the race search (2026-11-23)
+
+The magic-number search had a cut the race search lacked. When the race asks "how many rivals can
+finish level with or above this team?", every game still to play between two rivals hands them at
+most one game's points between them (3 for a win in 3-1-0 scoring). So only as many rivals can reach
+the line as the smallest shortfalls those points cover: twelve chasers who each need 7 points and
+share 24 games (72 points at most) can put at most 10 over, however the games go. `extremeCount` now
+prunes any branch where that count cannot beat the best finish already found (`supplyReach` in
+`race-exact.mjs`, shared with `canStopAt`). The answers are the same; the search reaches them sooner,
+so more tables are proved inside the same 20,000-node budget instead of falling back to the safe
+bounds.
+
+A mirror cut for the other question ("fewest rivals that must finish above": each game hands out at
+least its smallest total, and a team that stays under the line can only hold so much) was tried and
+dropped: on the same real tables it saved 48 nodes in 72,736, because the best-rank question was
+already proved in 13,108 of 13,110 cases.
+
+Checked:
+
+- `race-exact.test.mjs`: the 400-league enumeration test and the tiny-budget test still pass (the
+  cut changes no answer); new hand cases for `supplyReach`, and a twelve-chaser race that took 379,540
+  nodes without the cut (past the budget, so the page showed bounds) and 6,907 with it.
+- Every third match date of the 18 openfootball seasons, every team, races with over 12 fixtures left
+  (39,330 questions), old against new in one process: nodes 4,071,227 to 2,450,880 (40% fewer), 0
+  answers differ; questions left unproved 181 to 102. Worst place 1,814,436 to 1,125,022 nodes, worst
+  place with ties won 2,184,055 to 1,253,170, best place unchanged (72,736).
+- `eval/race-real.mjs` (output `eval/race-real.txt`), old and new run side by side on the same
+  machine: wrong calls 0; tables proved in full 5,370 to 5,538 (87.4% to 90.1%). Safety now settles
+  88 team-races earlier than the bounds (was 83), 239 match dates in total (was 194), up to 14 dates
+  early (was 6); La Liga 2022-23 went from 28 to 38 dates gained. Title and top four unchanged.
+  Race and magic numbers together: 65.0 ms per table on average against 72.4 ms before on the same
+  run, slowest 650 ms against 811 ms. (The 14 ms in the race section above was the race alone,
+  measured before magic numbers were added.)
+- Not checked: a real league's published clinch dates (none in the data).
