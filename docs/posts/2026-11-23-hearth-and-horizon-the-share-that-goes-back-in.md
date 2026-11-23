@@ -1,6 +1,6 @@
 ---
 title: "A new story: the bet with the best average is the one that ruins you"
-seo_title: "The Kelly criterion, worked through on a growers' cooperative's surplus"
+seo_title: "The Kelly criterion, worked through on a farm co-op's surplus"
 date: 2026-11-23
 tags: [fiction, hearth-and-horizon, science-fiction, kelly-criterion]
 description: "Hearth & Horizon's new story stakes a co-op's €400,000 surplus on early potatoes: all of it has the best average, a fifth the best growth."
