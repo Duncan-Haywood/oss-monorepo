@@ -1343,7 +1343,9 @@ export class Geometry {
         // B-splines; each edge sampled once so neighbours share its points
         const parts = [{ s: 1, faces: this.advancedShellLoops(a[0]) }];
         if (e.type === "IFCADVANCEDBREPWITHVOIDS") for (const s of a[1] || []) parts.push({ s: -1, faces: this.advancedShellLoops(s) });
-        return faceted(parts);
+        const out = faceted(parts);
+        out.mesh += bulgeVolume(parts, out.shells);
+        return out;
       }
       case "IFCSHELLBASEDSURFACEMODEL":
       case "IFCFACEBASEDSURFACEMODEL": {
@@ -1835,8 +1837,24 @@ export class Geometry {
       out = meshFace(V3, UV, S.at, triangulate, { tol: 2e-4 * size, maxLen: size / 4, su, sv, maxTris: 60000 });
     } catch (err) { throw new Unresolved(`face on ${surf.type} not cut into triangles: ${err.message}`); }
     // a triangle on a pole's two copies has no area: dropped, its other two
-    // edges then pair with their neighbours' at the one point
-    return out.map(([i, j, k]) => [V3[i], V3[j], V3[k]]).filter(([a, b, c]) => a !== b && b !== c && a !== c);
+    // edges then pair with their neighbours' at the one point.
+    // Each triangle also carries its edges' sag: the surface at the middle
+    // of each edge (in (u, v)) less the middle of the surface's own chord,
+    // edges a-b, b-c, c-a. The flat triangles lie inside a convex patch, so
+    // their volume is light by about the sag times the area (0.17-0.29% on
+    // the five breps of eval/turned-figure-2026-11-23.md, halving with the
+    // tolerance); bulgeVolume() adds the patch's quadratic part back.
+    const onS = UV.map(() => null);
+    const sAt = (i) => onS[i] ?? (onS[i] = S.at(UV[i][0], UV[i][1]));
+    const sagOf = (i, j) => sub(S.at((UV[i][0] + UV[j][0]) / 2, (UV[i][1] + UV[j][1]) / 2), mulS(add(sAt(i), sAt(j)), 0.5));
+    const tris = [];
+    for (const [i, j, k] of out) {
+      if (V3[i] === V3[j] || V3[j] === V3[k] || V3[i] === V3[k]) continue;
+      const t = [V3[i], V3[j], V3[k]];
+      t.sag = [sagOf(i, j), sagOf(j, k), sagOf(k, i)];
+      tris.push(t);
+    }
+    return tris;
   }
 
   faceSetLoops(e) {
@@ -2343,6 +2361,51 @@ function matchInnerBounds(face) {
  * oriented, its volume from the oriented faces. Any shell not closed leaves
  * the solid without a section (its volume is kept as before).
  */
+/**
+ * The volume between curved faces and the flat triangles they were cut into
+ * (surfaceTriangles marks each with its edges' sag). Over a triangle of
+ * vector area N (its vertices' order) whose edges' middles stand d1, d2, d3
+ * off the chords, the quadratic patch through those six points encloses
+ * (d1 + d2 + d3) . N / 3 more than the flat triangle: the quadratic shape
+ * functions of a six-node triangle integrate to 0 at its corners and to a
+ * third of its area at each edge's middle. Summed on the oriented shells, so
+ * a face turned to match its neighbours turns its share too; a shell that is
+ * not closed (shells null) is left as it was. Exact for a quadratic patch,
+ * so the inscribed mesh's error falls from the sag (about the tolerance) to
+ * its next order.
+ */
+function bulgeVolume(parts, shells) {
+  if (!shells) return 0;
+  const sags = new Map();
+  for (const { faces } of parts) for (const f of faces) for (const t of f) if (t.sag) {
+    let m = sags.get(t[0]);
+    if (!m) sags.set(t[0], (m = new Map()));
+    m.set(t[1], t);
+  }
+  if (!sags.size) return 0;
+  let v = 0;
+  for (const sh of shells) {
+    let w = 0;
+    for (const l of sh.loops) {
+      if (l.length !== 3) continue;
+      // the loop as marked, or turned (the same triangle walked backwards)
+      let t = null, turn = 1;
+      for (let r = 0; r < 3 && !t; r++) {
+        const a = l[r], b = l[(r + 1) % 3], c = l[(r + 2) % 3];
+        const f = sags.get(a)?.get(b);
+        if (f && f[2] === c) t = f;
+        const g = sags.get(b)?.get(a);
+        if (!t && g && g[2] === c) { t = g; turn = -1; }
+      }
+      if (!t) continue;
+      const N = cross(sub(t[1], t[0]), sub(t[2], t[0]));
+      w += turn * (dot(t.sag[0], N) + dot(t.sag[1], N) + dot(t.sag[2], N)) / 6;
+    }
+    v += sh.s * w;
+  }
+  return v;
+}
+
 function faceted(parts, notes = []) {
   let v = 0, flipped = 0, open = false;
   const shells = [];

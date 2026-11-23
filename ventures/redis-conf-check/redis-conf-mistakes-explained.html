@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a1261d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ER%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>redis.conf Mistakes Explained — Inline Comments, Includes, Last Line Wins, Protected Mode</title>
+  <meta name="description" content="Why Redis refuses a redis.conf, why the error's line number points at the wrong file, why a later line or include silently wins, and which settings let anyone in without a password. Each finding of redis.conf Check, with the Redis 7.0 behaviour behind it.">
+  <link rel="canonical" href="./redis-conf-mistakes-explained.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "redis.conf mistakes explained", "about": "Redis 7.0 configuration file", "description": "Each finding of redis.conf Check, with the Redis 7.0 behaviour behind it: start-up errors, includes, last line wins, protected mode, the default user and the protected commands."}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1a1a; background: #f7f3f2; }
+    body { max-width: 860px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.4rem); line-height: 1.1; color: #6b1a14; }
+    h2 { font-size: 1.15rem; color: #6b1a14; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    .card { background: #fff; border: 1px solid #e3d6d3; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    pre { background: #faf6f5; padding: 12px; border-radius: 8px; font-size: .82rem; line-height: 1.5; overflow-x: auto; white-space: pre-wrap; }
+    code { overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #5e5655; }
+    footer { margin-top: 28px; border-top: 1px solid #e3d6d3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./">redis.conf Check</a> · GUIDE</p>
+    <h1>redis.conf mistakes explained</h1>
+    <p>Each thing <a href="./">redis.conf Check</a> reports, and the Redis 7.0 behaviour behind it. The behaviour follows Redis 7.0.15's <a href="https://github.com/redis/redis/blob/7.0.15/src/config.c" rel="noopener">config.c</a>, sds.c and acl.c and the <a href="https://redis.io/docs/latest/operate/oss_and_stack/management/config-file/" rel="noopener">redis.conf documentation</a>, and was compared with a real redis-server 7.0.15 on 800 generated files (the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/redis-conf-check/parity" rel="noopener">parity run</a>). Not affiliated with Redis Ltd.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>A worked example</h2>
+    <p>A server opened up for app servers on another subnet, with a password added later and a user line copied from a tutorial:</p>
+    <pre><code>bind 0.0.0.0
+protected-mode no
+requirepass hunter2
+user default on nopass ~* &amp;* +@all
+enable-protected-configs yes
+maxmemory 512m</code></pre>
+    <p>What the CLI says about it (<code>node check.mjs redis.conf</code>):</p>
+    <pre><code>redis.conf Check (Redis 7.0.15): 4 high, 1 medium, 2 low
+Read, in order: redis.conf
+Starts: yes
+Listens: port 6379 on 0.0.0.0
+  From another machine: connects and runs commands with no password
+  From this machine (127.0.0.1): connects and runs commands with no password
+
+[high] open-without-password  redis.conf:2
+  protected-mode no
+  Redis listens on 0.0.0.0 (port 6379), protected mode is off and the default user needs no password: anyone who can reach the port can read and change every key, and CONFIG SET dir/dbfilename lets them write files on the server.
+  fix: Set requirepass (or a user default line with a long password), bind to 127.0.0.1 -::1 or a private address only, and keep protected-mode yes.
+
+[high] default-user-nopass  redis.conf:4
+  user default on nopass ~* &amp;* +@all
+  This user line gives the default user nopass with admin commands, so every connection is logged in as an administrator without a password.
+  fix: Give the default user a password (&gt;long-secret or #sha256) or turn it off and create named users.
+
+[high] requirepass-replaced  redis.conf:3
+  requirepass ****
+  requirepass is set, but the user default line at redis.conf:4 resets the default user after it, so the requirepass password is not accepted and no password is needed at all.
+  fix: Use one of them: delete requirepass, or delete the user default line.
+
+[high] protected-configs-enabled  redis.conf:5
+  enable-protected-configs yes
+  enable-protected-configs yes: clients can CONFIG SET dir and dbfilename, which is how Redis worms write SSH keys and cron files to disk.
+  fix: Leave enable-protected-configs at its default, no, and change it only for the time you need it.
+
+[medium] weak-password  redis.conf:3
+  requirepass ****
+  The requirepass password is 7 characters. Redis checks passwords fast and has no lockout, so short ones fall to guessing.
+  fix: Use a long random password (openssl rand -base64 32), and rotate it.
+
+[low] password-in-file  redis.conf:3
+  requirepass ****
+  Cleartext passwords are stored in this file, so anyone who can read it (backups, config repositories, other users on the box) can log in.
+  fix: Keep the file mode 640 or tighter and out of version control; for user lines, store #&lt;sha256 hex&gt; instead of &gt;password.
+
+[low] decimal-memory-unit  redis.conf:6
+  maxmemory 512m
+  maxmemory 512m is 512000000 bytes: Redis reads k, m and g as powers of 1000 and kb, mb and gb as powers of 1024.
+  fix: Write 512mb if you meant 512 MiB.</code></pre>
+    <p>The <code>requirepass</code> line looks like protection, but the <code>user default</code> line after it resets the default user to <code>nopass</code>, so the password does nothing. Deleting the user line, choosing a long password and binding only the private address fixes all four high findings.</p>
+  </section>
+  <section class="card">
+    <h2>Will it start?</h2>
+    <h3><code>refuses-to-start</code></h3>
+    <p>Redis stops at the first line it cannot use and prints <code>*** FATAL CONFIG FILE ERROR ***</code>, the line number, the line, and a reason such as <code>Bad directive or wrong number of arguments</code>, <code>argument must be between 1 and 2147483647 inclusive</code> or <code>argument(s) must be one of the following: ...</code>. It reads nothing after that line. The number counts lines of the file being read when the error happened, which may be an included file the message does not name; for a wildcard include, the matching files are joined first and the count runs across them. The tool reports the real file and line. Some errors come only after the file has loaded, with no line number at all: an unknown command in a <code>user</code> rule (<code>Critical error while loading ACLs</code>) or a unix socket path of 108 bytes or more.</p>
+    <h3><code>inline-comment</code></h3>
+    <p><code>#</code> starts a comment only when it is the first thing on a line. <code>requirepass s3cret # change me</code> has four words, so Redis stops with <code>wrong number of arguments</code>; <code>bind 127.0.0.1 # local only</code> asks Redis to listen on addresses called <code>#</code>, <code>local</code> and <code>only</code>, and it exits with <code>Failed listening on port 6379 (TCP)</code>.</p>
+    <h3><code>include-not-found</code></h3>
+    <p>An <code>include</code> without wildcards that names a file Redis cannot open stops Redis with <code>Fatal error, can't open config file</code>. With a wildcard (<code>include /etc/redis/conf.d/*.conf</code>) a missing file is not an error.</p>
+    <h3><code>include-glob-no-match</code></h3>
+    <p>A wildcard include that matches nothing is skipped without a word, so a typo in the directory name quietly drops every setting you meant to load. Files whose names start with a dot are matched only by a pattern that starts with a dot, as glob(3) does.</p>
+    <h3><code>include-joined-lines</code></h3>
+    <p>For a wildcard include, Redis reads the matching files (in name order) into one text and then splits it into lines. If a file does not end with a newline, its last line and the next file's first line become one line: <code>maxmemory 100mb</code> followed by <code>port 6380</code> becomes <code>maxmemory 100mbport 6380</code>, which stops Redis, or worse, a line that still parses.</p>
+    <h3><code>include-relative-path</code></h3>
+    <p>Redis opens a relative include path from its working directory, not from the directory of the file that includes it. The working directory is wherever redis-server was started (systemd units often set it), and every <code>dir</code> line moves it, so <code>include extra.conf</code> after <code>dir /var/lib/redis</code> reads <code>/var/lib/redis/extra.conf</code>.</p>
+    <h3><code>no-listener</code></h3>
+    <p>With <code>port 0</code>, no <code>tls-port</code> and no <code>unixsocket</code>, or with <code>bind ""</code>, Redis has nowhere to listen and exits with <code>Configured to not listen anywhere, exiting.</code></p>
+    <h3><code>bind-address-unavailable</code></h3>
+    <p>Redis binds each <code>bind</code> address in turn; one the machine does not have stops Redis with <code>Failed listening on port ... (TCP), aborting.</code>, unless the address is prefixed with <code>-</code> (optional). An IPv6 address on a machine with no IPv6 at all is skipped. The CLI's <code>--host-addrs</code> checks against the machine's own addresses.</p>
+    <h3><code>tls-port-without-cert</code></h3>
+    <p>A <code>tls-port</code> (or <code>tls-replication yes</code> or <code>tls-cluster yes</code>) needs <code>tls-cert-file</code>, <code>tls-key-file</code> and, while <code>tls-auth-clients</code> is on (the default), <code>tls-ca-cert-file</code> or <code>tls-ca-cert-dir</code>; without them Redis exits with <code>Failed to configure TLS</code>.</p>
+    <h3><code>acl-file-and-users</code></h3>
+    <p>Redis refuses to start when users are defined both in redis.conf (<code>user</code> lines) and in an <code>aclfile</code>.</p>
+    <h3><code>module-config-without-module</code></h3>
+    <p>A setting with a dot in its name (<code>mymodule.option 1</code>) belongs to a module. Without a <code>loadmodule</code> line for that module, Redis exits after loading the file.</p>
+  </section>
+  <section class="card">
+    <h2>Who gets in</h2>
+    <h3><code>open-without-password</code></h3>
+    <p>The server listens on an address other machines can reach, protected mode is off, and the default user has <code>nopass</code> (no <code>requirepass</code>, or a <code>user default ... nopass</code> line): every client is logged in as the default user. With the default <code>+@all</code> that is every key, <code>FLUSHALL</code>, and, if <code>enable-protected-configs</code> allows it, <code>CONFIG SET dir</code> plus <code>dbfilename</code> plus <code>SAVE</code>, the file write Redis worms use to drop SSH keys and cron jobs.</p>
+    <h3><code>local-without-password</code></h3>
+    <p>Only 127.0.0.1 is bound and protected mode is off, with no password: any process on the machine, any container sharing its network, and any server-side request forgery that reaches localhost can run every command.</p>
+    <h3><code>protected-mode-only</code></h3>
+    <p>With protected mode on and no password on the default user, Redis answers clients that are not on 127.0.0.1 or ::1 with <code>-DENIED</code> and closes the connection. That keeps strangers out but is not authentication: remote clients cannot use the server at all, and one <code>protected-mode no</code> (in a later file, or by <code>CONFIG SET</code> from localhost) opens it.</p>
+    <h3><code>default-user-nopass</code></h3>
+    <p>A <code>user default on nopass ...</code> line with admin commands logs every new connection in as an administrator without a password, whatever <code>requirepass</code> says.</p>
+    <h3><code>requirepass-replaced</code></h3>
+    <p>Redis applies <code>requirepass</code> to the default user first and the <code>user</code> lines after it. A <code>user default</code> line resets the default user, so the <code>requirepass</code> password stops working; if that line says <code>nopass</code>, no password is needed at all.</p>
+    <h3><code>weak-password</code></h3>
+    <p>Redis answers password attempts as fast as any other command and has no lockout; its own example redis.conf warns that an outside user can try very many passwords a second. The tool flags passwords under 16 characters or starting with a common word; it never prints them.</p>
+    <h3><code>password-in-file</code></h3>
+    <p><code>requirepass</code>, <code>masterauth</code> and <code>&gt;password</code> rules are stored in cleartext. Anyone who can read the file (a backup, a config repository, another account on the machine) can log in. For <code>user</code> lines, <code>#</code> followed by the SHA-256 hex of the password works instead.</p>
+    <h3><code>protected-configs-enabled</code></h3>
+    <p>Since Redis 7.0, <code>CONFIG SET dir</code> and <code>dbfilename</code> are refused unless <code>enable-protected-configs</code> is <code>yes</code>, or <code>local</code> for connections from this machine. Turning it on brings back the classic file-write attack.</p>
+    <h3><code>debug-command-enabled</code></h3>
+    <p><code>enable-debug-command yes</code> lets clients run <code>DEBUG</code>, which can crash or stall the server (<code>DEBUG SEGFAULT</code>, <code>DEBUG SLEEP</code>) and read internals. Redis checks this before ACL permissions.</p>
+    <h3><code>module-command-enabled</code></h3>
+    <p><code>enable-module-command yes</code> lets clients run <code>MODULE LOAD</code>, which loads a shared library from any path the Redis user can read: code execution as that user.</p>
+    <h3><code>plaintext-port-beside-tls</code></h3>
+    <p>A TLS port does not close the plaintext <code>port</code>. Until <code>port 0</code>, passwords and data still cross the network unencrypted for any client that uses the old port.</p>
+    <h3><code>unixsocket-world-writable</code></h3>
+    <p>With <code>unixsocketperm</code> giving others write permission (777, 776 ...) every local account can connect to the socket.</p>
+    <h3><code>listens-on-all-interfaces</code></h3>
+    <p>No <code>bind</code> line means <code>bind * -::*</code>: every interface, public ones included. With a password set, the password is then the only thing between the internet and the data.</p>
+    <h3><code>aclfile-not-read</code></h3>
+    <p>With an <code>aclfile</code>, users (the default user included) come from that file, which this tool does not read, so who can log in is decided there.</p>
+  </section>
+  <section class="card">
+    <h2>Which line wins</h2>
+    <h3><code>overridden-directive</code></h3>
+    <p>For an ordinary setting, the last line Redis reads wins, and an include counts where its line stands. A setting in a file included at the top of redis.conf is overridden by the same setting lower down; a file included at the end overrides everything above it. Redis's own example file says to put includes first if redis.conf should win, last if the included file should. <code>save</code> lines add to each other (the first one in the file replaces the defaults, and <code>save ""</code> clears them), and <code>client-output-buffer-limit</code> sets one client class at a time.</p>
+    <h3><code>rename-command-used</code></h3>
+    <p><code>rename-command CONFIG ""</code> removes a command for everyone; renaming it to a secret name makes that name a password stored in the file. It does not change ACL permissions, and Redis's documentation recommends ACL rules (<code>-@dangerous</code>, <code>-config</code>) instead.</p>
+    <h3><code>decimal-memory-unit</code></h3>
+    <p>Redis reads <code>k</code>, <code>m</code> and <code>g</code> as powers of 1000 and <code>kb</code>, <code>mb</code> and <code>gb</code> as powers of 1024: <code>maxmemory 2g</code> is 2,000,000,000 bytes, about 7% less than 2 GiB.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not a security audit and do not replace a qualified security professional; verify any change on a copy of the server first. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional. Back to <a href="./">the tool</a>.</p>
+  </footer>
+</body>
+</html>

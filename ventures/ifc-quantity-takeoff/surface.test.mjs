@@ -34,7 +34,7 @@ function model(build) {
   return { model: parseStep(text), id: Number(brep.slice(1)) };
 }
 
-test("surface of revolution, line profile: half a cone frustum to 0.1%, and its section", () => {
+test("surface of revolution, line profile: half a cone frustum to 1e-6, and its section", () => {
   // R 1 at z 0, r 0.5 at z 1, the y >= 0 half
   const { model: m, id } = model(({ vertex, line, circle, edge, loop, face, plane, revolution }) => {
     const B0 = [1, 0, 0], B1 = [-1, 0, 0], T0 = [0.5, 0, 1], T1 = [-0.5, 0, 1];
@@ -50,8 +50,28 @@ test("surface of revolution, line profile: half a cone frustum to 0.1%, and its 
     ];
   });
   const s = new Geometry(m).item(id);
-  close(solidVolume(s), (Math.PI * (1 + 0.5 + 0.25)) / 6, 1e-3);
+  // the flat triangles' sag added back (bulgeVolume): 0.034% light without it
+  close(solidVolume(s), (Math.PI * (1 + 0.5 + 0.25)) / 6, 1e-6);
   close(sectionArea(s, [0, 0, 1], 0.5), (Math.PI * 0.75 * 0.75) / 2, 1e-3);
+});
+
+test("the sag added back keeps its sign when a curved face is written turned the wrong way", () => {
+  // the frustum above with the curved face's loop walked backwards: the
+  // shell turns that face to match its neighbours, and its sag turns with it
+  const { model: m, id } = model(({ vertex, line, circle, edge, loop, face, plane, revolution }) => {
+    const B0 = [1, 0, 0], B1 = [-1, 0, 0], T0 = [0.5, 0, 1], T1 = [-0.5, 0, 1];
+    const [b0, b1, t0, t1] = [B0, B1, T0, T1].map(vertex);
+    const bot = edge(b0, b1, circle([0, 0, 0], 1)), top = edge(t0, t1, circle([0, 0, 1], 0.5));
+    const bd = edge(b1, b0, line(B1, B0)), td = edge(t1, t0, line(T1, T0));
+    const s0 = edge(b0, t0, line(B0, T0)), s1 = edge(b1, t1, line(B1, T1));
+    return [
+      face([loop([[s0, true], [top, true], [s1, false], [bot, false]])], revolution(line(B0, T0), [0, 0, 0], [0, 0, 1])),
+      face([loop([[bot, true], [bd, true]])], plane([0, 0, 0], [0, 0, -1])),
+      face([loop([[top, true], [td, true]])], plane([0, 0, 1], [0, 0, 1])),
+      face([loop([[bd, false], [s1, true], [td, true], [s0, false]])], plane([0, 0, 0], [0, -1, 0])),
+    ];
+  });
+  close(solidVolume(new Geometry(m).item(id)), (Math.PI * (1 + 0.5 + 0.25)) / 6, 1e-6);
 });
 
 test("surface of revolution through the axis: half a cone, its tip a pole run along in (u, v)", () => {
@@ -72,7 +92,7 @@ test("surface of revolution through the axis: half a cone, its tip a pole run al
   close(solidVolume(s), (Math.PI * 2) / 6, 1e-3);
 });
 
-test("surface of revolution, circle profile: a quarter of a torus in two faces to 0.2%", () => {
+test("surface of revolution, circle profile: a quarter of a torus in two faces to 2e-5", () => {
   const R = 2, r = 0.5;
   const { model: m, id } = model(({ vertex, circle, edge, loop, face, plane, revolution }) => {
     const A0 = [R + r, 0, 0], B0 = [R - r, 0, 0], A1 = [0, R + r, 0], B1 = [0, R - r, 0];
@@ -90,10 +110,10 @@ test("surface of revolution, circle profile: a quarter of a torus in two faces t
     ];
   });
   const s = new Geometry(m).item(id);
-  // the triangles lie inside the tube, so the figure is a little light (0.12%)
+  // the triangles lie inside the tube (0.12% light); their sag added back
+  // leaves the end discs' 360-gons (5e-6)
   const v = solidVolume(s), exact = (Math.PI * r * r * R * Math.PI) / 2;
-  close(v, exact, 2e-3);
-  assert.ok(v < exact);
+  close(v, exact, 2e-5);
 });
 
 test("B-spline surface: a box with a twisted (bilinear) top, 1 + a/4", () => {
