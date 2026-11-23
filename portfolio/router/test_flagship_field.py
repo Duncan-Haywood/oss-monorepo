@@ -856,10 +856,55 @@ def test_history_alone_and_dry_run(tmp_path, capsys):
     assert ff.read_value(f.read_text(), "a", "next") == "History: README. Next: a; b."
 
 
-def test_history_on_another_field_is_a_usage_error(tmp_path):
+def test_park_on_buildable_is_a_usage_error(tmp_path):
     f, extra = _row(tmp_path, "History: README. Next: a.")
     with pytest.raises(SystemExit):
-        ff.main(["a", "--field", "buildable", "--history", "a"] + extra)
+        ff.main(["a", "--field", "buildable", "--park", "a"] + extra)
+    with pytest.raises(SystemExit):
+        ff.main(["a", "--field", "why", "--history", "a"] + extra)
+
+
+def _buildable(tmp_path, value):
+    f, extra = _row(tmp_path, "History: README. Next: a.")
+    f.write_text(f.read_text() + "    buildable: >-\n      " + value + "\n")
+    return f, extra
+
+
+def test_history_on_buildable_frees_room_for_a_new_item(tmp_path, capsys):
+    # 2026-11-21..23: rows at 584-596 of 600, filled with results; a run's new
+    # item was refused and it could only cut its own text.
+    done = "Old reader all read, spent (eval/old-2026-11-17.md)"
+    value = "Corpus: bash eval/fetch.sh " + "x" * 480 + ". " + done + ". Tail item."
+    assert len(value) < ff.FLAGSHIP_BUILDABLE_MAX
+    f, extra = _buildable(tmp_path, value)
+    item = "Tail item; new item " + "n" * 60
+    before = f.read_text()
+    assert ff.main(["a", "--field", "buildable", "--replace", "Tail item", item] + extra) == 1
+    err = capsys.readouterr().err
+    assert "--field buildable --history" in err and f.read_text() == before
+    rc = ff.main(["a", "--field", "buildable", "--replace", "Tail item", item,
+                  "--history", done, "--dry-run"] + extra)
+    assert rc == 0 and f.read_text() == before
+    assert "1 to HISTORY.md" in capsys.readouterr().out
+    rc = ff.main(["a", "--field", "buildable", "--replace", "Tail item", item,
+                  "--history", done] + extra)
+    assert rc == 0
+    got = ff.read_value(f.read_text(), "a", "buildable")
+    assert done not in got and item in got and len(got) <= ff.FLAGSHIP_BUILDABLE_MAX
+    assert ff.read_value(f.read_text(), "a", "next") == "History: README. Next: a."
+    hist = (tmp_path / "ventures" / "a" / "HISTORY.md").read_text()
+    assert done in hist and "`buildable:`" in hist
+    assert "moved 1 result(s)" in capsys.readouterr().out
+
+
+def test_history_on_buildable_not_found_names_the_field(tmp_path, capsys):
+    f, extra = _buildable(tmp_path, "Only item.")
+    before = f.read_text()
+    assert ff.main(["a", "--field", "buildable", "--history", "absent"] + extra) == 1
+    err = capsys.readouterr().err
+    assert "not found in `buildable:`" in err and "--field buildable" in err
+    assert f.read_text() == before
+    assert not (tmp_path / "ventures" / "a" / "HISTORY.md").exists()
 
 
 def test_refusal_names_history_flags(tmp_path, capsys):

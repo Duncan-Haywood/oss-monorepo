@@ -134,6 +134,14 @@ On 2026-11-22 the refusal's ready `--history` flags misfired the same way
 sentence was an open step, another a result whose "; next ..." step it would
 orphan. `history_candidates` now judges each sentence of an item and skips a
 result an open step follows (`item_results`, `leads_open`).
+
+`buildable:` had no such move. On 2026-11-23 seven of its nine rows sat at
+523 to 596 of 600, much of it results ("all read, spent", "settled off",
+dated landings), and run records 2026-11-21..23 kept cutting their own new
+item to fit. `--field buildable --history TEXT` now moves the named span to
+HISTORY.md (under its own heading) in the same call as the edit; the
+buildable refusal says so. No automatic move or park on this field: what is
+finished there is the run's call.
 """
 from __future__ import annotations
 
@@ -537,7 +545,9 @@ def set_value(text: str, venture: str, field: str, value: str,
         raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters "
                          f"({over} over{room}): name only items a session can start now; landed work "
                          "goes in the README or eval/" + new_budget(keep, over)
-                         + (f"\n{hint}" if hint else ""))
+                         + (f"\n{hint}" if hint else "")
+                         + f"\nOr move a finished result out in the same call: --field buildable "
+                         f"--history '<text copied from the row>' (to ventures/{venture}/HISTORY.md)")
     lines = text.splitlines(keepends=True)
     a, b = _span(lines, venture, field)
     out = "".join(lines[:a] + wrap(field, value) + lines[b:])
@@ -712,15 +722,16 @@ def remove_span(value: str, start: int, end: int) -> str:
     return " ".join((before + v[end + after.end():]).split())
 
 
-def remove_text(value: str, piece: str) -> str:
+def remove_text(value: str, piece: str, field: str = "next") -> str:
     """`value` without `piece` (matched on whitespace-normalised text) and one
     separator beside it, for --history. Raises ValueError when it is absent."""
     v = " ".join(value.split())
     want = " ".join(piece.split()).strip(" ;").rstrip(".")
     i = v.find(want) if want else -1
     if i < 0:
-        raise ValueError(f"--history: not found in `next:`: {piece!r} (copy it from "
-                         "`flagship_field.py <venture>`, the unfolded value)")
+        raise ValueError(f"--history: not found in `{field}:`: {piece!r} (copy it from "
+                         f"`flagship_field.py <venture>{'' if field == 'next' else ' --field ' + field}`"
+                         ", the unfolded value)")
     j = i + len(want)
     if v[max(0, i - 2):i] == ". " and v[j:j + 2] == "; ":
         # "a. PIECE; b" -> "a. b": keep the sentence break, drop the item's
@@ -747,6 +758,7 @@ def archive_history(value: str, goal: int, keep: tuple[str, ...] = ()) -> tuple[
 
 
 HISTORY_HEADING = "## Moved from flagships.yaml `next:`"
+BUILDABLE_HISTORY_HEADING = "## Moved from flagships.yaml `buildable:`"
 
 # An item a park would move that reads as a finished result, not open work:
 # it states an outcome (a verb below, a count "8 of 9", a share "54%") and
@@ -818,16 +830,17 @@ def _count(text: str) -> bool:
     return False
 
 
-def history_text(existing: str | None, venture: str, pieces: list[str], day: str) -> str:
-    """HISTORY.md with the pieces appended under HISTORY_HEADING."""
+def history_text(existing: str | None, venture: str, pieces: list[str], day: str,
+                 heading: str = HISTORY_HEADING) -> str:
+    """HISTORY.md with the pieces appended under `heading` (HISTORY_HEADING)."""
     body = existing if existing is not None else (
         f"# {venture}: what has landed\n\n"
-        "Results moved out of `portfolio/flagships.yaml`'s `next:` by "
-        "`portfolio/router/flagship_field.py` to keep that row under its "
-        f"{FLAGSHIP_NEXT_MAX}-character cap. The README and eval/ files each "
+        "Results moved out of `portfolio/flagships.yaml`'s `next:` and `buildable:` "
+        "by `portfolio/router/flagship_field.py` to keep that row under its "
+        f"caps ({FLAGSHIP_NEXT_MAX} and {FLAGSHIP_BUILDABLE_MAX} characters). The README and eval/ files each "
         "entry names hold the detail.\n")
-    if HISTORY_HEADING not in body:
-        body = body.rstrip("\n") + f"\n\n{HISTORY_HEADING}\n\n"
+    if heading not in body:
+        body = body.rstrip("\n") + f"\n\n{heading}\n\n"
     else:
         body = body.rstrip("\n") + "\n"
     return body + "".join(f"- (moved {day}) {p}\n" for p in pieces)
@@ -1025,6 +1038,45 @@ def stray_separators(text: str) -> list[str]:
     return bad
 
 
+def buildable_history(args, text: str, current: str | None, mine: tuple[str, ...]) -> int:
+    """--field buildable --history TEXT [--replace OLD NEW | --set FILE]: move
+    the named finished results to ventures/<v>/HISTORY.md, apply the edit,
+    then check the cap, so one call frees the room a new item needs."""
+    if current is None:
+        print(f"{args.venture} has no `buildable:`", file=sys.stderr)
+        return 1
+    new = current
+    if args.set is not None:
+        new = sys.stdin.read() if args.set == "-" else Path(args.set).read_text()
+    for old, rep in args.replace or []:
+        if old not in new:
+            print(not_found_hint(text, args.venture, "buildable", old, new), file=sys.stderr)
+            return 1
+        new = new.replace(old, rep, 1)
+    history: list[str] = []
+    for piece in args.history:
+        new = remove_text(new, piece, "buildable")
+        history.append(" ".join(piece.split()).strip(" ;").rstrip("."))
+    new = " ".join(new.split())
+    out = set_value(text, args.venture, "buildable", new, mine)
+    n = len(new)
+    if args.dry_run:
+        print(f"dry run: {args.venture}.buildable would be {n}{cap_note('buildable', n)}; "
+              f"{len(history)} to HISTORY.md; nothing written")
+        return 0
+    hist_dest = args.ventures_dir / args.venture / "HISTORY.md"
+    if not hist_dest.parent.is_dir():
+        raise ValueError(f"no venture folder {hist_dest.parent}")
+    hist_out = history_text(hist_dest.read_text() if hist_dest.exists() else None,
+                            args.venture, history, datetime.date.today().isoformat(),
+                            BUILDABLE_HISTORY_HEADING)
+    args.file.write_text(out)
+    hist_dest.write_text(hist_out)
+    print(f"moved {len(history)} result(s) to {hist_dest.relative_to(hist_dest.parents[2])}")
+    print(f"wrote {args.venture}.buildable: {n}{cap_note('buildable', n)}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the CLI. A write attempt (--set/--replace/--park/--make-room) that
     fails ends with one NOT WRITTEN line, so a refusal is not mistaken for a
@@ -1053,7 +1105,8 @@ def _main(argv: list[str]) -> int:
                     help="move an open item out of `next:` into ventures/<v>/NEXT.md (repeatable; "
                          "combines with --replace/--set, the cap is checked after parking)")
     ap.add_argument("--history", action="append", metavar="TEXT",
-                    help="move a finished result (any span of the unfolded `next:`) to "
+                    help="move a finished result (any span of the unfolded `next:`, or of `buildable:` "
+                         "with --field buildable) to "
                          "ventures/<v>/HISTORY.md (repeatable; combines with --replace/--set, "
                          "the cap is checked after the move)")
     ap.add_argument("--make-room", action="store_true",
@@ -1105,9 +1158,16 @@ def _main(argv: list[str]) -> int:
             print(f"-- {len(found)} landed clause(s); trimming them frees {_saved(found)} of "
                   f"{len(current)} characters", file=sys.stderr)
             return 0
+        if args.history and args.field == "buildable" and not (args.park or args.make_room):
+            # `buildable:` sat at 523-596 of its 600 on 7 of 9 rows (2026-11-23),
+            # mostly results ("all read, spent", "settled off", dated landings),
+            # and 30+ run records 2026-11-21..23 cut their own new item to fit
+            # because --history refused this field. Same move as on `next:`.
+            return buildable_history(args, text, current, mine)
         if args.park or args.make_room or args.history:
             if args.field != "next":
-                ap.error("--park, --history and --make-room work on `next:` only")
+                ap.error("--park and --make-room work on `next:` only; --history on "
+                         "`next:` and `buildable:`")
             if current is None:
                 print(f"{args.venture} has no `next:`", file=sys.stderr)
                 return 1
