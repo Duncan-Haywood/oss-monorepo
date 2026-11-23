@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   runoffDepth, idfIntensity, alternatingBlock, excessIncrements, triangularUH, convolve, hydrograph,
-  pondStorage, pondArea, orificeFlow, weirFlow, route, analyze, sampleInput, reportCsv, CFS_HR_PER_INCH_SQMI,
+  pondStorage, pondArea, orificeFlow, weirFlow, route, analyze, parseInput, sampleInput, reportCsv, CFS_HR_PER_INCH_SQMI,
 } from "./detention.mjs";
 
 const close = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ${a} vs ${b} (tol ${tol})`);
@@ -19,6 +19,7 @@ test("NRCS runoff equation, by hand (NEH-630 ch. 10 eq. 10-11, TR-55 eq. 2-3)", 
   assert.equal(runoffDepth(2, 100), 2); // impervious: all of it
   assert.ok(runoffDepth(4, 90) > runoffDepth(4, 80));
   assert.throws(() => runoffDepth(1, 0));
+  assert.throws(() => runoffDepth(1, 100.5), /curve number/); // S would go negative
 });
 
 test("alternating block: total depth from the IDF, peak block at the centre, alternating", () => {
@@ -49,7 +50,8 @@ test("triangular unit hydrograph: NEH-630 ch. 16 peak, and exactly one inch of v
   close(uh.tb, 0.65 * (2 * 645.3333333) / 484, 1e-6, "Tb about 2.67 Tp");
   const vol = uh.ordinates.reduce((s, x) => s + x, 0) * 0.1;
   close(vol, CFS_HR_PER_INCH_SQMI, 1e-9, "cfs-hours of 1 in over 1 sq mi");
-  close(CFS_HR_PER_INCH_SQMI, 645.333, 1e-3);
+  // 1 in over 1 sq mi: 5280^2 ft2 x 1/12 ft = 2,323,200 ft3, over 3600 s
+  close(CFS_HR_PER_INCH_SQMI, (5280 * 5280) / 12 / 3600, 1e-12);
   assert.ok(Math.max(...uh.ordinates) <= uh.qp);
   // a different peak rate factor keeps the volume
   const flat = triangularUH(640, 1, 6, 300);
@@ -198,4 +200,51 @@ test("CSV guards storm names against spreadsheet formulas", async () => {
   assert.equal(csvCell("-1.5"), "-1.5");
   const a = analyze({ ...sampleInput(), smallLabel: "=cmd" });
   assert.match(reportCsv(a).split("\n")[0], /'=cmd rain in/);
+});
+
+test("every bounded field rejects a value just past either limit", () => {
+  const limits = {
+    areaAc: [0.01, 2000], preCN: [30, 100], preTcHr: [0.05, 24], postCN: [30, 100], postTcHr: [0.05, 24],
+    length: [1, 5000], width: [1, 5000], sideSlope: [0, 20], freeboard: [0, 10],
+    cd: [0.3, 1], cw: [2, 4], prf: [100, 700],
+  };
+  // the step is tiny so a limit loosened by any amount lets the value through
+  for (const [k, [lo, hi]] of Object.entries(limits)) {
+    assert.equal(parseInput({ ...sampleInput(), [k]: String(hi) })[k], hi, `${k} at ${hi}`);
+    assert.equal(parseInput({ ...sampleInput(), [k]: String(lo) })[k], lo, `${k} at ${lo}`);
+    assert.throws(() => parseInput({ ...sampleInput(), [k]: String(hi + 1e-6 * Math.max(1, hi)) }), /must be between/, `${k} above ${hi}`);
+    assert.throws(() => parseInput({ ...sampleInput(), [k]: String(lo - 1e-6 * Math.max(1, Math.abs(lo))) }), /must be between/, `${k} below ${lo}`);
+  }
+});
+
+test("a required field left blank is an error, not zero", () => {
+  // the page shows these as placeholders (3, 10), so a silent 0 would size a
+  // vertical-walled basin or a different storm than the visitor sees
+  for (const k of ["sideSlope", "smallB", "largeB", "areaAc", "length", "smallN"]) {
+    assert.throws(() => parseInput({ ...sampleInput(), [k]: "" }), /enter a number/, k);
+    assert.throws(() => parseInput({ ...sampleInput(), [k]: "   " }), /enter a number/, k);
+  }
+  assert.match(analyze({ ...sampleInput(), sideSlope: "" }).error, /Side slope: enter a number/);
+  // optional fields still fall back
+  const p = parseInput({ ...sampleInput(), freeboard: "", cd: "", durationHr: "" });
+  assert.deepEqual([p.freeboard, p.cd, p.durationHr], [1, 0.6, 24]);
+});
+
+test("blank storm names get their own defaults", () => {
+  const p = parseInput({ ...sampleInput(), smallLabel: "", largeLabel: "" });
+  assert.deepEqual(p.storms.map((s) => s.label), ["Small storm", "Large storm"]);
+});
+
+test("an overshoot far below display precision is not flagged as over the allowable", () => {
+  // A tiny orifice in a tiny basin: the orifice search clamps at its 0.01 ft
+  // floor, so the peak sits exactly where the allowable puts it.
+  const base = { ...sampleInput(), largeA: "", length: "5", width: "5", sideSlope: "0", smallAllow: "1e-9" };
+  const floor = analyze(base).storms[0].peakOut;
+  assert.ok(floor > 0.01, `floor peak ${floor}`);
+  const a = analyze({ ...base, smallAllow: String(floor / (1 + 5e-7)) });
+  assert.ok(!a.error, a.error);
+  assert.ok(!a.findings.some((f) => /over the allowable/.test(f.title)), JSON.stringify(a.findings.map((f) => f.title)));
+  // a visible overshoot still is
+  const b = analyze({ ...base, smallAllow: String(floor / 1.01) });
+  assert.ok(b.findings.some((f) => /over the allowable/.test(f.title)));
 });
