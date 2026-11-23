@@ -1,0 +1,118 @@
+Step 6c: trackers on 30-minute sessions whose clock rate wanders as device 1 warms up
+(200 ms room, |static rate| 17 ppm, warm-up w (1 - exp(-t / 120 s)); out of sync = more than one 30 fps
+ frame off, share of scored seconds; mean over the ten noise types at -10 dB unless 'none')
+
+== warm-up |w| 0 ppm ==
+condition              rl1 fail      hold     gated   gated60
+none                       0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      1.5%      0.0%      0.0%
+AirConditioner -10         0.0%      0.0%      0.0%      0.0%
+AirportAnnouncements -10     0.0%      0.0%      0.3%      0.0%
+Babble -10                15.0%     15.0%     15.3%     15.0%
+CopyMachine -10            0.0%      0.0%      0.9%      0.2%
+Munching -10               0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      0.0%      0.0%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          5.0%      5.0%      5.0%      5.0%
+mean, ten types -10 dB     2.0%      2.2%      2.1%      2.0%
+  sessions >= 99% in sync at -10 dB: hold 97.5%, gated 96.0%, gated60 97.5%
+  hold     where rl1 is right (216 of 220, all 11 conditions): out of sync 0.14%, median largest error 5.3 ms, 1 sessions ever a frame off (median first at 1249 s)
+  gated    where rl1 is right (216 of 220, all 11 conditions): out of sync 0.13%, median largest error 0.1 ms, 4 sessions ever a frame off (median first at 54 s)
+  gated60  where rl1 is right (216 of 220, all 11 conditions): out of sync 0.01%, median largest error 0.1 ms, 1 sessions ever a frame off (median first at 1555 s)
+  rl1 |rate error| against the true mean rate over 0-20 s, where right: median 3.00 ppm
+  out of sync gated minus hold: -0.0 points (95% session bootstrap -0.4 to +0.3)
+  out of sync gated60 minus hold: -0.1 points (95% session bootstrap -0.5 to +0.0)
+  out of sync gated60 minus gated: -0.1 points (95% session bootstrap -0.3 to -0.0)
+
+== warm-up |w| 5 ppm ==
+condition              rl1 fail      hold     gated   gated60
+none                       0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      2.1%      0.0%      0.0%
+AirConditioner -10        15.0%     15.0%     15.0%     15.0%
+AirportAnnouncements -10    10.0%     14.0%     10.0%     10.0%
+Babble -10                10.0%     11.8%     10.0%     10.0%
+CopyMachine -10           15.0%     15.0%     15.0%     15.0%
+Munching -10               0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      3.0%      0.0%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10         10.0%     10.0%     10.0%     10.0%
+mean, ten types -10 dB     6.0%      7.1%      6.0%      6.0%
+  sessions >= 99% in sync at -10 dB: hold 92.0%, gated 94.0%, gated60 94.0%
+  hold     where rl1 is right (208 of 220, all 11 conditions): out of sync 1.05%, median largest error 5.9 ms, 4 sessions ever a frame off (median first at 899 s)
+  gated    where rl1 is right (208 of 220, all 11 conditions): out of sync 0.00%, median largest error 0.1 ms, 0 sessions ever a frame off
+  gated60  where rl1 is right (208 of 220, all 11 conditions): out of sync 0.00%, median largest error 0.2 ms, 0 sessions ever a frame off
+  rl1 |rate error| against the true mean rate over 0-20 s, where right: median 2.76 ppm
+  out of sync gated minus hold: -1.1 points (95% session bootstrap -2.3 to +0.0)
+  out of sync gated60 minus hold: -1.1 points (95% session bootstrap -2.3 to +0.0)
+  out of sync gated60 minus gated: +0.0 points (95% session bootstrap +0.0 to +0.0)
+
+== warm-up |w| 15 ppm ==
+condition              rl1 fail      hold     gated   gated60
+none                       0.0%      0.0%      0.0%      0.0%
+white -10                  0.0%      9.1%      0.0%      0.0%
+AirConditioner -10         5.0%      5.0%      5.0%      5.0%
+AirportAnnouncements -10    10.0%     10.6%     10.0%     10.0%
+Babble -10                10.0%     11.0%     10.3%     10.1%
+CopyMachine -10            5.0%      5.6%      5.3%      5.1%
+Munching -10               0.0%      0.0%      0.0%      0.0%
+Neighbor -10               0.0%      0.0%      0.0%      0.0%
+ShuttingDoor -10           0.0%      0.0%      0.0%      0.0%
+Typing -10                 0.0%      0.0%      0.0%      0.0%
+VacuumCleaner -10          5.0%      5.0%      5.0%      5.0%
+mean, ten types -10 dB     3.5%      4.6%      3.6%      3.5%
+  sessions >= 99% in sync at -10 dB: hold 91.5%, gated 95.5%, gated60 95.5%
+  hold     where rl1 is right (213 of 220, all 11 conditions): out of sync 1.05%, median largest error 19.9 ms, 10 sessions ever a frame off (median first at 1560 s)
+  gated    where rl1 is right (213 of 220, all 11 conditions): out of sync 0.06%, median largest error 0.2 ms, 2 sessions ever a frame off (median first at 1127 s)
+  gated60  where rl1 is right (213 of 220, all 11 conditions): out of sync 0.02%, median largest error 0.2 ms, 2 sessions ever a frame off (median first at 1127 s)
+  rl1 |rate error| against the true mean rate over 0-20 s, where right: median 0.71 ppm
+  out of sync gated minus hold: -1.1 points (95% session bootstrap -1.9 to -0.4)
+  out of sync gated60 minus hold: -1.1 points (95% session bootstrap -1.9 to -0.4)
+  out of sync gated60 minus gated: -0.0 points (95% session bootstrap -0.1 to +0.0)
+
+== warm-up |w| 30 ppm ==
+condition              rl1 fail      hold     gated   gated60
+none                       0.0%     18.8%      0.0%      0.0%
+white -10                  0.0%     19.8%      0.0%      0.0%
+AirConditioner -10         5.0%     23.2%      5.0%      5.0%
+AirportAnnouncements -10     0.0%     15.4%      0.0%      0.0%
+Babble -10                15.0%     31.3%     15.0%     15.0%
+CopyMachine -10            0.0%     20.5%      0.0%      0.0%
+Munching -10               0.0%     15.9%      0.0%      0.0%
+Neighbor -10               0.0%     17.7%      0.0%      0.0%
+ShuttingDoor -10           0.0%     19.7%      0.0%      0.0%
+Typing -10                 0.0%     18.8%      0.0%      0.0%
+VacuumCleaner -10          5.0%     22.8%      5.0%      5.0%
+mean, ten types -10 dB     2.5%     20.5%      2.5%      2.5%
+  sessions >= 99% in sync at -10 dB: hold 1.5%, gated 97.5%, gated60 97.5%
+  hold     where rl1 is right (215 of 220, all 11 conditions): out of sync 18.51%, median largest error 45.2 ms, 212 sessions ever a frame off (median first at 1358 s)
+  gated    where rl1 is right (215 of 220, all 11 conditions): out of sync 0.00%, median largest error 0.3 ms, 0 sessions ever a frame off
+  gated60  where rl1 is right (215 of 220, all 11 conditions): out of sync 0.00%, median largest error 0.4 ms, 0 sessions ever a frame off
+  rl1 |rate error| against the true mean rate over 0-20 s, where right: median 2.58 ppm
+  out of sync gated minus hold: -18.0 points (95% session bootstrap -21.6 to -14.0)
+  out of sync gated60 minus hold: -18.0 points (95% session bootstrap -21.6 to -14.0)
+  out of sync gated60 minus gated: +0.0 points (95% session bootstrap +0.0 to +0.0)
+
+== warm-up |w| 60 ppm ==
+condition              rl1 fail      hold     gated   gated60
+none                       0.0%     56.7%      0.0%      0.0%
+white -10                  0.0%     55.8%      0.0%      0.0%
+AirConditioner -10        20.0%     65.2%     20.0%     20.0%
+AirportAnnouncements -10     0.0%     54.4%      0.0%      0.0%
+Babble -10                 5.0%     59.4%      5.5%      5.0%
+CopyMachine -10            5.0%     59.3%      5.0%      5.0%
+Munching -10               0.0%     56.6%      0.0%      0.0%
+Neighbor -10               0.0%     60.2%      0.0%      0.0%
+ShuttingDoor -10           0.0%     57.3%      0.0%      0.0%
+Typing -10                 0.0%     58.4%      0.0%      0.0%
+VacuumCleaner -10         10.0%     59.8%     10.0%     10.0%
+mean, ten types -10 dB     4.0%     58.6%      4.1%      4.0%
+  sessions >= 99% in sync at -10 dB: hold 0.5%, gated 95.0%, gated60 96.0%
+  hold     where rl1 is right (212 of 220, all 11 conditions): out of sync 56.90%, median largest error 86.8 ms, 211 sessions ever a frame off (median first at 768 s)
+  gated    where rl1 is right (212 of 220, all 11 conditions): out of sync 0.05%, median largest error 0.5 ms, 4 sessions ever a frame off (median first at 174 s)
+  gated60  where rl1 is right (212 of 220, all 11 conditions): out of sync 0.00%, median largest error 0.7 ms, 1 sessions ever a frame off (median first at 260 s)
+  rl1 |rate error| against the true mean rate over 0-20 s, where right: median 2.15 ppm
+  out of sync gated minus hold: -54.6 points (95% session bootstrap -56.2 to -52.1)
+  out of sync gated60 minus hold: -54.6 points (95% session bootstrap -56.3 to -52.2)
+  out of sync gated60 minus gated: -0.0 points (95% session bootstrap -0.1 to -0.0)

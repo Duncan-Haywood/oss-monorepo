@@ -38,7 +38,8 @@ a.set_xlabel("warm-up amplitude |w| (tau 120 s)")
 a.set_ylabel("share of the 30-min session out of sync (%)")
 a.set_title("ten noise types at -10 dB, 200 ms room, 20 sessions each", fontsize=9)
 a.grid(alpha=0.3, axis="y")
-a.legend(fontsize=8, frameon=False)
+a.set_ylim(0, 75)
+a.legend(fontsize=8, frameon=False, loc="upper left")
 
 tm = 20.0 + 60.0 * np.arange(30)
 for w in WS:

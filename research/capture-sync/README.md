@@ -30,6 +30,10 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 6c (2026-11-23): on a 30-minute take whose clock warms up, holding the line fails and gating the re-estimates to one frame does not.** Device 1's rate drifts by w (1 - exp(-t / 120 s)) after power-on (the warm-up shape Gburrek et al. 2022 describe; |w| 0, 5, 15, 30, 60 ppm swept) on top of a 17 ppm offset; 100 thirty-minute sessions, each with ten noise types at -10 dB, recorded through a new time-varying resampler ([`capture_sync.clock`](src/capture_sync/clock.py)). Share of the session more than a 30 fps frame off: **holding the coarse line 20.5% at 30 ppm and 58.6% at 60 ppm; the one-frame gated tracker 2.5% and 4.1%, its coarse step's own failure share**. The held line's error follows the analytic warm-up integral (it crosses a frame at a median 768 s at 60 ppm, against 749-826 s predicted). At 5-15 ppm holding costs about one point, all of it from sessions where the coarse offset is right but its rate is 9-66 ppm wrong, which only re-estimation repairs. So step 6b's "hold the line" does not survive long takes: the session tracker is the gated one. 5 of 7 pre-registered predictions held ([details](#step-6c-trackers-on-30-minute-sessions-whose-clock-warms-up-experimentstrackerwanderpy)).
+
+![Out-of-sync share by warm-up amplitude, and the held line's error over a 30-minute session](experiments/tracker/wander.png)
+
 **Step 6b (2026-11-22): once the coarse step searches clock rate, what should the tracker do with its re-estimates? On a constant-rate clock, nothing: hold the line.** Four trackers, all started from step 6a's joint lag-and-rate search, were run on the same 120 drifting sessions with the same seeds (6a's numbers reproduce to the digit). Mean share of a -10 dB session more than a 30 fps frame off: **holding the search's line, never updated: 0-4%, exactly the share of sessions whose search failed; re-estimates accepted only within one frame of the line ([`capture_sync.track`](src/capture_sync/track.py)): 0.5-5.1%; step 6a's PSR-median vote: 7.0-13.6%**. Keeping the coarse rate inside the vote changes nothing (within 0.1 points), so all of 6a's tracker loss was the vote letting far-off windows move the line. With the gate, 93-99.5% of noisy sessions stay in sync for 99% of their length, against 54-69% for 6a's tracker. 4 of 7 pre-registered predictions held; the gate costs up to 1.6 points over holding, from 16 sessions (1.4%) where an early line fit tilted. A held line cannot follow temperature wander, so wander is the next test ([details](#step-6b-what-the-tracker-should-do-with-its-re-estimates-experimentstrackergatedpy)).
 
 **Step 6a (2026-11-22): can the coarse step survive clock drift? Yes, by searching clock rate as well as lag.** Step 4d found that a 20 s GCC coarse step fails on drifting clocks because the delay moves during the window. A joint lag-and-rate search ([`sync.rate_lag_search`](src/capture_sync/sync.py): 1 s sub-windows of one recording, each correlated against the other, summed along every clock rate from -400 to 400 ppm in 5 ppm steps, the delay-Doppler search of radar and GNSS acquisition) was run on step 4d's 120 sessions with the same seeds. Share of -10 dB sessions whose coarse offset is more than a 30 fps frame off: **at 300 ppm 3.5-4.0% against 54-58% for the 20 s GCC; at 100 ppm 0% against 15-26%; at 17 ppm 2.5-4.0% against 1.5-3.0%** (the wider search costs one point where there is no drift to find). Summing the same sub-windows at rate 0 does not help (56.5-61% at 300 ppm), so the gain comes from the rate search. Started from it, step 4d's window tracker is out of sync **12.5-13.6% of the session at 300 ppm instead of 37.9-44.2%** and 7.1-7.3% at 100 ppm instead of 16.8-22.7%. 8 of 9 pre-registered predictions held ([details](#step-6a-a-coarse-step-that-searches-clock-rate-as-well-as-lag-experimentstrackerratelagpy)).
@@ -180,6 +184,9 @@ python experiments/baselines/tracker.py score /tmp/rows_4d.json && python experi
 # step 6a: the joint lag-and-rate coarse search on step 4d's sessions (same seeds; ~2 h on 4 cores)
 OMP_NUM_THREADS=1 python experiments/tracker/ratelag.py collect ~/ms-snsd /tmp/rows_6a.json --procs 4
 python experiments/tracker/ratelag.py score /tmp/rows_6a.json && python experiments/tracker/ratelag_figure.py
+# step 6c: 30-minute warm-up sessions (MS-SNSD as above; ~1 h 40 min on 3 workers, ~4 GB each)
+OMP_NUM_THREADS=1 python experiments/tracker/wander.py collect ~/ms-snsd /tmp/rows_6c.json --procs 3
+python experiments/tracker/wander.py score /tmp/rows_6c.json && python experiments/tracker/wander_figure.py /tmp/rows_6c.json
 # step 6b: four trackers started from 6a's search, on the same sessions (same seeds; ~17 min on 4 cores)
 OMP_NUM_THREADS=1 python experiments/tracker/gated.py collect ~/ms-snsd /tmp/rows_6b.json --procs 4
 python experiments/tracker/gated.py score /tmp/rows_6b.json && python experiments/tracker/gated_figure.py
@@ -454,6 +461,30 @@ AUROC of -10 against 0 dB windows (`snr_hat` / `ms`): white 1.00 / 1.00, AirCond
 Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 types failed (2 of 9; above `snr_hat` for 7 of 9); (c) site calibration at -10 dB for 9 of 10 types failed (4 and 4); (d) the oracle ceiling held, mostly by accepting nothing; (e) `ms` beats `snr_hat` under T3 failed (a tie); (f) the level does not fix a change of kind held; (g) leave-one-out under 8 of 10 held; (h) T0 held; (i) `ctx` between the two held for 5 of 9.
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
+
+## Step 6c: trackers on 30-minute sessions whose clock warms up (`experiments/tracker/wander.py`)
+
+The plan and predictions were pushed before the run ([`LOG.md`](LOG.md), 2026-11-23), with the analytic case worked out first: a held line misses the integral of every ppm its 20 s rate did not see, which for a first-order warm-up of |w| ppm (tau 120 s) peaks at 7.1, 21.2, 42.4 and 84.9 ms over 30 minutes for |w| = 5, 15, 30, 60.
+
+**Sessions.** The ten MS-SNSD speech blocks concatenated in rotated order and cut to 30 minutes (10 rotations x 2 reps per level; the rotations share speech, in a different order), the 200 ms room, step 2a's statistical impulse responses. Device 1 is switched on 10 s before the session; its rate is 17 ppm (step 1's Nexus to Pixel 6a rate) with a random sign plus w (1 - exp(-t / 120 s)) with its own random sign. [`capture_sync.clock.record`](src/capture_sync/clock.py) maps source sample m to device-1 sample phi(m) = m + 1e-6 sum eps and reads the source at phi's inverse with a 32-tap Kaiser sinc (unit tests: an analytic sinusoid under fast 300 ppm wander to 2e-3; `wacd.sim_sro` at constant rate, correlation above 0.99). Noise as steps 4d-6b: none, and ten types at -10 dB, independent per device.
+
+**Trackers**, all from step 6a's `rl1` (offset and rate from the first 20 s): `hold` (that line, never updated), `gated` (step 6b's: windows accepted only within one frame of the current line, a Theil-Sen line once 3 span 20 s), `gated60` (the same, but the accepted windows must span 60 s before their line replaces `rl1`'s rate).
+
+Share of the session more than a frame off, mean over the ten noise types at -10 dB, 20 sessions per level ([`wander_results.txt`](experiments/tracker/wander_results.txt)):
+
+| warm-up \|w\| | `rl1` coarse fail | `hold` | `gated` | `gated60` | `gated` minus `hold` (95% session bootstrap) | sessions >= 99% in sync, `hold` / `gated` |
+|---|---|---|---|---|---|---|
+| 0 ppm | 2.0% | 2.2% | 2.1% | 2.0% | -0.0 (-0.4 to +0.3) | 97.5% / 96.0% |
+| 5 ppm | 6.0% | 7.1% | 6.0% | 6.0% | -1.1 (-2.3 to +0.0) | 92.0% / 94.0% |
+| 15 ppm | 3.5% | 4.6% | 3.6% | 3.5% | -1.1 (-1.9 to -0.4) | 91.5% / 95.5% |
+| 30 ppm | 2.5% | 20.5% | 2.5% | 2.5% | -18.0 (-21.6 to -14.0) | 1.5% / 97.5% |
+| 60 ppm | 4.0% | 58.6% | 4.1% | 4.0% | -54.6 (-56.2 to -52.1) | 0.5% / 95.0% |
+
+Where `rl1`'s offset is right, the held line's median largest error is 5.3, 5.9, 19.9, 45.2 and 86.8 ms (analytic, without `rl1`'s rate error: 0, 7.1, 21.2, 42.4, 84.9 ms), and `gated`'s 0.1-0.5 ms. The held line goes a frame off in 1, 4, 10, 212 and 211 of about 215 right-started sessions per level; the 15 at 0-15 ppm all have `rl1`'s rate 9-66 ppm wrong, mostly under white noise. `gated` goes a frame off in 0-4.
+
+**Predictions** (5 of 7 held): (a) at 0 ppm `hold` within 1.5 points of the coarse failure share and never a frame off where `rl1` is right: refuted on the second half (1 session); (b) the same at 5 and 15 ppm, with the median largest error within 30% of analytic: refuted on "never" (4 and 10 sessions), the means and medians held; (c) primary, `gated` at least 10 points below `hold` at 30 and 60 ppm: held; (d) `gated` within 1.5 points of `hold` at 0-15 ppm: held; (e) `gated60` at or below `gated`: held, by at most 0.13 points; (f) H5 at 30 ppm, `gated` at least 90% and `hold` under 50%: held (97.5%, 1.5%); (g) at 60 ppm `hold`'s median first frame off within 15% of 749-826 s: held (768 s).
+
+**Limits.** Twin sessions only, one room. The warm-up is a first-order step with tau 120 s and swept amplitudes, not a measured trajectory (Gburrek et al. 2022 publish theirs on zenodo, which this session could not reach); no supply-voltage jitter or slow random walk. The 20 sessions per level share speech. The remaining loss is the 2-6% of sessions whose coarse offset is wrong, which no tracker here repairs.
 
 ## Step 6b: what the tracker should do with its re-estimates (`experiments/tracker/gated.py`)
 
