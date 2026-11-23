@@ -57,3 +57,10 @@ test("the guide's worked numbers match the engine", async () => {
   const idx = await read("index.html");
   assert.ok(idx.includes('$("#price").value = 4; $("#feedperlb").value = 0.6; $("#laypct").value = 45; $("#losspct").value = 15;'));
 });
+
+test("the hens field asks for every bird fed, and an input error hides old results (quality audit 2026-11-23)", async () => {
+  const idx = await read("index.html");
+  assert.match(idx, /<label for="hens">Hens you feed</);
+  assert.match(idx, /escapeHtml\(e\.message\)\}<\/span>`;\s*\$\("#result-card"\)\.hidden = true;/);
+  assert.doesNotMatch(await read(DOCS), /before you scale up/);
+});

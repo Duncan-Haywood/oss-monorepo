@@ -81,6 +81,20 @@ function round2(n) {
  * supply one lower than 25% -- Section 1250 recapture is never taxed above
  * a seller's true ordinary rate, only below-or-equal to 25%.
  */
+/**
+ * Turns the page's "ordinary marginal rate (%)" field into a fraction.
+ * "22" -> 0.22. A value between 0 and 1 ("0.22") is read as an already-converted
+ * fraction: no US federal bracket is below 10%, so 0.22 cannot mean 0.22%, and
+ * dividing it by 100 again silently cut the recapture tax a hundredfold.
+ * Blank stays blank (the 25% cap applies).
+ */
+export function parseRatePercent(value) {
+  if (value === '' || value === null || value === undefined) return '';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '';
+  return n > 0 && n < 1 ? n : n / 100;
+}
+
 export function recaptureRate(ordinaryRateCap) {
   const supplied = ordinaryRateCap === '' || ordinaryRateCap === null || ordinaryRateCap === undefined
     ? null
@@ -142,7 +156,7 @@ export function analyzeSale(rawInputs = {}) {
     findings.push({
       severity: 'info',
       title: 'This sale shows a loss, not a gain',
-      detail: 'Depreciation recapture only applies to a gain. A loss on rental property is a Section 1231 loss, which has its own rules (it can offset ordinary income, subject to the five-year look-back "unrecapture" rule) that this tool does not model -- a tax professional can size the actual benefit.',
+      detail: 'Depreciation recapture only applies to a gain. A loss on rental property is a Section 1231 loss, which has its own rules (a net Section 1231 loss is generally an ordinary loss, and under the five-year look-back rule it can turn later Section 1231 gains into ordinary income) that this tool does not model -- a tax professional can size the actual benefit.',
     });
   }
 

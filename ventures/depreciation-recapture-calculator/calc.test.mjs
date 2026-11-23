@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyzeSale, splitGain, recaptureRate, DEFAULTS, MAX_RECAPTURE_RATE, NIIT_RATE } from './calc.mjs';
+import { analyzeSale, splitGain, recaptureRate, parseRatePercent, DEFAULTS, MAX_RECAPTURE_RATE, NIIT_RATE } from './calc.mjs';
 
 test('splitGain caps the recapture portion at the depreciation actually taken', () => {
   const { unrecapturedSection1250Gain, remainingGain } = splitGain(100000, 40000);
@@ -134,3 +134,20 @@ test('every result always carries the state-tax and recapture-cap findings', () 
 function round(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
+
+test('the rate field reads "22" and "0.22" as the same 22% (quality audit 2026-11-23)', () => {
+  assert.equal(parseRatePercent('22'), 0.22);
+  assert.equal(parseRatePercent('0.22'), 0.22);
+  assert.equal(parseRatePercent('12'), 0.12);
+  assert.equal(parseRatePercent(''), '');
+  const typed22 = analyzeSale({ ...DEFAULTS, ordinaryRateCap: parseRatePercent('22') });
+  const typedFraction = analyzeSale({ ...DEFAULTS, ordinaryRateCap: parseRatePercent('0.22') });
+  assert.equal(typed22.recaptureTax, 19140);
+  assert.equal(typedFraction.recaptureTax, 19140);
+});
+
+test('NIIT on a 1031 exchange is charged on the recognized boot only (hand: Pub 544 order + 3.8%)', () => {
+  const r = analyzeSale({ ...DEFAULTS, includeNiit: true, exchangeBoot: 120000 });
+  assert.equal(r.exchange.taxDue, 31260);
+  assert.equal(r.exchange.taxDeferred, 7896);
+});

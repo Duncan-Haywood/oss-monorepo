@@ -1,0 +1,228 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/budget-twin",
+ "stratum": "research",
+ "seed": "2026-11-23-b-de69",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a simulation-methodology researcher working on input uncertainty (the WSC / ACM TOMACS community: Barton, Nelson, Chick, Lam). First checks: is the input-variance coefficient a(rho) the right delta-method result, is b(rho) the right M/M/1 asymptotic variance constant (Daley 1968 / Whitt 1989), is the budget allocation the correct Lagrange optimum, does the coverage study measure what it says, and is the work positioned against prior work on allocating effort between input-data collection and simulation replications",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Ran PYTHONPATH=src python3 experiments/run.py into a scratch file: byte-identical to the committed experiments/results.txt (57.7 s, README says ~1.5 min). Independent recomputation with numpy, not importing budget_twin (/tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/bt/indep.py, indep_b.py, indep_cov.py): a(rho) by Monte Carlo of n*Var[ln W(lam_hat,mu_hat)] with gamma-distributed MLEs, n=4000, 20,000 draws: 13.06 (rho=0.5) and 61.62 (rho=0.8) vs formula 13.0 / 61.0, and numerical-gradient delta method 13.000 / 61.000. b(rho) by a vectorised stationary-start Lindley simulation, 4,000 runs of 10,000 jobs: 29.33 +- 0.66 (rho=0.5) and 63.6 +- 1.4 (rho=0.7) vs Daley/Whitt 29.00 / 61.63; mean delay 0.9999 / 2.3331 vs W 1 / 2.3333. Optimal split by a 200,001-point numpy grid: f* 0.968/0.904/0.809/0.572 (rho=0.5) and 0.969/0.909/0.816/0.584 (rho=0.8), 50/50 and 95%-simulation penalty ratios 1.87/1.65/1.38/1.02 and 18.73/16.37/13.13/6.75, all equal to results.txt. Naive coverage 2Phi(1.96/sqrt(1+r))-1 by hand: 0.897/0.724/0.425/0.228/0.146, equal. Independent coverage re-run, 1,000 fits per cell: (0.5,200,m=1000) naive 0.710 aware 0.915 vs 0.686/0.922; (0.5,200,5000) 0.473/0.936 vs 0.472/0.946; (0.5,200,20000) 0.237/0.948 vs 0.232/0.930; (0.5,1000,1000) 0.857/0.907 vs 0.842/0.888; (0.7,400,5000) 0.519/0.910 vs 0.582/0.940 (about 2-3 SE apart, the only noticeable gap). Every number reproduces; the one wrong output is a qualitative break-even rule in prose (claims).",
+  "completeness": "Everything the README lists exists and runs: 8 unit tests OK in 0.7 s; experiments/run.py reproduces every table in paper/whitepaper.md (sections 0-4) byte-identically; experiments/figure.py and sd_vs_split.svg are checked by test_figure (committed SVG equals regenerated). The paper's Results 1-5 each map to a section of results.txt. No TODOs or stubs. Live page https://marisstella.app/research/budget-twin/ returned 000 through the proxy, not checked.",
+  "verification": "PYTHONPATH=src python3 -m unittest discover -s tests: 8 tests OK. Five seeded mutations via platform/ci/quality_mutate.py: four SURVIVED (optimal_split returning 1-f instead of f; aware_ci dropping the input-variance term entirely, i.e. the paper's main recommended fix becomes the naive interval; sim_mean starting empty instead of stationary; naive_coverage using 1/(1+r) instead of 1/sqrt(1+r)), one caught (b_coef exponent 2 -> 1.9). aware_ci, naive_ci and the coverage formula's values have no test; the share f returned by optimal_split is never asserted.",
+  "craft": "Read src/budget_twin/model.py (95 lines), experiments/run.py, experiments/figure.py, tests/. Small, readable, docstrings state each formula and its source. Minor: star imports in __init__ and run.py; aware_ci mixes a z multiplier with a t-based simulation variance (documented); conditioning on stable fits (lh < mh) is handled and counted. No dead code or copied engines.",
+  "claims": "Checked: b matches simulation 30.4 vs 29.0 and 61.2 vs 61.6 (results.txt section 0, backed); b/a 2.23/2.03/2.01 (backed); f* 0.81/0.90/0.57 (backed); pipeline sds and RMSE ratios 2.5x and 12% (0.520/0.212=2.45, 0.238/0.212=1.12, backed); coverage figures (backed). Not backed / wrong: README:3 'real data is the scarcer input unless a simulated job costs under about a third of a real pair' and paper:13 'real data wins per unit cost when kappa is above roughly a third' - the break-even where per-unit-cost value is equal (and f*=0.5) is kappa=2a/b = 0.897 (rho=0.5) to 0.988 (rho=0.8), i.e. a job at about half a pair's cost, and the README version has the direction backwards (cheap simulation means real data gets MORE of the budget: f*=0.97 at kappa=0.001). Paper:19 'four of five cells' at m>=20000: there are six such cells (0.930, 0.934, 0.948, 0.972, 0.916, 0.926); the 0.972 over-coverage is not mentioned. README:3 'restores 0.92-0.95 for m >= 1000' holds only for the n=200 row (n=1000, m=1000 is 0.888; n=1000, m=50000 is 0.972). Paper:19 / README:15 'even the twin's own interval under-covers (0.79-0.85)' cites coverage of the real W; no experiment measures coverage of the twin's own wait. README:9 says 6 tests; there are 8. Limits and 'stylised, no lab data' disclaimers are present and honest.",
+  "fitness": "Nearest prior work: the allocation of effort between collecting more input data and running more simulation is studied by Freimer & Schruben (2002, WSC, 'Collecting data and estimating parameters for input distributions'), Ng & Chick (2001 WSC; 2006 ACM TOMACS 'Reducing parameter uncertainty for stochastic systems'), and the input-uncertainty variance decomposition by Cheng & Holland (1997) and Song & Nelson (2015); simulation-only CIs under-covering under input error is the standard motivating example of Barton (2012) and Henderson (2003). The project cites Cheng & Holland, Barton, Whitt and Ankenman-Nelson but not the data-collection allocation papers, and presents the split as 'the trade-off left open'. The result is a correct closed-form M/M/1 instance of a Neyman-type allocation (minimise a/n + b/m under a linear budget) - a sound teaching example and a useful worked case, not a new result at the PhD/publishable bar research/CLAUDE.md sets. One model, exponential inputs, one pipeline configuration; no bootstrap or Bayesian input-uncertainty baseline is compared for the aware interval.",
+  "domain": "Method matches standard practice: delta-method input variance with exponential MLEs (verified 13.0 / 61.0), the Daley 1968 / Whitt 1989 asymptotic variance of the M/M/1 customer-average delay (verified by simulation), stationary-start replications, Lagrange allocation (verified by grid), normal-theory coverage. A simulation methodologist would sign off on the mechanics with the stated limits; they would ask for a bootstrap/Bayesian-model-averaging interval as the comparator rather than only the delta method, and would note the ratio RMSE conditions on stable fits (E[W_hat] is infinite unconditionally)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "input coefficient a(rho) at rho=0.5 and 0.8",
+   "method": "independent numpy Monte Carlo of n*Var[ln W(lam_hat,mu_hat)] (gamma MLEs, n=4000, 20k draws) plus numerical-gradient delta method",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/bt/indep.py",
+   "expected": "13.0 / 61.0 (model.py a_coef)",
+   "observed": "MC 13.06 / 61.62; delta 13.000 / 61.000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "simulation coefficient b(rho) at rho=0.5 and 0.7",
+   "method": "Daley (1968)/Whitt (1989) asymptotic variance rho(2+5rho-4rho^2+rho^3)/(1-rho)^4 vs independent vectorised numpy Lindley simulation, 4000 stationary runs x 10000 jobs",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/bt/indep_b.py",
+   "expected": "29.00 / 61.63",
+   "observed": "29.33 +- 0.66 / 63.6 +- 1.4",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "optimal real-data share f* and penalty ratios, 8 (rho, kappa) cells",
+   "method": "brute-force numpy grid of a/n+b/m over 200,001 shares under 2n+kappa*m=1000",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/bt/indep.py",
+   "expected": "0.968/0.904/0.809/0.572 and 0.969/0.909/0.816/0.584; 50/50 1.87..1.03; 95%-sim 18.73..7.01",
+   "observed": "identical to 3 decimals",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "naive coverage prediction, rho=0.5, n=200, m=200..50000",
+   "method": "hand evaluation of 2Phi(1.96/sqrt(1+r))-1, r=(a/n)/(b/m)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/bt/indep.py",
+   "expected": "0.897/0.724/0.425/0.228/0.146",
+   "observed": "0.897/0.724/0.425/0.228/0.146",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "simulated coverage of naive and input-aware intervals, 5 cells",
+   "method": "independent numpy re-implementation of fit + 10 stationary replications, 1000 fits per cell",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/bt/indep_cov.py",
+   "expected": "results.txt: 0.686/0.922, 0.472/0.946, 0.232/0.930, 0.842/0.888, 0.582/0.940",
+   "observed": "0.710/0.915, 0.473/0.936, 0.237/0.948, 0.857/0.907, 0.519/0.910",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline experiment reproduces",
+   "method": "re-run experiments/run.py and diff against committed results.txt",
+   "command": "PYTHONPATH=src python3 experiments/run.py > scratch/results.txt; diff scratch/results.txt experiments/results.txt",
+   "expected": "identical",
+   "observed": "IDENTICAL (57.7 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "break-even 'a simulated job costs under about a third of a real pair' (README:3) / 'kappa above roughly a third' (paper:13)",
+   "method": "f*=0.5 and equal per-unit-cost value iff 2a = kappa*b, so kappa = 2a/b",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/bt/indep.py",
+   "expected": "about a third",
+   "observed": "kappa = 0.897 (rho=0.5), 0.988 (rho=0.8): about half a pair; README direction reversed",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'aware coverage at m >= 20000 is 0.916-0.934 in four of five cells' (paper:19)",
+   "method": "count cells in results.txt section 4",
+   "command": "grep -E ' (20000|50000) ' experiments/results.txt",
+   "expected": "five cells",
+   "observed": "six cells: 0.930, 0.934, 0.948, 0.972, 0.916, 0.926",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'adding the input variance restores 0.92-0.95 for m >= 1000' (README:3)",
+   "method": "read results.txt section 4, all three configurations",
+   "command": "sed -n '/== 4/,$p' experiments/results.txt",
+   "expected": "0.92-0.95",
+   "observed": "n=200 row 0.922-0.946 (holds); across all rows 0.888-0.972",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "pipeline 'beats 20%-real by 2.5x in RMSE and the 95% design by 12%'",
+   "method": "arithmetic on results.txt section 3",
+   "command": "python3 -c 'print(0.520/0.212, 0.238/0.212)'",
+   "expected": "2.5, 1.12",
+   "observed": "2.45, 1.12",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "README test count",
+   "method": "run the test suite",
+   "command": "PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "6 tests",
+   "observed": "Ran 8 tests, OK",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work on allocating effort between input data and simulation",
+   "method": "literature: Freimer & Schruben 2002; Ng & Chick 2001/2006; Song & Nelson 2015",
+   "command": "grep -n -i 'Chick\\|Freimer\\|Song' paper/whitepaper.md README.md",
+   "expected": "cited and differentiated",
+   "observed": "none cited; split presented as 'left open'",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/budget_twin/model.py:43",
+   "change": "return ..., f -> return ..., 1.0 - f (optimal_split returns the simulation share)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/budget_twin/model.py:82",
+   "change": "se2 = (hw / T9) ** 2 + est ** 2 * a_coef(lam / mu) / n -> se2 = (hw / T9) ** 2 (aware interval loses the input variance)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/budget_twin/model.py:59",
+   "change": "stationary start -> w = 0.0 (empty start)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/budget_twin/model.py:89",
+   "change": "Phi(z / math.sqrt(1.0 + r)) -> Phi(z / (1.0 + r))",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/budget_twin/model.py:25",
+   "change": "(1.0 - rho) ** 2 -> (1.0 - rho) ** 1.9 in b_coef",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The qualitative decision rule is wrong: README says real data is the scarcer input 'unless a simulated job costs under about a third of a real pair' (direction reversed: cheaper simulation pushes MORE budget to real data, f*=0.97 at kappa=0.001) and the paper puts the per-unit-cost break-even at kappa about a third; it is kappa = 2a/b = 0.90 (rho=0.5) to 0.99 (rho=0.8), a job at about half a pair's cost, where f*=0.5.",
+   "where": "research/budget-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  },
+  {
+   "severity": "medium",
+   "what": "Core outputs untested: 4 of 5 seeded mutants survive, including aware_ci dropping the input variance (the paper's recommended interval), optimal_split returning 1-f, the stationary start removed, and a wrong naive-coverage formula.",
+   "where": "research/budget-twin/tests/test_model.py:40",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work on allocating effort between input-data collection and simulation runs (Freimer & Schruben 2002; Ng & Chick 2001, 2006; Song & Nelson 2015) is not cited; the split is presented as an open trade-off while the result is a closed-form M/M/1 instance of a standard Neyman-type allocation. Below the research/CLAUDE.md publishable bar on novelty; no bootstrap/Bayesian input-uncertainty interval as a baseline for the aware CI.",
+   "where": "research/budget-twin/paper/whitepaper.md:24",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'Aware coverage at m >= 20 000 is 0.916-0.934 in four of five cells': there are six such cells; the other two are 0.948 and 0.972 (over-coverage, unmentioned).",
+   "where": "research/budget-twin/paper/whitepaper.md:19",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  },
+  {
+   "severity": "low",
+   "what": "'Even the twin's own interval under-covers (0.79-0.85)' cites coverage of the real W; no experiment measures the twin interval's coverage of the twin's own wait.",
+   "where": "research/budget-twin/paper/whitepaper.md:19",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  },
+  {
+   "severity": "low",
+   "what": "'restores 0.92-0.95 for m >= 1000' holds only for the n=200 row; n=1000, m=1000 gives 0.888 and n=1000, m=50000 gives 0.972.",
+   "where": "research/budget-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  },
+  {
+   "severity": "low",
+   "what": "README says '6 tests, ~2 s' and experiments '~1.5 min'; the suite has 8 tests (0.7 s) and the run takes about 58 s.",
+   "where": "research/budget-twin/README.md:9",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"],
+ "verdict": "budget-twin's numbers are right: the headline run reproduces byte-for-byte, and independent numpy recomputations match a(rho) (13.06 vs 13.0), b(rho) (29.3 vs 29.0), every optimal split and penalty ratio, and the coverage formula, with an independent coverage re-run within 2-3 SE. It misses the bar on verification and claims: 4 of 5 seeded bugs in core logic survive the 8 tests (the input-aware interval can lose its input term undetected), and the prose decision rule ('a third of a real pair') is wrong in value and, in the README, in direction (the break-even is kappa=2a/b, about 0.9-1.0). As research it is a correct, honest worked example of a known allocation in M/M/1, missing the data-collection-allocation literature (Freimer & Schruben; Ng & Chick), not a new publishable result."
+}

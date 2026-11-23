@@ -15,11 +15,11 @@ export const DEFAULTS = {
 };
 
 export const INPUT_NOTES = [
-  { what: "Hens in lay", detail: "Count only birds that are laying now. Pullets not yet in lay, broody hens and moulting hens eat feed and produce nothing, so a flock of 20 on the fence is often 14 in the nest boxes in winter." },
+  { what: "Hens you feed", detail: "Count every bird on the feed bill, including pullets not yet laying and broody or moulting hens: they eat feed and produce nothing. Then set the lay rate as the flock average (eggs collected / all hens / days), so a flock of 20 with 14 laying at 70 percent is 20 hens at 49 percent." },
   { what: "Lay rate (%)", detail: "Eggs per hen per day as a percentage. A young hen can run 80-90 percent in spring, a two-year-old nearer 60-70, and almost every flock drops hard in the short days and during moult. Use your own yearly average from a month of counting, not the breed brochure." },
   { what: "Selling price per dozen", detail: "What the customer pays per dozen at the gate, market or co-op. Compare with the grocery shelf for pasture or organic eggs in your area, then check that you can actually sell that many at the price." },
   { what: "Feed per hen per day, price per lb", detail: "A laying hen eats about a quarter pound (4 ounces) of layer feed a day, more in cold weather. Divide a 50 lb bag's price by 50 for the price per pound; include scratch, treats and oyster shell if you buy them." },
-  { what: "Other cost per month", detail: "Bedding, electricity for a heat lamp or water heater, fencing and coop repairs, vet or parasite treatment, egg-washing supplies, a cottage-food or farm-stand licence, and insurance if you carry it." },
+  { what: "Other cost per month", detail: "Bedding, electricity for a heat lamp or water heater, fencing and coop repairs, vet or parasite treatment, egg-washing supplies, a state egg-seller registration or farm-stand licence, and insurance if you carry it." },
   { what: "Replacement pullet cost and laying years", detail: "A hen lays well for about two years, then drops off. The pullet price (or chick price plus the months of feed before she lays) divided by her laying years is a real yearly cost that is easy to leave out." },
   { what: "Carton cost per dozen", detail: "New cartons or labels cost real money; if customers return cartons put the average replacement cost here. Some states require new or clean cartons and labels for sale." },
   { what: "Hours per week", detail: "Chores, collecting, washing, candling, packing and the trip to sell. Time one ordinary week; hauling water in winter and handling customers add up faster than the feeding." },
@@ -82,7 +82,6 @@ function core(o) {
     profitPerHour: marginYear / hoursYear,
     breakevenPrice: costYear / dozensSold,
     wagePrice,
-    costPerEgg: costYear / (eggsYear * sold),
     biggest, biggestShare: costYear > 0 ? biggest.value / costYear : null,
   };
 }

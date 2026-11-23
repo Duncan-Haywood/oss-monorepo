@@ -25,3 +25,7 @@ No network call, no account, no analytics vendor. Anonymous feature counts (`cal
 ## Licence
 
 MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+
+## Known gaps
+
+From the quality audit of 2026-11-23 ([`portfolio/quality/audits/2026-11-23-backyard-egg-profit-calculator.json`](../../portfolio/quality/audits/2026-11-23-backyard-egg-profit-calculator.json)): replacement cost leaves out mortality, the feed a pullet eats before she lays, and the value of a spent hen; the "dark winter" scenario applies winter rates to a whole year (the guide now says so).
