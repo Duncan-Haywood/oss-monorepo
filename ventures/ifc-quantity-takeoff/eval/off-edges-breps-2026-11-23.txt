@@ -1,0 +1,27 @@
+ISSUE_159_kleine_Wohnung_R22.ifc: 775 advanced breps, read 775, agree within 0.1% 708
+  faces on plane: 638 breps, read 638, agree 601
+  faces on cylindricalsurface+plane: 129 breps, read 129, agree 102
+  faces on plane+surfaceofrevolution: 5 breps, read 5, agree 5
+  faces on cylindricalsurface+plane+surfaceofrevolution: 2 breps, read 2, agree 0
+  faces on plane+rationalbsplinesurfacewithknots: 1 breps, read 1, agree 0
+  disagreements: ifcopenshell-over-box 35, overlapping-pieces 27, not-closed 2, ifcopenshell-turned 2, surface-off-edges 1
+  IfcOpenShell turned to agree matches here within 0.5%: 34 of 35 ifcopenshell-over-box, 17 of 27 overlapping-pieces, 2 of 2 ifcopenshell-turned
+  not read: none
+    #207997 surface-off-edges: here 0.00041315 IfcOpenShell 0.00041364 box 0.0009800 (faces up to 0.042 mm off their edges, bound 0.00000133) (plane+rationalbsplinesurfacewithknots)
+    #160849 not-closed: here 0.000010573 IfcOpenShell 0.000012185 (turned 0.000012513, 85 edges unpaired) box 0.00002149 (cylindricalsurface+plane)
+    #172538 not-closed: here 1.4181e-7 IfcOpenShell 0.0000010289 (turned 0.0000015107, 1268 edges unpaired) box 0.000001066 (cylindricalsurface+plane)
+    #12489 overlapping-pieces: here 0.32809 IfcOpenShell 0.073570 (turned 0.32809, 16 edges unpaired) box 0.2539 (plane)
+FM_ARC_DigitalHub.ifc: 1314 advanced breps, read 1309, agree within 0.1% 1271
+  faces on plane: 1148 breps, read 1148, agree 1130
+  faces on cylindricalsurface+plane: 147 breps, read 144, agree 135
+  faces on plane+surfaceofrevolution: 2 breps, read 0, agree 0
+  faces on cylindricalsurface+plane+surfaceofrevolution: 9 breps, read 9, agree 0
+  faces on cylindricalsurface+surfaceofrevolution: 2 breps, read 2, agree 0
+  faces on surfaceofrevolution: 2 breps, read 2, agree 2
+  faces on plane+rationalbsplinesurfacewithknots: 3 breps, read 3, agree 3
+  faces on plane+surfaceoflinearextrusion: 1 breps, read 1, agree 1
+  disagreements: ifcopenshell-over-box 21, ifcopenshell-turned 8, overlapping-pieces 9
+  IfcOpenShell turned to agree matches here within 0.5%: 21 of 21 ifcopenshell-over-box, 8 of 8 ifcopenshell-turned, 9 of 9 overlapping-pieces
+  not read: 2 x face bound off its IFCSURFACEOFREVOLUTION, 3 x cylindrical face bounds not read
+    #122004 overlapping-pieces: here 0.033527 IfcOpenShell 0.0084696 (turned 0.033527, 3150 edges unpaired) box 0.1848 (cylindricalsurface+plane+surfaceofrevolution)
+    #162218 overlapping-pieces: here 0.29066 IfcOpenShell 0.052808 (turned 0.29066, 8 edges unpaired) box 0.1664 (plane)

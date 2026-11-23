@@ -739,7 +739,14 @@ third of its area, `bulgeVolume`), so the mesh's inscribed shortfall no longer
 reaches the figure
 ([eval/curved-sag-2026-11-23.md](eval/curved-sag-2026-11-23.md)): 4 of those 5
 now agree within 0.012%, and every brep read on FM_ARC_DigitalHub agrees with
-IfcOpenShell within 0.1%.
+IfcOpenShell within 0.1%. The fifth, kleine_Wohnung #207997, is a cone
+frustum whose side faces are polynomial cubics standing up to 0.042 mm inside
+the circular edges that bound them. This tool reads the faces (within
+0.0007% of their exact volume), and IfcOpenShell reads the circles. Since
+2026-11-23 such a brep carries a note naming the distance and the most it can
+move the volume, and the comparison calls it `surface-off-edges`
+([eval/off-edges-2026-11-23.md](eval/off-edges-2026-11-23.md)). No
+unexplained disagreement is left on either model.
 A plane
 cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids
