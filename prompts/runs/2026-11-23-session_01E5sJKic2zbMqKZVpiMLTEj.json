@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKic2zbMqKZVpiMLTEj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T21:18:04Z",
+  "ended": "2026-11-23T22:39:22Z",
+  "wall_minutes": 81.56,
+  "tokens_in": 11298347,
+  "tokens_out": 63526,
+  "cost_usd": 5.0137,
+  "tool_calls": 83,
+  "task": "research programme aerolog-scaling (pick_track draw): milestone 11bf, collision target per flight hour",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18482",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "A first drone-size build ran on destinations rounded to a 10 m grid (coincident points count as exact hits at R = 1.43 m); found from one layout's pipeline check, build restarted with points spread over their cells (~10 min lost).",
+    "A test used a spacing where every overlap probability was 0, so 0 == 0 failed the relative tolerance; fixed the test inputs."
+  ],
+  "integrity_issues": [
+    "Disclosed in the script docstring and LOG: the jitter change was made after the predictions were pushed and after one layout's (unjittered) transit value had been seen; predictions unedited, K2 effectively seen on that layout."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/nyc_destinations.json",
+      "issue": "Coordinates are on a 10 m grid with 2 924 duplicate points and hubs drawn from the same points; nothing in the docstrings says so, and any analysis below about 10 m (drone-size collisions) silently counts coincident points as hits."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rejects a bracketed pattern if the unbracketed name appears anywhere else in the same command line (e.g. in a following restart command); cost one retry."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-aerolog-drone-layer-collision-target.md",
+    "research/aerolog-scaling/LOG.md (11bf entry)",
+    "research/aerolog-scaling/paper/airspace_layers.md section 6.10"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research/0; pick_track drew aerolog-scaling. Claimed with an empty commit and draft PR first. Build 68 min wall on 4 cores for 48 layouts at R = 1.43 m; analysis 2 min. 4 of 6 predictions held. Checks run here: tests/test_collision_target.py 6 passed; airspace tests 23 passed; paper/check_airspace_numbers.py 321 of 321; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok; cite_check on README ok. dji.com refused (ENOTFOUND); M300 dimensions from search excerpts.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "17c03f3d-fb75-5c9b-be54-c6294062fc1f",
+    "transcripts": 1,
+    "first": "2026-11-23T21:18:04Z",
+    "last": "2026-11-23T22:39:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 150,
+        "output": 63526,
+        "thinking": 22519,
+        "cache_read": 11108081,
+        "cache_write_5m": 0,
+        "cache_write_1h": 190116,
+        "api_equivalent_usd": 5.0137,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 150,
+      "output": 63526,
+      "thinking": 22519,
+      "cache_read": 11108081,
+      "cache_write_5m": 0,
+      "cache_write_1h": 190116,
+      "api_equivalent_usd": 5.0137,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 72,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebFetch": 1,
+      "WebSearch": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 81.56,
+      "active_minutes": 81.56,
+      "model_minutes": 13.27,
+      "tool_minutes": 68.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an airspace-safety researcher implementing a Reich-style collision term on an existing model, rebuilding tables, and writing the section: about two days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 319.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
