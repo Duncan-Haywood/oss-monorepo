@@ -219,7 +219,7 @@ function num(x, name, { min = -Infinity, max = Infinity, allowBlank = false, fal
   if ((x === undefined || x === null || String(x).trim() === "") && allowBlank) return fallback;
   const v = Number(String(x).trim());
   if (!Number.isFinite(v)) throw new Error(`${name}: enter a number`);
-  if (v < min || v > max) throw new Error(`${name}: must be between ${min} and ${max}`);
+  if (v < min || v > max) throw new Error(max === Infinity ? `${name}: must be ${min} or more` : `${name}: must be between ${min} and ${max}`);
   return v;
 }
 

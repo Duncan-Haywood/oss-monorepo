@@ -299,3 +299,16 @@ entries:
         single-edit variants); regex verdicts match CPython 3.11 on 199,999
         of 200,000 generated patterns. Post, llms.txt.
     mrr_end: 0
+  - venture: stormwater-detention-sizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/stormwater-detention-sizer,
+        a browser page and CLI that sizes a detention basin's two-stage outlet
+        (orifice on the small storm, weir on the large one) and its depth from
+        NRCS curve-number runoff, the triangular unit hydrograph and
+        storage-indication routing. 27 tests: hand calcs, linear-reservoir
+        exact solution, mass balance, independent RK4 (peaks within 0.5%).
+        Not yet checked against HydroCAD or HEC-HMS. Post, llms.txt, guide.
+    mrr_end: 0

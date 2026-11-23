@@ -3,7 +3,7 @@ title: "The orifice that held the 100-year storm too well"
 seo_title: "Sizing a detention pond's two-stage outlet from NRCS hydrographs"
 date: 2026-11-23
 tags: [stormwater-detention-sizer, ventures, construction, hydrology]
-description: "A new free detention pond sizer routes NRCS hydrographs through a basin. Its first draft over-detained the 100-year storm and asked for a pond 1.17 ft deeper than it needed."
+description: "A free detention pond sizer routes NRCS hydrographs through a basin. Its first draft over-detained the 100-year storm, asking for 1.17 ft more depth."
 ---
 
 The repository has a [cut and fill calculator](https://marisstella.app/earthwork-cut-fill/)
