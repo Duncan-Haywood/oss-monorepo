@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKjJGChH1CChJBA7ovf",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T13:24:55Z",
+  "ended": "2026-11-23T13:48:52Z",
+  "wall_minutes": 24.18,
+  "tokens_in": 11614870,
+  "tokens_out": 104605,
+  "cost_usd": 5.9211,
+  "tool_calls": 77,
+  "task": "Explore: new venture gitconfig-include-check (which [includeIf] lines git follows in a repository, and why)",
+  "projects": [
+    "ventures/gitconfig-include-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18427",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 34,
+  "outcome": "success",
+  "errors": [
+    "Diff test first failed at seed 218: git reports a bad line in ~/.gitconfig before reading a gitdir include because of a very early system+global read with no repository (trace2). Modelled it.",
+    "Seed 1,788: git parses .git/config alone (repository-format check) before the main read. Modelled it.",
+    "The symlink unit test first assumed git -C sees the typed path; real git uses the typed path only when $PWD names the top folder. Fixed the test and added a gitdir-symlink finding.",
+    "run_venture_tests flagged two unguarded object-map lookups (SEVERITY_ORDER); switched to a Map.",
+    "Local run of the PR workflows (run_workflow_locally.py --for-changes) found three problems, all fixed: a literal U+FEFF in gitconfig.mjs (now written as an escape), a first paragraph of 105 words against the 100-word limit for the first paragraph under the h1 (split into a list), and the new-page rule that findings use <h3> (this page's findings sit under <h3>Findings</h3>, so the page was added to the allow-list in finding-heading.test.mjs, as that file's comment permits)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/privacy/optout-switches.txt",
+      "issue": "The header says to add a new line with sync_tree_counts.py, but that script only checks; it does not insert. I added the sorted line by hand."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-git-wrong-email-includeif-works-in-one-folder-not-the-next.md",
+    "ventures/gitconfig-include-check/why-git-uses-the-wrong-email.html"
+  ],
+  "goal": null,
+  "notes": "Explore idea: gitconfig includeIf checker, a fourth git/editor file explainer next to gitignore, gitattributes and editorconfig. The engine reimplements config.c parsing, reading order, include/includeIf (gitdir, gitdir/i, onbranch, hasconfig with the populate_remote_urls pass and forbid rule), the depth limit and the two hidden early reads. Oracle: git config --list --show-origin --show-scope (git 2.43.0). Seeds 1-3000 were used while building and ended with no difference. Held out, seeds 10001-15000: 5000/5000 agree (4141 read through, 1235 with a matched includeIf; 760 bad-line, 74 depth and 25 forbid fatals), 2m23s. New real-git finding: gitdir:~/work/ through a symlinked ~/work applies at the repository top folder but not in a subfolder or with git -C (strbuf_add_absolute_path uses $PWD only when it equals cwd). The CLI --verify matched git on this container's own config (23 values). Local checks: run_venture_tests.py gitconfig-include-check passed (34 tests), check_posts ok, sync_tree_counts --check ok, gitattributes-explainer page test ok after the cross-link. No separate agent doc: README and llms.txt carry what the next run needs. Local workflows: 13/15 passed on the first run; the two failures were fixed and re-run (site builder suite, ventures-tests).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3d55133a-e38d-59be-91ae-782e101ed0e9",
+    "transcripts": 1,
+    "first": "2026-11-23T13:24:55Z",
+    "last": "2026-11-23T13:49:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 147,
+        "output": 104605,
+        "thinking": 33251,
+        "cache_read": 11421717,
+        "cache_write_5m": 0,
+        "cache_write_1h": 193006,
+        "api_equivalent_usd": 5.9211,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 147,
+      "output": 104605,
+      "thinking": 33251,
+      "cache_read": 11421717,
+      "cache_write_5m": 0,
+      "cache_write_1h": 193006,
+      "api_equivalent_usd": 5.9211,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 74,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.18,
+      "active_minutes": 24.18,
+      "model_minutes": 15.96,
+      "tool_minutes": 8.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "Senior engineer: reverse-engineer git config include semantics, build a differential harness against git, plus page, CLI and guide; about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 405.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

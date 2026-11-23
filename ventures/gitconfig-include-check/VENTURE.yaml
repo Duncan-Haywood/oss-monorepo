@@ -1,0 +1,58 @@
+name: gitconfig-include-check
+description: >-
+  Free browser tool and CLI for developers: reads git config files
+  (~/.gitconfig, XDG, system, .git/config, config.worktree and everything they
+  include) the way git config --list --show-origin does and says which
+  [include] and [includeIf] lines apply in a repository, why the others do
+  not, and which file and line set user.email and every other value. Finds
+  gitdir: patterns without a trailing slash, includes placed above the
+  setting they should override, unknown conditions, missing include files,
+  symlinked folders that match only sometimes and onbranch: on a detached
+  HEAD. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-23 in an explore run. duplicate_check.py: top score 0.21
+# (poshmark-fee-calculator, noise), nothing near the 0.45 bar; no venture
+# mentioned includeIf. Siblings: gitignore-explainer, gitattributes-explainer
+# and editorconfig-explainer explain other git and editor files line by line.
+#
+# Why a tool and not a chatbot answer: whether an includeIf applies depends on
+# git's exact pattern rewriting (~ and ./ expansion, **/ in front, ** after a
+# trailing slash), the order of every file and include, the real versus typed
+# path, and two hidden reads git does before the main one; replies that guess
+# get the order and symlink cases wrong. The engine is checked against
+# git config --list --show-origin --show-scope on thousands of random config
+# trees with linked worktrees, and the CLI re-checks itself against the
+# user's own git (--verify).
+#
+# First visitor: developers searching "includeIf not working", "git using
+# wrong email", "gitconfig includeIf gitdir", "git work and personal email";
+# volume not measured with an external tool.
+
+hypotheses:
+  - claim: >-
+      Developers whose work/personal git identity switch silently fails will
+      use a paste-in tool that names the include line that did not apply and
+      why, rather than reading git-config(1) and bisecting their ~/.gitconfig.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a config where the tool's values disagree with git config --list --show-origin and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/gitconfig-include-check/
+  analytics: null
