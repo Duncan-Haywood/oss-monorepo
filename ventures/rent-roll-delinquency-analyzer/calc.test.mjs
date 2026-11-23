@@ -153,3 +153,42 @@ test("decimal point or comma is read from the amounts", () => {
   assert.equal(detectDecimalComma([["Rent"], ["1450,5"]], ","), true);
   assert.equal(detectDecimalComma([["Rent"], ["1450"]], ";"), true);
 });
+
+// Quality audit 2026-11-23 (portfolio/quality/audits/2026-11-23-rent-roll-delinquency-analyzer.json).
+test("charges and payments on separate rows: payments clear the oldest charge first", () => {
+  const n = load("1A,2026-08-01,1000,0,\n1A,2026-08-03,0,1000,2026-08-03\n1A,2026-09-01,1000,0,\n1A,2026-09-12,0,1000,2026-09-12\n");
+  const r = analyze(n.items, { asOf: AS_OF });
+  near(r.summary.collected, 2000); near(r.summary.owed, 0); near(r.summary.overpaid, 0);
+  assert.equal(r.summary.charges, 2);
+  assert.equal(r.summary.late, 1); // September cleared 11 days after due
+  assert.ok(r.findings.some((f) => /applied to the oldest unpaid/.test(f.title)));
+  const part = analyze(load("1A,2026-07-01,1000,0,\n1A,2026-08-01,1000,0,\n1A,2026-08-20,0,1500,2026-08-20\n").items, { asOf: AS_OF });
+  near(part.summary.owed, 500);
+  assert.equal(part.aging.find((b) => b.id === "d31_60").amount, 500); // August is the one left open
+});
+
+test("a negative amount due is a credit, not money owed", () => {
+  const r = analyze(load("1A,2026-09-01,1000,1000,2026-09-01\n1A,2026-09-05,-100,0,\n").items, { asOf: AS_OF });
+  near(r.summary.billed, 1000); near(r.summary.owed, 0); near(r.summary.overpaid, 100);
+  const c = analyze(load("1A,2026-09-01,1000,0,\n1A,2026-09-02,-100,0,\n").items, { asOf: AS_OF });
+  near(c.summary.owed, 900);
+});
+
+test("a Tenant column wins over a Property column for the unit", () => {
+  const n = load("Oak St,Smith,2026-09-01,1000,0,\nOak St,Jones,2026-09-01,900,0,\n", "Property,Tenant,Due Date,Amount Due,Amount Paid,Date Paid\n");
+  assert.equal(analyze(n.items, { asOf: AS_OF }).byUnit.length, 2);
+});
+
+test("aging bucket edges: exactly 30, 60 and 90 days past due are counted, and buckets add up", () => {
+  const n = load("1A,2026-08-16,100,0,\n2B,2026-07-17,200,0,\n3C,2026-06-17,400,0,\n4D,2026-06-16,800,0,\n");
+  const r = analyze(n.items, { asOf: AS_OF });
+  const amt = (id) => r.aging.find((b) => b.id === id).amount;
+  assert.deepEqual([amt("d1_30"), amt("d31_60"), amt("d61_90"), amt("d90p")], [100, 200, 400, 800]);
+  near(r.aging.reduce((s, b) => s + b.amount, 0), r.summary.owed);
+});
+
+test("habitually late at exactly half its charges late", () => {
+  const rows = ["01", "02", "03", "04", "05", "06"].map((m, i) => `1A,2026-${m}-01,1000,1000,2026-${m}-${i < 3 ? "20" : "02"}`).join("\n") + "\n";
+  const r = analyze(load(rows).items, { asOf: AS_OF });
+  assert.deepEqual(r.chronic.map((u) => u.label), ["1A"]);
+});

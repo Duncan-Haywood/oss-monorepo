@@ -10,7 +10,7 @@ owner: duncan
 #
 # Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: multi-year asset register with disposals and balancing charges behind an env-var switch.
 #
-# Liability: 2026/27 rates (AIA 1,000,000, main pool 18%, special rate 6%, 50% special FYA, 1,000 small pool) were written from memory without network access and are flagged for GOV.UK verification on the page. Zero-emission car first-year allowances, disposals, SBA and private use are refused and named. The page states it is not tax advice and points to a qualified accountant.
+# Liability: 2026/27 rates (AIA 1,000,000, main pool 14% from April 2026 (18% before), special rate 6%, 40% main FYA from 1 Jan 2026, 50% special FYA, 1,000 small pool; first written from memory at 18%, corrected 2026-11-23 against GOV.UK after the round-104 quality audit) are flagged for GOV.UK verification on the page. Zero-emission car first-year allowances, disposals, SBA and private use are refused and named. The page states it is not tax advice and points to a qualified accountant.
 hypotheses:
   - claim: >-
       UK business owners who bought equipment will use a free calculator to see their allowance claim and where to put the AIA.

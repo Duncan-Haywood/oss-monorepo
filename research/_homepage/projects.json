@@ -1955,7 +1955,7 @@
     {
      "slug": "ambient-ips",
      "title": "Does inverse-propensity weighting fix an always-on assistant learning from its own accept/dismiss feedback?",
-     "summary": "A stylised follow-up to <em>ambient-bandit</em>: the assistant speaks with a known probability (&epsilon;-greedy) and refits its model with each labelled window weighted by 1/propensity. Mostly negative: exploration itself costs more utility than the learning gains at every &epsilon; tried, weights up to 500 make the weighted fit unstable at small &epsilon; (a standard deviation across seeds of tens of utility units per hour), and the weighting did not rescue the uninformed-prior or the drift scenarios. Only at &epsilon;&nbsp;=&nbsp;0.02 with an informed prior is the weighted model slightly closer to the oracle (12.2 vs 11.4 per hour at 100&nbsp;h, oracle 12.7). Stylised: every distribution is chosen by me."
+     "summary": "A stylised follow-up to <em>ambient-bandit</em>: the assistant speaks with a known probability (&epsilon;-greedy) and refits its model with each labelled window weighted by 1/propensity. Exploration costs more utility than it teaches at every &epsilon; tried (9.65 per hour unweighted at &epsilon;&nbsp;=&nbsp;0.002 against 2.67 at 0.02), and weights up to 500 make the weighted policy noisier at small &epsilon; (7.79 &plusmn; 3.74 against 9.65 &plusmn; 0.88), the known inverse-propensity trade-off. Only at &epsilon;&nbsp;=&nbsp;0.02 is the weighted model closer to the oracle (12.2 vs 11.4 per hour at 100&nbsp;h, oracle 12.7). (Corrected 2026-11-23: an earlier uninformed-prior failure and drift result were a solver divergence.) Stylised: every distribution is chosen by me."
     },
     {
      "slug": "ambient-fullinfo",

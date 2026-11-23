@@ -1,0 +1,238 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/buildbot-skillpack",
+ "stratum": "research",
+ "seed": "2026-11-23-d-6b5b",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a physical human-robot interaction (pHRI) researcher who tunes co-manipulation impedance controllers and reviews sim-to-real robustness papers (ICRA/IROS, RA-L); first checks: does the plant physics reproduce in an independent integrator, are the cross-plant numbers paired and significant, is the 'mixed training' comparison a real ablation of the objective rather than of seeds, is the work placed against domain randomisation and robust-ensemble training, and could another lab load and re-run a skill file without this repository",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran four independent recomputations. (1) Own RK4 integrator of a uniform rod pinned at a vertically moving hand (I_pin = mL^2/3, pseudo-gravity g + aP, Flash-Hogan minimum-jerk path; /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/buildbot-skillpack/rod_rk4.py) on the 1,000 plant-A test episodes: mixed skill 0.675 and nominal 0.612, 0 of 1,000 per-episode pass/fail disagreements with the shipped semi-implicit Euler plant. (2) Independent Monte Carlo of the 62-nail budget with nail windows derived by hand from 1.5 in stud face, 0.131 in nail, 3/8 in edge distance (half-widths 3.93/17.39/13.46/32.51 mm), 400k sheets: 0.9515 +- 0.0003 vs the file's 0.9513. (3) NIOSH load constant 51 lb x 0.45359237 = 23.13 kg (Waters et al. 1993) matches NIOSH_KG. (4) Full re-score of every file at its stored seed and n reproduces A/B claims exactly (0.823/0.000, 0.716/0.689, 0.675/0.653, 0.612/0.275). (5) MuJoCo plant C run paired on the same first 200 plant-B worlds: C vs numpy B differ on only 1-2 of 200 episodes per skill when each numpy episode gets its own horizon, but on 4-12 of 200 when scored in the 1,000-episode batch: the numpy plant's scored horizon is the batch maximum of T + lag + 1.5 s (buildbot-skills model.py:75), so an episode's pass/fail depends on which other episodes share its batch (9 of the 200 fastest-lift A episodes flip when run alone). Numbers are reproducible but that definition is not a property of the skill.",
+  "completeness": "Claimed and checked: five skill files load through pack.load (yes); validator rejects missing caveats, unknown schema/kind, missing/out-of-range/bool params, caveats without 'not a rated' (all 8 parametrised rejections pass); rescore_follow on A, B and C (yes, C via mujoco 3 installed with pyenv); compare lists drifted claims (yes); run.py outputs in results.txt match a fresh re-score; figure.png present; research homepage builds the project page (research/_homepage/build.py ok, _site/buildbot-skillpack/index.html). Carry and fasten skills as controllers are disclosed as not written. Gap: the test suite that README says checks reproduction is red (below). No TODOs or stubs.",
+  "verification": "cd research/buildbot-skillpack && /usr/bin/python3.13 -m pytest -q tests: 13 passed, 1 FAILED in 9.5 s: test_published_files_load_and_claims_reproduce asserts |0.740 - 0.823| < 0.08 for cohold-follow-A; the test redraws a different 200-episode set (draw_world with n=200 is not a prefix of the n=1000 draw) and allows 8 points, which this file misses by 0.3 points. With that test deselected, 7 mutants via quality_mutate.py: 1 caught (nail tool scatter set to 0), 6 survived: test_seed + 1 in evalpack.worlds (no test checks any stored claim at its stored n, the project's central promise), compare's numeric tolerance tol -> 1.0 (the nail-claim drift check is untested), caveat check 'not a rated' -> 'not a', compare success tol -> tol + 0.01, s_read -> s_tool (near-equivalent: 0.89 vs 0.9 mm), empty-caveats guard removed (equivalent: the next check also rejects). Only run.py, not the suite, re-scores to the digit.",
+  "craft": "Read pack.py (54 lines), evalpack.py (48), tests/test_pack.py (76), experiments/run.py (117), figure.py, and the plants in buildbot-skills/model.py and buildbot-mjsheet/mjplant.py. Small, readable, deterministic, validated save. Defects: the reproduction test redraws a different episode set with a loose tolerance and is red; test_stiffer_gain_than_the_hand_set_one_changes_the_answer tests zero gains, not a stiffer one; the package works only via sys.path/pytest pythonpath into four sibling directories, so a skill file's 'claimed' numbers are reproducible only at this repository's commit (no plant code version or hash in the file); rescore_follow silently scores C on plant-B worlds with a different horizon rule than the numpy plant.",
+  "claims": "Backed: five files reload and re-score exactly (run.py and my full re-score), A-skill 82.3/0/0, nominal 61.2/27.5/28.0, B 71.6/68.9/71.0, mixed 67.5/65.3/69.5, nail 95.1%, MuJoCo agreement (stronger than stated when paired), simulated-only and ISO 10218 / ISO/TS 15066 caveats, unsourced delay/lag/stiffness disclosed, B-skill test-set selection disclosed. Not backed: 'Mixing the two plants did not help ... training on both gives nothing extra' (README:9, project.json summary and lede) is presented as a finding about the mixed objective, but the mixed skill's gains (K 386.02, B 33.70, Ki 80.06) are exactly buildbot-skills' B_random seed 3 gains, and mixed seed 2's (330, 28, 215) are exactly the 'B' skill file's: same seeds draw the same 300 candidates, and min(A, B) pass rate is almost always the B rate, so the min-of-two objective picks the B-only winner. The 3.6-point B gap (McNemar 63 vs 27 discordant, p = 0.0002) is the difference between two B_random seeds, not between objectives. 'Each reloaded from disk and re-scored to the digit' is true of run.py but the shipped test of it is red.",
+  "fitness": "Research: nearest prior work is domain randomisation for sim-to-real (Tobin et al. IROS 2017; Peng et al. ICRA 2018 dynamics randomisation), robust training over model ensembles with worst-case/CVaR objectives (Rajeswaran et al. EPOpt, ICLR 2017), and for the packaging, model cards (Mitchell et al. FAT* 2019) and the LeRobot / Hugging Face policy hub; pHRI co-manipulation impedance (Ikeura and Inooka 1995; Duchaine and Gosselin 2007). None is cited. The JSON format is a thin parameter-plus-provenance record with no units, control rate or code version, below what a model card or hub entry carries. The one new question (does training on two plants cover a third) is answered by a degenerate comparison: the mixed search reproduces the B-only search's own winners, so the result says nothing about mixing; the MuJoCo agreement checks code, not physics (disclosed). A researcher could reuse the re-score harness, not the conclusion.",
+  "domain": "Against pHRI practice: impedance-plus-feed-forward following with a lagged reference is a standard co-manipulation law, tilt and NIOSH 23 kg person-load criteria are reasonable, ISO 10218 and ISO/TS 15066 are the right standards, and calling the files not rated is correct. Departures: delay (0-30 ms), actuator lag and flex stiffness are unmeasured swept ranges (disclosed); the skill file omits units per parameter, controller rate, observation latency budget and the plant code version, which a robot owner would need to load it; no robustness margin (gain/phase or passivity) is reported for the gains; success uses a horizon that depends on the episode batch."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Plant A pass/fail, mixed and nominal skills, 1,000 test episodes",
+   "method": "own RK4 rigid-rod pin-joint dynamics (I = mL^2/3, pseudo-gravity, Flash-Hogan path), not the author's integrator",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/buildbot-skillpack/rod_rk4.py cohold-follow-mixed 1000",
+   "expected": "0.675 / 0.612 (claimed)",
+   "observed": "0.675 / 0.612, 0 of 1000 episodes disagree",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sheathing-nail sheet success at 0.89 mm read, 0.9 mm tool",
+   "method": "independent Monte Carlo, 400k sheets, windows from 1.5 in face, 0.131 in nail, 3/8 in edge distance by hand",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/buildbot-skillpack/nail_mc.py",
+   "expected": "0.9513 (file)",
+   "observed": "0.9515 +- 0.0003",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "NIOSH load constant used in the person-load criterion",
+   "method": "Waters et al. 1993, LC = 51 lb",
+   "command": "python3 -c \"print(51*0.45359237)\"",
+   "expected": "23.13 kg",
+   "observed": "23.133 kg (NIOSH_KG)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "MuJoCo plant C vs numpy plant B, paired on the same 200 worlds",
+   "method": "mujoco 3 plant run per episode, compared with numpy B per episode, batch vs per-episode horizon",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/buildbot-skillpack/cpair.py cohold-follow-mixed",
+   "expected": "agreement within sampling error",
+   "observed": "C 0.695 vs B 0.685; disagree 2/200 with matched horizon, 12/200 in the batch (B skill 1 vs 8, nominal 1 vs 4)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Episode outcome independent of batch composition",
+   "method": "same 200 fastest-lift plant-A episodes scored inside the 1000 batch and alone",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/buildbot-skillpack/horizon.py",
+   "expected": "0 flips",
+   "observed": "0.445 in batch vs 0.400 alone, 9 flips (t_end 5.95 s vs 3.12 s)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "All five files re-score to their claimed values",
+   "method": "evalpack.compare at stored seed and n, tol 0",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/buildbot-skillpack/full.py",
+   "expected": "no drift",
+   "observed": "no drift for all 5",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Mixing the two plants did not help' as a finding about the mixed objective",
+   "method": "compare mixed seeds' gains with buildbot-skills/experiments/results.json B_random rows",
+   "command": "/usr/bin/python3.13 -c \"import json;[print(r['policy'],r['seed'],r['K'],r['B'],r['Ki']) for r in json.load(open('research/buildbot-skills/experiments/results.json'))['rows'] if r['policy']=='B_random']\"",
+   "expected": "mixed gains differ from B-only gains",
+   "observed": "mixed skill = B_random seed 3 exactly (386.02, 33.70, 80.06); mixed seed 2 = B skill (330, 28, 215)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "B-only vs mixed gap on plant B is real",
+   "method": "exact McNemar on 1000 paired episodes",
+   "command": "/usr/bin/python3.13 (inline, see evidence)",
+   "expected": "reported 68.9 vs 65.3",
+   "observed": "63 vs 27 discordant, p = 0.0002: real, but a seed-to-seed gap",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite green",
+   "method": "pytest",
+   "command": "cd research/buildbot-skillpack && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "all pass",
+   "observed": "13 passed, 1 failed (0.083 >= 0.08 on cohold-follow-A, n=200 redraw)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Project page builds",
+   "method": "research homepage build",
+   "command": "python3 research/_homepage/build.py",
+   "expected": "ok and a page",
+   "observed": "ok: 1080 projects; _site/buildbot-skillpack/index.html with figure.png",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Prior work placed",
+   "method": "README and project.json read for domain randomisation, EPOpt, model cards, pHRI impedance",
+   "command": "grep -niE 'tobin|peng|epopt|rajeswaran|model card|lerobot' research/buildbot-skillpack/README.md",
+   "expected": "cited",
+   "observed": "none cited",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/buildbot_skillpack/evalpack.py:9",
+   "change": "default_rng(scene[\"test_seed\"]) -> default_rng(scene[\"test_seed\"] + 1)",
+   "caught": false,
+   "test_cmd": "bash -c '/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests --deselect tests/test_pack.py::test_published_files_load_and_claims_reproduce'"
+  },
+  {
+   "where": "src/buildbot_skillpack/evalpack.py:46",
+   "change": "abs(v - got[k]) > tol -> abs(v - got[k]) > 1.0",
+   "caught": false,
+   "test_cmd": "bash -c '/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests --deselect tests/test_pack.py::test_published_files_load_and_claims_reproduce'"
+  },
+  {
+   "where": "src/buildbot_skillpack/pack.py:39",
+   "change": "\"not a rated\" not in -> \"not a\" not in",
+   "caught": false,
+   "test_cmd": "bash -c '/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests --deselect tests/test_pack.py::test_published_files_load_and_claims_reproduce'"
+  },
+  {
+   "where": "src/buildbot_skillpack/evalpack.py:44",
+   "change": "> tol -> > tol + 0.01",
+   "caught": false,
+   "test_cmd": "bash -c '/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests --deselect tests/test_pack.py::test_published_files_load_and_claims_reproduce'"
+  },
+  {
+   "where": "src/buildbot_skillpack/evalpack.py:35",
+   "change": "s_read_mm -> s_tool_mm (near-equivalent, 0.89 vs 0.9)",
+   "caught": false,
+   "test_cmd": "bash -c '/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests --deselect tests/test_pack.py::test_published_files_load_and_claims_reproduce'"
+  },
+  {
+   "where": "src/buildbot_skillpack/pack.py:37",
+   "change": "if not d[\"caveats\"] -> if False (equivalent: next check rejects)",
+   "caught": false,
+   "test_cmd": "bash -c '/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests --deselect tests/test_pack.py::test_published_files_load_and_claims_reproduce'"
+  },
+  {
+   "where": "src/buildbot_skillpack/evalpack.py:35",
+   "change": "s_tool_mm / 1000.0 -> 0.0",
+   "caught": true,
+   "test_cmd": "bash -c '/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests --deselect tests/test_pack.py::test_published_files_load_and_claims_reproduce'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Headline 'mixing the two plants did not help' is not a finding about mixing: same seeds draw the same 300 candidates and min(A,B) is almost always the B rate, so the mixed search picks the B-only winners (mixed skill = buildbot-skills B_random seed 3 exactly; mixed seed 2 = the 'B' file). The 3.6-point gap is between two B_random seeds. Undisclosed in README, project.json summary and lede.",
+   "where": "research/buildbot-skillpack/experiments/run.py:34",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "medium",
+   "what": "Reproduction test is red: it redraws a different 200-episode set (draw_world n=200 is not a prefix of n=1000) and allows 0.08; cohold-follow-A gives 0.740 vs 0.823.",
+   "where": "research/buildbot-skillpack/tests/test_pack.py:71",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "medium",
+   "what": "No test checks a stored claim at its stored seed and n; a changed test_seed and a disabled nail-claim drift check both leave the suite green.",
+   "where": "research/buildbot-skillpack/src/buildbot_skillpack/evalpack.py:9",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "medium",
+   "what": "Scored horizon is the batch maximum of T + lag + 1.5 s, so an episode's pass/fail depends on the other episodes in its batch (9 of 200 flip); MuJoCo plant C uses a per-episode horizon, so the C vs B comparison mixes two scoring rules (12 vs 2 disagreements of 200).",
+   "where": "research/buildbot-skills/src/buildbot_skills/model.py:75",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited: domain randomisation (Tobin 2017, Peng 2018), worst-case ensemble training (EPOpt, Rajeswaran 2017), model cards (Mitchell 2019) / LeRobot hub, pHRI impedance co-manipulation.",
+   "where": "research/buildbot-skillpack/README.md:3",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "medium",
+   "what": "Skill file format carries no units per parameter, controller rate, latency budget or plant-code version/hash; claims reproduce only at this repository's commit through sibling sys.path imports.",
+   "where": "research/buildbot-skillpack/src/buildbot_skillpack/pack.py:12",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Test named test_stiffer_gain_than_the_hand_set_one_changes_the_answer tests zero gains against the hand-set ones.",
+   "where": "research/buildbot-skillpack/tests/test_pack.py:49",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "low",
+   "what": "README says the loader requires caveats saying 'not a rated capability'; it checks the substring 'not a rated' (sheathing-nail passes on 'not a rated accuracy').",
+   "where": "research/buildbot-skillpack/README.md:8",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"],
+ "verdict": "A small, honest, reproducible packaging of the buildbot follow and nailing skills whose numbers check out: an independent RK4 rod integrator agrees with plant A on all 1,000 episodes for two skills, an independent Monte Carlo gives the nail budget 0.9515 vs 0.9513, MuJoCo plant C agrees with numpy plant B on 198-199 of 200 paired episodes once horizons match, and every file re-scores to its claim at its stored seed. It does not meet the bar. The headline research finding is an artefact: the 'mixed' skill is exactly buildbot-skills' B_random seed 3 and mixed seed 2 is exactly the published 'B' skill, because the same seeds draw the same candidates and the worse-of-two score is the B score, so 'mixing did not help' compares two B-only seeds. The shipped reproduction test is red, six of seven seeded mutants survive, the scored horizon depends on batch composition (inherited from buildbot-skills), and the closest prior work (domain randomisation, EPOpt, model cards) is uncited. Rewriting the headline as 'the worst-of-two objective reduces to B-only training here', making the test re-score at stored n with tol 0, and citing prior work would lift claims and verification to 3; the result still would not be new."
+}

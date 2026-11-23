@@ -1,0 +1,227 @@
+{
+ "date": "2026-11-23",
+ "subject": "ventures/rent-roll-delinquency-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-23-d-6b5b",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior property manager or residential-property bookkeeper who runs monthly delinquency (A/R aging) reports for small landlords; first checks: does a tenant-ledger export (charges and payments on separate rows, credits as negatives) reconcile to the balance due, and do 30/60/90 boundaries land in the right bucket",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs on three ledgers and recomputed by hand from the A/R aging convention (days past due from due date to the as-of day; 1-30/31-60/61-90/90+). A hand-built 6-charge two-unit ledger (as of 2026-09-15, grace 5, fee $75) matches exactly: billed 6,600, collected 3,900, owed 2,700, aging 1,200/600/0/900, 1A oldest 45 days and avg 18.0 days late, 2B oldest 123 days, 4 late charges, fee bound $300, on-time 2/6. The page's worked example matches a hand build (owed 8,475 = 3A 3x1,725 + 3B 2x850 + 2B 1,600; buckets 4,175/2,575/1,725; 12 late charges, $600). But common real inputs give wrong numbers: a negative credit row (-100) is turned into a $100 charge owed (calc.mjs:168 Math.abs); payment-only rows are reported as overpayments with collected $0 and the charge still unpaid, contrary to the code comment at calc.mjs:135-136; with Property and Tenant columns every tenant of a property is merged into one 'unit' (alias order, calc.mjs:15). Command: node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/probe.mjs.",
+  "completeness": "Every feature the README and page list worked end to end in a headless Chromium load (local static server, 390 px viewport): file/paste input, as-of date, grace, fee, Load an example, findings, aging table with total row, by-unit and by-month tables, skipped-row note, copyable summary, CSV download button, usage opt-out. No console errors, no external requests, no horizontal scroll (scrollWidth 390). Comma/tab/semicolon, quoted fields, day-first and UTF-16 are implemented (decodeBuffer, detectDelimiter, detectDmy). No TODOs or stubs. The 'charge type' alias is parsed but never used.",
+  "verification": "node --test '*.test.mjs': 33 tests, 33 pass, 0.16 s. Tests are hand-arithmetic on small ledgers (not a copy of the engine), but four seeded mutants via quality_mutate.py: 2 survived (bucket upper bound <= -> < at calc.mjs:221, which silently drops charges exactly 30/60/90 days past due from the aging table and breaks the reconciliation the page claims; habitual-late share >= 0.5 -> > 0.5 at calc.mjs:255) and 2 caught (grace comparison, days-late arithmetic). No test covers credits, payment-only rows, or Property+Tenant headers.",
+  "craft": "Read calc.mjs (345 lines), index.html (205), usage.mjs (80), the three test files. Pure functions, no DOM in the engine, skipped rows carry true file line numbers through quoted line breaks, storage guarded. Defects: silent sign flip of negative amounts (calc.mjs:168), dead `kind` alias (calc.mjs:19, found but never read), three copies of the whole-dollar formatter (usd at :129, m inside summaryText at :287, money at :280), parseCsv run twice per analysis (index.html:148).",
+  "claims": "Checked: 'nothing uploaded' (page.test asserts no fetch/XHR/beacon; Playwright saw zero external requests) backed; 'Reconciles' (aging + not-yet-late, unit rows and month rows sum to total) backed by calc.test and my sample run; 'habitually late needs three and half' backed (calc.mjs:255); late-fee upper bound with local-law caveat backed (calc.mjs:268); disclaimer, no-warranty and non-affiliation present; served llms.txt/sitemap/canonicals carry the marisstella.app origin (served-copy.mjs: no retired origin). The input shape limit ('one row per monthly charge') is stated, but the page says it 'works best' rather than that other shapes give wrong figures, and the in-code claim that payment-only rows count as collected is false.",
+  "fitness": "Job: a landlord with 2-50 units exports a ledger and wants who owes what and how old. With a sheet in the stated shape (one row per charge, paid amount and date on the same row) it does the job in under a minute and the output is right. Most property-management and accounting exports (tenant ledger / transaction register) put charges and payments on separate rows with credits negative; such a file reads without error but reports 0% collected, the whole bill unpaid and an equal 'overpayment' (page run: 'collected $0.00 (0%), unpaid $1,000.00' for a fully paid month), so the landlord must reshape the export by hand first.",
+  "domain": "Compared with standard residential A/R aging / delinquency reporting (aged receivables 0-30/31-60/61-90/90+ days past due, per tenant, with payments applied to the oldest open charge and credits/concessions reducing the balance, and rent separated from fees). Aging buckets, grace-based lateness and the late-fee caveat match practice. Departures: no payment application across charges (each row stands alone, so a payment that covers last month's balance shows as an overpayment), negative credits counted as charges, charge type ignored so late-fee rows count as rent billed, accrue lateness, and generate further late fees in the upper bound, and the on-time rate's denominator includes charges still inside the grace period."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Hand-built 2-unit ledger: totals, aging, per-unit oldest and average days late, fee bound",
+   "method": "by hand from the A/R aging convention: days past due = as-of minus due date; 1A Jun 3d, Jul 10d, Aug 45d (600 owed), Sep 14d; 2B May15 123d, Sep 5d",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/probe.mjs",
+   "expected": "billed 6600 / collected 3900 / owed 2700; aging 1200/600/0/900; 1A 1800 oldest 45 avg 18; 2B 900 oldest 123 avg 64; late 4; fees 300; on-time 0.333",
+   "observed": "6600/3900/2700; 1200/600/0/900; 1A 1800,45,18; 2B 900,123,64; 4; 300; 0.333",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Worked example (as of 2026-09-15, fee $50): owed, aging buckets, late count",
+   "method": "by hand from sampleCsv's generating rules: 3A unpaid Jul-Sep 3x1725, 3B half-paid Aug-Sep 2x850, 2B Sep 1600; 2A every month 8+ days late",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/probe.mjs",
+   "expected": "owed 8475; 1-30 4175 (3), 31-60 2575 (2), 61-90 1725 (1); 12 late; $600",
+   "observed": "8475; 4175/2575/1725; 12; $600 (also on the page via Playwright)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Concession credit row of -100 after a paid month",
+   "method": "ledger convention: a negative charge is a credit that reduces the balance; expected owed 0 (or a 100 credit)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/probe.mjs",
+   "expected": "owed 0, billed 1000",
+   "observed": "owed 100, billed 1100, 1 late charge",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tenant ledger with charges and payments on separate rows (Aug and Sep both paid in full on time)",
+   "method": "by hand: 2000 charged, 2000 paid, balance 0; code comment calc.mjs:135-136 says payment-only rows count as collected",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/probe.mjs",
+   "expected": "collected 2000, owed 0",
+   "observed": "collected 0, owed 2000, overpaid 2000, on-time 0%",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Property + Tenant headers, two tenants at one property",
+   "method": "by hand: two tenants owe 1000 and 900",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/probe.mjs",
+   "expected": "two rows: Smith 1000, Jones 900",
+   "observed": "one row 'Oak St' 1900 (unit column mapped to Property)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Late-fee rows in the file with a Charge Type column",
+   "method": "by hand: rent paid 19 days late, one $50 late fee billed; fee bound for rent only is $50",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/probe.mjs",
+   "expected": "billed rent 1000; late charges 1; fee bound 50",
+   "observed": "billed 1050; late 2; fee bound 100 (fee row counted as rent and charged a fee)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Headless page load, Load an example, paste-and-analyze",
+   "method": "Playwright chromium on a local static server, 390x800",
+   "command": "NODE_PATH=$(npm root -g) node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/pw.cjs",
+   "expected": "report renders, no errors, no external requests, no horizontal scroll",
+   "observed": "stats line and six findings rendered; errors []; external []; scrollWidth 390",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "node test runner",
+   "command": "cd ventures/rent-roll-delinquency-analyzer && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "33 tests, 33 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded",
+   "method": "page.test regex plus Playwright request log",
+   "command": "NODE_PATH=$(npm root -g) node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/pw.cjs",
+   "expected": "no non-local requests",
+   "observed": "none",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt / sitemap / canonical origin",
+   "method": "node platform/pages/served-copy.mjs (marisstella.app 403 through proxy)",
+   "command": "node platform/pages/served-copy.mjs rent-roll-delinquency-analyzer",
+   "expected": "no retired origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "On-time rate is 'the share of charges paid in full within the grace period'",
+   "method": "by hand: one charge paid on due day, one due yesterday (inside grace) unpaid",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/rent-roll/probe.mjs",
+   "expected": "1/1 decided charges on time (or 1/2 with the pending one disclosed)",
+   "observed": "0.5, the pending charge counted as not on time without a note",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:221",
+   "change": "x.daysLate <= b.max -> x.daysLate < b.max",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:255",
+   "change": "u.lateShare >= 0.5 -> u.lateShare > 0.5",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:203",
+   "change": "daysLate > grace -> daysLate >= grace",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:201",
+   "change": "days(x.paidOn, x.due) -> days(x.paidOn, x.due) - 1",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Negative amounts (credits, concessions, reversals) are made positive with Math.abs, so a -$100 credit is reported as $100 owed and a late charge.",
+   "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:168",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "high",
+   "what": "Payment-only rows (separate payment lines, the shape of most tenant-ledger exports) are not applied to any charge: collected stays $0, the charge stays unpaid and aged, and the payment shows as an 'overpayment'. The code comment says such rows 'still count as collected'; they do not. No warning is shown.",
+   "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:210",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "medium",
+   "what": "Unit alias list puts 'property' and 'address' before 'tenant', so a file with Property and Tenant columns (no Unit) merges every tenant of a building into one row.",
+   "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:15",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "medium",
+   "what": "Charge type is detected but never used: late-fee and other non-rent rows count as rent billed, go late themselves, and add a further fee to the late-fee upper bound.",
+   "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:19",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No payment application across charges (oldest-first), which residential ledgers use; balances carried between months are mis-aged.",
+   "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:196",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Aging bucket upper bound and the habitual-late 50% boundary are untested: seeded mutants (<= to <, >= to >) survive; the first drops charges exactly 30/60/90 days past due from the aging table.",
+   "where": "ventures/rent-roll-delinquency-analyzer/calc.test.mjs:39",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "low",
+   "what": "On-time rate denominator includes unpaid charges still inside the grace period and paid charges with no date, so a ledger read mid-grace understates on-time payment.",
+   "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:217",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Page says one row per charge 'works best' rather than stating that split charge/payment ledgers give wrong collected and owed figures.",
+   "where": "ventures/rent-roll-delinquency-analyzer/index.html:120",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"
+  },
+  {
+   "severity": "low",
+   "what": "Three copies of the whole-dollar formatter and the CSV parsed twice per analysis.",
+   "where": "ventures/rent-roll-delinquency-analyzer/calc.mjs:287",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18391"],
+ "verdict": "A tidy, private, browser-only delinquency report whose arithmetic is right on the input shape it asks for: a hand-built ledger and the page's worked example both match to the cent (owed 8,475; buckets 4,175/2,575/1,725; 12 late charges, $600 bound), the page loads with no errors or external requests, and the disclaimer and caveats are in place. It does not meet the bar. Real ledger exports break it quietly: a credit row is sign-flipped into money owed (calc.mjs:168), separate payment rows are booked as overpayments with 0% collected, a Property+Tenant file merges tenants, and late-fee rows are treated as rent. Two of four seeded mutants survive, including the 30/60/90 bucket boundary. Treating negative amounts as credits, applying payment-only rows to the unit's oldest open charge, reordering the unit aliases, and adding boundary tests would lift correctness and verification to 3."
+}

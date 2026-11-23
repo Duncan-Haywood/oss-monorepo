@@ -3,12 +3,20 @@
 // allowances, writing-down allowances), the best way to allocate the AIA, and
 // the tax it saves. Browser-only. Not tax advice.
 
-// Rates as understood for 2026/27. Verify on GOV.UK before relying on them.
+// Rates for 2026/27, checked 2026-11-23 against GOV.UK ("Capital allowances: new
+// first-year allowance and reducing main rate writing down allowances", Autumn
+// Budget 2025): main-pool writing-down allowance 14% from 1 April 2026 (companies)
+// and 6 April 2026 (income tax), was 18%; a 40% first-year allowance on new,
+// unused main-rate plant and machinery (not cars) from 1 January 2026, open to
+// unincorporated businesses. The later 12% / 50% change for April 2027 is not
+// modelled. Under CAA 2001 s58(5) the balance left after any first-year allowance
+// joins the pool only from the next period, so it gets no writing-down this year.
 export const RATES = {
   year: "2026/27",
   aia: 1000000,
-  mainWda: 0.18,
+  mainWda: 0.14,
   specialWda: 0.06,
+  fyaMain: 0.4,
   fyaSpecial: 0.5,
   smallPool: 1000,
 };
@@ -25,11 +33,11 @@ const money0 = (n) => "£" + Math.round(n).toLocaleString("en-GB");
 
 // Deduction per £1 of spend in year 1 when no AIA is used on it.
 function baseline(cat, isCompany) {
-  const { mainWda, specialWda, fyaSpecial } = RATES;
+  const { mainWda, specialWda, fyaMain, fyaSpecial } = RATES;
   switch (cat) {
-    case "mainNew": return isCompany ? 1 : mainWda;
+    case "mainNew": return isCompany ? 1 : fyaMain;
     case "mainUsed": return mainWda;
-    case "specialNew": return isCompany ? fyaSpecial + (1 - fyaSpecial) * specialWda : specialWda;
+    case "specialNew": return isCompany ? fyaSpecial : specialWda;
     case "specialUsed": return specialWda;
     default: return 0;
   }
@@ -40,7 +48,7 @@ const AIA_CATS = ["mainNew", "mainUsed", "specialNew", "specialUsed"];
 function poolWda(balance, rate, months) {
   if (balance <= 0) return 0;
   if (balance <= RATES.smallPool) return balance;
-  return balance * rate * Math.min(12, months) / 12;
+  return round2(balance * rate * Math.min(12, months) / 12);
 }
 
 // order: categories in the order the AIA is applied.
@@ -56,17 +64,19 @@ function claim(v, order) {
   }
   let fya = 0;
   const pool = { main: spend.mainBf, special: spend.specialBf };
+  // s58(5): what a first-year allowance leaves joins the pool next period.
+  const later = { main: 0, special: 0 };
   for (const c of ["mainNew", "mainUsed", "specialNew", "specialUsed", "carMain", "carSpecial"]) {
     let rest = spend[c] - (aiaUsed[c] || 0);
-    if (isCompany && c === "mainNew") { fya += rest; rest = 0; }
-    if (isCompany && c === "specialNew") { const f = rest * RATES.fyaSpecial; fya += f; rest -= f; }
+    const fyaRate = c === "mainNew" ? (isCompany ? 1 : RATES.fyaMain) : c === "specialNew" && isCompany ? RATES.fyaSpecial : 0;
+    if (fyaRate > 0) { const f = rest * fyaRate; fya += f; later[POOL_OF[c]] += rest - f; rest = 0; }
     pool[POOL_OF[c]] += rest;
   }
   const aiaTotal = Object.values(aiaUsed).reduce((a, b) => a + b, 0);
   const wdaMain = poolWda(pool.main, RATES.mainWda, v.months);
   const wdaSpecial = poolWda(pool.special, RATES.specialWda, v.months);
   const total = aiaTotal + fya + wdaMain + wdaSpecial;
-  return { aiaTotal, fya, wdaMain, wdaSpecial, total, carryMain: pool.main - wdaMain, carrySpecial: pool.special - wdaSpecial, aiaUsed };
+  return { aiaTotal, fya, wdaMain, wdaSpecial, total, carryMain: pool.main - wdaMain + later.main, carrySpecial: pool.special - wdaSpecial + later.special, aiaUsed };
 }
 
 export function compute(raw) {
@@ -80,6 +90,7 @@ export function compute(raw) {
   };
   v.months = num("months", "Accounting period (months)", 1);
   if (v.months > 18) errors.push("An accounting period cannot be longer than 18 months.");
+  if (String(raw.taxRate ?? "").trim() === "") errors.push("Tax rate is needed to work out the tax saved.");
   v.taxRate = num("taxRate", "Tax rate");
   if (v.taxRate > 100) errors.push("Tax rate must be a percentage up to 100.");
   v.profit = raw.profit === "" || raw.profit == null ? null : Number(raw.profit);
@@ -113,11 +124,11 @@ export function compute(raw) {
   const findings = [];
   const aiaCap = RATES.aia * Math.min(12, v.months) / 12;
   const carSpend = v.carMain + v.carSpecial;
-  if (carSpend > 0) findings.push({ severity: "medium", title: `${money0(carSpend)} on cars gets no Annual Investment Allowance: it goes into a pool at 18% or 6% a year. Check whether a zero-emission car qualifies for a first-year allowance for your period.` });
-  if (!isCompany && v.mainNew + v.specialNew > 0) findings.push({ severity: "info", title: "Full expensing and the 50% special-rate allowance are for companies only. Sole traders and partnerships rely on the AIA, then 18% / 6% writing-down." });
+  if (carSpend > 0) findings.push({ severity: "medium", title: `${money0(carSpend)} on cars gets no Annual Investment Allowance: it goes into a pool at 14% or 6% a year. Check whether a zero-emission car qualifies for a first-year allowance for your period.` });
+  if (!isCompany && v.mainNew + v.specialNew > 0) findings.push({ severity: "info", title: "Full expensing and the 50% special-rate allowance are for companies only. Sole traders and partnerships get the AIA, then a 40% first-year allowance on new main-rate equipment (not cars) from 1 January 2026, then 14% / 6% writing-down." });
   if (aiaCap < RATES.aia) findings.push({ severity: "info", title: `The AIA is scaled to ${v.months} months: ${money0(aiaCap)} for this period.` });
   const eligible = AIA_CATS.reduce((a, c) => a + v[c], 0);
-  if (eligible > aiaCap) findings.push({ severity: "high", title: `Eligible spend of ${money0(eligible)} is above your AIA of ${money0(aiaCap)}: the excess gets only ${isCompany ? "full expensing / pool allowances" : "18% or 6% a year"}.` });
+  if (eligible > aiaCap) findings.push({ severity: "high", title: `Eligible spend of ${money0(eligible)} is above your AIA of ${money0(aiaCap)}: the excess gets only ${isCompany ? "full expensing / pool allowances" : "the 40% first-year allowance (new main-rate equipment) or 14% / 6% a year"}.` });
   const gainOrder = round2(opt.total - nav.total);
   if (gainOrder > 1) findings.push({ severity: "high", title: `Putting the AIA on the right items first adds ${money0(gainOrder)} to this year's deduction compared with using it in the order you listed the categories.` });
   if (v.mainUsed + v.specialUsed > 0) findings.push({ severity: "info", title: "Second-hand items are eligible for the AIA but not for full expensing or first-year allowances, so the AIA is best spent on them first." });
@@ -128,7 +139,7 @@ export function compute(raw) {
     { title: "Claim in your return", why: isCompany ? "Allowances are claimed in the company tax return (CT600) computations. You can claim less than the maximum." : "Allowances are claimed in the self-employment or partnership pages of the Self Assessment return. You can claim less than the maximum." },
     { title: "Keep invoices and dates", why: "HMRC can ask for the invoice, the date the item was bought and what it is used for. Mixed private use means a restricted claim." },
     { title: "Disposals", why: "Selling an item later can create a balancing charge or allowance. This tool does not model it." },
-    { title: "Check the rates", why: `Rates here are ${RATES.year} and were entered from memory. Confirm on GOV.UK before filing.` },
+    { title: "Check the rates", why: `Rates here are ${RATES.year}, checked against GOV.UK on 2026-11-23: main pool 14% from April 2026 (18% before), 40% first-year allowance from 1 January 2026. A company period that straddles 1 April 2026 needs a time-apportioned hybrid rate, which this tool does not work out. Confirm on GOV.UK before filing.` },
   ];
 
   return {

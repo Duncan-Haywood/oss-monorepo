@@ -1,6 +1,6 @@
 # ambient-ips: does inverse-propensity weighting fix an always-on assistant that learns from its own accept/dismiss feedback?
 
-Track 2 (ambient AI assistant), follow-up to `ambient-bandit`. In that project the assistant refit its model only on windows where it had spoken, a non-random sample. Here the policy speaks with a *known* probability in every window, and each labelled window is weighted by 1/probability. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. The main results are negative or conditional.
+Track 2 (ambient AI assistant), follow-up to `ambient-bandit`. In that project the assistant refit its model only on windows where it had spoken, a non-random sample. Here the policy speaks with a *known* probability in every window, and each labelled window is weighted by 1/probability. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. The main results are negative or conditional. Corrected 2026-11-23: the uninformed-prior and drift failures first reported were a solver divergence (see Results).
 
 **Live page:** https://marisstella.app/research/ambient-ips/
 
@@ -24,33 +24,37 @@ World, features, costs (+3 accept, &minus;1 dismiss, &minus;2 when others talk),
 
 ```bash
 cd research/ambient-ips
-PYTHONPATH=src python3 -m pytest -q tests       # 5 tests
+PYTHONPATH=src python3 -m pytest -q tests       # 6 tests
 PYTHONPATH=src python3 experiments/run.py       # about 200 s, writes experiments/results.txt
 ```
 
 ## Results (all from `experiments/results.txt`; utility per hour, mean &plusmn; std over 20 seeds; oracle 12.71)
 
+**Corrected 2026-11-23** (quality audit round 104, `portfolio/quality/audits/2026-11-23-ambient-ips.json`). The first version used undamped Newton steps in `fit_map`; 9 of the 24 hour-100 fits never converged (objective 450 to 380,000 times the minimum), all six uninformed unweighted cells and three IPS cells among them. That divergence, not the weighting, produced the "uninformed-prior failure" and the drift "worst row" reported before. The fit now uses the damped Newton of `ambient-fullinfo` (PR #18259) and the table is rerun with the same seeds. Results 1 and 4 changed; 2 and 3 held.
+
 | prior | &epsilon; | weighting | online h 20&ndash;100 | dismissals/h | model @100 h, no exploration |
 |---|---|---|---|---|---|
-| uninformed | 0.002 | none | &minus;1.74 &plusmn; 2.06 | 5.5 | 1.59 &plusmn; 5.70 |
-| uninformed | 0.002 | ips | &minus;19.34 &plusmn; 35.15 | 26.3 | &minus;24.77 &plusmn; 52.88 |
-| uninformed | 0.005 | none | &minus;2.04 &plusmn; 1.19 | 5.8 | &minus;0.15 &plusmn; 6.29 |
-| uninformed | 0.005 | ips | &minus;26.27 &plusmn; 35.52 | 34.8 | &minus;26.89 &plusmn; 57.89 |
-| uninformed | 0.020 | none | &minus;23.27 &plusmn; 3.06 | 24.0 | &minus;13.08 &plusmn; 8.66 |
-| uninformed | 0.020 | ips | &minus;30.53 &plusmn; 44.04 | 40.3 | &minus;10.87 &plusmn; 57.61 |
+| uninformed | 0.002 | none | 9.65 &plusmn; 0.88 | 9.8 | 10.63 &plusmn; 0.77 |
+| uninformed | 0.002 | ips | 7.79 &plusmn; 3.74 | 8.2 | 9.62 &plusmn; 3.33 |
+| uninformed | 0.005 | none | 8.48 &plusmn; 0.88 | 10.6 | 10.85 &plusmn; 0.79 |
+| uninformed | 0.005 | ips | 8.13 &plusmn; 1.71 | 7.7 | 10.73 &plusmn; 1.80 |
+| uninformed | 0.020 | none | 2.65 &plusmn; 0.88 | 14.8 | 11.44 &plusmn; 0.78 |
+| uninformed | 0.020 | ips | 3.17 &plusmn; 1.03 | 12.3 | 12.25 &plusmn; 0.50 |
 | informed | 0.002 | none | 9.65 &plusmn; 0.89 | 9.8 | 10.62 &plusmn; 0.77 |
-| informed | 0.002 | ips | 4.46 &plusmn; 13.64 | 10.1 | 6.74 &plusmn; 14.03 |
+| informed | 0.002 | ips | 7.81 &plusmn; 3.72 | 8.2 | 9.62 &plusmn; 3.36 |
 | informed | 0.005 | none | 8.50 &plusmn; 0.90 | 10.6 | 10.84 &plusmn; 0.81 |
-| informed | 0.005 | ips | 6.29 &plusmn; 8.91 | 8.8 | 10.63 &plusmn; 1.96 |
+| informed | 0.005 | ips | 8.18 &plusmn; 1.64 | 7.7 | 10.75 &plusmn; 1.79 |
 | informed | 0.020 | none | 2.67 &plusmn; 0.89 | 14.8 | 11.42 &plusmn; 0.77 |
 | informed | 0.020 | ips | 3.16 &plusmn; 1.03 | 12.4 | 12.23 &plusmn; 0.52 |
 
-Drift (d&prime; 2 &rarr; 1 at hour 50, informed prior, &epsilon; = 0.005), utility per hour over hours 50&ndash;100: stale offline weights 4.38 &plusmn; 0.66; post-drift oracle 5.63 &plusmn; 0.69; online unweighted &minus;0.91 &plusmn; 0.69 (with a 20 h memory &minus;0.26 &plusmn; 0.35); online IPS 0.68 &plusmn; 3.57 (with a 20 h memory &minus;7.79 &plusmn; 13.85).
+Drift (d&prime; 2 &rarr; 1 at hour 50, informed prior, &epsilon; = 0.005), utility per hour over hours 50&ndash;100: stale offline weights 4.38 &plusmn; 0.66; post-drift oracle 5.63 &plusmn; 0.69; online unweighted &minus;0.91 &plusmn; 0.69 (with a 20 h memory &minus;0.26 &plusmn; 0.35); online IPS 1.34 &plusmn; 1.35 (with a 20 h memory &minus;0.18 &plusmn; 2.16).
 
-1. **IPS did not fix the uninformed-prior failure.** Online utility is at or below zero in all six uninformed rows, and the weighted versions are far more variable (std 35 to 44 against 1 to 3). A plausible cause is the weights: at &epsilon; = 0.002 an explored window counts 500 times, so a handful of labelled windows dominate the fit. A 4-seed exploratory run with weights clipped at 20 (not in `experiments/run.py`, not reported in the table) did not help either, but I did not explore clipping levels or self-normalisation.
-2. **Exploration costs more than it teaches, in this world.** With an informed prior, the unweighted online policy earns most at the smallest &epsilon; (9.65 at 0.002 against 2.67 at 0.02), although the model it learns is no better at 0.02 (11.42 against 10.62). A likely reason, not tested further: at &epsilon; = 0.02 about 7 of the 360 hourly windows are explored and nearly all of them are dismissed.
-3. **Only one cell favours IPS.** With the informed prior and &epsilon; = 0.02 the weighted model is closer to the oracle (12.23 &plusmn; 0.52 against 11.42 &plusmn; 0.77 at 100 h), and its online utility is similar (3.16 against 2.67). Both are far below the 9.65 of the unweighted &epsilon; = 0.002 policy, so a deployed assistant would not choose this setting. I ran 12 cells and did not correct for multiple comparisons; treat this as suggestive, not established. That the unweighted model is near the oracle at all suggests the selection bias matters little with these features, but I did not test that directly.
-4. **Drift (negative).** Neither weighting nor a 20 h memory brings the bandit near the stale offline weights (4.38). IPS with memory is the worst row (&minus;7.79 &plusmn; 13.85), consistent with weights on a short window being very noisy. I did not find out why the unweighted bandit is also below stale weights, a result inherited from `ambient-bandit`.
+1. **There is no uninformed-prior failure once the fit converges.** Every uninformed row is within 0.05 of the matching informed row; 100 hours of data swamp the prior. The earlier finding that IPS "did not fix" it was a solver artifact. What remains is the known inverse-propensity trade-off: at &epsilon; = 0.002 an explored window counts 500 times, and the weighted online utility is lower and noisier (7.79 &plusmn; 3.74 against 9.65 &plusmn; 0.88).
+2. **Exploration costs more than it teaches, in this world.** The unweighted online policy earns most at the smallest &epsilon; (9.65 at 0.002 against 2.67 at 0.02), although the model it learns is better at 0.02 (11.42 against 10.62). A likely reason, not tested further: at &epsilon; = 0.02 about 7 of the 360 hourly windows are explored and nearly all of them are dismissed.
+3. **Weighting helps the learned model only at the largest &epsilon;.** At &epsilon; = 0.02 the weighted model is closer to the oracle (12.23 &plusmn; 0.52 against 11.42 &plusmn; 0.77 at 100 h, either prior), with similar online utility (3.16 against 2.67), both far below the 9.65 of the unweighted &epsilon; = 0.002 policy. 12 cells, no multiple-comparison correction: suggestive, not established. The selection bias is real: `ambient-fullinfo` measured the unweighted fit losing 1.3 to 2.1 utility per hour against a full-information fit.
+4. **Drift (negative).** Neither weighting nor a 20 h memory brings the bandit near the stale offline weights (4.38). IPS without memory is the best online row (1.34 &plusmn; 1.35); with a 20 h memory it is &minus;0.18 &plusmn; 2.16, no worse than unweighted (&minus;0.26). Why every online variant is below the stale weights is not explained here.
+
+**Prior work this reproduces rather than extends.** Asking for a label with a known probability and weighting it by the inverse is importance-weighted active learning (Beygelzimer, Dasgupta and Langford, "Importance weighted active learning", ICML 2009) and learning from logged bandit feedback (Strehl, Langford, Li and Kakade, "Learning from logged implicit exploration data", NeurIPS 2010; Swaminathan and Joachims, "Counterfactual risk minimization", JMLR 2015). The variance at small &epsilon; is the known cost of those estimators, and truncated weights (Ionides, "Truncated importance sampling", JCGS 2008) are the standard remedy, not evaluated here. Citations from bibliographic memory, checked against nothing in this session.
 
 ## Limitations
 
@@ -62,7 +66,6 @@ Drift (d&prime; 2 &rarr; 1 at hour 50, informed prior, &epsilon; = 0.005), utili
 ## Next steps
 
 - Clipped, self-normalised and doubly robust weights, and a decaying &epsilon;, at equal exploration cost.
-- Test directly whether the selection bias hurts: compare the weighted and unweighted fits to the full-information fit on the same labelled windows.
 - Real accept/dismiss logs, if the owner opts in to collecting them.
 
 ## Outside dependencies

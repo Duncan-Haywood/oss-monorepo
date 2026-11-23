@@ -12,7 +12,7 @@ export const CHRONIC_MIN_CHARGES = 3;
 
 const ALIASES = {
   due: ["due date", "charge date", "date due", "rent due", "period", "month", "due", "date", "posted", "posting date"],
-  unit: ["unit", "unit number", "unit #", "apt", "apartment", "property", "address", "tenant", "tenant name", "resident", "renter", "lease", "name"],
+  unit: ["unit", "unit number", "unit #", "apt", "apartment", "tenant", "tenant name", "resident", "renter", "lease", "property", "address", "name"],
   amount: ["amount due", "rent due amount", "charge amount", "charged", "rent amount", "monthly rent", "rent charged", "billed", "charge", "rent", "due amount", "amount"],
   paid: ["amount paid", "paid amount", "payment amount", "payments", "received", "collected", "payment", "paid"],
   paidOn: ["date paid", "paid date", "payment date", "paid on", "received date", "date received", "deposit date", "cleared"],
@@ -133,7 +133,9 @@ const days = (a, b) => Math.round((a - b) / DAY);
 // Returns { items, skipped, columns, dmy, error }. An item is
 // { line, unit, due, amount, paid, paidOn } with amounts in dollars, positive.
 // A row with no amount but a payment is a payment-only line and is kept with
-// amount 0 so the money still counts as collected.
+// amount 0; a negative amount (a credit or concession) becomes the same kind of
+// line, money in rather than money owed. analyze() applies both to the unit's
+// oldest unpaid charge, the way a residential ledger applies payments.
 export function normalizeRows(table, { decimalComma = false } = {}) {
   const empty = { items: [], skipped: [], columns: {}, dmy: false };
   if (!table.length) return { ...empty, error: "The file is empty." };
@@ -165,7 +167,8 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     const paidRaw = get(line, "paidOn");
     const paidOn = isBlank(paidRaw) ? null : parseWhen(paidRaw, dmy);
     if (!isBlank(paidRaw) && !paidOn) { skipped.push({ line: lineNo, reason: "paid date not readable" }); continue; }
-    items.push({ line: lineNo, unit, due: due.t, amount: r2(Math.abs(amount)), paid: r2(Math.max(paid, 0)), paidOn: paidOn ? paidOn.t : null });
+    const credit = amount < 0;
+    items.push({ line: lineNo, unit, due: due.t, amount: credit ? 0 : r2(amount), paid: r2(Math.max(paid, 0) + (credit ? -amount : 0)), paidOn: paidOn ? paidOn.t : credit ? due.t : null, ...(credit ? { credit: true } : {}) });
   }
   if (!items.length) return { ...empty, skipped, columns: cols, dmy, error: "No charges could be read from the file. " + (skipped.length ? `${skipped.length} row(s) were skipped (first: line ${skipped[0].line}, ${skipped[0].reason}).` : "") };
   return { items, skipped, columns: cols, dmy };
@@ -191,9 +194,10 @@ export function analyze(rawItems, { asOf = null, graceDays = DEFAULT_GRACE_DAYS,
   // A payment dated after the as-of day had not happened yet on that day.
   const due = rawItems.filter((x) => x.due <= asOfT).map((x) => (x.paidOn !== null && x.paidOn > asOfT ? { ...x, paid: 0, paidOn: null } : x));
   if (!due.length) return { invalid: "No charges fall due on or before the date you chose." };
+  const loose = applyLoosePayments(due);
 
   // One record per charge: what is still owed, and how late it was paid or is.
-  const rows = due.map((x) => {
+  const rows = loose.items.map((x) => {
     const owed = r2(Math.max(x.amount - x.paid, 0));
     const over = r2(Math.max(x.paid - x.amount, 0));
     const paidInFull = x.amount > 0 && x.paid >= x.amount;
@@ -267,6 +271,7 @@ export function analyze(rawItems, { asOf = null, graceDays = DEFAULT_GRACE_DAYS,
   if (chronic.length) findings.push({ severity: "medium", title: `Habitually late: ${chronic.map((u) => u.label).join(", ")}`, detail: chronic.map((u) => `${u.label}: late on ${u.lateCount} of ${u.charges} charges (more than ${grace} day${grace === 1 ? "" : "s"} after due), averaging ${u.avgDaysLate.toFixed(1)} days`).join("; ") + `. A unit needs ${minCharges} late payments and half its charges late to be listed.` });
   if (lateRows.length && fee > 0) findings.push({ severity: "info", title: `${lateRows.length} charge${lateRows.length === 1 ? "" : "s"} paid late or still unpaid past the ${grace}-day grace, worth ${usd(lateFeesAllowed)} at a ${usd(fee)} fee`, detail: `An upper bound: it assumes your lease gives a flat ${usd(fee)} fee after ${grace} days and that local law permits it. Many places cap late fees, require a longer grace period, or forbid them, and a fee already charged is not in this file, so it is not netted off. Check before billing.` });
   if (partialCount) findings.push({ severity: "info", title: `${partialCount} charge${partialCount === 1 ? "" : "s"} paid in part`, detail: `${usd(rows.filter((x) => x.partial).reduce((s, x) => s + x.owed, 0))} is still owed on them. Whether accepting a part-payment affects a notice you have served depends on where you are; ask before you deposit one.` });
+  if (loose.rows) findings.push({ severity: "info", title: `${loose.rows} payment or credit row${loose.rows === 1 ? "" : "s"} applied to the oldest unpaid charges`, detail: `${usd(loose.amount)} on rows with no charge of their own was applied to the same unit's unpaid charges, oldest due date first, in payment-date order. A charge counts as paid on the date of the payment that cleared it.` });
   if (total.overpaid > 0) findings.push({ severity: "info", title: `${usd(total.overpaid)} was paid over what was charged`, detail: "Overpayments are not netted against other charges; they may be a prepayment or a wrong amount entered. They are shown here so the collected figure is not overstated." });
   if (undated) findings.push({ severity: "medium", title: "No payment dates were found", detail: "Without a Date Paid column, a paid charge's lateness is unknown, so on-time rates and habitually-late units cannot be worked out. Balances and aging are still correct." });
   if (total.owed === 0) findings.push({ severity: "info", title: "Nothing is owed as of " + dateStr(asOfT), detail: "Every charge that fell due on or before that date is paid in full." });
@@ -275,6 +280,36 @@ export function analyze(rawItems, { asOf = null, graceDays = DEFAULT_GRACE_DAYS,
     rows, byUnit, byMonth, aging, current, findings, chronic, withOwed,
     summary: { ...total, from: Math.min(...rows.map((x) => x.due)), to: asOfT, units: byUnit.length, agedTotal: r2(agedTotal), late: lateRows.length, lateFeesAllowed, grace, fee, partials: partialCount },
   };
+}
+
+// Payment-only and credit rows (amount 0, paid > 0) carry money not tied to a
+// charge: most ledgers export charges and payments on separate rows. Apply that
+// money to the same unit's open charges, oldest due date first, taking payments
+// in date order; a charge cleared by one is paid on that payment's date. Money
+// left over stays on its row and shows as overpaid.
+function applyLoosePayments(list) {
+  const items = list.map((x) => ({ ...x }));
+  const units = new Map();
+  for (const x of items) { const k = norm(x.unit); (units.get(k) ?? units.set(k, []).get(k)).push(x); }
+  let rows = 0, amount = 0;
+  for (const group of units.values()) {
+    const payments = group.filter((x) => x.amount === 0 && x.paid > 0).sort((a, b) => (a.paidOn ?? a.due) - (b.paidOn ?? b.due));
+    const open = group.filter((x) => x.amount > 0 && x.paid < x.amount).sort((a, b) => a.due - b.due);
+    for (const p of payments) {
+      const when = p.paidOn ?? p.due;
+      const before = p.paid;
+      for (const c of open) {
+        if (p.paid <= 0) break;
+        const take = Math.min(r2(c.amount - c.paid), p.paid);
+        if (take <= 0) continue;
+        c.paid = r2(c.paid + take);
+        p.paid = r2(p.paid - take);
+        if (c.paid >= c.amount) c.paidOn = c.paidOn === null ? when : Math.max(c.paidOn, when);
+      }
+      if (p.paid < before) { rows++; amount += before - p.paid; }
+    }
+  }
+  return { items: items.filter((x) => x.amount > 0 || x.paid > 0), rows, amount: r2(amount) };
 }
 
 export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");

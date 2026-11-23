@@ -59,3 +59,12 @@ def test_informed_ips_learns_most_of_oracle():
     _, _, _, snap = run_online(wd, d, np.random.default_rng(8), eps=0.02, prior_w=INFORMED_W)
     held = simulate(wd, 100, np.random.default_rng(9))
     assert run_fixed(wd, held, snap[60]).sum() > 0.7 * run_fixed(wd, held, wo).sum()
+
+
+def test_fit_converges_from_uninformed_prior():
+    # quality round 103: undamped Newton left this fit 163 from the prior mean, far
+    # outside any MAP's reach; a converged fit sits near it
+    wd = World()
+    d = simulate(wd, 100, np.random.default_rng(1000))
+    snap = run_online(wd, d, np.random.default_rng(0), eps=0.002, weighting="none", prior_w=PRIOR_W)[3]
+    assert np.linalg.norm(snap[100] - PRIOR_W) < 10
