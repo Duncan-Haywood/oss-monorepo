@@ -394,13 +394,13 @@ flagships:
       tournament. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs flighted play-offs,
       golf-league-schedule.html): tee times at share in 71 of 77 seasons, other 6
       SAT-proved out (eval/golf-tee-grid.txt); next: a real league's season. Box
-      leagues 2026-11-21 (boxleague.mjs); next: a real club's month. Practice slots
-      on shared fields 2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima,
-      eval/practice-exact.txt); ChessHouse r8 bye fixed 2026-11-23 (weighed in its
-      bracket, byes 40/42); next: a real club's TRF. calc.mjs split 2026-11-23,
-      pages 67-93% lighter; multi-division 217 to 75 kB; main page 226 to 110 kB,
-      searches loaded on demand (eval/page-weight.txt). More: NEXT.md. More open
-      items: NEXT.md.
+      leagues 2026-11-21 (boxleague.mjs); next: a real club's month. ChessHouse r8
+      bye fixed 2026-11-23 (weighed in its bracket, byes 40/42); next: a real club's
+      TRF (GitHub search 2026-11-23: only test fixtures). Bowling 22-28 teams
+      2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
+      open in NEXT.md. calc.mjs split 2026-11-23, pages 67-93% lighter;
+      multi-division 217 to 75 kB; main page 226 to 110 kB, searches loaded on
+      demand (eval/page-weight.txt). More: NEXT.md. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed

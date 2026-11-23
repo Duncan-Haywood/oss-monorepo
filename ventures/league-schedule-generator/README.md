@@ -20,7 +20,51 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## The main page loads half the code: the season searches arrive only when a season asks (2026-11-23, newest)
+## Big bowling leagues: 24 teams over 36 weeks from 26 counts off an even lane split to 4 (2026-11-23, newest)
+
+A bowling league with 22 to 28 teams is common, and so is a 33- to 36-week season. Those were exactly
+the seasons the bowling page's lane search left furthest from an even split, and where the stored SAT
+answers stopped: 25 seasons of 22 to 28 teams had "no answer in 420 s" or were never run
+(`eval/bowling-lane-table.txt`). On a 24-team, 36-week season the page ended 26 counts outside
+"every team bowls every pair 3 times" (a team on one pair 2 times and another 4).
+
+- **A tabu search in C** (`eval/bowling-lane-tabu.c`): one lane-pair permutation per week; a move swaps
+  the pairs of two matches in one week (4 teams, 2 pairs, scored in O(1)); the cost is the total
+  out-of-bounds count; tabu on (week, match, pair) with aspiration, and a shake of a few weeks when it
+  stalls. It starts from the page's own plan (`eval/bowling-lane-start.mjs`). Two rounds, 120 s and 300 s
+  a season on 4 cores.
+- **The count model** (`eval/bowling-count-model.py`, CP-SAT) now takes a hint (`HINT=` a tabu answer,
+  renamed so week 1 is the identity the model fixes). Hinted, it solved 22 x 34 in 40 s; the other 23
+  timed out at 90 s, and it re-proved 28 x 14 impossible (a P-week season, already in `bowling-proofs.mjs`).
+- **Two seasons now at the bound**, stored in `bowling-lane-table.mjs`: 28 x 12 (tabu) and 22 x 34
+  (count model).
+- **Fifteen seasons closer than the page gets**, stored in a new `bowling-lane-near.mjs`
+  (`{ off, page, code }`, 5.6 kB). `assignLanes` starts its polish from the stored plan when there is no
+  answer at the bound and no lane limits (`nearPlan`: a permutation every week and no further off than
+  recorded, relabelled by the seed like the table, so a stale entry costs speed, never balance), then
+  walks and cuts repeats as before.
+
+| teams x weeks | page before | page now |
+|---|---|---|
+| 24 x 24 | 30 | **4** |
+| 24 x 36 | 26 | **4** |
+| 26 x 26 | 32 | **10** |
+| 28 x 28 | 40 | **16** |
+| 22 x 33 | 18 | **6** |
+| 26 x 39 | 30 | **14** |
+| 28 x 14 | 44 | **32** (proved: 0 is impossible) |
+| 26 x 38, 24 x 23, 22 x 21, 22 x 10 | 4, 3, 2, 2 | **1** each |
+| 28 x 12, 22 x 34 | 1, 1 | **0** |
+
+Over the 17 seasons, 251 counts off before and 103 now, the same on seeds 1 and 2, 0.5 to 1.3 s a
+season in Node (`node eval/bowling-lane-near-check.mjs`, `eval/bowling-lane-near.txt`). Eight seasons
+(24 x 25, 24 x 37, 26 x 14, 26 x 27, 26 x 40, 28 x 15, 28 x 27, 28 x 29) did not move: the
+tabu search ended where the page does. Whether 1 off is the least for 22 x 10, 22 x 21, 24 x 23 and
+26 x 38 is open: neither solver proved it either way. `bowling.test.mjs` checks every stored near
+entry (a permutation each week, exactly as far off as recorded, below its `page` figure) and that the
+page builds no worse than it on seeds 1 and 2.
+
+## The main page loads half the code: the season searches arrive only when a season asks (2026-11-23)
 
 The single-league page (`index.html`) is the one most visitors land on, and it was the last heavy one:
 226 kB gzip of modules before the first click. About half of that was code a plain round robin never runs:
