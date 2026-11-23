@@ -569,11 +569,9 @@ flagships:
       P6 XML read and to XER 2026-11-23 (pmxml.mjs, eval/pmxml-2026-11-23.md:
       21,441/21,441 same schedule); next a P6 import of one, a large real P6 XML
       export. Expenses <-> cost resources and fixed costs 2026-11-21 next a
-      P6-written XER with expenses, a P6 import (category by name?). Finish-date
-      UDFs <-> Project Finish fields, Start/Finish fields read 2026-11-22
-      (eval/finish-udfs-2026-11-22.md: 120/120 Project values, CCA 182/182); next: a
-      P6 import of the result. next a real scheduler's read. Levelling on P6
-      resource curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md); next a
+      P6-written XER with expenses, a P6 import (category by name?). next: a P6
+      import of the result. next a real scheduler's read. Levelling on P6 resource
+      curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md); next a
       P6-levelled file with a curve. branches in TIA 2026-11-22 , next a real TIA
       exhibit with alternatives. (15) next a commercial drag run, real crash rates.
       (16) next a real schedule with its GAO assessment. (17) Collapsed as-built,
@@ -586,7 +584,9 @@ flagships:
       eval/redundant-logic-2026-11-23.md); next an Acumen Fuse count on one file, a
       P6 import of the cleaned XER. (20) Calendar review 2026-11-23 (calreview.mjs,
       eval/calendar-review-2026-11-23.md); next a real P6 reschedule with holidays
-      extended. More: NEXT.md.
+      extended. (21) Progress review 2026-11-23 (progress.mjs,
+      eval/progress-review-2026-11-23.md); next a real pay-app review's list. More:
+      NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

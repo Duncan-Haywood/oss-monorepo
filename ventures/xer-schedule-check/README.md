@@ -981,6 +981,26 @@ On a public file P6 itself wrote (EC00850, 33 activities, 24 assignments), 32 / 
 early start, early finish and late finish equal P6's stored dates. Not yet: a P6 import of a
 converted file, a large real P6 XML export. Guide: `how-to-convert-p6-xml-to-xer.html`.
 
+## Progress review: does the claimed percent match the dates? (2026-11-23)
+
+`progress.mjs`, `--progress [--csv progress.csv] [--ahead-points 30] [--rate-factor 1.5]
+[--overrun-factor 1.5]`, and the page's **Review progress**: P6 keeps a physical or units percent
+complete apart from the remaining duration that sets the forecast finish, so an update can claim
+80% a quarter of the way through an activity's time, or 20% after a month while promising to
+finish next week. Per activity (working days on its own calendar from actual start to the data
+date), it lists progress claimed 30+ points ahead of the share of time spent; remaining durations
+shorter than a straight line at the pace so far (1.5 times and 5 working days); work started 5+
+days with 0%; activities forecast at 1.5 times their original duration; in-progress work with no
+remaining duration or at 100%; progress on work not started; finished work left below 100%
+physical. The pace checks apply to physical and units percent only (a duration percent is the
+durations). An owner's reviewer reads this before approving a pay application on the update.
+
+Checked (eval/progress-review-2026-11-23.md, `eval/progress-check.mjs`): on the public hospital
+file, 1,628 of 2,495 activities in progress keep a remaining duration shorter than their units pace
+(median 72 working days early) and 62 are in progress with no remaining duration; 230 of 230
+planted defects named with their kind on three seeds, with no unplanted activity's flags changed.
+The thresholds are review conventions, not a standard, and are options.
+
 ## Redundant logic: links that can never drive (2026-11-23)
 
 `redundant.mjs`, `--redundant [--csv links.csv] [--cleaned out.xer] [--include-check]`, and the
@@ -1689,6 +1709,8 @@ values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule ou
 
 ## Files
 
+`progress.mjs` is the progress review (`progressReview`, `progressText`, `progressCsv`,
+`progressTableHtml`); `eval/progress-check.mjs` plants progress defects in the public files.
 `calreview.mjs` is the calendar review (`calendarReview`, `calendarText`, `calendarCsv`,
 `calendarTableHtml`); `eval/calendar-review-check.mjs` plants calendar faults in the public files.
 `samples/make-example.mjs` writes `example.mjs`, an invented office fit-out

@@ -1,0 +1,154 @@
+{
+  "files": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "checked": 15849,
+      "active": 2495,
+      "flagged": 1855,
+      "overclaimed": 2,
+      "optimistic": 1628,
+      "stalled": 0,
+      "overrun": 1434,
+      "zero-remaining": 62,
+      "full-not-finished": 0,
+      "progress-unstarted": 0,
+      "finished-short": 0,
+      "byType": {
+        "CP_Phys": 281,
+        "CP_Units": 15349,
+        "CP_Drtn": 219
+      }
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "checked": 823,
+      "active": 0,
+      "flagged": 0,
+      "overclaimed": 0,
+      "optimistic": 0,
+      "stalled": 0,
+      "overrun": 0,
+      "zero-remaining": 0,
+      "full-not-finished": 0,
+      "progress-unstarted": 0,
+      "finished-short": 0,
+      "byType": {
+        "CP_Phys": 480,
+        "CP_Units": 0,
+        "CP_Drtn": 343
+      }
+    },
+    {
+      "file": "example_xer_file.xer",
+      "checked": 425,
+      "active": 21,
+      "flagged": 15,
+      "overclaimed": 0,
+      "optimistic": 7,
+      "stalled": 8,
+      "overrun": 2,
+      "zero-remaining": 0,
+      "full-not-finished": 0,
+      "progress-unstarted": 0,
+      "finished-short": 0,
+      "byType": {
+        "CP_Phys": 425,
+        "CP_Units": 0,
+        "CP_Drtn": 0
+      }
+    },
+    {
+      "file": "hotel-project.xer",
+      "checked": 4236,
+      "active": 0,
+      "flagged": 0,
+      "overclaimed": 0,
+      "optimistic": 0,
+      "stalled": 0,
+      "overrun": 0,
+      "zero-remaining": 0,
+      "full-not-finished": 0,
+      "progress-unstarted": 0,
+      "finished-short": 0,
+      "byType": {
+        "CP_Phys": 0,
+        "CP_Units": 0,
+        "CP_Drtn": 4236
+      }
+    },
+    {
+      "file": "sample.xer",
+      "checked": 42,
+      "active": 0,
+      "flagged": 0,
+      "overclaimed": 0,
+      "optimistic": 0,
+      "stalled": 0,
+      "overrun": 0,
+      "zero-remaining": 0,
+      "full-not-finished": 0,
+      "progress-unstarted": 0,
+      "finished-short": 0,
+      "byType": {
+        "CP_Phys": 0,
+        "CP_Units": 0,
+        "CP_Drtn": 42
+      }
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "checked": 66,
+      "active": 0,
+      "flagged": 0,
+      "overclaimed": 0,
+      "optimistic": 0,
+      "stalled": 0,
+      "overrun": 0,
+      "zero-remaining": 0,
+      "full-not-finished": 0,
+      "progress-unstarted": 0,
+      "finished-short": 0,
+      "byType": {
+        "CP_Phys": 0,
+        "CP_Units": 0,
+        "CP_Drtn": 66
+      }
+    }
+  ],
+  "plants": {
+    "planted": 230,
+    "found": 230,
+    "byKind": {
+      "optimistic": {
+        "planted": 32,
+        "found": 32
+      },
+      "finished-short": {
+        "planted": 47,
+        "found": 47
+      },
+      "progress-unstarted": {
+        "planted": 33,
+        "found": 33
+      },
+      "zero-remaining": {
+        "planted": 28,
+        "found": 28
+      },
+      "stalled": {
+        "planted": 29,
+        "found": 29
+      },
+      "full-not-finished": {
+        "planted": 29,
+        "found": 29
+      },
+      "overclaimed": {
+        "planted": 32,
+        "found": 32
+      }
+    },
+    "misses": [],
+    "changedUnplanted": 0
+  }
+}
