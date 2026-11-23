@@ -3,7 +3,7 @@ title: "The wall framing takeoff now loads a third faster"
 seo_title: "Wall Framing Takeoff loads 33% faster on a slow phone"
 date: 2026-11-23
 tags: [performance, wall-framing-takeoff, web]
-description: "Most of the page's code was for roofs, decks, stairs and finishes that the example house doesn't use. Loading each part the first time a plan needs it cut the page from 244 to 100 kB and a throttled load from 2.5 s to 1.7 s."
+description: "Code for roofs, decks and stairs now loads when a plan needs it: the page fell from 244 to 100 kB and a throttled load from 2.5 s to 1.7 s."
 ---
 
 The [Wall Framing Takeoff](../../ventures/wall-framing-takeoff/) turns a list
