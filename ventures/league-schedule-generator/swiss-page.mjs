@@ -69,14 +69,16 @@ export function roundResultLines(players, round, results, roundNumber) {
 /**
  * Pair the next round of an event. Returns { round, roundNumber, totalRounds, standings, notes,
  * parsed } or { error }. `seedOrder` (default true) pairs each score group in starting order, as
- * the Dutch rules do; false orders by Buchholz, then Sonneborn-Berger.
+ * the Dutch rules do; false orders by Buchholz, then Sonneborn-Berger. `initialColour` ("W" or "B")
+ * is the colour drawn for the top seed in round 1 (FIDE C.04.3 E.5); it also settles later boards
+ * where neither player has a colour claim.
  */
-export function pairNext(players, resultsText, { seedOrder = true, totalRounds = null } = {}) {
+export function pairNext(players, resultsText, { seedOrder = true, totalRounds = null, initialColour = "W" } = {}) {
   const parsed = parseSwissResults(resultsText, players);
   if (parsed.errors.length) return { error: parsed.errors.join(" ") };
   let round;
   try {
-    round = swissPairings(players, parsed.games, parsed.byes, parsed.withdrawn, { ...parsed, groupOrder: seedOrder ? "seed" : "buchholz" });
+    round = swissPairings(players, parsed.games, parsed.byes, parsed.withdrawn, { ...parsed, groupOrder: seedOrder ? "seed" : "buchholz", initialColour });
   } catch (e) {
     return { error: e.message };
   }

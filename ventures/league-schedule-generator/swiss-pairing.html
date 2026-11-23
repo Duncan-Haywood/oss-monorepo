@@ -63,6 +63,9 @@
       <div><label for="total">Rounds in the event</label><input type="number" id="total" min="1" max="30" placeholder="auto"></div>
       <div><label for="name">Event name (for the TRF and the printout)</label><input type="text" id="name" placeholder="Club Swiss"></div>
     </div>
+    <div class="row">
+      <div><label for="first-colour">Top seed's colour in round 1 (drawn by lot)</label><select id="first-colour"><option value="W">White</option><option value="B">Black</option></select></div>
+    </div>
     <p class="note"><input type="checkbox" id="seed" checked> <label class="inline" for="seed">Order each score group by starting rank, as the Dutch rules do (untick to order by Buchholz, then Sonneborn-Berger)</label></p>
     <p class="note"><label class="inline" for="trf">Carry on an event from Swiss-Manager, Vega or another program: open its FIDE TRF file (read on this device, never uploaded).</label> <input type="file" id="trf" accept=".trf,.txt,text/plain"></p>
     <button type="button" id="pair">Pair next round</button>
@@ -148,7 +151,7 @@
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   let pending = null; // { players, round, roundNumber, results: [] }
 
-  const state = () => ({ players: $("#players").value, results: $("#results").value, total: $("#total").value, name: $("#name").value, seed: $("#seed").checked, pending });
+  const state = () => ({ players: $("#players").value, results: $("#results").value, total: $("#total").value, name: $("#name").value, seed: $("#seed").checked, firstColour: $("#first-colour").value, pending });
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state())); } catch { /* storage blocked: the event lives in this tab */ } };
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; } };
 
@@ -208,7 +211,7 @@
     if (pending && pending.results.some(Boolean) && !confirm("This round has results that are not saved. Pair again and lose them?")) return;
     $("#setup-status").textContent = "Pairing...";
     setTimeout(() => {
-      const out = pairNext(ps, $("#results").value, { seedOrder: $("#seed").checked, totalRounds: Number($("#total").value) || null });
+      const out = pairNext(ps, $("#results").value, { seedOrder: $("#seed").checked, totalRounds: Number($("#total").value) || null, initialColour: $("#first-colour").value });
       if (out.error) { $("#setup-status").innerHTML = `<span class="err">${esc(out.error)}</span>`; return; }
       pending = { players: ps, round: { pairs: out.round.pairs, bye: out.round.bye }, roundNumber: out.roundNumber, totalRounds: out.totalRounds, results: [] };
       $("#setup-status").textContent = `Round ${out.roundNumber} paired for ${ps.length - out.parsed.withdrawn.length - out.parsed.absent.length} players.`;
@@ -244,13 +247,15 @@
   $("#trf").addEventListener("change", async (ev) => {
     const file = ev.target.files && ev.target.files[0];
     if (!file) return;
-    const { parseTrf, trfToResults } = await import("./trf.mjs");
+    const { parseTrf, trfToResults, trfInitialColour } = await import("./trf.mjs");
     const trf = parseTrf(await file.text());
     if (!trf.players.length) { $("#setup-status").innerHTML = '<span class="err">No player lines (001) found: is this a TRF file?</span>'; return; }
     const box = trfToResults(trf);
     $("#players").value = box.players.join("\n");
     $("#results").value = box.results;
     $("#seed").checked = true;
+    // The file's drawn colour (its XXC line, or round 1 as played), so later rounds' E.5 boards match.
+    $("#first-colour").value = trfInitialColour(trf) ?? "W";
     if (box.totalRounds) $("#total").value = box.totalRounds;
     $("#name").value = trf.name || file.name.replace(/\.[^.]+$/, "");
     pending = null;
@@ -269,7 +274,7 @@
     const parsed = parseSwissResults($("#results").value, ps);
     if (parsed.errors.length) { $("#setup-status").innerHTML = `<span class="err">${esc(parsed.errors.join(" "))}</span>`; return; }
     const name = $("#name").value || "Swiss event";
-    download(`${name.replace(/[^\w-]+/g, "-").toLowerCase() || "swiss-event"}.trf`, swissToTrf(ps, parsed, { name, totalRounds: Number($("#total").value) || swissRounds(ps.length), standings: swissStandings(ps, parsed.games, parsed.byes, { extra: parsed.extra }) }));
+    download(`${name.replace(/[^\w-]+/g, "-").toLowerCase() || "swiss-event"}.trf`, swissToTrf(ps, parsed, { name, totalRounds: Number($("#total").value) || swissRounds(ps.length), standings: swissStandings(ps, parsed.games, parsed.byes, { extra: parsed.extra }), initialColour: $("#first-colour").value }));
     record("swiss_page_trf_downloaded");
   });
 
@@ -298,6 +303,7 @@
   $("#reset").addEventListener("click", () => {
     if (!confirm("Clear the players, results and current round?")) return;
     for (const id of ["#players", "#results", "#total", "#name"]) $(id).value = "";
+    $("#first-colour").value = "W";
     pending = null;
     showRound();
     showStandings();
@@ -307,6 +313,7 @@
 
   for (const id of ["#players", "#results", "#total", "#name"]) $(id).addEventListener("change", () => { save(); showStandings(); });
   $("#seed").addEventListener("change", save);
+  $("#first-colour").addEventListener("change", save);
 
   const checkState = { text: null, trf: null };
   let checkWorker = null;
@@ -384,6 +391,7 @@
     $("#total").value = saved.total || "";
     $("#name").value = saved.name || "";
     $("#seed").checked = saved.seed !== false;
+    $("#first-colour").value = saved.firstColour === "B" ? "B" : "W";
     pending = saved.pending || null;
     showRound();
     showStandings();

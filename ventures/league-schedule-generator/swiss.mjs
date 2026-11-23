@@ -211,7 +211,9 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
   lookahead = true, repeatFloats = true, byeRounds = null,
   extra = null, extraRounds = [], gameRounds = null, byeBlocked = [], unplayed = null, absent = [], groupOrder = "buchholz",
   dutchOrder = "lex", pairing = "bracket", exchange = "dutch", mdpFirst = true, transpose = true,
+  initialColour = "W",
 } = {}) {
+  if (initialColour !== "W" && initialColour !== "B") throw new Error('initialColour is "W" or "B".');
   const gone = new Set([...withdrawn, ...absent]);
   const n = players.length - gone.size;
   if (n < 2) throw new Error("Swiss pairing needs at least 2 players still in the event.");
@@ -382,8 +384,12 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
     }
     const [hi, lo] = vertexOf.get(x) < vertexOf.get(y) ? [x, y] : [y, x];
     if (firstRound) {
-      // Round 1: the top seed has white on board 1, then colours alternate down the boards.
-      return board % 2 === 0 ? { white: hi, black: lo } : { white: lo, black: hi };
+      // Round 1 (FIDE C.04.3 E.5): the higher-ranked player on board 1 takes the initial colour
+      // (drawn by lot; "W" puts the top seed on white), then colours alternate down the boards.
+      // Board parity, not start-rank parity: the two agree with no one missing, and where they
+      // differ (absentees, a round paired on a provisional list) board parity matched the arbiters
+      // on 91 of 91 boards and rank parity on 77 (eval/swiss-colour-truth.txt).
+      return e5White(board, initialColour) ? { white: hi, black: lo } : { white: lo, black: hi };
     }
     const ch = claim.get(hi);
     const cl = claim.get(lo);
@@ -391,7 +397,7 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
       const s = Math.min(ch.strength, cl.strength);
       if (s === 3) clashes.absolute++; else if (s === 2) clashes.strong++; else clashes.mild++;
     }
-    const white = whiteGoesTo(info.get(hi), ch, info.get(lo), cl) === "hi" ? hi : lo;
+    const white = whiteGoesTo(info.get(hi), ch, info.get(lo), cl, initialColour) === "hi" ? hi : lo;
     return { white, black: white === hi ? lo : hi };
   });
   return { pairs, bye, floaters, clashes, repeats, method };
@@ -1013,18 +1019,25 @@ export function exchangeFor(rem, { allowed, qOf, qMax }, budget = 4000) {
   return null;
 }
 
+/** FIDE C.04.3 E.5: does the higher-ranked player, at 0-based `index`, take white? */
+function e5White(index, initialColour) {
+  const odd = index % 2 === 0;
+  return odd === (initialColour === "W");
+}
+
 /**
  * Who takes white, "hi" (higher-ranked) or "lo", FIDE order: when the claims differ both get what
  * they want; otherwise the stronger claim wins, then the larger colour difference, then colours
  * alternate from the most recent game where the two had different colours, then the higher-ranked
- * player gets their claim.
+ * player gets their claim. When neither has a claim (no games yet, as for two late entrants), E.5:
+ * the higher-ranked takes the initial colour if their pairing number (index + 1) is odd.
  */
-function whiteGoesTo(rh, ch, rl, cl) {
+function whiteGoesTo(rh, ch, rl, cl, initialColour = "W") {
   if (ch.colour !== cl.colour) {
     if (ch.colour === null) return cl.colour === "W" ? "lo" : "hi";
     return ch.colour === "W" ? "hi" : "lo";
   }
-  if (ch.colour === null) return "hi";
+  if (ch.colour === null) return e5White(rh.index, initialColour) ? "hi" : "lo";
   const claimant = (who) => (ch.colour === "W" ? who : who === "hi" ? "lo" : "hi");
   if (ch.strength !== cl.strength) return claimant(ch.strength > cl.strength ? "hi" : "lo");
   const dh = Math.abs(rh.whites - rh.blacks);

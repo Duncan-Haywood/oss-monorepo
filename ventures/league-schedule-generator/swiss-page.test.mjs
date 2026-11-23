@@ -105,3 +105,11 @@ test("swiss-pairing.html: disclaimer, usage events, honest measured claims, link
     assert.match(readFileSync(new URL(`./${f}`, import.meta.url), "utf8"), /swiss-pairing\.html/, f);
   }
 });
+
+test("pairNext passes the drawn colour: round 1 with 'B' puts the top seed on black", () => {
+  const ps = ["Ana", "Ben", "Cy", "Dee"];
+  const w = pairNext(ps, "", {});
+  const b = pairNext(ps, "", { initialColour: "B" });
+  assert.equal(w.round.pairs[0].white, 0);
+  assert.equal(b.round.pairs[0].black, 0);
+});

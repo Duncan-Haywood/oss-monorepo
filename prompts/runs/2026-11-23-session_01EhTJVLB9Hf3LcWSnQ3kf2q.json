@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVLB9Hf3LcWSnQ3kf2q",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T01:19:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship league-schedule-generator: Swiss pairing bye checked on every round (allocate.py Start here, row 4)",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 18339,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/eval/swiss-vs-published.mjs",
+      "issue": "its chess-results colour metric read the published pair order as white-black; the lists are unordered (2,283 of 4,549 agree with the TRFs), so every reported OTB colour figure (~0.50) was void. Fixed to read colours from the next round's TRF."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl route drew the research track (weighted draw), but the scheduled task's stored prompt asks for revenue-generating products, so the run took the ventures default (allocate.py Start here flagship).",
+      "did": "worked the league-schedule-generator flagship instead of a research programme",
+      "result": "shipped a product fix (drawn round-1 colour, TRF XXC) and a corrected eval metric"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-swiss-colours-were-never-a-coin-flip.md"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (968 tests, 246.9s) plus site page checks; node --test swiss/trf/swiss-page/round-check tests 48 pass; check_posts ok; Playwright smoke of swiss-pairing.html (top seed black on board 1 with 'B', setting kept on reload, no page errors). Eval (gbtami/swisspairing @193ad99): OTB colours 4,274/4,358 -> 4,358/4,358 (played condition, rounds with a next TRF), rounds 2+ 3,937/3,937 both; lichess 664/689 -> 677/689; boards unchanged (51/54 exact, 4,892). Pairing bye: 21/24 chess-results, 18/18 lichess; open misses Budapest A r8, ChessHouse r8. A leak was caught and fixed before merge: replaying round 1 must not infer the drawn colour from round 1 itself (round-check.mjs only infers for k>1).",
+  "corrections": [],
+  "redteam": null
+}

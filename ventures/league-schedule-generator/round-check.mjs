@@ -8,7 +8,7 @@
 //
 // Pure functions over a parsed TRF (trf.mjs parseTrf); no DOM, so the page, a worker and the eval
 // scripts share them.
-import { trfToResults } from "./trf.mjs";
+import { trfToResults, trfInitialColour } from "./trf.mjs";
 import { parseSwissResults, swissPairings } from "./calc.mjs";
 import { swissStandings } from "./swiss.mjs";
 
@@ -35,7 +35,10 @@ export function replayRound(trf, k, absentIds = [], opts = {}) {
   const p = parseSwissResults(box.results, box.players);
   if (p.errors.length) throw new Error(p.errors.slice(0, 3).join("; "));
   const { withScores, ...pairOpts } = opts;
-  const round = swissPairings(box.players, p.games, p.byes, p.withdrawn, { ...p, groupOrder: "seed", ...pairOpts });
+  // The initial colour from the file's XXC line, else from round 1 as played (only when re-pairing a
+  // later round: read for round 1 itself it would be the answer); White when neither says.
+  const initialColour = (trf.initialColour ?? (k > 1 ? trfInitialColour(trf) : null)) ?? "W";
+  const round = swissPairings(box.players, p.games, p.byes, p.withdrawn, { ...p, groupOrder: "seed", initialColour, ...pairOpts });
   const id = (i) => trf.players[i].id;
   const out = { boards: round.pairs.map((b) => [id(b.white), id(b.black)]), bye: round.bye == null ? null : id(round.bye), method: round.method };
   if (withScores) {

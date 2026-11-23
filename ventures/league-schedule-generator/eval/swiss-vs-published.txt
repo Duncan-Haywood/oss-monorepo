@@ -1,4 +1,7 @@
 # node eval/swiss-vs-published.mjs <fixtures> (default dutchOrder: lex), gbtami/swisspairing 193ad99
+# NOTE (2026-11-23): the chess-results "colour" column below is void: the published lists are not in
+# white-black order (eval/swiss-colour-truth.txt). Measured against the TRFs, colours agree on every
+# reproduced board from round 2 on.
 
 == condition: open
 aeroflot_open_2026                                   rounds   9 (err 0)  exact   1  board recall 0.609 (450/739)  rounds 2+: recall 0.559, colour 0.514
