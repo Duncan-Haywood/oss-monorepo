@@ -35,6 +35,10 @@ def window_dp(G, S, rho, b, cap=10**6):
 def window_luck(G, S, rho):
     """Window if the attacker can only gamble (b = infinity is impossible; b -> 0 is the opposite):
     (G+S) rho^w <= S."""
+    if not 0 <= rho < 1:
+        raise ValueError("rho must be in [0, 1): at rho = 1 the attacker owns every block")
+    if rho == 0:
+        return 1 if G > 0 else 0  # the first honest block includes the challenge
     return max(0, math.ceil(math.log((G + S) / S) / math.log(1 / rho) - 1e-12))
 
 
@@ -52,6 +56,8 @@ def window_closed(G, S, rho, b):
     Vj = G - a * j
     if Vj <= 1e-12:
         return max(0, math.ceil(G / a - 1e-12))
+    if rho == 0:
+        return j + 1  # with no owned blocks the first gambled block is always challenged
     m = math.ceil(math.log((Vj + S) / S) / math.log(1 / rho) - 1e-12)
     return j + max(m, 0)
 

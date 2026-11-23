@@ -37,7 +37,9 @@ function hourSet(spec) {
   const a = +m[1], b = +m[2];
   if (a > 24 || b > 24 || a === b) return null;
   const set = new Set();
-  for (let h = a % 24; h !== b % 24; h = (h + 1) % 24) set.add(h);
+  // do/while so that 0-24 (and 6-6+24 style full days) covers all 24 hours; a === b is refused above
+  let h = a % 24; const end = b % 24;
+  do { set.add(h); h = (h + 1) % 24; } while (h !== end);
   return set;
 }
 
@@ -127,6 +129,8 @@ export function usHolidays(y) {
   });
   const floating = [[0 + 1, 1, 3], [8, 1, 1], [10, 4, 4]].map(([m, dow, n]) => Date.UTC(y, m, nthDow(y, m, dow, n)));
   floating.push(Date.UTC(y, 4, lastDow(y, 4, 1)));
+  // A Saturday New Year's Day of y+1 is observed on Fri Dec 31 of y: it belongs to this year's set.
+  if (new Date(Date.UTC(y + 1, 0, 1)).getUTCDay() === 6) fixed.push(Date.UTC(y, 11, 31));
   return new Set([...fixed, ...floating].map((t) => new Date(t).toISOString().slice(0, 10)));
 }
 

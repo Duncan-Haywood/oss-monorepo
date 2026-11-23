@@ -58,6 +58,37 @@ class T(unittest.TestCase):
         self.assertLessEqual(window_closed(G, S, rho, 0.5 * S), 10)
         self.assertGreater(window_closed(G, S * 0.98, rho, 0.5 * S * 0.98), 10)
 
+    # Added by quality round 100 (portfolio/quality/audits/2026-11-23-challenge-window.json).
+    def test_adaptive_window_can_exceed_both_limits_and_prefix_plan(self):
+        G, S, rho, b = 100, 5, 0.9, 40
+        self.assertEqual(window_dp(G, S, rho, b), 36)
+        self.assertEqual(window_closed(G, S, rho, b), 36)
+        self.assertEqual(max(window_luck(G, S, rho), window_bribe(G, rho, b)), 29)
+        prefix_w = next(w for w in range(1, 500) if prefix_value(w, G, S, rho, b) <= 0)
+        self.assertEqual(prefix_w, 29)
+
+    def test_window_never_below_larger_pure_limit(self):
+        rng = random.Random(3)
+        for _ in range(2000):
+            G = rng.uniform(1, 200); S = rng.uniform(1, 200)
+            rho = rng.uniform(0.05, 0.95); b = rng.uniform(0.5, 100)
+            self.assertGreaterEqual(window_dp(G, S, rho, b),
+                                    max(window_luck(G, S, rho), window_bribe(G, rho, b)))
+
+    def test_rho_zero_is_valid(self):
+        self.assertEqual(window_closed(100, 50, 0.0, 80), window_dp(100, 50, 0.0, 80))
+        self.assertEqual(window_closed(100, 50, 0.0, 2), window_dp(100, 50, 0.0, 2))
+        self.assertEqual(window_luck(100, 50, 0.0), 1)
+        with self.assertRaises(ValueError):
+            window_luck(100, 50, 1.0)
+
+    def test_prefix_plan_value_e6(self):
+        self.assertAlmostEqual(prefix_value(4, 100, 50, 0.6, 80), -28.0, places=9)
+        self.assertAlmostEqual(value(4, 100, 50, 0.6, 80), -17.6, places=9)
+
+    def test_stake_for_window_e7_value(self):
+        self.assertAlmostEqual(stake_for_window(10, 100, 0.2, lambda s: 0.5 * s), 25.0, delta=25.0 * 1e-6)
+
 
 if __name__ == "__main__":
     unittest.main()
