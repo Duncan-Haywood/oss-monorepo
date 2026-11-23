@@ -1,0 +1,155 @@
+Milestone 91. Float32 arbiter threshold rules, per statistic and zone of 5 segments, on milestone 89's forgeries.
+Calibration C40 = seeds 100-139, C80 = 100-179; selection set 200-239 (milestone 90's test seeds);
+holdout 300-339 (fresh). 3,000 segments per cell and set. 'worst' = conviction rate of the least-convicted
+zone (15 zones of 200 segments). Admissible: at most 3 honest convictions per cell on the selection set.
+
+T1 control: MAX(10,C40) on the selection set equals milestone 90's B for every cheat and cell: True
+
+Diagnosis (C40): zone max / zone 0.95 quantile in milestone 90's blind zones, per statistic
+  momentum  cosine  zone  0: w 991.7  m 3669.0
+  sgd       cosine  zone  5: w 124.8
+  sgd       cosine  zone 10: w 834.2
+  sgd       cosine  zone 14: w 6.2
+  adam15    sgdr    zone  7: w 9.4  m 400.0  v 20.7
+  all zones, median over zones of max/q95 per cell and statistic:
+  sgd/cosine         w 1.15 (max 834.2)
+  sgd/step           w 1.14 (max 67.6)
+  sgd/warmcos        w 1.17 (max 2.3)
+  sgd/sgdr           w 1.18 (max 19.1)
+  momentum/cosine    w 1.33 (max 991.7)  m 1.32 (max 3669.0)
+  momentum/step      w 1.30 (max 1.6)  m 1.32 (max 2.4)
+  momentum/warmcos   w 1.31 (max 2.2)  m 1.39 (max 1.6)
+  momentum/sgdr      w 1.30 (max 4.0)  m 1.29 (max 1.6)
+  adam15/cosine      w 1.28 (max 15.2)  m 1.18 (max 1.5)  v 1.29 (max 1.8)
+  adam15/step        w 1.19 (max 7.3)  m 1.23 (max 1.7)  v 1.25 (max 1.6)
+  adam15/warmcos     w 1.23 (max 30.9)  m 1.20 (max 1.5)  v 1.24 (max 1.6)
+  adam15/sgdr        w 1.27 (max 9.4)  m 1.22 (max 400.0)  v 1.31 (max 20.7)
+  adam60/cosine      w 1.30 (max 6.4)  m 1.45 (max 2.8)  v 1.49 (max 3.4)
+  adam60/step        w 1.30 (max 14.0)  m 1.43 (max 2.2)  v 1.39 (max 1.7)
+  adam60/warmcos     w 1.33 (max 6.0)  m 1.35 (max 2.1)  v 1.46 (max 2.2)
+  adam60/sgdr        w 1.45 (max 6.5)  m 1.62 (max 2.2)  v 1.65 (max 2.4)
+
+Admissible rules on the selection set: 31 of 60. Ranked by smallest worst-zone f16_1 conviction over the 16 cells | smallest mean | honest convictions in total (of 48,000):
+  Q(0.95,10,C80)       0.215 | 0.919 | 7
+  Q(0.95,10,C40)       0.190 | 0.908 | 7
+  Q(0.99,5,C80)        0.130 | 0.907 | 7
+  Q(0.99,5,C40)        0.065 | 0.903 | 6
+  Q(0.99,10,C40)       0.025 | 0.861 | 1
+  Q(0.95,20,C80)       0.025 | 0.832 | 4
+  Q(0.99,10,C80)       0.015 | 0.864 | 1
+  Q(0.95,20,C40)       0.015 | 0.830 | 4
+  LOG(10,C80)          0.000 | 0.871 | 11
+  LOG(12,C80)          0.000 | 0.866 | 4
+  LOG(12,C40)          0.000 | 0.864 | 6
+  MAX(2,C80)           0.000 | 0.812 | 7
+  MAX(3,C80)           0.000 | 0.807 | 6
+  MAX(5,C40)           0.000 | 0.804 | 3
+  MAX(5,C80)           0.000 | 0.803 | 2
+  Q(0.99,20,C80)       0.000 | 0.795 | 1
+  Q(0.99,20,C40)       0.000 | 0.789 | 1
+  MAX(10,C40)          0.000 | 0.776 | 1
+  MAX(10,C80)          0.000 | 0.773 | 1
+  Q(0.95,50,C80)       0.000 | 0.641 | 0
+  Q(0.95,50,C40)       0.000 | 0.636 | 0
+  Q(0.99,50,C80)       0.000 | 0.587 | 0
+  Q(0.99,50,C40)       0.000 | 0.584 | 0
+  Q(0.95,100,C80)      0.000 | 0.308 | 0
+  Q(0.95,100,C40)      0.000 | 0.306 | 0
+  ... MAX(10,C40): 0.000 | 0.776 | 1
+  not admissible: MAX(2,C40), MAX(3,C40), Q(0.99,3,C40), Q(0.95,3,C40), Q(0.95,5,C40), Q(0.5,3,C40), Q(0.5,5,C40), Q(0.5,10,C40), Q(0.5,20,C40), Q(0.5,50,C40), Q(0.5,100,C40), Q(0.5,200,C40), LOG(4,C40), LOG(6,C40), LOG(8,C40), LOG(10,C40), Q(0.99,3,C80), Q(0.95,3,C80), Q(0.95,5,C80), Q(0.5,3,C80), Q(0.5,5,C80), Q(0.5,10,C80), Q(0.5,20,C80), Q(0.5,50,C80), Q(0.5,100,C80), Q(0.5,200,C80), LOG(4,C80), LOG(6,C80), LOG(8,C80)
+Selected rule: Q(0.95,10,C80)
+
+selection set: honest convictions (of 3,000) | f16_1 mean, worst zone (index) | bf16_1 mean, worst | smallest mean over f16/bf16 q >= 2, for MAX(10,C40) then Q(0.95,10,C80)
+  sgd/cosine          0 | 0.776 0.000 (10) | 0.825 0.000 | 0.804   ||    0 | 0.945 0.295 (14) | 0.987 0.800 | 0.980
+  sgd/step            0 | 0.899 0.045 ( 1) | 0.995 0.925 | 0.926   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  sgd/warmcos         0 | 0.912 0.055 (14) | 0.983 0.745 | 0.940   ||    0 | 0.943 0.215 (14) | 0.987 0.800 | 0.972
+  sgd/sgdr            0 | 0.790 0.025 (14) | 0.972 0.775 | 0.827   ||    0 | 0.919 0.220 (14) | 0.987 0.810 | 0.972
+  momentum/cosine     0 | 0.933 0.000 ( 0) | 0.933 0.000 | 0.933   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  momentum/step       0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  momentum/warmcos    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  momentum/sgdr       0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    2 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam15/cosine       0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam15/step         0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam15/warmcos      0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam15/sgdr         0 | 0.938 0.070 ( 7) | 0.999 0.980 | 0.945   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam60/cosine       1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam60/step         0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam60/warmcos      0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    2 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam60/sgdr         0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+
+HOLDOUT: honest convictions (of 3,000) | f16_1 mean, worst zone (index) | bf16_1 mean, worst | smallest mean over f16/bf16 q >= 2, for MAX(10,C40) then Q(0.95,10,C80)
+  sgd/cosine          0 | 0.776 0.000 (10) | 0.823 0.000 | 0.803   ||    1 | 0.951 0.360 (14) | 0.987 0.800 | 0.981
+  sgd/step            1 | 0.902 0.065 ( 1) | 0.997 0.955 | 0.929   ||    1 | 1.000 0.995 ( 7) | 1.000 1.000 | 1.000
+  sgd/warmcos         1 | 0.904 0.060 (14) | 0.984 0.755 | 0.942   ||    2 | 0.944 0.245 (14) | 0.987 0.805 | 0.973
+  sgd/sgdr            0 | 0.790 0.035 ( 7) | 0.971 0.770 | 0.824   ||    1 | 0.918 0.220 (14) | 0.987 0.810 | 0.972
+  momentum/cosine     1 | 0.933 0.000 ( 0) | 0.935 0.030 | 0.934   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  momentum/step       0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  momentum/warmcos    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  momentum/sgdr       1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam15/cosine       1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    2 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam15/step         0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam15/warmcos      1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam15/sgdr         1 | 0.940 0.095 ( 7) | 1.000 0.995 | 0.944   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam60/cosine       0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam60/step         1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam60/warmcos      1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    1 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  adam60/sgdr         0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000   ||    0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+
+HOLDOUT, other cheats, mean conviction MAX(10,C40) / Q(0.95,10,C80): skip1, skip2, sub63_20, sub56_20
+  sgd/cosine         0.987/0.996  0.996/1.000  0.986/1.000  1.000/1.000
+  sgd/step           1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  sgd/warmcos        0.990/0.997  1.000/1.000  1.000/1.000  1.000/1.000
+  sgd/sgdr           0.998/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  momentum/cosine    1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  momentum/step      1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  momentum/warmcos   1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  momentum/sgdr      1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  adam15/cosine      1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  adam15/step        1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  adam15/warmcos     1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  adam15/sgdr        1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  adam60/cosine      1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  adam60/step        1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  adam60/warmcos     1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  adam60/sgdr        1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+
+Best admissible rule per family (selection set), smallest worst-zone f16_1 | smallest mean:
+  MAX(    C40: MAX(5,C40) 0.000 | 0.804
+  MAX(    C80: MAX(2,C80) 0.000 | 0.812
+  Q(0.99  C40: Q(0.99,5,C40) 0.065 | 0.903
+  Q(0.99  C80: Q(0.99,5,C80) 0.130 | 0.907
+  Q(0.95  C40: Q(0.95,10,C40) 0.190 | 0.908
+  Q(0.95  C80: Q(0.95,10,C80) 0.215 | 0.919
+  Q(0.5,  C40: none admissible
+  Q(0.5,  C80: none admissible
+  LOG(    C40: LOG(12,C40) 0.000 | 0.864
+  LOG(    C80: LOG(10,C80) 0.000 | 0.871
+
+Predictions
+  T1 held
+  T2 held (every statistic's zone max >= 5x its 0.95 quantile in every blind zone)
+  T3 held (best admissible rule with SGD mean f16_1 >= 0.9: Q(0.99,5,C80), smallest momentum/Adam worst zone 1.000; MAX(10,C40) 0.000)
+  T4 held (selected Q(0.95,10,C80))
+  T5 held (holdout honest convictions: largest 2 per cell, 13 of 48,000 in total)
+  T6 held (holdout f16_1 smallest mean: momentum/Adam 1.000, SGD 0.918; f16/bf16 q >= 2 0.972)
+  T7 held (holdout smallest momentum/Adam worst zone: Q(0.95,10,C80) 1.000, MAX(10,C40) 0.000)
+  T8 held (best admissible worst-zone f16_1: C80 0.215, C40 0.190)
+  Closability line (some admissible rule lifts momentum cosine's worst-zone f16_1 above 0.5 on the selection set): closable (best 1.000)
+
+== Figure table: HOLDOUT, worst-zone f16_1 conviction per cell; MAX(10,C40) then Q(0.95,10,C80)
+  sgd/cosine 0.000 0.360
+  sgd/step 0.065 0.995
+  sgd/warmcos 0.060 0.245
+  sgd/sgdr 0.035 0.220
+  momentum/cosine 0.000 1.000
+  momentum/step 1.000 1.000
+  momentum/warmcos 1.000 1.000
+  momentum/sgdr 1.000 1.000
+  adam15/cosine 1.000 1.000
+  adam15/step 1.000 1.000
+  adam15/warmcos 1.000 1.000
+  adam15/sgdr 0.095 1.000
+  adam60/cosine 1.000 1.000
+  adam60/step 1.000 1.000
+  adam60/warmcos 1.000 1.000
+  adam60/sgdr 1.000 1.000

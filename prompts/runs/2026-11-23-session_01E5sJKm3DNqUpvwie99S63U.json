@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKm3DNqUpvwie99S63U",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T09:09:51Z",
+  "ended": "2026-11-23T09:37:42Z",
+  "wall_minutes": 28.04,
+  "tokens_in": 4607397,
+  "tokens_out": 30773,
+  "cost_usd": 2.4016,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18397",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "A foreground --timeout 110 wait just times out; the backgrounded wait is the only workable pattern for a 20-minute job, which the CLAUDE.md text already says but costs one try."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook flagged untracked files while a long background run was writing its log; gitignoring run.log and __pycache__ in the experiment directory avoided it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-verifiable-training-quantile-arbiter-threshold.md",
+    "research/verifiable-training-mechanisms/LOG.md (milestone 91 entry)"
+  ],
+  "goal": null,
+  "notes": "Research track, programme verifiable-training-mechanisms milestone 91. Pre-registered 60 float32 arbiter threshold rules and a selection criterion (worst-zone conviction of one forged float16 step) before generating data; 2,560 runs (calibration 100-179, selection 200-239, holdout 300-339). Selected 10x zone 0.95 quantile on 80 calibration seeds; on the holdout every momentum/Adam zone convicts f16_1 at 1.000 (old rule's worst zones 0 and 0.095), 13 of 48,000 honest convictions; SGD's last zone stays at 0.22-0.36. T1-T8 all held. Local checks: project pytest 112 passed 1 skipped; research/_homepage/build.py ok; check_md_links ok; check_posts ok; run_workflow_locally --for-changes 7/7 passed (agent-cross-review and pages deploy jobs not runnable locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9631838c-5956-5923-b6b1-bb0af8ce504e",
+    "transcripts": 1,
+    "first": "2026-11-23T09:09:51Z",
+    "last": "2026-11-23T09:37:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 91,
+        "output": 30773,
+        "thinking": 6753,
+        "cache_read": 4496498,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110808,
+        "api_equivalent_usd": 2.4016,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 91,
+      "output": 30773,
+      "thinking": 6753,
+      "cache_read": 4496498,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110808,
+      "api_equivalent_usd": 2.4016,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.04,
+      "active_minutes": 11.42,
+      "model_minutes": 6.99,
+      "tool_minutes": 4.43,
+      "waiting_on_human_minutes": 16.63,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an ML-security researcher designing, running and writing up a pre-registered threshold study over 2,560 runs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 499.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
