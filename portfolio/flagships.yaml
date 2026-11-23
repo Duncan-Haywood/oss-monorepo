@@ -532,14 +532,14 @@ flagships:
       Revit Perimeter, an ARCHICAD or Revit tube's figure; NetWeight/GrossWeight as
       volume x density 2026-11-22, --densities, 1,152/1,152 Tekla weights,
       eval/member-weights-2026-11-22.md; next: a Revit/ARCHICAD export storing
-      weights); Revit brep openings 2026-11-22, 102/102,
-      eval/opening-brep-quantities-2026-11-22.md; next: a BIM manager's filled
-      table. body-less components by placement point 2026-11-23, 133/139 right,
+      weights); Revit brep openings (NEXT.md): next a BIM manager's filled table.
+      body-less components by placement point 2026-11-23, 133/139 right,
       eval/cobie-placement-point-2026-11-23.md; wall-hosted fittings by box sample
-      2026-11-23, 37/37, eval/cobie-wall-hosted-2026-11-23.md; next: dental's 17
-      casework items outside their rooms' solids, ARK_NUS's 85 furniture in another
-      room, a real owner's COBie QC. HTML report: next, a consultant's read. More
-      open items: NEXT.md.
+      2026-11-23, 37/37, eval/cobie-wall-hosted-2026-11-23.md; room test skips
+      zero-volume pieces 2026-11-23 (29 of 852 rooms had been emptied or swollen),
+      1,218/1,227 right, eval/cobie-flat-pieces-2026-11-23.md; next: ARK_NUS's 9 in
+      another room, 20 doors with a second room, a real owner's COBie QC. HTML
+      report: next, a consultant's read. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

@@ -65,6 +65,23 @@ test("a point is inside the L, not in its missing corner, and the placement is h
   assert.equal(pointInSolid({ terms: [], mesh: 1, notes: [], shells: null }, [0, 0, 0]), null);
 });
 
+test("a zero-thickness piece subtracted from a room does not empty it", () => {
+  // dental_clinic 2C17 PROSTH. LAB: its room solid carries this subtracted
+  // piece, flat in the west wall's plane but for rounding (5e-15 m3); its
+  // middle is on its own faces, so it used to swallow the whole room
+  const a = -47.11300000000056, b = -47.11300000000057, y0 = 44.50692803742007, y1 = 45.04443871025929, y2 = 46.044439136651, h = 2.799999999999999;
+  const flat = [
+    [[b, y2, 0], [a, y1, 0], [a, y0, 0]], [[a, y0, h], [a, y1, h], [b, y2, h]],
+    [[a, y0, 0], [a, y1, 0], [a, y1, h], [a, y0, h]], [[a, y1, 0], [b, y2, 0], [b, y2, h], [a, y1, h]],
+    [[b, y2, 0], [a, y0, 0], [a, y0, h], [b, y2, h]],
+  ];
+  const s = footprintSolid([[-47.113, 38.52], [-43.6, 38.52], [-43.6, 46.75], [-47.113, 46.75]], 0, h);
+  s.terms.push({ s: -1, faces: flat });
+  assert.equal(pointInSolid(s, [-45.3, 41, 0.43]), true);
+  assert.equal(pointInSolid(s, [-46.9, 45.5, 0.43]), true);
+  assert.equal(pointInSolid(s, [-42, 41, 0.43]), false);
+});
+
 test("stored room quantities are checked, with the cause of a disagreement named", () => {
   const room = { from: "body", stored: { GrossFloorArea: { value: 12 }, NetFloorArea: { value: 11.64 }, GrossPerimeter: { value: 14 }, Height: { value: 3 }, NetVolume: { value: 32400 } }, computed: { floorArea: 12, perimeter: 14, height: 2.7, volume: 32.4 } };
   const c = checkRoom(room);
