@@ -668,6 +668,42 @@ Guide (2026-11-23): `how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-sch
 its worked example (500 runs, seed 1, the page's defaults) is checked against the engine in
 `guides.test.mjs`.
 
+## Step by step: the events in the order they happened (2026-11-23)
+
+A claim with several delay events needs each event's share of the delay.
+"Each event alone" gives every event the days it would cause by itself, and
+those add up to more than the total when events share the path. The common
+answer in delay analysis is to insert the events **one at a time in the
+order they happened**, recomputing after each, so each step is what that
+event adds on top of the ones before it, and the steps add up to the total.
+
+With two or more events in a fragnet the time impact analysis now does this.
+The order is each event's earliest `Not before` date; an event with no date
+keeps its place in the fragnet. Rows with no event are one more step, `(no
+event)`, with a warning. Because a stepwise split depends on the order (the
+first event to use up the float leaves the next one to reach the finish),
+the same steps are also run newest first, and each event's days in that
+order are shown beside its own, with its days alone; `orderSensitive` says
+when the two orders disagree.
+
+On the built-in example: the owner's change CO-03 (dated 2026-04-08) adds 3
+working days, the late hardware approval 6 more, 9 in all; newest first the
+hardware takes all 9 and CO-03 none. Alone they are 3 and 9.
+
+Surfaces: page table "Step by step, in the order the events happened"
+(event `tia_stepwise`), printable exhibit, CSV `step` rows, text, `--json`
+(`byStep`, `orderSensitive`). `tia.mjs`: `stepsHtml(r)`.
+
+Checked: `tia.test.mjs` (example steps; dates set the order, not row order;
+series not order-sensitive; one event gives no steps; rows with no event
+grouped) and `eval/tia-steps-check.mjs` on the six public files
+(eval/tia-steps-check-2026-11-23.md): series on the driving path 19/19 with
+the same split in both orders; an event beside another on the same path
+31/31 against the split one-row runs predict, all 31 order-sensitive as the
+arithmetic says; fragnets written newest first put in date order 26/26.
+Not yet run on a real claim's dated event list; which order a contract or
+tribunal prefers is not modelled.
+
 ## Delay by party: sole and concurrent delay in the time impact analysis (2026-11-23)
 
 Most claims carry delays from both sides at once: an owner's change while the
