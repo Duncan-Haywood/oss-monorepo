@@ -1,0 +1,55 @@
+name: dockerignore-explainer
+description: >-
+  Free browser tool and CLI for developers: resolves a .dockerignore the way
+  BuildKit does (a port of moby/patternmatcher and tonistiigi/fsutil, checked
+  against that code) and names the line that decides every path in the build
+  context, flags Dockerfile COPY/ADD and RUN --mount sources the rules
+  exclude, .env files, keys, .git and node_modules still sent, patterns that
+  only match at the context root, !folder exceptions that re-include nothing
+  and Go-syntax traps, then writes a fix it re-checks. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-23 in an explore run. duplicate_check.py: top score 0.36
+# (docker-build-secrets-check), under the 0.45 bar. That tool reads ARG/ENV
+# names and a few COPY'd credential names in the Dockerfile text; it never
+# resolves .dockerignore, so it cannot say what the build context holds.
+# gitignore-explainer resolves git's rules, which differ from Docker's in the
+# exact ways this tool reports (root anchoring, folder exceptions, [!a]).
+#
+# Why a tool and not a chatbot answer: "is this file in the build context"
+# depends on BuildKit's walk (inherited per-line matches, skipped folders,
+# Go regexp quirks), which a reply gets wrong in the corners; this engine is
+# replayed against BuildKit's own code on 5,000 random trees in every test
+# run.
+#
+# First visitor: developers searching "dockerignore not working subfolder",
+# "COPY failed file not found dockerignore", "dockerignore negation not
+# working"; volume not measured with an external tool.
+
+hypotheses:
+  - claim: >-
+      Developers whose COPY fails with "not found", or whose build context is
+      unexpectedly large, will paste their .dockerignore and file list into a
+      tool that names the deciding line, rather than bisecting by rebuilding.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a path where the tool's answer disagrees with what BuildKit sent and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/dockerignore-explainer/
+  analytics: null

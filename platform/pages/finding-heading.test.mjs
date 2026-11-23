@@ -31,7 +31,7 @@ const KNOWN_H4 = new Set([
   'commercial-lease-effective-rent-calculator', 'contractor-wip-schedule', 'depreciation-recapture-calculator',
   'donor-acknowledgment-letter-generator', 'eu-vat-oss-calculator',
   'exemption-certificate-audit-check', 'fractional-executive-rate-calculator',
-  'freight-broker-load-margin-calculator', 'gitattributes-explainer', 'gitconfig-include-check', 'gitignore-explainer',
+  'dockerignore-explainer', 'freight-broker-load-margin-calculator', 'gitattributes-explainer', 'gitconfig-include-check', 'gitignore-explainer',
   'inherited-ira-10-year-withdrawal-planner',
   'insurance-commission-reconciler', 'med-spa-treatment-profit-calculator',
   'payroll-tax-deposit-penalty-calculator', 'pg-stat-statements-analyzer',

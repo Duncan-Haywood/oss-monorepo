@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d5c8a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='19'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%88%85%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>.dockerignore Explainer — What Does Docker Send in the Build Context?</title>
+  <meta name="description" content="Free .dockerignore checker: see which files BuildKit sends in the build context and the line that decides each one. Finds COPY sources your rules exclude, .env files and keys still sent, patterns that only match at the root, and !folder lines that re-include nothing, with a fix re-checked against your files.">
+  <meta property="og:title" content=".dockerignore Explainer — free, private, in your browser">
+  <meta property="og:description" content="Which files does docker build send, which line excludes each one, and why does COPY say not found? BuildKit's own rules, checked against its code.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": ".dockerignore Explainer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Resolves a .dockerignore the way BuildKit does and names the line that decides every path in the build context, cross-checks the Dockerfile's COPY and ADD sources, finds secrets and heavy folders still sent, and suggests a fix it re-checks against your files. Runs in your browser.", "featureList": "BuildKit-compatible context resolution, COPY and ADD source check, RUN --mount bind source check, secret and .git detection, root-only pattern detection, folder exception detection, checked fix, context size, CSV download, command-line version"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does *.log in .dockerignore not exclude logs in subfolders?", "acceptedAnswer": {"@type": "Answer", "text": "Because .dockerignore patterns are matched from the root of the build context, not at any depth like .gitignore. *.log matches app.log but not logs/app.log. Write **/*.log to match at every depth, and **/node_modules for node_modules folders inside packages."}}, {"@type": "Question", "name": "Why does COPY fail with not found when the file exists?", "acceptedAnswer": {"@type": "Answer", "text": "Usually because a .dockerignore line excludes it. BuildKit sends only the files your rules let through, and COPY can only read what was sent, so an excluded source fails with a not-found error. Paste your Dockerfile with the .dockerignore and file list and the tool names the line that excludes each COPY source."}}, {"@type": "Question", "name": "Why does !docs not re-include the files in docs?", "acceptedAnswer": {"@type": "Answer", "text": "BuildKit carries an exception for a folder down to the folder's contents only when the folder itself was excluded first. With **/*.md followed by !docs, the folder docs was never excluded, the Markdown files inside were matched directly, and !docs never reaches them. Write !docs/** instead."}}, {"@type": "Question", "name": "Is [!a] a negated character class in .dockerignore?", "acceptedAnswer": {"@type": "Answer", "text": "No. Docker uses Go's pattern rules, where a class is negated with ^, as in [^a]. [!a] matches the character ! or a. And because the pattern becomes a regular expression, a negated class like [^a] can also match a slash."}}, {"@type": "Question", "name": "Can I put a comment in .dockerignore?", "acceptedAnswer": {"@type": "Answer", "text": "Only on its own line, starting in the first column. A # after a pattern becomes part of the pattern, and a # line with spaces in front of it is trimmed and read as a pattern, not a comment."}}, {"@type": "Question", "name": "Does excluding the Dockerfile or .dockerignore break the build?", "acceptedAnswer": {"@type": "Answer", "text": "Not with BuildKit, the default builder since Docker Engine 23. The Dockerfile is read separately from the context, so excluding it only keeps it out of what COPY . . copies into the image."}}, {"@type": "Question", "name": "Is anything I paste or pick uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The checker runs entirely in this browser tab. Picking a folder reads only file names, sizes and the .dockerignore and Dockerfile at its top; no file content leaves your device, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #15222e; background: #f2f6f9; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d5c8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #123a57; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123a57; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #e4edf3; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #4a5a68; }
+    .card { background: #fff; border: 1px solid #d5e1ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123a5710; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8494; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5c8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2ebf2; color: #123a57; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e4edf3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a68; }
+    td code { white-space: pre-wrap; word-break: break-all; }
+    .finding { border-bottom: 1px solid #e4edf3; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: .85rem ui-monospace, Menlo, Consolas, monospace; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #6f530c; }
+    .pill.low, .pill.info { background: #e2ebf2; color: #123a57; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #edf3f7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #123a57; }
+    pre.fix { background: #13283a; color: #eef6ff; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px ui-monospace, Menlo, Consolas, monospace; }
+    .scroll { overflow-x: auto; }
+    .no { color: #7a1f10; font-weight: 600; }
+    .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .row > div { flex: 1 1 260px; }
+    ol.steps { padding-left: 20px; font-size: .94rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e1ea; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">.DOCKERIGNORE EXPLAINER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does <code>docker build</code> send, and why does <code>COPY</code> say “not found”?</h1>
+    <p>Give it your <code>.dockerignore</code>, your file list and, if you like, your <code>Dockerfile</code>. For every path you get <strong>whether BuildKit sends it and the line that decides</strong>. It also flags <strong>COPY sources your rules exclude</strong>, <strong><code>.env</code> files, keys and <code>.git</code> still sent</strong>, patterns that <strong>only match at the root</strong> (<code>*.log</code> is not <code>**/*.log</code> here), and <code>!folder</code> lines that re-include nothing. Then it writes <strong>a fix and re-checks it against your files</strong>.</p>
+    <p class="note">The engine is a line-by-line port of the code BuildKit runs (moby/patternmatcher and tonistiigi/fsutil). It agrees with that code on 5,000 random trees replayed in every test run, and on 25,000 more run once; the README says how. Your own <code>docker build</code> is still the final word.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your build context</h2>
+    <label for="folder">Pick the context folder (optional)</label>
+    <input id="folder" type="file" webkitdirectory multiple>
+    <p class="note">Reads only names and sizes, plus the <code>.dockerignore</code> and <code>Dockerfile</code> at the top, if there are any. Nothing is uploaded. Or paste the lists below.</p>
+    <div class="grid">
+      <div>
+        <label for="ignore">.dockerignore</label>
+        <textarea id="ignore" spellcheck="false" placeholder="node_modules&#10;**/*.log&#10;.env"></textarea>
+      </div>
+      <div>
+        <label for="files">Files in the context, one per line</label>
+        <textarea id="files" spellcheck="false" placeholder="package.json&#10;src/index.js&#10;.env"></textarea>
+        <p class="note">From <code>find . -type f</code> or <code>git ls-files</code>. For sizes, use <code>find . -type f -printf '%s %p\n'</code>. End a line with <code>/</code> for an empty folder.</p>
+      </div>
+    </div>
+    <label for="dockerfile">Dockerfile (optional)</label>
+    <textarea id="dockerfile" spellcheck="false" placeholder="FROM node:22-slim&#10;COPY package.json ./&#10;COPY . ."></textarea>
+    <p>
+      <button type="button" id="run">Explain</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Report</h2>
+    <div class="big" id="totals"></div>
+    <h3>Findings</h3>
+    <div id="findings"></div>
+    <div id="fix"></div>
+    <div id="biggest"></div>
+    <h3>Every path</h3>
+    <div class="row">
+      <div><label for="filter">Filter paths</label><input id="filter" type="search" placeholder="part of a path"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="csv">Download CSV</button></div>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Path</th><th>Sent?</th><th>Decided by</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Why is one path left out?</h2>
+    <p class="note">The steps BuildKit takes, folder by folder, with the <code>.dockerignore</code> above.</p>
+    <div class="row">
+      <div><label for="whyPath">Path</label><input id="whyPath" type="text" spellcheck="false" placeholder="docs/README.md"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="why">Show the steps</button></div>
+    </div>
+    <ol class="steps" id="whySteps"></ol>
+  </section>
+
+  <section class="card">
+    <h2>How BuildKit reads a .dockerignore</h2>
+    <ul>
+      <li><strong>Patterns start at the context root.</strong> <code>*.log</code> matches <code>app.log</code>, not <code>logs/app.log</code>. Use <code>**/</code> for any depth. This is the biggest difference from <code>.gitignore</code>.</li>
+      <li><strong>The last matching line wins</strong>, and a line starting with <code>!</code> is an exception. A folder's answer carries down to everything inside it.</li>
+      <li><strong>An exception for a folder reaches inside only if the folder was excluded first.</strong> <code>**/*.md</code> then <code>!docs</code> keeps every Markdown file in <code>docs/</code> out. Write <code>!docs/**</code>.</li>
+      <li><strong>Excluded folders are skipped</strong> unless an exception line could match something inside them.</li>
+      <li><strong>Go's pattern syntax, through a regular expression:</strong> <code>[^a]</code> negates (not <code>[!a]</code>), a negated class can match <code>/</code>, and <code>\</code> escapes the next character. A malformed line stops every build.</li>
+      <li><strong>Comments only in the first column.</strong> Leading and trailing spaces are trimmed, <code>/</code> at the start is dropped, and <code>a/../b</code> is cleaned to <code>b</code>.</li>
+    </ul>
+    <p class="note">Guide with worked examples: <a href="why-dockerignore-pattern-does-not-match-subfolders.html">why a .dockerignore pattern does not match in subfolders</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>From a terminal</h2>
+    <p>The same engine runs over a real context folder, with no install and no network. It reads the folder, <code>.dockerignore</code> (or <code>&lt;Dockerfile&gt;.dockerignore</code>, as BuildKit does) and the Dockerfile.</p>
+    <pre class="fix">node ventures/dockerignore-explainer/cli/check.mjs .                 # report
+node ventures/dockerignore-explainer/cli/check.mjs . --why src/a.js  # the steps for one path
+node ventures/dockerignore-explainer/cli/check.mjs . --fixed         # print the checked fix
+node ventures/dockerignore-explainer/cli/check.mjs . --strict        # exit 1 on a high finding (CI)</pre>
+    <p class="note">Clone <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dockerignore-explainer" rel="noopener">the source</a>, then pass your context folder. Node 18 or later.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Why does *.log in .dockerignore not exclude logs in subfolders?</h3>
+    <p>Because .dockerignore patterns are matched from the root of the build context, not at any depth like .gitignore. *.log matches app.log but not logs/app.log. Write **/*.log to match at every depth, and **/node_modules for node_modules folders inside packages.</p>
+    <h3>Why does COPY fail with not found when the file exists?</h3>
+    <p>Usually because a .dockerignore line excludes it. BuildKit sends only the files your rules let through, and COPY can only read what was sent, so an excluded source fails with a not-found error. Paste your Dockerfile with the .dockerignore and file list and the tool names the line that excludes each COPY source.</p>
+    <h3>Why does !docs not re-include the files in docs?</h3>
+    <p>BuildKit carries an exception for a folder down to the folder's contents only when the folder itself was excluded first. With **/*.md followed by !docs, the folder docs was never excluded, the Markdown files inside were matched directly, and !docs never reaches them. Write !docs/** instead.</p>
+    <h3>Is [!a] a negated character class in .dockerignore?</h3>
+    <p>No. Docker uses Go's pattern rules, where a class is negated with ^, as in [^a]. [!a] matches the character ! or a. And because the pattern becomes a regular expression, a negated class like [^a] can also match a slash.</p>
+    <h3>Can I put a comment in .dockerignore?</h3>
+    <p>Only on its own line, starting in the first column. A # after a pattern becomes part of the pattern, and a # line with spaces in front of it is trimmed and read as a pattern, not a comment.</p>
+    <h3>Does excluding the Dockerfile or .dockerignore break the build?</h3>
+    <p>Not with BuildKit, the default builder since Docker Engine 23. The Dockerfile is read separately from the context, so excluding it only keeps it out of what COPY . . copies into the image.</p>
+    <h3>Is anything I paste or pick uploaded?</h3>
+    <p>No. The checker runs entirely in this browser tab. Picking a folder reads only file names, sizes and the .dockerignore and Dockerfile at its top; no file content leaves your device, and the command-line version makes no network calls.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice. Results come from the text and file list you give it, resolved by this tool's own port of BuildKit's rules; it does not run Docker. It models BuildKit (Docker Engine 23 and later, docker buildx), not the legacy builder. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by Docker, Inc., the Moby project or any other vendor. Docker is a trademark of Docker, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dockerignore_checked</code>, <code>example_loaded</code>, <code>folder_picked</code>, <code>why_shown</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Secrets in the Dockerfile itself? The <a href="../docker-build-secrets-check/">Docker build secrets check</a> flags secret-looking ARG and ENV lines. Layer order? The <a href="../docker-cache-order-check/">Docker cache order check</a>. Ignore rules for git instead? The <a href="../gitignore-explainer/">.gitignore explainer</a> resolves them the way git does, which differs from Docker in the ways listed above. Guide: <a href="why-dockerignore-pattern-does-not-match-subfolders.html">why a .dockerignore pattern does not match in subfolders</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, why, reportCsv, bytes, DEFAULTS } from "./dockerignore.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+    const status = $("#form-status");
+    let last = null;
+
+    const ruleCell = (r) => {
+      if (r.unvisited) return `<span class="note">inside ${esc(r.unvisited)}/, which BuildKit skips</span>`;
+      if (!r.rule) return '<span class="note">no line matches</span>';
+      let s = `<code>${esc(r.rule.text)}</code> <span class="note">line ${r.rule.line}</span>`;
+      if (r.via) s += `<br><span class="note">via folder ${esc(r.via)}/</span>`;
+      return s;
+    };
+
+    function renderRows() {
+      if (!last) return;
+      const q = $("#filter").value.trim().toLowerCase();
+      const rows = last.rows.filter((r) => !q || r.path.toLowerCase().includes(q)).slice(0, 2000);
+      $("#rows").innerHTML = rows.map((r) => `<tr><td><code>${esc(r.path)}${r.isDir ? "/" : ""}</code></td><td>${r.sent ? "sent" : '<span class="no">left out</span>'}</td><td>${ruleCell(r)}</td></tr>`).join("") +
+        (last.rows.length > rows.length && !q ? `<tr><td colspan="3" class="note">Showing the first 2,000 of ${last.rows.length.toLocaleString("en-US")} paths; filter or download the CSV for the rest.</td></tr>` : "");
+    }
+
+    function run() {
+      const input = { ignore: $("#ignore").value, files: $("#files").value, dockerfile: $("#dockerfile").value };
+      if (!input.ignore.trim() && !input.files.trim()) { status.textContent = "Paste a .dockerignore, a file list, or both."; return; }
+      const t0 = performance.now();
+      last = analyze(input);
+      const t = last.totals;
+      status.textContent = last.error ? "BuildKit refuses this .dockerignore; see the first finding." : `Checked ${t.files.toLocaleString("en-US")} files against ${t.rules} rules in ${Math.round(performance.now() - t0)} ms.`;
+      $("#totals").innerHTML = [
+        ["Files sent", `${t.sent.toLocaleString("en-US")} of ${t.files.toLocaleString("en-US")}`], ["Size sent", t.bytesSent == null ? "—" : bytes(t.bytesSent)], ["Left out", t.bytesExcluded == null ? t.excluded.toLocaleString("en-US") : bytes(t.bytesExcluded)], ["High findings", t.high],
+      ].map(([k, v]) => `<div><strong>${esc(v)}</strong>${k}</div>`).join("");
+      $("#findings").innerHTML = last.findings.length ? last.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${md(f.title)}</h4>${f.line ? `<p class="note">${esc(f.where || ".dockerignore")} line ${f.line}${f.text ? ` <code>${esc(f.text)}</code>` : ""}</p>` : ""}<p>${md(f.detail)}</p>${f.paths ? `<ul>${f.paths.slice(0, 10).map((p) => `<li>${esc(p)}</li>`).join("")}${f.paths.length > 10 ? `<li>… and ${f.paths.length - 10} more</li>` : ""}</ul>` : ""}</div>`).join("") : "<p>No findings: every rule does something in your list and nothing looks miswritten.</p>";
+      const fx = last.fix;
+      $("#fix").innerHTML = fx && !fx.error ? `<h3>Suggested .dockerignore</h3><p>Re-run against your files, these changes fix <strong>${fx.fixed.length}</strong> path${fx.fixed.length === 1 ? "" : "s"}${fx.unfixed.length ? `, leave ${fx.unfixed.length} unfixed` : ""}, and change <strong>${fx.sideEffects.length}</strong> other path${fx.sideEffects.length === 1 ? "" : "s"}.${fx.replaced.length ? ` Lines rewritten: ${fx.replaced.map((r) => r.line).join(", ")}.` : ""}</p><pre class="fix">${esc(fx.text)}</pre>` +
+        (fx.sideEffects.length ? `<p class="note">Other changes: ${fx.sideEffects.slice(0, 12).map((s) => `<code>${esc(s.path)}</code> ${s.before ? "sent" : "left out"} → ${s.after ? "sent" : "left out"}`).join(", ")}${fx.sideEffects.length > 12 ? ", …" : ""}</p>` : "") : "";
+      $("#biggest").innerHTML = last.biggest.length ? `<h3>Largest parts of what is sent</h3><table><thead><tr><th>Top-level path</th><th>Size</th></tr></thead><tbody>${last.biggest.map((b) => `<tr><td><code>${esc(b.path)}</code></td><td>${bytes(b.size)}</td></tr>`).join("")}</tbody></table>` : "";
+      renderRows();
+      $("#report").hidden = false;
+      record("dockerignore_checked");
+    }
+
+    function showWhy() {
+      const res = why({ ignore: $("#ignore").value, path: $("#whyPath").value, files: $("#files").value });
+      $("#whySteps").innerHTML = res.error ? `<li>${esc(res.error)}</li>` : res.steps.map((s) => `<li><code>${esc(s.path)}</code>: ${s.sent ? "sent" : '<span class="no">left out</span>'}${s.rule ? ` by <code>${esc(s.rule.text)}</code> <span class="note">line ${s.rule.line}</span>` : " (no line matches)"}${s.note ? `<br><span class="note">${esc(s.note)}</span>` : ""}</li>`).join("") || "<li>Type a path.</li>";
+      record("why_shown");
+    }
+
+    $("#folder").addEventListener("change", async (event) => {
+      const picked = [...event.target.files];
+      if (!picked.length) return;
+      const strip = (f) => f.webkitRelativePath.split("/").slice(1).join("/");
+      $("#files").value = picked.map((f) => `${f.size} ${strip(f)}`).filter((l) => !/ $/.test(l)).join("\n");
+      const top = (name) => picked.find((f) => strip(f) === name);
+      const di = top(".dockerignore");
+      const df = top("Dockerfile");
+      if (di && di.size < 1e6) $("#ignore").value = await di.text();
+      if (df && df.size < 1e6) $("#dockerfile").value = await df.text();
+      status.textContent = `Read ${picked.length.toLocaleString("en-US")} file names${di ? ", .dockerignore" : ""}${df ? ", Dockerfile" : ""}.`;
+      record("folder_picked");
+      run();
+    });
+    $("#run").addEventListener("click", run);
+    $("#example").addEventListener("click", () => {
+      $("#ignore").value = DEFAULTS.ignore; $("#files").value = DEFAULTS.files; $("#dockerfile").value = DEFAULTS.dockerfile;
+      $("#whyPath").value = "docs/README.md";
+      record("example_loaded");
+      run();
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["ignore", "files", "dockerfile", "whyPath"]) $("#" + id).value = ""; $("#report").hidden = true; status.textContent = ""; last = null; });
+    $("#filter").addEventListener("input", renderRows);
+    $("#why").addEventListener("click", showWhy);
+    $("#csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "dockerignore-report.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

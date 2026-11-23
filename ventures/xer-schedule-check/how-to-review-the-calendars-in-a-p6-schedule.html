@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Review The Calendars In A P6 Schedule</title>
+  <meta name="description" content="Check every work calendar in a P6 XER: holidays that stop before the work, hours per day that do not match, misnamed weeks. Free, in your browser.">
+  <meta property="og:title" content="How To Review The Calendars In A P6 Schedule">
+  <meta property="og:description" content="Holidays that stop before the work, hours per day that do not match the calendar, and weeks that do not match the name: every P6 calendar, checked.">
+  <link rel="canonical" href="./how-to-review-the-calendars-in-a-p6-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do holidays matter in a P6 schedule?","acceptedAnswer":{"@type":"Answer","text":"P6 counts every duration in working time on the activity's calendar. A holiday the calendar does not list is a working day, so work is scheduled through it and the forecast finish comes out earlier than the site can deliver. On a long project a calendar whose holiday list stops after the first year or two loses about a week and a half of non-working days for every later year."}},{"@type":"Question","name":"How do I check whether a P6 calendar's holidays run out?","acceptedAnswer":{"@type":"Answer","text":"Export the XER and open it in the free check: under Calendar review it lists every calendar with its holidays per year and flags one whose list stops before the open work on it ends. In P6 itself you would open each calendar under Enterprise, Calendars and page through the months of every remaining year."}},{"@type":"Question","name":"What is Hours per Day on a P6 calendar?","acceptedAnswer":{"@type":"Answer","text":"The figure P6 divides hours by to show a duration in days. P6 stores durations in hours; when the calendar works 9 hours a day but says 8, an activity shown as 10 days is 80 hours, which takes 8.9 of that calendar's days. The check compares the stored figure with the hours the calendar's working days actually hold."}},{"@type":"Question","name":"Should every calendar have holidays?","acceptedAnswer":{"@type":"Answer","text":"Not always. A calendar used for curing, dewatering or other round-the-clock work may truly work every day. The check flags a calendar with no holidays only when it works fewer than seven days a week and carries open work, and lists critical work on seven-day calendars as something to ask about, not as a fault."}},{"@type":"Question","name":"Is the file uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule is read and analysed in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to review the calendars in a P6 schedule</h1>
+  <p>Every date in a Primavera P6 schedule is counted on a work calendar, and the calendars are the part of a schedule a reviewer reads least. P6 shows them one at a time in a dialog; the DCMA 14-point assessment never opens them. Yet a calendar can move the finish without a single logic or float fault: a holiday list that stops after the first year makes every later public holiday a working day, and an Hours per Day figure that does not match the calendar makes every duration shown in days wrong. The free tool here reads every calendar in an XER and lists what to fix.</p>
+  <p><a class="cta" href="./#calendars">Open the free schedule check</a> (open the XER, then press Review the calendars)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the schedule from P6 as XER (File, Export, Primavera PM XER). A P6 XML or Microsoft Project XML file can be opened too.</li>
+    <li>Open it on the <a href="./">tool page</a>.</li>
+    <li>Under <b>Calendar review</b>, press <b>Review the calendars</b>. Faults come first, then things to check, then notes, each with the calendar and the activities on it. A table below lists every calendar: days a week, hours a day (and the stored figure), holidays, the last holiday, and how many activities use it.</li>
+    <li>When a holiday list runs out, the what-if line says how far the forecast finish moves once the missing years get the calendar's own holidays back.</li>
+    <li>Press <b>Download findings (CSV)</b> for one row per activity, to send with the review.</li>
+  </ol>
+  <h2>What it checks</h2>
+  <ul>
+    <li><b>Holidays that run out.</b> A calendar that lists holidays for earlier years and none for a year its open work still runs through (at least 60 days of it). The what-if copies the calendar's last listed year of holidays into each missing year by date and reschedules.</li>
+    <li><b>Hours per Day.</b> The stored figure against the hours the calendar's working days hold. P6 shows durations in days by dividing hours by it, so a mismatch makes every duration in days read wrong. Hours per Week is compared the same way, as a note.</li>
+    <li><b>A name that says another week.</b> A calendar named "5 Day Workweek" that works seven days: the activities a scheduler put on it by name do not work the week they think.</li>
+    <li><b>No holidays at all</b> on a calendar that works fewer than seven days and carries open work.</li>
+    <li><b>Critical work on seven-day calendars</b>, which is right for curing or round-the-clock work and worth a question for anything else.</li>
+    <li><b>No working time</b>, <b>duplicates</b> (two names, the same week and exceptions) and <b>unused calendars</b>.</li>
+  </ul>
+  <p>A holiday on a day the week does not work (a Sunday on a Monday-to-Friday calendar) changes nothing and is not counted.</p>
+  <h2>What it found on public schedules</h2>
+  <p>Measured on six P6 files published on GitHub (the project's <code>eval/calendar-review-2026-11-23.md</code> names them). Three of the six had a holiday list that ran out before the work:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>File</th><th>Finding</th><th>What-if</th></tr></thead>
+    <tbody>
+      <tr><td>Airport terminal building</td><td>The one calendar in use (66 activities) lists holidays to 24 December 2010; the work runs from May 2012 to February 2013</td><td>Finish 2 working days later</td></tr>
+      <tr><td>Small sample file</td><td>Holidays to 25 December 2013; the work runs through 2021</td><td>Finish 2 working days later</td></tr>
+      <tr><td>Hotel project</td><td>"HBTF # 2 - all days" lists holidays to 2010 and carries 29 activities into 2013; "Standard 5 Day Workweek" works seven 9-hour days and says 8 hours a day; "HCRA - Global" (1,103 open activities) lists no holiday at all</td><td>Finish 2 working days later</td></tr>
+      <tr><td>A 16,000-activity programme (CCA)</td><td>Holidays listed to 2016, past the 2013 finish; Hours per Week says 40 on a 6-day calendar (48 hours)</td><td>&ndash;</td></tr>
+      <tr><td>Expressway project</td><td>Holidays cover the work; 30 open critical activities on a 7-day calendar to ask about</td><td>&ndash;</td></tr>
+      <tr><td>Example file from a P6 analyzer</td><td>Nothing found</td><td>&ndash;</td></tr>
+    </tbody>
+  </table></div>
+  <h2>How it was tested</h2>
+  <p>On the six public files, each year of holidays inside the open work on a used calendar was deleted in turn: the review named that calendar and that year 16 times out of 16. Deleting a year before the data date instead raised no new finding 33 times out of 33. Raising a calendar's Hours per Day by one hour was named 12 of 12 times, and setting it to the hours the days really hold raised nothing 12 of 12 times; renaming a calendar for the wrong number of days was named 12 of 12 times, and for the right number raised nothing 12 of 12 times. Where deleting a year made the finish early (7 cases, by 1 to 8 working days), the what-if put it back to within a day of the real holidays' finish in 4 cases; it missed by 3, 4 and 6 days where the year it copied from had a different holiday list from the year deleted.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>The what-if is an estimate.</b> It copies holidays by calendar date, so Easter, Thanksgiving and other moving holidays land on the wrong day, and a year with an unusual list (a shutdown week) is copied as it is.</li>
+    <li><b>Hours per Day may not be the figure P6 shows durations with.</b> P6 uses the calendar's figure when the administrator has set it to; otherwise the admin default. The mismatch matters either way where the two differ from the calendar's real day.</li>
+    <li><b>Not every calendar needs holidays.</b> The review asks; the scheduler and the contract decide.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>Why do holidays matter in a P6 schedule?</h3>
+  <p>P6 counts every duration in working time on the activity's calendar. A holiday the calendar does not list is a working day, so work is scheduled through it and the forecast finish comes out earlier than the site can deliver. On a long project a calendar whose holiday list stops after the first year or two loses about a week and a half of non-working days for every later year.</p>
+  <h3>How do I check whether a P6 calendar's holidays run out?</h3>
+  <p>Export the XER and open it in the free check: under Calendar review it lists every calendar with its holidays per year and flags one whose list stops before the open work on it ends. In P6 itself you would open each calendar under Enterprise, Calendars and page through the months of every remaining year.</p>
+  <h3>What is Hours per Day on a P6 calendar?</h3>
+  <p>The figure P6 divides hours by to show a duration in days. P6 stores durations in hours; when the calendar works 9 hours a day but says 8, an activity shown as 10 days is 80 hours, which takes 8.9 of that calendar's days. The check compares the stored figure with the hours the calendar's working days actually hold.</p>
+  <h3>Should every calendar have holidays?</h3>
+  <p>Not always. A calendar used for curing, dewatering or other round-the-clock work may truly work every day. The check flags a calendar with no holidays only when it works fewer than seven days a week and carries open work, and lists critical work on seven-day calendars as something to ask about, not as a fault.</p>
+  <h3>Is the file uploaded?</h3>
+  <p>No. The schedule is read and analysed in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-find-redundant-logic-in-a-p6-schedule.html">How to find redundant logic in a P6 schedule</a></li>
+    <li><a href="./how-to-convert-p6-xml-to-xer.html">How to convert a P6 XML file to XER</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+    <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
+    <li><a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">How to split concurrent delay between owner and contractor</a></li>
+</ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
