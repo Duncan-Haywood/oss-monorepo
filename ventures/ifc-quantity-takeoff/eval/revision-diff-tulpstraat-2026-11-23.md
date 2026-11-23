@@ -102,8 +102,10 @@ another type.
 | Lake Kegonsa | the other 5 steps | | same | 0 | same |
 | Aalseth (Revit) | 4 steps | | same | 0 | same |
 
-Both Revit series give the same counts as the code before this change, run
-on the same files the same day (baseline from `HEAD`), on every step.
+Both Revit series give the same counts as before on every step: Kegonsa
+against the code before this change run on the same files the same day
+(baseline from `HEAD`), Aalseth against its recorded
+`revision-diff-aalseth-2026-11-22.txt`.
 Kegonsa's 0 -> 1 has two real storey renames too: Revit level `...tjw` keeps
 elevation 0 ft and goes "1st Floor" -> "2nd Floor", `...t3p` keeps 8.04 ft
 and goes "2nd Floor" -> "3rd Floor", and a new level at -3.83 ft takes the
