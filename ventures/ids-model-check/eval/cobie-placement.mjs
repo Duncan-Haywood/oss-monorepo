@@ -88,6 +88,7 @@ for (const f of files) {
       if (!got) { B.none++; k.none++; }
       else if (got === truth) { B.same++; k.same++; }
       else { B.other++; k.other++; }
+      if (copies[i].spaceBy === "box sample") { B.bySample = (B.bySample || 0) + 1; if (got === truth) B.bySampleSame = (B.bySampleSame || 0) + 1; }
       if (copies[i].spaceBy === "placement point") { B.byPoint = (B.byPoint || 0) + 1; if (got === truth) B.byPointSame = (B.byPointSame || 0) + 1; }
     });
     B.byClass = byClass;
@@ -108,6 +109,6 @@ for (const f of files) {
   }
   results.push(r);
   const d = r.doorsWindows, b = r.containedAssets;
-  console.log(`${name}: ${r.error ? "ERROR " + r.error : `rows ${SHEETS.map((s) => r.rows[s]).join("/")}; doors+windows vs boundaries ${d.same}/${d.checked} same, ${d.subset} one side of two, ${d.superset} extra, ${d.differ} differ, ${d.none} none; contained assets ${b.same}/${b.checked} same, ${b.other} other, ${b.none} none (by placement point ${b.byPointSame || 0}/${b.byPoint || 0}); QC ${r.qc.errors} errors ${r.qc.warnings} warnings; ${r.ms.parse}+${r.ms.takeoff}+${r.ms.export} ms`}`);
+  console.log(`${name}: ${r.error ? "ERROR " + r.error : `rows ${SHEETS.map((s) => r.rows[s]).join("/")}; doors+windows vs boundaries ${d.same}/${d.checked} same, ${d.subset} one side of two, ${d.superset} extra, ${d.differ} differ, ${d.none} none; contained assets ${b.same}/${b.checked} same, ${b.other} other, ${b.none} none (by placement point ${b.byPointSame || 0}/${b.byPoint || 0}, by box sample ${b.bySampleSame || 0}/${b.bySample || 0}); QC ${r.qc.errors} errors ${r.qc.warnings} warnings; ${r.ms.parse}+${r.ms.takeoff}+${r.ms.export} ms`}`);
 }
 if (jsonOut) writeFileSync(jsonOut, JSON.stringify(results, null, 1) + "\n");

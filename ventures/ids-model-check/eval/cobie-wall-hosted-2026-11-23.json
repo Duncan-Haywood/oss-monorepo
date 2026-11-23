@@ -1,0 +1,1166 @@
+[
+ {
+  "file": "AC20-FZK-Haus.ifc",
+  "doorsWindows": {
+   "checked": 16,
+   "same": 16,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 2,
+   "Space": 7,
+   "Zone": 0,
+   "Type": 5,
+   "Component": 16,
+   "System": 0,
+   "Attribute": 3415
+  },
+  "notes": [
+   "3 type objects share a Name and class with another and were written as one Type row",
+   "16 of 16 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "96 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 3464,
+   "warnings": 0
+  },
+  "ms": {
+   "parse": 94,
+   "takeoff": 310,
+   "export": 141
+  }
+ },
+ {
+  "file": "C20-Institute-Var-2.ifc",
+  "doorsWindows": {
+   "checked": 283,
+   "same": 282,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 1,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 5,
+   "Space": 82,
+   "Zone": 0,
+   "Type": 7,
+   "Component": 536,
+   "System": 0,
+   "Attribute": 16782
+  },
+  "notes": [
+   "4 type objects share a Name and class with another and were written as one Type row",
+   "536 of 536 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "39248 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 18143,
+   "warnings": 0
+  },
+  "ms": {
+   "parse": 173,
+   "takeoff": 701,
+   "export": 621
+  }
+ },
+ {
+  "file": "FM_ARC_DigitalHub.ifc",
+  "doorsWindows": {
+   "checked": 109,
+   "same": 108,
+   "subset": 1,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 4
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 3,
+   "Space": 64,
+   "Zone": 0,
+   "Type": 9,
+   "Component": 117,
+   "System": 0,
+   "Attribute": 547
+  },
+  "notes": [
+   "15 type objects share a Name and class with another and were written as one Type row",
+   "109 of 117 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "8 of 117 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "190 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 838,
+   "warnings": 0
+  },
+  "ms": {
+   "parse": 219,
+   "takeoff": 17706,
+   "export": 255
+  }
+ },
+ {
+  "file": "ISSUE_005_haus.ifc",
+  "doorsWindows": {
+   "checked": 16,
+   "same": 16,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 2,
+   "Space": 7,
+   "Zone": 0,
+   "Type": 5,
+   "Component": 16,
+   "System": 0,
+   "Attribute": 3415
+  },
+  "notes": [
+   "3 type objects share a Name and class with another and were written as one Type row",
+   "16 of 16 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "96 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 3464,
+   "warnings": 0
+  },
+  "ms": {
+   "parse": 50,
+   "takeoff": 233,
+   "export": 122
+  }
+ },
+ {
+  "file": "ISSUE_021_Mini Project.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 1,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 0,
+   "System": 0,
+   "Attribute": 0
+  },
+  "notes": [
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)"
+  ],
+  "qc": {
+   "errors": 9,
+   "warnings": 1
+  },
+  "ms": {
+   "parse": 93,
+   "takeoff": 7964,
+   "export": 20
+  }
+ },
+ {
+  "file": "ISSUE_034_HouseZ.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 3,
+   "Space": 5,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 37,
+   "System": 0,
+   "Attribute": 0
+  },
+  "notes": [
+   "18 of 37 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "19 of 37 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)"
+  ],
+  "qc": {
+   "errors": 197,
+   "warnings": 1
+  },
+  "ms": {
+   "parse": 89,
+   "takeoff": 1014,
+   "export": 15
+  }
+ },
+ {
+  "file": "ISSUE_044_test_IFCCOMPOSITEPROFILEDEF.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 1,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 0,
+   "System": 0,
+   "Attribute": 20
+  },
+  "notes": [
+   "1 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 3,
+   "warnings": 1
+  },
+  "ms": {
+   "parse": 1,
+   "takeoff": 3,
+   "export": 1
+  }
+ },
+ {
+  "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 903,
+   "same": 813,
+   "other": 90,
+   "none": 0,
+   "byClass": {
+    "IFCFLOWTERMINAL": {
+     "same": 185,
+     "other": 3,
+     "none": 0,
+     "noBox": 0
+    },
+    "IFCFURNISHINGELEMENT": {
+     "same": 542,
+     "other": 85,
+     "none": 0,
+     "noBox": 0
+    },
+    "IFCFLOWCONTROLLER": {
+     "same": 86,
+     "other": 2,
+     "none": 0,
+     "noBox": 0
+    }
+   }
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 5,
+   "Space": 307,
+   "Zone": 0,
+   "Type": 200,
+   "Component": 1479,
+   "System": 0,
+   "Attribute": 64451
+  },
+  "notes": [
+   "250 type objects share a Name and class with another and were written as one Type row",
+   "576 of 1479 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "9947 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 67232,
+   "warnings": 509
+  },
+  "ms": {
+   "parse": 1585,
+   "takeoff": 28259,
+   "export": 1796
+  }
+ },
+ {
+  "file": "ISSUE_102_M3D-CON-CD.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 2,
+   "Floor": 3,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 0,
+   "System": 0,
+   "Attribute": 0
+  },
+  "notes": [
+   "2 IfcBuilding: one Facility row each; COBie expects one facility per workbook",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)"
+  ],
+  "qc": {
+   "errors": 16,
+   "warnings": 3
+  },
+  "ms": {
+   "parse": 425,
+   "takeoff": 9465,
+   "export": 47
+  }
+ },
+ {
+  "file": "ISSUE_102_M3D-CON.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 3,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 0,
+   "System": 0,
+   "Attribute": 0
+  },
+  "notes": [
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)"
+  ],
+  "qc": {
+   "errors": 11,
+   "warnings": 3
+  },
+  "ms": {
+   "parse": 129,
+   "takeoff": 1176,
+   "export": 7
+  }
+ },
+ {
+  "file": "ISSUE_126_model.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 3,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 26,
+   "Component": 86,
+   "System": 0,
+   "Attribute": 80
+  },
+  "notes": [
+   "86 of 86 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "35 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 373,
+   "warnings": 3
+  },
+  "ms": {
+   "parse": 89,
+   "takeoff": 355,
+   "export": 20
+  }
+ },
+ {
+  "file": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 6,
+   "same": 6,
+   "other": 0,
+   "none": 0,
+   "bySample": 6,
+   "bySampleSame": 6,
+   "byClass": {
+    "IFCLIGHTFIXTURE": {
+     "same": 6,
+     "other": 0,
+     "none": 0,
+     "noBox": 0
+    }
+   }
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 4,
+   "Space": 28,
+   "Zone": 0,
+   "Type": 10,
+   "Component": 105,
+   "System": 0,
+   "Attribute": 6068
+  },
+  "notes": [
+   "11 type objects share a Name and class with another and were written as one Type row",
+   "32 of 105 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "67 of 105 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "137 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 6406,
+   "warnings": 3
+  },
+  "ms": {
+   "parse": 218,
+   "takeoff": 10486,
+   "export": 119
+  }
+ },
+ {
+  "file": "ISSUE_171_IfcSurfaceCurveSweptAreaSolid.ifc",
+  "doorsWindows": {
+   "checked": 16,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 16,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 0,
+   "Facility": 1,
+   "Floor": 4,
+   "Space": 1,
+   "Zone": 0,
+   "Type": 2,
+   "Component": 16,
+   "System": 0,
+   "Attribute": 8
+  },
+  "notes": [
+   "45 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 88,
+   "warnings": 3
+  },
+  "ms": {
+   "parse": 3,
+   "takeoff": 32,
+   "export": 3
+  }
+ },
+ {
+  "file": "IfcOpenHouse_IFC4.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 1,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 6,
+   "System": 0,
+   "Attribute": 0
+  },
+  "notes": [
+   "6 of 6 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)"
+  ],
+  "qc": {
+   "errors": 43,
+   "warnings": 0
+  },
+  "ms": {
+   "parse": 2,
+   "takeoff": 13,
+   "export": 1
+  }
+ },
+ {
+  "file": "KIT-Simple-Road-Test-Web-IFC4x3_RC2.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 0,
+   "Facility": 0,
+   "Floor": 0,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 0,
+   "System": 0,
+   "Attribute": 0
+  },
+  "notes": [],
+  "qc": {
+   "errors": 1,
+   "warnings": 0
+  },
+  "ms": {
+   "parse": 22,
+   "takeoff": 35,
+   "export": 1
+  }
+ },
+ {
+  "file": "Office_A_20110811.ifc",
+  "doorsWindows": {
+   "checked": 93,
+   "same": 92,
+   "subset": 1,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 38,
+   "same": 37,
+   "other": 1,
+   "none": 0,
+   "bySample": 6,
+   "bySampleSame": 6,
+   "byClass": {
+    "IFCFLOWTERMINAL": {
+     "same": 30,
+     "other": 1,
+     "none": 0,
+     "noBox": 0
+    },
+    "IFCFURNISHINGELEMENT": {
+     "same": 7,
+     "other": 0,
+     "none": 0,
+     "noBox": 0
+    }
+   }
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 3,
+   "Space": 99,
+   "Zone": 594,
+   "Type": 20,
+   "Component": 209,
+   "System": 0,
+   "Attribute": 12650
+  },
+  "notes": [
+   "13 type objects share a Name and class with another and were written as one Type row",
+   "161 of 209 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "10 of 209 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "247 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 35445,
+   "warnings": 1
+  },
+  "ms": {
+   "parse": 72,
+   "takeoff": 860,
+   "export": 293
+  }
+ },
+ {
+  "file": "S_Office_Integrated Design Archi.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 7,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 26,
+   "Component": 253,
+   "System": 0,
+   "Attribute": 124
+  },
+  "notes": [
+   "3 type objects share a Name and class with another and were written as one Type row",
+   "253 of 253 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "1018 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 533,
+   "warnings": 7
+  },
+  "ms": {
+   "parse": 535,
+   "takeoff": 21417,
+   "export": 104
+  }
+ },
+ {
+  "file": "Sample_entities.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 2,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 1,
+   "Component": 2,
+   "System": 0,
+   "Attribute": 38
+  },
+  "notes": [
+   "2 of 2 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "4 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 54,
+   "warnings": 2
+  },
+  "ms": {
+   "parse": 1,
+   "takeoff": 2,
+   "export": 2
+  }
+ },
+ {
+  "file": "advanced_model.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 4,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 20,
+   "Component": 860,
+   "System": 787,
+   "Attribute": 1008
+  },
+  "notes": [
+   "66 type objects share a Name and class with another and were written as one Type row",
+   "860 of 860 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "887 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 4264,
+   "warnings": 4
+  },
+  "ms": {
+   "parse": 1039,
+   "takeoff": 19997,
+   "export": 173
+  }
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "doorsWindows": {
+   "checked": 254,
+   "same": 203,
+   "subset": 32,
+   "superset": 11,
+   "differ": 6,
+   "none": 2,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 219,
+   "same": 200,
+   "other": 2,
+   "none": 17,
+   "bySample": 25,
+   "bySampleSame": 25,
+   "byClass": {
+    "IFCFLOWTERMINAL": {
+     "same": 100,
+     "other": 2,
+     "none": 0,
+     "noBox": 0
+    },
+    "IFCFURNISHINGELEMENT": {
+     "same": 100,
+     "other": 0,
+     "none": 17,
+     "noBox": 0
+    }
+   }
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 4,
+   "Space": 269,
+   "Zone": 1614,
+   "Type": 36,
+   "Component": 532,
+   "System": 0,
+   "Attribute": 31286
+  },
+  "notes": [
+   "69 type objects share a Name and class with another and were written as one Type row",
+   "312 of 532 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "1 of 532 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "721 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 87596,
+   "warnings": 0
+  },
+  "ms": {
+   "parse": 228,
+   "takeoff": 2884,
+   "export": 1110
+  }
+ },
+ {
+  "file": "duplex.ifc",
+  "doorsWindows": {
+   "checked": 28,
+   "same": 25,
+   "subset": 3,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 61,
+   "same": 61,
+   "other": 0,
+   "none": 0,
+   "byClass": {
+    "IFCFURNISHINGELEMENT": {
+     "same": 61,
+     "other": 0,
+     "none": 0,
+     "noBox": 0
+    }
+   }
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 4,
+   "Space": 21,
+   "Zone": 126,
+   "Type": 20,
+   "Component": 99,
+   "System": 0,
+   "Attribute": 5022
+  },
+  "notes": [
+   "17 type objects share a Name and class with another and were written as one Type row",
+   "38 of 99 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "168 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 14473,
+   "warnings": 0
+  },
+  "ms": {
+   "parse": 31,
+   "takeoff": 596,
+   "export": 101
+  }
+ },
+ {
+  "file": "example.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 2,
+   "Space": 1,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 0,
+   "System": 0,
+   "Attribute": 5
+  },
+  "notes": [
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "2 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 16,
+   "warnings": 3
+  },
+  "ms": {
+   "parse": 6,
+   "takeoff": 387,
+   "export": 1
+  }
+ },
+ {
+  "file": "ifcbridge-model01.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 1,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 0,
+   "Component": 0,
+   "System": 0,
+   "Attribute": 0
+  },
+  "notes": [
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)"
+  ],
+  "qc": {
+   "errors": 9,
+   "warnings": 1
+  },
+  "ms": {
+   "parse": 287,
+   "takeoff": 2024,
+   "export": 26
+  }
+ },
+ {
+  "file": "schependomlaan.ifc",
+  "doorsWindows": {
+   "checked": 54,
+   "same": 49,
+   "subset": 0,
+   "superset": 2,
+   "differ": 0,
+   "none": 3,
+   "noBody": 4
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 6,
+   "Space": 100,
+   "Zone": 0,
+   "Type": 19,
+   "Component": 477,
+   "System": 0,
+   "Attribute": 52468
+  },
+  "notes": [
+   "10 type objects share a Name and class with another and were written as one Type row",
+   "427 of 477 components the file places on a storey only were put in the room their body stands in (doors and windows: the rooms on either side), from the model's geometry",
+   "46 of 477 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "57185 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 53685,
+   "warnings": 102
+  },
+  "ms": {
+   "parse": 565,
+   "takeoff": 4802,
+   "export": 3558
+  }
+ },
+ {
+  "file": "tested_sample_project.ifc",
+  "doorsWindows": {
+   "checked": 0,
+   "same": 0,
+   "subset": 0,
+   "superset": 0,
+   "differ": 0,
+   "none": 0,
+   "noBody": 0
+  },
+  "containedAssets": {
+   "checked": 0,
+   "same": 0,
+   "other": 0,
+   "none": 0,
+   "byClass": {}
+  },
+  "rows": {
+   "Contact": 1,
+   "Facility": 1,
+   "Floor": 2,
+   "Space": 0,
+   "Zone": 0,
+   "Type": 4,
+   "Component": 45,
+   "System": 0,
+   "Attribute": 73
+  },
+  "notes": [
+   "45 of 45 components are in no space (neither in the file nor by geometry); their Space cell is blank",
+   "no owner history names an email address: CreatedBy and Contact.Email are blank (COBie keys contacts by email)",
+   "12 properties repeat a name already written for the same row (another set's); the first set's value was kept"
+  ],
+  "qc": {
+   "errors": 186,
+   "warnings": 2
+  },
+  "ms": {
+   "parse": 9,
+   "takeoff": 274,
+   "export": 4
+  }
+ }
+]

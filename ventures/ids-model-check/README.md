@@ -553,7 +553,8 @@ Two things exports rarely carry, and the tool supplies honestly:
   on a storey, not in a room (38 of 99 components in the Duplex model).
   `--from-geometry` (on by default on the page) runs IFC Quantity Takeoff's
   room reading and puts each in the room its body stands in (or, with no body
-  it can box, the room its placement point stands in); a door or window
+  it can box, the room its placement point stands in; a fitting set into
+  its wall goes to the room most of its box is in); a door or window
   gets the rooms on both sides (`101,102`, as COBie allows).
 - **A contact email.** COBie keys every row's `CreatedBy` to a Contact's
   email, and most owner histories name a login, not an email (all 25 public
