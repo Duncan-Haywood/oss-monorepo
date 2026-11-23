@@ -48,6 +48,18 @@
 //                                              # (bsdd-spec.mjs; goes on the network like --bsdd); stdout
 //                                              # without -o; what could not be carried over on stderr
 //
+//   node cli.mjs --cobie MODEL.ifc -o OUT.xlsx [--from-geometry] [--stage design|handover] [--na] [--all-components] [--no-attributes] [--json]
+//                [--contact "EMAIL,COMPANY,PHONE"] [--contact-category CODE] [--created-on 2026-11-23T09:00:00]
+//                                              # a COBie 2.4 handover workbook from the model (cobie.mjs) and
+//                                              # its QC report; --from-geometry puts components the file leaves
+//                                              # on a storey in the room they stand in (doors and windows: both
+//                                              # sides), read by ../ifc-quantity-takeoff. Exit 0 when the QC finds
+//                                              # no errors, 1 when it does, 2 on a read error
+//   node cli.mjs --cobie-qc WORKBOOK.xlsx|DIR [--stage design|handover] [--json]
+//                                              # QC of any COBie 2.4 workbook (or a folder of one CSV per sheet):
+//                                              # blank required cells, template placeholders, duplicate keys,
+//                                              # references to rows that do not exist, formats, pick lists
+//
 // MODEL may be a STEP .ifc, an .ifcxml, an ifcJSON .json, or an .ifczip holding one.
 //
 // Exit 0 when every specification passes, 1 when one fails, 2 on a usage or
@@ -77,11 +89,62 @@ import { toStep } from "./step-writer.mjs";
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
-const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--html", "--max-failures", "--word-class", "--sets", "--schema", "--layer", "--values", "--to-fill", "-o"].includes(args[i - 1]));
+const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--html", "--max-failures", "--word-class", "--sets", "--schema", "--layer", "--values", "--to-fill", "--stage", "--contact", "--contact-category", "--created-on", "-o"].includes(args[i - 1]));
 // --layer FILE (repeatable): an IFC5 layer composed over the .ifcx model,
 // in the order given (ifcx.mjs).
 const layers = args.flatMap((a, i) => (args[i - 1] === "--layer" ? [a] : []));
-if (flag("--from-bsdd") && files.length) {
+const stage = opt("--stage") || "design";
+if ((flag("--cobie") || flag("--cobie-qc")) && !["design", "handover"].includes(stage)) { console.error("--stage takes design or handover"); process.exit(2); }
+if (flag("--cobie") && files.length === 1) {
+  const { cobieFromModel, cobieToXlsx, cobieQc, qcText, numberRows, placementFromTakeoff, SHEETS } = await import("./cobie.mjs");
+  let c;
+  try {
+    const read = await readModel(files[0]);
+    const model = parseModel(read.bytes);
+    let placement = null;
+    if (flag("--from-geometry")) {
+      if (model.format !== "STEP") console.error("note: --from-geometry reads STEP models only; run --to-step first");
+      else {
+        const { parseStep } = await import("../ifc-quantity-takeoff/step.mjs");
+        const { takeoff } = await import("../ifc-quantity-takeoff/qto.mjs");
+        placement = placementFromTakeoff(takeoff(parseStep(read.text)));
+      }
+    }
+    // --contact "email[,company[,phone]]": the person delivering the workbook,
+    // for rows whose owner history names no email; --created-on ISO for
+    // rows with no creation date.
+    const ct = opt("--contact");
+    const [Email, Company = "", Phone = ""] = ct ? ct.split(",").map((x) => x.trim()) : [];
+    const contact = Email ? { Email, Company, Phone, Category: opt("--contact-category") || "" } : null;
+    c = numberRows(cobieFromModel(model, { placement, contact, createdOn: opt("--created-on") || null, na: flag("--na"), components: flag("--all-components") ? "all" : "assets", attributes: !flag("--no-attributes") }));
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  for (const n of c.notes) console.error(`note: ${n}`);
+  console.error(SHEETS.map((s) => `${s} ${c.sheets[s].length}`).join(", "));
+  if (opt("-o")) writeFileSync(opt("-o"), cobieToXlsx(c));
+  const qc = cobieQc(c.sheets, { stage });
+  if (flag("--json")) console.log(JSON.stringify({ notes: c.notes, qc }, null, 1));
+  else process.stdout.write(qcText(qc));
+  process.exitCode = qc.errors ? 1 : 0;
+} else if (flag("--cobie-qc") && files.length === 1) {
+  const { cobieFromXlsx, cobieFromRows, cobieQc, qcText } = await import("./cobie.mjs");
+  const { csvToRows } = await import("./sheet.mjs");
+  const { statSync, readdirSync } = await import("node:fs");
+  let sheets;
+  try {
+    if (statSync(files[0]).isDirectory()) {
+      const by = {};
+      for (const f of readdirSync(files[0])) if (/\.(csv|tsv)$/i.test(f)) by[f.replace(/\.\w+$/, "")] = csvToRows(readFileSync(`${files[0]}/${f}`, "utf8"));
+      sheets = cobieFromRows(by);
+    } else {
+      const bytes = readFileSync(files[0]);
+      sheets = await cobieFromXlsx(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length), (b) => inflateRawSync(b));
+    }
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  const qc = cobieQc(sheets, { stage });
+  if (flag("--json")) console.log(JSON.stringify(qc, null, 1));
+  else process.stdout.write(qcText(qc));
+  process.exitCode = qc.errors ? 1 : 0;
+} else if (flag("--from-bsdd") && files.length) {
   // Exit 0 when every class was found, 1 when one was not, 2 on a usage error.
   const schemaId = opt("--schema");
   if (schemaId !== undefined && !["IFC2X3", "IFC4", "IFC4X3"].includes(schemaId)) { console.error("--schema takes IFC2X3, IFC4 or IFC4X3 (for classes outside the IFC dictionary)"); process.exit(2); }
@@ -246,7 +309,7 @@ if (flag("--from-bsdd") && files.length) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry [--densities D.csv]]\n       node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx -o OUT.ifc");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry [--densities D.csv]]\n       node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx -o OUT.ifc\n       node cli.mjs --cobie MODEL.ifc -o OUT.xlsx [--from-geometry] [--stage design|handover] [--contact EMAIL,COMPANY,PHONE] [--created-on ISO] [--na]\n       node cli.mjs --cobie-qc WORKBOOK.xlsx|CSV-DIR [--stage design|handover] [--json]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
