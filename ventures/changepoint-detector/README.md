@@ -9498,7 +9498,8 @@ sign-ups stop" is most likely to already have.
 - **In the workflow.** Secret `PLAUSIBLE_API_KEY`, variable `PLAUSIBLE_SITE`, optional `PLAUSIBLE_OPTIONS`
   (`--goal Signup --goal "Visit /thanks"`, read as a shell reads it, so a quoted name with a space stays one goal) and
   `PLAUSIBLE_URL`. With `METRIC_CSV` unset and no other source, the watch follows visitors, page views and every
-  `goal_` column the fetch wrote, as counts; `WATCH_WEEKLY=on` adds weekly visitors. The CSV is cached, never committed;
+  `goal_` column the fetch wrote, as counts with the middle setting since 2026-11-23 (README "Visitors under a partial
+  snippet loss"); `WATCH_WEEKLY=on` adds weekly visitors. The CSV is cached, never committed;
   the no-terminal set-up on the watch page and `make-watch-repo.sh` both carry the new module.
 - **Which columns by default** (`eval/plausible-columns.mjs`, 40 simulated sites with faults and 40 without, 242 days
   each, about 400 visitors a weekday with weekends at half, 2% signing up; a fault is heard when the watch dates it
@@ -9507,7 +9508,10 @@ sign-ups stop" is most likely to already have.
   visitors, visits and page views sent no false date at all; the goal column sent 3 false dates on 2 sites, and 4 more
   on the faulted sites. Visits add nothing visitors do not hear, so they are fetched but not watched by default.
   In a variant with one more random draw per day the counts moved by one or two (page views 38 of 40, visits 39): treat
-  them as rates of about 95-100%, not exact.
+  them as rates of about 95-100%, not exact. **Corrected 2026-11-23:** this simulation cut visitors by the whole lost
+  share, which a real tag loss does not do (a person who sees one still-tagged page is counted). Simulated person by
+  person, the count default heard the fall in visitors on 0 of 40, and the workflow now uses the middle setting
+  (README "Visitors under a partial snippet loss").
 - **How it was checked** (`plausible-metrics.test.mjs`, 6 tests, a stand-in for the Stats API v2 that leaves out
   days with nothing to count, as Plausible does, and pages at 50 rows): the request body (site_id, metrics,
   date_range, time:day, goal filter, include.imports), paging, zero-filled days, goal columns matched to the right
@@ -9612,7 +9616,8 @@ PostHog.
 - **In the workflow.** Secret `UMAMI_API_KEY`, variable `UMAMI_WEBSITE`, optional `UMAMI_OPTIONS`
   (`--event signup --event "Checkout started" --timezone Europe/Berlin`, read as a shell reads it) and `UMAMI_URL`.
   With `METRIC_CSV` unset and no other source, the watch follows page views, visitors and every `event_` column, as
-  counts; `WATCH_WEEKLY=on` adds weekly visitors. The CSV is cached, never committed; the no-terminal set-up on the
+  counts with the middle setting since 2026-11-23 (README "Visitors under a partial snippet loss"); `WATCH_WEEKLY=on`
+  adds weekly visitors. The CSV is cached, never committed; the no-terminal set-up on the
   watch page and `make-watch-repo.sh` both carry the module. The workflow file grew to 12,312 characters; the watch
   page's create-the-workflow link stays under its 16,000 budget (`watch-repo.test.mjs`).
 - **How it was checked** (`umami-metrics.test.mjs`, 6 tests, a stand-in that answers both routes, page views in the
@@ -9741,8 +9746,8 @@ as Matomo Cloud. The watch had no Matomo source, so a Matomo user had to export 
 
   So the Matomo workflow's default `WATCH_OPTIONS` is the middle setting. The weakest cell is visits at share 0.6 with
   40% weekends, heard on 35 of 40; page views hear the same fault on 40. A finding for the Umami source: its simulation
-  thinned visitors by the share directly, so it never tested this effect. Umami's `visitors` is a session count too and
-  probably falls less than page views in the same way (open item).
+  thinned visitors by the share directly, so it never tested this effect. Umami's `visitors` is a session count too;
+  tested next (README "Visitors under a partial snippet loss": it does fall less, and so do Plausible's visitors).
 - **How it was checked** (`matomo-metrics.test.mjs`, 6 tests). The tests run against a stand-in for the Reporting API
   that reads the POST form (module, method, format, idSite, period, date, idGoal, flat, filter_limit, token_auth). It
   answers each day as a row or `[]`, and errors as HTTP 200 with Matomo's own messages. Covered:
@@ -9760,6 +9765,48 @@ as Matomo Cloud. The watch had no Matomo source, so a Matomo user had to export 
   instance would first settle: whether `Events.getAction` with `flat=1` labels rows by the bare action, whether a
   480-day first fetch in 180-day windows archives in time on a busy server with browser archiving off, and how Matomo
   Cloud's rate limits treat 4 to 6 calls a run.
+
+## Visitors under a partial snippet loss: Umami and Plausible get the middle setting (2026-11-23, pre-registered; V1-V3 pass for both)
+
+The Umami and Plausible simulations (`eval/umami-timezone.mjs`, `eval/plausible-columns.mjs`) cut `visitors` by the
+whole share of pages that lost the tracking snippet. A real loss does not do that. Umami's `visitors` counts sessions
+with a page view and Plausible's counts people, and a session or person still counts if any one of their page views
+is tracked. Matomo's visits and Mixpanel's first-event users had already shown how much this matters (above). So both
+earlier "visitors heard on 40 of 40" results were artefacts of the simulation.
+
+- **The simulation** (`eval/visitor-columns.mjs`, output `eval/visitor-columns.out.txt`, about 1 min). Each person and
+  session is drawn one by one: Poisson(400) people a weekday, weekends at half or 40%, 1 + Poisson(0.2) sessions a
+  person, 1 + Poisson(1.2) page views a session. On 2026-03-16 each page view is tracked with probability 0.6 or 0.5.
+  On 2026-01-12 a sign-up form drops to 35% of its events. Each source's columns are watched as its workflow writes
+  them. Over the four weeks either side of the loss, page views fell to 0.60 and 0.50 of their old level, Umami's
+  sessions only to 0.81 and 0.73, and Plausible's people to 0.84 and 0.77.
+- **The rule, pre-registered** (the file's header, committed before it ran; fresh seeds 6001-6040 faulted, 7001-7040
+  with no fault). For each source: (V0) if the count default already heard visitors on at least 36 of 40 at share 0.5
+  at both weekend depths, nothing would change. Otherwise the middle setting would ship if, at both depths, (V1) it
+  heard visitors on at least 36 of 40 at share 0.5, (V2) it heard page views and sign-ups on no fewer than the
+  default's count minus 2 in each faulted cell, and (V3) its false dates on the no-fault sites, summed over the three
+  columns, were at most the default's plus 2.
+
+| source, arm | visitors heard (share 0.6 / 0.5, weekends 0.5) | same, weekends 0.4 | page views, sign-ups heard (worst cell) | false dates, no fault (0.5 / 0.4) | verdict |
+|---|---|---|---|---|---|
+| Umami, count default | 0 / 1 | 0 / 2 | 33, 39 | 4 / 3 | V0 fails |
+| Umami, middle | 40 / 40 | 40 / 40 | 40, 40 | 4 / 2 | **passes V1-V3** |
+| Plausible, count default | 0 / 0 | 0 / 0 | 33, 39 | 4 / 3 | V0 fails |
+| Plausible, middle | 40 / 40 | 39 / 40 | 40, 40 | 4 / 2 | **passes V1-V3** |
+
+  Both workflows' default `WATCH_OPTIONS` are now the middle setting (`--detector pelt --overdispersion nb --trend
+  gated`), as for Mixpanel and Matomo. Beyond the bars, it also heard page views on 40 of 40 where the default heard
+  33 (share 0.6, weekends at 40%), and it sent fewer other dates on the faulted sites' sign-up column (3-6 against 7).
+  Every false date on the healthy sites came from the sign-up column, at about 8 a day.
+- **What changed.** `deploy/watch-metric.yml` (and `watch-repo-files.mjs`, rebuilt from it) adds `$MIDDLE` to the
+  Plausible and Umami defaults. The watch page and `llms.txt` replace the old "heard on all 40" lines. A repository
+  that already sets `WATCH_OPTIONS` keeps its own setting.
+- **Not checked.** The model tracks or drops each page view at random. A real loss is usually by template: the pages
+  built from that template go dark for everyone. Visitors who only land on those pages then vanish, so visitors fall
+  further than here, which makes this the hard case for the column. Growth was not simulated; `--trend gated` is what
+  lets a growing site grow (README "The joint growth fit, gated"). PostHog's `users` (people who did any named event) is the
+  same kind of count, and its simulation (`eval/posthog-columns.mjs`) left `users` unchanged by the loss; GA4's
+  `activeUsers` has no column eval. Simulating both person by person is the next item.
 
 ## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
 
