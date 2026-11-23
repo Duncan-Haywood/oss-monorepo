@@ -1,9 +1,12 @@
 // Loads every file in CARD_DIR into site/cull.html (served at URL) in headless
 // Chromium, then prints one JSON line: seconds to read, the status line, tiles,
 // JS heap, and 50 arrow-key moves timed. Used for eval/cull-card-500-2026-11-23.md.
-// Needs Playwright with Chromium: pass its index.js path in PLAYWRIGHT, e.g.
-//   PLAYWRIGHT=$(node -p "require.resolve('playwright')") node eval/cull-card-run.mjs URL DIR
-const { chromium } = (await import(process.env.PLAYWRIGHT || "playwright")).default;
+// Needs Playwright with Chromium (found as platform/pages/load-playwright.mjs
+// finds it: PLAYWRIGHT, the bare name, NODE_PATH, then /opt/node-tools).
+import { loadPlaywright } from "../../../platform/pages/load-playwright.mjs";
+const pw = await loadPlaywright();
+if (!pw) { console.error("playwright not found:", loadPlaywright.lastError); process.exit(2); }
+const { chromium } = pw;
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 const [url, dir] = process.argv.slice(2);
