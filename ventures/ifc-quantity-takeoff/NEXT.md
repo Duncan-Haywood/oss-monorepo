@@ -40,7 +40,7 @@
 
 ## buildingSMART IFC4.3 samples (landed 2026-11-22, eval/bsi-samples-2026-11-22.md)
 
-- Cant: `segmented-reference-curve` is buildingSMART's own IfcSegmentedReferenceCurve sample (an alignment with cant, no element on it). Read it in alignment.mjs and check its stations against IfcOpenShell, then place parts on it.
+- (landed 2026-11-23, eval/cant-2026-11-23.md) Cant read: IfcSegmentedReferenceCurve (elevation and roll by each segment's parent function, the sample text's formulas to 1e-17 m, IfcOpenShell's roll to 0.0001 deg) and IfcCosineSpiral horizontals. Left: a public rail model with cant and parts placed on it (none found in the bSI samples); the sine and polynomial spirals (horizontal and cant); checking the curve against the semantic IfcAlignmentCant (rail heads) for every station, not only the sample's two ends; telling IfcOpenShell its elevation change is L times the text's (an outside report, owner's call).
 - (landed 2026-11-23, eval/bar-tubes-2026-11-23.md) Swept disks drawn as tubes and boxed (bSI bar boxes 0 to 35 of 35). Left: instance identical bars in a Tekla group (SENDA-E-O's 6,478 bars drop to 3 sides to fit 600k triangles); swept disks outside rebar (handrails, pipes) not looked for; a hollow tube's bore.
 - `IfcGridPlacement` offsets are read as offset curves to the left of each axis's direction (IfcOffsetCurve2D's sense); IfcOpenShell 0.9 builds no grid-placed element to check against. Find a public model with offset grid placements.
 

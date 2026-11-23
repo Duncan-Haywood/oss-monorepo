@@ -121,7 +121,7 @@ test("a curve it cannot draw: the cached CartesianPosition stands in, else the e
   const pre = `#1=IFCCARTESIANPOINT((0.,0.,0.));
 #2=IFCAXIS2PLACEMENT3D(#1,$,$);
 #3=IFCLOCALPLACEMENT($,#2);
-#4=IFCSEGMENTEDREFERENCECURVE((),.F.,$,$);
+#4=IFCOFFSETCURVEBYDISTANCES($,(),$);
 #5=IFCPOINTBYDISTANCEEXPRESSION(IFCLENGTHMEASURE(10.),0.,0.,$,#4);
 #6=IFCAXIS2PLACEMENTLINEAR(#5,$,$);
 #7=IFCCARTESIANPOINT((4.,5.,6.));
@@ -148,7 +148,7 @@ ${box(40, 10)}
   assert.equal(col.computed.status, "ok");
   assert.ok(Math.abs(col.computed.gross - 2) < 1e-9);
   assert.equal(beam.computed.status, "not read");
-  assert.match(beam.computed.reason, /^placement: basis curve IFCSEGMENTEDREFERENCECURVE/);
+  assert.match(beam.computed.reason, /^placement: basis curve IFCOFFSETCURVEBYDISTANCES/);
 });
 
 // IfcSectionedSolidHorizontal: lofted between cross-sections along the directrix
@@ -198,4 +198,90 @@ ${loft("#52", [a, b], [0, 25])}`;
   assert.ok(Math.abs(s.mesh / want - 1) < 1e-9, `volume ${s.mesh} vs ${want}`);
   assert.equal(s.notes.length, 1);
   assert.match(s.notes[0], /5\.000 m past the end of its directrix/);
+});
+
+// Cant: an IfcSegmentedReferenceCurve over a level, straight 200 m track.
+// The right rail rises 0 to 0.15 m over 80 m on a cosine run-in (D(s) =
+// L/A0 + L/A1 cos(pi s/L), as buildingSMART's sample text writes it), holds
+// 0.15 m for 40 m (an IfcLine), and runs out linearly over 80 m (a clothoid,
+// L times whose curvature is linear). Railhead distance 1.5 m: the full
+// cant's roll is atan(0.15 / 1.5), its centreline raised half the cant.
+const roll = Math.atan(0.15 / 1.5);
+const CANT = `
+#1=IFCCARTESIANPOINT((0.,0.));
+#2=IFCDIRECTION((1.,0.));
+#3=IFCAXIS2PLACEMENT2D(#1,#2);
+#4=IFCVECTOR(#2,1.);
+#5=IFCLINE(#1,#4);
+#6=IFCCURVESEGMENT(.CONTINUOUS.,#3,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(200.),#5);
+#7=IFCCOMPOSITECURVE((#6),.F.);
+#8=IFCCURVESEGMENT(.CONTINUOUS.,#3,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(200.),#5);
+#9=IFCGRADIENTCURVE((#8),.F.,#7,$);
+#10=IFCDIRECTION((1.,0.,0.));
+#11=IFCDIRECTION((0.,0.,1.));
+#12=IFCDIRECTION((0.,${Math.sin(roll)},${Math.cos(roll)}));
+#13=IFCCARTESIANPOINT((0.,0.,0.));
+#14=IFCAXIS2PLACEMENT3D(#13,#11,#10);
+#15=IFCCOSINESPIRAL(#3,${-80 / 0.0375},${80 / 0.0375});
+#16=IFCCURVESEGMENT(.CONTINUOUS.,#14,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(80.),#15);
+#17=IFCCARTESIANPOINT((80.,0.075,0.));
+#18=IFCAXIS2PLACEMENT3D(#17,#12,#10);
+#19=IFCCURVESEGMENT(.CONTINUOUS.,#18,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(40.),#5);
+#20=IFCCARTESIANPOINT((120.,0.075,0.));
+#21=IFCAXIS2PLACEMENT3D(#20,#12,#10);
+#22=IFCCLOTHOID(#3,500.);
+#23=IFCCURVESEGMENT(.CONTINUOUS.,#21,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(80.),#22);
+#24=IFCCARTESIANPOINT((200.,0.,0.));
+#25=IFCAXIS2PLACEMENT3D(#24,#11,#10);
+#26=IFCSEGMENTEDREFERENCECURVE((#16,#19,#23),.F.,#9,#25);
+`;
+
+test("cant: elevation, slope and roll follow each segment's function between its placement and the next", () => {
+  const A = new AlignmentReader(new Geometry(parseStep(file(CANT))));
+  const B = A.basis(26);
+  assert.equal(B.length, 200);
+  const D = (s) => 0.0375 - 0.0375 * Math.cos((Math.PI * s) / 80);
+  for (const s of [0, 10, 20, 40, 60, 80]) {
+    const c = B.cant(s);
+    assert.ok(Math.abs(c.y - D(s)) < 1e-12, `D(${s}) ${c.y} vs ${D(s)}`);
+    // theta moves linearly with D (the sample text), so the roll does too
+    assert.ok(Math.abs(c.roll - (roll * D(s)) / 0.075) < 1e-12, `roll at ${s}`);
+  }
+  assert.ok(Math.abs(B.cant(40).dy - (0.0375 * Math.PI) / 80) < 1e-7, "slope at the run-in's middle");
+  // the constant stretch on an IfcLine: no change
+  for (const s of [80, 100, 120]) { assert.ok(Math.abs(B.cant(s).y - 0.075) < 1e-12); assert.ok(Math.abs(B.cant(s).roll - roll) < 1e-12); }
+  // the clothoid run-out: linear to the EndPoint
+  for (const s of [130, 160, 190, 200]) assert.ok(Math.abs(B.cant(s).y - 0.075 * (1 - (s - 120) / 80)) < 1e-12, `run-out at ${s}`);
+  assert.ok(Math.abs(B.cant(160).dy + 0.075 / 80) < 1e-9, "run-out slope");
+  // the 3D frame: raised by D, rolled about the tangent, the high (right) rail up
+  near(B.frame(100).p, [100, 0, 0.075], 1e-12, "raised centreline");
+});
+
+test("cant: a linear placement's offsets and axes turn with the roll, and a sleeper on it is boxed tilted", () => {
+  const sleeper = (id, d) => `
+#${id}=IFCPOINTBYDISTANCEEXPRESSION(IFCLENGTHMEASURE(${d}),0.,0.,$,#26);
+#${id + 1}=IFCAXIS2PLACEMENTLINEAR(#${id},$,$);
+#${id + 2}=IFCLINEARPLACEMENT($,#${id + 1},$);
+#${id + 3}=IFCEXTRUDEDAREASOLID(#901,#902,#11,0.2);
+#${id + 4}=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#${id + 3}));
+#${id + 5}=IFCPRODUCTDEFINITIONSHAPE($,$,(#${id + 4}));
+#${id + 6}=IFCBEAM('${id}vctVUKr0kugbFTf53O',$,'sleeper',$,$,#${id + 2},#${id + 5},$,$);`;
+  const ifc = file(`${CANT}
+#900=IFCCARTESIANPOINT((0.,0.));
+#901=IFCRECTANGLEPROFILEDEF(.AREA.,$,$,0.25,2.6);
+#902=IFCAXIS2PLACEMENT3D(#13,$,$);
+${sleeper(1000, 100)}
+${sleeper(1100, 0)}`);
+  const geo = new Geometry(parseStep(ifc));
+  const M = geo.objectPlacement(1002);
+  // 0.75 m to the left drops by 0.75 sin(roll); 1 m up leans to the left
+  near(apply(M, [0, 0.75, 0]), [100, 0.75 * Math.cos(roll), 0.075 - 0.75 * Math.sin(roll)], 1e-12, "left rail");
+  near(apply(M, [0, 0, 1]), [100, Math.sin(roll), 0.075 + Math.cos(roll)], 1e-12, "up");
+  const { rows } = takeoff(parseStep(ifc));
+  const on = rows.find((r) => r.id === 1006), off = rows.find((r) => r.id === 1106);
+  for (const r of [on, off]) { assert.equal(r.computed.status, "ok"); assert.ok(Math.abs(r.computed.gross - 0.25 * 2.6 * 0.2) < 1e-9); }
+  // the box: where the rolled 2.6 m sleeper reaches (its low end at the left rail), and a level one at the start
+  const sn = Math.sin(roll), cs = Math.cos(roll);
+  near(on.box, [99.875, -1.3 * cs, 0.075 - 1.3 * sn, 100.125, 1.3 * cs + 0.2 * sn, 0.075 + 1.3 * sn + 0.2 * cs], 1e-9, "tilted sleeper box");
+  near(off.box, [-0.125, -1.3, 0, 0.125, 1.3, 0.2], 1e-9, "level sleeper box");
 });

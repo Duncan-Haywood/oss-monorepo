@@ -616,8 +616,8 @@ flagships:
       misses traced 2026-11-21: overlapping body items joined (a cabinet had counted
       1.8x its box), 9,310 of 9,312 now enclose the computed volume
       (eval/item-union-2026-11-21.md; next in NEXT.md). IFC4X3 bridges, rebar on
-      arcs, grid placements, fixed-reference sweeps 2026-11-22
-      (eval/linear-placement-*, eval/bsi-samples-*); next cant, a 2nd bridge
+      arcs, grid placements, fixed-reference sweeps 2026-11-22, cant 2026-11-23
+      (eval/linear-placement-*, eval/bsi-samples-*, eval/cant-*); next a 2nd bridge
       (NEXT.md). Bar schedule (rebar.mjs, eval/rebar-*; hooks 2026-11-23, file
       angles 45/45; drawn as tubes 2026-11-23); next Tekla's E rule (NEXT.md). Room
       schedule 2026-11-21 (eval/rooms-2026-11-21.md); next: HouseZ's 3 openings 0.51
