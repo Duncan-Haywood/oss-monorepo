@@ -1,0 +1,89 @@
+# Milestone 11be: first-crossing against most-bands budget on fresh layouts in two cities (first_crossing.py's docstring). 24 + 24 layouts, 192 + 192 draws; frozen budget p_N = 0.02716; seed clashes: 0
+
+## NYC, M = 12, s = 1.0 (48 draws)
+  S6     median 1.0000  p90 1.0003  mean 1.0015  max 1.0276  effort 300.0 descents  (within 1%: 45 of 48)
+  F6     median 1.0000  p90 1.0003  mean 1.0015  max 1.0276  effort 300.0 descents  (within 1%: 45 of 48)
+  FU     median 1.0000  p90 1.0003  mean 1.0015  max 1.0276  effort 300.0 descents  (within 1%: 45 of 48)
+  oracle median 1.0000  p90 1.0003  mean 1.0015  max 1.0276  effort 600.0 descents  (within 1%: 45 of 48)
+  leak non-monotone up to k_B: 0 of 48 draws; k_F != k_B: 0
+
+## NYC, M = 12, s = 2.0 (48 draws)
+  S6     median 1.0000  p90 1.0000  mean 1.0000  max 1.0009  effort 300.0 descents  (within 1%: 48 of 48)
+  F6     median 1.0000  p90 1.0000  mean 1.0000  max 1.0009  effort 300.0 descents  (within 1%: 48 of 48)
+  FU     median 1.0000  p90 1.0000  mean 1.0000  max 1.0009  effort 302.1 descents  (within 1%: 48 of 48)
+  oracle median 1.0000  p90 1.0000  mean 1.0000  max 1.0009  effort 600.0 descents  (within 1%: 48 of 48)
+  leak non-monotone up to k_B: 2 of 48 draws; k_F != k_B: 1
+    layout 1273: k_B 5, k_F 3, best 3; S6 1.0000, F6 1.0000, FU 1.0000; leak 1:0 / 2:0 / 3:7.2e-06 / 4:0.087 / 5:0.023 / 6:0.03 / 7:0.17 / 8:0.41
+
+## NYC, M = 16, s = 1.0 (48 draws)
+  S6     median 1.0000  p90 1.0068  mean 1.0023  max 1.0284  effort 300.0 descents  (within 1%: 45 of 48)
+  F6     median 1.0000  p90 1.0068  mean 1.0023  max 1.0284  effort 300.0 descents  (within 1%: 45 of 48)
+  FU     median 1.0000  p90 1.0068  mean 1.0023  max 1.0284  effort 300.0 descents  (within 1%: 45 of 48)
+  oracle median 1.0000  p90 1.0068  mean 1.0023  max 1.0284  effort 600.0 descents  (within 1%: 45 of 48)
+  leak non-monotone up to k_B: 0 of 48 draws; k_F != k_B: 0
+
+## NYC, M = 16, s = 2.0 (48 draws)
+  S6     median 1.0000  p90 1.0029  mean 1.0042  max 1.1745  effort 300.0 descents  (within 1%: 46 of 48)
+  F6     median 1.0000  p90 1.0022  mean 1.0006  max 1.0160  effort 300.0 descents  (within 1%: 47 of 48)
+  FU     median 1.0000  p90 1.0022  mean 1.0006  max 1.0160  effort 303.1 descents  (within 1%: 47 of 48)
+  oracle median 1.0000  p90 1.0022  mean 1.0006  max 1.0160  effort 600.0 descents  (within 1%: 47 of 48)
+  leak non-monotone up to k_B: 1 of 48 draws; k_F != k_B: 1
+    layout 1674: k_B 6, k_F 3, best 3; S6 1.1745, F6 1.0000, FU 1.0000; leak 1:0 / 2:0 / 3:1.4e-06 / 4:0.09 / 5:0.023 / 6:0.025 / 7:0.26 / 8:0.44
+
+## Chicago, M = 12, s = 1.0 (48 draws)
+  S6     median 1.0000  p90 1.0093  mean 1.0024  max 1.0180  effort 300.0 descents  (within 1%: 43 of 48)
+  F6     median 1.0000  p90 1.0093  mean 1.0024  max 1.0180  effort 300.0 descents  (within 1%: 43 of 48)
+  FU     median 1.0000  p90 1.0093  mean 1.0024  max 1.0180  effort 304.2 descents  (within 1%: 43 of 48)
+  oracle median 1.0000  p90 1.0093  mean 1.0024  max 1.0180  effort 600.0 descents  (within 1%: 43 of 48)
+  leak non-monotone up to k_B: 3 of 48 draws; k_F != k_B: 2
+    layout 1286: k_B 6, k_F 4, best 5; S6 1.0000, F6 1.0000, FU 1.0000; leak 1:0 / 2:0 / 3:0 / 4:4.2e-05 / 5:0.083 / 6:0.024 / 7:0.083 / 8:0.38
+    layout 1292: k_B 6, k_F 4, best 4; S6 1.0000, F6 1.0000, FU 1.0000; leak 1:0 / 2:0 / 3:0 / 4:0.0002 / 5:0.091 / 6:0.019 / 7:0.08 / 8:0.37
+
+## Chicago, M = 12, s = 2.0 (48 draws)
+  S6     median 1.0000  p90 1.0024  mean 1.0060  max 1.1542  effort 300.0 descents  (within 1%: 44 of 48)
+  F6     median 1.0000  p90 1.0000  mean 1.0011  max 1.0293  effort 300.0 descents  (within 1%: 46 of 48)
+  FU     median 1.0000  p90 1.0000  mean 1.0011  max 1.0293  effort 308.3 descents  (within 1%: 46 of 48)
+  oracle median 1.0000  p90 1.0000  mean 1.0011  max 1.0293  effort 600.0 descents  (within 1%: 46 of 48)
+  leak non-monotone up to k_B: 3 of 48 draws; k_F != k_B: 3
+    layout 1286: k_B 5, k_F 3, best 3; S6 1.0000, F6 1.0000, FU 1.0000; leak 1:0 / 2:0 / 3:1.8e-05 / 4:0.067 / 5:0.019 / 6:0.062 / 7:0.072 / 8:0.39
+    layout 1286: k_B 6, k_F 3, best 3; S6 1.0844, F6 1.0000, FU 1.0000; leak 1:0 / 2:0 / 3:6.3e-06 / 4:0.16 / 5:0.16 / 6:0.027 / 7:0.12 / 8:0.39
+    layout 1292: k_B 6, k_F 3, best 3; S6 1.1542, F6 1.0000, FU 1.0000; leak 1:0 / 2:0 / 3:5.7e-06 / 4:0.2 / 5:0.17 / 6:0.023 / 7:0.11 / 8:0.38
+
+## Chicago, M = 16, s = 1.0 (48 draws)
+  S6     median 1.0000  p90 1.0101  mean 1.0022  max 1.0294  effort 300.0 descents  (within 1%: 43 of 48)
+  F6     median 1.0000  p90 1.0101  mean 1.0022  max 1.0294  effort 300.0 descents  (within 1%: 43 of 48)
+  FU     median 1.0000  p90 1.0101  mean 1.0022  max 1.0294  effort 300.0 descents  (within 1%: 43 of 48)
+  oracle median 1.0000  p90 1.0101  mean 1.0022  max 1.0294  effort 600.0 descents  (within 1%: 43 of 48)
+  leak non-monotone up to k_B: 1 of 48 draws; k_F != k_B: 0
+
+## Chicago, M = 16, s = 2.0 (48 draws)
+  S6     median 1.0000  p90 1.0017  mean 1.0005  max 1.0062  effort 300.0 descents  (within 1%: 48 of 48)
+  F6     median 1.0000  p90 1.0017  mean 1.0005  max 1.0062  effort 300.0 descents  (within 1%: 48 of 48)
+  FU     median 1.0000  p90 1.0017  mean 1.0005  max 1.0062  effort 302.1 descents  (within 1%: 48 of 48)
+  oracle median 1.0000  p90 1.0017  mean 1.0005  max 1.0062  effort 600.0 descents  (within 1%: 48 of 48)
+  leak non-monotone up to k_B: 2 of 48 draws; k_F != k_B: 1
+    layout 1687: k_B 5, k_F 3, best 5; S6 1.0000, F6 1.0000, FU 1.0000; leak 1:0 / 2:0 / 3:5.2e-06 / 4:0.04 / 5:0.02 / 6:0.066 / 7:0.17 / 8:0.42
+
+  pooled: F6 worse than S6 on 0 draws, better on 3, of 384; F6 worst 1.0294, FU worst 1.0294
+  k_F != k_B: NYC 2 of 192, Chicago 6 of 192
+
+# Without a prediction: all data sets (11ax to 11be), S6 / F6 / FU, pooled over M and s
+# set                  draws | k differs | S6 max  F6 max  FU max | F6 worse  better | FU mean effort
+  NYC old (11ax)        384 |    8      | 1.0371  1.0371  1.0371 |   0        0   | 302.3
+  NYC fresh 1 (11ba)    192 |    1      | 1.0489  1.0489  1.0489 |   0        0   | 300.5
+  NYC fresh 2 (11bb)    192 |    4      | 1.0377  1.0377  1.0377 |   0        0   | 302.1
+  NYC fresh 3 (11bc)    192 |    3      | 1.0447  1.0447  1.0447 |   0        0   | 301.6
+  Chicago (11bd)        192 |    4      | 1.2932  1.0204  1.0204 |   0        1   | 302.6
+  NYC (11be)            192 |    2      | 1.1745  1.0284  1.0284 |   0        1   | 301.3
+  Chicago (11be)        192 |    6      | 1.1542  1.0294  1.0294 |   0        2   | 303.6
+  all                  1536 |   28      | F6 worse on 0, better on 4
+
+  CPU per layout (analysis): median 9.5 s
+# D1 -> held
+# D2 -> held
+# D3 -> held
+# D4 -> held
+# D5 -> held
+# D6 -> held
+# D7 -> held
+# D8 -> held

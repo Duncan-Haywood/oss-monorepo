@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKj2c7AG7AsbyEpc7wK",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T07:11:52Z",
+  "ended": "2026-11-23T08:42:15Z",
+  "wall_minutes": 90.56,
+  "tokens_in": 4347744,
+  "tokens_out": 27566,
+  "cost_usd": 3.1046,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18383",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/aerolog-scaling/paper/airspace_layers.md",
+      "issue": "Section 6.9 had grown to one ~1,700-word paragraph over eight milestones of one-sentence appends; split it into seven paragraphs at sentence breaks so the number checker's strings survive."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "pick_track's CHAIN note (57 sub-steps since the last paper step) pulls toward a paper step while LOG's Next names a pre-registration; judged the pre-registration more valuable, since it closed a post hoc claim, and did a paper-structure pass alongside it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-aerolog-first-crossing-leak-budget-two-cities.md",
+    "research/aerolog-scaling/LOG.md (11be entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 11be: pre-registered (1e1c85f8c) first-crossing budget vs most-bands on 48 fresh layouts (24 NYC, 24 Chicago, 384 draws); 8 of 8 predictions held; F6 never worse, better on 3 draws (S6 1.1745/1.0844/1.1542 -> 1.0000), worst 1.0294, equals the 600-descent oracle in every cell. Builder rule becomes F6. Local: aerolog-scaling 332 tests pass; check_airspace_numbers 299/299; research build ok; check_posts ok; check_md_links ok; run_workflow_locally --for-changes 7/7 (review bots and pages deploy not runnable locally). Build 83 min wall on 4 cores.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "584c6b85-f080-565d-941f-6aef6c4975c6",
+    "transcripts": 1,
+    "first": "2026-11-23T07:11:52Z",
+    "last": "2026-11-23T08:42:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 81,
+        "output": 27566,
+        "thinking": 5007,
+        "cache_read": 4131840,
+        "cache_write_5m": 0,
+        "cache_write_1h": 215823,
+        "api_equivalent_usd": 3.1046,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 81,
+      "output": 27566,
+      "thinking": 5007,
+      "cache_read": 4131840,
+      "cache_write_5m": 0,
+      "cache_write_1h": 215823,
+      "api_equivalent_usd": 3.1046,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.95,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 90.56,
+      "active_minutes": 8.81,
+      "model_minutes": 5.39,
+      "tool_minutes": 3.42,
+      "waiting_on_human_minutes": 81.75,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "experiment design, pre-registration, 83-min build, analysis and paper/README/post edits by a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 386.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
