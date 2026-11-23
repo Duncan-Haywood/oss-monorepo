@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVLaS1HQTWrpEWrSjyJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T02:07:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 14) ifc-quantity-takeoff: BUILDABLE item '2 zinc copings' NetVolumes'",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": 18345,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "issue": "a first draft of the eval note carried an unmeasured count ('2,700 or so elements'); replaced by the measured 333 / 307 / 11 / 296 before commit"
+    }
+  ],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-archicad-draws-arcs-as-45-degree-chords.md",
+    "ventures/ifc-quantity-takeoff/eval/archicad-polygon-sections-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "The copings stay unexplained, but the search for a second ArchiCAD profile inside the corpus found two (L100x10 angles, spekband sills) whose stored Net Volume equals the section with arcs as 45-degree chords to 7 digits, and C20's round columns = circumscribed 20-gon to 10 digits. New rule polygon-section (geom.polygonSections, qto.polygonSection, tol 1e-4), named also inside the 2%: 19 pairs on 11 elements across 13 public models, 0 of 296 other arc/circle elements match. Checks: run_venture_tests.py ifc-quantity-takeoff ok (219 tests); check_posts ok; stored-vs-computed on 13 models, diff vs 2026-11-22 output only the new reason plus kleine_Wohnung's revolution surfaces from a change on main. Coping item dropped from buildable: (needs a second ArchiCAD flashing export).",
+  "corrections": [],
+  "redteam": null
+}

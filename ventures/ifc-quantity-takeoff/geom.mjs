@@ -720,7 +720,9 @@ export class Geometry {
     let span = ccw ? t1 - t0 : t0 - t1;
     while (span <= 1e-12) span += 2 * Math.PI;
     while (span > 2 * Math.PI + 1e-12) span -= 2 * Math.PI;
-    const n = Math.max(2, Math.ceil((span / (2 * Math.PI)) * ARC_SEGS));
+    // this.arcStep (polygonSections): equal chords of at most that angle,
+    // the way an exporter polygonises a drawn arc before measuring it
+    const n = this.arcStep ? Math.max(1, Math.ceil(span / this.arcStep - 1e-9)) : Math.max(2, Math.ceil((span / (2 * Math.PI)) * ARC_SEGS));
     const pts = [];
     for (let i = 0; i <= n; i++) {
       const t = t0 + (ccw ? 1 : -1) * (span * i) / n;
@@ -873,7 +875,11 @@ export class Geometry {
     };
     const rect = (w, h) => [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]];
     const circle = (r) => {
-      if (opts?.sides) return Array.from({ length: opts.sides }, (_, i) => { const t = (2 * Math.PI * i) / opts.sides; return [r * Math.cos(t), r * Math.sin(t)]; });
+      if (opts?.sides) {
+        // inscribed, or with opts.outside circumscribed (sides tangent to the circle)
+        const R = opts.outside ? r / Math.cos(Math.PI / opts.sides) : r;
+        return Array.from({ length: opts.sides }, (_, i) => { const t = (2 * Math.PI * i) / opts.sides; return [R * Math.cos(t), R * Math.sin(t)]; });
+      }
       const k = Math.sqrt((2 * Math.PI) / (ARC_SEGS * Math.sin((2 * Math.PI) / ARC_SEGS)));
       const pts = [];
       for (let i = 0; i < ARC_SEGS; i++) { const t = (2 * Math.PI * i) / ARC_SEGS; pts.push([k * r * Math.cos(t), k * r * Math.sin(t)]); }
@@ -983,6 +989,39 @@ export class Geometry {
       tryOne(`${sides}-gon circles`, { sides });
       tryOne(`no fillets, ${sides}-gon circles`, { plain: true, sides });
     }
+    return out;
+  }
+
+  /**
+   * Polygonised sections an exporter is seen to measure, each as the ratio of
+   * its area to the exact one, kept however small the difference (more than
+   * 1e-6): explainChecks names a stored volume that equals one to 1e-4, which
+   * is far tighter than the 2% agreement and so not met by chance.
+   *   "arcs as 45-degree chords": every arc of a drawn profile replaced by
+   *     equal chords of at most 45 degrees (ArchiCAD's End Surface Area and
+   *     Net Volume of profiled elements: schependomlaan's L100x10 beams and
+   *     spekband sills, to 7 digits; eval/archicad-polygon-sections-2026-11-23.md);
+   *   "circles as circumscribed 20-gons": a circle profile as the 20-sided
+   *     polygon whose sides touch it (ArchiCAD's round columns: C20's D200,
+   *     volume and perimeter to 10 digits).
+   */
+  polygonSections(ref) {
+    const area = (loops) => loops.reduce((x, l) => x + l.s * Math.abs(signedArea(l.pts)), 0);
+    if (!this.get(ref)) return [];
+    let exact;
+    try { exact = area(this.profile(ref)); } catch { return []; }
+    if (!(exact > 0)) return [];
+    const out = [];
+    const add = (label, f) => {
+      let v;
+      try { v = f(); } catch { return; }
+      const ratio = v / exact;
+      if (v > 0 && Math.abs(ratio - 1) > 1e-6) out.push({ label, ratio });
+    };
+    const keep = this.arcStep;
+    this.arcStep = Math.PI / 4;
+    try { add("arcs as 45-degree chords", () => area(this.profile(ref))); } finally { this.arcStep = keep; }
+    add("circles as circumscribed 20-gons", () => area(this.profile(ref, 0, { sides: 20, outside: true })));
     return out;
   }
 
