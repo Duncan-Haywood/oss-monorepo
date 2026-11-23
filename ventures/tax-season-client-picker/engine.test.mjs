@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { parseJobs, plan, summarize, feasible, schedule, optimize, normalizeOptions, netOf, money, MAX_JOBS } from "./engine.mjs";
 
 const mk = (rows) => parseJobs(rows.join("\n"));
@@ -129,7 +130,7 @@ test("a file paying less than its direct costs is never accepted and is priced a
   const p = plan(mk(["Loss,200,2,3,260", "Fine,400,2,3,20"]), { hoursPerDay: 6 });
   assert.deepEqual(p.order, [1]);
   const d = p.declined[0];
-  assert.match(d.reason, /less than its direct costs/);
+  assert.match(d.reason, /no more than its direct costs/);
   assert.ok(d.minFee >= 260 - 1e-9);
   assert.equal(money(d.minFee), "$260.00");
 });
@@ -182,7 +183,7 @@ test("schedule orders by due date and counts days from cumulative hours", () => 
 });
 
 test("ties go to the plan that uses fewer hours, and an empty or all-losing queue yields nothing", () => {
-  const tie = plan(mk(["A,500,8,1,0", "B,250,4,1,0", "C,250,4,1,0"]), { hoursPerDay: 8 });
+  const tie = plan(mk(["A,500,8,1,0", "B,250,5,1,0", "C,250,5,1,0"]), { hoursPerDay: 10 });
   assert.equal(tie.net, 500);
   assert.equal(tie.hours, 8);
   const none = plan(mk(["Loss,100,2,2,300"]), { hoursPerDay: 8 });
@@ -201,4 +202,32 @@ test("more than MAX_JOBS jobs is refused", () => {
   assert.throws(() => plan({ jobs }, {}), /at most 16/);
   const ok = plan({ jobs: jobs.slice(0, MAX_JOBS) }, { hoursPerDay: 24 });
   assert.equal(ok.accepted, MAX_JOBS);
+});
+
+test("audit 2026-11-23: a thousands comma in the fee is refused, and quoted cells keep their commas", () => {
+  assert.match(parseJobs("A,$1,200,8,3,40").errors[0], /thousands comma/);
+  const q = parseJobs('"Smith, J","$1,200",4,2,20');
+  assert.deepEqual(q.errors, []);
+  assert.equal(q.jobs[0].name, "Smith, J");
+  assert.equal(q.jobs[0].fee, 1200);
+});
+
+test("audit 2026-11-23: spare-hours finding counts booked hours; zero net is declined as no more than costs", () => {
+  const s = plan(mk(["A,500,3,5,0"]), { hoursPerDay: 6, booked: 24, bookedDue: 5 });
+  assert.equal(s.spareHours, 3);
+  assert.ok(!s.findings.some((f) => f.rule === "spare"));
+  assert.match(plan(mk(["Z,100,2,2,100"]), { hoursPerDay: 6 }).declined[0].reason, /no more than its direct costs/);
+});
+
+test("audit 2026-11-23: the printed break-even fee is a floor the fee must exceed", () => {
+  const text = readFileSync(new URL("./fixtures/clients.csv", import.meta.url), "utf8");
+  const at = (fee) => plan(parseJobs(text.replace("multistate nexus,1400,", `multistate nexus,${fee},`)), { hoursPerDay: 6 });
+  const name = "1120 C corp with multistate nexus";
+  assert.ok(at(1470).declined.some((d) => d.name === name));
+  assert.ok(!at(1471).declined.some((d) => d.name === name));
+});
+
+test("audit 2026-11-23: a quoted decimal-comma fee reads as 29.99, not 2999", () => {
+  assert.equal(parseJobs('A,"29,99",4,2,0').jobs[0].fee, 29.99);
+  assert.ok(parseJobs('A,"1,2,3",4,2,0').errors.length > 0);
 });

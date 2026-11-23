@@ -265,7 +265,6 @@ ventures/revenue-target-lead-planner/calc.mjs
 ventures/review-reply-desk/request.mjs
 ventures/rfp-compliance-matrix/shred.mjs
 ventures/rmd-calculator/calc.mjs
-ventures/route-account-pruner/calc.mjs
 ventures/rule-72t-sepp-calculator/calc.mjs
 ventures/rv-boat-storage-lot-calculator/calc.mjs
 ventures/rv-rental-host-profit-calculator/calc.mjs

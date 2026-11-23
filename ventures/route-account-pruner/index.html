@@ -157,12 +157,12 @@
         [money(r.surplusNow), `Surplus a month today across ${r.n} accounts (${num(r.hours, 0)} route hours, ${money(r.revenue)} billed)`],
         [pct(r.belowShare, 0), "Of accounts earn less than an hour of route time is worth to you"],
         [`${r.repriced} reprice, ${r.dropped} drop`, `Recommended moves; dropping frees ${num(r.freedHours, 0)} route hours a month`],
-        [money(r.gain), `Expected gain a month if you make them (${money(r.surplusPlan)} surplus after), at your cancellation assumption`],
+        [money(r.gain), `Expected gain a month if you make them (${money(r.surplusPlan)} surplus after), at your cancellation assumption, and only if the ${num(r.freedHours, 0)} freed hours earn your hour value again`],
         [pct(r.driveShare, 0), "Of your route hours are spent driving"],
       ];
       $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#acc tbody").innerHTML = r.rows.map((x) => {
-        const move = x.action === "reprice" ? `Raise ${pct(x.increase, 0)} (needs ${pct(x.neededIncrease, 0)} to break even on hours)` : x.action === "drop" ? (x.neededIncrease > r.options.maxIncrease ? "Drop (would need " + pct(x.neededIncrease, 0) + ")" : "Drop") : "Keep";
+        const move = x.action === "reprice" ? `Raise ${pct(x.increase, 0)}${x.increase >= r.options.maxIncrease - 1e-9 ? " (your limit)" : ""} (needs ${pct(x.neededIncrease, 0)} to break even on hours)` : x.action === "drop" ? (x.neededIncrease > r.options.maxIncrease ? "Drop (would need " + pct(x.neededIncrease, 0) + ")" : "Drop") : "Keep";
         return `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours, 1)}</td><td class="n">${money(x.yieldPerHour)}</td><td class="n">${money(x.surplus)}</td><td>${esc(move)}</td><td class="n">${money(x.expected)}</td></tr>`;
       }).join("");
       $("#sens tbody").innerHTML = r.sens.map((s) => `<tr><td>${money(s.targetPerHour)} an hour${s.factor === 1 ? " (yours)" : ""}</td><td class="n">${s.keep}</td><td class="n">${s.reprice}</td><td class="n">${s.drop}</td></tr>`).join("");
