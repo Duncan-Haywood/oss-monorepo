@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnBq5EtQkK7fgemozr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T04:18:12Z",
+  "ended": "2026-11-23T04:25:21Z",
+  "wall_minutes": 7.57,
+  "tokens_in": 4490614,
+  "tokens_out": 27991,
+  "cost_usd": 2.3097,
+  "tool_calls": 47,
+  "task": "changepoint-detector flagship: turning-point option on a fresh dated cycle (pre-registered)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18364",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "fred.stlouisfed.org refused through the proxy (status 000); used the BCDating CRAN mirror on raw.githubusercontent.com instead",
+    "rdata's converter cannot convert ts objects with a (n,1) dim; walked the parse tree by hand"
+  ],
+  "integrity_issues": [
+    "First README draft said Iran's non-oil output 'rarely fell in level'; checked before commit: 32 of 107 quarters fell. Replaced with the measured contraction/expansion mean growth (0.47% vs 1.70% a quarter)."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--make-room could not fit a modest replacement (2033 of 2000) because nothing parkable was left; had to shorten the new clause by hand"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The landed slice is a pre-registered negative evaluation, not a product feature; the flagship's top open item was exactly this test, and its outcome (drop the option) saves later runs from building it.",
+      "did": "ran the registered test, recorded the fail, dropped the item from next:",
+      "result": "item closed with a reason"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No llms.txt or marketing-page change: the product surface did not change.",
+      "did": "left them",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs not run: no page, CLI or engine file changed (only eval/, data/, a test, README)",
+      "did": "ran the venture's affected tests and run_workflow_locally --for-changes",
+      "result": "see notes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-changepoint-iran-business-cycle-turns-random-cuts.md",
+    "ventures/changepoint-detector/README.md (A turning-point option on Iran's dated cycle)"
+  ],
+  "goal": null,
+  "notes": "Fresh label set: BCDating's MBRI.Iran.Dating (13 turns) on Iran non-oil GDP (108 quarters). Pre-registration committed before the first run. T1 fails (stiff excess over random +0.044, p 0.527; bar +0.10, p<=0.05), T2 fails (stiff - shipped -0.017; bar +0.03). Local: turns-iran, trend-walk-stiff, drift-trend tests 9/9 pass; validate.py ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c4566875-9b68-5179-93dc-c7d25fa4cfd7",
+    "transcripts": 1,
+    "first": "2026-11-23T04:18:12Z",
+    "last": "2026-11-23T04:25:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 27991,
+        "thinking": 7350,
+        "cache_read": 4381375,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109154,
+        "api_equivalent_usd": 2.3097,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 27991,
+      "thinking": 7350,
+      "cache_read": 4381375,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109154,
+      "api_equivalent_usd": 2.3097,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.57,
+      "active_minutes": 7.57,
+      "model_minutes": 5.79,
+      "tool_minutes": 1.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "find and parse a fresh dated cycle, write a pre-registered eval and test, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 216.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
