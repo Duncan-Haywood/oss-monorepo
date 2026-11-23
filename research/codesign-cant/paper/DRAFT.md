@@ -351,6 +351,25 @@ cap the same designs hold position (median RMS 0.113 m) while oscillating agains
 (roll/pitch tracking error 8.90° RMS against 3.59° for designs at 0.8× the ceiling, which diverge on
 0 of 640 at every limit from 20° to 59°; Fig. VI-b).
 
+**How big the contained oscillation is: a describing function.** Replacing the tilt clip by its
+describing function [gelb1968; khalil2002], the first-harmonic gain N(A) of a saturation, inside the same
+11-state map turns "bounded" into a number (milestone 7aj). For each held-out plant and axis the gain N*
+that puts the loop on its stability boundary gives, through the critical eigenvalue and eigenvector,
+the cycle's frequency and amplitude. All 595 unstable flight-axes of the 1.25× designs have a stable
+oscillatory crossing. The predicted frequency is 1.44 Hz against 1.44 Hz measured in 18 s flights at 20°
+(median relative error 0.025, at the FFT's 0.11 Hz resolution). The predicted tilt amplitude is 26.5°
+against 24.7° (ratio 1.09, IQR 1.03-1.25), and raising the limit to 30° scales the measured amplitude by
+1.56 against the 1.50 the saturation's homogeneity gives (`m7aj_descfn/stats.txt`). Since the amplitude
+is proportional to the limit, each flight has a critical limit at which the cycle reaches the 60°
+divergence angle. The 1.25× designs' median is 45.5°: 285 of 640 predicted dead at 45° against 535
+simulated, and 595 at 59° against 560. Bolted-on designs: 586 at 30° against 588. The count misses
+near the knee (bolted-on at 20°: 4 predicted, 128 simulated) but the ranking holds (AUC 0.870), consistent
+with the start offset, wind step and noise, which the single-sinusoid model leaves out, pushing flights
+over early. The analysis also bounds what the certificate can promise. Above 20° it is no longer
+necessary: at 45°, 29 of the on-ceiling tunes' 31 deaths occur at plants the linear model calls stable,
+large-signal transients with no cycle to predict. The margin, not a describing-function check, is
+what keeps a design safe at every limit.
+
 This matters for deployment because 20° is not a typical setting. PX4's maximum tilt in velocity
 and acceleration modes, `MPC_TILTMAX_AIR`, defaults to 45° with a floor of 20° [px4tilt], and
 ArduPilot's `ANGLE_MAX` defaults to 30° [ardupilotangle]. At 45°, the designs CMA-ES tuned onto

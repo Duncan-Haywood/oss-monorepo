@@ -12,6 +12,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.join(HERE, "..", "experiments")
 
 CHECKS = [
+    # section VI, describing function of the tilt limit (milestone 7aj, 2026-11-23)
+    ("1.44 Hz against 1.44 Hz", "m7aj_descfn/stats.txt", r"f\* median 1\.44 Hz, measured 1\.44 Hz; median \|rel err\| 0\.025"),
+    ("26.5°\nagainst 24.7° (ratio 1.09, IQR 1.03-1.25)", "m7aj_descfn/stats.txt", r"predicted tilt amplitude median 26\.5 deg, measured 24\.7 deg; ratio median 1\.09 \(IQR 1\.03-1\.25\)"),
+    ("1.56 against the 1.50", "m7aj_descfn/stats.txt", r"amplitude ratio 30/20 median 1\.56"),
+    ("median is 45.5°", "m7aj_descfn/stats.txt", r"DJ7 critical limit \(1\.25x, tilt\): median 45\.5 deg"),
+    ("285 of 640 predicted dead at 45° against 535\nsimulated, and 595 at 59° against 560", "m7aj_descfn/stats.txt", r"\[1\.25x\] [^\n]*45 deg: sim 535, tilt 285[^\n]*59 deg: sim 560, tilt 595"),
+    ("586 at 30° against 588", "m7aj_descfn/stats.txt", r"\[bolted\] [^\n]*30 deg: sim 588, tilt 586"),
+    ("4 predicted, 128 simulated) but the ranking holds (AUC 0.870)", "m7aj_descfn/stats.txt", r"\[bolted\] 20 deg: 128 of 640 dead, AUC 0\.870"),
+    ("29 of the on-ceiling tunes' 31 deaths", "m7aj_descfn/stats.txt", r"\[retrained\] [^\n]*45 deg 29 of 31"),
     # abstract, section IV
     ("4.18° (INDI)", "m4_controllers/results.txt", r"indi: RMS -4\.18 deg .*better in 10 of 10"),
     ("4.88° (geometric)", "m4_controllers/results.txt", r"geo : RMS -4\.88 deg .*better in 10 of 10"),
