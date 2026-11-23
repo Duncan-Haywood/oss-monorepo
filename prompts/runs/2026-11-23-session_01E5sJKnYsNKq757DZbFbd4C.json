@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnYsNKq757DZbFbd4C",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T17:31:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Perf item 4: page weight of wall-framing-takeoff (ranked first in the babysitting pass's not-changed list)",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18456",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First equivalence harness got no downloads on either page: ticking stair/deck boxes with blank sizes is a validation error, so run() refused; switched to opening a full plan file built from the modules' sample*() functions."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/babysitting-kit-page-perf-2026-11-23.md",
+      "issue": "Describes the throttled-load harness as 'a 40-line Playwright harness' but does not commit it; each page-weight run rewrites it from scratch (this run did too)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to create the branch, but the harness had already created claude/cool-franklin-py0hsb at main; git checkout -b failed harmlessly."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-the-wall-framing-takeoff-loads-a-third-faster.md",
+    "docs/history/wall-framing-page-perf-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall-framing-takeoff index.html static module graph and throttled load. Before/after: static gzip 243,826 -> 100,327 bytes (scratch graph walker, same regex as platform/perf/module-exclusive.mjs; module-weight.mjs said 238 kB before); requests at load 36 -> 18; throttled time to load event on the example page (Chromium, 150 ms RTT, 1.6 Mbit/s, CPU 4x, gzip local server, SW blocked, 7 runs, median) 2,535 -> 1,705 ms; time to results for a stored plan with all 13 plan sections 2,782 -> 2,464 ms. After runs shared the CPU with the venture test suite. Equivalence: old vs new page in Playwright, all card innerHTML and six downloads byte-identical with all sections on and after reload; 503 on roof.mjs reported and recovered. Venture suite: 1 suite, 0 failed; browser evals 70/4/33/19 ok, same as before. Both perf backlog items (P063, P064) are owner-gated workflow edits, so item 4 was taken as the prompt allows.",
+  "corrections": [],
+  "redteam": null
+}
