@@ -175,6 +175,8 @@ with the uninterrupted runs.
 
 Milestone 7zb tried to separate the two readings of where the corrected forecast pays (plating-dominated loss, or large one-directional drift) with a cell that drifts without plating. It could not build one: with plating off, no multiplier from 10 to 10<sup>6</sup> on `Marquis2019`'s SEI solvent diffusivity brings its cycle 2 to 20 lithium loss above 0.96% of n<sub>Li</sub>, because the film's resistance ends the charge step early and the loss limits itself. The recipe therefore keeps the plating-share gate, and the drift reading is untested.
 
+Milestone 7zc removed the film's resistance and built the cell: with plating off and SEI film resistivity set to zero, the 10<sup>5</sup> rung loses 3.7% of n<sub>Li</sub> over cycles 2 to 20, grows as &radic;t, and drifts further from the straight forecast than any plating cell (median m 0.365). On it the corrected rule meets 5 of 5 folds at 10.0 DFN cycles per design against triage's 49.2, the plating-share gate is off on every fold and the drift gate on. Drift size, not plating, is what makes the correction pay, so the recipe's gate should be gD; the cell is engineered (a film with no resistance) and tests the gate's logic rather than a measured cell.
+
 For the paper, in order of value: (1) a fifth and sixth parameter set, since across-chemistry spread,
 not the number of pools, now limits the main claim (section 4.6, finding 2). Milestone 7p tried this and
 found that PyBaMM's stock cells do not supply one under this protocol. Of eight conditions on the four
