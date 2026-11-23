@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKkeWPWhP3fDFybSHYa",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T12:20:17Z",
+  "ended": "2026-11-23T12:30:51Z",
+  "wall_minutes": 10.78,
+  "tokens_in": 2898989,
+  "tokens_out": 48147,
+  "cost_usd": 2.4289,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18419",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First push blocked by the post front-matter hook: seo_title was 76 characters (limit 70); shortened and pushed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The proposal offered sound or lighting; picking sound needed care with the gain direction (a soft-voiced reader needs more gain than the priest), which my first draft got backwards. The craft checklist could add: check which way each level moves with the character it belongs to."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-hearth-and-horizon-the-step-that-is-a-third-louder.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (science fiction shelf), story slug the-step-that-is-a-third-louder (~4,600 words of story plus notes, text only: creative audio at 581 MB, over the 400 MB cap). Security queue empty; IDEAS.md and website requests empty. Claimed the BIBLE proposal in a first commit and draft PR before writing. Adversarial re-read fixed: mark order (Father lower gain than Winifred), the England and Wales lectionary translation (ESV-CE since Advent 2024, not the Jerusalem Bible), an unverified Whalley bus route, an unsourced 'a fortieth' Weber fraction, and the Missal's rubric on lighting at the Vigil. Weekdays checked in Python (7 Mar Wed, 11 Mar Sun, 21 Apr Sat, 22 Apr Easter, 24 Apr Tue, 29 Apr Sun 2057); lectionary Year B; dB table computed. Added a new Hearth & Horizon proposal (Zipf's law, Manx Gaelic) so the shelf's Next up is not empty. node --test in ventures/hearth-and-horizon: 20/20 pass; check_post_frontmatter ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0fb38c87-a934-58a2-93eb-dbc101980701",
+    "transcripts": 1,
+    "first": "2026-11-23T12:20:17Z",
+    "last": "2026-11-23T12:31:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 29,
+        "input": 57,
+        "output": 48147,
+        "thinking": 26857,
+        "cache_read": 2785343,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113589,
+        "api_equivalent_usd": 2.4289,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 57,
+      "output": 48147,
+      "thinking": 26857,
+      "cache_read": 2785343,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113589,
+      "api_equivalent_usd": 2.4289,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 26,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.78,
+      "active_minutes": 10.78,
+      "model_minutes": 10.08,
+      "tool_minutes": 0.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a researched 4,600-word short story with worked psychophysics, plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 329.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
