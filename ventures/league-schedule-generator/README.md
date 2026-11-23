@@ -6275,3 +6275,38 @@ real field it stays exact. The last chess-results bye miss besides Graz r1's pro
 Budapest A r8, where one result read differently explains it and no bye rule can (82 has 1.5 points to
 90's 1.0 on the file). Test: `swiss.test.mjs`, "the pairing bye in the last bracket", an 11-player
 event of the same shape that the old weight fails.
+
+## Clinched and out, proved past 12 games left (2026-11-23)
+
+The race table ("who has clinched, who is out") worked through every finish when 12 or fewer games
+were left. Past that it used safe bounds that let every rival win all its games at once, including
+rivals who still play each other, so a team that could no longer be caught read "alive" for weeks.
+`race-exact.mjs` now answers the same three questions per team (worst place with ties lost, worst
+place with ties won, best place) by branch and bound. Only games between two teams still in doubt
+branch: a team already over the line, or one that cannot reach it by winning out, has its games
+settled the way that helps the question. For "fewest teams above", a game where every result pushes
+one of two teams over the line forces one more, and a greedy matching on those games is the lower
+bound. Each question gets a node budget (20,000; `nodeBudget` option, 0 keeps the bounds alone);
+when it runs out, the bound stands, so "clinched" and "out" are still never wrong. The page note
+says which of the three it was (every finish tried, proved by the search, or partly bounds).
+
+Checked:
+
+- `race-exact.test.mjs`: on 400 random part-played leagues small enough to enumerate (3 to 8 teams,
+  3-1-0, 2-1-0 and set scoring, point adjustments), the search's best and worst places, status and
+  "clinched unless tied" equal the enumeration's for every team; under budgets of 1, 5 and 30 nodes
+  it never claims a status the enumeration denies. A hand case: a leader on 61 with two chasers on
+  54 who meet twice; the bounds say third at worst, the search proves second.
+- `eval/race-real.mjs` (output `eval/race-real.txt`; data `eval/data/openfootball-results.json`,
+  18 top-flight seasons 2021-22 to 2024-25 with every score, openfootball, CC0): each season replayed
+  date by date, three races asked after every match date (title, top four, safety = the top n - 3),
+  6,144 tables. Wrong calls: 0 (no clinched team finishes outside, no eliminated one inside, the
+  search never contradicts the bounds). The search settled 131 team-races earlier than the bounds,
+  285 match dates in total: title 9 teams (15 dates), top four 39 (76), safety 83 (194, up to 6
+  dates early; Serie A 2023-24 12 teams, 33 dates). 87.4% of tables were proved in full; 14 ms per
+  table on average, slowest 673 ms.
+- Not checked: the leagues' real point deductions (openfootball carries none, so the final table is
+  the one the results give) and published clinch dates.
+
+Next: a worker for the slow tables, and the same search for `magic` (points that guarantee a place),
+which still assumes every rival wins out.

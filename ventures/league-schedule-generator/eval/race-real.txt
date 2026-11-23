@@ -1,0 +1,29 @@
+Clinch watch on 18 real seasons (openfootball, CC0), every match date, three races per season
+race       team-races  settled by the last date: bounds  search  settled earlier  match dates earlier (total, most)  race decided, dates before the end: bounds / search (median)
+title             348                             340     340                9                    15,  3           10 / 10
+top four          348                             321     321               39                    76,  5           1 / 1
+safety            348                             309     309               83                   194,  6           0 / 0
+
+Wrong calls (a clinched team finishing outside, an eliminated one inside, or the search contradicting the bounds): 0
+Tables asked with the search: 6144; proved in full (every best and worst rank): 5370 (87.4%)
+Search time: 14.4 ms per table on average, slowest 673 ms
+
+Per season (title / top four / safety: teams settled earlier by the search, match dates gained):
+  de.1.2021-22   0/0  3/4  6/15
+  de.1.2022-23   2/4  2/5  2/4
+  de.1.2023-24   0/0  2/2  5/12
+  de.1.2024-25   0/0  2/4  1/2
+  en.1.2021-22   1/3  6/16  4/16
+  en.1.2022-23   2/2  1/1  2/2
+  en.1.2023-24   1/3  0/0  4/11
+  en.1.2024-25   0/0  7/12  1/1
+  es.1.2021-22   0/0  1/4  4/9
+  es.1.2022-23   0/0  0/0  9/28
+  es.1.2023-24   2/2  2/5  1/1
+  fr.1.2021-22   0/0  3/4  5/7
+  fr.1.2022-23   0/0  0/0  4/9
+  fr.1.2023-24   0/0  3/7  4/7
+  fr.1.2024-25   0/0  2/5  4/8
+  it.1.2021-22   1/1  0/0  9/21
+  it.1.2022-23   0/0  5/7  6/8
+  it.1.2023-24   0/0  0/0  12/33

@@ -84,7 +84,7 @@ if (json) { console.log(JSON.stringify({ rows, wrong, tables, provedTables, msPe
 
 const sum = (race, f) => rows.filter((r) => r.race === race).reduce((a, r) => a + f(r), 0);
 console.log("Clinch watch on 18 real seasons (openfootball, CC0), every match date, three races per season");
-console.log("race       team-races  settled before the end: bounds  search  settled earlier  match dates earlier (total, most)  race decided, dates before the end: bounds / search (median)");
+console.log("race       team-races  settled by the last date: bounds  search  settled earlier  match dates earlier (total, most)  race decided, dates before the end: bounds / search (median)");
 for (const race of ["title", "top four", "safety"]) {
   const rs = rows.filter((r) => r.race === race);
   const med = (k) => { const v = rs.map((r) => r[k] ?? 0).sort((a, b) => a - b); return v[Math.floor(v.length / 2)]; };
