@@ -5206,7 +5206,8 @@ const SUBCATEGORY_RULES = {
       // `submittal-register` joined 2026-11-19 beside it: the submittal log from the spec book.
       // `xer-schedule-check` joined 2026-11-19 beside it: the DCMA check of the P6 schedule.
       // `drawing-set-index` joined 2026-11-20 beside it: the sheet index of the drawing set.
-      test: (slug) => /^(ids-model-check|ifc-quantity-takeoff|submittal-register|drawing-set-index|xer-schedule-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
+      // `pdf-plan-takeoff` joined 2026-11-23: measuring the same drawings.
+      test: (slug) => /^(ids-model-check|ifc-quantity-takeoff|submittal-register|drawing-set-index|pdf-plan-takeoff|xer-schedule-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',
