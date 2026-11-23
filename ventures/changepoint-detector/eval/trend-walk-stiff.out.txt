@@ -1,0 +1,89 @@
+Stage 1: choose the cap in simulation (n 200, 200 series a cell, seeds 100000+)
+  cap 1e-4: A0 false 0.180; A4 found 0.970; B4 found 0.780; K found 0.250 (false/series beside a change: A4 0.160, B4 4.455, K 0.325)
+  cap 3e-4: A0 false 0.005; A4 found 0.960; B4 found 0.790; K found 0.050 (false/series beside a change: A4 0.020, B4 3.475, K 0.040)
+  cap 1e-3: A0 false 0.000; A4 found 0.925; B4 found 0.790; K found 0.000 (false/series beside a change: A4 0.010, B4 1.870, K 0.010)
+  cap 3e-3: A0 false 0.000; A4 found 0.910; B4 found 0.710; K found 0.000 (false/series beside a change: A4 0.010, B4 0.410, K 0.010)
+  cap 1e-2: A0 false 0.000; A4 found 0.910; B4 found 0.525; K found 0.000 (false/series beside a change: A4 0.010, B4 0.010, K 0.010)
+  uncapped walk (no bar): A0 false 0.000; A4 found 0.910; B4 found 0.480; K found 0.000 (false/series beside a change: A4 0.010, B4 0.005, K 0.010)
+  shipped drift (no bar): A0 false 0.195; A4 found 0.860; B4 found 0.610; K found 0.020 (false/series beside a change: A4 0.225, B4 3.140, K 0.520)
+Chosen cap 3e-4 (A0 0.005, mean of B4 and K 0.420; 4 of 5 caps qualified)
+
+Stage 2
+  fresh seeds 900000+: A0 false 0.010; A4 found 0.985; B4 found 0.825; K found 0.065 (false/series beside a change: A4 0.005, B4 3.645, K 0.035)
+
+Fresh set F: F1 shipped drift vs stiff walk (cap 3e-4), NBER peaks and troughs, margin 5
+  industrial production monthly    n 696 labels 20  shipped   9 cuts F1 0.258 recall 4/20  stiff  60 cuts F1 0.512 recall 20/20  diff +0.254  qz 3.00e-4 (at cap)
+      labels  [1948-11 1949-10 1953-07 1954-05 1957-08 1958-04 1960-04 1961-02 1969-12 1970-11 1973-11 1975-03 1980-01 1980-07 1981-07 1982-11 1990-07 1991-03 2001-03 2001-11]
+      shipped [1952-08 1959-12 1974-12 1975-02 1980-05 1984-01 1996-02 1998-08 1999-10]
+      stiff   [1948-06 1949-11 1950-08 1952-07 1952-10 1953-08 1953-12 1954-10 1955-06 1956-07 1956-10 1957-09 1958-04 1959-07 1959-12 1961-04 1962-05 1964-11 1966-10 1967-08 1969-08 1970-12 1971-08 1972-06 1973-03 1974-01 1974-11 1975-04 1976-06 1977-04 1978-01 1978-04 1978-11 1980-04 1980-07 1981-01 1981-09 1982-02 1983-01 1984-05 1986-10 1987-10 1989-02 1989-07 1990-10 1991-03 1991-10 1992-03 1993-08 1994-12 1995-08 1996-01 1997-09 1999-10 2000-05 2001-01 2001-12 2002-06 2003-04 2004-09]
+  industrial production quarterly  n 128 labels 12  shipped  10 cuts F1 0.750 recall 9/12  stiff  14 cuts F1 0.786 recall 12/12  diff +0.036  qz 0.00e+0
+      labels  [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1]
+      shipped [1972Q1 1972Q4 1975Q1 1978Q2 1980Q2 1980Q4 1981Q4 1983Q3 1984Q1 1991Q1]
+      stiff   [1961Q2 1965Q2 1970Q1 1971Q2 1973Q4 1975Q1 1979Q2 1980Q2 1981Q4 1983Q1 1984Q2 1987Q1 1989Q1 1991Q1]
+  persons unemployed monthly       n 574 labels 14  shipped  13 cuts F1 0.414 recall 6/14  stiff  29 cuts F1 0.622 recall 13/14  diff +0.208  qz 3.00e-4 (at cap)
+      labels  [1969-12 1970-11 1973-11 1975-03 1980-01 1980-07 1981-07 1982-11 1990-07 1991-03 2001-03 2001-11 2007-12 2009-06]
+      shipped [1974-11 1975-01 1980-04 1983-07 1986-02 2001-10 2008-05 2008-10 2008-12 2009-02 2009-05 2010-12 2014-04]
+      stiff   [1970-01 1970-12 1973-11 1974-09 1975-04 1976-07 1978-04 1979-12 1980-05 1981-09 1983-01 1983-07 1984-03 1986-02 1989-04 1990-08 1992-06 1995-04 2001-01 2001-10 2003-10 2007-04 2008-05 2008-09 2009-06 2010-05 2010-12 2011-11 2012-12]
+  mean F1 0.474 -> 0.640, diff +0.166; 3 wins, 0 losses; pooled recall shipped 19/46, stiff 45/46
+
+The NBER seven: F1 shipped drift vs stiff walk (cap 3e-4), NBER peaks and troughs, margin 5
+  macrodata realgdp                n 203 labels 16  shipped   7 cuts F1 0.240 recall 3/16  stiff  17 cuts F1 0.743 recall 15/16  diff +0.503  qz 3.00e-4 (at cap)
+      labels  [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1978Q2 1998Q4 1999Q4 2000Q2 2003Q3 2006Q1 2009Q1]
+      stiff   [1960Q4 1965Q4 1970Q1 1973Q1 1975Q1 1978Q2 1980Q2 1981Q1 1983Q1 1984Q2 1990Q3 1991Q2 1996Q1 2000Q2 2003Q3 2008Q2 2009Q1]
+  macrodata realcons               n 203 labels 16  shipped   7 cuts F1 0.160 recall 2/16  stiff  15 cuts F1 0.727 recall 15/16  diff +0.567  qz 3.00e-4 (at cap)
+      labels  [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1997Q3 1998Q2 1998Q4 1999Q2 2000Q1 2001Q4 2003Q3]
+      stiff   [1962Q2 1970Q4 1973Q1 1974Q4 1978Q4 1980Q2 1982Q4 1985Q4 1990Q1 1992Q1 1997Q3 2000Q3 2003Q3 2007Q4 2008Q4]
+  macrodata realinv                n 203 labels 16  shipped   7 cuts F1 0.480 recall 7/16  stiff  14 cuts F1 0.688 recall 12/16  diff +0.208  qz 3.00e-4 (at cap)
+      labels  [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1975Q1 1984Q1 1997Q2 2000Q2 2001Q1 2001Q4 2009Q1]
+      stiff   [1973Q1 1975Q1 1979Q2 1981Q1 1983Q2 1984Q1 1990Q4 1995Q3 2000Q2 2001Q4 2003Q4 2006Q3 2008Q2 2009Q1]
+  macrodata realdpi                n 203 labels 16  shipped  12 cuts F1 0.467 recall 6/16  stiff  11 cuts F1 0.483 recall 10/16  diff +0.016  qz 3.00e-4 (at cap)
+      labels  [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1972Q4 1975Q2 1998Q1 2000Q1 2001Q3 2002Q1 2003Q2 2004Q4 2006Q1 2006Q4 2008Q2 2009Q2]
+      stiff   [1964Q1 1972Q4 1974Q2 1980Q2 1984Q1 1990Q4 1993Q1 1998Q1 2002Q3 2005Q1 2006Q4]
+  macrodata unemp                  n 203 labels 16  shipped   7 cuts F1 0.640 recall 8/16  stiff  20 cuts F1 0.789 recall 16/16  diff +0.149  qz 3.00e-4 (at cap)
+      labels  [1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1 2001Q1 2001Q4 2007Q4 2009Q2]
+      shipped [1975Q1 1980Q2 1981Q4 1982Q4 1983Q4 2008Q4 2009Q2]
+      stiff   [1960Q4 1961Q4 1965Q3 1969Q4 1971Q1 1974Q3 1975Q2 1979Q2 1980Q2 1981Q4 1983Q1 1984Q3 1989Q4 1992Q3 1995Q2 2001Q1 2001Q4 2003Q2 2007Q1 2008Q2]
+  us-real-gdp                      n 204 labels 16  shipped   6 cuts F1 0.083 recall 0/16  stiff  14 cuts F1 0.688 recall 14/16  diff +0.604  qz 3.00e-4 (at cap)
+      labels  [1953Q3 1954Q2 1957Q3 1958Q2 1960Q2 1961Q1 1969Q4 1970Q4 1973Q4 1975Q1 1980Q1 1980Q3 1981Q3 1982Q4 1990Q3 1991Q1]
+      shipped [1978Q2 1996Q2 1998Q1 1998Q4 1999Q4 2000Q2]
+      stiff   [1958Q1 1960Q4 1965Q4 1970Q1 1973Q1 1975Q1 1978Q2 1980Q2 1981Q1 1983Q1 1984Q1 1990Q2 1991Q2 1996Q1]
+  us-unemployment-duration         n 574 labels 14  shipped  18 cuts F1 0.235 recall 3/14  stiff  29 cuts F1 0.400 recall 8/14  diff +0.165  qz 3.00e-4 (at cap)
+      labels  [1969-12 1970-11 1973-11 1975-03 1980-01 1980-07 1981-07 1982-11 1990-07 1991-03 2001-03 2001-11 2007-12 2009-06]
+      shipped [1975-04 1977-06 1983-05 1984-06 2002-07 2003-06 2004-07 2008-05 2009-06 2009-09 2010-04 2010-06 2010-08 2011-10 2012-07 2012-11 2013-01 2014-01]
+      stiff   [1970-11 1972-06 1974-12 1975-05 1980-07 1982-01 1983-07 1984-06 1990-05 1993-01 1994-12 1998-02 2001-07 2002-04 2002-07 2003-06 2006-06 2008-05 2008-11 2009-06 2009-09 2010-06 2010-09 2011-10 2012-03 2012-07 2012-10 2013-02 2014-05]
+  mean F1 0.329 -> 0.645, diff +0.316; 7 wins, 0 losses; pooled recall shipped 29/110, stiff 90/110
+
+TCPD, the drift-floored series: F1 shipped drift vs stiff walk (cap 3e-4), margin 5
+  bank                              n  581  shipped  63 0.031  stiff 155 0.013  diff -0.018  qz 3.00e-4 (at cap)
+  children_per_woman                n  301  shipped  19 0.571  stiff  27 0.444  diff -0.127  qz 3.00e-4 (at cap)
+  co2_canada                        n  215  shipped  14 0.625  stiff  29 0.567  diff -0.058  qz 2.31e-4
+  debt_ireland                      n   21  shipped   9 0.824  stiff   3 0.980  diff +0.156  qz 0.00e+0
+  gdp_argentina                     n   59  shipped   4 0.720  stiff   6 0.727  diff +0.007  qz 0.00e+0
+  gdp_croatia                       n   24  shipped   6 0.444  stiff   4 0.571  diff +0.127  qz 0.00e+0
+  gdp_iran                          n   58  shipped   9 0.655  stiff   6 0.727  diff +0.072  qz 0.00e+0
+  gdp_japan                         n   58  shipped   4 0.571  stiff  13 0.250  diff -0.321  qz 3.00e-4 (at cap)
+  global_co2                        n  104  shipped   7 0.523  stiff  28 0.294  diff -0.229  qz 3.00e-4 (at cap)
+  ozone                             n   54  shipped   4 0.560  stiff  15 0.316  diff -0.244  qz 3.00e-4 (at cap)
+  quality_control_4                 n  500  shipped   3 0.638  stiff  50 0.145  diff -0.493  qz 3.00e-4 (at cap)
+  rail_lines                        n   37  shipped   5 0.800  stiff  10 0.533  diff -0.267  qz 3.00e-4 (at cap)
+  uk_coal_employ                    n  105  shipped  11 0.749  stiff  12 0.818  diff +0.069  qz 0.00e+0
+  unemployment_nl                   n  214  shipped   9 0.930  stiff  16 0.773  diff -0.157  qz 3.00e-4 (at cap)
+  us_population                     n  816  shipped   0 0.889  stiff  37 0.100  diff -0.789  qz 3.00e-4 (at cap)
+  usd_isk                           n  247  shipped  10 0.749  stiff  17 0.552  diff -0.197  qz 3.00e-4 (at cap)
+  bitcoin                (held out) n  774  shipped  52 0.407  stiff  82 0.340  diff -0.067  qz 3.00e-4 (at cap)
+  measles                (held out) n  991  shipped  39 0.049  stiff  90 0.043  diff -0.006  qz 3.00e-4 (at cap)
+  robocalls              (held out) n   52  shipped   5 0.778  stiff   4 1.000  diff +0.222  qz 3.00e-4 (at cap)
+  scanline_126007        (held out) n  481  shipped  27 0.593  stiff  37 0.729  diff +0.136  qz 0.00e+0
+  scanline_42049         (held out) n  481  shipped  27 0.593  stiff  50 0.563  diff -0.030  qz 3.00e-4 (at cap)
+  21 series, mean F1 0.605 -> 0.499, diff -0.105; 7 wins, 14 losses
+
+R0 PASSES: fresh seeds A0 false 0.010 (bar 0.15), B4 found 0.825 (bar 0.50)
+R1 PASSES: fresh set mean diff +0.166 (bar +0.03), 3 wins vs 0 losses
+R2 PASSES: NBER seven mean diff +0.316 (bar +0.03)
+R3 FAILS: TCPD floored mean diff -0.105 (bar 0)
+
+Ships: nothing in the CLI (R0-R3 must all pass); qzMax stays a module option.

@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKmLMWTnqJtBoRqR9FE",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T03:16:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: the drift model's open item, a stiff-slope trend walk (slope wander capped, cap chosen in simulation), pre-registered",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18355",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "fred.stlouisfed.org refused through the proxy (403); the fresh series came from the Rdatasets mirror on raw.githubusercontent.com instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'take the third open item no open PR title names' is hard to apply to a next: field written as one run-on paragraph with nested parentheses; I could not count items reliably and took the one buildable item instead (the others need a live repo, property or site)"
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "a replacement 120 characters longer than the old clause could not make room (2087 of 2000 even after parking); had to cut the new text to about the old length"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "the 'third open item' pick: items 1-3 of changepoint-detector's next: need a live GitHub repository, a live analytics property or a live site, none buildable here",
+      "did": "took the drift model's item (0), the stiff-slope walk, explicitly named as next by the last round",
+      "result": "a full pre-registered round landed (R0-R2 pass, R3 fails, nothing ships) plus a post hoc finding worth a later round"
+    },
+    {
+      "file": "ventures/changepoint-detector/llms.txt",
+      "why": "nothing user-facing changed (a module option and an eval only), so llms.txt and the marketing page were left as they are",
+      "did": "no edit",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-changepoint-a-stiff-slope-hears-recessions.md",
+    "ventures/changepoint-detector/README.md section 'A stiff slope'"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed (378562293) before eval/trend-walk-stiff.mjs first ran. Cap 3e-4 chosen in simulation; R0 (sim fresh seeds) passes, R1 fresh NBER-dated set +0.166 F1 3/0, R2 NBER seven +0.316 7/0, R3 TCPD floored -0.105 7/14 fails, so nothing ships. Post hoc random-cut baseline: stiff beats its own cut count on 10/10 NBER series (+0.214), shipped 6/10 (+0.022). Local checks: node --test on drift-trend, trend-walk-stiff, trend-walk-nber (10 pass); run_venture_tests.py changepoint-detector and venture-preflight in the PR summary; check_posts passes; validate.py passes.",
+  "corrections": [],
+  "redteam": null
+}

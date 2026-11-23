@@ -1,0 +1,14 @@
+F1 of each model beside the mean F1 of the same number of uniformly random cuts (2000 draws), NBER labels, margin 5
+  [F] industrial production monthly    shipped  9 cuts F1 0.258 (random 0.226, excess +0.032)  stiff 60 cuts F1 0.512 (random 0.325, excess +0.187)
+  [F] industrial production quarterly  shipped 10 cuts F1 0.750 (random 0.502, excess +0.248)  stiff 14 cuts F1 0.786 (random 0.538, excess +0.247)
+  [F] persons unemployed monthly       shipped 13 cuts F1 0.414 (random 0.274, excess +0.140)  stiff 29 cuts F1 0.622 (random 0.306, excess +0.317)
+  [7] macrodata realgdp                shipped  7 cuts F1 0.240 (random 0.358, excess -0.118)  stiff 17 cuts F1 0.743 (random 0.488, excess +0.255)
+  [7] macrodata realcons               shipped  7 cuts F1 0.160 (random 0.355, excess -0.195)  stiff 15 cuts F1 0.727 (random 0.473, excess +0.255)
+  [7] macrodata realinv                shipped  7 cuts F1 0.480 (random 0.359, excess +0.121)  stiff 14 cuts F1 0.688 (random 0.463, excess +0.225)
+  [7] macrodata realdpi                shipped 12 cuts F1 0.467 (random 0.446, excess +0.021)  stiff 11 cuts F1 0.483 (random 0.431, excess +0.051)
+  [7] macrodata unemp                  shipped  7 cuts F1 0.640 (random 0.358, excess +0.282)  stiff 20 cuts F1 0.789 (random 0.502, excess +0.288)
+  [7] us-real-gdp                      shipped  6 cuts F1 0.083 (random 0.335, excess -0.252)  stiff 14 cuts F1 0.688 (random 0.467, excess +0.221)
+  [7] us-unemployment-duration         shipped 18 cuts F1 0.235 (random 0.297, excess -0.062)  stiff 29 cuts F1 0.400 (random 0.305, excess +0.095)
+  fresh set F: shipped excess over random 0.140, stiff excess 0.250; stiff beats its random baseline on 3 of 3, shipped on 3 of 3
+  NBER seven: shipped excess over random -0.029, stiff excess 0.198; stiff beats its random baseline on 7 of 7, shipped on 3 of 7
+  all ten: shipped excess over random 0.022, stiff excess 0.214; stiff beats its random baseline on 10 of 10, shipped on 6 of 10
