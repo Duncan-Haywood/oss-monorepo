@@ -281,3 +281,15 @@ test('no asset cost: no "choose the amount" advice', () => {
   const r = compareDepreciationPaths({ assetCost: 0, taxableIncomeBeforeDeduction: 500000, ratePercent: 21 });
   assert.ok(!r.findings.some((f) => /lets you choose the amount/i.test(f.title)));
 });
+
+test('a 0% tax rate saves nothing on every path', () => {
+  const r = compareDepreciationPaths({ assetCost: 100000, taxableIncomeBeforeDeduction: 500000, ratePercent: 0 });
+  assert.equal(r.bonus.cashSavings, 0);
+  assert.equal(r.section179.cashSavings, 0);
+  assert.equal(r.macrs.cashSavings, 0);
+});
+
+test('any positive cost, even $1, gets the "choose the amount" advice', () => {
+  const r = compareDepreciationPaths({ assetCost: 1, taxableIncomeBeforeDeduction: 500000, ratePercent: 21 });
+  assert.ok(r.findings.some((f) => /lets you choose the amount/i.test(f.title)));
+});
