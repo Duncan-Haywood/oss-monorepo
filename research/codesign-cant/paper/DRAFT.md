@@ -374,6 +374,19 @@ necessary: at 45°, 29 of the on-ceiling tunes' 31 deaths occur at plants the li
 large-signal transients with no cycle to predict. The margin, not a describing-function check, is
 what keeps a design safe at every limit.
 
+Those transients have a size a builder can compute. Scaling every flight's start offset along its own
+ray (milestones 7al and 7am) shows a clean basin: of the 1,041 flights of milestone 7l's 36 designs that
+die somewhere between a 1 cm and a 1 m start at 45°, with all other excitation off, 1,034 die at every
+larger start. The basin's edge is an acceleration, not a distance. Across designs whose position gain
+spans 10 to 31.5 s⁻², the first proportional request kp · |e| ranks dead against alive with AUC 0.985,
+against 0.910 for the offset alone, and the per-design critical offset falls as kp^−1.06. The median
+request at which a flight first dies is 7.40 m/s² at kp ≈ 10 and 7.01 m/s² at kp 22–31, and only 26 of
+25,249 starts below 4.7 m/s² die (the smallest fatal request is 4.31 m/s²; `m7am_roa_kp/stats.txt`). So
+the safe step is about 4.3 m/s² divided by kp. The 0.5 m episode therefore tests a kp-10 tune at the
+foot of its curve and a kp-30 tune past its median edge. Milestone 7l's cap, which bounds the same
+request at 3.5 m/s², below that floor, removes every such death: 463 to 0 at a 0.5 m start and 648 to 0
+at 1 m for the high-gain designs.
+
 This matters for deployment because 20° is not a typical setting. PX4's maximum tilt in velocity
 and acceleration modes, `MPC_TILTMAX_AIR`, defaults to 45° with a floor of 20° [px4tilt], and
 ArduPilot's `ANGLE_MAX` defaults to 30° [ardupilotangle]. At 45°, the designs CMA-ES tuned onto

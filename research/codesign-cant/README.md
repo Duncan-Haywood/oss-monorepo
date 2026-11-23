@@ -6,6 +6,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Is a drone's safe start offset a distance or an acceleration? (2026-11-23): an acceleration; triple the position gain and the safe step is a third
+
+**Question.** Milestone 7al found a start-offset basin for designs retrained at a 45° tilt-command limit and offered a builder's rule: keep the first proportional request kp · |e| below about 4.7 m/s². All its designs had kp ≈ 10, so it could not tell a limit in m/s² from one in metres. We flew milestone 7l's 36 designs retrained at 45° (24 at kp ≈ 10, twelve whose widened gain box let them choose kp 21.7-31.5) without the cap, scaling each of 64 held-out flights' start offset along its own ray from 1 cm to 1 m per axis (14 sizes, 18 s, lever 0), with all other excitation off and with everything on.
+
+![Left: share of flights crashed against start-offset half-width; designs at kp about 10 start crashing near 0.5 m, designs at kp 22 to 31 near 0.15 m, reaching 84 percent at 1 m. Right: each design's median critical half-width against position gain on log axes, about 0.75 to 1 m at kp 10 and 0.4 to 0.5 m at kp 22 to 31, fitted slope -0.77 between the distance line (0) and the acceleration line (-1).](experiments/m7am_roa_kp/m7am_roa_kp.png)
+
+**Headline ([`experiments/m7am_roa_kp/stats.txt`](experiments/m7am_roa_kp/stats.txt); 179 s on 4 cores; 5 predictions committed to `LOG.md` before the code was written, 5 held; simulated).**
+
+- **The edge is an acceleration.** Over 32,256 (design, flight, size) cases, kp · |e| ranks crashed against survived with AUC 0.985, the offset alone 0.910; within a group of equal gains the two tie.
+- **The critical offset scales as 1/kp.** Along each flight's ray it falls as kp^−1.06 (the grid medians give −0.77, censored at 1 m for half the kp-10 designs). The median fatal request is 7.40 m/s² at kp ≈ 10 and 7.01 m/s² at kp 22-31.
+- **The rule transfers, a little lower.** 26 of 25,249 starts below 4.7 m/s² crash (0.1%); the smallest fatal request is 4.31 m/s².
+- **The cap removes it at every gain.** 7l's 3.5 m/s² cap takes the high-gain designs from 463 crashes of 768 to 0 at a 0.5 m start, and from 648 to 0 at 1 m.
+- **What a builder takes from it.** The safe step at a 45° limit is about 4.3 m/s² / kp (0.43 m at kp 10, 0.14 m at kp 30), or clip the proportional request at 3.5 m/s². Report a stress test's start offset as a request, not in metres. Limits: one simulator, 64 fixed rays per design, a 14-point grid, two gain clusters rather than a continuum, inherited 45°, 60° and 3.5 m/s² settings.
+
 ## How far off its hover point can a drone retrained for a 45° tilt limit start and still recover? (2026-11-23): about 0.47 m at kp 10, and an acceleration cap makes any start safe
 
 **Question.** Milestone 7ak traced the on-ceiling retrained designs' crashes at a 45° tilt-command limit to the 0.5 m start offset alone: a locally stable loop with a basin of attraction smaller than the episode's start set. How large is that basin, is the 0.5 m episode at its edge, and does milestone 7l's acceleration cap (|kp e| ≤ 3.5 m/s²) close it? We scaled every flight's start offset along its own ray from 1 cm to 1 m per axis (twelve sizes), with all other excitation off and with everything on, for the retrained designs and for the designs at 1.25× their integral-gain ceiling (ten seeds × 64 held-out flights each, 18 s).
