@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The First Click</title>
+      <link>https://example.invalid/hearth-and-horizon/the-first-click.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-first-click.html</guid>
+      <pubDate>Mon, 23 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A Mayo parish's new LED lighting has ten equal steps, and its agent made them equal in watts, twenty lux each. At Candlemas the first click takes the church from two lux of candlelight to twenty, a tenfold jump as big to the eye as the other nine steps together. Weber and Fechner say why; a sacristan of seventy-eight says no to a meter deciding, sets the steps by eye, and her steps come out nearly geometric. Setting: St. Fursa's (invented), Ballyhaunis, County Mayo, Ireland, Monday 12 January to Holy Saturday 28 March 2054. Read the full text at https://example.invalid/hearth-and-horizon/the-first-click.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Mayo parish's new LED lighting has ten equal steps, and its agent made them equal in watts, twenty lux each. At Candlemas the first click takes the church from two lux of candlelight to twenty, a tenfold jump as big to the eye as the other nine steps together. Weber and Fechner say why; a sacristan of seventy-eight says no to a meter deciding, sets the steps by eye, and her steps come out nearly geometric.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Light That Goes Red in the Haze</title>
       <link>https://example.invalid/hearth-and-horizon/the-light-that-goes-red-in-the-haze.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-light-that-goes-red-in-the-haze.html</guid>
