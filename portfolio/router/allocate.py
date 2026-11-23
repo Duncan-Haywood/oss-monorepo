@@ -1339,9 +1339,9 @@ def item_rank(session: Optional[str], spread: int = ITEM_SPREAD) -> int:
 def item_rank_note(session: Optional[str]) -> str:
     """The Start here clause naming which open item this session takes."""
     k = item_rank(session)
-    where = ("in the numbered `items:` list `allocate.py --venture <slug>` prints, "
-             "skipping entries that report a result, need outside input or an open PR "
-             "title names")
+    where = ("in the numbered `items:` list `allocate.py --venture <slug>` prints "
+             "(results and entries needing outside input are already left out), "
+             "skipping one an open PR title names")
     if k == 1:
         return f"take the first open item {where}"
     nth = {2: "second", 3: "third"}.get(k, f"#{k}")
@@ -1411,6 +1411,77 @@ def open_items(buildable: Optional[str], next_text: Optional[str],
             seen.add(short)
             out.append((field, short))
     return out
+
+
+# Kinds of entry the numbered list leaves out of the count, so "take the
+# third open item" counts only items a cloud session can build. Why: on
+# 2026-11-23 run records said the list offered results and person-needing
+# entries first (photo-editing's "Interpolated sRGB encode 2026-11-17", "X-Trans
+# lift settled off"; league-schedule-generator, all 7 items "a real club/league
+# ..."; xer-schedule-check, items 2-3 results), so the rank was moot and each
+# run sorted the list by hand. Of the 114 entries on main that day 53 needed an
+# input no session holds and 13 reported a result, leaving 48 to number. A heuristic, like the split: a skipped entry is still
+# printed with its reason, so a run that disagrees can take it.
+_NEEDS_INPUT = re.compile(
+    r"\b(?:a|an|the)\s+(?:real|live|production|commercial)\b|\breal (?:inputs?|bank|punches)\b"
+    r"|\bneeds? (?:a |an )?(?:key|person|account|card)\b|\bhosted model\b|account-gated"
+    r"|\(403\)|\ba person\b(?!'s)|\b(?:manager|estimator|scheduler|owner)'s\b"
+    r"|\ban? (?:P6|Revit|ARCHICAD|Archicad|Acumen|Lightroom|Gusto|ADP)\b|\ba Project (?:open|check)\b",
+    re.I)
+# Status notes rather than work: "X-Trans lift settled off", "WildReceipt all
+# read, spent", "IFC4X3 ifcXML: none public", "already matches".
+_STATUS = re.compile(r"\b(?:settled|spent|all (?:\w+ )?read|none public|already match(?:es)?|stays)\b"
+                     r"|^no network\b", re.I)
+_DATED_END = re.compile(r"\b20\d\d-\d\d-\d\d\.?$")
+_BUILD_CUE = re.compile(r"\b(?:next|find|draw|rerun|run|rebuild|add|write|fit|diff)\b", re.I)
+
+
+def _unbracketed(text: str) -> str:
+    """`text` without bracketed asides (evidence, dates, counts)."""
+    out, depth = [], 0
+    for ch in text:
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth = max(0, depth - 1)
+        elif depth == 0:
+            out.append(ch)
+    return " ".join("".join(out).split())
+
+
+def item_skip(body: str, today: Optional[str] = None) -> str:
+    """Why `body` is not counted as an open item ("result", "needs outside
+    input", "waits for <date>"), or "" when it looks buildable here."""
+    from flagship_field import DATED_EVIDENCE, is_result
+    if _NEEDS_INPUT.search(body):
+        return "needs outside input"
+    gates = future_gates(body, today)
+    if gates and body.lower().startswith(("after", "from", "not before")):
+        return f"waits for {gates[0]}"
+    if _BUILD_CUE.search(_unbracketed(body)):
+        return ""
+    if (_STATUS.search(body) or _DATED_END.search(body) or DATED_EVIDENCE.search(body)
+            or is_result(_unbracketed(body))):
+        return "result"
+    return ""
+
+
+def item_lines(items: list[tuple[str, str]], today: Optional[str] = None) -> list[str]:
+    """The `items:` lines: buildable-looking entries numbered, the rest
+    listed after them unnumbered with the reason."""
+    lines, skipped, n = [], [], 0
+    for field_name, body in items:
+        why = item_skip(body, today)
+        if why:
+            skipped.append(f"  -  [{field_name}] ({why}) {body}")
+        else:
+            n += 1
+            lines.append(f"  {n}. [{field_name}] {body}")
+    if not n:
+        lines.append("  (no entry looks buildable from a cloud session: take an open item "
+                     "from the row's NEXT.md, or a skipped one you can do, and add it to "
+                     "`buildable:`)")
+    return lines + skipped
 
 
 def least_claimed(queue: list[dict], claims: Optional[dict[str, list]],
@@ -1692,9 +1763,10 @@ def venture_report(name: str, ventures: list[Venture],
         items = open_items(v.flagship_buildable, v.flagship_next)
         if items:
             lines.append("items: (numbered from the two fields above for Start here's item "
-                         "rank; a heuristic split, so skip entries that report a result or "
-                         "need outside input)")
-            lines.extend(f"  {i}. [{field}] {body}" for i, (field, body) in enumerate(items, 1))
+                         "rank; results, entries needing outside input and dated waits are "
+                         "listed unnumbered after them. A heuristic split: take a skipped "
+                         "entry if you can do it)")
+            lines.extend(item_lines(items))
     else:
         lines.append("task: " + next_task(v))
     if v.flagship and left is not None:
