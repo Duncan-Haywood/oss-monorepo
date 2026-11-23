@@ -1,6 +1,6 @@
 ---
 title: "Shorter headers, same claims: three tool pages put their form on the first phone screen sooner"
-seo_title: "Making a tool's first field reachable on a phone without cutting honesty notes"
+seo_title: "Putting a tool's first field on a phone screen without cutting caveats"
 date: 2026-11-23
 tags: [polish, design, mobile, bank-statement-pdf-to-csv, patreon-fee-calculator, 1099-k-threshold-checker]
 description: "On a 390 px phone the bank statement converter's file picker moved from 1,159 px down the page to 896, without dropping a single testing caveat."

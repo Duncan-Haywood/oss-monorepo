@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, fold]
+topics: [design]
 date: 2026-11-23
 ---
 # Polish: three tool pages bring their first field 53 to 263 px higher on a phone (2026-11-23)
