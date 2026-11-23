@@ -139,7 +139,13 @@ Checked on the 65 public raws of drewnoakes/metadata-extractor-images
 (`eval/cull-page-previews-2026-11-23.md`): a preview in 61, all 61 decode in
 Pillow at the size the parser read; 39 are 2,000 px wide or more. In Chromium
 (Playwright) the page read all 65 files (1.1 GB) in 4.7 to 5.4 s, with every
-portrait frame upright. Not done: BigTIFF DNGs, phone DNGs with no JPEG inside,
+portrait frame upright. On a 520-file card (those 65 linked eight times,
+8.7 GB; `eval/cull-card-500-2026-11-23.md`) it reads the files in 25.8 s, down
+from 45.6 s, and takes 1.2 GB off the disk instead of 8.7 GB: `readRawFile`
+fetches only the byte ranges the parser asks for (2.1% of a raw; 65 of 65
+results identical to a whole read, `eval/cull-sparse-read.mjs`), the grid
+decodes a raw's ~1,620 px preview where it has one, and thumbnails are no
+longer copied on each redraw. Not done: BigTIFF DNGs, phone DNGs with no JPEG inside,
 the 640 px previews of 2000s Olympus compacts (only their 160 px thumbnail).
 
 ```bash

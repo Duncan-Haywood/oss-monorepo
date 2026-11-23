@@ -330,12 +330,12 @@ flagships:
       at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
       whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
       2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
-      (eval/noise-pca-whitened-level-*); on own ramps the oracle's 14 losses go to
-      0; drawn noise on 11 fresh camera raws passed 2026-11-23 (+0.12/+0.22 dB,
-      eval/camera-drawn-mpcws-*), so mpcws is the Bayer default; next read it
-      against --noise-read ship on new camera files. Browser cull page 2026-11-23
-      (site/cull.html, eval/cull-page-previews-*): next a real card of 500+ raws
-      through it and a Lightroom import of its sidecars. More open items: NEXT.md.
+      (eval/noise-pca-whitened-level-*); drawn noise on 11 fresh camera raws passed
+      2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer
+      default; next read it against --noise-read ship on new camera files. Browser
+      cull page 2026-11-23 (site/cull.html; 520-file card 45.6 to 25.8 s, 2.1% of
+      each raw read, eval/cull-card-500-*): next a real card of 500+ raws and a
+      Lightroom import of its sidecars. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
