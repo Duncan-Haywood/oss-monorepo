@@ -176,7 +176,8 @@
    "what": "The headline 'cuts false edges (seams) by about a quarter' rests on a seam score (mean gradient magnitude minus the truth's) that rewards blur and noise averaging: a 3x3-blurred truth scores -0.028, averaging two 1%-noise copies lowers the score by 0.002 (the size of the claimed effect), and soft scores better than the ground-truth oracle. Under a gradient-error metric the hard->soft reduction is 2.4% (3.2% with a bystander, where soft is worse than plain fill).",
    "where": "research/capture-softgate/experiments/run.py:41",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "medium",
@@ -204,16 +205,18 @@
    "what": "'gate family only 0.3 to 0.5 dB above plain filling' with a bystander: soft at an 8 degree gap is 0.72 dB above (results.txt D).",
    "where": "research/capture-softgate/README.md:44",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "low",
    "what": "Reproduce says run.py takes 'about 2 minutes'; it ran in 18 s.",
    "where": "research/capture-softgate/README.md:25",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"],
  "verdict": "capture-softgate's numbers are right: run.py reproduces results.txt byte-for-byte, the figure regenerates identically, and an independent re-implementation on a different toy scene reproduces the ordering (soft > hard in 5/5 held-out conditions by 0.08-0.30 dB; cost gate level with fill and about 1.8 dB below it with a bystander or noise). The hard baseline is fairly tuned (extending its sweep finds no better tau). It misses the bar on verification and claims: 5 of 7 seeded bugs survive the 7 tests, including an inverted output blend, and the headline 'about a quarter fewer seams' comes from a gradient-excess score that rewards blur and noise averaging (soft even beats the ground-truth oracle on it); under a gradient-error metric the gain is about 3%. As research it is an honest, incremental step (0.25 of 2.6 dB on one scene) that cites none of the IBR blending or stereo-confidence literature and re-finds Hu & Mordohai's (2012) result with the weakest confidence measure; not publishable-grade."
 }

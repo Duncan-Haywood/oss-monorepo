@@ -221,7 +221,8 @@
    "what": "Guide says 'The elite-tier card has the biggest single gain' (Charizard, Premium tier, gains $1,065.94 vs the Elite card's $563.04) and that 'the picker says so' when the $608 card exceeds a $400 budget; the hold reason is the generic 'better spent on other cards'.",
    "where": "ventures/card-grading-submission-picker/is-it-worth-grading-a-card.html:43",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "low",
@@ -242,7 +243,8 @@
    "what": "The likely-regret warning threshold is untested: pLoseVsRaw >= 0.5 -> > 0.5 survives although the fixture's Jordan card sits exactly at 50%.",
    "where": "ventures/card-grading-submission-picker/engine.mjs:347",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "low",
@@ -252,6 +254,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"],
  "verdict": "The arithmetic is right: an independent Python recomputation matches all 12 uplifts to the cent, all 12 break-even chances of a 10, and exhaustive subset enumeration reproduces the $400 and $150/3-card picks; 10 of 11 seeded mutants are caught and the page tests pin the guide's numbers. It clears the bar (correctness, claims, verification 3; median 3) as an honest, well-disclaimed EV calculator. A regular PSA/BGS submitter would still hit domain gaps quickly: the tier is forced to cover the best case with no upcharge path (understating gain by $120-$310 on the example's two big cards and changing the budget pick), the marketplace fee is a flat uncited percent with no high-value band, and shipping/insurance is a flat per-card number. One guide sentence ('the elite-tier card has the biggest single gain') is false. Vendor price pages (PSA, eBay, SGC, Beckett, CGC) were unreachable from this session."
 }

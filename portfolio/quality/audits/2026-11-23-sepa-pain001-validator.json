@@ -152,21 +152,24 @@
    "what": "pain.008.001.08 is given a <Dt> wrapper rule for ReqdColltnDt, but the ISO 20022 XSD declares it ISODate (pain.008.001.08.xsd:740). Every schema-valid .08 direct debit file (the version the EPC SDD rulebooks use since 2023) gets a hard DATE-WRAP error telling the user to add <Dt>, and a file with <Dt>, which the bank's XSD rejects, passes with 0 errors.",
    "where": "ventures/sepa-pain001-validator/calc.mjs:45",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "medium",
    "what": "The test for pain.008.001.08 builds the file with a <Dt> wrapper and asserts 0 errors, so the suite enshrines the wrong rule; no sample is ever validated against a real XSD.",
    "where": "ventures/sepa-pain001-validator/calc.test.mjs:110",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "medium",
    "what": "Repair transliterates MndtId, EndToEndId, MsgId, PmtInfId and any Othr/Id (MAND_0001 -> MAND-0001, MEMBER#0002 -> 'MEMBER 0002') while README and page say it 'never edits ... an identifier'; a rewritten mandate reference no longer matches the signed mandate.",
    "where": "ventures/sepa-pain001-validator/calc.mjs:832",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "medium",
@@ -204,6 +207,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"],
  "verdict": "The credit-transfer side is right: IBAN lengths match the SWIFT registry (stdnum, 89/89), mod-97 agrees on 10,680 IBANs, control sums match Python Decimal to the cent on a 141-transaction multi-block file, Easter and TARGET2 days match an independent algorithm for 300 years, and the .03/.09 samples and the repaired file validate against the real ISO 20022 XSDs. It misses the bar on correctness, verification and claims: pain.008.001.08, the current EPC direct-debit version, is checked with a <Dt> date rule the XSD does not have, so every valid .08 file gets a false hard error and an invalid one passes, and a test asserts the wrong rule; 4 of 9 seeded mutants survive; and repair rewrites MndtId and EndToEndId while the page promises it never edits an identifier."
 }

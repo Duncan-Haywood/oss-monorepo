@@ -202,23 +202,26 @@
    "what": "README says the two companion extinction chains were not reconciled and lists seed fleets and a quasi-stationary approximation as next steps; research/selfrep-reconcile and research/selfrep-extinction-qsd have since done these and are not linked.",
    "where": "research/selfrep-extinction-kits/README.md:7",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "low",
    "what": "Research homepage summary says relaxing the Markov assumptions moves early extinction 'by at most about 0.03'; results.txt's largest shift is 0.038 (L=200, B=16, fixed builds), which the README correctly gives as about 0.04.",
    "where": "research/_homepage/projects.json:2145",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   },
   {
    "severity": "low",
    "what": "experiments/figure.py imports research/_shared/linefig, but 'Outside dependencies' lists only the standard library, selfrep-growth and selfrep-closure.",
    "where": "research/selfrep-extinction-kits/README.md:48",
    "category": "repo-hygiene",
-   "origin": "build"
+   "origin": "build",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"],
  "verdict": "selfrep-extinction-kits' numbers are right: run.py reproduces results.txt byte-for-byte, and an independent numpy generator-matrix solve (own state space, dense solve, not Gauss-Seidel) matches every early-extinction probability (0.1944 at L=500, B=4) and every mean extinction time (1464.6 h at L=200) to the printed digits, stable at larger truncations; the closed-form bound (0.1623) and an independent Gillespie run (0.1968 +- 0.0028) agree, and a hand Weibull calculation confirms the wear-out mechanism. It misses the bar on verification: 3 of 6 seeded bugs survive, including one that halves the headline first-generation bound. As research it is a sound, honestly scoped application of textbook birth-death theory that explains a sibling simulation and has been built on, but it cites none of the establishment-probability literature and is not a new result at the PhD bar."
 }

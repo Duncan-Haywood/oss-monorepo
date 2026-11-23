@@ -52,6 +52,14 @@ Chosen: `tau` 0.5, `(t0, t1)` = (0.15, 0.5), `ct` 0.1. PSNR dB:
 - **A 1990s matcher** and a global cost threshold; a learned confidence or a per-region threshold could use cost better.
 - The oracle here sends holes to the raw nearest camera; `capture-hybrid`'s left them empty, so oracle numbers differ from that project's by about 0.1 dB.
 
+## Known gaps (quality audit, 2026-11-23)
+
+From [the round 102 audit](../../portfolio/quality/audits/2026-11-23-capture-softgate.json):
+
+- Several core changes leave the tests green: `max`→`min` in `match_cost`, `|`→`&` in the disagreement mask, filling a hole from the nearer neighbour, and `maximum`→`minimum` in the soft-and-cost gate. A test now catches an inverted blend.
+- No prior work is cited. Confidence-weighted blending is the subject of Unstructured Lumigraph Rendering (Buehler et al. 2001) and Deep Blending (Hedman et al. 2018). Hu and Mordohai (TPAMI 2012) found that raw matching cost is a weak stereo confidence, and that left-right consistency and peak-ratio measures do better. This project tested raw cost only.
+- There is no seam measure yet (see the gradient-excess result above).
+
 ## Next steps
 - Predict the per-pixel weight rather than hand-ramping it: fit a small regressor on disagreement, cost, local texture and depth discontinuity features over many generated scenes, and test it on unseen scenes to see how much of the 2.6 dB it recovers.
 - Treat bystander occlusion explicitly, for example by checking disagreement after warping each source with the other's depth, so a correct pixel hidden from one source is not discarded.

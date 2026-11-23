@@ -45,6 +45,14 @@ a control sum is not rebuilt while any amount is unreadable.
 
 The twelve countries added in SWIFT IBAN Registry release 101 (BI, DJ, FK, HN, LY, MN, NI, OM, RU, SD, SO, YE) are in the length table. Before, their IBANs drew only a "not in this tool's table" warning, so a character added or dropped passed (4,800 such cases on one seed), and their BICs drew a country warning. Found by the cross-venture identifier oracle, [`platform/ci/id_oracle/`](../../platform/ci/id_oracle/README.md); stdnum is a test-time oracle only, no bank or registry text was read beyond the registry data it carries.
 
+## Known gaps (quality audit, 2026-11-23)
+
+From [the round 102 audit](../../portfolio/quality/audits/2026-11-23-sepa-pain001-validator.json). The pain.008.001.08 date rule and identifier repair it found are fixed.
+
+- There is no direct-debit lead-time check. A collection dated today passes, although it must reach the bank at least one TARGET day before the due date.
+- The BIC pattern is a single pattern, so it does not match either version's XSD exactly (`BICIdentifier` in .03, `BICFIDec2014Identifier` in .09).
+- Some core checks have no test that pins them: a zero amount in a repaired control sum, a missing SEPA scheme name, 3-decimal amounts, and remittance that is both structured and unstructured.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
