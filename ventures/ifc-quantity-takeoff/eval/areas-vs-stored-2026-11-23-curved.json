@@ -1,0 +1,599 @@
+{
+ "results": [
+  {
+   "file": "construction.ifc",
+   "schema": "IFC2X3",
+   "seconds": 0.892,
+   "byQty": {
+    "IfcColumn.CrossSectionArea": {
+     "pairs": 257,
+     "agree": 257,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 36,
+     "agree": 11,
+     "reasons": {
+      "matches-stored-volume": 6,
+      "split": 17,
+      "repeated": 2
+     }
+    }
+   },
+   "medianAgreeRel": 0.00013372091330845804,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "architect.ifc",
+   "schema": "IFC2X3",
+   "seconds": 6.709,
+   "byQty": {
+    "IfcWall.GrossSideArea": {
+     "pairs": 112,
+     "agree": 70,
+     "reasons": {
+      "split": 5,
+      "matches-stored-volume": 4,
+      "net-as-gross": 33
+     }
+    },
+    "IfcMember.CrossSectionArea": {
+     "pairs": 1450,
+     "agree": 1392,
+     "reasons": {
+      "half-surface": 58
+     }
+    }
+   },
+   "medianAgreeRel": 9.128201831071402e-16,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "AC20-FZK-Haus.ifc",
+   "schema": "IFC4",
+   "seconds": 0.182,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 13,
+     "agree": 13,
+     "reasons": {}
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 13,
+     "agree": 9,
+     "reasons": {
+      "gross-as-net": 4
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 13,
+     "agree": 11,
+     "reasons": {
+      "on-a-face": 2
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 13,
+     "agree": 9,
+     "reasons": {
+      "on-a-face": 3,
+      "joins-off": 1
+     }
+    },
+    "IfcBeam.CrossSectionArea": {
+     "pairs": 1,
+     "agree": 1,
+     "reasons": {}
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 4,
+     "agree": 4,
+     "reasons": {}
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 4,
+     "agree": 4,
+     "reasons": {}
+    }
+   },
+   "medianAgreeRel": 1.3216940769347102e-16,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "C20-Institute-Var-2.ifc",
+   "schema": "IFC4",
+   "seconds": 0.62,
+   "byQty": {
+    "IfcSlab.GrossArea": {
+     "pairs": 26,
+     "agree": 20,
+     "reasons": {
+      "on-a-face": 6
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 26,
+     "agree": 20,
+     "reasons": {
+      "on-a-face": 6
+     }
+    },
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 121,
+     "agree": 121,
+     "reasons": {}
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 121,
+     "agree": 97,
+     "reasons": {
+      "gross-as-net": 24
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 121,
+     "agree": 86,
+     "reasons": {
+      "faces-averaged": 8,
+      "on-a-face": 4,
+      "joins-off": 17,
+      "net-as-gross": 6
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 121,
+     "agree": 79,
+     "reasons": {
+      "faces-averaged": 10,
+      "on-a-face": 13,
+      "joins-off": 19
+     }
+    },
+    "IfcColumn.CrossSectionArea": {
+     "pairs": 2,
+     "agree": 0,
+     "reasons": {
+      "unexplained": 2
+     }
+    }
+   },
+   "medianAgreeRel": 1.261617073437678e-16,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 81382,
+     "ifcClass": "IfcColumn",
+     "name": "Stütze-001",
+     "qty": "CrossSectionArea",
+     "computed": 0.031415926535897865,
+     "stored": 1.25663706144,
+     "rel": -0.9750000000000811,
+     "openings": 0
+    },
+    {
+     "id": 81565,
+     "ifcClass": "IfcColumn",
+     "name": "Stütze-001",
+     "qty": "CrossSectionArea",
+     "computed": 0.031415926535897865,
+     "stored": 1.25663706144,
+     "rel": -0.9750000000000811,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "ISSUE_159_kleine_Wohnung_R22.ifc",
+   "schema": "IFC4",
+   "seconds": 4.692,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 210,
+     "agree": 210,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 210,
+     "agree": 162,
+     "reasons": {
+      "matches-stored-volume": 10,
+      "net-as-gross": 34,
+      "on-a-face": 4
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 210,
+     "agree": 204,
+     "reasons": {
+      "gross-as-net": 2,
+      "on-a-face": 4
+     }
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 53,
+     "agree": 50,
+     "reasons": {
+      "unit-slip": 3
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 53,
+     "agree": 53,
+     "reasons": {}
+    }
+   },
+   "medianAgreeRel": 1.5419764230904982e-15,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "ISSUE_021_Mini Project.ifc",
+   "schema": "IFC2X3",
+   "seconds": 4.716,
+   "byQty": {
+    "IfcMember.CrossSectionArea": {
+     "pairs": 228,
+     "agree": 228,
+     "reasons": {}
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 24,
+     "agree": 20,
+     "reasons": {
+      "a-body-face": 4
+     }
+    }
+   },
+   "medianAgreeRel": 0,
+   "notCut": 5,
+   "others": []
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "schema": "IFC2X3",
+   "seconds": 3.312,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 927,
+     "agree": 671,
+     "reasons": {
+      "centre-line": 256
+     }
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 927,
+     "agree": 617,
+     "reasons": {
+      "centre-line": 256,
+      "gross-as-net": 54
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 927,
+     "agree": 749,
+     "reasons": {
+      "other-width": 39,
+      "matches-stored-volume": 98,
+      "centre-line": 25,
+      "faces-averaged": 12,
+      "on-a-face": 1,
+      "unexplained": 3
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 927,
+     "agree": 837,
+     "reasons": {
+      "other-width": 39,
+      "matches-stored-volume": 10,
+      "centre-line": 25,
+      "faces-averaged": 15,
+      "on-a-face": 1
+     }
+    },
+    "IfcBeam.CrossSectionArea": {
+     "pairs": 127,
+     "agree": 122,
+     "reasons": {
+      "own-profile": 5
+     }
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 275,
+     "agree": 213,
+     "reasons": {
+      "holes-added": 14,
+      "zero": 2,
+      "on-a-face": 46
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 275,
+     "agree": 221,
+     "reasons": {
+      "on-a-face": 52,
+      "zero": 2
+     }
+    },
+    "IfcCovering.GrossArea": {
+     "pairs": 728,
+     "agree": 533,
+     "reasons": {
+      "unexplained": 3,
+      "centre-line": 20,
+      "on-a-face": 121,
+      "zero": 46,
+      "a-body-face": 4,
+      "unit-slip": 1
+     }
+    },
+    "IfcCovering.NetArea": {
+     "pairs": 728,
+     "agree": 533,
+     "reasons": {
+      "unexplained": 3,
+      "centre-line": 20,
+      "on-a-face": 121,
+      "zero": 46,
+      "a-body-face": 4,
+      "unit-slip": 1
+     }
+    }
+   },
+   "medianAgreeRel": 4.347380870299452e-13,
+   "notCut": 1,
+   "others": [
+    {
+     "id": 44220,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "GrossArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.0611000000897,
+     "rel": -0.8339939871711853,
+     "openings": 0
+    },
+    {
+     "id": 44220,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "NetArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.0611000000897,
+     "rel": -0.8339939871711853,
+     "openings": 0
+    },
+    {
+     "id": 691798,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "GrossArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.118950000175,
+     "rel": -0.9147291518805472,
+     "openings": 0
+    },
+    {
+     "id": 691798,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "NetArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.118950000175,
+     "rel": -0.9147291518805472,
+     "openings": 0
+    },
+    {
+     "id": 739532,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "GrossArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.195000000286,
+     "rel": -0.9479847826468977,
+     "openings": 0
+    },
+    {
+     "id": 739532,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "NetArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.195000000286,
+     "rel": -0.9479847826468977,
+     "openings": 0
+    },
+    {
+     "id": 835340,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 2.101559886052667,
+     "stored": 7.32955986753,
+     "rel": -0.7132761142503807,
+     "openings": 0
+    },
+    {
+     "id": 839455,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 2.1015598868979755,
+     "stored": 7.32955986838,
+     "rel": -0.7132761141683029,
+     "openings": 0
+    },
+    {
+     "id": 863768,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 2.0479825040648714,
+     "stored": 6.5640596724,
+     "rel": -0.6880006267042248,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "schema": "IFC2X3",
+   "seconds": 16.222,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 1041,
+     "agree": 1041,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 1041,
+     "agree": 683,
+     "reasons": {
+      "net-as-gross": 254,
+      "on-a-face": 28,
+      "matches-stored-volume": 10,
+      "unexplained": 3,
+      "centre-line": 50,
+      "other-width": 3,
+      "curved-face": 10
+     }
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 115,
+     "agree": 95,
+     "reasons": {
+      "unit-slip": 20
+     }
+    },
+    "IfcMember.CrossSectionArea": {
+     "pairs": 687,
+     "agree": 18,
+     "reasons": {
+      "host-figure": 111,
+      "scales-with-length": 558
+     }
+    }
+   },
+   "medianAgreeRel": 1.996966823359457e-15,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 556796,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 3.2 145mm 37dB EI60 (HN-95-NR):2235683",
+     "qty": "GrossSideArea",
+     "computed": 3.6592499999998576,
+     "stored": 3.74742908124755,
+     "rel": -0.02353055370385737,
+     "openings": 1
+    },
+    {
+     "id": 1280178,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 4.3 172mm 48dB (RN-120-NR):4410967",
+     "qty": "GrossSideArea",
+     "computed": 16.052135065608397,
+     "stored": 15.0873031704494,
+     "rel": 0.06394992426802655,
+     "openings": 1
+    },
+    {
+     "id": 1483180,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 2.3T 134mm 34dB (R-95-NR):6783271",
+     "qty": "GrossSideArea",
+     "computed": 14.407372330742295,
+     "stored": 9.62722661266609,
+     "rel": 0.4965236521790388,
+     "openings": 3
+    }
+   ]
+  }
+ ],
+ "total": {
+  "CrossSectionArea": {
+   "pairs": 2752,
+   "agree": 2018,
+   "reasons": {
+    "half-surface": 58,
+    "unexplained": 2,
+    "own-profile": 5,
+    "host-figure": 111,
+    "scales-with-length": 558
+   }
+  },
+  "GrossSideArea": {
+   "pairs": 2460,
+   "agree": 1772,
+   "reasons": {
+    "matches-stored-volume": 128,
+    "split": 22,
+    "repeated": 2,
+    "net-as-gross": 327,
+    "on-a-face": 39,
+    "faces-averaged": 20,
+    "joins-off": 17,
+    "other-width": 42,
+    "centre-line": 75,
+    "unexplained": 6,
+    "curved-face": 10
+   }
+  },
+  "GrossFootprintArea": {
+   "pairs": 2312,
+   "agree": 2056,
+   "reasons": {
+    "centre-line": 256
+   }
+  },
+  "NetFootprintArea": {
+   "pairs": 1061,
+   "agree": 723,
+   "reasons": {
+    "gross-as-net": 82,
+    "centre-line": 256
+   }
+  },
+  "NetSideArea": {
+   "pairs": 1271,
+   "agree": 1129,
+   "reasons": {
+    "on-a-face": 21,
+    "joins-off": 20,
+    "faces-averaged": 25,
+    "gross-as-net": 2,
+    "other-width": 39,
+    "matches-stored-volume": 10,
+    "centre-line": 25
+   }
+  },
+  "GrossArea": {
+   "pairs": 1201,
+   "agree": 915,
+   "reasons": {
+    "on-a-face": 173,
+    "unit-slip": 24,
+    "holes-added": 14,
+    "unexplained": 3,
+    "centre-line": 20,
+    "zero": 48,
+    "a-body-face": 4
+   }
+  },
+  "NetArea": {
+   "pairs": 1110,
+   "agree": 851,
+   "reasons": {
+    "on-a-face": 179,
+    "a-body-face": 8,
+    "unexplained": 3,
+    "centre-line": 20,
+    "zero": 48,
+    "unit-slip": 1
+   }
+  }
+ }
+}

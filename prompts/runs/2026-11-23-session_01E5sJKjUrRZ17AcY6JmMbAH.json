@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKjUrRZ17AcY6JmMbAH",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T03:18:14Z",
+  "ended": "2026-11-23T03:36:14Z",
+  "wall_minutes": 18.34,
+  "tokens_in": 10722823,
+  "tokens_out": 60285,
+  "cost_usd": 4.7442,
+  "tool_calls": 82,
+  "task": "ifc-quantity-takeoff (flagship 14), buildable item: a curved wall's own side area (bendsInPlan walls)",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18357",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First version of curvedFaces took facets up to 60 degrees off the radius: dental_clinic's square-cut ends were counted as outer face (+0.21 m2) and pulled the centre 0.06 m; caught by checking against the file's own IfcCircle radii, fixed with a 25-degree limit and a refit before anything was committed.",
+    "Triangulated arc breps (ARK_NUS #1455746/#1457200) gave half their face area; caught by inspecting the brep, guarded by a new volume self-check (mean face x width = volume within 2%)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "buildable: cap of 600 chars left 68 to spare; my first replacement text was 8 over and had to be shortened to a terser pointer (minor)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-curved-wall-side-area-from-ifc-facets.md",
+    "ventures/ifc-quantity-takeoff/eval/curved-side-area-2026-11-23.md"
+  ],
+  "goal": "Measure walls on an arc on their own facets so the BoQ stops summing a chord cut for curved walls that store no side area.",
+  "notes": "Verification: node --test engine.test.mjs 60/60; python3 platform/ci/run_venture_tests.py ifc-quantity-takeoff ok (220 tests); 8-model areas-vs-stored changes only ARK_NUS 'curved 10' -> 'curved-face 10' (rerun on final code identical apart from timings); ISSUE_098 BoQ CSV old vs new: area only, +645.41 m2 on five wall types, no volume moved; three walls checked against their IFC circles to 4 digits; check_posts ok; validate.py ok; venture-preflight run (see PR). Result: 55 of 134 flagged walls on 4 public models measured; 45 store nothing, BoQ side area 434 -> 1,330 m2.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8a053b9d-7caa-5a5e-be89-28fabe56f0ec",
+    "transcripts": 1,
+    "first": "2026-11-23T03:18:14Z",
+    "last": "2026-11-23T03:36:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 147,
+        "output": 60285,
+        "thinking": 19352,
+        "cache_read": 10544039,
+        "cache_write_5m": 0,
+        "cache_write_1h": 178637,
+        "api_equivalent_usd": 4.7442,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 147,
+      "output": 60285,
+      "thinking": 19352,
+      "cache_read": 10544039,
+      "cache_write_5m": 0,
+      "cache_write_1h": 178637,
+      "api_equivalent_usd": 4.7442,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 77,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.34,
+      "active_minutes": 18.34,
+      "model_minutes": 12.03,
+      "tool_minutes": 6.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a BIM/geometry engineer deriving the facet-sum and centre fit, checking against IFC circles on 4 models and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 210.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

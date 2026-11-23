@@ -1205,8 +1205,12 @@ test("explanations: a curved wall's side is not a plane cut (skolebygg's quarter
   const rows = [
     wallRow(1, { side: side(true), check: { GrossSideArea: sideCheck("gross", 2.5918, 0.7573) } }),
     wallRow(2, { side: side(undefined), check: { GrossSideArea: sideCheck("gross", 2.5918, 0.7573) } }),
+    // measured on its facets (curvedFaces): the outer face is the stored figure
+    wallRow(3, { side: { gross: 2.4445, net: 2.4445, faces: { gross: [2.5918, 2.2973], net: [2.5918, 2.2973] }, chord: { gross: 0.7573, net: 0.7573 }, width: 0.25, curved: true }, check: { GrossSideArea: sideCheck("gross", 2.5918, 2.4445) } }),
   ];
   explainAreas(rows);
+  assert.equal(rows[2].areaCheck.GrossSideArea.reason, "curved-face");
+  assert.equal(rows[2].areaCheck.GrossSideArea.trust, true);
   assert.equal(rows[0].areaCheck.GrossSideArea.reason, "curved");
   assert.equal(rows[0].areaCheck.GrossSideArea.trust, true);
   assert.equal(rows[1].areaCheck.GrossSideArea.reason, "unexplained");
@@ -1225,6 +1229,14 @@ test("bendsInPlan: a quarter-arc wall bends, a straight one and one with a round
   const nib = Array.from({ length: 13 }, (_, i) => [1.5 + 0.02 * Math.cos(Math.PI - (i * Math.PI) / 12), -0.02 * Math.sin((i * Math.PI) / 12)]);
   const nibbed = { terms: [], mesh: 1, shells: [{ s: 1, loops: prism([[0, 0], ...nib, [3, 0], [3, 0.07], [0, 0.07]], [0, 0, 2]) }] };
   assert.equal(bendsInPlan(nibbed, [0, 0, 1], [0, 1, 0]), false);
+  // its faces on the facets: 90 chords of 1 degree on each radius, x 0.75 m
+  const { curvedFaces } = await import("./geom.mjs");
+  const chords = (r) => 90 * 2 * r * Math.sin(Math.PI / 360) * 0.75;
+  const F = curvedFaces(curved, [0, 0, 1]);
+  assert.ok(Math.abs(F.outer - chords(2.2)) < 1e-9 && Math.abs(F.inner - chords(1.95)) < 1e-9);
+  // the facets stand at their apothems, r cos(0.5 degrees)
+  assert.ok(Math.abs(F.rOuter - F.rInner - 0.25 * Math.cos(Math.PI / 360)) < 1e-9 && Math.hypot(...F.centre) < 1e-9);
+  assert.equal(curvedFaces(box, [0, 0, 1]), null);
   const P = planeAreas(box).map((p) => p.area).sort((a, b) => a - b);
   assert.deepEqual(P.map((x) => +x.toFixed(9)), [0.5, 0.5, 0.75, 0.75, 6, 6]);
 });
@@ -1293,4 +1305,84 @@ test("explanations: a stored volume on arcs as 45-degree chords or a circumscrib
   // a stored figure near but not on the polygon (0.05% off it) is a plain agreement
   const [s2, c2] = takeoff(parseStep(polygonFile(exactNotch * 1.0005, column * 1.0005))).rows;
   for (const r of [s2, c2]) { assert.equal(r.check.net.agree, true); assert.equal(r.check.net.reason, undefined); assert.equal(r.trustStored, true); }
+});
+
+// dental_clinic's partition #1674 as written: an arc profile between circles
+// of 4.9354 and 5.0594 m, ends cut square to the plan axes (not along a
+// radius), 0.668 m high, and here a 0.8 x 0.3 m opening through its middle
+// (eval/curved-side-area-2026-11-23.md)
+const arcWallFile = (storedSide) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53P9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3,#5));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#4=IFCSIUNIT(*,.PLANEANGLEUNIT.,$,.RADIAN.);
+#5=IFCCONVERSIONBASEDUNIT(#6,.PLANEANGLEUNIT.,'DEGREE',#7);
+#6=IFCDIMENSIONALEXPONENTS(0,0,0,0,0,0,0);
+#7=IFCMEASUREWITHUNIT(IFCPLANEANGLEMEASURE(0.0174532925199433),#4);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#16=IFCDIRECTION((0.,0.,1.));
+#20=IFCCARTESIANPOINT((3.91471628788658,-3.106318873909782));
+#21=IFCDIRECTION((1.,0.));
+#22=IFCAXIS2PLACEMENT2D(#20,#21);
+#23=IFCCIRCLE(#22,4.935421391182919);
+#24=IFCCIRCLE(#22,5.059421391182918);
+#25=IFCTRIMMEDCURVE(#23,(IFCPARAMETERVALUE(141.5680761427487)),(IFCPARAMETERVALUE(218.9441241541247)),.T.,.PARAMETER.);
+#26=IFCTRIMMEDCURVE(#24,(IFCPARAMETERVALUE(142.6739435505508)),(IFCPARAMETERVALUE(217.8181222408535)),.T.,.PARAMETER.);
+#27=IFCCARTESIANPOINT((0.04856752930165641,-0.03853822903991245));
+#28=IFCCARTESIANPOINT((-0.1085245361905843,-0.03853822903991245));
+#29=IFCCARTESIANPOINT((-0.0820298744579635,-6.208538229039827));
+#30=IFCCARTESIANPOINT((0.07614632223498968,-6.208538229039827));
+#31=IFCPOLYLINE((#27,#28));
+#32=IFCPOLYLINE((#29,#30));
+#33=IFCCOMPOSITECURVESEGMENT(.CONTINUOUS.,.F.,#25);
+#34=IFCCOMPOSITECURVESEGMENT(.CONTINUOUS.,.T.,#31);
+#35=IFCCOMPOSITECURVESEGMENT(.CONTINUOUS.,.T.,#26);
+#36=IFCCOMPOSITECURVESEGMENT(.CONTINUOUS.,.T.,#32);
+#37=IFCCOMPOSITECURVE((#33,#34,#35,#36),.F.);
+#38=IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,$,#37);
+#39=IFCEXTRUDEDAREASOLID(#38,#11,#16,0.668);
+#40=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#39));
+#41=IFCPRODUCTDEFINITIONSHAPE($,$,(#40));
+#42=IFCWALLSTANDARDCASE('2Ynk$BaAz6sA1QNF3FzSDF',$,'Basic Wall:Interior - Partition (92mm Stud)',$,$,#12,#41,$);
+#43=IFCQUANTITYAREA('GrossSideArea',$,$,${storedSide});
+#44=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53P9A',$,'BaseQuantities',$,$,(#43));
+#45=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53P9A',$,$,$,(#42),#44);
+#50=IFCCARTESIANPOINT((-1.3,-3.506318873909782,0.2));
+#51=IFCAXIS2PLACEMENT3D(#50,$,$);
+#52=IFCCARTESIANPOINT((0.,0.));
+#53=IFCAXIS2PLACEMENT2D(#52,$);
+#54=IFCRECTANGLEPROFILEDEF(.AREA.,$,#53,0.4,0.8);
+#55=IFCAXIS2PLACEMENT2D(#56,$);
+#56=IFCCARTESIANPOINT((0.2,0.4));
+#57=IFCRECTANGLEPROFILEDEF(.AREA.,$,#55,0.4,0.8);
+#58=IFCEXTRUDEDAREASOLID(#57,#51,#16,0.3);
+#59=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#58));
+#60=IFCPRODUCTDEFINITIONSHAPE($,$,(#59));
+#61=IFCOPENINGELEMENT('1YvctVUKr0kugbFTf53P9C',$,'hole',$,$,#12,#60,$);
+#62=IFCRELVOIDSELEMENT('4YvctVUKr0kugbFTf53P9A',$,$,$,#42,#61);
+ENDSEC;END-ISO-10303-21;`;
+
+test("a wall on an arc is measured on its facets: outer and inner faces, their mean as the side, the opening off both (dental_clinic #1674)", async () => {
+  const H = 0.668, deg = Math.PI / 180;
+  const inner = 4.935421391182919 * (218.9441241541247 - 141.5680761427487) * deg * H;
+  const outer = 5.059421391182918 * (217.8181222408535 - 142.6739435505508) * deg * H;
+  const r = takeoff(parseStep(arcWallFile(outer.toFixed(4)))).rows.find((x) => x.ifcClass === "IfcWallStandardCase");
+  const S = r.computed.areas.side;
+  assert.equal(S.curved, true);
+  const near = (a, b, tol) => assert.ok(Math.abs(a / b - 1) < tol, `${a} vs ${b}`);
+  near(S.faces.gross[0], outer, 1e-4);
+  near(S.faces.gross[1], inner, 1e-4);
+  near(S.gross, (outer + inner) / 2, 1e-4);
+  near(S.width, 0.124, 1e-3);
+  near(S.radius.outer, 5.0594, 1e-3);
+  // the opening's 0.8 x 0.3 m comes off each face (0.8 m of arc within
+  // 0.1% at this radius), not the chord cut's
+  near(S.faces.gross[0] - S.faces.net[0], 0.24, 2e-3);
+  near(S.faces.gross[1] - S.faces.net[1], 0.24, 2e-3);
+  assert.ok(S.chord.gross < 0.5, "the plane cut is a chord's elevation");
+  // a thin wall: the mean is within 2% of the outer face Revit stores, so the
+  // pair agrees, where the chord cut (0.37 m2) called it 92% off
+  assert.equal(r.areaCheck.GrossSideArea.agree, true);
 });

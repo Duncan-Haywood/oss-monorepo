@@ -10,6 +10,13 @@
 - (2026-11-21) thresholds per work section shipped 2026-11-20 (walls/slabs/coverings/frames, preset and --voids-up-to "a,v;slabs=0,0.05"; single pair moved slab areas on 4 of 11 models; eval/measure-sections-2026-11-20.md), next the 35 openings barely meeting their host
 - (2026-11-21) overlapping shell pieces as a union
 
+## Curved walls (landed 2026-11-23, eval/curved-side-area-2026-11-23.md)
+
+- Triangulated breps on an arc (ARK_NUS #1455746, #1457200; 7 in ISSUE_129): their triangles lean 0.001-0.01 off the vertical and are left out of the standing faces; loosening the test gave too much area (16.6 against about 14.3 m2), untraced. Next: read which triangles belong to which face.
+- `bendsInPlan` flags straight walls with rounded ends (one inspected of the 54 ISSUE_129 walls whose facets face no one centre); curvedFaces refuses them, but the flag (and a stored figure's `curved` reason there) is too broad.
+- ISSUE_129's two 362-piece extrusions at 41% of their volume: not traced.
+- A second tool's stored side area on an arc wall (only Revit outer faces checked).
+
 ## Rooms (landed 2026-11-21, eval/rooms-2026-11-21.md)
 
 - (landed 2026-11-21, eval/net-wall-finish-2026-11-21.md) Net wall finish per room. Left (the cut at the room's floor and ceiling landed 2026-11-21, eval/opening-height-cut-2026-11-21.md; left there: HouseZ's #27910, #56303, #68982 start 0.51 m below their room's floor, look on the model; a sloped ceiling's low side, the room top is its highest point); dental_clinic's 17 fixed windows the file names only for "2R01/2R02 ROOF" while geometry also finds the office (look at them on the model); HouseZ's 6 openings within 0.5 m of a room's box that no side test reached; curtain walls no boundary names (ARK_NUS's 852 members) from the wall face; reveals added back as a method of measurement option.

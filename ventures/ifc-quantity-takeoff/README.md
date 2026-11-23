@@ -249,6 +249,20 @@ this tool says which they are
   20,858 mm, digit for digit) on every piece; the bill of quantities uses their
   section instead
   ([eval/joins-and-host-figures-2026-11-20.md](eval/joins-and-host-figures-2026-11-20.md)).
+- **A curved wall's side area, measured on its facets (2026-11-23).** A wall
+  built on an arc is now measured on its own facets: its outer and inner
+  faces, their mean as its side area (the centre line's, for a wall of one
+  height), and its radial width. The plane cut it used before gave a chord's
+  elevation. Checked against the files' own circles on three walls
+  (dental_clinic #1674: outer 4.4325, inner 4.4522 m2, width 0.1240 m, each
+  matching the profile's radii and trim angles to the fourth digit) and against
+  ARK_NUS's ten stored outer faces (within 0.001%). A measurement is kept only
+  when mean face x width equals the body's volume within 2%: 55 of 134 flagged
+  walls on four public models pass, and the refused ones (triangulated breps,
+  straight walls with rounded ends) keep what they had. On the 45 measured
+  walls that store nothing, the bill's side area goes from 434 to 1,330 m2
+  (ISSUE_098 +645 m2, ISSUE_129 +243 m2), with no volume changed
+  ([eval/curved-side-area-2026-11-23.md](eval/curved-side-area-2026-11-23.md)).
 - **Holes added back, faces averaged, walls on an arc (2026-11-22).**
   Unexplained stored areas fell from 117 to 14 on the eight public models.
   ArchiCAD's slab GrossArea is the outline: its NetArea plus the file's own
@@ -633,8 +647,10 @@ clipped by a half-space, or mixed with a swept disk, revolved area or CSG
 primitive, is not cut: it keeps the stored area. A faceted shell of more than
 4,000 tetrahedra has no openings taken out ("net not computed"). A faceted covering is cut
 normal to its up direction, a rule fitted on one model.
-A curved wall's side area is the section of its thinnest flat direction, not
-its developed length.
+A curved wall's side area is the mean of its two curved faces summed from its
+facets, when mean x width matches its volume within 2%. A wall that fails
+that check (a triangulated brep whose triangles lean off the vertical) keeps a
+plane cut, a chord's elevation, unless it stores a figure.
 
 ## Run it
 

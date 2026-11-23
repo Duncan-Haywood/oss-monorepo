@@ -21,7 +21,7 @@ import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
-import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
+import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -1031,6 +1031,9 @@ export function explainAreas(rows, tol = 0.02) {
       const open = r.computed.openings > 0;
       if (c.which === "gross" && open && A.net != null && near(A.net, c.stored)) { c.reason = "net-as-gross"; continue; }
       if (c.which === "net" && open && A.gross != null && near(A.gross, c.stored)) { c.reason = "gross-as-net"; continue; }
+      // a wall on an arc measured on its facets: the stored figure is its outer
+      // (Revit) or inner face (skolebygg, eval/curved-side-area-2026-11-23.md)
+      if (c.kind === "side" && A.curved && A.chord && A.faces[c.which].some((x) => x > 0 && Math.abs(x - c.stored) <= 0.005 * Math.abs(c.stored))) { c.reason = "curved-face"; continue; }
       if ((c.kind === "side" || c.kind === "plan") && A.faces && A.faces[c.which].some((x) => x != null && near(x, c.stored))) { c.reason = "on-a-face"; continue; }
       if (c.kind === "cross" && scalesWithLength(r, k, c, rows, near)) { c.reason = "scales-with-length"; c.trust = false; continue; }
       const sv = storedVol(r, c.which);
@@ -1162,7 +1165,8 @@ export const AREA_REASON_TEXT = {
   "faces-averaged": "the stored side area is the mean of the wall's outside and inside face areas (the exporter's own figures, or the two faces cut from the geometry where they differ): a finishes figure",
   "holes-added": "the stored gross area is the slab's outline: its net area with the holes in its own profile added back (ArchiCAD's Holes Surface Area)",
   "a-body-face": "the stored area is one flat face of the element (a sill's top, a corbel's side), not the profile it was extruded from",
-  curved: "the wall is built on a curve: a plane cut gives a chord's elevation, not its curved face; the stored area is kept",
+  "curved-face": "the wall is built on a curve: the stored side area is its outer or inner curved face, as summed from its facets (the computed side area is the mean of the two faces, which is the centre line's for a wall of one height)",
+  curved: "the wall is built on a curve, and its two curved faces could not be told apart on its facets (a plane cut gives a chord's elevation): the stored area is kept",
   "centre-line": "the stored area is the element's stored centre-line length x its width (footprint) or height (side), or a covering drawn as a wall's centre length x thickness: a nominal figure that ignores angled or mitred ends",
   "other-width": "the wall is measured across another direction than its thinnest one (a short wall with angled ends): the stored side area is its stored volume / stored width",
   unexplained: "no known cause; check the element in a viewer",
@@ -1321,7 +1325,26 @@ function computeAreas(type, solids, W, f) {
       out.side.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
       // a wall on an arc has no middle plane: a plane cut gives a chord's
       // elevation, not the curved face (skolebygg, eval/curved-and-faces-2026-11-22.md)
-      if (bendsInPlan(body, v, t.n)) out.side.curved = true;
+      if (bendsInPlan(body, v, t.n)) {
+        out.side.curved = true;
+        // measured on its own facets instead: the outer and inner faces, and
+        // their mean as the side area (the centre line's, for a wall of one
+        // height: arc length grows with the radius). The chord cut is kept.
+        // Checked against the body: a wall of one section has volume = mean
+        // face x width, so a body whose faces were not all read as standing
+        // (skolebygg's triangulated breps #1455746 and #1457200, whose
+        // triangles lean off the vertical) is left unmeasured
+        const g = curvedFaces(body, v), nt = net ? curvedFaces(net, v) : null;
+        const V = Math.abs(solidVolume(body));
+        if (g && V > 0 && Math.abs(((g.outer + g.inner) / 2) * (g.rOuter - g.rInner) - V) <= 0.02 * V) {
+          out.side.chord = { gross: out.side.gross, net: out.side.net };
+          out.side.faces = { gross: [g.outer * f2, g.inner * f2], net: nt ? [nt.outer * f2, nt.inner * f2] : [null, null] };
+          out.side.gross = ((g.outer + g.inner) / 2) * f2;
+          out.side.net = nt ? ((nt.outer + nt.inner) / 2) * f2 : null;
+          out.side.width = (g.rOuter - g.rInner) * f;
+          out.side.radius = { outer: g.rOuter * f, inner: g.rInner * f };
+        }
+      }
     }
     // the plan at the wall's base: doors cut it, windows do not
     out.footprint = cut(v, 1e-4);
