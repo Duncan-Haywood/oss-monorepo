@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKiSEtJXdELHoqUhgeG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T03:33:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator (flagship 9, allocate.py row 4): split calc.mjs by feature, quality audit r87's last open defect",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18358",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Twice regenerated the modules (finer cuts to free more pages) while the full venture suite was running in the background against the same files; stopped and restarted it both times. Start long suites only once the layout is final.",
+    "First repoint script matched ^(\\s*)import, which swallowed a preceding blank line into the indent and doubled blank lines between the new imports; caught by reading bowling.mjs, fixed to [ \\t]* and re-run from a clean checkout."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/NEXT.md",
+      "issue": "Every flagship `next:` item for this venture needs a real league's input; the only buildable open item was a code-craft line from the r87 audit buried in NEXT.md, and two of that audit's other defects listed there as open were already fixed (h2h set scoring, night tie-break test) without being marked done."
+    },
+    {
+      "file": "ventures/league-schedule-generator/deploy.test.mjs",
+      "issue": "The Dockerfile test read only server.mjs's own imports, so it could not see a module missing from the image one import deeper; now followed transitively."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Deepen-a-flagship asks for 'a hard business or engineering problem, not polish'. Every open next: item needs outside input, so I took the audit's refactor, and judged it worth a run because with no bundler the 4,195-line module was a real page-weight cost on every one-format page.",
+      "did": "Split calc.mjs into 15 feature modules, kept calc.mjs as a re-exporting barrel with identical names, and repointed satellite modules.",
+      "result": "Eight pages load 67-93% less gzip code (Americano 215 -> 17 kB); index.html +10 kB (5%), stated in the README and post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-one-import-cost-a-phone-200-kb.md",
+    "ventures/league-schedule-generator/README.md (One file became fifteen)",
+    "ventures/league-schedule-generator/NEXT.md"
+  ],
+  "goal": "Deepen flagship league-schedule-generator; close quality audit r87's open code-craft defect",
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
