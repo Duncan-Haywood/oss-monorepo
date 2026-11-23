@@ -11,8 +11,20 @@
   "checked": "2026-11-14",
   "title": "Free-riders in Federated Learning: Attacks and Defenses (2019)"
  },
+ "arxiv:2010.06192": {
+  "checked": "2026-11-23",
+  "source": "arXiv abstract via web search: Zamirai, Zhang, Aberger, De Sa; Kahan summation and stochastic rounding for weight updates",
+  "title": "Revisiting BFloat16 Training (2020)",
+  "via": "hand"
+ },
  "arxiv:2405.18392": {
   "checked": "2026-11-14",
   "title": "Scaling Laws and Compute-Optimal Training Beyond Fixed Training Durations (2024)"
+ },
+ "doi:10.1145/363707.363723": {
+  "checked": "2026-11-23",
+  "source": "Comm. ACM 8(1):40; DOI page via web search (springerprofessional.de/doi/10.1145/363707.363723, MaRDI portal)",
+  "title": "Pracniques: further remarks on reducing truncation errors (1965)",
+  "via": "hand"
  }
 }
