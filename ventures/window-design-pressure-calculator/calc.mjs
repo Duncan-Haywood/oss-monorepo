@@ -57,7 +57,10 @@ const DEG = Math.PI / 180;
 const num = (v) => {
   if (v === null || v === undefined) return NaN;
   const s = String(v).trim();
-  return s === "" ? NaN : Number(s);
+  if (s === "") return NaN;
+  const n = Number(s);
+  // "Infinity" or an overflowing "1e400" is not a measurement: treat it as blank.
+  return Number.isFinite(n) ? n : NaN;
 };
 const r1 = (v) => Math.round(v * 10) / 10;
 const r2 = (v) => Math.round(v * 100) / 100;
