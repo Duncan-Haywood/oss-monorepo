@@ -1,0 +1,257 @@
+{
+ "date": "2026-11-23",
+ "subject": "ventures/card-grading-submission-picker",
+ "stratum": "venture",
+ "seed": "2026-11-23-c-87d1",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an experienced trading-card dealer who submits regularly to PSA/BGS/SGC/CGC. First checks: is the grade-probability expected value right, is the fee tier chosen the way graders actually price declared value (and upcharge), are shipping/insurance and marketplace fees modelled the way they are billed, and does the budget-constrained pick really maximise expected gain",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `node cli.mjs pick fixtures/cards.csv` (no cap, $400/20-card cap, $150/3-card cap) and `--json`. Independent Python (/tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/card/indep.py, does not import the engine) re-derived each card from the standard expected-value / present-value formula: Charizard netRaw 1200*0.87-0.30=1043.70, Premium tier (best case 6500 <= 10000), cost 258, d=1/(1+0.10*5/365), E = d*2370.885-258 = 2109.64, uplift 1065.94 = CLI. All 12 gradable uplifts match to the cent; the closed-form break-even p10 (solved independently as the root of the linear uplift) matches all 12 (Mantle 0.0536 -> '5.4%'; Charizard/Ohtani/Lebron negative roots -> 'always'; Eevee 0.953 > 1-p9-p8 -> 'never'). Exhaustive enumeration of all subsets reproduces the knapsack picks: $400 cap -> Charizard+Ohtani+Lebron, $374, $1,512.77; $150/3 cap -> Pikachu+Ohtani+Lebron, $149, $536.24; no cap -> 8 cards $1,189 / $2,405.21. Edge inputs: quoted \"$1,200\", 18% percent chances, a $0 raw card and a bad numeric field all handled (the bad row rejected with its line number); negative --budget rejected. Outputs are right for the model; the model's departures from grader and marketplace practice are scored under domain.",
+  "completeness": "Every README/page feature runs end to end: CLI pick with --budget/--max-cards/--tiers/--json/--example-tiers, browser page (same engine module), per-card tier, break-even p10, chance-worse-than-raw and worst case, exact subset under caps, two baselines, no-tier flag for the $24,000 card, condition words. fixtures/cards.csv exists as README says. No TODOs or stubs. Live page https://marisstella.app/card-grading-submission-picker/ returned proxy 403; `node platform/pages/served-copy.mjs card-grading-submission-picker` reports no placeholder or retired origin in the served llms.txt/sitemap/robots/canonicals (the github.io links in source llms.txt are rewritten at deploy: source-only, not filed). One guide sentence is false (claims).",
+  "verification": "`node --test '*.test.mjs'`: 32 tests, 32 pass, 0.2 s. 11 seeded mutations via platform/ci/quality_mutate.py, 10 caught: discount days/365->/36.5, best case dropping v10, pLose excluding the 7-or-lower bucket, break-even base using (n8-n9), greedy baseline sorted by uplift, sale fixed fee dropped, knapsack prune break, tier cover '>=' -> '>', break-even pMax=1, CSV quote handling bypassed. One survived: the likely-regret warning threshold pLoseVsRaw >= 0.5 -> > 0.5 (engine.mjs:347; the 50% Jordan card sits exactly on it in the fixture yet no test asserts that warning). selectBest and plan are tested against an in-test brute force over all subsets; page.test.mjs pins the guide's worked numbers to the engine.",
+  "craft": "Read engine.mjs (371 lines), cli.mjs (118), usage.mjs (80), index.html, engine.test.mjs, page.test.mjs. Pure functions, no I/O in the engine, parser never throws and reports line numbers, cents-integer knapsack with non-dominated labels per count, guarded localStorage. Minor: index.html:194-208 hard-codes a second copy of fixtures/cards.csv (EXAMPLE_SOURCE); plan()'s hold reason (engine.mjs:328) says 'better spent on other cards' even when a card's own fee exceeds the whole budget; card ids are name+line, so cards passed to plan() without line numbers and with duplicate names would collide.",
+  "claims": "Checked against the CLI: guide '8 of 13 cards for $1,189.00 ... $2,405.21' (backed); 'four cards lose to raw' (backed: -2.03, -13.57, -17.03, -28.02); Mantle 'needs about 5.4 percent ... -$2.03 ... at 7 percent it would go' (backed); $400 budget '3 cards for $374.00, $1,512.77 ... $1,360.88 ... $151.89' (backed); Charizard '15 percent ... $302.87' (backed); README 'tests check it against every subset' (backed, engine.test.mjs:149, 188); 'no network call' (backed, page.test.mjs:40 asserts no fetch/http). Not backed: guide line 43 'The elite-tier card has the biggest single gain' - Black Lotus (Elite) gains $563.04, Charizard $1,065.94; and 'the picker says so' (that $608 does not fit $400) - the CLI hold reason is the generic 'worth grading on its own, but the budget or card limit is better spent on other cards'. Disclaimers strong and consistent: example fee table labelled as not a current price list on page, README, CLI usage and MODEL_NOTE; non-affiliation with PSA/BGS/CGC/SGC; no-warranty footer. Usage tracking: usage.mjs records pick_run/example_loaded to localStorage only, opt-out button removes counters and persists, DNT/GPC honoured, as README and footer say.",
+  "fitness": "Walked a dealer's batch: paste comps and grade odds, paste the grader's tier table, set a budget. The answer is usable for a first pass, but a regular submitter hits three gaps in the first hour. (1) Tier choice is forced to cover the best case (max grade value): the dealer's normal play is to declare the likely value and accept an upcharge if the card gems. With the tool's own example tiers, Black Lotus declared at Premium with an upcharge to Elite only on a 10 gains about $876 instead of $563, and Charizard at Express with an upcharge on a 10 about $1,186 instead of $1,066 ({S}/alt.py; days approximated), which also changes what the $400 budget picks. No way to model that by editing inputs. (2) Shipping and insurance is one flat per-card figure: real costs are per-submission return shipping plus insurance proportional to declared value, so a $45 card and a $12,000 card both carry $8 and the knapsack never sees the fixed per-box cost. (3) Grades are 10/9/8/<=7 with one value for everything 7 and below; no half grades, BGS 9.5/Black Label or CGC Pristine, though a user can fold these into the buckets.",
+  "domain": "Compared against grader and marketplace practice (vendor sites were unreachable: psacard.com, ebay.com, gosgc.com, beckett.com, cgccards.com all failed DNS/proxy in this session). EV-vs-raw, discounting the wait and the break-even chance of a 10 are the standard dealer arithmetic and are right. Departures: the declared-value rule (always the tier covering the best case, no upcharge path) is conservative, not how graders price or how dealers declare; the marketplace fee is a flat percent of the whole sale (default 13% + $0.30, uncited, engine.mjs:190-191) while the sibling ventures/ebay-fee-calculator README:264 (checked against eBay's selling-fees page 2026-10-16) records a 13.6% most-categories rate, $0.40 per order over $10 and a 2.35% band above $7,500 - for slabs above $7,500 the flat rate overstates the fee (Black Lotus uplift 563.04 flat vs about 608.68 with a 13.25%/2.35% trading-card schedule, my recollection of eBay's category rate, not fetched); fees on the buyer-paid shipping are ignored. The example tier table and condition chance table are uncited and undated, but clearly and repeatedly labelled as illustrative, so they are scored as low source-data, not a wrong rate card."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Charizard uplift, tier and cost (no cap)",
+   "method": "hand expected-value / present-value recomputation, independent Python not importing the engine",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/card/indep.py ventures/card-grading-submission-picker/fixtures/cards.csv",
+   "expected": "Premium, $258.00, +$1,065.94 (hand: d*2370.885-258-1043.70)",
+   "observed": "CLI: tier Premium ($258.00 fee+ship, 5 days) expected +$1,065.94",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "uplift of all 12 gradable fixture cards",
+   "method": "independent Python EV recomputation",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/card/indep.py ventures/card-grading-submission-picker/fixtures/cards.csv",
+   "expected": "1065.94, 89.41, 205.52, -2.03, 223.48, 563.04, 223.35, 26.51, 7.96, -17.03, -13.57, -28.02",
+   "observed": "identical to the cent (node cli.mjs pick fixtures/cards.csv --json)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even p10 for all 12 cards",
+   "method": "root of the linear uplift in p10 with p9, p8 fixed, solved independently",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/card/indep.py ventures/card-grading-submission-picker/fixtures/cards.csv",
+   "expected": "Mantle 0.0536, Black Lotus 0.0280, Jordan 0.0061, Brady 0.1035, Eevee 0.953 (> 1-p9-p8 -> never), three negative roots -> always",
+   "observed": "engine breakEven identical; statuses always/at/never as expected",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "exact best subset under $400/20 and $150/3 caps",
+   "method": "exhaustive enumeration of every subset (itertools), independent of selectBest",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/card/indep.py ventures/card-grading-submission-picker/fixtures/cards.csv",
+   "expected": "$400: Charizard+Ohtani+Lebron $374 $1,512.77; $150/3: Pikachu+Ohtani+Lebron $149 $536.24",
+   "observed": "CLI identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "marketplace fee on a $12,000 slab sale (Black Lotus grade 10)",
+   "method": "eBay fee schedule as recorded by ventures/ebay-fee-calculator README:264 (eBay selling-fees page, checked 2026-10-16): 2.35% band above $7,500, $0.40 per order over $10",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/card/alt.py",
+   "expected": "tiered fee; Black Lotus uplift about $608.68 with 13.25%/2.35%",
+   "observed": "flat 13% + $0.30 on the whole sale; uplift $563.04; default rate uncited",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "declared-value tier choice vs declare-and-upcharge practice",
+   "method": "dealer practice: declare the likely value, pay the grader's upcharge only if the card grades above the tier cap; recomputed on the tool's own example tiers",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/card/alt.py",
+   "expected": "Black Lotus about $876, Charizard about $1,186 with upcharge path",
+   "observed": "tool forces best-case tier: $563.04 and $1,065.94; no upcharge option",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "guide worked numbers: 8 of 13 for $1,189.00/$2,405.21; Mantle 5.4%; $400 budget $374/$1,512.77 vs $1,360.88 (+$151.89); Charizard 15%/$302.87",
+   "method": "compare with CLI output",
+   "command": "node cli.mjs pick fixtures/cards.csv --budget 400 --max-cards 20",
+   "expected": "as stated in is-it-worth-grading-a-card.html",
+   "observed": "all identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "guide: 'The elite-tier card has the biggest single gain ... and the picker says so'",
+   "method": "compare with CLI output",
+   "command": "node cli.mjs pick fixtures/cards.csv --budget 400 --max-cards 20",
+   "expected": "Elite card has the largest uplift; picker says it does not fit the budget",
+   "observed": "Charizard $1,065.94 > Black Lotus $563.04; hold reason is the generic 'better spent on other cards'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, example-fee-table warning, non-affiliation, usage tracking",
+   "method": "read index.html footer, README, usage.mjs",
+   "command": "grep -n 'EXAMPLE\\|Not affiliated\\|pick_run\\|doNotTrack' index.html README.md usage.mjs engine.mjs",
+   "expected": "disclaimer, local-only counts with opt-out, DNT/GPC",
+   "observed": "all present; opt-out removes counters and persists a separate flag",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "32 tests, 32 pass, 0.2 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served copy of llms.txt/sitemap/canonicals",
+   "method": "platform/pages/served-copy.mjs (live host 403 via proxy)",
+   "command": "node platform/pages/served-copy.mjs card-grading-submission-picker",
+   "expected": "no placeholder or retired origin",
+   "observed": "none left",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:241",
+   "change": "(tier.days / 365) -> (tier.days / 36.5)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:230",
+   "change": "bestCase = max(v10,v9,v8,v7) -> max(v9,v8,v7)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:249",
+   "change": "pLose excludes the '7 or lower' outcome",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:219",
+   "change": "p8 * d * (n8 - n7) -> p8 * d * (n8 - n9) in break-even base",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:338",
+   "change": "greedy baseline sorted by bestCase -> by uplift",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:206",
+   "change": "saleNet drops the fixed per-sale fee",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:288",
+   "change": "knapsack prune keeps only the first label (break)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:202",
+   "change": "t.maxValue + EPS >= bestCase -> t.maxValue > bestCase",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:220",
+   "change": "pMax = max(0, 1-p9-p8) -> 1",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:71",
+   "change": "CSV fast path used even for quoted lines",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:347",
+   "change": "likely-regret pLoseVsRaw >= 0.5 -> > 0.5",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Fee tier is always the cheapest one whose cap covers the card's best-case (grade-10) value; there is no declare-lower-and-pay-the-upcharge path, which is how graders price declared value and how regular submitters declare. On the tool's own example tiers this understates uplift by about $120 (Charizard) to $310 (Black Lotus) and changes the budget-constrained pick.",
+   "where": "ventures/card-grading-submission-picker/engine.mjs:230",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Marketplace fee is a flat percent of the whole sale (default 13% + $0.30, uncited). eBay's schedule (as recorded by ventures/ebay-fee-calculator README:264) has a $0.40 per-order fee over $10 and a 2.35% band above $7,500, so high-value slabs are charged too much (Black Lotus uplift 563.04 vs about 608.68); fees on buyer-paid shipping are ignored.",
+   "where": "ventures/card-grading-submission-picker/engine.mjs:206",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Shipping and insurance is one flat per-card figure; real costs are per-submission return shipping plus insurance that scales with declared value, so a $45 card and a $12,000 card both carry $8 and the knapsack never sees the fixed per-box cost.",
+   "where": "ventures/card-grading-submission-picker/engine.mjs:240",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Guide says 'The elite-tier card has the biggest single gain' (Charizard, Premium tier, gains $1,065.94 vs the Elite card's $563.04) and that 'the picker says so' when the $608 card exceeds a $400 budget; the hold reason is the generic 'better spent on other cards'.",
+   "where": "ventures/card-grading-submission-picker/is-it-worth-grading-a-card.html:43",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Hold reason does not distinguish a card whose own fee+shipping exceeds the whole budget from one crowded out by better cards.",
+   "where": "ventures/card-grading-submission-picker/engine.mjs:328",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Grade buckets are 10/9/8/<=7 with one value for all of 7 and below; no half grades, BGS 9.5 / Black Label, CGC Pristine 10 or authentic-altered outcome.",
+   "where": "ventures/card-grading-submission-picker/engine.mjs:243",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The likely-regret warning threshold is untested: pLoseVsRaw >= 0.5 -> > 0.5 survives although the fixture's Jordan card sits exactly at 50%.",
+   "where": "ventures/card-grading-submission-picker/engine.mjs:347",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Example fee tiers and condition chance table are uncited and undated (clearly labelled illustrative on every surface, so low).",
+   "where": "ventures/card-grading-submission-picker/engine.mjs:16",
+   "category": "source-data",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic is right: an independent Python recomputation matches all 12 uplifts to the cent, all 12 break-even chances of a 10, and exhaustive subset enumeration reproduces the $400 and $150/3-card picks; 10 of 11 seeded mutants are caught and the page tests pin the guide's numbers. It clears the bar (correctness, claims, verification 3; median 3) as an honest, well-disclaimed EV calculator. A regular PSA/BGS submitter would still hit domain gaps quickly: the tier is forced to cover the best case with no upcharge path (understating gain by $120-$310 on the example's two big cards and changing the budget pick), the marketplace fee is a flat uncited percent with no high-value band, and shipping/insurance is a flat per-card number. One guide sentence ('the elite-tier card has the biggest single gain') is false. Vendor price pages (PSA, eBay, SGC, Beckett, CGC) were unreachable from this session."
+}

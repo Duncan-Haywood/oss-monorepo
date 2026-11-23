@@ -1,0 +1,224 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/selfrep-extinction-kits",
+ "stratum": "research",
+ "seed": "2026-11-23-c-87d1",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an applied probabilist working on stochastic population dynamics and demographic extinction (birth-death chains, branching-process establishment probabilities, quasi-stationary distributions: the Kendall / Nasell / Haccou-Jagers-Vatutin tradition). First checks: is the CTMC generator right (births, retirements, kit grabbing, truncation), are the absorption probability and mean absorption time solved correctly and insensitive to truncation, is the first-generation bound a valid closed form and a true lower bound, does the 'early extinction' threshold drive the answer, and is the work positioned against the establishment-probability literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Re-ran experiments/run.py in a scratch copy of the subject (it writes results.txt beside itself, so not in the tree): byte-identical to the committed experiments/results.txt in 43 s. Independent recomputation (/tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/selfrep/indep.py, numpy, does not import the subject): own state space (n machines, j building, k kits), own generator matrix, dense numpy.linalg.solve instead of Gauss-Seidel. Early extinction P(0 before 6) for all seven (L,B) cases: 0.1944/0.0466/0.0942/0.1428/0.2973/0.2395/0.3344 vs committed 0.194/0.047/0.094/0.143/0.297/0.239/0.334, unchanged at a 60/30 truncation. Mean time to extinction for all five rows at 20/8 and 30/12 truncations: 117.2/200.7(200.8)/1464.3(1464.6)/10994.3(10995.6)/13256.5(13276.9) vs committed 117/201/1464(1465)/10994(10996)/13257(13277), and stable at 50/25. Closed-form first-generation bound by hand: 0.16226 (L=500,B=4), 0.0447 (2000), 0.2232 (B=2), equal. Own Gillespie of the CTMC with numpy RNG (20,000 runs): early extinction 0.1968 +- 0.0028, mean time at L=100 199.6 +- 2.0, both consistent with the exact values. Weibull mechanism checked by hand: P(Weibull life < first-copy time 1/a + W = 92.6 h) at mean 500 h is 0.027 / 0.0045 / 0.0001 for shapes 2/3/5 vs simulated early extinction 0.028/0.004/0.000. The regular-kit/lognormal extinction-time column (23460, 26173) was not independently recomputed.",
+  "completeness": "Everything the README lists exists and runs: 7 unit tests (README says 7) OK in 0.07 s; experiments/run.py reproduces results.txt byte-identically (README says about 1 minute; 43 s); experiments/figure.py regenerates time_to_extinction.svg byte-identically once research/_shared is present. Sections A (early extinction, 7 cases x 4 simulation variants + truncation check), B (Weibull shapes) and C (mean times with truncation check) all present. No TODOs or stubs. Live page https://marisstella.app/research/selfrep-extinction-kits/ returned proxy 403 (HTTP 000), not checked.",
+  "verification": "python3 -m unittest discover -s tests: 7 tests OK. Six seeded mutations via platform/ci/quality_mutate.py: three caught (build rate b/w -> b/(1.5w), idle retirement rate halved, builder retirement leaving an idle machine), three SURVIVED: first_generation_extinction dropping the build-race factor (the headline 0.162 becomes 0.078; tests check only the two limits and p_chain > gen1, which a smaller gen1 still satisfies), the lognormal build-time location sign flipped (mean build time 50 h -> 52 h), and the Weibull scale losing its Gamma(1+1/k) correction (mean life no longer L). The chain's generator is well covered through the chain-vs-simulation test; the closed form and the DES's non-Markov switches, which carry Sections B and C's 'regular/logn' columns, are not. A seventh mutant (Gauss-Seidel tolerance -> 1e-3 absolute) was dropped as near-equivalent: it moves the L=300 mean time by 0.2 h.",
+  "craft": "Read src/selfrep_extinction_kits/chain.py (97 lines), des.py (72), tests/test_extinction_kits.py, experiments/run.py and figure.py. Small, readable, docstrings state the assumptions and the state invariant i*k == 0; truncation is explicit and checked. Minor: Gauss-Seidel in pure Python where a sparse direct solve would be exact and simpler; redundant list comprehension at chain.py:53; kit stock silently clipped at kmax (documented as truncation); DES idle machines held in a list with O(n) remove; run.py is a top-level script with no main(); figure.py imports research/_shared/linefig, not listed under 'Outside dependencies'. No dead code or copied engines.",
+  "claims": "Checked against results.txt: chain 0.194 vs sim 0.198 +- 0.006 (backed); 'agree within about two standard errors' across seven cases (largest gap 1.1 SE in A, 1.7 SE in C; backed); gen1 0.162 and 0.047 at L=2000 (backed); 'shift by at most about 0.04 (0.297 vs 0.335)' (0.038, backed); Weibull 0.194/0.028/0.004/0.000 (backed); mean times 117/201/1464/10994 vs sim 112+-3/196+-6/1511+-50/10625+-325 (backed); 'about double' 23460 vs 10995 and 26173 vs 13257 (backed; README quotes 10995 while the table shows 10994 at 20/8 and 10996 at 30/12, trivial); comparisons to selfrep-wearout (20% dead at L=500, 3% at 2000, unchanged with recycling, seed fleets did not help at L=200) all match research/selfrep-wearout/README.md:24-27. Not quite backed: the research homepage summary (research/_homepage/projects.json:2145) says relaxing the Markov assumptions moves the probability 'by at most about 0.03'; the table's largest shift is 0.038 (the README's 0.04 is right). Stale: README:7 says the two companion chains were not reconciled; research/selfrep-reconcile now does that, and two of the README:41 next steps (seed fleets n0 > 1, quasi-stationary approximation) were done in research/selfrep-extinction-qsd; neither is linked. 'Stylised', 'assumed inputs', 'simulated only' and the AI-assistance note are present; limitations are honest (threshold choice, truncation, comparison to selfrep-wearout by reading).",
+  "fitness": "A researcher can and did build on it: selfrep-extinction-qsd and selfrep-reconcile import its chain. Nearest prior work: the probability that a small founding population is lost before it establishes, and the mean time to extinction of a density-limited birth-death chain, are classical (Kendall 1948, 'On the generalized birth-and-death process', Ann. Math. Stat. 19:1-15; Haccou, Jagers & Vatutin 2005, 'Branching Processes: Variation, Growth, and Extinction of Populations', Cambridge; Nasell 2001, 'Extinction and quasi-stationarity in the Verhulst logistic model', J. Theor. Biol. 211:11-27; Lande, Engen & Saether 2003, 'Stochastic Population Dynamics in Ecology and Conservation', OUP). The README says the method is textbook and cites none of this; the contribution is a correct, honestly scoped application of that theory to the repository's own stylised printer shop, explaining a sibling project's simulation. Sound, but not a new or publishable result at the research/CLAUDE.md PhD bar; no branching-process (establishment-probability) approximation is compared, and the 'early extinction' threshold of 6 is not varied (my check: 0.185/0.191/0.194/0.196/0.198 for thresholds 3/4/6/10/15, so the result is robust below the 11.7-machine equilibrium; the project did not show this).",
+  "domain": "The method is standard practice and is applied correctly: absorption probabilities and expected absorption times of a finite CTMC, solved to tolerance and checked against a larger truncation (my dense solves agree to 4 decimals), a valid closed-form lower bound from memoryless races, and a DES that relaxes one assumption at a time. A population-dynamics probabilist would sign off on the mechanics with the stated limits; they would ask for the threshold sensitivity, a branching-process establishment approximation as the analytic baseline, and the classical citations."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "early-extinction probability P(0 before 6), all seven (L,B) cases",
+   "method": "independent numpy generator matrix on own (n, building, kits) state space, dense linear solve, 30/12 and 60/30 truncations",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/selfrep/indep.py",
+   "expected": "0.194/0.047/0.094/0.143/0.297/0.239/0.334 (results.txt A, chain)",
+   "observed": "0.1944/0.0466/0.0942/0.1428/0.2973/0.2395/0.3344 at both truncations",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "exact mean time to extinction, five cases, two truncations",
+   "method": "independent dense solve of -Q_TT t = 1 on own state space, 20/8, 30/12 and 50/25",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/selfrep/indep.py",
+   "expected": "117/201/1464/10994/13257 (20/8); 117/201/1465/10996/13277 (30/12)",
+   "observed": "117.2/200.7/1464.3/10994.3/13256.5; 117.2/200.8/1464.6/10995.6/13276.9; 50/25 within 3 h",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "first-generation bound at L=500/2000 (B=4) and L=500 B=2",
+   "method": "hand evaluation of 1 - a/(a+1/L) * (1/W)/(1/W+1/L), a = B/V, V = 170.34 from selfrep-growth",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/selfrep/indep.py",
+   "expected": "0.162 / 0.045 / 0.223",
+   "observed": "0.1623 / 0.0447 / 0.2232",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "early extinction and mean time by an independent stochastic simulation",
+   "method": "own Gillespie simulation of the CTMC with numpy default_rng(12345), 20,000 runs each",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/selfrep/indep.py",
+   "expected": "0.1944 (L=500,B=4); 200.8 h (L=100,B=4)",
+   "observed": "0.1968 +- 0.0028; 199.6 +- 2.0 h",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Weibull-shape mechanism: wear-out life rarely ends before the first copy",
+   "method": "hand calculation P(Weibull(mean 500, shape k) < 1/a + W = 92.6 h) for k = 2, 3, 5",
+   "command": "python3 -c 'import math; ... 1-exp(-(t/sc)**k)'",
+   "expected": "0.028 / 0.004 / 0.000 (results.txt B)",
+   "observed": "0.027 / 0.0045 / 0.0001",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline experiment reproduces",
+   "method": "re-run experiments/run.py in a scratch copy (with sibling selfrep-growth, selfrep-closure) and diff",
+   "command": "cd scratch/copy/selfrep-extinction-kits && python3 experiments/run.py; diff experiments/results.txt <repo>/research/selfrep-extinction-kits/experiments/results.txt",
+   "expected": "identical",
+   "observed": "IDENTICAL (43 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates from results.txt",
+   "method": "run experiments/figure.py in the scratch copy with research/_shared present, diff the SVG",
+   "command": "python3 experiments/figure.py; diff experiments/time_to_extinction.svg <repo>/.../time_to_extinction.svg",
+   "expected": "identical",
+   "observed": "identical (fails with ModuleNotFoundError linefig if research/_shared is absent)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests pass and README test count",
+   "method": "run the documented test command",
+   "command": "python3 -m unittest discover -s tests -v",
+   "expected": "7 tests OK",
+   "observed": "Ran 7 tests in 0.070s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "chain and Poisson/exponential simulation agree 'within about two standard errors'",
+   "method": "|chain - sim| / SE for every row of results.txt A and C",
+   "command": "sed -n '/== A/,$p' experiments/results.txt",
+   "expected": "<= ~2 SE",
+   "observed": "max 1.1 SE (A), 1.7 SE (C, L=75)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "relaxing Markov assumptions shifts early extinction 'by at most about 0.04' (README) / 'about 0.03' (homepage)",
+   "method": "max |variant - chain| over results.txt A",
+   "command": "sed -n '/== A/,/== B/p' experiments/results.txt; grep -n 'at most about 0.03' research/_homepage/projects.json",
+   "expected": "0.04 (README), 0.03 (homepage)",
+   "observed": "0.038 (L=200 B=16, fixed builds): README right, homepage understates",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "comparisons with selfrep-wearout (20% dead at L=500, 3% at 2000, unchanged with recycling, seed fleets did not help at L=200)",
+   "method": "read research/selfrep-wearout/README.md",
+   "command": "sed -n '24,27p' research/selfrep-wearout/README.md",
+   "expected": "as quoted",
+   "observed": "all four match lines 24-27",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "companion chains 'not reconciled' and next steps still open",
+   "method": "grep sibling projects for follow-ups",
+   "command": "grep -rn selfrep-extinction-kits research/*/README.md",
+   "expected": "README current",
+   "observed": "research/selfrep-reconcile reconciles the two chains; research/selfrep-extinction-qsd does seed fleets and the quasi-stationary approximation; neither linked from README:7 or README:41",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "robustness of 'early extinction' to the threshold of 6 machines",
+   "method": "independent dense solve with safe = 3, 4, 6, 10, 15, 25 (40/20 truncation), L=500 B=4",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/selfrep/indep.py (p_early, varied safe)",
+   "expected": "not reported by the subject",
+   "observed": "0.185/0.191/0.194/0.196/0.198/0.407: robust below the 11.7-machine equilibrium; the project does not show it",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/selfrep_extinction_kits/chain.py:97",
+   "change": "return 1.0 - (a / (a + 1 / l)) * ((1 / w) / (1 / w + 1 / l)) -> return 1.0 - (a / (a + 1 / l)) (first-generation bound drops the build race)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_extinction_kits/des.py:20",
+   "change": "mu = math.log(w) - sig ** 2 / 2 -> mu = math.log(w) + sig ** 2 / 2 (lognormal build mean no longer W)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_extinction_kits/des.py:21",
+   "change": "scale = l / math.gamma(1 + 1 / life_shape) -> scale = l (Weibull mean life no longer L)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_extinction_kits/chain.py:25",
+   "change": "r = b / w -> r = b / (1.5 * w)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_extinction_kits/chain.py:30",
+   "change": "out.append((i / l, (b, i - 1, k))) -> out.append((i / (2 * l), (b, i - 1, k)))",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_extinction_kits/chain.py:28",
+   "change": "out.append((b / l, (b - 1, i, k))) -> out.append((b / l, (b - 1, i + 1, k)))",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The closed-form first-generation bound (the headline 0.162) and the DES's non-Markov switches are untested: dropping the build-race factor (0.162 -> 0.078), flipping the lognormal location sign, or removing the Weibull Gamma(1+1/k) scale correction all leave the 7 tests green. Tests check only the bound's two limits and p_chain > gen1, so Sections B and the 'regular/logn' columns rest on unchecked parametrisations.",
+   "where": "research/selfrep-extinction-kits/tests/test_extinction_kits.py:11",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited: establishment probability of a small founding population and mean extinction time of density-limited birth-death chains are classical (Kendall 1948; Nasell 2001; Lande, Engen & Saether 2003; Haccou, Jagers & Vatutin 2005). The README says it cites none; there is no branching-process establishment approximation as an analytic baseline and the early-extinction threshold is not varied. A correct application, not a new result at the research/CLAUDE.md PhD bar.",
+   "where": "research/selfrep-extinction-kits/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "README says the two companion extinction chains were not reconciled and lists seed fleets and a quasi-stationary approximation as next steps; research/selfrep-reconcile and research/selfrep-extinction-qsd have since done these and are not linked.",
+   "where": "research/selfrep-extinction-kits/README.md:7",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Research homepage summary says relaxing the Markov assumptions moves early extinction 'by at most about 0.03'; results.txt's largest shift is 0.038 (L=200, B=16, fixed builds), which the README correctly gives as about 0.04.",
+   "where": "research/_homepage/projects.json:2145",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "experiments/figure.py imports research/_shared/linefig, but 'Outside dependencies' lists only the standard library, selfrep-growth and selfrep-closure.",
+   "where": "research/selfrep-extinction-kits/README.md:48",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "selfrep-extinction-kits' numbers are right: run.py reproduces results.txt byte-for-byte, and an independent numpy generator-matrix solve (own state space, dense solve, not Gauss-Seidel) matches every early-extinction probability (0.1944 at L=500, B=4) and every mean extinction time (1464.6 h at L=200) to the printed digits, stable at larger truncations; the closed-form bound (0.1623) and an independent Gillespie run (0.1968 +- 0.0028) agree, and a hand Weibull calculation confirms the wear-out mechanism. It misses the bar on verification: 3 of 6 seeded bugs survive, including one that halves the headline first-generation bound. As research it is a sound, honestly scoped application of textbook birth-death theory that explains a sibling simulation and has been built on, but it cites none of the establishment-probability literature and is not a new result at the PhD bar."
+}
