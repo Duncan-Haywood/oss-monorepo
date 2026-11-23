@@ -1,0 +1,56 @@
+name: window-design-pressure-calculator
+description: >-
+  Free browser window and door design pressure calculator to ASCE 7-16
+  Chapters 26 and 30 for dealers, installers, builders and permit-plan
+  preparers: paste an opening schedule and get each window's, door's and
+  garage door's wall zone, positive and negative wind pressures and the DP
+  rating it needs, with topographic factor, ground elevation and wind-borne
+  debris region checks. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-23 in an explore run. duplicate_check.py: top match 0.20
+# (formwork-pressure, roof-snow-load-calculator); no venture computes wind
+# pressures. window-replacement-bid-calculator and patio-door-bid-calculator
+# price the job but not the rating the units need.
+#
+# Why a tool and not a chatbot answer: the answer is a schedule, not a number.
+# Each opening needs its own zone (corner distance against a), its own
+# log-area coefficient, the GCpi sign that adds, the 16 psf floor and the
+# strength-to-ASD conversion; chat replies tend to quote one worst-case DP or
+# skip the 0.6 factor. The tool does every line and exports a CSV for the
+# plan reviewer or the order.
+#
+# First visitor: dealers and builders searching "window design pressure
+# calculator", "what DP rating do I need", "ASCE 7-16 components and cladding
+# wall pressure"; volume not measured with an external tool.
+#
+# Liability: arithmetic on typed numbers, not engineering advice; V is the
+# user's. Unverified against a commercial program: hand calculations in tests.
+
+hypotheses:
+  - claim: >-
+      Window and door dealers and coastal builders will use a no-signup ASCE
+      7-16 design pressure calculator that takes a whole opening schedule,
+      instead of quoting one worst-case DP or paying an engineer for a letter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a pressure that disagrees with a correct ASCE 7-16 Chapter 30 hand calculation, and the disagreement is the engine's error.
+
+links:
+  production: https://marisstella.app/window-design-pressure-calculator/
+  analytics: null

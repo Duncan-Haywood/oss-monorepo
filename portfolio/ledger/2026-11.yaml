@@ -338,3 +338,17 @@ entries:
         seeded bugs caught (the fifth is equivalent). Not checked against a
         commercial program. Guide page, post, llms.txt; shed-designer links it.
     mrr_end: 0
+  - venture: window-design-pressure-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started
+        ventures/window-design-pressure-calculator, an ASCE 7-16 Chapter 26/30
+        Part 1 wall C&C engine for a pasted opening schedule: Kh, Kzt (ridge,
+        escarpment, hill), Ke, zone 4/5 by corner distance, log-area GCp, 10%
+        low-slope cut, GCpi, 16 psf floor, ASD DP per opening, debris-region
+        flag, CSV. 29 tests against hand calcs and Table 26.10-1. Not checked
+        against a commercial program. Guide page, post, llms.txt; linked from
+        window-replacement-bid-calculator and roof-snow-load-calculator.
+    mrr_end: 0
