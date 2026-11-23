@@ -1,0 +1,212 @@
+{
+ "date": "2026-11-23",
+ "subject": "ventures/sepa-pain001-validator",
+ "stratum": "venture",
+ "seed": "2026-11-23-c-87d1",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a payments/treasury engineer who builds and debugs ISO 20022 pain.001.001.03/.09 and pain.008.001.02/.08 files against the EPC SCT and SDD Implementation Guidelines. First checks: does every advertised version accept a schema-valid file and reject an invalid one, is the IBAN check ISO 13616 mod-97 with the SWIFT registry lengths, is the BIC pattern the one each version's XSD uses, are NbOfTxs/CtrlSum recomputed exactly per block and per file, are the SEPA character set, EUR, amount limits and TARGET2 dates right, and does the repair step leave every identifier alone as promised",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write. (1) ISO 20022 XSDs shipped in the sepaxml 2.7.0 wheel (pip download, unpacked under scratchpad/sepa/dl), validated with xmllint: the tool's own pain.001.001.03, pain.001.001.09 and pain.008.001.02 samples validate and the tool reports 0 errors on each. pain.008.001.08 is wrong: the XSD declares <xs:element name=\"ReqdColltnDt\" type=\"ISODate\"/> (pain.008.001.08.xsd:740; only pain.001.001.09's ReqdExctnDt is DateAndDateTime2Choice, line 755), but calc.mjs:45 sets wrapDate:true for pain.008.001.08, so the schema-valid .08 file (xmllint: validates) gets 1 error DATE-WRAP, while the tool's own .08 shape with <Dt> (xmllint: 'not a valid value of the atomic type ISODate', fails to validate) passes with 0 errors. (2) IBAN: length table equals python-stdnum 2.2's iban.dat (SWIFT registry v101) for all 89 countries, 0 diffs; ibanMod97 agrees with stdnum.iso7064.mod_97_10 on 10,680 synthetic IBANs (valid, single substitutions, adjacent transpositions, every registry country); hand mod-97 of the broken example's ES9121000418450200051323 gives 49, flagged. (3) Exact sums: a 3-block, 141-transaction file with one amount edited +0.07 and one transaction deleted: tool per-block 17736469.40 / 25280400.91 / 23729669.67, total 66746539.98, NbOfTxs 140, diffs +0.07 and -790107.00; Python Decimal gives the same to the cent; repaired file xmllint-validates against pain.001.001.03.xsd and re-validates with 0 errors. (4) Easter 1900-2199 equals an independent Oudin (1940) implementation 300/300; Good Friday, Easter Monday, 1 Jan, 1 May, 25/26 Dec and next-TARGET-day spot checks for 2027/2028 right. (5) BIC versus the XSD patterns: .03 BICIdentifier [A-Z]{6}[A-Z2-9][A-NP-Z0-9]... rejects DEUTDE01, DEUTDEFO, DEUTDE1F, which the tool accepts in a .03 file; .09 BICFIDec2014Identifier [A-Z0-9]{4}... accepts 1234DEFF and AB12DEFFXXX, which the tool rejects. Amount limits 0.01..999999999.99 and 2 decimals right. Numbers are right; one of the four advertised versions gets the wrong verdict on every correct file.",
+  "completeness": "Ran node --test '*.test.mjs': 67 pass. Claimed features checked end to end with node scripts (scratchpad/sepa/xsd.mjs, sums.mjs, ind.mjs): well-formedness with lines, namespace/version detection, NbOfTxs/CtrlSum per file and per block (works), IBAN structure/length/mod-97 (works), BIC/BICFI split (works for .03/.09/.02; wrong date rule for .08), EUR, amount format, past/weekend/TARGET dates with next TARGET day (works), Max35/70/140 lengths, SEPA character set with suggestions, duplicate EndToEndId/PmtInfId/MsgId with a prior list, ChrgBr SLEV, SvcLvl SEPA, DD scheme/SeqTp/MndtId/DtOfSgntr/creditor id shape (work), DTD refused, CSV export with masking. Repair recomputes totals exactly (works). No TODOs or stubs. Served copy built with node platform/pages/served-copy.mjs: no placeholder or retired origin (live host 403 through the proxy).",
+  "verification": "node --test '*.test.mjs': 67 tests, 0 fail, 1.2 s. Nine seeded mutations via platform/ci/quality_mutate.py: 5 caught (Easter Monday shifted a day, the doubled-slash rule dropped, max amount raised by 0.01, future DtOfSgntr check loosened, Ustrd limit 1->2) and 4 survived: repair accepting a zero amount into CtrlSum (calc.mjs:811), a missing SchmeNm/Prtry SEPA no longer flagged (calc.mjs:635), 3-decimal amounts dropped from the control sum (calc.mjs:677), and the Ustrd+Strd exclusivity check removed entirely (calc.mjs:711). The pain.008.001.08 test (calc.test.mjs:110) encodes the wrong <Dt> rule, so the suite asserts the bug; no test validates any sample against the real XSD.",
+  "craft": "Read calc.mjs (1000 lines), calc.test.mjs, page.test.mjs, repair-fuzz.test.mjs, usage.mjs, index.html. Pure functions, BigInt-scaled decimals, a tolerant tokenizer that keeps byte ranges so repair edits only the changed text, DTD refused, CSV formula injection neutralised, IBANs masked. Weaknesses: one 1000-line module with very long single-line statements (calc.mjs:760 nested ternary for titles), a no-op line (calc.mjs:762 'handled above'), CtrlSum with more than 6 fraction digits reported as 'not a decimal number' (SCALE=6 while the XSD DecimalNumber allows 17), and a hand-written BIC regex that matches neither version's XSD pattern.",
+  "claims": "Backed: exact-decimal sums (recomputed), IBAN mod-97 and registry lengths (stdnum), TARGET2 days, EUR only, masking (test calc.test.mjs:175), no network (page.test.mjs:21), DTD refused, 'what this does not check' lists XSD/element order, creditor-identifier check digits and cut-off times honestly, disclaimer and EPC-independence clause present (index.html:136-138), usage counting local with opt-out (usage.mjs, index.html:141). Not backed: README.md:40 and index.html:111/127 say repair 'never edits ... an identifier', but repair transliterates MndtId and EndToEndId (sampleDirectDebit with MAND_0001 and MEMBER#0002: repair changes MndtId 'MAND_0001' -> 'MAND-0001' and EndToEndId 'MEMBER#0002' -> 'MEMBER 0002') and any Othr/Id, so a mandate reference is silently rewritten. 'pain.008.001.08 ... checked in detail' (README input list, VENTURE.yaml) is contradicted by the wrong date rule. TXT-LENGTH says Nm is 'Max70Text in the schema'; the XSDs declare party Nm as Max140Text (pain.001.001.03.xsd:224), 70 is the EPC usage rule. llms.txt carries the generic 'estimates from the numbers typed in' line, which does not describe a file checker.",
+  "fitness": "Job walked through: a club treasurer pastes a pain.001.001.03 bulk transfer with a hand-edited amount, a deleted row, an umlaut and a Saturday date: every fault is found with line and path, repair fixes totals and characters, the result xmllint-validates. That job is done. The direct-debit job is not for current files: the EPC SDD rulebooks since November 2023 use pain.008.001.08, and a correct .08 file exported by an ERP draws a hard error telling the user to add a <Dt> wrapper that would make the bank's XSD reject it. DD also gets no lead-time check: a ReqdColltnDt equal to today passes with 0 errors and 0 warnings although an SDD must reach the creditor's bank at least one TARGET day before the due date (cut-off times are listed as not checked, the D-1 scheme rule is not).",
+  "domain": "Compared with the EPC SCT/SDD Implementation Guidelines and the ISO 20022 XSDs: SEPA basic Latin character set, slash rule for references, SLEV, SvcLvl SEPA, EUR, 0.01-999,999,999.99 with 2 decimals, single Ustrd of 140, TARGET2 closing days, IBAN ISO 13616 mod-97 all match. Departs: pain.008.001.08 ReqdColltnDt is ISODate, not a Dt/DtTm choice; BIC check uses neither the .03 BICIdentifier nor the .09 BICFIDec2014Identifier pattern; creditor identifier check digits (mod-97 over national id + country + '00', EPC262-08; DE98ZZZ09999999999 recomputes to 98, DE97ZZZ09999999999 passes the tool) are not verified, though this is disclosed; no SDD D-1 presentation rule. A payments engineer would sign off on the SCT side with the stated limits, not on the SDD side."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "schema-valid pain.008.001.08 file (ReqdColltnDt as plain ISODate, BICFI)",
+   "method": "ISO 20022 pain.008.001.08.xsd from the sepaxml 2.7.0 wheel, xmllint --schema",
+   "command": "node scratchpad/sepa/xsd.mjs; xmllint --noout --schema pain.008.001.08.xsd dd08xsd.xml dd08tool.xml",
+   "expected": "XSD-valid file passes the tool; XSD-invalid file (<Dt> wrapper) is flagged",
+   "observed": "dd08xsd.xml validates but the tool reports 1 error DATE-WRAP; dd08tool.xml fails XSD (ReqdColltnDt '' not ISODate) but the tool reports 0 errors",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tool's own clean samples for pain.001.001.03, pain.001.001.09, pain.008.001.02",
+   "method": "ISO 20022 XSDs (sepaxml 2.7.0), xmllint --schema",
+   "command": "xmllint --noout --schema pain.001.001.03.xsd ct03.xml (and .09, pain.008.001.02)",
+   "expected": "validate; tool 0 errors",
+   "observed": "all three validate; tool 0 errors, 0 warnings each",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "IBAN length table and mod-97 over every registry country",
+   "method": "python-stdnum 2.2 iban.dat (SWIFT IBAN registry v101) and stdnum.iso7064.mod_97_10 (ISO 13616 / ISO 7064)",
+   "command": "python3 -I scratchpad/sepa/gen.py ...; node scratchpad/sepa/ind.mjs",
+   "expected": "89 countries equal; mod-97 verdicts equal",
+   "observed": "0 length diffs over 89 countries; 10,680/10,680 mod-97 verdicts agree; 3,892/3,892 valid synthetic IBANs pass checkIban",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "NbOfTxs and CtrlSum per block and per file after a hand edit (+0.07 on one amount, one transaction deleted) in a 3-block 141-transaction file",
+   "method": "Python decimal.Decimal sum of the same amounts",
+   "command": "node scratchpad/sepa/sums.mjs; python3 -I -c '<Decimal sums of multi_amts.json>'",
+   "expected": "blocks 17736469.40 / 25280400.91 / 23729669.67, total 66746539.98, n 140",
+   "observed": "identical; repair output xmllint-validates and re-validates with 0 errors",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Easter Sunday 1900-2199 and TARGET2 closing days",
+   "method": "independent Oudin (1940) Gregorian Easter algorithm; ECB TARGET2 calendar (1 Jan, Good Friday, Easter Monday, 1 May, 25/26 Dec)",
+   "command": "node scratchpad/sepa/ind.mjs",
+   "expected": "300/300 equal; 2027-03-26 Good Friday next 2027-03-30",
+   "observed": "300/300 equal; 2027-03-26 Good Friday, next 2027-03-30; 2027-12-25 Saturday next 2027-12-27",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "BIC format per version",
+   "method": "XSD patterns: .03 BICIdentifier [A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3})?; .09 BICFIDec2014Identifier [A-Z0-9]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?",
+   "command": "node scratchpad/sepa/ind.mjs",
+   "expected": "DEUTDE01/DEUTDEFO rejected in .03; 1234DEFF accepted in .09",
+   "observed": "tool accepts DEUTDE01, DEUTDEFO, DEUTDE1F and rejects 1234DEFF, AB12DEFFXXX regardless of version",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "creditor identifier check digits",
+   "method": "EPC262-08 creditor identifier: mod-97 over national id + country + '00', by hand",
+   "command": "python3 -c '<98 - int(digits(\"09999999999DE00\")) % 97>'; node scratchpad/sepa/sums.mjs",
+   "expected": "DE98ZZZ09999999999 valid (98); DE97... invalid",
+   "observed": "hand 98; tool passes DE97ZZZ09999999999 with 0 errors (disclosed as not checked)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'repair never edits ... an identifier' (README.md:40, index.html:111, index.html:127)",
+   "method": "run repair on the DD sample with MndtId MAND_0001 and EndToEndId MEMBER#0002",
+   "command": "node scratchpad/sepa/sums.mjs",
+   "expected": "identifiers untouched",
+   "observed": "MndtId 'MAND_0001' -> 'MAND-0001'; EndToEndId 'MEMBER#0002' -> 'MEMBER 0002'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nm 'limited to 70 characters (Max70Text) in the schema'",
+   "method": "pain.001.001.03.xsd party Nm type",
+   "command": "grep -n 'name=\"Nm\"' pain.001.001.03.xsd",
+   "expected": "Max70Text",
+   "observed": "Max140Text (line 224); 70 is the EPC usage rule",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, EPC independence, payment-data note, local usage counting with opt-out, no network",
+   "method": "read index.html and usage.mjs; page.test.mjs network assertion",
+   "command": "grep -n 'No warranty\\|optout\\|usage.mjs' index.html; node --test page.test.mjs",
+   "expected": "present",
+   "observed": "present (index.html:136-141, usage.mjs); page test asserts no fetch/XHR/beacon",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "SDD collection dated today",
+   "method": "EPC SDD Core rulebook: collection presented at least D-1 TARGET day",
+   "command": "node scratchpad/sepa/sums.mjs",
+   "expected": "warning or error for ReqdColltnDt = today",
+   "observed": "0 errors, 0 warnings",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "67 pass, 0 fail, 1.2 s",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {"where": "calc.mjs:213", "change": "Easter Monday addDays(easter, 1) -> addDays(easter, 2)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:508", "change": "slash rule /^\\/|\\/$|\\/\\// -> /^\\/|\\/$/ (doubled slash no longer flagged)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:121", "change": "scaled > MAX_AMOUNT -> scaled > MAX_AMOUNT + 10000n", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:707", "change": "dd > today -> dd > addDays(today, 400) (future mandate signature date)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:710", "change": "us.length > 1 -> us.length > 2", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:811", "change": "a === null || a <= 0n -> a === null || a < 0n (repair sums a zero amount into CtrlSum)", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:635", "change": "cid && txt(sch) !== \"SEPA\" -> cid && sch && txt(sch) !== \"SEPA\" (missing SchmeNm not flagged)", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:677", "change": "drop a.problem === \"decimals\" from the control-sum accumulation", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:711", "change": "Ustrd + Strd exclusivity check -> if (false)", "caught": false, "test_cmd": "node --test '*.test.mjs'"}
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "pain.008.001.08 is given a <Dt> wrapper rule for ReqdColltnDt, but the ISO 20022 XSD declares it ISODate (pain.008.001.08.xsd:740). Every schema-valid .08 direct debit file (the version the EPC SDD rulebooks use since 2023) gets a hard DATE-WRAP error telling the user to add <Dt>, and a file with <Dt>, which the bank's XSD rejects, passes with 0 errors.",
+   "where": "ventures/sepa-pain001-validator/calc.mjs:45",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
+  },
+  {
+   "severity": "medium",
+   "what": "The test for pain.008.001.08 builds the file with a <Dt> wrapper and asserts 0 errors, so the suite enshrines the wrong rule; no sample is ever validated against a real XSD.",
+   "where": "ventures/sepa-pain001-validator/calc.test.mjs:110",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
+  },
+  {
+   "severity": "medium",
+   "what": "Repair transliterates MndtId, EndToEndId, MsgId, PmtInfId and any Othr/Id (MAND_0001 -> MAND-0001, MEMBER#0002 -> 'MEMBER 0002') while README and page say it 'never edits ... an identifier'; a rewritten mandate reference no longer matches the signed mandate.",
+   "where": "ventures/sepa-pain001-validator/calc.mjs:832",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 9 seeded mutants survive: repair summing a zero amount, missing SchmeNm/Prtry SEPA no longer flagged, 3-decimal amounts dropped from the control sum, and the Ustrd+Strd exclusivity check removed.",
+   "where": "ventures/sepa-pain001-validator/calc.test.mjs:98",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No SDD presentation lead-time check: a ReqdColltnDt equal to today passes with 0 errors and 0 warnings, although an SDD must reach the creditor bank at least one TARGET day before the due date (D-1).",
+   "where": "ventures/sepa-pain001-validator/calc.mjs:608",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "BIC regex matches neither version's XSD: in .03 it accepts DEUTDE01/DEUTDEFO/DEUTDE1F, which BICIdentifier rejects; in .09/.08 it rejects alphanumeric bank codes (1234DEFF) that BICFIDec2014Identifier accepts.",
+   "where": "ventures/sepa-pain001-validator/calc.mjs:185",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "TXT-LENGTH says Nm is 'Max70Text in the schema'; the XSDs declare party Nm as Max140Text, and 70 is the EPC usage rule.",
+   "where": "ventures/sepa-pain001-validator/calc.mjs:501",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "A CtrlSum with more than 6 fraction digits (SCALE=6) is reported as 'not a decimal number', though the XSD DecimalNumber allows 17 fraction digits.",
+   "where": "ventures/sepa-pain001-validator/calc.mjs:91",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"],
+ "verdict": "The credit-transfer side is right: IBAN lengths match the SWIFT registry (stdnum, 89/89), mod-97 agrees on 10,680 IBANs, control sums match Python Decimal to the cent on a 141-transaction multi-block file, Easter and TARGET2 days match an independent algorithm for 300 years, and the .03/.09 samples and the repaired file validate against the real ISO 20022 XSDs. It misses the bar on correctness, verification and claims: pain.008.001.08, the current EPC direct-debit version, is checked with a <Dt> date rule the XSD does not have, so every valid .08 file gets a false hard error and an invalid one passes, and a test asserts the wrong rule; 4 of 9 seeded mutants survive; and repair rewrites MndtId and EndToEndId while the page promises it never edits an identifier."
+}

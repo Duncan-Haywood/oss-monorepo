@@ -80,11 +80,16 @@ test("the guide's worked list matches the engine", async () => {
   const lotus = free.submit.find((c) => c.name.startsWith("Black Lotus"));
   assert.equal(money(lotus.cost), "$608.00");
   assert.ok(!capped.submit.some((c) => c.name.startsWith("Black Lotus")));
+  assert.equal(money(lotus.uplift), "$563.04");
+  assert.ok(lotus.cost > 400, "the elite card alone exceeds the $400 budget");
+  const top = [...free.submit].sort((a, b) => b.uplift - a.uplift)[0];
+  assert.ok(top.name.startsWith("Charizard"), "the guide names the biggest single gain");
+  assert.equal(money(top.uplift), "$1,065.94");
   const zard = free.submit.find((c) => c.name.startsWith("Charizard"));
   assert.equal(pct(zard.pLoseVsRaw, 0), "15%");
   assert.equal(money(zard.worst.vsRaw), "-$302.87");
   const doc = await read(DOCS);
-  for (const s of ["$1,189.00", "$2,405.21", "5.4 percent", "-$2.03", "$374.00", "$1,512.77", "$1,360.88", "$151.89", "$608.00", "15 percent", "$302.87", "$24,000"]) assert.ok(doc.includes(s), s);
+  for (const s of ["$1,189.00", "$2,405.21", "5.4 percent", "-$2.03", "$374.00", "$1,512.77", "$1,360.88", "$151.89", "$608.00", "$563.04", "$1,065.94", "15 percent", "$302.87", "$24,000"]) assert.ok(doc.includes(s), s);
 });
 
 test("index links to sibling tools", async () => {

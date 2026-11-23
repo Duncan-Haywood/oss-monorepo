@@ -1,0 +1,222 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/capture-softgate",
+ "stratum": "research",
+ "seed": "2026-11-23-c-87d1",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a computer-vision researcher in image-based rendering / depth-image-based view synthesis and stereo confidence (the community of Buehler et al. 2001, Hu & Mordohai 2012, Hedman et al. 2018). First checks: does the headline ordering (soft > hard > fill, cost gate ~ fill) survive an independent implementation and a different scene; were the gates tuned fairly (is the hard threshold at a sweep edge); is the seam score a valid measure of seams rather than of blur; is 'matching cost is a poor confidence signal' tested against the confidence measures the stereo literature recommends (left-right consistency, peak ratio / cost margin) rather than only raw cost; and is the soft-blending idea positioned against prior IBR blending work",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Re-ran PYTHONPATH=src python3 experiments/run.py in a scratch copy: results.txt byte-IDENTICAL to the committed file (18 s). Independent re-implementation not importing capture_softgate (/tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/indep.py: own ray-traced ground+cylinder scene with different textures, own SAD block matcher with LR check and parabola sub-pixel, own forward z-buffer warp, crack fill, background row fill, hard/soft/cost gates and oracle; README geometry only). On my scene, held-out seeds, the subject's frozen parameters: soft > hard in all 5 conditions (gap 8: 26.23 vs 25.93; 15: 25.78 vs 25.51; 30: 24.03 vs 23.95; bystander 22.84 vs 22.74; noise 0.03 24.60 vs 24.31 dB), soft also best-of-sweep on my dev seeds; cost gate level with fill without a bystander (24.54 vs 24.36) and about 1.8 dB below it with one (20.60 vs 22.36) or with 3% noise (21.93 vs 23.56) - the subject's qualitative ordering reproduces on a second scene. Independent parse of results.txt (/tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/arith.py): soft > hard in 11/11 rows of B-E, deltas 0.07-0.45 dB; oracle-hard gap 2.60 dB, soft closes 0.25 (0.096); seam reduction 23.0% / 24.2%. Extending the hard sweep past its chosen edge (probe importing the subject, /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/probe_tau.py): tau 0.5 29.32, 0.6 29.24, 0.7 29.03, 1.0 27.59 dB on dev, so 0.5 is a true optimum and the hard baseline was not under-tuned. Numbers are right; the one problem is what the seam number means (claims/domain).",
+  "completeness": "Everything the README lists exists and runs: 7 tests pass (pytest, 1.3 s); experiments/run.py writes every section A-F used in the README table and bullets, byte-identical; experiments/figure.py regenerates gap.svg byte-identically (with research/_shared/linefig). All five strategies plus fill/oracle/near are implemented as described in the Method section (hybrid.py:96-123). The live page https://marisstella.app/research/capture-softgate/ returned a proxy 403 (000), not checked. Minor: README 'about 2 minutes' for run.py; it took 18 s.",
+  "verification": "/usr/bin/python3.13 -m pytest -q tests: 7 passed. Seven seeded mutations via platform/ci/quality_mutate.py in hybrid.py: five SURVIVED - match_cost max -> min (the cost signal under test takes the best source instead of the worst), disagreement masked by o1|o2 instead of o1&o2, row_fill picking the nearer instead of the farther neighbour (foreground fill), the output blend inverted (w*base + (1-w)*nearest: every gate does the opposite of its definition), and softcost np.maximum -> np.minimum. Two were caught (ramp denominator, oracle comparison reversed). Tests check weight ranges and edge cases, never that a gate improves on plain synthesis or that the blend direction is right; experiments/run.py (edge_excess, parameter selection, the hard-gate tau wrapper) has no test, and no test pins any number in results.txt.",
+  "craft": "Read src/capture_softgate/hybrid.py, scene.py, stereo.py, synth.py, experiments/run.py, figure.py, tests/test_softgate.py. Small, vectorised, readable numpy with docstrings. Defects: scene/stereo/synth are copied engine files from capture-hybrid (itself copied from capture-stereodepth) rather than a shared package; the hard gate reuses the soft gate's t0 parameter as its tau (hybrid.py:98, run.py:83-85 wrapper re-runs avg just to swap it), an easy-to-misuse API; make()'s default ct=0.4 (hybrid.py:111) differs from the chosen 0.1; synth.synthesise and stereo.depth_errors are unused here. No silent fallbacks or unhandled-input issues for a research script.",
+  "claims": "Backed: 'soft ahead of hard in all 11 rows, by 0.1 to 0.5 dB' (11/11, 0.07-0.45); held-out 29.3 -> 29.5 and 26.5 -> 26.7; 'closes about 0.25 dB of the 2.6 dB gap ... about a tenth' (0.096); cost 27.6 vs fill 27.3, 24.5 vs 26.2, 24.1 vs 25.8; seam numbers as printed; 7 tests; parameter selection on dev seeds and the larger soft sweep are disclosed honestly. Not backed: the headline 'cuts false edges (seams) by about a quarter' (README:3, :43). The seam score (run.py:41-46) is mean gradient magnitude minus the truth's, which rewards blur and noise averaging: independently (/tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/blur.py) a 3x3-blurred truth scores -0.028 ('better than the truth'), and averaging two 1%-noise copies drops a copy's 0.0056 to 0.0036 - the same scale as the claimed hard 0.0087 -> soft 0.0067 effect, and soft blends two noisy sources. In the subject's own table soft (0.0067) beats the ground-truth-chosen oracle (0.0072), which a seam measure should not allow. Under a gradient-error metric |grad(out)-grad(truth)| on the subject's held-out outputs (/tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/probe.py) hard -> soft is 0.0376 -> 0.0367 (2.4%) and 0.0407 -> 0.0394 (3.2%) with a bystander, where soft is worse than plain fill (0.0388). The Limitations do say 'a global gradient statistic, not a seam detector', but the headline still says seams by a quarter. 'The stereo matching cost is a worse confidence signal than the disagreement' (README:3) generalises from raw window cost only. Minor: 'gate family only 0.3 to 0.5 dB above filling with a bystander' (README:44) - soft at gap 8 is 0.72 above; 'about 2 minutes' (README:25) vs 18 s.",
+  "fitness": "A researcher can run and extend it in minutes; the result reproduces on an independent second scene, so the soft > hard ordering is sound for this toy setting. Nearest prior work: per-pixel continuous blending weights for view-synthesis sources are the core of Unstructured Lumigraph Rendering (Buehler et al., SIGGRAPH 2001) and view-dependent texture mapping (Debevec et al. 1996); soft visibility/confidence for view synthesis is Penner & Zhang, 'Soft 3D Reconstruction for View Synthesis' (SIGGRAPH Asia 2017); learned per-pixel blend weights (the project's own next step) are Hedman et al., 'Deep Blending for Free-Viewpoint IBR' (SIGGRAPH Asia 2018); seam suppression at depth boundaries is Zitnick et al. 2004 (boundary matting). That raw matching cost (MSM) is a weak stereo confidence and left-right consistency / peak-ratio measures are better is the main finding of Hu & Mordohai, 'A Quantitative Evaluation of Confidence Measures for Stereo Vision' (TPAMI 34(11), 2012). None is cited; the README says only that soft blending 'is standard'. The cost result therefore re-finds a known result with the weakest measure, and capture-hybrid's next step asked for the left-right mask and cost margin, which were not tried. A correct, honest incremental notebook step (0.25 dB on one toy scene), not a new result at the PhD/publishable bar of research/CLAUDE.md.",
+  "domain": "Mechanics match standard DIBR practice: forward z-buffer splatting, crack closing, background-side disocclusion fill, PSNR against an exact ray-traced target, frozen parameters with held-out seeds, oracle upper bound. A senior IBR/stereo researcher would not sign off on two points: (1) the seam metric is unvalidated and confounded with blur/noise (see claims); a gradient-similarity measure (e.g. GMSD, Xue et al. 2014), an edge-localised measure along the weight transitions, or SSIM would be expected; (2) the confidence comparison omits the standard measures (LRC, PKRN / peak ratio, cost curvature; Hu & Mordohai 2012) and uses one global threshold. Also: 3 noise seeds on one deterministic scene, no per-seed spread or paired test for 0.07-0.25 dB differences (9 of the 11 conditions use the tuning seeds; disclosed)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "headline experiment reproduces",
+   "method": "re-run experiments/run.py in a scratch copy and diff against committed results.txt",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/subj && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py; diff experiments/results.txt research/capture-softgate/experiments/results.txt",
+   "expected": "identical",
+   "observed": "IDENTICAL (18 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "soft beats hard on held-out seeds, frozen parameters",
+   "method": "independent numpy re-implementation (own scene textures, matcher, warp, gates; no import of capture_softgate), held-out seeds 700/800/900, 5 conditions",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/indep.py",
+   "expected": "soft > hard in every condition, by 0.1-0.5 dB (README:3)",
+   "observed": "soft > hard 5/5: +0.30, +0.27, +0.08, +0.10, +0.29 dB (gap 8/15/30, bystander, noise 0.03)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cost gate about level with fill, worse with bystander or noise",
+   "method": "same independent re-implementation, ct=0.1",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/indep.py",
+   "expected": "cost ~ fill without bystander; ~2 dB below fill with bystander / 3% noise",
+   "observed": "24.54 vs 24.36; 20.60 vs 22.36; 21.93 vs 23.56 dB",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "summary arithmetic of the headline (11 rows, deltas, gap closure, seam reduction)",
+   "method": "independent parser over results.txt sections B-F",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/arith.py research/capture-softgate/experiments/results.txt",
+   "expected": "11/11, 0.1-0.5 dB, 0.25 of 2.6 dB (~a tenth), seams down ~a quarter",
+   "observed": "11/11, 0.07-0.45 dB, 0.25 of 2.60 (0.096), seams -23.0% / -24.2%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "hard-gate baseline not under-tuned (chosen tau 0.5 was the largest swept value)",
+   "method": "probe importing the subject: extend the sweep to tau 0.6-1.5 on dev and held-out seeds",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/probe_tau.py /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/subj",
+   "expected": "no tau beats 29.32 dB on dev",
+   "observed": "0.6 29.24, 0.7 29.03, 0.8 28.49, 1.0 27.59: 0.5 is the optimum",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'cuts false edges (seams) by about a quarter' (README:3, :43)",
+   "method": "metric validity: score of a 3x3-blurred truth and of averaged noisy copies (independent); gradient-error metric on the subject's held-out outputs (probe)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/blur.py /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture; /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/probe.py /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/subj /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture",
+   "expected": "seam score measures seams; soft ~25% fewer under a valid metric",
+   "observed": "blurred truth -0.028; noise averaging 0.0056 -> 0.0036; soft beats the oracle on the score; under gradient error hard->soft only -2.4% / -3.2%, and soft worse than fill with a bystander",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'matching cost is a worse confidence signal than the disagreement of the two warps' (README:3)",
+   "method": "compare against stereo-confidence literature (Hu & Mordohai 2012) and capture-hybrid's next step",
+   "command": "grep -n 'cost margin\\|left-right' research/capture-hybrid/README.md research/capture-softgate/src/capture_softgate/hybrid.py",
+   "expected": "the recommended confidence measures (LRC, peak ratio / margin) tested",
+   "observed": "only raw window cost at the chosen disparity tested; capture-hybrid README:52 asked for the LR mask and cost margin",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "gate family 0.3 to 0.5 dB above filling with a bystander (README:44)",
+   "method": "independent parse of results.txt C and D",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/arith.py research/capture-softgate/experiments/results.txt",
+   "expected": "0.3-0.5 dB",
+   "observed": "held-out 0.28/0.48; gap 8 0.30/0.72; gap 15 0.25/0.44; gap 30 -0.65/-0.51 (the last disclosed)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "test count and run time in Reproduce",
+   "method": "run the suite and time run.py",
+   "command": "/usr/bin/python3.13 -m pytest -q tests",
+   "expected": "7 tests; about 2 minutes",
+   "observed": "7 passed (1.3 s); run.py 18 s",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates from results.txt",
+   "method": "run experiments/figure.py in scratch copy and diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/51f1effa-64ec-5629-99d4-286a0580a520/scratchpad/capture/subj && /usr/bin/python3.13 experiments/figure.py; diff experiments/gap.svg research/capture-softgate/experiments/gap.svg",
+   "expected": "identical",
+   "observed": "SVG_IDENTICAL",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work on confidence-weighted blending and stereo confidence cited",
+   "method": "literature: Buehler et al. 2001; Penner & Zhang 2017; Hedman et al. 2018; Hu & Mordohai 2012",
+   "command": "grep -n -i 'Buehler\\|Lumigraph\\|Hedman\\|Penner\\|Mordohai' research/capture-softgate/README.md",
+   "expected": "cited and differentiated",
+   "observed": "none cited",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/capture_softgate/hybrid.py:66",
+   "change": "k.max(0) -> k.min(0) (cost signal takes the best source, not the worst)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_softgate/hybrid.py:60",
+   "change": "np.where(o1 & o2, d, 0.0) -> np.where(o1 | o2, d, 0.0)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_softgate/hybrid.py:51",
+   "change": "pick = np.where(zl >= zr, li, ri) -> pick = np.where(zl <= zr, li, ri) (foreground fill)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_softgate/hybrid.py:123",
+   "change": "return w * nearest + (1 - w) * base -> return w * base + (1 - w) * nearest (blend inverted)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_softgate/hybrid.py:105",
+   "change": "w = np.maximum(_smooth -> w = np.minimum(_smooth (softcost)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_softgate/hybrid.py:92",
+   "change": "(x - lo) / (hi - lo) -> (x - lo) / hi",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_softgate/hybrid.py:120",
+   "change": "nearest-error < synthesis-error -> > in the oracle",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The headline 'cuts false edges (seams) by about a quarter' rests on a seam score (mean gradient magnitude minus the truth's) that rewards blur and noise averaging: a 3x3-blurred truth scores -0.028, averaging two 1%-noise copies lowers the score by 0.002 (the size of the claimed effect), and soft scores better than the ground-truth oracle. Under a gradient-error metric the hard->soft reduction is 2.4% (3.2% with a bystander, where soft is worse than plain fill).",
+   "where": "research/capture-softgate/experiments/run.py:41",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
+  },
+  {
+   "severity": "medium",
+   "what": "Core logic untested: 5 of 7 seeded mutants survive, including the output blend inverted (every gate does the opposite of its definition), match_cost max->min, the disagreement mask widened to either-valid, foreground instead of background hole fill, and softcost max->min. No test asserts a gate improves on plain synthesis or pins a results.txt number; run.py (edge_excess, selection) is untested.",
+   "where": "research/capture-softgate/tests/test_softgate.py:47",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited: continuous per-pixel blending of view-synthesis sources (Buehler et al. 2001 Unstructured Lumigraph; Penner & Zhang 2017; Hedman et al. 2018 Deep Blending) and the finding that raw matching cost is a weak stereo confidence while LRC / peak-ratio measures are better (Hu & Mordohai, TPAMI 2012). The general claim 'stereo matching cost is a worse confidence signal' is tested only with raw window cost, not the LR mask or cost margin capture-hybrid's next step asked for. Below the research/CLAUDE.md publishable bar on novelty.",
+   "where": "research/capture-softgate/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Hard gate reuses the soft gate's t0 as its threshold tau (run.py needs a wrapper that re-runs avg to swap it in), and make()'s default ct=0.4 differs from the chosen 0.1; scene/stereo/synth are copied engines from capture-hybrid.",
+   "where": "research/capture-softgate/src/capture_softgate/hybrid.py:98",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'gate family only 0.3 to 0.5 dB above plain filling' with a bystander: soft at an 8 degree gap is 0.72 dB above (results.txt D).",
+   "where": "research/capture-softgate/README.md:44",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
+  },
+  {
+   "severity": "low",
+   "what": "Reproduce says run.py takes 'about 2 minutes'; it ran in 18 s.",
+   "where": "research/capture-softgate/README.md:25",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18386"],
+ "verdict": "capture-softgate's numbers are right: run.py reproduces results.txt byte-for-byte, the figure regenerates identically, and an independent re-implementation on a different toy scene reproduces the ordering (soft > hard in 5/5 held-out conditions by 0.08-0.30 dB; cost gate level with fill and about 1.8 dB below it with a bystander or noise). The hard baseline is fairly tuned (extending its sweep finds no better tau). It misses the bar on verification and claims: 5 of 7 seeded bugs survive the 7 tests, including an inverted output blend, and the headline 'about a quarter fewer seams' comes from a gradient-excess score that rewards blur and noise averaging (soft even beats the ground-truth oracle on it); under a gradient-error metric the gain is about 3%. As research it is an honest, incremental step (0.25 of 2.6 dB on one scene) that cites none of the IBR blending or stereo-confidence literature and re-finds Hu & Mordohai's (2012) result with the weakest confidence measure; not publishable-grade."
+}

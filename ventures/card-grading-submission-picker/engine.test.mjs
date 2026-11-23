@@ -278,3 +278,11 @@ test("selectBest: equal value across card counts picks the cheaper set, and says
   assert.equal(got.cost, 3);
   assert.equal(got.exact, true);
 });
+
+test("likely-regret fires at exactly a 50% chance of ending below raw", () => {
+  const r = plan(parseCards("name,raw,v10,v9,v8,v7,p10,p9,p8\nCoin,100,1000,100,100,50,0.5,0,0"), { tiers: [{ name: "T", fee: 20, maxValue: Infinity, days: 0 }], ship: 0 });
+  const c = r.submit.find((x) => x.name === "Coin");
+  assert.ok(c, "submitted: positive expected gain");
+  close(c.pLoseVsRaw, 0.5);
+  assert.ok(r.findings.some((f) => f.rule === "likely-regret"), "a 50% chance of regret is flagged");
+});
