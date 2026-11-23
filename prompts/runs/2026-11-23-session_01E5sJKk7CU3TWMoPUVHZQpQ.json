@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKk7CU3TWMoPUVHZQpQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T06:18:23Z",
+  "ended": "2026-11-23T06:28:00Z",
+  "wall_minutes": 9.98,
+  "tokens_in": 7529225,
+  "tokens_out": 34083,
+  "cost_usd": 3.2684,
+  "tool_calls": 66,
+  "task": "Deepen (flagship 14) ifc-quantity-takeoff: the swept check on a signed fan (NEXT.md, Curved walls)",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18377",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The buildable field's 600-character cap refused a 135-character replacement for a 105-character item; had to shorten the wording twice. Cheap, but the cap leaves little room to name the next item."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Agent doc in docs/reports/ not written: the next run's knowledge lives in the venture's eval note and NEXT.md, which is where this flagship's runs look.",
+      "did": "eval/signed-fan-swept-2026-11-23.md plus the NEXT.md entry",
+      "result": "same information, one place"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-signed-fan-swept-check-curved-walls.md",
+    "ventures/ifc-quantity-takeoff/eval/signed-fan-swept-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "Built stepped quarter/half rings as signed fans (42-356 negative terms, fans started on either arc) and a boolean recess: faces = hand chords to 1e-9, swept = volume to 1e-14; square-cut ends refused (28% off). Lifted the negative-term guard on the swept check in qto.mjs computeAreas. A takeoff-level test (IfcWall of two IfcArbitraryClosedProfileDef rings) fails with the guard restored. Corpus: eval/curved-walls.mjs on all 28 engine_web-ifc public .ifc files before and after: identical output (diff exit 0). Instrumented scratch copy: 45 real walls with negative terms already passed the one-section check; all 67 refused curved walls fail in curvedFaces (no single centre), none reached the swept check. Local checks: run_venture_tests.py ifc-quantity-takeoff 226 tests 0 failed; check_posts ok; validate.py ok; venture-preflight.mjs ifc-quantity-takeoff clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5cde88ef-1fd3-5ee9-a3c9-31c255ab3ca9",
+    "transcripts": 1,
+    "first": "2026-11-23T06:18:23Z",
+    "last": "2026-11-23T06:28:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 116,
+        "output": 34083,
+        "thinking": 8830,
+        "cache_read": 7390593,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138516,
+        "api_equivalent_usd": 3.2684,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 116,
+      "output": 34083,
+      "thinking": 8830,
+      "cache_read": 7390593,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138516,
+      "api_equivalent_usd": 3.2684,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.98,
+      "active_minutes": 9.98,
+      "model_minutes": 7.73,
+      "tool_minutes": 2.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer building the signed-fan and recess test bodies, running the 28-model before/after diff and writing the note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 153.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
