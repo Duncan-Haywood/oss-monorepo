@@ -418,6 +418,12 @@ room by room, so the takeoff lists every IfcSpace with:
   slabs, frames, stairs and railings bound rooms and are not placed by
   geometry (on ARK_NUS, whose rooms run to wall centrelines, 901 walls and 306
   doors otherwise landed in one). The element CSV says which way (`Room from`).
+  An element whose body gives no box (Revit sofas, grab bars and plumbing
+  fixtures drawn as faceted surfaces read only as a volume) is tested at the
+  point it was placed at instead, 10 cm above, 10 cm below, then on it
+  (`row.spaceBy` = `placement point`): 133 of 139 such components land in
+  the room the file names (2026-11-23,
+  `../ids-model-check/eval/cobie-placement-point-2026-11-23.md`).
 
 13 public models, 991 rooms (989 measured): stored floor area agrees on 528 of
 535, perimeter 472 of 475, height 501 of 535 (34 nominal), volume 213 of 535

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKZYeenvmQAVi3ZST8",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue software); merge when done",
+  "input_sha256": "2b18e43c811ffeb0206f066f41493b352488be6dadc88a80f9cfeca6e76fc243",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T07:09:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18381,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/cobie-placement.mjs",
+      "issue": "without --json the first file argument was silently dropped (jsonAt + 1 === 0); fixed in this PR. Its row copies via Object.assign also drop non-enumerable fields such as origin, an easy trap when extending it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Explore run spent on the router's Start-here flagship item (ids-model-check) rather than a new idea: the venture catalogue (1,431) already covers every new-product idea I screened, and a flagship slice with a measurable result was the highest-value finishable work.",
+      "did": "took the 'body-less terminals by their placement point' COBie item",
+      "result": "133 of 139 placed right; contained-component placement 76.2% to 87.0%"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Idea: place IFC elements whose body gives no box (Revit faceted surface models read as volume only) in rooms by their placement point (ifc-quantity-takeoff rooms.mjs assignRooms, row.origin). On 25 public models, hidden-containment components placed in the file's room 935 to 1,068 of 1,227; blanks 203 to 64; 133/139 point-placed right. Tried and dropped: stepping wall-hosted fittings off the wall along local Y (+3 one way, 2 wrong the other). Verified: run_venture_tests.py ifc-quantity-takeoff ids-model-check, both ok (227 and 527 tests); check_posts ok; validate.py ok. Eval: ventures/ids-model-check/eval/cobie-placement-point-2026-11-23.md.",
+  "corrections": [],
+  "redteam": null
+}
