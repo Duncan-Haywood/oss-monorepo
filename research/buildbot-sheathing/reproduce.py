@@ -138,6 +138,7 @@ EXPERIMENTS = {
     "m71_allowance": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m70_drift/run.py (and so m69's to m38's), reads m70's results.json (the S table), m67's results.json (the full J table), m50 and m52 results.json",
                       75, []),
     "m72_rezero": ("numpy; reads m71's results.json", 0.1, []),
+    "m73_randomwalk": ("numpy, scipy; imports m72_rezero/run.py, reads m71's results.json", 20, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

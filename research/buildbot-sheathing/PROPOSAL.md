@@ -598,6 +598,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    rates). At 0.1 N/h and 15 s a re-zero the plan costs 0.9% (G1) and 0.3% (H1) of the cycle (H286 held); every nail
    at the best pose does not pay for its lift moves (H285, H287 held). Next: a random-walk or temperature drift
    model; a sourced drift trace; dynamics.
+73. **A random-walk bias** (done 2026-11-23, `experiments/m73_randomwalk/`, offline): matched to the same one-hour
+   drift reading, a linear schedule fails the 100-sheet wall in 100% (G1) and 72% (H1) of paths when the bias
+   random-walks (H289 held). Per-press risk gives each press a deadline (a / &sigma;q)<sup>2</sup>, so greedy stays optimal
+   (H288 held). A 1% wall risk by union bound costs 8 to 14 times the re-zeros (H290 held). A calibrated risk level helps
+   the H1 (0.56 times) but not the G1, whose weak pose's deadline sits at the sheet period (H291 refuted). The G1's band
+   offset now cuts re-zeros 76% (H292 held), and the best pose pays at 0.31 s a move (H294 held). Next: risk allocated
+   per pose; a warm-up transient; a logged drift trace.
 
 ## Target venue
 
