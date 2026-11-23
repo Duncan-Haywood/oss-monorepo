@@ -349,6 +349,31 @@ function readProps(E, ids, out) {
 }
 
 /**
+ * A room's single-value properties as {"Pset.Property": text}: what a brief
+ * or a room data sheet writes on a space (its use, finishes, an occupancy).
+ * Lists, references and quantities are left out; values are written as text
+ * so two revisions compare as strings.
+ */
+function spaceProperties(E, ids) {
+  const out = {};
+  for (const id of ids || []) {
+    const ps = E.get(id);
+    if (!ps || ps.type !== "IFCPROPERTYSET") continue;
+    const set = str(ps.args[2]) ?? `#${id}`;
+    for (const pr of ps.args[4] || []) {
+      const p = E.get(refId(pr));
+      if (!p || p.type !== "IFCPROPERTYSINGLEVALUE") continue;
+      const name = str(p.args[0]);
+      if (!name) continue;
+      const raw = p.args[2] && typeof p.args[2] === "object" && "typed" in p.args[2] ? p.args[2].value : p.args[2];
+      const v = raw == null ? null : typeof raw === "object" ? (typeof raw.enum === "string" ? raw.enum : null) : String(raw);
+      out[`${set}.${name}`] = v;
+    }
+  }
+  return out;
+}
+
+/**
  * A reinforcing bar's own schedule figures (rebar.mjs readBarProps) from its
  * property sets and its type's, with the nominal diameter in mm (the
  * properties', else the bar's or its type's NominalDiameter attribute), the
@@ -621,6 +646,10 @@ function takeoffRooms(E, idx, geo, bodyOf, worldOf, units, opts, tol) {
     const st = up ? E.get(up) : null;
     if (st && st.type === "IFCBUILDINGSTOREY") { room.storey = str(st.args[2]) ?? `#${up}`; if (numOf(st.args[9]) != null) room.storeyElevation = numOf(st.args[9]) * f; }
     readStored(E, idx, id, units, room);
+    // what the change report (diff.mjs diffRooms) compares besides quantities
+    room.description = str(e.args[3]);
+    room.predefinedType = predefinedOf(e, 9);
+    room.properties = spaceProperties(E, idx.psets.get(id));
     if (opts.geometry !== false) {
       const repId = bodyRepresentation(E, refId(e.args[6]));
       let body = repId ? bodyOf(repId) : null;

@@ -51,9 +51,9 @@ if (unitRepairNote(res.units)) console.error(`${file}: ${unitRepairNote(res.unit
 if (opt("--compare")) {
   const before = takeoff(parseStep(readFileSync(opt("--compare"))), { geometry: !args.includes("--no-geometry"), trustDeclaredUnits });
   if (unitRepairNote(before.units)) console.error(`${opt("--compare")}: ${unitRepairNote(before.units)}`);
-  const d = diffTakeoffs(before.rows, res.rows);
-  const s = d.summary;
-  console.error(`${opt("--compare")} -> ${file}: ${s.before} -> ${s.after} elements; ${s.unchanged} unchanged, ${s.changed} changed (${s.quantityChanged} quantity, ${s.attributeChanged} attribute, ${s.moved} moved, ${s.reshaped} reshaped), ${s.added} added, ${s.removed} removed, ${s.merged} merged, ${s.split} split, ${s.replacedInPlace} replaced in place; ${s.storeysRenamed} storeys renamed (${s.renamedOnly} elements changed by that alone, counted unchanged), ${s.typesRenamed} types renamed under one GlobalId (still type changes); ${s.byTag + s.byGeometry} matched under a new GlobalId (${s.byTag} by Tag, ${s.byGeometry} by geometry)`);
+  const d = diffTakeoffs(before.rows, res.rows, { rooms: [before.rooms, res.rooms] });
+  const s = d.summary, R = s.rooms;
+  console.error(`${opt("--compare")} -> ${file}: ${s.before} -> ${s.after} elements; ${s.unchanged} unchanged, ${s.changed} changed (${s.quantityChanged} quantity, ${s.attributeChanged} attribute, ${s.moved} moved, ${s.reshaped} reshaped), ${s.added} added, ${s.removed} removed, ${s.merged} merged, ${s.split} split, ${s.replacedInPlace} replaced in place; ${s.storeysRenamed} storeys renamed (${s.renamedOnly} elements changed by that alone, counted unchanged), ${s.typesRenamed} types renamed under one GlobalId (still type changes); ${s.byTag + s.byGeometry} matched under a new GlobalId (${s.byTag} by Tag, ${s.byGeometry} by geometry); rooms ${R.before} -> ${R.after}: ${R.changed} changed (${R.propertyChanged} property, ${R.quantityChanged} quantity), ${R.added} added, ${R.removed} removed`);
   if (opt("--changes")) writeFileSync(opt("--changes"), changesCsv(d));
   process.stdout.write(boqDeltaCsv(boqDelta(before.rows, res.rows, by), by));
   process.exit(0);

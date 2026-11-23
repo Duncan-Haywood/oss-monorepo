@@ -605,9 +605,9 @@ flagships:
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); signed
       fans swept 2026-11-23 (eval/signed-fan-swept-2026-11-23.md); square-cut ends
       2026-11-23 (eval/square-cut-ends-2026-11-23.md); #207997's 0.117%
-      (eval/curved-sag-2026-11-23.md; reference JSONs in eval/); revision series:
-      Revit and BlenderBIM done, material renames/swaps 2026-11-23
-      (eval/revision-diff-materials-2026-11-23.md); next ArchiCAD/Vectorworks.
+      (eval/curved-sag-2026-11-23.md; reference JSONs in eval/); revisions:
+      EngiWorld's Archicad gui and cross-software pairs
+      (eval/engiworld-archicad-diff-2026-11-23.md, Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

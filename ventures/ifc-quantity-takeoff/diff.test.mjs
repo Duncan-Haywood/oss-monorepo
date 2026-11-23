@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { takeoff } from "./qto.mjs";
-import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
+import { diffTakeoffs, diffRooms, roomChangeText, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
 
 const load = (name) => takeoff(parseStep(readFileSync(new URL(`./samples/${name}`, import.meta.url)))).rows;
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) <= eps, `${a} != ${b}`);
@@ -306,4 +306,57 @@ test("a material renamed in the file comes through the takeoff", () => {
   assert.equal(d.renames.material[0].elements, n);
   assert.ok(d.changed.length === n && d.changed.every((c) => c.attributes.material?.sameMaterialEntity && Object.keys(c.attributes).length === 1));
   assert.equal(d.materialSwaps.reduce((t, s) => t + s.renamedInPlace, 0), n);
+});
+
+// rooms: the sample office plus a 4 x 3 m room on Level 1; the later
+// revision gives it a property set, adds a second room and widens nothing else
+const sampleText = () => readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "latin1");
+const roomText = (id, gid, number, w, extra = []) => [
+  `#${id}=IFCSPACE('${gid}',$,'${number}',$,$,#${id + 1},#${id + 2},'Office',.ELEMENT.,.INTERNAL.,$);`,
+  `#${id + 1}=IFCLOCALPLACEMENT(#51,#21);`,
+  `#${id + 2}=IFCPRODUCTDEFINITIONSHAPE($,$,(#${id + 3}));`,
+  `#${id + 3}=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#${id + 4}));`,
+  `#${id + 4}=IFCEXTRUDEDAREASOLID(#${id + 5},#21,#23,2700.);`,
+  `#${id + 5}=IFCRECTANGLEPROFILEDEF(.AREA.,$,#${id + 6},${w}.,3000.);`,
+  `#${id + 6}=IFCAXIS2PLACEMENT2D(#${id + 7},$);`,
+  `#${id + 7}=IFCCARTESIANPOINT((${2500 + id - 2000}.,1600.));`,
+  `#${id + 8}=IFCRELAGGREGATES('${gid.slice(0, -1)}A',$,$,$,#50,(#${id}));`,
+  ...extra,
+];
+const withRooms = (lines) => takeoff(parseStep(Buffer.from(sampleText().replace("ENDSEC;\nEND-ISO", `${lines.join("\n")}\nENDSEC;\nEND-ISO`), "latin1")));
+
+test("rooms: added, given a property, resized, and matched under a new GlobalId", () => {
+  const before = withRooms([...roomText(2000, "0rM000000000000000R101", "101", 4000), ...roomText(2100, "0rM000000000000000R102", "102", 2000)]);
+  const after = withRooms([
+    ...roomText(2000, "0rM000000000000000R101", "101", 4000, [
+      "#2090=IFCPROPERTYSINGLEVALUE('Use',$,IFCTEXT('Print and copy'),$);",
+      "#2091=IFCPROPERTYSET('0rM000000000000000P101',$,'Brief',$,(#2090));",
+      "#2092=IFCRELDEFINESBYPROPERTIES('0rM000000000000000D101',$,$,$,(#2000),#2091);",
+    ]),
+    // 102 re-exported under a new GlobalId and made 0.5 m wider
+    ...roomText(2100, "0rM000000000000000N102", "102", 2500),
+    ...roomText(2200, "0rM000000000000000R103", "103", 1000),
+  ]);
+  assert.equal(after.rooms.find((r) => r.number === "101").properties["Brief.Use"], "Print and copy");
+  const d = diffTakeoffs(before.rows, after.rows, { rooms: [before.rooms, after.rooms] });
+  const R = d.summary.rooms;
+  assert.deepEqual({ before: R.before, after: R.after, byGlobalId: R.byGlobalId, byName: R.byName, changed: R.changed, added: R.added, removed: R.removed, propertyChanged: R.propertyChanged, quantityChanged: R.quantityChanged },
+    { before: 2, after: 3, byGlobalId: 1, byName: 1, changed: 2, added: 1, removed: 0, propertyChanged: 1, quantityChanged: 1 });
+  const c101 = d.rooms.changed.find((c) => c.b.number === "101");
+  assert.deepEqual(c101.properties["Brief.Use"], { before: null, after: "Print and copy", kind: "added" });
+  assert.deepEqual(c101.quantities, {});
+  const c102 = d.rooms.changed.find((c) => c.b.number === "102");
+  assert.equal(c102.how, "name");
+  near(c102.quantities.floorArea.delta, 0.5 * 3);
+  assert.equal(roomChangeText(c101, { short: true }), "Use added: Print and copy");
+  assert.equal(d.rooms.added[0].number, "103");
+  // the elements are untouched
+  assert.equal(d.summary.changed + d.summary.added + d.summary.removed, 0);
+  const csv = changesCsv(d);
+  assert.match(csv, /room changed,0rM000000000000000R101,0rM000000000000000R101,IfcSpace,101 Office,,Level 1,,Brief\.Use added: Print and copy/);
+  assert.match(csv, /room added,,0rM000000000000000R103,IfcSpace,103 Office/);
+  // without room lists, as before
+  assert.equal(diffTakeoffs(before.rows, after.rows).rooms, null);
+  // a model's rooms against themselves: nothing
+  assert.equal(diffRooms(after.rooms, after.rooms).summary.changed, 0);
 });

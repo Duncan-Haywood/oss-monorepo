@@ -108,6 +108,17 @@ checked against the engine by `guides.test.mjs`):
   material and one layer set renamed, no element re-assigned; on Aalseth's
   last step 30 material changes read as 14 swap lines
   ([eval/revision-diff-materials-2026-11-23.md](eval/revision-diff-materials-2026-11-23.md)).
+- **Rooms compared too** (2026-11-23). Rooms (IfcSpace) are matched by
+  GlobalId, then by number, name and storey, and listed as added, removed or
+  changed: number, name, description, storey or type; a single-value
+  property added, removed or given another value; floor area, perimeter,
+  net wall area or volume past 0.5%; or the count of doors and windows in
+  its walls. Scored on 20 edits made through Archicad 27 with a written list
+  of what each had to add (EngiWorld, MIT): before, the report missed all 44
+  listed rooms and 42 room notes; now 87 of 87 listed additions (rooms,
+  doors, windows, walls) and 42 of 42 notes, plus 14 rooms whose walls
+  gained the new door or window
+  ([eval/engiworld-archicad-diff-2026-11-23.md](eval/engiworld-archicad-diff-2026-11-23.md)).
 - **Faulty units repaired, and said so.** A unit named INCH, FOOT, SQUARE
   FOOT and so on whose declared factor is not that unit (a 2014 Revit export
   declares its inch as 3.6576 m, 144 inches, which makes every volume 3
