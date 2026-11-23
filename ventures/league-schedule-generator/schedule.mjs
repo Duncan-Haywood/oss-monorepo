@@ -2,14 +2,33 @@
 // the independent validator, rainouts, pins, withdrawals, late joiners, shared grounds and linked teams.
 // Split out of calc.mjs on 2026-11-23 (quality audit round 87); calc.mjs re-exports every public name.
 
-import { CARRY_OVER_PICK, carryOverKeepIndex, bestCarryOverRounds, carryOverSummary, lowCarryOverDoubleRounds, lowCarryOverRounds, carryOver } from "./carryover.mjs";
-import { waitFreeNights, seasonLayout, waitFreeProvedImpossible, waitFreePossible } from "./nights.mjs";
+import { CARRY_OVER_PICK, carryOver } from "./carryover-core.mjs";
 import { parseDateList, parseTime, parseDate, parseWeekdays, nextPlayDay, MAX_SCAN_DAYS, dayLabel, dayIso } from "./dates.mjs";
 import { teamIndex, parseTeams, MAX_TEAMS } from "./names.mjs";
 import { roundRobin, countBreaks } from "./rounds.mjs";
 import { mulberry32 } from "./rng.mjs";
 import { csvRows, parseCourtClosures, courtClosedOn, parseNameList, parseTimes, relabelPlan, forfeitReport } from "./fields.mjs";
 export { csvRows, parseCourtClosures, courtClosedOn, parseNameList, parseTimes, relabelPlan, forfeitReport };
+
+// The carry-over search and the doubleheader night designs (carryover.mjs, nights.mjs, and the orienter,
+// session designs and WebAssembly behind them: 117 kB of the single-league page's 226 kB gzip) are handed
+// in rather than imported (2026-11-23), so a page that builds a plain season never fetches them.
+// calc.mjs hands them in as it loads, so the server, the tests and the eval scripts see no change; the
+// single-league page imports both and hands them in before a season that needs them (needsSeasonSearches).
+let carryOverKeepIndex, bestCarryOverRounds, carryOverSummary, lowCarryOverDoubleRounds, lowCarryOverRounds;
+let waitFreeNights, seasonLayout, waitFreeProvedImpossible, waitFreePossible;
+/** Hand in the carry-over search (carryover.mjs's exports) and the night designs (nights.mjs's). */
+export function useSeasonSearches(carry, nights) {
+  ({ carryOverKeepIndex, bestCarryOverRounds, carryOverSummary, lowCarryOverDoubleRounds, lowCarryOverRounds } = carry);
+  ({ waitFreeNights, seasonLayout, waitFreeProvedImpossible, waitFreePossible } = nights);
+}
+/** True once useSeasonSearches has run. */
+export const seasonSearchesReady = () => typeof seasonLayout === "function" && typeof bestCarryOverRounds === "function";
+/** Whether buildSchedule(spec) reaches the carry-over search or the night designs: an even carry-over at 4+ teams, or 2+ games a night. */
+export function needsSeasonSearches(spec) {
+  const games = spec && spec.gamesPerNight !== undefined && spec.gamesPerNight !== null ? spec.gamesPerNight : 1;
+  return Boolean(spec && ((spec.carryOver && (spec.teams || []).length >= 4) || games > 1));
+}
 
 // ---------------------------------------------------------------- text fields
 
@@ -665,6 +684,7 @@ export function buildSchedule(spec) {
   const skipSet = new Set(spec.skipDays || []);
   const blackSet = Array.from({ length: n }, (_, i) => new Set((spec.blackouts || {})[i] || []));
   const notices = [];
+  if (needsSeasonSearches(spec) && !seasonSearchesReady()) throw new Error("This season needs the carry-over search or the night designs: hand them in with useSeasonSearches(carryover.mjs, nights.mjs) before building it, or import calc.mjs, which does.");
 
   const games = spec.gamesPerNight === undefined || spec.gamesPerNight === null ? 1 : spec.gamesPerNight;
   if (!Number.isInteger(games) || games < 1 || games > MAX_GAMES_PER_NIGHT) throw new Error(`Games per team per night must be a whole number from 1 to ${MAX_GAMES_PER_NIGHT}.`);

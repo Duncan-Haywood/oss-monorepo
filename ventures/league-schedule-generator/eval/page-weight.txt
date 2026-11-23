@@ -25,3 +25,9 @@ weekend-tournament-schedule.html          12 modules   176 kB   61 kB gz
 multi-division-league-schedule.html       11 modules   235 kB   75 kB gz
 index.html                                32 modules   663 kB  226 kB gz
 (the eight one-format pages unchanged)
+## 2026-11-23, latest: the carry-over search and night designs load on demand (schedule.mjs takes them via useSeasonSearches; index.html imports the feature modules, not calc.mjs)
+index.html                                26 modules   331 kB  110 kB gz
+multi-division-league-schedule.html       11 modules   235 kB   75 kB gz
+balanced-teams.html                        4 modules    44 kB   16 kB gz
+americano-night.html                       8 modules    47 kB   17 kB gz
+(fetched only for an even carry-over or 2+ games a night: carryover.mjs 40 kB, session-designs.mjs 24 kB, odd-designs.mjs 18 kB, orient.mjs 15 kB, nights.mjs 13 kB, wasm/minplus-wasm.mjs 6 kB gz; eval/browser-lazy-searches.txt)
