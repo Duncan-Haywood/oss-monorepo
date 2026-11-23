@@ -5,6 +5,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { basename, extname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { analyse, decodeWav, mixToMono, toEDL, toFCPXML, toPremiereXML, toFfmpeg, toCSV, retimeSRT, renderKeeps, encodeWav, formatDuration, DEFAULTS, FRAME_RATES } from './engine.mjs';
 
 const HELP = `Silence Cutter: remove the pauses from a talking recording.
@@ -106,6 +107,6 @@ export function main(argv) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('cutter.mjs')) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try { process.exitCode = main(process.argv.slice(2)); } catch (e) { console.error(`error: ${e.message}`); process.exitCode = 2; }
 }

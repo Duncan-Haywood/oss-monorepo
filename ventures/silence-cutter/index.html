@@ -57,7 +57,7 @@
   <section class="card">
     <div id="drop" class="drop" tabindex="0" role="button" aria-label="Choose a video or audio file">
       <strong>Drop a video or audio file here</strong> or click to choose (MP4, MOV, WebM, MP3, M4A, WAV)
-      <input id="file" type="file" accept="video/*,audio/*,.wav,.mp3,.m4a,.mp4,.mov,.webm,.mkv,.ogg,.flac" hidden>
+      <input id="file" type="file" aria-label="Video or audio file" accept="video/*,audio/*,.wav,.mp3,.m4a,.mp4,.mov,.webm,.mkv,.ogg,.flac" hidden>
     </div>
     <p><button id="example" class="secondary">Try a generated example</button><span id="status" class="note" role="status"></span></p>
   </section>
@@ -91,7 +91,7 @@
       <button data-export="wav" class="secondary">Cut audio (WAV)</button>
       <button data-export="csv" class="secondary">Cut list (CSV)</button>
       <button data-export="srt" class="secondary">Retime subtitles (SRT)</button>
-      <input id="srtFile" type="file" accept=".srt,text/plain" hidden>
+      <input id="srtFile" type="file" aria-label="Subtitle file to retime" accept=".srt,text/plain" hidden>
     </p>
     <details><summary>ffmpeg command (renders the cut file directly)</summary><pre id="ffcmd"></pre><button id="copyFf" class="secondary">Copy</button></details>
   </section>
