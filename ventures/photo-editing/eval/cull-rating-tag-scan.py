@@ -7,7 +7,8 @@ import sys
 
 
 def walk(path):
-    b = open(path, "rb").read(4 << 20)
+    with open(path, "rb") as f:
+        b = f.read(4 << 20)
     if b[:2] not in (b"II", b"MM"):
         return None
     e = "<" if b[:2] == b"II" else ">"
