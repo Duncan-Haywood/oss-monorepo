@@ -734,3 +734,51 @@ def best_of(hist, base_mva):
     if not good:
         return None
     return next((x for x in good if x["clean"]), None) or min(good, key=lambda x: merit(x, base_mva))
+
+
+# Post-feasibility cost phase (LOG.md 2026-11-23, rule CP, fixed before any scored run).
+CP_ROUNDS = 10      # cost rounds after the first clean point
+CP_PBOX = 0.05      # first P box, as a fraction of each unit's range (floor 0.1 MW)
+CP_VBOX = VBOX / 4  # first V box, pu
+CP_RTOL = 1e-6      # a trial is cheaper only if it saves more than this fraction of the current cost
+
+
+def cost_phase(ppc, pg, vg, c0, rounds=CP_ROUNDS, margin=None, analytic=True, screen=False, solver="clarabel",
+               warm=None, warm_check=False, trace=None):
+    """Rule CP: from a clean point (pg, vg) with AC check c0, successive hard QPs on the case's own costs inside a
+    box (CP_PBOX of each unit's range, CP_VBOX pu), accepting a trial only if its full AC check is clean and its AC
+    cost is lower by more than CP_RTOL; any other outcome (empty QP, failed power flow, not clean, not cheaper)
+    halves both boxes. No elastic QP: the phase never leaves the clean set, so its result is never dearer or
+    dirtier than c0. Returns (pg, vg, check, per-round records)."""
+    lay = Layout(ppc)
+    g = ppc["gen"]
+    ptrust = np.maximum(CP_PBOX * (g[:, PMAX] - g[:, PMIN]), 0.1)
+    vtrust = np.full(lay.nv, CP_VBOX)
+    pg, v, cur = pg.copy(), lay.v_of(vg), c0
+    recs = []
+    for it in range(1, rounds + 1):
+        lin = linearise(ppc, pg, v, lay, warm, analytic=analytic)
+        if lin is None:
+            recs.append({"it": it, "status": "PF failed at point", "cost": cur["cost"]})
+            break
+        warm = lin["base"]
+        xp, xv, ok = solve(ppc, lin, ptrust=ptrust, vtrust=vtrust, margin=margin, screen=screen, solver=solver)
+        c = check(ppc, xp, lay.vg_of(xv), warm if warm_check else None) if ok else None
+        if not ok:
+            st = "QP infeasible"
+        elif c is None:
+            st = "PF failed"
+        elif not c["clean"]:
+            st = "not clean"
+        elif c["cost"] >= cur["cost"] * (1.0 - CP_RTOL):
+            st = "not cheaper"
+        else:
+            st = "accepted"
+        if st == "accepted":
+            pg, v, cur = xp.copy(), xv.copy(), c
+        else:
+            ptrust, vtrust = ptrust / 2, vtrust / 2
+        recs.append({"it": it, "status": st, "cost": cur["cost"],
+                     "trial_cost": None if c is None else c["cost"],
+                     "trial_n_over": None if c is None else c["n_over"]})
+    return pg, lay.vg_of(v), cur, recs
