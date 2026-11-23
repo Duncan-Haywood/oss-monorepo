@@ -1,0 +1,2148 @@
+{
+  "totals": {
+    "c0": [
+      6,
+      6
+    ],
+    "c1": [
+      6,
+      6
+    ],
+    "c2": [
+      59,
+      60
+    ],
+    "c2sum": [
+      60,
+      60
+    ],
+    "c3": [
+      60,
+      60
+    ],
+    "c3on": 25
+  },
+  "files": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "project": "CCA R03 dt 24Oct11SC",
+      "misses": [],
+      "ownPlanned": {
+        "delayDays": 0,
+        "sum": 0,
+        "path": 70,
+        "floatTerm": 0,
+        "late": {
+          "count": 2492,
+          "of": 15849
+        },
+        "top": "T16P109201C0 longer duration, finish held by T16CO04407C0 (FF) 193",
+        "matched": 15849
+      },
+      "null": {
+        "delayDays": 0,
+        "path": 70,
+        "ok": true,
+        "nonzero": []
+      },
+      "slips": [
+        {
+          "dataDate": "2012-02-16 08:32",
+          "slips": [
+            {
+              "code": "GP1PA23009C0",
+              "days": 18
+            },
+            {
+              "code": "D04ER05501C0",
+              "days": 30
+            },
+            {
+              "code": "T10TR23009C0",
+              "days": 9
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-03-20 13:15",
+          "slips": [
+            {
+              "code": "T19RK23017C0",
+              "days": 26
+            },
+            {
+              "code": "CGLE126005C0",
+              "days": 24
+            },
+            {
+              "code": "S06AC09501C0",
+              "days": 19
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-08-14 10:58",
+          "slips": [
+            {
+              "code": "T19M226007C0",
+              "days": 28
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-04-08 11:40",
+          "slips": [
+            {
+              "code": "PP3BM23001C10",
+              "days": 18
+            },
+            {
+              "code": "PP1BE26002C0",
+              "days": 3
+            },
+            {
+              "code": "TVT3314239C0",
+              "days": 6
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-10-06 09:49",
+          "slips": [
+            {
+              "code": "PP3BP26012C20",
+              "days": 20
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-10-01 15:23",
+          "slips": [
+            {
+              "code": "DP2LO09503C0",
+              "days": 22
+            },
+            {
+              "code": "PP3CP11006C10",
+              "days": 18
+            },
+            {
+              "code": "DP3SR11001C0",
+              "days": 12
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-11-17 08:10",
+          "slips": [
+            {
+              "code": "T20R109701C0",
+              "days": 28
+            },
+            {
+              "code": "T15PA09503C0",
+              "days": 28
+            }
+          ],
+          "delayDays": 15.8,
+          "sum": 15.8,
+          "onPath": [
+            "T15PA09503C0"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-03-26 11:54",
+          "slips": [
+            {
+              "code": "S07TR09903C0",
+              "days": 14
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-02-15 09:41",
+          "slips": [
+            {
+              "code": "T09M221119C0",
+              "days": 27
+            },
+            {
+              "code": "D04CO04435C0",
+              "days": 24
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-11-14 08:15",
+          "slips": [
+            {
+              "code": "T12PA09503C0",
+              "days": 20
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        }
+      ],
+      "waits": [
+        {
+          "code": "T21CO04403C0",
+          "days": 3,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "CP3M121132C0",
+          "days": 2,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "DGLPA09903C0",
+          "days": 21,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "S08TR26005C0",
+          "days": 9,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "T15P105503C0",
+          "days": 14,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "GP2AB26005C0",
+          "days": 13,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "T16P122029C0",
+          "days": 21,
+          "onPath": true,
+          "wait": 21,
+          "delayDays": 22,
+          "sum": 22,
+          "positive": [
+            {
+              "code": "T16P122029C0",
+              "name": "PT-16 ; Final Fix, Medical Gas pipe  (PAT RM-1)",
+              "kind": "late start",
+              "days": 21,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "GP1PA08709C0",
+          "days": 18,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "I08PA23008C0",
+          "days": 6,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "PP1CE09601C0",
+          "days": 24,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        }
+      ],
+      "seconds": 100.7
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "project": "BEW3",
+      "misses": [],
+      "ownPlanned": {
+        "delayDays": -0.2,
+        "sum": -0.2,
+        "path": 7,
+        "floatTerm": -0.2,
+        "late": {
+          "count": 29,
+          "of": 823
+        },
+        "top": null,
+        "matched": 823
+      },
+      "null": {
+        "delayDays": 0,
+        "path": 7,
+        "ok": true,
+        "nonzero": []
+      },
+      "slips": [
+        {
+          "dataDate": "2015-01-30 14:23",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1130",
+              "days": 21
+            }
+          ],
+          "delayDays": 21,
+          "sum": 21,
+          "onPath": [
+            "BEW/PR/FC/1130"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2015-05-04 10:33",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1110",
+              "days": 20
+            },
+            {
+              "code": "BEW/PR/FC/1230",
+              "days": 27
+            }
+          ],
+          "delayDays": 28,
+          "sum": 28,
+          "onPath": [
+            "BEW/PR/FC/1230"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2014-12-08 16:47",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1170",
+              "days": 20
+            },
+            {
+              "code": "BEW/PR/FC/1220",
+              "days": 12
+            },
+            {
+              "code": "BEW/PR/FC/1200",
+              "days": 27
+            }
+          ],
+          "delayDays": 28,
+          "sum": 28,
+          "onPath": [
+            "BEW/PR/FC/1200"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2015-01-11 11:20",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1190",
+              "days": 18
+            },
+            {
+              "code": "BEW/PR/FC/1140",
+              "days": 15
+            }
+          ],
+          "delayDays": 18,
+          "sum": 18,
+          "onPath": [
+            "BEW/PR/FC/1190"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2014-04-12 13:39",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1130",
+              "days": 22
+            },
+            {
+              "code": "BEW/PR/FC/1060",
+              "days": 17
+            }
+          ],
+          "delayDays": 22,
+          "sum": 22,
+          "onPath": [
+            "BEW/PR/FC/1130"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2014-11-19 13:43",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1240",
+              "days": 1
+            }
+          ],
+          "delayDays": 1,
+          "sum": 1,
+          "onPath": [
+            "BEW/PR/FC/1240"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2014-05-26 10:30",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1050",
+              "days": 28
+            },
+            {
+              "code": "BEW/PR/FC/1170",
+              "days": 28
+            }
+          ],
+          "delayDays": 28,
+          "sum": 28,
+          "onPath": [
+            "BEW/PR/FC/1050"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2015-09-06 13:40",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1170",
+              "days": 5
+            },
+            {
+              "code": "BEW/PR/FC/1110",
+              "days": 13
+            },
+            {
+              "code": "BEW/PR/FC/1090",
+              "days": 22
+            }
+          ],
+          "delayDays": 22,
+          "sum": 22,
+          "onPath": [
+            "BEW/PR/FC/1090"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2015-07-08 09:57",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1090",
+              "days": 19
+            }
+          ],
+          "delayDays": 21,
+          "sum": 21,
+          "onPath": [
+            "BEW/PR/FC/1090"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2014-04-17 08:55",
+          "slips": [
+            {
+              "code": "BEW/PR/FC/1200",
+              "days": 10
+            }
+          ],
+          "delayDays": 10,
+          "sum": 10,
+          "onPath": [
+            "BEW/PR/FC/1200"
+          ],
+          "ok": true,
+          "stray": []
+        }
+      ],
+      "waits": [
+        {
+          "code": "BEW/1270",
+          "days": 18,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/MO/EF/1030",
+          "days": 26,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/1670",
+          "days": 25,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/1170",
+          "days": 27,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/MO/SS/1010",
+          "days": 16,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/DE/DS/1420",
+          "days": 28,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/1770",
+          "days": 15,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/DE/DS/1410",
+          "days": 23,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/1810",
+          "days": 1,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BEW/1830",
+          "days": 12,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        }
+      ],
+      "seconds": 6.7
+    },
+    {
+      "file": "example_xer_file.xer",
+      "project": "DEMO-001",
+      "misses": [],
+      "ownPlanned": {
+        "delayDays": 0,
+        "sum": 0,
+        "path": 17,
+        "floatTerm": 0,
+        "late": {
+          "count": 2,
+          "of": 425
+        },
+        "top": null,
+        "matched": 425
+      },
+      "null": {
+        "delayDays": 0,
+        "path": 17,
+        "ok": true,
+        "nonzero": []
+      },
+      "slips": [
+        {
+          "dataDate": "2026-11-04 11:03",
+          "slips": [
+            {
+              "code": "A10590",
+              "days": 12
+            },
+            {
+              "code": "A10540",
+              "days": 5
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2026-10-19 10:02",
+          "slips": [
+            {
+              "code": "A10290",
+              "days": 14
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2026-12-01 14:55",
+          "slips": [
+            {
+              "code": "A10310.1",
+              "days": 6
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2026-11-04 13:14",
+          "slips": [
+            {
+              "code": "A10590",
+              "days": 28
+            },
+            {
+              "code": "A10970.5",
+              "days": 2
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2026-10-23 10:28",
+          "slips": [
+            {
+              "code": "A10690",
+              "days": 4
+            }
+          ],
+          "delayDays": 4,
+          "sum": 4,
+          "onPath": [
+            "A10690"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2027-01-13 10:15",
+          "slips": [
+            {
+              "code": "A11040.2",
+              "days": 28
+            },
+            {
+              "code": "A10550.2",
+              "days": 23
+            }
+          ],
+          "delayDays": 15,
+          "sum": 15,
+          "onPath": [
+            "A10550.2"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2026-12-14 13:29",
+          "slips": [
+            {
+              "code": "A15460",
+              "days": 27
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2026-12-16 16:56",
+          "slips": [
+            {
+              "code": "A10600",
+              "days": 1
+            },
+            {
+              "code": "A11000",
+              "days": 14
+            },
+            {
+              "code": "A10320.1",
+              "days": 21
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2026-09-14 15:40",
+          "slips": [
+            {
+              "code": "A15501",
+              "days": 11
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2026-12-14 10:18",
+          "slips": [
+            {
+              "code": "A10310.3",
+              "days": 24
+            },
+            {
+              "code": "A15482",
+              "days": 25
+            },
+            {
+              "code": "A14240",
+              "days": 2
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        }
+      ],
+      "waits": [
+        {
+          "code": "A10550.2",
+          "days": 8,
+          "onPath": true,
+          "wait": 8,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [
+            {
+              "code": "A10550.2",
+              "name": "Activity A10550.2",
+              "kind": "late start",
+              "days": 8,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "E10407",
+          "days": 27,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "F1040",
+          "days": 18,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "A15555",
+          "days": 7,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "A12720",
+          "days": 16,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "A11040.4",
+          "days": 17,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "A14130.1",
+          "days": 25,
+          "onPath": true,
+          "wait": 25,
+          "delayDays": 2.7,
+          "sum": 2.7,
+          "positive": [
+            {
+              "code": "A14130.1",
+              "name": "Activity A14130.1",
+              "kind": "late start",
+              "days": 25,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A10570",
+          "days": 28,
+          "onPath": true,
+          "wait": 28,
+          "delayDays": 20,
+          "sum": 20,
+          "positive": [
+            {
+              "code": "A10570",
+              "name": "Activity A10570",
+              "kind": "late start",
+              "days": 28,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A10560.1",
+          "days": 17,
+          "onPath": true,
+          "wait": 17,
+          "delayDays": 9,
+          "sum": 9,
+          "positive": [
+            {
+              "code": "A10560.1",
+              "name": "Activity A10560.1",
+              "kind": "late start",
+              "days": 17,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "D10333.2",
+          "days": 2,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        }
+      ],
+      "seconds": 1.5
+    },
+    {
+      "file": "hotel-project.xer",
+      "project": "HBTF-2",
+      "misses": [
+        {
+          "dataDate": "2013-03-30 12:23",
+          "slips": [
+            {
+              "code": "HCFWGFZ2010",
+              "days": 18
+            },
+            {
+              "code": "HCFWB1Z1001",
+              "days": 8
+            },
+            {
+              "code": "HCFWB4Z6003",
+              "days": 13
+            }
+          ],
+          "delayDays": 0.1,
+          "sum": 0.1,
+          "onPath": [],
+          "ok": false,
+          "stray": [
+            {
+              "code": "HCSW6FZ1070",
+              "name": "Installation of steel columns and beams",
+              "kind": "longer duration",
+              "days": 0.1,
+              "through": []
+            }
+          ]
+        }
+      ],
+      "ownPlanned": {
+        "delayDays": 0,
+        "sum": 0,
+        "path": 79,
+        "floatTerm": 0,
+        "late": {
+          "count": 0,
+          "of": 4217
+        },
+        "top": null,
+        "matched": 4217
+      },
+      "null": {
+        "delayDays": 0,
+        "path": 79,
+        "ok": true,
+        "nonzero": []
+      },
+      "slips": [
+        {
+          "dataDate": "2013-05-26 08:03",
+          "slips": [
+            {
+              "code": "HCEWAFZ1030",
+              "days": 22
+            },
+            {
+              "code": "HCFWB2Z2018",
+              "days": 10
+            },
+            {
+              "code": "HCFWB3Z4017",
+              "days": 22
+            }
+          ],
+          "delayDays": 12,
+          "sum": 12,
+          "onPath": [
+            "HCFWB3Z4017"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2013-09-19 08:08",
+          "slips": [
+            {
+              "code": "HCFWB1Z5009",
+              "days": 6
+            },
+            {
+              "code": "HEPSAFI0160",
+              "days": 6
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2013-07-17 11:40",
+          "slips": [
+            {
+              "code": "HEPSAAL0070",
+              "days": 9
+            },
+            {
+              "code": "HEPSAME1050",
+              "days": 3
+            },
+            {
+              "code": "HCFWB3Z5010",
+              "days": 29
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2013-03-30 12:23",
+          "slips": [
+            {
+              "code": "HCFWGFZ2010",
+              "days": 18
+            },
+            {
+              "code": "HCFWB1Z1001",
+              "days": 8
+            },
+            {
+              "code": "HCFWB4Z6003",
+              "days": 13
+            }
+          ],
+          "delayDays": 0.1,
+          "sum": 0.1,
+          "onPath": [],
+          "ok": false,
+          "stray": [
+            {
+              "code": "HCSW6FZ1070",
+              "name": "Installation of steel columns and beams",
+              "kind": "longer duration",
+              "days": 0.1,
+              "through": []
+            }
+          ]
+        },
+        {
+          "dataDate": "2013-08-18 11:39",
+          "slips": [
+            {
+              "code": "HCFWF4Z4136",
+              "days": 7
+            },
+            {
+              "code": "HCFWGFZ4617",
+              "days": 11
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2013-03-30 08:33",
+          "slips": [
+            {
+              "code": "HCSWB2Z6100",
+              "days": 9
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2013-04-13 09:26",
+          "slips": [
+            {
+              "code": "HCSDAMEP020",
+              "days": 12
+            },
+            {
+              "code": "HCEWAFZ1010",
+              "days": 22
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2013-08-31 08:59",
+          "slips": [
+            {
+              "code": "HCMEPSSCO010",
+              "days": 22
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2013-07-04 11:04",
+          "slips": [
+            {
+              "code": "HCFWF4Z4137",
+              "days": 23
+            },
+            {
+              "code": "HCFWGFZ4607",
+              "days": 4
+            },
+            {
+              "code": "HCFWF1Z1035",
+              "days": 16
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2013-11-09 14:25",
+          "slips": [
+            {
+              "code": "HCFWB2Z3026",
+              "days": 7
+            },
+            {
+              "code": "HCFWF5Z1135",
+              "days": 22
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        }
+      ],
+      "waits": [
+        {
+          "code": "HCMEPSSAV060",
+          "days": 7,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCSWB2Z6150",
+          "days": 4,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCFWF5Z5189",
+          "days": 5,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCFWF5Z4278",
+          "days": 2,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCFWB2Z1015",
+          "days": 21,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCERDA000",
+          "days": 23,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCFWF3Z2097",
+          "days": 15,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCSWSSZ4520",
+          "days": 6,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCFWB2Z1007",
+          "days": 24,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "HCSWB1Z3100",
+          "days": 15,
+          "onPath": true,
+          "wait": 15,
+          "delayDays": 12,
+          "sum": 12,
+          "positive": [
+            {
+              "code": "HCSWB1Z3100",
+              "name": "B1 Z3 :Fix steel rebar for core wall",
+              "kind": "late start",
+              "days": 15,
+              "through": []
+            }
+          ],
+          "ok": true
+        }
+      ],
+      "seconds": 11.6
+    },
+    {
+      "file": "sample.xer",
+      "project": "Task SE",
+      "misses": [],
+      "ownPlanned": {
+        "delayDays": 0,
+        "sum": 0,
+        "path": 42,
+        "floatTerm": 0,
+        "late": {
+          "count": 0,
+          "of": 42
+        },
+        "top": null,
+        "matched": 42
+      },
+      "null": {
+        "delayDays": 0,
+        "path": 42,
+        "ok": true,
+        "nonzero": []
+      },
+      "slips": [
+        {
+          "dataDate": "2021-05-03 10:11",
+          "slips": [
+            {
+              "code": "A2010",
+              "days": 28
+            }
+          ],
+          "delayDays": 28,
+          "sum": 28,
+          "onPath": [
+            "A2010"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-06-03 12:41",
+          "slips": [
+            {
+              "code": "A2050",
+              "days": 24
+            }
+          ],
+          "delayDays": 24,
+          "sum": 24,
+          "onPath": [
+            "A2050"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-05-20 14:55",
+          "slips": [
+            {
+              "code": "A2030",
+              "days": 1
+            }
+          ],
+          "delayDays": 1,
+          "sum": 1,
+          "onPath": [
+            "A2030"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-07-08 15:02",
+          "slips": [
+            {
+              "code": "A3040",
+              "days": 23
+            }
+          ],
+          "delayDays": 23,
+          "sum": 23,
+          "onPath": [
+            "A3040"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-04-27 09:15",
+          "slips": [
+            {
+              "code": "A2000",
+              "days": 4
+            }
+          ],
+          "delayDays": 4,
+          "sum": 4,
+          "onPath": [
+            "A2000"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-07-05 14:11",
+          "slips": [
+            {
+              "code": "A3040",
+              "days": 25
+            }
+          ],
+          "delayDays": 25,
+          "sum": 25,
+          "onPath": [
+            "A3040"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-07-13 11:57",
+          "slips": [
+            {
+              "code": "A3050",
+              "days": 29
+            }
+          ],
+          "delayDays": 29,
+          "sum": 29,
+          "onPath": [
+            "A3050"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-05-14 14:23",
+          "slips": [
+            {
+              "code": "A2030",
+              "days": 27
+            }
+          ],
+          "delayDays": 27,
+          "sum": 27,
+          "onPath": [
+            "A2030"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-05-21 12:04",
+          "slips": [
+            {
+              "code": "A2040",
+              "days": 25
+            }
+          ],
+          "delayDays": 25,
+          "sum": 25,
+          "onPath": [
+            "A2040"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2021-04-27 08:57",
+          "slips": [
+            {
+              "code": "A2000",
+              "days": 10
+            }
+          ],
+          "delayDays": 10,
+          "sum": 10,
+          "onPath": [
+            "A2000"
+          ],
+          "ok": true,
+          "stray": []
+        }
+      ],
+      "waits": [
+        {
+          "code": "A1010",
+          "days": 17,
+          "onPath": true,
+          "wait": 17,
+          "delayDays": 17,
+          "sum": 17,
+          "positive": [
+            {
+              "code": "A1010",
+              "name": "Fundament",
+              "kind": "late start",
+              "days": 17,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A2000",
+          "days": 15,
+          "onPath": true,
+          "wait": 15,
+          "delayDays": 15,
+          "sum": 15,
+          "positive": [
+            {
+              "code": "A2000",
+              "name": "Ausfahrt",
+              "kind": "late start",
+              "days": 15,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A5050",
+          "days": 26,
+          "onPath": true,
+          "wait": 26,
+          "delayDays": 26,
+          "sum": 26,
+          "positive": [
+            {
+              "code": "A5050",
+              "name": "Rückfahrt",
+              "kind": "late start",
+              "days": 26,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A3030",
+          "days": 23,
+          "onPath": true,
+          "wait": 23,
+          "delayDays": 23,
+          "sum": 23,
+          "positive": [
+            {
+              "code": "A3030",
+              "name": "Gondel",
+              "kind": "late start",
+              "days": 23,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A3020",
+          "days": 23,
+          "onPath": true,
+          "wait": 23,
+          "delayDays": 23,
+          "sum": 23,
+          "positive": [
+            {
+              "code": "A3020",
+              "name": "Turm",
+              "kind": "late start",
+              "days": 23,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A4030",
+          "days": 1,
+          "onPath": true,
+          "wait": 1,
+          "delayDays": 1,
+          "sum": 1,
+          "positive": [
+            {
+              "code": "A4030",
+              "name": "Gondel",
+              "kind": "late start",
+              "days": 1,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A5000",
+          "days": 16,
+          "onPath": true,
+          "wait": 16,
+          "delayDays": 16,
+          "sum": 16,
+          "positive": [
+            {
+              "code": "A5000",
+              "name": "Ausfahrt",
+              "kind": "late start",
+              "days": 16,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A4040",
+          "days": 18,
+          "onPath": true,
+          "wait": 18,
+          "delayDays": 18,
+          "sum": 18,
+          "positive": [
+            {
+              "code": "A4040",
+              "name": "3x Blattmontage",
+              "kind": "late start",
+              "days": 18,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A4010",
+          "days": 28,
+          "onPath": true,
+          "wait": 28,
+          "delayDays": 28,
+          "sum": 28,
+          "positive": [
+            {
+              "code": "A4010",
+              "name": "Fundament",
+              "kind": "late start",
+              "days": 28,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "A2020",
+          "days": 20,
+          "onPath": true,
+          "wait": 20,
+          "delayDays": 20,
+          "sum": 20,
+          "positive": [
+            {
+              "code": "A2020",
+              "name": "Turm",
+              "kind": "late start",
+              "days": 20,
+              "through": []
+            }
+          ],
+          "ok": true
+        }
+      ],
+      "seconds": 0.1
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "project": "TERMINAL-2",
+      "misses": [],
+      "ownPlanned": {
+        "delayDays": 0,
+        "sum": 0,
+        "path": 19,
+        "floatTerm": 0,
+        "late": {
+          "count": 0,
+          "of": 66
+        },
+        "top": null,
+        "matched": 66
+      },
+      "null": {
+        "delayDays": 0,
+        "path": 19,
+        "ok": true,
+        "nonzero": []
+      },
+      "slips": [
+        {
+          "dataDate": "2012-07-01 08:08",
+          "slips": [
+            {
+              "code": "BA-P1-50",
+              "days": 1
+            },
+            {
+              "code": "BA-P4-10",
+              "days": 10
+            }
+          ],
+          "delayDays": 10,
+          "sum": 10,
+          "onPath": [
+            "BA-P4-10"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-11-08 11:07",
+          "slips": [
+            {
+              "code": "BA-P1-150",
+              "days": 17
+            },
+            {
+              "code": "BA-P4-110",
+              "days": 16
+            },
+            {
+              "code": "BA-P3-70",
+              "days": 24
+            }
+          ],
+          "delayDays": 23,
+          "sum": 23,
+          "onPath": [
+            "BA-P3-70"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-11-07 08:57",
+          "slips": [
+            {
+              "code": "BA-P1-140",
+              "days": 6
+            },
+            {
+              "code": "BA-P3-70",
+              "days": 13
+            },
+            {
+              "code": "BA-P4-120",
+              "days": 26
+            }
+          ],
+          "delayDays": 12,
+          "sum": 12,
+          "onPath": [
+            "BA-P3-70"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-10-06 13:00",
+          "slips": [
+            {
+              "code": "BA-P4-70",
+              "days": 19
+            },
+            {
+              "code": "BA-P3-60",
+              "days": 1
+            }
+          ],
+          "delayDays": 19,
+          "sum": 19,
+          "onPath": [
+            "BA-P4-70"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-09-14 08:45",
+          "slips": [
+            {
+              "code": "BA-P1-80",
+              "days": 10
+            }
+          ],
+          "delayDays": 0,
+          "sum": 0,
+          "onPath": [],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-09-05 16:14",
+          "slips": [
+            {
+              "code": "BA-P4-50",
+              "days": 5
+            },
+            {
+              "code": "BA-P1-80",
+              "days": 13
+            },
+            {
+              "code": "BA-P3-40",
+              "days": 1
+            }
+          ],
+          "delayDays": 5,
+          "sum": 5,
+          "onPath": [
+            "BA-P4-50"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-10-02 11:37",
+          "slips": [
+            {
+              "code": "BA-P1-110",
+              "days": 15
+            },
+            {
+              "code": "BA-P3-60",
+              "days": 19
+            }
+          ],
+          "delayDays": 18,
+          "sum": 18,
+          "onPath": [
+            "BA-P3-60"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-08-21 16:13",
+          "slips": [
+            {
+              "code": "BA-P4-40",
+              "days": 15
+            },
+            {
+              "code": "BA-P2-40",
+              "days": 21
+            },
+            {
+              "code": "BA-P3-40",
+              "days": 22
+            }
+          ],
+          "delayDays": 21,
+          "sum": 21,
+          "onPath": [
+            "BA-P3-40"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-11-17 10:49",
+          "slips": [
+            {
+              "code": "BA-P3-90",
+              "days": 22
+            },
+            {
+              "code": "BA-P4-100",
+              "days": 17
+            },
+            {
+              "code": "BA-P4-110",
+              "days": 5
+            }
+          ],
+          "delayDays": 21,
+          "sum": 21,
+          "onPath": [
+            "BA-P3-90"
+          ],
+          "ok": true,
+          "stray": []
+        },
+        {
+          "dataDate": "2012-09-16 09:31",
+          "slips": [
+            {
+              "code": "BA-P1-100",
+              "days": 29
+            },
+            {
+              "code": "BA-P1-90",
+              "days": 11
+            },
+            {
+              "code": "BA-P3-50",
+              "days": 24
+            }
+          ],
+          "delayDays": 23,
+          "sum": 23,
+          "onPath": [
+            "BA-P3-50"
+          ],
+          "ok": true,
+          "stray": []
+        }
+      ],
+      "waits": [
+        {
+          "code": "BA-P3-50",
+          "days": 23,
+          "onPath": true,
+          "wait": 23,
+          "delayDays": 22,
+          "sum": 22,
+          "positive": [
+            {
+              "code": "BA-P3-50",
+              "name": "Insulation Works",
+              "kind": "late start",
+              "days": 23,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "BA-P1-120",
+          "days": 27,
+          "onPath": true,
+          "wait": 27,
+          "delayDays": 27,
+          "sum": 27,
+          "positive": [
+            {
+              "code": "BA-P1-120",
+              "name": "Insulation Works For R.C Footings (+3)",
+              "kind": "late start",
+              "days": 27,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "BA-P3-60",
+          "days": 22,
+          "onPath": true,
+          "wait": 22,
+          "delayDays": 21,
+          "sum": 21,
+          "positive": [
+            {
+              "code": "BA-P3-60",
+              "name": "Backfill Works",
+              "kind": "late start",
+              "days": 22,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "BA-P2-120",
+          "days": 11,
+          "onPath": true,
+          "wait": 11,
+          "delayDays": 11,
+          "sum": 11,
+          "positive": [
+            {
+              "code": "BA-P2-120",
+              "name": "Hollow Core Slab",
+              "kind": "late start",
+              "days": 11,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "BA-P1-10",
+          "days": 21,
+          "onPath": true,
+          "wait": 21,
+          "delayDays": 21,
+          "sum": 21,
+          "positive": [
+            {
+              "code": "BA-P1-10",
+              "name": "Excavation  till Level  (-1.4)",
+              "kind": "late start",
+              "days": 21,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "BA-P3-130",
+          "days": 9,
+          "onPath": true,
+          "wait": 9,
+          "delayDays": 8,
+          "sum": 8,
+          "positive": [
+            {
+              "code": "BA-P3-130",
+              "name": "Columns",
+              "kind": "late start",
+              "days": 9,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "BA-P4-60",
+          "days": 8,
+          "onPath": true,
+          "wait": 8,
+          "delayDays": 8,
+          "sum": 8,
+          "positive": [
+            {
+              "code": "BA-P4-60",
+              "name": "Backfill Works",
+              "kind": "late start",
+              "days": 8,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "BA-P2-30",
+          "days": 29,
+          "onPath": true,
+          "wait": 29,
+          "delayDays": 4,
+          "sum": 4,
+          "positive": [
+            {
+              "code": "BA-P2-30",
+              "name": "P.C For Footings",
+              "kind": "late start",
+              "days": 29,
+              "through": []
+            }
+          ],
+          "ok": true
+        },
+        {
+          "code": "BA-P2-60",
+          "days": 18,
+          "onPath": false,
+          "wait": null,
+          "delayDays": 0,
+          "sum": 0,
+          "positive": [],
+          "ok": true
+        },
+        {
+          "code": "BA-P1-70",
+          "days": 15,
+          "onPath": true,
+          "wait": 15,
+          "delayDays": 15,
+          "sum": 15,
+          "positive": [
+            {
+              "code": "BA-P1-70",
+              "name": "Insulation Works For R.C Footings (-1.4)",
+              "kind": "late start",
+              "days": 15,
+              "through": []
+            }
+          ],
+          "ok": true
+        }
+      ],
+      "seconds": 0.2
+    }
+  ]
+}

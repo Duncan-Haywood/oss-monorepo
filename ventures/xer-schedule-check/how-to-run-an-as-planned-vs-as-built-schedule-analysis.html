@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run An As-Planned vs As-Built Schedule Analysis</title>
+  <meta name="description" content="Lay a P6 baseline beside the as-built and see where, along the as-built critical path, the delay grew (AACE MIP 3.1/3.2). Free, in your browser.">
+  <meta property="og:title" content="How To Run An As-Planned vs As-Built Schedule Analysis">
+  <meta property="og:description" content="The as-built critical path found from the actual dates, plan beside actual, and the delay split into steps that add up exactly.">
+  <link rel="canonical" href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an as-planned vs as-built analysis?","acceptedAnswer":{"@type":"Answer","text":"The oldest and simplest retrospective delay method: the baseline schedule is laid beside what actually happened, and the differences along the path that drove the actual finish are measured. AACE International's Recommended Practice 29R-03 calls it observational and static: MIP 3.1 compares the whole job at once, MIP 3.2 does the same period by period. Nothing is rescheduled, so it is quick to check and easy to explain."}},{"@type":"Question","name":"How is the as-built critical path found?","acceptedAnswer":{"@type":"Answer","text":"From the dates, not by eye. The final update is turned into a CPM model that lands every activity on its actual dates with the file's own logic (the same model the collapsed as-built uses), and the path is the chain of activities and links that leaves no slack into the actual finish. The tool reports how many activities the model lands on their actual dates, so you can see the path rests on the record."}},{"@type":"Question","name":"What do the steps mean?","acceptedAnswer":{"@type":"Answer","text":"Walking the as-built critical path from its first activity to the last, the gap between plan and actual can grow in two ways: an activity started later after its predecessor than the plan allowed (a late start), or it took longer than planned (a longer duration). A negative step is time made up, or slack the plan had between two activities used up. The steps, plus the float the plan gave the path's last activity, add up exactly to the project's delay."}},{"@type":"Question","name":"What if I do not have the baseline file?","acceptedAnswer":{"@type":"Answer","text":"Without one, the final file's own Planned Start and Planned Finish columns stand in for the plan. P6 keeps them as the dates the activity was first scheduled for, but they are reset whenever someone resets planned dates, so for a claim open the accepted baseline XER instead. The tool says which it used."}},{"@type":"Question","name":"How is it different from a collapsed as-built or a time impact analysis?","acceptedAnswer":{"@type":"Answer","text":"Those change a schedule and recompute it: the time impact analysis adds a delay to the update in force before it happened, the collapsed as-built takes delays out of what happened. This changes nothing. It shows where along the as-built critical path the plan and the record part company, which is usually the first exhibit, and where the delays to model later are found."}},{"@type":"Question","name":"Is the schedule uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Both files are read and compared in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to run an as-planned vs as-built schedule analysis</h1>
+  <p>Most delay claims open with the same exhibit: the plan beside what happened. Done by hand it means printing the baseline and the final update, picking out a critical path by eye and arguing about it. This tool finds the as-built critical path from the actual dates, lays the planned dates beside the actual ones activity by activity, and splits the delay into steps along that path, each a late start, a longer duration or a planned gap used up, that add up exactly to the project's delay.</p>
+  <p><a class="cta" href="./#as-planned">Open the free schedule check</a> (open the final XER, then go to As-planned vs as-built)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the final update from P6 as XER, with every activity finished if you can, and the accepted baseline as a second XER. An update still in progress works, with forecast dates standing in for the work not yet done, and the tool says so.</li>
+    <li>Open the final update on the <a href="./">tool page</a>, then the baseline in the As-planned vs as-built section, and press <b>Compare plan with as-built</b>. Without a baseline, the final file's own Planned Start and Planned Finish are used.</li>
+    <li>Read the steps, largest first. Each names the activity on the as-built critical path where the plan and the record parted, and whether it started late or ran long.</li>
+    <li>Download the CSV: the whole path with planned and actual dates, every milestone, every activity that overran, and the activities added and deleted since the plan.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>On the built-in example (an invented office fit-out; press Load an example schedule, then Compare plan with as-built, which takes the example's earlier update as the plan), the model lands 22 of 22 activities on their dates. The plan finishes on 2026-07-06; the update finishes on 2026-07-27: a delay of 15 working days. The as-built critical path has 6 activities, 5 of 6 of them on the plan's critical path too. The steps:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Activity</th><th>Step</th><th>Working days</th></tr></thead>
+    <tbody>
+      <tr><td>A1110 in-wall inspection</td><td>late start: the city's date was 2026-05-18, the plan had 2026-04-28</td><td>+14</td></tr>
+      <tr><td>A1180 furniture install (by owner)</td><td>late start</td><td>+5</td></tr>
+      <tr><td>A1150 paint</td><td>shorter duration</td><td>-2</td></tr>
+      <tr><td></td><td>float the plan gave the path's last activity</td><td>-2</td></tr>
+      <tr><td></td><td><b>Sum, equal to the delay</b></td><td><b>+15</b></td></tr>
+    </tbody>
+  </table></div>
+  <p>Most of the delay sits in one place: the inspection date, which the plan had three weeks earlier than the city gave it. Paint made up two days. Twenty of the 22 activities finished later than planned, and procurement of doors ran 10 days long, but neither is on the as-built critical path: they explain nothing about the finish on their own. That is the use of the method: it says which of the many late activities to look at.</p>
+  <h2>How the steps are measured</h2>
+  <p>Each point on the path has a variance: actual minus planned, in working days of the project calendar, at the activity's start or finish. Walking the path, the step into an activity is how much the variance grew between the predecessor's driving point (its finish on a finish-to-start link, its start on start-to-start) and the point it drives; the step within an activity is how much it grew from its start to its finish. The steps telescope, so they add up to the variance at the path's last finish, and the float the plan gave that activity against the planned finish is the one remaining term. A late start is measured as the link sees it, past the earliest the link allowed on the activity's own calendar, so a predecessor on a six-day calendar finishing on a Saturday is not counted as a wait for a five-day successor; that remainder is shown as a calendar step. Activities added after the plan have no planned dates, so the step across them is reported on the next planned activity with their IDs.</p>
+  <h2>How it was tested</h2>
+  <p>No public job publishes its baseline beside a final as-built with the delays named, so six public P6 files (versions 5.0 to 24.12) were each taken as the plan and finished by the tool as planned, with and without planted delays. Built exactly to plan, every file showed no delay and no step. With 110 planted slips, every step that grew the delay was on a slipped activity 109 times (the miss was a tenth of a day), and the steps added up to the delay every time. Each of the 51 planted waits that landed on the as-built critical path measured exactly its planted days. The full results are in the project's eval folder.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>It shows where, not why.</b> A late start on the path says the gap grew there; whether that was a permit, a crew or a late drawing is for the record to show.</li>
+    <li><b>The plan is only as good as the baseline.</b> A baseline with poor logic gives a plan nobody could have met. Score it first with the <a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">DCMA 14-point check</a>.</li>
+    <li><b>One period at a time is stronger.</b> Over a long job the as-built critical path can wander far from the planned one. Comparing update to update (the windows analysis on the tool page) splits the same delay by period.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is an as-planned vs as-built analysis?</h3>
+  <p>The oldest and simplest retrospective delay method: the baseline schedule is laid beside what actually happened, and the differences along the path that drove the actual finish are measured. AACE International's Recommended Practice 29R-03 calls it observational and static: MIP 3.1 compares the whole job at once, MIP 3.2 does the same period by period. Nothing is rescheduled, so it is quick to check and easy to explain.</p>
+  <h3>How is the as-built critical path found?</h3>
+  <p>From the dates, not by eye. The final update is turned into a CPM model that lands every activity on its actual dates with the file's own logic (the same model the collapsed as-built uses), and the path is the chain of activities and links that leaves no slack into the actual finish. The tool reports how many activities the model lands on their actual dates, so you can see the path rests on the record.</p>
+  <h3>What do the steps mean?</h3>
+  <p>Walking the as-built critical path from its first activity to the last, the gap between plan and actual can grow in two ways: an activity started later after its predecessor than the plan allowed (a late start), or it took longer than planned (a longer duration). A negative step is time made up, or slack the plan had between two activities used up. The steps, plus the float the plan gave the path's last activity, add up exactly to the project's delay.</p>
+  <h3>What if I do not have the baseline file?</h3>
+  <p>Without one, the final file's own Planned Start and Planned Finish columns stand in for the plan. P6 keeps them as the dates the activity was first scheduled for, but they are reset whenever someone resets planned dates, so for a claim open the accepted baseline XER instead. The tool says which it used.</p>
+  <h3>How is it different from a collapsed as-built or a time impact analysis?</h3>
+  <p>Those change a schedule and recompute it: the time impact analysis adds a delay to the update in force before it happened, the collapsed as-built takes delays out of what happened. This changes nothing. It shows where along the as-built critical path the plan and the record part company, which is usually the first exhibit, and where the delays to model later are found.</p>
+  <h3>Is the schedule uploaded?</h3>
+  <p>No. Both files are read and compared in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

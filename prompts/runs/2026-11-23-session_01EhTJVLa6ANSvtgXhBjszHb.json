@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVLa6ANSvtgXhBjszHb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo (ventures brief)",
+  "input_sha256": "052b2b4268be1155bdcc864ad19ec85513e8a14ace00093d86abf21127155a97",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T03:17:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check (flagship 13): as-planned vs as-built analysis, AACE 29R-03 MIP 3.1/3.2",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 18352,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The assigned row's open items all need real outside inputs (a real TIA exhibit, P6 import, real update series); a buildable gap (a missing AACE method) had to be found by reading the README rather than from the row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took a new item (as-planned vs as-built) instead of 'the second open item' of the row, because every listed open item needs a real outside input.",
+      "did": "Built asplanned.mjs, CLI, page section, guide, eval and post.",
+      "result": "Shipped with 59/60 + 60/60 (seed 2) and 50/50 + 50/50 (seed 1) on planted delays."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-as-planned-vs-as-built-from-two-p6-files.md",
+    "ventures/xer-schedule-check/how-to-run-an-as-planned-vs-as-built-schedule-analysis.html",
+    "ventures/xer-schedule-check/eval/asplanned-check-2026-11-23.md"
+  ],
+  "goal": "A new forensic method for the flagship: the plan beside the as-built along an as-built critical path read from the dates, with the delay split into steps that add up exactly.",
+  "notes": "asplanned.mjs: as-built critical path from the collapse's as-built model (longest chain into the finish, FF-aware, tie-break by slip vs plan, ALAP handled); steps (late start / longer duration / planned gap used up / calendar) telescope to the delay. Checks run here: node --test (asplanned, guides, page, collapse: 30 pass); run_venture_tests.py xer-schedule-check: 438 tests ok; venture-preflight.mjs xer-schedule-check: clean (exit 0); eval/asplanned-check.mjs on six public XERs seed 2: own planned 6/6, null 6/6, slips 59/60 (steps add 60/60), waits 60/60; seed 1 five files 50/50, 50/50; Playwright smoke of the page section: no console errors. check_posts.py ok.",
+  "corrections": [],
+  "redteam": null
+}
