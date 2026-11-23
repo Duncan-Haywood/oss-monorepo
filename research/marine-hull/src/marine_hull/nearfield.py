@@ -154,6 +154,63 @@ class NearField:
             self._direct[key] = (sols, ez)
         return self._direct[key]
 
+    def _yx(self):
+        """dY/dx at fixed z per station and panel index (station differences), dimensional."""
+        h = self.h
+        geos = [self.field.geo[r] for r in h.ratio]
+        npan = len(next(g for g in geos if g is not None))
+        ys = [[h.t * g[j][0] for j in range(npan)] if g is not None else [0.0] * npan for g in geos]
+        yx = [[0.0] * npan for _ in h.x]
+        for j in range(npan):
+            dy = d_dx([y[j] for y in ys], h.x, 0.5 * h.l)
+            for i in range(len(h.x)):
+                yx[i][j] = dy[i]
+        return yx
+
+    def excitation(self, omega, diffraction="sdx", fk="exact"):
+        """7zza: zero-speed head-wave exciting heave force and bow-up pitch moment (F3, F5) per unit wave amplitude,
+        strip convention, by pressure integration on each section with the 7zz direct diffraction solve.
+
+        Per section F' = -2 sum_j p n_z ds (outward n_z, both sides), p = rho g e^{kz} e^{ikx} - i omega rho phi_D
+        (fk "exact") or the diffraction part only plus the strip's Froude-Krylov rho g 2 h e^{-k d_m} e^{ikx}
+        (fk "strip"); phi_D = T (-i omega e^{ikx}) times the draft-1 potential for the body condition of
+        `diffraction` ("rv", "sd" or "sdx", as in `response`). F3 = sum F' dx, F5 = sum x F' dx."""
+        h = self.h
+        k = omega * omega / G
+        rho, t, dx = h.rho, h.t, h.dx
+        smith = math.exp(-k * h.dm)
+        nu_t = omega * omega / G * t
+        yx = self._yx()
+        f3 = f5 = 0j
+        for i, (r, x) in enumerate(zip(h.ratio, h.x)):
+            g = self.field.geo[r]
+            if g is None:
+                continue
+            (ph_h, ph_z, ph_x), ez = self._direct_solve(i, r, nu_t, k * t, yx[i])
+            if diffraction == "rv":
+                pd = [smith * a for a in ph_h]
+            elif diffraction == "sd":
+                pd = ph_z
+            elif diffraction == "sdx":
+                pd = [a - 1j * b for a, b in zip(ph_z, ph_x)]
+            else:
+                raise ValueError(diffraction)
+            eikx = cmath.exp(1j * k * x)
+            wi = -1j * omega * eikx
+            fs = 0j
+            for j, q in enumerate(g):
+                p = -1j * omega * rho * t * wi * pd[j]
+                if fk == "exact":
+                    p += rho * G * ez[j] * eikx
+                fs += -2.0 * p * q[3] * t * q[4]
+            if fk == "strip":
+                fs += rho * G * 2.0 * h.hb[i] * smith * eikx
+            elif fk != "exact":
+                raise ValueError(fk)
+            f3 += fs * dx
+            f5 += x * fs * dx
+        return f3, f5
+
     def response(self, omega, u, gb=None, diffraction=None, motions=None):
         """dict: motions, GB R_aw and the near-field terms (N/m2 per unit wave amplitude squared).
 

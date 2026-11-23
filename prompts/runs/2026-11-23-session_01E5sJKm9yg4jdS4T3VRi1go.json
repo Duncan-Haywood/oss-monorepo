@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKm9yg4jdS4T3VRi1go",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T11:18:54Z",
+  "ended": "2026-11-23T11:37:27Z",
+  "wall_minutes": 18.77,
+  "tokens_in": 4682755,
+  "tokens_out": 29837,
+  "cost_usd": 2.437,
+  "tool_calls": 47,
+  "task": "research/marine-hull milestone 7zza: strip motions driven by the exciting force of the sectional (sdx) diffraction flow, zero speed, against Capytaine",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18414",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "the draw landed on track 25 whose only programme is OFFLINE, then listed takeable programmes elsewhere; worked fine, cost one extra read"
+    },
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "milestone numbering has run past 7zz with no stated convention for the next id; used 7zza"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-marine-hull-consistent-excitation.md",
+    "research/marine-hull/LOG.md (7zza)"
+  ],
+  "goal": null,
+  "notes": "Plan and 7 expectations committed (3ff1f6c29) before code. Experiment 636 s, Capytaine 3.0.0 via /usr/bin/python3.13: E0, E1 held; E2-E6 refuted. Pressure-integrated sdx exciting force halves the phase error but barely changes |F3| (band 1.103/1.074 vs 1.100/1.068); free near-field band area 1.362 (tank) and 1.092 (monohull) of 3D; long-wave tail stays, in the velocity term. Local checks: marine-hull suite 582 passed (374 s), paper/check_numbers.py ok, research/_homepage/build.py ok, check_posts ok, check_md_links ok, programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4aaebc4e-1137-5da3-a7c6-2fa212014481",
+    "transcripts": 1,
+    "first": "2026-11-23T11:18:54Z",
+    "last": "2026-11-23T11:37:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 29837,
+        "thinking": 7348,
+        "cache_read": 4566846,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115826,
+        "api_equivalent_usd": 2.437,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 29837,
+      "thinking": 7348,
+      "cache_read": 4566846,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115826,
+      "api_equivalent_usd": 2.437,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.77,
+      "active_minutes": 18.77,
+      "model_minutes": 5.02,
+      "tool_minutes": 13.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a naval-architecture researcher implementing sectional pressure integration, running the panel comparison and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 410.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

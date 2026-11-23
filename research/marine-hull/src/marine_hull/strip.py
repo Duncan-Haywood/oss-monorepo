@@ -421,7 +421,7 @@ class WigleyStrip:
             b.append(self.rho * omega_e * self.t ** 2 * bc)
         return a, b
 
-    def response(self, omega, u, coupling=None, gb=None):
+    def response(self, omega, u, coupling=None, gb=None, excitation=None):
         """Heave and pitch (bow up) per unit wave amplitude and the added resistance per unit amplitude^2, N/m2.
 
         Head waves zeta = e^{i (omega_e t + k x)}, x forward; returns (z, theta, R_aw / zeta_A^2, omega_e).
@@ -432,6 +432,8 @@ class WigleyStrip:
         form above: `motion_sign` and `raw_sign` (-1, 0 or +1) set b' = b33 + sign U da33/dx in the motion equations
         and in the added-resistance integrand separately; `u_theta` False drops the -U theta term from V_z; `prefactor`
         "omega" uses k / (2 omega) in place of k / (2 omega_e).
+        `excitation` (milestone 7zza), if given, is (F3, F5) per unit wave amplitude, strip convention (bow-up pitch
+        moment), and replaces the relative-motion exciting force on the right-hand side of the motion equations.
         """
         gb = gb or {}
         s_m, s_r = gb.get("motion_sign", -1), gb.get("raw_sign", -1)
@@ -461,6 +463,8 @@ class WigleyStrip:
             h22 += x * ft * dx
             f1 += f0 * dx
             f2 += x * f0 * dx
+        if excitation is not None:
+            f1, f2 = complex(excitation[0]), complex(excitation[1])
         if coupling is not None:
             a35, b35, a53, b53 = coupling(we)
             c35 = sum(ci * x * dx for ci, x in zip(c, self.x))
