@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245b4f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E@%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>gitconfig includeIf Checker — Why Is Git Using the Wrong Email?</title>
+  <meta name="description" content="Free git includeIf checker: paste ~/.gitconfig and the files it includes, give a repository path, and see which [includeIf] lines apply, why the others do not, and which file and line set user.email. Checked against git itself. In your browser.">
+  <meta property="og:title" content="gitconfig includeIf checker — free, private, in your browser">
+  <meta property="og:description" content="Why is git using my personal email in a work repository? Which includeIf matched, which did not and why, and the line that set every value.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "gitconfig include checker", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads your git config files the way git does and says which [includeIf] lines apply in a repository, why the others do not, and which file and line set user.email and every other value."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is my includeIf gitdir not working?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes: the pattern has no trailing slash (gitdir:~/work only matches a .git folder that is exactly ~/work; write gitdir:~/work/), the [includeIf] block sits above the [user] section it should override (git reads top to bottom and the last value wins, so put the include at the end of ~/.gitconfig), the condition has a typo or a space (GitDir:, gitdir: ~/work/), the path = line points at a file that does not exist (git skips it without a word), or ~/work is a symlink (from a subfolder git sees the real path)."}}, {"@type": "Question", "name": "Why does git still use my personal email in work repositories?", "acceptedAnswer": {"@type": "Answer", "text": "Run git config --show-origin --get-all user.email inside the repository: the last line printed wins. If the work address is listed first, your [includeIf] block comes before the [user] section in ~/.gitconfig; move it below. If the work address is missing, the condition did not match or the included file was not found."}}, {"@type": "Question", "name": "What does gitdir: compare against?", "acceptedAnswer": {"@type": "Answer", "text": "The path of the repository's .git folder, with ~/ expanded to your home folder, not the folder you cd into. A pattern ending in / gets ** added so it matches everything below it; a pattern that does not start with ~/, / or ./ gets **/ in front so it matches at any depth. For a linked worktree the .git folder lives inside the main repository's .git/worktrees/, so the main repository's location decides."}}, {"@type": "Question", "name": "Does onbranch: work in CI?", "acceptedAnswer": {"@type": "Answer", "text": "Only when a branch is checked out. On a detached HEAD, which is how most CI systems check out a commit or a pull request, and during git bisect or a rebase, git skips every onbranch: include."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The checker runs entirely in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17231f; background: #f2f6f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d6b58; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #183f36; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #183f36; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #e3ece8; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #4b5c56; }
+    .card { background: #fff; border: 1px solid #d5e1dc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #183f3610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8a81; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d6b58; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0ebe7; color: #183f36; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e3ece8; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5c56; }
+    td code { white-space: pre-wrap; word-break: break-all; }
+    .finding { border-bottom: 1px solid #e3ece8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: .85rem ui-monospace, Menlo, Consolas, monospace; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #6e520c; }
+    .pill.low, .pill.info { background: #e0ebe7; color: #183f36; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #edf3f0; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #183f36; }
+    pre.fix { background: #142b25; color: #eefaf5; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px ui-monospace, Menlo, Consolas, monospace; }
+    .scroll { overflow-x: auto; }
+    .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .row > div { flex: 1 1 260px; }
+    ol.steps { padding-left: 20px; font-size: .94rem; }
+    .lost { color: #6a7a74; text-decoration: line-through; }
+    .ok { color: #1d6b58; font-weight: 700; } .skip { color: #7a1f10; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e1dc; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GITCONFIG INCLUDEIF CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why is git using the wrong email in this repository?</h1>
+    <p>Paste your <code>~/.gitconfig</code> and the files it includes, and say where the repository is. The checker reads them the way git does and tells you <strong>which <code>[include]</code> and <code>[includeIf]</code> lines took effect, why each of the others did not</strong>, and <strong>which file and line set <code>user.email</code></strong>, your signing key and every other value. It names the usual causes: a <code>gitdir:</code> pattern without its trailing slash, an include placed above the setting it should override, a condition git does not know, an included file that is not there, a folder reached through a symlink, and an <code>onbranch:</code> that never matches on a detached HEAD.</p>
+    <p class="note">Nothing you paste leaves this browser tab. Checked against <code>git config --list --show-origin</code> (git 2.43) on thousands of random config trees, linked worktrees and symlinked folders (see the README); your own git is the final word.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your config files</h2>
+    <p class="note">Paste <code>~/.gitconfig</code>. For more files, start each with a line <code>==&gt; path &lt;==</code>, which is what <code>head</code> prints for several files, so <code>head -n 9999 ~/.gitconfig ~/.gitconfig-* .git/config</code> gives you the lot. <code>~/</code> in a header means your home folder. Include <code>.git/config</code> (shown as <code>==&gt; ~/work/api/.git/config &lt;==</code>) if you use <code>hasconfig:remote.*.url:</code>, or list the remote URLs below.</p>
+    <label for="files">Config files</label>
+    <textarea id="files" spellcheck="false" placeholder="[user]&#10;&#9;email = me@personal.example&#10;[includeIf &quot;gitdir:~/work/&quot;]&#10;&#9;path = ~/.gitconfig-work"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. The repository</h2>
+    <div class="grid">
+      <div><label for="home">Your home folder</label><input id="home" type="text" spellcheck="false" value="/home/you"></div>
+      <div><label for="repo">Repository folder</label><input id="repo" type="text" spellcheck="false" placeholder="~/work/api"></div>
+      <div><label for="branch">Checked-out branch</label><input id="branch" type="text" spellcheck="false" value="main"></div>
+    </div>
+    <p class="note"><code>echo $HOME</code>, <code>git rev-parse --show-toplevel</code> and <code>git branch --show-current</code> print these. Leave the branch empty for a detached HEAD (CI, bisect, a rebase). Leave the repository empty to see what git reads outside any repository.</p>
+    <div class="grid">
+      <div><label for="realGitdir">Real path of the .git folder, if a symlink is on the way (optional)</label><input id="realGitdir" type="text" spellcheck="false" placeholder="/mnt/data/work/api/.git"></div>
+      <div><label for="gitdir">.git folder, if not inside the repository folder (optional)</label><input id="gitdir" type="text" spellcheck="false" placeholder="~/work/api/.git/worktrees/fix"></div>
+    </div>
+    <p class="note"><code>cd "$(git rev-parse --absolute-git-dir)" &amp;&amp; pwd -P</code> prints the real path. For a linked worktree, <code>git rev-parse --absolute-git-dir</code> prints its .git folder, which lives inside the main repository.</p>
+    <label for="remotes">Remote URLs, one per line (optional, for <code>hasconfig:remote.*.url:</code>)</label>
+    <textarea id="remotes" spellcheck="false" style="min-height:4em" placeholder="git@github.com:acme/api.git"></textarea>
+    <p class="note"><code>git remote -v</code> lists them. Used only when you have not pasted the repository's <code>.git/config</code>.</p>
+    <p>
+      <button type="button" id="run">Check</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Report</h2>
+    <div class="big" id="totals"></div>
+    <h3>Who you commit as here</h3>
+    <div class="scroll"><table><thead><tr><th>Setting</th><th>Value</th><th>Set by</th></tr></thead><tbody id="identity"></tbody></table></div>
+    <h3>Findings</h3>
+    <div id="findings"></div>
+    <h3>Every include, in the order git meets it</h3>
+    <div class="scroll"><table><thead><tr><th>Line</th><th>Include</th><th>Result</th></tr></thead><tbody id="includes"></tbody></table></div>
+    <h3>The final config</h3>
+    <p class="note">What <code>git config --list --show-origin</code> would print, in order. Struck-through values lose to a later line.</p>
+    <div class="row">
+      <div><label for="filter">Filter settings</label><input id="filter" type="search" placeholder="user. or a file name"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="download">Download report</button></div>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Setting</th><th>Value</th><th>From</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Why does this setting have this value?</h2>
+    <p class="note">Every value of one setting, in the order git reads them, and the include chain each came through. For single-valued settings the last one wins.</p>
+    <div class="row">
+      <div><label for="whyKey">Setting</label><input id="whyKey" type="text" spellcheck="false" value="user.email"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="why">Show every value</button></div>
+    </div>
+    <ol class="steps" id="whySteps"></ol>
+  </section>
+
+  <section class="card">
+    <h2>From a terminal</h2>
+    <p>The same engine reads the files on your machine, with no install and no network: <code>/etc/gitconfig</code>, <code>~/.config/git/config</code>, <code>~/.gitconfig</code>, the repository's <code>.git/config</code> and <code>config.worktree</code>, and every file they include, with the real path and the branch read from the repository itself. <code>--verify</code> runs your own <code>git config --list --show-origin</code> and reports any value that differs.</p>
+    <pre class="fix">node ventures/gitconfig-include-check/cli/check.mjs                    # report for the repository you are in
+node ventures/gitconfig-include-check/cli/check.mjs --key user.email   # every value of one setting, and why
+node ventures/gitconfig-include-check/cli/check.mjs --verify           # compare with git config --list
+node ventures/gitconfig-include-check/cli/check.mjs --strict           # exit 1 on a high finding</pre>
+    <p class="note">Clone <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitconfig-include-check" rel="noopener">the source</a>, then run it from inside a repository. Node 18 or later.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Why is my includeIf gitdir not working?</h3>
+    <p>The usual causes: the pattern has no trailing slash (gitdir:~/work only matches a .git folder that is exactly ~/work; write gitdir:~/work/), the [includeIf] block sits above the [user] section it should override (git reads top to bottom and the last value wins, so put the include at the end of ~/.gitconfig), the condition has a typo or a space (GitDir:, gitdir: ~/work/), the path = line points at a file that does not exist (git skips it without a word), or ~/work is a symlink (from a subfolder git sees the real path).</p>
+    <h3>Why does git still use my personal email in work repositories?</h3>
+    <p>Run git config --show-origin --get-all user.email inside the repository: the last line printed wins. If the work address is listed first, your [includeIf] block comes before the [user] section in ~/.gitconfig; move it below. If the work address is missing, the condition did not match or the included file was not found.</p>
+    <h3>What does gitdir: compare against?</h3>
+    <p>The path of the repository's .git folder, with ~/ expanded to your home folder, not the folder you cd into. A pattern ending in / gets ** added so it matches everything below it; a pattern that does not start with ~/, / or ./ gets **/ in front so it matches at any depth. For a linked worktree the .git folder lives inside the main repository's .git/worktrees/, so the main repository's location decides.</p>
+    <h3>Does onbranch: work in CI?</h3>
+    <p>Only when a branch is checked out. On a detached HEAD, which is how most CI systems check out a commit or a pull request, and during git bisect or a rebase, git skips every onbranch: include.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The checker runs entirely in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice. Results come from the text you paste, read by this tool's own reimplementation of git's config rules; the page does not run git. You are responsible for reviewing and verifying its output, for example with <code>git config --show-origin --get-all user.email</code> inside the repository. Paths are Unix-style; Windows drive letters and <code>~user/</code> home folders are not evaluated.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by the Git project, GitHub, GitLab or any other vendor. Git is a trademark of the Software Freedom Conservancy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>config_checked</code>, <code>example_loaded</code>, <code>why_shown</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Fighting other git files? The <a href="../gitignore-explainer/">.gitignore explainer</a>, the <a href="../gitattributes-explainer/">.gitattributes explainer</a> and the <a href="../codeowners-shadow-check/">CODEOWNERS shadow checker</a> name the line behind each decision. Guide: <a href="why-git-uses-the-wrong-email.html">six reasons includeIf does not switch your git email</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, why, reportText, DEFAULTS } from "./gitconfig.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const status = $("#form-status");
+    let last = null;
+    const input = () => ({
+      files: $("#files").value, home: $("#home").value.trim() || "/home/you", repo: $("#repo").value.trim() || null,
+      gitdir: $("#gitdir").value.trim() || null, realGitdir: $("#realGitdir").value.trim() || null,
+      branch: $("#branch").value.trim() || null,
+      remotes: $("#remotes").value.split("\n").map((s) => s.trim()).filter(Boolean),
+    });
+    const at = (file, line, via) => `<span class="note">${esc(file)}${line ? ":" + line : ""}${via && via.length ? " via " + esc(via.join(" › ")) : ""}</span>`;
+    const val = (v) => v === null ? '<span class="note">(no value: true)</span>' : `<code>${esc(v)}</code>`;
+    function renderRows() {
+      if (!last) return;
+      const q = $("#filter").value.trim().toLowerCase();
+      const winners = new Set(Object.values(last.effective).map((e) => e.file + ":" + e.line));
+      const rows = last.entries.filter((e) => !q || e.key.toLowerCase().includes(q) || e.file.toLowerCase().includes(q));
+      $("#rows").innerHTML = rows.map((e) => {
+        const lost = last.effective[e.key] && (last.effective[e.key].file !== e.file || last.effective[e.key].line !== e.line);
+        return `<tr><td><code>${esc(e.key)}</code></td><td${lost ? ' class="lost"' : ""}>${val(e.value)}</td><td>${esc(e.scope)} ${at(e.file, e.line, e.via)}</td></tr>`;
+      }).join("") || '<tr><td colspan="3" class="note">Nothing set.</td></tr>';
+    }
+    function run() {
+      const inp = input();
+      if (!inp.files.trim()) { status.textContent = "Paste at least your ~/.gitconfig."; return; }
+      last = analyze(inp);
+      const t = last.totals;
+      status.textContent = `Read ${t.files} file${t.files === 1 ? "" : "s"}, ${t.entries} settings and ${t.includes} include line${t.includes === 1 ? "" : "s"}${last.context.gitdir ? ` for ${last.context.gitdir}` : " outside any repository"}.`;
+      $("#totals").innerHTML = [["Includes read", t.matched], ["Includes skipped", t.includes - t.matched], ["High findings", t.high], ["Settings", t.entries]]
+        .map(([k, v]) => `<div><strong>${v.toLocaleString("en-US")}</strong>${k}</div>`).join("");
+      $("#identity").innerHTML = last.identity.length ? last.identity.map((i) => `<tr><td><code>${esc(i.key)}</code></td><td>${val(i.value)}</td><td>${at(i.file, i.line, i.via)}</td></tr>`).join("") : '<tr><td colspan="3" class="note">No user.name or user.email is set: git will refuse to commit or guess one from your system.</td></tr>';
+      $("#findings").innerHTML = last.findings.length ? last.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity}">${f.severity}</span>${esc(f.title)}</h4>${f.file ? `<p class="note">${esc(f.file)}${f.line ? ":" + f.line : ""}</p>` : ""}<p>${esc(f.detail)}</p></div>`).join("") : "<p>No findings: every include does what it looks like it does.</p>";
+      $("#includes").innerHTML = last.directives.map((d) => `<tr><td>${at(d.file, d.line, d.via)}</td><td><code>${esc(d.kind === "include" ? "[include]" : `[includeIf "${d.condition}"]`)}<br>path = ${esc(d.path ?? "")}</code></td><td>${d.matched ? (d.found === false ? '<span class="skip">condition true, file not given</span>' : '<span class="ok">read</span>') : '<span class="skip">skipped</span>'}${d.reason ? `<br><span class="note">${esc(d.reason)}</span>` : ""}${d.steps && d.steps.length ? `<br><span class="note">${esc(d.steps.join("; "))}</span>` : ""}</td></tr>`).join("") || '<tr><td colspan="3" class="note">No include lines.</td></tr>';
+      renderRows();
+      $("#report").hidden = false;
+      record("config_checked");
+    }
+    function showWhy() {
+      const res = why({ ...input(), key: $("#whyKey").value });
+      $("#whySteps").innerHTML = res.values.length ? res.values.map((v) => `<li>${v === res.winner && !res.multi ? "<strong>wins:</strong> " : ""}${val(v.value)} ${at(v.file, v.line, v.via)}</li>`).join("") + (res.multi ? '<li class="note">This setting can have several values; git uses all of them in this order.</li>' : "") : `<li class="note">${esc(res.key)} is not set${res.fatal ? " (git stopped before reading everything)" : ""}.</li>`;
+      record("why_shown");
+    }
+    $("#run").addEventListener("click", run);
+    $("#example").addEventListener("click", () => {
+      $("#files").value = DEFAULTS.files; $("#home").value = DEFAULTS.home; $("#repo").value = DEFAULTS.repo; $("#branch").value = DEFAULTS.branch;
+      $("#gitdir").value = ""; $("#realGitdir").value = ""; $("#remotes").value = "";
+      record("example_loaded");
+      run(); showWhy();
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["files", "repo", "gitdir", "realGitdir", "remotes"]) $("#" + id).value = ""; $("#report").hidden = true; status.textContent = ""; last = null; });
+    $("#filter").addEventListener("input", renderRows);
+    $("#why").addEventListener("click", showWhy);
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportText(last)], { type: "text/plain" }));
+      a.download = "gitconfig-includes.txt";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

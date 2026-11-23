@@ -1,0 +1,19 @@
+# gitconfig includeIf checker: why is git using the wrong email in this repository?
+
+> Free git config include checker. From your config files (~/.gitconfig, ~/.config/git/config, /etc/gitconfig, a repository's .git/config and config.worktree, and every file they include) and a repository path, it says which [include] and [includeIf] lines git follows there, why each of the others does not, and which file and line set user.email, user.signingkey and every other value, resolved the way `git config --list --show-origin` does. It flags gitdir: patterns without a trailing slash or naming the work tree, includes placed above the setting they should override, unknown or miscased conditions (GitDir:, hasconfig:remote.origin.url:), spaces and backslashes in conditions, include targets that are missing or use $HOME, keys other than path, symlinked folders where the include works only sometimes, onbranch: on a detached HEAD, linked worktrees, and the lines that stop git with "bad config line". Runs in the browser; nothing is uploaded. A zero-dependency CLI reads your real files and can compare every value with your own git (`--verify`).
+
+Free and open source (MIT). Results come from this tool's reimplementation of git's config reading, checked against `git config --list --show-origin --show-scope` (git 2.43) on thousands of random config trees, linked worktrees and symlinked folders; it is not legal, security or professional advice, and your own git is the final word. Paths are Unix-style; Windows drive letters and ~user/ are not evaluated.
+
+## Pages
+
+- [The tool](https://marisstella.app/gitconfig-include-check/)
+- [Why is git using the wrong email? Six ways includeIf fails](https://marisstella.app/gitconfig-include-check/why-git-uses-the-wrong-email.html)
+
+## For agents
+
+- Engine: `gitconfig.mjs`. `analyze({ files, home, repo, gitdir, realGitdir, branch, remotes })`: `files` is one text with each file introduced by a line `==> path <==` (text before any header is ~/.gitconfig; `~/` means `home`) or an array of `{ path, text }`; `repo` is the work tree (its `.git` is the gitdir) or `gitdir` names the git folder directly (a linked worktree's `.../.git/worktrees/<name>`); `realGitdir` is the resolved path when a symlink is on the way; `branch` is the checked-out branch, `null` for a detached HEAD; `remotes` are remote URLs used when no .git/config is given. Returns `entries` (scope, file, line, key, value, `via` include chain), `effective` (last value per key), `identity`, `directives` (every include line: condition, matched, reason, pattern, target, found), `findings` (severity, kind, file, line, title, detail), `fatal` (git's error, if it would stop) and `totals`. `why({ ...input, key })` lists every value of one key in reading order. `listing(result)` prints what `git config --list --show-origin --show-scope` would. `DEFAULTS` is the page's example.
+- CLI: `node ventures/gitconfig-include-check/cli/check.mjs` inside any repository (`--key <name>`, `--verify`, `--json`, `--strict`, `--repo <dir>`).
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitconfig-include-check): MIT licensed.
