@@ -55,12 +55,23 @@ test("a non-income share right at or below the threshold does not fire the large
   assert.ok(!r.findings.some((f) => f.id === "large-non-income-share"));
 });
 
-test("a platform whose costs exceed its adjusted receipts is flagged as an estimated loss, info severity", () => {
+test("a platform whose costs exceed its adjusted receipts is flagged as an estimated loss, medium severity", () => {
   const r = reconcileRow({ platform: "Depop", box1a: "500", cogs: "700" });
   assert.ok(r.estimatedNetProfit < 0);
   const finding = r.findings.find((f) => f.id === "platform-loss");
   assert.ok(finding);
-  assert.equal(finding.severity, "info");
+  assert.equal(finding.severity, "medium");
+});
+
+// Quality round 106 (portfolio/quality/audits/2026-11-23-1099k-reconciliation-worksheet.json):
+// a closet seller's below-cost sales are personal items, and that loss is not deductible.
+test("the loss finding says a personal-item loss is not deductible and goes on Schedule 1 8z/24z", () => {
+  const r = reconcileRow({ platform: "Poshmark", box1a: "3000", cogs: "8000" });
+  const finding = r.findings.find((f) => f.id === "platform-loss");
+  assert.match(finding.detail, /not deductible/);
+  assert.match(finding.detail, /line 8z/);
+  assert.match(finding.detail, /line 24z/);
+  assert.doesNotMatch(finding.detail, /A loss is common/);
 });
 
 test("an all-zero row (Box 1a not entered yet) raises no loss finding", () => {

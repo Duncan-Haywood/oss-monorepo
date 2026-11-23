@@ -79,9 +79,9 @@ export function reconcileRow(row = {}) {
   if (box1a > 0 && estimatedNetProfit < 0) {
     findings.push({
       id: "platform-loss",
-      severity: "info",
+      severity: "medium",
       title: `${platform}: shows an estimated loss after costs`,
-      detail: `After marketplace-remitted tax, refunds, fees, cost of goods, and shipping, this platform's estimated net result is a loss of $${Math.abs(estimatedNetProfit).toFixed(2)}. A loss is common when building inventory or clearing stock below cost — keep the receipts that support it.`,
+      detail: `After marketplace-remitted tax, refunds, fees, cost of goods, and shipping, this platform's estimated net result is a loss of $${Math.abs(estimatedNetProfit).toFixed(2)}. If these were personal items you sold for less than you paid (used clothes, furniture, gear), that loss is not deductible: the IRS has you report the 1099-K amount on Schedule 1 (Form 1040) line 8z and offset it on line 24z, so the net is zero and it stays off Schedule C. Only a real business (bought to resell, or run for profit) can carry a loss onto Schedule C — keep the receipts that support it.`,
     });
   }
 

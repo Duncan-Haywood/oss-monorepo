@@ -3,7 +3,7 @@
 A free browser worksheet for gig and marketplace sellers — Etsy, eBay,
 Poshmark, Mercari, Depop, Whatnot, StockX, or any other marketplace or
 payment app — that reconciles one or more Form 1099-K Box 1a gross-payment
-totals down to an estimated net taxable profit. Enter each platform's Box
+totals down to an estimated estimated net profit (before self-employment tax and other deductions). Enter each platform's Box
 1a figure, back out refunds and any sales tax the marketplace collected and
 remitted on your behalf, subtract your own costs, and see a per-platform
 and combined result. Entirely client-side; nothing is uploaded.
@@ -109,3 +109,12 @@ node --test
 `stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). The reconciliation
 arithmetic and CSV export are done and tested; no external user contact has
 happened yet — see `kill_criteria` in `VENTURE.yaml`.
+
+## Known gaps
+
+From quality round 106 ([audit](../../portfolio/quality/audits/2026-11-23-1099k-reconciliation-worksheet.json)). Fixed in that round: the loss finding now says a personal-item loss is not deductible (Schedule 1 lines 8z/24z), and the FAQ no longer says the full Box 1a need not be reported. Still open:
+
+- No way to mark a row as personal items, reimbursements, gifts or a 1099-K received in error, so the worksheet still computes a business result for them.
+- The CSV has no Schedule C line mapping, and its TOTAL line does not add up when one row's adjustments exceed its Box 1a.
+- No test checks the combined costs total or any CSV cell value (three seeded bugs survived).
+- "1,200" and negative values from a share link or browser storage silently become 0.
