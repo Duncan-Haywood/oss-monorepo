@@ -30,6 +30,17 @@
 // readings disagree or no rail run is found (a body of posts or balusters
 // only, its rail exported apart or not at all).
 //
+// A railing that is one straight member (Tekla classes single IPE80 posts and
+// rails as railings) has no top rail when it stands upright, and its sweep cut
+// takes the I's hull for its section when it is tessellated, so the rail
+// reading fails on it. Such a body is a prism: every face is either along one
+// axis (the sides) or square to it and in the plane of one of the two ends.
+// prismLength reads it as a member, its length along that axis (the longest
+// such axis: a box has three), when the body is RAIL_ASPECT times longer than
+// it is wide (a bag of balusters spreads wider than it is tall, and a glass
+// panel is not that slender). It is tried only when the rail reading offers
+// nothing (eval/one-member-railings-2026-11-23.md).
+//
 // Not handled: a top rail drawn as pieces whose top faces overlap without
 // sharing corners reads as separate runs, and the second as a rail under the
 // first (no public export does this).
@@ -235,6 +246,68 @@ export function railRuns(body, unit = 1) {
   });
 }
 
+const PARALLEL = 1e-3; // |n . d| under this: a side face along the axis
+const SQUARE = 1 - 1e-4; // |n . d| over this: an end face square to it
+const PLANE = 1e-4; // of the length: how far an end face may lie off its end's plane
+
+/**
+ * A prism body's length along its axis (SI), or null when the body is not one
+ * straight prism (see the header).
+ * @returns {{length: number, width: number, section: number, volume: number}|null}
+ */
+export function prismLength(body, unit = 1) {
+  const ps = piecesOf(body);
+  const faces = [];
+  let V = 0;
+  for (const p of ps) {
+    V += p.s * p.V;
+    const o = p.V < 0 ? -1 : 1;
+    for (const l of p.loops) {
+      const n = newell(l), L = Math.hypot(...n);
+      if (!(L > 0)) continue;
+      faces.push({ n: n.map((x) => (x * o) / L), A: (p.s * L) / 2, l });
+    }
+  }
+  if (!faces.length || !(V > 0)) return null;
+  const pts = faces.flatMap((f) => f.l);
+  const span = (d) => { let lo = Infinity, hi = -Infinity; for (const q of pts) { const t = q[0] * d[0] + q[1] * d[1] + q[2] * d[2]; if (t < lo) lo = t; if (t > hi) hi = t; } return hi - lo; };
+  let best = null;
+  const tried = [];
+  for (const f of faces) {
+    const d = f.n;
+    if (tried.some((e) => Math.abs(e[0] * d[0] + e[1] * d[1] + e[2] * d[2]) > SQUARE)) continue;
+    tried.push(d);
+    if (tried.length > 64) break;
+    let lo = Infinity, hi = -Infinity;
+    for (const q of pts) { const t = q[0] * d[0] + q[1] * d[1] + q[2] * d[2]; if (t < lo) lo = t; if (t > hi) hi = t; }
+    const tol = PLANE * (hi - lo);
+    let ok = true;
+    for (const g of faces) {
+      const c = g.n[0] * d[0] + g.n[1] * d[1] + g.n[2] * d[2];
+      if (Math.abs(c) < PARALLEL) continue;
+      if (Math.abs(c) <= SQUARE) { ok = false; break; }
+      // an end face lies in the plane of one end or the other
+      const t0 = g.l[0][0] * d[0] + g.l[0][1] * d[1] + g.l[0][2] * d[2];
+      if (!(Math.abs(t0 - lo) <= tol || Math.abs(t0 - hi) <= tol)) { ok = false; break; }
+    }
+    if (!ok) continue;
+    if (!best || hi - lo > best.ext) best = { d, ext: hi - lo };
+  }
+  if (!best) return null;
+  const d = best.d, a = Math.abs(d[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+  let u = [a[1] * d[2] - a[2] * d[1], a[2] * d[0] - a[0] * d[2], a[0] * d[1] - a[1] * d[0]];
+  const nu = Math.hypot(...u);
+  u = u.map((x) => x / nu);
+  const w = [d[1] * u[2] - d[2] * u[1], d[2] * u[0] - d[0] * u[2], d[0] * u[1] - d[1] * u[0]];
+  let width = 0;
+  for (let i = 0; i < 12; i++) {
+    const t = (i * Math.PI) / 12, c = Math.cos(t), s = Math.sin(t);
+    width = Math.max(width, span([c * u[0] + s * w[0], c * u[1] + s * w[1], c * u[2] + s * w[2]]));
+  }
+  if (!(best.ext >= RAIL_ASPECT * width)) return null;
+  return { length: best.ext * unit, width: width * unit, section: (V / best.ext) * unit * unit, volume: V * unit ** 3 };
+}
+
 const nearRun = (k, x, y) => x >= k.box[0] - NEAR && x <= k.box[2] + NEAR && y >= k.box[1] - NEAR && y <= k.box[3] + NEAR &&
   k.segs.some(([ax, ay, bx, by]) => {
     const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
@@ -245,7 +318,8 @@ const nearRun = (k, x, y) => x >= k.box[0] - NEAR && x <= k.box[2] + NEAR && y >
 /**
  * A railing's Length (SI) from its takeoff row, or null with the reason.
  * @param {{computed: object, lengthUnit?: number}} row a takeoff row
- * @returns {{length: number|null, runs: object[], under: number, reason: string|null}}
+ * @returns {{length: number|null, runs: object[], under: number, reason: string|null, from?: string}}
+ *   from: 'rail' (the top rail's path) or 'member' (one straight prism, prismLength)
  */
 export function railingLength(row) {
   const body = row.computed?.solids?.body;
@@ -260,9 +334,12 @@ export function railingLength(row) {
     if (counted.length && near >= 0.5 * all) under++;
     else counted.push(r);
   }
-  if (!counted.length) return { length: null, runs: counted, under, reason: "no rail on top" };
-  if (!counted.every((r) => r.sweep != null && Math.abs(r.sweep - r.strip) <= AGREE * r.sweep)) return { length: null, runs: counted, under, reason: "readings disagree" };
-  return { length: counted.reduce((a, r) => a + r.sweep, 0), runs: counted, under, reason: null };
+  const reason = !counted.length ? "no rail on top"
+    : !counted.every((r) => r.sweep != null && Math.abs(r.sweep - r.strip) <= AGREE * r.sweep) ? "readings disagree" : null;
+  if (!reason) return { length: counted.reduce((a, r) => a + r.sweep, 0), runs: counted, under, reason: null, from: "rail" };
+  const p = prismLength(body, row.lengthUnit ?? 1);
+  if (p) return { length: p.length, runs: counted, under, reason: null, from: "member", heldBy: reason };
+  return { length: null, runs: counted, under, reason };
 }
 
 /** Adds computed.railing = {length} (SI) to each railing row with a Length. Returns how many. */
@@ -273,7 +350,7 @@ export function addRailingLines(rows) {
     let m;
     try { m = railingLength(r); } catch { m = null; }
     if (!m || m.length == null) continue;
-    r.computed.railing = { length: m.length, runs: m.runs.length };
+    r.computed.railing = { length: m.length, runs: m.runs.length, from: m.from };
     n++;
   }
   return n;
