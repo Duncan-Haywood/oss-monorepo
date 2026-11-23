@@ -1,6 +1,6 @@
 ---
 title: "A zero-inch side: second red-team pass on the parcel and stamp duty calculators"
-seo_title: "Dimensional weight: why a side under half an inch must not round to zero"
+seo_title: "Dimensional weight: a side under half an inch must not round to zero"
 date: 2026-11-23
 tags: [redteam, testing, mutation-testing, parcel-dim-weight-calculator, uk-stamp-duty-calculator, javascript, ventures]
 description: "Red team: 17 of 20 seeded bugs caught, three exact-limit gaps closed, and a parcel tool that rounded a 0.4 inch mailer to a box with no volume."
