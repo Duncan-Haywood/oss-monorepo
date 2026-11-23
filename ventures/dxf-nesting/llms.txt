@@ -2,7 +2,7 @@
 
 > Free true-shape nesting of DXF parts on rectangular sheets, in the browser: load DXF files, set quantities, sheet size, gap and edge margin, and get nested sheets as R12 DXF with utilisation, cut length and pierce counts. Parts go inside the holes of other parts. Every gap is checked independently after nesting. Nothing is uploaded.
 
-Free and open source (MIT). For laser, plasma, waterjet and CNC router shops quoting or cutting small batches. A grid nester with a short seeded search, not an optimiser: on the 13 classic ESICUP strip-packing benchmarks its layouts are about 20% longer than the best published ones (README, "How it was checked"). Not engineering advice; check every nest in your CAM before cutting.
+Free and open source (MIT). For laser, plasma, waterjet and CNC router shops quoting or cutting small batches. A grid nester with a short seeded search and an optional overlap-minimisation squeeze of the last sheet, not a full optimiser: on the 13 classic ESICUP strip-packing benchmarks its layouts are about 20% longer than the best published ones with the default search, about 17% with a 100-order search and the squeeze (README, "How it was checked"). Not engineering advice; check every nest in your CAM before cutting.
 
 ## Pages
 
@@ -12,7 +12,7 @@ Free and open source (MIT). For laser, plasma, waterjet and CNC router shops quo
 
 - Reads ASCII DXF: LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE, INSERT/MINSERT of blocks (scale, rotation, mirroring, arrays), arbitrary-axis (0,0,-1) extrusion. Skips and counts text, dimensions and hatches. Binary DXF is refused.
 - Writes R12 DXF with layers CUT_OUTER, CUT_INNER, MARK and SHEET, and $INSUNITS carried over.
-- Command line: `node cli.mjs part.dxf:20 --sheet 2500x1250 --gap 5 --margin 10 --rot 0,90,180,270 --out nest.dxf`
+- Command line: `node cli.mjs part.dxf:20 --sheet 2500x1250 --gap 5 --margin 10 --rot 0,90,180,270 --search 100 --compact 5000 --out nest.dxf` (`--compact N` squeezes the last sheet shorter)
 
 ## Source
 

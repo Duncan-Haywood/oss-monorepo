@@ -546,12 +546,6 @@ def test_e31_lean_enc_matches_encode_and_non_successors_separable():
     assert e30.separable_sat(d, 0, 1, solver=e30.dpll) is None
 
 
-if __name__ == "__main__":
-    for name, fn in list(globals().items()):
-        if name.startswith("test_"):
-            fn(); print("ok", name)
-
-
 def test_e32_church_cruxes_rechecked_without_sat():
     """Every reported MUS is unsatisfiable and minimal by logic.py's own checker; the
     reported hitting sets meet every MUS. Needs no PySAT."""
@@ -579,3 +573,9 @@ def test_e32_enumeration_reproduces_with_sat():
     assert [len(r["hitting"][k][0]) for k in ("any_contested", "catholic_only", "orthodox_only", "any_claim")] == [5, 5, 6, 2]
     assert r["position_extensions"] == {"orthodox": ["sI", "sM"], "catholic": []}
     assert r["membership_nontrivial"]["a2"] == 9 and r["membership_nontrivial"]["sV"] == 4
+
+
+if __name__ == "__main__":
+    for name, fn in list(globals().items()):
+        if name.startswith("test_"):
+            fn(); print("ok", name)
