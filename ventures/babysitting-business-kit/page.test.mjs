@@ -69,3 +69,22 @@ test("index links one hop to the nanny-tax-calculator sibling", () => {
   assert.match(html, /href="\.\.\/nanny-tax-calculator\/"/);
   assert.match(html, /nanny tax calculator/i);
 });
+
+// Tab modules that load on the tab's first open (perf, 2026-11-23): each one is
+// imported nowhere statically, its tab and container exist, and the mount it
+// calls is a real export of the module it loads.
+test("tab-only modules load on demand and mount what they export", () => {
+  const html = page("index.html");
+  const block = html.slice(html.indexOf("const LAZY_TABS = {"), html.indexOf("function openLazyTab"));
+  const rows = [...block.matchAll(/^\s+(\w+): \{ box: "(\w+)", load: \(\) => import\("\.\/([\w-]+\.mjs)"\), mount: \(m\) => \{(.*)\} \},$/gm)];
+  assert.equal(rows.length, 9);
+  for (const [, tab, box, file, body] of rows) {
+    assert.match(html, new RegExp(`data-tab="${tab}"`), tab);
+    const panel = html.slice(html.indexOf(`data-panel="${tab}"`), html.indexOf("</section>", html.indexOf(`data-panel="${tab}"`)));
+    assert.match(panel, new RegExp(`id="${box}"`), `${box} sits in the ${tab} panel`);
+    assert.doesNotMatch(html, new RegExp(`from "\\./${file}"`), `${file} is not imported statically`);
+    const src = page(file);
+    for (const [, name] of body.matchAll(/m\.(\w+)\(/g)) assert.match(src, new RegExp(`export function ${name}\\b`), `${file} exports ${name}`);
+  }
+  assert.match(html, /if \(tab === "website"\) renderSite\(\);\n\s+openLazyTab\(tab\);/);
+});

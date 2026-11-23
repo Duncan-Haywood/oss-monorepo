@@ -463,18 +463,9 @@
     import * as R from "./references.mjs";
     import * as P from "./print.mjs";
     import { mountAutomations } from "./automations-ui.mjs";
-    import { mountAgreements } from "./agreements-ui.mjs";
-    import { mountContent } from "./content-ui.mjs";
-    import { mountNetwork } from "./network-ui.mjs";
-    import { mountSafety } from "./safety-ui.mjs";
     import * as CRED from "./credentials-ui.mjs";
-    import { mountInvoices } from "./invoices-ui.mjs";
-    import { mountPackages } from "./packages-ui.mjs";
     import { mountWaitlist } from "./waitlist-ui.mjs";
-    import { mountActivities } from "./activities-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
-    import { mountInsights } from "./insights-ui.mjs";
-    import { mountSitReports } from "./sitreport-ui.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -513,11 +504,41 @@
     const famName = (id) => (desk.families.find((f) => f.id === id) || {}).name || "";
     const copyBtn = (text) => `<button type="button" class="secondary small" data-copy="${esc(text)}">Copy message</button>`;
 
+    // ---- tabs whose code loads the first time they open
+    // Each of these modules draws only inside its own tab, so it is fetched on the
+    // tab's first open instead of with the page (about 135 kB gzip of the 240 kB the
+    // page used to load up front). A mount whose render the page's render() calls
+    // is drawn once right after it mounts, as the eager mount was by render() at load.
+    // A failed fetch says so in the tab and retries on the next open.
+    const server = () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value });
+    const serverUrl = () => $("syncUrl").value.trim().replace(/\/+$/, "");
+    const LAZY_TABS = {
+      families: { box: "sitReports", load: () => import("./sitreport-ui.mjs"), mount: (m) => { renderSitReports = m.mountSitReports($("sitReports"), { getDesk: () => desk, save, esc, record, today, server }); renderSitReports(); } },
+      agreements: { box: "agreementsKit", load: () => import("./agreements-ui.mjs"), mount: (m) => { renderAgreements = m.mountAgreements($("agreementsKit"), { getDesk: () => desk, save, esc, record, serverUrl: () => $("syncUrl").value.trim(), openPage }); renderAgreements(); } },
+      network: { box: "networkKit", load: () => import("./network-ui.mjs"), mount: (m) => { renderNetwork = m.mountNetwork($("networkKit"), { getDesk: () => desk, save, esc, record, today, server }); renderNetwork(); } },
+      blog: { box: "contentKit", load: () => import("./content-ui.mjs"), mount: (m) => { m.mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) }); } },
+      safety: { box: "safetyKit", load: () => import("./safety-ui.mjs"), mount: (m) => { renderSafety = m.mountSafety($("safetyKit"), { getDesk: () => desk, save, esc, record, today, openPage, server }); renderSafety(); } },
+      insights: { box: "insightsPanel", load: () => import("./insights-ui.mjs"), mount: (m) => { m.mountInsights($("insightsPanel"), { getDesk: () => desk, save, esc, record, today }); } },
+      invoices: { box: "invoiceKit", load: () => import("./invoices-ui.mjs"), mount: (m) => { m.mountInvoices($("invoiceKit"), { getDesk: () => desk, save, record, today, serverUrl }); } },
+      packages: { box: "packagesKit", load: () => import("./packages-ui.mjs"), mount: (m) => { renderPackages = m.mountPackages($("packagesKit"), { getDesk: () => desk, setDesk: (d) => { desk = E.normalizeDesk(d); save(); }, record, today, serverUrl }); renderPackages(); } },
+      activities: { box: "activitiesKit", load: () => import("./activities-ui.mjs"), mount: (m) => { m.mountActivities($("activitiesKit"), { getDesk: () => desk, save, record, today }); } },
+    };
+    function openLazyTab(tab) {
+      const t = LAZY_TABS[tab];
+      if (!t || t.started) return t ? t.started : null;
+      t.started = t.load().then((m) => { $(t.box).querySelector(":scope > .lazy-failed")?.remove(); t.mount(m); }, (err) => {
+        t.started = null;
+        if (!$(t.box).querySelector(":scope > .lazy-failed")) $(t.box).insertAdjacentHTML("afterbegin", `<p class="msg lazy-failed">This tab could not load (${esc(err.message)}). Check your connection and open the tab again.</p>`);
+      });
+      return t.started;
+    }
+
     // ---- tabs
     function show(tab) {
       for (const b of document.querySelectorAll("nav button")) b.setAttribute("aria-selected", String(b.dataset.tab === tab));
       for (const p of document.querySelectorAll("[data-panel]")) p.hidden = p.dataset.panel !== tab;
       if (tab === "website") renderSite();
+      openLazyTab(tab);
       record(`tab_${tab}`);
     }
     for (const b of document.querySelectorAll("nav button")) b.addEventListener("click", () => show(b.dataset.tab));
@@ -976,19 +997,10 @@
 
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
-    renderSitReports = mountSitReports($("sitReports"), { getDesk: () => desk, save, esc, record, today, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
-    renderAgreements = mountAgreements($("agreementsKit"), { getDesk: () => desk, save, esc, record, serverUrl: () => $("syncUrl").value.trim(), openPage });
-    renderNetwork = mountNetwork($("networkKit"), { getDesk: () => desk, save, esc, record, today, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     renderCredentials = CRED.mountCredentials({ getDesk: () => desk, save, esc, record, today });
     $("contentStart").value = today();
-    mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
-    renderSafety = mountSafety($("safetyKit"), { getDesk: () => desk, save, esc, record, today, openPage, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
-    mountInsights($("insightsPanel"), { getDesk: () => desk, save, esc, record, today });
-    mountInvoices($("invoiceKit"), { getDesk: () => desk, save, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
-    renderPackages = mountPackages($("packagesKit"), { getDesk: () => desk, setDesk: (d) => { desk = E.normalizeDesk(d); save(); }, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
     mountWaitlist($("waitlistKit"), { getDesk: () => desk, save, esc, record, today });
-    mountActivities($("activitiesKit"), { getDesk: () => desk, save, record, today });
     record("page_loaded");
     render();
     show("today");
