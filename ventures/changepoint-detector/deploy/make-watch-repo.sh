@@ -15,11 +15,11 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs posthog-metrics.mjs umami-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs posthog-metrics.mjs umami-metrics.mjs mixpanel-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
-printf '# Stripe, Shopify, Search Console, Analytics, Plausible, PostHog and Umami metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\ndata/posthog.csv\ndata/umami.csv\n' > "$DEST/.gitignore"
+printf '# Stripe, Shopify, Search Console, Analytics, Plausible, PostHog, Umami and Mixpanel metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\ndata/posthog.csv\ndata/umami.csv\ndata/mixpanel.csv\n' > "$DEST/.gitignore"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch
 
@@ -107,6 +107,14 @@ Umami lists them under Events) and, if your dashboard is not on UTC, `--timezone
 Umami add the variable `UMAMI_URL` (its https address). With no other source set, each run fetches `data/umami.csv`
 (`node umami-metrics.mjs --help`) and watches page views, visitors and each event. `data/umami.csv` is cached, never
 committed.
+
+Mixpanel: make a service account (Organization Settings > Service Accounts) with the Consumer role on the project and
+add `username:secret` as the secret `MIXPANEL_SERVICE_ACCOUNT`, and the project ID as the variable `MIXPANEL_PROJECT`.
+Name the events to watch in the variable `MIXPANEL_OPTIONS`, e.g. `--event "Sign Up" --event "Checkout Started"` (up to
+eight; autocapture's `$mp_web_page_view` alone if unset). For a project in EU or India data residency set the variable
+`MIXPANEL_HOST` to `eu` or `in`. With no other source set, each run fetches `data/mixpanel.csv` (`node
+mixpanel-metrics.mjs --help`) and watches each event's daily count and the first event's daily unique users.
+`data/mixpanel.csv` is cached, never committed.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood

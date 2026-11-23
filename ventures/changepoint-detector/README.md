@@ -9630,6 +9630,76 @@ PostHog.
   Older self-hosted versions without API keys need a login token, which expires; a live older install would show
   whether that is workable in a daily job.
 
+## Mixpanel as a source (2026-11-23; round 2 pre-registered, the middle setting ships as its default)
+
+Mixpanel is the other product analytics young software companies start on, often from mobile apps, so "tell me when
+sign-ups stop" is as often a Mixpanel question as a PostHog one. It was the missing source beside Stripe, Shopify,
+Search Console, GA4, Plausible, PostHog and Umami.
+
+- **What it does.** `mixpanel-metrics.mjs` asks Mixpanel's Query API for aggregated event counts
+  (`GET /api/query/events`, `type=general`, `unit=day`, the event list as a JSON array) for each `--event` you name (up
+  to eight; autocapture's page view `$mp_web_page_view` if none), one column `event_<name>` each, plus `users`: the
+  daily unique users (`type=unique`) of the **first** event named. That differs from PostHog's `users` (the people who
+  did any named event): the aggregated-counts call has no "any of these" unique count, and a third query per run was
+  not worth it against the Query API's limit of about 60 an hour per project. Two queries a run. Credentials are a
+  service account's `username:secret` in `MIXPANEL_SERVICE_ACCOUNT` (HTTP Basic, with `project_id` on every call); a
+  value with no colon is read as the project's legacy API secret. `MIXPANEL_HOST` takes `us` (default,
+  `mixpanel.com`), `eu` or `in` (data residency); Mixpanel's ingestion hosts (`api-eu`, `data-eu`) are mapped to the
+  query host of their region; any other host must be https. An existing CSV is extended, its last `--refetch` days
+  (default 3) asked again. The hosts and the auth scheme match Mixpanel's own Python client (`mixpanel-utils` 2.2.7
+  on PyPI: query base `https://{eu.|in.}mixpanel.com/api`, Basic `user:secret` plus `project_id`, or `secret:`).
+- **Empty days are real zeros**, as with Plausible and PostHog. An event with no count in 28 days fetched prints a
+  note pointing at Mixpanel's Lexicon (names are case-sensitive: `Sign up` is not `Sign Up`). A 429 is retried five
+  times with backoff, then named as the hourly query limit.
+- **In the workflow.** Secret `MIXPANEL_SERVICE_ACCOUNT`, variable `MIXPANEL_PROJECT`, optional `MIXPANEL_OPTIONS`
+  (`--event "Sign Up" --event "Checkout Started"`, read as a shell reads it) and `MIXPANEL_HOST`. With `METRIC_CSV`
+  unset and no other source, the watch follows every `event_` column and `users` as counts, **with the middle setting**
+  (`--detector pelt --overdispersion nb --trend gated`, see below); `WATCH_WEEKLY=on` adds weekly users. The CSV is
+  cached, never committed; the no-terminal set-up on the watch page and `make-watch-repo.sh` both carry the module.
+  An eighth source took the workflow's "create the workflow" link to 16,685 characters, past the page's 16,000 budget,
+  so the file's header now names only each source's secret and leaves the variables to the repository's README
+  (15,724).
+- **Which columns hear what, round 1** (`eval/mixpanel-columns.mjs 40 1`, output
+  `eval/mixpanel-columns-round1.out.txt`; PostHog's simulated products: about 300 people a weekday, weekends at half or
+  40%, page views per person Poisson(2.5), 3% signing up; heard = dated within 7 days). Page views and sign-ups were
+  heard as on PostHog (page views 32-40 of 40, sign-ups 38-39). But **`users` heard the dropped snippet on 0 of 40 in
+  every cell.** Thinning each person's page views to 60% or 50% leaves a person a unique viewer with probability
+  1 - e^(-1.5) = 0.78 or 1 - e^(-1.25) = 0.71 instead of 0.92, so unique viewers fall only 15-22%: the people who view
+  several pages are still seen. Beside a deep weekly cycle, the count default misses falls that small (as it misses
+  20% falls in clicks, README "A middle setting for over-dispersed counts").
+- **Round 2, pre-registered** (rule written into `eval/mixpanel-columns.mjs` before it ran; fresh seeds, 2001-2040
+  faulted and 3001-3040 with no fault; output `eval/mixpanel-columns.out.txt`, 2 min). An arm becomes the Mixpanel
+  default if at both weekend depths (U1) it hears `users` on at least 36 of 40 at share 0.5, (U2) page views and
+  sign-ups on no fewer than the count default's count minus 2, and (U3) its false dates on the no-fault products,
+  summed over the three columns, are at most the count default's plus 2.
+
+| arm | users heard (0.6 / 0.5 share, weekends 0.5) | same, weekends 0.4 | page views, sign-ups heard (worst cell) | false dates, no fault (0.5 / 0.4) | verdict |
+|---|---|---|---|---|---|
+| count default | 0 / 0 | 0 / 1 | 36, 34 | 5 / 0 | U1 fails |
+| `--period 7` | 40 / 40 | 40 / 40 | 40, 40 | **19 / 16** | U3 fails |
+| middle (`pelt`, NB, `--trend gated`) | 39 / 40 | 38 / 40 | 40, 40 | 1 / 0 | **passes U1-U3** |
+
+  The middle setting hears the dropped snippet in `users` 38-40 times in 40, hears sign-ups on 40 of 40 in every cell
+  (the default 34-38), and sends fewer false dates than the default on the no-fault products (1 and 0 against 5 and 0).
+  `--period 7` hears everything too but sends 16-19 false dates on 40 healthy products. So the Mixpanel workflow's
+  default `WATCH_OPTIONS` is the middle setting. The `--trend gated` part is what lets a growing product grow without
+  alerts (README "The joint growth fit, gated"); growth was not re-simulated here, and these products have no growth
+  in them.
+- **How it was checked** (`mixpanel-metrics.test.mjs`, 6 tests, a stand-in for the Query API that reads `project_id`,
+  the JSON event list, `type`, `unit` and the dates, answers 401/403/429 with Mixpanel's `{ request, error }` body, and
+  leaves out of each event's `values` the days it never happened): the request (path, Basic header, parameters, one
+  counts and one uniques query), zero-filled days, each event's column and `users`, an event name with quotes and an
+  ampersand, the refetch keeping earlier rows byte for byte, the default event, the notes for an empty fetch and a
+  misspelled event, the errors (refused credentials, no access to the project, the rate limit after five retries, no
+  credentials, no project, two names making one column, a ninth event), the watch hearing a dropped snippet and a lost
+  sign-up event, and the whole self-deploy workflow (`deploy/run-workflow.mjs`) fetching 480 days of three events,
+  watching four columns, never printing the secret and never committing the CSV.
+- **Not checked.** No Mixpanel account was used, and Mixpanel's API reference pages did not answer from this session:
+  the answer shape (`data.values[event][day]`) is written from Mixpanel's documentation of this call (from its Data
+  Export API days) as recalled, not read from the reference in this session or from a live answer. A live project would first settle whether
+  `values` lists zero days or leaves them out (the tool takes either), and whether a 480-day first fetch is accepted in
+  one call.
+
 ## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
 
 Open item from "A step-robust omega": wander chosen by likelihood (`--model drift`'s default) lost two series the

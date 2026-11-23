@@ -7,16 +7,10 @@
 #                            "--detector auto --alerts-per 1/month"
 #   variable WATCH_WEEKLY    optional: "on" adds a watch on Monday-to-Sunday totals (slow climbs, heard weeks in)
 #   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
-# Or, with METRIC_CSV unset, one source fetched each run into data/<source>.csv (cached, never committed):
-#   Stripe     secret STRIPE_API_KEY (restricted, read Charges); variable STRIPE_OPTIONS. Use a PRIVATE repository.
-#   Shopify    secret SHOPIFY_ACCESS_TOKEN (read_orders), variable SHOPIFY_SHOP; SHOPIFY_OPTIONS. PRIVATE repository.
-#   Search Console  secret GSC_SERVICE_ACCOUNT_JSON, variable GSC_SITE (sc-domain:example.com); GSC_OPTIONS
-#   GA4        secret GA4_SERVICE_ACCOUNT_JSON, variable GA4_PROPERTY (numeric ID); GA4_OPTIONS
-#   Plausible  secret PLAUSIBLE_API_KEY, variable PLAUSIBLE_SITE; PLAUSIBLE_URL, PLAUSIBLE_OPTIONS ('--goal Signup')
-#   PostHog    secret POSTHOG_API_KEY (personal, Query: Read), variable POSTHOG_PROJECT; POSTHOG_HOST (eu or an
-#              https address), POSTHOG_OPTIONS ('--event $pageview --event signed_up')
-#   Umami      secret UMAMI_API_KEY, variable UMAMI_WEBSITE (the ID); UMAMI_URL (self-hosted), UMAMI_OPTIONS
-#              ('--event signup --timezone Europe/Berlin')
+# Or, with METRIC_CSV unset, one source fetched each run into data/<source>.csv (cached, never committed), set by its
+# secret (README.md lists each source's variables): STRIPE_API_KEY or SHOPIFY_ACCESS_TOKEN (keep the repository
+# PRIVATE), GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY or
+# MIXPANEL_SERVICE_ACCOUNT.
 # The first source set, in that order, is watched with its defaults (counts as poisson, revenue as a level).
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric
@@ -46,6 +40,7 @@ jobs:
             data/plausible.csv
             data/posthog.csv
             data/umami.csv
+            data/mixpanel.csv
           key: metrics-${{ github.run_id }}
           restore-keys: metrics-
       - name: Fetch Stripe metrics
@@ -128,6 +123,18 @@ jobs:
           if [ -z "$UMAMI_WEBSITE" ]; then echo "Set the UMAMI_WEBSITE variable (the ID in Settings > Websites > Edit)."; exit 2; fi
           eval "set -- $UMAMI_OPTIONS"
           node umami-metrics.mjs --website "$UMAMI_WEBSITE" --out data/umami.csv "$@"
+      - name: Fetch Mixpanel metrics
+        env:
+          MIXPANEL_SERVICE_ACCOUNT: ${{ secrets.MIXPANEL_SERVICE_ACCOUNT }}
+          MIXPANEL_PROJECT: ${{ vars.MIXPANEL_PROJECT }}
+          MIXPANEL_HOST: ${{ vars.MIXPANEL_HOST }}
+          MIXPANEL_OPTIONS: ${{ vars.MIXPANEL_OPTIONS }}
+        run: |
+          set -u
+          if [ -z "$MIXPANEL_SERVICE_ACCOUNT" ]; then exit 0; fi
+          if [ -z "$MIXPANEL_PROJECT" ]; then echo "Set the MIXPANEL_PROJECT variable (the project ID)."; exit 2; fi
+          eval "set -- $MIXPANEL_OPTIONS"
+          node mixpanel-metrics.mjs --project "$MIXPANEL_PROJECT" --out data/mixpanel.csv "$@"
       - name: Check for a new change
         env:
           METRIC_CSV: ${{ vars.METRIC_CSV }}
@@ -171,8 +178,14 @@ jobs:
             COLS=$(head -n 1 data/umami.csv | tr ',' '\n' | grep -E '^(pageviews|visitors|event_.*)$' | sed 's/$/:poisson/' | paste -sd, -)
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS"
             WEEKLY_DEFAULT="--columns visitors --detector drift"
+          elif [ -z "$METRIC_CSV" ] && [ -f data/mixpanel.csv ]; then
+            METRIC_CSV=data/mixpanel.csv
+            COLS=$(head -n 1 data/mixpanel.csv | tr ',' '\n' | grep -E '^(event_.*|users)$' | sed 's/$/:poisson/' | paste -sd, -)
+            # the middle setting: users (the first event's uniques) falls less than views (README "Mixpanel as a source")
+            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS --detector pelt --overdispersion nb --trend gated"
+            WEEKLY_DEFAULT="--columns users --detector drift"
           fi
-          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY or UMAMI_API_KEY secret (see the top of this file)."; exit 2; fi
+          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY or MIXPANEL_SERVICE_ACCOUNT secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
           # Both watches run even when the first fails (a new change, or a webhook that answered an error); the step
