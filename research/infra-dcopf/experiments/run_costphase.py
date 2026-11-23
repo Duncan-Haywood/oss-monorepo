@@ -34,6 +34,7 @@ from run_enlarge_rel import pct, sign_p  # noqa: E402
 PARTS = HERE / "results_costphase_parts"
 OUT = HERE / "results_costphase"
 ARMS = {"F": {}, "K1": {"kmargin": 0.05, "k_first": "skip"}}
+CP_MARGIN = vlin.MARGIN  # rule CS (run_slackcap.py) sets {**MARGIN, "cap": True} and its own PARTS
 
 
 def part(arm, split, name, kind):
@@ -56,7 +57,7 @@ def _phase(p, hist, warm, split, out):
     if cl is None:
         return out
     t = time.time()
-    _pg, _vg, c, recs = vlin.cost_phase(p, cl["pg"], cl["vg"], cl, margin=vlin.MARGIN, analytic=True,
+    _pg, _vg, c, recs = vlin.cost_phase(p, cl["pg"], cl["vg"], cl, margin=CP_MARGIN, analytic=True,
                                         screen=split == "held", solver="clarabel", warm=warm,
                                         warm_check=split == "held")
     out.update(cp_secs=time.time() - t, cp_cost=c["cost"], cp_rounds=recs,

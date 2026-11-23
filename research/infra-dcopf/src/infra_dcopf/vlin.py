@@ -219,8 +219,11 @@ def rows(ppc, lin, margin=None):
     margin: None (bounds as given) or a dict like MARGIN: each bound pulled inward by that amount
     (thermal as a fraction of rating), never past the bound range's midpoint. Rule K (LOG.md 2026-11-22): an
     optional margin["load_end"], one extra thermal margin per branch end (fraction of rating, 2 nbr long, from
-    end ends first), is added to the uniform thermal margin on that end's row."""
+    end ends first), is added to the uniform thermal margin on that end's row. Rule CS (LOG.md 2026-11-23): with
+    margin["cap"] true, each bound's margin is capped at that row's own slack at the linearisation point (a bound
+    is pulled in no further than the row's current value), so the point itself is never outside a margined row."""
     mg = margin or {}
+    cap = bool(mg.get("cap"))
     lay, J, m0, aidx = lin["lay"], lin["J"], lin["m0"], lin["aidx"]
     x0 = np.concatenate([lin["pg0"], lin["v0"]])
     br, bus, g = ppc["branch"], ppc["bus"], ppc["gen"]
@@ -233,7 +236,11 @@ def rows(ppc, lin, margin=None):
     A, u, kind = [], [], []
 
     def add(Jr, mr, lo, hi, tag, scale=1.0):
+        lo_raw, hi_raw = np.asarray(lo, float), np.asarray(hi, float)
         lo, hi = shrink(lo, hi, mg.get(tag, 0.0))
+        if cap:
+            hi = np.where(np.isfinite(hi), np.maximum(hi, np.minimum(hi_raw, mr)), hi)
+            lo = np.where(np.isfinite(lo), np.minimum(lo, np.maximum(lo_raw, mr)), lo)
         # rows already outside a bound at the point by less than the check's tolerance may stay there
         t = TOL[tag]
         hi_eff = np.maximum(hi, np.minimum(mr, hi + t))
@@ -252,6 +259,8 @@ def rows(ppc, lin, margin=None):
     extra = mg.get("load_end")
     extra = np.zeros(2 * nbr) if extra is None else np.asarray(extra, float)
     rk = rate[keep] * (1.0 - mg.get("load", 0.0) - extra[keep])
+    if cap:
+        rk = np.maximum(rk, np.minimum(rate[keep], mf))
     # thermal tolerance is relative (1 ppm of loading), as in the AC check
     hi = np.maximum(rk, np.minimum(mf, rk * (1.0 + TOL["load"])))
     A.append(Jf)
@@ -360,8 +369,13 @@ def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None, screen=
     vmin, vmax = shrink(bus[lay.vrow, VMIN], bus[lay.vrow, VMAX], mg.get("v", 0.0))
     s = lay.slack
     lo_s, hi_s = shrink(pmin[s:s + 1], pmax[s:s + 1], mg.get("slack", 0.0))
-    pmin[s], pmax[s] = lo_s[0], hi_s[0]
     pg0, v0 = lin["pg0"], lin["v0"]
+    if mg.get("cap"):  # rule CS: no bound pulled in past the point's own value
+        vmin = np.minimum(vmin, np.maximum(bus[lay.vrow, VMIN], v0))
+        vmax = np.maximum(vmax, np.minimum(bus[lay.vrow, VMAX], v0))
+        lo_s = np.minimum(lo_s, max(pmin[s], pg0[s]))
+        hi_s = np.maximum(hi_s, min(pmax[s], pg0[s]))
+    pmin[s], pmax[s] = lo_s[0], hi_s[0]
     if ptrust is not None:
         pmin, pmax = np.maximum(pmin, pg0 - ptrust), np.minimum(pmax, pg0 + ptrust)
         pmin = np.minimum(pmin, pmax)
