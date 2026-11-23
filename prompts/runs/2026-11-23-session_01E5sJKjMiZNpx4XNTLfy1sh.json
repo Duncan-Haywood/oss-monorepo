@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKjMiZNpx4XNTLfy1sh",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T06:18:50Z",
+  "ended": "2026-11-23T06:27:47Z",
+  "wall_minutes": 9.17,
+  "tokens_in": 3575830,
+  "tokens_out": 25655,
+  "cost_usd": 1.9684,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18378",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First git checkout -b failed: the harness had already created and checked out the work branch."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Polycarp proposal says to check the wording in a named translation before quoting, but newadvent.org, wikisource, ccel and archive.org all fail DNS in this cloud session; no offline copy of the Apostolic Fathers is in the repo, so the run paraphrased and said so in the note."
+    },
+    {
+      "file": "docs/posts/2026-11-22-little-lamps-peter-and-the-breakfast-on-the-beach.md",
+      "issue": "Called 22 Feb 2027 the Monday of the first week of Lent; Ash Wednesday 10 Feb means it is the second week. Corrected here. The BIBLE craft checklist covers Easter and lectionary checks for stories but posts escape them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Proposal suggested telling the fire-like-a-sail and sweet-smell wonders as what the letter says; for ages 3 to 8 the bedside text keeps the death to one sentence and the wonders (and the dove) go in the grown-ups' note, as Lawrence does with his gridiron.",
+      "did": "Wonders in note only",
+      "result": "Story stays free of fire imagery; note keeps them labelled as the letter's report."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Could not check a printed translation (network), so no line in the story is presented as a quotation.",
+      "did": "Close renderings, labelled as such in the note; quotation marks kept only for short phrases of well-known wording.",
+      "result": "Honest but weaker sourcing than the Peter story; a later run with network access could check and tighten."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-little-lamps-polycarp-and-the-eighty-six-years.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf (due per creative_due.py). Piece: polycarp-and-the-eighty-six-years (1,527-word story body). Text only: audio at 581 MB of a 400 MB cap. Checks: node --test in ventures/hearth-and-horizon 20/20 pass; check_posts ok; run_workflow_locally --for-changes 9/9 selected workflows passed (cross-review, pages deploy and portfolio-validate deferred to PR CI). Date checks: 23 Feb 155 Julian = Saturday (fits 'great Sabbath'); 23 Feb 2027 = Tuesday of the 2nd week of Lent. New BIBLE proposal: Cyril of Jerusalem (18 March).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f2e7fec6-98dc-5f51-a3c3-e3f11401ad6d",
+    "transcripts": 1,
+    "first": "2026-11-23T06:18:50Z",
+    "last": "2026-11-23T06:28:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 25655,
+        "thinking": 7642,
+        "cache_read": 3480907,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94851,
+        "api_equivalent_usd": 1.9684,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 25655,
+      "thinking": 7642,
+      "cache_read": 3480907,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94851,
+      "api_equivalent_usd": 1.9684,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 3,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "WebFetch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.17,
+      "active_minutes": 9.17,
+      "model_minutes": 5.52,
+      "tool_minutes": 3.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a children's writer drafting a 1,500-word saint story with a sourced historical note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 203.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
