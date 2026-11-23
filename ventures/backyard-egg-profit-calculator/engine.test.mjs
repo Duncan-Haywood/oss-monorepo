@@ -58,3 +58,20 @@ test("formatters", () => {
   assert.equal(money(-5), "-$5.00");
   assert.equal(pct(5), "5.0%");
 });
+
+test("non-laying birds stay on the feed bill: 20 hens at a 49% flock lay costs more per dozen than 14 at 70% (quality audit 2026-11-23)", () => {
+  const allFed = computeEggs({ hens: 20, layPct: 49 });
+  const layersOnly = computeEggs({ hens: 14, layPct: 70 });
+  close(allFed.costPerDozen, 4.949, 0.001);
+  assert.ok(allFed.costPerDozen > layersOnly.costPerDozen + 0.9);
+});
+
+test("default summary calls the after-wage result a loss", () => {
+  const s = summarize(computeEggs());
+  assert.equal(s.status, "warn");
+  assert.match(s.text, /a loss of \$2,559\.54/);
+});
+
+test("lay scenarios run at half, three quarters, one and 1.15 times the entered rate", () => {
+  assert.deepEqual(computeEggs().layScenarios.map((s) => s.layPct), [35, 52.5, 70, 80.5]);
+});

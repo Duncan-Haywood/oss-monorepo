@@ -31,7 +31,7 @@ test("the page reads every field analyzeSale accepts", () => {
   ]) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
   }
-  assert.match(html, /import \{ analyzeSale, DEFAULTS \} from "\.\/calc\.mjs"/);
+  assert.match(html, /import \{ analyzeSale, DEFAULTS, parseRatePercent \} from "\.\/calc\.mjs"/);
   assert.match(html, /import \{ encodeInputs, decodeInputs, formValues \} from "\.\/share\.mjs"/);
 });
 
@@ -125,4 +125,11 @@ test("the comparison page carries the no-warranty clause and is listed in the ve
   assert.match(vsPage, /Nothing leaves your browser/);
   const sitemap = page("sitemap.xml");
   assert.match(sitemap, /vs-doing-it-by-hand\.html/);
+});
+
+test('the ordinary-rate label asks for a percent, and a loss has its own exchange line (quality audit 2026-11-23)', () => {
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /<label for="ordinary-rate-cap">[^<]*\(%, optional\)/);
+  assert.ok(html.includes('nothing for an exchange to defer'));
+  assert.ok(html.includes('parseRatePercent(els.ordinaryRateCap.value)'));
 });

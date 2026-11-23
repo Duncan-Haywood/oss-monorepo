@@ -96,3 +96,12 @@ node --test
 gains/NIIT arithmetic and the 1031-boot comparison are done and tested; no
 external user contact has happened yet — see `kill_criteria` in
 `VENTURE.yaml`.
+
+## Known gaps
+
+From the quality audit of 2026-11-23 ([`portfolio/quality/audits/2026-11-23-depreciation-recapture-calculator.json`](../../portfolio/quality/audits/2026-11-23-depreciation-recapture-calculator.json)):
+
+- Section 1245 recapture (cost-segregation components, appliances, bonus depreciation) is taxed as ordinary income in full, not at the 25% cap; the tool treats all depreciation as unrecaptured Section 1250 gain.
+- Basis is reduced by depreciation the user enters; the law reduces it by depreciation allowed or allowable, even if it was never claimed.
+- Capital-gains tax uses one rate the user picks, with no stacking of the gain on top of other income across the 0/15/20% brackets.
+- Land value is collected but does not check the depreciation entered.

@@ -41,6 +41,13 @@ class FlowTests(unittest.TestCase):
         self.assertFalse(equivalent(D / "adder_ripple.v", "adder_ripple",
                                     D / "adder_bug.v", "adder_bug", {"W": 6}))
 
+    def test_equivalence_errors_are_not_a_false(self):
+        # quality audit 2026-11-23: a missing file or wrong top used to return False.
+        with self.assertRaises(RuntimeError):
+            equivalent(D / "nope.v", "x", D / "adder_op.v", "adder_op", {"W": 4})
+        with self.assertRaises(RuntimeError):
+            equivalent(D / "adder_ripple.v", "no_such_top", D / "adder_op.v", "adder_op", {"W": 4})
+
     def test_adder_simulation_matches_python(self):
         with tempfile.TemporaryDirectory() as t:
             lines = simulate("tb_adder", [D / "adder_ripple.v", D / "adder_op.v",

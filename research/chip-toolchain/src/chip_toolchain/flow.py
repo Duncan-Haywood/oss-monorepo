@@ -72,7 +72,10 @@ def lint(file, top):
 def equivalent(file_a, top_a, file_b, top_b, params=None):
     """Combinational equivalence of two modules by a Yosys miter and SAT proof.
 
-    Returns True if `sat -prove trigger 0` proves the miter output never fires.
+    Returns True if `sat -prove trigger 0` proves the miter output never fires, False if the
+    proof fails (a counterexample exists). Any other Yosys failure (a missing file, a wrong
+    top name, an unknown parameter) raises RuntimeError: before 2026-11-23 it returned False,
+    which a broken flow would have passed off as a working negative control.
     """
     chp = "".join(f"chparam -set {k} {v} {t}; " for t in (top_a, top_b)
                   for k, v in (params or {}).items())
@@ -80,4 +83,8 @@ def equivalent(file_a, top_a, file_b, top_b, params=None):
               f"miter -equiv -flatten -make_outputs {top_a} {top_b} miter; "
               f"hierarchy -top miter; sat -verify -prove trigger 0 miter")
     p = subprocess.run(["yosys", "-q", "-p", script], capture_output=True, text=True)
-    return p.returncode == 0
+    if p.returncode == 0:
+        return True
+    if "proof did fail" in p.stdout + p.stderr:
+        return False
+    raise RuntimeError(f"yosys failed before the proof: {(p.stderr or p.stdout).strip()}")

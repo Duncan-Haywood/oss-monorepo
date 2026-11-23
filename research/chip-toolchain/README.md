@@ -4,7 +4,7 @@ First milestone of the LLM chip-design-loop track (`PROJECTS.md`, track 3). It i
 
 **Live page:** https://marisstella.app/research/chip-toolchain/
 
-**Builds on.** The open tools Yosys (<https://yosyshq.net/yosys/>), Icarus Verilog and Verilator (<https://www.veripool.org/verilator/>); the later milestones target the LLM-for-RTL line of work (VerilogEval, Liu et al., ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>; RTLLM, Lu et al., ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>). Nothing from those papers is reproduced here. This project builds on none of the CU Boulder groups listed in `prompt.md` and claims no connection to them.
+**Builds on.** The open tools Yosys (<https://yosyshq.net/yosys/>), Icarus Verilog and Verilator (<https://www.veripool.org/verilator/>); ABC, which does all technology mapping (Brayton and Mishchenko, CAV 2010, <https://doi.org/10.1007/978-3-642-14295-6_5>); the later milestones target the LLM-for-RTL line of work (VerilogEval, Liu et al., ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>; RTLLM, Lu et al., ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>). Nothing from those papers is reproduced here. This project builds on none of the CU Boulder groups listed in `prompt.md` and claims no connection to them.
 
 ## Method
 - `designs/`: a structural ripple-carry adder, the same adder written with `+`, an operator multiplier, a synchronous FIFO, a deliberately broken adder (negative control), and two Verilog testbenches. All written for this project.
@@ -29,11 +29,11 @@ Versions used: Yosys 0.33 (git 2584903a060), Icarus Verilog 12.0, Verilator 5.02
 | mult_op (`*`) | W=4 / 8 | 63 / 332 | 12 / 30 | 0 |
 | fifo | W=8, AW=2 / 3 | 90 / 173 | 6 / 8 | 40 / 75 |
 
-- The ripple adder costs 5W−3 cells (exact for W=4, 8, 16, 32 in this run) and depth 2W−1. The `+` form comes out with the same depth, so with this ABC script the tool did not build a faster carry structure, and it uses 0, 1, 5 and 13 more cells at W=4, 8, 16, 32.
+- With this ABC script the ripple adder maps to 5W−3 cells (exact for W=4, 8, 16, 32 in this run) and depth 2W−1. That is the script's output, not the cost of a ripple adder: a hand 4-bit netlist in the same gate library (XOR sum, MUX carry) is 11 cells and depth 4, and a SAT proof shows it equal to `adder_ripple` (audit 2026-11-23). The `+` form comes out with the same depth, so with this ABC script the tool did not build a faster carry structure, and it uses 0, 1, 5 and 13 more cells at W=4, 8, 16, 32.
 - The SAT miter proves `adder_ripple == adder_op` for W=4, 8, 12, and correctly reports non-equivalence for the broken adder (W=8).
 - Simulation: 256 exhaustive 4-bit vectors for both adders, 0 mismatches against Python `a+b`; the FIFO testbench refuses pushes when full and returns values in order (checked in the unit tests).
 - Verilator lint is clean for `adder_op`, `mult_op` and `fifo`. For `adder_ripple` it warns `UNOPTFLAT` (circular logic on the carry vector). The path is bitwise acyclic; Verilator reports it because the carry is one vector. This is left as is rather than suppressed.
-- The FIFO maps to 40 flops against the 38 expected from memory and pointers (32 + 2×3). The two extra are unexplained here; I did not inspect them further (possibly Yosys registering the 2-bit write address).
+- The FIFO maps to 40 flops against the 38 expected from memory and pointers (32 + 2×3). The quality audit of 2026-11-23 traced the extra flops to a register Yosys adds on the read address that drives the read mux: 2 bits at AW=2 and 3 at AW=3 (75 = 64 + 8 + 3).
 
 ## Limitations
 - Generic gate counts only: no liberty library, so no real area, delay or power. Post-layout numbers are the `chip-pnr` milestone.
@@ -45,3 +45,7 @@ Versions used: Yosys 0.33 (git 2584903a060), Icarus Verilog 12.0, Verilator 5.02
 
 ## Outside dependencies
 Yosys, Icarus Verilog, Verilator (apt). Not used: any LLM, OpenROAD, a PDK. All designs and testbenches are original and MIT-licensed.
+
+## Known gaps
+
+From the quality audit of 2026-11-23 ([`portfolio/quality/audits/2026-11-23-chip-toolchain.json`](../../portfolio/quality/audits/2026-11-23-chip-toolchain.json)): the FIFO testbench never pops while empty, so the underflow guard is untested; no test pins a cell count, so a change to the ABC gate list goes unnoticed.

@@ -42,5 +42,26 @@ class M(unittest.TestCase):
         self.assertAlmostEqual(aware_coverage(0.5, 200, 100), 0.95, places=3)
 
 
+    def test_break_even_cost_is_two_a_over_b(self):
+        # quality audit 2026-11-23: the README put the 50/50 point at "about a third"; it is kappa = 2a/b.
+        k = 2 * a_coef(0.5) / b_coef(0.5)
+        self.assertAlmostEqual(k, 0.897, places=3)
+        self.assertAlmostEqual(optimal_split(0.5, k, 1000)[2], 0.5, places=12)
+        n, m, f = optimal_split(0.5, 0.05, 1000)
+        self.assertAlmostEqual(f, 2 * n / 1000)
+        self.assertGreater(f, 0.5)
+
+    def test_naive_coverage_value(self):
+        self.assertAlmostEqual(naive_coverage(0.5, 200, 1000), 0.724, places=3)
+
+    def test_aware_ci_adds_input_variance(self):
+        est, hw = naive_ci(random.Random(5), 0.5, 1.0, 5000)
+        est2, hw2 = aware_ci(random.Random(5), 0.5, 1.0, 200, 5000)
+        self.assertEqual(est, est2)
+        # hand: 1.96 * sqrt((hw/t_9)^2 + est^2 * a/n), with a(0.5) = 13 from (1+1.5^2)/0.25
+        expected = 1.959963984540054 * math.sqrt((hw / 2.2621571627409915) ** 2 + est ** 2 * 13.0 / 200)
+        self.assertAlmostEqual(hw2, expected, places=12)
+        self.assertGreater(hw2, 2 * hw)
+
 if __name__ == "__main__":
     unittest.main()
