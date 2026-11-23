@@ -9519,6 +9519,59 @@ sign-ups stop" is most likely to already have.
   v2 documentation, not a live call. Whether the Stats API needs a paid plan tier for a given account is Plausible's
   call; the tool names a 402 as that.
 
+## PostHog as a source (2026-11-23)
+
+PostHog is the product analytics many young software companies start on (a generous free tier, one snippet, events
+from the web and from mobile apps), so "tell me when sign-ups stop" is often a PostHog question. It was the missing
+source beside Stripe, Shopify, Search Console, GA4 and Plausible.
+
+- **What it does.** `posthog-metrics.mjs` asks PostHog's query API (`POST /api/projects/<id>/query/`, a `HogQLQuery`)
+  for the daily count of each `--event` you name (up to eight; `$pageview` if none), one column `event_<name>` each
+  (the name without a leading `$`, so `$pageview` is `event_pageview`), plus `users`: the people (`person_id`) who
+  did any of the named events that day. Two queries per fetch, paged with `LIMIT`/`OFFSET`. Event names are written
+  into the HogQL as escaped string literals (backslash and quote escaped, control characters refused), and a test
+  checks that a name built to close the literal stays inside it. Days are the project's own: HogQL reads timestamps in
+  the project's time zone, so the exact bound is `toDate(timestamp)`; a coarse timestamp bound a day either side lets
+  PostHog skip old partitions. An existing CSV is extended, its last `--refetch` days (default 3, since mobile events
+  can arrive late) asked again. `POSTHOG_HOST` takes `us` (default), `eu`, or a self-hosted https address; the
+  ingestion address (`us.i.posthog.com`) is mapped to the app's, since only the app answers queries. A project key
+  (`phc_...`) is refused before any call with a note that it can only send events.
+- **Empty days are real zeros**, as with Plausible: a day with no row is written as zeros, because a capture call
+  dropped in a release is exactly a run of zeros. An event with no row in 28 days fetched prints a note (event names
+  are case-sensitive, and `Signed Up` is not `signed_up`).
+- **In the workflow.** Secret `POSTHOG_API_KEY`, variable `POSTHOG_PROJECT`, optional `POSTHOG_OPTIONS`
+  (`--event '$pageview' --event signed_up --event "Checkout Started"`, read as a shell reads it, so single quotes keep
+  the `$`) and `POSTHOG_HOST`. With `METRIC_CSV` unset and no other source, the watch follows every `event_` column
+  and `users`, as counts; `WATCH_WEEKLY=on` adds weekly users. The CSV is cached, never committed; the no-terminal
+  set-up on the watch page and `make-watch-repo.sh` both carry the module.
+- **The workflow file got shorter.** Adding a sixth source pushed `deploy/watch-metric.yml` past the 16,000-character
+  budget the watch page's "create the workflow" link has (the file travels inside the link): 18,196 characters of link.
+  The header now lists each source on one line and leaves the detail to the repository's README, which already had
+  it; the link is 13,457 characters.
+- **Which columns hear what** (`eval/posthog-columns.mjs`, output `eval/posthog-columns.out.txt`; 40 simulated
+  products per cell, 242 days, about 300 people a weekday, 2.5 page views each, 3% signing up; heard = dated within
+  7 days). Page views falling to 60% (the snippet dropped from part of a new layout, people still counted from other
+  events): heard on 40 of 40 when weekends run at half a weekday, 36 of 40 when they run at 40%; falling to 50%: 40 of
+  40 in both. Sign-ups falling to 35% (a release that stopped calling capture on one path): 39 of 40. On 40 products
+  with no fault, page views and users sent no false date, sign-ups sent 2 (weekends at half) and 1 (at 40%). The
+  deeper the weekly cycle, the bigger a page-view drop has to be before the count default hears it: a 40% drop on a
+  product that is nearly shut at weekends is heard about nine times in ten, not always. `--period 7` or the middle
+  setting for counts (README "A middle setting for over-dispersed counts") are the levers for a deep weekly cycle;
+  neither was re-measured on these products.
+- **How it was checked** (`posthog-metrics.test.mjs`, 6 tests, a stand-in for the query API that reads the event
+  list, day bounds and `LIMIT`/`OFFSET` out of the HogQL, unescapes literals the way ClickHouse does, leaves out days
+  with nothing, and pages at 50 rows): the request (path, Bearer key, `HogQLQuery`, bounds), paging, zero-filled days,
+  each event's column, an event name with a quote and a backslash, the refetch keeping earlier rows byte for byte,
+  the default `$pageview`, the notes for an empty fetch and a misspelled event, the errors (refused key 401, a project
+  key, a missing scope 403, an unknown project 404, no key, no project, two names making one column, a ninth event),
+  the watch hearing a dropped snippet and a lost sign-up event on one seeded product, and the whole self-deploy
+  workflow (`deploy/run-workflow.mjs`) fetching 480 days of three events, watching four columns, never printing the
+  key and never committing the CSV.
+- **Not checked.** No PostHog account was used: the request and answer shapes follow PostHog's published query API
+  documentation (`results`, `columns`, `hasMore`), not a live call. Whether `toDate(timestamp)` follows the project's
+  time zone on every PostHog version, and whether self-hosted instances cap `LIMIT` lower than 10,000, are the first
+  things a live project would settle.
+
 ## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
 
 Open item from "A step-robust omega": wander chosen by likelihood (`--model drift`'s default) lost two series the

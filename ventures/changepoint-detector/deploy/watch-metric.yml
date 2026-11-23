@@ -1,54 +1,21 @@
 # Watch a metric for changes, in your own GitHub repository, on GitHub's free runners.
 # Made by deploy/make-watch-repo.sh from https://marisstella.app/changepoint-detector/ (MIT).
 #
-# Set in your repository (Settings > Secrets and variables > Actions):
-#   variable METRIC_CSV         a CSV file in this repository (data/metric.csv) or an https:// link to one
-#                               (a published Google Sheet's CSV link works); rows oldest first
-#   variable WATCH_OPTIONS      optional, e.g. "--column orders --model poisson --period 7"
-#                               "--detector auto --alerts-per 1/month" picks how eager to be from your history
-#                               at the first run, within about one alert a month, and keeps that pick
-#                               "--columns orders:poisson,revenue,signups:poisson" (or "--columns all") watches several
-#                               metrics of one CSV, each with its own record, new changes in one message;
-#                               "orders:poisson:bocpd-window" gives one column its own detector, and
-#                               "orders:poisson:bocpd" the count default before 2026-11-20 (a count column that
-#                               names nothing gets bocpd-window with a clumped-count cost at threshold 0.3)
-#   variable WATCH_WEEKLY       optional: "on" adds a second watch, on whole Monday-to-Sunday weekly totals with the
-#                               drift detector, beside the daily one, with its own record in weekly-state.json. It
-#                               hears a slow climb over weeks (a season building) that the daily watch misses, weeks
-#                               in, not days (README "Round 7: the weekly drift watch beside the daily watch").
-#                               Its messages say "(weekly total)". Or give its options yourself, e.g.
-#                               "--column orders --detector drift" or "--columns revenue,orders --detector drift".
+# Set in your repository (Settings > Secrets and variables > Actions); the README says more about each:
+#   variable METRIC_CSV      a CSV in this repository (data/metric.csv) or an https:// link to one, rows oldest first
+#   variable WATCH_OPTIONS   optional, e.g. "--column orders --model poisson", "--columns orders:poisson,revenue",
+#                            "--detector auto --alerts-per 1/month"
+#   variable WATCH_WEEKLY    optional: "on" adds a watch on Monday-to-Sunday totals (slow climbs, heard weeks in)
 #   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
-#   secret   STRIPE_API_KEY     optional: a Stripe restricted key with read access to Charges. Each run then writes
-#                               data/stripe.csv (date,payments,revenue,failed per complete day; stripe-metrics.mjs) and,
-#                               with METRIC_CSV unset, watches it: payments and failed payments as counts, revenue as a
-#                               level. Use a PRIVATE repository: watch-state.json records your revenue around each change.
-#   variable STRIPE_OPTIONS     optional, e.g. "--time-zone America/New_York --currency usd --customers"
-#   secret   SHOPIFY_ACCESS_TOKEN  optional: the Admin API access token of a custom app in your Shopify store (scope
-#                               read_orders; read_all_orders for more than 60 days of history). With the variable
-#                               SHOPIFY_SHOP (my-store or my-store.myshopify.com) each run writes data/shopify.csv
-#                               (date,orders,revenue,cancelled per complete day; shopify-metrics.mjs) and, with
-#                               METRIC_CSV unset and no Stripe key, watches it: orders and cancellations as counts,
-#                               revenue as a level. Use a PRIVATE repository.
-#   variable SHOPIFY_OPTIONS    optional, e.g. "--customers" (days follow the store's own time zone)
-#   secret   GSC_SERVICE_ACCOUNT_JSON  optional: a Google service account's JSON key, added in Search Console as a
-#                               Restricted user of your property. With the variable GSC_SITE (sc-domain:example.com or
-#                               https://www.example.com/) each run writes data/gsc.csv (date,clicks,impressions,ctr,position
-#                               per finished day; search-console-metrics.mjs) and, with METRIC_CSV unset and no Stripe or
-#                               Shopify credentials, watches clicks and impressions as counts.
-#   variable GSC_OPTIONS        optional, e.g. "--type discover"
-#   secret   GA4_SERVICE_ACCOUNT_JSON  optional: a Google service account's JSON key, added in Google Analytics as a
-#                               Viewer of your GA4 property. With the variable GA4_PROPERTY (the numeric property ID)
-#                               each run writes data/ga4.csv (date,sessions,activeUsers,screenPageViews,keyEvents per
-#                               day; ga4-metrics.mjs) and, with METRIC_CSV unset and no Stripe, Shopify or Search
-#                               Console credentials, watches sessions, active users and key events as counts.
-#   variable GA4_OPTIONS        optional, e.g. "--lag 2" or "--metrics sessions,keyEvents,totalRevenue"
-#   secret   PLAUSIBLE_API_KEY  optional: a Plausible Stats API key. With the variable PLAUSIBLE_SITE (the domain as
-#                               named in Plausible) each run writes data/plausible.csv (date,visitors,visits,pageviews
-#                               per day, plus goal_<name> per --goal; plausible-metrics.mjs) and, with METRIC_CSV unset
-#                               and no other source, watches visitors, page views and every goal column as counts.
-#   variable PLAUSIBLE_URL      optional: a self-hosted Plausible's https address (default https://plausible.io)
-#   variable PLAUSIBLE_OPTIONS  optional, e.g. '--goal Signup --goal Purchase' or "--imports"
+# Or, with METRIC_CSV unset, one source fetched each run into data/<source>.csv (cached, never committed):
+#   Stripe     secret STRIPE_API_KEY (restricted, read Charges); variable STRIPE_OPTIONS. Use a PRIVATE repository.
+#   Shopify    secret SHOPIFY_ACCESS_TOKEN (read_orders), variable SHOPIFY_SHOP; SHOPIFY_OPTIONS. PRIVATE repository.
+#   Search Console  secret GSC_SERVICE_ACCOUNT_JSON, variable GSC_SITE (sc-domain:example.com); GSC_OPTIONS
+#   GA4        secret GA4_SERVICE_ACCOUNT_JSON, variable GA4_PROPERTY (numeric ID); GA4_OPTIONS
+#   Plausible  secret PLAUSIBLE_API_KEY, variable PLAUSIBLE_SITE; PLAUSIBLE_URL, PLAUSIBLE_OPTIONS ('--goal Signup')
+#   PostHog    secret POSTHOG_API_KEY (personal, Query: Read), variable POSTHOG_PROJECT; POSTHOG_HOST (eu or an
+#              https address), POSTHOG_OPTIONS ('--event $pageview --event signed_up')
+# The first source set, in that order, is watched with its defaults (counts as poisson, revenue as a level).
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric
 on:
@@ -66,7 +33,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # Keeps data/stripe.csv, data/shopify.csv, data/gsc.csv and data/ga4.csv between runs, so a run fetches a few days, not all 400.
+      # Keeps the fetched data/*.csv between runs, so a run fetches a few days, not all 400.
       - uses: actions/cache@v4
         with:
           path: |
@@ -75,6 +42,7 @@ jobs:
             data/gsc.csv
             data/ga4.csv
             data/plausible.csv
+            data/posthog.csv
           key: metrics-${{ github.run_id }}
           restore-keys: metrics-
       - name: Fetch Stripe metrics
@@ -131,6 +99,20 @@ jobs:
           # PLAUSIBLE_OPTIONS is read the way a shell reads it, so a quoted goal name with a space stays one argument
           eval "set -- $PLAUSIBLE_OPTIONS"
           node plausible-metrics.mjs --site "$PLAUSIBLE_SITE" --out data/plausible.csv "$@"
+      - name: Fetch PostHog metrics
+        env:
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          POSTHOG_PROJECT: ${{ vars.POSTHOG_PROJECT }}
+          POSTHOG_HOST: ${{ vars.POSTHOG_HOST }}
+          POSTHOG_OPTIONS: ${{ vars.POSTHOG_OPTIONS }}
+        run: |
+          set -u
+          if [ -z "$POSTHOG_API_KEY" ]; then exit 0; fi
+          if [ -z "$POSTHOG_PROJECT" ]; then echo "Set the POSTHOG_PROJECT variable (the project ID in Settings > Project)."; exit 2; fi
+          # POSTHOG_OPTIONS is read the way a shell reads it, so a quoted event name with a space stays one argument;
+          # single quotes keep a $ in '$pageview' as written
+          eval "set -- $POSTHOG_OPTIONS"
+          node posthog-metrics.mjs --project "$POSTHOG_PROJECT" --out data/posthog.csv "$@"
       - name: Check for a new change
         env:
           METRIC_CSV: ${{ vars.METRIC_CSV }}
@@ -163,8 +145,14 @@ jobs:
             COLS=$(head -n 1 data/plausible.csv | tr ',' '\n' | grep -E '^(visitors|pageviews|goal_.*)$' | sed 's/$/:poisson/' | paste -sd, -)
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS"
             WEEKLY_DEFAULT="--columns visitors --detector drift"
+          elif [ -z "$METRIC_CSV" ] && [ -f data/posthog.csv ]; then
+            METRIC_CSV=data/posthog.csv
+            # every event_ column the fetch wrote, and users (header line of the CSV)
+            COLS=$(head -n 1 data/posthog.csv | tr ',' '\n' | grep -E '^(event_.*|users)$' | sed 's/$/:poisson/' | paste -sd, -)
+            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS"
+            WEEKLY_DEFAULT="--columns users --detector drift"
           fi
-          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON or PLAUSIBLE_API_KEY secret (see the top of this file)."; exit 2; fi
+          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY or POSTHOG_API_KEY secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
           # Both watches run even when the first fails (a new change, or a webhook that answered an error); the step
