@@ -25,11 +25,17 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "PROVEN_LEAST dropped from carryover.mjs exports when moving the carry-over measure",
+      "caught_by": "carryover.test.mjs",
+      "fixed": true
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
@@ -37,7 +43,7 @@
     "docs/posts/2026-11-23-league-schedule-page-loads-season-searches-on-demand.md"
   ],
   "goal": "Cut the main landing page's code download without changing any season it builds",
-  "notes": "index.html 32 modules 226 kB gz -> 26 modules 110 kB gz (eval/page-weight.txt). Chromium check eval/browser-lazy-searches.txt: none of the six heavy modules fetched on load or for the example season; carry-over and doubleheader seasons load them and build; no page errors. Five example seasons identical to main's code (rounds JSON length, breaks, stats). page.test.mjs 64/64; full venture suite and venture-preflight run in background, results in the PR body.",
+  "notes": "index.html 32 modules 226 kB gz -> 26 modules 110 kB gz (eval/page-weight.txt). Chromium check eval/browser-lazy-searches.txt: none of the six heavy modules fetched on load or for the example season; carry-over and doubleheader seasons load them and build; no page errors. Five example seasons identical to main's code (rounds JSON length, breaks, stats). page.test.mjs 64/64; full venture suite 971/971 pass; venture-preflight clean. First suite run caught PROVEN_LEAST missing from carryover.mjs's re-exports after the move to carryover-core.mjs; fixed, and every export of main's carryover.mjs, calc.mjs and nights.mjs compared by toString (only buildSchedule differs, by its one guard line).",
   "corrections": [],
   "redteam": null
 }
