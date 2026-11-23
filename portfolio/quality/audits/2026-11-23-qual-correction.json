@@ -1,0 +1,243 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/qual-correction",
+ "stratum": "research",
+ "seed": "2026-11-23-94a9",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality round 100",
+ "status": "audited",
+ "professional": "a survey statistician who works on measurement error and LLM-assisted content analysis (reviews PPI/DSL-style papers). First checks: do the bias, width and coverage figures follow from the closed-form moments of the simulated coder, is the PPI variance right for the stated target (a finite corpus share), is the 'stops paying below 80%' rule general, and is the work positioned against misclassification-correction literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Ran the 13 unit tests (OK) and experiments/run.py in a scratch copy: results.txt reproduces byte-for-byte (18.6 s). Wrote my own recomputation (/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction) from closed-form moments of the simulated coder, no simulation: E1 accuracy 0.890, naive bias -0.0400, naive width 0.0243, population kappa 0.728, human-only/PPI widths at n=200 0.1270/0.0944 (25.6% narrower), predicted PPI coverage of the corpus share with the missing finite-population correction 0.953-0.985 (observed 0.951-0.979); E2 naive gap +0.0360, width 0.0493, P(wrong-sign significant) 0.817 (observed 0.804), PPI 23.2% narrower; all seven E3 PPI widths within 0.002. Third-party libraries agree to 4-6 decimals: the krippendorff package gives 0.7434 on Krippendorff's 2011 example, scikit-learn cohen_kappa_score 0.708606 = qualml. One summary is biased: 'PPI effective n' is the mean of per-study variance ratios (Jensen), so it is inflated: 130 vs 95 closed form at n=50 (98.6 from the table's own mean widths), 374 vs 362 at n=200, 1,757 vs about 1,500 at 98% accuracy.",
+  "completeness": "Every README section (E1-E3 tables, SVG, reproduce steps, agreement functions, three estimators, simulated coder) exists and regenerates: results.txt identical, figure.py regenerates ci_width_vs_accuracy.svg identically (scratch copy with research/_shared), runtime 18.6 s against '~30 s'. Blog post docs/posts/2026-10-20-machine-learning-on-qualitative-data-with-llms.md exists. No stubs or TODOs. The live page could not be loaded (proxy 403 for marisstella.app), so it is not scored.",
+  "verification": "python3 -m unittest test_qualml: 13 tests OK in 0.37 s. Eight seeded mutants via quality_mutate.py: 5 caught (PPI variance denominator, PPI rectifier weight, effective-n exponent, Krippendorff expected-disagreement denominator, covers() width), 3 survived: Z95 changed to the 90% quantile 1.645, the naive se doubled, and the human-only se halved. The human-only se is the baseline behind the '23-26% narrower' and 'wider below 80%' headlines, and no test pins either se or the z value. run.py's inlined E1 loop and wrong-sign rule are untested.",
+  "craft": "Read qualml.py (149 lines), test_qualml.py, experiments/run.py and figure.py. Clean, documented stdlib code; ppi validates input; figure parses results.txt rather than retyping. Defects: run.py:38-43 re-implements run_once inline (to get kappa), so the experiment path differs from the tested path; effective-n is aggregated as a mean of ratios (run.py:50, :97); var() silently returns 0 for n<2 so human_only on one item reports se 0.",
+  "claims": "Checked against results.txt and closed form: 89% accuracy, kappa 0.72, 26% naive share, 0/1,000 coverage, +3.6 point wrong-sign gap and 80% 'significant', 95-98% PPI coverage, 23-26% narrower, the 0.8-point bias at 98% and its falling outside at N=50,000 (half-width 0.0040): all pass. Fails: README:14 and :139 (and PROJECTS.md track 19) state 'below about 80% coder accuracy the PPI interval is wider' as a general rule; it is the break-even for a 30% code with symmetric errors only. Closed form: 0.954 at 5% prevalence, 0.911 at 10%, 0.839 at 20%, 0.793 at 30%, 0.760 at 50%. The '374-answer' equivalence is about 3% high (362). Limits (simulated coder, no real LLM, humans as truth, PPI++ not implemented) and AI assistance are disclosed well.",
+  "fitness": "A researcher can reuse the estimators and the simulation; later track-19 projects (qual-real, qual-regression, qual-dialect...) do build on it. But it is milestone 1 and a didactic replication: PPI for a mean is algebraically the survey difference estimator (Sarndal, Swensson and Wretman 1992), prevalence correction under misclassification goes back to Rogan and Gladen (1978) and double sampling (Tenenbein 1970), and the E2 differential-misclassification result is the subject of TeBlunthuis, Hase and Chan (2024, Communication Methods and Measures) and of confidence-driven inference (Gligoric et al. 2024). None is cited, so the novelty is low and unpositioned; short of the research brief's publishable-programme bar on its own.",
+  "domain": "The method is standard and sound: random validation sample, rectifier, sum of variances, kappa/alpha reported alongside, and the advice to compare PPI width with human-only width (README step 4) is exactly what a statistician would say. Departures: the target is the finite corpus share but the variance has no finite-population correction and keeps a var(f)/N term that is spurious for that target (the README explains the resulting over-coverage correctly); Wald intervals at n=50 (human-only coverage 0.939); PPI++ power tuning, which removes the 'wider than human-only' regime, is only mentioned."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "E1 naive bias, naive width and population kappa for sens 0.75, spec 0.95, prevalence 0.30, N 5,000",
+   "method": "closed form: LLM share = p*se + (1-p)*(1-sp); Wald width 2z*sqrt(f(1-f)/N); Cohen's kappa from po and pe of the joint distribution (textbook definitions, auditor's script)",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "bias -0.0400, width 0.0243, kappa 0.728",
+   "observed": "results.txt: -0.0397 to -0.0403, 0.0243, 0.720-0.728",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E1 human-only and PPI 95% widths at n=200 and PPI coverage of the corpus share",
+   "method": "closed form: var(h)=p(1-p); rectifier r in {-1,0,1} with P(+1)=p(1-se), P(-1)=(1-p)(1-sp); coverage from the true error sd sqrt(var(r)/n (1-n/N))",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "0.1270 / 0.0944; PPI coverage 0.962 (0.953 at n=50, 0.985 at n=800)",
+   "observed": "0.1272 / 0.0942; 0.960 (0.951, 0.979)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E2 naive gap, width and share of wrong-sign 'significant' results",
+   "method": "closed form for two independent Bernoulli LLM shares (0.29 and 0.254) and a normal tail probability",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "+0.0360, 0.0493, 0.817",
+   "observed": "+0.0358, 0.0493, 0.804 (MC error about 0.012)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Krippendorff's alpha on the 2011 worked example and kappa/alpha on a random 3-category pair",
+   "method": "third-party krippendorff (PyPI) and scikit-learn cohen_kappa_score",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "0.7434; kappa 0.708606; alpha 0.708938",
+   "observed": "qualml 0.7434; 0.708606; 0.708938",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "PPI effective n (human-only items matching the PPI interval)",
+   "method": "closed form n*(se_human/se_ppi)^2 from the population variances, and from the table's own mean widths",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "95 at n=50, 362 at n=200, about 1,470-1,550 at 98% accuracy",
+   "observed": "130, 374, 1,757 (mean of per-study ratios, run.py:50 and :97)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E3 PPI widths at accuracy 0.70-0.98 and the 98%-accuracy naive coverage",
+   "method": "closed form widths; naive coverage from error = mean(f - t) over the corpus, sd sqrt(var(f-t)/N)",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "0.1506 ... 0.0468; naive coverage 0.992",
+   "observed": "0.1506 ... 0.0456; 0.994",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py regenerate the committed outputs",
+   "method": "ran both in a scratch copy and diffed",
+   "command": "cp -r research/qual-correction <scratch> && python3 experiments/run.py && diff experiments/results.txt <committed>; figure.py with research/_shared copied alongside",
+   "expected": "identical results.txt and SVG",
+   "observed": "both identical; run.py 18.6 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Unit tests",
+   "method": "ran them",
+   "command": "python3 -m unittest test_qualml",
+   "expected": "all pass",
+   "observed": "Ran 13 tests in 0.371s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Do tests pin the z value and the naive and human-only standard errors?",
+   "method": "three seeded mutants (Z95 -> 1.645, naive se x2, human-only se /sqrt 2)",
+   "command": "python3 platform/ci/quality_mutate.py ... (see mutations)",
+   "expected": "each caught",
+   "observed": "0 of 3 caught (5 of 5 other mutants caught)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline numbers: 89% accurate, kappa 0.72, 26% share, 0 of 1,000 coverage, +3.6 points wrong sign, 80% significant, 95-98% coverage, 23-26% narrower",
+   "method": "results.txt and the closed-form recomputation",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "as stated",
+   "observed": "all match (narrower: 25.9% E1 n=200, 23.3% E2)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Below about 80% coder accuracy, the PPI interval is wider' (README:14, :139)",
+   "method": "closed-form break-even accuracy where PPI width = human-only width, 200 hand-coded, N 5,000, symmetric errors, by prevalence",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "a single ~80% threshold if the rule is general",
+   "observed": "0.954 at 5%, 0.911 at 10%, 0.839 at 20%, 0.793 at 30%, 0.760 at 50% prevalence",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "At 98% accuracy the 0.8-point naive bias fits inside the interval, and falls outside at N=50,000",
+   "method": "closed form half-widths",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/venv/k/bin/python /tmp/claude-0/-home-user-oss-monorepo/01267756-bf5d-5ffa-b429-738a5f63cbd7/scratchpad/recompute.py research/qual-correction",
+   "expected": "half-width > 0.008 at N=5,000, < 0.008 at N=50,000",
+   "observed": "0.0128 and 0.0040",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited and novelty positioned",
+   "method": "compared against Rogan and Gladen 1978, Sarndal et al. 1992 difference estimator, TeBlunthuis et al. 2024, Gligoric et al. 2024, Egami et al. 2023",
+   "command": "grep -n 'Rogan\\|difference estimator\\|TeBlunthuis\\|Gligoric' research/qual-correction/README.md",
+   "expected": "the closest misclassification-correction work cited",
+   "observed": "only Egami et al. and Angelopoulos et al. cited; grep returns nothing",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "qualml.py:23",
+   "change": "Z95 = 1.959963984540054 -> Z95 = 1.6448536269514722",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_qualml"
+  },
+  {
+   "where": "qualml.py:89",
+   "change": "naive se -> 2 * naive se",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_qualml"
+  },
+  {
+   "where": "qualml.py:94",
+   "change": "human_only se -> se / sqrt(2)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_qualml"
+  },
+  {
+   "where": "qualml.py:104",
+   "change": "var(rect) / len(rect) -> var(rect) / len(llm_all)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_qualml"
+  },
+  {
+   "where": "qualml.py:103",
+   "change": "mean(llm_all) + mean(rect) -> mean(llm_all) + 0.5 * mean(rect)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_qualml"
+  },
+  {
+   "where": "qualml.py:121",
+   "change": "(se_human / se_ppi) ** 2 -> (se_human / se_ppi)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_qualml"
+  },
+  {
+   "where": "qualml.py:78",
+   "change": "/ (n * (n - 1)) -> / (n * n)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_qualml"
+  },
+  {
+   "where": "qualml.py:114",
+   "change": "<= z * est[1] -> <= 2 * z * est[1]",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_qualml"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "where": "research/qual-correction/README.md:14",
+   "category": "overclaim",
+   "origin": "claims",
+   "what": "The headline 'below about 80% coder accuracy, the PPI interval is wider than the human-only one' (also README:139 and PROJECTS.md track 19) is the break-even for a 30% code with symmetric errors only. In closed form it is 91% at a 10% code and 95% at a 5% code, so a reader with a rare code and an 85% coder would wrongly expect PPI to help."
+  },
+  {
+   "severity": "medium",
+   "where": "research/qual-correction/experiments/run.py:50",
+   "category": "logic-error",
+   "origin": "implementation",
+   "what": "'PPI effective n' is averaged as the mean of per-study variance ratios (also run.py:97), which Jensen's inequality inflates: 130 vs 95 closed form at n=50, 374 vs 362 at n=200 (the README's '374-answer' claim), 1,757 vs about 1,500 at 98% accuracy."
+  },
+  {
+   "severity": "medium",
+   "where": "research/qual-correction/test_qualml.py:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "what": "No test pins Z95 or the naive and human-only standard errors: Z95 -> 1.645, naive se x2 and human-only se / sqrt 2 all survive. The human-only se is the baseline for the '23-26% narrower' and '80%' headlines."
+  },
+  {
+   "severity": "medium",
+   "where": "research/qual-correction/README.md:186",
+   "category": "research-design",
+   "origin": "design",
+   "what": "Nearest prior work is not cited: Rogan and Gladen (1978) misclassification-corrected prevalence, Tenenbein (1970) double sampling, the survey difference estimator PPI reduces to for a mean (Sarndal, Swensson and Wretman 1992), and TeBlunthuis, Hase and Chan (2024) and Gligoric et al. (2024) on differential LLM/classifier misclassification, which is the E2 result. Novelty is unpositioned."
+  },
+  {
+   "severity": "low",
+   "where": "research/qual-correction/experiments/run.py:38",
+   "category": "code-craft",
+   "origin": "implementation",
+   "what": "E1 re-implements run_once inline to collect kappa, so the experiment path is not the one the tests exercise; the E2 wrong-sign rule (run.py:78) is also untested."
+  },
+  {
+   "severity": "low",
+   "where": "research/qual-correction/qualml.py:31",
+   "category": "input-handling",
+   "origin": "implementation",
+   "what": "var() returns 0 for fewer than two values, so human_only on one item reports se 0 (an interval of zero width) instead of raising, unlike ppi which rejects n < 2."
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, clean, reproducible demonstration that naive LLM codes bias prevalence and group gaps and that PPI with a random hand-coded sample fixes it. Every simulated bias, width and coverage figure I recomputed from closed-form moments matches, and the agreement statistics match the krippendorff and scikit-learn packages. It misses the bar on verification (3 of 8 seeded mutants survive, including the z value and the human-only se behind the headline comparison) and claims (the '80% accuracy' break-even is stated as general but holds only for a 30% code: 91% at a 10% code). The effective-n summary is inflated by averaging ratios. Novelty is low and unpositioned: misclassification-corrected prevalence (Rogan-Gladen), the difference estimator and recent differential-misclassification work are not cited. Finished for what it claims; a sound teaching base for track 19 rather than a publishable result."
+}
