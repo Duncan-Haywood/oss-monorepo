@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T08:20:22Z",
   "ended": "2026-11-23T08:31:27Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 20.72,
+  "tokens_in": 7809578,
+  "tokens_out": 61261,
+  "cost_usd": 3.8612,
+  "tool_calls": 67,
   "task": "Explore: new venture stormwater-detention-sizer (NRCS hydrographs, level-pool routing, two-stage outlet sizing)",
   "projects": [
     "stormwater-detention-sizer",
@@ -55,5 +57,80 @@
   "goal": null,
   "notes": "Explore idea: stormwater detention pond sizer (construction direction). NRCS CN runoff + triangular UH + alternating-block storm from IDF + storage-indication routing with bisection + orifice/weir sized by bisection. Checked by hand calcs, linear-reservoir exact solution, mass balance, independent RK4 (0.5%). Not checked against HydroCAD/HEC-HMS: next step is a published routed example. No agent doc: the README and post carry what the next run needs.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ede1d742-178f-57a9-b0dc-e008d64c974f",
+    "transcripts": 1,
+    "first": "2026-11-23T08:20:22Z",
+    "last": "2026-11-23T08:41:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 125,
+        "output": 61261,
+        "thinking": 9651,
+        "cache_read": 7671818,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137635,
+        "api_equivalent_usd": 3.8612,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 125,
+      "output": 61261,
+      "thinking": 9651,
+      "cache_read": 7671818,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137635,
+      "api_equivalent_usd": 3.8612,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 59,
+      "Write": 5,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.72,
+      "active_minutes": 20.72,
+      "model_minutes": 9.79,
+      "tool_minutes": 10.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a water-resources engineer writing and testing a routing and two-stage sizing engine plus page and guide",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 414.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
