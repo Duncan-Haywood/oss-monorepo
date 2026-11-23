@@ -433,6 +433,13 @@ room by room, so the takeoff lists every IfcSpace with:
   points and goes to the room most fall in (`row.spaceBy` = `box sample`):
   37 of 37 such components land in the room the file names
   (`../ids-model-check/eval/cobie-wall-hosted-2026-11-23.md`).
+  The inside test skips a convex piece with no volume (a flat sliver a room's
+  solid can carry in a wall's plane: its middle lies on its own faces, so it
+  used to take half of space as inside and empty the room). On 852 rooms in 12
+  public files, a grid through each box now matches the room's volume within
+  0.15 in every room, against 29 off before; components placed in the file's
+  own room 1,117 to 1,218 of 1,227
+  (`../ids-model-check/eval/cobie-flat-pieces-2026-11-23.md`).
 
 13 public models, 991 rooms (989 measured): stored floor area agrees on 528 of
 535, perimeter 472 of 475, height 501 of 535 (34 nominal), volume 213 of 535

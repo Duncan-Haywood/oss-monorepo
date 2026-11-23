@@ -582,7 +582,10 @@ file puts in a room, with that containment hidden, are placed in the same room
 in 935 of 1,227 cases, another in 89 and none in 203 (left blank); with the
 placement-point fallback for bodies that give no box (2026-11-23,
 eval/cobie-placement-point-2026-11-23.md), 1,068 the same, 95 another and 64
-blank. On Duplex,
+blank. Since a fix to the room test the same day (a flat, zero-volume piece in
+a room's solid had emptied the room or swollen it to its box: 29 of 852 rooms
+in 12 files, eval/cobie-flat-pieces-2026-11-23.md), 1,218 the same (99.3%), 9
+another and none blank; doors and windows 821 of 869 exactly. On Duplex,
 IfcOpenShell's ifcfm writes the same counts of floors, rooms, zones, types and
 components, and the QC of its workbook finds the 38 components it leaves at
 `n/a`.

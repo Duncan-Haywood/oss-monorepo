@@ -167,7 +167,18 @@ export function pointInSolid(s, p, tol = 1e-7) {
     const vol = polyVolume(t.faces);
     if (!vol) continue;
     let c = [0, 0, 0], m = 0;
-    for (const f of t.faces) for (const q of f) { c[0] += q[0]; c[1] += q[1]; c[2] += q[2]; m++; }
+    const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+    for (const f of t.faces) for (const q of f) {
+      c[0] += q[0]; c[1] += q[1]; c[2] += q[2]; m++;
+      for (let i = 0; i < 3; i++) { if (q[i] < lo[i]) lo[i] = q[i]; if (q[i] > hi[i]) hi[i] = q[i]; }
+    }
+    // a flat piece (zero thickness, volume only rounding noise) has its
+    // middle on its own faces, so the side test below would take a whole
+    // half-space as inside it: dental_clinic's 2C17 PROSTH. LAB carries a
+    // 5e-15 m3 subtracted sliver on its west wall that emptied the room
+    // (16 casework items found no room, 2026-11-23)
+    const d = Math.hypot(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]);
+    if (Math.abs(vol) <= 1e-9 * d * d * d) continue;
     c = [c[0] / m, c[1] / m, c[2] / m];
     let inside = true;
     for (const [nn, k] of polyPlanes(t.faces)) {

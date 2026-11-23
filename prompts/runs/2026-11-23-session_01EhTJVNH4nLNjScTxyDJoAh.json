@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVNH4nLNjScTxyDJoAh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T10:12:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Scheduled ventures brief; allocator start-here ids-model-check, item: dental's 17 casework items outside their rooms' solids",
+  "projects": [
+    "ids-model-check",
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18403",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Ran plain `route` first out of habit and drew process for the scheduled ventures brief; re-ran with --task as prompt.md says. Same report as many earlier records: the scheduled prompt itself could carry the --task phrase."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-a-zero-volume-sliver-emptied-29-rooms.md",
+    "ventures/ids-model-check/eval/cobie-flat-pieces-2026-11-23.md"
+  ],
+  "goal": "Deepen flagship ids-model-check (COBie component placement)",
+  "notes": "The 17 dental casework items were not outside their room: the room was empty. pointInSolid (ifc-quantity-takeoff/rooms.mjs) treated a flat, 5e-15 m3 subtracted convex piece as a half-space, cancelling the room. Fix: skip pieces with volume < 1e-9 * diag^3; regression test with the file's own sliver fails on old code. Room grid check (new eval/room-inside-grid.mjs) on 852 rooms in 12 public files: 29 off before, 0 after. COBie placement on 25 files: 1,117 -> 1,218 of 1,227 in the file's room (other 93 -> 9, blank 17 -> 0); doors/windows 791 -> 821 of 869 exactly; extra-room doors 13 -> 20 (unchecked). Row dump of 74,198 rows: no volume/area/length change. Verified: run_venture_tests.py ifc-quantity-takeoff ids-model-check: 230 + 527 tests ok; check_posts ok; portfolio/router/validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
