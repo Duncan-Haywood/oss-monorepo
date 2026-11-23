@@ -48,7 +48,9 @@ function positive(value, name) {
  * multiplication, not after, or the cube is wrong by the product of the errors.
  */
 function measured(value, round) {
-  return round ? Math.round(value) : value;
+  // A side under half an inch would round to 0 and zero the cube; whole-inch
+  // measuring reads any real side as at least 1 inch (red team 2026-11-23).
+  return round ? Math.max(1, Math.round(value)) : value;
 }
 
 /**

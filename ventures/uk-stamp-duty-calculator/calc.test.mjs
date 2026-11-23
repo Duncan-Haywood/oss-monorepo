@@ -153,3 +153,11 @@ test("main-home buyers below 40,000 are told the additional rate does not apply"
   assert.ok(titles.some((t) => t.includes("does not apply below GBP 40,000")), titles.join("\n"));
   assert.ok(compute({ price: 40000, buyer: "main", nonResident: "no" }).findings.some((f) => f.title.includes("may owe the 5% additional dwelling rate instead: GBP 2,000")));
 });
+
+test("a slice of a pound or one pound into a band still shows as its own row (red team 2026-11-23)", () => {
+  const one = compute({ price: 125001, buyer: "main" });
+  assert.deepEqual(one.rows.at(-1), { from: 125000, to: 125001, rate: 0.02, amount: 1, tax: 0.02 });
+  const half = compute({ price: 250000.5, buyer: "main" });
+  assert.equal(half.rows.at(-1).amount, 0.5);
+  assert.equal(half.rows.at(-1).rate, 0.05);
+});
