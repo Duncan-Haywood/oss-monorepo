@@ -9572,6 +9572,64 @@ source beside Stripe, Shopify, Search Console, GA4 and Plausible.
   time zone on every PostHog version, and whether self-hosted instances cap `LIMIT` lower than 10,000, are the first
   things a live project would settle.
 
+## Umami as a source (2026-11-23)
+
+Umami is the open-source, cookie-free analytics many developers run on their own server (or on Umami Cloud), often
+picked for the same reasons as Plausible but self-hosted for free. "Tell me when sign-ups stop" is as much an Umami
+question as a Plausible one, and it was the missing source beside Stripe, Shopify, Search Console, GA4, Plausible and
+PostHog.
+
+- **What it does.** `umami-metrics.mjs` asks two routes for each window of days: `GET /websites/<id>/pageviews`
+  (`unit=day`, `timezone`, `startAt`/`endAt` in milliseconds), whose `pageviews` and `sessions` series become the
+  columns `pageviews` and `visitors` (Umami's distinct sessions with a page view that day), and
+  `GET /websites/<id>/events/series`, whose rows (`x` the event name, `t` the day, `y` the count) become one column
+  `event_<name>` per `--event` (up to eight). Each run also prints every custom event name Umami answered with its
+  total, so a person can see the exact spelling to pass (names are case-sensitive). An existing CSV is extended, its
+  last `--refetch` days (default 2) asked again. Umami Cloud (`https://api.umami.is/v1`, key in `x-umami-api-key`) is
+  the default; `UMAMI_URL` points it at a self-hosted Umami (`<address>/api`, key as `Authorization: Bearer`; https
+  only, a loopback http address for tests). A pasted dashboard address works for both `UMAMI_URL` and `--website`.
+- **Read from Umami's own code, not guessed.** The docs host (umami.is) was not reachable from this session, so the
+  request and answer shapes were read from Umami's source at commit `aad2c4c` (2026-11-17): the route files under
+  `src/app/api/websites/[websiteId]/`, the queries `getPageviewStats`, `getSessionStats` and `getEventStats`, and the
+  date helpers. Two things there shaped the tool. Days come back as `YYYY-MM-DD` from PostgreSQL installs and
+  `YYYY-MM-DDT00:00:00Z` from ClickHouse ones; both are read. And Umami only answers by the day for a range of at most
+  seven calendar months (`getAllowedUnits` in `src/lib/date.ts`): ask for 480 days by the day and it silently
+  answers by the month. So a fetch is cut into windows of 180 days, and a row that is not a day (a month, an hour) is
+  refused with an error rather than misread as one.
+- **Days are the caller's.** Plausible and PostHog count days in the site's own zone; Umami counts them in whatever
+  zone the call names. `--timezone` (default UTC) sets it, and the day bounds are computed for that zone, through
+  daylight-saving changes (tested on Berlin's and New York's switch days).
+- **Does a UTC default cost anything?** (`eval/umami-timezone.mjs`, output `eval/umami-timezone.out.txt`; 40 simulated
+  sites per cell, generated hour by hour in the audience's own time: about 400 visitors a weekday, weekends at half, a
+  daily curve peaking mid-afternoon, 2.2 page views a visitor, 2% signing up; the same seeds cut into the audience's
+  own days and into UTC days; heard = dated within 7 days.) A tracker lost from 40% of pages: heard in page views on 39
+  of 40 sites with the audience's days and 40 of 40 with UTC days, for both a New York and a Tokyo audience; in
+  visitors on 40 of 40 in all four cells. A form losing 65% of its sign-ups: 35 of 40 with the audience's days, 38
+  (New York) and 36 (Tokyo) with UTC days. On 40 sites with no fault, page views and visitors sent no false date in any
+  cell; sign-ups sent 6-7 false dates on 3-5 sites either way. The differences are within what a different draw moves,
+  so the default stays UTC: a day cut at the wrong hour still holds the same people, and the watch hears a lasting
+  fall in either. What a wrong zone does change is the date printed, which can be a day off; `--timezone` fixes that.
+- **In the workflow.** Secret `UMAMI_API_KEY`, variable `UMAMI_WEBSITE`, optional `UMAMI_OPTIONS`
+  (`--event signup --event "Checkout started" --timezone Europe/Berlin`, read as a shell reads it) and `UMAMI_URL`.
+  With `METRIC_CSV` unset and no other source, the watch follows page views, visitors and every `event_` column, as
+  counts; `WATCH_WEEKLY=on` adds weekly visitors. The CSV is cached, never committed; the no-terminal set-up on the
+  watch page and `make-watch-repo.sh` both carry the module. The workflow file grew to 12,312 characters; the watch
+  page's create-the-workflow link stays under its 16,000 budget (`watch-repo.test.mjs`).
+- **How it was checked** (`umami-metrics.test.mjs`, 6 tests, a stand-in that answers both routes, page views in the
+  PostgreSQL day format and events in the ClickHouse one, leaves out empty days, and falls back to month buckets past
+  seven calendar months as Umami does): addresses, website IDs, columns, time zones, day starts across DST, windows;
+  a 400-day self-hosted fetch in three windows with a Bearer key, zero-filled days, each event's column, the printed
+  event list and the refetch keeping earlier rows byte for byte; the cloud's header and `/v1` paths and a New York day
+  bound; the notes for an empty fetch and a misspelled event; the errors (refused key, forbidden, unknown website,
+  month buckets, no key, no website, two names making one column, a ninth event); the watch hearing a dropped tracker
+  and a lost sign-up event on one seeded site; and the whole self-deploy workflow fetching 480 days, watching four
+  columns, never printing the key and never committing the CSV.
+- **Not checked.** No Umami account or server was used. The self-hosted shapes come from the current source; the
+  cloud's base address and `x-umami-api-key` header are from Umami's published API documentation as remembered, not
+  re-read this session (the docs host was unreachable), so the first live Umami Cloud call is the check that matters.
+  Older self-hosted versions without API keys need a login token, which expires; a live older install would show
+  whether that is workable in a daily job.
+
 ## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
 
 Open item from "A step-robust omega": wander chosen by likelihood (`--model drift`'s default) lost two series the

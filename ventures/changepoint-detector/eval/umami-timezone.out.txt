@@ -1,0 +1,5 @@
+seeds 40 per cell; heard = dated within 7 days; false = any other date (count, and sites with one)
+New York (UTC-5), own days: heard pageviews 39/40, visitors 40/40, event_signup 35/40; other dates on faulted sites pageviews 0, visitors 0, event_signup 6; no fault: pageviews 0 on 0, visitors 0 on 0, event_signup 7 on 5
+New York (UTC-5), UTC days: heard pageviews 40/40, visitors 40/40, event_signup 38/40; other dates on faulted sites pageviews 0, visitors 0, event_signup 10; no fault: pageviews 0 on 0, visitors 0 on 0, event_signup 6 on 4
+Tokyo (UTC+9), own days: heard pageviews 39/40, visitors 40/40, event_signup 35/40; other dates on faulted sites pageviews 0, visitors 0, event_signup 6; no fault: pageviews 0 on 0, visitors 0 on 0, event_signup 7 on 5
+Tokyo (UTC+9), UTC days: heard pageviews 40/40, visitors 40/40, event_signup 36/40; other dates on faulted sites pageviews 0, visitors 0, event_signup 7; no fault: pageviews 0 on 0, visitors 0 on 0, event_signup 6 on 3
