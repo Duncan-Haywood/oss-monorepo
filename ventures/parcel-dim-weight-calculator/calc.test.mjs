@@ -295,3 +295,12 @@ test('a side under half an inch never rounds to a zero side or a zero cube (red 
   // Unrounded, the side is kept as typed.
   assert.equal(calculateBillableWeight({ length: 12, width: 10, height: 0.4, weight: 0.3, roundDimensions: false }).height, 0.4);
 });
+
+// Red team 2026-11-23: a break-even height under one inch is still a real height.
+test('a wide, light carton reports a break-even height below one inch, not null', () => {
+  // 30 x 30 footprint, 1 lb of goods: 1 x 139 / 900 = 0.154 in.
+  const result = box({ length: 30, width: 30, height: 6, weight: 1 });
+  assert.equal(result.billedOn, 'dimensional');
+  assert.ok(Math.abs(result.lever.targetHeight - 139 / 900) < 1e-9);
+  assert.ok(Math.abs(result.lever.heightReduction - (6 - 139 / 900)) < 1e-9);
+});
