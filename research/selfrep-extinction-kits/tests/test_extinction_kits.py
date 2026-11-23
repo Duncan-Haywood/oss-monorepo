@@ -12,6 +12,10 @@ class Extinction(unittest.TestCase):
         self.assertAlmostEqual(first_generation_extinction(1.0, 1.0, 1e9), 0.0, places=6)
         self.assertAlmostEqual(first_generation_extinction(1e-9, 1.0, 1.0), 1.0, places=6)
 
+    def test_first_generation_value(self):
+        # by hand: 1 - a/(a+1/L) * (1/W)/(1/W+1/L), a = 4/170.34, W = 50, L = 500 (quality round 102)
+        self.assertAlmostEqual(first_generation_extinction(4 / 170.34, 50.0, 500.0), 0.162259, places=5)
+
     def test_chain_is_bounded_below_by_first_generation(self):
         a, w, l = 0.02, 50.0, 500.0
         p = solve(a, w, l, nmax=12, kmax=6, safe=4)["p_extinct_first"]

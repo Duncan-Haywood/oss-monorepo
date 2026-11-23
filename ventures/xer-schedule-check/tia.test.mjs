@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { parseXer, xerText } from "./xer.mjs";
 import { schedule } from "./cpm.mjs";
 import { EXAMPLE_XER } from "./example.mjs";
-import { parseFragnet, timeImpact, timeImpactText, timeImpactCsv, timeImpactHtml, EXAMPLE_FRAGNET } from "./tia.mjs";
+import { parseFragnet, timeImpact, timeImpactText, timeImpactCsv, timeImpactHtml, partyHtml, EXAMPLE_FRAGNET, EXAMPLE_PARTY_FRAGNET } from "./tia.mjs";
 
 const xer = () => parseXer(EXAMPLE_XER);
 const H = "Activity ID,Name,Duration,Predecessors,Successors,Not before,Event\n";
@@ -244,4 +244,42 @@ test("an update with every activity finished measures added work from its last a
   assert.equal(n.finish.base, "2026-03-02 07:00");
   assert.equal(n.finish.delayDays, 10);
   assert.ok(n.warnings.some((w) => /measured from its data date/.test(w)));
+});
+
+test("delay by party: sole parts and concurrent delay add to the total (example)", () => {
+  const r = timeImpact(xer(), EXAMPLE_PARTY_FRAGNET);
+  assert.equal(r.finish.delayDays, 8);
+  const by = Object.fromEntries(r.byParty.map((x) => [x.party, x]));
+  assert.equal(by.Owner.aloneDays, 3);
+  assert.equal(by.Contractor.aloneDays, 8);
+  assert.equal(by.Owner.soleDays, 0);
+  assert.equal(by.Contractor.soleDays, 5);
+  assert.equal(r.apportionment.concurrentDays, 3);
+  assert.equal(by.Owner.rows, 3);
+  assert.match(timeImpactText(r), /8 d = 0 sole Owner \+ 5 sole Contractor \+ 3 concurrent/);
+  assert.match(timeImpactCsv(r), /concurrent delay,,stays when any one party is taken out,,,3,/);
+  assert.match(timeImpactHtml(r), /Delay by party/);
+  assert.match(partyHtml(r, { h: "h3" }), /<h3>Delay by party<\/h3>/);
+});
+
+test("delay by party: series delays are not concurrent; one party owns all; rows with no party grouped", () => {
+  // A1110 then A1120 both on the driving path, each made longer
+  const s = timeImpact(xer(), "Activity ID,Duration,Party\nA1110,+2,Owner\nA1140,+3,Contractor\n");
+  assert.equal(s.apportionment.concurrentDays, 0);
+  assert.equal(s.byParty.find((x) => x.party === "Owner").soleDays + s.byParty.find((x) => x.party === "Contractor").soleDays, s.finish.delayDays);
+  const one = timeImpact(xer(), "Activity ID,Duration,Party\nA1140,+3,Owner\n");
+  assert.equal(one.byParty.length, 1);
+  assert.equal(one.byParty[0].soleDays, one.finish.delayDays);
+  const mixed = timeImpact(xer(), "Activity ID,Duration,Party\nA1140,+3,Owner\nA1150,+2,\n");
+  assert.deepEqual(mixed.byParty.map((x) => x.party), ["Owner", "(no party)"]);
+  assert.ok(mixed.warnings.some((w) => /name no party/.test(w)));
+  assert.equal(timeImpact(xer(), EXAMPLE_FRAGNET).apportionment, null);
+});
+
+test("delay by party: a link to the other party's new activity is dropped when run alone", () => {
+  const r = timeImpact(xer(), "Activity ID,Name,Duration,Predecessors,Successors,Party\nF1,Owner hold,15,A1030,,Owner\nF2,Rework after hold,4,F1,A1100,Contractor\n");
+  const by = Object.fromEntries(r.byParty.map((x) => [x.party, x]));
+  // F1 alone has no successor, so it moves nothing
+  assert.equal(by.Owner.aloneDays, 0);
+  assert.ok(r.finish.delayDays > 0);
 });

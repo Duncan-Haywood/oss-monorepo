@@ -133,6 +133,18 @@ const roomsFileText = () => {
     "#2047=IFCPOLYLINE((#2050,#2051,#2052,#2053,#2054,#2055,#2050));",
     ...L.map(([x, y], i) => `#${2050 + i}=IFCCARTESIANPOINT((${x * 1000}.,${y * 1000}.));`),
     "#2060=IFCRELAGGREGATES('0rM0000000000000000008',$,$,$,#52,(#2040));",
+    // a sink whose body has nothing to read, placed at (2000, 1500, 0) inside the office, and
+    // one placed at (2000, -1500, 0) outside every room
+    "#2070=IFCFLOWTERMINAL('0rM0000000000000000009',$,'Sink',$,$,#2071,#2079,$);",
+    "#2079=IFCPRODUCTDEFINITIONSHAPE($,$,(#2080));",
+    "#2080=IFCSHAPEREPRESENTATION(#20,'Body','Brep',());",
+    "#2071=IFCLOCALPLACEMENT(#51,#2072);",
+    "#2072=IFCAXIS2PLACEMENT3D(#2073,$,$);",
+    "#2073=IFCCARTESIANPOINT((2000.,1500.,0.));",
+    "#2075=IFCFLOWTERMINAL('0rM0000000000000000010',$,'Outside sink',$,$,#2076,#2079,$);",
+    "#2076=IFCLOCALPLACEMENT(#51,#2077);",
+    "#2077=IFCAXIS2PLACEMENT3D(#2078,$,$);",
+    "#2078=IFCCARTESIANPOINT((2000.,-1500.,0.));",
   ].join("\n");
   const text = sampleText().replace("ENDSEC;\nEND-ISO", `${extra}\nENDSEC;\nEND-ISO`);
   assert.ok(text.includes("#2000=IFCSPACE"), "fixture edit applied");
@@ -168,7 +180,7 @@ test("an element standing in a room is given it; walls and elements outside are 
   assert.equal(table.spaceFrom, "geometry");
   assert.equal(chair.space, null);
   for (const w of res.rows.filter((r) => /^IFCWALL/.test(r.ifcType))) assert.equal(w.space, null, w.name);
-  assert.equal(res.rooms[0].elements, 1);
+  assert.equal(res.rooms[0].elements, 2); // the table, and the sink by its placement point
   // grouped by room
   const lines = boq(res.rows, ["space", "class"]);
   assert.ok(lines.some((l) => l.key[0] === "101 Office" && l.key[1] === "IfcFurnishingElement" && l.count === 1), JSON.stringify(lines.map((l) => l.key)));
@@ -178,12 +190,26 @@ test("an element standing in a room is given it; walls and elements outside are 
   assert.ok(csv.some((l) => l.includes("Table") && l.includes("101 Office,geometry")));
 });
 
+test("an element with no body is put in the room its placement point stands in", () => {
+  const res = roomsFile();
+  const sink = res.rows.find((r) => r.name === "Sink"), out = res.rows.find((r) => r.name === "Outside sink");
+  assert.equal(sink.box, null);
+  assert.deepEqual(sink.origin.map((v) => Math.round(v * 1000) / 1000), [2, 1.5, sink.origin[2]]);
+  assert.equal(sink.space, "101 Office");
+  assert.equal(sink.spaceFrom, "geometry");
+  assert.equal(sink.spaceBy, "placement point");
+  assert.equal(out.space, null);
+  assert.equal(out.spaceBy, undefined);
+  // the origin stays off the row's own fields (JSON, CSV)
+  assert.ok(!Object.keys(sink).includes("origin"));
+});
+
 test("the room schedule as CSV, and its totals per storey", () => {
   const res = roomsFile();
   const lines = roomsCsv(res.rooms).trim().split("\n");
   assert.equal(lines.length, 3);
   assert.ok(lines[0].startsWith("Entity,GlobalId,Number,Name,Storey,Floor area m2,Perimeter m"));
-  assert.ok(lines[1].includes(",101,Office,Level 1,12,14,2.7,37.8,0,0,0,37.8,0,32.4,1,12,,14,2.7,32400,"), lines[1]);
+  assert.ok(lines[1].includes(",101,Office,Level 1,12,14,2.7,37.8,0,0,0,37.8,0,32.4,2,12,,14,2.7,32400,"), lines[1]);
   assert.ok(/volume -99\.9% vs stored NetVolume \(unit-slip\)/.test(lines[1]), lines[1]);
   // a room name that starts like a formula is not run by a spreadsheet
   assert.ok(roomsCsv([{ id: 1, number: "=1+1", stored: {}, check: {} }]).includes(`"'=1+1"`));

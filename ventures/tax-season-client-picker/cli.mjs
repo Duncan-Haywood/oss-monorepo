@@ -47,6 +47,7 @@ export async function run(argv, io = { readFile: (f) => fs.readFile(f, "utf8") }
   if (args.sub !== "plan") return bad("Expected the plan command");
   const file = args.positional[0];
   if (!file) return bad("Give a clients file, or - for stdin");
+  if (args.positional.length > 1) return bad("Give one clients file");
   const opts = {};
   for (const [flag, v] of Object.entries(args.opts)) {
     if (v === undefined || v === "") return bad(`${flag} needs a value`);

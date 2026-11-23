@@ -18,6 +18,19 @@
  * factory quotes. The factory's own marker consumption always wins.
  */
 import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
+import { draft } from "./pattern.mjs";
+
+// The neck band is the drafted one (pattern.mjs: 85% of the whole neck seam, folded); until 2026-11-23 this
+// file typed its own 0.45 x body chest. Drafting is cached per garment, size, fit and chart.
+const bandCache = new Map();
+function draftedBand(garment, size, fit, sizeChart) {
+  const k = JSON.stringify([garment, size, fit, sizeChart]);
+  if (!bandCache.has(k)) {
+    const d = draft(garment, size, { fit, sizeChart });
+    bandCache.set(k, d.ok && d.checks.neckbandLengthCm ? { l: d.checks.neckbandLengthCm, w: 2 * d.checks.neckbandWidthCm } : null);
+  }
+  return bandCache.get(k);
+}
 import { nestRatio, nestSvg } from "./nest.mjs";
 import { DRAFTED } from "./pattern.mjs";
 
@@ -38,8 +51,11 @@ export function patternPieces(garment, size, fit = "regular", sizeChart = BODY_C
     P("front", g.flatWidth, g.length, 1),
     P("back", g.flatWidth, g.length, 1),
     P("sleeve", 0.34 * g.chest, SLEEVE_LENGTH_CM[garment], 2),
-    P("neck band", 4.5, 0.45 * g.bodyChest, 1),
   ];
+  if (garment !== "hoodie") { // the hoodie's hood takes the neck
+    const band = draftedBand(garment, size, fit, sizeChart);
+    out.push(band ? P("neck band", band.w, band.l, 1) : P("neck band", 4.5, 0.45 * g.bodyChest, 1));
+  }
   if (garment === "crewneck" || garment === "hoodie") {
     out.push(P("cuff", 8, 0.2 * g.chest, 2));
     out.push(P("waistband", 9, g.flatWidth, 2));

@@ -418,6 +418,12 @@ room by room, so the takeoff lists every IfcSpace with:
   slabs, frames, stairs and railings bound rooms and are not placed by
   geometry (on ARK_NUS, whose rooms run to wall centrelines, 901 walls and 306
   doors otherwise landed in one). The element CSV says which way (`Room from`).
+  An element whose body gives no box (Revit sofas, grab bars and plumbing
+  fixtures drawn as faceted surfaces read only as a volume) is tested at the
+  point it was placed at instead, 10 cm above, 10 cm below, then on it
+  (`row.spaceBy` = `placement point`): 133 of 139 such components land in
+  the room the file names (2026-11-23,
+  `../ids-model-check/eval/cobie-placement-point-2026-11-23.md`).
 
 13 public models, 991 rooms (989 measured): stored floor area agrees on 528 of
 535, perimeter 472 of 475, height 501 of 535 (34 nominal), volume 213 of 535
@@ -623,7 +629,12 @@ Checked against IfcOpenShell and by formula in
 [eval/pole-faces-2026-11-22.md](eval/pole-faces-2026-11-22.md): kleine_Wohnung
 reads 775 of 775 advanced breps, and the five curved breps that disagreed with
 IfcOpenShell for no named cause are its own meshes with faces turned inside
-out (turned back, they agree within 0.3%).
+out (turned back, they agree within 0.3%). Since 2026-11-23 the reference script
+checks every brep's mesh for this and the comparison names it
+([eval/turned-figure-2026-11-23.md](eval/turned-figure-2026-11-23.md)): unexplained
+disagreements on the two models 15 to 5 (the 5 left are tessellation gaps
+under 0.3%), and 55 of IfcOpenShell's 56 larger-than-the-box figures are the
+same inside-out faces.
 A plane
 cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids

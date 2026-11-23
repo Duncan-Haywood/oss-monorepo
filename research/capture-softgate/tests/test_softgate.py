@@ -67,3 +67,12 @@ def test_oracle_is_upper_bound_on_every_strategy():
     truth, _ = render(20.0)
     sc = {k: psnr(make(k, srcs, 20.0, truth=truth), truth) for k in ("fill", "hard", "soft", "cost", "softcost", "oracle")}
     assert sc["oracle"] >= max(sc.values()) - 1e-9
+
+
+def test_gates_beat_plain_filling_at_15_degrees():
+    # a gate that blends the wrong way (w*base + (1-w)*nearest) falls below plain filling (quality round 102)
+    srcs = sources()
+    truth, _ = render(20.0)
+    fill = psnr(make("fill", srcs, 20.0), truth)
+    assert psnr(make("soft", srcs, 20.0, t0=0.15, t1=0.5), truth) > fill
+    assert psnr(make("hard", srcs, 20.0, t0=0.5), truth) > fill

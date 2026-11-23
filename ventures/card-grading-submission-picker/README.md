@@ -40,6 +40,15 @@ Not a forecast, a price guide, an authenticity opinion or financial advice, and 
 cards are away, loss or damage in transit, grader acceptance rules, crossover and regrade strategies, and what a slab will
 really sell for. Outbound shipping to the buyer is left out on both sides.
 
+## Known gaps (quality audit, 2026-11-23)
+
+From [the round 102 audit](../../portfolio/quality/audits/2026-11-23-card-grading-submission-picker.json):
+
+- The tier is always the one whose declared-value cap covers the card's grade-10 value. Submitters often declare the likely value and pay an upcharge only if the card gems, and the picker cannot model that. On the example tiers this understates the gain by about $310 on the elite-tier card.
+- The marketplace fee is one flat percent plus a fixed fee on the whole sale. eBay's per-order fee and its lower rate above $7,500 are not modelled, so high-value slabs are overcharged.
+- Shipping and insurance is one figure per card. A real submission has a per-box return charge and insurance that scales with declared value.
+- Grades are 10, 9, 8 and 7-or-lower. There are no half grades and no BGS 9.5 or CGC Pristine.
+
 ## Privacy
 
 No network call, no account, no analytics vendor. The browser page analyses pasted text locally and never uploads it.

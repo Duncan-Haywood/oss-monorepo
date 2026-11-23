@@ -320,7 +320,8 @@ flagships:
       Capture One export to say if IIQ S offset tables apply (LibRaw skips them; the
       iXU180's 5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; Near-clean leak closed on Bayer 2026-11-19 (k 12,
+      evenly lit frame (its JPEG lifts none: eval/sony-vignetting-preview-*);
+      Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
       reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
@@ -400,8 +401,9 @@ flagships:
       on shared fields 2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima,
       eval/practice-exact.txt); ChessHouse r8 bye fixed 2026-11-23 (weighed in its
       bracket, byes 40/42); next: a real club's TRF. calc.mjs split 2026-11-23,
-      pages 67-93% lighter; multi-division page 217 to 75 kB via fields.mjs
-      (eval/page-weight.txt). More: NEXT.md. More open items: NEXT.md.
+      pages 67-93% lighter; multi-division 217 to 75 kB; main page 226 to 110 kB,
+      searches loaded on demand (eval/page-weight.txt). More: NEXT.md. More open
+      items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
@@ -533,9 +535,11 @@ flagships:
       eval/opening-brep-quantities-2026-11-22.md; next: a BIM manager's filled
       table. COBie 2.4 workbook and QC 2026-11-23 (cobie.mjs, cobie.html, --cobie,
       --cobie-qc; eval/cobie-2026-11-23.md: 791/869 doors and windows get the file's
-      own rooms from geometry); next: ARK_NUS's 85 furniture in another room,
-      body-less terminals by their placement point, a real owner's COBie QC. HTML
-      report: next, a consultant's read. More open items: NEXT.md.
+      own rooms from geometry); body-less components by placement point 2026-11-23,
+      133/139 right, eval/cobie-placement-point-2026-11-23.md; next: ARK_NUS's 85
+      furniture in another room, 35 wall-hosted fittings on the wall face, a real
+      owner's COBie QC. HTML report: next, a consultant's read. More open items:
+      NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -572,20 +576,18 @@ flagships:
       fields read 2026-11-22 (eval/finish-udfs-2026-11-22.md: 120/120 Project
       values, CCA 182/182); next: a P6 import of the result. next a real scheduler's
       read. Levelling on P6 resource curves 2026-11-22 (--curves,
-      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve. Risk
-      run levelled in every run 2026-11-22 (--levelled; crew-limit delay on common
-      draws; eval/risk-levelled-2026-11-22.md); next a commercial tool's levelled
-      risk run to compare. branches in TIA 2026-11-22 (tia.mjs Branch
-      group/Branch/Probability, every outcome scheduled,
-      eval/tia-branches-2026-11-22.md), next a real TIA exhibit with alternatives.
-      (15) Drag, joint acceleration 2026-11-22 (crash.mjs,
+      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve.
+      branches in TIA 2026-11-22 (tia.mjs Branch group/Branch/Probability, every
+      outcome scheduled, eval/tia-branches-2026-11-22.md), next a real TIA exhibit
+      with alternatives. (15) Drag, joint acceleration 2026-11-22 (crash.mjs,
       eval/crash-check-2026-11-22.md); next a commercial drag run, real crash rates.
       (16) GAO-16-89G ten practices scorecard 2026-11-23 (gao.mjs, --gao, page,
       guide; eval/gao-check-2026-11-23.md: 129/129 planted); next a real schedule
       with its GAO assessment. (17) Collapsed as-built, as-planned vs as-built
       2026-11-23 (collapse.mjs, asplanned.mjs; eval/asplanned-check-2026-11-23.md);
-      next a real baseline + final update with a claim's delay list. More open
-      items: NEXT.md.
+      next a real baseline + final update with a claim's delay list. (18) TIA by
+      party 2026-11-23 (eval/tia-party-check-2026-11-23.md); next a real claim's
+      parties. More: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -605,10 +607,11 @@ flagships:
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); signed
       fans swept 2026-11-23 (eval/signed-fan-swept-2026-11-23.md); next square-cut
-      ends (NEXT.md); turned-face figure in ifcopenshell-volumes.py --breps
-      (eval/pole-faces-2026-11-22.md); revision series: Kegonsa's 7 exports done,
-      replaced-in-place 2026-11-22 (eval/replaced-in-place-2026-11-22.md); Lake
-      Mills has no series; next a public non-Revit series.
+      ends (NEXT.md); the 5 tessellation-gap breps left
+      (eval/turned-figure-2026-11-23.md; reference JSONs in eval/); revision series:
+      Kegonsa's 7 exports done, replaced-in-place 2026-11-22
+      (eval/replaced-in-place-2026-11-22.md); Lake Mills has no series; next a
+      public non-Revit series.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

@@ -20,7 +20,43 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## The multi-division page stops loading the season builder: 217 kB to 75 kB (2026-11-23, newest)
+## The main page loads half the code: the season searches arrive only when a season asks (2026-11-23, newest)
+
+The single-league page (`index.html`) is the one most visitors land on, and it was the last heavy one:
+226 kB gzip of modules before the first click. About half of that was code a plain round robin never runs:
+the carry-over search (`carryover.mjs`), the doubleheader night designs (`nights.mjs` with
+`session-designs.mjs` and `odd-designs.mjs`), and the break-minimising orienter with its WebAssembly
+(`orient.mjs`, `wasm/minplus-wasm.mjs`). `schedule.mjs` imported them statically, so every visit paid
+for them.
+
+Now `schedule.mjs` takes them by hand-off instead of import (`useSeasonSearches(carry, nights)`), and
+`needsSeasonSearches(spec)` says when a season reaches them: an even carry-over at 4+ teams, or 2+ games
+a night. `calc.mjs` hands both in as it loads, so the server, the CLI, every test and eval script build
+exactly as before. The page imports the feature modules directly (not `calc.mjs`) and, the first time a
+season needs the searches, fetches them ("Loading the season search..."), then builds. A season built
+without them asks for them by name rather than silently falling back to the circle method.
+The carry-over measure and the search's page settings moved to `carryover-core.mjs` (no imports), which
+`carryover.mjs` re-exports, because `readSpec` and `scheduleStats` use them on every season.
+
+| single-league page | modules | raw | gzip |
+|---|---|---|---|
+| before | 32 | 663 kB | 226 kB |
+| after, on load | **26** | **331 kB** | **110 kB** |
+| fetched on demand | 6 | 332 kB | 119 kB |
+
+(`node eval/page-weight.mjs . index.html`, `eval/page-weight.txt`.) Checked in Chromium
+(`node eval/browser-lazy-searches.mjs`, `eval/browser-lazy-searches.txt`): on load and after building the
+example season none of the six modules is fetched; ticking carry-over fetches them and shows the
+carry-over line; a doubleheader season (2 games a night, three time slots) builds with them; no page
+errors. The same five example seasons (plain, carry-over, home-and-away carry-over, doubleheaders,
+fewest-breaks pick) give identical rounds and stats on `main`'s code and this one.
+Tests: `page.test.mjs` holds the page to it (it may not reach `calc.mjs`, `carryover.mjs`, `nights.mjs`,
+`orient.mjs` or either design table; those two load through `import()` only), checks every imported name
+against the module it names, and builds in a fresh process from `schedule.mjs` alone: a plain season
+builds, a carry-over or doubleheader season asks for the searches, and after `useSeasonSearches` both
+match the seasons `calc.mjs` builds.
+
+## The multi-division page stops loading the season builder: 217 kB to 75 kB (2026-11-23)
 
 After `calc.mjs` was split (next section), the multi-division page was the one page left heavy for no
 reason: `divisions.mjs` builds its own season on shared courts, but it took seven small helpers from

@@ -16,7 +16,8 @@
 //   pointInSolid(s, p)         whether local point p is inside solid s
 //   sectionPerimeter(s, n, k)  length of the outline the plane n.x = k cuts
 //   assignRooms(rows, rooms)   row.space for elements no room contains in the
-//                              file, by where their box stands
+//                              file, by where their box stands (or, with no
+//                              box, the point they were placed at)
 //
 // Solids are the signed sums geom.mjs builds: convex polyhedra (terms) and
 // closed faceted shells, each with a sign that says whether it adds or cuts.
@@ -332,7 +333,10 @@ export const BOUNDS_ROOMS = /^IFC(WALL|CURTAINWALL|SLAB|ROOF|DOOR|WINDOW|PLATE|M
  * middle of its plan box, 10 cm above its bottom (then at half height, then
  * 10 cm under its top), tested against each room's solid; where rooms overlap
  * the smallest wins. Walls, slabs, doors and the rest that bound rooms
- * (BOUNDS_ROOMS) are not placed by geometry. Sets row.space and row.spaceFrom ("contained", "geometry") and
+ * (BOUNDS_ROOMS) are not placed by geometry. An element with no box (a
+ * faceted body read only as a volume) but a non-enumerable `origin` (its
+ * placement point, metres) is tested at that point, 10 cm above, then 10 cm
+ * below, then on it, and gets row.spaceBy = "placement point". Sets row.space and row.spaceFrom ("contained", "geometry") and
  * room.elements (how many elements are in each room). rooms are the
  * takeoff's, with non-enumerable `solid` (local body), `world` and
  * `lengthUnit`; a room without them takes only the contained elements.
@@ -341,29 +345,41 @@ export function assignRooms(rows, rooms) {
   const testable = rooms.filter((r) => r.solid && r.box).map((r) => ({ r, inv: invert(r.world) })).sort((a, b) => (a.r.computed?.volume ?? Infinity) - (b.r.computed?.volume ?? Infinity));
   const byLabel = new Map(rooms.map((r) => [r.label, r]));
   for (const r of rooms) r.elements = 0;
+  // the smallest room whose solid holds world point (x, y, z), in metres
+  const roomAt = (x, y, z) => {
+    for (const { r, inv } of testable) {
+      const B = r.box, e = 1e-6;
+      if (x < B[0] - e || x > B[3] + e || y < B[1] - e || y > B[4] + e || z < B[2] - e || z > B[5] + e) continue;
+      const f = r.lengthUnit;
+      if (pointInSolid(r.solid, apply(inv, [x / f, y / f, z / f]))) return r;
+    }
+    return null;
+  };
   for (const row of rows) {
     if (row.space) { row.spaceFrom = "contained"; const rm = byLabel.get(row.space); if (rm && !row.isAssembly) rm.elements++; continue; }
-    if (!row.box || row.isAssembly || BOUNDS_ROOMS.test(row.ifcType ?? "")) continue;
-    const b = row.box;
-    const x = (b[0] + b[3]) / 2, y = (b[1] + b[4]) / 2, lift = Math.min(LIFT, (b[5] - b[2]) / 2);
-    // near the bottom first (furniture, floor finishes), then the middle, then
-    // near the top (a suspended ceiling hangs at the top of its room)
+    if (row.isAssembly || BOUNDS_ROOMS.test(row.ifcType ?? "")) continue;
     let hit = null;
-    const zs = [b[2] + lift, (b[2] + b[5]) / 2, b[5] - lift];
-    // a ceiling closes the room under it and a floor finish the one over it:
-    // Revit rooms stop at the ceiling's underside (Office_A: 83 of 83 ceilings)
-    if (/^IFCCOVERING/.test(row.ifcType ?? "")) {
-      if (row.predefinedType === "CEILING") zs.push(b[2] - LIFT);
-      else if (row.predefinedType === "FLOORING") zs.push(b[5] + LIFT);
-    }
-    for (const z of zs) {
-      for (const { r, inv } of testable) {
-        const B = r.box, e = 1e-6;
-        if (x < B[0] - e || x > B[3] + e || y < B[1] - e || y > B[4] + e || z < B[2] - e || z > B[5] + e) continue;
-        const f = r.lengthUnit;
-        if (pointInSolid(r.solid, apply(inv, [x / f, y / f, z / f]))) { hit = r; break; }
+    if (row.box) {
+      const b = row.box;
+      const x = (b[0] + b[3]) / 2, y = (b[1] + b[4]) / 2, lift = Math.min(LIFT, (b[5] - b[2]) / 2);
+      // near the bottom first (furniture, floor finishes), then the middle, then
+      // near the top (a suspended ceiling hangs at the top of its room)
+      const zs = [b[2] + lift, (b[2] + b[5]) / 2, b[5] - lift];
+      // a ceiling closes the room under it and a floor finish the one over it:
+      // Revit rooms stop at the ceiling's underside (Office_A: 83 of 83 ceilings)
+      if (/^IFCCOVERING/.test(row.ifcType ?? "")) {
+        if (row.predefinedType === "CEILING") zs.push(b[2] - LIFT);
+        else if (row.predefinedType === "FLOORING") zs.push(b[5] + LIFT);
       }
-      if (hit) break;
+      for (const z of zs) if ((hit = roomAt(x, y, z))) break;
+    } else if (row.origin) {
+      // no box: the point the element was placed at. A family's insertion
+      // point is on the floor (furniture), so 10 cm above it first; on a
+      // ceiling (a diffuser, a light) the room may stop just under it, so
+      // 10 cm below; then the point itself
+      const [x, y, z] = row.origin;
+      for (const zz of [z + LIFT, z - LIFT, z]) if ((hit = roomAt(x, y, zz))) break;
+      if (hit) row.spaceBy = "placement point";
     }
     if (hit) { row.space = hit.label; row.spaceFrom = "geometry"; hit.elements++; }
   }

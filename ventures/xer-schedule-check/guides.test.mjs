@@ -22,6 +22,7 @@ const GUIDES = [
   "how-to-run-a-collapsed-as-built-delay-analysis.html",
   "how-to-run-an-as-planned-vs-as-built-schedule-analysis.html",
   "how-to-run-a-time-impact-analysis-on-a-p6-schedule.html",
+  "how-to-split-concurrent-delay-between-owner-and-contractor.html",
   "how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html",
 ];
 
@@ -56,7 +57,7 @@ test("each guide: canonical, title and description lengths, FAQ markup equals th
 
 test("the buttons the guides name exist on the tool page", () => {
   const index = page("index.html");
-  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Compare plan with as-built", "Example delay list", "Example fragnet", "Run time impact analysis", "Printable exhibit (HTML)", "Impacted schedule (XER)", "without expected finish dates", "Finish date risk (Monte Carlo)", "Run the risk analysis"]) {
+  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Compare plan with as-built", "Example delay list", "Example fragnet", "Example with owner and contractor delays", "Run time impact analysis", "Printable exhibit (HTML)", "Impacted schedule (XER)", "without expected finish dates", "Finish date risk (Monte Carlo)", "Run the risk analysis"]) {
     assert.ok(index.includes(label), label);
   }
 });
@@ -242,4 +243,24 @@ test("the schedule risk guide's worked example equals the risk run on the built-
   assert.equal(p(c, 80).overDeterministic, 4.1);
   assert.equal(Math.round(c.pMustFinish * 100), 79);
   for (const s of ["still 2.1 working days late", "the P80 becomes 2026-08-03, 4.1 working days late", "falls to 79%"]) assert.ok(html.includes(s), s);
+});
+
+test("the concurrent delay guide's worked example equals timeImpact() by party on the built-in example", async () => {
+  const html = page("how-to-split-concurrent-delay-between-owner-and-contractor.html");
+  const { EXAMPLE_PARTY_FRAGNET } = await import("./tia.mjs");
+  writeFileSync(join(dir, "party.csv"), EXAMPLE_PARTY_FRAGNET);
+  const r = cli(join(dir, "cur.xer"), "--tia", join(dir, "party.csv"));
+  assert.equal(r.finish.base.slice(0, 10), "2026-07-27");
+  assert.equal(r.finish.impacted.slice(0, 10), "2026-08-06");
+  assert.equal(r.finish.delayDays, 8);
+  const by = Object.fromEntries(r.byParty.map((x) => [x.party, x]));
+  assert.equal(by.Owner.aloneDays, 3); assert.equal(by.Owner.aloneFinish.slice(0, 10), "2026-07-30");
+  assert.equal(by.Contractor.aloneDays, 8); assert.equal(by.Contractor.aloneFinish.slice(0, 10), "2026-08-06");
+  assert.equal(by.Owner.withoutDays, 8); assert.equal(by.Contractor.withoutDays, 3);
+  assert.equal(by.Owner.soleDays, 0); assert.equal(by.Contractor.soleDays, 5);
+  assert.equal(r.apportionment.concurrentDays, 3);
+  for (const s of ["<td>2026-07-30</td><td>3</td>", "<td>2026-08-06</td><td>8</td>", "owner's sole delay is 0", "contractor's sole delay is 5", "those 3 are concurrent", "0 + 5 + 3 = 8", "17 working days of redesign", "20 working days longer"]) assert.ok(html.includes(s), s);
+  assert.match(EXAMPLE_PARTY_FRAGNET, /A1090,,\+20,/);
+  assert.match(EXAMPLE_PARTY_FRAGNET, /F110,Redesign level 2 MEP rough-in,12,/);
+  assert.match(EXAMPLE_PARTY_FRAGNET, /F120,Re-approve level 2 MEP drawings,5,/);
 });
