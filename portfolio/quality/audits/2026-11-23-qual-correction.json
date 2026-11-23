@@ -200,7 +200,8 @@
    "where": "research/qual-correction/README.md:14",
    "category": "overclaim",
    "origin": "claims",
-   "what": "The headline 'below about 80% coder accuracy, the PPI interval is wider than the human-only one' (also README:139 and PROJECTS.md track 19) is the break-even for a 30% code with symmetric errors only. In closed form it is 91% at a 10% code and 95% at a 5% code, so a reader with a rare code and an 85% coder would wrongly expect PPI to help."
+   "what": "The headline 'below about 80% coder accuracy, the PPI interval is wider than the human-only one' (also README:139 and PROJECTS.md track 19) is the break-even for a 30% code with symmetric errors only. In closed form it is 91% at a 10% code and 95% at a 5% code, so a reader with a rare code and an 85% coder would wrongly expect PPI to help.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18334"
   },
   {
    "severity": "medium",
@@ -214,7 +215,8 @@
    "where": "research/qual-correction/test_qualml.py:1",
    "category": "untested-core",
    "origin": "tests",
-   "what": "No test pins Z95 or the naive and human-only standard errors: Z95 -> 1.645, naive se x2 and human-only se / sqrt 2 all survive. The human-only se is the baseline for the '23-26% narrower' and '80%' headlines."
+   "what": "No test pins Z95 or the naive and human-only standard errors: Z95 -> 1.645, naive se x2 and human-only se / sqrt 2 all survive. The human-only se is the baseline for the '23-26% narrower' and '80%' headlines.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18334"
   },
   {
    "severity": "medium",
@@ -238,6 +240,6 @@
    "what": "var() returns 0 for fewer than two values, so human_only on one item reports se 0 (an interval of zero width) instead of raising, unlike ppi which rejects n < 2."
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18334"],
  "verdict": "A small, clean, reproducible demonstration that naive LLM codes bias prevalence and group gaps and that PPI with a random hand-coded sample fixes it. Every simulated bias, width and coverage figure I recomputed from closed-form moments matches, and the agreement statistics match the krippendorff and scikit-learn packages. It misses the bar on verification (3 of 8 seeded mutants survive, including the z value and the human-only se behind the headline comparison) and claims (the '80% accuracy' break-even is stated as general but holds only for a 30% code: 91% at a 10% code). The effective-n summary is inflated by averaging ratios. Novelty is low and unpositioned: misclassification-corrected prevalence (Rogan-Gladen), the difference estimator and recent differential-misclassification work are not cited. Finished for what it claims; a sound teaching base for track 19 rather than a publishable result."
 }
