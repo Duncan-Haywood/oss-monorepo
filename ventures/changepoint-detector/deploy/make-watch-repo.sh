@@ -15,11 +15,11 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs posthog-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
-printf '# Stripe, Shopify, Search Console, Analytics and Plausible metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\n' > "$DEST/.gitignore"
+printf '# Stripe, Shopify, Search Console, Analytics, Plausible and PostHog metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\ndata/posthog.csv\n' > "$DEST/.gitignore"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch
 
@@ -92,6 +92,13 @@ stops arriving, set the variable `PLAUSIBLE_OPTIONS` to `--goal Signup` (repeat 
 as in Site settings > Goals). For a self-hosted Plausible add the variable `PLAUSIBLE_URL` (its https address). With
 no other source set, each run fetches `data/plausible.csv` (`node plausible-metrics.mjs --help`) and watches
 visitors, page views and each goal. `data/plausible.csv` is cached, never committed.
+
+PostHog: make a personal API key (Settings > Personal API keys) with the "Query: Read" scope and add it as the secret
+`POSTHOG_API_KEY`, and the project ID (Settings > Project) as the variable `POSTHOG_PROJECT`. Name the events to watch
+in the variable `POSTHOG_OPTIONS`, e.g. `--event '$pageview' --event signed_up` (up to eight; page views alone if
+unset). For PostHog EU Cloud set the variable `POSTHOG_HOST` to `eu`; for a self-hosted PostHog, its https address.
+With no other source set, each run fetches `data/posthog.csv` (`node posthog-metrics.mjs --help`) and watches each
+event's daily count and the people doing them. `data/posthog.csv` is cached, never committed.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood
