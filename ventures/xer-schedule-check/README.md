@@ -926,6 +926,34 @@ the planted activity named under its own test **129 of 129** times; what each fi
 the note. The guide page's worked example is the engine's own output on the built-in example
 (`guides.test.mjs`).
 
+## Redundant logic: links that can never drive (2026-11-23)
+
+`redundant.mjs`, `--redundant [--csv links.csv] [--cleaned out.xer] [--include-check]`, and the
+page's **Find redundant logic**: relationships another chain of links already implies, so they
+can never drive their successor whatever the durations become. They inflate the link count a DCMA
+or GAO reviewer reads as "well linked", clutter a hand trace of the driving path, and become the
+only, untested tie when the activity carrying the real logic is deleted later. Acumen Fuse reports
+redundant logic as a quality metric; P6 and Microsoft Project do not.
+
+How: each activity is a start and a finish event with finish >= start (a duration can shrink to
+zero); each link is a lower bound between two events with its lag (FS finish to start, SS, FF,
+SF). A link is redundant when the longest other path between its two events carries at least its
+lag. One longest-path pass per source event, bounded by the furthest target in topological order,
+takes CCA's 43,084 links in 0.4 s. Sure when the lags compare exactly (the link a zero lag or a
+lead against non-negative lags, or every non-zero lag on one lag calendar); otherwise "check".
+Paths never run through started work, links into it are not candidates; of two identical links
+one is kept. Links whose other path has less lag are listed apart as lag-carrying. `--cleaned`
+(and the page's **Download XER without them**) writes the file less the sure links' TASKPRED rows,
+every other line byte for byte.
+
+Checked (eval/redundant-logic-2026-11-23.md, `eval/redundant-check.mjs`): on the six public files,
+deleting every sure link at once (12,283 of CCA's 35,272 open links; 585 of hotel's 7,586; 51, 11,
+4, 0 on the others) changes no early or late date, total or free float on any activity, under the
+file's durations and five random sets; deleting the lag-carrying links instead moves up to 6,476
+activities, so the comparison sees change. 240 of 240 planted links (a duplicate, an A -> C over
+A -> B -> C) named. Not yet compared with Acumen Fuse's count on the same file, nor imported into
+P6 after deletion. Guide: `how-to-find-redundant-logic-in-a-p6-schedule.html`.
+
 ## Critical path drag and drag cost (2026-11-22)
 
 `drag.mjs`, `--drag [--drag-cost 12500] [--csv drag.csv]`, and the page's **Find critical path
@@ -1034,6 +1062,7 @@ button drifts. Search impressions not measured yet.
 | Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, cost resources and fixed costs as P6 expenses, deadlines as finish-on-or-before constraints on request (so P6's float counts down to them as Project's slack does), and a list of what is not carried (elapsed lags, splits) |
 | Accelerating by hand: pick the longest critical activity, add overtime, reschedule in P6 and see; or a paid tool that computes drag (Spider Project) | Trial and error in a P6 seat; most crews shorten an activity that a parallel path then caps | Drag and drag cost for every longest-path activity and lag from the XER, free in the browser: how many days each one really holds the finish, what that costs per your daily rate, which parallel path takes over, and reverse drag flagged |
 | Crashing by hand: add overtime to the longest critical activity, reschedule, repeat; or the time-cost trade-off in a textbook spreadsheet that ignores P6 calendars and SS/FF links | Finds the obvious single activities; misses that parallel chains must be shortened together and pays twice for time a later step makes useless | The cheapest set to shorten together at each step from the XER, rescheduled on P6's own rules, with time bought earlier given back when it stops helping, priced from your rates and stopped where a day costs more than it saves |
+| Acumen Fuse's redundant-logic metric (per-seat licence), or tracing links by hand in P6's relationship tab | Counts or finds links that repeat other logic; by hand, one activity at a time | Every redundant link in the XER with the chain that implies it, sure or to check by lag calendar, proved by deleting them and rescheduling (no date or float moved on six public files), and the XER back without them, free in the browser |
 | A narrative written by hand each month from P6 layouts and last month's report | Whatever the scheduler copies across; slow, and easy to miss a change the owner's reviewer will find | The draft narrative from the two XERs: status, critical path, work done and missed, every change with a fill-in for its reason, float, next period, free and in the browser |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | A schedule-quality trend from a paid analytics subscription, or a spreadsheet of each month's DCMA scores kept by hand | Per-update quality scores and float trends, per project or per seat, or whatever the scheduler copies across | The DCMA points, critical counts and driving-path churn for every update at once, BEI against the first update rather than the planned dates P6 resets, what newly fails each month by activity, and the activities losing float with months to zero, free in the browser |
@@ -1623,6 +1652,8 @@ Project XML, `eval/p6xer-mpxj.py` compares MPXJ's reading of the XML and the XER
 `eval/excel-check.py` reads it back with openpyxl against its own XER reader.
 `drag.mjs` computes critical path drag and drag cost (`dragAnalysis`; `node cli.mjs file.xer --drag [--drag-cost N]`);
 `eval/drag-check.mjs` runs it on the public files with a shorten-by-drag consistency check.
+`redundant.mjs` finds relationships another path already implies (`redundantLogic`, `dropLinksText`; `node cli.mjs file.xer --redundant [--cleaned out.xer]`);
+`eval/redundant-check.mjs` deletes them on the public files and reschedules, with random durations, a control and plants.
 `crash.mjs` finds the cheapest set of activities to shorten together, step by step (`crashAnalysis`; `node cli.mjs file.xer --crash [--crash-target D] [--crash-data rates.csv]`);
 `eval/crash-check.mjs` runs it on the public files with a replay check; `eval/crash-oracle.mjs`, `eval/crash-oracle-links.mjs` (SS/FF/SF links and lags) and `eval/crash-bridge.mjs` score it against brute force.
 `asplanned.mjs` lays a baseline beside the as-built along the as-built critical path (`asPlannedVsAsBuilt`; `node cli.mjs final.xer --as-planned baseline.xer`);

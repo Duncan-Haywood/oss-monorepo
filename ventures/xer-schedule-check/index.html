@@ -282,6 +282,15 @@
     </div>
     <p class="note" id="apab-status"></p>
     <div id="apab-out" class="tablewrap"></div>
+    <h2 style="margin-top:22px" id="redundant">Redundant logic: links that can never drive</h2>
+    <p class="note">A relationship is redundant when another chain of links already pushes its successor at least as late, whatever the durations become (every activity can shrink to zero, never below). Deleting it changes no date and no float, now or after any update, and leaves a network a reviewer can trace. On the 30 MB public CCA schedule, 12,285 of 35,272 open links were redundant, and deleting the 12,283 sure ones moved no date or float. Download the file less the sure ones to import into P6. P6 and Microsoft Project do not report these.</p>
+    <p class="row">
+      <button type="button" id="red-run" class="secondary">Find redundant logic</button>
+      <button type="button" id="red-csv" class="secondary" hidden>Download list (CSV)</button>
+      <button type="button" id="red-xer" class="secondary" hidden>Download XER without them</button>
+    </p>
+    <p class="note" id="red-status"></p>
+    <div id="red-out" class="tablewrap"></div>
     <h2 style="margin-top:22px" id="drag">Critical path drag: what to speed up</h2>
     <p class="note">Every critical activity has the same float, so float cannot say which one to accelerate. Drag can: it is how much earlier the forecast finish would be if that activity (or that lag) took no time, everything else as it is. An activity with 30 days left but 4 days of drag can only ever win 4 days, because a parallel path takes over. Type what a day of finish costs (liquidated damages, extended site overheads) to price each one. P6 and Microsoft Project do not compute drag.</p>
     <p class="row">
@@ -503,6 +512,7 @@
       <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
       <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
       <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+      <li><a href="./how-to-find-redundant-logic-in-a-p6-schedule.html">How to find redundant logic in a P6 schedule</a></li>
       <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
       <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
       <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
@@ -515,7 +525,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>tia_stepwise</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>tia_stepwise</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>redundant_found</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -539,7 +549,7 @@
     import { schedule } from "./cpm.mjs";
     import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
     import { collapsedAsBuilt, collapsedCsv, collapsedTableHtml, EXAMPLE_DELAYS } from "./collapse.mjs";
-    import { xerText } from "./xer.mjs";
+    import { xerText, xerBytes } from "./xer.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
     import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
     import { trend, trendCsv } from "./trend.mjs";
@@ -554,6 +564,7 @@
     const gaoModule = onDemand(() => import("./gao.mjs"));
     const crashModule = onDemand(() => import("./crash.mjs"));
     const dragModule = onDemand(() => import("./drag.mjs"));
+    const redModule = onDemand(() => import("./redundant.mjs"));
     const exampleSeriesModule = onDemand(() => import("./example-series.mjs"));
     const calslackModule = onDemand(() => import("./calslack.mjs"));
     const milestonesModule = onDemand(() => import("./milestones.mjs"));
@@ -599,7 +610,7 @@
       $("#fp-out").innerHTML = ""; $("#fp-status").textContent = ""; $("#fp-csv").hidden = true; lastFp = null;
       $("#cs-out").innerHTML = ""; $("#cs-status").textContent = ""; $("#cs-csv").hidden = true; lastCs = null;
       $("#mc-out").innerHTML = ""; $("#mc-status").textContent = ""; $("#mc-csv").hidden = true; lastMc = null;
-      $("#tia-out").innerHTML = ""; $("#tia-status").textContent = ""; $("#drag-out").innerHTML = ""; $("#drag-status").textContent = ""; $("#drag-csv").hidden = true; lastDrag = null; $("#crash-out").innerHTML = ""; $("#crash-status").textContent = ""; $("#crash-csv").hidden = true; lastCrash = null; for (const b of ["#tia-print", "#tia-csv", "#tia-xer"]) $(b).hidden = true; lastTia = null; $("#cab-out").innerHTML = ""; $("#cab-status").textContent = ""; for (const b of ["#cab-csv", "#cab-xer", "#cab-model"]) $(b).hidden = true; lastCab = null;
+      $("#tia-out").innerHTML = ""; $("#tia-status").textContent = ""; $("#drag-out").innerHTML = ""; $("#drag-status").textContent = ""; $("#drag-csv").hidden = true; lastDrag = null; $("#red-out").innerHTML = ""; $("#red-status").textContent = ""; $("#red-csv").hidden = $("#red-xer").hidden = true; lastRed = null; $("#crash-out").innerHTML = ""; $("#crash-status").textContent = ""; $("#crash-csv").hidden = true; lastCrash = null; for (const b of ["#tia-print", "#tia-csv", "#tia-xer"]) $(b).hidden = true; lastTia = null; $("#cab-out").innerHTML = ""; $("#cab-status").textContent = ""; for (const b of ["#cab-csv", "#cab-xer", "#cab-model"]) $(b).hidden = true; lastCab = null;
       $("#gantt-out").innerHTML = ""; $("#gantt-status").textContent = ""; $("#gantt-print").hidden = $("#gantt-csv").hidden = true; lastGantt = null;
       fillGroupBy();
       $("#ev-out").innerHTML = ""; $("#ev-status").textContent = ""; $("#ev-csv").hidden = true; $("#ev-curve").hidden = true; lastEv = null;
@@ -868,6 +879,34 @@
     });
     $("#gao-print").addEventListener("click", async () => { if (!lastGao) return; const { gaoHtml } = await gaoModule(); save(new Blob([gaoHtml(lastGao)], { type: "text/html" }), `${fileName}-gao-scorecard.html`); record("findings_downloaded"); });
     $("#gao-csv").addEventListener("click", async () => { if (!lastGao) return; const { gaoCsv } = await gaoModule(); save(new Blob([gaoCsv(lastGao)], { type: "text/csv" }), `${fileName}-gao-scorecard.csv`); record("findings_downloaded"); });
+    let lastRed = null;
+    $("#red-run").addEventListener("click", () => {
+      const st = $("#red-status");
+      if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
+      st.textContent = "Tracing every open relationship...";
+      setTimeout(async () => {
+        try {
+          const { redundantLogic, redundantTableHtml } = await redModule();
+          const r = redundantLogic(xer);
+          lastRed = r;
+          const s = r.summary;
+          st.innerHTML = `<b>${esc(s.redundant)}</b> of ${esc(s.checked)} open relationships are redundant (${esc(s.share)}%)${s.duplicates ? `, ${esc(s.duplicates)} of them duplicates` : ""}. ${s.intoDone + s.intoStarted + s.fromProgress ? `${esc(s.intoDone + s.intoStarted + s.fromProgress)} links touching started or completed work were not checked (actual dates do not move). ` : ""}(${esc(r.ms)} ms)`;
+          $("#red-out").innerHTML = redundantTableHtml(r) + (r.warnings.length ? `<p class="note">${r.warnings.map(esc).join("<br>")}</p>` : "");
+          $("#red-csv").hidden = !(r.redundant.length || r.lagCarrying.length);
+          $("#red-xer").hidden = !(xer.format !== "mspdi" && r.redundant.some((x) => x.sure) && loadedText);
+          record("redundant_found");
+        } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#red-out").innerHTML = ""; }
+      }, 20);
+    });
+    $("#red-csv").addEventListener("click", async () => { if (!lastRed) return; const { redundantCsv } = await redModule(); save(new Blob([redundantCsv(lastRed)], { type: "text/csv" }), `${fileName}-redundant-logic.csv`); record("findings_downloaded"); });
+    $("#red-xer").addEventListener("click", async () => {
+      if (!lastRed || !loadedText) return;
+      const { dropLinksText } = await redModule();
+      const { text, removed } = dropLinksText(loadedText, lastRed.redundant.filter((x) => x.sure).map((x) => x.id));
+      save(new Blob([xerBytes(text).bytes], { type: "text/plain" }), `${fileName}-without-redundant-logic.xer`);
+      $("#red-status").textContent += ` Saved the file less ${removed} sure redundant relationship${removed === 1 ? "" : "s"}.`;
+      record("findings_downloaded");
+    });
     let lastDrag = null;
     $("#drag-run").addEventListener("click", () => {
       const st = $("#drag-status");

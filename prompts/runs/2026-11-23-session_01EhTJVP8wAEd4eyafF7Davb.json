@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVP8wAEd4eyafF7Davb",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T18:07:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check (flagship 13, routed row 8): redundant logic finder",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": 18458,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Routed item list for xer-schedule-check is almost all 'needs a real outside input' or rerun-an-eval items; a new buildable feature had to be found by grepping the module list against competitor features."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Took a new feature (redundant logic) rather than the routed second item (rerun constraints-check on more seeds), since rerunning an existing eval ships nothing a user sees.",
+      "did": "Built redundant.mjs + CLI + page + guide + eval",
+      "result": "12,283 links deleted from CCA with 0 date/float changes across 6 runs; 240/240 plants"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-a-third-of-a-public-p6-schedules-logic-can-be-deleted.md",
+    "ventures/xer-schedule-check/eval/redundant-logic-2026-11-23.md",
+    "ventures/xer-schedule-check/how-to-find-redundant-logic-in-a-p6-schedule.html"
+  ],
+  "goal": "Deepen the xer-schedule-check flagship with a schedule-quality check P6 lacks and paid tools sell (redundant logic), proved on public files.",
+  "notes": "Verification: node --test redundant.test.mjs 10/10; run_venture_tests.py xer-schedule-check 470/471 before the own-keys fix (the failure was the inherited-keys guard on TYPES[rel.type], fixed with Object.hasOwn; own-keys/page/guides tests then pass 28/28); eval/redundant-check.mjs on the six public XERs: OK (deleting sure links: 0 changed values in every run; control moves up to 6,476 activities; plants 240/240). Playwright on the page with hotel-project.xer: 587 found, CSV and XER downloads work, no console errors. check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

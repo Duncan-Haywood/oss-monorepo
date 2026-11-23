@@ -192,9 +192,11 @@ import { xerToXlsx, xlsxSummary } from "./excel.mjs";
 import { dragAnalysis, dragText, dragCsv } from "./drag.mjs";
 import { crashAnalysis, crashText, crashCsv } from "./crash.mjs";
 import { gao, gaoText, gaoCsv, gaoHtml } from "./gao.mjs";
+import { redundantLogic, redundantText, redundantCsv, dropLinksText } from "./redundant.mjs";
+import { xerBytes } from "./xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max", "--cleaned"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -427,6 +429,19 @@ if (args.includes("--gao")) {
   if (opt("--csv")) writeFileSync(opt("--csv"), gaoCsv(r));
   if (opt("--html")) { writeFileSync(opt("--html"), gaoHtml(r, { by: opt("--by") })); console.error(`GAO scorecard written to ${opt("--html")}`); }
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : gaoText(r));
+  process.exit(0);
+}
+if (args.includes("--redundant")) {
+  const r = redundantLogic(xer, { projId });
+  if (opt("--csv")) writeFileSync(opt("--csv"), redundantCsv(r));
+  if (opt("--cleaned")) {
+    if (xer.format === "mspdi") { console.error("--cleaned writes XER files only; this is a Microsoft Project file"); process.exit(2); }
+    const ids = r.redundant.filter((x) => x.sure || args.includes("--include-check")).map((x) => x.id);
+    const { text, removed } = dropLinksText(decodeXer(readFileSync(file)), ids);
+    writeFileSync(opt("--cleaned"), xerBytes(text).bytes);
+    console.error(`${opt("--cleaned")}: the file less ${removed} redundant relationship${removed === 1 ? "" : "s"}`);
+  }
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : redundantText(r));
   process.exit(0);
 }
 if (args.includes("--drag")) {

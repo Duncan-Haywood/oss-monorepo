@@ -18,6 +18,7 @@ const GUIDES = [
   "how-to-write-a-monthly-construction-schedule-narrative.html",
   "how-to-convert-an-xer-file-to-excel.html",
   "how-to-find-critical-path-drag-in-a-p6-schedule.html",
+  "how-to-find-redundant-logic-in-a-p6-schedule.html",
   "how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html",
   "how-to-run-a-collapsed-as-built-delay-analysis.html",
   "how-to-run-an-as-planned-vs-as-built-schedule-analysis.html",
