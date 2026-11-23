@@ -14,6 +14,18 @@ the organizer can play without seeing who drew whom.
   draw on every device.
 - **Next year:** paste last year's link and the new draw avoids every pairing
   from it, without anyone reading them.
+- **Private links (2026-11-23):** one link per person, with Copy and Share
+  buttons and a "copy every link as one message" list for DMs or an email
+  merge. Each link holds only its giver's name, their match and the exchange
+  details (`encodePrivate`), never the other names or the random number, so it
+  cannot be used to look up anyone else's person. This closes the group link's
+  honor-system gap without a server. The organizer also gets the group link as a
+  private record for next year's no-repeat rule. Base64, not encryption:
+  whoever opens a link sees its match, and the page says so.
+- **Wish lists (2026-11-23):** after seeing their person, anyone can write a
+  wish list and share a `#w=` link in the group chat; it holds only their name
+  and ideas (600 characters), not whom they are buying for. Elfster-style
+  wish lists, with no accounts.
 - **Pass the phone:** an airtight single-device mode; a name disappears once used.
 - **If no draw exists** the page names the people who are stuck (an exact
   bipartite matching check) and says which rule to relax.
@@ -53,6 +65,7 @@ step, no dependencies. `node --test *.test.mjs` runs the suite.
 - `calc.mjs` - parsing, the draw (shuffle with rejection, then matching and
   depth-first search), link encoding, exports.
 - `usage.mjs` - local-only feature counters with an opt-out.
+- `private.test.mjs` - private and wish list links: 200 random groups (3 to 42 people), every link decodes to its own giver and the draw's receiver and holds no other participant's name; forged and damaged links refused.
 - `secret-santa-rules-for-couples-and-no-repeats.html` - guide whose worked
   counts the test suite recomputes from the engine.
 - `how-many-people-do-you-need-for-secret-santa.html` - guide with a table of valid draws for 3 to 8 people under each pairing rule; the counts are recomputed by the test suite.

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVPNgeukP4k7F1G1Tkb",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T13:04:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18424,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The routine's stored prompt asks for revenue-generating products, but the weighted draw sent it to the creative track, whose shelf got five new pieces earlier today."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Hearth & Horizon already had five pieces on main today, so another one was worth little. The scheduled prompt asks for products. The site's own page-load data shows secret-santa-draw is the most visited product (27% of browser loads, 6 to 19 Nov) with its season peaking now.",
+      "did": "Shipped private per-person links and wish list links for secret-santa-draw, with a post, instead of a story.",
+      "result": "48/48 tests passed, browser-checked; merged as PR 18424"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: secret-santa-draw (not a creative piece). Private links (#p=, one per person, only that person's match) and wish list links (#w=). private.test.mjs covers 200 random groups. run_venture_tests secret-santa-draw: ok (48 tests); site page checks ok; check_posts ok. Next for a later run: read December page loads for the tool.",
+  "corrections": [],
+  "redteam": null
+}
