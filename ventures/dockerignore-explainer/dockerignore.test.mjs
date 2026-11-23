@@ -8,7 +8,7 @@ const ids = (r) => r.findings.map((f) => f.id);
 const row = (r, p) => r.rows.find((x) => x.path === p);
 
 test("readIgnore follows ignorefile.ReadAll", () => {
-  const l = readIgnore("﻿# c\n  # not\n/abs/x\n! neg/./y\n\na/../b\r\n!\n");
+  const l = readIgnore("\ufeff# c\n  # not\n/abs/x\n! neg/./y\n\na/../b\r\n!\n");
   assert.deepEqual(l.map((x) => x.pattern), [null, "# not", "abs/x", "!neg/y", null, "b", "!"]);
   assert.equal(l[0].comment, true);
 });

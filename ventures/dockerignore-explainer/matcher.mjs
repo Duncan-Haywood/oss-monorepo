@@ -198,7 +198,7 @@ export function readIgnore(text) {
   const lines = [];
   raw.forEach((line0, idx) => {
     let line = line0.endsWith("\r") ? line0.slice(0, -1) : line0;
-    if (idx === 0 && line.startsWith("﻿")) line = line.slice(1);
+    if (idx === 0 && line.startsWith("\ufeff")) line = line.slice(1);
     const entry = { line: idx + 1, raw: line, pattern: null, comment: false };
     lines.push(entry);
     if (line.startsWith("#")) {
