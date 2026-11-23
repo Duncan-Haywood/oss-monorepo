@@ -1,0 +1,261 @@
+{
+ "versions": {
+  "setuptools": "84.2.1",
+  "hatchling": "1.33.0",
+  "flit_core": "4.2.0"
+ },
+ "cases": {
+  "license-classifier-conflict": {
+   "setuptools": {
+    "result": "error",
+    "message": "setuptools.errors.InvalidConfigError: License classifiers have been superseded by license expressions (see https://peps.python.org/pep-0639/). Please remove:"
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: License classifiers are deprecated in favor of the license expression. Remove the 'License :: OSI Approved :: MIT License' classifier"
+   }
+  },
+  "license-table-deprecated": {
+   "setuptools": {
+    "result": "warning",
+    "message": "/tmp/claude-0/pv/lib/python3.11/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated"
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "ok",
+    "message": ""
+   }
+  },
+  "unknown-project-key": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: `project` must not contain {'homepage'} properties"
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: Unrecognised key(s) in [project] table: homepage"
+   }
+  },
+  "dynamic-and-static": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: You cannot provide a value for `project.version` and list it under `project.dynamic` at the same time"
+   },
+   "hatchling": {
+    "result": "error",
+    "message": "ValueError: Metadata field `version` cannot be both statically defined and listed in field `project.dynamic`"
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: keys listed in project.dynamic must not be in [project] table"
+   }
+  },
+  "description-multiline": {
+   "setuptools": {
+    "result": "warning",
+    "message": "/tmp/claude-0/pv/lib/python3.11/site-packages/setuptools/_core_metadata.py:163: SetuptoolsDeprecationWarning: Invalid config."
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "ok",
+    "message": ""
+   }
+  },
+  "flit-no-description": {
+   "setuptools": {
+    "result": "ok",
+    "message": ""
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: description must be specified under [project] or listed as a dynamic field"
+   }
+  },
+  "authors-comma": {
+   "setuptools": {
+    "result": "ok",
+    "message": ""
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "ok",
+    "message": ""
+   }
+  },
+  "authors-email": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: `project.authors[0].email` must be idn-email"
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "ok",
+    "message": ""
+   }
+  },
+  "readme-extension": {
+   "setuptools": {
+    "result": "ok",
+    "message": ""
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "ok",
+    "message": ""
+   }
+  },
+  "readme-content-type-missing": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: `project.readme` must be valid exactly by one definition (0 matches found):"
+   },
+   "hatchling": {
+    "result": "error",
+    "message": "ValueError: Field `content-type` is required in the `project.readme` table"
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: content-type field required in [project.readme] table"
+   }
+  },
+  "license-files-no-match": {
+   "setuptools": {
+    "result": "warning",
+    "message": "/tmp/claude-0/pv/lib/python3.11/site-packages/setuptools/dist.py:483: SetuptoolsDeprecationWarning: Cannot find any files for the given pattern."
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: No files found for [project.license-files]: 'NOPE*' pattern"
+   }
+  },
+  "license-expression-invalid": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: `project.license` must be valid exactly by one definition (0 matches found):"
+   },
+   "hatchling": {
+    "result": "error",
+    "message": "ValueError: Error parsing field `project.license` - Invalid license expression: 'MIT License'"
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: 'MIT License' is not a valid SPDX license expression: a license or exception ID must follow AND, OR, WITH, or '('"
+   }
+  },
+  "license-files-with-table": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: `project.license` must be string"
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: license-files cannot be used with a license table, use 'project.license' with a license expression instead"
+   }
+  },
+  "requires-python-invalid": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: `project.requires-python` must be pep508-versionspec"
+   },
+   "hatchling": {
+    "result": "error",
+    "message": "ValueError: Field `project.requires-python` is invalid: Invalid specifier: '^3.8'"
+   },
+   "flit_core": {
+    "result": "ok",
+    "message": ""
+   }
+  },
+  "classifier-unknown": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: `project.classifiers[0]` must be trove-classifier"
+   },
+   "hatchling": {
+    "result": "error",
+    "message": "ValueError: Unknown classifier in field `project.classifiers`: Topic :: Nope :: Nope"
+   },
+   "flit_core": {
+    "result": "ok",
+    "message": ""
+   }
+  },
+  "version-invalid": {
+   "setuptools": {
+    "result": "error",
+    "message": "configuration error: `project.version` must be pep440"
+   },
+   "hatchling": {
+    "result": "error",
+    "message": "ValueError: Invalid version `v1.0-final-x` from field `project.version`, see https://peps.python.org/pep-0440/"
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.common.InvalidVersion: Version number 'v1.0-final-x' does not match PEP 440 rules"
+   }
+  },
+  "control-ok": {
+   "setuptools": {
+    "result": "ok",
+    "message": ""
+   },
+   "hatchling": {
+    "result": "ok",
+    "message": ""
+   },
+   "flit_core": {
+    "result": "ok",
+    "message": ""
+   }
+  },
+  "entry-points-scripts": {
+   "setuptools": {
+    "result": "ok",
+    "message": ""
+   },
+   "hatchling": {
+    "result": "error",
+    "message": "ValueError: Field `console_scripts` must be defined as `project.scripts` instead of in the `project.entry-points` table"
+   },
+   "flit_core": {
+    "result": "error",
+    "message": "flit_core.config.ConfigError: Scripts should be specified in [project.scripts] or [project.gui-scripts], not under [project.entry-points]"
+   }
+  }
+ }
+}

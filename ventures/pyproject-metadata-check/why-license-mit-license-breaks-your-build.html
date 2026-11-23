@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why license = "MIT License" Breaks Your Python Build (PEP 639)</title>
+  <meta name="description" content="PEP 639 turned project.license into an SPDX expression. What setuptools 84.2.1, hatchling 1.33.0 and flit_core 4.2.0 each refuse, warn about or accept, measured by building the same project with all three, and how to fix it.">
+  <meta property="og:title" content="Why license = &quot;MIT License&quot; breaks your Python build">
+  <link rel="canonical" href="./why-license-mit-license-breaks-your-build.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234a73'/%3E%3C/svg%3E">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why license = \"MIT License\" breaks your Python build", "datePublished": "2026-11-23", "author": {"@type": "Organization", "name": "marisstella.app"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does PEP 639 change in pyproject.toml?", "acceptedAnswer": {"@type": "Answer", "text": "The license key now takes an SPDX license expression as a plain string, such as MIT or Apache-2.0 OR MIT, and a new license-files key lists the licence files to ship as glob patterns. The old table form, license = { text = ... } or { file = ... }, is deprecated, and so are the License :: classifiers."}}, {"@type": "Question", "name": "Why did my build start failing after a setuptools upgrade?", "acceptedAnswer": {"@type": "Answer", "text": "Recent setuptools validates license as an SPDX expression and refuses a License :: classifier next to one. A license string written as a name, like MIT License or BSD, or a classifier left in place after switching to license = \"MIT\", now stops the build with a configuration error."}}, {"@type": "Question", "name": "What should I write instead?", "acceptedAnswer": {"@type": "Answer", "text": "license = \"MIT\" (or your SPDX identifier, such as Apache-2.0, BSD-3-Clause or GPL-3.0-or-later), license-files = [\"LICEN[CS]E*\"], and no License :: classifier. A licence with no SPDX identifier is written LicenseRef-YourName."}}, {"@type": "Question", "name": "Do all backends behave the same?", "acceptedAnswer": {"@type": "Answer", "text": "No. We built the same small project with setuptools, hatchling and flit_core; the table above shows where they differ. hatchling accepts the classifier pair and an unknown [project] key that setuptools and flit_core refuse, and setuptools accepts console_scripts under entry-points, which the other two refuse."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17222e; background: #f3f6f9; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    a { color: #1f5f99; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: #163a5c; }
+    h2 { font-size: 1.2rem; color: #163a5c; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #e6edf4; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #fff; border: 1px solid #d6e0ea; border-radius: 8px; padding: 12px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; background: #fff; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6edf4; vertical-align: top; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 32px; border-top: 1px solid #d6e0ea; padding-top: 16px; font-size: .86rem; color: #4c5966; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">pyproject.toml checker</a> · guide</p>
+  <h1>Why <code>license = "MIT License"</code> breaks your Python build</h1>
+  <p>For years <code>license = { text = "MIT License" }</code> and a <code>License :: OSI Approved :: MIT License</code> classifier were the normal way to say a Python package was MIT licensed. PEP 639 changed both. The <code>license</code> key now holds an <strong>SPDX license expression</strong> as a plain string, licence files are listed with <strong><code>license-files</code></strong>, and the table form and the licence classifiers are deprecated. Backends adopted it at different speeds, so the same file can build with one and fail with another.</p>
+
+  <h2>What three backends did with the same project</h2>
+  <p>We built one small project with each backend's own build hook, changing one thing at a time (setuptools 84.2.1, hatchling 1.33.0, flit_core 4.2.0, November 2026; the script is <code>eval/backend_claims.py</code> in the source and its output is <code>eval/backend-claims.json</code>). "Refuses" means the build stopped with an error; "warns, builds" means it printed a deprecation or warning and went on.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>In pyproject.toml</th><th>setuptools</th><th>hatchling</th><th>flit_core</th></tr></thead>
+    <tbody>
+      <tr><td><code>license = "MIT License"</code></td><td>refuses</td><td>refuses</td><td>refuses</td></tr>
+      <tr><td><code>license = "MIT"</code> plus a <code>License ::</code> classifier</td><td>refuses</td><td>builds</td><td>refuses</td></tr>
+      <tr><td><code>license = { text = "MIT" }</code></td><td>warns, builds</td><td>builds</td><td>builds</td></tr>
+      <tr><td>the table form plus <code>license-files</code></td><td>refuses</td><td>builds</td><td>refuses</td></tr>
+      <tr><td>a <code>license-files</code> pattern that matches nothing</td><td>warns, builds</td><td>builds</td><td>refuses</td></tr>
+      <tr><td><code>homepage = "..."</code> in [project]</td><td>refuses</td><td>builds</td><td>refuses</td></tr>
+      <tr><td><code>[project.entry-points.console_scripts]</code></td><td>builds</td><td>refuses</td><td>refuses</td></tr>
+      <tr><td><code>readme = { file = "README.md" }</code> with no content-type</td><td>refuses</td><td>refuses</td><td>refuses</td></tr>
+      <tr><td>an author e-mail without a dot in the domain</td><td>refuses</td><td>builds</td><td>builds</td></tr>
+      <tr><td>an unknown classifier</td><td>refuses</td><td>refuses</td><td>builds</td></tr>
+      <tr><td><code>requires-python = "^3.8"</code></td><td>refuses</td><td>refuses</td><td>builds</td></tr>
+    </tbody>
+  </table></div>
+  <p>Two things stand out. Of the 17 cases we tried, only an invalid licence string, an invalid version, a dynamic field also given statically and a readme table without a content type were refused by all three. And hatchling is the most forgiving: it built a file with an unknown <code>[project]</code> key, which means whatever that key was meant to say (often a <code>homepage</code>) silently never reaches the package.</p>
+
+  <h2>The fix</h2>
+<pre>[project]
+license = "MIT"                      # an SPDX identifier, not a name
+license-files = ["LICEN[CS]E*"]      # glob patterns, relative to pyproject.toml
+# and no "License :: ..." classifiers</pre>
+  <p>Combine licences with <code>AND</code>, <code>OR</code> and <code>WITH</code> (<code>Apache-2.0 OR MIT</code>, <code>GPL-2.0-or-later WITH Classpath-exception-2.0</code>). A licence with no SPDX identifier is <code>LicenseRef-</code> plus a name. Old GNU identifiers like <code>GPL-3.0</code> still parse but are deprecated: say <code>GPL-3.0-only</code> or <code>GPL-3.0-or-later</code>.</p>
+  <p>The <a href="./">checker</a> reads your file and reports each of these with its line, and names the backend that will refuse it; it also checks the rest of <code>[project]</code>, your dependency strings and <code>[build-system]</code>.</p>
+
+  <h2>Questions</h2>
+    <h3>What does PEP 639 change in pyproject.toml?</h3>
+    <p>The license key now takes an SPDX license expression as a plain string, such as MIT or Apache-2.0 OR MIT, and a new license-files key lists the licence files to ship as glob patterns. The old table form, license = { text = ... } or { file = ... }, is deprecated, and so are the License :: classifiers.</p>
+    <h3>Why did my build start failing after a setuptools upgrade?</h3>
+    <p>Recent setuptools validates license as an SPDX expression and refuses a License :: classifier next to one. A license string written as a name, like MIT License or BSD, or a classifier left in place after switching to license = "MIT", now stops the build with a configuration error.</p>
+    <h3>What should I write instead?</h3>
+    <p>license = "MIT" (or your SPDX identifier, such as Apache-2.0, BSD-3-Clause or GPL-3.0-or-later), license-files = ["LICEN[CS]E*"], and no License :: classifier. A licence with no SPDX identifier is written LicenseRef-YourName.</p>
+    <h3>Do all backends behave the same?</h3>
+    <p>No. We built the same small project with setuptools, hatchling and flit_core; the table above shows where they differ. hatchling accepts the classifier pair and an unknown [project] key that setuptools and flit_core refuse, and setuptools accepts console_scripts under entry-points, which the other two refuse.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind. It is not legal or professional advice, and a licence identifier being valid says nothing about whether that licence suits your project. The table records what these backend versions did in our test builds; other versions can differ.</p>
+  <p><strong>Independent.</strong> Not affiliated with or endorsed by the Python Software Foundation, the Python Packaging Authority, PyPI or the maintainers of any build backend. Python is a trademark of the Python Software Foundation.</p>
+  <p>This page sets no cookies and loads nothing from other sites. <a href="./">Back to the checker</a>.</p>
+</footer>
+</body>
+</html>
