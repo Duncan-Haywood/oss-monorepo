@@ -180,7 +180,9 @@
   </footer>
   <script type="module">
     import { analyze, parseCsv } from "./engine.mjs";
-    import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+    let exampleDataLoad = null; // example-data.mjs is fetched after the page has loaded, off its critical path; an example press awaits it
+    const exampleData = () => (exampleDataLoad ??= import("./example-data.mjs").catch((e) => { exampleDataLoad = null; throw e; }));
+    addEventListener("load", () => exampleData().catch(() => {}), { once: true });
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (sel) => document.querySelector(sel);
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -273,7 +275,8 @@
       $("#status").textContent = "Estimating...";
       setTimeout(() => { if (runAnalysis()) record("analysis_run"); $("#analyze").disabled = false; }, 20);
     });
-    $("#load-example").addEventListener("click", () => {
+    $("#load-example").addEventListener("click", async () => {
+      const { EXAMPLE_CSV, EXAMPLE_SPEC } = await exampleData();
       $("#csv").value = EXAMPLE_CSV;
       refreshColumns();
       $("#outcome").value = EXAMPLE_SPEC.outcome;

@@ -181,7 +181,9 @@
   </footer>
   <script type="module">
     import { analyze, parseCsv, guessTypes, FIELD_TYPES, annotatedCsv, mergedCsv, fmtPct } from "./engine.mjs";
-    import { CONTACTS, FEBRL1 } from "./example-data.mjs";
+    let exampleDataLoad = null; // example-data.mjs is fetched after the page has loaded, off its critical path; an example press awaits it
+    const exampleData = () => (exampleDataLoad ??= import("./example-data.mjs").catch((e) => { exampleDataLoad = null; throw e; }));
+    addEventListener("load", () => exampleData().catch(() => {}), { once: true });
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -246,8 +248,8 @@
     }
 
     function load(text) { $("csv").value = text; parsed = null; readColumns(); record("example_loaded"); }
-    $("exContacts").addEventListener("click", () => { load(CONTACTS); run(); });
-    $("exFebrl").addEventListener("click", () => { load(FEBRL1); run(); });
+    $("exContacts").addEventListener("click", async () => { const { CONTACTS } = await exampleData(); load(CONTACTS); run(); });
+    $("exFebrl").addEventListener("click", async () => { const { FEBRL1 } = await exampleData(); load(FEBRL1); run(); });
     $("readCols").addEventListener("click", () => { parsed = null; readColumns(); });
     $("csv").addEventListener("input", () => { parsed = null; });
     $("file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; $("csv").value = await f.text(); parsed = null; readColumns(); });

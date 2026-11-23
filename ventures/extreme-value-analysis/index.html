@@ -167,7 +167,9 @@
 
   <script type="module">
     import { analyze, readSeries, parseNumberList, fmt, formatP, gevQuantileUpper, potReturnLevel } from "./engine.mjs";
-    import { ANNUAL_PEAKS_CSV, DAILY_FLOW_CSV } from "./example-data.mjs";
+    let exampleDataLoad = null; // example-data.mjs is fetched after the page has loaded, off its critical path; an example press awaits it
+    const exampleData = () => (exampleDataLoad ??= import("./example-data.mjs").catch((e) => { exampleDataLoad = null; throw e; }));
+    addEventListener("load", () => exampleData().catch(() => {}), { once: true });
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -281,11 +283,13 @@
     $("#csv").addEventListener("input", refreshColumns);
     $("#file").addEventListener("change", async (event) => { const f = event.target.files[0]; if (f) { $("#csv").value = await f.text(); refreshColumns(); } });
     $("#analyze").addEventListener("click", () => start(() => record("analysis_run")));
-    $("#load-annual").addEventListener("click", () => {
+    $("#load-annual").addEventListener("click", async () => {
+      const { ANNUAL_PEAKS_CSV } = await exampleData();
       $("#csv").value = ANNUAL_PEAKS_CSV; $("#year-start").value = "10"; $("#method").value = "auto"; $("#threshold").value = ""; refreshColumns();
       start(() => { record("example_loaded"); $("#data-status").textContent = "Example: USGS 01646500, Potomac River near Washington, DC, annual peak flow in cubic feet per second, water years 1931-2026 (public domain)."; });
     });
-    $("#load-daily").addEventListener("click", () => {
+    $("#load-daily").addEventListener("click", async () => {
+      const { DAILY_FLOW_CSV } = await exampleData();
       $("#csv").value = DAILY_FLOW_CSV; $("#year-start").value = "10"; $("#run-length").value = "7"; $("#method").value = "auto"; $("#threshold").value = ""; refreshColumns();
       start(() => { record("example_loaded"); $("#data-status").textContent = "Example: USGS 01646500 daily mean flow in cubic feet per second, 2006-10-01 to 2026-09-30 (public domain). Run length 7 days treats peaks a week apart as one flood."; });
     });

@@ -229,7 +229,9 @@
   </footer>
   <script type="module">
     import { analyze, parseCsv, profileColumns, recalibrator, toCsv, report, fmt, fmtP, pct } from "./engine.mjs";
-    import { EXAMPLE_CSV } from "./example-data.mjs";
+    let exampleDataLoad = null; // example-data.mjs is fetched after the page has loaded, off its critical path; an example press awaits it
+    const exampleData = () => (exampleDataLoad ??= import("./example-data.mjs").catch((e) => { exampleDataLoad = null; throw e; }));
+    addEventListener("load", () => exampleData().catch(() => {}), { once: true });
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -403,7 +405,7 @@
       record("example_loaded");
       run();
     }
-    $("#load-example").addEventListener("click", () => loadExample(EXAMPLE_CSV));
+    $("#load-example").addEventListener("click", async () => { const { EXAMPLE_CSV } = await exampleData(); loadExample(EXAMPLE_CSV); });
     function save(text, name, type) {
       const blob = new Blob([text], { type });
       const a = document.createElement("a");

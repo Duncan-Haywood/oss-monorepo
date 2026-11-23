@@ -217,7 +217,9 @@
 
   <script type="module">
     import { analyze, parseCsv } from "./engine.mjs";
-    import { EXAMPLE_CSV } from "./example-data.mjs";
+    let exampleDataLoad = null; // example-data.mjs is fetched after the page has loaded, off its critical path; an example press awaits it
+    const exampleData = () => (exampleDataLoad ??= import("./example-data.mjs").catch((e) => { exampleDataLoad = null; throw e; }));
+    addEventListener("load", () => exampleData().catch(() => {}), { once: true });
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -320,7 +322,8 @@
       setTimeout(() => { if (runAnalysis()) after(); }, 20);
     }
     $("#analyze").addEventListener("click", () => start(() => record("analysis_run")));
-    $("#load-example").addEventListener("click", () => {
+    $("#load-example").addEventListener("click", async () => {
+      const { EXAMPLE_CSV } = await exampleData();
       $("#csv").value = EXAMPLE_CSV;
       refreshColumns();
       $("#target").value = "Y";

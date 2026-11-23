@@ -202,7 +202,9 @@
   </footer>
   <script type="module">
     import { analyze, parseCsv } from "./engine.mjs";
-    import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+    let exampleDataLoad = null; // example-data.mjs is fetched after the page has loaded, off its critical path; an example press awaits it
+    const exampleData = () => (exampleDataLoad ??= import("./example-data.mjs").catch((e) => { exampleDataLoad = null; throw e; }));
+    addEventListener("load", () => exampleData().catch(() => {}), { once: true });
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -265,7 +267,7 @@
 
     function inputs() {
       const base = { csv: $("#csv").value, preFilter: Number($("#prefilter").value) };
-      if (exampleSpec) return { ...EXAMPLE_SPEC, ...base };
+      if (exampleSpec) return { ...exampleSpec, ...base };
       return { ...base, unit: $("#unit").value, time: $("#time").value, outcome: $("#outcome").value, treated: $("#treated").value, treatmentTime: $("#at").value, vMethod: $("#vmethod").value, covariates: chosen($("#covariates")), donors: chosen($("#donors")) };
     }
 
@@ -327,7 +329,8 @@
       $("#status").textContent = "Fitting the treated unit and every placebo...";
       setTimeout(() => { if (runAnalysis()) record("analysis_run"); $("#analyze").disabled = false; }, 20);
     });
-    $("#load-example").addEventListener("click", () => {
+    $("#load-example").addEventListener("click", async () => {
+      const { EXAMPLE_CSV, EXAMPLE_SPEC } = await exampleData();
       $("#csv").value = EXAMPLE_CSV;
       refreshColumns();
       $("#unit").value = EXAMPLE_SPEC.unit; refreshUnits();
@@ -336,7 +339,7 @@
       $("#treated").value = EXAMPLE_SPEC.treated; refreshDonors();
       $("#at").value = EXAMPLE_SPEC.treatmentTime;
       $("#vmethod").value = "cv";
-      exampleSpec = true;
+      exampleSpec = EXAMPLE_SPEC;
       if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: West Germany and 16 OECD countries, 1960-2003, with the paper's predictors (GDP, trade, inflation, industry share, schooling, investment) and its cross-validated V. Change any setting to run your own specification."; }
     });
     $("#download").addEventListener("click", () => {

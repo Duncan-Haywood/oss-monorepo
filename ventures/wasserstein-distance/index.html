@@ -204,7 +204,9 @@
   </footer>
   <script type="module">
     import { analyze, parseCsv, profileColumns, guessGroupColumn, toCsv, fmt } from "./engine.mjs";
-    import { EXAMPLE_CSV } from "./example-data.mjs";
+    let exampleDataLoad = null; // example-data.mjs is fetched after the page has loaded, off its critical path; an example press awaits it
+    const exampleData = () => (exampleDataLoad ??= import("./example-data.mjs").catch((e) => { exampleDataLoad = null; throw e; }));
+    addEventListener("load", () => exampleData().catch(() => {}), { once: true });
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -399,7 +401,8 @@
     $("#cdf-col").addEventListener("change", () => { if (last) showColumn(last); });
     $("#x-col").addEventListener("change", () => { if (last) $("#map").innerHTML = mapChart(last); });
     $("#y-col").addEventListener("change", () => { if (last) $("#map").innerHTML = mapChart(last); });
-    $("#load-example").addEventListener("click", () => {
+    $("#load-example").addEventListener("click", async () => {
+      const { EXAMPLE_CSV } = await exampleData();
       $("#csv").value = EXAMPLE_CSV;
       refreshColumns();
       $("#scale").value = "none";

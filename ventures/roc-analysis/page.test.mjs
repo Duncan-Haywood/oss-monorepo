@@ -53,7 +53,7 @@ test("every input has a label and nothing is sent anywhere", () => {
     const id = tag.match(/\sid="([^"]+)"/)?.[1];
     assert.ok(/aria-label=/.test(tag) || (id && new RegExp(`<label[^>]*\\sfor="${id}"`).test(html)), `unlabelled: ${tag}`);
   }
-  assert.doesNotMatch(html, NETWORK);
+  assert.doesNotMatch(html.replace('import("./example-data.mjs")', ""), NETWORK);
   for (const f of ["engine.mjs", "usage.mjs", "cli.mjs"]) assert.doesNotMatch(page(f), NETWORK, f);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
   assert.doesNotMatch(html, /<(script|link|img)[^>]+(src|href)=["']https?:/);
@@ -77,4 +77,15 @@ test("the numbers the page states are the engine's", async () => {
   assert.equal(r.results[1].auc.toFixed(3), "0.975");
   for (const p of r.comparison.pairs.filter((q) => q.b === "cv_probability" && /worst/.test(q.a))) assert.ok(p.p < 0.001, p.a);
   assert.match(html, /the AUC is 0\.8932, the 0\.893 the paper reports/);
+});
+
+test("the example data loads on the first example press, and every name a handler takes exists", async () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /from "\.\/example-data\.mjs"/, "example-data.mjs stays out of the page's static import graph");
+  assert.equal(html.split("import(").length - 1, 1, "the only dynamic import is the local example data");
+  assert.ok(html.includes('import("./example-data.mjs")'));
+  const data = await import("./example-data.mjs");
+  const taken = [...html.matchAll(/const \{([^}]+)\} = await exampleData\(\);/g)];
+  assert.ok(taken.length >= 1);
+  for (const m of taken) for (const name of m[1].split(",").map((s) => s.trim())) assert.notEqual(data[name], undefined, `example-data.mjs ${name}`);
 });

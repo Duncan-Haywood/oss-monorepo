@@ -23,7 +23,7 @@ test("every static input has a label and nothing can send data anywhere", () => 
 
 test("the module script imports only local files", () => {
   const imports = [...page("index.html").matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./engine.mjs", "./example-data.mjs", "./usage.mjs"]);
+  assert.deepEqual(imports.sort(), ["./engine.mjs", "./usage.mjs"]);
   assert.doesNotMatch(page("index.html"), /<script[^>]+src=["']https?:/);
 });
 
@@ -54,4 +54,15 @@ test("robots, sitemap and llms.txt are present", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("llms.txt"), /fuzzy-dedupe/);
+});
+
+test("the example data loads on the first example press, and every name a handler takes exists", async () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /from "\.\/example-data\.mjs"/, "example-data.mjs stays out of the page's static import graph");
+  assert.equal(html.split("import(").length - 1, 1, "the only dynamic import is the local example data");
+  assert.ok(html.includes('import("./example-data.mjs")'));
+  const data = await import("./example-data.mjs");
+  const taken = [...html.matchAll(/const \{([^}]+)\} = await exampleData\(\);/g)];
+  assert.ok(taken.length >= 1);
+  for (const m of taken) for (const name of m[1].split(",").map((s) => s.trim())) assert.notEqual(data[name], undefined, `example-data.mjs ${name}`);
 });
