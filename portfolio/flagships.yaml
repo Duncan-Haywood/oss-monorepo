@@ -400,9 +400,10 @@ flagships:
       leagues 2026-11-21 (boxleague.mjs); next: a real club's month. Practice slots
       on shared fields 2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima,
       eval/practice-exact.txt); next: a real league's fields and teams. Swiss page
-      2026-11-22 (swiss-pairing.html, 51/54 real rounds exact; Graz r4 = a late
-      result, page checks a round, round-check.mjs); next: the bye on every round
-      (NEXT.md). More open items: NEXT.md.
+      2026-11-22 (swiss-pairing.html, 51/54 real rounds exact; page checks a round,
+      round-check.mjs); 2026-11-23 drawn colour (E.5) and TRF XXC: arbiters' colours
+      on 4,358/4,358 boards, byes 21/24 (eval/swiss-colour-truth.txt); next: the
+      Budapest A r8 and ChessHouse r8 byes (NEXT.md). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed

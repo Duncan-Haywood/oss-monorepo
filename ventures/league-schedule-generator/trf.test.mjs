@@ -160,3 +160,22 @@ test("a bracket at the end of a result line is still a note when no name has it"
   assert.deepEqual(parseResults("Owls 0 - 3 Hawks (forfeit)", T).results, [{ a: 1, b: 0, ga: 0, gb: 3, walkover: true }]);
   assert.deepEqual(parseResults("Owls 1 - 2 Hawks (U12)", T).results, [{ a: 1, b: 2, ga: 1, gb: 2 }]);
 });
+
+test("initial colour: XXC is read and written, and without it round 1 as played says which colour was drawn", async () => {
+  const { trfInitialColour } = await import("./trf.mjs");
+  assert.equal(parseTrf(C9 + "\nXXC black1").initialColour, "B");
+  assert.equal(trfInitialColour(parseTrf(C9 + "\nXXC white1")), "W");
+  // C9's round 1: start rank 1 (odd) had white against 3, and 4 (even) had white against 2.
+  assert.equal(parseTrf(C9).initialColour, null);
+  assert.equal(trfInitialColour(parseTrf(C9)), "W");
+  const flipped = C9.replace("     3 w 1", "     3 b 1").replace("     1 b 0", "     1 w 0").replace("     4 b 1", "     4 w 1").replace("     2 w 0", "     2 b 0");
+  assert.equal(trfInitialColour(parseTrf(flipped)), "B");
+  // No games yet and no XXC: unknown.
+  assert.equal(trfInitialColour(parseTrf(C9.replace(/(001 .{86}).*/g, "$1"))), null);
+  const box = trfToResults(parseTrf(C9));
+  const p = parseSwissResults(box.results, box.players);
+  const out = swissToTrf(box.players, p, { initialColour: "B" });
+  assert.match(out, /^XXC black1$/m);
+  assert.equal(parseTrf(out).initialColour, "B");
+  assert.doesNotMatch(swissToTrf(box.players, p), /^XXC/m);
+});

@@ -366,3 +366,30 @@ test("lexRadix keeps all seven criteria in a 51-player bracket (C.16 was dropped
   while (nc > 1 && 52 ** nc * XR * RB * 52 > 2 ** 50) nc--;
   assert.equal(nc, 5);
 });
+
+test("initial colour (FIDE C.04.3 E.5): round 1 alternates from the drawn colour; 'B' gives the top seed black", () => {
+  const players = Array.from({ length: 8 }, (_, i) => `P${i + 1}`);
+  const w = swissPairings(players, [], [], [], { groupOrder: "seed" });
+  const b = swissPairings(players, [], [], [], { groupOrder: "seed", initialColour: "B" });
+  assert.deepEqual(w.pairs.map((p) => [p.white, p.black]), [[0, 4], [5, 1], [2, 6], [7, 3]]);
+  assert.deepEqual(b.pairs.map((p) => [p.white, p.black]), w.pairs.map((p) => [p.black, p.white]));
+  assert.throws(() => swissPairings(players, [], [], [], { initialColour: "white" }), /initialColour/);
+});
+
+test("initial colour: two players with no colour claim later on follow E.5 by the higher one's pairing number", () => {
+  // Round 1: only P1 v P2 played; P3-P6 sat out (zero byes), so in round 2 they have no claim.
+  const players = ["P1", "P2", "P3", "P4", "P5", "P6"];
+  const games = [{ a: 0, b: 1, ga: 1, gb: 0 }];
+  const byes = [];
+  const opts = { groupOrder: "seed", extra: null, absent: [] };
+  for (const initialColour of ["W", "B"]) {
+    const round = swissPairings(players, games, byes, [], { ...opts, initialColour });
+    const claimless = round.pairs.filter((p) => p.white >= 2 && p.black >= 2);
+    assert.ok(claimless.length >= 1);
+    for (const p of claimless) {
+      const hi = Math.min(p.white, p.black);
+      const hiWhite = (hi % 2 === 0) === (initialColour === "W"); // index even = odd pairing number
+      assert.equal(p.white === hi, hiWhite, `${initialColour}: board ${players[p.white]}-${players[p.black]}`);
+    }
+  }
+});

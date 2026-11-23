@@ -26,11 +26,15 @@ export function parseTrf(text) {
   const players = [];
   let name = "";
   let totalRounds = null;
+  let initialColour = null;
   for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
     const line = raw.replace(/\s+$/, "");
     const code = line.slice(0, 3);
     if (code === "012") { name = line.slice(4).trim(); continue; }
     if (code === "XXR") { const r = parseInt(line.slice(3).trim(), 10); if (r > 0) totalRounds = r; continue; }
+    // "XXC white1" / "XXC black1" (the bbpPairings/JaVaFo extension): the initial colour, the
+    // colour drawn for the top seed in round 1.
+    if (code === "XXC") { const m = /\b(white|black)1\b/i.exec(line); if (m) initialColour = m[1].toLowerCase() === "white" ? "W" : "B"; continue; }
     if (code !== "001") continue;
     if (line.length < 84) { errors.push(`TRF line ${i + 1}: a player line is shorter than the 84 columns its points need.`); continue; }
     const id = parseInt(line.slice(4, 8), 10);
@@ -70,7 +74,24 @@ export function parseTrf(text) {
     if (b.opponentId != null && b.opponent == null) errors.push(`${p.name} meets start rank ${b.opponentId} in round ${r + 1}, who has no player line.`);
     delete b.opponentId;
   }
-  return { name, totalRounds, players, errors };
+  return { name, totalRounds, initialColour, players, errors };
+}
+
+/**
+ * The initial colour (FIDE C.04.3 E.5) a parsed TRF was paired with: its XXC line, else read off
+ * round 1's played games (the higher-ranked player took the initial colour on an odd start rank,
+ * the other colour on an even one; the majority of boards decides), else null.
+ */
+export function trfInitialColour(trf) {
+  if (trf.initialColour) return trf.initialColour;
+  let w = 0, b = 0;
+  for (const [i, p] of trf.players.entries()) {
+    const g = p.rounds[0];
+    if (!g || g.opponent == null || g.opponent < i || !g.colour || /[+\-]/.test(g.result)) continue;
+    const oddRank = p.id % 2 === 1;
+    if ((g.colour === "W") === oddRank) w++; else b++;
+  }
+  return w === b ? null : w > b ? "W" : "B";
 }
 
 /** Names the results box can read back: unique, and not ending in a word the parser treats as a command. */
@@ -137,7 +158,7 @@ const pad = (v, n, right = true) => { const s = String(v ?? "").slice(0, n); ret
  * Write a TRF from the page's players and parseSwissResults output. `info` may give each player a
  * rating, title, federation or FIDE id (by index) and the event's name and number of rounds.
  */
-export function swissToTrf(players, parsed, { name = "Swiss event", totalRounds = null, info = [], standings = null } = {}) {
+export function swissToTrf(players, parsed, { name = "Swiss event", totalRounds = null, info = [], standings = null, initialColour = null } = {}) {
   const blocks = players.map(() => []);
   const set = (p, r, s) => { blocks[p][r] = s; };
   for (const e of parsed.events) {
@@ -171,6 +192,7 @@ export function swissToTrf(players, parsed, { name = "Swiss event", totalRounds 
     lines.push(line.replace(/\s+$/, ""));
   }
   if (totalRounds) lines.push(`XXR ${totalRounds}`);
+  if (initialColour === "W" || initialColour === "B") lines.push(`XXC ${initialColour === "W" ? "white1" : "black1"}`);
   return lines.join("\n") + "\n";
 }
 

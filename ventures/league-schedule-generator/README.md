@@ -5995,3 +5995,50 @@ scoresheet when a result was keyed in wrong. Tests: `round-check.test.mjs` (clea
 colours and bye compared, a corrected round-2 result named as the cause of round 3's difference).
 `eval/swiss-replay.mjs` now re-exports `replayRound` from `round-check.mjs`, so the eval scripts and
 the page share one replay.
+
+## The drawn colour, and colours and byes checked against the arbiters (2026-11-23)
+
+**A metric that measured nothing.** Every chess-results table so far reported colour agreement near
+0.50, and it read as "colours are a coin flip". It was the data: the published pairing lists in the
+fixtures are not in white-black order. Who had white in round k is in the next round's TRF (each game
+there has one `w` and one `b`), and against that the first-listed player had white on 2,283 of 4,549
+boards. `eval/swiss-vs-published.mjs` now scores chess-results colours against the next TRF (the last
+round, with no next file, is not scored). Measured that way, the pairer as it stood on 2026-11-22 already
+gave the arbiters' colours on **3,937 of 3,937** reproduced boards from round 2 on.
+
+**The drawn colour (FIDE C.04.3 E.5).** The only misses left were all 84 boards of Aeroflot round 1:
+that event's draw gave the top seed black (`first_round_color: black1`), and the pairer always gave the
+top seed white. `swissPairings` now takes `initialColour: "W" | "B"` (default `"W"`, the old behaviour):
+round 1 alternates down the boards from it, and on a later board where neither player has a colour
+claim (two late entrants, say) the higher-ranked player takes the initial colour when their pairing
+number is odd, the other one when even, as E.5 says (before, the higher-ranked always took white).
+Round 1 keeps board parity rather than start-rank parity: the two agree with no one missing, and on
+the two events paired on a provisional list (Graz r1, ChessHouse r1) board parity matched 91 of 91
+boards, rank parity 77. Results, played condition (`eval/swiss-colour-truth.txt`):
+
+| colours on reproduced boards | before | after |
+|---|---|---|
+| chess-results, rounds 1-8 | 4,274 / 4,358 | **4,358 / 4,358** |
+| lichess, all rounds | 664 / 689 | 677 / 689 |
+| lichess, rounds 2+ | 655 / 664 | 661 / 664 |
+
+Who meets whom is unchanged (51 of 54 rounds exact, 4,892 boards, both runs). Lichess's gain is its
+files' own `XXC black1` line in round 1 and E.5 on claimless boards later.
+
+**TRF files and the page.** `parseTrf` reads `XXC white1` / `XXC black1` (the bbpPairings/JaVaFo
+extension) as `initialColour`; `trfInitialColour` falls back to round 1 as played (the higher-ranked
+player on an odd start rank took the drawn colour; majority of boards), and `swissToTrf` writes the line
+back. The replay (`round-check.mjs`, so "Check a round" too) uses the XXC line, else round 1 as played
+when re-pairing a later round (never for round 1 itself, where it would read the answer), else white.
+`swiss-pairing.html` has a "Top seed's colour in round 1" choice, set from the file when a TRF is opened,
+kept with the event and written into a downloaded TRF. Tests: `swiss.test.mjs` (round 1 flips; claimless
+boards follow E.5 for both colours), `trf.test.mjs` (XXC read and written, round-1 inference both ways,
+unknown with no games), `swiss-page.test.mjs` (`pairNext` passes it).
+
+**The pairing bye on every round.** The replay entered the bye recipient as absent, so who got the bye
+was never compared on most rounds (only lone-null rounds were scored, 22, and never printed). A third
+condition, `bye`, keeps the players who played plus the recipient (read from the next TRF's `U`
+result; for the last round, a lone null seat) and lets the pairer choose: **21 of 24** chess-results
+rounds and **18 of 18** lichess rounds give the same player the bye. The three misses: Graz r1 (the
+provisional list above), Budapest A r8 (82 at 1.5 where the pairer gives 90 at 1.0) and ChessHouse r8
+(160 where the pairer gives 128). The last two are still open (NEXT.md).
