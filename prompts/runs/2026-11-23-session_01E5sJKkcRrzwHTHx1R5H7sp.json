@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKkcRrzwHTHx1R5H7sp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T05:23:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18371",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--make-room parked a slice of the 2026-11-23 Swiss colour item mid-sentence, starting with the tail of the practice-slots item ('next: a real league's fields and teams. 2026-11-23 drawn colour...'), so NEXT.md got two half-items"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "every open item in the assigned flagship's next: needs real outside input; the buildable work was in NEXT.md (quality audit leftovers), which the allocator output does not point to"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "'take the third open item no open PR names' landed on items needing a real league/club input",
+      "did": "took the quality-audit leftover in NEXT.md (multi-division page loading the carry-over search)",
+      "result": "multi-division page 217 kB to 75 kB gzip, 17 to 11 modules"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-one-import-line-cost-the-multi-division-page-142-kb.md",
+    "ventures/league-schedule-generator/README.md (new 2026-11-23 section)"
+  ],
+  "goal": null,
+  "notes": "Moved seven helpers from schedule.mjs to new fields.mjs; divisions.mjs imports them from there. Chromium smoke of the multi-division page: 11 modules, example builds 73 matches/11 nights, validator CHECKED, no console errors. Tests and preflight results appended below.",
+  "corrections": [],
+  "redteam": null
+}
