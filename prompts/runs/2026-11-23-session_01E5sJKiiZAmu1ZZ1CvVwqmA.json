@@ -1,0 +1,504 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKiiZAmu1ZZ1CvVwqmA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T04:18:50Z",
+  "ended": "2026-11-23T04:21:37Z",
+  "wall_minutes": 7.05,
+  "tokens_in": 3029983,
+  "tokens_out": 15366,
+  "cost_usd": 1.4682,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18365",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "redteam.py targets --probe 20 (used to probe 4 candidate files) probes every listed file and outran the 120 s tool timeout; killed it and timed the target's suite by hand (0.1 s)",
+    "second campaign refused a dirty target until the fix was committed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 1 suggests `targets --probe 20` to check a candidate before --target, but it probes the whole list (minutes); running `node --test` in the venture is the quick check"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0: all 13 open defects are control-plane (own owner-approved PR) or the help-keeper stemmer deliberately parked pending a help-center eval set",
+      "did": "left them open, none rechecked in depth",
+      "result": "run time went to the campaign and the one real defect"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 4b: the defect class (a finding contradicting another computed figure) has no clean cross-calculator lint",
+      "did": "no new automated guard; fix plus failing-first test only",
+      "result": "said so in the post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-redteam-a-carryforward-for-an-election-you-cannot-make.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/bonus-depreciation-calculator/calc.mjs (suite 0.1 s). Two campaigns of 12: 8/12 and 9/12 caught; 6 gaps closed, 1 equivalent; rerun: all gaps caught_after_fix true. run_venture_tests.py bonus-depreciation-calculator: ok (56 tests) plus site page checks; check_posts.py ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/bonus-depreciation-calculator/calc.mjs",
+        "test": "node --test ventures/bonus-depreciation-calculator/**/*.test.mjs  (in .)",
+        "seed": 337444600,
+        "commit": "e3626ceb0",
+        "sites": 107,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 97,
+            "col": 9,
+            "operator": "max-to-min",
+            "before": "return Math.max(lo, Math.min(hi, n));",
+            "after": "return Math.min(lo, Math.min(hi, n));",
+            "line_text": "  return Math.max(lo, Math.min(hi, n));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 115,
+            "col": 20,
+            "operator": "max-to-min",
+            "before": "const deduction = Math.max(0, num(deductionRequested));",
+            "after": "const deduction = Math.min(0, num(deductionRequested));",
+            "line_text": "  const deduction = Math.max(0, num(deductionRequested));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 121,
+            "col": 27,
+            "operator": "minus-to-plus",
+            "before": "const excess = deduction - usable;",
+            "after": "const excess = deduction + usable;",
+            "line_text": "  const excess = deduction - usable;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 137,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "incomeBeforeDeduction = 0,",
+            "after": "incomeBeforeDeduction = 1,",
+            "line_text": "  incomeBeforeDeduction = 0,",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test called section179Outcome without income; added 'omitted income means no income'"
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 145,
+            "col": 53,
+            "operator": "minus-to-plus",
+            "before": "const limitAfterPhaseout = Math.max(0, rules.limit - phaseoutReduction);",
+            "after": "const limitAfterPhaseout = Math.max(0, rules.limit + phaseoutReduction);",
+            "line_text": "  const limitAfterPhaseout = Math.max(0, rules.limit - phaseoutReduction);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 148,
+            "col": 18,
+            "operator": "min-to-max",
+            "before": "const elected = Math.min(basis, limitAfterPhaseout);",
+            "after": "const elected = Math.max(basis, limitAfterPhaseout);",
+            "line_text": "  const elected = Math.min(basis, limitAfterPhaseout);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 174,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "taxYear = 2025,",
+            "after": "taxYear = 2026,",
+            "line_text": "  taxYear = 2025,",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test omitted taxYear on compareDepreciationPaths; added 'an omitted tax year uses the 2025 rules'"
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 175,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "taxableIncomeBeforeDeduction = 0,",
+            "after": "taxableIncomeBeforeDeduction = 1,",
+            "line_text": "  taxableIncomeBeforeDeduction = 0,",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test called compareDepreciationPaths without income; same new test"
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 182,
+            "col": 41,
+            "operator": "div-to-times",
+            "before": "const rate = clampPercent(ratePercent) / 100;",
+            "after": "const rate = clampPercent(ratePercent) * 100;",
+            "line_text": "  const rate = clampPercent(ratePercent) / 100;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 207,
+            "col": 44,
+            "operator": "minus-to-plus",
+            "before": "const macrsRemainingBasis = eligibleBasis - macrsYear1Deduction;",
+            "after": "const macrsRemainingBasis = eligibleBasis + macrsYear1Deduction;",
+            "line_text": "  const macrsRemainingBasis = eligibleBasis - macrsYear1Deduction;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 241,
+            "col": 43,
+            "operator": "lt-to-le",
+            "before": "} else if (section179.limitAfterPhaseout < section179.limit) {",
+            "after": "} else if (section179.limitAfterPhaseout <= section179.limit) {",
+            "line_text": "  } else if (section179.limitAfterPhaseout < section179.limit) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 273,
+            "col": 15,
+            "operator": "and-to-or",
+            "before": "if (cost > 0 && !belowHalfBusinessUse) {",
+            "after": "if (cost > 0 || !belowHalfBusinessUse) {",
+            "line_text": "  if (cost > 0 && !belowHalfBusinessUse) {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: zero-cost test never checked the choose-the-amount advice was absent; added 'no asset cost' test"
+          }
+        ]
+      },
+      {
+        "target": "ventures/bonus-depreciation-calculator/calc.mjs",
+        "test": "node --test ventures/bonus-depreciation-calculator/**/*.test.mjs  (in .)",
+        "seed": 23,
+        "commit": "56b54d444",
+        "sites": 108,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 79,
+            "col": 2,
+            "operator": "const-plus-one",
+            "before": "3: 0.3333,",
+            "after": "4: 0.3333,",
+            "line_text": "  3: 0.3333,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 94,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "function clampPercent(v, lo = 0, hi = 100) {",
+            "after": "function clampPercent(v, lo = 1, hi = 100) {",
+            "line_text": "function clampPercent(v, lo = 0, hi = 100) {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test used a 0% rate; added 'a 0% tax rate saves nothing on every path'"
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 101,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const value = Number(n) || 0;",
+            "after": "const value = Number(n) || 1;",
+            "line_text": "  const value = Number(n) || 0;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 140,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "const rules = SECTION_179_RULES[taxYear] || SECTION_179_RULES[2025];",
+            "after": "const rules = SECTION_179_RULES[taxYear] || SECTION_179_RULES[2026];",
+            "line_text": "  const rules = SECTION_179_RULES[taxYear] || SECTION_179_RULES[2025];",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 141,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const basis = Math.max(0, num(eligibleBasis));",
+            "after": "const basis = Math.max(1, num(eligibleBasis));",
+            "line_text": "  const basis = Math.max(0, num(eligibleBasis));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 144,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const phaseoutReduction = Math.max(0, totalQualifyingPurchases - rules.phaseoutThreshold);",
+            "after": "const phaseoutReduction = Math.max(1, totalQualifyingPurchases - rules.phaseoutThreshold);",
+            "line_text": "  const phaseoutReduction = Math.max(0, totalQualifyingPurchases - rules.phaseoutThreshold);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 145,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "const limitAfterPhaseout = Math.max(0, rules.limit - phaseoutReduction);",
+            "after": "const limitAfterPhaseout = Math.max(1, rules.limit - phaseoutReduction);",
+            "line_text": "  const limitAfterPhaseout = Math.max(0, rules.limit - phaseoutReduction);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 148,
+            "col": 18,
+            "operator": "min-to-max",
+            "before": "const elected = Math.min(basis, limitAfterPhaseout);",
+            "after": "const elected = Math.max(basis, limitAfterPhaseout);",
+            "line_text": "  const elected = Math.min(basis, limitAfterPhaseout);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 177,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "recoveryYears = 5,",
+            "after": "recoveryYears = 6,",
+            "line_text": "  recoveryYears = 5,",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "6 is not a key of FIRST_YEAR_MACRS_RATE, so the default falls back to 5 exactly as before: same output for every input"
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 182,
+            "col": 41,
+            "operator": "div-to-times",
+            "before": "const rate = clampPercent(ratePercent) / 100;",
+            "after": "const rate = clampPercent(ratePercent) * 100;",
+            "line_text": "  const rate = clampPercent(ratePercent) / 100;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 258,
+            "col": 21,
+            "operator": "gt-to-ge",
+            "before": "if (remainderBasis > 0 && section179.elected > 0) {",
+            "after": "if (remainderBasis >= 0 && section179.elected > 0) {",
+            "line_text": "  if (remainderBasis > 0 && section179.elected > 0) {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+            "line": 282,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "if (cost > 0 && !belowHalfBusinessUse) {",
+            "after": "if (cost > 1 && !belowHalfBusinessUse) {",
+            "line_text": "  if (cost > 0 && !belowHalfBusinessUse) {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test at cost $1; added 'any positive cost, even $1, gets the advice'"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/bonus-depreciation-calculator/calc.mjs",
+        "issue": "At 50% or less business use the report said 'Section 179 is not available' yet still elected Section 179 on the basis and, with income below the basis, added a high finding claiming a Section 179 carryforward (repro: cost 100000, 40% use, income 10000 -> elected 40000, carryforward 30000). Fixed: section179Outcome gets basis 0 when belowHalfBusinessUse, so the column elects nothing and takes bonus on the whole basis; finding text updated. Failing-first test added.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "83aa69b4-7833-5573-9f53-fcde8f083895",
+    "transcripts": 1,
+    "first": "2026-11-23T04:18:50Z",
+    "last": "2026-11-23T04:25:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 75,
+        "output": 15366,
+        "thinking": 3125,
+        "cache_read": 2958803,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71105,
+        "api_equivalent_usd": 1.4682,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 75,
+      "output": 15366,
+      "thinking": 3125,
+      "cache_read": 2958803,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71105,
+      "api_equivalent_usd": 1.4682,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.05,
+      "active_minutes": 7.05,
+      "model_minutes": 3.61,
+      "tool_minutes": 3.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading the calc, two mutation campaigns, a defect fix with tests, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 204.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
