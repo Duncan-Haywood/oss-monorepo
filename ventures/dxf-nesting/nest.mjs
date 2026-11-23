@@ -1,4 +1,4 @@
-// Irregular-part nesting on rectangular sheets.
+// Irregular-part nesting on rectangular sheets and irregular remnants.
 //
 // Method (deterministic):
 //  1. Each part's outline and holes are flattened with chord tolerance `tol`
@@ -47,11 +47,22 @@ export function rasterise(rings, res) {
   const bb = bboxOf(rings);
   const U = (x) => snap((x - bb.minX) / res), V = (y) => snap((y - bb.minY) / res);
   const w = Math.max(1, Math.ceil(U(bb.maxX))), h = Math.max(1, Math.ceil(V(bb.maxY)));
-  const grid = new Uint8Array(w * h);
-  const mark = (i, j) => {
-    if (i >= 0 && i < w && j >= 0 && j < h) grid[j * w + i] = 1;
-  };
   const urs = rings.map((r) => r.map(([x, y]) => [U(x), V(y)]));
+  const { edge, inside } = cellsOf(urs, w, h);
+  const grid = edge;
+  for (let q = 0; q < grid.length; q++) grid[q] |= inside[q];
+  return { w, h, minX: bb.minX, minY: bb.minY, grid, spans: spansOf(grid, w, h) };
+}
+
+// Two cell sets for rings already in cell units on a w x h grid: `edge`, the
+// cells whose open interior meets a segment, and `inside`, the cells whose
+// centre is inside the rings (even-odd). A cell in `inside` but not in
+// `edge` lies wholly inside the rings.
+function cellsOf(urs, w, h) {
+  const edge = new Uint8Array(w * h), inside = new Uint8Array(w * h);
+  const mark = (i, j) => {
+    if (i >= 0 && i < w && j >= 0 && j < h) edge[j * w + i] = 1;
+  };
   // cells whose open interior meets a segment
   for (const r of urs) {
     for (let k = 0; k < r.length; k++) {
@@ -82,10 +93,10 @@ export function rasterise(rings, res) {
     xs.sort((a, b) => a - b);
     for (let q = 0; q + 1 < xs.length; q += 2) {
       const i0 = Math.max(0, Math.ceil(xs[q] - 0.5)), i1 = Math.min(w - 1, Math.floor(xs[q + 1] - 0.5));
-      for (let i = i0; i <= i1; i++) grid[j * w + i] = 1;
+      for (let i = i0; i <= i1; i++) inside[j * w + i] = 1;
     }
   }
-  return { w, h, minX: bb.minX, minY: bb.minY, grid, spans: spansOf(grid, w, h) };
+  return { edge, inside };
 }
 
 function spansOf(grid, w, h) {
@@ -128,15 +139,14 @@ export function dilate(m, k) {
 }
 
 class Sheet {
-  constructor(GW, GH, lo, hi) {
+  constructor(st) {
+    const { GW, GH } = st;
     this.GW = GW;
     this.GH = GH;
-    this.occ = new Uint8Array(GW * GH);
+    this.st = st;
+    this.occ = st.blocked.slice();
     this.prevOcc = new Int32Array(GW * GH);
     this.nextFree = new Int32Array((GW + 1) * GH);
-    for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) {
-      if (i < lo.i || i > hi.i || j < lo.j || j > hi.j) this.occ[j * GW + i] = 1;
-    }
     for (let j = 0; j < GH; j++) this.rebuild(j);
     this.extent = 0;
     this.placements = [];
@@ -209,6 +219,64 @@ class Sheet {
   }
 }
 
+/**
+ * The cells of one stock sheet that a part may not touch, as a Uint8Array
+ * (1 = blocked). A plain rectangle blocks the cells within margin + tol of
+ * its edge. An outline (rings in sheet units, even-odd, so a remnant may
+ * have cut-outs) blocks every cell not wholly inside it, grown by
+ * m = ceil((margin + tol) / res) cells: a free cell is then more than m
+ * cells (so at least m res >= margin + tol) from any point outside.
+ */
+export function stockBlocked(st, res, margin, tol) {
+  const { GW, GH } = st;
+  const out = new Uint8Array(GW * GH);
+  if (!st.outline) {
+    const lo = Math.ceil(snap((margin + tol) / res));
+    const hiI = Math.floor(snap((st.w - margin - tol) / res)) - 1, hiJ = Math.floor(snap((st.h - margin - tol) / res)) - 1;
+    for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) if (i < lo || i > hiI || j < lo || j > hiJ) out[j * GW + i] = 1;
+    return out;
+  }
+  const urs = st.outline.map((r) => r.map(([x, y]) => [snap(x / res), snap(y / res)]));
+  const { edge, inside } = cellsOf(urs, GW, GH);
+  const free = new Uint8Array(GW * GH);
+  for (let q = 0; q < free.length; q++) free[q] = inside[q] && !edge[q] ? 1 : 0;
+  const m = Math.ceil(snap((margin + tol) / res));
+  // blocked = not free, grown by m (Chebyshev); done as erosion of `free`
+  const rowOk = new Uint8Array(GW * GH);
+  for (let j = 0; j < GH; j++) {
+    // rowOk[i] = every free[i-m..i+m] in this row (off-grid counts as blocked)
+    let run = 0;
+    const lastFree = new Int32Array(GW);
+    for (let i = 0; i < GW; i++) { run = free[j * GW + i] ? run + 1 : 0; lastFree[i] = run; }
+    for (let i = 0; i < GW; i++) {
+      const r = i + m;
+      rowOk[j * GW + i] = r < GW && i - m >= 0 && lastFree[r] >= 2 * m + 1 ? 1 : 0;
+    }
+  }
+  for (let i = 0; i < GW; i++) {
+    let run = 0;
+    const col = new Int32Array(GH);
+    for (let j = 0; j < GH; j++) { run = rowOk[j * GW + i] ? run + 1 : 0; col[j] = run; }
+    for (let j = 0; j < GH; j++) {
+      const r = j + m;
+      out[j * GW + i] = r < GH && j - m >= 0 && col[r] >= 2 * m + 1 ? 0 : 1;
+    }
+  }
+  return out;
+}
+
+/** Bounding box of a sheet's free cells: { lo: {i, j}, hi: {i, j} } (hi < lo when none). */
+function freeBox(blocked, GW, GH) {
+  const lo = { i: GW, j: GH }, hi = { i: -1, j: -1 };
+  for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) if (!blocked[j * GW + i]) {
+    if (i < lo.i) lo.i = i;
+    if (j < lo.j) lo.j = j;
+    if (i > hi.i) hi.i = i;
+    if (j > hi.j) hi.j = j;
+  }
+  return { lo, hi };
+}
+
 function lcg(seed) {
   let s = seed >>> 0 || 1;
   return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
@@ -224,16 +292,45 @@ export function nest(items, opts) {
     gap: 0, margin: 0, tol: 0.01, rotations: [0, 90, 180, 270], maxSheets: 50, orders: 4, searchIters: 0, compactMoves: 0, timeLimitMs: 20000,
     ...opts,
   };
-  const { sheetW, sheetH, gap, margin, tol } = o;
-  if (!(sheetW > 0 && sheetH > 0)) return { ok: false, error: "Sheet width and length must be positive." };
+  const { gap, margin, tol } = o;
   if (!(gap >= 0) || !(margin >= 0)) return { ok: false, error: "Gap and edge margin cannot be negative." };
-  const res = o.res > 0 ? o.res : autoRes(sheetW, sheetH);
-  const GW = Math.floor(sheetW / res + SNAP), GH = Math.floor(sheetH / res + SNAP);
-  if (GW * GH > 6e6) return { ok: false, error: `The grid would be ${GW} x ${GH} cells; use a coarser grid (larger cell size).` };
+  // Stock: the sheets on hand, used in the order given (put remnants first).
+  // Without a list, one size in unlimited supply (up to maxSheets).
+  let stock;
+  if (Array.isArray(o.stock) && o.stock.length) {
+    stock = [];
+    for (const [n, x] of o.stock.entries()) {
+      let w = +x.w, h = +x.h, outline = null;
+      if (x.outline) {
+        const bb = bboxOf(x.outline);
+        outline = x.outline.map((r) => r.map(([px, py]) => [px - bb.minX, py - bb.minY]));
+        w = bb.maxX - bb.minX;
+        h = bb.maxY - bb.minY;
+      }
+      if (!(w > 0 && h > 0)) return { ok: false, error: `Stock line ${n + 1}: length and width must be positive.` };
+      const qty = x.qty === undefined || x.qty === null ? Infinity : Math.floor(+x.qty);
+      if (!(qty >= 1)) return { ok: false, error: `Stock line ${n + 1}: give a quantity of 1 or more.` };
+      stock.push({ w, h, qty, name: x.name || (outline ? `Remnant ${n + 1}` : `${fmtNum(w)} x ${fmtNum(h)}`), outline, area: outline ? outlineArea(outline) : w * h });
+    }
+  } else {
+    const { sheetW, sheetH } = o;
+    if (!(sheetW > 0 && sheetH > 0)) return { ok: false, error: "Sheet width and length must be positive." };
+    stock = [{ w: sheetW, h: sheetH, qty: Infinity, name: `${fmtNum(sheetW)} x ${fmtNum(sheetH)}`, outline: null, area: sheetW * sheetH }];
+  }
+  const sheetW = stock[0].w, sheetH = stock[0].h;
+  const maxW = Math.max(...stock.map((x) => x.w)), maxH = Math.max(...stock.map((x) => x.h));
+  const res = o.res > 0 ? o.res : autoRes(maxW, maxH);
   const k = Math.ceil(snap((gap + 2 * tol) / res));
-  // usable cells: closed cell [i res, (i+1) res] inside [margin + tol, W - margin - tol]
-  const lo = { i: Math.ceil(snap((margin + tol) / res)), j: Math.ceil(snap((margin + tol) / res)) };
-  const hi = { i: Math.floor(snap((sheetW - margin - tol) / res)) - 1, j: Math.floor(snap((sheetH - margin - tol) / res)) - 1 };
+  for (const st of stock) {
+    st.GW = Math.floor(st.w / res + SNAP);
+    st.GH = Math.floor(st.h / res + SNAP);
+    if (st.GW * st.GH > 6e6) return { ok: false, error: `The grid would be ${st.GW} x ${st.GH} cells; use a coarser grid (larger cell size).` };
+    st.blocked = stockBlocked(st, res, margin, tol);
+    const fb = freeBox(st.blocked, st.GW, st.GH);
+    st.lo = fb.lo;
+    st.hi = fb.hi;
+  }
+  const GW = stock[0].GW, GH = stock[0].GH;
   const t0 = Date.now();
 
   // rasters per item and rotation
@@ -247,10 +344,10 @@ export function nest(items, opts) {
       const sig = mask.w + "x" + mask.h + ":" + hashGrid(mask.grid);
       if (seen.has(sig)) continue; // a symmetric part looks the same at this turn
       seen.add(sig);
-      const fits = mask.w <= hi.i - lo.i + 1 && mask.h <= hi.j - lo.j + 1;
-      rots.push({ deg, mask, dmask: dilate(mask, k), fits });
+      const fitsOn = stock.map((st) => mask.w <= st.hi.i - st.lo.i + 1 && mask.h <= st.hi.j - st.lo.j + 1);
+      rots.push({ deg, mask, dmask: dilate(mask, k), fitsOn, fits: fitsOn[0] });
     }
-    return { it, rots, fits: rots.some((r) => r.fits), area: it.part.area, cells: rots[0].mask.grid.reduce((s, v) => s + v, 0) };
+    return { it, rots, fits: rots.some((r) => r.fitsOn.some(Boolean)), area: it.part.area, cells: rots[0].mask.grid.reduce((s, v) => s + v, 0) };
   });
 
   const copies = [];
@@ -271,7 +368,7 @@ export function nest(items, opts) {
   }
 
   let bestRun = null, bestOrd = null, tried = 0;
-  const env = { GW, GH, lo, hi, maxSheets: o.maxSheets };
+  const env = { stock, maxSheets: o.maxSheets };
   for (const ord of orders) {
     if (tried > 0 && Date.now() - t0 > o.timeLimitMs) break;
     tried++;
@@ -306,8 +403,11 @@ export function nest(items, opts) {
   // minimisation (compact.mjs). Seeded and counted in moves, so repeatable.
   let compacted = null;
   const last = bestRun.sheets[bestRun.sheets.length - 1];
-  if (o.compactMoves > 0 && last && last.placements.length > 1) {
-    compacted = compactSheet(last.placements, shapes, env, { moves: o.compactMoves, seed: 4242, deadline: t0 + o.timeLimitMs });
+  // The squeeze knows rectangles only, so a remnant outline is left as nested.
+  if (o.compactMoves > 0 && last && last.placements.length > 1 && !last.st.outline) {
+    const st = last.st, t = stock.indexOf(st);
+    for (const sh of shapes) for (const r of sh.rots) r.fits = r.fitsOn[t];
+    compacted = compactSheet(last.placements, shapes, { GW: st.GW, GH: st.GH, lo: st.lo, hi: st.hi }, { moves: o.compactMoves, seed: 4242, deadline: t0 + o.timeLimitMs });
     last.placements = compacted.placements;
     last.extent = compacted.extent;
   }
@@ -317,13 +417,19 @@ export function nest(items, opts) {
       // put the raster's cell (0, 0) at sheet cell (x, y)
       return { id: sh.it.id, name: sh.it.name, copy: p.c, angle: rot.deg, tx: p.x * res - rot.mask.minX, ty: p.y * res - rot.mask.minY };
     }),
-    usedLength: Math.min(sheetW, s.extent * res),
+    usedLength: Math.min(s.st.w, s.extent * res),
+    stock: stock.indexOf(s.st),
+    name: s.st.name,
+    w: s.st.w,
+    h: s.st.h,
+    area: s.st.area,
+    outline: s.st.outline,
   }));
   const unplaced = {};
   for (const u of bestRun.unplaced) {
     const sh = shapes[u.si];
     const key = sh.it.id;
-    if (!unplaced[key]) unplaced[key] = { id: key, name: sh.it.name, count: 0, reason: sh.fits ? "no room left within the sheet limit" : "larger than the sheet's usable area at every allowed rotation" };
+    if (!unplaced[key]) unplaced[key] = { id: key, name: sh.it.name, count: 0, reason: sh.fits ? (stock.some((x) => x.qty === Infinity) ? "no room left within the sheet limit" : "no room left on the stock listed") : stock.length === 1 ? "larger than the sheet's usable area at every allowed rotation" : "larger than every stock sheet's usable area at every allowed rotation" };
     unplaced[key].count++;
   }
   return {
@@ -334,6 +440,7 @@ export function nest(items, opts) {
     gridH: GH,
     sheetW,
     sheetH,
+    stock: stock.map((x) => ({ name: x.name, w: x.w, h: x.h, qty: x.qty, area: x.area, outline: x.outline })),
     gap,
     margin,
     tol,
@@ -349,6 +456,8 @@ export function nest(items, opts) {
 function better(a, b) {
   if (a.unplaced.length !== b.unplaced.length) return a.unplaced.length < b.unplaced.length;
   if (a.sheets.length !== b.sheets.length) return a.sheets.length < b.sheets.length;
+  const aa = a.sheets.reduce((t, x) => t + x.st.area, 0), ab = b.sheets.reduce((t, x) => t + x.st.area, 0);
+  if (Math.abs(aa - ab) > 1e-9 * Math.max(aa, ab)) return aa < ab;
   const la = a.sheets.length ? a.sheets[a.sheets.length - 1].extent : 0, lb = b.sheets.length ? b.sheets[b.sheets.length - 1].extent : 0;
   return la < lb;
 }
@@ -356,37 +465,45 @@ function better(a, b) {
 // With `bound` (a complete run with nothing unplaced), give up and return
 // null as soon as this run can no longer beat it: sheets and the last sheet's
 // used length only grow as parts are added.
-function runOrder(order, shapes, { GW, GH, lo, hi, maxSheets }, bound = null) {
+function runOrder(order, shapes, { stock, maxSheets }, bound = null) {
   const sheets = [], unplaced = [];
+  const left = stock.map((x) => x.qty);
   const prune = bound && bound.unplaced.length === 0;
   const bSheets = prune ? bound.sheets.length : 0, bExt = prune && bSheets ? bound.sheets[bSheets - 1].extent : 0;
+  // best spot for a copy on one sheet, or null
+  const tryOn = (sh, sheet, t) => {
+    let best = null, pick = null;
+    sh.rots.forEach((r, ri) => {
+      if (!r.fitsOn[t]) return;
+      const f = sheet.find(r.mask, best);
+      if (f) { best = f.score; pick = { ri, x: f.x, y: f.y }; }
+    });
+    return pick;
+  };
+  const put = (sh, sheet, pick, si, c) => {
+    const r = sh.rots[pick.ri];
+    sheet.place(r.dmask, pick.x, pick.y, r.mask.w);
+    sheet.placements.push({ si, c, ...pick });
+  };
   for (const { si, c } of order) {
     if (prune && (unplaced.length > 0 || sheets.length > bSheets || (sheets.length === bSheets && sheets[bSheets - 1].extent > bExt))) return null;
     const sh = shapes[si];
     if (!sh.fits) { unplaced.push({ si, c }); continue; }
     let done = false;
-    for (let s = 0; s <= sheets.length && !done; s++) {
-      if (s === sheets.length) {
-        if (sheets.length >= maxSheets) break;
-        sheets.push(new Sheet(GW, GH, lo, hi));
-      }
-      const sheet = sheets[s];
-      let best = null, pick = null;
-      sh.rots.forEach((r, ri) => {
-        if (!r.fits) return;
-        const f = sheet.find(r.mask, best);
-        if (f) { best = f.score; pick = { ri, x: f.x, y: f.y }; }
-      });
-      if (pick) {
-        const r = sh.rots[pick.ri];
-        sheet.place(r.dmask, pick.x, pick.y, r.mask.w);
-        sheet.placements.push({ si, c, ...pick });
-        done = true;
-      } else if (sheet.placements.length === 0) {
-        // fits in principle but the empty sheet refused it: should not happen
-        sheets.pop();
-        break;
-      }
+    for (const sheet of sheets) {
+      const pick = tryOn(sh, sheet, stock.indexOf(sheet.st));
+      if (pick) { put(sh, sheet, pick, si, c); done = true; break; }
+    }
+    // open the first stock sheet, in the order listed, that takes this copy
+    for (let t = 0; t < stock.length && !done && sheets.length < maxSheets; t++) {
+      if (left[t] <= 0 || !sh.rots.some((r) => r.fitsOn[t])) continue;
+      const sheet = new Sheet(stock[t]);
+      const pick = tryOn(sh, sheet, t);
+      if (!pick) continue;
+      left[t]--;
+      sheets.push(sheet);
+      put(sh, sheet, pick, si, c);
+      done = true;
     }
     if (!done) unplaced.push({ si, c });
   }
@@ -397,6 +514,17 @@ function hashGrid(g) {
   let h = 2166136261;
   for (let i = 0; i < g.length; i++) h = Math.imul(h ^ g[i], 16777619);
   return h >>> 0;
+}
+
+const fmtNum = (v) => String(Math.round(v * 1000) / 1000);
+function outlineArea(rings) {
+  let a = 0;
+  for (const r of rings) {
+    let s = 0;
+    for (let i = 0, j = r.length - 1; i < r.length; j = i++) s += (r[j][0] - r[i][0]) * (r[j][1] + r[i][1]);
+    a += (rings.indexOf(r) === 0 ? 1 : -1) * Math.abs(s / 2);
+  }
+  return a;
 }
 
 /** A grid that keeps a sheet near 1,250 cells on its long side (and never finer than 1/2000 of it). */
@@ -441,6 +569,25 @@ function inMaterial(x, y, rings) {
   return true;
 }
 
+// A part's clearance from a remnant's outline: the least distance from the
+// part's edges to the outline's edges, or -1 if any of the part lies outside
+// it (a part vertex outside, or wholly inside a cut-out).
+function outlineClearance(rings, outline) {
+  for (const p of rings[0]) if (!inMaterial(p[0], p[1], outline)) return -1;
+  for (let h = 1; h < outline.length; h++) {
+    const q = outline[h][0];
+    if (inMaterial(q[0], q[1], rings)) return -1; // a cut-out lies under the part's material
+  }
+  let d = Infinity;
+  for (const ra of rings) for (const rb of outline) {
+    for (let i = 0; i < ra.length; i++) {
+      const p1 = ra[i], p2 = ra[(i + 1) % ra.length];
+      for (let j = 0; j < rb.length; j++) d = Math.min(d, segDist(p1, p2, rb[j], rb[(j + 1) % rb.length]));
+    }
+  }
+  return d;
+}
+
 /**
  * Independent check of a nest: every outline at least `margin` inside the
  * sheet and every pair of parts at least `gap` apart, measured from the
@@ -449,12 +596,13 @@ function inMaterial(x, y, rings) {
  * parts: Map id -> part.
  */
 export function verify(result, parts) {
-  const { tol, gap, margin, sheetW, sheetH } = result;
-  const eps = 1e-6 * Math.max(sheetW, sheetH);
-  const need = gap + 2 * tol - eps;
+  const { tol, gap, margin } = result;
   const problems = [];
   let minGap = Infinity, minEdge = Infinity;
   result.sheets.forEach((s, si) => {
+    const sheetW = s.w ?? result.sheetW, sheetH = s.h ?? result.sheetH;
+    const eps = 1e-6 * Math.max(sheetW, sheetH);
+    const need = gap + 2 * tol - eps;
     const placed = s.placements.map((pl) => {
       const e = placedEdges(parts.get(pl.id), pl, tol);
       const rings = [flattenLoop(e.outer, tol), ...e.holes.map((h) => flattenLoop(h, tol))];
@@ -462,7 +610,7 @@ export function verify(result, parts) {
       return { pl, rings, bb };
     });
     for (const p of placed) {
-      const edge = Math.min(p.bb.minX, p.bb.minY, sheetW - p.bb.maxX, sheetH - p.bb.maxY);
+      const edge = s.outline ? outlineClearance(p.rings, s.outline) : Math.min(p.bb.minX, p.bb.minY, sheetW - p.bb.maxX, sheetH - p.bb.maxY);
       minEdge = Math.min(minEdge, edge);
       if (edge < margin + tol - eps) problems.push(`Sheet ${si + 1}: ${p.pl.name} #${p.pl.copy + 1} is ${edge.toFixed(4)} from the sheet edge (margin ${margin}).`);
     }
@@ -492,8 +640,8 @@ export function verify(result, parts) {
 
 /** Per-sheet and job totals: parts, utilisation, cut length, pierces. */
 export function report(result, parts) {
-  const sheetArea = result.sheetW * result.sheetH;
   const sheets = result.sheets.map((s, i) => {
+    const W = s.w ?? result.sheetW, H = s.h ?? result.sheetH, sheetArea = s.area ?? W * H;
     let area = 0, cut = 0, mark = 0, pierces = 0;
     const counts = {};
     for (const pl of s.placements) {
@@ -504,16 +652,18 @@ export function report(result, parts) {
       pierces += p.pierces + p.marks.length;
       counts[pl.name] = (counts[pl.name] || 0) + 1;
     }
-    const usedArea = s.usedLength * result.sheetH;
+    const usedArea = s.usedLength * H;
     return {
       sheet: i + 1,
+      stock: s.name ?? null,
+      sheetArea,
       parts: s.placements.length,
       counts,
       partArea: area,
       utilisation: area / sheetArea,
       usedLength: s.usedLength,
       utilisationOfUsed: usedArea > 0 ? area / usedArea : 0,
-      remnant: { length: result.sheetW - s.usedLength, width: result.sheetH },
+      remnant: { length: W - s.usedLength, width: H },
       cutLength: cut,
       markLength: mark,
       pierces,
@@ -522,13 +672,15 @@ export function report(result, parts) {
   const tot = (k) => sheets.reduce((s, x) => s + x[k], 0);
   // no nester can beat the area bound: the parts' own area over a sheet's usable area
   const usable = Math.max(0, result.sheetW - 2 * result.margin) * Math.max(0, result.sheetH - 2 * result.margin);
+  const oneSize = !result.stock || result.stock.length === 1;
   return {
-    sheetLowerBound: usable > 0 ? Math.ceil(tot("partArea") / usable - 1e-9) : null,
+    sheetLowerBound: oneSize && usable > 0 ? Math.ceil(tot("partArea") / usable - 1e-9) : null,
+    stockArea: tot("sheetArea"),
     sheets,
     totalSheets: sheets.length,
     totalParts: tot("parts"),
     partArea: tot("partArea"),
-    utilisation: sheets.length ? tot("partArea") / (sheets.length * sheetArea) : 0,
+    utilisation: sheets.length ? tot("partArea") / tot("sheetArea") : 0,
     cutLength: tot("cutLength"),
     markLength: tot("markLength"),
     pierces: tot("pierces"),
