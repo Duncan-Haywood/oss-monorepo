@@ -2,6 +2,8 @@
 
 > Free UK capital allowances calculator: how much of your equipment spend you can deduct this year under the Annual Investment Allowance, full expensing, the 40% first-year allowance and writing-down allowances (main pool 14% from April 2026, special rate 6%), the best order to use the AIA, and the tax saved. Runs in your browser; nothing is uploaded.
 
+Periods other than 12 months: the AIA, writing-down allowances and £1,000 small pools limit scale by months / 12 (down for a short period, up for a sole trader's period of up to 18 months); a company period over 12 months is refused, since a Corporation Tax accounting period is at most 12 months.
+
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages

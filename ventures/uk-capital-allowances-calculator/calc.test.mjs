@@ -87,3 +87,59 @@ test("cars get no first-year allowance, and a blank tax rate is an error", () =>
   assert.equal(r.optimal.fya, 0);
   assert.ok(compute({ ...base, taxRate: "", mainNew: "1000" }).errors.length);
 });
+
+// Red team 2026-11-23: periods other than 12 months (CAA 2001 s51A(6), s56(3), s56A;
+// HMRC CA23085 and CA23225: the AIA, writing-down allowance and small pools limit are
+// proportionately increased or reduced; a company accounting period is at most 12 months).
+test("a sole trader's 18-month period scales the AIA, WDA and small pools limit up", () => {
+  const r = compute({ ...base, entity: "sole", months: "18", mainUsed: "2000000", specialBf: "1400" });
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.aiaCap, 1500000);
+  assert.equal(r.optimal.aiaTotal, 1500000);
+  assert.equal(r.optimal.wdaMain, 500000 * 0.14 * 1.5);
+  assert.equal(r.optimal.wdaSpecial, 1400); // under the 18-month limit of £1,500
+});
+
+test("a short period scales the small pools limit down", () => {
+  const r = compute({ ...base, entity: "sole", months: "6", mainBf: "800" });
+  assert.equal(r.optimal.wdaMain, 56); // 800 x 14% x 6/12: the limit is £500, so no write-off
+  assert.ok(!r.findings.some((f) => /written off in full/.test(f.title)));
+});
+
+test("a company period over 12 months is refused with the split explained", () => {
+  const r = compute({ ...base, months: "15", mainUsed: "1000" });
+  assert.ok(r.errors.some((e) => /12 months/.test(e)));
+});
+
+test("a pool of £1 or less is still written off", () => {
+  assert.equal(compute({ ...base, mainBf: "1" }).optimal.wdaMain, 1);
+});
+
+test("a profit field holding only spaces reads as blank, not £0", () => {
+  const r = compute({ ...base, profit: "  ", mainNew: "5000" });
+  assert.ok(!r.findings.some((f) => /loss/.test(f.title)));
+});
+
+test("spend total, tax saving per year and the sole-trader note", () => {
+  const r = compute({ ...base, entity: "sole", taxRate: "20", mainNew: "1000", carMain: "2000", mainBf: "500" });
+  assert.equal(r.spendTotal, 3000); // brought-forward pools are not spend
+  assert.match(summaryText(r), /Spend this period: £3,000/);
+  assert.equal(r.years[0].saving, r.years[0].deduction * 0.2);
+  assert.ok(r.findings.some((f) => /companies only/.test(f.title)));
+  const tiny = compute({ ...base, entity: "sole", specialNew: "1" });
+  assert.ok(tiny.findings.some((f) => /companies only/.test(f.title)));
+});
+
+test("years 2 to 5 use a full 12-month writing-down allowance", () => {
+  const r = compute({ ...base, months: "6", mainBf: "100000" });
+  const carry = r.optimal.carryMain;
+  assert.equal(r.years[1].deduction, Math.round(carry * 0.14 * 100) / 100);
+  const y2 = Math.round(carry * 0.14 * 100) / 100;
+  assert.equal(r.years[2].deduction, Math.round((carry - y2) * 0.14 * 100) / 100);
+  const sp = compute({ ...base, specialBf: "100000" });
+  assert.equal(sp.years[2].deduction, Math.round((sp.optimal.carrySpecial - sp.years[1].deduction) * 0.06 * 100) / 100);
+});
+
+test("a one-month period is accepted", () => {
+  assert.deepEqual(compute({ ...base, months: "1" }).errors, []);
+});

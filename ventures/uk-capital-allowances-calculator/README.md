@@ -20,10 +20,13 @@ cars) from 1 January 2026, open to sole traders and partnerships. Both are now m
 the balance left after any first-year allowance joins the pool only from the next period
 (CAA 2001 s58(5)).
 
+Periods other than 12 months (red team 2026-11-23, from HMRC CA23085 and CA23225): the AIA,
+the writing-down allowances and the £1,000 small pools limit are scaled by months / 12, up
+for a sole trader's period of 13 to 18 months and down for a short one. A company period
+over 12 months is refused, because a Corporation Tax accounting period is at most 12 months
+and a longer period of account splits in two.
+
 Not modelled yet:
 
 - a company period that straddles 1 April 2026 (a time-apportioned hybrid 18%/14% rate);
-- periods over 12 months (the tool caps at 12; a company's long period is split into two
-  Corporation Tax periods, a sole trader's allowances scale up);
-- the small pools limit scaled for a short period;
 - the 40% allowance on assets bought to lease out, and the proposed 12% / 50% change for April 2027.

@@ -45,16 +45,20 @@ function baseline(cat, isCompany) {
 const POOL_OF = { mainNew: "main", mainUsed: "main", specialNew: "special", specialUsed: "special", carMain: "main", carSpecial: "special" };
 const AIA_CATS = ["mainNew", "mainUsed", "specialNew", "specialUsed"];
 
+// CAA 2001 s56(3) and s56A: the writing-down allowance and the small pools limit
+// are proportionately increased or reduced for a period of more or less than a
+// year (HMRC CA23225: a 17-month period has a £1,417 limit).
 function poolWda(balance, rate, months) {
   if (balance <= 0) return 0;
-  if (balance <= RATES.smallPool) return balance;
-  return round2(balance * rate * Math.min(12, months) / 12);
+  if (balance <= RATES.smallPool * months / 12) return balance;
+  return round2(balance * rate * months / 12);
 }
 
 // order: categories in the order the AIA is applied.
 function claim(v, order) {
   const isCompany = v.entity === "company";
-  let aia = RATES.aia * Math.min(12, v.months) / 12;
+  // s51A(6): the maximum AIA is proportionately increased or reduced (CA23085).
+  let aia = RATES.aia * v.months / 12;
   const spend = {};
   for (const c of FIELDS) spend[c] = v[c];
   const aiaUsed = {};
@@ -90,10 +94,12 @@ export function compute(raw) {
   };
   v.months = num("months", "Accounting period (months)", 1);
   if (v.months > 18) errors.push("An accounting period cannot be longer than 18 months.");
+  else if (v.months > 12 && v.entity === "company") errors.push("A company's Corporation Tax accounting period is at most 12 months. A longer period of account is split into a 12-month period and the months after it: work each one out separately, with the spend that falls in it.");
   if (String(raw.taxRate ?? "").trim() === "") errors.push("Tax rate is needed to work out the tax saved.");
   v.taxRate = num("taxRate", "Tax rate");
   if (v.taxRate > 100) errors.push("Tax rate must be a percentage up to 100.");
-  v.profit = raw.profit === "" || raw.profit == null ? null : Number(raw.profit);
+  const profitText = String(raw.profit ?? "").trim();
+  v.profit = profitText === "" ? null : Number(profitText);
   if (v.profit !== null && !Number.isFinite(v.profit)) errors.push("Profit before allowances must be a number.");
   const labels = { mainNew: "New main-rate equipment", mainUsed: "Second-hand main-rate equipment", specialNew: "New special-rate items", specialUsed: "Second-hand special-rate items", carMain: "Cars at the main rate", carSpecial: "Cars at the special rate", mainBf: "Main pool brought forward", specialBf: "Special-rate pool brought forward" };
   for (const k of FIELDS) v[k] = num(k, labels[k]);
@@ -122,18 +128,18 @@ export function compute(raw) {
   years[0].cumulative = opt.total;
 
   const findings = [];
-  const aiaCap = RATES.aia * Math.min(12, v.months) / 12;
+  const aiaCap = RATES.aia * v.months / 12;
   const carSpend = v.carMain + v.carSpecial;
   if (carSpend > 0) findings.push({ severity: "medium", title: `${money0(carSpend)} on cars gets no Annual Investment Allowance: it goes into a pool at 14% or 6% a year. Check whether a zero-emission car qualifies for a first-year allowance for your period.` });
   if (!isCompany && v.mainNew + v.specialNew > 0) findings.push({ severity: "info", title: "Full expensing and the 50% special-rate allowance are for companies only. Sole traders and partnerships get the AIA, then a 40% first-year allowance on new main-rate equipment (not cars) from 1 January 2026, then 14% / 6% writing-down." });
-  if (aiaCap < RATES.aia) findings.push({ severity: "info", title: `The AIA is scaled to ${v.months} months: ${money0(aiaCap)} for this period.` });
+  if (aiaCap !== RATES.aia) findings.push({ severity: "info", title: `The AIA, writing-down allowances and small pools limit are scaled to ${v.months} months: an AIA of ${money0(aiaCap)} for this period.` });
   const eligible = AIA_CATS.reduce((a, c) => a + v[c], 0);
   if (eligible > aiaCap) findings.push({ severity: "high", title: `Eligible spend of ${money0(eligible)} is above your AIA of ${money0(aiaCap)}: the excess gets only ${isCompany ? "full expensing / pool allowances" : "the 40% first-year allowance (new main-rate equipment) or 14% / 6% a year"}.` });
   const gainOrder = round2(opt.total - nav.total);
   if (gainOrder > 1) findings.push({ severity: "high", title: `Putting the AIA on the right items first adds ${money0(gainOrder)} to this year's deduction compared with using it in the order you listed the categories.` });
   if (v.mainUsed + v.specialUsed > 0) findings.push({ severity: "info", title: "Second-hand items are eligible for the AIA but not for full expensing or first-year allowances, so the AIA is best spent on them first." });
   if (v.profit !== null && opt.total > v.profit) findings.push({ severity: "high", title: `Claiming everything (${money0(opt.total)}) is more than your profit of ${money0(v.profit)}: it would create a loss. You may claim less, to keep pool balances for later years, or use the loss.` });
-  if (opt.wdaMain === v.mainBf && v.mainBf > 0 && v.mainBf <= RATES.smallPool) findings.push({ severity: "info", title: "Your main pool is within the small pools allowance, so it can be written off in full." });
+  if (opt.wdaMain === v.mainBf && v.mainBf > 0 && v.mainBf <= RATES.smallPool * v.months / 12) findings.push({ severity: "info", title: "Your main pool is within the small pools allowance, so it can be written off in full." });
 
   const obligations = [
     { title: "Claim in your return", why: isCompany ? "Allowances are claimed in the company tax return (CT600) computations. You can claim less than the maximum." : "Allowances are claimed in the self-employment or partnership pages of the Self Assessment return. You can claim less than the maximum." },
