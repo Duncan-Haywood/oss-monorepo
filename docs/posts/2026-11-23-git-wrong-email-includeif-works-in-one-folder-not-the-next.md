@@ -42,9 +42,12 @@ outputs must match line for line, and when git stops on an error, both must
 name the same file and line.
 
 On git 2.43.0, seeds 1 to 3,000 were used while building and ended with no
-difference. A further 5,000 seeds that were not used while building are
-reported in the [run record](../../prompts/runs/) of the pull request that added
-the tool.
+difference. On 5,000 seeds that were not used while building (10,001 to
+15,000), the engine agrees with git on **all 5,000**. That run covered 4,141
+trees that git read through, 1,235 of them with at least one matching
+`includeIf`, and 859 trees that git refused to read: 760 bad lines, 74 include
+chains over the depth limit, and 25 remote URLs in a file included under a
+true condition.
 
 ## What the comparison taught us
 
