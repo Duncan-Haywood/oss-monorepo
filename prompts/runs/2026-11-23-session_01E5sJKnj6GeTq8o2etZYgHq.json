@@ -1,0 +1,327 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnj6GeTq8o2etZYgHq",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T06:10:07Z",
+  "ended": "2026-11-23T06:13:00Z",
+  "wall_minutes": 12.49,
+  "tokens_in": 4185152,
+  "tokens_out": 27994,
+  "cost_usd": 2.084,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18379",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first scratch bench used a different LCG than nest.test.mjs, so a 2140 mm bar was computed on the wrong jobs and caught nothing on rerun; re-measured with the test's rng (1876)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 3's 'equivalent' vs 'gap' split has no slot for heuristic-search mutants that change a seeded trajectory without making it weaker; I triaged them gap-caught-by-exact-pin and said so in notes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 13 open defects are control-plane (own PR, owner approval) or the help-keeper stemmer redesign needing a new eval set; none was safely fixable in this run.",
+      "did": "Left them open, unchanged.",
+      "result": "No step-0 progress; time went to the campaign."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Only one campaign: the second candidate (league-schedule-generator) has a venture suite over 20 s per mutant.",
+      "did": "One 12-mutant campaign on compact.mjs.",
+      "result": "All gaps closed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-redteam-a-search-that-got-weaker-silently.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/dxf-nesting/compact.mjs (landed 2026-11-23 in #18372). Guard added: a search-strength bar (sum of six compacted lengths <= 1886) plus an exact pin in nest.test.mjs, and a new compact.test.mjs with known optima. Verification: run_venture_tests.py dxf-nesting ok (51 tests); check_posts ok. Real-bug hunt: page/CLI clamp compactMoves and cap time; no defect. Second guard: CI's validate job went red on a test race unrelated to the diff (ventures/discovery-probe-* seen by optout-persistence); fixed by dot-naming the scratch ventures plus a test pinning that discovery skips them; platform/privacy suite 123/123.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/dxf-nesting/compact.mjs",
+        "test": "node --test ventures/dxf-nesting/**/*.test.mjs  (in .)",
+        "seed": 1013688928,
+        "commit": "a346ab082",
+        "sites": 377,
+        "baseline_seconds": 4.1,
+        "mutants": [
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 55,
+            "col": 22,
+            "operator": "eq-flip",
+            "before": "v = Math.min(v, i === 0 || j === 0 ? 1 : d[k - w - 1] + 1, j === 0 ? 1 : d[k - w] + 1, i === w - 1 || j === 0 ? 1 : d[k - w + 1] + 1, i === 0 ? 1 : d[k - 1] + 1);",
+            "after": "v = Math.min(v, i !== 0 || j === 0 ? 1 : d[k - w - 1] + 1, j === 0 ? 1 : d[k - w] + 1, i === w - 1 || j === 0 ? 1 : d[k - w + 1] + 1, i === 0 ? 1 : d[k - 1] + 1);",
+            "line_text": "    v = Math.min(v, i === 0 || j === 0 ? 1 : d[k - w - 1] + 1, j === 0 ? 1 : d[k - w] + 1, i === w - 1 || j === 0 ? 1 : d[k - w + 1] + 1, i === 0 ? 1 : d[k - 1] + 1);",
+            "caught": true,
+            "seconds": 3.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 61,
+            "col": 166,
+            "operator": "const-plus-one",
+            "before": "d[k] = Math.min(d[k], i === w - 1 || j === h - 1 ? 1 : d[k + w + 1] + 1, j === h - 1 ? 1 : d[k + w] + 1, i === 0 || j === h - 1 ? 1 : d[k + w - 1] + 1, i === w - 1 ? 1 : d[k + 1] + 1);",
+            "after": "d[k] = Math.min(d[k], i === w - 1 || j === h - 1 ? 1 : d[k + w + 1] + 1, j === h - 1 ? 1 : d[k + w] + 1, i === 0 || j === h - 1 ? 1 : d[k + w - 1] + 1, i === w - 2 ? 1 : d[k + 1] + 1);",
+            "line_text": "    d[k] = Math.min(d[k], i === w - 1 || j === h - 1 ? 1 : d[k + w + 1] + 1, j === h - 1 ? 1 : d[k + w] + 1, i === 0 || j === h - 1 ? 1 : d[k + w - 1] + 1, i === w - 1 ? 1 : d[k + 1] + 1);",
+            "caught": true,
+            "seconds": 3.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 135,
+            "col": 39,
+            "operator": "or-to-and",
+            "before": "if (ia < XW && (dirty[row] < 0 || ia < dirty[row])) dirty[row] = ia;",
+            "after": "if (ia < XW && (dirty[row] < 0 && ia < dirty[row])) dirty[row] = ia;",
+            "line_text": "        if (ia < XW && (dirty[row] < 0 || ia < dirty[row])) dirty[row] = ia;",
+            "caught": true,
+            "seconds": 2.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 162,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "C.fill(0);",
+            "after": "C.fill(1);",
+            "line_text": "    C.fill(0);",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 181,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "if (r.fits && r.mask.w <= Lt - lo.i && r.mask.h <= hi.j - lo.j + 1) rotIdx.push(ri);",
+            "after": "if (r.fits && r.mask.w <= Lt - lo.i && r.mask.h <= hi.j - lo.j + 2) rotIdx.push(ri);",
+            "line_text": "      if (r.fits && r.mask.w <= Lt - lo.i && r.mask.h <= hi.j - lo.j + 1) rotIdx.push(ri);",
+            "caught": false,
+            "seconds": 4.6,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "rotIdx already requires r.fits, and nest.mjs sets fits only when mask.h <= hi.j - lo.j + 1, so the +2 height bound is implied; scratch bench on 6 random jobs gave byte-identical lengths."
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 192,
+            "col": 44,
+            "operator": "gt-to-ge",
+            "before": "for (let s = 0; s < samples && best.e > 0; s++) tryAt(ri, lo.i + Math.floor(rnd() * (xr + 1)), lo.j + Math.floor(rnd() * (yr + 1)));",
+            "after": "for (let s = 0; s < samples && best.e >= 0; s++) tryAt(ri, lo.i + Math.floor(rnd() * (xr + 1)), lo.j + Math.floor(rnd() * (yr + 1)));",
+            "line_text": "      for (let s = 0; s < samples && best.e > 0; s++) tryAt(ri, lo.i + Math.floor(rnd() * (xr + 1)), lo.j + Math.floor(rnd() * (yr + 1)));",
+            "caught": false,
+            "seconds": 4.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Keeps sampling after a zero-overlap spot (ties go left): a different but not weaker trajectory (test jobs total 1864 vs 1876). Caught by the exact pin of the six compacted lengths in nest.test.mjs, which the published esicup-compact numbers depend on."
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 192,
+            "col": 88,
+            "operator": "times-to-div",
+            "before": "for (let s = 0; s < samples && best.e > 0; s++) tryAt(ri, lo.i + Math.floor(rnd() * (xr + 1)), lo.j + Math.floor(rnd() * (yr + 1)));",
+            "after": "for (let s = 0; s < samples && best.e > 0; s++) tryAt(ri, lo.i + Math.floor(rnd() / (xr + 1)), lo.j + Math.floor(rnd() * (yr + 1)));",
+            "line_text": "      for (let s = 0; s < samples && best.e > 0; s++) tryAt(ri, lo.i + Math.floor(rnd() * (xr + 1)), lo.j + Math.floor(rnd() * (yr + 1)));",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Global x sampling collapses to lo.i: a weaker search (test jobs 1960 vs 1876). Caught by the new total-length bar (<= 1886) in nest.test.mjs."
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 199,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const cx = p.x + (m0.w - m.w) / 2, cy = p.y + (m0.h - m.h) / 2;",
+            "after": "const cx = p.x + (m0.w - m.w) / 3, cy = p.y + (m0.h - m.h) / 2;",
+            "line_text": "        const cx = p.x + (m0.w - m.w) / 2, cy = p.y + (m0.h - m.h) / 2;",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Off-centre local window: different trajectory, not weaker on the test jobs (1866). Caught by the exact pin only."
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 200,
+            "col": 26,
+            "operator": "lt-to-le",
+            "before": "for (let s = 0; s < local && best.e > 0; s++) {",
+            "after": "for (let s = 0; s <= local && best.e > 0; s++) {",
+            "line_text": "        for (let s = 0; s < local && best.e > 0; s++) {",
+            "caught": false,
+            "seconds": 3.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "One extra local sample per rotation: different trajectory (1860). Caught by the exact pin only."
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 201,
+            "col": 96,
+            "operator": "times-to-div",
+            "before": "const x = Math.round(cx + (rnd() * 2 - 1) * rad), y = Math.round(cy + (rnd() * 2 - 1) * rad);",
+            "after": "const x = Math.round(cx + (rnd() * 2 - 1) * rad), y = Math.round(cy + (rnd() * 2 - 1) / rad);",
+            "line_text": "          const x = Math.round(cx + (rnd() * 2 - 1) * rad), y = Math.round(cy + (rnd() * 2 - 1) * rad);",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Local y scatter divided by rad (flattened): weaker (1894 vs 1876). Caught by the total-length bar."
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 213,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "for (const [dx, dy] of [[-step, 0], [step, 0], [0, -step], [0, step], [-step, -step], [-step, step], [step, -step], [step, step]]) {",
+            "after": "for (const [dx, dy] of [[-step, 0], [step, 1], [0, -step], [0, step], [-step, -step], [-step, step], [step, -step], [step, step]]) {",
+            "line_text": "        for (const [dx, dy] of [[-step, 0], [step, 0], [0, -step], [0, step], [-step, -step], [-step, step], [step, -step], [step, step]]) {",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Descent step [step,0] bent to [step,1]: different trajectory (1874). Caught by the exact pin only."
+          },
+          {
+            "file": "ventures/dxf-nesting/compact.mjs",
+            "line": 252,
+            "col": 51,
+            "operator": "gt-to-ge",
+            "before": "for (let i = 0; i < n; i++) if (ownCost(pl, i) > 0) return false;",
+            "after": "for (let i = 0; i < n; i++) if (ownCost(pl, i) >= 0) return false;",
+            "line_text": "    for (let i = 0; i < n; i++) if (ownCost(pl, i) > 0) return false;",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Final overlap check always false, so a separation that clears on its last round is thrown away. Caught by new compact.test.mjs 'rounds: 1' test (four 5x5 squares must reach extent 11)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/privacy/browser-signals.test.mjs",
+        "issue": "Scratch ventures made under ventures/discovery-probe-* raced the parallel catalogue walks: optout-persistence.test.mjs found the probe's usage.mjs and it was deleted before import, failing validate on this PR's CI (third occurrence; 2026-10-21 and 2026-11-12 were fixed per walker). Fixed for the class: the scratch dirs are dot-named, which every walker already skips, with a test that the default discovery cannot see a ventures/.* scratch venture.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18379"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7bd9f108-c2bb-51be-952d-605efcf7f13d",
+    "transcripts": 1,
+    "first": "2026-11-23T06:10:07Z",
+    "last": "2026-11-23T06:22:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 94,
+        "output": 27994,
+        "thinking": 8940,
+        "cache_read": 4097017,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88041,
+        "api_equivalent_usd": 2.084,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 94,
+      "output": 27994,
+      "thinking": 8940,
+      "cache_read": 4097017,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88041,
+      "api_equivalent_usd": 2.084,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.49,
+      "active_minutes": 12.49,
+      "model_minutes": 5.93,
+      "tool_minutes": 6.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation campaign, triage, two test additions and a post by a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 191.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

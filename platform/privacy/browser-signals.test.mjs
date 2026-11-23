@@ -150,7 +150,12 @@ test("discovery skips build output, so the count does not depend on who has buil
   // optout-persistence.test.mjs then failed for a reason that was not a
   // change to the catalogue -- the worst kind of red, because the honest
   // response to it is to raise the number and bake the artefact in.
-  const root = mkdtempSync(join(REPO_ROOT, "ventures", "discovery-probe-"));
+  // The scratch venture's name starts with a dot so the catalogue walkers
+  // skip it: node --test runs files in parallel, and a plain
+  // ventures/discovery-probe-* was found by optout-persistence.test.mjs and
+  // deleted before it imported it (CI, PR #18379, 2026-11-23; the same race
+  // crashed two other walkers on 2026-10-21 and 2026-11-12).
+  const root = mkdtempSync(join(REPO_ROOT, "ventures", ".discovery-probe-"));
   try {
     writeFileSync(join(root, "usage.mjs"), HONOURING);
     mkdirSync(join(root, "dist"), { recursive: true });
@@ -165,7 +170,7 @@ test("discovery skips build output even when it is the only untracked file", () 
   // Red team 2026-11-14: \`if (paths.length === 0)\` mutated to \`=== 1\` went
   // green, because the test above always hands check-ignore two untracked
   // paths. A lone built copy must still be dropped.
-  const root = mkdtempSync(join(REPO_ROOT, "ventures", "discovery-lone-"));
+  const root = mkdtempSync(join(REPO_ROOT, "ventures", ".discovery-lone-"));
   try {
     mkdirSync(join(root, "dist"), { recursive: true });
     writeFileSync(join(root, "dist", "usage.mjs"), HONOURING);
@@ -303,4 +308,15 @@ test("a factory that returns null is skipped, and the module's plain recorder st
   try {
     assert.equal((await checkModule(path)).status, "pass");
   } finally { cleanup(); }
+});
+
+test("a dot-named scratch venture is invisible to catalogue discovery", () => {
+  // What the scratch dirs above rely on to stay out of the other suites'
+  // walks while they exist.
+  const root = mkdtempSync(join(REPO_ROOT, "ventures", ".discovery-hidden-"));
+  try {
+    writeFileSync(join(root, "usage.mjs"), HONOURING);
+    assert.ok(!findUsageModules().some((p) => p.startsWith(root)),
+      "a scratch venture under ventures/.* was found by the default walk");
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
