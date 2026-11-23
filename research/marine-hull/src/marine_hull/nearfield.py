@@ -138,8 +138,23 @@ class NearField:
         self.h = hull
         keys = sorted(set(hull.ratio), key=repr)
         self.field = field or FieldTable(keys, n_panels=n_panels, processes=processes)
+        self._direct = {}
 
-    def response(self, omega, u, gb=None):
+    def _direct_solve(self, i, r, nu_t, kt, yx):
+        """7zz: per-panel potentials (draft 1) of station i for body conditions n_z (unit heave), n_z e^{kT zeta}
+        and n_y Y_x e^{kT zeta} (zeta = z/T), solved directly at nu T; cached per station and frequency."""
+        key = (i, nu_t, kt)
+        if key not in self._direct:
+            nodes = section_nodes(r, self.field.n_panels)
+            pan, _ = st.section_solve(nodes, nu_t, [])
+            ez = [math.exp(kt * p[5][1]) for p in pan]
+            rhs = [[p[4] for p in pan], [p[4] * e for p, e in zip(pan, ez)],
+                   [p[3] * y * e for p, y, e in zip(pan, yx, ez)]]
+            _, sols = st.section_solve(nodes, nu_t, rhs)
+            self._direct[key] = (sols, ez)
+        return self._direct[key]
+
+    def response(self, omega, u, gb=None, diffraction=None, motions=None):
         """dict: motions, GB R_aw and the near-field terms (N/m2 per unit wave amplitude squared).
 
         nf = wl + vel + rot (PDSTRIP's force sum in 166); nf_boese uses Boese's substitution in 166; nf0 drops the
@@ -147,9 +162,16 @@ class NearField:
         the total first-order force M a (Pinkster 1980), nf_p / nf0_p use it in place of rot; grad / grad0 is the
         mean of the first-order displacement times the dynamic-pressure gradient, and nf_pg / nf0_pg add it.
         7zy: vel_split is the velocity term split into incident-incident (II), incident-disturbance (ID) and
-        disturbance-disturbance (PP) pairs per component x, y, z; its nine values sum to vel."""
+        disturbance-disturbance (PP) pairs per component x, y, z; its nine values sum to vel.
+        7zz: `motions` (z, theta) replaces the strip motions ((0, 0) restrains the hull); `diffraction` replaces the
+        relative-velocity disturbance by a direct solve per section, radiation (unit heave times minus the body's
+        vertical velocity) plus diffraction with body condition dphi_D/dN = -i omega e^{ikx} times: "rv" the
+        uniform Smith factor n_z e^{-k d_m} (today's flow, solved directly); "sd" n_z e^{kz}; "sdx"
+        e^{kz} (n_z - i Y_x n_y), the incident surge velocity on the longitudinal normal n_x / |n_2D| = -Y_x n_y."""
         h = self.h
         z3, th, raw_gb, we = h.response(omega, u, gb=gb)
+        if motions is not None:
+            z3, th = motions
         k = omega * omega / G
         rho, t, dx, xs = h.rho, h.t, h.dx, h.x
         ut = u if (gb or {}).get("u_theta", True) else 0.0
@@ -158,21 +180,44 @@ class NearField:
         vz = [1j * omega * smith * cmath.exp(1j * k * x) - (1j * we * z3 + 1j * we * x * th - ut * th) for x in xs]
         geos = [self.field.geo[r] for r in h.ratio]
         npan = len(next(g for g in geos if g is not None))
-        phs = []
-        for r, v in zip(h.ratio, vz):
-            if self.field.geo[r] is None:
-                phs.append([0j] * npan)
-            else:
-                phs.append([-t * p * v for p in self.field.at(r, nu_t)])        # phi_d, dimensional
         ys = [[t * g[j][0] for j in range(npan)] if g is not None else [0.0] * npan for g in geos]
-        # x-derivatives per panel index (the panels of every section sit at the same z, the draft being constant)
-        phx = [[0j] * npan for _ in xs]
         yx = [[0.0] * npan for _ in xs]
         for j in range(npan):
-            dp = d_dx([p[j] for p in phs], xs, 0.5 * h.l)
             dy = d_dx([y[j] for y in ys], xs, 0.5 * h.l)
             for i in range(len(xs)):
-                phx[i][j], yx[i][j] = dp[i], dy[i]
+                yx[i][j] = dy[i]
+        phs, dn0 = [], []
+        for i, (r, v) in enumerate(zip(h.ratio, vz)):
+            if self.field.geo[r] is None:
+                phs.append([0j] * npan)
+                dn0.append([0j] * npan)
+            elif diffraction is None:
+                phs.append([-t * p * v for p in self.field.at(r, nu_t)])        # phi_d, dimensional
+                dn0.append([-v * q[3] for q in self.field.geo[r]])             # body condition, outward normal
+            else:
+                (ph_h, ph_z, ph_x), ez = self._direct_solve(i, r, nu_t, k * t, yx[i])
+                vb = v - 1j * omega * smith * cmath.exp(1j * k * xs[i])      # minus the body's vertical velocity
+                wi = -1j * omega * cmath.exp(1j * k * xs[i])
+                nz = [q[3] for q in self.field.geo[r]]
+                ny = [q[2] for q in self.field.geo[r]]
+                if diffraction == "rv":
+                    pd = [smith * a for a in ph_h]
+                    dd = [smith * a for a in nz]
+                elif diffraction == "sd":
+                    pd, dd = ph_z, [a * e for a, e in zip(nz, ez)]
+                elif diffraction == "sdx":
+                    pd = [a - 1j * b for a, b in zip(ph_z, ph_x)]
+                    dd = [(a - 1j * yx[i][j] * b) * e for j, (a, b, e) in enumerate(zip(nz, ny, ez))]
+                else:
+                    raise ValueError(diffraction)
+                phs.append([-t * a * vb + t * wi * b for a, b in zip(ph_h, pd)])
+                dn0.append([-vb * a + wi * b for a, b in zip(nz, dd)])
+        # x-derivatives per panel index (the panels of every section sit at the same z, the draft being constant)
+        phx = [[0j] * npan for _ in xs]
+        for j in range(npan):
+            dp = d_dx([p[j] for p in phs], xs, 0.5 * h.l)
+            for i in range(len(xs)):
+                phx[i][j] = dp[i]
         hbx = d_dx(h.hb, xs, 0.5 * h.l)
         # disturbance derivatives on the hull, per section and panel (independent of the convection switch)
         dns, dsvs, vyds, pxts, phzs = [], [], [], [], []
@@ -182,7 +227,7 @@ class NearField:
                 for lst in (dns, dsvs, vyds, pxts, phzs):
                     lst.append([0j] * npan)
                 continue
-            dn = [-vz[i] * g[j][3] for j in range(npan)]              # body condition, outward normal derivative
+            dn = dn0[i]                                               # body condition, outward normal derivative
             dsv = d_ds(phs[i], [(t * q[0], t * q[1]) for q in g])
             vyd = [g[j][2] * dn[j] + g[j][5] * dsv[j] for j in range(npan)]   # disturbance d phi / dy
             # d phi / dx at fixed (y, z): the derivative along the hull at fixed z minus phi_y dY/dx

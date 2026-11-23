@@ -186,14 +186,9 @@ def _solve(a, rhs):
     return x
 
 
-def section_heave(nodes, nu, _keep=None):
-    """Frank close-fit heave radiation of a symmetric section for unit heave velocity.
-
-    nodes: right-half contour (y, z), keel (y = 0) to waterline (z = 0), z up.
-    Returns (Phi, A): Phi = int phi n_z ds over the whole wetted contour (complex), and the amplitude A of
-    the far-field wave phi ~ A e^{nu z} e^{-i nu |y|}. With time dependence e^{i omega t}:
-    added mass a33 = -rho Re(Phi), damping b33 = rho omega Im(Phi), and energy balance b33 = rho omega |A|^2.
-    """
+def _section_matrices(nodes, nu):
+    """Frank close-fit panels, quadrature and the (normal-derivative, potential) influence matrices (7zz:
+    factored out of `section_heave`, unchanged)."""
     pan = []
     for p0, p1 in zip(nodes[:-1], nodes[1:]):
         ds = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
@@ -227,6 +222,34 @@ def section_heave(nodes, nu, _keep=None):
                 ph += 2.0 * h * (math.log(h) - 1.0)      # int ln|s| over the panel, analytic
             amat[i][j] = dn
             pmat[i][j] = ph
+    return pan, quad, amat, pmat
+
+
+def section_solve(nodes, nu, rhs_list):
+    """Milestone 7zz: the Frank close-fit problem of `section_heave` for any body conditions.
+
+    rhs_list: per right-hand side, the outward normal derivative of the potential at each panel midpoint
+    (keel to waterline, right half; the mirror half is symmetric). Returns (pan, [per-panel potential per rhs]),
+    pan as `section_heave` keeps it: (p0, p1, ds, n_y, n_z, midpoint) per panel."""
+    pan, quad, amat, pmat = _section_matrices(nodes, nu)
+    n = len(pan)
+    out = []
+    for rhs in rhs_list:
+        sig = _solve(amat, [complex(v) for v in rhs])
+        out.append([sum(pmat[i][j] * sig[j] for j in range(n)) for i in range(n)])
+    return pan, out
+
+
+def section_heave(nodes, nu, _keep=None):
+    """Frank close-fit heave radiation of a symmetric section for unit heave velocity.
+
+    nodes: right-half contour (y, z), keel (y = 0) to waterline (z = 0), z up.
+    Returns (Phi, A): Phi = int phi n_z ds over the whole wetted contour (complex), and the amplitude A of
+    the far-field wave phi ~ A e^{nu z} e^{-i nu |y|}. With time dependence e^{i omega t}:
+    added mass a33 = -rho Re(Phi), damping b33 = rho omega Im(Phi), and energy balance b33 = rho omega |A|^2.
+    """
+    pan, quad, amat, pmat = _section_matrices(nodes, nu)
+    n = len(pan)
     sig = _solve(amat, [complex(p[4]) for p in pan])
     phi = [sum(pmat[i][j] * sig[j] for j in range(n)) for i in range(n)]
     if _keep is not None:                    # milestone 7zs: the per-panel potential and geometry, for the near field
