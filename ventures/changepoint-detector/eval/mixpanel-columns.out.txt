@@ -1,0 +1,22 @@
+round 2; seeds 40 per cell; heard = dated within 7 days; false = any other date (count, and products with one)
+-- arm: default
+weekends 0.5, page views to 0.6: heard page views 40/40, sign-ups 38/40, users 0/40; other dates: page views 0, sign-ups 8, users 0
+weekends 0.5, page views to 0.5: heard page views 40/40, sign-ups 38/40, users 0/40; other dates: page views 0, sign-ups 8, users 0
+weekends 0.5, no fault: false dates event_pageview 0 on 0 products, event_signed_up 5 on 3 products, users 0 on 0 products; total 5
+weekends 0.4, page views to 0.6: heard page views 36/40, sign-ups 34/40, users 0/40; other dates: page views 0, sign-ups 3, users 0
+weekends 0.4, page views to 0.5: heard page views 40/40, sign-ups 34/40, users 1/40; other dates: page views 0, sign-ups 3, users 0
+weekends 0.4, no fault: false dates event_pageview 0 on 0 products, event_signed_up 0 on 0 products, users 0 on 0 products; total 0
+-- arm: period 7 (--period 7)
+weekends 0.5, page views to 0.6: heard page views 40/40, sign-ups 40/40, users 40/40; other dates: page views 0, sign-ups 7, users 6
+weekends 0.5, page views to 0.5: heard page views 40/40, sign-ups 40/40, users 40/40; other dates: page views 0, sign-ups 7, users 4
+weekends 0.5, no fault: false dates event_pageview 2 on 2 products, event_signed_up 10 on 9 products, users 7 on 7 products; total 19
+weekends 0.4, page views to 0.6: heard page views 40/40, sign-ups 40/40, users 40/40; other dates: page views 0, sign-ups 1, users 9
+weekends 0.4, page views to 0.5: heard page views 40/40, sign-ups 40/40, users 40/40; other dates: page views 0, sign-ups 1, users 6
+weekends 0.4, no fault: false dates event_pageview 1 on 1 products, event_signed_up 10 on 9 products, users 5 on 5 products; total 16
+-- arm: middle (--detector pelt --overdispersion nb --trend gated)
+weekends 0.5, page views to 0.6: heard page views 40/40, sign-ups 40/40, users 39/40; other dates: page views 0, sign-ups 5, users 1
+weekends 0.5, page views to 0.5: heard page views 40/40, sign-ups 40/40, users 40/40; other dates: page views 0, sign-ups 5, users 0
+weekends 0.5, no fault: false dates event_pageview 0 on 0 products, event_signed_up 1 on 1 products, users 0 on 0 products; total 1
+weekends 0.4, page views to 0.6: heard page views 40/40, sign-ups 40/40, users 38/40; other dates: page views 0, sign-ups 2, users 0
+weekends 0.4, page views to 0.5: heard page views 40/40, sign-ups 40/40, users 40/40; other dates: page views 0, sign-ups 2, users 0
+weekends 0.4, no fault: false dates event_pageview 0 on 0 products, event_signed_up 0 on 0 products, users 0 on 0 products; total 0

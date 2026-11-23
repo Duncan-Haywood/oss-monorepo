@@ -1,0 +1,7 @@
+round 1 (count default only), seeds 40 per cell; heard = dated within 7 days; false = any other date (count, and products with one)
+weekends 0.5, page views to 0.6: heard page views 40/40, sign-ups 39/40, users 0/40; other dates: page views 0, sign-ups 11, users 0
+weekends 0.5, page views to 0.5: heard page views 40/40, sign-ups 39/40, users 0/40; other dates: page views 0, sign-ups 11, users 0
+weekends 0.5, no fault: false dates event_pageview 0 on 0 products, event_signed_up 2 on 2 products, users 0 on 0 products
+weekends 0.4, page views to 0.6: heard page views 32/40, sign-ups 38/40, users 0/40; other dates: page views 0, sign-ups 3, users 0
+weekends 0.4, page views to 0.5: heard page views 40/40, sign-ups 38/40, users 0/40; other dates: page views 0, sign-ups 3, users 0
+weekends 0.4, no fault: false dates event_pageview 0 on 0 products, event_signed_up 0 on 0 products, users 0 on 0 products
