@@ -1,0 +1,18 @@
+Iran non-oil GDP, 108 quarters 1367Q1-1393Q4; MBRI turns scored: 13 (1368Q1 t, 1370Q3 p, 1372Q4 t, 1373Q2 p, 1374Q1 t, 1376Q1 p, 1378Q1 t, 1378Q4 p, 1380Q1 t, 1386Q1 p, 1388Q2 t, 1390Q2 p, 1392Q2 t)
+
+level: shipped 9 cuts, stiff 5 cuts (qz 3.00e-4, at cap)
+  margin 2 (bars): shipped F1 0.417 (random 0.446, excess -0.029, p 0.752; recall 5/13)  stiff F1 0.400 (random 0.356, excess +0.044, p 0.527; recall 3/13)  stiff - shipped -0.017
+  margin 5 (no bar): shipped F1 0.750 (random 0.639, excess +0.111, p 0.220; recall 9/13)  stiff F1 0.600 (random 0.507, excess +0.093, p 0.329; recall 7/13)  stiff - shipped -0.150
+  shipped [1368Q4 (trough 1368Q1, +3), 1370Q3 (peak 1370Q3, +0), 1378Q3 (peak 1378Q4, -1), 1381Q1 (trough 1380Q1, +4), 1384Q4 (peak 1386Q1, -5), 1389Q1 (trough 1388Q2, +3), 1390Q1 (peak 1390Q2, -1), 1391Q1 (peak 1390Q2, +3), 1392Q1 (trough 1392Q2, -1)]
+  stiff   [1372Q3 (trough 1372Q4, -1), 1380Q1 (trough 1380Q1, +0), 1386Q4 (peak 1386Q1, +3), 1391Q1 (peak 1390Q2, +3), 1392Q1 (trough 1392Q2, -1)]
+
+log level: shipped 11 cuts, stiff 6 cuts (qz 3.00e-4, at cap)
+  margin 2 (no bar): shipped F1 0.538 (random 0.473, excess +0.066, p 0.395; recall 7/13)  stiff F1 0.381 (random 0.384, excess -0.003, p 0.687; recall 3/13)  stiff - shipped -0.158
+  margin 5 (no bar): shipped F1 0.769 (random 0.672, excess +0.098, p 0.258; recall 10/13)  stiff F1 0.667 (random 0.549, excess +0.118, p 0.206; recall 9/13)  stiff - shipped -0.103
+  shipped [1368Q4 (trough 1368Q1, +3), 1369Q4 (peak 1370Q3, -3), 1370Q3 (peak 1370Q3, +0), 1372Q1 (trough 1372Q4, -3), 1372Q3 (trough 1372Q4, -1), 1373Q2 (peak 1373Q2, +0), 1374Q2 (trough 1374Q1, +1), 1378Q3 (peak 1378Q4, -1), 1381Q1 (trough 1380Q1, +4), 1384Q4 (peak 1386Q1, -5), 1392Q1 (trough 1392Q2, -1)]
+  stiff   [1368Q4 (trough 1368Q1, +3), 1370Q3 (peak 1370Q3, +0), 1372Q3 (trough 1372Q4, -1), 1378Q1 (trough 1378Q1, +0), 1386Q4 (peak 1386Q1, +3), 1391Q1 (peak 1390Q2, +3)]
+
+T1 FAILS: stiff excess over random +0.044 (bar +0.10), p 0.527 (bar 0.05)
+T2 FAILS: stiff - shipped -0.017 (bar +0.03)
+
+Ships: nothing in the CLI (one series). The turning-point option is dropped from the open items.

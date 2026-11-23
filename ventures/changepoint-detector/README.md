@@ -9716,3 +9716,42 @@ turns, and a smooth series full of slow turns is exactly where the stiff walk ov
 option is a different product question from the drift model's jumps; if it is tried, it needs its own registered
 bars on a fresh turning-point label set (another country's dated business cycle, say) with the random-cut baseline
 as a bar, not a reading.
+
+## A turning-point option on Iran's dated cycle: no better than random cuts (2026-11-23, pre-registered; T1 and T2 fail, the option is dropped)
+
+Open item from "A stiff slope": on the ten NBER-labelled US series the stiff-slope trend walk beat its own count of
+random cuts, read after the run. Before offering anyone a "find the turning points" option, that needed its own bars
+on a fresh dated cycle from outside the US, with the random-cut baseline as a bar.
+
+The fresh set is **Iran's non-oil GDP** (108 quarters of the Iranian calendar, 1367Q1 to 1393Q4, about 1988 to
+2015; seasonally adjusted, as an index rebuilt from the published quarterly growth) and its **official
+business-cycle dating by the Monetary and Banking Research Institute** (6 peaks and 7 troughs), both from the R
+package BCDating (`data/iran-non-oil-gdp-quarterly.csv`, `data/mbri-iran-dating.csv`, `data/SOURCE.md`). No model
+here had seen it. Rules in the header of `eval/turns-iran.mjs`, committed before it first ran: the stiff walk at the
+cap already chosen in simulation (qz at most 3e-4, not re-tuned) against the shipped `--model drift`, TCPD's F1 at a
+margin of 2 quarters (the turns are a median 8 quarters apart, so at the earlier rounds' margin of 5 almost any cut
+scores; margin 5 printed, no bar), random baseline of the same number of uniform cuts (5,000 draws).
+
+| bar | result |
+|---|---|
+| T1, beyond chance: stiff F1 at least 0.10 above random cuts at its count, p at most 0.05 | F1 0.400 vs random 0.356 (**+0.044, p 0.53**): **fails** |
+| T2, better than shipped: stiff F1 at least 0.03 above the shipped model's | 0.400 vs 0.417 (**-0.017**): **fails** |
+
+Output `eval/turns-iran.out.txt` (0.3 s); test `turns-iran.test.mjs`.
+
+What it shows:
+
+- **The stiff walk's US result does not travel.** Its 5 cuts land within 2 quarters of 3 of the 13 turns; 5 random
+  cuts do about as well. The shipped drift model's 9 cuts hit 5 turns, also no better than 9 random cuts (p 0.75).
+  At margin 5 both models sit 0.09 to 0.11 above random with p 0.2 to 0.3, and the log level (printed, no bar)
+  tells the same story.
+- **Why, read after the run (not a result).** These are growth-cycle turns, dated on an HP-filtered cycle: in the dated
+  contractions Iran's non-oil output still grew on average, 0.47% a quarter against 1.70% in expansions (17 of the
+  45 contraction quarters fell, and 15 of the 62 expansion quarters). The NBER turns the stiff walk heard were
+  classical recessions, sharp falls in level that a stiff slope cannot bend round. A slowdown is a slope change, and
+  the stiff walk, by design, will not cut for a slope change (5% at a clean kink in simulation). So the
+  stiff walk is a recession-fall detector at best, not a turning-point finder.
+- **What changes.** Nothing in the CLI or the page. The turning-point option is dropped from the open items: the one
+  fresh test it was given fails both bars, and its mechanism explains why it would fail on any growth-cycle dating.
+  `qzMax` stays a module option. A person who wants dated turns in a smooth aggregate is better served by a dating
+  rule built for it (Bry-Boschan / BBQ, which BCDating implements) than by a changepoint model.
