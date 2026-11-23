@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a1261d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ER%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>redis.conf Check — Will Redis Start, Who Can Connect Without a Password, Which Line Wins</title>
+  <meta name="description" content="Paste redis.conf and its includes: see whether Redis 7.0 will start (with its own error and the real file:line), who can connect without a password, which line set each value, and settings that open CONFIG SET dir, DEBUG or MODULE LOAD. Free, in your browser.">
+  <meta property="og:title" content="Will Redis start, and who can get in without a password?">
+  <meta property="og:description" content="Paste redis.conf and its includes, read the way Redis 7.0 reads them: start-up errors with the real file and line, who can connect without a password, and the line that set each value. Nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "redis.conf Check", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A static read of redis.conf and the files its include lines pull in, the way Redis 7.0 reads them: whether Redis will start and with which error (and the real file and line, which Redis's message omits for included files), which line set each value (the last one wins), who can connect without a password from another machine, from 127.0.0.1 and over the unix socket, and settings that let clients write files, load modules or run DEBUG. Runs in the browser or as a zero-dependency Node CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I put a comment after a value in redis.conf?", "acceptedAnswer": {"@type": "Answer", "text": "No. A # starts a comment only at the start of a line. In requirepass secret # change me the # and the words after it are extra arguments, so Redis refuses to start with wrong number of arguments. In a bind line they are read as more addresses."}}, {"@type": "Question", "name": "Which redis.conf line wins when a setting appears twice?", "acceptedAnswer": {"@type": "Answer", "text": "The last one Redis reads. An include is read where its line stands, so a setting in a file included at the top is overridden by the same setting further down redis.conf, and a file included at the end overrides everything above it."}}, {"@type": "Question", "name": "Why does Redis say the error is at line 3 when line 3 of redis.conf is fine?", "acceptedAnswer": {"@type": "Answer", "text": "The line number is counted in the file being read, which may be an included file, and the message does not name the file. For a wildcard include such as conf.d/*.conf, Redis joins the matching files into one text first, so the number counts across all of them."}}, {"@type": "Question", "name": "Is protected mode enough to keep Redis private?", "acceptedAnswer": {"@type": "Answer", "text": "Protected mode refuses clients that are not on 127.0.0.1 or ::1 while the default user has no password. It is not authentication: it stops working the moment a password is set for some other reason or protected-mode is switched off, and it does nothing for local processes or a server-side request forgery that reaches 127.0.0.1. Use a long password or ACL users, and bind only the addresses clients need."}}, {"@type": "Question", "name": "Does a clean result mean my Redis is secure?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the patterns listed on this page, from the files you paste. It does not see your firewall, which addresses are public, the ACL file unless you paste it, command-line options, or CONFIG SET changes made since start-up. Confirm on the server with CONFIG GET and ACL LIST, and have a qualified person review anything that protects valuable data."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1a1a; background: #f7f3f2; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #6b1a14; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #6b1a14; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5e5655; }
+    .card { background: #fff; border: 1px solid #e3d6d3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #6b1a1410; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #bba9a5; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #bba9a5; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #a1261d; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #f0e4e1; color: #6b1a14; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #efe5e3; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #166534; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #efe5e3; vertical-align: top; }
+    th { color: #5e5655; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: #fde8e8; color: #9a3412; }
+    .pill.low { background: #efe9e8; color: #6b1a14; }
+    .pill.err { background: #fee2e2; color: #7f1d1d; }
+    pre.cmd { background: #faf6f5; padding: 12px; border-radius: 8px; font-size: .84rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 28px; border-top: 1px solid #e3d6d3; padding-top: 16px; }
+    .opt label, .row label { font-size: .82rem; color: #5e5655; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+    .tableWrap { overflow-x: auto; }
+    @media (max-width: 640px) {
+      #report-card table, #report-card tbody, #report-card tr, #report-card td { display: block; }
+      #report-card thead { display: none; }
+      #report-card tr { border-bottom: 1px solid #efe5e3; padding: 10px 0; }
+      #report-card td { border: 0; padding: 3px 0; }
+    }
+  </style>
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:241px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+</head>
+<body>
+  <header>
+    <p class="note">REDIS.CONF CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Will Redis start, and who can get in without a password?</h1>
+    <p>Redis reads <code>redis.conf</code> top to bottom, and the <strong>last</strong> line for a setting wins, includes counted where their line stands. A <code>#</code> after a value is not a comment: <code>requirepass s3cret # change me</code> stops Redis from starting. And when the bad line is in an included file, Redis prints its line number without naming the file.</p>
+    <p>Paste <code>redis.conf</code> and the files it includes below. This page reads them the way Redis 7.0 does and shows whether Redis starts (with its own error and the real file and line), who can connect without a password from another machine, from 127.0.0.1 and over the socket, the line that set each value, and settings that let a client write files, load modules or run <code>DEBUG</code>.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and the tool makes no network calls. It is a static read of the files you give it, not a security audit and not a connection test against your server. Passwords are masked in the report.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>1. Paste redis.conf and any included files</h2>
+    <p class="note">The first box is <code>/etc/redis/redis.conf</code>. Name other files by their path, absolute (<code>/etc/redis/conf.d/10-app.conf</code>) or relative to that directory (<code>conf.d/10-app.conf</code>). Relative <code>include</code> lines are read from the directory Redis starts in, which this page takes to be <code>/etc/redis</code> unless you set it below.</p>
+    <div id="files"></div>
+    <p><button type="button" class="secondary small" id="add-file">Add an included file</button></p>
+    <div class="row">
+      <div><label for="cwd">Directory Redis starts in (optional)</label><input type="text" id="cwd" placeholder="/etc/redis"></div>
+      <div><label for="addrs">This server's IP addresses (optional, checks bind)</label><input type="text" id="addrs" placeholder="127.0.0.1, 10.0.4.7"></div>
+      <div><label for="lookup">Show the value of a setting (optional)</label><input type="text" id="lookup" placeholder="maxmemory"></div>
+    </div>
+    <p class="opt"><label><input type="checkbox" id="no-defrag"> Distribution package without active defrag (Debian and Ubuntu's redis-server)</label></p>
+    <p><button type="button" id="check">Check</button><button type="button" class="secondary" id="load-example">Load a worked example</button><button type="button" class="secondary" id="clear">Clear</button></p>
+    <p id="status" class="note" role="status">Paste at least redis.conf above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" hidden>
+    <h2>2. What Redis will do</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="order"></p>
+    <ul id="exposure"></ul>
+    <p id="lookup-out"></p>
+    <div class="tableWrap"><table>
+      <thead><tr><th>Severity</th><th>Where</th><th>Finding</th><th>Fix</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <ul id="notes" class="note"></ul>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <p>Every line Redis 7.0 refuses, with its own message: unknown directives, a <code>#</code> after a value, unbalanced quotes and a closing quote followed by a letter, values out of range (<code>databases 0</code>), enum and yes/no typos, <code>user</code> lines with bad rules or a second definition, <code>rename-command</code> of a missing command or onto an existing name; includes that cannot be opened, wildcard includes that match nothing, and included files without a final newline (Redis glues their last line to the next file's first); then the start-up failures after the file loads: no listener (<code>port 0</code>, <code>bind ""</code>), bind addresses the machine lacks, <code>tls-port</code> without certificates, an <code>aclfile</code> beside <code>user</code> lines, unknown commands in <code>user</code> rules and module settings without <code>loadmodule</code>.</p>
+    <p>Then who gets in: whether a client from another machine, from 127.0.0.1 or over the unix socket connects with no password, is turned away by protected mode, or must log in, after <code>requirepass</code>, <code>user default</code> lines and <code>rename-command</code>; whether such a client can <code>CONFIG SET dir</code> (<code>enable-protected-configs</code>), <code>DEBUG</code> or <code>MODULE LOAD</code>. And: a <code>user default</code> line that silently replaces <code>requirepass</code>, short or common passwords, cleartext passwords in the file, a plaintext port left open beside TLS, a world-writable socket, every interface bound, settings an earlier line set that a later one overrides, <code>rename-command</code> in place of ACL rules, and <code>maxmemory 2g</code> meaning 2,000,000,000 bytes.</p>
+    <p class="note">The reading follows Redis 7.0.15's <a href="https://github.com/redis/redis/blob/7.0.15/src/config.c" rel="noopener">config.c</a> (with sds.c and acl.c) and the <a href="https://redis.io/docs/latest/operate/oss_and_stack/management/config-file/" rel="noopener">redis.conf documentation</a>. It was compared with a real redis-server 7.0.15: 800 generated files, whether each started and with which error and line, CONFIG GET for every setting of the ones that started, and what unauthenticated clients got from another address, from 127.0.0.1 and over the socket (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/redis-conf-check/parity" rel="noopener">parity run</a>). This tool is not affiliated with Redis Ltd. Every finding type, with the Redis behaviour behind it: <a href="redis-conf-mistakes-explained.html">redis.conf mistakes explained</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same engine, zero dependencies, Node 18 or later:</p>
+    <pre class="cmd"><code>sudo node check.mjs /etc/redis/redis.conf         # redis.conf and everything it includes
+node check.mjs redis.conf --host-addrs            # check bind against this machine's addresses
+node check.mjs redis.conf --cwd /var/lib/redis    # the directory redis-server starts in
+node check.mjs redis.conf --get maxmemory         # the value Redis uses and the line that set it
+node check.mjs redis.conf --no-defrag             # a distribution build without active defrag
+node check.mjs redis.conf --format json           # machine-readable
+node check.mjs redis.conf --fail-on-risk          # exit 2 on an error, high or medium finding</code></pre>
+    <p class="note">Get <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/redis-conf-check" rel="noopener">check.mjs, scan.mjs and redis70.mjs from the repo</a>: nothing to install, no network calls, and it never connects to Redis. On the server, <code>CONFIG GET *</code> and <code>ACL LIST</code> show what Redis is running with now.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I put a comment after a value in redis.conf?</h3>
+    <p>No. A <code>#</code> starts a comment only at the start of a line. In <code>requirepass secret # change me</code> the <code>#</code> and the words after it are extra arguments, so Redis refuses to start with <code>wrong number of arguments</code>. In a <code>bind</code> line they are read as more addresses.</p>
+    <h3>Which redis.conf line wins when a setting appears twice?</h3>
+    <p>The last one Redis reads. An include is read where its line stands, so a setting in a file included at the top is overridden by the same setting further down redis.conf, and a file included at the end overrides everything above it.</p>
+    <h3>Why does Redis say the error is at line 3 when line 3 of redis.conf is fine?</h3>
+    <p>The line number is counted in the file being read, which may be an included file, and the message does not name the file. For a wildcard include such as <code>conf.d/*.conf</code>, Redis joins the matching files into one text first, so the number counts across all of them.</p>
+    <h3>Is protected mode enough to keep Redis private?</h3>
+    <p>Protected mode refuses clients that are not on 127.0.0.1 or ::1 while the default user has no password. It is not authentication: it stops working the moment a password is set for some other reason or <code>protected-mode</code> is switched off, and it does nothing for local processes or a server-side request forgery that reaches 127.0.0.1. Use a long password or ACL users, and bind only the addresses clients need.</p>
+    <h3>Does a clean result mean my Redis is secure?</h3>
+    <p>No. It reads only the patterns listed on this page, from the files you paste. It does not see your firewall, which addresses are public, the ACL file unless you paste it, command-line options, or <code>CONFIG SET</code> changes made since start-up. Confirm on the server with <code>CONFIG GET</code> and <code>ACL LIST</code>, and have a qualified person review anything that protects valuable data.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a static read of the files you paste, not a security audit, a penetration test or a guarantee of any system's security, and it does not replace a qualified security professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Test a redis.conf change on a copy of the server before a restart, and keep the old file to roll back to.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../pg-hba-check/">pg_hba.conf Check</a> reads who may connect to PostgreSQL, <a href="../sshd-config-check/">sshd_config Check</a> how people log in to the server, and <a href="../upstash-redis-bill-estimator/">Upstash Redis Bill Estimator</a> what a hosted Redis costs.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine, OUTCOME_TEXT } from "./scan.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { files: $("#files"), status: $("#status"), reportCard: $("#report-card"), order: $("#order"), verdict: $("#verdict"), rows: $("#rows"), notes: $("#notes"), exposure: $("#exposure"), lookupOut: $("#lookup-out") };
+
+    const EXAMPLE = [
+      {"name": "redis.conf", "text": "# redis.conf on a cache box, edited over the years\nbind 127.0.0.1 -::1\nprotected-mode yes\nport 6379\nrequirepass foobared\nmaxmemory 2g\nmaxmemory-policy allkeys-lru\nrename-command CONFIG \"\"\ninclude /etc/redis/conf.d/*.conf\n"},
+      {"name": "conf.d/10-network.conf", "text": "# opened up for the new app servers\nbind 0.0.0.0\nprotected-mode no\n"},
+      {"name": "conf.d/20-acl.conf", "text": "user default on nopass ~* &* +@all\nuser app on >app-pass ~app:* +@read +@write\n"},
+    ];
+
+    function escapeHtml(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" aria-label="File name" placeholder="redis.conf or conf.d/10-app.conf" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea aria-label="Paste the file here" class="ftext" spellcheck="false" placeholder="bind 127.0.0.1 -::1&#10;requirepass a-long-random-secret"></textarea>`;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => { if (els.files.children.length > 1) wrap.remove(); });
+      return wrap;
+    }
+    function addFile(name = "", text = "") { els.files.appendChild(fileBlock(name, text)); }
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")].map((b, i) => ({ name: b.querySelector(".fname").value.trim() || (i ? `file-${i + 1}.conf` : "redis.conf"), text: b.querySelector(".ftext").value })).filter((f) => f.text.trim());
+    }
+
+    function runCheck(files) {
+      if (!files.length) { els.status.textContent = "Paste at least redis.conf above and click Check."; return; }
+      const addrs = $("#addrs").value.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean);
+      let result;
+      try { result = scanFiles(files, { cwd: $("#cwd").value.trim() || undefined, hostAddrs: addrs.length ? addrs : undefined, build: { defrag: !$("#no-defrag").checked } }); }
+      catch (err) { els.status.textContent = `Could not read the files: ${err.message}`; return; }
+      record("check_run");
+      const risky = hasRisk(result.findings);
+      els.verdict.textContent = !result.startup.ok ? `Redis will not start: ${result.startup.message}` : risky ? `Starts. Findings to fix: ${summaryLine(result.findings)}` : result.findings.length ? `Starts. Low findings only: ${summaryLine(result.findings)}` : "Starts. None of the listed patterns found";
+      els.verdict.className = "verdict" + (risky || !result.startup.ok ? " risk" : "");
+      els.order.textContent = `Read, in order: ${result.order.join(" → ")}.`;
+      const e = result.exposure;
+      els.exposure.innerHTML = result.startup.ok && e ? [
+        `Listens: ${e.port ? `port ${e.port}` : "no plaintext port"}${e.tlsPort ? `, TLS port ${e.tlsPort}` : ""} on <code>${escapeHtml(e.bind.join(" ") || "(nothing)")}</code>${e.unixsocket ? `, socket <code>${escapeHtml(e.unixsocket)}</code>` : ""}`,
+        `From another machine: <strong>${escapeHtml(OUTCOME_TEXT[e.remote.outcome])}</strong>`,
+        `From this machine (127.0.0.1): <strong>${escapeHtml(OUTCOME_TEXT[e.local.outcome])}</strong>`,
+        ...(e.socket ? [`Over the unix socket: <strong>${escapeHtml(OUTCOME_TEXT[e.socket.outcome])}</strong>`] : []),
+      ].map((x) => `<li>${x}</li>`).join("") : "";
+      const name = $("#lookup").value.trim().toLowerCase();
+      if (name && result.startup.ok) {
+        const v = result.values[name], s = result.setBy[name];
+        els.lookupOut.innerHTML = v === undefined ? `No setting named <code>${escapeHtml(name)}</code> in Redis 7.0.` : `<code>${escapeHtml(name)}</code> = <code>${escapeHtml(/pass/.test(name) && v ? "(set, hidden)" : v)}</code> ${s ? `set at <code>${escapeHtml(`${s.file}:${s.line}`)}</code>` : "(the default)"}`;
+      } else els.lookupOut.textContent = "";
+      els.rows.innerHTML = result.findings.map((f) => `<tr><td><span class="pill ${f.severity === "low" ? "low" : f.severity === "error" ? "err" : ""}">${escapeHtml(f.severity)}</span></td><td><code>${escapeHtml(f.line ? `${f.file}:${f.line}` : f.file || "")}</code></td><td><strong><code>${escapeHtml(f.type)}</code></strong>${f.raw ? `<br><code>${escapeHtml(f.raw.trim())}</code>` : ""}<br>${escapeHtml(f.detail)}</td><td>${escapeHtml(f.remediation)}</td></tr>`).join("") || `<tr><td colspan="4">None of the listed patterns found. That is not proof the server is safe.</td></tr>`;
+      els.notes.innerHTML = result.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
+      els.reportCard.hidden = false;
+      els.status.textContent = "Checked.";
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: redis.conf binds 127.0.0.1 with a requirepass, but conf.d, read last, rebinds 0.0.0.0, turns protected mode off and replaces the default user with nopass, so anyone on the network gets in; requirepass is 8 characters, CONFIG is renamed away rather than denied by ACL, and maxmemory 2g is 2,000,000,000 bytes.";
+    });
+    $("#clear").addEventListener("click", () => { els.files.innerHTML = ""; addFile("redis.conf"); els.reportCard.hidden = true; els.status.textContent = "Paste at least redis.conf above and click Check."; });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    addFile("redis.conf");
+    if (usageOptedOut()) { const u = document.getElementById("optout"); if (u) { u.textContent = "Usage counting is off"; u.disabled = true; } }
+  </script>
+</body>
+</html>

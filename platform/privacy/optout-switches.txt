@@ -947,6 +947,7 @@ ventures/recipe-costing-calculator/usage.mjs
 ventures/recompete-radar/usage.mjs
 ventures/redirect-chain-check/usage.mjs
 ventures/redirect-map-check/usage.mjs
+ventures/redis-conf-check/usage.mjs
 ventures/referral-keeper/usage.mjs
 ventures/referrer-permissions-policy-check/usage.mjs
 ventures/regex-redos-check/usage.mjs
