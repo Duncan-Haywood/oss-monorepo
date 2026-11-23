@@ -2,8 +2,8 @@
 title: "The five days the web page forgot: red-teaming yesterday's as-planned vs as-built"
 seo_title: "Testing an as-planned vs as-built delay analysis: a missing delay term"
 date: 2026-11-23
-tags: [construction, scheduling, primavera-p6, delay-analysis, testing, red-team]
-description: "Seeding ten faults into XER Schedule Check's new as-planned vs as-built module found six the tests missed and one real bug: added work at the end of the path vanished from the HTML report."
+tags: [construction, scheduling, primavera-p6, delay-analysis, testing, redteam]
+description: "Ten faults seeded into the new as-planned vs as-built module: five slipped past its tests, and the HTML report dropped the added-work delay term."
 ---
 
 Yesterday XER Schedule Check gained an as-planned vs as-built comparison
