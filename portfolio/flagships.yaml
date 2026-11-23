@@ -320,7 +320,8 @@ flagships:
       Capture One export to say if IIQ S offset tables apply (LibRaw skips them; the
       iXU180's 5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; Near-clean leak closed on Bayer 2026-11-19 (k 12,
+      evenly lit frame (its JPEG lifts none: eval/sony-vignetting-preview-*);
+      Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
       reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
@@ -400,8 +401,9 @@ flagships:
       on shared fields 2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima,
       eval/practice-exact.txt); ChessHouse r8 bye fixed 2026-11-23 (weighed in its
       bracket, byes 40/42); next: a real club's TRF. calc.mjs split 2026-11-23,
-      pages 67-93% lighter; multi-division page 217 to 75 kB via fields.mjs
-      (eval/page-weight.txt). More: NEXT.md. More open items: NEXT.md.
+      pages 67-93% lighter; multi-division 217 to 75 kB; main page 226 to 110 kB,
+      searches loaded on demand (eval/page-weight.txt). More: NEXT.md. More open
+      items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed

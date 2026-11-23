@@ -427,9 +427,23 @@
   </footer>
 
   <script type="module">
-    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, playBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolPlayoffSeeds, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { parseDate, dayLabel, WEEKDAYS } from "./dates.mjs";
+    import { parseTeams } from "./names.mjs";
+    import { blackoutsFromCsv, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, slotFairness, useSeasonSearches, needsSeasonSearches } from "./schedule.mjs";
+    import { oneDayTimetable, oneDayText } from "./rounds.mjs";
+    import { sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./share.mjs";
+    import { parseOfficials, assignOfficials, validateOfficials } from "./officials.mjs";
+    import { teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml } from "./outputs.mjs";
+    import { tieBreakNotes, parseResults, parsePointSystem, standings, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength } from "./standings.mjs";
+    import { poolPlayoffSeeds } from "./pools.mjs";
+    import { buildPoolPlay } from "./pool-play.mjs";
+    import { doubleEliminationBracket, playoffBracket, playBracket, bracketText } from "./brackets.mjs";
+    import { swissRounds, parseSwissResults, validateSwiss, swissText } from "./swiss-system.mjs";
+    import { americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText } from "./americano.mjs";
+    import { parseLadderResults, ladderStandings, ladderText } from "./ladder.mjs";
+    import { swissStandings, swissPairings } from "./swiss.mjs";
     import { printPackHtml } from "./printpack.mjs";
-    import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
+    import { CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_POLISH, CARRY_OVER_FLOOR_PRICED } from "./carryover-core.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -451,6 +465,17 @@
     const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
     const divisionsModule = onDemand(() => import("./divisions.mjs"));
     const trfModule = onDemand(() => import("./trf.mjs"));
+    // The carry-over search and the doubleheader night designs (carryover.mjs, nights.mjs and the orienter and
+    // WebAssembly behind them, about half this page's code) load the first time a season asks for an even
+    // carry-over or two or more games a night (needsSeasonSearches); a plain round robin never fetches them.
+    let carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, carryOverSqueeze, carryOverPolish, carryOverFloorPriced, carryOverPure;
+    let searchesLoaded = false;
+    const seasonSearches = onDemand(async () => {
+      const [carry, nights] = await Promise.all([import("./carryover.mjs"), import("./nights.mjs")]);
+      useSeasonSearches(carry, nights);
+      ({ carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, carryOverSqueeze, carryOverPolish, carryOverFloorPriced, carryOverPure } = carry);
+      searchesLoaded = true;
+    });
 
     function setFields(f) {
       $("#teams").value = f.teams;
@@ -763,6 +788,11 @@
       let bracket = null;
       let extraMoves = [];
       if (errors.length) { status.textContent = errors.join(" "); return false; }
+      if (needsSeasonSearches(spec) && !searchesLoaded) {
+        status.textContent = "Loading the season search...";
+        seasonSearches().then(() => go(seedOverride, done), (e) => { status.textContent = `Could not load the season search (${e.message}). Check the connection and try again.`; if (done) done(false); });
+        return null;
+      }
       if (spec.carryOver && spec.teams.length >= 4) {
         const key = [spec.teams.length, spec.double, spec.seed].join("|");
         const hit = triesCache.get(key);
@@ -1050,10 +1080,14 @@
     const SAVE_KEY = "league-schedule-generator:setup";
 
     let poolText = "";
-    $("#build-pools").addEventListener("click", () => later(() => {
+    $("#build-pools").addEventListener("click", () => later(async () => {
       const out = $("#pool-status");
       const { spec, errors } = readSpec(readFields());
       if (errors.length) { out.textContent = errors.join(" "); return; }
+      if (needsSeasonSearches(spec) && !searchesLoaded) {
+        out.textContent = "Loading the season search...";
+        try { await seasonSearches(); } catch (e) { out.textContent = `Could not load the season search (${e.message}). Check the connection and try again.`; return; }
+      }
       const k = Math.trunc(Number($("#pools").value) || 0);
       let play;
       const clubs = $("#grounds").value.trim() ? parseGrounds($("#grounds").value, spec.teams).groups.map((g) => g.map((i) => spec.teams[i])) : [];

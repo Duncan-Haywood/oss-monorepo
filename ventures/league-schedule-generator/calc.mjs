@@ -44,3 +44,10 @@ export { swissRounds, parseSwissResults, validateSwiss, swissText } from "./swis
 export { americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText } from "./americano.mjs";
 export { parseLadderResults, ladderStandings, ladderChallenges, ladderText } from "./ladder.mjs";
 export { swissStandings, swissPairings, swissPairingsGreedy, colourClaim, floatHistory } from "./swiss.mjs";
+
+// The season builder's two heavy searches, handed in here so every importer of calc.mjs builds any season
+// at once; the single-league page imports the feature modules itself and loads them only when needed.
+import * as carryOverSearch from "./carryover.mjs";
+import * as nightDesigns from "./nights.mjs";
+import { useSeasonSearches } from "./schedule.mjs";
+useSeasonSearches(carryOverSearch, nightDesigns);
