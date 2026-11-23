@@ -395,6 +395,18 @@ consultant's model checked against it before it is shared. Today the options are
 | Excel2IDS (buildingSMART community) | free, GPL-3.0 | Windows .exe to turn its Excel template into IDS; no checking, cannot read an IDS back |
 | **IDS Model Check** | free, MIT | a browser tab; or Node for CI |
 
+At handover the owner also asks for COBie, the NBIMS-US spreadsheet of rooms,
+products and their maintenance data. Today: Autodesk's free COBie Extension
+(Revit only, writes from the Revit model, not from the IFC another tool sent);
+IfcOpenShell's `ifcfm` (free, LGPL, Python; its `cobie24` preset stops with a
+`TypeError` on both public models tried in 0.9.0, and its legacy preset leaves
+the room of a component placed only on a storey as `n/a`); and paid FM
+onboarding platforms (EcoDomus, BIM Assure and similar) that check COBie as
+part of a subscription. This page writes the workbook from any IFC in the tab,
+puts storey-level components in the room they stand in from the geometry, and
+checks any COBie workbook for what an owner's QC rejects ("COBie 2.4 handover
+workbook and its QC", below).
+
 Once a check fails, the missing values have to get into the model. Today that
 means going back to the authoring tool (map a Revit shared parameter or an
 Archicad property, re-export, check again), Simplebim (a paid desktop tool
@@ -516,6 +528,59 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### COBie 2.4 handover workbook and its QC (2026-11-23)
+
+`cobie.html` (and `node cli.mjs --cobie MODEL.ifc -o OUT.xlsx`) writes the nine
+COBie 2.4 sheets an owner asks for at handover from the model's own data:
+Contact (the people the owner history names, with email, company, phone),
+Facility, Floor, Space (number in Name, room name in Description, floor from
+where the room sits), Zone (`IfcZone` groups and the `*ZoneName` properties a
+Revit COBie set-up keeps on rooms), Type and Component (maintainable products
+only: equipment, terminals, controls, furniture, transport, doors, windows; not
+walls, slabs, pipe runs or fittings), System (`IfcSystem` members that are
+components) and Attribute (every other property, once per name and row).
+Manufacturer, model number, warranty and life are read from the type's
+properties, standard (`Pset_ManufacturerTypeInformation.ModelLabel`) or
+COBie-named, a Revit `COBie.Type.Manufacturer` parameter counting as
+`Manufacturer`. Category is a classification reference, else the OmniClass or
+Uniformat properties a Revit export keeps. A value the model does not hold is
+left blank and listed by the QC; `--na` writes `n/a` in blank optional cells.
+
+Two things exports rarely carry, and the tool supplies honestly:
+
+- **The room of a component.** Revit places doors, windows and most equipment
+  on a storey, not in a room (38 of 99 components in the Duplex model).
+  `--from-geometry` (on by default on the page) runs IFC Quantity Takeoff's
+  room reading and puts each in the room its body stands in; a door or window
+  gets the rooms on both sides (`101,102`, as COBie allows).
+- **A contact email.** COBie keys every row's `CreatedBy` to a Contact's
+  email, and most owner histories name a login, not an email (all 25 public
+  files below). `--contact "EMAIL,COMPANY,PHONE"` (the page's email box) fills
+  blank `CreatedBy` cells with the person delivering the workbook, and
+  `--created-on` blank `CreatedOn` cells.
+
+`node cli.mjs --cobie-qc WORKBOOK.xlsx` (or a folder of one CSV per sheet, or
+the page's second drop zone) checks any COBie workbook, from this tool or
+another: required cells by stage (`--stage design`, or `handover`, which adds
+manufacturer, warranty, replacement cost, life, nominal sizes, serial number,
+installation and warranty start dates), `n/a` in a key or reference, template
+placeholders (a cell holding a COBie column name: Duplex's 99 components each
+carry `SerialNumber` = "SerialNumber"), duplicate keys, references to floors,
+types, spaces, components or rows that do not exist, `CreatedBy` not a
+contact, emails, ISO dates, numbers, pick lists (Floor category, AssetType,
+duration units), types no component uses, floors with no room and categories
+with no classification code. Exit 1 when it finds errors.
+
+Checked on 25 public exports (eval/cobie-2026-11-23.md): every one wrote a
+workbook; doors and windows placed from geometry alone get exactly the rooms
+the file's own space boundaries name in 791 of 869 cases (37 more get one of
+their two rooms, 19 get a room the file does not name, 22 none); components a
+file puts in a room, with that containment hidden, are placed in the same room
+in 935 of 1,227 cases, another in 89 and none in 203 (left blank). On Duplex,
+IfcOpenShell's ifcfm writes the same counts of floors, rooms, zones, types and
+components, and the QC of its workbook finds the 38 components it leaves at
+`n/a`.
 
 ### ifcXML, ifcJSON and IFC5 models written as a STEP .ifc (2026-11-22)
 
