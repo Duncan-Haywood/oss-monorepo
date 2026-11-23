@@ -67,8 +67,9 @@ a person would estimate at about 300 hours or more, built up over many sessions
 (owner, 2026-10-29, a suggestion, not a hard bar, updating the 2026-10-21 twenty-hour one; `goals.md`,
 "Direction: depth over calculators").
 
-The owner's standing directions (SEO, compliant distribution, measurement,
-sales tools, local models) are quoted in `goals.md`. They are directions for
+The owner's standing directions (SEO, compliant distribution, measurement
+and much more usage analytics as far as the law allows, sales tools, local
+models) are quoted in `goals.md`. They are directions for
 many runs, not tasks every run starts on, apart from the write-ups above and
 one more default for product PRs (owner, 2026-10-21): the product's
 `llms.txt` kept current and a marketing page aimed at its users, with no fake
