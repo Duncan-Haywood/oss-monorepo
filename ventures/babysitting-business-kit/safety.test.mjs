@@ -220,7 +220,8 @@ test("the app wires the Safety tab, and the server serves and ships the modules"
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /data-tab="safety"/);
   assert.match(html, /data-panel="safety"/);
-  assert.match(html, /import \{ mountSafety \} from "\.\/safety-ui\.mjs"/);
+  // Loaded the first time the tab opens (page.test.mjs, "tab-only modules load on demand").
+  assert.match(html, /safety: \{ box: "\w+", load: \(\) => import\("\.\/safety-ui\.mjs"\), mount: \(m\) => \{[^\n]*m\.mountSafety\(/);
   const docker = readFileSync(new URL("./Dockerfile", import.meta.url), "utf8");
   for (const f of ["safety.mjs", "safety-server.mjs", "safety-ui.mjs"]) assert.match(docker, new RegExp(` ${f.replace(".", "\\.")} `));
   const guide = readFileSync(new URL("./self-host.html", import.meta.url), "utf8");

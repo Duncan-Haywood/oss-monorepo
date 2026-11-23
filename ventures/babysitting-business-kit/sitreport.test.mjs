@@ -186,7 +186,8 @@ test("POST /api/sitreport/email sends only to the family's own email, and only w
 
 test("the app wires the box into the Families tab and the server serves both modules", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /import \{ mountSitReports \} from "\.\/sitreport-ui\.mjs"/);
+  // Loaded the first time the tab opens (page.test.mjs, "tab-only modules load on demand").
+  assert.match(html, /families: \{ box: "\w+", load: \(\) => import\("\.\/sitreport-ui\.mjs"\), mount: \(m\) => \{[^\n]*m\.mountSitReports\(/);
   assert.match(html, /<section data-panel="families"[\s\S]*?<div id="sitReports"><\/div>[\s\S]*?<\/section>/);
   const server = readFileSync(new URL("./server.mjs", import.meta.url), "utf8");
   assert.match(server, /"\/sitreport\.mjs": "sitreport\.mjs"/);
