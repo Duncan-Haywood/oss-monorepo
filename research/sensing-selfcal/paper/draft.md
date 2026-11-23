@@ -51,7 +51,9 @@ scatter makes that bar honest, but too wide for a 2-sd change test to see a stal
 8.5%; the rule that serves a robot is asymmetric, "adopt the pool unless it lies within half its sd of the held
 value", and it is chosen the same way when one sequence is left out. Scored by where rays land inside 250 px, it
 should move f and keep a target-calibrated distortion: adopting the windows' distortion too gains nothing even when
-the held distortion is off by 50%.
+the held distortion is off by 50%. That advice reaches the image corner only where the held model does: the Kinect's
+two-term target fits fold back at 381 and 403 px, inside the image, and leave 17.3 px at the edge, where adopting the
+windows' distortion leaves 5.5; a fold check on the held coefficients, before holding them, tells the two cases apart.
 
 ## 1. Introduction
 
@@ -280,6 +282,30 @@ D<sub>200</sub> is not usable as specified: the windows' low bias makes it fire 
 held distortion is the truth, and its worst regret is then 1.02 px against the f-only gate's 0.48. Which of the joint and f-only
 gates wins depends on which reference is called the truth, not on which distortion is held. One of the five
 3zb predictions held, as did three of seven in 3y, three of seven in 3z and one of six in 3za.
+
+**No distortion gate, and a fold check at the image edge (milestones 3zc&ndash;3zd, pre-registered).** Milestone 3zc
+asked whether the distortion gate becomes usable once the windows' D<sub>200</sub> bias is removed first. The bias
+is a property of the camera, not of the method: &minus;1.37 px on the Kinect and &minus;0.71 on the Xtion, so a fleet
+correction learnt on the other camera moves the test by the wrong amount, and the corrected gate still fires in 24 of
+31 blocks when the held distortion is the truth (uncorrected, 30), with worst regret 1.00 px against the f-only
+gate's 0.48. A commissioning correction, from the unit's own early windows, removes the bias and still fires in 23
+of 31, because even with an oracle correction the test statistic's median is 0.47 of its sd: a half-sd bar, chosen
+for f in milestone 3w, sits at the median of the noise. Widened after the fact to 2 sd (unscored), the commissioning
+gate fires in 5 of 31 blocks and still costs 0.67 px in the control, because the blocks where it fires adopt the
+windows' 2 px ray error. A distortion check is an alarm that calls for a target recalibration, not an update.
+Milestone 3zd then moved the score out to the image corner, 250&ndash;400 px, against TUM's calibration, the one
+reference that does not fold before the corner on either camera. There "update f, hold the distortion" holds only
+where the held model is valid at the corner. With the board's two-term fr1 model held, never updating leaves a
+median 17.3 px rms over the Kinect's blocks (14.4 with the target-free anchor's), although the two agree with
+TUM's within half a pixel inside 250 px; there the joint gate's worst regret is 4.36 px against the f-only gate's
+7.62, and since that pair is the hardest, the joint gate has the smallest maximum worst regret of the six rules
+(never: 27.8 px). In the control, TUM's own model held, the two gates nearly tie (3.94 px joint, 4.03 f-only). On the Xtion, whose references are all monotone, f-only rules stay minimax in 7 of 9 truth and
+held pairs. The windows' pooled distortion, though no better than a target fit inside 250 px, folds inside 400 px in
+0 of 31 blocks. A robot cannot tell from these data which fr1 model is right at the corner, but it can tell from the
+coefficients alone whether its held model folds inside the image (the fold radius is the first positive root of
+1 + 3k<sub>1</sub>u + 5k<sub>2</sub>u<sup>2</sup> + 7k<sub>3</sub>u<sup>3</sup> in u = x<sup>2</sup>;
+`src/foldcheck.py`), and a held model that does is not a safe default at the edge. One of the five 3zc predictions
+held and two of five in 3zd.
 
 ## 5. An accept/reject test on disjoint view sets
 
@@ -594,6 +620,11 @@ solves.
    calibration. Adopting the windows' distortion with their f is worth under about 1 px either way inside 250 px, and a
    held distortion off by 50% still beats it; score updates by the projected radius P(r), not by k<sub>1</sub> or
    D<sub>200</sub>, and check a reference distortion for monotonicity before using it near the image edge.
+   Do not gate the distortion on self-calibrated D<sub>200</sub>, even bias-corrected (a half-sd bar fires on noise in
+   23 of 31 blocks); treat a distortion check as an alarm for a target recalibration. Before holding a distortion,
+   compute its fold radius: a two-term fit that folds inside the image corner (the Kinect's board fit, at 381 px)
+   is not a safe default at the edge, and needs a recalibration with features reaching the corners and a third
+   radial term.
 
 ## 9. Limitations
 
@@ -603,7 +634,7 @@ and the intervals are too narrow, and a 99th percentile from 180 statistics rest
 them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
 splits, not the reuse of views; a second pool of 13 views per TUM unit (milestone 4p) shows the in-sample false alarms understate the fresh-view rate (1.40% against 0.35%), but both pools come from one session. The focal and principal-point changes are exact model transforms; the swaps (here and between the
 two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are tested only on
-short windows of three TUM RGB-D sequences (Section 4). Those windows come from one recording order per camera and one session on the Xtion, the rotation rates come from motion capture rather than an onboard gyro, the Xtion's +2.8% focal bias is unexplained, and milestones 3s–3x re-used saved solves (43 windows; overlapping blocks are not independent tests). Staleness in milestones 3v–3x is a shifted held value, not a real lens change (a refocus would also move k<sub>1</sub> and the principal point), and the leave-one-out check of the update rule has three folds, two of them on one camera. In milestones 3y&ndash;3zb the pools' bars come from scatter alone, P(r) ignores the principal point and tangential terms and stops at 250 px (the board's fr1 model folds at 381 px), the feature radii the windows cover are unmeasured (the TUM frames were unreachable from these sessions), and a "wrong" held distortion is another real calibration or a scaled one, not a measured lens change. The renders leave out the bend, the clipboard and background clutter, vignetting and the
+short windows of three TUM RGB-D sequences (Section 4). Those windows come from one recording order per camera and one session on the Xtion, the rotation rates come from motion capture rather than an onboard gyro, the Xtion's +2.8% focal bias is unexplained, and milestones 3s–3x re-used saved solves (43 windows; overlapping blocks are not independent tests). Staleness in milestones 3v–3x is a shifted held value, not a real lens change (a refocus would also move k<sub>1</sub> and the principal point), and the leave-one-out check of the update rule has three folds, two of them on one camera. In milestones 3y&ndash;3zb the pools' bars come from scatter alone, P(r) ignores the principal point and tangential terms and stops at 250 px (the board's fr1 model folds at 381 px), the feature radii the windows cover are unmeasured (the TUM frames were unreachable from these sessions), and a "wrong" held distortion is another real calibration or a scaled one, not a measured lens change. At the image edge (milestone 3zd) there is one truth, TUM's published fr1 model, whose k<sub>3</sub> neither the windows nor the other references fit, and which fr1 model is right beyond about 300 px is not known; the 3zc fleet correction has a single other camera, of a different make. The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
 were found after a pre-registered prediction failed and are labelled so in the log.
 
@@ -626,8 +657,10 @@ were found after a pre-registered prediction failed and are labelled so in the l
   per camera so that leaving one out is a real test, and the rule's choice against a reference that is not the board.
 - Done on TUM for the other intrinsics (milestones 3y&ndash;3zb, Section 4): the update rule carries to c<sub>y</sub>,
   not to c<sub>x</sub> or the distortion, and scored by P(r) a held distortion beats adopting the windows' even when
-  it is off by 50%. Still needed: a bias-corrected D<sub>200</sub> before any distortion gate, the feature radii the
-  windows cover, the image edge against a reference that does not fold there, and a real lens change.
+  it is off by 50%. Done (milestones 3zc&ndash;3zd): a bias-corrected D<sub>200</sub> does not make a distortion gate
+  usable, and at the image edge a held distortion is safe only if it does not fold inside the image. Still needed: a
+  three-term board refit of the Kinect frames to settle which model is right at the corner, the feature radii the
+  windows cover, and a real lens change.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
   Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set
