@@ -243,3 +243,41 @@ test('no remainder when the whole basis fits under the 179 limit', () => {
   assert.equal(r.section179.remainderBasis, 0);
   assert.ok(!r.findings.some((f) => /above the Section 179 limit/i.test(f.title)));
 });
+
+// -- red team 2026-11-23 ------------------------------------------------------
+
+test('at 50% or less business use no Section 179 amount is elected or carried forward; bonus takes the whole basis', () => {
+  // Defect found 2026-11-23: the page said "Section 179 is not available" and,
+  // in the same report, "$30,000 ... carries forward as a SECTION 179 CARRYFORWARD".
+  const r = compareDepreciationPaths({ assetCost: 100000, businessUsePercent: 40, taxableIncomeBeforeDeduction: 10000, ratePercent: 21 });
+  assert.equal(r.belowHalfBusinessUse, true);
+  assert.equal(r.section179.elected, 0);
+  assert.equal(r.section179.carryforward, 0);
+  assert.equal(r.section179.incomeLimited, false);
+  assert.ok(!r.findings.some((f) => /Section 179 elected amount exceeds/i.test(f.title)));
+  // The column's path is then bonus on the whole business-use basis.
+  assert.equal(r.section179.remainderBasis, 40000);
+  assert.ok(Math.abs(r.section179.cashSavings - r.bonus.cashSavings) < 1e-9);
+});
+
+test('omitted income means no income: nothing is usable, everything carries forward or is NOL', () => {
+  const s = section179Outcome({ eligibleBasis: 50_000 });
+  assert.equal(s.usable, 0);
+  assert.equal(s.carryforward, 50_000);
+  const r = compareDepreciationPaths({ assetCost: 50_000, ratePercent: 21 });
+  assert.equal(r.bonus.usable, 0);
+  assert.equal(r.bonus.cashSavings, 0);
+  assert.equal(r.section179.usable, 0);
+});
+
+test('an omitted tax year uses the 2025 rules', () => {
+  const r = compareDepreciationPaths({ assetCost: 3_000_000, taxableIncomeBeforeDeduction: 10_000_000, ratePercent: 21 });
+  assert.equal(r.taxYear, 2025);
+  assert.equal(r.section179.limit, SECTION_179_RULES[2025].limit);
+  assert.equal(r.section179.elected, 2_500_000);
+});
+
+test('no asset cost: no "choose the amount" advice', () => {
+  const r = compareDepreciationPaths({ assetCost: 0, taxableIncomeBeforeDeduction: 500000, ratePercent: 21 });
+  assert.ok(!r.findings.some((f) => /lets you choose the amount/i.test(f.title)));
+});
