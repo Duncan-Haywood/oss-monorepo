@@ -54,5 +54,7 @@ test("reads <Dockerfile>.dockerignore before .dockerignore, like BuildKit", () =
 
 test("bad usage exits 2", () => {
   assert.equal(main(["--nope"], sink(), sink()), 2);
+  assert.equal(main([".", "--why"], sink(), sink()), 2);
+  assert.equal(main(["-f"], sink(), sink()), 2);
   assert.equal(main(["/no/such/dir/at/all"], sink(), sink()), 2);
 });

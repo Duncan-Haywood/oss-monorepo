@@ -43,6 +43,10 @@ export function main(argv, out = process.stdout, err = process.stderr) {
   const args = { dir: ".", dockerfile: null, ignore: null, json: false, strict: false, why: null, fixed: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
+    if (["-f", "--file", "--ignore", "--why"].includes(a) && (i + 1 >= argv.length || argv[i + 1] === "")) {
+      err.write(`${a} needs a value\nusage: check.mjs [context-dir] [-f Dockerfile] [--ignore file] [--json] [--strict] [--why path] [--fixed]\n`);
+      return 2;
+    }
     if (a === "-f" || a === "--file") args.dockerfile = argv[++i];
     else if (a === "--ignore") args.ignore = argv[++i];
     else if (a === "--json") args.json = true;

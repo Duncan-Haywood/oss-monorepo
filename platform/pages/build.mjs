@@ -496,6 +496,9 @@ const NON_WEB_EXTENSIONS = new Set([
   '.jsonc', '.example',
   // C sources (league-schedule-generator's eval/carryover-bnb.c, an offline proof search): never loaded by a page.
   '.c', '.h',
+  // Go sources and module files (dockerignore-explainer's oracle/, which runs BuildKit's own code to check the
+  // JavaScript port): test tooling, never loaded by a page.
+  '.go', '.mod', '.sum',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
