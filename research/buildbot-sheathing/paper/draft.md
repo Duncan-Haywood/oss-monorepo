@@ -928,6 +928,15 @@ all 213 and 290 do at 1.1 a. The allowance is one number per pose, median 0.102 
 0.041 N and 0.091 N; at a drift rate of 0.1 N/h (swept from 0.01 to 0.5 N/h, not sourced) the weakest pose needs a
 re-zero within 25 minutes (G1) and 55 minutes (H1). Since J(p | r) = S<sub>p</sub> &minus; S<sub>r</sub> and the drift
 term is S<sub>p</sub> d, no choice of calibration pose changes the drift term.
+The allowance turns into a re-zero plan (milestone 72, offline). With the drift linear in time since the last re-zero,
+the time from a re-zero to a later press does not depend on the re-zero's duration and shrinks as the re-zero moves
+later, so re-zeroing just before the first press that would break its deadline is optimal for any fixed order; brute
+force agrees on 2,000 random instances. On a 100-sheet wall at 116 s a sheet, ordering presses weakest-first changes
+no count, because one interval spans many sheets. The lift plan does: on the G1, starting its four bands at the bottom
+of the grip range rather than centring them drops the 1.2 m pose and raises the weakest allowance used from 0.0439 to
+0.0959 N, cutting re-zeros from 71 to 33 per 1,000 sheets at 0.1 N/h with no extra moves; the H1 gains only at five
+stops (0.143 to 0.214 N). At 0.1 N/h and 15 s a re-zero the plan costs 0.91% (G1) and 0.26% (H1) of the sheet cycle;
+holding every nail at the best pose would pay only if a lift move took under 0.020 s.
 
 ### 5.12 What the remedies cost (milestone 13)
 

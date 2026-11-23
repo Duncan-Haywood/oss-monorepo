@@ -85,6 +85,7 @@ M68D = E + "m68_jgate/diag.out"
 M69 = E + "m69_tworef/results.txt"
 M70 = E + "m70_drift/results.txt"
 M71 = E + "m71_allowance/results.txt"
+M72 = E + "m72_rezero/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -370,6 +371,11 @@ CHECKS = [
     (M71, "h1 | 1.1a | 304 | 295 | 295 | 0.0330 | 0 | 0 | 0.0000 | 290 | 290 | 0 (-)", "all 213 and 290 do at 1.1 a"),
     (M71, "g1 | 117 | 8 | 0.0415 | 0.0439 | 0.1023 |", "median 0.102 N (G1) and 0.147 N (H1)"),
     (M71, "g1 | 0.1 | 24.9 |", "re-zero within 25 minutes (G1) and 55 minutes (H1)"),
+    (M72, "2000 instances, 0 mismatches", "brute\nforce agrees on 2,000 random instances"),
+    (M72, "g1 | BANDS k+0 (offset 0.00 m) | 4 | 0.4 (19), 0.6 (10), 0.8 (22), 1.0 (11) | 0.0959", "from 0.0439 to\n0.0959 N"),
+    (M72, "g1 | 0.1 | 76 | 71 | 71 | 33 | 29 | 14", "from 71 to 33 per 1,000 sheets"),
+    (M72, "g1 | 0.1 | 0.35 s (0.30%) | 1.05 s (0.91%)", "0.91% (G1) and 0.26% (H1)"),
+    (M72, "largest 0.020 s", "under 0.020 s"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
