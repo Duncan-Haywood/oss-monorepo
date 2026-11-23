@@ -1,8 +1,8 @@
 """What brightening does a Sony camera apply from its own vignetting table? Measured against its preview JPEG.
 
 A Sony E-mount ARW carries the lens's vignetting table (raw IFD tag 0x7032) and, with the maker note's
-"Vignetting Correction = Auto" (tag 0x2011), the camera brightens its own JPEG with it. The ARW's embedded
-1616 x 1080 preview is that JPEG. So the gain the camera applied at each radius can be read off the file with no
+"Vignetting Correction = Auto" (tag 0x2011), the camera should brighten its own JPEG with it. The ARW's
+largest embedded JPEG (1616 x 1080 on the A5000 and A7 III, full size on the A7 IV) is such a render. So the gain the camera applied at each radius can be read off the file with no
 evenly lit frame: the preview and the raw show the same scene at the same instant, and only the camera's tone
 curve, its colour matrix and its vignetting gain stand between them.
 
@@ -22,6 +22,10 @@ Method (numpy only):
    squared (darktable's first embedded-metadata version squares it, "use the square of the correction factor");
    and both with darktable's knot positions ``(i + 0.5) / (n - 1)``. darktable's current version (v2) does not
    square. darktable is GPL and was read for its behaviour only, no code copied.
+
+Finding (eval/sony-vignetting-preview-2026-11-23.md): on the A7 III and A7 IV the embedded JPEG follows the
+maker note's distortion setting but shows none of the table's luminance lift under any of the four readings, so
+it cannot judge the formula.
 
 A dynamic-range optimiser (maker note "Dynamic Range Optimizer" not Off) brightens shadows locally and so lifts
 dark corners on its own; the tool prints the setting and flags such a frame as confounded.
@@ -55,7 +59,7 @@ from warp_preview_check import match  # noqa: E402
 TAG_VIG_SETTING = 0x2011
 TAG_DIST_SETTING = 0x2013
 TAG_DRO = 0xB025
-_CORRECTION = {0: "Off", 1: "Auto", 2: "No correction params available"}
+_CORRECTION = {0: "Off", 2: "Auto", 0xFFFFFFFF: "n/a"}  # ExifTool's Sony 0x2011-0x2013
 _DRO = {0: "Off", 1: "Standard", 2: "Advanced Auto", 3: "Auto", 8: "Advanced Lv1", 9: "Advanced Lv2",
         10: "Advanced Lv3", 11: "Advanced Lv4", 12: "Advanced Lv5", 16: "Lv1", 17: "Lv2", 18: "Lv3", 19: "Lv4",
         20: "Lv5"}
@@ -269,36 +273,13 @@ def table_gain(corr: sc.SonyCorrections, rho: np.ndarray, squared: bool, dt_knot
     return g * g if squared else g
 
 
-def measure(path: str, centre: float = 0.2, bands: int = 10) -> dict:
-    data = Path(path).read_bytes()
-    raw = rd.parse_raw(data)
-    corr = sc.from_arw(data)
-    settings = maker_note_settings(data)
-    prev = preview_rgb(data)
-    rec = {"file": Path(path).name, "settings": settings}
-    if corr is None or not corr.vignetting or prev is None:
-        rec["skipped"] = "no vignetting table" if prev is not None else "no preview"
-        return rec
-    orient = raw.ifd0.one(274, 1)
-    if orient in (6, 8, 3):
-        prev = np.rot90(prev, {6: 1, 8: 3, 3: 2}[orient])
-    raw_rgb, white = half_rgb(raw)
-    crop = None
-    if raw.ifd.get(0xC61F) and raw.ifd.get(0xC620):
-        o, c = raw.ifd.get(0xC61F), raw.ifd.get(0xC620)
-        crop = ((float(o[0]), float(o[1])), (float(c[0]), float(c[1])))
-    use_dist = settings.get("distortion") == "Auto" and bool(corr.distortion)
-    mp, geo = fit_mapping(raw_rgb, white, prev, corr, use_dist, crop)
-    rec["geometry"] = geo | {"scale": mp.s, "distortion_applied": use_dist}
-    ph, pw = prev.shape[:2]
-    rawp = box_sample(raw_rgb, mp, pw, ph, sub=3)
-    # Clipped raw sensels poison the ratio: mark a preview pixel whose source neighbourhood is near white.
-    rawmax = box_sample(raw_rgb.max(axis=-1), mp, pw, ph, sub=3)
-    plin = srgb_to_linear(prev)
-    vv, uu = np.mgrid[0:ph, 0:pw].astype(np.float64)
-    sx, sy = mp.source(uu, vv, pw, ph)
-    rho = np.hypot(sx - mp.cx, sy - mp.cy) / mp.r_knots  # sensor radius, 0 centre .. 1 corner of the table's frame
-    rec["rho_preview_corner"] = float(rho.max())
+def estimate_bands(rawp: np.ndarray, rawmax: np.ndarray, plin: np.ndarray, rho: np.ndarray, white: float,
+                   centre: float = 0.2, bands: int = 10) -> dict:
+    """Per channel, the camera's gain over the centre in stops, per radius band (steps 3 and 4 of the docstring).
+
+    ``rawp`` and ``plin``: (h, w, 3) raw (linear, black subtracted) and preview (sRGB undone) on one grid;
+    ``rawmax``: the largest raw channel there (for clipping); ``rho``: sensor radius per pixel."""
+
     out_ch = {}
     edges = np.linspace(0.0, float(rho.max()), bands + 1)
     for ch, name in enumerate("RGB"):
@@ -340,6 +321,39 @@ def measure(path: str, centre: float = 0.2, bands: int = 10) -> dict:
             rows.append({"rho": float(np.median(rho[m])), "n": int(m.sum()), "stops": float(np.median(vals)),
                          "iqr": float(np.subtract(*np.percentile(vals, [75, 25])))})
         out_ch[name] = rows
+    return out_ch
+
+
+def measure(path: str, centre: float = 0.2, bands: int = 10, distortion: str = "auto") -> dict:
+    data = Path(path).read_bytes()
+    raw = rd.parse_raw(data)
+    corr = sc.from_arw(data)
+    settings = maker_note_settings(data)
+    prev = preview_rgb(data)
+    rec = {"file": Path(path).name, "settings": settings}
+    if corr is None or not corr.vignetting or prev is None:
+        rec["skipped"] = "no vignetting table" if prev is not None else "no preview"
+        return rec
+    # The preview is stored the sensor's way up (EXIF Orientation is for viewers), like the raw: no turn.
+    raw_rgb, white = half_rgb(raw)
+    crop = None
+    if raw.ifd.get(0xC61F) and raw.ifd.get(0xC620):
+        o, c = raw.ifd.get(0xC61F), raw.ifd.get(0xC620)
+        crop = ((float(o[0]), float(o[1])), (float(c[0]), float(c[1])))
+    use_dist = bool(corr.distortion) and (settings.get("distortion") == "Auto" if distortion == "auto"
+                                          else distortion == "on")
+    mp, geo = fit_mapping(raw_rgb, white, prev, corr, use_dist, crop)
+    rec["geometry"] = geo | {"scale": mp.s, "distortion_applied": use_dist}
+    ph, pw = prev.shape[:2]
+    rawp = box_sample(raw_rgb, mp, pw, ph, sub=3)
+    # Clipped raw sensels poison the ratio: mark a preview pixel whose source neighbourhood is near white.
+    rawmax = box_sample(raw_rgb.max(axis=-1), mp, pw, ph, sub=3)
+    plin = srgb_to_linear(prev)
+    vv, uu = np.mgrid[0:ph, 0:pw].astype(np.float64)
+    sx, sy = mp.source(uu, vv, pw, ph)
+    rho = np.hypot(sx - mp.cx, sy - mp.cy) / mp.r_knots  # sensor radius, 0 centre .. 1 corner of the table's frame
+    rec["rho_preview_corner"] = float(rho.max())
+    out_ch = estimate_bands(rawp, rawmax, plin, rho, white, centre, bands)
     rec["bands"] = out_ch
     # The four readings, relative to their own mean over the centre disk.
     rc = rho[rho < centre]
@@ -402,9 +416,12 @@ def main(argv=None) -> int:
     ap.add_argument("--centre", type=float, default=0.2, help="radius of the central disk the tone map is fitted on")
     ap.add_argument("--bands", type=int, default=10)
     ap.add_argument("--json", help="append one JSON line per file")
+    ap.add_argument("--distortion", choices=("auto", "on", "off"), default="auto",
+                    help="map the preview through the file's distortion table: as the maker note says (auto), always "
+                         "or never; comparing the fits' residuals says whether the preview carries the correction")
     args = ap.parse_args(argv)
     for f in args.files:
-        rec = measure(f, args.centre, args.bands)
+        rec = measure(f, args.centre, args.bands, args.distortion)
         print(report(rec))
         if args.json:
             with open(args.json, "a") as fh:
