@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IFC to COBie 2.4 workbook, and a COBie QC check, in your browser</title>
+  <meta name="description" content="Turn an IFC model into a COBie 2.4 handover spreadsheet and check any COBie workbook for blank required cells, template placeholders and broken references. Free, nothing uploaded.">
+  <link rel="canonical" href="https://marisstella.app/ids-model-check/cobie.html">
+  <meta property="og:title" content="IFC to COBie, and COBie QC, in your browser">
+  <meta property="og:description" content="A COBie 2.4 workbook from your IFC model, components placed in rooms from the geometry, and a QC report of what an owner's check would reject. MIT licensed.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IFC to COBie and COBie QC (IDS Model Check)", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Writes a COBie 2.4 (NBIMS-US V3) workbook from an IFC2X3, IFC4 or IFC4X3 model and checks any COBie workbook for blank required cells, template placeholders, duplicate keys and references to rows that do not exist."}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.2; margin: 0.4em 0 0.3em; }
+    h2 { font-size: 1.25rem; margin-top: 2em; }
+    p.lede { font-size: 1.08rem; color: var(--muted); max-width: 46em; }
+    .drops { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 12px; }
+    @media (max-width: 760px) { .drops { grid-template-columns: 1fr; } }
+    .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 16px; background: var(--card); min-height: 110px; }
+    .drop.over { border-color: var(--accent); }
+    .drop label { font-weight: 600; display: block; margin-bottom: 6px; }
+    .drop input { max-width: 100%; }
+    .drop .file { color: var(--muted); font-size: 0.92rem; margin-top: 6px; word-break: break-all; }
+    fieldset { border: 1px solid var(--line); border-radius: 10px; margin: 12px 0; padding: 10px 14px; }
+    fieldset label { display: block; margin: 6px 0; }
+    input[type=text], input[type=email], select { font: inherit; padding: 4px 6px; max-width: 100%; }
+    button { font: inherit; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); padding: 8px 16px; border-radius: 7px; cursor: pointer; }
+    button.ghost { background: transparent; color: var(--accent); }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    #status { color: var(--muted); min-height: 1.5em; }
+    .summary { font-size: 1.1rem; font-weight: 600; margin: 18px 0 6px; }
+    .err { color: var(--fail); } .ok { color: var(--pass); } .warn { color: var(--warn); }
+    table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    .wrap { overflow-x: auto; }
+    td:nth-child(3), th:nth-child(3) { white-space: nowrap; }
+    ul { padding-left: 1.2em; } li { margin: 4px 0; }
+    .muted { color: var(--muted); }
+    code { font-size: 0.9em; }
+    footer { margin-top: 3em; font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1em; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted"><a href="./">IDS Model Check</a> &middot; <a href="editor.html">IDS editor</a> &middot; <a href="revision.html">Compare IDS versions</a> &middot; COBie</p>
+  <h1>IFC to COBie, and a COBie check before you hand over</h1>
+  <p class="lede">The owner wants a COBie 2.4 workbook at handover, and their FM team rejects one with blank required cells, <code>SerialNumber</code> typed into the serial number column, or a component in a room that does not exist. Drop your IFC model to get the workbook and the list of what to fix; or drop a COBie workbook from any tool to check it. Nothing is uploaded.</p>
+
+  <section aria-labelledby="run">
+    <h2 id="run">Make or check a workbook</h2>
+    <div class="drops">
+      <div class="drop" id="drop-ifc"><label for="ifc">IFC model (.ifc, .ifczip, .ifcxml)</label><input type="file" id="ifc" accept=".ifc,.IFC,.ifcxml,.ifcXML,.ifczip,.zip,.xml,.json,.ifcjson,.ifcx"><div class="file" id="ifc-name">to write a COBie workbook from it</div></div>
+      <div class="drop" id="drop-xlsx"><label for="xlsx">COBie workbook (.xlsx)</label><input type="file" id="xlsx" accept=".xlsx"><div class="file" id="xlsx-name">to check one another tool made</div></div>
+    </div>
+    <fieldset>
+      <legend>Options</legend>
+      <label><input type="checkbox" id="geometry" checked> Put components the model leaves on a storey in the room they stand in, from the geometry (doors and windows: the rooms on both sides). Slower on large models.</label>
+      <label>QC stage: <select id="stage"><option value="design">Design (names, types, rooms, categories)</option><option value="handover">Handover (adds manufacturer, warranty, serial numbers, dates)</option></select></label>
+      <label>Your email, for rows whose model names no author (COBie keys every row to a contact): <input type="email" id="email" placeholder="you@company.com" autocomplete="email"></label>
+      <label>Company and phone, for your Contact row: <input type="text" id="company" placeholder="Company"> <input type="text" id="phone" placeholder="Phone"></label>
+      <label><input type="checkbox" id="na"> Write <code>n/a</code> in blank optional cells (COBie's "not applicable")</label>
+    </fieldset>
+    <div class="row">
+      <button id="go" disabled>Write the COBie workbook</button>
+      <button id="example" class="ghost" type="button">Try the sample model</button>
+      <button id="dl-xlsx" class="ghost" type="button" disabled>Download workbook (.xlsx)</button>
+      <button id="dl-txt" class="ghost" type="button" disabled>Download QC report</button>
+    </div>
+    <p id="status" role="status"></p>
+    <div id="out"></div>
+  </section>
+
+  <section aria-labelledby="what">
+    <h2 id="what">What goes in each sheet</h2>
+    <ul>
+      <li><b>Contact</b>: the people the model's owner history names, with their email, company and phone where the file holds them, and you, if you give your email above.</li>
+      <li><b>Facility</b>, <b>Floor</b>, <b>Space</b>: the building, its storeys and its rooms (number in Name, room name in Description, floor from where the room sits, areas from the model's stored quantities).</li>
+      <li><b>Type</b> and <b>Component</b>: maintainable products only (equipment, terminals, controls, furniture, lifts, doors, windows), not walls, slabs, pipe runs or fittings. Manufacturer, model, warranty and life from the type's properties, standard (<code>Pset_ManufacturerTypeInformation</code>) or COBie-named (Revit's <code>COBie.Type.Manufacturer</code> counts as <code>Manufacturer</code>). Two Revit type objects with the same name and class are one Type.</li>
+      <li><b>Zone</b> and <b>System</b>: <code>IfcZone</code> and <code>IfcSystem</code> groups, one row per member, and the zone names a Revit COBie set-up keeps on each room (<code>VentilationZoneName</code> and the like).</li>
+      <li><b>Attribute</b>: every other property of a floor, room, type or component, once per name.</li>
+    </ul>
+    <p>A value the model does not hold is left blank, never made up, and the QC lists it. Numbers stay in the model's units, which the Facility row names.</p>
+    <h2 id="how">How it was checked</h2>
+    <p>On 25 public IFC exports (Revit, ARCHICAD, Tekla and others), every file wrote a workbook. Rooms from geometry were checked against what the files say themselves: of 869 doors and windows that the file's own space boundaries pair with rooms, 791 got exactly those rooms from geometry alone, 37 one of their two, and 19 a room the file does not name. Of 1,227 components a file puts in a room, with that hidden, 935 were placed in the same room, 89 in another and 203 in none (left blank). On the Duplex model, IfcOpenShell's COBie exporter (ifcfm 0.9.0, its legacy preset; its current preset stops with an error on both files tried) writes the same number of floors, rooms, zones, types and components, and leaves the room of 38 components as <code>n/a</code>; here they are placed in rooms (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/ids-model-check/eval/cobie-2026-11-23.md">method and numbers</a>).</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It writes and checks a COBie workbook as this software reads the model and the NBIMS-US COBie 2.4 layout; it is not a design review, a contract interpretation or professional advice, and your contract's COBie requirements decide what a deliverable must carry. Check the workbook before you hand it over.</p>
+    <p>Everything on this page runs in your browser: the model and the workbook never leave your computer. COBie is part of the US National BIM Standard; this tool is independent and not endorsed by NIBS or buildingSMART.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+</main>
+<script type="module">
+  import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  import { cobieFromXlsx, cobieQc, qcText, ruleText, SHEETS } from "./cobie.mjs";
+  import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const state = { ifc: null, ifcName: null, xlsx: null, text: null };
+
+  async function readModelFile(file) {
+    $("ifc-name").textContent = `Reading ${file.name}...`;
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      state.ifc = isZip(bytes) ? (await unzipModel(bytes, inflateRawStream, { bytes: true })).bytes : bytes;
+      state.ifcName = file.name;
+      $("ifc-name").textContent = `${file.name} (${(file.size / 1e6).toFixed(file.size > 1e6 ? 1 : 3)} MB)`;
+      $("go").disabled = false;
+    } catch (e) { state.ifc = null; $("ifc-name").textContent = `Could not read ${file.name}: ${e.message}`; }
+  }
+  async function checkWorkbook(file) {
+    $("xlsx-name").textContent = `Reading ${file.name}...`;
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const sheets = await cobieFromXlsx(bytes, inflateRawStream);
+      const qc = cobieQc(sheets, { stage: $("stage").value });
+      $("xlsx-name").textContent = file.name;
+      state.xlsx = null;
+      state.text = qcText(qc, { examples: 5 });
+      record("cobie_workbook_checked");
+      if (qc.errors) record("cobie_workbook_has_errors");
+      render({ rows: qc.rows, qc, notes: [] }, `QC of ${file.name}`);
+    } catch (e) { $("xlsx-name").textContent = `Could not read ${file.name}: ${e.message}`; record("cobie_error"); }
+  }
+  for (const [kind, fn] of [["ifc", readModelFile], ["xlsx", checkWorkbook]]) {
+    $(kind).addEventListener("change", (e) => e.target.files[0] && fn(e.target.files[0]));
+    const zone = $("drop-" + kind);
+    zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("over"); });
+    zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+    zone.addEventListener("drop", (e) => { e.preventDefault(); zone.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) fn(f); });
+  }
+
+  $("example").addEventListener("click", async () => {
+    state.ifc = new Uint8Array(await fetch("samples/tiny-house.ifc").then((r) => r.arrayBuffer()));
+    state.ifcName = "tiny-house.ifc";
+    $("ifc-name").textContent = "tiny-house.ifc (sample)";
+    $("go").disabled = false;
+    record("cobie_example_loaded");
+    run();
+  });
+
+  let worker = null;
+  function run() {
+    if (!state.ifc) return;
+    $("go").disabled = true;
+    $("out").innerHTML = "";
+    $("status").textContent = $("geometry").checked ? "Reading the model and its geometry..." : "Reading the model...";
+    worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    const email = $("email").value.trim();
+    const createdOn = new Date().toISOString().slice(0, 19);
+    worker.onmessage = (ev) => {
+      $("go").disabled = false;
+      if (ev.data.error) { $("status").textContent = "Could not write the workbook: " + ev.data.error; record("cobie_error"); return; }
+      const c = ev.data.cobie;
+      state.xlsx = c.xlsx;
+      state.text = c.text;
+      $("status").textContent = `Done in ${c.seconds.toFixed(1)} s.`;
+      record("cobie_written");
+      if ($("geometry").checked) record("cobie_geometry_used");
+      if (email) record("cobie_contact_given");
+      render(c, `COBie workbook from ${state.ifcName}`);
+    };
+    worker.postMessage({ ifc: state.ifc, cobie: { geometry: $("geometry").checked, stage: $("stage").value, na: $("na").checked, contact: email ? { Email: email, Company: $("company").value.trim(), Phone: $("phone").value.trim() } : null, createdOn: email ? createdOn : null } });
+  }
+  $("go").addEventListener("click", run);
+
+  function render(c, title) {
+    const qc = c.qc;
+    let h = `<p class="summary">${esc(title)}: <span class="${qc.errors ? "err" : "ok"}">${qc.errors.toLocaleString("en-US")} error(s)</span>, <span class="${qc.warnings ? "warn" : "ok"}">${qc.warnings.toLocaleString("en-US")} warning(s)</span> (${esc(qc.stage)} stage)</p>`;
+    h += `<p class="muted">${SHEETS.map((s) => `${s} ${c.rows[s].toLocaleString("en-US")}`).join(" &middot; ")}</p>`;
+    if (c.notes.length) h += `<ul>${c.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`;
+    const groups = new Map();
+    for (const i of qc.issues) {
+      const k = `${i.severity}|${i.sheet}|${i.rule}|${i.field}`;
+      let g = groups.get(k);
+      if (!g) groups.set(k, (g = { ...i, n: 0, ex: [] }));
+      g.n++;
+      if (g.ex.length < 3) g.ex.push(i);
+    }
+    const order = [...groups.values()].sort((a, b) => (a.severity === b.severity ? b.n - a.n : a.severity === "error" ? -1 : 1));
+    if (order.length) {
+      h += `<div class="wrap"><table><thead><tr><th>Sheet.column</th><th>Problem</th><th>Rows</th><th>For example</th></tr></thead><tbody>`;
+      for (const g of order) h += `<tr><td><span class="${g.severity === "error" ? "err" : "warn"}">${esc(g.sheet)}.${esc(g.field || "-")}</span></td><td>${esc(ruleText(g.rule))}</td><td>${g.n.toLocaleString("en-US")}</td><td>${g.ex.map((e) => `${e.row ? "row " + e.row + " " : ""}${esc(e.name)}${e.value !== "" ? " = <code>" + esc(e.value) + "</code>" : ""}`).join("<br>")}</td></tr>`;
+      h += `</tbody></table></div>`;
+    } else h += `<p class="ok">No issues found.</p>`;
+    $("out").innerHTML = h;
+    $("dl-xlsx").disabled = !state.xlsx;
+    $("dl-txt").disabled = !state.text;
+  }
+
+  const download = (name, data, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+  const base = () => (state.ifcName || "model").replace(/\.(ifc|ifczip|zip|ifcxml|json|ifcx|xml)$/i, "");
+  $("dl-xlsx").onclick = () => { record("cobie_xlsx_downloaded"); download(base() + "-cobie.xlsx", state.xlsx, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
+  $("dl-txt").onclick = () => { record("cobie_qc_downloaded"); download(base() + "-cobie-qc.txt", state.text, "text/plain"); };
+
+  $("optout").checked = usageOptedOut();
+  $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  record("cobie_page_view");
+</script>
+</body>
+</html>

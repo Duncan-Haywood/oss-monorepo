@@ -70,7 +70,7 @@
   <h1>Check an IFC model against an IDS file, in your browser.</h1>
   <p class="lede">Drop a building model (.ifc, .ifcxml, ifcJSON .json, IFC5 .ifcx or .ifczip) and a buildingSMART Information Delivery Specification (.ids). You get every specification's result, each failing element with the reason, and a BCF issue list your BIM tool can open. Nothing is uploaded.</p>
 
-  <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="editor.html">Write an IDS</a> <a class="cta ghost" href="revision.html">Compare two IDS versions</a> <a class="cta ghost" href="samples/coordination-basics.ids.xml">Get the starter IDS</a></p>
+  <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="editor.html">Write an IDS</a> <a class="cta ghost" href="revision.html">Compare two IDS versions</a> <a class="cta ghost" href="cobie.html">IFC to COBie</a> <a class="cta ghost" href="samples/coordination-basics.ids.xml">Get the starter IDS</a></p>
   <div class="facts">
     <div class="fact"><b>334 / 334</b>buildingSMART IDS test cases right (<a href="#accuracy">how it was checked</a>)</div>
     <div class="fact"><b>under 1 s</b>for a 22 MB, 424,819-entity Revit export in Chromium (0.8 s; 1.4 s on the command line)</div>
@@ -112,6 +112,7 @@
 
   <section aria-labelledby="revision">
     <h2 id="revision">The client sent a new version of the IDS</h2>
+    <p><a href="cobie.html">IFC to COBie, and COBie QC</a>: a COBie 2.4 handover workbook (Contact, Facility, Floor, Space, Zone, Type, Component, System, Attribute) from your model, with components the model leaves on a storey placed in the room they stand in from the geometry, and a QC report of blank required cells, template placeholders, duplicate keys and references to rows that do not exist. Drop a COBie workbook another tool made to check it the same way.</p>
     <p><a href="revision.html">Compare two IDS versions</a>: drop the old and the new file and see which specifications were added, removed or changed, each change marked as asking more (a new required property, optional to required, fewer allowed values, more classes selected) or less of your model. Add the model and it lists the elements that newly fail and the ones already failing that now have more to fix. Run on 69 committed revisions of 27 public IDS files, with no failures to compare.</p>
   </section>
 
