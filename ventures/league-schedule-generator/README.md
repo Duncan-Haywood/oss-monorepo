@@ -20,7 +20,33 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## One file became fifteen: eight pages load 67-93% less code (2026-11-23, newest)
+## The multi-division page stops loading the season builder: 217 kB to 75 kB (2026-11-23, newest)
+
+After `calc.mjs` was split (next section), the multi-division page was the one page left heavy for no
+reason: `divisions.mjs` builds its own season on shared courts, but it took seven small helpers from
+`schedule.mjs` (`csvRows`, `parseTimes`, `parseNameList`, `parseCourtClosures`, `courtClosedOn`,
+`relabelPlan`, `forfeitReport`). That one import line made the browser fetch `schedule.mjs` and everything
+behind it: the carry-over search (`carryover.mjs`, 41 kB gzip), the doubleheader night designs
+(`nights.mjs`, `session-designs.mjs`, `odd-designs.mjs`, 54 kB), and the break-minimising orienter with
+its WebAssembly (`orient.mjs`, `wasm/minplus-wasm.mjs`, 22 kB). None of it runs on that page.
+
+The seven helpers now live in `fields.mjs` (88 lines, imports only `dates.mjs`). `schedule.mjs` imports
+and re-exports them, and `calc.mjs` re-exports them through `schedule.mjs`, so every importer outside
+`divisions.mjs` is unchanged and the moved code is byte-for-byte the same.
+
+| multi-division page | modules | raw | gzip |
+|---|---|---|---|
+| before | 17 | 660 kB | 217 kB |
+| after | **11** | **235 kB** | **75 kB** |
+
+(`node eval/page-weight.mjs . multi-division-league-schedule.html`, `eval/page-weight.txt`.) Checked in
+Chromium: the page loads its 11 modules, "Load an example" then "Build the schedule" gives the same
+73-match, 11-night season with the validator's CHECKED line and no console errors.
+`page.test.mjs` now holds the multi-division page to the same rule as the eight one-format pages: it may
+not reach `calc.mjs`, `schedule.mjs`, `carryover.mjs` or `nights.mjs`. Only the single-league page
+(`index.html`, 226 kB) still loads the season builder, because it uses it.
+
+## One file became fifteen: eight pages load 67-93% less code (2026-11-23)
 
 `calc.mjs` had grown to 4,195 lines (quality audit round 87: "split by feature"), and every page that
 took one name from it fetched all of it, with the 147 kB carry-over search and the doubleheader night
@@ -37,6 +63,7 @@ of the old file and the new one compared by `toString()` and value, 0 differ).
 | `dates.mjs` | weekday names, ISO days, the next play day, date, weekday and clock parsing |
 | `names.mjs` | team names from a pasted list, and finding a typed name in it |
 | `schedule.mjs` | text fields, slot assignment, the dated season, the validator, rainouts, pins, withdrawals, late teams, shared grounds, linked teams |
+| `fields.mjs` | CSV rows, name and time lists, court closures, relabelling, forfeits (moved out of `schedule.mjs` later the same day, section above) |
 | `rounds.mjs` | circle-method rounds and their breaks |
 | `share.mjs` | the share link, the example league, next season's fields |
 | `rng.mjs` | the seeded generator every search shares |
@@ -66,15 +93,16 @@ gzipped one file at a time as a server sends them; `eval/page-weight.txt`):
 | weekend tournament | 237 kB | **61 kB** |
 | bowling league | 253 kB | **74 kB** |
 | golf league | 270 kB | **90 kB** |
-| multi-division | 251 kB | 217 kB |
+| multi-division | 251 kB | 217 kB (75 kB since the `fields.mjs` split above) |
 | single league (`index.html`) | 215 kB | 225 kB |
 
 The single-league page uses nearly every module, so it gains nothing, and pays 10 kB (5%): fifteen files
 compress less well apart than as one. That is the trade for the eight pages above. The multi-division
-page still loads the season builder through `divisions.mjs`, which uses its text-field parsers.
+page still loaded the season builder through `divisions.mjs`, which used its text-field parsers, until
+`fields.mjs` (section above).
 
 **Tests.** `page.test.mjs`: `calc.mjs` only re-exports its parts, each part imports only its siblings, and
-every page in the folder but the single-league and multi-division pages reaches none of `calc.mjs`, `schedule.mjs`, `carryover.mjs`, `nights.mjs`
+every page in the folder but the single-league page (and, until `fields.mjs`, the multi-division page) reaches none of `calc.mjs`, `schedule.mjs`, `carryover.mjs`, `nights.mjs`
 (followed import by import). `deploy.test.mjs` now follows `server.mjs`'s imports all the way down: the
 old check read only the names `server.mjs` imports itself, so an image missing `pools.mjs` would have
 passed it and failed on start (tried: dropping `pools.mjs` from the Dockerfile fails the new test).
