@@ -48,7 +48,7 @@ SPEC, AX = E70.SPEC, E70.AX
 E69.E61.SEED = SEED
 E65.SEED = SEED
 LOADS = E54.lhs(N, SEED)
-B = 0.4
+BIAS = 0.4                                   # not "B": milestone 65's set_bound rewrites any module float named B
 FRACS = (0.9, 1.1)
 DFIX = 0.1
 RATES = (0.01, 0.02, 0.05, 0.1, 0.2, 0.5)      # N/h, swept: no drift rate for this sensor class was found
@@ -100,17 +100,17 @@ def task(args):
             continue
         ref = (n,) + tuple(a)
         lr = lim[str(list(ref))]
-        a0 = allowance(np.zeros(4), J, S, B)
+        a0 = allowance(np.zeros(4), J, S, BIAS)
         rec.update(ref=list(a), J=J.tolist(), S=S.tolist(), a0=a0)
         if a0 <= 0:
             rows.append(rec)
             continue
         for tag, d in (("0.9a", FRACS[0] * a0), ("1.1a", FRACS[1] * a0), ("0.1", DFIX)):
-            E65.set_bound(B + d)
-            ks, eru, du = E70.aim(J, S, B, d)
+            E65.set_bound(BIAS + d)
+            ks, eru, du = E70.aim(J, S, BIAS, d)
             for sgn, sc in ((1, "+"), (-1, "-")):
                 e_r, e_p = sgn * eru, sgn * (eru + du)
-                r = E63.run_case(k, ref, f, e_p, er(ref, B + d, e_r), lk, lr, H)
+                r = E63.run_case(k, ref, f, e_p, er(ref, BIAS + d, e_r), lk, lr, H)
                 r["ks"], r["d"], r["e_r"], r["e_p"] = ks, d, e_r.tolist(), e_p.tolist()
                 rec["cases"][tag + sc] = r
         E65.set_bound(E65.B0)
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     ctx = M1.mp.get_context("fork")
     phis = [p for _, p in LOADS]
     out = {"versions": {"python": platform.python_version(), "numpy": np.__version__,
-                        "mujoco": M1.mujoco.__version__}, "spec_mm": SPEC, "seed": SEED, "loads": LOADS, "B": B,
+                        "mujoco": M1.mujoco.__version__}, "spec_mm": SPEC, "seed": SEED, "loads": LOADS, "B": BIAS,
            "fracs": FRACS, "dfix": DFIX, "rates": RATES, "bound_globals": [m for m, _ in chk], "npose": NPOSE}
 
     def tl(args):
@@ -164,7 +164,7 @@ if __name__ == "__main__":
         res = [done[(jb[0], jb[1])] for jb in jobs]
     out["limits"], out["runs"] = lims, res
     print(f"# Milestone 71: a frozen drift table and an exact per-press drift allowance, held-out section R ({N} "
-          f"loads, seed {SEED}; milestone 70's S table and milestone 69's two-pose J table, frozen; B = {B} N; drift "
+          f"loads, seed {SEED}; milestone 70's S table and milestone 69's two-pose J table, frozen; B = {BIAS} N; drift "
           f"0.9 a0, 1.1 a0 and {DFIX} N aimed jointly along the worst row, both signs; milestone 65's chain sized to "
           f"B + delta; spec {SPEC} mm per row)")
     # A. superposition with the frozen tables
@@ -215,7 +215,7 @@ if __name__ == "__main__":
                         w = worst(p)
                         o = w > SPEC + 1e-12
                         ov, wc = ov + o, max(wc, w)
-                        g = all(y + B * a + r["d"] * s <= SPEC + 1e-12 for y, a, s in zip(p["Y"], gJ, gS))
+                        g = all(y + BIAS * a + r["d"] * s <= SPEC + 1e-12 for y, a, s in zip(p["Y"], gJ, gS))
                         if g:
                             gp, gov, wp = gp + 1, gov + o, max(wp, w)
                             if o:
@@ -253,7 +253,7 @@ if __name__ == "__main__":
                     continue
                 Y = np.max(np.array(Ys), axis=0)
                 ypos += Y.max() > 0
-                al.append(allowance(Y, np.array(rec["J"]), np.array(rec["S"]), B))
+                al.append(allowance(Y, np.array(rec["J"]), np.array(rec["S"]), BIAS))
         al = np.array(al)
         q = np.quantile(al, [0.1, 0.5, 0.9])
         AL[n] = {"n": len(al), "ypos": int(ypos), "min": float(al.min()), "q10": float(q[0]), "med": float(q[1]),

@@ -12,6 +12,7 @@
   - **H279 (the allowance is tight).** Every 1.1 a0 press with Y = 0 and no flip is over 0.03 mm, and each robot has at least one. Refuted by any inside the spec.
   - **H280 (the allowance is a property of the robot, not the loads).** The median allowance at B = 0.4 N on section R, Y from the run, is within 25% of section Q's (0.102 N G1, 0.150 N H1). Refuted if either is outside.
 - **Run size.** 8 loads, chosen before any run; resume file for the 2 h job limit. Six chain runs per press against milestone 70's sixteen.
+- **Timing run, before the main run (1 load of seed 710, 2 poses per robot; output read only for run time and to check the code).** It caught a bug: the run's bias bound was a module float named `B`, which milestone 65's `set_bound` rewrites in every chain module, so the allowance and the aim used the planner's bound instead of 0.4 N. Renamed to `BIAS`; the rerun took 126 s, about 60 s per pose and load, so about 70 minutes for the main run on 4 processes. No hypothesis or setting changed.
 
 ## 2026-11-22 · Milestone 70 result: a sensor bias that drifts by 0.1 N between calibration and press breaks 99 G1 and 32 H1 presses milestone 69's gate certified at 0.4 N (H273 held); the residual is exactly J e<sub>r</sub> + S d (H271 held to 1e-14 mm), S depends only on the pose (H272), and the drift gate Y + B||J|| + &delta;||S|| keeps every passed press in spec (H274 held); drift costs 3.5 times as much as bias, weakest drift rating 0.162 N (G1) and 0.189 N (H1) (H275 held)
 
