@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVP94MQr59EiuqN1xCP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T18:15:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check flagship: Tekla beams reading apart by schema (allocator row 7, item 2)",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18459",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Ran plain `route` first and drew process for the scheduled ventures brief; re-ran with --task as prompt.md says (same report as many earlier records)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A pkill -f with a bracketed pattern was refused because the same word appeared elsewhere in the command (a sed on the same file); had to split the call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-ids-model-check-one-tekla-model-three-schemas.md",
+    "ventures/ids-model-check/eval/beam-schema-twins-2026-11-23.md"
+  ],
+  "goal": "Find why one Tekla model measured differently in IFC2X3/IFC4/IFC4X3 and make the fill's measured values match Tekla's conventions",
+  "notes": "Found two causes. (1) Tekla stores NetVolume without root fillets (GrossVolume with); IFC2X3/IFC4X3 draw parametric profiles with fillets. Added addNetVolumeConventions (Tekla only, single-extrusion parametric members): 109/109 stored NetVolumes match (37 before), 85/85 on independent Mini Project, 0 worse. (2) Tekla IFC4 walls are laid on their side with no Axis; added uprightFrame turning (only when the wall runs along its own x; M3D-CON piers standing on own x held back after a 0/4 corpus check): 37 walls, 74/74 stored Length/Height match across 40 public files. Tekla Qto_ psets 551/583 -> 649/657 within 2%. Verified: node --test geometry-quantities.test.mjs 45/45; run_venture_tests ids-model-check ifc-quantity-takeoff (see PR); check_posts ok; portfolio/router/validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
