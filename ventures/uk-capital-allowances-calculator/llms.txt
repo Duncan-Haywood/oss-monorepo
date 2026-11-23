@@ -1,6 +1,6 @@
 # How much of my equipment spend can I deduct from profit?
 
-> Free UK capital allowances calculator: how much of your equipment spend you can deduct this year under the Annual Investment Allowance, full expensing and writing-down allowances, the best order to use the AIA, and the tax saved. Runs in your browser; nothing is uploaded.
+> Free UK capital allowances calculator: how much of your equipment spend you can deduct this year under the Annual Investment Allowance, full expensing, the 40% first-year allowance and writing-down allowances (main pool 14% from April 2026, special rate 6%), the best order to use the AIA, and the tax saved. Runs in your browser; nothing is uploaded.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
