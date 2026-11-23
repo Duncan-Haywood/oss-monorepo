@@ -12,9 +12,9 @@
 
 ## Curved walls (landed 2026-11-23, eval/curved-side-area-2026-11-23.md)
 
-- Triangulated breps on an arc (ARK_NUS #1455746, #1457200; 7 in ISSUE_129): their triangles lean 0.001-0.01 off the vertical and are left out of the standing faces; loosening the test gave too much area (16.6 against about 14.3 m2), untraced. Next: read which triangles belong to which face.
+- (landed 2026-11-23, eval/triangulated-arc-breps-2026-11-23.md) Triangulated breps on an arc: ARK_NUS's two (a duct along the foot, faces matching the axis to 0.02%) and 8 ISSUE_129 tunnel walls measured, 55 to 65 of 134. Left: a CSG body with cutters (ISSUE_129 #36735, #148665: cutter faces read as an inner face 6-9 m inside the wall) needs its cutters clipped to the material first; recesses lined at other angles than facing the centre; facets leaning over 2 degrees (battered walls).
 - `bendsInPlan` flags straight walls with rounded ends (one inspected of the 54 ISSUE_129 walls whose facets face no one centre); curvedFaces refuses them, but the flag (and a stored figure's `curved` reason there) is too broad.
-- ISSUE_129's two 362-piece extrusions at 41% of their volume: not traced.
+- ISSUE_129's two 180-degree 1.8 m extrusions (#36735, #148665): traced 2026-11-23, they are CSG bodies whose cutter terms carry faces off the material (eval/triangulated-arc-breps-2026-11-23.md); still refused.
 - A second tool's stored side area on an arc wall (only Revit outer faces checked).
 
 ## Rooms (landed 2026-11-21, eval/rooms-2026-11-21.md)

@@ -1,0 +1,16 @@
+| Wall | type | axis radius m | arc deg | height m | measured mid radius m | width m | outer: measured / arc x H m2 | inner: measured / arc x H m2 | how it passed |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| #1455746 | Basic Wall:YV 12.1 411 Ventilasjonsrom | 2.0885 | 90.000 | 3.970 | 2.0872 | 0.4225 | 14.336 / 14.333 | 11.699 / 11.699 | swept volume |
+| #1457200 | Basic Wall:YV 12.1 411 Ventilasjonsrom EI 60 | 2.0885 | 90.000 | 3.970 | 2.0872 | 0.4224 | 14.336 / 14.333 | 11.699 / 11.699 | swept volume |
+| Wall | type | axis radius m | arc deg | height m | measured mid radius m | width m | outer: measured / arc x H m2 | inner: measured / arc x H m2 | how it passed |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| #36619 | Mur de base:IGC_MUR_EGC-TUN-VOILE-400 | 20.0000 | 19.460 | 1.900 | 20.0138 | 0.3961 | 12.584 / 13.043 | 11.851 / 12.787 | one section |
+| #63040 | Mur de base:IGC_MUR_EGC-TUN-VOILE-800 | 12.5500 | 83.435 | 3.200 | 12.5500 | 0.7964 | 50.668 / 60.337 | 48.619 / 56.626 | one section |
+| #233191 | Mur de base:IGC_MUR_EGC-TUN-VOILE-MACONNERIE-200 | 16.0500 | 22.991 | 7.200 | 16.0727 | 0.1952 | 46.463 / 46.718 | 45.893 / 46.154 | one section |
+| #235607 | Mur de base:IGC_MUR_EGC-TUN-VOILE-500 | 12.5500 | 41.534 | 6.000 | 12.5480 | 0.4938 | 42.564 / 55.651 | 40.685 / 53.503 | one section |
+| #242463 | Mur de base:IGC_MUR_EGC-TUN-VOILE-MACONNERIE-200 | 16.0500 | 22.991 | 7.200 | 16.0727 | 0.1952 | 46.463 / 46.718 | 45.893 / 46.154 | one section |
+| #249057 | Mur de base:IGC_MUR_EGC-TUN-VOILE-MACONNERIE-200 | 16.0500 | 22.293 | 7.200 | 16.0673 | 0.1967 | 45.049 / 45.287 | 44.495 / 44.736 | one section |
+| #260050 | Mur de base:IGC_MUR_EGC-TUN-VOILE-800 | 12.5500 | 83.435 | 4.300 | 12.5489 | 0.7970 | 72.608 / 81.073 | 66.109 / 76.082 | one section |
+| #270736 | Mur de base:IGC_MUR_EGC-TUN-VOILE-800 | 12.5500 | 79.057 | 4.300 | 12.5487 | 0.7964 | 67.295 / 76.816 | 60.634 / 72.090 | one section |
+| #36735 | Mur de base:IGC_MUR_EGC-TUN-VOILE-1800 | not measured |
+| #148665 | Mur de base:IGC_MUR_EGC-TUN-VOILE-1800 | not measured |

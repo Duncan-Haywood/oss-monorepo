@@ -1241,6 +1241,80 @@ test("bendsInPlan: a quarter-arc wall bends, a straight one and one with a round
   assert.deepEqual(P.map((x) => +x.toFixed(9)), [0.5, 0.5, 0.75, 0.75, 6, 6]);
 });
 
+// skolebygg's #1455746 and #1457200 (eval/triangulated-arc-breps-2026-11-23.md):
+// a quarter-ring wall with a duct along its foot, and curved faces
+// triangulated between vertices at different angles, so the triangles lean
+test("curvedFaces: a duct inside the wall is on neither face; the volume it leaves is still swept", async () => {
+  const { curvedFaces, solidVolume } = await import("./geom.mjs");
+  const N = 30, step = Math.PI / 2 / N;
+  const at = (r, i) => [r * Math.cos(i * step), r * Math.sin(i * step)];
+  const lift = (faces, z0) => faces.map((f) => f.map(([x, y, z]) => [x, y, z + z0]));
+  // convex pieces per facet: outer skin 2.2-2.3 full height, inner skin
+  // 1.877-1.95 under the duct, a block 1.877-2.2 over it (0.75 to 3.97)
+  const piece = (r0, r1, i, z0, z1) => ({ s: 1, faces: lift(prism([at(r0, i), at(r1, i), at(r1, i + 1), at(r0, i + 1)], [0, 0, z1 - z0]), z0) });
+  const terms = [];
+  for (let i = 0; i < N; i++) terms.push(piece(2.2, 2.3, i, 0, 3.97), piece(1.877, 1.95, i, 0, 0.75), piece(1.877, 2.2, i, 0.75, 3.97));
+  const wall = { terms, mesh: 0, shells: [] };
+  const chords = (r, h) => N * 2 * r * Math.sin(step / 2) * h;
+  const F = curvedFaces(wall, [0, 0, 1]);
+  assert.ok(Math.abs(F.outer - chords(2.3, 3.97)) < 1e-9, `outer ${F.outer}`);
+  assert.ok(Math.abs(F.inner - chords(1.877, 3.97)) < 1e-9, `inner ${F.inner}`);
+  assert.ok(Math.abs(F.hidden - chords(1.95, 0.75) - chords(2.2, 0.75)) < 1e-9, `hidden ${F.hidden}`);
+  const V = solidVolume(wall);
+  assert.ok(Math.abs(F.swept - V) < 1e-9 * V, `swept ${F.swept} vs ${V}`);
+  // the one-section check (mean face x width) misses it by 13%
+  assert.ok(((F.outer + F.inner) / 2) * (F.rOuter - F.rInner) > 1.1 * V);
+});
+
+test("curvedFaces: triangles leaning off the vertical on a curved face are read", async () => {
+  const { curvedFaces, shellVolume } = await import("./geom.mjs");
+  // 20 facets of 4.5 degrees, 0.75 m high: the top ring sits half a facet
+  // round from the bottom, so each triangle leans about 0.0024 off upright
+  const N = 20, step = Math.PI / 2 / N, h = 0.75;
+  const P = (r, a, z) => [r * Math.cos(a), r * Math.sin(a), z];
+  const bot = Array.from({ length: N + 1 }, (_, i) => i * step);
+  const top = [0, ...Array.from({ length: N }, (_, i) => (i + 0.5) * step), N * step];
+  // a strip between the two rings, triangles by the next lower angle
+  const strip = (r, flip) => {
+    const t = [];
+    let i = 0, j = 0;
+    while (i < bot.length - 1 || j < top.length - 1) {
+      const nextBot = i < bot.length - 1 && (j === top.length - 1 || bot[i + 1] <= top[j + 1]);
+      const tri = nextBot ? [P(r, bot[i], 0), P(r, bot[i + 1], 0), P(r, top[j], h)] : [P(r, bot[i], 0), P(r, top[j + 1], h), P(r, top[j], h)];
+      if (nextBot) i++; else j++;
+      t.push(flip ? tri.reverse() : tri);
+    }
+    return t;
+  };
+  const ro = 2.3, ri = 2.0;
+  const outer = strip(ro, false), inner = strip(ri, true);
+  const loops = [
+    ...outer, ...inner,
+    [...bot.map((a) => P(ro, a, 0)), ...bot.slice().reverse().map((a) => P(ri, a, 0))].reverse(),
+    [...top.map((a) => P(ro, a, h)), ...top.slice().reverse().map((a) => P(ri, a, h))],
+    [P(ri, 0, 0), P(ro, 0, 0), P(ro, 0, h), P(ri, 0, h)].reverse(),
+    [P(ri, N * step, 0), P(ro, N * step, 0), P(ro, N * step, h), P(ri, N * step, h)],
+  ];
+  // a faceted body carries its volume as `mesh`
+  const V = shellVolume(loops);
+  const wall = { terms: [], mesh: V, shells: [{ s: 1, loops }] };
+  assert.ok(V > 0);
+  const area = (ts) => ts.reduce((s, [a, b, c]) => {
+    const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+    return s + Math.hypot(u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]) / 2;
+  }, 0);
+  const lean = Math.max(...outer.map(([a, b, c]) => {
+    const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+    const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+    return Math.abs(n[2]) / Math.hypot(...n);
+  }));
+  assert.ok(lean > 1e-3 && lean < 0.01, `lean ${lean}`);
+  const F = curvedFaces(wall, [0, 0, 1]);
+  assert.ok(Math.abs(F.outer - area(outer)) < 1e-9 && Math.abs(F.inner - area(inner)) < 1e-9, JSON.stringify(F));
+  assert.equal(F.hidden, 0);
+  assert.ok(Math.abs(F.swept - V) < 1e-3 * V, `swept ${F.swept} vs ${V}`);
+});
+
 // ArchiCAD measures a drawn profile with its arcs as 45-degree chords and a
 // round column as a circumscribed 20-gon (eval/archicad-polygon-sections-2026-11-23.md)
 const polygonFile = (storedNotch, storedColumn) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;

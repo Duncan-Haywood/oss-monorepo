@@ -608,12 +608,11 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); arc
-      walls' facets 2026-11-23 (eval/curved-side-area-2026-11-23.md): next
-      triangulated arc breps (NEXT.md); turned-face figure in
-      ifcopenshell-volumes.py --breps (eval/pole-faces-2026-11-22.md); revision
-      series: Kegonsa's 7 exports done, replaced-in-place 2026-11-22
-      (eval/replaced-in-place-2026-11-22.md); Lake Mills has no series; next a
-      public non-Revit series.
+      breps 2026-11-23 (eval/triangulated-arc-breps-2026-11-23.md): next CSG arc
+      walls with cutters (NEXT.md); turned-face figure in ifcopenshell-volumes.py
+      --breps (eval/pole-faces-2026-11-22.md); revision series: Kegonsa's 7 exports
+      done, replaced-in-place 2026-11-22 (eval/replaced-in-place-2026-11-22.md);
+      Lake Mills has no series; next a public non-Revit series.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its
