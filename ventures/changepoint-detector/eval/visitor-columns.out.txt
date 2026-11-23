@@ -1,0 +1,36 @@
+seeds 40 per cell; heard = dated within 7 days; false = any other date (count, and sites with one)
+level after the snippet loss, 4 weeks after vs 4 weeks before, first 10 faulted sites:
+  weekends 0.5, share 0.6: page views to 0.60, sessions to 0.81, people to 0.84
+  weekends 0.5, share 0.5: page views to 0.50, sessions to 0.73, people to 0.77
+  weekends 0.4, share 0.6: page views to 0.61, sessions to 0.81, people to 0.84
+  weekends 0.4, share 0.5: page views to 0.50, sessions to 0.73, people to 0.77
+==== source: umami (visitors = sessions)
+-- arm: default
+weekends 0.5, page views to 0.6: heard visitors 0/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 7
+weekends 0.5, page views to 0.5: heard visitors 1/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 7
+weekends 0.5, no fault: false dates pageviews 0 on 0 sites, visitors 0 on 0 sites, event_signup 4 on 4 sites; total 4
+weekends 0.4, page views to 0.6: heard visitors 0/40, page views 33/40, sign-ups 39/40; other dates: visitors 0, page views 0, sign-ups 7
+weekends 0.4, page views to 0.5: heard visitors 2/40, page views 40/40, sign-ups 39/40; other dates: visitors 0, page views 0, sign-ups 7
+weekends 0.4, no fault: false dates pageviews 0 on 0 sites, visitors 0 on 0 sites, event_signup 3 on 3 sites; total 3
+-- arm: middle (--detector pelt --overdispersion nb --trend gated)
+weekends 0.5, page views to 0.6: heard visitors 40/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 3
+weekends 0.5, page views to 0.5: heard visitors 40/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 3
+weekends 0.5, no fault: false dates pageviews 0 on 0 sites, visitors 0 on 0 sites, event_signup 4 on 3 sites; total 4
+weekends 0.4, page views to 0.6: heard visitors 40/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 6
+weekends 0.4, page views to 0.5: heard visitors 40/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 6
+weekends 0.4, no fault: false dates pageviews 0 on 0 sites, visitors 0 on 0 sites, event_signup 2 on 2 sites; total 2
+==== source: plausible (visitors = people)
+-- arm: default
+weekends 0.5, page views to 0.6: heard visitors 0/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 7
+weekends 0.5, page views to 0.5: heard visitors 0/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 7
+weekends 0.5, no fault: false dates visitors 0 on 0 sites, pageviews 0 on 0 sites, goal_signup 4 on 4 sites; total 4
+weekends 0.4, page views to 0.6: heard visitors 0/40, page views 33/40, sign-ups 39/40; other dates: visitors 0, page views 0, sign-ups 7
+weekends 0.4, page views to 0.5: heard visitors 0/40, page views 40/40, sign-ups 39/40; other dates: visitors 0, page views 0, sign-ups 7
+weekends 0.4, no fault: false dates visitors 0 on 0 sites, pageviews 0 on 0 sites, goal_signup 3 on 3 sites; total 3
+-- arm: middle (--detector pelt --overdispersion nb --trend gated)
+weekends 0.5, page views to 0.6: heard visitors 40/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 3
+weekends 0.5, page views to 0.5: heard visitors 40/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 3
+weekends 0.5, no fault: false dates visitors 0 on 0 sites, pageviews 0 on 0 sites, goal_signup 4 on 3 sites; total 4
+weekends 0.4, page views to 0.6: heard visitors 39/40, page views 40/40, sign-ups 40/40; other dates: visitors 1, page views 0, sign-ups 6
+weekends 0.4, page views to 0.5: heard visitors 40/40, page views 40/40, sign-ups 40/40; other dates: visitors 0, page views 0, sign-ups 6
+weekends 0.4, no fault: false dates visitors 0 on 0 sites, pageviews 0 on 0 sites, goal_signup 2 on 2 sites; total 2

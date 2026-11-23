@@ -178,7 +178,8 @@ jobs:
             WEEKLY_DEFAULT="--columns sessions,keyEvents --detector drift"
           elif [ -f data/plausible.csv ]; then
             METRIC_CSV=data/plausible.csv
-            W="--columns $(cols 'visitors|pageviews|goal_.*')"
+            # middle setting: README "Visitors under a partial snippet loss"
+            W="--columns $(cols 'visitors|pageviews|goal_.*') $MIDDLE"
             WEEKLY_DEFAULT="--columns visitors --detector drift"
           elif [ -f data/posthog.csv ]; then
             METRIC_CSV=data/posthog.csv
@@ -186,7 +187,8 @@ jobs:
             WEEKLY_DEFAULT="--columns users --detector drift"
           elif [ -f data/umami.csv ]; then
             METRIC_CSV=data/umami.csv
-            W="--columns $(cols 'pageviews|visitors|event_.*')"
+            # middle setting: README "Visitors under a partial snippet loss"
+            W="--columns $(cols 'pageviews|visitors|event_.*') $MIDDLE"
             WEEKLY_DEFAULT="--columns visitors --detector drift"
           elif [ -f data/mixpanel.csv ]; then
             METRIC_CSV=data/mixpanel.csv
