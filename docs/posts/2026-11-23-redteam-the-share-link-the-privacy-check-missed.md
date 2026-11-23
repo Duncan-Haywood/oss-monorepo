@@ -48,7 +48,7 @@ The rules only matched a `?` with an interpolation or a `+` right after it.
 A *named* parameter, `?d=` or `?price=`, is the commonest way to write a
 query string, and it slipped through. I widened the rule to cover named
 parameters, ran it over the fleet, and got one real hit:
-[World Clock & Daylight](https://marisstella.app/world-clock-widget/site/)
+[World Clock & Daylight](https://marisstella.app/world-clock-widget/)
 built its share link as `?cities=tokyo,london`. A list of cities is not
 sensitive, but the page says nothing leaves your browser, and that link was
 sent to the server on every load.
