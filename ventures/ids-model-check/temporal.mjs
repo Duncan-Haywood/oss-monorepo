@@ -26,20 +26,25 @@ export function temporalKind(s) {
 }
 export function temporalKey(s) {
   const kind = temporalKind(s);
-  if (!kind) return null;
-  const t = xmlTrim(s);
+  return kind ? keyOf(xmlTrim(s), kind) : null;
+}
+// temporalKey for a value already trimmed and classified, so callers that
+// have done both (exactKey) do not do them again.
+const ZONED_RE = /(Z|[+-]\d{2}:\d{2})$/;
+const YMD_RE = /^(-?\d{4,})-(\d{2})-(\d{2})/;
+const zoned = (x) => (ZONED_RE.test(x) ? x : x + "Z");
+function keyOf(t, kind) {
   if (kind === "date" || kind === "dateTime") {
-    const m = t.match(/^(-?\d{4,})-(\d{2})-(\d{2})/);
+    const m = t.match(YMD_RE);
     const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
     if (mo >= 1 && mo <= 12 && d > daysInMonth(y, mo)) return NaN;
   }
-  const z = (x) => (/(Z|[+-]\d{2}:\d{2})$/.test(x) ? x : x + "Z");
-  if (kind === "date") return Date.parse(z(t.slice(0, 10) + "T00:00:00" + t.slice(10)));
-  if (kind === "dateTime") return Date.parse(z(t));
+  if (kind === "date") return Date.parse(zoned(t.slice(0, 10) + "T00:00:00" + t.slice(10)));
+  if (kind === "dateTime") return Date.parse(zoned(t));
   // XSD: a time of 24:00:00 is the value 00:00:00 (it has no next day to
   // roll into, unlike a dateTime's 24:00:00); Date.parse alone would read it
   // as 1970-01-02 and pass it in no range of times of day.
-  if (kind === "time") return Date.parse(z("1970-01-01T" + t.replace(/^24:00:00(\.0+)?(?![0-9])/, "00:00:00")));
+  if (kind === "time") return Date.parse(zoned("1970-01-01T" + t.replace(/^24:00:00(\.0+)?(?![0-9])/, "00:00:00")));
   const m = t.match(DURATION_RE);
   const n = (i) => Number(m[i] || 0);
   const day = 86400e3;
@@ -432,16 +437,32 @@ export function timeRangePattern(r) {
 // not a value of that kind (or a day the month lacks, or 24:00:00 with a
 // fraction that is not zero, which XSD refuses and Date.parse does too).
 const FRAC_RE = /(\d{2}:\d{2}:\d{2})\.(\d+)/;
+// Memoised: a range check compares every value with the same few bounds,
+// and before 2026-11-23 each comparison re-read both sides from the string
+// (a value about seven times per match). Entries are frozen and read-only;
+// the map is emptied when it reaches EXACT_MAX, so memory stays bounded on a
+// model with millions of distinct values.
+const EXACT = new Map();
+const EXACT_MAX = 4096;
 function exactKey(s) {
+  if (typeof s !== "string") return null;
+  let x = EXACT.get(s);
+  if (x !== undefined) return x;
+  x = exactKeyUncached(s);
+  if (EXACT.size >= EXACT_MAX) EXACT.clear();
+  EXACT.set(s, x);
+  return x;
+}
+function exactKeyUncached(s) {
   const kind = temporalKind(s);
   if (!kind) return null;
-  if (kind !== "dateTime" && kind !== "time") return { kind, k: temporalKey(s), f: "" };
   const t = xmlTrim(s);
+  if (kind !== "dateTime" && kind !== "time") return Object.freeze({ kind, k: keyOf(t, kind), f: "" });
   const m = t.match(FRAC_RE);
   const frac = m ? m[2] : "";
-  if (/(^|T)24:/.test(t) && /[1-9]/.test(frac)) return { kind, k: NaN, f: "" };
-  const k = temporalKey(m ? t.replace(FRAC_RE, (_, hms, f) => `${hms}.${f.slice(0, 3)}`) : t);
-  return { kind, k, f: frac.slice(3).replace(/0+$/, "") };
+  if (/(^|T)24:/.test(t) && /[1-9]/.test(frac)) return Object.freeze({ kind, k: NaN, f: "" });
+  const k = keyOf(m ? t.replace(FRAC_RE, (_, hms, f) => `${hms}.${f.slice(0, 3)}`) : t, kind);
+  return Object.freeze({ kind, k, f: frac.slice(3).replace(/0+$/, "") });
 }
 export function temporalCompare(a, b) {
   const x = exactKey(a), y = exactKey(b);
