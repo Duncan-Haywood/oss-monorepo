@@ -271,8 +271,9 @@ def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
     return out
 
 
-def _noise_aware_plane(plane, pat, hi, plane_noise):
-    """The noise-aware blend of the white-balanced plane under ``plane_noise`` ((shot, read) on its scale), clipped."""
+def _noise_aware_plane(plane, pat, hi, plane_noise, ramp=None):
+    """The noise-aware blend of the white-balanced plane under ``plane_noise`` ((shot, read) on its scale), clipped.
+    ``ramp``: the colour ramp (q_low, q_high), None for the CFA's default."""
 
     from shootflow.xtrans_demosaic import noise_aware
 
@@ -293,7 +294,9 @@ def _noise_aware_plane(plane, pat, hi, plane_noise):
     b = np.empty((h, w, 3), dtype=np.float32)
     _bilinear(plane, w, h, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=b)
     # clipped in the blend's own pass (2026-11-19, eval/noise-aware-native-blend-2026-11-19.md)
-    out = noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise, out=b, clip_hi=hi)
+    q_low, q_high = ramp if ramp is not None else (None, None)
+    out = noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise, out=b, clip_hi=hi,
+                      q_low=q_low, q_high=q_high)
     del d
     return out
 
@@ -313,14 +316,17 @@ def _directional(norm, w, h, pat, mults, hi, demosaic="directional", noise=None,
         from shootflow.xtrans_demosaic import as_planes
 
         g = np.asarray(mults, dtype=np.float64)
-        if noise is None:
+        if noise is None or isinstance(noise, str):
             # No NoiseProfile (a raw read directly, or a DNG without one): the model is read from the
             # white-balanced plane itself (patch PCA), scaled down and guarded (``frame_noise``,
-            # eval/noise-aware-estimated-2026-11-17.md, eval/noise-pca-estimator-2026-11-17.md).
-            from shootflow.xtrans_demosaic import frame_noise
+            # eval/noise-aware-estimated-2026-11-17.md, eval/noise-pca-estimator-2026-11-17.md). A string names
+            # the read (``xtrans_demosaic.NOISE_READS``; ``"mpcws"`` since 2026-11-23, opt-in).
+            from shootflow.xtrans_demosaic import frame_noise_read
 
-            plane_noise = frame_noise(plane, pat)
-            return _noise_aware_plane(plane, pat, hi, plane_noise)
+            plane_noise, ramp, fell_back = frame_noise_read(plane, pat, noise or "ship")
+            if fell_back and notes is not None:
+                notes.append("--noise-read mpcws: the mpcws read collapsed on this frame, so the shipped read was used")
+            return _noise_aware_plane(plane, pat, hi, plane_noise, ramp)
         raw = as_planes(noise)  # (shot, read) per colour on the normalised scale: one pair, or the DNG's per plane
         if guard:
             # A profile far above the noise the mosaic shows is scaled down (eval/noise-profile-real-dngs-2026-11-16.md),

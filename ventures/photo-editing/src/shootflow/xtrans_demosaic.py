@@ -779,6 +779,37 @@ def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE,
     return float(used[0]), float(used[1])
 
 
+# ``--noise-read mpcws`` (opt-in, Bayer frames with no NoiseProfile; 2026-11-23, eval/hdrplus-joint-check-j4-2026-11-23.md):
+# the ``mpcws`` eigenvalue read with an earlier colour ramp (0.3, 1.0) and the shipped luma ramp, falling back to
+# exactly what ships (read and ramps) where the ``mpcws`` read's sigma at 18% grey is under ``MPCWS_COLLAPSE`` x the
+# shipped read's (a partial collapse of the read). It passed its four pre-registered tests on a fourth blind draw of
+# 111 HDR+ phone bursts (+0.08 dB colour, +0.12 dB luma over what ships, none 0.1 dB worse, no new loser to
+# directional). Every burst is a 10-bit Google phone, so it stays opt-in until a drawn-noise check on camera raws.
+NOISE_READS = ("ship", "mpcws")
+MPCWS_COLOUR_RAMP = (0.3, 1.0)
+MPCWS_COLLAPSE = 0.6
+
+
+def _sigma18(model) -> float:
+    return float(max(model[0] * 0.18 + model[1], 0.0) ** 0.5)
+
+
+def frame_noise_read(c, pat, read: str = "ship") -> tuple[tuple[float, float], tuple[float, float] | None, bool]:
+    """The frame noise read ``read`` names (``NOISE_READS``) for the noise-aware blend: ``(noise, colour ramp or
+    None for the CFA's default, fell back)``. ``"mpcws"`` applies on Bayer only; on X-Trans, and where the ``mpcws``
+    read collapses under ``MPCWS_COLLAPSE`` x the shipped read's sigma at 18% grey, it is exactly ``"ship"``."""
+
+    if read not in NOISE_READS:
+        raise ValueError(f"unknown noise read {read!r} ({', '.join(NOISE_READS)})")
+    ship = frame_noise(c, pat)
+    if read == "ship" or len(pat) != 4:
+        return ship, None, False
+    m = frame_noise(c, pat, eig="mpcws")
+    if _sigma18(m) < MPCWS_COLLAPSE * _sigma18(ship):
+        return ship, None, True
+    return m, MPCWS_COLOUR_RAMP, False
+
+
 _MEASURE_BAND = 10 * BLOCK  # rows per band of ``_block_detail`` and ``blend``: whole blocks, a few tens of MB
 
 

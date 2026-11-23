@@ -96,6 +96,26 @@ class JudgeTest(unittest.TestCase):
         self.assertFalse(j.collapsed({"ship": ship, "mpcws": (0.5e-4, 0.5e-6)}))
         self.assertFalse(j.collapsed({"ship": (0.0, 0.0), "mpcws": (0.0, 0.0)}))  # both zero: nothing to fall back to
 
+    def test_j4_line_is_higher(self):
+        import hdrplus_joint_check as j
+
+        ship = (1e-4, 1e-6)
+        # J3's two losers read about 0.45x and 0.55x the shipped sigma: under J4's 0.6 line, over J3's 0.25
+        half = {"ship": ship, "mpcws": (0.3e-4, 0.3e-6)}  # sigma ratio sqrt(0.3) ~ 0.55
+        self.assertFalse(j.collapsed(half))
+        self.assertTrue(j.collapsed(half, j.COLLAPSE_J4))
+        self.assertFalse(j.collapsed({"ship": ship, "mpcws": (0.4e-4, 0.4e-6)}, j.COLLAPSE_J4))  # ~0.63x
+
+    def test_j4_rows_are_judged(self):
+        import hdrplus_joint_check as j
+
+        rows = _rows()
+        for r in [r for r in rows if r["arm"] == "ship"]:
+            rows.append({**r, "arm": "j4", "collapsed": r["burst"] == "b2"})
+        out = j.judge_rows(rows)
+        self.assertIn("j4", out)
+        self.assertEqual(out["collapsed_j4"], ["b2"])
+
 
 if __name__ == "__main__":
     unittest.main()

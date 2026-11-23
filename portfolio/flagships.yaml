@@ -334,10 +334,10 @@ flagships:
       (eval/noise-pca-whitened-level-*); gain and over-read share a cause, so this
       set is spent (eval/noise-pca-mpcw1-*); the oracle loses on both
       (eval/hdrplus-demosaic-sweep-*); on own ramps the oracle's 14 losses go to 0;
-      mpcws on its ramps on 2 fresh draws (eval/hdrplus-joint-check-*): +0.08 dB, h4
-      fails (collapsed reads; luma ramp); colour ramp only + shipped luma 2026-11-22
-      (eval/hdrplus-joint-check-j3-*): +0.07/+0.10 dB, h4o fails on 2 part-collapsed
-      reads; next J4, collapse line 0.6, seed 20261125. More open items: NEXT.md.
+      mpcws, colour ramp (0.3, 1.0), 4 blind draws (eval/hdrplus-joint-check-*): J4
+      passed 2026-11-23, +0.08/+0.12 dB on 111, --noise-read mpcws opt-in; next a
+      drawn-noise check on camera raws, a slope-based collapse test (j4 note). More
+      open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

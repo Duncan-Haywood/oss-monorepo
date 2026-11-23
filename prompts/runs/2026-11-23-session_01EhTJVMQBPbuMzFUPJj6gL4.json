@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVMQBPbuMzFUPJj6gL4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T03:13:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: J4, the pre-registered fourth blind HDR+ draw of the mpcws noise read",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18354",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The first plain `route` call drew process for this scheduled ventures brief, because the scheduled prompt doesn't pass --task. Re-running with --task routed to ventures. Many earlier records report the same thing (measure, prompt.md friction)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-photo-editing-noise-read-fourth-draw-passes.md",
+    "ventures/photo-editing/eval/hdrplus-joint-check-j4-2026-11-23.md"
+  ],
+  "goal": "Land the photo-editing flagship's next item (J4) and ship its committed consequence.",
+  "notes": "J4 drew 240 bursts (seed 20261125, 873 excluded) and scored 111. Against ship: colour +0.079, luma +0.121, 0 bursts more than 0.1 dB worse, 0 new losers to D. h1, h2, h3 and h4o all pass. As the rule committed, `--noise-read mpcws` ships as an opt-in (Bayer, frame read only) and the default bytes are unchanged. Reading: the 0.6 line fell back on 3 frames where the shipped read over-read (2.2-6.6x the truth's slope), so the next collapse test should use mpcws's own shot slope. Verification: tests/test_demosaic_noise_aware.py, test_hdrplus_joint_check.py and test_raw_develop.py pass with numpy (58 passed); run_venture_tests.py photo-editing ok (1505 tests, 148.7 s); check_posts ok; validate.py ok; main_health green at the start (313/313).",
+  "corrections": [],
+  "redteam": null
+}

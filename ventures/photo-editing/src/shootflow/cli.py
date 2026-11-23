@@ -760,6 +760,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         warp_kernel=args.warp_kernel,
         demosaic=args.demosaic,
         noise_from_frame=getattr(args, "noise_from_frame", True),
+        noise_read=getattr(args, "noise_read", "ship"),
         lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
         lens_name=args.lens,
         lens_focal=args.lens_focal,
@@ -1354,6 +1355,16 @@ def _build_parser() -> argparse.ArgumentParser:
             "raws, many DNGs): read the sensor noise from the frame itself (patch PCA on low-texture patches). On "
             "by default since 2026-11-17: on held-out tests no Bayer or X-Trans tile lost over 0.1 dB of detail "
             "against directional. --no-noise-from-frame falls back to the directional demosaic instead."
+        ),
+    )
+    develop.add_argument(
+        "--noise-read",
+        choices=("ship", "mpcws"),
+        default="ship",
+        help=(
+            "With a noise model read from the frame (Bayer raws with no NoiseProfile): 'ship' (default) or 'mpcws', "
+            "an opt-in read with an earlier colour ramp that falls back to 'ship' where it collapses. On 111 real-noise "
+            "phone bursts it gained about 0.08 dB colour and 0.12 dB luma, none 0.1 dB worse; untested on camera raws."
         ),
     )
     develop.add_argument(
