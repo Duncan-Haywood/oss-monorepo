@@ -1,0 +1,111 @@
+# Milestone 29: homophily (network-correlated latent propensity, no contagion), family L
+grid 2800 points (750 H: mu [0.3, 0.4, 0.5, 0.6, 0.75] x kappa [2.0, 5.0, 20.0]; 1200 L: sigma [0.5, 1.0, 1.5, 2.0] x rho [0.5, 2.0, 8.0] x delta [0.0, -0.5]), S = 75, seeds (0, 1), 200 datasets per process; share bins ((0.0, 0.0), (1e-12, 0.39999999999900004), (0.4, 0.599999999999), (0.6, 1.0))
+grid simulated in 380 s
+
+## (a) real data, five families (leave one village out; paired Bayesian bootstrap)
+  identity X   : LOO I 0.1742, T 0.1837, R 0.1906, H 0.1930, L 0.1759; lowest I; in-sample Q I 0.0042, T 0.0034, R 0.0025, H 0.0028, L 0.0014
+      fits: I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25; H qN=0.05 qP=0.1 mu=0.75 kappa=2; L qN=0.075 qP=0.2 sigma=1.5 rho=8 delta=-0.5
+      I vs T: lower in 0.756 of draws; mean diff -0.0095 [-0.0419, +0.0254]; T better in 19/43
+      I vs R: lower in 0.873 of draws; mean diff -0.0164 [-0.0409, +0.0216]; R better in 13/43
+      I vs H: lower in 0.822 of draws; mean diff -0.0188 [-0.0590, +0.0284]; H better in 16/43
+      I vs L: lower in 0.570 of draws; mean diff -0.0017 [-0.0185, +0.0124]; L better in 19/43
+      L vs each: I 0.435 (+0.002); T 0.700 (-0.008); R 0.811 (-0.015); H 0.788 (-0.017)
+  identity XS0 : LOO I 0.2642, T 0.2783, R 0.2774, H 0.2703, L 0.2444; lowest L; in-sample Q I 0.0139, T 0.0178, R 0.0070, H 0.0061, L 0.0024
+      fits: I qN=0.050 qP=0.4; T qN=0.075 qP=0.1 theta=0.75; R qN=0.075 qP=0.6 gamma=0.15 delta=-0.50; H qN=0.05 qP=0.1 mu=0.75 kappa=2; L qN=0.075 qP=0.2 sigma=1.5 rho=8 delta=-0.5
+      L vs I: lower in 0.968 of draws; mean diff -0.0198 [-0.0402, +0.0018]; I better in 12/43
+      L vs T: lower in 0.969 of draws; mean diff -0.0338 [-0.0622, +0.0030]; T better in 11/43
+      L vs R: lower in 0.909 of draws; mean diff -0.0330 [-0.0763, +0.0239]; R better in 9/43
+      L vs H: lower in 0.825 of draws; mean diff -0.0259 [-0.0832, +0.0509]; H better in 14/43
+  sd-data  X   : LOO I 8.4223, T 8.2088, R 8.2865, H 9.2433, L 8.0309; lowest L; in-sample Q I 0.4282, T 0.2676, R 0.1474, H 0.2651, L 0.1161
+      fits: I qN=0.050 qP=0.2; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25; H qN=0.05 qP=0.1 mu=0.75 kappa=2; L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5
+      L vs I: lower in 0.871 of draws; mean diff -0.3913 [-1.0440, +0.2951]; I better in 20/43
+      L vs T: lower in 0.648 of draws; mean diff -0.1779 [-1.4174, +1.2872]; T better in 16/43
+      L vs R: lower in 0.729 of draws; mean diff -0.2556 [-1.1014, +0.8858]; R better in 16/43
+      L vs H: lower in 0.946 of draws; mean diff -1.2124 [-2.4616, +0.3676]; H better in 11/43
+  sd-data  XS0 : LOO I 13.3853, T 14.6091, R 13.8110, H 13.1319, L 11.8573; lowest L; in-sample Q I 1.2066, T 1.1042, R 0.4959, H 0.5593, L 0.2103
+      fits: I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.75; R qN=0.150 qP=0.3 gamma=0.15 delta=-0.50; H qN=0.075 qP=0.1 mu=0.75 kappa=5; L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5
+      L vs I: lower in 0.999 of draws; mean diff -1.5280 [-2.3814, -0.6464]; I better in 12/43
+      L vs T: lower in 1.000 of draws; mean diff -2.7518 [-4.4852, -1.1459]; T better in 12/43
+      L vs R: lower in 0.998 of draws; mean diff -1.9537 [-3.1264, -0.7321]; R better in 8/43
+      L vs H: lower in 0.957 of draws; mean diff -1.2746 [-2.6010, +0.2878]; H better in 13/43
+  sd-synth X   : LOO I 12.3715, T 13.0811, R 12.7960, H 13.4184, L 12.0315; lowest L; in-sample Q I 0.6453, T 0.3964, R 0.2234, H 0.3381, L 0.1579
+      fits: I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.075 qP=0.2 gamma=0.10 delta=-0.25; H qN=0.05 qP=0.1 mu=0.75 kappa=2; L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5
+      L vs I: lower in 0.797 of draws; mean diff -0.3400 [-1.1383, +0.5019]; I better in 19/43
+      L vs T: lower in 0.749 of draws; mean diff -1.0496 [-4.9682, +1.9912]; T better in 16/43
+      L vs R: lower in 0.825 of draws; mean diff -0.7645 [-2.2957, +1.4084]; R better in 17/43
+      L vs H: lower in 0.883 of draws; mean diff -1.3870 [-3.7743, +1.4440]; H better in 15/43
+  sd-synth XS0 : LOO I 17.7569, T 21.3893, R 19.0577, H 18.5493, L 16.2127; lowest L; in-sample Q I 1.4028, T 1.3152, R 0.5714, H 0.7058, L 0.2582
+      fits: I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.4 gamma=0.15 delta=-0.50; H qN=0.075 qP=0.1 mu=0.6 kappa=20; L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5
+      L vs I: lower in 0.993 of draws; mean diff -1.5442 [-2.7419, -0.2962]; I better in 12/43
+      L vs T: lower in 0.998 of draws; mean diff -5.1766 [-9.8077, -1.7843]; T better in 10/43
+      L vs R: lower in 0.988 of draws; mean diff -2.8449 [-4.7802, -0.4338]; R better in 10/43
+      L vs H: lower in 0.956 of draws; mean diff -2.3365 [-4.9592, +0.5130]; H better in 15/43
+
+## (b) H process: H qN=0.075 qP=0.1 mu=0.75 kappa=5 (real in-sample fit, sd-data XS0)
+
+## (b) L process: L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5 (real in-sample fit, sd-data XS0)
+  real, mean over villages: share 0 0.109; share (0,0.4) 0.190; share [0.4,0.6) 0.288; share [0.6,1] 0.291
+  process I: share 0 0.090 (0.079-0.101; real at or above 0.985); share (0,0.4) 0.227 (0.216-0.236; real at or above 0.000); share [0.4,0.6) 0.231 (0.200-0.259; real at or above 1.000); share [0.6,1] 0.206 (0.167-0.248; real at or above 1.000); non-leader take-up 0.195
+  process T: share 0 0.108 (0.096-0.119; real at or above 0.455); share (0,0.4) 0.202 (0.192-0.211; real at or above 0.015); share [0.4,0.6) 0.196 (0.167-0.227; real at or above 1.000); share [0.6,1] 0.431 (0.387-0.479; real at or above 0.000); non-leader take-up 0.196
+  process R: share 0 0.105 (0.091-0.120; real at or above 0.665); share (0,0.4) 0.221 (0.210-0.232; real at or above 0.000); share [0.4,0.6) 0.226 (0.204-0.252; real at or above 1.000); share [0.6,1] 0.162 (0.132-0.192; real at or above 1.000); non-leader take-up 0.197
+  process H: share 0 0.105 (0.093-0.119; real at or above 0.680); share (0,0.4) 0.208 (0.197-0.218; real at or above 0.005); share [0.4,0.6) 0.227 (0.200-0.252; real at or above 1.000); share [0.6,1] 0.309 (0.267-0.352; real at or above 0.245); non-leader take-up 0.195
+  process L: share 0 0.100 (0.087-0.114; real at or above 0.820); share (0,0.4) 0.208 (0.195-0.220; real at or above 0.010); share [0.4,0.6) 0.295 (0.264-0.325; real at or above 0.360); share [0.6,1] 0.279 (0.227-0.332; real at or above 0.675); non-leader take-up 0.200
+  real non-leader take-up (mean over villages) 0.187
+
+selection done in 572 s
+
+## (c) recovery, 4 families, identity weights, rule loo
+  X   : I 0.575  T 0.485  R 0.520  H 0.485  L nan   lowest of I/T/R/H 0.485   (I->0.57/0.12/0.24/0.07; T->0.09/0.48/0.01/0.41; R->0.20/0.14/0.52/0.14; H->0.15/0.34/0.02/0.48; L->0.69/0.07/0.17/0.08)
+  XS0 : I 0.695  T 0.810  R 0.805  H 0.755  L nan   lowest of I/T/R/H 0.695   (I->0.69/0.01/0.29/0.01; T->0.00/0.81/0.00/0.19; R->0.19/0.00/0.81/0.01; H->0.01/0.24/0.00/0.76; L->0.56/0.10/0.26/0.08)
+
+## (c) recovery, 4 families, identity weights, rule in-sample
+  X   : I 0.270  T 0.240  R 0.975  H 0.315  L nan   lowest of I/T/R/H 0.240   (I->0.27/0.01/0.70/0.02; T->0.07/0.24/0.35/0.34; R->0.00/0.00/0.97/0.03; H->0.01/0.12/0.56/0.32; L->0.01/0.09/0.64/0.28)
+  XS0 : I 0.625  T 0.955  R 1.000  H 0.875  L nan   lowest of I/T/R/H 0.625   (I->0.62/0.00/0.36/0.01; T->0.00/0.95/0.00/0.04; R->0.00/0.00/1.00/0.00; H->0.00/0.06/0.07/0.88; L->0.00/0.00/0.82/0.17)
+
+## (c) recovery, 4 families, sd-data weights, rule loo
+  X   : I 0.690  T 0.535  R 0.780  H 0.415  L nan   lowest of I/T/R/H 0.415   (I->0.69/0.04/0.26/0.01; T->0.09/0.54/0.02/0.35; R->0.10/0.07/0.78/0.05; H->0.13/0.41/0.04/0.41; L->0.56/0.07/0.33/0.05)
+  XS0 : I 0.815  T 0.830  R 0.895  H 0.770  L nan   lowest of I/T/R/H 0.770   (I->0.81/0.00/0.18/0.00; T->0.01/0.83/0.00/0.17; R->0.10/0.01/0.90/0.00; H->0.01/0.20/0.01/0.77; L->0.42/0.04/0.43/0.11)
+
+## (c) recovery, 4 families, sd-data weights, rule in-sample
+  X   : I 0.495  T 0.215  R 1.000  H 0.355  L nan   lowest of I/T/R/H 0.215   (I->0.49/0.00/0.47/0.03; T->0.09/0.21/0.33/0.37; R->0.00/0.00/1.00/0.00; H->0.04/0.10/0.51/0.35; L->0.01/0.03/0.81/0.15)
+  XS0 : I 0.700  T 0.875  R 1.000  H 0.875  L nan   lowest of I/T/R/H 0.700   (I->0.70/0.00/0.30/0.00; T->0.00/0.88/0.00/0.12; R->0.00/0.00/1.00/0.00; H->0.01/0.03/0.09/0.88; L->0.00/0.00/0.88/0.12)
+
+## (c) recovery, 4 families, sd-synth weights, rule loo
+  X   : I 0.825  T 0.570  R 0.865  H 0.480  L nan   lowest of I/T/R/H 0.480   (I->0.82/0.06/0.10/0.03; T->0.07/0.57/0.02/0.34; R->0.04/0.04/0.86/0.04; H->0.10/0.36/0.05/0.48; L->0.56/0.05/0.34/0.06)
+  XS0 : I 0.875  T 0.840  R 0.915  H 0.825  L nan   lowest of I/T/R/H 0.825   (I->0.88/0.01/0.11/0.01; T->0.00/0.84/0.00/0.16; R->0.06/0.01/0.92/0.02; H->0.01/0.17/0.01/0.82; L->0.52/0.04/0.38/0.07)
+
+## (c) recovery, 4 families, sd-synth weights, rule in-sample
+  X   : I 0.750  T 0.220  R 0.995  H 0.420  L nan   lowest of I/T/R/H 0.220   (I->0.75/0.00/0.19/0.06; T->0.14/0.22/0.27/0.37; R->0.00/0.00/0.99/0.01; H->0.07/0.08/0.43/0.42; L->0.01/0.01/0.84/0.14)
+  XS0 : I 0.835  T 0.885  R 1.000  H 0.930  L nan   lowest of I/T/R/H 0.835   (I->0.83/0.00/0.17/0.00; T->0.00/0.89/0.00/0.12; R->0.00/0.00/1.00/0.00; H->0.01/0.01/0.05/0.93; L->0.00/0.00/0.89/0.11)
+
+## (c) recovery, 5 families, identity weights, rule loo
+  X   : I 0.545  T 0.485  R 0.480  H 0.475  L 0.595   lowest of I/T/R/H 0.475   (I->0.55/0.12/0.18/0.06/0.10; T->0.09/0.48/0.01/0.41/0.01; R->0.12/0.12/0.48/0.14/0.15; H->0.13/0.33/0.02/0.47/0.04; L->0.18/0.06/0.10/0.07/0.59)
+  XS0 : I 0.520  T 0.810  R 0.695  H 0.755  L 0.715   lowest of I/T/R/H 0.520   (I->0.52/0.01/0.23/0.01/0.23; T->0.00/0.81/0.00/0.19/0.00; R->0.12/0.00/0.69/0.01/0.18; H->0.01/0.24/0.00/0.76/0.00; L->0.09/0.03/0.12/0.04/0.71)
+
+## (c) recovery, 5 families, identity weights, rule in-sample
+  X   : I 0.105  T 0.080  R 0.380  H 0.090  L 0.895   lowest of I/T/R/H 0.080   (I->0.10/0.01/0.23/0.00/0.67; T->0.04/0.08/0.12/0.07/0.68; R->0.00/0.00/0.38/0.00/0.62; H->0.00/0.04/0.20/0.09/0.68; L->0.00/0.01/0.08/0.02/0.90)
+  XS0 : I 0.540  T 0.955  R 0.825  H 0.755  L 0.905   lowest of I/T/R/H 0.540   (I->0.54/0.00/0.27/0.01/0.18; T->0.00/0.95/0.00/0.04/0.00; R->0.00/0.00/0.82/0.00/0.17; H->0.00/0.05/0.01/0.76/0.18; L->0.00/0.00/0.10/0.00/0.91)
+
+## (c) recovery, 5 families, sd-data weights, rule loo
+  X   : I 0.620  T 0.515  R 0.650  H 0.395  L 0.645   lowest of I/T/R/H 0.395   (I->0.62/0.03/0.20/0.01/0.15; T->0.07/0.52/0.02/0.34/0.05; R->0.03/0.06/0.65/0.04/0.23; H->0.10/0.40/0.03/0.40/0.08; L->0.12/0.06/0.15/0.03/0.65)
+  XS0 : I 0.650  T 0.830  R 0.765  H 0.760  L 0.755   lowest of I/T/R/H 0.650   (I->0.65/0.00/0.14/0.00/0.21; T->0.01/0.83/0.00/0.17/0.00; R->0.04/0.00/0.77/0.00/0.19; H->0.01/0.20/0.01/0.76/0.03; L->0.04/0.00/0.16/0.05/0.76)
+
+## (c) recovery, 5 families, sd-data weights, rule in-sample
+  X   : I 0.255  T 0.105  R 0.590  H 0.095  L 0.735   lowest of I/T/R/H 0.095   (I->0.26/0.00/0.17/0.00/0.57; T->0.03/0.10/0.12/0.10/0.65; R->0.00/0.00/0.59/0.00/0.41; H->0.01/0.04/0.24/0.10/0.62; L->0.00/0.00/0.24/0.03/0.73)
+  XS0 : I 0.565  T 0.875  R 0.915  H 0.795  L 0.915   lowest of I/T/R/H 0.565   (I->0.56/0.00/0.21/0.00/0.23; T->0.00/0.88/0.00/0.12/0.00; R->0.00/0.00/0.92/0.00/0.09; H->0.00/0.03/0.04/0.80/0.14; L->0.00/0.00/0.09/0.00/0.92)
+
+## (c) recovery, 5 families, sd-synth weights, rule loo
+  X   : I 0.660  T 0.540  R 0.750  H 0.450  L 0.655   lowest of I/T/R/H 0.450   (I->0.66/0.03/0.07/0.01/0.22; T->0.04/0.54/0.02/0.33/0.07; R->0.01/0.04/0.75/0.04/0.15; H->0.10/0.34/0.04/0.45/0.07; L->0.14/0.04/0.14/0.03/0.66)
+  XS0 : I 0.610  T 0.840  R 0.755  H 0.810  L 0.760   lowest of I/T/R/H 0.610   (I->0.61/0.01/0.07/0.01/0.32; T->0.00/0.84/0.00/0.16/0.00; R->0.03/0.01/0.76/0.00/0.21; H->0.01/0.17/0.00/0.81/0.02; L->0.07/0.01/0.12/0.04/0.76)
+
+## (c) recovery, 5 families, sd-synth weights, rule in-sample
+  X   : I 0.390  T 0.085  R 0.845  H 0.105  L 0.685   lowest of I/T/R/H 0.085   (I->0.39/0.00/0.08/0.00/0.53; T->0.03/0.09/0.14/0.09/0.66; R->0.00/0.00/0.84/0.00/0.15; H->0.02/0.03/0.18/0.10/0.67; L->0.00/0.00/0.30/0.01/0.69)
+  XS0 : I 0.600  T 0.885  R 0.890  H 0.860  L 0.910   lowest of I/T/R/H 0.600   (I->0.60/0.00/0.10/0.00/0.30; T->0.00/0.89/0.00/0.12/0.00; R->0.00/0.00/0.89/0.00/0.11; H->0.00/0.01/0.01/0.86/0.12; L->0.00/0.00/0.09/0.01/0.91)
+
+## hypotheses
+H105 (sanity: real sd-data XS0 LOO I/T/R/H = m28 13.39/14.61/13.81/13.13; 4-family recovery 0.815/0.830/0.895/0.770): [13.39, 14.61, 13.81, 13.13], [0.815, 0.83, 0.895, 0.77] -> held
+H106 (real [0.4,0.6) 0.288 in L band 0.264-0.325: True; real [0.6,1] 0.291 in 0.227-0.332: True) -> held
+H107 (real sd-data XS0: L lowest LOO, lower than each other in >= 0.95 of draws): min share 0.957 -> held
+H108 (L datasets recovered as L, 5 families, sd-data XS0 LOO, >= 0.80; refuted < 0.70): 0.755 -> inconclusive
+H109 (lowest I/T/R/H recovery falls by <= 0.10 when L is added): 0.770 -> 0.650 -> refuted
+runtime 572 s

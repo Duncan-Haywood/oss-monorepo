@@ -4,7 +4,7 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Latest step (milestone 28): a threshold that differs between households fits the real villages' top share bin but not the middle one, and the data still do not choose it decisively.** Each household draws its own adoption threshold from a Beta distribution; fitted to the 43 villages (mean 0.75, wide spread) it puts 30.9% take-up past an adopting share of 0.6 (real 29.1%, which the fixed threshold missed), but 22.7% between 0.4 and 0.6, below the real 28.8% in every synthetic dataset. It has the lowest held-out loss on the data's own scale (13.13 against 13.39 for simple contagion) yet beats simple contagion in only 0.653 of bootstrap draws, and it is recovered in 77% of its own synthetic datasets ([`experiments/m28_hetero/results.txt`](experiments/m28_hetero/results.txt), [`LOG.md`](LOG.md), 2026-11-23).
+through village leaders. **Latest step (milestone 29): homophily, with no influence of adopting neighbours on anyone's decision, fits the real villages' share profile that every contagion model missed, and predicts held-out villages best.** The rival keeps the information model's word of mouth but drops all adoption influence; instead, neighbours share part of a latent propensity to adopt. Fitted to the 43 villages it puts 29.5% take-up among households with 40 to 60% adopting neighbours (real 28.8%, which no contagion family reached: at most 25.2%) and 27.9% past 0.6 (real 29.1%). On the data's own scale its held-out loss is 11.86 against 13.13 to 14.61 for the four contagion families, lower than each in at least 0.957 of paired bootstrap draws. Its fit sits at two grid edges and it is recovered in 75.5% of its own synthetic datasets, so the claim is narrow: the cross-section's evidence for contagion is matched or beaten by homophily ([`experiments/m29_homophily/results.txt`](experiments/m29_homophily/results.txt), [`LOG.md`](LOG.md), 2026-11-23). Milestone 28 had found a threshold drawn per household fits the top share bin but not the middle one.
 
 **Milestone 27: the real villages' own cross-section, binned by the share of each household's neighbours who adopted, rules out the deterministic adoption threshold but shows a smooth rise no fitted model reproduces.** Take-up among non-leaders climbs from 10.9% with no adopting neighbours to 19.0%, 28.8% and 29.1% as the adopting share passes 0.4 and 0.6: steeper than simple contagion or reinforcement produce, with none of the threshold model's step (it predicts 38.7 to 47.9% past 0.6). In simulation the same four moments, with no awareness question, recover the information, threshold and reinforcement models in 81.5 / 99.5 / 89.5% of datasets on the data's own scale (69.0% lowest without them), and on the real data the information model now has the lowest held-out loss under all three weightings, ahead of the threshold in 0.96 of bootstrap draws and of reinforcement in only 0.835 ([`experiments/m27_share_real/results.txt`](experiments/m27_share_real/results.txt), [`LOG.md`](LOG.md), 2026-11-23).
 
@@ -1363,9 +1363,58 @@ inconclusive.
   processes are milestone 3's identity fits while H's is its own real fit; about &plusmn;3 points of Monte Carlo
   error on each recovery share.
 
+## Milestone 29: does homophily, with no contagion through adoption, explain the middle share bin? (`experiments/m29_homophily/`)
+
+Milestone 28 left one bin no contagion family reaches: households with 40 to 60% adopting neighbours
+adopt at 28.8% in the real villages and at most 25.2% in any synthetic dataset. Contagion through the
+share cannot lift it without lifting the top bin too. Homophily, where tied households are alike and
+adopt alike (McPherson, Smith-Lovin and Cook 2001), raises take-up with the share with nothing passing
+along ties, and observational network data cannot tell the two apart in general (Shalizi and Thomas
+2011). This step adds a fifth family, **L**: the information model (word of mouth at q<sub>N</sub>, q<sub>P</sub>, no
+effect of adopting neighbours on the decision) plus a latent propensity &sigma;&middot;z<sub>i</sub> in each household's
+logit, z = (e + &rho; W e) / norm with e iid normal per simulation and W the row-normalised adjacency
+(`complex.latent_field`, unit variance per household; larger &rho;, more shared between neighbours). Grid:
+1200 points (milestone 3's q<sub>N</sub> &times; q<sub>P</sub> &times; &sigma; 0.5 to 2 &times; &rho; 0.5, 2, 8 &times; intercept shift &delta; 0,
+&minus;0.5), added to milestone 28's 1600; the range was set by a disclosed nine-point pilot with no fitting.
+Milestone 28's harness reproduces it exactly. Plan and five hypotheses logged before the run: three
+held, one was refuted, one was inconclusive.
+
+| take-up among non-leaders by adopting share | 0 | (0, 0.4) | [0.4, 0.6) | [0.6, 1] |
+|---|---|---|---|---|
+| **real villages** (mean over villages) | **10.9%** | **19.0%** | **28.8%** | **29.1%** |
+| **homophily, no contagion** (&sigma; 1.5, &rho; 8, &delta; &minus;0.5, real fit) | 10.0% | 20.8% | **29.5% (26.4&ndash;32.5)** | **27.9% (22.7&ndash;33.2)** |
+| threshold per household (milestone 28) | 10.5% | 20.8% | 22.7% (20.0&ndash;25.2) | 30.9% (26.7&ndash;35.2) |
+| fixed threshold | 10.8% | 20.2% | 19.6% (16.7&ndash;22.7) | 43.1% (38.7&ndash;47.9) |
+| information model | 9.0% | 22.7% | 23.1% (20.0&ndash;25.9) | 20.6% (16.7&ndash;24.8) |
+
+| data's own scale, cross-section + share bins | I | T | R&delta; | H | L |
+|---|---|---|---|---|---|
+| real villages: held-out loss | 13.39 | 14.61 | 13.81 | 13.13 | **11.86** |
+| L beats it in (paired bootstrap) | 0.999 | 1.000 | 0.998 | 0.957 | &ndash; |
+| recovery, four families (milestone 28) | 81.5% | 83.0% | 89.5% | 77.0% | &ndash; |
+| recovery, five families | 65.0% | 83.0% | 76.5% | 76.0% | 75.5% |
+
+- **Homophily reaches the middle bin.** The fitted L process is the first in milestones 26 to 29 whose band
+  covers the real 28.8% (and the real top bin as well). Neighbours who share a propensity adopt together at
+  any share, so the profile flattens past 0.4 the way the real one does.
+- **The real villages prefer it.** On the data's own scale L predicts held-out villages best (11.86) and beats
+  every contagion family in at least 0.957 of paired draws (simple contagion 0.999, 95% interval of the
+  difference &minus;2.38 to &minus;0.65; the per-household threshold 0.957). It is also lowest under the synthetic
+  scale and with identity weights on the share design; only identity weights on the cross-section alone
+  keep simple contagion lowest (0.570).
+- **It is hard to tell from contagion.** L is recovered in 75.5% of its own datasets; scored against the four
+  contagion families only, its datasets are read as simple contagion (42%) or reinforcement (43%). Adding it
+  lowers the others' lowest recovery from 77.0% to 65.0% (simple-contagion datasets called L 21% of the time).
+- **What this does not say.** L keeps word of mouth (q<sub>P</sub> 0.2 &gt; q<sub>N</sub> 0.1), so information still spreads; it
+  shows that the cross-section's evidence for *adoption influence* is matched or beaten by a propensity
+  neighbours share, not that the villages have none. The fit sits at &rho; = 8 and &delta; = &minus;0.5, two grid
+  edges; L has 24 shape points to H's 15; &beta; is the leader logit, not refitted with the latent term; one
+  Gaussian homophily form on a fixed network; about &plusmn;3 points of Monte Carlo error on each recovery
+  share. Randomised seeding (Beaman et al. 2021; Kim et al. 2015) is the design that separates the two.
+
 ## Next steps
 
-Milestone 28 finds a threshold drawn per household fits the real top share bin but not the middle one (28.8% real, at most 25.2% in any family's datasets) and wins on held-out villages only weakly (0.653 against simple contagion). Next: a homophily process (adoption correlated along ties through a shared latent covariate, no contagion through adoption) as the rival explanation of the middle bin; the H grid past &mu; = 0.75; the paper's identification section with milestones 24 to 28. Earlier: Milestone 27 finds the real villages' take-up rising smoothly with the share of adopting neighbours (10.9 to 29.1%), with no threshold step and steeper than simple contagion. Next: a heterogeneous threshold (per-household &theta; from a Beta distribution) as a fourth family fitted with the share moments; a homophily process as the rival explanation of the smooth gradient; the paper's identification section with milestones 24 to 27. Earlier: Milestone 26 finds take-up among the aware binned by the *share* of adopting neighbours identifies all three models (96.5% or more, data's own scale, 43 villages; 85.5% at 20), against a deterministic threshold. Next: a noisy, per-household threshold as a fourth process, to see how fast that power fades; the share moments without awareness, which the real data contain, as a real-data check. Earlier: Milestone 25 finds the real villages' preferred model changes with the weighting (information, threshold, reinforcement, information under four weightings, none decisive) and that a scale taken from the data recovers less than milestone 24's synthetic one. Next: a village random effect in the processes (milestone 3b) so synthetic villages vary as much as the real ones; awareness under the data's own scale; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
+Milestone 29 finds homophily with no adoption influence fits the real share profile, the middle bin included, and beats every contagion family on held-out villages (0.957 or more of draws), with its fit at two grid edges and 75.5% recovery. Next: extend L past &rho; = 8 and &delta; = &minus;0.5 (and H past &mu; = 0.75); a mixed family, homophily plus reinforcement, to ask whether any adoption influence remains once homophily is in; re-score the seeding advice of milestones 4 to 10 under the L process, where a seed's neighbours adopt partly for their own reasons; the paper's identification section with milestones 24 to 29. Earlier: Milestone 28 finds a threshold drawn per household fits the real top share bin but not the middle one (28.8% real, at most 25.2% in any family's datasets) and wins on held-out villages only weakly (0.653 against simple contagion). Next: a homophily process (adoption correlated along ties through a shared latent covariate, no contagion through adoption) as the rival explanation of the middle bin; the H grid past &mu; = 0.75; the paper's identification section with milestones 24 to 28. Earlier: Milestone 27 finds the real villages' take-up rising smoothly with the share of adopting neighbours (10.9 to 29.1%), with no threshold step and steeper than simple contagion. Next: a heterogeneous threshold (per-household &theta; from a Beta distribution) as a fourth family fitted with the share moments; a homophily process as the rival explanation of the smooth gradient; the paper's identification section with milestones 24 to 27. Earlier: Milestone 26 finds take-up among the aware binned by the *share* of adopting neighbours identifies all three models (96.5% or more, data's own scale, 43 villages; 85.5% at 20), against a deterministic threshold. Next: a noisy, per-household threshold as a fourth process, to see how fast that power fades; the share moments without awareness, which the real data contain, as a real-data check. Earlier: Milestone 25 finds the real villages' preferred model changes with the weighting (information, threshold, reinforcement, information under four weightings, none decisive) and that a scale taken from the data recovers less than milestone 24's synthetic one. Next: a village random effect in the processes (milestone 3b) so synthetic villages vary as much as the real ones; awareness under the data's own scale; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
 11 adopters per unit &kappa;) and that the costly swaps crowd seeds together rather than pick weaker
 ones. Next: which refitted processes set the worst case between &kappa; = 0.1 and 0.25 (the harness's
 per-draw arg-max family and its parameters) and whether coverage loss predicts regret there; the
@@ -1389,6 +1438,7 @@ to 23 as its seeding section.
 - Granovetter, M. (1978). Threshold models of collective behavior. *American Journal of Sociology* 83, 1420–1443. doi:10.1086/226707
 - Kempe, D., Kleinberg, J., Tardos, É. (2003). Maximizing the spread of influence through a social network. *Proc. KDD 2003*, 137–146. doi:10.1145/956750.956769
 - Kim, D. A., Hwong, A. R., Stafford, D., Hughes, D. A., O'Malley, A. J., Fowler, J. H., Christakis, N. A. (2015). Social network targeting to maximise population behaviour change: a cluster randomised controlled trial. *The Lancet* 386, 145–153. doi:10.1016/S0140-6736(15)60095-2
+- McPherson, M., Smith-Lovin, L., Cook, J. M. (2001). Birds of a feather: homophily in social networks. *Annual Review of Sociology* 27, 415–444. doi:10.1146/annurev.soc.27.1.415
 - Newman, M. E. J. (2018). Network structure from rich but noisy data. *Nature Physics* 14, 542–545. doi:10.1038/s41567-018-0076-1
 - Shalizi, C. R., Thomas, A. C. (2011). Homophily and contagion are generically confounded in observational social network studies. *Sociological Methods & Research* 40, 211–239. doi:10.1177/0049124111404820
 - Watts, D. J. (2002). A simple model of global cascades on random networks. *Proceedings of the National Academy of Sciences* 99, 5766–5771. doi:10.1073/pnas.082090499
