@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKn9DKFbiLdpAMuYw3b",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T09:19:09Z",
+  "ended": "2026-11-23T09:48:18Z",
+  "wall_minutes": 29.31,
+  "tokens_in": 6054807,
+  "tokens_out": 44112,
+  "cost_usd": 3.1833,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18398",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Drift parameters for wrist F/T sensors remain unsourceable from this box: arxiv.org, assets.robotiq.com and forum.universal-robots.com do not resolve via WebFetch, and curl to vendor hosts returns 000; a fourth milestone in a row sweeps the drift."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "--until with a dummy log path ('x') prints 'x does not exist' on success; the --until-only form wants a path argument it does not use."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md",
+      "why": "Added a post-hoc eps scan (scan.py, not registered) after H291's G1 result came out equal to BONF, to tell a calibration bug from a real cliff.",
+      "did": "Scanned 14 uniform eps values for G1 LAYOUT and BANDS under RW at D1 0.1 N, reported as unregistered.",
+      "result": "Showed a sheet-period cliff (0% failure at 99 re-zeros, 11% at 66), which the result reports as the reason H291 is refuted on the G1."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-sheathing-robot-force-sensor-random-walk-drift.md",
+    "research/buildbot-sheathing/LOG.md (milestone 73 planned and result)"
+  ],
+  "goal": null,
+  "notes": "Milestone 73 of buildbot-sheathing: random-walk drift re-zero scheduling. New drift.py (8 tests), m73_randomwalk experiment (~30 min on 4 processes). Local checks: pytest test_drift/test_rezero/test_reproduce 20 passed; paper/check_numbers.py 495 of 495; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; programme_check ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "02841db6-5845-587d-be23-cfc5ba65d46f",
+    "transcripts": 1,
+    "first": "2026-11-23T09:19:09Z",
+    "last": "2026-11-23T09:48:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 97,
+        "output": 44112,
+        "thinking": 13077,
+        "cache_read": 5914996,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139714,
+        "api_equivalent_usd": 3.1833,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 97,
+      "output": 44112,
+      "thinking": 13077,
+      "cache_read": 5914996,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139714,
+      "api_equivalent_usd": 3.1833,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 45,
+      "Write": 4,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.31,
+      "active_minutes": 29.31,
+      "model_minutes": 7.61,
+      "tool_minutes": 21.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a robotics researcher deriving the chance-constrained deadline, writing and running the Monte Carlo wall simulation, and writing up the results",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 502.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
