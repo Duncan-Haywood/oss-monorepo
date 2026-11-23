@@ -42,7 +42,8 @@ many it moved. `--dry-run` previews that without writing, `--park ITEM` picks
 the item yourself, `--history TEXT` moves a finished result you name (any
 span, dated or not) to HISTORY.md in the same call, `--no-make-room` refuses
 instead, and `--make-room` or `--trim` parks down to 1,700 for headroom. A
-refusal lists the row's result-like items as ready `--history` flags. Above the table, a "Website requests" line says which
+refusal lists the row's result-like items as ready `--history` flags.
+`--field buildable --history TEXT` does the same move for `buildable:` (600 cap). Above the table, a "Website requests" line says which
 open entries in `portfolio/requests/requests.json` are flagship rows, so a
 run need not reconcile prompt.md's request-first order with the pick by hand.
 
