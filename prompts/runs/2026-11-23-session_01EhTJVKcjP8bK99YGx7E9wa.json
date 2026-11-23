@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKcjP8bK99YGx7E9wa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine brief)",
+  "input_sha256": "861af999858dc1db2644e4a7400e3e9764d3f90e4f190971517330834e3d0f42",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T09:07:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4) changepoint-detector: Mixpanel as a watch source",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18396",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "developer.mixpanel.com and docs.mixpanel.com do not resolve from this session (network policy); raw GitHub paths for Mixpanel's OpenAPI 404",
+      "fix": "confirmed hosts and auth from Mixpanel's own Python client (mixpanel-utils on PyPI); the answer shape is from recalled documentation and the README says so"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here row named changepoint-detector while a sibling session opened a PR on the same flagship one minute earlier (Umami source); both edit the same workflow files, so the second merge will conflict. Two source PRs on one venture at once is a predictable collision the allocator could flag."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-mixpanel-unique-users-fall-less-than-page-views.md",
+    "ventures/changepoint-detector/README.md (Mixpanel as a source)"
+  ],
+  "goal": "A seventh data source for the self-deployed metric watch, so Mixpanel users can get change alerts with no CSV",
+  "notes": "Round 1 found the first event's unique users miss a dropped snippet 0/40 under the count default (uniques fall 15-22% when views halve). Round 2 pre-registered in eval/mixpanel-columns.mjs, fresh seeds: middle setting passes U1-U3 (users 38-40/40, false 1/0 vs default 5/0); --period 7 fails U3 (19/16 false). Shipped middle as the Mixpanel workflow default. Local checks: mixpanel-metrics, watch-workflow, watch-repo, watch-page, posthog-metrics tests all pass (30 then 24 after the default change); check_posts ok; validate.py ok; venture tests and preflight results in the PR. run_venture_tests.py changepoint-detector: ok, 1136 tests (363 s). venture-preflight.mjs changepoint-detector: clean.",
+  "corrections": [],
+  "redteam": null
+}
