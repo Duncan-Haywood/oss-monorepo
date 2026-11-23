@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKcjP8bK99YGx7E9wa",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T13:08:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Scheduled ventures brief; allocator row 2 changepoint-detector: add Matomo as a watch source",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18422",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Plain `route` drew process for the scheduled ventures brief again, because the scheduled prompt doesn't pass --task; re-ran with --task as prompt.md says. Same report as many earlier records."
+    },
+    {
+      "file": "ventures/changepoint-detector/watch-repo.test.mjs",
+      "issue": "The workflow link's 16,000-character budget broke again with a ninth source (17,600). Trimming comments alone was not enough; factoring the per-source selection (one cols() helper, one default variable) brought it to 15,522 and leaves room for about two more sources."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--history with a span plus --replace made the cap check park an unrelated 264-character item by itself (--make-room default); the history span did not land in HISTORY.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "The first route call drew process, but the brief asks for revenue product work; re-routed with --task as prompt.md says.",
+      "did": "Followed ventures/2 and the allocator's flagship row.",
+      "result": "A shipped product integration instead of process work."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-matomo-visits-hide-lost-tracking.md"
+  ],
+  "goal": "Deepen flagship changepoint-detector: one more first-party analytics source in the self-deploy watch",
+  "notes": "Matomo source (matomo-metrics.mjs + 6 tests against a Reporting-API stand-in) wired into the workflow, make-watch-repo.sh, the no-terminal set-up, the watch page and llms.txt. Pre-registered eval (eval/matomo-columns.mjs, header committed in 52601e061 before the run): count default heard the visits fall 0-2/40; middle setting 35-40/40, page views/goal not worse, false dates 2/3 vs 5/1, so the middle setting ships as the Matomo default. Workflow source-selection factored to keep the create-workflow link under 16,000 chars (17,600 -> 15,522). Local checks: matomo/umami/mixpanel/watch-workflow/watch-repo/watch-page/page tests; full venture suite via run_venture_tests.py: ok, 1148 tests, 338 s. Not checked: no live Matomo server. Open item filed: Umami visitors likely falls less than page views too.",
+  "corrections": [],
+  "redteam": null
+}
