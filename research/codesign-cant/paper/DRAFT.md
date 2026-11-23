@@ -313,7 +313,7 @@ counter-torque to the gust, which the attitude integrator already estimates. The
 feed-forward subtracts lat·k_i·∫e·τ_max/m from the horizontal acceleration the tilt must produce,
 with no new sensor (milestone 7b). Retrained with it, the centre-of-pressure-above designs never
 diverge at the trained lever. Bolted onto an existing tune without retraining, the same term
-diverges on 84 of 384 held-out flights even with no gust torque.
+diverges on 138 of 640 held-out flights even with no gust torque (ten seeds; `m12g_ten_seeds_7c7d/stats.txt`).
 
 **A linear certificate.** Around hover the simulator's update of one horizontal axis is linear in
 11 states: position, velocity and position integrator; tilt and rate with their one-step-old copies
@@ -325,28 +325,31 @@ the *ki ceiling* as the largest multiple of its attitude integral gain for which
 radius stays below 1 at all eight corners of the randomised plant box (torque scale × mass ×
 lag). Checking only the corners is a sampled test: for a multi-parameter family, stable vertices
 do not guarantee a stable interior [bartlett1988]. In our data no flight the model called stable
-at its own drawn plant diverged at the design wind: 0 of 2,688 for the integrator feed-forward
-designs (`m7c_stab/results.txt`).
+at its own drawn plant diverged at the design wind: 0 of 4,478 for the integrator feed-forward
+designs over ten seeds (`m12g_ten_seeds_7c7d/stats.txt`; six seeds: 0 of 2,688).
 
-**The test is necessary, not sufficient, and the optimiser lives on its boundary.** Over the 48
-design-conditions of milestone 7b, the linear model calls 384 held-out flights unstable; 84
-diverge and 300 do not (accuracy 0.902, sensitivity 1.000; `m7c_stab/results.txt`). CMA-ES, left
-alone, puts the integral gain at 1.04, 1.00, 1.01, 1.05, 1.11 and 0.88 times its ceiling in the six
-seeds (`m7c_stab/results.txt`): on the boundary, with no margin against the plant set. The
-bolted-on designs are stable only up to 0.29–0.44 of their own integral gain, so they sit 2.3–3.4×
-past the ceiling, with growth rates of 3.91–7.41 per second at the worst held-out plant.
+**The test is necessary, not sufficient, and the optimiser lives on its boundary.** Over the 80
+design-conditions of milestone 7b at ten seeds, the linear model calls 642 held-out flights unstable; 140
+diverge and 502 do not, and every one of the 502 is a bolted-on design (accuracy 0.902, sensitivity
+1.000; `m12g_ten_seeds_7c7d/stats.txt`; seeds 6–9 alone give 0.901 and 1.000). CMA-ES, left alone, puts
+the integral gain at 0.85–1.11 times its ceiling in the ten seeds: on the boundary, with no margin
+against the plant set. Two of the ten (0.854× and 0.873×) are past it at one held-out plant each, and
+at lever 0 and the trained 20° limit each of them diverges on exactly that flight and no other. The bolted-on designs are stable only up to
+0.29–0.44 of their own integral gain, so they sit 2.3–3.4× past the ceiling, with growth rates of
+3.91–7.41 per second at the worst held-out plant.
 
 **What holds the false alarms: the tilt-command limit.** Designs rescaled to 1.25× their ceiling are
-unstable by the model on 367 of 384 held-out flights and diverge on none. Two explanations were
-committed and tested (milestone 7d): the attitude integrator's clip, and the 6 s episode being
-shorter than a slow instability (growth 0.50–0.66 per s) needs. Both were refuted. The integrator
-never reaches its clip (median share of steps 0.000 in every set), removing it changes no
-divergence count, and 18 s flights diverge no more than 6 s ones. The saturation that is active is
-the 20° tilt command (on 13–24% of these designs' steps; `m7d_clip/results.txt`). Widening it
-releases the instability: at 45°, 166 of 384 six-second flights and 318 of 384 eighteen-second
-flights diverge, approaching the 367 the linear model calls unstable (`m7d_clip/diag.txt`). Under the 20°
-cap the same designs hold position (median RMS 0.110 m) while oscillating against the limit
-(roll/pitch tracking error 8.73° RMS against 3.63° for designs at 0.8× the ceiling).
+unstable by the model on 595 of 640 held-out flights and diverge on none, at 6 s or 18 s. Two explanations were
+committed and tested (milestone 7d, repeated at ten seeds in milestone 12g): the attitude integrator's clip, and the 6 s episode being
+shorter than a slow instability (growth 0.49–0.73 per s) needs. Both were refuted. The integrator
+never reaches its clip (median share of steps 0.000 in every set), removing it changes the bolted-on
+count by at most one flight, and 18 s flights diverge no more than 6 s ones. The saturation that is active is
+the 20° tilt command (on 13–23% of these designs' steps). Widening it
+releases the instability: at 45°, 317 of 640 six-second flights and 535 of 640 eighteen-second
+flights diverge, 524 of them among the 595 the linear model calls unstable (88%, bootstrap 82–93%; `m12g_ten_seeds_7c7d/stats.txt`). Under the 20°
+cap the same designs hold position (median RMS 0.113 m) while oscillating against the limit
+(roll/pitch tracking error 8.90° RMS against 3.59° for designs at 0.8× the ceiling, which diverge on
+0 of 640 at every limit from 20° to 59°; Fig. VI-b).
 
 This matters for deployment because 20° is not a typical setting. PX4's maximum tilt in velocity
 and acceleration modes, `MPC_TILTMAX_AIR`, defaults to 45° with a floor of 20° [px4tilt], and
@@ -404,7 +407,7 @@ little below, and score the tune at the tilt limit the vehicle will fly, not at 
 
 **Figure plan.** VI-a: k_i/k_p against the linear ceiling for bolted-on, retrained and rescaled
 designs (`m7c_stab.png`). VI-b: diverged share against tilt-command limit, 6 s and 18 s
-(`m7d_clip.png`). VI-c: the margin sweep, cost and divergence against bound (`m7f_sweep.png`). VI-d: lever-2
+(`m12g_tilt.png`, ten seeds). VI-c: the margin sweep, cost and divergence against bound (`m7f_sweep.png`). VI-d: lever-2
 divergences under one probe at a time, ten seeds per set, with bootstrap intervals (`m12f_authority.png`).
 Each is regenerated by the `figure.py` beside its results file.
 
@@ -613,7 +616,7 @@ randomisation range was swept, and its ceilings are brackets, not sourced values
 
 **Seeds and tests.** Milestones 1, 2 and 4 use ten seeds, with exact Wilcoxon tests and bootstrap intervals in
 sections IV and V (`m12_ten_seeds`), and so does section VI's Table VI-1 (`m12b_ten_seeds_vi`), whose ten seeds
-showed two unconstrained tunes diverging at their trained tilt limit that six had not. Milestones 7c, 7d and 7s–7ac use six per arm (7g's probes have ten since 2026-11-22, `m12f_ten_seeds_7g`), below the proposal's ten for paper figures;
+showed two unconstrained tunes diverging at their trained tilt limit that six had not. Milestones 7s–7ac use six per arm (7g's probes have ten since 2026-11-22, `m12f_ten_seeds_7g`, and 7c–7d since 2026-11-23, `m12g_ten_seeds_7c7d`), below the proposal's ten for paper figures;
 section VII pools the two centre-of-pressure geometries to reach twelve, and its 125 and 150 ms rows have ten per
 geometry (`m12c_ten_seeds_vii`), which separated a pair six seeds had not (p = 0.10 to 0.004). The five-seed reading of milestone 2
 overstated cant's gain from the shared polytope (6.08° against 4.98° at ten seeds), a reminder that the six-seed
@@ -646,7 +649,7 @@ it flies. The hardware check is next.
 
 ## Still to do before submission
 
-- Ten seeds for the rest of section VII (100, 125, 150 and 200 ms have ten per geometry since 2026-11-22; 100→125 and 125→150 ms are separated at the identified lags, 150→200 ms is not, p = 0.08; 78.2 ms and the floor rows remain) and for milestones 7c and 7d of section VI (7g has ten since 2026-11-22) (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
+- Ten seeds for the rest of section VII (100, 125, 150 and 200 ms have ten per geometry since 2026-11-22; 100→125 and 125→150 ms are separated at the identified lags, 150→200 ms is not, p = 0.08; 78.2 ms and the floor rows remain) (section VI's 7c, 7d and 7g have ten since 2026-11-22/23) (milestones 1, 2, 4 and 5 have ten since 2026-11-21, and Table VI-1 since 2026-11-22, with Wilcoxon tests and bootstrap intervals).
 - Section VI: a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
   set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier.
