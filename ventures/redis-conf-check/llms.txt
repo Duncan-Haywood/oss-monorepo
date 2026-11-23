@@ -1,0 +1,19 @@
+# Will Redis start, and who can get in without a password? redis.conf Check
+
+> Paste redis.conf and the files its include lines pull in (plain paths and wildcards): the tool reads them the way Redis 7.0 does and shows whether Redis starts, with Redis's own error and the real file and line (Redis's message gives a line number but not the file when the error is in an include), which line set each value (the last line read wins; an include counts where its line stands), and who can connect without a password from another machine, from 127.0.0.1 and over the unix socket after protected mode, requirepass, user default lines and rename-command. It flags a # after a value (not a comment: Redis refuses to start), included files without a final newline (Redis joins the lines), wildcard includes that match nothing, relative include paths (read from the working directory, which dir moves), no listener, bind addresses the machine lacks, tls-port without certificates, an aclfile beside user lines, a user default line that silently replaces requirepass, nopass on the default user, short or cleartext passwords, enable-protected-configs, enable-debug-command and enable-module-command (CONFIG SET dir, DEBUG, MODULE LOAD), a plaintext port beside TLS, a world-writable socket, every interface bound, rename-command instead of ACL rules, and maxmemory 2g meaning 2,000,000,000 bytes. Each finding has its file, line and fix; passwords are masked. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). A static read of the files you give it, not a security audit and not a connection test; a clean result is not proof a server is safe. The reading follows Redis 7.0.15's config.c, sds.c and acl.c, and agrees with a real redis-server 7.0.15 on 800 generated files: whether each started and with which error and line, CONFIG GET for every setting, and what unauthenticated clients got. Not affiliated with Redis Ltd.
+
+## Pages
+
+- [The tool](https://marisstella.app/redis-conf-check/)
+- [redis.conf mistakes explained: inline comments, includes, last line wins, protected mode and the default user](https://marisstella.app/redis-conf-check/redis-conf-mistakes-explained.html)
+
+## CLI
+
+- `sudo node check.mjs /etc/redis/redis.conf` reads redis.conf and everything it includes and prints whether Redis starts, who can connect without a password and file:line findings; `--host-addrs` checks bind against the machine's addresses; `--cwd DIR` sets the directory redis-server starts in; `--get NAME` prints a value and the line that set it; `--no-defrag` for Debian/Ubuntu packages; `--format json`; `--fail-on-risk` (exit 2 on an error, high or medium). Node 18+, no dependencies.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/redis-conf-check): MIT licensed.
+- [Parity run against real redis-server 7.0.15](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/redis-conf-check/parity): generator, runner and recorded output.

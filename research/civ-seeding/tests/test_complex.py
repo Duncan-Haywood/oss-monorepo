@@ -113,3 +113,34 @@ def test_heterogeneous_threshold_adopters_are_informed(setup):
     Y, I = cx.simulate(v, beta, 0.05, 0.3, 60, np.random.default_rng(7), return_informed=True,
                        theta_beta=(0.4, 2.0))
     assert (Y <= I).all()
+
+
+def test_latent_field_unit_variance_and_neighbour_correlation(setup):
+    # milestone 29: per-household variance sigma^2; neighbours correlated for rho > 0
+    V, _ = setup
+    v = V[1]
+    z = cx.latent_field(v, 2.0, 2.0, 4000, np.random.default_rng(8))
+    assert abs(z.var(1).mean() - 4.0) < 0.15
+    i, j = np.argwhere(np.triu(v.A) > 0).T
+    zn = z / z.std(1, keepdims=True)
+    c = (zn[i] * zn[j]).mean(1).mean()
+    z0 = cx.latent_field(v, 2.0, 0.0, 4000, np.random.default_rng(8))
+    zn0 = z0 / z0.std(1, keepdims=True)
+    assert c > 0.2 and abs((zn0[i] * zn0[j]).mean(1).mean()) < 0.02
+
+
+def test_latent_sigma_zero_is_information_model(setup):
+    V, beta = setup
+    v = V[0]
+    # the field's draws shift the spread stream, so compare take-up, not draws
+    a = cx.simulate(v, beta, 0.05, 0.3, 2000, np.random.default_rng(9))
+    b = cx.simulate(v, beta, 0.05, 0.3, 2000, np.random.default_rng(10), latent=(0.0, 2.0))
+    assert abs(a.mean() - b.mean()) < 0.01
+
+
+def test_latent_homophily_adopters_are_informed(setup):
+    V, beta = setup
+    v = V[0]
+    Y, I = cx.simulate(v, beta, 0.05, 0.3, 60, np.random.default_rng(7), return_informed=True,
+                       latent=(2.0, 2.0))
+    assert (Y <= I).all()

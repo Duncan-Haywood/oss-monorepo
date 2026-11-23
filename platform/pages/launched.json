@@ -960,6 +960,7 @@
     "recompete-radar": "2026-10-16",
     "redirect-chain-check": "2026-09-11",
     "redirect-map-check": "2026-10-05",
+    "redis-conf-check": "2026-11-23",
     "referral-keeper": "2026-10-15",
     "referrer-permissions-policy-check": "2026-09-25",
     "regex-redos-check": "2026-10-01",
