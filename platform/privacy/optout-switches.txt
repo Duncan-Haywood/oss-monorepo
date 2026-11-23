@@ -841,6 +841,7 @@ ventures/payroll-hours-csv-check/usage.mjs
 ventures/payroll-register-to-journal/usage.mjs
 ventures/payroll-tax-deposit-penalty-calculator/usage.mjs
 ventures/pdf-accessibility-tag-check/usage.mjs
+ventures/pdf-plan-takeoff/usage.mjs
 ventures/pension-lump-sum-vs-annuity-calculator/usage.mjs
 ventures/percentage-rent-audit-checker/usage.mjs
 ventures/pergola-bid-calculator/usage.mjs
