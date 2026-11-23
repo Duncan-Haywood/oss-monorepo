@@ -61,3 +61,9 @@ test('benchmark figures on the page match the committed held-out run', async () 
   assert.match(html, /95\.8%/); assert.match(html, /25 words/); assert.match(html, /2,496/);
 });
 
+
+test('index links its siblings Subtitle Resync and Caption Quality Checker', async () => {
+  const html = await read('index.html');
+  assert.match(html, /href="\.\.\/subtitle-resync\/"/);
+  assert.match(html, /href="\.\.\/caption-quality-check\/"/);
+});
