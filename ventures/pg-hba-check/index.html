@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23175e7a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>pg_hba.conf Check — Which Line Wins, Rules That Never Match, Trust and Cleartext Passwords</title>
+  <meta name="description" content="Paste pg_hba.conf and its includes: see which line PostgreSQL really uses (the first match), rules that never fire, lines that stop the file loading, trust over TCP, passwords without TLS, md5, unanchored regexes. Free, in your browser.">
+  <meta property="og:title" content="Who can really connect to your PostgreSQL?">
+  <meta property="og:description" content="Paste pg_hba.conf and its includes, read the way PostgreSQL 16 reads them: the line that decides each connection, rules that never match, and lines that let people in too easily. Nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "pg_hba.conf Check", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A static read of PostgreSQL's pg_hba.conf and the files its include, include_dir, include_if_exists and @file references pull in, the way PostgreSQL 16 reads them: lines that make PostgreSQL refuse the whole file, rules that can never match because an earlier line always wins, trust over TCP, cleartext passwords without TLS, ident over TCP, md5, unanchored regexes, quoted keywords and IPv4 shorthand, plus which line decides a given connection. Runs in the browser or as a zero-dependency Node CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which pg_hba.conf line does PostgreSQL use?", "acceptedAnswer": {"@type": "Answer", "text": "The first one, reading from the top (with included files read where their include line stands), whose connection type, address, database and user all match. It does not look for the most specific line and it does not try the next line if authentication fails. So a reject line for one user placed under a line that allows all users never fires."}}, {"@type": "Question", "name": "Why did my pg_hba.conf change do nothing after a reload?", "acceptedAnswer": {"@type": "Answer", "text": "If any line has an error, PostgreSQL refuses the whole file. On a reload it logs the error and keeps using the old rules, so your edit silently has no effect; at start-up the server will not start. Run SELECT * FROM pg_hba_file_rules WHERE error IS NOT NULL; to see the errors before reloading."}}, {"@type": "Question", "name": "Does the all database match replication connections?", "acceptedAnswer": {"@type": "Answer", "text": "No. A physical replication connection (pg_basebackup, a streaming standby) only matches lines whose database field is the keyword replication. Logical replication connections name a real database and match like ordinary connections."}}, {"@type": "Question", "name": "Is md5 still safe to use in pg_hba.conf?", "acceptedAnswer": {"@type": "Answer", "text": "MD5 password hashes are deprecated (PostgreSQL 18 warns about them). An md5 line already uses SCRAM for any role whose stored password is a SCRAM verifier, so the practical step is password_encryption = scram-sha-256, then re-set each password, then change the lines to scram-sha-256."}}, {"@type": "Question", "name": "Does a clean result mean my database is secure?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the patterns listed on this page, from the files you paste. It does not see listen_addresses, your firewall, role passwords, pg_ident.conf maps, which roles are superusers or group members, or your network. Confirm on the server with the pg_hba_file_rules view, and have a qualified person review anything that protects valuable data."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f1f5f6; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #123f52; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123f52; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d3dde1; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123f5210; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b6bd; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b6bd; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #175e7a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e2ebee; color: #123f52; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e4ebee; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #166534; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e4ebee; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: #fde8e8; color: #9a3412; }
+    .pill.low { background: #e6eef2; color: #123f52; }
+    .pill.err { background: #fee2e2; color: #7f1d1d; }
+    pre.cmd { background: #f6f9fa; padding: 12px; border-radius: 8px; font-size: .84rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde1; padding-top: 16px; }
+    .conn { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+    .conn label, .opt label { font-size: .82rem; color: #55606f; }
+    .tableWrap { overflow-x: auto; }
+    @media (max-width: 640px) {
+      #report-card table, #report-card tbody, #report-card tr, #report-card td { display: block; }
+      #report-card thead { display: none; }
+      #report-card tr { border-bottom: 1px solid #e4ebee; padding: 10px 0; }
+      #report-card td { border: 0; padding: 3px 0; }
+    }
+  </style>
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:241px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+</head>
+<body>
+  <header>
+    <p class="note">PG_HBA.CONF CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Who can really connect to your PostgreSQL?</h1>
+    <p>PostgreSQL uses the <strong>first</strong> line of <code>pg_hba.conf</code> that matches a connection, not the most specific one, and it never tries a second line. A <code>reject</code> for <code>postgres</code> written under <code>host all all 0.0.0.0/0 scram-sha-256</code> never fires.</p>
+    <p>And one bad line makes PostgreSQL refuse the whole file: on a reload it quietly keeps the old rules, so the fix you just made does nothing. Paste <code>pg_hba.conf</code> and the files it includes below: this page reads them the way PostgreSQL 16 does and shows the lines that will not load, the rules that can never match, the line that decides each kind of connection, and the rules that let people in more easily than they look.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and the tool makes no network calls. It is a static read of the files you give it, not a security audit and not a connection test against your server.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>1. Paste pg_hba.conf and any included files</h2>
+    <p class="note">Name each file by its path relative to <code>pg_hba.conf</code> (for example <code>conf.d/10-app.conf</code> for <code>include_dir conf.d</code>, or <code>users.txt</code> for <code>@users.txt</code>). On Debian and Ubuntu the file is <code>/etc/postgresql/16/main/pg_hba.conf</code>; elsewhere <code>SHOW hba_file;</code> prints its path.</p>
+    <div id="files"></div>
+    <p><button type="button" class="secondary small" id="add-file">Add an included file</button></p>
+    <p class="opt"><label><input type="checkbox" id="ssl-off"> The server runs with <code>ssl = off</code></label></p>
+    <h3 class="sub">Optional: which line decides one connection?</h3>
+    <div class="conn">
+      <div><label for="conn-user">User</label><input type="text" id="conn-user" placeholder="app"></div>
+      <div><label for="conn-db">Database</label><input type="text" id="conn-db" placeholder="appdb"></div>
+      <div><label for="conn-addr">Client IP (blank for the local socket)</label><input type="text" id="conn-addr" placeholder="10.0.4.7"></div>
+      <div><label for="conn-groups">Roles the user is a member of</label><input type="text" id="conn-groups" placeholder="staff, readers"></div>
+    </div>
+    <p class="opt"><label><input type="checkbox" id="conn-tls"> The client uses TLS</label> &nbsp; <label><input type="checkbox" id="conn-repl"> Physical replication (pg_basebackup, a standby)</label></p>
+    <p><button type="button" id="check">Check</button><button type="button" class="secondary" id="load-example">Load a worked example</button><button type="button" class="secondary" id="clear">Clear</button></p>
+    <p id="status" class="note" role="status">Paste at least pg_hba.conf above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" hidden>
+    <h2>2. What PostgreSQL will do</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="order"></p>
+    <div class="tableWrap"><table>
+      <thead><tr><th>Severity</th><th>Where</th><th>Finding</th><th>Fix</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <h3 class="sub">Which line decides</h3>
+    <ul id="probes"></ul>
+    <p id="connection"></p>
+    <ul id="notes" class="note"></ul>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <p>Lines PostgreSQL 16 rejects, with its own error text (<code>invalid IP mask "md5"</code> when <code>10.1</code> has no <code>/</code>, <code>scram</code> instead of <code>scram-sha-256</code>, <code>peer</code> on a <code>host</code> line, a <code>clientcert</code> on a non-<code>hostssl</code> line); includes it cannot open; rules an earlier line always beats; <code>trust</code> over the network, on loopback and on the socket; <code>password</code>, <code>ldap</code>, <code>pam</code> and <code>radius</code> on lines that also accept connections without TLS; <code>ident</code> over TCP; <code>md5</code>; remote password lines that do not require TLS; <code>0.0.0.0/0</code> and <code>all</code>; <code>ldapbindpasswd</code> and <code>radiussecrets</code> stored in the file; regexes such as <code>/admin</code> that match anywhere in a name; quoted keywords such as <code>"all"</code>, which mean a role or database literally named all; IPv4 shorthand (<code>010.0.0.1</code> is 8.0.0.1, <code>10.1</code> is 10.0.0.1); an address that is not a valid IP and is silently read as a host name; host bits in a CIDR; and files <code>include_dir</code> skips.</p>
+    <p class="note">The reading follows PostgreSQL 16's <a href="https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/libpq/hba.c" rel="noopener">hba.c</a> and the <a href="https://www.postgresql.org/docs/16/auth-pg-hba-conf.html" rel="noopener">pg_hba.conf chapter of the PostgreSQL 16 manual</a>. It was compared with a real PostgreSQL 16.15 server: every row of its <code>pg_hba_file_rules</code> view for 600 generated files, and the line that authenticated (or the refusal) for 5,760 real connections across 160 more (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pg-hba-check/parity" rel="noopener">parity run</a>). This tool is not affiliated with the PostgreSQL Global Development Group. Every finding type, with the PostgreSQL behaviour behind it: <a href="pg-hba-conf-mistakes-explained.html">pg_hba.conf mistakes explained</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same engine, zero dependencies, Node 18 or later:</p>
+    <pre class="cmd"><code>sudo node check.mjs /etc/postgresql/16/main          # pg_hba.conf and everything it includes
+node check.mjs ./pg_hba.conf --ssl off             # the server has ssl = off
+node check.mjs ./pg_hba.conf --user app --db appdb --addr 10.0.4.7 --tls
+                                                   # which line decides one connection
+node check.mjs ./pg_hba.conf --format json         # machine-readable
+node check.mjs ./pg_hba.conf --fail-on-risk        # exit 2 on an error, high or medium finding</code></pre>
+    <p class="note">Get <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pg-hba-check" rel="noopener">check.mjs and scan.mjs from the repo</a>: nothing to install, no network calls, and it never connects to a database. On the server, <code>SELECT * FROM pg_hba_file_rules;</code> shows how PostgreSQL parses the file on disk now.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which pg_hba.conf line does PostgreSQL use?</h3>
+    <p>The first one, reading from the top (with included files read where their include line stands), whose connection type, address, database and user all match. It does not look for the most specific line and it does not try the next line if authentication fails. So a <code>reject</code> line for one user placed under a line that allows all users never fires.</p>
+    <h3>Why did my pg_hba.conf change do nothing after a reload?</h3>
+    <p>If any line has an error, PostgreSQL refuses the whole file. On a reload it logs the error and keeps using the old rules, so your edit silently has no effect; at start-up the server will not start. Run <code>SELECT * FROM pg_hba_file_rules WHERE error IS NOT NULL;</code> to see the errors before reloading.</p>
+    <h3>Does the all database match replication connections?</h3>
+    <p>No. A physical replication connection (<code>pg_basebackup</code>, a streaming standby) only matches lines whose database field is the keyword <code>replication</code>. Logical replication connections name a real database and match like ordinary connections.</p>
+    <h3>Is md5 still safe to use in pg_hba.conf?</h3>
+    <p>MD5 password hashes are deprecated (PostgreSQL 18 warns about them). An <code>md5</code> line already uses SCRAM for any role whose stored password is a SCRAM verifier, so the practical step is <code>password_encryption = scram-sha-256</code>, then re-set each password, then change the lines to <code>scram-sha-256</code>.</p>
+    <h3>Does a clean result mean my database is secure?</h3>
+    <p>No. It reads only the patterns listed on this page, from the files you paste. It does not see <code>listen_addresses</code>, your firewall, role passwords, <code>pg_ident.conf</code> maps, which roles are superusers or group members, or your network. Confirm on the server with the <code>pg_hba_file_rules</code> view, and have a qualified person review anything that protects valuable data.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a static read of the files you paste, not a security audit, a penetration test or a guarantee of any system's security, and it does not replace a qualified security professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Check a pg_hba.conf change with <code>SELECT * FROM pg_hba_file_rules WHERE error IS NOT NULL;</code> before reloading, and keep a working session open until a new login works.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../sshd-config-check/">sshd_config Check</a> reads how people log in to the server, <a href="../sudoers-check/">sudoers Check</a> what they can do there, and <a href="../postgres-index-auditor/">Postgres Index Auditor</a> looks inside the database.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine } from "./scan.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { files: $("#files"), status: $("#status"), reportCard: $("#report-card"), order: $("#order"), verdict: $("#verdict"), rows: $("#rows"), notes: $("#notes"), probes: $("#probes"), connection: $("#connection") };
+
+    const EXAMPLE = [
+      {"name": "pg_hba.conf", "text": "# pg_hba.conf on an app database, edited over the years\nlocal   all             postgres                                peer\nlocal   all             all                                     trust\nhost    all             all             127.0.0.1/32            trust\nhost    all             all             0.0.0.0/0               md5\nhost    all             postgres        0.0.0.0/0               reject\nhost    reporting       /analyst        10.20.0.0/16            password\nhostssl all             all             192.168.10.5/24         scram-sha-256\nhost    all             backup          010.0.0.7/32            scram-sha-256\ninclude_dir conf.d\n"},
+      {"name": "conf.d/10-app.conf", "text": "host    appdb           app             10.0.0.0/8              scram-sha-256\n"},
+      {"name": "conf.d/20-ops.conf.bak", "text": "host    all             all             all                     trust\n"},
+    ];
+
+    function escapeHtml(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" aria-label="File name" placeholder="pg_hba.conf or conf.d/10-app.conf" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea aria-label="Paste the file here" class="ftext" spellcheck="false" placeholder="local   all   postgres   peer&#10;hostssl all   all        10.0.0.0/8   scram-sha-256"></textarea>`;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => { if (els.files.children.length > 1) wrap.remove(); });
+      return wrap;
+    }
+    function addFile(name = "", text = "") { els.files.appendChild(fileBlock(name, text)); }
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")].map((b, i) => ({ name: b.querySelector(".fname").value.trim() || (i ? `file-${i + 1}.conf` : "pg_hba.conf"), text: b.querySelector(".ftext").value })).filter((f) => f.text.trim());
+    }
+    function connection() {
+      const user = $("#conn-user").value.trim();
+      if (!user) return null;
+      const addr = $("#conn-addr").value.trim();
+      const groups = $("#conn-groups").value.split(",").map((s) => s.trim()).filter(Boolean);
+      return { conn: { type: addr ? "host" : "local", address: addr || undefined, user, database: $("#conn-db").value.trim() || user, ssl: $("#conn-tls").checked, replication: $("#conn-repl").checked ? "physical" : undefined }, roles: groups.length ? { [user]: { memberOf: groups } } : undefined };
+    }
+
+    function runCheck(files) {
+      if (!files.length) { els.status.textContent = "Paste at least pg_hba.conf above and click Check."; return; }
+      let result;
+      const c = connection();
+      try { result = scanFiles(files, { build: { ssl: !$("#ssl-off").checked }, connection: c ? c.conn : undefined, roles: c ? c.roles : undefined }); }
+      catch (err) { els.status.textContent = `Could not read the files: ${err.message}`; return; }
+      record("check_run");
+      const risky = hasRisk(result.findings);
+      els.verdict.textContent = !result.loads ? "PostgreSQL would refuse this file" : risky ? `Findings to fix: ${summaryLine(result.findings)}` : result.findings.length ? `Low findings only: ${summaryLine(result.findings)}` : "None of the listed patterns found";
+      els.verdict.className = "verdict" + (risky || !result.loads ? " risk" : "");
+      els.order.textContent = `Read, in order: ${result.order.join(" → ")}. Rules loaded: ${result.rules.length}.`;
+      els.rows.innerHTML = result.findings.map((f) => `<tr><td><span class="pill ${f.severity === "low" ? "low" : f.severity === "error" ? "err" : ""}">${escapeHtml(f.severity)}</span></td><td><code>${escapeHtml(f.line ? `${f.file}:${f.line}` : f.file || "")}</code></td><td><strong><code>${escapeHtml(f.type)}</code></strong>${f.raw ? `<br><code>${escapeHtml(f.raw.trim())}</code>` : ""}<br>${escapeHtml(f.detail)}</td><td>${escapeHtml(f.remediation)}</td></tr>`).join("") || `<tr><td colspan="4">None of the listed patterns found. That is not proof the server is safe.</td></tr>`;
+      const where = (r) => `${r.file}:${r.line}`;
+      els.probes.innerHTML = result.probes.map((p) => `<li>${escapeHtml(p.label)}: <strong>${p.rule ? escapeHtml(`${where(p.rule)} ${p.rule.method}`) : "no line matches, refused"}</strong>${p.unknown.length ? escapeHtml(` (after ${p.unknown.map(where).join(", ")}, which depend on facts not given)`) : ""}</li>`).join("");
+      if (result.connection) { const m = result.connection; els.connection.innerHTML = `Your connection: <strong>${m.rule ? escapeHtml(`${where(m.rule)} ${m.rule.method}`) : "no line matches, refused"}</strong>${m.unknown.length ? escapeHtml(` (after ${m.unknown.map(where).join(", ")}, which might match: group membership, server addresses or DNS not given)`) : ""}`; }
+      else els.connection.textContent = "";
+      els.notes.innerHTML = result.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
+      els.reportCard.hidden = false;
+      els.status.textContent = "Checked.";
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: trust on the socket and on 127.0.0.1, md5 from 0.0.0.0/0 above a reject for postgres that never fires, an unanchored /analyst regex with password on a non-TLS line, a CIDR with host bits set, 010.0.0.7 (which is 8.0.0.7), an app rule in conf.d the 0.0.0.0/0 line beats, and a .bak file include_dir skips.";
+    });
+    $("#clear").addEventListener("click", () => { els.files.innerHTML = ""; addFile("pg_hba.conf"); els.reportCard.hidden = true; els.status.textContent = "Paste at least pg_hba.conf above and click Check."; });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    addFile("pg_hba.conf");
+    if (usageOptedOut()) { const u = document.getElementById("optout"); if (u) { u.textContent = "Usage counting is off"; u.disabled = true; } }
+  </script>
+</body>
+</html>

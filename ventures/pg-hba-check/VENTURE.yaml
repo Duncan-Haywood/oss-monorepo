@@ -1,0 +1,52 @@
+name: pg-hba-check
+description: 'Free, read-only checker for PostgreSQL pg_hba.conf and the files its include, include_dir, include_if_exists and @file references pull in, read the way PostgreSQL 16 reads them: lines that make PostgreSQL refuse the whole file, rules an earlier line always beats (first match wins), the line that decides a given connection, trust over TCP, cleartext passwords without TLS, ident over TCP, md5, unanchored regexes, quoted keywords and IPv4 shorthand, with file:line and the fix; parser and matcher checked against a real PostgreSQL 16.15 (pg_hba_file_rules rows and real connections); browser or zero-dependency Node CLI, no upload, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools (sshd-config-check, sudoers-check,
+# systemd-unit-hardening-check). Nothing in ventures/ read pg_hba.conf before:
+# postgres-index-auditor, postgres-explain-analyzer and
+# pg-stat-statements-analyzer look inside the database, not at who may
+# connect. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a read-only parser of the user's own files, no connection to any
+# server, no data leaving the device. Labelled not a security audit, with no
+# warranty; a clean scan is never called safe. Every fix points at
+# pg_hba_file_rules before a reload.
+#
+# First visitor channel: search for "pg_hba.conf reject not working",
+# "pg_hba.conf changes not taking effect", "pg_hba.conf order",
+# "no pg_hba.conf entry for host", "pg_hba.conf checker" (Stack Overflow and
+# DBA Stack Exchange answers and the manual, with no checker that resolves
+# includes and first-match order in a browser), and teams hardening a
+# self-hosted Postgres or a container image.
+hypotheses:
+  - claim: 'A DBA or developer will paste pg_hba.conf here and find a reject or narrower rule that an earlier line shadows, or a line that stops the file loading.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team that ships pg_hba.conf from configuration management or a container image will wire check.mjs --fail-on-risk into CI.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.mjs or scan.mjs within 90 days.
+
+links:
+  production: https://marisstella.app/pg-hba-check/
+  analytics: null

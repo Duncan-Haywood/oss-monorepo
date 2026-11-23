@@ -852,6 +852,7 @@ ventures/pet-boarding-daycare-profit-calculator/usage.mjs
 ventures/pet-grooming-bid-calculator/usage.mjs
 ventures/pet-sitting-platform-fee-calculator/usage.mjs
 ventures/pet-waste-removal-route-calculator/usage.mjs
+ventures/pg-hba-check/usage.mjs
 ventures/pg-stat-statements-analyzer/usage.mjs
 ventures/phone-repair-shop-profit-calculator/usage.mjs
 ventures/photo-addon-pricing-calculator/usage.mjs
