@@ -3,7 +3,7 @@ title: "Auditing outsourced training: set the threshold from a quantile, not the
 seo_title: "Quantile thresholds close blind zones in training audits"
 date: 2026-11-23
 tags: [research, verifiable-training, ml-systems, statistics, security]
-description: "A training audit with thresholds at 10x the worst honest value missed whole zones. Ten times the 0.95 quantile catches every float16 forgery on fresh seeds."
+description: "A training audit with thresholds at 10x the worst honest value missed whole zones. Ten times the 0.95 quantile closes them under momentum and Adam."
 ---
 
 The [verifiable-training-mechanisms](../../research/verifiable-training-mechanisms/)
