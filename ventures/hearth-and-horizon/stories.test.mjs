@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { buildAll, loadAudio, loadStories, speechFor } from './generate.mjs';
-import { SHELVES, markdownToHtml, markdownToSpeech, parseStory, renderFeed, spliceReadme } from './stories.mjs';
+import { SHELVES, TITLE_MAX, shelfById, storyTitle, markdownToHtml, markdownToSpeech, parseStory, renderFeed, spliceReadme } from './stories.mjs';
 
 const stories = loadStories();
 
@@ -201,4 +201,12 @@ test('subjects.txt lines parse into a known shelf, terms and an angle', async ()
   const pool = parseSubjects(readFileSync(new URL('subjects.txt', import.meta.url), 'utf8'));
   const bad = pool.filter((c) => !ids.has(c.shelf) || !c.terms.length || !c.angle).map((c) => c.terms.join(','));
   assert.deepEqual(bad, []);
+});
+
+test('every story page title fits a search result, keeping the longest description that fits', () => {
+  const audio = loadAudio();
+  for (const s of stories) assert.ok(storyTitle(s, shelfById(s.shelf), Boolean(audio[s.slug])).length <= Math.max(TITLE_MAX, s.title.length), s.slug);
+  const lamps = SHELVES.find((s) => s.title === 'Little Lamps');
+  assert.equal(storyTitle({ title: 'Kevin and the Blackbird' }, lamps, true), 'Kevin and the Blackbird: a Catholic bedtime story (text and audio)');
+  assert.equal(storyTitle({ title: 'Isidore and the Angels Who Ploughed' }, lamps, true), 'Isidore and the Angels Who Ploughed: a Catholic bedtime story');
 });

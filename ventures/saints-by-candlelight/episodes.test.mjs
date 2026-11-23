@@ -4,7 +4,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildAll, loadAudio, loadEpisodes } from './generate.mjs';
-import { SITE, audioStatusLine, checkScript, numberRanges, withAudioStatus, formatDuration, parseEpisode, transcriptHtml, wordCount } from './episodes.mjs';
+import { SITE, TITLE_MAX, episodeTitle, audioStatusLine, checkScript, numberRanges, withAudioStatus, formatDuration, parseEpisode, transcriptHtml, wordCount } from './episodes.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const episodes = loadEpisodes();
@@ -144,4 +144,12 @@ test('llms.txt lists every episode, the licence and the AI disclosure', async ()
   assert.match(text, /CC BY-SA 4\.0/);
   assert.match(text, /written by an AI/);
   assert.doesNotMatch(text, /MIT|financial or professional advice|github\.io/);
+});
+
+test('every episode page title fits a search result, keeping the longest suffix that fits', () => {
+  for (const ep of episodes) assert.ok(episodeTitle(ep).length <= Math.max(TITLE_MAX, ep.title.length), ep.slug);
+  assert.equal(episodeTitle({ title: 'Kevin and the Blackbird' }), 'Kevin and the Blackbird | Saints by Candlelight, bedtime podcast');
+  assert.equal(episodeTitle({ title: 'Jonah' }), 'Jonah | Saints by Candlelight, a bedtime saints podcast');
+  const long = 'Priscilla and Aquila and the Preacher from Alexandria';
+  assert.equal(episodeTitle({ title: long }), long);
 });
