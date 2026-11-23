@@ -29,11 +29,16 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Two concurrent redteam runs picked the same newly landed target (both following the 'aim at a file that just changed on main' advice) and duplicated the Infinity finding. A quick search of open redteam PRs for the target before the campaign would have avoided it."
+    }
+  ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": " Step 0: all 13 open entries are control-plane (.github/workflows, prompts/) or the deferred help-keeper stemmer redesign; none fixable in a non-control-plane PR this run, left open. Target: window-design-pressure-calculator/calc.mjs (landed 2026-11-22, safety-relevant). 24 mutants, catch 0.864 -> 1.0. 2 real defects patched (header after # line; Number() accepting Infinity/hex), plus the same decimal-only parser fix in 7 sibling ventures (all suites green). Class guard not added: 29 other `t === \"\" ? NaN : Number(t)` copies exist; most check Number.isFinite afterwards so only hex slips through, which is low severity. A lint is a candidate for a later run. Local verification: run_workflow_locally --for-changes passed 7/7 selected workflows. The uses: steps and the cross-review/deploy jobs did not run locally; portfolio-pages and portfolio-validate were deferred to PR CI. check_posts ok, promptctl validate ok, redteam rerun: all 3 gaps caught_after_fix true.",
+  "notes": " Step 0: all 13 open entries are control-plane (.github/workflows, prompts/) or the deferred help-keeper stemmer redesign; none fixable in a non-control-plane PR this run, left open. Target: window-design-pressure-calculator/calc.mjs (landed 2026-11-22, safety-relevant). 24 mutants, catch 0.864 -> 1.0. 2 real defects patched (header after # line; Number() accepting Infinity/hex), plus the same decimal-only parser fix in 7 sibling ventures (all suites green). Class guard not added: 29 other `t === \"\" ? NaN : Number(t)` copies exist; most check Number.isFinite afterwards so only hex slips through, which is low severity. A lint is a candidate for a later run. Local verification: run_workflow_locally --for-changes passed 7/7 selected workflows. The uses: steps and the cross-review/deploy jobs did not run locally; portfolio-pages and portfolio-validate were deferred to PR CI. check_posts ok, promptctl validate ok, redteam rerun: all 3 gaps caught_after_fix true. Merge conflict with the parallel red-team PR #18479 on the same target, resolved by combining both fixes.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -402,7 +407,7 @@
       },
       {
         "file": "ventures/window-design-pressure-calculator/calc.mjs",
-        "issue": "num() used Number(), so 'Infinity' and hex ('0x8C') were accepted from text inputs and shared links: leastDim=Infinity gave corner zone width a = Infinity ft (every opening zone 5, 'Infinity ft' on the page), V=0x8C ran as 140 mph. Fixed: plain decimals only.",
+        "issue": "num() used Number(), so 'Infinity' and hex ('0x8C') were accepted from text inputs and shared links: leastDim=Infinity gave corner zone width a = Infinity ft (every opening zone 5, 'Infinity ft' on the page), V=0x8C ran as 140 mph. Fixed: plain decimals only. The Infinity half was found and fixed in parallel by PR #18479, which merged first. This run merged the two fixes (decimal regex plus isFinite) and kept both test sets.",
         "patched": true
       }
     ]

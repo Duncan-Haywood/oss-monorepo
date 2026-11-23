@@ -31,8 +31,11 @@ catch rate went from 86% to 100% of the non-equivalent mutants.
   and height are both words is the header.
 - Numbers were read with JavaScript's `Number()`, which accepts `Infinity` and
   hex. A shared link with `leastDim=Infinity` made the corner-zone width
-  "Infinity ft"; `V=0x8C` ran as a 140 mph wind. The parser now takes plain
-  decimals only (scientific notation still works).
+  "Infinity ft"; `V=0x8C` ran as a 140 mph wind. A parallel red-team run
+  ([its write-up](2026-11-23-redteam-a-corner-zone-infinity-feet-wide.md))
+  caught the Infinity half the same morning and landed first. This run adds
+  the hex half: the parser now takes plain, finite decimals only (scientific
+  notation still works).
 
 The same `s === "" ? NaN : Number(s)` parser was copied into seven other
 calculators (charity bunching, mortgage extra payment, mushroom fruiting room,

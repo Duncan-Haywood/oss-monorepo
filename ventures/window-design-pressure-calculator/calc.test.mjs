@@ -188,3 +188,27 @@ test("red team 2026-11-23: boundary messages (V = 130 inland, h = 15, H = 0)", (
   assert.ok(analyze({ ...sampleInput(), h: "14" }).findings.some((f) => /Kh taken at 15 ft/.test(f.title)));
   assert.equal(kzt({ shape: "ridge", H: 0, Lh: 100, x: 0, side: "upwind", z: 20, exposure: "C" }).invalid, true);
 });
+
+test("boundaries: V up to 300 mph, a roof at exactly 10 degrees is low slope, a hill needs z > 0", () => {
+  assert.ok(!analyze({ V: "300" }).error, "300 mph is accepted");
+  assert.ok(analyze({ V: "301" }).error, "over 300 mph is refused");
+  assert.ok(analyze({ V: "300.5" }).error, "over 300 mph is refused");
+  // 12 tan(10°) as a typed decimal gives theta === 10 exactly: note 5 says "10° or less".
+  const at10 = analyze({ pitch: "2.1159237685015797" });
+  assert.equal(at10.theta, 10);
+  assert.equal(at10.lowSlope, true);
+  assert.equal(analyze({ pitch: "2.12" }).lowSlope, false);
+  const hill = { shape: "escarpment", H: 80, Lh: 100, x: 50, side: "upwind", exposure: "C" };
+  assert.equal(kzt({ ...hill, z: 0 }).invalid, true, "z = 0 is not a building height");
+  assert.equal(kzt({ ...hill, z: 20 }).applies, true);
+});
+
+test("Infinity and overflowing numbers are refused, not carried into a = Infinity ft", () => {
+  assert.ok(analyze({ leastDim: "Infinity" }).error, "least dimension Infinity");
+  assert.ok(analyze({ leastDim: "1e400" }).error, "least dimension that overflows");
+  assert.ok(analyze({ pitch: "Infinity" }).error, "pitch Infinity");
+  assert.ok(analyze({ openings: "A, 1e400, 60, 3" }).error, "width that overflows");
+  assert.ok(analyze({ openings: "A, 36, 60, Infinity" }).error, "corner distance Infinity");
+  assert.ok(analyze({ openings: "A, 36, 60, 3, Infinity" }).error, "count Infinity");
+  assert.equal(parseOpenings("A, -Infinity, 60").openings.length, 0);
+});

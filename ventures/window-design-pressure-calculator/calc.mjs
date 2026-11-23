@@ -57,9 +57,11 @@ const DEG = Math.PI / 180;
 const num = (v) => {
   if (v === null || v === undefined) return NaN;
   const s = String(v).trim();
-  // Plain decimals only: Number() also takes "Infinity", "0x8C" and "0b1", which a
-  // typed field or shared link should not turn into a wind speed or a dimension.
-  return /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s) ? Number(s) : NaN;
+  // Plain decimals only, and finite: Number() also takes "Infinity", "0x8C" and
+  // "0b1", and "1e400" overflows; none is a measurement (red team 2026-11-23).
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s)) return NaN;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : NaN;
 };
 const r1 = (v) => Math.round(v * 10) / 10;
 const r2 = (v) => Math.round(v * 100) / 100;
