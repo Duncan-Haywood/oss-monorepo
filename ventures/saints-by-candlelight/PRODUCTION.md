@@ -210,7 +210,8 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Absalom at the city gate and the long flight up the Mount of Olives, Ittai the Gittite who would not go home and Zadok who carried the ark back (Second Samuel 15; left by episode 152).
 - The two runners from the battle in the forest of Ephraim, Ahimaaz who outran the Cushite by the plain and would not tell the king the worst (Second Samuel 18:19-33; left by episode 152).
 - Joshua at Shechem and the stone under the oak, choose this day whom you will serve, the old man who looked up the hill at Rephidim saying goodbye (Joshua 24; left by episode 161).
-- Elijah and Elisha and the cloak on the Jordan, the double portion and the chariot of fire, Elisha walking back alone (Second Kings 2:1-15; left by episode 162).
+- Elisha at Gilgal in the famine, the pot of wild gourds with death in it and the handful of flour, and the man from Baal-shalishah with twenty barley loaves for a hundred men (Second Kings 4:38-44, with John 6:9; left by episode 168).
+- Elisha and the Shunammite's land given back, the seven years of famine and Gehazi telling the king the story at the very moment she walked in (Second Kings 8:1-6; left by episode 168).
 - Miriam at the sea and the women with tambourines, the girl from the reeds grown up into a prophetess who led the song on the far shore (Exodus 2:1-10 and 15:19-21, with Micah 6:4; left by episode 164).
 - The king of Arad and the vow at Hormah, the first battle after Mount Hor, and the long way round Edom by the Red Sea road (Numbers 21:1-4; left by episode 165).
 - Moses on the mountains of Abarim and a shepherd for the congregation, Joshua commissioned before Eleazar the priest, the man in whom is the spirit (Numbers 27:12-23, with Deuteronomy 3:23-28; left by episode 166).
@@ -222,7 +223,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 167 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 167.
+Audio: 29 of 168 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 168.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
