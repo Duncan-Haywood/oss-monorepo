@@ -101,7 +101,11 @@ export function calculateBillableWeight(input) {
     throw new Error('Values are too large to calculate safely');
   }
 
-  const billedOn = dimWeight > actualWeight ? 'dimensional' : 'actual';
+  // Both weights round up to the next pound before they are compared, so a
+  // dimensional weight that rounds to the same pound as the goods costs nothing
+  // extra: that package bills on its actual weight (red team 2026-11-23).
+  const billedActual = Math.ceil(actualWeight);
+  const billedOn = Math.ceil(dimWeight) > billedActual ? 'dimensional' : 'actual';
   const billableWeight = billableFrom(actualWeight, dimWeight);
 
   // Girth is the strap around the two shorter sides (2 x width + 2 x height
@@ -142,14 +146,15 @@ export function calculateBillableWeight(input) {
   // The lever, in the direction the shipper can act on it. If the package is
   // billed on air, say what it would take to stop being; if it is billed on its
   // actual weight, say how much bigger the box could get before that changes.
-  // Both are the same equation read from opposite sides.
-  const breakEvenCube = actualWeight * divisor;
-  const breakEvenHeight = heightAtDimWeight(actualWeight, length, width, divisor);
+  // Both are the same equation read from opposite sides, solved for the billed
+  // pound: any cube whose dimensional weight stays at or under it bills the same.
+  const breakEvenCube = billedActual * divisor;
+  const breakEvenHeight = heightAtDimWeight(billedActual, length, width, divisor);
   const lever = billedOn === 'dimensional'
     ? {
       direction: 'reduce',
       // Air paid for: the gap between what is billed and what the goods weigh.
-      airWeight: billableWeight - Math.ceil(actualWeight),
+      airWeight: billableWeight - billedActual,
       targetCube: breakEvenCube,
       cubeReduction: cube - breakEvenCube,
       targetHeight: breakEvenHeight,
