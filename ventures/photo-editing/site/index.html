@@ -71,6 +71,7 @@
   <p class="lede">ShootFlow copies your card with checksums, sets aside blurred and duplicate frames, develops camera raw files and renders graded reels, carousels and masters while you sleep. Nothing is uploaded and the card is never wiped.</p>
   <div class="cta">
     <a class="btn primary" href="#run">Run it yourself</a>
+    <a class="btn" href="cull.html">Cull raw files in your browser</a>
     <a class="btn" href="camera-raw-formats.html">Which cameras it reads</a>
   </div>
   <ul class="facts" aria-label="At a glance">
@@ -208,9 +209,14 @@ PYTHONPATH=src python3 -m shootflow.cli run-local-pipeline \
     <p>Not yet on a real wedding or event shoot. Pass <code>--picks FILE</code> with the frames you would keep and the report shows how often its keeper matched yours, so you can check it against your own taste first.</p>
   </section>
 
+  <section aria-labelledby="cull-web">
+    <h2 id="cull-web">Try the culling step in your browser</h2>
+    <p><a href="cull.html">ShootFlow Cull</a> opens a card's raw files from the JPEG each one carries (full size on most recent Canon, Nikon, Sony A7 IV, Pentax and Samsung bodies), lets you star, label and reject from the keyboard, shows the frame with the most detail in each burst, and downloads XMP sidecars Lightroom, Capture One or darktable read on import. Nothing is uploaded; no install.</p>
+  </section>
+
   <section aria-labelledby="priv">
     <h2 id="priv">Privacy and usage</h2>
-    <p>This page has no scripts, cookies or analytics, and records nothing about you. The tool runs on your own machine and sends nothing anywhere.</p>
+    <p>This page has no scripts, cookies or analytics, and records nothing about you (the separate cull page keeps a few local counters you can turn off). The tool runs on your own machine and sends nothing anywhere.</p>
   </section>
   <section aria-labelledby="disc">
     <h2 id="disc">Disclaimer</h2>

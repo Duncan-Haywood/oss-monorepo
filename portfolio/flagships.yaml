@@ -331,11 +331,11 @@ flagships:
       whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
       2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
       (eval/noise-pca-whitened-level-*); on own ramps the oracle's 14 losses go to
-      0; mpcws, colour ramp (0.3, 1.0), 4 blind draws (eval/hdrplus-joint-check-*):
-      J4 passed on 111 HDR+ bursts, J5 held it on 126; drawn noise on 11 fresh
-      camera raws passed 2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so
-      mpcws is the Bayer default; next read it against --noise-read ship on new
-      camera files. More open items: NEXT.md.
+      0; drawn noise on 11 fresh camera raws passed 2026-11-23 (+0.12/+0.22 dB,
+      eval/camera-drawn-mpcws-*), so mpcws is the Bayer default; next read it
+      against --noise-read ship on new camera files. Browser cull page 2026-11-23
+      (site/cull.html, eval/cull-page-previews-*): next a real card of 500+ raws
+      through it and a Lightroom import of its sidecars. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

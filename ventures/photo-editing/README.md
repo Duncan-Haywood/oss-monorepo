@@ -121,6 +121,33 @@ none. By default every asset gets a full-resolution master. Since 2026-11-11,
 only to the assets the storyline picks. Every other clip is graded from its review
 proxy and gets a `.review-grade.json` note beside it ("Grade only the picks" below).
 
+## Cull raw files in the browser (2026-11-23)
+
+`site/cull.html` (live at https://marisstella.app/photo-editing/cull.html) is the
+culling step with no install: drop a card's raw files, and it shows each from the
+JPEG the camera embedded (`site/rawpreview.mjs` finds it by TIFF tags, CR3 boxes,
+the RAF header or the Olympus maker note, with a byte scan last), reads camera,
+lens, exposure and capture time from EXIF, groups frames under 1.5 s apart from
+one body into bursts, scores detail (Laplacian variance in the busiest of 16
+cells, the same family of measure as `shootflow cull`) and marks the most detailed
+frame of each burst. Keys: arrows, 1-5 stars, X reject, 6-9 labels, Space for the
+large view, Z for 100% at the most detailed cell. It downloads XMP sidecars
+(`IMG.xmp` for Adobe and Capture One, `IMG.CR3.xmp` for darktable), a picks list
+or a CSV. Nothing is uploaded; marks persist in the browser's local storage.
+
+Checked on the 65 public raws of drewnoakes/metadata-extractor-images
+(`eval/cull-page-previews-2026-11-23.md`): a preview in 61, all 61 decode in
+Pillow at the size the parser read; 39 are 2,000 px wide or more. In Chromium
+(Playwright) the page read all 65 files (1.1 GB) in 4.7 to 5.4 s, with every
+portrait frame upright. Not done: BigTIFF DNGs, phone DNGs with no JPEG inside,
+the 640 px previews of 2000s Olympus compacts (only their 160 px thumbnail).
+
+```bash
+node --test site/rawpreview.test.mjs site/usage.test.mjs
+node eval/cull-page-previews.mjs mei OUT > report.tsv   # mei = the sample clone
+python3 eval/cull-page-previews-decode.py OUT           # needs Pillow
+```
+
 ## Current repository state
 
 This repo currently contains the first testable core utilities:
