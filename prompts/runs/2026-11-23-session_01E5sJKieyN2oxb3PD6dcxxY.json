@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKieyN2oxb3PD6dcxxY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T16:11:38Z",
+  "ended": "2026-11-23T16:21:17Z",
+  "wall_minutes": 15.25,
+  "tokens_in": 4738849,
+  "tokens_out": 24778,
+  "cost_usd": 2.2654,
+  "tool_calls": 48,
+  "task": "ifc-quantity-takeoff (flagship 14): square-cut ends in the swept check",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18446",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First corpus rerun crashed on file names with spaces (ISSUE_021_Mini Project.ifc) through unquoted $(ls); rerun through a symlink dir.",
+    "A test's hand value for the end area used the true circles instead of the chord polygon (0.3% off); fixed the expectation, not the engine."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Item 3 'next square-cut ends (NEXT.md)' pointed at NEXT.md, but NEXT.md never uses the phrase 'square-cut' (it says 'ends cut square'); a grep for the item's own words found nothing."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Exit 5 after '8/8 selected workflow(s) passed' still reads as a failure at first glance; the meaning (deferred/held workflows) is only in the trailing lines."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-curved-wall-ends-cut-square-ifc-takeoff.md",
+    "ventures/ifc-quantity-takeoff/eval/square-cut-ends-2026-11-23.md"
+  ],
+  "goal": "Deepen flagship 14: let the divergence-theorem volume check accept stepped arc walls whose ends are cut square, without making it vacuous.",
+  "notes": "curvedFaces (geom.mjs) returns ends (plan flux of standing planes facing no centre, exact per plane) and endArea; computeAreas (qto.mjs) checks swept + ends. Tests: engine.test.mjs 70/70, venture suite 253 ok; constructed square-cut quarter ring closes to 1e-9, faces = hand-clipped chords to 1e-9; raked top still refused (9.8%). 28 engine_web-ifc public models: eval/curved-walls.mjs output identical before/after. venture-preflight clean; run_workflow_locally --for-changes 8/8 passed (exit 5: portfolio-pages/validate deferred to PR CI, secret-reading jobs held, agent-cross-review not runnable locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e677fa8-6a45-59bd-9dbd-18eb705b4943",
+    "transcripts": 1,
+    "first": "2026-11-23T16:11:38Z",
+    "last": "2026-11-23T16:26:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 88,
+        "output": 24778,
+        "thinking": 6265,
+        "cache_read": 4633416,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105345,
+        "api_equivalent_usd": 2.2654,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 88,
+      "output": 24778,
+      "thinking": 6265,
+      "cache_read": 4633416,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105345,
+      "api_equivalent_usd": 2.2654,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 46,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.25,
+      "active_minutes": 15.25,
+      "model_minutes": 4.96,
+      "tool_minutes": 10.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer deriving the flux term, writing clipped-chord tests and a corpus rerun",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 220.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
