@@ -1,3 +1,10 @@
+"""Write each XER as P6 XML (PMXML) with MPXJ's PrimaveraPMFileWriter, one
+file per project (NAME.xml, or NAME-0.xml, NAME-1.xml... for a multi-project
+XER), for eval/pmxml-check.mjs.
+
+  pip install mpxj jpype1   (needs a Java runtime)
+  python eval/xer-to-pmxml.py OUTDIR <file.xer ...>
+"""
 import sys, os, jpype, mpxj  # noqa
 jpype.startJVM()
 from org.mpxj.reader import UniversalProjectReader

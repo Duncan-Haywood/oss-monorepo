@@ -137,7 +137,7 @@ function calendarRow(c, projId) {
 // ---------- the reader ----------
 
 export function isPmxml(text) {
-  return /^﻿?\s*(<\?[^>]*\?>\s*)?(<!--[\s\S]*?-->\s*)*<([A-Za-z_][\w.-]*:)?APIBusinessObjects[\s>]/.test(text.slice(0, 4096));
+  return /^\uFEFF?\s*(<\?[^>]*\?>\s*)?(<!--[\s\S]*?-->\s*)*<([A-Za-z_][\w.-]*:)?APIBusinessObjects[\s>]/.test(text.slice(0, 4096));
 }
 
 export function parsePmxml(text) {

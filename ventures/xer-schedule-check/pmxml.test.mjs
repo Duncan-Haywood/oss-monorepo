@@ -53,7 +53,7 @@ export const PMXML = `<?xml version="1.0" encoding="UTF-8"?>
 
 test("isPmxml tells P6 XML from Microsoft Project XML and XER", () => {
   assert.ok(isPmxml(PMXML));
-  assert.ok(isPmxml('﻿<?xml version="1.0"?><APIBusinessObjects></APIBusinessObjects>'));
+  assert.ok(isPmxml('\uFEFF<?xml version="1.0"?><APIBusinessObjects></APIBusinessObjects>'));
   assert.ok(!isPmxml('<?xml version="1.0"?><Project xmlns="http://schemas.microsoft.com/project"></Project>'));
   assert.ok(!isPmxml("ERMHDR\t20.12\n"));
 });
