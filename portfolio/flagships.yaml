@@ -320,7 +320,8 @@ flagships:
       Capture One export to say if IIQ S offset tables apply (LibRaw skips them; the
       iXU180's 5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; Near-clean leak closed on Bayer 2026-11-19 (k 12,
+      evenly lit frame (its JPEG lifts none: eval/sony-vignetting-preview-*);
+      Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
       reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);

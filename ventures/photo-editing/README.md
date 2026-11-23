@@ -3157,6 +3157,21 @@ at 6000 px wide; reading the knots on the raw radius instead fits worse on all t
 two of three. The vignetting table lifts the corners by 0.6-1.0 stops where lensfun lifts 2.6, so it is read
 but not applied. Details: `eval/sony-in-file-corrections-2026-11-15.md`.
 
+### Sony's vignetting table against the camera's own JPEG (2026-11-23)
+
+The ARWs say the camera's vignetting correction was on ("Auto", maker note 0x2011), and each embeds a JPEG the
+camera rendered, so comparing that JPEG with the raw pixel by pixel should show the gain the camera applied
+without an evenly lit frame. `tools/sony_vignetting_preview_check.py` does that (tone curve fitted in the
+centre, gain per radius band) and scores four readings of the table: ShootFlow's, squared (darktable's first
+version), and both with darktable's knot positions. The JPEG is the camera's processed render: on the A7 III it
+lines up with the raw through ShootFlow's reading of the distortion table to 0.41 preview pixels (3.06 without
+it), and on the A7 IV, whose distortion correction was off, to 0.14 without the table (3.97 with it). But its
+luminance shows no lift from the vignetting table: +0.02 stops at 0.9 of the corner distance on the A7 III and
++0.04 at 0.82 on the A7 IV, where the gentlest reading predicts +0.54 and +0.31. So the camera's own render
+cannot judge the formula, and it gives no reason to apply the table by default; the open question still needs an
+evenly lit frame. 6 tests (`tests/test_sony_vignetting_preview.py`, a planted gain recovered within 0.04
+stops); three seeded faults caught. Details: `eval/sony-vignetting-preview-2026-11-23.md`.
+
 ### Converted DNGs: the camera's maker note from DNGPrivateData (2026-11-14)
 
 Adobe DNG Converter drops the camera's EXIF maker note and keeps it in the DNG's private data instead, so the
