@@ -34,6 +34,11 @@ interest, and client relationships are not modelled. Not tax, legal, financial o
 not know your competence for a return type, your credentials, due-diligence duties, Circular 230 or other
 professional-standards obligations, or your engagement-letter terms; those come first.
 
+Known gaps (quality audit, [2026-11-23](../../portfolio/quality/audits/2026-11-23-tax-season-client-picker.json)):
+work already committed is one block with one due day, not several returns with their own deadlines; the only
+choices are accept or decline, so filing an extension and finishing later is not offered; every return is assumed
+ready to start today (document arrival is not modelled).
+
 ## Privacy
 
 No network call, no account, no analytics vendor. The browser page analyses pasted text locally and never uploads it.

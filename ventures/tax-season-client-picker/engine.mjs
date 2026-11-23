@@ -47,15 +47,38 @@ function nonNeg(cell, what, where, errors) {
   return v;
 }
 
+// Splits one CSV row, honouring double quotes so "Smith, J" or "$1,200" stay one cell.
+function splitRow(line) {
+  const cells = [];
+  let cur = "";
+  let q = false;
+  for (let k = 0; k < line.length; k++) {
+    const ch = line[k];
+    if (q) {
+      if (ch === '"' && line[k + 1] === '"') { cur += '"'; k++; }
+      else if (ch === '"') q = false;
+      else cur += ch;
+    } else if (ch === '"') q = true;
+    else if (ch === ",") { cells.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  cells.push(cur.trim());
+  return cells;
+}
+
 export function parseJobs(text) {
   const jobs = [];
   const errors = [];
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const cells = line.split(",").map((c) => c.trim());
+    const cells = splitRow(line);
     if (/^name$/i.test(cells[0])) return;
     const where = `line ${i + 1}`;
+    if (/^\$?\d{1,3}$/.test(cells[1] ?? "") && /^\d{3}(\.\d+)?$/.test(cells[2] ?? "")) {
+      errors.push(`${where}: the fee looks like it has a thousands comma; write 1200, not 1,200 (or quote it: "$1,200")`);
+      return;
+    }
     if (cells.length < 5) {
       errors.push(`${where}: expected name,fee,hours,due_day,direct_cost`);
       return;
@@ -212,11 +235,11 @@ export function plan(parsed, rawOptions = {}) {
     let minFee = null;
     if (opt.overbooked) reason = "no job can be delivered on time while the booked hours are overdue";
     else if (!alone) reason = `cannot be finished by day ${j.due} even as the only new file (${j.hours} hours against the hours available by then)`;
-    else if (netOf(j) <= 0) reason = "pays less than its direct costs";
+    else if (netOf(j) <= 0) reason = "pays no more than its direct costs";
     else reason = "its hours are worth more to the files the plan accepts instead";
     if (forced.set) minFee = j.fee + (opt.best.net - forced.net);
     declined.push({ index: i, name: j.name, reason, fee: j.fee, minFee, net: netOf(j), netPerHour: netPerHour(j) });
-    findings.push({ severity: "warn", rule: "decline", message: `${j.name}: ${reason}.${minFee !== null ? ` It would earn a place at a fee of about ${money(minFee)} or more.` : ""}` });
+    findings.push({ severity: "warn", rule: "decline", message: `${j.name}: ${reason}.${minFee !== null ? ` It would earn a place at a fee above about ${money(minFee)}.` : ""}` });
   });
 
   const hoursUsed = opt.best.hours;
