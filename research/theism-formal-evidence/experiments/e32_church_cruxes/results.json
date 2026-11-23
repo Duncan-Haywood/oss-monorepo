@@ -1,0 +1,527 @@
+{
+ "claims": [
+  {
+   "id": "a2",
+   "side": "shared",
+   "text": "What an ecumenical council defines cannot be in error",
+   "formula": "Ay.(Ecumenical(y) -> ~Erred(y))",
+   "source": "common to both: Orthodox for the seven councils, Catholic for the twenty-one"
+  },
+  {
+   "id": "c2",
+   "side": "shared",
+   "text": "What an ecumenical council condemns as heresy is error",
+   "formula": "Az.(Condemned(z) -> Erred(z))",
+   "source": "E1 claim c2"
+  },
+  {
+   "id": "c3",
+   "side": "shared",
+   "text": "Constantinople III condemned Honorius's letter as heresy",
+   "formula": "Condemned(h)",
+   "source": "Constantinople III (681), 13th session"
+  },
+  {
+   "id": "fL",
+   "side": "shared",
+   "text": "Lyon II defined the Filioque",
+   "formula": "(~Filioque -> Erred(lyon2))",
+   "source": "Lyon II (1274), constitution on the procession of the Holy Spirit (unchecked)"
+  },
+  {
+   "id": "fF1",
+   "side": "shared",
+   "text": "Florence defined the Filioque",
+   "formula": "(~Filioque -> Erred(flor))",
+   "source": "Florence, Laetentur caeli (1439) (unchecked)"
+  },
+  {
+   "id": "fF2",
+   "side": "shared",
+   "text": "Florence defined purgatory",
+   "formula": "(~Purgatory -> Erred(flor))",
+   "source": "Florence, Laetentur caeli (1439) (unchecked)"
+  },
+  {
+   "id": "fF3",
+   "side": "shared",
+   "text": "Florence defined the primacy of the Roman pontiff",
+   "formula": "(~Primacy -> Erred(flor))",
+   "source": "Florence, Laetentur caeli (1439) (unchecked)"
+  },
+  {
+   "id": "fT",
+   "side": "shared",
+   "text": "Trent defined purgatory",
+   "formula": "(~Purgatory -> Erred(trent))",
+   "source": "Trent, session 25, decree on purgatory (1563) (unchecked)"
+  },
+  {
+   "id": "fV3",
+   "side": "shared",
+   "text": "Vatican I defined Roman primacy of jurisdiction",
+   "formula": "(~Primacy -> Erred(v1))",
+   "source": "Vatican I, Pastor Aeternus ch. 3 (1870) (unchecked)"
+  },
+  {
+   "id": "fV4",
+   "side": "shared",
+   "text": "Vatican I defined papal infallibility",
+   "formula": "(~Ax.(ExCathedra(x) -> ~Erred(x)) -> Erred(v1))",
+   "source": "Vatican I, Pastor Aeternus ch. 4 (1870) (unchecked)"
+  },
+  {
+   "id": "fI",
+   "side": "shared",
+   "text": "Ineffabilis Deus defined the Immaculate Conception",
+   "formula": "(~ImmConc -> Erred(ineff))",
+   "source": "Pius IX, Ineffabilis Deus (1854) (unchecked)"
+  },
+  {
+   "id": "fM",
+   "side": "shared",
+   "text": "Munificentissimus Deus defined the Assumption",
+   "formula": "(~Assumption -> Erred(munif))",
+   "source": "Pius XII, Munificentissimus Deus (1950) (unchecked)"
+  },
+  {
+   "id": "a1",
+   "side": "catholic",
+   "text": "What a pope defines ex cathedra cannot be in error",
+   "formula": "Ax.(ExCathedra(x) -> ~Erred(x))",
+   "source": "Vatican I, Pastor Aeternus ch. 4 (1870)"
+  },
+  {
+   "id": "sL",
+   "side": "catholic",
+   "text": "Lyon II was ecumenical",
+   "formula": "Ecumenical(lyon2)",
+   "source": "Catholic numbering: 14th council"
+  },
+  {
+   "id": "sF",
+   "side": "catholic",
+   "text": "Florence was ecumenical",
+   "formula": "Ecumenical(flor)",
+   "source": "Catholic numbering: 17th council"
+  },
+  {
+   "id": "sT",
+   "side": "catholic",
+   "text": "Trent was ecumenical",
+   "formula": "Ecumenical(trent)",
+   "source": "Catholic numbering: 19th council"
+  },
+  {
+   "id": "sV",
+   "side": "catholic",
+   "text": "Vatican I was ecumenical",
+   "formula": "Ecumenical(v1)",
+   "source": "Catholic numbering: 20th council"
+  },
+  {
+   "id": "sI",
+   "side": "catholic",
+   "text": "Ineffabilis Deus is an ex cathedra definition",
+   "formula": "ExCathedra(ineff)",
+   "source": "standard Catholic reading"
+  },
+  {
+   "id": "sM",
+   "side": "catholic",
+   "text": "Munificentissimus Deus is an ex cathedra definition",
+   "formula": "ExCathedra(munif)",
+   "source": "standard Catholic reading"
+  },
+  {
+   "id": "dF",
+   "side": "orthodox",
+   "text": "The Filioque is false",
+   "formula": "~Filioque",
+   "source": "1895 Patriarchal Encyclical (unchecked)"
+  },
+  {
+   "id": "dP",
+   "side": "orthodox",
+   "text": "Purgatory as the Latins define it is false",
+   "formula": "~Purgatory",
+   "source": "1895 Patriarchal Encyclical; Mark of Ephesus at Ferrara (1438) (unchecked)"
+  },
+  {
+   "id": "dR",
+   "side": "orthodox",
+   "text": "Roman primacy of jurisdiction is false",
+   "formula": "~Primacy",
+   "source": "1895 Patriarchal Encyclical (unchecked)"
+  },
+  {
+   "id": "dI",
+   "side": "orthodox",
+   "text": "The Immaculate Conception is false",
+   "formula": "~ImmConc",
+   "source": "1895 Patriarchal Encyclical (unchecked)"
+  },
+  {
+   "id": "dA1",
+   "side": "orthodox",
+   "text": "Ex cathedra papal teaching can be in error",
+   "formula": "~Ax.(ExCathedra(x) -> ~Erred(x))",
+   "source": "1895 Patriarchal Encyclical (unchecked)"
+  },
+  {
+   "id": "dH",
+   "side": "orthodox",
+   "text": "Honorius's letter was ex cathedra",
+   "formula": "ExCathedra(h)",
+   "source": "E1's Orthodox reading (E1 claim c4)"
+  }
+ ],
+ "grounding": {
+  "domain": 12,
+  "vars": 202,
+  "clauses": 397
+ },
+ "seconds_enumeration": 0.11,
+ "consistent": {
+  "catholic": true,
+  "orthodox": true
+ },
+ "n_mus": 12,
+ "n_nontrivial": 11,
+ "mus": [
+  {
+   "mus": [
+    "a1",
+    "dA1"
+   ],
+   "size": 2,
+   "contested": [
+    "a1",
+    "dA1"
+   ]
+  },
+  {
+   "mus": [
+    "fI",
+    "a1",
+    "sI",
+    "dI"
+   ],
+   "size": 4,
+   "contested": [
+    "a1",
+    "sI",
+    "dI"
+   ]
+  },
+  {
+   "mus": [
+    "c2",
+    "c3",
+    "a1",
+    "dH"
+   ],
+   "size": 4,
+   "contested": [
+    "a1",
+    "dH"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "fV3",
+    "sV",
+    "dR"
+   ],
+   "size": 4,
+   "contested": [
+    "sV",
+    "dR"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "fT",
+    "sT",
+    "dP"
+   ],
+   "size": 4,
+   "contested": [
+    "sT",
+    "dP"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "fF1",
+    "sF",
+    "dF"
+   ],
+   "size": 4,
+   "contested": [
+    "sF",
+    "dF"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "fL",
+    "sL",
+    "dF"
+   ],
+   "size": 4,
+   "contested": [
+    "sL",
+    "dF"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "fV4",
+    "sV",
+    "dA1"
+   ],
+   "size": 4,
+   "contested": [
+    "sV",
+    "dA1"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "fF3",
+    "sF",
+    "dR"
+   ],
+   "size": 4,
+   "contested": [
+    "sF",
+    "dR"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "fF2",
+    "sF",
+    "dP"
+   ],
+   "size": 4,
+   "contested": [
+    "sF",
+    "dP"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "fV4",
+    "fI",
+    "sV",
+    "sI",
+    "dI"
+   ],
+   "size": 6,
+   "contested": [
+    "sV",
+    "sI",
+    "dI"
+   ]
+  },
+  {
+   "mus": [
+    "a2",
+    "c2",
+    "c3",
+    "fV4",
+    "sV",
+    "dH"
+   ],
+   "size": 6,
+   "contested": [
+    "sV",
+    "dH"
+   ]
+  }
+ ],
+ "recheck_all_ok": true,
+ "n_mss": 549,
+ "positions_are_maximal": {
+  "catholic": true,
+  "orthodox": false
+ },
+ "position_extensions": {
+  "orthodox": [
+   "sI",
+   "sM"
+  ],
+  "catholic": []
+ },
+ "assumption_fact_in_any_mus": false,
+ "membership_nontrivial": {
+  "a2": 9,
+  "c2": 2,
+  "c3": 2,
+  "fL": 1,
+  "fF1": 1,
+  "fF2": 1,
+  "fF3": 1,
+  "fT": 1,
+  "fV3": 1,
+  "fV4": 3,
+  "fI": 2,
+  "fM": 0,
+  "a1": 2,
+  "sL": 1,
+  "sF": 3,
+  "sT": 1,
+  "sV": 4,
+  "sI": 2,
+  "sM": 0,
+  "dF": 2,
+  "dP": 2,
+  "dR": 2,
+  "dI": 2,
+  "dA1": 1,
+  "dH": 2
+ },
+ "by_denial": {
+  "dF": {
+   "sets": 2,
+   "min_contested": 2
+  },
+  "dP": {
+   "sets": 2,
+   "min_contested": 2
+  },
+  "dR": {
+   "sets": 2,
+   "min_contested": 2
+  },
+  "dI": {
+   "sets": 2,
+   "min_contested": 3
+  },
+  "dA1": {
+   "sets": 1,
+   "min_contested": 2
+  },
+  "dH": {
+   "sets": 2,
+   "min_contested": 2
+  }
+ },
+ "hitting": {
+  "any_contested": [
+   [
+    "a1",
+    "sL",
+    "sF",
+    "sT",
+    "sV"
+   ],
+   [
+    "a1",
+    "sL",
+    "sF",
+    "sV",
+    "dP"
+   ],
+   [
+    "a1",
+    "sF",
+    "sT",
+    "sV",
+    "dF"
+   ],
+   [
+    "a1",
+    "sF",
+    "sV",
+    "dF",
+    "dP"
+   ],
+   [
+    "a1",
+    "sV",
+    "dF",
+    "dP",
+    "dR"
+   ]
+  ],
+  "catholic_only": [
+   [
+    "a1",
+    "sL",
+    "sF",
+    "sT",
+    "sV"
+   ]
+  ],
+  "orthodox_only": [
+   [
+    "dF",
+    "dP",
+    "dR",
+    "dI",
+    "dA1",
+    "dH"
+   ]
+  ],
+  "any_claim": [
+   [
+    "a2",
+    "a1"
+   ]
+  ],
+  "shared_only": [
+   [
+    "a2",
+    "c2",
+    "fI"
+   ],
+   [
+    "a2",
+    "c3",
+    "fI"
+   ]
+  ]
+ },
+ "e1_crosscheck": {
+  "marco": [
+   [
+    0,
+    1,
+    2,
+    3
+   ],
+   [
+    4,
+    5,
+    6,
+    7
+   ]
+  ],
+  "brute_force": [
+   [
+    0,
+    1,
+    2,
+    3
+   ],
+   [
+    4,
+    5,
+    6,
+    7
+   ]
+  ],
+  "agree": true
+ }
+}
