@@ -1,0 +1,31 @@
+{
+ "status": "3 files (read 3 in 0.2 s; 7 MB of their 96 MB read from disk); 1 marked from their .xmp sidecars, 1 rated in the camera.",
+ "tiles": [
+  "Pentax QS1.dng★★★",
+  "Nikon D810.nef★★",
+  "IMG_0036.CR3"
+ ],
+ "rerated": "Nikon D810 to 5 stars, Green",
+ "after": "2 sidecars in the zip, 1 of them your own with only the rating and label changed.",
+ "zip": [
+  {
+   "name": "Nikon D810.xmp",
+   "marks": {
+    "rating": 5,
+    "label": "Green"
+   },
+   "keptCrs": true,
+   "metadataDate": "2026-11-23T22:24:46+00:00"
+  },
+  {
+   "name": "Pentax QS1.xmp",
+   "marks": {
+    "rating": 3,
+    "label": null
+   },
+   "keptCrs": false,
+   "metadataDate": null
+  }
+ ],
+ "errors": []
+}

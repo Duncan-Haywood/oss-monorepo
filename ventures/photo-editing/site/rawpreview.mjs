@@ -123,6 +123,7 @@ const T = {
   DateTimeOriginal: 0x9003, SubSecTimeOriginal: 0x9291, FocalLength: 0x920a, LensModel: 0xa434,
   BodySerial: 0xa431, MakerNote: 0x927c, RW2JpgFromRaw: 0x2e, RW2ISO: 0x17,
   DNGVersion: 0xc612, UniqueCameraModel: 0xc614,
+  XMP: 0x2bc, Rating: 0x4746,
 };
 
 const TYPE_SIZE = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 4];
@@ -190,6 +191,13 @@ function absorb(meta, v, tags) {
   set("focalLength", tagNum(v, tags.get(T.FocalLength)));
   set("lens", tagStr(v, tags.get(T.LensModel)));
   set("serial", tagStr(v, tags.get(T.BodySerial)));
+  // A rating set in the camera: an XMP packet (tag 700; 15 of the 65 public
+  // samples carry one: Sony, Canon CR2, Nikon, OM System, DJI and Pentax DNGs)
+  // or the Rating tag 0x4746 (the OM-1 and TG-7 samples write it).
+  const xt = tags.get(T.XMP);
+  if (xt && (xt.type === 1 || xt.type === 7) && xt.size > 16 && xt.size < 1 << 20) set("xmpAt", { offset: xt.at, length: xt.size });
+  const rt = tags.get(T.Rating);
+  if (rt) { const r = tagNum(v, rt); if (r >= 1 && r <= 5) set("tiffRating", r); }
   const dto = tagStr(v, tags.get(T.DateTimeOriginal));
   if (dto) {
     set("captured", dto);
@@ -284,6 +292,7 @@ function olympusPreview(b, at, size, cands) {
 
 const UUID_CANON = "85c0b687820f11e08111f4ce462b6a48";
 const UUID_PRVW = "eaf42b5e1c984b88b9fbb7dc406e4d16";
+const UUID_XMP = "be7acfcb97a942e89c71999491e3afac"; // the XMP box ISO BMFF files carry
 
 function hex(b, o, n) {
   let s = "";
@@ -327,6 +336,8 @@ function readCr3(b, meta, cands) {
           if (t) cands.push({ ...t, source: "CR3 track" });
         }
       }
+    } else if (top.uuid === UUID_XMP) {
+      if (top.end - top.body < 1 << 20 && meta.xmpAt === undefined) meta.xmpAt = { offset: top.body, length: top.end - top.body };
     } else if (top.uuid === UUID_PRVW) {
       // 8 bytes, then a PRVW box: size, 'PRVW', ver(4), ?(2) w(2) h(2) ?(2) len(4) JPEG
       for (const pb of boxes(b, top.body + 8, top.end)) {
@@ -453,8 +464,28 @@ export function readRaw(bytes, name = "") {
     }
   }
   if (!meta.orientation) meta.orientation = 1;
+  cameraMarks(b, meta);
   previews = previews.map(({ exif, ...rest }) => rest);
   return { format, meta, preview: previews[0] || null, previews };
+}
+
+// The rating and colour label the camera wrote into the file, from its XMP
+// packet when it has one (a set rating there wins), else the Rating tag.
+// Sets meta.cameraRating (-1 rejected, 1-5 stars) and meta.cameraLabel only
+// when the camera recorded one; 0 ("unrated", Nikon's default) sets nothing.
+function cameraMarks(b, meta) {
+  const at = meta.xmpAt;
+  delete meta.xmpAt;
+  let rating = null, label = null;
+  if (at && at.offset >= 0 && at.offset + at.length <= b.length) {
+    need(at.offset, at.length);
+    const x = readXmp(new TextDecoder("utf-8", { fatal: false }).decode(b.subarray(at.offset, at.offset + at.length)));
+    if (x) ({ rating, label } = x);
+  }
+  if ((rating === null || rating === 0) && meta.tiffRating) rating = meta.tiffRating;
+  delete meta.tiffRating;
+  if (rating) meta.cameraRating = rating;
+  if (label) meta.cameraLabel = label;
 }
 
 // ---------------------------------------------------------------- reading a File sparsely
@@ -606,6 +637,127 @@ export function sidecarName(fileName, style = "adobe") {
   if (style === "darktable") return `${fileName}.xmp`;
   const dot = fileName.lastIndexOf(".");
   return `${dot > 0 ? fileName.slice(0, dot) : fileName}.xmp`;
+}
+
+// ---------------------------------------------------------------- reading and merging XMP
+
+const NS_XMP = "http://ns.adobe.com/xap/1.0/";
+const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function xmlUnescape(s) {
+  return s.replace(/&(lt|gt|amp|quot|apos|#\d+|#x[0-9a-f]+);/gi, (m, e) => {
+    const k = e.toLowerCase();
+    if (k[0] === "#") return String.fromCodePoint(k[1] === "x" ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10));
+    return { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" }[k];
+  });
+}
+
+// The prefix the packet binds to the xmp namespace ("xmp" in practice; the
+// spec allows any), or null when nothing binds it.
+function xmpPrefix(text) {
+  const m = new RegExp(`xmlns:([\\w.-]+)\\s*=\\s*["']${reEsc(NS_XMP)}["']`).exec(text);
+  return m ? m[1] : null;
+}
+
+// [match, value, form] for property `name` written as an attribute
+// (xmp:Rating="3") or as an element (<xmp:Rating>3</xmp:Rating>).
+function findProp(text, p, name) {
+  const q = `${reEsc(p)}:${name}`;
+  let m = new RegExp(`(\\s)${q}\\s*=\\s*(["'])([^"']*)\\2`).exec(text);
+  if (m) return { index: m.index, length: m[0].length, value: xmlUnescape(m[3]), form: "attr" };
+  m = new RegExp(`<${q}\\s*>([^<]*)</${q}\\s*>`).exec(text);
+  if (m) return { index: m.index, length: m[0].length, value: xmlUnescape(m[1].trim()), form: "elem" };
+  m = new RegExp(`<${q}\\s*/>`).exec(text);
+  if (m) return { index: m.index, length: m[0].length, value: "", form: "empty" };
+  return null;
+}
+
+/**
+ * The rating and colour label in an XMP packet or sidecar (Lightroom, Bridge,
+ * Capture One, darktable, Photo Mechanic, or a camera's own packet).
+ * Returns { rating: -1..5 | null, label: string | null }, or null when the
+ * text is not XMP. Fractional ratings round; out-of-range ones are dropped.
+ */
+export function readXmp(text) {
+  if (typeof text !== "string" || !/<x:xmpmeta\b|<rdf:RDF\b|<x:xapmeta\b/.test(text)) return null;
+  const p = xmpPrefix(text);
+  if (!p) return { rating: null, label: null };
+  const r = findProp(text, p, "Rating"), l = findProp(text, p, "Label");
+  let rating = null;
+  if (r && r.value !== "") {
+    const n = Math.round(Number(r.value));
+    if (Number.isFinite(n) && n >= -1 && n <= 5) rating = n;
+  }
+  return { rating, label: l && l.value ? l.value : null };
+}
+
+/**
+ * An existing sidecar with xmp:Rating and xmp:Label set to this cull's marks
+ * and every other property (Lightroom's develop settings, keywords,
+ * captions, crops, history) left byte for byte. An empty label removes
+ * xmp:Label; xmp:MetadataDate, when present, is set to `now` so Lightroom's
+ * "Read Metadata from File" sees a change. Returns null when `text` has no
+ * rdf:Description to write into (the caller then writes a fresh sidecar).
+ */
+export function mergeXmpSidecar(text, { rating = 0, rejected = false, label = "" }, now = new Date()) {
+  if (typeof text !== "string") return null;
+  const desc = /<([\w.-]+):Description\b/.exec(text);
+  if (!desc || !/<x:xmpmeta\b|<rdf:RDF\b/.test(text)) return null;
+  const r = String(rejected ? -1 : Math.max(0, Math.min(5, rating | 0)));
+  let out = text;
+  let p = xmpPrefix(out);
+  // Where new attributes go: the Description that binds xmp, else the first.
+  const anchor = () => {
+    if (p) {
+      const bind = new RegExp(`xmlns:${reEsc(p)}\\s*=\\s*["']${reEsc(NS_XMP)}["']`).exec(out);
+      const open = out.lastIndexOf(`<${desc[1]}:Description`, bind.index);
+      if (open >= 0 && !/>/.test(out.slice(open, bind.index))) return open + `<${desc[1]}:Description`.length;
+    }
+    return desc.index + desc[0].length;
+  };
+  if (!p) {
+    p = "xmp";
+    if (new RegExp(`xmlns:xmp\\s*=`).test(out)) p = "xmpSF"; // "xmp" bound to something else
+    const at = desc.index + desc[0].length;
+    out = `${out.slice(0, at)} xmlns:${p}="${NS_XMP}"${out.slice(at)}`;
+  }
+  const setProp = (name, value) => {
+    const f = findProp(out, p, name);
+    if (value === null) {
+      if (f) out = out.slice(0, f.index) + out.slice(f.index + f.length);
+      return;
+    }
+    const v = xmlEscape(value);
+    if (f && f.form === "attr") out = `${out.slice(0, f.index)} ${p}:${name}="${v}"${out.slice(f.index + f.length)}`;
+    else if (f) out = `${out.slice(0, f.index)}<${p}:${name}>${v}</${p}:${name}>${out.slice(f.index + f.length)}`;
+    else { const at = anchor(); out = `${out.slice(0, at)} ${p}:${name}="${v}"${out.slice(at)}`; }
+  };
+  setProp("Rating", r);
+  setProp("Label", label ? String(label) : null);
+  if (findProp(out, p, "MetadataDate")) setProp("MetadataDate", xmpDate(now));
+  return out;
+}
+
+// "2026-11-23T14:05:09+00:00", the form Lightroom writes.
+function xmpDate(d) {
+  const z = (n) => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}T${z(d.getUTCHours())}:${z(d.getUTCMinutes())}:${z(d.getUTCSeconds())}+00:00`;
+}
+
+/**
+ * Which raw a sidecar belongs to. `names` are the loaded raws' file names;
+ * returns the matching name or null. "IMG_1.CR3.xmp" (darktable, digiKam)
+ * matches exactly; "IMG_1.xmp" (Adobe, Capture One) matches the one raw
+ * named IMG_1.* and none when two raws share the stem (IMG_1.CR3 and
+ * IMG_1.JPG), since the sidecar could be either's. Case is ignored.
+ */
+export function sidecarTarget(sidecar, names) {
+  const lower = sidecar.toLowerCase();
+  if (!lower.endsWith(".xmp")) return null;
+  const base = lower.slice(0, -4);
+  const exact = names.find((n) => n.toLowerCase() === base);
+  if (exact) return exact;
+  const stem = names.filter((n) => { const d = n.lastIndexOf("."); return d > 0 && n.slice(0, d).toLowerCase() === base; });
+  return stem.length === 1 ? stem[0] : null;
 }
 
 // ---------------------------------------------------------------- stored ZIP

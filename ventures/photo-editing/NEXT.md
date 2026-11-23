@@ -143,3 +143,4 @@
 - (2026-11-23) the oracle loses on both (eval/hdrplus-demosaic-sweep-*)
 - (2026-11-23) gain and over-read share a cause, so this set is spent (eval/noise-pca-mpcw1-*)
 - (2026-11-23) on own ramps the oracle's 14 losses go to 0
+- (2026-11-23) per-colour ratios + Chen's level (mpcw) default on Bayer 2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers (eval/noise-pca-whitened-level-*)
