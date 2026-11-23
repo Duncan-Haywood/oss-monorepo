@@ -17,7 +17,7 @@ side's conclusion rests on, so a reader can change one entry and see what follow
 - All 10 standard arguments in the catalogue are **valid as stated**: the Kalam, the contingency argument, the modal ontological argument and its reverse, Mackie's logical problem of evil, Rowe's evidential argument, Schellenberg's hiddenness argument, and the Honorius and Florence arguments between Rome and Orthodoxy. Validity never decides the debate; the premises do.
 - The **free will defence** set (God exists, evil exists, and there is a morally sufficient reason for permitting it) is **consistent**. So Mackie's argument needs the extra premise that no such reason can exist.
 - The **modal ontological argument** (□(G → □G), ◇G ⊢ G) needs a symmetric accessibility relation. It is valid in B and S5, and two-world countermodels refute it in K, T and S4. Its **reverse** (◇¬G ⊢ ¬G) is valid already in T. So on the logic alone the atheist mirror is the stronger argument. In S5 the three claims cannot all hold, which makes the whole dispute "is God's existence possible, or is God's non-existence possible?"
-- **Rome vs Orthodoxy:** the eight claims behind the Honorius and Florence disputes have exactly two minimal inconsistent sets and 16 coherent positions. The Catholic position gives up "Honorius's condemned letter was ex cathedra" and "the Filioque is false". The Orthodox position gives up "ex cathedra papal teaching cannot err" and "Florence (1439) was ecumenical".
+- **Rome vs Orthodoxy:** the eight claims behind the Honorius and Florence disputes have exactly two minimal inconsistent sets and 16 coherent positions. The Catholic position gives up "Honorius's condemned letter was ex cathedra" and "the Filioque is false". The Orthodox position gives up "ex cathedra papal teaching cannot err" and "Florence (1439) was ecumenical". Widened to seven disputes and 25 claims (E32), the conflicts reduce to a five-claim list, and the Immaculate Conception is the one dispute that needs three contested claims, not two.
 
 **Evidence** ([E2 results](experiments/e2_ledger/results.md); ledger in [`src/ledger.py`](src/ledger.py)):
 
@@ -267,6 +267,28 @@ coNP-complete in K, KD and KT, linear in K4, KD4, K5 and KD5, always true in the
 wherever the test is not hard, complements make no difference. Checks: every Euclidean relation up
 to 4 worlds and 4,900 random Euclidean frames on 5 to 7 worlds, 0 violations
 ([results](experiments/e29_euclidean/results.md)).
+
+**M2 (part), seven Rome–Orthodoxy disputes in one claim set (E32, 2026-11-23).** E1 tested H3
+("each dispute reduces to at most two contested claims") on two disputes only. E32 puts seven in one
+set of 25 claims: the Filioque (Lyon II, Florence), purgatory (Florence, Trent), Roman primacy
+(Florence, Vatican I), papal infallibility (Vatican I), the Immaculate Conception (*Ineffabilis
+Deus*, 1854) and Honorius, with the Assumption (*Munificentissimus Deus*, 1950) as a control that
+no Orthodox claim denies. Exhaustive enumeration (MARCO over a SAT grounding, each set rechecked by
+`src/logic.py`) finds exactly the 12 minimal inconsistent sets predicted before the code ran. Each
+side's position is consistent. **H3 holds for every dispute that goes through a council and fails
+for the Immaculate Conception:** each of its two inconsistent sets forces three contested claims
+(the denial, the bull's ex cathedra status, and either papal infallibility or Vatican I's
+ecumenicity). Vatican I reaches two more disputes: granting that it was ecumenical commits one to
+papal infallibility and so to the Immaculate Conception and to the Honorius problem. **The list is
+five long:** dropping no fewer than five contested claims makes the 25 consistent, 5 if only Catholic
+claims may go (papal infallibility and the ecumenicity of Lyon II, Florence, Trent, Vatican I), 6 if
+only Orthodox ones may. The claim in most conflicts (9 of 11) is one both traditions hold: what an
+ecumenical council defines cannot be in error. The dispute is over which councils count, not
+whether councils bind. The Assumption is in no conflict, and the Orthodox position stays consistent
+even if it grants that both papal bulls were ex cathedra acts, because it denies that such acts
+cannot err. The attribution of each definition to its document follows the standard histories and
+was not checked against the texts this session (the proxy refused every source host)
+([results](experiments/e32_church_cruxes/results.md)).
 
 **M2 (part), the SAT encoding proved correct (E31, 2026-11-22).** E30's CNF is satisfiable
 exactly when v is a separable successor of w, now a Lean 4 theorem for every frame given by

@@ -1,0 +1,474 @@
+{
+ "settings": {
+  "cells": 500,
+  "compactMoves": 5000
+ },
+ "dev_compact": [
+  {
+   "name": "gardeyn0",
+   "parts": 50,
+   "length": 55120,
+   "density": 0.7936,
+   "record": 48629.967,
+   "ratio": 0.8823,
+   "ms": 6858,
+   "check": true
+  },
+  {
+   "name": "gardeyn1",
+   "parts": 50,
+   "length": 18880,
+   "density": 0.7733,
+   "record": 16181.27,
+   "ratio": 0.8571,
+   "ms": 1820,
+   "check": true
+  },
+  {
+   "name": "gardeyn2",
+   "parts": 50,
+   "length": 53000,
+   "density": 0.8008,
+   "record": 47305.935,
+   "ratio": 0.8926,
+   "ms": 13324,
+   "check": true
+  },
+  {
+   "name": "gardeyn3",
+   "parts": 100,
+   "length": 66560,
+   "density": 0.8047,
+   "record": 60397.832,
+   "ratio": 0.9074,
+   "ms": 5896,
+   "check": true
+  },
+  {
+   "name": "gardeyn4",
+   "parts": 80,
+   "length": 6078,
+   "density": 0.6224,
+   "record": 4724.856,
+   "ratio": 0.7774,
+   "ms": 9453,
+   "check": true
+  },
+  {
+   "name": "gardeyn5",
+   "parts": 80,
+   "length": 5468,
+   "density": 0.5577,
+   "record": 4301.942,
+   "ratio": 0.7867,
+   "ms": 6899,
+   "check": true
+  },
+  {
+   "name": "gardeyn6",
+   "parts": 161,
+   "length": 18282.18,
+   "density": 0.8652,
+   "record": 17037.131,
+   "ratio": 0.9319,
+   "ms": 8316,
+   "check": true
+  },
+  {
+   "name": "gardeyn7",
+   "parts": 160,
+   "length": 5733.288,
+   "density": 0.7692,
+   "record": 5067.831,
+   "ratio": 0.8839,
+   "ms": 6006,
+   "check": true
+  },
+  {
+   "name": "gardeyn8",
+   "parts": 112,
+   "length": 55960,
+   "density": 0.7922,
+   "record": 48718.98,
+   "ratio": 0.8706,
+   "ms": 4047,
+   "check": true
+  },
+  {
+   "name": "gardeyn9",
+   "parts": 47,
+   "length": 73.04,
+   "density": 0.7813,
+   "record": 65.793,
+   "ratio": 0.9008,
+   "ms": 3108,
+   "check": true
+  }
+ ],
+ "dev_search100_compact": [
+  {
+   "name": "gardeyn0",
+   "parts": 50,
+   "length": 54560,
+   "density": 0.8017,
+   "record": 48629.967,
+   "ratio": 0.8913,
+   "ms": 25937,
+   "check": true
+  },
+  {
+   "name": "gardeyn1",
+   "parts": 50,
+   "length": 18560,
+   "density": 0.7867,
+   "record": 16181.27,
+   "ratio": 0.8718,
+   "ms": 6944,
+   "check": true
+  },
+  {
+   "name": "gardeyn2",
+   "parts": 50,
+   "length": 52260,
+   "density": 0.8121,
+   "record": 47305.935,
+   "ratio": 0.9052,
+   "ms": 59010,
+   "check": true
+  },
+  {
+   "name": "gardeyn3",
+   "parts": 100,
+   "length": 66560,
+   "density": 0.8047,
+   "record": 60397.832,
+   "ratio": 0.9074,
+   "ms": 62484,
+   "check": true
+  },
+  {
+   "name": "gardeyn4",
+   "parts": 80,
+   "length": 6069,
+   "density": 0.6233,
+   "record": 4724.856,
+   "ratio": 0.7785,
+   "ms": 80104,
+   "check": true
+  },
+  {
+   "name": "gardeyn5",
+   "parts": 80,
+   "length": 5300,
+   "density": 0.5753,
+   "record": 4301.942,
+   "ratio": 0.8117,
+   "ms": 65200,
+   "check": true
+  },
+  {
+   "name": "gardeyn6",
+   "parts": 161,
+   "length": 18226.32,
+   "density": 0.8678,
+   "record": 17037.131,
+   "ratio": 0.9348,
+   "ms": 123818,
+   "check": true
+  },
+  {
+   "name": "gardeyn7",
+   "parts": 160,
+   "length": 5611.368,
+   "density": 0.7859,
+   "record": 5067.831,
+   "ratio": 0.9031,
+   "ms": 87432,
+   "check": true
+  },
+  {
+   "name": "gardeyn8",
+   "parts": 112,
+   "length": 55640,
+   "density": 0.7967,
+   "record": 48718.98,
+   "ratio": 0.8756,
+   "ms": 56110,
+   "check": true
+  },
+  {
+   "name": "gardeyn9",
+   "parts": 47,
+   "length": 73.128,
+   "density": 0.7803,
+   "record": 65.793,
+   "ratio": 0.8997,
+   "ms": 11444,
+   "check": true
+  }
+ ],
+ "held_out_compact": [
+  {
+   "name": "albano",
+   "parts": 24,
+   "length": 10740.8,
+   "density": 0.8105,
+   "record": 9692.056,
+   "ratio": 0.9024,
+   "ms": 4853,
+   "check": true
+  },
+  {
+   "name": "blaz1",
+   "parts": 28,
+   "length": 30.6031,
+   "density": 0.7057,
+   "record": 25.049,
+   "ratio": 0.8185,
+   "ms": 3763,
+   "check": true
+  },
+  {
+   "name": "dagli",
+   "parts": 30,
+   "length": 65.16,
+   "density": 0.7762,
+   "record": 56.087,
+   "ratio": 0.8608,
+   "ms": 2319,
+   "check": true
+  },
+  {
+   "name": "fu",
+   "parts": 12,
+   "length": 36.0276,
+   "density": 0.791,
+   "record": 30.843,
+   "ratio": 0.8561,
+   "ms": 3700,
+   "check": true
+  },
+  {
+   "name": "jakobs1",
+   "parts": 25,
+   "length": 12.4012,
+   "density": 0.7902,
+   "record": 10.98,
+   "ratio": 0.8854,
+   "ms": 1079,
+   "check": true
+  },
+  {
+   "name": "jakobs2",
+   "parts": 25,
+   "length": 28.7029,
+   "density": 0.6723,
+   "record": 22,
+   "ratio": 0.7665,
+   "ms": 993,
+   "check": true
+  },
+  {
+   "name": "mao",
+   "parts": 20,
+   "length": 1989,
+   "density": 0.7411,
+   "record": 1696.802,
+   "ratio": 0.8531,
+   "ms": 2909,
+   "check": true
+  },
+  {
+   "name": "marques",
+   "parts": 24,
+   "length": 86.32,
+   "density": 0.8014,
+   "record": 75.176,
+   "ratio": 0.8709,
+   "ms": 1954,
+   "check": true
+  },
+  {
+   "name": "shapes0",
+   "parts": 43,
+   "length": 72.0872,
+   "density": 0.5534,
+   "record": 56.996,
+   "ratio": 0.7907,
+   "ms": 2268,
+   "check": true
+  },
+  {
+   "name": "shapes1",
+   "parts": 43,
+   "length": 68.4068,
+   "density": 0.5832,
+   "record": 52.002,
+   "ratio": 0.7602,
+   "ms": 2617,
+   "check": true
+  },
+  {
+   "name": "shirts",
+   "parts": 99,
+   "length": 69.12,
+   "density": 0.7813,
+   "record": 59.393,
+   "ratio": 0.8593,
+   "ms": 2404,
+   "check": true
+  },
+  {
+   "name": "swim",
+   "parts": 48,
+   "length": 7155.488,
+   "density": 0.6182,
+   "record": 5541.653,
+   "ratio": 0.7745,
+   "ms": 1950,
+   "check": true
+  },
+  {
+   "name": "trousers",
+   "parts": 64,
+   "length": 271.286,
+   "density": 0.8029,
+   "record": 235.172,
+   "ratio": 0.8669,
+   "ms": 4279,
+   "check": true
+  }
+ ],
+ "held_out_search100_compact": [
+  {
+   "name": "albano",
+   "parts": 24,
+   "length": 10633,
+   "density": 0.8187,
+   "record": 9692.056,
+   "ratio": 0.9115,
+   "ms": 9962,
+   "check": true
+  },
+  {
+   "name": "blaz1",
+   "parts": 28,
+   "length": 30.093,
+   "density": 0.7177,
+   "record": 25.049,
+   "ratio": 0.8324,
+   "ms": 11952,
+   "check": true
+  },
+  {
+   "name": "dagli",
+   "parts": 30,
+   "length": 65.76,
+   "density": 0.7691,
+   "record": 56.087,
+   "ratio": 0.8529,
+   "ms": 6400,
+   "check": true
+  },
+  {
+   "name": "fu",
+   "parts": 12,
+   "length": 35.4195,
+   "density": 0.8046,
+   "record": 30.843,
+   "ratio": 0.8708,
+   "ms": 5898,
+   "check": true
+  },
+  {
+   "name": "jakobs1",
+   "parts": 25,
+   "length": 12.4012,
+   "density": 0.7902,
+   "record": 10.98,
+   "ratio": 0.8854,
+   "ms": 1558,
+   "check": true
+  },
+  {
+   "name": "jakobs2",
+   "parts": 25,
+   "length": 27.4427,
+   "density": 0.7032,
+   "record": 22,
+   "ratio": 0.8017,
+   "ms": 2082,
+   "check": true
+  },
+  {
+   "name": "mao",
+   "parts": 20,
+   "length": 1989,
+   "density": 0.7411,
+   "record": 1696.802,
+   "ratio": 0.8531,
+   "ms": 5571,
+   "check": true
+  },
+  {
+   "name": "marques",
+   "parts": 24,
+   "length": 85.072,
+   "density": 0.8131,
+   "record": 75.176,
+   "ratio": 0.8837,
+   "ms": 4593,
+   "check": true
+  },
+  {
+   "name": "shapes0",
+   "parts": 43,
+   "length": 69.527,
+   "density": 0.5738,
+   "record": 56.996,
+   "ratio": 0.8198,
+   "ms": 7658,
+   "check": true
+  },
+  {
+   "name": "shapes1",
+   "parts": 43,
+   "length": 64.0864,
+   "density": 0.6225,
+   "record": 52.002,
+   "ratio": 0.8114,
+   "ms": 7005,
+   "check": true
+  },
+  {
+   "name": "shirts",
+   "parts": 99,
+   "length": 68.24,
+   "density": 0.7913,
+   "record": 59.393,
+   "ratio": 0.8704,
+   "ms": 9775,
+   "check": true
+  },
+  {
+   "name": "swim",
+   "parts": 48,
+   "length": 6982.928,
+   "density": 0.6335,
+   "record": 5541.653,
+   "ratio": 0.7936,
+   "ms": 6597,
+   "check": true
+  },
+  {
+   "name": "trousers",
+   "parts": 64,
+   "length": 262.28,
+   "density": 0.8304,
+   "record": 235.172,
+   "ratio": 0.8966,
+   "ms": 21424,
+   "check": true
+  }
+ ]
+}

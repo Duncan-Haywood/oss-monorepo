@@ -398,11 +398,10 @@ flagships:
       SAT-proved out (eval/golf-tee-grid.txt); next: a real league's season. Box
       leagues 2026-11-21 (boxleague.mjs); next: a real club's month. Practice slots
       on shared fields 2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima,
-      eval/practice-exact.txt); next: a real league's fields and teams. 2026-11-23
-      drawn colour (E.5) and TRF XXC: arbiters' colours on 4,358/4,358 boards, byes
-      21/24 (eval/swiss-colour-truth.txt); ChessHouse r8 bye fixed 2026-11-23
-      (weighed in its bracket, byes 40/42); next: a real club's TRF. calc.mjs split
-      2026-11-23, pages 67-93% lighter (eval/page-weight.txt). More: NEXT.md.
+      eval/practice-exact.txt); ChessHouse r8 bye fixed 2026-11-23 (weighed in its
+      bracket, byes 40/42); next: a real club's TRF. calc.mjs split 2026-11-23,
+      pages 67-93% lighter; multi-division page 217 to 75 kB via fields.mjs
+      (eval/page-weight.txt). More: NEXT.md. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
@@ -523,22 +522,20 @@ flagships:
       2026-11-21, 465/492 stored lengths, eval/wall-axis-lengths-2026-11-21.md; brep
       and no-Axis walls too, 3,247 of 3,312 walls,
       eval/wall-brep-lengths-2026-11-21.md; clipped walls' Height by authoring tool
-      2026-11-22, 16/16 stored, eval/wall-cut-top-heights-2026-11-22.md;
-      column/beam/member Length 2026-11-22, 3,227/3,233,
-      eval/member-lengths-2026-11-22.md; Tekla's cut members by a face-flush box
-      2026-11-22, 147 more, 147 within 0.1%, eval/tekla-cut-members-2026-11-22.md;
-      slab Width/Perimeter 2026-11-22, 396/396, 375/377; space Qto_ 2026-11-22,
-      eval/space-quantities-2026-11-22.md; member Outer/GrossSurfaceArea by tool
+      2026-11-22, 16/16 stored, eval/wall-cut-top-heights-2026-11-22.md; Tekla's cut
+      members by a face-flush box 2026-11-22, 147 more, 147 within 0.1%,
+      eval/tekla-cut-members-2026-11-22.md; member Outer/GrossSurfaceArea by tool
       2026-11-22, 1,479/1,544, 398/410, eval/member-surfaces-2026-11-22.md; next: a
       Revit Perimeter, an ARCHICAD or Revit tube's figure; NetWeight/GrossWeight as
       volume x density 2026-11-22, --densities, 1,152/1,152 Tekla weights,
       eval/member-weights-2026-11-22.md; next: a Revit/ARCHICAD export storing
-      weights); openings' Width/Height/Depth/Area by ARCHICAD's or Revit's
-      convention 2026-11-22, 4,532/4,554, eval/opening-quantities-2026-11-22.md;
-      Revit brep openings 2026-11-22, 102/102,
+      weights); Revit brep openings 2026-11-22, 102/102,
       eval/opening-brep-quantities-2026-11-22.md; next: a BIM manager's filled
-      table. HTML report (eval/html-report-2026-11-21.md): next, a consultant's
-      read. More open items: NEXT.md.
+      table. COBie 2.4 workbook and QC 2026-11-23 (cobie.mjs, cobie.html, --cobie,
+      --cobie-qc; eval/cobie-2026-11-23.md: 791/869 doors and windows get the file's
+      own rooms from geometry); next: ARK_NUS's 85 furniture in another room,
+      body-less terminals by their placement point, a real owner's COBie QC. HTML
+      report: next, a consultant's read. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

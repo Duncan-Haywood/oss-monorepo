@@ -71,7 +71,7 @@ test("the module scripts import only local files, and the inline script parses",
   // doubleheader nights), never a package or URL
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\b/m);
   assert.deepEqual([...page("calc.mjs").matchAll(/^export \{[^}]+\} from "\.\/([^"]+)";$/gm)].map((m) => m[1]), [...CALC_PARTS, "swiss.mjs"]);
-  const allowed = new Set([...CALC_PARTS, "whist.mjs", "carryover.mjs", "swiss.mjs", "nights.mjs"]);
+  const allowed = new Set([...CALC_PARTS, "whist.mjs", "carryover.mjs", "swiss.mjs", "nights.mjs", "fields.mjs"]);
   for (const f of CALC_PARTS) {
     for (const m of page(f).matchAll(/^\s*import .* from "([^"]+)"/gm)) assert.ok(allowed.has(m[1].replace(/^\.\//, "")) && m[1].startsWith("./"), `${f} imports ${m[1]}`);
     assert.ok(!/from "\.\/calc\.mjs"/.test(page(f)), `${f} imports the barrel`);
@@ -1069,9 +1069,10 @@ test("the one-format pages load neither the season builder nor the carry-over se
     }
     return seen;
   };
-  // Every page in the folder but the two that build whole seasons (the single-league page and the
-  // multi-division page, whose divisions.mjs uses the season builder's text parsers).
-  const FULL = new Set(["index.html", "multi-division-league-schedule.html"]);
+  // Every page in the folder but the single-league page, which builds whole seasons. The multi-division
+  // page reached schedule.mjs (and the carry-over search behind it) for seven text parsers until those
+  // moved to fields.mjs on 2026-11-23; divisions.mjs builds its own season and needs none of the rest.
+  const FULL = new Set(["index.html"]);
   const pages = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html") && !FULL.has(f));
   let withModules = 0;
   for (const p of pages) {

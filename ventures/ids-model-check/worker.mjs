@@ -10,6 +10,7 @@ import { modelInventory } from "./inventory.mjs";
 import { fillModel, fillReport, toFillCsv, readValues } from "./model-fill.mjs";
 import { measureModel, geometryLookup } from "./geometry-quantities.mjs";
 import { toStep } from "./step-writer.mjs";
+import { cobieFromModel, cobieToXlsx, cobieQc, qcText, numberRows, placementFromTakeoff, SHEETS } from "./cobie.mjs";
 
 const cache = {};
 async function json(name) {
@@ -67,7 +68,7 @@ async function loadSchemas(ids) {
 }
 
 self.onmessage = async (ev) => {
-  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, densities, req, asStep } = ev.data;
+  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, densities, req, asStep, cobie } = ev.data;
   // Echo the caller's request number (index.html drops stale replies).
   const postMessage = (m) => self.postMessage({ ...m, req });
   try {
@@ -84,6 +85,35 @@ self.onmessage = async (ev) => {
       inv.parseErrors = model.parseErrors.length;
       inv.seconds = (performance.now() - t0) / 1000;
       postMessage({ inventory: inv });
+      return;
+    }
+    // cobie.html: a COBie 2.4 workbook from the model and its QC (cobie.mjs);
+    // cobie.geometry puts components the file leaves on a storey in the room
+    // they stand in, read by ifc-quantity-takeoff (served beside this page).
+    if (cobie) {
+      const id = schemaOf(ifc);
+      if (!id) throw new Error("the model's schema (FILE_SCHEMA, or the ifcXML namespace) is not IFC2X3, IFC4 or IFC4X3");
+      const schemas = await loadSchemas(id === ANY ? ALL : [id]);
+      const ifc5 = looksLikeIfcx(ifc instanceof Uint8Array ? new TextDecoder().decode(ifc.subarray(0, 16000)) : ifc);
+      const model = new Model(ifc, modelSchemas(id, schemas), ifc5 ? { psets: { IFC4X3: await json("psets-ifc4x3.json") } } : {});
+      let placement = null;
+      if (cobie.geometry) {
+        const src = model.format === "STEP" ? (ifc instanceof Uint8Array ? new TextDecoder().decode(ifc) : ifc) : toStep(model).text;
+        const [{ parseStep }, { takeoff }] = await Promise.all([import(new URL("../ifc-quantity-takeoff/step.mjs", import.meta.url).href), import(new URL("../ifc-quantity-takeoff/qto.mjs", import.meta.url).href)]);
+        // A model written as STEP first numbers its entities anew, so the
+        // rooms are matched to this model's spaces by GlobalId.
+        const tk = takeoff(parseStep(src));
+        if (model.format !== "STEP") {
+          const byGid = new Map();
+          for (const e of model.entities.values()) { const g = model.attr(e, "GlobalId"); if (typeof g === "string") byGid.set(g, e.id); }
+          for (const r of tk.rows) r.id = byGid.get(r.globalId) ?? -1;
+          for (const r of tk.rooms) r.id = byGid.get(r.globalId) ?? -1;
+        }
+        placement = placementFromTakeoff(tk);
+      }
+      const c = numberRows(cobieFromModel(model, { placement, contact: cobie.contact || null, createdOn: cobie.createdOn || null, na: !!cobie.na }));
+      const qc = cobieQc(c.sheets, { stage: cobie.stage });
+      postMessage({ cobie: { xlsx: cobieToXlsx(c), notes: c.notes, rows: Object.fromEntries(SHEETS.map((s) => [s, c.sheets[s].length])), qc: { ...qc, issues: qc.issues.slice(0, 20000) }, text: qcText(qc, { examples: 5 }), seconds: (performance.now() - t0) / 1000 } });
       return;
     }
     // "Download as STEP (.ifc)": an ifcXML, ifcJSON or IFC5 model written

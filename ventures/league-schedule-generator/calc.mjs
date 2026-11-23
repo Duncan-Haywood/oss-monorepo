@@ -13,6 +13,8 @@
 //   dates.mjs         Dates and times: weekday names, ISO days, the next play day, parsing of dates, weekdays and clock times.
 //   names.mjs         Team names: read a pasted list (lines, commas, a spreadsheet column) and find a typed name in it.
 //   schedule.mjs      The season itself: text fields, slot assignment, building the dated schedule,
+//   fields.mjs        Shared text-field readers (CSV rows, name and time lists, court closures), relabelling and forfeits;
+//                     schedule.mjs re-exports them, and divisions.mjs takes them from here to skip the season builder.
 //   rounds.mjs        Circle-method rounds: single and double round robins with home and away built in, and their breaks.
 //   share.mjs         The share link (every field in the URL, read back safely), the example league and next season's fields.
 //   rng.mjs           Seeded randomness: one small generator every search shares, so a seed gives the same season everywhere.

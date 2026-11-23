@@ -44,6 +44,13 @@ def floor_closed(g: Bribery, x):
 
 
 def collusion_proof_stake(g: Bribery):
-    """Least stake beyond which bribing all m verifiers cannot push cheating to rate 1; falls as 1/m."""
+    """Least stake beyond which bribing all m verifiers cannot push cheating to rate 1.
+
+    Two conditions must both hold: bribing all m verifiers costs more than the saving (this stake falls as 1/m),
+    and checking pays at all when the solver always cheats, (1 - phi)(lam S + h) > k - phi J. Below the second
+    stake the verifiers stay silent unbribed whatever m is, so the threshold is the larger of the two (the
+    verifier-bribery project's quality-audit correction of 2026-11-13, ported here)."""
     bonus = max(0.0, g.m * (g.phi * g.J - g.k) / (1 - g.phi))
-    return max(0.0, ((g.s - bonus) / g.m - g.h) / g.lam)
+    bribe = ((g.s - bonus) / g.m - g.h) / g.lam
+    checking_pays = ((g.k - g.phi * g.J) / (1 - g.phi) - g.h) / g.lam
+    return max(0.0, bribe, checking_pays)

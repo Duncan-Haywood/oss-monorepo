@@ -191,3 +191,34 @@ test("the order search repeats, never ends worse than no search, and still passe
   assert.equal(a.result.sheets.length, 1);
   assert.ok(a.result.sheets[0].usedLength <= base.result.sheets[0].usedLength);
 });
+
+test("compaction keeps the gap, repeats, never lengthens the last sheet, and shortens random jobs", () => {
+  const r = rng(2026);
+  let shorter = 0;
+  for (let t = 0; t < 6; t++) {
+    const items = [];
+    for (let k = 0; k < 4; k++) {
+      const n = 3 + Math.floor(r() * 7), pts = [];
+      const R = 20 + r() * 60;
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2, rad = R * (0.4 + 0.6 * r());
+        pts.push([rad * Math.cos(a), rad * Math.sin(a)]);
+      }
+      const holes = r() < 0.5 ? [[circleEdge(0, 0, R * 0.2)]] : [];
+      items.push({ name: "P" + k, part: finishPart({ outer: polyEdges(pts), holes, marks: [] }, 0.05), qty: 2 + Math.floor(r() * 5) });
+    }
+    const gap = r() * 6;
+    const opts = { sheetW: 1500, sheetH: 300, gap, margin: r() * 8, res: 2, tol: 0.05, rotations: [0, 90, 180, 270], timeLimitMs: 60000 };
+    const plain = runJob(items, opts);
+    const a = runJob(items, { ...opts, compactMoves: 800 });
+    const b = runJob(items, { ...opts, compactMoves: 800 });
+    assert.ok(a.check.ok, a.check.problems.join("\n"));
+    if (a.check.minGap < Infinity) assert.ok(a.check.minGap >= gap);
+    assert.equal(a.report.totalParts, plain.report.totalParts);
+    const last = (j) => j.result.sheets[j.result.sheets.length - 1].usedLength;
+    assert.ok(last(a) <= last(plain), `compaction lengthened job ${t}: ${last(a)} > ${last(plain)}`);
+    assert.deepEqual(a.result.sheets, b.result.sheets, "same job, same nest");
+    if (last(a) < last(plain)) shorter++;
+  }
+  assert.ok(shorter >= 3, `only ${shorter} of 6 random jobs got shorter`);
+});

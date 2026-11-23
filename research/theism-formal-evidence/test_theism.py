@@ -546,6 +546,35 @@ def test_e31_lean_enc_matches_encode_and_non_successors_separable():
     assert e30.separable_sat(d, 0, 1, solver=e30.dpll) is None
 
 
+def test_e32_church_cruxes_rechecked_without_sat():
+    """Every reported MUS is unsatisfiable and minimal by logic.py's own checker; the
+    reported hitting sets meet every MUS. Needs no PySAT."""
+    import json
+    e32 = _load("e32_church_cruxes")
+    r = json.loads((Path(__file__).resolve().parent / "experiments" / "e32_church_cruxes" / "results.json").read_text())
+    muses = [x["mus"] for x in r["mus"]]
+    assert len(muses) == 12 and all(e32.recheck(x) for x in muses)
+    assert not any("fM" in x for x in muses)
+    for k, hs in r["hitting"].items():
+        sets = muses if k != "shared_only" else [x for x in muses if set(x) != {"a1", "dA1"}]
+        assert all(set(h) & set(s) for h in hs for s in sets)
+    # H3 refuted only at the Immaculate Conception: both of its sets force 3 contested claims
+    assert {d: v["min_contested"] for d, v in r["by_denial"].items()} == {
+        "dF": 2, "dP": 2, "dR": 2, "dI": 3, "dA1": 2, "dH": 2}
+
+
+def test_e32_enumeration_reproduces_with_sat():
+    import pytest
+    pytest.importorskip("pysat")
+    e32 = _load("e32_church_cruxes")
+    r = e32.run()
+    assert r["consistent"] == {"catholic": True, "orthodox": True}
+    assert r["n_mus"] == 12 and r["recheck_all_ok"] and r["e1_crosscheck"]["agree"]
+    assert [len(r["hitting"][k][0]) for k in ("any_contested", "catholic_only", "orthodox_only", "any_claim")] == [5, 5, 6, 2]
+    assert r["position_extensions"] == {"orthodox": ["sI", "sM"], "catholic": []}
+    assert r["membership_nontrivial"]["a2"] == 9 and r["membership_nontrivial"]["sV"] == 4
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

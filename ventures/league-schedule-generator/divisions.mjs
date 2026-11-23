@@ -8,7 +8,7 @@
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
 import { csvCell, htmlEsc, icsEscape, icsFold, icsAlarm, standingsCsv } from "./outputs.mjs";
-import { csvRows, relabelPlan, parseTimes, parseNameList, parseCourtClosures, courtClosedOn, forfeitReport } from "./schedule.mjs";
+import { csvRows, relabelPlan, parseTimes, parseNameList, parseCourtClosures, courtClosedOn, forfeitReport } from "./fields.mjs";
 import { roundRobin } from "./rounds.mjs";
 import { mulberry32 } from "./rng.mjs";
 import { parseDate, parseDateList, parseWeekdays, dayIso, dayOfWeek, dayLabel } from "./dates.mjs";
