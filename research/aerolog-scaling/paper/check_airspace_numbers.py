@@ -328,6 +328,17 @@ CHECKS = [
     ('chicago_transfer_results.txt', 'leak 1:0 / 2:0 / 3:1.4e-05 / 4:0.18 / 5:0.029 / 6:0.024', '0.18 at 4 bands, 0.029 at 5, 0.024 at 6'),
     ('chicago_transfer_results.txt', '# C2 -> refuted', 'six held'),
     ('chicago_transfer_posthoc_results.txt', 'Chicago (11bd)      16  2.0  | 1.0063  1.2932  | 1.0039       1.0190', 'brings that draw to 1.0000'),
+    # 11be first-crossing budget, fresh layouts in both cities
+    ('first_crossing_results.txt', 'k_F != k_B: NYC 2 of 192, Chicago 6 of 192', '**8 of 384** draws (2 in New York, 6 in Chicago)'),
+    ('first_crossing_results.txt', 'pooled: F6 worse than S6 on 0 draws, better on 3, of 384; F6 worst 1.0294', 'is better on 3'),
+    ('first_crossing_results.txt', 'pooled: F6 worse than S6 on 0 draws, better on 3, of 384; F6 worst 1.0294', 'all 384 is **1.0294**'),
+    ('first_crossing_results.txt', 'S6 1.1745, F6 1.0000', '**1.1745, 1.0844 and 1.1542**'),
+    ('first_crossing_results.txt', 'S6 1.0844, F6 1.0000', '**1.1745, 1.0844 and 1.1542**'),
+    ('first_crossing_results.txt', 'S6 1.1542, F6 1.0000', '**1.1745, 1.0844 and 1.1542**'),
+    ('first_crossing_results.txt', 'S6     median 1.0000  p90 1.0029  mean 1.0042  max 1.1745', 'costs up to 17%'),
+    ('first_crossing_results.txt', 'all                  1536 |   28      | F6 worse on 0, better on 4', '(1 536 draws, two cities) the readings differ on 28 draws'),
+    ('first_crossing_results.txt', '# D8 -> held', 'all eight held'),
+    ('first_crossing_results.txt', '# D1 -> held', 'all eight held'),
 ]
 
 
