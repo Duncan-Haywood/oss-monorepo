@@ -1,0 +1,72 @@
+Milestone 7am: 36 designs of milestone 7l retrained at 45 deg (kp 9.96-31.47 s^-2), flown uncapped at a 45 deg
+tilt-command limit, lever 0, 64 held-out flights (seed 9999), 18 s, start-offset half-width 0.5 s m. kp10 = t45 and t45 cap (24 designs),
+wide = t45 cap wide (12). Deaths per group (kp10 of 1536, wide of 768).
+  s     half-width   quiet+O kp10  quiet+O wide   full kp10   full wide
+  0.02   0.010 m            0             0           0           0
+  0.05   0.025 m            0             0           0           0
+  0.1    0.050 m            0             0           0           0
+  0.15   0.075 m            0             0           0           0
+  0.2    0.100 m            0             0           0           0
+  0.3    0.150 m            0             3           0          12
+  0.4    0.200 m            0            51           0          73
+  0.5    0.250 m            0           164           0         183
+  0.6    0.300 m            0           238           0         253
+  0.8    0.400 m            0           368           1         375
+  1      0.500 m            9           455          14         463
+  1.25   0.625 m           51           514          68         521
+  1.5    0.750 m          179           563         223         569
+  2      1.000 m          394           642         450         648
+
+RB0 6 s check: uncapped 552 (7l stored 552), capped 0 (stored 0); per-design mismatches 0 of 72 -> held
+(context) quiet+O: 1041 (design, flight) pairs die somewhere on the grid; 1034 die at every larger s
+RB1 quiet+O over 32256 (design, flight, s) pairs: AUC kp*s*max|off| 0.985, AUC s*max|off| 0.910 (bar >= 0.90 and >= distance + 0.03) -> held
+    within kp10: AUC acc 0.981, dist 0.981
+    within wide: AUC acc 0.977, dist 0.975
+RB2 log median e_c on log kp over 35 designs with >= 8 deaths by s = 2: slope -0.77 (bar -1.3 to -0.7; distance alone 0) -> held; with e_c measured along each ray (s * max|off|) the slope is -1.06
+  per design (label, geom, seed, kp, flights dying by s=2, median e_c m, median kp*e_c m/s^2):
+    t45 cap       below 0  kp   9.96   20  e_c 1.000  kp*e_c 9.96
+    t45 cap       above 5  kp   9.97   16  e_c 0.875  kp*e_c 8.72
+    t45 cap       below 3  kp   9.97   20  e_c 1.000  kp*e_c 9.97
+    t45 cap       above 3  kp   9.98   17  e_c 1.000  kp*e_c 9.98
+    t45           below 4  kp   9.98   19  e_c 1.000  kp*e_c 9.98
+    t45           above 2  kp   9.98   14  e_c 0.875  kp*e_c 8.73
+    t45 cap       above 4  kp   9.98   14  e_c 0.875  kp*e_c 8.74
+    t45           above 1  kp   9.98   10  e_c 0.750  kp*e_c 7.49
+    t45           above 3  kp   9.99    9  e_c 0.750  kp*e_c 7.49
+    t45 cap       below 5  kp   9.99   16  e_c 1.000  kp*e_c 9.99
+    t45           below 2  kp   9.99   18  e_c 1.000  kp*e_c 9.99
+    t45           above 4  kp   9.99   17  e_c 1.000  kp*e_c 9.99
+    t45           below 5  kp   9.99    1  e_c 1.000  kp*e_c 9.99
+    t45           below 0  kp   9.99   18  e_c 1.000  kp*e_c 9.99
+    t45 cap       below 1  kp   9.99   24  e_c 0.750  kp*e_c 7.50
+    t45           below 3  kp   9.99   18  e_c 1.000  kp*e_c 9.99
+    t45           above 0  kp   9.99   11  e_c 0.750  kp*e_c 7.50
+    t45 cap       above 0  kp  10.00   23  e_c 0.750  kp*e_c 7.50
+    t45           below 1  kp  10.00   20  e_c 1.000  kp*e_c 10.00
+    t45 cap       above 2  kp  10.00   18  e_c 0.750  kp*e_c 7.50
+    t45           above 5  kp  10.00   12  e_c 0.875  kp*e_c 8.75
+    t45 cap       above 1  kp  10.00   16  e_c 0.875  kp*e_c 8.75
+    t45 cap       below 2  kp  10.00   20  e_c 1.000  kp*e_c 10.00
+    t45 cap       below 4  kp  10.00   23  e_c 1.000  kp*e_c 10.00
+    t45 cap wide  below 3  kp  21.66   48  e_c 0.500  kp*e_c 10.83
+    t45 cap wide  above 3  kp  23.46   51  e_c 0.500  kp*e_c 11.73
+    t45 cap wide  below 0  kp  24.09   54  e_c 0.400  kp*e_c 9.63
+    t45 cap wide  above 2  kp  26.48   52  e_c 0.400  kp*e_c 10.59
+    t45 cap wide  above 1  kp  26.74   52  e_c 0.400  kp*e_c 10.70
+    t45 cap wide  above 0  kp  28.33   57  e_c 0.400  kp*e_c 11.33
+    t45 cap wide  above 4  kp  28.58   53  e_c 0.400  kp*e_c 11.43
+    t45 cap wide  below 4  kp  28.64   55  e_c 0.400  kp*e_c 11.46
+    t45 cap wide  below 5  kp  28.99   56  e_c 0.400  kp*e_c 11.60
+    t45 cap wide  below 1  kp  29.84   56  e_c 0.400  kp*e_c 11.94
+    t45 cap wide  below 2  kp  30.23   56  e_c 0.400  kp*e_c 12.09
+    t45 cap wide  above 5  kp  31.47   57  e_c 0.400  kp*e_c 12.59
+  kp10: median of per-design median e_c 1.000 m, of kp*e_c 9.96 m/s^2 (23 designs)
+  wide: median of per-design median e_c 0.400 m, of kp*e_c 11.44 m/s^2 (12 designs)
+RB3 quiet+O pairs with initial request kp*s*max|off| < 4.7 m/s^2: 25249, of which 26 die (0.0010; bar <= 0.01) -> held
+    kp10: 18744 pairs, 3 die
+    wide: 6505 pairs, 23 die
+    smallest initial request that killed a flight: kp10 4.67, wide 4.31 m/s^2
+RB4 full, (uncapped, capped) deaths {'1.0': {'wide': [463, 0], 'kp10': [14, 0]}, '2.0': {'wide': [648, 0], 'kp10': [450, 0]}} (bar: cap removes >= 90% of the wide designs' at s = 1 and 2) -> held
+Post hoc kp10: per-design median critical request kp*s*max|off| (ray) median 7.40 m/s^2 (range 5.92-8.74); g tan 45 deg = 9.81
+Post hoc wide: per-design median critical request kp*s*max|off| (ray) median 7.01 m/s^2 (range 6.48-7.59); g tan 45 deg = 9.81
+Post hoc grid censoring: 23 kp10 designs, 12 with median e_c at the grid's top (1.0 m)

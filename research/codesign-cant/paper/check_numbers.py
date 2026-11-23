@@ -12,6 +12,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.join(HERE, "..", "experiments")
 
 CHECKS = [
+    # section VI, the start-offset basin as an acceleration (milestone 7am, 2026-11-23)
+    ("ranks dead against alive with AUC 0.985,\nagainst 0.910", "m7am_roa_kp/stats.txt", r"AUC kp\*s\*max\|off\| 0\.985, AUC s\*max\|off\| 0\.910"),
+    ("falls as kp^−1.06", "m7am_roa_kp/stats.txt", r"along each ray \(s \* max\|off\|\) the slope is -1\.06"),
+    ("7.40 m/s² at kp ≈ 10 and 7.01 m/s² at kp 22–31", "m7am_roa_kp/stats.txt", r"kp10: per-design median critical request [^\n]*median 7\.40[\s\S]*wide: per-design median critical request [^\n]*median 7\.01"),
+    ("26 of\n25,249 starts below 4.7 m/s² die (the smallest fatal request is 4.31 m/s²", "m7am_roa_kp/stats.txt", r"< 4\.7 m/s\^2: 25249, of which 26 die[\s\S]*wide 4\.31 m/s\^2"),
+    ("1,034 die at every\nlarger start", "m7am_roa_kp/stats.txt", r"1041 \(design, flight\) pairs die somewhere on the grid; 1034 die at every larger s"),
+    ("463 to 0 at a 0.5 m start and 648 to 0\nat 1 m", "m7am_roa_kp/stats.txt", r"'1\.0': \{'wide': \[463, 0\][^\n]*'2\.0': \{'wide': \[648, 0\]"),
     # section VI, describing function of the tilt limit (milestone 7aj, 2026-11-23)
     ("1.44 Hz against 1.44 Hz", "m7aj_descfn/stats.txt", r"f\* median 1\.44 Hz, measured 1\.44 Hz; median \|rel err\| 0\.025"),
     ("26.5°\nagainst 24.7° (ratio 1.09, IQR 1.03-1.25)", "m7aj_descfn/stats.txt", r"predicted tilt amplitude median 26\.5 deg, measured 24\.7 deg; ratio median 1\.09 \(IQR 1\.03-1\.25\)"),
