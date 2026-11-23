@@ -97,3 +97,9 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: route-account-pruner$/m);
 });
+
+test("audit 2026-11-23: the gain tile says freed hours must be refilled, and capped raises say so", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /freed hours earn your hour value again/);
+  assert.match(html, /your limit/);
+});

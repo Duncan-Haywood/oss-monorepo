@@ -54,11 +54,11 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-23-quality-audit-round-103.md",
+    "docs/posts/2026-11-23-quality-audit-round-104.md",
     "docs/reports/2026-11-23-undamped-newton-copies.md"
   ],
   "goal": null,
-  "notes": "Seed 2026-11-23-d-6b5b, round 103, mode sample. Subjects: ventures/rent-roll-delinquency-analyzer, ventures/uk-capital-allowances-calculator, research/ambient-ips, research/buildbot-skillpack. Share meeting the bar: 0 of 4 (sampled overall 38 of 421, Wilson 7-12%). Seeded bugs caught 6 of 20. Fix PR: #18391 (all fixes in the round PR). Spot-checks rerun by the session: rent-roll split ledger and credit; UK 14% via GOV.UK search and s58(5); ambient-ips objective 47,679 vs 105; buildbot mixed gains == B_random seed 3. Local checks: rent-roll node --test 38/38, uk-capital-allowances 26/26, ambient-ips pytest 6/6, buildbot-skillpack pytest 16/16, research/_homepage/build.py ok, check_md_links ok, check_posts ok, quality_audit validate 655 files 0 problems. Open: 8 ambient-* projects still use undamped Newton (docs/reports/2026-11-23-undamped-newton-copies.md); buildbot-skills batch-window scoring.",
+  "notes": "Seed 2026-11-23-d-6b5b, round 104 (sample printed 103; PR #18385 merged its own round 103 first, so the post was renamed), mode sample. Subjects: ventures/rent-roll-delinquency-analyzer, ventures/uk-capital-allowances-calculator, research/ambient-ips, research/buildbot-skillpack. Share meeting the bar: 0 of 4 (sampled overall 38 of 421, Wilson 7-12%). Seeded bugs caught 6 of 20. Fix PR: #18391 (all fixes in the round PR). Spot-checks rerun by the session: rent-roll split ledger and credit; UK 14% via GOV.UK search and s58(5); ambient-ips objective 47,679 vs 105; buildbot mixed gains == B_random seed 3. Local checks: rent-roll node --test 38/38, uk-capital-allowances 26/26, ambient-ips pytest 6/6, buildbot-skillpack pytest 16/16, research/_homepage/build.py ok, check_md_links ok, check_posts ok, quality_audit validate 655 files 0 problems. Open: 8 ambient-* projects still use undamped Newton (docs/reports/2026-11-23-undamped-newton-copies.md); buildbot-skills batch-window scoring.",
   "corrections": [],
   "redteam": null,
   "usage": {

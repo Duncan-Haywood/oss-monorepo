@@ -30,7 +30,7 @@ PYTHONPATH=src python3 experiments/run.py       # about 200 s, writes experiment
 
 ## Results (all from `experiments/results.txt`; utility per hour, mean &plusmn; std over 20 seeds; oracle 12.71)
 
-**Corrected 2026-11-23** (quality audit round 103, `portfolio/quality/audits/2026-11-23-ambient-ips.json`). The first version used undamped Newton steps in `fit_map`; 9 of the 24 hour-100 fits never converged (objective 450 to 380,000 times the minimum), all six uninformed unweighted cells and three IPS cells among them. That divergence, not the weighting, produced the "uninformed-prior failure" and the drift "worst row" reported before. The fit now uses the damped Newton of `ambient-fullinfo` (PR #18259) and the table is rerun with the same seeds. Results 1 and 4 changed; 2 and 3 held.
+**Corrected 2026-11-23** (quality audit round 104, `portfolio/quality/audits/2026-11-23-ambient-ips.json`). The first version used undamped Newton steps in `fit_map`; 9 of the 24 hour-100 fits never converged (objective 450 to 380,000 times the minimum), all six uninformed unweighted cells and three IPS cells among them. That divergence, not the weighting, produced the "uninformed-prior failure" and the drift "worst row" reported before. The fit now uses the damped Newton of `ambient-fullinfo` (PR #18259) and the table is rerun with the same seeds. Results 1 and 4 changed; 2 and 3 held.
 
 | prior | &epsilon; | weighting | online h 20&ndash;100 | dismissals/h | model @100 h, no exploration |
 |---|---|---|---|---|---|

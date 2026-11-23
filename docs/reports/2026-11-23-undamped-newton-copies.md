@@ -5,7 +5,7 @@ tagged: auto
 ---
 # Undamped Newton `fit_map` copies in the ambient-* projects
 
-Quality round 103 (`portfolio/quality/audits/2026-11-23-ambient-ips.json`) found that `research/ambient-ips` reported an "uninformed-prior failure" that was really its MAP logistic fit diverging. That fit uses full Newton steps with no line search. The same bug had already been fixed in `research/ambient-fullinfo` (PR #18259, damped Newton with Armijo backtracking). Round 103 ported that fix to `ambient-ips` and reran it.
+Quality round 104 (`portfolio/quality/audits/2026-11-23-ambient-ips.json`) found that `research/ambient-ips` reported an "uninformed-prior failure" that was really its MAP logistic fit diverging. That fit uses full Newton steps with no line search. The same bug had already been fixed in `research/ambient-fullinfo` (PR #18259, damped Newton with Armijo backtracking). Round 103 ported that fix to `ambient-ips` and reran it.
 
 On 2026-11-23 these copies of `fit_map` still take undamped steps:
 

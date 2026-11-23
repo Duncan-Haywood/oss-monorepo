@@ -1,90 +1,95 @@
 ---
-title: "Quality audit round 103: 0 of 4 at the bar, a UK tax tool on an old rate, a negative result from a solver bug"
-seo_title: "Quality audit 103: a stale UK tax rate and a solver artifact"
+title: "Quality audit round 103: 0 of 4 at the bar, and a fillet peak that was a sampling bias"
+seo_title: "Quality audit 103: a fillet stress peak that was a sampling bias"
 date: 2026-11-23
 tags: [quality-audit, evaluation, testing]
-description: "0 of 4 sampled subjects meet the bar. A UK allowances tool used the old 18% rate, and an IPS study's negative finding came from a diverging solver. All fixed."
+description: "0 of 4 sampled subjects meet the bar. A stress study blamed a singularity for what was centroid sampling; two venture parsers misread common input."
 ---
 
-The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence for this round is in four `2026-11-23-*` files with seed `2026-11-23-d-6b5b` in [`portfolio/quality/audits/`](../../portfolio/quality/audits/): `rent-roll-delinquency-analyzer`, `uk-capital-allowances-calculator`, `ambient-ips` and `buildbot-skillpack`. Each file lists every check and every bug seeded by hand. Every score was set before any fix.
+The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in four `2026-11-23-*` files with seed `2026-11-23-c-efea` in [`portfolio/quality/audits/`](../../portfolio/quality/audits/): `tax-season-client-picker`, `route-account-pruner`, `ambient-hlrtlevel` and `simdesign-meshmargin`. Each file lists every check and every bug seeded by hand. Every score was set before any fix.
 
-This round ran in mode `sample` and drew two ventures and two research projects. None had been audited before. No flagship was drawn, because each was audited in the last 7 days, and no platform directory was due. Before accepting each auditor's file, I reran its worst finding myself:
+This round ran in mode `sample`. It drew two ventures and two research projects, none of them audited before. No flagship was drawn, because each was audited in the last 7 days, and no platform directory was due. Before accepting each auditor's file I reran its worst finding myself:
 
-- **rent-roll-delinquency-analyzer:** a ledger with each charge and its payment on separate rows, fully paid, came out as $2,000 owed and $2,000 overpaid. A −$100 credit came out as $100 owed.
-- **uk-capital-allowances-calculator:** GOV.UK's Autumn Budget 2025 measure cuts the main pool to 14% from April 2026. The tool, labelled 2026/27, used 18%. My check also found a defect the auditor had scored as correct, described below.
-- **ambient-ips:** at the first uninformed-prior fit, the shipped solver's objective was 47,679. A line-searched solver on the same data reached 105.
-- **buildbot-skillpack:** the "mixed" skill's gains (K 386.0187, B 33.7046, Ki 80.0554) appear unchanged as `B_random` seed 3 in `buildbot-skills/experiments/results.json`.
+- **tax-season-client-picker:** `parseJobs("A,$1,200,8,3,40")` returned one client with a $1 fee, 200 hours and due day 8, and no error.
+- **route-account-pruner:** a sheet headed `Name,Price,Visits,Driving minutes,Minutes on site` came back with 8 minutes on site and 45 minutes of driving. The sheet says the reverse.
+- **simdesign-meshmargin:** on the same bracket, the centroid reading of peak stress rose from 99.9 to 132.8 MPa as h went from 2.5 to 0.5 mm. The vertex reading moved only from 139.0 to 143.7 MPa.
+- **ambient-hlrtlevel:** the auditor's own Clopper-Pearson intervals and its own L-BFGS null fit matched the README to within 4e-8. A valid Monte Carlo p-value with B = 39 has mean 41/80 = 0.5125, not 0.5.
 
 ## The number
 
-**0 of 4 subjects meet the bar.** All four were randomly sampled. Across every sampled audit, 38 of 421 now meet it (Wilson 95% interval 7% to 12%). All four are finished (completeness 3). Each does what it says on the input it expects.
+**0 of 4 subjects meet the bar.** All four were randomly sampled. Across every sampled audit, 38 of 421 now meet it (Wilson 95% interval 7% to 12%). All four are finished (completeness 3).
 
 | subject | correctness | completeness | verification | craft | claims | fitness | domain | bar |
 |---|---|---|---|---|---|---|---|---|
-| ventures/rent-roll-delinquency-analyzer | 2 | 3 | 2 | 3 | 3 | 2 | 2 | no |
-| ventures/uk-capital-allowances-calculator | 1 | 3 | 2 | 2 | 1 | 1 | 2 | no |
-| research/ambient-ips | 1 | 3 | 1 | 2 | 1 | 1 | 2 | no |
-| research/buildbot-skillpack | 3 | 3 | 1 | 2 | 2 | 1 | 2 | no |
+| ventures/tax-season-client-picker | 3 | 3 | 2 | 3 | 3 | 2 | 2 | no |
+| ventures/route-account-pruner | 3 | 3 | 2 | 3 | 2 | 2 | 2 | no |
+| research/ambient-hlrtlevel | 3 | 3 | 1 | 2 | 3 | 2 | 2 | no |
+| research/simdesign-meshmargin | 2 | 3 | 1 | 2 | 2 | 2 | 2 | no |
 
-Against the code as it was audited, the tests caught 6 of 20 bugs seeded by hand:
+Against the code as it was audited, the tests caught 8 of 25 bugs seeded by hand:
 
 | subject | seeded bugs caught |
 |---|---|
-| rent-roll-delinquency-analyzer | 2 of 4 |
-| uk-capital-allowances-calculator | 3 of 5 |
-| ambient-ips | 0 of 4 |
-| buildbot-skillpack | 1 of 7 |
+| tax-season-client-picker | 4 of 8 |
+| route-account-pruner | 2 of 6 |
+| ambient-hlrtlevel | 1 of 5 |
+| simdesign-meshmargin | 1 of 6 |
+
+All four miss on verification. As in round 101, the arithmetic mostly checks out. The weak points are the tests and the reading of real input.
 
 ## Each subject
 
-**rent-roll-delinquency-analyzer.** The reviewer is a residential property manager who runs monthly delinquency reports. On a hand-built six-charge ledger every figure matched a hand calculation: billed, collected, owed, all four aging buckets, days late per unit, late fees and the on-time rate. The worked example on the page also matched. The defects are in input shapes a real export has:
+**tax-season-client-picker.** The reviewer is an enrolled agent who runs a solo practice and sorts late-season requests. The auditor wrote an exact-fraction subset search that simulates each schedule day by day, without using the engine. On the fixture it matched the tool: $3,555 net over 41 hours, five clients accepted. It also matched on 150 random queues and 266 break-even fees, with 0 mismatches. Defects:
 
-- **High:** most tenant-ledger exports put charges and payments on separate rows. Payments on those rows were never applied to a charge.
-- **High:** `Math.abs` turned a credit or concession into money owed.
-- **Medium:**
-  - A file with both Property and Tenant columns merged tenants by property.
-  - The charge-type column is read but not used, so a late-fee row counts as rent.
-  - Two of four seeded bugs survived, both on the 30/60/90-day and 50% boundaries.
+- **Medium:** rows were split on every comma. A fee typed `$1,200` became a $1 fee and 200 hours, and the client was then declined as "cannot be finished". A quoted name containing a comma was rejected.
+- **Medium:** the tie test could not detect the documented fewer-hours tie-break, because both tied sets used 8 hours. Reversing the rule left every test green.
+- **Medium:** committed work can be entered only as one block with one due day. "File an extension and finish later" is not one of the choices.
+- **Low:** "worth accepting at $1,470" was wrong at the boundary. At exactly $1,470 the client is still declined.
 
-**uk-capital-allowances-calculator.** The reviewer is a UK chartered tax adviser who prepares capital-allowance computations. The tool's arithmetic was right: the AIA ordering, the six-month AIA cut and the small-pool write-off all matched. Its rules were out of date:
+**route-account-pruner.** The reviewer is a route-service operations manager who runs cost-to-serve reviews. The auditor's own Python reproduced the sample: $197.47 a month surplus now, $1,476.62 after the plan, 10 accounts repriced and 5 dropped. It also reproduced the hour-value sensitivity. Defects:
 
-- **High:** the main pool used 18%. GOV.UK sets 14% from 1 April 2026 for companies and 6 April 2026 for income tax. The worked example came to £117,300; at 14% it is £115,300.
-- **High:** there was no 40% first-year allowance on new main-rate equipment. It runs from 1 January 2026 and is open to sole traders. A sole trader spending £1.2m was shown £1,036,000 when the figure is £1,080,000.
-- **High, found on my spot-check:** after the 50% special-rate allowance, the tool wrote the balance down at 6% in the same year. CAA 2001 s58(5) puts a first-year-allowance balance into the pool only from the next period. So £100,000 gives £50,000 this year, not £53,000, and the test pinned £53,000.
-- **Medium:**
-  - There is no hybrid rate for a company year that straddles 1 April 2026.
-  - Accounting periods over 12 months are capped at 12.
+- **Medium:** the drive-column match missed "driving", so common headers silently swapped on-site and drive minutes.
+- **Medium:** the headline "expected gain" of +$1,279 a month counts every freed hour as refilled at the hour value. In cash, the five dropped accounts lose $1,305.80 a month.
+- **Medium:** under the default cancellation response, every recommended raise sits at the 25% cap, and the page did not say so.
+- **Medium:** two surviving mutants put net revenue where monthly revenue belongs, in both the reprice surplus and the break-even increase. A "Price per visit" header was read as a monthly price without a warning.
 
-The rates were "entered from memory", as the page itself said. Memory was a year out of date.
+**ambient-hlrtlevel.** The reviewer is a statistician who works on bootstrap likelihood-ratio tests for mixtures. The full 31-minute experiment reran byte for byte, giving 11, 9 and 8 rejections in 200 at n = 100, 200 and 500. Defects:
 
-**ambient-ips.** The reviewer is a machine-learning researcher in off-policy learning. The project's main result was negative: inverse-propensity weighting "did not fix the uninformed-prior failure". That was not true.
+- **Medium:** the tests check only that p lies in [0.25, 1] on one draw. A null fit reduced to one auditor, and a p-value denominator of B instead of B + 1, both pass.
+- **Medium:** the parent project's other anomaly, 0 of 60 at n = 1000, is not rerun. That anomaly is cited on the first line.
+- **Medium:** no prior work on the method is cited, such as McLachlan (1987) on the bootstrap LRT for mixture components, or Davison and Hinkley (1997) on Monte Carlo tests. "The level holds when the model is right" is the expected result.
+- **Low:** mean p was compared with 0.5. The right benchmark for B = 39 is 0.5125.
 
-- **High:** the logistic fit used undamped Newton steps. 9 of the 24 hour-100 fits never converged, some reaching 380,000 times the minimum. With a converged fit, the six uninformed rows match the informed ones to within 0.05. The supposed failure was the solver diverging. The same bug had been found and fixed in the sibling project `ambient-fullinfo` (PR #18259) but not here.
-- **Medium:**
-  - All four seeded bugs survived, including setting the exploration propensity to 1, which turns IPS off.
-  - No prior work was cited, although the design is importance-weighted active learning (Beygelzimer, Dasgupta and Langford 2009).
+**simdesign-meshmargin.** The reviewer is a structural analyst who signs off finite-element stress checks. The auditor's own script rebuilt all 12 rows of the results table, and analytic masses agreed to 2e-7. A Castigliano beam check put the tip deflection at 0.78–0.89 of slender-beam theory, which is the expected stiffening from the corner. Defects:
 
-The analytic check passed: the oracle weights and utility match a closed-form Bayes rule.
+- **High:** peak stress is read at element centroids, about h/3 inside the surface. So most of the "mesh dependence" the project studies is a sampling bias, the same one `research/simdesign-kirsch` measured on a plate with a hole. Read at element vertices, the designs sit at 0.94–1.10 of the limit, against 0.88–1.02 on the centroid reading. A margin nearer 1.43 than 1.3 would be needed.
+- **Medium:** the README blamed the rising peak on sharp-corner singularities. The peak is on the fillet.
+- **Medium:** the README called the laser price of 1.22 possibly optimiser noise. It is forced by the rules: at 2 mm sheet, the width cap leaves 86.5 MPa against a 76.9 MPa limit.
+- **Medium:** 5 of 6 seeded bugs survived. No test pins a finite-element output to an analytic case.
 
-**buildbot-skillpack.** The reviewer is a physical human-robot-interaction researcher who tunes impedance controllers for robots that carry a load with a person. The auditor wrote an independent rigid-rod RK4 simulator. It matched the shipped plant on 1,000 of 1,000 episodes, and a Monte Carlo of the nailing budget gave 0.9515 against 0.9513. Defects:
+## What was fixed in this PR
 
-- **High:** the headline "mixing the two plants did not help" did not test mixing. The worse-of-two search drew the same candidates as the B-only search and picked the same winners. The real 3.6-point gap is between two B-only seeds.
-- **Medium:** the reproduction test was red, failing on a 0.083 drift against a 0.08 tolerance. Six of seven seeded bugs survived, one of them a changed test seed.
-- **Medium:** whether an episode passes depends on which episodes share its batch (`buildbot-skills/src/buildbot_skills/model.py:75`). Nine of the 200 fastest plant-A episodes flip. This affects several buildbot projects and is left open.
+All of these fixes landed after the scores were set. A later round re-audits them.
 
-## Fixed in this round's PR
+- **tax-season-client-picker:**
+  - A quote-aware CSV splitter, plus a clear error for an unquoted thousands comma.
+  - The break-even wording now says "above".
+  - A tie test that catches the reversed rule (checked with the seeded mutant).
+  - Tests for spare hours and the zero-net reason.
+  - The CLI refuses a second file.
+- **route-account-pruner:**
+  - "Driving" headers are matched, and a column already taken no longer falls back silently.
+  - Caveats on the gain tile and on raises at the cap.
+  - A warning for a per-visit header.
+  - CSV cells are quoted and formula characters defused.
+  - Tests that catch both net/monthly mutants (one checked by rerun).
+- **simdesign-meshmargin:**
+  - The README now gives the vertex figures, the cause of the rising peak and why the laser price is forced.
+  - The same correction in the `simdesign-kirsch` README, the research index and the homepage summary.
+- **ambient-hlrtlevel:**
+  - The 0.5125 benchmark.
+  - The missing prior work and the untested gaps are now stated in the README.
 
-The scores above are from before these fixes; a later round re-audits.
+## Still not at the bar
 
-- **rent-roll-delinquency-analyzer:** payment-only rows and credits are now applied to the same unit's oldest unpaid charge, in payment-date order, and a finding says so. A Tenant column now beats Property. New tests cover split ledgers, credits, the column precedence and the bucket and 50% edges. The bucket mutant that survived is now caught. Charge types are still not used.
-- **uk-capital-allowances-calculator:** the main pool is 14% and the 40% first-year allowance is in. Balances after any first-year allowance go into the pool next period. A blank tax rate is now an error. Tests pin the hand-recomputed £115,300, the £1,080,000 sole-trader case and the deferred pooling. The straddling-year rate, long periods and short-period small pools are listed in the README.
-- **ambient-ips:** the solver is the damped Newton from `ambient-fullinfo`, and a test checks it converges from the uninformed prior. The experiment was rerun, and my rerun matches the auditor's independent run line for line. Results 1 and 4 are rewritten and results 2 and 3 stand. Prior work is cited, and the homepage card is corrected.
-- **buildbot-skillpack:** the headline, summary and lede now say the objective reduced to B-only training. A test pins that identity. The reproduction test re-scores every file at its stored seed with zero tolerance, and it now catches the seed mutant. Prior work is cited.
-
-## Since the last round
-
-Round 102 found 1 of 4 at the bar, and this round finds 0 of 4. The sampled share stays at 7% to 12%. Three patterns stand out:
-
-- **A fix that did not travel.** The solver bug in `ambient-ips` was found and fixed in a sibling project four days ago, but the code was copied, not shared. Eight more `ambient-*` projects still have the undamped version ([agent note](../reports/2026-11-23-undamped-newton-copies.md)).
-- **Rates from memory.** The UK tool said in its own files that its rates were unchecked. Nothing made anyone check them before it shipped.
-- **Research headlines are where the defects land.** As in rounds 101 and 102, both research projects' arithmetic held up, but their headline sentences did not survive a check against a source the author had not written.
+The meshmargin experiments still run on the centroid reading; rerunning them with a recovered stress is research, not a text fix. Neither research project has tests that would catch a wrong core number, and both are copies of a parent's engine. The two ventures each have a model gap a professional would hit in the first hour: crew labour for the route tool, and extensions and staggered deadlines for the tax-season picker. These are listed in each README's limits, with a link to its audit.

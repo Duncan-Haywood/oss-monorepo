@@ -8,6 +8,7 @@ Track 2 (ambient AI assistant), follow-up to `ambient-hlrt`, whose level estimat
 
 - `research/ambient-hlrt`: the simulator, the h = 0 null fit, the statistic and the parametric bootstrap (`src/ambient_hlrtlevel/{sim,est}.py` are copies). Only `stats.py` (an exact binomial interval) is new.
 - Clopper and Pearson (1934), *Biometrika* 26, for the exact binomial interval (from memory, not re-read; the code is checked against the interval's defining property in a test).
+- Nearest prior work, not yet engaged with in the method (from memory, not re-read; added by the [2026-11-23 quality audit](../../portfolio/quality/audits/2026-11-23-ambient-hlrtlevel.json)): McLachlan (1987), "On bootstrapping the likelihood ratio test statistic for the number of components in a normal mixture", *Applied Statistics* 36(3), 318–324; Davison and Hinkley (1997), *Bootstrap Methods and their Application*, §4.2, on Monte Carlo p-values and the choice of B (they recommend B ≥ 99; this project uses 39).
 
 ## Method
 
@@ -30,13 +31,15 @@ PYTHONPATH=src python3 experiments/run.py > experiments/results.txt   # about 40
 | 200 | 9/200 = 0.045 | [0.021, 0.084] | 16/200 = 0.080 | [0.046, 0.127] | 0.524 |
 | 500 | 8/200 = 0.040 | [0.017, 0.077] | 19/200 = 0.095 | [0.058, 0.144] | 0.523 |
 
-1. **With 200 draws per n the bootstrap level is consistent with nominal at all three sizes.** Every interval contains 0.05 (at 0.05) and 0.10 (at 0.10), and mean p is near 0.5, as for a uniform p-value.
+1. **With 200 draws per n the bootstrap level is consistent with nominal at all three sizes.** Every interval contains 0.05 (at 0.05) and 0.10 (at 0.10), and mean p is near 0.51, the mean of a valid Monte Carlo p with B = 39 (uniform on {1, ..., 40}/40, mean 41/80 = 0.5125; corrected 2026-11-23, [quality audit](../../portfolio/quality/audits/2026-11-23-ambient-hlrtlevel.json)).
 2. **The 7/60 at n = 200 in `ambient-hlrt` was most likely noise.** Here n = 200 gives 9/200; the earlier figure of 0.117 sits outside this run's interval [0.021, 0.084] but inside the earlier run's own wide one. I did not rerun that earlier setup, so this is a reading, not a test.
 3. The intervals are still about +/-0.03 wide, so a true level of 0.08 would not be ruled out.
 
 ![p-value calibration under the null](experiments/level.png)
 
 ## Limitations
+- n = 1000, where `ambient-hlrt` saw 0/60 rejections (a possibly conservative test), was not rerun.
+- The tests check only that p lies in [0.25, 1] on one draw; a broken null fit or a wrong p denominator passes them (4 of 5 seeded bugs survived, [quality audit](../../portfolio/quality/audits/2026-11-23-ambient-hlrtlevel.json)).
 
 - One dependence model; the null and alternative match the generator, so this is a best case for the test. Level under model misspecification is not examined.
 - 200 draws and B = 39 (the smallest attainable p is 1/40 = 0.025, so "p <= 0.05" is p in {0.025, 0.05}).
