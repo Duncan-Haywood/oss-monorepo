@@ -1,0 +1,51 @@
+name: redis-conf-check
+description: 'Free, read-only checker for redis.conf and the files its include lines pull in, read the way Redis 7.0 reads them: whether Redis will start and with which error (with the real file and line, which Redis omits for included files), which line set each value (the last one wins), who can connect without a password from another machine, from 127.0.0.1 and over the unix socket, and settings that open CONFIG SET dir, DEBUG or MODULE LOAD, plus inline comments, joined include lines, a user default line that replaces requirepass, weak and cleartext passwords, TLS beside plaintext and decimal memory units; parser and access model checked against a real redis-server 7.0.15; browser or zero-dependency Node CLI, no upload, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools (pg-hba-check, sshd-config-check,
+# sudoers-check). Nothing in ventures/ read redis.conf before:
+# upstash-redis-bill-estimator prices hosted Redis, it does not read a
+# server's configuration. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a read-only parser of the user's own files, no connection to any
+# server, no data leaving the device, passwords masked in every report.
+# Labelled not a security audit, with no warranty; a clean scan is never
+# called safe.
+#
+# First visitor channel: search for "redis.conf wrong number of arguments",
+# "FATAL CONFIG FILE ERROR", "redis protected mode DENIED", "redis include
+# conf.d not working", "redis requirepass not working" (Stack Overflow and
+# Server Fault answers and the redis.conf docs, with no checker that resolves
+# includes and the default user in a browser), and teams shipping redis.conf
+# in a container image or configuration management.
+hypotheses:
+  - claim: 'A developer or operator will paste redis.conf here and find a start-up error placed in the right file, or a setting a later line or include overrides.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team that ships redis.conf from configuration management or a container image will wire check.mjs --fail-on-risk into CI.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.mjs or scan.mjs within 90 days.
+
+links:
+  production: https://marisstella.app/redis-conf-check/
+  analytics: null
