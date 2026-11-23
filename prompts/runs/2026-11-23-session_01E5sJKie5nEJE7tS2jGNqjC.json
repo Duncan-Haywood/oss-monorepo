@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKie5nEJE7tS2jGNqjC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T02:18:56Z",
+  "ended": "2026-11-23T03:21:04Z",
+  "wall_minutes": 62.43,
+  "tokens_in": 12511329,
+  "tokens_out": 48366,
+  "cost_usd": 5.1062,
+  "tool_calls": 79,
+  "task": "research/codesign-cant milestone 12g: milestones 7c and 7d (section VI's linear certificate) at ten seeds per set",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18351",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "stats.py first run failed: treated the tilt sweep's per-design att scalar as a per-episode list",
+      "fix": "one-line fix, rerun"
+    },
+    {
+      "what": "a check_numbers regex missed the trailing text after '(total 317 of 640)'",
+      "fix": "added [^\\n]* and reran: 144 of 144"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "prediction MG10 (6-26 of 640) was written without reading milestone 12b's stored 45-degree count for the same ten designs (31 of 640); it was refuted and the LOG, README and post record the miss as mine"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "plain python3 lacks numpy here; pyenv.py found /usr/bin/python3.13 and installed cma+scipy in under a minute, but matplotlib was only on python3.13, which the doc's example (`pyenv.py pytest numpy matplotlib`) did not make obvious"
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "a foreground wait is capped near 600 s, so a 52-min job needed five foreground waits (or one background wait); the doc says this, but the output-buffered job showing an empty log for 50 min looked like a stall until the cache directory was checked"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-linear-stability-check-drone-ten-seeds-tilt-limit.md",
+    "research/codesign-cant/LOG.md (milestone 12g entry)",
+    "research/codesign-cant/README.md (ten-seed certificate section)"
+  ],
+  "goal": null,
+  "notes": "Routed research/0, draw codesign-cant. Security queue empty; IDEAS.md and website requests empty. 32 new CMA-ES runs + 4 reproduction runs (52 min, 4 cores). Checks: 5 of 5 reproduction checks exact; paper/check_numbers.py 144 of 144; tests/test_ten_seeds_m12g.py and test_paper_numbers.py pass; research/_homepage/build.py ok; check_md_links ok; check_posts ok. Result: certificate still necessary at ten seeds (0 of 4,478 stable flights diverge), 502 false alarms all bolted-on, tilt limit contains them (1.25x: 0 of 640 at 20 deg, 317/535 at 45 deg); 10 of 11 predictions held.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b556c987-b4f8-5f55-9e2a-7db4a7919dee",
+    "transcripts": 1,
+    "first": "2026-11-23T02:18:56Z",
+    "last": "2026-11-23T03:21:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 142,
+        "output": 48366,
+        "thinking": 10340,
+        "cache_read": 12301431,
+        "cache_write_5m": 0,
+        "cache_write_1h": 209756,
+        "api_equivalent_usd": 5.1062,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 142,
+      "output": 48366,
+      "thinking": 10340,
+      "cache_read": 12301431,
+      "cache_write_5m": 0,
+      "cache_write_1h": 209756,
+      "api_equivalent_usd": 5.1062,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 72,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 62.43,
+      "active_minutes": 62.43,
+      "model_minutes": 8.58,
+      "tool_minutes": 53.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a PhD student rerunning two milestones at ten seeds with reproduction checks, stats, paper edits and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 195.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
