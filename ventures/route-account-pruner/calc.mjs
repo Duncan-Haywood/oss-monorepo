@@ -169,8 +169,9 @@ export function sampleText() {
 }
 
 function csvCell(v) {
-  const t = String(v);
-  return '"' + (/^[=+\-@]/.test(t) ? "'" : "") + t.replace(/"/g, '""') + '"';
+  let s = String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return '"' + s.replace(/"/g, '""') + '"';
 }
 
 export function reportCsv(r) {
