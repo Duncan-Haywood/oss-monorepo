@@ -967,3 +967,24 @@ def test_implicit_park_refuses_to_move_a_big_item_for_a_small_overrun(tmp_path, 
     assert "would park" in err and "Shorten your NEW text by" in err and "--make-room" in err
     assert ff.main(["a", "--replace", "own item", grow, "--make-room"] + extra) == 0
     assert big in (tmp_path / "ventures" / "a" / "NEXT.md").read_text()
+
+
+def test_named_history_survives_the_automatic_archive(tmp_path, capsys):
+    # PR #18422's record: "--history with a span plus --replace ... the history
+    # span did not land in HISTORY.md". The row stayed over the cap after the
+    # named piece came out, so archive_history ran and its return value
+    # replaced the list of named pieces: they left the row and reached no file.
+    head = "History: README. " + " ".join(
+        f"Result {i} 2026-11-{10 + i} (eval/r{i}.md: {'x' * 130})." for i in range(8))
+    mine = "Named result 63 of 64 right " + "n" * 100
+    value = head + " Next: (a) " + "a" * 200 + "; " + mine + "; (b) " + "b" * 100 + "."
+    assert len(value) < ff.FLAGSHIP_NEXT_MAX
+    f, extra = _row(tmp_path, value)
+    rc = ff.main(["a", "--replace", "; (b)", "; (c) " + "c" * 400 + "; (b)",
+                  "--history", mine] + extra)
+    assert rc == 0
+    got = ff.read_value(f.read_text(), "a", "next")
+    hist = (tmp_path / "ventures" / "a" / "HISTORY.md").read_text()
+    assert mine not in got
+    assert mine in hist  # the named piece, not only the automatic ones
+    assert "Result 0 2026-11-10" in hist and "Result 0" not in got
