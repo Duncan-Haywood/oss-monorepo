@@ -10833,6 +10833,13 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .
   box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
 .pf-chrome-top .pfs-bar{padding:12px 0}
 .pf-chrome-top .pfs-crumbs{padding:0 0 10px}
+/* On a phone the band matches the site header's own rows (site-nav.mjs, the
+ * max-width:720px rule: 9px above and below the bar, 9px under the trail). The
+ * 12px/10px above is the desktop rhythm; left at a phone width it made every tool's
+ * header 115px tall against 106px on a site page with a breadcrumb, pushing the
+ * first field 7px further down on 1,400-odd pages (polish-2026-11-22-tablet-nav-row.md
+ * item 1). The inset rule below still sets the side padding: it is more specific. */
+@media (max-width:720px){.pf-chrome-top .pfs-bar{padding:9px 0}.pf-chrome-top .pfs-crumbs{padding:0 0 9px}}
 .pf-chrome-top .pfs-mark{background:${MARK_BG}}
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
  * in the same column, so they line up with the venture's content rather than
