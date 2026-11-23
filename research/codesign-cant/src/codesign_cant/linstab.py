@@ -30,7 +30,8 @@ def step(x, d):
     tau_max per rad), kpp, kdp, kip (position), lam (side force per torque, signed), tmax (nominal torque limit), I (actual
     inertia), m (actual mass), m_nom, lag (actual), lag_nom, tau_s (torque scale), ff (gain), mode ("cmd" or "integ"), b_ff;
     optional acc_in (milestone 7ai), a horizontal acceleration request added to the position loop's output (the affine input of
-    `accel_step`)."""
+    `accel_step`); optional nsat (milestone 7aj), a gain on the tilt reference ab / g (the describing function of the tilt-command
+    clip; 1, the default, is the unsaturated loop)."""
     p, w, pint, th, thp, om, omp, integ, tq, tqh, fff = (x[..., k] for k in range(NX))
     ep, ev = -p, w
     pint = pint + ep * A.DT
@@ -39,7 +40,7 @@ def step(x, d):
         fff = d["lam"] * d["ki"] * integ * d["tmax"]
         tqh = 0.0 * tqh                            # unused in this mode; held, it would add a spurious eigenvalue of exactly 1
     ab = acc - d["ff"] * fff / d["m_nom"]
-    ref = ab / A.G
+    ref = d.get("nsat", 1.0) * ab / A.G                # nsat (milestone 7aj): describing-function gain of the tilt clip, inert at 1
     e = ref - thp
     integ = integ + e * A.DT
     u = d["kp"] * e - d["kd"] * omp + d["ki"] * integ

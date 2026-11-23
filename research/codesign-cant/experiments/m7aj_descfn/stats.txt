@@ -1,0 +1,44 @@
+DJ0 check: max |rho(nsat=1) - stored rho_ep| = 1.1e-16; per-flight death mismatches vs 12g at 20/30 deg, 18 s: {20: 0, 30: 0} -> held
+
+Per set (pairs = flight x axis, 64 x 2 per design): linear-unstable pairs; limit-cycle kinds among them (1 oscillatory, 2 real crossing, 3 none);
+N*, r* = A*/delta, f* (Hz), a_th/delta, a_tau/delta (share of tau_max per rad of limit): medians over oscillatory pairs.
+  [bolted] unstable 640 of 1280; lc1 640, lc2 0, lc3 0; N* 0.478; r* 2.60; f* 1.81 Hz; a_th/delta 2.34; a_tau/delta 1.39; rho just below N* max 0.999993
+  [1.25x] unstable 595 of 1280; lc1 595, lc2 0, lc3 0; N* 0.948; r* 1.14; f* 1.44 Hz; a_th/delta 1.33; a_tau/delta 0.51; rho just below N* max 0.999994
+  [0.8x] unstable 0 of 1280; lc1 0, lc2 0, lc3 0; N* nan; r* nan; f* nan Hz; a_th/delta nan; a_tau/delta nan; rho just below N* max nan
+  [retrained] unstable 2 of 1280; lc1 2, lc2 0, lc3 0; N* 0.996; r* 1.02; f* 2.29 Hz; a_th/delta 1.66; a_tau/delta 2.15; rho just below N* max 0.999983
+
+DJ1 existence (1.25x, unstable pairs 595): stable oscillatory LC on 1.000 -> held
+DJ2 frequency (1.25x alive at 20 deg, unstable axes, 595 pairs): f* median 1.44 Hz, measured 1.44 Hz; median |rel err| 0.025, within 25% 1.00 -> held
+DJ3 amplitude (same pairs): predicted tilt amplitude median 26.5 deg, measured 24.7 deg; ratio median 1.09 (IQR 1.03-1.25), within x1.5 0.85 -> held
+DJ4 scaling (1.25x alive at 20 and 30 deg, unstable axes, 587 pairs): amplitude ratio 30/20 median 1.56 (IQR 1.47-1.67; DF 1.50) -> held
+DJ5 control: 0.8x linearly stable on every pair: True; median measured tilt amplitude at 20 deg 3.33 deg against 1.25x 7.32 deg -> held
+
+Per-flight divergence, 18 s, lever 0: predicted (C-tilt / C-torque) against simulated (12g's stored tilt sweep), per set and cap.
+  pred dead = flights whose critical limit <= cap; acc = per-flight agreement.
+  [bolted] 20 deg: sim 128, tilt 4, torque 7; 30 deg: sim 588, tilt 586, torque 94; 45 deg: sim 640, tilt 640, torque 388; 59 deg: sim 640, tilt 640, torque 597
+  [1.25x] 20 deg: sim 0, tilt 0, torque 0; 30 deg: sim 8, tilt 0, torque 0; 45 deg: sim 535, tilt 285, torque 0; 59 deg: sim 560, tilt 595, torque 1
+  [0.8x] 20 deg: sim 0, tilt 0, torque 0; 30 deg: sim 0, tilt 0, torque 0; 45 deg: sim 0, tilt 0, torque 0; 59 deg: sim 0, tilt 0, torque 0
+  [retrained] 20 deg: sim 1, tilt 0, torque 0; 30 deg: sim 12, tilt 0, torque 2; 45 deg: sim 31, tilt 2, torque 2; 59 deg: sim 31, tilt 2, torque 2
+DJ6 divergence (1.25x + retrained, caps 30/45/59, 3840 flight-caps): accuracy C-tilt 0.899, C-torque 0.695; better tilt -> REFUTED
+DJ7 critical limit (1.25x, tilt): median 45.5 deg (IQR 43.2-47.3) -> REFUTED
+DJ8 bolted-on at 20 deg (tilt): predicted 4, simulated 128 of 640 -> REFUTED
+
+Post hoc (written after DJ0-DJ8 were scored): how well does the C-tilt critical limit rank flights, and what 60-degree
+substitute would fit? AUC = P(a dead flight's predicted critical limit < a survivor's), per set and cap where both occur.
+  [bolted] 20 deg: 128 of 640 dead, AUC 0.870
+  [bolted] 30 deg: 588 of 640 dead, AUC 0.987
+  [1.25x] 30 deg: 8 of 640 dead, AUC 0.908
+  [1.25x] 45 deg: 535 of 640 dead, AUC 0.920
+  [1.25x] 59 deg: 560 of 640 dead, AUC 0.898
+  [retrained] 20 deg: 1 of 640 dead, AUC 1.000
+  [retrained] 30 deg: 12 of 640 dead, AUC 0.583
+  [retrained] 45 deg: 31 of 640 dead, AUC 0.532
+  [retrained] 59 deg: 31 of 640 dead, AUC 0.532
+  Amplitude threshold fitted on the DJ6 flight-caps (in-sample): 55.5 deg, accuracy 0.948 (60 deg: 0.899).
+  [bolted] predicted worst-axis tilt amplitude at 20 deg: median 46.9 deg; among the flights dead at 20 deg (18 s) 52.4, alive 46.1
+  [1.25x] predicted worst-axis tilt amplitude at 20 deg: median 26.4 deg; among the flights dead at 20 deg (18 s) nan, alive 26.4
+  Deaths at plants the linear model calls stable on both axes (the certificate's 'necessary' side, 12g scored it at 20 deg only):
+  [bolted] 20 deg 0 of 128; 30 deg 0 of 588; 45 deg 0 of 640; 59 deg 0 of 640
+  [1.25x] 20 deg 0 of 0; 30 deg 0 of 8; 45 deg 11 of 535; 59 deg 11 of 560
+  [0.8x] 20 deg 0 of 0; 30 deg 0 of 0; 45 deg 0 of 0; 59 deg 0 of 0
+  [retrained] 20 deg 0 of 1; 30 deg 10 of 12; 45 deg 29 of 31; 59 deg 29 of 31

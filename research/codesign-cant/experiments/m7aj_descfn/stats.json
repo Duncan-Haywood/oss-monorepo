@@ -1,0 +1,101 @@
+{
+ "DJ0": {
+  "max_rho_diff": 1.1102230246251565e-16,
+  "death_mismatch": {
+   "20": 0,
+   "30": 0
+  },
+  "held": true
+ },
+ "DJ1": {
+  "pairs": 595,
+  "share_oscillatory_lc": 1.0,
+  "held": true
+ },
+ "DJ2": {
+  "pairs": 595,
+  "median_rel_err": 0.02456375000000005,
+  "median_f_pred": 1.440116,
+  "median_f_meas": 1.4444444444444444,
+  "share_within_25pct": 1.0,
+  "held": true
+ },
+ "DJ3": {
+  "median_ratio": 1.0891062223386927,
+  "q25": 1.029068924776296,
+  "q75": 1.250136333465477,
+  "share_within_1p5": 0.8470588235294118,
+  "median_pred_deg": 26.53998,
+  "median_meas_deg": 24.694914670336335,
+  "held": true
+ },
+ "DJ4": {
+  "pairs": 587,
+  "median_ratio": 1.5564432376697752,
+  "q25": 1.4699018938722679,
+  "q75": 1.6718706423498464,
+  "held": true
+ },
+ "DJ5": {
+  "all_stable": true,
+  "median_amp_08_deg": 3.3258780687763423,
+  "median_amp_125_deg": 7.323136918097544,
+  "held": true
+ },
+ "DJ6": {
+  "acc_tilt": 0.8986979166666667,
+  "acc_torque": 0.6953125,
+  "best": "tilt",
+  "held": false
+ },
+ "DJ7": {
+  "criterion": "tilt",
+  "median_crit_deg": 45.46003854269911,
+  "q25": 43.23227617437583,
+  "q75": 47.33705403293977,
+  "held": false
+ },
+ "DJ8": {
+  "criterion": "tilt",
+  "pred": 4,
+  "sim": 128,
+  "held": false
+ },
+ "post_hoc": {
+  "auc_bolted_20": 0.870208740234375,
+  "auc_bolted_30": 0.9872121925693355,
+  "auc_1.25x_30": 0.9080300632911392,
+  "auc_1.25x_45": 0.9195727636849133,
+  "auc_1.25x_59": 0.8980580357142857,
+  "auc_retrained_20": 1.0,
+  "auc_retrained_30": 0.5833333333333334,
+  "auc_retrained_45": 0.532258064516129,
+  "auc_retrained_59": 0.532258064516129,
+  "fit_threshold_deg": 55.5,
+  "fit_acc": 0.9481770833333333,
+  "dead_lin_stable_bolted": {
+   "20": 0,
+   "30": 0,
+   "45": 0,
+   "59": 0
+  },
+  "dead_lin_stable_1.25x": {
+   "20": 0,
+   "30": 0,
+   "45": 11,
+   "59": 11
+  },
+  "dead_lin_stable_0.8x": {
+   "20": 0,
+   "30": 0,
+   "45": 0,
+   "59": 0
+  },
+  "dead_lin_stable_retrained": {
+   "20": 0,
+   "30": 10,
+   "45": 29,
+   "59": 29
+  }
+ }
+}
