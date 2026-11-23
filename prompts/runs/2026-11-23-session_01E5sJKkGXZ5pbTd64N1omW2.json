@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "PR CI 'validate' (portfolio-validate) failed once: the new usage.mjs opt-out switch was not listed in platform/privacy/optout-switches.txt; fixed with python3 platform/ci/sync_tree_counts.py. run_workflow_locally --for-changes had deferred portfolio-validate to PR CI (content-only diff), so it was not caught locally."
+    "PR CI 'validate' (portfolio-validate) failed once: the new usage.mjs opt-out switch was not listed in platform/privacy/optout-switches.txt; fixed with python3 platform/ci/sync_tree_counts.py. run_workflow_locally --for-changes had deferred portfolio-validate to PR CI (content-only diff), so it was not caught locally.",
+    "PR CI portfolio-pages build failed once: new venture had no launch date; fixed with node platform/pages/launched.mjs --write."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,7 +45,7 @@
     },
     {
       "file": "PRODUCT_PLAYBOOK.md",
-      "issue": "A new venture must run python3 platform/ci/sync_tree_counts.py (optout-switches.txt); nothing in the new-venture path says so and run_workflow_locally --for-changes defers portfolio-validate, so it surfaces only in PR CI."
+      "issue": "A new venture must run python3 platform/ci/sync_tree_counts.py (optout-switches.txt); nothing in the new-venture path says so and run_workflow_locally --for-changes defers portfolio-validate, so it surfaces only in PR CI. Same for node platform/pages/launched.mjs --write (portfolio-pages build check)."
     }
   ],
   "deviations": [],
