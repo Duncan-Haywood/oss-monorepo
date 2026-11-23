@@ -1,0 +1,5 @@
+CHECK ok   6b above seed 0 retrained design equals stored (max |dx|): got 0.0, want 0.0
+CHECK ok   m7 above seed 0 retrained design equals stored (max |dx|): got 0.0, want 0.0
+CHECK ok   7c per-episode deaths of seeds 0-5 equal 7c's stored (mismatching design-conditions): got 0, want 0
+CHECK ok   7c per-plant spectral radii of seeds 0-5 equal 7c's stored (mismatching design-conditions): got 0, want 0
+CHECK ok   7d per-episode deaths of seeds 0-5 equal 7d's stored, every clip arm, horizon and lever (mismatching rows): got 0, want 0
