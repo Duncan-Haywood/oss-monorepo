@@ -39,7 +39,7 @@ is wrong, and no amount of code fixes it. The strongest version of that sentence
 ends in the user earning more: a job they can now bid on, an invoice they can
 now issue, a client they can now keep.
 
-## 2. Choose the shape that fits the user; keep our cost per user at zero
+## 2. Choose the shape that fits the user; price above cost
 
 **A menu, not a ranking.** There is no static-only, static-first or
 browser-only rule; where a product runs is the agent's and the project's
@@ -74,8 +74,13 @@ reproduce in one reply and a maths graduate can't follow at a glance.
    user runs locally, with the no-SLA clause in §5b. Details:
    [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
-The hard line is the owner's money: no per-user paid API on our account and no
-per-user database or server we pay for (`goals.md`, Guardrails). Defaults that
+The line on the owner's money is cost-plus (owner, 2026-11-23; `goals.md`,
+"Direction: cost-plus, things worth paying for"). A free tool must be cheap to
+run per user, a loss leader that leads somewhere, with no per-user paid API,
+database or server on our account unless a usage reading shows it pays for
+itself. A paid feature may use those, priced at cost plus a margin, with the
+cost paid before it is spent (prepaid credits, a capped subscription or a
+provider spending limit) and the cost basis written down. Defaults that
 keep it easy: no per-user human step, and no account system unless the product
 needs one (then prefer "bring your own GitHub login" over storing credentials). GitHub Pages hosts our web surfaces
 at $0; another host (Cloudflare, Vercel) means an account only the owner can

@@ -28,6 +28,14 @@ coffee or sponsor link.
 it block work from getting done like in the past." Selling through the
 owner's merchant of record is on; it never gates other work (Guardrails,
 "Payments").
+**Updated 2026-11-23 (cost-plus):** "i think the cost plus makes sense in what
+is more or less a red sea market of saas." and "technically even the free
+tools cost something. hosting costs. dev costs. I don't think pushing costs to
+zero is the move. it's moving to things that are valuable enough for people to
+pay for. and it's also recognizing some are potential loss leaders with very
+low cost to run. not high variable cost loss leaders unless it's measurably
+profitable as a result." Paddle is the merchant of record. See "Direction:
+cost-plus, things worth paying for".
 
 ## Mission
 
@@ -572,9 +580,11 @@ variety of platforms etc." So pick a product's form for what its users need:
 a web app, a native or desktop app, a CLI, a library, a container, an MCP
 server, a browser extension, or a self-hosted service. A product that needs a
 running process is fine. What stays fixed is the cost and liability line,
-not the shape: no per-user bill on the owner's accounts and no unattended
-paid automation without the owner (Guardrails), so a service ships for its
-users or deployers to run, not on servers we pay for.
+not the shape: no per-user cost on the owner's accounts that the user has
+not paid for first, and no unattended paid automation without the owner
+(Guardrails; "Direction: cost-plus, things worth paying for"). A free
+service ships for its users or deployers to run; a paid one may run on the
+owner's accounts when its price covers its cost.
 
 **No browser-only rule either** (the owner, 2026-10-30): "I don't think it's
 required to do browser only tools here. i want to abolish that policy have
@@ -585,8 +595,46 @@ user's machine, their CI, their cloud, a container they deploy) is the
 agent's and the project's call, made for what the users and the method need.
 Running in the browser is often a good choice, and a page that says
 "nothing is uploaded" must still be true; it is just not a rule. The
-liability lines are unchanged: nothing on the owner's bill, honest privacy
+liability lines are unchanged: nothing on the owner's bill that a buyer has
+not paid for, honest privacy
 copy, and the law on personal data.
+
+## Direction: cost-plus, things worth paying for
+
+Set by the owner on 2026-11-23 (quoted under "The owner's priorities"). It
+replaces the earlier aim of a zero cost per user.
+
+- **Aim effort at what people would pay for.** Generic SaaS is a crowded
+  market where price competition pushes margins to zero. Choose and deepen
+  products whose value to a business or professional is clear enough to
+  charge for: the flagships first, then requests and new products with a
+  paying user in view. A tool nobody would pay for needs another reason to
+  exist (below).
+- **Price at cost plus a margin.** Every product has a cost: hosting, the
+  agent and developer time that built it, and any per-use cost such as an API
+  call, storage or a server. Price a paid tier, hosted extra or service so it
+  covers its variable cost with a margin and contributes to the fixed cost.
+  Write the cost basis and the margin in the product's README or pricing
+  file, with each figure taken from a file or a provider's published price,
+  never guessed.
+- **Free tools are loss leaders, and only cheap ones.** A free tool stays
+  free when it costs almost nothing per user to run (a static page, a
+  browser app, a CLI) and it brings people to something paid or makes the
+  portfolio worth trusting. A free tool with a high variable cost (paid API
+  calls, servers or storage per user, on the owner's bill) is not allowed
+  unless it is measured to be profitable as a result, with the reading
+  recorded in `portfolio/usage/`.
+- **Variable cost is paid for before it is spent.** A paid feature may run
+  on things the owner pays for (an API, a server, storage), as long as the
+  buyer's payment covers the cost first: prepaid credits, a subscription
+  with a usage cap, or a hard spending limit at the provider. No user,
+  bot or abuser can run up a cost they have not paid for. Opening the
+  provider account and setting its limit stays with the owner (Guardrails,
+  "Owner-only actions").
+- **What does not change.** Selling still ships switched off and never
+  blocks work ("For profit, without blocking work"), advertised free
+  features stay free, the code stays MIT, no merchant or provider secret
+  goes in this repo or a session, and marketing stays honest.
 
 ## Direction: depth over calculators
 
@@ -950,6 +998,10 @@ when they don't, do the sensible thing and record it as a deviation
     extras, downloads, support), not by paywalling what the site already
     advertises as free, which would also make those "free" claims false.
     The code stays MIT.
+  - **Provider: Paddle** (owner, 2026-11-23: "paddle is set up"). Its
+    client-side token and price IDs are public by design and may be
+    committed or set as site config. Its API key and webhook secret are
+    merchant secrets: never in this repo, its Actions secrets or a session.
 - **No API-token billing in Actions, for now.** Owner, 2026-10-31: "generally
   having api token billing running in actions is not ideal at the moment.
   not a permanent rule just not the current method." Agent work runs through
