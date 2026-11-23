@@ -424,6 +424,15 @@ room by room, so the takeoff lists every IfcSpace with:
   (`row.spaceBy` = `placement point`): 133 of 139 such components land in
   the room the file names (2026-11-23,
   `../ids-model-check/eval/cobie-placement-point-2026-11-23.md`).
+  Since the same day those bodies keep a box: a faceted shell that is not
+  closed (Revit's surface-model fittings, a 0.1 mm vertex gap) still gives its
+  points for the box and plan rectangle, never a section or area (from
+  PR #18042); 362 more elements in 25 public files have a box, no volume,
+  area or length changes. A box whose middle is in no room (a towel dispenser
+  or fire extinguisher cabinet set into its wall) is sampled at 5 x 5 x 5
+  points and goes to the room most fall in (`row.spaceBy` = `box sample`):
+  37 of 37 such components land in the room the file names
+  (`../ids-model-check/eval/cobie-wall-hosted-2026-11-23.md`).
 
 13 public models, 991 rooms (989 measured): stored floor area agrees on 528 of
 535, perimeter 472 of 475, height 501 of 535 (34 nominal), volume 213 of 535

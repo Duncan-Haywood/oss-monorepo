@@ -34,3 +34,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) Editor repair on open, bare \w/\s, subclass boxes 2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*, eval/deprecated-subclasses-*)
 - (moved 2026-11-22) Model fill 2026-11-21 (model-fill.mjs, cli --fill, page panel: IDS-fixed and table-typed property values into a copy of the .ifc; eval/model-fill-2026-11-21.md)
 - (moved 2026-11-22) railing Length 2026-11-22 (29/29 within 0.05%, eval/railing-lengths-2026-11-22.md)
+- (moved 2026-11-23) COBie 2.4 workbook and QC 2026-11-23 (cobie.mjs, cobie.html, --cobie, --cobie-qc; eval/cobie-2026-11-23.md: 791/869 doors and windows get the file's own rooms from geometry)

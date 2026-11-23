@@ -429,6 +429,25 @@ test("faceted: faces turned the wrong way are turned back, for the volume and th
   assert.equal(sectionArea(new Geometry(m2.model).item(m2.id), [0, 0, 1]), null);
 });
 
+test("faceted: a shell left open by a vertex gap still says where it is (its box), never its section", async () => {
+  const { Geometry, sectionArea, solidExtent, transformSolid } = await import("./geom.mjs");
+  // (test from PR #18042) Aalseth Residence, Part:2638106 (a 5/8" gypsum layer): one top corner
+  // written twice 0.1 mm apart, so two edges have one face each; read as
+  // an open shell it lost its points, and with them its box (32 to 155
+  // elements per file there had none)
+  const faces = prismFacesT([[0, 0], [2, 0], [2, 1], [0, 1]], 3);
+  faces[0] = [faces[0][0].map((p, i) => (i === 2 ? [p[0], p[1] + 1e-4, p[2]] : p))];
+  const { model, id } = brepModelT(faces);
+  const s = new Geometry(model).item(id);
+  assert.equal(s.shells, null);
+  assert.equal(sectionArea(s, [0, 0, 1]), null);
+  assert.deepEqual(solidExtent(s, [1, 0, 0]), [0, 2]);
+  assert.deepEqual(solidExtent(s, [0, 0, 1]), [0, 3]);
+  // moved with its placement
+  const t = transformSolid(s, [1, 0, 0, 10, 0, 1, 0, 0, 0, 0, 1, 0]);
+  assert.deepEqual(solidExtent(t, [1, 0, 0]), [10, 12]);
+});
+
 test("faceted: a shell turned inside out as a whole still cuts a positive area", async () => {
   const { Geometry, sectionArea, solidVolume } = await import("./geom.mjs");
   const all = prismFacesT([[0, 0], [2, 0], [2, 2], [0, 2]], 1);

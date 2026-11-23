@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVLLdJ4zGRnAoMPJuca",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T09:16:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 12) ids-model-check: COBie room placement of the 35 wall-hosted fittings",
+  "projects": [
+    "ids-model-check",
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18394",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The row's real blocker (open faceted shells kept no box) was already fixed in stale PR #18042; neither the row nor the eval note pointed to it. Only reading geom.mjs's dangling `s.loose` reference found it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "Stale PR #18042 had 7 merge conflicts, including diff.mjs. Reviving it whole would have taken the run. I ported only its geom.mjs part and its test, credited in code and docs, and left the PR open for its diff.mjs work.",
+      "did": "ported geom.mjs loose loops + test from PR #18042",
+      "result": "362 elements gained a box; no volume/area/length change on 28,900 rows"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-the-towel-dispenser-that-was-in-no-room.md",
+    "ventures/ids-model-check/eval/cobie-wall-hosted-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "COBie placement on 25 public files, containment hidden: 1,068 -> 1,117 of 1,227 in the file's own room, blanks 64 -> 17, other 95 -> 93. Box sample (new fallback in rooms.mjs) placed 37/37 right. Row dump before/after on 28,900 rows: 0 volume/area/length changes, 0 rooms lost or changed, 152 non-contained elements newly placed (unscored), 31 wall envelope readings changed (4/4 agree with IsExternal where stored; HouseZ 22 unscored). Tests: run_venture_tests.py ifc-quantity-takeoff ids-model-check: 229 + 527 pass. Both new tests fail with their fix reverted (seed check). check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

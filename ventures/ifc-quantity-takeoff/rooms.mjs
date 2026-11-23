@@ -320,6 +320,8 @@ export function roomLabel(name, longName, id) {
 // box: a chair's legs stand on the floor the space starts at, so its very
 // bottom is on the room's boundary.
 const LIFT = 0.1;
+// points per box edge, less one, when its middle is in no room
+const GRID = 4;
 
 // Elements that bound rooms rather than stand in them: a wall, door or
 // curtain-wall member sits on the line between two rooms, and spaces drawn to
@@ -336,7 +338,9 @@ export const BOUNDS_ROOMS = /^IFC(WALL|CURTAINWALL|SLAB|ROOF|DOOR|WINDOW|PLATE|M
  * (BOUNDS_ROOMS) are not placed by geometry. An element with no box (a
  * faceted body read only as a volume) but a non-enumerable `origin` (its
  * placement point, metres) is tested at that point, 10 cm above, then 10 cm
- * below, then on it, and gets row.spaceBy = "placement point". Sets row.space and row.spaceFrom ("contained", "geometry") and
+ * below, then on it, and gets row.spaceBy = "placement point". A box whose
+ * middle is in no room (a fitting set into its wall) is sampled at 5 x 5 x 5
+ * points and goes to the room most of them fall in (row.spaceBy = "box sample"). Sets row.space and row.spaceFrom ("contained", "geometry") and
  * room.elements (how many elements are in each room). rooms are the
  * takeoff's, with non-enumerable `solid` (local body), `world` and
  * `lengthUnit`; a room without them takes only the contained elements.
@@ -372,6 +376,22 @@ export function assignRooms(rows, rooms) {
         else if (row.predefinedType === "FLOORING") zs.push(b[5] + LIFT);
       }
       for (const z of zs) if ((hit = roomAt(x, y, z))) break;
+      // a wall-hosted fitting (a towel dispenser, a fire extinguisher
+      // cabinet) sits partly in its wall: its middle is in no room, but the
+      // part of its box in front of the wall face is. Points through the
+      // whole box (5 x 5 x 5) vote; the room most of them fall in wins, the
+      // smaller on a tie (dental_clinic 2026-11-23: 26 of 26 such rows)
+      if (!hit) {
+        const votes = new Map();
+        for (let i = 0; i <= GRID; i++) for (let j = 0; j <= GRID; j++) for (let k = 0; k <= GRID; k++) {
+          const r = roomAt(b[0] + (b[3] - b[0]) * i / GRID, b[1] + (b[4] - b[1]) * j / GRID, b[2] + (b[5] - b[2]) * k / GRID);
+          if (r) votes.set(r, (votes.get(r) ?? 0) + 1);
+        }
+        let best = 0;
+        const vol = (r) => r.computed?.volume ?? Infinity;
+        for (const [r, n] of votes) if (n > best || (n === best && vol(r) < vol(hit))) { best = n; hit = r; }
+        if (hit) row.spaceBy = "box sample";
+      }
     } else if (row.origin) {
       // no box: the point the element was placed at. A family's insertion
       // point is on the floor (furniture), so 10 cm above it first; on a

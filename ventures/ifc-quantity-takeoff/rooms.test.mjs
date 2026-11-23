@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { takeoff, boq, rowsCsv } from "./qto.mjs";
-import { outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings, heightShare } from "./rooms.mjs";
+import { assignRooms, outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings, heightShare } from "./rooms.mjs";
 import { IDENTITY, Geometry } from "./geom.mjs";
 
 const close = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol * Math.max(1, Math.abs(b)), `${a} vs ${b}`);
@@ -202,6 +202,23 @@ test("an element with no body is put in the room its placement point stands in",
   assert.equal(out.spaceBy, undefined);
   // the origin stays off the row's own fields (JSON, CSV)
   assert.ok(!Object.keys(sink).includes("origin"));
+});
+
+test("a fitting set into its wall goes to the room most of its box stands in", () => {
+  const res = roomsFile();
+  const office = res.rooms[0], B = office.box;
+  // a towel dispenser 15 cm deep at the office's x = max wall: 5 cm in front
+  // of the face, 10 cm recessed past it, so its middle is in no room
+  const x1 = B[3];
+  const row = { id: 1, ifcType: "IFCFLOWTERMINAL", space: null, box: [x1 - 0.05, B[1] + 1, 0.3, x1 + 0.1, B[1] + 1.3, 1.7] };
+  const mid = { ...row, id: 2, box: [x1 - 0.2, B[1] + 1, 0.3, x1 - 0.1, B[1] + 1.3, 1.7] };
+  const away = { ...row, id: 3, box: [x1 + 5, B[1] + 1, 0.3, x1 + 5.2, B[1] + 1.3, 1.7] };
+  assignRooms([row, mid, away], res.rooms);
+  assert.equal(row.space, office.label);
+  assert.equal(row.spaceBy, "box sample");
+  assert.equal(mid.space, office.label); // its middle is in the room: no sampling
+  assert.equal(mid.spaceBy, undefined);
+  assert.equal(away.space, null);
 });
 
 test("the room schedule as CSV, and its totals per storey", () => {

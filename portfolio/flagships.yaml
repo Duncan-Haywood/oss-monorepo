@@ -533,13 +533,12 @@ flagships:
       eval/member-weights-2026-11-22.md; next: a Revit/ARCHICAD export storing
       weights); Revit brep openings 2026-11-22, 102/102,
       eval/opening-brep-quantities-2026-11-22.md; next: a BIM manager's filled
-      table. COBie 2.4 workbook and QC 2026-11-23 (cobie.mjs, cobie.html, --cobie,
-      --cobie-qc; eval/cobie-2026-11-23.md: 791/869 doors and windows get the file's
-      own rooms from geometry); body-less components by placement point 2026-11-23,
-      133/139 right, eval/cobie-placement-point-2026-11-23.md; next: ARK_NUS's 85
-      furniture in another room, 35 wall-hosted fittings on the wall face, a real
-      owner's COBie QC. HTML report: next, a consultant's read. More open items:
-      NEXT.md.
+      table. body-less components by placement point 2026-11-23, 133/139 right,
+      eval/cobie-placement-point-2026-11-23.md; wall-hosted fittings by box sample
+      2026-11-23, 37/37, eval/cobie-wall-hosted-2026-11-23.md; next: dental's 17
+      casework items outside their rooms' solids, ARK_NUS's 85 furniture in another
+      room, a real owner's COBie QC. HTML report: next, a consultant's read. More
+      open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
