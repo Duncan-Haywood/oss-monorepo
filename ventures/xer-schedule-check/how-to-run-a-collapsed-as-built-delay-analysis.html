@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Collapsed As-Built Delay Analysis</title>
+  <meta name="description" content="Take delays out of a finished P6 schedule and see when it would have finished but for them: collapsed as-built (AACE MIP 3.8/3.9), free in your browser.">
+  <meta property="og:title" content="How To Run A Collapsed As-Built Delay Analysis">
+  <meta property="og:description" content="Build a CPM model that reproduces the as-built dates, take the delays out, and read the but-for finish, by party and by event.">
+  <link rel="canonical" href="./how-to-run-a-collapsed-as-built-delay-analysis.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a collapsed as-built analysis?","acceptedAnswer":{"@type":"Answer","text":"A retrospective delay analysis that starts from what actually happened. The as-built schedule is turned into a CPM model that reproduces the actual dates, the delays being analysed are taken out, and the model is recomputed. The earlier finish is the date the project would have finished but for those delays. AACE International's Recommended Practice 29R-03 calls it a modelled, subtractive method: MIP 3.8 when all delays come out at once, MIP 3.9 when they come out in groups."}},{"@type":"Question","name":"When is it used instead of a time impact analysis?","acceptedAnswer":{"@type":"Answer","text":"After the work is done, when the as-built record is better than the schedules that were in force, or when the contemporaneous updates were poor or never kept. A time impact analysis adds a delay to the schedule before it happened and asks how far the finish moves; a collapsed as-built takes the delay out of what happened and asks how much earlier the finish would have been. Many claims use both, one to check the other."}},{"@type":"Question","name":"What is an as-built gap?","acceptedAnswer":{"@type":"Answer","text":"Time an activity waited after its logic allowed it to start: its predecessors were done, but it began later. An unrecorded delay often sits in such a gap, such as a permit, an approval, a crew that was elsewhere. The model keeps each gap on the activity's links, so the activity still waits that long after its predecessors when they move, and it lists every gap so you can decide which ones were delays. Write gap in the What column to take the days out of the wait instead of the activity's duration."}},{"@type":"Question","name":"What does but for the owner mean?","acceptedAnswer":{"@type":"Answer","text":"Taking out only the owner's delays gives the date the contractor would have finished on its own: if the contractor's own delays still hold the finish, the owner's delays did not cost the full time. Taking out only the contractor's delays gives the owner's side. When each party's collapse adds up to more than all delays out together, the difference is delay both caused on the same path at the same time, which most contracts treat as concurrent."}},{"@type":"Question","name":"Does it decide who is responsible for a delay?","acceptedAnswer":{"@type":"Answer","text":"No. You say which party each row belongs to. The tool measures how much earlier the finish would be with those rows out; entitlement to time or money depends on the contract, the notices given and the facts, and is for the parties, an expert or a tribunal."}},{"@type":"Question","name":"Is the schedule uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The XER is read, modelled and rescheduled in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to run a collapsed as-built delay analysis</h1>
+  <p>When a job finished late and the argument is about why, the most direct question is: when would it have finished if a given delay had not happened? A collapsed as-built analysis answers it from the record of what did happen. The final schedule update becomes a CPM model that lands every activity on its actual dates; the delays in dispute are taken out; the model is recomputed; the earlier finish is the &ldquo;but for&rdquo; date. Claims consultants charge for building that model by hand. This tool builds it from the XER and checks that it reproduces the as-built dates before it subtracts anything.</p>
+  <p><a class="cta" href="./#collapse">Open the free schedule check</a> (open the final XER, then go to Collapsed as-built)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the final update from P6 as XER, with every activity finished if you can. An update still in progress works, with forecast dates standing in for the work not yet done, and the tool says so.</li>
+    <li>Open it on the <a href="./">tool page</a> and press <b>Run collapsed as-built</b> with the list empty. Read the as-built gaps: each is an activity that started later than its logic needed, and that is where unrecorded delays usually sit.</li>
+    <li>Write the delays to take out, one row each: activity ID, working days (blank for all of it), <code>gap</code> in the What column for the wait before the activity rather than its duration, the party, and an event name.</li>
+    <li>Run it again. Read the finish with everything out, the finish with each party's delays out, and each event alone. Download the CSV, and the collapsed schedule as an XER to schedule in P6 and confirm the dates.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>On the built-in example (an invented office fit-out; press Load an example schedule, then Example delay list), the model lands 22 of 22 activities on their dates and finishes on 2026-07-27, as the file does. It finds 3 as-built gaps; the one on the critical path is the in-wall inspection, which waited 9 working days after the rough-in for the date the city gave it. Two delays are listed:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Delay</th><th>Party</th><th>Taken out</th><th>Finish with it out</th><th>Working days earlier</th></tr></thead>
+    <tbody>
+      <tr><td>A1110 wait for the inspection date</td><td>Owner</td><td>9 of 9 days of gap</td><td>2026-07-14</td><td>9</td></tr>
+      <tr><td>A1060 slow level 2 demolition</td><td>Contractor</td><td>5 of 5 days</td><td>2026-07-27</td><td>0</td></tr>
+      <tr><td>Both</td><td></td><td></td><td>2026-07-14</td><td>9</td></tr>
+    </tbody>
+  </table></div>
+  <p>The contractor's slow demolition costs nothing at the finish: the inspection date was fixed, so the work before it had room to be late. Take the owner's wait out and the finish comes in 9 days; take the contractor's out and it does not move. Parties alone add up to 9, the same as both together, so there is no concurrent delay here. Had the demolition been late enough to push past the inspection date, both would have shown, and the overlap would be the concurrent days.</p>
+  <h2>How the model is built</h2>
+  <p>Every activity gets the duration it actually took, on its own calendar. Every relationship keeps its type. Where an activity started later than its logic needed, the extra wait is added to every lag into it, so the predecessor that drove it stays tight and the others keep their slack; time the activity's own calendar cannot work (a weekend between a six-day predecessor and a Sunday-to-Thursday successor) is not counted as waiting. A start date set by a constraint in the file is kept as a start-on-or-after date, because an inspection booked for a date stays booked when the work before it is quicker. An activity that ran long only because a finish-to-finish link held its finish keeps its planned duration, so the link holds the finish and the delay upstream frees it. As-late-as-possible activities stay as late as possible. Progress, expected finish dates and other constraints are removed. The same engine that matches P6's own dates on 19,820 of 19,822 activities then schedules it, and the tool reports how many activities land on their as-built dates.</p>
+  <h2>How it was tested</h2>
+  <p>No public job publishes its as-built schedule with the delays named, so six public P6 files (versions 5.0 to 24.12) were finished as planned, with and without planted delays, and the answer was known. The model landed every activity on its as-built dates on every file. Taking out exactly the planted slips (1 to 3 activities, 1 to 30 working days each) gave back the finish of the run without them every time, and so did taking planted waits out of the gaps. The collapsed XER, read back and scheduled again, gave the same finish every time. The full results are in the project's eval folder.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>The model is only as good as the as-built record.</b> Wrong actual dates give a wrong model. Check the gaps list for waits that make no sense before you subtract anything.</li>
+    <li><b>Gaps are kept on the logic.</b> Taking work out before an activity with a gap moves it earlier by the same amount, because the wait is assumed to follow its predecessors. If the wait was for a fixed date instead, put that date in the file as a start constraint, and the model keeps it.</li>
+    <li><b>Subtraction is not the same as addition.</b> A collapsed as-built and a time impact analysis on the same delay can disagree, because one starts from what happened and the other from what was planned. When they disagree, the reason is usually worth knowing.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is a collapsed as-built analysis?</h3>
+  <p>A retrospective delay analysis that starts from what actually happened. The as-built schedule is turned into a CPM model that reproduces the actual dates, the delays being analysed are taken out, and the model is recomputed. The earlier finish is the date the project would have finished but for those delays. AACE International's Recommended Practice 29R-03 calls it a modelled, subtractive method: MIP 3.8 when all delays come out at once, MIP 3.9 when they come out in groups.</p>
+  <h3>When is it used instead of a time impact analysis?</h3>
+  <p>After the work is done, when the as-built record is better than the schedules that were in force, or when the contemporaneous updates were poor or never kept. A time impact analysis adds a delay to the schedule before it happened and asks how far the finish moves; a collapsed as-built takes the delay out of what happened and asks how much earlier the finish would have been. Many claims use both, one to check the other.</p>
+  <h3>What is an as-built gap?</h3>
+  <p>Time an activity waited after its logic allowed it to start: its predecessors were done, but it began later. An unrecorded delay often sits in such a gap, such as a permit, an approval, a crew that was elsewhere. The model keeps each gap on the activity's links, so the activity still waits that long after its predecessors when they move, and it lists every gap so you can decide which ones were delays. Write gap in the What column to take the days out of the wait instead of the activity's duration.</p>
+  <h3>What does but for the owner mean?</h3>
+  <p>Taking out only the owner's delays gives the date the contractor would have finished on its own: if the contractor's own delays still hold the finish, the owner's delays did not cost the full time. Taking out only the contractor's delays gives the owner's side. When each party's collapse adds up to more than all delays out together, the difference is delay both caused on the same path at the same time, which most contracts treat as concurrent.</p>
+  <h3>Does it decide who is responsible for a delay?</h3>
+  <p>No. You say which party each row belongs to. The tool measures how much earlier the finish would be with those rows out; entitlement to time or money depends on the contract, the notices given and the facts, and is for the parties, an expert or a tribunal.</p>
+  <h3>Is the schedule uploaded?</h3>
+  <p>No. The XER is read, modelled and rescheduled in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

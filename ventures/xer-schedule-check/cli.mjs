@@ -104,6 +104,14 @@
 // inserted into the update and the schedule recomputed: the finish and every
 // milestone moved, float used, each event alone; --xer writes the impacted
 // schedule for import into P6.
+// node cli.mjs final.xer --collapse delays.csv [--csv collapse.csv] [--xer collapsed.xer] [--as-built-xer model.xer] [--json] [--project CODE]
+// node cli.mjs final.xer --as-built   (no delay list: the as-built model and its gaps)
+// Collapsed as-built instead (collapse.mjs, AACE 29R-03 MIP 3.8/3.9): a CPM
+// model that lands every activity on its as-built dates, the listed delays
+// (activity ID, days or blank for all of it, "gap" for the wait before it,
+// party, event) taken out, and the finish recomputed: the "but for" date with
+// all of them out, each party's out and each event's out; --xer writes the
+// collapsed schedule and --as-built-xer the model, for P6.
 // node cli.mjs schedule.xer --to-project schedule.xml [--project CODE] [--code-names] [--outline-codes] [--all-resources] [--json]
 // Converts the XER to Microsoft Project XML instead (msproject.mjs): open the
 // .xml in Microsoft Project, ProjectLibre or GanttProject. WBS as summary
@@ -162,6 +170,7 @@ import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
 import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
 import { constraintLogCsv } from "./constraints.mjs";
 import { timeImpact, timeImpactText, timeImpactCsv, timeImpactHtml } from "./tia.mjs";
+import { collapsedAsBuilt, collapsedText, collapsedCsv } from "./collapse.mjs";
 import { xerText } from "./xer.mjs";
 import { calendarSlack, calendarSlackText, calendarSlackCsv } from "./calslack.mjs";
 import { milestoneCalendars, milestoneCalendarsText, milestoneCalendarsCsv } from "./milestones.mjs";
@@ -176,7 +185,7 @@ import { crashAnalysis, crashText, crashCsv } from "./crash.mjs";
 import { gao, gaoText, gaoCsv, gaoHtml } from "./gao.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -362,6 +371,17 @@ if (args.includes("--tia")) {
   if (opt("--xer")) { writeFileSync(opt("--xer"), xerText(r.impactedXer)); console.error(`impacted schedule written to ${opt("--xer")}`); }
   const { impactedXer, ...plain } = r;
   await emit(args.includes("--json") ? JSON.stringify(plain, null, 2) + "\n" : timeImpactText(r));
+  process.exit(0);
+}
+if (args.includes("--collapse") || args.includes("--as-built")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const r = collapsedAsBuilt(xer, opt("--collapse") ? readFileSync(opt("--collapse"), "utf8") : "", { projId: pid });
+  if (opt("--csv")) writeFileSync(opt("--csv"), collapsedCsv(r));
+  if (opt("--xer")) { writeFileSync(opt("--xer"), xerText(r.collapsedXer)); console.error(`collapsed schedule written to ${opt("--xer")}`); }
+  if (opt("--as-built-xer")) { writeFileSync(opt("--as-built-xer"), xerText(r.asBuiltXer)); console.error(`as-built model written to ${opt("--as-built-xer")}`); }
+  const { collapsedXer, asBuiltXer, ...plain } = r;
+  await emit(args.includes("--json") ? JSON.stringify(plain, null, 2) + "\n" : collapsedText(r));
   process.exit(0);
 }
 if (args.includes("--crash")) {
