@@ -690,6 +690,11 @@
 //    registered on another fresh part. If (0) holds and (1) or (2) fails, H is dropped and the misses' own labels say
 //    what `match` does instead. Reported beside, not predicted: voiced labial stops read exactly, the other rows, and the
 //    vowel-only control (the murmur source cannot reach a cell with no nasal, so the two controls should be identical).
+//    Outcome (run 2026-11-23, after the registration above was committed as 1882658eb): H supported. (0) held: N = 9;
+//    (1) held: 9 of 9 read as a voiced labial stop; (2) held: 9 against the default's 3. All 9 on E2-B2; `match` also
+//    cleared the default's 4 nasal misses (412 to 407 of 416 net). Every vowel-only cell identical (676 and 676). The
+//    false bursts carry 4e-7 to 4.1e-5 of their power above 1 kHz, real /b/ bursts 0.11 to 0.79
+//    (eval/labial-burst-diag.mjs, eval/murmur-labial-check.md): next, a burst that needs energy above 1 kHz.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';

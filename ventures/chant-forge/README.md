@@ -1398,7 +1398,25 @@ The reference fix, measured but not registered:
   none with the rule) and c's C3 quarters (nasals still read, stops and others unmoved). Reader only; nothing in the
   synthesis changed. Not listened to.
 
-#### One voice at the chorus's level (2026-11-18, latest; opt-in)
+#### The matched murmur's false /b/ (2026-11-23, latest; `match` stays opt-in)
+
+The round below ended on a guess: `match`'s new misses read as a voiced labial stop because a held murmur that fades
+with the release looks like a voice bar and a burst. Tested on a fresh part h (16 nasals after /a/, /e/ or /i/, 6
+voiced labial stops and 4 others, never sung before, 80 BPM, E2-E4, quarters and eighths), registered and committed
+before it ran ([`eval/murmur-labial-check.md`](eval/murmur-labial-check.md)):
+
+- **The guess holds.** 9 nasal cells read right with the default murmur and wrong with `match`, and all 9 read as a
+  voiced labial stop (registered: half or more; and 9 against the default's 3, registered: at least double).
+- **It is a low-note fault.** All 9 are on E2 to B2. The default murmur makes the same confusion there, less often.
+  `match` also fixed 4 of the default's misses, so part h nets 412 to 407 of 416. No vowel-only cell moved.
+- **The "burst" is not a burst.** `eval/labial-burst-diag.mjs`: in every false /b/ the reader's burst carries
+  4e-7 to 4e-5 of its power above 1 kHz, against 0.11 to 0.79 for the 48 real /b/s in the same cells. It is the
+  low-passed murmur stopping.
+
+Next: a burst must carry some energy above 1 kHz, tried on the development parts and registered on a fresh low-pitch
+part before it ships; then `match` registered again for the default.
+
+#### One voice at the chorus's level (2026-11-18; opt-in)
 
 The round below left a question: the one-voice murmur gained on the dark-vowel parts but lost the Graduale nasals
 at final D3 (held-out D 12 to 8 of 12). `eval/murmur-one-diag.mjs` reads part D's final nasals both ways. All four
@@ -1420,7 +1438,7 @@ part was run with it ([`eval/murmur-match-check.md`](eval/murmur-match-check.md)
   loss, and the tuned set A 179 to 177 of 180 (E2 *am*, *an* read as a voiced labial stop). So it stays opt-in.
 
 Four of the five new misses read as a voiced labial stop: perhaps a held-level murmur fading with the release looks
-like a voice bar and a burst. Next: test that on fresh cells. Not listened to: `--murmur match` is the version to
+like a voice bar and a burst (tested 2026-11-23 on fresh part h, above: it holds). Not listened to: `--murmur match` is the version to
 play first. `murmur-match.test.mjs` (2 tests): the level follows the chorus note by note (12 D3 seeds: `one` up to
 8 dB off, `match` within 5), and everything before the closure is the same samples.
 
