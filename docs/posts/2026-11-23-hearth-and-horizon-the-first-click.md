@@ -1,6 +1,6 @@
 ---
 title: "A new story: why ten equal steps of light do not look equal"
-seo_title: "Weber-Fechner law and dimmer steps, worked through on a church's lights"
+seo_title: "The Weber-Fechner law and dimmer steps, worked on a church's lights"
 date: 2026-11-23
 tags: [fiction, hearth-and-horizon, science-fiction, weber-fechner, lighting]
 description: "A parish agent sets a church's ten dimmer steps 20 lux apart. From candlelight the first click is as big as the other nine together. A sacristan's eye fixes it."
