@@ -3,7 +3,7 @@ title: "Seventeen of our statistics pages made every visitor download the exampl
 seo_title: "Lazy-loading example datasets on static tool pages"
 date: 2026-11-23
 tags: [performance, web, statistics-tools]
-description: "On 17 browser-based statistics tools the bundled example dataset was over half the page's JavaScript. Fetching it after load cut the code shipped up front by 56% and made the buttons work up to 27% sooner on a slow link."
+description: "On 17 statistics tools the example dataset was over half the page's code. Fetching it after load cut the up-front code by 56%."
 ---
 
 Most of our free statistics tools, such as

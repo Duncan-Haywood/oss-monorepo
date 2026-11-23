@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKjvgSrtCQsQqvEapHu",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T23:18:37Z",
+  "ended": "2026-11-23T23:31:00Z",
+  "wall_minutes": 13.19,
+  "tokens_in": 5502669,
+  "tokens_out": 30485,
+  "cost_usd": 2.5068,
+  "tool_calls": 59,
+  "task": "Lazy-load example-data.mjs on 17 statistics venture pages (perf item 4, visitor wait)",
+  "projects": [
+    "capture-recapture",
+    "conformal-prediction-intervals",
+    "extreme-value-analysis",
+    "fuzzy-dedupe",
+    "heckman-selection",
+    "instrumental-variables",
+    "lomb-scargle-periodogram",
+    "ordinal-regression",
+    "probability-calibration",
+    "propensity-score",
+    "regression-discontinuity",
+    "robust-pca",
+    "roc-analysis",
+    "spatial-autocorrelation",
+    "stl-decomposition",
+    "synthetic-control",
+    "wasserstein-distance"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18501",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First insert script computed a regex offset before a length-changing replace, mangling the loader line in 17 pages",
+      "fix": "Caught in the diff review before any commit; removed and reinserted from a fresh match"
+    },
+    {
+      "what": "Post description was 220 chars (limit 160); run_workflow_locally stopped at the post check",
+      "fix": "Shortened to 142"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 1 again led nowhere: both perf backlog items (P063, P064) are owner-gated workflow edits, as the prompt itself already warns; the prompt could drop owner-gated items from the backlog listing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/*/page.test.mjs",
+      "why": "The pages' NETWORK guard bans every import(; I exempted exactly one literal local import(\"./example-data.mjs\") and added a count assertion, rather than leaving the guard untouched (which would block the change)",
+      "did": "guard stays exact plus a new per-page test of destructured names",
+      "result": "17 suites pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-seventeen-pages-stop-shipping-the-example-first.md",
+    "docs/history/example-data-pages-perf-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "Metric: static import graph gzip (platform/perf/module-weight.mjs on HEAD vs new trees) across 17 pages 534 -> 237 kB (-56%). Throttled DOMContentLoaded (local gzip server, Chromium, 150 ms latency, 1.6 Mbit/s, CPU 4x, fresh context, median of 5) on 8 largest: -10% to -27% (fuzzy-dedupe 694 -> 505 ms, extreme-value-analysis 715 -> 535). Cost: example press at the instant of load 10-13 -> 330-363 ms; 1 s after load 10-13 -> 25-37 ms (post-load prefetch added after measuring the on-press-only version). Equivalence: Playwright pressed all 21 example buttons old vs new, compared innerText, every field value, SVG sizes: identical apart from 3 elapsed-time lines; no page errors. Tests: run_venture_tests.py on 17 slugs, 0 failed. method-comparison left static (renders an example at load).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d788e41e-13f1-5255-8546-504c6ee82914",
+    "transcripts": 1,
+    "first": "2026-11-23T23:18:37Z",
+    "last": "2026-11-23T23:31:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 110,
+        "output": 30485,
+        "thinking": 7735,
+        "cache_read": 5400488,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102071,
+        "api_equivalent_usd": 2.5068,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 110,
+      "output": 30485,
+      "thinking": 7735,
+      "cache_read": 5400488,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102071,
+      "api_equivalent_usd": 2.5068,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 56,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.19,
+      "active_minutes": 13.19,
+      "model_minutes": 6.55,
+      "tool_minutes": 6.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior front-end engineer: inventory 39 pages, edit 17 pages and tests, browser equivalence and throttled timing, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 239.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
