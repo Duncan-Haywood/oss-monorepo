@@ -46,17 +46,18 @@ export function parseRows(text) {
     const used = new Set();
     const pick = (re, fallback) => {
       const i = head.findIndex((h, k) => !used.has(k) && re.test(h));
-      const r = i >= 0 ? i : fallback;
+      const r = i >= 0 ? i : (used.has(fallback) ? -1 : fallback);
       if (r >= 0) used.add(r);
       return r;
     };
     const name = pick(/name|account|customer|client|address/, 0);
     const price = pick(/price|rate|fee|charge|revenue|billing|monthly|per visit/, 1);
-    const drive = pick(/drive|travel|transit|commute/, 4);
+    const drive = pick(/driv|travel|transit|commute/, 4);
     const visits = pick(/visit|frequency|stops|times/, 2);
     const onsite = pick(/on.?site|service|work|job|labor|minutes/, 3);
     const mat = pick(/material|chem|supply|supplies|cost|dump|disposal/, -1);
     ci = { name, price, visits, onsite, drive, mat };
+    if (price >= 0 && /per.?visit|\/\s*visit/.test(head[price] || "")) warnings.push("The price column says per visit: set 'Price column is' to per visit, or every account is read as that price per month.");
     rows = rows.slice(1);
   }
   if ((rows[0]?.length || 0) < 5) return { error: "Each row needs five values: account, price, visits per month, minutes on site, drive minutes (materials cost per month is optional)." };
@@ -167,8 +168,13 @@ export function sampleText() {
   return out.join("\n");
 }
 
+function csvCell(v) {
+  const t = String(v);
+  return '"' + (/^[=+\-@]/.test(t) ? "'" : "") + t.replace(/"/g, '""') + '"';
+}
+
 export function reportCsv(r) {
   const head = "account,monthly revenue,route hours per month,yield per hour,surplus per month,action,price increase,expected surplus after action";
-  const rows = r.rows.map((x) => [x.name.replace(/,/g, " "), x.monthly.toFixed(2), x.hours.toFixed(2), x.yieldPerHour.toFixed(2), x.surplus.toFixed(2), x.action, x.action === "reprice" ? (x.increase * 100).toFixed(0) + "%" : "", x.expected.toFixed(2)].join(","));
+  const rows = r.rows.map((x) => [csvCell(x.name), x.monthly.toFixed(2), x.hours.toFixed(2), x.yieldPerHour.toFixed(2), x.surplus.toFixed(2), x.action, x.action === "reprice" ? (x.increase * 100).toFixed(0) + "%" : "", x.expected.toFixed(2)].join(","));
   return [head, ...rows].join("\n") + "\n";
 }
