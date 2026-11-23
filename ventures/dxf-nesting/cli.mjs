@@ -24,6 +24,9 @@ Options:
   --max-sheets N     stop opening sheets after N (default 50)
   --search N         after the four fixed orders, try N mutated orders and keep
                      the best (default 0; 100-300 shortens nests by a few percent)
+  --compact N        then squeeze the last sheet: up to N part moves of overlap
+                     minimisation to shorten its used length (default 0; 5000
+                     shortened benchmark strips by about 2%, eval/esicup-compact-*)
   --skip-layers RE   ignore layers whose names match RE (e.g. "^(DIM|TEXT|NOTES)$")
   --out FILE.dxf     write every sheet to one DXF, stacked
   --out-dir DIR      write one DXF per sheet
@@ -86,14 +89,15 @@ function main() {
     rotations: rotations(o.rot), res: o.res ? parseFloat(o.res) : undefined, tol,
     maxSheets: o["max-sheets"] ? parseInt(o["max-sheets"], 10) : 50,
     searchIters: o.search ? Math.max(0, parseInt(o.search, 10) || 0) : 0,
-    ...(o.search ? { timeLimitMs: 600000 } : {}),
+    compactMoves: o.compact ? Math.max(0, parseInt(o.compact, 10) || 0) : 0,
+    ...(o.search || o.compact ? { timeLimitMs: 600000 } : {}),
   });
   if (!job.ok) { console.error(job.error); process.exit(1); }
   if (o.json) {
     console.log(JSON.stringify({ result: job.result, check: job.check, report: job.report }, null, 2));
   } else {
     const r = job.report;
-    console.log(`${r.totalParts} parts on ${r.totalSheets} sheet(s) (area bound: at least ${r.sheetLowerBound}); ${(r.utilisation * 100).toFixed(1)}% of the sheets bought; cut ${r.cutLength.toFixed(1)}, ${r.pierces} pierces. Grid ${job.result.res}, ${job.result.ordersTried} orders, ${job.result.ms} ms.`);
+    console.log(`${r.totalParts} parts on ${r.totalSheets} sheet(s) (area bound: at least ${r.sheetLowerBound}); ${(r.utilisation * 100).toFixed(1)}% of the sheets bought; cut ${r.cutLength.toFixed(1)}, ${r.pierces} pierces. Grid ${job.result.res}, ${job.result.ordersTried} orders${job.result.compaction ? `, ${job.result.compaction.successes} of ${job.result.compaction.attempts} squeezes kept` : ""}, ${job.result.ms} ms.`);
     for (const s of r.sheets) console.log(`  sheet ${s.sheet}: ${s.parts} parts, uses ${s.usedLength.toFixed(1)} of ${job.result.sheetW} (${(s.utilisationOfUsed * 100).toFixed(1)}% of that), cut ${s.cutLength.toFixed(1)}, ${s.pierces} pierces`);
     for (const u of job.result.unplaced) console.log(`  NOT PLACED: ${u.count} x ${u.name} (${u.reason})`);
     console.log(job.check.ok ? `Check: every gap >= ${job.result.gap} (closest pair ${job.check.minGap === Infinity ? "-" : job.check.minGap.toFixed(3)} apart), every part >= ${job.result.margin} from the edge (closest ${job.check.minEdge === Infinity ? "-" : job.check.minEdge.toFixed(3)}).` : "CHECK FAILED:\n  " + job.check.problems.join("\n  "));

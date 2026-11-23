@@ -18,11 +18,13 @@
 //  4. `verify` re-checks the result without the raster: it measures the
 //     distance between every pair of placed outlines from their edges.
 //
-// The grid makes this a greedy heuristic, not an optimum: on the classic
+// The grid makes this a greedy heuristic, not an optimum (compact.mjs can
+// squeeze the last sheet afterwards): on the classic
 // ESICUP strip benchmarks its strips are about 20% longer than the best
 // published ones (eval/esicup-strip-2026-11-22.md). The point of the guarantee in (2) is that whatever it
 // produces can be cut as drawn.
 
+import { compactSheet } from "./compact.mjs";
 import { partRings, bboxOf, transformEdges, rotation, flattenLoop, pointInRing } from "./geom.mjs";
 
 const SNAP = 1e-9;
@@ -219,7 +221,7 @@ function lcg(seed) {
  */
 export function nest(items, opts) {
   const o = {
-    gap: 0, margin: 0, tol: 0.01, rotations: [0, 90, 180, 270], maxSheets: 50, orders: 4, searchIters: 0, timeLimitMs: 20000,
+    gap: 0, margin: 0, tol: 0.01, rotations: [0, 90, 180, 270], maxSheets: 50, orders: 4, searchIters: 0, compactMoves: 0, timeLimitMs: 20000,
     ...opts,
   };
   const { sheetW, sheetH, gap, margin, tol } = o;
@@ -300,6 +302,15 @@ export function nest(items, opts) {
     const run = runOrder(ord, shapes, env, bestRun);
     if (run && !better(bestRun, run)) { bestRun = run; bestOrd = ord; }
   }
+  // Compaction: shorten the last sheet's used length by overlap
+  // minimisation (compact.mjs). Seeded and counted in moves, so repeatable.
+  let compacted = null;
+  const last = bestRun.sheets[bestRun.sheets.length - 1];
+  if (o.compactMoves > 0 && last && last.placements.length > 1) {
+    compacted = compactSheet(last.placements, shapes, env, { moves: o.compactMoves, seed: 4242, deadline: t0 + o.timeLimitMs });
+    last.placements = compacted.placements;
+    last.extent = compacted.extent;
+  }
   const sheets = bestRun.sheets.map((s) => ({
     placements: s.placements.map((p) => {
       const sh = shapes[p.si], rot = sh.rots[p.ri];
@@ -328,6 +339,7 @@ export function nest(items, opts) {
     tol,
     ordersTried: tried,
     searched,
+    compaction: compacted && { attempts: compacted.attempts, successes: compacted.successes, moves: compacted.moves },
     ms: Date.now() - t0,
     sheets,
     unplaced: Object.values(unplaced),
