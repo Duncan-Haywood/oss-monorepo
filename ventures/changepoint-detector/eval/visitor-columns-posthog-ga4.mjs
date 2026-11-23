@@ -36,6 +36,7 @@
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { main as watchMain } from '../watch.mjs';
 import { toCsv } from '../ga4-metrics.mjs';
 
@@ -197,4 +198,4 @@ async function main() {
   if (SEEDS === 40) writeFileSync(new URL('./visitor-columns-posthog-ga4.out.txt', import.meta.url), out);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
