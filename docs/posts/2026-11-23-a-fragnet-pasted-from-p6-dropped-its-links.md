@@ -1,6 +1,6 @@
 ---
 title: "A fragnet pasted from P6 dropped its links: three input bugs in a time impact analysis"
-seo_title: "Time impact analysis fragnet input: comma predecessor lists, unsigned lags"
+seo_title: "Fragnet input bugs: comma predecessor lists and unsigned lags"
 date: 2026-11-23
 tags: [construction, scheduling, primavera-p6, time-impact-analysis, testing]
 description: "Red-team run on XER Schedule Check's time impact analysis: tests caught 2 of 10 seeded faults, now 10 of 10, and three real input bugs fixed."
