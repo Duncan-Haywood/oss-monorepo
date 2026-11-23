@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKhsDFRVtqhMqsLKR6",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "scheduled routine: continue work on the repo (revenue products brief); router drew process/2",
+  "input_sha256": "2c1bf26b1f9c7cc0b92943d9f5d5e579912fa825842ee2cc669863fe3e229700",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T23:02:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18496",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Verify mode would have me write P071's result, but prompts/process/backlog/ is CODEOWNERS-gated; measured instead (history_pieces on main: 5 offered, 0 with next/misses, down from 3) and left the JSON for an owner-approved PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "No agent-owned backlog item was open. Critique mode: friction_rank --live and the 2026-11-23 records put allocate.py's new numbered items list at the top of the fixable clusters, so I fixed it directly and did not file a backlog row (the backlog is owner-gated).",
+      "did": "allocate.item_skip/item_lines, plus a test and a post",
+      "result": "48 of 114 entries numbered on main, down from 114"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog: P071 verified by measurement (0 of 5 offered history pieces on main carry next/misses; baseline 3), result not written because prompts/ is CODEOWNERS-gated. Shipped: allocate.py --venture numbers only buildable-looking items. Results, entries needing outside input and dated waits are listed unnumbered with their reason. Verification: portfolio/router python3 -m unittest test_allocate 152 OK; main_health.py 313/313 before the change; check_posts ok. Metric for a later Verify run: records saying the item rank pointed at a result or a person-needing entry (3 on 2026-11-23).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1033,6 +1033,38 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(open_items(None, None), [])
         self.assertIn("numbered `items:` list", item_rank_note("abc"))
 
+    def test_items_list_numbers_only_buildable_entries(self):
+        # 2026-11-23 records: the list offered results ("X-Trans lift settled
+        # off") and person-needing entries ("a real club's night on it") first,
+        # so the item rank pointed at work no session could do.
+        from allocate import item_lines, item_skip
+        self.assertEqual(item_skip("X-Trans lift settled off"), "result")
+        self.assertEqual(item_skip("Interpolated sRGB encode 2026-11-17"), "result")
+        self.assertEqual(item_skip("WildReceipt all read, spent (eval/w.md)"), "result")
+        self.assertEqual(item_skip("B-spline rows 2026-11-18 (eval/ifcxml-twins.md)"), "result")
+        self.assertEqual(item_skip("a real club's night on it"), "needs outside input")
+        self.assertEqual(item_skip("a hosted model (needs a key), real bank text"),
+                         "needs outside input")
+        self.assertEqual(item_skip("a P6 import of the result"), "needs outside input")
+        self.assertEqual(item_skip("After 2026-12-01: rebuild from the tag", today="2026-11-23"),
+                         "waits for 2026-12-01")
+        # Open work stays numbered, even with a bracketed "landed"/"failed",
+        # a person's data as the subject, or a date in its evidence.
+        for body in ("find how a person's allowed areas come back (time off landed 2026-11-20)",
+                     "Coda reader: murmurs vs a reference (hiHold 8 failed on g)",
+                     "Next CAD: draw the bolts' tails past the nuts",
+                     "more real exports through eval/model-inventory.mjs",
+                     "After 2026-11-23: rebuild peppol-next-* and diff"):
+            self.assertEqual(item_skip(body, today="2026-11-23"), "", body)
+        lines = item_lines([("buildable", "X-Trans lift settled off"),
+                            ("buildable", "HDR+ bursts: prep"),
+                            ("next", "a real club's month")])
+        self.assertEqual(lines, ["  1. [buildable] HDR+ bursts: prep",
+                                 "  -  [buildable] (result) X-Trans lift settled off",
+                                 "  -  [next] (needs outside input) a real club's month"])
+        none = item_lines([("next", "a real tournament")])
+        self.assertIn("NEXT.md", none[0])
+
 
 class DateGateTests(unittest.TestCase):
     """A `buildable:` item dated after today is not buildable yet (2026-11-18:
