@@ -37,7 +37,7 @@ row below. Every flag's measurements are in the README section named after it.
 | Tell me when a daily metric shifts, from now on | `watch.mjs daily.csv --state s.json` (see "Watching a growing series"); pick a setting with `--suggest --alerts-per 1/month` |
 | ...from Stripe or Shopify | `stripe-metrics.mjs` or `shopify-metrics.mjs`, then the watch with `--columns` |
 | ...from Google Search Console (clicks, impressions) | `search-console-metrics.mjs` (API, or the UI's Dates.csv export), then `--columns clicks:poisson,impressions:poisson` |
-| ...from Google Analytics 4 (sessions, users, key events) | `ga4-metrics.mjs` (Data API, or a report's CSV download), then `--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson` |
+| ...from Google Analytics 4 (sessions, users, key events) | `ga4-metrics.mjs` (Data API, or a report's CSV download), then `--columns sessions:poisson,activeUsers:poisson,screenPageViews:poisson,keyEvents:poisson --detector pelt --overdispersion nb --trend gated` |
 | Did the change fall inside a Google update, a release or a price change? | `--events updates.csv` (start[,end],label per line) |
 | ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
 | ...for a level that wanders all the time | `watch.mjs --detector drift` |
@@ -3755,7 +3755,9 @@ The source:
 
 `deploy/watch-metric.yml` runs it when the secret `GA4_SERVICE_ACCOUNT_JSON` is set (property ID in the variable
 `GA4_PROPERTY`, options in `GA4_OPTIONS`), caches `data/ga4.csv`, and with `METRIC_CSV` unset and no Stripe, Shopify
-or Search Console credentials watches `--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson`.
+or Search Console credentials watched `--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson` until 2026-11-23; it now
+watches all four default columns, page views included, with the middle setting (README "PostHog users and GA4 activeUsers
+under a snippet loss").
 `make-watch-repo.sh` and the watch page's no-terminal zip copy the script and ignore the CSV.
 
 **Checked** (`ga4-metrics.test.mjs`, 8 tests): against a stand-in for both Google endpoints with the documented
@@ -9562,6 +9564,9 @@ source beside Stripe, Shopify, Search Console, GA4 and Plausible.
   product that is nearly shut at weekends is heard about nine times in ten, not always. `--period 7` or the middle
   setting for counts (README "A middle setting for over-dispersed counts") are the levers for a deep weekly cycle;
   neither was re-measured on these products.
+- **Since 2026-11-23 the workflow watches PostHog with the middle setting**: the numbers above are the count default's,
+  and that default heard people falling after a snippet loss on 0 of 40 (README "PostHog users and GA4 activeUsers
+  under a snippet loss").
 - **How it was checked** (`posthog-metrics.test.mjs`, 6 tests, a stand-in for the query API that reads the event
   list, day bounds and `LIMIT`/`OFFSET` out of the HogQL, unescapes literals the way ClickHouse does, leaves out days
   with nothing, and pages at 50 rows): the request (path, Bearer key, `HogQLQuery`, bounds), paging, zero-filled days,
@@ -9806,7 +9811,55 @@ earlier "visitors heard on 40 of 40" results were artefacts of the simulation.
   further than here, which makes this the hard case for the column. Growth was not simulated; `--trend gated` is what
   lets a growing site grow (README "The joint growth fit, gated"). PostHog's `users` (people who did any named event) is the
   same kind of count, and its simulation (`eval/posthog-columns.mjs`) left `users` unchanged by the loss; GA4's
-  `activeUsers` has no column eval. Simulating both person by person is the next item.
+  `activeUsers` had no column eval. Both are now simulated person by person (next section).
+
+## PostHog users and GA4 activeUsers under a snippet loss: both get the middle setting, GA4 watches page views (2026-11-23, pre-registered; V1-V3 and P1-P2 pass)
+
+The section above left two people-like columns unsimulated: PostHog's `users` (people who did any named event that
+day), which `eval/posthog-columns.mjs` had left untouched by a snippet loss, and GA4's `activeUsers`, which had no
+column eval at all. GA4 mattered more than it looked: its workflow watched `sessions`, `activeUsers` and `keyEvents`
+and not page views, so a tag dropped from part of a site could only be heard through the two columns that fall least.
+
+- **The simulation** (`eval/visitor-columns-posthog-ga4.mjs`, output `eval/visitor-columns-posthog-ga4.out.txt`,
+  about 3 min; the generator of `eval/visitor-columns.mjs`). Poisson(400) people a weekday, weekends at half or 40%,
+  1 + Poisson(0.2) sessions a person, 1 + Poisson(1.2) page views a session; from 2026-03-16 each page view is
+  tracked with probability 0.6 or 0.5. A session counts if any of its page views is tracked (GA4 `sessions`), a
+  person likewise (GA4 `activeUsers`); PostHog `users` also counts people seen only through a sign-up. From
+  2026-01-12 a sign-up form sends 35% of its events (PostHog `event_signed_up`, GA4 `keyEvents`). Over the four weeks
+  either side of the loss: page views to 0.60 and 0.50, sessions to 0.81 and 0.73, people to 0.83 and 0.76, PostHog
+  users to 0.84 and 0.76.
+- **The rule, pre-registered** (the file's header, committed before its first run in this PR's first commit; fresh
+  seeds 8001-8040 faulted, 9001-9040 no fault). The same V0-V3 as for Umami and Plausible, with "people" = `users` or
+  `activeUsers` (GA4's V1 also asks it of `sessions`). For GA4 a third arm: the winning arm with `screenPageViews`
+  watched as well, which joins the default if it is heard on at least 36 of 40 in every faulted cell (P1) and adds at
+  most 2 false dates on the 40 healthy sites at each weekend depth (P2).
+
+| source, arm | people heard (share 0.6 / 0.5, weekends 0.5) | same, weekends 0.4 | other columns heard (worst cell) | false dates, no fault (0.5 / 0.4) | verdict |
+|---|---|---|---|---|---|
+| PostHog, count default | 0 / 0 | 0 / 0 | page views 40, sign-ups 35 | 0 / 0 | V0 fails |
+| PostHog, middle | 40 / 40 | 37 / 40 | page views 40, sign-ups 40 | 0 / 2 | **passes V1-V3** |
+| GA4, count default | 0 / 0 (sessions 0 / 1) | 0 / 0 (sessions 0 / 0) | key events 35 | 0 / 0 | V0 fails |
+| GA4, middle | 40 / 40 (sessions 40 / 40) | 37 / 40 (sessions 39 / 40) | key events 40 | 0 / 2 | **passes V1-V3** |
+| GA4, middle + page views | as above | as above | page views 40 in every cell | page views 0 / 0 | **passes P1-P2** |
+
+  So the plain count default was close to deaf to a lost tag on both sources' people columns, and on GA4 it had no
+  other column that could hear one: a GA4 deployer on the old default would have learned of a tag lost from half the
+  pages on at most 1 site in 40. The middle setting also heard sign-ups and key events on 40 of 40 where the default
+  heard 35 (weekends at 40%). All 4 false dates on healthy sites (2 per source) came from the sign-up or key-event
+  column, as with Umami and Plausible.
+- **What changed.** `deploy/watch-metric.yml` (and `watch-repo-files.mjs`, rebuilt from it): the PostHog default adds
+  `$MIDDLE`; the GA4 default is `$(cols 'sessions|activeUsers|screenPageViews|keyEvents') $MIDDLE`, which also keeps
+  working when `GA4_OPTIONS` names other metrics (only the columns present are watched; before, a fixed list named
+  columns a custom `--metrics` might not fetch). The watch page, `llms.txt` and the table at the top of this file say
+  so. A repository that already sets `WATCH_OPTIONS` keeps its own setting. Every analytics source the watch reads
+  (GA4, Plausible, PostHog, Umami, Mixpanel, Matomo) now defaults to the middle setting.
+- **How it was checked.** `visitor-columns-posthog-ga4.test.mjs` (3 tests: the fall of each column on one simulated
+  site, one faulted GA4 site heard by the middle setting and missed by the count default, and the two workflow
+  defaults); `ga4-metrics.test.mjs`'s whole-workflow run now expects four watched columns.
+- **Not checked.** Page views are dropped at random, not by template (the hard case for people columns, as above). In
+  GA4 the tag that sends page views usually sends key events too, so a lost tag on a template with a form would move
+  `keyEvents` as well; the sign-up fault here is independent of the tag. No growth was simulated (`--trend gated` is
+  the guard for that, README "The joint growth fit, gated"), and no live GA4 property or PostHog project was used.
 
 ## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
 

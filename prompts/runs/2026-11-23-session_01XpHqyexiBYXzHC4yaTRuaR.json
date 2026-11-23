@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01XpHqyexiBYXzHC4yaTRuaR",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "one of the research directions is analyzing this repo itself and the development process. very fruitful because it is the closest problem.",
+  "input_sha256": "57787e0377b53c78f6f04b0154c420aea650137b2787e14c90be472740ff622e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T22:15:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open a programme on the repository's own development process and land its first milestone",
+  "projects": [
+    "agent-defects"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18491",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git blame and cat-file on a blob:none clone fetch each missing blob in its own round trip (about 0.45 s each), so the first extraction runs stalled; 1,334 tiny packs piled up",
+      "fix": "listed the ~16,800 blob ids of the audited paths from `git log --raw` and fetched them in one `git fetch origin --filter=blob:none --stdin` (9 s)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "For git-history studies it suggests `git fetch --unshallow` (2 to 15 min, up to 5 GB). `git fetch --unshallow --filter=blob:none origin main` took 23 s and 1.3 GB, and a batched `--stdin` fetch of the blob ids a study needs makes blame fast. Worth saying there, along with the warning that lazy per-blob fetches are slow."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl route drew ventures; the user's message directed a research run on the repository's own development process",
+      "did": "ran the research track and recorded it as research/1",
+      "result": "programme opened and milestone 1 landed"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "why": "new effort is to go to deep-tech programmes by default; the user named this direction explicitly, and the proposal's Deep-tech application section says how it bears on the engineering tools the loop builds",
+      "did": "opened a track-10 programme",
+      "result": "PROPOSAL.md passes programme_check"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-rework-metrics-miss-the-defects-agents-write.md"
+  ],
+  "goal": "Every run ships something useful: a new programme with a pre-registered, measured first result",
+  "notes": "Milestone 1 of agent-defects: 4,085 audited defect lines against 5,929 controls; named_fix OR 1.56 [0.88, 2.77], fix_touch 0.80 [0.60, 1.07], 0 reverts; median latency 34 days. Checks run locally: pytest (7 passed), research/_homepage/build.py ok, programme_check ok, check_md_links ok, check_posts ok. cite_check: 16 of 16 ids ok.",
+  "corrections": [],
+  "redteam": null
+}
