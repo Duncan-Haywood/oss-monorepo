@@ -1,0 +1,16 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
