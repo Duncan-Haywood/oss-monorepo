@@ -10,7 +10,7 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (377 of 377,
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (437 of 437,
 revised with milestones 4e–4s and 3b–3x; on 2026-11-19 Section 4 gained the rolling-shutter, causal-prior and pooling
 results on TUM video, and Recommendation 7; on 2026-11-21 it gained milestones 3u–3x, the history-floored error bar, the
 stale-calibration test and the update rule with its leave-one-sequence-out check, and Recommendation 8) and a list of
@@ -24,6 +24,12 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 [`paper/check_short.py`](paper/check_short.py) checks that each of its 196 distinct numbers is copied from the
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
+
+**Fold check (2026-11-23):** [`src/foldcheck.py`](src/foldcheck.py) tells you whether a camera calibration's radial
+distortion folds back inside the image, where every pixel past the fold is reached by no ray. Stdlib Python, OpenCV's
+k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub> model: `python3 src/foldcheck.py --fx 518.28 --cx 315.75 --cy 260.06 --k1 0.2226 --k2 -0.5679 --width 640 --height 480`
+reports the Kinect's board fit folding at 380.8 px against a 415.7 px corner (exit 1). Run it before trusting a two-term
+calibration near the image edge; milestone 3zd found such a fit 14&ndash;17 px off there.
 
 **Milestone 3zd headline** (does "update the focal length, keep the held lens distortion" survive at the image edge, 250&ndash;400 px?):
 **only if the held distortion is valid out to the corner.** Against TUM's calibration, the one reference that does not fold before the
@@ -1363,8 +1369,8 @@ python3 paper/check_short.py               # seconds; every number in the letter
 
 After milestone 3zd: at the image edge (250&ndash;400 px, truth TUM) holding the distortion is safe only when the held model does not
 fold inside the image; the Kinect's two-term references fold at 381 and 403 px and cost 14&ndash;17 px at the edge, where adopting the
-windows' distortion leaves 5.5 px. Next: Section 4 and Recommendation 9 of the paper updated with 3zc and 3zd (no distortion gate;
-check the held model's fold radius against the image corner); a three-term (k<sub>3</sub>) board refit of the fr1 frames to settle
+windows' distortion leaves 5.5 px. Done (2026-11-23 paper step): Section 4 and Recommendation 9 of the paper carry 3zc and 3zd, and
+`src/foldcheck.py` computes the fold radius. Next: a three-term (k<sub>3</sub>) board refit of the fr1 frames to settle
 which fr1 model is right at the corner, and the feature radii the windows cover, both when the TUM host answers; a real lens change
 when one is reachable; typesetting the letter in the IEEE class.
 
