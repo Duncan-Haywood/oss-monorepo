@@ -874,6 +874,16 @@ those from fail to pass. ARCHICAD stores no Qto_ railing length, but its own
 `Länge (A)` on FZK-Haus's two railings (2.00 and 4.29 m) is what the reading
 gives; on eleven public models that store no railing length, 131 of 419
 railings would be filled (`eval/railing-lengths-2026-11-22.md`).
+A railing that is one straight member (Tekla classes single tube posts and
+rails as railings) has no top rail when it stands upright, and a tessellated
+tube defeats the sweep's cut, so when the top-rail reading gives nothing the
+body is read as a prism instead (every face along one axis or in one of its
+two end planes, at least 10 times longer than wide): its length along that
+axis. On one Tekla model exported three times, railing Lengths within 2% of
+Tekla's go from 14, 0 and 0 to 16, 16 and 16 (IFC2X3, IFC4, IFC4X3); the 41
+railings checked against a stored figure elsewhere are unchanged, and 12
+single window bars in an ArchiCAD model are filled too
+(`eval/one-member-railings-2026-11-23.md`).
 **Slab thickness and perimeter (2026-11-22).** `Qto_SlabBaseQuantities`
 `Width` (the slab's thickness) and `Perimeter` (its outline) are measured too:
 the thickness is the body's depth along its extrusion, offered only when the

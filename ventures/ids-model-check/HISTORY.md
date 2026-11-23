@@ -40,3 +40,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-23, restored) space Qto_ 2026-11-22, eval/space-quantities-2026-11-22.md
 - (moved 2026-11-23, restored) HTML report 2026-11-21, eval/html-report-2026-11-21.md
 - (moved 2026-11-23) room test skips zero-volume pieces 2026-11-23 (29 of 852 rooms had been emptied or swollen), 1,218/1,227 right, eval/cobie-flat-pieces-2026-11-23.md
+- (moved 2026-11-23) Tekla Qto_ psets filled 2026-11-23, 649/657 within 2% after no-fillet NetVolume and walls on their side (eval/beam-schema-twins-2026-11-23.md); one-member railings read as members, 16/16 railing Lengths in each of IFC2X3, IFC4, IFC4X3 (eval/one-member-railings-2026-11-23.md)

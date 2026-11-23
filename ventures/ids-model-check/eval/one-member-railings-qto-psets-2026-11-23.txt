@@ -1,0 +1,95 @@
+
+test-2026-2x3.ifc (Tekla Structures Educational 2026.0.56107.0): Qto_ sets on elements as IfcPropertySet 177, as IfcElementQuantity 0
+class quantity | stored in a Qto_ property set | geometry gives one | within 2% | within 5% | median geometry/stored
+IFCBEAM NetVolume | 68 | 68 | 68 | 68 | 1
+IFCBUILDINGELEMENTPROXY NetVolume | 7 | 7 | 7 | 7 | 1
+IFCCOLUMN NetVolume | 10 | 10 | 10 | 10 | 1.0041
+IFCCOVERING NetArea | 2 | 2 | 1 | 1 | 1
+IFCFOOTING NetVolume | 6 | 6 | 6 | 6 | 1
+IFCPILE Length | 15 | 15 | 15 | 15 | 1
+IFCPILE NetVolume | 15 | 15 | 15 | 15 | 1.0029
+IFCRAILING Length | 16 | 16 | 16 | 16 | 1
+IFCREINFORCINGBAR Weight | 33 | 0 | 0 | 0 | -
+IFCSLAB NetVolume | 2 | 2 | 2 | 2 | 1
+IFCTENDON Weight | 1 | 0 | 0 | 0 | -
+IFCWALL GrossVolume | 17 | 13 | 13 | 13 | 1
+IFCWALL Height | 17 | 9 | 9 | 9 | 1
+IFCWALL Length | 17 | 9 | 9 | 9 | 1
+IFCWALL NetVolume | 17 | 13 | 13 | 13 | 1
+
+test-2026-4.ifc ((no application)): Qto_ sets on elements as IfcPropertySet 232, as IfcElementQuantity 0
+class quantity | stored in a Qto_ property set | geometry gives one | within 2% | within 5% | median geometry/stored
+IFCBEAM NetVolume | 79 | 68 | 68 | 68 | 1
+IFCBUILDINGELEMENTPROXY NetVolume | 3 | 3 | 3 | 3 | 1
+IFCCOLUMN NetVolume | 11 | 10 | 10 | 10 | 1
+IFCCOVERING NetArea | 2 | 2 | 1 | 1 | 1
+IFCFOOTING NetVolume | 13 | 6 | 6 | 6 | 1
+IFCPILE Length | 27 | 15 | 15 | 15 | 1
+IFCPILE NetVolume | 27 | 15 | 15 | 15 | 1
+IFCPLATE NetVolume | 4 | 4 | 4 | 4 | 1
+IFCRAILING Length | 32 | 16 | 16 | 16 | 1
+IFCREINFORCINGBAR Weight | 33 | 0 | 0 | 0 | -
+IFCSLAB NetVolume | 5 | 2 | 2 | 2 | 1
+IFCTENDON Weight | 1 | 0 | 0 | 0 | -
+IFCWALL GrossVolume | 22 | 13 | 13 | 13 | 1
+IFCWALL Height | 22 | 9 | 9 | 9 | 1
+IFCWALL Length | 22 | 9 | 9 | 9 | 1
+IFCWALL NetVolume | 22 | 13 | 13 | 13 | 1
+
+test-2026-4.3.ifc (Tekla Structures Educational 2026.0.56107.0): Qto_ sets on elements as IfcPropertySet 227, as IfcElementQuantity 0
+class quantity | stored in a Qto_ property set | geometry gives one | within 2% | within 5% | median geometry/stored
+IFCBEAM NetVolume | 79 | 68 | 68 | 68 | 1
+IFCBUILDINGELEMENTPROXY NetVolume | 3 | 3 | 3 | 3 | 1
+IFCCOLUMN NetVolume | 11 | 10 | 10 | 10 | 1.0041
+IFCCOVERING NetArea | 2 | 2 | 2 | 2 | 1
+IFCFOOTING NetVolume | 13 | 6 | 6 | 6 | 1
+IFCPILE Length | 27 | 15 | 15 | 15 | 1
+IFCPILE NetVolume | 27 | 15 | 15 | 15 | 1
+IFCRAILING Length | 32 | 16 | 16 | 16 | 1
+IFCREINFORCINGBAR Weight | 33 | 0 | 0 | 0 | -
+IFCSLAB NetVolume | 4 | 2 | 2 | 2 | 1
+IFCTENDON Weight | 1 | 0 | 0 | 0 | -
+IFCWALL GrossVolume | 22 | 13 | 13 | 13 | 1
+IFCWALL Height | 22 | 9 | 9 | 9 | 1
+IFCWALL Length | 22 | 9 | 9 | 9 | 1
+IFCWALL NetVolume | 22 | 13 | 13 | 13 | 1
+
+Tekla-Export.ifc ((no application)): Qto_ sets on elements as IfcPropertySet 25, as IfcElementQuantity 0
+class quantity | stored in a Qto_ property set | geometry gives one | within 2% | within 5% | median geometry/stored
+IFCBEAM CrossSectionArea | 1 | 1 | 1 | 1 | 1
+IFCBEAM GrossSurfaceArea | 1 | 1 | 1 | 1 | 1
+IFCBEAM GrossVolume | 1 | 1 | 1 | 1 | 1
+IFCBEAM GrossWeight | 1 | 0 | 0 | 0 | -
+IFCBEAM Length | 1 | 1 | 1 | 1 | 1
+IFCBEAM NetSurfaceArea | 1 | 0 | 0 | 0 | -
+IFCBEAM NetVolume | 1 | 1 | 1 | 1 | 1
+IFCBEAM NetWeight | 1 | 0 | 0 | 0 | -
+IFCBEAM OuterSurfaceArea | 1 | 1 | 1 | 1 | 0.989
+IFCCOLUMN CrossSectionArea | 4 | 4 | 4 | 4 | 1
+IFCCOLUMN GrossSurfaceArea | 4 | 4 | 4 | 4 | 1
+IFCCOLUMN GrossVolume | 4 | 4 | 4 | 4 | 1
+IFCCOLUMN GrossWeight | 4 | 0 | 0 | 0 | -
+IFCCOLUMN Length | 4 | 4 | 4 | 4 | 1
+IFCCOLUMN NetSurfaceArea | 4 | 0 | 0 | 0 | -
+IFCCOLUMN NetVolume | 4 | 4 | 4 | 4 | 1
+IFCCOLUMN NetWeight | 4 | 0 | 0 | 0 | -
+IFCCOLUMN OuterSurfaceArea | 4 | 0 | 0 | 0 | -
+IFCSLAB Depth | 1 | 0 | 0 | 0 | -
+IFCSLAB GrossArea | 1 | 1 | 0 | 0 | 0.75
+IFCSLAB GrossVolume | 1 | 1 | 1 | 1 | 1
+IFCSLAB GrossWeight | 1 | 0 | 0 | 0 | -
+IFCSLAB Length | 1 | 0 | 0 | 0 | -
+IFCSLAB NetArea | 1 | 1 | 0 | 0 | 0.49
+IFCSLAB NetVolume | 1 | 1 | 1 | 1 | 1
+IFCSLAB NetWeight | 1 | 0 | 0 | 0 | -
+IFCSLAB Perimeter | 1 | 1 | 1 | 1 | 1
+IFCSLAB Width | 1 | 1 | 0 | 0 | 0.0083
+IFCWALL GrossVolume | 19 | 19 | 16 | 19 | 1
+IFCWALL GrossWeight | 19 | 0 | 0 | 0 | -
+IFCWALL Height | 19 | 19 | 19 | 19 | 1
+IFCWALL Length | 19 | 19 | 19 | 19 | 1
+IFCWALL NetFootprintArea | 19 | 16 | 16 | 16 | 1
+IFCWALL NetSideArea | 19 | 16 | 0 | 0 | 0.4891
+IFCWALL NetVolume | 19 | 16 | 16 | 16 | 1
+IFCWALL NetWeight | 19 | 0 | 0 | 0 | -
+IFCWALL Width | 19 | 19 | 19 | 19 | 1
