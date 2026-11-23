@@ -1,0 +1,42 @@
+{
+ "results": {
+  "Marquis2019@2x*1": {
+   "finished": 4,
+   "plates": false,
+   "fade": 2.0304523501274364e-05
+  },
+  "Marquis2019@2x*10": {
+   "finished": 4,
+   "plates": false,
+   "fade": 0.00017518131988614378
+  },
+  "Marquis2019@2x*100": {
+   "finished": 4,
+   "plates": false,
+   "fade": 0.0009902978902783448
+  },
+  "Marquis2019@2x*1000": {
+   "finished": 4,
+   "plates": false,
+   "fade": 0.0036424124206963938
+  },
+  "Marquis2019@2x*10000": {
+   "finished": 4,
+   "plates": false,
+   "fade": 0.011757998652681064
+  },
+  "Marquis2019@2x*100000": {
+   "finished": 4,
+   "plates": false,
+   "fade": 0.03724062963425891
+  },
+  "Marquis2019@2x*1e+06": {
+   "finished": 4,
+   "plates": false,
+   "fade": 0.11056220720072607
+  }
+ },
+ "kept": {
+  "Marquis2019@2x": 100000.0
+ }
+}
