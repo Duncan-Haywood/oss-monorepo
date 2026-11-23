@@ -226,3 +226,8 @@ test("audit 2026-11-23: the printed break-even fee is a floor the fee must excee
   assert.ok(at(1470).declined.some((d) => d.name === name));
   assert.ok(!at(1471).declined.some((d) => d.name === name));
 });
+
+test("audit 2026-11-23: a quoted decimal-comma fee reads as 29.99, not 2999", () => {
+  assert.equal(parseJobs('A,"29,99",4,2,0').jobs[0].fee, 29.99);
+  assert.ok(parseJobs('A,"1,2,3",4,2,0').errors.length > 0);
+});

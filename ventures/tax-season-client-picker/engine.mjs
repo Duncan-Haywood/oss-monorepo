@@ -39,7 +39,12 @@ export function money(n) {
 }
 
 function nonNeg(cell, what, where, errors) {
-  const v = Number(String(cell ?? "").replace(/[$,\s]/g, ""));
+  // Commas by shape: "1,200" is thousands, "29,99" a decimal comma; any other comma is not a number.
+  let t = String(cell ?? "").replace(/[$\s]/g, "");
+  if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) t = t.split(",").join("");
+  else if (/^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(t)) t = t.split(".").join("").replace(",", ".");
+  else if (t.includes(",")) t = "x";
+  const v = Number(t);
   if (cell === undefined || String(cell).trim() === "" || !Number.isFinite(v) || v < 0) {
     errors.push(`${where}: ${what} must be a number, zero or more`);
     return null;
