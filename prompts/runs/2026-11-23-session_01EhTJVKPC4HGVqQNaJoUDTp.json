@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKPC4HGVqQNaJoUDTp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T20:16:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9) league-schedule-generator: the supply cut in the race search",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18472",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named item 3 ('a real tournament'), which needs a real outside input; took item 8 (the supply cut in the race search), the one item in the row buildable with no outside data.",
+      "did": "took item 8",
+      "result": "landed: 40% fewer search nodes, 87.4% to 90.1% tables proved on 18 real seasons, 0 wrong"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-a-relegation-race-settled-up-to-14-match-days-sooner.md"
+  ],
+  "goal": null,
+  "notes": "supplyReach bound added to extremeCount maximise (shared with canStopAt). Old vs new on 39,330 real-season questions: nodes 4,071,227 -> 2,450,880, 0 answers differ, unproved 181 -> 102. eval/race-real.mjs side by side: wrong 0; proved tables 5,370 -> 5,538; safety settled earlier 83 -> 88 teams, 194 -> 239 dates, max 6 -> 14; 72.4 -> 65.0 ms/table. A mirror absorption bound for best rank was tried and dropped (48 of 72,736 nodes saved). race-exact and magic-exact tests pass; full venture suite run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}
