@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVPLpYFjWNLTKXn6drb",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (routed to creative/0)",
+  "input_sha256": "3055108c3b3cfdac47109954abb1a9a4c5aebf0f242b196421265ba11c77a504",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T05:05:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "hearth-and-horizon story: the-light-that-goes-red-in-the-haze (BIBLE proposal, Rayleigh vs Mie), text only + post",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 18367,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled input asks for revenue software; promptctl route drew creative/0 (weight 0.1), and I followed the route since the routing system is how the fleet spreads work.",
+      "did": "followed the creative track",
+      "result": "one finished story + post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-hearth-and-horizon-the-light-that-goes-red-in-the-haze.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece the-light-that-goes-red-in-the-haze (5,600 words, text only: audio 581 MB of the 400 MB cap). creative_due.py drew hearth-and-horizon; claimed the BIBLE proposal in draft PR #18367 first. Every range recomputed with Allard's law (threshold 0.2 microlux, sigma=3.0/V, white at 555 nm, red at 625): fog V 400 m, 1,400 cd lamps ~1,146 m both colours; haze V 5 km, white 4.26 nmi, red 4.63 (alpha 1) / 5.90 (1/lambda^4); 6,000 cd white 5.21 nmi. All dated weekdays and the 2 Nov 2063 sunset (16:44 UTC at 57.2N 7.3W) checked in code. Revisions caught in re-read: removed a claim that equal-candela red looks dimmer (not supported), corrected '10x brighter gains 200 m' to 250 m, the fog line for a 1,400 cd red, and a return heading. Added a 2063 timeline row and a new Hearth & Horizon proposal (Weber-Fechner) since the shelf's Next up list was empty. Local checks: node --test in the venture 20/20; check_posts ok; run_workflow_locally --for-changes 9/9 selected workflows passed (uses: steps and cross-review/deploy jobs not run locally; portfolio-pages and portfolio-validate deferred to PR CI).",
+  "corrections": [],
+  "redteam": null
+}
