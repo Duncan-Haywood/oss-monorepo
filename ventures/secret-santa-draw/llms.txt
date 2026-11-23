@@ -1,8 +1,15 @@
 # Secret Santa generator: no emails, couples kept apart, organizer plays too
 
-> Free Secret Santa generator with no sign-up and no emails. Keep couples apart, skip last year's pairs, forbid swaps or force one big loop, and let the organizer play without seeing the results. Runs in your browser; nothing is uploaded.
+> Free Secret Santa generator with no sign-up and no emails. Keep couples apart, skip last year's pairs, send each person a private link, share wish lists. Runs in your browser.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Ways to hand out the draw
+
+- Group link: one link for the group chat; each person picks their own name (honor system).
+- Private links (added 2026-11-23): one link per person, sent by text or DM; each holds only that person's match, so nobody can look up anyone else's.
+- Pass the phone: one device, one person at a time.
+- Wish list links (added 2026-11-23): after seeing their person, anyone can write a wish list and share a link that holds only their name and ideas.
 
 ## Pages
 

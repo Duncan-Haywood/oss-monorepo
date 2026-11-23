@@ -361,6 +361,51 @@ export function decodeGroup(text) {
   return { group: { title: str(o.t, 80), names: o.n, groups, previous, mode: o.m, seed: o.s >>> 0, budget: str(o.b, 40), date: /^\d{4}-\d{2}-\d{2}$/.test(o.d) ? o.d : "", note: str(o.x, 300) } };
 }
 
+// ---- private links: one per person, holding only that person's own match ----
+// Unlike the group link, a private link cannot be used to see anyone else's person:
+// it never contains the other names or the random number. The receiver is base64 text
+// like the rest, so it is hidden from a glance, not encrypted: whoever opens a link sees it.
+
+const MAX_WISH = 600;
+const str = (v, max) => (typeof v === "string" ? v.slice(0, max) : "");
+const okName = (v) => typeof v === "string" && v.length > 0 && v.length <= MAX_NAME;
+
+export function encodePrivate({ group, giver, receiver }) {
+  return b64(JSON.stringify({ v: 1, t: group.title || "", b: group.budget || "", d: group.date || "", x: group.note || "", f: giver, r: receiver }));
+}
+
+export function decodePrivate(text) {
+  let o;
+  try { o = JSON.parse(unb64(String(text).replace(/^#?p=/, ""))); } catch { return { error: "This link is damaged or incomplete. Ask the organizer to send your link again." }; }
+  if (!o || o.v !== 1 || !okName(o.f) || !okName(o.r) || o.f === o.r) return { error: "This link is not a private link this page understands." };
+  return { title: str(o.t, 80), budget: str(o.b, 40), date: /^\d{4}-\d{2}-\d{2}$/.test(o.d) ? o.d : "", note: str(o.x, 300), giver: o.f, receiver: o.r };
+}
+
+// Every person's private link fragment, in list order.
+export function privateLinks(group, assign) {
+  return group.names.map((giver, i) => ({ giver, fragment: "p=" + encodePrivate({ group, giver, receiver: group.names[assign[i]] }) }));
+}
+
+// The organizer's message: one line per person, for pasting into DMs or an email merge.
+export function privateLinksText(base, links) {
+  return links.map((l) => `${l.giver}: ${base}#${l.fragment}`).join("\n");
+}
+
+// ---- wish lists: a person writes theirs and shares the link; their Secret Santa reads it ----
+
+export function encodeWish({ name, wish, title }) {
+  return b64(JSON.stringify({ v: 1, n: name, w: wish, t: title || "" }));
+}
+
+export function decodeWish(text) {
+  let o;
+  try { o = JSON.parse(unb64(String(text).replace(/^#?w=/, ""))); } catch { return { error: "This wish list link is damaged or incomplete." }; }
+  if (!o || o.v !== 1 || !okName(o.n) || typeof o.w !== "string" || !o.w.trim()) return { error: "This is not a wish list link this page understands." };
+  return { name: o.n, wish: o.w.slice(0, MAX_WISH), title: str(o.t, 80) };
+}
+
+export const WISH_MAX = MAX_WISH;
+
 // Recompute the draw a link describes. Same link, same answer, on every device.
 export function resolveGroup(g) {
   const allowed = buildAllowed(g.names.length, g.groups, g.previous);
