@@ -1,0 +1,66 @@
+file	size	bytes_read	share	passes	sparse	ms_sparse	same
+arw/Sony DSLR-A500.arw	13172736	262144	0.0199	1	true	2.7	yes
+arw/Sony ILCE-5000 (A5000).arw	21233664	262144	0.0123	1	true	5.2	yes
+arw/Sony ILCE-7M3 (A7M3).arw	24795904	262144	0.0106	1	true	1.3	yes
+arw/Sony ILCE-7M4 (A7M4).ARW	38346752	393216	0.0103	2	true	3.5	yes
+arw/Sony NEX-5N.arw	17137664	262144	0.0153	1	true	1.0	yes
+arw/Sony NEX-7.arw	24838144	262144	0.0106	1	true	4.0	yes
+cr2/Canon EOS 350D.CR2	7797386	524288	0.0672	4	true	2.1	yes
+cr2/Canon EOS 600D.CR2	22911265	393216	0.0172	2	true	1.4	yes
+cr2/Canon EOS 70D.cr2	22443014	393216	0.0175	2	true	4.2	yes
+cr2/Canon EOS 7D.cr2	23107855	393216	0.0170	2	true	6.5	yes
+cr3/Canon EOS R3.cr3	12277000	1769472	0.1441	2	true	7.4	yes
+cr3/IMG_0036.CR3	37602962	1769472	0.0471	2	true	16.4	yes
+cr3/IMG_0041.CR3	16979090	1769472	0.1042	2	true	11.3	yes
+cr3/_MG_0039.CR3	37577362	1835008	0.0488	2	true	9.5	yes
+cr3/_MG_0045.CR3	16959634	1835008	0.1082	2	true	4.8	yes
+dng/DJI Phantom 4 (1).dng	24394394	262144	0.0107	1	true	3.6	yes
+dng/DJI Phantom 4 (2).dng	24360947	262144	0.0108	1	true	3.6	yes
+dng/LG Nexus 5X.dng	24738056	24738056	1.0000	0	false	195.4	yes
+dng/Leica T (Typ 701).dng	24494686	262144	0.0107	1	true	8.6	yes
+dng/Leica X VARIO (Typ 107).dng	24466014	262144	0.0107	1	true	14.7	yes
+dng/Pentax QS1.dng	22643744	427040	0.0189	2	true	78.2	yes
+dng/bigtiff.dng	2111	2111	1.0000	0	false	0.1	yes
+dng/bigtiff_be.dng	2111	2111	1.0000	0	false	0.1	yes
+nef/Issue 247-1.nef	382419	382419	1.0000	0	false	0.6	yes
+nef/Issue 247-2.nef	458617	458617	1.0000	0	false	0.7	yes
+nef/Issue 247-3.nef	397437	397437	1.0000	0	false	0.5	yes
+nef/Issue 247-4.nef	467838	467838	1.0000	0	false	0.8	yes
+nef/Nikon 800E.nef	41400694	393216	0.0095	2	true	1.5	yes
+nef/Nikon D300.nef	12190598	262144	0.0215	1	true	0.6	yes
+nef/Nikon D5100.nef	17180885	262144	0.0153	1	true	1.9	yes
+nef/Nikon D70.nef	5617872	262144	0.0467	1	true	1.0	yes
+nef/Nikon D810.nef	40667772	458752	0.0113	2	true	4.0	yes
+nef/Nikon D90.nef	10196977	262144	0.0257	1	true	4.8	yes
+nef/NikonD200.nef	15911712	262144	0.0165	1	true	6.3	yes
+orf/OM System TG-7.ORF	13150700	262144	0.0199	1	true	0.8	yes
+orf/OM Sytem OM-1.orf	20992781	262144	0.0125	1	true	2.7	yes
+orf/Olympus C5050Z.orf	7457792	7457792	1.0000	0	false	54.2	yes
+orf/Olympus C8080.orf	12091780	12091780	1.0000	0	false	85.3	yes
+orf/Olympus E-M10.orf	14428538	262144	0.0182	1	true	3.0	yes
+orf/Olympus E-M5.orf	14195656	262144	0.0185	1	true	4.3	yes
+orf/Olympus E-PL7.orf	14912684	262144	0.0176	1	true	1.6	yes
+orf/Olympus E-PM1.orf	11039776	262144	0.0237	1	true	1.7	yes
+orf/Olympus E30.orf	11847551	262144	0.0221	1	true	1.8	yes
+orf/Olympus E410.orf	10277678	262144	0.0255	1	true	1.2	yes
+orf/Olympus E600.orf	12264291	262144	0.0214	1	true	1.9	yes
+orf/Olympus PEN E-P3.orf	13202813	262144	0.0199	1	true	1.4	yes
+orf/Olympus Pen E-PL1.orf	12225493	262144	0.0214	1	true	1.7	yes
+orf/Olympus SP350.orf	12093440	12093440	1.0000	0	false	83.9	yes
+orf/Olympus SP500UZ.orf	9017344	9017344	1.0000	0	false	64.7	yes
+orf/Olympus TG-4.orf	24261344	262144	0.0108	1	true	3.7	yes
+orf/Olympus TG-6.ORF	13437117	262144	0.0195	1	true	2.1	yes
+orf/Olympus XZ1.orf	11421104	262144	0.0230	1	true	2.0	yes
+pef/Pentax K-1 Mark II.pef	43897251	393216	0.0090	2	true	181.0	yes
+raf/FujiFilm EX-2.raf	33449472	262144	0.0078	1	true	6.3	yes
+raf/FujiFilm FinePix S5500.raf	8500960	262144	0.0308	1	true	1.8	yes
+raf/Fujifilm X-E1.raf	26146816	262144	0.0100	1	true	5.5	yes
+rw2/Issue 419.rw2	368	368	1.0000	0	false	0.2	yes
+rw2/Panasonic DMC-GF1.rw2	14675968	262144	0.0179	1	true	0.7	yes
+rw2/Panasonic DMC-GF3.rw2	13180928	262144	0.0199	1	true	7.2	yes
+rw2/Panasonic DMC-GF7.rw2	19720192	262144	0.0133	1	true	1.0	yes
+rw2/Panasonic Lumix DMC-LX7.rw2	12250624	262144	0.0214	1	true	2.2	yes
+srw/Samsung EK-GN120 (Galaxy NX).srw	24616164	393216	0.0160	3	true	206.5	yes
+srw/Samsung NX1.srw	36239930	458752	0.0127	3	true	320.5	yes
+srw/Samsung NX20.srw	37108190	327680	0.0088	2	true	4.3	yes
+srw/Samsung NX3000.srw	27515215	393216	0.0143	3	true	258.0	yes

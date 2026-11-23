@@ -182,12 +182,13 @@
 </div>
 
 <script type="module">
-import { readRaw, isCandidateFile, captureMillis, groupBursts, sharpness, xmpSidecar, sidecarName, zipStored, LABEL_KEYS } from "./rawpreview.mjs";
+import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, xmpSidecar, sidecarName, zipStored, LABEL_KEYS } from "./rawpreview.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
 const $ = (id) => document.getElementById(id);
 const grid = $("grid");
 const items = [];          // every loaded frame
+let bytesRead = 0;         // from disk, for the status line
 let view = [];             // indices into items, filtered and sorted
 let sel = 0;               // position in view
 let loupeOpen = false, zoom = null;
@@ -228,19 +229,31 @@ function drawOriented(ctx, img, o, W, H) {
   ctx.restore();
 }
 
-function previewBlob(it) { return it.file.slice(it.preview.offset, it.preview.offset + it.preview.length, "image/jpeg"); }
+function previewBlob(it, p = it.preview) { return it.file.slice(p.offset, p.offset + p.length, "image/jpeg"); }
+
+// The grid needs 1024 px at most (thumbnail 360, detail score 1024), so it
+// decodes the smallest embedded preview that big: Canon CR3, the Sony A7 IV
+// and Nikon's D810/D850 class carry a ~1620 px one next to the full-size JPEG,
+// a fifth of the pixels to decode. The large view still opens the largest.
+function gridPreview(r) {
+  const big = r.previews.filter((p) => Math.max(p.width, p.height) >= 1024 && (p.ownOrientation || 0) === (r.preview.ownOrientation || 0));
+  return big[big.length - 1] || r.preview;
+}
 
 async function loadOne(file) {
   const it = { file, name: file.name, size: file.size, rating: 0, rejected: false, label: "", error: "" };
   try {
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const r = readRaw(bytes, file.name);
+    // Only the structure and preview headers are read, not the sensor data.
+    const r = await readRawFile(file);
+    bytesRead += r.bytesRead;
     it.format = r.format; it.meta = r.meta; it.preview = r.preview;
     if (!r.preview) throw new Error(r.format ? "no embedded JPEG preview found" : "not a camera raw or JPEG file");
     it.orient = r.preview.ownOrientation ? 1 : r.meta.orientation || 1;
     it.t = captureMillis(r.meta);
     it.body = [r.meta.make, r.meta.model, r.meta.serial].filter(Boolean).join(" ");
-    const bmp = await createImageBitmap(previewBlob(it));
+    const gp = gridPreview(r);
+    const bmp = await createImageBitmap(previewBlob(it, gp));
+    bytesRead += gp.length;
     // Thumbnail, upright.
     const [ow, oh] = orientedSize(bmp.width, bmp.height, it.orient);
     const ts = Math.min(1, 360 / Math.max(ow, oh));
@@ -291,23 +304,28 @@ async function addFiles(fileList) {
   const prog = $("prog"); prog.hidden = false; prog.max = fresh.length; prog.value = 0;
   let done = 0, next = 0;
   const t0 = performance.now();
+  const before = bytesRead, cardBytes = fresh.reduce((a, f) => a + f.size, 0);
+  let lastDraw = 0;
   const worker = async () => {
     while (next < fresh.length) {
       const f = fresh[next++];
       items.push(await loadOne(f));
       done++; prog.value = done;
       $("status").textContent = `Reading ${done} of ${fresh.length}…`;
-      if (done % 12 === 0 || done === fresh.length) refresh(false);
+      // Redraw the grid at most a few times a second: a full rebuild per file
+      // grows with the card, and 500 files made it the slow part.
+      const now = performance.now();
+      if (now - lastDraw > 500 || done === fresh.length) { refresh(false); lastDraw = performance.now(); }
     }
   };
-  await Promise.all([worker(), worker()]);
+  await Promise.all(Array.from({ length: Math.min(4, Math.max(2, navigator.hardwareConcurrency || 2)) }, worker));
   prog.hidden = true;
   const bad = items.filter((it) => it.error).length;
   const secs = ((performance.now() - t0) / 1000).toFixed(1);
   record("files_loaded");
   if (fresh.length >= 50) record("files_loaded_50_plus");
   refresh(true);
-  $("status").textContent = `${items.length} files${bad ? `, ${bad} without a preview` : ""} (read ${fresh.length} in ${secs} s).`;
+  $("status").textContent = `${items.length} files${bad ? `, ${bad} without a preview` : ""} (read ${fresh.length} in ${secs} s; ${mib(bytesRead - before)} of their ${mib(cardBytes)} read from disk).`;
 }
 
 // ---------------------------------------------------------------- bursts and view
@@ -351,6 +369,7 @@ function tileHtml(it) {
   const burst = it.burstSize > 1 ? `<span class="burst">burst ${it.burstPos}/${it.burstSize}</span>` : "";
   return `${lab}${rej}${badge}${burst}<div class="cap"><span class="name" title="${esc(it.name)}">${esc(it.name)}</span><span class="stars">${stars}</span></div>`;
 }
+const mib = (n) => n >= 2 ** 30 ? `${(n / 2 ** 30).toFixed(1)} GB` : `${Math.round(n / 2 ** 20)} MB`;
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function refresh(full) {
@@ -367,7 +386,8 @@ function refresh(full) {
     el.setAttribute("role", "option");
     el.setAttribute("aria-selected", pos === sel ? "true" : "false");
     el.dataset.pos = pos;
-    if (it.thumb) { const c = document.createElement("canvas"); c.width = it.thumb.width; c.height = it.thumb.height; c.getContext("2d").drawImage(it.thumb, 0, 0); el.appendChild(c); }
+    // The thumbnail canvas itself moves into the new tile (no copy per refresh).
+    if (it.thumb) el.appendChild(it.thumb);
     else { const d = document.createElement("div"); d.style.cssText = "height:140px;display:grid;place-items:center;padding:.5rem;font-size:.75rem;text-align:center"; d.className = "err"; d.textContent = it.error || "…"; el.appendChild(d); }
     el.insertAdjacentHTML("beforeend", tileHtml(it));
     el.addEventListener("click", () => { select(pos); });

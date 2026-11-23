@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   readRaw, probeJpeg, captureMillis, groupBursts, sharpness, xmpSidecar, sidecarName,
-  zipStored, crc32, isCandidateFile,
+  zipStored, crc32, isCandidateFile, readRawFile,
 } from "./rawpreview.mjs";
 
 // A marker-valid baseline JPEG of w x h (enough for the frame walk; not decodable pixels).
@@ -184,4 +184,68 @@ test("stored ZIP: entries and CRCs read back", () => {
 test("isCandidateFile keeps raws and JPEGs, drops sidecars", () => {
   assert.ok(isCandidateFile("A.CR3") && isCandidateFile("b.nef") && isCandidateFile("c.jpg"));
   assert.ok(!isCandidateFile("A.xmp") && !isCandidateFile("notes.txt"));
+});
+
+// A Blob that counts the bytes sliced out of it, standing in for a File.
+function countingFile(bytes, name) {
+  const blob = new Blob([bytes]);
+  const f = { name, size: bytes.length, read: 0, whole: 0 };
+  f.slice = (a, z) => { f.read += z - a; return blob.slice(a, z); };
+  f.arrayBuffer = () => { f.whole++; f.read += bytes.length; return blob.arrayBuffer(); };
+  return f;
+}
+
+test("readRawFile: a TIFF raw's preview past 8 MB of sensor data, read sparsely, same as a whole read", async () => {
+  const j = jpeg(6000, 4000, { exifOrientation: 8 });
+  const sensor = 8 << 20;
+  const tailAt = 8 + (2 + 5 * 12 + 4) + 512;
+  const head = tiffBytes([
+    { tag: 0x10f, type: 2, value: "NIKON CORPORATION" },
+    { tag: 0x110, type: 2, value: "NIKON Z 6" },
+    { tag: 0x112, type: 3, value: 6 },
+    { tag: 0x201, type: 4, value: tailAt + sensor },
+    { tag: 0x202, type: 4, value: j.length },
+  ]);
+  const b = new Uint8Array(tailAt + sensor + j.length);
+  b.set(head.subarray(0, tailAt));
+  for (let i = tailAt; i < tailAt + sensor; i += 4096) b[i] = 0xff; // noise a scan would trip on
+  b.set(j, tailAt + sensor);
+  const whole = readRaw(b, "DSC_0001.NEF");
+  const f = countingFile(b, "DSC_0001.NEF");
+  const r = await readRawFile(f);
+  assert.equal(r.sparse, true);
+  assert.equal(f.whole, 0);
+  assert.deepEqual({ meta: r.meta, preview: r.preview }, { meta: whole.meta, preview: whole.preview });
+  assert.equal(r.preview.offset, tailAt + sensor);
+  assert.ok(r.bytesRead < b.length / 10, `read ${r.bytesRead} of ${b.length}`);
+});
+
+test("readRawFile: a CR3 whose track points into a large mdat", async () => {
+  const j = jpeg(6000, 4000);
+  const ftyp = box("ftyp", new TextEncoder().encode("crx "), u32be(1));
+  const build = (off) => box("moov", box("trak", box("mdia", box("minf", box("stbl",
+    box("stsz", u32be(0, j.length, 1)), box("co64", u32be(0, 1, 0, off)))))));
+  const pad = new Uint8Array(6 << 20);
+  const headLen = ftyp.length + build(0).length;
+  const mdat = box("mdat", pad, j);
+  const b = new Uint8Array(headLen + mdat.length);
+  b.set(ftyp); b.set(build(headLen + 8 + pad.length), ftyp.length); b.set(mdat, headLen);
+  const f = countingFile(b, "IMG_0001.CR3");
+  const r = await readRawFile(f);
+  assert.equal(r.sparse, true);
+  assert.equal(r.preview.source, "CR3 track");
+  assert.deepEqual(r.preview, readRaw(b, "IMG_0001.CR3").preview);
+  assert.ok(r.bytesRead < b.length / 10);
+});
+
+test("readRawFile: no pointer preview means a whole read, as readRaw would scan", async () => {
+  const b = new Uint8Array(5 << 20);
+  b.set(tiffBytes([{ tag: 0x10f, type: 2, value: "OLYMPUS OPTICAL CO.,LTD" }]));
+  b.set(jpeg(1600, 1200), 3 << 20);
+  const f = countingFile(b, "P0001.ORF");
+  const r = await readRawFile(f);
+  assert.equal(r.sparse, false);
+  assert.equal(f.whole, 1);
+  assert.equal(r.preview.source, "scan");
+  assert.deepEqual(r.preview, readRaw(b, "P0001.ORF").preview);
 });
