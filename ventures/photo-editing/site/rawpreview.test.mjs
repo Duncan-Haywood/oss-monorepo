@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   readRaw, probeJpeg, captureMillis, groupBursts, sharpness, xmpSidecar, sidecarName,
-  zipStored, crc32, isCandidateFile, readRawFile,
+  zipStored, crc32, isCandidateFile, readRawFile, readXmp, mergeXmpSidecar, sidecarTarget,
 } from "./rawpreview.mjs";
 
 // A marker-valid baseline JPEG of w x h (enough for the frame walk; not decodable pixels).
@@ -32,8 +32,8 @@ function tiffBytes(entries, tail = new Uint8Array(0), magic = 42) {
   entries.forEach((e, i) => {
     const at = 10 + i * 12;
     dv.setUint16(at, e.tag, true); dv.setUint16(at + 2, e.type, true);
-    if (e.type === 2) {
-      const s = new TextEncoder().encode(e.value + "\0");
+    if (e.type === 2 || e.type === 7) {
+      const s = e.type === 7 ? new TextEncoder().encode(e.value) : new TextEncoder().encode(e.value + "\0");
       dv.setUint32(at + 4, s.length, true);
       if (s.length <= 4) buf.set(s, at + 8);
       else { dv.setUint32(at + 8, extraAt, true); extra.push([extraAt, s]); extraAt += s.length; }
@@ -248,4 +248,121 @@ test("readRawFile: no pointer preview means a whole read, as readRaw would scan"
   assert.equal(f.whole, 1);
   assert.equal(r.preview.source, "scan");
   assert.deepEqual(r.preview, readRaw(b, "P0001.ORF").preview);
+});
+
+// ------------------------------------------------ existing sidecars and in-camera ratings
+
+const LR_SIDECAR = `<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0-c000 1.000000, 0000/00/00-00:00:00        ">
+ <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:about=""
+    xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+    xmlns:crs="http://ns.adobe.com/camera-raw-settings/1.0/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmp:MetadataDate="2026-01-02T03:04:05-08:00"
+   xmp:Rating="2"
+   xmp:Label="Purple"
+   crs:Exposure2012="+0.35"
+   crs:Temperature="5600">
+   <dc:subject>
+    <rdf:Bag>
+     <rdf:li>wedding &amp; rings</rdf:li>
+    </rdf:Bag>
+   </dc:subject>
+  </rdf:Description>
+ </rdf:RDF>
+</x:xmpmeta>
+`;
+
+test("readXmp: attribute and element forms, any prefix, rejects and fractions", () => {
+  assert.deepEqual(readXmp(LR_SIDECAR), { rating: 2, label: "Purple" });
+  assert.deepEqual(readXmp(xmpSidecar({ rejected: true })), { rating: -1, label: null });
+  const elem = `<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description xmlns:xap="http://ns.adobe.com/xap/1.0/"><xap:Rating>3.0</xap:Rating><xap:Label>Red &amp; done</xap:Label></rdf:Description></rdf:RDF></x:xmpmeta>`;
+  assert.deepEqual(readXmp(elem), { rating: 3, label: "Red & done" });
+  assert.deepEqual(readXmp(elem.replace("3.0", "9")), { rating: null, label: "Red & done" });
+  assert.equal(readXmp("not xml at all"), null);
+});
+
+test("mergeXmpSidecar keeps develop settings and keywords, sets rating and label", () => {
+  const out = mergeXmpSidecar(LR_SIDECAR, { rating: 5, label: "Green" }, new Date(Date.UTC(2026, 10, 23, 14, 5, 9)));
+  assert.deepEqual(readXmp(out), { rating: 5, label: "Green" });
+  assert.match(out, /crs:Exposure2012="\+0\.35"/);
+  assert.match(out, /crs:Temperature="5600"/);
+  assert.match(out, /<rdf:li>wedding &amp; rings<\/rdf:li>/);
+  assert.match(out, /xmp:MetadataDate="2026-11-23T14:05:09\+00:00"/);
+  // Only the three properties changed: the rest is byte for byte.
+  const strip = (t) => t.replace(/ xmp:(Rating|Label|MetadataDate)="[^"]*"/g, "");
+  assert.equal(strip(out), strip(LR_SIDECAR));
+  // Rejected, label cleared.
+  const rej = mergeXmpSidecar(LR_SIDECAR, { rejected: true, label: "" });
+  assert.deepEqual(readXmp(rej), { rating: -1, label: null });
+  assert.doesNotMatch(rej, /xmp:Label/);
+});
+
+test("mergeXmpSidecar adds xmp to a sidecar that has none, and edits element forms", () => {
+  const dt = `<?xml version="1.0" encoding="UTF-8"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+ <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:about="" xmlns:darktable="http://darktable.sf.net/" darktable:xmp_version="5"/>
+ </rdf:RDF>
+</x:xmpmeta>`;
+  const out = mergeXmpSidecar(dt, { rating: 3, label: "Blue" });
+  assert.deepEqual(readXmp(out), { rating: 3, label: "Blue" });
+  assert.match(out, /darktable:xmp_version="5"/);
+  const elem = `<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description xmlns:xap="http://ns.adobe.com/xap/1.0/"><xap:Rating>1</xap:Rating></rdf:Description></rdf:RDF></x:xmpmeta>`;
+  const e2 = mergeXmpSidecar(elem, { rating: 4, label: "Red" });
+  assert.match(e2, /<xap:Rating>4<\/xap:Rating>/);
+  assert.deepEqual(readXmp(e2), { rating: 4, label: "Red" });
+  assert.equal(mergeXmpSidecar("hello", { rating: 1 }), null);
+});
+
+test("sidecarTarget pairs both naming styles and refuses an ambiguous stem", () => {
+  const names = ["IMG_1.CR3", "IMG_2.CR3", "IMG_2.JPG", "DSC_9.nef"];
+  assert.equal(sidecarTarget("IMG_1.xmp", names), "IMG_1.CR3");
+  assert.equal(sidecarTarget("img_1.cr3.XMP", names), "IMG_1.CR3");
+  assert.equal(sidecarTarget("DSC_9.xmp", names), "DSC_9.nef");
+  assert.equal(sidecarTarget("IMG_2.xmp", names), null);
+  assert.equal(sidecarTarget("IMG_2.JPG.xmp", names), "IMG_2.JPG");
+  assert.equal(sidecarTarget("IMG_3.xmp", names), null);
+});
+
+test("in-camera rating: an XMP packet in tag 700 wins over the Rating tag", () => {
+  const j = jpeg(6000, 4000);
+  const packet = xmpSidecar({ rating: 4, label: "Yellow" });
+  const mk = (entries) => {
+    const n = entries.length + 2;
+    const tailAt = 8 + (2 + n * 12 + 4) + 512;
+    return readRaw(tiffBytes([...entries, { tag: 0x201, type: 4, value: tailAt }, { tag: 0x202, type: 4, value: j.length }], j), "DSC_1.NEF");
+  };
+  const both = mk([{ tag: 0x10f, type: 2, value: "NIKON" }, { tag: 0x2bc, type: 7, value: packet }, { tag: 0x4746, type: 3, value: 2 }]);
+  assert.equal(both.meta.cameraRating, 4);
+  assert.equal(both.meta.cameraLabel, "Yellow");
+  assert.equal(both.meta.xmpAt, undefined);
+  const tagOnly = mk([{ tag: 0x10f, type: 2, value: "Canon" }, { tag: 0x4746, type: 3, value: 3 }]);
+  assert.equal(tagOnly.meta.cameraRating, 3);
+  // Nikon's default packet says Rating 0: no rating, so the tag is the fallback.
+  const zero = mk([{ tag: 0x2bc, type: 7, value: xmpSidecar({ rating: 0 }) }, { tag: 0x4746, type: 3, value: 1 }]);
+  assert.equal(zero.meta.cameraRating, 1);
+  const none = mk([{ tag: 0x10f, type: 2, value: "NIKON" }]);
+  assert.equal(none.meta.cameraRating, undefined);
+});
+
+test("in-camera rating: a CR3's XMP box", () => {
+  const j = jpeg(6000, 4000);
+  const ftyp = box("ftyp", new TextEncoder().encode("crx "), u32be(1));
+  const uuid = Uint8Array.from("be7acfcb97a942e89c71999491e3afac".match(/../g).map((h) => parseInt(h, 16)));
+  const xmpBox = box("uuid", uuid, new TextEncoder().encode(xmpSidecar({ rating: 5 })));
+  const build = (off) => {
+    const stsz = box("stsz", u32be(0, j.length, 1));
+    const co64 = box("co64", u32be(0, 1, 0, off));
+    return box("moov", box("trak", box("mdia", box("minf", box("stbl", stsz, co64)))));
+  };
+  const head = ftyp.length + build(0).length + xmpBox.length;
+  const mdat = box("mdat", j);
+  const b = new Uint8Array(head + mdat.length);
+  b.set(ftyp); b.set(build(head + 8), ftyp.length); b.set(xmpBox, ftyp.length + build(0).length); b.set(mdat, head);
+  const r = readRaw(b, "IMG_0001.CR3");
+  assert.equal(r.preview.width, 6000);
+  assert.equal(r.meta.cameraRating, 5);
 });

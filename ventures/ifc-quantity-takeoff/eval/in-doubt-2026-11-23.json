@@ -1,0 +1,437 @@
+[
+ {
+  "model": "architect.ifc",
+  "elements": 2527,
+  "boqVolume": 1127.3496948291709,
+  "boqArea": 8900.38201339258,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "construction.ifc",
+  "elements": 339,
+  "boqVolume": 2368.967480472891,
+  "boqArea": 7751.6447052512885,
+  "volumeDoubt": {
+   "n": 2,
+   "s": 22.093352429989146,
+   "c": 10.915621044583798
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": [
+   {
+    "id": 1405,
+    "class": "IfcWallStandardCase",
+    "name": "Basic Wall:STB 20.0:573323",
+    "type": null,
+    "volume": {
+     "stored": 5.251996045248708,
+     "computed": 2.656546045240838
+    },
+    "area": null
+   },
+   {
+    "id": 4407,
+    "class": "IfcWallStandardCase",
+    "name": "Basic Wall:STB 30.0:573387",
+    "type": null,
+    "volume": {
+     "stored": 16.84135638474044,
+     "computed": 8.25907499934296
+    },
+    "area": null
+   }
+  ]
+ },
+ {
+  "model": "AC20-FZK-Haus.ifc",
+  "elements": 82,
+  "boqVolume": 136.78797198733238,
+  "boqArea": 610.7340414226982,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "C20-Institute-Var-2.ifc",
+  "elements": 701,
+  "boqVolume": 1834.4659216550724,
+  "boqArea": 6122.4090139113605,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "elements": 425,
+  "boqVolume": 767.7113431838956,
+  "boqArea": 4264.725849594056,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "ISSUE_021_Mini Project.ifc",
+  "elements": 2636,
+  "boqVolume": 337.8887809991428,
+  "boqArea": 23.491324848926254,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "schependomlaan.ifc",
+  "elements": 3573,
+  "boqVolume": 1055.4441247550292,
+  "boqArea": 6280.717696620558,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 3,
+   "s": 0.37505000055070004,
+   "c": 0.030428902196193933
+  },
+  "items": [
+   {
+    "id": 44220,
+    "class": "IfcCovering",
+    "name": "afdekker",
+    "type": "IFC_Vebo_spekband_SB 60/70x150 150 x 70",
+    "volume": null,
+    "area": {
+     "stored": 0.0611000000897,
+     "computed": 0.010142967398731311
+    }
+   },
+   {
+    "id": 691798,
+    "class": "IfcCovering",
+    "name": "afdekker",
+    "type": "IFC_Vebo_spekband_SB 60/70x150 150 x 70",
+    "volume": null,
+    "area": {
+     "stored": 0.118950000175,
+     "computed": 0.010142967398731311
+    }
+   },
+   {
+    "id": 739532,
+    "class": "IfcCovering",
+    "name": "afdekker",
+    "type": "IFC_Vebo_spekband_SB 60/70x150 150 x 70",
+    "volume": null,
+    "area": {
+     "stored": 0.195000000286,
+     "computed": 0.010142967398731311
+    }
+   }
+  ]
+ },
+ {
+  "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "elements": 4459,
+  "boqVolume": 8368.559746702846,
+  "boqArea": 34586.011494924285,
+  "volumeDoubt": {
+   "n": 1,
+   "s": 0.470481920000345,
+   "c": 0.46089120000034844
+  },
+  "areaDoubt": {
+   "n": 3,
+   "s": 28.46195886436304,
+   "c": 34.118757396350546
+  },
+  "items": [
+   {
+    "id": 556796,
+    "class": "IfcWallStandardCase",
+    "name": "Basic Wall:IVA 3.2 145mm 37dB EI60 (HN-95-NR):2235683",
+    "type": "Basic Wall:IVA 3.2 145mm 37dB EI60 (HN-95-NR)",
+    "volume": null,
+    "area": {
+     "stored": 3.74742908124755,
+     "computed": 3.6592499999998576
+    }
+   },
+   {
+    "id": 1167770,
+    "class": "IfcWallStandardCase",
+    "name": "Basic Wall:IVA 4.3 172mm 34dB (RN-120-NR):3846919",
+    "type": "Basic Wall:IVA 4.3 172mm 34dB (RN-120-NR)",
+    "volume": {
+     "stored": 0.470481920000345,
+     "computed": 0.46089120000034844
+    },
+    "area": null
+   },
+   {
+    "id": 1280178,
+    "class": "IfcWallStandardCase",
+    "name": "Basic Wall:IVA 4.3 172mm 48dB (RN-120-NR):4410967",
+    "type": "Basic Wall:IVA 4.3 172mm 48dB (RN-120-NR)",
+    "volume": null,
+    "area": {
+     "stored": 15.0873031704494,
+     "computed": 16.052135065608397
+    }
+   },
+   {
+    "id": 1483180,
+    "class": "IfcWallStandardCase",
+    "name": "Basic Wall:IVA 2.3T 134mm 34dB (R-95-NR):6783271",
+    "type": "Basic Wall:IVA 2.3T 134mm 34dB (R-95-NR)",
+    "volume": null,
+    "area": {
+     "stored": 9.62722661266609,
+     "computed": 14.407372330742295
+    }
+   }
+  ]
+ },
+ {
+  "model": "S_Office_Integrated Design Archi.ifc",
+  "elements": 3462,
+  "boqVolume": 1794.5941309146867,
+  "boqArea": 3838.244316228662,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "dental_clinic.ifc",
+  "elements": 2586,
+  "boqVolume": 1933.7127952649344,
+  "boqArea": 15423.66035753645,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "Office_A_20110811.ifc",
+  "elements": 803,
+  "boqVolume": 1173.3535840448483,
+  "boqArea": 9260.148980922972,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "duplex.ifc",
+  "elements": 215,
+  "boqVolume": 379.9832308329107,
+  "boqArea": 1517.0965338680044,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "ISSUE_034_HouseZ.ifc",
+  "elements": 228,
+  "boqVolume": 393.79222025134277,
+  "boqArea": 1393.1929342593253,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "FM_ARC_DigitalHub.ifc",
+  "elements": 705,
+  "boqVolume": 9109.297867528536,
+  "boqArea": 19293.329805158817,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "items": []
+ },
+ {
+  "model": "ISSUE_102_M3D-CON-CD.ifc",
+  "elements": 1616,
+  "boqVolume": 7375.059715580527,
+  "boqArea": 491.54129857099156,
+  "volumeDoubt": {
+   "n": 0,
+   "s": 0,
+   "c": 0
+  },
+  "areaDoubt": {
+   "n": 7,
+   "s": 59.707176294482146,
+   "c": 27.145459844170155
+  },
+  "items": [
+   {
+    "id": 30876,
+    "class": "IfcPlate",
+    "name": "JD-1",
+    "type": "PL1110*119",
+    "volume": null,
+    "area": {
+     "stored": 28.2989621899417,
+     "computed": 12.878697265097491
+    }
+   },
+   {
+    "id": 37016,
+    "class": "IfcPlate",
+    "name": "JD-1",
+    "type": "PL1110*119",
+    "volume": null,
+    "area": {
+     "stored": 28.2989621899417,
+     "computed": 12.878697265097491
+    }
+   },
+   {
+    "id": 494081,
+    "class": "IfcPlate",
+    "name": "PLATE",
+    "type": "PL10*600",
+    "volume": null,
+    "area": {
+     "stored": 0.744,
+     "computed": 0.36
+    }
+   },
+   {
+    "id": 494234,
+    "class": "IfcPlate",
+    "name": "Base Plate",
+    "type": "PL10*552",
+    "volume": null,
+    "area": {
+     "stored": 0.491696989108424,
+     "computed": 0.23718679222902458
+    }
+   },
+   {
+    "id": 494386,
+    "class": "IfcPlate",
+    "name": "Base Plate",
+    "type": "PL160*499",
+    "volume": null,
+    "area": {
+     "stored": 0.637857960204041,
+     "computed": 0.19369172951712338
+    }
+   },
+   {
+    "id": 494415,
+    "class": "IfcPlate",
+    "name": "Base Plate",
+    "type": "PL10*552",
+    "volume": null,
+    "area": {
+     "stored": 0.491696965286285,
+     "computed": 0.23718679222902458
+    }
+   },
+   {
+    "id": 494429,
+    "class": "IfcPlate",
+    "name": "PLATE",
+    "type": "PL10*600",
+    "volume": null,
+    "area": {
+     "stored": 0.744,
+     "computed": 0.36
+    }
+   }
+  ]
+ }
+]

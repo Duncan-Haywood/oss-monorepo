@@ -1,0 +1,66 @@
+file	make	model	whole_rating	whole_label	sparse_rating	sparse_label	same	scan_xmp_packets	scan_ratings
+arw/Sony DSLR-A500.arw	SONY	DSLR-A500					1	0	
+arw/Sony ILCE-5000 (A5000).arw	SONY	ILCE-5000					1	0	
+arw/Sony ILCE-7M3 (A7M3).arw	SONY	ILCE-7M3					1	1	0
+arw/Sony ILCE-7M4 (A7M4).ARW	SONY	ILCE-7M4					1	1	0
+arw/Sony NEX-5N.arw	SONY	NEX-5N					1	0	
+arw/Sony NEX-7.arw	SONY	NEX-7					1	0	
+cr2/Canon EOS 350D.CR2	Canon	Canon EOS 350D DIGITAL					1	0	
+cr2/Canon EOS 600D.CR2	Canon	Canon EOS 600D					1	1	0
+cr2/Canon EOS 70D.cr2	Canon	Canon EOS 70D					1	1	0
+cr2/Canon EOS 7D.cr2	Canon	Canon EOS 7D					1	0	
+cr3/Canon EOS R3.cr3	Canon	Canon EOS R3					1	1	0
+cr3/IMG_0036.CR3	Canon	Canon EOS R8					1	1	0
+cr3/IMG_0041.CR3	Canon	Canon EOS R8					1	1	0
+cr3/_MG_0039.CR3	Canon	Canon EOS R8					1	1	0
+cr3/_MG_0045.CR3	Canon	Canon EOS R8					1	1	0
+dng/DJI Phantom 4 (1).dng	DJI	FC330					1	1	
+dng/DJI Phantom 4 (2).dng	DJI	FC330					1	1	
+dng/LG Nexus 5X.dng	LGE	Nexus 5X					1	0	
+dng/Leica T (Typ 701).dng	LEICA CAMERA AG	LEICA T (Typ 701)					1	0	
+dng/Leica X VARIO (Typ 107).dng	LEICA CAMERA AG	LEICA X VARIO (Typ 107)					1	0	
+dng/Pentax QS1.dng	PENTAX	PENTAX Q-S1	3		3		1	1	3
+dng/bigtiff.dng							1	0	
+dng/bigtiff_be.dng							1	0	
+nef/Issue 247-1.nef	NIKON CORPORATION	NIKON D70s					1	0	
+nef/Issue 247-2.nef	NIKON CORPORATION	NIKON D70s					1	0	
+nef/Issue 247-3.nef	NIKON CORPORATION	NIKON D70s					1	0	
+nef/Issue 247-4.nef	NIKON CORPORATION	NIKON D70s					1	0	
+nef/Nikon 800E.nef	NIKON CORPORATION	NIKON D800E					1	1	
+nef/Nikon D300.nef	NIKON CORPORATION	NIKON D300					1	0	
+nef/Nikon D5100.nef	NIKON CORPORATION	NIKON D5100					1	0	
+nef/Nikon D70.nef	NIKON CORPORATION	NIKON D70					1	0	
+nef/Nikon D810.nef	NIKON CORPORATION	NIKON D810					1	1	
+nef/Nikon D90.nef	NIKON CORPORATION	NIKON D90					1	0	
+nef/NikonD200.nef	NIKON CORPORATION	NIKON D200					1	0	
+orf/OM System TG-7.ORF	OM Digital Solutions	TG-7					1	1	0
+orf/OM Sytem OM-1.orf	OM Digital Solutions	OM-1					1	1	0
+orf/Olympus C5050Z.orf	OLYMPUS OPTICAL CO.,LTD	C5050Z					1	0	
+orf/Olympus C8080.orf	OLYMPUS CORPORATION	C8080WZ					1	0	
+orf/Olympus E-M10.orf	OLYMPUS IMAGING CORP.	E-M10					1	0	
+orf/Olympus E-M5.orf	OLYMPUS IMAGING CORP.	E-M5					1	0	
+orf/Olympus E-PL7.orf	OLYMPUS IMAGING CORP.	E-PL7					1	0	
+orf/Olympus E-PM1.orf	OLYMPUS IMAGING CORP.	E-PM1					1	0	
+orf/Olympus E30.orf	OLYMPUS IMAGING CORP.	E-30					1	0	
+orf/Olympus E410.orf	OLYMPUS IMAGING CORP.	E-410					1	0	
+orf/Olympus E600.orf	OLYMPUS IMAGING CORP.	E-600					1	0	
+orf/Olympus PEN E-P3.orf	OLYMPUS IMAGING CORP.	E-P3					1	0	
+orf/Olympus Pen E-PL1.orf	OLYMPUS IMAGING CORP.	E-PL1					1	0	
+orf/Olympus SP350.orf	OLYMPUS IMAGING CORP.	SP350					1	0	
+orf/Olympus SP500UZ.orf	OLYMPUS IMAGING CORP.	SP500UZ					1	0	
+orf/Olympus TG-4.orf	OLYMPUS CORPORATION	TG-4					1	0	
+orf/Olympus TG-6.ORF	OLYMPUS CORPORATION	TG-6					1	0	
+orf/Olympus XZ1.orf	OLYMPUS IMAGING CORP.	XZ-1					1	0	
+pef/Pentax K-1 Mark II.pef	RICOH IMAGING COMPANY, LTD.	PENTAX K-1 Mark II					1	0	
+raf/FujiFilm EX-2.raf	FUJIFILM	X-E2					1	0	
+raf/FujiFilm FinePix S5500.raf	FUJIFILM	FinePix S5500					1	0	
+raf/Fujifilm X-E1.raf	FUJIFILM	X-E1					1	0	
+rw2/Issue 419.rw2							1	0	
+rw2/Panasonic DMC-GF1.rw2	Panasonic	DMC-GF1					1	0	
+rw2/Panasonic DMC-GF3.rw2	Panasonic	DMC-GF3					1	0	
+rw2/Panasonic DMC-GF7.rw2	Panasonic	DMC-GF7					1	0	
+rw2/Panasonic Lumix DMC-LX7.rw2	Panasonic	DMC-LX7					1	0	
+srw/Samsung EK-GN120 (Galaxy NX).srw	SAMSUNG	EK-GN120					1	0	
+srw/Samsung NX1.srw	SAMSUNG	NX1					1	0	
+srw/Samsung NX20.srw	SAMSUNG	NX20					1	0	
+srw/Samsung NX3000.srw	SAMSUNG	NX3000					1	0	

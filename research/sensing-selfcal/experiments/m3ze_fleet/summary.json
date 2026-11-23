@@ -1,0 +1,561 @@
+{
+ "kinect_board_fit_post_hoc": {
+  "fold_radius_px": 380.80435146493585,
+  "corner_radius_px": 415.6577816541829,
+  "corners_beyond_fold": 4,
+  "round_trip_default_px": [
+   33.412479992360666,
+   37.555025340538194,
+   3.7242396223854985,
+   12.776657462725915
+  ],
+  "round_trip_100_px": [
+   39.50766039537181,
+   66.79613057631073,
+   3.5591132098668354,
+   10.325318577527705
+  ],
+  "min_slope": -3.0571123779576936e-05
+ },
+ "opencv": "5.1.0",
+ "files": 55,
+ "cameras": 70,
+ "models": {
+  "radtan": 46,
+  "kannala_brandt": 6,
+  "rectified": 4,
+  "equidistant": 14
+ },
+ "radial_zero": 15,
+ "radial_nonzero": 31,
+ "distinct": 14,
+ "rows": [
+  {
+   "sources": [
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/TUM1.yaml#Camera1",
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/RGB-D/TUM1.yaml#Camera1",
+    "raulmur/ORB_SLAM2/master/Examples/Monocular/TUM1.yaml#Camera"
+   ],
+   "width": 640.0,
+   "height": 480.0,
+   "fx": 517.306408,
+   "fy": 516.469215,
+   "cx": 318.64304,
+   "cy": 255.313989,
+   "k1": 0.262383,
+   "k2": -0.953104,
+   "p1": -0.005358,
+   "p2": 0.002628,
+   "k3": 1.163314,
+   "fold_radius_px": null,
+   "corner_radius_px": 410.43334260210116,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.10476861781664278,
+    0.1314906239527939,
+    0.008533052568965789,
+    0.013045423809447308
+   ],
+   "round_trip_100_px": [
+    9.498975809417745e-13,
+    5.362597410144533e-13,
+    8.987733679556354e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 1.0
+  },
+  {
+   "sources": [
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/TUM2.yaml#Camera1",
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/RGB-D/TUM2.yaml#Camera1",
+    "raulmur/ORB_SLAM2/master/Examples/Monocular/TUM2.yaml#Camera"
+   ],
+   "width": 640.0,
+   "height": 480.0,
+   "fx": 520.90862,
+   "fy": 521.007327,
+   "cx": 325.141442,
+   "cy": 249.701764,
+   "k1": 0.231222,
+   "k2": -0.784899,
+   "p1": -0.003257,
+   "p2": -0.000105,
+   "k3": 0.917205,
+   "fold_radius_px": null,
+   "corner_radius_px": 409.96088624471366,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.02521328116052223,
+    0.009339744602603535,
+    0.004950518839075535,
+    0.0014635082544315722
+   ],
+   "round_trip_100_px": [
+    9.498975809417745e-13,
+    5.684341886080801e-13,
+    3.06111178766429e-13,
+    2.5421149729252077e-13
+   ],
+   "min_slope": 1.0
+  },
+  {
+   "sources": [
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/EuRoC.yaml#Camera1",
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Stereo/EuRoC.yaml#Camera1",
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular-Inertial/EuRoC.yaml#Camera1",
+    "raulmur/ORB_SLAM2/master/Examples/Monocular/EuRoC.yaml#Camera",
+    "rpng/open_vins/master/config/euroc_mav/kalibr_imucam_chain.yaml#cam0",
+    "rpng/open_vins/master/config/rpng_sim/kalibr_imucam_chain.yaml#cam0",
+    "rpng/open_vins/master/config/rpng_sim/kalibr_imucam_chain.yaml#cam2",
+    "MIT-SPARK/Kimera-VIO/master/params/Euroc/LeftCameraParams.yaml#cam",
+    "MIT-SPARK/Kimera-VIO/master/params/EurocMono/LeftCameraParams.yaml#cam"
+   ],
+   "width": 752.0,
+   "height": 480.0,
+   "fx": 458.654,
+   "fy": 457.296,
+   "cx": 367.215,
+   "cy": 248.375,
+   "k1": -0.28340811,
+   "k2": 0.07395907,
+   "p1": 0.00019359,
+   "p2": 1.76187114e-05,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 457.9843194368122,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.012703623736066268,
+    0.0002123937642360479,
+    0.04400784334497375,
+    0.0056389858135248785
+   ],
+   "round_trip_100_px": [
+    5.684341886080801e-13,
+    1.4210854715202004e-13,
+    6.629024818318272e-13,
+    2.5421149729252077e-13
+   ],
+   "min_slope": 0.5112963081368227
+  },
+  {
+   "sources": [
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Stereo/EuRoC.yaml#Camera2",
+    "rpng/open_vins/master/config/euroc_mav/kalibr_imucam_chain.yaml#cam1",
+    "rpng/open_vins/master/config/rpng_sim/kalibr_imucam_chain.yaml#cam1",
+    "rpng/open_vins/master/config/rpng_sim/kalibr_imucam_chain.yaml#cam3",
+    "MIT-SPARK/Kimera-VIO/master/params/Euroc/RightCameraParams.yaml#cam"
+   ],
+   "width": 752.0,
+   "height": 480.0,
+   "fx": 457.587,
+   "fy": 456.134,
+   "cx": 379.999,
+   "cy": 255.238,
+   "k1": -0.28368365,
+   "k2": 0.07451284,
+   "p1": -0.00010473,
+   "p2": -3.555907e-05,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 457.76159367622796,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.7436446986155926e-05,
+    0.0017741873124584998,
+    0.013698088100716887,
+    0.03724313097705849
+   ],
+   "round_trip_100_px": [
+    8.038873388460929e-14,
+    4.263256414560601e-13,
+    9.165725883006586e-13,
+    1.6077746776921858e-13
+   ],
+   "min_slope": 0.513984623792659
+  },
+  {
+   "sources": [
+    "HKUST-Aerial-Robotics/VINS-Fusion/master/config/euroc/cam0_pinhole.yaml#cam"
+   ],
+   "width": 752.0,
+   "height": 480.0,
+   "fx": 461.15862106007575,
+   "fy": 459.75286598073296,
+   "cx": 362.65929181685937,
+   "cy": 248.52105668448124,
+   "k1": -0.2954564510698775,
+   "k2": 0.08662321564018617,
+   "p1": 2.0132892276082517e-06,
+   "p2": 1.3924531371276508e-05,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 461.8970693391771,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.0009902662456455229,
+    7.553544963910235e-05,
+    0.008477862628866325,
+    4.0629829674228694e-07
+   ],
+   "round_trip_100_px": [
+    1.9065862296939058e-13,
+    4.263256414560601e-13,
+    3.639754730461873e-13,
+    2.0495186137532011e-13
+   ],
+   "min_slope": 0.54651266172423
+  },
+  {
+   "sources": [
+    "HKUST-Aerial-Robotics/VINS-Fusion/master/config/euroc/cam1_pinhole.yaml#cam"
+   ],
+   "width": 752.0,
+   "height": 480.0,
+   "fx": 460.0978168225868,
+   "fy": 458.909834922189,
+   "cx": 373.1491635980827,
+   "cy": 254.4073497367212,
+   "k1": -0.29294124381930947,
+   "k2": 0.08479800233154366,
+   "p1": -0.0002998464653600237,
+   "p2": 0.0003002821632523733,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 456.34532521161503,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.472230092808038e-08,
+    1.56237037713619e-05,
+    0.003961861199258315,
+    0.0015498023670983906
+   ],
+   "round_trip_100_px": [
+    4.0990372275064023e-13,
+    2.842170943040401e-14,
+    1.797546735911271e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.5446053389282335
+  },
+  {
+   "sources": [
+    "HKUST-Aerial-Robotics/VINS-Mono/master/config/euroc/euroc_config.yaml#cam"
+   ],
+   "width": 752.0,
+   "height": 480.0,
+   "fx": 461.6,
+   "fy": 460.3,
+   "cx": 363.0,
+   "cy": 248.1,
+   "k1": -0.2917,
+   "k2": 0.08228,
+   "p1": 5.333e-05,
+   "p2": -0.0001578,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 461.3833655432324,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.004532058854336489,
+    5.032225375767945e-05,
+    0.019738372545512403,
+    5.6899419192684015e-05
+   ],
+   "round_trip_100_px": [
+    1.6077746776921858e-13,
+    0.0,
+    5.684341886080802e-14,
+    3.8131724593878115e-13
+   ],
+   "min_slope": 0.5346378159941665
+  },
+  {
+   "sources": [
+    "rpng/open_vins/master/config/kaist/kalibr_imucam_chain.yaml#cam0"
+   ],
+   "width": 1280.0,
+   "height": 560.0,
+   "fx": 816.9037899277,
+   "fy": 811.5680382849,
+   "cx": 608.5072628169,
+   "cy": 263.4759976444,
+   "k1": -0.0561430278,
+   "k2": 0.139525632,
+   "p1": -0.0012155907,
+   "p2": -0.0009728139,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 734.0497122556725,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.0016256558760993096,
+    0.011154370117838765,
+    0.0023338568040335594,
+    0.015432763839136507
+   ],
+   "round_trip_100_px": [
+    2.5421149729252077e-13,
+    7.389644451905042e-13,
+    9.165725883006586e-13,
+    4.687428401686771e-13
+   ],
+   "min_slope": 0.9898339983699252
+  },
+  {
+   "sources": [
+    "rpng/open_vins/master/config/kaist/kalibr_imucam_chain.yaml#cam1"
+   ],
+   "width": 1280.0,
+   "height": 560.0,
+   "fx": 813.7820553959,
+   "fy": 808.5216557427,
+   "cx": 613.8641953932,
+   "cy": 249.4104934865,
+   "k1": -0.0549219818,
+   "k2": 0.1424365743,
+   "p1": 7.54123e-05,
+   "p2": -0.0006756053,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 734.9848649703259,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.0018893099431030334,
+    0.010031327512411503,
+    0.005208511769358872,
+    0.023469221084685583
+   ],
+   "round_trip_100_px": [
+    6.12222357532858e-13,
+    4.963638160851638e-13,
+    1.1368683772161603e-13,
+    3.2155493553843715e-13
+   ],
+   "min_slope": 0.990470208643965
+  },
+  {
+   "sources": [
+    "rpng/open_vins/master/config/kaist_vio/kalibr_imucam_chain.yaml#cam0"
+   ],
+   "width": 640.0,
+   "height": 480.0,
+   "fx": 380.9229090195708,
+   "fy": 380.29264802262736,
+   "cx": 324.68121181846755,
+   "cy": 224.6741321466431,
+   "k1": 0.006896928127777268,
+   "k2": -0.009144207062654397,
+   "p1": 0.000254113977103925,
+   "p2": 0.0021434982252719545,
+   "k3": 0.0,
+   "fold_radius_px": 686.009801832903,
+   "corner_radius_px": 413.0486510121761,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": 273.04136920878756,
+   "round_trip_default_px": [
+    4.1456849069263114e-07,
+    6.175487861193909e-10,
+    8.392312589040118e-07,
+    2.0398665316065328e-09
+   ],
+   "round_trip_100_px": [
+    0.0,
+    1.8198773652309366e-13,
+    1.1368683772161603e-13,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.9600079648364005
+  },
+  {
+   "sources": [
+    "rpng/open_vins/master/config/kaist_vio/kalibr_imucam_chain.yaml#cam1"
+   ],
+   "width": 640.0,
+   "height": 480.0,
+   "fx": 380.95187095303424,
+   "fy": 380.3065956074995,
+   "cx": 324.0678433553536,
+   "cy": 225.9586983198407,
+   "k1": 0.007044055287844759,
+   "k2": -0.010251485722185347,
+   "p1": 0.0006674304399871926,
+   "p2": 0.001678899816379666,
+   "k3": 0.0,
+   "fold_radius_px": 665.7408233499256,
+   "corner_radius_px": 411.7729350702153,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": 254.0507879980199,
+   "round_trip_default_px": [
+    7.258286754905361e-07,
+    2.8730627398896514e-09,
+    8.711580701396934e-07,
+    1.6812621229076503e-09
+   ],
+   "round_trip_100_px": [
+    1.2710574864626038e-13,
+    2.842170943040401e-14,
+    2.5421149729252077e-13,
+    0.0
+   ],
+   "min_slope": 0.9531505511519033
+  },
+  {
+   "sources": [
+    "rpng/open_vins/master/config/rpng_aruco/kalibr_imucam_chain.yaml#cam0"
+   ],
+   "width": 752.0,
+   "height": 480.0,
+   "fx": 470.0502737897896,
+   "fy": 468.7574814232544,
+   "cx": 405.80799445368035,
+   "cy": 245.2879780490104,
+   "k1": -0.292031518680717,
+   "k2": 0.08753155838496009,
+   "p1": 0.0009568457669165753,
+   "p2": 2.3463489813256424e-05,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 474.1796289781859,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.00045023676359326145,
+    0.0326332117523098,
+    4.334556986133627e-05,
+    0.04619657302681931
+   ],
+   "round_trip_100_px": [
+    1.7288250917028504e-13,
+    8.700014782910993e-13,
+    9.779711566628324e-13,
+    2.8421709430404007e-13
+   ],
+   "min_slope": 0.561562889373828
+  },
+  {
+   "sources": [
+    "rpng/open_vins/master/config/rpng_aruco/kalibr_imucam_chain.yaml#cam1"
+   ],
+   "width": 752.0,
+   "height": 480.0,
+   "fx": 472.98384780424163,
+   "fy": 471.9917417027018,
+   "cx": 382.1928744696835,
+   "cy": 268.2536666120421,
+   "k1": -0.2847596229068525,
+   "k2": 0.07908861097045865,
+   "p1": 0.0011071433505703875,
+   "p2": 0.0005094909873658998,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 466.9383502628627,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    6.487034268419689e-05,
+    0.0038541766384528036,
+    0.04569790420903862,
+    0.08500571464945182
+   ],
+   "round_trip_100_px": [
+    4.43961293735052e-13,
+    1.2710574864626038e-13,
+    4.582862941503293e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.5386235915924065
+  },
+  {
+   "sources": [
+    "rpng/open_vins/master/config/rpng_plane/kalibr_imucam_chain.yaml#cam0",
+    "rpng/open_vins/master/config/rs_d455/kalibr_imucam_chain.yaml#cam0"
+   ],
+   "width": 848.0,
+   "height": 480.0,
+   "fx": 416.85223429743274,
+   "fy": 414.92069080087543,
+   "cx": 421.02459311003213,
+   "cy": 237.76180565241077,
+   "k1": -0.045761895748285604,
+   "k2": 0.03423951132164367,
+   "p1": -0.00040139057556727315,
+   "p2": 0.000431371425853453,
+   "k3": 0.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 490.90461485876665,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    8.388675960438984e-07,
+    7.776974721773461e-05,
+    1.4709877815976994e-05,
+    5.988188230303132e-05
+   ],
+   "round_trip_100_px": [
+    3.06111178766429e-13,
+    1.2710574864626038e-13,
+    7.896940126926099e-13,
+    1.1368683772161603e-13
+   ],
+   "min_slope": 0.9724771774006197
+  }
+ ],
+ "hypotheses": {
+  "H295": {
+   "held": false,
+   "folds_inside": 0,
+   "of": 14
+  },
+  "H296": {
+   "held": null,
+   "k3_of_folding": []
+  },
+  "H297": {
+   "held": null,
+   "max_default_px": []
+  },
+  "H298": {
+   "held": true,
+   "max_default_px": [
+    0.1314906239527939,
+    0.02521328116052223,
+    0.04400784334497375,
+    0.03724313097705849,
+    0.008477862628866325,
+    0.003961861199258315,
+    0.019738372545512403,
+    0.015432763839136507,
+    0.023469221084685583,
+    8.392312589040118e-07,
+    8.711580701396934e-07,
+    0.04619657302681931,
+    0.08500571464945182,
+    7.776974721773461e-05
+   ]
+  }
+ }
+}

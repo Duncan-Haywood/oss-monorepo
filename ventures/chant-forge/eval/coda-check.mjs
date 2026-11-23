@@ -672,6 +672,29 @@
 //    *sprun* and *strun* are not dark in themselves (tilt -18 to -21 against murmurTilt's 28). Third column: nasal rows
 //    together 507 to 508 of 520, control 832 and 832: both hold, so nearRelease with hiHold 8 met on g what it missed on
 //    f; with hiHold itself not adopted, that is noted, not acted on.
+// Thirty-second round (2026-11-23): does the level-matched murmur read as a voiced labial stop? (sing.mjs
+//    `murmurSource: 'match'`, eval/murmur-match-check.md). `match` read 2,220 nasals exactly against the default's 2,141
+//    but lost R's *pin*, Z's *fen* and *gim* and A's E2 *am* and *an*; four of those five misses read as a voiced labial
+//    stop. Hypothesis (H): a held-level murmur that fades with the note's release can look like a voice bar with a burst
+//    after it, so `match` turns low and front-vowel nasals into /b/. Those misses have been read, so H is tested on a
+//    fresh part, pre-registered here and committed before part h was run with anything. Part h is new: 16 nasals after
+//    /a/, /e/ or /i/ (*pam fam vam scam san pan flan sem frem gen spen gren rim trim drin clin*), 6 voiced labial stops
+//    (*plab drab smeb crib vib glab*), 2 voiceless labial stops (*trep slip*) and 2 others (*fal fle*), none sung in any
+//    other part, at 80 BPM (in no other part), on the thirteen pitches E2-E4 of parts f and g, quarters and eighths (26
+//    cells), sung and vowel-only, each followed by a rest. The choir is rendered twice, the default murmur and `match`;
+//    the reader is the default for both. With N = the nasal cells the default reads exactly and `match` does not:
+//    (0) the test condition: N is 4 or more (of 416); if fewer, H is untested here and nothing changes;
+//    (1) at least half of N read as a voiced labial stop under `match`;
+//    (2) nasals read as a voiced labial stop: under `match` at least 3 more than, and at least twice, the default's.
+//    H is supported if (0) to (2) hold, and the next round is a reader or synthesis change aimed at that confusion,
+//    registered on another fresh part. If (0) holds and (1) or (2) fails, H is dropped and the misses' own labels say
+//    what `match` does instead. Reported beside, not predicted: voiced labial stops read exactly, the other rows, and the
+//    vowel-only control (the murmur source cannot reach a cell with no nasal, so the two controls should be identical).
+//    Outcome (run 2026-11-23, after the registration above was committed as 1882658eb): H supported. (0) held: N = 9;
+//    (1) held: 9 of 9 read as a voiced labial stop; (2) held: 9 against the default's 3. All 9 on E2-B2; `match` also
+//    cleared the default's 4 nasal misses (412 to 407 of 416 net). Every vowel-only cell identical (676 and 676). The
+//    false bursts carry 4e-7 to 4.1e-5 of their power above 1 kHz, real /b/ bursts 0.11 to 0.79
+//    (eval/labial-burst-diag.mjs, eval/murmur-labial-check.md): next, a burst that needs energy above 1 kHz.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -683,7 +706,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdefgC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdefghC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
 // --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
@@ -1913,6 +1936,65 @@ lines.push('## g. Held out: the lip closure\'s upper band through the beating (t
   row('voiced stop codas read exactly', 'voiced'), row('voiceless stop codas read exactly', 'voiceless'), row('other syllables read exactly', 'other'),
   row('vowel-only control read as none', 'control'), `| stops, others and vowel-only control read as a nasal | ${MODES.map(([m]) => asNas[m] || 0).join(' | ')} |`, '',
   ...MODES.flatMap(([m], i) => [`Misses, ${['default', 'hiHold 8', 'hiHold 8 and nearRelease'][i]}:`, '', list(miss[m]), '']));
+}
+
+// The thirty-second round's held-out set (pre-registered in the header): low and front-vowel nasals and voiced labial
+// stops, none sung before, at 80 BPM on part f's thirteen pitches; the choir rendered with the default murmur and with
+// `murmurSource: 'match'`, read by the default reader
+if (PARTS.includes('h')) {
+const NS = ['pam', 'fam', 'vam', 'scam', 'san', 'pan', 'flan', 'sem', 'frem', 'gen', 'spen', 'gren', 'rim', 'trim', 'drin', 'clin'];
+const VB = ['plab', 'drab', 'smeb', 'crib', 'vib', 'glab'], VLS = ['trep', 'slip'], NEG = ['fal', 'fle'];
+const SY = [...NS, ...VB, ...VLS, ...NEG], tally = {}, asB = {}, ctlNas = {}, newMiss = new Map();
+const SRC = [['def', null], ['match', 'match']], miss = Object.fromEntries(SRC.map(([m]) => [m, new Map()]));
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const NAMES = ['E2', 'G2', 'A2', 'B2', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4'], PITCHES = [40, 43, 45, 47, 50, 52, 53, 55, 57, 59, 60, 62, 64];
+const isVB = (g) => g.cls === 'stop' && g.voiced && g.place === 'lab';
+let nNew = 0, nNewB = 0;
+for (const pulses of [4, 2]) for (const midi of PITCHES) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 80, title: 'held-out matched murmur as a labial' });
+  const cellName = `${pulses === 4 ? 'quarter' : 'eighth'} ${NAMES[PITCHES.indexOf(midi)]}`;
+  for (const sing of [true, 'vowels']) {
+    const got = {};
+    for (const [src, ms] of SRC) {
+      const r = renderMidi(mid, { rate, stems: true, sing, voiceBar: VOICEBAR, voiceBarWall: WALL, ...(ms ? { murmurSource: ms } : {}) });
+      const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+      const notes = m.notes.filter((n) => n.ch !== 9 && m.programs.get(n.ch)?.[0]?.[1] === 52).map((n) => ({ t0: sec(n.tick), t1: sec(n.end) })).sort((a, b) => a.t0 - b.t0);
+      const x = r.stems.choir.channels[0];
+      got[src] = SY.map((s, j) => {
+        const n = notes[j], tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+        return readCoda(x, rate, vAt, tEnd, { ...RC, noteEnd: n.t1 });
+      });
+    }
+    SY.forEach((s, j) => {
+      const want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const grp = sing === true ? (NS.includes(s) ? 'nasal' : VB.includes(s) ? 'vlab' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
+      for (const [src] of SRC) {
+        const g = got[src][j], ok = match(want, g);
+        bump(`${grp} ${src}`, ok);
+        if (grp === 'nasal' && isVB(g)) asB[src] = (asB[src] || 0) + 1;
+        if (grp === 'control' && g.cls === 'nasal') ctlNas[src] = (ctlNas[src] || 0) + 1;
+        if (!ok && !HIDE.includes('h')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(g)} (${cellName})`; miss[src].set(key, (miss[src].get(key) || 0) + 1); }
+      }
+      if (grp === 'nasal' && match(want, got.def[j]) && !match(want, got.match[j])) {
+        nNew++; if (isVB(got.match[j])) nNewB++;
+        if (!HIDE.includes('h')) newMiss.set(`${s} as ${label(got.match[j])} (${cellName})`, 1);
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${SRC.map(([m]) => cell(`${g} ${m}`)).join(' | ')} |`;
+const cnt = (t, o) => `| ${t} | ${SRC.map(([m]) => o[m] || 0).join(' | ')} |`;
+const list = (m) => HIDE.includes('h') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).map(([k, n]) => `${k}${n > 1 ? ` ${n}` : ''}`).join('; ') || 'none';
+lines.push('## h. Held out: the level-matched murmur read as a voiced labial stop? (thirty-second round)', '', `Nasals after /a/, /e/ or /i/: ${NS.map((s) => `*${s}*`).join(', ')}; voiced labial stops: ${VB.map((s) => `*${s}*`).join(', ')}; voiceless labial stops: ${VLS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarters and eighths at 80 BPM, each followed by a rest, on ${NAMES.join(', ')}. The choir rendered with the default murmur and with \`murmurSource: 'match'\`; the default reader on both.`, '',
+  '| | default murmur | `match` |', '|---|---|---|',
+  row('nasals after /a/, /e/ or /i/ read exactly', 'nasal'), cnt('of them read as a voiced labial stop', asB),
+  row('voiced labial stops read exactly', 'vlab'), row('voiceless labial stops read exactly', 'voiceless'), row('other syllables read exactly', 'other'),
+  row('vowel-only control read as none', 'control'), cnt('vowel-only control read as a nasal', ctlNas), '',
+  `Nasal cells the default murmur reads exactly and \`match\` does not (N): ${nNew}; of them read as a voiced labial stop under \`match\`: ${nNewB}.`, '',
+  'Those cells:', '', list(newMiss), '',
+  ...SRC.flatMap(([m], i) => [`Misses, ${['default murmur', '`match`'][i]}:`, '', list(miss[m]), '']));
 }
 
 // ---- C ----

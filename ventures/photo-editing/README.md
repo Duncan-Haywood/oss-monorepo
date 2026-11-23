@@ -148,6 +148,20 @@ decodes a raw's ~1,620 px preview where it has one, and thumbnails are no
 longer copied on each redraw. Not done: BigTIFF DNGs, phone DNGs with no JPEG inside,
 the 640 px previews of 2000s Olympus compacts (only their 160 px thumbnail).
 
+### Existing sidecars and in-camera ratings (2026-11-23, later)
+
+Drop the `.xmp` sidecars with the raws and the page starts each frame from the
+rating and label in them; with none, from the rating the camera wrote into the
+raw (tag 700's XMP packet, a CR3's XMP box, or tag 0x4746). On download, a frame
+that came with a sidecar gets that same file back under its own name with only
+`xmp:Rating`, `xmp:Label` and `xmp:MetadataDate` changed, so Lightroom's develop
+settings, crops and keywords are kept; before this, unzipping over them replaced
+them. On the 65 public raws, whole and sparse reads agree on 65 of 65 and an
+independent byte scan finds the one real in-camera rating (Pentax Q-S1, 3
+stars); in Chromium a Lightroom-shaped sidecar came back with exactly three lines
+changed (`eval/cull-existing-sidecars-2026-11-23.md`). Not observed in Lightroom
+itself.
+
 ```bash
 node --test site/rawpreview.test.mjs site/usage.test.mjs
 node eval/cull-page-previews.mjs mei OUT > report.tsv   # mei = the sample clone

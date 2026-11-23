@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKiQSyyBpAwP31jM3ia",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T22:18:24Z",
+  "ended": "2026-11-23T22:29:46Z",
+  "wall_minutes": 11.54,
+  "tokens_in": 4994773,
+  "tokens_out": 45042,
+  "cost_usd": 2.9074,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18492",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "analyse.py first imported milestone 3ze's analyse.py by module name, which collides with its own name; switched to importlib by path before the first run",
+    "the first figure (k1-k2 scatter over full range) was unreadable because of 5 broken calibrations; replotted zoomed with an iteration panel"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says data hosts often 403 and to use add_repo for GitHub-hosted data; in this session api.github.com and codeload.github.com returned 403 but plain `git clone --filter=blob:none` of public repos worked without add_repo, which is the easier route for reading many files from a public repo"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/LOG.md (plan)",
+      "why": "after the first run found the default round trip off on non-folding models, I added a post-hoc iteration sweep (COUNT-only vs COUNT|EPS) not in the plan",
+      "did": "labelled it post hoc in the log, README and post and kept the scored hypotheses unchanged",
+      "result": "it became the headline practical finding; still post hoc and flagged as such"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-opencv-undistortpoints-default-misses-wide-lens-corners.md",
+    "research/sensing-selfcal/LOG.md (3zf plan and result)",
+    "research/sensing-selfcal/README.md (3zf headline, reproduce, next steps)"
+  ],
+  "goal": null,
+  "notes": "Milestone 3zf: 198 ROS camera_info files (Duckietown fleet, Apollo) at pinned commits; 0/169 Duckiebots fold; OpenCV default undistortPoints off median 10.2 px at corners; COUNT|EPS 200 closes to 0.01 px; folds found are three-term (KITTI raw cam 3 via Apollo, Duckiedrone). Local checks: research/sensing-selfcal tests 201 passed (python3.13 + OpenCV 5.1.0); build.py ok; check_posts ok; check_md_links ok; programme_check ok. No agent doc in docs/reports: the LOG.md next-steps entry carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e456b64-3f1c-515c-a120-e75c8a2d849f",
+    "transcripts": 1,
+    "first": "2026-11-23T22:18:24Z",
+    "last": "2026-11-23T22:29:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 93,
+        "output": 45042,
+        "thinking": 12229,
+        "cache_read": 4865548,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129132,
+        "api_equivalent_usd": 2.9074,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 93,
+      "output": 45042,
+      "thinking": 12229,
+      "cache_read": 4865548,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129132,
+      "api_equivalent_usd": 2.9074,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 43,
+      "Write": 4,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.54,
+      "active_minutes": 11.54,
+      "model_minutes": 7.3,
+      "tool_minutes": 4.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "finding sources, pre-registering, parsing 198 files, analysis and write-up by a calibration researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 206.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

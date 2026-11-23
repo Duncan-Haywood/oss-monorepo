@@ -201,13 +201,14 @@ flagships:
       holiday's zero (README "A closure in the week before a step")); next a live
       property; Plausible, PostHog, Umami (README "Umami as a source"; UTC days cost
       nothing), Mixpanel (README "Mixpanel as a source"), Matomo (README "Matomo as
-      a source"); Umami and Plausible visitors fall less than views, middle default
-      (README "Visitors under a partial snippet loss"; next PostHog users and GA4
-      activeUsers likewise), next a live site. joint drift (measured, not offered).
-      Open: (0) drift model: stiff slope hears NBER turns, over-cuts TCPD; t-walk.
-      Curvature word ships under --shape-word panel (README "A curvature word"):
-      slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
-      NEXT.md.
+      a source"); Umami, Plausible, PostHog and GA4 people columns fall less than
+      views, middle default for all four, GA4 watches page views (README "Visitors
+      under a partial snippet loss", "PostHog users and GA4 activeUsers under a
+      snippet loss"); next a template-shaped loss (whole page types dark) and a live
+      site. joint drift (measured, not offered). Open: (0) drift model: stiff slope
+      hears NBER turns, over-cuts TCPD; t-walk. Curvature word ships under
+      --shape-word panel (README "A curvature word"): slope donors straight 73% vs
+      clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -328,14 +329,13 @@ flagships:
       (eval/near-clean-truth-noise-2026-11-19.md); a lower-envelope line fit
       (opt-in) rescued 3 of 6 K-1 II losers but failed h1 2026-11-22 (-0.2 dB luma
       at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
-      whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
-      2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
-      (eval/noise-pca-whitened-level-*); drawn noise on 11 fresh camera raws passed
-      2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer
-      default; next read it against --noise-read ship on new camera files. Browser
-      cull page 2026-11-23 (site/cull.html; 520-file card 45.6 to 25.8 s, 2.1% of
-      each raw read, eval/cull-card-500-*): next a real card of 500+ raws and a
-      Lightroom import of its sidecars. More open items: NEXT.md.
+      whitened bins); drawn noise on 11 fresh camera raws passed 2026-11-23
+      (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer default;
+      next read it against --noise-read ship on new camera files. Browser cull page
+      2026-11-23 (site/cull.html; 520-file card 25.8 s, eval/cull-card-500-*; reads
+      and merges existing sidecars, in-camera ratings,
+      eval/cull-existing-sidecars-*): next a real card of 500+ raws, a camera-rated
+      card, a Lightroom read of merged sidecars. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -483,12 +483,11 @@ flagships:
       Coda reader, no outside input: E4-quarter murmurs vs a reference in the
       transition dip (f crun, g flun; hiHold 8 failed on g): reference before
       TRANSITION; /u/ on C4 quarters (level rule); README "The murmur inside an E4
-      quarter". Level-matched murmur (murmurSource 'match', opt-in,
-      eval/murmur-match-check.md): 2,220 nasals vs default 2,141, but R, Z, A lose
-      1-2; next: fresh cells for the voiced-labial misreads. OMR (scan.mjs,
-      archive.org scans): 652 staff 2's clef read off a border (findClef), 3524's
-      stemless cephalicus, 3741's place, 3408's strokes (eval/staff-gap-check.md,
-      What is left).
+      quarter". match murmur (opt-in): its losses are a false /b/ on E2-B2
+      (eval/murmur-labial-check.md); next a burst needing power above 1 kHz. OMR
+      (scan.mjs, archive.org scans): 652 staff 2's clef read off a border
+      (findClef), 3524's stemless cephalicus, 3741's place, 3408's strokes
+      (eval/staff-gap-check.md, What is left).
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
@@ -568,25 +567,25 @@ flagships:
       dates. (13) XER to Project XML shipped 2026-11-21; next a Project check. (14)
       P6 XML read and to XER 2026-11-23 (pmxml.mjs, eval/pmxml-2026-11-23.md:
       21,441/21,441 same schedule); next a P6 import of one, a large real P6 XML
-      export. Expenses <-> cost resources and fixed costs 2026-11-21 (1,526/1,526 to
-      the cent, MPXJ agrees; eval/expenses-2026-11-21.md); next a P6-written XER
-      with expenses, a P6 import (category by name?). Finish-date UDFs <-> Project
-      Finish fields, Start/Finish fields read 2026-11-22
-      (eval/finish-udfs-2026-11-22.md: 120/120 Project values, CCA 182/182); next: a
-      P6 import of the result. next a real scheduler's read. Levelling on P6
-      resource curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md); next a
-      P6-levelled file with a curve. branches in TIA 2026-11-22 (tia.mjs Branch
-      group/Branch/Probability, every outcome scheduled,
-      eval/tia-branches-2026-11-22.md), next a real TIA exhibit with alternatives.
-      (15) next a commercial drag run, real crash rates. (16) next a real schedule
-      with its GAO assessment. (17) Collapsed as-built, as-planned vs as-built
-      2026-11-23 (collapse.mjs, asplanned.mjs; eval/asplanned-check-2026-11-23.md);
-      next a real baseline + final update with a claim's delay list. (18) TIA by
-      party, events step by step in date order and newest first 2026-11-23
-      (eval/tia-party-check-2026-11-23.md, eval/tia-steps-check-2026-11-23.md); next
-      a real claim's parties and dated event list. (19) Redundant logic 2026-11-23
-      (redundant.mjs, --redundant; eval/redundant-logic-2026-11-23.md); next an
-      Acumen Fuse count on one file, a P6 import of the cleaned XER. More: NEXT.md.
+      export. Expenses <-> cost resources and fixed costs 2026-11-21 next a
+      P6-written XER with expenses, a P6 import (category by name?). next: a P6
+      import of the result. next a real scheduler's read. Levelling on P6 resource
+      curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md); next a
+      P6-levelled file with a curve. branches in TIA 2026-11-22 , next a real TIA
+      exhibit with alternatives. (15) next a commercial drag run, real crash rates.
+      (16) next a real schedule with its GAO assessment. (17) Collapsed as-built,
+      as-planned vs as-built 2026-11-23 (collapse.mjs, asplanned.mjs;
+      eval/asplanned-check-2026-11-23.md); next a real baseline + final update with
+      a claim's delay list. (18) TIA by party, events step by step in date order and
+      newest first 2026-11-23 (eval/tia-party-check-2026-11-23.md,
+      eval/tia-steps-check-2026-11-23.md); next a real claim's parties and dated
+      event list. (19) Redundant logic 2026-11-23 (redundant.mjs, --redundant;
+      eval/redundant-logic-2026-11-23.md); next an Acumen Fuse count on one file, a
+      P6 import of the cleaned XER. (20) Calendar review 2026-11-23 (calreview.mjs,
+      eval/calendar-review-2026-11-23.md); next a real P6 reschedule with holidays
+      extended. (21) Progress review 2026-11-23 (progress.mjs,
+      eval/progress-review-2026-11-23.md); next a real pay-app review's list. More:
+      NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -604,9 +603,9 @@ flagships:
     buildable: >-
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
-      unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); signed
-      fans swept 2026-11-23 (eval/signed-fan-swept-2026-11-23.md); square-cut ends
-      2026-11-23 (eval/square-cut-ends-2026-11-23.md); #207997's 0.117%
+      unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); figures
+      in doubt 2026-11-23 (eval/in-doubt-2026-11-23.md, node eval/in-doubt.mjs): HHS
+      construction #1405/#4407, M3D-CON-CD's 7 Tekla plates; #207997's 0.117%
       (eval/curved-sag-2026-11-23.md; reference JSONs in eval/); revisions:
       EngiWorld's Archicad gui and cross-software pairs
       (eval/engiworld-archicad-diff-2026-11-23.md, Left).

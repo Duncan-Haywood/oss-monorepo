@@ -12,6 +12,8 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
     {"@type":"Question","name":"Are my photos uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The page reads the files with your browser's File API on your own computer. Nothing is sent anywhere; you can disconnect from the internet after the page loads and it still works."}},
     {"@type":"Question","name":"Will Lightroom see my ratings?","acceptedAnswer":{"@type":"Answer","text":"Yes for raw files: put the downloaded .xmp files next to the raws before you import, and Lightroom Classic reads xmp:Rating (stars, −1 for rejected) and xmp:Label. Lightroom does not read sidecars for JPEG or DNG files, which keep metadata inside the file."}},
+    {"@type":"Question","name":"Will my Lightroom edits survive?","acceptedAnswer":{"@type":"Answer","text":"Yes, if you drop the existing .xmp sidecars along with the raw files. The page reads the rating and colour label in them as each frame's start, and when you download, the zip carries those same sidecar files back under their own names with only xmp:Rating, xmp:Label and xmp:MetadataDate changed; develop settings, keywords and crops stay as they were. Without them, a fresh sidecar would replace the one on disk."}},
+    {"@type":"Question","name":"Does it read ratings I set in the camera?","acceptedAnswer":{"@type":"Answer","text":"Yes, where the camera writes them into the raw file: the XMP packet many raws carry (in the public samples: recent Sony, Canon, Nikon, OM System, DJI and Pentax files), the XMP box of a Canon CR3, or the Rating tag OM System bodies write. A rating you set on this page before, or one in a dropped sidecar, comes first."}},
     {"@type":"Question","name":"Why does a preview look different from my raw editor?","acceptedAnswer":{"@type":"Answer","text":"It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you."}}
   ]}</script>
   <style>
@@ -78,9 +80,9 @@
 
   <div class="drop" id="drop">
     <p><strong>Drop raw files or a folder here</strong></p>
-    <p>NEF, CR3, CR2, ARW, RAF, ORF, RW2, PEF, SRW, DNG and JPEG</p>
+    <p>NEF, CR3, CR2, ARW, RAF, ORF, RW2, PEF, SRW, DNG and JPEG, with any .xmp sidecars beside them</p>
     <div class="bar" style="justify-content:center">
-      <label class="btnlike primary">Choose files<input type="file" id="pickFiles" multiple accept=".nef,.nrw,.cr3,.cr2,.arw,.sr2,.raf,.orf,.rw2,.pef,.srw,.dng,.rwl,.iiq,.3fr,.erf,.jpg,.jpeg"></label>
+      <label class="btnlike primary">Choose files<input type="file" id="pickFiles" multiple accept=".nef,.nrw,.cr3,.cr2,.arw,.sr2,.raf,.orf,.rw2,.pef,.srw,.dng,.rwl,.iiq,.3fr,.erf,.jpg,.jpeg,.xmp"></label>
       <label class="btnlike">Choose a folder<input type="file" id="pickFolder" webkitdirectory multiple></label>
     </div>
   </div>
@@ -120,7 +122,7 @@
       <button id="dlPicks">Picks list (.txt)</button>
       <button id="dlCsv">All frames (.csv)</button>
     </div>
-    <p class="muted">Unzip the sidecars into the folder that holds the raw files, then import. Lightroom reads sidecar ratings for raw files only; it keeps JPEG and DNG metadata inside the file, so ratings for those will not carry over this way. In Lightroom, a rating of −1 shows as rejected.</p>
+    <p class="muted">Unzip the sidecars into the folder that holds the raw files, then import. If you dropped existing .xmp sidecars with the raws, the zip carries those same files back with only the rating and label changed, so develop settings, keywords and crops in them are kept; in Lightroom, use Metadata › Read Metadata from Files for photos already in the catalogue. Lightroom reads sidecar ratings for raw files only; it keeps JPEG and DNG metadata inside the file, so ratings for those will not carry over this way. In Lightroom, a rating of −1 shows as rejected.</p>
   </section>
 
   <section aria-labelledby="keys-h">
@@ -151,6 +153,10 @@
     <p>No. The page reads the files with your browser's File API on your own computer. Nothing is sent anywhere; you can disconnect from the internet after the page loads and it still works.</p>
     <h3>Will Lightroom see my ratings?</h3>
     <p>Yes for raw files: put the downloaded .xmp files next to the raws before you import, and Lightroom Classic reads <code>xmp:Rating</code> (stars, −1 for rejected) and <code>xmp:Label</code>. Lightroom does not read sidecars for JPEG or DNG files, which keep metadata inside the file.</p>
+    <h3>Will my Lightroom edits survive?</h3>
+    <p>Yes, if you drop the existing .xmp sidecars along with the raw files. The page reads the rating and colour label in them as each frame's start, and when you download, the zip carries those same sidecar files back under their own names with only <code>xmp:Rating</code>, <code>xmp:Label</code> and <code>xmp:MetadataDate</code> changed; develop settings, keywords and crops stay as they were. Without them, a fresh sidecar would replace the one on disk.</p>
+    <h3>Does it read ratings I set in the camera?</h3>
+    <p>Yes, where the camera writes them into the raw file: the XMP packet many raws carry (in the public samples: recent Sony, Canon, Nikon, OM System, DJI and Pentax files), the XMP box of a Canon CR3, or the Rating tag OM System bodies write. A rating you set on this page before, or one in a dropped sidecar, comes first.</p>
     <h3>Why does a preview look different from my raw editor?</h3>
     <p>It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you.</p>
     <h3>Does it remember my ratings?</h3>
@@ -182,7 +188,7 @@
 </div>
 
 <script type="module">
-import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, xmpSidecar, sidecarName, zipStored, LABEL_KEYS } from "./rawpreview.mjs";
+import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, xmpSidecar, sidecarName, zipStored, LABEL_KEYS, readXmp, mergeXmpSidecar, sidecarTarget } from "./rawpreview.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -193,7 +199,8 @@ let view = [];             // indices into items, filtered and sorted
 let sel = 0;               // position in view
 let loupeOpen = false, zoom = null;
 const STORE = "shootflow-cull-marks";
-const LABEL_COLOURS = { Red: "#dc2626", Yellow: "#eab308", Green: "#16a34a", Blue: "#2563eb" };
+const LABEL_COLOURS = { Red: "#dc2626", Yellow: "#eab308", Green: "#16a34a", Blue: "#2563eb", Purple: "#9333ea" };
+const sidecars = new Map(); // lower-case sidecar name -> { name, text }, sidecars dropped so far
 
 function loadMarks() { try { return JSON.parse(localStorage.getItem(STORE) || "{}") || {}; } catch { return {}; } }
 let marks = loadMarks();
@@ -277,8 +284,15 @@ async function loadOne(file) {
   } catch (e) {
     it.error = e.message || String(e);
   }
+  // Where a frame's starting marks come from, first found wins: what you
+  // marked on this page before (this browser), a sidecar dropped with it, the
+  // rating set in the camera.
   const m = marks[`${it.name}|${it.size}`];
-  if (m) { it.rating = m.r || 0; it.rejected = !!m.x; it.label = m.l || ""; }
+  if (m) { it.rating = m.r || 0; it.rejected = !!m.x; it.label = m.l || ""; it.from = "here"; }
+  else if (it.meta && (it.meta.cameraRating || it.meta.cameraLabel)) {
+    const r = it.meta.cameraRating || 0;
+    it.rating = r > 0 ? r : 0; it.rejected = r === -1; it.label = it.meta.cameraLabel || ""; it.from = "camera";
+  }
   return it;
 }
 
@@ -295,8 +309,51 @@ function peakCell(grey, w, h, g) {
   return [bx, by];
 }
 
+// Sidecars: kept by name, paired with their raw by either naming style, and
+// their rating and label become the frame's start unless it was marked here.
+async function readSidecars(list) {
+  for (const f of list) {
+    if (f.size > 4 << 20) continue;
+    const text = await f.text();
+    if (readXmp(text)) sidecars.set(f.name.toLowerCase(), { name: f.name, text });
+  }
+}
+function pairSidecars() {
+  const names = items.map((it) => it.name);
+  const byName = new Map(items.map((it) => [it.name, it]));
+  let n = 0;
+  for (const sc of sidecars.values()) {
+    const it = byName.get(sidecarTarget(sc.name, names));
+    if (!it || it.sidecar === sc) continue;
+    it.sidecar = sc; n++;
+    if (it.from === "here") continue;
+    const x = readXmp(sc.text);
+    if (x.rating !== null || x.label !== null) {
+      it.rating = x.rating > 0 ? x.rating : 0; it.rejected = x.rating === -1; it.label = x.label || ""; it.from = "sidecar";
+    }
+  }
+  return n;
+}
+function startCounts() {
+  const c = { sidecar: 0, camera: 0 };
+  for (const it of items) if (c[it.from] !== undefined) c[it.from]++;
+  const parts = [];
+  if (c.sidecar) parts.push(`${c.sidecar} marked from their .xmp sidecars`);
+  if (c.camera) parts.push(`${c.camera} rated in the camera`);
+  return parts.length ? `; ${parts.join(", ")}` : "";
+}
+
 async function addFiles(fileList) {
-  const files = [...fileList].filter((f) => isCandidateFile(f.name));
+  const all = [...fileList];
+  const xmps = all.filter((f) => /\.xmp$/i.test(f.name));
+  if (xmps.length) await readSidecars(xmps);
+  const files = all.filter((f) => isCandidateFile(f.name));
+  if (!files.length && xmps.length && items.length) {
+    const n = pairSidecars();
+    refresh(true);
+    $("status").textContent = `${n} of ${xmps.length} sidecars matched a loaded file${startCounts()}.`;
+    return;
+  }
   if (!files.length) { $("status").textContent = "None of those files look like camera raw or JPEG files."; $("toolbar").hidden = false; return; }
   const known = new Set(items.map((it) => `${it.name}|${it.size}`));
   const fresh = files.filter((f) => !known.has(`${f.name}|${f.size}`));
@@ -320,12 +377,13 @@ async function addFiles(fileList) {
   };
   await Promise.all(Array.from({ length: Math.min(4, Math.max(2, navigator.hardwareConcurrency || 2)) }, worker));
   prog.hidden = true;
+  pairSidecars();
   const bad = items.filter((it) => it.error).length;
   const secs = ((performance.now() - t0) / 1000).toFixed(1);
   record("files_loaded");
   if (fresh.length >= 50) record("files_loaded_50_plus");
   refresh(true);
-  $("status").textContent = `${items.length} files${bad ? `, ${bad} without a preview` : ""} (read ${fresh.length} in ${secs} s; ${mib(bytesRead - before)} of their ${mib(cardBytes)} read from disk).`;
+  $("status").textContent = `${items.length} files${bad ? `, ${bad} without a preview` : ""} (read ${fresh.length} in ${secs} s; ${mib(bytesRead - before)} of their ${mib(cardBytes)} read from disk)${startCounts()}.`;
 }
 
 // ---------------------------------------------------------------- bursts and view
@@ -548,10 +606,20 @@ const marked = (it) => it.rating || it.rejected || it.label;
 
 $("dlXmp").onclick = () => {
   const style = $("sidecarStyle").value, only = $("onlyMarked").checked;
-  const files = items.filter((it) => !only || marked(it)).map((it) => ({ name: sidecarName(it.name, style), data: xmpSidecar(it) }));
+  // A frame that came with a sidecar gets that sidecar back under its own
+  // name with only the rating and label changed, so Lightroom's develop
+  // settings, keywords and crops in it survive the unzip.
+  let merged = 0;
+  const files = items.filter((it) => !only || marked(it)).map((it) => {
+    const m = it.sidecar ? mergeXmpSidecar(it.sidecar.text, it) : null;
+    if (m) { merged++; return { name: it.sidecar.name, data: m }; }
+    return { name: sidecarName(it.name, style), data: xmpSidecar(it) };
+  });
   if (!files.length) { $("status").textContent = "Nothing rated, labelled or rejected yet: untick “only frames I rated” to write a sidecar for every frame."; return; }
   download("shootflow-cull-sidecars.zip", zipStored(files), "application/zip");
+  $("status").textContent = `${files.length} sidecars in the zip${merged ? `, ${merged} of them your own with only the rating and label changed` : ""}.`;
   record("sidecars_downloaded");
+  if (merged) record("sidecars_merged");
 };
 $("dlPicks").onclick = () => {
   const picks = items.filter((it) => it.rating >= 1 && !it.rejected).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));

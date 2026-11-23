@@ -80,7 +80,7 @@ test("CSV: rates multiply out, and spreadsheet formulas in names are neutralised
   const k = JSON.stringify(["IfcSlab"]);
   const csv = boqCsv(lines, ["class"], { [k]: { rate: 150, unit: "m3" } });
   const row = csv.split("\r\n").find((l) => l.startsWith("IfcSlab"));
-  assert.match(row, /,150,m3,750,0,0,0,0$/);
+  assert.match(row, /,150,m3,750,0,0,0,0,0,,,0,,,$/);
   const res = sample();
   res.rows[0].name = "=HYPERLINK(\"x\")";
   assert.match(rowsCsv(res.rows), /"'=HYPERLINK\(""x""\)"/);
@@ -1151,7 +1151,7 @@ test("steel: a member with no quantity set gets its length from the body and its
   // a per-kg rate now prices the bare steel beam
   const csv = boqCsv(lines, ["class", "material"], { [JSON.stringify(steel.key)]: { rate: 2, unit: "kg" } });
   const row = csv.split("\r\n").find((l) => l.includes("S355JR") && l.startsWith("IfcBeam"));
-  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0$/);
+  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0,0,,,0,,,$/);
   for (const m of ["Steel", "STEEL/S235JR", "Stahl S235", "ASTM A992", "Structural Steel - S275", "05 Staal_bordes_hoeklijnen"]) assert.ok(isSteel(m), m);
   for (const m of [null, "Concrete / Steel", "STEEL/NEOPRENE", "Stainless steel", "Steel fibre concrete", "Timber", "Aluminium"]) assert.ok(!isSteel(m), String(m));
 });

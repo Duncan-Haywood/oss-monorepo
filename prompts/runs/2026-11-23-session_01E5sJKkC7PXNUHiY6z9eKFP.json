@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKkC7PXNUHiY6z9eKFP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T22:18:24Z",
+  "ended": "2026-11-23T22:26:01Z",
+  "wall_minutes": 7.88,
+  "tokens_in": 5754907,
+  "tokens_out": 37314,
+  "cost_usd": 2.8883,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18493",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "apt-get install libimage-exiftool-perl failed; cloning exiftool from GitHub was refused by the session's permission classifier, so no ExifTool cross-check of merged sidecars",
+    "Pillow in the container is broken (no _imaging), so the Rating-tag cross-check used a stdlib IFD walker instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace auto-parked a landed result (mpcw default, 2026-11-21) to NEXT.md as if it were an open item; harmless but NEXT.md is meant for open items"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here said take the second item of photo-editing's list (the raw.pixls.us host, refused this session). Took the cull page's Lightroom-sidecar gap instead: a real data-loss bug for users (unzipping fresh sidecars over Lightroom's wiped develop settings) that the row's 'Lightroom import of its sidecars' item points at.",
+      "did": "Built sidecar reading, merging and in-camera ratings for site/cull.html",
+      "result": "Landed with unit, 65-file and Chromium round-trip checks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-photo-editing-cull-keeps-your-lightroom-sidecars.md",
+    "ventures/photo-editing/eval/cull-existing-sidecars-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "node --test site/rawpreview.test.mjs site/usage.test.mjs: 28 pass. eval/cull-camera-ratings.mjs on 65 public raws: whole = sparse on 65/65; 1 real in-camera rating (Pentax Q-S1, 3) matches an independent byte scan. Chromium round trip: merged Nikon D810.xmp differs from the dropped one in exactly 3 lines. Venture tests and preflight: see PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e18fea2-ef55-5973-952f-35b472438f44",
+    "transcripts": 1,
+    "first": "2026-11-23T22:18:24Z",
+    "last": "2026-11-23T22:26:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 37314,
+        "thinking": 6694,
+        "cache_read": 5627797,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127014,
+        "api_equivalent_usd": 2.8883,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 37314,
+      "thinking": 6694,
+      "cache_read": 5627797,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127014,
+      "api_equivalent_usd": 2.8883,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.88,
+      "active_minutes": 7.88,
+      "model_minutes": 6.33,
+      "tool_minutes": 1.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer reading XMP specs, writing a merge that keeps other properties, page wiring and three checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 207.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

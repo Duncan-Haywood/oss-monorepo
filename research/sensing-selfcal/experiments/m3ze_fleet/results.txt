@@ -1,0 +1,21 @@
+post hoc, Kinect board fit (m3zd): {'fold_radius_px': 380.804, 'corner_radius_px': 415.658, 'corners_beyond_fold': 4, 'round_trip_default_px': [33.412, 37.555, 3.724, 12.777], 'round_trip_100_px': [39.508, 66.796, 3.559, 10.325], 'min_slope': -0.0}
+70 cameras; models {'radtan': 46, 'kannala_brandt': 6, 'rectified': 4, 'equidistant': 14}; radial with all-zero distortion 15; non-zero 31 -> 14 distinct, 14 scored
+source                                                          size       k1       k2      k3    fold  corner beyond      rt5    rt100  slope
+rpng/open_vins/master/config/kaist_vio/kalibr_imucam_chain  640x480    0.0070  -0.0103   0.000   665.7   411.8      0 8.71e-07 2.54e-13  0.953
+rpng/open_vins/master/config/kaist_vio/kalibr_imucam_chain  640x480    0.0069  -0.0091   0.000   686.0   413.0      0 8.39e-07 7.28e-13  0.960
+UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/TUM1.yaml#C  640x480    0.2624  -0.9531   1.163    none   410.4      0    0.131  9.5e-13  1.000
+UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/TUM2.yaml#C  640x480    0.2312  -0.7849   0.917    none   410.0      0   0.0252  9.5e-13  1.000
+UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/EuRoC.yaml#  752x480   -0.2834   0.0740   0.000    none   458.0      0    0.044 6.63e-13  0.511
+UZ-SLAMLab/ORB_SLAM3/master/Examples/Stereo/EuRoC.yaml#Cam  752x480   -0.2837   0.0745   0.000    none   457.8      0   0.0372 9.17e-13  0.514
+HKUST-Aerial-Robotics/VINS-Fusion/master/config/euroc/cam0  752x480   -0.2955   0.0866   0.000    none   461.9      0  0.00848 4.26e-13  0.547
+HKUST-Aerial-Robotics/VINS-Fusion/master/config/euroc/cam1  752x480   -0.2929   0.0848   0.000    none   456.3      0  0.00396  8.2e-13  0.545
+HKUST-Aerial-Robotics/VINS-Mono/master/config/euroc/euroc_  752x480   -0.2917   0.0823   0.000    none   461.4      0   0.0197 3.81e-13  0.535
+rpng/open_vins/master/config/kaist/kalibr_imucam_chain.yam 1280x560   -0.0561   0.1395   0.000    none   734.0      0   0.0154 9.17e-13  0.990
+rpng/open_vins/master/config/kaist/kalibr_imucam_chain.yam 1280x560   -0.0549   0.1424   0.000    none   735.0      0   0.0235 6.12e-13  0.990
+rpng/open_vins/master/config/rpng_aruco/kalibr_imucam_chai  752x480   -0.2920   0.0875   0.000    none   474.2      0   0.0462 9.78e-13  0.562
+rpng/open_vins/master/config/rpng_aruco/kalibr_imucam_chai  752x480   -0.2848   0.0791   0.000    none   466.9      0    0.085  8.2e-13  0.539
+rpng/open_vins/master/config/rpng_plane/kalibr_imucam_chai  848x480   -0.0458   0.0342   0.000    none   490.9      0 7.78e-05  7.9e-13  0.972
+H295 refuted {'folds_inside': 0, 'of': 14}
+H296 untestable (no folding calibration) {'k3_of_folding': []}
+H297 untestable (no folding calibration) {'max_default_px': []}
+H298 held {'max_default_px': [0.1314906239527939, 0.02521328116052223, 0.04400784334497375, 0.03724313097705849, 0.008477862628866325, 0.003961861199258315, 0.019738372545512403, 0.015432763839136507, 0.023469221084685583, 8.392312589040118e-07, 8.711580701396934e-07, 0.04619657302681931, 0.08500571464945182, 7.776974721773461e-05]}

@@ -46,7 +46,7 @@ for (const p of walk(root)) {
     if (!vgood || !bgood) misses.push(`  ${rel} #${r.id} ${r.ifcClass}: volume ${v.toFixed(6)} vs ${o.volume.toFixed(6)} m3 (${(dv * 100).toFixed(3)}%), box off by ${(db * 1000).toFixed(2)} mm`);
   }
   tot.compared += cmp; tot.volOk += vok; tot.boxOk += bok;
-  const q = read.map(rowQuantities);
+  const q = read.map((x) => rowQuantities(x));
   const len = q.reduce((s, x) => s + (x.length ?? 0), 0), kg = q.reduce((s, x) => s + (x.weight ?? 0), 0);
   console.log(`${rel}: ${read.length} of ${rows.length} read${ref ? `; vs IfcOpenShell ${cmp} compared, volume ${vok}, box ${bok}` : ""}${len ? `; length ${len.toFixed(3)} m` : ""}${kg ? `; weight ${kg.toFixed(2)} kg` : ""}`);
 }

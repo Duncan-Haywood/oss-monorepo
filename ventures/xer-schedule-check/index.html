@@ -297,6 +297,22 @@
     </p>
     <p class="note" id="red-status"></p>
     <div id="red-out" class="tablewrap"></div>
+    <h2 style="margin-top:22px" id="progress">Progress review: does the claimed percent match the dates?</h2>
+    <p class="note">P6 keeps a physical or units percent complete apart from the remaining duration that sets the forecast finish, so an update can claim 80% a quarter of the way through an activity's time, or 20% after a month while promising to finish next week. This lists, per activity, progress claimed ahead of the time spent, remaining durations shorter than a straight line at the pace so far, work started with nothing claimed, activities forecast far longer than planned, in-progress work with no remaining duration or at 100%, progress on work not started, and finished work left below 100% physical. Read it before approving a pay application on the update. The thresholds (30 points, 1.5 times, 5 working days) are review conventions, not a standard.</p>
+    <p class="row">
+      <button type="button" id="prog-run" class="secondary">Review progress</button>
+      <button type="button" id="prog-csv" class="secondary" hidden>Download list (CSV)</button>
+    </p>
+    <p class="note" id="prog-status"></p>
+    <div id="prog-out" class="tablewrap"></div>
+    <h2 style="margin-top:22px" id="calendars">Calendar review: holidays, hours per day and working weeks</h2>
+    <p class="note">Every date is counted on a work calendar, and calendars are the part of a schedule reviewers read least. This reads each one and flags a holiday list that stops before the work does (the late years then count Christmas, New Year and every public holiday as working days, so the forecast is early), and says how far the finish moves when the missing years get the calendar's own holidays back. It also flags an Hours per Day figure that differs from the hours the days hold (a 9-hour calendar labelled 8 shows a 10-day activity that takes 8.9 of its days), calendars named for a different week than they work, no holidays at all, critical work on seven-day calendars, duplicates and unused calendars. Three of the six public P6 files tried had a holiday list that ran out.</p>
+    <p class="row">
+      <button type="button" id="cal-run" class="secondary">Review the calendars</button>
+      <button type="button" id="cal-csv" class="secondary" hidden>Download findings (CSV)</button>
+    </p>
+    <p class="note" id="cal-status"></p>
+    <div id="cal-out" class="tablewrap"></div>
     <h2 style="margin-top:22px" id="drag">Critical path drag: what to speed up</h2>
     <p class="note">Every critical activity has the same float, so float cannot say which one to accelerate. Drag can: it is how much earlier the forecast finish would be if that activity (or that lag) took no time, everything else as it is. An activity with 30 days left but 4 days of drag can only ever win 4 days, because a parallel path takes over. Type what a day of finish costs (liquidated damages, extended site overheads) to price each one. P6 and Microsoft Project do not compute drag.</p>
     <p class="row">
@@ -519,6 +535,7 @@
       <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
       <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
       <li><a href="./how-to-find-redundant-logic-in-a-p6-schedule.html">How to find redundant logic in a P6 schedule</a></li>
+      <li><a href="./how-to-review-the-calendars-in-a-p6-schedule.html">How to review the calendars in a P6 schedule</a></li>
       <li><a href="./how-to-convert-p6-xml-to-xer.html">How to convert a P6 XML file to XER</a></li>
       <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
       <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
@@ -532,7 +549,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>tia_stepwise</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>redundant_found</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>tia_stepwise</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>redundant_found</code>, <code>progress_reviewed</code>, <code>calendars_reviewed</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -573,6 +590,8 @@
     const crashModule = onDemand(() => import("./crash.mjs"));
     const dragModule = onDemand(() => import("./drag.mjs"));
     const redModule = onDemand(() => import("./redundant.mjs"));
+    const progModule = onDemand(() => import("./progress.mjs"));
+    const calModule = onDemand(() => import("./calreview.mjs"));
     const exampleSeriesModule = onDemand(() => import("./example-series.mjs"));
     const calslackModule = onDemand(() => import("./calslack.mjs"));
     const milestonesModule = onDemand(() => import("./milestones.mjs"));
@@ -901,6 +920,25 @@
     });
     $("#gao-print").addEventListener("click", async () => { if (!lastGao) return; const { gaoHtml } = await gaoModule(); save(new Blob([gaoHtml(lastGao)], { type: "text/html" }), `${fileName}-gao-scorecard.html`); record("findings_downloaded"); });
     $("#gao-csv").addEventListener("click", async () => { if (!lastGao) return; const { gaoCsv } = await gaoModule(); save(new Blob([gaoCsv(lastGao)], { type: "text/csv" }), `${fileName}-gao-scorecard.csv`); record("findings_downloaded"); });
+    let lastCal = null;
+    $("#cal-run").addEventListener("click", () => {
+      const st = $("#cal-status");
+      if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
+      st.textContent = "Reading the calendars...";
+      setTimeout(async () => {
+        try {
+          const { calendarReview, calendarTableHtml } = await calModule();
+          const r = calendarReview(xer);
+          lastCal = r;
+          const s = r.summary;
+          st.innerHTML = `${esc(s.calendars)} calendars, ${esc(s.used)} used by activities: <b>${esc(s.faults)}</b> fault${s.faults === 1 ? "" : "s"}, ${esc(s.checks)} to check, ${esc(s.notes)} note${s.notes === 1 ? "" : "s"}. (${esc(r.ms)} ms)`;
+          $("#cal-out").innerHTML = calendarTableHtml(r) + (r.warnings.length ? `<p class="note">${r.warnings.map(esc).join("<br>")}</p>` : "");
+          $("#cal-csv").hidden = !r.findings.length;
+          record("calendars_reviewed");
+        } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#cal-out").innerHTML = ""; }
+      }, 20);
+    });
+    $("#cal-csv").addEventListener("click", async () => { if (!lastCal) return; const { calendarCsv } = await calModule(); save(new Blob([calendarCsv(lastCal)], { type: "text/csv" }), `${fileName}-calendar-review.csv`); record("findings_downloaded"); });
     let lastRed = null;
     $("#red-run").addEventListener("click", () => {
       const st = $("#red-status");
@@ -930,6 +968,24 @@
       $("#red-status").textContent += ` Saved the file less ${removed} sure redundant relationship${removed === 1 ? "" : "s"}.`;
       record("findings_downloaded");
     });
+    let lastProg = null;
+    $("#prog-run").addEventListener("click", () => {
+      const st = $("#prog-status");
+      if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
+      st.textContent = "Reading progress...";
+      setTimeout(async () => {
+        try {
+          const { progressReview, progressTableHtml } = await progModule();
+          const r = progressReview(xer);
+          lastProg = r;
+          st.innerHTML = `<b>${esc(r.flagged)}</b> of ${esc(r.checked)} activities flagged (${esc(r.active)} in progress; ${esc(r.byType.CP_Phys)} physical %, ${esc(r.byType.CP_Units)} units %, ${esc(r.byType.CP_Drtn)} duration %).`;
+          $("#prog-out").innerHTML = progressTableHtml(r) + (r.warnings.length ? `<p class="note">${r.warnings.map(esc).join("<br>")}</p>` : "");
+          $("#prog-csv").hidden = !r.items.length;
+          record("progress_reviewed");
+        } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#prog-out").innerHTML = ""; }
+      }, 20);
+    });
+    $("#prog-csv").addEventListener("click", async () => { if (!lastProg) return; const { progressCsv } = await progModule(); save(new Blob([progressCsv(lastProg)], { type: "text/csv" }), `${fileName}-progress-review.csv`); record("findings_downloaded"); });
     let lastDrag = null;
     $("#drag-run").addEventListener("click", () => {
       const st = $("#drag-status");

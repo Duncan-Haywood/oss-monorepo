@@ -1,7 +1,7 @@
 """3D linear (eigenvalue) buckling of a prismatic steel bar with scikit-fem (mm, N, MPa).
 
 Bar: length l along x, in-plane width w along y, sheet thickness b along z, clamped at x = 0
-(all displacements zero on that face). Quadratic hexahedra (serendipity, ElementHex2), isotropic
+(all displacements zero on that face). Quadratic hexahedra (27-node triquadratic, ElementHex2), isotropic
 elasticity. Procedure: solve K u = f for a unit load, form the stress at the quadrature points,
 assemble the geometric stiffness Kg = int  grad(v)_ij sigma_jk grad(u)_ik dV, and solve
 K phi = lambda (-Kg) phi. The critical load is lambda times the unit load.

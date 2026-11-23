@@ -765,6 +765,9 @@ function readStored(E, idx, id, units, row) {
  *                the exact one (simplifiedSection below; Tekla steel);
  *   glazing-left-out  stored = computed less the body's glass items
  *                (glazingLeftOut below; ArchiCAD windows and doors);
+ *   nominal-slip stored = the element's own stored area x its nominal
+ *                width x a power of ten, to 1e-6, and the body is near that
+ *                product (nominalSlip below; Revit sloped "fall" slabs);
  *   polygon-section  stored = computed x a polygonised section's share of
  *                the exact one, to 1e-4; also set on pairs inside the 2%
  *                (polygonSection below; ArchiCAD arcs and round columns);
@@ -854,11 +857,42 @@ export function explainChecks(rows, tol = 0.02) {
       else if (glazingLeftOut(r, c, tol / 4)) { c.reason = "glazing-left-out"; r.trustStored = false; }
       else if (polygonSection(r, c)) { c.reason = "polygon-section"; r.trustStored = false; }
       else if (dims != null && !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = "own-dimensions"; r.trustStored = false; }
-      else c.reason = "unexplained";
+      else if ((c.factor = nominalSlip(r, c)) != null) { c.reason = "nominal-slip"; r.trustStored = false; }
+      else { delete c.factor; c.reason = "unexplained"; }
     }
   }
   compoundSlips(rows, tol);
   return rows;
+}
+
+/**
+ * nominal-slip: the stored volume is the element's own stored area times its
+ * own stored width (a slab's nominal thickness) times 10^k, k from -9 to 9 and
+ * not 0, to 1e-6 of the figure, while the body is within NOMINAL_SLIP_SHAPE of
+ * area x width. Two faults at once, so unitSlip's tolerance misses it: the
+ * figure was written in the wrong unit, and it is a nominal-thickness volume
+ * on a body that is not of that thickness (ARK_NUS skolebygg's "Betongdekke
+ * 250 m fall" slabs, sloped to drain: 22.474 m2 x 0.25 m x 1000 = 5,618.5
+ * stored against 5.29 m3 of body, a mean 0.236 m thick;
+ * eval/in-doubt-2026-11-23.md). Exactness to 1e-6 keeps chance out: a product
+ * of two stored figures that equals the stored volume to six digits is the
+ * exporter's own arithmetic. Returns the power of ten, else null.
+ */
+export const NOMINAL_SLIP_SHAPE = 0.15;
+export function nominalSlip(r, c) {
+  if (!(c.stored > 0) || !(c.computed > 0)) return null;
+  const val = (kind, names) => { for (const [k, q] of Object.entries(r.stored || {})) if (q.kind === kind && names.includes(k.toLowerCase()) && q.value > 0) return q.value; return null; };
+  const W = val("length", ["width", "depth", "thickness"]);
+  if (W == null) return null;
+  for (const A of [val("area", ["grossarea"]), val("area", ["netarea"])]) {
+    if (A == null) continue;
+    const nominal = A * W;
+    const k = Math.round(Math.log10(c.stored / nominal));
+    if (k === 0 || Math.abs(k) > 9) continue;
+    if (Math.abs(nominal * 10 ** k - c.stored) > 1e-6 * c.stored) continue;
+    if (Math.abs(c.computed - nominal) <= NOMINAL_SLIP_SHAPE * nominal) return 10 ** k;
+  }
+  return null;
 }
 
 /**
@@ -1249,6 +1283,7 @@ export const REASON_TEXT = {
   split: "the same stored volume is written on every piece of an element split by level; the pieces' geometry sums to it",
   repeated: "the same stored volume is written on several pieces of one element, and the pieces in this file do not sum to it",
   "unit-slip": "the stored volume is the geometry's times a power of ten, the square-foot factor 10.7639, or both: written in the wrong unit",
+  "nominal-slip": "the stored volume is the element's own stored area times its nominal width, written in the wrong unit (a power of ten off); the body is not of that nominal thickness (a slab sloped to drain), so the geometry is summed",
   "net-as-gross": "the exporter's GrossVolume equals the volume with openings taken out (net)",
   "own-dimensions": "the stored volume disagrees with the element's own stored length x height x width (a member's length x cross-section area); the geometry agrees with them",
   "not-stored": "the stored volume is 0 on an element with a body: a placeholder, not a measurement",
@@ -1568,32 +1603,62 @@ function checkVolume(row, tol) {
 
 const GROUP_KEYS = { class: (r) => r.ifcClass, type: (r) => r.type ?? "(no type)", storey: (r) => r.storey ?? "(no storey)", space: (r) => r.space ?? "(no room)", material: (r) => r.material ?? "(no material)", classification: (r) => r.classification ?? "(none)", uniformat: (r) => uniformatLabel(r, 3), uniformat2: (r) => uniformatLabel(r, 2), uniformat1: (r) => uniformatLabel(r, 1) };
 
-/** The quantity of a row a BoQ line sums: the stored value when present, else the computed one. */
-export function rowQuantities(r) {
+/**
+ * A check whose stored figure the BoQ would sum although it disagrees with the
+ * geometry for no cause this tool can name: an open question, not a known
+ * error, so the figure is kept (by default) and the line reports the range.
+ */
+const inDoubt = (c) => !!c && !c.agree && (!c.reason || c.reason === "unexplained") && c.trust !== false && Number.isFinite(c.computed) && Number.isFinite(c.stored);
+
+/** How the BoQ treats a stored figure that disagrees with the geometry for no known cause. */
+export const UNEXPLAINED_CHOICES = ["stored", "geometry"];
+
+/**
+ * The quantity of a row a BoQ line sums: the stored value when present, else the computed one.
+ * `opts.unexplained`: "stored" (default) keeps a stored volume or area that
+ * disagrees with the geometry for no named cause; "geometry" sums the
+ * geometry's figure for those rows instead. Either way the row reports
+ * volumeDoubt / areaDoubt ({stored, computed}) so a line can show the range.
+ */
+export function rowQuantities(r, opts = {}) {
+  const useGeometry = opts.unexplained === "geometry";
   const s = r.stored;
   const first = (names, kind) => { for (const n of names) for (const [k, q] of Object.entries(s)) if (q.kind === kind && k.toLowerCase() === n) return q.value; return null; };
-  const storedNet = r.trustStored === false ? null : first(["netvolume"], "volume") ?? first(["grossvolume", "volume"], "volume");
-  const comp = r.computed && r.computed.status === "ok" ? (r.computed.net ?? r.computed.gross) : null;
+  const netStored = first(["netvolume"], "volume");
+  let storedNet = r.trustStored === false ? null : netStored ?? first(["grossvolume", "volume"], "volume");
+  let comp = r.computed && r.computed.status === "ok" ? (r.computed.net ?? r.computed.gross) : null;
+  // the check on the very figure summed: NetVolume when stored, else GrossVolume
+  const vChk = storedNet == null ? null : netStored != null ? r.check?.net : r.check?.gross;
+  const volumeDoubt = inDoubt(vChk) && near6(vChk.stored, storedNet) ? { stored: vChk.stored, computed: vChk.computed } : null;
+  if (volumeDoubt && useGeometry) { storedNet = null; comp = volumeDoubt.computed; }
   // area: the stored figure unless its check says not to sum it (split,
   // repeated, unit slip, not a section), else the area cut from the geometry
   const AREA_NAMES = ["netsidearea", "netarea", "netfloorarea", "netsurfacearea", "grosssidearea", "grossarea", "area"];
-  let area = null, areaSource = null;
+  let area = null, areaSource = null, areaDoubt = null;
   for (const n of AREA_NAMES) {
     const hit = Object.entries(s).find(([k, q]) => q.kind === "area" && k.toLowerCase() === n);
     if (!hit) continue;
     const chk = r.areaCheck?.[hit[0]];
     if (chk && chk.trust === false) { area = chk.computed; areaSource = "computed"; } else { area = hit[1].value; areaSource = "stored"; }
+    if (areaSource === "stored" && inDoubt(chk)) {
+      areaDoubt = { stored: chk.stored, computed: chk.computed };
+      if (useGeometry) { area = chk.computed; areaSource = "computed"; }
+    }
     break;
   }
   if (area == null) { const ca = primaryArea(r); if (ca != null) { area = ca; areaSource = "computed"; } }
   return {
     volume: storedNet ?? comp,
     volumeSource: storedNet != null ? "stored" : comp != null ? "computed" : null,
+    volumeDoubt,
     area,
     areaSource,
+    areaDoubt,
     ...lengthAndWeight(r, first, storedNet ?? comp, storedNet != null ? "stored" : comp != null ? "computed" : null),
   };
 }
+
+const near6 = (a, b) => Math.abs(a - b) <= 1e-9 + 1e-9 * Math.abs(b);
 
 // Length: the stored figure, else the body's extent along its axis.
 // Weight: the stored figure (scaled when its section was simplified), else
@@ -1634,7 +1699,13 @@ export function primaryArea(r) {
 /** The bill-of-quantities line key a row falls under, for grouping keys `by`. */
 export const boqKey = (r, by) => by.map((k) => GROUP_KEYS[k](r));
 
-export function boq(rows, by = ["class", "type"], rule = null) {
+/**
+ * `opts.unexplained` ("stored" or "geometry", see rowQuantities) decides which
+ * figure a line sums where they disagree for no known cause; each line also
+ * carries volumeDoubt / areaDoubt: how many rows, and what their stored and
+ * geometry figures sum to, so the spread is visible whichever is summed.
+ */
+export function boq(rows, by = ["class", "type"], rule = null, opts = {}) {
   const measured = ruleActive(rule);
   const lines = new Map();
   for (const r of rows) {
@@ -1642,8 +1713,9 @@ export function boq(rows, by = ["class", "type"], rule = null) {
     const key = by.map((k) => GROUP_KEYS[k](r));
     const k = JSON.stringify(key);
     let L = lines.get(k);
-    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, lengthComputed: 0, weightComputed: 0, lengthMissing: 0, weightMissing: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0 }; lines.set(k, L); }
-    const q = measured ? applyRule(r, rowQuantities(r), rule) : rowQuantities(r);
+    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, lengthComputed: 0, weightComputed: 0, lengthMissing: 0, weightMissing: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0, volumeDoubt: { count: 0, stored: 0, computed: 0 }, areaDoubt: { count: 0, stored: 0, computed: 0 } }; lines.set(k, L); }
+    const q = measured ? applyRule(r, rowQuantities(r, opts), rule) : rowQuantities(r, opts);
+    for (const [d, D] of [[q.volumeDoubt, L.volumeDoubt], [q.areaDoubt, L.areaDoubt]]) if (d) { D.count++; D.stored += d.stored; D.computed += d.computed; }
     if (measured) { L.voidsLeft += q.voidsLeft; L.areaChange += q.areaChange; L.volumeChange += q.volumeChange; if (q.ruleNotes.length) L.ruleSkipped++; }
     L.count++;
     if (q.volume != null) { L.volume += q.volume; if (q.volumeSource === "stored") L.volumeStored++; else L.volumeComputed++; } else L.volumeMissing++;
@@ -1664,9 +1736,12 @@ const csvCell = (v) => {
 /** Column heading for a group key. */
 export const keyLabel = (k) => ({ uniformat: "Uniformat II element", uniformat2: "Uniformat II group", uniformat1: "Uniformat II major group", space: "Room" })[k] ?? k[0].toUpperCase() + k.slice(1);
 
-export function boqCsv(lines, by, rates = {}, rule = null) {
+const doubtCells = (D) => (D && D.count ? [D.count, D.stored, D.computed] : [0, null, null]);
+
+/** `opts.unexplained` labels which figure the lines summed for rows in doubt. */
+export function boqCsv(lines, by, rates = {}, rule = null, opts = {}) {
   const measured = ruleActive(rule);
-  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount", "Lengths computed here", "Weights from steel density (7850 kg/m3)", "Members with no length", "Members with no weight"];
+  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount", "Lengths computed here", "Weights from steel density (7850 kg/m3)", "Members with no length", "Members with no weight", "Volumes in doubt (disagree for no known cause)", "Their stored volume m3", "Their geometry volume m3", "Areas in doubt (disagree for no known cause)", "Their stored area m2", "Their geometry area m2", "Summed for those"];
   if (measured) head.push(`Voids not deducted (${ruleLabel(rule)})`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
@@ -1674,7 +1749,7 @@ export function boqCsv(lines, by, rates = {}, rule = null) {
     const rate = rates[k];
     let amount = null;
     if (rate && Number.isFinite(rate.rate)) amount = rate.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight }[rate.unit] ?? 0);
-    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount, L.lengthComputed, L.weightComputed, L.lengthMissing, L.weightMissing];
+    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount, L.lengthComputed, L.weightComputed, L.lengthMissing, L.weightMissing, ...doubtCells(L.volumeDoubt), ...doubtCells(L.areaDoubt), L.volumeDoubt?.count || L.areaDoubt?.count ? (opts.unexplained === "geometry" ? "geometry" : "stored") : null];
     if (measured) cells.push(L.voidsLeft, L.areaChange, L.volumeChange, L.ruleSkipped);
     out.push(cells.map(csvCell).join(","));
   }
