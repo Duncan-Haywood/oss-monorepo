@@ -25,6 +25,16 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3zc headline** (can a self-calibrating robot camera gate its lens-distortion update once the natural-feature windows'
+distortion bias is corrected?): **no; keep the held distortion and do not gate it.** The windows' distortion at 200 px is
+**1.37 px** low on the Kinect and **0.71 px** low on the Xtion, so a bias learnt on another camera moves the test by the wrong amount
+(the gate still fires in 24 of 31 blocks when the held distortion is right; worst regret 1.00 px against 0.48 for f-only gate(0.5)), and a
+correction from the unit's own commissioning history still fires in 23 of 31, because a half-sd bar sits at the median of the noise even
+with the bias removed exactly. Widened post hoc to 2 sd, the commissioning detector fires in 5 of 31 blocks and still costs 0.67 px against
+0.48. One of five predictions held (the corrected gate does see a 50% distortion error: 27&ndash;29 of 31); analysis of saved solves only. [Log](LOG.md).
+
+![worst regret of the f-only, joint and bias-corrected two-gate update rules for each truth and held-distortion pair, and against a scaled held distortion, five TUM windows, causal prior](experiments/m3zc_biasgate/biasgate.png)
+
 **Milestone 3zb headline** (what if the lens distortion a robot camera holds is itself wrong: does adopting the self-calibrated
 distortion then pay?): **no, not inside 250 px.** Held distortions taken from the camera's other real calibrations move rays by only
 **0.2&ndash;0.5 px** rms over 50&ndash;250 px, and even the board's k<sub>1</sub>, k<sub>2</sub> off by **50%** cost 1.5 px, less than the
@@ -1341,6 +1351,13 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3zc: correcting the windows' D<sub>200</sub> bias, by another camera's bias or the unit's own commissioning history,
+does not make a distortion gate usable (fires in 23&ndash;24 of 31 blocks when the held distortion is right; a 2-sd detector still costs
+0.67 px against 0.48), so the advice is to hold the distortion and use any distortion check as an alarm for a target recalibration. Next:
+Section 4 and Recommendation 9 of the paper updated with 3zc (no distortion gate; per-quantity gate multipliers); the feature radii the
+windows cover, when the TUM host answers; the image edge against a reference that does not fold there; a real lens change when one is
+reachable; typesetting the letter in the IEEE class.
 
 After the 2026-11-23 paper step: Section 4, the abstract, Recommendation 9, the limits and Section 10 of the draft now carry
 milestones 3y&ndash;3zb (38 new number checks, 415 of 415 pass), and the letter gained four sentences and a recommendation
