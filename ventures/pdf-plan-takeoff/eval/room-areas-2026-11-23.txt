@@ -1,0 +1,301 @@
+aa-20180706.pdf p10	printed 85	measured 40.0	-52.96%
+aa-20180706.pdf p10	printed 62	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+aa-20180706.pdf p10	printed 214	measured 190.2	-11.13%
+aa-20180706.pdf p10	printed 110	measured 172.3	56.65%
+aa-20180706.pdf p10	printed 90	measured 172.4	91.54%
+aa-20180706.pdf p10	printed 409	measured 256.1	-37.39%
+aa-20180706.pdf p10	printed 258	measured 137.2	-46.82%
+aa-20180706.pdf p11	printed 62	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p11	printed 405	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p11	printed 113	measured 0.8	-99.32%
+aa-20180706.pdf p11	printed 15	measured 14.0	-6.40%
+aa-20180706.pdf p11	printed 482	measured 272.7	-43.42%
+aa-20180706.pdf p11	printed 269	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p12	printed 74	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p12	printed 145	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p12	printed 199	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p12	printed 64	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p12	printed 97	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p12	printed 107	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p12	printed 243	measured -	the click is on a line; click inside the room
+aa-20180706.pdf p12	printed 168	measured 43.7	-74.00%
+aa-20180706.pdf p12	printed 52	measured -	the click is on a line; click inside the room
+aa-20180824.pdf p1	printed 396	measured 499.7	26.18%
+aa-20180824.pdf p1	printed 277	measured 271.8	-1.86%
+aa-20180824.pdf p1	printed 481	measured 470.6	-2.15%
+of-20190525.pdf p2	printed 122	measured 251.1	105.82%
+of-20190525.pdf p2	printed 616	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 254	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 146	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 639	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 1548	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 163	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 142	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 2326	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 10832	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 1385	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 2295	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 139	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 338	measured 12.8	-96.20%
+of-20190525.pdf p2	printed 1116	measured 13.4	-98.80%
+of-20190525.pdf p2	printed 842	measured 24.3	-97.11%
+of-20190525.pdf p2	printed 118	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 8419	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 96	measured 12.9	-86.55%
+of-20190525.pdf p2	printed 162	measured 12.9	-92.03%
+of-20190525.pdf p2	printed 121	measured 12.9	-89.33%
+of-20190525.pdf p2	printed 139	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 241	measured 12.9	-94.64%
+of-20190525.pdf p2	printed 1548	measured 12.9	-99.17%
+of-20190525.pdf p2	printed 122	measured 12.9	-89.41%
+of-20190525.pdf p2	printed 639	measured 12.9	-97.98%
+of-20190525.pdf p2	printed 163	measured 12.9	-92.08%
+of-20190525.pdf p2	printed 241	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 180	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 139	measured 12.9	-90.71%
+of-20190525.pdf p2	printed 842	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 616	measured 12.9	-97.90%
+of-20190525.pdf p2	printed 139	measured 13.4	-90.35%
+of-20190525.pdf p2	printed 338	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 142	measured 12.9	-90.90%
+of-20190525.pdf p2	printed 180	measured 12.9	-92.82%
+of-20190525.pdf p2	printed 162	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 146	measured 13.4	-90.81%
+of-20190525.pdf p2	printed 254	measured 24.3	-90.42%
+of-20190525.pdf p2	printed 1116	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 121	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 96	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 1385	measured 24.3	-98.24%
+of-20190525.pdf p2	printed 2326	measured 24.3	-98.95%
+of-20190525.pdf p2	printed 118	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190525.pdf p2	printed 118	measured 12.9	-89.05%
+of-20190627.pdf p3	printed 659	measured 1243.7	88.72%
+of-20190627.pdf p3	printed 240	measured 1243.0	417.93%
+of-20190627.pdf p3	printed 51	measured -	the click is on a line; click inside the room
+of-20190627.pdf p3	printed 146	measured 1242.3	750.91%
+of-20190627.pdf p3	printed 1070	measured 396.4	-62.95%
+of-20190627.pdf p3	printed 696	measured 262.9	-62.23%
+of-20190627.pdf p3	printed 369	measured 60.1	-83.70%
+of-20190627.pdf p3	printed 141	measured 124.8	-11.46%
+of-20190627.pdf p3	printed 2255	measured 1013.3	-55.07%
+of-20190627.pdf p3	printed 1288	measured 549.8	-57.31%
+of-20190627.pdf p3	printed 139	measured -	the click is on a line; click inside the room
+of-20190627.pdf p3	printed 161	measured 1026.1	537.32%
+of-20190627.pdf p3	printed 250	measured 318.7	27.49%
+of-20190627.pdf p3	printed 166	measured 212.6	28.08%
+of-20190627.pdf p3	printed 851	measured -	the click is on a line; click inside the room
+of-20190627.pdf p3	printed 338	measured 51.3	-84.83%
+of-20190627.pdf p3	printed 157	measured 69.5	-55.76%
+of-20190627.pdf p3	printed 819	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190627.pdf p3	printed 106	measured 121.2	14.34%
+of-20190627.pdf p3	printed 92	measured 93.3	1.43%
+of-20190627.pdf p3	printed 898	measured 143.0	-84.07%
+of-20190627.pdf p4	printed 12035	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190627.pdf p4	printed 2256	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190627.pdf p4	printed 338	measured 9.4	-97.21%
+of-20190627.pdf p4	printed 819	measured 9.4	-98.85%
+of-20190627.pdf p4	printed 249	measured 16.7	-93.28%
+of-20190627.pdf p4	printed 851	measured 16.7	-98.03%
+of-20190627.pdf p4	printed 9728	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190627.pdf p4	printed 1070	measured 9.1	-99.15%
+of-20190627.pdf p4	printed 92	measured 9.4	-89.77%
+of-20190627.pdf p4	printed 157	measured 9.4	-94.00%
+of-20190627.pdf p4	printed 106	measured 9.4	-91.12%
+of-20190627.pdf p4	printed 250	measured 9.4	-96.23%
+of-20190627.pdf p4	printed 696	measured 9.1	-98.70%
+of-20190627.pdf p4	printed 898	measured 9.1	-98.99%
+of-20190627.pdf p4	printed 369	measured 9.1	-97.54%
+of-20190627.pdf p4	printed 895	measured 9.1	-98.99%
+of-20190627.pdf p4	printed 161	measured 9.1	-94.37%
+of-20190627.pdf p4	printed 659	measured 9.4	-98.57%
+of-20190627.pdf p4	printed 139	measured 9.4	-93.23%
+of-20190627.pdf p4	printed 141	measured 9.4	-93.32%
+of-20190627.pdf p4	printed 166	measured 9.4	-94.33%
+of-20190627.pdf p4	printed 146	measured 9.4	-93.55%
+of-20190627.pdf p4	printed 240	measured 16.7	-93.03%
+of-20190627.pdf p4	printed 1288	measured 16.7	-98.70%
+of-20190627.pdf p4	printed 2255	measured 17.1	-99.24%
+of-20190627.pdf p4	printed 51	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+of-20190627.pdf p4	printed 51	measured 9.4	-81.54%
+og-20190308.pdf p1	printed 222	measured 484.7	118.35%
+og-20190308.pdf p1	printed 217	measured 484.8	123.40%
+og-20190308.pdf p1	printed 259	measured 223.6	-13.67%
+og-20190308.pdf p1	printed 4172	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190308.pdf p1	printed 733	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190308.pdf p1	printed 294	measured 220.1	-25.14%
+og-20190308.pdf p1	printed 259	measured 17.9	-93.09%
+og-20190308.pdf p1	printed 34	measured 17.9	-47.39%
+og-20190308.pdf p1	printed 217	measured 17.9	-91.76%
+og-20190308.pdf p1	printed 222	measured 17.9	-91.94%
+og-20190308.pdf p1	printed 3021	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190308.pdf p1	printed 289	measured 2015.9	597.53%
+og-20190308.pdf p1	printed 8	measured 17.9	123.57%
+og-20190308.pdf p1	printed 900	measured 17.9	-98.01%
+og-20190308.pdf p1	printed 289	measured 17.9	-93.81%
+og-20190308.pdf p1	printed 900	measured 765.2	-14.97%
+og-20190308.pdf p1	printed 294	measured 17.9	-93.92%
+og-20190308.pdf p1	printed 1092	measured 17.9	-98.36%
+og-20190308.pdf p1	printed 92	measured 17.9	-80.56%
+og-20190308.pdf p1	printed 164	measured 9.9	-93.96%
+og-20190308.pdf p1	printed 149	measured 17.9	-88.00%
+og-20190308.pdf p1	printed 128	measured 17.9	-86.03%
+og-20190308.pdf p1	printed 69	measured 17.9	-74.08%
+og-20190308.pdf p1	printed 419	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190308.pdf p1	printed 1092	measured 2013.8	84.42%
+og-20190308.pdf p1	printed 254	measured 17.9	-92.96%
+og-20190308.pdf p1	printed 164	measured 33.3	-79.70%
+og-20190308.pdf p1	printed 254	measured 1994.4	685.21%
+og-20190308.pdf p1	printed 254	measured 2006.2	689.83%
+og-20190308.pdf p5	printed 289	measured 130.4	-54.87%
+og-20190308.pdf p5	printed 164	measured 163.4	-0.38%
+og-20190308.pdf p5	printed 900	measured 205.8	-77.13%
+og-20190308.pdf p5	printed 149	measured 18.4	-87.66%
+og-20190308.pdf p5	printed 8	measured 2.8	-65.52%
+og-20190308.pdf p5	printed 1092	measured 294.9	-72.99%
+og-20190308.pdf p5	printed 254	measured 78.8	-68.97%
+og-20190308.pdf p5	printed 69	measured 58.5	-15.27%
+og-20190308.pdf p5	printed 4172	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190308.pdf p5	printed 217	measured 4.6	-97.86%
+og-20190308.pdf p5	printed 259	measured 4.8	-98.14%
+og-20190308.pdf p5	printed 34	measured 4.8	-85.84%
+og-20190308.pdf p5	printed 222	measured 4.8	-97.83%
+og-20190308.pdf p5	printed 8	measured 4.8	-39.83%
+og-20190308.pdf p5	printed 92	measured 4.8	-94.77%
+og-20190308.pdf p5	printed 149	measured 4.8	-96.77%
+og-20190308.pdf p5	printed 289	measured 4.8	-98.33%
+og-20190308.pdf p5	printed 128	measured 4.6	-96.38%
+og-20190308.pdf p5	printed 294	measured 4.6	-98.42%
+og-20190308.pdf p5	printed 1092	measured 4.6	-99.58%
+og-20190308.pdf p5	printed 69	measured 4.6	-93.28%
+og-20190308.pdf p5	printed 900	measured 4.6	-99.48%
+og-20190308.pdf p5	printed 254	measured 4.6	-98.18%
+og-20190308.pdf p5	printed 164	measured 4.6	-97.17%
+og-20190308.pdf p5	printed 92	measured 1.6	-98.25%
+og-20190308.pdf p5	printed 294	measured 53.1	-81.95%
+og-20190308.pdf p5	printed 128	measured 132.2	3.28%
+og-20190308.pdf p6	printed 222	measured 48.7	-78.06%
+og-20190308.pdf p6	printed 217	measured 121.9	-43.81%
+og-20190308.pdf p6	printed 34	measured 5.8	-83.02%
+og-20190308.pdf p6	printed 259	measured 86.0	-66.79%
+og-20190309.pdf p1	printed 222	measured 1633.2	635.68%
+og-20190309.pdf p1	printed 217	measured 1651.9	661.24%
+og-20190309.pdf p1	printed 259	measured 230.0	-11.18%
+og-20190309.pdf p1	printed 294	measured 577.7	96.51%
+og-20190309.pdf p1	printed 288	measured 3406.6	1082.86%
+og-20190309.pdf p1	printed 4174	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190309.pdf p1	printed 1421	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190309.pdf p1	printed 901	measured 3141.9	248.71%
+og-20190309.pdf p1	printed 9000	measured 143329.0	1492.54%
+og-20190309.pdf p1	printed 259	measured 40998.3	15729.45%
+og-20190309.pdf p1	printed 164	measured 2831.1	1626.26%
+og-20190309.pdf p1	printed 1092	measured 40998.3	3654.42%
+og-20190309.pdf p1	printed 1092	measured 3403.9	211.71%
+og-20190309.pdf p1	printed 69	measured 40998.3	59317.77%
+og-20190309.pdf p1	printed 1834	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190309.pdf p1	printed 222	measured 22026.9	9822.03%
+og-20190309.pdf p1	printed 254	measured 1932.1	660.68%
+og-20190309.pdf p1	printed 254	measured 3143.0	1137.40%
+og-20190309.pdf p1	printed 901	measured 22026.9	2344.72%
+og-20190309.pdf p1	printed 289	measured 40998.3	14086.25%
+og-20190309.pdf p1	printed 294	measured 22026.9	7392.15%
+og-20190309.pdf p1	printed 128	measured 22026.9	17108.52%
+og-20190309.pdf p1	printed 254	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190309.pdf p1	printed 254	measured 40386.3	15800.11%
+og-20190309.pdf p1	printed 665	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190309.pdf p1	printed 34	measured 22026.9	64685.03%
+og-20190309.pdf p1	printed 217	measured 22026.9	10050.65%
+og-20190309.pdf p1	printed 5	measured 22026.9	440438.19%
+og-20190309.pdf p1	printed 92	measured 22026.9	23842.29%
+og-20190309.pdf p1	printed 152	measured 22026.9	14391.39%
+og-20190309.pdf p1	printed 164	measured 59357.6	36093.68%
+og-20190309.pdf p4	printed 288	measured 543.7	88.79%
+og-20190309.pdf p4	printed 164	measured 284.9	73.73%
+og-20190309.pdf p4	printed 901	measured 219.2	-75.67%
+og-20190309.pdf p4	printed 152	measured 37.8	-75.15%
+og-20190309.pdf p4	printed 5	measured -	the click is on a line; click inside the room
+og-20190309.pdf p4	printed 1092	measured 274.9	-74.83%
+og-20190309.pdf p4	printed 254	measured 78.8	-68.97%
+og-20190309.pdf p4	printed 4174	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190309.pdf p4	printed 69	measured 21.6	-68.72%
+og-20190309.pdf p4	printed 217	measured 4.6	-97.86%
+og-20190309.pdf p4	printed 259	measured 4.6	-98.21%
+og-20190309.pdf p4	printed 34	measured 4.6	-86.37%
+og-20190309.pdf p4	printed 222	measured 4.6	-97.91%
+og-20190309.pdf p4	printed 5	measured 4.8	-3.73%
+og-20190309.pdf p4	printed 92	measured 4.8	-94.77%
+og-20190309.pdf p4	printed 152	measured 4.8	-96.83%
+og-20190309.pdf p4	printed 289	measured 4.8	-98.33%
+og-20190309.pdf p4	printed 128	measured 4.8	-96.24%
+og-20190309.pdf p4	printed 294	measured 4.8	-98.36%
+og-20190309.pdf p4	printed 1092	measured 4.6	-99.58%
+og-20190309.pdf p4	printed 69	measured 4.6	-93.28%
+og-20190309.pdf p4	printed 901	measured 4.6	-99.49%
+og-20190309.pdf p4	printed 254	measured 4.6	-98.18%
+og-20190309.pdf p4	printed 164	measured 4.6	-97.17%
+og-20190309.pdf p4	printed 92	measured 42.1	-54.27%
+og-20190309.pdf p4	printed 294	measured 285.4	-2.94%
+og-20190309.pdf p4	printed 130	measured 139.3	7.14%
+og-20190309.pdf p5	printed 222	measured 48.7	-78.04%
+og-20190309.pdf p5	printed 217	measured 253.8	16.96%
+og-20190309.pdf p5	printed 4174	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+og-20190309.pdf p5	printed 34	measured 5.8	-83.02%
+og-20190309.pdf p5	printed 217	measured 4.6	-97.86%
+og-20190309.pdf p5	printed 259	measured 70.9	-72.62%
+og-20190309.pdf p5	printed 259	measured 4.6	-98.21%
+og-20190309.pdf p5	printed 34	measured 4.6	-86.37%
+og-20190309.pdf p5	printed 222	measured 4.6	-97.91%
+og-20190309.pdf p5	printed 5	measured 4.6	-7.30%
+og-20190309.pdf p5	printed 92	measured 4.6	-94.96%
+og-20190309.pdf p5	printed 152	measured 4.6	-96.95%
+og-20190309.pdf p5	printed 289	measured 4.8	-98.33%
+og-20190309.pdf p5	printed 128	measured 4.8	-96.24%
+og-20190309.pdf p5	printed 294	measured 4.8	-98.36%
+og-20190309.pdf p5	printed 1092	measured 4.8	-99.56%
+og-20190309.pdf p5	printed 69	measured 4.8	-93.02%
+og-20190309.pdf p5	printed 901	measured 4.8	-99.47%
+og-20190309.pdf p5	printed 254	measured 4.8	-98.10%
+og-20190309.pdf p5	printed 164	measured 4.6	-97.17%
+vr-20170410.pdf p1	printed 4107	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+vr-20170410.pdf p1	printed 1708	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+vr-20170410.pdf p1	printed 287	measured 28.0	-90.24%
+vr-20170410.pdf p1	printed 294	measured 28.0	-90.48%
+vr-20170410.pdf p1	printed 37	measured 15.1	-59.17%
+vr-20170410.pdf p1	printed 6	measured 28.0	366.62%
+vr-20170410.pdf p1	printed 65	measured 28.0	-56.93%
+vr-20170410.pdf p1	printed 7	measured 28.0	299.96%
+vr-20170410.pdf p1	printed 38	measured 15.1	-60.24%
+vr-20170410.pdf p1	printed 99	measured 15.1	-84.74%
+vr-20170410.pdf p1	printed 7	measured 28.0	299.96%
+vr-20170410.pdf p1	printed 38	measured 15.1	-60.24%
+vr-20170410.pdf p1	printed 99	measured 15.1	-84.74%
+vr-20170410.pdf p1	printed 95	measured 15.1	-84.10%
+vr-20170410.pdf p1	printed 410	measured 28.0	-93.17%
+vr-20170410.pdf p1	printed 226	measured 15.1	-93.32%
+vr-20170410.pdf p1	printed 1702	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+vr-20170410.pdf p1	printed 409	measured 28.0	-93.15%
+vr-20170410.pdf p1	printed 113	measured 15.1	-86.63%
+vr-20170410.pdf p1	printed 17	measured 28.0	64.69%
+vr-20170410.pdf p1	printed 168	measured 15.1	-91.01%
+vr-20170410.pdf p1	printed 5	measured 28.0	459.94%
+vr-20170410.pdf p1	printed 35	measured 15.1	-56.83%
+vr-20170410.pdf p1	printed 137	measured 15.1	-88.97%
+vr-20170410.pdf p1	printed 5	measured 28.0	459.94%
+vr-20170410.pdf p1	printed 40	measured 15.6	-61.12%
+vr-20170410.pdf p1	printed 117	measured 15.1	-87.09%
+vr-20170410.pdf p1	printed 54	measured 15.1	-72.02%
+vr-20170410.pdf p1	printed 141	measured 28.0	-80.14%
+vr-20170410.pdf p1	printed 5	measured 28.0	459.94%
+vr-20170410.pdf p1	printed 7	measured 28.0	299.96%
+vr-20170410.pdf p1	printed 120	measured 28.0	-76.67%
+vr-20170410.pdf p1	printed 6	measured 28.0	366.62%
+vr-20170410.pdf p1	printed 37	measured 15.6	-57.97%
+vr-20170410.pdf p1	printed 128	measured 15.1	-88.20%
+vr-20170410.pdf p1	printed 6	measured 28.0	366.62%
+vr-20170410.pdf p1	printed 37	measured 15.1	-59.17%
+vr-20170410.pdf p1	printed 114	measured 15.1	-86.75%
+vr-20170410.pdf p1	printed 698	measured -	the area is not closed (it runs into the rest of the sheet): close the opening or trace it
+vr-20170410.pdf p1	printed 264	measured 40.4	-84.68%
+vr-20170410.pdf p1	printed 434	measured 28.0	-93.55%
+
+rooms 298; measured 237; within 1%: 3; within 2%: 5; within 5%: 8; refused 61 (gap 0 pt, 2 px/pt)
+median |error| 93.23%

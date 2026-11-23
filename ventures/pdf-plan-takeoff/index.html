@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF Plan Takeoff — free scale-checked takeoff in your browser</title>
+<meta name="description" content="Measure lengths, areas and counts on a construction drawing PDF in your browser. Reads each view's printed scale, checks it against the dimension strings, and catches half-size prints. Free, nothing uploaded.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23205e4a'/%3E%3Cpath%20d='M7%2024L24%207M7%2024h6M7%2024v-6'%20stroke='%23fff'%20stroke-width='3'%20fill='none'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://marisstella.app/pdf-plan-takeoff/">
+<style>
+:root{--bg:#f7f8f7;--fg:#1a1f1d;--mut:#56605b;--line:#d4dad6;--card:#fff;--acc:#205e4a;--chip:#e7eeea;--warn:#8a5a00;--bad:#a33a2a;--good:#2f6b3a;--sheet:#fff;--ink:#1a1f1d;--meas:#d0452b}
+@media (prefers-color-scheme:dark){:root{--bg:#121513;--fg:#e8ebe9;--mut:#a2aca6;--line:#2f3632;--card:#1a1e1c;--acc:#7cc3a6;--chip:#232926;--warn:#e2b45a;--bad:#f08b7a;--good:#7cc48a;--sheet:#f4f4f1;--ink:#1a1f1d;--meas:#d0452b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:80rem;margin:0 auto;padding:1.25rem 16px 3rem}
+h1{font-size:1.9rem;line-height:1.2;margin:.4rem 0 .5rem}
+h2{font-size:1.25rem;margin:2rem 0 .5rem}
+h3{font-size:1.02rem;margin:1.2rem 0 .3rem}
+p{margin:.4rem 0 .8rem}
+a{color:var(--acc)}
+.lede{color:var(--mut);max-width:52rem}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:1rem;background:var(--card);display:flex;flex-wrap:wrap;gap:.75rem;align-items:center}
+.drop.over{border-color:var(--acc)}
+button,select,input[type=text]{font:inherit}
+button{border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:.4rem .8rem;cursor:pointer}
+button.secondary{background:transparent;color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+.tools{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:.6rem 0}
+.tools button{background:transparent;color:var(--fg);border-color:var(--line);padding:.3rem .65rem}
+.tools button[aria-pressed=true]{background:var(--acc);color:#fff;border-color:var(--acc)}
+.tools .sep{width:1px;height:1.6rem;background:var(--line);margin:0 .2rem}
+select,input[type=text]{border:1px solid var(--line);border-radius:8px;padding:.3rem .5rem;background:var(--card);color:var(--fg);max-width:100%}
+#work[hidden]{display:none}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 20rem;gap:1rem}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#d9ddda;height:70vh;min-height:22rem;touch-action:none}
+canvas{display:block;width:100%;height:100%;cursor:crosshair}
+.stage.pan canvas{cursor:grab}
+.hud{position:absolute;left:.5rem;bottom:.5rem;background:rgba(255,255,255,.92);color:#1a1f1d;border-radius:6px;padding:.15rem .5rem;font-size:.85rem;pointer-events:none;max-width:calc(100% - 1rem)}
+.side{display:flex;flex-direction:column;gap:.8rem}
+.panel{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:.7rem .8rem}
+.panel h2{font-size:1rem;margin:0 0 .4rem}
+.verdict{border-left:4px solid var(--mut);padding:.35rem .6rem;background:var(--chip);border-radius:4px;font-size:.92rem;margin:.3rem 0}
+.verdict.confirmed{border-color:var(--good)}.verdict.half,.verdict.mismatch{border-color:var(--bad)}.verdict.inferred,.verdict.unchecked{border-color:var(--warn)}
+.note{color:var(--mut);font-size:.9rem}
+#status{min-height:1.4rem;color:var(--mut)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:.5rem}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:.38rem .5rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:.76rem;text-transform:uppercase;letter-spacing:.03em;color:var(--mut)}
+td.num{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+td button{padding:.1rem .45rem;font-size:.8rem}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+kbd{border:1px solid var(--line);border-radius:4px;padding:0 .3rem;font-size:.82rem;background:var(--card)}
+small{color:var(--mut)}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"PDF Plan Takeoff","url":"https://marisstella.app/pdf-plan-takeoff/","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in the browser)","description":"Measures lengths, areas and counts on a vector construction drawing PDF in the browser, snapping to the drawn line work. Reads every view's printed scale note, checks the notes against the sheet's dimension strings, flags a set printed at half size, and exports the takeoff as CSV. Nothing is uploaded.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does it know the scale?","acceptedAnswer":{"@type":"Answer","text":"It reads the scale notes printed on the sheet (1/4\" = 1'-0\", 1\" = 20', 1:100) and where each one sits. A measurement takes the note of the view it falls in: the note below it and to its left, where view titles go. Then it reads the dimension strings on the sheet and divides each one's printed value by the length of the line it labels, which gives the scale the sheet was actually printed at."}},{"@type":"Question","name":"What is the half-size check?","acceptedAnswer":{"@type":"Answer","text":"A 22x34 set printed on 11x17 paper still says 1/4\" = 1'-0\", but every line is half as long, so every measurement taken at the printed scale is half what it should be and every area a quarter. When most of a sheet's dimension strings agree with twice the noted scale, the tool says the sheet is a half-size print and values measurements at the corrected scale."}},{"@type":"Question","name":"Is my drawing uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The PDF is read by code running in this tab; nothing is sent anywhere."}},{"@type":"Question","name":"Does it work on scanned drawings?","acceptedAnswer":{"@type":"Answer","text":"It shows a scanned or rasterised sheet as line work and you can measure on it after calibrating with two clicks on a known dimension, but snapping and the scale check need the vector line work and text a CAD or BIM export has."}},{"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"Yes, and MIT licensed. It runs from a folder with no dependencies; the source is on GitHub."}}]}</script>
+</head>
+<body>
+<main>
+<p class="note"><a href="../">All tools</a></p>
+<h1>PDF plan takeoff</h1>
+<p class="lede">Measure lengths, areas and counts on a drawing PDF, with clicks that snap to the drawn walls. It reads each view's printed scale, checks it against the sheet's own dimension strings, and tells you when a set was printed at half size. Export the takeoff as CSV. Free, and the drawing never leaves your browser.</p>
+
+<div class="drop" id="drop">
+  <label>Drawing PDF <input id="file" type="file" accept=".pdf,application/pdf"></label>
+  <button type="button" class="secondary" id="sample">Try a sample plan</button>
+  <span class="note">or drop a PDF here</span>
+</div>
+<p id="status" role="status"></p>
+
+<section id="work" hidden>
+  <div class="tools" role="toolbar" aria-label="Takeoff tools">
+    <label>Sheet <select id="page"></select></label>
+    <span class="sep"></span>
+    <button type="button" data-tool="pan" aria-pressed="true" title="Drag to move; wheel to zoom">Pan</button>
+    <button type="button" data-tool="length" aria-pressed="false" title="Click points; double-click or Enter to finish">Length</button>
+    <button type="button" data-tool="area" aria-pressed="false" title="Click corners; double-click or Enter to close">Area</button>
+    <button type="button" data-tool="count" aria-pressed="false" title="Click each item; Enter to finish">Count</button>
+    <button type="button" data-tool="fill" aria-pressed="false" title="Click inside an outline the line work closes">Fill area</button>
+    <button type="button" data-tool="calibrate" aria-pressed="false" title="Click both ends of a known length">Calibrate</button>
+    <span class="sep"></span>
+    <button type="button" id="zin" title="Zoom in">+</button>
+    <button type="button" id="zout" title="Zoom out">&minus;</button>
+    <button type="button" id="fit">Fit</button>
+    <label class="row" style="gap:.3rem"><input type="checkbox" id="snap" checked> Snap</label>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="stage pan" id="stage"><canvas id="cv" aria-label="Drawing sheet"></canvas><div class="hud" id="hud">Drag to move, wheel or pinch to zoom.</div></div>
+      <p class="note">Keys: <kbd>Enter</kbd> or double-click finishes, <kbd>Backspace</kbd> removes the last point, <kbd>Esc</kbd> cancels. Hold <kbd>Space</kbd> to pan while measuring.</p>
+    </div>
+    <div class="side">
+      <div class="panel" id="scalePanel">
+        <h2>Scale on this sheet</h2>
+        <div id="verdict" class="verdict unchecked">No sheet yet.</div>
+        <label>Value measurements at<br><select id="scaleMode"></select></label>
+        <p class="note" id="scaleNote"></p>
+      </div>
+      <div class="panel">
+        <h2>Label</h2>
+        <input type="text" id="label" placeholder="e.g. Interior partition" aria-label="Label for the next measurement" style="width:100%">
+        <p class="note">New measurements take this label; the CSV totals them by label.</p>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:1rem"><h2 style="margin:0">Takeoff</h2><button type="button" id="csv" disabled>Download CSV</button><button type="button" class="secondary" id="clear" disabled>Clear all</button></div>
+  <div class="tablewrap"><table><thead><tr><th>#</th><th>Sheet</th><th>Label</th><th>Type</th><th>Quantity</th><th>Scale</th><th></th></tr></thead><tbody id="rows"><tr><td colspan="7" class="note">No measurements yet.</td></tr></tbody></table></div>
+</section>
+
+<h2>Why the scale check matters</h2>
+<p>Every takeoff number is a measured line times a scale, so a wrong scale is wrong on every line of the estimate. The two usual ways it goes wrong: a sheet with several views at different scales (a plan at 1/4" and a detail at 1-1/2" on the same page), and a set printed at a size other than the one it was drawn for. An 11x17 print of a 22x34 set still says <code>1/4" = 1'-0"</code> under every view, but every line is half as long, so lengths come out half and areas a quarter. This tool picks the note for the view each measurement sits in, and it reads the drafter's own dimension strings: a <code>24' - 0"</code> dimension labels a line, and the line's length on the sheet says what scale the sheet is really at. When most dimensions agree with twice the printed scale, it says so and corrects for it.</p>
+
+<h2>How it works</h2>
+<p>The PDF is read in this tab with no library: the drawing's paths are flattened to line segments in the sheet's own coordinates (points, 1/72 inch), and its text comes out with positions. Clicks snap to segment ends, midpoints and the nearest point on a line. Scale notes are read in architectural (<code>3/16" = 1'-0"</code>), engineering (<code>1" = 20'</code>) and metric (<code>1:100</code>) forms. A dimension's span is measured between the witness lines that cross its dimension line, not to the line's ends, since most programs carry the line a little past them. <b>Fill area</b> rasterises the line work around your click and fills the region it closes, ignoring curves (door swings, fixtures) so a door drawn with its leaf closes its opening; the filled region is shown so you can see what was measured.</p>
+
+<h2>How it was checked</h2>
+<p>On 14 public drawing sets (180 pages of Revit sheets from open architecture projects on GitHub) it read 397 scale notes on 142 pages and matched 1,385 dimension strings to their lines. On 47 pages the dimensions settled the scale: 44 agreed with a printed note and 3 pages with no note named one (1/8", 1/8" and 3/16"). Shrunk to half size, 43 of the 44 were flagged as half-size prints and none of the 180 originals was; the one miss is a sheet whose two views are at 1/4" and 1/2", where a half-size 1/2" view looks exactly like a full-size 1/4" one. The fill-area tool did poorly on the same sets: most of their plans are image tiles with dimension lines crossing the rooms, and only 5 of 298 rooms Revit tagged with an area came within 2% of the tag. Trace rooms with the Area tool on such sets. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pdf-plan-takeoff#how-it-was-checked">Details and scripts</a>.</p>
+
+<h2>Questions</h2>
+<h3>How is this different from Bluebeam, PlanSwift or On-Screen Takeoff?</h3>
+<p>Those are full estimating desktops with a license fee per seat; most read the scale only when you set it per page. This is a free browser tool for the measuring step: it reads the scale notes for you, checks them against the dimensions, and exports a CSV you can paste into the estimate you already keep. It does not price, assemble or keep a project database.</p>
+<h3>Does it work on scanned drawings?</h3>
+<p>It shows a rasterised sheet's line work and you can measure on it after calibrating with two clicks on a known dimension, but snapping and the scale check need the vector line work and text that a CAD or BIM export has. JPEG-compressed scans are read with the browser's own image decoder.</p>
+<h3>Is my drawing uploaded?</h3>
+<p>No. The PDF is read by code running in this tab; nothing is sent anywhere.</p>
+<h3>Can I run it on my own machine?</h3>
+<p>Yes. It is MIT licensed and has no dependencies: <code>node cli.mjs set.pdf</code> prints every sheet's scale notes and the dimension check. Source on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pdf-plan-takeoff">GitHub</a>.</p>
+
+<p>Related: the <a href="../drawing-set-index/">drawing set index</a>, the <a href="../ifc-quantity-takeoff/">IFC quantity takeoff</a> for BIM models, and the <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
+<p><small id="usage"></small> <button type="button" class="secondary" id="optout" style="font-size:.8rem;padding:.2rem .5rem">Turn usage counting off</button></p>
+<p><small><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, construction, engineering, estimating or professional advice, and it does not replace a qualified professional or the design team. It reads the PDF you give it and can misread a scale, snap to the wrong line or mismeasure; drawings are often not to scale, and written dimensions govern over scaled ones. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</small></p>
+</main>
+<script type="module">
+import { readSheets } from "./geometry.mjs";
+import { inflate } from "./inflate-browser.mjs";
+import { scaleNotes, assignScale, sheetVerdict, parseFeetInches, formatFeetInches } from "./scale.mjs";
+import { SnapIndex, valueOf, takeoffCsv, polylineLength } from "./measure.mjs";
+import { roomAt, loadImagesNear } from "./rooms.mjs";
+import { samplePdf } from "./sample.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const cv = $("#cv"), ctx = cv.getContext("2d"), stage = $("#stage"), hud = $("#hud");
+
+let sheet = null, fileKey = "", baseName = "takeoff";
+let pageIdx = 0, page = null, notes = [], verdict = null, snapper = null, path = null, rasters = [];
+const pageState = new Map(); // page number -> {mode, calibrated}
+let tool = "pan", draft = null, hover = null, measurements = [];
+let view = { z: 1, tx: 0, ty: 0 };
+
+// ---- page geometry: sheet space (PDF points, y up, maybe /Rotate) -> display (y down)
+function disp(x, y) {
+  const [x0, y0, x1, y1] = page.box;
+  switch (page.rotate) {
+    case 90: return [y - y0, x - x0];
+    case 180: return [x1 - x, y - y0];
+    case 270: return [y1 - y, x1 - x];
+    default: return [x - x0, y1 - y];
+  }
+}
+function undisp(dx, dy) {
+  const [x0, y0, x1, y1] = page.box;
+  switch (page.rotate) {
+    case 90: return [dy + x0, dx + y0];
+    case 180: return [x1 - dx, dy + y0];
+    case 270: return [x1 - dy, y1 - dx];
+    default: return [dx + x0, y1 - dy];
+  }
+}
+const dispSize = () => { const w = page.box[2] - page.box[0], h = page.box[3] - page.box[1]; return page.rotate % 180 ? [h, w] : [w, h]; };
+// the display transform as an affine [a b c d e f] (x' = a x + c y + e)
+function dispMatrix() {
+  const [x0, y0, x1, y1] = page.box;
+  switch (page.rotate) {
+    case 90: return [0, 1, 1, 0, -y0, -x0];
+    case 180: return [-1, 0, 0, 1, x1, -y0];
+    case 270: return [0, -1, -1, 0, y1, x1];
+    default: return [1, 0, 0, -1, -x0, y1];
+  }
+}
+const mul = (m, n) => [m[0] * n[0] + m[1] * n[2], m[0] * n[1] + m[1] * n[3], m[2] * n[0] + m[3] * n[2], m[2] * n[1] + m[3] * n[3], m[4] * n[0] + m[5] * n[2] + n[4], m[4] * n[1] + m[5] * n[3] + n[5]];
+const toScreen = (x, y) => { const [dx, dy] = disp(x, y); return [dx * view.z + view.tx, dy * view.z + view.ty]; };
+const toSheet = (sx, sy) => { const [x, y] = undisp((sx - view.tx) / view.z, (sy - view.ty) / view.z); return { x, y }; };
+
+function fit() {
+  const r = stage.getBoundingClientRect();
+  const [w, h] = dispSize();
+  view.z = Math.min(r.width / w, r.height / h) * 0.96;
+  view.tx = (r.width - w * view.z) / 2; view.ty = (r.height - h * view.z) / 2;
+  draw();
+}
+
+// ---- drawing
+function buildPath() {
+  path = new Path2D();
+  const s = page.segs;
+  for (let k = 0; k < s.length; k += 4) {
+    const [a, b] = disp(s[k], s[k + 1]), [c, d] = disp(s[k + 2], s[k + 3]);
+    path.moveTo(a, b); path.lineTo(c, d);
+  }
+}
+async function buildRasters() {
+  rasters = [];
+  for (const pl of page.images || []) {
+    const img = await sheet.decodeImage(pl.num);
+    if (!img) continue;
+    const c = document.createElement("canvas"); c.width = img.w; c.height = img.h;
+    const g = c.getContext("2d"), d = g.createImageData(img.w, img.h);
+    for (let i = 0; i < img.ink.length; i++) if (img.ink[i]) { d.data[4 * i] = 26; d.data[4 * i + 1] = 31; d.data[4 * i + 2] = 29; d.data[4 * i + 3] = 255; }
+    g.putImageData(d, 0, 0);
+    // image pixel (i, j) -> unit square (i/w, 1 - j/h) -> sheet (ctm) -> display
+    rasters.push({ canvas: c, m: mul(mul([1 / img.w, 0, 0, -1 / img.h, 0, 1], pl.ctm), dispMatrix()) });
+  }
+  draw();
+}
+function draw() {
+  const r = stage.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  if (!page) return;
+  const V = [view.z * dpr, 0, 0, view.z * dpr, view.tx * dpr, view.ty * dpr];
+  ctx.setTransform(...V);
+  const [w, h] = dispSize();
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+  ctx.imageSmoothingEnabled = view.z < 1.5;
+  for (const ras of rasters) { ctx.setTransform(...mul(ras.m, V)); ctx.drawImage(ras.canvas, 0, 0); }
+  ctx.setTransform(...V);
+  ctx.strokeStyle = "#1a1f1d"; ctx.lineWidth = 0.8 / view.z; ctx.stroke(path);
+  // text
+  ctx.fillStyle = "#3b4a7a";
+  for (const t of page.runs) {
+    if (t.size * view.z < 3) continue;
+    const [dx, dy] = disp(t.x, t.y);
+    const ang = -((t.angle || 0) + (page.rotate === 90 ? -90 : page.rotate === 270 ? 90 : page.rotate === 180 ? 180 : 0)) * Math.PI / 180;
+    ctx.save(); ctx.translate(dx, dy); ctx.rotate(ang); ctx.font = `${t.size}px sans-serif`; ctx.fillText(t.text, 0, 0); ctx.restore();
+  }
+  // measurements
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.scale(dpr, dpr);
+  for (const m of measurements) if (m.page === page.page) drawMeasure(m, false);
+  if (draft) drawMeasure({ ...draft, pts: hover ? [...draft.pts, hover] : draft.pts }, true);
+  if (hover && tool !== "pan" && tool !== "fill") {
+    const [sx, sy] = toScreen(hover.x, hover.y);
+    ctx.strokeStyle = hover.kind ? "#0a7d55" : "#888"; ctx.lineWidth = 1.5;
+    if (hover.kind === "end") ctx.strokeRect(sx - 5, sy - 5, 10, 10);
+    else if (hover.kind === "mid") { ctx.beginPath(); ctx.moveTo(sx, sy - 6); ctx.lineTo(sx + 6, sy + 5); ctx.lineTo(sx - 6, sy + 5); ctx.closePath(); ctx.stroke(); }
+    else { ctx.beginPath(); ctx.arc(sx, sy, 5, 0, 7); ctx.stroke(); }
+  }
+}
+function drawMeasure(m, live) {
+  ctx.strokeStyle = ctx.fillStyle = live ? "#0a7d55" : "#d0452b"; ctx.lineWidth = 2;
+  if (m.type === "fill" && m.overlay) {
+    ctx.save(); ctx.globalAlpha = 0.35;
+    // the overlay canvas is in sheet axes; draw it through the display transform
+    const [x0, y0] = toScreen(m.overlay.x0, m.overlay.y0), [x1, y1] = toScreen(m.overlay.x1, m.overlay.y0), [x2, y2] = toScreen(m.overlay.x0, m.overlay.y1);
+    const cw = m.overlay.canvas.width, ch = m.overlay.canvas.height;
+    ctx.setTransform((x1 - x0) / cw * (window.devicePixelRatio || 1), (y1 - y0) / cw * (window.devicePixelRatio || 1), (x2 - x0) / ch * (window.devicePixelRatio || 1), (y2 - y0) / ch * (window.devicePixelRatio || 1), x0 * (window.devicePixelRatio || 1), y0 * (window.devicePixelRatio || 1));
+    ctx.drawImage(m.overlay.canvas, 0, 0);
+    ctx.restore();
+  }
+  const pts = m.pts.map((p) => toScreen(p.x, p.y));
+  if (m.type === "count") { for (const [x, y] of pts) { ctx.beginPath(); ctx.arc(x, y, 6, 0, 7); ctx.fill(); } return; }
+  if (pts.length) {
+    ctx.beginPath(); ctx.moveTo(...pts[0]); for (const p of pts.slice(1)) ctx.lineTo(...p);
+    if (m.type === "area" && !live) ctx.closePath();
+    ctx.stroke();
+    if (m.type === "area" && !live) { ctx.save(); ctx.globalAlpha = 0.15; ctx.fill(); ctx.restore(); }
+  }
+}
+
+// ---- scale
+function scaleFor(pts) {
+  const st = pageState.get(page.page) || {};
+  const factor = verdict && verdict.verdict === "half size" && st.halfFix !== false ? 2 : 1;
+  const adj = (s, from) => s ? { ...s, ratio: s.ratio * (s.calibrated ? 1 : factor), label: s.label + (factor === 2 && !s.calibrated ? " (x2: half-size print)" : "") , from } : null;
+  if (st.mode === "calibrated" && st.calibrated) return adj(st.calibrated, "calibrated");
+  if (st.mode && st.mode.startsWith("note:")) { const n = notes.filter((x) => x.ratio)[Number(st.mode.slice(5))]; if (n) return adj(n, "chosen note"); }
+  if (st.mode === "dims" && verdict && verdict.ratio) return { ratio: verdict.ratio, system: "imperial", label: verdict.label || `1:${verdict.ratio}`, from: "dimensions" };
+  const a = assignScale(notes, pts);
+  if (a) return adj(a, "view's note");
+  if (verdict && verdict.verdict === "inferred") return { ratio: verdict.ratio, system: "imperial", label: verdict.label, from: "dimensions" };
+  return null;
+}
+function showScale() {
+  const v = verdict, el = $("#verdict");
+  const usable = notes.filter((n) => n.ratio);
+  const names = [...new Set(usable.map((n) => n.label))];
+  const cls = { confirmed: "confirmed", "half size": "half", inferred: "inferred", mismatch: "mismatch", unchecked: "unchecked" }[v.verdict];
+  el.className = "verdict " + cls;
+  const st = pageState.get(page.page) || {};
+  el.innerHTML = {
+    confirmed: `<b>Scale confirmed.</b> ${v.support} of ${v.of} dimension strings agree with a printed note (${esc(usable.find((n) => n.ratio === v.ratio)?.label || "")}).`,
+    "half size": `<b>Printed at half size.</b> ${v.support} of ${v.of} dimension strings measure half their written length at the printed scale. Measurements are valued at twice the printed ratio. <button type="button" class="secondary" id="halfToggle">${st.halfFix === false ? "Correct for it" : "Use the printed scale"}</button>`,
+    inferred: `<b>No scale note found;</b> ${v.support} of ${v.of} dimension strings say ${esc(v.label)}, which is used.`,
+    mismatch: `<b>Check the scale.</b> ${v.support} of ${v.of} dimension strings say ${esc(v.label)}, which no note on this sheet gives. Calibrate on a dimension before measuring.`,
+    unchecked: v.of ? `Too few dimension strings (${v.of}) agree on a scale to check the notes${names.length ? "" : "; no scale note found either, so calibrate on a known length"}.` : (names.length ? "No dimension strings to check the notes against." : "No scale note and no dimensions: calibrate on a known length."),
+  }[v.verdict];
+  const ht = $("#halfToggle");
+  if (ht) ht.onclick = () => { st.halfFix = st.halfFix === false; pageState.set(page.page, st); showScale(); renderRows(); draw(); };
+  const sel = $("#scaleMode");
+  const opts = [["auto", usable.length > 1 ? "Each view's own note (automatic)" : usable.length ? `The sheet's note: ${usable[0].label}` : "No note: calibrate"]];
+  if (usable.length > 1) usable.forEach((n, i) => opts.push([`note:${i}`, `${n.label} (note ${i + 1})`]));
+  if (v.ratio && (v.verdict === "inferred" || v.verdict === "mismatch")) opts.push(["dims", `${v.label} (from the dimensions)`]);
+  if (st.calibrated) opts.push(["calibrated", `Calibrated: ${st.calibrated.label}`]);
+  sel.innerHTML = opts.map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join("");
+  sel.value = st.mode && opts.some((o) => o[0] === st.mode) ? st.mode : "auto";
+  $("#scaleNote").textContent = names.length ? `Notes on this sheet: ${names.join(", ")}.` : "";
+}
+
+// ---- loading
+async function openPdf(bytes, name) {
+  $("#status").textContent = "Reading…";
+  const t0 = performance.now();
+  const decodeJpeg = async (b) => {
+    try {
+      const bmp = await createImageBitmap(new Blob([b], { type: "image/jpeg" }));
+      const c = new OffscreenCanvas(bmp.width, bmp.height), g = c.getContext("2d"); g.drawImage(bmp, 0, 0);
+      return { w: bmp.width, h: bmp.height, rgba: g.getImageData(0, 0, bmp.width, bmp.height).data };
+    } catch { return null; }
+  };
+  sheet = await readSheets(bytes, inflate, { decodeJpeg });
+  if (sheet.flags.notPdf) { $("#status").textContent = "That file is not a PDF."; return; }
+  if (sheet.flags.encrypted) { $("#status").textContent = "That PDF is encrypted; open it in a PDF viewer and save an unprotected copy first."; return; }
+  if (!sheet.pages.length) { $("#status").textContent = "No pages found in that PDF."; return; }
+  fileKey = `${name}:${bytes.length}`; baseName = name.replace(/\.[^.]+$/, "") || "takeoff";
+  measurements = []; pageState.clear();
+  try { const saved = JSON.parse(localStorage.getItem("pdf-plan-takeoff:" + fileKey) || "null"); if (Array.isArray(saved)) measurements = saved.filter((m) => m.type !== "fill"); } catch { /* storage optional */ }
+  $("#page").innerHTML = sheet.pages.map((p, i) => `<option value="${i}">${p.page}${sheetName(p) ? " · " + esc(sheetName(p)) : ""}</option>`).join("");
+  $("#work").hidden = false;
+  $("#status").textContent = `Read ${sheet.pages.length} page${sheet.pages.length > 1 ? "s" : ""} of ${name} in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+  record("pdf_read");
+  showPage(0);
+  renderRows();
+}
+function sheetName(p) {
+  // the largest sheet-number-shaped text, as a label for the page picker
+  let best = null;
+  for (const r of p.runs) if (/^[A-Z]{1,2}-?\d{1,3}(\.\d+)?$/.test(r.text.trim()) && (!best || r.size > best.size)) best = r;
+  return best && best.size >= 14 ? best.text.trim() : "";
+}
+function showPage(i) {
+  pageIdx = i; page = sheet.pages[i]; draft = null; hover = null;
+  notes = scaleNotes(page.runs); verdict = sheetVerdict(page, notes);
+  snapper = new SnapIndex(page.segs);
+  buildPath(); rasters = [];
+  if (!page.segs.length && !(page.images || []).length) $("#status").textContent = "This page has no line work to measure.";
+  showScale(); fit(); buildRasters();
+  if (verdict.verdict === "half size") record("half_size_found");
+  if (verdict.verdict === "confirmed") record("scale_confirmed");
+}
+
+// ---- interaction
+function setTool(t) {
+  tool = t; draft = null;
+  document.querySelectorAll("[data-tool]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tool === t)));
+  stage.classList.toggle("pan", t === "pan");
+  hud.textContent = { pan: "Drag to move, wheel or pinch to zoom.", length: "Click points along the run; double-click or Enter to finish.", area: "Click the corners; double-click or Enter to close.", count: "Click each item; Enter to finish the count.", fill: "Click inside a closed outline (a room, a slab).", calibrate: "Click both ends of a dimension you know." }[t];
+  draw();
+}
+document.querySelectorAll("[data-tool]").forEach((b) => b.addEventListener("click", () => setTool(b.dataset.tool)));
+function pointAt(e) {
+  const r = cv.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top;
+  const p = toSheet(sx, sy);
+  if ($("#snap").checked && snapper) { const s = snapper.snap(p.x, p.y, 8 / view.z); if (s) return s; }
+  return { x: p.x, y: p.y, kind: null };
+}
+let drag = null, spaceDown = false;
+const pointers = new Map();
+cv.addEventListener("pointerdown", (e) => {
+  cv.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (tool === "pan" || spaceDown || e.button === 1 || pointers.size > 1) { drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false }; return; }
+  drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false, click: true };
+});
+cv.addEventListener("pointermove", (e) => {
+  if (pointers.has(e.pointerId) && pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    const d0 = Math.hypot(a.x - b.x, a.y - b.y);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const [c, d] = [...pointers.values()];
+    const d1 = Math.hypot(c.x - d.x, c.y - d.y);
+    if (d0 > 0) { const r = cv.getBoundingClientRect(); zoomAt((c.x + d.x) / 2 - r.left, (c.y + d.y) / 2 - r.top, d1 / d0); }
+    return;
+  }
+  if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (drag && (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4 || !drag.click)) {
+    if (drag.click && Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) <= 4) return;
+    drag.moved = true; view.tx = drag.tx + e.clientX - drag.x; view.ty = drag.ty + e.clientY - drag.y; draw(); return;
+  }
+  if (tool !== "pan") { hover = pointAt(e); draw(); }
+});
+cv.addEventListener("pointerup", async (e) => {
+  pointers.delete(e.pointerId);
+  const d = drag; drag = null;
+  if (!d || d.moved || !d.click) return;
+  await clickAt(pointAt(e));
+});
+cv.addEventListener("dblclick", (e) => { e.preventDefault(); finish(); });
+function zoomAt(sx, sy, k) {
+  const z = Math.max(0.05, Math.min(80, view.z * k)); k = z / view.z;
+  view.tx = sx - (sx - view.tx) * k; view.ty = sy - (sy - view.ty) * k; view.z = z; draw();
+}
+cv.addEventListener("wheel", (e) => { e.preventDefault(); const r = cv.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.0015)); }, { passive: false });
+$("#zin").onclick = () => { const r = cv.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, 1.4); };
+$("#zout").onclick = () => { const r = cv.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, 1 / 1.4); };
+$("#fit").onclick = fit;
+window.addEventListener("resize", () => page && draw());
+window.addEventListener("keydown", (e) => {
+  if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+  if (e.key === " ") { spaceDown = true; e.preventDefault(); }
+  if (e.key === "Enter") finish();
+  if (e.key === "Escape") { draft = null; draw(); }
+  if (e.key === "Backspace" && draft) { draft.pts.pop(); if (!draft.pts.length) draft = null; draw(); e.preventDefault(); }
+});
+window.addEventListener("keyup", (e) => { if (e.key === " ") spaceDown = false; });
+
+async function clickAt(p) {
+  if (!page || tool === "pan") return;
+  const pt = { x: p.x, y: p.y };
+  if (tool === "fill") return fillAt(pt);
+  if (!draft) draft = { type: tool, page: page.page, pts: [] };
+  draft.pts.push(pt);
+  if (tool === "calibrate" && draft.pts.length === 2) {
+    const pts = draft.pts; draft = null; draw();
+    const ans = prompt("Real length of what you clicked (e.g. 24' - 6\", 12', 3.5 m):");
+    if (!ans) return;
+    const L = polylineLength(pts);
+    const metric = /m\s*$/i.test(ans.trim()) && !/'|"/.test(ans);
+    const real = metric ? parseFloat(ans) * 1000 : parseFeetInches(ans.trim()) ?? (Number(ans) ? Number(ans) * 12 : null); // mm or inches
+    if (!real || !L) { alert("Could not read that length."); return; }
+    const ratio = metric ? real / ((L / 72) * 25.4) : real / (L / 72);
+    const st = pageState.get(page.page) || {};
+    st.calibrated = { ratio, system: metric ? "metric" : "imperial", label: metric ? `1:${ratio.toFixed(1)}` : `${formatFeetInches(real)} over ${(L / 72).toFixed(3)}" on the sheet`, calibrated: true };
+    st.mode = "calibrated"; pageState.set(page.page, st);
+    record("calibrated");
+    showScale(); renderRows();
+    return;
+  }
+  draw();
+}
+async function fillAt(pt) {
+  hud.textContent = "Filling…";
+  const images = await loadImagesNear(sheet, page, pt);
+  const r = roomAt(page, pt, { images });
+  if (!r.ok) { hud.textContent = r.reason; return; }
+  // overlay: the filled pixels, cropped to the region's box, in sheet axes (row 0 at the bottom)
+  const k = r.pxPerPt, ix0 = Math.floor((r.bbox[0] - r.x0) * k), iy0 = Math.floor((r.bbox[1] - r.y0) * k);
+  const ix1 = Math.ceil((r.bbox[2] - r.x0) * k), iy1 = Math.ceil((r.bbox[3] - r.y0) * k);
+  const c = document.createElement("canvas"); c.width = Math.max(1, ix1 - ix0); c.height = Math.max(1, iy1 - iy0);
+  const g = c.getContext("2d"), d = g.createImageData(c.width, c.height);
+  for (let y = iy0; y < iy1; y++) for (let x = ix0; x < ix1; x++) if (r.mask[y * r.w + x]) { const o = ((y - iy0) * c.width + (x - ix0)) * 4; d.data[o] = 208; d.data[o + 1] = 69; d.data[o + 2] = 43; d.data[o + 3] = 255; }
+  g.putImageData(d, 0, 0);
+  const sc = scaleFor([pt]);
+  measurements.push({ type: "fill", page: page.page, pts: [pt], areaPt2: r.areaPt2, label: $("#label").value.trim(), scale: sc, scaleFrom: sc ? sc.from : "", overlay: { canvas: c, x0: r.x0 + ix0 / k, y0: r.y0 + iy0 / k, x1: r.x0 + ix1 / k, y1: r.y0 + iy1 / k } });
+  record("fill_measured");
+  hud.textContent = `Filled: ${valueOf(measurements[measurements.length - 1]).text}`;
+  renderRows(); draw();
+}
+function finish() {
+  if (!draft) return;
+  const need = { length: 2, area: 3, count: 1 }[draft.type] || 2;
+  if (draft.pts.length >= need) {
+    const sc = draft.type === "count" ? null : scaleFor(draft.pts);
+    measurements.push({ ...draft, label: $("#label").value.trim(), scale: sc, scaleFrom: sc ? sc.from : "" });
+    record(draft.type + "_measured");
+    hud.textContent = `${draft.type[0].toUpperCase() + draft.type.slice(1)}: ${valueOf(measurements[measurements.length - 1]).text}`;
+    renderRows();
+  }
+  draft = null; draw();
+}
+$("#page").addEventListener("change", (e) => showPage(Number(e.target.value)));
+$("#scaleMode").addEventListener("change", (e) => {
+  const st = pageState.get(page.page) || {}; st.mode = e.target.value; pageState.set(page.page, st);
+  // revalue this page's measurements at the chosen scale
+  for (const m of measurements) if (m.page === page.page && m.type !== "count") { m.scale = scaleFor(m.pts); m.scaleFrom = m.scale ? m.scale.from : ""; }
+  renderRows();
+});
+function save() {
+  try { localStorage.setItem("pdf-plan-takeoff:" + fileKey, JSON.stringify(measurements.filter((m) => m.type !== "fill").map(({ overlay, ...m }) => m))); } catch { /* storage optional */ }
+}
+function renderRows() {
+  save();
+  $("#csv").disabled = $("#clear").disabled = !measurements.length;
+  if (!measurements.length) { $("#rows").innerHTML = `<tr><td colspan="7" class="note">No measurements yet.</td></tr>`; return; }
+  $("#rows").innerHTML = measurements.map((m, i) => {
+    const v = valueOf(m);
+    return `<tr><td>${i + 1}</td><td>${m.page}</td><td>${esc(m.label || "")}</td><td>${m.type}</td><td class="num">${esc(v.text)}${v.perimeter ? `<br><small>perimeter ${v.perimeter.toFixed(2)} ${v.unit === "SF" ? "LF" : "m"}</small>` : ""}</td><td><small>${m.scale ? esc(m.scale.label) + (m.scaleFrom ? ` · ${esc(m.scaleFrom)}` : "") : "—"}</small></td><td><button type="button" class="secondary" data-del="${i}" aria-label="Delete measurement ${i + 1}">&times;</button></td></tr>`;
+  }).join("");
+  document.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => { measurements.splice(Number(b.dataset.del), 1); renderRows(); draw(); }));
+}
+$("#csv").addEventListener("click", () => {
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([takeoffCsv(measurements)], { type: "text/csv;charset=utf-8" })), download: `${baseName}-takeoff.csv` });
+  document.body.append(a); a.click(); a.remove();
+  record("csv_downloaded");
+});
+$("#clear").addEventListener("click", () => { if (confirm("Delete every measurement?")) { measurements = []; renderRows(); draw(); } });
+
+const fail = (err) => { $("#status").textContent = "Could not read the file: " + (err && err.message || err); };
+$("#file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) openPdf(new Uint8Array(await f.arrayBuffer()), f.name).catch(fail); });
+const drop = $("#drop");
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", async (e) => { e.preventDefault(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) openPdf(new Uint8Array(await f.arrayBuffer()), f.name).catch(fail); });
+$("#sample").addEventListener("click", () => { record("sample_loaded"); openPdf(samplePdf(), "sample-plan.pdf").catch(fail); });
+$("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
+if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+$("#usage").textContent = "Anonymous counts of features used stay in this browser; nothing is sent.";
+record("page_viewed");
+window.__takeoff = { get measurements() { return measurements; }, get verdict() { return verdict; }, get notes() { return notes; }, clickAt, finish, setTool, toScreen };
+</script>
+</body>
+</html>

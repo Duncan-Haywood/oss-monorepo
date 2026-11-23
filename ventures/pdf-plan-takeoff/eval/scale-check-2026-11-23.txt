@@ -1,0 +1,185 @@
+aa-20180706.pdf p1	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180706.pdf p2	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180706.pdf p3	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180706.pdf p4	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180706.pdf p5	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180706.pdf p6	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180706.pdf p7	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180706.pdf p8	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180706.pdf p9	notes []	dims 4	agree 0	verdict inferred 96 (3/4)	half-size print: inferred 192
+aa-20180706.pdf p10	notes [48]	dims 16	agree 8	verdict confirmed 48 (8/16)	half-size print: half size 96
+aa-20180706.pdf p11	notes [48]	dims 24	agree 21	verdict confirmed 48 (21/24)	half-size print: half size 96
+aa-20180706.pdf p12	notes [48]	dims 24	agree 24	verdict confirmed 48 (24/24)	half-size print: half size 96
+aa-20180706.pdf p13	notes [48]	dims 3	agree 2	verdict unchecked (0/3)	half-size print: unchecked
+aa-20180706.pdf p14	notes [48]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+aa-20180706.pdf p15	notes [48]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+aa-20180824.pdf p1	notes [64,1,12]	dims 4	agree 2	verdict unchecked (0/4)	half-size print: unchecked
+aa-20180824.pdf p2	notes [64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+aa-20180824.pdf p3	notes [96]	dims 5	agree 4	verdict confirmed 96 (4/5)	half-size print: half size 192
+ap-20180420.pdf p1	notes [1,1920,120]	dims 10	agree 8	verdict confirmed 120 (8/10)	half-size print: half size 240
+ap-20180420.pdf p2	notes [1]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+ap-20180420.pdf p3	notes [240,192]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+ap-20180420.pdf p4	notes [64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+ap-20180420.pdf p5	notes [64]	dims 4	agree 2	verdict unchecked (0/4)	half-size print: unchecked
+ap-20180420.pdf p6	notes [64]	dims 17	agree 13	verdict confirmed 64 (13/17)	half-size print: half size 128
+ap-20180420.pdf p7	notes [64]	dims 6	agree 5	verdict confirmed 64 (5/6)	half-size print: half size 128
+ap-20180420.pdf p8	notes [64]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+ap-20180420.pdf p9	notes [64]	dims 2	agree 0	verdict unchecked (0/2)	half-size print: unchecked
+ap-20180420.pdf p10	notes [64]	dims 2	agree 0	verdict unchecked (0/2)	half-size print: unchecked
+ap-20180420.pdf p11	notes [48]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+ap-20180420.pdf p12	notes [16]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+ap-20180420.pdf p13	notes [16]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+ap-20180420.pdf p14	notes [16]	dims 2	agree 1	verdict unchecked (0/2)	half-size print: unchecked
+ap-20180420.pdf p15	notes [16]	dims 2	agree 2	verdict unchecked (0/2)	half-size print: unchecked
+fb-20180925.pdf p1	notes [360]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+fb-20180925.pdf p2	notes []	dims 29	agree 0	verdict inferred 96 (19/29)	half-size print: inferred 192
+fb-20180925.pdf p3	notes []	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+fb-20180925.pdf p4	notes []	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+fb-20180925.pdf p5	notes [96]	dims 2	agree 1	verdict unchecked (0/2)	half-size print: unchecked
+fb-20180925.pdf p6	notes [96]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+k-20140901.pdf p1	notes [192]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20140901.pdf p2	notes []	dims 4	agree 0	verdict unchecked (0/4)	half-size print: unchecked
+k-20140901.pdf p3	notes []	dims 4	agree 0	verdict unchecked (0/4)	half-size print: unchecked
+k-20140901.pdf p4	notes [96]	dims 5	agree 3	verdict confirmed 96 (3/5)	half-size print: half size 192
+k-20140901.pdf p5	notes []	dims 7	agree 0	verdict unchecked (0/7)	half-size print: unchecked
+k-20140901.pdf p6	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20140901.pdf p7	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20140901.pdf p8	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20140901.pdf p9	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20140901.pdf p10	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20140901.pdf p11	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20140901.pdf p12	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20141110.pdf p1	notes [120,48]	dims 9	agree 2	verdict unchecked (0/9)	half-size print: unchecked
+k-20141110.pdf p2	notes [48]	dims 29	agree 9	verdict confirmed 48 (9/29)	half-size print: half size 96
+k-20141110.pdf p3	notes [48]	dims 11	agree 0	verdict unchecked (0/11)	half-size print: unchecked
+k-20141110.pdf p4	notes [48]	dims 2	agree 1	verdict unchecked (0/2)	half-size print: unchecked
+k-20141110.pdf p5	notes [48]	dims 3	agree 2	verdict unchecked (0/3)	half-size print: unchecked
+k-20141110.pdf p6	notes [48]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+k-20141110.pdf p7	notes [48]	dims 7	agree 5	verdict confirmed 48 (5/7)	half-size print: half size 96
+k-20141110.pdf p8	notes [48]	dims 5	agree 1	verdict unchecked (0/5)	half-size print: unchecked
+k-20141110.pdf p9	notes [48]	dims 12	agree 2	verdict unchecked (0/12)	half-size print: unchecked
+k-20141110.pdf p10	notes [48]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+k-20141110.pdf p11	notes [48]	dims 5	agree 1	verdict unchecked (0/5)	half-size print: unchecked
+k-20141110.pdf p12	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20141110.pdf p13	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20141110.pdf p14	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20141110.pdf p15	notes []	dims 149	agree 0	verdict unchecked (0/149)	half-size print: unchecked
+k-20150129.pdf p1	notes [48]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20150129.pdf p2	notes [48]	dims 20	agree 8	verdict confirmed 48 (8/20)	half-size print: half size 96
+k-20150129.pdf p3	notes [48]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20150129.pdf p4	notes [48]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20150129.pdf p5	notes [48]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20150129.pdf p6	notes [48]	dims 11	agree 3	verdict confirmed 48 (3/11)	half-size print: half size 96
+k-20150129.pdf p7	notes [48]	dims 4	agree 2	verdict unchecked (0/4)	half-size print: unchecked
+k-20150129.pdf p8	notes [48]	dims 4	agree 2	verdict unchecked (0/4)	half-size print: unchecked
+k-20150129.pdf p9	notes [48]	dims 7	agree 6	verdict confirmed 48 (6/7)	half-size print: half size 96
+k-20150129.pdf p10	notes [48]	dims 2	agree 0	verdict unchecked (0/2)	half-size print: unchecked
+k-20150129.pdf p11	notes [48]	dims 7	agree 7	verdict confirmed 48 (7/7)	half-size print: half size 96
+k-20150129.pdf p12	notes [48]	dims 3	agree 3	verdict confirmed 48 (3/3)	half-size print: half size 96
+k-20160415.pdf p1	notes [48]	dims 20	agree 4	verdict unchecked (0/20)	half-size print: unchecked
+k-20160415.pdf p2	notes [48]	dims 62	agree 14	verdict unchecked (0/62)	half-size print: unchecked
+k-20160415.pdf p3	notes [48]	dims 10	agree 1	verdict unchecked (0/10)	half-size print: unchecked
+k-20160415.pdf p4	notes [48]	dims 33	agree 2	verdict unchecked (0/33)	half-size print: unchecked
+k-20160415.pdf p5	notes [48]	dims 46	agree 0	verdict unchecked (0/46)	half-size print: unchecked
+k-20160415.pdf p6	notes [48]	dims 3	agree 0	verdict unchecked (0/3)	half-size print: unchecked
+k-20160415.pdf p7	notes [48]	dims 4	agree 1	verdict unchecked (0/4)	half-size print: unchecked
+k-20160415.pdf p8	notes [48]	dims 7	agree 0	verdict unchecked (0/7)	half-size print: unchecked
+k-20160415.pdf p9	notes [48]	dims 2	agree 0	verdict unchecked (0/2)	half-size print: unchecked
+k-20160415.pdf p10	notes [48]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+k-20160415.pdf p11	notes [32]	dims 25	agree 5	verdict unchecked (0/25)	half-size print: unchecked
+k-20160415.pdf p12	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20160415.pdf p13	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20160415.pdf p14	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+k-20160415.pdf p15	notes [48]	dims 49	agree 14	verdict confirmed 48 (14/49)	half-size print: half size 96
+k-20160415.pdf p16	notes []	dims 62	agree 0	verdict unchecked (0/62)	half-size print: unchecked
+k-20160415.pdf p17	notes [96]	dims 3	agree 2	verdict unchecked (0/3)	half-size print: unchecked
+k-20160415.pdf p18	notes []	dims 2	agree 0	verdict unchecked (0/2)	half-size print: unchecked
+k-20160415.pdf p19	notes []	dims 3	agree 0	verdict inferred 64 (3/3)	half-size print: inferred 128
+of-20190525.pdf p1	notes [240]	dims 17	agree 14	verdict confirmed 240 (14/17)	half-size print: half size 480
+of-20190525.pdf p2	notes [96]	dims 49	agree 35	verdict confirmed 96 (35/49)	half-size print: half size 192
+of-20190525.pdf p3	notes [120]	dims 14	agree 5	verdict confirmed 120 (5/14)	half-size print: half size 240
+of-20190525.pdf p4	notes [64]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+of-20190525.pdf p5	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+of-20190525.pdf p6	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+of-20190627.pdf p1	notes [240,48]	dims 40	agree 24	verdict confirmed 240 (18/40)	half-size print: half size 480
+of-20190627.pdf p2	notes [16,240]	dims 5	agree 3	verdict unchecked (0/5)	half-size print: unchecked
+of-20190627.pdf p3	notes [96]	dims 59	agree 40	verdict confirmed 96 (40/59)	half-size print: half size 192
+of-20190627.pdf p4	notes [96]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+of-20190627.pdf p5	notes [96]	dims 5	agree 1	verdict unchecked (0/5)	half-size print: unchecked
+of-20190627.pdf p6	notes [96]	dims 4	agree 1	verdict unchecked (0/4)	half-size print: unchecked
+of-20190627.pdf p7	notes [64]	dims 8	agree 6	verdict confirmed 64 (6/8)	half-size print: half size 128
+of-20190627.pdf p8	notes [64]	dims 8	agree 3	verdict confirmed 64 (3/8)	half-size print: half size 128
+og-20190308.pdf p1	notes [96]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+og-20190308.pdf p2	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190308.pdf p3	notes [360,128]	dims 20	agree 18	verdict confirmed 128 (10/20)	half-size print: half size 256
+og-20190308.pdf p4	notes [128]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190308.pdf p5	notes [64]	dims 19	agree 4	verdict unchecked (0/19)	half-size print: unchecked
+og-20190308.pdf p6	notes [64]	dims 9	agree 3	verdict confirmed 64 (3/9)	half-size print: half size 128
+og-20190308.pdf p7	notes [64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190308.pdf p8	notes [64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190308.pdf p9	notes [64]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+og-20190308.pdf p10	notes [64]	dims 2	agree 1	verdict unchecked (0/2)	half-size print: unchecked
+og-20190308.pdf p11	notes [64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190308.pdf p12	notes [64]	dims 11	agree 7	verdict confirmed 64 (7/11)	half-size print: half size 128
+og-20190308.pdf p13	notes [64]	dims 7	agree 6	verdict confirmed 64 (6/7)	half-size print: half size 128
+og-20190308.pdf p14	notes [24]	dims 4	agree 4	verdict confirmed 24 (4/4)	half-size print: half size 48
+og-20190308.pdf p15	notes [24]	dims 3	agree 3	verdict confirmed 24 (3/3)	half-size print: half size 48
+og-20190308.pdf p16	notes [24]	dims 9	agree 3	verdict confirmed 24 (3/9)	half-size print: half size 48
+og-20190308.pdf p17	notes [48,24]	dims 2	agree 1	verdict unchecked (0/2)	half-size print: unchecked
+og-20190308.pdf p18	notes []	dims 8	agree 0	verdict unchecked (0/8)	half-size print: unchecked
+og-20190308.pdf p19	notes [4]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190308.pdf p20	notes [4]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190308.pdf p21	notes [4]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190308.pdf p22	notes [64]	dims 4	agree 2	verdict unchecked (0/4)	half-size print: unchecked
+og-20190308.pdf p23	notes [48]	dims 25	agree 11	verdict confirmed 48 (11/25)	half-size print: half size 96
+og-20190308.pdf p24	notes [48]	dims 2	agree 1	verdict unchecked (0/2)	half-size print: unchecked
+og-20190308.pdf p25	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p1	notes [120,3600]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+og-20190309.pdf p2	notes [360,128]	dims 20	agree 17	verdict confirmed 128 (9/20)	half-size print: half size 256
+og-20190309.pdf p3	notes [1,128]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p4	notes [64]	dims 31	agree 4	verdict unchecked (0/31)	half-size print: unchecked
+og-20190309.pdf p5	notes [64]	dims 8	agree 3	verdict confirmed 64 (3/8)	half-size print: half size 128
+og-20190309.pdf p6	notes [64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p7	notes [64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p8	notes [64]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+og-20190309.pdf p9	notes [64]	dims 2	agree 1	verdict unchecked (0/2)	half-size print: unchecked
+og-20190309.pdf p10	notes [64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p11	notes [64]	dims 11	agree 7	verdict confirmed 64 (7/11)	half-size print: half size 128
+og-20190309.pdf p12	notes [64]	dims 7	agree 6	verdict confirmed 64 (6/7)	half-size print: half size 128
+og-20190309.pdf p13	notes [24]	dims 4	agree 4	verdict confirmed 24 (4/4)	half-size print: half size 48
+og-20190309.pdf p14	notes [24]	dims 3	agree 3	verdict confirmed 24 (3/3)	half-size print: half size 48
+og-20190309.pdf p15	notes [24]	dims 9	agree 3	verdict confirmed 24 (3/9)	half-size print: half size 48
+og-20190309.pdf p16	notes [48,24]	dims 8	agree 5	verdict confirmed 24 (4/8)	half-size print: confirmed 48
+og-20190309.pdf p17	notes [4]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p18	notes [4]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p19	notes [4]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p20	notes [4]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+og-20190309.pdf p21	notes [64]	dims 5	agree 2	verdict unchecked (0/5)	half-size print: unchecked
+og-20190309.pdf p22	notes [48]	dims 25	agree 11	verdict confirmed 48 (11/25)	half-size print: half size 96
+og-20190309.pdf p23	notes [48]	dims 2	agree 1	verdict unchecked (0/2)	half-size print: unchecked
+og-20190309.pdf p24	notes []	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+vr-20170224.pdf p1	notes [96]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+vr-20170224.pdf p2	notes [96,64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+vr-20170224.pdf p3	notes [48]	dims 7	agree 2	verdict unchecked (0/7)	half-size print: unchecked
+vr-20170224.pdf p4	notes [48]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+vr-20170224.pdf p5	notes [48]	dims 4	agree 2	verdict unchecked (0/4)	half-size print: unchecked
+vr-20170224.pdf p6	notes [48]	dims 1	agree 0	verdict unchecked (0/1)	half-size print: unchecked
+vr-20170224.pdf p7	notes [24]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+vr-20170410.pdf p1	notes [96]	dims 2	agree 0	verdict unchecked (0/2)	half-size print: unchecked
+vr-20170410.pdf p2	notes [96,64]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+vr-20170410.pdf p3	notes [48]	dims 61	agree 34	verdict confirmed 48 (34/61)	half-size print: half size 96
+vr-20170410.pdf p4	notes [48]	dims 13	agree 8	verdict confirmed 48 (8/13)	half-size print: half size 96
+vr-20170410.pdf p5	notes [48]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+vr-20170410.pdf p6	notes [48]	dims 4	agree 2	verdict unchecked (0/4)	half-size print: unchecked
+vr-20170410.pdf p7	notes [48]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+vr-20170410.pdf p8	notes [24]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+vr-20170410.pdf p9	notes [24]	dims 0	agree 0	verdict unchecked (0/0)	half-size print: unchecked
+vr-20170410.pdf p10	notes [4]	dims 3	agree 3	verdict confirmed 4 (3/3)	half-size print: half size 8
+vr-20170410.pdf p11	notes [4]	dims 3	agree 3	verdict confirmed 4 (3/3)	half-size print: half size 8
+vr-20170410.pdf p12	notes [4,16]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+vr-20170410.pdf p13	notes [96]	dims 1	agree 1	verdict unchecked (0/1)	half-size print: unchecked
+
+TOTAL {"files":14,"pages":180,"pagesWithNotes":142,"notes":397,"matched":1385,"agree":520,"multiPages":15,"multiDims":81,"multiBelowLeft":61,"multiNearest":62}
+verdicts on the pages as published {"unchecked":133,"inferred":3,"confirmed":44}
+verdicts on the same pages shrunk to half size {"unchecked":133,"inferred":3,"half size":43,"confirmed":1}
+as published -> shrunk {"unchecked -> unchecked":133,"inferred -> inferred":3,"confirmed -> half size":43,"confirmed -> confirmed":1}

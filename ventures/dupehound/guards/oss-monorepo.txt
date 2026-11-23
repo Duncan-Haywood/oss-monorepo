@@ -18,17 +18,20 @@ ventures/*/proposal-terms.test.mjs
 platform/llm/byok.mjs
 ventures/*/byok.mjs
 
-# ventures/<each of the four>/pdf-parser-sync.test.mjs fails when the four
+# ventures/<each of the five>/pdf-parser-sync.test.mjs fails when the five
 # vendored copies differ (added with --suggest-guards, 2026-11-21).
 ventures/bank-statement-pdf-to-csv/pdf-parser.mjs
 ventures/drawing-set-index/pdf-parser.mjs
+ventures/pdf-plan-takeoff/pdf-parser.mjs
 ventures/pdf-accessibility-tag-check/pdf-parser.mjs
 ventures/submittal-register/pdf-parser.mjs
 ventures/bank-statement-pdf-to-csv/inflate-browser.mjs
 ventures/drawing-set-index/inflate-browser.mjs
+ventures/pdf-plan-takeoff/inflate-browser.mjs
 ventures/pdf-accessibility-tag-check/inflate-browser.mjs
 ventures/submittal-register/inflate-browser.mjs
 ventures/bank-statement-pdf-to-csv/pdf-parser-sync.test.mjs
 ventures/drawing-set-index/pdf-parser-sync.test.mjs
+ventures/pdf-plan-takeoff/pdf-parser-sync.test.mjs
 ventures/pdf-accessibility-tag-check/pdf-parser-sync.test.mjs
 ventures/submittal-register/pdf-parser-sync.test.mjs
