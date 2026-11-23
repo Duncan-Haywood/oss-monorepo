@@ -855,3 +855,23 @@ is `end`).
 - **Licence:** Federal Reserve Board and US Bureau of Labor Statistics figures, US government works in the public
   domain; the Rdatasets copies are as published by AER (GPL-2 | GPL-3) and ggplot2 (MIT). Used as test fixtures only.
 - **Used by:** `eval/trend-walk-stiff.mjs`, `eval/trend-walk-stiff-chance.mjs`, `trend-walk-stiff.test.mjs`.
+
+# Iran's non-oil GDP and the MBRI business-cycle dating (a fresh dated cycle for the turning-point test)
+
+`iran-non-oil-gdp-quarterly.csv`: 108 quarters of the Iranian calendar, 1367Q1 to 1393Q4 (about spring 1988 to
+winter 2015). `growth_pct` is BCDating's `Iran.non.Oil.GDP.Quarterly.Growth` (quarter-on-quarter growth of
+seasonally adjusted, X-12, non-oil GDP, in percent; 107 values from 1367Q2); `level` is the index built from it
+(1367Q1 = 100); `hp_cycle` is the package's `Iran.non.Oil.GDP.Cycle` (the HP cycle the dating was read from);
+`mbri_state` is the dating's state column (1 expansion, -1 contraction). `mbri-iran-dating.csv`: the 6 peaks and 7
+troughs of `MBRI.Iran.Dating`, "the official Dating of Business Cycles of Iran by MBRI" (the Monetary and Banking
+Research Institute), as quarters. Check: the log of `level`, HP-filtered with lambda 1600, correlates 0.886 with
+`hp_cycle` at lag 0 (0.743 and 0.714 at lags -1 and +1), and 12 of the 13 dated quarters are local extremes of
+`hp_cycle` (the 1378Q4 peak is not; the package says the official dating was adjusted on other facts).
+
+- **Retrieved:** 2026-11-23 from <https://raw.githubusercontent.com/cran/BCDating/master/data/> (the three `.rda`
+  files, MD5s matching the package's `MD5` file), read with the Python `rdata` package.
+- **Source:** Central Bank of the Islamic Republic of Iran; Einian, M. and M. Barakchian (2014), "Measuring and
+  Dating Business Cycles of the Economy of Iran", *Journal of Monetary & Banking Research* 7(20), 161-194.
+- **Licence:** BCDating is GPL-2; the figures are published national accounts and a published dating. Used as test
+  fixtures only.
+- **Used by:** `eval/turns-iran.mjs`, `turns-iran.test.mjs`.
