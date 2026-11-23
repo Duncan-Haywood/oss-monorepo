@@ -39,7 +39,7 @@ const key = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
 /** Rows of cells for one separator: quotes, doubled quotes and line breaks inside quotes; a BOM is dropped. */
 export function delimitedRows(text, sep) {
   const rows = []; let row = [], cell = "", q = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (q) { if (c === '"') { if (src[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
@@ -54,7 +54,7 @@ export function delimitedRows(text, sep) {
 
 /** The separator the header line uses most: tab (pasted from a spreadsheet), semicolon (European CSV), else comma. */
 export function guessSeparator(text) {
-  const first = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).find((l) => l.trim()) || "";
+  const first = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).find((l) => l.trim()) || "";
   const count = (ch) => first.split(ch).length - 1;
   const tabs = count("\t"), semis = count(";"), commas = count(",");
   if (tabs && tabs >= commas) return "\t";
@@ -109,7 +109,7 @@ export function readTime(text) {
 /** A date-and-time cell ("10/6/2026 6:30 PM", "2026-10-06T18:30") -> { day, time } or null. */
 function readDateTime(text, opts) {
   const s = String(text ?? "").trim();
-  const t = s.match(/^(\d{4}-\d{1,2}-\d{1,2})[T\s]+(\d{1,2}:\d{2})/);
+  const t = s.match(/^(\d{4}-\d{1,2}-\d{1,2})(?!\d)[T\s]+(\d{1,2}:\d{2})/);
   if (t) return { day: parseDate(t[1]), time: readTime(t[2]) };
   const parts = s.split(/\s+/);
   for (let k = parts.length - 1; k >= 1; k--) {
@@ -124,7 +124,7 @@ function readDateTime(text, opts) {
 function columnIsDayFirst(cells) {
   let first = false, second = false;
   for (const c of cells) {
-    const m = String(c ?? "").trim().replace(WEEKDAY_PREFIX, "").match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})/);
+    const m = String(c ?? "").trim().replace(WEEKDAY_PREFIX, "").match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4}|\d{2})(?!\d)/);
     if (!m) continue;
     if (Number(m[1]) > 12) first = true;
     if (Number(m[2]) > 12) second = true;
