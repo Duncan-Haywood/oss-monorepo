@@ -2,7 +2,8 @@
 """Report venture pages with no meta description or an overlong <title>.
 
 Search results cut a title at about 60 characters (pixel width, really), so a
-title over `--title-max` (default 70) loses its tail. A page with no
+title over `--title-max` (default 70) loses its tail. Length counts
+characters a reader sees (`&amp;` is one). A page with no
 `<meta name="description">` gets a snippet picked for it. Only real pages are
 looked at (a file with an `<html` tag, not under node_modules).
 
@@ -11,6 +12,7 @@ looked at (a file with an `<html` tag, not under node_modules).
 Exit 0 unless `--strict` and something is found. Prints per-venture counts.
 """
 import argparse
+import html
 import re
 import sys
 from collections import Counter
@@ -27,7 +29,7 @@ def problems(text: str, title_max: int = 70):
     m = TITLE.search(text)
     if not m or not m.group(1).strip():
         out.append("no-title")
-    elif len(re.sub(r"\s+", " ", m.group(1).strip())) > title_max:
+    elif len(html.unescape(re.sub(r"\s+", " ", m.group(1).strip()))) > title_max:
         out.append("long-title")
     if not DESC.search(text):
         out.append("no-description")

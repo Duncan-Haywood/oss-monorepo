@@ -120,6 +120,15 @@ const pageUrl = (ep) => `${SITE}${ep.slug}.html`;
 const COVER = `${SITE}cover.png`;
 const FEED = `${SITE}feed.xml`;
 const rfc822 = (date) => new Date(`${date}T20:00:00Z`).toUTCString();
+// A search result shows roughly 60 to 70 characters of a title before it cuts
+// the tail (platform/ci/check_title_meta.py flags anything over 70). Keep the
+// longest suffix that fits, so short titles still carry "bedtime saints podcast"
+// and long ones keep the show's name instead of losing it to an ellipsis.
+export const TITLE_MAX = 70;
+export function episodeTitle(ep) {
+  const suffixes = [` | ${SHOW.title}, a bedtime saints podcast`, ` | ${SHOW.title}, bedtime podcast`, ` | ${SHOW.title}`, ''];
+  return suffixes.map((s) => `${ep.title}${s}`).find((t) => t.length <= TITLE_MAX) || ep.title;
+}
 const newestFirst = (episodes) => [...episodes].sort((a, b) => b.number - a.number);
 
 const CSS = `
@@ -250,7 +259,7 @@ ${transcriptHtml(ep.body)}
 <p><a href="./">All episodes</a> · <a href="${FEED}">Podcast feed (RSS)</a></p>
 </main>`;
   return page({
-    title: `${ep.title} | ${SHOW.title}, a bedtime saints podcast`,
+    title: episodeTitle(ep),
     description,
     canonical: pageUrl(ep),
     jsonLd,
@@ -305,7 +314,7 @@ document.getElementById("copyFeed").addEventListener("click", async (e) => {
 });
 </script>`;
   return page({
-    title: `${SHOW.title}: a free bedtime podcast of saints, angels and Bible stories`,
+    title: `${SHOW.title}: a bedtime podcast of saints and Bible stories`,
     description: 'Free bedtime story podcast of Catholic and Orthodox saints, angels and patriarchs: lighthearted, faithful, 30 to 60 minute episodes with full scripts and an honest note on what is history and what is legend.',
     canonical: SITE,
     jsonLd,

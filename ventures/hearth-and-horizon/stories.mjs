@@ -149,6 +149,16 @@ export const audioUrl = (story) => `${SITE}audio/${story.slug}.mp3`;
 export const feedPath = (shelfId) => `feeds/${shelfId}.xml`;
 export const coverPath = (shelfId) => `covers/${shelfId}.png`;
 
+// A search result shows roughly 60 to 70 characters of a title before it cuts
+// the tail (platform/ci/check_title_meta.py flags anything over 70). Keep the
+// longest description that fits after the story's own title.
+export const TITLE_MAX = 70;
+export function storyTitle(story, shelf, hasAudio = false) {
+  const kind = shelf.title === 'Little Lamps' ? 'a Catholic bedtime story' : 'a free science fiction short story';
+  const short = shelf.title === 'Little Lamps' ? 'a bedtime story' : 'a short story';
+  const suffixes = [`: ${kind}${hasAudio ? ' (text and audio)' : ''}`, `: ${kind}`, `: ${short}`, ''];
+  return suffixes.map((s) => `${story.title}${s}`).find((t) => t.length <= TITLE_MAX) || story.title;
+}
 const readingMinutes = (words) => Math.max(1, Math.round(words / 230));
 
 function formatDuration(seconds) {
@@ -329,7 +339,7 @@ ${markdownToHtml(story.body)}
   <p class="small">More from <a href="./#${shelf.id}">${escapeHtml(shelf.title)}</a>, ${escapeHtml(shelf.audience.toLowerCase())}. New stories arrive in <a href="${SITE}${feedPath(shelf.id)}">its RSS feed</a>.</p>
 </section>`;
   return page({
-    title: `${story.title}: ${shelf.title === 'Little Lamps' ? 'a Catholic bedtime story' : 'a free science fiction short story'}${a ? ' (text and audio)' : ''}`,
+    title: storyTitle(story, shelf, Boolean(a)),
     description: `${story.summary}`.slice(0, 300),
     canonical: storyUrl(story),
     image: `${SITE}${coverPath(shelf.id)}`,
@@ -390,7 +400,7 @@ ${shelves}
 ${FAQ.map(([q, a]) => `<h3>${escapeHtml(q)}</h3>\n<p>${escapeHtml(a)}</p>`).join('\n')}
 </section>`;
   return page({
-    title: 'Hearth & Horizon: free AI-written science fiction and Catholic bedtime stories, with audio',
+    title: 'Hearth & Horizon: free AI-written sci-fi and Catholic bedtime stories',
     description: 'Free short science fiction about the next thousand years, stories written for AI agents, and Catholic bedtime stories about the saints. Read or listen; podcast RSS feeds; CC BY-SA 4.0.',
     canonical: SITE,
     // No og:image: the Pages build gives each tool's index its own share card
