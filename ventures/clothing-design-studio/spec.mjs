@@ -9,8 +9,13 @@
  *   hem        1/2 hem width
  *   length     body length, high point of shoulder (HPS) to hem
  *   sleeve     shoulder point to cuff (from tryon.mjs; the factory's M figure replaces the typical one)
- *   shoulder   across shoulder seam to seam (typical share of the chest)
- *   neck       neck opening width, seam to seam (typical)
+ *   shoulder   across shoulder seam to seam (the drafted pattern's, grade.mjs)
+ *   neck       neck opening width, seam to seam (the drafted pattern's, grade.mjs)
+ * Shoulder and neck are read from the same block the pattern is cut from
+ * (pattern.mjs bodyBlock over grade.mjs), so a sample sewn from the studio's
+ * pattern meets the studio's spec. Until 2026-11-23 this file typed its own
+ * figures (41% of the chest; 18 cm neck in every size) and disagreed with the
+ * pattern in 5 of 6 sizes on each point (quality audit 2026-11-22).
  * Sizes, chest and length come from fit.mjs (typical unisex chart, replaceable
  * by `sizeChart`). Tolerances are typical trade figures for knit tops
  * (about +/-1 cm on width and length, +/-0.5 cm on neck, +/-1 on sleeve),
@@ -20,6 +25,8 @@
 import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
 import { SLEEVE_CM_M } from "./tryon.mjs";
 import { SIZES } from "./design.mjs";
+import { bodyBlock } from "./pattern.mjs";
+import { gradeRule } from "./grade.mjs";
 
 export const POINTS = Object.freeze([
   { id: "chest", label: "1/2 chest, 2.5 cm below armhole" },
@@ -34,14 +41,14 @@ export const POINTS = Object.freeze([
 export const TOLERANCE_CM = Object.freeze({ chest: 1, hem: 1, length: 1, sleeve: 1, shoulder: 0.8, neck: 0.5 });
 
 const r1 = v => Math.round(v * 10) / 10;
-const SHOULDER_SHARE = 0.41; // across shoulder as a share of the finished chest circumference, typical for a set-in sleeve
-const NECK_CM = { tee: 18, longsleeve: 18, crewneck: 19, hoodie: 21 };
 
 /**
  * The spec table: one row per size, one value per point.
- * @param {{garment?:string, fit?:string, sizeChart?:object, sleeveCm?:number, tolerances?:object}} o
+ * @param {{garment?:string, fit?:string, sizeChart?:object, sleeveCm?:number, tolerances?:object, grade?:{neck?:number, shoulder?:number}}} o
+ *   grade: the factory's grade per cm of body chest for neck width and across shoulder (grade.mjs)
  */
-export function specSheet({ garment = "tee", fit = "regular", sizeChart = BODY_CHEST_CM, sleeveCm, tolerances = {} } = {}) {
+export function specSheet({ garment = "tee", fit = "regular", sizeChart = BODY_CHEST_CM, sleeveCm, tolerances = {}, grade } = {}) {
+  gradeRule(grade);
   const gm = garmentMeasurements(garment, fit, sizeChart);
   const tol = { ...TOLERANCE_CM };
   for (const [k, v] of Object.entries(tolerances)) {
@@ -56,17 +63,19 @@ export function specSheet({ garment = "tee", fit = "regular", sizeChart = BODY_C
   SIZES.forEach((s, i) => {
     const m = gm[s];
     if (!m) return;
+    const b = bodyBlock(m, { garment, sizeChart, grade });
     sizes[s] = {
       chest: m.flatWidth,
       hem: m.flatWidth,
       length: m.length,
       sleeve: r1(base + (i - mi)),
-      shoulder: r1(m.chest * SHOULDER_SHARE), // finished chest circumference x share
-      neck: NECK_CM[garment] ?? 18,
+      shoulder: r1(2 * b.sx), // shoulder point to shoulder point on the drafted block
+      neck: r1(2 * b.hn),     // neck stitch line, seam to seam
     };
   });
   const notes = [
-    "Tolerances and the shoulder and neck figures are typical, not a standard: agree the table with the factory in writing before sampling.",
+    "Tolerances and the grade steps are typical, not a standard: agree the table with the factory in writing before sampling.",
+    "Shoulder and neck are the drafted pattern's own figures (pattern.html), graded by a typical rule (neck about 0.6 cm and across shoulder about 1.8 cm per 8 cm of chest); put the factory's grade rule in to replace it.",
     "A straight cut is assumed (hem as wide as the chest); say so if the style tapers.",
   ];
   if (sleeveCm == null) notes.push("Sleeve length is a typical figure; put the factory's size M figure in to replace it.");

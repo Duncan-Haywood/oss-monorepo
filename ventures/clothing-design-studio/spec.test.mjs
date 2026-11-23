@@ -10,7 +10,8 @@ test("regular tee M: 56 cm half chest (100 body + 12 ease, halved), 71 cm long, 
   assert.equal(m.hem, 56);
   assert.equal(m.length, 71);
   assert.equal(m.sleeve, 21);
-  assert.equal(m.shoulder, 45.9); // 112 x 0.41 = 45.92
+  assert.equal(m.shoulder, 47.4); // 2 x (0.225 x 100 + 0.1 x 12 ease), the drafted block's shoulder points
+  assert.equal(m.neck, 18);       // 2 x 0.09 x 100
 });
 test("sizes step: chest +4 cm flat per size, sleeve +1 cm", () => {
   const s = specSheet({ garment: "tee" }).sizes;
@@ -36,7 +37,7 @@ test("tolerance override and validation", () => {
 });
 test("sample check: exactly on tolerance passes, just over fails, direction is named", () => {
   const spec = specSheet({ garment: "tee" });
-  const c = sampleCheck(spec, "M", { chest: 57, hem: 54.9, length: 71, sleeve: 21, shoulder: 45.9, neck: 18 });
+  const c = sampleCheck(spec, "M", { chest: 57, hem: 54.9, length: 71, sleeve: 21, shoulder: 47.4, neck: 18 });
   assert.equal(c.rows.find(r => r.id === "chest").verdict, "pass"); // +1.0 = tolerance
   assert.equal(c.rows.find(r => r.id === "hem").verdict, "under"); // -1.1
   assert.equal(c.rows.find(r => r.id === "hem").diff, -1.1);

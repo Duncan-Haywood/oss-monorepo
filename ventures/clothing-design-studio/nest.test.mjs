@@ -24,7 +24,8 @@ test("four 70 x 50 rectangles on 150 cm cloth (usable 147): two across, two rows
 test("a cut-on-fold piece is unfolded to twice its half area; a pair is left and right", () => {
   const d = draft("tee", "M");
   const s = cutShapes(d.pieces);
-  assert.equal(s.length, 4); // front, back, two sleeves
+  assert.equal(s.length, 5); // front, back, two sleeves, neckband (since 2026-11-23)
+  assert.equal(cutShapes(d.pieces.filter(p => p.name !== "neckband")).length, 4);
   const front = s.find(p => p.name === "front");
   const a = front.rings.reduce((t, r) => t + Math.abs(area(r)), 0);
   assert.ok(Math.abs(a - 2 * Math.abs(d.pieces[0].cutAreaCm2)) < 0.05);
@@ -50,7 +51,8 @@ test("a size ratio marker verifies and a second size shortens the cloth per garm
   const one = nestRatio("tee", { M: 1 }, { widthCm: 150 });
   const run = nestRatio("tee", { S: 1, M: 2, L: 1 }, { widthCm: 150 });
   assert.ok(run.ok && verifyNest(run).ok, (verifyNest(run).problems || []).join("; "));
-  assert.equal(run.pieces.length, 16);
+  assert.equal(run.pieces.length, 20); // 4 tees x (front, back, 2 sleeves, neckband)
+  assert.equal(nestRatio("tee", { S: 1, M: 2, L: 1 }, { widthCm: 150, only: "body" }).pieces.length, 16);
   assert.ok(run.cmPerGarment <= one.cmPerGarment);
 });
 
