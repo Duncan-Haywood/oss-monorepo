@@ -1,0 +1,40 @@
+cell-fidelity milestone 7r: the plating exchange-current density scaled by a fixed ladder on Mohtat2020@3x and Ecker2015@2x;
+probe: designs 0 to 3 of 7p's pool (Sobol seed 41), 20 cycles, 5zk's x-resolved DFN (SEI + plating) bench; kept: the smallest multiplier per cell
+with median fade (cycle 2 to 20, share of n_Li) in [0.03, 0.2]; kept cells benched to cycle 100 and put through 7p's code. PyBaMM 26.10.1.1.
+
+cell              mult  done  plates     fade  probe
+Marquis2019@2x       1     4    True   0.0000  (7p)
+Marquis2019@2x      10     4   False   0.0002  fail
+Marquis2019@2x     100     4   False   0.0010  fail
+Marquis2019@2x    1000     4   False   0.0035  fail
+Marquis2019@2x   10000     4   False   0.0096  fail
+Marquis2019@2x  100000     4   False   0.0084  fail
+Marquis2019@2x   1e+06     2   False   0.0056  fail
+
+fade against multiplier: Marquis2019@2x rising False, log-log slope 0.41
+
+kept: none
+
+H317 (some multiplier in [10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0] makes each cell pass the probe): refuted
+H318 (fade rises with the multiplier on each cell, log-log slope 0.5 to 1.5): refuted
+H319 (the forecast law works on each kept cell, q75 E10 <= 0.2): not run (no kept cell or no rows)
+H320 (the all-set bootstrap interval of theta - U lies below zero): not run (no kept cell or no rows)
+H321 (theta meets >= 4 of 5 lopo5 folds on each kept cell): not run (no kept cell or no rows)
+
+---- 7zb: the lines above are 7r's report replayed on the SEI-only cell (its H317 to H321 labels are 7r's; 'plates' must be False here, mult is the SEI solvent-diffusivity multiplier g, plating exchange current 0) ----
+
+why the probe fades as it does (medians over finished probe designs; reported):
+       g  n  lost by c1  lost by c20  slope c2-20  t_ch c20/c2
+       1  4      0.0000       0.0000         0.95        0.999
+      10  4      0.0000       0.0002         0.90        0.997
+     100  4      0.0001       0.0012         0.73        0.985
+    1000  4      0.0008       0.0048         0.57        0.939
+   10000  4      0.0037       0.0147         0.46        0.638
+  100000  4      0.0121       0.0234         0.19        0.100
+   1e+06  2      0.0421       0.0493         0.05        0.258
+
+H362 (some g in [10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0] makes the plating-free cell pass the probe rule): refuted
+H363 (the kept cell's drift is large and one-directional: median |m - 1| >= 0.10 and |median m - 1| >= 0.10): not run (no kept cell)
+H364 (7v's correction pays without plating: 5-fold mean of thetaC - U < 0): not run (no kept cell)
+H365 (thetaH meets >= 4 of 5 folds): not run (no kept cell)
+H366 (drift size, not plating, decides: 7y's oracle picks thetaH over theta): not run (no kept cell)

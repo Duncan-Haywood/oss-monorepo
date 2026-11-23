@@ -75,6 +75,21 @@ def choose(res):
     return None
 
 
+def diag(rows, n_li, cycles=20):
+    """Why a condition fades as it does (reported): medians of the share of n_Li lost by cycle 1 and by `cycles`, the
+    log-log growth slope of lithium lost from cycle 2 to `cycles` (1 = linear, 0.5 = sqrt t, 0 = self-limited), and the
+    charge time at `cycles` over cycle 2's (below 1 = the charge step ends early at the voltage cut-off)."""
+    import math
+    ok = [r for r in rows if r.get("ok") and r.get("ok_cycles", 0) >= cycles and r["lost_mol"][1] > 0]
+    if not ok:
+        return None
+    med = statistics.median
+    return dict(n=len(ok), lost_c1=med(r["lost_mol"][0] / n_li[r["j"]] for r in ok),
+                lost_cN=med(r["lost_mol"][cycles - 1] / n_li[r["j"]] for r in ok),
+                slope=med(math.log(r["lost_mol"][cycles - 1] / r["lost_mol"][1]) / math.log(cycles / 2) for r in ok),
+                t_ch_ratio=med(r["t_ch"][cycles - 1] / r["t_ch"][1] for r in ok))
+
+
 def verdict(sup, ref):
     return "supported" if sup else ("refuted" if ref else "inconclusive")
 
@@ -247,6 +262,16 @@ def report():
             if k.startswith("eight"):
                 L.append(f"{k:34s}{v['mean']:+8.2f}{v['boot'][0]:+9.2f} to {v['boot'][1]:+.2f}{v['cheaper']:9d}"
                          f"{v['dearer']:8d}{v['sign_p']:8.3f}{v['met_a']:>5d}/{v['met_b']}")
+    bal = R._bal()
+    n_li = {j: bal[(COND, j)]["n_li"] for j in range(R.N_PROBE)}
+    pr = R._load(HERE / "probe.jsonl")
+    dg = {g: diag([r for r in pr if r["mult"] == g], n_li) for g in MULTS}
+    extra["diag"] = {f"{g:g}": v for g, v in dg.items()}
+    L += ["", "why the probe fades as it does (medians over finished probe designs; reported):",
+          f"{'g':>8s}{'n':>3s}{'lost by c1':>12s}{'lost by c20':>13s}{'slope c2-20':>13s}{'t_ch c20/c2':>13s}"]
+    for g, v in dg.items():
+        if v:
+            L.append(f"{g:8g}{v['n']:3d}{v['lost_c1']:12.4f}{v['lost_cN']:13.4f}{v['slope']:13.2f}{v['t_ch_ratio']:13.3f}")
     V = judge(kept, drift, d_cu, met_h, pick)
     L.append("")
     for h, t in (("H362", f"some g in {list(LADDER)} makes the plating-free cell pass the probe rule"),
