@@ -139,6 +139,8 @@ class NearField:
         keys = sorted(set(hull.ratio), key=repr)
         self.field = field or FieldTable(keys, n_panels=n_panels, processes=processes)
         self._direct = {}
+        self._mats = {}
+        self.last_history = []
 
     def _direct_solve(self, i, r, nu_t, kt, yx):
         """7zz: per-panel potentials (draft 1) of station i for body conditions n_z (unit heave), n_z e^{kT zeta}
@@ -167,7 +169,97 @@ class NearField:
                 yx[i][j] = dy[i]
         return yx
 
-    def excitation(self, omega, diffraction="sdx", fk="exact"):
+    def _extra_solve(self, i, r, nu_t, rhs):
+        """7zzb: draft-1 per-panel potential of station i for one more body condition, matrices cached."""
+        key = (i, nu_t)
+        if key not in self._mats:
+            nodes = section_nodes(r, self.field.n_panels)
+            pan, _, amat, pmat = st._section_matrices(nodes, nu_t)
+            self._mats[key] = (amat, pmat)
+        amat, pmat = self._mats[key]
+        sig = st._solve(amat, [complex(v) for v in rhs])
+        n = len(sig)
+        return [sum(pmat[a][b] * sig[b] for b in range(n)) for a in range(n)]
+
+    def _pxt(self, phis, dns, yx):
+        """d phi / dx at fixed (y, z) per station and panel (station differences at fixed panel index minus
+        phi_y dY/dx), for dimensional potentials `phis` with outward normal derivatives `dns`, as in `response`."""
+        h, t = self.h, self.h.t
+        geos = [self.field.geo[r] for r in h.ratio]
+        npan = len(yx[0])
+        phx = [[0j] * npan for _ in h.x]
+        for j in range(npan):
+            dp = d_dx([p[j] for p in phis], h.x, 0.5 * h.l)
+            for i in range(len(h.x)):
+                phx[i][j] = dp[i]
+        out = []
+        for i, g in enumerate(geos):
+            if g is None:
+                out.append([0j] * npan)
+                continue
+            dsv = d_ds(phis[i], [(t * q[0], t * q[1]) for q in g])
+            out.append([phx[i][j] - (g[j][2] * dns[i][j] + g[j][5] * dsv[j]) * yx[i][j] for j in range(npan)])
+        return out
+
+    def diffraction_flow(self, omega, diffraction, nu_t=None, dx_passes=0, tol=None):
+        """7zzb: dimensional diffraction potential and its outward normal derivative per station and panel, for the
+        body condition `diffraction` ("rv", "sd", "sdx"), with `dx_passes` fixed-point passes adding the disturbance's
+        own x-derivative to the section body condition: dphi_D/dN gains Y_x n_y phi_D,x (n_x / |n_2D| = -Y_x n_y),
+        phi_D^(n+1) = phi_D^(0) + S[Y_x n_y phi_D,x^(n)]. With `tol`, stops once the largest change of phi_D over
+        its largest value falls under tol. Returns (phis, dns, history of that relative change per pass)."""
+        h = self.h
+        k = omega * omega / G
+        t = h.t
+        if nu_t is None:
+            nu_t = k * t
+        smith = math.exp(-k * h.dm)
+        yx = self._yx()
+        npan = len(yx[0])
+        phis, dns = [], []
+        for i, (r, x) in enumerate(zip(h.ratio, h.x)):
+            g = self.field.geo[r]
+            if g is None:
+                phis.append([0j] * npan)
+                dns.append([0j] * npan)
+                continue
+            (ph_h, ph_z, ph_x), ez = self._direct_solve(i, r, nu_t, k * t, yx[i])
+            nz = [q[3] for q in g]
+            ny = [q[2] for q in g]
+            if diffraction == "rv":
+                pd, dd = [smith * a for a in ph_h], [smith * a for a in nz]
+            elif diffraction == "sd":
+                pd, dd = ph_z, [a * e for a, e in zip(nz, ez)]
+            elif diffraction == "sdx":
+                pd = [a - 1j * b for a, b in zip(ph_z, ph_x)]
+                dd = [(a - 1j * yx[i][j] * b) * e for j, (a, b, e) in enumerate(zip(nz, ny, ez))]
+            else:
+                raise ValueError(diffraction)
+            wi = -1j * omega * cmath.exp(1j * k * x)
+            phis.append([t * wi * b for b in pd])
+            dns.append([wi * b for b in dd])
+        base_p, base_d = phis, dns
+        hist = []
+        for _ in range(dx_passes):
+            pxt = self._pxt(phis, dns, yx)
+            new_p, new_d = [], []
+            for i, r in enumerate(h.ratio):
+                g = self.field.geo[r]
+                if g is None:
+                    new_p.append(base_p[i])
+                    new_d.append(base_d[i])
+                    continue
+                rhs = [yx[i][j] * g[j][2] * pxt[i][j] for j in range(npan)]
+                sol = self._extra_solve(i, r, nu_t, rhs)
+                new_p.append([a + t * b for a, b in zip(base_p[i], sol)])
+                new_d.append([a + b for a, b in zip(base_d[i], rhs)])
+            top = max(abs(v) for row in new_p for v in row) or 1.0
+            hist.append(max(abs(a - b) for ra, rb in zip(new_p, phis) for a, b in zip(ra, rb)) / top)
+            phis, dns = new_p, new_d
+            if tol is not None and hist[-1] < tol:
+                break
+        return phis, dns, hist
+
+    def excitation(self, omega, diffraction="sdx", fk="exact", dx_passes=0, tol=None):
         """7zza: zero-speed head-wave exciting heave force and bow-up pitch moment (F3, F5) per unit wave amplitude,
         strip convention, by pressure integration on each section with the 7zz direct diffraction solve.
 
@@ -180,28 +272,19 @@ class NearField:
         rho, t, dx = h.rho, h.t, h.dx
         smith = math.exp(-k * h.dm)
         nu_t = omega * omega / G * t
-        yx = self._yx()
+        phd, _, hist = self.diffraction_flow(omega, diffraction, nu_t, dx_passes, tol)
+        self.last_history = hist
         f3 = f5 = 0j
         for i, (r, x) in enumerate(zip(h.ratio, h.x)):
             g = self.field.geo[r]
             if g is None:
                 continue
-            (ph_h, ph_z, ph_x), ez = self._direct_solve(i, r, nu_t, k * t, yx[i])
-            if diffraction == "rv":
-                pd = [smith * a for a in ph_h]
-            elif diffraction == "sd":
-                pd = ph_z
-            elif diffraction == "sdx":
-                pd = [a - 1j * b for a, b in zip(ph_z, ph_x)]
-            else:
-                raise ValueError(diffraction)
             eikx = cmath.exp(1j * k * x)
-            wi = -1j * omega * eikx
             fs = 0j
             for j, q in enumerate(g):
-                p = -1j * omega * rho * t * wi * pd[j]
+                p = -1j * omega * rho * phd[i][j]
                 if fk == "exact":
-                    p += rho * G * ez[j] * eikx
+                    p += rho * G * math.exp(k * t * q[1]) * eikx
                 fs += -2.0 * p * q[3] * t * q[4]
             if fk == "strip":
                 fs += rho * G * 2.0 * h.hb[i] * smith * eikx
@@ -211,7 +294,7 @@ class NearField:
             f5 += x * fs * dx
         return f3, f5
 
-    def response(self, omega, u, gb=None, diffraction=None, motions=None):
+    def response(self, omega, u, gb=None, diffraction=None, motions=None, dx_passes=0, tol=None):
         """dict: motions, GB R_aw and the near-field terms (N/m2 per unit wave amplitude squared).
 
         nf = wl + vel + rot (PDSTRIP's force sum in 166); nf_boese uses Boese's substitution in 166; nf0 drops the
@@ -224,7 +307,9 @@ class NearField:
         relative-velocity disturbance by a direct solve per section, radiation (unit heave times minus the body's
         vertical velocity) plus diffraction with body condition dphi_D/dN = -i omega e^{ikx} times: "rv" the
         uniform Smith factor n_z e^{-k d_m} (today's flow, solved directly); "sd" n_z e^{kz}; "sdx"
-        e^{kz} (n_z - i Y_x n_y), the incident surge velocity on the longitudinal normal n_x / |n_2D| = -Y_x n_y."""
+        e^{kz} (n_z - i Y_x n_y), the incident surge velocity on the longitudinal normal n_x / |n_2D| = -Y_x n_y.
+        7zzb: `dx_passes` (with `diffraction`) adds the diffraction disturbance's own x-derivative to that body
+        condition by fixed-point passes (`diffraction_flow`); 0 leaves every output unchanged."""
         h = self.h
         z3, th, raw_gb, we = h.response(omega, u, gb=gb)
         if motions is not None:
@@ -244,6 +329,8 @@ class NearField:
             for i in range(len(xs)):
                 yx[i][j] = dy[i]
         phs, dn0 = [], []
+        if diffraction is not None:
+            phd, dnd, self.last_history = self.diffraction_flow(omega, diffraction, nu_t, dx_passes, tol)
         for i, (r, v) in enumerate(zip(h.ratio, vz)):
             if self.field.geo[r] is None:
                 phs.append([0j] * npan)
@@ -254,21 +341,9 @@ class NearField:
             else:
                 (ph_h, ph_z, ph_x), ez = self._direct_solve(i, r, nu_t, k * t, yx[i])
                 vb = v - 1j * omega * smith * cmath.exp(1j * k * xs[i])      # minus the body's vertical velocity
-                wi = -1j * omega * cmath.exp(1j * k * xs[i])
                 nz = [q[3] for q in self.field.geo[r]]
-                ny = [q[2] for q in self.field.geo[r]]
-                if diffraction == "rv":
-                    pd = [smith * a for a in ph_h]
-                    dd = [smith * a for a in nz]
-                elif diffraction == "sd":
-                    pd, dd = ph_z, [a * e for a, e in zip(nz, ez)]
-                elif diffraction == "sdx":
-                    pd = [a - 1j * b for a, b in zip(ph_z, ph_x)]
-                    dd = [(a - 1j * yx[i][j] * b) * e for j, (a, b, e) in enumerate(zip(nz, ny, ez))]
-                else:
-                    raise ValueError(diffraction)
-                phs.append([-t * a * vb + t * wi * b for a, b in zip(ph_h, pd)])
-                dn0.append([-vb * a + wi * b for a, b in zip(nz, dd)])
+                phs.append([-t * a * vb + b for a, b in zip(ph_h, phd[i])])
+                dn0.append([-vb * a + b for a, b in zip(nz, dnd[i])])
         # x-derivatives per panel index (the panels of every section sit at the same z, the draft being constant)
         phx = [[0j] * npan for _ in xs]
         for j in range(npan):

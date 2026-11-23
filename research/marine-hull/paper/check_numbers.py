@@ -282,6 +282,12 @@ CLAIMS = [
     ("results_consistent_excitation.txt", "  1.00 def   -20.3/   -3.5  sdx-e    -7.5/   -1.5"),
     ("results_consistent_excitation.txt", "E5 sdx-e free band area / 3D in 0.9-1.1: T 1.362, M 1.092 -> refuted"),
     ("results_consistent_excitation.txt", "E4 sdx-e long-wave NF under 20% of def: T 1.814, M 2.064 -> refuted"),
+    # milestone 7zzb: the diffraction disturbance's x-derivative in the sectional body condition, fixed-point passes
+    ("results_dx_fixed_point.txt", "over 3D: sdx 0.895, dx1 0.714, dxc 0.741, dx200 0.741"),
+    ("results_dx_fixed_point.txt", "over 3D: sdx 0.732, dx1 0.659, dxc 0.660, dx200 0.660"),
+    ("results_dx_fixed_point.txt", "X1 dxc settles (1e-4 sigma within 12 passes) everywhere: T False (10 of 14 not)"),
+    ("results_dx_fixed_point.txt", "over 3D: sdx 1.362, dx1 1.182, dxc 1.189, dx200 1.187"),
+    ("results_dx_fixed_point.txt", "over 3D: sdx 1.092, dx1 1.009, dxc 0.999, dx200 0.999"),
 
 ]
 
