@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-22",
- "data_through": "2026-11-22",
+ "generated_for": "2026-11-23",
+ "data_through": "2026-11-23",
  "latest_day": {
-  "day": "2026-11-22",
-  "page_loads": 17
+  "day": "2026-11-23",
+  "page_loads": 18
  },
  "weeks": [
   {
@@ -54,12 +54,23 @@
    "week": "2026-W47",
    "monday": "2026-11-16",
    "days": 7,
-   "page_loads": 491,
-   "tool_loads": 458,
-   "tools": 95,
+   "page_loads": 556,
+   "tool_loads": 511,
+   "tools": 105,
    "top_tool": "secret-santa-draw",
    "feedback": 0,
-   "crawler_beacons": 107419
+   "crawler_beacons": 107850
+  },
+  {
+   "week": "2026-W48",
+   "monday": "2026-11-23",
+   "days": 1,
+   "page_loads": 18,
+   "tool_loads": 17,
+   "tools": 8,
+   "top_tool": "quick-pick-survey",
+   "feedback": 0,
+   "crawler_beacons": 14950
   }
  ]
 }
