@@ -1,0 +1,75 @@
+cell-fidelity milestone 7r: the plating exchange-current density scaled by a fixed ladder on Mohtat2020@3x and Ecker2015@2x;
+probe: designs 0 to 3 of 7p's pool (Sobol seed 41), 20 cycles, 5zk's x-resolved DFN (SEI + plating) bench; kept: the smallest multiplier per cell
+with median fade (cycle 2 to 20, share of n_Li) in [0.03, 0.2]; kept cells benched to cycle 100 and put through 7p's code. PyBaMM 26.10.1.1.
+
+cell              mult  done  plates     fade  probe
+Marquis2019@2x       1     4    True   0.0000  (7p)
+Marquis2019@2x      10     4   False   0.0002  fail
+Marquis2019@2x     100     4   False   0.0010  fail
+Marquis2019@2x    1000     4   False   0.0036  fail
+Marquis2019@2x   10000     4   False   0.0118  fail
+Marquis2019@2x  100000     4   False   0.0372  pass
+Marquis2019@2x   1e+06     4   False   0.1106  pass
+
+fade against multiplier: Marquis2019@2x rising True, log-log slope 0.62
+
+kept: Marquis2019@2x x100000
+
+set              n  q75 E10  med E10  q75 E50   med m med|mC-1|   pick   rho(O1, O2, O3 ; m) on pools 1-3
+Marquis2019     50    0.706    0.647    0.258   0.365     0.634   O3     -0.07  -0.07  -0.61
+
+lopo5 on the new sets              Marquis2019
+theta                           5/5   49.2 cyc
+theta50                         5/5   49.2 cyc
+U                               5/5   50.0 cyc
+
+paired lopo5 folds, threshold rule minus uniform (DFN cycles per design; negative = threshold cheaper):
+rule       sets folds    mean     set bootstrap 95%  cheaper  dearer  sign p  met a/b
+theta      four    20   -4.50        -8.50 to +0.25       14       4   0.031   19/19
+theta       new     5   -0.80                     -        1       0   1.000    5/5
+theta       all    25   -3.76        -7.53 to +0.04       15       4   0.019   24/24
+theta50    four    20   -4.50        -8.50 to +0.25       14       4   0.031   19/19
+theta50     new     5   -0.80                     -        1       0   1.000    5/5
+theta50     all    25   -3.76        -7.53 to +0.04       15       4   0.019   24/24
+
+per-set mean difference, theta minus U: Ai2020 -7.00, Chen2020 +2.67, Marquis2019 -0.80, NCA_Kim2011 -10.00, OKane2022 -3.67
+
+H317 (some multiplier in [10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0] makes each cell pass the probe): supported
+H318 (fade rises with the multiplier on each cell, log-log slope 0.5 to 1.5): supported
+H319 (the forecast law works on each kept cell, q75 E10 <= 0.2): inconclusive
+H320 (the all-set bootstrap interval of theta - U lies below zero): inconclusive
+H321 (theta meets >= 4 of 5 lopo5 folds on each kept cell): supported
+
+---- 7zb: the lines above are 7r's report replayed on the SEI-only cell (its H317 to H321 labels are 7r's; 'plates' must be False here, mult is the SEI solvent-diffusivity multiplier g, plating exchange current 0) ----
+kept g = 100000; bench finished to cycle 100: 56/56
+drift multiplier m: median 0.365, median |m - 1| 0.635, |median m - 1| 0.635
+early plating share phi10: median 0.0, max 0.0 over 56
+gates per fold: N yyyyy  P nnnnn  D yyyyy
+totals (met of 5, DFN cycles per design): theta 5/5 49.2  U 5/5 50.0  thetaC 5/5 10.0  thetaH 5/5 10.0  thetaN 5/5 10.0  thetaP 5/5 49.2  thetaD 5/5 10.0
+pairs on this cell: thetaC-U -40.00 (5c/0d)  thetaH-U -40.00 (5c/0d)  thetaP-U -0.80 (1c/0d)  thetaP-theta +0.00 (0c/0d)  thetaD-theta -39.20 (5c/0d)  thetaN-theta -39.20 (5c/0d)  theta-U -0.80 (1c/0d)
+post hoc oracle (7y's): thetaH
+
+eight set-conditions (reported)       mean        set boot 95%  cheaper  dearer  sign p  met a/b
+eight thetaP-theta                  -10.46   -22.23 to +0.12       15       5   0.041   36/35
+eight thetaD-theta                  -14.67   -27.70 to -1.77       20       8   0.036   36/35
+eight thetaH-theta                  -14.67   -27.70 to -1.77       20       8   0.036   36/35
+eight thetaD-U                      -16.80   -27.82 to -5.55       28       4   0.000   36/38
+eight thetaP-U                      -12.59   -22.56 to -3.62       26       4   0.000   36/38
+
+why the probe fades as it does (medians over finished probe designs; reported):
+       g  n  lost by c1  lost by c20  slope c2-20  t_ch c20/c2
+       1  4      0.0000       0.0000         0.95        1.000
+      10  4      0.0000       0.0002         0.90        1.000
+     100  4      0.0001       0.0012         0.74        1.000
+    1000  4      0.0008       0.0049         0.58        1.000
+   10000  4      0.0037       0.0170         0.51        0.999
+  100000  4      0.0130       0.0551         0.49        0.992
+   1e+06  4      0.0424       0.1681         0.46        0.788
+
+H362 (some g in [10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0] makes the plating-free cell pass the probe rule): supported
+H363 (the kept cell's drift is large and one-directional: median |m - 1| >= 0.10 and |median m - 1| >= 0.10): supported
+H364 (7v's correction pays without plating: 5-fold mean of thetaC - U < 0): supported
+H365 (thetaH meets >= 4 of 5 folds): supported
+H366 (drift size, not plating, decides: 7y's oracle picks thetaH over theta): supported
+
+7zc: SEI resistivity x 0; the H362 to H366 lines above are this step's H367 to H371 (same tests): H367 supported, H368 supported, H369 supported, H370 supported, H371 supported

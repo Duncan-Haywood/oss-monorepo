@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVNr9cKmh5VLhXZJhX4",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "bd21f1129ba809e796b68a1d2bf7670ff90157ecee0ebfc70c69514b21bd90b4",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T23:11:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new venture: silence-cutter (browser silence remover with editor timeline export)",
+  "projects": [
+    "ventures/silence-cutter"
+  ],
+  "pr": 18498,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 34,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The catch-all section bound (5) and the tree-count sync only show up in the 5-minute preflight. A fast pre-check run when the venture directory is first created would save a round trip."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Every Deepen row this session could reach was deep in diminishing returns or needed outside input. ai-bookkeeper's buildable host (huggingface) refused; changepoint-detector needs a live repository; the monetization next step waits on the owner's checkout link. The brief also asks for new ventures, so I started one with depth (DSP, a measured benchmark, editor interchange formats) rather than shave another point off a flagship.",
+      "did": "Built silence-cutter: engine, CLI, page, guide, benchmark, post.",
+      "result": "95.8% of pauses removed and 25 of 2,496 words cut into on the held-out seed; fixed thresholds fail (499 words cut, or 0% removed under noise)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-a-fixed-silence-threshold-cuts-nothing-or-everything.md"
+  ],
+  "goal": "ship a new product with real depth from the standing brief",
+  "notes": "Local verification: run_venture_tests.py silence-cutter ok (34 tests); clauses.mjs ok; check_posts ok; venture-preflight first run failed on catch-all section, tree counts, CLI entry guard and file-input labels; all fixed in the second commit and preflight rerun. End to end: CLI on a 60 s MP4, ffmpeg render 55.27 s matches kept frames, xmllint ok on FCPXML/XML, page in headless Chromium matches CLI. Not verified: import into Resolve/Premiere/Final Cut.",
+  "corrections": [],
+  "redteam": null
+}

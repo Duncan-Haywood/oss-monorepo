@@ -33,6 +33,7 @@ LADDER = MULTS[1:]                               # the multipliers the choice ma
 CONTROL = -1.0                                   # job multiplier meaning "nothing changed" (7p's protocol)
 PL_SHARE_MAX = 0.01                              # "no plating": plated / lost lithium at cycle 20 on every probe design
 D_MIN = 0.10                                     # 7y's drift-size threshold (H363)
+SET_TAG = "-SEI"                                 # suffix for this cell's set name in the eight-set pooling
 
 
 def _mod(name, path):
@@ -238,7 +239,10 @@ def report():
         y7 = json.loads((EXP / "gate7y" / "summary.json").read_text())
         za = json.loads((EXP / "marq7za" / "summary.json").read_text())["folds"]
         Y7 = ("theta", "U", "thetaH", "thetaN", "thetaP", "thetaD")
-        eight = {r: y7["four"]["folds"][r] + y7["f30"]["folds"][r] + za[r] + z["folds"][r] for r in Y7}
+        # this cell's folds carry set "Marquis2019", as 7za's do; paired() keys by (set, pool), so relabel them or
+        # they overwrite 7za's (found in 7zc, the first run to reach this line)
+        mine = {r: [dict(q, set=q["set"] + SET_TAG) for q in z["folds"][r]] for r in Y7}
+        eight = {r: y7["four"]["folds"][r] + y7["f30"]["folds"][r] + za[r] + mine[r] for r in Y7}
         for a, b in (("thetaP", "theta"), ("thetaD", "theta"), ("thetaH", "theta"), ("thetaD", "U"), ("thetaP", "U")):
             pr = S.paired(eight[a], eight[b])
             pos, neg, sp = S.sign_test([q["d"] for q in pr])

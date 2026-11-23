@@ -1,0 +1,49 @@
+name: silence-cutter
+description: >-
+  A free browser tool and zero-dependency Node CLI that removes the pauses
+  from talking-head videos, podcasts and lectures. The threshold is set from
+  the recording's own noise floor and voice level, a voice-band filter keeps
+  hum out of the decision, and a second, lower threshold keeps soft word
+  edges. Exports a CMX3600 EDL, FCPXML 1.9 or Final Cut 7 XML timeline for
+  DaVinci Resolve, Final Cut Pro or Premiere Pro, a cut WAV, a CSV, an ffmpeg
+  command and retimed subtitles. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Ventures-track pick (2026-11-23). Nothing in ventures/ cuts silence
+# (searched slugs and READMEs for silence, jump cut, dead air). Creators,
+# podcasters and course makers do this on every recording; the paid
+# alternatives are desktop installs and subscription editors.
+hypotheses:
+  - claim: >-
+      Video creators searching "remove silence from video" or "auto cut
+      silence premiere/resolve" will use a no-install, no-upload page that
+      exports an editor timeline, and come back for the next recording.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The EDL/XML timeline export, not the rendered file, is the feature
+      most sessions end in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Static files; all work runs on the visitor's device.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (portfolio/usage/README.md).
+
+links:
+  production: https://marisstella.app/silence-cutter/
+  analytics: null
