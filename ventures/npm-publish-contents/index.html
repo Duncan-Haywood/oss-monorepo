@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237a2e2e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%96%A4%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>npm Publish Contents — Which Files Will npm publish Put in My Package?</title>
+  <meta name="description" content="Free npm package contents checker: paste package.json, your file list and your .npmignore or .gitignore to see every file npm publish would ship, the rule that decides each one, and the .env files, keys and missing entry points to fix first. Runs in your browser.">
+  <meta property="og:title" content="npm Publish Contents — free, private, in your browser">
+  <meta property="og:description" content="Did a .npmignore just switch off your .gitignore? Which rule left dist/ out? See every file npm publish would ship, and why, before you publish.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "npm Publish Contents", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Shows which files npm publish would put in a package tarball and which rule decides each one: npm's default excludes, the files field, .npmignore or .gitignore, and the files npm always or never packs. Flags secrets that would ship, a .gitignore switched off by a .npmignore, entry points missing from the tarball and files entries that select nothing. Runs in your browser.", "featureList": "npm-packlist compatible file selection, deciding rule per file, folder-level explanations, secret and key detection, shadowed .gitignore detection, missing main, types, bin and exports targets, CSV download, command-line version with npm pack verification and a CI exit code"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did npm publish a file that is in my .gitignore?", "acceptedAnswer": {"@type": "Answer", "text": "Because a .npmignore in the same folder replaces the .gitignore; npm reads one or the other, never both. The same happens at the package root when package.json has a files field: neither ignore file at the root is read. Copy the lines you still need into .npmignore, or list what should ship in files. The tool lists every file your .gitignore excludes that would now be published."}}, {"@type": "Question", "name": "Which files does npm always include or always leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Always included: package.json, and at the package root any README, LICENSE, LICENCE or COPYING file, plus the files named by main, browser and bin. Always left out: .git, the root node_modules, package-lock.json, yarn.lock, pnpm-lock.yaml and .npmrc, and by default .DS_Store, *.orig, npm-debug.log, editor swap files and the ignore files themselves. A node_modules folder below the root is not left out."}}, {"@type": "Question", "name": "Why is my main file missing from the published package?", "acceptedAnswer": {"@type": "Answer", "text": "npm forces main into the package only when it is written without a leading ./ (for example dist/index.js, not ./dist/index.js). With the ./ the forcing rule never matches, so the file ships only if files or your ignore rules let it through. bin paths are cleaned first, so ./bin/cli.js works there. The tool reports both cases."}}, {"@type": "Question", "name": "How do .npmignore patterns differ from .gitignore patterns?", "acceptedAnswer": {"@type": "Answer", "text": "npm matches with minimatch, not git's rules: case is ignored, a pattern without a slash matches the name at any depth, and leading and trailing spaces are trimmed. A rule like Docs also removes docs/ and lib/DOCS, even on a case-sensitive disk. The tool shows the file and line of the rule that decided each path."}}, {"@type": "Question", "name": "How do I see what npm publish will upload before publishing?", "acceptedAnswer": {"@type": "Answer", "text": "Run npm pack --dry-run, which lists the files but not why. Paste that list, or your full file list, here to get the reason for each file, or run the command-line version in the package folder with --verify to compare its answer with npm pack's and --fail-on high to stop a CI job that would leak a secret."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The engine runs in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b1b; background: #f7f4f2; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #8a2f2f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #4a1d1d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a1d1d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #efe8e5; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #5c5050; }
+    .card { background: #fff; border: 1px solid #e3d9d5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a1d1d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8a7a76; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #8a2f2f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8e5; color: #4a1d1d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #efe8e5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5c5050; }
+    td code { white-space: pre-wrap; word-break: break-all; }
+    .finding { border-bottom: 1px solid #efe8e5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: .85rem ui-monospace, Menlo, Consolas, monospace; word-break: break-all; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.low, .pill.info { background: #efe8e5; color: #4a1d1d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f5efec; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #4a1d1d; }
+    .scroll { overflow-x: auto; }
+    .ships { color: #7a1f10; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #e3d9d5; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NPM PUBLISH CONTENTS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which files will npm publish put in my package?</h1>
+    <p>Paste your <code>package.json</code>, the files in your package folder and your <code>.npmignore</code> or <code>.gitignore</code>. You get <strong>every file npm would ship</strong>, <strong>the rule that decides each one</strong> (file and line, or the folder npm never entered), and the things to fix before you publish: <strong>.env files and keys</strong> that would go public, a <strong>.gitignore that a .npmignore switched off</strong>, and <strong>entry points missing</strong> from the tarball.</p>
+    <p class="note">Nothing you paste leaves this browser tab. The engine follows npm's own file-selection code and agrees with it on 3,000 random packages and 360 real ones (see the README).</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your package</h2>
+    <div class="grid">
+      <div>
+        <label for="pkg">package.json</label>
+        <textarea id="pkg" spellcheck="false" placeholder='{ "name": "my-lib", "main": "dist/index.js", "files": ["dist"] }'></textarea>
+      </div>
+      <div>
+        <label for="files">Files in the package folder</label>
+        <textarea id="files" spellcheck="false" placeholder="src/index.ts&#10;dist/index.js&#10;.env"></textarea>
+        <p class="note">One path per line, relative to the folder with package.json. <code>find . -type f -not -path './.git/*' -not -path './node_modules/*'</code> lists them all, including untracked and gitignored files, which npm can still publish. The output of <code>npm pack --dry-run --json</code> also works.</p>
+      </div>
+    </div>
+    <label for="ignores">Ignore files (optional)</label>
+    <textarea id="ignores" spellcheck="false" placeholder="==> .npmignore <==&#10;src/&#10;&#10;==> .gitignore <==&#10;.env&#10;dist/"></textarea>
+    <p class="note">Each file under a <code>==&gt; path &lt;==</code> line, which is what <code>head -n 9999 .npmignore .gitignore lib/.npmignore</code> prints. An ignore file in your list without contents here is read as empty.</p>
+    <p>
+      <button type="button" id="run">Check what ships</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Report</h2>
+    <div class="big" id="totals"></div>
+    <div id="notes"></div>
+    <div id="findings"></div>
+    <h3>Every file</h3>
+    <div class="scroll"><table><thead><tr><th>File</th><th>Ships</th><th>Why</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="csv">Download CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>From the command line</h2>
+    <p>The same engine, no dependencies, no network: <code>node cli.mjs .</code> in a package folder prints what would ship and why; <code>--why lib/a.js</code> explains one path, <code>--all</code> lists what is left out, <code>--verify</code> runs your own <code>npm pack --dry-run</code> and says whether it agrees, and <code>--fail-on high</code> exits 1 so a CI job stops before a secret goes public. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/npm-publish-contents">Source and README</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why did npm publish a file that is in my .gitignore?</h3>
+    <p>Because a .npmignore in the same folder replaces the .gitignore; npm reads one or the other, never both. The same happens at the package root when package.json has a files field: neither ignore file at the root is read. Copy the lines you still need into .npmignore, or list what should ship in files. The tool lists every file your .gitignore excludes that would now be published.</p>
+    <h3>Which files does npm always include or always leave out?</h3>
+    <p>Always included: package.json, and at the package root any README, LICENSE, LICENCE or COPYING file, plus the files named by main, browser and bin. Always left out: .git, the root node_modules, package-lock.json, yarn.lock, pnpm-lock.yaml and .npmrc, and by default .DS_Store, *.orig, npm-debug.log, editor swap files and the ignore files themselves. A node_modules folder below the root is not left out.</p>
+    <h3>Why is my main file missing from the published package?</h3>
+    <p>npm forces main into the package only when it is written without a leading ./ (for example dist/index.js, not ./dist/index.js). With the ./ the forcing rule never matches, so the file ships only if files or your ignore rules let it through. bin paths are cleaned first, so ./bin/cli.js works there. The tool reports both cases.</p>
+    <h3>How do .npmignore patterns differ from .gitignore patterns?</h3>
+    <p>npm matches with minimatch, not git's rules: case is ignored, a pattern without a slash matches the name at any depth, and leading and trailing spaces are trimmed. A rule like Docs also removes docs/ and lib/DOCS, even on a case-sensitive disk. The tool shows the file and line of the rule that decided each path.</p>
+    <h3>How do I see what npm publish will upload before publishing?</h3>
+    <p>Run npm pack --dry-run, which lists the files but not why. Paste that list, or your full file list, here to get the reason for each file, or run the command-line version in the package folder with --verify to compare its answer with npm pack's and --fail-on high to stop a CI job that would leak a secret.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The engine runs in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice. Results come from the text you paste, evaluated by this tool's own reimplementation of npm's file-selection rules (npm 10 and 11); it does not run npm or contact a registry. The secret check looks at file names only and will miss secrets inside ordinary files. You are responsible for reviewing the real list, for example with <code>npm pack --dry-run</code>, before you publish. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by npm, Inc., GitHub, the npm CLI maintainers, the OpenJS Foundation or any other vendor. npm is a trademark of npm, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>package_checked</code>, <code>example_loaded</code>, <code>secret_found</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Before you publish: the <a href="../npm-provenance-check/">npm provenance checker</a> looks at how a package was built, the <a href="../package-exports-drift-check/">package exports drift checker</a> compares the exports map with the files you ship, and the <a href="../gitignore-explainer/">.gitignore explainer</a> does this job for git's own rules. Guide: <a href="why-npmignore-publishes-your-gitignored-files.html">why a .npmignore publishes your gitignored files</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseFileList, parseIgnoreBundle, reportCsv, EXAMPLE } from "./packlist.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    const status = $("#form-status");
+    let last = null;
+    function run() {
+      if (!$("#pkg").value.trim()) { status.textContent = "Paste your package.json first."; return; }
+      const files = parseFileList($("#files").value);
+      last = analyze({ packageJson: $("#pkg").value, files, ignoreFiles: parseIgnoreBundle($("#ignores").value) });
+      if (last.errors.length && last.errors[0].startsWith("package.json is not valid JSON")) { status.textContent = last.errors[0]; $("#report").hidden = true; return; }
+      const t = last.totals;
+      status.textContent = `Checked ${t.listed} file${t.listed === 1 ? "" : "s"}.`;
+      $("#totals").innerHTML = [["Files listed", t.listed], ["Would ship", t.shipped], ["Left out", t.excluded], ["Look secret and ship", t.secrets]]
+        .map(([k, v]) => `<div><strong>${esc(v.toLocaleString("en-US"))}</strong>${k}</div>`).join("");
+      $("#notes").innerHTML = [...last.shadowed.map((s) => `<code>${esc(s.file)}</code> is not read: ${esc(s.by)} takes its place.`), ...last.errors.map(esc)]
+        .map((s) => `<p class="note">${s}</p>`).join("");
+      $("#findings").innerHTML = `<h3>Findings</h3>` + (last.findings.length ? last.findings.map((f) => `<div class="finding"><p><span class="pill ${f.severity}">${f.severity}</span>${md(f.message)}</p><ul>${f.paths.slice(0, 50).map((p) => `<li>${esc(p)}</li>`).join("")}${f.paths.length > 50 ? `<li>… ${f.paths.length - 50} more</li>` : ""}</ul></div>`).join("") : "<p>Nothing to flag. Still read the list below before you publish.</p>");
+      $("#rows").innerHTML = last.rows.slice(0, 5000).map((r) => `<tr><td><code>${esc(r.path)}</code></td><td>${r.included ? `<span class="ships">yes</span>` : "no"}</td><td>${md(r.reason)}${r.secret ? `<br><strong>${esc(r.secret)}</strong>` : ""}</td></tr>`).join("");
+      $("#report").hidden = false;
+      record("package_checked");
+      if (t.secrets) record("secret_found");
+    }
+    $("#run").addEventListener("click", run);
+    $("#example").addEventListener("click", () => {
+      $("#pkg").value = EXAMPLE.packageJson; $("#files").value = EXAMPLE.files; $("#ignores").value = EXAMPLE.ignoreFiles;
+      record("example_loaded");
+      run();
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["pkg", "files", "ignores"]) $("#" + id).value = ""; $("#report").hidden = true; status.textContent = ""; last = null; });
+    $("#csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "npm-publish-contents.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

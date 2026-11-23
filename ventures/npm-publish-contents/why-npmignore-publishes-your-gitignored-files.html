@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237a2e2e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%96%A4%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Adding a .npmignore Publishes Your Gitignored Files (and .env)</title>
+  <meta name="description" content="npm reads a .npmignore instead of your .gitignore, not as well, so adding one can publish .env files and build junk you thought were ignored. How npm chooses, the main ./ trap, and how to check your package before publishing.">
+  <meta property="og:title" content="Why a .npmignore publishes your gitignored files">
+  <meta property="og:description" content="One file replaces the other. What npm reads, in what order, and the two-minute check before npm publish.">
+  <link rel="canonical" href="./why-npmignore-publishes-your-gitignored-files.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does npm use .gitignore when there is a .npmignore?", "acceptedAnswer": {"@type": "Answer", "text": "No. In each folder npm reads the .npmignore if there is one and skips the .gitignore beside it. At the package root, a files field in package.json switches off both. Ignore files in sub-folders are still read, one per folder, with the same preference."}}, {"@type": "Question", "name": "Is files or .npmignore better for keeping secrets out of an npm package?", "acceptedAnswer": {"@type": "Answer", "text": "files, because it is an allow-list: a new file ships only if you list it or it sits in a listed folder. A .npmignore is a deny-list, so every new file ships until you remember to add a line. Either way, check the list with npm pack --dry-run before you publish."}}, {"@type": "Question", "name": "I published a .env file to npm. Is unpublishing enough?", "acceptedAnswer": {"@type": "Answer", "text": "No. Treat every secret in it as leaked: rotate the keys first. Registry mirrors and caches may already hold the tarball, and npm only allows unpublishing within its own policy limits. Then fix the rules and publish a new version."}}]}</script>
+  <style>
+    :root { font: 17px Georgia, serif; color: #1f1b1b; background: #f7f4f2; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #8a2f2f; }
+    h1 { font: 700 clamp(1.7rem, 4.6vw, 2.4rem)/1.1 system-ui, sans-serif; color: #4a1d1d; }
+    h2 { font: 700 1.2rem system-ui, sans-serif; color: #4a1d1d; margin-top: 30px; }
+    h3 { font: 700 1rem system-ui, sans-serif; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    code, pre { font: 0.88em ui-monospace, Menlo, Consolas, monospace; background: #efe8e5; border-radius: 4px; }
+    code { padding: 1px 4px; }
+    pre { padding: 12px; overflow-x: auto; }
+    .note, footer { font: .86rem system-ui, sans-serif; color: #5c5050; }
+    footer { margin-top: 34px; border-top: 1px solid #e3d9d5; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">npm Publish Contents</a> · guide</p>
+  <h1>Why adding a .npmignore publishes your gitignored files</h1>
+  <p>You have a <code>.gitignore</code> that keeps <code>.env</code>, <code>coverage/</code> and your scratch notes out of git. You add a <code>.npmignore</code> with <code>src/</code> and <code>test/</code> in it, to keep the package small. The next <code>npm publish</code> ships your <code>.env</code>.</p>
+  <p>Nothing is broken. npm reads <strong>one</strong> ignore file per folder: the <code>.npmignore</code> if there is one, otherwise the <code>.gitignore</code>. The moment a <code>.npmignore</code> exists, every line of the <code>.gitignore</code> beside it stops counting for npm.</p>
+
+  <h2>What npm reads, in order</h2>
+  <p>In every folder of your package, npm (through its <code>npm-packlist</code> module) applies three sets of rules, and the last one that matches a path decides:</p>
+  <ol>
+    <li><strong>Its default excludes:</strong> <code>.git</code>, <code>.DS_Store</code>, <code>*.orig</code>, <code>npm-debug.log</code>, <code>.npmrc</code>, editor swap files and the ignore files themselves.</li>
+    <li><strong>The folder's own rules.</strong> At the package root: <code>files</code> in package.json if it is set (and then neither ignore file at the root is read), otherwise <code>.npmignore</code>, otherwise <code>.gitignore</code>. In every sub-folder: its <code>.npmignore</code>, otherwise its <code>.gitignore</code>, and these still apply under <code>files</code>.</li>
+    <li><strong>Its forced rules:</strong> <code>package.json</code>, and at the root any README, LICENSE, LICENCE or COPYING, always ship, as do the files named by <code>main</code>, <code>browser</code> and <code>bin</code>. The root <code>node_modules</code>, lockfiles and <code>.npmrc</code> never do.</li>
+  </ol>
+  <p>The patterns are <a href="https://github.com/isaacs/minimatch" rel="noopener">minimatch</a> globs, not git's: case is ignored, a pattern with no slash matches that name at any depth, and spaces at either end of a line are trimmed.</p>
+
+  <h2>The same package, two answers</h2>
+  <p>The tool's example is a small library with this <code>.gitignore</code> and <code>.npmignore</code>:</p>
+<pre>==&gt; .gitignore &lt;==
+node_modules/
+dist/
+coverage/
+.env
+notes/
+
+==&gt; .npmignore &lt;==
+src/
+test/
+tsconfig.json</pre>
+  <p>With only the <code>.gitignore</code>, npm leaves out <code>.env</code>, <code>coverage/</code> and <code>notes/</code>. You might expect it to leave out <code>dist/</code>, the built code, too, which is the usual reason people add a <code>.npmignore</code>; it does not, for a reason covered below. With both files, the tool reports that <code>.env</code>, <code>coverage/lcov.info</code>, <code>notes/todo.md</code> and the three <code>dist/</code> files ship because the <code>.gitignore</code> is not read; for <code>.env</code> it says <em>no rule matches, so it ships</em>. The <code>dist/</code> files are wanted. The other three are not.</p>
+
+  <h2>The fix</h2>
+  <p>Prefer an allow-list. With <code>"files": ["dist", "bin"]</code> a new file ships only if it is inside a listed folder, so the next <code>.env</code> or <code>secrets.json</code> stays home. If you keep a <code>.npmignore</code>, copy into it every line of the <code>.gitignore</code> that you still need, starting with <code>.env*</code>.</p>
+
+  <h2>A second trap: <code>"main": "./dist/index.js"</code></h2>
+  <p>npm promises to always pack the <code>main</code> file. It turns <code>main</code> into a forced rule, <code>!/</code> followed by the path, and minimatch keeps a <code>./</code> as a path segment of its own, so <code>!/./dist/index.js</code> matches nothing. With <code>"files": ["lib"]</code> and <code>"main": "./dist/index.js"</code>, npm 10.9.9 and 11.21.3 both leave <code>dist/index.js</code> out; written as <code>"dist/index.js"</code> it ships. <code>bin</code> paths are cleaned before this step, so <code>"./bin/cli.js"</code> works there. Most packages never notice, because their <code>files</code> already lists the folder.</p>
+
+  <h2>A third: a folder rule stops working once npm goes in</h2>
+  <p>npm leaves a folder out by never entering it. If anything gives it a reason to enter, a forced <code>main</code> or <code>bin</code> inside the folder, a folder in <code>files</code>, or a <code>!</code> rule for a file inside, it goes in, and a rule like <code>dist/</code> or <code>dist</code> names the folder, not the files in it, so they all ship. In the example, <code>main</code> is <code>dist/index.js</code>, so with only the <code>.gitignore</code> npm also ships <code>dist/index.d.ts</code> and <code>dist/index.js.map</code> despite the <code>dist/</code> line. npm 10.9.9 and 11.21.3 do the same. Here that happens to be what you want. It is not with this <code>.npmignore</code>:</p>
+<pre>secrets/
+!secrets/public.pem</pre>
+  <p>git reads those two lines as "ignore the folder" (it never re-includes a file under an ignored folder). npm reads the <code>!</code> line as a reason to enter <code>secrets/</code>, and then publishes <code>secrets/private.pem</code> along with the public one, on both npm versions. A rule that names the files, <code>secrets/**</code>, keeps working inside the folder; the tool flags any file that ships from under a folder rule.</p>
+
+  <h2>Check before you publish</h2>
+  <p><code>npm pack --dry-run</code> prints the file list but not the reasons. <a href="./">npm Publish Contents</a> takes the same list, or your whole folder, and gives the deciding rule for each file, with the secrets, missing entry points and shadowed <code>.gitignore</code> called out first. In CI, <code>node cli.mjs . --fail-on high</code> stops the job before a secret goes public.</p>
+
+  <h2>Questions</h2>
+  <h3>Does npm use .gitignore when there is a .npmignore?</h3>
+  <p>No. In each folder npm reads the .npmignore if there is one and skips the .gitignore beside it. At the package root, a files field in package.json switches off both. Ignore files in sub-folders are still read, one per folder, with the same preference.</p>
+  <h3>Is files or .npmignore better for keeping secrets out of an npm package?</h3>
+  <p>files, because it is an allow-list: a new file ships only if you list it or it sits in a listed folder. A .npmignore is a deny-list, so every new file ships until you remember to add a line. Either way, check the list with npm pack --dry-run before you publish.</p>
+  <h3>I published a .env file to npm. Is unpublishing enough?</h3>
+  <p>No. Treat every secret in it as leaked: rotate the keys first. Registry mirrors and caches may already hold the tarball, and npm only allows unpublishing within its own policy limits. Then fix the rules and publish a new version.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. It is not legal, security or professional advice. Behaviour described was checked on npm 10.9.9 and 11.21.3; other npm versions may differ. Verify with <code>npm pack --dry-run</code> before you publish.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by npm, Inc., GitHub, the npm CLI maintainers, the OpenJS Foundation or any other vendor. npm is a trademark of npm, Inc.</p>
+    <p class="support">Free and open source under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

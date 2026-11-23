@@ -1,0 +1,56 @@
+name: npm-publish-contents
+description: >-
+  Free browser tool and CLI for JavaScript package authors: lists every file
+  npm publish would put in the tarball and the rule that decides each one
+  (default excludes, files, .npmignore or .gitignore with file and line,
+  forced rules, folders never entered), and flags secrets that would ship, a
+  .gitignore switched off by a .npmignore or files, missing entry points, the
+  "./main" trap and folder rules npm walks past. Differential-tested against
+  npm-packlist on npm 10 and 11. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-23 in an explore run. duplicate_check.py: top score 0.09
+# (license-compat-check), nothing near the 0.45 bar. package-exports-drift-check
+# checks an exports map against a file listing the user supplies; it does not
+# decide which files npm packs. gitignore-explainer does git's rules, which
+# differ (wildmatch vs minimatch, case, per-folder replacement). No venture
+# explains npm's file selection.
+#
+# Why a tool and not a chatbot answer: the rules are a walk over the folder
+# tree with per-folder replacement of ignore files, minimatch partial matching
+# and forced rules; the three corners documented in the guide (".npmignore
+# replaces .gitignore", "./main is not forced", "a ! rule opens the folder")
+# are where a from-memory answer goes wrong, and each was checked against the
+# real npm 10.9.9 and 11.21.3.
+#
+# First visitor: package authors searching "npmignore not working", "npm
+# publish included .env", "npm pack files not included"; volume not measured
+# with an external tool.
+
+hypotheses:
+  - claim: >-
+      Package authors who are unsure what a publish will ship will paste their
+      package into a tool that names the deciding rule per file, rather than
+      reading npm-packlist's README and iterating with npm pack --dry-run.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a package where the tool's file list disagrees with npm pack --dry-run of a supported npm version and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/npm-publish-contents/
+  analytics: null
