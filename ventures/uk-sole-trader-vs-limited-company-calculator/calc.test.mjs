@@ -72,8 +72,8 @@ test("limited company figures add up", () => {
 
 test("best salary beats both common fixed choices and keeps the NI year", () => {
   const best = bestSalary(60000, 1200, false, true);
-  for (const s of [6500, 5000, 12570]) assert.ok(best.takeHome >= limitedCompany(60000, s, 1200, false).takeHome - 0.01, String(s));
-  assert.ok(best.salary >= 6500);
+  for (const s of [6708, 5000, 12570]) assert.ok(best.takeHome >= limitedCompany(60000, s, 1200, false).takeHome - 0.01, String(s));
+  assert.ok(best.salary >= 6708);
 });
 
 test("retention does not change the chosen salary and is not counted as take-home", () => {
@@ -145,4 +145,18 @@ test("a custom salary the company cannot pay with its NI is refused, not modelle
   assert.equal(r.ok, false);
   assert.match(r.errors[0], /employer NI/);
   assert.equal(compare({ ...SAMPLE, profit: "50000", costs: "1200", salaryMode: "custom", salary: "12570" }).ok, true);
+});
+
+// Quality round 106 (portfolio/quality/audits/2026-11-23-uk-sole-trader-vs-limited-company-calculator.json):
+// the personal allowance tapers on salary plus dividends, not on the salary alone.
+test("director's personal allowance tapers on salary plus dividends", () => {
+  const c = limitedCompany(200000, 100000, 0, false);
+  // total income ~£166,776 > £125,140, so no allowance: 37,700 x 20% + 62,300 x 40%
+  assert.equal(c.incomeTax, 32460);
+  assert.equal(c.takeHome, 105112.99);
+});
+
+test("lower earnings limit is the 2026/27 figure, £129 a week", () => {
+  const r = compare({ ...SAMPLE, salaryMode: "custom", salary: "6600" });
+  assert.ok(r.findings.some((f) => f.title === "Salary is below the lower earnings limit"));
 });
