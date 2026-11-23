@@ -562,10 +562,8 @@ flagships:
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
-      (10) earned value 2026-11-20 (evm.mjs); health trend across updates 2026-11-22
-      (trend.mjs, --trend; BEI vs first update, float erosion with cause;
-      eval/trend-check-2026-11-22.md); next a real update series for both. (11) time
-      impact analysis shipped 2026-11-20 (tia.mjs, --tia, page;
+      (10) earned value 2026-11-20 (evm.mjs); next a real update series for both.
+      (11) time impact analysis shipped 2026-11-20 (tia.mjs, --tia, page;
       eval/tia-check-2026-11-20.md); next a real TIA exhibit. (8) MSPDI: resource
       calendars, Resume, splits read 2026-11-21 (2,446 of 2,491 = Project's,
       eval/split-tasks-2026-11-21.md); next a Project open of those rows, a P6
@@ -581,14 +579,15 @@ flagships:
       run levelled in every run 2026-11-22 (--levelled; crew-limit delay on common
       draws; eval/risk-levelled-2026-11-22.md); next a commercial tool's levelled
       risk run to compare. Probabilistic branches in the risk run 2026-11-22
-      (--branches, page, review; eval/branches-2026-11-22.md: 113/113 planted); next
-      a real branch register; branches in TIA 2026-11-22 (tia.mjs Branch
-      group/Branch/Probability, every outcome scheduled,
-      eval/tia-branches-2026-11-22.md), next a real TIA exhibit with alternatives.
-      (15) Drag, joint acceleration 2026-11-22 (crash.mjs,
+      (--branches, page, review; eval/branches-2026-11-22.md: 113/113 planted);
+      branches in TIA 2026-11-22 (tia.mjs Branch group/Branch/Probability, every
+      outcome scheduled, eval/tia-branches-2026-11-22.md), next a real TIA exhibit
+      with alternatives. (15) Drag, joint acceleration 2026-11-22 (crash.mjs,
       eval/crash-check-2026-11-22.md); SS/FF/SF oracle 2026-11-22 (2 faults fixed,
       eval/crash-oracle-links-2026-11-22.md); next a commercial drag run, real crash
-      rates. More open items: NEXT.md.
+      rates. (16) GAO-16-89G ten practices scorecard 2026-11-23 (gao.mjs, --gao,
+      page, guide; eval/gao-check-2026-11-23.md: 129/129 planted); next a real
+      schedule with its GAO assessment. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

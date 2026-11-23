@@ -1,0 +1,696 @@
+{
+  "files": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "project": "CCA R03 dt 24Oct11SC",
+      "open": 14270,
+      "baseline": [
+        {
+          "n": 1,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        },
+        {
+          "n": 2,
+          "rating": "Partially met",
+          "passed": 3,
+          "total": 6
+        },
+        {
+          "n": 3,
+          "rating": "Partially met",
+          "passed": 1,
+          "total": 2
+        },
+        {
+          "n": 4,
+          "rating": "Minimally met",
+          "passed": 1,
+          "total": 3
+        },
+        {
+          "n": 5,
+          "rating": "Partially met",
+          "passed": 2,
+          "total": 4
+        },
+        {
+          "n": 6,
+          "rating": "Minimally met",
+          "passed": 2,
+          "total": 5
+        },
+        {
+          "n": 7,
+          "rating": "Not met",
+          "passed": 0,
+          "total": 2
+        },
+        {
+          "n": 8,
+          "rating": "Not assessed",
+          "passed": 0,
+          "total": 0
+        },
+        {
+          "n": 9,
+          "rating": "Minimally met",
+          "passed": 1,
+          "total": 4
+        },
+        {
+          "n": 10,
+          "rating": "Minimally met",
+          "passed": 1,
+          "total": 3
+        }
+      ],
+      "characteristics": [
+        "Comprehensive: Partially met",
+        "Well-constructed: Minimally met",
+        "Credible: Partially met",
+        "Controlled: Minimally met"
+      ],
+      "plants": {
+        "wbs": {
+          "planted": 2,
+          "found": 2,
+          "eligible": 14270,
+          "misses": []
+        },
+        "names": {
+          "planted": 2,
+          "found": 2,
+          "eligible": 15849,
+          "misses": []
+        },
+        "zero": {
+          "planted": 2,
+          "found": 2,
+          "eligible": 11220,
+          "misses": []
+        },
+        "milestone": {
+          "planted": 2,
+          "found": 2,
+          "eligible": 66,
+          "misses": []
+        },
+        "path-lag": {
+          "planted": 1,
+          "found": 1,
+          "eligible": 29,
+          "misses": []
+        },
+        "path-cstr": {
+          "planted": 2,
+          "found": 2,
+          "eligible": 16,
+          "misses": []
+        }
+      }
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "project": "BEW3",
+      "open": 823,
+      "baseline": [
+        {
+          "n": 1,
+          "rating": "Partially met",
+          "passed": 2,
+          "total": 3
+        },
+        {
+          "n": 2,
+          "rating": "Partially met",
+          "passed": 3,
+          "total": 6
+        },
+        {
+          "n": 3,
+          "rating": "Partially met",
+          "passed": 1,
+          "total": 2
+        },
+        {
+          "n": 4,
+          "rating": "Partially met",
+          "passed": 2,
+          "total": 3
+        },
+        {
+          "n": 5,
+          "rating": "Substantially met",
+          "passed": 3,
+          "total": 4
+        },
+        {
+          "n": 6,
+          "rating": "Substantially met",
+          "passed": 4,
+          "total": 5
+        },
+        {
+          "n": 7,
+          "rating": "Partially met",
+          "passed": 1,
+          "total": 2
+        },
+        {
+          "n": 8,
+          "rating": "Not assessed",
+          "passed": 0,
+          "total": 0
+        },
+        {
+          "n": 9,
+          "rating": "Fully met",
+          "passed": 4,
+          "total": 4
+        },
+        {
+          "n": 10,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        }
+      ],
+      "characteristics": [
+        "Comprehensive: Partially met",
+        "Well-constructed: Partially met",
+        "Credible: Substantially met",
+        "Controlled: Fully met"
+      ],
+      "plants": {
+        "wbs": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 823,
+          "misses": []
+        },
+        "names": {
+          "planted": 0,
+          "found": 0,
+          "eligible": 823,
+          "misses": []
+        },
+        "zero": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 821,
+          "misses": []
+        },
+        "milestone": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 1,
+          "misses": []
+        },
+        "path-lag": {
+          "planted": 2,
+          "found": 2,
+          "eligible": 5,
+          "misses": []
+        },
+        "path-cstr": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 7,
+          "misses": []
+        }
+      }
+    },
+    {
+      "file": "example_xer_file.xer",
+      "project": "DEMO-001",
+      "open": 404,
+      "baseline": [
+        {
+          "n": 1,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        },
+        {
+          "n": 2,
+          "rating": "Partially met",
+          "passed": 3,
+          "total": 6
+        },
+        {
+          "n": 3,
+          "rating": "Partially met",
+          "passed": 1,
+          "total": 2
+        },
+        {
+          "n": 4,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        },
+        {
+          "n": 5,
+          "rating": "Substantially met",
+          "passed": 3,
+          "total": 4
+        },
+        {
+          "n": 6,
+          "rating": "Substantially met",
+          "passed": 4,
+          "total": 5
+        },
+        {
+          "n": 7,
+          "rating": "Partially met",
+          "passed": 1,
+          "total": 2
+        },
+        {
+          "n": 8,
+          "rating": "Not assessed",
+          "passed": 0,
+          "total": 0
+        },
+        {
+          "n": 9,
+          "rating": "Substantially met",
+          "passed": 3,
+          "total": 4
+        },
+        {
+          "n": 10,
+          "rating": "Partially met",
+          "passed": 2,
+          "total": 3
+        }
+      ],
+      "characteristics": [
+        "Comprehensive: Substantially met",
+        "Well-constructed: Partially met",
+        "Credible: Substantially met",
+        "Controlled: Substantially met"
+      ],
+      "plants": {
+        "wbs": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 404,
+          "misses": []
+        },
+        "names": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 425,
+          "misses": []
+        },
+        "zero": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 344,
+          "misses": []
+        },
+        "milestone": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 39,
+          "misses": []
+        },
+        "path-lag": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 13,
+          "misses": []
+        },
+        "path-cstr": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 15,
+          "misses": []
+        }
+      }
+    },
+    {
+      "file": "hotel-project.xer",
+      "project": "HBTF-2",
+      "open": 4217,
+      "baseline": [
+        {
+          "n": 1,
+          "rating": "Partially met",
+          "passed": 2,
+          "total": 3
+        },
+        {
+          "n": 2,
+          "rating": "Partially met",
+          "passed": 3,
+          "total": 6
+        },
+        {
+          "n": 3,
+          "rating": "Partially met",
+          "passed": 1,
+          "total": 2
+        },
+        {
+          "n": 4,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        },
+        {
+          "n": 5,
+          "rating": "Partially met",
+          "passed": 2,
+          "total": 4
+        },
+        {
+          "n": 6,
+          "rating": "Substantially met",
+          "passed": 4,
+          "total": 5
+        },
+        {
+          "n": 7,
+          "rating": "Partially met",
+          "passed": 1,
+          "total": 2
+        },
+        {
+          "n": 8,
+          "rating": "Not assessed",
+          "passed": 0,
+          "total": 0
+        },
+        {
+          "n": 9,
+          "rating": "Fully met",
+          "passed": 4,
+          "total": 4
+        },
+        {
+          "n": 10,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        }
+      ],
+      "characteristics": [
+        "Comprehensive: Substantially met",
+        "Well-constructed: Partially met",
+        "Credible: Partially met",
+        "Controlled: Fully met"
+      ],
+      "plants": {
+        "wbs": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 4217,
+          "misses": []
+        },
+        "names": {
+          "planted": 2,
+          "found": 2,
+          "eligible": 4217,
+          "misses": []
+        },
+        "zero": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 3954,
+          "misses": []
+        },
+        "milestone": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 181,
+          "misses": []
+        },
+        "path-lag": {
+          "planted": 0,
+          "found": 0,
+          "eligible": 0,
+          "misses": []
+        },
+        "path-cstr": {
+          "planted": 0,
+          "found": 0,
+          "eligible": 0,
+          "misses": []
+        }
+      }
+    },
+    {
+      "file": "sample.xer",
+      "project": "Task SE",
+      "open": 42,
+      "baseline": [
+        {
+          "n": 1,
+          "rating": "Partially met",
+          "passed": 2,
+          "total": 3
+        },
+        {
+          "n": 2,
+          "rating": "Substantially met",
+          "passed": 5,
+          "total": 6
+        },
+        {
+          "n": 3,
+          "rating": "Not met",
+          "passed": 0,
+          "total": 2
+        },
+        {
+          "n": 4,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        },
+        {
+          "n": 5,
+          "rating": "Fully met",
+          "passed": 4,
+          "total": 4
+        },
+        {
+          "n": 6,
+          "rating": "Fully met",
+          "passed": 5,
+          "total": 5
+        },
+        {
+          "n": 7,
+          "rating": "Fully met",
+          "passed": 2,
+          "total": 2
+        },
+        {
+          "n": 8,
+          "rating": "Not assessed",
+          "passed": 0,
+          "total": 0
+        },
+        {
+          "n": 9,
+          "rating": "Fully met",
+          "passed": 4,
+          "total": 4
+        },
+        {
+          "n": 10,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        }
+      ],
+      "characteristics": [
+        "Comprehensive: Partially met",
+        "Well-constructed: Fully met",
+        "Credible: Fully met",
+        "Controlled: Fully met"
+      ],
+      "plants": {
+        "wbs": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 40,
+          "misses": []
+        },
+        "names": {
+          "planted": 0,
+          "found": 0,
+          "eligible": 42,
+          "misses": []
+        },
+        "zero": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 30,
+          "misses": []
+        },
+        "milestone": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 6,
+          "misses": []
+        },
+        "path-lag": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 41,
+          "misses": []
+        },
+        "path-cstr": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 42,
+          "misses": []
+        }
+      }
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "project": "TERMINAL-2",
+      "open": 66,
+      "baseline": [
+        {
+          "n": 1,
+          "rating": "Partially met",
+          "passed": 2,
+          "total": 3
+        },
+        {
+          "n": 2,
+          "rating": "Partially met",
+          "passed": 4,
+          "total": 6
+        },
+        {
+          "n": 3,
+          "rating": "Not met",
+          "passed": 0,
+          "total": 2
+        },
+        {
+          "n": 4,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        },
+        {
+          "n": 5,
+          "rating": "Substantially met",
+          "passed": 3,
+          "total": 4
+        },
+        {
+          "n": 6,
+          "rating": "Partially met",
+          "passed": 3,
+          "total": 5
+        },
+        {
+          "n": 7,
+          "rating": "Partially met",
+          "passed": 1,
+          "total": 2
+        },
+        {
+          "n": 8,
+          "rating": "Not assessed",
+          "passed": 0,
+          "total": 0
+        },
+        {
+          "n": 9,
+          "rating": "Fully met",
+          "passed": 4,
+          "total": 4
+        },
+        {
+          "n": 10,
+          "rating": "Fully met",
+          "passed": 3,
+          "total": 3
+        }
+      ],
+      "characteristics": [
+        "Comprehensive: Partially met",
+        "Well-constructed: Partially met",
+        "Credible: Substantially met",
+        "Controlled: Fully met"
+      ],
+      "plants": {
+        "wbs": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 66,
+          "misses": []
+        },
+        "names": {
+          "planted": 0,
+          "found": 0,
+          "eligible": 66,
+          "misses": []
+        },
+        "zero": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 63,
+          "misses": []
+        },
+        "milestone": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 2,
+          "misses": []
+        },
+        "path-lag": {
+          "planted": 4,
+          "found": 4,
+          "eligible": 19,
+          "misses": []
+        },
+        "path-cstr": {
+          "planted": 5,
+          "found": 5,
+          "eligible": 18,
+          "misses": []
+        }
+      }
+    }
+  ],
+  "totals": {
+    "wbs": {
+      "planted": 27,
+      "found": 27
+    },
+    "names": {
+      "planted": 9,
+      "found": 9
+    },
+    "zero": {
+      "planted": 27,
+      "found": 27
+    },
+    "milestone": {
+      "planted": 27,
+      "found": 27
+    },
+    "path-lag": {
+      "planted": 17,
+      "found": 17
+    },
+    "path-cstr": {
+      "planted": 22,
+      "found": 22
+    }
+  }
+}

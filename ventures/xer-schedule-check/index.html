@@ -185,6 +185,16 @@
       <tbody></tbody>
     </table></div>
     <div id="details"></div>
+    <h2 style="margin-top:22px" id="gao">GAO Schedule Assessment Guide: the ten best practices</h2>
+    <p class="note">The assessment US federal auditors use (GAO-16-89G), and the one agencies and their contractors are measured against: ten best practices under four characteristics, comprehensive, well-constructed, credible and controlled. Each practice is scored from the tests the file can answer (activities filed under the WBS, unique names, resources and their limits, zero-duration tasks, milestones tied to their work, a critical path of work with no constraints or lags on it, float, progress, and the baseline), each with its threshold shown and the activities behind every failure, rated on GAO's five levels by the share of its tests passed. The DCMA points above feed in where they measure the same thing. Open the baseline project's XER to score practice 10 against it instead of the planned dates. A risk analysis (practice 8) is evidence outside the file, so it is rated only when the file carries three-point duration ranges.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center">
+      <label for="gao-base">Baseline (XER or XML, optional)</label> <input type="file" id="gao-base" accept=".xer,.xml,text/plain,text/xml,application/xml">
+      <button type="button" id="gao-run" class="secondary">Score against the GAO guide</button>
+      <button type="button" id="gao-print" class="secondary" hidden>Printable scorecard (HTML)</button>
+      <button type="button" id="gao-csv" class="secondary" hidden>Download (CSV)</button>
+    </div>
+    <p class="note" id="gao-status"></p>
+    <div id="gao-out" class="tablewrap"></div>
     <h2 style="margin-top:22px">Beyond the 14 points</h2>
     <div id="extra"></div>
     <h2 style="margin-top:22px">Stored dates against the logic</h2>
@@ -469,13 +479,14 @@
       <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
       <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
       <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+      <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
     </ul>
   </section>
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>drag_run</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>drag_run</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -492,6 +503,7 @@
     import { mspdiText, msprojectSummary } from "./msproject.mjs";
     import { xerToXlsx, xlsxSummary } from "./excel.mjs";
     import { dragAnalysis, dragCsv, dragTableHtml } from "./drag.mjs";
+    import { gao, gaoCsv, gaoHtml, gaoTableHtml, overallLine } from "./gao.mjs";
     import { crashAnalysis, crashCsv, crashTableHtml } from "./crash.mjs";
     import { p6XerText, p6xerSummary } from "./p6xer.mjs";
     import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
@@ -742,6 +754,27 @@
     $("#tia-print").addEventListener("click", () => { if (!lastTia) return; save(new Blob([timeImpactHtml(lastTia)], { type: "text/html" }), `${fileName}-time-impact.html`); record("findings_downloaded"); });
     $("#tia-csv").addEventListener("click", () => { if (!lastTia) return; save(new Blob([timeImpactCsv(lastTia)], { type: "text/csv" }), `${fileName}-time-impact.csv`); record("findings_downloaded"); });
     $("#tia-xer").addEventListener("click", () => { if (!lastTia) return; save(new Blob([xerText(lastTia.impactedXer)], { type: "text/plain" }), `${fileName}-impacted.xer`); record("findings_downloaded"); });
+    let lastGao = null, gaoBase = null;
+    $("#gao-base").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) { gaoBase = null; return; }
+      try { gaoBase = parseSchedule(decodeXer(new Uint8Array(await f.arrayBuffer()))); $("#gao-status").textContent = `Baseline ${f.name} read; press Score against the GAO guide.`; }
+      catch (err) { gaoBase = null; $("#gao-status").textContent = `The baseline does not read as an XER or Microsoft Project XML file: ${err.message}`; }
+    });
+    $("#gao-run").addEventListener("click", () => {
+      const st = $("#gao-status");
+      if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
+      try {
+        const r = gao(xer, { projId: last.project.id, report: last, baseline: gaoBase });
+        lastGao = r;
+        st.innerHTML = `<b>${esc(overallLine(r))}</b> ${esc(r.testsPassed)} of ${esc(r.testsTotal)} file tests pass${r.baseline ? "; practice 10 scored against the baseline" : ""}. Ratings are the share of each practice's tests passed, not an auditor's judgment.`;
+        $("#gao-out").innerHTML = gaoTableHtml(r) + (r.warnings.length ? `<p class="note">${r.warnings.slice(0, 6).map(esc).join("<br>")}</p>` : "");
+        $("#gao-print").hidden = false; $("#gao-csv").hidden = false;
+        record("gao_scored");
+      } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#gao-out").innerHTML = ""; }
+    });
+    $("#gao-print").addEventListener("click", () => { if (!lastGao) return; save(new Blob([gaoHtml(lastGao)], { type: "text/html" }), `${fileName}-gao-scorecard.html`); record("findings_downloaded"); });
+    $("#gao-csv").addEventListener("click", () => { if (!lastGao) return; save(new Blob([gaoCsv(lastGao)], { type: "text/csv" }), `${fileName}-gao-scorecard.csv`); record("findings_downloaded"); });
     let lastDrag = null;
     $("#drag-run").addEventListener("click", () => {
       const st = $("#drag-status");
