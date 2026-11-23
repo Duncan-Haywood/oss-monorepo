@@ -500,8 +500,7 @@ flagships:
     buildable: >-
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. Tekla's one-member railings in IFC4
-      (eval/beam-schema-twins-2026-11-23.md). IFC4X3 ifcXML: none public (searched
+      rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs; STEP exports as
@@ -533,10 +532,10 @@ flagships:
       eval/cobie-placement-point-2026-11-23.md; 20 doors with a second room all the
       file's slip 2026-11-23 (one-side boundaries take geometry's other room,
       eval/door-extra-room-2026-11-23.md); next: ARK_NUS's 9 in another room, a real
-      owner's COBie QC. Tekla Qto_ psets filled 2026-11-23, 649/657 within 2%
-      after no-fillet NetVolume and walls on their side
-      (eval/beam-schema-twins-2026-11-23.md). HTML report: next, a consultant's read. More
-      open items: NEXT.md.
+      owner's COBie QC. Tekla Qto_ psets 2026-11-23
+      (eval/beam-schema-twins-2026-11-23.md,
+      eval/one-member-railings-2026-11-23.md). HTML report: next, a consultant's
+      read. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

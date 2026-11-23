@@ -127,7 +127,7 @@ test("a one-member railing reads as a member: an upright tube post and a long I-
   // in millimetres too, and sloped like a stair's handrail
   const mm = prism(ring(28.5), ring(23.5), [0, 0, 0], [3000, 0, 1500]);
   close(railingLength(row([mm], 0.001)).length, Math.hypot(3, 1.5), 1e-9);
-  const p = prismLength(prism(ipe80, null, [0, 0, 0], [2, 0, 0]));
+  const p = prismLength({ terms: [], shells: [prism(ipe80, null, [0, 0, 0], [2, 0, 0])] });
   close(p.section, 2 * 0.046 * 0.0052 + 0.0038 * 0.0696, 1e-9);
 });
 

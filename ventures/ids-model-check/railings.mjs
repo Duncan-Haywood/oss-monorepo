@@ -47,7 +47,9 @@
 //
 // Measured on every public export that stores a railing Length
 // (eval/railing-lengths-2026-11-22.md): 29 offered of 54 stored, 29 within
-// 2% (all within 0.2%), 25 held back.
+// 2% (all within 0.2%), 25 held back. One-member railings
+// (eval/one-member-railings-2026-11-23.md): one Tekla model's 16 railings
+// 16/16 within 2% in each of IFC2X3, IFC4 and IFC4X3 (14, 0 and 0 before).
 
 export const RAIL_ASPECT = 10;
 export const AGREE = 0.01;
