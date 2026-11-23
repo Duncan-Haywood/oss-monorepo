@@ -274,3 +274,24 @@ test('the break-even cube is the billed pound, so a fractional actual weight is 
   assert.equal(atTarget.billableWeight, 5);
   assert.equal(atTarget.billedOn, 'actual');
 });
+
+test('every size limit is "over", so a side or girth exactly on the limit is not flagged (red team 2026-11-23)', () => {
+  // 30 x 30 x 1: second side exactly 30 in, length plus girth 92 in.
+  assert.deepEqual(calculateBillableWeight({ length: 30, width: 30, height: 1, weight: 5 }).flags, []);
+  // 98 x 8 x 8: length plus girth exactly 130 in, so the large-package
+  // reason is the 98 in longest side, not a girth that is "over 130".
+  const result = calculateBillableWeight({ length: 98, width: 8, height: 8, weight: 20 });
+  assert.equal(result.flags[0].id, 'large-package');
+  assert.match(result.flags[0].text, /^Longest side 98″ is over 96″/);
+});
+
+test('a side under half an inch never rounds to a zero side or a zero cube (red team 2026-11-23)', () => {
+  // A 0.4 in mailer passed validation, then rounded to a 0 in side: cube 0,
+  // "12 x 10 x 0 in" on the page. A tape measure in whole inches reads it as 1.
+  const result = calculateBillableWeight({ length: 12, width: 10, height: 0.4, weight: 0.3 });
+  assert.equal(result.height, 1);
+  assert.equal(result.shortestSide, 1);
+  assert.equal(result.cube, 120);
+  // Unrounded, the side is kept as typed.
+  assert.equal(calculateBillableWeight({ length: 12, width: 10, height: 0.4, weight: 0.3, roundDimensions: false }).height, 0.4);
+});

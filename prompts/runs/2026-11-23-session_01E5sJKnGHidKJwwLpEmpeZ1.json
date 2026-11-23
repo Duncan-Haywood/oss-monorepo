@@ -1,0 +1,448 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnGHidKJwwLpEmpeZ1",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T04:09:12Z",
+  "ended": "2026-11-23T04:11:39Z",
+  "wall_minutes": 6.15,
+  "tokens_in": 2761209,
+  "tokens_out": 16273,
+  "cost_usd": 1.4716,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18362",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First test for the 130-inch boundary used 97 x 8.25 x 8.25; default whole-inch rounding made the sides 9 in, so it never sat on the limit and rerun reported caught_after_fix false. Rewritten as 98 x 8 x 8."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but 12 of 13 are control-plane edits whose fixes are already in owner-gated PRs; the list does not say which have a PR open, so each run re-checks all of them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (leave an automated guard) skipped: the gaps found were boundary tests specific to two calculators, with no shared check to tighten that fits this run.",
+      "did": "Added targeted tests and the defect fix instead.",
+      "result": "Catch rate 85% -> 100% on the two targets; no new CI guard."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 entries were not patched: all 13 still reproduce; 12 are control plane (own PRs, owner approval, several open), 1 needs a help-centre eval set.",
+      "did": "Checked each on main by grep; left them open.",
+      "result": "No change to the open list."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-redteam-a-zero-inch-side.md"
+  ],
+  "goal": null,
+  "notes": "Targets: ventures/uk-stamp-duty-calculator/calc.mjs and ventures/parcel-dim-weight-calculator/calc.mjs (both changed on main in last 3 days, suites <1 s). Fuzzed stamp duty compute() over 120k prices x buyers x residency: rows cover the price, no NaN/negative money; no defect found. Verification: node --test parcel 70/70, stamp duty 36/36.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-stamp-duty-calculator/calc.mjs",
+        "test": "node --test ventures/uk-stamp-duty-calculator/**/*.test.mjs  (in .)",
+        "seed": 36845734,
+        "commit": "f195a7858",
+        "sites": 122,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 19,
+            "col": 10,
+            "operator": "const-plus-one",
+            "before": "{ from: 300000, to: 500000, rate: 0.05 },",
+            "after": "{ from: 300001, to: 500000, rate: 0.05 },",
+            "line_text": "  { from: 300000, to: 500000, rate: 0.05 },",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 27,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "after": "const money = (n) => ((t) => (n < 1 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "line_text": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 27,
+            "col": 114,
+            "operator": "const-plus-one",
+            "before": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "after": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 101) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "line_text": "const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\\.\\d$/, (m) => m + \"0\"));",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 28,
+            "col": 38,
+            "operator": "div-to-times",
+            "before": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "after": "const r2 = (n) => Math.round(n * 100) * 100;",
+            "line_text": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 37,
+            "col": 45,
+            "operator": "or-to-and",
+            "before": "const nonResident = i.nonResident === true || i.nonResident === \"yes\" || i.nonResident === \"true\";",
+            "after": "const nonResident = i.nonResident === true && i.nonResident === \"yes\" || i.nonResident === \"true\";",
+            "line_text": "  const nonResident = i.nonResident === true || i.nonResident === \"yes\" || i.nonResident === \"true\";",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 45,
+            "col": 53,
+            "operator": "minus-to-plus",
+            "before": "const amount = Math.max(0, Math.min(price, b.to) - b.from);",
+            "after": "const amount = Math.max(0, Math.min(price, b.to) + b.from);",
+            "line_text": "    const amount = Math.max(0, Math.min(price, b.to) - b.from);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 46,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (amount <= 0) continue;",
+            "after": "if (amount <= 1) continue;",
+            "line_text": "    if (amount <= 0) continue;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A band entered by exactly GBP 1 (or a fraction of a pound) lost its row in the breakdown table and summary. Test: calc.test.mjs \"a slice of a pound or one pound into a band still shows as its own row\"."
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 85,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "if (buyer === \"ftb\" && main.relief === true && price > 300000) findings.push({ severity: \"medium\", title: `First-time buyer relief saves you ${money(std.tax - main.tax)} compared with standard rates on this price. It is lost entirely if the price goes above ${money(FTB_CAP)}.` });",
+            "after": "if (buyer === \"ftb\" || main.relief === true && price > 300000) findings.push({ severity: \"medium\", title: `First-time buyer relief saves you ${money(std.tax - main.tax)} compared with standard rates on this price. It is lost entirely if the price goes above ${money(FTB_CAP)}.` });",
+            "line_text": "  if (buyer === \"ftb\" && main.relief === true && price > 300000) findings.push({ severity: \"medium\", title: `First-time buyer relief saves you ${money(std.tax - main.tax)} compared with standard rates on this price. It is lost entirely if the price goes above ${money(FTB_CAP)}.` });",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 85,
+            "col": 55,
+            "operator": "gt-to-ge",
+            "before": "if (buyer === \"ftb\" && main.relief === true && price > 300000) findings.push({ severity: \"medium\", title: `First-time buyer relief saves you ${money(std.tax - main.tax)} compared with standard rates on this price. It is lost entirely if the price goes above ${money(FTB_CAP)}.` });",
+            "after": "if (buyer === \"ftb\" && main.relief === true && price >= 300000) findings.push({ severity: \"medium\", title: `First-time buyer relief saves you ${money(std.tax - main.tax)} compared with standard rates on this price. It is lost entirely if the price goes above ${money(FTB_CAP)}.` });",
+            "line_text": "  if (buyer === \"ftb\" && main.relief === true && price > 300000) findings.push({ severity: \"medium\", title: `First-time buyer relief saves you ${money(std.tax - main.tax)} compared with standard rates on this price. It is lost entirely if the price goes above ${money(FTB_CAP)}.` });",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-stamp-duty-calculator/calc.mjs",
+            "line": 96,
+            "col": 15,
+            "operator": "and-to-or",
+            "before": "if (nextEdge && nextEdge - price <= 25000) {",
+            "after": "if (nextEdge || nextEdge - price <= 25000) {",
+            "line_text": "  if (nextEdge && nextEdge - price <= 25000) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/parcel-dim-weight-calculator/calc.mjs",
+        "test": "node --test ventures/parcel-dim-weight-calculator/**/*.test.mjs  (in .)",
+        "seed": 451576824,
+        "commit": "f195a7858",
+        "sites": 60,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 32,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "largePackageLongestSide: 96,",
+            "after": "largePackageLongestSide: 97,",
+            "line_text": "  largePackageLongestSide: 96,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 33,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "maximumLongestSide: 108,",
+            "after": "maximumLongestSide: 109,",
+            "line_text": "  maximumLongestSide: 108,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 74,
+            "col": 30,
+            "operator": "times-to-div",
+            "before": "const height = targetWeight * divisor / (length * width);",
+            "after": "const height = targetWeight / divisor / (length * width);",
+            "line_text": "  const height = targetWeight * divisor / (length * width);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 126,
+            "col": 32,
+            "operator": "gt-to-ge",
+            "before": "const why = lengthPlusGirth > thresholds.largePackageGirth",
+            "after": "const why = lengthPlusGirth >= thresholds.largePackageGirth",
+            "line_text": "    const why = lengthPlusGirth > thresholds.largePackageGirth",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Length plus girth exactly 130 with longest side over 96 gave the reason \"Length plus girth 130 is over 130\". Test: calc.test.mjs \"every size limit is over...\"."
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 135,
+            "col": 16,
+            "operator": "gt-to-ge",
+            "before": "longestSide > thresholds.additionalHandlingLongestSide",
+            "after": "longestSide >= thresholds.additionalHandlingLongestSide",
+            "line_text": "    longestSide > thresholds.additionalHandlingLongestSide",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 136,
+            "col": 4,
+            "operator": "or-to-and",
+            "before": "|| secondSide > thresholds.additionalHandlingSecondSide",
+            "after": "&& secondSide > thresholds.additionalHandlingSecondSide",
+            "line_text": "    || secondSide > thresholds.additionalHandlingSecondSide",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 136,
+            "col": 18,
+            "operator": "gt-to-ge",
+            "before": "|| secondSide > thresholds.additionalHandlingSecondSide",
+            "after": "|| secondSide >= thresholds.additionalHandlingSecondSide",
+            "line_text": "    || secondSide > thresholds.additionalHandlingSecondSide",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Second side exactly 30 in was flagged for additional handling. Test: same new calc.test.mjs test (30 x 30 x 1 has no flags)."
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 161,
+            "col": 39,
+            "operator": "eq-flip",
+            "before": "heightReduction: breakEvenHeight === null ? null : height - breakEvenHeight,",
+            "after": "heightReduction: breakEvenHeight !== null ? null : height - breakEvenHeight,",
+            "line_text": "      heightReduction: breakEvenHeight === null ? null : height - breakEvenHeight,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 167,
+            "col": 34,
+            "operator": "minus-to-plus",
+            "before": "cubeHeadroom: breakEvenCube - cube,",
+            "after": "cubeHeadroom: breakEvenCube + cube,",
+            "line_text": "      cubeHeadroom: breakEvenCube - cube,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 176,
+            "col": 64,
+            "operator": "or-to-and",
+            "before": "roundedDimensions: roundDimensions && (length !== rawLength || width !== rawWidth || height !== rawHeight),",
+            "after": "roundedDimensions: roundDimensions && (length !== rawLength && width !== rawWidth || height !== rawHeight),",
+            "line_text": "    roundedDimensions: roundDimensions && (length !== rawLength || width !== rawWidth || height !== rawHeight),",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+        "issue": "measured() rounded a side under 0.5 in to 0 after positive() accepted it: a 12 x 10 x 0.4 in mailer reported height 0, cube 0, dimWeight 0. Fixed: Math.max(1, Math.round(v)) when rounding; failing-first test 'a side under half an inch never rounds to a zero side or a zero cube'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18362"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "524040fb-91b9-5212-9b27-3945454c053f",
+    "transcripts": 1,
+    "first": "2026-11-23T04:09:12Z",
+    "last": "2026-11-23T04:15:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 68,
+        "output": 16273,
+        "thinking": 4699,
+        "cache_read": 2685033,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76108,
+        "api_equivalent_usd": 1.4716,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 68,
+      "output": 16273,
+      "thinking": 4699,
+      "cache_read": 2685033,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76108,
+      "api_equivalent_usd": 1.4716,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.15,
+      "active_minutes": 6.15,
+      "model_minutes": 3.61,
+      "tool_minutes": 2.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "senior engineer: mutation triage, 4 tests, one fix, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 135.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
