@@ -74,7 +74,7 @@ compress less well apart than as one. That is the trade for the eight pages abov
 page still loads the season builder through `divisions.mjs`, which uses its text-field parsers.
 
 **Tests.** `page.test.mjs`: `calc.mjs` only re-exports its parts, each part imports only its siblings, and
-the eight one-format pages reach none of `calc.mjs`, `schedule.mjs`, `carryover.mjs`, `nights.mjs`
+every page in the folder but the single-league and multi-division pages reaches none of `calc.mjs`, `schedule.mjs`, `carryover.mjs`, `nights.mjs`
 (followed import by import). `deploy.test.mjs` now follows `server.mjs`'s imports all the way down: the
 old check read only the names `server.mjs` imports itself, so an image missing `pools.mjs` would have
 passed it and failed on start (tried: dropping `pools.mjs` from the Dockerfile fails the new test).

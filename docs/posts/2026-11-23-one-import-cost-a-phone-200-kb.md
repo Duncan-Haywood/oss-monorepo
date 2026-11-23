@@ -74,8 +74,9 @@ passed that test and then failed when it started. The test now follows the
 imports all the way down. We tried it: drop `pools.mjs` from the
 Dockerfile and the test fails.
 
-A second new test follows the eight one-format pages' imports and fails if
-any of them reaches the season builder or the carry-over search again.
+A second new test follows the imports of every page in the folder except
+the two that build whole seasons, and fails if any of them reaches the
+season builder or the carry-over search again.
 Without a bundler, one convenient `import { x } from "./calc.mjs"` would
 bring all that code back.
 

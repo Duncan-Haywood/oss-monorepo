@@ -52,6 +52,8 @@ export function csvRows(text) {
  * several dates or ranges split by commas, semicolons or newlines; "none"/"n/a" cells are skipped; a team that answers
  * twice has its dates merged. Returns { text, errors[] }; a row naming no known team is reported, never guessed.
  */
+// A CSV reader, not a writer: nothing here goes out as a CSV cell. Every CSV this tool writes goes through
+// csvCell in outputs.mjs, the formula-injection guard (a cell starting =, +, -, @, tab or CR is prefixed).
 export function blackoutsFromCsv(csv, teams) {
   const rows = csvRows(csv), errors = [];
   if (rows.length < 2) return { text: "", errors: ["The CSV needs a header row and at least one answer."] };

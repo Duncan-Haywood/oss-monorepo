@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel, parseDate, dayIso } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
@@ -1069,11 +1069,17 @@ test("the one-format pages load neither the season builder nor the carry-over se
     }
     return seen;
   };
-  for (const p of ["americano-night.html", "box-league.html", "swiss-pairing.html", "practice-schedule.html", "balanced-teams.html", "weekend-tournament-schedule.html", "bowling-league-schedule.html", "golf-league-schedule.html"]) {
+  // Every page in the folder but the two that build whole seasons (the single-league page and the
+  // multi-division page, whose divisions.mjs uses the season builder's text parsers).
+  const FULL = new Set(["index.html", "multi-division-league-schedule.html"]);
+  const pages = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html") && !FULL.has(f));
+  let withModules = 0;
+  for (const p of pages) {
     const mods = reach(page(p));
-    assert.ok(mods.size >= 2, p);
+    if (mods.size) withModules++;
     for (const heavy of ["calc.mjs", "schedule.mjs", "carryover.mjs", "nights.mjs"]) assert.ok(!mods.has(heavy), `${p} reaches ${heavy}`);
   }
+  assert.ok(withModules >= 8, `only ${withModules} pages load modules`);
   // the single-league page still takes everything through calc.mjs
   assert.ok(reach(page("index.html")).has("carryover.mjs"));
 });
