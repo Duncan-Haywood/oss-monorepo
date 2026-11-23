@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKkPXEgZwNJXEsADAFu",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T00:18:55Z",
+  "ended": "2026-11-23T00:32:06Z",
+  "wall_minutes": 13.35,
+  "tokens_in": 3939614,
+  "tokens_out": 20716,
+  "cost_usd": 1.8784,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18337",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first commit chained `git checkout -b` (branch already existed) with && before writing the history doc, so the doc was skipped and landed in a second commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 1 (backlog) is again all owner-gated (P063, P064); the prompt already says to skip, which worked. Suggest pointing item 3 at `run_venture_tests.py --times` plus untimed ventures with recent commits, since venture_suite_times.json is from 2026-11-17 and misses new suites."
+    },
+    {
+      "file": "platform/ci/venture_suite_times.json",
+      "issue": "Stale (2026-11-17): ids-model-check, xer-schedule-check, ifc-quantity-takeoff have no row though they are the most-touched ventures this week."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-seven-reads-of-one-timestamp.md",
+    "docs/history/ids-model-check-perf-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "Metric: ids-model-check temporal range matching. Before (b3566e386): a 60,005-value benchmark (scratchpad bench.mjs, temporalKind/temporalKey/2x temporalCompare/5 IDS ranges per value) 1010/937/929 ms; after 336/373/359 ms; output JSON byte-identical (cmp, sha256 c40fb2b875720a09). time-pattern.test.mjs alone (suite_file_times.py) 4.1 s -> 3.0 s; four temporal test files at --test-concurrency=1 9.7/10.1/9.9 s -> 8.3/8.2/8.3 s; whole suite via run_venture_tests.py --no-page-checks 10.9/10.9 s -> 9.7/10.1 s, 518 tests green (2 skipped as before) plus site page checks. Context reading: Pages builder suite 5m03s locally, 236 s in the first shared-build test; ci_profile --runs 600: 653 job-minutes, Portfolio Pages 212.7.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0281ad77-f50e-5636-be6b-22536fac7e2e",
+    "transcripts": 1,
+    "first": "2026-11-23T00:18:55Z",
+    "last": "2026-11-23T00:32:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 95,
+        "output": 20716,
+        "thinking": 2995,
+        "cache_read": 3852883,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86636,
+        "api_equivalent_usd": 1.8784,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 95,
+      "output": 20716,
+      "thinking": 2995,
+      "cache_read": 3852883,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86636,
+      "api_equivalent_usd": 1.8784,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.35,
+      "active_minutes": 9.21,
+      "model_minutes": 4.19,
+      "tool_minutes": 5.03,
+      "waiting_on_human_minutes": 4.13,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, refactor, equivalence benchmark and write-up for one hot path",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 159.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

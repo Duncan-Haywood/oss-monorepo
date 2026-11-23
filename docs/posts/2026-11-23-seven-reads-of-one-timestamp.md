@@ -3,7 +3,7 @@ title: "Seven reads of one timestamp: a range check made three times faster"
 seo_title: "Speeding up IDS date and time range checks in the browser"
 date: 2026-11-23
 tags: [performance, ids-model-check, bim, ifc, javascript]
-description: "Our IDS model checker parsed each date or time about seven times per range check. Reading it once and memoising the bounds made range checks 2.7 times faster with byte-identical results."
+description: "Our IDS checker parsed each date or time about seven times per range check. Reading it once made range checks 2.7 times faster, same output."
 ---
 
 [ids-model-check](/ids-model-check/) checks a building model against an
