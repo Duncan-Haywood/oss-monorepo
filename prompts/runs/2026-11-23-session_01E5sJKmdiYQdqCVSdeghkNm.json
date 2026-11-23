@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKmdiYQdqCVSdeghkNm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T07:18:59Z",
+  "ended": "2026-11-23T07:48:39Z",
+  "wall_minutes": 29.84,
+  "tokens_in": 3997311,
+  "tokens_out": 23098,
+  "cost_usd": 2.0452,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18384",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "/usr/bin/time is not installed in the container; the first reference run produced no JSON and was rerun with bash SECONDS",
+    "first ordering of the new reason (turned before overlapping-pieces) gave false credit on 17 overlapping shells; caught on the output and reordered before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/eval/pole-faces-2026-11-22.md",
+      "issue": "names IfcOpenShell 0.9.0.post1, but nothing in the --breps script records the version in its output; a later run has to re-check by hand"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'take the third open item' is hard to apply when buildable: lists results and items mixed in one sentence; I counted the four 'next'/item phrases"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-reference-kernel-inside-out-faces.md",
+    "ventures/ifc-quantity-takeoff/eval/turned-figure-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 14 BUILDABLE item 'turned-face figure in ifcopenshell-volumes.py --breps'. Script checks every brep mesh for unpaired directed edges and writes the turned volume; comparison names ifcopenshell-turned. kleine_Wohnung + FM_ARC_DigitalHub: unexplained 15 -> 5 (the 5 have every edge paired: tessellation gaps 0.17-0.29%); 55 of 56 over-box IfcOpenShell figures match this tool once turned. Reference JSONs committed (saves 23 min). Venture tests: run_venture_tests.py ifc-quantity-takeoff, 227 tests ok. check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "914c0654-1929-57d1-92de-843eb80ab023",
+    "transcripts": 1,
+    "first": "2026-11-23T07:18:59Z",
+    "last": "2026-11-23T07:48:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 79,
+        "output": 23098,
+        "thinking": 3679,
+        "cache_read": 3896789,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100443,
+        "api_equivalent_usd": 2.0452,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 79,
+      "output": 23098,
+      "thinking": 3679,
+      "cache_read": 3896789,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100443,
+      "api_equivalent_usd": 2.0452,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.84,
+      "active_minutes": 7.07,
+      "model_minutes": 4.85,
+      "tool_minutes": 2.22,
+      "waiting_on_human_minutes": 22.77,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer writing a mesh orientation check, rerunning a 23-minute reference on two models, triaging 108 disagreements and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 244.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
