@@ -21,6 +21,8 @@
 // pushes one of them over, forces one more team above: a greedy matching on those games is a lower bound.
 
 export const RACE_NODE_BUDGET = 20000;
+// magic numbers ask one question per total; past this many nodes per team the safe number stands
+export const RACE_MAGIC_BUDGET = 1000;
 
 /** Whether the outcome list has a result giving one side its least and the other its most, both ways. */
 export function monotone(outcomes) {
@@ -153,4 +155,131 @@ export function exactRanks(pts, remaining, i, outcomes, { budget = RACE_NODE_BUD
   const worstWon = ask(low, low[i] + 1, true);
   const best = ask(high, high[i] + 1, false);
   return { worst, worstWon, best };
+}
+
+// Magic numbers (2026-11-23). "e more points clinch it" must hold however the e points come: from wins
+// against the teams that also chase the place (which takes points off them) or from draws, and with every
+// other game going the worst way. For a given e the question is whether some completion gives team i
+// exactly e points from its own games and still leaves k or more rivals level with or above it (a tie at
+// the cut counts against i, as "clinched" does). i's own games branch too, with the running total checked
+// against what its unplayed games can still add up to. The magic number is the smallest e such that no
+// total from e up to winning out can be stopped.
+
+/** Every total `games` games can give one side: sums[r] is the Set of totals from r games. */
+export function ownTotals(outcomes, games) {
+  const vals = [...new Set(outcomes.flat())];
+  const sums = [new Set([0])];
+  for (let r = 1; r <= games; r++) {
+    const s = new Set();
+    for (const t of sums[r - 1]) for (const v of vals) s.add(t + v);
+    sums.push(s);
+  }
+  return sums;
+}
+
+/**
+ * Can the others stop team `i` clinching one of `k` places when it takes exactly `e` points from its
+ * games left? Returns { stops: true | false | null, nodes } (null: out of budget, so assume it can).
+ */
+export function canStopAt(pts, remaining, i, e, k, outcomes, { budget = RACE_NODE_BUDGET, sums = null } = {}) {
+  const n = pts.length;
+  const top = Math.max(...outcomes.flat());
+  const T = pts[i] + e;
+  const pair = Math.max(...outcomes.map(([x, y]) => x + y));
+  const mine = remaining.filter(([a, b]) => a === i || b === i).length;
+  sums = sums ?? ownTotals(outcomes, mine);
+  let nodes = 0, out = false, found = false;
+
+  const rec = (p, gs, s, free) => {
+    if (found || out) return;
+    if (++nodes > budget) { out = true; return; }
+    p = p.slice();
+    let live = gs;
+    for (;;) {
+      const rem = new Array(n).fill(0);
+      for (const [a, b] of live) { rem[a]++; rem[b]++; }
+      const state = new Array(n);
+      for (let t = 0; t < n; t++) state[t] = t === i ? 0 : p[t] >= T ? 1 : p[t] + rem[t] * top < T ? -1 : 2;
+      const next = [];
+      let changed = false;
+      for (const g of live) {
+        const [a, b] = g;
+        if (a === i || b === i) {
+          const o = a === i ? b : a;
+          if (state[o] === 2) next.push(g);
+          else { free++; changed = true; } // only i's total depends on it now
+          continue;
+        }
+        const da = state[a] === 2, db = state[b] === 2;
+        if (da && db) { next.push(g); continue; }
+        changed = true;
+        if (da) p[a] += top; else if (db) p[b] += top;
+      }
+      live = next;
+      if (changed) continue;
+      let over = 0, doubt = 0, ownLive = 0;
+      for (let t = 0; t < n; t++) { if (state[t] === 1) over++; else if (state[t] === 2) doubt++; }
+      for (const [a, b] of live) if (a === i || b === i) ownLive++;
+      if (!sums[free + ownLive].has(e - s)) return; // i cannot end on exactly e from here
+      if (over + doubt < k) return;
+      if (over >= k) { found = true; return; } // the rest can go any way that leaves i on exactly e
+      if (live.length === 0) return;
+      // supply bound: the games left hand the chasers at most `pair` points each between two of them and
+      // `top` from a game against i, so at most as many reach T as the smallest needs that supply covers
+      let supply = 0;
+      for (const [a, b] of live) supply += a === i || b === i ? top : pair;
+      const needs = [];
+      for (let t = 0; t < n; t++) if (state[t] === 2) needs.push(T - p[t]);
+      needs.sort((x, y) => x - y);
+      let reach = 0;
+      for (const d of needs) { if (d > supply) break; supply -= d; reach++; }
+      if (over + reach < k) return;
+      let pick = 0, bestKey = Infinity;
+      for (let g = 0; g < live.length; g++) {
+        const [a, b] = live[g];
+        const room = (t) => (t === i ? Infinity : p[t] + rem[t] * top - T);
+        const key = Math.min(room(a), room(b));
+        if (key < bestKey) { bestKey = key; pick = g; }
+      }
+      const [a, b] = live[pick];
+      const rest = live.slice(0, pick).concat(live.slice(pick + 1));
+      const own = a === i || b === i;
+      // try first the results that give the chaser most
+      const order = outcomes.slice().sort((o1, o2) => (own ? (a === i ? o2[1] - o1[1] : o2[0] - o1[0]) : o2[0] + o2[1] - (o1[0] + o1[1])));
+      for (const [x, y] of order) {
+        const q = p.slice(); q[a] += x; q[b] += y;
+        rec(q, rest, s + (a === i ? x : b === i ? y : 0), free);
+        if (found || out) return;
+      }
+      return;
+    }
+  };
+  rec(pts.slice(), remaining, 0, 0);
+  return { stops: found ? true : out ? null : false, nodes };
+}
+
+/**
+ * The smallest number of extra points that clinches one of `k` places for team `i` however they come,
+ * or null when even winning out can be stopped (or the budget ran out before any total was proved).
+ * Totals i cannot reach are skipped, so the answer is always one i can score. `proved` is false when the
+ * budget ran out partway, in which case the value is still safe, only perhaps higher than it need be.
+ * `budget` is shared by all the totals asked; `known` skips the totals a safe bound already settled.
+ */
+export function exactMagic(pts, remaining, i, k, outcomes, { budget = RACE_MAGIC_BUDGET, known = null } = {}) {
+  const mine = remaining.filter(([a, b]) => a === i || b === i).length;
+  const sums = ownTotals(outcomes, mine);
+  // `known`: a total already proved to clinch, with every total above it (the safe bound's number)
+  let totals = [...sums[mine]].filter((e) => e >= 1).sort((x, y) => y - x);
+  let magic = null, nodes = 0, proved = true;
+  if (known != null) { magic = known; totals = totals.filter((e) => e < known); }
+  // one budget shared by every total asked, so a wide race costs no more than one question
+  for (const e of totals) {
+    if (nodes >= budget) { proved = false; break; }
+    const r = canStopAt(pts, remaining, i, e, k, outcomes, { budget: budget - nodes, sums });
+    nodes += r.nodes;
+    if (r.stops === false) { magic = e; continue; }
+    if (r.stops === null) proved = false;
+    break;
+  }
+  return { magic, proved, nodes };
 }
