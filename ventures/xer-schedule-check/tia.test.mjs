@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { parseXer, xerText } from "./xer.mjs";
 import { schedule } from "./cpm.mjs";
 import { EXAMPLE_XER } from "./example.mjs";
-import { parseFragnet, timeImpact, timeImpactText, timeImpactCsv, timeImpactHtml, partyHtml, EXAMPLE_FRAGNET, EXAMPLE_PARTY_FRAGNET } from "./tia.mjs";
+import { parseFragnet, timeImpact, timeImpactText, timeImpactCsv, timeImpactHtml, partyHtml, stepsHtml, EXAMPLE_FRAGNET, EXAMPLE_PARTY_FRAGNET } from "./tia.mjs";
 
 const xer = () => parseXer(EXAMPLE_XER);
 const H = "Activity ID,Name,Duration,Predecessors,Successors,Not before,Event\n";
@@ -282,4 +282,34 @@ test("delay by party: a link to the other party's new activity is dropped when r
   // F1 alone has no successor, so it moves nothing
   assert.equal(by.Owner.aloneDays, 0);
   assert.ok(r.finish.delayDays > 0);
+});
+
+test("step by step: events in date order, each on top of the earlier ones, adding to the total (example)", () => {
+  const r = timeImpact(xer(), EXAMPLE_FRAGNET);
+  assert.deepEqual(r.byStep.map((x) => [x.event, x.stepDays, x.cumulativeDays, x.newestFirstDays, x.aloneDays]), [
+    ["CO-03 MEP layout", 3, 3, 0, 3],
+    ["Late hardware approval", 6, 9, 9, 9],
+  ]);
+  assert.equal(r.byStep[0].date, "2026-04-08");
+  assert.equal(r.byStep[1].date, null);
+  assert.equal(r.orderSensitive, true);
+  assert.match(timeImpactText(r), /1\. CO-03 MEP layout \(2026-04-08\): \+3 d, 3 d so far/);
+  assert.match(timeImpactCsv(r), /\nstep,2,Late hardware approval,,[^,]*,6,/);
+  assert.match(timeImpactHtml(r), /Step by step, in the order the events happened/);
+  assert.match(stepsHtml(r, { h: "h3" }), /<h3>Step by step/);
+});
+
+test("step by step: the dates set the order, not the row order; series delays are not order-sensitive", () => {
+  const f = "Activity ID,Duration,Not before,Event\nA1140,+3,2026-03-20,Later\nA1110,+2,2026-03-01,Earlier\n";
+  const r = timeImpact(xer(), f);
+  assert.deepEqual(r.byStep.map((x) => x.event), ["Earlier", "Later"]);
+  assert.equal(r.byStep.reduce((s, x) => s + x.stepDays, 0), r.finish.delayDays);
+  assert.equal(r.orderSensitive, false);
+  for (const x of r.byStep) assert.equal(x.stepDays, x.newestFirstDays);
+  // one event: no steps
+  assert.deepEqual(timeImpact(xer(), "Activity ID,Duration,Event\nA1140,+3,X\n").byStep, []);
+  // rows with no event become their own step, with a warning
+  const m = timeImpact(xer(), "Activity ID,Duration,Event\nA1140,+3,X\nA1150,+2,\n");
+  assert.deepEqual(m.byStep.map((x) => x.event), ["X", "(no event)"]);
+  assert.ok(m.warnings.some((w) => /name no event/.test(w)));
 });

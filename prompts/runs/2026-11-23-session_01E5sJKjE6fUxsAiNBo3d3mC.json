@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKjE6fUxsAiNBo3d3mC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T11:18:56Z",
+  "ended": "2026-11-23T11:24:46Z",
+  "wall_minutes": 6.04,
+  "tokens_in": 5017497,
+  "tokens_out": 24634,
+  "cost_usd": 2.4688,
+  "tool_calls": 47,
+  "task": "Flagship xer-schedule-check (allocate.py row 8): stepwise chronological insertion of TIA delay events, with a newest-first comparison",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18413",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First eval draft passed milliseconds to formatDate, which takes minutes",
+      "fixed": "used dd - k*1440 before running"
+    },
+    {
+      "what": "guides.test.mjs failed: FAQ JSON-LD must equal the visible FAQ text",
+      "fixed": "made the JSON answer match"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Nearly every open xer-schedule-check item in next: and NEXT.md needs a real outside input (a P6 seat, a real claim); the buildable work had to be found by reading the README for methods not yet covered. A buildable: line naming method gaps would save the next run the search."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-stepwise-delay-split-depends-on-order.md",
+    "ventures/xer-schedule-check/eval/tia-steps-check-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: run_venture_tests.py xer-schedule-check ok (450 tests) plus site page checks; check_posts ok; validate.py ok; eval/tia-steps-check.mjs on six public XERs: series 19/19, parallel 31/31 (all order-sensitive), date ordering 26/26. venture-preflight run in background, result in PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0b07b5af-5c78-5e60-a430-2879a4360a7a",
+    "transcripts": 1,
+    "first": "2026-11-23T11:18:56Z",
+    "last": "2026-11-23T11:24:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 86,
+        "output": 24634,
+        "thinking": 4074,
+        "cache_read": 4892764,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124647,
+        "api_equivalent_usd": 2.4688,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 86,
+      "output": 24634,
+      "thinking": 4074,
+      "cache_read": 4892764,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124647,
+      "api_equivalent_usd": 2.4688,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.04,
+      "active_minutes": 6.04,
+      "model_minutes": 4.2,
+      "tool_minutes": 1.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior scheduler/dev: stepwise TIA feature, planted eval on six files, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 243.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
