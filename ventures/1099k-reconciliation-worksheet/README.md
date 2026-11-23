@@ -3,7 +3,7 @@
 A free browser worksheet for gig and marketplace sellers — Etsy, eBay,
 Poshmark, Mercari, Depop, Whatnot, StockX, or any other marketplace or
 payment app — that reconciles one or more Form 1099-K Box 1a gross-payment
-totals down to an estimated estimated net profit (before self-employment tax and other deductions). Enter each platform's Box
+totals down to an estimated net profit (before self-employment tax and other deductions). Enter each platform's Box
 1a figure, back out refunds and any sales tax the marketplace collected and
 remitted on your behalf, subtract your own costs, and see a per-platform
 and combined result. Entirely client-side; nothing is uploaded.
