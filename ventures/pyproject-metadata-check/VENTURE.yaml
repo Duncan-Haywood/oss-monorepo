@@ -1,0 +1,54 @@
+name: pyproject-metadata-check
+description: >-
+  Free browser tool and CLI for Python package authors: reads a pyproject.toml
+  and reports, with the line and a fix, what setuptools, hatchling or flit_core
+  will refuse, what pip will not install and what PyPI will reject (PEP 621
+  fields, PEP 639 SPDX licences, PEP 508 dependencies and marker typos,
+  requires-python caps, classifiers, build-system wiring, dependency groups),
+  and previews the core metadata. TOML and grammars differential-tested against
+  tomllib and packaging; backend claims from real test builds. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-23 in an explore run. duplicate_check.py: top score 0.13
+# (node-version-drift-check), nothing near the 0.45 bar. Closest Python
+# siblings: requirements-pin-check (requirements.txt pins), pypi-provenance-check
+# (attestations of published packages), pip-audit-triage (vulnerabilities).
+# None reads pyproject.toml.
+#
+# Why a tool and not a chatbot answer: the questions are exact (is this a PEP
+# 508 string, an SPDX id in list 3.27, a classifier PyPI knows), and backends
+# disagree (hatchling accepts what setuptools refuses), which from-memory
+# answers get wrong; the evidence is in eval/backend-claims.json.
+#
+# First visitor: Python authors searching "license classifiers have been
+# superseded by license expressions", "project must not contain properties",
+# "pyproject.toml license MIT invalid", "A callable suffix is required";
+# volume not measured with an external tool.
+
+hypotheses:
+  - claim: >-
+      Python package authors hit by a build or upload error from pyproject.toml
+      will paste the file into a tool that names the line and the backend,
+      rather than iterate on python -m build.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a pyproject.toml where a high finding is wrong for the backend named, twice after fixes.
+
+links:
+  production: https://marisstella.app/pyproject-metadata-check/
+  analytics: null
