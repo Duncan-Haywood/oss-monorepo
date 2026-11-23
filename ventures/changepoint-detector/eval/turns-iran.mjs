@@ -38,7 +38,7 @@
 //
 // usage: node eval/turns-iran.mjs > eval/turns-iran.out.txt
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join, dirname } from 'node:path';
 import { driftLevelChanges } from '../drift-level.mjs';
 import { trendWalkChanges } from '../drift-trend.mjs';
@@ -98,7 +98,7 @@ export function run({ draws = DRAWS } = {}) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const o = run();
   const nearest = (c) => o.turns.reduce((b, t) => (Math.abs(t.i - c) < Math.abs(b.i - c) ? t : b));
   console.log(`Iran non-oil GDP, ${o.n} quarters ${o.quarter[0]}-${o.quarter[o.n - 1]}; MBRI turns scored: ${o.labels} (${o.turns.map((t) => `${t.q} ${t.kind[0]}`).join(', ')})`);

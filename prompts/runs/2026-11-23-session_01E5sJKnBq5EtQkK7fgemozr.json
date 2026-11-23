@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "fred.stlouisfed.org refused through the proxy (status 000); used the BCDating CRAN mirror on raw.githubusercontent.com instead",
-    "rdata's converter cannot convert ts objects with a (n,1) dim; walked the parse tree by hand"
+    "rdata's converter cannot convert ts objects with a (n,1) dim; walked the parse tree by hand",
+    "local ventures-tests caught test_check_cli_entry: eval/turns-iran.mjs used a file:// string entry guard; fixed to pathToFileURL after the registered run (no change to any rule or output; the rerun output is byte-identical)"
   ],
   "integrity_issues": [
     "First README draft said Iran's non-oil output 'rarely fell in level'; checked before commit: 32 of 107 quarters fell. Replaced with the measured contraction/expansion mean growth (0.47% vs 1.70% a quarter)."
@@ -69,7 +70,7 @@
     "ventures/changepoint-detector/README.md (A turning-point option on Iran's dated cycle)"
   ],
   "goal": null,
-  "notes": "Fresh label set: BCDating's MBRI.Iran.Dating (13 turns) on Iran non-oil GDP (108 quarters). Pre-registration committed before the first run. T1 fails (stiff excess over random +0.044, p 0.527; bar +0.10, p<=0.05), T2 fails (stiff - shipped -0.017; bar +0.03). Local: turns-iran, trend-walk-stiff, drift-trend tests 9/9 pass; validate.py ok; check_posts ok.",
+  "notes": "Fresh label set: BCDating's MBRI.Iran.Dating (13 turns) on Iran non-oil GDP (108 quarters). Pre-registration committed before the first run. T1 fails (stiff excess over random +0.044, p 0.527; bar +0.10, p<=0.05), T2 fails (stiff - shipped -0.017; bar +0.03). Local: turns-iran, trend-walk-stiff, drift-trend tests 9/9 pass; validate.py ok; check_posts ok. Local run_workflow_locally --for-changes: all passed except test_check_cli_entry (fixed, rerun OK); agent-cross-review and deploy jobs not runnable locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
