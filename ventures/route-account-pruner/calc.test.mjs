@@ -97,3 +97,31 @@ test("sample data parses fully, yields a mix of actions, and CSV has one line pe
   assert.ok(r.dropped + r.repriced > 0 && r.dropped + r.repriced < 40);
   assert.equal(reportCsv(r).trim().split("\n").length, 41);
 });
+
+test("audit 2026-11-23: a 'Driving minutes' header is the drive column, not on-site", () => {
+  const a = parseRows("Name,Price,Visits,Driving minutes,Minutes on site\nSmith,160,4,8,45").accounts[0];
+  assert.equal(a.onsite, 45);
+  assert.equal(a.drive, 8);
+});
+
+test("audit 2026-11-23: repriced surplus and break-even use monthly revenue, not net", () => {
+  const rows = analyze([{ name: "x", price: 200, visits: 4, onsite: 30, drive: 0, materials: 80 }, ...Array(4).fill(acct({ price: 300 }))], { churnPer10: 0.4 }).rows;
+  const x = rows.find((r) => r.name === "x");
+  assert.equal(x.increase, 0.15);
+  assert.ok(Math.abs(x.expected - 8) < 1e-9);
+  assert.ok(Math.abs(x.neededIncrease - 0.05) < 1e-9);
+});
+
+test("audit 2026-11-23: a per-visit price header warns when billing is left on per month", () => {
+  const w = parseRows("Customer,Price per visit,Visits,On site,Drive\nSmith,40,4,45,8").warnings;
+  assert.ok(w.some((m) => /per visit/.test(m)));
+});
+
+test("audit 2026-11-23: zero drive minutes is accepted", () => {
+  assert.equal(parseRows("a,100,4,30,0").accounts.length, 1);
+});
+
+test("audit 2026-11-23: CSV quotes names and defuses a leading formula character", () => {
+  const r = analyze([acct({ name: "=cmd|x" }), ...Array(4).fill(acct({}))], O);
+  assert.ok(reportCsv(r).includes(`"'=cmd|x"`));
+});

@@ -37,3 +37,7 @@ test("bad input exits 2", async () => {
   assert.equal((await run(["plan", "s"], { readFile: async () => { throw new Error("nope"); } })).exitCode, 2);
   assert.equal((await run(["--help"], io)).exitCode, 0);
 });
+
+test("audit 2026-11-23: a second file argument is refused", async () => {
+  assert.equal((await run(["plan", "a", "b"], io)).exitCode, 2);
+});

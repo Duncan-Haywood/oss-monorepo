@@ -244,12 +244,13 @@
     <p class="note" id="ev-status"></p>
     <div id="ev-out"></div>
     <h2 style="margin-top:22px" id="tia">Time impact analysis (fragnet)</h2>
-    <p class="note">For an extension of time request, or reviewing one: write the delay event as a fragnet, the new activities it added with their working days, what each follows and what each holds up (<code>A1030</code>, <code>A1030 SS</code>, <code>F110 FS+2</code>; several separated by <code>;</code>), and optionally the date the event happened (it starts on or after it) and an event name. <code>+10</code> on an existing activity's row makes it 10 days longer. The fragnet is inserted into this update and the schedule recomputed with the file's own calendars, logic and options (AACE RP 52R-06): how far the finish and each milestone move, the float every other activity gives up, and with two or more events, each event alone, so concurrent delay shows. Where the event can go more than one way (the resubmittal comes back approved, or rejected), add <code>Branch group</code>, <code>Branch</code> and <code>Probability</code> columns: rows sharing a group are alternatives, an activity ID may appear on two branches with different durations, and every combination is scheduled, giving the expected delay, P50 and P80 and the delay if each branch happens. Download the impacted schedule as an XER to import into P6 and confirm. It models the delay; who caused it, and whether time is due, is for the contract.</p>
+    <p class="note">For an extension of time request, or reviewing one: write the delay event as a fragnet, the new activities it added with their working days, what each follows and what each holds up (<code>A1030</code>, <code>A1030 SS</code>, <code>F110 FS+2</code>; several separated by <code>;</code>), and optionally the date the event happened (it starts on or after it) and an event name. <code>+10</code> on an existing activity's row makes it 10 days longer. The fragnet is inserted into this update and the schedule recomputed with the file's own calendars, logic and options (AACE RP 52R-06): how far the finish and each milestone move, the float every other activity gives up, and with two or more events, each event alone, so concurrent delay shows. Where the event can go more than one way (the resubmittal comes back approved, or rejected), add <code>Branch group</code>, <code>Branch</code> and <code>Probability</code> columns: rows sharing a group are alternatives, an activity ID may appear on two branches with different durations, and every combination is scheduled, giving the expected delay, P50 and P80 and the delay if each branch happens. Add a <code>Party</code> column (owner, contractor, a subcontractor) and each party's rows are also run alone and without it, splitting the delay into each party's sole delay and the concurrent days (<a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">guide</a>). Download the impacted schedule as an XER to import into P6 and confirm. It models the delay; whether time or money is due, is for the contract.</p>
     <label for="tia-frag">Fragnet (CSV or pasted from a spreadsheet)</label>
     <textarea id="tia-frag" rows="6" style="width:100%;font-family:ui-monospace,monospace;font-size:12px" placeholder="Activity ID,Name,Duration,Predecessors,Successors,Not before,Event&#10;F100,Owner change notice,0,A1030,F110,2026-04-08,CO-03&#10;F110,Redesign MEP rough-in,12,F100,A1100,,CO-03"></textarea>
     <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:6px">
       <label for="tia-file">Open a CSV</label> <input id="tia-file" type="file" accept=".csv,.txt,.tsv,text/csv">
       <button type="button" id="tia-example" class="secondary">Example fragnet (for the example schedule)</button>
+      <button type="button" id="tia-example-party" class="secondary">Example with owner and contractor delays</button>
       <input type="checkbox" id="tia-noexp"> <label for="tia-noexp">without expected finish dates</label>
       <button type="button" id="tia-run" class="secondary">Run time impact analysis</button>
       <button type="button" id="tia-print" class="secondary" hidden>Printable exhibit (HTML)</button>
@@ -505,6 +506,7 @@
       <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
       <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
       <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+      <li><a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">How to split concurrent delay between owner and contractor</a></li>
       <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
       <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
     </ul>
@@ -513,7 +515,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -759,6 +761,7 @@
     // ---- milestone calendars
     let lastTia = null;
     $("#tia-example").addEventListener("click", async () => { $("#tia-frag").value = (await tiaModule()).EXAMPLE_FRAGNET; });
+    $("#tia-example-party").addEventListener("click", async () => { $("#tia-frag").value = (await tiaModule()).EXAMPLE_PARTY_FRAGNET; });
     $("#tia-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("#tia-frag").value = await f.text(); });
     $("#tia-run").addEventListener("click", async () => {
       const st = $("#tia-status");
@@ -766,7 +769,7 @@
       const text = $("#tia-frag").value.trim();
       if (!text) { st.textContent = "Write or paste a fragnet first, or press Example fragnet."; return; }
       try {
-        const { timeImpact } = await tiaModule();
+        const { timeImpact, partyHtml } = await tiaModule();
         const r = timeImpact(xer, text, { projId: last.project.id, expectedFinish: !$("#tia-noexp").checked });
         lastTia = r;
         const d = r.finish.delayDays;
@@ -779,7 +782,9 @@
         const mt = ms.length ? `<h3>Milestones moved</h3><div class="tablewrap"><table><thead><tr><th>Milestone</th><th>Name</th><th>Before</th><th>After</th><th class="n">Days</th></tr></thead><tbody>${ms.slice(0, 50).map((m) => `<tr><td>${esc(m.code)}</td><td>${esc(m.name)}</td><td>${esc(m.base)}</td><td>${esc(m.impacted)}</td><td class="n">${esc(m.delayDays)}</td></tr>`).join("")}</tbody></table></div>` : "";
         const ct = r.consumed.length ? `<h3>Float given up</h3><div class="tablewrap"><table><thead><tr><th>Activity</th><th>Name</th><th class="n">Before (d)</th><th class="n">After (d)</th></tr></thead><tbody>${r.consumed.slice(0, 30).map((c) => `<tr><td>${esc(c.code)}</td><td>${esc(c.name)}</td><td class="n">${esc(c.floatBefore)}</td><td class="n">${esc(c.floatAfter)}</td></tr>`).join("")}</tbody></table></div>${r.consumed.length > 30 ? `<p class="note">${esc(r.consumed.length - 30)} more in the CSV.</p>` : ""}` : "";
         const wn = r.warnings.length ? `<p class="note">${r.warnings.map(esc).join("<br>")}</p>` : "";
-        $("#tia-out").innerHTML = wn + br + ev + fr + mt + ct;
+        const pa = r.apportionment ? partyHtml(r, { h: "h3" }) : "";
+        $("#tia-out").innerHTML = wn + br + ev + pa + fr + mt + ct;
+        if (r.apportionment) record("tia_party_split");
         for (const b of ["#tia-print", "#tia-csv", "#tia-xer"]) $(b).hidden = false;
         record("tia_run");
       } catch (e) {

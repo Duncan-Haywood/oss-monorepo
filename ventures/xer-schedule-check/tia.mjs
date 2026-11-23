@@ -32,6 +32,12 @@
 //                 (written as a P6 start-on-or-after constraint)
 //   event         a name grouping rows into one delay event (optional); each
 //                 event is also run alone, so concurrent events can be seen
+//   party         who is responsible for the row (owner, contractor, ...;
+//                 optional). With a party named, each party's rows are run
+//                 alone and every row but that party's, so the finish delay
+//                 splits into what each party alone adds on top of the others
+//                 and the part that only goes away when both are removed
+//                 (concurrent). See byParty below.
 //   calendar      a calendar ID or name in the file (optional). Without it a
 //                 new activity takes the calendar of its first existing
 //                 predecessor, else of its first existing successor, else the
@@ -39,7 +45,16 @@
 //
 // timeImpact(xer, fragnet, { projId, expectedFinish }) -> { project, finish: { base,
 //   impacted, delayDays }, milestones, fragnet, consumed, drivingPath,
-//   fragnetOnPath, byEvent, warnings, impactedXer }
+//   fragnetOnPath, byEvent, byParty, apportionment, warnings, impactedXer }
+//
+// byParty (when the fragnet names a party): per party { party, rows,
+// aloneDays (its rows alone), withoutDays (every other row), soleDays (total
+// minus withoutDays: the delay that goes away only when this party's rows are
+// taken out, the delay it alone is answerable for) }. apportionment: { total,
+// sole: sum of soleDays, concurrentDays: total - sole (delay either party's
+// rows cause by themselves, so removing one party alone does not remove it),
+// note }. The parts add up to the total by construction. Rows with no party
+// form their own group, "(no party)".
 //
 // impactedXer is the copy with the fragnet in it; xerText() writes it, so the
 // impacted schedule can be imported into P6 and rescheduled there to check
@@ -66,6 +81,7 @@ const COLUMNS = {
   group: /^(branch group|group|decision|outcome group|branch point)$/,
   branch: /^(branch|outcome|alternative|branch name)$/,
   probability: /^(probability|prob|chance|likelihood)/,
+  party: /^(party|responsible|responsible party|responsibility|caused by|liable|owner\/contractor)$/,
 };
 
 const r1 = (x) => Math.round(x * 10) / 10;
@@ -123,7 +139,7 @@ export function parseFragnet(text) {
       if (Number.isFinite(probability) && probability > 1 && probability <= 100 && !/%$/.test(pc)) probability /= 100;
       if (!(Number.isFinite(probability) && probability > 0 && probability <= 1)) { warnings.push(`row ${row}: probability "${get(r, "probability")}" is not between 0 and 100%; ignored`); probability = null; }
     }
-    out.push({ row, code, name: get(r, "name"), days, extend, event: get(r, "event") || null, preds: links(get(r, "preds")), succs: links(get(r, "succs")), notBefore, calendar: get(r, "calendar") || null, group: get(r, "group") || null, branch: get(r, "branch") || null, probability });
+    out.push({ row, code, name: get(r, "name"), days, extend, event: get(r, "event") || null, preds: links(get(r, "preds")), succs: links(get(r, "succs")), notBefore, calendar: get(r, "calendar") || null, group: get(r, "group") || null, branch: get(r, "branch") || null, probability, party: get(r, "party") || null });
   });
   return { rows: out, warnings };
 }
@@ -409,23 +425,58 @@ export function timeImpact(xer, fragnet, { projId = null, expectedFinish = true 
   }
   if (absorbed.length) warnings.push(`${absorbed.length} ${absorbed.length === 1 ? "activity keeps its" : "activities keep their"} expected finish date and ${absorbed.length === 1 ? "absorbs" : "absorb"} the delay by getting shorter (${absorbed.slice(0, 5).map((x) => x.code).join(", ")}${absorbed.length > 5 ? ` and ${absorbed.length - 5} more` : ""}): the project uses expected end dates, as P6 would; to see the delay if the crew cannot finish in less time, run again without expected finish dates`);
 
+  // a subset of the fragnet run alone; links to the new activities of rows
+  // left out are dropped (the subset cannot follow work that is not in it)
+  const runSubset = (keep) => {
+    const rows = parsed.rows.filter((f) => !f.skip && keep(f)).map((f) => ({ ...f }));
+    const codes = new Set(rows.map((f) => f.code));
+    const other = new Set(parsed.rows.filter((f) => !keep(f) && ins.newIds.has(f.code)).map((f) => f.code));
+    for (const f of rows) { f.preds = f.preds.filter((l) => !other.has(l.code) || codes.has(l.code)); f.succs = f.succs.filter((l) => !other.has(l.code) || codes.has(l.code)); }
+    if (!rows.length) return { finish: f0, delayDays: 0 };
+    const one = insertFragnet(xer, rows, { model, project: p });
+    const run = schedule(one.xer, { forwardOnly: true, ...ex });
+    const fe = run.projects.get(p.id)?.finish ?? null;
+    return { finish: fe, delayDays: wd(f0, fe) ?? 0 };
+  };
+
   // each event alone, when the fragnet names more than one
   const events = [...new Set(parsed.rows.filter((f) => !f.skip).map((f) => f.event).filter(Boolean))];
   const byEvent = [];
   if (events.length > 1) {
     for (const e of events) {
-      const rows = parsed.rows.filter((f) => !f.skip && f.event === e).map((f) => ({ ...f, preds: f.preds, succs: f.succs }));
-      const codes = new Set(rows.map((f) => f.code));
-      // links to another event's new activities are dropped when run alone
-      const other = new Set(parsed.rows.filter((f) => f.event !== e && ins.newIds.has(f.code)).map((f) => f.code));
-      for (const f of rows) { f.preds = f.preds.filter((l) => !other.has(l.code) || codes.has(l.code)); f.succs = f.succs.filter((l) => !other.has(l.code) || codes.has(l.code)); }
-      const one = insertFragnet(xer, rows, { model, project: p });
-      const run = schedule(one.xer, { forwardOnly: true, ...ex });
-      const fe = run.projects.get(p.id)?.finish ?? null;
-      byEvent.push({ event: e, finish: formatDate(fe), delayDays: wd(f0, fe) ?? 0 });
+      const o = runSubset((f) => f.event === e);
+      byEvent.push({ event: e, finish: formatDate(o.finish), delayDays: o.delayDays });
     }
   }
   const delayDays = wd(f0, f1) ?? 0;
+
+  // each party alone and every row but that party's
+  const NO_PARTY = "(no party)";
+  const partyOf = (f) => f.party || NO_PARTY;
+  const live = parsed.rows.filter((f) => !f.skip);
+  const parties = live.some((f) => f.party) ? [...new Set(live.map(partyOf))] : [];
+  const byParty = [];
+  let apportionment = null;
+  if (parties.length) {
+    if (parties.includes(NO_PARTY)) warnings.push(`${live.filter((f) => !f.party).length} fragnet row(s) name no party; they are counted as their own group, "${NO_PARTY}"`);
+    for (const pt of parties) {
+      const alone = parties.length === 1 ? { finish: f1, delayDays } : runSubset((f) => partyOf(f) === pt);
+      const without = parties.length === 1 ? { finish: f0, delayDays: 0 } : runSubset((f) => partyOf(f) !== pt);
+      byParty.push({ party: pt, rows: live.filter((f) => partyOf(f) === pt).length, aloneFinish: formatDate(alone.finish), aloneDays: alone.delayDays, withoutFinish: formatDate(without.finish), withoutDays: without.delayDays, soleDays: r1(delayDays - without.delayDays) });
+    }
+    const sole = r1(byParty.reduce((a, x) => a + x.soleDays, 0));
+    const concurrentDays = r1(delayDays - sole);
+    apportionment = {
+      totalDays: delayDays,
+      soleDays: sole,
+      concurrentDays,
+      note: concurrentDays > 0
+        ? `${concurrentDays} working days of the delay stay when any one party's rows are taken out: the parties' delays run on the same path at the same time (concurrent)`
+        : concurrentDays < 0
+          ? `the parties' delays together are ${-concurrentDays} working days worse than their sole parts add up to: one party's delay only reaches the finish once another's has used the float`
+          : "each day of the delay goes away when one party's rows are taken out: no concurrent delay",
+    };
+  }
 
   // every outcome of the branches, scheduled as the events alone are
   let branches = null;
@@ -488,6 +539,8 @@ export function timeImpact(xer, fragnet, { projId = null, expectedFinish = true 
     drivingPath: pathIds.map((id) => impModel.tasks.get(id)?.code ?? id),
     fragnetOnPath: pathIds.filter((id) => fragIds.has(id)).map((id) => impModel.tasks.get(id)?.code ?? id),
     byEvent,
+    byParty,
+    apportionment,
     // events alone add up to more than together when they share the path
     // (concurrent); to less when one only bites once another has used the float
     overlapDays: byEvent.length ? r1(sumAlone - delayDays) : null,
@@ -521,6 +574,11 @@ export function timeImpactText(r, { limit = 15 } = {}) {
     for (const e of r.byEvent) L.push(`  ${e.event}: ${e.delayDays} d (finish ${e.finish})`);
     L.push(`  alone they add to ${r1(r.byEvent.reduce((s, e) => s + e.delayDays, 0))} d, together ${r.finish.delayDays} d${r.overlapDays > 0 ? ` (${r.overlapDays} d overlap: concurrent on the path)` : ""}`);
   }
+  if (r.apportionment) {
+    L.push("By party (each run alone, and with every other row):");
+    for (const x of r.byParty) L.push(`  ${x.party} (${x.rows} row${x.rows === 1 ? "" : "s"}): alone ${x.aloneDays} d; without it ${x.withoutDays} d; sole ${x.soleDays} d`);
+    L.push(`  ${r.apportionment.totalDays} d = ${r.byParty.map((x) => `${x.soleDays} sole ${x.party}`).join(" + ")} + ${r.apportionment.concurrentDays} concurrent; ${r.apportionment.note}`);
+  }
   if (r.branches) for (const line of branchLines(r.branches)) L.push(line);
   L.push(r.branches ? "Fragnet (most likely branch of each group):" : "Fragnet:");
   for (const f of r.fragnet) L.push(`  ${f.code} ${f.name} (${f.kind}, ${f.days} d): ${f.start} to ${f.finish}, float ${f.floatDays} d${f.driving ? ", drives the finish" : ""}`);
@@ -545,6 +603,12 @@ export function timeImpactCsv(r) {
   const out = [["section", "activity", "name", "before", "after", "change (working days)", "note"]];
   out.push(["finish", "", "project finish", r.finish.base, r.finish.impacted, r.finish.delayDays, ""]);
   for (const e of r.byEvent) out.push(["event alone", "", e.event, r.finish.base, e.finish, e.delayDays, ""]);
+  for (const x of r.byParty) {
+    out.push(["party alone", "", x.party, r.finish.base, x.aloneFinish, x.aloneDays, `${x.rows} row(s)`]);
+    out.push(["without party", "", x.party, r.finish.base, x.withoutFinish, x.withoutDays, "every other row"]);
+    out.push(["sole delay", "", x.party, "", "", x.soleDays, "total minus the run without this party"]);
+  }
+  if (r.apportionment) out.push(["concurrent delay", "", "stays when any one party is taken out", "", "", r.apportionment.concurrentDays, r.apportionment.note]);
   if (r.branches) {
     const b = r.branches;
     out.push(["branches", "", "expected delay over every outcome", r.finish.base, "", b.expectedDelayDays, `P50 ${b.p50DelayDays} d; P80 ${b.p80DelayDays} d; ${b.minDelayDays} to ${b.maxDelayDays} d; chance of delay ${pct(b.chanceOfDelay)}`]);
@@ -566,6 +630,16 @@ function branchHtml(b) {
 <table><thead><tr><th>Outcome</th><th class="n">Probability</th><th>Finish</th><th class="n">Delay (d)</th></tr></thead><tbody>${b.outcomes.slice(0, 40).map((o) => `<tr><td>${esc(picksText(o.picks))}</td><td class="n">${esc(pct(o.probability))}</td><td>${esc(o.finish)}</td><td class="n">${esc(o.delayDays)}</td></tr>`).join("")}</tbody></table>${b.outcomes.length > 40 ? `<p class="note">${esc(b.outcomes.length - 40)} more outcomes in the CSV.</p>` : ""}`;
 }
 
+// The delay split by party: each party alone, the run without it, the sole
+// part and the concurrent rest (shared with the page, index.html).
+export function partyHtml(r, { h = "h2" } = {}) {
+  const a = r.apportionment;
+  return `<${h}>Delay by party</${h}>
+<p>Each party's fragnet rows were run alone, and every row but that party's. A party's <b>sole delay</b> is the total minus the run without it: the days that go away only when its rows are taken out. What is left is <b>concurrent</b>: days either party's rows cause by themselves.</p>
+<div class="tablewrap"><table><thead><tr><th>Party</th><th class="n">Rows</th><th class="n">Alone (d)</th><th class="n">Without it (d)</th><th class="n">Sole delay (d)</th></tr></thead><tbody>${r.byParty.map((x) => `<tr><td>${esc(x.party)}</td><td class="n">${esc(x.rows)}</td><td class="n">${esc(x.aloneDays)}</td><td class="n">${esc(x.withoutDays)}</td><td class="n">${esc(x.soleDays)}</td></tr>`).join("")}<tr><td>Concurrent</td><td></td><td></td><td></td><td class="n">${esc(a.concurrentDays)}</td></tr><tr><td><b>Total</b></td><td></td><td></td><td></td><td class="n"><b>${esc(a.totalDays)}</b></td></tr></tbody></table></div>
+<p class="note">${esc(a.note)}. The split models the delay with the schedule's logic; whether time or money is due for sole or concurrent delay is set by the contract and the law that governs it.</p>`;
+}
+
 // A printable exhibit for a time extension request or its review.
 export function timeImpactHtml(r, meta = {}) {
   const d = r.finish.delayDays;
@@ -578,6 +652,7 @@ export function timeImpactHtml(r, meta = {}) {
 <p class="big">Project finish ${esc(r.finish.base)} &rarr; <b>${esc(r.finish.impacted)}</b>: ${d > 0 ? `<b>${esc(d)} working days later</b>` : d < 0 ? `${esc(-d)} working days earlier` : "no change"}.</p>
 <p>Method: the fragnet below was inserted into the update in force when the event happened and the schedule recomputed with the file's own calendars, logic, constraints and scheduling options (AACE RP 52R-06, prospective time impact analysis; RP 29R-03 MIP 3.6). The impact is the difference in the project finish and in each milestone between the two runs, in working days of the project calendar.</p>
 ${r.byEvent.length ? `<h2>Each event alone</h2><table><thead><tr><th>Event</th><th>Finish</th><th class="n">Days</th></tr></thead><tbody>${r.byEvent.map((e) => row([e.event, e.finish, e.delayDays])).join("")}<tr><td>All together</td><td>${esc(r.finish.impacted)}</td><td class="n">${esc(d)}</td></tr></tbody></table><p class="note">${r.overlapDays > 0 ? `The events alone add up to ${esc(r1(r.byEvent.reduce((s, e) => s + e.delayDays, 0)))} days but ${esc(d)} together: ${esc(r.overlapDays)} days are concurrent (the events delay the same path at the same time).` : r.overlapDays < 0 ? `Together they delay more than alone: one event only reaches the finish once another has used the float.` : "The events' delays add up: no overlap."}</p>` : ""}
+${r.apportionment ? partyHtml(r) : ""}
 ${r.branches ? branchHtml(r.branches) : ""}
 <h2>Fragnet${r.branches ? " (most likely branch of each group)" : ""}</h2><table><thead><tr><th>Activity</th><th>Name</th><th>Kind</th><th class="n">Days</th><th>Start</th><th>Finish</th><th class="n">Float (d)</th><th>Drives the finish</th></tr></thead><tbody>${r.fragnet.map((f) => `<tr><td>${esc(f.code)}</td><td>${esc(f.name)}</td><td>${esc(f.kind)}</td><td class="n">${esc(f.days)}</td><td>${esc(f.start)}</td><td>${esc(f.finish)}</td><td class="n">${esc(f.floatDays)}</td><td>${f.driving ? "yes" : ""}</td></tr>`).join("")}</tbody></table>
 ${ms.length ? `<h2>Milestones moved</h2><table><thead><tr><th>Milestone</th><th>Name</th><th>Before</th><th>After</th><th class="n">Days</th></tr></thead><tbody>${ms.map((m) => row([m.code, m.name, m.base, m.impacted, m.delayDays])).join("")}</tbody></table>` : "<p>No milestone moved.</p>"}
@@ -592,3 +667,7 @@ ${r.warnings.length ? `<h2>Notes</h2><ul>${r.warnings.map((w) => `<li>${esc(w)}<
 // a fragnet for the example office fit-out (example.mjs): an owner's change
 // to the level 2 MEP layout, and late door hardware approval
 export const EXAMPLE_FRAGNET = "Activity ID,Name,Duration,Predecessors,Successors,Not before,Event\nF100,Owner change notice: level 2 MEP layout,0,A1030,,2026-04-08,CO-03 MEP layout\nF110,Redesign level 2 MEP rough-in,12,F100,F120,,CO-03 MEP layout\nF120,Re-approve level 2 MEP drawings,5,F110,A1100,,CO-03 MEP layout\nA1040,,+25,,,,Late hardware approval\n";
+
+// the same owner change with a party column, and a contractor's slow level 1
+// rough-in running alongside it into the same inspection: concurrent delay
+export const EXAMPLE_PARTY_FRAGNET = "Activity ID,Name,Duration,Predecessors,Successors,Not before,Event,Party\nF100,Owner change notice: level 2 MEP layout,0,A1030,,2026-04-08,CO-03 MEP layout,Owner\nF110,Redesign level 2 MEP rough-in,12,F100,F120,,CO-03 MEP layout,Owner\nF120,Re-approve level 2 MEP drawings,5,F110,A1100,,CO-03 MEP layout,Owner\nA1090,,+20,,,,Short-crewed level 1 rough-in,Contractor\n";

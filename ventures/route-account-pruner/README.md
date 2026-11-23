@@ -30,6 +30,11 @@ Stop order and route density are not modelled, nor contracts, referrals, seasona
 cancellation response is an assumption the user types; it is not measured from data. Arithmetic on supplied numbers,
 not advice.
 
+Known gaps (quality audit, [2026-11-23](../../portfolio/quality/audits/2026-11-23-route-account-pruner.json)):
+crew size and paid labour are folded into the one hour value, so a two-person crew is under-costed unless the hour
+value is raised by hand; at the default cancellation response most recommended raises sit at the largest-increase
+limit (the page marks them "your limit"); and the expected gain assumes freed hours are refilled.
+
 ## Run
 
 Open `index.html`, or `node --test` to run the tests. No build step, no dependencies, no network calls.
