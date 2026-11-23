@@ -609,10 +609,11 @@ flagships:
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); signed
       fans swept 2026-11-23 (eval/signed-fan-swept-2026-11-23.md); next square-cut
-      ends (NEXT.md); turned-face figure in ifcopenshell-volumes.py --breps
-      (eval/pole-faces-2026-11-22.md); revision series: Kegonsa's 7 exports done,
-      replaced-in-place 2026-11-22 (eval/replaced-in-place-2026-11-22.md); Lake
-      Mills has no series; next a public non-Revit series.
+      ends (NEXT.md); the 5 tessellation-gap breps left
+      (eval/turned-figure-2026-11-23.md; reference JSONs in eval/); revision series:
+      Kegonsa's 7 exports done, replaced-in-place 2026-11-22
+      (eval/replaced-in-place-2026-11-22.md); Lake Mills has no series; next a
+      public non-Revit series.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

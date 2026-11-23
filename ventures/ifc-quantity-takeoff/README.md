@@ -629,7 +629,12 @@ Checked against IfcOpenShell and by formula in
 [eval/pole-faces-2026-11-22.md](eval/pole-faces-2026-11-22.md): kleine_Wohnung
 reads 775 of 775 advanced breps, and the five curved breps that disagreed with
 IfcOpenShell for no named cause are its own meshes with faces turned inside
-out (turned back, they agree within 0.3%).
+out (turned back, they agree within 0.3%). Since 2026-11-23 the reference script
+checks every brep's mesh for this and the comparison names it
+([eval/turned-figure-2026-11-23.md](eval/turned-figure-2026-11-23.md)): unexplained
+disagreements on the two models 15 to 5 (the 5 left are tessellation gaps
+under 0.3%), and 55 of IfcOpenShell's 56 larger-than-the-box figures are the
+same inside-out faces.
 A plane
 cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids

@@ -15,7 +15,10 @@
 //                          needs breps.json written with the orientation check
 //   overlapping-pieces     the shell is in pieces whose boxes overlap (lumps
 //                          an exporter wrote as one shell); summed here, each
-//                          overlap counts once per piece (the reading's note)
+//                          overlap counts once per piece (the reading's note).
+//                          Tested before ifcopenshell-turned: the turned figure
+//                          sums each piece right way out too, so it agrees
+//                          with this tool there without explaining anything
 //   not-closed             an edge is not used by exactly two faces (pieces
 //                          touching along an edge): volume from the faces as
 //                          written, no section
@@ -59,8 +62,8 @@ for (const [id, e] of E) {
   for (const f of geo.advancedShellLoops(e.args[0])) for (const l of f) for (const p of l) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], p[k]); hi[k] = Math.max(hi[k], p[k]); }
   const box = (hi[0] - lo[0]) * (hi[1] - lo[1]) * (hi[2] - lo[2]);
   const reason = q > box * 1.001 ? "ifcopenshell-over-box"
-    : qt != null && Math.abs(v - qt) <= 5e-3 * qt ? "ifcopenshell-turned"
     : s.notes.some((n) => /pieces that may overlap/.test(n)) ? "overlapping-pieces"
+    : qt != null && Math.abs(v - qt) <= 5e-3 * qt ? "ifcopenshell-turned"
     : !s.shells && !s.terms.length ? "not-closed"
     : "unexplained";
   why[reason] = (why[reason] || 0) + 1;
@@ -69,6 +72,11 @@ for (const [id, e] of E) {
 console.log(`${file.split("/").pop()}: ${counts.breps} advanced breps, read ${counts.read}, agree within 0.1% ${counts.agree}`);
 for (const [k, g] of Object.entries(bySurface)) console.log(`  faces on ${k}: ${g.breps} breps, read ${g.read}, agree ${g.agree}`);
 console.log(`  disagreements: ${Object.entries(why).map(([k, n]) => `${k} ${n}`).join(", ") || "none"}`);
+// whatever reason came first: on how many does IfcOpenShell's own mesh, turned
+// to agree, enclose this tool's volume (the over-box figures are mostly this)
+const turnedBy = {};
+for (const x of left) if (x.qt != null && Math.abs(x.v - x.qt) <= 5e-3 * x.qt) turnedBy[x.reason] = (turnedBy[x.reason] || 0) + 1;
+if (Object.keys(turnedBy).length) console.log(`  IfcOpenShell turned to agree matches here within 0.5%: ${Object.entries(turnedBy).map(([k, n]) => `${n} of ${why[k]} ${k}`).join(", ")}`);
 console.log(`  not read: ${Object.entries(notRead).map(([k, n]) => `${n} x ${k}`).join(", ") || "none"}`);
 const order = ["unexplained", "not-closed", "overlapping-pieces", "ifcopenshell-turned", "ifcopenshell-over-box"];
 left.sort((a, b) => order.indexOf(a.reason) - order.indexOf(b.reason));

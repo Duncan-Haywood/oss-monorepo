@@ -9,6 +9,7 @@
 - (2026-11-20) (4) curved breps shipped 2026-11-20 (eval/curved-breps-2026-11-20.md); 2026-11-22 faces meeting on the axis read and the unexplained ones traced to IfcOpenShell (eval/pole-faces-2026-11-22.md): next a face round a whole surface with no pole on it (seam cut; none in the public models now), the turned figure written by ifcopenshell-volumes.py --breps, speed on MEP fittings
 - (2026-11-21) thresholds per work section shipped 2026-11-20 (walls/slabs/coverings/frames, preset and --voids-up-to "a,v;slabs=0,0.05"; single pair moved slab areas on 4 of 11 models; eval/measure-sections-2026-11-20.md), next the 35 openings barely meeting their host
 - (2026-11-21) overlapping shell pieces as a union
+- (2026-11-23, eval/turned-figure-2026-11-23.md) The reference script now names IfcOpenShell meshes with faces turned the wrong way. Left: kleine_Wohnung #172368 (all three figures over its box) and the not-closed #160849/#172538, looked at on the model; the 5 tessellation-gap breps (B-spline and surface of revolution, 0.17-0.29% light) refined until they pass 0.1% or the agreement line set per surface type; the same check run on the other public models with advanced breps.
 
 ## Curved walls (landed 2026-11-23, eval/curved-side-area-2026-11-23.md)
 
