@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-23 · Rule CF: the cost phase with the frozen margins and the slack cap only on an empty margined QP (plan)
+- Plan, rule CF (`vlin.cost_phase(fallback={**MARGIN, "cap": True})`) and predictions T0 to T7: `research/infra-dcopf/LOG.md` (2026-11-23); script `research/infra-dcopf/experiments/run_fallback.py`. Same starts, cases and protocol as rules CP and CS.
+
 ## 2026-11-23 · Rule CS: outcome. Empty QPs 185 to 10 of 803 rounds and a step on 76 of 83 finishers (CP 56), but not-clean trials 88 to 275; frozen mean gap development +0.229 to +0.218, held-out +0.508 to +0.516, so adoption is not met and rule CP stays
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-23); numbers in `research/infra-dcopf/experiments/results_slackcap.txt`. S0, S1, S2, S4, S5 held; S3, S6 refuted.
 - CP and CS win on different cases. Next: keep the frozen margins and use the slack cap only on a round whose margined QP is empty.

@@ -65,3 +65,21 @@ def test_rule_cs_cap_puts_the_point_inside_every_margined_row():
     pg, vg, c, recs = vlin.cost_phase(ppc, cl["pg"], cl["vg"], cl, margin=dict(tight, cap=True))
     assert c["clean"] and c["cost"] <= cl["cost"]
     assert not any(r["status"] == "QP infeasible" for r in recs)
+
+
+def test_rule_cf_falls_back_only_on_an_empty_margined_qp():
+    """Rule CF (LOG.md 2026-11-23): fallback=None is rule CP; with a fallback, only rounds whose margined QP is
+    empty are re-solved under it (and marked), and the result is still never dearer or dirtier."""
+    ppc, cl = _clean("case14_ieee", "typ")
+    tight = dict(vlin.MARGIN, load=0.5, v=0.04, q=50.0)  # the point is outside the margined rows: empty QPs
+    _pg, _vg, c0, r0 = vlin.cost_phase(ppc, cl["pg"], cl["vg"], cl, margin=tight)
+    assert any(r["status"] == "QP infeasible" for r in r0) and not any(r.get("fallback") for r in r0)
+    _pg, _vg, c1, r1 = vlin.cost_phase(ppc, cl["pg"], cl["vg"], cl, margin=tight, fallback=dict(tight, cap=True))
+    assert any(r.get("fallback") for r in r1)
+    assert c1["clean"] and c1["cost"] <= cl["cost"]
+    # with the frozen margins on this case CP never meets an empty QP, so CF is CP exactly
+    _pg, _vg, a, ra = vlin.cost_phase(ppc, cl["pg"], cl["vg"], cl, margin=vlin.MARGIN)
+    _pg, _vg, b, rb = vlin.cost_phase(ppc, cl["pg"], cl["vg"], cl, margin=vlin.MARGIN,
+                                      fallback=dict(vlin.MARGIN, cap=True))
+    if not any(r["status"] == "QP infeasible" for r in ra):
+        assert ra == rb and a["cost"] == b["cost"]
