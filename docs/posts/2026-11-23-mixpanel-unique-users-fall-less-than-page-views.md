@@ -9,7 +9,8 @@ description: "The free metric watch now reads Mixpanel. Unique users fall far le
 The [Changepoint Detector](https://marisstella.app/changepoint-detector/)'s
 [metric watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html#mixpanel) runs once a day
 in your own GitHub Actions. It messages Slack, Discord or Teams only when a metric's level has really moved. It
-already read Stripe, Shopify, Search Console, Google Analytics 4, Plausible and PostHog. Today it reads **Mixpanel**.
+already read Stripe, Shopify, Search Console, Google Analytics 4, Plausible, PostHog and Umami. Today it reads
+**Mixpanel**.
 
 ## Setting it up
 

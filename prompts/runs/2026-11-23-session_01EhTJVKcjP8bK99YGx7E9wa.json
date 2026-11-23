@@ -39,7 +39,7 @@
   "doc_friction": [
     {
       "file": "portfolio/router/allocate.py",
-      "issue": "Start-here row named changepoint-detector while a sibling session opened a PR on the same flagship one minute earlier (Umami source); both edit the same workflow files, so the second merge will conflict. Two source PRs on one venture at once is a predictable collision the allocator could flag."
+      "issue": "Start-here row named changepoint-detector while a sibling session opened a PR on the same flagship one minute earlier (Umami source); both edit the same workflow files, so the second merge will conflict. Two source PRs on one venture at once is a predictable collision the allocator could flag. It did conflict: 8 files, plus the workflow-link budget overflowed once both sources were in."
     }
   ],
   "deviations": [],
@@ -48,7 +48,7 @@
     "ventures/changepoint-detector/README.md (Mixpanel as a source)"
   ],
   "goal": "A seventh data source for the self-deployed metric watch, so Mixpanel users can get change alerts with no CSV",
-  "notes": "Round 1 found the first event's unique users miss a dropped snippet 0/40 under the count default (uniques fall 15-22% when views halve). Round 2 pre-registered in eval/mixpanel-columns.mjs, fresh seeds: middle setting passes U1-U3 (users 38-40/40, false 1/0 vs default 5/0); --period 7 fails U3 (19/16 false). Shipped middle as the Mixpanel workflow default. Local checks: mixpanel-metrics, watch-workflow, watch-repo, watch-page, posthog-metrics tests all pass (30 then 24 after the default change); check_posts ok; validate.py ok; venture tests and preflight results in the PR. run_venture_tests.py changepoint-detector: ok, 1136 tests (363 s). venture-preflight.mjs changepoint-detector: clean.",
+  "notes": "Round 1 found the first event's unique users miss a dropped snippet 0/40 under the count default (uniques fall 15-22% when views halve). Round 2 pre-registered in eval/mixpanel-columns.mjs, fresh seeds: middle setting passes U1-U3 (users 38-40/40, false 1/0 vs default 5/0); --period 7 fails U3 (19/16 false). Shipped middle as the Mixpanel workflow default. Local checks: mixpanel-metrics, watch-workflow, watch-repo, watch-page, posthog-metrics tests all pass (30 then 24 after the default change); check_posts ok; validate.py ok; venture tests and preflight results in the PR. run_venture_tests.py changepoint-detector: ok, 1136 tests (363 s). venture-preflight.mjs changepoint-detector: clean. The Umami PR (#18395) merged first; merged main in, kept both sources, and trimmed the workflow header (8 sources put the create-workflow link at 16,685 > 16,000; now 15,724). Touched suites 30/30 after the merge; full venture suite re-run after the merge: ok.",
   "corrections": [],
   "redteam": null
 }
