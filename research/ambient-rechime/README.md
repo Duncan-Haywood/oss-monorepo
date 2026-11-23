@@ -76,6 +76,14 @@ python3 experiments/figure.py
   time.
 - The context grid is uniform, so shares describe the grid only.
 
+## Known gaps (quality round 106)
+
+From the [audit](../../portfolio/quality/audits/2026-11-23-ambient-rechime.json): an independent
+recomputation matched results sections 1, 2, 3, 5 and 6 to 4 decimals, but every rate and cost
+behind the headline is an uncited round figure and only gap and masking are swept; no test pins a
+results number (3 of 5 seeded bugs survived); prior work (probability summation, IEC 60601-1-8 alarm
+repetition, attention-aware notification models) is not cited.
+
 ## Next steps
 
 Correlate misses across tones; make annoyance rise with each repeat; add a haptic mode; fit look and
