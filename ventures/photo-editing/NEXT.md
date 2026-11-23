@@ -45,8 +45,11 @@
   eval/hdrplus-joint-check-j4-2026-11-23.md) J4, the same with `COLLAPSE` 0.6 on a fourth draw: 111 scored, +0.079
   colour / +0.121 luma, 0 bursts 0.1 dB worse, every test passes, so `--noise-read mpcws` ships opt-in. On this
   draw the 0.6 line fell back on 3 frames where the shipped read over-read (2.2-6.6x the truth's slope) and `mpcws`
-  was right. Next: a drawn-noise check on Bayer camera raws with the option against `ship`; a collapse test on
-  `mpcws`'s own shot slope, committed before a fifth draw. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
+  was right. (2026-11-23, eval/hdrplus-joint-check-j5-2026-11-23.md) J5, the collapse test on `mpcws`'s own shot
+  share at 18% grey (line 0.5) on a fifth draw: 126 scored, fails h4o on one total collapse (both terms ~0) and
+  falls back on 31 (slope exactly 0 on 22, mostly still gaining); the J4 ratio line passes the same draw (0 worse),
+  so it stays. Next: a drawn-noise check on Bayer camera raws with the option against `ship`; any new collapse
+  test on the read's level at a few greys, not its shot/read split, with a full reading of the five lists first. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
   been tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
@@ -135,3 +138,4 @@
 - (2026-11-19) a real DNG and a vignetting-calibrated lens through the pipeline's lens stage
 - (2026-11-19) calibration on IIQ S (iXU180 blue 5.2%)
 - (2026-11-22) HDR+ dB sweep 2026-11-22 (48 bursts, real noise): mpcws +0.13 dB luma over mpcw but 2 bursts lose >0.1, default stays
+- (2026-11-23) the oracle loses on both (eval/hdrplus-demosaic-sweep-*)
