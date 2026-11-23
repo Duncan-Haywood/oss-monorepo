@@ -20,6 +20,7 @@ const GUIDES = [
   "how-to-find-critical-path-drag-in-a-p6-schedule.html",
   "how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html",
   "how-to-run-a-collapsed-as-built-delay-analysis.html",
+  "how-to-run-an-as-planned-vs-as-built-schedule-analysis.html",
   "how-to-run-a-time-impact-analysis-on-a-p6-schedule.html",
   "how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html",
 ];
@@ -55,7 +56,7 @@ test("each guide: canonical, title and description lengths, FAQ markup equals th
 
 test("the buttons the guides name exist on the tool page", () => {
   const index = page("index.html");
-  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Example delay list", "Example fragnet", "Run time impact analysis", "Printable exhibit (HTML)", "Impacted schedule (XER)", "without expected finish dates", "Finish date risk (Monte Carlo)", "Run the risk analysis"]) {
+  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Compare plan with as-built", "Example delay list", "Example fragnet", "Run time impact analysis", "Printable exhibit (HTML)", "Impacted schedule (XER)", "without expected finish dates", "Finish date risk (Monte Carlo)", "Run the risk analysis"]) {
     assert.ok(index.includes(label), label);
   }
 });
@@ -168,6 +169,29 @@ test("the collapsed as-built guide's worked example equals collapsedAsBuilt() on
   assert.equal(by.Contractor.earlierDays, 0);
   assert.equal(r.concurrentDays, 0);
   for (const s of ["22 of 22", "2026-07-27", "3 as-built gaps", "9 of 9 days of gap", "2026-07-14", "5 of 5 days"]) assert.ok(html.includes(s), s);
+});
+
+test("the as-planned vs as-built guide's worked example equals asPlannedVsAsBuilt() on the built-in example", () => {
+  const html = page("how-to-run-an-as-planned-vs-as-built-schedule-analysis.html");
+  const r = cli(join(dir, "cur.xer"), "--as-planned", join(dir, "prev.xer"));
+  assert.equal(r.asBuilt.reproduced, 22);
+  assert.equal(r.asBuilt.activities, 22);
+  assert.equal(r.plan.finish.slice(0, 10), "2026-07-06");
+  assert.equal(r.asBuilt.finish.slice(0, 10), "2026-07-27");
+  assert.equal(r.delayDays, 15);
+  assert.equal(r.sum, 15);
+  assert.equal(r.path.length, 6);
+  assert.deepEqual(r.plannedCritical, { onBoth: 5, of: 6 });
+  const row = (c) => r.path.find((x) => x.code === c);
+  assert.equal(row("A1110").waitDays, 14);
+  assert.equal(row("A1110").plannedStart.slice(0, 10), "2026-04-28");
+  assert.equal(row("A1110").actualStart.slice(0, 10), "2026-05-18");
+  assert.equal(row("A1180").waitDays, 5);
+  assert.equal(row("A1150").durationDays, -2);
+  assert.equal(r.floatTerm, -2);
+  assert.equal(r.late.count, 20);
+  assert.ok(r.overruns.some((o) => o.code === "A1040" && o.overDays === 10 && !o.onPath));
+  for (const s of ["22 of 22", "2026-07-06", "2026-07-27", "15 working days", "6 activities, 5 of 6", "+14", "+5", "-2", "+15", "Twenty of the 22", "10 days long"]) assert.ok(html.includes(s), s);
 });
 
 test("the time impact analysis guide's worked example equals timeImpact() on the built-in example", async () => {

@@ -272,6 +272,15 @@
     </div>
     <p class="note" id="cab-status"></p>
     <div id="cab-out" class="tablewrap"></div>
+    <h2 style="margin-top:22px" id="as-planned">As-planned vs as-built: where the delay grew</h2>
+    <p class="note">The first exhibit in most delay claims, and the simplest to check: open the final update above, then the baseline here. The tool finds the as-built critical path (the chain that drove the actual finish, read from a model that lands every activity on its actual dates, not picked by eye), lays the planned dates beside the actual ones activity by activity, and splits the delay into steps along that path: a late start (the gap after its predecessor grew), a longer duration, or a planned gap used up. The steps add up exactly to the project's delay (AACE RP 29R-03, MIP 3.1 and 3.2). Without a baseline file the final file's own Planned Start and Planned Finish stand in. On six public P6 files with planted delays, every step that grew the delay was on a planted activity in 109 of 110 slips (the miss a tenth of a day), the steps added up to the delay every time, and each of 51 planted waits on the path measured exactly its planted days. It measures where the delay sits; who caused it is for the parties.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center">
+      <label for="apab-base">Baseline (XER or XML, optional)</label> <input type="file" id="apab-base" accept=".xer,.xml,text/plain,text/xml,application/xml">
+      <button type="button" id="apab-run" class="secondary">Compare plan with as-built</button>
+      <button type="button" id="apab-csv" class="secondary" hidden>Download (CSV)</button>
+    </div>
+    <p class="note" id="apab-status"></p>
+    <div id="apab-out" class="tablewrap"></div>
     <h2 style="margin-top:22px" id="drag">Critical path drag: what to speed up</h2>
     <p class="note">Every critical activity has the same float, so float cannot say which one to accelerate. Drag can: it is how much earlier the forecast finish would be if that activity (or that lag) took no time, everything else as it is. An activity with 30 days left but 4 days of drag can only ever win 4 days, because a parallel path takes over. Type what a day of finish costs (liquidated damages, extended site overheads) to price each one. P6 and Microsoft Project do not compute drag.</p>
     <p class="row">
@@ -494,6 +503,7 @@
       <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
       <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
       <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+      <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
       <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
       <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
       <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
@@ -503,7 +513,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>collapse_run</code>, <code>drag_run</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -536,6 +546,7 @@
     import { milestoneCalendars, milestoneCalendarsCsv } from "./milestones.mjs";
     import { timeImpact, timeImpactCsv, timeImpactHtml, EXAMPLE_FRAGNET } from "./tia.mjs";
     import { collapsedAsBuilt, collapsedCsv, collapsedTableHtml, EXAMPLE_DELAYS } from "./collapse.mjs";
+    import { asPlannedVsAsBuilt, asPlannedCsv, asPlannedTableHtml, delaySteps } from "./asplanned.mjs";
     import { xerText } from "./xer.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
     import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
@@ -795,6 +806,31 @@
     $("#cab-csv").addEventListener("click", () => { if (!lastCab) return; save(new Blob([collapsedCsv(lastCab)], { type: "text/csv" }), `${fileName}-collapsed-as-built.csv`); record("findings_downloaded"); });
     $("#cab-xer").addEventListener("click", () => { if (!lastCab) return; save(new Blob([xerText(lastCab.collapsedXer)], { type: "text/plain" }), `${fileName}-collapsed.xer`); record("findings_downloaded"); });
     $("#cab-model").addEventListener("click", () => { if (!lastCab) return; save(new Blob([xerText(lastCab.asBuiltXer)], { type: "text/plain" }), `${fileName}-as-built-model.xer`); record("findings_downloaded"); });
+    let lastApab = null, apabBase = null;
+    $("#apab-base").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) { apabBase = null; return; }
+      try { apabBase = parseSchedule(decodeXer(new Uint8Array(await f.arrayBuffer()))); $("#apab-status").textContent = `Baseline ${f.name} read.`; }
+      catch (err) { apabBase = null; $("#apab-status").textContent = `This does not look like an XER or Microsoft Project XML file: ${err.message}`; }
+    });
+    $("#apab-run").addEventListener("click", () => {
+      const st = $("#apab-status");
+      if (!xer || !last) { st.textContent = "Open the final update first (or load the example above)."; return; }
+      try {
+        const base = apabBase || (fileName === "office-fitout-example" ? parseXer(EXAMPLE_PREV_XER) : null);
+        const r = asPlannedVsAsBuilt(xer, base, { projId: last.project.id });
+        lastApab = r;
+        const top = delaySteps(r).filter((x) => x.days > 0)[0];
+        st.innerHTML = `Plan finish ${esc(r.plan.finish.slice(0, 10))}, as built ${esc(r.asBuilt.finish.slice(0, 10))}: <b>${esc(r.delayDays)} working days</b>.${top ? ` Largest step: ${esc(top.code)}, ${esc(top.kind)}, ${esc(top.days)} d.` : ""}`;
+        $("#apab-out").innerHTML = asPlannedTableHtml(r);
+        $("#apab-csv").hidden = false;
+        record("as_planned_compared");
+      } catch (e) {
+        st.textContent = `Could not run: ${e.message}`;
+        $("#apab-out").innerHTML = "";
+      }
+    });
+    $("#apab-csv").addEventListener("click", () => { if (!lastApab) return; save(new Blob([asPlannedCsv(lastApab)], { type: "text/csv" }), `${fileName}-as-planned-vs-as-built.csv`); record("findings_downloaded"); });
     let lastGao = null, gaoBase = null;
     $("#gao-base").addEventListener("change", async (e) => {
       const f = e.target.files[0];
