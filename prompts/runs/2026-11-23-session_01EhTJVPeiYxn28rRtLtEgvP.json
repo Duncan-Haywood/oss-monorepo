@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVPeiYxn28rRtLtEgvP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production...",
+  "input_sha256": "60c6e727b274b66ac33cc40b0b5ca35996a7c9ee34b2eded7a44e356a1e645f7",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T06:03:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18374,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route drew the research track while the scheduled prompt asks for revenue product work; took the allocator's flagship (changepoint-detector) instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "scheduled prompt is product/revenue focused; did venture flagship work",
+      "did": "PostHog source for the metric watch",
+      "result": "shipped with tests and eval"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local: python3 platform/ci/run_venture_tests.py changepoint-detector -> 1124 pass, 6 fail, all in watch-workflow.test.mjs (step indices and the unset-source message, stale after the new workflow step); fixed, watch-workflow.test.mjs 7/7, posthog/plausible/watch-repo/page tests 41/41. eval/posthog-columns.mjs 40 seeds: sign-ups at 35% heard 39/40; page views at 60% heard 40/40 (weekends 0.5) and 36/40 (weekends 0.4); page views and users 0 false dates on 40 null products. Workflow link 18196 -> 13457 chars after the header was trimmed. No live PostHog project was used.",
+  "corrections": [],
+  "redteam": null
+}
