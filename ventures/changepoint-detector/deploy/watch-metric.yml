@@ -9,8 +9,8 @@
 #   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
 # Or, with METRIC_CSV unset, one source fetched each run into data/<source>.csv (cached, never committed), set by its
 # secret (README.md lists each source's variables): STRIPE_API_KEY or SHOPIFY_ACCESS_TOKEN (keep the repository
-# PRIVATE), GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY or
-# MIXPANEL_SERVICE_ACCOUNT.
+# PRIVATE), GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY,
+# MIXPANEL_SERVICE_ACCOUNT or MATOMO_TOKEN.
 # The first source set, in that order, is watched with its defaults (counts as poisson, revenue as a level).
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric
@@ -41,6 +41,7 @@ jobs:
             data/posthog.csv
             data/umami.csv
             data/mixpanel.csv
+            data/matomo.csv
           key: metrics-${{ github.run_id }}
           restore-keys: metrics-
       - name: Fetch Stripe metrics
@@ -135,6 +136,19 @@ jobs:
           if [ -z "$MIXPANEL_PROJECT" ]; then echo "Set the MIXPANEL_PROJECT variable (the project ID)."; exit 2; fi
           eval "set -- $MIXPANEL_OPTIONS"
           node mixpanel-metrics.mjs --project "$MIXPANEL_PROJECT" --out data/mixpanel.csv "$@"
+      - name: Fetch Matomo metrics
+        env:
+          MATOMO_TOKEN: ${{ secrets.MATOMO_TOKEN }}
+          MATOMO_URL: ${{ vars.MATOMO_URL }}
+          MATOMO_SITE: ${{ vars.MATOMO_SITE }}
+          MATOMO_OPTIONS: ${{ vars.MATOMO_OPTIONS }}
+        run: |
+          set -u
+          if [ -z "$MATOMO_TOKEN" ]; then exit 0; fi
+          if [ -z "$MATOMO_URL" ]; then echo "Set the MATOMO_URL variable (the https address you log in to Matomo at)."; exit 2; fi
+          if [ -z "$MATOMO_SITE" ]; then echo "Set the MATOMO_SITE variable (the site ID in Administration > Websites > Manage)."; exit 2; fi
+          eval "set -- $MATOMO_OPTIONS"
+          node matomo-metrics.mjs --site "$MATOMO_SITE" --out data/matomo.csv "$@"
       - name: Check for a new change
         env:
           METRIC_CSV: ${{ vars.METRIC_CSV }}
@@ -184,8 +198,15 @@ jobs:
             # the middle setting: users (the first event's uniques) falls less than views (README "Mixpanel as a source")
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS --detector pelt --overdispersion nb --trend gated"
             WEEKLY_DEFAULT="--columns users --detector drift"
+          elif [ -z "$METRIC_CSV" ] && [ -f data/matomo.csv ]; then
+            METRIC_CSV=data/matomo.csv
+            # visits, page views and each goal_ and event_ column the fetch wrote; unique visitors are left out, since
+            # Matomo can turn that count off (README "Matomo as a source")
+            COLS=$(head -n 1 data/matomo.csv | tr ',' '\n' | grep -E '^(visits|pageviews|goal_.*|event_.*)$' | sed 's/$/:poisson/' | paste -sd, -)
+            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS"
+            WEEKLY_DEFAULT="--columns visits --detector drift"
           fi
-          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY or MIXPANEL_SERVICE_ACCOUNT secret (see the top of this file)."; exit 2; fi
+          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY, MIXPANEL_SERVICE_ACCOUNT or MATOMO_TOKEN secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
           # Both watches run even when the first fails (a new change, or a webhook that answered an error); the step

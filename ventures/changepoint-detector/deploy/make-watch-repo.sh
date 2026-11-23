@@ -15,11 +15,11 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs posthog-metrics.mjs umami-metrics.mjs mixpanel-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs posthog-metrics.mjs umami-metrics.mjs mixpanel-metrics.mjs matomo-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
-printf '# Stripe, Shopify, Search Console, Analytics, Plausible, PostHog, Umami and Mixpanel metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\ndata/posthog.csv\ndata/umami.csv\ndata/mixpanel.csv\n' > "$DEST/.gitignore"
+printf '# Stripe, Shopify, Search Console, Analytics, Plausible, PostHog, Umami, Mixpanel and Matomo metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\ndata/posthog.csv\ndata/umami.csv\ndata/mixpanel.csv\ndata/matomo.csv\n' > "$DEST/.gitignore"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch
 
@@ -115,6 +115,14 @@ eight; autocapture's `$mp_web_page_view` alone if unset). For a project in EU or
 `MIXPANEL_HOST` to `eu` or `in`. With no other source set, each run fetches `data/mixpanel.csv` (`node
 mixpanel-metrics.mjs --help`) and watches each event's daily count and the first event's daily unique users.
 `data/mixpanel.csv` is cached, never committed.
+
+Matomo (self-hosted or Matomo Cloud): make an auth token (Administration > Personal > Security > Auth tokens) and add
+it as the secret `MATOMO_TOKEN`, your Matomo's https address as the variable `MATOMO_URL`, and the site ID
+(Administration > Websites > Manage) as the variable `MATOMO_SITE`. To hear when a goal stops converting or an event
+stops arriving, set the variable `MATOMO_OPTIONS` to e.g. `--goal 2 --event "Sign up"` (up to eight goals by ID and
+eight event actions, named as Matomo lists them). With no other source set, each run fetches `data/matomo.csv` (`node
+matomo-metrics.mjs --help`) in the site's own time zone and watches visits, page views, each goal and each event.
+`data/matomo.csv` is cached, never committed.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood
