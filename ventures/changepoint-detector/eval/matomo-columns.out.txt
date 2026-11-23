@@ -1,0 +1,15 @@
+seeds 40 per cell; heard = dated within 7 days; false = any other date (count, and sites with one)
+-- arm: default
+weekends 0.5, page views to 0.6: heard visits 0/40, page views 40/40, goal 39/40; other dates: visits 0, page views 0, goal 6
+weekends 0.5, page views to 0.5: heard visits 2/40, page views 40/40, goal 39/40; other dates: visits 0, page views 0, goal 6
+weekends 0.5, no fault: false dates visits 0 on 0 sites, pageviews 0 on 0 sites, goal_1 5 on 4 sites; total 5
+weekends 0.4, page views to 0.6: heard visits 0/40, page views 35/40, goal 36/40; other dates: visits 0, page views 0, goal 1
+weekends 0.4, page views to 0.5: heard visits 1/40, page views 40/40, goal 36/40; other dates: visits 0, page views 0, goal 1
+weekends 0.4, no fault: false dates visits 0 on 0 sites, pageviews 0 on 0 sites, goal_1 1 on 1 sites; total 1
+-- arm: middle (--detector pelt --overdispersion nb --trend gated)
+weekends 0.5, page views to 0.6: heard visits 40/40, page views 40/40, goal 40/40; other dates: visits 0, page views 0, goal 2
+weekends 0.5, page views to 0.5: heard visits 40/40, page views 40/40, goal 40/40; other dates: visits 0, page views 0, goal 2
+weekends 0.5, no fault: false dates visits 0 on 0 sites, pageviews 0 on 0 sites, goal_1 2 on 2 sites; total 2
+weekends 0.4, page views to 0.6: heard visits 35/40, page views 40/40, goal 39/40; other dates: visits 0, page views 0, goal 3
+weekends 0.4, page views to 0.5: heard visits 40/40, page views 40/40, goal 39/40; other dates: visits 0, page views 0, goal 3
+weekends 0.4, no fault: false dates visits 0 on 0 sites, pageviews 0 on 0 sites, goal_1 3 on 3 sites; total 3

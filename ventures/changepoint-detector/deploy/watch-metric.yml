@@ -8,7 +8,7 @@
 #   variable WATCH_WEEKLY    optional: "on" adds a watch on Monday-to-Sunday totals (slow climbs, heard weeks in)
 #   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
 # Or, with METRIC_CSV unset, one source fetched each run into data/<source>.csv (cached, never committed), set by its
-# secret (README.md lists each source's variables): STRIPE_API_KEY or SHOPIFY_ACCESS_TOKEN (keep the repository
+# secret (README.md lists the variables): STRIPE_API_KEY or SHOPIFY_ACCESS_TOKEN (keep the repository
 # PRIVATE), GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY,
 # MIXPANEL_SERVICE_ACCOUNT or MATOMO_TOKEN.
 # The first source set, in that order, is watched with its defaults (counts as poisson, revenue as a level).
@@ -95,7 +95,7 @@ jobs:
           set -u
           if [ -z "$PLAUSIBLE_API_KEY" ]; then exit 0; fi
           if [ -z "$PLAUSIBLE_SITE" ]; then echo "Set the PLAUSIBLE_SITE variable (the domain as named in Plausible)."; exit 2; fi
-          # PLAUSIBLE_OPTIONS is read the way a shell reads it, so a quoted goal name with a space stays one argument
+          # read as a shell reads it: a quoted name with a space stays one argument
           eval "set -- $PLAUSIBLE_OPTIONS"
           node plausible-metrics.mjs --site "$PLAUSIBLE_SITE" --out data/plausible.csv "$@"
       - name: Fetch PostHog metrics
@@ -108,8 +108,7 @@ jobs:
           set -u
           if [ -z "$POSTHOG_API_KEY" ]; then exit 0; fi
           if [ -z "$POSTHOG_PROJECT" ]; then echo "Set the POSTHOG_PROJECT variable (the project ID in Settings > Project)."; exit 2; fi
-          # POSTHOG_OPTIONS is read the way a shell reads it, so a quoted event name with a space stays one argument;
-          # single quotes keep a $ in '$pageview' as written
+          # as above; single quotes keep the $ in '$pageview'
           eval "set -- $POSTHOG_OPTIONS"
           node posthog-metrics.mjs --project "$POSTHOG_PROJECT" --out data/posthog.csv "$@"
       - name: Fetch Umami metrics
@@ -157,60 +156,54 @@ jobs:
           WATCH_WEBHOOK_URL: ${{ secrets.WATCH_WEBHOOK_URL }}
         run: |
           set -u
-          # The weekly watch's default per source: the money or traffic total, where a season builds.
-          WEEKLY_DEFAULT="--detector drift"
-          if [ -z "$METRIC_CSV" ] && [ -f data/stripe.csv ]; then
+          # Each source's default WATCH_OPTIONS (W) and weekly watch (the money or traffic total, where a season builds).
+          W=""; WEEKLY_DEFAULT="--detector drift"; MIDDLE="--detector pelt --overdispersion nb --trend gated"
+          cols() { head -n 1 "$METRIC_CSV" | tr ',' '\n' | grep -E "^($1)\$" | sed 's/$/:poisson/' | paste -sd, -; }
+          if [ -n "$METRIC_CSV" ]; then :
+          elif [ -f data/stripe.csv ]; then
             METRIC_CSV=data/stripe.csv
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns payments:poisson,revenue,failed:poisson"
+            W="--columns payments:poisson,revenue,failed:poisson"
             WEEKLY_DEFAULT="--columns revenue,payments --detector drift"
-          elif [ -z "$METRIC_CSV" ] && [ -f data/shopify.csv ]; then
+          elif [ -f data/shopify.csv ]; then
             METRIC_CSV=data/shopify.csv
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns orders:poisson,revenue,cancelled:poisson"
+            W="--columns orders:poisson,revenue,cancelled:poisson"
             WEEKLY_DEFAULT="--columns revenue,orders --detector drift"
-          elif [ -z "$METRIC_CSV" ] && [ -f data/gsc.csv ]; then
+          elif [ -f data/gsc.csv ]; then
             METRIC_CSV=data/gsc.csv
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns clicks:poisson,impressions:poisson"
+            W="--columns clicks:poisson,impressions:poisson"
             WEEKLY_DEFAULT="--columns clicks,impressions --detector drift"
-          elif [ -z "$METRIC_CSV" ] && [ -f data/ga4.csv ]; then
+          elif [ -f data/ga4.csv ]; then
             METRIC_CSV=data/ga4.csv
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson"
+            W="--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson"
             WEEKLY_DEFAULT="--columns sessions,keyEvents --detector drift"
-          elif [ -z "$METRIC_CSV" ] && [ -f data/plausible.csv ]; then
+          elif [ -f data/plausible.csv ]; then
             METRIC_CSV=data/plausible.csv
-            # visitors, page views and each goal_ column the fetch wrote (header line of the CSV)
-            COLS=$(head -n 1 data/plausible.csv | tr ',' '\n' | grep -E '^(visitors|pageviews|goal_.*)$' | sed 's/$/:poisson/' | paste -sd, -)
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS"
+            W="--columns $(cols 'visitors|pageviews|goal_.*')"
             WEEKLY_DEFAULT="--columns visitors --detector drift"
-          elif [ -z "$METRIC_CSV" ] && [ -f data/posthog.csv ]; then
+          elif [ -f data/posthog.csv ]; then
             METRIC_CSV=data/posthog.csv
-            # every event_ column the fetch wrote, and users (header line of the CSV)
-            COLS=$(head -n 1 data/posthog.csv | tr ',' '\n' | grep -E '^(event_.*|users)$' | sed 's/$/:poisson/' | paste -sd, -)
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS"
+            W="--columns $(cols 'event_.*|users')"
             WEEKLY_DEFAULT="--columns users --detector drift"
-          elif [ -z "$METRIC_CSV" ] && [ -f data/umami.csv ]; then
+          elif [ -f data/umami.csv ]; then
             METRIC_CSV=data/umami.csv
-            COLS=$(head -n 1 data/umami.csv | tr ',' '\n' | grep -E '^(pageviews|visitors|event_.*)$' | sed 's/$/:poisson/' | paste -sd, -)
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS"
+            W="--columns $(cols 'pageviews|visitors|event_.*')"
             WEEKLY_DEFAULT="--columns visitors --detector drift"
-          elif [ -z "$METRIC_CSV" ] && [ -f data/mixpanel.csv ]; then
+          elif [ -f data/mixpanel.csv ]; then
             METRIC_CSV=data/mixpanel.csv
-            COLS=$(head -n 1 data/mixpanel.csv | tr ',' '\n' | grep -E '^(event_.*|users)$' | sed 's/$/:poisson/' | paste -sd, -)
-            # the middle setting: users (the first event's uniques) falls less than views (README "Mixpanel as a source")
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS --detector pelt --overdispersion nb --trend gated"
+            # middle setting: README "Mixpanel as a source"
+            W="--columns $(cols 'event_.*|users') $MIDDLE"
             WEEKLY_DEFAULT="--columns users --detector drift"
-          elif [ -z "$METRIC_CSV" ] && [ -f data/matomo.csv ]; then
+          elif [ -f data/matomo.csv ]; then
             METRIC_CSV=data/matomo.csv
-            # visits, page views and each goal_ and event_ column the fetch wrote; unique visitors are left out, since
-            # Matomo can turn that count off (README "Matomo as a source")
-            COLS=$(head -n 1 data/matomo.csv | tr ',' '\n' | grep -E '^(visits|pageviews|goal_.*|event_.*)$' | sed 's/$/:poisson/' | paste -sd, -)
-            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns $COLS"
+            # middle setting, unique visitors left out: README "Matomo as a source"
+            W="--columns $(cols 'visits|pageviews|goal_.*|event_.*') $MIDDLE"
             WEEKLY_DEFAULT="--columns visits --detector drift"
           fi
+          [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="$W"
           if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY, MIXPANEL_SERVICE_ACCOUNT or MATOMO_TOKEN secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
-          # Both watches run even when the first fails (a new change, or a webhook that answered an error); the step
-          # fails if either did, and each watch's record is saved by the next step either way.
+          # Both watches run even if the first fails; the step fails if either did; the next step saves both records.
           DAILY=0; WEEKLY=0
           # word-splitting of WATCH_OPTIONS is intended
           node watch.mjs "$METRIC_CSV" --state watch-state.json $HOOK $WATCH_OPTIONS $FAIL | tee -a "$GITHUB_STEP_SUMMARY" || DAILY=$?
