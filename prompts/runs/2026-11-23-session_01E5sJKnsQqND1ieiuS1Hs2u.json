@@ -30,7 +30,8 @@
   "tests_added": 4,
   "outcome": "success",
   "errors": [
-    "A first repo probe ran `git ls-tree --long` on blob:none clones, which lazily fetches every blob; it hung for minutes and was killed. `--name-only` is the fast listing."
+    "A first repo probe ran `git ls-tree --long` on blob:none clones, which lazily fetches every blob; it hung for minutes and was killed. `--name-only` is the fast listing.",
+    "Added DrawnJudge after the test file's __main__ guard; venture-preflight (check_main_guard_last.py) caught it and the guard was moved to the end."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -49,7 +50,7 @@
     "ventures/photo-editing/eval/camera-drawn-mpcws-2026-11-23.md"
   ],
   "goal": "Decide, under a rule committed before scoring, whether --noise-read mpcws becomes the default on Bayer camera raws.",
-  "notes": "Rule and arm committed in 3982739 before any row. Sweep: 11 raws, 104 rows, 76 clean-truth judged; opt vs ship+12: luma +0.224, colour +0.115, worst cell -0.003, 0 losers to D, 0 rows 0.1 dB under. All four pass -> DevelopSettings.noise_read and --noise-read default 'mpcws'. All-truths reading fails h1 on SNR 200 wb (-0.046) from two noisy-truth rows where the oracle also loses. Tests: tests/test_demosaic_noise_aware.py 26 passed; tests/test_near_clean_gate_split.py 8 passed; full suites results below.",
+  "notes": "Rule and arm committed in 3982739 before any row. Sweep: 11 raws, 104 rows, 76 clean-truth judged; opt vs ship+12: luma +0.224, colour +0.115, worst cell -0.003, 0 losers to D, 0 rows 0.1 dB under. All four pass -> DevelopSettings.noise_read and --noise-read default 'mpcws'. All-truths reading fails h1 on SNR 200 wb (-0.046) from two noisy-truth rows where the oracle also loses. Tests: tests/test_demosaic_noise_aware.py 26 passed; tests/test_near_clean_gate_split.py 8 passed; photo-editing full suite: run_venture_tests.py 1516 tests ok (9 skipped); pytest with numpy 1507 passed, 9 skipped; venture-preflight rerun after the guard fix.",
   "corrections": [],
   "redteam": null
 }

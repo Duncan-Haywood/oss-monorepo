@@ -94,9 +94,6 @@ class Whitened(unittest.TestCase):
         self.assertIn("verdict: what ships stays", out)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 @unittest.skipUnless(HAVE_NUMPY, "numpy not installed")
 class DrawnJudge(unittest.TestCase):
@@ -136,3 +133,7 @@ class DrawnJudge(unittest.TestCase):
         rows = [self._row(12.0, "wb", 0.1, 0.05), self._row(200.0, "wb", -0.5, -0.5, grain=0.01)]
         self.assertIn("1 rows", self._verdict(rows))
         self.assertIn("2 rows", self._verdict(rows, "--all-truths"))
+
+
+if __name__ == "__main__":
+    unittest.main()
