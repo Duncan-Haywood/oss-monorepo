@@ -122,7 +122,7 @@ export function calendarReview(xer, { model = null, result = null, projId = null
 
   const calendars = [];
   const findings = [];
-  const add = (kind, c, text, acts = [], extra = {}) => findings.push({ kind, severity: SEVERITY[kind], calendar: c.name, calendarId: c.id, text, activities: acts.map((t) => ({ code: t.code, name: t.name })), ...extra });
+  const add = (kind, c, text, acts = [], extra = {}) => findings.push({ kind, severity: Object.hasOwn(SEVERITY, kind) ? SEVERITY[kind] : "note", calendar: c.name, calendarId: c.id, text, activities: acts.map((t) => ({ code: t.code, name: t.name })), ...extra });
   const missingFill = new Map(); // cal -> [{ year, from }]
   const seen = new Map();
 
@@ -248,7 +248,8 @@ export function calendarReview(xer, { model = null, result = null, projId = null
   }
 
   const order = { fault: 0, check: 1, note: 2 };
-  findings.sort((a, b) => order[a.severity] - order[b.severity]);
+  const rank = (s) => (Object.hasOwn(order, s) ? order[s] : 3);
+  findings.sort((a, b) => rank(a.severity) - rank(b.severity));
   const count = (s) => findings.filter((f) => f.severity === s).length;
   const summary = {
     calendars: calendars.length,

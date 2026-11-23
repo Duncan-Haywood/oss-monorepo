@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVNEVFnxHaHG4Zk1aSv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T20:56:34Z",
+  "ended": "2026-11-23T21:10:30Z",
+  "wall_minutes": 14.19,
+  "tokens_in": 12068742,
+  "tokens_out": 63510,
+  "cost_usd": 5.1168,
+  "tool_calls": 85,
+  "task": "Deepen (flagship 13): xer-schedule-check calendar review",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18478",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval planting regex missed part-day exceptions because P6 writes field line breaks as 0x7F",
+      "fix": "allowed \\x7f with \\s in the regex; 13/16 became 16/16"
+    },
+    {
+      "what": "own-keys.test.mjs and inherited_keys.py flagged SEVERITY[kind]/LABEL[...] lookups",
+      "fix": "Object.hasOwn guards"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named item 2 (constraints log on more planted seeds), a re-run of existing eval with low marginal value; every other listed item needs outside input. The row's buildable list holds only re-verification items."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--make-room reported it could not fit even after parking, with --landed finding 0 clauses; had to pick --history spans by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Took a new buildable slice on the allocated flagship (calendar review, no module covered calendars) instead of item 2 (rerun of constraints eval), which would have re-verified unchanged work.",
+      "did": "calreview.mjs + CLI + page + guide + eval",
+      "result": "3 of 6 public files carry a holiday list that runs out; planted 16/16"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-half-the-public-p6-schedules-we-tried-forgot-the-holidays.md",
+    "ventures/xer-schedule-check/eval/calendar-review-2026-11-23.md",
+    "ventures/xer-schedule-check/how-to-review-the-calendars-in-a-p6-schedule.html"
+  ],
+  "goal": "ship product depth on a flagship construction-scheduling tool, with SEO guide and post",
+  "notes": "Local checks: run_venture_tests.py xer-schedule-check 485/485 pass; check_posts ok; validate.py ok; inherited_keys 0 new. eval/calendar-review-check.mjs on six public XERs: holidays 16/16 named, past-year control 33/33 quiet, hours/day 12/12 + control 12/12, names 12/12 + control 12/12; what-if within 1 working day of the real finish in 4 of 7 moved cases.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "995fa146-e4d5-52f3-8a44-562ca25b307f",
+    "transcripts": 1,
+    "first": "2026-11-23T20:56:34Z",
+    "last": "2026-11-23T21:10:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 153,
+        "output": 63510,
+        "thinking": 16468,
+        "cache_read": 11884959,
+        "cache_write_5m": 0,
+        "cache_write_1h": 183630,
+        "api_equivalent_usd": 5.1168,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 153,
+      "output": 63510,
+      "thinking": 16468,
+      "cache_read": 11884959,
+      "cache_write_5m": 0,
+      "cache_write_1h": 183630,
+      "api_equivalent_usd": 5.1168,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 79,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.19,
+      "active_minutes": 14.19,
+      "model_minutes": 11.18,
+      "tool_minutes": 3.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior scheduler/developer building a calendar audit module, eval on six files, guide page and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 195.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
