@@ -206,9 +206,8 @@ def report(res, out, m90):
              f" selection set): {'closable' if mc > 0.5 else 'NOT closable'} (best {mc:.3f})")
     L.append("")
     L.append("== Figure table: HOLDOUT, worst-zone f16_1 conviction per cell; " + f"{BASE} then {sel}")
-    for i, c in enumerate(cells):
-        L.append(f"  {i + 1} {g(BASE, 'hold', c, 'f16_1', 'worst'):.3f} {g(sel, 'hold', c, 'f16_1', 'worst'):.3f}"
-                 f"  # {c}")
+    for c in cells:
+        L.append(f"  {c} {g(BASE, 'hold', c, 'f16_1', 'worst'):.3f} {g(sel, 'hold', c, 'f16_1', 'worst'):.3f}")
     return "\n".join(L) + "\n"
 
 
@@ -230,7 +229,7 @@ def main():
     out = analyze(res)
     txt = report(res, out, m90)
     open(os.path.join(HERE, "results.txt"), "w").write(txt)
-    json.dump(compact(out), open(os.path.join(HERE, "summary.json"), "w"), indent=1, default=float)
+    json.dump(compact(out), open(os.path.join(HERE, "summary.json"), "w"), separators=(",", ":"), default=float)
     print(txt)
 
 

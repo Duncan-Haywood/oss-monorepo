@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 822" role="img" aria-label="Horizontal bar chart, one row per optimiser and schedule: share of segments convicted in the least-convicted zone, for the maximum-based threshold of milestone 90 and the quantile-based threshold selected in milestone 91; values are in results.txt">
+<rect width="640" height="822" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Worst-zone conviction of one forged float16 step, fresh holdout seeds (200 segments per zone)</text>
+<line x1="124.0" x2="124.0" y1="74" y2="778" stroke="#ddd"/><text x="124.0" y="794" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<line x1="221.5" x2="221.5" y1="74" y2="778" stroke="#ddd"/><text x="221.5" y="794" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="319.0" x2="319.0" y1="74" y2="778" stroke="#ddd"/><text x="319.0" y="794" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="416.6" x2="416.6" y1="74" y2="778" stroke="#ddd"/><text x="416.6" y="794" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="514.1" x2="514.1" y1="74" y2="778" stroke="#ddd"/><text x="514.1" y="794" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="611.6" x2="611.6" y1="74" y2="778" stroke="#ddd"/><text x="611.6" y="794" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<line x1="124.0" x2="124.0" y1="74" y2="778" stroke="#555"/>
+<text x="367.8" y="812" text-anchor="middle" font-family="sans-serif" font-size="12">share convicted in the worst zone</text>
+<text x="116" y="100.0" text-anchor="end" font-family="sans-serif" font-size="12">SGD cosine</text>
+<rect x="124.0" y="80" width="0.0" height="13" fill="#c0392b"/>
+<text x="128.0" y="90" font-family="sans-serif" font-size="10">0.00</text>
+<rect x="124.0" y="96" width="175.5" height="13" fill="#1f6fb2"/>
+<text x="303.5" y="106" font-family="sans-serif" font-size="10">0.36</text>
+<text x="116" y="144.0" text-anchor="end" font-family="sans-serif" font-size="12">SGD step</text>
+<rect x="124.0" y="124" width="31.7" height="13" fill="#c0392b"/>
+<text x="159.7" y="134" font-family="sans-serif" font-size="10">0.07</text>
+<rect x="124.0" y="140" width="485.2" height="13" fill="#1f6fb2"/>
+<text x="613.2" y="150" font-family="sans-serif" font-size="10">0.99</text>
+<text x="116" y="188.0" text-anchor="end" font-family="sans-serif" font-size="12">SGD warmcos</text>
+<rect x="124.0" y="168" width="29.3" height="13" fill="#c0392b"/>
+<text x="157.3" y="178" font-family="sans-serif" font-size="10">0.06</text>
+<rect x="124.0" y="184" width="119.5" height="13" fill="#1f6fb2"/>
+<text x="247.5" y="194" font-family="sans-serif" font-size="10">0.24</text>
+<text x="116" y="232.0" text-anchor="end" font-family="sans-serif" font-size="12">SGD sgdr</text>
+<rect x="124.0" y="212" width="17.1" height="13" fill="#c0392b"/>
+<text x="145.1" y="222" font-family="sans-serif" font-size="10">0.04</text>
+<rect x="124.0" y="228" width="107.3" height="13" fill="#1f6fb2"/>
+<text x="235.3" y="238" font-family="sans-serif" font-size="10">0.22</text>
+<text x="116" y="276.0" text-anchor="end" font-family="sans-serif" font-size="12">momentum cosine</text>
+<rect x="124.0" y="256" width="0.0" height="13" fill="#c0392b"/>
+<text x="128.0" y="266" font-family="sans-serif" font-size="10">0.00</text>
+<rect x="124.0" y="272" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="282" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="320.0" text-anchor="end" font-family="sans-serif" font-size="12">momentum step</text>
+<rect x="124.0" y="300" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="310" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="316" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="326" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="364.0" text-anchor="end" font-family="sans-serif" font-size="12">momentum warmcos</text>
+<rect x="124.0" y="344" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="354" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="360" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="370" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="408.0" text-anchor="end" font-family="sans-serif" font-size="12">momentum sgdr</text>
+<rect x="124.0" y="388" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="398" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="404" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="414" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="452.0" text-anchor="end" font-family="sans-serif" font-size="12">Adam 1e-3 cosine</text>
+<rect x="124.0" y="432" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="442" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="448" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="458" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="496.0" text-anchor="end" font-family="sans-serif" font-size="12">Adam 1e-3 step</text>
+<rect x="124.0" y="476" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="486" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="492" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="502" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="540.0" text-anchor="end" font-family="sans-serif" font-size="12">Adam 1e-3 warmcos</text>
+<rect x="124.0" y="520" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="530" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="536" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="546" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="584.0" text-anchor="end" font-family="sans-serif" font-size="12">Adam 1e-3 sgdr</text>
+<rect x="124.0" y="564" width="46.3" height="13" fill="#c0392b"/>
+<text x="174.3" y="574" font-family="sans-serif" font-size="10">0.10</text>
+<rect x="124.0" y="580" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="590" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="628.0" text-anchor="end" font-family="sans-serif" font-size="12">Adam 4e-3 cosine</text>
+<rect x="124.0" y="608" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="618" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="624" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="634" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="672.0" text-anchor="end" font-family="sans-serif" font-size="12">Adam 4e-3 step</text>
+<rect x="124.0" y="652" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="662" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="668" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="678" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="716.0" text-anchor="end" font-family="sans-serif" font-size="12">Adam 4e-3 warmcos</text>
+<rect x="124.0" y="696" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="706" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="712" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="722" font-family="sans-serif" font-size="10">1.00</text>
+<text x="116" y="760.0" text-anchor="end" font-family="sans-serif" font-size="12">Adam 4e-3 sgdr</text>
+<rect x="124.0" y="740" width="487.6" height="13" fill="#c0392b"/>
+<text x="615.6" y="750" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124.0" y="756" width="487.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="766" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="124" y="32" width="14" height="10" fill="#c0392b"/><text x="144" y="41" font-family="sans-serif" font-size="11">10x zone max, 40 calibration seeds (milestone 90)</text>
+<rect x="124" y="46" width="14" height="10" fill="#1f6fb2"/><text x="144" y="55" font-family="sans-serif" font-size="11">10x zone 0.95 quantile, 80 seeds (selected)</text>
+</svg>
