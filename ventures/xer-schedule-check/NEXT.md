@@ -108,3 +108,4 @@
   in three files and exported in none, is.
 - (2026-11-22) UDF types from the original XER 2026-11-22 (--types-from; CCA 13,174/13,174 typed, was 7,104; eval/udf-types-from-2026-11-22.md), text UDFs back as text UDFs not codes (28,850 values, eval/udf-type-hints-2026-11-22.md)
 - (2026-11-22) next an open in desktop Excel
+- (2026-11-23) next a real branch register

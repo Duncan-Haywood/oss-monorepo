@@ -736,6 +736,39 @@ identity pair reports nothing; eval/narrative-check-2026-11-22.md). Not yet read
 scheduler or owner's reviewer; the hotel file had no driving work due in the window, so its
 3 runs plant nothing. Guide: `how-to-write-a-monthly-construction-schedule-narrative.html`.
 
+## GAO Schedule Assessment Guide scorecard (2026-11-23)
+
+`gao.mjs`, `--gao [--baseline baseline.xer] [--csv gao.csv] [--html gao.html]`, and the page's
+**Score against the GAO guide**: the ten best practices of the GAO Schedule Assessment Guide
+(GAO-16-89G, December 2015), the assessment US federal auditors read a programme's schedule
+against, under its four characteristics (comprehensive: practices 1, 3, 4; well-constructed: 2,
+6, 7; credible: 5, 8; controlled: 9, 10). Each practice is a short list of tests the file can
+answer, each with its threshold beside it and the activities behind every failure. The DCMA
+points feed in where they measure the same thing (logic, leads, lags, relationship types and
+hard constraints under practice 2; float under 7). New tests, which the 14 points do not have:
+open work filed on the project node rather than a WBS element, activity names that repeat, a
+finish milestone; resources on open work with no maximum units to level against; unstarted
+zero-duration tasks and tasks under half a day; milestones not driven by the work they summarise;
+a driving path of work from the data date, with no date constraint or lag on it, and P6's own
+longest-path flags agreeing with the logic; durations or lags edited since the last schedule run.
+With the baseline project's XER, practice 10 traces activities to it by ID and counts missed
+tasks and BEI against its dates instead of the planned dates P6 resets.
+
+A practice's rating is only the share of its tests passed (all: Fully met; three quarters:
+Substantially; half: Partially; any: Minimally; none: Not met), and a characteristic is the
+rounded average of its practices, the roll-up GAO's reports use. GAO's auditors rate on
+evidence beyond the file, and the guide sets practices, not numeric limits, so the scorecard
+says the thresholds are the tool's. There is no single overall rating: one unmet practice would
+average away. The headline is how many of the four characteristics are at least substantially
+met, and the weakest. Practice 8 (a schedule risk analysis) is evidence outside the file: it is
+rated only when the file carries three-point duration UDFs, and then on their coverage.
+
+Checked (`eval/gao-check.mjs`, `eval/gao-check-2026-11-23.md`): on the six public P6 files, one
+fault of each new kind planted at random per seed (5 seeds; 2 on the 16,000-activity CCA file),
+the planted activity named under its own test **129 of 129** times; what each file scores is in
+the note. The guide page's worked example is the engine's own output on the built-in example
+(`guides.test.mjs`).
+
 ## Critical path drag and drag cost (2026-11-22)
 
 `drag.mjs`, `--drag [--drag-cost 12500] [--csv drag.csv]`, and the page's **Find critical path
@@ -847,6 +880,7 @@ button drifts. Search impressions not measured yet.
 | A narrative written by hand each month from P6 layouts and last month's report | Whatever the scheduler copies across; slow, and easy to miss a change the owner's reviewer will find | The draft narrative from the two XERs: status, critical path, work done and missed, every change with a fill-in for its reason, float, next period, free and in the browser |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | A schedule-quality trend from a paid analytics subscription, or a spreadsheet of each month's DCMA scores kept by hand | Per-update quality scores and float trends, per project or per seat, or whatever the scheduler copies across | The DCMA points, critical counts and driving-path churn for every update at once, BEI against the first update rather than the planned dates P6 resets, what newly fails each month by activity, and the activities losing float with months to zero, free in the browser |
+| A GAO Schedule Assessment Guide review done by hand (layouts filtered practice by practice), or a paid analytics product's GAO metric library | An auditor's or scheduler's afternoon per update; a per-seat licence | The ten practices scored from the XER, every test with its threshold and the activities behind each failure, practice 10 against the real baseline file, a printable scorecard and CSV, free in the browser |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
 | Open-source XER libraries and checkers (Python packages, local web apps) | A parser or a few checks; you install and run them | All 14 points plus a critical path test on a recomputed schedule, measured against P6's own numbers, in a page |
