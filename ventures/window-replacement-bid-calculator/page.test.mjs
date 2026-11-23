@@ -151,3 +151,9 @@ test('trade window sizes are read as feet and inches (3040 = 84 UI, 6048 = 128 U
     assert.doesNotMatch(page, /3040[^.]{0,20}\(?70\s*(&nbsp;)?UI|6048[^.]{0,30}108\s*(&nbsp;)?UI/, f);
   }
 });
+
+// The rating side of the same job: a coastal window quote needs the DP each
+// opening must meet, which the design pressure calculator gives.
+test('index links one hop to the window-design-pressure-calculator sibling', () => {
+  assert.match(page('index.html'), /href="\.\.\/window-design-pressure-calculator\/"/);
+});

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2324566b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Window and Door Design Pressure Calculator — ASCE 7-16 DP Rating for Every Opening</title>
+  <meta name="description" content="Free window and door design pressure calculator to ASCE 7-16. Paste your opening schedule and get each window's, door's and garage door's wall zone, wind pressures and the DP rating it needs, with topography and debris-region checks.">
+  <meta property="og:title" content="Window and Door Design Pressure Calculator — ASCE 7-16, free, in your browser">
+  <meta property="og:description" content="Wind speed and opening schedule in, the DP rating each window and door needs out: zone 4 or 5, positive and negative pressures, every factor tied to its ASCE 7-16 section.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Window and Door Design Pressure Calculator", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Wall components-and-cladding wind pressures to ASCE 7-16 Chapters 26 and 30 for every window, door and garage door in an opening schedule: wall zone, positive and negative pressures, and the ASD design pressure a DP rating must meet. Runs in your browser.", "featureList": "ASCE 7-16 Chapter 30 Part 1, velocity pressure, exposure B C D, topographic factor Kzt, ground elevation factor Ke, enclosed and partially enclosed, wall zones 4 and 5, 10% low-slope reduction, 16 psf minimum, wind-borne debris region check, opening schedule, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What DP rating do my windows need?", "acceptedAnswer": {"@type": "Answer", "text": "One at least as large as the allowable-stress design pressure on that window, in both directions. ASCE 7-16 gives the strength-level pressure p = qh [(GCp) − (GCpi)]; the window's rating is compared with 0.6 p. In the example on this page, a 140 mph exposure C house, a 3 × 5 ft bedroom window near a corner needs DP 35.8, and the same house's kitchen window away from the corners needs DP 29.9."}}, {"@type": "Question", "name": "What are wall zones 4 and 5?", "acceptedAnswer": {"@type": "Answer", "text": "Wind pulls hardest on a wall near its corners. ASCE 7-16 Figure 30.3-1 calls the strip of width a at each corner zone 5 and the rest of the wall zone 4. a is 10% of the building's least horizontal dimension or 40% of the mean roof height, whichever is smaller, but not under 4% of the least dimension or 3 ft. In the example a is 3.2 ft."}}, {"@type": "Question", "name": "Why does a bigger window get a lower pressure?", "acceptedAnswer": {"@type": "Answer", "text": "Gusts are small. The peak pressure averaged over a large area is lower than over a small one, so Figure 30.3-1 lowers (GCp) as the effective wind area grows from 10 to 500 square feet. A garage door therefore has a lower pressure per square foot than a transom on the same wall, though its total load is far higher."}}, {"@type": "Question", "name": "What is a wind-borne debris region?", "acceptedAnswer": {"@type": "Answer", "text": "Where hurricanes throw debris into windows. Under ASCE 7-16 Section 26.12.3.1 it covers sites with a basic wind speed of 140 mph or more, and sites at 130 mph or more within 1 mile of the coastal mean high water line. Glazing there must be impact-resistant or shuttered, or the building is designed as partially enclosed, which raises the internal pressure coefficient from ±0.18 to ±0.55."}}, {"@type": "Question", "name": "Is the DP rating the same as the strength-level pressure?", "acceptedAnswer": {"@type": "Answer", "text": "No. ASCE 7-16 wind speeds are ultimate (strength-level) speeds, and window and door ratings under AAMA/WDMA/CSA 101/I.S.2/A440 are compared with allowable-stress design pressures, 0.6 times the strength-level number. This tool shows both."}}, {"@type": "Question", "name": "Does this replace an engineer or the building official?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the Chapter 26 and 30 arithmetic on the numbers you enter, so you can order windows and check a quote or a submittal. The building official or the engineer of record sets the design pressures; check which edition your jurisdiction adopted, since IBC and IRC 2024 move to ASCE 7-22."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172026; background: #f2f5f6; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f66; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #163c4e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163c4e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a63; }
+    .card { background: #fff; border: 1px solid #d6e0e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163c4e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8791; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; min-height: 180px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f66; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2ecef; color: #163c4e; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6edf0; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a63; }
+    td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    td.dp { font-weight: 700; color: #163c4e; }
+    .finding { border-bottom: 1px solid #e6edf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e2ecef; color: #163c4e; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef4f6; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.4rem; color: #163c4e; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e4; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WINDOW AND DOOR DESIGN PRESSURE · ASCE 7-16 CHAPTERS 26 AND 30 · NOTHING UPLOADED</p>
+    <h1>Window and door design pressure calculator</h1>
+    <p>Type the <strong>wind speed</strong> and describe the building, then paste the <strong>opening schedule</strong>. For every window, door and garage door get its <strong>wall zone</strong>, the <strong>positive and negative wind pressures</strong> and the <strong>DP rating it needs</strong>, with the <strong>topographic factor</strong>, <strong>ground elevation</strong> and <strong>wind-borne debris region</strong> checked, each tied to its ASCE 7-16 section.</p>
+    <p class="note">For window and door dealers, installers, builders and permit-plan preparers ordering units or answering a plan reviewer's "provide design pressures for all exterior openings". Arithmetic on your numbers, not engineering advice: the design pressures are set by the engineer of record or the building official.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Site and building</h2>
+    <div class="grid">
+      <div><label for="V">Basic wind speed V (mph, ultimate)</label><input id="V" inputmode="decimal"></div>
+      <div><label for="exposure">Exposure</label><select id="exposure"></select></div>
+      <div><label for="h">Mean roof height h (ft, 60 or less)</label><input id="h" inputmode="decimal"></div>
+      <div><label for="pitch">Roof pitch (inches of rise per 12)</label><input id="pitch" inputmode="decimal"></div>
+      <div><label for="leastDim">Least horizontal dimension of the building (ft)</label><input id="leastDim" inputmode="decimal"></div>
+      <div><label for="enclosure">Enclosure classification</label><select id="enclosure"></select></div>
+      <div><label for="elevation">Ground elevation above sea level (ft, blank for Ke = 1)</label><input id="elevation" inputmode="decimal"></div>
+      <div><label for="coastal">Within 1 mile of the coastal mean high water line?</label><select id="coastal"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Hill, ridge or escarpment (optional)</h2>
+    <p class="note">Wind speeds up over an isolated hill or bluff. Leave None for flat or gently rolling sites. Lh is the horizontal distance upwind of the crest to where the ground is half the hill's height.</p>
+    <div class="grid">
+      <div><label for="topo">Topographic feature</label><select id="topo"></select></div>
+      <div><label for="hillH">Hill height H (ft)</label><input id="hillH" inputmode="decimal"></div>
+      <div><label for="hillLh">Lh (ft)</label><input id="hillLh" inputmode="decimal"></div>
+      <div><label for="hillX">Distance from the crest to the building (ft)</label><input id="hillX" inputmode="decimal"></div>
+      <div><label for="hillSide">Building is on the crest's</label><select id="hillSide"><option value="upwind">Upwind side</option><option value="downwind">Downwind side</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Opening schedule</h2>
+    <label for="openings">One opening per line: label, width (in), height (in), distance from the nearest building corner to the opening's edge (ft) or z4 / z5, count</label>
+    <textarea id="openings" spellcheck="false"></textarea>
+    <p class="note">Paste straight from a spreadsheet (tab-separated works). A header row and lines starting with # are skipped. Leave the corner distance blank and the opening is taken as zone 5, the higher suction.</p>
+  </section>
+
+  <section class="card">
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load the example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter the wind speed, the building and the openings, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Design pressure for each opening</h3>
+    <div class="scroll"><table id="rows"><thead><tr><th>Opening</th><th>Qty</th><th>Size (in)</th><th>Area ft²</th><th>Zone</th><th>Strength + / − psf</th><th>ASD + / − psf</th><th>Needs DP</th></tr></thead><tbody></tbody></table></div>
+    <h3>Units to order, by rating</h3>
+    <p class="note">Grouped at the next multiple of 5 psf at or above each requirement, since many product listings step in 5 psf; a unit rated anywhere at or above the "Needs DP" value meets it.</p>
+    <div class="scroll"><table id="groups"><thead><tr><th>Rating at or above</th><th>Units</th><th>Openings</th></tr></thead><tbody></tbody></table></div>
+    <h3>Factors, with the ASCE 7-16 section for each</h3>
+    <div class="scroll"><table id="factors"><thead><tr><th>Quantity</th><th>Value</th><th>Unit</th><th>Source</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Everything follows ASCE/SEI 7-16, the edition adopted by the 2018 and 2021 International Building Code and International Residential Code, using Chapter 30 Part 1 for buildings with a mean roof height of 60 ft or less. The velocity pressure at the mean roof height is qh = 0.00256 Kh Kzt Kd Ke V² (Eq. 26.10-1), with Kh from the Table 26.10-1 formula (never below its 15 ft value), Kd = 0.85 for components and cladding (Table 26.6-1), Ke from the ground elevation (Table 26.9-1, 1.0 if left blank) and Kzt from Figure 26.8-1 for a ridge, escarpment or hill that meets the height and steepness conditions of Section 26.8.1.</p>
+    <p>Each opening's effective wind area is its width times its height. Figure 30.3-1 gives the wall pressure coefficient (GCp) for zone 4 and zone 5 at 10 ft² and 500 ft², varying with the logarithm of the area between them, reduced by 10% when the roof slope is 10° or less. An opening closer to a corner than a is zone 5. The net pressure is p = qh [(GCp) − (GCpi)] (Eq. 30.3-1), with (GCpi) = ±0.18 for an enclosed or partially open building and ±0.55 for a partially enclosed one (Table 26.13-1), taken in the direction that adds, and never below the 16 psf minimum of Section 30.2.2. The DP a unit needs is the larger of 0.6 p in each direction, the allowable-stress level that window and door ratings are compared with, rounded up to 0.1 psf.</p>
+    <p><strong>Not modelled:</strong> the wind speed itself (you enter it), ASCE 7-22 (IBC and IRC 2024), buildings over 60 ft (Part 3), open buildings, the effective-width rule that can enlarge the area of a long, narrow unit (this tool uses the plain area, which is conservative), roof openings such as skylights, parapets and overhangs, the IRC's tabulated alternative (Table R301.2.1(1)), the impact-test requirements themselves, and the glass, frame and anchorage checks a product approval covers. <strong>Unverified:</strong> checked against hand calculations of each equation and against the rounded Kz values of Table 26.10-1 in its unit tests, not against a commercial program or a sealed calculation.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What DP rating do my windows need?</h3>
+    <p>One at least as large as the allowable-stress design pressure on that window, in both directions. ASCE 7-16 gives the strength-level pressure p = qh [(GCp) − (GCpi)]; the window's rating is compared with 0.6 p. In the example on this page, a 140 mph exposure C house, a 3 × 5 ft bedroom window near a corner needs DP 35.8, and the same house's kitchen window away from the corners needs DP 29.9.</p>
+    <h3>What are wall zones 4 and 5?</h3>
+    <p>Wind pulls hardest on a wall near its corners. ASCE 7-16 Figure 30.3-1 calls the strip of width a at each corner zone 5 and the rest of the wall zone 4. a is 10% of the building's least horizontal dimension or 40% of the mean roof height, whichever is smaller, but not under 4% of the least dimension or 3 ft. In the example a is 3.2 ft.</p>
+    <h3>Why does a bigger window get a lower pressure?</h3>
+    <p>Gusts are small. The peak pressure averaged over a large area is lower than over a small one, so Figure 30.3-1 lowers (GCp) as the effective wind area grows from 10 to 500 square feet. A garage door therefore has a lower pressure per square foot than a transom on the same wall, though its total load is far higher.</p>
+    <h3>What is a wind-borne debris region?</h3>
+    <p>Where hurricanes throw debris into windows. Under ASCE 7-16 Section 26.12.3.1 it covers sites with a basic wind speed of 140 mph or more, and sites at 130 mph or more within 1 mile of the coastal mean high water line. Glazing there must be impact-resistant or shuttered, or the building is designed as partially enclosed, which raises the internal pressure coefficient from ±0.18 to ±0.55.</p>
+    <h3>Is the DP rating the same as the strength-level pressure?</h3>
+    <p>No. ASCE 7-16 wind speeds are ultimate (strength-level) speeds, and window and door ratings under AAMA/WDMA/CSA 101/I.S.2/A440 are compared with allowable-stress design pressures, 0.6 times the strength-level number. This tool shows both.</p>
+    <h3>Does this replace an engineer or the building official?</h3>
+    <p>No. It does the Chapter 26 and 30 arithmetic on the numbers you enter, so you can order windows and check a quote or a submittal. The building official or the engineer of record sets the design pressures; check which edition your jurisdiction adopted, since IBC and IRC 2024 move to ASCE 7-22.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal or code-compliance advice, and it does not replace a licensed engineer, a product approval or your building official. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with ASCE, the ICC, AAMA, WDMA, any standards body, manufacturer or software vendor, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pressures_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Same building, other loads: the <a href="../roof-snow-load-calculator/">roof snow load calculator</a> gives the ASCE 7-16 snow and drift loads, and the <a href="../window-replacement-bid-calculator/">window replacement bid calculator</a> prices the job. Guide: <a href="what-dp-rating-do-my-windows-need.html">what DP rating do my windows need, worked through</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, factorRows, reportCsv, sampleInput, EXPOSURE, ENCLOSURE, TOPOGRAPHY } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["V", "exposure", "h", "pitch", "leastDim", "enclosure", "elevation", "coastal", "topo", "hillH", "hillLh", "hillX", "hillSide", "openings"];
+    const BLANK = { exposure: "C", enclosure: "enclosed", coastal: "no", topo: "none", hillSide: "upwind" };
+    const START = "Enter the wind speed, the building and the openings, then click Calculate.";
+    let last = null;
+
+    const opts = (o) => Object.entries(o).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join("");
+    $("#exposure").innerHTML = opts(EXPOSURE);
+    $("#enclosure").innerHTML = opts(ENCLOSURE);
+    $("#topo").innerHTML = opts(TOPOGRAPHY);
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? BLANK[k] ?? ""; }); }
+
+    function run() {
+      const r = analyze(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const f = (v) => v.toFixed(1);
+      const units = r.rows.reduce((s, x) => s + x.count, 0);
+      const tiles = [
+        [`DP ${f(r.worst.dpRequired)}`, `highest need: ${r.worst.label}`],
+        [`${r.qh.toFixed(2)} psf`, "velocity pressure qh"],
+        [`${f(r.a)} ft`, "corner zone 5 width a"],
+        [`${units}`, `units in ${r.rows.length} line${r.rows.length > 1 ? "s" : ""}`],
+      ];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
+      $("#rows tbody").innerHTML = r.rows.map((x) => `<tr><td title="${esc(x.zoneWhy)}">${esc(x.label)}</td><td class="n">${x.count}</td><td class="n">${esc(`${x.widthIn} × ${x.heightIn}`)}</td><td class="n">${x.area.toFixed(1)}</td><td class="n">${x.zone}</td><td class="n">+${f(x.pPos)} / ${f(x.pNeg)}</td><td class="n">+${f(x.asdPos)} / ${f(x.asdNeg)}</td><td class="n dp">${f(x.dpRequired)}</td></tr>`).join("");
+      const groups = new Map();
+      for (const x of r.rows) { const g = groups.get(x.dpStep5) || { units: 0, labels: [] }; g.units += x.count; g.labels.push(x.label); groups.set(x.dpStep5, g); }
+      $("#groups tbody").innerHTML = [...groups.entries()].sort((a, b) => a[0] - b[0]).map(([dp, g]) => `<tr><td>DP ${dp}</td><td class="n">${g.units}</td><td>${esc(g.labels.join(", "))}</td></tr>`).join("");
+      $("#factors tbody").innerHTML = factorRows(r).map(([n, v, u, s]) => `<tr><td>${esc(n)}</td><td class="n">${esc(v)}</td><td>${esc(u)}</td><td>${esc(s)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calculate").addEventListener("click", () => { if (run()) record("pressures_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Example: a two-storey coastal house, 140 mph, exposure C, mean roof height 22 ft, 6/12 roof, 32 ft deep."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = START; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "window-door-design-pressures.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    fill(sampleInput());
+  </script>
+</body>
+</html>

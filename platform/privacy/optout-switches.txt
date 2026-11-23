@@ -1387,6 +1387,7 @@ ventures/wholesale-real-estate-offer-calculator/usage.mjs
 ventures/wholesale-vs-retail-pricing-calculator/usage.mjs
 ventures/wildlife-exclusion-bid-calculator/usage.mjs
 ventures/window-cleaning-bid-calculator/usage.mjs
+ventures/window-design-pressure-calculator/usage.mjs
 ventures/window-replacement-bid-calculator/usage.mjs
 ventures/window-tinting-bid-calculator/usage.mjs
 ventures/winery-excise-tax-calculator/usage.mjs

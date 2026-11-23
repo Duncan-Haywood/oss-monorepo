@@ -109,6 +109,7 @@ test("links one hop to siblings and the guide", () => {
   const html = page("index.html");
   assert.match(html, /href="\.\.\/shed-designer\/"/);
   assert.match(html, /href="\.\.\/continuous-beam-calculator\/"/);
+  assert.match(html, /href="\.\.\/window-design-pressure-calculator\/"/);
   assert.match(html, /href="snow-drift-at-a-roof-step\.html"/);
 });
 
