@@ -42,7 +42,7 @@ test('split moves the shard directories, copies 404.html and counts both halves'
   await fs.writeFile(path.join(site, 'index.html'), 'hub');
 
   const r = await split(site, shard);
-  assert.deepEqual(r, { site: 3, shard: 2, problems: [] });
+  assert.deepEqual(r, { site: 3, shard: 2, problems: [], packed: { cards: 0, packs: 0 } });
   assert.equal(await fs.readFile(path.join(shard, 'research', 'a', 'index.html'), 'utf8'), 'r');
   assert.equal(await fs.readFile(path.join(shard, '404.html'), 'utf8'), 'missing');
   assert.equal(await fs.stat(path.join(site, 'research')).catch(() => null), null);

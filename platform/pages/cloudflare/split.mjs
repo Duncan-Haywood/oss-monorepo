@@ -3,7 +3,8 @@
 // asset directory, copies 404.html beside them, and checks both halves fit the
 // free plan: at most 20,000 files per Worker and 25 MiB per file. It also
 // writes the site Worker's _headers, which sends visitors on the workers.dev
-// address to the domain.
+// address to the domain. The shard's share cards are packed into a few
+// hundred files first (cardpack.mjs), which is most of its headroom.
 //
 //   node platform/pages/cloudflare/split.mjs platform/pages/dist platform/pages/dist-shard
 
@@ -12,6 +13,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST } from './router.mjs';
+import { SECURITY_HEADERS } from './security-headers.mjs';
+import { packCards } from './cardpack-build.mjs';
+
+export { SECURITY_HEADERS };
 
 export const MAX_FILES = 20000;
 export const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -52,12 +57,6 @@ export function workersDevHeaders() {
  *  Security-Policy, which needs an inventory of every page's inline scripts
  *  and endpoints first. HSTS omits includeSubDomains and preload: both are
  *  hard to undo, and no subdomain is served yet. */
-export const SECURITY_HEADERS = Object.freeze({
-  'Strict-Transport-Security': 'max-age=31536000',
-  'X-Content-Type-Options': 'nosniff',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-});
-
 export function securityHeaders() {
   return '/*\n' + Object.entries(SECURITY_HEADERS).map(([k, v]) => `  ${k}: ${v}\n`).join('');
 }
@@ -69,6 +68,8 @@ export async function split(siteDir, shardDir) {
     if (await fs.stat(from).catch(() => null)) await fs.rename(from, path.join(shardDir, d));
   }
   await fs.copyFile(path.join(siteDir, '404.html'), path.join(shardDir, '404.html'));
+  // One file per page's share card filled the shard; pack them (cardpack.mjs).
+  const packed = await packCards(shardDir);
   const site = await survey(siteDir);
   const shard = await survey(shardDir);
   // After the count: Cloudflare reads _headers as configuration, not an asset.
@@ -80,7 +81,7 @@ export async function split(siteDir, shardDir) {
     if (s.files > MAX_FILES) problems.push(`${name}: ${s.files} files, over the free plan's ${MAX_FILES}`);
     for (const f of s.big) problems.push(`${name}: ${f} is over 25 MiB`);
   }
-  return { site: site.files, shard: shard.files, problems };
+  return { site: site.files, shard: shard.files, problems, packed };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -91,6 +92,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   }
   const r = await split(siteDir, shardDir);
   console.log(`site Worker: ${r.site} files; shard Worker: ${r.shard} files (limit ${MAX_FILES} each)`);
+  console.log(`shard share cards: ${r.packed.cards} packed into ${r.packed.packs} file(s)`);
   for (const p of r.problems) console.log(`::error::${p}`);
   for (const [name, n] of [['site', r.site], ['shard', r.shard]]) {
     if (n > MAX_FILES * 0.9 && n <= MAX_FILES) console.log(`::warning::the ${name} Worker holds ${n} of ${MAX_FILES} files; move another directory into SHARD_DIRS (router.mjs)`);
