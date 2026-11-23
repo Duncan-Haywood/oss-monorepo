@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVMjKZeJeVKdHD2TXUe",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T16:04:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship row 4, league-schedule-generator: every listed item needed a real league's input, so took an unlisted gap a real organiser hits first: the league page could only run on a season it built. Added a schedule import (spreadsheet paste, CSV export, .ics).",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 18443,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "items: list for this flagship is six variants of 'a real X' with no buildable entry, yet the row is still offered as Deepen; an inputs_only-style flag per item would save a run reading NEXT.md to find work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here item list for league-schedule-generator was all 'a real league's X' (outside input); rather than skip the row, built the feature that lets a real league bring its existing season, which is what those items wait on.",
+      "did": "importschedule.mjs + admin import box",
+      "result": "819/819 games round-trip through four of five export formats (eval/import-roundtrip.txt)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-bring-the-league-schedule-you-already-have.md"
+  ],
+  "goal": null,
+  "notes": "Verification run here: run_venture_tests.py league-schedule-generator ok (982 tests, 282.9 s); importschedule.test.mjs 10/10; venture-preflight clean (the first preflight caught a date regex with no digit boundary and a literal U+FEFF, both fixed). Round-trip eval: schedule CSV, calendar CSV, TeamSnap CSV and .ics each 819/819 games exact over 12 seasons; SportsEngine's upload template has IDs only and gets one clear error. Not checked: a real league's own export.",
+  "corrections": [],
+  "redteam": null
+}

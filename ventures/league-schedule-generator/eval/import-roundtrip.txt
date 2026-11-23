@@ -1,0 +1,9 @@
+format              games  back exact  teams named  errors listed
+schedule CSV          819         819      110/110             0
+calendar CSV          819         819      110/110             0
+TeamSnap CSV          819         819      110/110             0
+SportsEngine CSV      819           0        0/110           225  This file names teams only by ID (Team1_ID, Team2_ID), as SportsEngine's upload template does: export the schedule with team names instead.
+.ics                  819         819      110/110             0
+
+SportsEngine's upload template carries HQ team IDs (Team1_ID, Team2_ID) and no team names, so a file in that shape cannot say who plays; the reader says so in one line instead of failing every row.
+12 seasons: 4 teams, 4 teams double, 6 teams, 6 teams double, 7 teams, 7 teams double, 10 teams, 10 teams double, 12 teams, 12 teams double, 16 teams, 16 teams double.

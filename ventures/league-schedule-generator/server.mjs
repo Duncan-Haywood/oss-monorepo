@@ -26,6 +26,8 @@ import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, playBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS, dayLabel } from "./calc.mjs";
 import { pathToFileURL } from "node:url";
+import { parseScheduleImport, importedSchedule, importSummary } from "./importschedule.mjs";
+import { parseDateList } from "./dates.mjs";
 import { embedKeyOk, parseEmbedOptions, embedHtml, EMBED_HEADERS, adminEmbedHtml } from "./embed.mjs";
 import { iconPng, manifestJson, SW_JS, pwaHeadHtml, pwaBodyHtml } from "./pwa.mjs";
 import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber, parseRosters, parseContacts, availabilityCsv, remindersDue, EMAIL, REMINDER_DAYS } from "./availability.mjs";
@@ -43,7 +45,7 @@ import { readOfficials, settleOfficials, officialByKey, officialKey, parseOffici
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
-const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts", "playoffResults", "officials", "discipline"];
+const TEXT_FIELDS = ["imported", "teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts", "playoffResults", "officials", "discipline"];
 
 /** Cards log -> { state, errors } against the built schedule (cards and suspensions, discipline.mjs). */
 function leagueDiscipline(fields, schedule, today) {
@@ -80,19 +82,32 @@ const resultLine = (teams, r) => `${teams[r.a]} ${r.ga} - ${r.gb} ${teams[r.b]}`
 
 /** Fields -> the same schedule, table and bracket the browser page shows. */
 export function buildLeague(f) {
-  const { spec, errors } = readSpec(f);
-  if (errors.length) return { error: errors[0] };
   let s;
-  try { s = buildSchedule(spec); } catch (e) { return { error: e.message }; }
   const warnings = [];
+  let importedResults = "";
+  if (String(f.imported || "").trim()) {
+    // A season made elsewhere (spreadsheet, platform export, calendar): run the league on it as it is.
+    const parsed = parseScheduleImport(f.imported);
+    if (!parsed.games.length) return { error: parsed.errors[0] || "No games were found in the imported schedule." };
+    if (parsed.teams.length < 2) return { error: "The imported schedule needs at least two teams." };
+    warnings.push(...parsed.errors, ...parsed.warnings);
+    const minutes = Math.min(600, Math.max(5, Math.trunc(Number(f.minutes)) || 60));
+    s = importedSchedule(parsed, { minutes, skipDays: parseDateList(f.skip || "").days });
+    importedResults = parsed.results.join("\n");
+  } else {
+    const { spec, errors } = readSpec(f);
+    if (errors.length) return { error: errors[0] };
+    try { s = buildSchedule(spec); } catch (e) { return { error: e.message }; }
+  }
   for (const [key, fn] of [["rainouts", applyRainouts], ["withdrawals", applyWithdrawals], ["lateTeams", applyLateTeams]]) {
     if (String(f[key] || "").trim()) { const r = fn(s, f[key]); s = r.schedule; warnings.push(...r.errors); }
   }
   let table = null, bracket = null, seeds = s.teams;
   const ps = parsePointSystem(f.scoring || "");
   if (ps.error) warnings.push(ps.error);
-  if (String(f.results || "").trim()) {
-    const pr = parseResults(f.results, s.teams);
+  const resultsText = [importedResults, String(f.results || "")].filter((x) => x.trim()).join("\n");
+  if (resultsText.trim()) {
+    const pr = parseResults(resultsText, s.teams);
     warnings.push(...pr.errors);
     table = standings(s.teams, pr.results, { win: ps.win, draw: ps.draw, loss: ps.loss, adjustments: pr.adjustments });
     seeds = table.map((r) => r.name);
@@ -127,6 +142,24 @@ export function calendarLinks(base, token, team) {
   const webcal = feed.replace(/^https?:/, "webcal:");
   const google = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
   return `<a href="${esc(webcal)}">subscribe</a> · <a href="${esc(google)}" rel="noopener">Google Calendar</a> · ${dl} · <input readonly value="${esc(feed)}" aria-label="Calendar address" style="width:auto;min-width:16rem;font-size:.8rem" onfocus="this.select()">`;
+}
+
+/** The admin form's "Already have a schedule?" box, with what the last saved import read. */
+export function importFieldset(f) {
+  const text = String(f.imported || "");
+  let status = "";
+  if (text.trim()) {
+    const p = parseScheduleImport(text);
+    const sum = importSummary(p);
+    status = (sum ? `<p class="ok">Imported: ${esc(sum)} The season below is ignored while this box has games in it; empty it to build one instead.</p>` : "")
+      + (p.errors.length ? `<ul class="err">${p.errors.slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("")}${p.errors.length > 8 ? `<li>and ${p.errors.length - 8} more</li>` : ""}</ul>` : "")
+      + (p.warnings.length ? `<ul class="note">${p.warnings.slice(0, 5).map((e) => `<li>${esc(e)}</li>`).join("")}</ul>` : "");
+  }
+  return `<fieldset><legend>Already have a schedule?</legend>
+<p class="note">Paste the season you already have and the league page runs on it as it is: standings, rainout moves, calendar feeds, the website embed, availability, captains' score reports and officials. Copy the rows straight from Excel or Google Sheets (header row included), or paste a CSV export from TeamSnap, LeagueApps, SportsEngine or a club website, or the text of an .ics calendar. It needs a date column and either Home and Away columns or one column like "Hawks vs Owls" ("Owls @ Hawks" means Owls are away); time, location and Home Score / Away Score columns are read when present. Game length comes from the Minutes box; Skip dates are kept clear when a rained-out game is moved.</p>
+<label>Schedule to import (optional)<textarea name="imported" style="min-height:5rem" placeholder="Date	Time	Home	Away	Field">${esc(text)}</textarea></label>
+<label>Game length in minutes<input name="minutes" inputmode="numeric" value="${esc(f.minutes ?? 60)}" style="width:6rem"></label>
+${status}</fieldset>`;
 }
 
 function leaguePage(state, token, base = null, today = dayNumber(Date.now()), captain = null, now = Date.now(), official = null) {
@@ -190,6 +223,7 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const discAdmin = dq ? adminDisciplineHtml(dq.state, names, dq.errors) + `<p><a href="/admin/discipline.csv?key=${k}">Download every ban (CSV)</a></p>` : "";
   return page("League admin", `${note}${signups}${freeAgents}${waiting}${short}${csv}${parseNotes.length ? `<ul class="err">${parseNotes.slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("")}</ul>` : ""}
 <form method="post" action="/admin/save?key=${k}">
+${importFieldset(f)}
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
 <label>Weekdays, comma separated (${WEEKDAYS.join(" ")})<input name="weekdays" value="${esc((f.weekdays || []).join(", "))}"></label>
 <label>Play-off spots (0 for none)<input name="playoff" value="${esc(f.playoff ?? 0)}"></label>
@@ -554,6 +588,7 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       const f = { ...state.fields };
       for (const k of TEXT_FIELDS) f[k] = String(form.get(k) ?? "");
       f.weekdays = String(form.get("weekdays") || "").split(/[\s,]+/).filter((d) => WEEKDAYS.includes(d));
+      if (form.has("minutes")) f.minutes = Math.min(600, Math.max(5, Math.trunc(Number(form.get("minutes"))) || 60));
       f.double = form.get("double") === "1";
       f.reverseLeg = form.get("reverseLeg") === "1";
       f.playoff = Math.trunc(Number(form.get("playoff")) || 0);
