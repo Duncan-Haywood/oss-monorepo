@@ -119,7 +119,9 @@ function partition(y, qz, beta, minSegment) {
 // Changes on a smooth trend. noise: 'ml' (default; sigma from second differences, zeta profiled with
 // the changes on a log grid of qz from 1e-6 to 1e2 plus 0, refined by golden section) or 'lags'
 // (both from second differences). minSegment at least 3.
-export function trendWalkChanges(values, { sigma, zeta, penalty, minSegment = 3, noise = 'ml' } = {}) {
+// qzMax caps the slope wander (zeta^2 / sigma^2) the 'ml' search may choose: a stiff slope, so a turn
+// in the trend costs a cut instead of being absorbed as a slope move (README "A stiff slope").
+export function trendWalkChanges(values, { sigma, zeta, penalty, minSegment = 3, noise = 'ml', qzMax = Infinity } = {}) {
   const x = Array.from(values, Number), n = x.length;
   const ms = Math.max(3, minSegment);
   const beta = penalty ?? 3 * Math.log(n);
@@ -134,7 +136,8 @@ export function trendWalkChanges(values, { sigma, zeta, penalty, minSegment = 3,
   }
   const memo = new Map();
   const evalQ = (q) => { const k = q.toPrecision(12); if (!memo.has(k)) memo.set(k, { q, ...partition(y, q, beta, ms) }); return memo.get(k); };
-  const qs = [0, ...Array.from({ length: 17 }, (_, i) => 10 ** (-6 + i / 2))];
+  const capped = Number.isFinite(qzMax) && qzMax > 0;
+  const qs = [0, ...Array.from({ length: 17 }, (_, i) => 10 ** (-6 + i / 2)).filter((q) => !capped || q < qzMax * (1 - 1e-9)), ...(capped ? [qzMax] : [])];
   let best = null, bi = 0;
   qs.forEach((q, i) => { const r = evalQ(q); if (!best || r.cost < best.cost) { best = r; bi = i; } });
   if (best.q > 0) {
@@ -147,5 +150,5 @@ export function trendWalkChanges(values, { sigma, zeta, penalty, minSegment = 3,
     }
     for (const q of [10 ** c, 10 ** d]) { const r = evalQ(q); if (r.cost < best.cost) best = r; }
   }
-  return { changepoints: best.changepoints, cost: best.cost, sigma: s, zeta: s * Math.sqrt(best.q), q: best.q, penalty: beta, noise: 'ml', flooredSigma: sigma == null && est.flooredSigma, atGridEdge: bi === qs.length - 1 };
+  return { changepoints: best.changepoints, cost: best.cost, sigma: s, zeta: s * Math.sqrt(best.q), q: best.q, penalty: beta, noise: 'ml', flooredSigma: sigma == null && est.flooredSigma, atGridEdge: bi === qs.length - 1, qzMax: capped ? qzMax : null, atCap: capped && best.q >= qzMax * (1 - 1e-6) };
 }
