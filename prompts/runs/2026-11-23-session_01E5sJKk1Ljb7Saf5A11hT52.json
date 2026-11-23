@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKk1Ljb7Saf5A11hT52",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T02:18:35Z",
+  "ended": "2026-11-23T02:29:07Z",
+  "wall_minutes": 10.96,
+  "tokens_in": 7106724,
+  "tokens_out": 51633,
+  "cost_usd": 3.5937,
+  "tool_calls": 60,
+  "task": "buildbot-sheathing milestone 72: re-zero scheduling over a wall from milestone 71's per-pose drift allowances",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18349",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "m72 run.py crashed on a ratio with a zero denominator: the 100-sheet wall needs no re-zero at 0.01 N/h",
+      "fix": "ratios over rates where LAYOUT>0, disclosed as a deviation; a 1,000-sheet table added as a reported extra"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Drift-rate sourcing: vendor datasheet hosts (rg-group.com, webflow uploads, automationdistribution.com) fail DNS from this box, as arXiv does; a HOSTS note listing F/T vendor hosts as unreachable would save the attempt."
+    },
+    {
+      "file": "research/buildbot-sheathing/tests/test_latex.py",
+      "issue": "test_latex was failing on main (no LaTeX mapping for U+03B4 from an earlier milestone's &delta;); research CI apparently did not catch it, or it was merged red. Fixed in build_latex.py."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (milestone 72 registration)",
+      "why": "the registered ratio hypotheses were undefined at the slowest rates, where the 100-sheet wall needs no re-zero",
+      "did": "evaluated ratios only over rates where LAYOUT needs at least one re-zero and reported a 1,000-sheet table as an unregistered extra",
+      "result": "H283 still refuted as registered (H1 0.05 N/h, 1 vs 1); the 1,000-sheet table shows the registered direction (1.50 to 1.75)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-sheathing-robot-rezero-plan.md",
+    "research/buildbot-sheathing/LOG.md (milestone 72 planned and result)"
+  ],
+  "goal": null,
+  "notes": "Local verification: tests/test_rezero.py 7 passed; whole project suite 177 passed / 6 failed only on missing scipy in /usr/bin/python3.13 (pre-existing env gap); test_latex fixed; paper/check_numbers.py 488 of 488 (5 new); research/_homepage/build.py ok; check_md_links ok; check_posts ok. No agent doc in docs/reports: the LOG.md entry carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "28f954c6-e619-5950-8f58-062668b37ae1",
+    "transcripts": 1,
+    "first": "2026-11-23T02:18:35Z",
+    "last": "2026-11-23T02:29:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 111,
+        "output": 51633,
+        "thinking": 19238,
+        "cache_read": 6960547,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146066,
+        "api_equivalent_usd": 3.5937,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 111,
+      "output": 51633,
+      "thinking": 19238,
+      "cache_read": 6960547,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146066,
+      "api_equivalent_usd": 3.5937,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 49,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.96,
+      "active_minutes": 10.96,
+      "model_minutes": 8.61,
+      "tool_minutes": 2.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher deriving the scheduling result, coding and checking it, and writing the log, paper paragraph and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 167.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
