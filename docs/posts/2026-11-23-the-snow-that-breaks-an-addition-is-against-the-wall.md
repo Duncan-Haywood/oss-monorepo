@@ -3,7 +3,7 @@ title: "The snow that breaks an addition is the snow against the wall"
 seo_title: "Roof snow drift at a step: a free ASCE 7-16 calculator"
 date: 2026-11-23
 tags: [construction, structural, snow-load, roof-snow-load-calculator, new-tool]
-description: "A new free calculator works every ASCE 7-16 roof snow load from the ground snow load, including the step drift that puts 2.4 times the open-roof load on a wing beside a two-storey wall."
+description: "A free ASCE 7-16 roof snow load calculator, including the step drift that puts 2.4 times the open-roof load on a wing beside a two-storey wall."
 ---
 
 The portfolio has a shed designer that sizes rafters and headers for a roof
