@@ -1,0 +1,422 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKjxBUwxkVuqzh6rqwY",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T01:18:11Z",
+  "ended": "2026-11-23T01:18:46Z",
+  "wall_minutes": 11.82,
+  "tokens_in": 3651278,
+  "tokens_out": 20890,
+  "cost_usd": 1.8269,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18344",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The random draw landed on a vendored usage.mjs again; all 3 escapes were the known open suite_for defect (usage_contract.mjs catches them in CI). Until that control-plane patch lands, these draws mostly re-measure a known result: worth redrawing past usage.mjs by default."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "open lists 13 entries, 12 of them control-plane waiting on owner approval, so step 0 had nothing this run could fix without its own owner-gated PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all open entries but one (help-keeper stem, needs a new eval set) are control-plane changes needing owner approval; I didn't open more owner-gated PRs on top of the existing patches.",
+      "did": "Went to seeding, and aimed campaign 2 at a privacy guard under platform/ rather than a second random venture.",
+      "result": "Found and fixed a real checker blind spot plus a live leak it hid."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-redteam-the-share-link-the-privacy-check-missed.md"
+  ],
+  "goal": null,
+  "notes": "Guard tightened (4b): share-location.mjs now flags named query parameters on own-page links; first run over 10,255 files caught world-clock-widget. Verified: node --test share-location.test.mjs 22/22 (new test fails on old code), world-clock-widget site suites 55/55, fba usage.test.mjs 8/8, Chromium check of #cities= and ?cities= links.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+        "test": "node --test ventures/fba-reimbursement-claim-finder/**/*.test.mjs  (in .)",
+        "seed": 96563375,
+        "commit": "07805d97d",
+        "sites": 24,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+            "line": 27,
+            "col": 11,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "    return false;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No copy test made getItem throw and asked usageOptedOut(); added 'a store whose reads throw is never read as an opt-out'. CI's platform/ci/usage_contract.mjs already rejects it (checked on a one-venture scratch tree: exit 1), the open 2026-11-15 suite_for defect."
+          },
+          {
+            "file": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+            "line": 34,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack !== \"1\" || navigator.globalPrivacyControl) return true;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+            "line": 34,
+            "col": 79,
+            "operator": "true-to-false",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return false;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+            "line": 42,
+            "col": 18,
+            "operator": "or-to-and",
+            "before": "if (noStorage() || usageBlocked()) return;",
+            "after": "if (noStorage() && usageBlocked()) return;",
+            "line_text": "  if (noStorage() || usageBlocked()) return;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+            "line": 49,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current && typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Copy suite never stored valid non-object JSON; added a case storing 5, \"text\", true, null, [], [1,2]. usage_contract.mjs rejects it in CI (scratch tree: exit 1)."
+          },
+          {
+            "file": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+            "line": 50,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+            "line": 61,
+            "col": 56,
+            "operator": "or-to-and",
+            "before": "const parsed = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "after": "const parsed = JSON.parse(localStorage.getItem(KEY) && \"{}\");",
+            "line_text": "    const parsed = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fba-reimbursement-claim-finder/usage.mjs",
+            "line": 62,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed || typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Same test as line 49: a stored array read back as an array. usage_contract.mjs rejects it in CI (scratch tree: exit 1)."
+          }
+        ]
+      },
+      {
+        "target": "platform/privacy/share-location.mjs",
+        "test": "node --test platform/privacy/share-location.test.mjs  (in .)",
+        "seed": 398064625,
+        "commit": "07805d97d",
+        "sites": 21,
+        "baseline_seconds": 2.8,
+        "mutants": [
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 121,
+            "col": 17,
+            "operator": "true-to-false",
+            "before": "return !/^(true|false|null|undefined|-?\\d+(\\.\\d+)?)$/.test(rhs);",
+            "after": "return !/^(false|false|null|undefined|-?\\d+(\\.\\d+)?)$/.test(rhs);",
+            "line_text": "      return !/^(true|false|null|undefined|-?\\d+(\\.\\d+)?)$/.test(rhs);",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 135,
+            "col": 42,
+            "operator": "false-to-true",
+            "before": "if (!URL_CONTEXT.test(line)) return false;",
+            "after": "if (!URL_CONTEXT.test(line)) return true;",
+            "line_text": "      if (!URL_CONTEXT.test(line)) return false;",
+            "caught": true,
+            "seconds": 300.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 154,
+            "col": 48,
+            "operator": "true-to-false",
+            "before": "if (/^(\\/\\/|\\*|<!--|#)/.test(trimmed)) return true;",
+            "after": "if (/^(\\/\\/|\\*|<!--|#)/.test(trimmed)) return false;",
+            "line_text": "  if (/^(\\/\\/|\\*|<!--|#)/.test(trimmed)) return true;",
+            "caught": true,
+            "seconds": 3.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 159,
+            "col": 54,
+            "operator": "true-to-false",
+            "before": "if (/\\bclient_reference_id\\b/.test(trimmed)) return true;",
+            "after": "if (/\\bclient_reference_id\\b/.test(trimmed)) return false;",
+            "line_text": "  if (/\\bclient_reference_id\\b/.test(trimmed)) return true;",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 207,
+            "col": 52,
+            "operator": "true-to-false",
+            "before": "entries = await readdir(dir, { withFileTypes: true });",
+            "after": "entries = await readdir(dir, { withFileTypes: false });",
+            "line_text": "      entries = await readdir(dir, { withFileTypes: true });",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 220,
+            "col": 50,
+            "operator": "eq-flip",
+            "before": "if (entry.name === \"test.mjs\" || entry.name === \"test.js\") continue;",
+            "after": "if (entry.name === \"test.mjs\" || entry.name !== \"test.js\") continue;",
+            "line_text": "      if (entry.name === \"test.mjs\" || entry.name === \"test.js\") continue;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 241,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if (!text.includes(\"?\") && !text.includes(\".search\")) return findings;",
+            "after": "if (!text.includes(\"?\") || !text.includes(\".search\")) return findings;",
+            "line_text": "  if (!text.includes(\"?\") && !text.includes(\".search\")) return findings;",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 247,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "findings.push({ line: index + 1, id, why, source: line.trim() });",
+            "after": "findings.push({ line: index + 2, id, why, source: line.trim() });",
+            "line_text": "        findings.push({ line: index + 1, id, why, source: line.trim() });",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 272,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "const BATCH = 64;",
+            "after": "const BATCH = 65;",
+            "line_text": "  const BATCH = 64;",
+            "caught": false,
+            "seconds": 3.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "BATCH is only the size of each Promise.all read batch; 65 vs 64 changes concurrency, not which files are read or the order findings are pushed in (results keep sorted file order)."
+          },
+          {
+            "file": "platform/privacy/share-location.mjs",
+            "line": 274,
+            "col": 35,
+            "operator": "plus-to-minus",
+            "before": "const batch = files.slice(i, i + BATCH);",
+            "after": "const batch = files.slice(i, i - BATCH);",
+            "line_text": "    const batch = files.slice(i, i + BATCH);",
+            "caught": false,
+            "seconds": 3.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Every file after the first batch went unread; the only many-file test is the live fleet, which expects zero findings. Added 'checkVentures reports a leak in a file well past the first read batch' (151 temp files, the leak sorted last)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/privacy/share-location.mjs",
+        "issue": "Query-string share links with a named parameter (`${location.pathname}?d=${x}`, `location.pathname + \"?d=\" + x`) passed the checker, which only matched `?${` and `\"?\" +`. Fixed: named parameters are flagged on lines that build from location.origin/pathname/href/host and are not mailto: (widening to every URL drew 116 false positives: server routes, DoH APIs, mailto). Failing-first tests added.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18344"
+      },
+      {
+        "file": "ventures/world-clock-widget/site/index.html",
+        "issue": "Copy share link wrote ?cities=..., sent to the server on every load and in outbound Referer, against the page's 'nothing leaves your browser' promise. Found by the widened checker. Fixed: writes #cities=..., reads the hash first with ?cities= as the legacy fallback; page test added; checked both forms and the copied link in Chromium.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18344"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "83003958-f4c7-52b4-8113-2ba15b6db5b0",
+    "transcripts": 1,
+    "first": "2026-11-23T01:18:11Z",
+    "last": "2026-11-23T01:30:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 87,
+        "output": 20890,
+        "thinking": 3996,
+        "cache_read": 3564207,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86984,
+        "api_equivalent_usd": 1.8269,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 87,
+      "output": 20890,
+      "thinking": 3996,
+      "cache_read": 3564207,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86984,
+      "api_equivalent_usd": 1.8269,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.82,
+      "active_minutes": 11.82,
+      "model_minutes": 4.52,
+      "tool_minutes": 7.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation triage, checker widening with fleet false-positive tuning, venture fix and browser check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 164.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
