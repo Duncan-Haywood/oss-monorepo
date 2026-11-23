@@ -68,7 +68,15 @@ export function analyze(input = {}) {
   advice.push(overlap ? `A deal exists between ${money(ownerBreakEvenRent)} and ${money(rancherBreakEvenRent)} per AUM: below the first the owner is better off elsewhere, above the second the rancher is better off feeding hay.` : `No rent works for both sides on these numbers: the owner needs ${money(ownerBreakEvenRent)} per AUM and the rancher stops at ${money(rancherBreakEvenRent)}.`);
   if (v.usePct > 50) advice.push("Utilisation above 50% leaves little residual cover; stocking at that rate usually costs forage the following year. Check the figure with your extension agent or NRCS office.");
 
-  return { inputs: v, aums: r2(aums), animalUnits: r2(animalUnits), head: r2(head), acresPerAu: r2(acresPerAu), aumsPerAcre: r2(aumsPerAcre), hayCostPerAum: r2(hayCostPerAum), rancherCostPerAum: r2(rancherCostPerAum), rancherSavingPerAum: r2(rancherSavingPerAum), rancherBreakEvenRent: r2(rancherBreakEvenRent), rentTotal: r2(rentTotal), rentPerAcre: r2(rentPerAcre), rentPerHeadMonth: r2((v.rentPerAum / v.auPerHead)), ownerNetPerAcre: r2(ownerNetPerAcre), ownerBreakEvenRent: r2(ownerBreakEvenRent), dealExists: overlap, advice };
+  return { inputs: v, aums: r2(aums), animalUnits: r2(animalUnits), head: r2(head), acresPerAu: r2(acresPerAu), aumsPerAcre: r2(aumsPerAcre), hayCostPerAum: r2(hayCostPerAum), rancherCostPerAum: r2(rancherCostPerAum), rancherSavingPerAum: r2(rancherSavingPerAum), rancherBreakEvenRent: r2(rancherBreakEvenRent), rentTotal: r2(rentTotal), rentPerAcre: r2(rentPerAcre), rentPerHeadMonth: r2(v.rentPerAum * v.auPerHead), ownerNetPerAcre: r2(ownerNetPerAcre), ownerBreakEvenRent: r2(ownerBreakEvenRent), dealExists: overlap, advice };
+}
+
+/** One-line summary for the page status bar; says plainly when no rent works for both sides. */
+export function statusLine(r) {
+  const lead = `${Math.round(r.aums)} AUMs, ${Math.round(r.head)} head; `;
+  return r.dealExists
+    ? `${lead}rent between ${money(r.ownerBreakEvenRent)} and ${money(r.rancherBreakEvenRent)} per AUM works for both.`
+    : `${lead}no rent works for both sides: the owner needs ${money(r.ownerBreakEvenRent)} per AUM and the rancher stops at ${money(r.rancherBreakEvenRent)}.`;
 }
 
 /** Sensitivity: head and rent income if forage comes in at the given fractions of the entered yield (drought planning). */

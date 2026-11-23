@@ -62,3 +62,22 @@ test("high utilisation warns, csv and sample work, money formats", () => {
   assert.equal(money(-1234.4), "-$1,234");
   assert.equal(money(null), "—");
 });
+
+test("rent per head-month is rent per AUM times animal units per head, and agrees with the season total", () => {
+  // a 1.2-AU cow-calf pair eats 1.2 AUMs a month, so at $24/AUM it costs $28.80 a month (round-100 audit)
+  const r = analyze(sampleInput());
+  assert.equal(r.inputs.auPerHead, 1.2);
+  assert.equal(r.inputs.rentPerAum, 24);
+  assert.equal(r.rentPerHeadMonth, 28.8);
+  const implied = r.head * (r.inputs.seasonDays / 30.4) * r.rentPerHeadMonth;
+  assert.ok(Math.abs(implied - r.rentTotal) / r.rentTotal < 0.01, `${implied} vs ${r.rentTotal}`);
+});
+
+test("status line does not claim a deal when the ranges do not overlap", async () => {
+  const { statusLine } = await import("./calc.mjs");
+  const none = analyze({ ...sampleInput(), cashRentAlt: 300 });
+  assert.equal(none.dealExists, false);
+  assert.doesNotMatch(statusLine(none), /per AUM works for both/);
+  assert.match(statusLine(none), /no rent works for both sides/);
+  assert.match(statusLine(analyze(sampleInput())), /works for both\./);
+});
