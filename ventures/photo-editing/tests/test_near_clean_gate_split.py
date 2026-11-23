@@ -96,3 +96,43 @@ class Whitened(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipUnless(HAVE_NUMPY, "numpy not installed")
+class DrawnJudge(unittest.TestCase):
+    """``drawn``: eval/camera-drawn-mpcws-2026-11-23.md's four tests, ``opt`` against ``ship+12``."""
+
+    @staticmethod
+    def _row(snr, sc, opt_l, opt_c, true_l=0.0, grain=0.0001):
+        base = {"D": 30.0, "ship+12": 31.0, "true+12": 31.0 + true_l}
+        return {"file": f"f{snr}{sc}", "tile": [0, 0], "snr": snr, "scenario": sc, "truth_grain18": grain,
+                "sigma18": {"ship": 0.01, "opt": 0.01, "opt_fell_back": False}, "true_sigma18": 0.01,
+                "lpsnr": {**base, "opt": 31.0 + opt_l}, "cpsnr": {**base, "true+12": 31.0, "opt": 31.0 + opt_c}}
+
+    def _verdict(self, rows, *flags):
+        import contextlib
+        import io
+
+        import near_clean_gate
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            near_clean_gate.drawn([_write(rows), *flags])
+        return out.getvalue()
+
+    def test_gain_everywhere_passes(self):
+        rows = [self._row(s, sc, 0.1, 0.05) for s in (12.0, 25.0) for sc in ("equal", "wb")]
+        self.assertIn("verdict: pass", self._verdict(rows))
+
+    def test_a_row_under_ship_fails_h4o_unless_the_oracle_is_under_too(self):
+        rows = [self._row(s, sc, 0.3, 0.2) for s in (12.0, 25.0) for sc in ("equal", "wb")]
+        rows.append(self._row(60.0, "wb", -0.2, 0.0))
+        out = self._verdict(rows)
+        self.assertIn("FAIL h4o", out)
+        rows[-1] = self._row(60.0, "wb", -0.2, 0.0, true_l=-0.3)
+        self.assertIn("PASS h4o", self._verdict(rows))
+
+    def test_noisy_truths_are_dropped_unless_asked(self):
+        rows = [self._row(12.0, "wb", 0.1, 0.05), self._row(200.0, "wb", -0.5, -0.5, grain=0.01)]
+        self.assertIn("1 rows", self._verdict(rows))
+        self.assertIn("2 rows", self._verdict(rows, "--all-truths"))

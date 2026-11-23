@@ -1,0 +1,40 @@
+76 rows, 11 files; opt fell back on 0
+arm            luma   colour losers  worst
+ship+12     +0.6288  +0.4007      0  -0.01
+opt         +0.8526  +0.5161      0  -0.01
+true+12     +0.9038  +0.3771      0  -0.08
+   SNR    12 equal n=  13  opt - ship: luma +0.1338  colour +0.1085
+   SNR    12 wb    n=  13  opt - ship: luma +0.6954  colour +0.3408
+   SNR    25 equal n=  13  opt - ship: luma +0.0885  colour +0.0485
+   SNR    25 wb    n=  13  opt - ship: luma +0.3431  colour +0.1454
+   SNR    60 equal n=   9  opt - ship: luma +0.0067  colour +0.0067
+   SNR    60 wb    n=   9  opt - ship: luma +0.0622  colour +0.0400
+   SNR   200 equal n=   3  opt - ship: luma +0.0000  colour +0.0000
+   SNR   200 wb    n=   3  opt - ship: luma +0.0000  colour -0.0033
+PASS h1 means luma +0.2238 colour +0.1154 >= -0.005, worst cell -0.0033 >= -0.02
+PASS h2 losers to D 0 -> 0, new 0: none new, no more
+PASS h3 mean luma +0.2238 >= +0.02
+PASS h4o rows > 0.1 dB under ship where the oracle is not: 0 (all under: 0)
+verdict: pass: --noise-read mpcws becomes the Bayer default
+
+## --all-truths (a reading, not the committed judgement)
+104 rows, 11 files; opt fell back on 2
+arm            luma   colour losers  worst
+ship+12     +0.5167  +0.3107      0  -0.01
+opt         +0.6864  +0.3959      0  -0.01
+true+12     +0.6869  +0.2862      0  -0.08
+   SNR    12 equal n=  13  opt - ship: luma +0.1338  colour +0.1085
+   SNR    12 wb    n=  13  opt - ship: luma +0.6954  colour +0.3408
+   SNR    25 equal n=  13  opt - ship: luma +0.0885  colour +0.0485
+   SNR    25 wb    n=  13  opt - ship: luma +0.3431  colour +0.1454
+   SNR    60 equal n=  13  opt - ship: luma +0.0231  colour +0.0077
+   SNR    60 wb    n=  13  opt - ship: luma +0.1008  colour +0.0423
+   SNR   200 equal n=  13  opt - ship: luma +0.0192  colour +0.0038
+   SNR   200 wb    n=  13  opt - ship: luma -0.0462  colour -0.0154
+FAIL h1 means luma +0.1697 colour +0.0852 >= -0.005, worst cell -0.0462 >= -0.02
+PASS h2 losers to D 0 -> 0, new 0: none new, no more
+PASS h3 mean luma +0.1697 >= +0.02
+PASS h4o rows > 0.1 dB under ship where the oracle is not: 0 (all under: 2)
+   under: RAW_CANON_5DMARK2_PREPROD.CR2 [228, 462] SNR 200 wb: luma -0.580 colour -0.150 reads ship 0.005218 opt 0.003137 true 0.001235 (oracle also under)
+   under: iss030e122639.NEF [114, 294] SNR 200 wb: luma -0.110 colour -0.070 reads ship 0.004022 opt 0.005709 true 0.001244 (oracle also under)
+reading (all truths, decides nothing): not all four hold

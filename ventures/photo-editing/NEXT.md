@@ -48,7 +48,9 @@
   was right. (2026-11-23, eval/hdrplus-joint-check-j5-2026-11-23.md) J5, the collapse test on `mpcws`'s own shot
   share at 18% grey (line 0.5) on a fifth draw: 126 scored, fails h4o on one total collapse (both terms ~0) and
   falls back on 31 (slope exactly 0 on 22, mostly still gaining); the J4 ratio line passes the same draw (0 worse),
-  so it stays. Next: a drawn-noise check on Bayer camera raws with the option against `ship`; any new collapse
+  so it stays. (2026-11-23, eval/camera-drawn-mpcws-2026-11-23.md) The drawn-noise check on 11 Bayer camera raws
+  from rawpy, OpenImageIO and darktable test folders passed all four tests (76 clean-truth rows: +0.22 luma, +0.12
+  colour, none 0.1 dB worse), so `mpcws` is the Bayer default and `--noise-read ship` the old bytes. Next: any new collapse
   test on the read's level at a few greys, not its shot/read split, with a full reading of the five lists first. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
   been tested with either read.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
@@ -139,3 +141,4 @@
 - (2026-11-19) calibration on IIQ S (iXU180 blue 5.2%)
 - (2026-11-22) HDR+ dB sweep 2026-11-22 (48 bursts, real noise): mpcws +0.13 dB luma over mpcw but 2 bursts lose >0.1, default stays
 - (2026-11-23) the oracle loses on both (eval/hdrplus-demosaic-sweep-*)
+- (2026-11-23) gain and over-read share a cause, so this set is spent (eval/noise-pca-mpcw1-*)

@@ -192,9 +192,11 @@ def load(paths, split: str | None = None, clean_truths: bool = False, gg: dict |
     ``clean_truths`` drops rows whose truth is noisier than the noise added (``clean_enough``); ``gg``
     (``gg_of``) joins ``truth_gg18`` by file and tile first."""
 
+    import gzip
+
     rows = []
     for p in paths:
-        for line in open(p):
+        for line in (gzip.open(p, "rt") if str(p).endswith(".gz") else open(p)):
             r = json.loads(line)
             if gg is not None and "tile" in r:
                 r["truth_gg18"] = gg.get((r["file"], tuple(r["tile"])))
@@ -509,7 +511,10 @@ def drawn(argv) -> int:
         print(f"   under: {r['file']} {r['tile']} SNR {r['snr']:g} {r['scenario']}: luma {dl[i]:+.3f} colour {dc[i]:+.3f}"
               f" reads ship {r['sigma18'].get('ship')} opt {r['sigma18'].get('opt')} true {r.get('true_sigma18')}"
               f"{' (oracle also under)' if i in oracle_under else ''}")
-    print("verdict:", "pass: --noise-read mpcws becomes the Bayer default" if ok else "fail: --noise-read mpcws stays opt-in")
+    if args.all_truths:  # the committed judgement is on clean truths; this is a reading
+        print("reading (all truths, decides nothing):", "all four hold" if ok else "not all four hold")
+    else:
+        print("verdict:", "pass: --noise-read mpcws becomes the Bayer default" if ok else "fail: --noise-read mpcws stays opt-in")
     return 0
 
 
