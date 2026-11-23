@@ -4,7 +4,8 @@
 Why. 11ad and 11ae's "Next", and the limit both stated: their score counted only en-route conflicts inside a group,
 so more groups could only help (four groups keep 8% of the conflict weight, eight keep 2 to 3%), an upper bound on
 what layers buy. A real stack is not free: a drone launched at its hub climbs through every band below its own and
-descends through them again at the delivery point, and Doole, Ellerbroek and Hoekstra (DICUAM 2021) report that in
+descends through them again at the delivery point, and Doole, Ellerbroek and Hoekstra ("Drone delivery: nature of traffic conflicts in constrained urban
+airspace environments", DICUAM 2021; title checked 2026-11-23, full text not opened) report that in
 their layered Manhattan simulations conflicts were largely caused by flights climbing or descending to their layers.
 This step adds that cost to the same model, exactly, and asks how many groups a planner should then use, whether the
 en-route-optimal partitions of 11ad survive, and how much the stacking order matters.
@@ -37,7 +38,7 @@ at most k positions is non-increasing in k; "groups used" is the number of non-e
 with at most 8. Transits do not conflict with transits; no climb or descent conflict is counted twice for a leg that
 both starts and ends near x (the chord is of the whole segment).
 
-Parameters. tau: Doole et al. space their layers 25 ft (7.6 m) apart (as reported in the abstracts found by search;
+Parameters. tau: Doole et al. (Aerospace 8(2):38, 2021) space their layers 25 ft (7.6 m) apart (as reported in the abstracts found by search;
 the full texts could not be opened from this session) and a DJI Matrice 300 RTK's maximum ascent speed is 5 m/s
 in P mode, 6 m/s in S mode (DJI specification page). One layer spacing at 5 m/s gives tau = 7.62 / 5 = 1.52 s; a
 conflict layer two spacings thick (a climber within one spacing of the band level) gives 3.05 s, the headline value.

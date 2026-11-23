@@ -943,6 +943,18 @@ quantity sets, a cost-estimating IDS written for this check
 (`eval/qto-from-geometry/base-quantities.ids.xml`) went from 225 failing elements
 to 4 (`eval/qto-from-geometry-2026-11-21.md`).
 
+**Tekla's Qto_ property sets (2026-11-23).** Tekla Structures writes every
+`Qto_` set as an `IfcPropertySet`, not an `IfcElementQuantity` (as do some
+Allplan 2024 exports). The fill now measures for those too and writes the
+value into Tekla's own set as a property of the measure, in the model's
+units, instead of sending it to the table. On three public Tekla 2026 exports
+(one model as IFC2X3, IFC4 and IFC4X3) the measured values are within 2% of
+what Tekla stored on 551 of 583, and the cost-estimating IDS above goes from
+97, 117 and 116 failing elements to 17, 37 and 36 (29, 49 and 48 before this
+change); IfcTester counts the same. Wall side areas are held back in such a
+set: Tekla stores both faces, and not exactly twice one face either
+(`eval/qto-psets-2026-11-23.md`).
+
 **Attributes (2026-11-21).** A failing attribute requirement (`Description`,
 `ObjectType`, `Tag`, `LongName`, a `PredefinedType` left `$`) is written into the
 element's own record when the attribute is unset (`$` or `''`): the value the

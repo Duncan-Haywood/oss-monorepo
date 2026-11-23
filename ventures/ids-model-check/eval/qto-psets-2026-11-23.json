@@ -1,0 +1,745 @@
+{
+ "Test_2x3_single-punkt.ifc": {
+  "application": "Allplan 2024.1",
+  "qtoHeldAs": {
+   "IFCPROPERTYSET": 8,
+   "IFCELEMENTQUANTITY": 0
+  },
+  "nonTemplateNames": {
+   "Qto_WallBaseQuantities.Länge": 7,
+   "Qto_WallBaseQuantities.Dicke": 7,
+   "Qto_WallBaseQuantities.Höhe": 7,
+   "Qto_SlabBaseQuantities.Länge": 1,
+   "Qto_SlabBaseQuantities.Dicke": 1,
+   "Qto_SlabBaseQuantities.Höhe": 1
+  },
+  "stats": {
+   "IFCWALL Länge": {
+    "stored": 7,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL Dicke": {
+    "stored": 7,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Länge": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Dicke": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Höhe": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   }
+  }
+ },
+ "Test_4_Standard-Export_Extrudiert&Brep.ifc": {
+  "application": "Allplan 2024.1",
+  "qtoHeldAs": {
+   "IFCPROPERTYSET": 7,
+   "IFCELEMENTQUANTITY": 0
+  },
+  "nonTemplateNames": {
+   "Qto_WallBaseQuantities.Länge": 5,
+   "Qto_WallBaseQuantities.Dicke": 5,
+   "Qto_WallBaseQuantities.Höhe": 5,
+   "Qto_SlabBaseQuantities.Länge": 2,
+   "Qto_SlabBaseQuantities.Dicke": 2,
+   "Qto_SlabBaseQuantities.Höhe": 2
+  },
+  "stats": {
+   "IFCWALL Länge": {
+    "stored": 5,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL Dicke": {
+    "stored": 5,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Länge": {
+    "stored": 2,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Dicke": {
+    "stored": 2,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Höhe": {
+    "stored": 2,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   }
+  }
+ },
+ "Reference-view_4.ifc": {
+  "application": "Allplan 2024.1",
+  "qtoHeldAs": {
+   "IFCPROPERTYSET": 0,
+   "IFCELEMENTQUANTITY": 2
+  },
+  "nonTemplateNames": {},
+  "stats": {}
+ },
+ "test-allplan.ifc": {
+  "application": "Allplan 2025.1",
+  "qtoHeldAs": {
+   "IFCPROPERTYSET": 0,
+   "IFCELEMENTQUANTITY": 93
+  },
+  "nonTemplateNames": {},
+  "stats": {}
+ },
+ "Tekla-Export.ifc": {
+  "application": "(no application)",
+  "qtoHeldAs": {
+   "IFCPROPERTYSET": 25,
+   "IFCELEMENTQUANTITY": 0
+  },
+  "nonTemplateNames": {},
+  "stats": {
+   "IFCWALL Length": {
+    "stored": 19,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL Width": {
+    "stored": 19,
+    "offered": 19,
+    "within2": 19,
+    "within5": 19,
+    "medianRatio": 1
+   },
+   "IFCWALL Height": {
+    "stored": 19,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL NetFootprintArea": {
+    "stored": 19,
+    "offered": 16,
+    "within2": 16,
+    "within5": 16,
+    "medianRatio": 1
+   },
+   "IFCWALL NetSideArea": {
+    "stored": 19,
+    "offered": 16,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": 0.4891
+   },
+   "IFCWALL GrossVolume": {
+    "stored": 19,
+    "offered": 19,
+    "within2": 16,
+    "within5": 19,
+    "medianRatio": 1
+   },
+   "IFCWALL NetVolume": {
+    "stored": 19,
+    "offered": 16,
+    "within2": 16,
+    "within5": 16,
+    "medianRatio": 1
+   },
+   "IFCWALL GrossWeight": {
+    "stored": 19,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL NetWeight": {
+    "stored": 19,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Width": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": 0.0083
+   },
+   "IFCSLAB Length": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Depth": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB Perimeter": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCSLAB GrossArea": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": 0.75
+   },
+   "IFCSLAB NetArea": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": 0.49
+   },
+   "IFCSLAB GrossVolume": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCSLAB NetVolume": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCSLAB GrossWeight": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB NetWeight": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOLUMN Length": {
+    "stored": 4,
+    "offered": 4,
+    "within2": 4,
+    "within5": 4,
+    "medianRatio": 1
+   },
+   "IFCCOLUMN CrossSectionArea": {
+    "stored": 4,
+    "offered": 4,
+    "within2": 4,
+    "within5": 4,
+    "medianRatio": 1
+   },
+   "IFCCOLUMN OuterSurfaceArea": {
+    "stored": 4,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOLUMN GrossSurfaceArea": {
+    "stored": 4,
+    "offered": 4,
+    "within2": 4,
+    "within5": 4,
+    "medianRatio": 1
+   },
+   "IFCCOLUMN NetSurfaceArea": {
+    "stored": 4,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOLUMN GrossVolume": {
+    "stored": 4,
+    "offered": 4,
+    "within2": 4,
+    "within5": 4,
+    "medianRatio": 1
+   },
+   "IFCCOLUMN NetVolume": {
+    "stored": 4,
+    "offered": 4,
+    "within2": 4,
+    "within5": 4,
+    "medianRatio": 1
+   },
+   "IFCCOLUMN GrossWeight": {
+    "stored": 4,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOLUMN NetWeight": {
+    "stored": 4,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBEAM Length": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCBEAM CrossSectionArea": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCBEAM OuterSurfaceArea": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 0.989
+   },
+   "IFCBEAM GrossSurfaceArea": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCBEAM NetSurfaceArea": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBEAM GrossVolume": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCBEAM NetVolume": {
+    "stored": 1,
+    "offered": 1,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCBEAM GrossWeight": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBEAM NetWeight": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   }
+  }
+ },
+ "test-2026-2x3.ifc": {
+  "application": "Tekla Structures Educational 2026.0.56107.0",
+  "qtoHeldAs": {
+   "IFCPROPERTYSET": 177,
+   "IFCELEMENTQUANTITY": 0
+  },
+  "nonTemplateNames": {},
+  "stats": {
+   "IFCBUILDINGELEMENTPROXY NetVolume": {
+    "stored": 7,
+    "offered": 7,
+    "within2": 7,
+    "within5": 7,
+    "medianRatio": 1
+   },
+   "IFCCOLUMN NetVolume": {
+    "stored": 10,
+    "offered": 10,
+    "within2": 10,
+    "within5": 10,
+    "medianRatio": 1.0041
+   },
+   "IFCBEAM NetVolume": {
+    "stored": 68,
+    "offered": 68,
+    "within2": 51,
+    "within5": 51,
+    "medianRatio": 1
+   },
+   "IFCRAILING Length": {
+    "stored": 16,
+    "offered": 14,
+    "within2": 14,
+    "within5": 14,
+    "medianRatio": 1
+   },
+   "IFCCOVERING NetArea": {
+    "stored": 2,
+    "offered": 2,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCSLAB NetVolume": {
+    "stored": 2,
+    "offered": 2,
+    "within2": 2,
+    "within5": 2,
+    "medianRatio": 1
+   },
+   "IFCTENDON Weight": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCFOOTING NetVolume": {
+    "stored": 6,
+    "offered": 6,
+    "within2": 6,
+    "within5": 6,
+    "medianRatio": 1
+   },
+   "IFCWALL Length": {
+    "stored": 17,
+    "offered": 9,
+    "within2": 9,
+    "within5": 9,
+    "medianRatio": 1
+   },
+   "IFCWALL Height": {
+    "stored": 17,
+    "offered": 9,
+    "within2": 9,
+    "within5": 9,
+    "medianRatio": 1
+   },
+   "IFCWALL GrossVolume": {
+    "stored": 17,
+    "offered": 13,
+    "within2": 13,
+    "within5": 13,
+    "medianRatio": 1
+   },
+   "IFCWALL NetVolume": {
+    "stored": 17,
+    "offered": 13,
+    "within2": 13,
+    "within5": 13,
+    "medianRatio": 1
+   },
+   "IFCREINFORCINGBAR Weight": {
+    "stored": 33,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCPILE Length": {
+    "stored": 15,
+    "offered": 15,
+    "within2": 15,
+    "within5": 15,
+    "medianRatio": 1
+   },
+   "IFCPILE NetVolume": {
+    "stored": 15,
+    "offered": 15,
+    "within2": 15,
+    "within5": 15,
+    "medianRatio": 1.0029
+   }
+  }
+ },
+ "test-2026-4.3.ifc": {
+  "application": "Tekla Structures Educational 2026.0.56107.0",
+  "qtoHeldAs": {
+   "IFCPROPERTYSET": 227,
+   "IFCELEMENTQUANTITY": 0
+  },
+  "nonTemplateNames": {},
+  "stats": {
+   "IFCRAILING Length": {
+    "stored": 32,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBEAM NetVolume": {
+    "stored": 79,
+    "offered": 68,
+    "within2": 61,
+    "within5": 61,
+    "medianRatio": 1
+   },
+   "IFCBUILDINGELEMENTPROXY NetVolume": {
+    "stored": 3,
+    "offered": 3,
+    "within2": 3,
+    "within5": 3,
+    "medianRatio": 1
+   },
+   "IFCPILE Length": {
+    "stored": 27,
+    "offered": 15,
+    "within2": 15,
+    "within5": 15,
+    "medianRatio": 1
+   },
+   "IFCPILE NetVolume": {
+    "stored": 27,
+    "offered": 15,
+    "within2": 15,
+    "within5": 15,
+    "medianRatio": 1
+   },
+   "IFCCOLUMN NetVolume": {
+    "stored": 11,
+    "offered": 10,
+    "within2": 10,
+    "within5": 10,
+    "medianRatio": 1.0041
+   },
+   "IFCFOOTING NetVolume": {
+    "stored": 13,
+    "offered": 6,
+    "within2": 6,
+    "within5": 6,
+    "medianRatio": 1
+   },
+   "IFCWALL Length": {
+    "stored": 22,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL Height": {
+    "stored": 22,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL GrossVolume": {
+    "stored": 22,
+    "offered": 13,
+    "within2": 13,
+    "within5": 13,
+    "medianRatio": 1
+   },
+   "IFCWALL NetVolume": {
+    "stored": 22,
+    "offered": 13,
+    "within2": 13,
+    "within5": 13,
+    "medianRatio": 1
+   },
+   "IFCSLAB NetVolume": {
+    "stored": 4,
+    "offered": 2,
+    "within2": 2,
+    "within5": 2,
+    "medianRatio": 1
+   },
+   "IFCTENDON Weight": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCCOVERING NetArea": {
+    "stored": 2,
+    "offered": 2,
+    "within2": 2,
+    "within5": 2,
+    "medianRatio": 1
+   },
+   "IFCREINFORCINGBAR Weight": {
+    "stored": 33,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   }
+  }
+ },
+ "test-2026-4.ifc": {
+  "application": "(no application)",
+  "qtoHeldAs": {
+   "IFCPROPERTYSET": 232,
+   "IFCELEMENTQUANTITY": 0
+  },
+  "nonTemplateNames": {},
+  "stats": {
+   "IFCPLATE NetVolume": {
+    "stored": 4,
+    "offered": 4,
+    "within2": 4,
+    "within5": 4,
+    "medianRatio": 1
+   },
+   "IFCRAILING Length": {
+    "stored": 32,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCSLAB NetVolume": {
+    "stored": 5,
+    "offered": 2,
+    "within2": 2,
+    "within5": 2,
+    "medianRatio": 1
+   },
+   "IFCCOVERING NetArea": {
+    "stored": 2,
+    "offered": 2,
+    "within2": 1,
+    "within5": 1,
+    "medianRatio": 1
+   },
+   "IFCWALL Length": {
+    "stored": 22,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL Height": {
+    "stored": 22,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCWALL GrossVolume": {
+    "stored": 22,
+    "offered": 13,
+    "within2": 13,
+    "within5": 13,
+    "medianRatio": 1
+   },
+   "IFCWALL NetVolume": {
+    "stored": 22,
+    "offered": 13,
+    "within2": 13,
+    "within5": 13,
+    "medianRatio": 1
+   },
+   "IFCFOOTING NetVolume": {
+    "stored": 13,
+    "offered": 6,
+    "within2": 6,
+    "within5": 6,
+    "medianRatio": 1
+   },
+   "IFCBEAM NetVolume": {
+    "stored": 79,
+    "offered": 68,
+    "within2": 68,
+    "within5": 68,
+    "medianRatio": 1
+   },
+   "IFCREINFORCINGBAR Weight": {
+    "stored": 33,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCPILE Length": {
+    "stored": 27,
+    "offered": 15,
+    "within2": 15,
+    "within5": 15,
+    "medianRatio": 1
+   },
+   "IFCPILE NetVolume": {
+    "stored": 27,
+    "offered": 15,
+    "within2": 15,
+    "within5": 15,
+    "medianRatio": 1
+   },
+   "IFCCOLUMN NetVolume": {
+    "stored": 11,
+    "offered": 10,
+    "within2": 10,
+    "within5": 10,
+    "medianRatio": 1
+   },
+   "IFCTENDON Weight": {
+    "stored": 1,
+    "offered": 0,
+    "within2": 0,
+    "within5": 0,
+    "medianRatio": null
+   },
+   "IFCBUILDINGELEMENTPROXY NetVolume": {
+    "stored": 3,
+    "offered": 3,
+    "within2": 3,
+    "within5": 3,
+    "medianRatio": 1
+   }
+  }
+ }
+}

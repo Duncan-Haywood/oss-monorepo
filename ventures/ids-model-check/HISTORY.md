@@ -39,3 +39,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-23, restored) slab Width/Perimeter 2026-11-22, 396/396, 375/377 (eval/slab-width-perimeter-2026-11-22.md)
 - (moved 2026-11-23, restored) space Qto_ 2026-11-22, eval/space-quantities-2026-11-22.md
 - (moved 2026-11-23, restored) HTML report 2026-11-21, eval/html-report-2026-11-21.md
+- (moved 2026-11-23) room test skips zero-volume pieces 2026-11-23 (29 of 852 rooms had been emptied or swollen), 1,218/1,227 right, eval/cobie-flat-pieces-2026-11-23.md
