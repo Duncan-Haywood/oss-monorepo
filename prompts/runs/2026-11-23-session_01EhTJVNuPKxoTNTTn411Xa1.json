@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVNuPKxoTNTTn411Xa1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (continue work on the repo ...)",
+  "input_sha256": "80aa98475ab589b77b3017213e40db2e9199b1291c7eb6a453aebf9debc367c8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T22:44:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator flagship item: a worker for the slow race tables",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 18488,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first eval design (re-run full playoffRace with 2M nodes per question on every slow table) projected hours of runtime; killed and redesigned the worker to ask only the status yes/no questions for alive teams",
+      "fix": "race-worker.mjs deepRace; eval runs in ~25 min"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-league-race-table-slow-tables-in-a-web-worker.md"
+  ],
+  "goal": null,
+  "notes": "Added race-worker.mjs (Web Worker, status questions for alive teams in passes of 200k/2M nodes, then magic numbers at 20k nodes, 30 s box), page wiring in index.html (quick table first, redraw per update, stale answers dropped), race-worker.test.mjs (5 tests incl. 200 random leagues vs enumeration), eval/race-budget.mjs (+txt), eval/browser-race-worker.mjs (+txt, Chromium). Verification here: run_venture_tests.py league-schedule-generator: 996 tests ok (264.6 s); venture-preflight.mjs: clean; check_posts ok; validate.py ok. Finding: on 606 slow real tables the worker lowered 553 magic numbers (616 pts) and settled only 3 statuses (2 team-races, 3 dates) because the page thread's stopAt questions already settle almost every status; 0 wrong calls.",
+  "corrections": [],
+  "redteam": null
+}

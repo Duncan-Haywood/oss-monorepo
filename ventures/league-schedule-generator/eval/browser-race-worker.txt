@@ -1,0 +1,9 @@
+ok   the quick table says a longer search is running (758 ms to the first table)
+ok   the page answered in 1 ms while the worker ran
+worker answered after 1748 ms: Many games remain; a longer search in the background proved every team's status, so every team marked alive can still finish either side of the line
+page thread: 1 clinched, 0 out, 19 alive
+after worker: 1 clinched, 0 out, 19 alive
+ok   the worker settled 0 team(s) and lowered 5 magic number(s) the page thread showed
+ok   no magic number raised (0)
+ok   no status contradicts the final table (0) or undoes the page's (0)
+ok   no page errors

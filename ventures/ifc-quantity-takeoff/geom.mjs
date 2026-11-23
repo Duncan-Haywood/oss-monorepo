@@ -1412,6 +1412,10 @@ export class Geometry {
         if (e.type === "IFCADVANCEDBREPWITHVOIDS") for (const s of a[1] || []) parts.push({ s: -1, faces: this.advancedShellLoops(s) });
         const out = faceted(parts);
         out.mesh += bulgeVolume(parts, out.shells);
+        const oe = offEdges(parts);
+        if (oe.bound > 1e-3 * Math.abs(out.mesh)) {
+          out.notes.push(`curved faces stand up to ${(oe.max * 1000).toPrecision(2)} mm off the edges that bound them (the exporter's approximation): volume read from the faces; a figure fitted to the edges can differ by up to ${(100 * oe.bound / Math.abs(out.mesh || 1)).toPrecision(2)}%`);
+        }
         return out;
       }
       case "IFCSHELLBASEDSURFACEMODEL":
@@ -1919,6 +1923,9 @@ export class Geometry {
       if (V3[i] === V3[j] || V3[j] === V3[k] || V3[i] === V3[k]) continue;
       const t = [V3[i], V3[j], V3[k]];
       t.sag = [sagOf(i, j), sagOf(j, k), sagOf(k, i)];
+      // how far the surface stands off the edges bounding this face, for
+      // offEdges(): a mesh fitted to the edges instead can differ by that
+      t.off = off;
       tris.push(t);
     }
     return tris;
@@ -2441,6 +2448,25 @@ function matchInnerBounds(face) {
  * so the inscribed mesh's error falls from the sag (about the tolerance) to
  * its next order.
  */
+/**
+ * How far an advanced brep's curved faces stand off the edges that bound
+ * them: exporters write B-spline faces that only approximate the circles
+ * their edges follow (kleine_Wohnung #207997's half cones, cubic B-splines
+ * with every weight 1, enclose 0.12% less than the circular frustum their
+ * edges and caps describe; eval/off-edges-2026-11-23.md). Returns the
+ * largest distance and the sum over each face's triangles of that face's
+ * distance times the triangle's area: the most volume a solid fitted to the
+ * edges instead of the faces can differ by.
+ */
+export function offEdges(parts) {
+  let max = 0, bound = 0;
+  for (const { faces } of parts) for (const f of faces) for (const t of f) if (t.off > 0) {
+    max = Math.max(max, t.off);
+    bound += t.off * norm(cross(sub(t[1], t[0]), sub(t[2], t[0]))) / 2;
+  }
+  return { max, bound };
+}
+
 function bulgeVolume(parts, shells) {
   if (!shells) return 0;
   const sags = new Map();

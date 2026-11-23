@@ -399,9 +399,9 @@ flagships:
       2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
       open in NEXT.md. Season import 2026-11-23 (importschedule.mjs, 819/819
       round-trip, eval/import-roundtrip.txt); next: a real league's export. Clinch
-      watch, exact magic numbers, race supply cut 2026-11-23 (race-exact.mjs,
-      eval/race-real.txt: 0 wrong, 90.1% of tables proved); next: a worker for the
-      slow tables, a real league's published numbers. More: NEXT.md.
+      watch, exact magic numbers, race supply cut, slow tables in a worker
+      2026-11-23 (race-worker.mjs, eval/race-budget.txt: 553 magic numbers lowered,
+      0 wrong); next: a real league's published numbers. More: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
@@ -605,10 +605,9 @@ flagships:
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); figures
       in doubt 2026-11-23 (eval/in-doubt-2026-11-23.md, node eval/in-doubt.mjs): HHS
-      construction #1405/#4407, M3D-CON-CD's 7 Tekla plates; #207997's 0.117%
-      (eval/curved-sag-2026-11-23.md; reference JSONs in eval/); revisions:
-      EngiWorld's Archicad gui and cross-software pairs
-      (eval/engiworld-archicad-diff-2026-11-23.md, Left).
+      construction #1405/#4407, M3D-CON-CD's 7 Tekla plates (#207997 settled: faces
+      vs circles, eval/off-edges-2026-11-23.md); revisions: EngiWorld's Archicad gui
+      and cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

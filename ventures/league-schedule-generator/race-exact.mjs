@@ -296,3 +296,9 @@ export function exactMagic(pts, remaining, i, k, outcomes, { budget = RACE_MAGIC
   }
   return { magic, proved, nodes };
 }
+
+// The page's race worker (race-worker.mjs, 2026-11-23) asks the status questions of the tables the page
+// thread could not prove again, off the page thread, with these budgets per question, pass by pass;
+// eval/race-budget.mjs measures them on real seasons.
+export const RACE_WORKER_PASSES = [200000, 2000000];
+export const RACE_WORKER_MAGIC_BUDGET = 20000;
