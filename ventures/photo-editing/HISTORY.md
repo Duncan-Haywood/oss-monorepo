@@ -18,3 +18,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) mpcw1 (select once at mpcw's level) failed its gates 2026-11-22: 1.48x mpcw on that tile, +0.01 of mpcws's +0.26 dB
 - (moved 2026-11-22) mpcws (held +0.31 dB) failed on K-1 II not by a noisy truth: a green-pair truth read failed its validity tests 2026-11-22, and mpcws's own selection over-reads 2.3x there (eval/noise-pca-mpcws-noisy-truth-*)
 - (moved 2026-11-22) q ramps refit 2026-11-22 (eval/hdrplus-ramp-fit-*): ship's pick fails h3/h4 on 79 fresh bursts, ramps stay
+- (moved 2026-11-23) mpcws, colour ramp (0.3, 1.0), 4 blind draws (eval/hdrplus-joint-check-*): J4 passed on 111 HDR+ bursts, J5 held it on 126

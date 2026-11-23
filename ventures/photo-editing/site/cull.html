@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cull camera raw files in your browser, with Lightroom XMP ratings | ShootFlow</title>
+  <meta name="description" content="Free raw photo culler: drop a card's NEF, CR3, ARW, RAF, ORF or DNG files, rate and reject by keyboard, and download XMP sidecars Lightroom reads. Nothing uploaded.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://marisstella.app/photo-editing/cull.html">
+  <meta property="og:title" content="Cull camera raw files in your browser | ShootFlow">
+  <meta property="og:description" content="Rate and reject a shoot's raw files from their embedded previews, find the sharpest frame in each burst, and download XMP sidecars for Lightroom, Capture One or darktable. Free, nothing uploaded.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ShootFlow Cull","url":"https://marisstella.app/photo-editing/cull.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any (runs in the browser)","browserRequirements":"A current Chrome, Edge, Firefox or Safari","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"A browser photo culler for camera raw files. It reads the JPEG preview each raw file carries, lets you rate, colour-label and reject by keyboard, groups bursts and ranks them by detail, and writes XMP sidecars with xmp:Rating and xmp:Label. Files never leave the computer."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Are my photos uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The page reads the files with your browser's File API on your own computer. Nothing is sent anywhere; you can disconnect from the internet after the page loads and it still works."}},
+    {"@type":"Question","name":"Will Lightroom see my ratings?","acceptedAnswer":{"@type":"Answer","text":"Yes for raw files: put the downloaded .xmp files next to the raws before you import, and Lightroom Classic reads xmp:Rating (stars, −1 for rejected) and xmp:Label. Lightroom does not read sidecars for JPEG or DNG files, which keep metadata inside the file."}},
+    {"@type":"Question","name":"Why does a preview look different from my raw editor?","acceptedAnswer":{"@type":"Answer","text":"It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you."}}
+  ]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--accent-soft:#f3e3dc;--panel:#fffdf8;--code:#fff;--sel:#2563eb;--rej:#9b1c1c}
+    @media (prefers-color-scheme:dark){:root{color:#ece6dc;background:#1b1d20;--ink:#ece6dc;--muted:#b4ada3;--line:#3a3d42;--accent:#f0a48c;--accent-soft:#3a2a24;--panel:#23262a;--code:#17191c;--sel:#60a5fa;--rej:#f87171}}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg,transparent)}
+    main{max-width:1200px;margin:auto;padding:2rem 1rem}
+    h1{font-size:clamp(1.7rem,4.4vw,2.6rem);line-height:1.08;margin:0 0 .7rem;max-width:24ch}
+    h2{font-size:1.3rem;margin:0 0 .6rem}
+    p.lede{color:var(--muted);max-width:66ch;margin:0 0 1.2rem}
+    a{color:var(--accent)}
+    .eyebrow{font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 .5rem}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.25rem 0}
+    .drop{border:2px dashed var(--line);border-radius:14px;padding:1.5rem;text-align:center;background:var(--panel)}
+    .drop.over{border-color:var(--accent);background:var(--accent-soft)}
+    .drop p{margin:.3rem 0;color:var(--muted)}
+    button,select,.btn{font:inherit;border-radius:8px;border:1px solid var(--accent);background:var(--panel);color:var(--accent);padding:.45rem .8rem;font-weight:600;cursor:pointer}
+    button.primary,label.primary{background:var(--accent);color:var(--panel)}
+    label.btnlike{display:inline-block;border-radius:8px;border:1px solid var(--accent);padding:.45rem .8rem;font-weight:600;cursor:pointer;color:var(--accent)}
+    label.btnlike.primary{background:var(--accent);color:var(--panel)}
+    select{max-width:100%}
+    .bar label{max-width:100%}
+    label.btnlike input{position:absolute;width:1px;height:1px;opacity:0}
+    button:disabled{opacity:.45;cursor:default}
+    .bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.75rem 0}
+    .bar .grow{flex:1}
+    .bar[hidden],section[hidden]{display:none}
+    .status{font-size:.9rem;color:var(--muted)}
+    progress{width:160px}
+    #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem;margin:.5rem 0}
+    .tile{position:relative;background:var(--panel);border:2px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
+    .tile.sel{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel)}
+    .tile canvas{display:block;width:100%;height:140px;object-fit:contain;background:#111}
+    .tile.rej canvas{opacity:.3}
+    .tile .cap{font-size:.75rem;padding:.3rem .45rem;display:flex;justify-content:space-between;gap:.3rem;align-items:center}
+    .tile .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+    .tile .stars{color:#c58a00;white-space:nowrap;letter-spacing:-.05em}
+    .tile .lab{position:absolute;left:0;top:0;width:100%;height:5px}
+    .tile .badge{position:absolute;right:.3rem;top:.4rem;font-size:.68rem;font-weight:700;padding:.05rem .35rem;border-radius:6px;background:rgba(0,0,0,.65);color:#fff}
+    .tile .rejmark{position:absolute;left:.4rem;top:.4rem;font-size:.75rem;font-weight:800;color:#fff;background:var(--rej);border-radius:6px;padding:0 .35rem}
+    .tile .burst{position:absolute;left:.4rem;bottom:2rem;font-size:.66rem;color:#fff;background:rgba(0,0,0,.55);border-radius:6px;padding:0 .3rem}
+    #loupe{position:fixed;inset:0;background:rgba(10,10,12,.96);display:none;flex-direction:column;z-index:10;color:#eee}
+    #loupe.open{display:flex}
+    #loupe .top{display:flex;gap:.75rem;align-items:center;padding:.5rem .8rem;font-size:.85rem;flex-wrap:wrap}
+    #loupe .top .grow{flex:1}
+    #loupe button{background:#222;color:#eee;border-color:#555}
+    #loupeCanvas{flex:1;min-height:0;width:100%;cursor:zoom-in;touch-action:none}
+    #loupe.zoom #loupeCanvas{cursor:grab}
+    .keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.3rem 1rem;font-size:.9rem;padding:0;list-style:none}
+    kbd{font:600 .8rem ui-monospace,Menlo,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 .3rem;background:var(--code)}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th,td{text-align:left;padding:.45rem .4rem;border-top:1px solid var(--line);vertical-align:top}
+    .muted{color:var(--muted)}
+    .err{color:var(--rej)}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
+    @media (max-width:600px){#grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.tile canvas{height:110px}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="./">ShootFlow</a> · free, runs in your browser</p>
+  <h1>Cull a card of raw files in your browser.</h1>
+  <p class="lede">Drop a shoot's raw files. The page shows each one from the JPEG the camera stored inside it, so hundreds open in seconds with no raw decoding. Rate, label and reject from the keyboard, see the sharpest frame of each burst, then download XMP sidecars that Lightroom, Bridge, Capture One or darktable read on import. Nothing is uploaded.</p>
+
+  <div class="drop" id="drop">
+    <p><strong>Drop raw files or a folder here</strong></p>
+    <p>NEF, CR3, CR2, ARW, RAF, ORF, RW2, PEF, SRW, DNG and JPEG</p>
+    <div class="bar" style="justify-content:center">
+      <label class="btnlike primary">Choose files<input type="file" id="pickFiles" multiple accept=".nef,.nrw,.cr3,.cr2,.arw,.sr2,.raf,.orf,.rw2,.pef,.srw,.dng,.rwl,.iiq,.3fr,.erf,.jpg,.jpeg"></label>
+      <label class="btnlike">Choose a folder<input type="file" id="pickFolder" webkitdirectory multiple></label>
+    </div>
+  </div>
+
+  <div class="bar" id="toolbar" hidden>
+    <span class="status" id="status" role="status" aria-live="polite"></span>
+    <progress id="prog" max="1" value="0" hidden></progress>
+    <span class="grow"></span>
+    <label class="status">Show <select id="filter">
+      <option value="all">All</option>
+      <option value="picks">Rated 1+</option>
+      <option value="3">Rated 3+</option>
+      <option value="unrated">Unrated</option>
+      <option value="rejected">Rejected</option>
+      <option value="best">Sharpest of each burst</option>
+    </select></label>
+    <label class="status">Sort <select id="sort">
+      <option value="time">Capture time</option>
+      <option value="name">File name</option>
+      <option value="sharp">Detail (most first)</option>
+    </select></label>
+  </div>
+
+  <div id="grid" role="listbox" aria-label="Photos" tabindex="0"></div>
+
+  <section id="exportBox" hidden aria-labelledby="exp">
+    <h2 id="exp">Take your choices to your editor</h2>
+    <div class="bar">
+      <label class="status">Sidecar names <select id="sidecarStyle">
+        <option value="adobe">IMG_0001.xmp (Lightroom, Bridge, Capture One)</option>
+        <option value="darktable">IMG_0001.CR3.xmp (darktable, digiKam)</option>
+      </select></label>
+      <label class="status"><input type="checkbox" id="onlyMarked" checked> only frames I rated, labelled or rejected</label>
+    </div>
+    <div class="bar">
+      <button class="primary" id="dlXmp">Download XMP sidecars (.zip)</button>
+      <button id="dlPicks">Picks list (.txt)</button>
+      <button id="dlCsv">All frames (.csv)</button>
+    </div>
+    <p class="muted">Unzip the sidecars into the folder that holds the raw files, then import. Lightroom reads sidecar ratings for raw files only; it keeps JPEG and DNG metadata inside the file, so ratings for those will not carry over this way. In Lightroom, a rating of −1 shows as rejected.</p>
+  </section>
+
+  <section aria-labelledby="keys-h">
+    <h2 id="keys-h">Keys</h2>
+    <ul class="keys">
+      <li><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move</li>
+      <li><kbd>Space</kbd> or <kbd>Enter</kbd> open or close the large view</li>
+      <li><kbd>1</kbd>–<kbd>5</kbd> stars, <kbd>0</kbd> clear stars</li>
+      <li><kbd>X</kbd> reject or un-reject</li>
+      <li><kbd>6</kbd> red, <kbd>7</kbd> yellow, <kbd>8</kbd> green, <kbd>9</kbd> blue label</li>
+      <li><kbd>Z</kbd> in the large view: 100% at the most detailed area (focus check); click to zoom where you point</li>
+      <li><kbd>Esc</kbd> close the large view</li>
+      <li><kbd>B</kbd> jump to the sharpest frame of this burst</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">How it works, and what it does not do</h2>
+    <p>Every camera raw file carries a JPEG made by the camera at capture. On most bodies from the last decade it is full size (on the files we tested: every Canon CR3, the newer CR2 and NEF files, Pentax, Samsung and the Sony A7 IV; Sony before the A7 IV, Fujifilm and Panasonic store about 1,600 to 1,920 px). The page finds that JPEG by the file's own pointers (TIFF tags, CR3 boxes, the RAF header, the Olympus maker note), with a byte scan as the last resort, and reads the camera, lens, exposure and capture time from the file's EXIF.</p>
+    <p>Bursts are frames from the same body taken no more than 1.5 s apart. "Detail" is the variance of a Laplacian filter in the busiest of 16 areas of the preview, the same kind of measure culling apps use for sharpness. It compares frames of the same scene well; it cannot tell a soft subject in front of a sharp background, and it favours busy scenes over plain ones. Treat the ranking as a hint and check focus at 100% with <kbd>Z</kbd>.</p>
+    <p>It shows the camera's JPEG, not a development of the raw data, so white balance and picture style are what the camera chose. For developing raw files with checked colour, see <a href="./">ShootFlow's command-line tools</a>.</p>
+    <p>Measured on 65 public sample files from 55 camera models (the <a href="https://github.com/drewnoakes/metadata-extractor-images">metadata-extractor-images</a> set): a preview was found in 61, and all 61 decode at the size read; in Chromium the page read all 65 (1.1 GB) in about 5 seconds. The four misses are two BigTIFF test files, a phone DNG with no JPEG inside and a truncated 368-byte file. Four 2005 to 2008 Olympus compacts give only a 160 × 120 thumbnail.</p>
+  </section>
+
+  <section aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>Are my photos uploaded?</h3>
+    <p>No. The page reads the files with your browser's File API on your own computer. Nothing is sent anywhere; you can disconnect from the internet after the page loads and it still works.</p>
+    <h3>Will Lightroom see my ratings?</h3>
+    <p>Yes for raw files: put the downloaded .xmp files next to the raws before you import, and Lightroom Classic reads <code>xmp:Rating</code> (stars, −1 for rejected) and <code>xmp:Label</code>. Lightroom does not read sidecars for JPEG or DNG files, which keep metadata inside the file.</p>
+    <h3>Why does a preview look different from my raw editor?</h3>
+    <p>It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you.</p>
+    <h3>Does it remember my ratings?</h3>
+    <p>In this browser only: ratings are kept in its local storage, keyed by file name and size, so reopening the same files brings them back. Download the sidecars to keep them anywhere else.</p>
+  </section>
+
+  <section aria-labelledby="priv">
+    <h2 id="priv">Privacy and usage</h2>
+    <p>Your files never leave your computer. The page keeps a few counters in this browser's local storage (files opened, downloads made) so the project can tell whether anyone uses it; they contain no file names or photos and are never sent anywhere by this page. <button type="button" id="optout">Turn usage counting off</button></p>
+  </section>
+  <section aria-labelledby="disc">
+    <h2 id="disc">Disclaimer</h2>
+    <p>Early-stage software. It only reads your files and never changes or deletes them; still, keep your own backups of all media.</p>
+    <p><strong>No warranty.</strong> This software is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  </section>
+  <footer><a href="./">ShootFlow</a>: card copies with checksums, offline culling, raw development and overnight grading. <a href="camera-raw-formats.html">Camera raw formats</a>. Open source, MIT licensed. Part of the tool catalogue.</footer>
+</main>
+
+<div id="loupe" role="dialog" aria-modal="true" aria-label="Large view">
+  <div class="top">
+    <strong id="lName"></strong>
+    <span id="lInfo"></span>
+    <span class="grow"></span>
+    <span id="lMarks"></span>
+    <button type="button" id="lZoom">100%</button>
+    <button type="button" id="lClose">Close</button>
+  </div>
+  <canvas id="loupeCanvas"></canvas>
+</div>
+
+<script type="module">
+import { readRaw, isCandidateFile, captureMillis, groupBursts, sharpness, xmpSidecar, sidecarName, zipStored, LABEL_KEYS } from "./rawpreview.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const $ = (id) => document.getElementById(id);
+const grid = $("grid");
+const items = [];          // every loaded frame
+let view = [];             // indices into items, filtered and sorted
+let sel = 0;               // position in view
+let loupeOpen = false, zoom = null;
+const STORE = "shootflow-cull-marks";
+const LABEL_COLOURS = { Red: "#dc2626", Yellow: "#eab308", Green: "#16a34a", Blue: "#2563eb" };
+
+function loadMarks() { try { return JSON.parse(localStorage.getItem(STORE) || "{}") || {}; } catch { return {}; } }
+let marks = loadMarks();
+function saveMarks() {
+  for (const it of items) {
+    const k = `${it.name}|${it.size}`;
+    if (it.rating || it.rejected || it.label) marks[k] = { r: it.rating, x: it.rejected ? 1 : 0, l: it.label };
+    else delete marks[k];
+  }
+  try { localStorage.setItem(STORE, JSON.stringify(marks)); } catch { /* storage is optional */ }
+}
+
+// ---------------------------------------------------------------- loading
+
+function orientedSize(w, h, o) { return o >= 5 ? [h, w] : [w, h]; }
+
+// Draws `img` (w x h as stored) onto ctx so it reads upright for EXIF
+// orientation `o`, filling a W x H output (already swapped for 5-8).
+function drawOriented(ctx, img, o, W, H) {
+  ctx.save();
+  switch (o) {
+    case 2: ctx.setTransform(-1, 0, 0, 1, W, 0); break;
+    case 3: ctx.setTransform(-1, 0, 0, -1, W, H); break;
+    case 4: ctx.setTransform(1, 0, 0, -1, 0, H); break;
+    case 5: ctx.setTransform(0, 1, 1, 0, 0, 0); break;
+    case 6: ctx.setTransform(0, 1, -1, 0, W, 0); break;
+    case 7: ctx.setTransform(0, -1, -1, 0, W, H); break;
+    case 8: ctx.setTransform(0, -1, 1, 0, 0, H); break;
+    default: break;
+  }
+  const [dw, dh] = o >= 5 ? [H, W] : [W, H];
+  ctx.drawImage(img, 0, 0, dw, dh);
+  ctx.restore();
+}
+
+function previewBlob(it) { return it.file.slice(it.preview.offset, it.preview.offset + it.preview.length, "image/jpeg"); }
+
+async function loadOne(file) {
+  const it = { file, name: file.name, size: file.size, rating: 0, rejected: false, label: "", error: "" };
+  try {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const r = readRaw(bytes, file.name);
+    it.format = r.format; it.meta = r.meta; it.preview = r.preview;
+    if (!r.preview) throw new Error(r.format ? "no embedded JPEG preview found" : "not a camera raw or JPEG file");
+    it.orient = r.preview.ownOrientation ? 1 : r.meta.orientation || 1;
+    it.t = captureMillis(r.meta);
+    it.body = [r.meta.make, r.meta.model, r.meta.serial].filter(Boolean).join(" ");
+    const bmp = await createImageBitmap(previewBlob(it));
+    // Thumbnail, upright.
+    const [ow, oh] = orientedSize(bmp.width, bmp.height, it.orient);
+    const ts = Math.min(1, 360 / Math.max(ow, oh));
+    const thumb = document.createElement("canvas");
+    thumb.width = Math.max(1, Math.round(ow * ts)); thumb.height = Math.max(1, Math.round(oh * ts));
+    drawOriented(thumb.getContext("2d"), bmp, it.orient, thumb.width, thumb.height);
+    it.thumb = thumb;
+    // Detail score on an upright copy no larger than 1024 px.
+    const ss = Math.min(1, 1024 / Math.max(ow, oh));
+    const c = document.createElement("canvas");
+    c.width = Math.round(ow * ss); c.height = Math.round(oh * ss);
+    const cx = c.getContext("2d", { willReadFrequently: true });
+    drawOriented(cx, bmp, it.orient, c.width, c.height);
+    const px = cx.getImageData(0, 0, c.width, c.height).data;
+    const grey = new Float32Array(c.width * c.height);
+    for (let i = 0, j = 0; j < grey.length; i += 4, j++) grey[j] = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+    const s = sharpness(grey, c.width, c.height, 4);
+    it.detail = s.peak;
+    it.peakCell = peakCell(grey, c.width, c.height, 4);
+    bmp.close?.();
+  } catch (e) {
+    it.error = e.message || String(e);
+  }
+  const m = marks[`${it.name}|${it.size}`];
+  if (m) { it.rating = m.r || 0; it.rejected = !!m.x; it.label = m.l || ""; }
+  return it;
+}
+
+// Centre of the busiest grid cell, as fractions of width and height.
+function peakCell(grey, w, h, g) {
+  let best = -1, bx = 0.5, by = 0.5;
+  const cw = Math.floor(w / g), ch = Math.floor(h / g);
+  for (let gy = 0; gy < g; gy++) for (let gx = 0; gx < g; gx++) {
+    const sub = new Float32Array(cw * ch);
+    for (let y = 0; y < ch; y++) sub.set(grey.subarray((gy * ch + y) * w + gx * cw, (gy * ch + y) * w + gx * cw + cw), y * cw);
+    const v = sharpness(sub, cw, ch, 1).peak;
+    if (v > best) { best = v; bx = (gx + 0.5) / g; by = (gy + 0.5) / g; }
+  }
+  return [bx, by];
+}
+
+async function addFiles(fileList) {
+  const files = [...fileList].filter((f) => isCandidateFile(f.name));
+  if (!files.length) { $("status").textContent = "None of those files look like camera raw or JPEG files."; $("toolbar").hidden = false; return; }
+  const known = new Set(items.map((it) => `${it.name}|${it.size}`));
+  const fresh = files.filter((f) => !known.has(`${f.name}|${f.size}`));
+  $("toolbar").hidden = false; $("exportBox").hidden = false;
+  const prog = $("prog"); prog.hidden = false; prog.max = fresh.length; prog.value = 0;
+  let done = 0, next = 0;
+  const t0 = performance.now();
+  const worker = async () => {
+    while (next < fresh.length) {
+      const f = fresh[next++];
+      items.push(await loadOne(f));
+      done++; prog.value = done;
+      $("status").textContent = `Reading ${done} of ${fresh.length}…`;
+      if (done % 12 === 0 || done === fresh.length) refresh(false);
+    }
+  };
+  await Promise.all([worker(), worker()]);
+  prog.hidden = true;
+  const bad = items.filter((it) => it.error).length;
+  const secs = ((performance.now() - t0) / 1000).toFixed(1);
+  record("files_loaded");
+  if (fresh.length >= 50) record("files_loaded_50_plus");
+  refresh(true);
+  $("status").textContent = `${items.length} files${bad ? `, ${bad} without a preview` : ""} (read ${fresh.length} in ${secs} s).`;
+}
+
+// ---------------------------------------------------------------- bursts and view
+
+function computeBursts() {
+  const ok = items.map((it, i) => ({ i, t: it.error ? null : it.t, body: it.body }));
+  const ids = groupBursts(ok, 1500);
+  const groups = new Map();
+  ids.forEach((id, i) => { items[i].burst = id; if (!groups.has(id)) groups.set(id, []); groups.get(id).push(i); });
+  for (const g of groups.values()) {
+    let best = -1, bestV = -1;
+    for (const i of g) { items[i].burstSize = g.length; items[i].best = false; if ((items[i].detail ?? -1) > bestV) { bestV = items[i].detail ?? -1; best = i; } }
+    if (g.length > 1 && best >= 0) items[best].best = true;
+    if (g.length === 1) items[g[0]].best = true;
+    g.sort((a, b) => (items[a].t ?? 0) - (items[b].t ?? 0)).forEach((i, k) => { items[i].burstPos = k + 1; });
+  }
+}
+
+function buildView() {
+  const f = $("filter").value, s = $("sort").value;
+  view = items.map((_, i) => i).filter((i) => {
+    const it = items[i];
+    if (f === "picks") return it.rating >= 1 && !it.rejected;
+    if (f === "3") return it.rating >= 3 && !it.rejected;
+    if (f === "unrated") return !it.rating && !it.rejected;
+    if (f === "rejected") return it.rejected;
+    if (f === "best") return it.best && !it.error;
+    return true;
+  });
+  const byName = (a, b) => items[a].name.localeCompare(items[b].name, undefined, { numeric: true });
+  if (s === "name") view.sort(byName);
+  else if (s === "sharp") view.sort((a, b) => (items[b].detail ?? -1) - (items[a].detail ?? -1) || byName(a, b));
+  else view.sort((a, b) => (items[a].t ?? Infinity) - (items[b].t ?? Infinity) || byName(a, b));
+}
+
+function tileHtml(it) {
+  const stars = it.rating ? "★".repeat(it.rating) : "";
+  const lab = it.label ? `<span class="lab" style="background:${LABEL_COLOURS[it.label]}"></span>` : "";
+  const rej = it.rejected ? `<span class="rejmark">✕</span>` : "";
+  const badge = it.error ? "" : it.burstSize > 1 && it.best ? `<span class="badge" title="Most detail in this burst">sharpest</span>` : "";
+  const burst = it.burstSize > 1 ? `<span class="burst">burst ${it.burstPos}/${it.burstSize}</span>` : "";
+  return `${lab}${rej}${badge}${burst}<div class="cap"><span class="name" title="${esc(it.name)}">${esc(it.name)}</span><span class="stars">${stars}</span></div>`;
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function refresh(full) {
+  computeBursts();
+  const keep = view[sel];
+  buildView();
+  if (keep !== undefined) { const p = view.indexOf(keep); sel = p >= 0 ? p : Math.min(sel, view.length - 1); }
+  if (sel < 0) sel = 0;
+  grid.textContent = "";
+  view.forEach((i, pos) => {
+    const it = items[i];
+    const el = document.createElement("div");
+    el.className = "tile" + (pos === sel ? " sel" : "") + (it.rejected ? " rej" : "");
+    el.setAttribute("role", "option");
+    el.setAttribute("aria-selected", pos === sel ? "true" : "false");
+    el.dataset.pos = pos;
+    if (it.thumb) { const c = document.createElement("canvas"); c.width = it.thumb.width; c.height = it.thumb.height; c.getContext("2d").drawImage(it.thumb, 0, 0); el.appendChild(c); }
+    else { const d = document.createElement("div"); d.style.cssText = "height:140px;display:grid;place-items:center;padding:.5rem;font-size:.75rem;text-align:center"; d.className = "err"; d.textContent = it.error || "…"; el.appendChild(d); }
+    el.insertAdjacentHTML("beforeend", tileHtml(it));
+    el.addEventListener("click", () => { select(pos); });
+    el.addEventListener("dblclick", () => { select(pos); openLoupe(); });
+    grid.appendChild(el);
+  });
+  if (full) grid.children[sel]?.scrollIntoView({ block: "nearest" });
+}
+
+function updateTile(pos) {
+  const el = grid.children[pos]; if (!el) return;
+  const it = items[view[pos]];
+  el.className = "tile" + (pos === sel ? " sel" : "") + (it.rejected ? " rej" : "");
+  el.setAttribute("aria-selected", pos === sel ? "true" : "false");
+  el.querySelectorAll(".lab,.rejmark,.badge,.burst,.cap").forEach((n) => n.remove());
+  el.insertAdjacentHTML("beforeend", tileHtml(it));
+}
+
+function select(pos) {
+  if (!view.length) return;
+  const old = sel;
+  sel = Math.max(0, Math.min(view.length - 1, pos));
+  updateTile(old); updateTile(sel);
+  grid.children[sel]?.scrollIntoView({ block: "nearest" });
+  if (loupeOpen) { zoom = null; drawLoupe(); }
+}
+
+function columns() {
+  const first = grid.children[0]; if (!first) return 1;
+  const top = first.offsetTop; let n = 0;
+  for (const c of grid.children) { if (c.offsetTop !== top) break; n++; }
+  return Math.max(1, n);
+}
+
+// ---------------------------------------------------------------- loupe
+
+let loupeBmp = null, loupeFor = -1;
+async function drawLoupe() {
+  const idx = view[sel]; const it = items[idx]; if (!it) return;
+  $("lName").textContent = it.name;
+  $("lInfo").textContent = describe(it);
+  $("lMarks").textContent = `${it.rejected ? "Rejected · " : ""}${it.rating ? "★".repeat(it.rating) : "unrated"}${it.label ? " · " + it.label : ""}`;
+  const canvas = $("loupeCanvas");
+  const W = canvas.clientWidth * devicePixelRatio, H = canvas.clientHeight * devicePixelRatio;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#0a0a0c"; ctx.fillRect(0, 0, W, H);
+  if (!it.preview) { ctx.fillStyle = "#eee"; ctx.font = `${16 * devicePixelRatio}px system-ui`; ctx.fillText(it.error || "No preview", 20, 40); return; }
+  if (loupeFor !== idx) {
+    loupeBmp?.close?.(); loupeBmp = null; loupeFor = idx;
+    loupeBmp = await createImageBitmap(previewBlob(it));
+    if (view[sel] !== idx) return;
+  }
+  const [ow, oh] = orientedSize(loupeBmp.width, loupeBmp.height, it.orient);
+  // Draw the upright image into an offscreen canvas once per frame view.
+  const up = document.createElement("canvas"); up.width = ow; up.height = oh;
+  drawOriented(up.getContext("2d"), loupeBmp, it.orient, ow, oh);
+  if (!zoom) {
+    const s = Math.min(W / ow, H / oh);
+    ctx.drawImage(up, (W - ow * s) / 2, (H - oh * s) / 2, ow * s, oh * s);
+    $("loupe").classList.remove("zoom");
+  } else {
+    // 1:1 in device pixels, kept inside the image; centred when smaller.
+    const sx = ow > W ? Math.min(ow - W, Math.max(0, zoom[0] * ow - W / 2)) : 0;
+    const sy = oh > H ? Math.min(oh - H, Math.max(0, zoom[1] * oh - H / 2)) : 0;
+    const vw = Math.min(W, ow), vh = Math.min(H, oh);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(up, sx, sy, vw, vh, (W - vw) / 2, (H - vh) / 2, vw, vh);
+    $("loupe").classList.add("zoom");
+  }
+}
+
+function cameraName(m) {
+  if (!m.model) return m.make || "";
+  const brand = (m.make || "").split(/[\s,]/)[0];
+  return brand && m.model.toLowerCase().startsWith(brand.toLowerCase()) ? m.model : `${m.make || ""} ${m.model}`.trim();
+}
+
+function describe(it) {
+  const m = it.meta || {};
+  const parts = [];
+  if (m.model) parts.push(cameraName(m));
+  if (m.exposureTime) parts.push(m.exposureTime >= 1 ? `${+m.exposureTime.toFixed(1)} s` : `1/${Math.round(1 / m.exposureTime)} s`);
+  if (m.fNumber) parts.push(`f/${+m.fNumber.toFixed(1)}`);
+  if (m.iso) parts.push(`ISO ${m.iso}`);
+  if (m.focalLength) parts.push(`${Math.round(m.focalLength)} mm`);
+  if (m.lens) parts.push(m.lens);
+  if (it.preview) parts.push(`preview ${it.preview.width}×${it.preview.height}`);
+  if (m.captured) parts.push(m.captured.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3"));
+  return parts.join(" · ");
+}
+
+function openLoupe() { if (!view.length) return; loupeOpen = true; zoom = null; $("loupe").classList.add("open"); drawLoupe(); }
+function closeLoupe() { loupeOpen = false; $("loupe").classList.remove("open"); grid.focus(); }
+function toggleZoom() { const it = items[view[sel]]; zoom = zoom ? null : (it?.peakCell || [0.5, 0.5]); drawLoupe(); }
+$("lClose").onclick = closeLoupe;
+$("lZoom").onclick = toggleZoom;
+$("loupeCanvas").addEventListener("click", (e) => {
+  const it = items[view[sel]]; if (!it || !loupeBmp) return;
+  if (zoom) { zoom = null; drawLoupe(); return; }
+  const c = e.currentTarget, r = c.getBoundingClientRect();
+  const [ow, oh] = orientedSize(loupeBmp.width, loupeBmp.height, it.orient);
+  const s = Math.min(r.width / ow, r.height / oh);
+  const x0 = (r.width - ow * s) / 2, y0 = (r.height - oh * s) / 2;
+  zoom = [Math.min(1, Math.max(0, (e.clientX - r.left - x0) / (ow * s))), Math.min(1, Math.max(0, (e.clientY - r.top - y0) / (oh * s)))];
+  drawLoupe();
+});
+addEventListener("resize", () => { if (loupeOpen) drawLoupe(); });
+
+// ---------------------------------------------------------------- marking
+
+function mark(fn) {
+  const it = items[view[sel]]; if (!it) return;
+  fn(it);
+  saveMarks();
+  const f = $("filter").value;
+  updateTile(sel);
+  if (loupeOpen) drawLoupe();
+  // Leaving a filtered view (e.g. rating an unrated frame) re-filters on the next move.
+  if (f !== "all" && f !== "best") pendingRefilter = true;
+}
+let pendingRefilter = false;
+
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest && e.target.closest("select,input,button") && !["Escape"].includes(e.key)) return;
+  if (!view.length) return;
+  const k = e.key;
+  const move = (d) => { if (pendingRefilter) { pendingRefilter = false; const cur = view[sel]; refresh(false); const p = view.indexOf(cur); sel = p >= 0 ? p : Math.max(0, sel - (d > 0 ? 1 : 0)); } select(sel + d); };
+  if (k === "ArrowRight") move(1);
+  else if (k === "ArrowLeft") move(-1);
+  else if (k === "ArrowDown") move(loupeOpen ? 1 : columns());
+  else if (k === "ArrowUp") move(loupeOpen ? -1 : -columns());
+  else if (k === " " || k === "Enter") loupeOpen ? closeLoupe() : openLoupe();
+  else if (k === "Escape") { if (loupeOpen) closeLoupe(); else return; }
+  else if (k >= "0" && k <= "5") mark((it) => { it.rating = +k; if (+k) it.rejected = false; });
+  else if (k >= "6" && k <= "9") mark((it) => { const l = LABEL_KEYS[+k]; it.label = it.label === l ? "" : l; });
+  else if (k === "x" || k === "X") mark((it) => { it.rejected = !it.rejected; });
+  else if ((k === "z" || k === "Z") && loupeOpen) toggleZoom();
+  else if (k === "b" || k === "B") {
+    const it = items[view[sel]];
+    const p = view.findIndex((i) => items[i].burst === it.burst && items[i].best);
+    if (p >= 0) select(p);
+  } else return;
+  e.preventDefault();
+});
+
+$("filter").onchange = () => { sel = 0; refresh(true); };
+$("sort").onchange = () => refresh(true);
+
+// ---------------------------------------------------------------- export
+
+function download(name, data, type) {
+  const url = URL.createObjectURL(new Blob([data], { type }));
+  const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+const marked = (it) => it.rating || it.rejected || it.label;
+
+$("dlXmp").onclick = () => {
+  const style = $("sidecarStyle").value, only = $("onlyMarked").checked;
+  const files = items.filter((it) => !only || marked(it)).map((it) => ({ name: sidecarName(it.name, style), data: xmpSidecar(it) }));
+  if (!files.length) { $("status").textContent = "Nothing rated, labelled or rejected yet: untick “only frames I rated” to write a sidecar for every frame."; return; }
+  download("shootflow-cull-sidecars.zip", zipStored(files), "application/zip");
+  record("sidecars_downloaded");
+};
+$("dlPicks").onclick = () => {
+  const picks = items.filter((it) => it.rating >= 1 && !it.rejected).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  download("picks.txt", picks.map((it) => it.name).join("\n") + "\n", "text/plain");
+  record("picks_downloaded");
+};
+$("dlCsv").onclick = () => {
+  const q = (v) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "detail", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "error"]];
+  for (const it of items) {
+    const m = it.meta || {};
+    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.detail != null ? it.detail.toFixed(1) : "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.error]);
+  }
+  download("shootflow-cull.csv", rows.map((r) => r.map(q).join(",")).join("\n") + "\n", "text/csv");
+  record("csv_downloaded");
+};
+
+// ---------------------------------------------------------------- inputs
+
+$("pickFiles").onchange = (e) => { addFiles(e.target.files); e.target.value = ""; };
+$("pickFolder").onchange = (e) => { addFiles(e.target.files); e.target.value = ""; };
+const drop = $("drop");
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", async (e) => {
+  e.preventDefault(); drop.classList.remove("over");
+  const entries = [...e.dataTransfer.items].map((i) => i.webkitGetAsEntry?.()).filter(Boolean);
+  if (!entries.length) return addFiles(e.dataTransfer.files);
+  const files = [];
+  const walk = async (en) => {
+    if (en.isFile) files.push(await new Promise((res, rej) => en.file(res, rej)));
+    else if (en.isDirectory) {
+      const reader = en.createReader();
+      for (;;) { const batch = await new Promise((res, rej) => reader.readEntries(res, rej)); if (!batch.length) break; for (const b of batch) await walk(b); }
+    }
+  };
+  for (const en of entries) await walk(en);
+  addFiles(files);
+});
+
+const optBtn = $("optout");
+const syncOpt = () => { optBtn.textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+optBtn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+syncOpt();
+</script>
+</body>
+</html>

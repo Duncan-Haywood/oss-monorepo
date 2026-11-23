@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKRhceUByrKQVYPXQR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "b40972142ae5c43905e5061c6c93473a943782620597092120d0e7a390a0b170",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T16:56:43Z",
+  "ended": "2026-11-23T17:08:45Z",
+  "wall_minutes": 12.26,
+  "tokens_in": 7797812,
+  "tokens_out": 65549,
+  "cost_usd": 4.0524,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18451",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First preflight failed check_hidden_unicode: a literal U+FEFF in the XMP packet header string (the Python edit turned the escape into the character); written as \\uFEFF.",
+    "Playwright setInputFiles refuses files from several directories ('Multiple directories are not supported'); hard-linked the samples into one folder."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing's buildable items are all noise-read tuning sweeps; the product has no browser surface a photographer can try, which the row never names. Took a product slice inside the same flagship instead."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`python3 platform/ci/pyenv.py pillow` returned the system python3 whose Pillow cannot import _imaging; a plain venv with pip install pillow worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here pointed at photo-editing's second item (more noise-read sweeps that four recent sessions judged spent). Stayed on the flagship but built its first no-install user surface: a browser culler.",
+      "did": "site/cull.html + site/rawpreview.mjs, eval on 65 public raws, landing link, llms.txt, post",
+      "result": "preview found in 61 of 65 files, all 61 decode; page reads 65 files in ~5 s in Chromium"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-photo-editing-cull-raw-files-in-the-browser.md",
+    "ventures/photo-editing/eval/cull-page-previews-2026-11-23.md",
+    "ventures/photo-editing/README.md (Cull raw files in the browser)"
+  ],
+  "goal": null,
+  "notes": "Checks run here: node --test site/rawpreview.test.mjs site/usage.test.mjs (19 pass); eval/cull-page-previews.mjs on metadata-extractor-images (61/65 previews), eval/cull-page-previews-decode.py (decoded 61, failed 0); Playwright Chromium run of cull.html on all 65 files incl. keys, loupe, zoom, sidecar ZIP, CSV, 390px viewport (no overflow, no page errors); venture-preflight (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6d1ea4ae-72a4-5da7-ad3b-e15910035dd5",
+    "transcripts": 1,
+    "first": "2026-11-23T16:56:43Z",
+    "last": "2026-11-23T17:08:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 65549,
+        "thinking": 11346,
+        "cache_read": 7646234,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151460,
+        "api_equivalent_usd": 4.0524,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 65549,
+      "thinking": 11346,
+      "cache_read": 7646234,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151460,
+      "api_equivalent_usd": 4.0524,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 53,
+      "Write": 6,
+      "Read": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.26,
+      "active_minutes": 12.26,
+      "model_minutes": 10.1,
+      "tool_minutes": 2.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a senior front-end dev building a multi-format raw preview parser, keyboard culling UI and XMP export with a 65-file check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 394.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
