@@ -391,6 +391,103 @@ export function bendsInPlan(s, up, t, minDirs = 12) {
 }
 
 /**
+ * The two faces of a wall that bends in plan (`bendsInPlan`), measured on its
+ * own facets: {outer, inner, rOuter, rInner, centre}, areas in model units.
+ * The faces standing along `up` are summed plane by plane as signed area
+ * vectors over every term and shell, so the faces convex pieces share cancel
+ * and an opening's cutter (a negative term) takes its patch off the face it
+ * crosses. The centre of the bend is where the facets' normals meet in plan
+ * (least squares, weighted by area); a facet whose normal points away from
+ * it is on the outer face, towards it the inner, and one at more than 25
+ * degrees to the radius (an end, a reveal) on neither. rOuter and rInner are
+ * the faces' area-weighted distances from the centre. null when fewer than
+ * `minDirs` facets stand on either face or the normals do not meet (a wall
+ * that is straight after all).
+ */
+export function curvedFaces(s, up, minDirs = 6) {
+  if (s.mesh && !s.shells) return null;
+  const u = unit(up);
+  if (!u) return null;
+  const loops = [];
+  for (const t of s.terms) for (const f of t.faces) loops.push([t.s, f]);
+  if (s.shells) for (const sh of s.shells) for (const l of sh.loops) loops.push([sh.s, l]);
+  let scale = 0;
+  for (const [, l] of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
+  const planes = new Map();
+  for (const [sg, l] of loops) {
+    if (l.length < 3) continue;
+    const a = mulS(newell(l), 0.5 * sg);
+    const n = unit(a);
+    if (!n || Math.abs(dot(n, u)) > 1e-3) continue;
+    const i = Math.abs(n[0]) > 1e-9 ? 0 : Math.abs(n[1]) > 1e-9 ? 1 : 2;
+    const c = n[i] < 0 ? mulS(n, -1) : n;
+    const r = (x, q) => Math.round(x / q);
+    const key = `${r(c[0], 1e-6)},${r(c[1], 1e-6)},${r(c[2], 1e-6)},${r(dot(c, l[0]), 1e-6 * (scale || 1))}`;
+    const m = mulS(l.reduce((q, p) => add(q, p), [0, 0, 0]), 1 / l.length);
+    const v = planes.get(key) || { a: [0, 0, 0], loops: [] };
+    v.a = add(v.a, a);
+    v.loops.push([a, m]);
+    planes.set(key, v);
+  }
+  // each plane's net area, outward normal and a point on it (its loops'
+  // centroids weighted by their signed share of the net area)
+  const P = [];
+  for (const v of planes.values()) {
+    const area = norm(v.a);
+    if (!(area > 1e-12 * (scale * scale || 1))) continue;
+    const n = mulS(v.a, 1 / area);
+    let w = 0, m = [0, 0, 0];
+    for (const [a, c] of v.loops) { const x = dot(a, n); w += x; m = add(m, mulS(c, x)); }
+    if (!(w > 0)) continue;
+    P.push({ n, area, p: mulS(m, 1 / w) });
+  }
+  if (P.length < 2 * minDirs) return null;
+  // two directions across `up`
+  const e1 = unit(cross(u, Math.abs(u[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0]));
+  const e2 = cross(u, e1);
+  const to2 = (x) => [dot(x, e1), dot(x, e2)];
+  // least-squares point nearest the facets' normal lines in plan, refitted
+  // without the facets that do not face it: the ends, which pull it off when
+  // cut square to the plan axes rather than along a radius (dental_clinic's
+  // partitions #1674, #1675, whose ends meet the radius at about 52 degrees).
+  // A facet of a circle faces its centre exactly; 25 degrees leaves room for
+  // a facet drawn off a coarse polygon.
+  const cosMax = Math.cos((25 * Math.PI) / 180);
+  const fit = (fs) => {
+    let a11 = 0, a12 = 0, a22 = 0, b1 = 0, b2 = 0;
+    for (const f of fs) {
+      const [nx, ny] = to2(f.n), [px, py] = to2(f.p);
+      const h = Math.hypot(nx, ny);
+      if (!(h > 0)) continue;
+      const x = nx / h, y = ny / h, w = f.area;
+      const m11 = 1 - x * x, m12 = -x * y, m22 = 1 - y * y;
+      a11 += w * m11; a12 += w * m12; a22 += w * m22;
+      b1 += w * (m11 * px + m12 * py); b2 += w * (m12 * px + m22 * py);
+    }
+    const D = a11 * a22 - a12 * a12;
+    if (!(Math.abs(D) > 1e-9 * (a11 + a22) * (a11 + a22))) return null;
+    return [(a22 * b1 - a12 * b2) / D, (a11 * b2 - a12 * b1) / D];
+  };
+  const facing = (f, C) => {
+    const [nx, ny] = to2(f.n), [px, py] = to2(f.p);
+    const dx = px - C[0], dy = py - C[1], d = Math.hypot(dx, dy), h = Math.hypot(nx, ny);
+    if (!(d > 0) || !(h > 0)) return [0, 0];
+    return [(nx * dx + ny * dy) / (h * d), Math.abs((nx * dx + ny * dy) / h)];
+  };
+  let C = fit(P);
+  if (!C) return null;
+  for (let i = 0; i < 3; i++) C = fit(P.filter((f) => Math.abs(facing(f, C)[0]) > cosMax)) ?? C;
+  let outer = 0, inner = 0, ro = 0, ri = 0, no = 0, ni = 0;
+  for (const f of P) {
+    const [c, dist] = facing(f, C);
+    if (c > cosMax) { outer += f.area; ro += f.area * dist; no++; }
+    else if (c < -cosMax) { inner += f.area; ri += f.area * dist; ni++; }
+  }
+  if (no < minDirs || ni < minDirs || !(outer > 0) || !(inner > 0)) return null;
+  return { outer, inner, rOuter: ro / outer, rInner: ri / inner, centre: C };
+}
+
+/**
  * Area of the section of a solid by the plane normal to n through the middle
  * of its extent along n (or at offset k when given). null when the solid has a
  * faceted part whose faces are not all known (see `shells`).
