@@ -31,6 +31,17 @@ k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub> model: `python3 src/foldcheck.py --f
 reports the Kinect's board fit folding at 380.8 px against a 415.7 px corner (exit 1). Run it before trusting a two-term
 calibration near the image edge; milestone 3zd found such a fit 14&ndash;17 px off there.
 
+**Milestone 3zf headline** (do deployed robots' camera calibrations fold inside the image, and does OpenCV undistort their corners?):
+**they do not fold, but OpenCV's default `undistortPoints` misses their corners by about 10 px.** Over 179 distinct ROS `camera_info`
+calibrations (169 Duckietown robots with a 160&deg; lens and ROS's two-term fit, 9 Baidu Apollo vehicle cameras, a Duckiedrone), none of the
+169 Duckiebots folds inside its image, yet `cv2.undistortPoints` &rarr; `cv2.projectPoints` at the image corners is off by a median **10.2 px**
+(164 of 169 over 1 px, worst 526 px) with OpenCV's default criterion (5 iterations). Raising the count alone leaves 40 still over 1 px at 200;
+passing `criteria=(cv2.TERM_CRITERIA_COUNT | cv2.TERM_CRITERIA_EPS, 200, 1e-12)` closes every non-folding model to **0.01 px**, and then
+the round trip flags the two that do fold: KITTI's raw camera 3 (as shipped in Apollo, 748 px fold against a 753 px corner) and a
+Duckiedrone, both **three-term** models. Corner errors are the worst case; one OpenCV version (5.1.0). Two of six predictions held. [Log](LOG.md).
+
+![Duckietown fleet calibrations in the (k1, k2) plane against the fold region, and OpenCV's corner round-trip error against undistortPoints iterations](experiments/m3zf_ros/fleet.png)
+
 **Milestone 3ze headline** (do the camera calibrations that ship with open-source SLAM and VIO systems fold inside their own image?):
 **no, none of 14.** Across 55 example configs of ORB-SLAM2/3, VINS-Mono/Fusion, OpenVINS and Kimera-VIO (70 cameras; 14 distinct non-zero
 pinhole radial-tangential calibrations: TUM RGB-D, EuRoC, KAIST, RealSense and the authors' rigs), no radial model folds before its image
@@ -1243,6 +1254,8 @@ default: with the transferred factor the rule made a harmful adoption in 1.4% of
 
 ```
 pip install numpy scipy opencv-python-headless matplotlib pytest
+python3 experiments/m3zf_ros/fetch.py --work /tmp/m3zf   # milestone 3zf, 198 ROS camera_info files via git at pinned commits; calibs.json (committed)
+python3 experiments/m3zf_ros/analyse.py      # seconds; summary.json, results.txt, fleet.png
 python3 experiments/m3ze_fleet/fetch.py      # milestone 3ze, 55 SLAM/VIO configs from raw.githubusercontent.com; calibs.json (committed)
 python3 experiments/m3ze_fleet/analyse.py    # seconds; summary.json, results.txt, fleet.png
 python3 experiments/m3t_poolprior/analyse.py   # milestone 3t, analysis of saved solves, <1 s; summary.json, poolprior.png
@@ -1378,6 +1391,12 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3zf: deployed wide-lens calibrations (169 Duckiebots) do not fold, but OpenCV's default `undistortPoints` misses their
+corners by a median 10.2 px; a COUNT|EPS criterion with 200 iterations closes them to 0.01 px; the folds found are three-term models (KITTI
+raw camera 3, a Duckiedrone). Next: how much of a real front end's feature set the default criterion moves (corners are the worst case),
+on the Duckietown logs if reachable; why COUNT-only iteration stalls where COUNT|EPS converges (OpenCV's source); the paper's
+Recommendation 9 rewritten (pass a criterion; check the fold radius whatever the term count); KITTI's own calibration file.
 
 After milestone 3ze: none of 14 distinct calibrations shipped with five open-source SLAM/VIO systems folds inside its image (OpenCV's corner
 round trip within 0.13 px on all; up to 38 px on the project's folding Kinect fit). Next: the paper's Recommendation 9 narrowed to "check your
