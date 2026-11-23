@@ -86,3 +86,30 @@ def test_zero_shift_is_no_shift_and_shift_moves_takeup(setup):
     mixed = np.r_[np.full(50, -2.0), np.full(50, 2.0)]
     Y = cx.simulate(v, beta, 0.05, 0.3, 100, np.random.default_rng(6), shift=mixed)
     assert Y[:, :50].mean() < Y[:, 50:].mean()
+
+
+def test_heterogeneous_threshold_tends_to_fixed_threshold(setup):
+    # milestone 28: kappa -> infinity concentrates theta_i at mu, the fixed threshold
+    V, beta = setup
+    v = V[2]
+    t = cx.simulate(v, beta, 0.075, 0.1, 1500, np.random.default_rng(4), theta=0.6).mean()
+    h = cx.simulate(v, beta, 0.075, 0.1, 1500, np.random.default_rng(5),
+                    theta_beta=(0.6, 1e6)).mean()
+    assert abs(t - h) < 0.01
+
+
+def test_heterogeneous_threshold_lower_mean_raises_takeup(setup):
+    V, beta = setup
+    v = V[3]
+    m = [cx.simulate(v, beta, 0.075, 0.1, 400, np.random.default_rng(6),
+                     theta_beta=(mu, 5.0)).mean() for mu in (0.3, 0.5, 0.75)]
+    i = cx.simulate(v, beta, 0.075, 0.1, 400, np.random.default_rng(6)).mean()
+    assert m[0] > m[1] > m[2] > i
+
+
+def test_heterogeneous_threshold_adopters_are_informed(setup):
+    V, beta = setup
+    v = V[0]
+    Y, I = cx.simulate(v, beta, 0.05, 0.3, 60, np.random.default_rng(7), return_informed=True,
+                       theta_beta=(0.4, 2.0))
+    assert (Y <= I).all()

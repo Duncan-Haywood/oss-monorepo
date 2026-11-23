@@ -12,6 +12,8 @@ Each household draws one uniform U per simulation.
   The chance of having adopted after k adopters is the logit; gamma = 0 is I exactly.
 * fractional threshold (T, theta): an informed household adopts if U < p(z) or at least a
   share theta of its neighbours has adopted. theta = None (or > 1) is I.
+* heterogeneous threshold (H, mu, kappa; milestone 28): as T, but each household draws its own
+  theta_i ~ Beta(mu * kappa, (1 - mu) * kappa) per simulation (mean mu; kappa -> infinity is T).
 
 Moments: the five BCDJ moments of `bcdj.moments` plus take-up among households with exactly
 1, 2 and 3+ adopting neighbours (`moments_ext`, eight in all).
@@ -25,14 +27,18 @@ from . import bcdj
 
 def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
              gamma: float = 0.0, theta: float | None = None, seeds=None,
-             return_informed: bool = False, delta: float = 0.0, shift=None):
+             return_informed: bool = False, delta: float = 0.0, shift=None,
+             theta_beta=None):
     """S runs; returns an n x S 0/1 adoption matrix (and informed matrix if asked).
 
     seeds: optional bool n-vector of initially informed households (default: leaders).
     delta: shift of the logit intercept (a reinforcement model with gamma > 0 needs a lower
     intrinsic rate to match the same final take-up as the leader logit).
     shift: optional length-S array added to every household's logit in that simulation, a
-    village-level random effect on the base adoption rate (one draw per village and run)."""
+    village-level random effect on the base adoption rate (one draw per village and run).
+    theta_beta: optional (mu, kappa); each household draws theta_i ~ Beta(mu kappa, (1 - mu)
+    kappa) once per simulation, after U, so the other families' random streams are unchanged.
+    Overrides theta."""
     n = v.n
     base = beta[0] + delta + v.Z @ beta[1:]
     if shift is not None:
@@ -45,6 +51,11 @@ def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
     lq = np.log(np.clip(1 - np.array([qN, qP]), 1e-300, None))
     deg = np.maximum(v.deg, 1)[:, None]
     use_theta = theta is not None and theta <= 1
+    th = theta
+    if theta_beta is not None:
+        mu, kappa = theta_beta
+        th = np.maximum(rng.beta(mu * kappa, (1 - mu) * kappa, (n, S)), 1e-9)
+        use_theta = True
     for _ in range(v.T):
         informed |= contagious
         if gamma != 0.0 or use_theta:
@@ -56,7 +67,7 @@ def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
             p = 1 / (1 + np.exp(-b2))
         new = informed & ~adopted & (U < p)
         if use_theta:
-            new |= informed & ~adopted & (k / deg >= theta - 1e-12)
+            new |= informed & ~adopted & (k / deg >= th - 1e-12)
         adopted |= new
         lnot = np.where(adopted, lq[1], lq[0]) * informed
         reached = rng.random((n, S)) > np.exp(v.A @ lnot)
