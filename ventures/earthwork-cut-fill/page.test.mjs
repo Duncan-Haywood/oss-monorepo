@@ -69,3 +69,9 @@ test('the privacy answer does not claim nothing is sent while the hosted page co
   assert.doesNotMatch(html, /Nothing is sent anywhere/);
   assert.match(html, /counts one anonymous page view/);
 });
+
+test('links the detention pond sizer as a sibling', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /href="\.\.\/stormwater-detention-sizer\/"/);
+});

@@ -1144,6 +1144,7 @@ ventures/stl-decomposition/usage.mjs
 ventures/stocker-cattle-margin-calculator/usage.mjs
 ventures/stockx-seller-payout-calculator/usage.mjs
 ventures/storage-auction-max-bid-calculator/usage.mjs
+ventures/stormwater-detention-sizer/usage.mjs
 ventures/str-arbitrage-lease-calculator/usage.mjs
 ventures/str-cleaning-fee-pricing-calculator/usage.mjs
 ventures/str-host-payout-calculator/usage.mjs

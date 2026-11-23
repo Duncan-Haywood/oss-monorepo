@@ -1,0 +1,33 @@
+name: stormwater-detention-sizer
+description: Free browser tool and CLI that sizes a stormwater detention basin and its two-stage outlet (orifice and weir) so post-development peaks stay at pre-development peaks, from NRCS curve-number runoff, the NRCS triangular unit hydrograph and level-pool routing.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Small-site civil engineers, land planners and builders want a first basin layout and an independent check of a HydroCAD or HEC-HMS run without opening a licensed package, and a free tool that sizes both outlet stages in one click does that.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searches such as "detention pond sizing calculator" and "how to size a detention pond" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - A licensed engineer's routed design for a real site disagrees with the tool's peaks by more than 10 percent for a reason the tool cannot model or name.
+  - Fewer than three engineers or builders use it on a real site within 90 days of it being discoverable.
+
+links:
+  production: https://marisstella.app/stormwater-detention-sizer/
+  analytics: null
