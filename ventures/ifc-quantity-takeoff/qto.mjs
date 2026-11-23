@@ -493,6 +493,7 @@ export function takeoff(model, opts = {}) {
         // exporter may have computed its stored volume from (explainChecks)
         const pid = sweptProfile(E, bodyRepresentation(E, refId(e.args[6])));
         if (pid != null) { const v = geo.sectionVariants(pid); if (v.length) row.computed.sectionVariants = v; }
+        if (pid != null) { const v = geo.polygonSections(pid); if (v.length) row.computed.polygonSections = v; }
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
         try { const L = memberLength(e.type, row.computed.solids.body, f); if (L != null) row.computed.length = L; } catch { /* no length */ }
         // a reinforcing bar's shapes and the author's schedule figures (rebar.mjs)
@@ -691,6 +692,9 @@ function readStored(E, idx, id, units, row) {
  *                the exact one (simplifiedSection below; Tekla steel);
  *   glazing-left-out  stored = computed less the body's glass items
  *                (glazingLeftOut below; ArchiCAD windows and doors);
+ *   polygon-section  stored = computed x a polygonised section's share of
+ *                the exact one, to 1e-4; also set on pairs inside the 2%
+ *                (polygonSection below; ArchiCAD arcs and round columns);
  *   unexplained  none of these.
  * Sets row.check.gross.reason / row.check.net.reason, and row.trustStored =
  * false when the stored volume should not be summed.
@@ -736,7 +740,9 @@ export function explainChecks(rows, tol = 0.02) {
     for (const w of ["gross", "net"]) {
       const c = r.check?.[w];
       if (!c) continue;
-      if (c.agree) continue;
+      // inside the 2%, a stored figure that is exactly a polygonised section
+      // (polygonSection below): named, and the geometry is summed
+      if (c.agree) { if (polygonSection(r, c)) { c.reason = "polygon-section"; r.trustStored = false; } continue; }
       const grp = r.tag ? groups.get(`${w}|${r.tag}|${r.ifcClass}|${c.stored}`) : null;
       if (grp && grp.length > 1) {
         const sumG = grp.reduce((x, q) => x + q.computed.gross, 0);
@@ -773,6 +779,7 @@ export function explainChecks(rows, tol = 0.02) {
       else if (w === "gross" && bodyIsNet(r, c, near, tol)) c.reason = "body-is-net";
       else if (simplifiedSection(r, c, tol / 4)) { c.reason = "simplified-section"; r.trustStored = false; r.weightScale ??= c.computed / c.stored; }
       else if (glazingLeftOut(r, c, tol / 4)) { c.reason = "glazing-left-out"; r.trustStored = false; }
+      else if (polygonSection(r, c)) { c.reason = "polygon-section"; r.trustStored = false; }
       else if (dims != null && !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = "own-dimensions"; r.trustStored = false; }
       else c.reason = "unexplained";
     }
@@ -811,6 +818,24 @@ function simplifiedSection(r, c, tol) {
   if (!v || !(c.computed > 0)) return null;
   const ratio = c.stored / c.computed;
   const hit = v.find((x) => Math.abs(ratio - x.ratio) <= tol * x.ratio);
+  if (hit) c.section = hit.label;
+  return hit ?? null;
+}
+
+/**
+ * polygon-section: the stored volume is the computed one times the ratio of
+ * a polygonised section to the exact one (polygonSections in geom.mjs:
+ * ArchiCAD measures a drawn profile with its arcs as 45-degree chords and a
+ * round column as a circumscribed 20-gon). The match asked is 1e-4, against
+ * differences of 0.07% to 1%, so a chance hit is unlikely; the geometry,
+ * which follows the true arcs, is summed. c.section names the polygon.
+ */
+export const POLYGON_SECTION_TOL = 1e-4;
+function polygonSection(r, c) {
+  const v = r.computed?.polygonSections;
+  if (!v || !(c.computed > 0) || !(c.stored > 0)) return null;
+  const ratio = c.stored / c.computed;
+  const hit = v.find((x) => Math.abs(ratio - x.ratio) <= POLYGON_SECTION_TOL * x.ratio);
   if (hit) c.section = hit.label;
   return hit ?? null;
 }
@@ -1153,6 +1178,7 @@ export const REASON_TEXT = {
   "assembly-total": "the same stored volume is written on every piece of one assembly (a stair's stringers, flights and landings), and it is the whole assembly's: the pieces' geometry sums to it",
   "simplified-section": "the stored volume is computed from a simplified section (no fillet radii, or round tubes as polygons); the geometry follows the profile's own radii, and stored weights are scaled to it",
   "glazing-left-out": "the stored volume is the frame and sash only: the body less its glass panes, or less the panes of one plane such as a door's side lights (ArchiCAD windows and doors); the geometry, panes included, is summed",
+  "polygon-section": "the stored volume is measured on a polygonised section: the profile's arcs as 45-degree chords, or a round section as a circumscribed 20-gon (ArchiCAD), 0.07% to 1% off the true arcs; the geometry, which follows them, is summed",
   "body-is-net": "the body geometry already has the openings cut out (no opening elements in the file): it equals the stored NetVolume, and the stored GrossVolume is larger by the openings",
   unexplained: "no known cause; check the element in a viewer",
 };

@@ -204,6 +204,14 @@ this tool says which they are
   and tries the body less one plane's glass, never every subset. The 2 left
   are zinc copings whose stored section is 3.6% over the profile exported
   ([eval/side-lights-2026-11-22.md](eval/side-lights-2026-11-22.md)).
+  Then 2026-11-23 (`polygon-section`): ArchiCAD's own Net Volume of a
+  profiled element is its section with every arc drawn as 45-degree chords
+  (6 steel angles and 3 sills, to seven digits), and its round columns are
+  circumscribed 20-gons (C20's D200, volume and perimeter to ten digits).
+  These were inside the 2% already (0.07% to 0.8%); 19 pairs on 11 elements
+  now carry the cause and the BoQ sums the true arcs. The 2 copings are not
+  this (chords move them further away) and stay unexplained
+  ([eval/archicad-polygon-sections-2026-11-23.md](eval/archicad-polygon-sections-2026-11-23.md)).
 - **Areas on the same models.** 6,509 of 7,883 stored areas agree with the
   section cut from the geometry (82.6%), all 1,667 wall GrossFootprintAreas
   among them; where they agree the median difference is 1e-15 relative or less
