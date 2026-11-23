@@ -173,6 +173,8 @@ shared container. The cheapest test of the continuation assumption is to rerun a
 to cycle 10, checkpoint, resume to cycle 50, and compare both the wall time and the cycle-50 lithium loss
 with the uninterrupted runs.
 
+Milestone 7zb tried to separate the two readings of where the corrected forecast pays (plating-dominated loss, or large one-directional drift) with a cell that drifts without plating. It could not build one: with plating off, no multiplier from 10 to 10<sup>6</sup> on `Marquis2019`'s SEI solvent diffusivity brings its cycle 2 to 20 lithium loss above 0.96% of n<sub>Li</sub>, because the film's resistance ends the charge step early and the loss limits itself. The recipe therefore keeps the plating-share gate, and the drift reading is untested.
+
 For the paper, in order of value: (1) a fifth and sixth parameter set, since across-chemistry spread,
 not the number of pools, now limits the main claim (section 4.6, finding 2). Milestone 7p tried this and
 found that PyBaMM's stock cells do not supply one under this protocol. Of eight conditions on the four
