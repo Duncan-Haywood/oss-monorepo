@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnFCUVxpai4qBUfuVM",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T00:18:32Z",
+  "ended": "2026-11-23T00:30:03Z",
+  "wall_minutes": 11.81,
+  "tokens_in": 10876989,
+  "tokens_out": 123241,
+  "cost_usd": 7.3313,
+  "tool_calls": 130,
+  "task": "quality round 100 (sample mode), seed 2026-11-23-94a9",
+  "projects": [
+    "ventures/grazing-lease-rate-calculator",
+    "ventures/home-battery-planner",
+    "research/qual-correction",
+    "research/challenge-window"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18334",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "My first grazing statusLine test used /works for both/, which also matches 'no rent works for both sides'; tightened to /per AUM works for both/.",
+    "My first home-battery tests called hourlyPrices on parseTariff's return value instead of its .plan, and mis-ordered which later rule wins; corrected before commit.",
+    "A git stash / stash show check of 'new test fails on old code' used a bad revision syntax and did not run; replaced with quality_mutate.py runs, which show caught=true."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "No one-liner for 'check that the new test fails on the old code'; quality_mutate.py with --old new --new old does it, and saying so would save a stash dance."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-quality-audit-round-100.md"
+  ],
+  "goal": "Quality audit round: unbiased share of sampled subjects at the senior-professional bar, with fixes for small defects.",
+  "notes": "Seed 2026-11-23-94a9, round 100, mode sample. Subjects: ventures/grazing-lease-rate-calculator, ventures/home-battery-planner, research/qual-correction, research/challenge-window (no flagship or platform due). Share meeting the bar: 0 of 4; cumulative sampled 37 of 409 (Wilson 95% 7% to 12%). Seeded mutations caught 11 of 24. Spot-checks rerun by the lead: grazing rentPerHeadMonth 20 vs 28.80 (CLI); home-battery hourSet('0-24') empty and 2021-12-31 holiday miss (code read + test failing on old code); qual-correction closed-form E1 row and prevalence break-evens (0.954/0.911/0.839/0.793/0.76); challenge-window window_dp(100,5,.9,40)=36 vs limits 29/25, prefix window 29, 970/20000 adaptive>limits, 0 below the larger limit, rho=0 ZeroDivisionError. Fixes in PR #18334 (fixed_by marked): grazing defects 0,1,5; home-battery 1,2; qual-correction 0,2; challenge-window 1,2,4. Large items went to README Known gaps (home-battery grid-charge fill, challenge-window prior work). Verification: subject test suites green (grazing 25/25, home-battery 34/34, qual-correction unittest OK, challenge-window 14/14); challenge-window run.py regenerated results.txt unchanged; quality_audit.py validate 643 files 0 problems; check_posts ok; run_workflow_locally --for-changes: all run: steps passed in the 12 workflows that finished before the page-integrity sweep was detached; PR CI check runs green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "01267756-bf5d-5ffa-b429-738a5f63cbd7",
+    "transcripts": 5,
+    "first": "2026-11-23T00:18:32Z",
+    "last": "2026-11-23T00:30:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 125,
+        "input": 250,
+        "output": 123241,
+        "thinking": 35306,
+        "cache_read": 10387700,
+        "cache_write_5m": 374797,
+        "cache_write_1h": 114242,
+        "api_equivalent_usd": 7.3313,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 125,
+      "input": 250,
+      "output": 123241,
+      "thinking": 35306,
+      "cache_read": 10387700,
+      "cache_write_5m": 374797,
+      "cache_write_1h": 114242,
+      "api_equivalent_usd": 7.3313,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.955,
+    "tool_calls": 130,
+    "tools": {
+      "Bash": 113,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.81,
+      "active_minutes": 8.47,
+      "model_minutes": 5.58,
+      "tool_minutes": 2.89,
+      "waiting_on_human_minutes": 3.34,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 18.59
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four audits of 2-3 h each by a domain reviewer plus fixes and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 191.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
