@@ -1,0 +1,10 @@
+SIM25031-A06-CIV-3D-3002-SOP-AREA06.ifc: 264 swept-disk elements; 8 sides, polygon/circle 0.9003; box 264; drawn as tubes 264; 265352 triangles (1005 each) in 179 ms; tube/computed min 0.8991 median 0.8996 max 0.9001
+SIM25031-A06-CIV-3D-3003-SENDA-E-O.ifc: 328 swept-disk elements; 3 sides (over budget), polygon/circle 0.4135; box 328; drawn as tubes 328; 725372 triangles (2212 each) in 517 ms; tube/computed min 0.4108 median 0.4126 max 0.4133
+SIM25031-A06-CIV-3D-3006-CROMATOGRAFO.ifc: 28 swept-disk elements; 8 sides, polygon/circle 0.9003; box 28; drawn as tubes 28; 27884 triangles (996 each) in 41 ms; tube/computed min 0.8999 median 0.9001 max 0.9003
+SIM25031-A06-CIV-3D-3007-TR-12.ifc: 7 swept-disk elements; 8 sides, polygon/circle 0.9003; box 7; drawn as tubes 7; 18148 triangles (2593 each) in 16 ms; tube/computed min 0.8995 median 0.9002 max 0.9003
+SIM25031-A06-CIV-3D-3008-TANQUE-SUMIDERO.ifc: 39 swept-disk elements; 8 sides, polygon/circle 0.9003; box 39; drawn as tubes 39; 46304 triangles (1187 each) in 39 ms; tube/computed min 0.8995 median 0.9002 max 0.9003
+SIM25031-A06-CIV-3D-3009-CRUCE-PEATONAL.ifc: 18 swept-disk elements; 8 sides, polygon/circle 0.9003; box 18; drawn as tubes 18; 6856 triangles (381 each) in 6 ms; tube/computed min 0.8995 median 0.8996 max 0.8996
+SIM25031-A06-CIV-3D-3010-MURO-CORTAFUEGO.ifc: 69 swept-disk elements; 8 sides, polygon/circle 0.9003; box 69; drawn as tubes 69; 89752 triangles (1301 each) in 65 ms; tube/computed min 0.8996 median 0.9001 max 0.9003
+reinforcing-assembly.ifc: 34 swept-disk elements; 8 sides, polygon/circle 0.9003; box 34; drawn as tubes 34; 19992 triangles (588 each) in 13 ms; tube/computed min 0.8987 median 0.8987 max 0.8987
+reinforcing-stirrup.ifc: 1 swept-disk elements; 8 sides, polygon/circle 0.9003; box 1; drawn as tubes 1; 588 triangles (588 each) in 0 ms; tube/computed min 0.8987 median 0.8987 max 0.8987
+all (bars only): 11 files, 788 swept-disk elements, box 788, drawn 788, 1200248 triangles; volume ratio min 0.4108 max 0.9003

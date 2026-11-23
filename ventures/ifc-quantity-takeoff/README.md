@@ -517,6 +517,14 @@ stirrup hook (6d) is noted. Tekla's E = 64 mm on a 135 degree hook isn't the
 tail (48 mm), but it is what Tekla's DIM_L sums (A+B+C+D+2E = 1,688, so
 1,680). Revit's hook A is 4.5 in whatever the bar.
 
+**Bars in the 3D view (2026-11-23, [eval/bar-tubes-2026-11-23.md](eval/bar-tubes-2026-11-23.md)).**
+A swept disk has no faces, so bars used to be invisible in the view and had
+no box. They are now drawn as polygon tubes along the same path the
+schedule reads (mitred at bends, capped, 8 sides, fewer when a model's bars
+would pass 600,000 triangles) and boxed by the path widened by the bar.
+buildingSMART's bar samples: bar boxes within 2 mm of IfcOpenShell 0 of 35 to
+35 of 35. Seven Tekla exports: 753 bar elements drawn, none before.
+
 ## Uniformat II elements
 
 Group by `uniformat` (level 3, e.g. `B2010 Exterior Walls`), `uniformat2`

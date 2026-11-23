@@ -619,13 +619,13 @@ flagships:
       arcs, grid placements, fixed-reference sweeps 2026-11-22
       (eval/linear-placement-*, eval/bsi-samples-*); next cant, a 2nd bridge
       (NEXT.md). Bar schedule (rebar.mjs, eval/rebar-*; hooks 2026-11-23, file
-      angles 45/45); next Tekla's E rule (NEXT.md). Room schedule 2026-11-21
-      (eval/rooms-2026-11-21.md); next: HouseZ's 3 openings 0.51 m under their
-      room's floor, dental_clinic's 17 ROOF windows (NEXT.md). Next, most valuable
-      first: (1) the covering up-cut rule tested on a second model, the joins rule
-      on an ArchiCAD export with partitions on both faces; (2) method of
-      measurement: small voids left in shipped 2026-11-20 (measure.mjs, page and cli
-      --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
+      angles 45/45; drawn as tubes 2026-11-23); next Tekla's E rule (NEXT.md). Room
+      schedule 2026-11-21 (eval/rooms-2026-11-21.md); next: HouseZ's 3 openings 0.51
+      m under their room's floor, dental_clinic's 17 ROOF windows (NEXT.md). Next,
+      most valuable first: (1) the covering up-cut rule tested on a second model,
+      the joins rule on an ArchiCAD export with partitions on both faces; (2) method
+      of measurement: small voids left in shipped 2026-11-20 (measure.mjs, page and
+      cli --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
       eval/measure-rules-2026-11-20.md) frames split B1010/B1020/A1010 by the deck
       they carry 2026-11-20 (level 3 19,767 to 22,546 elements;
       eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun shades or

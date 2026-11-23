@@ -353,3 +353,17 @@ test("rebarSchedule and rebarCsv: hook columns, and a 180 degree hook's short ta
   const at = (name) => cells[head.indexOf(name)];
   assert.equal(at("Start hook (degrees)"), ""); assert.equal(at("End hook (degrees)"), "180"); assert.equal(at("End hook tail (mm)"), "48");
 });
+
+test("a swept disk bar has a world box and is drawn as a tube, not left out of the model view", async () => {
+  const { rowMesh, meshVolume, TUBE_SIDES } = await import("./view-mesh.mjs");
+  const res = takeoff(parseStep(file(allplan(), "IFC2X3", "$")), { rooms: false });
+  const [r] = res.rows.filter((x) => x.ifcType === "IFCREINFORCINGBAR");
+  // the bar runs 0 to 1.04 in x, 0 to 0.54 in y, at z = 0; 6 mm round it
+  assert.ok(r.box, "box");
+  close(r.box[0], 0, 1e-9); close(r.box[2], -0.006, 1e-9); close(r.box[5], 0.006, 1e-9);
+  close(r.box[3], 1 + R + 0.006, 1e-6); close(r.box[4], R + 0.5, 1e-9);
+  const m = rowMesh(r);
+  assert.ok(m && !m.boxOnly, "drawn as its own mesh");
+  const section = (TUBE_SIDES / 2) * 0.006 ** 2 * Math.sin((2 * Math.PI) / TUBE_SIDES);
+  close(meshVolume(m.positions), section * r.bars[0].length, 1e-4);
+});
