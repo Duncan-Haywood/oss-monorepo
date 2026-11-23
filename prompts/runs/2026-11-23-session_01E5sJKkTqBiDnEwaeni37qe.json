@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKkTqBiDnEwaeni37qe",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T18:19:33Z",
+  "ended": "2026-11-23T18:47:51Z",
+  "wall_minutes": 113.84,
+  "tokens_in": 9440868,
+  "tokens_out": 50769,
+  "cost_usd": 5.0134,
+  "tool_calls": 76,
+  "task": "capture-sync step 6c: trackers on 30-minute sessions whose clock warms up (drawn by pick_track.py, track 13)",
+  "projects": [
+    "research/capture-sync"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18462",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first timing run: np.i0 in the per-sample Kaiser kernel made one 30-min session take 467 s and 4.2 GB",
+      "fix": "tabulated kernel at 2048 fractional offsets (4x faster), per-second truth; changed before any row was read, disclosed in LOG"
+    },
+    {
+      "what": "/usr/bin/time missing in the image",
+      "fix": "resource.getrusage in-process"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "host notes say github.com passes; WebFetch (not only curl) also fails DNS for arxiv.org, ar5iv.labs.arxiv.org and ris.uni-paderborn.de, so a paper's parameters could not be read; WebSearch summaries were the only route, plus reading paderwasn's code on GitHub"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "'Source every parameter': the warm-up trajectories (Gburrek et al. 2022) sit on zenodo, refused here, and the paper text was unreachable",
+      "did": "swept warm-up amplitude 0-60 ppm with a stated tau and worked out the analytic case before the run",
+      "result": "the conclusion (gated beats hold once |w| >= 30 ppm; equal below) holds across the sweep; the measured-trajectory check is the next step"
+    },
+    {
+      "file": "research/capture-sync/LOG.md (6b Next)",
+      "why": "6b proposed scoring both rooms; 30-min sessions cost ~4 GB and ~3 min each",
+      "did": "200 ms room only (6b's rooms agreed within 1.6 points), stated in the plan",
+      "result": "run fitted in 1 h 37 min"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-capture-sync-warm-clocks-break-held-sync.md",
+    "research/capture-sync/LOG.md (6c plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered 7 predictions, 5 held (primary held: gated minus hold -18.0 and -54.6 points at 30 and 60 ppm warm-up). Local checks: capture-sync pytest 86 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok; programme_check ok. cite_check not run (doi.org refused); the only new citation (Gburrek et al. ICASSP 2022) is the one the paderwasn README cites. No agent doc in docs/reports: LOG.md is where the next capture-sync run looks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1854cdee-e188-50e1-aaae-7b742d6346ee",
+    "transcripts": 1,
+    "first": "2026-11-23T18:19:33Z",
+    "last": "2026-11-23T20:13:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 147,
+        "output": 50769,
+        "thinking": 15477,
+        "cache_read": 9170304,
+        "cache_write_5m": 0,
+        "cache_write_1h": 270417,
+        "api_equivalent_usd": 5.0134,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 147,
+      "output": 50769,
+      "thinking": 15477,
+      "cache_read": 9170304,
+      "cache_write_5m": 0,
+      "cache_write_1h": 270417,
+      "api_equivalent_usd": 5.0134,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 64,
+      "Write": 4,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 113.84,
+      "active_minutes": 32.31,
+      "model_minutes": 10.53,
+      "tool_minutes": 21.78,
+      "waiting_on_human_minutes": 81.53,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an audio DSP researcher: time-varying resampler and tests, pre-registered plan with analytic case, 30-min twin experiment, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 319.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

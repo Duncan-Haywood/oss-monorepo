@@ -12,6 +12,8 @@ GCC (gamma 0.25) searched +-SEARCH s around the current line; they differ in wha
   gated  a window joins the history only if it lands within `gate` s of the current line; the line is a
          Theil-Sen fit through the accepted windows of the last HIST s once at least 3 span MIN_SPAN s, else
          s0 through their median residual, else the coarse line. No PSR vote.
+  `min_span` (step 6c) is the span the accepted windows must cover before their own line replaces the coarse
+  rate (default MIN_SPAN, 20 s; `gated60` in step 6c is gated with min_span=60).
 """
 import numpy as np
 
@@ -21,7 +23,7 @@ WIN, HOP, SEARCH, HIST, MIN_SPAN = 2.0, 5.0, 1.5, 120.0, 20.0
 FRAME = 1.0 / 30.0
 
 
-def track(e0, e1, d0, s0, t_eval, mode="gated", t0=10.0, start=20.0, gate=FRAME, fs=FS):
+def track(e0, e1, d0, s0, t_eval, mode="gated", t0=10.0, start=20.0, gate=FRAME, fs=FS, min_span=MIN_SPAN):
     """(prediction at each t_eval, final slope s/s). `start` is the first window's end (4d's T0)."""
     t_eval = np.asarray(t_eval, float)
     coarse = (lambda x: d0 + s0 * (x - t0))
@@ -59,7 +61,7 @@ def track(e0, e1, d0, s0, t_eval, mode="gated", t0=10.0, start=20.0, gate=FRAME,
         h = T > t_done - HIST
         keep = (h & (P >= np.median(P[h]))) if (mode == "kr" and h.any()) else (h & A)
         if keep.any():
-            if keep.sum() >= 3 and np.ptp(T[keep]) >= MIN_SPAN:
+            if keep.sum() >= 3 and np.ptp(T[keep]) >= min_span:
                 icpt, slope = theil_sen(T[keep], D[keep])
                 line = (lambda a, b: (lambda x: a + b * x))(icpt, slope)
             else:
