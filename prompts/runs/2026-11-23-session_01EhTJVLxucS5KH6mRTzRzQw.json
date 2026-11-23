@@ -1,0 +1,217 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVLxucS5KH6mRTzRzQw",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue products)",
+  "input_sha256": "869050f93a55a3e28c20fbcc822152ec5435caed662bdb90a169853ac4e17a29",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T11:56:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18416",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "open list holds 13 entries, 12 of them control-plane fixes waiting on owner-approved PRs; step 0 cannot progress them from an ordinary run"
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target tia.mjs (changed on main the day before). Campaign 10 mutants: 2 caught -> 10/10 after 8 tests. 3 real input defects fixed (comma link lists, unsigned lags, Number() durations). Local: run_venture_tests.py xer-schedule-check 461 tests ok. Step 0: no non-control-plane entry was fixable this run (help-keeper stemmer needs a help-centre eval set).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/tia.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 810954782,
+        "commit": "7e29ea442",
+        "sites": 439,
+        "baseline_seconds": 5.8,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 117,
+            "col": 50,
+            "operator": "and-to-or",
+            "before": "const i = head.findIndex((h, j) => re.test(h) && !Object.values(columns).includes(j));",
+            "after": "const i = head.findIndex((h, j) => re.test(h) || !Object.values(columns).includes(j));",
+            "line_text": "    const i = head.findIndex((h, j) => re.test(h) && !Object.values(columns).includes(j));",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: a column the fragnet lacks is not filled from one it has"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 202,
+            "col": 33,
+            "operator": "gt-to-ge",
+            "before": "if (t && !f.extend && f.days > 0) warnings.push(`row ${f.row}: ${f.code} is already in the schedule; read as ${f.days} days added to it (write +${f.days} to say so)`);",
+            "after": "if (t && !f.extend && f.days >= 0) warnings.push(`row ${f.row}: ${f.code} is already in the schedule; read as ${f.days} days added to it (write +${f.days} to say so)`);",
+            "line_text": "    if (t && !f.extend && f.days > 0) warnings.push(`row ${f.row}: ${f.code} is already in the schedule; read as ${f.days} days added to it (write +${f.days} to say so)`);",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: zero-day row on an existing activity warns nothing about days"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 224,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "if (t.status === \"TK_NotStart\" && t.preds.some((rel) => rel.type === \"PR_FF\" || rel.type === \"PR_SF\")) warnings.push(`row ${f.row}: ${f.code} has a finish-to-finish (or start-to-finish) predecessor, so added days can move its start earlier instead of its finish; to model work that comes after it, insert a new fragnet activity`);",
+            "after": "if (t.status === \"TK_NotStart\" || t.preds.some((rel) => rel.type === \"PR_FF\" || rel.type === \"PR_SF\")) warnings.push(`row ${f.row}: ${f.code} has a finish-to-finish (or start-to-finish) predecessor, so added days can move its start earlier instead of its finish; to model work that comes after it, insert a new fragnet activity`);",
+            "line_text": "        if (t.status === \"TK_NotStart\" && t.preds.some((rel) => rel.type === \"PR_FF\" || rel.type === \"PR_SF\")) warnings.push(`row ${f.row}: ${f.code} has a finish-to-finish (or start-to-finish) predecessor, so added days can move its start earlier instead of its finish; to model work that comes after it, insert a new fragnet activity`);",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: extending A1150 (FS preds only) gives no FF warning"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 259,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "const hasPred = f.preds.length || rows.some((g) => g.succs.some((l) => l.code === f.code));",
+            "after": "const hasPred = f.preds.length && rows.some((g) => g.succs.some((l) => l.code === f.code));",
+            "line_text": "    const hasPred = f.preds.length || rows.some((g) => g.succs.some((l) => l.code === f.code));",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: row with own predecessor not called unlinked"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 344,
+            "col": 33,
+            "operator": "eq-flip",
+            "before": "const parsed0 = typeof fragnet === \"string\" ? parseFragnet(fragnet) : fragnet;",
+            "after": "const parsed0 = typeof fragnet !== \"string\" ? parseFragnet(fragnet) : fragnet;",
+            "line_text": "  const parsed0 = typeof fragnet === \"string\" ? parseFragnet(fragnet) : fragnet;",
+            "caught": true,
+            "seconds": 4.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 361,
+            "col": 93,
+            "operator": "or-to-and",
+            "before": "const loops = imp.loops.filter((l) => l.some((id) => [...ins.newIds.values()].includes(id) || ins.extendedIds.includes(id)) || !base.loops.length);",
+            "after": "const loops = imp.loops.filter((l) => l.some((id) => [...ins.newIds.values()].includes(id) && ins.extendedIds.includes(id)) || !base.loops.length);",
+            "line_text": "  const loops = imp.loops.filter((l) => l.some((id) => [...ins.newIds.values()].includes(id) || ins.extendedIds.includes(id)) || !base.loops.length);",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: base update with its own loop A1180<->A1190; fragnet loop still refused"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 427,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "if (t.proj !== p.id || t.span || t.status === \"TK_Complete\" || t.expEnd === null) continue;",
+            "after": "if (t.proj !== p.id && t.span || t.status === \"TK_Complete\" || t.expEnd === null) continue;",
+            "line_text": "    if (t.proj !== p.id || t.span || t.status === \"TK_Complete\" || t.expEnd === null) continue;",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: project 78 activity with expected finish following A1150 not listed as absorbed (needed its own SCHEDOPTIONS row)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 431,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "if (s1 > s0 && b.ef === a.ef) absorbed.push({ code: t.code, name: t.name, startBefore: formatDate(s0), startAfter: formatDate(s1), expectedFinish: formatDate(t.expEnd) });",
+            "after": "if (s1 > s0 && b.ef !== a.ef) absorbed.push({ code: t.code, name: t.name, startBefore: formatDate(s0), startAfter: formatDate(s1), expectedFinish: formatDate(t.expEnd) });",
+            "line_text": "    if (s1 > s0 && b.ef === a.ef) absorbed.push({ code: t.code, name: t.name, startBefore: formatDate(s0), startAfter: formatDate(s1), expectedFinish: formatDate(t.expEnd) });",
+            "caught": true,
+            "seconds": 4.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 539,
+            "col": 71,
+            "operator": "or-to-and",
+            "before": "const loop = run.loops.find((l) => l.some((id) => newIds.has(id) || one.extendedIds.includes(id)));",
+            "after": "const loop = run.loops.find((l) => l.some((id) => newIds.has(id) && one.extendedIds.includes(id)));",
+            "line_text": "      const loop = run.loops.find((l) => l.some((id) => newIds.has(id) || one.extendedIds.includes(id)));",
+            "caught": false,
+            "seconds": 3.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: loop only on a non-most-likely branch is refused"
+          },
+          {
+            "file": "ventures/xer-schedule-check/tia.mjs",
+            "line": 570,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "chanceOfDelay: outcomes.filter((o) => o.delayDays > 0).reduce((a, o) => a + o.probability, 0),",
+            "after": "chanceOfDelay: outcomes.filter((o) => o.delayDays > 1).reduce((a, o) => a + o.probability, 0),",
+            "line_text": "      chanceOfDelay: outcomes.filter((o) => o.delayDays > 0).reduce((a, o) => a + o.probability, 0),",
+            "caught": false,
+            "seconds": 3.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: one-day branch outcome counts toward chanceOfDelay"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/tia.mjs",
+        "issue": "links() split predecessor/successor cells only on ; and |, so a comma-separated list as P6 and MS Project export it ('A1130, A1140') became one unknown activity ID and the link was skipped",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18416"
+      },
+      {
+        "file": "ventures/xer-schedule-check/tia.mjs",
+        "issue": "parseLink read a lag without a sign after the link type ('A1030 FS 2') as part of the activity ID",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18416"
+      },
+      {
+        "file": "ventures/xer-schedule-check/tia.mjs",
+        "issue": "durations went through Number(): '0x10' read as 16 days, '1e3' as 1000, a bare '+' as 0 days added, all without a warning",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18416"
+      }
+    ]
+  }
+}

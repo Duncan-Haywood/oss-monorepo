@@ -313,3 +313,95 @@ test("step by step: the dates set the order, not the row order; series delays ar
   assert.deepEqual(m.byStep.map((x) => x.event), ["X", "(no event)"]);
   assert.ok(m.warnings.some((w) => /name no event/.test(w)));
 });
+
+// red team 2026-11-23: guards for faults seeded in tia.mjs that the suite above let through
+test("a column the fragnet does not have is not filled from a column it does", () => {
+  // only three columns: the name must not be read from the duration column
+  const f = parseFragnet("Activity ID,Duration,Predecessors\nF9,3,A1030\n");
+  assert.equal(f.rows[0].days, 3);
+  assert.equal(f.rows[0].name, "");
+  assert.equal(f.rows[0].preds[0].code, "A1030");
+});
+
+test("a zero-day row naming an existing activity adds links, not days, and says nothing about days", () => {
+  const r = timeImpact(xer(), `${H}A1140,,0,,A1150\n`);
+  assert.ok(!r.warnings.some((w) => /already in the schedule/.test(w)), r.warnings.join("\n"));
+  assert.ok(timeImpact(xer(), `${H}A1140,,3,,A1150\n`).warnings.some((w) => /already in the schedule/.test(w)));
+});
+
+test("days added to an activity with only finish-to-start predecessors raise no finish-to-finish warning", () => {
+  const r = timeImpact(xer(), `${H}A1150,,+3,,\n`);
+  assert.deepEqual(r.fragnet.map((x) => [x.code, x.kind]), [["A1150", "made longer"]]);
+  assert.ok(!r.warnings.some((w) => /finish-to-finish/.test(w)), r.warnings.join("\n"));
+});
+
+test("a fragnet row with a predecessor of its own is not called unlinked", () => {
+  const r = timeImpact(xer(), `${H}F1,Owner hold,7,A1140,A1150\n`);
+  assert.ok(!r.warnings.some((w) => /no predecessor/.test(w)), r.warnings.join("\n"));
+  assert.ok(!r.warnings.some((w) => /holds nothing up/.test(w)), r.warnings.join("\n"));
+  const loose = timeImpact(xer(), `${H}F1,Owner hold,7,,\n`);
+  assert.ok(loose.warnings.some((w) => /no predecessor/.test(w)));
+  assert.ok(loose.warnings.some((w) => /holds nothing up/.test(w)));
+});
+
+test("a loop made by the fragnet is refused even when the update already has a loop of its own", () => {
+  const x = xer();
+  // an existing loop A1180 <-> A1190, away from the fragnet
+  const id = (c) => x.tables.TASK.find((r) => r.task_code === c).task_id;
+  x.tables.TASKPRED.push({ task_pred_id: "9901", task_id: id("A1180"), pred_task_id: id("A1190"), proj_id: "77", pred_proj_id: "77", pred_type: "PR_FS", lag_hr_cnt: "0" });
+  x.tables.TASKPRED.push({ task_pred_id: "9902", task_id: id("A1190"), pred_task_id: id("A1180"), proj_id: "77", pred_proj_id: "77", pred_type: "PR_FS", lag_hr_cnt: "0" });
+  assert.throws(() => timeImpact(x, `${H}F1,Loop,2,A1150,A1140\n`), /logic loop: [^;]*F1/);
+});
+
+test("branches: a loop on a branch that is not the most likely one is still refused", () => {
+  assert.throws(() => timeImpact(xer(), `${HB}F1,Loop,2,A1150,A1140,G,Bad,20%\n`), /logic loop when G is Bad/);
+});
+
+test("branches: a one-day delay counts toward the chance of delay", () => {
+  const r = timeImpact(xer(), `${HB}F1,Hold,1,A1140,A1150,Hold,Happens,30%\n`);
+  assert.equal(r.branches.maxDelayDays, 1);
+  assert.ok(Math.abs(r.branches.chanceOfDelay - 0.3) < 1e-9);
+});
+
+test("an activity of another project that keeps its expected finish is not named as absorbing this project's delay", () => {
+  const x = xer();
+  x.tables.SCHEDOPTIONS[0].sched_use_expect_end_flag = "Y";
+  // project 78 holds a copy of A1150 that follows A1150 across projects,
+  // expected to finish two weeks after A1150 does
+  x.tables.PROJECT.push({ ...x.tables.PROJECT[0], proj_id: "78", proj_short_name: "OTHER" });
+  x.tables.SCHEDOPTIONS.push({ ...x.tables.SCHEDOPTIONS[0], schedoptions_id: "2", proj_id: "78" });
+  const paint = x.tables.TASK.find((r) => r.task_code === "A1150");
+  const ef = schedule(x).tasks.get(paint.task_id).ef;
+  const far = new Date((ef + 14 * 1440) * 60000).toISOString().slice(0, 16).replace("T", " ");
+  x.tables.TASK.push({ ...paint, task_id: "6016", proj_id: "78", task_code: "B1150", expect_end_date: far });
+  x.tables.TASKPRED.push({ task_pred_id: "9903", task_id: "6016", pred_task_id: paint.task_id, proj_id: "78", pred_proj_id: "77", pred_type: "PR_FS", lag_hr_cnt: "0" });
+  const r = timeImpact(x, `${H}F1,Hold,3,A1140,A1150\n`, { projId: "77" });
+  assert.ok(r.finish.delayDays > 0);
+  assert.ok(!r.absorbed.some((a) => a.code === "B1150"), JSON.stringify(r.absorbed));
+});
+
+// red team 2026-11-23: real defects found by reading parseFragnet as a stranger
+test("a predecessor list separated by commas, as P6 and MS Project write it, is read as separate links", () => {
+  const f = parseFragnet(`${H}F1,x,5,"A1030, A1020 SS+2",\n`);
+  assert.deepEqual(f.rows[0].preds.map(({ code, type, lagDays }) => [code, type, lagDays]), [["A1030", "FS", 0], ["A1020", "SS", 2]]);
+  const r = timeImpact(xer(), `${H}F1,Owner hold,7,"A1130, A1140",A1150\n`);
+  assert.ok(!r.warnings.some((w) => /not in project/.test(w)), r.warnings.join("\n"));
+  assert.equal(r.finish.delayDays, 7);
+});
+
+test("a lag written after the link type without a sign is a lag, not part of the activity ID", () => {
+  const f = parseFragnet(`${H}F1,x,5,A1030 FS 2; A1020 SS 1.5d,\n`);
+  assert.deepEqual(f.rows[0].preds.map(({ code, type, lagDays }) => [code, type, lagDays]), [["A1030", "FS", 2], ["A1020", "SS", 1.5]]);
+  // with no link type, a trailing number stays part of the ID (A10390 1 is not a lag)
+  assert.equal(parseFragnet(`${H}F1,x,5,A10390 1,\n`).rows[0].preds[0].code, "A10390 1");
+});
+
+test("a duration that is not a plain decimal number of days is refused, not read as hex or empty", () => {
+  for (const d of ["0x10", "1e3", "+"]) {
+    const f = parseFragnet(`${H}F1,x,${d},A1030,\n`);
+    assert.equal(f.rows.length, 0, d);
+    assert.ok(f.warnings.some((w) => /not a number of working days/.test(w)), d);
+  }
+  assert.equal(parseFragnet(`${H}F1,x,+2.5 days,A1030,\n`).rows[0].days, 2.5);
+  assert.equal(parseFragnet(`${H}F1,x,,A1030,\n`).rows[0].days, 0);
+});
