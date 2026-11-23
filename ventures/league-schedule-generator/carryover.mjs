@@ -14,8 +14,8 @@
 
 import { mulberry32 } from "./rng.mjs";
 import { leastBreaks, floorTable, pairLeastBreaks, FLOOR_PRICED_MAX_MATCHES } from "./orient.mjs";
-import { CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_PICK, CARRY_OVER_POLISH, CARRY_OVER_FLOOR_PRICED, carryOverFromOpponents, opponentsFromRounds, carryOver } from "./carryover-core.mjs";
-export { CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_PICK, CARRY_OVER_POLISH, CARRY_OVER_FLOOR_PRICED, carryOverFromOpponents, opponentsFromRounds, carryOver };
+import { CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_PICK, CARRY_OVER_POLISH, CARRY_OVER_FLOOR_PRICED, carryOverFromOpponents, PROVEN_LEAST, opponentsFromRounds, carryOver } from "./carryover-core.mjs";
+export { CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_PICK, CARRY_OVER_POLISH, CARRY_OVER_FLOOR_PRICED, carryOverFromOpponents, PROVEN_LEAST, opponentsFromRounds, carryOver };
 
 // ------------------------------------------------------------------ search
 
