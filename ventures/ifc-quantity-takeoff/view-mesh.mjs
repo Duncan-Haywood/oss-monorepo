@@ -14,12 +14,15 @@
 //
 // The faceted part of a solid (faceted breps, triangulated face sets) keeps
 // its faces as given (`shells`), and they are cut into triangles as they are.
-// A body with neither (swept disks, revolved areas, CSG primitives) has no
-// faces here: the caller draws its box.
+// Swept disks (reinforcing bars, tubes) have no faces either; they are drawn
+// as an 8-sided tube along their centreline (tubeTriangles), mitred at the
+// bends and capped at the ends. Their volume still comes from pi r^2 L in
+// geom.mjs; the tube is only what is shown. A body with none of these
+// (revolved areas, CSG primitives) has no faces here: the caller draws its box.
 //
 // Pure functions; points are world coordinates in metres after W and f.
 
-import { apply, polyPlanes, earClip } from "./geom.mjs";
+import { apply, polyPlanes, earClip, barPolyline } from "./geom.mjs";
 
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -506,6 +509,113 @@ function triangulate(poly) {
   }
 }
 
+/** Sides of the tube a swept disk is drawn as, and the most it turns between rings on an arc bend (radians). */
+export const TUBE_SIDES = 8;
+export const TUBE_ARC_STEP = Math.PI / 8;
+/**
+ * Lighter tubes for models with many bars, tried in order until the model's
+ * bars fit TUBE_BUDGET triangles (the last is used if none fits): a Tekla
+ * walkway with 6,478 stirrups would take 2.7M triangles at full detail.
+ */
+export const TUBE_LEVELS = [{ sides: 8, arcStep: Math.PI / 8 }, { sides: 6, arcStep: Math.PI / 8 }, { sides: 4, arcStep: Math.PI / 4 }, { sides: 3, arcStep: Math.PI / 4 }];
+export const TUBE_BUDGET = 600000;
+
+/** The tube detail for a set of rows: the first TUBE_LEVELS entry whose bars fit the budget. */
+export function tubeDetail(rows, budget = TUBE_BUDGET) {
+  const bars = [];
+  for (const r of rows) {
+    const S = r.computed && r.computed.solids;
+    const b = S && (S.net || S.body);
+    if (b && b.bars) for (const x of b.bars) if (x.tube) bars.push(x);
+  }
+  for (const lv of TUBE_LEVELS) {
+    let n = 0;
+    for (const b of bars) n += 2 * lv.sides * barPolyline(b.segs, lv.arcStep).length;
+    if (n <= budget) return { ...lv, triangles: n };
+  }
+  return { ...TUBE_LEVELS[TUBE_LEVELS.length - 1], overBudget: true };
+}
+
+const norm3 = (a) => Math.hypot(a[0], a[1], a[2]);
+const unit3 = (a) => { const l = norm3(a); return l > 0 ? [a[0] / l, a[1] / l, a[2] / l] : null; };
+const addS = (a, b, k) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k];
+
+/** v turned by the rotation that takes unit a onto unit b (parallel transport of a frame). */
+function turn(v, a, b) {
+  const k = cross(a, b), s = norm3(k), c = dot(a, b);
+  if (s < 1e-12) return v;
+  const u = [k[0] / s, k[1] / s, k[2] / s];
+  const ux = cross(u, v), ud = dot(u, v);
+  return [0, 1, 2].map((i) => v[i] * c + ux[i] * s + u[i] * ud * (1 - c));
+}
+
+/**
+ * Closed triangles of a swept disk bar in its body's coordinates: a tube of
+ * `sides` faces round the centreline (barPolyline), its rings carried along
+ * by parallel transport so it does not twist, cut on the bisecting plane at
+ * each bend (a mitre, so straight pieces keep their full section) and capped
+ * at both ends. A bend turning more than 120 degrees gets two square rings
+ * instead of a mitre, which would reach far out. Inner radius (a hollow
+ * tube) is not drawn.
+ * @param {{radius: number, segs: object[]}} bar
+ * @param {number} sides
+ * @param {number} arcStep
+ * @returns {number[][][]} triangles, each three points, facing out
+ */
+export function tubeTriangles(bar, sides = TUBE_SIDES, arcStep = TUBE_ARC_STEP) {
+  const r = bar.radius;
+  const P = barPolyline(bar.segs, arcStep);
+  if (!(r > 0) || P.length < 2) return [];
+  const T = [];
+  for (let i = 0; i + 1 < P.length; i++) T.push(unit3(sub(P[i + 1], P[i])));
+  // a first frame square to the first piece
+  const t0 = T[0];
+  const ref = Math.abs(t0[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0];
+  let e1 = unit3(cross(ref, t0));
+  const ringAt = (p, t, e, miter) => {
+    const e2 = cross(t, e);
+    const out = [];
+    for (let k = 0; k < sides; k++) {
+      const th = (2 * Math.PI * k) / sides;
+      let q = [e[0] * Math.cos(th) + e2[0] * Math.sin(th), e[1] * Math.cos(th) + e2[1] * Math.sin(th), e[2] * Math.cos(th) + e2[2] * Math.sin(th)];
+      q = [q[0] * r, q[1] * r, q[2] * r];
+      // slide along t onto the mitre plane through p
+      if (miter) q = addS(q, t, -dot(q, miter) / dot(t, miter));
+      out.push(addS(p, q, 1));
+    }
+    return out;
+  };
+  // rings in order along the bar; consecutive rings are joined by the tube's side
+  const rings = [ringAt(P[0], t0, e1, null)];
+  for (let i = 1; i + 1 < P.length; i++) {
+    const a = T[i - 1], b = T[i];
+    if (dot(a, b) < -0.5) {
+      rings.push(ringAt(P[i], a, e1, null));
+      e1 = unit3(turn(e1, a, b)) || e1;
+      rings.push(ringAt(P[i], b, e1, null));
+    } else {
+      const m = unit3([a[0] + b[0], a[1] + b[1], a[2] + b[2]]);
+      rings.push(ringAt(P[i], a, e1, m));
+      e1 = unit3(turn(e1, a, b)) || e1;
+    }
+  }
+  rings.push(ringAt(P[P.length - 1], T[T.length - 1], e1, null));
+  const tris = [];
+  for (let j = 0; j + 1 < rings.length; j++) {
+    const A = rings[j], B = rings[j + 1];
+    for (let k = 0; k < sides; k++) {
+      const k1 = (k + 1) % sides;
+      tris.push([A[k], B[k1], B[k]], [A[k], A[k1], B[k1]]);
+    }
+  }
+  const s0 = rings[0], s1 = rings[rings.length - 1];
+  for (let k = 1; k + 1 < sides; k++) {
+    tris.push([s0[0], s0[k + 1], s0[k]]);
+    tris.push([s1[0], s1[k], s1[k + 1]]);
+  }
+  return tris;
+}
+
 const BOUNDARY_CACHE = new WeakMap();
 
 /**
@@ -514,9 +624,10 @@ const BOUNDARY_CACHE = new WeakMap();
  * @param {number[]} W the element's 3x4 placement
  * @param {number} f length unit to metres
  * @param {number[]} origin subtracted (in metres) before the float32 store, so far-off site coordinates keep their millimetres
+ * @param {{sides: number, arcStep: number}|null} tube the detail swept disks are drawn at (tubeDetail)
  * @returns {{positions: Float32Array, normals: Float32Array, exact: boolean, empty: boolean}}
  */
-export function solidMesh(s, W, f = 1, origin = [0, 0, 0]) {
+export function solidMesh(s, W, f = 1, origin = [0, 0, 0], tube = null) {
   const polys = [];
   let exact = true;
   if (s && s.terms && s.terms.length) {
@@ -532,6 +643,7 @@ export function solidMesh(s, W, f = 1, origin = [0, 0, 0]) {
   if (s && s.mesh && !s.shells) exact = false;
   const tris = [];
   for (const p of polys) for (const t of triangulate(p)) tris.push(t);
+  if (s && s.bars) for (const b of s.bars) if (b.tube) for (const t of tubeTriangles(b, tube?.sides, tube?.arcStep)) tris.push(t);
   const positions = new Float32Array(tris.length * 9);
   const normals = new Float32Array(tris.length * 9);
   let o = 0;
@@ -585,7 +697,7 @@ export function modelOrigin(rows) {
 }
 
 /** The mesh to draw a takeoff row with: its net solid, else its body, else its box. */
-export function rowMesh(row, origin = [0, 0, 0], maxTriangles = MAX_ELEMENT_TRIANGLES) {
+export function rowMesh(row, origin = [0, 0, 0], maxTriangles = MAX_ELEMENT_TRIANGLES, tube = null) {
   let reason = null;
   const S = row.computed && row.computed.solids;
   const W = row.world;
@@ -593,7 +705,7 @@ export function rowMesh(row, origin = [0, 0, 0], maxTriangles = MAX_ELEMENT_TRIA
   if (S && W) {
     const s = S.net || S.body;
     try {
-      const m = solidMesh(s, W, f, origin);
+      const m = solidMesh(s, W, f, origin, tube);
       if (!m.empty && m.positions.length / 9 <= maxTriangles) return { ...m, net: !!S.net && S.net !== S.body };
       if (!m.empty) reason = `${m.positions.length / 9} triangles`;
     } catch { /* drawn as its box below */ }
@@ -632,9 +744,11 @@ export function storeyList(rows) {
  * a model the same way.
  */
 export function* meshRows(rows, origin) {
+  let tube = null;
+  try { tube = tubeDetail(rows); } catch { tube = null; }
   for (const r of rows) {
     let mesh = null;
-    try { mesh = rowMesh(r, origin); } catch { mesh = null; }
+    try { mesh = rowMesh(r, origin, MAX_ELEMENT_TRIANGLES, tube); } catch { mesh = null; }
     yield { id: r.id, mesh };
   }
 }

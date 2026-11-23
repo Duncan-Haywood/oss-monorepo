@@ -233,3 +233,71 @@ test("outline thinning: straight runs lose their extra points exactly; loops tha
   assert.equal(thinLoops([c, inner], 0.05), null);
   assert.ok(thinLoops([c, inner]));
 });
+
+// ---- swept disks drawn as tubes ----------------------------------------
+import { tubeTriangles, tubeDetail, TUBE_SIDES, TUBE_LEVELS } from "./view-mesh.mjs";
+const tris64 = (tris) => { let v = 0; const o = tris[0][0]; for (const [a, b, c] of tris) { const A = [a[0] - o[0], a[1] - o[1], a[2] - o[2]], B = [b[0] - o[0], b[1] - o[1], b[2] - o[2]], C = [c[0] - o[0], c[1] - o[1], c[2] - o[2]]; v += A[0] * (B[1] * C[2] - B[2] * C[1]) - A[1] * (B[0] * C[2] - B[2] * C[0]) + A[2] * (B[0] * C[1] - B[1] * C[0]); } return v / 6; };
+// a TUBE_SIDES-gon of circumradius r: its area, the tube's section
+const ngon = (r, n = TUBE_SIDES) => (n / 2) * r * r * Math.sin((2 * Math.PI) / n);
+const line = (a, b) => ({ kind: "line", a, b, length: Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) });
+
+test("a straight swept disk is drawn as a closed 8-sided tube facing out: volume = 8-gon x length", () => {
+  const t = tubeTriangles({ radius: 0.01, segs: [line([0, 0, 0], [0, 0, 2])] });
+  assert.equal(t.length, 2 * TUBE_SIDES + 2 * (TUBE_SIDES - 2));
+  const v = tris64(t);
+  assert.ok(Math.abs(v - ngon(0.01) * 2) < 1e-12, `${v}`);
+});
+
+test("a bent bar's tube is mitred at its bends: the volume is the section x centreline length, for any turn up to 120 degrees", () => {
+  for (const deg of [30, 90, 119]) {
+    const a = (deg * Math.PI) / 180;
+    const p2 = [1 + 0.5 * Math.cos(a), 0.5 * Math.sin(a), 0.3];
+    const segs = [line([0, 0, 0.3], [1, 0, 0.3]), line([1, 0, 0.3], p2), line(p2, [p2[0], p2[1], 1.3])];
+    const v = tris64(tubeTriangles({ radius: 0.006, segs }));
+    const want = ngon(0.006) * (1 + 0.5 + 1);
+    assert.ok(Math.abs(v - want) < 1e-9 * want + 1e-15, `${deg}: ${v} vs ${want}`);
+  }
+});
+
+test("a hairpin turning back on itself gets square rings, no mitre spike, and stays within the bar's reach", () => {
+  const t = tubeTriangles({ radius: 0.01, segs: [line([0, 0, 0], [1, 0, 0]), line([1, 0, 0], [0.5, 0.01, 0])] });
+  for (const tri of t) for (const p of tri) assert.ok(p[0] <= 1.01 + 1e-9 && Math.abs(p[2]) <= 0.01 + 1e-9, `${p}`);
+  assert.ok(tris64(t) > 0);
+});
+
+test("an arc bar's tube follows the arc in 22.5-degree chords: volume = 8-gon x chord length, within 11% of pi r^2 L", () => {
+  // a quarter circle of radius 0.2 about the origin in the xy plane
+  const seg = { kind: "arc", a: [0.2, 0, 0], b: [0, 0.2, 0], c: [0, 0, 0], n: [0, 0, 1], angle: Math.PI / 2, r: 0.2, length: 0.1 * Math.PI };
+  const t = tubeTriangles({ radius: 0.008, segs: [seg] });
+  const v = tris64(t);
+  const chords = 4 * 2 * 0.2 * Math.sin(Math.PI / 16);
+  assert.ok(Math.abs(v - ngon(0.008) * chords) < 1e-12, `${v}`);
+  const exact = Math.PI * 0.008 ** 2 * 0.1 * Math.PI;
+  assert.ok(Math.abs(v - exact) / exact < 0.11, `${v} vs ${exact}`);
+  for (const tri of t) for (const p of tri) assert.ok(Math.abs(Math.hypot(p[0], p[1]) - 0.2) <= 0.008 / Math.cos(Math.PI / 16) + 1e-9 && Math.abs(p[2]) <= 0.008 + 1e-9, `${p}`);
+});
+
+test("solidMesh draws a tube bar and leaves extruded round bars (which have faces) alone", () => {
+  const body = { terms: [], shells: null, mesh: 1, notes: [], bars: [{ radius: 0.01, tube: true, segs: [line([0, 0, 0], [1, 0, 0])] }] };
+  const m = solidMesh(body, IDENTITY);
+  assert.equal(m.empty, false);
+  assert.ok(Math.abs(meshVolume(m.positions) - ngon(0.01)) < 1e-6);
+  const noTube = solidMesh({ ...body, bars: [{ radius: 0.01, segs: body.bars[0].segs }] }, IDENTITY);
+  assert.equal(noTube.empty, true);
+});
+
+test("tubeDetail draws a model's bars at 8 sides until they would pass the budget, then fewer", () => {
+  const bar = { radius: 0.006, tube: true, segs: [line([0, 0, 0], [1, 0, 0]), line([1, 0, 0], [1, 1, 0])] };
+  const rows = (n) => [{ computed: { solids: { body: { terms: [], bars: Array.from({ length: n }, () => bar) } } } }];
+  // 3 centreline points: 2 x sides x 3 triangles per bar
+  assert.equal(tubeDetail(rows(10)).sides, 8);
+  assert.equal(tubeDetail(rows(10), 2 * 8 * 3 * 10).sides, 8);
+  assert.equal(tubeDetail(rows(10), 2 * 8 * 3 * 10 - 1).sides, 6);
+  const last = tubeDetail(rows(10), 1);
+  assert.equal(last.sides, TUBE_LEVELS.at(-1).sides);
+  assert.equal(last.overBudget, true);
+  // a lighter level still closes: a 3-sided tube encloses the triangle x length
+  const t = tubeTriangles(bar, 3, Math.PI / 4);
+  const want = (3 / 2) * 0.006 ** 2 * Math.sin((2 * Math.PI) / 3) * 2;
+  assert.ok(Math.abs(tris64(t) - want) < 1e-12, `${tris64(t)} vs ${want}`);
+});
