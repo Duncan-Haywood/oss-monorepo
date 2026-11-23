@@ -1,6 +1,7 @@
 // League schedule generator, standings.mjs: Results, standings, tie-breaks and the play-off race (clinched, eliminated, odds).
 // Split out of calc.mjs on 2026-11-23 (quality audit round 87); calc.mjs re-exports every public name.
 
+import { RACE_NODE_BUDGET, RACE_MAGIC_BUDGET, exactRanks, exactMagic, monotone, ownTotals } from "./race-exact.mjs";
 import { dayLabel } from "./dates.mjs";
 import { teamIndex } from "./names.mjs";
 import { mulberry32 } from "./rng.mjs";
@@ -282,7 +283,8 @@ export function tieBreakNotes(rows) {
 
 // ---------------------------------------------------------------- playoff race
 
-/** Most remaining fixtures worked through exhaustively (3^12 = 531,441 outcomes); beyond it, safe bounds. */
+/** Most remaining fixtures worked through exhaustively (3^12 = 531,441 outcomes); beyond it, branch and bound
+ * (race-exact.mjs) within `nodeBudget` per question, falling back to safe bounds where it runs out. */
 export const RACE_EXACT_LIMIT = 12;
 
 /**
@@ -295,10 +297,15 @@ export const RACE_EXACT_LIMIT = 12;
  * status: "clinched" | "eliminated" | "alive", magic, clinchedUnlessTied }. `clinchedUnlessTied` is true for an
  * alive team that is in a place in every outcome where it does not finish level on points at the
  * cut, so only a lost tie-break (goal difference, head to head) can cost it. `magic` is how many more points guarantee a
- * place whatever the others do (null when out of reach or already clinched). `exact` says whether
- * every outcome was worked through or the safe bounds were used.
+ * place whatever the others do, however the points come (null when out of reach or already clinched). Since
+ * 2026-11-23 it is exact: from the enumeration, or from race-exact.mjs's `exactMagic` (`magicBudget` nodes per
+ * team, default 1,000; where that runs out the every-rival-wins-out number stands). `magicBound` keeps that old
+ * number for comparison. `exact` says whether
+ * every outcome was worked through; `proved` (2026-11-23) whether every best and worst rank was proved, by the
+ * enumeration or by the branch and bound in race-exact.mjs (`nodeBudget` nodes per question; 0 keeps the bounds
+ * alone). Where the search runs out, the safe bounds stand, so "clinched" and "eliminated" stay never wrong.
  */
-export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, setScoring = false, exactLimit = RACE_EXACT_LIMIT, adjustments = {} } = {}) {
+export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, setScoring = false, exactLimit = RACE_EXACT_LIMIT, adjustments = {}, nodeBudget = RACE_NODE_BUDGET, magicBudget = Math.min(nodeBudget, RACE_MAGIC_BUDGET) } = {}) {
   const n = teams.length;
   const k = Math.max(1, Math.min(spots, n));
   const scoring = { win, draw, loss, setScoring };
@@ -314,16 +321,20 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
   const low = Math.min(...outcomes.flat());
   const maxPts = pts.map((p, i) => p + left[i] * top);
   const minPts = pts.map((p, i) => p + left[i] * low);
+  let proved = false;
   const best = Array(n).fill(n);
   const worst = Array(n).fill(1);
   const worstWon = Array(n).fill(1);
   // the same work budget as 3^exactLimit when a match has more than three outcomes (5 under set scoring)
   const exact = remaining.length <= Math.floor((exactLimit * Math.log(3)) / Math.log(outcomes.length) + 1e-9);
+  // per team, the totals of its own games after which it still missed a place (ties lost): the exact magic number
+  const stopped = Array.from({ length: n }, () => new Set());
   const rankAll = (p) => {
     for (let i = 0; i < n; i++) {
       let above = 0;
       let level = 0;
       for (let j = 0; j < n; j++) { if (j === i) continue; if (p[j] > p[i]) above++; else if (p[j] === p[i]) level++; }
+      if (above + level + 1 > k) stopped[i].add(p[i] - pts[i]);
       if (above + 1 < best[i]) best[i] = above + 1;
       if (above + level + 1 > worst[i]) worst[i] = above + level + 1;
       if (above + 1 > worstWon[i]) worstWon[i] = above + 1;
@@ -352,25 +363,54 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
       for (let j = 0; j < n; j++) if (j !== i && maxPts[j] > minPts[i]) over++;
       worstWon[i] = over + 1;
     }
+    // the bounds let every rival win out at once; branch and bound (race-exact.mjs) proves what it can
+    // inside its budget, and anything it cannot settle keeps the bound above
+    if (nodeBudget > 0 && monotone(outcomes)) {
+      proved = true;
+      for (let i = 0; i < n; i++) {
+        const q = exactRanks(pts, remaining, i, outcomes, { budget: nodeBudget, spots: k });
+        if (q.worst.proved) worst[i] = Math.min(worst[i], q.worst.value + 1);
+        else { proved = false; if (q.worst.decided === "not") worst[i] = Math.min(worst[i], k); }
+        if (q.worstWon.proved) worstWon[i] = Math.min(worstWon[i], q.worstWon.value + 1);
+        else { proved = false; if (q.worstWon.decided === "not") worstWon[i] = Math.min(worstWon[i], k); }
+        if (q.best.proved) best[i] = Math.max(best[i], q.best.value + 1);
+        else { proved = false; if (q.best.decided === "not") best[i] = Math.max(best[i], k + 1); }
+      }
+    }
   }
   const rows = teams.map((name, i) => {
     const status = worst[i] <= k ? "clinched" : best[i] > k ? "eliminated" : "alive";
     let magic = null;
+    let magicBound = null;
     if (status === "alive") {
-      // the smallest total of extra points that still clinches if every rival wins out
+      // the safe bound: the smallest total of extra points that still clinches if every rival wins out
       for (let extra = 1; extra <= left[i] * top; extra++) {
         const mine = pts[i] + extra;
         let rivals = 0;
         for (let j = 0; j < n; j++) if (j !== i && maxPts[j] >= mine) rivals++;
-        if (rivals + 1 <= k) { magic = extra; break; }
+        if (rivals + 1 <= k) { magicBound = extra; break; }
       }
+      // totals the team can actually score from its games left, highest first
+      const totals = [...ownTotals(outcomes, left[i])[left[i]]].filter((e) => e >= 1).sort((x, y) => y - x);
+      // "2 more points" from one 3-1-0 game means a win: round the bound up to a total that can be scored
+      if (magicBound != null) magic = totals.filter((e) => e >= magicBound).pop() ?? null;
+      // 2026-11-23: the same question asked exactly, rivals who meet each other sharing the points
+      let found = null;
+      if (exact) {
+        for (const e of totals) { if (stopped[i].has(e)) break; found = e; }
+      } else if (magicBudget > 0 && monotone(outcomes)) {
+        found = exactMagic(pts, remaining, i, k, outcomes, { budget: magicBudget, known: magic }).magic;
+      }
+      if (found != null && (magic == null || found < magic)) magic = found;
     }
     // alive, but in the place whatever happens unless it finishes level on points and loses the tie-break
     const clinchedUnlessTied = status === "alive" && worstWon[i] <= k;
-    return { index: i, name, points: pts[i], left: left[i], maxPoints: maxPts[i], bestRank: best[i], worstRank: worst[i], status, magic, clinchedUnlessTied };
+    return { index: i, name, points: pts[i], left: left[i], maxPoints: maxPts[i], bestRank: best[i], worstRank: worst[i], status, magic, magicBound, clinchedUnlessTied };
   });
   rows.sort((x, y) => y.points - x.points || x.index - y.index);
   rows.exact = exact;
+  // every best and worst rank proved by branch and bound, not only bounded
+  rows.proved = exact || proved;
   return rows;
 }
 

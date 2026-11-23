@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Convert A P6 XML File To XER, Free</title>
+  <meta name="description" content="Convert a Primavera P6 XML export (EPPM, Primavera Cloud) to an XER in your browser, and run the DCMA check on it. Free, no P6 seat, nothing uploaded.">
+  <meta property="og:title" content="How To Convert A P6 XML File To XER, Free">
+  <meta property="og:description" content="P6 EPPM and Primavera Cloud export P6 XML; reviewers and claims tools want XER. Convert in the browser, and check the schedule while you are there.">
+  <link rel="canonical" href="./how-to-convert-p6-xml-to-xer.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a P6 XML file?","acceptedAnswer":{"@type":"Answer","text":"The XML format Primavera P6 uses to move projects between databases: the file starts with an APIBusinessObjects element and holds projects, WBS, activities, relationships, calendars, resources and assignments under the names of P6's API. P6 Professional writes it from File, Export, Primavera PM (XML); P6 EPPM (the web version) and Oracle Primavera Cloud export it as their standard exchange file."}},{"@type":"Question","name":"How do I convert P6 XML to XER without P6?","acceptedAnswer":{"@type":"Answer","text":"Open the .xml file on the tool page and press Download as P6 XER. The file is read in your browser and written back as an XER with the same projects, WBS, activities, relationships, calendars, scheduling options, resources, assignments, activity codes and user-defined fields. Nothing is uploaded."}},{"@type":"Question","name":"Is anything lost converting P6 XML to XER?","acceptedAnswer":{"@type":"Answer","text":"P6 XML stores no total or free float, so the XER's float columns are left empty for P6 to fill at its first schedule run (this tool recomputes float from the logic anyway). Baseline projects inside the XML file are not carried; open the baseline as its own file. On six public schedules written as P6 XML, the XER read back with every activity, calendar and relationship the same, and the recomputed schedule equal on all 21,441 activities."}},{"@type":"Question","name":"Can I run a DCMA 14-point check on a P6 XML file?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open the .xml wherever the page asks for an XER: the 14-point assessment, the GAO scorecard, the Gantt chart, the comparison of two updates, the windows analysis, risk, levelling and the time impact analysis all read it the same way. The only check that cannot run is the one comparing P6's stored float with the logic, because P6 XML does not store float."}},{"@type":"Question","name":"Is my schedule uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read and converted in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to convert a P6 XML file to XER</h1>
+  <p>P6 has two export formats. XER is the tab-separated one most review tools, claims consultants and contract specifications ask for. P6 XML is the format P6 EPPM and Oracle Primavera Cloud export, and P6 Professional writes it too (File, Export, Primavera PM (XML)). If a contractor sends you the XML and your tools want an XER, the usual answers are to import it into a P6 database and export again, which needs a P6 seat, or to buy a converter. This page does it in the browser, and runs the schedule checks on the XML while it is open.</p>
+  <p><a class="cta" href="./#in">Open the free schedule check</a> (open the .xml, then press Download as P6 XER)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Open the <code>.xml</code> file on the <a href="./">tool page</a>, in the same box as an XER. The page tells P6 XML from Microsoft Project XML by its first element.</li>
+    <li>Under <b>Convert this P6 XML file to an XER</b>, press <b>Download as P6 XER (.xer)</b>. The file is saved in Windows-1252, the code page P6 reads an XER in, unless a name holds characters that code page cannot hold.</li>
+    <li>Scroll down for the DCMA 14-point assessment, the critical path and everything else the page does with an XER: it reads the XML directly, so there is no need to convert first.</li>
+  </ol>
+  <h2>What is carried</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>P6 XML</th><th>XER</th></tr></thead>
+    <tbody>
+      <tr><td>Project, data date, must finish by, scheduling options</td><td>PROJECT, SCHEDOPTIONS (lag calendar, float type, retained logic or progress override, expected finish dates, critical by float or longest path)</td></tr>
+      <tr><td>Calendar: standard work week, holidays and exceptions</td><td>CALENDAR in P6's own calendar data; a work time P6 writes as ending 11:59 ends at 12:00</td></tr>
+      <tr><td>WBS</td><td>PROJWBS under a project node</td></tr>
+      <tr><td>Activity: ID, type, status, durations, progress, constraints, stored dates, expected finish, suspend and resume</td><td>TASK</td></tr>
+      <tr><td>Relationship with type and lag</td><td>TASKPRED</td></tr>
+      <tr><td>Resources, rates, assignments with units and cost</td><td>RSRC, RSRCRATE, TASKRSRC</td></tr>
+      <tr><td>Activity codes, user-defined fields, activity notes</td><td>ACTVTYPE, ACTVCODE, TASKACTV, UDFTYPE, UDFVALUE, TASKMEMO</td></tr>
+    </tbody>
+  </table></div>
+  <h2>How it was tested</h2>
+  <p>No public schedule exists as both an XER and a P6 XML of the same project, so the six public P6 schedules this project is tested on were written as P6 XML by MPXJ, the independent open-source converter library. Read back here, every activity, calendar, WBS path and all 56,666 relationships were the same as in the original XERs, and the recomputed schedule (early and late dates and total float) was equal on 21,441 of 21,441 activities. The XML written back as XER schedules the same again, and MPXJ reads those XERs exactly as it reads the originals: 239,338 of 239,338 fields. On a P6 XML file P6 itself wrote, the recomputed early start, early finish and late finish equal P6's stored ones on 32 of 32 open activities. The project's <code>eval/pmxml-2026-11-23.md</code> has the detail, including two faults in the generator that the test found and worked around.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>No float in P6 XML.</b> P6 leaves calculated float out of its XML export, so the XER's float columns are empty until P6 schedules it. This tool recomputes float from the logic, so its checks are unaffected, except the one comparing stored float with the logic.</li>
+    <li><b>Baselines.</b> A P6 XML file can carry baseline projects. They are named in the notes and not converted; export the baseline as its own file.</li>
+    <li><b>Import into P6 not yet tested here.</b> The XER is checked with this tool's reader and with MPXJ, not yet by importing it into P6. Check the first one you import.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is a P6 XML file?</h3>
+  <p>The XML format Primavera P6 uses to move projects between databases: the file starts with an APIBusinessObjects element and holds projects, WBS, activities, relationships, calendars, resources and assignments under the names of P6's API. P6 Professional writes it from File, Export, Primavera PM (XML); P6 EPPM (the web version) and Oracle Primavera Cloud export it as their standard exchange file.</p>
+  <h3>How do I convert P6 XML to XER without P6?</h3>
+  <p>Open the .xml file on the tool page and press Download as P6 XER. The file is read in your browser and written back as an XER with the same projects, WBS, activities, relationships, calendars, scheduling options, resources, assignments, activity codes and user-defined fields. Nothing is uploaded.</p>
+  <h3>Is anything lost converting P6 XML to XER?</h3>
+  <p>P6 XML stores no total or free float, so the XER's float columns are left empty for P6 to fill at its first schedule run (this tool recomputes float from the logic anyway). Baseline projects inside the XML file are not carried; open the baseline as its own file. On six public schedules written as P6 XML, the XER read back with every activity, calendar and relationship the same, and the recomputed schedule equal on all 21,441 activities.</p>
+  <h3>Can I run a DCMA 14-point check on a P6 XML file?</h3>
+  <p>Yes. Open the .xml wherever the page asks for an XER: the 14-point assessment, the GAO scorecard, the Gantt chart, the comparison of two updates, the windows analysis, risk, levelling and the time impact analysis all read it the same way. The only check that cannot run is the one comparing P6's stored float with the logic, because P6 XML does not store float.</p>
+  <h3>Is my schedule uploaded?</h3>
+  <p>No. The file is read and converted in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-find-redundant-logic-in-a-p6-schedule.html">How to find redundant logic in a P6 schedule</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+    <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
+      <li><a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">How to split concurrent delay between owner and contractor</a></li>
+</ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

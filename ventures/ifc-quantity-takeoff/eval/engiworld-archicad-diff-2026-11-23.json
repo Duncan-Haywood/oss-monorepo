@@ -1,0 +1,1087 @@
+{
+ "totals": {
+  "tasks": 20,
+  "products": 87,
+  "found": 87,
+  "rooms": 44,
+  "roomsFound": 44,
+  "annotations": 42,
+  "annotated": 42,
+  "extra": 14,
+  "elementsOnly": {
+   "found": 43
+  }
+ },
+ "tasks": [
+  {
+   "task": "task-01",
+   "products": [],
+   "annotations": [
+    {
+     "name": "UNCLASSIFIED",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [],
+   "summary": {
+    "elements": [
+     5,
+     5
+    ],
+    "byGlobalId": 5,
+    "rooms": [
+     1,
+     1
+    ],
+    "roomsByGlobalId": 1
+   }
+  },
+  {
+   "task": "task-02",
+   "products": [],
+   "annotations": [
+    {
+     "name": "A-LIVING",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "B-LIVING",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [],
+   "summary": {
+    "elements": [
+     10,
+     10
+    ],
+    "byGlobalId": 10,
+    "rooms": [
+     12,
+     12
+    ],
+    "roomsByGlobalId": 12
+   }
+  },
+  {
+   "task": "task-03",
+   "products": [
+    {
+     "class": "IfcDoor",
+     "name": "ACCESSIBLE-WC-DOOR",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "WC-ACC",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: WAITING (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     41,
+     42
+    ],
+    "byGlobalId": 41,
+    "rooms": [
+     9,
+     9
+    ],
+    "roomsByGlobalId": 9
+   }
+  },
+  {
+   "task": "task-04",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "QUIET-POD-1",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "QUIET-POD-2",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "1-GALLERY",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [],
+   "summary": {
+    "elements": [
+     5,
+     5
+    ],
+    "byGlobalId": 5,
+    "rooms": [
+     7,
+     9
+    ],
+    "roomsByGlobalId": 7
+   }
+  },
+  {
+   "task": "task-05",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "PARCEL-PICKUP",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "PARCEL-ROLLER-DOOR",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "LOADING",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: BAY-1 (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     29,
+     30
+    ],
+    "byGlobalId": 29,
+    "rooms": [
+     6,
+     7
+    ],
+    "roomsByGlobalId": 6
+   }
+  },
+  {
+   "task": "task-06",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "SICK-BAY",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "CALM-ROOM",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "SICK-BAY-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "CALM-ROOM-HIGH-WINDOW",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "STAFF",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "NAP",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: PLAY-HALL (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     2,
+     4
+    ],
+    "byGlobalId": 2,
+    "rooms": [
+     10,
+     12
+    ],
+    "roomsByGlobalId": 10
+   }
+  },
+  {
+   "task": "task-07",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "PHONE-BOOTH-1",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "PHONE-BOOTH-2",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "PHONE-BOOTH-DOOR-1",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "ROOF-FOCUS-TERRACE",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "1-CORRIDOR",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "2-TERRACE",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: 1-OFFICE-1 (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     5,
+     6
+    ],
+    "byGlobalId": 5,
+    "rooms": [
+     12,
+     15
+    ],
+    "roomsByGlobalId": 12
+   }
+  },
+  {
+   "task": "task-08",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "FINISHING-BOOTH",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "FINISHING-BOOTH-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "FINISHING-HIGH-VENT",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "STORE",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [],
+   "summary": {
+    "elements": [
+     3,
+     5
+    ],
+    "byGlobalId": 3,
+    "rooms": [
+     5,
+     6
+    ],
+    "roomsByGlobalId": 5
+   }
+  },
+  {
+   "task": "task-09",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "COLD-CHAIN-HANDOVER",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "WASTE-HOLD",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "COLD-HANDOVER-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWall",
+     "name": "HYGIENE-SCREEN",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "COLD-STORE",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "DRY-STORE",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [],
+   "summary": {
+    "elements": [
+     2,
+     4
+    ],
+    "byGlobalId": 2,
+    "rooms": [
+     13,
+     15
+    ],
+    "roomsByGlobalId": 13
+   }
+  },
+  {
+   "task": "task-10",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "ACCESSIBLE-GUEST-SUITE",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "HOUSEKEEPING-CLOSET",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "ACCESSIBLE-SUITE-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "ACCESSIBLE-SUITE-WINDOW",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "RECEPTION",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "LINEN",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [],
+   "summary": {
+    "elements": [
+     5,
+     7
+    ],
+    "byGlobalId": 5,
+    "rooms": [
+     10,
+     12
+    ],
+    "roomsByGlobalId": 10
+   }
+  },
+  {
+   "task": "task-11",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "QUIET-STUDY",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "LAUNDRY-EXPANSION",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "QUIET-STUDY-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "STUDY-COURTYARD-WINDOW",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "LOUNGE",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "LAUNDRY",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: BED-2 (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     11,
+     13
+    ],
+    "byGlobalId": 11,
+    "rooms": [
+     11,
+     13
+    ],
+    "roomsByGlobalId": 11
+   }
+  },
+  {
+   "task": "task-12",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "SENSORY-ROOM",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "PARENT-MEETING",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "SENSORY-ROOM-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "PARENT-MEETING-WINDOW",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "PLAY-HALL",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "STAFF",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: CLASSROOM-2 (netWallArea, openings)",
+    "room changed: CLASSROOM-4 (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     12,
+     14
+    ],
+    "byGlobalId": 12,
+    "rooms": [
+     8,
+     10
+    ],
+    "roomsByGlobalId": 8
+   }
+  },
+  {
+   "task": "task-13",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "MAIL-PARCEL-LOBBY",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "REFUSE-STORE",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "MAIL-LOBBY-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "REFUSE-STORE-DOOR",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "APT-101-LIVING",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "APT-201-LIVING",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: APT-101-KITCHEN (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     15,
+     17
+    ],
+    "byGlobalId": 15,
+    "rooms": [
+     6,
+     8
+    ],
+    "roomsByGlobalId": 6
+   }
+  },
+  {
+   "task": "task-14",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "CLICK-COLLECT",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "CAFE-TERRACE-SEATING",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "CLICK-COLLECT-SHOPFRONT",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "CAFE-TERRACE-DOOR",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "MARKET",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "CAFE",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: SHOP-2 (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     33,
+     35
+    ],
+    "byGlobalId": 33,
+    "rooms": [
+     10,
+     12
+    ],
+    "roomsByGlobalId": 10
+   }
+  },
+  {
+   "task": "task-15",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "ISOLATION-CONSULT",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "DONNING",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "DOFFING",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "ISOLATION-ENTRY-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "ISOLATION-OBSERVATION-WINDOW",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "TRIAGE",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "CLEAN",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "DIRTY",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: WAITING (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     50,
+     52
+    ],
+    "byGlobalId": 50,
+    "rooms": [
+     12,
+     15
+    ],
+    "roomsByGlobalId": 12
+   }
+  },
+  {
+   "task": "task-16",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "CONTROLLED-LAB-SUITE",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "SPECIMEN-PREP",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "EYEWASH-ALCOVE",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "CONTROLLED-LAB-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWall",
+     "name": "LAB-SAFETY-SCREEN",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "SEMINAR-OBSERVATION-WINDOW",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "SEMINAR-OBSERVATION",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "LAB-1",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "SEMINAR",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "ATRIUM",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [],
+   "summary": {
+    "elements": [
+     41,
+     44
+    ],
+    "byGlobalId": 41,
+    "rooms": [
+     9,
+     13
+    ],
+    "roomsByGlobalId": 9
+   }
+  },
+  {
+   "task": "task-17",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "LOADING-QUARANTINE",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "BATTERY-CHARGE-ROOM",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "MEZZANINE-PROJECT-OFFICE",
+     "found": true
+    },
+    {
+     "class": "IfcWall",
+     "name": "FIRE-RATED-SCREEN",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "QUARANTINE-ROLLER-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "BATTERY-CHARGE-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "MEZZANINE-VISION-WINDOW",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "LOADING",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "BAY-A",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "OFFICE",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: BAY-B (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     52,
+     56
+    ],
+    "byGlobalId": 52,
+    "rooms": [
+     8,
+     11
+    ],
+    "roomsByGlobalId": 8
+   }
+  },
+  {
+   "task": "task-18",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "FAMILY-SUITE-1",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "HOUSEKEEPING-HUB-2",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "FIRE-LOBBY-2",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "FAMILY-SUITE-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "FIRE-LOBBY-DOOR-2",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "FAMILY-SUITE-BAY-WINDOW",
+     "found": true
+    },
+    {
+     "class": "IfcWall",
+     "name": "HOUSEKEEPING-SERVICE-SCREEN",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "LOBBY",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "CORRIDOR-2",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "BACK-OF-HOUSE",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: ROOM-101 (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     70,
+     74
+    ],
+    "byGlobalId": 70,
+    "rooms": [
+     15,
+     18
+    ],
+    "roomsByGlobalId": 15
+   }
+  },
+  {
+   "task": "task-19",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "PACKAGE-ROOM",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "COWORKING-SUITE",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "APT-203-STUDIO",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "ROOF-ACCESS-LOBBY",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "GREENHOUSE-PAVILION",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "PACKAGE-ROOM-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "ROOF-ACCESS-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "COWORKING-CORNER-WINDOW",
+     "found": true
+    },
+    {
+     "class": "IfcWall",
+     "name": "ROOF-GARDEN-WIND-SCREEN",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "RESI-LOBBY",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "MEETING",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "ROOF-GARDEN",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: OFFICE-1 (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     88,
+     92
+    ],
+    "byGlobalId": 88,
+    "rooms": [
+     16,
+     21
+    ],
+    "roomsByGlobalId": 16
+   }
+  },
+  {
+   "task": "task-20",
+   "products": [
+    {
+     "class": "IfcSpace",
+     "name": "AFTER-SCHOOL-SUITE",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "CARE-QUIET-ROOM",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "FAMILY-CONSULT",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "EMERGENCY-STORE",
+     "found": true
+    },
+    {
+     "class": "IfcSpace",
+     "name": "ROOF-THERAPY-GARDEN",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "AFTER-SCHOOL-ENTRY-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "CARE-QUIET-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcDoor",
+     "name": "ROOF-THERAPY-DOOR",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "CARE-QUIET-HIGH-WINDOW",
+     "found": true
+    },
+    {
+     "class": "IfcWindow",
+     "name": "AFTER-SCHOOL-LIBRARY-WINDOW",
+     "found": true
+    },
+    {
+     "class": "IfcWall",
+     "name": "CARE-ACOUSTIC-SCREEN",
+     "found": true
+    },
+    {
+     "class": "IfcWall",
+     "name": "ROOF-THERAPY-WIND-SCREEN",
+     "found": true
+    }
+   ],
+   "annotations": [
+    {
+     "name": "ENTRY-HALL",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "LIBRARY",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "GROUP-ROOM",
+     "reported": true,
+     "tokens": true
+    },
+    {
+     "name": "ROOF-GARDEN",
+     "reported": true,
+     "tokens": true
+    }
+   ],
+   "extra": [
+    "room changed: CLASSROOM-1 (netWallArea, openings)"
+   ],
+   "summary": {
+    "elements": [
+     117,
+     124
+    ],
+    "byGlobalId": 117,
+    "rooms": [
+     20,
+     25
+    ],
+    "roomsByGlobalId": 20
+   }
+  }
+ ]
+}

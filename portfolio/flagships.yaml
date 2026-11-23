@@ -330,12 +330,12 @@ flagships:
       at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
       whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
       2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
-      (eval/noise-pca-whitened-level-*); on own ramps the oracle's 14 losses go to
-      0; drawn noise on 11 fresh camera raws passed 2026-11-23 (+0.12/+0.22 dB,
-      eval/camera-drawn-mpcws-*), so mpcws is the Bayer default; next read it
-      against --noise-read ship on new camera files. Browser cull page 2026-11-23
-      (site/cull.html, eval/cull-page-previews-*): next a real card of 500+ raws
-      through it and a Lightroom import of its sidecars. More open items: NEXT.md.
+      (eval/noise-pca-whitened-level-*); drawn noise on 11 fresh camera raws passed
+      2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer
+      default; next read it against --noise-read ship on new camera files. Browser
+      cull page 2026-11-23 (site/cull.html; 520-file card 45.6 to 25.8 s, 2.1% of
+      each raw read, eval/cull-card-500-*): next a real card of 500+ raws and a
+      Lightroom import of its sidecars. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -386,22 +386,22 @@ flagships:
       ratings; installs to a phone, opens offline, pwa.mjs; club-site embed,
       embed.mjs 2026-11-20: README; next: a real league's use, a real
       Wix/Squarespace paste); 2026-11-19 balanced teams, /join free agents
-      (eval/free-agent-fit.txt), crossover pool seeds (eval/crossover-seeds.txt);
-      bowling lanes 36 of 36 even (eval/bowling-repeat-sat.txt); bowling averages,
-      handicaps, points, standings from score sheets (bowling-recap.test.mjs)). 5, 7
-      on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on
-      7x6; next: a real club's night on it. Tournaments 2026-11-20 (tournament.mjs;
-      results fill pools and bracket, tournament-results.mjs); next: a real
-      tournament. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs flighted play-offs,
-      golf-league-schedule.html): tee times at share in 71 of 77 seasons, other 6
-      SAT-proved out (eval/golf-tee-grid.txt); next: a real league's season. Box
-      leagues 2026-11-21 (boxleague.mjs); next: a real club's month. ChessHouse r8
-      bye fixed 2026-11-23 (weighed in its bracket, byes 40/42); next: a real club's
-      TRF (GitHub search 2026-11-23: only test fixtures). Bowling 22-28 teams
+      (eval/free-agent-fit.txt), crossover pool seeds (eval/crossover-seeds.txt)).
+      5, 7 on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27
+      on 7x6; next: a real club's night on it. Tournaments 2026-11-20
+      (tournament.mjs; results fill pools and bracket, tournament-results.mjs);
+      next: a real tournament. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs flighted
+      play-offs, golf-league-schedule.html): tee times at share in 71 of 77 seasons,
+      other 6 SAT-proved out (eval/golf-tee-grid.txt); next: a real league's season.
+      Box leagues 2026-11-21 (boxleague.mjs); next: a real club's month. ChessHouse
+      r8 bye fixed 2026-11-23 (weighed in its bracket, byes 40/42); next: a real
+      club's TRF (GitHub search 2026-11-23: only test fixtures). Bowling 22-28 teams
       2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
       open in NEXT.md. Season import 2026-11-23 (importschedule.mjs, 819/819
-      round-trip, eval/import-roundtrip.txt); next: a real league's export. More:
-      NEXT.md.
+      round-trip, eval/import-roundtrip.txt); next: a real league's export. Clinch
+      watch and magic numbers exact 2026-11-23 (race-exact.mjs, eval/race-real.txt,
+      eval/magic-real.txt: 18 real seasons, 0 wrong); next: the supply cut in the
+      race search, a real league's published numbers. More: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
@@ -501,8 +501,7 @@ flagships:
     buildable: >-
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. Tekla beams reading apart by schema
-      (eval/qto-psets-2026-11-23.md). IFC4X3 ifcXML: none public (searched
+      rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs; STEP exports as
@@ -534,9 +533,10 @@ flagships:
       eval/cobie-placement-point-2026-11-23.md; 20 doors with a second room all the
       file's slip 2026-11-23 (one-side boundaries take geometry's other room,
       eval/door-extra-room-2026-11-23.md); next: ARK_NUS's 9 in another room, a real
-      owner's COBie QC. Tekla Qto_ psets filled 2026-11-23
-      (eval/qto-psets-2026-11-23.md). HTML report: next, a consultant's read. More
-      open items: NEXT.md.
+      owner's COBie QC. Tekla Qto_ psets 2026-11-23
+      (eval/beam-schema-twins-2026-11-23.md,
+      eval/one-member-railings-2026-11-23.md). HTML report: next, a consultant's
+      read. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -565,26 +565,28 @@ flagships:
       (11) next a real TIA exhibit. (8) MSPDI: resource calendars, Resume, splits
       read 2026-11-21 (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md);
       next a Project open of those rows, a P6 import of a curve, timephased late
-      dates. (13) XER to Project XML shipped 2026-11-21; next a Project check.
-      Expenses <-> cost resources and fixed costs 2026-11-21 (1,526/1,526 to the
-      cent, MPXJ agrees; eval/expenses-2026-11-21.md); next a P6-written XER with
-      expenses, a P6 import (category by name?). Finish-date UDFs <-> Project Finish
-      fields, Start/Finish fields read 2026-11-22 (eval/finish-udfs-2026-11-22.md:
-      120/120 Project values, CCA 182/182); next: a P6 import of the result. next a
-      real scheduler's read. Levelling on P6 resource curves 2026-11-22 (--curves,
-      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve.
-      branches in TIA 2026-11-22 (tia.mjs Branch group/Branch/Probability, every
-      outcome scheduled, eval/tia-branches-2026-11-22.md), next a real TIA exhibit
-      with alternatives. (15) next a commercial drag run, real crash rates. (16)
-      next a real schedule with its GAO assessment. (17) Collapsed as-built,
-      as-planned vs as-built 2026-11-23 (collapse.mjs, asplanned.mjs;
-      eval/asplanned-check-2026-11-23.md); next a real baseline + final update with
-      a claim's delay list. (18) TIA by party, events step by step in date order and
-      newest first 2026-11-23 (eval/tia-party-check-2026-11-23.md,
-      eval/tia-steps-check-2026-11-23.md); next a real claim's parties and dated
-      event list. (19) Redundant logic 2026-11-23 (redundant.mjs, --redundant;
-      eval/redundant-logic-2026-11-23.md); next an Acumen Fuse count on one file, a
-      P6 import of the cleaned XER. More: NEXT.md.
+      dates. (13) XER to Project XML shipped 2026-11-21; next a Project check. (14)
+      P6 XML read and to XER 2026-11-23 (pmxml.mjs, eval/pmxml-2026-11-23.md:
+      21,441/21,441 same schedule); next a P6 import of one, a large real P6 XML
+      export. Expenses <-> cost resources and fixed costs 2026-11-21 (1,526/1,526 to
+      the cent, MPXJ agrees; eval/expenses-2026-11-21.md); next a P6-written XER
+      with expenses, a P6 import (category by name?). Finish-date UDFs <-> Project
+      Finish fields, Start/Finish fields read 2026-11-22
+      (eval/finish-udfs-2026-11-22.md: 120/120 Project values, CCA 182/182); next: a
+      P6 import of the result. next a real scheduler's read. Levelling on P6
+      resource curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md); next a
+      P6-levelled file with a curve. branches in TIA 2026-11-22 (tia.mjs Branch
+      group/Branch/Probability, every outcome scheduled,
+      eval/tia-branches-2026-11-22.md), next a real TIA exhibit with alternatives.
+      (15) next a commercial drag run, real crash rates. (16) next a real schedule
+      with its GAO assessment. (17) Collapsed as-built, as-planned vs as-built
+      2026-11-23 (collapse.mjs, asplanned.mjs; eval/asplanned-check-2026-11-23.md);
+      next a real baseline + final update with a claim's delay list. (18) TIA by
+      party, events step by step in date order and newest first 2026-11-23
+      (eval/tia-party-check-2026-11-23.md, eval/tia-steps-check-2026-11-23.md); next
+      a real claim's parties and dated event list. (19) Redundant logic 2026-11-23
+      (redundant.mjs, --redundant; eval/redundant-logic-2026-11-23.md); next an
+      Acumen Fuse count on one file, a P6 import of the cleaned XER. More: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -605,9 +607,9 @@ flagships:
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); signed
       fans swept 2026-11-23 (eval/signed-fan-swept-2026-11-23.md); square-cut ends
       2026-11-23 (eval/square-cut-ends-2026-11-23.md); #207997's 0.117%
-      (eval/curved-sag-2026-11-23.md; reference JSONs in eval/); revision series:
-      Revit and BlenderBIM done, material renames/swaps 2026-11-23
-      (eval/revision-diff-materials-2026-11-23.md); next ArchiCAD/Vectorworks.
+      (eval/curved-sag-2026-11-23.md; reference JSONs in eval/); revisions:
+      EngiWorld's Archicad gui and cross-software pairs
+      (eval/engiworld-archicad-diff-2026-11-23.md, Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

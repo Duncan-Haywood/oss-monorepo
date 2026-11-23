@@ -1,0 +1,22 @@
+task-01: elements 5 -> 5 (5 by GlobalId), rooms 1 -> 1; listed 0 products, 1 annotations; found 0, annotated 1
+task-02: elements 10 -> 10 (10 by GlobalId), rooms 12 -> 12; listed 0 products, 2 annotations; found 0, annotated 2
+task-03: elements 41 -> 42 (41 by GlobalId), rooms 9 -> 9; listed 1 products, 1 annotations; found 1, annotated 1; extra: room changed: WAITING (netWallArea, openings)
+task-04: elements 5 -> 5 (5 by GlobalId), rooms 7 -> 9; listed 2 products, 1 annotations; found 2, annotated 1
+task-05: elements 29 -> 30 (29 by GlobalId), rooms 6 -> 7; listed 2 products, 1 annotations; found 2, annotated 1; extra: room changed: BAY-1 (netWallArea, openings)
+task-06: elements 2 -> 4 (2 by GlobalId), rooms 10 -> 12; listed 4 products, 2 annotations; found 4, annotated 2; extra: room changed: PLAY-HALL (netWallArea, openings)
+task-07: elements 5 -> 6 (5 by GlobalId), rooms 12 -> 15; listed 4 products, 2 annotations; found 4, annotated 2; extra: room changed: 1-OFFICE-1 (netWallArea, openings)
+task-08: elements 3 -> 5 (3 by GlobalId), rooms 5 -> 6; listed 3 products, 1 annotations; found 3, annotated 1
+task-09: elements 2 -> 4 (2 by GlobalId), rooms 13 -> 15; listed 4 products, 2 annotations; found 4, annotated 2
+task-10: elements 5 -> 7 (5 by GlobalId), rooms 10 -> 12; listed 4 products, 2 annotations; found 4, annotated 2
+task-11: elements 11 -> 13 (11 by GlobalId), rooms 11 -> 13; listed 4 products, 2 annotations; found 4, annotated 2; extra: room changed: BED-2 (netWallArea, openings)
+task-12: elements 12 -> 14 (12 by GlobalId), rooms 8 -> 10; listed 4 products, 2 annotations; found 4, annotated 2; extra: room changed: CLASSROOM-2 (netWallArea, openings); room changed: CLASSROOM-4 (netWallArea, openings)
+task-13: elements 15 -> 17 (15 by GlobalId), rooms 6 -> 8; listed 4 products, 2 annotations; found 4, annotated 2; extra: room changed: APT-101-KITCHEN (netWallArea, openings)
+task-14: elements 33 -> 35 (33 by GlobalId), rooms 10 -> 12; listed 4 products, 2 annotations; found 4, annotated 2; extra: room changed: SHOP-2 (netWallArea, openings)
+task-15: elements 50 -> 52 (50 by GlobalId), rooms 12 -> 15; listed 5 products, 3 annotations; found 5, annotated 3; extra: room changed: WAITING (netWallArea, openings)
+task-16: elements 41 -> 44 (41 by GlobalId), rooms 9 -> 13; listed 7 products, 3 annotations; found 7, annotated 3
+task-17: elements 52 -> 56 (52 by GlobalId), rooms 8 -> 11; listed 7 products, 3 annotations; found 7, annotated 3; extra: room changed: BAY-B (netWallArea, openings)
+task-18: elements 70 -> 74 (70 by GlobalId), rooms 15 -> 18; listed 7 products, 3 annotations; found 7, annotated 3; extra: room changed: ROOM-101 (netWallArea, openings)
+task-19: elements 88 -> 92 (88 by GlobalId), rooms 16 -> 21; listed 9 products, 3 annotations; found 9, annotated 3; extra: room changed: OFFICE-1 (netWallArea, openings)
+task-20: elements 117 -> 124 (117 by GlobalId), rooms 20 -> 25; listed 12 products, 4 annotations; found 12, annotated 4; extra: room changed: CLASSROOM-1 (netWallArea, openings)
+
+20 pairs: 87 of 87 listed products reported added (44 of 44 rooms, 43 of 43 elements); 42 of 42 listed room annotations reported with every token; 14 changes reported that the list does not name

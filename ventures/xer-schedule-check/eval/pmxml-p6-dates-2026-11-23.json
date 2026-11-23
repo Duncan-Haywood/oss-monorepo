@@ -1,0 +1,83 @@
+[
+ {
+  "file": "myoualid__EC00850_V2.xml",
+  "version": null,
+  "projects": 1,
+  "activities": 33,
+  "links": 33,
+  "calendars": 6,
+  "assignments": 24,
+  "scheduledByP6": 32,
+  "es": 32,
+  "ef": 32,
+  "lf": 32,
+  "all": 32,
+  "bad": [],
+  "warnings": [
+   "P6 XML stores no total float, so the stored-float check has nothing to compare (float is recomputed from the logic)"
+  ]
+ },
+ {
+  "file": "aspose-tasks__BaselineProjects.xml",
+  "version": null,
+  "projects": 1,
+  "activities": 2,
+  "links": 0,
+  "calendars": 5,
+  "assignments": 4,
+  "scheduledByP6": 1,
+  "es": 1,
+  "ef": 1,
+  "lf": 1,
+  "all": 1,
+  "bad": [],
+  "warnings": [
+   "2 baseline projects are in the file and were not read; open the baseline as its own file to compare",
+   "P6 XML stores no total float, so the stored-float check has nothing to compare (float is recomputed from the logic)"
+  ]
+ },
+ {
+  "file": "aspose-tasks__MultiprojectWithExternal.xml",
+  "version": null,
+  "projects": 2,
+  "activities": 3,
+  "links": 1,
+  "calendars": 2,
+  "assignments": 0,
+  "scheduledByP6": 2,
+  "es": 2,
+  "ef": 2,
+  "lf": 2,
+  "all": 2,
+  "bad": [],
+  "warnings": [
+   "P6 XML stores no total float, so the stored-float check has nothing to compare (float is recomputed from the logic)",
+   "project TestProject: no data date or planned start in the file, so dates are counted from 2024-05-28 00:00",
+   "1 activity: no calendar is named (A1000); used Corporate - Standard Full Time"
+  ]
+ },
+ {
+  "file": "aspose-tasks-cloud__p6_multiproject.xml",
+  "version": "8.3",
+  "projects": 2,
+  "activities": 10,
+  "links": 0,
+  "calendars": 1,
+  "assignments": 0,
+  "scheduledByP6": 5,
+  "es": 5,
+  "ef": 0,
+  "lf": 0,
+  "all": 0,
+  "bad": [
+   "A1000: EF 2000-10-12 17:00 vs 2000-10-13 10:00, LF 2000-10-12 17:00 vs 2000-10-13 10:00",
+   "A1010: EF 2000-10-12 17:00 vs 2000-10-13 10:00, LF 2000-10-12 17:00 vs 2000-10-13 10:00",
+   "A1020: EF 2000-10-12 17:00 vs 2000-10-13 10:00, LF 2000-10-12 17:00 vs 2000-10-13 10:00",
+   "A1030: EF 2000-10-12 17:00 vs 2000-10-13 10:00, LF 2000-10-12 17:00 vs 2000-10-13 10:00",
+   "A1040: EF 2000-10-12 17:00 vs 2000-10-13 10:00, LF 2000-10-12 17:00 vs 2000-10-13 10:00"
+  ],
+  "warnings": [
+   "10 activities: no calendar is named (A1000, A1010, A1020, A1030, A1040 and 5 more); used Standard"
+  ]
+ }
+]

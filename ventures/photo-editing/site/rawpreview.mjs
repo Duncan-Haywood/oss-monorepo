@@ -20,6 +20,12 @@ export function isCandidateFile(name) {
 
 // ---------------------------------------------------------------- byte views
 
+// While readRaw runs, every byte range the parser looks at is noted here, so
+// readRawFile can fetch just those ranges from a File instead of the whole
+// raw (25-60 MB each; the structure and preview headers are a few hundred kB).
+let NEED = null;
+const need = (o, len) => { if (NEED && o >= 0 && len > 0) NEED.push([o, len]); };
+
 function makeView(bytes, little) {
   const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const n = bytes.length;
@@ -38,6 +44,7 @@ const be16 = (b, o) => (b[o] << 8) | b[o + 1];
 const be32 = (b, o) => ((b[o] << 24) >>> 0) + (b[o + 1] << 16) + (b[o + 2] << 8) + b[o + 3];
 
 function ascii(b, o, len) {
+  need(o, len);
   let s = "";
   for (let i = 0; i < len && o + i < b.length; i++) {
     const c = b[o + i];
@@ -59,6 +66,7 @@ export function probeJpeg(b, start, length) {
   let p = start + 2;
   let width = 0, height = 0, sof = -1, orientation = 0, exif = null;
   while (p + 4 <= end) {
+    need(p, 4);
     if (b[p] !== 0xff) return null;
     let m = b[p + 1];
     while (m === 0xff && p + 2 < end) { p++; m = b[p + 1]; }
@@ -66,6 +74,7 @@ export function probeJpeg(b, start, length) {
     if (m >= 0xd0 && m <= 0xd7) { p += 2; continue; }
     const segLen = be16(b, p + 2);
     if (segLen < 2) return null;
+    need(p, segLen + 6);
     if ((m >= 0xc0 && m <= 0xcf) && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) {
       sof = m;
       height = be16(b, p + 5);
@@ -121,7 +130,9 @@ const TYPE_SIZE = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 4];
 function readIfd(v, ifdOff, base = 0) {
   const tags = new Map();
   const at = base + ifdOff;
+  need(at, 2);
   const count = v.u16(at);
+  need(at + 2, count * 12 + 4);
   if (!count || count > 1000 || at + 2 + count * 12 > v.n) return { tags, next: 0 };
   for (let i = 0; i < count; i++) {
     const e = at + 2 + i * 12;
@@ -137,6 +148,7 @@ function tagNums(v, t) {
   if (!t) return [];
   const out = [];
   const n = Math.min(t.count, 4096);
+  need(t.at, Math.min(t.size, 4096 * 8));
   for (let i = 0; i < n; i++) {
     switch (t.type) {
       case 1: case 7: out.push(v.u8(t.at + i)); break;
@@ -237,6 +249,7 @@ function walkTiff(b, base, meta, cands, opts = {}) {
 
 function olympusPreview(b, at, size, cands) {
   if (size < 16) return;
+  need(at, Math.min(size, 1 << 16));
   const head = ascii(b, at, 10);
   if (head === "OLYMP" || (head.startsWith("OLYMP") && b[at + 5] === 0)) {
     // Older bodies: "OLYMP\0" + byte order, IFD at +8, offsets from the TIFF
@@ -281,6 +294,7 @@ function hex(b, o, n) {
 function* boxes(b, start, end) {
   let p = start;
   while (p + 8 <= end) {
+    need(p, 32);
     let size = be32(b, p);
     const type = ascii(b, p + 4, 4);
     let head = 8;
@@ -289,6 +303,7 @@ function* boxes(b, start, end) {
     if (size < head || p + size > end) return;
     let uuid = null;
     if (type === "uuid") { uuid = hex(b, p + head, 16); head += 16; }
+    if (type !== "mdat") need(p, Math.min(size, 1 << 20));
     yield { type, uuid, start: p, body: p + head, end: p + size };
     p += size;
   }
@@ -343,7 +358,9 @@ function cr3Track(b, trak) {
       offset = be32(b, c.body + 8);
     }
   }
-  if (!size || !offset || offset + 2 > b.length || b[offset] !== 0xff || b[offset + 1] !== 0xd8) return null;
+  // probeJpeg checks the SOI; checking it here would hide the candidate from
+  // readRawFile before its bytes are fetched.
+  if (!size || !offset || offset + 2 > b.length) return null;
   return { offset, length: size };
 }
 
@@ -408,6 +425,7 @@ export function readRaw(bytes, name = "") {
     for (const c of list) {
       if (!c.length || c.offset < 0 || c.offset + c.length > b.length || seen.has(c.offset)) continue;
       seen.add(c.offset);
+      need(c.offset, Math.min(c.length, PREVIEW_HEAD));
       const j = probeJpeg(b, c.offset, c.length);
       if (j && j.decodable) previews.push({ offset: c.offset, length: c.length, width: j.width, height: j.height, source: c.source, exif: j.exif });
     }
@@ -437,6 +455,62 @@ export function readRaw(bytes, name = "") {
   if (!meta.orientation) meta.orientation = 1;
   previews = previews.map(({ exif, ...rest }) => rest);
   return { format, meta, preview: previews[0] || null, previews };
+}
+
+// ---------------------------------------------------------------- reading a File sparsely
+
+const PREVIEW_HEAD = 1 << 16;   // first bytes of each candidate JPEG (markers, EXIF)
+const BLOCK = 1 << 16;          // fetch granularity
+const SPARSE_MIN = 4 << 20;     // files under this are read whole
+
+/**
+ * readRaw for a File or Blob, fetching only the byte ranges the parser looks
+ * at: a head, then whatever IFDs, boxes, maker notes and preview headers it
+ * points to, pass by pass until nothing new is asked for. A raw's sensor data
+ * is never read. When the pointers give no preview of 640 px or more (the
+ * case where readRaw byte-scans), the whole file is read and the result is
+ * exactly readRaw's. Returns readRaw's result plus `bytesRead` and `passes`.
+ */
+export async function readRawFile(file, { head = 1 << 18 } = {}) {
+  const size = file.size;
+  const whole = async () => {
+    const r = readRaw(new Uint8Array(await file.arrayBuffer()), file.name);
+    return { ...r, bytesRead: size, passes: 0, sparse: false };
+  };
+  if (size < SPARSE_MIN) return whole();
+  // A zero-filled buffer the size of the file, so every offset the parser
+  // computes stays valid; only fetched blocks are filled.
+  const buf = new Uint8Array(size);
+  const have = new Uint8Array(Math.ceil(size / BLOCK));
+  let bytesRead = 0;
+  const load = async (ranges) => {
+    const want = new Set();
+    for (const [o, len] of ranges) {
+      const a = Math.max(0, Math.floor(o / BLOCK)), z = Math.min(have.length - 1, Math.floor((Math.min(size, o + len) - 1) / BLOCK));
+      for (let k = a; k <= z; k++) if (!have[k]) want.add(k);
+    }
+    const ks = [...want].sort((x, y) => x - y);
+    for (let i = 0; i < ks.length;) {
+      let j = i;
+      while (j + 1 < ks.length && ks[j + 1] === ks[j] + 1) j++;
+      const from = ks[i] * BLOCK, to = Math.min(size, (ks[j] + 1) * BLOCK);
+      buf.set(new Uint8Array(await file.slice(from, to).arrayBuffer()), from);
+      for (let k = ks[i]; k <= ks[j]; k++) have[k] = 1;
+      bytesRead += to - from;
+      i = j + 1;
+    }
+    return ks.length;
+  };
+  await load([[0, head]]);
+  let r = null, passes = 0;
+  for (; passes < 16; passes++) {
+    NEED = [];
+    let asked;
+    try { r = readRaw(buf, file.name); } finally { asked = NEED; NEED = null; }
+    if (!(await load(asked.filter(([o]) => o < size)))) break;
+  }
+  if (passes === 16 || !r || !r.preview || r.preview.source === "scan" || r.preview.width < 640) return whole();
+  return { ...r, bytesRead, passes: passes + 1, sparse: true };
 }
 
 // ---------------------------------------------------------------- helpers for the page

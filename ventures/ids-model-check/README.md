@@ -874,6 +874,16 @@ those from fail to pass. ARCHICAD stores no Qto_ railing length, but its own
 `Länge (A)` on FZK-Haus's two railings (2.00 and 4.29 m) is what the reading
 gives; on eleven public models that store no railing length, 131 of 419
 railings would be filled (`eval/railing-lengths-2026-11-22.md`).
+A railing that is one straight member (Tekla classes single tube posts and
+rails as railings) has no top rail when it stands upright, and a tessellated
+tube defeats the sweep's cut, so when the top-rail reading gives nothing the
+body is read as a prism instead (every face along one axis or in one of its
+two end planes, at least 10 times longer than wide): its length along that
+axis. On one Tekla model exported three times, railing Lengths within 2% of
+Tekla's go from 14, 0 and 0 to 16, 16 and 16 (IFC2X3, IFC4, IFC4X3); the 41
+railings checked against a stored figure elsewhere are unchanged, and 12
+single window bars in an ArchiCAD model are filled too
+(`eval/one-member-railings-2026-11-23.md`).
 **Slab thickness and perimeter (2026-11-22).** `Qto_SlabBaseQuantities`
 `Width` (the slab's thickness) and `Perimeter` (its outline) are measured too:
 the thickness is the body's depth along its extrusion, offered only when the
@@ -954,6 +964,21 @@ what Tekla stored on 551 of 583, and the cost-estimating IDS above goes from
 change); IfcTester counts the same. Wall side areas are held back in such a
 set: Tekla stores both faces, and not exactly twice one face either
 (`eval/qto-psets-2026-11-23.md`).
+
+**One Tekla model in three schemas (2026-11-23).** The same Tekla 2026 model
+exported as IFC2X3, IFC4 and IFC4X3 measured differently: 53 values read
+within 2% of Tekla's in one schema and not in another. Two causes, both fixed.
+Tekla stores a member's `NetVolume` without the section's root fillets (an
+HEA300 x 5 m pile: GrossVolume 0.05625, NetVolume 0.05314 m³), and its IFC2X3
+export draws the body with them. So for a Tekla member that is one extrusion
+of a parametric section, the NetVolume offered now leaves the fillets out and
+GrossVolume keeps them. On 109 such members that store a NetVolume, the
+offered figure matches 109 (37 before), including 85 of 85 on an independent
+Tekla export. Second, Tekla's IFC4 export lays walls on their side (the
+body's own y is up, no Axis). Those walls are now turned upright before they
+are read: 37 walls, and 74 of 74 stored Lengths and Heights match. On Tekla's
+`Qto_` property sets, 649 of 657 measured values are now within 2% (551 of
+583 before; `eval/beam-schema-twins-2026-11-23.md`).
 
 **Attributes (2026-11-21).** A failing attribute requirement (`Description`,
 `ObjectType`, `Tag`, `LongName`, a `PredefinedType` left `$`) is written into the

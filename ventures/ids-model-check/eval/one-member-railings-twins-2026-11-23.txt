@@ -1,0 +1,5 @@
+IFCPLATE |   | 2XdfMxs$5Dzvol3$ZPskPH | NetVolume | 0.025/0.025 | 0.025/0.025 | -
+IFCPLATE |   | 28josIaEnBZQ$_rhPDrEIJ | NetVolume | 0.025/0.025 | 0.025/0.025 | -
+IFCPLATE |   | 0y4FBRn6n3YwF780tFBKsC | NetVolume | 0.025/0.025 | 0.025/0.025 | -
+IFCPLATE |   | 2FTpw_ygP6LvXQsdbVy$AK | NetVolume | 0.025/0.025 | 0.025/0.025 | -
+4 values read within 2% in some schema and not in another

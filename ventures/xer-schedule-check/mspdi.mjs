@@ -72,6 +72,7 @@
 //   WBSMEMO on its WBS node), one per "[Topic]" section as msproject.mjs
 //   writes them, else one entry under the topic "Notes" (notebook.mjs).
 
+import { isPmxml, parsePmxml } from "./pmxml.mjs";
 import { parseXer } from "./xer.mjs";
 import { parseNotes, memoHtml } from "./notebook.mjs";
 
@@ -929,10 +930,12 @@ export function interimPairs(input) {
   return out;
 }
 
-// An XML file (after a BOM and white space) is MSPDI; anything else is read as XER.
+// An XML file (after a BOM and white space) is P6 XML when its root is
+// <APIBusinessObjects> (pmxml.mjs), else MSPDI; anything else is read as XER.
 export function isXml(text) {
   return /^\uFEFF?\s*</.test(text);
 }
 export function parseSchedule(text, opts = {}) {
-  return isXml(text) ? parseMspdi(text, opts) : parseXer(text);
+  if (!isXml(text)) return parseXer(text);
+  return isPmxml(text) ? parsePmxml(text) : parseMspdi(text, opts);
 }

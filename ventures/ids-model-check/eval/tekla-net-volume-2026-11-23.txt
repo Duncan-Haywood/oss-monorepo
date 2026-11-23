@@ -1,0 +1,8 @@
+ISSUE_021_Mini Project.ifc: 85 members take Tekla's no-fillet NetVolume; 85 store one: within 2% with fillets 37, without 85; worse 0
+ISSUE_102_M3D-CON.ifc: 0 members take Tekla's no-fillet NetVolume; 0 store one: within 2% with fillets 0, without 0; worse 0
+ISSUE_102_M3D-CON-CD.ifc: 0 members take Tekla's no-fillet NetVolume; 0 store one: within 2% with fillets 0, without 0; worse 0
+Tekla-Export.ifc: 0 members take Tekla's no-fillet NetVolume; 0 store one: within 2% with fillets 0, without 0; worse 0
+test-2026-2x3.ifc: 17 members take Tekla's no-fillet NetVolume; 17 store one: within 2% with fillets 0, without 17; worse 0
+test-2026-4.3.ifc: 7 members take Tekla's no-fillet NetVolume; 7 store one: within 2% with fillets 0, without 7; worse 0
+test-2026-4.ifc: 0 members take Tekla's no-fillet NetVolume; 0 store one: within 2% with fillets 0, without 0; worse 0
+exit 0

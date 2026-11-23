@@ -55,3 +55,22 @@ test('the page runs both modes through the worker, cancels a stale run and keeps
   assert.match(html, /finish\(analyzeJob\(job\)\)/);
   assert.doesNotMatch(html, /\banalyze\(\{|analyzeMulti\(/);
 });
+
+test('the page warms the main worker when idle, and drops a warm worker that fails to load', () => {
+  const html = read('index.html');
+  const warm = html.slice(html.indexOf('function warmMain()'), html.indexOf('requestIdleCallback(warmMain'));
+  assert.ok(warm.length > 0, 'warmMain is defined before it is scheduled');
+  // Only when no worker exists, so a press that came first keeps its own; the same file and type as startMain.
+  assert.match(warm, /if \(mainWorker \|\| typeof Worker === "undefined"\) return;/);
+  assert.match(warm, /new Worker\("\.\/analyze-worker\.mjs", \{ type: "module" \}\)/);
+  assert.match(warm, /if \(mainWorker === w\) \{ w\.terminate\(\); mainWorker = null; \}/);
+  assert.match(html, /if \("requestIdleCallback" in window\) requestIdleCallback\(warmMain, \{ timeout: 2000 \}\); else setTimeout\(warmMain, 500\);/);
+  // One idle panel worker too, dropped if it fails to load and taken as the first worker of the first panel.
+  assert.match(warm, /const pw = new Worker\("\.\/consensus-worker\.mjs", \{ type: "module" \}\);/);
+  assert.match(warm, /if \(panelWarm === pw\) dropPanelWarm\(\);/);
+  assert.equal(html.split('workers.push(takePanelWarm() || new Worker("./consensus-worker.mjs", { type: "module" }))').length - 1, 2, 'both panels take the warm worker');
+  assert.match(html, /function takePanelWarm\(\) \{ const w = panelWarm; panelWarm = null; return w; \}/);
+  // startMain reuses a warm worker and replaces its error handler before posting the job.
+  assert.match(html, /if \(!mainWorker\) mainWorker = new Worker/);
+  assert.ok(html.indexOf('mainWorker.onerror = (e) =>') < html.indexOf('mainWorker.postMessage({ id: me.id, job })'));
+});

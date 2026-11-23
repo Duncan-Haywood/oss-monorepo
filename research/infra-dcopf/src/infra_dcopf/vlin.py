@@ -758,12 +758,17 @@ CP_RTOL = 1e-6      # a trial is cheaper only if it saves more than this fractio
 
 
 def cost_phase(ppc, pg, vg, c0, rounds=CP_ROUNDS, margin=None, analytic=True, screen=False, solver="clarabel",
-               warm=None, warm_check=False, trace=None):
+               warm=None, warm_check=False, trace=None, fallback=None):
     """Rule CP: from a clean point (pg, vg) with AC check c0, successive hard QPs on the case's own costs inside a
     box (CP_PBOX of each unit's range, CP_VBOX pu), accepting a trial only if its full AC check is clean and its AC
     cost is lower by more than CP_RTOL; any other outcome (empty QP, failed power flow, not clean, not cheaper)
     halves both boxes. No elastic QP: the phase never leaves the clean set, so its result is never dearer or
-    dirtier than c0. Returns (pg, vg, check, per-round records)."""
+    dirtier than c0. Returns (pg, vg, check, per-round records).
+
+    Rule CF (LOG.md 2026-11-23): with `fallback` a margin dict (e.g. {**MARGIN, "cap": True}), a round whose hard
+    QP under `margin` is empty re-solves it once, at the same boxes, under `fallback`; that trial is then scored
+    like any other and its record carries "fallback": True. A round whose margined QP is not empty is rule CP's,
+    so up to the first empty round the path is CP's. fallback=None is rule CP."""
     lay = Layout(ppc)
     g = ppc["gen"]
     ptrust = np.maximum(CP_PBOX * (g[:, PMAX] - g[:, PMIN]), 0.1)
@@ -777,6 +782,10 @@ def cost_phase(ppc, pg, vg, c0, rounds=CP_ROUNDS, margin=None, analytic=True, sc
             break
         warm = lin["base"]
         xp, xv, ok = solve(ppc, lin, ptrust=ptrust, vtrust=vtrust, margin=margin, screen=screen, solver=solver)
+        fb = not ok and fallback is not None
+        if fb:
+            xp, xv, ok = solve(ppc, lin, ptrust=ptrust, vtrust=vtrust, margin=fallback, screen=screen,
+                               solver=solver)
         c = check(ppc, xp, lay.vg_of(xv), warm if warm_check else None) if ok else None
         if not ok:
             st = "QP infeasible"
@@ -795,4 +804,6 @@ def cost_phase(ppc, pg, vg, c0, rounds=CP_ROUNDS, margin=None, analytic=True, sc
         recs.append({"it": it, "status": st, "cost": cur["cost"],
                      "trial_cost": None if c is None else c["cost"],
                      "trial_n_over": None if c is None else c["n_over"]})
+        if fb:
+            recs[-1]["fallback"] = True
     return pg, lay.vg_of(v), cur, recs

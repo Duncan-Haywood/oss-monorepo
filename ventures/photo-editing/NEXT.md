@@ -142,3 +142,4 @@
 - (2026-11-22) HDR+ dB sweep 2026-11-22 (48 bursts, real noise): mpcws +0.13 dB luma over mpcw but 2 bursts lose >0.1, default stays
 - (2026-11-23) the oracle loses on both (eval/hdrplus-demosaic-sweep-*)
 - (2026-11-23) gain and over-read share a cause, so this set is spent (eval/noise-pca-mpcw1-*)
+- (2026-11-23) on own ramps the oracle's 14 losses go to 0

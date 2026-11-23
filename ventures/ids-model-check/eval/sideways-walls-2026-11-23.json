@@ -1,0 +1,604 @@
+{
+ "AC20-FZK-Haus.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "C20-Institute-Var-2.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "FM_ARC_DigitalHub.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_005_haus.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_021_Mini Project.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_034_HouseZ.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_044_test_IFCCOMPOSITEPROFILEDEF.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_068_ARK_NUS_skolebygg.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_098_R8_F1_MAB_AR_M3_XX_XXX_MO_7000.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_102_M3D-CON-CD.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_102_M3D-CON.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_126_model.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_159_kleine_Wohnung_R22.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ISSUE_171_IfcSurfaceCurveSweptAreaSolid.ifc": {
+  "turned": 1,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "IfcOpenHouse_IFC4.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "KIT-Simple-Road-Test-Web-IFC4x3_RC2.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Office_A_20110811.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "S_Office_Integrated Design Archi.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Sample_entities.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Viadotto Acerno.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "advanced_model.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "dental_clinic.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "duplex.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "example.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "ifcbridge-model01.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "schependomlaan.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "tested_sample_project.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "IP4_BIM-Modell_Bauphasen_V5.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "IP4_BIM-Modell_Bauphasen_V6.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "IP4_BIM-Modell_Bauphasen_V7.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "IP4_BIM-Modell_Bauphasen_V8_DG.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Test_2x3_single-punkt.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Test_4_Standard-Export_Extrudiert&Brep.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Haus-ifcopenshell.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Infra-Bridge.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Tekla-Export.ifc": {
+  "turned": 19,
+  "Length": {
+   "stored": 19,
+   "offered": 19,
+   "within2": 19
+  },
+  "Height": {
+   "stored": 19,
+   "offered": 19,
+   "within2": 19
+  },
+  "off": []
+ },
+ "Test-Modell.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "Reference-view_4.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "test-allplan.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "test-2026-2x3.ifc": {
+  "turned": 0,
+  "Length": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "Height": {
+   "stored": 0,
+   "offered": 0,
+   "within2": 0
+  },
+  "off": []
+ },
+ "test-2026-4.3.ifc": {
+  "turned": 9,
+  "Length": {
+   "stored": 9,
+   "offered": 9,
+   "within2": 9
+  },
+  "Height": {
+   "stored": 9,
+   "offered": 9,
+   "within2": 9
+  },
+  "off": []
+ },
+ "test-2026-4.ifc": {
+  "turned": 9,
+  "Length": {
+   "stored": 9,
+   "offered": 9,
+   "within2": 9
+  },
+  "Height": {
+   "stored": 9,
+   "offered": 9,
+   "within2": 9
+  },
+  "off": []
+ }
+}

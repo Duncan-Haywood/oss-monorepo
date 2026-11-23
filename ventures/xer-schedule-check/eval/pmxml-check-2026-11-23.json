@@ -1,0 +1,669 @@
+{
+ "total": {
+  "acts": 21758,
+  "fieldsChecked": 261096,
+  "fieldsSame": 260603,
+  "calSame": 21758,
+  "wbsSame": 21758,
+  "links": 56666,
+  "linksSame": 56666,
+  "sched": 21441,
+  "schedSame": 21441,
+  "p6Xer": 19820,
+  "p6Xml": 19818,
+  "p6N": 19822,
+  "trip": 21441,
+  "tripN": 21441
+ },
+ "files": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "xml": [
+    "CCA_R03_dt_24Oct11SC.xml"
+   ],
+   "readMs": 5230,
+   "acts": 16146,
+   "missing": 0,
+   "fields": {
+    "task_code": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "task_type": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "status_code": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "target_drtn_hr_cnt": {
+     "same": 15933,
+     "diff": 213,
+     "ex": [
+      [
+       "BAFTS01801G0",
+       "975.983333",
+       "975.98"
+      ],
+      [
+       "BAFTS01802G0",
+       "2884.066667",
+       "2884.07"
+      ],
+      [
+       "BAFTS01809G0",
+       "2271.983333",
+       "2271.98"
+      ]
+     ]
+    },
+    "remain_drtn_hr_cnt": {
+     "same": 15985,
+     "diff": 161,
+     "ex": [
+      [
+       "BAFTS01801G0",
+       "975.983333",
+       "975.98"
+      ],
+      [
+       "BAFTS01802G0",
+       "2884.066667",
+       "2884.07"
+      ],
+      [
+       "BAFTS01809G0",
+       "2271.983333",
+       "2271.98"
+      ]
+     ]
+    },
+    "act_start_date": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "act_end_date": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type2": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date2": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    },
+    "expect_end_date": {
+     "same": 16146,
+     "diff": 0,
+     "ex": []
+    }
+   },
+   "calSame": 16146,
+   "wbsSame": 16146,
+   "links": 47286,
+   "linksSame": 47286,
+   "linksMissing": 0,
+   "sched": 15849,
+   "schedSame": 15849,
+   "schedDiff": [],
+   "p6": {
+    "xer": {
+     "n": 14270,
+     "ok": 14268
+    },
+    "xml": {
+     "n": 14270,
+     "ok": 14268
+    }
+   },
+   "trip": {
+    "n": 15849,
+    "same": 15849,
+    "tasks": 16146,
+    "links": 47273
+   }
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "xml": [
+    "Expressway_Project.xml"
+   ],
+   "readMs": 308,
+   "acts": 823,
+   "missing": 0,
+   "fields": {
+    "task_code": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "task_type": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "status_code": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "target_drtn_hr_cnt": {
+     "same": 822,
+     "diff": 1,
+     "ex": [
+      [
+       "BEW/PR/FC/1250",
+       "9857.06666666667",
+       "9857.07"
+      ]
+     ]
+    },
+    "remain_drtn_hr_cnt": {
+     "same": 822,
+     "diff": 1,
+     "ex": [
+      [
+       "BEW/RD/INI/1090",
+       "5228.01666666667",
+       "5228.02"
+      ]
+     ]
+    },
+    "act_start_date": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "act_end_date": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type2": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date2": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    },
+    "expect_end_date": {
+     "same": 823,
+     "diff": 0,
+     "ex": []
+    }
+   },
+   "calSame": 823,
+   "wbsSame": 823,
+   "links": 1094,
+   "linksSame": 1094,
+   "linksMissing": 0,
+   "sched": 823,
+   "schedSame": 823,
+   "schedDiff": [],
+   "p6": {
+    "xer": {
+     "n": 823,
+     "ok": 823
+    },
+    "xml": {
+     "n": 823,
+     "ok": 823
+    }
+   },
+   "trip": {
+    "n": 823,
+    "same": 823,
+    "tasks": 823,
+    "links": 1094
+   }
+  },
+  {
+   "file": "example_xer_file.xer",
+   "xml": [
+    "example_xer_file.xml"
+   ],
+   "readMs": 130,
+   "acts": 435,
+   "missing": 0,
+   "fields": {
+    "task_code": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "task_type": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "status_code": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "target_drtn_hr_cnt": {
+     "same": 377,
+     "diff": 58,
+     "ex": [
+      [
+       "A10370",
+       "296.016666",
+       "296.02"
+      ],
+      [
+       "A10540",
+       "239.983333",
+       "239.98"
+      ],
+      [
+       "A10690",
+       "279.983333",
+       "279.98"
+      ]
+     ]
+    },
+    "remain_drtn_hr_cnt": {
+     "same": 376,
+     "diff": 59,
+     "ex": [
+      [
+       "A10360",
+       "6.166666",
+       "6.17"
+      ],
+      [
+       "A10540",
+       "239.983333",
+       "239.98"
+      ],
+      [
+       "A10660",
+       "142.566666",
+       "142.57"
+      ]
+     ]
+    },
+    "act_start_date": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "act_end_date": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type2": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date2": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    },
+    "expect_end_date": {
+     "same": 435,
+     "diff": 0,
+     "ex": []
+    }
+   },
+   "calSame": 435,
+   "wbsSame": 435,
+   "links": 555,
+   "linksSame": 555,
+   "linksMissing": 0,
+   "sched": 425,
+   "schedSame": 425,
+   "schedDiff": [],
+   "p6": {
+    "xer": {
+     "n": 404,
+     "ok": 404
+    },
+    "xml": {
+     "n": 404,
+     "ok": 404
+    }
+   },
+   "trip": {
+    "n": 425,
+    "same": 425,
+    "tasks": 435,
+    "links": 555
+   }
+  },
+  {
+   "file": "hotel-project.xer",
+   "xml": [
+    "hotel-project-0.xml",
+    "hotel-project-1.xml",
+    "hotel-project-2.xml",
+    "hotel-project-3.xml"
+   ],
+   "readMs": 704,
+   "acts": 4236,
+   "missing": 0,
+   "fields": {
+    "task_code": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "task_type": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "status_code": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "target_drtn_hr_cnt": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "remain_drtn_hr_cnt": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "act_start_date": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "act_end_date": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type2": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date2": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    },
+    "expect_end_date": {
+     "same": 4236,
+     "diff": 0,
+     "ex": []
+    }
+   },
+   "calSame": 4236,
+   "wbsSame": 4236,
+   "links": 7586,
+   "linksSame": 7586,
+   "linksMissing": 0,
+   "sched": 4236,
+   "schedSame": 4236,
+   "schedDiff": [],
+   "p6": {
+    "xer": {
+     "n": 4217,
+     "ok": 4217
+    },
+    "xml": {
+     "n": 4217,
+     "ok": 4215
+    }
+   },
+   "trip": {
+    "n": 4236,
+    "same": 4236,
+    "tasks": 4236,
+    "links": 7586
+   }
+  },
+  {
+   "file": "sample.xer",
+   "xml": [
+    "sample.xml"
+   ],
+   "readMs": 6,
+   "acts": 52,
+   "missing": 0,
+   "fields": {
+    "task_code": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "task_type": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "status_code": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "target_drtn_hr_cnt": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "remain_drtn_hr_cnt": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "act_start_date": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "act_end_date": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type2": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date2": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    },
+    "expect_end_date": {
+     "same": 52,
+     "diff": 0,
+     "ex": []
+    }
+   },
+   "calSame": 52,
+   "wbsSame": 52,
+   "links": 61,
+   "linksSame": 61,
+   "linksMissing": 0,
+   "sched": 42,
+   "schedSame": 42,
+   "schedDiff": [],
+   "p6": {
+    "xer": {
+     "n": 42,
+     "ok": 42
+    },
+    "xml": {
+     "n": 42,
+     "ok": 42
+    }
+   },
+   "trip": {
+    "n": 42,
+    "same": 42,
+    "tasks": 52,
+    "links": 61
+   }
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "xml": [
+    "terminal-building-airport.xml"
+   ],
+   "readMs": 24,
+   "acts": 66,
+   "missing": 0,
+   "fields": {
+    "task_code": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "task_type": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "status_code": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "target_drtn_hr_cnt": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "remain_drtn_hr_cnt": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "act_start_date": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "act_end_date": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_type2": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "cstr_date2": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    },
+    "expect_end_date": {
+     "same": 66,
+     "diff": 0,
+     "ex": []
+    }
+   },
+   "calSame": 66,
+   "wbsSame": 66,
+   "links": 84,
+   "linksSame": 84,
+   "linksMissing": 0,
+   "sched": 66,
+   "schedSame": 66,
+   "schedDiff": [],
+   "p6": {
+    "xer": {
+     "n": 66,
+     "ok": 66
+    },
+    "xml": {
+     "n": 66,
+     "ok": 66
+    }
+   },
+   "trip": {
+    "n": 66,
+    "same": 66,
+    "tasks": 66,
+    "links": 84
+   }
+  }
+ ]
+}

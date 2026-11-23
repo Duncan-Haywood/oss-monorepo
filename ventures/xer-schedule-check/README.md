@@ -36,6 +36,8 @@ original XER too and a P6 file's user-defined fields come back with their own
 types, text UDFs as text UDFs rather than codes
 (`eval/udf-types-from-2026-11-22.md`, `eval/udf-type-hints-2026-11-22.md`).
 
+It also **reads P6 XML** (the export of P6 EPPM, Oracle Primavera Cloud and P6's Primavera PM (XML)) wherever it takes an XER, and **converts P6 XML to an XER** (`pmxml.mjs`; six public files written as P6 XML schedule the same as their XERs on 21,441 of 21,441 activities, and MPXJ reads the converted XERs as it reads the originals, `eval/pmxml-2026-11-23.md`).
+
 **Live tool:** https://marisstella.app/xer-schedule-check/
 
 After using this, an owner's rep can **send a contractor a list of the exact
@@ -926,6 +928,30 @@ the planted activity named under its own test **129 of 129** times; what each fi
 the note. The guide page's worked example is the engine's own output on the built-in example
 (`guides.test.mjs`).
 
+## P6 XML: read it, and convert it to an XER (2026-11-23)
+
+`pmxml.mjs`, the page (any file input takes a P6 XML file; **Download as P6 XER (.xer)**), CLI
+`node cli.mjs schedule.xml --to-xer schedule.xer`. P6 EPPM, Oracle Primavera Cloud and P6
+Professional's Primavera PM (XML) export write P6 XML (root `<APIBusinessObjects>`); many owners,
+lenders and subcontractors receive that instead of an XER, and many review tools, claims
+consultants and older P6 installs want an XER. The reader maps P6's API objects (Activity,
+Relationship, WBS, Calendar with its StandardWorkWeek and HolidayOrExceptions, ScheduleOptions,
+Resource, ResourceRate, ResourceAssignment, ActivityCodeType/ActivityCode, UDFType/UDF,
+ActivityNote) to XER's tables, field names and value forms, so the DCMA and GAO checks, the
+Gantt chart, comparisons, windows, risk, levelling, TIA, the Excel and Project converters and
+the redundant-logic cleaned file all run on it unchanged. P6 writes a work period's last minute
+(11:59 for a period that ends at noon); it is read as the period's end. P6 XML has no total
+float, so the stored-float check says it has nothing to compare; baseline projects in the file
+are named and not read.
+
+Checked (eval/pmxml-2026-11-23.md): the six public XERs written as P6 XML by MPXJ read back with
+every activity, calendar, WBS path and all 56,666 relationships the same, and the recomputed
+schedule equal on 21,441 / 21,441 activities; written back as XERs they schedule the same again
+(21,441 / 21,441), and MPXJ reads those XERs as it reads the originals (239,338 / 239,338 fields).
+On a public file P6 itself wrote (EC00850, 33 activities, 24 assignments), 32 / 32 open activities'
+early start, early finish and late finish equal P6's stored dates. Not yet: a P6 import of a
+converted file, a large real P6 XML export. Guide: `how-to-convert-p6-xml-to-xer.html`.
+
 ## Redundant logic: links that can never drive (2026-11-23)
 
 `redundant.mjs`, `--redundant [--csv links.csv] [--cleaned out.xer] [--include-check]`, and the
@@ -1069,6 +1095,7 @@ button drifts. Search impressions not measured yet.
 | An as-planned vs as-built exhibit made by hand (baseline and final update printed side by side, a critical path picked by eye, bars coloured in Excel), or billed by a claims consultant | Shows the plan beside the record; the path and the attribution are argued about because nobody can see how they were picked | The as-built critical path found from the actual dates (a model that lands every activity on them), the plan beside actual activity by activity, and the delay split into late starts, longer durations and planned gaps used up that add up exactly to the delay, free in the browser |
 | A collapsed as-built built by hand by a claims consultant (actual durations typed in, "as-built lags" set link by link until the dates line up, delays deleted, rescheduled in P6), billed by the hour | A model that may or may not reproduce the as-built dates, often not shown; a week of expert time per analysis | The model from the final XER in seconds, with a count of how many activities it lands on their as-built dates; the but-for finish by party and by event and the concurrent days; every as-built gap listed; the model and the collapsed schedule as XERs to check in P6 |
 | A GAO Schedule Assessment Guide review done by hand (layouts filtered practice by practice), or a paid analytics product's GAO metric library | An auditor's or scheduler's afternoon per update; a per-seat licence | The ten practices scored from the XER, every test with its threshold and the activities behind each failure, practice 10 against the real baseline file, a printable scorecard and CSV, free in the browser |
+| Paid P6 XML to XER converters, or importing the XML into a P6 database and exporting an XER (needs a P6 seat) | Get an EPPM or Primavera Cloud export into the XER a reviewer or claims tool asks for | The XER straight from the P6 XML in a browser tab, free, nothing uploaded, and every check on this page runs on the XML itself; checked against MPXJ on six public files (239,338 of 239,338 fields read the same) |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
 | Open-source XER libraries and checkers (Python packages, local web apps) | A parser or a few checks; you install and run them | All 14 points plus a critical path test on a recomputed schedule, measured against P6's own numbers, in a page |

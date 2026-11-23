@@ -1,0 +1,1 @@
+{"case": "case1951_rte", "kind": "sad", "ac": 2092400.0, "repair_secs": 193.64930176734924, "rerun_clean_at": 20, "rerun_cost": 2093438.042880796, "cp_secs": 0.33118724822998047, "cp_cost": 2093438.042880796, "cp_rounds": [{"it": 1, "status": "PF failed at point", "cost": 2093438.042880796}], "cp_accepted": 0, "cp_clean": true, "secs": 193.9805769920349}
