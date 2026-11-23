@@ -131,3 +131,23 @@ def moments_aware_share(v: bcdj.Village, Y, aware) -> np.ndarray:
         m = aw & (sh >= lo) & (sh <= hi)
         out[:, c] = _rate((m * Y).sum(0), m.sum(0))
     return out
+
+
+def moments_share(v: bcdj.Village, Y) -> np.ndarray:
+    """Milestone 27. S x 4: take-up among *all* non-leaders by the share of their neighbours
+    that adopted, in `SHARE_BINS`. The same moment as `moments_aware_share` without the
+    awareness question, so it can be computed on the real BCDJ cross-section. Under the
+    information model take-up still rises with the share here, because households next to
+    adopters are more often informed; the threshold's fingerprint has to show above that.
+    Y: n x S (or n, returning 4)."""
+    one = Y.ndim == 1
+    Y = Y[:, None] if one else Y
+    out = moments_aware_share(v, Y, np.ones(Y.shape, bool))
+    return out[0] if one else out
+
+
+def share_counts(v: bcdj.Village, Y) -> np.ndarray:
+    """Non-leader households in each `SHARE_BINS` bin, per column of Y (S x 4)."""
+    nl = (~v.leader)[:, None]
+    sh = (v.A @ Y) / np.maximum(v.deg, 1)[:, None]
+    return np.stack([(nl & (sh >= lo) & (sh <= hi)).sum(0) for lo, hi in SHARE_BINS], -1)

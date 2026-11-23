@@ -91,3 +91,21 @@ def test_threshold_takes_up_above_theta(setup):
     out = ms.moments_aware_share(v, Y, inf)
     hi = out[:, 3][out[:, 3] > 0]
     assert hi.size == 0 or hi.mean() > out[:, 0].mean()
+
+
+def test_share_moments_without_awareness(setup):
+    V, beta = setup
+    v = V[2]
+    Y, inf, _ta = ms.simulate_tracked(v, beta, 0.075, 0.2, 30, np.random.default_rng(7), theta=0.6)
+    M = ms.moments_share(v, Y)
+    assert M.shape == (30, 4)
+    assert np.allclose(M, ms.moments_aware_share(v, Y, np.ones_like(inf)))
+    # by hand for one column and the top bin
+    nl = ~v.leader
+    sh = (v.A @ Y[:, 0]) / np.maximum(v.deg, 1)
+    m = nl & (sh >= 0.6)
+    assert np.isclose(M[0, 3], Y[m, 0].mean() if m.any() else 0.0)
+    # 1-d input, and bin counts cover every non-leader
+    assert np.allclose(ms.moments_share(v, Y[:, 0]), M[0])
+    assert (ms.share_counts(v, Y).sum(1) == nl.sum()).all()
+    assert ((M >= 0) & (M <= 1)).all()
