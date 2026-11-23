@@ -39,7 +39,7 @@ is wrong, and no amount of code fixes it. The strongest version of that sentence
 ends in the user earning more: a job they can now bid on, an invoice they can
 now issue, a client they can now keep.
 
-## 2. Choose the shape that fits the user; keep our cost per user at zero
+## 2. Choose the shape that fits the user; keep our cost per user capped
 
 **A menu, not a ranking.** There is no static-only, static-first or
 browser-only rule; where a product runs is the agent's and the project's
@@ -68,20 +68,34 @@ reproduce in one reply and a maths graduate can't follow at a glance.
 4. **Native, desktop or mobile app; browser or editor extension.** Built by
    the packagers in `platform/distribution/`; runs on the user's device.
 5. **A service, with a server, database or long-running process.** Fine when
-   the product is better for it. We run no product servers on the owner's
-   bill (the Hetzner box was retired on 2026-10-01), so ship it for others to
-   run: a container image, a one-click self-deploy (below), or a package the
-   user runs locally, with the no-SLA clause in §5b. Details:
+   the product is better for it. Since 2026-11-22 Maris Stella Labs LLC hosts
+   products itself on Cloudflare (`prompts/goals.md`, "The business model"),
+   so a service may run for its users on the shared accounts and billing in
+   `platform/saas`, inside its cost caps. A container image, a self-deploy
+   (below) or a local package stay good extra ways to ship it. Details:
    [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
-The hard line is the owner's money: no per-user paid API on our account and no
-per-user database or server we pay for (`goals.md`, Guardrails). Defaults that
-keep it easy: no per-user human step, and no account system unless the product
-needs one (then prefer "bring your own GitHub login" over storing credentials). GitHub Pages hosts our web surfaces
-at $0; another host (Cloudflare, Vercel) means an account only the owner can
-open, so it needs a stated reason Pages cannot meet.
+The hard line is capped cost (owner, 2026-11-22, replacing "no per-user
+cost on our account"): per-user model calls, storage or compute on the LLC's
+accounts are fine when they sit inside Pro or a free tier with a hard cap
+enforced in code, a test that fails the build when a plan's estimated cost
+leaves its band, and the global kill switch (`goals.md`, "Operating hosted
+services"; the pattern is Grant Autopilot's budget guard and `plans.test.ts`).
+Defaults that keep it easy: the free path needs no account; when a product
+needs accounts, use the shared ones in `platform/saas`, never a product's own
+sign-in. Web surfaces are served by Cloudflare at marisstella.app; services
+that hold user data or keys deploy only from the protected production lane
+(`docs/reports/2026-11-22-freemium-saas-plan.md`).
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
+
+**Optional since 2026-11-22.** The owner moved the portfolio to freemium SaaS
+run by Maris Stella Labs LLC, so self-deploy is no longer the business model
+or a venture's finish line. It stays a welcome extra; FSL-1.1-MIT, the licence
+for new product code, allows running your own copy for yourself but not as a
+competing commercial service, so the paragraph below about MIT applies to
+code already released under MIT. The rules below still hold whenever a
+self-deploy path is built.
 
 Build every app so that a stranger can run their own copy of it, in their own
 cloud account, without us. That lets other people set up businesses from
@@ -141,7 +155,8 @@ When someone builds it, these rules apply:
   sees them. The page states exactly where they go: GitHub, encrypted, and
   then the visitor's cloud provider. The visitor pays their own cloud bill,
   and the no-SLA clause in §5b applies to their copy too.
-- **Money stays donations.** The only ask is a Buy Me a Coffee link, beside
+- **Money on self-deployed copies stays donations.** (The LLC's own hosted
+  products sell Pro; see §6.) The only ask is a Buy Me a Coffee link, beside
   the existing GitHub Sponsors link, as a plain link with no embedded
   widget (a third-party script would break the privacy line in §5c). This
   is an owner-approved exception to
@@ -289,7 +304,10 @@ free product safe to give away and possible to find.
 
 ### a. A LICENSE
 
-MIT unless there's a reason. It has to exist.
+New product and platform code: FSL-1.1-MIT, with Maris Stella Labs LLC as
+licensor (owner, 2026-11-22; `prompts/goals.md`, "The business model"). Code
+already released under MIT stays MIT, and `research/` stays MIT. It has to
+exist.
 
 ### b. A disclaimer the user actually sees
 
@@ -445,9 +463,22 @@ not just the disclaimer in §5b.
    rather than a fact sheet is a defamation and false-advertising exposure
    for a page that costs nothing to make safe instead.
 
-## 6. Money: the deployer's keys, and the owner's checkout link
+## 6. Money: Pro through Paddle, and the deployer's keys on self-hosted copies
 
-Payment code is allowed (the owner, 2026-10-15: "I think payment is okay I just
+**The LLC's hosted products (since 2026-11-22).** Maris Stella Labs LLC sells
+one Pro subscription across the portfolio (and per-product plans where a
+product needs them, Grant Autopilot first) through **Paddle**, the merchant
+of record; the owner's account is open. A product never builds its own
+billing: it declares its Pro features and checks a signed-in user's
+entitlement against `platform/saas`, which holds the only Paddle adapter.
+Paddle's API key, webhook secret and price ids live only in the protected
+production deploy, never in this repo, its Actions secrets or a session
+(`goals.md`, "Payments"; `docs/reports/2026-10-30-billing-plan.md`, Option
+B). The free path never changes: charge for new depth, never for what a page
+already calls free. Until `platform/saas` exposes entitlements, paid paths
+ship dark.
+
+**Self-hosted copies.** Payment code is allowed (the owner, 2026-10-15: "I think payment is okay I just
 don't want mine. if other people want to fork and put their payment in it's
 okay with me"). Build it so that:
 
@@ -519,9 +550,10 @@ No third-party donation links (one owner-approved exception: a plain link to
 `https://buymeacoffee.com/duncanhaywood`; see §2's self-deploy rule), and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
 
-What "free for now" is buying: usage data, which is the only evidence we have
-about which product deserves more time. Design so that turning payment on later
-is a change of who holds the key or a hosted tier — not a rewrite.
+What the free tier buys: usage and search traffic, the evidence of which
+product deserves more time and the visitors who may later choose Pro. Design
+so that a Pro feature is a declared entitlement on `platform/saas`, not a
+rewrite.
 
 ## 7. Definition of done
 

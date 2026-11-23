@@ -24,8 +24,10 @@ Companions that carry the detail:
 ## North star
 
 Find *viable software businesses*: products that reach real users, earn
-optional donation revenue, keep those users happy, and create no legal
-exposure the owner must clean up personally.
+revenue as freemium SaaS run by Maris Stella Labs LLC (owner, 2026-11-22;
+free path with no account, paid Pro depth through Paddle), keep those users
+happy, and keep legal exposure inside the LLC and the "Operating hosted
+services" hard limit (`prompts/goals.md`).
 
 1. **Ship and deploy, not just build.** An `index.html` on `main` with no public
    URL is not a product yet. `python3 platform/ci/pages_state.py` says whether
@@ -93,10 +95,15 @@ highest-merit dispatchable venture.
 
 ## Revenue
 
-The owner's own instances take donations (GitHub Sponsors) and, since
-2026-10-31, may sell through the owner's merchant-of-record hosted checkout by
-a link set outside the repo. A product may ship payment code that is off by
-default and runs on the deployer's own keys (`PRODUCT_PLAYBOOK.md` §6). A per-product `github.com/sponsors`
+Since 2026-11-22 the main model is freemium SaaS run by Maris Stella Labs
+LLC: free stays free with no account, and one Pro subscription, sold through
+Paddle (the merchant of record; the owner's account is open), adds depth
+across the tools. Billing and accounts live once in `platform/saas`; Paddle
+keys and price ids live only in the protected production deploy, never in
+this repo (`docs/reports/2026-11-22-freemium-saas-plan.md`). Donations
+(GitHub Sponsors) stay alongside. Self-hosted copies may still ship payment
+code that is off by default and runs on the deployer's own keys
+(`PRODUCT_PLAYBOOK.md` §6). A per-product `github.com/sponsors`
 link is agent-decidable. The repo-level GitHub "Sponsor" button
 (`.github/FUNDING.yml`, decision `funding-sponsors-live` in
 `portfolio/ledger/decision_queue.py`) ties a real person's Sponsors profile to
