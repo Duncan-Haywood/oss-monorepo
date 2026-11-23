@@ -517,6 +517,17 @@ export function takeoff(model, opts = {}) {
         }
       }
     }
+    // an element whose body gives no box (a faceted body read only as a
+    // volume, a body this reader cannot draw) still has the point it was
+    // placed at: assignRooms falls back to it (Revit families: the insertion
+    // point, on the floor or the host face)
+    if (!row.box && opts.geometry !== false && !placeError && e.args[5]) {
+      try {
+        const W = worldOf(refId(e.args[5]));
+        const o = [W[3] * f, W[7] * f, W[11] * f];
+        if (o.every(Number.isFinite)) Object.defineProperty(row, "origin", { value: o, enumerable: false, writable: true });
+      } catch { /* no placement point */ }
+    }
     row.check = checkVolume(row, tol);
     row.areaCheck = checkAreas(row, tol);
     rows.push(row);

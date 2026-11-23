@@ -552,7 +552,8 @@ Two things exports rarely carry, and the tool supplies honestly:
 - **The room of a component.** Revit places doors, windows and most equipment
   on a storey, not in a room (38 of 99 components in the Duplex model).
   `--from-geometry` (on by default on the page) runs IFC Quantity Takeoff's
-  room reading and puts each in the room its body stands in; a door or window
+  room reading and puts each in the room its body stands in (or, with no body
+  it can box, the room its placement point stands in); a door or window
   gets the rooms on both sides (`101,102`, as COBie allows).
 - **A contact email.** COBie keys every row's `CreatedBy` to a Contact's
   email, and most owner histories name a login, not an email (all 25 public
@@ -577,7 +578,10 @@ workbook; doors and windows placed from geometry alone get exactly the rooms
 the file's own space boundaries name in 791 of 869 cases (37 more get one of
 their two rooms, 19 get a room the file does not name, 22 none); components a
 file puts in a room, with that containment hidden, are placed in the same room
-in 935 of 1,227 cases, another in 89 and none in 203 (left blank). On Duplex,
+in 935 of 1,227 cases, another in 89 and none in 203 (left blank); with the
+placement-point fallback for bodies that give no box (2026-11-23,
+eval/cobie-placement-point-2026-11-23.md), 1,068 the same, 95 another and 64
+blank. On Duplex,
 IfcOpenShell's ifcfm writes the same counts of floors, rooms, zones, types and
 components, and the QC of its workbook finds the 38 components it leaves at
 `n/a`.

@@ -22,7 +22,7 @@ import { roomTests, openingSides, assignRooms } from "../../ifc-quantity-takeoff
 const args = process.argv.slice(2);
 const jsonAt = args.indexOf("--json");
 const jsonOut = jsonAt >= 0 ? args[jsonAt + 1] : null;
-const files = args.filter((a, i) => !a.startsWith("--") && i !== jsonAt + 1);
+const files = args.filter((a, i) => !a.startsWith("--") && (jsonAt < 0 || i !== jsonAt + 1)); // without --json, index 0 is a file
 const results = [];
 
 for (const f of files) {
@@ -73,7 +73,11 @@ for (const f of files) {
       if (!e || !isAsset(model, e) || /^IFC(DOOR|WINDOW)/.test(e.type)) continue;
       hidden.push({ row, truth: row.space });
     }
-    const copies = hidden.map(({ row }) => Object.assign(Object.create(Object.getPrototypeOf(row)), row, { space: null, spaceFrom: null }));
+    const copies = hidden.map(({ row }) => {
+      const c = Object.assign(Object.create(Object.getPrototypeOf(row)), row, { space: null, spaceFrom: null });
+      for (const k of ["origin"]) if (row[k]) Object.defineProperty(c, k, { value: row[k], enumerable: false }); // Object.assign skips it
+      return c;
+    });
     assignRooms(copies, tk.rooms.map((x) => x)); // counts on rooms change; not read below
     const byClass = {};
     hidden.forEach(({ row, truth }, i) => {
@@ -84,6 +88,7 @@ for (const f of files) {
       if (!got) { B.none++; k.none++; }
       else if (got === truth) { B.same++; k.same++; }
       else { B.other++; k.other++; }
+      if (copies[i].spaceBy === "placement point") { B.byPoint = (B.byPoint || 0) + 1; if (got === truth) B.byPointSame = (B.byPointSame || 0) + 1; }
     });
     B.byClass = byClass;
     r.containedAssets = B;
@@ -103,6 +108,6 @@ for (const f of files) {
   }
   results.push(r);
   const d = r.doorsWindows, b = r.containedAssets;
-  console.log(`${name}: ${r.error ? "ERROR " + r.error : `rows ${SHEETS.map((s) => r.rows[s]).join("/")}; doors+windows vs boundaries ${d.same}/${d.checked} same, ${d.subset} one side of two, ${d.superset} extra, ${d.differ} differ, ${d.none} none; contained assets ${b.same}/${b.checked} same, ${b.other} other, ${b.none} none; QC ${r.qc.errors} errors ${r.qc.warnings} warnings; ${r.ms.parse}+${r.ms.takeoff}+${r.ms.export} ms`}`);
+  console.log(`${name}: ${r.error ? "ERROR " + r.error : `rows ${SHEETS.map((s) => r.rows[s]).join("/")}; doors+windows vs boundaries ${d.same}/${d.checked} same, ${d.subset} one side of two, ${d.superset} extra, ${d.differ} differ, ${d.none} none; contained assets ${b.same}/${b.checked} same, ${b.other} other, ${b.none} none (by placement point ${b.byPointSame || 0}/${b.byPoint || 0}); QC ${r.qc.errors} errors ${r.qc.warnings} warnings; ${r.ms.parse}+${r.ms.takeoff}+${r.ms.export} ms`}`);
 }
 if (jsonOut) writeFileSync(jsonOut, JSON.stringify(results, null, 1) + "\n");
