@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnqR2cQCDTXBk6ixGp",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T14:23:39Z",
+  "ended": "2026-11-23T15:38:32Z",
+  "wall_minutes": 75.22,
+  "tokens_in": 14045505,
+  "tokens_out": 53997,
+  "cost_usd": 5.2965,
+  "tool_calls": 100,
+  "task": "Deepen flagship league-schedule-generator: even lane splits for 22-28 team bowling seasons SAT left unanswered",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18435",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First tabu start-file detection read the wrong key and silently started from random; caught by a 1 ms run showing the start's off, fixed by a strstr on the whole file."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 4's open items (a real league's use, a real club's night/TRF) all need outside input; the BUILDABLE work was only in NEXT.md, so the row should carry a buildable: field. The bowling SAT item was buildable here."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Outbound hosts: router.project-osrm.org, overpass-api, lichess.org, chess-results.com all 403 through the proxy; only GitHub and PyPI answered. A list of reachable data hosts would save probing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Claimed 'Swiss pairer on more real club TRFs' first; a GitHub code search found only test fixtures and synthetic TRFs, so I switched items within the same flagship to the bowling 22-28 team seasons (NEXT.md). The PR title kept the first claim's wording until updated.",
+      "did": "Built the bowling slice instead and renamed the PR title.",
+      "result": "17 seasons improved, 2 to the bound."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-big-bowling-leagues-even-lane-split-tabu-search.md",
+    "ventures/league-schedule-generator/README.md (Big bowling leagues section)",
+    "ventures/league-schedule-generator/eval/bowling-lane-table.txt (2026-11-23 section)"
+  ],
+  "goal": null,
+  "notes": "Tabu search (C) + hinted CP-SAT count model on the 25 open 22-28 team bowling seasons. 28x12 and 22x34 now at the bound; 15 seasons stored closer than the page (bowling-lane-near.mjs, nearPlan), 251 -> 103 total off over 17 seasons, seeds 1 and 2 (eval/bowling-lane-near.txt). node --test bowling.test.mjs: 33 pass; page/pwa/polish tests 75 pass; check_posts ok. Full venture suite and preflight results in the PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "78ea8f86-0fb4-5644-a509-926100336dde",
+    "transcripts": 1,
+    "first": "2026-11-23T14:23:39Z",
+    "last": "2026-11-23T15:38:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 182,
+        "output": 53997,
+        "thinking": 15476,
+        "cache_read": 13864972,
+        "cache_write_5m": 0,
+        "cache_write_1h": 180351,
+        "api_equivalent_usd": 5.2965,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 182,
+      "output": 53997,
+      "thinking": 15476,
+      "cache_read": 13864972,
+      "cache_write_5m": 0,
+      "cache_write_1h": 180351,
+      "api_equivalent_usd": 5.2965,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 95,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 75.22,
+      "active_minutes": 75.22,
+      "model_minutes": 9.35,
+      "tool_minutes": 65.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an optimisation engineer writing a tabu search, warm-starting CP-SAT, wiring a stored table into the page with tests, and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 226.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
