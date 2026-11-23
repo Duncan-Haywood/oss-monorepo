@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVNecL8DLSazHCZAk8F",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T15:10:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "scheduled ventures brief; allocate.py row 9 ifc-quantity-takeoff, item: swept-disk bars drawn in the model view (NEXT.md, bSI samples section)",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18437",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first arc-tube test assumed chord volume within 3% of pi r^2 L, forgetting the 12-gon's own 4.5%; fixed the expectation to section x chord length",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "the bare route drew creative though the scheduled message is the ventures brief; prompt.md says to pass --task, which a scheduled run can miss if it runs route first"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "the row said take the second open item of next:/buildable; those items need public models that do not exist (stepped arc walls with square ends, ArchiCAD/Vectorworks revision series) or are one-element precision chases",
+      "did": "took a NEXT.md item of the same flagship that needs no outside input and fixes a visible gap: bars invisible in the 3D view",
+      "result": "landed; 788 of 788 bar elements drawn, bSI bar boxes 0 to 35 of 35 vs IfcOpenShell"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-drawing-rebar-from-an-ifc-swept-disk.md",
+    "ventures/ifc-quantity-takeoff/eval/bar-tubes-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "ifc-quantity-takeoff: IfcSweptDiskSolid bars drawn as mitred, capped polygon tubes (view-mesh.mjs tubeTriangles; detail by model budget tubeDetail, 600k triangles) and given world boxes (geom.mjs barExtent, qto.mjs worldBox). Verification: venture suite 248 tests pass (run_venture_tests.py); bsi-samples.mjs vs IfcOpenShell 0.9.0: boxes within 2 mm 77 -> 112 of 115, bars 0 -> 35 of 35, volumes unchanged 110/115; eval/bar-tubes.mjs on 7 Tekla exports + 2 bSI: 788/788 drawn, tube/computed 0.8987-0.9003 at 8 sides, SENDA-E-O drawn at 3 sides (725k triangles, 0.5 s); Playwright screenshot of the page: stirrup blank before, drawn after (eval/*.png).",
+  "corrections": [],
+  "redteam": null
+}
