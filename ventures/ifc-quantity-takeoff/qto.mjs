@@ -1344,15 +1344,14 @@ function computeAreas(type, solids, W, f) {
         const V = Math.abs(solidVolume(body));
         const mean = g ? (g.outer + g.inner) / 2 : 0;
         const oneSection = g && V > 0 && Math.abs(mean * (g.rOuter - g.rInner) - V) <= 0.02 * V;
-        // only a body with no cutters among its terms. Brought in for
-        // ISSUE_129's 180-degree #36735 and #148665, whose wrong outer face
-        // was put down to cutter faces; traced 2026-11-23 to their two ends
-        // sharing one plane through the centre (curvedFaces now leaves such
-        // planes out, and both pass the one-section check;
-        // eval/half-round-ends-2026-11-23.md). Kept as a guard: a drawn
-        // profile's signed fan is not yet tested against the swept check
-        const cutters = body.terms.some((t) => t.s < 0) || (body.shells || []).some((sh) => sh.s < 0);
-        const stepped = !oneSection && !cutters && g && V > 0 && Math.abs(g.swept - V) <= 0.02 * V;
+        // Negative terms are allowed: a drawn profile's signed fan (stepped
+        // walls as two outline items, fans started on either arc, a half
+        // ring) and a boolean recess both sweep their volume to 1e-14, while
+        // ends cut square still miss by 28% and are refused
+        // (eval/signed-fan-swept-2026-11-23.md). The guard that kept them out
+        // came from ISSUE_129's #36735/#148665, traced to coplanar ends
+        // (eval/half-round-ends-2026-11-23.md), not to their negative terms
+        const stepped = !oneSection && g && V > 0 && Math.abs(g.swept - V) <= 0.02 * V;
         if (oneSection || stepped) {
           out.side.chord = { gross: out.side.gross, net: out.side.net };
           out.side.faces = { gross: [g.outer * f2, g.inner * f2], net: nt ? [nt.outer * f2, nt.inner * f2] : [null, null] };

@@ -249,6 +249,20 @@ this tool says which they are
   20,858 mm, digit for digit) on every piece; the bill of quantities uses their
   section instead
   ([eval/joins-and-host-figures-2026-11-20.md](eval/joins-and-host-figures-2026-11-20.md)).
+- **The swept check on signed fans (2026-11-23).** A curved wall whose
+  section steps up its height is measured on its facets only when its two
+  faces enclose its volume (the swept check). That check had been kept off any
+  body with negative terms, which every drawn outline that is not convex has:
+  the engine splits it into a signed fan of triangles. Run on stepped quarter
+  and half rings drawn as two outline items (42 to 356 negative terms, fans
+  started on either arc) and on a recess cut by a boolean difference, the
+  faces come out as the hand chords to 1e-9 and enclose the volume to 1e-14;
+  ends cut square still miss by 28% and are refused. The guard is lifted. On
+  the 28 public engine_web-ifc models nothing moved: 45 real walls with
+  negative terms already passed the one-section check, and every refused
+  curved wall fails earlier, its facets facing no one centre. No public model
+  has a stepped arc wall drawn as outlines to try it on
+  ([eval/signed-fan-swept-2026-11-23.md](eval/signed-fan-swept-2026-11-23.md)).
 - **Half-round walls and the openings cut at both ends (2026-11-23).**
   ISSUE_129's two 180-degree tunnel walls (#36735, #148665), refused until now,
   are measured. The earlier note put the wrong outer face down to "cutter

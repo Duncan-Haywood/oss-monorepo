@@ -1501,3 +1501,108 @@ test("a wall on an arc is measured on its facets: outer and inner faces, their m
   // pair agrees, where the chord cut (0.37 m2) called it 92% off
   assert.equal(r.areaCheck.GrossSideArea.agree, true);
 });
+
+// ---- eval/signed-fan-swept-2026-11-23.md ------------------------------------
+// A wall on an arc whose section steps up its height, drawn as outlines the
+// engine splits into a signed fan of triangles (convexPieces: negative terms
+// over the hollow). The swept check (the two faces enclose the body's volume
+// by the divergence theorem in plan) was kept off bodies with negative terms;
+// on such a fan the faces cancel plane by plane and swept = volume exactly
+const fanLift = (faces, z0) => faces.map((f) => f.map(([x, y, z]) => [x, y, z + z0]));
+const fanItem = (pts, z0, z1) => convexPieces(pts).map((q) => ({ s: q.s, faces: fanLift(prism(q.pts, [0, 0, z1 - z0]), z0) }));
+const fanWall = (A, N, ro, rm, ri, start = 0) => {
+  const a0 = A === Math.PI ? -Math.PI / 2 : 0;
+  const arc = (r, rev) => Array.from({ length: N + 1 }, (_, i) => [r * Math.cos(a0 + (A * (rev ? N - i : i)) / N), r * Math.sin(a0 + (A * (rev ? N - i : i)) / N)]);
+  const ring = (o, i) => { const p = [...arc(o, false), ...arc(i, true)]; return [...p.slice(start), ...p.slice(0, start)]; };
+  // a base 0 to 0.75 between ri and ro, the wall above between rm and ro
+  return { terms: [...fanItem(ring(ro, ri), 0, 0.75), ...fanItem(ring(ro, rm), 0.75, 3.97)], mesh: 0, shells: [], notes: [] };
+};
+const fanChords = (A, N, r, h) => N * 2 * r * Math.sin(A / N / 2) * h;
+
+test("curvedFaces: a stepped wall drawn as a signed fan sweeps its volume exactly, wherever the fan starts", async () => {
+  const { curvedFaces, solidVolume } = await import("./geom.mjs");
+  for (const [A, N, ro, rm, ri, start] of [[Math.PI / 2, 30, 2.3, 2.2, 1.877, 0], [Math.PI / 2, 30, 2.3, 2.2, 1.877, 40], [Math.PI, 180, 20.2, 19.6, 18.4, 0], [Math.PI, 180, 20.2, 19.6, 18.4, 200]]) {
+    const wall = fanWall(A, N, ro, rm, ri, start);
+    assert.ok(wall.terms.filter((t) => t.s < 0).length > 40, "negative terms over the hollow");
+    const F = curvedFaces(wall, [0, 0, 1]);
+    const V = Math.abs(solidVolume(wall));
+    close(F.outer, fanChords(A, N, ro, 3.97), 1e-9);
+    close(F.inner, fanChords(A, N, ri, 0.75) + fanChords(A, N, rm, 3.97 - 0.75), 1e-9);
+    assert.equal(F.hidden, 0);
+    assert.ok(Math.abs(F.swept / V - 1) < 1e-9, `swept ${F.swept} vs ${V}`);
+    // the one-section check (mean face x width) misses: 2.5% on the quarter, 0.7% on the half ring
+    assert.ok(Math.abs(((F.outer + F.inner) / 2) * (F.rOuter - F.rInner) / V - 1) > 5e-3);
+  }
+});
+
+test("curvedFaces: a radial recess cut by a boolean difference sweeps its volume; ends cut square do not", async () => {
+  const { curvedFaces, solidVolume, subtractCutters, cuttersOf } = await import("./geom.mjs");
+  const A = Math.PI / 2, N = 30, step = A / N, at = (r, i) => [r * Math.cos(i * step), r * Math.sin(i * step)];
+  // a recess 0.4 m high into the inner face, facets 10 to 20, back face at r 2.0
+  const cut = [];
+  for (let i = 10; i < 20; i++) cut.push({ s: 1, faces: fanLift(prism([at(1.8, i), at(2.0, i), at(2.0, i + 1), at(1.8, i + 1)], [0, 0, 0.4]), 0.2) });
+  const recessed = subtractCutters(fanWall(A, N, 2.3, 2.2, 1.877), cuttersOf({ terms: cut }), "boolean difference");
+  const F = curvedFaces(recessed, [0, 0, 1]);
+  const V = Math.abs(solidVolume(recessed));
+  assert.ok(Math.abs(F.swept / V - 1) < 1e-9, `swept ${F.swept} vs ${V}`);
+  // the recess's back face replaces the inner face it cuts away
+  const per = (r) => 2 * r * Math.sin(step / 2) * 0.4 * 10;
+  close(F.inner, fanChords(A, N, 1.877, 0.75) + fanChords(A, N, 2.2, 3.22) - per(1.877) + per(2.0), 1e-9);
+  // ends cut square to the plan axes are neither level nor radial: the faces
+  // no longer enclose the volume, and the check refuses (28% off)
+  const box = (x0, y0, x1, y1) => ({ s: 1, faces: fanLift(prism([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], [0, 0, 6]), -1) });
+  const square = subtractCutters(fanWall(A, N, 2.3, 2.2, 1.877), cuttersOf({ terms: [box(-1, -1, 0.6, 3), box(0.6, -1, 3, 0.6)] }), "boolean difference");
+  const G = curvedFaces(square, [0, 0, 1]);
+  assert.ok(Math.abs(G.swept / Math.abs(solidVolume(square)) - 1) > 0.2);
+});
+
+// the stepped wall as a file: two IfcExtrudedAreaSolid items of drawn
+// IfcArbitraryClosedProfileDef rings (30 chords a quarter), the upper item
+// placed at 0.75 m
+const steppedFanFile = () => {
+  const N = 30, A = Math.PI / 2;
+  const arc = (r, rev) => Array.from({ length: N + 1 }, (_, i) => [r * Math.cos((A * (rev ? N - i : i)) / N), r * Math.sin((A * (rev ? N - i : i)) / N)]);
+  let id = 100;
+  const lines = [];
+  const item = (ro, ri, z, h) => {
+    const pts = [...arc(ro, false), ...arc(ri, true)];
+    const ids = pts.map((p) => { lines.push(`#${++id}=IFCCARTESIANPOINT((${p[0]},${p[1]}));`); return id; });
+    lines.push(`#${++id}=IFCPOLYLINE((${[...ids, ids[0]].map((x) => `#${x}`).join(",")}));`);
+    const pl = id;
+    lines.push(`#${++id}=IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,$,#${pl});`);
+    const pr = id;
+    lines.push(`#${++id}=IFCCARTESIANPOINT((0.,0.,${z}));`);
+    lines.push(`#${++id}=IFCAXIS2PLACEMENT3D(#${id - 1},$,$);`);
+    lines.push(`#${++id}=IFCEXTRUDEDAREASOLID(#${pr},#${id - 1},#16,${h});`);
+    return id;
+  };
+  const a = item(2.3, 1.877, "0.", 0.75), b = item(2.3, 2.2, "0.75", 3.22);
+  return `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53P9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#16=IFCDIRECTION((0.,0.,1.));
+${lines.join("\n")}
+#900=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#${a},#${b}));
+#901=IFCPRODUCTDEFINITIONSHAPE($,$,(#900));
+#902=IFCWALL('2Ynk$BaAz6sA1QNF3FzSDF',$,'stepped arc wall',$,$,#12,#901,$);
+ENDSEC;END-ISO-10303-21;`;
+};
+
+test("a stepped arc wall drawn as outlines is measured on its facets through the swept check", () => {
+  const A = Math.PI / 2, N = 30;
+  const r = takeoff(parseStep(steppedFanFile())).rows.find((x) => x.ifcClass === "IfcWall");
+  const S = r.computed.areas.side;
+  assert.equal(S.curved, true);
+  // before 2026-11-23 the negative terms kept it on the chord cut, no faces
+  assert.equal(S.stepped, true);
+  const outer = fanChords(A, N, 2.3, 3.97), inner = fanChords(A, N, 1.877, 0.75) + fanChords(A, N, 2.2, 3.22);
+  close(S.faces.gross[0], outer, 1e-6);
+  close(S.faces.gross[1], inner, 1e-6);
+  close(S.gross, (outer + inner) / 2, 1e-6);
+  assert.ok(S.chord.gross > 0);
+  close(S.radius.outer, 2.3 * Math.cos(A / N / 2), 1e-3);
+});
