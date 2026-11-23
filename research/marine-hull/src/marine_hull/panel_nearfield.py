@@ -70,6 +70,28 @@ def _terms(solver, body, results, motions, wl, rho, omega, mass=0.0):
     return {"wl": f_wl, "vel": f_vel, "grad": f_grad, "rot": f_rot}, resid
 
 
+def _velocity_split(solver, body, results, motions, rho):
+    """7zy: the velocity term of R = -F_x split into II, ID (2 Re v_I . conj v_P) and PP per component x, y, z,
+    v_I the incident velocity and v_P diffraction plus the motion-weighted radiation velocities; sums to -vel."""
+    import numpy as np
+    from capytaine.bem.airy_waves import airy_waves_velocity
+    mesh = body.mesh
+    c = mesh.faces_centers
+    w = mesh.faces_normals[:, 0] * mesh.faces_areas
+    vi = airy_waves_velocity(c, results["D"].problem)
+    vp = solver.compute_velocity(mesh, results["D"])
+    for dof, x in motions.items():
+        if x != 0:
+            vp = vp + x * solver.compute_velocity(mesh, results[dof])
+    out = {}
+    for j, comp in enumerate("xyz"):
+        a, b = vi[:, j], vp[:, j]
+        out["II_" + comp] = -0.25 * rho * float(np.sum(abs(a) ** 2 * w))
+        out["ID_" + comp] = -0.25 * rho * float(np.sum(2.0 * (a * np.conj(b)).real * w))
+        out["PP_" + comp] = -0.25 * rho * float(np.sum(abs(b) ** 2 * w))
+    return out
+
+
 class PanelNearField(mr.MaruoHull):
     """`maruo.MaruoHull` plus the near-field mean drift on the same panel solution."""
 
@@ -121,6 +143,10 @@ class PanelNearField(mr.MaruoHull):
         r = {k: -v for k, v in f.items()}
         r["nf"] = sum(r.values())
         return r, resid
+
+    def velocity_split(self, res, heave=0j, pitch=0j):
+        """7zy: the velocity term of R_aw (N/m2 per zeta^2) split by pair and component; sums to near_field's vel."""
+        return _velocity_split(self.solver, self.body, res, {"Heave": heave, "Pitch": pitch}, self.rho)
 
 
 def cylinder_near_field(radius, draft, ka, rho=1000.0, n_theta=96, n_z=32, n_r=6):
