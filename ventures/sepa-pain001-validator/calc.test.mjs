@@ -107,12 +107,14 @@ test("direct debit rules: sequence type, scheme, mandate id, creditor id, signat
   assert.ok(has(run(dd.replace(/<ReqdColltnDt>.*?</, "<ReqdColltnDt>2020-01-01<")), "DATE-PAST"));
 });
 
-test("pain.008.001.08 uses BICFI and a <Dt> wrapper", () => {
-  const dd = sampleDirectDebit({ today: TODAY }).replace("pain.008.001.02", "pain.008.001.08")
-    .replace(/<ReqdColltnDt>(.*?)<\/ReqdColltnDt>/, "<ReqdColltnDt><Dt>$1</Dt></ReqdColltnDt>").replace("<BIC>COBADEFFXXX</BIC>", "<BICFI>COBADEFFXXX</BICFI>");
+test("pain.008.001.08 uses BICFI and a bare ReqdColltnDt (ISODate in the XSD, no <Dt>)", () => {
+  // pain.008.001.08.xsd: <xs:element name="ReqdColltnDt" type="ISODate"/> (quality round 102)
+  const dd = sampleDirectDebit({ today: TODAY }).replace("pain.008.001.02", "pain.008.001.08").replace("<BIC>COBADEFFXXX</BIC>", "<BICFI>COBADEFFXXX</BICFI>");
   const r = run(dd);
   assert.equal(r.summary.errors, 0, JSON.stringify(r.findings));
   assert.equal(r.summary.version, "pain.008.001.08");
+  const wrapped = run(dd.replace(/<ReqdColltnDt>(.*?)<\/ReqdColltnDt>/, "<ReqdColltnDt><Dt>$1</Dt></ReqdColltnDt>"));
+  assert.ok(wrapped.findings.some((f) => f.code === "DATE-WRAP"), "a <Dt> wrapper is schema-invalid in .08");
 });
 
 // ---- counters -------------------------------------------------------------------------------
@@ -488,4 +490,11 @@ test("IBAN registry release 101 countries get a length check and known BIC count
   assert.ok(checkIban("BI442000110001000012345678").problems.some((p) => p.code === "IBAN-LENGTH"));
   for (const cc of ["BI", "DJ", "FK", "HN", "LY", "MN", "NI", "OM", "RU", "SD", "SO", "YE"]) assert.ok(IBAN_LENGTHS[cc], cc);
   assert.equal(checkBic("AGXRDJENXXX").warn, undefined);
+});
+
+test("repair never rewrites an identifier, even one with disallowed characters (quality round 102)", () => {
+  const dd = sampleDirectDebit({ today: TODAY }).replace("<MndtId>MAND-0001</MndtId>", "<MndtId>MAND_0001</MndtId>");
+  const fix = repair(dd);
+  assert.ok(fix.text.includes("<MndtId>MAND_0001</MndtId>"), "MndtId must still match the signed mandate");
+  assert.ok(!fix.changes.some((c) => /MndtId/.test(c.what)));
 });
