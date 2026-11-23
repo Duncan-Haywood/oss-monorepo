@@ -41,22 +41,25 @@ def phi(eps_ppm):
     return out
 
 
-def frac_read(x, pos, half=16, beta=8.0, cutoff=0.95, chunk=200_000):
-    """x read at fractional sample positions pos: windowed sinc over 2 half taps; zero outside x."""
+def frac_read(x, pos, half=16, beta=8.0, cutoff=0.95, chunk=200_000, phases=2048):
+    """x read at fractional sample positions pos: Kaiser-windowed sinc over 2 half taps, zero outside x. The
+    kernel is tabulated at `phases` fractional offsets and linearly interpolated between them."""
     x = np.asarray(x, float)
     pos = np.asarray(pos, float)
     out = np.zeros(len(pos))
     k = np.arange(-half + 1, half + 1)
+    d = np.arange(phases + 1)[:, None] / phases - k[None, :]  # tap distance for each tabulated offset
+    H = cutoff * np.sinc(cutoff * d) * _kaiser(d, half, beta)
     xp = np.concatenate([np.zeros(half), x, np.zeros(half + 1)])
     for a in range(0, len(pos), chunk):
         p = pos[a:a + chunk]
         i = np.floor(p).astype(np.int64)
-        f = p - i
-        d = f[:, None] - k[None, :]  # distance from each tap to the read point
-        h = cutoff * np.sinc(cutoff * d) * _kaiser(d, half, beta)
+        j = (p - i) * phases
+        j0 = np.minimum(j.astype(np.int64), phases - 1)
+        u = (j - j0)[:, None]
+        h = (1.0 - u) * H[j0] + u * H[j0 + 1]
         idx = i[:, None] + k[None, :] + half
-        ok = (idx >= 0) & (idx < len(xp))
-        v = np.where(ok, xp[np.clip(idx, 0, len(xp) - 1)], 0.0)
+        v = xp[np.clip(idx, 0, len(xp) - 1)] * ((idx >= 0) & (idx < len(xp)))
         out[a:a + chunk] = np.sum(v * h, axis=1)
     return out
 

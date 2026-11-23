@@ -70,14 +70,17 @@ def session(blocks, k, rng, w):
     eps = EPS_S * (1 if rng.random() < 0.5 else -1)
     ws = w * (1 if rng.random() < 0.5 else -1)
     y1, ph = C.record(x1, C.warmup_ppm(np.arange(len(x1)) / FS, eps, ws, TAU))
+    del x1, sp
     d0 = rng.uniform(-T.D0_MAX, T.D0_MAX)
     B = int(round(ph[A] - d0 * FS))
     n = int(SESSION_S * FS)
-    return x0[A:A + n].copy(), y1[B:B + n].copy(), A, B, ph, eps, ws
+    return x0[A:A + n].copy(), y1[B:B + n].copy(), A, B, ph[::FS].copy(), eps, ws
 
 
-def truth(t, A, B, ph):
-    return (np.interp(A + t * FS, np.arange(len(ph), dtype=float), ph) - B) / FS - t
+def truth(t, A, B, ph_s):
+    """Device 1's delay behind device 0 (s) at device-0 times t (whole seconds; A is a whole second too), from
+    phi sampled once a second (ph_s = phi[::FS])."""
+    return (np.interp(A / FS + np.asarray(t, float), np.arange(len(ph_s), dtype=float), ph_s) - B) / FS - t
 
 
 def jobs():
