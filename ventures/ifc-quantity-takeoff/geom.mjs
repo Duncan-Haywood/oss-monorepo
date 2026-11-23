@@ -467,7 +467,10 @@ export function bendsInPlan(s, up, t, minDirs = 12) {
  * each facet's plan area times its distance from the centre, the inner face
  * negative): the body's volume when every face it has besides these two is
  * level or lies along a radius, whatever its section does up the wall (a
- * stepped or recessed wall included). A facet facing the centre or away
+ * stepped or recessed wall included). `ends` is the same flux of the
+ * standing planes on neither face (ends cut square, reveals; zero for one
+ * along a radius) and `endArea` their area, so swept + ends is the volume
+ * whenever every other face is level. A facet facing the centre or away
  * with more of the body beyond it (a duct's inside) is on neither face: its
  * area is `hidden`, though it still counts in `swept`. A plane whose area
  * lies more than 45 degrees from the foot of the perpendicular from the
@@ -628,11 +631,23 @@ export function curvedFaces(s, up, minDirs = 6) {
   let C = fit(P);
   if (!C) return null;
   for (let i = 0; i < 3; i++) C = fit(P.filter((f) => Math.abs(facing(f, C)[0]) > cosMax)) ?? C;
-  let outer = 0, inner = 0, ro = 0, ri = 0, no = 0, ni = 0, swept = 0, hidden = 0;
+  let outer = 0, inner = 0, ro = 0, ri = 0, no = 0, ni = 0, swept = 0, hidden = 0, ends = 0, endArea = 0;
   const F = [];
   let dMax = -Infinity, dMin = Infinity;
   for (const f of P) {
     const [c, dist] = facing(f, C);
+    // a standing plane that faces no centre is an end (or an opening's
+    // jamb): its own flux in plan, exact for a plane (the distance along its
+    // normal is the same at every point of it), so the faces plus the ends
+    // still enclose the volume when the ends are cut square rather than
+    // along a radius (eval/square-cut-ends-2026-11-23.md). A plane dropped
+    // for facing the centre but spreading too far is not counted here
+    if (Math.abs(c) <= cosMax) {
+      const [nx, ny] = to2(f.n), [px, py] = to2(f.p);
+      ends += f.area * (nx * (px - C[0]) + ny * (py - C[1]));
+      endArea += f.area;
+      continue;
+    }
     // A plane's summed area can be patches far apart that only its point
     // (their centroid) makes look like a face: a half-round wall's two ends
     // lie on one plane through the centre, and the cuts two openings at
@@ -643,7 +658,7 @@ export function curvedFaces(s, up, minDirs = 6) {
     // round that foot, so the plane's area must stay within 45 degrees of it
     // seen from the centre: RMS distance from the foot along the plane (in
     // plan) no more than the plane's distance from the centre.
-    if (Math.abs(c) <= cosMax || !(spread(f, C) <= dist)) continue;
+    if (!(spread(f, C) <= dist)) continue;
     F.push({ f, c, dist });
     if (c > 0) dMax = Math.max(dMax, dist); else dMin = Math.min(dMin, dist);
   }
@@ -663,7 +678,7 @@ export function curvedFaces(s, up, minDirs = 6) {
     else { inner += f.area; ri += f.area * dist; ni++; }
   }
   if (no < minDirs || ni < minDirs || !(outer > 0) || !(inner > 0)) return null;
-  return { outer, inner, rOuter: ro / outer, rInner: ri / inner, centre: C, swept: swept / 2, hidden };
+  return { outer, inner, rOuter: ro / outer, rInner: ri / inner, centre: C, swept: swept / 2, hidden, ends: ends / 2, endArea };
 }
 
 /**

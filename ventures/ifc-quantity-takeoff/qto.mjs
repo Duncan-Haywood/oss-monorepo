@@ -1398,7 +1398,11 @@ function computeAreas(type, solids, W, f) {
         // (eval/signed-fan-swept-2026-11-23.md). The guard that kept them out
         // came from ISSUE_129's #36735/#148665, traced to coplanar ends
         // (eval/half-round-ends-2026-11-23.md), not to their negative terms
-        const stepped = !oneSection && g && V > 0 && Math.abs(g.swept - V) <= 0.02 * V;
+        // Ends cut square (neither level nor radial) add their own flux in
+        // plan, `ends`: the faces and the ends then enclose the volume
+        // (eval/square-cut-ends-2026-11-23.md); a face facet dropped or a
+        // leaning face still leaves it short
+        const stepped = !oneSection && g && V > 0 && Math.abs(g.swept + g.ends - V) <= 0.02 * V;
         if (oneSection || stepped) {
           out.side.chord = { gross: out.side.gross, net: out.side.net };
           out.side.faces = { gross: [g.outer * f2, g.inner * f2], net: nt ? [nt.outer * f2, nt.inner * f2] : [null, null] };

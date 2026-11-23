@@ -16,7 +16,7 @@
 
 - (landed 2026-11-23, eval/triangulated-arc-breps-2026-11-23.md) Triangulated breps on an arc: ARK_NUS's two (a duct along the foot, faces matching the axis to 0.02%) and 8 ISSUE_129 tunnel walls measured, 55 to 65 of 134. (ISSUE_129 #36735, #148665 landed 2026-11-23, eval/half-round-ends-2026-11-23.md: not cutters but a half ring's two ends on one plane through the centre, and opening cuts sharing planes; a plane's spread round the foot now decides.) Left: recesses lined at other angles than facing the centre; facets leaning over 2 degrees (battered walls).
 - `bendsInPlan` flags straight walls with rounded ends (one inspected of the 54 ISSUE_129 walls whose facets face no one centre); curvedFaces refuses them, but the flag (and a stored figure's `curved` reason there) is too broad.
-- (landed 2026-11-23, eval/signed-fan-swept-2026-11-23.md) The swept check now takes bodies with negative terms (signed fans, boolean recesses). Left: no public model has a stepped arc wall drawn as outlines to try it on (the public corpus moved nothing); a stepped arc wall with ends cut square (neither level nor radial) is still refused, and would need the ends' own flux added to `swept`.
+- (landed 2026-11-23, eval/signed-fan-swept-2026-11-23.md) The swept check now takes bodies with negative terms (signed fans, boolean recesses). Left: no public model has a stepped arc wall drawn as outlines to try it on (the public corpus moved nothing); ends cut square landed 2026-11-23 (eval/square-cut-ends-2026-11-23.md): the ends' own flux (`ends`) is added, tests only; next a real stepped or recessed arc wall from a public model.
 - A second tool's stored side area on an arc wall (only Revit outer faces checked).
 
 ## Rooms (landed 2026-11-21, eval/rooms-2026-11-21.md)
