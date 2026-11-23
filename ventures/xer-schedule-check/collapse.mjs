@@ -448,7 +448,9 @@ export function collapsedText(r, { limit = 12 } = {}) {
 }
 
 const csvCell = (v) => {
-  const s = String(v ?? "");
+  let s = String(v ?? "");
+  // a cell a spreadsheet would run as a formula (an activity name "=HYPERLINK(...)") is written as text
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 export function collapsedCsv(r) {
