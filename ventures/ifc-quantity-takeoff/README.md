@@ -664,7 +664,13 @@ checks every brep's mesh for this and the comparison names it
 ([eval/turned-figure-2026-11-23.md](eval/turned-figure-2026-11-23.md)): unexplained
 disagreements on the two models 15 to 5 (the 5 left are tessellation gaps
 under 0.3%), and 55 of IfcOpenShell's 56 larger-than-the-box figures are the
-same inside-out faces.
+same inside-out faces. Since 2026-11-23 the volume of a curved face also
+counts the quadratic patch over each flat triangle (its edges' sag times a
+third of its area, `bulgeVolume`), so the mesh's inscribed shortfall no longer
+reaches the figure
+([eval/curved-sag-2026-11-23.md](eval/curved-sag-2026-11-23.md)): 4 of those 5
+now agree within 0.012%, and every brep read on FM_ARC_DigitalHub agrees with
+IfcOpenShell within 0.1%.
 A plane
 cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids
