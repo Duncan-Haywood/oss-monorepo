@@ -216,7 +216,12 @@ function bisectIncreasing(fn, target, lo, hi, iters = 60) {
 }
 
 function num(x, name, { min = -Infinity, max = Infinity, allowBlank = false, fallback } = {}) {
-  if ((x === undefined || x === null || String(x).trim() === "") && allowBlank) return fallback;
+  // Number("") is 0, so a blank required field would pass as zero wherever 0
+  // is in range (side slope, IDF b) while the page shows its placeholder.
+  if (x === undefined || x === null || String(x).trim() === "") {
+    if (allowBlank) return fallback;
+    throw new Error(`${name}: enter a number`);
+  }
   const v = Number(String(x).trim());
   if (!Number.isFinite(v)) throw new Error(`${name}: enter a number`);
   if (v < min || v > max) throw new Error(max === Infinity ? `${name}: must be ${min} or more` : `${name}: must be between ${min} and ${max}`);
