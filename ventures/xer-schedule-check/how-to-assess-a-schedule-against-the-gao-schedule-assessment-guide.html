@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Assess A Schedule Against The GAO Schedule Guide</title>
+  <meta name="description" content="Score a P6 or Microsoft Project schedule against the ten best practices of the GAO Schedule Assessment Guide, test by test, free in your browser.">
+  <meta property="og:title" content="How To Assess A Schedule Against The GAO Schedule Assessment Guide">
+  <meta property="og:description" content="The ten GAO best practices scored from the XER, with every test, its threshold and the activities behind each failure.">
+  <link rel="canonical" href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the GAO Schedule Assessment Guide?","acceptedAnswer":{"@type":"Answer","text":"A guide published by the US Government Accountability Office in December 2015 (GAO-16-89G) setting out ten best practices for a reliable project schedule, grouped under four characteristics: comprehensive, well-constructed, credible and controlled. GAO auditors use it when they review federal programmes' schedules, and agencies and their contractors use it to prepare for those reviews."}},{"@type":"Question","name":"How is it different from the DCMA 14-point assessment?","acceptedAnswer":{"@type":"Answer","text":"The DCMA 14 points are numeric screening metrics with fixed thresholds, aimed at the network's mechanics. The GAO guide is broader: it asks whether every activity is captured under the WBS, resourced and given a sensible duration, whether the schedule traces from the lowest activity to the milestones, whether the critical path is driven by work rather than constraints and lags, whether a risk analysis was done, and whether a baseline is kept. Several DCMA points answer parts of GAO practices, and this tool uses them there."}},{"@type":"Question","name":"Does the guide set numeric thresholds?","acceptedAnswer":{"@type":"Answer","text":"Mostly no: it describes practices and gives judgment-based criteria, and GAO's auditors rate each practice on five levels from not met to fully met after weighing the evidence. The tests here use the DCMA's published thresholds where a DCMA point measures the same thing (44 working days, 5 percent) and say so beside each test, so a reviewer can disagree with a threshold and see exactly what changes."}},{"@type":"Question","name":"Why is the risk analysis practice not rated?","acceptedAnswer":{"@type":"Answer","text":"Because a schedule risk analysis is evidence outside the schedule file: the agreed duration ranges, the simulation and its reported result. The tool rates that practice only when the file itself carries three-point duration ranges in activity user-defined fields, and then only on whether the ranges cover the open work. The tool's own Monte Carlo can run the analysis; keep its report with the schedule."}},{"@type":"Question","name":"Is the file uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule is read and scored in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to assess a schedule against the GAO Schedule Assessment Guide</h1>
+  <p>The GAO Schedule Assessment Guide (GAO-16-89G) is what US federal auditors read a programme's schedule against, and what agencies and their contractors prepare for. It sets out ten best practices under four characteristics: a reliable schedule is <b>comprehensive</b>, <b>well-constructed</b>, <b>credible</b> and <b>controlled</b>. Scoring a schedule against it by hand means filtering the same P6 layouts again and again; paid analytics products sell a GAO metric library per seat. The free tool here scores the ten practices straight from the XER (or a Microsoft Project XML file), lists every test with its threshold, and names the activities behind every failure.</p>
+  <p><a class="cta" href="./#gao">Open the free schedule check</a> (open the XER, then press Score against the GAO guide)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the update from P6 as XER (File, Export, Primavera PM XER), or save the Microsoft Project file as XML.</li>
+    <li>Open it on the <a href="./">tool page</a>. If the file holds several projects, pick one.</li>
+    <li>Under <b>GAO Schedule Assessment Guide</b>, optionally add the baseline project's XER, so practice 10 is scored against the real baseline, and press <b>Score against the GAO guide</b>.</li>
+    <li>Read the four characteristics, then open each practice: every failed test lists its activities. Download the CSV for the full lists, or the printable scorecard to attach to a review.</li>
+  </ol>
+  <h2>What is tested, practice by practice</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Practice</th><th>Characteristic</th><th>Tests from the file</th></tr></thead>
+    <tbody>
+      <tr><td>1. Capturing all activities</td><td>Comprehensive</td><td>Open work filed under a WBS element, not the project node; activity names that stand alone; a finish milestone</td></tr>
+      <tr><td>2. Sequencing all activities</td><td>Well-constructed</td><td>DCMA logic, leads, lags, relationship types and hard constraints; logic loops</td></tr>
+      <tr><td>3. Assigning resources</td><td>Comprehensive</td><td>Open work with a resource or cost assignment (DCMA 10); every resource used has a maximum units per time to level against</td></tr>
+      <tr><td>4. Establishing durations</td><td>Comprehensive</td><td>DCMA high duration; unstarted zero-duration tasks that should be milestones; tasks under half a working day</td></tr>
+      <tr><td>5. Horizontal and vertical traceability</td><td>Credible</td><td>DCMA critical path test; open finishes; stored dates that follow the logic; milestones driven by the work they summarise</td></tr>
+      <tr><td>6. A valid critical path</td><td>Well-constructed</td><td>A driving path of work from the data date to the finish; no date constraints or lags on it; CPLI; P6's own longest-path flags agree</td></tr>
+      <tr><td>7. Reasonable total float</td><td>Well-constructed</td><td>DCMA high float and negative float</td></tr>
+      <tr><td>8. Schedule risk analysis</td><td>Credible</td><td>Rated only when the file carries three-point duration ranges</td></tr>
+      <tr><td>9. Updating with progress and logic</td><td>Controlled</td><td>A data date; no invalid dates; no out-of-sequence progress; rescheduled after the last edits</td></tr>
+      <tr><td>10. Maintaining a baseline</td><td>Controlled</td><td>With the baseline file: activities traced to it by ID, missed tasks and BEI against it. Without: planned dates, DCMA missed tasks and BEI</td></tr>
+    </tbody>
+  </table></div>
+  <p>GAO rates each practice on five levels, and its reports roll practices up to a characteristic by averaging. The tool does the same with one stated rule: a practice is <b>fully met</b> when all its tests pass, <b>substantially</b> at three quarters, <b>partially</b> at half, <b>minimally</b> when any pass, and <b>not met</b> when none do.</p>
+  <h2>A worked example</h2>
+  <p>On the built-in example (an invented office fit-out; press Load an example schedule), with no baseline file:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Practice</th><th>Characteristic</th><th>Tests passed</th><th>Rating</th></tr></thead>
+    <tbody>
+      <tr><td>1. Capturing all activities</td><td>Comprehensive</td><td>2 of 3</td><td>Partially met</td></tr>
+      <tr><td>2. Sequencing all activities</td><td>Well-constructed</td><td>2 of 6</td><td>Minimally met</td></tr>
+      <tr><td>3. Assigning resources to all activities</td><td>Comprehensive</td><td>0 of 2</td><td>Not met</td></tr>
+      <tr><td>4. Establishing the duration of all activities</td><td>Comprehensive</td><td>2 of 3</td><td>Partially met</td></tr>
+      <tr><td>5. Verifying that the schedule can be traced horizontally and vertically</td><td>Credible</td><td>3 of 3</td><td>Fully met</td></tr>
+      <tr><td>6. Confirming that the critical path is valid</td><td>Well-constructed</td><td>1 of 4</td><td>Minimally met</td></tr>
+      <tr><td>7. Ensuring reasonable total float</td><td>Well-constructed</td><td>2 of 2</td><td>Fully met</td></tr>
+      <tr><td>8. Conducting a schedule risk analysis</td><td>Credible</td><td>none</td><td>Not assessed</td></tr>
+      <tr><td>9. Updating the schedule using actual progress and logic</td><td>Controlled</td><td>4 of 4</td><td>Fully met</td></tr>
+      <tr><td>10. Maintaining a baseline schedule</td><td>Controlled</td><td>0 of 3</td><td>Not met</td></tr>
+    </tbody>
+  </table></div>
+  <p>Comprehensive is the weakest characteristic: the file has no WBS below the project, two activities carry no resource, the general contractor's labour has no limit to level against, and procurement runs 50 working days. The critical path is valid only in part: it starts at A1110, held by a start-on constraint rather than driven by the rough-in work, and a 10-day lag sits on it between flooring and furniture. Open the earlier update as the baseline and practice 10 is scored against it instead: four activities were due by the data date on it, two finished late and two have not finished, a BEI of 0.5.</p>
+  <h2>How it was tested</h2>
+  <p>On six public P6 files, one fault of each kind GAO asks about and the DCMA points miss was planted at random (an activity moved onto the project node, a duplicated name, a zero-duration task, a milestone cut loose from its work, a lag or a start-on constraint on the driving path), and the scorecard had to name the planted activity under its own test. The results are in the project's <code>eval/</code> notes.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>A rating is not an audit opinion.</b> GAO's auditors weigh evidence beyond the file: the basis of estimate, the schedule management plan, interviews. The tests are what the file can show.</li>
+    <li><b>The thresholds are the tool's.</b> The guide gives practices, not numeric limits; each test shows the threshold it used.</li>
+    <li><b>Without a baseline file</b>, practice 10 uses the planned dates the file keeps, which P6 moves for work not yet started, so it reads better than it should.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is the GAO Schedule Assessment Guide?</h3>
+  <p>A guide published by the US Government Accountability Office in December 2015 (GAO-16-89G) setting out ten best practices for a reliable project schedule, grouped under four characteristics: comprehensive, well-constructed, credible and controlled. GAO auditors use it when they review federal programmes' schedules, and agencies and their contractors use it to prepare for those reviews.</p>
+  <h3>How is it different from the DCMA 14-point assessment?</h3>
+  <p>The DCMA 14 points are numeric screening metrics with fixed thresholds, aimed at the network's mechanics. The GAO guide is broader: it asks whether every activity is captured under the WBS, resourced and given a sensible duration, whether the schedule traces from the lowest activity to the milestones, whether the critical path is driven by work rather than constraints and lags, whether a risk analysis was done, and whether a baseline is kept. Several DCMA points answer parts of GAO practices, and this tool uses them there.</p>
+  <h3>Does the guide set numeric thresholds?</h3>
+  <p>Mostly no: it describes practices and gives judgment-based criteria, and GAO's auditors rate each practice on five levels from not met to fully met after weighing the evidence. The tests here use the DCMA's published thresholds where a DCMA point measures the same thing (44 working days, 5 percent) and say so beside each test, so a reviewer can disagree with a threshold and see exactly what changes.</p>
+  <h3>Why is the risk analysis practice not rated?</h3>
+  <p>Because a schedule risk analysis is evidence outside the schedule file: the agreed duration ranges, the simulation and its reported result. The tool rates that practice only when the file itself carries three-point duration ranges in activity user-defined fields, and then only on whether the ranges cover the open work. The tool's own Monte Carlo can run the analysis; keep its report with the schedule.</p>
+  <h3>Is the file uploaded?</h3>
+  <p>No. The schedule is read and scored in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

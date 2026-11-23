@@ -86,5 +86,18 @@ class Simulation(unittest.TestCase):
         self.assertGreater(q.mean(hits), 0.9)
 
 
+class Pins(unittest.TestCase):
+    """Added by quality round 100: each assert kills a mutant that survived the earlier suite."""
+
+    def test_z95(self):
+        import statistics
+        self.assertAlmostEqual(q.Z95, statistics.NormalDist().inv_cdf(0.975), places=12)
+
+    def test_human_only_and_naive_se(self):
+        # sample variance of [1,0,0,1] is 1/3; se = sqrt(1/3 / 4) = sqrt(1/12)
+        self.assertAlmostEqual(q.human_only([1, 0, 0, 1])[1], math.sqrt(1 / 12), places=12)
+        self.assertAlmostEqual(q.naive([1, 0, 0, 1])[1], math.sqrt(1 / 12), places=12)
+
+
 if __name__ == "__main__":
     unittest.main()

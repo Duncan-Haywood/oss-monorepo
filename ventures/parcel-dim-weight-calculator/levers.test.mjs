@@ -40,9 +40,10 @@ test('a package billed on actual weight is told how much room it has left', () =
 });
 
 test('a near-boundary package gets the tape-measure warning, a roomy one does not', () => {
-  // 12 x 10 x 8 = 960 in3; 7.2 lb x 139 = 1,000.8 in3 break-even, so only
-  // 40.8 in3 (4.3%) of headroom -- one carton size away from flipping.
-  const tight = lever({ length: 12, width: 10, height: 8, weight: 7.2 });
+  // 12 x 10 x 8 = 960 in3; 7 lb x 139 = 973 in3 break-even, so only
+  // 13 in3 (1.4%) of headroom -- one carton size away from flipping. (7.2 lb
+  // used to stand here, but it bills 8 lb, whose break-even is 1,112 in3.)
+  const tight = lever({ length: 12, width: 10, height: 8, weight: 7 });
   assert.match(tight.detail, /under 10%/);
   const roomy = lever({ length: 10, width: 8, height: 6, weight: 20 });
   assert.ok(!/under 10%/.test(roomy.detail));

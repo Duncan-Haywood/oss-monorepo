@@ -231,3 +231,46 @@ test('girth is the strap around the two shorter sides; the thresholds use length
   const over = calculateBillableWeight({ length: 60, width: 27, height: 26, weight: 30 });
   assert.match(over.flags[0].text, /length plus girth 166″ exceeds/);
 });
+
+// Red team 2026-11-23: each surcharge rule was tested only well past its limit,
+// so `>` widened to `>=` on the 48″ longest side passed; and the cube lever's
+// own number (returned to API and tool callers) was never pinned.
+test('additional handling starts past the limit, not at it', () => {
+  const at = calculateBillableWeight({ length: DEFAULT_THRESHOLDS.additionalHandlingLongestSide, width: 6, height: 6, weight: 10 });
+  assert.equal(at.flags.some((f) => f.id === 'additional-handling'), false, 'exactly 48″ is not over 48″');
+  const past = calculateBillableWeight({ length: DEFAULT_THRESHOLDS.additionalHandlingLongestSide + 0.5, width: 6, height: 6, weight: 10 });
+  assert.equal(past.flags.some((f) => f.id === 'additional-handling'), true);
+});
+
+test('the reduce lever reports the cube to cut, and it lands on the break-even cube', () => {
+  const { lever, cube } = box();
+  assert.equal(lever.direction, 'reduce');
+  assert.equal(lever.targetCube, 4 * DEFAULT_DIVISOR);
+  assert.equal(lever.cubeReduction, 1920 - 556);
+  assert.equal(cube - lever.cubeReduction, lever.targetCube);
+});
+
+// Red team 2026-11-23, real defect: both weights round up to the next pound, so
+// 13.81 lb dimensional on 13.7 lb of goods bills 14 lb either way. It was
+// reported as billed on dimensional weight with "0 lb of it is air", and the
+// lever asked for a smaller box that would not lower the bill by a cent.
+test('a dimensional weight that rounds to the same pound bills on actual weight', () => {
+  const r = box({ weight: 13.7 }); // 1920 / 139 = 13.81
+  assert.equal(r.billableWeight, 14);
+  assert.equal(r.billedOn, 'actual');
+  assert.equal(r.lever.direction, 'headroom');
+  // Any cube up to 14 x 139 = 1946 still bills 14 lb.
+  assert.equal(r.lever.targetCube, 14 * DEFAULT_DIVISOR);
+  assert.equal(r.lever.cubeHeadroom, 14 * DEFAULT_DIVISOR - 1920);
+  assert.ok(r.lever.heightHeadroom > 0);
+});
+
+test('the break-even cube is the billed pound, so a fractional actual weight is not undersold', () => {
+  // 4.2 lb of goods bills 5 lb; any box up to 5 x 139 = 695 in3 bills the same 5 lb.
+  const r = box({ weight: 4.2 });
+  assert.equal(r.billedOn, 'dimensional');
+  assert.equal(r.lever.targetCube, 5 * DEFAULT_DIVISOR);
+  const atTarget = calculateBillableWeight({ length: 16, width: 12, height: r.lever.targetHeight, weight: 4.2, roundDimensions: false });
+  assert.equal(atTarget.billableWeight, 5);
+  assert.equal(atTarget.billedOn, 'actual');
+});

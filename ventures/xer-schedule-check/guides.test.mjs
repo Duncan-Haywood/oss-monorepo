@@ -18,6 +18,7 @@ const GUIDES = [
   "how-to-write-a-monthly-construction-schedule-narrative.html",
   "how-to-convert-an-xer-file-to-excel.html",
   "how-to-find-critical-path-drag-in-a-p6-schedule.html",
+  "how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html",
 ];
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
@@ -128,4 +129,20 @@ test("the drag guide's worked example equals dragAnalysis on the built-in exampl
   assert.match(html, /80-hour lag between flooring and furniture has 6 days of drag/);
   assert.equal(r.activities[0].drag.calendarDays, 14);
   assert.ok(page("index.html").includes("Find critical path drag"));
+});
+
+test("the GAO guide's worked example equals gao() on the built-in example", () => {
+  const html = page("how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html");
+  const r = cli(join(dir, "cur.xer"), "--gao");
+  for (const p of r.practices) {
+    const row = `<tr><td>${p.n}. ${p.name}</td><td>${p.characteristic}</td><td>${p.total ? `${p.passed} of ${p.total}` : "none"}</td><td>${p.rating}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  }
+  assert.equal(r.overall.weakest, "Comprehensive");
+  assert.match(html, /Comprehensive is the weakest characteristic/);
+  const b = cli(join(dir, "cur.xer"), "--gao", "--baseline", join(dir, "prev.xer"));
+  const t = b.practices.find((p) => p.n === 10).tests;
+  assert.equal(t.find((x) => x.id === "missed-baseline").count, 4);
+  assert.equal(t.find((x) => x.id === "bei-baseline").value, "0.5");
+  assert.ok(page("index.html").includes("Score against the GAO guide"));
 });

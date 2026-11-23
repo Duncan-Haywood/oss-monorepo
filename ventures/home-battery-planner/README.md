@@ -40,6 +40,14 @@ Not checked: a real utility's Green Button file with solar (none was reachable f
 
 Not modelled: monthly or annual netting and true-up (credits count hour by hour in full), demand charges, non-bypassable charge details beyond `import - x`, battery wear and warranty throughput, outages, incentives, taxes, tariff changes, financing.
 
+### Known gaps (quality audit, 2026-11-23)
+
+From [`portfolio/quality/audits/2026-11-23-home-battery-planner.json`](../../portfolio/quality/audits/2026-11-23-home-battery-planner.json):
+
+- **Time-based mode with "May charge from the grid" fills from the grid even when the day's spare solar would fill the battery for only the export credit** (`dispatch.mjs`, `runPeak`). On the example year, plan A, ticking the box cuts the time-based saving from about $874 to $213. Until it is fixed, compare time-based results with the box off; the ceiling (optimal) mode is not affected. The fix is to cap grid filling at the expected evening shortfall less the day's spare solar.
+- Time-based days are 24-hour blocks from the first reading, not calendar days (under $1 a year on the example).
+- Fixed in the same round: an `import 0-24:` line now covers all 24 hours (it covered none), and a Saturday New Year's Day is now observed on Friday, December 31 of the year before.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test *.test.mjs`. CLI: `node cli.mjs --example`, or `node cli.mjs --meter usage.csv --plans plans.txt --kwh 13.5 --kw 5 --cost-fixed 3000 --cost-per-kwh 700 [--grid-charge] [--grid-export] [--json]`. The checks: `python3 -I check/resstock_ca.py DIR` (pandas, pyarrow), then `node check/resstock-check.mjs DIR > check/resstock-results.md` (about 3 minutes); `node eval/lp-cases.mjs [files] > cases.json && python3 eval/lp-check.py cases.json` (numpy, scipy).

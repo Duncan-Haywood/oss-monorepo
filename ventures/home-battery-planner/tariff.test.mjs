@@ -78,3 +78,25 @@ test("the examples parse and every hour of a year is priced", () => {
     for (let i = 0; i < 8760; i++) assert.ok(h.exp[i] <= h.imp[i] + 1e-12, "export never above import in the examples");
   }
 });
+
+// Added by quality round 100 (portfolio/quality/audits/2026-11-23-home-battery-planner.json).
+test("0-24 covers every hour, and other ranges are unchanged", () => {
+  const r = parseTariff("import: 0.30\nimport 0-24: 0.50");
+  assert.deepEqual(r.errors, []);
+  const { imp } = hourlyPrices(r.plan, Date.UTC(2025, 0, 1), 24);
+  assert.ok([...imp].every((x) => x === 0.5), [...imp].join(","));
+  const q = parseTariff("import: 0.10\nimport 16-21: 0.40\nimport 21-1: 0.05\nimport 22-24: 0.20").plan;
+  const h = [...hourlyPrices(q, Date.UTC(2025, 0, 1), 24).imp];
+  assert.deepEqual(h.slice(16, 21), [0.4, 0.4, 0.4, 0.4, 0.4]);
+  // later lines win: 22-24 (hours 22, 23) overrides part of 21-1 (21, 22, 23, 0)
+  assert.deepEqual(h.slice(21), [0.05, 0.2, 0.2]);
+  assert.equal(h[0], 0.05); assert.equal(h[1], 0.10); assert.equal(h[15], 0.10);
+});
+
+test("a Saturday New Year's Day is observed on the Friday before, in the old year", () => {
+  // 2022-01-01 was a Saturday, so Fri 2021-12-31 is the observed federal holiday (OPM)
+  assert.ok(usHolidays(2021).has("2021-12-31"));
+  const p = parseTariff("import: 0.30\nimport weekdays 16-21: 0.50\nholidays: weekend").plan;
+  assert.equal(hourlyPrices(p, Date.UTC(2021, 11, 31, 17), 1).imp[0], 0.3);
+  assert.equal(hourlyPrices(p, Date.UTC(2021, 11, 30, 17), 1).imp[0], 0.5);
+});

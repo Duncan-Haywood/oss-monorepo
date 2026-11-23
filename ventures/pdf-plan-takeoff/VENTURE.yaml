@@ -1,0 +1,26 @@
+name: pdf-plan-takeoff
+description: Measure lengths, areas and counts on a construction drawing PDF in the browser, snapping to the line work; reads each view's printed scale, checks it against the dimension strings and flags half-size prints. CSV out, nothing uploaded.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Estimators and subcontractors at small firms who take off quantities from PDF plans without a Bluebeam or PlanSwift seat will search "free PDF takeoff" or "measure PDF plans online" and use a free in-browser takeoff, measured as the share of pdf_read events followed by csv_downloaded.
+    status: untested
+    checked: null
+    evidence: customer-contact  # usage counters pdf_read, length_measured, area_measured, count_measured, fill_measured, calibrated, scale_confirmed, half_size_found, csv_downloaded (local only)
+  - claim: The half-size check matters to users, measured as the share of pdf_read events with a half_size_found event.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: false
+kill_criteria:
+  - Fewer than ten csv_downloaded events reported within 120 days of the page being indexed.
+links:
+  production: https://marisstella.app/pdf-plan-takeoff/
+  analytics: null

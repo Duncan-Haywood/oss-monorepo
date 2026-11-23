@@ -81,6 +81,12 @@
 // percent complete, front-loaded progress, overruns). Planned and remaining
 // work follow each assignment's P6 resource curve (curves.mjs; --even-spread
 // spreads evenly); --hours reads labour hours even when cost is loaded.
+// node cli.mjs schedule.xer --gao [--baseline baseline.xer] [--csv gao.csv] [--html gao.html] [--by NAME] [--json] [--project CODE]
+// The ten best practices of the GAO Schedule Assessment Guide instead
+// (gao.mjs): each practice rated by the share of its file tests passed, the
+// four characteristics as the average of their practices, and the activities
+// behind every failed test; --baseline scores practice 10 against the
+// baseline project's XER.
 // node cli.mjs schedule.xer --drag [--drag-cost 12500] [--csv drag.csv] [--max-runs 800] [--no-expected-finish] [--json] [--project CODE]
 // Critical path drag (drag.mjs): how much earlier the forecast finish would be
 // if each longest-path activity, and each lag between them, took no time,
@@ -167,6 +173,7 @@ import { p6XerText, p6xerSummary } from "./p6xer.mjs";
 import { xerToXlsx, xlsxSummary } from "./excel.mjs";
 import { dragAnalysis, dragText, dragCsv } from "./drag.mjs";
 import { crashAnalysis, crashText, crashCsv } from "./crash.mjs";
+import { gao, gaoText, gaoCsv, gaoHtml } from "./gao.mjs";
 
 const args = process.argv.slice(2);
 const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max"];
@@ -371,6 +378,16 @@ if (args.includes("--crash")) {
   });
   if (opt("--csv")) writeFileSync(opt("--csv"), crashCsv(r));
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : crashText(r));
+  process.exit(0);
+}
+if (args.includes("--gao")) {
+  const result = schedule(xer);
+  const report = assess(xer, { projId, result });
+  const baseline = opt("--baseline") ? parseSchedule(decodeXer(readFileSync(opt("--baseline")))) : null;
+  const r = gao(xer, { projId: report.project.id, result, report, baseline });
+  if (opt("--csv")) writeFileSync(opt("--csv"), gaoCsv(r));
+  if (opt("--html")) { writeFileSync(opt("--html"), gaoHtml(r, { by: opt("--by") })); console.error(`GAO scorecard written to ${opt("--html")}`); }
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : gaoText(r));
   process.exit(0);
 }
 if (args.includes("--drag")) {
