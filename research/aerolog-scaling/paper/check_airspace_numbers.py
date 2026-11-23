@@ -304,6 +304,19 @@ CHECKS = [
     ('fresh_tail2_results.txt', '# G1 -> refuted', '11bb six of eight'),
     ('fresh_tail2_results.txt', '# G4 -> refuted', '11bb six of eight'),
     ('fresh_tail2_posthoc_results.txt', 'S6  median 1.0000  p90 1.0015  max 1.0489', 'worst draw 1.0489'),
+    # 11bc third fresh set
+    ('fresh_tail3_results.txt', 'S6     median 1.0000  p90 1.0092  mean 1.0026  max 1.0447', 'its worst draw is **1.0447**'),
+    ('fresh_tail3_results.txt', 'S6     median 1.0000  p90 1.0000  mean 1.0003  max 1.0070', 'p90 **1.0000 and 1.0092**'),
+    ('fresh_tail3_results.txt', 'S6     median 1.0000  p90 1.0092', 'p90 **1.0000 and 1.0092**'),
+    ('fresh_tail3_results.txt', 'W      median 1.0000  p90 1.0000  mean 1.0008', "five-spacing search's 1.0000 and 1.0156"),
+    ('fresh_tail3_results.txt', 'W      median 1.0000  p90 1.0156', "five-spacing search's 1.0000 and 1.0156"),
+    ('fresh_tail3_results.txt', 'S6     median 1.0000  p90 1.0000  mean 1.0008  max 1.0489', 'worst draw 1.0489, five-spacing search 1.1105'),
+    ('fresh_tail3_results.txt', 'W      median 1.0000  p90 1.0026  mean 1.0025  max 1.1105', 'worst draw 1.0489, five-spacing search 1.1105'),
+    ('fresh_tail3_results.txt', 'oracle median 1.0000  p90 1.0049  mean 1.0017  max 1.0447', 'matches the 600-descent oracle'),
+    ('fresh_tail3_results.txt', 'pooled 72 fresh layouts (11ba + 11bb + 11bc), 576 draws', 'all 72 fresh layouts (576 draws)'),
+    ('fresh_tail3_results.txt', 'seed clashes with the old, first- and second-fresh layouts: 0', '24 fresh layouts (11bc, 192 draws'),
+    ('fresh_tail3_results.txt', '# H8 -> refuted', '11bc seven of eight'),
+    ('fresh_tail3_results.txt', '# H1 -> held', '11bc seven of eight'),
 ]
 
 
