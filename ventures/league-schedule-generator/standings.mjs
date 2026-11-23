@@ -1,6 +1,7 @@
 // League schedule generator, standings.mjs: Results, standings, tie-breaks and the play-off race (clinched, eliminated, odds).
 // Split out of calc.mjs on 2026-11-23 (quality audit round 87); calc.mjs re-exports every public name.
 
+import { RACE_NODE_BUDGET, exactRanks, monotone } from "./race-exact.mjs";
 import { dayLabel } from "./dates.mjs";
 import { teamIndex } from "./names.mjs";
 import { mulberry32 } from "./rng.mjs";
@@ -282,7 +283,8 @@ export function tieBreakNotes(rows) {
 
 // ---------------------------------------------------------------- playoff race
 
-/** Most remaining fixtures worked through exhaustively (3^12 = 531,441 outcomes); beyond it, safe bounds. */
+/** Most remaining fixtures worked through exhaustively (3^12 = 531,441 outcomes); beyond it, branch and bound
+ * (race-exact.mjs) within `nodeBudget` per question, falling back to safe bounds where it runs out. */
 export const RACE_EXACT_LIMIT = 12;
 
 /**
@@ -296,9 +298,11 @@ export const RACE_EXACT_LIMIT = 12;
  * alive team that is in a place in every outcome where it does not finish level on points at the
  * cut, so only a lost tie-break (goal difference, head to head) can cost it. `magic` is how many more points guarantee a
  * place whatever the others do (null when out of reach or already clinched). `exact` says whether
- * every outcome was worked through or the safe bounds were used.
+ * every outcome was worked through; `proved` (2026-11-23) whether every best and worst rank was proved, by the
+ * enumeration or by the branch and bound in race-exact.mjs (`nodeBudget` nodes per question; 0 keeps the bounds
+ * alone). Where the search runs out, the safe bounds stand, so "clinched" and "eliminated" stay never wrong.
  */
-export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, setScoring = false, exactLimit = RACE_EXACT_LIMIT, adjustments = {} } = {}) {
+export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, setScoring = false, exactLimit = RACE_EXACT_LIMIT, adjustments = {}, nodeBudget = RACE_NODE_BUDGET } = {}) {
   const n = teams.length;
   const k = Math.max(1, Math.min(spots, n));
   const scoring = { win, draw, loss, setScoring };
@@ -314,6 +318,7 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
   const low = Math.min(...outcomes.flat());
   const maxPts = pts.map((p, i) => p + left[i] * top);
   const minPts = pts.map((p, i) => p + left[i] * low);
+  let proved = false;
   const best = Array(n).fill(n);
   const worst = Array(n).fill(1);
   const worstWon = Array(n).fill(1);
@@ -352,6 +357,20 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
       for (let j = 0; j < n; j++) if (j !== i && maxPts[j] > minPts[i]) over++;
       worstWon[i] = over + 1;
     }
+    // the bounds let every rival win out at once; branch and bound (race-exact.mjs) proves what it can
+    // inside its budget, and anything it cannot settle keeps the bound above
+    if (nodeBudget > 0 && monotone(outcomes)) {
+      proved = true;
+      for (let i = 0; i < n; i++) {
+        const q = exactRanks(pts, remaining, i, outcomes, { budget: nodeBudget, spots: k });
+        if (q.worst.proved) worst[i] = Math.min(worst[i], q.worst.value + 1);
+        else { proved = false; if (q.worst.decided === "not") worst[i] = Math.min(worst[i], k); }
+        if (q.worstWon.proved) worstWon[i] = Math.min(worstWon[i], q.worstWon.value + 1);
+        else { proved = false; if (q.worstWon.decided === "not") worstWon[i] = Math.min(worstWon[i], k); }
+        if (q.best.proved) best[i] = Math.max(best[i], q.best.value + 1);
+        else { proved = false; if (q.best.decided === "not") best[i] = Math.max(best[i], k + 1); }
+      }
+    }
   }
   const rows = teams.map((name, i) => {
     const status = worst[i] <= k ? "clinched" : best[i] > k ? "eliminated" : "alive";
@@ -371,6 +390,8 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
   });
   rows.sort((x, y) => y.points - x.points || x.index - y.index);
   rows.exact = exact;
+  // every best and worst rank proved by branch and bound, not only bounded
+  rows.proved = exact || proved;
   return rows;
 }
 
