@@ -1,0 +1,57 @@
+Deaths of 640 (10 designs x 64 held-out flights, 18 s, lever 0, 45 deg limit) by start-offset half-width 0.5 s m.
+  s     half-width   quiet+O retr  quiet+O 1.25x   full retr   full 1.25x
+  0.02    0.01 m            0           205           0          363
+  0.1     0.05 m            0           346           1          382
+  0.2     0.10 m            2           412           2          408
+  0.3     0.15 m            2           444           2          443
+  0.4     0.20 m            2           462           2          462
+  0.5     0.25 m            3           483           3          483
+  0.6     0.30 m            5           490           6          489
+  0.8     0.40 m           10           506          13          512
+  1       0.50 m           28           510          31          535
+  1.25    0.62 m          101           515         107          550
+  1.5     0.75 m          147           530         166          566
+  2       1.00 m          228           559         254          579
+With 7l's cap (perr_max = A_P / kp, A_P = 3.5 m/s^2):
+  1       0.50 m            4           500           5          506
+  2       1.00 m            6           503           5          499
+
+RA0 check {'qO_retr': 28, 'qO_125': 510, 'q_retr': 0, 'q_125': 205, 'full_retr': 31, 'full_125': 535} vs 7ak (28, 510, 0, 205, 31, 535) -> held
+RA1 retrained quiet+O: 228 flights die somewhere on the grid; 227 die at every larger s (0.996; bar 0.95) -> held
+RA2 retrained quiet+O over 7680 (flight, s) pairs: AUC kp*s*max|off| 0.959, AUC s*max|off| 0.959 (bar >= 0.90 and above distance) -> REFUTED
+RA3 retrained quiet+O: median critical half-width 0.750 m over 228 flights (bar 0.4-0.7 m) -> REFUTED
+RA4 retrained full, (uncapped, capped) deaths {1.0: (31, 5), 2.0: (254, 5)} (bar: cap removes >= 90% at s = 1 and 2) -> REFUTED
+RA5 1.25x full at s = 1: 535 uncapped, 506 capped; removed 0.05 (bar < 0.5) -> held
+
+Post hoc (written after RA0-RA5 were scored).
+  [retrained] full: deaths per design at each s (rows s):
+     s=0.02    0   0   0   0   0   0   0   0   0   0
+     s=0.1     0   0   0   0   0   0   1   0   0   0
+     s=0.2     0   0   0   0   0   0   1   0   0   1
+     s=0.3     0   0   0   0   0   0   1   0   0   1
+     s=0.4     0   0   0   0   0   0   1   0   0   1
+     s=0.5     0   0   0   0   0   0   1   0   0   2
+     s=0.6     0   0   0   0   0   1   3   0   0   2
+     s=0.8     0   0   1   0   0   2   4   1   1   4
+     s=1       2   2   2   2   2   5   6   2   2   6
+     s=1.25    6   7  12   6  10  17  16   7  10  16
+     s=1.5    13  15  18  13  16  20  21  13  16  21
+     s=2      21  22  26  21  22  30  35  20  24  33
+  [1.25x] full: deaths per design at each s (rows s):
+     s=0.02   33  33  29  37  52  34  37  34  22  52
+     s=0.1    39  40  28  42  48  34  39  36  23  53
+     s=0.2    42  42  30  45  51  40  44  38  24  52
+     s=0.3    44  44  36  48  53  39  46  43  30  60
+     s=0.4    47  45  37  51  55  38  49  46  33  61
+     s=0.5    48  50  40  53  58  40  50  48  35  61
+     s=0.6    50  50  43  55  59  39  50  47  36  60
+     s=0.8    51  52  46  57  59  40  54  51  40  62
+     s=1      57  54  49  59  58  41  55  54  45  63
+     s=1.25   57  56  51  60  59  44  56  55  48  64
+     s=1.5    58  58  54  59  62  45  57  56  53  64
+     s=2      60  59  55  60  63  48  60  55  55  64
+  [retrained] quiet+O: per-design smallest initial proportional request that killed a flight, m/s^2: [4.67, 4.67, 4.67, 4.66, 4.66, 2.91, 0.97, 4.67, 4.67, 0.97] (kp [10.0, 10.0, 10.0, 9.97, 9.97, 10.0, 9.99, 10.0, 10.0, 9.99])
+  [retrained] quiet+O capped s=1: 4 deaths, 3 of them also die uncapped at s = 0.6 (0.30 m; 5 deaths there); designs [6, 9]
+  [retrained] quiet+O capped s=2: 6 deaths, 4 of them also die uncapped at s = 0.6 (0.30 m; 5 deaths there); designs [6, 9]
+  [retrained] full capped s=1: 5 deaths, 5 of them also die uncapped at s = 0.6 (0.30 m; 6 deaths there); designs [5, 6, 9]
+  [retrained] full capped s=2: 5 deaths, 5 of them also die uncapped at s = 0.6 (0.30 m; 6 deaths there); designs [5, 6, 9]
