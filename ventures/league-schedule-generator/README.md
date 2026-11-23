@@ -6309,4 +6309,42 @@ Checked:
   the one the results give) and published clinch dates.
 
 Next: a worker for the slow tables, and the same search for `magic` (points that guarantee a place),
-which still assumes every rival wins out.
+which still assumes every rival wins out (done the same day, next section).
+
+## Magic numbers, exact (2026-11-23)
+
+The race table's last column, "more points clinch it", still let every rival win all its games at
+once. In a 20-team league that means a team fighting relegation was told it needed points that only
+exist if the other 19 all win out against each other, which they cannot. Now the number is the
+smallest total `e` such that, however a team takes `e` or more points from its games left (wins
+against the teams chasing it, which also takes points off them, or draws), no finish of the other
+games leaves it outside the places; a tie at the cut still counts against it, as "clinched" does.
+
+How: `exactMagic` in `race-exact.mjs` asks, total by total from winning out downwards, "can the others
+stop it here?" with the same branch and bound as the race, the team's own games branching too and its
+running total checked against what its unplayed games can still add up to. A new cut: the games left
+hand the chasers at most one game's points between two of them, so only as many chasers can reach the
+line as the smallest shortfalls that supply covers. The safe number seeds the search (totals above it
+are already proved), and the team gets 1,000 nodes in all (`magicBudget`); where they run out, the
+safe number stands. Within the enumeration's 12 fixtures it is read off the enumeration directly. The
+old number also said "2 more points" where one 3-1-0 game left can only give 0, 1 or 3; numbers are
+now always a total the team can score. `magicBound` keeps the old number on each row.
+
+Checked:
+
+- `magic-exact.test.mjs`: on 300 random part-played leagues (3 to 7 teams, 3-1-0, 2-1-0 and set
+  scoring, point adjustments), a brute force over every finish gives each team's true number; the
+  enumeration route, the search route (every team, alive or not) and `playoffRace` all equal it.
+  Under budgets of 1, 5 and 30 nodes the number is never below the truth. Hand case: A on 60, two
+  chasers on 57 who meet twice, two places; the old number was 7, the true one 4 (at 63 both chasers
+  can draw level with A, at 64 they cannot), and the chasers get 7 where the old method had none.
+- `eval/magic-real.mjs` (output `eval/magic-real.txt`, same 18 openfootball seasons as above, every
+  match date, title / top four / safety): 98,622 alive team-dates. Wrong: 0 (11,385 times a team went
+  on to take its number, and every one finished in the places). Never above the old number, never
+  missing where the old one was set. Smaller than the old number on 30,085 team-dates; a number where
+  the old method had none on 13,689. Safety: 24,442 of 27,094 smaller, 18.9 points smaller on average,
+  up to 47. Top four: 4,998 of 6,677, by up to 8. Title: 645 of 1,565, by up to 4. Race and magic
+  together: 86 ms per table on average (14 ms before), slowest 810 ms.
+- Not checked: published "magic numbers" from a league or broadcaster, and head-to-head or goal
+  difference inside the number (it counts a points tie against the team by design).
+

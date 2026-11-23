@@ -399,8 +399,9 @@ flagships:
       2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
       open in NEXT.md. Season import 2026-11-23 (importschedule.mjs, 819/819
       round-trip, eval/import-roundtrip.txt); next: a real league's export. Clinch
-      watch proved past 12 games 2026-11-23 (race-exact.mjs, eval/race-real.txt: 18
-      real seasons, 0 wrong); next: magic numbers. More: NEXT.md.
+      watch and magic numbers exact 2026-11-23 (race-exact.mjs, eval/race-real.txt,
+      eval/magic-real.txt: 18 real seasons, 0 wrong); next: the supply cut in the
+      race search, a real league's published numbers. More: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed

@@ -1,0 +1,9 @@
+Magic numbers on 18 real seasons (openfootball, CC0), every match date, alive teams in three races
+race       alive rows  both set  exact smaller  points saved (total, most)  new number where old had none  later took the number
+title           30216      1565            645                1425,   4                           2773                   301
+top four        34241      6677           4998               14709,   8                           5511                  1411
+safety          34165     27094          24442              460878,  47                           5405                  9673
+
+Wrong (took its magic number of points, finished outside): 0
+Exact number above the old one: 0; old number set, exact missing: 0
+Tables: 6144; 86.0 ms per table on average (race and magic together), slowest 810 ms
