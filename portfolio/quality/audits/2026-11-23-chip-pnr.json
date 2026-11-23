@@ -182,7 +182,8 @@
    "what": "'The ABC clock target did not change the netlist' is reported as a finding, but synth() calls abc -D without -constr (no driver cell or load, which ORFS supplies via ABC_DRIVER_CELL/ABC_LOAD_IN_FF). With ORFS's constraints the 2 and 3 ns targets give a different, 8% larger netlist (471.70 vs 436.67 um^2 on Yosys 0.71). The bullet's conclusion about where the target matters is an artifact of the script.",
    "where": "research/chip-pnr/README.md:38",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "medium",
@@ -217,21 +218,24 @@
    "what": "README lists the W=8 adder's mapped cells as 13 xnor2, 6 maj3, 2 xor2, 2 nand2, 1 o21ai: that is 24 cells / 203.95 um^2, not the reported 25 / 207.70; the missing cell is a nor2_1.",
    "where": "research/chip-pnr/README.md:35",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "low",
    "what": "'Longer/wider logic suffers more' is contradicted by the adders in the same table: post-place/netlist ratio 1.040 at W=8 (+) vs 1.034 at W=32.",
    "where": "research/chip-pnr/README.md:37",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "low",
    "what": "Limitation says per-cell usage is not in the committed run, but results.json carries cell_usage for both FIFOs (Sequential cell 40 / 800.77 um^2 and 75 / 1501.44), which directly backs the flop-dominance claim.",
    "where": "research/chip-pnr/README.md:48",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "low",
@@ -255,6 +259,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"],
  "verdict": "A tidy, honest-in-tone milestone that scripts Yosys + OpenROAD on SKY130 HD for 13 runs of toy designs and reports how far synthesis-only area and delay sit from a global-route estimate. The one mapped number I could reproduce independently (adder_ripple W=8: 25 cells, 207.6992 um^2 on the fetched liberty) is exact and every results.json row is internally consistent, but OpenROAD was not runnable here, other mapped numbers move under a newer Yosys, and one headline bullet (clock target has no effect) is an artifact of running ABC without the driver/load constraints ORFS uses. Several README details are wrong or stale (a 24-cell multiset for a 25-cell netlist, 'longer logic suffers more' contradicted by its own adders, a limitation that the committed cell_usage already resolves). The tests cover log parsing only; the flow behind every number is untested (3 of 5 mutants survive). As research it has no baseline, no prior-work comparison and no standard benchmark, and ORFS's own stage metrics already answer the question at higher fidelity. Does not meet the bar."
 }

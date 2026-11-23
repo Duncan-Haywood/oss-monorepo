@@ -109,3 +109,11 @@ candidate — like its siblings
 graduation of an already-obvious, low-risk dev-tool idea. No external user
 contact has happened yet — that is the next, non-code step (see
 `kill_criteria` in `VENTURE.yaml`).
+
+## Known gaps (round 105 quality audit)
+
+From [`portfolio/quality/audits/2026-11-23-actions-permissions-check.json`](../../portfolio/quality/audits/2026-11-23-actions-permissions-check.json). Fixed in PR #18409: quoted `"write-all"`, quoted job ids, and nested `permissions:` keys (matrix, `with:`) read as the job grant. Still open:
+
+- No trigger awareness: `pull_request_target` or `workflow_run` with broad write scopes is reported the same as `push`, and top-level write scopes other than `write-all` pass.
+- Unlike Scorecard, a missing top-level block is accepted when every job declares its own.
+- It is a line scanner, not a YAML parser: flow mappings, anchors and non-two-space indentation are outside what it reads.
