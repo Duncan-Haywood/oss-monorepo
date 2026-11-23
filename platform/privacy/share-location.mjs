@@ -134,16 +134,36 @@ const WRITE_PATTERNS = [
     test: (line) => {
       if (!URL_CONTEXT.test(line)) return false;
       // `?` followed by an interpolation, immediately preceded by the end of a
-      // path segment: a closing interpolation, a quote, or a `]` from
-      // `split("?")[0]`. A bare ` ? ` with spaces is a ternary.
+      // path segment: a closing interpolation, a quote, a `]` from
+      // `split("?")[0]`, a `/` or a path word. A bare ` ? ` with spaces is a
+      // ternary. Named parameters count too when the link is built from the
+      // page's own address: `${location.pathname}?d=${x}` is the commonest
+      // spelling of a share link and, until a red-team run on 2026-11-23,
+      // passed this check, which only knew `?${`. (Widened to every URL, the
+      // rule drew 116 hits, nearly all server routes, DNS-over-HTTPS API
+      // calls and mailto: links, which carry a query string by design.)
       if (/[}\]'"`]\?\$\{/.test(line)) return true;
-      // `"?" +` / `'?' +` string concatenation.
+      if (ownPageLink(line) && /[}\]'"`\/\w]\?(?:[\w.\-]+=[^`\s]*?)?\$\{/.test(line)) return true;
+      // `"?" +` string concatenation, with or without a path before the `?`
+      // and named parameters after it: `"?" +`, `"?price=" +`,
+      // `"/tool/?d=" +`. A word before the `?` with no `/` ("Really?" +) is
+      // prose, not a path, so it is left alone.
       if (/(["'`])\?\1\s*\+/.test(line)) return true;
+      if (ownPageLink(line) && /(["'`])(?:[^"'`\s]*\/)?\?(?:[\w.\-]+=[^"'`\s]*)?\1\s*\+/.test(line)) return true;
       return false;
     },
     why: "builds a URL whose query string carries an interpolated payload",
   },
 ];
+
+/**
+ * A line that builds a link to the page the visitor is on: it reads the
+ * page's own address and is not a `mailto:` link (whose `?subject=` goes to
+ * the visitor's mail app, not to a server).
+ */
+function ownPageLink(line) {
+  return /\blocation\.(?:origin|pathname|href|host)\b/.test(line) && !/mailto:/i.test(line);
+}
 
 /** Lines that name a write pattern but cannot be building a share link. */
 function isExempt(line) {

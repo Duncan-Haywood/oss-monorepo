@@ -204,3 +204,54 @@ test("it skips a bare test.mjs or test.js but still scans other .mjs files", asy
     await rm(root, { recursive: true, force: true });
   }
 });
+
+// Red team, 2026-11-23: checkVentures() reads files in parallel batches, and a
+// seeded `files.slice(i, i - BATCH)` (every file after the first batch dropped)
+// passed this suite, because the only many-file test is the live fleet, which
+// expects zero findings and so cannot tell "clean" from "never read".
+test("checkVentures reports a leak in a file well past the first read batch", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "share-location-batch-"));
+  try {
+    const total = 150;
+    for (let n = 0; n < total; n += 1) {
+      const name = `f${String(n).padStart(3, "0")}.mjs`;
+      await writeFile(path.join(root, name), "export const ok = 1;\n", "utf8");
+    }
+    // Sorted last, so it lands in the final batch whatever the batch size.
+    await writeFile(path.join(root, "zz-leak.mjs"), 'url.search = "?d=" + state;\n', "utf8");
+    const { checked, findings } = await checkVentures(root);
+    assert.equal(checked, total + 1);
+    assert.equal(findings.length, 1, JSON.stringify(findings));
+    assert.ok(findings[0].file.endsWith("zz-leak.mjs"), findings[0].file);
+    assert.equal(findings[0].line, 1);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+// Red team, 2026-11-23: a share link with a *named* parameter passed, because
+// the rules only knew `?${` and `"?" +`. world-clock-widget shipped exactly
+// `${location.origin}${location.pathname}?cities=${...}` past this check.
+test("named query parameters on the page's own address are flagged", () => {
+  for (const line of [
+    "const url = `${location.origin}${location.pathname}?cities=${encodeURIComponent(ids)}`;",
+    "const link = `${location.pathname}?d=${encode(state)}`;",
+    'const link = location.pathname + "?d=" + encode(state);',
+    'shareLink.value = location.href.split("#")[0] + "?price=" + price;',
+    'const link = location.origin + "/tool/?a=1&b=" + b;',
+  ]) {
+    assert.equal(checkSource(line).length, 1, line);
+  }
+});
+
+test("named query parameters elsewhere stay allowed: APIs, server routes, mailto", () => {
+  for (const line of [
+    "const url = `${DOH_ENDPOINT}?name=${encodeURIComponent(name)}&type=${type}`;",
+    'return `<a href="/league?t=${esc(t)}">Back</a>`;',
+    "location.href = 'mailto:' + to + '?subject=' + encodeURIComponent(s);",
+    'const link = `${location.pathname}#cities=${encodeURIComponent(ids)}`;',
+    'link.textContent = "Really?" + name;',
+  ]) {
+    assert.equal(checkSource(line).length, 0, line);
+  }
+});

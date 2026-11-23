@@ -61,3 +61,25 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("csv_analyzed");
   assert.equal(readUsage().csv_analyzed, 1);
 });
+
+// Red-team 2026-11-23: three seeded faults escaped this suite (CI's
+// platform/ci/usage_contract.mjs caught them, but this copy's own tests did not).
+test("stored JSON that is not a plain object reads as {} and record() recovers", () => {
+  for (const bad of ["5", '"text"', "true", "null", "[]", "[1,2]"]) {
+    globalThis.localStorage.setItem("fba-reimbursement-claim-finder-usage", bad);
+    assert.deepEqual(readUsage(), {}, `stored ${bad}`);
+    assert.doesNotThrow(() => record("csv_analyzed"), `stored ${bad}`);
+    assert.deepEqual(readUsage(), { csv_analyzed: 1 }, `stored ${bad}`);
+  }
+});
+
+test("a store whose reads throw is never read as an opt-out", () => {
+  globalThis.localStorage = {
+    getItem() { throw new Error("blocked"); },
+    setItem() { throw new Error("blocked"); },
+    removeItem() { throw new Error("blocked"); },
+  };
+  assert.equal(usageOptedOut(), false);
+  assert.doesNotThrow(() => record("csv_analyzed"));
+  assert.deepEqual(readUsage(), {});
+});

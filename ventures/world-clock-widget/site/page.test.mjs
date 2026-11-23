@@ -137,3 +137,15 @@ test("the page links its own LICENSE, which the venture ships", async () => {
   // link only resolves if the file is really there.
   await readFile(new URL("../LICENSE", import.meta.url), "utf8");
 });
+
+// Red team, 2026-11-23: the Copy share link button wrote `?cities=...`, which
+// the server sees on every load and which rides in the Referer of any outbound
+// click; platform/privacy/share-location.mjs missed it because it only knew
+// `?${...}`. The link now uses the fragment, and old `?cities=` links still open.
+test("the share link carries the cities in the fragment, and old ?cities= links still open", async () => {
+  const html = await page();
+  assert.match(html, /\$\{location\.pathname\}#cities=\$\{/);
+  assert.doesNotMatch(html, /\$\{location\.pathname\}\?cities=/);
+  assert.match(html, /location\.hash\.slice\(1\)\)\.get\("cities"\)/);
+  assert.match(html, /location\.search\)\.get\("cities"\)/, "legacy ?cities= links must keep opening");
+});

@@ -195,7 +195,14 @@
       }
     }
 
-    const fromLink = parseCityIds(new URLSearchParams(location.search).get("cities"));
+    // Share links carry the cities in the fragment (#cities=...), which no
+    // server or outbound Referer ever sees. Links copied before 2026-11-23 used
+    // the query string (?cities=...), so that is still read as a fallback.
+    function linkedCityParam() {
+      const fromHash = new URLSearchParams(location.hash.slice(1)).get("cities");
+      return fromHash ?? new URLSearchParams(location.search).get("cities");
+    }
+    const fromLink = parseCityIds(linkedCityParam());
     let selected = fromLink.length ? fromLink : (storedIds() ?? [...DEFAULT_CITY_IDS]);
 
     // ---- the city picker -------------------------------------------------
@@ -293,7 +300,7 @@
     });
 
     $("#copy-link").addEventListener("click", async () => {
-      const url = `${location.origin}${location.pathname}?cities=${encodeURIComponent(serializeCityIds(selected))}`;
+      const url = `${location.origin}${location.pathname}#cities=${encodeURIComponent(serializeCityIds(selected))}`;
       const status = $("#copy-status");
       try {
         await navigator.clipboard.writeText(url);
