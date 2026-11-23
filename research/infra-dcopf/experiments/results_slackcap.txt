@@ -1,0 +1,76 @@
+Rule CS: the cost phase with each bound's margin capped at its own slack at the point (research/grid-linopf)
+Plan and predictions S0 to S6: LOG.md 2026-11-23 'Rule CS' (committed before this ran). Rule CP's rounds, boxes and acceptance (CP_ROUNDS 10, P box 0.05 of range, V box 0.0075 pu); margin = frozen MARGIN with cap=True.
+
+Development: % over PGLib's AC optimum at the clean point, after rule CP and after rule CS (accepted steps)
+  case               kind     F clean      F+CP      F+CS  cp cs    K1 clean     K1+CP     K1+CS  cp cs
+  case118_ieee       api           -         -         -   -  -      +0.654    +0.462    +0.548   5  5
+  case14_ieee        api      +1.127    +0.746    +0.291   1  3      +1.127    +0.746    +0.291   1  3
+  case162_ieee_dtc   api      +0.317    +0.311    +0.290   1  5      +0.335    +0.316    +0.303   1  4
+  case200_activ      api      +0.130    +0.130    +0.106   0  6      +0.247    +0.247    +0.201   0  5
+  case240_pserc      api      +0.052    +0.050    +0.052   7  0      +0.049    +0.047    +0.048   3  1
+  case24_ieee_rts    api      +0.711    +0.689    +0.527   3  6      +0.769    +0.769    +0.185   0  8
+  case300_ieee       api      +1.017    +0.728    +0.937   7  4      +0.255    +0.178    +0.246   7  4
+  case30_ieee        api      +0.337    +0.337    +0.118   0  7      +1.842    +0.726    +0.299   3  5
+  case39_epri        api      +0.073    +0.058    +0.046   2  7      +0.073    +0.058    +0.050   2  8
+  case57_ieee        api      +0.710    +0.710    +0.650   0  6      +0.710    +0.710    +0.650   0  6
+  case118_ieee       sad      +0.379    +0.289    +0.337   8  4      +0.439    +0.313    +0.363   8  5
+  case14_ieee        sad      +3.845    +0.734    +0.734   2  2      +3.845    +0.734    +0.734   2  2
+  case162_ieee_dtc   sad      +0.514    +0.325    +0.403   7  6      +0.383    +0.324    +0.310   1  2
+  case179_goc        sad      +0.830    +0.343    +0.677   9  6      +1.042    +0.563    +0.882   9  6
+  case200_activ      sad      +0.004    +0.001    +0.001   4  4      +0.004    +0.001    +0.001   4  4
+  case240_pserc      sad      +0.374    +0.372    +0.373   7  3      +0.381    +0.377    +0.378   7  5
+  case24_ieee_rts    sad      +0.208    +0.207    +0.203   1  4      +0.207    +0.207    +0.201   0  4
+  case30_ieee        sad      +0.076    +0.076    +0.023   0  5      +0.076    +0.076    +0.023   0  5
+  case39_epri        sad      +0.112    +0.112    +0.108   0  3      +0.112    +0.112    +0.108   0  3
+  case57_ieee        sad      +0.033    +0.031    +0.027   1  4      +0.033    +0.031    +0.027   1  4
+  case73_ieee_rts    sad      +0.182    +0.178    +0.163   1  8      +0.190    +0.179    +0.152   1  5
+  case118_ieee       typ      +0.087    +0.026    +0.051   8  5      +0.043    +0.014    +0.021   8  7
+  case14_ieee        typ      +0.034    +0.013    +0.013   2  2      +0.034    +0.013    +0.013   2  2
+  case162_ieee_dtc   typ      +0.261    +0.234    +0.222   4  6      +0.235    +0.235    +0.217   0  6
+  case179_goc        typ      +0.003    +0.003    +0.002   0  2      +0.007    +0.003    +0.002   1  4
+  case200_activ      typ      +0.039    +0.002    +0.002  10 10      +0.039    +0.002    +0.002  10 10
+  case240_pserc      typ      +0.303    +0.254    +0.278   7  5      +0.075    +0.068    +0.071   6  5
+  case24_ieee_rts    typ      +0.158    +0.008    +0.008   6  6      +0.158    +0.008    +0.008   6  6
+  case30_ieee        typ      +0.076    +0.076    +0.023   0  5      +0.076    +0.076    +0.023   0  5
+  case39_epri        typ      +0.021    +0.021    +0.021   0  0      +0.021    +0.021    +0.021   0  0
+  case57_ieee        typ      +0.057    +0.027    +0.052   9  4      +0.057    +0.027    +0.052   9  4
+  case73_ieee_rts    typ      +0.040    +0.008    +0.012   7  7      +0.040    +0.008    +0.012   7  7
+  [F] 31 finishers; reproduce stored run (S0): 31 of 31
+  [F] mean gap: clean +0.391, CP +0.229, CS +0.218 points; median CS +0.108; share of gap closed by CS median 0.19, mean 0.34
+  [F] CS cheaper than CP on 20, dearer on 10 (sign test P = 0.099); cases with an accepted step CP 23, CS 29 of 31; median CS seconds 0.9; dearer or dirtier after CS: none
+  [K1] 32 finishers; reproduce stored run (S0): 32 of 32
+  [K1] mean gap: clean +0.424, CP +0.239, CS +0.201 points; median CS +0.130; share of gap closed by CS median 0.19, mean 0.37
+  [K1] CS cheaper than CP on 21, dearer on 10 (sign test P = 0.071); cases with an accepted step CP 23, CS 31 of 32; median CS seconds 0.8; dearer or dirtier after CS: none
+  common finishers (31): mean gap F+CS +0.218, K1+CS +0.190; K1+CS cheaper on 9, dearer on 8 (sign test P = 1.000)
+
+Held-out: % over PGLib's AC optimum at the clean point, after rule CP and after rule CS (accepted steps)
+  case               kind     F clean      F+CP      F+CS  cp cs    K1 clean     K1+CP     K1+CS  cp cs
+  case1888_rte       api      +0.617    +0.617    +0.571   0  5      +0.608    +0.608    +0.568   0  5
+  case500_goc        api      +0.805    +0.629    +0.640   8  7      +2.824    +1.654    +2.231   8  7
+  case588_sdet       api      +0.868    +0.868    +0.791   0  5      +3.105    +3.105    +2.749   0  6
+  case793_goc        api      +0.254    +0.254    +0.236   0  6      +0.328    +0.328    +0.286   0  4
+  case1951_rte       sad      +0.050    +0.050    +0.050   0  0      +0.050    +0.050    +0.050   0  0
+  case793_goc        sad      +0.865    +0.667    +0.674   7  6      +1.141    +1.039    +1.031   6  6
+  case1951_rte       typ      +0.019    +0.019    +0.019   0  0      +0.426    +0.426    +0.426   0  0
+  case500_goc        typ      +0.029    +0.017    +0.027   8  5      +0.035    +0.020    +0.029   8  5
+  case588_sdet       typ      +2.124    +1.917    +2.072   5  1      +3.684    +3.268    +3.506   6  4
+  case793_goc        typ      +0.140    +0.044    +0.082   7  5      +0.082    +0.071    +0.063   3  5
+  [F] 10 finishers; reproduce stored run (S0): 10 of 10
+  [F] mean gap: clean +0.577, CP +0.508, CS +0.516 points; median CS +0.404; share of gap closed by CS median 0.07, mean 0.11
+  [F] CS cheaper than CP on 3, dearer on 5 (sign test P = 0.727); cases with an accepted step CP 5, CS 8 of 10; median CS seconds 4.4; dearer or dirtier after CS: none
+  [K1] 10 finishers; reproduce stored run (S0): 10 of 10
+  [K1] mean gap: clean +1.228, CP +1.057, CS +1.094 points; median CS +0.497; share of gap closed by CS median 0.11, mean 0.11
+  [K1] CS cheaper than CP on 5, dearer on 3 (sign test P = 0.727); cases with an accepted step CP 5, CS 8 of 10; median CS seconds 4.9; dearer or dirtier after CS: none
+  common finishers (10): mean gap F+CS +0.516, K1+CS +1.094; K1+CS cheaper on 2, dearer on 8 (sign test P = 0.109)
+
+round outcomes, CP (all finishers): 803 rounds, 284 accepted, 243 not cheaper, 185 QP infeasible, 88 not clean, 3 PF failed at point
+round outcomes, CS (all finishers): 803 rounds, 377 accepted, 275 not clean, 138 not cheaper, 10 QP infeasible, 3 PF failed at point
+
+S0 (gate: reruns reproduce the stored clean round and cost): 83 of 83
+S1 (empty-QP rounds at most 5 % of CS rounds): held (10 of 803; CP 185 of 803)
+S2 (F:dev: mean gap after CS below CP's): held (+0.218 against +0.229)
+S3 (F:held: mean gap after CS below CP's): refuted (+0.516 against +0.508)
+S4 (an accepted CS step on at least 75 % of finishers, pooled): held (76 of 83; CP 56)
+S5 (check, by construction: no point dearer or dirtier after CS): held []
+S6 (held-out common finishers: K1+CS mean gap within 0.10 points of F+CS): refuted (+0.578)
+Adoption (CS replaces CP in the method of record if, from the frozen start, its mean gap is no higher than CP's on both splits): not met

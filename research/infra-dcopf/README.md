@@ -461,6 +461,18 @@ The repair stops at its first AC-clean point. Rule CP (`vlin.cost_phase`), fixed
 - **It does not rescue K1's held-out speed:** K1+CP stays +0.55 points dearer than frozen+CP (dearer on 9 of 10, sign test P = 0.021); the frozen repair stays the start rule.
 - **Where it stops:** 27 of 83 finishers take no step. Of all 803 cost rounds, 185 had an empty hard QP: the clean point sits between 1 &minus; margin and 1 on some rating, so the margined QP has no point near it. Next: cap each row's margin at its own slack at the clean point.
 
+## The cost phase with slack-capped margins (rule CS, added 2026-11-23, `experiments/run_slackcap.py`, `results_slackcap.txt`)
+Rule CS is rule CP with one change, fixed and logged before it ran: every bound's margin is capped at that row's own slack at the current point (`margin["cap"]` in `vlin.rows` and `vlin.solve`), so the point is always inside the QP. Same 83 finishers, all reproduced.
+
+| frozen start, mean % over PGLib's AC optimum | clean point | rule CP | rule CS | cases with a step, CP / CS |
+|---|---|---|---|---|
+| development, 31 | +0.391 | +0.229 | **+0.218** | 23 / 29 |
+| held-out, 10 | +0.577 | **+0.508** | +0.516 | 5 / 8 |
+
+- **It fixes what it targeted:** empty QPs fall from 185 to 10 of 803 rounds, and 76 of 83 finishers take a step (CP 56).
+- **The margin was doing work:** trials that leave the clean set rise from 88 to 275 rounds. With no margin left on a rating, the linearisation's error carries the trial over it.
+- **Not adopted:** CS is cheaper on development (20 of 31 cases, P = 0.099) but not on held-out (3 cheaper, 5 dearer). Rule CP stays in the method of record. The two rules win on different cases; the next test keeps the frozen margins and uses the cap only on a round whose margined QP is empty.
+
 ## Next steps
 1. Published binding ratings done on 23 PGLib-OPF cases, and an AC-informed linearisation on them (sections above): successive linearisation clears 7 of 11 API cases where `corrected_dc` clears 1. SAD held-out test done (C-ang clean on 7 of 11, same rules). Voltage schedule not from the AC optimum done (clean on 2 of 11 API and SAD at 1.0 pu; section above). Voltage setpoints as decision variables done (with interior margins, 28 of 34 fully clean with the reactive stage; tuned on these cases). Analytic sensitivities done (19 and 29 of 34; the QP is the bottleneck). Next: a sparse or screened QP (done) and a post-feasibility cost phase (done 2026-11-23, rule CP, above); Next, as milestones of the programme [`grid-linopf`](../grid-linopf/PROPOSAL.md): the frozen J-m on held-out (larger) PGLib cases; LPAC and optimised-linearisation baselines; an exact loss/congestion decomposition of the API LMPs from the AC duals.
 2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp and single-line outage stress tests done (above): stale factors beat plain DC on all 80 trips. Next: outages on a case whose ratings bind (PGLib API), a refresh rule driven by the factor change, a DC-based estimate of the point, or a distributed slack.
