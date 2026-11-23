@@ -42,7 +42,14 @@
       "issue": "'take the second open item no open PR title names' is hard to apply when the row's next: is one long prose field with no numbered items; I picked the second clause of the last 'next:' (20 doors with a second room)."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "main had a red repository check (check_cli_entry.py: gitconfig-include-check/cli/check.mjs fragile entry guard) that failed this PR's preflight; fixed forward in this PR rather than a separate one",
+      "did": "switched the guard to pathToFileURL(realpathSync(argv[1])); its 34 tests pass, symlinked run works",
+      "result": "check_cli_entry 0 fragile guards"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-23-the-window-that-only-faced-the-roof.md",
     "ventures/ids-model-check/eval/door-extra-room-2026-11-23.md"
