@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-23
+---
 # Polish: tool-page band uses the site's phone rhythm (2026-11-23)
 
 Picked item 1 of "Still weakest" in `polish-2026-11-22-tablet-nav-row.md`.

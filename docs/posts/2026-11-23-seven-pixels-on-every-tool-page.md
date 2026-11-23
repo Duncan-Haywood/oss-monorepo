@@ -1,9 +1,9 @@
 ---
 title: "Seven pixels on every tool page"
-seo_title: "Matching a tool page's phone header to the site header: 115 px to 108 px"
+seo_title: "A tool page's phone header, matched to the site: 115 px to 108 px"
 date: 2026-11-23
 tags: [design, css, polish, mobile]
-description: "On a phone, every tool page's header was 7 px taller than the site's own pages because a desktop padding rule leaked through. One media query fixed it on about 1,400 pages."
+description: "On a phone every tool page header was 7 px taller than the site's own pages, from a leaked desktop padding rule. One media query fixed ~1,400 pages."
 ---
 
 Every tool on [marisstella.app](https://marisstella.app/) opens with the same band at the top:
