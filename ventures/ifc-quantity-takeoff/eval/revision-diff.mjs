@@ -13,7 +13,7 @@ import { basename } from "node:path";
 import { parseStep } from "../step.mjs";
 import { takeoff, rowQuantities } from "../qto.mjs";
 const volOf = (r) => rowQuantities(r).volume ?? null;
-import { diffTakeoffs, boqDelta } from "../diff.mjs";
+import { diffTakeoffs, boqDelta, roomChangeText } from "../diff.mjs";
 
 const args = process.argv.slice(2);
 const ji = args.indexOf("--json");
@@ -27,14 +27,14 @@ const runs = files.map((f) => {
   const rows = res.rows;
   const noBox = rows.filter((r) => !r.isAssembly && !r.box).length;
   console.log(`${basename(f)}: ${res.schema}, ${rows.length} elements (${noBox} without a box), ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-  return { file: f, rows };
+  return { file: f, rows, rooms: res.rooms };
 });
 
 const count = (xs, key) => { const m = {}; for (const x of xs) { const k = key(x); m[k] = (m[k] || 0) + 1; } return Object.fromEntries(Object.entries(m).sort((a, b) => b[1] - a[1])); };
 const out = [];
 for (let i = 1; i < runs.length; i++) {
   const A = runs[i - 1], B = runs[i];
-  const d = diffTakeoffs(A.rows, B.rows);
+  const d = diffTakeoffs(A.rows, B.rows, { rooms: [A.rooms, B.rooms] });
   const s = d.summary;
   // what a GlobalId-only comparison reports
   const ga = new Set(A.rows.filter((r) => !r.isAssembly).map((r) => r.globalId)), gb = new Set(B.rows.filter((r) => !r.isAssembly).map((r) => r.globalId));
@@ -57,6 +57,7 @@ for (let i = 1; i < runs.length; i++) {
     groups: d.groups.map((g) => ({ kind: g.kind, before: g.before.map((r) => `${r.ifcClass} ${r.name}`), after: g.after.map((r) => `${r.ifcClass} ${r.name}`), volumeBefore: g.volumeBefore, volumeAfter: g.volumeAfter })),
     added: count(d.added, (r) => r.ifcClass), removed: count(d.removed, (r) => r.ifcClass),
     moves: Object.fromEntries(Object.entries(moves).slice(0, 6)),
+    rooms: { summary: d.rooms.summary, added: d.rooms.added.map((r) => ({ globalId: r.globalId, number: r.number, name: r.name, storey: r.storey, floorArea: r.computed?.floorArea ?? null })), removed: d.rooms.removed.map((r) => ({ globalId: r.globalId, number: r.number, name: r.name, storey: r.storey })), changed: d.rooms.changed.map((c) => ({ globalId: c.b.globalId, number: c.b.number, how: c.how, what: roomChangeText(c, { short: true }) })) },
     boqByClass: delta.map((l) => ({ class: l.key[0], count: [l.before.count, l.after.count], volume: [l.before.volume, l.after.volume] })),
   };
   out.push(rec);
@@ -72,6 +73,11 @@ for (let i = 1; i < runs.length; i++) {
   for (const r of rec.replaced) console.log(`  replaced in place: ${r.class} (${r.storey}) ${r.before === r.after ? r.before : `${r.before} -> ${r.after}`}${r.moved != null ? `, moved ${r.moved.toFixed(3)} m` : ""}${r.reshaped ? ", box resized" : ""}, volume ${r.volume.map((v) => (v == null ? "-" : v.toFixed(4))).join(" -> ")} m3`);
   console.log(`  added: ${JSON.stringify(rec.added)}`);
   console.log(`  removed: ${JSON.stringify(rec.removed)}`);
+  const R = d.rooms.summary;
+  console.log(`  rooms ${R.before} -> ${R.after}; matched ${R.matched} (GlobalId ${R.byGlobalId}, number and name ${R.byName}); unchanged ${R.unchanged}, changed ${R.changed} (${R.attributeChanged} attribute, ${R.propertyChanged} property, ${R.quantityChanged} quantity); added ${R.added}, removed ${R.removed}; floor area ${R.floorAreaBefore.toFixed(2)} -> ${R.floorAreaAfter.toFixed(2)} m2`);
+  for (const r of d.rooms.added) console.log(`  room added: ${[r.number, r.name].filter(Boolean).join(" ")} (${r.storey}), ${r.computed?.floorArea != null ? r.computed.floorArea.toFixed(2) + " m2" : "no floor area"}`);
+  for (const r of d.rooms.removed) console.log(`  room removed: ${[r.number, r.name].filter(Boolean).join(" ")} (${r.storey})`);
+  for (const c of d.rooms.changed) console.log(`  room changed: ${c.b.number ?? c.b.name}${c.how === "name" ? " (new GlobalId)" : ""}: ${roomChangeText(c, { short: true })}`);
   if (Object.keys(rec.moves).length) console.log(`  commonest moves (dx, dy, dz m): ${JSON.stringify(rec.moves)}`);
 }
 if (jsonOut) writeFileSync(jsonOut, JSON.stringify(out, null, 1));

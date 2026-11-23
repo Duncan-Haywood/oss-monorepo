@@ -333,8 +333,10 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
     s.classes[c.b.ifcClass] = (s.classes[c.b.ifcClass] || 0) + 1;
   }
   const materialSwaps = [...swaps.values()].sort((x, y) => y.elements - x.elements || String(x.after).localeCompare(String(y.after)));
+  // rooms are not elements: compared on their own when both room lists are given
+  const rooms = opts.rooms ? diffRooms(opts.rooms[0], opts.rooms[1], { tol }) : null;
   return {
-    changed, unchanged, added, removed, groups, renames, materialSwaps,
+    changed, unchanged, added, removed, groups, renames, materialSwaps, rooms,
     materialIdsKept: mat.kept,
     summary: {
       before: A.length, after: B.length,
@@ -350,8 +352,103 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
       duplicateGlobalIds: { before: dupCount(A), after: dupCount(B) },
       storeysRenamed: renames.storey.length, typesRenamed: renames.type.length, materialsRenamed: renames.material.length, materialSwaps: materialSwaps.length,
       renamedOnly: unchanged.filter((c) => Object.keys(c.renamed).length).length,
+      rooms: rooms ? rooms.summary : null,
     },
   };
+}
+
+/** A room's measured figures, else the ones its quantity set stores. */
+const ROOM_QTY = ["floorArea", "perimeter", "netWallArea", "volume"];
+const ROOM_STORED = { floorArea: ["NetFloorArea", "GrossFloorArea"], perimeter: ["GrossPerimeter", "NetPerimeter"], netWallArea: ["NetWallArea", "GrossWallArea"], volume: ["NetVolume", "GrossVolume"] };
+export function roomQuantities(r) {
+  const out = {};
+  for (const k of ROOM_QTY) {
+    let v = r?.computed?.[k];
+    if (v == null) for (const s of ROOM_STORED[k]) { const x = r?.stored?.[s]?.value; if (typeof x === "number") { v = x; break; } }
+    out[k] = v ?? null;
+  }
+  out.openings = r?.computed?.openings ?? null;
+  return out;
+}
+const ROOM_ATTRS = [["number", "number"], ["name", "name"], ["description", "description"], ["storey", "storey"], ["predefinedType", "type"]];
+
+/**
+ * The rooms (IfcSpace) of two takeoffs compared, as the elements are: a room
+ * is matched by GlobalId, then, for a room with a new GlobalId, by its number
+ * and name on the same storey when that is unique on both sides. A matched
+ * room is changed when its number, name, description, storey or type
+ * differs, when one of its single-value properties is added, removed or
+ * given another value (a room data sheet's use or finish), when its floor
+ * area, perimeter, net wall area or volume moves past `tol`, or when the
+ * number of doors and windows in its walls changes.
+ */
+export function diffRooms(roomsA = [], roomsB = [], opts = {}) {
+  const tol = opts.tol ?? 0.005;
+  const pairs = [];
+  const freeA = new Set(roomsA), freeB = new Set(roomsB);
+  const byGid = new Map();
+  for (const b of roomsB) if (b.globalId && !byGid.has(b.globalId)) byGid.set(b.globalId, b);
+  for (const a of roomsA) {
+    const b = a.globalId ? byGid.get(a.globalId) : null;
+    if (b && freeB.has(b)) { freeA.delete(a); freeB.delete(b); pairs.push({ a, b, how: "globalId" }); }
+  }
+  const key = (r) => (r.number || r.name ? JSON.stringify([r.number ?? null, r.name ?? null, r.storey ?? null]) : null);
+  const counts = (rs) => { const m = new Map(); for (const r of rs) { const k = key(r); if (k) m.set(k, (m.get(k) || 0) + 1); } return m; };
+  const ca = counts(roomsA), cb = counts(roomsB);
+  const freeBByKey = new Map();
+  for (const b of freeB) { const k = key(b); if (k && cb.get(k) === 1) freeBByKey.set(k, b); }
+  for (const a of [...freeA]) {
+    const k = key(a);
+    if (!k || ca.get(k) !== 1) continue;
+    const b = freeBByKey.get(k);
+    if (b && freeB.has(b)) { freeA.delete(a); freeB.delete(b); pairs.push({ a, b, how: "name" }); }
+  }
+  const changed = [], unchanged = [];
+  for (const p of pairs) {
+    const attributes = {};
+    for (const [k, label] of ROOM_ATTRS) if ((p.a[k] ?? null) !== (p.b[k] ?? null)) attributes[label] = { before: p.a[k] ?? null, after: p.b[k] ?? null };
+    const pa = p.a.properties || {}, pb = p.b.properties || {};
+    const properties = {};
+    for (const k of new Set([...Object.keys(pa), ...Object.keys(pb)])) {
+      const x = Object.hasOwn(pa, k) ? pa[k] : undefined, y = Object.hasOwn(pb, k) ? pb[k] : undefined;
+      if (x !== y) properties[k] = { before: x ?? null, after: y ?? null, kind: x === undefined ? "added" : y === undefined ? "removed" : "changed" };
+    }
+    const qa = roomQuantities(p.a), qb = roomQuantities(p.b);
+    const quantities = {};
+    for (const k of ROOM_QTY) {
+      if (qa[k] == null && qb[k] == null) continue;
+      if (relDiff(qa[k], qb[k]) > tol && Math.abs((qa[k] ?? 0) - (qb[k] ?? 0)) > 1e-4) quantities[k] = { before: qa[k], after: qb[k], delta: (qb[k] ?? 0) - (qa[k] ?? 0) };
+    }
+    if (qa.openings != null && qb.openings != null && qa.openings !== qb.openings) quantities.openings = { before: qa.openings, after: qb.openings, delta: qb.openings - qa.openings };
+    const entry = { ...p, attributes, properties, quantities, before: qa, after: qb };
+    if (Object.keys(attributes).length || Object.keys(properties).length || Object.keys(quantities).length) changed.push(entry);
+    else unchanged.push(entry);
+  }
+  const added = [...freeB], removed = [...freeA];
+  const area = (rs) => rs.reduce((s, r) => s + (roomQuantities(r).floorArea ?? 0), 0);
+  return {
+    changed, unchanged, added, removed,
+    summary: {
+      before: roomsA.length, after: roomsB.length,
+      matched: pairs.length, byGlobalId: pairs.filter((p) => p.how === "globalId").length, byName: pairs.filter((p) => p.how === "name").length,
+      unchanged: unchanged.length, changed: changed.length, added: added.length, removed: removed.length,
+      attributeChanged: changed.filter((c) => Object.keys(c.attributes).length).length,
+      propertyChanged: changed.filter((c) => Object.keys(c.properties).length).length,
+      quantityChanged: changed.filter((c) => Object.keys(c.quantities).length).length,
+      floorAreaBefore: area(roomsA), floorAreaAfter: area(roomsB),
+    },
+  };
+}
+
+/** One line per room property change, attribute change or quantity change: "BriefRole: (none) -> QUIET POD". */
+export function roomChangeText(c, { short = false } = {}) {
+  const r4 = (v) => Math.round(v * 1e4) / 1e4;
+  const prop = (k) => (short ? k.replace(/^.*\./, "") : k);
+  return [
+    ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} -> ${v.after ?? "(none)"}`),
+    ...Object.entries(c.properties).map(([k, v]) => v.kind === "added" ? `${prop(k)} added: ${v.after ?? "(empty)"}` : v.kind === "removed" ? `${prop(k)} removed (was ${v.before ?? "(empty)"})` : `${prop(k)}: ${v.before ?? "(empty)"} -> ${v.after ?? "(empty)"}`),
+    ...Object.entries(c.quantities).map(([k, q]) => k === "openings" ? `doors and windows ${q.before} -> ${q.after}` : `${k === "floorArea" ? "floor area" : k === "netWallArea" ? "net wall area" : k} ${q.delta > 0 ? "+" : ""}${r4(q.delta)}`),
+  ].join("; ");
 }
 
 /**
@@ -436,5 +533,15 @@ export function changesCsv(d) {
   }
   for (const r of d.added) out.push(["added", "", r.globalId, r.ifcClass, r.name, r.type, r.storey, "", "", ...qcells(null, quantitiesOf(r)), null].map(csvCell).join(","));
   for (const r of d.removed) out.push(["removed", r.globalId, "", r.ifcClass, r.name, r.type, r.storey, "", "", ...qcells(quantitiesOf(r), null), null].map(csvCell).join(","));
+  // rooms: floor area in the area columns, room volume in the volume columns
+  if (d.rooms) {
+    const rq = (q) => [q?.volume ?? null, q?.floorArea ?? null];
+    const rcells = (qa, qb) => { const [va, aa] = rq(qa), [vb, ab] = rq(qb); return [va, vb, aa, ab, null, null, null, null]; };
+    const label = (r) => [r.number, r.name].filter(Boolean).join(" ") || `#${r.id}`;
+    for (const c of d.rooms.changed) out.push(["room changed", c.a.globalId, c.b.globalId, "IfcSpace", label(c.b), "", c.b.storey, c.how === "name" ? "new GlobalId, matched by number and name" : "", roomChangeText(c), ...rcells(c.before, c.after), null].map(csvCell).join(","));
+    for (const c of d.rooms.unchanged) if (c.how !== "globalId") out.push(["same room, new GlobalId", c.a.globalId, c.b.globalId, "IfcSpace", label(c.b), "", c.b.storey, "new GlobalId, matched by number and name", "", ...rcells(c.before, c.after), null].map(csvCell).join(","));
+    for (const r of d.rooms.added) out.push(["room added", "", r.globalId, "IfcSpace", label(r), "", r.storey, "", "", ...rcells(null, roomQuantities(r)), null].map(csvCell).join(","));
+    for (const r of d.rooms.removed) out.push(["room removed", r.globalId, "", "IfcSpace", label(r), "", r.storey, "", "", ...rcells(roomQuantities(r), null), null].map(csvCell).join(","));
+  }
   return out.join("\r\n") + "\r\n";
 }
