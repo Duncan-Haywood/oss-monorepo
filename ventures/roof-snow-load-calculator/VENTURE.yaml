@@ -1,0 +1,54 @@
+name: roof-snow-load-calculator
+description: >-
+  Free browser roof snow load calculator to ASCE 7-16 Chapter 7 for
+  contractors, framers, solar and HVAC installers: from the ground snow load,
+  the flat and sloped roof loads, minimum load, rain-on-snow, unbalanced gable
+  load, leeward and windward drift at a roof step, parapet and rooftop unit
+  drift, sliding snow and the eave ice-dam load, each tied to its section, with
+  the step drift drawn to scale. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-23 in an explore run. duplicate_check.py: top match 0.16
+# (flat-roof-bid-calculator, solar-pv-bid-calculator); no venture computes roof
+# snow loads. shed-designer and open-house-plans take a roof snow load the user
+# must already know; this gives it, and the drift loads beside it.
+#
+# Why a tool and not a chatbot answer: the drift chain (fetch, density, clear
+# height cap, 4hd^2/hc widening, 8hc limit, far-edge truncation, windward 0.75
+# factor, which drift governs) is where hand calcs and chat replies go wrong,
+# and the tool shows each step with its section and draws the drift.
+#
+# First visitor: contractors and installers searching "roof snow load
+# calculator", "snow drift load calculation", "ASCE 7 snow drift"; volume not
+# measured with an external tool.
+#
+# Liability: arithmetic on typed numbers, not engineering advice; pg is the
+# user's. Unverified against a commercial program: hand calculations in tests.
+
+hypotheses:
+  - claim: >-
+      Contractors and rooftop installers will use a no-signup ASCE 7-16 snow
+      load calculator that shows the step and parapet drift, instead of a paid
+      structural calc subscription or a hand calculation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a load that disagrees with a correct ASCE 7-16 Chapter 7 hand calculation, and the disagreement is the engine's error.
+
+links:
+  production: https://marisstella.app/roof-snow-load-calculator/
+  analytics: null

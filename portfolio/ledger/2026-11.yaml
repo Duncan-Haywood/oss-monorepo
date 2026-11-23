@@ -325,3 +325,16 @@ entries:
         16,000 simulated trips it beat largest-to-largest in 0-3.6% (eval/).
         Guide page, post, llms.txt.
     mrr_end: 0
+  - venture: roof-snow-load-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/roof-snow-load-calculator,
+        a browser ASCE 7-16 Chapter 7 roof snow load calculator: flat, sloped,
+        minimum, rain-on-snow, unbalanced gable, leeward/windward step drift
+        (hc cap, 8hc limit, far-edge truncation), parapet/RTU drift, sliding
+        snow, ice dams, drawn step section. 29 tests against hand calcs; 4 of 5
+        seeded bugs caught (the fifth is equivalent). Not checked against a
+        commercial program. Guide page, post, llms.txt; shed-designer links it.
+    mrr_end: 0

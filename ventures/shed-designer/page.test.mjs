@@ -57,3 +57,7 @@ test('the strip draws no live thumbnail before the stored pictures list settles'
   assert.match(picker, /manifestSettled = true;\n\s*if \(!m\?\.designs\) return queueShots\(\);/, 'no manifest: draw live, as before');
   assert.match(picker, /\.catch\(\(\) => \{ manifestSettled = true; queueShots\(\); \}\)/, 'failed fetch: draw live, as before');
 });
+
+test('links one hop to the roof snow load calculator for the snow load input', () => {
+  assert.match(html, /href="\.\.\/roof-snow-load-calculator\/"/);
+});
