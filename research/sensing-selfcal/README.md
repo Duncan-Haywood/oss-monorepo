@@ -25,6 +25,16 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3zb headline** (what if the lens distortion a robot camera holds is itself wrong: does adopting the self-calibrated
+distortion then pay?): **no, not inside 250 px.** Held distortions taken from the camera's other real calibrations move rays by only
+**0.2&ndash;0.5 px** rms over 50&ndash;250 px, and even the board's k<sub>1</sub>, k<sub>2</sub> off by **50%** cost 1.5 px, less than the
+**2.1 px** left by adopting the natural-feature windows' focal length and distortion together. "Adopt f behind the half-sd gate, keep the held distortion" stays minimax at 15
+of 21 points of a &plusmn;50% distortion-error sweep (worst regret 0.26&ndash;0.56 px); which rule wins between it and the joint update is
+decided by which reference is called the truth, not by the held distortion. A second gate on the distortion fires in 30 of 31 blocks even
+when the held distortion is right, because of the windows' low bias. One of five predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![worst regret of six update rules for each truth and held-distortion pair, and against a scaled held distortion, five TUM windows, causal prior](experiments/m3zb_staledist/staledist.png)
+
 **Milestone 3za headline** (when a robot camera adopts its self-calibrated focal length, should it adopt the self-calibrated lens
 distortion with it? five update rules scored by where rays land, the projected-radius error over 50&ndash;250 px): **keep the held
 distortion; the choice is worth under 1 px either way.** "Adopt the windows' f when it is more than half an sd from the held value, keep
@@ -1331,6 +1341,12 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3zb: a wrong held distortion (another real calibration, or k<sub>1</sub>, k<sub>2</sub> off by up to 50%) costs at most
+1.5 px inside 250 px, under the 2.1 px of adopting the windows' f and distortion together, so update f and keep the held distortion. Next: Section 4 of the paper updated with
+3y&ndash;3zb (score by P(r); update f, hold the distortion, robust to a held distortion off by 50%; the folded fr1 board); a bias-corrected
+D<sub>200</sub> before any distortion gate; the image edge, where distortion is large, once a reference that does not fold there is
+available; the feature radii the windows cover, when the TUM host answers; a real lens change when one is reachable.
 
 After milestone 3za: scored by where rays land, adopting f alone onto a held distortion (gate(0.5)) stays minimax; adopting the windows'
 distortion too is within about 1 px and flips by sequence. Next: Section 4 of the paper updated with 3y&ndash;3za (score by P(r);
