@@ -276,6 +276,12 @@ CLAIMS = [
     ("results_sectional_diffraction.txt", "over 3D: def 0.406, rv 0.406, sd 0.411, sdx 0.895"),
     ("results_sectional_diffraction.txt", "over 3D: def 0.332, rv 0.332, sd 0.339, sdx 0.732"),
     ("results_sectional_diffraction.txt", "D5 free sdx long-wave under 20% of def: T 4.093, M 3.869 -> refuted"),
+    # milestone 7zza: strip motions driven by the sectional diffraction exciting force
+    ("results_consistent_excitation.txt", "f3: def 1.100, rv-s 1.100, rv-e 1.097, sdx-o 1.100, sdx-e 1.103"),
+    ("results_consistent_excitation.txt", "f3: def 1.068, rv-s 1.068, rv-e 1.071, sdx-o 1.068, sdx-e 1.074"),
+    ("results_consistent_excitation.txt", "  1.00 def   -20.3/   -3.5  sdx-e    -7.5/   -1.5"),
+    ("results_consistent_excitation.txt", "E5 sdx-e free band area / 3D in 0.9-1.1: T 1.362, M 1.092 -> refuted"),
+    ("results_consistent_excitation.txt", "E4 sdx-e long-wave NF under 20% of def: T 1.814, M 2.064 -> refuted"),
 
 ]
 
