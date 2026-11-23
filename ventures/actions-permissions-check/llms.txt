@@ -2,7 +2,7 @@
 
 > Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free and open source (MIT). Findings come only from the workflow YAML pasted in; they are not a security audit or professional advice.
 
 ## Pages
 
