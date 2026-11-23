@@ -368,7 +368,7 @@ export function why({ ignore = "", path = "", files = "" } = {}) {
 export function reportCsv(report) {
   const q = (s) => {
     let v = String(s ?? "");
-    if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+    if (/^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v)) v = "'" + v;
     return /[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
   };
   const head = "path,type,sent,line,rule,via,size";
