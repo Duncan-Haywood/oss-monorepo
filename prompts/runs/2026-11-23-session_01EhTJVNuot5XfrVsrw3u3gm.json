@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVNuot5XfrVsrw3u3gm",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market revenue products); merge when done",
+  "input_sha256": "d4a428fd47e04854a11898c206679e033917de676209d7fbbaa7771e457f0e2c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T11:29:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality round 105 (sample mode)",
+  "projects": [
+    "ventures/skylight-install-bid-calculator",
+    "ventures/actions-permissions-check",
+    "research/chip-pnr",
+    "research/infra-waterloss"
+  ],
+  "pr": 18409,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "The track prompt says to fix small defects; the infra-waterloss meter fix was small in code but required a 10-minute rerun and a headline rewrite. The README gives no guidance on when a fix that changes a research headline belongs in the round PR versus a separate one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Fixed a high-severity research defect (leak-blind inflow meter) and added a flow-balance baseline in the round PR instead of only listing it as a known gap, because the published headline was wrong and the auditor's cached hydraulics made the rerun cheap.",
+      "did": "reran experiments/run.py on cached hydraulics, rewrote README headline and card with a dated correction",
+      "result": "headline corrected the same day: flow-adjusted CUSUM covered 2% leaks 0.85 -> 0.46; flow balance finds 100% of 4% leaks at low demand error"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-quality-audit-round-105.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-23-e-2a41, round 105, mode sample. Subjects: ventures/skylight-install-bid-calculator, ventures/actions-permissions-check, research/chip-pnr, research/infra-waterloss (no flagship or platform due). Share meeting the bar: 0 of 4; cumulative sampled 38 of 429 (Wilson 6%-12%). Seeded bugs caught 6 of 20. Spot-checks rerun by me: skylight Typical preset 28.22 h / $4,323.32 / $5,404.15 (engine and hand agree); customer-supplied article figures need T&E $0 (engine 1103.87 at $75 vs 1017.62 at $0); actions-permissions-check quoted write-all and quoted job id exit 0 before, exit 2 after; chip-pnr cell list 203.9456 vs 207.6992 with nor2_1; infra-waterloss junction demand with leak minus without = 0.0, all-junction coverage 0.2826, UARL mains 49.8 m3/d. Fix PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/18409 (all four audits' fix_prs). Local checks: actions-permissions-check node 68/68 and pytest 32/32 (new tests fail on old code 3+3); skylight node 133/133; infra-waterloss pytest 7/7; research build ok; check_md_links ok; check_posts ok; quality_audit validate 0 problems.",
+  "corrections": [],
+  "redteam": null
+}
