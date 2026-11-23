@@ -57,7 +57,7 @@
     "docs/posts/2026-11-23-redteam-a-search-that-got-weaker-silently.md"
   ],
   "goal": null,
-  "notes": "Target ventures/dxf-nesting/compact.mjs (landed 2026-11-23 in #18372). Guard added: a search-strength bar (sum of six compacted lengths <= 1886) plus an exact pin in nest.test.mjs, and a new compact.test.mjs with known optima. Verification: run_venture_tests.py dxf-nesting ok (51 tests); check_posts ok. Real-bug hunt: page/CLI clamp compactMoves and cap time; no defect.",
+  "notes": "Target ventures/dxf-nesting/compact.mjs (landed 2026-11-23 in #18372). Guard added: a search-strength bar (sum of six compacted lengths <= 1886) plus an exact pin in nest.test.mjs, and a new compact.test.mjs with known optima. Verification: run_venture_tests.py dxf-nesting ok (51 tests); check_posts ok. Real-bug hunt: page/CLI clamp compactMoves and cap time; no defect. Second guard: CI's validate job went red on a test race unrelated to the diff (ventures/discovery-probe-* seen by optout-persistence); fixed by dot-naming the scratch ventures plus a test pinning that discovery skips them; platform/privacy suite 123/123.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -240,7 +240,14 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "platform/privacy/browser-signals.test.mjs",
+        "issue": "Scratch ventures made under ventures/discovery-probe-* raced the parallel catalogue walks: optout-persistence.test.mjs found the probe's usage.mjs and it was deleted before import, failing validate on this PR's CI (third occurrence; 2026-10-21 and 2026-11-12 were fixed per walker). Fixed for the class: the scratch dirs are dot-named, which every walker already skips, with a test that the default discovery cannot see a ventures/.* scratch venture.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18379"
+      }
+    ]
   },
   "usage": {
     "measured_by": "prompts/runcost.py v1",

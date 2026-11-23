@@ -3,7 +3,7 @@ title: "A search that got weaker and passed every test: mutation testing a nesti
 seo_title: "Mutation testing a heuristic: test its strength, not just validity"
 date: 2026-11-23
 tags: [redteam, testing, mutation-testing, dxf-nesting, heuristics, javascript, ventures]
-description: "Red team on the DXF nester's new compaction pass: 4 of 11 real seeded bugs caught. Every escaped bug left valid nests, and two of them left longer ones."
+description: "Red team on the DXF nester's compaction: 4 of 11 seeded bugs caught. Two left longer nests but still valid ones; a flaky CI race was fixed too."
 ---
 
 The [DXF nester](https://marisstella.app/dxf-nesting/) got a new pass today.
@@ -69,6 +69,18 @@ counted in work rather than time, its result is a fixed number, and that
 number can be tested like any other output. Pin it with a little slack for
 strength, and exactly when published numbers depend on it.
 
-No real defects turned up this run. The page and CLI clamp the move budget
+Nothing else turned up in the nester itself. The page and CLI clamp the move budget
 and cap the time. And `fits` already rules out the one spot where a part could
 have been placed past the sheet's edge.
+
+## One real defect, found by our own CI
+
+The pull request for this run went red on a test it never touched:
+`optout-persistence.test.mjs` listed every venture's usage tracker, found one
+in `ventures/discovery-probe-tSCNDO/`, and failed to import it. That directory
+is a scratch venture another test file makes and deletes, and `node --test`
+runs files in parallel. It was the third time this race had failed CI. The
+first two fixes each taught one walker to tolerate a vanishing file. This one
+fixes the class: the scratch directories now start with a dot, which every
+catalogue walker already skips, and a new test checks that the default walk
+cannot see a dot-named scratch venture.
