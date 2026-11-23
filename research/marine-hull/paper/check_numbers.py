@@ -263,6 +263,13 @@ CLAIMS = [
     ("results_panel_nearfield.txt", "(0.047% of the peak at most)"),
     ("results_panel_nearfield.txt", "(0.070% of the peak at most)"),
     ("results_panel_nearfield.txt", "P5 strip NF-PG at lambda/L 8, monohull, zero speed: -0.003101"),
+    # milestone 7zy: the velocity term split by pair and component
+    ("results_velocity_split.txt", "Q1 strip ID share at lambda/L 4, 8: T 0.991, M 0.997 -> held"),
+    ("results_velocity_split.txt", "  1.00  strip   0.50487   0.00000   0.52236"),
+    ("results_velocity_split.txt", "  1.00  strip   0.50753   0.00000   0.56436"),
+    ("results_velocity_split.txt", "  1.00     3D  -0.04023   0.00000  -0.01949"),
+    ("results_velocity_split.txt", "over 3D: NF-PG 0.892, NC 0.137"),
+    ("results_velocity_split.txt", "over 3D: NF-PG 1.043, NC 0.315"),
 
 ]
 

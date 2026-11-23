@@ -582,6 +582,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    Y + B||J|| + delta||S|| <= 0.03 mm passes none over spec (H274 held), at coverage G1 78, 56, 14% and H1 99, 88, 25%
    for delta 0.05, 0.1, 0.2 N; weakest drift rating 0.162 N (G1) and 0.189 N (H1) (H275 held). Next: the re-zero
    interval from a sourced drift rate; a calibration pose chosen for S; dynamics.
+71. **A frozen drift table and the drift allowance** (done 2026-11-23, `experiments/m71_allowance/`): milestone 70's
+   S and 69's J frozen as per-pose tables predict every planned press on 8 new loads (seed 71) to 1.3e-14 mm (H276
+   held); the frozen drift gate passes no press over spec (H277 held). Each press's allowance a = min_k (0.03 - Y_k -
+   B||J_k||)/||S_k|| is exact: at 0.9 a no Y = 0 press of 504 leaves spec, at 1.1 a all 503 do (H278, H279 held). It
+   is one number per pose, median 0.102 N (G1) and 0.147 N (H1), weakest 0.041 and 0.091 N (H280 held); at a swept
+   0.1 N/h drift rate, a re-zero every 25 (G1) and 55 (H1) minutes. The drift term S_p d does not depend on the
+   calibration pose, so only re-zeroing acts on it. Next: a sourced drift rate; a re-zero plan; dynamics.
 
 ## Target venue
 

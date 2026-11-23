@@ -145,7 +145,9 @@ class NearField:
         nf = wl + vel + rot (PDSTRIP's force sum in 166); nf_boese uses Boese's substitution in 166; nf0 drops the
         U d/dx convection from the pressure and velocity (all three terms). 7zu: rot_newton is the rotation term with
         the total first-order force M a (Pinkster 1980), nf_p / nf0_p use it in place of rot; grad / grad0 is the
-        mean of the first-order displacement times the dynamic-pressure gradient, and nf_pg / nf0_pg add it."""
+        mean of the first-order displacement times the dynamic-pressure gradient, and nf_pg / nf0_pg add it.
+        7zy: vel_split is the velocity term split into incident-incident (II), incident-disturbance (ID) and
+        disturbance-disturbance (PP) pairs per component x, y, z; its nine values sum to vel."""
         h = self.h
         z3, th, raw_gb, we = h.response(omega, u, gb=gb)
         k = omega * omega / G
@@ -199,6 +201,7 @@ class NearField:
         # Pinkster's (1980) rotation term with the total first-order force M a (7zu): no viscous-force part
         r_rot_n = 0.5 * ((-we * we * h.mass * z3) * th.conjugate()).real
         out["rot_newton"] = r_rot_n
+        vsplit = {p + "_" + c: 0.0 for p in ("II", "ID", "PP") for c in "xyz"}
         for conv in (True, False):
             uc = u if conv else 0.0
             f3 = 0j
@@ -222,6 +225,13 @@ class NearField:
                     v2 = abs(vx) ** 2 + abs(vyd[j]) ** 2 + abs(vzz) ** 2
                     a0x = yx[i][j] * dz * dx                                 # inward x area, one side
                     r_vel -= -0.25 * rho * v2 * a0x * 2.0                    # R = -f_x
+                    if conv:   # 7zy: the same term split by pair (II, ID, PP) and component
+                        vi = (-omega * ek, 0j, 1j * omega * ek)
+                        vp = (pxt[j], vyd[j], phz[j])
+                        for c, a, b in zip("xyz", vi, vp):
+                            vsplit["II_" + c] += 0.5 * rho * abs(a) ** 2 * a0x
+                            vsplit["ID_" + c] += 0.5 * rho * 2.0 * (a * b.conjugate()).real * a0x
+                            vsplit["PP_" + c] += 0.5 * rho * abs(b) ** 2 * a0x
                     # X . grad p (Pinkster 1980; not in PDSTRIP's list): first-order displacement of the panel
                     # (-z theta, 0, z3 + x theta) times the gradient of the first-order dynamic pressure
                     pi_ = rho * G * ek
@@ -248,4 +258,5 @@ class NearField:
             if conv:
                 out["nf_boese"] = r_wl + r_vel + r_rot_b
                 out["f3_newton"] = fb
+        out["vel_split"] = vsplit
         return out
