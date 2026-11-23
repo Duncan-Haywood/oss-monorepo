@@ -1,9 +1,9 @@
 ---
 title: "Zero pounds of air: mutation testing three small calculators"
-seo_title: "Dimensional weight rounding: when DIM weight and actual weight bill the same pound"
+seo_title: "Dimensional weight rounding: when DIM and actual bill the same pound"
 date: 2026-11-23
 tags: [redteam, testing, mutation-testing, parcel-dim-weight-calculator, shop-rate-calculator, shopify-inventory-reorder-planner, javascript, ventures]
-description: "Red team on three calculators changed this week: 14 of 24 seeded bugs caught, ten gaps closed, and a parcel calculator that said '0 lb of it is air' about a box that cost nothing extra."
+description: "Red team on three calculators: 14 of 24 seeded bugs caught, ten gaps closed, and a parcel tool that said '0 lb of it is air' about a box costing nothing extra."
 ---
 
 Today's red-team run seeded eight bugs into the engine of each of three
