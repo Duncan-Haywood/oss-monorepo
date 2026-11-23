@@ -1,0 +1,213 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVM2yBT7knZGcVnEThz",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products)",
+  "input_sha256": "180ecdfefaa12275ae73d59afa1209522e705da82874916854ba46dd0921db32",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T03:57:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "red team ventures/xer-schedule-check/asplanned.mjs (landed 2026-11-22)",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": null,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "created the run record with a mistyped session id",
+      "fix": "renamed the file and corrected the session field before any commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets` printed only 21 files (a sample?) so a recently landed file could not be checked with `targets --probe 20`; timed the suite by hand instead (0.1 s)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-the-five-days-the-web-page-forgot.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: all 13 open entries are control-plane (.github/workflows, prompts/, platform/ci guards waiting on own PRs) or a measured-but-mixed stemmer redesign (help-keeper); none safely fixable in this run, left open. Campaign: 10 mutants on asplanned.mjs, 4 caught, 1 equivalent (line 79 span skip, redundant with !pv), 5 gaps, all caught_after_fix after 6 new tests. Real defect: HTML/CSV dropped or mislabelled the added-work tail term; patched with failing-first test. Guard: CSV width check over every row type and an every-term-rendered check on the HTML. Venture suite: run_venture_tests.py xer-schedule-check ok (444 tests, 3.7 s).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/asplanned.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 32958254,
+        "commit": "92cac7bc2",
+        "sites": 223,
+        "baseline_seconds": 5.1,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 53,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const r1 = (x) => Math.round(x * 10) / 10;",
+            "after": "const r1 = (x) => Math.round(x * 11) / 10;",
+            "line_text": "const r1 = (x) => Math.round(x * 10) / 10;",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 79,
+            "col": 14,
+            "operator": "or-to-and",
+            "before": "if (!pr || pr.span || pr.proj !== cur.proj) continue;",
+            "after": "if (!pr && pr.span || pr.proj !== cur.proj) continue;",
+            "line_text": "      if (!pr || pr.span || pr.proj !== cur.proj) continue;",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "equivalent: with pr defined, `!pr && pr.span || ...` only drops the span skip, and a span (LOE/WBS) task never has a result in res (cpm.mjs schedule sets res only for topoOrder ids, which exclude spans), so `if (!pv) continue` skips it anyway; pr is never undefined because cpm.mjs:202 keeps links to missing tasks out of preds. Checked by logging inside the mutant: L9000 reached with pv undefined. The LOE test stays as a behaviour guard."
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 146,
+            "col": 100,
+            "operator": "const-plus-one",
+            "before": "out.set(String(t.code), { s, f, tf: r && Number.isFinite(r.tf) ? r.tf / (t.cal.hoursPerDay || 8) : null, days: isMile(t) ? 0 : r1(t.cal.workBetween(s, f) / 60 / (t.cal.hoursPerDay || 8)), name: t.name });",
+            "after": "out.set(String(t.code), { s, f, tf: r && Number.isFinite(r.tf) ? r.tf / (t.cal.hoursPerDay || 9) : null, days: isMile(t) ? 0 : r1(t.cal.workBetween(s, f) / 60 / (t.cal.hoursPerDay || 8)), name: t.name });",
+            "line_text": "      out.set(String(t.code), { s, f, tf: r && Number.isFinite(r.tf) ? r.tf / (t.cal.hoursPerDay || 8) : null, days: isMile(t) ? 0 : r1(t.cal.workBetween(s, f) / 60 / (t.cal.hoursPerDay || 8)), name: t.name });",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: every test calendar stored day_hr_cnt; new test compares a blank day_hr_cnt with 8 (baseline plannedFloat)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 166,
+            "col": 124,
+            "operator": "const-plus-one",
+            "before": "out.set(String(t.code), { s, f, tf: null, days: isMile(t) ? 0 : r1(t.cal.workBetween(s, f) / 60 / (t.cal.hoursPerDay || 8)), name: t.name });",
+            "after": "out.set(String(t.code), { s, f, tf: null, days: isMile(t) ? 0 : r1(t.cal.workBetween(s, f) / 60 / (t.cal.hoursPerDay || 9)), name: t.name });",
+            "line_text": "    out.set(String(t.code), { s, f, tf: null, days: isMile(t) ? 0 : r1(t.cal.workBetween(s, f) / 60 / (t.cal.hoursPerDay || 8)), name: t.name });",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: same, the no-baseline branch's plannedDays"
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 185,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const days = (t, a, b) => (isMile(t) ? 0 : r1(t.cal.workBetween(a, b) / 60 / (t.cal.hoursPerDay || 8)));",
+            "after": "const days = (t, a, b) => (isMile(t) ? 1 : r1(t.cal.workBetween(a, b) / 60 / (t.cal.hoursPerDay || 8)));",
+            "line_text": "  const days = (t, a, b) => (isMile(t) ? 0 : r1(t.cal.workBetween(a, b) / 60 / (t.cal.hoursPerDay || 8)));",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test read a path milestone's actualDays; new test 'a milestone on the path has zero actual days'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 205,
+            "col": 26,
+            "operator": "or-to-and",
+            "before": "const exit = !linkOut || FROM_FINISH.has(linkOut.type) ? \"finish\" : \"start\";",
+            "after": "const exit = !linkOut && FROM_FINISH.has(linkOut.type) ? \"finish\" : \"start\";",
+            "line_text": "    const exit = !linkOut || FROM_FINISH.has(linkOut.type) ? \"finish\" : \"start\";",
+            "caught": true,
+            "seconds": 4.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 283,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "const sum = r1(path.reduce((s, r) => s + (r.waitDays || 0) + (r.durationDays || 0) + (r.calendarDays || 0), 0) + (floatTerm ?? tail ?? 0));",
+            "after": "const sum = r1(path.reduce((s, r) => s + (r.waitDays || 1) + (r.durationDays || 0) + (r.calendarDays || 0), 0) + (floatTerm ?? tail ?? 0));",
+            "line_text": "  const sum = r1(path.reduce((s, r) => s + (r.waitDays || 0) + (r.durationDays || 0) + (r.calendarDays || 0), 0) + (floatTerm ?? tail ?? 0));",
+            "caught": true,
+            "seconds": 3.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 295,
+            "col": 11,
+            "operator": "gt-to-ge",
+            "before": "if (fv > 0) late.push({ code: t.code, finishVariance: fv });",
+            "after": "if (fv >= 0) late.push({ code: t.code, finishVariance: fv });",
+            "line_text": "    if (fv > 0) late.push({ code: t.code, finishVariance: fv });",
+            "caught": true,
+            "seconds": 3.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 332,
+            "col": 125,
+            "operator": "const-plus-one",
+            "before": "if (x.waitDays) out.push({ code: x.code, name: x.name, kind: x.through.length ? \"wait, across added work\" : x.waitDays > 0 ? (x.heldBy ? `late start, finish held by ${x.heldBy}` : \"late start\") : \"planned gap used up\", days: x.waitDays, through: x.through });",
+            "after": "if (x.waitDays) out.push({ code: x.code, name: x.name, kind: x.through.length ? \"wait, across added work\" : x.waitDays > 1 ? (x.heldBy ? `late start, finish held by ${x.heldBy}` : \"late start\") : \"planned gap used up\", days: x.waitDays, through: x.through });",
+            "line_text": "    if (x.waitDays) out.push({ code: x.code, name: x.name, kind: x.through.length ? \"wait, across added work\" : x.waitDays > 0 ? (x.heldBy ? `late start, finish held by ${x.heldBy}` : \"late start\") : \"planned gap used up\", days: x.waitDays, through: x.through });",
+            "caught": false,
+            "seconds": 3.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the only late-start test was 6 days; new test holds A1120 one day and expects 'late start'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/asplanned.mjs",
+            "line": 371,
+            "col": 69,
+            "operator": "const-plus-one",
+            "before": "for (const a of r.added) L.push([\"added\", a.code, a.name, ...Array(14).fill(\"\")].map(csvCell).join(\",\"));",
+            "after": "for (const a of r.added) L.push([\"added\", a.code, a.name, ...Array(15).fill(\"\")].map(csvCell).join(\",\"));",
+            "line_text": "  for (const a of r.added) L.push([\"added\", a.code, a.name, ...Array(14).fill(\"\")].map(csvCell).join(\",\"));",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test counted CSV columns; new test checks every row (added, not built) against the header width"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/asplanned.mjs",
+        "issue": "When the last activity on the as-built critical path was added after the plan, the delay term after the path (r.tail) appeared only in the text report: asPlannedTableHtml dropped it (with no other steps the whole 'Where the delay grew' table vanished, so the web page showed a +5 day delay with nothing attributed to it; with steps, its rows no longer added to the Sum row), and asPlannedCsv wrote it under the label 'planned float at the path's end'. Repro: slip A1180 5 days in the example and rename it Z9999. Fixed: HTML adds an 'added work at the end of the path' row and shows the table when any term is non-zero; CSV labels the row by which term it is. Test: 'added work at the end of the path is a row in the HTML table and labelled as such in the CSV'.",
+        "patched": true
+      }
+    ]
+  }
+}
