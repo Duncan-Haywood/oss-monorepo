@@ -25,6 +25,15 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3zd headline** (does "update the focal length, keep the held lens distortion" survive at the image edge, 250&ndash;400 px?):
+**only if the held distortion is valid out to the corner.** Against TUM's calibration, the one reference that does not fold before the
+corner on either camera, the Kinect's two-term board and target-free distortions (folding at 381 and 403 px) sit 14&ndash;17 px off across
+250&ndash;400 px, and adopting the self-calibrated windows' distortion with their f (it folds inside the image in none of 31 blocks) cuts that
+to 5.5 px; with TUM's model held, or on the Xtion, an f-only rule still wins (f-only minimax in 7 of 9 Xtion pairs). So check the held
+model's fold radius against the image corner before holding it. Two of five predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![median signed edge error P(r) of each update rule out to the image corner with TUM's and the board's distortion held, and the edge-band worst regret per held distortion, five TUM windows, causal prior](experiments/m3zd_edge/edge.png)
+
 **Milestone 3zc headline** (can a self-calibrating robot camera gate its lens-distortion update once the natural-feature windows'
 distortion bias is corrected?): **no; keep the held distortion and do not gate it.** The windows' distortion at 200 px is
 **1.37 px** low on the Kinect and **0.71 px** low on the Xtion, so a bias learnt on another camera moves the test by the wrong amount
@@ -1351,6 +1360,13 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3zd: at the image edge (250&ndash;400 px, truth TUM) holding the distortion is safe only when the held model does not
+fold inside the image; the Kinect's two-term references fold at 381 and 403 px and cost 14&ndash;17 px at the edge, where adopting the
+windows' distortion leaves 5.5 px. Next: Section 4 and Recommendation 9 of the paper updated with 3zc and 3zd (no distortion gate;
+check the held model's fold radius against the image corner); a three-term (k<sub>3</sub>) board refit of the fr1 frames to settle
+which fr1 model is right at the corner, and the feature radii the windows cover, both when the TUM host answers; a real lens change
+when one is reachable; typesetting the letter in the IEEE class.
 
 After milestone 3zc: correcting the windows' D<sub>200</sub> bias, by another camera's bias or the unit's own commissioning history,
 does not make a distortion gate usable (fires in 23&ndash;24 of 31 blocks when the held distortion is right; a 2-sd detector still costs
