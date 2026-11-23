@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKncZc7rvpuxYEqcNaj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T18:10:09Z",
+  "ended": "2026-11-23T18:22:53Z",
+  "wall_minutes": 13.21,
+  "tokens_in": 7298024,
+  "tokens_out": 41745,
+  "cost_usd": 3.2528,
+  "tool_calls": 62,
+  "task": "league-schedule-generator (flagship row 4): clinched/eliminated proved by branch and bound past 12 fixtures left, checked on 18 real seasons",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18460",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A first run of run_venture_tests.py under `timeout 115` was killed (exit 143); re-ran without the timeout in the background."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named league-schedule-generator item 2 ('a real club's night on it'); all 7 numbered items need a real league or club input, so the item rank was moot. Took a buildable item instead (exact race table on public real results)."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace refused at 2089 of 2000 even after parking; needed --history on a landed clause, which the refusal message does suggest."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Every listed item of the assigned row needs outside input",
+      "did": "Built a new buildable item on the same flagship: exact clinch/elimination by branch and bound, verified on 18 real openfootball seasons",
+      "result": "0 wrong calls in 6,144 tables; 131 team-races settled earlier, 285 match dates; 87.4% of tables proved in full"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-a-team-that-cannot-be-caught-should-not-read-alive.md",
+    "ventures/league-schedule-generator/README.md (Clinched and out, proved past 12 games left)"
+  ],
+  "goal": null,
+  "notes": "race-exact.test.mjs: 4 tests pass (equality with enumeration on 400 random leagues, never-wrong under tiny budgets, a hand case). calc/page/divisions/pwa/server/deploy tests: 363 pass. eval/fuzz-race.mjs 300 1: invalid 0. eval/race-real.mjs: exit 0, 0 wrong. No agent doc: the README section and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0f49f32b-f5f0-5cc9-bc69-f47f29b3b465",
+    "transcripts": 1,
+    "first": "2026-11-23T18:10:09Z",
+    "last": "2026-11-23T18:23:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 127,
+        "output": 41745,
+        "thinking": 16396,
+        "cache_read": 7175102,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122795,
+        "api_equivalent_usd": 3.2528,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 127,
+      "output": 41745,
+      "thinking": 16396,
+      "cache_read": 7175102,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122795,
+      "api_equivalent_usd": 3.2528,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.21,
+      "active_minutes": 12.56,
+      "model_minutes": 9.41,
+      "tool_minutes": 3.15,
+      "waiting_on_human_minutes": 0.65,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design and test a branch-and-bound clinch solver plus a real-season replay eval and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 307.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

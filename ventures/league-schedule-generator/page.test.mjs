@@ -77,7 +77,7 @@ test("the module scripts import only local files, and the inline script parses",
   // its only imports: the two season searches it hands to schedule.mjs (useSeasonSearches, 2026-11-23)
   assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import\b.*from "([^"]+)";$/gm)].map((m) => m[1]), ["./carryover.mjs", "./nights.mjs", "./schedule.mjs"]);
   assert.deepEqual([...page("calc.mjs").matchAll(/^export \{[^}]+\} from "\.\/([^"]+)";$/gm)].map((m) => m[1]), [...CALC_PARTS, "swiss.mjs"]);
-  const allowed = new Set([...CALC_PARTS, "whist.mjs", "carryover.mjs", "carryover-core.mjs", "swiss.mjs", "nights.mjs", "fields.mjs"]);
+  const allowed = new Set([...CALC_PARTS, "whist.mjs", "carryover.mjs", "carryover-core.mjs", "swiss.mjs", "nights.mjs", "fields.mjs", "race-exact.mjs"]);
   for (const f of CALC_PARTS) {
     for (const m of page(f).matchAll(/^\s*import .* from "([^"]+)"/gm)) assert.ok(allowed.has(m[1].replace(/^\.\//, "")) && m[1].startsWith("./"), `${f} imports ${m[1]}`);
     assert.ok(!/from "\.\/calc\.mjs"/.test(page(f)), `${f} imports the barrel`);
