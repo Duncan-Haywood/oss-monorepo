@@ -185,14 +185,16 @@
    "where": "research/infra-waterloss/src/infra_waterloss/net.py:64",
    "category": "logic-error",
    "origin": "implementation",
-   "what": "The 'inflow meter' is the sum of junction demands, which in WNTR excludes leak_demand: with a 2% leak it is bit-identical to the leak-free series. A real source/DMA meter reads demand + leak. Every 'flow-adjusted' row (including the headline best detector, flow-adjusted CUSUM) models a meter blind to the leak, and README:17's claim that the regression strips 'some of a large leak' is false. Fix: dem + leak (and re-run)."
+   "what": "The 'inflow meter' is the sum of junction demands, which in WNTR excludes leak_demand: with a 2% leak it is bit-identical to the leak-free series. A real source/DMA meter reads demand + leak. Every 'flow-adjusted' row (including the headline best detector, flow-adjusted CUSUM) models a meter blind to the leak, and README:17's claim that the regression strips 'some of a large leak' is false. Fix: dem + leak (and re-run).",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "high",
    "where": "research/infra-waterloss/README.md:7",
    "category": "research-design",
    "origin": "design",
-   "what": "No flow-balance / minimum-night-flow baseline, the first tool of water-loss practice (AWWA M36, IWA). The headline 'demand error and sensor coverage set the limit, not the detector' depends on it: a flow-balance CUSUM on the subject's own cached hydraulics finds all leak locations at 0.98 (4%) and 0.53 (2%) at low demand error vs the best pressure row's 0.60 and 0.37, so coverage is not the limit when the inflow channel is modelled."
+   "what": "No flow-balance / minimum-night-flow baseline, the first tool of water-loss practice (AWWA M36, IWA). The headline 'demand error and sensor coverage set the limit, not the detector' depends on it: a flow-balance CUSUM on the subject's own cached hydraulics finds all leak locations at 0.98 (4%) and 0.53 (2%) at low demand error vs the best pressure row's 0.60 and 0.37, so coverage is not the limit when the inflow channel is modelled.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "medium",
@@ -206,14 +208,16 @@
    "where": "research/infra-waterloss/README.md:35",
    "category": "overclaim",
    "origin": "claims",
-   "what": "Frames 28% coverage as 'five sensors see little of the network ... invisible to a few sensors'; with every junction instrumented coverage at 0.5 m is still 28.3%, so it is a network property (tank/pump-held pressure), not a sensor-count one. Also why C6 (15 sensors) reports the same 28%."
+   "what": "Frames 28% coverage as 'five sensors see little of the network ... invisible to a few sensors'; with every junction instrumented coverage at 0.5 m is still 28.3%, so it is a network property (tank/pump-held pressure), not a sensor-count one. Also why C6 (15 sensors) reports the same 28%.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "medium",
    "where": "research/infra-waterloss/README.md:36",
    "category": "overclaim",
    "origin": "claims",
-   "what": "'Small leaks are not found': the '1 %' leak is 7 L/s = 597 m3/d, 12x the mains term of UARL for Net3 (18 x 65.7 km x 42.1 m = 49.8 m3/d); even 0.25% is burst-scale. Also 'all-leak detection is at most 8 % at 1 %' - the C2 maximum is 0.05."
+   "what": "'Small leaks are not found': the '1 %' leak is 7 L/s = 597 m3/d, 12x the mains term of UARL for Net3 (18 x 65.7 km x 42.1 m = 49.8 m3/d); even 0.25% is burst-scale. Also 'all-leak detection is at most 8 % at 1 %' - the C2 maximum is 0.05.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "low",
@@ -227,7 +231,8 @@
    "where": "research/infra-waterloss/README.md:33",
    "category": "stale-docs",
    "origin": "maintenance",
-   "what": "Results called 'deterministic', but the greedy sensor pick has a near-tie: a clean rerun (wntr 1.5.0, numpy 2.4.6) picks sensor 219 not 217 and one C6 row changes (pressure CUSUM 2%: 0.05/0.08 vs 0.03/0.00). README:14 'match to two decimals' (3.93 vs 4) also loose."
+   "what": "Results called 'deterministic', but the greedy sensor pick has a near-tie: a clean rerun (wntr 1.5.0, numpy 2.4.6) picks sensor 219 not 217 and one C6 row changes (pressure CUSUM 2%: 0.05/0.08 vs 0.03/0.00). README:14 'match to two decimals' (3.93 vs 4) also loose.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
   },
   {
    "severity": "low",
@@ -244,6 +249,6 @@
    "what": "wntr unpinned although code depends on 1.5 internals (library path, WNTRSimulator leak model); wntr 1.5.0 also needs six, undeclared, so 'pip install pytest numpy wntr' can fail to import."
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"],
  "verdict": "A small, honest, reproducible milestone stand-in: WNTR on Net3 with simulated orifice leaks, calibrated MA/CUSUM/PELT detectors at a 5% false-alarm budget. The primitives are right (PELT = ruptures 160/160, orifice law to 0.02%, EPANET demand to 0.0001 L/s, CUSUM/MA by hand 200/200) and a full 14-minute rerun reproduces results.txt except one 15-sensor row. But a water-loss engineer would stop at the flow channel: the simulated inflow meter excludes the leak (net.py:64), so every 'flow-adjusted' row models a meter no utility has, and with no flow-balance/MNF baseline the headline 'coverage and demand error set the limit' is an artefact - a flow CUSUM on the same hydraulics finds 98% of all 4% leaks at low demand error. The 28% coverage is a network ceiling, not a few-sensor limit, and the 'small' leaks are burst-sized against UARL. Tests miss every mutant in the experiment code. Below the bar on correctness, claims and verification."
 }

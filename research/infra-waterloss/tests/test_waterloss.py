@@ -76,3 +76,24 @@ def test_demand_uncertainty_moves_pressures_and_is_seeded():
     n, _, _ = simulate(hours=24)
     assert np.allclose(a, b, atol=1e-4) and not np.allclose(a, c)
     assert 0.02 < np.abs(a - n).mean() < 5
+
+
+def test_inflow_meter_sees_the_leak():
+    """WNTR's junction `demand` excludes `leak_demand`, so a meter built from demand alone is
+    leak-blind (round 105 quality audit). run.py's run_all must hand the detectors demand + leak."""
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location("wl_run", pathlib.Path(__file__).parents[1] / "experiments" / "run.py")
+    run = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(run)
+    J = junctions()
+    _, _, dem0 = simulate()
+    p, leak, dem = simulate(leak_node=J[10], leak_flow_frac=0.02, nominal_pressure=40.0, mean_demand=float(dem0.mean()))
+    assert np.allclose(dem, dem0)          # the WNTR fact the bug rested on
+    assert leak[100] > 0
+
+    class Pool:
+        def imap_unordered(self, f, jobs, chunksize=1):
+            return [("k", p, leak, dem)]
+
+    _, l2, inflow = run.run_all([], Pool())["k"]
+    assert np.allclose(inflow - dem0, leak)
