@@ -326,6 +326,54 @@ test("doors, windows and curtain walls come off a room's wall area", () => {
   assert.ok(line.includes(",37.8,2,3.09,5.4,29.31,0,"), line);
 });
 
+test("a window the boundaries name on one side only takes the room geometry finds on the other", () => {
+  // a store east of the office, past the window's wall (x 4600 to 7600 mm):
+  // the window's boundary names the office alone (dental_clinic's 18 windows
+  // name only the "ROOF" space outside them)
+  const store = [
+    "#3100=IFCSPACE('0rM0000000000000000110',$,'102','',$,#3101,#3102,'Store',.ELEMENT.,.INTERNAL.,$);",
+    "#3101=IFCLOCALPLACEMENT(#51,#21);",
+    "#3102=IFCPRODUCTDEFINITIONSHAPE($,$,(#3103));",
+    "#3103=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#3104));",
+    "#3104=IFCEXTRUDEDAREASOLID(#3105,#21,#23,2700.);",
+    "#3105=IFCRECTANGLEPROFILEDEF(.AREA.,$,#3106,3000.,3000.);",
+    "#3106=IFCAXIS2PLACEMENT2D(#3107,$);",
+    "#3107=IFCCARTESIANPOINT((6100.,1600.));",
+    "#3108=IFCRELAGGREGATES('0rM0000000000000000111',$,$,$,#50,(#3100));",
+  ].join("\n");
+  const text = roomsFileText().replace("ENDSEC;\nEND-ISO", `${openingsFile()}\n${store}\nENDSEC;\nEND-ISO`);
+  const r = takeoff(parseStep(Buffer.from(text, "latin1")));
+  const win = r.rows.find((x) => x.name === "Window"), door = r.rows.find((x) => x.name === "Door");
+  assert.deepEqual([...win.facesRooms].sort(), ["101 Office", "102 Store"]);
+  assert.equal(win.facesFrom, "boundary+geometry");
+  const st = r.rooms.find((x) => x.label === "102 Store").computed;
+  assert.equal(st.openings, 1);
+  assert.deepEqual(st.openingsFrom, { boundary: 0, geometry: 1 });
+  close(st.openingArea, 1.2 * 1.0);
+  // the office's figures are as before; the door, named by no boundary, too
+  const office = r.rooms.find((x) => x.label === "101 Office").computed;
+  assert.equal(office.openings, 2);
+  assert.deepEqual(office.openingsFrom, { boundary: 1, geometry: 1 });
+  assert.deepEqual(door.facesRooms, ["101 Office"]);
+  // geometry that does not find the room the file names adds nothing: the
+  // window's boundary moved to a room far away keeps that room alone
+  const far = text.replace("#3020=IFCRELSPACEBOUNDARY('0rM0000000000000000103',$,'1stLevel',$,#2000,", "#3020=IFCRELSPACEBOUNDARY('0rM0000000000000000103',$,'1stLevel',$,#3110,")
+    .replace("ENDSEC;\nEND-ISO", [
+      "#3110=IFCSPACE('0rM0000000000000000112',$,'103','',$,#3101,#3112,'Far',.ELEMENT.,.INTERNAL.,$);",
+      "#3112=IFCPRODUCTDEFINITIONSHAPE($,$,(#3113));",
+      "#3113=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#3114));",
+      "#3114=IFCEXTRUDEDAREASOLID(#3115,#21,#23,2700.);",
+      "#3115=IFCRECTANGLEPROFILEDEF(.AREA.,$,#3116,2000.,2000.);",
+      "#3116=IFCAXIS2PLACEMENT2D(#3117,$);",
+      "#3117=IFCCARTESIANPOINT((20000.,20000.));",
+      "#3118=IFCRELAGGREGATES('0rM0000000000000000113',$,$,$,#50,(#3110));",
+      "ENDSEC;\nEND-ISO"].join("\n"));
+  assert.ok(far.includes("$,#3110,#3010"), "fixture edit applied");
+  const w2 = takeoff(parseStep(Buffer.from(far, "latin1"))).rows.find((x) => x.name === "Window");
+  assert.deepEqual(w2.facesRooms, ["103 Far"]);
+  assert.equal(w2.facesFrom, "boundary");
+});
+
 test("a space boundary's surface area: a curve-bounded plane less its holes, and a swept line", () => {
   const E = new Map();
   const put = (id, type, args) => E.set(id, { id, type, args });

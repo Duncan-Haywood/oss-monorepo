@@ -601,7 +601,8 @@ export function heightShare(ob, rb, h = null) {
  * or window pieces inside a larger one, not taken twice), computed.openingCut
  * (m2 of door or window past the room's floor or ceiling, not taken off) and
  * computed.openingsCut (how many were cut); on each door and window row,
- * row.facesRooms (labels) and row.facesFrom ("boundary" | "geometry").
+ * row.facesRooms (labels) and row.facesFrom ("boundary" | "geometry" |
+ * "boundary+geometry").
  */
 export function deductOpenings(rows, rooms, bounds = [], overall = new Map()) {
   const byId = new Map(rooms.map((r) => [r.id, r]));
@@ -626,9 +627,21 @@ export function deductOpenings(rows, rooms, bounds = [], overall = new Map()) {
     named.add(row.id);
     put(room, row, b.area, "boundary");
   }
+  // rooms the file's boundaries name for each opening
+  const namedRooms = new Map();
+  for (const p of pairs.values()) if (OPENING_CLASS.test(p.row.ifcType ?? "")) namedRooms.set(p.row.id, (namedRooms.get(p.row.id) ?? 0) + 1);
   for (const row of rows) {
-    if (!OPENING_CLASS.test(row.ifcType ?? "") || row.isAssembly || named.has(row.id)) continue;
-    for (const room of openingSides(row, testable)) put(room, row, null, "geometry");
+    if (!OPENING_CLASS.test(row.ifcType ?? "") || row.isAssembly) continue;
+    if (!named.has(row.id)) { for (const room of openingSides(row, testable)) put(room, row, null, "geometry"); continue; }
+    // A door or window the boundaries name on one side only: where geometry
+    // finds that same room on one side, the room it finds on the other is
+    // taken too. dental_clinic bounds each of its 18 bounded windows to the
+    // "ROOF" space outside alone, never the office it lights, so the office
+    // lost its window (eval/door-extra-room-2026-11-23.md).
+    if (namedRooms.get(row.id) !== 1) continue;
+    const found = openingSides(row, testable);
+    if (found.length !== 2 || !found.some((r) => pairs.has(`${r.id}/${row.id}`))) continue;
+    for (const room of found) if (!pairs.has(`${room.id}/${row.id}`)) put(room, row, null, "geometry");
   }
   const own = (row) => {
     const o = overall.get(row.id);
@@ -668,7 +681,9 @@ export function deductOpenings(rows, rooms, bounds = [], overall = new Map()) {
   for (const { room, row, area, from } of pairs.values()) {
     if (!OPENING_CLASS.test(row.ifcType)) continue;
     (row.facesRooms ??= []).push(room.label);
-    row.facesFrom = from;
+    // "boundary", "geometry", or "boundary+geometry": one side named by the
+    // file, the other found by where the opening stands
+    row.facesFrom = row.facesFrom && row.facesFrom !== from ? "boundary+geometry" : from;
     if (area > 0) {
       if (!row.boundaryAreas) Object.defineProperty(row, "boundaryAreas", { value: {}, enumerable: false, writable: true });
       row.boundaryAreas[room.label] = area;
