@@ -1,0 +1,219 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/ambient-ips",
+ "stratum": "research",
+ "seed": "2026-11-23-d-6b5b",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a machine-learning researcher in off-policy / counterfactual learning and importance-weighted active learning (inverse-propensity, self-normalised and doubly robust estimators); first checks: does the fitting routine reach the estimator it claims, are the propensities the ones actually used to act, is the variance of 1/epsilon weights controlled (clipping, self-normalisation), and is the work positioned against Horvitz-Thompson, Beygelzimer, Dasgupta and Langford 2009 (IWAL), Strehl et al. 2010, Bottou et al. 2013 and Swaminathan and Joachims 2015",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The pipeline reproduces (experiments/run.py rerun in a scratch copy: results.txt identical apart from the runtime line, 254 s) and the oracle reference is right: a closed-form Bayes posterior from the World defaults (/tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/chk/analytic.py) gives weights [2.0, 2.242, 0, -5.991] against the code's [1.998, 2.263, -0.019, -6.002] and expected utility 12.52/h against the held-out 12.71 (std 0.58 over 20 streams). But fit_map (ips.py:46-64) is undamped Newton with no line search, and it diverges. An independent damped Newton with Armijo backtracking on the exact logaddexp objective (/tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/chk/mysolver.py, mapcheck.py) on 24 hour-100 fits (2 priors x 2 eps x 2 weightings x seeds 0-2): all 6 uninformed unweighted fits and 3 of 12 IPS fits are non-converged, e.g. uninformed eps=0.002 none seed 0: J(code)=47,679 vs J(true MAP)=105.0, ||w-w0||=163 > the bound sqrt(2J(w0))=34.9 that any MAP must satisfy; uninformed eps=0.002 ips seed 0: J=526,416,828 vs 1,386.8, ||w-w0||=30,622. Rerunning the whole run.py with the converged solver (same seeds, /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/fixed, 197 s): all six uninformed rows equal the informed ones within 0.05 (online 9.65/7.79/8.48/8.13/2.65/3.17 against README -1.74/-19.34/-2.04/-26.27/-23.27/-30.53), the IPS stds of 35-44 drop to 1.0-3.7, informed eps=0.002 ips model@100h 6.74 +- 14.03 -> 9.62 +- 3.36, and drift IPS with 20 h memory -7.79 +- 13.85 -> -0.18 +- 2.16 (IPS without memory 0.68 -> 1.34, now the best online drift row). Result 1 and the 'worst row' part of result 4 are optimizer artifacts; results 2 and 3 survive.",
+  "completeness": "Everything the README lists runs: 5 tests pass (0.82 s), run.py reproduces results.txt, experiments/figure.py and ips_online.svg exist, the README table matches results.txt in all 12 rows (script parse, 0 mismatches), and the drift block matches. Clipping, self-normalisation, DR weights, decaying eps and real logs are listed as not done, not claimed.",
+  "verification": "PYTHONPATH=src pytest -q tests: 5 passed. 4 of 4 seeded mutants in core logic survived (propensity of explored windows set to 1 so IPS equals the unweighted fit; decision rule ignoring the others-talking cost; forget window doubled; prior gradient centred on zero). No test checks that fit_map's output is stationary or within the prior-distance bound, the check that would have caught the divergence; test_informed_ips_learns_most_of_oracle passes because the informed-prior eps=0.02 fits happen to converge.",
+  "craft": "Read src/ambient_ips/ips.py, tests/test_ips.py, experiments/run.py, experiments/figure.py. Compact and readable, seeds fixed, figure parses results.txt rather than retyping. Defects: fit_map copied from ambient-bandit with the same undamped Newton (fixed in ambient-fullinfo by PR #18259 but not here); returned covariance is inv(H) at the pre-step iterate; sigmoid clipped at +-30 makes saturated points vanish from the Hessian, feeding the overshoot; run.py writes results.txt by relative path (must run from the project root).",
+  "claims": "Checked: (a) 'Stylised, simulated results only' disclosure, README:3: backed. (b) 'Under this design the weighted log-likelihood ... same expectation as over all windows', README:21: sound (propensity known and logged per window; holds under adaptive data collection by iterated expectation). (c) Result 1 'IPS did not fix the uninformed-prior failure', README:50, and the homepage summary 'did not rescue the uninformed-prior ... scenarios' (research/_homepage/projects.json:1957): false, there is no uninformed-prior failure under a converged solver. (d) 'at eps=0.002 an explored window counts 500 times', README:50: 1/0.002 = 500, pass. (e) 'about 7 of the 360 hourly windows are explored' at eps=0.02, README:51: 0.02 x 360 = 7.2 upper bound, pass. (f) Result 4 'IPS with memory is the worst row (-7.79 +- 13.85)', README:53: artifact, -0.18 +- 2.16 converged. (g) 'selection bias matters little with these features', README:52: hedged guess, contradicted by ambient-fullinfo's measured 1.3-2.1 utility/h loss. (h) Horvitz-Thompson and Horvitz 1999 citations: bibliographic details match (JASA 47(260):663-685; CHI '99 159-166).",
+  "fitness": "A researcher could not build on the headline result without first replacing the solver and rerunning. Nearest prior work: importance-weighted active learning (Beygelzimer, Dasgupta and Langford 2009, ICML), which is exactly 'query with known probability, weight by 1/probability' for a learner choosing its own labels; off-policy learning from logged bandit feedback (Strehl et al. 2010; Bottou et al. 2013 JMLR; Swaminathan and Joachims 2015 JMLR); truncated importance sampling for variance (Ionides 2008). None is cited. With the solver fixed, what remains (IPS unbiased but noisier at small eps; constant-eps exploration costs more than it teaches in this toy) is the textbook bias-variance trade-off of IPS, not new; the result is sound only after the fix, and the nearest sibling (ambient-fullinfo) already carries the corrected version.",
+  "domain": "The IPS construction itself follows standard practice: per-window logged propensity, 1/pi weight on the log-likelihood, greedy windows propensity 1, explored windows eps, and a held-out no-exploration evaluation separating learning from exploration cost. Departures a practitioner would flag first: a non-convergent optimizer (any off-policy practitioner checks the weighted objective reached its minimum before comparing estimators), no clipped/self-normalised/DR baseline (admitted), no multiple-comparison handling (admitted), and the uninformed-prior 'failure' mechanism never diagnosed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Oracle weights [score, keyword, others, intercept]",
+   "method": "closed-form Bayes log-odds from World defaults: d', log(.45/.08)-log(.55/.92), 0, logit(.03)-d'^2/2+log(.55/.92)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/chk/analytic.py",
+   "expected": "[2.0, 2.242, 0.0, -5.991]",
+   "observed": "[1.998, 2.263, -0.019, -6.002] (results.txt:2)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Oracle held-out utility per hour",
+   "method": "closed-form expectation over need, keyword, others and wake with the Gaussian score (normal CDF), x 360 windows/h",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/chk/analytic.py",
+   "expected": "12.52/h",
+   "observed": "12.71/h on 20 held-out 100 h streams (std 0.58, SE 0.13), within 1.5 SE",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "fit_map returns the MAP it claims (24 hour-100 fits: priors x eps 0.002/0.02 x none/ips x seeds 0-2)",
+   "method": "own damped Newton with Armijo backtracking (Boyd and Vandenberghe 2004, sec. 9.5) on the exact logaddexp objective; bound ||w*-w0|| <= sqrt(2 J(w0)) from J >= prec/2 ||w-w0||^2",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/chk && python3.13 -I mapcheck.py /home/user/oss-monorepo/research/ambient-ips/src /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/chk",
+   "expected": "J(code) == J(true MAP), ||w-w0|| below the bound (33-117)",
+   "observed": "9 of 24 non-converged: all 6 uninformed unweighted (e.g. J 47,679 vs 105.0, ||w-w0|| 163 > 34.9) and 3 of 12 IPS (J 526,416,828 vs 1,386.8; 190,649,328 vs 1,824.4); informed unweighted all converged",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Result table and drift block under a converged solver",
+   "method": "run.py with ips.fit_map monkeypatched to the independent solver, same seeds",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/fixed && python3.13 -I patch.py",
+   "expected": "README: uninformed online -1.74/-19.34/-2.04/-26.27/-23.27/-30.53; drift ips forget 20 -7.79 +- 13.85",
+   "observed": "uninformed online 9.65/7.79/8.48/8.13/2.65/3.17 (= informed rows within 0.05); drift ips forget 20 -0.18 +- 2.16, ips no forget 1.34 +- 1.35; informed eps 0.02 rows unchanged",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "IPS weight at eps=0.002 and explored windows per hour at eps=0.02",
+   "method": "hand arithmetic: 1/eps and eps x 360",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/chk/analytic.py",
+   "expected": "500; <= 7.2",
+   "observed": "README:50-51 says 500 and 'about 7'",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces results.txt",
+   "method": "rerun in a scratch copy, diff ignoring the runtime line",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/orig && PYTHONPATH=src python3.13 experiments/run.py; diff <(grep -v runtime experiments/results.txt) <(grep -v runtime <repo>/research/ambient-ips/experiments/results.txt)",
+   "expected": "identical, about 200 s",
+   "observed": "identical, 254 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Unit tests",
+   "method": "run",
+   "command": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "5 tests pass (README:27)",
+   "observed": "5 passed in 0.82 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README result table matches results.txt",
+   "method": "regex parse of both files, 12 rows x 6 cells",
+   "command": "python3 - (inline parser over README.md and experiments/results.txt)",
+   "expected": "0 mismatches",
+   "observed": "12 rows, 0 mismatches",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'IPS did not fix the uninformed-prior failure' (README:50) and homepage summary 'did not rescue the uninformed-prior ... scenarios' (projects.json:1957)",
+   "method": "converged-solver rerun above",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/fixed && python3.13 -I patch.py",
+   "expected": "an uninformed-prior failure exists for IPS to fix",
+   "observed": "none: uninformed rows equal informed rows once the fit converges",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'IPS with memory is the worst row' in drift (README:53)",
+   "method": "converged-solver rerun",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cf8c4a25-3d1e-5701-a418-44569f367c15/scratchpad/ambient-ips/fixed && python3.13 -I patch.py",
+   "expected": "-7.79 +- 13.85 worst",
+   "observed": "-0.18 +- 2.16; worst is online none, forget None (-0.91)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'selection bias matters little with these features' (README:52)",
+   "method": "compare with ambient-fullinfo's label-matched measurement (README and projects.json summary, corrected 2026-11-22)",
+   "command": "grep -n 'contrary to a guess in' research/_homepage/projects.json",
+   "expected": "bias small",
+   "observed": "ambient-fullinfo measures a 1.3-2.1 utility/h loss from the biased fit",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Weighted log-likelihood has the same expectation as the full-information one (README:21)",
+   "method": "iterated expectation with logged propensity pi_t(x) > 0 for every window (eps > 0); Horvitz-Thompson argument",
+   "command": "read ips.py:100-111 (prop = 1 for greedy/wake, eps otherwise; weight 1/prop)",
+   "expected": "unbiased for eps > 0",
+   "observed": "construction matches",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Prior work cited for IPS-based online label selection",
+   "method": "README 'Builds on' vs IWAL (Beygelzimer et al. 2009), Strehl et al. 2010, Bottou et al. 2013, Swaminathan and Joachims 2015",
+   "command": "grep -n 'Beygelzimer\\|Strehl\\|Swaminathan\\|Bottou\\|Dudik' research/ambient-ips/README.md",
+   "expected": "nearest prior work cited",
+   "observed": "no matches; only Horvitz-Thompson 1952 and Horvitz 1999",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/ambient_ips/ips.py:103",
+   "change": "prop = np.where(greedy, 1.0, eps) -> prop = np.where(greedy, 1.0, 1.0)",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_ips/ips.py:73",
+   "change": "return p * world.benefit > (1 - p) * cost(world, others) -> return p * world.benefit > (1 - p) * 1.0",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_ips/ips.py:114",
+   "change": "keep = idx >= (sl.stop - forget_hours * WINDOWS_PER_HOUR) -> keep = idx >= (sl.stop - 2 * forget_hours * WINDOWS_PER_HOUR)",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_ips/ips.py:58",
+   "change": "g = X.T @ (sw * (p - y)) + prior_prec * (w - w0) -> g = X.T @ (sw * (p - y)) + prior_prec * w",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "fit_map is undamped Newton with no line search; it diverges from the uninformed prior start and on large-weight IPS fits (9 of 24 hour-100 fits checked: objective 450x to 380,000x the true minimum, ||w-w0|| 163 to 30,622 against a bound of 35-117). The online learner acts on these weights, so the logged history is distorted too. Same bug as ambient-fullinfo (fixed there by PR #18259) and ambient-bandit.",
+   "where": "research/ambient-ips/src/ambient_ips/ips.py:56",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "Result 1 ('IPS did not fix the uninformed-prior failure', stds 35-44), the informed eps=0.002 IPS row (6.74 +- 14.03) and 'IPS with memory is the worst row' in result 4 are optimizer artifacts: converged, uninformed rows equal informed rows, IPS stds are 1.0-3.7, and IPS with memory is -0.18 +- 2.16. The homepage summary repeats the uninformed-prior claim.",
+   "where": "research/ambient-ips/README.md:50",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Core logic untested: 4 of 4 seeded mutants survived (explored propensity set to 1, so IPS = unweighted; decision rule ignoring the others cost; forget window doubled; prior gradient centred on zero). No test checks fit_map stationarity or the prior-distance bound.",
+   "where": "research/ambient-ips/tests/test_ips.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited and novelty not positioned: importance-weighted active learning (Beygelzimer, Dasgupta and Langford 2009) is the same query-with-known-probability, weight-by-1/p design; off-policy learning from logged bandit feedback (Strehl et al. 2010; Bottou et al. 2013; Swaminathan and Joachims 2015) and truncated IS (Ionides 2008) already establish the variance problem the README rediscovers.",
+   "where": "research/ambient-ips/README.md:11",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "The hedged guess 'the selection bias matters little with these features' is contradicted by the follow-up ambient-fullinfo (biased fit loses 1.3-2.1 utility/h) and the README does not point to it.",
+   "where": "research/ambient-ips/README.md:52",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Copied engine: fit_map duplicated from ambient-bandit (and into ambient-fullinfo and others) so a fix in one leaves the rest broken; returned covariance is inv(H) at the pre-step iterate; run.py writes results.txt by relative path.",
+   "where": "research/ambient-ips/src/ambient_ips/ips.py:46",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, reproducible stylised study (run.py regenerates results.txt exactly; the oracle weights and 12.7/h oracle utility match a closed-form Bayes computation; the IPS construction with logged propensities is textbook-correct) whose headline negative result is a solver bug. fit_map is undamped Newton copied from ambient-bandit; an independent line-searched solver shows 9 of 24 hour-100 fits are non-converged, including every uninformed unweighted fit. Rerun with a converged solver, the 'uninformed-prior failure' that IPS 'did not fix' does not exist (uninformed rows equal informed rows), IPS variance falls from std 35-44 to 1-4, and the drift 'worst row' (IPS with memory, -7.79) becomes -0.18. What survives (constant-eps exploration costs more than it teaches; IPS is noisier at small eps and helps model quality only at eps = 0.02) is the known IPS bias-variance trade-off, uncited against IWAL and the logged-bandit literature. 4 of 4 seeded mutants survived the 5 tests. Does not meet the bar; porting ambient-fullinfo's damped-Newton fit_map (PR #18259), adding a stationarity test, regenerating results.txt and rewriting results 1 and 4 would lift correctness and claims."
+}
