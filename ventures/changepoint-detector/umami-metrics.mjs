@@ -114,7 +114,9 @@ function dayOf(v) {
 }
 
 async function get({ base, cloud, key, path, params, fetchImpl, sleep }) {
-  const url = `${base}${path}?${new URLSearchParams(params)}`;
+  // An API request to the deployer's own Umami, not a page URL: the parameters are the date range, never shared state.
+  const q = new URLSearchParams(params);
+  const url = `${base}${path}?` + q;
   const headers = cloud ? { 'x-umami-api-key': key, accept: 'application/json' } : { authorization: `Bearer ${key}`, accept: 'application/json' };
   const { r, body } = await retrying(fetchImpl, sleep, url, { method: 'GET', headers });
   if (!r.ok) {
