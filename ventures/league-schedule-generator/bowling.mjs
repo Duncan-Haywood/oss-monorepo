@@ -25,6 +25,7 @@ import { csvCell } from "./outputs.mjs";
 import { parseTeams } from "./names.mjs";
 import { mulberry32 } from "./rng.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
+import { LANE_NEAR } from "./bowling-lane-near.mjs";
 import { LANE_SHAPES } from "./bowling-avoid-shapes.mjs";
 
 export const VACANCY = "Vacancy";
@@ -133,7 +134,10 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
   const steps = anneal ? annealStepsFor(plan.length, nPairs) : 0;
   const finish = (p) => (steps > 0 ? cutRepeats(p, nTeams, nPairs, seed, steps, lim) : p);
   if (stored) return finish(polishLanes(stored, nTeams, nPairs, seed, kicks, lim));
-  const polished = polishLanes(plan, nTeams, nPairs, seed, kicks, lim);
+  // No answer at the bound is known, but a stored one closer to it than this search gets
+  // (bowling-lane-near.mjs, 2026-11-23): start from it, and let the walk try to close it further.
+  const near = !ban && nearPlan(rounds, nTeams, nPairs, seed);
+  const polished = polishLanes(near || plan, nTeams, nPairs, seed, kicks, lim);
   if (offBound(polished, nTeams, nPairs, avoid) === 0) return finish(polished);
   // The week re-solves stall a few counts short of the bound on some sizes. A focused walk on the
   // out-of-bounds cells closes most of those; its result is polished again for repeats only (the
@@ -240,6 +244,33 @@ function tablePlan(rounds, nTeams, nPairs, seed, avoid = null) {
     plan.push(wk);
   }
   return offBound(plan, nTeams, nPairs, avoid) === 0 ? plan : null;
+}
+
+// A season no solver has put at the bound yet, but a tabu search (eval/bowling-lane-tabu.c) got
+// closer than the page's own search: LANE_NEAR["teams,weeks"] = { off, code }, code as in LANE_TABLE.
+// Used only if it is a permutation every week and no further off the bound than its recorded `off`,
+// so a stale entry costs speed, never balance; relabelled by the seed like tablePlan.
+function nearPlan(rounds, nTeams, nPairs, seed) {
+  const entry = LANE_NEAR[`${nTeams},${rounds.length}`];
+  if (!entry || entry.code.length !== rounds.length * nPairs) return null;
+  const perm = Array.from({ length: nPairs }, (_, i) => i);
+  if (seed !== 1) {
+    const rnd = mulberry32(seed * 104729 + 3);
+    for (let i = nPairs - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+  }
+  const plan = [];
+  for (let w = 0; w < rounds.length; w++) {
+    if (rounds[w].length !== nPairs) return null;
+    const seen = new Set();
+    const wk = rounds[w].map(([a, b], m) => {
+      const p = parseInt(entry.code[w * nPairs + m], 36);
+      seen.add(p);
+      return [a, b, perm[p] ?? -1];
+    });
+    if (seen.size !== nPairs || wk.some((m) => !(m[2] >= 0))) return null;
+    plan.push(wk);
+  }
+  return offBound(plan, nTeams, nPairs) <= entry.off ? plan : null;
 }
 
 // Lane limits on a season the search misses (bowling-avoid-shapes.mjs, from

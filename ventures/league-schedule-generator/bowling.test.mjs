@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY, laneTargets, parseLaneAvoid, matchShape, avoidShapeSlots, feasibleDealing, cutRepeats, laneLimits } from "./bowling.mjs";
 import { LANE_SHAPES } from "./bowling-avoid-shapes.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
+import { LANE_NEAR } from "./bowling-lane-near.mjs";
 import { OUT_OF_REACH } from "./bowling-proofs.mjs";
 import { toDay, roundRobin } from "./calc.mjs";
 
@@ -72,6 +73,22 @@ test("every stored SAT assignment is a permutation each week and puts every team
     // and the page uses it: the season it builds is at the bound, on any lane deal
     const rounds = plan.map((wk) => wk.map(([a, b]) => [a, b]));
     for (const seed of [1, 2]) assert.equal(offBound(assignLanes(rounds, n, P, { seed }), n, P), 0, `${key} seed ${seed}`);
+  }
+});
+
+test("every stored near-bound answer is a permutation each week, as close as recorded, and the page builds no worse", () => {
+  for (const [key, { off, page, code }] of Object.entries(LANE_NEAR)) {
+    const [n, weeks] = key.split(",").map(Number);
+    const P = n / 2;
+    assert.ok(!LANE_TABLE[key], `${key} is also at the bound in LANE_TABLE`);
+    assert.equal(code.length, weeks * P, key);
+    assert.ok(off > 0 && off < page, key);
+    const cyc = roundRobin(n);
+    const plan = Array.from({ length: weeks }, (_, w) => cyc[w % cyc.length].matches.map(([a, b], m) => [a, b, parseInt(code[w * P + m], 36)]));
+    for (const wk of plan) assert.equal(new Set(wk.map((m) => m[2])).size, P, key);
+    assert.equal(offBound(plan, n, P), off, key);
+    const rounds = plan.map((wk) => wk.map(([a, b]) => [a, b]));
+    for (const seed of [1, 2]) assert.ok(offBound(assignLanes(rounds, n, P, { seed }), n, P) <= off, `${key} seed ${seed}`);
   }
 });
 

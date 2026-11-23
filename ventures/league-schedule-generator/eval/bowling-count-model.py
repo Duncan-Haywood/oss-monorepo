@@ -98,6 +98,17 @@ def solve(n, W, shape):
             tot = sum(y[r, m, p] for r, wk in enumerate(kinds) for m, (a, b) in enumerate(wk) if t in (a, b))
             mdl.Add(tot >= lo[t][p])
             mdl.Add(tot <= hi[t][p])
+    hint = os.environ.get("HINT")  # a code for this season (eval/bowling-lane-tabu.c's "code"), 2026-11-23
+    if hint and not spec:
+        code = json.loads(open(hint).read())["code"]
+        rename = {int(code[m], 36): m for m in range(P)}  # week 1 becomes identity, as the model fixes it
+        code = "".join(DIG[rename[int(ch, 36)]] for ch in code)
+        h = {}
+        for w, r in enumerate(week_kind):
+            for m in range(P):
+                h[r, m, int(code[w * P + m], 36)] = h.get((r, m, int(code[w * P + m], 36)), 0) + 1
+        for key, var in y.items():
+            mdl.AddHint(var, h.get(key, 0))
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = LIMIT
     solver.parameters.num_workers = int(os.environ.get("WORKERS", "4"))

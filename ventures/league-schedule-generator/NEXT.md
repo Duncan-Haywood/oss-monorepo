@@ -18,7 +18,7 @@
 - (2026-11-17) 49 on 8x9 (orbit ~11 h est.; 4 solvers x 2 h no answer, a turn-fixed night never lays out when fully booked, eval/odd-orbit-sym.txt; next: a split or resumable search, or window shapes fixed first)
 - (2026-11-17) 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night)
 - (2026-11-18) repeats on the seasons the repeat SAT did not move in 400 s (18x27, 20x30, 20x40, 22x23, 24x35: 18-44; eval/bowling-repeat-sat.txt), and lane-limit shape answers re-solved for repeats
-- (2026-11-18) SAT answers for the 27 unanswered grid seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt)
+- (2026-11-23) 22-28 team grid seasons (eval/bowling-lane-table.txt, 2026-11-23 section): 2 at the bound and 15 closer stored (bowling-lane-near.mjs). Left: 0 off or a proof for 22x10, 22x21, 24x23, 26x38 (1 off each); exact seasons 24x24, 24x36 (4), 26x26 (10), 26x39 (14), 28x28 (16), 22x33 (6); 8 unmoved (24x25, 24x37, 26x14, 26x27, 26x40, 28x15, 28x27, 28x29). Next: longer count-model runs hinted by the stored answers, or an LNS over a few weeks at a time
 - (2026-11-18) bowling, 5+ lane-limited teams: most even of several dealings landed (README); left: 10 x 32, 10 x 34, 14 x 30, 24 x 26 misses (more dealings or SAT answers for 5+ shapes); the page build moved to a worker 2026-11-18 (eval/browser-bowling.txt)
 
 ## From quality audit round 87 (2026-11-19, `portfolio/quality/audits/2026-11-19-league-schedule-generator-r87.json`)
