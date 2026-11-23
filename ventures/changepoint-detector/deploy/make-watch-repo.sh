@@ -15,11 +15,11 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs posthog-metrics.mjs mixpanel-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs presteps.mjs segmentation.mjs garch.mjs stats-core.mjs parse-series.mjs bocpd.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs search-console-metrics.mjs ga4-metrics.mjs plausible-metrics.mjs posthog-metrics.mjs umami-metrics.mjs mixpanel-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
-printf '# Stripe, Shopify, Search Console, Analytics, Plausible, PostHog and Mixpanel metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\ndata/posthog.csv\ndata/mixpanel.csv\n' > "$DEST/.gitignore"
+printf '# Stripe, Shopify, Search Console, Analytics, Plausible, PostHog, Umami and Mixpanel metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\ndata/gsc.csv\ndata/ga4.csv\ndata/plausible.csv\ndata/posthog.csv\ndata/umami.csv\ndata/mixpanel.csv\n' > "$DEST/.gitignore"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch
 
@@ -99,6 +99,14 @@ in the variable `POSTHOG_OPTIONS`, e.g. `--event '$pageview' --event signed_up` 
 unset). For PostHog EU Cloud set the variable `POSTHOG_HOST` to `eu`; for a self-hosted PostHog, its https address.
 With no other source set, each run fetches `data/posthog.csv` (`node posthog-metrics.mjs --help`) and watches each
 event's daily count and the people doing them. `data/posthog.csv` is cached, never committed.
+
+Umami: make an API key (Umami Cloud or a self-hosted Umami: Settings > API keys) and add it as the secret
+`UMAMI_API_KEY`, and the website ID (Settings > Websites > Edit) as the variable `UMAMI_WEBSITE`. To hear when a
+sign-up stops arriving, set the variable `UMAMI_OPTIONS` to `--event signup` (up to eight custom events, named as
+Umami lists them under Events) and, if your dashboard is not on UTC, `--timezone Europe/Berlin`. For a self-hosted
+Umami add the variable `UMAMI_URL` (its https address). With no other source set, each run fetches `data/umami.csv`
+(`node umami-metrics.mjs --help`) and watches page views, visitors and each event. `data/umami.csv` is cached, never
+committed.
 
 Mixpanel: make a service account (Organization Settings > Service Accounts) with the Consumer role on the project and
 add `username:secret` as the secret `MIXPANEL_SERVICE_ACCOUNT`, and the project ID as the variable `MIXPANEL_PROJECT`.
