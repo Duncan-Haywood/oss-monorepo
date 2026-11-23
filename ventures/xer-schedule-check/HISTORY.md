@@ -52,3 +52,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-23) time impact analysis shipped 2026-11-20 (tia.mjs, --tia, page; eval/tia-check-2026-11-20.md)
 - (moved 2026-11-23) GAO-16-89G ten practices scorecard 2026-11-23 (gao.mjs, --gao, page, guide; eval/gao-check-2026-11-23.md: 129/129 planted)
 - (moved 2026-11-23) Drag, joint acceleration 2026-11-22 (crash.mjs, eval/crash-check-2026-11-22.md)
+- (moved 2026-11-23) (1,526/1,526 to the cent, MPXJ agrees; eval/expenses-2026-11-21.md)
+- (moved 2026-11-23) (tia.mjs Branch group/Branch/Probability, every outcome scheduled, eval/tia-branches-2026-11-22.md)
