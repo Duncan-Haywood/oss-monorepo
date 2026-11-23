@@ -410,7 +410,10 @@ export function planFill(idsText, model, opts = {}) {
         // (opts.geometry(e, name, qclass) -> SI value; geometry-quantities.mjs),
         // to six significant figures: the measurement is not finer than that.
         let geomTried = false;
-        if (text === undefined && (quantity || qtoAsProps) && opts.geometry) {
+        // Side areas are not measured into such a set: Tekla's stores both
+        // faces, 2.2% from twice the one face the Qto_ definition (and
+        // geometry) gives, so neither figure would match the file's other walls.
+        if (text === undefined && (quantity || (qtoAsProps && !/SideArea$/.test(pn))) && opts.geometry) {
           geomTried = true;
           const g = opts.geometry(e, pn, qclass);
           if (typeof g === "number" && Number.isFinite(g)) { text = String(Number(g.toPrecision(6))); source = "geometry"; }
