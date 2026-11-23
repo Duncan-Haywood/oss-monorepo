@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVMBRvnSafQrvWRTCN9",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T17:02:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aerolog-scaling milestone 11 paper step: related-work survey for the airspace paper (Before submission item 1)",
+  "projects": [
+    "aerolog-scaling"
+  ],
+  "pr": 18450,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "curl to api.crossref.org, openalex, semanticscholar, arxiv, NTRS, TU Delft repository: 403 from proxy; WebFetch: arxiv.org ENOTFOUND. Only WebSearch worked."
+  ],
+  "integrity_issues": [
+    "Found and corrected a misattribution carried since 11af: the 25 ft layer spacing was credited to Doole et al. DICUAM 2021; it is Doole et al., Aerospace 8(2):38, 2021. Paper and three experiment docstrings fixed; no numbers changed."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/aerolog-scaling/paper/airspace_layers.md",
+      "issue": "Introduction asserted novelty ('not aware of') before any literature search; a 2026 preprint (Yan et al.) and a DASC 2018 paper (McFadyen and Martin) are close. Novelty claims should wait for the survey."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Literature step done by web search only because every full-text host was refused; references are marked 'not opened' one by one rather than skipping the survey.",
+      "did": "search-excerpt survey with per-reference status",
+      "result": "novelty claim narrowed, one misattribution fixed, two close works found"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-aerolog-related-work-drone-layer-spacing.md"
+  ],
+  "goal": null,
+  "notes": "pick_track drew aerolog-scaling and flagged a 58-sub-step knob-turning chain; took the paper step instead. New Section 1.1 in paper/airspace_layers.md, 11 bib entries, tests/test_airspace_related_work.py (4 pass), check_airspace_numbers 299/299, homepage build ok, check_posts ok, check_md_links ok, project test suite run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}
