@@ -663,10 +663,12 @@ export const RULES = {
   "single-facility": ["error", "COBie expects exactly one Facility row"],
 };
 
+export const ruleText = (rule) => (Object.hasOwn(RULES, rule) ? RULES[rule][1] : rule);
+
 export function cobieQc(sheets, opts = {}) {
   const stage = opts.stage === "handover" ? "handover" : "design";
   const issues = [];
-  const push = (rule, sheet, r, field, value, detail = "") => issues.push({ rule, severity: RULES[rule][0], sheet, row: r ? r._row ?? null : null, name: r ? r.Name ?? r.Email ?? "" : "", field, value: value ?? "", detail });
+  const push = (rule, sheet, r, field, value, detail = "") => issues.push({ rule, severity: Object.hasOwn(RULES, rule) ? RULES[rule][0] : "error", sheet, row: r ? r._row ?? null : null, name: r ? r.Name ?? r.Email ?? "" : "", field, value: value ?? "", detail });
   const rows = (s) => sheets[s] || [];
   const allColumnWords = new Set(Object.values(COLUMNS).flat().map(squash));
 
@@ -770,7 +772,7 @@ export function qcText(qc, { examples = 3 } = {}) {
   }
   const order = [...groups.values()].sort((a, b) => (a.severity === b.severity ? b.n - a.n : a.severity === "error" ? -1 : 1));
   for (const g of order) {
-    lines.push(`${g.severity.toUpperCase()} ${g.sheet}.${g.field || "-"}: ${RULES[g.rule][1]} (${g.n} row${g.n === 1 ? "" : "s"})`);
+    lines.push(`${g.severity.toUpperCase()} ${g.sheet}.${g.field || "-"}: ${ruleText(g.rule)} (${g.n} row${g.n === 1 ? "" : "s"})`);
     for (const e of g.ex) lines.push(`    ${e.row ? "row " + e.row + " " : ""}${e.name ? JSON.stringify(e.name) : ""}${e.value !== "" ? " = " + JSON.stringify(e.value) : ""}${e.detail ? " (" + e.detail + ")" : ""}`);
   }
   if (!qc.issues.length) lines.push("No issues found.");

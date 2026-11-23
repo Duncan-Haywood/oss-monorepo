@@ -98,7 +98,7 @@
 </main>
 <script type="module">
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
-  import { cobieFromXlsx, cobieQc, qcText, RULES, SHEETS } from "./cobie.mjs";
+  import { cobieFromXlsx, cobieQc, qcText, ruleText, SHEETS } from "./cobie.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -187,7 +187,7 @@
     const order = [...groups.values()].sort((a, b) => (a.severity === b.severity ? b.n - a.n : a.severity === "error" ? -1 : 1));
     if (order.length) {
       h += `<div class="wrap"><table><thead><tr><th>Sheet.column</th><th>Problem</th><th>Rows</th><th>For example</th></tr></thead><tbody>`;
-      for (const g of order) h += `<tr><td><span class="${g.severity === "error" ? "err" : "warn"}">${esc(g.sheet)}.${esc(g.field || "-")}</span></td><td>${esc(RULES[g.rule][1])}</td><td>${g.n.toLocaleString("en-US")}</td><td>${g.ex.map((e) => `${e.row ? "row " + e.row + " " : ""}${esc(e.name)}${e.value !== "" ? " = <code>" + esc(e.value) + "</code>" : ""}`).join("<br>")}</td></tr>`;
+      for (const g of order) h += `<tr><td><span class="${g.severity === "error" ? "err" : "warn"}">${esc(g.sheet)}.${esc(g.field || "-")}</span></td><td>${esc(ruleText(g.rule))}</td><td>${g.n.toLocaleString("en-US")}</td><td>${g.ex.map((e) => `${e.row ? "row " + e.row + " " : ""}${esc(e.name)}${e.value !== "" ? " = <code>" + esc(e.value) + "</code>" : ""}`).join("<br>")}</td></tr>`;
       h += `</tbody></table></div>`;
     } else h += `<p class="ok">No issues found.</p>`;
     $("out").innerHTML = h;
