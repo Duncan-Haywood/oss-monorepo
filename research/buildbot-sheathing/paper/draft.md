@@ -937,6 +937,16 @@ of the grip range rather than centring them drops the 1.2 m pose and raises the 
 0.0959 N, cutting re-zeros from 71 to 33 per 1,000 sheets at 0.1 N/h with no extra moves; the H1 gains only at five
 stops (0.143 to 0.214 N). At 0.1 N/h and 15 s a re-zero the plan costs 0.91% (G1) and 0.26% (H1) of the sheet cycle;
 holding every nail at the best pose would pay only if a lift move took under 0.020 s.
+A linear drift is the optimistic case (milestone 73, offline). With the bias drift since the last re-zero
+d(E) = &rho;E u + &sigma;W(E), W a 3-D Brownian motion, a press's violation probability is a noncentral chi-square tail
+that never decreases in E. So a per-press risk &epsilon; is a deadline, and the greedy above stays optimal. Under a pure
+walk the deadline is (a / &sigma;q)<sup>2</sup>, quadratic in the allowance. Matched to the same one-hour reading
+D1 = 0.1 N, the schedule built as if the drift were linear fails the 100-sheet wall in 100% (G1) and 72% (H1) of
+4,000 paths. A union bound to a 1% wall risk needs 99 and 16 re-zeros against 7 and 2. A Monte Carlo-calibrated
+&epsilon; brings the H1 to 9 at 0.97% on fresh paths but leaves the G1 at 99. Its 1.2 m pose's deadline is 109 s
+against a 116 s sheet, and one step past it the failure is 11.0%. Starting the G1's bands at the bottom of the grip range
+cuts the count to 24 (75.8%, against 57.1% under linear drift), from 12.8% to 3.10% of the cycle at 15 s a re-zero.
+Holding every nail at the best pose would pay at 0.313 s a move (0.020 s under linear drift).
 
 ### 5.12 What the remedies cost (milestone 13)
 

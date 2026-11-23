@@ -86,6 +86,7 @@ M69 = E + "m69_tworef/results.txt"
 M70 = E + "m70_drift/results.txt"
 M71 = E + "m71_allowance/results.txt"
 M72 = E + "m72_rezero/results.txt"
+M73 = E + "m73_randomwalk/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -376,6 +377,13 @@ CHECKS = [
     (M72, "g1 | 0.1 | 76 | 71 | 71 | 33 | 29 | 14", "from 71 to 33 per 1,000 sheets"),
     (M72, "g1 | 0.1 | 0.35 s (0.30%) | 1.05 s (0.91%)", "0.91% (G1) and 0.26% (H1)"),
     (M72, "largest 0.020 s", "under 0.020 s"),
+    (M73, "G1 1.0000, H1 0.7200 -> held", "fails the 100-sheet wall in 100% (G1) and 72% (H1)"),
+    (M73, "g1 | LAYOUT | RW | 0.1 | 7 (1.0000) | 99 (0.0000) | 99", "needs 99 and 16 re-zeros against 7 and 2"),
+    (M73, "h1 | LAYOUT | RW | 0.1 | 2 (0.7200) | 16 (0.0000) | 9 (0.0097; 0.0097;", "brings the H1 to 9 at 0.97%"),
+    (M73, "75.8% (linear: 57.1%)", "(75.8%, against 57.1% under linear drift)"),
+    (M73, "LAYOUT 12.80%, BANDS 3.10%", "from 12.8% to 3.10% of the cycle"),
+    (M73, "g1 | RW | 0.1 | 46 | 0.313", "at 0.313 s a move"),
+    ("experiments/m73_randomwalk/scan.txt", "g1 LAYOUT 1.86e-03 66 0.10975", "the failure is 11.0%"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

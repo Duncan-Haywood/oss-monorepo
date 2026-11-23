@@ -943,6 +943,21 @@ Drift rate and re-zero time swept, not sourced; drift linear in time; statics.
 
 ![Re-zeros per 1,000 sheets against the drift rate for five plans, G1 and H1](experiments/m72_rezero/figure.png)
 
+**Milestone 73: is a re-zero schedule from an hour's drift reading safe when the force sensor's bias random-walks?**
+No. Offline, on milestone 72's 100-sheet wall, with the drift matched to the same one-hour reading (D1, swept, not
+sourced): **the linear schedule fails the wall in 100% (G1) and 72% (H1) of Monte Carlo paths** at D1 = 0.1 N when the
+bias random-walks (H289 held). A random walk outruns the straight line over any interval shorter than the reading. A
+per-press risk constraint gives each press a deadline that grows as **the allowance squared**, T = (a / &sigma;q)<sup>2</sup>,
+and milestone 72's greedy stays optimal for it (H288 held). Held to a 1% wall risk, the union bound needs 8 to 14 times
+the re-zeros (H290 held). Calibrating the risk level by Monte Carlo cuts the H1's count to 9 of 16, but not the G1's: its
+weak pose's deadline sits at the 116 s sheet period, so the failure jumps from 0% to 11% with no uniform level in between
+(H291 refuted). Because the allowance enters squared, **the G1's free lift-band offset now cuts re-zeros 76%** (99 to
+24; 57% under linear drift, H292 held), from 12.8% to 3.1% of the sheet cycle at 15 s a re-zero (H293 refuted in part).
+The practical advice: log the idle bias over several windows and check whether its spread grows as t or as &radic;t before
+building a schedule. Drift swept; isotropic Brownian walk; statics.
+
+![Re-zeros per 100 sheets under a random-walk bias: linear schedule against a 1% wall-risk schedule, G1 and H1](experiments/m73_randomwalk/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
