@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVMqTfYXWGCt9JZ8YfN",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled prompt)",
+  "input_sha256": "95d972968ce89715e6b7b6e8fe34d9c8cbcc66239140ee493d6850b8c971f87d",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T13:08:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18423,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Hearth & Horizon shelf had one proposal left and subjects.txt has 1 of 46 candidates unused; this run added one proposal (The fifth priest, Erlang C) but the subject list needs refilling."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB > 400 MB), so the story landed text only, as the prompt directs; no podcast option.",
+      "did": "text only",
+      "result": "story, pages and feeds generated; node --test 20/20"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (sci-fi shelf). Piece: the-hundredth-word (Zipf's law; Manx class in Peel, Lent 2067). Facts checked by web search: Bunscoill Ghaelgagh opened Sept 2001 (Douglas), moved to St John's Jan 2003; Ned Maddrell d. 1974; Yn Vible Casherick 1775, 2025 digital edition; Peel = Purt ny hInshey; lioar = book, muc = pig. Numbers recomputed in Python: Zipf s=1 V=20,000 coverage table; Easter 2067 = 3 April; Advent 2066 = 28 Nov so Year C. Adversarial re-read fixed: Luke 13 has no 'son'; 'nine in ten' -> 'eight in ten'; native-speaker overclaim; First Communion in Manx detail; token count 11 folded forms -> 162/212. Added BIBLE proposal 'The fifth priest' (Erlang C). Checks: node --test (hearth-and-horizon) 20 pass; check_post_frontmatter, check_post_links, check_posts, post_similarity clean.",
+  "corrections": [],
+  "redteam": null
+}
