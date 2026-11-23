@@ -2079,7 +2079,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
     demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes, half=settings.half)
-    noise = None
+    noise: "list[tuple[float, float]] | str | None" = None
     if demosaic == "noise-aware":
         noise = noise_profile_planes(ifd, ifd0)
         if noise is None and settings.noise_from_frame:
