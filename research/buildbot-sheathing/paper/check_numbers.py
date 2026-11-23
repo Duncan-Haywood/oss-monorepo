@@ -84,6 +84,7 @@ M68 = E + "m68_jgate/results.txt"
 M68D = E + "m68_jgate/diag.out"
 M69 = E + "m69_tworef/results.txt"
 M70 = E + "m70_drift/results.txt"
+M71 = E + "m71_allowance/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -364,6 +365,11 @@ CHECKS = [
     (M70, "g1 | 0.4 | 0.10 | 226 | 225 | 99 | 0.0404 | 225 | 99 | 0.0404 | 126 | 55.75 | 0 |", "passes 99 G1 and 32 H1 presses"),
     (M70, "h1 | 0.4 | 0.10 | 300 | 297 | 32 | 0.0309 | 297 | 32 | 0.0309 | 265 | 88.33 | 0 |", "88.3% and 25.3% on the H1"),
     (M70, "H274 (the drift gate keeps every passed press inside the spec, every B, delta, both robots): 0 over -> held", "passes none over spec at B = 0.3 and"),
+    (M71, "g1 | 15 | 702 | 1.27e-14", "predict the no-flip rows of every planned press to 1.3 &times;"),
+    (M71, "g1 | 0.9a | 234 | 234 | 0 | 0.0293 | 218 | 0 | 0.0293 | 213 | 0 | 213 (0.0270)", "none of 213 G1 and 291 H1 presses"),
+    (M71, "h1 | 1.1a | 304 | 295 | 295 | 0.0330 | 0 | 0 | 0.0000 | 290 | 290 | 0 (-)", "all 213 and 290 do at 1.1 a"),
+    (M71, "g1 | 117 | 8 | 0.0415 | 0.0439 | 0.1023 |", "median 0.102 N (G1) and 0.147 N (H1)"),
+    (M71, "g1 | 0.1 | 24.9 |", "re-zero within 25 minutes (G1) and 55 minutes (H1)"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
