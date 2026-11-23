@@ -46,7 +46,7 @@ def test_rescore_is_deterministic_and_compare_flags_a_changed_claim():
     assert [b[0] for b in evalpack.compare(d2, a)] == ["A"]
 
 
-def test_stiffer_gain_than_the_hand_set_one_changes_the_answer():
+def test_zero_gains_score_below_hand_set_gains():
     # the harness must be able to tell two skills apart: no gains at all cannot hold a sheet
     zero = good()
     zero["params"] = {"K": 1.0, "B": 0.0, "Ki": 0.0}
@@ -67,10 +67,24 @@ def test_published_files_load_and_claims_reproduce():
     for p in files:
         s = pack.load(p)
         if s["kind"] == "cohold-follow":
-            s2 = copy.deepcopy(s)
-            s2["scene"]["n_episodes"] = 200      # a quick consistency check; the full claim is re-scored by run.py
-            got = evalpack.rescore_follow(s2, ("A", "B"))
-            for k in got:
-                assert abs(got[k]["success"] - s["claimed"][k]["success"]) < 0.08
+            # full re-score at the stored seed and episode count, zero tolerance (quality round 103:
+            # a 200-episode redraw with 0.08 slack failed on cohold-follow-A and missed a seed+1 mutant)
+            assert evalpack.compare(s, evalpack.rescore_follow(s, ("A", "B"))) == [], p.name
         else:
             assert evalpack.compare(s, evalpack.rescore_nail(s)) == []
+
+
+def test_nail_claim_drift_is_caught():
+    s = pack.load(SKILLS / "sheathing-nail.json")
+    s["claimed"]["sheet_success"] += 0.01
+    assert evalpack.compare(s, evalpack.rescore_nail(s)) != []
+
+
+def test_mixed_skill_is_the_b_only_seed_3_winner():
+    # the README discloses that the worse-of-two search picked buildbot-skills' B_random seed 3;
+    # this keeps the disclosure true if experiments/run.py is re-run
+    rows = json.loads((SKILLS.parents[1] / "buildbot-skills" / "experiments" / "results.json").read_text())
+    rows = rows if isinstance(rows, list) else next(v for v in rows.values() if isinstance(v, list) and v and isinstance(v[0], dict) and "policy" in v[0])
+    b3 = next(r for r in rows if r.get("policy") == "B_random" and r.get("seed") == 3)
+    mixed = pack.load(SKILLS / "cohold-follow-mixed.json")["params"]
+    assert all(mixed[k] == pytest.approx(b3[k], rel=1e-12) for k in ("K", "B", "Ki"))
