@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Find Redundant Logic In A P6 Schedule</title>
+  <meta name="description" content="Find relationships in a P6 XER that another chain of links already implies, and download the file without them. Free, in your browser, no upload.">
+  <meta property="og:title" content="How To Find Redundant Logic In A P6 Schedule">
+  <meta property="og:description" content="Relationships another chain of links already implies can never drive. Find them in an XER and get the file back without them.">
+  <link rel="canonical" href="./how-to-find-redundant-logic-in-a-p6-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is redundant logic in a schedule?","acceptedAnswer":{"@type":"Answer","text":"A relationship that another chain of relationships already implies. If A is linked finish-to-start to B, and B to C, a third link from A to C adds nothing: C cannot start before A finishes either way. Whatever the durations become, the redundant link can never be the one that drives its successor."}},{"@type":"Question","name":"Is it safe to delete redundant relationships?","acceptedAnswer":{"@type":"Answer","text":"For the ones this tool marks sure, yes as far as dates go: on six public P6 files, deleting all of them at once changed no early or late date, no total float and no free float, with the file's durations and with five sets of random durations. Whether to delete is still the scheduler's call; some contracts or owners ask for links to stay as submitted."}},{"@type":"Question","name":"Does Primavera P6 show redundant links?","acceptedAnswer":{"@type":"Answer","text":"No. P6 shows driving and non-driving relationships for the current durations, which change every update. A non-driving link today may drive next month. A redundant link, in the sense used here, can never drive under any durations, which is what makes it safe to remove."}},{"@type":"Question","name":"Why does redundant logic matter in a schedule review?","acceptedAnswer":{"@type":"Answer","text":"It inflates the relationship count a DCMA or GAO reviewer reads as a well-linked network, it makes the driving path harder to trace by hand, and when the activity that carried the real logic is deleted in a later update, the redundant link silently becomes the only tie. Deltek Acumen Fuse reports it as a schedule quality metric."}},{"@type":"Question","name":"Is the file uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule is read and analysed in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to find redundant logic in a P6 schedule</h1>
+  <p>Schedules grow links. A scheduler ties each step of a fragnet to the step before and, to be safe, to the fragnet's start as well; a planner copies a block of activities with their links and then re-ties it. The result is relationships that say nothing the network does not already say: if A finishes before B starts and B finishes before C starts, a link from A to C cannot move C, whatever the durations become. Those links are redundant. Primavera P6 does not report them. The free tool here finds every one in an XER, shows the chain that makes it redundant, and gives you the file back without them.</p>
+  <p><a class="cta" href="./#redundant">Open the free schedule check</a> (open the XER, then press Find redundant logic)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the schedule from P6 as XER (File, Export, Primavera PM XER). A Microsoft Project XML file can be checked too, but only an XER can be downloaded back without the links.</li>
+    <li>Open it on the <a href="./">tool page</a>.</li>
+    <li>Under <b>Redundant logic</b>, press <b>Find redundant logic</b>. Each row is a relationship, its lag, and the other chain of links that already holds its successor at least as late.</li>
+    <li>Press <b>Download list (CSV)</b> for the full list with relationship IDs, or <b>Download XER without them</b> for the file less every link marked sure: every other line of the file is kept exactly as exported.</li>
+  </ol>
+  <h2>What it found on public schedules</h2>
+  <p>Measured on six P6 files published on GitHub (the project's <code>eval/redundant-logic-2026-11-23.md</code> names them):</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>File</th><th>Open links</th><th>Redundant</th></tr></thead>
+    <tbody>
+      <tr><td>A 16,000-activity programme (CCA)</td><td>35,272</td><td>12,285 (34.8%)</td></tr>
+      <tr><td>Hotel project</td><td>7,586</td><td>587 (7.7%)</td></tr>
+      <tr><td>Expressway project</td><td>1,094</td><td>52 (4.8%)</td></tr>
+      <tr><td>Airport terminal building</td><td>84</td><td>4 (4.8%)</td></tr>
+      <tr><td>Example file from a P6 analyzer</td><td>518</td><td>11 (2.1%)</td></tr>
+      <tr><td>Small sample file</td><td>41</td><td>0</td></tr>
+    </tbody>
+  </table></div>
+  <p>On the airport file, one of the four is <code>BA-P1-130 FS 24h BA-P2-140</code> (final backfill to columns): the chain through BA-P2-70, BA-P2-80 and BA-P2-90 already carries 120 hours of lag between the same two activities, so the 24-hour link can never decide when the columns start.</p>
+  <h2>How it is worked out</h2>
+  <p>Each activity is two events, its start and its finish, and its finish is never before its start (a duration can shrink to zero, never below). Each relationship says one event comes at least its lag after another: finish-to-start from finish to start, start-to-start from start to start, and so on. A link is redundant when another path between the same two events adds up to at least as much lag. Because that holds for any durations, deleting the link cannot change a date in this update or any later one. Lags are working hours on a calendar, so when the lags being compared sit on different calendars the link is marked <b>check</b>, not sure, and is not taken out of the downloaded file.</p>
+  <p>Links into work that has started, and paths through it, are left out: actual dates do not move. Level of effort and WBS summary activities are left out too, as they drive nothing. A link whose other path carries less lag is listed apart: its lag is the only thing holding that gap, so it stays.</p>
+  <h2>How it was tested</h2>
+  <p>On the six public files, every link marked sure was deleted at once and the schedule recomputed: no early or late date, total float or free float changed, on any activity, with the file's durations and with five sets of random durations (12,283 links deleted from the largest file, 15,849 activities compared each time). Deleting the lag-carrying links instead did move dates, so the comparison can see a change. Duplicate links and A-to-C links planted over A-to-B-to-C chains were found 20 times out of 20 in every file.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>Redundant is not the same as non-driving.</b> A link that does not drive today may drive next month. Only links that can never drive are listed.</li>
+    <li><b>Of two identical links, one is listed.</b> Deleting everything listed never deletes both copies.</li>
+    <li><b>Ask before deleting on a contract schedule.</b> Some specifications or owners want logic kept as submitted; the list is then a review comment, not an edit.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is redundant logic in a schedule?</h3>
+  <p>A relationship that another chain of relationships already implies. If A is linked finish-to-start to B, and B to C, a third link from A to C adds nothing: C cannot start before A finishes either way. Whatever the durations become, the redundant link can never be the one that drives its successor.</p>
+  <h3>Is it safe to delete redundant relationships?</h3>
+  <p>For the ones this tool marks sure, yes as far as dates go: on six public P6 files, deleting all of them at once changed no early or late date, no total float and no free float, with the file's durations and with five sets of random durations. Whether to delete is still the scheduler's call; some contracts or owners ask for links to stay as submitted.</p>
+  <h3>Does Primavera P6 show redundant links?</h3>
+  <p>No. P6 shows driving and non-driving relationships for the current durations, which change every update. A non-driving link today may drive next month. A redundant link, in the sense used here, can never drive under any durations, which is what makes it safe to remove.</p>
+  <h3>Why does redundant logic matter in a schedule review?</h3>
+  <p>It inflates the relationship count a DCMA or GAO reviewer reads as a well-linked network, it makes the driving path harder to trace by hand, and when the activity that carried the real logic is deleted in a later update, the redundant link silently becomes the only tie. Deltek Acumen Fuse reports it as a schedule quality metric.</p>
+  <h3>Is the file uploaded?</h3>
+  <p>No. The schedule is read and analysed in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+    <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
+      <li><a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">How to split concurrent delay between owner and contractor</a></li>
+</ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
