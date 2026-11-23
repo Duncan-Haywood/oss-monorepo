@@ -484,6 +484,20 @@ Allplan mass per metre 20 of 20, bending diameter 13 of 13, length 37 of 37,
 leg dimensions within 2 mm 30 of 33 (the misses are hook legs, measured
 differently). CLI `--rebar bars.csv`; page section "Bar schedule".
 
+**Hooks (2026-11-23, [eval/rebar-hooks-2026-11-23.md](eval/rebar-hooks-2026-11-23.md)).**
+Each end hook gets its angle and tail (the straight run past the bend, what a
+bending machine is set to) in the CSV and on the page. A hook is an end bend
+past 90 degrees on a short end leg, or an end the file names (Tekla
+HOOK_START_ANGLE / HOOK_END_ANGLE, the ISO/BS bending sets'
+BendingStartHook / EndHook). The file's two ends are matched to the drawn
+ends either way round, because Tekla's start is sometimes the drawn end. On
+four Tekla and Revit exports, 45 of 45 named hook angles agree with the bend
+drawn there (42 before the either-way match). A tail under ACI 318's
+minimum for a 180 degree hook (the larger of 4d and 65 mm) or a 135 degree
+stirrup hook (6d) is noted. Tekla's E = 64 mm on a 135 degree hook isn't the
+tail (48 mm), but it is what Tekla's DIM_L sums (A+B+C+D+2E = 1,688, so
+1,680). Revit's hook A is 4.5 in whatever the bar.
+
 ## Uniformat II elements
 
 Group by `uniformat` (level 3, e.g. `B2010 Exterior Walls`), `uniformat2`

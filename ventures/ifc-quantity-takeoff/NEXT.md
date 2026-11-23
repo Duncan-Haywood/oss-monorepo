@@ -45,7 +45,7 @@
 
 ## Bar schedule (landed 2026-11-22, eval/rebar-schedule-2026-11-22.md)
 
-- Hook legs as their own column, the way BS 8666 and Tekla give them (Tekla's stirrup F203_2: E = 64 mm, the straight part past the 135-degree bend; Revit's ISO shapes measure A another way): the 3 of 33 leg dimensions that miss.
+- (landed 2026-11-23, eval/rebar-hooks-2026-11-23.md) Hook angle and tail columns, the file's hook angles matched either way round (45 of 45), ACI 318 tail minimums for 135/180 degree hooks. Left: Tekla's E rule (64 mm on a 48 mm tail; needs a second 135 degree Tekla hook of another size or radius); Tekla HOOK_*_LENGTH when a file fills it; a minimum end projection for 90 degree hooks (Tekla mark 41's 7 mm end); BS 8666 codes for hooked links.
 - More BS 8666 shape codes than 00, 11 and 21 (links, cranks, hooks), each checked against a public bar the file codes; ACI 315 bend types for US models.
 - Bars drawn as meshes or breps (paireks/T-Rex's 44 Grasshopper bars, the Norwegian Tekla detail's brep): fit a centreline to the surface.
 - Tekla's DIM_L is the legs summed and rounded down to 10 mm: offer it as a second length column for Tekla projects that order by it.

@@ -5,7 +5,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseStep } from "./step.mjs";
 import { takeoff, rowQuantities } from "./qto.mjs";
-import { barShape, readBarProps, rebarSchedule, rebarCsv, massPerMetre, minBendRadius, toMm } from "./rebar.mjs";
+import { barShape, barHooks, minHookTail, readBarProps, rebarSchedule, rebarCsv, massPerMetre, minBendRadius, toMm } from "./rebar.mjs";
 import { trimPath, roundLoop } from "./geom.mjs";
 
 const file = (body, schema = "IFC2X3", unit = ".MILLI.") => `ISO-10303-21;HEADER;FILE_SCHEMA(('${schema}'));ENDSEC;DATA;
@@ -277,4 +277,79 @@ test("rebarCsv: a mark or member a spreadsheet would run as a formula is quoted 
   const line = { member: "=HYPERLINK(1)", mark: "-2", markFrom: "file", grade: "@x", size: 10, count: 1, length: 1, dims: [1], bends: [], shape: "straight", bs8666: "00", fileShape: null, totalLength: 1, mass: 0.6, author: { count: null, length: null, weight: null }, notes: [] };
   const csv = rebarCsv({ lines: [line], bySize: [], total: { bars: 1, length: 1, mass: 0.6 } }).split("\n")[1];
   assert.ok(csv.startsWith("'=HYPERLINK(1),-2,file,'@x,10,"), csv);
+});
+
+// Hooks: the tail is the straight run past an end bend over 90 degrees
+// (a Tekla stirrup's 135 degree hooks: 48 mm tails on an 8 mm bar, bent
+// round 36.3 mm on the centreline), and a file's hook angles are matched to
+// the drawn ends either way round.
+const arcSeg = (a, b, c, r, angle) => ({ kind: "arc", a, b, c, r, angle, n: [0, 0, 1], length: r * angle });
+const lineSeg = (a, b) => ({ kind: "line", a, b, length: Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) });
+
+test("barShape: an end bend past 90 degrees on a short leg is a hook, its tail the straight run past the bend", () => {
+  // 1 m along x, a 180 degree bend of 50 mm, 0.2 m back: the short end is the hook
+  const u = barShape({ radius: 0.005, segs: [
+    lineSeg([0, 0, 0], [1, 0, 0]), arcSeg([1, 0, 0], [1, 0.1, 0], [1, 0.05, 0], 0.05, Math.PI), lineSeg([1, 0.1, 0], [0.8, 0.1, 0]),
+  ] });
+  assert.equal(u.hooks.length, 1);
+  assert.equal(u.hooks[0].end, "end"); close(u.hooks[0].angle, 180, 1e-9); close(u.hooks[0].tail, 0.2, 1e-12); close(u.hooks[0].r, 0.05, 1e-12);
+  // a hairpin with legs of 1 m and 0.9 m has no hook
+  const hairpin = barShape({ radius: 0.005, segs: [
+    lineSeg([0, 0, 0], [1, 0, 0]), arcSeg([1, 0, 0], [1, 0.1, 0], [1, 0.05, 0], 0.05, Math.PI), lineSeg([1, 0.1, 0], [0.1, 0.1, 0]),
+  ] });
+  assert.deepEqual(hairpin.hooks, []);
+  // 90 degree bends are legs, not hooks, by geometry alone
+  const L = barShape({ radius: 0.005, segs: [lineSeg([0, 0, 0], [0.1, 0, 0]), lineSeg([0.1, 0, 0], [0.1, 1, 0])] });
+  assert.deepEqual(L.hooks, []);
+});
+
+test("barHooks: the file's hook angles, matched to the drawn ends either way round; 90 degree hooks the file names", () => {
+  // drawn: a 90 degree bend first (short leg 0.05), a 135 degree hook last (tail 0.048)
+  const b = { bends: [{ angle: 90, r: 0.036 }, { angle: 90, r: 0.02 }, { angle: 135, r: 0.036 }], legs: [0.048, 0.4, 0.3, 0.048], hooks: [{ end: "end", angle: 135, r: 0.036, tail: 0.048 }] };
+  // Tekla names 135 at its start and 90 at its end: its start is the drawn end
+  const { hooks, notes } = barHooks(b, { hookStart: 135, hookEnd: 90 });
+  assert.deepEqual(notes, []);
+  assert.deepEqual(hooks.map((h) => [h.end, h.angle, h.fileAngle, h.tail]), [["start", 90, 90, 0.048], ["end", 135, 135, 0.048]]);
+  // an angle no drawn end has is noted
+  const odd = barHooks({ bends: [{ angle: 90, r: 0.02 }], legs: [0.1, 1], hooks: [] }, { hookStart: 135 });
+  assert.equal(odd.notes.length, 1); assert.match(odd.notes[0], /names a 135 degree hook where the bar is drawn with a 90 degree bend/);
+  // a straight bar the file says is hooked
+  assert.match(barHooks({ bends: [], legs: [1], hooks: [] }, { hookEnd: 90 }).notes[0], /drawn straight/);
+});
+
+test("readBarProps: Tekla's hook labels and the ISO bending set's hook angles, in degrees whichever way they turn", () => {
+  const E = new Map();
+  const add = (id, type, args) => E.set(id, { id, type, args });
+  add(1, "IFCPROPERTYSINGLEVALUE", ["HOOK_START_ANGLE", null, { typed: "IFCLABEL", value: "-90.000" }, null]);
+  add(2, "IFCPROPERTYSINGLEVALUE", ["HOOK_END_ANGLE", null, { typed: "IFCLABEL", value: "135.000" }, null]);
+  add(3, "IFCPROPERTYSET", ["g", null, "Rebar_properties", null, [{ ref: 1 }, { ref: 2 }]]);
+  const t = readBarProps(E, [3]);
+  assert.equal(t.hookStart, 90); assert.equal(t.hookEnd, 135);
+  add(4, "IFCPROPERTYSINGLEVALUE", ["ISOCD3766BendingStartHook", null, { typed: "IFCPLANEANGLEMEASURE", value: 180 }, null]);
+  add(5, "IFCPROPERTYSINGLEVALUE", ["ISOCD3766BendingEndHook", null, { typed: "IFCPLANEANGLEMEASURE", value: Math.PI / 2 }, null]);
+  add(6, "IFCPROPERTYSET", ["h", null, "Rebar Shape", null, [{ ref: 4 }, { ref: 5 }]]);
+  const r = readBarProps(E, [6]);
+  assert.equal(r.hookStart, 180); close(r.hookEnd, 90, 1e-9);
+  assert.equal(readBarProps(E, []).hookStart, null);
+});
+
+test("minHookTail: ACI 318's straight extension past a 180 degree hook (4d, 65 mm) and a 135 degree stirrup hook (6d)", () => {
+  assert.equal(minHookTail(180, 12).min, 65);
+  assert.equal(minHookTail(180, 20).min, 80);
+  assert.equal(minHookTail(135, 8).min, 48);
+  assert.equal(minHookTail(90, 12), null);
+});
+
+test("rebarSchedule and rebarCsv: hook columns, and a 180 degree hook's short tail noted against ACI 318", () => {
+  const bar = barShape({ radius: 0.006, segs: [
+    lineSeg([0, 0, 0], [1, 0, 0]), arcSeg([1, 0, 0], [1, 0.1, 0], [1, 0.05, 0], 0.05, Math.PI), lineSeg([1, 0.1, 0], [0.952, 0.1, 0]),
+  ] }, 1, 0.012);
+  const rows = [{ id: 1, ifcType: "IFCREINFORCINGBAR", storey: "L1", bars: [bar], barProps: { diameterMm: 12, hookEnd: 180 } }];
+  const s = rebarSchedule(rows);
+  assert.deepEqual(s.lines[0].hooks.map((h) => [h.end, Math.round(h.angle), Math.round(h.tail * 1000), h.fileAngle]), [["end", 180, 48, 180]]);
+  assert.ok(s.lines[0].notes.some((n) => /end hook's tail 48 mm is under ACI 318's 65 mm/.test(n)), s.lines[0].notes.join("; "));
+  const csv = rebarCsv(s).split("\n");
+  const head = csv[0].split(","), cells = csv[1].split(",");
+  const at = (name) => cells[head.indexOf(name)];
+  assert.equal(at("Start hook (degrees)"), ""); assert.equal(at("End hook (degrees)"), "180"); assert.equal(at("End hook tail (mm)"), "48");
 });

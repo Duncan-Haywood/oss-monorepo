@@ -15,7 +15,7 @@ import { parseStep } from "../step.mjs";
 import { takeoff } from "../qto.mjs";
 import { rebarSchedule } from "../rebar.mjs";
 
-const tally = { files: 0, bars: 0, read: 0, lines: 0, count: [0, 0], position: [0, 0], weight: [0, 0], length: [0, 0], dims: [0, 0], mpm: [0, 0], mandrel: [0, 0] };
+const tally = { files: 0, bars: 0, read: 0, lines: 0, count: [0, 0], position: [0, 0], weight: [0, 0], length: [0, 0], dims: [0, 0], mpm: [0, 0], mandrel: [0, 0], hookAngle: [0, 0] };
 for (const p of process.argv.slice(2)) {
   const res = takeoff(parseStep(readFileSync(p)), { rooms: false });
   const bars = res.rows.filter((r) => /^IFCREINFORCINGBAR$/.test(r.ifcType));
@@ -60,8 +60,13 @@ for (const p of process.argv.slice(2)) {
       tally.dims[ok ? 0 : 1]++;
       out.push(`dims ${l.dims.map((x) => Math.round(x * 1000)).join("/")} vs ${Object.entries(a.dims).map(([k, v]) => k + "=" + Math.round(v)).join(" ")}${ok ? "" : " !"}`);
     }
+    // hooks: the file's named angle against the end bend drawn there
+    for (const h of l.hooks ?? []) {
+      if (h.fileAngle != null) { const ok = Math.abs(h.fileAngle - h.angle) <= 3; tally.hookAngle[ok ? 0 : 1]++; }
+    }
+    if (l.hooks?.length) out.push(`hooks ${l.hooks.map((h) => `${h.end} ${Math.round(h.angle)}deg tail ${Math.round(h.tail * 1000)}${h.fileAngle != null ? " (file " + Math.round(h.fileAngle) + ")" : ""}`).join(", ")}`);
     console.log(`  ${l.member} | ${l.mark} | ${l.size} mm x ${l.count} | ${Math.round(l.length * 1000)} mm | ${l.shape}${l.bs8666 ? " (" + l.bs8666 + ")" : ""} | file ${l.fileShape ?? "-"} | ${out.join("; ")}${l.notes.length ? " | " + l.notes.join("; ") : ""}`);
   }
 }
 const pc = ([a, b]) => `${a} of ${a + b}`;
-console.log(`\n${tally.files} files: ${tally.read} of ${tally.bars} bar elements read, ${tally.lines} schedule lines; agree with the file: bars in the group ${pc(tally.count)}, bars in the position ${pc(tally.position)}, mass ${pc(tally.weight)}, mass per metre ${pc(tally.mpm)}, bending diameter ${pc(tally.mandrel)}, length ${pc(tally.length)}, leg dimensions ${pc(tally.dims)}`);
+console.log(`\n${tally.files} files: ${tally.read} of ${tally.bars} bar elements read, ${tally.lines} schedule lines; agree with the file: bars in the group ${pc(tally.count)}, bars in the position ${pc(tally.position)}, mass ${pc(tally.weight)}, mass per metre ${pc(tally.mpm)}, bending diameter ${pc(tally.mandrel)}, length ${pc(tally.length)}, leg dimensions ${pc(tally.dims)}, hook angles named by the file ${pc(tally.hookAngle)}`);

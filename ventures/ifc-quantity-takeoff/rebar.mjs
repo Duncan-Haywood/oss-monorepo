@@ -65,7 +65,7 @@ function tangents(g) {
  * @param {{radius:number, segs:object[]}} bar  path3 pieces and the disk's radius, in model units
  * @param {number} f  metres per model unit
  * @param {number|null} nominal  the bar's nominal size in metres, which the leg dimensions are measured with (else the disk's diameter)
- * @returns {{d:number, length:number, legs:number[], bends:{angle:number, r:number|null, sharp:boolean}[], dims:number[], planar:boolean, closed:boolean, turn:number, shape:string, bs8666:string|null}}
+ * @returns {{d:number, length:number, legs:number[], bends:{angle:number, r:number|null, sharp:boolean}[], dims:number[], planar:boolean, closed:boolean, turn:number, shape:string, bs8666:string|null, hooks:{end:string, angle:number, r:number|null, tail:number}[]}}
  *   lengths in metres, angles in degrees; r is the centreline radius, null at a sharp corner
  */
 export function barShape(bar, f = 1, nominal = null) {
@@ -136,6 +136,16 @@ export function barShape(bar, f = 1, nominal = null) {
   const planar = ns.every((n) => Math.abs(dot(n, ns[0])) > 0.999);
   const first = segs[0]?.a, last = segs[segs.length - 1]?.b;
   const closed = turn >= 330 && first && last ? true : false;
+  // hooks: an end bend past 90 degrees whose end leg is at most half the leg
+  // on the bend's other side (so a hairpin's two equal legs are not hooks).
+  // Its tail is the straight run past the bend, the length a bending machine
+  // is set to; the leg dimension keeps the out-to-out figure.
+  const hooks = [];
+  const hookAt = (end, b, tail, other) => { if (b && b.angle > 91.5 && tail <= 0.5 * other) hooks.push({ end, angle: b.angle, r: b.r, tail }); };
+  if (bends.length) {
+    hookAt("start", bends[0], legs[0], legs[1]);
+    hookAt("end", bends[bends.length - 1], legs[legs.length - 1], legs[legs.length - 2]);
+  }
   const near = (a, b, tol = 1.5) => Math.abs(a - b) <= tol;
   let shape, bs8666 = null;
   if (!bends.length) { shape = "straight"; bs8666 = "00"; }
@@ -149,13 +159,68 @@ export function barShape(bar, f = 1, nominal = null) {
   } else shape = `${bends.length} bends${planar ? "" : ", not in one plane"}`;
   return {
     d: drawn, length, legs, bends: bends.map(({ angle, r, sharp }) => ({ angle, r, sharp })),
-    dims, planar, closed, turn, shape, bs8666,
+    dims, planar, closed, turn, shape, bs8666, hooks,
   };
 }
 
 // BS 8666:2020 Table 2: the minimum scheduling radius of a bend in a B500 bar,
 // to the inside of the bend: 2d up to 16 mm, 3.5d from 20 mm
 export const minBendRadius = (dmm) => (dmm <= 16 ? 2 : 3.5) * dmm;
+
+// ACI 318's shortest straight extension past a hook, mm: a 180 degree hook
+// the larger of 4d and 65 mm (2.5 in), a 135 degree stirrup or tie hook 6d.
+// Other angles (90 degree hooks differ by use: 12d to develop a bar, 6d on a
+// small stirrup) are not checked.
+export function minHookTail(angle, dmm) {
+  if (Math.abs(angle - 180) <= 3) return { min: Math.max(4 * dmm, 65), rule: "the larger of 4d and 65 mm for a 180 degree hook" };
+  if (Math.abs(angle - 135) <= 3) return { min: 6 * dmm, rule: "6d for a 135 degree stirrup or tie hook" };
+  return null;
+}
+
+/**
+ * A bar's hooks: those its geometry shows (an end bend past 90 degrees on a
+ * short end leg) and those the file names (Tekla's HOOK_START_ANGLE, the
+ * ISO/BS bending sets' BendingStartHook...), which may be 90 degrees. A
+ * file's start can be the drawn path's end (Tekla lists an L-bar's long leg
+ * as A and draws it last), so its two angles are matched to the drawn ends
+ * either way round: the way whose angles agree, else the way whose named
+ * hooks are the shorter legs. Ends are reported in the drawn path's order,
+ * the order of the leg dimensions.
+ * @returns {{hooks: {end:string, angle:number, r:number|null, tail:number|null, fileAngle:number|null}[], notes: string[]}}
+ */
+export function barHooks(b, p = {}) {
+  const hooks = [], notes = [];
+  const nb = b.bends?.length ?? 0;
+  const geo = {
+    start: nb ? { angle: b.bends[0].angle, r: b.bends[0].r, tail: b.legs?.[0] ?? null } : null,
+    end: nb ? { angle: b.bends[nb - 1].angle, r: b.bends[nb - 1].r, tail: b.legs?.[b.legs.length - 1] ?? null } : null,
+  };
+  const named = [p.hookStart ?? null, p.hookEnd ?? null];
+  const cost = (ends) => {
+    let miss = 0, tail = 0;
+    ends.forEach((e, i) => {
+      if (named[i] == null) return;
+      const g = geo[e];
+      if (!g) { miss++; return; }
+      if (Math.abs(named[i] - g.angle) > 3) miss++;
+      tail += g.tail ?? 0;
+    });
+    return [miss, tail];
+  };
+  const fwd = cost(["start", "end"]), rev = cost(["end", "start"]);
+  const flip = rev[0] < fwd[0] || (rev[0] === fwd[0] && rev[1] < fwd[1] - 1e-9);
+  const fileAt = flip ? { end: named[0], start: named[1] } : { start: named[0], end: named[1] };
+  for (const end of ["start", "end"]) {
+    const drawn = (b.hooks ?? []).find((h) => h.end === end);
+    const fileAngle = fileAt[end];
+    if (!drawn && fileAngle == null) continue;
+    if (!geo[end]) { notes.push(`the file names a ${Math.round(fileAngle)} degree hook; the bar is drawn straight`); continue; }
+    const h = drawn ? { ...drawn, fileAngle } : { end, ...geo[end], fileAngle };
+    hooks.push(h);
+    if (h.fileAngle != null && Math.abs(h.fileAngle - h.angle) > 3) notes.push(`the file names a ${Math.round(h.fileAngle)} degree hook where the bar is drawn with a ${Math.round(h.angle)} degree bend`);
+  }
+  return { hooks, notes };
+}
 
 // property names (lower case) each figure is read from, first found wins:
 // Tekla (Rebar_properties, Tekla Reinforcement - Bending List), Allplan
@@ -175,6 +240,12 @@ const NAMES = {
   massPerMetre: ["weight per meter", "weight per metre", "weight_per_meter"],
   bendingDiameter: ["bending diameter", "mandrel diameter"],
   member: ["cast_unit_pos", "cast unit mark", "assembly_pos"],
+  // the hook each end is drawn with, by angle (Tekla's labels, the ISO/BS
+  // bending sets' plane angles) and Tekla's hook length where it fills it
+  hookStart: ["hook_start_angle", "isocd3766bendingstarthook", "bs8666bendingstarthook", "din135610bendingstarthook", "becbendingstarthook"],
+  hookEnd: ["hook_end_angle", "isocd3766bendingendhook", "bs8666bendingendhook", "din135610bendingendhook", "becbendingendhook"],
+  hookStartLength: ["hook_start_length"],
+  hookEndLength: ["hook_end_length"],
 };
 const DIM_KEYS = ["a", "b", "c", "d", "e"];
 
@@ -218,6 +289,9 @@ export function readBarProps(E, psetIds) {
     if (v != null) dims[k.toUpperCase()] = v;
   }
   const member = pick(NAMES.member);
+  // a hook angle in degrees, whichever way it turns (Tekla writes -90); a
+  // figure of 2 pi or less is read as radians; 0 is no hook
+  const angle = (v) => { const x = numOr(v); if (x == null || x === 0) return null; const a = Math.abs(x); return a <= 2 * Math.PI + 1e-6 ? a * DEG : a; };
   return {
     mark, shape,
     count: numOr(pick(NAMES.count)),
@@ -229,6 +303,8 @@ export function readBarProps(E, psetIds) {
     massPerMetre: numOr(pick(NAMES.massPerMetre)),
     bendingDiameter: numOr(pick(NAMES.bendingDiameter)),
     member: member != null ? String(member).replace(/\(\?\)/, "").trim() || null : null,
+    hookStart: angle(pick(NAMES.hookStart)), hookEnd: angle(pick(NAMES.hookEnd)),
+    hookStartLength: numOr(pick(NAMES.hookStartLength)), hookEndLength: numOr(pick(NAMES.hookEndLength)),
     dims,
   };
 }
@@ -271,7 +347,7 @@ export function rebarSchedule(rows) {
         groups.set(sig, {
           member, mark: p.mark, markFrom: p.mark != null ? "file" : null, grade: p.grade ?? null, size: Math.round(dmm * 10) / 10,
           drawn: Math.round(b.d * 10000) / 10, count: 0, length: b.length, dims: b.dims, bends: b.bends, shape: b.shape, bs8666: b.bs8666,
-          fileShape: p.shape ?? null, closed: b.closed, planar: b.planar,
+          fileShape: p.shape ?? null, closed: b.closed, planar: b.planar, hooks: barHooks(b, p).hooks,
           author: { count: 0, length: p.lengthM ?? null, weight: 0, groups: new Set(), dims: p.dims ?? {}, massPerMetre: p.massPerMetre ?? null, bendingDiameter: p.bendingDiameter ?? null, positionCount: p.positionCount ?? null },
           elements: new Set(), notes: new Set(),
         });
@@ -288,6 +364,12 @@ export function rebarSchedule(rows) {
       const inside = b.bends.filter((x) => !x.sharp).map((x) => x.r * 1000 - dmm / 2);
       if (inside.some((x) => x < minBendRadius(dmm) * 0.95)) g.notes.add(`bend tighter than BS 8666's minimum ${minBendRadius(dmm)} mm inside radius for a ${dmm} mm bar`);
       if (b.bends.some((x) => x.sharp)) g.notes.add("a bend drawn as a sharp corner: its radius is not in the file");
+      const hk = barHooks(b, p);
+      for (const t of hk.notes) g.notes.add(t);
+      for (const h of hk.hooks) {
+        const m = h.tail != null ? minHookTail(h.angle, dmm) : null;
+        if (m && h.tail * 1000 < m.min - 0.5) g.notes.add(`${h.end} hook's tail ${r1(h.tail * 1000)} mm is under ACI 318's ${r1(m.min)} mm (${m.rule}); the note names the standard, not the project's code`);
+      }
       if (Math.abs(b.d * 1000 - dmm) > 0.05 * dmm) g.notes.add(`drawn ${Math.round(b.d * 10000) / 10} mm across; mass from the ${dmm} mm nominal size`);
     }
   }
@@ -303,7 +385,7 @@ export function rebarSchedule(rows) {
     const totalLength = g.length * g.count;
     return {
       member: g.member, mark: g.mark, markFrom: g.markFrom, grade: g.grade, size: g.size, count: g.count,
-      length: g.length, dims: g.dims, bends: g.bends.map((b) => ({ angle: b.angle, r: b.r })), shape: g.shape, bs8666: g.bs8666, fileShape: g.fileShape,
+      length: g.length, dims: g.dims, bends: g.bends.map((b) => ({ angle: b.angle, r: b.r })), shape: g.shape, bs8666: g.bs8666, fileShape: g.fileShape, hooks: g.hooks,
       totalLength, mass: totalLength * mpm, massPerMetre: mpm,
       author: { count: g.author.count, length: g.author.length, weight: g.author.weight || null, dims: g.author.dims, massPerMetre: g.author.massPerMetre, bendingDiameter: g.author.bendingDiameter, positionCount: g.author.positionCount },
       elements: [...g.elements], notes: [...g.notes],
@@ -335,13 +417,14 @@ const csvCell = (v) => {
  * @param {ReturnType<typeof rebarSchedule>} s
  */
 export function rebarCsv(s) {
-  const head = ["Member", "Bar mark", "Mark from", "Grade", "Size (mm)", "No. of bars", "Length of each bar (mm)", "Shape", "BS 8666 shape code", "File's shape code", "A (mm)", "B (mm)", "C (mm)", "D (mm)", "E (mm)", "More legs (mm)", "Bends (degrees)", "Total length (m)", "Mass (kg)", "File's no. of bars", "File's length (mm)", "File's weight (kg)", "Notes"];
+  const head = ["Member", "Bar mark", "Mark from", "Grade", "Size (mm)", "No. of bars", "Length of each bar (mm)", "Shape", "BS 8666 shape code", "File's shape code", "A (mm)", "B (mm)", "C (mm)", "D (mm)", "E (mm)", "More legs (mm)", "Bends (degrees)", "Start hook (degrees)", "Start hook tail (mm)", "End hook (degrees)", "End hook tail (mm)", "Total length (m)", "Mass (kg)", "File's no. of bars", "File's length (mm)", "File's weight (kg)", "Notes"];
   const lines = [head.join(",")];
   for (const l of s.lines) {
     const dims = l.dims.map((x) => r1(x * 1000));
     lines.push([
       l.member, l.mark, l.markFrom, l.grade, l.size, l.count, r1(l.length * 1000), l.shape, l.bs8666, l.fileShape,
       ...[0, 1, 2, 3, 4].map((i) => dims[i]), dims.slice(5).join(" "), l.bends.map((b) => Math.round(b.angle)).join(" "),
+      ...["start", "end"].flatMap((e) => { const h = (l.hooks ?? []).find((x) => x.end === e); return h ? [Math.round(h.angle), h.tail != null ? r1(h.tail * 1000) : ""] : ["", ""]; }),
       l.totalLength.toFixed(3), l.mass.toFixed(2), l.author.count, l.author.length != null ? r1(l.author.length * 1000) : "", l.author.weight != null ? l.author.weight.toFixed(2) : "",
       l.notes.join("; "),
     ].map(csvCell).join(","));
