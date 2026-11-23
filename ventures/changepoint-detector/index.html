@@ -367,7 +367,7 @@
       try {
         if (typeof Worker === "undefined") throw new Error("no workers");
         const k = Math.max(1, Math.min(tasks.length, navigator.hardwareConcurrency || 2));
-        for (let i = 0; i < k; i++) workers.push(new Worker("./consensus-worker.mjs", { type: "module" }));
+        for (let i = 0; i < k; i++) workers.push(takePanelWarm() || new Worker("./consensus-worker.mjs", { type: "module" }));
       } catch (e) { workers.forEach((w) => w.terminate()); return done(null); }
       const job = { id: Math.random(), workers, runs: cols.map(() => new Array(PANEL.length)), done: 0, next: 0 };
       columnJob = job;
@@ -410,6 +410,12 @@
     // a newer run stops an older panel. Without workers it runs here, on up to 2,000 points.
     const AGREED_SYNC_MAX = 2000;
     let agreedJob = null;
+    // One idle panel worker started with the main one (warmMain) and taken as the first worker of the
+    // first panel: a worker loads its modules from memory only once another with the same file has, so
+    // without it the first panel's workers each revalidate the whole graph, one after another.
+    let panelWarm = null;
+    function dropPanelWarm() { if (panelWarm) { panelWarm.terminate(); panelWarm = null; } }
+    function takePanelWarm() { const w = panelWarm; panelWarm = null; return w; }
     function stopAgreed() {
       if (agreedJob) { agreedJob.workers.forEach((w) => w.terminate()); agreedJob = null; }
     }
@@ -429,7 +435,7 @@
       try {
         if (typeof Worker === "undefined") throw new Error("no workers");
         const k = Math.max(1, Math.min(total - (pre ? 1 : 0), navigator.hardwareConcurrency || 2));
-        for (let i = 0; i < k; i++) workers.push(new Worker("./consensus-worker.mjs", { type: "module" }));
+        for (let i = 0; i < k; i++) workers.push(takePanelWarm() || new Worker("./consensus-worker.mjs", { type: "module" }));
       } catch (e) {
         workers.forEach((w) => w.terminate());
         if (n > AGREED_SYNC_MAX) { showAgreed(`not run on ${n} points in this browser (it has no background workers); the six-setting panel takes about five times the main analysis. The command line runs it with --consensus.`); return; }
@@ -784,6 +790,27 @@
     }
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    // Start the main worker while the page is idle, so the first press does not wait for it to load.
+    // A worker gets none of the page's modulepreload links: with every file served max-age=0,
+    // must-revalidate it revalidates ~30 modules one import level at a time (a chain 9 deep),
+    // 1.35 s of the first result at a 150 ms round trip against 0.07 s for the second
+    // (docs/history/changepoint-detector-page-perf-2026-11-23.md). A later worker with the same file
+    // loads from memory, so one idle panel worker is started too (panelWarm). A warm worker that fails
+    // to load is dropped; startMain and the panels then make their own, or run the job here.
+    function warmMain() {
+      if (mainWorker || typeof Worker === "undefined") return;
+      try {
+        const w = new Worker("./analyze-worker.mjs", { type: "module" });
+        w.onerror = (e) => { e.preventDefault(); if (mainWorker === w) { w.terminate(); mainWorker = null; } };
+        mainWorker = w;
+      } catch (e) { /* startMain tries again, or runs the job here */ }
+      try {
+        const pw = new Worker("./consensus-worker.mjs", { type: "module" });
+        pw.onerror = (e) => { e.preventDefault(); if (panelWarm === pw) dropPanelWarm(); };
+        panelWarm = pw;
+      } catch (e) { panelWarm = null; }
+    }
+    if ("requestIdleCallback" in window) requestIdleCallback(warmMain, { timeout: 2000 }); else setTimeout(warmMain, 500);
   </script>
 <script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("example");if(b)b.click();});</script>
 </body>
