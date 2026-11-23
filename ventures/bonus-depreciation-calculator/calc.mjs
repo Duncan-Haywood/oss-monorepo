@@ -189,7 +189,16 @@ export function compareDepreciationPaths({
   const bonus = usableDeduction(eligibleBasis, income);
   const bonusCashSavings = bonus.usable * rate;
 
-  const section179 = section179Outcome({ eligibleBasis, otherQualifyingPurchases, incomeBeforeDeduction: income, taxYear });
+  // At 50% or less business use no Section 179 election is allowed at all
+  // (Pub. 946 ch. 2), so nothing is elected or carried forward and the whole
+  // basis falls to bonus in this column. Red team 2026-11-23: the report used
+  // to say "not available" and then show a Section 179 carryforward.
+  const section179 = section179Outcome({
+    eligibleBasis: belowHalfBusinessUse ? 0 : eligibleBasis,
+    otherQualifyingPurchases,
+    incomeBeforeDeduction: income,
+    taxYear,
+  });
   // Basis the Section 179 election does not cover (above the limit after
   // phase-out) is not lost: bonus depreciation applies to the remaining
   // basis in the same year, after the 179 amount (IRC 168(k)(1)(A); Pub. 946
@@ -220,7 +229,7 @@ export function compareDepreciationPaths({
     findings.push({
       severity: 'high',
       title: 'Business use is at or below 50% -- Section 179 is not available',
-      detail: `At ${businessUse}% business use, no Section 179 election is allowed: it requires more than 50% business use in the year the property is placed in service (IRS Pub. 946, ch. 2), so ignore the Section 179 column. If this is listed property (a passenger vehicle or similar), 50% or less business use also rules out bonus depreciation and requires the straight-line Alternative Depreciation System (IRC 280F(b)(1)), which this calculator does not model. Other property keeps bonus depreciation and MACRS on its business-use share.`,
+      detail: `At ${businessUse}% business use, no Section 179 election is allowed: it requires more than 50% business use in the year the property is placed in service (IRS Pub. 946, ch. 2), so the Section 179 column elects nothing and shows bonus depreciation on the whole basis instead. If this is listed property (a passenger vehicle or similar), 50% or less business use also rules out bonus depreciation and requires the straight-line Alternative Depreciation System (IRC 280F(b)(1)), which this calculator does not model. Other property keeps bonus depreciation and MACRS on its business-use share.`,
     });
   }
 

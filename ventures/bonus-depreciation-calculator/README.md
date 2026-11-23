@@ -50,7 +50,9 @@ WCG's "Section 179 or Bonus Depreciation":
   For listed property such as a passenger vehicle, 50% or less business use
   also rules out bonus depreciation and requires the slower, straight-line
   Alternative Depreciation System (ADS) (IRC 280F(b)(1)); other property
-  keeps bonus depreciation on its business-use share.
+  keeps bonus depreciation on its business-use share. At 50% or less the
+  calculator's Section 179 column elects nothing (no election, no
+  carryforward) and shows bonus depreciation on the whole basis.
 
 ## Try it
 
