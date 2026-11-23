@@ -135,7 +135,7 @@ sentence was an open step, another a result whose "; next ..." step it would
 orphan. `history_candidates` now judges each sentence of an item and skips a
 result an open step follows (`item_results`, `leads_open`).
 
-`buildable:` had no such move. On 2026-11-23 seven of its nine rows sat at
+`buildable:` had no such move. On 2026-11-23 eight of its nine rows sat at
 523 to 596 of 600, much of it results ("all read, spent", "settled off",
 dated landings), and run records 2026-11-21..23 kept cutting their own new
 item to fit. `--field buildable --history TEXT` now moves the named span to
@@ -1159,9 +1159,9 @@ def _main(argv: list[str]) -> int:
                   f"{len(current)} characters", file=sys.stderr)
             return 0
         if args.history and args.field == "buildable" and not (args.park or args.make_room):
-            # `buildable:` sat at 523-596 of its 600 on 7 of 9 rows (2026-11-23),
+            # `buildable:` sat at 523-596 of its 600 on 8 of 9 rows (2026-11-23),
             # mostly results ("all read, spent", "settled off", dated landings),
-            # and 30+ run records 2026-11-21..23 cut their own new item to fit
+            # and over a dozen run records 2026-11-21..23 cut their own new item to fit
             # because --history refused this field. Same move as on `next:`.
             return buildable_history(args, text, current, mine)
         if args.park or args.make_room or args.history:
